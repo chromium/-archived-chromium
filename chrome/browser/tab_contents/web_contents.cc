@@ -17,6 +17,7 @@
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
+#include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/js_before_unload_handler.h"
 #include "chrome/browser/jsmessage_box_handler.h"
@@ -215,8 +216,6 @@ WebContents::WebContents(Profile* profile,
 }
 
 WebContents::~WebContents() {
-  if (web_app_.get())
-    web_app_->RemoveObserver(this);
   if (pending_install_.callback_functor)
     pending_install_.callback_functor->Cancel();
   NotificationService::current()->RemoveObserver(
@@ -327,15 +326,6 @@ void WebContents::Destroy() {
 
 SiteInstance* WebContents::GetSiteInstance() const {
   return render_manager_.current_host()->site_instance();
-}
-
-SkBitmap WebContents::GetFavIcon() {
-  if (web_app_.get() && IsWebApplicationActive()) {
-    SkBitmap app_icon = web_app_->GetFavIcon();
-    if (!app_icon.isNull())
-      return app_icon;
-  }
-  return TabContents::GetFavIcon();
 }
 
 std::wstring WebContents::GetStatusText() const {
@@ -497,23 +487,6 @@ HWND WebContents::GetContentHWND() {
 }
 void WebContents::GetContainerBounds(gfx::Rect *out) const {
   view_->GetContainerBounds(out);
-}
-
-void WebContents::SetWebApp(WebApp* web_app) {
-  if (web_app_.get()) {
-    web_app_->RemoveObserver(this);
-    web_app_->SetWebContents(NULL);
-  }
-
-  web_app_ = web_app;
-  if (web_app) {
-    web_app->AddObserver(this);
-    web_app_->SetWebContents(this);
-  }
-}
-
-bool WebContents::IsWebApplication() const {
-  return (web_app_.get() != NULL);
 }
 
 void WebContents::CreateShortcut() {
@@ -941,8 +914,6 @@ void WebContents::DidDownloadImage(
     fav_icon_helper_.FavIconDownloadFailed(id);
   else
     fav_icon_helper_.SetFavIcon(id, image_url, image);
-  if (web_app_.get() && !errored)
-    web_app_->SetImage(image_url, image);
 }
 
 void WebContents::RequestOpenURL(const GURL& url, const GURL& referrer,
@@ -1544,25 +1515,6 @@ void WebContents::UpdateWebPreferences() {
   render_view_host()->UpdateWebPreferences(GetWebkitPrefs());
 }
 
-bool WebContents::IsWebApplicationActive() const {
-  if (!web_app_.get())
-    return false;
-
-  // If we are inside an application, the application is always active. For
-  // example, this allows us to display the GMail icon even when we are bounced
-  // the login page.
-  if (delegate() && delegate()->IsApplication())
-    return true;
-
-  return (GetURL() == web_app_->url());
-}
-
-void WebContents::WebAppImagesChanged(WebApp* web_app) {
-  DCHECK(web_app == web_app_.get());
-  if (delegate() && IsWebApplicationActive())
-    delegate()->NavigationStateChanged(this, TabContents::INVALIDATE_FAVICON);
-}
-
 void WebContents::OnGearsCreateShortcutDone(
     const GearsShortcutData& shortcut_data, bool success) {
   NavigationEntry* current_entry = controller()->GetLastCommittedEntry();
@@ -1572,7 +1524,6 @@ void WebContents::OnGearsCreateShortcutDone(
   if (success && same_page) {
     // Only switch to app mode if the user chose to create a shortcut and
     // we're still on the same page that it corresponded to.
-    SetWebApp(new WebApp(profile(), shortcut_data));
     if (delegate())
       delegate()->ConvertContentsToApplication(this);
   }

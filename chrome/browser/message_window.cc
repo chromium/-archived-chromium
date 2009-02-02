@@ -209,7 +209,11 @@ LRESULT MessageWindow::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
       NOTREACHED();
       return TRUE;
     }
-    BrowserInit::ProcessCommandLine(cur_dir, prefs, false, profile, NULL);
+
+    // Run the browser startup sequence again, with the command line of the
+    // signalling process.
+    BrowserInit::ProcessCommandLine(parsed_command_line, cur_dir, prefs, false,
+                                    profile, NULL);
     return TRUE;
   }
   return TRUE;

@@ -547,7 +547,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (parameters.ui_task) {
     MessageLoopForUI::current()->PostTask(FROM_HERE, parameters.ui_task);
     RunUIMessageLoop(browser_process.get());
-  } else if (BrowserInit::ProcessCommandLine(std::wstring(), local_state, true,
+  } else if (BrowserInit::ProcessCommandLine(parsed_command_line,
+                                             std::wstring(), local_state, true,
                                              profile, &result_code)) {
     RunUIMessageLoop(browser_process.get());
   }

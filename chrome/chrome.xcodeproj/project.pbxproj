@@ -1503,12 +1503,6 @@
 		4D7BF9600E9D4839009A6919 /* visitedlink_master.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = visitedlink_master.h; sourceTree = "<group>"; };
 		4D7BF9610E9D4839009A6919 /* visitedlink_perftest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = visitedlink_perftest.cc; sourceTree = "<group>"; };
 		4D7BF9620E9D4839009A6919 /* visitedlink_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = visitedlink_unittest.cc; sourceTree = "<group>"; };
-		4D7BF9630E9D4839009A6919 /* web_app.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = web_app.cc; sourceTree = "<group>"; };
-		4D7BF9640E9D4839009A6919 /* web_app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = web_app.h; sourceTree = "<group>"; };
-		4D7BF9650E9D4839009A6919 /* web_app_icon_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = web_app_icon_manager.cc; sourceTree = "<group>"; };
-		4D7BF9660E9D4839009A6919 /* web_app_icon_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = web_app_icon_manager.h; sourceTree = "<group>"; };
-		4D7BF9670E9D4839009A6919 /* web_app_launcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = web_app_launcher.cc; sourceTree = "<group>"; };
-		4D7BF9680E9D4839009A6919 /* web_app_launcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = web_app_launcher.h; sourceTree = "<group>"; };
 		4D7BF9700E9D4839009A6919 /* window_sizer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = window_sizer.cc; sourceTree = "<group>"; };
 		4D7BF9710E9D4839009A6919 /* window_sizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = window_sizer.h; sourceTree = "<group>"; };
 		4D7BF9720E9D4839009A6919 /* window_sizer_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = window_sizer_unittest.cc; sourceTree = "<group>"; };
@@ -2680,12 +2674,6 @@
 				4D7BF9600E9D4839009A6919 /* visitedlink_master.h */,
 				4D7BF9610E9D4839009A6919 /* visitedlink_perftest.cc */,
 				4D7BF9620E9D4839009A6919 /* visitedlink_unittest.cc */,
-				4D7BF9630E9D4839009A6919 /* web_app.cc */,
-				4D7BF9640E9D4839009A6919 /* web_app.h */,
-				4D7BF9650E9D4839009A6919 /* web_app_icon_manager.cc */,
-				4D7BF9660E9D4839009A6919 /* web_app_icon_manager.h */,
-				4D7BF9670E9D4839009A6919 /* web_app_launcher.cc */,
-				4D7BF9680E9D4839009A6919 /* web_app_launcher.h */,
 				4D7BF9700E9D4839009A6919 /* window_sizer.cc */,
 				4D7BF9710E9D4839009A6919 /* window_sizer.h */,
 				4D7BF9720E9D4839009A6919 /* window_sizer_unittest.cc */,

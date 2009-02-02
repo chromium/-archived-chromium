@@ -309,17 +309,13 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
 }
 
 // static
-void Browser::OpenWebApplication(Profile* profile, WebApp* app) {
-#if defined(OS_WIN)
-  const std::wstring& app_name =
-      app->name().empty() ? ComputeApplicationNameFromURL(app->url()) :
-                            app->name();
+void Browser::OpenApplicationWindow(Profile* profile, const GURL& url) {
+  std::wstring app_name = ComputeApplicationNameFromURL(url);
   RegisterAppPrefs(app_name);
 
   Browser* browser = Browser::CreateForApp(app_name, profile);
-  browser->AddWebApplicationTab(profile, app, false);
+  browser->AddTabWithURL(url, GURL(), PageTransition::START_PAGE, true, NULL);
   browser->window()->Show();
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -488,32 +484,6 @@ TabContents* Browser::AddTabWithURL(
     contents->WasHidden();
   return contents;
 }
-
-#if defined(OS_WIN)
-
-TabContents* Browser::AddWebApplicationTab(Profile* profile,
-                                           WebApp* web_app,
-                                           bool lazy) {
-  DCHECK(web_app);
-
-  // TODO(acw): Do we need an "application launched" transition type?
-  // TODO(creis): Should we reuse the current instance (ie. process) here?
-  TabContents* contents =
-      CreateTabContentsForURL(web_app->url(), GURL(), profile,
-                              PageTransition::LINK, lazy, NULL);
-  WebContents* web_contents = contents->AsWebContents();
-  if (web_contents)
-    web_contents->SetWebApp(web_app);
-
-  if (lazy) {
-    contents->controller()->LoadURLLazily(
-        web_app->url(), GURL(), PageTransition::LINK, web_app->name(), NULL);
-  }
-  tabstrip_model_.AddTabContents(contents, -1, PageTransition::LINK, !lazy);
-  return contents;
-}
-
-#endif
 
 TabContents* Browser::AddTabWithNavigationController(
     NavigationController* ctrl, PageTransition::Type type) {
@@ -1832,19 +1802,12 @@ bool Browser::IsApplication() const {
 }
 
 void Browser::ConvertContentsToApplication(TabContents* contents) {
-  WebContents* web_contents = contents->AsWebContents();
-  if (!web_contents || !web_contents->web_app()) {
-    NOTREACHED();
-    return;
-  }
-
   int index = tabstrip_model_.GetIndexOfTabContents(contents);
   if (index < 0)
     return;
 
-  WebApp* app = web_contents->web_app();
-  const std::wstring& app_name = app->name().empty() ?
-      ComputeApplicationNameFromURL(app->url()) : app->name();
+  const GURL& url = contents->controller()->GetActiveEntry()->url();
+  std::wstring app_name = ComputeApplicationNameFromURL(url);
   RegisterAppPrefs(app_name);
 
   tabstrip_model_.DetachTabContentsAt(index);
@@ -2448,6 +2411,8 @@ void Browser::CloseFrame() {
   window_->Close();
 }
 
+#endif  // OS_WIN
+
 // static
 std::wstring Browser::ComputeApplicationNameFromURL(const GURL& url) {
   std::string t;
@@ -2479,5 +2444,3 @@ void Browser::RegisterAppPrefs(const std::wstring& app_name) {
 
   prefs->RegisterDictionaryPref(window_pref.c_str());
 }
-
-#endif  // OS_WIN

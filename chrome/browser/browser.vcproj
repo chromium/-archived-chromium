@@ -553,22 +553,6 @@
 				RelativePath=".\visitedlink_master.h"
 				>
 			</File>
-			<File
-				RelativePath=".\web_app.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_app.h"
-				>
-			</File>
-			<File
-				RelativePath=".\web_app_launcher.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_app_launcher.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Bookmarks"
@@ -791,14 +775,6 @@
 			</File>
 			<File
 				RelativePath=".\task_manager_resource_providers.h"
-				>
-			</File>
-			<File
-				RelativePath=".\web_app_icon_manager.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\web_app_icon_manager.h"
 				>
 			</File>
 			<File

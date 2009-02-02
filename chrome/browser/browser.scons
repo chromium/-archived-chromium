@@ -142,10 +142,6 @@ input_files = ChromeFileList([
     'user_data_manager.h',
     'visitedlink_master.cc',
     'visitedlink_master.h',
-    'web_app.cc',
-    'web_app.h',
-    'web_app_launcher.cc',
-    'web_app_launcher.h',
   ]),
   MSVSFilter('Bookmarks', [
     'bookmarks/bookmark_codec.cc',
@@ -202,8 +198,6 @@ input_files = ChromeFileList([
     'task_manager.h',
     'task_manager_resource_providers.cc',
     'task_manager_resource_providers.h',
-    'web_app_icon_manager.cc',
-    'web_app_icon_manager.h',
     'window_sizer.cc',
     'window_sizer.h',
   ]),
@@ -811,9 +805,6 @@ if not env.Bit('windows'):
       'toolbar_model.cc',
       'user_data_manager.cc',
       'views/download_tab_view.cc',
-      'web_app.cc',
-      'web_app_icon_manager.cc',
-      'web_app_launcher.cc',
       'window_sizer.cc',
   )
 

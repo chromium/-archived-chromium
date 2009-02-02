@@ -42,7 +42,6 @@ class PrefService;
 class Profile;
 class StatusBubble;
 class TabNavigation;
-class WebApp;
 
 class Browser : public TabStripModelDelegate,
                 public TabStripModelObserver,
@@ -124,8 +123,8 @@ class Browser : public TabStripModelDelegate,
   // |profile|, that session is re-used.
   static void OpenURLOffTheRecord(Profile* profile, const GURL& url);
 
-  // Opens the a new application window for the specified WebApp.
-  static void OpenWebApplication(Profile* profile, WebApp* app);
+  // Opens the a new application ("thin frame") window for the specified url.
+  static void OpenApplicationWindow(Profile* profile, const GURL& url);
 
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
@@ -191,13 +190,6 @@ class Browser : public TabStripModelDelegate,
       const GURL& url, const GURL& referrer,
       PageTransition::Type transition, bool foreground,
       SiteInstance* instance);
-
-  // Add a new application tab for the specified URL. If lazy is true, the tab
-  // won't be selected. Further, the initial web page load will only take place
-  // when the tab is first selected.
-  TabContents* AddWebApplicationTab(Profile* profile,
-                                    WebApp* web_app,
-                                    bool lazy);
 
   // Add a new tab, given a NavigationController. A TabContents appropriate to
   // display the last committed entry is created and returned.
@@ -537,6 +529,8 @@ class Browser : public TabStripModelDelegate,
   //             after a return to the message loop.
   void CloseFrame();
 
+#endif  // OS_WIN
+
   // Compute a deterministic name based on the URL. We use this pseudo name
   // as a key to store window location per application URLs.
   static std::wstring ComputeApplicationNameFromURL(const GURL& url);
@@ -544,8 +538,6 @@ class Browser : public TabStripModelDelegate,
   // Create a preference dictionary for the provided application name. This is
   // done only once per application name / per session.
   static void RegisterAppPrefs(const std::wstring& app_name);
-
-#endif  // OS_WIN
 
   // Data members /////////////////////////////////////////////////////////////
 

@@ -38,7 +38,6 @@
 #include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/web_app_launcher.h"
 #include "chrome/common/resource_bundle.h"
 
 #include "chromium_strings.h"
@@ -103,26 +102,26 @@ class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
   DISALLOW_COPY_AND_ASSIGN(SessionCrashedInfoBarDelegate);
 };
 
-void SetOverrideHomePage(PrefService* prefs) {
-  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+void SetOverrideHomePage(const CommandLine& command_line,
+                         PrefService* prefs) {
   // If homepage is specified on the command line, canonify & store it.
-  if (command_line->HasSwitch(switches::kHomePage)) {
+  if (command_line.HasSwitch(switches::kHomePage)) {
     std::wstring browser_directory;
     PathService::Get(base::DIR_CURRENT, &browser_directory);
     std::wstring new_homepage = URLFixerUpper::FixupRelativeFile(
         browser_directory,
-        command_line->GetSwitchValue(switches::kHomePage));
+        command_line.GetSwitchValue(switches::kHomePage));
     prefs->transient()->SetString(prefs::kHomePage, new_homepage);
     prefs->transient()->SetBoolean(prefs::kHomePageIsNewTabPage, false);
   }
 }
 
-SessionStartupPref GetSessionStartupPref(Profile* profile) {
-  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+SessionStartupPref GetSessionStartupPref(const CommandLine& command_line,
+                                         Profile* profile) {
   SessionStartupPref pref = SessionStartupPref::GetStartupPref(profile);
-  if (command_line->HasSwitch(switches::kRestoreLastSession))
+  if (command_line.HasSwitch(switches::kRestoreLastSession))
     pref.type = SessionStartupPref::LAST;
-  if (command_line->HasSwitch(switches::kIncognito) &&
+  if (command_line.HasSwitch(switches::kIncognito) &&
       pref.type == SessionStartupPref::LAST) {
     // We don't store session information when incognito. If the user has
     // chosen to restore last session and launched incognito, fallback to
@@ -143,8 +142,11 @@ bool BrowserInit::InProcessStartup() {
 
 // LaunchWithProfile ----------------------------------------------------------
 
-BrowserInit::LaunchWithProfile::LaunchWithProfile(const std::wstring& cur_dir)
-    : cur_dir_(cur_dir) {
+BrowserInit::LaunchWithProfile::LaunchWithProfile(
+    const std::wstring& cur_dir,
+    const CommandLine& command_line)
+        : cur_dir_(cur_dir),
+          command_line_(command_line) {
 }
 
 bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
@@ -152,19 +154,18 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
   DCHECK(profile);
   profile_ = profile;
 
-  const CommandLine* command_line = CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kDnsLogDetails))
+  if (command_line_.HasSwitch(switches::kDnsLogDetails))
     chrome_browser_net::EnableDnsDetailedLog(true);
-  if (command_line->HasSwitch(switches::kDnsPrefetchDisable))
+  if (command_line_.HasSwitch(switches::kDnsPrefetchDisable))
     chrome_browser_net::EnableDnsPrefetch(false);
 
-  if (command_line->HasSwitch(switches::kDumpHistogramsOnExit))
+  if (command_line_.HasSwitch(switches::kDumpHistogramsOnExit))
     StatisticsRecorder::set_dump_on_exit(true);
 
-  if (command_line->HasSwitch(switches::kRemoteShellPort)) {
+  if (command_line_.HasSwitch(switches::kRemoteShellPort)) {
     if (!RenderProcessHost::run_renderer_in_process()) {
       std::wstring port_str =
-          command_line->GetSwitchValue(switches::kRemoteShellPort);
+          command_line_.GetSwitchValue(switches::kRemoteShellPort);
       int64 port = StringToInt64(port_str);
       if (port > 0 && port < 65535) {
         g_browser_process->InitDebuggerWrapper(static_cast<int>(port));
@@ -174,90 +175,72 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     }
   }
 
-  if (command_line->HasSwitch(switches::kEnableFileCookies))
+  if (command_line_.HasSwitch(switches::kEnableFileCookies))
     net::CookieMonster::EnableFileScheme();
 
-  if (command_line->HasSwitch(switches::kUserAgent)) {
+  if (command_line_.HasSwitch(switches::kUserAgent)) {
 #if defined(OS_WIN)
     webkit_glue::SetUserAgent(WideToUTF8(
-        command_line->GetSwitchValue(switches::kUserAgent)));
+        command_line_.GetSwitchValue(switches::kUserAgent)));
     // TODO(port): hook this up when we bring in webkit.
 #endif
   }
 
-#ifndef NDEBUG
-  if (command_line->HasSwitch(switches::kApp))
-    NOTREACHED();
-#endif  // NDEBUG
-
-  std::vector<GURL> urls_to_open = GetURLsFromCommandLine(profile_);
-
-  Browser* browser = NULL;
-
-  // Always attempt to restore the last session. OpenStartupURLs only opens the
-  // home pages if no additional URLs were passed on the command line.
-  bool opened_startup_urls = OpenStartupURLs(process_startup, urls_to_open);
-
-  if (!opened_startup_urls) {
-    if (urls_to_open.empty()) {
-      urls_to_open.push_back(GURL());  // New tab page.
-      PrefService* prefs = g_browser_process->local_state();
-      if (prefs->IsPrefRegistered(prefs::kShouldShowWelcomePage) &&
-          prefs->GetBoolean(prefs::kShouldShowWelcomePage)) {
-        // Reset the preference so we don't show the welcome page next time.
-        prefs->ClearPref(prefs::kShouldShowWelcomePage);
-
-#if defined(OS_WIN)
-        // Add the welcome page.
-        std::wstring welcome_url = l10n_util::GetString(IDS_WELCOME_PAGE_URL);
-        urls_to_open.push_back(GURL(welcome_url));
-#else
-        // TODO(port): implement welcome page.
-        NOTIMPLEMENTED();
-#endif
-      }
-    } else {
-      browser = BrowserList::GetLastActive();
+  // Open the required browser windows and tabs.
+  // First, see if we're being run as a web application (thin frame window).
+  if (!OpenApplicationURL(profile)) {
+    std::vector<GURL> urls_to_open = GetURLsFromCommandLine(profile_);
+    // Always attempt to restore the last session. OpenStartupURLs only opens
+    // the home pages if no additional URLs were passed on the command line.
+    if (!OpenStartupURLs(process_startup, urls_to_open)) {
+      // Add the home page and any special first run URLs.
+      AddStartupURLs(&urls_to_open);
+      OpenURLsInBrowser(BrowserList::GetLastActive(), process_startup,
+                        urls_to_open);
     }
-
-    browser = OpenURLsInBrowser(browser, process_startup, urls_to_open);
   }
 
-  // It is possible to end here with a NULL 'browser'. For example if the user
-  // has tweaked the startup session restore preferences.
+  // If we're recording or playing back, startup the EventRecorder now
+  // unless otherwise specified.
+  if (!command_line_.HasSwitch(switches::kNoEvents)) {
+    std::wstring script_path;
+    PathService::Get(chrome::FILE_RECORDED_SCRIPT, &script_path);
 
-  if (browser) {
-    // If we're recording or playing back, startup the EventRecorder now
-    // unless otherwise specified.
-    if (!command_line->HasSwitch(switches::kNoEvents)) {
-      std::wstring script_path;
-      PathService::Get(chrome::FILE_RECORDED_SCRIPT, &script_path);
+    bool record_mode = command_line_.HasSwitch(switches::kRecordMode);
+    bool playback_mode = command_line_.HasSwitch(switches::kPlaybackMode);
 
-      bool record_mode = command_line->HasSwitch(switches::kRecordMode);
-      bool playback_mode = command_line->HasSwitch(switches::kPlaybackMode);
-
-      if (record_mode && chrome::kRecordModeEnabled)
-        base::EventRecorder::current()->StartRecording(script_path);
-      if (playback_mode)
-        base::EventRecorder::current()->StartPlayback(script_path);
-    }
+    if (record_mode && chrome::kRecordModeEnabled)
+      base::EventRecorder::current()->StartRecording(script_path);
+    if (playback_mode)
+      base::EventRecorder::current()->StartPlayback(script_path);
   }
 
   return true;
 }
 
+bool BrowserInit::LaunchWithProfile::OpenApplicationURL(Profile* profile) {
+  if (!command_line_.HasSwitch(switches::kApp))
+    return false;
+
+  GURL url(WideToUTF8(command_line_.GetSwitchValue(switches::kApp)));
+  if (!url.is_empty() && url.is_valid()) {
+    Browser::OpenApplicationWindow(profile, url);
+    return true;
+  }
+  return false;
+}
+
 bool BrowserInit::LaunchWithProfile::OpenStartupURLs(
     bool is_process_startup,
     const std::vector<GURL>& urls_to_open) {
-  const CommandLine* command_line = CommandLine::ForCurrentProcess();
-  SessionStartupPref pref = GetSessionStartupPref(profile_);
+  SessionStartupPref pref = GetSessionStartupPref(command_line_, profile_);
   switch (pref.type) {
     case SessionStartupPref::LAST:
       if (!is_process_startup)
         return false;
 
       if (!profile_->DidLastSessionExitCleanly() &&
-          !command_line->HasSwitch(switches::kRestoreLastSession)) {
+          !command_line_.HasSwitch(switches::kRestoreLastSession)) {
         // The last session crashed. It's possible automatically loading the
         // page will trigger another crash, locking the user out of chrome.
         // To avoid this, don't restore on startup but instead show the crashed
@@ -317,8 +300,7 @@ void BrowserInit::LaunchWithProfile::AddCrashedInfoBarIfNecessary(
 std::vector<GURL> BrowserInit::LaunchWithProfile::GetURLsFromCommandLine(
     Profile* profile) {
   std::vector<GURL> urls;
-  const CommandLine* command_line = CommandLine::ForCurrentProcess();
-  std::vector<std::wstring> params = command_line->GetLooseValues();
+  std::vector<std::wstring> params = command_line_.GetLooseValues();
   for (size_t i = 0; i < params.size(); ++i) {
     std::wstring& value = params[i];
     // Handle Vista way of searching - "? <search-term>"
@@ -346,14 +328,39 @@ std::vector<GURL> BrowserInit::LaunchWithProfile::GetURLsFromCommandLine(
   return urls;
 }
 
+void BrowserInit::LaunchWithProfile::AddStartupURLs(
+    std::vector<GURL>* startup_urls) const {
+  // Otherwise open at least the new tab page (and the welcome page, if this
+  // is the first time the browser is being started), or the set of URLs
+  // specified on the command line.
+  if (startup_urls->empty()) {
+    startup_urls->push_back(GURL());  // New tab page.
+    PrefService* prefs = g_browser_process->local_state();
+    if (prefs->IsPrefRegistered(prefs::kShouldShowWelcomePage) &&
+        prefs->GetBoolean(prefs::kShouldShowWelcomePage)) {
+      // Reset the preference so we don't show the welcome page next time.
+      prefs->ClearPref(prefs::kShouldShowWelcomePage);
+
+#if defined(OS_WIN)
+      // Add the welcome page.
+      std::wstring welcome_url = l10n_util::GetString(IDS_WELCOME_PAGE_URL);
+      startup_urls->push_back(GURL(welcome_url));
+#else
+      // TODO(port): implement welcome page.
+      NOTIMPLEMENTED();
+#endif
+    }
+  }
+}
+
 bool BrowserInit::ProcessCommandLine(
-    const std::wstring& cur_dir, PrefService* prefs, bool process_startup,
-    Profile* profile, int* return_code) {
+    const CommandLine& command_line, const std::wstring& cur_dir,
+    PrefService* prefs, bool process_startup, Profile* profile,
+    int* return_code) {
   DCHECK(profile);
-  const CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (process_startup) {
     const std::wstring popup_count_string =
-        command_line->GetSwitchValue(switches::kOmniBoxPopupCount);
+        command_line.GetSwitchValue(switches::kOmniBoxPopupCount);
     if (!popup_count_string.empty()) {
       int count = 0;
       if (StringToInt(popup_count_string, &count)) {
@@ -363,11 +370,11 @@ bool BrowserInit::ProcessCommandLine(
       }
     }
 
-    if (command_line->HasSwitch(switches::kDisablePromptOnRepost))
+    if (command_line.HasSwitch(switches::kDisablePromptOnRepost))
       NavigationController::DisablePromptOnRepost();
 
     const std::wstring tab_count_string =
-        command_line->GetSwitchValue(switches::kTabCountToLoadOnSessionRestore);
+        command_line.GetSwitchValue(switches::kTabCountToLoadOnSessionRestore);
     if (!tab_count_string.empty()) {
       int count = 0;
       if (StringToInt(tab_count_string, &count)) {
@@ -378,9 +385,9 @@ bool BrowserInit::ProcessCommandLine(
     
 #if defined(OS_WIN)
     // Look for the testing channel ID ONLY during process startup
-    if (command_line->HasSwitch(switches::kTestingChannelID)) {
+    if (command_line.HasSwitch(switches::kTestingChannelID)) {
       std::wstring testing_channel_id =
-          command_line->GetSwitchValue(switches::kTestingChannelID);
+          command_line.GetSwitchValue(switches::kTestingChannelID);
       // TODO(sanjeevr) Check if we need to make this a singleton for
       // compatibility with the old testing code
       // If there are any loose parameters, we expect each one to generate a
@@ -388,27 +395,27 @@ bool BrowserInit::ProcessCommandLine(
       CreateAutomationProvider<TestingAutomationProvider>(
           testing_channel_id,
           profile,
-          std::max(static_cast<int>(command_line->GetLooseValues().size()),
+          std::max(static_cast<int>(command_line.GetLooseValues().size()),
                    1));
     }
 #endif
   }
 
   // Allow the command line to override the persisted setting of home page.
-  SetOverrideHomePage(profile->GetPrefs());
+  SetOverrideHomePage(command_line, profile->GetPrefs());
 
-  if (command_line->HasSwitch(switches::kBrowserStartRenderersManually))
+  if (command_line.HasSwitch(switches::kBrowserStartRenderersManually))
     prefs->transient()->SetBoolean(prefs::kStartRenderersManually, true);
 
   bool silent_launch = false;
 #if defined(OS_WIN)
-  if (command_line->HasSwitch(switches::kAutomationClientChannelID)) {
+  if (command_line.HasSwitch(switches::kAutomationClientChannelID)) {
     std::wstring automation_channel_id =
-        command_line->GetSwitchValue(switches::kAutomationClientChannelID);
+        command_line.GetSwitchValue(switches::kAutomationClientChannelID);
     // If there are any loose parameters, we expect each one to generate a
     // new tab; if there are none then we have no tabs
     size_t expected_tabs =
-        std::max(static_cast<int>(command_line->GetLooseValues().size()),
+        std::max(static_cast<int>(command_line.GetLooseValues().size()),
                  0);
     if (expected_tabs == 0)
       silent_launch = true;
@@ -421,9 +428,9 @@ bool BrowserInit::ProcessCommandLine(
   // TODO(port): figure out why this call crashes.
 #endif
 
-  if (command_line->HasSwitch(switches::kInstallExtension)) {
+  if (command_line.HasSwitch(switches::kInstallExtension)) {
     std::wstring path_string =
-        command_line->GetSwitchValue(switches::kInstallExtension);
+        command_line.GetSwitchValue(switches::kInstallExtension);
     FilePath path = FilePath::FromWStringHack(path_string);
     profile->GetExtensionsService()->InstallExtension(path);
     silent_launch = true;
@@ -431,16 +438,19 @@ bool BrowserInit::ProcessCommandLine(
 
   // If we don't want to launch a new browser window or tab (in the case
   // of an automation request), we are done here.
-  if (!silent_launch)
-    return LaunchBrowser(profile, cur_dir, process_startup, return_code);
+  if (!silent_launch) {
+    return LaunchBrowser(command_line, profile, cur_dir, process_startup,
+                         return_code);
+  }
   return true;
 }
   
-bool BrowserInit::LaunchBrowser(Profile* profile, const std::wstring& cur_dir,
+bool BrowserInit::LaunchBrowser(const CommandLine& command_line,
+                                Profile* profile, const std::wstring& cur_dir,
                                 bool process_startup, int* return_code) {
   in_startup = process_startup;
-  bool result = LaunchBrowserImpl(profile, cur_dir, process_startup,
-                                  return_code);
+  bool result = LaunchBrowserImpl(command_line, profile, cur_dir,
+                                  process_startup, return_code);
   in_startup = false;
   return result;
 }
@@ -461,40 +471,23 @@ void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
 }
 #endif
 
-bool BrowserInit::LaunchBrowserImpl(Profile* profile,
+bool BrowserInit::LaunchBrowserImpl(const CommandLine& command_line,
+                                    Profile* profile,
                                     const std::wstring& cur_dir,
                                     bool process_startup,
                                     int* return_code) {
   DCHECK(profile);
   
-  const CommandLine* command_line = CommandLine::ForCurrentProcess();
-
   // Continue with the off-the-record profile from here on if --incognito
-  if (command_line->HasSwitch(switches::kIncognito))
+  if (command_line.HasSwitch(switches::kIncognito))
     profile = profile->GetOffTheRecordProfile();
 
-  // Are we starting an application?
-  std::wstring app_url = command_line->GetSwitchValue(switches::kApp);
-  if (!app_url.empty()) {
-    GURL url(WideToUTF8(app_url));
-    // If the application is started for a mailto:url, this machine has some
-    // old configuration that we should ignore. This hack saves us from some
-    // infinite loops where we keep forwarding mailto: to the system, resulting
-    // in the system asking us to open the mailto app.
-    if (url.SchemeIs("mailto"))
-      url = GURL("about:blank");
-
-    WebAppLauncher::Launch(profile, url);
-    return true;
-  }
-
-  LaunchWithProfile lwp(cur_dir);
+  LaunchWithProfile lwp(cur_dir, command_line);
   bool launched = lwp.Launch(profile, process_startup);
   if (!launched) {
     LOG(ERROR) << "launch error";
-    if (return_code != NULL) {
+    if (return_code != NULL)
       *return_code = ResultCodes::INVALID_CMDLINE_URL;
-    }
     return false;
   }
 

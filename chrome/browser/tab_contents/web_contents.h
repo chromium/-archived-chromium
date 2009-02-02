@@ -12,7 +12,7 @@
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/web_app.h"
+#include "chrome/common/gears_api.h"
 
 class AutofillManager;
 class InterstitialPageDelegate;
@@ -32,8 +32,7 @@ class WaitableEvent;
 class WebContents : public TabContents,
                     public RenderViewHostDelegate,
                     public RenderViewHostManager::Delegate,
-                    public SelectFileDialog::Listener,
-                    public WebApp::Observer {
+                    public SelectFileDialog::Listener {
  public:
   // If instance is NULL, then creates a new process for this view.  Otherwise
   // initialize with a process already created for a different WebContents.
@@ -88,7 +87,6 @@ class WebContents : public TabContents,
   virtual void Destroy();
   virtual WebContents* AsWebContents() { return this; }
   virtual SiteInstance* GetSiteInstance() const;
-  virtual SkBitmap GetFavIcon();
   virtual std::wstring GetStatusText() const;
   virtual bool NavigateToPendingEntry(bool reload);
   virtual void Stop();
@@ -112,13 +110,6 @@ class WebContents : public TabContents,
   virtual void GetContainerBounds(gfx::Rect *out) const;
 
   // Web apps ------------------------------------------------------------------
-
-  // Sets the WebApp for this WebContents.
-  void SetWebApp(WebApp* web_app);
-  WebApp* web_app() { return web_app_.get(); }
-
-  // Return whether this tab contents was created to contain an application.
-  bool IsWebApplication() const;
 
   // Tell Gears to create a shortcut for the current page.
   void CreateShortcut();
@@ -431,17 +422,6 @@ class WebContents : public TabContents,
   // Send webkit specific settings to the renderer.
   void UpdateWebPreferences();
 
-  // Return whether the optional web application is active for the current URL.
-  // Call this method to check if web app properties are in effect.
-  //
-  // Note: This method should be used for presentation but not security. The app
-  // is always active if the containing window is a web application.
-  bool IsWebApplicationActive() const;
-
-  // WebApp::Observer method. Invoked when the set of images contained in the
-  // web app changes. Notifies the delegate our favicon has changed.
-  virtual void WebAppImagesChanged(WebApp* web_app);
-
   // Called when the user dismisses the shortcut creation dialog.  'success' is
   // true if the shortcut was created.
   void OnGearsCreateShortcutDone(const GearsShortcutData& shortcut_data,
@@ -565,9 +545,6 @@ class WebContents : public TabContents,
   // The current load state and the URL associated with it.
   net::LoadState load_state_;
   std::wstring load_state_host_;
-
-  // Non-null if we're displaying content for a web app.
-  scoped_refptr<WebApp> web_app_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContents);
 };

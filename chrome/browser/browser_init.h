@@ -11,6 +11,7 @@
 #include "base/basictypes.h"
 
 class Browser;
+class CommandLine;
 class GURL;
 class PrefService;
 class Profile;
@@ -30,7 +31,8 @@ class BrowserInit {
 
   class LaunchWithProfile {
    public:
-    explicit LaunchWithProfile(const std::wstring& cur_dir);
+    LaunchWithProfile(const std::wstring& cur_dir,
+                      const CommandLine& command_line);
     ~LaunchWithProfile() { }
 
     // Creates the necessary windows for startup. Returns true on success,
@@ -40,6 +42,12 @@ class BrowserInit {
     bool Launch(Profile* profile, bool process_startup);
 
    private:
+    // If the process was launched with the web application command line flag,
+    // e.g. --app=http://www.google.com/, opens a web application browser and
+    // returns true. If there is no web application command line flag speciifed,
+    // returns false to specify default processing.
+    bool OpenApplicationURL(Profile* profile);
+
     // Does the following:
     // . If the user's startup pref is to restore the last session (or the
     //   command line flag is present to force using last session), it is
@@ -67,7 +75,11 @@ class BrowserInit {
     // vector is empty if the user didn't specify any URLs on the command line.
     std::vector<GURL> GetURLsFromCommandLine(Profile* profile);
 
+    // Adds additional startup URLs to the specified vector.
+    void AddStartupURLs(std::vector<GURL>* startup_urls) const;
+
     std::wstring cur_dir_;
+    const CommandLine& command_line_;
     Profile* profile_;
 
     DISALLOW_COPY_AND_ASSIGN(LaunchWithProfile);
@@ -75,16 +87,19 @@ class BrowserInit {
 
   // This function performs command-line handling and is invoked when
   // process starts as well as when we get a start request from another
-  // process (via the WM_COPYDATA message). The process_startup flag
-  // indicates if this is being called from the process startup code or
-  // the WM_COPYDATA handler.
-  static bool ProcessCommandLine(const std::wstring& cur_dir,
+  // process (via the WM_COPYDATA message). |command_line| holds the command
+  // line we need to process - either from this process or from some other one
+  // (if |process_startup| is true and we are being called from
+  //  MessageWindow::OnCopyData).
+  static bool ProcessCommandLine(const CommandLine& command_line,
+                                 const std::wstring& cur_dir,
                                  PrefService* prefs, bool process_startup,
                                  Profile* profile, int* return_code);
 
   // Helper function to launch a new browser based on command-line arguments
   // This function takes in a specific profile to use.
-  static bool LaunchBrowser(Profile* profile, const std::wstring& cur_dir,
+  static bool LaunchBrowser(const CommandLine& command_line,
+                            Profile* profile, const std::wstring& cur_dir,
                             bool process_startup, int* return_code);
 
 #if defined(OS_WIN)
@@ -96,7 +111,8 @@ class BrowserInit {
 
  private:
   // Does the work of LaunchBrowser returning the result.
-  static bool LaunchBrowserImpl(Profile* profile, const std::wstring& cur_dir,
+  static bool LaunchBrowserImpl(const CommandLine& command_line,
+                                Profile* profile, const std::wstring& cur_dir,
                                 bool process_startup, int* return_code);
 
   // This class is for scoping purposes.
