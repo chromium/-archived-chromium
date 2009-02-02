@@ -342,6 +342,8 @@ DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
+LINUX : LayoutTests/fast/transforms/transform-on-inline.html = FAIL
+LINUX : LayoutTests/fast/transforms/transform-table-row.html = FAIL
 DEFER MAC : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
@@ -1780,8 +1782,6 @@ LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
 LayoutTests/http/tests/history/redirect-303.pl = FAIL
 
 // Merge 40314:40364 -- new tests
-LINUX WIN : LayoutTests/fast/transforms/transform-on-inline.html = FAIL
-LINUX WIN : LayoutTests/fast/transforms/transform-table-row.html = FAIL
 LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 
 // Started failng at build 1379 (r8741).  passes locally
