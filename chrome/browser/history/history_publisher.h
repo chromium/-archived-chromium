@@ -48,27 +48,27 @@ class HistoryPublisher {
     const char* thumbnail_format;
     const std::vector<unsigned char>* thumbnail;
   };
+
   void PublishDataToIndexers(const PageData& page_data) const;
+
+#if defined(OS_WIN)
+  // Initializes the indexer_list_ with the list of indexers that registered
+  // with us to index history. Returns true if there are any registered.
+  bool ReadRegisteredIndexersFromRegistry();
 
   // Converts time represented by the Time class object to variant time in UTC.
   // Returns '0' if the time object is NULL.
   static double TimeToUTCVariantTime(const base::Time& time);
 
-  // Initializes the indexer_list_ with the list of indexers that registered
-  // with us to index history. Returns true if there are any registered.
-  bool ReadRegisteredIndexersFromRegistry();
-
- private:
-#if defined(OS_WIN)
   typedef std::vector<CComPtr<IChromeHistoryIndexer> > IndexerList;
 
   // The list of indexers registered to receive history data from us.
   IndexerList indexers_;
-#endif
 
   // The Registry key under HKCU where the indexers need to register their
   // CLSID.
   static const wchar_t* kRegKeyRegisteredIndexersInfo;
+#endif
 
   // The format of the thumbnail we pass to indexers.
   static const char* kThumbnailImageFormat;

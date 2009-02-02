@@ -49,7 +49,7 @@ class TextDatabaseManagerTest : public testing::Test {
   void TearDown() {
     file_util::Delete(dir_, true);
   }
-  
+
   MessageLoop message_loop_;
 
   // Directory containing the databases.
@@ -340,21 +340,21 @@ TEST_F(TextDatabaseManagerTest, PartialComplete) {
   QueryOptions options;
   std::vector<TextDatabase::Match> results;
   manager.GetTextMatches(L"unique", options, &results, &first_time_searched);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
   manager.GetTextMatches(L"chocolate", options, &results, &first_time_searched);
-  EXPECT_EQ(0, results.size());
+  EXPECT_EQ(0U, results.size());
 
   // Now add the body, which should be queryable.
   manager.AddPageContents(url, L"Very awesome body");
   manager.GetTextMatches(L"awesome", options, &results, &first_time_searched);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
 
   // Adding the body will actually copy the title from the URL table rather
   // than the previously indexed row (we made them not match above). This isn't
   // necessarily what we want, but it's how it's implemented, and we don't want
   // to regress it.
   manager.GetTextMatches(L"chocolate", options, &results, &first_time_searched);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
 }
 
 // Tests that changes get properly committed to disk.

@@ -77,7 +77,7 @@ class StarredURLDatabaseTest : public testing::Test,
         FILE_PATH_LITERAL("History_with_empty_starred"));
     file_util::CopyFile(old_history_path, db_file_);
 
-    EXPECT_EQ(SQLITE_OK, 
+    EXPECT_EQ(SQLITE_OK,
         sqlite3_open(WideToUTF8(db_file_.ToWStringHack()).c_str(), &db_));
     statement_cache_ = new SqliteStatementCache(db_);
 
@@ -108,7 +108,7 @@ class StarredURLDatabaseTest : public testing::Test,
 //-----------------------------------------------------------------------------
 
 TEST_F(StarredURLDatabaseTest, FixOrphanedGroup) {
-  const size_t initial_count = GetStarredEntryCount();
+  const int initial_count = GetStarredEntryCount();
 
   // Create a group that isn't parented to the other/bookmark folders.
   StarredEntry g_entry;
@@ -130,19 +130,19 @@ TEST_F(StarredURLDatabaseTest, FixOrphanedGroup) {
 }
 
 TEST_F(StarredURLDatabaseTest, FixOrphanedBookmarks) {
-  const size_t initial_count = GetStarredEntryCount();
+  const int initial_count = GetStarredEntryCount();
 
   // Create two bookmarks that aren't in a random folder no on the bookmark bar.
   StarredEntry entry1;
   entry1.parent_group_id = 100;
   entry1.visual_order = 10;
-  entry1.url = GURL(L"http://google.com/1");
+  entry1.url = GURL("http://google.com/1");
   CreateStarredEntry(&entry1);
 
   StarredEntry entry2;
   entry2.parent_group_id = 101;
   entry2.visual_order = 20;
-  entry2.url = GURL(L"http://google.com/2");
+  entry2.url = GURL("http://google.com/2");
   CreateStarredEntry(&entry2);
 
   ASSERT_TRUE(EnsureStarredIntegrity());
@@ -162,7 +162,7 @@ TEST_F(StarredURLDatabaseTest, FixOrphanedBookmarks) {
 }
 
 TEST_F(StarredURLDatabaseTest, FixGroupCycleDepth0) {
-  const size_t initial_count = GetStarredEntryCount();
+  const int initial_count = GetStarredEntryCount();
 
   // Create a group that is parented to itself.
   StarredEntry entry1;
@@ -184,7 +184,7 @@ TEST_F(StarredURLDatabaseTest, FixGroupCycleDepth0) {
 }
 
 TEST_F(StarredURLDatabaseTest, FixGroupCycleDepth1) {
-  const size_t initial_count = GetStarredEntryCount();
+  const int initial_count = GetStarredEntryCount();
 
   StarredEntry entry1;
   entry1.group_id = 100;
@@ -216,18 +216,18 @@ TEST_F(StarredURLDatabaseTest, FixGroupCycleDepth1) {
 }
 
 TEST_F(StarredURLDatabaseTest, FixVisualOrder) {
-  const size_t initial_count = GetStarredEntryCount();
+  const int initial_count = GetStarredEntryCount();
 
   // Star two urls.
   StarredEntry entry1;
-  entry1.url = GURL(L"http://google.com/1");
+  entry1.url = GURL("http://google.com/1");
   entry1.parent_group_id = HistoryService::kBookmarkBarID;
   entry1.visual_order = 5;
   CreateStarredEntry(&entry1);
 
   // Add url2 and star it.
   StarredEntry entry2;
-  entry2.url = GURL(L"http://google.com/2");
+  entry2.url = GURL("http://google.com/2");
   entry2.parent_group_id = HistoryService::kBookmarkBarID;
   entry2.visual_order = 10;
   CreateStarredEntry(&entry2);
@@ -248,7 +248,7 @@ TEST_F(StarredURLDatabaseTest, FixVisualOrder) {
 }
 
 TEST_F(StarredURLDatabaseTest, FixDuplicateGroupIDs) {
-  const size_t initial_count = GetStarredEntryCount();
+  const int initial_count = GetStarredEntryCount();
 
   // Create two groups with the same group id.
   StarredEntry entry1;

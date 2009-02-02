@@ -292,7 +292,7 @@ void ExpireHistoryTest::EnsureURLInfoGone(const URLRow& row) {
   // There should be no visits.
   VisitVector visits;
   main_db_->GetVisitsForURL(row.id(), &visits);
-  EXPECT_EQ(0, visits.size());
+  EXPECT_EQ(0U, visits.size());
 
   // Thumbnail should be gone.
   EXPECT_FALSE(HasThumbnail(row.id()));
@@ -387,7 +387,7 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
 
   VisitVector visits;
   main_db_->GetVisitsForURL(url_ids[2], &visits);
-  ASSERT_EQ(1, visits.size());
+  ASSERT_EQ(1U, visits.size());
   EXPECT_EQ(1, CountTextMatchesForURL(last_row.url()));
 
   // In this test we also make sure that any pending entries in the text
@@ -447,7 +447,7 @@ TEST_F(ExpireHistoryTest, DeleteURLWithoutFavicon) {
 
   VisitVector visits;
   main_db_->GetVisitsForURL(url_ids[1], &visits);
-  EXPECT_EQ(2, visits.size());
+  EXPECT_EQ(2U, visits.size());
   EXPECT_EQ(1, CountTextMatchesForURL(last_row.url()));
 
   // Delete the URL and its dependencies.
@@ -480,13 +480,13 @@ TEST_F(ExpireHistoryTest, DontDeleteStarredURL) {
   // And the favicon should exist.
   EXPECT_TRUE(HasFavIcon(url_row.favicon_id()));
 
-  // But there should be no fts. 
+  // But there should be no fts.
   ASSERT_EQ(0, CountTextMatchesForURL(url_row.url()));
 
   // And no visits.
   VisitVector visits;
   main_db_->GetVisitsForURL(url_row.id(), &visits);
-  ASSERT_EQ(0, visits.size());
+  ASSERT_EQ(0U, visits.size());
 
   // Should still have the thumbnail.
   ASSERT_TRUE(HasThumbnail(url_row.id()));
@@ -494,7 +494,7 @@ TEST_F(ExpireHistoryTest, DontDeleteStarredURL) {
   // Unstar the URL and delete again.
   bookmark_model_.SetURLStarred(url, std::wstring(), false);
   expirer_.DeleteURL(url);
-  
+
   // Now it should be completely deleted.
   EnsureURLInfoGone(url_row);
 }
@@ -515,7 +515,7 @@ TEST_F(ExpireHistoryTest, FlushRecentURLsUnstarred) {
   // database manager are removed.
   VisitVector visits;
   main_db_->GetVisitsForURL(url_ids[2], &visits);
-  ASSERT_EQ(1, visits.size());
+  ASSERT_EQ(1U, visits.size());
   text_db_->AddPageURL(url_row2.url(), url_row2.id(), visits[0].visit_id,
                        visits[0].visit_time);
 
@@ -531,7 +531,7 @@ TEST_F(ExpireHistoryTest, FlushRecentURLsUnstarred) {
   // Verify that the middle URL had its last visit deleted only.
   visits.clear();
   main_db_->GetVisitsForURL(url_ids[1], &visits);
-  EXPECT_EQ(1, visits.size());
+  EXPECT_EQ(1U, visits.size());
   EXPECT_EQ(0, CountTextMatchesForURL(url_row1.url()));
 
   // Verify that the middle URL visit time and visit counts were updated.
@@ -631,7 +631,7 @@ TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeUnstarred) {
   EXPECT_TRUE(archived_db_->GetRowForURL(url_row1.url(), &archived_row));
   VisitVector archived_visits;
   archived_db_->GetVisitsForURL(archived_row.id(), &archived_visits);
-  EXPECT_EQ(1, archived_visits.size());
+  EXPECT_EQ(1U, archived_visits.size());
 }
 
 TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeStarred) {
@@ -659,19 +659,19 @@ TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeStarred) {
   EXPECT_FALSE(archived_db_->GetRowForURL(temp_row.url(), NULL));
   VisitVector visits;
   main_db_->GetVisitsForURL(temp_row.id(), &visits);
-  EXPECT_EQ(0, visits.size());
+  EXPECT_EQ(0U, visits.size());
 
   // The second URL should have its first visit deleted and its second visit
   // archived. It should be present in both the main DB (because it's starred)
   // and the archived DB (for the archived visit).
   ASSERT_TRUE(main_db_->GetURLRow(url_ids[1], &temp_row));
   main_db_->GetVisitsForURL(temp_row.id(), &visits);
-  EXPECT_EQ(0, visits.size());
+  EXPECT_EQ(0U, visits.size());
 
   // Note that the ID is different in the archived DB, so look up by URL.
   ASSERT_TRUE(archived_db_->GetRowForURL(temp_row.url(), &temp_row));
   archived_db_->GetVisitsForURL(temp_row.id(), &visits);
-  ASSERT_EQ(1, visits.size());
+  ASSERT_EQ(1U, visits.size());
   EXPECT_TRUE(visit_times[2] == visits[0].visit_time);
 
   // The third URL should be unchanged.

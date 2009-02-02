@@ -986,6 +986,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\history\history_publisher_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\history\history_publisher.h"
 				>
 			</File>

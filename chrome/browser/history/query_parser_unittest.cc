@@ -88,10 +88,10 @@ TEST_F(QueryParserTest, ParseQueryNodesAndMatch) {
     const std::wstring query;
     const std::wstring text;
     const bool matches;
-    const int m1_start;
-    const int m1_end;
-    const int m2_start;
-    const int m2_end;
+    const size_t m1_start;
+    const size_t m1_end;
+    const size_t m2_start;
+    const size_t m2_end;
   } data[] = {
     { L"foo foo",       L"foo",              true,  0, 3, 0, 0 },
     { L"foo fooey",     L"fooey",            true,  0, 5, 0, 0 },

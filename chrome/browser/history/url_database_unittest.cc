@@ -75,7 +75,7 @@ class URLDatabaseTest : public testing::Test,
 // Test add and query for the URL table in the HistoryDatabase
 TEST_F(URLDatabaseTest, AddURL) {
   // first, add two URLs
-  const GURL url1(L"http://www.google.com/");
+  const GURL url1("http://www.google.com/");
   URLRow url_info1(url1);
   url_info1.set_title(L"Google");
   url_info1.set_visit_count(4);
@@ -84,7 +84,7 @@ TEST_F(URLDatabaseTest, AddURL) {
   url_info1.set_hidden(false);
   EXPECT_TRUE(AddURL(url_info1));
 
-  const GURL url2(L"http://mail.google.com/");
+  const GURL url2("http://mail.google.com/");
   URLRow url_info2(url2);
   url_info2.set_title(L"Google Mail");
   url_info2.set_visit_count(3);
@@ -129,7 +129,7 @@ TEST_F(URLDatabaseTest, AddURL) {
 
 // Tests adding, querying and deleting keyword visits.
 TEST_F(URLDatabaseTest, KeywordSearchTermVisit) {
-  const GURL url1(L"http://www.google.com/");
+  const GURL url1("http://www.google.com/");
   URLRow url_info1(url1);
   url_info1.set_title(L"Google");
   url_info1.set_visit_count(4);
@@ -145,7 +145,7 @@ TEST_F(URLDatabaseTest, KeywordSearchTermVisit) {
   // Make sure we get it back.
   std::vector<KeywordSearchTermVisit> matches;
   GetMostRecentKeywordSearchTerms(1, L"visit", 10, &matches);
-  ASSERT_EQ(1, matches.size());
+  ASSERT_EQ(1U, matches.size());
   ASSERT_EQ(L"visit", matches[0].term);
 
   // Delete the keyword visit.
@@ -154,12 +154,12 @@ TEST_F(URLDatabaseTest, KeywordSearchTermVisit) {
   // Make sure we don't get it back when querying.
   matches.clear();
   GetMostRecentKeywordSearchTerms(1, L"visit", 10, &matches);
-  ASSERT_EQ(0, matches.size());
+  ASSERT_EQ(0U, matches.size());
 }
 
 // Make sure deleting a URL also deletes a keyword visit.
 TEST_F(URLDatabaseTest, DeleteURLDeletesKeywordSearchTermVisit) {
-  const GURL url1(L"http://www.google.com/");
+  const GURL url1("http://www.google.com/");
   URLRow url_info1(url1);
   url_info1.set_title(L"Google");
   url_info1.set_visit_count(4);
@@ -178,7 +178,7 @@ TEST_F(URLDatabaseTest, DeleteURLDeletesKeywordSearchTermVisit) {
   // Make sure the keyword visit was deleted.
   std::vector<KeywordSearchTermVisit> matches;
   GetMostRecentKeywordSearchTerms(1, L"visit", 10, &matches);
-  ASSERT_EQ(0, matches.size());
+  ASSERT_EQ(0U, matches.size());
 }
 
 }  // namespace history

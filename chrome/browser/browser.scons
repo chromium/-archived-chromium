@@ -253,6 +253,8 @@ input_files = ChromeFileList([
     'history/history_marshaling.h',
     'history/history_notifications.h',
     'history/history_publisher.cc',
+    'history/history_publisher_none.cc',
+    'history/history_publisher_win.cc',
     'history/history_publisher.h',
     'history/history_types.cc',
     'history/history_types.h',
@@ -721,7 +723,6 @@ if not env.Bit('windows'):
       'hang_monitor/hung_plugin_action.cc',
       'hang_monitor/hung_window_detector.cc',
       'history/history.cc',
-      'history/history_publisher.cc',
       'history_tab_ui.cc',
       'history_view.cc',
       'icon_loader.cc',
@@ -810,6 +811,7 @@ if not env.Bit('windows'):
 
   input_files.Remove(
       'browser_main_win.cc',
+      'history/history_publisher_win.cc',
       'importer/firefox_profile_lock_win.cc',
       'js_before_unload_handler_win.cc',
       'jsmessage_box_handler_win.cc',
@@ -831,6 +833,7 @@ if env.Bit('windows'):
   env.TypeLibrary('history/history_indexer.idl')
 
   input_files.Remove(
+      'history/history_publisher_none.cc',
       'importer/firefox_profile_lock_posix.cc',
   )
 

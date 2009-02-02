@@ -96,7 +96,7 @@ class HistoryQueryTest : public testing::Test {
 
     // Fill the test data.
     Time now = Time::Now().LocalMidnight();
-    for (int i = 0; i < arraysize(test_entries); i++) {
+    for (size_t i = 0; i < arraysize(test_entries); i++) {
       test_entries[i].time =
           now - (test_entries[i].days_ago * TimeDelta::FromDays(1));
 
@@ -128,7 +128,7 @@ class HistoryQueryTest : public testing::Test {
   }
 
   MessageLoop message_loop_;
-  
+
   std::wstring history_dir_;
 
   CancelableRequestConsumer consumer_;
@@ -149,7 +149,7 @@ TEST_F(HistoryQueryTest, Basic) {
   // First query for all of them to make sure they are there and in
   // chronological order, most recent first.
   QueryHistory(std::wstring(), options, &results);
-  ASSERT_EQ(5, results.size());
+  ASSERT_EQ(5U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 4));
   EXPECT_TRUE(NthResultIs(results, 1, 2));
   EXPECT_TRUE(NthResultIs(results, 2, 3));
@@ -161,7 +161,7 @@ TEST_F(HistoryQueryTest, Basic) {
   options.begin_time = test_entries[3].time;
   options.end_time = test_entries[2].time;
   QueryHistory(std::wstring(), options, &results);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 3));
 }
 
@@ -176,7 +176,7 @@ TEST_F(HistoryQueryTest, BasicCount) {
   // get the N most recent entries.
   options.max_count = 2;
   QueryHistory(std::wstring(), options, &results);
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 4));
   EXPECT_TRUE(NthResultIs(results, 1, 2));
 }
@@ -192,7 +192,7 @@ TEST_F(HistoryQueryTest, BasicDupes) {
   // only test collapsing.
   options.most_recent_visit_only = true;
   QueryHistory(std::wstring(), options, &results);
-  EXPECT_EQ(4, results.size());
+  EXPECT_EQ(4U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 4));
   EXPECT_TRUE(NthResultIs(results, 1, 2));
   EXPECT_TRUE(NthResultIs(results, 2, 3));
@@ -211,14 +211,14 @@ TEST_F(HistoryQueryTest, FTS) {
   // this query will return the starred item twice since we requested all
   // starred entries and no de-duping.
   QueryHistory(std::wstring(L"some"), options, &results);
-  EXPECT_EQ(3, results.size());
+  EXPECT_EQ(3U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 2));
   EXPECT_TRUE(NthResultIs(results, 1, 3));
   EXPECT_TRUE(NthResultIs(results, 2, 1));
 
   // Do a query that should only match one of them.
   QueryHistory(std::wstring(L"PAGETWO"), options, &results);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 3));
 
   // Next query a time range. The beginning should be inclusive, the ending
@@ -226,7 +226,7 @@ TEST_F(HistoryQueryTest, FTS) {
   options.begin_time = test_entries[1].time;
   options.end_time = test_entries[3].time;
   QueryHistory(std::wstring(L"some"), options, &results);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 1));
 }
 
@@ -240,7 +240,7 @@ TEST_F(HistoryQueryTest, FTSTitle) {
   // Query all time but with a limit on the number of entries. We should
   // get the N most recent entries.
   QueryHistory(std::wstring(L"title"), options, &results);
-  EXPECT_EQ(3, results.size());
+  EXPECT_EQ(3U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 2));
   EXPECT_TRUE(NthResultIs(results, 1, 3));
   EXPECT_TRUE(NthResultIs(results, 2, 1));
@@ -256,7 +256,7 @@ TEST_F(HistoryQueryTest, FTSPrefix) {
   // Query with a prefix search.  Should return matches for "PAGETWO" and
   // "PAGETHREE".
   QueryHistory(std::wstring(L"PAGET"), options, &results);
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 2));
   EXPECT_TRUE(NthResultIs(results, 1, 3));
 }
@@ -272,7 +272,7 @@ TEST_F(HistoryQueryTest, FTSCount) {
   // get the N most recent entries.
   options.max_count = 2;
   QueryHistory(std::wstring(L"some"), options, &results);
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 2));
   EXPECT_TRUE(NthResultIs(results, 1, 3));
 
@@ -281,7 +281,7 @@ TEST_F(HistoryQueryTest, FTSCount) {
   // page max restriction.
   options.max_count = 1;
   QueryHistory(std::wstring(L"FOO"), options, &results);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
   EXPECT_TRUE(NthResultIs(results, 0, 3));
 }
 
@@ -312,7 +312,7 @@ TEST_F(HistoryQueryTest, FTSArchived) {
   // database and not the most current title (since otherwise highlighting in
   // the title might be wrong).
   QueryHistory(std::wstring(L"archived"), options, &results);
-  ASSERT_EQ(1, results.size());
+  ASSERT_EQ(1U, results.size());
   EXPECT_TRUE(row1.url() == results[0].url());
   EXPECT_TRUE(row1.title() == results[0].title());
 }
