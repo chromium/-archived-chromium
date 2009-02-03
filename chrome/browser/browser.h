@@ -302,6 +302,7 @@ class Browser : public TabStripModelDelegate,
   void OpenPasswordManager();
   void OpenAboutChromeDialog();
   void OpenHelpTab();
+#endif
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -317,7 +318,6 @@ class Browser : public TabStripModelDelegate,
       const NavigationController* controller, int* index);
 
   // Interface implementations ////////////////////////////////////////////////
-#endif
 
   // Overridden from CommandUpdater::CommandUpdaterDelegate:
   virtual void ExecuteCommand(int id);

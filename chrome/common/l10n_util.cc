@@ -324,7 +324,7 @@ std::wstring GetString(int message_id) {
   return rb.GetLocalizedString(message_id);
 #else
   NOTIMPLEMENTED();  // TODO(port): Real implementation of GetString.
-  return L"";
+  return L"true";
 #endif
 }
 

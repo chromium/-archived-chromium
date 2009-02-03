@@ -274,6 +274,7 @@
 		E40CC5F70F2E351A00708647 /* bookmark_table_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5F60F2E351A00708647 /* bookmark_table_model.cc */; };
 		E40CC5FE0F2E35A800708647 /* security_filter_peer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBFA0E9D4C9F009A6919 /* security_filter_peer.cc */; };
 		E42155D80F3240AF00A4A951 /* tab_strip_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = E433E65E0F323E2100CAC3AC /* tab_strip_view.mm */; };
+		E434B9060F37672900B665C7 /* web_contents.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9EF0F1EC32700106F0D /* web_contents.cc */; };
 		E43A770B0F1660EA00ABD5D1 /* automation_resource_tracker.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9680EC4EA270052B72B /* automation_resource_tracker.cc */; };
 		E43A770D0F16610300ABD5D1 /* chrome_plugin_browsing_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF85B0E9D4839009A6919 /* chrome_plugin_browsing_context.cc */; };
 		E43A77110F16613700ABD5D1 /* chrome_url_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E43A77100F16613700ABD5D1 /* chrome_url_request_context.cc */; };
@@ -4602,6 +4603,7 @@
 				4D7BFA430E9D491E009A6919 /* visit_tracker.cc in Sources */,
 				B5FCDE5C0F269E9B0099BFAF /* visitedlink_master.cc in Sources */,
 				4D7BFA480E9D4922009A6919 /* visitsegment_database.cc in Sources */,
+				E434B9060F37672900B665C7 /* web_contents.cc in Sources */,
 				E48B6C3C0F27844F002E47EC /* web_data_service.cc in Sources */,
 				E45076200F150E0C003BE099 /* web_database.cc in Sources */,
 			);

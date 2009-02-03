@@ -5,26 +5,52 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 #define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 
+#include "base/basictypes.h"
+#include "base/hash_tables.h"
+#include "chrome/browser/cancelable_request.h"
+#include "net/base/load_states.h"
+#include "webkit/glue/password_form.h"
+#include "webkit/glue/webpreferences.h"
+
+#if defined(OS_MACOSX) || defined(OS_LINUX)
+// Remove when we've finished porting the supporting classes.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#elif defined(OS_WIN)
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
-#include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/shell_dialogs.h"
+#include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gears_api.h"
+#endif
 
+class AutofillForm;
 class AutofillManager;
 class InterstitialPageDelegate;
+class LoadNotificationDetails;
 class PasswordManager;
 class PluginInstaller;
+class RenderProcessHost;
 class RenderViewHost;
 class RenderViewHostFactory;
 class RenderWidgetHost;
+struct ThumbnailScore;
+struct ViewHostMsg_FrameNavigate_Params;
+struct ViewHostMsg_DidPrintPage_Params;
 class WebContentsView;
 
 namespace base {
 class WaitableEvent;
+}
+
+namespace webkit_glue {
+struct WebApplicationInfo;
+}
+
+namespace IPC {
+class Message;
 }
 
 // WebContents represents the contents of a tab that shows web pages. It embeds
@@ -101,6 +127,7 @@ class WebContents : public TabContents,
   virtual void SetDownloadShelfVisible(bool visible);
   virtual void PopupNotificationVisibilityChanged(bool visible);
 
+#if defined(OS_WIN)
   // Retarded pass-throughs to the view.
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
   // it should be killed altogether.
@@ -108,6 +135,7 @@ class WebContents : public TabContents,
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND();
   virtual void GetContainerBounds(gfx::Rect *out) const;
+#endif
 
   // Web apps ------------------------------------------------------------------
 
@@ -503,10 +531,12 @@ class WebContents : public TabContents,
   // Whether the current URL is starred
   bool is_starred_;
 
+#if defined(OS_WIN)
   // Handle to an event that's set when the page is showing a message box (or
   // equivalent constrained window).  Plugin processes check this to know if
   // they should pump messages then.
   ScopedHandle message_box_active_;
+#endif
 
   // AutofillManager, lazily created.
   scoped_ptr<AutofillManager> autofill_manager_;

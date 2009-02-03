@@ -12,12 +12,14 @@
 #include "build/build_config.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/shell_integration.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/notification_service.h"
@@ -137,7 +139,12 @@ void Browser::LoadingStateChanged(TabContents* source) {
 TabContents* TabContents::CreateWithType(TabContentsType type,
                                          Profile* profile,
                                          SiteInstance* instance) {
-  return new TabContents;
+  switch (type) {
+    case TAB_CONTENTS_WEB:
+      return new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
+    default:
+      return NULL;
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -180,3 +187,32 @@ namespace chrome_browser_net {
 void EnableDnsPrefetch(bool) {}
   
 }  // namespace chrome_browser_net
+
+//--------------------------------------------------------------------------
+
+void RunJavascriptMessageBox(WebContents* web_contents,
+                             int dialog_flags,
+                             const std::wstring& message_text,
+                             const std::wstring& default_prompt_text,
+                             bool display_suppress_checkbox,
+                             IPC::Message* reply_msg) {
+}
+
+CacheManagerHost::CacheManagerHost() : revise_allocation_factory_(this) { }
+CacheManagerHost::~CacheManagerHost() { }
+
+void CacheManagerHost::ObserveActivity(int) {
+}
+
+CacheManagerHost* CacheManagerHost::GetInstance() {
+  return Singleton<CacheManagerHost>::get();
+}
+
+void RunBeforeUnloadDialog(WebContents* web_contents,
+                           const std::wstring& message_text,
+                           IPC::Message* reply_msg) {
+}
+
+bool SSLManager::DeserializeSecurityInfo(const std::string&, int*, int*, int*) {
+  return false;
+}

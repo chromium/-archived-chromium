@@ -12,6 +12,7 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
@@ -187,12 +188,8 @@ Browser::Browser(Type type, Profile* profile)
   InitCommandState();
   BrowserList::AddBrowser(this);
 
-#if defined(OS_WIN)
-  // TODO(port): turn this back on when prefs are fleshed out. This asserts
-  // because the pref hasn't yet been registered.
   encoding_auto_detect_.Init(prefs::kWebKitUsesUniversalDetector,
                              profile_->GetPrefs(), NULL);
-#endif
 
   // Trim browser memory on idle for low & medium memory models.
   if (g_browser_process->memory_model() < BrowserProcess::HIGH_MEMORY_MODEL)
@@ -999,6 +996,7 @@ void Browser::OpenHelpTab() {
                 NULL);
 }
 
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 
 // static
@@ -1042,8 +1040,6 @@ Browser* Browser::GetBrowserForController(
 
   return NULL;
 }
-
-#endif  // OS_WIN
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, CommandUpdater::CommandUpdaterDelegate implementation:

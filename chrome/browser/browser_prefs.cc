@@ -5,8 +5,9 @@
 #include "chrome/browser/browser_prefs.h"
 
 #include "chrome/browser/browser.h"
-#include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/google_url_tracker.h"
+#include "chrome/browser/session_startup_pref.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 
 #if defined(OS_WIN)
 #include "chrome/browser/browser_shutdown.h"
@@ -28,7 +29,6 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/page_info_window.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #endif
 
 namespace browser {
@@ -36,9 +36,9 @@ namespace browser {
 void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   // Prefs in Local State
   GoogleURLTracker::RegisterPrefs(local_state);
+  Browser::RegisterPrefs(local_state);
 #if defined(OS_WIN)
   BookmarkManagerView::RegisterPrefs(local_state);
-  Browser::RegisterPrefs(local_state);
   BrowserView::RegisterBrowserViewPrefs(local_state);
   browser_shutdown::RegisterPrefs(local_state);
   CacheManagerHost::RegisterPrefs(local_state);
@@ -54,18 +54,18 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
 
   // User prefs
   SessionStartupPref::RegisterUserPrefs(user_prefs);
+  Browser::RegisterUserPrefs(user_prefs);
 #if defined(OS_WIN)
   BookmarkBarView::RegisterUserPrefs(user_prefs);
   BookmarkTableView::RegisterUserPrefs(user_prefs);
-  Browser::RegisterUserPrefs(user_prefs);
   chrome_browser_net::RegisterUserPrefs(user_prefs);
   DownloadManager::RegisterUserPrefs(user_prefs);
   PasswordManager::RegisterUserPrefs(user_prefs);
   SSLManager::RegisterUserPrefs(user_prefs);
   TabContents::RegisterUserPrefs(user_prefs);
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);
-  WebContents::RegisterUserPrefs(user_prefs);
 #endif
+  WebContents::RegisterUserPrefs(user_prefs);
 }
 
 }  // namespace browser

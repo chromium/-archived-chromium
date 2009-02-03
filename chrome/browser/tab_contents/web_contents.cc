@@ -8,20 +8,36 @@
 #include "base/compiler_specific.h"
 #include "base/file_version_info.h"
 #include "base/process_util.h"
+#include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "chrome/browser/autofill_manager.h"
-#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/cache_manager_host.h"
-#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/dom_operation_notification_details.h"
-#include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/js_before_unload_handler.h"
 #include "chrome/browser/jsmessage_box_handler.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
+#include "chrome/browser/profile.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/tab_contents/provisional_load_details.h"
+#include "chrome/common/chrome_switches.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
+#include "net/base/mime_util.h"
+#include "net/base/net_errors.h"
+#include "net/base/registry_controlled_domain.h"
+#include "webkit/glue/webkit_glue.h"
+
+#if defined(OS_WIN)
+// TODO(port): fill these in as we flesh out the implementation of this class
+#include "chrome/browser/autofill_manager.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/character_encoding.h"
+#include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_request_manager.h"
+#include "chrome/browser/gears_integration.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/modal_html_dialog_delegate.h"
 #include "chrome/browser/password_manager/password_manager.h"
@@ -35,13 +51,8 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
-#include "chrome/common/chrome_switches.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/notification_service.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "net/base/registry_controlled_domain.h"
+#endif
 
 #include "generated_resources.h"
 
@@ -105,8 +116,8 @@ const int kJavascriptMessageExpectedDelay = 1000;
 // shown for us to hide it when navigating away from the current page.
 const int kDownloadShelfHideDelay = 5000;
 
-const wchar_t kLinkDoctorBaseURL[] =
-    L"http://linkhelp.clients.google.com/tbproxy/lh/fixurl";
+const char kLinkDoctorBaseURL[] =
+    "http://linkhelp.clients.google.com/tbproxy/lh/fixurl";
 
 // The printer icon in shell32.dll. That's a standard icon user will quickly
 // recognize.
@@ -137,14 +148,6 @@ const int kPrefsToObserveLength = arraysize(kPrefsToObserve);
 // Limit on the number of suggestions to appear in the pop-up menu under an
 // text input element in a form.
 const int kMaxAutofillMenuItems = 6;
-
-void InitWebContentsClass() {
-  static bool web_contents_class_initialized = false;
-  if (!web_contents_class_initialized) {
-    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    web_contents_class_initialized = true;
-  }
-}
 
 // Returns true if the entry's transition type is FORM_SUBMIT.
 bool IsFormSubmit(const NavigationEntry* entry) {
@@ -182,15 +185,16 @@ WebContents::WebContents(Profile* profile,
       ALLOW_THIS_IN_INITIALIZER_LIST(
           render_manager_(render_view_factory, this, this)),
       render_view_factory_(render_view_factory),
-      received_page_title_(false),
-      is_starred_(false),
       printing_(*this),
       notify_disconnection_(false),
+      received_page_title_(false),
+      is_starred_(false),
+#if defined(OS_WIN)
       message_box_active_(CreateEvent(NULL, TRUE, FALSE, NULL)),
+#endif
       ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(this)),
       suppress_javascript_messages_(false),
       load_state_(net::LOAD_STATE_IDLE) {
-  InitWebContentsClass();
 
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
@@ -344,9 +348,15 @@ std::wstring WebContents::GetStatusText() const {
     case net::LOAD_STATE_SENDING_REQUEST:
       return l10n_util::GetString(IDS_LOAD_STATE_SENDING_REQUEST);
     case net::LOAD_STATE_WAITING_FOR_RESPONSE:
+#if defined(OS_WIN)
+      // TODO(port): GetStringF() is currently disabled for non-win platforms.
       return l10n_util::GetStringF(IDS_LOAD_STATE_WAITING_FOR_RESPONSE,
                                    load_state_host_);
+#endif
     // Ignore net::LOAD_STATE_READING_RESPONSE and net::LOAD_STATE_IDLE
+    case net::LOAD_STATE_IDLE:
+    case net::LOAD_STATE_READING_RESPONSE:
+      break;
   }
 
   return std::wstring();
@@ -475,6 +485,7 @@ void WebContents::PopupNotificationVisibilityChanged(bool visible) {
   render_view_host()->PopupNotificationVisibilityChanged(visible);
 }
 
+#if defined(OS_WIN)
 // Stupid view pass-throughs
 void WebContents::CreateView() {
   view_->CreateView();
@@ -488,6 +499,7 @@ HWND WebContents::GetContentHWND() {
 void WebContents::GetContainerBounds(gfx::Rect *out) const {
   view_->GetContainerBounds(out);
 }
+#endif
 
 void WebContents::CreateShortcut() {
   NavigationEntry* entry = controller()->GetLastCommittedEntry();
@@ -726,7 +738,6 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
     NotifyNavigationStateChanged(INVALIDATE_TITLE);
 }
 
-
 void WebContents::UpdateEncoding(RenderViewHost* render_view_host,
                                  const std::wstring& encoding) {
   set_encoding(encoding);
@@ -827,7 +838,7 @@ void WebContents::DidLoadResourceFromMemoryCache(
     return;
 
   // Send out a notification that we loaded a resource from our memory cache.
-  int cert_id, cert_status, security_bits;
+  int cert_id = 0, cert_status = 0, security_bits = 0;
   SSLManager::DeserializeSecurityInfo(security_info,
                                       &cert_id, &cert_status,
                                       &security_bits);
@@ -1095,11 +1106,16 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
 
   // Download the OpenSearch description document. If this is successful a
   // new keyword will be created when done.
+#if defined(OS_WIN)
+  gfx::NativeView ancestor = GetAncestor(view_->GetNativeView(), GA_ROOT);
+#else
+  gfx::NativeView ancestor = NULL;
+#endif
   profile()->GetTemplateURLFetcher()->ScheduleDownload(
       keyword,
       url,
       base_entry->favicon().url(),
-      GetAncestor(view_->GetNativeView(), GA_ROOT),
+      ancestor,
       autodetected);
 }
 
@@ -1215,10 +1231,15 @@ WebPreferences WebContents::GetWebkitPrefs() {
 }
 
 void WebContents::OnMissingPluginStatus(int status) {
+#if defined(OS_WIN)
+// TODO(PORT): pull in when plug-ins work
   GetPluginInstaller()->OnMissingPluginStatus(status);
+#endif
 }
 
 void WebContents::OnCrashedPlugin(const FilePath& plugin_path) {
+#if defined(OS_WIN)
+// TODO(PORT): pull in when plug-ins work
   DCHECK(!plugin_path.value().empty());
 
   std::wstring plugin_name = plugin_path.ToWStringHack();
@@ -1232,6 +1253,7 @@ void WebContents::OnCrashedPlugin(const FilePath& plugin_path) {
   AddInfoBar(new SimpleAlertInfoBarDelegate(
       this, l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name),
       NULL));
+#endif
 }
 
 void WebContents::OnJSOutOfMemory() {
@@ -1286,19 +1308,25 @@ void WebContents::OnDidGetApplicationInfo(
   if (pending_install_.page_id != page_id)
     return;  // The user clicked create on a separate page. Ignore this.
 
+#if defined(OS_WIN)
+  // TODO(port): include when gears integration is ported
   pending_install_.callback_functor =
       new GearsCreateShortcutCallbackFunctor(this);
   GearsCreateShortcut(
       info, pending_install_.title, pending_install_.url, pending_install_.icon,
       NewCallback(pending_install_.callback_functor,
                   &GearsCreateShortcutCallbackFunctor::Run));
+#endif
 }
 
 void WebContents::OnEnterOrSpace() {
   // See comment in RenderViewHostDelegate::OnEnterOrSpace as to why we do this.
+#if defined(OS_WIN)
+  // TODO(port): this is stubbed in BrowserProcess
   DownloadRequestManager* drm = g_browser_process->download_request_manager();
   if (drm)
     drm->OnUserGesture(this);
+#endif
 }
 
 bool WebContents::CanTerminate() const {
@@ -1316,7 +1344,6 @@ void WebContents::MultiFilesSelected(const std::vector<std::wstring>& files,
                                      void* params) {
   render_view_host()->MultiFilesSelected(files);
 }
-
 
 void WebContents::FileSelectionCanceled(void* params) {
   // If the user cancels choosing a file to upload we pass back an
