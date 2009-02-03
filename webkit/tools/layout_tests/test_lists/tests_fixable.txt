@@ -1784,3 +1784,20 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 // ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
 // Likely will be fixed with subsequent merge. 
 SKIP : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = CRASH
+
+// New tests added in http://trac.webkit.org/changeset/40424
+LayoutTests/http/tests/history/redirect-js-form-submit-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-form-submit-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-form-submit-before-load.html = FAIL
+
+// Regressions from WebKit merge 40409:40464
+LayoutTests/fast/block/positioning/replaced-inside-fixed-top-bottom.html = FAIL
+LayoutTests/http/tests/navigation/location-replace-adds-history-item.html = FAIL
+LayoutTests/http/tests/navigation/multiple-back-forward-entries.html = FAIL
+LayoutTests/http/tests/navigation/new-window-redirect-history.html = FAIL
+LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
+LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL
+LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
+LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
+LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
+

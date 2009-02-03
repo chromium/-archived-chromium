@@ -316,7 +316,6 @@
 		938444E40F16B0570075F4C5 /* FrameChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624D0F003B3000778012 /* FrameChromium.cpp */; };
 		938444E50F16B0570075F4C5 /* FramelessScrollView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52740F002F680073C62D /* FramelessScrollView.cpp */; };
 		938444E60F16B0570075F4C5 /* FrameLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DAC0D7F3C01001ECF42 /* FrameLoader.cpp */; };
-		938444E70F16B0570075F4C5 /* FrameLoaderClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */; };
 		938444E80F16B0570075F4C5 /* FrameTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E590D7F3C48001ECF42 /* FrameTree.cpp */; };
 		938444E90F16B0570075F4C5 /* FrameView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E5B0D7F3C48001ECF42 /* FrameView.cpp */; };
 		938444EA0F16B0570075F4C5 /* FTPDirectoryDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DB10D7F3C01001ECF42 /* FTPDirectoryDocument.cpp */; };
@@ -1298,6 +1297,7 @@
 		B58DCCEF0F27DF1400BF697A /* OptionElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DCCED0F27DF1400BF697A /* OptionElement.cpp */; };
 		B590A4E60F27DDAC0058FA26 /* FormControlElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B590A4E50F27DDAC0058FA26 /* FormControlElement.cpp */; };
 		B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */; };
+		D16FD80FC5230DA712974DAF /* RenderObjectChildList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 619BC9B49D39DC88F3826A9B /* RenderObjectChildList.cpp */; };
 		E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */; };
 		E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */; };
 		E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40060DA0EA69E0B0055B38E /* ScriptController.cpp */; };
@@ -1520,7 +1520,6 @@
 		410303A10EFB0F8D008832CA /* CachedPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedPage.h; sourceTree = "<group>"; };
 		4112E7040EFB0A26001E0E7A /* RandomNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandomNumber.h; sourceTree = "<group>"; };
 		4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomNumber.cpp; sourceTree = "<group>"; };
-		416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FrameLoaderClient.cpp; sourceTree = "<group>"; };
 		41807C550F268375007BB4CC /* ByteArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteArray.cpp; sourceTree = "<group>"; };
 		41807C560F268375007BB4CC /* ByteArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteArray.h; sourceTree = "<group>"; };
 		418E48770F166D9A00CF92F9 /* ColorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ColorChromium.cpp; path = chromium/ColorChromium.cpp; sourceTree = "<group>"; };
@@ -1864,6 +1863,7 @@
 		53AAC3820F291F6300233688 /* ThreadableLoaderClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadableLoaderClient.h; sourceTree = "<group>"; };
 		53AAC3930F291FCF00233688 /* HTTPHeaderMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPHeaderMap.cpp; sourceTree = "<group>"; };
 		53E8BE8D0EC36F4B00B3F8B0 /* autocomplete_input_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autocomplete_input_listener.h; sourceTree = "<group>"; };
+		619BC9B49D39DC88F3826A9B /* RenderObjectChildList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderObjectChildList.cpp; sourceTree = "<group>"; };
 		688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitCSSMatrix.cpp; sourceTree = "<group>"; };
 		6A9898388068C93C5A7C011C /* ThreadTimers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadTimers.cpp; sourceTree = "<group>"; };
 		715E874BCC05E0A3DD5E5D8F /* GCController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCController.cpp; path = port/bindings/v8/extensions/GCController.cpp; sourceTree = SOURCE_ROOT; };
@@ -5540,7 +5540,6 @@
 				7B5E8DAB0D7F3C01001ECF42 /* FormState.h */,
 				7B5E8DAC0D7F3C01001ECF42 /* FrameLoader.cpp */,
 				7B5E8DAD0D7F3C01001ECF42 /* FrameLoader.h */,
-				416F45210ED7697D008215B6 /* FrameLoaderClient.cpp */,
 				7B5E8DAF0D7F3C01001ECF42 /* FrameLoaderClient.h */,
 				7B5E8DB00D7F3C01001ECF42 /* FrameLoaderTypes.h */,
 				7B5E8DB10D7F3C01001ECF42 /* FTPDirectoryDocument.cpp */,
@@ -6231,6 +6230,7 @@
 				7B5E95680D7F3E95001ECF42 /* RenderMenuList.h */,
 				B5C1809A0E958D81006EAF87 /* RenderObject.h */,
 				B5C1809B0E958D81006EAF87 /* RenderObject.cpp */,
+				619BC9B49D39DC88F3826A9B /* RenderObjectChildList.cpp */,
 				4C04BF9CDE7B0B591087B440 /* RenderObjectChildList.h */,
 				7B5E956B0D7F3E95001ECF42 /* RenderPart.cpp */,
 				B5C1809D0E958D96006EAF87 /* RenderPart.h */,
@@ -8773,7 +8773,6 @@
 				938444E40F16B0570075F4C5 /* FrameChromium.cpp in Sources */,
 				938444E50F16B0570075F4C5 /* FramelessScrollView.cpp in Sources */,
 				938444E60F16B0570075F4C5 /* FrameLoader.cpp in Sources */,
-				938444E70F16B0570075F4C5 /* FrameLoaderClient.cpp in Sources */,
 				938444E80F16B0570075F4C5 /* FrameTree.cpp in Sources */,
 				938444E90F16B0570075F4C5 /* FrameView.cpp in Sources */,
 				938444EA0F16B0570075F4C5 /* FTPDirectoryDocument.cpp in Sources */,
@@ -9036,6 +9035,7 @@
 				938445E90F16B0570075F4C5 /* RenderMedia.cpp in Sources */,
 				938445EA0F16B0570075F4C5 /* RenderMenuList.cpp in Sources */,
 				938445EB0F16B0570075F4C5 /* RenderObject.cpp in Sources */,
+				D16FD80FC5230DA712974DAF /* RenderObjectChildList.cpp in Sources */,
 				938445EC0F16B0570075F4C5 /* RenderPart.cpp in Sources */,
 				938445ED0F16B0570075F4C5 /* RenderPartObject.cpp in Sources */,
 				938445EE0F16B0570075F4C5 /* RenderPath.cpp in Sources */,

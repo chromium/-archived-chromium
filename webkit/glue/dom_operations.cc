@@ -241,7 +241,7 @@ static bool FillFormToUploadFileImpl(WebCore::HTMLFormElement* fe,
 
   // If we found both the file and the submit button, let's submit.
   if (file_found && submit_found) {
-    fe->submit();
+    fe->submit(0, false, false);
   }
 
   fe->deref();

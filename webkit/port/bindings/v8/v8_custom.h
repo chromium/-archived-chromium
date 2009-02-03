@@ -361,6 +361,9 @@ DECLARE_CALLBACK(NodeIteratorPreviousNode)
 // Custom implementation of NodeFilter function
 DECLARE_CALLBACK(NodeFilterAcceptNode)
 
+// Custom implementation of HTMLFormElement
+DECLARE_CALLBACK(HTMLFormElementSubmit)
+
 DECLARE_INDEXED_PROPERTY_GETTER(DOMStringList)
 DECLARE_CALLBACK(DOMStringListItem)
 

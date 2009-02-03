@@ -27,4 +27,4 @@ layer at (0,0) size 800x600
                     RenderTableCell {TD} at (2,2) size 130x22 [r=0 c=0 rs=1 cs=1]
                       RenderText {#text} at (1,1) size 128x19
                         text run at (1,1) width 128: "This should be green."
-                  RenderBlock {FORM} at (0,0) size 134x0
+                  RenderBlock {FORM} at (0,0) size 0x0

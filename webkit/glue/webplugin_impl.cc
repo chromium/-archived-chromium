@@ -508,6 +508,7 @@ RoutingStatus WebPluginImpl::RouteToFrame(const char *method,
   loader->loadFrameRequestWithFormAndValues(
       load_request,
       false,  // lock history
+      false,  // lock back forward list
       0,      // event
       0,      // form element
       HashMap<WebCore::String, WebCore::String>());

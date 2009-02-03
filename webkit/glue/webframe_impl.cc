@@ -1624,7 +1624,7 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   // this child frame.
   HistoryItem* parent_item = frame_->loader()->currentHistoryItem();
   FrameLoadType load_type = frame_->loader()->loadType();
-  FrameLoadType child_load_type = WebCore::FrameLoadTypeRedirectWithLockedHistory;
+  FrameLoadType child_load_type = WebCore::FrameLoadTypeRedirect;
   KURL new_url = request.resourceRequest().url();
 
   // If we're moving in the backforward list, we might want to replace the
@@ -1735,7 +1735,7 @@ bool WebFrameImpl::SetPrintingMode(bool printing,
     view->setScrollbarModes(WebCore::ScrollbarAuto,
                             WebCore::ScrollbarAuto);
   }
-  DCHECK_EQ(frame()->isFrameSet(), false);
+  DCHECK_EQ(frame()->document()->isFrameSet(), false);
 
   SetPrinting(printing, page_width_min, page_width_max);
   if (!printing)

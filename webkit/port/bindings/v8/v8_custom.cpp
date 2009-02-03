@@ -3097,6 +3097,16 @@ CALLBACK_FUNC_DECL(NodeFilterAcceptNode) {
   return v8::Undefined();
 }
 
+CALLBACK_FUNC_DECL(HTMLFormElementSubmit) {
+  INC_STATS("DOM.HTMLFormElement.submit()");
+  
+  HTMLFormElement* form =
+    V8Proxy::DOMWrapperToNative<HTMLFormElement>(args.Holder());
+
+  form->submit(0, false, false);
+  return v8::Undefined();
+}
+
 static String EventNameFromAttributeName(const String& name) {
   ASSERT(name.startsWith("on"));
   String event_type = name.substring(2);

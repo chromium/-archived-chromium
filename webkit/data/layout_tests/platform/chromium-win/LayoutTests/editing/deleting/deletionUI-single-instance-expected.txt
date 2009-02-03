@@ -9,12 +9,12 @@ layer at (0,0) size 800x600
           text run at (430,0) width 329: "This test makes sure that we don't make the mistake of"
           text run at (0,20) width 730: "adding new m_containerElements to the DeletionUI over and over again. A successful run of the test will not have multiple"
           text run at (0,40) width 381: "instances of deletion UI render objects at the same coordinates:"
-      RenderBlock {DIV} at (0,76) size 784x118
-layer at (24,100) size 752x86 layerType: background only
-layer at (20,96) size 760x94
-  RenderBlock (positioned) zI: -1000000 {DIV} at (-4,-4) size 760x94 [border: (4px solid #00000099)]
-layer at (24,100) size 752x86 layerType: foreground only
-  RenderTable {TABLE} at (16,16) size 752x86
+      RenderBlock {DIV} at (0,76) size 784x122
+layer at (24,100) size 752x90 layerType: background only
+layer at (20,96) size 760x98
+  RenderBlock (positioned) zI: -1000000 {DIV} at (-4,-4) size 760x98 [border: (4px solid #00000099)]
+layer at (24,100) size 752x90 layerType: foreground only
+  RenderTable {TABLE} at (16,16) size 752x90
     RenderTableSection {TBODY} at (0,0) size 752x86
       RenderTableRow {TR} at (0,2) size 752x82
         RenderTableCell {TD} at (2,2) size 748x82 [r=0 c=0 rs=1 cs=1]
@@ -23,7 +23,9 @@ layer at (24,100) size 752x86 layerType: foreground only
             text run at (1,21) width 744: "Donec pede. Praesent accumsan dui vitae mauris. Mauris non dui at neque lacinia pulvinar. Quisque nibh. Nulla vitae lectus. "
             text run at (1,41) width 746: "Pellentesque enim. Mauris hendrerit molestie dui. Etiam pretium ligula a pede. Fusce consectetuer purus sit amet sem. Morbi "
             text run at (1,61) width 229: "tincidunt mollis libero. Maecenas mole"
-    RenderBlock {DIV} at (0,0) size 752x0
+    RenderTableSection (anonymous) at (0,86) size 752x4
+      RenderTableRow (anonymous) at (0,2) size 752x0
+        RenderTableCell (anonymous) at (2,2) size 748x0 [r=0 c=0 rs=1 cs=1]
 layer at (7,85) size 30x30
   RenderImage zI: 1000000 {IMG} at (-17,-15) size 30x30
 caret: position 403 of child 0 {#text} of child 1 {TD} of child 0 {TR} of child 1 {TBODY} of child 1 {TABLE} of child 3 {DIV} of child 0 {BODY} of child 0 {HTML} of document

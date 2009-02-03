@@ -831,7 +831,7 @@ void WebViewImpl::Resize(const gfx::Size& new_size) {
 
   if (main_frame()->frameview()) {
     main_frame()->frameview()->resize(size_.width(), size_.height());
-    main_frame()->frame()->sendResizeEvent();
+    main_frame()->frame()->eventHandler()->sendResizeEvent();
   }
 
   if (delegate_) {
