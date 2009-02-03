@@ -24,10 +24,7 @@ const USHORT kJmpEdx = 0xE2FF;
 const USHORT kXorEcx = 0xC933;
 const ULONG kLeaEdx = 0x0424548D;
 const ULONG kCallFs1 = 0xC015FF64;
-const USHORT kCallFs2 = 0;
-const BYTE kCallFs3 = 0;
-const BYTE kAddEsp1 = 0x83;
-const USHORT kAddEsp2 = 0x4C4;
+const ULONG kCallFs2Ret = 0xC2000000;
 const BYTE kJmp32 = 0xE9;
 
 const int kMaxService = 1000;
@@ -36,11 +33,11 @@ const int kMaxService = 1000;
 // NOTE: on win2003 "call dword ptr [edx]" is "call edx".
 struct ServiceEntry {
   // this struct contains roughly the following code:
-  // 00 mov     eax,25h
-  // 05 mov     edx,offset SharedUserData!SystemCallStub (7ffe0300)
-  // 0a call    dword ptr [edx]
-  // 0c ret     2Ch
-  // 0f nop
+  // mov     eax,25h
+  // mov     edx,offset SharedUserData!SystemCallStub (7ffe0300)
+  // call    dword ptr [edx]
+  // ret     2Ch
+  // nop
   BYTE mov_eax;         // = B8
   ULONG service_id;
   BYTE mov_edx;         // = BA
@@ -49,44 +46,24 @@ struct ServiceEntry {
   BYTE ret;             // = C2
   USHORT num_params;
   BYTE nop;
-  ULONG pad1;           // Extend the structure to be the same size as the
-  ULONG pad2;           // 64 version (Wow64Entry)
 };
 
 // Service code for a 32 bit process running on a 64 bit os.
 struct Wow64Entry {
-  // This struct may contain one of two versions of code:
-  // 1. For XP, Vista and 2K3:
+  // this struct contains roughly the following code:
   // 00 b852000000      mov     eax, 25h
   // 05 33c9            xor     ecx, ecx
   // 07 8d542404        lea     edx, [esp + 4]
   // 0b 64ff15c0000000  call    dword ptr fs:[0C0h]
   // 12 c22c00          ret     2Ch
-  //
-  // 2. For Windows 7:
-  // 00 b852000000      mov     eax, 25h
-  // 05 33c9            xor     ecx, ecx
-  // 07 8d542404        lea     edx, [esp + 4]
-  // 0b 64ff15c0000000  call    dword ptr fs:[0C0h]
-  // 12 83c404          add     esp, 4
-  // 15 c22c00          ret     2Ch
-  //
-  // So we base the structure on the bigger one:
   BYTE mov_eax;         // = B8
   ULONG service_id;
   USHORT xor_ecx;       // = 33 C9
   ULONG lea_edx;        // = 8D 54 24 04
   ULONG call_fs1;       // = 64 FF 15 C0
-  USHORT call_fs2;      // = 00 00
-  BYTE call_fs3;        // = 00
-  BYTE add_esp1;        // = 83             or ret
-  USHORT add_esp2;      // = C4 04          or num_params
-  BYTE ret;             // = C2
+  ULONG call_fs2_ret;   // = 00 00 00 C2
   USHORT num_params;
 };
-
-// Make sure that relaxed patching works as expected.
-COMPILE_ASSERT(sizeof(ServiceEntry) == sizeof(Wow64Entry), wrong_service_len);
 
 struct ServiceFullThunk {
   union {
@@ -360,18 +337,13 @@ bool Wow64ResolverThunk::IsFunctionAService(void* local_thunk) const {
 
   if (kMovEax != function_code.mov_eax || kXorEcx != function_code.xor_ecx ||
       kLeaEdx != function_code.lea_edx || kCallFs1 != function_code.call_fs1 ||
-      kCallFs2 != function_code.call_fs2 || kCallFs3 != function_code.call_fs3)
+      kCallFs2Ret != function_code.call_fs2_ret)
     return false;
 
-  if ((kAddEsp1 == function_code.add_esp1 &&
-       kAddEsp2 == function_code.add_esp2 &&
-       kRet == function_code.ret) || kRet == function_code.add_esp1) {
-    // Save the verified code
-    memcpy(local_thunk, &function_code, sizeof(function_code));
-    return true;
-  }
+  // Save the verified code
+  memcpy(local_thunk, &function_code, sizeof(function_code));
 
-  return false;
+  return true;
 }
 
 bool Win2kResolverThunk::IsFunctionAService(void* local_thunk) const {
