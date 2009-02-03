@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\browser.vsprops;$(SolutionDir)..\build\debug.vsprops"
+			InheritedPropertySheets=".\browser.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled_wtl.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -447,6 +447,30 @@
 			</File>
 			<File
 				RelativePath=".\plugin_service.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\build\win\precompiled_wtl.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\tools\build\win\precompiled_wtl.h"
 				>
 			</File>
 			<File
