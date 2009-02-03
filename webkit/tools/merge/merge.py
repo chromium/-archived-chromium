@@ -22,12 +22,6 @@ import xml.dom.minidom
 
 import google.path_utils
 
-DEPS_PATHS_TO_UPDATE = [
-  "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@",
-  "http://svn.webkit.org/repository/webkit/trunk/WebKit@",
-  "http://svn.webkit.org/repository/webkit/trunk/WebKitLibraries@",
-]
-
 class Merger(object):
   """ Does svn merges. """
 
@@ -116,9 +110,9 @@ def UpdateWebKitMergeRevision(webkit_merge_revision_path, repository,
 
 def UpdateDeps(deps_path, new_revision, is_dry_run):
   contents = open(deps_path).read()
-  for path in DEPS_PATHS_TO_UPDATE:
-    pattern = re.compile(path + "\d+", re.MULTILINE)
-    contents = pattern.sub(path + str(new_revision), contents)
+  path = '"webkit_revision": "'
+  pattern = re.compile(path + "\d+")
+  contents = pattern.sub(path + str(new_revision), contents)
   if is_dry_run:
     print "%s=%s" % (deps_path, contents)
   else:
@@ -161,8 +155,8 @@ def main(options, args):
 
   merger = Merger(repository, webkit_root, old_revision, new_revision,
       options.dry_run, options.svn, options.diff3_tool)
-  merger.MergeDirectory("JavaScriptCore")
   merger.MergeDirectory("WebCore")
+  merger.MergeDirectory("JavaScriptCore")
 
   UpdateWebKitMergeRevision(webkit_merge_revision_path, repository,
       new_revision, options.dry_run)
