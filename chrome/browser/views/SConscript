@@ -125,6 +125,10 @@ input_files = ChromeFileList([
   ]),
     'about_chrome_view.cc',
     'about_chrome_view.h',
+    'about_ipc_dialog.cc',
+    'about_ipc_dialog.h',
+    'about_network_dialog.cc',
+    'about_network_dialog.h',
     'blocked_popup_container.cc',
     'blocked_popup_container.h',
     'bookmark_bar_view.cc',
@@ -233,6 +237,8 @@ if env.Bit('linux'):
   # TODO(port): Port to Linux.
   input_files.Remove(
     'about_chrome_view.cc',
+    'about_ipc_dialog.cc',
+    'about_network_dialog.cc',
     'blocked_popup_container.cc',
     'bookmark_bar_view.cc',
     'bookmark_bubble_view.cc',
@@ -314,6 +320,8 @@ if env.Bit('mac'):
   # TODO(port): Port to Mac.
   input_files.Remove(
     'about_chrome_view.cc',
+    'about_ipc_dialog.cc'
+    'about_network_dialog.cc'
     'blocked_popup_container.cc',
     'bookmark_bar_view.cc',
     'bookmark_bubble_view.cc',
