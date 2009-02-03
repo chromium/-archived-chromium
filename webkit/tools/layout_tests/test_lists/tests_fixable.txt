@@ -670,8 +670,6 @@ LINUX WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 // question mark) in them
 LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
-DEFER WIN : LayoutTests/fast/text/zero-width-characters.html = FAIL
-
 // HTTPS tests fail on the open source buildbot with error "cross-site
 // not access allowed".  See bug # 2306
 LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
@@ -1699,8 +1697,6 @@ LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT
 WIN : LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
 WIN : LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
 WIN : LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEOUT
-WIN : LayoutTests/transitions/inherit-other-props.html = TIMEOUT
-WIN :LayoutTests/transitions/retargetted-transition.html = TIMEOUT
 LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
@@ -1732,14 +1728,12 @@ LINUX WIN : LayoutTests/fast/repaint/inline-color-change.html = FAIL
 LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = TIMEOUT
-WIN : LayoutTests/svg/custom/stop-crash.svg = CRASH
 WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 LINUX WIN : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
 LINUX WIN : chrome/fast/forms/textarea-metrics.html = FAIL
-WIN : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 
 // Merge 40314:40364 -- new tests that need 
 // layoutTestController.keepWebHistory() implemented.
@@ -1768,6 +1762,7 @@ LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
 LayoutTests/http/tests/history/redirect-303.pl = FAIL
 
 // Merge 40314:40364 -- new tests
+// See also comment above for LayoutTests/editing/spelling/inline_spelling_markers.html
 LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 
 // Started failng at build 1379 (r8741).  passes locally
