@@ -1735,31 +1735,13 @@ WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
 LINUX WIN : chrome/fast/forms/textarea-metrics.html = FAIL
 
-// Merge 40314:40364 -- new tests that need 
-// layoutTestController.keepWebHistory() implemented.
-LayoutTests/http/tests/history/redirect-meta-refresh-2-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-307.pl = FAIL
-LayoutTests/http/tests/history/redirect-js-location-assign-before-load.html = FAIL
-LayoutTests/http/tests/history/redirect-js-location-href-0-seconds.html = FAIL
+// Merge 40314:40364
+// The following tests still fail with the WebHistory implementation.
 LayoutTests/http/tests/history/redirect-200-refresh-0-seconds.pl = FAIL
-LayoutTests/http/tests/history/redirect-200-refresh-2-seconds.pl = FAIL
-LayoutTests/http/tests/history/redirect-js-location-href-2-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-302.pl = FAIL
-LayoutTests/http/tests/history/redirect-js-location-0-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-js-location-2-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-js-location-href-before-load.html = FAIL
 LayoutTests/http/tests/history/redirect-js-location-replace-0-seconds.html = FAIL
 LayoutTests/http/tests/history/redirect-js-location-replace-2-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-js-document-location-0-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-js-document-location-2-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-js-location-assign-0-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-js-location-before-load.html = FAIL
-LayoutTests/http/tests/history/redirect-js-location-assign-2-seconds.html = FAIL
 LayoutTests/http/tests/history/redirect-js-location-replace-before-load.html = FAIL
-LayoutTests/http/tests/history/redirect-301.pl = FAIL
-LayoutTests/http/tests/history/redirect-js-document-location-before-load.html = FAIL
 LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
-LayoutTests/http/tests/history/redirect-303.pl = FAIL
 
 // Merge 40314:40364 -- new tests
 // See also comment above for LayoutTests/editing/spelling/inline_spelling_markers.html
@@ -1777,7 +1759,7 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 
 // Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
 // ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
-// Likely will be fixed with subsequent merge. 
+// Likely will be fixed with subsequent merge.
 SKIP : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = CRASH
 
 // New tests added in http://trac.webkit.org/changeset/40424

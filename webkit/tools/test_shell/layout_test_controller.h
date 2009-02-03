@@ -11,8 +11,8 @@
   sort of output they produce.
 */
 
-#ifndef WEBKIT_TOOLS_TEST_SHELL_LAYOUT_TEST_CONTROLLER_H__
-#define WEBKIT_TOOLS_TEST_SHELL_LAYOUT_TEST_CONTROLLER_H__
+#ifndef WEBKIT_TOOLS_TEST_SHELL_LAYOUT_TEST_CONTROLLER_H_
+#define WEBKIT_TOOLS_TEST_SHELL_LAYOUT_TEST_CONTROLLER_H_
 
 #include <queue>
 
@@ -305,7 +305,10 @@ class LayoutTestController : public CppBoundClass {
   static WorkQueue work_queue_;
 
   static CppVariant globalFlag_;
+
+  // Bound variable counting the number of top URLs visited.
+  static CppVariant webHistoryItemCount_;
 };
 
-#endif  // WEBKIT_TOOLS_TEST_SHELL_LAYOUT_TEST_CONTROLLER_H__
+#endif  // WEBKIT_TOOLS_TEST_SHELL_LAYOUT_TEST_CONTROLLER_H_
 

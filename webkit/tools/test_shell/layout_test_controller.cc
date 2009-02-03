@@ -18,6 +18,7 @@
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
+#include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
 using std::string;
@@ -54,6 +55,7 @@ bool LayoutTestController::should_add_file_to_pasteboard_ = false;
 bool LayoutTestController::stop_provisional_frame_loads_ = false;
 LayoutTestController::WorkQueue LayoutTestController::work_queue_;
 CppVariant LayoutTestController::globalFlag_;
+CppVariant LayoutTestController::webHistoryItemCount_;
 
 LayoutTestController::LayoutTestController(TestShell* shell) {
   // Set static shell_ variable since we can't do it in an initializer list. 
@@ -129,9 +131,12 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   // The fallback method is called when an unknown method is invoked.
   BindFallbackMethod(&LayoutTestController::fallbackMethod);
 
-  // Shared property used by a number of layout tests in
+  // Shared properties.
+  // globalFlag is used by a number of layout tests in
   // LayoutTests\http\tests\security\dataURL.
   BindProperty("globalFlag", &globalFlag_);
+  // webHistoryItemCount is used by tests in LayoutTests\http\tests\history
+  BindProperty("webHistoryItemCount", &webHistoryItemCount_);
 }
 
 LayoutTestController::WorkQueue::~WorkQueue() {
@@ -374,6 +379,7 @@ void LayoutTestController::Reset() {
   should_add_file_to_pasteboard_ = false;
   stop_provisional_frame_loads_ = false;
   globalFlag_.Set(false);
+  webHistoryItemCount_.Set(0);
 
   if (close_remaining_windows_) {
     // Iterate through the window list and close everything except the original
@@ -398,6 +404,8 @@ void LayoutTestController::Reset() {
 }
 
 void LayoutTestController::LocationChangeDone() {
+  webHistoryItemCount_.Set(shell_->navigation_controller()->GetEntryCount());
+
   // no more new work after the first complete load.
   work_queue_.set_frozen(true);
 
