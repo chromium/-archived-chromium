@@ -111,6 +111,15 @@ class ExtensionsServiceBackend
       const FilePath &path,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
+  // Loads a single extension from |path| where |path| is the top directory of
+  // a specific extension where its manifest file lives.
+  // Errors are reported through OnExtensionLoadError(). On completion,
+  // OnExtensionsLoadedFromDirectory() is called with any successfully loaded
+  // extensions.
+  bool LoadSingleExtension(
+      const FilePath &path,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
   // Install the extension file at extension_path to install_dir.
   // ReportExtensionInstallError is called on error.
   // ReportExtensionInstalled is called on success.
@@ -120,6 +129,12 @@ class ExtensionsServiceBackend
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
  private:
+  // Load a single extension from |path| where |path| is the top directory of
+  // a specific extension where its manifest file lives.
+  Extension* LoadExtension(
+      const FilePath &path,
+      scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
+
   // Notify a frontend that there was an error loading an extension.
   void ReportExtensionLoadError(ExtensionsServiceFrontendInterface* frontend,
                                 const FilePath& path,
