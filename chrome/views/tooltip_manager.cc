@@ -174,6 +174,9 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
             clipped_text_ = tooltip_text_;
             TrimTooltipToFit(&clipped_text_, &tooltip_width_, &line_count_,
                              last_mouse_x_, last_mouse_y_, tooltip_hwnd_);
+            // Adjust the clipped tooltip text for locale direction.
+            l10n_util::AdjustStringForLocaleDirection(clipped_text_,
+                                                      &clipped_text_);
             tooltip_info->lpszText = const_cast<WCHAR*>(clipped_text_.c_str());
           } else {
             tooltip_text_.clear();
