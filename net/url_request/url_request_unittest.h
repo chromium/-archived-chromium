@@ -212,6 +212,11 @@ class BaseTestServer : public base::ProcessFilter,
     if (process_handle_) {
 #if defined(OS_WIN)
       CloseHandle(process_handle_);
+#elif defined(OS_POSIX)
+      // Make sure the process has exited and clean up the process to avoid
+      // a zombie.
+      kill(process_handle_, SIGINT);
+      waitpid(process_handle_, 0, 0);
 #endif
       process_handle_ = NULL;
     }
