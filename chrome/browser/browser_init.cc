@@ -422,11 +422,14 @@ bool BrowserInit::ProcessCommandLine(
     CreateAutomationProvider<AutomationProvider>(automation_channel_id,
                                                  profile, expected_tabs);
   }
-
-  // Start up the extensions service http://crbug.com/7265
-  profile->InitExtensions();
-  // TODO(port): figure out why this call crashes.
 #endif
+
+  if (command_line.HasSwitch(switches::kLoadExtension)) {
+    std::wstring path_string =
+        command_line.GetSwitchValue(switches::kLoadExtension);
+    FilePath path = FilePath::FromWStringHack(path_string);
+    profile->GetExtensionsService()->LoadExtension(path);
+  }
 
   if (command_line.HasSwitch(switches::kInstallExtension)) {
     std::wstring path_string =

@@ -344,6 +344,9 @@ const wchar_t kEnableExtensions[]              = L"enable-extensions";
 // handling so that users can double-click on an extension.
 const wchar_t kInstallExtension[]              = L"install-extension";
 
+// Load an extension from the specified directory.
+const wchar_t kLoadExtension[]                 = L"load-extension";
+
 // Causes the browser to launch directly in incognito mode.
 const wchar_t kIncognito[]                     = L"incognito";
 

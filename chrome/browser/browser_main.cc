@@ -543,6 +543,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   RecordBreakpadStatusUMA(metrics);
 
+  // Start up the extensions service.
+  // This should happen before ProcessCommandLine.
+  profile->InitExtensions();
+
   int result_code = ResultCodes::NORMAL_EXIT;
   if (parameters.ui_task) {
     MessageLoopForUI::current()->PostTask(FROM_HERE, parameters.ui_task);

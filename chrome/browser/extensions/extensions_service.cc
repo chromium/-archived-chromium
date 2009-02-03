@@ -70,6 +70,29 @@ MessageLoop* ExtensionsService::GetMessageLoop() {
   return message_loop_;
 }
 
+void ExtensionsService::InstallExtension(const FilePath& extension_path) {
+  // TODO(aa): This message loop should probably come from a backend
+  // interface, similar to how the message loop for the frontend comes
+  // from the frontend interface.
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::InstallExtension,
+          extension_path,
+          install_directory_,
+          scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
+}
+
+void ExtensionsService::LoadExtension(const FilePath& extension_path) {
+  // TODO(aa): This message loop should probably come from a backend
+  // interface, similar to how the message loop for the frontend comes
+  // from the frontend interface.
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(backend_.get(),
+          &ExtensionsServiceBackend::LoadSingleExtension,
+          extension_path,
+          scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
+}
+
 void ExtensionsService::OnExtensionsLoadedFromDirectory(
     ExtensionList* new_extensions) {
   extensions_.insert(extensions_.end(), new_extensions->begin(),
@@ -105,18 +128,6 @@ void ExtensionsService::OnExtensionLoadError(const std::string& error) {
   // TODO(aa): Print the error message out somewhere better. I think we are
   // going to need some sort of 'extension inspector'.
   LOG(WARNING) << error;
-}
-
-void ExtensionsService::InstallExtension(const FilePath& extension_path) {
-  // TODO(aa): This message loop should probably come from a backend
-  // interface, similar to how the message loop for the frontend comes
-  // from the frontend interface.
-  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(backend_.get(),
-          &ExtensionsServiceBackend::InstallExtension,
-          extension_path,
-          install_directory_,
-          scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 }
 
 void ExtensionsService::OnExtensionInstallError(const std::string& error) {

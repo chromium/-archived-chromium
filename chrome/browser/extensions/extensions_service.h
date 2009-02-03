@@ -27,15 +27,18 @@ class ExtensionsServiceFrontendInterface
   // The message loop to invoke the frontend's methods on.
   virtual MessageLoop* GetMessageLoop() = 0;
 
+  // Install the extension file at |extension_path|.
+  virtual void InstallExtension(const FilePath& extension_path) = 0;
+
+  // Load the extension from the directory |extension_path|.
+  virtual void LoadExtension(const FilePath& extension_path) = 0;
+
   // Called when loading an extension fails.
   virtual void OnExtensionLoadError(const std::string& message) = 0;
 
   // Called with results from LoadExtensionsFromDirectory(). The frontend
   // takes ownership of the list.
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions) = 0;
-
-  // Install the extension file at extension_path.
-  virtual void InstallExtension(const FilePath& extension_path) = 0;
 
   // Called when installing an extension fails.
   virtual void OnExtensionInstallError(const std::string& message) = 0;
@@ -62,9 +65,10 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 
   // ExtensionsServiceFrontendInterface
   virtual MessageLoop* GetMessageLoop();
+  virtual void InstallExtension(const FilePath& extension_path);
+  virtual void LoadExtension(const FilePath& extension_path);
   virtual void OnExtensionLoadError(const std::string& message);
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions);
-  virtual void InstallExtension(const FilePath& extension_path);
   virtual void OnExtensionInstallError(const std::string& message);
   virtual void OnExtensionInstalled(FilePath path);
 
@@ -116,6 +120,8 @@ class ExtensionsServiceBackend
   // Errors are reported through OnExtensionLoadError(). On completion,
   // OnExtensionsLoadedFromDirectory() is called with any successfully loaded
   // extensions.
+  // TODO(erikkay): It might be useful to be able to load a packed extension
+  // (presumably into memory) without installing it.
   bool LoadSingleExtension(
       const FilePath &path,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);

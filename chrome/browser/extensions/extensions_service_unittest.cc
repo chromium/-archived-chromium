@@ -66,6 +66,12 @@ class ExtensionsServiceTestFrontend
     return &message_loop_;
   }
 
+  virtual void InstallExtension(const FilePath& extension_path) {
+  }
+
+  virtual void LoadExtension(const FilePath& extension_path) {
+  }
+
   virtual void OnExtensionLoadError(const std::string& message) {
     errors_.push_back(message);
   }
@@ -77,9 +83,6 @@ class ExtensionsServiceTestFrontend
     // In the tests we rely on extensions being in particular order,
     // which is not always the case (and is not guaranteed by used APIs).
     std::stable_sort(extensions_.begin(), extensions_.end(), ExtensionsOrder());
-  }
-
-  virtual void InstallExtension(const FilePath& extension_path) {
   }
 
   virtual void OnExtensionInstallError(const std::string& message) {
@@ -215,5 +218,29 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 
   // TODO(erikkay): add more tests for many of the failure cases.
   // TODO(erikkay): add tests for upgrade cases.
+}
+
+TEST_F(ExtensionsServiceTest, LoadExtension) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
+  scoped_refptr<ExtensionsServiceTestFrontend> frontend(
+      new ExtensionsServiceTestFrontend);
+
+  FilePath ext1 = extensions_path.AppendASCII("extension1");
+  EXPECT_TRUE(backend->LoadSingleExtension(ext1,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
+  frontend->GetMessageLoop()->RunAllPending();
+  EXPECT_EQ(frontend->errors()->size(), 0u);
+  ASSERT_EQ(1u, frontend->extensions()->size());
+
+  FilePath no_manifest = extensions_path.AppendASCII("no_manifest");
+  EXPECT_FALSE(backend->LoadSingleExtension(no_manifest,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
+  frontend->GetMessageLoop()->RunAllPending();
+  EXPECT_EQ(frontend->errors()->size(), 1u);
+  ASSERT_EQ(1u, frontend->extensions()->size());
 }
 
