@@ -93,7 +93,7 @@ SkBitmap AeroGlassNonClientView::distributor_logo_;
 // area of the window.
 static const int kNoTitleTopSpacing = 8;
 // The width of the client edge to the left and right of the window.
-static const int kWindowHorizontalClientEdgeWidth = 2;
+static const int kWindowHorizontalClientEdgeWidth = 3;
 // The height of the client edge to the bottom of the window.
 static const int kWindowBottomClientEdgeHeight = 2;
 // The horizontal distance between the left of the minimize button and the
@@ -103,7 +103,10 @@ static const int kDistributorLogoHorizontalOffset = 7;
 // distributor logo.
 static const int kDistributorLogoVerticalOffset = 3;
 // The distance of the TabStrip from the top of the window's client area.
-static const int kTabStripY = 14;
+static const int kTabStripY = 19;
+// How much space on the right is not used for the tab strip (to provide
+// separation between the tabs and the window controls).
+static const int kTabStripRightHorizOffset = 30;
 // A single pixel.
 static const int kPixel = 1;
 // The height of the sizing border.
@@ -136,21 +139,15 @@ AeroGlassNonClientView::~AeroGlassNonClientView() {
 }
 
 gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
-  // If we are maximized, the tab strip will be in line with the window
-  // controls, so we need to make sure they don't overlap.
-  int tabstrip_width = browser_view_->width() - otr_avatar_bounds_.width() -
-      kOTRAvatarIconTabStripSpacing;
-  if(frame_->IsMaximized()) {
-    TITLEBARINFOEX titlebar_info;
-    titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
-    SendMessage(frame_->GetHWND(), WM_GETTITLEBARINFOEX, 0,
-      reinterpret_cast<WPARAM>(&titlebar_info));
-    tabstrip_width = titlebar_info.rgrect[2].left;  // Edge of minimize button
-  }
-  int tabstrip_height = tabstrip->GetPreferredHeight();
-  int tabstrip_x = otr_avatar_bounds_.width() + kOTRAvatarIconTabStripSpacing;
-  int tabstrip_y = frame_->IsMaximized() ? 0 : kTabStripY;
-  return gfx::Rect(tabstrip_x, tabstrip_y, tabstrip_width, tabstrip_height);
+  int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
+      (otr_avatar_bounds_.right() + kOTRAvatarIconTabStripSpacing) :
+      kWindowHorizontalClientEdgeWidth;
+  int tabstrip_width = width() - tabstrip_x - kTabStripRightHorizOffset -
+    (frame_->IsMaximized() ? frame_->GetMinimizeButtonOffset() : 0);
+  int tabstrip_y =
+    frame_->IsMaximized() ? (CalculateNonClientTopHeight() - 2) : kTabStripY;
+  return gfx::Rect(tabstrip_x, tabstrip_y, std::max(0, tabstrip_width),
+                   tabstrip->GetPreferredHeight());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

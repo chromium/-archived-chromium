@@ -17,12 +17,12 @@
 
 // The width of the sizing borders.
 static const int kResizeBorder = 8;
+// The width of the client edge to the left and right of the window.
+static const int kWindowHorizontalClientEdgeWidth = 3;
+// The height of the client edge to the bottom of the window.
+static const int kWindowBottomClientEdgeHeight = 2;
 // By how much the toolbar overlaps with the tab strip.
 static const int kToolbarOverlapVertOffset = 5;
-// This is the width of the default client edge provided by Windows. In some
-// circumstances we provide our own client edge, so we use this width to
-// remove it.
-static const int kWindowsDWMBevelSize = 2;
 
 HICON AeroGlassFrame::throbber_icons_[AeroGlassFrame::kThrobberIconCount];
 
@@ -136,6 +136,7 @@ LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
     frame_initialized_ = true;
   }
   browser_view_->ActivationChanged(!!active);
+  SetMsgHandled(false);
   return TRUE;
 }
 
@@ -155,9 +156,12 @@ LRESULT AeroGlassFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
       // addition and subtraction in Layout(). We don't cut off the
       // top + titlebar as that prevents the window controls from
       // highlighting.
-      params->rgrc[0].left += kResizeBorder;
-      params->rgrc[0].right -= kResizeBorder;
-      params->rgrc[0].bottom -= kResizeBorder;
+      params->rgrc[0].left +=
+          (kResizeBorder - kWindowHorizontalClientEdgeWidth);
+      params->rgrc[0].right -=
+          (kResizeBorder - kWindowHorizontalClientEdgeWidth);
+      params->rgrc[0].bottom -=
+          (kResizeBorder - kWindowBottomClientEdgeHeight);
 
       SetMsgHandled(TRUE);
     } else {
@@ -210,15 +214,14 @@ void AeroGlassFrame::UpdateDWMFrame() {
     // bevel that aero renders to demarcate the client area. We supply our own
     // client edge for the browser window and detached popups, so we don't want
     // to show the default one.
-    int client_edge_left_width = kWindowsDWMBevelSize;
-    int client_edge_right_width = kWindowsDWMBevelSize;
-    int client_edge_bottom_height = kWindowsDWMBevelSize;
-    int client_edge_top_height = kWindowsDWMBevelSize;
+    int client_edge_left_width = kWindowHorizontalClientEdgeWidth + 1;
+    int client_edge_right_width = kWindowHorizontalClientEdgeWidth + 1;
+    int client_edge_bottom_height = kWindowBottomClientEdgeHeight + 1;
+    int client_edge_top_height = kWindowBottomClientEdgeHeight;
     if (browser_view_->IsTabStripVisible()) {
       gfx::Rect tabstrip_bounds =
           GetBoundsForTabStrip(browser_view_->tabstrip());
-      client_edge_top_height =
-          client_view()->y() + tabstrip_bounds.bottom();
+      client_edge_top_height = tabstrip_bounds.bottom();
     }
 
     // Now poke the DWM.
