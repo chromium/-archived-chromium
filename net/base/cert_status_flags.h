@@ -33,6 +33,14 @@ static inline bool IsCertStatusError(int status) {
   return (CERT_STATUS_ALL_ERRORS & status) != 0;
 }
 
+// Maps a network error code to the equivalent certificate status flag.  If
+// the error code is not a certificate error, it is mapped to 0.
+int MapNetErrorToCertStatus(int error);
+
+// Maps the most serious certificate error in the certificate status flags
+// to the equivalent network error code.
+int MapCertStatusToNetError(int cert_status);
+
 }  // namespace net
 
 #endif  // NET_BASE_CERT_STATUS_FLAGS_H_

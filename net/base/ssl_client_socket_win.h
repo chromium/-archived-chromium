@@ -14,6 +14,8 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
+#include "net/base/cert_verifier.h"
+#include "net/base/cert_verify_result.h"
 #include "net/base/completion_callback.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
@@ -56,6 +58,8 @@ class SSLClientSocketWin : public SSLClientSocket {
   int DoHandshakeReadComplete(int result);
   int DoHandshakeWrite();
   int DoHandshakeWriteComplete(int result);
+  int DoVerifyCert();
+  int DoVerifyCertComplete(int result);
   int DoPayloadRead();
   int DoPayloadReadComplete(int result);
   int DoPayloadEncrypt();
@@ -63,8 +67,7 @@ class SSLClientSocketWin : public SSLClientSocket {
   int DoPayloadWriteComplete(int result);
 
   int DidCompleteHandshake();
-  static void LogConnectionTypeMetrics(PCCERT_CHAIN_CONTEXT chain_context);
-  int VerifyServerCert();
+  void LogConnectionTypeMetrics() const;
 
   CompletionCallbackImpl<SSLClientSocketWin> io_callback_;
   scoped_ptr<ClientSocket> transport_;
@@ -85,6 +88,8 @@ class SSLClientSocketWin : public SSLClientSocket {
     STATE_HANDSHAKE_READ_COMPLETE,
     STATE_HANDSHAKE_WRITE,
     STATE_HANDSHAKE_WRITE_COMPLETE,
+    STATE_VERIFY_CERT,
+    STATE_VERIFY_CERT_COMPLETE,
     STATE_PAYLOAD_ENCRYPT,
     STATE_PAYLOAD_WRITE,
     STATE_PAYLOAD_WRITE_COMPLETE,
@@ -95,7 +100,8 @@ class SSLClientSocketWin : public SSLClientSocket {
 
   SecPkgContext_StreamSizes stream_sizes_;
   PCCERT_CONTEXT server_cert_;
-  int server_cert_status_;
+  CertVerifier verifier_;
+  CertVerifyResult server_cert_verify_result_;
 
   CredHandle* creds_;
   CtxtHandle ctxt_;

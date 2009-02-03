@@ -6,6 +6,7 @@
 
 #include "base/message_loop.h"
 #include "base/worker_pool.h"
+#include "net/base/cert_verify_result.h"
 #include "net/base/net_errors.h"
 #include "net/base/x509_certificate.h"
 
@@ -18,17 +19,16 @@ class CertVerifier::Request :
           X509Certificate* cert,
           const std::string& hostname,
           bool rev_checking_enabled,
-          int* cert_status,
+          CertVerifyResult* verify_result,
           CompletionCallback* callback)
       : cert_(cert),
         hostname_(hostname),
         rev_checking_enabled_(rev_checking_enabled),
         verifier_(verifier),
-        cert_status_(cert_status),
+        verify_result_(verify_result),
         callback_(callback),
         origin_loop_(MessageLoop::current()),
-        error_(OK),
-        result_(0) {
+        error_(OK) {
   }
 
   ~Request() {}
@@ -55,13 +55,12 @@ class CertVerifier::Request :
 
   void DoCallback() {
     // Running on the origin thread.
-    DCHECK(error_ || result_);
 
     // We may have been cancelled!
     if (!verifier_)
       return;
 
-    *cert_status_ = result_;
+    *verify_result_ = result_;
 
     // Drop the verifier's reference to us.  Do this before running the
     // callback since the callback might result in the verifier being
@@ -86,7 +85,7 @@ class CertVerifier::Request :
 
   // Only used on the origin thread (where Verify was called).
   CertVerifier* verifier_;
-  int* cert_status_;
+  CertVerifyResult* verify_result_;
   CompletionCallback* callback_;
 
   // Used to post ourselves onto the origin thread.
@@ -95,7 +94,7 @@ class CertVerifier::Request :
 
   // Assigned on the worker thread, read on the origin thread.
   int error_;
-  int result_;
+  CertVerifyResult result_;
 };
 
 //-----------------------------------------------------------------------------
@@ -111,20 +110,20 @@ CertVerifier::~CertVerifier() {
 int CertVerifier::Verify(X509Certificate* cert,
                          const std::string& hostname,
                          bool rev_checking_enabled,
-                         int* cert_status,
+                         CertVerifyResult* verify_result,
                          CompletionCallback* callback) {
   DCHECK(!request_) << "verifier already in use";
 
   // Do a synchronous verification.
   if (!callback) {
-    int result;
+    CertVerifyResult result;
     int rv = cert->Verify(hostname, rev_checking_enabled, &result);
-    *cert_status = result;
+    *verify_result = result;
     return rv;
   }
 
   request_ = new Request(this, cert, hostname, rev_checking_enabled,
-                         cert_status, callback);
+                         verify_result, callback);
 
   // Dispatch to worker thread...
   if (!WorkerPool::PostTask(FROM_HERE,

@@ -165,7 +165,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\cert_status_flags.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\base\cert_status_flags.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\cert_verifier.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\cert_verifier.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\cert_verify_result.h"
 				>
 			</File>
 			<File

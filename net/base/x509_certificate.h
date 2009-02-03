@@ -29,6 +29,8 @@ class Pickle;
 
 namespace net {
 
+class CertVerifyResult;
+
 // X509Certificate represents an X.509 certificate used by SSL.
 class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
  public:
@@ -50,6 +52,9 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
     bool operator() (X509Certificate* lhs,  X509Certificate* rhs) const;
   };
 
+  // A handle to the certificate object in the underlying crypto library.
+  // We assume that OSCertHandle is a pointer type on all platforms and
+  // NULL is an invalid OSCertHandle.
 #if defined(OS_WIN)
   typedef PCCERT_CONTEXT OSCertHandle;
 #elif defined(OS_MACOSX)
@@ -60,7 +65,7 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // TODO(ericroman): not implemented
   typedef void* OSCertHandle;
 #endif
-	
+
   // Principal represent an X.509 principal.
   struct Principal {
     Principal() { }
@@ -181,6 +186,21 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // now.
   bool HasExpired() const;
 
+  // Verifies the certificate against the given hostname.  Returns OK if
+  // successful or an error code upon failure.
+  //
+  // The |*verify_result| structure, including the |verify_result->cert_status|
+  // bitmask, is always filled out regardless of the return value.  If the
+  // certificate has multiple errors, the corresponding status flags are set in
+  // |verify_result->cert_status|, and the error code for the most serious
+  // error is returned.
+  //
+  // If |rev_checking_enabled| is true, certificate revocation checking is
+  // performed.
+  int Verify(const std::string& hostname,
+             bool rev_checking_enabled,
+             CertVerifyResult* verify_result) const;
+
   // Returns true if the certificate is an extended-validation (EV)
   // certificate.
   bool IsEV(int cert_status) const;
@@ -198,22 +218,22 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
     void Insert(X509Certificate* cert);
     void Remove(X509Certificate* cert);
     X509Certificate* Find(const Fingerprint& fingerprint);
-    
+
    private:
     typedef std::map<Fingerprint, X509Certificate*, FingerprintLessThan>
         CertMap;
-    
+
     // Obtain an instance of X509Certificate::Cache via GetInstance().
     Cache() { }
     friend struct DefaultSingletonTraits<Cache>;
-    
+
     // You must acquire this lock before using any private data of this object.
     // You must not block while holding this lock.
     Lock lock_;
-    
+
     // The certificate cache.  You must acquire |lock_| before using |cache_|.
     CertMap cache_;
-    
+
     DISALLOW_COPY_AND_ASSIGN(Cache);
   };
 

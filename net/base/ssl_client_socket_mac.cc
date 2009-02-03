@@ -159,31 +159,6 @@ OSStatus OSStatusFromNetError(int net_error) {
   }
 }
 
-// Shared with the Windows code. TODO(avi): merge to a common place
-int CertStatusFromNetError(int error) {
-  switch (error) {
-    case ERR_CERT_COMMON_NAME_INVALID:
-      return CERT_STATUS_COMMON_NAME_INVALID;
-    case ERR_CERT_DATE_INVALID:
-      return CERT_STATUS_DATE_INVALID;
-    case ERR_CERT_AUTHORITY_INVALID:
-      return CERT_STATUS_AUTHORITY_INVALID;
-    case ERR_CERT_NO_REVOCATION_MECHANISM:
-      return CERT_STATUS_NO_REVOCATION_MECHANISM;
-    case ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
-      return CERT_STATUS_UNABLE_TO_CHECK_REVOCATION;
-    case ERR_CERT_REVOKED:
-      return CERT_STATUS_REVOKED;
-    case ERR_CERT_CONTAINS_ERRORS:
-      NOTREACHED();
-      // Falls through.
-    case ERR_CERT_INVALID:
-      return CERT_STATUS_INVALID;
-    default:
-      return 0;
-  }
-}
-
 // Converts from a cipher suite to its key size. If the suite is marked with a
 // **, it's not actually implemented in Secure Transport and won't be returned
 // (but we'll code for it anyway).  The reference here is
@@ -534,7 +509,7 @@ int SSLClientSocketMac::DoHandshake() {
   // TODO(wtc): for now, always check revocation.
   server_cert_status_ = CERT_STATUS_REV_CHECKING_ENABLED;
   if (net_error)
-    server_cert_status_ |= CertStatusFromNetError(net_error);
+    server_cert_status_ |= MapNetErrorToCertStatus(net_error);
   
   return net_error;
 }

@@ -9,7 +9,9 @@
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "net/base/cert_status_flags.h"
+#include "net/base/cert_verify_result.h"
 #include "net/base/ev_root_ca_metadata.h"
+#include "net/base/net_errors.h"
 #include "net/base/scoped_cert_chain_context.h"
 
 #pragma comment(lib, "crypt32.lib")
@@ -19,6 +21,109 @@ using base::Time;
 namespace net {
 
 namespace {
+
+//-----------------------------------------------------------------------------
+
+// TODO(wtc): This is a copy of the MapSecurityError function in
+// ssl_client_socket_win.cc.  Another function that maps Windows error codes
+// to our network error codes is WinInetUtil::OSErrorToNetError.  We should
+// eliminate the code duplication.
+int MapSecurityError(SECURITY_STATUS err) {
+  // There are numerous security error codes, but these are the ones we thus
+  // far find interesting.
+  switch (err) {
+    case SEC_E_WRONG_PRINCIPAL:  // Schannel
+    case CERT_E_CN_NO_MATCH:  // CryptoAPI
+      return ERR_CERT_COMMON_NAME_INVALID;
+    case SEC_E_UNTRUSTED_ROOT:  // Schannel
+    case CERT_E_UNTRUSTEDROOT:  // CryptoAPI
+      return ERR_CERT_AUTHORITY_INVALID;
+    case SEC_E_CERT_EXPIRED:  // Schannel
+    case CERT_E_EXPIRED:  // CryptoAPI
+      return ERR_CERT_DATE_INVALID;
+    case CRYPT_E_NO_REVOCATION_CHECK:
+      return ERR_CERT_NO_REVOCATION_MECHANISM;
+    case CRYPT_E_REVOCATION_OFFLINE:
+      return ERR_CERT_UNABLE_TO_CHECK_REVOCATION;
+    case CRYPT_E_REVOKED:  // Schannel and CryptoAPI
+      return ERR_CERT_REVOKED;
+    case SEC_E_CERT_UNKNOWN:
+    case CERT_E_ROLE:
+      return ERR_CERT_INVALID;
+    // We received an unexpected_message or illegal_parameter alert message
+    // from the server.
+    case SEC_E_ILLEGAL_MESSAGE:
+      return ERR_SSL_PROTOCOL_ERROR;
+    case SEC_E_ALGORITHM_MISMATCH:
+      return ERR_SSL_VERSION_OR_CIPHER_MISMATCH;
+    case SEC_E_INVALID_HANDLE:
+      return ERR_UNEXPECTED;
+    case SEC_E_OK:
+      return OK;
+    default:
+      LOG(WARNING) << "Unknown error " << err << " mapped to net::ERR_FAILED";
+      return ERR_FAILED;
+  }
+}
+
+// Map the errors in the chain_context->TrustStatus.dwErrorStatus returned by
+// CertGetCertificateChain to our certificate status flags.
+int MapCertChainErrorStatusToCertStatus(DWORD error_status) {
+  int cert_status = 0;
+
+  // CERT_TRUST_IS_NOT_TIME_NESTED means a subject certificate's time validity
+  // does not nest correctly within its issuer's time validity.
+  const DWORD kDateInvalidErrors = CERT_TRUST_IS_NOT_TIME_VALID |
+                                   CERT_TRUST_IS_NOT_TIME_NESTED |
+                                   CERT_TRUST_CTL_IS_NOT_TIME_VALID;
+  if (error_status & kDateInvalidErrors)
+    cert_status |= CERT_STATUS_DATE_INVALID;
+
+  const DWORD kAuthorityInvalidErrors = CERT_TRUST_IS_UNTRUSTED_ROOT |
+                                        CERT_TRUST_IS_EXPLICIT_DISTRUST |
+                                        CERT_TRUST_IS_PARTIAL_CHAIN;
+  if (error_status & kAuthorityInvalidErrors)
+    cert_status |= CERT_STATUS_AUTHORITY_INVALID;
+
+  if ((error_status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN) &&
+      !(error_status & CERT_TRUST_IS_OFFLINE_REVOCATION))
+    cert_status |= CERT_STATUS_NO_REVOCATION_MECHANISM;
+
+  if (error_status & CERT_TRUST_IS_OFFLINE_REVOCATION)
+    cert_status |= CERT_STATUS_UNABLE_TO_CHECK_REVOCATION;
+
+  if (error_status & CERT_TRUST_IS_REVOKED)
+    cert_status |= CERT_STATUS_REVOKED;
+
+  const DWORD kWrongUsageErrors = CERT_TRUST_IS_NOT_VALID_FOR_USAGE |
+                                  CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE;
+  if (error_status & kWrongUsageErrors) {
+    // TODO(wtc): Handle these errors.
+    // cert_status = |= CERT_STATUS_WRONG_USAGE;
+  }
+
+  // The rest of the errors.
+  const DWORD kCertInvalidErrors =
+      CERT_TRUST_IS_NOT_SIGNATURE_VALID |
+      CERT_TRUST_IS_CYCLIC |
+      CERT_TRUST_INVALID_EXTENSION |
+      CERT_TRUST_INVALID_POLICY_CONSTRAINTS |
+      CERT_TRUST_INVALID_BASIC_CONSTRAINTS |
+      CERT_TRUST_INVALID_NAME_CONSTRAINTS |
+      CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID |
+      CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT |
+      CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT |
+      CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT |
+      CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT |
+      CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY |
+      CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT;
+  if (error_status & kCertInvalidErrors)
+    cert_status |= CERT_STATUS_INVALID;
+
+  return cert_status;
+}
+
+//-----------------------------------------------------------------------------
 
 // Wrappers of malloc and free for CRYPT_DECODE_PARA, which requires the
 // WINAPI calling convention.
@@ -57,6 +162,38 @@ void GetCertSubjectAltName(PCCERT_CONTEXT cert,
                            &alt_name_info_size);
   if (rv)
     output->reset(alt_name_info);
+}
+
+// Saves some information about the certificate chain chain_context in
+// *verify_result.
+void GetCertChainInfo(PCCERT_CHAIN_CONTEXT chain_context,
+                      CertVerifyResult* verify_result) {
+  PCERT_SIMPLE_CHAIN first_chain = chain_context->rgpChain[0];
+  int num_elements = first_chain->cElement;
+  PCERT_CHAIN_ELEMENT* element = first_chain->rgpElement;
+
+  // Each chain starts with the end entity certificate (i = 0) and ends with
+  // the root CA certificate (i = num_elements - 1).  Do not inspect the
+  // signature algorithm of the root CA certificate because the signature on
+  // the trust anchor is not important.
+  for (int i = 0; i < num_elements - 1; ++i) {
+    PCCERT_CONTEXT cert = element[i]->pCertContext;
+    const char* algorithm = cert->pCertInfo->SignatureAlgorithm.pszObjId;
+    if (strcmp(algorithm, szOID_RSA_MD5RSA) == 0) {
+      // md5WithRSAEncryption: 1.2.840.113549.1.1.4
+      verify_result->has_md5 = true;
+      if (i != 0)
+        verify_result->has_md5_ca = true;
+    } else if (strcmp(algorithm, szOID_RSA_MD2RSA) == 0) {
+      // md2WithRSAEncryption: 1.2.840.113549.1.1.2
+      verify_result->has_md2 = true;
+      if (i != 0)
+        verify_result->has_md2_ca = true;
+    } else if (strcmp(algorithm, szOID_RSA_MD4RSA) == 0) {
+      // md4WithRSAEncryption: 1.2.840.113549.1.1.3
+      verify_result->has_md4 = true;
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -291,6 +428,140 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
 
 bool X509Certificate::HasExpired() const {
   return Time::Now() > valid_expiry();
+}
+
+int X509Certificate::Verify(const std::string& hostname,
+                            bool rev_checking_enabled,
+                            CertVerifyResult* verify_result) const {
+  verify_result->cert_status = 0;
+  verify_result->has_md5 = false;
+  verify_result->has_md2 = false;
+  verify_result->has_md4 = false;
+  verify_result->has_md5_ca = false;
+  verify_result->has_md2_ca = false;
+
+  // Build and validate certificate chain.
+
+  CERT_CHAIN_PARA chain_para;
+  memset(&chain_para, 0, sizeof(chain_para));
+  chain_para.cbSize = sizeof(chain_para);
+  // TODO(wtc): consider requesting the usage szOID_PKIX_KP_SERVER_AUTH
+  // or szOID_SERVER_GATED_CRYPTO or szOID_SGC_NETSCAPE
+  chain_para.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
+  chain_para.RequestedUsage.Usage.cUsageIdentifier = 0;
+  chain_para.RequestedUsage.Usage.rgpszUsageIdentifier = NULL;  // LPSTR*
+  // We can set CERT_CHAIN_RETURN_LOWER_QUALITY_CONTEXTS to get more chains.
+  DWORD flags = CERT_CHAIN_CACHE_END_CERT;
+  if (rev_checking_enabled) {
+    verify_result->cert_status |= CERT_STATUS_REV_CHECKING_ENABLED;
+    flags |= CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT;
+  } else {
+    flags |= CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
+  }
+  PCCERT_CHAIN_CONTEXT chain_context;
+  if (!CertGetCertificateChain(
+           NULL,  // default chain engine, HCCE_CURRENT_USER
+           cert_handle_,
+           NULL,  // current system time
+           cert_handle_->hCertStore,  // search this store
+           &chain_para,
+           flags,
+           NULL,  // reserved
+           &chain_context)) {
+    return MapSecurityError(GetLastError());
+  }
+  ScopedCertChainContext scoped_chain_context(chain_context);
+
+  GetCertChainInfo(chain_context, verify_result);
+
+  verify_result->cert_status |= MapCertChainErrorStatusToCertStatus(
+      chain_context->TrustStatus.dwErrorStatus);
+
+  std::wstring wstr_hostname = ASCIIToWide(hostname);
+
+  SSL_EXTRA_CERT_CHAIN_POLICY_PARA extra_policy_para;
+  memset(&extra_policy_para, 0, sizeof(extra_policy_para));
+  extra_policy_para.cbSize = sizeof(extra_policy_para);
+  extra_policy_para.dwAuthType = AUTHTYPE_SERVER;
+  extra_policy_para.fdwChecks = 0;
+  extra_policy_para.pwszServerName =
+      const_cast<wchar_t*>(wstr_hostname.c_str());
+
+  CERT_CHAIN_POLICY_PARA policy_para;
+  memset(&policy_para, 0, sizeof(policy_para));
+  policy_para.cbSize = sizeof(policy_para);
+  policy_para.dwFlags = 0;
+  policy_para.pvExtraPolicyPara = &extra_policy_para;
+
+  CERT_CHAIN_POLICY_STATUS policy_status;
+  memset(&policy_status, 0, sizeof(policy_status));
+  policy_status.cbSize = sizeof(policy_status);
+
+  if (!CertVerifyCertificateChainPolicy(
+           CERT_CHAIN_POLICY_SSL,
+           chain_context,
+           &policy_para,
+           &policy_status)) {
+    return MapSecurityError(GetLastError());
+  }
+
+  if (policy_status.dwError) {
+    verify_result->cert_status |= MapNetErrorToCertStatus(
+        MapSecurityError(policy_status.dwError));
+
+    // CertVerifyCertificateChainPolicy reports only one error (in
+    // policy_status.dwError) if the certificate has multiple errors.
+    // CertGetCertificateChain doesn't report certificate name mismatch, so
+    // CertVerifyCertificateChainPolicy is the only function that can report
+    // certificate name mismatch.
+    //
+    // To prevent a potential certificate name mismatch from being hidden by
+    // some other certificate error, if we get any other certificate error,
+    // we call CertVerifyCertificateChainPolicy again, ignoring all other
+    // certificate errors.  Both extra_policy_para.fdwChecks and
+    // policy_para.dwFlags allow us to ignore certificate errors, so we set
+    // them both.
+    if (policy_status.dwError != CERT_E_CN_NO_MATCH) {
+      const DWORD extra_ignore_flags =
+          0x00000080 |  // SECURITY_FLAG_IGNORE_REVOCATION
+          0x00000100 |  // SECURITY_FLAG_IGNORE_UNKNOWN_CA
+          0x00002000 |  // SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+          0x00000200;   // SECURITY_FLAG_IGNORE_WRONG_USAGE
+      extra_policy_para.fdwChecks = extra_ignore_flags;
+      const DWORD ignore_flags =
+          CERT_CHAIN_POLICY_IGNORE_ALL_NOT_TIME_VALID_FLAGS |
+          CERT_CHAIN_POLICY_IGNORE_INVALID_BASIC_CONSTRAINTS_FLAG |
+          CERT_CHAIN_POLICY_ALLOW_UNKNOWN_CA_FLAG |
+          CERT_CHAIN_POLICY_IGNORE_WRONG_USAGE_FLAG |
+          CERT_CHAIN_POLICY_IGNORE_INVALID_NAME_FLAG |
+          CERT_CHAIN_POLICY_IGNORE_INVALID_POLICY_FLAG |
+          CERT_CHAIN_POLICY_IGNORE_ALL_REV_UNKNOWN_FLAGS |
+          CERT_CHAIN_POLICY_ALLOW_TESTROOT_FLAG |
+          CERT_CHAIN_POLICY_TRUST_TESTROOT_FLAG |
+          CERT_CHAIN_POLICY_IGNORE_NOT_SUPPORTED_CRITICAL_EXT_FLAG |
+          CERT_CHAIN_POLICY_IGNORE_PEER_TRUST_FLAG;
+      policy_para.dwFlags = ignore_flags;
+      if (!CertVerifyCertificateChainPolicy(
+               CERT_CHAIN_POLICY_SSL,
+               chain_context,
+               &policy_para,
+               &policy_status)) {
+        return MapSecurityError(GetLastError());
+      }
+      if (policy_status.dwError) {
+        verify_result->cert_status |= MapNetErrorToCertStatus(
+            MapSecurityError(policy_status.dwError));
+      }
+    }
+  }
+
+  // TODO(wtc): Suppress CERT_STATUS_NO_REVOCATION_MECHANISM for now to be
+  // compatible with WinHTTP, which doesn't report this error (bug 3004).
+  verify_result->cert_status &= ~CERT_STATUS_NO_REVOCATION_MECHANISM;
+
+  if (IsCertStatusError(verify_result->cert_status))
+    return MapCertStatusToNetError(verify_result->cert_status);
+  return OK;
 }
 
 // Returns true if the certificate is an extended-validation certificate.

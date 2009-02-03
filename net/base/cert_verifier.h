@@ -13,6 +13,7 @@
 
 namespace net {
 
+class CertVerifyResult;
 class X509Certificate;
 
 // This class represents the task of verifying a certificate.  It can only
@@ -35,9 +36,10 @@ class CertVerifier {
   // Verifies the given certificate against the given hostname.  Returns OK if
   // successful or an error code upon failure.
   //
-  // The |cert_status| bitmask is always filled out regardless of the return
-  // value.  If the certificate has multiple errors, the corresponding status
-  // flags are set in |cert_status|, and the error code for the most serious
+  // The |*verify_result| structure, including the |verify_result->cert_status|
+  // bitmask, is always filled out regardless of the return value.  If the
+  // certificate has multiple errors, the corresponding status flags are set in
+  // |verify_result->cert_status|, and the error code for the most serious
   // error is returned.
   //
   // If |rev_checking_enabled| is true, certificate revocation checking is
@@ -50,7 +52,7 @@ class CertVerifier {
   // be passed to the callback when available.
   //
   int Verify(X509Certificate* cert, const std::string& hostname,
-             bool rev_checking_enabled, int* cert_status,
+             bool rev_checking_enabled, CertVerifyResult* verify_result,
              CompletionCallback* callback);
 
  private:
