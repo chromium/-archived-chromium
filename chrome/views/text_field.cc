@@ -70,9 +70,7 @@ class TextField::Edit
     MSG_WM_CHAR(OnChar)
     MSG_WM_CONTEXTMENU(OnContextMenu)
     MSG_WM_COPY(OnCopy)
-    MSG_WM_CREATE(OnCreate)
     MSG_WM_CUT(OnCut)
-    MSG_WM_DESTROY(OnDestroy)
     MESSAGE_HANDLER_EX(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
     MESSAGE_HANDLER_EX(WM_IME_COMPOSITION, OnImeComposition)
     MSG_WM_KEYDOWN(OnKeyDown)
@@ -118,9 +116,7 @@ class TextField::Edit
   void OnChar(TCHAR key, UINT repeat_count, UINT flags);
   void OnContextMenu(HWND window, const CPoint& point);
   void OnCopy();
-  LRESULT OnCreate(CREATESTRUCT* create_struct);
   void OnCut();
-  void OnDestroy();
   LRESULT OnImeStartComposition(UINT message, WPARAM wparam, LPARAM lparam);
   LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam);
   void OnKeyDown(TCHAR key, UINT repeat_count, UINT flags);
@@ -418,11 +414,6 @@ void TextField::Edit::OnCopy() {
   }
 }
 
-LRESULT TextField::Edit::OnCreate(CREATESTRUCT* create_struct) {
-  TRACK_HWND_CREATION(m_hWnd);
-  return 0;
-}
-
 void TextField::Edit::OnCut() {
   if (parent_->IsReadOnly())
     return;
@@ -432,10 +423,6 @@ void TextField::Edit::OnCut() {
   // This replace selection will have no effect (even on the undo stack) if the
   // current selection is empty.
   ReplaceSel(L"", true);
-}
-
-void TextField::Edit::OnDestroy() {
-  TRACK_HWND_DESTRUCTION(m_hWnd);
 }
 
 LRESULT TextField::Edit::OnImeStartComposition(UINT message,

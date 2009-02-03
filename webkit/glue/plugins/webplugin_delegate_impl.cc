@@ -13,7 +13,6 @@
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
-#include "base/win_util.h"
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
@@ -202,7 +201,6 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
 WebPluginDelegateImpl::~WebPluginDelegateImpl() {
   if (::IsWindow(dummy_window_for_activation_)) {
     ::DestroyWindow(dummy_window_for_activation_);
-    TRACK_HWND_DESTRUCTION(dummy_window_for_activation_);
   }
 
   DestroyInstance();
@@ -449,7 +447,6 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
     0,
     GetModuleHandle(NULL),
     0);
-  TRACK_HWND_CREATION(windowed_handle_);
   if (windowed_handle_ == 0)
     return false;
 
@@ -509,7 +506,6 @@ void WebPluginDelegateImpl::WindowedDestroyWindow() {
     }
 
     DestroyWindow(windowed_handle_);
-    TRACK_HWND_DESTRUCTION(windowed_handle_);
     windowed_handle_ = 0;
   }
 }
@@ -662,7 +658,6 @@ bool WebPluginDelegateImpl::CreateDummyWindowForActivation() {
     0,
     GetModuleHandle(NULL),
     0);
-  TRACK_HWND_CREATION(dummy_window_for_activation_);
 
   if (dummy_window_for_activation_ == 0)
     return false;
