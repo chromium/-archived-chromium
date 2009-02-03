@@ -19,11 +19,6 @@ import google.path_utils
 from layout_package import path_utils
 from layout_package import platform_utils
 
-def isRenderTreeDump(data):
-  """Returns true if data appears to be a render tree dump as opposed to a
-  plain text dump."""
-  return data.find("RenderView at (0,0)") != -1
-
 class TestArguments(object):
   """Struct-like wrapper for additional arguments needed by specific tests."""
   # Whether to save new baseline results.
@@ -81,27 +76,15 @@ class TestTypeBase(object):
       data: result to be saved as the new baseline
       modifier: type of the result file, e.g. ".txt" or ".png"
     """
+    relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
+    output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
+                              self._platform,
+                              relative_dir)
     output_file = os.path.basename(os.path.splitext(filename)[0] +
                                    self.FILENAME_SUFFIX_EXPECTED + modifier)
-    if isRenderTreeDump(data):
-      relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
-      output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
-                                self._platform,
-                                relative_dir)
 
-      google.path_utils.MaybeMakeDirectory(output_dir)
-      open(os.path.join(output_dir, output_file), "wb").write(data)
-    else:
-      # If it's not a render tree, then the results can be shared between all
-      # platforms.  Copy the file into the chromium-win and chromium-mac dirs.
-      relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
-      for platform in ('chromium-win', 'chromium-mac'):
-        output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
-                                  platform,
-                                  relative_dir)
-
-        google.path_utils.MaybeMakeDirectory(output_dir)
-        open(os.path.join(output_dir, output_file), "wb").write(data)
+    google.path_utils.MaybeMakeDirectory(output_dir)
+    open(os.path.join(output_dir, output_file), "wb").write(data)
 
   def OutputFilename(self, filename, modifier):
     """Returns a filename inside the output dir that contains modifier.

@@ -12,10 +12,17 @@ import errno
 import logging
 import os.path
 
+import google.path_utils
+
 from layout_package import path_utils
 from layout_package import platform_utils
 from layout_package import test_failures
 from test_types import test_type_base
+
+def isRenderTreeDump(data):
+  """Returns true if data appears to be a render tree dump as opposed to a
+  plain text dump."""
+  return data.find("RenderView at (0,0)") != -1
 
 class TestTextDiff(test_type_base.TestTypeBase):
   def GetNormalizedOutputText(self, output):
@@ -44,6 +51,39 @@ class TestTextDiff(test_type_base.TestTypeBase):
 
     # Normalize line endings
     return expected.strip("\r\n").replace("\r\n", "\n") + "\n"
+
+  def _SaveBaselineData(self, filename, data, modifier):
+    """Saves a new baseline file into the platform directory.
+
+    The file will be named simply "<test>-expected<modifier>", suitable for
+    use as the expected results in a later run.
+
+    Args:
+      filename: path to the test file
+      data: result to be saved as the new baseline
+      modifier: type of the result file, e.g. ".txt" or ".png"
+    """
+    output_file = os.path.basename(os.path.splitext(filename)[0] +
+                                   self.FILENAME_SUFFIX_EXPECTED + modifier)
+    if isRenderTreeDump(data):
+      relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
+      output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
+                                self._platform,
+                                relative_dir)
+
+      google.path_utils.MaybeMakeDirectory(output_dir)
+      open(os.path.join(output_dir, output_file), "wb").write(data)
+    else:
+      # If it's not a render tree, then the results can be shared between all
+      # platforms.  Copy the file into the chromium-win and chromium-mac dirs.
+      relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
+      for platform in ('chromium-win', 'chromium-mac'):
+        output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
+                                  platform,
+                                  relative_dir)
+
+        google.path_utils.MaybeMakeDirectory(output_dir)
+        open(os.path.join(output_dir, output_file), "wb").write(data)
 
   def CompareOutput(self, filename, proc, output, test_args, target):
     """Implementation of CompareOutput that checks the output text against the
