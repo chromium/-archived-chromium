@@ -678,6 +678,33 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
   if (!pref_name || *pref_name == prefs::kSpellCheckDictionary) {
     int index = dictionary_language_model_->GetSelectedLanguageIndex(
         prefs::kSpellCheckDictionary);
+
+    // If the index for the current language cannot be found, it is due to
+    // the fact that the pref-member value for the last dictionary language
+    // set by the user still uses the old format; i.e. language-region, even
+    // when region is not necessary. For example, if the user sets the
+    // dictionary language to be French, the pref-member value in the user
+    // profile is "fr-FR", whereas we now use only "fr". To resolve this issue,
+    // if "fr-FR" is read from the pref, the language code ("fr" here) is
+    // extracted, and re-written in the pref, so that the pref-member value for
+    // dictionary language in the user profile now correctly stores "fr"
+    // instead of "fr-FR".
+    if (index < 0) {
+      PrefService* local_state;
+      if (!profile())
+        local_state = g_browser_process->local_state();
+      else
+        local_state = profile()->GetPrefs();
+
+      DCHECK(local_state);
+      const std::wstring& lang_region = local_state->GetString(
+          prefs::kSpellCheckDictionary);
+      dictionary_language_.SetValue(
+          SpellChecker::GetLanguageFromLanguageRegion(lang_region));
+      index = dictionary_language_model_->GetSelectedLanguageIndex(
+          prefs::kSpellCheckDictionary);
+    }
+
     change_dictionary_language_combobox_->SetSelectedItem(index);
     spellcheck_language_index_selected_ = -1;
   }
@@ -705,6 +732,8 @@ void LanguagesPageView::ItemChanged(views::ComboBox* sender,
     }
   } else if (sender == change_dictionary_language_combobox_) {
     spellcheck_language_index_selected_ = new_index;
+    OnAddLanguage(dictionary_language_model_->GetLocaleFromIndex(new_index));
+    language_table_edited_ = true;
   }
 }
 

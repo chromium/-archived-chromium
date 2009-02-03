@@ -96,6 +96,19 @@ SpellChecker::Language SpellChecker::GetSpellCheckLanguageRegion(
   return input_language;
 }
 
+
+SpellChecker::Language SpellChecker::GetLanguageFromLanguageRegion(
+    Language input_language) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
+       ++i) {
+    Language language(g_supported_spellchecker_languages[i].language_region);
+    if (language ==  input_language)
+      return Language(g_supported_spellchecker_languages[i].language);
+  }
+
+  return input_language;
+}
+
 SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
     const Language& language) {
   // Look for exact match in the Spell Check language list.

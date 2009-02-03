@@ -92,6 +92,11 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // spell check language. For example, for hi, it returns hi-IN.
   static Language GetSpellCheckLanguageRegion(Language input_language);
 
+  // This function returns ll (language code) from ll-RR where 'RR' (region
+  // code) is redundant. However, if the region code matters, it's preserved.
+  // That is, it returns 'hi' and 'en-GB' for 'hi-IN' and 'en-GB' respectively.
+  static Language GetLanguageFromLanguageRegion(Language input_language);
+
  private:
   // Download dictionary files when required.
   class DictionaryDownloadController;
