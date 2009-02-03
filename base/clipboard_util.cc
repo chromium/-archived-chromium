@@ -429,7 +429,7 @@ std::string ClipboardUtil::HtmlToCFHtml(const std::string& html,
       MAX_DIGITS * 4;
   if (!base_url.empty()) {
     start_html_offset += strlen(source_url_prefix) +
-        base_url.length() + 1;
+        base_url.length() + 2;  // Add 2 for \r\n.
   }
   size_t start_fragment_offset = start_html_offset + strlen(start_markup);
   size_t end_fragment_offset = start_fragment_offset + html.length();
