@@ -42,6 +42,10 @@ deps_os = {
     "src/third_party/svn":
       "/trunk/deps/third_party/svn@3230",
   },
+  "mac": {
+    "src/third_party/GTM":
+      "http://google-toolbox-for-mac.googlecode.com/svn/trunk/@77",
+  },
 }
 
 
