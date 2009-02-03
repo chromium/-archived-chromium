@@ -139,6 +139,11 @@ void MessagePumpCFRunLoopBase::RunDelayedWorkTimer(CFRunLoopTimerRef timer,
 void MessagePumpCFRunLoopBase::RunWork(void* info) {
   MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
 
+  // If we're on the main event loop, the NSApp runloop won't clean up the
+  // autoreleasepool until there is UI event, so use a local one for any
+  // autoreleased objects to ensure they go away sooner.
+  ScopedNSAutoreleasePool autorelease_pool;
+
   // Call DoWork once, and if something was done, arrange to come back here
   // again as long as the loop is still running.
   if (self->delegate_->DoWork()) {
@@ -150,6 +155,11 @@ void MessagePumpCFRunLoopBase::RunWork(void* info) {
 // static
 void MessagePumpCFRunLoopBase::RunDelayedWork(void* info) {
   MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
+
+  // If we're on the main event loop, the NSApp runloop won't clean up the
+  // autoreleasepool until there is UI event, so use a local one for any
+  // autoreleased objects to ensure they go away sooner.
+  ScopedNSAutoreleasePool autorelease_pool;
 
   Time next_time;
   self->delegate_->DoDelayedWork(&next_time);
@@ -173,6 +183,11 @@ void MessagePumpCFRunLoopBase::RunIdleWork(CFRunLoopObserverRef observer,
                                            CFRunLoopActivity activity,
                                            void* info) {
   MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
+
+  // If we're on the main event loop, the NSApp runloop won't clean up the
+  // autoreleasepool until there is UI event, so use a local one for any
+  // autoreleased objects to ensure they go away sooner.
+  ScopedNSAutoreleasePool autorelease_pool;
 
   if (self->delegate_->DoIdleWork()) {
     // If idle work was done, don't let the loop go to sleep.  More idle work
