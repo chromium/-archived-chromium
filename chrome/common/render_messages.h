@@ -10,8 +10,10 @@
 #include <map>
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
+#include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
@@ -32,6 +34,10 @@
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview_delegate.h"
+
+#if defined(OS_POSIX)
+#include "skia/include/SkBitmap.h"
+#endif
 
 // Parameters structure for ViewMsg_Navigate, which has too many data
 // parameters to be reasonably put in a predefined IPC message.
@@ -190,13 +196,9 @@ struct ViewHostMsg_PaintRect_Flags {
   }
 };
 
-#if defined(OS_WIN)
-// TODO(port): Make these structs portable.
-
 struct ViewHostMsg_PaintRect_Params {
-  // The bitmap to be painted into the rect given by bitmap_rect.  Valid only
-  // in the context of the renderer process.
-  base::SharedMemoryHandle bitmap;
+  // The bitmap to be painted into the rect given by bitmap_rect.
+  BitmapWireData bitmap;
 
   // The position and size of the bitmap.
   gfx::Rect bitmap_rect;
@@ -228,9 +230,8 @@ struct ViewHostMsg_PaintRect_Params {
 // Parameters structure for ViewHostMsg_ScrollRect, which has too many data
 // parameters to be reasonably put in a predefined IPC message.
 struct ViewHostMsg_ScrollRect_Params {
-  // The bitmap to be painted into the rect exposed by scrolling.  This handle
-  // is valid only in the context of the renderer process.
-  base::SharedMemoryHandle bitmap;
+  // The bitmap to be painted into the rect exposed by scrolling.
+  BitmapWireData bitmap;
 
   // The position and size of the bitmap.
   gfx::Rect bitmap_rect;
@@ -248,7 +249,6 @@ struct ViewHostMsg_ScrollRect_Params {
   // New window locations for plugin child windows.
   std::vector<WebPluginGeometry> plugin_window_moves;
 };
-#endif  // defined(OS_WIN)
 
 // Parameters structure for ViewMsg_UploadFile.
 struct ViewMsg_UploadFile_Params {
@@ -967,9 +967,6 @@ struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
   }
 };
 
-#if defined(OS_WIN)
-// TODO(port): Make these messages portable.
-
 // Traits for ViewHostMsg_PaintRect_Params structure to pack/unpack.
 template <>
 struct ParamTraits<ViewHostMsg_PaintRect_Params> {
@@ -1078,7 +1075,6 @@ struct ParamTraits<WebPluginGeometry> {
     l->append(L")");
   }
 };
-#endif  // defined(OS_WIN)
 
 // Traits for ViewMsg_GetPlugins_Reply structure to pack/unpack.
 template <>
@@ -1737,6 +1733,31 @@ struct ParamTraits<ModalDialogEvent> {
     l->append(L"<ModalDialogEvent>");
   }
 };
+
+#if defined(OS_POSIX)
+
+// TODO(port): this shouldn't exist. However, the plugin stuff is really using
+// HWNDS (NativeView), and making Windows calls based on them. I've not figured
+// out the deal with plugins yet.
+template <>
+struct ParamTraits<gfx::NativeView> {
+  typedef gfx::NativeView param_type;
+  static void Write(Message* m, const param_type& p) {
+    NOTIMPLEMENTED();
+  }
+
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    NOTIMPLEMENTED();
+    *p = NULL;
+    return true;
+  }
+
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(StringPrintf(L"<gfx::NativeView>"));
+  }
+};
+
+#endif  // defined(OS_POSIX)
 
 }  // namespace IPC
 

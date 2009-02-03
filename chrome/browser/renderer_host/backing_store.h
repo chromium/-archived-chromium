@@ -10,10 +10,13 @@
 #include "base/gfx/size.h"
 #include "base/process.h"
 #include "build/build_config.h"
+#include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/mru_cache.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
+#elif defined(OS_POSIX)
+#include "skia/ext/platform_canvas.h"
 #endif
 
 class RenderWidgetHost;
@@ -33,17 +36,15 @@ class BackingStore {
 #endif
 
   // Paints the bitmap from the renderer onto the backing store.
-  // TODO(port): The HANDLE is a shared section on Windows. Abstract this.
   bool PaintRect(base::ProcessHandle process,
-                 HANDLE bitmap_section,
+                 BitmapWireData bitmap_section,
                  const gfx::Rect& bitmap_rect);
 
   // Scrolls the given rect in the backing store, replacing the given region
   // identified by |bitmap_rect| by the bitmap in the file identified by the
   // given file handle.
-  // TODO(port): The HANDLE is a shared section on Windows. Abstract this.
   void ScrollRect(base::ProcessHandle process,
-                  HANDLE bitmap, const gfx::Rect& bitmap_rect,
+                  BitmapWireData bitmap, const gfx::Rect& bitmap_rect,
                   int dx, int dy,
                   const gfx::Rect& clip_rect,
                   const gfx::Size& view_size);
@@ -69,7 +70,9 @@ class BackingStore {
 
   // Handle to the original bitmap in the dc.
   HANDLE original_bitmap_;
-#endif
+#elif defined(OS_POSIX)
+  skia::PlatformCanvas canvas_;
+#endif  // defined(OS_WIN)
 
   DISALLOW_COPY_AND_ASSIGN(BackingStore);
 };
@@ -105,11 +108,10 @@ class BackingStoreManager {
   // needs_full_paint
   //   Set if we need to send out a request to paint the view
   //   to the renderer.
-  // TODO(port): The HANDLE is a shared section on Windows. Abstract this.
   static BackingStore* PrepareBackingStore(RenderWidgetHost* host,
                                            const gfx::Rect& backing_store_rect,
                                            base::ProcessHandle process_handle,
-                                           HANDLE bitmap_section,
+                                           BitmapWireData bitmap_section,
                                            const gfx::Rect& bitmap_rect,
                                            bool* needs_full_paint);
 

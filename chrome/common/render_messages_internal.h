@@ -613,7 +613,6 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                               navigating to a POST again and we're going to
                               show the POST interstitial */ )
 
-#if defined(OS_WIN)
   // Sent to paint part of the view.  In response to this message, the host
   // generates a ViewMsg_PaintRect_ACK message.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_PaintRect,
@@ -623,7 +622,6 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // generates a ViewMsg_ScrollRect_ACK message.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ScrollRect,
                       ViewHostMsg_ScrollRect_Params)
-#endif
 
   // Acknowledges receipt of a ViewMsg_HandleInputEvent message.
   // Payload is a WebInputEvent::Type which is the type of the event, followed

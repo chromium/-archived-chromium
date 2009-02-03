@@ -14,6 +14,7 @@
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/render_messages.h"
+#include "skia/ext/platform_canvas.h"
 
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webcursor.h"
@@ -85,6 +86,10 @@ class RenderWidget : public IPC::Channel::Listener,
   // Close the underlying WebWidget.
   void Close();
 
+  // Get the size of the paint buffer for the given rectangle, rounding up to
+  // the allocation granularity of the system.
+  static size_t GetPaintBufSize(const gfx::Rect& rect);
+
  protected:
   // Friend RefCounted so that the dtor can be non-public. Using this class
   // without ref-counting is an error.
@@ -100,14 +105,10 @@ class RenderWidget : public IPC::Channel::Listener,
   // Finishes creation of a pending view started with Init.
   void CompleteInit(gfx::NativeViewId parent);
 
-  // Paints the given rectangular region of the WebWidget into paint_buf (a
-  // shared memory segment returned by AllocPaintBuf). The caller must ensure
-  // that the given rect fits within the bounds of the WebWidget.
-  void PaintRect(const gfx::Rect& rect, base::SharedMemory* paint_buf);
-
-  // Get the size of the paint buffer for the given rectangle, rounding up to
-  // the allocation granularity of the system.
-  size_t GetPaintBufSize(const gfx::Rect& rect);
+  // Paints the given rectangular region of the WebWidget into canvas (a
+  // shared memory segment returned by AllocPaintBuf on Windows). The caller
+  // must ensure that the given rect fits within the bounds of the WebWidget.
+  void PaintRect(const gfx::Rect& rect, skia::PlatformCanvas* canvas);
 
   void DoDeferredPaint();
   void DoDeferredScroll();

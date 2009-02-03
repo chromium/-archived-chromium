@@ -9,8 +9,14 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/scoped_ptr.h"
+#include "build/build_config.h"
 #include "chrome/renderer/render_process.h"
-#include "skia/ext/platform_canvas_win.h"
+#include "skia/ext/platform_canvas.h"
+
+#if defined(OS_POSIX)
+#include "skia/include/SkPixelRef.h"
+#include "skia/include/SkMallocPixelRef.h"
+#endif  // defined(OS_POSIX)
 
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"
@@ -77,10 +83,10 @@ RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
       next_paint_flags_(0),
       paint_reply_pending_(false),
       did_show_(false),
-      closing_(false),
       is_hidden_(false),
       needs_repainting_on_restore_(false),
       has_focus_(false),
+      closing_(false),
       ime_is_active_(false),
       ime_control_enable_ime_(true),
       ime_control_x_(-1),
@@ -352,25 +358,25 @@ void RenderWidget::ClearFocus() {
 }
 
 void RenderWidget::PaintRect(const gfx::Rect& rect,
-                             base::SharedMemory* paint_buf) {
-  skia::PlatformCanvasWin canvas(rect.width(), rect.height(), true,
-      paint_buf->handle());
+                             skia::PlatformCanvas* canvas) {
   // Bring the canvas into the coordinate system of the paint rect
-  canvas.translate(static_cast<SkScalar>(-rect.x()),
-                   static_cast<SkScalar>(-rect.y()));
+  canvas->translate(static_cast<SkScalar>(-rect.x()),
+                    static_cast<SkScalar>(-rect.y()));
 
-  webwidget_->Paint(&canvas, rect);
+  webwidget_->Paint(canvas, rect);
 
   // Flush to underlying bitmap.  TODO(darin): is this needed?
-  canvas.getTopPlatformDevice().accessBitmap(false);
+  canvas->getTopPlatformDevice().accessBitmap(false);
 
   // Let the subclass observe this paint operations.
   DidPaint();
 }
 
+// static
 size_t RenderWidget::GetPaintBufSize(const gfx::Rect& rect) {
   // TODO(darin): protect against overflow
-  return 4 * rect.width() * rect.height();
+  const size_t stride = skia::PlatformCanvas::StrideForWidth(rect.width());
+  return stride * rect.height();
 }
 
 void RenderWidget::DoDeferredPaint() {
@@ -394,21 +400,37 @@ void RenderWidget::DoDeferredPaint() {
   paint_rect_ = gfx::Rect();
 
   // Compute a buffer for painting and cache it.
+#if defined(OS_WIN)
   current_paint_buf_ =
       RenderProcess::AllocSharedMemory(GetPaintBufSize(damaged_rect));
   if (!current_paint_buf_) {
     NOTREACHED();
     return;
   }
+  skia::PlatformCanvasWin canvas(damaged_rect.width(), damaged_rect.height(),
+                                 true, current_paint_buf_->handle());
+#elif defined(OS_POSIX)
+  // Currently, on POSIX, we are serialising the bitmap data over the IPC
+  // channel.
+  skia::PlatformCanvas canvas(damaged_rect.width(), damaged_rect.height(),
+                              true);
+#endif  // defined(OS_POSIX)
 
-  PaintRect(damaged_rect, current_paint_buf_);
+  PaintRect(damaged_rect, &canvas);
 
   ViewHostMsg_PaintRect_Params params;
-  params.bitmap = current_paint_buf_->handle();
   params.bitmap_rect = damaged_rect;
   params.view_size = size_;
   params.plugin_window_moves = plugin_window_moves_;
   params.flags = next_paint_flags_;
+
+#if defined(OS_WIN)
+  // Windows passes a HANDLE to the shared memory over IPC
+  params.bitmap = current_paint_buf_->handle();
+#elif defined(OS_POSIX)
+  // POSIX currently passes the data itself.
+  params.bitmap = canvas.getDevice()->accessBitmap(false);
+#endif  // defined(OS_WIN)
 
   plugin_window_moves_.clear();
 
@@ -469,17 +491,25 @@ void RenderWidget::DoDeferredScroll() {
   // In case the scroll offset exceeds the width/height of the scroll rect
   damaged_rect = scroll_rect_.Intersect(damaged_rect);
 
+#if defined(OS_WIN)
   current_scroll_buf_ =
       RenderProcess::AllocSharedMemory(GetPaintBufSize(damaged_rect));
   if (!current_scroll_buf_) {
     NOTREACHED();
     return;
   }
+  skia::PlatformCanvasWin canvas(damaged_rect.width(), damaged_rect.height(),
+                                 true, current_scroll_buf_->handle());
+#elif defined(OS_POSIX)
+  // Currently, on POSIX, we are serialising the bitmap data over the IPC
+  // channel.
+  skia::PlatformCanvas canvas(damaged_rect.width(), damaged_rect.height(),
+                              true);
+#endif  // defined(OS_POSIX)
 
   // Set these parameters before calling Paint, since that could result in
   // further invalidates (uncommon).
   ViewHostMsg_ScrollRect_Params params;
-  params.bitmap = current_scroll_buf_->handle();
   params.bitmap_rect = damaged_rect;
   params.dx = scroll_delta_.x();
   params.dy = scroll_delta_.y();
@@ -487,12 +517,20 @@ void RenderWidget::DoDeferredScroll() {
   params.view_size = size_;
   params.plugin_window_moves = plugin_window_moves_;
 
+#if defined(OS_WIN)
+  // Windows passes a HANDLE to the shared memory over IPC
+  params.bitmap = current_scroll_buf_->handle();
+#elif defined(OS_POSIX)
+  // POSIX currently passes the data itself.
+  params.bitmap = canvas.getDevice()->accessBitmap(false);
+#endif  // defined(OS_WIN)
+
   plugin_window_moves_.clear();
 
   // Mark the scroll operation as no longer pending.
   scroll_rect_ = gfx::Rect();
 
-  PaintRect(damaged_rect, current_scroll_buf_);
+  PaintRect(damaged_rect, &canvas);
   Send(new ViewHostMsg_ScrollRect(routing_id_, params));
   UpdateIME();
 }

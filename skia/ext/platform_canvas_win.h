@@ -57,6 +57,8 @@ class PlatformCanvasWin : public SkCanvas {
   // by the next call to save() or restore().
   PlatformDeviceWin& getTopPlatformDevice() const;
 
+  static size_t StrideForWidth(unsigned width);
+
  protected:
   // Creates a device store for use by the canvas. We override this so that
   // the device is always our own so we know that we can use GDI operations

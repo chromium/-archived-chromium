@@ -76,4 +76,9 @@ SkDevice* PlatformCanvasMac::setBitmapDevice(const SkBitmap&) {
   return NULL;
 }
 
+// static
+size_t PlatformCanvasMac::StrideForWidth(unsigned width) {
+  return 4 * width;
+}
+
 }  // namespace skia

@@ -60,7 +60,7 @@ BackingStore* BackingStoreManager::PrepareBackingStore(
     RenderWidgetHost* host,
     const gfx::Rect& backing_store_rect,
     base::ProcessHandle process_handle,
-    HANDLE bitmap_section,
+    BitmapWireData bitmap_section,
     const gfx::Rect& bitmap_rect,
     bool* needs_full_paint) {
   BackingStore* backing_store = GetBackingStore(host,

@@ -31,7 +31,7 @@ BackingStore::~BackingStore() {
 }
 
 bool BackingStore::PaintRect(base::ProcessHandle process,
-                             HANDLE bitmap_section,
+                             BitmapWireData bitmap_section,
                              const gfx::Rect& bitmap_rect) {
   // The bitmap received is valid only in the renderer process.
   HANDLE valid_bitmap =
@@ -76,7 +76,8 @@ bool BackingStore::PaintRect(base::ProcessHandle process,
 }
 
 void BackingStore::ScrollRect(base::ProcessHandle process,
-                              HANDLE bitmap, const gfx::Rect& bitmap_rect,
+                              BitmapWireData bitmap,
+                              const gfx::Rect& bitmap_rect,
                               int dx, int dy,
                               const gfx::Rect& clip_rect,
                               const gfx::Size& view_size) {

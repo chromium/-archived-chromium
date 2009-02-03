@@ -57,6 +57,11 @@ class PlatformCanvasMac : public SkCanvas {
   // override of a virtual one.
   using SkCanvas::clipRect;
 
+  // Return the stride (length of a line in bytes) for the given width. Because
+  // we use 32-bits per pixel, this will be roughly 4*width. However, for
+  // alignment reasons we may wish to increase that.
+  static size_t StrideForWidth(unsigned width);
+
  protected:
   // Creates a device store for use by the canvas. We override this so that
   // the device is always our own so we know that we can use GDI operations

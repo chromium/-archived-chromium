@@ -37,6 +37,7 @@ if env.Bit('windows'):
       ],
   )
 
+# input_files initialized to common files + Windows specific ones.
 input_files = ChromeFileList([
   # TODO(sgk):  violate standard indentation so we don't have to
   # reindent too much when we remove the explicit MSVSFilter() calls
@@ -514,6 +515,9 @@ input_files = ChromeFileList([
   MSVSFilter('Renderer Host', [
     'renderer_host/async_resource_handler.cc',
     'renderer_host/async_resource_handler.h',
+    'renderer_host/backing_store.h',
+    'renderer_host/backing_store.cc',
+    'renderer_host/backing_store_win.cc',
     'renderer_host/browser_render_process_host.cc',
     'renderer_host/browser_render_process_host.h',
     'renderer_host/buffered_resource_handler.cc',
@@ -656,11 +660,6 @@ input_files = ChromeFileList([
     'toolbar_model.h',
 ])
 
-if env.Bit('mac'):
-  input_files.Remove(
-      'spellchecker.cc',
-  )
-
 if not env.Bit('windows'):
   # TODO: Port these.
   input_files.Remove(
@@ -760,7 +759,6 @@ if not env.Bit('windows'):
       'printing/win_printing_context.cc',
       'renderer_host/render_view_host.cc',
       'renderer_host/render_widget_helper.cc',
-      'renderer_host/render_widget_host.cc',
       'renderer_host/cross_site_resource_handler.cc',
       'renderer_host/resource_dispatcher_host.cc',
       'repost_form_warning_dialog.cc',
@@ -808,6 +806,7 @@ if not env.Bit('windows'):
       'window_sizer.cc',
   )
 
+  # Remove Windows-specific files on other platforms.
   input_files.Remove(
       'browser_main_win.cc',
       'history/history_publisher_win.cc',
@@ -815,6 +814,7 @@ if not env.Bit('windows'):
       'js_before_unload_handler_win.cc',
       'jsmessage_box_handler_win.cc',
       'password_manager/password_form_manager_win.cc',
+      'renderer_host/backing_store_win.cc',
       'renderer_host/render_widget_host_view_win.cc',
       'tab_contents/web_contents_view_win.cc',
       'webdata/web_data_service_win.cc',
@@ -823,10 +823,21 @@ if not env.Bit('windows'):
       '../tools/build/win/precompiled_wtl.h',
   )
 
+  # Add files shared across non-Windows platforms.
+  input_files.Append(
+      'renderer_host/backing_store_posix.cc',
+  )
+
+
 if env.Bit('linux'):
   input_files.Extend([
       'browser_main_gtk.cc',
   ])
+
+if env.Bit('mac'):
+  input_files.Remove(
+      'spellchecker.cc',
+  )
 
 if env.Bit('windows'):
   env.TypeLibrary('history/history_indexer.idl')

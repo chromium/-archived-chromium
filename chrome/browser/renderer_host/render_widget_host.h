@@ -5,13 +5,13 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_H_
 
-#include <windows.h>
-
 #include <vector>
 
 #include "base/gfx/size.h"
 #include "base/timer.h"
+#include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/ipc_channel.h"
+#include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 namespace gfx {
@@ -27,7 +27,6 @@ class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebCursor;
-enum ViewHostMsg_ImeControl;
 struct ViewHostMsg_PaintRect_Params;
 struct ViewHostMsg_ScrollRect_Params;
 struct WebPluginGeometry;
@@ -260,14 +259,14 @@ class RenderWidgetHost : public IPC::Channel::Listener {
                             const gfx::Rect& caret_rect);
 
   // Paints the given bitmap to the current backing store at the given location.
-  void PaintBackingStoreRect(HANDLE bitmap,
+  void PaintBackingStoreRect(BitmapWireData bitmap,
                              const gfx::Rect& bitmap_rect,
                              const gfx::Size& view_size);
 
   // Scrolls the given |clip_rect| in the backing by the given dx/dy amount. The
   // |bitmap| and its corresponding location |bitmap_rect| in the backing store
   // is the newly painted pixels by the renderer.
-  void ScrollBackingStoreRect(HANDLE bitmap,
+  void ScrollBackingStoreRect(BitmapWireData bitmap,
                               const gfx::Rect& bitmap_rect,
                               int dx, int dy,
                               const gfx::Rect& clip_rect,

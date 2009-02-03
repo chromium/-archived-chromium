@@ -118,4 +118,9 @@ SkDevice* PlatformCanvasWin::setBitmapDevice(const SkBitmap&) {
   return NULL;
 }
 
+// static
+size_t PlatformCanvasWin::StrideForWidth(unsigned width) {
+  return 4 * width;
+}
+
 }  // namespace skia

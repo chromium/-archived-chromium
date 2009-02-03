@@ -4,18 +4,22 @@
 
 #include "chrome/browser/renderer_host/render_widget_host.h"
 
-#include "base/gfx/gdi_util.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
-#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/win_util.h"
 #include "chrome/views/view.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webinputevent.h"
+
+#if defined(OS_WIN)
+#include "base/gfx/gdi_util.h"
+#include "chrome/app/chrome_dll_resource.h"
+#include "chrome/common/win_util.h"
+#endif  // defined(OS_WIN)
 
 using base::Time;
 using base::TimeDelta;
@@ -35,18 +39,18 @@ static const int kHungRendererDelayMs = 20000;
 
 RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process,
                                    int routing_id)
-    : process_(process),
+    : view_(NULL),
+      process_(process),
       routing_id_(routing_id),
-      resize_ack_pending_(false),
-      mouse_move_pending_(false),
-      view_(NULL),
       is_loading_(false),
       is_hidden_(false),
+      repaint_ack_pending_(false),
+      resize_ack_pending_(false),
       suppress_view_updating_(false),
+      mouse_move_pending_(false),
       needs_repainting_on_restore_(false),
       is_unresponsive_(false),
-      view_being_painted_(false),
-      repaint_ack_pending_(false) {
+      view_being_painted_(false) {
   if (routing_id_ == MSG_ROUTING_NONE)
     routing_id_ = process_->GetNextRoutingID();
 
@@ -277,9 +281,15 @@ void RenderWidgetHost::ForwardWheelEvent(
 }
 
 void RenderWidgetHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {
+#if defined(OS_WIN)
   if (key_event.type == WebKeyboardEvent::CHAR &&
       (key_event.key_code == VK_RETURN || key_event.key_code == VK_SPACE))
     OnEnterOrSpace();
+#else
+  // TODO(port): we don't have portable keyboard codes yet
+  // Maybe use keyboard_codes.h if we stick with it
+  NOTIMPLEMENTED();
+#endif
 
   ForwardInputEvent(key_event, sizeof(WebKeyboardEvent));
 }
@@ -408,7 +418,6 @@ void RenderWidgetHost::OnMsgPaintRect(
     UMA_HISTOGRAM_TIMES(L"MPArch.RWH_RepaintDelta", delta);
   }
 
-  DCHECK(params.bitmap);
   DCHECK(!params.bitmap_rect.IsEmpty());
   DCHECK(!params.view_size.IsEmpty());
 
@@ -547,7 +556,7 @@ void RenderWidgetHost::OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
   }
 }
 
-void RenderWidgetHost::PaintBackingStoreRect(HANDLE bitmap,
+void RenderWidgetHost::PaintBackingStoreRect(BitmapWireData bitmap,
                                              const gfx::Rect& bitmap_rect,
                                              const gfx::Size& view_size) {
   if (is_hidden_) {
@@ -576,7 +585,7 @@ void RenderWidgetHost::PaintBackingStoreRect(HANDLE bitmap,
   }
 }
 
-void RenderWidgetHost::ScrollBackingStoreRect(HANDLE bitmap,
+void RenderWidgetHost::ScrollBackingStoreRect(BitmapWireData bitmap,
                                               const gfx::Rect& bitmap_rect,
                                               int dx, int dy,
                                               const gfx::Rect& clip_rect,

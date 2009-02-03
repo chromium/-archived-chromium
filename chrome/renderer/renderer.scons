@@ -103,8 +103,6 @@ if env.Bit('linux'):
       'debug_message_handler.cc',
       'external_js_object.cc',
       'plugin_channel_host.cc',
-      'render_view.cc',
-      'render_widget.cc',
       'renderer_main.cc',
       'webplugin_delegate_proxy.cc',
   )
