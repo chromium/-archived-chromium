@@ -142,6 +142,12 @@ void InitResources() {
 
     waiting_to_loading_frame_count_ratio =
         waiting_animation_frame_count / loading_animation_frame_count;
+    // TODO(beng): eventually remove this when we have a proper themeing system.
+    //             themes not supporting IDR_THROBBER_WAITING are causing this
+    //             value to be 0 which causes DIV0 crashes. The value of 5
+    //             matches the current bitmaps in our source.
+    if (waiting_to_loading_frame_count_ratio == 0)
+      waiting_to_loading_frame_count_ratio = 5;
 
     crashed_fav_icon = rb.GetBitmapNamed(IDR_SAD_FAVICON);
 
