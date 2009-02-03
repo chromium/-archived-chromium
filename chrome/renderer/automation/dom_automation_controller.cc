@@ -31,7 +31,7 @@ void DomAutomationController::send(const CppArgumentList& args,
 
   std::string json;
   JSONStringValueSerializer serializer(&json);
-  Value* value = NULL;
+  scoped_ptr<Value> value;
 
   // Warning: note that JSON officially requires the root-level object to be
   // an object (e.g. {foo:3}) or an array, while here we're serializing
@@ -41,15 +41,15 @@ void DomAutomationController::send(const CppArgumentList& args,
   // grabbing the 0th element to get the value out.
   switch(args[0].type) {
     case NPVariantType_String: {
-      value = Value::CreateStringValue(args[0].ToString());
+      value.reset(Value::CreateStringValue(args[0].ToString()));
       break;
     }
     case NPVariantType_Bool: {
-      value = Value::CreateBooleanValue(args[0].ToBoolean());
+      value.reset(Value::CreateBooleanValue(args[0].ToBoolean()));
       break;
     }
     case NPVariantType_Int32: {
-      value = Value::CreateIntegerValue(args[0].ToInt32());
+      value.reset(Value::CreateIntegerValue(args[0].ToInt32()));
       break;
     }
     case NPVariantType_Double: {
@@ -57,7 +57,7 @@ void DomAutomationController::send(const CppArgumentList& args,
       // as a double in this binding. The reason being that KJS treats
       // any number value as a double. Refer for more details,
       // chrome/third_party/webkit/src/JavaScriptCore/bindings/c/c_utility.cpp
-      value = Value::CreateIntegerValue(args[0].ToInt32());
+      value.reset(Value::CreateIntegerValue(args[0].ToInt32()));
       break;
     }
     default: {
