@@ -957,20 +957,22 @@ void WebFrameImpl::AddMarker(WebCore::Range* range) {
         textPiece->endOffset(exception),
         "" };
 
-    // Find the node to add a marker to and add it.
-    Node* node = textPiece->startContainer(exception);
-    frame()->document()->addMarker(node, marker);
+    if (marker.endOffset > marker.startOffset) {
+      // Find the node to add a marker to and add it.
+      Node* node = textPiece->startContainer(exception);
+      frame()->document()->addMarker(node, marker);
 
-    // Rendered rects for markers in WebKit are not populated until each time
-    // the markers are painted. However, we need it to happen sooner, because
-    // the whole purpose of tickmarks on the scrollbar is to show where matches
-    // off-screen are (that haven't been painted yet).
-    Vector<WebCore::DocumentMarker> markers =
-        frame()->document()->markersForNode(node);
-    frame()->document()->setRenderedRectForMarker(
-        textPiece->startContainer(exception),
-        markers[markers.size() - 1],
-        range->boundingBox());
+      // Rendered rects for markers in WebKit are not populated until each time
+      // the markers are painted. However, we need it to happen sooner, because
+      // the whole purpose of tickmarks on the scrollbar is to show where
+      // matches off-screen are (that haven't been painted yet).
+      Vector<WebCore::DocumentMarker> markers =
+          frame()->document()->markersForNode(node);
+      frame()->document()->setRenderedRectForMarker(
+          textPiece->startContainer(exception),
+          markers[markers.size() - 1],
+          range->boundingBox());
+    }
   }
 }
 
@@ -1019,7 +1021,8 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
                            resume_scoping_from_range_->startOffset(ec2) + 1,
                            ec);
     if (ec != 0 || ec2 != 0) {
-      NOTREACHED();
+      if (ec2 != 0)  // A non-zero |ec| happens when navigating during search.
+        NOTREACHED();
       return;
     }
   }
