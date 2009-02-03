@@ -328,8 +328,8 @@ TEST(OSExchangeDataTest, Html) {
 
   // Check the CF_HTML too.
   std::string expected_cf_html(
-      "Version:0.9\r\nStartHTML:0000000138\r\nEndHTML:0000000291\r\n"
-      "StartFragment:0000000176\r\nEndFragment:0000000253\r\n"
+      "Version:0.9\r\nStartHTML:0000000139\r\nEndHTML:0000000292\r\n"
+      "StartFragment:0000000177\r\nEndFragment:0000000254\r\n"
       "SourceURL:http://www.google.com/\r\n<html>\r\n<body>\r\n"
       "<!--StartFragment-->\r\n");
   expected_cf_html += WideToUTF8(html);
