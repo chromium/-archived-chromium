@@ -14,7 +14,7 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		LinkIncremental="2"
+		LinkIncremental="1"
 	/>
 	<Tool
 		Name="VCResourceCompilerTool"
