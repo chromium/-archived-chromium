@@ -11,6 +11,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/debugger/debugger_contents.h"
+#include "chrome/browser/tab_contents/ipc_status_view.h"
 #include "chrome/browser/tab_contents/native_ui_contents.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
@@ -43,6 +44,11 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_WEB:
       contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
       break;
+#ifdef IPC_MESSAGE_LOG_ENABLED
+    case TAB_CONTENTS_IPC_STATUS_VIEW:
+      contents = new IPCStatusView();
+      break;
+#endif
     case TAB_CONTENTS_NEW_TAB_UI:
       contents = new NewTabUIContents(profile, instance, NULL);
       break;

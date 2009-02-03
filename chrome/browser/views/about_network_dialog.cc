@@ -353,6 +353,10 @@ std::wstring AboutNetworkDialog::GetWindowTitle() const {
   return L"about:network";
 }
 
+void AboutNetworkDialog::Layout() {
+  GetLayoutManager()->Layout(this);
+}
+
 bool AboutNetworkDialog::CanResize() const {
   return true;
 }

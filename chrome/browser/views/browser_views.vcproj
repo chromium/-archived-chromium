@@ -370,14 +370,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\about_ipc_dialog.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\about_ipc_dialog.h"
-			>
-		</File>
-		<File
 			RelativePath=".\about_network_dialog.cc"
 			>
 		</File>
