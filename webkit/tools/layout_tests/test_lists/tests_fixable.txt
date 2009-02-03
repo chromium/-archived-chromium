@@ -1382,7 +1382,6 @@ MAC : LayoutTests/fast/dom/Document/early-document-access.html = CRASH TIMEOUT P
 MAC : chrome/fonts/impact.html = FAIL
 
 // Not really sure why these are failing at the moment
-MAC : LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
 MAC : LayoutTests/fast/dom/isindex-002.html = FAIL
 MAC : LayoutTests/fast/events/init-events.html = FAIL
 
@@ -1572,10 +1571,6 @@ WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
 // Passes when run by itself.  Fails on the buildbot.
 LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
 
-// Merge 39143:39309
-// This test needs to be rebaselined on Mac.
-MAC : LayoutTests/animations/keyframes-rule.html = FAIL
-
 // The V8 regular expression engine does not match JSCRE on this one.
 // See V8 bug 182.
 LayoutTests/fast/js/regexp-no-extensions.html = FAIL
@@ -1583,9 +1578,6 @@ LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
 // we don't support.  Needs more investigation.
 LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
-
-// Needs to be rebaselined on Mac.
-MAC : LayoutTests/transforms/2d/transform-value-types.html = FAIL
 
 // Bug 4360: skipped as this tests window.sessionStorage, which we don't
 // support. Enable once we turn on DOM_STORAGE.
@@ -1717,7 +1709,6 @@ WIN :LayoutTests/transitions/retargetted-transition.html = TIMEOUT
 LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
-MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
 WIN LINUX : LayoutTests/editing/selection/move-by-line-001.html = PASS FAIL
 MAC : LayoutTests/fast/forms/002.html = FAIL
 
