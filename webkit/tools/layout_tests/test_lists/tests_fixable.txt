@@ -511,7 +511,7 @@ WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
 LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
 LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
+LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
 LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
