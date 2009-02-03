@@ -396,6 +396,7 @@ LRESULT RenderWidgetHostViewWin::OnCreate(CREATESTRUCT* create_struct) {
   // Call the WM_INPUTLANGCHANGE message handler to initialize the input locale
   // of a browser process.
   OnInputLangChange(0, 0);
+  TRACK_HWND_CREATION(m_hWnd);
   return 0;
 }
 
@@ -413,6 +414,7 @@ void RenderWidgetHostViewWin::OnActivate(UINT action, BOOL minimized,
 void RenderWidgetHostViewWin::OnDestroy() {
   ResetTooltip();
   TrackMouseLeave(false);
+  TRACK_HWND_DESTRUCTION(m_hWnd);
 }
 
 void RenderWidgetHostViewWin::OnPaint(HDC dc) {

@@ -10,6 +10,8 @@
 
 #include <string>
 
+#include "base/tracked.h"
+
 namespace win_util {
 
 // NOTE: Keep these in order so callers can do things like
@@ -101,6 +103,22 @@ std::wstring FormatMessage(unsigned messageid);
 
 // Uses the last Win32 error to generate a human readable message string.
 std::wstring FormatLastWin32Error();
+
+// These 2 methods are used to track HWND creation/destruction to investigate
+// a mysterious crasher http://crbugs.com/4714 (crasher in on NCDestroy) that
+// might be caused by a multiple delete of an HWND.
+void NotifyHWNDCreation(const tracked_objects::Location& from_here, HWND hwnd);
+void NotifyHWNDDestruction(const tracked_objects::Location& from_here,
+                           HWND hwnd);
+
+#ifdef NDEBUG
+#define TRACK_HWND_CREATION(hwnd)
+#define TRACK_HWND_DESTRUCTION(hwnd)
+#else
+#define TRACK_HWND_CREATION(hwnd) win_util::NotifyHWNDCreation(FROM_HERE, hwnd)
+#define TRACK_HWND_DESTRUCTION(hwnd) \
+    win_util::NotifyHWNDDestruction(FROM_HERE, hwnd)
+#endif
 
 }  // namespace win_util
 

@@ -79,16 +79,20 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
  private:
 
   LRESULT OnCreate(LPCREATESTRUCT create_struct) {
+    TRACK_HWND_CREATION(m_hWnd);
+
     control_ = parent_->CreateNativeControl(m_hWnd);
+    TRACK_HWND_CREATION(control_);
+
     FocusManager::InstallFocusSubclass(control_, parent_);
-    if (parent_->NotifyOnKeyDown()) {
-      // We subclass the control hwnd so we get the WM_KEYDOWN messages.
-      WNDPROC original_handler =
-          win_util::SetWindowProc(control_,
-                                  &NativeControl::NativeControlWndProc);
-      SetProp(control_, kHandlerKey, original_handler);
-      SetProp(control_, kNativeControlKey , parent_);
-    }
+
+    // We subclass the control hwnd so we get the WM_KEYDOWN messages.
+    WNDPROC original_handler =
+        win_util::SetWindowProc(control_,
+                                &NativeControl::NativeControlWndProc);
+    SetProp(control_, kHandlerKey, original_handler);
+    SetProp(control_, kNativeControlKey , parent_);
+
     ::ShowWindow(control_, SW_SHOW);
     return 1;
   }
@@ -121,6 +125,7 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
   void OnDestroy() {
     if (parent_)
       parent_->OnDestroy();
+    TRACK_HWND_DESTRUCTION(m_hWnd);
   }
 
   void OnContextMenu(HWND window, const CPoint& location) {
@@ -363,7 +368,7 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
       static_cast<NativeControl*>(GetProp(window, kNativeControlKey));
   DCHECK(native_control);
 
-  if (message == WM_KEYDOWN) {
+  if (message == WM_KEYDOWN && native_control->NotifyOnKeyDown()) {
     if (native_control->OnKeyDown(static_cast<int>(w_param)))
       return 0;
   } else if (message == WM_DESTROY) {
@@ -371,6 +376,7 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
                             reinterpret_cast<WNDPROC>(original_handler));
     RemoveProp(window, kHandlerKey);
     RemoveProp(window, kNativeControlKey);
+    TRACK_HWND_DESTRUCTION(window);
   }
 
   return CallWindowProc(reinterpret_cast<WNDPROC>(original_handler), window,
