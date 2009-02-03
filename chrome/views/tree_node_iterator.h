@@ -55,12 +55,12 @@ class TreeNodeIterator {
   }
 
  private:
-  template <class NodeType>
+  template <class PositionNodeType>
   struct Position {
-    Position(NodeType* node, int index) : node(node), index(index) {}
+    Position(PositionNodeType* node, int index) : node(node), index(index) {}
     Position() : node(NULL), index(-1) {}
 
-    NodeType* node;
+    PositionNodeType* node;
     int index;
   };
 
