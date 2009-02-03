@@ -40,7 +40,7 @@ public:
   virtual WebFrame* GetWebFrame() = 0;
   
   // Notify the media player about network state change.
-  virtual void NotifynetworkStateChange() = 0;
+  virtual void NotifyNetworkStateChange() = 0;
 
   // Notify the media player about ready state change.
   virtual void NotifyReadyStateChange() = 0;
@@ -54,16 +54,10 @@ public:
   // Tell the media player to repaint itself.
   virtual void Repaint() = 0;
 
-  // Load a media resource.
-  virtual void LoadMediaResource(const GURL& url) = 0;
-
-  // Cancel loading the media resource.
-  virtual void CancelLoad() = 0;
-
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayer);
 };
 
 }  // namespace webkit_glue
 
-#endif // ifndef WEBKIT_GLUE_WEBMEDIAPLAYER_H_
+#endif  // WEBKIT_GLUE_WEBMEDIAPLAYER_H_

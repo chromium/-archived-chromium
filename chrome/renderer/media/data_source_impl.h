@@ -7,12 +7,15 @@
 
 #include <string>
 
+#include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/base/media_format.h"
 
+class WebMediaPlayerDelegateImpl;
+
 class DataSourceImpl : public media::DataSource {
  public:
-  DataSourceImpl();
+  DataSourceImpl(WebMediaPlayerDelegateImpl* delegate);
 
   // media::MediaFilter implementation.
   virtual void Stop();
@@ -25,10 +28,22 @@ class DataSourceImpl : public media::DataSource {
   virtual bool SetPosition(int64 position);
   virtual bool GetSize(int64* size_out);
 
+  // Static method for creating factory for this object.
+  static media::FilterFactory* CreateFactory(
+      WebMediaPlayerDelegateImpl* delegate) {
+    return new media::FilterFactoryImpl1<DataSourceImpl,
+        WebMediaPlayerDelegateImpl*>(delegate);
+  }
+
+  // Answers question from the factory to see if we accept |format|.
+  static bool IsMediaFormatSupported(const media::MediaFormat* format);
+
  protected:
   virtual ~DataSourceImpl();
 
  private:
+  WebMediaPlayerDelegateImpl* delegate_;
+
   DISALLOW_COPY_AND_ASSIGN(DataSourceImpl);
 };
 

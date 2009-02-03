@@ -4,7 +4,8 @@
 
 #include "chrome/renderer/media/video_renderer_impl.h"
 
-VideoRendererImpl::VideoRendererImpl() {
+VideoRendererImpl::VideoRendererImpl(WebMediaPlayerDelegateImpl* delegate)
+    : delegate_(delegate) {
 }
 
 VideoRendererImpl::~VideoRendererImpl() {
@@ -19,4 +20,19 @@ bool VideoRendererImpl::Initialize(media::VideoDecoder* decoder) {
   // TODO(scherkus): implement Initialize.
   NOTIMPLEMENTED();
   return false;
+}
+
+bool VideoRendererImpl::IsMediaFormatSupported(
+    const media::MediaFormat* format) {
+  // TODO(hclam): check the format correctly.
+  return true;
+}
+
+void VideoRendererImpl::Paint(skia::PlatformCanvas *canvas,
+                              const gfx::Rect& rect) {
+  // TODO(hclam): add stuff here.
+}
+
+void VideoRendererImpl::SetRect(const gfx::Rect& rect) {
+  // TODO(hclam): add stuff here.
 }

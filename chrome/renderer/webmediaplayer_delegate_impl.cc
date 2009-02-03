@@ -5,131 +5,337 @@
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/data_source_impl.h"
 #include "chrome/renderer/media/video_renderer_impl.h"
+#include "chrome/renderer/render_view.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
+#include "googleurl/src/gurl.h"
 
-WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl()
-    : bytes_loaded_(0),
-      current_time_(0.0f),
-      data_rate_(0),
-      duration_(0.0f),
-      height_(0),
-      network_state_(webkit_glue::WebMediaPlayer::EMPTY),
-      paused_(true),
-      playback_rate_(0.0f),
+/////////////////////////////////////////////////////////////////////////////
+// Task to be posted on main thread that fire WebMediaPlayer methods.
+
+class NotifyWebMediaPlayerTask : public CancelableTask {
+ public:
+  NotifyWebMediaPlayerTask(webkit_glue::WebMediaPlayer* web_media_player_,
+                           WebMediaPlayerMethod method)
+      : method_(method) {}
+
+  virtual void Run() {
+    if (web_media_player_) {
+      (web_media_player_->*(method_))();
+    }
+  }
+
+  virtual void Cancel() {
+    web_media_player_ = NULL;
+  }
+
+ private:
+  webkit_glue::WebMediaPlayer* web_media_player_;
+  WebMediaPlayerMethod method_;
+
+  DISALLOW_COPY_AND_ASSIGN(NotifyWebMediaPlayerTask);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// WebMediaPlayerDelegateImpl implementation
+
+WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* render_view)
+    : network_state_(webkit_glue::WebMediaPlayer::EMPTY),
       ready_state_(webkit_glue::WebMediaPlayer::DATA_UNAVAILABLE),
-      seeking_(false),
-      total_bytes_(0),
-      video_(false),
-      visible_(false),
-      volume_(0.0f),
+      main_loop_(NULL),
+      filter_factory_(new media::FilterFactoryCollection()),
       web_media_player_(NULL),
-      width_(0) {
-  // TODO(hclam): initialize the media player here
-
-  // TODO(scherkus): remove these when actually in use -- right now I declare
-  // these to force compiler/linker errors to reveal themselves.
-  scoped_refptr<AudioRendererImpl> audio_renderer;
-  audio_renderer = new AudioRendererImpl();
-  scoped_refptr<DataSourceImpl> data_source;
-  data_source = new DataSourceImpl();
-  scoped_refptr<VideoRendererImpl> video_renderer;
-  video_renderer = new VideoRendererImpl();
+      render_view_(render_view),
+      tasks_(kLastTaskIndex) {
+  // TODO(hclam): Add filter factory for demuxer and decoders.
+  filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(this));
+  filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
+  filter_factory_->AddFactory(DataSourceImpl::CreateFactory(this));
 }
 
 WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {
-  // TODO(hclam): do the following things here:
-  // 1. Destroy the internal media player
-  // 2. Destroy the associated WebMediaPlayer
+  // Stop the pipeline in the first place so we won't receive any more method
+  // calls from it.
+  pipeline_.Stop();
+
+  // Cancel all tasks posted on the main_loop_.
+  CancelAllTasks();
+
+  // After cancelling all tasks, we are sure there will be no calls to 
+  // web_media_player_, so we are safe to delete it.
+  if (web_media_player_) {
+    delete web_media_player_;
+  }
+
+  // Finally tell the main_loop_ we don't want to be notified of destruction
+  // event.
+  if (main_loop_) {
+    main_loop_->RemoveDestructionObserver(this);
+  }
 }
 
 void WebMediaPlayerDelegateImpl::Initialize(
     webkit_glue::WebMediaPlayer* media_player) {
+  DCHECK(!web_media_player_);
   web_media_player_ = media_player;
+
+  // Saves the current message loop.
+  DCHECK(!main_loop_);
+  main_loop_ = MessageLoop::current();
+
+  // Also we want to be notified of main_loop_ destruction.
+  main_loop_->AddDestructionObserver(this);
 }
 
 void WebMediaPlayerDelegateImpl::Load(const GURL& url) {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // Initialize the pipeline
+  pipeline_.Start(filter_factory_.get(), url.spec(),
+      NewCallback(this, &WebMediaPlayerDelegateImpl::DidInitializePipeline));
+
+  // TODO(hclam): Calls to render_view_ to kick start a resource load.
 }
 
 void WebMediaPlayerDelegateImpl::CancelLoad() {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // TODO(hclam): Calls to render_view_ to stop resource load
 }
 
 void WebMediaPlayerDelegateImpl::Play() {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // TODO(hclam): We should restore the previous playback rate rather than
+  // having it at 1.0.
+  pipeline_.SetPlaybackRate(1.0f);
 }
 
 void WebMediaPlayerDelegateImpl::Pause() {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  pipeline_.SetPlaybackRate(0.0f);
 }
 
 void WebMediaPlayerDelegateImpl::Stop() {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // We can fire Stop() multiple times.
+  pipeline_.Stop();
 }
 
 void WebMediaPlayerDelegateImpl::Seek(float time) {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  pipeline_.Seek(base::TimeDelta::FromMilliseconds(static_cast<int64>(time)));
 }
 
 void WebMediaPlayerDelegateImpl::SetEndTime(float time) {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // TODO(hclam): add method call when it has been implemented.
+  return;
 }
- 
+
 void WebMediaPlayerDelegateImpl::SetPlaybackRate(float rate) {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  pipeline_.SetPlaybackRate(rate);
 }
 
 void WebMediaPlayerDelegateImpl::SetVolume(float volume) {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  pipeline_.SetVolume(volume);
 }
  
 void WebMediaPlayerDelegateImpl::SetVisible(bool visible) {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // TODO(hclam): add appropriate method call when pipeline has it implemented.
+  return;
 }
- 
+
 bool WebMediaPlayerDelegateImpl::IsTotalBytesKnown() {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return pipeline_.GetTotalBytes() != 0;
+}
+
+bool WebMediaPlayerDelegateImpl::IsVideo() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  size_t width, height;
+  pipeline_.GetVideoSize(&width, &height);
+  return width != 0 && height != 0;
+}
+
+size_t WebMediaPlayerDelegateImpl::GetWidth() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  size_t width, height;
+  pipeline_.GetVideoSize(&width, &height);
+  return width;
+}
+
+size_t WebMediaPlayerDelegateImpl::GetHeight() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  size_t width, height;
+  pipeline_.GetVideoSize(&width, &height);
+  return height;
+}
+
+bool WebMediaPlayerDelegateImpl::IsPaused() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return pipeline_.GetPlaybackRate() == 0.0f;
+}
+
+bool WebMediaPlayerDelegateImpl::IsSeeking() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // TODO(hclam): Add this method call if pipeline has it in the interface.
   return false;
 }
 
+float WebMediaPlayerDelegateImpl::GetDuration() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return static_cast<float>(pipeline_.GetDuration().InSecondsF());
+}
+
+float WebMediaPlayerDelegateImpl::GetCurrentTime() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return static_cast<float>(pipeline_.GetTime().InSecondsF());
+}
+
+
+float WebMediaPlayerDelegateImpl::GetPlayBackRate() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return pipeline_.GetPlaybackRate();
+}
+
+float WebMediaPlayerDelegateImpl::GetVolume() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return pipeline_.GetVolume();
+}
+
+int WebMediaPlayerDelegateImpl::GetDataRate() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // TODO(hclam): Add this method call if pipeline has it in the interface.
+  return 0;
+}
+
 float WebMediaPlayerDelegateImpl::GetMaxTimeBuffered() const {
-  // TODO(hclam): delegate to google's media player
-  return 0.0f;
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return static_cast<float>(pipeline_.GetBufferedTime().InSecondsF());
 }
 
 float WebMediaPlayerDelegateImpl::GetMaxTimeSeekable() const {
-  // TODO(hclam): delegate to google's media player
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  // TODO(hclam): add this method when pipeline has this method implemented.
   return 0.0f;
 }
 
+int64 WebMediaPlayerDelegateImpl::GetBytesLoaded() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return pipeline_.GetBufferedBytes();
+}
+
+int64 WebMediaPlayerDelegateImpl::GetTotalBytes() const {
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  return pipeline_.GetTotalBytes();
+}
+
 void WebMediaPlayerDelegateImpl::SetRect(const gfx::Rect& rect) {
-  // TODO(hclam): Figure out what to do here..
+  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+
+  if (video_renderer_) {
+    video_renderer_->SetRect(rect);
+  }
 }
 
 void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
                                        const gfx::Rect& rect) {
-  // TODO(hclam): grab a frame from the internal player and draw it.
+  if (video_renderer_) {
+    video_renderer_->Paint(canvas, rect);
+  }
 }
 
-void WebMediaPlayerDelegateImpl::WillSendRequest(WebRequest& request,
-                                                 const WebResponse& response) {
-  // TODO(hclam): do we need to change the request?
+void WebMediaPlayerDelegateImpl::WillDestroyCurrentMessageLoop() {
+  // Stop the pipeline when the main thread is being destroyed so we won't be
+  // posting any more messages onto it. And we just let this obejct and
+  // associated WebMediaPlayer to leak.
+  pipeline_.Stop();
 }
 
-void WebMediaPlayerDelegateImpl::DidReceiveResponse(
-    const WebResponse& response) {
-  // TODO(hclam): tell the video piepline to prepare for arriving bytes.
+void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
+  if (successful) {
+    // Since we have initialized the pipeline, we should be able to play it.
+    // And we skip LOADED_METADATA state and starting with LOADED_FIRST_FRAME.
+    ready_state_ = webkit_glue::WebMediaPlayer::CAN_PLAY;
+    network_state_ = webkit_glue::WebMediaPlayer::LOADED_FIRST_FRAME;
+  } else {
+    // TODO(hclam): should use pipeline_.GetError() to determine the state
+    // properly and reports error using MediaError.
+    ready_state_ = webkit_glue::WebMediaPlayer::DATA_UNAVAILABLE;
+    network_state_ = webkit_glue::WebMediaPlayer::LOAD_FAILED;
+  }
+
+  PostTask(kNetworkStateTaskIndex,
+           &webkit_glue::WebMediaPlayer::NotifyNetworkStateChange);
+  PostTask(kReadyStateTaskIndex,
+           &webkit_glue::WebMediaPlayer::NotifyReadyStateChange);
 }
 
-void WebMediaPlayerDelegateImpl::DidReceiveData(const char* buf, size_t size) {
-  // TODO(hclam): direct the data to video pipeline's data source
+void WebMediaPlayerDelegateImpl::SetVideoRenderer(
+    VideoRendererImpl* video_renderer) {
+  DCHECK(!video_renderer_);
+  video_renderer_ = video_renderer;
 }
 
-void WebMediaPlayerDelegateImpl::DidFinishLoading() {
-  // TODO(hclam): do appropriate actions related to load. We should wait
-  // for video pipeline to be initialized and fire a LOADED event.
+void WebMediaPlayerDelegateImpl::DidTask(CancelableTask* task) {
+  AutoLock auto_lock(task_lock_);
+
+  for (size_t i = 0; i < tasks_.size(); ++i) {
+    if (tasks_[i] == task) {
+      tasks_[i] = NULL;
+      return;
+    }
+  }
+  NOTREACHED();
 }
 
-void WebMediaPlayerDelegateImpl::DidFail(const WebError& error) {
-  // Simply fires a LOAD_FAILED event.
-  // TODO(hclam): will also need to fire a MediaError event.
+void WebMediaPlayerDelegateImpl::CancelAllTasks() {
+  AutoLock auto_lock(task_lock_);
+  // Loop through the list of tasks and cancel tasks that are still alive.
+  for (size_t i = 0; i < tasks_.size(); ++i) {
+    if (tasks_[i])
+      tasks_[i]->Cancel();
+  }
+}
+
+void WebMediaPlayerDelegateImpl::PostTask(int index,
+                                          WebMediaPlayerMethod method) {
+  DCHECK(main_loop_);
+
+  AutoLock auto_lock(task_lock_);  
+  if(!tasks_[index]) {
+    CancelableTask* task = new NotifyWebMediaPlayerTask(web_media_player_,
+                                                        method);
+    tasks_[index] = task;
+    main_loop_->PostTask(FROM_HERE, task);
+  }
+}
+
+void WebMediaPlayerDelegateImpl::PostRepaintTask() {
+  PostTask(kRepaintTaskIndex, &webkit_glue::WebMediaPlayer::Repaint);
 }

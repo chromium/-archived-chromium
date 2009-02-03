@@ -4,7 +4,8 @@
 
 #include "chrome/renderer/media/audio_renderer_impl.h"
 
-AudioRendererImpl::AudioRendererImpl() {
+AudioRendererImpl::AudioRendererImpl(WebMediaPlayerDelegateImpl* delegate)
+    : delegate_(delegate) {
 }
 
 AudioRendererImpl::~AudioRendererImpl() {
@@ -24,4 +25,10 @@ bool AudioRendererImpl::Initialize(media::AudioDecoder* decoder) {
 void AudioRendererImpl::SetVolume(float volume) {
   // TODO(scherkus): implement SetVolume.
   NOTIMPLEMENTED();
+}
+
+bool AudioRendererImpl::IsMediaFormatSupported(
+    const media::MediaFormat* format) {
+  // TODO(hclam): check the format correct.
+  return true;
 }

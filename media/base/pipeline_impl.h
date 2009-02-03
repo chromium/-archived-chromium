@@ -29,7 +29,7 @@ class PipelineThread;
 class PipelineImpl : public Pipeline {
  public:
   PipelineImpl();
-  ~PipelineImpl();
+  virtual ~PipelineImpl();
 
   // Implementation of PipelineStatus methods.
   virtual bool IsInitialized() const;

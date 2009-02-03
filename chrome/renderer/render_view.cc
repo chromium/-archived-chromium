@@ -1927,7 +1927,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 }
 
 webkit_glue::WebMediaPlayerDelegate* RenderView::CreateMediaPlayerDelegate() {
-  return new WebMediaPlayerDelegateImpl();
+  return new WebMediaPlayerDelegateImpl(this);
 }
 
 void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,

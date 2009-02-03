@@ -37,7 +37,7 @@ void WebMediaPlayerImpl::Initialize(WebMediaPlayerDelegate* delegate){
 }
 
 WebFrame* WebMediaPlayerImpl::GetWebFrame() {
-  if (media_player_private_->frameView()->frame()) {
+  if (media_player_private_ && media_player_private_->frameView()->frame()) {
     return WebFrameImpl::FromFrame(
         media_player_private_->frameView()->frame());
   } else {
@@ -45,93 +45,31 @@ WebFrame* WebMediaPlayerImpl::GetWebFrame() {
   }
 }
 
-void WebMediaPlayerImpl::NotifynetworkStateChange() {
-  media_player_private_->networkStateChanged();
+void WebMediaPlayerImpl::NotifyNetworkStateChange() {
+  if (media_player_private_)
+    media_player_private_->networkStateChanged();
 }
 
 void WebMediaPlayerImpl::NotifyReadyStateChange() {
-  media_player_private_->readyStateChanged();
+  if (media_player_private_)
+    media_player_private_->readyStateChanged();
 }
 
 void WebMediaPlayerImpl::NotifyTimeChange() {
-  media_player_private_->timeChanged();
+  if (media_player_private_)
+    media_player_private_->timeChanged();
 }
 
 void WebMediaPlayerImpl::NotifyVolumeChange() {
-  media_player_private_->volumeChanged();
+  if (media_player_private_)
+    media_player_private_->volumeChanged();
 }
 
 void WebMediaPlayerImpl::Repaint() {
-  media_player_private_->repaint();
-}
-
-void WebMediaPlayerImpl::LoadMediaResource(const GURL& url) {
-  // Make sure we cancel the previous load request before starting a new one.
-  CancelLoad();
-
-  WebCore::Frame* frame = static_cast<WebFrameImpl*>(GetWebFrame())->frame();
-  WebCore::ResourceRequest request(webkit_glue::GURLToKURL(url),
-                                   WebCore::String(""),
-                                   WebCore::UseProtocolCachePolicy);
-  request.setTargetType(WebCore::ResourceRequest::TargetIsMedia);
-  request.setFrame(frame);
-
-  resource_handle_ = WebCore::ResourceHandle::create(request,
-                                                     this,
-                                                     frame,
-                                                     false,
-                                                     true);
-}
-
-void WebMediaPlayerImpl::CancelLoad() {
-  // Delegate the cancel call to ResourceHandle, this should be enough to
-  // stop any further callbacks from ResouceHandle.
-  if (resource_handle_) {
-    resource_handle_->cancel();
-    resource_handle_ = NULL;
-  }
-}
-
-void WebMediaPlayerImpl::willSendRequest(
-    WebCore::ResourceHandle* handle,
-    WebCore::ResourceRequest& request,
-    const WebCore::ResourceResponse& response) {
-  if (delegate_) {
-    delegate_->WillSendRequest(WebRequestImpl(request),
-                               WebResponseImpl(response));
-  }
-}
-
-void WebMediaPlayerImpl::didReceiveResponse(
-    WebCore::ResourceHandle* handle,
-    const WebCore::ResourceResponse& response) {
-  if (delegate_) {
-    delegate_->DidReceiveResponse(WebResponseImpl(response));
-  }
-}
-
-void WebMediaPlayerImpl::didReceiveData(WebCore::ResourceHandle* handle,
-                                        const char *buffer,
-                                        int length,
-                                        int bytes_received) {
-  if (delegate_) {
-    delegate_->DidReceiveData(buffer, length);
-  }
-}
-
-void WebMediaPlayerImpl::didFinishLoading(WebCore::ResourceHandle* handle) {
-  if (delegate_) {
-    delegate_->DidFinishLoading();
-  }
-}
-
-void WebMediaPlayerImpl::didFail(WebCore::ResourceHandle* handle,
-                                 const WebCore::ResourceError& error) {
-  if (delegate_) {
-    delegate_->DidFail(WebErrorImpl(error));
-  }
+  if (media_player_private_)
+    media_player_private_->repaint();
 }
 
 }  // namespace webkit_glue
 
-#endif
+#endif  // ENABLE(VIDEO)

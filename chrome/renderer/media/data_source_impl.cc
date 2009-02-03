@@ -4,7 +4,8 @@
 
 #include "chrome/renderer/media/data_source_impl.h"
 
-DataSourceImpl::DataSourceImpl() {
+DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
+    : delegate_(delegate) {
 }
 
 DataSourceImpl::~DataSourceImpl() {
@@ -49,4 +50,10 @@ bool DataSourceImpl::GetSize(int64* size_out) {
   // TODO(scherkus): implement GetSize.
   NOTIMPLEMENTED();
   return false;
+}
+
+bool DataSourceImpl::IsMediaFormatSupported(const media::MediaFormat* format) {
+  // TODO(hclam: implement this.
+  NOTIMPLEMENTED();
+  return true;
 }
