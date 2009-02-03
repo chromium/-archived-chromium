@@ -5,6 +5,7 @@
 #include "temp_scaffolding_stubs.h"
 
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/thread.h"
 #include "base/path_service.h"
 #include "base/singleton.h"
@@ -46,51 +47,66 @@ UserDataManager* UserDataManager::Get() {
 }
 
 bool ShellIntegration::SetAsDefaultBrowser() {
+  NOTIMPLEMENTED();
   return true;
 }
 
 bool ShellIntegration::IsDefaultBrowser() {
+  NOTIMPLEMENTED();
   return true;
 }
 
 //--------------------------------------------------------------------------
 
 namespace browser_shutdown {
-void ReadLastShutdownInfo()  { }
-void Shutdown() { }
-void OnShutdownStarting(ShutdownType type) { }
+void ReadLastShutdownInfo()  { NOTIMPLEMENTED(); }
+void Shutdown() { NOTIMPLEMENTED(); }
+void OnShutdownStarting(ShutdownType type) { NOTIMPLEMENTED(); }
 }
 
 
 // static
-bool FirstRun::IsChromeFirstRun() { return false; }
+bool FirstRun::IsChromeFirstRun() {
+  NOTIMPLEMENTED();
+  return false;
+}
 
 // static
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
                                         const FilePath& master_prefs_path,
                                         int* preference_details) {
+  NOTIMPLEMENTED();
   return false;
 }
 
 // static
 int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
+  NOTIMPLEMENTED();
   return 0;
 }
 
 // static
-bool Upgrade::IsBrowserAlreadyRunning() { return false; }
+bool Upgrade::IsBrowserAlreadyRunning() {
+  NOTIMPLEMENTED();
+  return false;
+}
 
 // static
 bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
+  NOTIMPLEMENTED();
   return true;
 }
 
 // static
-bool Upgrade::SwapNewChromeExeIfPresent() { return true; }
+bool Upgrade::SwapNewChromeExeIfPresent() {
+  NOTIMPLEMENTED();
+  return true;
+}
 
-void OpenFirstRunDialog(Profile* profile) { }
+void OpenFirstRunDialog(Profile* profile) { NOTIMPLEMENTED(); }
 
 GURL NewTabUIURL() {
+  NOTIMPLEMENTED();
   return GURL();
 }
 
@@ -118,6 +134,7 @@ void PluginService::SetChromePluginDataDir(const FilePath& data_dir) {
 //--------------------------------------------------------------------------
 
 void InstallJankometer(const CommandLine&) {
+  NOTIMPLEMENTED();
 }
 
 //--------------------------------------------------------------------------
@@ -125,13 +142,16 @@ void InstallJankometer(const CommandLine&) {
 void Browser::Observe(NotificationType type,
                       const NotificationSource& source,
                       const NotificationDetails& details) {
+  NOTIMPLEMENTED();
 }
 
 GURL Browser::GetHomePage() {
+  NOTIMPLEMENTED();
   return GURL("http://dev.chromium.org");
 }
 
 void Browser::LoadingStateChanged(TabContents* source) {
+  NOTIMPLEMENTED();
 }
 
 //--------------------------------------------------------------------------
@@ -143,6 +163,7 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_WEB:
       return new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
     default:
+      NOTIMPLEMENTED();
       return NULL;
   }
 }
@@ -150,16 +171,19 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
 //--------------------------------------------------------------------------
 
 bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {
+  NOTIMPLEMENTED();
   return false;
 }
 
 bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
                                     Event event) {
+  NOTIMPLEMENTED();
   return false;
 }
 
 // This depends on porting all the plugin IPC messages.
 bool IsPluginProcess() {
+  NOTIMPLEMENTED();
   return false;
 }
 
@@ -168,6 +192,7 @@ bool IsPluginProcess() {
 // have to eventually do).
 namespace webkit_glue {
 std::string GetUserAgent(const GURL& url) {
+  NOTIMPLEMENTED();
   return "";
 }
 }
@@ -184,8 +209,8 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
 
 namespace chrome_browser_net {
 
-void EnableDnsPrefetch(bool) {}
-  
+void EnableDnsPrefetch(bool) { NOTIMPLEMENTED(); }
+
 }  // namespace chrome_browser_net
 
 //--------------------------------------------------------------------------
@@ -196,12 +221,14 @@ void RunJavascriptMessageBox(WebContents* web_contents,
                              const std::wstring& default_prompt_text,
                              bool display_suppress_checkbox,
                              IPC::Message* reply_msg) {
+  NOTIMPLEMENTED();
 }
 
 CacheManagerHost::CacheManagerHost() : revise_allocation_factory_(this) { }
 CacheManagerHost::~CacheManagerHost() { }
 
 void CacheManagerHost::ObserveActivity(int) {
+  NOTIMPLEMENTED();
 }
 
 CacheManagerHost* CacheManagerHost::GetInstance() {
@@ -214,5 +241,6 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
 }
 
 bool SSLManager::DeserializeSecurityInfo(const std::string&, int*, int*, int*) {
+  NOTIMPLEMENTED();
   return false;
 }
