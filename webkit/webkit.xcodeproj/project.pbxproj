@@ -1289,6 +1289,8 @@
 		A7CBB2A60F327C8D00360BF5 /* debugger_bridge.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7CBB2A40F327C8D00360BF5 /* debugger_bridge.cc */; };
 		A7FBE6100F1EC18A00BB13F2 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */; };
 		A7FBE6600F1FDFF900BB13F2 /* WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */; };
+		AB9552760F37AA2E0015C8FB /* webplugin_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB9552750F37AA2E0015C8FB /* webplugin_impl.cc */; };
+		AB9552AE0F37AC0B0015C8FB /* stacking_order_iterator.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB9552AD0F37AC0B0015C8FB /* stacking_order_iterator.cc */; };
 		B52EC24C0F2FE04A0051A2C4 /* FormControlElementWithState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52EC24B0F2FE04A0051A2C4 /* FormControlElementWithState.cpp */; };
 		B52EC2550F2FE07B0051A2C4 /* CachedFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52EC2530F2FE07B0051A2C4 /* CachedFrame.cpp */; };
 		B58DCCE90F27DF0100BF697A /* InputElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DCCE80F27DF0100BF697A /* InputElement.cpp */; };
@@ -1334,7 +1336,6 @@
 		E456283A0E269DCB005E4685 /* multipart_response_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051D0D92E3DA0006B936 /* multipart_response_delegate.cc */; };
 		E48A06DE0E3F840F00172919 /* image_resource_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06D80E3F840F00172919 /* image_resource_fetcher.cc */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
-		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
 		FBBBF2E4099C8EA9BDAF80F9 /* CurrentTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */; };
 /* End PBXBuildFile section */
@@ -4139,6 +4140,8 @@
 		AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyClients.h; sourceTree = "<group>"; };
 		AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FloatQuad.cpp; sourceTree = "<group>"; };
 		AB59A1610ECCBD560059F5F3 /* FloatQuad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatQuad.h; sourceTree = "<group>"; };
+		AB9552750F37AA2E0015C8FB /* webplugin_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webplugin_impl.cc; sourceTree = "<group>"; };
+		AB9552AD0F37AC0B0015C8FB /* stacking_order_iterator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stacking_order_iterator.cc; sourceTree = "<group>"; };
 		ABA23E6B0E9FC43700C96905 /* Navigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Navigator.cpp; sourceTree = "<group>"; };
 		ABBD23810EB7A8D200BEC658 /* StyleInheritedData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StyleInheritedData.cpp; sourceTree = "<group>"; };
 		ABBD23830EB7A8EC00BEC658 /* StyleInheritedData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleInheritedData.h; sourceTree = "<group>"; };
@@ -4358,7 +4361,6 @@
 		E48A06D90E3F840F00172919 /* image_resource_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_resource_fetcher.h; sourceTree = "<group>"; };
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
-		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -7590,6 +7592,7 @@
 				8254052C0D92E3DA0006B936 /* searchable_form_data.cc */,
 				8254052D0D92E3DA0006B936 /* searchable_form_data.h */,
 				8254052E0D92E3DA0006B936 /* simple_clipboard_impl.cc */,
+				AB9552AD0F37AC0B0015C8FB /* stacking_order_iterator.cc */,
 				8254052F0D92E3DA0006B936 /* unittest_test_server.h */,
 				825405300D92E3DA0006B936 /* webcursor.cc */,
 				825405310D92E3DA0006B936 /* webcursor.h */,
@@ -7622,8 +7625,8 @@
 				8254054A0D92E3DB0006B936 /* webkit_strings.grd */,
 				8254054F0D92E3DB0006B936 /* webplugin.h */,
 				8254054B0D92E3DB0006B936 /* webplugin_delegate.h */,
+				AB9552750F37AA2E0015C8FB /* webplugin_impl.cc */,
 				8254054E0D92E3DB0006B936 /* webplugin_impl.h */,
-				E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */,
 				8254054C0D92E3DB0006B936 /* webplugin_impl_unittest.cc */,
 				825405500D92E3DB0006B936 /* webpreferences.h */,
 				825405520D92E3DB0006B936 /* webresponse.h */,
@@ -9498,6 +9501,7 @@
 				E45626F80E268F03005E4685 /* resource_fetcher.cc in Sources */,
 				E45627160E268F26005E4685 /* resource_handle_impl.cc in Sources */,
 				E456270C0E268F03005E4685 /* searchable_form_data.cc in Sources */,
+				AB9552AE0F37AC0B0015C8FB /* stacking_order_iterator.cc in Sources */,
 				4DB043A40EB1577900A5633C /* webcursor.cc in Sources */,
 				82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */,
 				E45627030E268F03005E4685 /* webdatasource_impl.cc in Sources */,
@@ -9509,7 +9513,7 @@
 				E45627050E268F03005E4685 /* webinputevent_mac.mm in Sources */,
 				E45627090E268F03005E4685 /* webkit_glue.cc in Sources */,
 				93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */,
-				E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */,
+				AB9552760F37AA2E0015C8FB /* webplugin_impl.cc in Sources */,
 				E45627040E268F03005E4685 /* webtextinput_impl.cc in Sources */,
 				E45627020E268F03005E4685 /* weburlrequest_impl.cc in Sources */,
 				E45626F40E268F03005E4685 /* webview_impl.cc in Sources */,

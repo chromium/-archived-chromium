@@ -89,6 +89,7 @@
 		AB19AC290F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB19AC280F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm */; };
 		AB19AD380F1D0AF200673E20 /* test_shell_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA9CAE90DBC521D00CB1EFB /* test_shell_mac.mm */; };
 		AB5FD3C90F2E2457000EE9AF /* test_shell_platform_delegate_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB19AC280F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm */; };
+		AB9552BB0F37B05D0015C8FB /* webplugin_impl_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB9552BA0F37B05D0015C8FB /* webplugin_impl_unittest.cc */; };
 		E43A79AA0F1CE23800ABD5D1 /* textAreaResizeCorner.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79A90F1CE23800ABD5D1 /* textAreaResizeCorner.png */; };
 		E44662070ECCD652000B9316 /* test_webview_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = E44662060ECCD652000B9316 /* test_webview_delegate.cc */; };
 		E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E450637D0E4100740025A81A /* test_shell_request_context.cc */; };
@@ -809,6 +810,7 @@
 		AB8A785E0DC553EE005C27B8 /* webview_host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webview_host.mm; path = mac/webview_host.mm; sourceTree = "<group>"; };
 		AB8A78600DC553EE005C27B8 /* webview_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webview_host.h; sourceTree = "<group>"; };
 		AB8A786E0DC5544D005C27B8 /* test_shell_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_test.h; sourceTree = "<group>"; };
+		AB9552BA0F37B05D0015C8FB /* webplugin_impl_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webplugin_impl_unittest.cc; sourceTree = "<group>"; };
 		ABA65EFD0DD50BFF003A4FC8 /* test_shell_webview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_webview.h; sourceTree = "<group>"; };
 		ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = test_shell_webview.mm; sourceTree = "<group>"; };
 		ABA9CAE80DBC521D00CB1EFB /* test_shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell.h; sourceTree = "<group>"; };
@@ -1343,6 +1345,7 @@
 				E4506BDB0EF03307003BE099 /* regular_expression_unittest.cc */,
 				E4506BDD0EF03310003BE099 /* resource_fetcher_unittest.cc */,
 				E4506BDF0EF03318003BE099 /* webframe_unittest.cc */,
+				AB9552BA0F37B05D0015C8FB /* webplugin_impl_unittest.cc */,
 			);
 			name = glue;
 			path = ../../glue;
@@ -1942,6 +1945,7 @@
 				E45067C60EF01682003BE099 /* text_input_controller.cc in Sources */,
 				E4506A5A0EF02402003BE099 /* text_input_controller_unittest.cc in Sources */,
 				E4506BE00EF03318003BE099 /* webframe_unittest.cc in Sources */,
+				AB9552BB0F37B05D0015C8FB /* webplugin_impl_unittest.cc in Sources */,
 				E45067C70EF01689003BE099 /* webview_host.mm in Sources */,
 				E45067C80EF0168B003BE099 /* webwidget_host.mm in Sources */,
 				93AF4F370EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp in Sources */,
