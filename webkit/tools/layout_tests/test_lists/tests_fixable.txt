@@ -986,11 +986,6 @@ LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
 LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
 LayoutTests/fast/dom/constructors-cached.html = FAIL
 
-// This test was update in webkit revision 40293.  This new test
-// passes, but the old test seems to still be used on the buildbot.
-// Mac seems to be passing this
-WIN : LayoutTests/fast/forms/selection-functions.html = FAIL
-
 // MERGE REGRESSIONS 36102:37604
 
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
