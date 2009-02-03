@@ -7,14 +7,11 @@
 #include "base/process_util.h"
 
 #import <Cocoa/Cocoa.h>
+#include <crt_externs.h>
 #include <spawn.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-extern "C" {
-extern char** environ;
-}
 
 namespace base {
 
@@ -65,7 +62,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
                                       &file_actions,
                                       NULL,
                                       argv_copy,
-                                      environ) == 0);
+                                      *_NSGetEnviron()) == 0);
 
   posix_spawn_file_actions_destroy(&file_actions);
 
