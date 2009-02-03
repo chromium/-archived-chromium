@@ -5,7 +5,7 @@ Stuff for processing Fortran, common to all fortran dialects.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@ Stuff for processing Fortran, common to all fortran dialects.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/FortranCommon.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Tool/FortranCommon.py 3897 2009/01/13 06:45:54 scons"
 
 import re
 import string
@@ -67,7 +67,7 @@ def _fortranEmitter(target, source, env):
     mod_regex = """(?i)^\s*MODULE\s+(?!PROCEDURE)(\w+)"""
     cre = re.compile(mod_regex,re.M)
     # Retrieve all USE'd module names
-    modules = cre.findall(node.get_contents())
+    modules = cre.findall(node.get_text_contents())
     # Remove unique items from the list
     modules = SCons.Util.unique(modules)
     # Convert module name to a .mod filename

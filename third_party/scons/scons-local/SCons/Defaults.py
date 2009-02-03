@@ -10,7 +10,7 @@ from distutils.msvccompiler.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,12 +32,13 @@ from distutils.msvccompiler.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Defaults.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Defaults.py 3897 2009/01/13 06:45:54 scons"
 
 
 
 import os
 import os.path
+import errno
 import shutil
 import stat
 import string
@@ -220,7 +221,14 @@ def mkdir_func(dest):
     if not SCons.Util.is_List(dest):
         dest = [dest]
     for entry in dest:
-        os.makedirs(str(entry))
+        try:
+            os.makedirs(str(entry))
+        except os.error, e:
+            p = str(entry)
+            if e[0] == errno.EEXIST and os.path.isdir(str(entry)):
+                pass            # not an error if already exists
+            else:
+                raise
 
 Mkdir = ActionFactory(mkdir_func,
                       lambda dir: 'Mkdir(%s)' % get_paths_str(dir))

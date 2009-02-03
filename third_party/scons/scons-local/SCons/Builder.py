@@ -76,7 +76,7 @@ There are the following methods for internal use within this module:
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -98,7 +98,7 @@ There are the following methods for internal use within this module:
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Builder.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Builder.py 3897 2009/01/13 06:45:54 scons"
 
 import UserDict
 import UserList
@@ -117,6 +117,15 @@ class _Null:
     pass
 
 _null = _Null
+
+def match_splitext(path, suffixes = []):
+    if suffixes:
+        matchsuf = filter(lambda S,path=path: path[-len(S):] == S,
+                          suffixes)
+        if matchsuf:
+            suf = max(map(None, map(len, matchsuf), matchsuf))[1]
+            return [path[:-len(suf)], path[-len(suf):]]
+    return SCons.Util.splitext(path)
 
 class DictCmdGenerator(SCons.Util.Selector):
     """This is a callable class that can be used as a
@@ -142,20 +151,22 @@ class DictCmdGenerator(SCons.Util.Selector):
             return []
 
         if self.source_ext_match:
+            suffixes = self.src_suffixes()
             ext = None
             for src in map(str, source):
-                my_ext = SCons.Util.splitext(src)[1]
+                my_ext = match_splitext(src, suffixes)[1]
                 if ext and my_ext != ext:
                     raise UserError("While building `%s' from `%s': Cannot build multiple sources with different extensions: %s, %s" % (repr(map(str, target)), src, ext, my_ext))
                 ext = my_ext
         else:
-            ext = SCons.Util.splitext(str(source[0]))[1]
+            ext = match_splitext(str(source[0]), self.src_suffixes())[1]
 
         if not ext:
+            #return ext
             raise UserError("While building `%s': Cannot deduce file extension from source files: %s" % (repr(map(str, target)), repr(map(str, source))))
 
         try:
-            ret = SCons.Util.Selector.__call__(self, env, source)
+            ret = SCons.Util.Selector.__call__(self, env, source, ext)
         except KeyError, e:
             raise UserError("Ambiguous suffixes after environment substitution: %s == %s == %s" % (e[0], e[1], e[2]))
         if ret is None:
@@ -295,8 +306,9 @@ def _node_errors(builder, env, tlist, slist):
                 if t.builder != builder:
                     msg = "Two different builders (%s and %s) were specified for the same target: %s" % (t.builder.get_name(env), builder.get_name(env), t)
                     raise UserError, msg
-                if t.get_executor().targets != tlist:
-                    msg = "Two different target lists have a target in common: %s  (from %s and from %s)" % (t, map(str, t.get_executor().targets), map(str, tlist))
+                # TODO(batch):  list constructed each time!
+                if t.get_executor().get_all_targets() != tlist:
+                    msg = "Two different target lists have a target in common: %s  (from %s and from %s)" % (t, map(str, t.get_executor().get_all_targets()), map(str, tlist))
                     raise UserError, msg
             elif t.sources != slist:
                 msg = "Multiple ways to build the same target were specified for: %s  (from %s and from %s)" % (t, map(str, t.sources), map(str, slist))
@@ -441,30 +453,10 @@ class BuilderBase:
         if not env:
             env = self.env
         if env:
-            matchsuf = filter(lambda S,path=path: path[-len(S):] == S,
-                              self.src_suffixes(env))
-            if matchsuf:
-                suf = max(map(None, map(len, matchsuf), matchsuf))[1]
-                return [path[:-len(suf)], path[-len(suf):]]
-        return SCons.Util.splitext(path)
-
-    def get_single_executor(self, env, tlist, slist, executor_kw):
-        if not self.action:
-            raise UserError, "Builder %s must have an action to build %s."%(self.get_name(env or self.env), map(str,tlist))
-        return self.action.get_executor(env or self.env,
-                                        [],  # env already has overrides
-                                        tlist,
-                                        slist,
-                                        executor_kw)
-
-    def get_multi_executor(self, env, tlist, slist, executor_kw):
-        try:
-            executor = tlist[0].get_executor(create = 0)
-        except (AttributeError, IndexError):
-            return self.get_single_executor(env, tlist, slist, executor_kw)
+            suffixes = self.src_suffixes(env)
         else:
-            executor.add_sources(slist)
-            return executor
+            suffixes = []
+        return match_splitext(path, suffixes)
 
     def _adjustixes(self, files, pre, suf, ensure_suffix=False):
         if not files:
@@ -566,11 +558,37 @@ class BuilderBase:
         # The targets are fine, so find or make the appropriate Executor to
         # build this particular list of targets from this particular list of
         # sources.
+
+        executor = None
+        key = None
+
         if self.multi:
-            get_executor = self.get_multi_executor
-        else:
-            get_executor = self.get_single_executor
-        executor = get_executor(env, tlist, slist, executor_kw)
+            try:
+                executor = tlist[0].get_executor(create = 0)
+            except (AttributeError, IndexError):
+                pass
+            else:
+                executor.add_sources(slist)
+
+        if executor is None:
+            if not self.action:
+                fmt = "Builder %s must have an action to build %s."
+                raise UserError, fmt % (self.get_name(env or self.env),
+                                        map(str,tlist))
+            key = self.action.batch_key(env or self.env, tlist, slist)
+            if key:
+                try:
+                    executor = SCons.Executor.GetBatchExecutor(key)
+                except KeyError:
+                    pass
+                else:
+                    executor.add_batch(tlist, slist)
+
+        if executor is None:
+            executor = SCons.Executor.Executor(self.action, env, [],
+                                               tlist, slist, executor_kw)
+            if key:
+                SCons.Executor.AddBatchExecutor(key, executor)
 
         # Now set up the relevant information in the target Nodes themselves.
         for t in tlist:

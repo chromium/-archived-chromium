@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@ This file implements the warnings framework for SCons.
 
 """
 
-__revision__ = "src/engine/SCons/Warnings.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Warnings.py 3897 2009/01/13 06:45:54 scons"
 
 import string
 import sys
@@ -36,6 +36,21 @@ import SCons.Errors
 
 class Warning(SCons.Errors.UserError):
     pass
+
+class MandatoryWarning(Warning):
+    pass
+
+
+
+class FutureDeprecatedWarning(Warning):
+    pass
+
+class DeprecatedWarning(Warning):
+    pass
+
+class MandatoryDeprecatedWarning(MandatoryWarning):
+    pass
+
 
 
 # NOTE:  If you add a new warning class, add it to the man page, too!
@@ -47,9 +62,6 @@ class CorruptSConsignWarning(Warning):
     pass
 
 class DependencyWarning(Warning):
-    pass
-
-class DeprecatedWarning(Warning):
     pass
 
 class DeprecatedCopyWarning(DeprecatedWarning):
@@ -98,6 +110,9 @@ class ReservedVariableWarning(Warning):
     pass
 
 class StackSizeWarning(Warning):
+    pass
+
+class TaskmasterNeedsExecuteWarning(FutureDeprecatedWarning):
     pass
 
 class FortranCxxMixWarning(LinkWarning):
@@ -189,5 +204,8 @@ def process_warn_strings(arguments):
         else:
             if enable:
                 enableWarningClass(clazz)
+            elif issubclass(clazz, MandatoryDeprecatedWarning):
+                fmt = "Can not disable mandataory warning: '%s'\n"
+                sys.stderr.write(fmt % arg)
             else:
                 suppressWarningClass(clazz)

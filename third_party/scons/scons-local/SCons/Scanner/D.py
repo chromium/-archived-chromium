@@ -8,7 +8,7 @@ Coded by Andy Friesen
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -30,7 +30,7 @@ Coded by Andy Friesen
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Scanner/D.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Scanner/D.py 3897 2009/01/13 06:45:54 scons"
 
 import re
 import string
@@ -63,6 +63,6 @@ class D(SCons.Scanner.Classic):
 
     def find_include_names(self, node):
         includes = []
-        for i in self.cre.findall(node.get_contents()):
+        for i in self.cre.findall(node.get_text_contents()):
             includes = includes + self.cre2.findall(i)
         return includes

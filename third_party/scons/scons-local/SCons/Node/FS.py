@@ -11,7 +11,7 @@ that can be used by scripts or modules looking for the canonical default.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -33,10 +33,11 @@ that can be used by scripts or modules looking for the canonical default.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Node/FS.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Node/FS.py 3897 2009/01/13 06:45:54 scons"
 
-import fnmatch
 from itertools import izip
+import cStringIO
+import fnmatch
 import os
 import os.path
 import re
@@ -45,7 +46,24 @@ import stat
 import string
 import sys
 import time
-import cStringIO
+
+try:
+    import codecs
+except ImportError:
+    pass
+else:
+    # TODO(2.2):  Remove when 2.3 becomes the minimal supported version.
+    try:
+        codecs.BOM_UTF8
+    except AttributeError:
+        codecs.BOM_UTF8 = '\xef\xbb\xbf'
+    try:
+        codecs.BOM_UTF16
+    except AttributeError:
+        if sys.byteorder == 'little':
+            codecs.BOM_UTF16 = '\xff\xfe'
+        else:
+            codecs.BOM_UTF16 = '\xfe\xff'
 
 import SCons.Action
 from SCons.Debug import logInstanceCreation
@@ -876,11 +894,8 @@ class Entry(Base):
         return self.get_suffix()
 
     def get_contents(self):
-        """Fetch the contents of the entry.
-
-        Since this should return the real contents from the file
-        system, we check to see into what sort of subclass we should
-        morph this Entry."""
+        """Fetch the contents of the entry.  Returns the exact binary
+        contents of the file."""
         try:
             self = self.disambiguate(must_exist=1)
         except SCons.Errors.UserError:
@@ -892,6 +907,24 @@ class Entry(Base):
             return ''
         else:
             return self.get_contents()
+
+    def get_text_contents(self):
+        """Fetch the decoded text contents of a Unicode encoded Entry.
+
+        Since this should return the text contents from the file
+        system, we check to see into what sort of subclass we should
+        morph this Entry."""
+        try:
+            self = self.disambiguate(must_exist=1)
+        except SCons.Errors.UserError:
+            # There was nothing on disk with which to disambiguate
+            # this entry.  Leave it as an Entry, but return a null
+            # string so calls to get_text_contents() in emitters and
+            # the like (e.g. in qt.py) don't have to disambiguate by
+            # hand or catch the exception.
+            return ''
+        else:
+            return self.get_text_contents()
 
     def must_be_same(self, klass):
         """Called to make sure a Node is a Dir.  Since we're an
@@ -932,6 +965,9 @@ class Entry(Base):
 
     def _glob1(self, pattern, ondisk=True, source=False, strings=False):
         return self.disambiguate()._glob1(pattern, ondisk, source, strings)
+
+    def get_subst_proxy(self):
+        return self.disambiguate().get_subst_proxy()
 
 # This is for later so we can differentiate between Entry the class and Entry
 # the method of the FS class.
@@ -1598,13 +1634,18 @@ class Dir(Base):
         """A directory does not get scanned."""
         return None
 
+    def get_text_contents(self):
+        """We already emit things in text, so just return the binary
+        version."""
+        return self.get_contents()
+
     def get_contents(self):
         """Return content signatures and names of all our children
         separated by new-lines. Ensure that the nodes are sorted."""
         contents = []
         name_cmp = lambda a, b: cmp(a.name, b.name)
         sorted_children = self.children()[:]
-        sorted_children.sort(name_cmp)        
+        sorted_children.sort(name_cmp)
         for node in sorted_children:
             contents.append('%s %s\n' % (node.get_csig(), node.name))
         return string.join(contents, '')
@@ -2236,12 +2277,28 @@ class File(Base):
             return ''
         fname = self.rfile().abspath
         try:
-            r = open(fname, "rb").read()
+            contents = open(fname, "rb").read()
         except EnvironmentError, e:
             if not e.filename:
                 e.filename = fname
             raise
-        return r
+        return contents
+
+    try:
+        import codecs
+    except ImportError:
+        get_text_contents = get_contents
+    else:
+        # This attempts to figure out what the encoding of the text is
+        # based upon the BOM bytes, and then decodes the contents so that
+        # it's a valid python string.
+        def get_text_contents(self):
+            contents = self.get_contents()
+            if contents.startswith(codecs.BOM_UTF8):
+                contents = contents.decode('utf-8')
+            elif contents.startswith(codecs.BOM_UTF16):
+                contents = contents.decode('utf-16')
+            return contents
 
     def get_content_hash(self):
         """
@@ -2834,6 +2891,19 @@ class File(Base):
                    (isinstance(node, File) or isinstance(node, Entry) \
                     or not node.is_derived()):
                         result = node
+                        # Copy over our local attributes to the repository
+                        # Node so we identify shared object files in the
+                        # repository and don't assume they're static.
+                        #
+                        # This isn't perfect; the attribute would ideally
+                        # be attached to the object in the repository in
+                        # case it was built statically in the repository
+                        # and we changed it to shared locally, but that's
+                        # rarely the case and would only occur if you
+                        # intentionally used the same suffix for both
+                        # shared and static objects anyway.  So this
+                        # should work well in practice.
+                        result.attributes = self.attributes
                         break
         self._memo['rfile'] = result
         return result

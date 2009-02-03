@@ -12,7 +12,7 @@ it goes here.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -34,7 +34,7 @@ it goes here.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Script/Main.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Script/Main.py 3897 2009/01/13 06:45:54 scons"
 
 import os
 import os.path
@@ -155,7 +155,7 @@ _BuildFailures = []
 def GetBuildFailures():
     return _BuildFailures
 
-class BuildTask(SCons.Taskmaster.Task):
+class BuildTask(SCons.Taskmaster.OutOfDateTask):
     """An SCons build task."""
     progress = ProgressObject
 
@@ -164,16 +164,14 @@ class BuildTask(SCons.Taskmaster.Task):
 
     def prepare(self):
         self.progress(self.targets[0])
-        return SCons.Taskmaster.Task.prepare(self)
+        return SCons.Taskmaster.OutOfDateTask.prepare(self)
 
     def needs_execute(self):
-        target = self.targets[0]
-        if target.get_state() == SCons.Node.executing:
+        if SCons.Taskmaster.OutOfDateTask.needs_execute(self):
             return True
-        else:
-            if self.top and target.has_builder():
-                display("scons: `%s' is up to date." % str(self.node))
-            return False
+        if self.top and self.targets[0].has_builder():
+            display("scons: `%s' is up to date." % str(self.node))
+        return False
 
     def execute(self):
         if print_time:
@@ -181,7 +179,7 @@ class BuildTask(SCons.Taskmaster.Task):
             global first_command_start
             if first_command_start is None:
                 first_command_start = start_time
-        SCons.Taskmaster.Task.execute(self)
+        SCons.Taskmaster.OutOfDateTask.execute(self)
         if print_time:
             global cumulative_command_time
             global last_command_end
@@ -195,13 +193,13 @@ class BuildTask(SCons.Taskmaster.Task):
         global exit_status
         global this_build_status
         if self.options.ignore_errors:
-            SCons.Taskmaster.Task.executed(self)
+            SCons.Taskmaster.OutOfDateTask.executed(self)
         elif self.options.keep_going:
-            SCons.Taskmaster.Task.fail_continue(self)
+            SCons.Taskmaster.OutOfDateTask.fail_continue(self)
             exit_status = status
             this_build_status = status
         else:
-            SCons.Taskmaster.Task.fail_stop(self)
+            SCons.Taskmaster.OutOfDateTask.fail_stop(self)
             exit_status = status
             this_build_status = status
             
@@ -223,9 +221,9 @@ class BuildTask(SCons.Taskmaster.Task):
                 self.do_failed()
             else:
                 print "scons: Nothing to be done for `%s'." % t
-                SCons.Taskmaster.Task.executed(self)
+                SCons.Taskmaster.OutOfDateTask.executed(self)
         else:
-            SCons.Taskmaster.Task.executed(self)
+            SCons.Taskmaster.OutOfDateTask.executed(self)
 
     def failed(self):
         # Handle the failure of a build task.  The primary purpose here
@@ -293,17 +291,17 @@ class BuildTask(SCons.Taskmaster.Task):
                 if tree:
                     print
                     print tree
-        SCons.Taskmaster.Task.postprocess(self)
+        SCons.Taskmaster.OutOfDateTask.postprocess(self)
 
     def make_ready(self):
         """Make a task ready for execution"""
-        SCons.Taskmaster.Task.make_ready(self)
+        SCons.Taskmaster.OutOfDateTask.make_ready(self)
         if self.out_of_date and self.options.debug_explain:
             explanation = self.out_of_date[0].explain()
             if explanation:
                 sys.stdout.write("scons: " + explanation)
 
-class CleanTask(SCons.Taskmaster.Task):
+class CleanTask(SCons.Taskmaster.AlwaysTask):
     """An SCons clean task."""
     def fs_delete(self, path, pathstr, remove=1):
         try:
@@ -379,11 +377,11 @@ class CleanTask(SCons.Taskmaster.Task):
     def prepare(self):
         pass
 
-class QuestionTask(SCons.Taskmaster.Task):
+class QuestionTask(SCons.Taskmaster.AlwaysTask):
     """An SCons task for the -q (question) option."""
     def prepare(self):
         pass
-    
+
     def execute(self):
         if self.targets[0].get_state() != SCons.Node.up_to_date or \
            (self.top and not self.targets[0].exists()):
@@ -1166,7 +1164,8 @@ def _build_targets(fs, options, targets, target_top):
         failure_message=failure_message
         ):
         if jobs.were_interrupted():
-            progress_display("scons: Build interrupted.")
+            if not options.no_progress and not options.silent:
+                sys.stderr.write("scons: Build interrupted.\n")
             global exit_status
             global this_build_status
             exit_status = 2
@@ -1251,7 +1250,7 @@ def main():
         # __main__.__version__, hence there is no script version.
         pass 
     parts.append(version_string("engine", SCons))
-    parts.append("Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation")
+    parts.append("Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation")
     version = string.join(parts, '')
 
     import SConsOptions

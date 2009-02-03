@@ -9,7 +9,7 @@ selection method.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,7 +31,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/swig.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Tool/swig.py 3897 2009/01/13 06:45:54 scons"
 
 import os.path
 import re
@@ -51,7 +51,17 @@ def swigSuffixEmitter(env, source):
         return '$SWIGCFILESUFFIX'
 
 # Match '%module test', as well as '%module(directors="1") test'
-_reModule = re.compile(r'%module(?:\s*\(.*\))?\s+(.+)')
+# Also allow for test to be quoted (SWIG permits double quotes, but not single)
+_reModule = re.compile(r'%module(\s*\(.*\))?\s+("?)(.+)\2')
+
+def _find_modules(src):
+    """Find all modules referenced by %module lines in `src`, a SWIG .i file.
+       Returns a list of all modules."""
+    mnames = []
+    matches = _reModule.findall(open(src).read())
+    for m in matches:
+        mnames.append(m[2])
+    return mnames
 
 def _swigEmitter(target, source, env):
     swigflags = env.subst("$SWIGFLAGS", target=target, source=source)
@@ -61,12 +71,12 @@ def _swigEmitter(target, source, env):
         mnames = None
         if "-python" in flags and "-noproxy" not in flags:
             if mnames is None:
-                mnames = _reModule.findall(open(src).read())
+                mnames = _find_modules(src)
             target.extend(map(lambda m, d=target[0].dir:
                                      d.File(m + ".py"), mnames))
         if "-java" in flags:
             if mnames is None:
-                mnames = _reModule.findall(open(src).read())
+                mnames = _find_modules(src)
             java_files = map(lambda m: [m + ".java", m + "JNI.java"], mnames)
             java_files = SCons.Util.flatten(java_files)
             outdir = env.subst('$SWIGOUTDIR', target=target, source=source)
@@ -102,7 +112,7 @@ def generate(env):
     env['SWIGFLAGS']         = SCons.Util.CLVar('')
     env['SWIGCFILESUFFIX']   = '_wrap$CFILESUFFIX'
     env['SWIGCXXFILESUFFIX'] = '_wrap$CXXFILESUFFIX'
-    env['_SWIGOUTDIR']       = '${"-outdir " + str(SWIGOUTDIR)}'
+    env['_SWIGOUTDIR']       = r'${"-outdir \"%s\"" % SWIGOUTDIR}'
     env['SWIGPATH']          = []
     env['SWIGINCPREFIX']     = '-I'
     env['SWIGINCSUFFIX']     = ''

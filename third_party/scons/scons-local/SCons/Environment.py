@@ -10,7 +10,7 @@ Environment
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -32,7 +32,7 @@ Environment
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Environment.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Environment.py 3897 2009/01/13 06:45:54 scons"
 
 
 import copy
@@ -109,18 +109,17 @@ def apply_tools(env, tools, toolpath):
 # set or override them.  This warning can optionally be turned off,
 # but scons will still ignore the illegal variable names even if it's off.
 reserved_construction_var_names = [
+    'CHANGED_SOURCES',
+    'CHANGED_TARGETS',
     'SOURCE',
     'SOURCES',
     'TARGET',
     'TARGETS',
-]
-
-future_reserved_construction_var_names = [
-    'CHANGED_SOURCES',
-    'CHANGED_TARGETS',
     'UNCHANGED_SOURCES',
     'UNCHANGED_TARGETS',
 ]
+
+future_reserved_construction_var_names = []
 
 def copy_non_reserved_keywords(dict):
     result = semi_deepcopy(dict)
@@ -429,7 +428,7 @@ class SubstitutionEnvironment:
             self._dict[key] = value
 
     def get(self, key, default=None):
-        "Emulates the get() method of dictionaries."""
+        """Emulates the get() method of dictionaries."""
         return self._dict.get(key, default)
 
     def has_key(self, key):
@@ -490,7 +489,7 @@ class SubstitutionEnvironment:
     def lvars(self):
         return {}
 
-    def subst(self, string, raw=0, target=None, source=None, conv=None):
+    def subst(self, string, raw=0, target=None, source=None, conv=None, executor=None):
         """Recursively interpolates construction variables from the
         Environment into the specified string, returning the expanded
         result.  Construction variables are specified by a $ prefix
@@ -503,6 +502,8 @@ class SubstitutionEnvironment:
         gvars = self.gvars()
         lvars = self.lvars()
         lvars['__env__'] = self
+        if executor:
+            lvars.update(executor.get_lvars())
         return SCons.Subst.scons_subst(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_kw(self, kw, raw=0, target=None, source=None):
@@ -514,12 +515,14 @@ class SubstitutionEnvironment:
             nkw[k] = v
         return nkw
 
-    def subst_list(self, string, raw=0, target=None, source=None, conv=None):
+    def subst_list(self, string, raw=0, target=None, source=None, conv=None, executor=None):
         """Calls through to SCons.Subst.scons_subst_list().  See
         the documentation for that function."""
         gvars = self.gvars()
         lvars = self.lvars()
         lvars['__env__'] = self
+        if executor:
+            lvars.update(executor.get_lvars())
         return SCons.Subst.scons_subst_list(string, self, raw, target, source, gvars, lvars, conv)
 
     def subst_path(self, path, target=None, source=None):
@@ -1198,6 +1201,15 @@ class Base(SubstitutionEnvironment):
                                 orig[val] = None
         self.scanner_map_delete(kw)
 
+    # allow Dirs and strings beginning with # for top-relative
+    # Note this uses the current env's fs (in self).
+    def _canonicalize(self, path):
+        if not SCons.Util.is_String(path): # typically a Dir
+            path = str(path)
+        if path and path[0] == '#':
+            path = str(self.fs.Dir(path))
+        return path
+
     def AppendENVPath(self, name, newpath, envname = 'ENV', 
                       sep = os.pathsep, delete_existing=1):
         """Append path elements to the path 'name' in the 'ENV'
@@ -1214,7 +1226,8 @@ class Base(SubstitutionEnvironment):
         if self._dict.has_key(envname) and self._dict[envname].has_key(name):
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.AppendPath(orig, newpath, sep, delete_existing)
+        nv = SCons.Util.AppendPath(orig, newpath, sep, delete_existing,
+                                   canonicalize=self._canonicalize)
 
         if not self._dict.has_key(envname):
             self._dict[envname] = {}
@@ -1569,7 +1582,8 @@ class Base(SubstitutionEnvironment):
         if self._dict.has_key(envname) and self._dict[envname].has_key(name):
             orig = self._dict[envname][name]
 
-        nv = SCons.Util.PrependPath(orig, newpath, sep, delete_existing)
+        nv = SCons.Util.PrependPath(orig, newpath, sep, delete_existing,
+                                    canonicalize=self._canonicalize)
 
         if not self._dict.has_key(envname):
             self._dict[envname] = {}

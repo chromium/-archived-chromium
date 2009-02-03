@@ -9,7 +9,7 @@ selection method.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,7 +31,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/tex.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Tool/tex.py 3897 2009/01/13 06:45:54 scons"
 
 import os.path
 import re
@@ -128,7 +128,10 @@ modify_env_var = SCons.Scanner.LaTeX.modify_env_var
 
 def FindFile(name,suffixes,paths,env,requireExt=False):
     if requireExt:
-        name = SCons.Util.splitext(name)[0]
+        name,ext = SCons.Util.splitext(name)
+        # if the user gave an extension use it.
+        if ext:
+            name = name + ext
     if Verbose:
         print " searching for '%s' with extensions: " % name,suffixes
 
@@ -178,6 +181,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     basedir = os.path.split(str(source[0]))[0]
     basefile = os.path.split(str(basename))[1]
     abspath = os.path.abspath(basedir)
+
     targetext = os.path.splitext(str(target[0]))[1]
     targetdir = os.path.split(str(target[0]))[0]
 
@@ -198,7 +202,7 @@ def InternalLaTeXAuxAction(XXXLaTeXAction, target = None, source= None, env=None
     # we have to run makeindex at least once to keep the build
     # happy even if there is no index.
     # Same for glossaries and nomenclature
-    src_content = source[0].get_contents()
+    src_content = source[0].get_text_contents()
     run_makeindex = makeindex_re.search(src_content) and not os.path.exists(targetbase + '.idx')
     run_nomenclature = makenomenclature_re.search(src_content) and not os.path.exists(targetbase + '.nlo')
     run_glossary = makeglossary_re.search(src_content) and not os.path.exists(targetbase + '.glo')
@@ -373,7 +377,7 @@ LaTeX_re = re.compile("\\\\document(style|class)")
 def is_LaTeX(flist):
     # Scan a file list to decide if it's TeX- or LaTeX-flavored.
     for f in flist:
-        content = f.get_contents()
+        content = f.get_text_contents()
         if LaTeX_re.search(content):
             return 1
     return 0
@@ -422,38 +426,13 @@ def tex_pdf_emitter(target, source, env):
 def ScanFiles(theFile, target, paths, file_tests, file_tests_search, env, graphics_extensions, targetdir):
     # for theFile (a Node) update any file_tests and search for graphics files
     # then find all included files and call ScanFiles for each of them
-    content = theFile.get_contents()
+    content = theFile.get_text_contents()
     if Verbose:
         print " scanning ",str(theFile)
 
     for i in range(len(file_tests_search)):
         if file_tests[i][0] == None:
             file_tests[i][0] = file_tests_search[i].search(content)
-
-    # For each file see if any graphics files are included
-    # and set up target to create ,pdf graphic
-    # is this is in pdflatex toolchain
-    graphic_files = includegraphics_re.findall(content)
-    if Verbose:
-        print "graphics files in '%s': "%str(theFile),graphic_files
-    for graphFile in graphic_files:
-        graphicNode = FindFile(graphFile,graphics_extensions,paths,env,requireExt=True)
-        # if building with pdflatex see if we need to build the .pdf version of the graphic file
-        # I should probably come up with a better way to tell which builder we are using.
-        if graphics_extensions == LatexGraphics:
-            # see if we can build this graphics file by epstopdf
-            graphicSrc = FindFile(graphFile,TexGraphics,paths,env,requireExt=True)
-            # it seems that FindFile checks with no extension added
-            # so if the extension is included in the name then both searches find it
-            # we don't want to try to build a .pdf from a .pdf so make sure src!=file wanted
-            if (graphicSrc != None) and (graphicSrc != graphicNode):
-                if Verbose:
-                    if graphicNode == None:
-                        print "need to build '%s' by epstopdf %s -o %s" % (graphFile,graphicSrc,graphFile)
-                    else:
-                        print "no need to build '%s', but source file %s exists" % (graphicNode,graphicSrc)
-                graphicNode = env.PDF(graphicSrc)
-                env.Depends(target[0],graphicNode)
 
     # recursively call this on each of the included files
     inc_files = [ ]
@@ -498,7 +477,7 @@ def tex_emitter_core(target, source, env, graphics_extensions):
     env.Clean(target[0],auxfilename)
     env.Clean(target[0],logfilename)
 
-    content = source[0].get_contents()
+    content = source[0].get_text_contents()
 
     idx_exists = os.path.exists(targetbase + '.idx')
     nlo_exists = os.path.exists(targetbase + '.nlo')

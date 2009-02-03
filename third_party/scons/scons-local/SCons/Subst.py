@@ -5,7 +5,7 @@ SCons string substitution.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@ SCons string substitution.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Subst.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Subst.py 3897 2009/01/13 06:45:54 scons"
 
 import re
 import string
@@ -253,6 +253,15 @@ class Target_or_Source:
             return repr(nl[0])
         return ''
 
+class NullNodeList(SCons.Util.NullSeq):
+  def __call__(self, *args, **kwargs): return ''
+  def __str__(self): return ''
+  # TODO(1.5):  unneeded after new-style classes introduce iterators
+  def __getitem__(self, i):
+      raise IndexError
+
+NullNodesList = NullNodeList()
+
 def subst_dict(target, source):
     """Create a dictionary for substitution of special
     construction variables.
@@ -279,9 +288,16 @@ def subst_dict(target, source):
         tnl = NLWrapper(target, get_tgt_subst_proxy)
         dict['TARGETS'] = Targets_or_Sources(tnl)
         dict['TARGET'] = Target_or_Source(tnl)
+
+        # This is a total cheat, but hopefully this dictionary goes
+        # away soon anyway.  We just let these expand to $TARGETS
+        # because that's "good enough" for the use of ToolSurrogates
+        # (see test/ToolSurrogate.py) to generate documentation.
+        dict['CHANGED_TARGETS'] = '$TARGETS'
+        dict['UNCHANGED_TARGETS'] = '$TARGETS'
     else:
-        dict['TARGETS'] = None
-        dict['TARGET'] = None
+        dict['TARGETS'] = NullNodesList
+        dict['TARGET'] = NullNodesList
 
     if source:
         def get_src_subst_proxy(node):
@@ -298,9 +314,16 @@ def subst_dict(target, source):
         snl = NLWrapper(source, get_src_subst_proxy)
         dict['SOURCES'] = Targets_or_Sources(snl)
         dict['SOURCE'] = Target_or_Source(snl)
+
+        # This is a total cheat, but hopefully this dictionary goes
+        # away soon anyway.  We just let these expand to $TARGETS
+        # because that's "good enough" for the use of ToolSurrogates
+        # (see test/ToolSurrogate.py) to generate documentation.
+        dict['CHANGED_SOURCES'] = '$SOURCES'
+        dict['UNCHANGED_SOURCES'] = '$SOURCES'
     else:
-        dict['SOURCES'] = None
-        dict['SOURCE'] = None
+        dict['SOURCES'] = NullNodesList
+        dict['SOURCE'] = NullNodesList
 
     return dict
 
@@ -386,11 +409,9 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
         source with two methods (substitute() and expand()) that handle
         the expansion.
         """
-        def __init__(self, env, mode, target, source, conv, gvars):
+        def __init__(self, env, mode, conv, gvars):
             self.env = env
             self.mode = mode
-            self.target = target
-            self.source = source
             self.conv = conv
             self.gvars = gvars
 
@@ -427,14 +448,14 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                         except Exception, e:
                             if e.__class__ in AllowableExceptions:
                                 return ''
-                            raise_exception(e, self.target, s)
+                            raise_exception(e, lvars['TARGETS'], s)
                     else:
                         if lvars.has_key(key):
                             s = lvars[key]
                         elif self.gvars.has_key(key):
                             s = self.gvars[key]
                         elif not NameError in AllowableExceptions:
-                            raise_exception(NameError(key), self.target, s)
+                            raise_exception(NameError(key), lvars['TARGETS'], s)
                         else:
                             return ''
     
@@ -460,8 +481,8 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
                 return map(func, s)
             elif callable(s):
                 try:
-                    s = s(target=self.target,
-                         source=self.source,
+                    s = s(target=lvars['TARGETS'],
+                         source=lvars['SOURCES'],
                          env=self.env,
                          for_signature=(self.mode != SUBST_CMD))
                 except TypeError:
@@ -519,10 +540,11 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     # If we dropped that behavior (or found another way to cover it),
     # we could get rid of this call completely and just rely on the
     # Executor setting the variables.
-    d = subst_dict(target, source)
-    if d:
-        lvars = lvars.copy()
-        lvars.update(d)
+    if not lvars.has_key('TARGET'):
+        d = subst_dict(target, source)
+        if d:
+            lvars = lvars.copy()
+            lvars.update(d)
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),
@@ -532,7 +554,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     # for expansion.
     gvars['__builtins__'] = __builtins__
 
-    ss = StringSubber(env, mode, target, source, conv, gvars)
+    ss = StringSubber(env, mode, conv, gvars)
     result = ss.substitute(strSubst, lvars)
 
     try:
@@ -589,12 +611,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
         and the rest of the object takes care of doing the right thing
         internally.
         """
-        def __init__(self, env, mode, target, source, conv, gvars):
+        def __init__(self, env, mode, conv, gvars):
             UserList.UserList.__init__(self, [])
             self.env = env
             self.mode = mode
-            self.target = target
-            self.source = source
             self.conv = conv
             self.gvars = gvars
 
@@ -643,14 +663,14 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                         except Exception, e:
                             if e.__class__ in AllowableExceptions:
                                 return
-                            raise_exception(e, self.target, s)
+                            raise_exception(e, lvars['TARGETS'], s)
                     else:
                         if lvars.has_key(key):
                             s = lvars[key]
                         elif self.gvars.has_key(key):
                             s = self.gvars[key]
                         elif not NameError in AllowableExceptions:
-                            raise_exception(NameError(), self.target, s)
+                            raise_exception(NameError(), lvars['TARGETS'], s)
                         else:
                             return
 
@@ -670,8 +690,8 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     self.next_word()
             elif callable(s):
                 try:
-                    s = s(target=self.target,
-                         source=self.source,
+                    s = s(target=lvars['TARGETS'],
+                         source=lvars['SOURCES'],
                          env=self.env,
                          for_signature=(self.mode != SUBST_CMD))
                 except TypeError:
@@ -814,10 +834,11 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     # If we dropped that behavior (or found another way to cover it),
     # we could get rid of this call completely and just rely on the
     # Executor setting the variables.
-    d = subst_dict(target, source)
-    if d:
-        lvars = lvars.copy()
-        lvars.update(d)
+    if not lvars.has_key('TARGET'):
+        d = subst_dict(target, source)
+        if d:
+            lvars = lvars.copy()
+            lvars.update(d)
 
     # We're (most likely) going to eval() things.  If Python doesn't
     # find a __builtins__ value in the global dictionary used for eval(),
@@ -827,7 +848,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     # for expansion.
     gvars['__builtins__'] = __builtins__
 
-    ls = ListSubber(env, mode, target, source, conv, gvars)
+    ls = ListSubber(env, mode, conv, gvars)
     ls.substitute(strSubst, lvars, 0)
 
     try:

@@ -20,7 +20,7 @@ be able to depend on any other type of "thing."
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -42,7 +42,7 @@ be able to depend on any other type of "thing."
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Node/__init__.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Node/__init__.py 3897 2009/01/13 06:45:54 scons"
 
 import copy
 from itertools import chain, izip
@@ -621,7 +621,7 @@ class Node:
                 # essentially short-circuits an N*M scan of the
                 # sources for each individual target, which is a hell
                 # of a lot more efficient.
-                for tgt in executor.targets:
+                for tgt in executor.get_all_targets():
                     tgt.add_to_implicit(implicit)
 
                 if implicit_deps_unchanged or self.is_up_to_date():
@@ -714,7 +714,7 @@ class Node:
                 if s not in ignore_set:
                     sources.append(s)
         else:
-            sources = executor.get_unignored_sources(self.ignore)
+            sources = executor.get_unignored_sources(self, self.ignore)
         seen = set()
         bsources = []
         bsourcesigs = []

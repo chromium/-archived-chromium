@@ -9,7 +9,7 @@ selection method.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,7 +31,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/jar.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Tool/jar.py 3897 2009/01/13 06:45:54 scons"
 
 import SCons.Subst
 import SCons.Util
@@ -49,7 +49,7 @@ def jarSources(target, source, env, for_signature):
             jarchdir = env.fs.Dir(jarchdir)
     result = []
     for src in source:
-        contents = src.get_contents()
+        contents = src.get_text_contents()
         if contents[:16] != "Manifest-Version":
             if jarchdir_set:
                 _chdir = jarchdir
@@ -70,7 +70,7 @@ def jarSources(target, source, env, for_signature):
 def jarManifest(target, source, env, for_signature):
     """Look in sources for a manifest file, if any."""
     for src in source:
-        contents = src.get_contents()
+        contents = src.get_text_contents()
         if contents[:16] == "Manifest-Version":
             return src
     return ''
@@ -80,7 +80,7 @@ def jarFlags(target, source, env, for_signature):
     flag is specified."""
     jarflags = env.subst('$JARFLAGS', target=target, source=source)
     for src in source:
-        contents = src.get_contents()
+        contents = src.get_text_contents()
         if contents[:16] == "Manifest-Version":
             if not 'm' in jarflags:
                 return jarflags + 'm'

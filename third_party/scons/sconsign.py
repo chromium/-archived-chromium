@@ -2,7 +2,7 @@
 #
 # SCons - a Software Constructor
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,15 +24,15 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/script/sconsign.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/script/sconsign.py 3897 2009/01/13 06:45:54 scons"
 
-__version__ = "1.2.0"
+__version__ = "1.2.0.d20090113"
 
-__build__ = "r3842"
+__build__ = "r3897"
 
 __buildsys__ = "scons-dev"
 
-__date__ = "2008/12/20 22:59:52"
+__date__ = "2009/01/13 06:45:54"
 
 __developer__ = "scons"
 

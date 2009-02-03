@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -48,7 +48,7 @@ interface and the SCons build engine.  There are two key classes here:
         target(s) that it decides need to be evaluated and/or built.
 """
 
-__revision__ = "src/engine/SCons/Taskmaster.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Taskmaster.py 3897 2009/01/13 06:45:54 scons"
 
 from itertools import chain
 import operator
@@ -58,6 +58,7 @@ import traceback
 
 import SCons.Errors
 import SCons.Node
+import SCons.Warnings
 
 StateString = SCons.Node.StateString
 NODE_NO_STATE = SCons.Node.no_state
@@ -185,8 +186,9 @@ class Task:
         # target t.prepare() methods check that each target's explicit
         # or implicit dependencies exists, and also initialize the
         # .sconsign info.
-        self.targets[0].get_executor().prepare()
-        for t in self.targets:
+        executor = self.targets[0].get_executor()
+        executor.prepare()
+        for t in executor.get_action_targets():
             t.prepare()
             for s in t.side_effects:
                 s.prepare()
@@ -197,14 +199,14 @@ class Task:
         return self.node
 
     def needs_execute(self):
-        """
-        Called to determine whether the task's execute() method should
-        be run.
-
-        This method allows one to skip the somethat costly execution
-        of the execute() method in a seperate thread. For example,
-        that would be unnecessary for up-to-date targets.
-        """
+        # TODO(deprecate):  "return True" is the old default behavior;
+        # change it to NotImplementedError (after running through the
+        # Deprecation Cycle) so the desired behavior is explicitly
+        # determined by which concrete subclass is used.
+        #raise NotImplementedError
+        msg = ('Direct use of the Taskmaster.Task class will be deprecated\n'
+               + '\tin a future release.')
+        SCons.Warnings.warn(SCons.Warnings.TaskmasterNeedsExecuteWarning, msg)
         return True
 
     def execute(self):
@@ -501,6 +503,30 @@ class Task:
             exc_traceback = None
         raise exc_type, exc_value, exc_traceback
 
+class AlwaysTask(Task):
+    def needs_execute(self):
+        """
+        Always returns True (indicating this Task should always
+        be executed).
+
+        Subclasses that need this behavior (as opposed to the default
+        of only executing Nodes that are out of date w.r.t. their
+        dependencies) can use this as follows:
+
+            class MyTaskSubclass(SCons.Taskmaster.Task):
+                needs_execute = SCons.Taskmaster.Task.execute_always
+        """
+        return True
+
+class OutOfDateTask(Task):
+    def needs_execute(self):
+        """
+        Returns True (indicating this Task should be executed) if this
+        Task's target state indicates it needs executing, which has
+        already been determined by an earlier up-to-date check.
+        """
+        return self.targets[0].get_state() == SCons.Node.executing
+
 
 def find_cycle(stack, visited):
     if stack[-1] in visited:
@@ -521,11 +547,13 @@ class Taskmaster:
     The Taskmaster for walking the dependency DAG.
     """
 
-    def __init__(self, targets=[], tasker=Task, order=None, trace=None):
+    def __init__(self, targets=[], tasker=None, order=None, trace=None):
         self.original_top = targets
         self.top_targets_left = targets[:]
         self.top_targets_left.reverse()
         self.candidates = []
+        if tasker is None:
+            tasker = OutOfDateTask
         self.tasker = tasker
         if not order:
             order = lambda l: l
@@ -736,8 +764,10 @@ class Taskmaster:
                 if T: T.write(self.trace_message('       already handled (executed)'))
                 continue
 
+            executor = node.get_executor()
+
             try:
-                children = node.children()
+                children = executor.get_all_children()
             except SystemExit:
                 exc_value = sys.exc_info()[1]
                 e = SCons.Errors.ExplicitExit(node, exc_value.code)
@@ -759,7 +789,7 @@ class Taskmaster:
             children_not_ready = []
             children_failed = False
 
-            for child in chain(children,node.prerequisites):
+            for child in chain(children, executor.get_all_prerequisites()):
                 childstate = child.get_state()
 
                 if T: T.write(self.trace_message('       ' + self.trace_node(child)))
@@ -803,7 +833,8 @@ class Taskmaster:
             # added the other children to the list of candidate nodes
             # to keep on building (--keep-going).
             if children_failed:
-                node.set_state(NODE_FAILED)
+                for n in executor.get_action_targets():
+                    n.set_state(NODE_FAILED)
 
                 if S: S.child_failed = S.child_failed + 1
                 if T: T.write(self.trace_message('****** %s\n' % self.trace_node(node)))
@@ -834,7 +865,7 @@ class Taskmaster:
             # Skip this node if it has side-effects that are
             # currently being built:
             wait_side_effects = False
-            for se in node.side_effects:
+            for se in executor.get_action_side_effects():
                 if se.get_state() == NODE_EXECUTING:
                     se.add_to_waiting_s_e(node)
                     wait_side_effects = True
@@ -873,7 +904,7 @@ class Taskmaster:
         if node is None:
             return None
 
-        tlist = node.get_executor().targets
+        tlist = node.get_executor().get_all_targets()
 
         task = self.tasker(self, tlist, node in self.original_top, node)
         try:

@@ -9,7 +9,7 @@ selection method.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -31,7 +31,7 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/mingw.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Tool/mingw.py 3897 2009/01/13 06:45:54 scons"
 
 import os
 import os.path
@@ -62,7 +62,9 @@ def shlib_generator(target, source, env, for_signature):
     if implib: cmd.append('-Wl,--out-implib,'+implib.get_string(for_signature))
 
     def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
-    if def_target: cmd.append('-Wl,--output-def,'+def_target.get_string(for_signature))
+    insert_def = env.subst("$WINDOWS_INSERT_DEF")
+    if not insert_def in ['', '0', 0] and def_target: \
+        cmd.append('-Wl,--output-def,'+def_target.get_string(for_signature))
 
     return [cmd]
 

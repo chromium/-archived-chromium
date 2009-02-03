@@ -5,7 +5,7 @@ Various utility functions go here.
 """
 
 #
-# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@ Various utility functions go here.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Util.py 3842 2008/12/20 22:59:52 scons"
+__revision__ = "src/engine/SCons/Util.py 3897 2009/01/13 06:45:54 scons"
 
 import copy
 import os
@@ -107,18 +107,6 @@ def updrive(path):
         path = string.upper(drive) + rest
     return path
 
-class CallableComposite(UserList):
-    """A simple composite callable class that, when called, will invoke all
-    of its contained callables with the same arguments."""
-    def __call__(self, *args, **kwargs):
-        retvals = map(lambda x, args=args, kwargs=kwargs: apply(x,
-                                                                args,
-                                                                kwargs),
-                      self.data)
-        if self.data and (len(self.data) == len(filter(callable, retvals))):
-            return self.__class__(retvals)
-        return NodeList(retvals)
-
 class NodeList(UserList):
     """This class is almost exactly like a regular list of Nodes
     (actually it can hold any object), with one important difference.
@@ -135,23 +123,20 @@ class NodeList(UserList):
     def __str__(self):
         return string.join(map(str, self.data))
 
+    def __iter__(self):
+        return iter(self.data)
+
+    def __call__(self, *args, **kwargs):
+        result = map(lambda x, args=args, kwargs=kwargs: apply(x,
+                                                               args,
+                                                               kwargs),
+                     self.data)
+        return self.__class__(result)
+
     def __getattr__(self, name):
-        if not self.data:
-            # If there is nothing in the list, then we have no attributes to
-            # pass through, so raise AttributeError for everything.
-            raise AttributeError, "NodeList has no attribute: %s" % name
+        result = map(lambda x, n=name: getattr(x, n), self.data)
+        return self.__class__(result)
 
-        # Return a list of the attribute, gotten from every element
-        # in the list
-        attrList = map(lambda x, n=name: getattr(x, n), self.data)
-
-        # Special case.  If the attribute is callable, we do not want
-        # to return a list of callables.  Rather, we want to return a
-        # single callable that, when called, will invoke the function on
-        # all elements of this list.
-        if self.data and (len(self.data) == len(filter(callable, attrList))):
-            return CallableComposite(attrList)
-        return self.__class__(attrList)
 
 _get_env_var = re.compile(r'^\$([_a-zA-Z]\w*|{[_a-zA-Z]\w*})$')
 
@@ -844,7 +829,8 @@ else:
                     continue
         return None
 
-def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
+def PrependPath(oldpath, newpath, sep = os.pathsep, 
+                delete_existing=1, canonicalize=None):
     """This prepends newpath elements to the given oldpath.  Will only
     add any particular path once (leaving the first one it encounters
     and ignoring the rest, to preserve path order), and will
@@ -861,6 +847,9 @@ def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
     If delete_existing is 0, then adding a path that exists will
     not move it to the beginning; it will stay where it is in the
     list.
+
+    If canonicalize is not None, it is applied to each element of 
+    newpath before use.
     """
 
     orig = oldpath
@@ -870,10 +859,15 @@ def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if is_List(newpath) or is_Tuple(newpath):
-        newpaths = newpath
-    else:
+    if is_String(newpath):
         newpaths = string.split(newpath, sep)
+    elif not is_List(newpath) and not is_Tuple(newpath):
+        newpaths = [ newpath ]  # might be a Dir
+    else:
+        newpaths = newpath
+
+    if canonicalize:
+        newpaths=map(canonicalize, newpaths)
 
     if not delete_existing:
         # First uniquify the old paths, making sure to 
@@ -917,7 +911,8 @@ def PrependPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
     else:
         return string.join(paths, sep)
 
-def AppendPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
+def AppendPath(oldpath, newpath, sep = os.pathsep, 
+               delete_existing=1, canonicalize=None):
     """This appends new path elements to the given old path.  Will
     only add any particular path once (leaving the last one it
     encounters and ignoring the rest, to preserve path order), and
@@ -933,6 +928,9 @@ def AppendPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
 
     If delete_existing is 0, then adding a path that exists
     will not move it to the end; it will stay where it is in the list.
+
+    If canonicalize is not None, it is applied to each element of 
+    newpath before use.
     """
 
     orig = oldpath
@@ -942,10 +940,15 @@ def AppendPath(oldpath, newpath, sep = os.pathsep, delete_existing=1):
         paths = string.split(paths, sep)
         is_list = 0
 
-    if is_List(newpath) or is_Tuple(newpath):
-        newpaths = newpath
-    else:
+    if is_String(newpath):
         newpaths = string.split(newpath, sep)
+    elif not is_List(newpath) and not is_Tuple(newpath):
+        newpaths = [ newpath ]  # might be a Dir
+    else:
+        newpaths = newpath
+
+    if canonicalize:
+        newpaths=map(canonicalize, newpaths)
 
     if not delete_existing:
         # add old paths to result, then
@@ -1089,11 +1092,12 @@ class Selector(OrderedDict):
     """A callable ordered dictionary that maps file suffixes to
     dictionary values.  We preserve the order in which items are added
     so that get_suffix() calls always return the first suffix added."""
-    def __call__(self, env, source):
-        try:
-            ext = source[0].suffix
-        except IndexError:
-            ext = ""
+    def __call__(self, env, source, ext=None):
+        if ext is None:
+            try:
+                ext = source[0].suffix
+            except IndexError:
+                ext = ""
         try:
             return self[ext]
         except KeyError:
@@ -1549,9 +1553,10 @@ def MD5collect(signatures):
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/68205
 # ASPN: Python Cookbook: Null Object Design Pattern
 
+# TODO(1.5):
+#class Null(object):
 class Null:
-    """ Null objects always and reliably "do nothging." """
-
+    """ Null objects always and reliably "do nothing." """
     def __new__(cls, *args, **kwargs):
         if not '_inst' in vars(cls):
             #cls._inst = type.__new__(cls, *args, **kwargs)
@@ -1562,16 +1567,27 @@ class Null:
     def __call__(self, *args, **kwargs):
         return self
     def __repr__(self):
-        return "Null()"
+        return "Null(0x%08X)" % id(self)
     def __nonzero__(self):
         return False
-    def __getattr__(self, mname):
+    def __getattr__(self, name):
         return self
     def __setattr__(self, name, value):
         return self
     def __delattr__(self, name):
         return self
 
+class NullSeq(Null):
+    def __len__(self):
+        return 0
+    def __iter__(self):
+        return iter(())
+    def __getitem__(self, i):
+        return self
+    def __delitem__(self, i):
+        return self
+    def __setitem__(self, i, v):
+        return self
 
 
 del __revision__
