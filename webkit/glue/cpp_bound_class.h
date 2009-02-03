@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 /*
-  CppBoundClass class: 
+  CppBoundClass class:
   This base class serves as a parent for C++ classes designed to be bound to
   JavaScript objects.
 
@@ -53,12 +53,12 @@ class CppBoundClass {
 
   // Used by a test.  Returns true if a method with name |name| exists,
   // regardless of whether a fallback is registered.
-  bool IsMethodRegistered(std::string name);
- 
+  bool IsMethodRegistered(std::string name) const;
+
  protected:
   // Bind the Javascript method called |name| to the C++ callback |callback|.
   void BindCallback(std::string name, Callback* callback);
-  
+
   // A wrapper for BindCallback, to simplify the common case of binding a
   // method on the current object.  Though not verified here, |method|
   // must be a method of this CppBoundClass subclass.
@@ -107,7 +107,7 @@ class CppBoundClass {
 
   // Some fields are protected because some tests depend on accessing them,
   // but otherwise they should be considered private.
- 
+
   typedef std::map<NPIdentifier, CppVariant*> PropertyList;
   typedef std::map<NPIdentifier, Callback*> MethodList;
   // These maps associate names with property and method pointers to be
@@ -121,11 +121,11 @@ class CppBoundClass {
  private:
   // NPObject callbacks.
   friend struct CppNPObject;
-  bool HasMethod(NPIdentifier ident);
+  bool HasMethod(NPIdentifier ident) const;
   bool Invoke(NPIdentifier ident, const NPVariant* args, size_t arg_count,
               NPVariant* result);
-  bool HasProperty(NPIdentifier ident);
-  bool GetProperty(NPIdentifier ident, NPVariant* result);
+  bool HasProperty(NPIdentifier ident) const;
+  bool GetProperty(NPIdentifier ident, NPVariant* result) const;
   bool SetProperty(NPIdentifier ident, const NPVariant* value);
 
   // A list of all NPObjects we created and bound in BindToJavascript(), so we

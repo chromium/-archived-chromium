@@ -48,18 +48,18 @@ class ResourceFetcher : public WebCore::ResourceHandleClient {
   // Stop the request and don't call the callback.
   void Cancel();
 
-  bool completed() { return completed_; }
+  bool completed() const { return completed_; }
 
   // ResourceHandleClient methods
   virtual void didReceiveResponse(WebCore::ResourceHandle* resource_handle,
                                   const WebCore::ResourceResponse& response);
 
-  virtual void didReceiveData(WebCore::ResourceHandle* resource_handle, 
+  virtual void didReceiveData(WebCore::ResourceHandle* resource_handle,
                               const char* data, int length, int total_length);
 
   virtual void didFinishLoading(WebCore::ResourceHandle* resource_handle);
 
-  virtual void didFail(WebCore::ResourceHandle* resource_handle, 
+  virtual void didFail(WebCore::ResourceHandle* resource_handle,
                        const WebCore::ResourceError& error);
 
  protected:

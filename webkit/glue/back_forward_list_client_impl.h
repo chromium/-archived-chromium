@@ -20,7 +20,7 @@ class BackForwardListClientImpl : public WebCore::BackForwardListClient {
   ~BackForwardListClientImpl();
 
   void SetCurrentHistoryItem(WebCore::HistoryItem* item);
-  WebCore::HistoryItem* GetPreviousHistoryItem();
+  WebCore::HistoryItem* GetPreviousHistoryItem() const;
 
  private:
   // WebCore::BackForwardListClient methods:

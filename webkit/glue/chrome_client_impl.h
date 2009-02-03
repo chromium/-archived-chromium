@@ -25,7 +25,7 @@ public:
   ChromeClientImpl(WebViewImpl* webview);
   virtual ~ChromeClientImpl();
 
-  WebViewImpl* webview() { return webview_; }
+  WebViewImpl* webview() const { return webview_; }
 
   virtual void chromeDestroyed();
 

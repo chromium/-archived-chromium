@@ -44,7 +44,7 @@ struct CppNPObject {
   //
 
   // An NPClass associates static functions of CppNPObject with the
-  // function pointers used by the JS runtime. 
+  // function pointers used by the JS runtime.
   static NPClass np_class_;
 
   // Allocate a new NPObject with the specified class.
@@ -64,21 +64,21 @@ struct CppNPObject {
   // If the given method is exposed by the C++ class associated with this
   // NPObject, invokes it with the given args and returns a result.  Otherwise,
   // returns "undefined" (in the JavaScript sense).  Called by the JS runtime.
-  static bool invoke(NPObject *obj, NPIdentifier ident, 
-                     const NPVariant *args, uint32_t arg_count, 
+  static bool invoke(NPObject *obj, NPIdentifier ident,
+                     const NPVariant *args, uint32_t arg_count,
                      NPVariant *result);
 
   // If the given property is exposed by the C++ class associated with this
   // NPObject, returns its value.  Otherwise, returns "undefined" (in the
   // JavaScript sense).  Called by the JS runtime.
-  static bool getProperty(NPObject *obj, NPIdentifier ident, 
+  static bool getProperty(NPObject *obj, NPIdentifier ident,
                           NPVariant *result);
 
   // If the given property is exposed by the C++ class associated with this
-  // NPObject, sets its value.  Otherwise, does nothing. Called by the JS 
+  // NPObject, sets its value.  Otherwise, does nothing. Called by the JS
   // runtime.
-  static bool setProperty(NPObject *obj, NPIdentifier ident, 
-                          const NPVariant *value);  
+  static bool setProperty(NPObject *obj, NPIdentifier ident,
+                          const NPVariant *value);
 };
 
 // Build CppNPObject's static function pointers into an NPClass, for use
@@ -109,33 +109,33 @@ NPClass CppNPObject::np_class_ = {
   delete obj;
 }
 
-/* static */ bool CppNPObject::hasMethod(NPObject* np_obj, 
+/* static */ bool CppNPObject::hasMethod(NPObject* np_obj,
                                          NPIdentifier ident) {
   CppNPObject* obj = reinterpret_cast<CppNPObject*>(np_obj);
   return obj->bound_class->HasMethod(ident);
 }
 
-/* static */ bool CppNPObject::hasProperty(NPObject* np_obj, 
+/* static */ bool CppNPObject::hasProperty(NPObject* np_obj,
                                            NPIdentifier ident) {
   CppNPObject* obj = reinterpret_cast<CppNPObject*>(np_obj);
   return obj->bound_class->HasProperty(ident);
 }
 
-/* static */ bool CppNPObject::invoke(NPObject* np_obj, NPIdentifier ident, 
-                                      const NPVariant* args, uint32_t arg_count, 
+/* static */ bool CppNPObject::invoke(NPObject* np_obj, NPIdentifier ident,
+                                      const NPVariant* args, uint32_t arg_count,
                                       NPVariant* result) {
   CppNPObject* obj = reinterpret_cast<CppNPObject*>(np_obj);
   return obj->bound_class->Invoke(ident, args, arg_count, result);
 }
 
-/* static */ bool CppNPObject::getProperty(NPObject* np_obj, 
-                                           NPIdentifier ident, 
+/* static */ bool CppNPObject::getProperty(NPObject* np_obj,
+                                           NPIdentifier ident,
                                            NPVariant* result) {
   CppNPObject* obj = reinterpret_cast<CppNPObject*>(np_obj);
   return obj->bound_class->GetProperty(ident, result);
 }
 
-/* static */ bool CppNPObject::setProperty(NPObject* np_obj, 
+/* static */ bool CppNPObject::setProperty(NPObject* np_obj,
                                            NPIdentifier ident,
                                            const NPVariant* value) {
   CppNPObject* obj = reinterpret_cast<CppNPObject*>(np_obj);
@@ -147,7 +147,7 @@ CppBoundClass::~CppBoundClass() {
     delete i->second;
 
   // Unregister objects we created and bound to a frame.
-  for (BoundObjectList::iterator i = bound_objects_.begin(); 
+  for (BoundObjectList::iterator i = bound_objects_.begin();
       i != bound_objects_.end(); ++i) {
 #if USE(V8)
     _NPN_UnregisterObject(*i);
@@ -156,17 +156,17 @@ CppBoundClass::~CppBoundClass() {
   }
 }
 
-bool CppBoundClass::HasMethod(NPIdentifier ident) {
+bool CppBoundClass::HasMethod(NPIdentifier ident) const {
   return (methods_.find(ident) != methods_.end());
 }
 
-bool CppBoundClass::HasProperty(NPIdentifier ident) {
+bool CppBoundClass::HasProperty(NPIdentifier ident) const {
   return (properties_.find(ident) != properties_.end());
 }
 
-bool CppBoundClass::Invoke(NPIdentifier ident, 
+bool CppBoundClass::Invoke(NPIdentifier ident,
                               const NPVariant* args,
-                              size_t arg_count, 
+                              size_t arg_count,
                               NPVariant* result) {
   MethodList::const_iterator method = methods_.find(ident);
   Callback* callback;
@@ -193,7 +193,7 @@ bool CppBoundClass::Invoke(NPIdentifier ident,
   return true;
 }
 
-bool CppBoundClass::GetProperty(NPIdentifier ident, NPVariant* result) {
+bool CppBoundClass::GetProperty(NPIdentifier ident, NPVariant* result) const {
   PropertyList::const_iterator prop = properties_.find(ident);
   if (prop == properties_.end()) {
     VOID_TO_NPVARIANT(*result);
@@ -230,10 +230,10 @@ void CppBoundClass::BindProperty(std::string name, CppVariant* prop) {
   properties_[ident] = prop;
 }
 
-bool CppBoundClass::IsMethodRegistered(std::string name) {
+bool CppBoundClass::IsMethodRegistered(std::string name) const {
   // NPUTF8 is a typedef for char, so this cast is safe.
   NPIdentifier ident = NPN_GetStringIdentifier((const NPUTF8*)name.c_str());
-  MethodList::iterator callback = methods_.find(ident);
+  MethodList::const_iterator callback = methods_.find(ident);
   return (callback != methods_.end());
 }
 

@@ -8,9 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "base/time.h"
-#include "webkit/glue/autofill_form.h"
-
 namespace WebCore {
   class HTMLFormElement;
 }

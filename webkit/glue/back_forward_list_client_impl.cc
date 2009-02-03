@@ -26,7 +26,8 @@ void BackForwardListClientImpl::SetCurrentHistoryItem(
   current_item_ = item;
 }
 
-WebCore::HistoryItem* BackForwardListClientImpl::GetPreviousHistoryItem() {
+WebCore::HistoryItem* BackForwardListClientImpl::GetPreviousHistoryItem()
+    const {
   return previous_item_.get();
 }
 

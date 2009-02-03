@@ -33,15 +33,15 @@ ImageDecoder::ImageDecoder(const gfx::Size& desired_icon_size)
 ImageDecoder::~ImageDecoder() {
 }
 
-SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) {
-  
+SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) const {
+
   // What's going on here? ImageDecoder is only used by ImageResourceFetcher,
   // which is only used (but extensively) by WebViewImpl. On the Mac we're using
   // CoreGraphics, but right now WebViewImpl uses SkBitmaps everywhere. For now,
   // this is a convenient bottleneck to convert from CGImageRefs to SkBitmaps,
   // but in the future we will need to replumb to get CGImageRefs (or whatever
   // the native type is) everywhere, directly.
-  
+
 #if defined(OS_WIN) || defined(OS_LINUX)
   WebCore::ImageSourceSkia source;
 #elif defined(OS_MACOSX)
@@ -63,18 +63,18 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) {
   WebCore::NativeImagePtr frame0 = source.createFrameAtIndex(0);
   if (!frame0)
     return SkBitmap();
-  
+
 #if defined(OS_WIN) || defined(OS_LINUX)
   return *reinterpret_cast<SkBitmap*>(frame0);
 #elif defined(OS_MACOSX)
   // BitmapImage releases automatically, but we're bypassing it so we'll need
   // to do the releasing.
   RetainPtr<CGImageRef> image(AdoptCF, frame0);
-  
+
   SkBitmap result;
   result.setConfig(SkBitmap::kARGB_8888_Config, CGImageGetWidth(image.get()),
                    CGImageGetHeight(image.get()));
-  
+
   RetainPtr<CGColorSpace> cg_color(AdoptCF, CGColorSpaceCreateDeviceRGB());
   // The last parameter is a total guess. Feel free to adjust it if images draw
   // incorrectly. TODO(avi): Verify byte ordering; it should be possible to
@@ -93,7 +93,7 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) {
                            CGImageGetWidth(image.get()),
                            CGImageGetHeight(image.get()));
   CGContextDrawImage(context.get(), rect, image.get());
-  
+
   return result;
 #endif
 }
