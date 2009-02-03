@@ -637,6 +637,13 @@ DWORD Window::CalculateWindowExStyle() {
 }
 
 void Window::SaveWindowPosition() {
+  // The window delegate does the actual saving for us. It seems like (judging
+  // by go/crash) that in some circumstances we can end up here after
+  // WM_DESTROY, at which point the window delegate is likely gone. So just
+  // bail.
+  if (!window_delegate_)
+    return;
+
   WINDOWPLACEMENT win_placement = { 0 };
   win_placement.length = sizeof(WINDOWPLACEMENT);
 
