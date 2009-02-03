@@ -2,14 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "build/build_config.h"
-
-#if defined(OS_WIN)
-#include <windows.h>
-#include <shellapi.h>
-#include <shlobj.h>
-#endif
-
 #include "chrome/common/chrome_paths.h"
 
 #include "base/command_line.h"
@@ -20,32 +12,10 @@
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
 
 namespace chrome {
-
-// Gets the default user data directory, regardless of whether
-// DIR_USER_DATA has been overridden by a command-line option.
-bool GetDefaultUserDataDirectory(FilePath* result) {
-#if defined(OS_WIN)
-  if (!PathService::Get(base::DIR_LOCAL_APP_DATA, result))
-    return false;
-#if defined(GOOGLE_CHROME_BUILD)
-  *result = result->Append(FILE_PATH_LITERAL("Google"));
-#endif
-  *result = result->Append(chrome::kBrowserAppName);
-  *result = result->Append(chrome::kUserDataDirname);
-  return true;
-#elif defined(OS_MACOSX)
-  if (!PathService::Get(base::DIR_LOCAL_APP_DATA, result))
-    return false;
-  return true;
-#elif defined(OS_LINUX)
-  // TODO(port): Decide what to do on linux.
-  NOTIMPLEMENTED();
-  return false;
-#endif  // defined(OS_WIN)
-}
 
 bool GetGearsPluginPathFromCommandLine(FilePath* path) {
 #ifndef NDEBUG
@@ -88,20 +58,8 @@ bool PathProvider(int key, FilePath* result) {
       create_dir = true;
       break;
     case chrome::DIR_USER_DOCUMENTS:
-#if defined(OS_WIN)
-      {
-        wchar_t path_buf[MAX_PATH];
-        if (FAILED(SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL,
-                                   SHGFP_TYPE_CURRENT, path_buf)))
-          return false;
-        cur = FilePath(path_buf);
-      }
-#else
-      // TODO(port): Get the path (possibly using xdg-user-dirs)
-      // or decide we don't need it on other platforms.
-      NOTIMPLEMENTED();
-      return false;
-#endif
+      if (!GetUserDocumentsDirectory(&cur))
+        return false;
       create_dir = true;
       break;
     case chrome::DIR_DEFAULT_DOWNLOADS:
@@ -129,26 +87,8 @@ bool PathProvider(int key, FilePath* result) {
       create_dir = true;
       break;
     case chrome::DIR_USER_DESKTOP:
-#if defined(OS_WIN)
-      {
-        // We need to go compute the value. It would be nice to support paths
-        // with names longer than MAX_PATH, but the system functions don't seem
-        // to be designed for it either, with the exception of GetTempPath
-        // (but other things will surely break if the temp path is too long,
-        // so we don't bother handling it.
-        wchar_t system_buffer[MAX_PATH];
-        system_buffer[0] = 0;
-        if (FAILED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL,
-                                   SHGFP_TYPE_CURRENT, system_buffer)))
-          return false;
-        cur = FilePath(system_buffer);
-      }
-#else
-      // TODO(port): Get the path (possibly using xdg-user-dirs)
-      // or decide we don't need it on other platforms.
-      NOTIMPLEMENTED();
-      return false;
-#endif
+      if (!GetUserDesktop(&cur))
+        return false;
       break;
     case chrome::DIR_RESOURCES:
       if (!PathService::Get(chrome::DIR_APP, &cur))

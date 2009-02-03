@@ -362,6 +362,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\chrome_paths_internal.h"
+			>
+		</File>
+		<File
+			RelativePath=".\chrome_paths_win.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\chrome_plugin_api.h"
 			>
 		</File>

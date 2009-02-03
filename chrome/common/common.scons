@@ -111,6 +111,10 @@ input_files = ChromeFileList([
     'chrome_counters.h',
     'chrome_paths.cc',
     'chrome_paths.h',
+    'chrome_paths_internal.h',
+    'chrome_paths_linux.cc',
+    'chrome_paths_mac.cc',
+    'chrome_paths_win.cc',
     'chrome_plugin_api.h',
     'chrome_plugin_lib.cc',
     'chrome_plugin_lib.h',
@@ -232,6 +236,7 @@ if not env.Bit('windows'):
 if not env.Bit('windows'):
   # Windows specific files
   input_files.Remove(
+      'chrome_paths_win.cc',
       'classfactory.cc',
       'gfx/chrome_canvas_win.cc',
       'gfx/chrome_font_win.cc',
@@ -245,9 +250,16 @@ if not env.Bit('windows'):
 if not env.Bit('linux'):
   # Linux specific files
   input_files.Remove(
+      'chrome_paths_linux.cc',
       'gfx/chrome_canvas_skia.cc',
       'gfx/chrome_font_gtk.cc',
       'gfx/chrome_font_skia.cc',
+  )
+
+if not env.Bit('mac'):
+  # Mac specific files
+  input_files.Remove(
+      'chrome_paths_mac.cc',
   )
 
 if not env.Bit('posix'):

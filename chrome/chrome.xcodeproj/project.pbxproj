@@ -87,6 +87,7 @@
 		3380A9D70F2FC8F9004EF74F /* render_dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CE10EAE86A500EBCFC0 /* render_dns_master.cc */; };
 		3AEA44DB19C9D93B63D7A2E4 /* url_fetcher_protect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0B7CC9C105E90E0665852528 /* url_fetcher_protect.cc */; };
 		406DFE278638D6132B21B2C9 /* url_pattern.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6447F24FADC63E58A44DB762 /* url_pattern.cc */; };
+		4D175916B2FC058793051209 /* chrome_paths_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */; };
 		4D1F59FE0F2A6BBB0040C1E3 /* image_diff.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D1F59FD0F2A6BBB0040C1E3 /* image_diff.cc */; };
 		4D1F5A060F2A6D170040C1E3 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
 		4D1F5AAE0F2A6ECB0040C1E3 /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC90E9D525B009A6919 /* libbase_gfx.a */; };
@@ -1848,6 +1849,7 @@
 		534E66C30F311BEC0006B2B2 /* temp_scaffolding_stubs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = temp_scaffolding_stubs.cc; sourceTree = "<group>"; };
 		6447F24FADC63E58A44DB762 /* url_pattern.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url_pattern.cc; path = common/extensions/url_pattern.cc; sourceTree = SOURCE_ROOT; };
 		778D7927798B7E3FAA498D3D /* url_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_fetcher.cc; sourceTree = "<group>"; };
+		8104B4AFD95DCA06B2F37551 /* chrome_paths_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chrome_paths_internal.h; sourceTree = "<group>"; };
 		82684C5F0F2FAE68009F6555 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		82684CCF0F2FAEC2009F6555 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		82684D050F2FB101009F6555 /* sdch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sdch.xcodeproj; path = sdch/sdch.xcodeproj; sourceTree = "<group>"; };
@@ -1990,6 +1992,7 @@
 		B6CCB9F70F1EC32700106F0D /* web_drag_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_drag_source.h; path = tab_contents/web_drag_source.h; sourceTree = "<group>"; };
 		B6CCB9F80F1EC32700106F0D /* web_drop_target.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = web_drop_target.cc; path = tab_contents/web_drop_target.cc; sourceTree = "<group>"; };
 		B6CCB9F90F1EC32700106F0D /* web_drop_target.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_drop_target.h; path = tab_contents/web_drop_target.h; sourceTree = "<group>"; };
+		C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_paths_mac.cc; sourceTree = "<group>"; };
 		B94B5B0CBF4D7FAC48BB1AE2 /* backing_store_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = backing_store_posix.cc; path = browser/renderer_host/backing_store_posix.cc; sourceTree = SOURCE_ROOT; };
 		E40CC5E10F2E348900708647 /* history_contents_provider.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = history_contents_provider.cc; path = autocomplete/history_contents_provider.cc; sourceTree = "<group>"; };
 		E40CC5E20F2E348900708647 /* history_contents_provider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = history_contents_provider.h; path = autocomplete/history_contents_provider.h; sourceTree = "<group>"; };
@@ -2947,6 +2950,8 @@
 				4D7BFB8E0E9D4C9F009A6919 /* chrome_counters.h */,
 				4D7BFB8F0E9D4C9F009A6919 /* chrome_paths.cc */,
 				4D7BFB900E9D4C9F009A6919 /* chrome_paths.h */,
+				8104B4AFD95DCA06B2F37551 /* chrome_paths_internal.h */,
+				C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */,
 				4D7BFB910E9D4C9F009A6919 /* chrome_plugin_api.h */,
 				4D7BFB920E9D4C9F009A6919 /* chrome_plugin_lib.cc */,
 				4D7BFB930E9D4C9F009A6919 /* chrome_plugin_lib.h */,
@@ -4672,6 +4677,7 @@
 				4D7BFC280E9D4CEB009A6919 /* chrome_constants.cc in Sources */,
 				4D7BFC2A0E9D4CED009A6919 /* chrome_counters.cc in Sources */,
 				E4F3256E0EE82C83002533CE /* chrome_paths.cc in Sources */,
+				4D175916B2FC058793051209 /* chrome_paths_mac.cc in Sources */,
 				4D7BFC2C0E9D4CF1009A6919 /* chrome_switches.cc in Sources */,
 				4D7BFCC90E9D4D72009A6919 /* color_utils.cc in Sources */,
 				B562E2C70F0582F800FB1A4F /* common_glue.cc in Sources */,
