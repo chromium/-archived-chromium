@@ -36,6 +36,7 @@
 #include "base/compiler_specific.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "CSSStyleSelector.h"
+#include "CSSValueKeywords.h"
 #include "Cursor.h"
 #include "Document.h"
 #include "DocumentLoader.h"
@@ -132,6 +133,20 @@ class AutocompletePopupMenuClient
       : text_field_(text_field),
         selected_index_(default_suggestion_index),
         webview_(webview) {
+    FontDescription font_description;
+#if defined(OS_WIN)
+    theme()->systemFont(CSSValueWebkitControl, text_field->document(),
+                        font_description);
+#else
+    NOTIMPLEMENTED();
+#endif
+    // Use a smaller font size to match IE/Firefox.
+    // TODO(jcampan): http://crbug.com/7376 use the system size instead of a
+    //                fixed font size value.
+    font_description.setComputedSize(12.0);
+    Font font(font_description, 0, 0);
+    font.update(text_field->document()->styleSelector()->fontSelector());
+    style_.reset(new PopupMenuStyle(Color::black, Color::white, font, true));
     SetSuggestions(suggestions);
   }
   virtual ~AutocompletePopupMenuClient() {
@@ -150,15 +165,11 @@ class AutocompletePopupMenuClient
   }
 
   virtual PopupMenuStyle itemStyle(unsigned listIndex) const {
-    return menuStyle();
+    return *style_;
   }
 
   virtual PopupMenuStyle menuStyle() const {
-    RenderStyle* style = text_field_->renderStyle() ?
-                            text_field_->renderStyle() :
-                            text_field_->computedStyle();
-    return PopupMenuStyle(style->color(), Color::white, style->font(),
-                          style->visibility() == VISIBLE);
+    return *style_;
   }
 
   virtual int clientInsetLeft() const {
@@ -250,6 +261,7 @@ class AutocompletePopupMenuClient
   std::vector<WebCore::String> suggestions_;
   int selected_index_;
   WebViewImpl* webview_;
+  scoped_ptr<PopupMenuStyle> style_;
 };
 
 static const WebCore::PopupContainerSettings kAutocompletePopupSettings = {
