@@ -24,7 +24,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/render_messages.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/mime_util.h"
@@ -233,7 +232,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 void ResourceMessageFilter::OnReceiveContextMenuMsg(const IPC::Message& msg) {
   void* iter = NULL;
   ViewHostMsg_ContextMenu_Params params;
-  if (!IPC::ParamTraits<ViewHostMsg_ContextMenu_Params>::
+  if (!ParamTraits<ViewHostMsg_ContextMenu_Params>::
       Read(&msg, &iter, &params))
     return;
 

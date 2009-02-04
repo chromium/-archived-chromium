@@ -14,9 +14,11 @@ class IAccessible;
 #endif
 
 #include "base/hash_tables.h"
-#include "chrome/common/render_messages.h"
+#include "base/ref_counted.h"
 
 class WebView;
+struct ViewMsg_Accessibility_In_Params;
+struct ViewHostMsg_Accessibility_Out_Params;
 
 template <typename T> class COMPtr;
 

@@ -285,19 +285,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\plugin_messages.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\plugin_messages.h"
 				>
 			</File>
 			<File
 				RelativePath=".\plugin_messages_internal.h"
-				>
-			</File>
-			<File
-				RelativePath=".\render_messages.cc"
 				>
 			</File>
 			<File

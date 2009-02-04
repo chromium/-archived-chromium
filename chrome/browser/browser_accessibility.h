@@ -10,7 +10,9 @@
 
 #include <oleacc.h>
 
-#include "chrome/common/render_messages.h"
+#include "base/basictypes.h"
+
+struct ViewHostMsg_Accessibility_Out_Params;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -144,7 +146,7 @@ class ATL_NO_VTABLE BrowserAccessibility
                                 LONG input1, LONG input2);
 
   // Accessors.
-  ViewHostMsg_Accessibility_Out_Params response();
+  const ViewHostMsg_Accessibility_Out_Params& response();
   HWND parent_hwnd();
 
   // Id to uniquely distinguish this instance in the render-side caching,

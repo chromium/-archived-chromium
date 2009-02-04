@@ -2,6 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Need to include this before any other file because it defines
+// IPC_MESSAGE_LOG_ENABLED.
+#include "chrome/common/ipc_message.h"
+
+#ifdef IPC_MESSAGE_LOG_ENABLED
+#define IPC_MESSAGE_MACROS_LOG_ENABLED
+
 #include "chrome/browser/tab_contents/ipc_status_view.h"
 
 #include <stdio.h>
@@ -16,8 +23,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
-
-#ifdef IPC_MESSAGE_LOG_ENABLED
 
 using base::Time;
 
@@ -39,19 +44,6 @@ enum {
   kParamsColumn,
 };
 
-// This class ensures that we have a link dependency on render_messages.cc and
-// plugin_messages.cc, and at the same time sets up the message logger function
-// mappings.
-class RegisterLoggerFuncs {
- public:
-  RegisterLoggerFuncs() {
-    RenderMessagesInit();
-    PluginMessagesInit();
-  }
-};
-
-RegisterLoggerFuncs g_register_logger_funcs;
-
 }  // namespace
 
 IPCStatusView* IPCStatusView::current_;
@@ -70,7 +62,16 @@ IPCStatusView::IPCStatusView()
   plugin_process_ = NULL;
   plugin_process_host_ = NULL;
 
-  IPC::Logging::current()->SetConsumer(this);
+  IPC::Logging* log = IPC::Logging::current();
+  log->RegisterMessageLogger(ViewStart, ViewMsgLog);
+  log->RegisterMessageLogger(ViewHostStart, ViewHostMsgLog);
+  log->RegisterMessageLogger(PluginProcessStart, PluginProcessMsgLog);
+  log->RegisterMessageLogger(PluginProcessHostStart, PluginProcessHostMsgLog);
+  log->RegisterMessageLogger(PluginStart, PluginMsgLog);
+  log->RegisterMessageLogger(PluginHostStart, PluginHostMsgLog);
+  log->RegisterMessageLogger(NPObjectStart, NPObjectMsgLog);
+
+  log->SetConsumer(this);
 }
 
 IPCStatusView::~IPCStatusView() {

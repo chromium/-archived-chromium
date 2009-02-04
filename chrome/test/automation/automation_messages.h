@@ -8,7 +8,6 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 
 enum AutomationMsg_NavigationResponseValues {
@@ -17,25 +16,9 @@ enum AutomationMsg_NavigationResponseValues {
   AUTOMATION_MSG_NAVIGATION_AUTH_NEEDED,
 };
 
-// Two-pass include of render_messages_internal.  Preprocessor magic allows
-// us to use 1 header to define the enums and classes for our render messages.
-#define IPC_MESSAGE_MACROS_ENUMS
-#include "chrome/test/automation/automation_messages_internal.h"
-
-#ifdef IPC_MESSAGE_MACROS_LOG_ENABLED
-#  undef IPC_MESSAGE_MACROS_LOG
-#  define IPC_MESSAGE_MACROS_CLASSES
-#include "chrome/test/automation/automation_messages_internal.h"
-
-#  undef IPC_MESSAGE_MACROS_CLASSES
-#  define IPC_MESSAGE_MACROS_LOG
-#include "chrome/test/automation/automation_messages_internal.h"
-#else
-// No debug strings requested, just define the classes
-#  define IPC_MESSAGE_MACROS_CLASSES
-#include "chrome/test/automation/automation_messages_internal.h"
-#endif
-
+#define MESSAGES_INTERNAL_FILE \
+    "chrome/test/automation/automation_messages_internal.h"
+#include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_TEST_AUTOMATION_AUTOMATION_MESSAGES_H__
 

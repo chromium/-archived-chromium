@@ -84,10 +84,10 @@ class ResourceDispatcherTest : public testing::Test,
       void* iter = NULL;
 
       int request_id;
-      ASSERT_TRUE(IPC::ReadParam(&message_queue_[0], &iter, &request_id));
+      ASSERT_TRUE(ReadParam(&message_queue_[0], &iter, &request_id));
 
       ViewHostMsg_Resource_Request request;
-      ASSERT_TRUE(IPC::ReadParam(&message_queue_[0], &iter, &request));
+      ASSERT_TRUE(ReadParam(&message_queue_[0], &iter, &request));
 
       // check values
       EXPECT_EQ(test_page_url, request.url.spec());
@@ -119,7 +119,7 @@ class ResourceDispatcherTest : public testing::Test,
       // read the ack message.
       iter = NULL;
       int request_ack = -1;
-      ASSERT_TRUE(IPC::ReadParam(&message_queue_[0], &iter, &request_ack));
+      ASSERT_TRUE(ReadParam(&message_queue_[0], &iter, &request_ack));
 
       ASSERT_EQ(request_ack, request_id);
 

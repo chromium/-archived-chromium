@@ -94,10 +94,8 @@ input_files = ChromeFileList([
     'ipc_sync_channel.h',
     'ipc_sync_message.cc',
     'ipc_sync_message.h',
-    'plugin_messages.cc',
     'plugin_messages.h',
     'plugin_messages_internal.h',
-    'render_messages.cc',
     'render_messages.h',
     'render_messages_internal.h',
   ]),
@@ -229,7 +227,6 @@ if not env.Bit('windows'):
       'gfx/path.cc',
       'ipc_logging.cc',
       'os_exchange_data.cc',
-      'plugin_messages.cc',
       'process_watcher.cc',
   )
 

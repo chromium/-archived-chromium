@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/gfx/size.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"

@@ -11,6 +11,7 @@
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/views/view.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webinputevent.h"
@@ -549,7 +550,7 @@ void RenderWidgetHost::OnMsgSetCursor(const WebCursor& cursor) {
   view_->UpdateCursor(cursor);
 }
 
-void RenderWidgetHost::OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
+void RenderWidgetHost::OnMsgImeUpdateStatus(int control,
                                             const gfx::Rect& caret_rect) {
   if (view_) {
     view_->IMEUpdateStatus(control, caret_rect);

@@ -15,13 +15,10 @@
 
 #include "base/gfx/rect.h"
 #include "base/basictypes.h"
-#include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "webkit/glue/npruntime_util.h"
-
-void PluginMessagesInit();
 
 // Name prefix of the event handle when a message box is displayed.
 #define kMessageBoxEventPrefix L"message_box_active"
@@ -38,95 +35,11 @@ struct PluginMsg_Init_Params {
   HANDLE modal_dialog_event;
 };
 
-struct PluginHostMsg_URLRequest_Params {
-  std::string method;
-  bool is_javascript_url;
-  std::string target;
-  std::vector<char> buffer;
-  bool is_file_data;
-  bool notify;
-  std::string url;
-  HANDLE notify_data;
-  bool popups_allowed;
-};
-
-struct PluginMsg_URLRequestReply_Params {
-  int resource_id;
-  std::string url;
-  bool notify_needed;
-  HANDLE notify_data;
-  HANDLE stream;
-};
-
-struct PluginMsg_PrintResponse_Params {
-  HANDLE shared_memory;
-  size_t size;
-};
-
-struct PluginMsg_DidReceiveResponseParams {
-  int id;
-  std::string mime_type;
-  std::string headers;
-  uint32 expected_length;
-  uint32 last_modified;
-  bool request_is_seekable;
-};
-
-struct NPIdentifier_Param {
-  NPIdentifier identifier;
-};
-
-enum NPVariant_ParamEnum {
-  NPVARIANT_PARAM_VOID,
-  NPVARIANT_PARAM_NULL,
-  NPVARIANT_PARAM_BOOL,
-  NPVARIANT_PARAM_INT,
-  NPVARIANT_PARAM_DOUBLE,
-  NPVARIANT_PARAM_STRING,
-  // Used when when the NPObject is running in the caller's process, so we
-  // create an NPObjectProxy in the other process.
-  NPVARIANT_PARAM_OBJECT_ROUTING_ID,
-  // Used when the NPObject we're sending is running in the callee's process
-  // (i.e. we have an NPObjectProxy for it).  In that case we want the callee
-  // to just use the raw pointer.
-  NPVARIANT_PARAM_OBJECT_POINTER,
-};
-
-struct NPVariant_Param {
-  NPVariant_ParamEnum type;
-  bool bool_value;
-  int int_value;
-  double double_value;
-  std::string string_value;
-  int npobject_routing_id;
-  void* npobject_pointer;
-};
-
-
-#define IPC_MESSAGE_MACROS_ENUMS
-#include "chrome/common/plugin_messages_internal.h"
-
-#ifdef IPC_MESSAGE_MACROS_LOG_ENABLED
-#  undef IPC_MESSAGE_MACROS_LOG
-#  define IPC_MESSAGE_MACROS_CLASSES
-
-#  include "chrome/common/plugin_messages_internal.h"
-#  define IPC_MESSAGE_MACROS_LOG
-#  undef IPC_MESSAGE_MACROS_CLASSES
-
-#  include "chrome/common/plugin_messages_internal.h"
-#else
-#  define IPC_MESSAGE_MACROS_CLASSES
-#  include "chrome/common/plugin_messages_internal.h"
-#endif
-
-namespace IPC {
-
 // Traits for PluginMsg_Init_Params structure to pack/unpack.
 template <>
 struct ParamTraits<PluginMsg_Init_Params> {
   typedef PluginMsg_Init_Params param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.containing_window);
     WriteParam(m, p.url);
     DCHECK(p.arg_names.size() == p.arg_values.size());
@@ -135,7 +48,7 @@ struct ParamTraits<PluginMsg_Init_Params> {
     WriteParam(m, p.load_manually);
     WriteParam(m, p.modal_dialog_event);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return ReadParam(m, iter, &p->containing_window) &&
            ReadParam(m, iter, &p->url) &&
            ReadParam(m, iter, &p->arg_names) &&
@@ -160,10 +73,23 @@ struct ParamTraits<PluginMsg_Init_Params> {
   }
 };
 
+
+struct PluginHostMsg_URLRequest_Params {
+  std::string method;
+  bool is_javascript_url;
+  std::string target;
+  std::vector<char> buffer;
+  bool is_file_data;
+  bool notify;
+  std::string url;
+  HANDLE notify_data;
+  bool popups_allowed;
+};
+
 template <>
 struct ParamTraits<PluginHostMsg_URLRequest_Params> {
   typedef PluginHostMsg_URLRequest_Params param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.method);
     WriteParam(m, p.is_javascript_url);
     WriteParam(m, p.target);
@@ -174,7 +100,7 @@ struct ParamTraits<PluginHostMsg_URLRequest_Params> {
     WriteParam(m, p.notify_data);
     WriteParam(m, p.popups_allowed);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->method) &&
       ReadParam(m, iter, &p->is_javascript_url) &&
@@ -209,17 +135,26 @@ struct ParamTraits<PluginHostMsg_URLRequest_Params> {
   }
 };
 
+
+struct PluginMsg_URLRequestReply_Params {
+  int resource_id;
+  std::string url;
+  bool notify_needed;
+  HANDLE notify_data;
+  HANDLE stream;
+};
+
 template <>
 struct ParamTraits<PluginMsg_URLRequestReply_Params> {
   typedef PluginMsg_URLRequestReply_Params param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.resource_id);
     WriteParam(m, p.url);
     WriteParam(m, p.notify_needed);
     WriteParam(m, p.notify_data);
     WriteParam(m, p.stream);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->resource_id) &&
       ReadParam(m, iter, &p->url) &&
@@ -242,14 +177,20 @@ struct ParamTraits<PluginMsg_URLRequestReply_Params> {
   }
 };
 
+
+struct PluginMsg_PrintResponse_Params {
+  HANDLE shared_memory;
+  size_t size;
+};
+
 template <>
 struct ParamTraits<PluginMsg_PrintResponse_Params> {
   typedef PluginMsg_PrintResponse_Params param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.shared_memory);
     WriteParam(m, p.size);
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     return
       ReadParam(m, iter, &r->shared_memory) &&
       ReadParam(m, iter, &r->size);
@@ -258,10 +199,20 @@ struct ParamTraits<PluginMsg_PrintResponse_Params> {
   }
 };
 
+
+struct PluginMsg_DidReceiveResponseParams {
+  int id;
+  std::string mime_type;
+  std::string headers;
+  uint32 expected_length;
+  uint32 last_modified;
+  bool request_is_seekable;
+};
+
 template <>
 struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
   typedef PluginMsg_DidReceiveResponseParams param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.id);
     WriteParam(m, p.mime_type);
     WriteParam(m, p.headers);
@@ -269,7 +220,7 @@ struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
     WriteParam(m, p.last_modified);
     WriteParam(m, p.request_is_seekable);
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     return
       ReadParam(m, iter, &r->id) &&
       ReadParam(m, iter, &r->mime_type) &&
@@ -295,13 +246,140 @@ struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
   }
 };
 
+
+struct NPIdentifier_Param {
+  NPIdentifier identifier;
+};
+
+template <>
+struct ParamTraits<NPIdentifier_Param> {
+  typedef NPIdentifier_Param param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    webkit_glue::SerializeNPIdentifier(p.identifier, m);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
+    return webkit_glue::DeserializeNPIdentifier(*m, iter, &r->identifier);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    if (NPN_IdentifierIsString(p.identifier)) {
+      NPUTF8* str = NPN_UTF8FromIdentifier(p.identifier);
+      l->append(UTF8ToWide(str));
+      NPN_MemFree(str);
+    } else {
+      l->append(IntToWString(NPN_IntFromIdentifier(p.identifier)));
+    }
+  }
+};
+
+
+enum NPVariant_ParamEnum {
+  NPVARIANT_PARAM_VOID,
+  NPVARIANT_PARAM_NULL,
+  NPVARIANT_PARAM_BOOL,
+  NPVARIANT_PARAM_INT,
+  NPVARIANT_PARAM_DOUBLE,
+  NPVARIANT_PARAM_STRING,
+  // Used when when the NPObject is running in the caller's process, so we
+  // create an NPObjectProxy in the other process.
+  NPVARIANT_PARAM_OBJECT_ROUTING_ID,
+  // Used when the NPObject we're sending is running in the callee's process
+  // (i.e. we have an NPObjectProxy for it).  In that case we want the callee
+  // to just use the raw pointer.
+  NPVARIANT_PARAM_OBJECT_POINTER,
+};
+
+struct NPVariant_Param {
+  NPVariant_ParamEnum type;
+  bool bool_value;
+  int int_value;
+  double double_value;
+  std::string string_value;
+  int npobject_routing_id;
+  void* npobject_pointer;
+};
+
+template <>
+struct ParamTraits<NPVariant_Param> {
+  typedef NPVariant_Param param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, static_cast<int>(p.type));
+    if (p.type == NPVARIANT_PARAM_BOOL) {
+      WriteParam(m, p.bool_value);
+    } else if (p.type == NPVARIANT_PARAM_INT) {
+      WriteParam(m, p.int_value);
+    } else if (p.type == NPVARIANT_PARAM_DOUBLE) {
+      WriteParam(m, p.double_value);
+    } else if (p.type == NPVARIANT_PARAM_STRING) {
+      WriteParam(m, p.string_value);
+    } else if (p.type == NPVARIANT_PARAM_OBJECT_ROUTING_ID) {
+      // This is the routing id used to connect NPObjectProxy in the other
+      // process with NPObjectStub in this process.
+      WriteParam(m, p.npobject_routing_id);
+      // The actual NPObject pointer, in case it's passed back to this process.
+      WriteParam(m, p.npobject_pointer);
+    } else if (p.type == NPVARIANT_PARAM_OBJECT_POINTER) {
+      // The NPObject resides in the other process, so just send its pointer.
+      WriteParam(m, p.npobject_pointer);
+    } else {
+      DCHECK(p.type == NPVARIANT_PARAM_VOID || p.type == NPVARIANT_PARAM_NULL);
+    }
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
+    int type;
+    if (!ReadParam(m, iter, &type))
+      return false;
+
+    bool result = false;
+    r->type = static_cast<NPVariant_ParamEnum>(type);
+    if (r->type == NPVARIANT_PARAM_BOOL) {
+      result = ReadParam(m, iter, &r->bool_value);
+    } else if (r->type == NPVARIANT_PARAM_INT) {
+      result = ReadParam(m, iter, &r->int_value);
+    } else if (r->type == NPVARIANT_PARAM_DOUBLE) {
+      result = ReadParam(m, iter, &r->double_value);
+    } else if (r->type == NPVARIANT_PARAM_STRING) {
+      result = ReadParam(m, iter, &r->string_value);
+    } else if (r->type == NPVARIANT_PARAM_OBJECT_ROUTING_ID) {
+      result =
+          ReadParam(m, iter, &r->npobject_routing_id) &&
+          ReadParam(m, iter, &r->npobject_pointer);
+    } else if (r->type == NPVARIANT_PARAM_OBJECT_POINTER) {
+      result = ReadParam(m, iter, &r->npobject_pointer);
+    } else if ((r->type == NPVARIANT_PARAM_VOID) ||
+               (r->type == NPVARIANT_PARAM_NULL)) {
+      result = true;
+    } else {
+      NOTREACHED();
+    }
+
+    return result;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    if (p.type == NPVARIANT_PARAM_BOOL) {
+      LogParam(p.bool_value, l);
+    } else if (p.type == NPVARIANT_PARAM_INT) {
+      LogParam(p.int_value, l);
+    } else if (p.type == NPVARIANT_PARAM_DOUBLE) {
+      LogParam(p.double_value, l);
+    } else if (p.type == NPVARIANT_PARAM_STRING) {
+      LogParam(p.string_value, l);
+    } else if (p.type == NPVARIANT_PARAM_OBJECT_ROUTING_ID) {
+      LogParam(p.npobject_routing_id, l);
+      LogParam(p.npobject_pointer, l);
+    } else if (p.type == NPVARIANT_PARAM_OBJECT_POINTER) {
+      LogParam(p.npobject_pointer, l);
+    }
+  }
+};
+
+
 template <>
 struct ParamTraits<NPEvent> {
   typedef NPEvent param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     m->WriteData(reinterpret_cast<const char*>(&p), sizeof(NPEvent));
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     const char *data;
     int data_size = 0;
     bool result = m->ReadData(iter, &data, &data_size);
@@ -379,101 +457,9 @@ struct ParamTraits<NPEvent> {
   }
 };
 
-template <>
-struct ParamTraits<NPIdentifier_Param> {
-  typedef NPIdentifier_Param param_type;
-  static void Write(Message* m, const param_type& p) {
-    webkit_glue::SerializeNPIdentifier(p.identifier, m);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return webkit_glue::DeserializeNPIdentifier(*m, iter, &r->identifier);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    if (NPN_IdentifierIsString(p.identifier)) {
-      NPUTF8* str = NPN_UTF8FromIdentifier(p.identifier);
-      l->append(UTF8ToWide(str));
-      NPN_MemFree(str);
-    } else {
-      l->append(IntToWString(NPN_IntFromIdentifier(p.identifier)));
-    }
-  }
-};
 
-template <>
-struct ParamTraits<NPVariant_Param> {
-  typedef NPVariant_Param param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, static_cast<int>(p.type));
-    if (p.type == NPVARIANT_PARAM_BOOL) {
-      WriteParam(m, p.bool_value);
-    } else if (p.type == NPVARIANT_PARAM_INT) {
-      WriteParam(m, p.int_value);
-    } else if (p.type == NPVARIANT_PARAM_DOUBLE) {
-      WriteParam(m, p.double_value);
-    } else if (p.type == NPVARIANT_PARAM_STRING) {
-      WriteParam(m, p.string_value);
-    } else if (p.type == NPVARIANT_PARAM_OBJECT_ROUTING_ID) {
-      // This is the routing id used to connect NPObjectProxy in the other
-      // process with NPObjectStub in this process.
-      WriteParam(m, p.npobject_routing_id);
-      // The actual NPObject pointer, in case it's passed back to this process.
-      WriteParam(m, p.npobject_pointer);
-    } else if (p.type == NPVARIANT_PARAM_OBJECT_POINTER) {
-      // The NPObject resides in the other process, so just send its pointer.
-      WriteParam(m, p.npobject_pointer);
-    } else {
-      DCHECK(p.type == NPVARIANT_PARAM_VOID || p.type == NPVARIANT_PARAM_NULL);
-    }
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    int type;
-    if (!ReadParam(m, iter, &type))
-      return false;
-
-    bool result = false;
-    r->type = static_cast<NPVariant_ParamEnum>(type);
-    if (r->type == NPVARIANT_PARAM_BOOL) {
-      result = ReadParam(m, iter, &r->bool_value);
-    } else if (r->type == NPVARIANT_PARAM_INT) {
-      result = ReadParam(m, iter, &r->int_value);
-    } else if (r->type == NPVARIANT_PARAM_DOUBLE) {
-      result = ReadParam(m, iter, &r->double_value);
-    } else if (r->type == NPVARIANT_PARAM_STRING) {
-      result = ReadParam(m, iter, &r->string_value);
-    } else if (r->type == NPVARIANT_PARAM_OBJECT_ROUTING_ID) {
-      result =
-          ReadParam(m, iter, &r->npobject_routing_id) &&
-          ReadParam(m, iter, &r->npobject_pointer);
-    } else if (r->type == NPVARIANT_PARAM_OBJECT_POINTER) {
-      result = ReadParam(m, iter, &r->npobject_pointer);
-    } else if ((r->type == NPVARIANT_PARAM_VOID) ||
-               (r->type == NPVARIANT_PARAM_NULL)) {
-      result = true;
-    } else {
-      NOTREACHED();
-    }
-
-    return result;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    if (p.type == NPVARIANT_PARAM_BOOL) {
-      LogParam(p.bool_value, l);
-    } else if (p.type == NPVARIANT_PARAM_INT) {
-      LogParam(p.int_value, l);
-    } else if (p.type == NPVARIANT_PARAM_DOUBLE) {
-      LogParam(p.double_value, l);
-    } else if (p.type == NPVARIANT_PARAM_STRING) {
-      LogParam(p.string_value, l);
-    } else if (p.type == NPVARIANT_PARAM_OBJECT_ROUTING_ID) {
-      LogParam(p.npobject_routing_id, l);
-      LogParam(p.npobject_pointer, l);
-    } else if (p.type == NPVARIANT_PARAM_OBJECT_POINTER) {
-      LogParam(p.npobject_pointer, l);
-    }
-  }
-};
-
-}  // namespace IPC
+#define MESSAGES_INTERNAL_FILE "chrome/common/plugin_messages_internal.h"
+#include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_PLUGIN_MESSAGES_H__
 

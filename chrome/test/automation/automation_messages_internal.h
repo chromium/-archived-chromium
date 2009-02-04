@@ -31,9 +31,7 @@
 //       since the PageCyclerReferenceTest depends on the correctness of the
 //       message IDs across the builds.
 
-// By using a start value of 0 for automation messages, we keep backward
-// compatability with old builds.
-IPC_BEGIN_MESSAGES(Automation, 0)
+IPC_BEGIN_MESSAGES(Automation)
 
   // This message is fired when the AutomationProvider is up and running
   // in the app (the app is not fully up at this point).
@@ -206,7 +204,9 @@ IPC_BEGIN_MESSAGES(Automation, 0)
   IPC_MESSAGE_ROUTED2(AutomationMsg_RedirectsFromRequest,
                       int,   // tab handle
                       GURL)  // source URL
-  IPC_MESSAGE_EMPTY(AutomationMsg_RedirectsFromResponse)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_RedirectsFromResponse,
+                      bool /* succeeded */,
+                      std::vector<GURL> /* redirects */)
 
   // This message asks the AutomationProvider whether a tab is waiting for
   // login info.

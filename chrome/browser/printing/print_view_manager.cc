@@ -27,7 +27,6 @@ PrintViewManager::PrintViewManager(WebContents& owner)
       waiting_to_print_(false),
       inside_inner_message_loop_(false),
       waiting_to_show_print_dialog_(false) {
-  memset(&print_params_, 0, sizeof(print_params_));
 }
 
 PrintViewManager::~PrintViewManager() {
@@ -240,25 +239,6 @@ void PrintViewManager::OnNotifyPrintJobEvent(
 
 void PrintViewManager::OnNotifyPrintJobInitEvent(
     const JobEventDetails& event_details) {
-  ViewMsg_Print_Params old_print_params(print_params_);
-
-  // Backup the print settings relevant to the renderer.
-  DCHECK_EQ(print_job_->document(), event_details.document());
-  event_details.document()->settings().RenderParams(&print_params_);
-  print_params_.document_cookie = event_details.document()->cookie();
-  DCHECK_GT(print_params_.document_cookie, 0);
-
-  // If settings changed
-  DCHECK(owner_.render_view_host());
-  // Equals() doesn't compare the cookie value.
-  if (owner_.render_view_host() &&
-      owner_.render_view_host()->IsRenderViewLive() &&
-      (!old_print_params.Equals(print_params_) ||
-       !event_details.document()->page_count())) {
-    // TODO(maruel): Will never happen, this code is about to be deleted.
-    NOTREACHED();
-  }
-
   // Continue even if owner_.render_view_host() is dead because we may already
   // have buffered all the necessary pages.
   switch (event_details.type()) {
@@ -460,7 +440,6 @@ void PrintViewManager::ReleasePrintJob() {
   print_job_->DisconnectSource();
   // Don't close the worker thread.
   print_job_ = NULL;
-  memset(&print_params_, 0, sizeof(print_params_));
 }
 
 void PrintViewManager::PrintNowInternal() {

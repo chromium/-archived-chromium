@@ -15,7 +15,6 @@
 #include "base/shared_memory.h"
 #include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/filter_policy.h"
-#include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_transition_types.h"
@@ -31,6 +30,7 @@
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/screen_info.h"
 #include "webkit/glue/webdropdata.h"
+#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview_delegate.h"
@@ -66,8 +66,43 @@ struct ViewMsg_Navigate_Params {
   bool reload;
 };
 
-// Parameters structure for ViewHostMsg_FrameNavigate, which has too many data
-// parameters to be reasonably put in a predefined IPC message.
+// Traits for ViewMsg_Navigate_Params structure to pack/unpack.
+template <>
+struct ParamTraits<ViewMsg_Navigate_Params> {
+  typedef ViewMsg_Navigate_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.page_id);
+    WriteParam(m, p.url);
+    WriteParam(m, p.referrer);
+    WriteParam(m, p.transition);
+    WriteParam(m, p.state);
+    WriteParam(m, p.reload);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->page_id) &&
+      ReadParam(m, iter, &p->url) &&
+      ReadParam(m, iter, &p->referrer) &&
+      ReadParam(m, iter, &p->transition) &&
+      ReadParam(m, iter, &p->state) &&
+      ReadParam(m, iter, &p->reload);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.page_id, l);
+    l->append(L", ");
+    LogParam(p.url, l);
+    l->append(L", ");
+    LogParam(p.transition, l);
+    l->append(L", ");
+    LogParam(p.state, l);
+    l->append(L", ");
+    LogParam(p.reload, l);
+    l->append(L")");
+  }
+};
+
+
 struct ViewHostMsg_FrameNavigate_Params {
   // Page ID of this navigation. The renderer creates a new unique page ID
   // anytime a new session history entry is created. This means you'll get new
@@ -121,8 +156,80 @@ struct ViewHostMsg_FrameNavigate_Params {
   bool is_content_filtered;
 };
 
-// Parameters structure for ViewHostMsg_ContextMenu, which has too many data
-// parameters to be reasonably put in a predefined IPC message.
+template <>
+struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
+  typedef ViewHostMsg_FrameNavigate_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.page_id);
+    WriteParam(m, p.url);
+    WriteParam(m, p.referrer);
+    WriteParam(m, p.transition);
+    WriteParam(m, p.redirects);
+    WriteParam(m, p.should_update_history);
+    WriteParam(m, p.searchable_form_url);
+    WriteParam(m, p.searchable_form_element_name);
+    WriteParam(m, p.searchable_form_encoding);
+    WriteParam(m, p.password_form);
+    WriteParam(m, p.security_info);
+    WriteParam(m, p.gesture);
+    WriteParam(m, p.contents_mime_type);
+    WriteParam(m, p.is_post);
+    WriteParam(m, p.is_content_filtered);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->page_id) &&
+      ReadParam(m, iter, &p->url) &&
+      ReadParam(m, iter, &p->referrer) &&
+      ReadParam(m, iter, &p->transition) &&
+      ReadParam(m, iter, &p->redirects) &&
+      ReadParam(m, iter, &p->should_update_history) &&
+      ReadParam(m, iter, &p->searchable_form_url) &&
+      ReadParam(m, iter, &p->searchable_form_element_name) &&
+      ReadParam(m, iter, &p->searchable_form_encoding) &&
+      ReadParam(m, iter, &p->password_form) &&
+      ReadParam(m, iter, &p->security_info) &&
+      ReadParam(m, iter, &p->gesture) &&
+      ReadParam(m, iter, &p->contents_mime_type) &&
+      ReadParam(m, iter, &p->is_post) &&
+      ReadParam(m, iter, &p->is_content_filtered);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.page_id, l);
+    l->append(L", ");
+    LogParam(p.url, l);
+    l->append(L", ");
+    LogParam(p.referrer, l);
+    l->append(L", ");
+    LogParam(p.transition, l);
+    l->append(L", ");
+    LogParam(p.redirects, l);
+    l->append(L", ");
+    LogParam(p.should_update_history, l);
+    l->append(L", ");
+    LogParam(p.searchable_form_url, l);
+    l->append(L", ");
+    LogParam(p.searchable_form_element_name, l);
+    l->append(L", ");
+    LogParam(p.searchable_form_encoding, l);
+    l->append(L", ");
+    LogParam(p.password_form, l);
+    l->append(L", ");
+    LogParam(p.security_info, l);
+    l->append(L", ");
+    LogParam(p.gesture, l);
+    l->append(L", ");
+    LogParam(p.contents_mime_type, l);
+    l->append(L", ");
+    LogParam(p.is_post, l);
+    l->append(L", ");
+    LogParam(p.is_content_filtered, l);
+    l->append(L")");
+  }
+};
+
+
 // FIXME(beng): This would be more useful in the future and more efficient
 //              if the parameters here weren't so literally mapped to what
 //              they contain for the ContextMenu task. It might be better
@@ -176,6 +283,45 @@ struct ViewHostMsg_ContextMenu_Params {
   std::string security_info;
 };
 
+template <>
+struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
+  typedef ViewHostMsg_ContextMenu_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.node);
+    WriteParam(m, p.x);
+    WriteParam(m, p.y);
+    WriteParam(m, p.link_url);
+    WriteParam(m, p.image_url);
+    WriteParam(m, p.page_url);
+    WriteParam(m, p.frame_url);
+    WriteParam(m, p.selection_text);
+    WriteParam(m, p.misspelled_word);
+    WriteParam(m, p.dictionary_suggestions);
+    WriteParam(m, p.spellcheck_enabled);
+    WriteParam(m, p.edit_flags);
+    WriteParam(m, p.security_info);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->node) &&
+      ReadParam(m, iter, &p->x) &&
+      ReadParam(m, iter, &p->y) &&
+      ReadParam(m, iter, &p->link_url) &&
+      ReadParam(m, iter, &p->image_url) &&
+      ReadParam(m, iter, &p->page_url) &&
+      ReadParam(m, iter, &p->frame_url) &&
+      ReadParam(m, iter, &p->selection_text) &&
+      ReadParam(m, iter, &p->misspelled_word) &&
+      ReadParam(m, iter, &p->dictionary_suggestions) &&
+      ReadParam(m, iter, &p->spellcheck_enabled) &&
+      ReadParam(m, iter, &p->edit_flags) &&
+      ReadParam(m, iter, &p->security_info);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<ViewHostMsg_ContextMenu_Params>");
+  }
+};
+
 // Values that may be OR'd together to form the 'flags' parameter of a
 // ViewHostMsg_PaintRect message.
 struct ViewHostMsg_PaintRect_Flags {
@@ -227,8 +373,40 @@ struct ViewHostMsg_PaintRect_Params {
   int flags;
 };
 
-// Parameters structure for ViewHostMsg_ScrollRect, which has too many data
-// parameters to be reasonably put in a predefined IPC message.
+template <>
+struct ParamTraits<ViewHostMsg_PaintRect_Params> {
+  typedef ViewHostMsg_PaintRect_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.bitmap);
+    WriteParam(m, p.bitmap_rect);
+    WriteParam(m, p.view_size);
+    WriteParam(m, p.plugin_window_moves);
+    WriteParam(m, p.flags);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->bitmap) &&
+      ReadParam(m, iter, &p->bitmap_rect) &&
+      ReadParam(m, iter, &p->view_size) &&
+      ReadParam(m, iter, &p->plugin_window_moves) &&
+      ReadParam(m, iter, &p->flags);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.bitmap, l);
+    l->append(L", ");
+    LogParam(p.bitmap_rect, l);
+    l->append(L", ");
+    LogParam(p.view_size, l);
+    l->append(L", ");
+    LogParam(p.plugin_window_moves, l);
+    l->append(L", ");
+    LogParam(p.flags, l);
+    l->append(L")");
+  }
+};
+
+
 struct ViewHostMsg_ScrollRect_Params {
   // The bitmap to be painted into the rect exposed by scrolling.
   BitmapWireData bitmap;
@@ -250,7 +428,48 @@ struct ViewHostMsg_ScrollRect_Params {
   std::vector<WebPluginGeometry> plugin_window_moves;
 };
 
-// Parameters structure for ViewMsg_UploadFile.
+template <>
+struct ParamTraits<ViewHostMsg_ScrollRect_Params> {
+  typedef ViewHostMsg_ScrollRect_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.bitmap);
+    WriteParam(m, p.bitmap_rect);
+    WriteParam(m, p.dx);
+    WriteParam(m, p.dy);
+    WriteParam(m, p.clip_rect);
+    WriteParam(m, p.view_size);
+    WriteParam(m, p.plugin_window_moves);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->bitmap) &&
+      ReadParam(m, iter, &p->bitmap_rect) &&
+      ReadParam(m, iter, &p->dx) &&
+      ReadParam(m, iter, &p->dy) &&
+      ReadParam(m, iter, &p->clip_rect) &&
+      ReadParam(m, iter, &p->view_size) &&
+      ReadParam(m, iter, &p->plugin_window_moves);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.bitmap, l);
+    l->append(L", ");
+    LogParam(p.bitmap_rect, l);
+    l->append(L", ");
+    LogParam(p.dx, l);
+    l->append(L", ");
+    LogParam(p.dy, l);
+    l->append(L", ");
+    LogParam(p.clip_rect, l);
+    l->append(L", ");
+    LogParam(p.view_size, l);
+    l->append(L", ");
+    LogParam(p.plugin_window_moves, l);
+    l->append(L")");
+  }
+};
+
+
 struct ViewMsg_UploadFile_Params {
   // See WebContents::StartFileUpload for a description of these fields.
   std::wstring file_path;
@@ -260,7 +479,30 @@ struct ViewMsg_UploadFile_Params {
   std::wstring other_values;
 };
 
-// Parameters for a resource request.
+template <>
+struct ParamTraits<ViewMsg_UploadFile_Params> {
+  typedef ViewMsg_UploadFile_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.file_path);
+    WriteParam(m, p.form);
+    WriteParam(m, p.file);
+    WriteParam(m, p.submit);
+    WriteParam(m, p.other_values);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->file_path) &&
+      ReadParam(m, iter, &p->form) &&
+      ReadParam(m, iter, &p->file) &&
+      ReadParam(m, iter, &p->submit) &&
+      ReadParam(m, iter, &p->other_values);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<ViewMsg_UploadFile_Params>");
+  }
+};
+
+
 struct ViewHostMsg_Resource_Request {
   // The request method: GET, POST, etc.
   std::string method;
@@ -302,7 +544,58 @@ struct ViewHostMsg_Resource_Request {
   std::vector<net::UploadData::Element> upload_content;
 };
 
-// Parameters for a resource response header.
+template <>
+struct ParamTraits<ViewHostMsg_Resource_Request> {
+  typedef ViewHostMsg_Resource_Request param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.method);
+    WriteParam(m, p.url);
+    WriteParam(m, p.policy_url);
+    WriteParam(m, p.referrer);
+    WriteParam(m, p.headers);
+    WriteParam(m, p.load_flags);
+    WriteParam(m, p.origin_pid);
+    WriteParam(m, p.resource_type);
+    WriteParam(m, p.mixed_content);
+    WriteParam(m, p.request_context);
+    WriteParam(m, p.upload_content);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
+    return
+      ReadParam(m, iter, &r->method) &&
+      ReadParam(m, iter, &r->url) &&
+      ReadParam(m, iter, &r->policy_url) &&
+      ReadParam(m, iter, &r->referrer) &&
+      ReadParam(m, iter, &r->headers) &&
+      ReadParam(m, iter, &r->load_flags) &&
+      ReadParam(m, iter, &r->origin_pid) &&
+      ReadParam(m, iter, &r->resource_type) &&
+      ReadParam(m, iter, &r->mixed_content) &&
+      ReadParam(m, iter, &r->request_context) &&
+      ReadParam(m, iter, &r->upload_content);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.method, l);
+    l->append(L", ");
+    LogParam(p.url, l);
+    l->append(L", ");
+    LogParam(p.referrer, l);
+    l->append(L", ");
+    LogParam(p.load_flags, l);
+    l->append(L", ");
+    LogParam(p.origin_pid, l);
+    l->append(L", ");
+    LogParam(p.resource_type, l);
+    l->append(L", ");
+    LogParam(p.mixed_content, l);
+    l->append(L", ");
+    LogParam(p.request_context, l);
+    l->append(L")");
+  }
+};
+
+
 struct ViewMsg_Resource_ResponseHead
     : webkit_glue::ResourceLoaderBridge::ResponseInfo {
   // The response status.
@@ -313,7 +606,66 @@ struct ViewMsg_Resource_ResponseHead
   FilterPolicy::Type filter_policy;
 };
 
-// Parameters for a synchronous resource response.
+template <>
+struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
+  typedef webkit_glue::ResourceLoaderBridge::ResponseInfo param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.request_time);
+    WriteParam(m, p.response_time);
+    WriteParam(m, p.headers);
+    WriteParam(m, p.mime_type);
+    WriteParam(m, p.charset);
+    WriteParam(m, p.security_info);
+    WriteParam(m, p.content_length);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
+    return
+      ReadParam(m, iter, &r->request_time) &&
+      ReadParam(m, iter, &r->response_time) &&
+      ReadParam(m, iter, &r->headers) &&
+      ReadParam(m, iter, &r->mime_type) &&
+      ReadParam(m, iter, &r->charset) &&
+      ReadParam(m, iter, &r->security_info) &&
+      ReadParam(m, iter, &r->content_length);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.request_time, l);
+    l->append(L", ");
+    LogParam(p.response_time, l);
+    l->append(L", ");
+    LogParam(p.headers, l);
+    l->append(L", ");
+    LogParam(p.mime_type, l);
+    l->append(L", ");
+    LogParam(p.charset, l);
+    l->append(L", ");
+    LogParam(p.security_info, l);
+    l->append(L")");
+  }
+};
+
+template <>
+struct ParamTraits<ViewMsg_Resource_ResponseHead> {
+  typedef ViewMsg_Resource_ResponseHead param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Write(m, p);
+    WriteParam(m, p.status);
+    WriteParam(m, p.filter_policy);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
+    return
+      ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Read(m, iter, r) &&
+      ReadParam(m, iter, &r->status) &&
+      ReadParam(m, iter, &r->filter_policy);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    // log more?
+    ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Log(p, l);
+  }
+};
+
+
 struct ViewHostMsg_SyncLoad_Result : ViewMsg_Resource_ResponseHead {
   // The final URL after any redirects.
   GURL final_url;
@@ -322,7 +674,27 @@ struct ViewHostMsg_SyncLoad_Result : ViewMsg_Resource_ResponseHead {
   std::string data;
 };
 
-// Parameters for a render request.
+template <>
+struct ParamTraits<ViewHostMsg_SyncLoad_Result> {
+  typedef ViewHostMsg_SyncLoad_Result param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    ParamTraits<ViewMsg_Resource_ResponseHead>::Write(m, p);
+    WriteParam(m, p.final_url);
+    WriteParam(m, p.data);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
+    return
+      ParamTraits<ViewMsg_Resource_ResponseHead>::Read(m, iter, r) &&
+      ReadParam(m, iter, &r->final_url) &&
+      ReadParam(m, iter, &r->data);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    // log more?
+    ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Log(p, l);
+  }
+};
+
+
 struct ViewMsg_Print_Params {
   // In pixels according to dpi_x and dpi_y.
   gfx::Size printable_size;
@@ -352,6 +724,31 @@ struct ViewMsg_Print_Params {
   }
 };
 
+template <>
+struct ParamTraits<ViewMsg_Print_Params> {
+  typedef ViewMsg_Print_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.printable_size);
+    WriteParam(m, p.dpi);
+    WriteParam(m, p.min_shrink);
+    WriteParam(m, p.max_shrink);
+    WriteParam(m, p.desired_dpi);
+    WriteParam(m, p.document_cookie);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->printable_size) &&
+           ReadParam(m, iter, &p->dpi) &&
+           ReadParam(m, iter, &p->min_shrink) &&
+           ReadParam(m, iter, &p->max_shrink) &&
+           ReadParam(m, iter, &p->desired_dpi) &&
+           ReadParam(m, iter, &p->document_cookie);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<ViewMsg_Print_Params>");
+  }
+};
+
+
 struct ViewMsg_PrintPage_Params {
   // Parameters to render the page as a printed page. It must always be the same
   // value for all the document.
@@ -362,6 +759,23 @@ struct ViewMsg_PrintPage_Params {
   int page_number;
 };
 
+template <>
+struct ParamTraits<ViewMsg_PrintPage_Params> {
+  typedef ViewMsg_PrintPage_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.params);
+    WriteParam(m, p.page_number);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->params) &&
+           ReadParam(m, iter, &p->page_number);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<ViewMsg_PrintPage_Params>");
+  }
+};
+
+
 struct ViewMsg_PrintPages_Params {
   // Parameters to render the page as a printed page. It must always be the same
   // value for all the document.
@@ -370,6 +784,23 @@ struct ViewMsg_PrintPages_Params {
   // If empty, this means a request to render all the printed pages.
   std::vector<int> pages;
 };
+
+template <>
+struct ParamTraits<ViewMsg_PrintPages_Params> {
+  typedef ViewMsg_PrintPages_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.params);
+    WriteParam(m, p.pages);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->params) &&
+           ReadParam(m, iter, &p->pages);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<ViewMsg_PrintPages_Params>");
+  }
+};
+
 
 // Parameters to describe a rendered page.
 struct ViewHostMsg_DidPrintPage_Params {
@@ -390,6 +821,29 @@ struct ViewHostMsg_DidPrintPage_Params {
   double actual_shrink;
 };
 
+template <>
+struct ParamTraits<ViewHostMsg_DidPrintPage_Params> {
+  typedef ViewHostMsg_DidPrintPage_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.emf_data_handle);
+    WriteParam(m, p.data_size);
+    WriteParam(m, p.document_cookie);
+    WriteParam(m, p.page_number);
+    WriteParam(m, p.actual_shrink);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->emf_data_handle) &&
+           ReadParam(m, iter, &p->data_size) &&
+           ReadParam(m, iter, &p->document_cookie) &&
+           ReadParam(m, iter, &p->page_number) &&
+           ReadParam(m, iter, &p->actual_shrink);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<ViewHostMsg_DidPrintPage_Params>");
+  }
+};
+
+
 // Parameters structure to hold a union of the possible IAccessible function
 // INPUT variables, with the unused fields always set to default value. Used in
 // ViewMsg_GetAccessibilityInfo, as only parameter.
@@ -409,6 +863,40 @@ struct ViewMsg_Accessibility_In_Params {
   long input_long1;
   long input_long2;
 };
+
+template <>
+struct ParamTraits<ViewMsg_Accessibility_In_Params> {
+  typedef ViewMsg_Accessibility_In_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.iaccessible_id);
+    WriteParam(m, p.iaccessible_function_id);
+    WriteParam(m, p.input_variant_lval);
+    WriteParam(m, p.input_long1);
+    WriteParam(m, p.input_long2);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->iaccessible_id) &&
+      ReadParam(m, iter, &p->iaccessible_function_id) &&
+      ReadParam(m, iter, &p->input_variant_lval) &&
+      ReadParam(m, iter, &p->input_long1) &&
+      ReadParam(m, iter, &p->input_long2);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.iaccessible_id, l);
+    l->append(L", ");
+    LogParam(p.iaccessible_function_id, l);
+    l->append(L", ");
+    LogParam(p.input_variant_lval, l);
+    l->append(L", ");
+    LogParam(p.input_long1, l);
+    l->append(L", ");
+    LogParam(p.input_long2, l);
+    l->append(L")");
+  }
+};
+
 
 // Parameters structure to hold a union of the possible IAccessible function
 // OUTPUT variables, with the unused fields always set to default value. Used in
@@ -439,6 +927,52 @@ struct ViewHostMsg_Accessibility_Out_Params {
   bool return_code;
 };
 
+template <>
+struct ParamTraits<ViewHostMsg_Accessibility_Out_Params> {
+  typedef ViewHostMsg_Accessibility_Out_Params param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    WriteParam(m, p.iaccessible_id);
+    WriteParam(m, p.output_variant_lval);
+    WriteParam(m, p.output_long1);
+    WriteParam(m, p.output_long2);
+    WriteParam(m, p.output_long3);
+    WriteParam(m, p.output_long4);
+    WriteParam(m, p.output_string);
+    WriteParam(m, p.return_code);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->iaccessible_id) &&
+      ReadParam(m, iter, &p->output_variant_lval) &&
+      ReadParam(m, iter, &p->output_long1) &&
+      ReadParam(m, iter, &p->output_long2) &&
+      ReadParam(m, iter, &p->output_long3) &&
+      ReadParam(m, iter, &p->output_long4) &&
+      ReadParam(m, iter, &p->output_string) &&
+      ReadParam(m, iter, &p->return_code);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.iaccessible_id, l);
+    l->append(L", ");
+    LogParam(p.output_variant_lval, l);
+    l->append(L", ");
+    LogParam(p.output_long1, l);
+    l->append(L", ");
+    LogParam(p.output_long2, l);
+    l->append(L", ");
+    LogParam(p.output_long3, l);
+    l->append(L", ");
+    LogParam(p.output_long4, l);
+    l->append(L", ");
+    LogParam(p.output_string, l);
+    l->append(L", ");
+    LogParam(p.return_code, l);
+    l->append(L")");
+  }
+};
+
+
 // The first parameter for the ViewHostMsg_ImeUpdateStatus message.
 enum ViewHostMsg_ImeControl {
   IME_DISABLE = 0,
@@ -446,38 +980,49 @@ enum ViewHostMsg_ImeControl {
   IME_COMPLETE_COMPOSITION,
 };
 
-// Multi-pass include of render_messages_internal.  Preprocessor magic allows
-// us to use 1 header to define the enums and classes for our render messages.
-#define IPC_MESSAGE_MACROS_ENUMS
-#include "chrome/common/render_messages_internal.h"
+template <>
+struct ParamTraits<ViewHostMsg_ImeControl> {
+  typedef ViewHostMsg_ImeControl param_type;
+  static void Write(IPC::Message* m, const param_type& p) {
+    m->WriteInt(p);
+  }
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
+    int type;
+    if (!m->ReadInt(iter, &type))
+      return false;
+    *p = static_cast<ViewHostMsg_ImeControl>(type);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    std::wstring control;
+    switch (p) {
+     case IME_DISABLE:
+      control = L"IME_DISABLE";
+      break;
+     case IME_MOVE_WINDOWS:
+      control = L"IME_MOVE_WINDOWS";
+      break;
+     case IME_COMPLETE_COMPOSITION:
+      control = L"IME_COMPLETE_COMPOSITION";
+      break;
+     default:
+      control = L"UNKNOWN";
+      break;
+    }
 
-#ifdef IPC_MESSAGE_MACROS_LOG_ENABLED
-// When we are supposed to create debug strings, we run it through twice, once
-// with debug strings on, and once with only CLASSES on to generate both types
-// of messages.
-#  undef IPC_MESSAGE_MACROS_LOG
-#  define IPC_MESSAGE_MACROS_CLASSES
-#  include "chrome/common/render_messages_internal.h"
-
-#  undef IPC_MESSAGE_MACROS_CLASSES
-#  define IPC_MESSAGE_MACROS_LOG
-#  include "chrome/common/render_messages_internal.h"
-#else
-// No debug strings requested, just define the classes
-#  define IPC_MESSAGE_MACROS_CLASSES
-#  include "chrome/common/render_messages_internal.h"
-#endif
+    LogParam(control, l);
+  }
+};
 
 
-namespace IPC {
-
+// These traits are for structures that are defined outside of this file.
 template <>
 struct ParamTraits<ResourceType::Type> {
   typedef ResourceType::Type param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     m->WriteInt(p);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     int type;
     if (!m->ReadInt(iter, &type) || !ResourceType::ValidType(type))
       return false;
@@ -511,10 +1056,10 @@ struct ParamTraits<ResourceType::Type> {
 template <>
 struct ParamTraits<FilterPolicy::Type> {
   typedef FilterPolicy::Type param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     m->WriteInt(p);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     int type;
     if (!m->ReadInt(iter, &type) || !FilterPolicy::ValidType(type))
       return false;
@@ -545,10 +1090,10 @@ struct ParamTraits<FilterPolicy::Type> {
 template <>
 struct ParamTraits<ContextNode> {
   typedef ContextNode param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     m->WriteInt(p.type);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     int type;
     if (!m->ReadInt(iter, &type))
       return false;
@@ -586,10 +1131,10 @@ struct ParamTraits<ContextNode> {
 template <>
 struct ParamTraits<WebInputEvent::Type> {
   typedef WebInputEvent::Type param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     m->WriteInt(p);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     int type;
     if (!m->ReadInt(iter, &type))
       return false;
@@ -632,161 +1177,10 @@ struct ParamTraits<WebInputEvent::Type> {
   }
 };
 
-// Traits for ViewMsg_Accessibility_In_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewMsg_Accessibility_In_Params> {
-  typedef ViewMsg_Accessibility_In_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.iaccessible_id);
-    WriteParam(m, p.iaccessible_function_id);
-    WriteParam(m, p.input_variant_lval);
-    WriteParam(m, p.input_long1);
-    WriteParam(m, p.input_long2);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->iaccessible_id) &&
-      ReadParam(m, iter, &p->iaccessible_function_id) &&
-      ReadParam(m, iter, &p->input_variant_lval) &&
-      ReadParam(m, iter, &p->input_long1) &&
-      ReadParam(m, iter, &p->input_long2);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.iaccessible_id, l);
-    l->append(L", ");
-    LogParam(p.iaccessible_function_id, l);
-    l->append(L", ");
-    LogParam(p.input_variant_lval, l);
-    l->append(L", ");
-    LogParam(p.input_long1, l);
-    l->append(L", ");
-    LogParam(p.input_long2, l);
-    l->append(L")");
-  }
-};
-
-// Traits for ViewHostMsg_Accessibility_Out_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewHostMsg_Accessibility_Out_Params> {
-  typedef ViewHostMsg_Accessibility_Out_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.iaccessible_id);
-    WriteParam(m, p.output_variant_lval);
-    WriteParam(m, p.output_long1);
-    WriteParam(m, p.output_long2);
-    WriteParam(m, p.output_long3);
-    WriteParam(m, p.output_long4);
-    WriteParam(m, p.output_string);
-    WriteParam(m, p.return_code);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->iaccessible_id) &&
-      ReadParam(m, iter, &p->output_variant_lval) &&
-      ReadParam(m, iter, &p->output_long1) &&
-      ReadParam(m, iter, &p->output_long2) &&
-      ReadParam(m, iter, &p->output_long3) &&
-      ReadParam(m, iter, &p->output_long4) &&
-      ReadParam(m, iter, &p->output_string) &&
-      ReadParam(m, iter, &p->return_code);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.iaccessible_id, l);
-    l->append(L", ");
-    LogParam(p.output_variant_lval, l);
-    l->append(L", ");
-    LogParam(p.output_long1, l);
-    l->append(L", ");
-    LogParam(p.output_long2, l);
-    l->append(L", ");
-    LogParam(p.output_long3, l);
-    l->append(L", ");
-    LogParam(p.output_long4, l);
-    l->append(L", ");
-    LogParam(p.output_string, l);
-    l->append(L", ");
-    LogParam(p.return_code, l);
-    l->append(L")");
-  }
-};
-
-template <>
-struct ParamTraits<ViewHostMsg_ImeControl> {
-  typedef ViewHostMsg_ImeControl param_type;
-  static void Write(Message* m, const param_type& p) {
-    m->WriteInt(p);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    int type;
-    if (!m->ReadInt(iter, &type))
-      return false;
-    *p = static_cast<ViewHostMsg_ImeControl>(type);
-    return true;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    std::wstring control;
-    switch (p) {
-     case IME_DISABLE:
-      control = L"IME_DISABLE";
-      break;
-     case IME_MOVE_WINDOWS:
-      control = L"IME_MOVE_WINDOWS";
-      break;
-     case IME_COMPLETE_COMPOSITION:
-      control = L"IME_COMPLETE_COMPOSITION";
-      break;
-     default:
-      control = L"UNKNOWN";
-      break;
-    }
-
-    LogParam(control, l);
-  }
-};
-
-// Traits for ViewMsg_Navigate_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewMsg_Navigate_Params> {
-  typedef ViewMsg_Navigate_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.page_id);
-    WriteParam(m, p.url);
-    WriteParam(m, p.referrer);
-    WriteParam(m, p.transition);
-    WriteParam(m, p.state);
-    WriteParam(m, p.reload);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->page_id) &&
-      ReadParam(m, iter, &p->url) &&
-      ReadParam(m, iter, &p->referrer) &&
-      ReadParam(m, iter, &p->transition) &&
-      ReadParam(m, iter, &p->state) &&
-      ReadParam(m, iter, &p->reload);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.page_id, l);
-    l->append(L", ");
-    LogParam(p.url, l);
-    l->append(L", ");
-    LogParam(p.transition, l);
-    l->append(L", ");
-    LogParam(p.state, l);
-    l->append(L", ");
-    LogParam(p.reload, l);
-    l->append(L")");
-  }
-};
-
-// Traits for PasswordForm_Params structure to pack/unpack.
 template <>
 struct ParamTraits<PasswordForm> {
   typedef PasswordForm param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.signon_realm);
     WriteParam(m, p.origin);
     WriteParam(m, p.action);
@@ -801,7 +1195,7 @@ struct ParamTraits<PasswordForm> {
     WriteParam(m, p.preferred);
     WriteParam(m, p.blacklisted_by_user);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->signon_realm) &&
       ReadParam(m, iter, &p->origin) &&
@@ -822,11 +1216,10 @@ struct ParamTraits<PasswordForm> {
   }
 };
 
-// Traits for AutofillForm_Params structure to pack/unpack.
 template <>
 struct ParamTraits<AutofillForm> {
   typedef AutofillForm param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.elements.size());
     for (std::vector<AutofillForm::Element>::const_iterator itr =
         p.elements.begin();
@@ -836,7 +1229,7 @@ struct ParamTraits<AutofillForm> {
       WriteParam(m, itr->value);
     }
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
       bool result = true;
       size_t elements_size = 0;
       result = result && ReadParam(m, iter, &elements_size);
@@ -853,207 +1246,18 @@ struct ParamTraits<AutofillForm> {
   }
 };
 
-// Traits for ViewHostMsg_FrameNavigate_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
-  typedef ViewHostMsg_FrameNavigate_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.page_id);
-    WriteParam(m, p.url);
-    WriteParam(m, p.referrer);
-    WriteParam(m, p.transition);
-    WriteParam(m, p.redirects);
-    WriteParam(m, p.should_update_history);
-    WriteParam(m, p.searchable_form_url);
-    WriteParam(m, p.searchable_form_element_name);
-    WriteParam(m, p.searchable_form_encoding);
-    WriteParam(m, p.password_form);
-    WriteParam(m, p.security_info);
-    WriteParam(m, p.gesture);
-    WriteParam(m, p.contents_mime_type);
-    WriteParam(m, p.is_post);
-    WriteParam(m, p.is_content_filtered);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->page_id) &&
-      ReadParam(m, iter, &p->url) &&
-      ReadParam(m, iter, &p->referrer) &&
-      ReadParam(m, iter, &p->transition) &&
-      ReadParam(m, iter, &p->redirects) &&
-      ReadParam(m, iter, &p->should_update_history) &&
-      ReadParam(m, iter, &p->searchable_form_url) &&
-      ReadParam(m, iter, &p->searchable_form_element_name) &&
-      ReadParam(m, iter, &p->searchable_form_encoding) &&
-      ReadParam(m, iter, &p->password_form) &&
-      ReadParam(m, iter, &p->security_info) &&
-      ReadParam(m, iter, &p->gesture) &&
-      ReadParam(m, iter, &p->contents_mime_type) &&
-      ReadParam(m, iter, &p->is_post) &&
-      ReadParam(m, iter, &p->is_content_filtered);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.page_id, l);
-    l->append(L", ");
-    LogParam(p.url, l);
-    l->append(L", ");
-    LogParam(p.referrer, l);
-    l->append(L", ");
-    LogParam(p.transition, l);
-    l->append(L", ");
-    LogParam(p.redirects, l);
-    l->append(L", ");
-    LogParam(p.should_update_history, l);
-    l->append(L", ");
-    LogParam(p.searchable_form_url, l);
-    l->append(L", ");
-    LogParam(p.searchable_form_element_name, l);
-    l->append(L", ");
-    LogParam(p.searchable_form_encoding, l);
-    l->append(L", ");
-    LogParam(p.password_form, l);
-    l->append(L", ");
-    LogParam(p.security_info, l);
-    l->append(L", ");
-    LogParam(p.gesture, l);
-    l->append(L", ");
-    LogParam(p.contents_mime_type, l);
-    l->append(L", ");
-    LogParam(p.is_post, l);
-    l->append(L", ");
-    LogParam(p.is_content_filtered, l);
-    l->append(L")");
-  }
-};
-
-// Traits for ViewHostMsg_ContextMenu_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewHostMsg_ContextMenu_Params> {
-  typedef ViewHostMsg_ContextMenu_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.node);
-    WriteParam(m, p.x);
-    WriteParam(m, p.y);
-    WriteParam(m, p.link_url);
-    WriteParam(m, p.image_url);
-    WriteParam(m, p.page_url);
-    WriteParam(m, p.frame_url);
-    WriteParam(m, p.selection_text);
-    WriteParam(m, p.misspelled_word);
-    WriteParam(m, p.dictionary_suggestions);
-    WriteParam(m, p.spellcheck_enabled);
-    WriteParam(m, p.edit_flags);
-    WriteParam(m, p.security_info);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->node) &&
-      ReadParam(m, iter, &p->x) &&
-      ReadParam(m, iter, &p->y) &&
-      ReadParam(m, iter, &p->link_url) &&
-      ReadParam(m, iter, &p->image_url) &&
-      ReadParam(m, iter, &p->page_url) &&
-      ReadParam(m, iter, &p->frame_url) &&
-      ReadParam(m, iter, &p->selection_text) &&
-      ReadParam(m, iter, &p->misspelled_word) &&
-      ReadParam(m, iter, &p->dictionary_suggestions) &&
-      ReadParam(m, iter, &p->spellcheck_enabled) &&
-      ReadParam(m, iter, &p->edit_flags) &&
-      ReadParam(m, iter, &p->security_info);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<ViewHostMsg_ContextMenu_Params>");
-  }
-};
-
-// Traits for ViewHostMsg_PaintRect_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewHostMsg_PaintRect_Params> {
-  typedef ViewHostMsg_PaintRect_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.bitmap);
-    WriteParam(m, p.bitmap_rect);
-    WriteParam(m, p.view_size);
-    WriteParam(m, p.plugin_window_moves);
-    WriteParam(m, p.flags);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->bitmap) &&
-      ReadParam(m, iter, &p->bitmap_rect) &&
-      ReadParam(m, iter, &p->view_size) &&
-      ReadParam(m, iter, &p->plugin_window_moves) &&
-      ReadParam(m, iter, &p->flags);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.bitmap, l);
-    l->append(L", ");
-    LogParam(p.bitmap_rect, l);
-    l->append(L", ");
-    LogParam(p.view_size, l);
-    l->append(L", ");
-    LogParam(p.plugin_window_moves, l);
-    l->append(L", ");
-    LogParam(p.flags, l);
-    l->append(L")");
-  }
-};
-
-// Traits for ViewHostMsg_ScrollRect_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewHostMsg_ScrollRect_Params> {
-  typedef ViewHostMsg_ScrollRect_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.bitmap);
-    WriteParam(m, p.bitmap_rect);
-    WriteParam(m, p.dx);
-    WriteParam(m, p.dy);
-    WriteParam(m, p.clip_rect);
-    WriteParam(m, p.view_size);
-    WriteParam(m, p.plugin_window_moves);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->bitmap) &&
-      ReadParam(m, iter, &p->bitmap_rect) &&
-      ReadParam(m, iter, &p->dx) &&
-      ReadParam(m, iter, &p->dy) &&
-      ReadParam(m, iter, &p->clip_rect) &&
-      ReadParam(m, iter, &p->view_size) &&
-      ReadParam(m, iter, &p->plugin_window_moves);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.bitmap, l);
-    l->append(L", ");
-    LogParam(p.bitmap_rect, l);
-    l->append(L", ");
-    LogParam(p.dx, l);
-    l->append(L", ");
-    LogParam(p.dy, l);
-    l->append(L", ");
-    LogParam(p.clip_rect, l);
-    l->append(L", ");
-    LogParam(p.view_size, l);
-    l->append(L", ");
-    LogParam(p.plugin_window_moves, l);
-    l->append(L")");
-  }
-};
 
 template <>
 struct ParamTraits<WebPluginGeometry> {
   typedef WebPluginGeometry param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.window);
     WriteParam(m, p.window_rect);
     WriteParam(m, p.clip_rect);
     WriteParam(m, p.cutout_rects);
     WriteParam(m, p.visible);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->window) &&
       ReadParam(m, iter, &p->window_rect) &&
@@ -1076,16 +1280,16 @@ struct ParamTraits<WebPluginGeometry> {
   }
 };
 
-// Traits for ViewMsg_GetPlugins_Reply structure to pack/unpack.
+
 template <>
 struct ParamTraits<WebPluginMimeType> {
   typedef WebPluginMimeType param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.mime_type);
     WriteParam(m, p.file_extensions);
     WriteParam(m, p.description);
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     return
       ReadParam(m, iter, &r->mime_type) &&
       ReadParam(m, iter, &r->file_extensions) &&
@@ -1106,14 +1310,14 @@ struct ParamTraits<WebPluginMimeType> {
 template <>
 struct ParamTraits<WebPluginInfo> {
   typedef WebPluginInfo param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.name);
     WriteParam(m, p.path);
     WriteParam(m, p.version);
     WriteParam(m, p.desc);
     WriteParam(m, p.mime_types);
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     return
       ReadParam(m, iter, &r->name) &&
       ReadParam(m, iter, &r->path) &&
@@ -1137,35 +1341,10 @@ struct ParamTraits<WebPluginInfo> {
   }
 };
 
-// Traits for ViewMsg_UploadFile_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewMsg_UploadFile_Params> {
-  typedef ViewMsg_UploadFile_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.file_path);
-    WriteParam(m, p.form);
-    WriteParam(m, p.file);
-    WriteParam(m, p.submit);
-    WriteParam(m, p.other_values);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->file_path) &&
-      ReadParam(m, iter, &p->form) &&
-      ReadParam(m, iter, &p->file) &&
-      ReadParam(m, iter, &p->submit) &&
-      ReadParam(m, iter, &p->other_values);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<ViewMsg_UploadFile_Params>");
-  }
-};
-
-// Traits for net::UploadData::Element.
 template <>
 struct ParamTraits<net::UploadData::Element> {
   typedef net::UploadData::Element param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, static_cast<int>(p.type()));
     if (p.type() == net::UploadData::TYPE_BYTES) {
       m->WriteData(&p.bytes()[0], static_cast<int>(p.bytes().size()));
@@ -1175,7 +1354,7 @@ struct ParamTraits<net::UploadData::Element> {
       WriteParam(m, p.file_range_length());
     }
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     int type;
     if (!ReadParam(m, iter, &type))
       return false;
@@ -1204,18 +1383,17 @@ struct ParamTraits<net::UploadData::Element> {
   }
 };
 
-// Traits for CacheManager::UsageStats
 template <>
 struct ParamTraits<CacheManager::UsageStats> {
   typedef CacheManager::UsageStats param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.min_dead_capacity);
     WriteParam(m, p.max_dead_capacity);
     WriteParam(m, p.capacity);
     WriteParam(m, p.live_size);
     WriteParam(m, p.dead_size);
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     return
       ReadParam(m, iter, &r->min_dead_capacity) &&
       ReadParam(m, iter, &r->max_dead_capacity) &&
@@ -1228,16 +1406,15 @@ struct ParamTraits<CacheManager::UsageStats> {
   }
 };
 
-// Traits for PasswordFormDomManager::FillData.
 template <>
 struct ParamTraits<PasswordFormDomManager::FillData> {
   typedef PasswordFormDomManager::FillData param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.basic_data);
     WriteParam(m, p.additional_logins);
     WriteParam(m, p.wait_for_username);
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     return
       ReadParam(m, iter, &r->basic_data) &&
       ReadParam(m, iter, &r->additional_logins) &&
@@ -1251,10 +1428,10 @@ struct ParamTraits<PasswordFormDomManager::FillData> {
 template<>
 struct ParamTraits<NavigationGesture> {
   typedef NavigationGesture param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     m->WriteInt(p);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     int type;
     if (!m->ReadInt(iter, &type))
       return false;
@@ -1278,67 +1455,14 @@ struct ParamTraits<NavigationGesture> {
   }
 };
 
-// Traits for ViewHostMsg_Resource_Request
-template <>
-struct ParamTraits<ViewHostMsg_Resource_Request> {
-  typedef ViewHostMsg_Resource_Request param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.method);
-    WriteParam(m, p.url);
-    WriteParam(m, p.policy_url);
-    WriteParam(m, p.referrer);
-    WriteParam(m, p.headers);
-    WriteParam(m, p.load_flags);
-    WriteParam(m, p.origin_pid);
-    WriteParam(m, p.resource_type);
-    WriteParam(m, p.mixed_content);
-    WriteParam(m, p.request_context);
-    WriteParam(m, p.upload_content);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return
-      ReadParam(m, iter, &r->method) &&
-      ReadParam(m, iter, &r->url) &&
-      ReadParam(m, iter, &r->policy_url) &&
-      ReadParam(m, iter, &r->referrer) &&
-      ReadParam(m, iter, &r->headers) &&
-      ReadParam(m, iter, &r->load_flags) &&
-      ReadParam(m, iter, &r->origin_pid) &&
-      ReadParam(m, iter, &r->resource_type) &&
-      ReadParam(m, iter, &r->mixed_content) &&
-      ReadParam(m, iter, &r->request_context) &&
-      ReadParam(m, iter, &r->upload_content);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.method, l);
-    l->append(L", ");
-    LogParam(p.url, l);
-    l->append(L", ");
-    LogParam(p.referrer, l);
-    l->append(L", ");
-    LogParam(p.load_flags, l);
-    l->append(L", ");
-    LogParam(p.origin_pid, l);
-    l->append(L", ");
-    LogParam(p.resource_type, l);
-    l->append(L", ");
-    LogParam(p.mixed_content, l);
-    l->append(L", ");
-    LogParam(p.request_context, l);
-    l->append(L")");
-  }
-};
-
-// Traits for URLRequestStatus
 template <>
 struct ParamTraits<URLRequestStatus> {
   typedef URLRequestStatus param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, static_cast<int>(p.status()));
     WriteParam(m, p.os_error());
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     int status, os_error;
     if (!ReadParam(m, iter, &status) ||
         !ReadParam(m, iter, &os_error))
@@ -1385,14 +1509,14 @@ struct ParamTraits<URLRequestStatus> {
 template <>
 struct ParamTraits<scoped_refptr<net::HttpResponseHeaders> > {
   typedef scoped_refptr<net::HttpResponseHeaders> param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.get() != NULL);
     if (p) {
       // Do not disclose Set-Cookie headers over IPC.
       p->Persist(m, net::HttpResponseHeaders::PERSIST_SANS_COOKIES);
     }
   }
-  static bool Read(const Message* m, void** iter, param_type* r) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
     bool has_object;
     if (!ReadParam(m, iter, &has_object))
       return false;
@@ -1405,100 +1529,17 @@ struct ParamTraits<scoped_refptr<net::HttpResponseHeaders> > {
   }
 };
 
-// Traits for webkit_glue::ResourceLoaderBridge::ResponseInfo
-template <>
-struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
-  typedef webkit_glue::ResourceLoaderBridge::ResponseInfo param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.request_time);
-    WriteParam(m, p.response_time);
-    WriteParam(m, p.headers);
-    WriteParam(m, p.mime_type);
-    WriteParam(m, p.charset);
-    WriteParam(m, p.security_info);
-    WriteParam(m, p.content_length);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return
-      ReadParam(m, iter, &r->request_time) &&
-      ReadParam(m, iter, &r->response_time) &&
-      ReadParam(m, iter, &r->headers) &&
-      ReadParam(m, iter, &r->mime_type) &&
-      ReadParam(m, iter, &r->charset) &&
-      ReadParam(m, iter, &r->security_info) &&
-      ReadParam(m, iter, &r->content_length);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.request_time, l);
-    l->append(L", ");
-    LogParam(p.response_time, l);
-    l->append(L", ");
-    LogParam(p.headers, l);
-    l->append(L", ");
-    LogParam(p.mime_type, l);
-    l->append(L", ");
-    LogParam(p.charset, l);
-    l->append(L", ");
-    LogParam(p.security_info, l);
-    l->append(L")");
-  }
-};
-
-// Traits for ViewMsg_Resource_ResponseHead
-template <>
-struct ParamTraits<ViewMsg_Resource_ResponseHead> {
-  typedef ViewMsg_Resource_ResponseHead param_type;
-  static void Write(Message* m, const param_type& p) {
-    ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Write(m, p);
-    WriteParam(m, p.status);
-    WriteParam(m, p.filter_policy);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return
-      ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Read(m, iter, r) &&
-      ReadParam(m, iter, &r->status) &&
-      ReadParam(m, iter, &r->filter_policy);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    // log more?
-    ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Log(p, l);
-  }
-};
-
-// Traits for ViewHostMsg_Resource_SyncLoad_Response
-template <>
-struct ParamTraits<ViewHostMsg_SyncLoad_Result> {
-  typedef ViewHostMsg_SyncLoad_Result param_type;
-  static void Write(Message* m, const param_type& p) {
-    ParamTraits<ViewMsg_Resource_ResponseHead>::Write(m, p);
-    WriteParam(m, p.final_url);
-    WriteParam(m, p.data);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return
-      ParamTraits<ViewMsg_Resource_ResponseHead>::Read(m, iter, r) &&
-      ReadParam(m, iter, &r->final_url) &&
-      ReadParam(m, iter, &r->data);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    // log more?
-    ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Log(p, l);
-  }
-};
-
-// Traits for FormData structure to pack/unpack.
 template <>
 struct ParamTraits<FormData> {
   typedef FormData param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.origin);
     WriteParam(m, p.action);
     WriteParam(m, p.elements);
     WriteParam(m, p.values);
     WriteParam(m, p.submit);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->origin) &&
       ReadParam(m, iter, &p->action) &&
@@ -1511,93 +1552,10 @@ struct ParamTraits<FormData> {
   }
 };
 
-// Traits for ViewMsg_Print_Params
-template <>
-struct ParamTraits<ViewMsg_Print_Params> {
-  typedef ViewMsg_Print_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.printable_size);
-    WriteParam(m, p.dpi);
-    WriteParam(m, p.min_shrink);
-    WriteParam(m, p.max_shrink);
-    WriteParam(m, p.desired_dpi);
-    WriteParam(m, p.document_cookie);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return ReadParam(m, iter, &p->printable_size) &&
-           ReadParam(m, iter, &p->dpi) &&
-           ReadParam(m, iter, &p->min_shrink) &&
-           ReadParam(m, iter, &p->max_shrink) &&
-           ReadParam(m, iter, &p->desired_dpi) &&
-           ReadParam(m, iter, &p->document_cookie);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<ViewMsg_Print_Params>");
-  }
-};
-
-// Traits for ViewMsg_PrintPage_Params
-template <>
-struct ParamTraits<ViewMsg_PrintPage_Params> {
-  typedef ViewMsg_PrintPage_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.params);
-    WriteParam(m, p.page_number);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return ReadParam(m, iter, &p->params) &&
-           ReadParam(m, iter, &p->page_number);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<ViewMsg_PrintPage_Params>");
-  }
-};
-
-// Traits for ViewMsg_PrintPages_Params
-template <>
-struct ParamTraits<ViewMsg_PrintPages_Params> {
-  typedef ViewMsg_PrintPages_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.params);
-    WriteParam(m, p.pages);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return ReadParam(m, iter, &p->params) &&
-           ReadParam(m, iter, &p->pages);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<ViewMsg_PrintPages_Params>");
-  }
-};
-
-// Traits for ViewHostMsg_DidPrintPage_Params
-template <>
-struct ParamTraits<ViewHostMsg_DidPrintPage_Params> {
-  typedef ViewHostMsg_DidPrintPage_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.emf_data_handle);
-    WriteParam(m, p.data_size);
-    WriteParam(m, p.document_cookie);
-    WriteParam(m, p.page_number);
-    WriteParam(m, p.actual_shrink);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return ReadParam(m, iter, &p->emf_data_handle) &&
-           ReadParam(m, iter, &p->data_size) &&
-           ReadParam(m, iter, &p->document_cookie) &&
-           ReadParam(m, iter, &p->page_number) &&
-           ReadParam(m, iter, &p->actual_shrink);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<ViewHostMsg_DidPrintPage_Params>");
-  }
-};
-
-// Traits for WebPreferences structure to pack/unpack.
 template <>
 struct ParamTraits<WebPreferences> {
   typedef WebPreferences param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.standard_font_family);
     WriteParam(m, p.fixed_font_family);
     WriteParam(m, p.serif_font_family);
@@ -1623,7 +1581,7 @@ struct ParamTraits<WebPreferences> {
     WriteParam(m, p.user_style_sheet_location);
     WriteParam(m, p.uses_page_cache);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
         ReadParam(m, iter, &p->standard_font_family) &&
         ReadParam(m, iter, &p->fixed_font_family) &&
@@ -1655,11 +1613,10 @@ struct ParamTraits<WebPreferences> {
   }
 };
 
-// Traits for WebDropData
 template <>
 struct ParamTraits<WebDropData> {
   typedef WebDropData param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.url);
     WriteParam(m, p.url_title);
     WriteParam(m, p.file_extension);
@@ -1670,7 +1627,7 @@ struct ParamTraits<WebDropData> {
     WriteParam(m, p.file_description_filename);
     WriteParam(m, p.file_contents);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->url) &&
       ReadParam(m, iter, &p->url_title) &&
@@ -1687,18 +1644,17 @@ struct ParamTraits<WebDropData> {
   }
 };
 
-// Traits for ScreenInfo
 template <>
 struct ParamTraits<webkit_glue::ScreenInfo> {
   typedef webkit_glue::ScreenInfo param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.depth);
     WriteParam(m, p.depth_per_component);
     WriteParam(m, p.is_monochrome);
     WriteParam(m, p.rect);
     WriteParam(m, p.available_rect);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return
       ReadParam(m, iter, &p->depth) &&
       ReadParam(m, iter, &p->depth_per_component) &&
@@ -1715,16 +1671,16 @@ template<>
 struct ParamTraits<ModalDialogEvent> {
   typedef ModalDialogEvent param_type;
 #if defined(OS_WIN)
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     WriteParam(m, p.event);
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return ReadParam(m, iter, &p->event);
   }
 #else
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
   }
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     return true;
   }
 #endif
@@ -1742,11 +1698,11 @@ struct ParamTraits<ModalDialogEvent> {
 template <>
 struct ParamTraits<gfx::NativeView> {
   typedef gfx::NativeView param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(IPC::Message* m, const param_type& p) {
     NOTIMPLEMENTED();
   }
 
-  static bool Read(const Message* m, void** iter, param_type* p) {
+  static bool Read(const IPC::Message* m, void** iter, param_type* p) {
     NOTIMPLEMENTED();
     *p = NULL;
     return true;
@@ -1759,6 +1715,8 @@ struct ParamTraits<gfx::NativeView> {
 
 #endif  // defined(OS_POSIX)
 
-}  // namespace IPC
+
+#define MESSAGES_INTERNAL_FILE "chrome/common/render_messages_internal.h"
+#include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_RENDER_MESSAGES_H_

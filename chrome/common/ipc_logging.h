@@ -12,6 +12,7 @@
 #include "base/lock.h"
 #include "base/object_watcher.h"
 #include "base/singleton.h"
+#include "chrome/common/ipc_message_utils.h"
 
 class MessageLoop;
 
@@ -27,7 +28,7 @@ class Logging : public base::ObjectWatcher::Delegate {
   // Implemented by consumers of log messages.
   class Consumer {
    public:
-    virtual void Log(const IPC::LogData& data) = 0;
+    virtual void Log(const LogData& data) = 0;
   };
 
   void SetConsumer(Consumer* consumer);
@@ -41,7 +42,7 @@ class Logging : public base::ObjectWatcher::Delegate {
 
   // Called by child processes to give the logger object the channel to send
   // logging data to the browser process.
-  void SetIPCSender(IPC::Message::Sender* sender);
+  void SetIPCSender(Message::Sender* sender);
 
   // Called in the browser process when logging data from a child process is
   // received.
@@ -66,8 +67,14 @@ class Logging : public base::ObjectWatcher::Delegate {
   // ObjectWatcher::Delegate implementation
   void OnObjectSignaled(HANDLE object);
 
+  typedef void (LogFunction)(uint16 type,
+                             std::wstring* name,
+                             const Message* msg,
+                             std::wstring* params);
+  void RegisterMessageLogger(int msg_start, LogFunction* func); 
+
  private:
-  friend struct DefaultSingletonTraits<IPC::Logging>;
+  friend struct DefaultSingletonTraits<Logging>;
   Logging();
 
   std::wstring GetEventName(int browser_pid, bool enabled);
@@ -85,10 +92,12 @@ class Logging : public base::ObjectWatcher::Delegate {
   std::vector<LogData> queued_logs_;
   bool queue_invoke_later_pending_;
 
-  IPC::Message::Sender* sender_;
+  Message::Sender* sender_;
   MessageLoop* main_thread_;
 
   Consumer* consumer_;
+
+  LogFunction* log_function_mapping_[LastMsgIndex];
 };
 
 }  // namespace IPC

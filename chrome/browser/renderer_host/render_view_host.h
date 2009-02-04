@@ -436,7 +436,9 @@ class RenderViewHost : public RenderWidgetHost {
   void OnMsgUpdateTitle(int32 page_id, const std::wstring& title);
   void OnMsgUpdateEncoding(const std::wstring& encoding);
   void OnMsgUpdateTargetURL(int32 page_id, const GURL& url);
-  void OnMsgThumbnail(const IPC::Message& msg);
+  void OnMsgThumbnail(const GURL& url,
+                      const ThumbnailScore& score,
+                      const SkBitmap& bitmap);
   void OnMsgClose();
   void OnMsgRequestMove(const gfx::Rect& pos);
   void OnMsgDidRedirectProvisionalLoad(int32 page_id,
