@@ -27,9 +27,6 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="WebKitVersion"
-			/>
-			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
@@ -79,9 +76,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="WebKitVersion"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -344,10 +338,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\FrameLoadRequest.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\FramePrivate.h"
 				>
 			</File>
 			<File
@@ -675,15 +665,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\EmptyClients.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\DocumentThreadableLoader.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\DocumentThreadableLoader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\EmptyClients.h"
 				>
 			</File>
 			<File
@@ -939,14 +929,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\Cursor.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DeprecatedArray.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DeprecatedPtrList.h"
 				>
 			</File>
@@ -980,10 +962,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\FileChooser.h"
-				>
-			</File>
-			<File
-				RelativePath="...\..\..\third_party\WebKit\WebCore\platform\FileSystem.h"
 				>
 			</File>
 			<File
@@ -1123,10 +1101,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Peerable.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\PlatformKeyboardEvent.h"
 				>
 			</File>
@@ -1187,10 +1161,6 @@
 				>
 			</File>
 			<File
-				RelativePath="...\..\..\third_party\WebKit\WebCore\platform\ScrollTypes.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\ScrollView.cpp"
 				>
 			</File>
@@ -1231,10 +1201,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextStyle.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Theme.h"
 				>
 			</File>
@@ -1248,10 +1214,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\ThreadGlobalData.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Threading.h"
 				>
 			</File>
 			<File
@@ -3059,10 +3021,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\DataRef.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\EllipsisBox.cpp"
 				>
 			</File>
@@ -3314,7 +3272,7 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderLegend.h"
 				>
 			</File>
-      <File
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderLineBoxList.cpp"
 				>
 			</File>
@@ -4023,10 +3981,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\xml\XMLHttpRequestException.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\xml\XMLHttpRequestUpload.cpp"
 				>
 			</File>
@@ -4219,10 +4173,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\AtomicStringList.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Attr.cpp"
 				>
 			</File>
@@ -4371,19 +4321,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\dom\DOMCoreException.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\DOMImplementation.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\DOMImplementation.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\DOMTimer.h"
 				>
 			</File>
 			<File
@@ -4483,19 +4425,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElement.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElement.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\FormControlElementWithState.h"
 				>
 			</File>
 			<File
@@ -4508,10 +4450,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\KeyboardEvent.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\KeyboardEvent.h"
 				>
 			</File>
 			<File
@@ -4643,19 +4581,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionElement.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionElement.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\OptionGroupElement.h"
 				>
 			</File>
 			<File
@@ -4924,14 +4862,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\XMLTokenizerLibxml2.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="bridge"
-			>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\EditorClient.h"
 				>
 			</File>
 		</Filter>
@@ -7190,10 +7120,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\SVGPaintServer.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\SVGPaintServerGradient.cpp"
 					>
 				</File>
@@ -7289,14 +7215,6 @@
 						>
 					</File>
 				</Filter>
-			</Filter>
-			<Filter
-				Name="events"
-				>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGLazyEventListener.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="animation"
