@@ -1,8 +1,8 @@
 function checkAccept(f) {
   if (f.accept.checked) {
-    window.returnValue = 1;
-  } else {
     window.returnValue = 6;
+  } else {
+    window.returnValue = 1;
   }
   window.close();
 }
