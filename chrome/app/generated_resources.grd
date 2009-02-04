@@ -65,6 +65,7 @@ each locale. -->
   <translations>
     <file path="resources/generated_resources_ar.xtb" lang="ar" />
     <file path="resources/generated_resources_bg.xtb" lang="bg" />
+    <file path="resources/generated_resources_bn.xtb" lang="bn" />
     <file path="resources/generated_resources_ca.xtb" lang="ca" />
     <file path="resources/generated_resources_cs.xtb" lang="cs" />
     <file path="resources/generated_resources_da.xtb" lang="da" />
@@ -77,6 +78,7 @@ each locale. -->
     <file path="resources/generated_resources_fi.xtb" lang="fi" />
     <file path="resources/generated_resources_fil.xtb" lang="fil" />
     <file path="resources/generated_resources_fr.xtb" lang="fr" />
+    <file path="resources/generated_resources_gu.xtb" lang="gu" />
     <file path="resources/generated_resources_he.xtb" lang="he" />
     <file path="resources/generated_resources_hi.xtb" lang="hi" />
     <file path="resources/generated_resources_hr.xtb" lang="hr" />
@@ -84,11 +86,15 @@ each locale. -->
     <file path="resources/generated_resources_id.xtb" lang="id" />
     <file path="resources/generated_resources_it.xtb" lang="it" />
     <file path="resources/generated_resources_ja.xtb" lang="ja" />
+    <file path="resources/generated_resources_kn.xtb" lang="kn" />
     <file path="resources/generated_resources_ko.xtb" lang="ko" />
     <file path="resources/generated_resources_lt.xtb" lang="lt" />
     <file path="resources/generated_resources_lv.xtb" lang="lv" />
+    <file path="resources/generated_resources_ml.xtb" lang="ml" />
+    <file path="resources/generated_resources_mr.xtb" lang="mr" />
     <file path="resources/generated_resources_nl.xtb" lang="nl" />
     <file path="resources/generated_resources_no.xtb" lang="no" />
+    <file path="resources/generated_resources_or.xtb" lang="or" />
     <file path="resources/generated_resources_pl.xtb" lang="pl" />
     <file path="resources/generated_resources_pt-BR.xtb" lang="pt-BR" />
     <file path="resources/generated_resources_pt-PT.xtb" lang="pt-PT" />
@@ -98,6 +104,8 @@ each locale. -->
     <file path="resources/generated_resources_sl.xtb" lang="sl" />
     <file path="resources/generated_resources_sr.xtb" lang="sr" />
     <file path="resources/generated_resources_sv.xtb" lang="sv" />
+    <file path="resources/generated_resources_ta.xtb" lang="ta" />
+    <file path="resources/generated_resources_te.xtb" lang="te" />
     <file path="resources/generated_resources_th.xtb" lang="th" />
     <file path="resources/generated_resources_tr.xtb" lang="tr" />
     <file path="resources/generated_resources_uk.xtb" lang="uk" />

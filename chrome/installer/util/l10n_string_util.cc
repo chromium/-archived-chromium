@@ -73,6 +73,7 @@ int GetLanguageOffset(const std::wstring& language) {
   if (offset_map.empty()) {
     offset_map[L"ar"] = IDS_L10N_OFFSET_AR;
     offset_map[L"bg"] = IDS_L10N_OFFSET_BG;
+    offset_map[L"bn"] = IDS_L10N_OFFSET_BN;
     offset_map[L"ca"] = IDS_L10N_OFFSET_CA;
     offset_map[L"cs"] = IDS_L10N_OFFSET_CS;
     offset_map[L"da"] = IDS_L10N_OFFSET_DA;
@@ -86,6 +87,7 @@ int GetLanguageOffset(const std::wstring& language) {
     offset_map[L"fi"] = IDS_L10N_OFFSET_FI;
     offset_map[L"fil"] = IDS_L10N_OFFSET_FIL;
     offset_map[L"fr"] = IDS_L10N_OFFSET_FR;
+    offset_map[L"gu"] = IDS_L10N_OFFSET_GU;
     offset_map[L"he"] = IDS_L10N_OFFSET_HE;
     offset_map[L"hi"] = IDS_L10N_OFFSET_HI;
     offset_map[L"hr"] = IDS_L10N_OFFSET_HR;
@@ -95,13 +97,17 @@ int GetLanguageOffset(const std::wstring& language) {
     // Google web properties use iw for he. Handle both just to be safe.
     offset_map[L"iw"] = IDS_L10N_OFFSET_HE;
     offset_map[L"ja"] = IDS_L10N_OFFSET_JA;
+    offset_map[L"kn"] = IDS_L10N_OFFSET_KN;
     offset_map[L"ko"] = IDS_L10N_OFFSET_KO;
     offset_map[L"lt"] = IDS_L10N_OFFSET_LT;
     offset_map[L"lv"] = IDS_L10N_OFFSET_LV;
+    offset_map[L"ml"] = IDS_L10N_OFFSET_ML;
+    offset_map[L"mr"] = IDS_L10N_OFFSET_MR;
     // Google web properties use no for nb. Handle both just to be safe.
     offset_map[L"nb"] = IDS_L10N_OFFSET_NO;
     offset_map[L"nl"] = IDS_L10N_OFFSET_NL;
     offset_map[L"no"] = IDS_L10N_OFFSET_NO;
+    offset_map[L"or"] = IDS_L10N_OFFSET_OR;
     offset_map[L"pl"] = IDS_L10N_OFFSET_PL;
     offset_map[L"pt-br"] = IDS_L10N_OFFSET_PT_BR;
     offset_map[L"pt-pt"] = IDS_L10N_OFFSET_PT_PT;
@@ -111,6 +117,8 @@ int GetLanguageOffset(const std::wstring& language) {
     offset_map[L"sl"] = IDS_L10N_OFFSET_SL;
     offset_map[L"sr"] = IDS_L10N_OFFSET_SR;
     offset_map[L"sv"] = IDS_L10N_OFFSET_SV;
+    offset_map[L"ta"] = IDS_L10N_OFFSET_TA;
+    offset_map[L"te"] = IDS_L10N_OFFSET_TE;
     offset_map[L"th"] = IDS_L10N_OFFSET_TH;
     // Some Google web properties use tl for fil. Handle both just to be safe.
     // They're not completely identical, but alias it here.

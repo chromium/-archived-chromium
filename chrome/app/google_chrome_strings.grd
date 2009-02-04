@@ -64,6 +64,7 @@ Chrome supports. -->
   <translations>
     <file path="resources/google_chrome_strings_ar.xtb" lang="ar" />
     <file path="resources/google_chrome_strings_bg.xtb" lang="bg" />
+    <file path="resources/google_chrome_strings_bn.xtb" lang="bn" />
     <file path="resources/google_chrome_strings_ca.xtb" lang="ca" />
     <file path="resources/google_chrome_strings_cs.xtb" lang="cs" />
     <file path="resources/google_chrome_strings_da.xtb" lang="da" />
@@ -76,6 +77,7 @@ Chrome supports. -->
     <file path="resources/google_chrome_strings_fi.xtb" lang="fi" />
     <file path="resources/google_chrome_strings_fil.xtb" lang="fil" />
     <file path="resources/google_chrome_strings_fr.xtb" lang="fr" />
+    <file path="resources/google_chrome_strings_gu.xtb" lang="gu" />
     <file path="resources/google_chrome_strings_he.xtb" lang="he" />
     <file path="resources/google_chrome_strings_hi.xtb" lang="hi" />
     <file path="resources/google_chrome_strings_hr.xtb" lang="hr" />
@@ -83,11 +85,15 @@ Chrome supports. -->
     <file path="resources/google_chrome_strings_id.xtb" lang="id" />
     <file path="resources/google_chrome_strings_it.xtb" lang="it" />
     <file path="resources/google_chrome_strings_ja.xtb" lang="ja" />
+    <file path="resources/google_chrome_strings_kn.xtb" lang="kn" />
     <file path="resources/google_chrome_strings_ko.xtb" lang="ko" />
     <file path="resources/google_chrome_strings_lt.xtb" lang="lt" />
     <file path="resources/google_chrome_strings_lv.xtb" lang="lv" />
+    <file path="resources/google_chrome_strings_ml.xtb" lang="ml" />
+    <file path="resources/google_chrome_strings_mr.xtb" lang="mr" />
     <file path="resources/google_chrome_strings_nl.xtb" lang="nl" />
     <file path="resources/google_chrome_strings_no.xtb" lang="no" />
+    <file path="resources/google_chrome_strings_or.xtb" lang="or" />
     <file path="resources/google_chrome_strings_pl.xtb" lang="pl" />
     <file path="resources/google_chrome_strings_pt-BR.xtb" lang="pt-BR" />
     <file path="resources/google_chrome_strings_pt-PT.xtb" lang="pt-PT" />
@@ -97,6 +103,8 @@ Chrome supports. -->
     <file path="resources/google_chrome_strings_sl.xtb" lang="sl" />
     <file path="resources/google_chrome_strings_sr.xtb" lang="sr" />
     <file path="resources/google_chrome_strings_sv.xtb" lang="sv" />
+    <file path="resources/google_chrome_strings_ta.xtb" lang="ta" />
+    <file path="resources/google_chrome_strings_te.xtb" lang="te" />
     <file path="resources/google_chrome_strings_th.xtb" lang="th" />
     <file path="resources/google_chrome_strings_tr.xtb" lang="tr" />
     <file path="resources/google_chrome_strings_uk.xtb" lang="uk" />
