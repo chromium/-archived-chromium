@@ -10,6 +10,7 @@ include_rules = [
   # Other libraries.
   "+chrome/third_party/hunspell",
   "+libxml", # For search engine definition parsing.
+  "+media/audio", # Chrome's lightweight audio library.
   "+third_party/sqlite",
   "+v8/include", # Browser uses V8 to get the version and run the debugger.
 
