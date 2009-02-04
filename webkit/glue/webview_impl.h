@@ -248,6 +248,9 @@ class WebViewImpl : public WebView {
   // Returns true if the event was actually processed.
   bool KeyEventDefault(const WebKeyboardEvent& event);
 
+  // Returns true if the autocomple has consumed the event.
+  bool AutocompleteHandleKeyEvent(const WebKeyboardEvent& event);
+
   // Returns true if the view was scrolled.
   bool ScrollViewWithKeyboard(int key_code);
 

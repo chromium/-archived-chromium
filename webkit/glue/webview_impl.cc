@@ -79,6 +79,7 @@ MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/gfx/rect.h"
+#include "base/keyboard_codes.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -152,6 +153,7 @@ class AutocompletePopupMenuClient
   virtual ~AutocompletePopupMenuClient() {
   }
 
+  // WebCore::PopupMenuClient implementation.
   virtual void valueChanged(unsigned listIndex, bool fireEvents = true) {
     text_field_->setValue(suggestions_[listIndex]);
   }  
@@ -241,6 +243,7 @@ class AutocompletePopupMenuClient
     return widget.release();
   }
 
+  // AutocompletePopupMenuClient specific methods:
   void SetSuggestions(const std::vector<std::wstring>& suggestions) {
     suggestions_.clear();
     for (std::vector<std::wstring>::const_iterator iter = suggestions.begin();
@@ -463,18 +466,8 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
   suppress_next_keypress_event_ = false;
 
   // Give autocomplete a chance to consume the key events it is interested in.
-  if (autocomplete_popup_ &&
-      autocomplete_popup_->isInterestedInEventForKey(event.key_code)) {
-    if (autocomplete_popup_->handleKeyEvent(MakePlatformKeyboardEvent(event))) {
-#if defined(OS_WIN)
-      // We need to ignore the next CHAR event after this otherwise pressing
-      // enter when selecting an item in the menu will go to the page.
-      if (WebInputEvent::KEY_DOWN == event.type)
-        suppress_next_keypress_event_ = true;
-#endif
-      return true;
-    }
-  }
+  if (AutocompleteHandleKeyEvent(event))
+    return true;
 
   Frame* frame = GetFocusedWebCoreFrame();
   if (!frame)
@@ -526,6 +519,29 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
   return KeyEventDefault(event);
 }
 
+bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
+  if (!autocomplete_popup_ ||
+      // Home and End should be left to the text field to process.
+      event.key_code == base::VKEY_HOME || event.key_code == base::VKEY_END) {
+    return false;
+  }
+
+  if (!autocomplete_popup_->isInterestedInEventForKey(event.key_code))
+    return false;
+
+  if (autocomplete_popup_->handleKeyEvent(MakePlatformKeyboardEvent(event))) {
+#if defined(OS_WIN)
+      // We need to ignore the next CHAR event after this otherwise pressing
+      // enter when selecting an item in the menu will go to the page.
+      if (WebInputEvent::KEY_DOWN == event.type)
+        suppress_next_keypress_event_ = true;
+#endif
+      return true;
+    }
+
+  return false;
+}
+  
 bool WebViewImpl::CharEvent(const WebKeyboardEvent& event) {
   DCHECK(event.type == WebInputEvent::CHAR);
 
