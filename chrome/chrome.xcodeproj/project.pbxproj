@@ -264,6 +264,8 @@
 		B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F60F05843C00FB1A4F /* property_bag.cc */; };
 		B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */; };
 		B56E281B0F057F2800447108 /* message_router.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD10E9D4C9F009A6919 /* message_router.cc */; };
+		B5D030F00F3A3C43001238AB /* renderer_main_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */; };
+		B5D031270F3A4009001238AB /* ipc_sync_channel_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB80E9D4C9F009A6919 /* ipc_sync_channel_unittest.cc */; };
 		B5DBEA900EFC60E200C95176 /* ipc_channel_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */; };
 		B5FCDE5C0F269E9B0099BFAF /* visitedlink_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF95F0E9D4839009A6919 /* visitedlink_master.cc */; };
 		B5FDC0580EE488E500BEC6E6 /* ipc_channel_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */; };
@@ -1740,7 +1742,6 @@
 		4D7BFBB60E9D4C9F009A6919 /* ipc_sync_channel.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_sync_channel.cc; sourceTree = "<group>"; };
 		4D7BFBB70E9D4C9F009A6919 /* ipc_sync_channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_sync_channel.h; sourceTree = "<group>"; };
 		4D7BFBB80E9D4C9F009A6919 /* ipc_sync_channel_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_sync_channel_unittest.cc; sourceTree = "<group>"; };
-		4D7BFBB90E9D4C9F009A6919 /* ipc_sync_channel_unittest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_sync_channel_unittest.h; sourceTree = "<group>"; };
 		4D7BFBBA0E9D4C9F009A6919 /* ipc_sync_message.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_sync_message.cc; sourceTree = "<group>"; };
 		4D7BFBBB0E9D4C9F009A6919 /* ipc_sync_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_sync_message.h; sourceTree = "<group>"; };
 		4D7BFBBC0E9D4C9F009A6919 /* ipc_sync_message_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_sync_message_unittest.cc; sourceTree = "<group>"; };
@@ -1937,6 +1938,7 @@
 		B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = property_bag_unittest.cc; sourceTree = "<group>"; };
 		B562E2F50F05843C00FB1A4F /* property_bag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = property_bag.h; sourceTree = "<group>"; };
 		B562E2F60F05843C00FB1A4F /* property_bag.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = property_bag.cc; sourceTree = "<group>"; };
+		B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_unittest.cc; sourceTree = "<group>"; };
 		B5D16EAB0F21445600861FAC /* ie7_password.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ie7_password.cc; path = password_manager/ie7_password.cc; sourceTree = "<group>"; };
 		B5D16EAC0F21445600861FAC /* encryptor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = encryptor.cc; path = password_manager/encryptor.cc; sourceTree = "<group>"; };
 		B5D16EAD0F21445600861FAC /* encryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = encryptor.h; path = password_manager/encryptor.h; sourceTree = "<group>"; };
@@ -2396,6 +2398,7 @@
 				4D640CD70EAE868600EBCFC0 /* render_widget_unittest.cc */,
 				4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */,
 				4D640CD90EAE868600EBCFC0 /* renderer_main.cc */,
+				B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */,
 				B51F6D110F37C4DC00152D66 /* renderer_main_platform_delegate.h */,
 				B51F6D120F37C4DC00152D66 /* renderer_main_platform_delegate_win.cc */,
 				B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */,
@@ -3025,7 +3028,6 @@
 				4D7BFBB60E9D4C9F009A6919 /* ipc_sync_channel.cc */,
 				4D7BFBB70E9D4C9F009A6919 /* ipc_sync_channel.h */,
 				4D7BFBB80E9D4C9F009A6919 /* ipc_sync_channel_unittest.cc */,
-				4D7BFBB90E9D4C9F009A6919 /* ipc_sync_channel_unittest.h */,
 				4D7BFBBA0E9D4C9F009A6919 /* ipc_sync_message.cc */,
 				4D7BFBBB0E9D4C9F009A6919 /* ipc_sync_message.h */,
 				4D7BFBBC0E9D4C9F009A6919 /* ipc_sync_message_unittest.cc */,
@@ -4685,6 +4687,7 @@
 				A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */,
 				4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */,
 				8268533F0F30AE1C009F6555 /* ipc_sync_channel.cc in Sources */,
+				B5D031270F3A4009001238AB /* ipc_sync_channel_unittest.cc in Sources */,
 				B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */,
 				A7C6146F0F30DA1D008CEE5D /* ipc_test_sink.cc in Sources */,
 				4D7BFCE70E9D4DD4009A6919 /* json_value_serializer_unittest.cc in Sources */,
@@ -4699,6 +4702,7 @@
 				B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */,
 				4D7BFB780E9D4C5A009A6919 /* protocol_parser_unittest.cc in Sources */,
 				3380A9D60F2FC8F6004EF74F /* render_dns_master.cc in Sources */,
+				B5D030F00F3A3C43001238AB /* renderer_main_unittest.cc in Sources */,
 				8268533B0F30AE13009F6555 /* render_process.cc in Sources */,
 				3380A9C00F2FC61E004EF74F /* render_process_unittest.cc in Sources */,
 				E434BE130F38DDA700B665C7 /* renderer_security_policy_unittest.cc in Sources */,

@@ -39,6 +39,5 @@ bool RendererMainPlatformDelegate::EnableSandbox() {
 }
 
 void RendererMainPlatformDelegate::RunSandboxTests() {
-  // Should run sandbox unit tests.
-  NOTIMPLEMENTED();
+  // TODO(port): Run sandbox unit test here.
 }

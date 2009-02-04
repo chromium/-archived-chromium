@@ -29,11 +29,6 @@ using base::WaitableEvent;
 
 namespace {
 
-class IPCSyncChannelTest : public testing::Test {
- private:
-  MessageLoop message_loop_;
-};
-
 // SyncChannel should only be used in child processes as we don't want to hang
 // the browser.  So in the unit test we need to have a ChildProcess object.
 class TestProcess : public ChildProcess {
@@ -234,6 +229,11 @@ void RunTest(std::vector<Worker*> workers) {
 }
 
 }  // namespace
+
+class IPCSyncChannelTest : public testing::Test {
+ private:
+  MessageLoop message_loop_;
+};
 
 //-----------------------------------------------------------------------------
 

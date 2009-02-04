@@ -38,16 +38,16 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
     *bad_pointer = 0;
   }
 
-#if defined(OS_WIN)
   if (command_line.HasSwitch(switches::kRendererStartupDialog)) {
+#if defined(OS_WIN)
     std::wstring title = l10n_util::GetString(IDS_PRODUCT_NAME);
     title += L" renderer";  // makes attaching to process easier
     MessageBox(NULL, L"renderer starting...", title.c_str(),
                MB_OK | MB_SETFOREGROUND);
-  }
 #else
   NOTIMPLEMENTED();
 #endif  // !OS_WIN
+  }
 }
 
 // mainline routine for running as the Rendererer process
