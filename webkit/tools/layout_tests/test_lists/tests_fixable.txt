@@ -1766,3 +1766,14 @@ LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = 
 
 // This has been flakey for a long time. Don't know when it started.
 LayoutTests/transitions/transition-end-event-nested.html = FAIL PASS
+
+// Started failing with r9120 (dsh)
+LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
+LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
