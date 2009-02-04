@@ -1769,9 +1769,6 @@ LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
 
-// This has been flakey for a long time. Don't know when it started.
-LayoutTests/transitions/transition-end-event-nested.html = FAIL PASS
-
 // Started failing with r9120 (dsh)
 LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
 LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
