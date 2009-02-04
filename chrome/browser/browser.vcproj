@@ -1946,6 +1946,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\audio_renderer_host.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\audio_renderer_host.h"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\backing_store.cc"
 				>
 			</File>

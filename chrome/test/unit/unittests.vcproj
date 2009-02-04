@@ -383,6 +383,10 @@
 			Name="browser"
 			>
 			<File
+				RelativePath="..\..\browser\renderer_host\audio_renderer_host_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\autocomplete\autocomplete_unittest.cc"
 				>
 			</File>
