@@ -846,6 +846,9 @@ void BackendImpl::PrepareForRestart() {
   rankings_.Reset();
   init_ = false;
   restarted_ = true;
+
+  // TODO(rvargas): remove this line at the end of this experiment.
+  max_size_ = 0;
 }
 
 int BackendImpl::NewEntry(Addr address, EntryImpl** entry, bool* dirty) {
@@ -1093,7 +1096,7 @@ bool BackendImpl::CheckIndex() {
   }
 
   AdjustMaxCacheSize(data_->header.table_len);
-  
+
   // We need to avoid integer overflows.
   DCHECK(max_size_ < kint32max - kint32max / 10);
   if (data_->header.num_bytes < 0 ||
@@ -1109,6 +1112,14 @@ bool BackendImpl::CheckIndex() {
 
   if (!mask_)
     mask_ = data_->header.table_len - 1;
+
+  // TODO(rvargas): remove this. For some reason, we are receiving crashes with
+  // mask_ being bigger than the actual table length. (bug 7217).
+  if (mask_ > 0xffff) {
+    LOG(ERROR) << "Invalid cache mask";
+    ReportError(ERR_INVALID_MASK);
+    return false;
+  }
 
   return true;
 }

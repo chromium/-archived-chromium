@@ -21,7 +21,8 @@ enum {
   ERR_NUM_ENTRIES_MISMATCH = -9,
   ERR_READ_FAILURE = -10,
   ERR_PREVIOUS_CRASH = -11,
-  ERR_STORAGE_ERROR = -12
+  ERR_STORAGE_ERROR = -12,
+  ERR_INVALID_MASK = -13
 };
 
 }  // namespace disk_cache
