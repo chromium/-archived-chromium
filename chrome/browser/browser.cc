@@ -1508,6 +1508,8 @@ void Browser::OpenURLFromTab(TabContents* source,
                              const GURL& url, const GURL& referrer,
                              WindowOpenDisposition disposition,
                              PageTransition::Type transition) {
+  // TODO(beng): Move all this code into a separate helper that has unit tests.
+
   // No code for these yet
   DCHECK((disposition != NEW_POPUP) && (disposition != SAVE_TO_DISK));
 
@@ -1568,6 +1570,7 @@ void Browser::OpenURLFromTab(TabContents* source,
                                           instance);
     browser->window()->Show();
   } else if ((disposition == CURRENT_TAB) && current_tab) {
+    // TODO(beng): move this block into the TabStripModelOrderController.
     if (transition == PageTransition::TYPED ||
         transition == PageTransition::AUTO_BOOKMARK ||
         transition == PageTransition::GENERATED ||
@@ -1597,10 +1600,15 @@ void Browser::OpenURLFromTab(TabContents* source,
         tabstrip_model_.ForgetGroup(current_tab);
       }
     }
-    current_tab->controller()->LoadURL(url, referrer, transition);
-    // The TabContents might have changed as part of the navigation (ex: new
-    // tab page can become WebContents).
-    new_contents = current_tab->controller()->active_contents();
+    // TODO(beng): remove all this once there are no TabContents types.
+    // It seems like under some circumstances current_tab can be dust after the
+    // call to LoadURL (perhaps related to TabContents type switching), so we
+    // save the NavigationController here.
+    NavigationController* controller = current_tab->controller();
+    controller->LoadURL(url, referrer, transition);
+    // If the TabContents type has been swapped, we need to point to the current
+    // active type otherwise there will be weirdness.
+    new_contents = controller->active_contents();
     if (GetStatusBubble())
       GetStatusBubble()->Hide();
 
