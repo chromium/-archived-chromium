@@ -702,19 +702,20 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
                 static_cast<float>(origin.y()));
 
 #if defined(OS_WIN)
-  // HDC is only used when in windowless mode.
-  HDC hdc = gc->platformContext()->canvas()->beginPlatformPaint();
+  // Note that HDC is only used when in windowless mode.
+  HDC dc = gc->platformContext()->canvas()->beginPlatformPaint();
 #else
-  NOTIMPLEMENTED();
+  // TODO(port): the equivalent of the above.
+  void* dc = NULL;  // Temporary, to reduce ifdefs.
 #endif
 
   WebCore::IntRect window_rect =
       WebCore::IntRect(view->contentsToWindow(damage_rect.location()),
                        damage_rect.size());
 
-#if defined(OS_WIN)
-  delegate_->Paint(hdc, webkit_glue::FromIntRect(window_rect));
+  delegate_->Paint(dc, webkit_glue::FromIntRect(window_rect));
 
+#if defined(OS_WIN)
   gc->platformContext()->canvas()->endPlatformPaint();
 #endif
   gc->restore();

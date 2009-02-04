@@ -103,6 +103,13 @@
 #	endif /* XP_WIN */
 #endif /* _WINDOWS */
 
+// BEGIN GOOGLE MODIFICATIONS
+// On Linux, be sure to set the Mozilla-specific flag.
+#ifdef OS_LINUX
+#define XP_UNIX 1
+#endif
+// END GOOGLE MODIFICATIONS
+
 #ifdef __MWERKS__
 #	define _declspec __declspec
 #	ifdef __INTEL__

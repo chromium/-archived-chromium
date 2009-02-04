@@ -107,6 +107,7 @@ elif env.Bit('linux'):
   input_files.extend([
       'plugins/plugin_lib_linux.cc',
       'plugins/plugin_list_linux.cc',
+      'plugins/webplugin_delegate_impl_gtk.cc',
       'webcursor_gtk.cc',
       'webinputevent_linux.cc',
       'webkit_glue_gtk.cc',

@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H__
 #define WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H__
 
+#include "build/build_config.h"
+
 #include <string>
 #include <list>
 
@@ -27,12 +29,14 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   static WebPluginDelegateImpl* Create(const FilePath& filename,
                                        const std::string& mime_type,
                                        gfx::NativeView containing_view);
+#if defined(OS_WIN)
   static bool IsPluginDelegateWindow(HWND window);
   static bool GetPluginNameFromWindow(HWND window, std::wstring *plugin_name);
 
   // Returns true if the window handle passed in is that of the dummy
   // activation window for windowless plugins.
   static bool IsDummyActivationWindow(HWND window);
+#endif  // OS_WIN)
 
   // WebPluginDelegate implementation
   virtual void PluginDestroyed();
@@ -44,8 +48,14 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
                           bool load_manually);
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
                               const gfx::Rect& clip_rect);
+#if defined(OS_WIN)
   virtual void Paint(HDC hdc, const gfx::Rect& rect);
   virtual void Print(HDC hdc);
+#else
+  // TODO(port): temporary workaround.
+  virtual void Paint(void* dc, const gfx::Rect& rect);
+  virtual void Print(void* dc);
+#endif
   virtual void SetFocus();  // only called when windowless
 // only called when windowless
   virtual bool HandleEvent(NPEvent* event,
@@ -82,6 +92,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   gfx::Rect rect() const { return window_rect_; }
   gfx::Rect clip_rect() const { return clip_rect_; }
 
+#if defined(OS_WIN)
   enum PluginQuirks {
     PLUGIN_QUIRK_SETWINDOW_TWICE = 1,
     PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE = 2,
@@ -93,6 +104,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
     PLUGIN_QUIRK_PATCH_SETCURSOR = 128,
     PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS = 256,
   };
+#endif
 
   int quirks() { return quirks_; }
 
@@ -122,6 +134,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // See NPAPI NPP_SetWindow for more information.
   void WindowedSetWindow();
 
+#if defined(OS_WIN)
   // Registers the window class for our window
   ATOM RegisterNativeWindowClass();
 
@@ -138,12 +151,18 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   static void OnThrottleMessage();
   static void ThrottleMessage(WNDPROC proc, HWND hwnd, UINT message,
       WPARAM wParam, LPARAM lParam);
+#endif
 
   //----------------------------
   // used for windowless plugins
   void WindowlessUpdateGeometry(const gfx::Rect& window_rect,
                                 const gfx::Rect& clip_rect);
+#if defined(OS_WIN)
   void WindowlessPaint(HDC hdc, const gfx::Rect& rect);
+#else
+  // TODO(port): implement.
+  void WindowlessPaint(void* dc, const gfx::Rect& rect);
+#endif
 
   // Tells the plugin about the current state of the window.
   // See NPAPI NPP_SetWindow for more information.
@@ -159,15 +178,19 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   void DestroyInstance();
 
   // used for windowed plugins
-  HWND windowed_handle_;
+  gfx::NativeView windowed_handle_;
+#if defined(OS_WIN)
   bool windowed_did_set_window_;
   gfx::Rect windowed_last_pos_;
+#endif
 
+#if defined(OS_WIN)
   // this is an optimization to avoid calling SetWindow to the plugin
   // when it is not necessary.  Initially, we need to call SetWindow,
   // and after that we only need to call it when the geometry changes.
   // use this flag to indicate whether we really need it or not.
   bool windowless_needs_set_window_;
+#endif
 
   // used by windowed and windowless plugins
   bool windowless_;
@@ -175,20 +198,23 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   WebPlugin* plugin_;
   scoped_refptr<NPAPI::PluginInstance> instance_;
 
+#if defined(OS_WIN)
   // Original wndproc before we subclassed.
   WNDPROC plugin_wnd_proc_;
 
   // Used to throttle WM_USER+1 messages in Flash.
   uint32 last_message_;
   bool is_calling_wndproc;
+#endif // OS_WIN
 
-  HWND parent_;
+  gfx::NativeView parent_;
   NPWindow window_;
   gfx::Rect window_rect_;
   gfx::Rect clip_rect_;
   std::vector<gfx::Rect> cutout_rects_;
   int quirks_;
 
+#if defined(OS_WIN)
   // Windowless plugins don't have keyboard focus causing issues with the
   // plugin not receiving keyboard events if the plugin enters a modal
   // loop like TrackPopupMenuEx or MessageBox, etc.
@@ -210,7 +236,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // a plugin in the course of a NPP_HandleEvent call.
   static LRESULT CALLBACK HandleEventMessageFilterHook(int code, WPARAM wParam,
                                                        LPARAM lParam);
-
+#endif
   // Called by the message filter hook when the plugin enters a modal loop.
   void OnModalLoopEntered();
 
@@ -220,6 +246,10 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // Indicates the end of a user gesture period.
   void OnUserGestureEnd();
 
+  // The url with which the plugin was instantiated.
+  std::string plugin_url_;
+
+#if defined(OS_WIN)
   // Handle to the message filter hook
   HHOOK handle_event_message_filter_hook_;
 
@@ -237,9 +267,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // asynchronously.
   ScopedRunnableMethodFactory<WebPluginDelegateImpl> user_gesture_msg_factory_;
 
-  // The url with which the plugin was instantiated.
-  std::string plugin_url_;
-
   // The plugin module handle.
   HMODULE plugin_module_handle_;
 
@@ -254,6 +281,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   // Holds the current cursor set by the windowless plugin.
   WebCursor current_windowless_cursor_;
+#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateImpl);
 };

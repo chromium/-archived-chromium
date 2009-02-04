@@ -2,6 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// HACK: we need this #define in place before npapi.h is included for
+// plugins to work. However, all sorts of headers include npapi.h, so
+// the only way to be certain the define is in place is to put it
+// here.  You might ask, "Why not set it in npapi.h directly, or in
+// this directory's SConscript, then?"  but it turns out this define
+// makes npapi.h include Xlib.h, which in turn defines a ton of symbols
+// like None and Status, causing conflicts with the aforementioned
+// many headers that include npapi.h.  Ugh.
+// See also webplugin_delegate_impl.cc.
+#define MOZ_X11 1
+
 #include "config.h"
 
 #include "webkit/glue/plugins/plugin_host.h"
@@ -743,6 +754,19 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
     rv = NPERR_NO_ERROR;
     break;
   }
+#if defined(OS_LINUX)
+  case NPNVToolkit:
+    // Tell them we are GTK2.  (The alternative is GTK 1.2.)
+    *reinterpret_cast<int*>(value) = NPNVGtk2;
+    rv = NPERR_NO_ERROR;
+    break;
+
+  case NPNVSupportsXEmbedBool:
+    // Yes, we support XEmbed.
+    *reinterpret_cast<NPBool*>(value) = TRUE;
+    rv = NPERR_NO_ERROR;
+    break;
+#endif
   case NPNVSupportsWindowless:
   {
     NPBool* supports_windowless = reinterpret_cast<NPBool*>(value);
