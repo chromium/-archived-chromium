@@ -236,6 +236,7 @@
 		A54612E20EE995F600A8EE5D /* extensions_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612D90EE9957000A8EE5D /* extensions_service.cc */; };
 		A572828F0F31156100384E1B /* unzip_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45076E80F153B06003BE099 /* unzip_unittest.cc */; };
 		A76E43A40F29039C009A7E88 /* browser_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E43A30F29039C009A7E88 /* browser_render_process_host.cc */; };
+		A7A20BF20F3A16DC00F62B4D /* render_widget.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD50EAE868600EBCFC0 /* render_widget.cc */; };
 		A7C612990F30D63D008CEE5D /* render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EC10F2144D500861FAC /* render_process_host.cc */; };
 		A7C613C10F30D7E4008CEE5D /* mock_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C613BF0F30D7E4008CEE5D /* mock_render_process_host.cc */; };
 		A7C6146F0F30DA1D008CEE5D /* ipc_test_sink.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C6146D0F30DA1D008CEE5D /* ipc_test_sink.cc */; };
@@ -4500,19 +4501,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D640CF30EAE86E300EBCFC0 /* about_handler.cc in Sources */,
+				3380A69B0F2E91AE004EF74F /* child_process.cc in Sources */,
+				3380A69F0F2E91E5004EF74F /* chrome_plugin_lib.cc in Sources */,
 				E45076D90F1538E4003BE099 /* dom_automation_controller.cc in Sources */,
 				E45076C90F1537F5003BE099 /* dom_ui_bindings.cc in Sources */,
 				E45076CB0F15380C003BE099 /* external_host_bindings.cc in Sources */,
-				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
-				E45076CF0F153871003BE099 /* localized_error.cc in Sources */,
-				4D640CF40EAE86EA00EBCFC0 /* render_dns_queue.cc in Sources */,
-				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
-				3380A69B0F2E91AE004EF74F /* child_process.cc in Sources */,
-				3380A69D0F2E91D4004EF74F /* render_thread.cc in Sources */,
-				3380A69F0F2E91E5004EF74F /* chrome_plugin_lib.cc in Sources */,
-				3380A6A10F2E91F9004EF74F /* render_process.cc in Sources */,
 				3380A6A30F2E9207004EF74F /* ipc_sync_channel.cc in Sources */,
+				E45076CF0F153871003BE099 /* localized_error.cc in Sources */,
+				A7A20BF20F3A16DC00F62B4D /* render_widget.cc in Sources */,
+				4D640CF40EAE86EA00EBCFC0 /* render_dns_queue.cc in Sources */,
+				3380A6A10F2E91F9004EF74F /* render_process.cc in Sources */,
+				3380A69D0F2E91D4004EF74F /* render_thread.cc in Sources */,
 				3380A9D70F2FC8F9004EF74F /* render_dns_master.cc in Sources */,
+				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
+				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
