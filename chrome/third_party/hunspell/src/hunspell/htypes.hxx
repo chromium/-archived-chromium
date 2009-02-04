@@ -1,7 +1,15 @@
 #ifndef _HTYPES_HXX_
 #define _HTYPES_HXX_
 
+#ifdef HUNSPELL_CHROME_CLIENT
+// This is a workaround for preventing errors in parsing Turkish BDICs, which
+// contain very long AF lines (~ 12,000 chars).
+// TODO(hbono) change the HashMgr::parse_aliasf() function to be able to parse
+// longer lines than MAXDELEN.
+#define MAXDELEN    (8192 * 2)
+#else
 #define MAXDELEN    8192
+#endif  // HUNSPELL_CHROME_CLIENT
 
 #define ROTATE_LEN   5
 

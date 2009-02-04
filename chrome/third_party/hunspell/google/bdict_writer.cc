@@ -161,9 +161,17 @@ size_t ComputeTrieStorage(DicNode* node) {
     // The additional affix list holds affixes when there is more than one. Each
     // entry is two bytes, plus an additional FFFF terminator.
     size_t supplimentary_size = 0;
-    if (node->affix_indices.size() > 1 ||
-        node->affix_indices[0] > BDict::LEAF_NODE_MAX_FIRST_AFFIX_ID)
+    if (node->affix_indices[0] > BDict::LEAF_NODE_MAX_FIRST_AFFIX_ID) {
+      // We cannot store the first affix ID of the affix list into a leaf node.
+      // In this case, we have to store all the affix IDs and a terminator
+      // into a supplimentary list.
+      supplimentary_size = node->affix_indices.size() * 2 + 2;
+    } else if (node->affix_indices.size() > 1) {
+      // We can store the first affix ID of the affix list into a leaf node.
+      // In this case, we need to store the remaining affix IDs and a
+      // terminator into a supplimentary list.
       supplimentary_size = node->affix_indices.size() * 2;
+    }
 
     if (node->leaf_addition.empty()) {
       node->storage = DicNode::LEAF;

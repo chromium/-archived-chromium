@@ -559,27 +559,32 @@ int HashMgr::load_config()
 {
   utf8 = 1;  // We always use UTF-8.
 
-  // Read in all the AF lines which tell us the rules for each affix group ID.
+  // Read in the regular commands from the affix file. We care about the FLAG
+  // line becuase the AF lines depend on this value, and the IGNORE line.
+  // The rest of the commands will be read by the affix manager.
   char line[MAXDELEN+1];
-  hunspell::LineIterator iterator = bdict_reader->GetAfLineIterator();
-  while (iterator.AdvanceAndCopy(line, MAXDELEN)) {
-    int rv = parse_aliasf(line, &iterator);
-    if (rv)
-      return rv;
-  }
-
-  // Read in the regular commands from the affix file. We only care about the
-  // IGNORE line here. The rest of the commands will be read by the affix
-  // manager.
-  iterator = bdict_reader->GetOtherLineIterator();
+  hunspell::LineIterator iterator = bdict_reader->GetOtherLineIterator();
   while (iterator.AdvanceAndCopy(line, MAXDELEN)) {
     // Parse in the ignored characters (for example, Arabic optional
     // diacritics characters.
     if (strncmp(line,"IGNORE",6) == 0) {
       parse_array(line, &ignorechars, &ignorechars_utf16,
                   &ignorechars_utf16_len, "IGNORE", utf8);
-      break;  // All done.
     }
+    // Retrieve the format of an AF line.
+    if ((strncmp(line,"FLAG",4) == 0) && isspace(line[4])) {
+      if (strstr(line, "long")) flag_mode = FLAG_LONG;
+      if (strstr(line, "num")) flag_mode = FLAG_NUM;
+      if (strstr(line, "UTF-8")) flag_mode = FLAG_UNI;
+    }
+  }
+
+  // Read in all the AF lines which tell us the rules for each affix group ID.
+  iterator = bdict_reader->GetAfLineIterator();
+  while (iterator.AdvanceAndCopy(line, MAXDELEN)) {
+    int rv = parse_aliasf(line, &iterator);
+    if (rv)
+      return rv;
   }
 
   return 0;
