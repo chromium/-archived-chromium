@@ -311,8 +311,8 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest(
   // Verify the JSON
   JSONStringValueSerializer json(manifest_str);
   std::string error;
-  Value* val = json.Deserialize(&error);
-  if (!val) {
+  scoped_ptr<Value> val(json.Deserialize(&error));
+  if (!val.get()) {
     ReportExtensionInstallError(frontend, extension_path, error);
     return NULL;
   }
@@ -321,7 +321,7 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest(
                                 "manifest isn't a JSON dictionary");
     return NULL;
   }
-  DictionaryValue* manifest = static_cast<DictionaryValue*>(val);
+  DictionaryValue* manifest = static_cast<DictionaryValue*>(val.get());
   std::string zip_hash;
   if (!manifest->GetString(Extension::kZipHashKey, &zip_hash)) {
     ReportExtensionInstallError(frontend, extension_path,
@@ -367,6 +367,8 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest(
   // TODO(erikkay): The manifest will also contain a signature of the hash
   // (or perhaps the whole manifest) for authentication purposes.
 
+  // The caller owns val (now cast to manifest).
+  val.release();
   return manifest;
 }
 

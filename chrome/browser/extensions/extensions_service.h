@@ -160,6 +160,7 @@ class ExtensionsServiceBackend
                                 FilePath path);
 
   // Read the manifest from the front of the extension file.
+  // Caller takes ownership of return value.
   DictionaryValue* ReadManifest(const FilePath& extension_path,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
