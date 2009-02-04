@@ -4,6 +4,7 @@
 
 #include "base/basictypes.h"
 #include "base/platform_thread.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "base/shared_memory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -21,12 +22,17 @@ class MultipleThreadMain : public PlatformThread::Delegate {
   explicit MultipleThreadMain(int16 id) : id_(id) {}
   ~MultipleThreadMain() {}
 
+  static void CleanUp() {
+    SharedMemory memory;
+    memory.Delete(test_name_);
+  }
+
   // PlatformThread::Delegate interface.
   void ThreadMain() {
+    ScopedNSAutoreleasePool pool;  // noop if not OSX
     const int kDataSize = 1024;
-    std::wstring test_name = L"SharedMemoryOpenThreadTest";
     SharedMemory memory;
-    bool rv = memory.Create(test_name, false, true, kDataSize);
+    bool rv = memory.Create(test_name_, false, true, kDataSize);
     EXPECT_TRUE(rv);
     rv = memory.Map(kDataSize);
     EXPECT_TRUE(rv);
@@ -45,9 +51,16 @@ class MultipleThreadMain : public PlatformThread::Delegate {
  private:
   int16 id_;
 
+  static const std::wstring test_name_;
+
   DISALLOW_COPY_AND_ASSIGN(MultipleThreadMain);
 };
 
+const std::wstring MultipleThreadMain::test_name_ = L"SharedMemoryOpenThreadTest";
+
+// TODO(port):
+// This test requires the ability to pass file descriptors between processes.
+// We haven't done that yet in Chrome for POSIX.
 #if defined(OS_WIN)
 // Each thread will open the shared memory.  Each thread will take the memory,
 // and keep changing it while trying to lock it, with some small pauses in
@@ -104,7 +117,11 @@ TEST(SharedMemoryTest, OpenClose) {
   // Open two handles to a memory segment, confirm that they are mapped
   // separately yet point to the same space.
   SharedMemory memory1;
-  bool rv = memory1.Open(test_name, false);
+  bool rv = memory1.Delete(test_name);
+  EXPECT_TRUE(rv);
+  rv = memory1.Delete(test_name);
+  EXPECT_TRUE(rv);
+  rv = memory1.Open(test_name, false);
   EXPECT_FALSE(rv);
   rv = memory1.Create(test_name, false, false, kDataSize);
   EXPECT_TRUE(rv);
@@ -134,12 +151,17 @@ TEST(SharedMemoryTest, OpenClose) {
 
   // Close the second memory segment.
   memory2.Close();
+
+  rv = memory1.Delete(test_name);
+  EXPECT_TRUE(rv);
+  rv = memory2.Delete(test_name);
+  EXPECT_TRUE(rv);
 }
 
-#if defined(OS_WIN)
 // Create a set of 5 threads to each open a shared memory segment and write to
 // it. Verify that they are always reading/writing consistent data.
 TEST(SharedMemoryTest, MultipleThreads) {
+  MultipleThreadMain::CleanUp();
   PlatformThreadHandle thread_handles[kNumThreads];
   MultipleThreadMain* thread_delegates[kNumThreads];
 
@@ -156,8 +178,15 @@ TEST(SharedMemoryTest, MultipleThreads) {
     PlatformThread::Join(thread_handles[index]);
     delete thread_delegates[index];
   }
+
+  MultipleThreadMain::CleanUp();
 }
 
+// TODO(port): this test requires the MultipleLockThread class
+// (defined above), which requires the ability to pass file
+// descriptors between processes.  We haven't done that yet in Chrome
+// for POSIX.
+#if defined(OS_WIN)
 // Create a set of threads to each open a shared memory segment and write to it
 // with the lock held. Verify that they are always reading/writing consistent
 // data.
@@ -180,5 +209,52 @@ TEST(SharedMemoryTest, Lock) {
   }
 }
 #endif
+
+// Allocate private (unique) shared memory with an empty string for a
+// name.  Make sure several of them don't point to the same thing as
+// we might expect if the names are equal.
+TEST(SharedMemoryTest, AnonymousPrivate) {
+  int i, j;
+  int count = 4;
+  bool rv;
+  const int kDataSize = 8192;
+
+  SharedMemory* memories = new SharedMemory[count];
+  int **pointers = new int*[count];
+  ASSERT_TRUE(memories);
+  ASSERT_TRUE(pointers);
+
+  for (i = 0; i < count; i++) {
+    rv = memories[i].Create(L"", false, true, kDataSize);
+    EXPECT_TRUE(rv);
+    rv = memories[i].Map(kDataSize);
+    EXPECT_TRUE(rv);
+    int *ptr = static_cast<int*>(memories[i].memory());
+    EXPECT_TRUE(ptr);
+    pointers[i] = ptr;
+  }
+
+  for (i = 0; i < count; i++) {
+    // zero out the first int in each except for i; for that one, make it 100.
+    for (j = 0; j < count; j++) {
+      if (i == j)
+        pointers[j][0] = 100;
+      else
+        pointers[j][0] = 0;
+    }
+    // make sure there is no bleeding of the 100 into the other pointers
+    for (j = 0; j < count; j++) {
+      if (i == j)
+        EXPECT_EQ(100, pointers[j][0]);
+      else
+        EXPECT_EQ(0, pointers[j][0]);
+    }
+  }
+
+  for (int i = 0; i < count; i++) {
+    memories[i].Close();
+  }
+}
+
 
 }  // namespace base

@@ -38,7 +38,7 @@ std::wstring GetDirectoryFromPath(const std::wstring& path) {
     return UTF8ToWide(dirname(full_path));
   }
 }
-  
+
 bool AbsolutePath(FilePath* path) {
   char full_path[PATH_MAX];
   if (realpath(path->value().c_str(), full_path) == NULL)
@@ -57,7 +57,7 @@ bool Delete(const FilePath& path, bool recursive) {
   int test = stat64(path_str, &file_info);
   if (test != 0) {
     // The Windows version defines this condition as success.
-    bool ret = (errno == ENOENT || errno == ENOTDIR); 
+    bool ret = (errno == ENOENT || errno == ENOTDIR);
     return ret;
   }
   if (!S_ISDIR(file_info.st_mode))
@@ -251,43 +251,77 @@ bool GetFileCreationLocalTimeFromHandle(int fd,
                                         LPSYSTEMTIME creation_time) {
   if (!file_handle)
     return false;
-  
+
   FILETIME utc_filetime;
   if (!GetFileTime(file_handle, &utc_filetime, NULL, NULL))
     return false;
-  
+
   FILETIME local_filetime;
   if (!FileTimeToLocalFileTime(&utc_filetime, &local_filetime))
     return false;
-  
+
   return !!FileTimeToSystemTime(&local_filetime, creation_time);
 }
 
 bool GetFileCreationLocalTime(const std::string& filename,
                               LPSYSTEMTIME creation_time) {
   ScopedHandle file_handle(
-      CreateFile(filename.c_str(), GENERIC_READ, 
+      CreateFile(filename.c_str(), GENERIC_READ,
                  FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
                  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL));
   return GetFileCreationLocalTimeFromHandle(file_handle.Get(), creation_time);
 }
 #endif
 
-bool CreateTemporaryFileName(FilePath* path) {
-  if (!GetTempDir(path))
-    return false;
-
-  *path = path->Append(kTempFileName);
-  std::string tmpdir_string = path->value();
+// Creates and opens a temporary file in |directory|, returning the
+// file descriptor.  |path| is set to the temporary file path.
+// Note TODO(erikkay) comment in header for BlahFileName() calls; the
+// intent is to rename these files BlahFile() (since they create
+// files, not filenames).  This function does NOT unlink() the file.
+int CreateAndOpenFdForTemporaryFile(FilePath directory, FilePath* path) {
+  *path = directory.Append(kTempFileName);
+  const std::string& tmpdir_string = path->value();
   // this should be OK since mkstemp just replaces characters in place
   char* buffer = const_cast<char*>(tmpdir_string.c_str());
 
-  int fd = mkstemp(buffer);
+  return mkstemp(buffer);
+}
+
+bool CreateTemporaryFileName(FilePath* path) {
+  FilePath directory;
+  if (!GetTempDir(&directory))
+    return false;
+  int fd = CreateAndOpenFdForTemporaryFile(directory, path);
   if (fd < 0)
     return false;
-
   close(fd);
   return true;
+}
+
+FILE* CreateAndOpenTemporaryFile(FilePath* path) {
+  FilePath directory;
+  if (!GetTempDir(&directory))
+    return false;
+
+  int fd = CreateAndOpenFdForTemporaryFile(directory, path);
+  if (fd < 0)
+    return NULL;
+
+  FILE *fp = fdopen(fd, "a+");
+  return fp;
+}
+
+FILE* CreateAndOpenTemporaryShmemFile(FilePath* path) {
+  FilePath directory;
+  if (!GetShmemTempDir(&directory))
+    return false;
+
+  int fd = CreateAndOpenFdForTemporaryFile(directory, path);
+  if (fd < 0)
+    return NULL;
+
+  FILE *fp = fdopen(fd, "a+");
+  return fp;
 }
 
 bool CreateTemporaryFileNameInDir(const std::wstring& dir,

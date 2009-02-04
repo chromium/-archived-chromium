@@ -121,15 +121,6 @@ bool RenderProcess::ShouldLoadPluginsInProcess() {
 
 // static
 base::SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
-#if defined(OS_LINUX)
-  // Linux has trouble with ""; the Create() call below will fail when
-  // triggered by RenderProcessTest.TestSharedMemoryAllocOne(), every
-  // time.
-  std::wstring root_name(L"root");
-#else
-  std::wstring root_name(L"");
-#endif
-
   self()->clearer_factory_.RevokeAll();
 
   base::SharedMemory* mem = self()->GetSharedMemFromCache(size);
@@ -144,7 +135,7 @@ base::SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
   mem = new base::SharedMemory();
   if (!mem)
     return NULL;
-  if (!mem->Create(root_name, false, true, size)) {
+  if (!mem->Create(L"", false, true, size)) {
     delete mem;
     return NULL;
   }

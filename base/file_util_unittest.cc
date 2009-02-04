@@ -688,10 +688,40 @@ TEST_F(FileUtilTest, CreateShortcutTest) {
 #endif
 
 TEST_F(FileUtilTest, CreateTemporaryFileNameTest) {
-  std::wstring temp_file;
-  ASSERT_TRUE(file_util::CreateTemporaryFileName(&temp_file));
-  EXPECT_TRUE(file_util::PathExists(temp_file));
-  EXPECT_TRUE(file_util::Delete(temp_file, false));
+  std::wstring temp_files[3];
+  for (int i = 0; i < 3; i++) {
+    ASSERT_TRUE(file_util::CreateTemporaryFileName(&(temp_files[i])));
+    EXPECT_TRUE(file_util::PathExists(temp_files[i]));
+    EXPECT_FALSE(file_util::DirectoryExists(temp_files[i]));
+  }
+  for (int i = 0; i < 3; i++)
+    EXPECT_FALSE(temp_files[i] == temp_files[(i+1)%3]);
+  for (int i = 0; i < 3; i++)
+    EXPECT_TRUE(file_util::Delete(temp_files[i], false));
+}
+
+TEST_F(FileUtilTest, CreateAndOpenTemporaryFileNameTest) {
+  FilePath names[3];
+  FILE *fps[3];
+  int i;
+
+  // Create; make sure they are open and exist.
+  for (i = 0; i < 3; ++i) {
+    fps[i] = file_util::CreateAndOpenTemporaryFile(&(names[i]));
+    ASSERT_TRUE(fps[i]);
+    EXPECT_TRUE(file_util::PathExists(names[i]));
+  }
+
+  // Make sure all names are unique.
+  for (i = 0; i < 3; ++i) {
+    EXPECT_FALSE(names[i] == names[(i+1)%3]);
+  }
+
+  // Close and delete.
+  for (i = 0; i < 3; ++i) {
+    EXPECT_TRUE(file_util::CloseFile(fps[i]));
+    EXPECT_TRUE(file_util::Delete(names[i], false));
+  }
 }
 
 TEST_F(FileUtilTest, CreateNewTempDirectoryTest) {
@@ -699,6 +729,12 @@ TEST_F(FileUtilTest, CreateNewTempDirectoryTest) {
   ASSERT_TRUE(file_util::CreateNewTempDirectory(std::wstring(), &temp_dir));
   EXPECT_TRUE(file_util::PathExists(temp_dir));
   EXPECT_TRUE(file_util::Delete(temp_dir, false));
+}
+
+TEST_F(FileUtilTest, GetShmemTempDirTest) {
+  FilePath dir;
+  EXPECT_TRUE(file_util::GetShmemTempDir(&dir));
+  EXPECT_TRUE(file_util::DirectoryExists(dir));
 }
 
 TEST_F(FileUtilTest, CreateDirectoryTest) {
@@ -1015,7 +1051,7 @@ TEST_F(FileUtilTest, Contains) {
 #if defined(OS_WIN)
   EXPECT_TRUE(file_util::ContainsPath(foo,
       foo_caps.Append(FILE_PATH_LITERAL("bar.txt"))));
-  EXPECT_TRUE(file_util::ContainsPath(foo, 
+  EXPECT_TRUE(file_util::ContainsPath(foo,
       FilePath(foo.value() + FILE_PATH_LITERAL("/bar.txt"))));
 #elif defined(OS_LINUX)
   EXPECT_FALSE(file_util::ContainsPath(foo,

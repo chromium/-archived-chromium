@@ -395,6 +395,10 @@ bool GetTempDir(FilePath* path) {
   return true;
 }
 
+bool GetShmemTempDir(FilePath* path) {
+  return GetTempDir(path);
+}
+
 bool CreateTemporaryFileName(FilePath* path) {
   std::wstring temp_path, temp_file;
 
@@ -407,6 +411,22 @@ bool CreateTemporaryFileName(FilePath* path) {
   }
 
   return false;
+}
+
+// On POSIX we have semantics to create and open a temporary file
+// atomically.
+// TODO(jrg): is there equivalent call to use on Windows instead of
+// going 2-step?
+FILE* CreateAndOpenTemporaryFile(FilePath* path) {
+
+  if (!CreateTemporaryFileName(path)) {
+    return NULL;
+  }
+  return OpenFile(*path, "w+");
+}
+
+FILE* CreateAndOpenTemporaryShmemFile(FilePath* path) {
+  return CreateAndOpenTemporaryFile(path);
 }
 
 bool CreateTemporaryFileNameInDir(const std::wstring& dir,

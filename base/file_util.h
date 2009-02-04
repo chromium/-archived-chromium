@@ -260,14 +260,26 @@ bool IsDirectoryEmpty(const std::wstring& dir_path);
 bool GetTempDir(FilePath* path);
 // Deprecated temporary compatibility function.
 bool GetTempDir(std::wstring* path);
+// Get a temporary directory for shared memory files.
+// Only useful on POSIX; redirects to GetTempDir() on Windows.
+bool GetShmemTempDir(FilePath* path);
 
 // Creates a temporary file. The full path is placed in |path|, and the
 // function returns true if was successful in creating the file. The file will
 // be empty and all handles closed after this function returns.
 // TODO(erikkay): rename this function and track down all of the callers.
+// (Clarification of erik's comment: the intent is to rename the BlahFileName()
+//  calls into BlahFile(), since they create temp files (not temp filenames).)
 bool CreateTemporaryFileName(FilePath* path);
 // Deprecated temporary compatibility function.
 bool CreateTemporaryFileName(std::wstring* temp_file);
+
+// Create and open a temporary file.  File is opened for read/write.
+// The full path is placed in |path|, and the function returns true if
+// was successful in creating and opening the file.
+FILE* CreateAndOpenTemporaryFile(FilePath* path);
+// Like above but for shmem files.  Only useful for POSIX.
+FILE* CreateAndOpenTemporaryShmemFile(FilePath* path);
 
 // Same as CreateTemporaryFileName but the file is created in |dir|.
 bool CreateTemporaryFileNameInDir(const std::wstring& dir,

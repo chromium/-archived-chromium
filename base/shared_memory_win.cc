@@ -66,6 +66,11 @@ bool SharedMemory::Create(const std::wstring &name, bool read_only,
   return true;
 }
 
+bool SharedMemory::Delete(const std::wstring& name) {
+  // intentionally empty -- there is nothing for us to do on Windows.
+  return true;
+}
+
 bool SharedMemory::Open(const std::wstring &name, bool read_only) {
   DCHECK(mapped_file_ == NULL);
 

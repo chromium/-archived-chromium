@@ -24,6 +24,11 @@ bool GetTempDir(FilePath* path) {
   return true;
 }
 
+bool GetShmemTempDir(FilePath* path) {
+  *path = FilePath("/dev/shm");
+  return true;
+}
+
 bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
   int infile = open(from_path.value().c_str(), O_RDONLY);
   if (infile < 0)

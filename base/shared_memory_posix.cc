@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 
@@ -62,15 +63,27 @@ bool SharedMemory::Create(const std::wstring &name, bool read_only,
   if (!open_existing || mapped_file_ <= 0)
     posix_flags |= O_CREAT;
 
-  if (!CreateOrOpen(name, posix_flags))
+  if (!CreateOrOpen(name, posix_flags, size))
     return false;
-
-  if (ftruncate(mapped_file_, size) != 0) {
-    Close();
-    return false;
-  }
 
   max_size_ = size;
+  return true;
+}
+
+// Our current implementation of shmem is with mmap()ing of files.
+// These files need to be deleted explicitly.
+// In practice this call is only needed for unit tests.
+bool SharedMemory::Delete(const std::wstring& name) {
+  std::wstring mem_filename;
+  if (FilenameForMemoryName(name, &mem_filename) == false)
+    return false;
+
+  FilePath path(WideToUTF8(mem_filename));
+  if (file_util::PathExists(path)) {
+    return file_util::Delete(path, false);
+  }
+
+  // Doesn't exist, so success.
   return true;
 }
 
@@ -80,26 +93,127 @@ bool SharedMemory::Open(const std::wstring &name, bool read_only) {
   int posix_flags = 0;
   posix_flags |= read_only ? O_RDONLY : O_RDWR;
 
-  return CreateOrOpen(name, posix_flags);
+  return CreateOrOpen(name, posix_flags, 0);
 }
 
-bool SharedMemory::CreateOrOpen(const std::wstring &name, int posix_flags) {
-  DCHECK(mapped_file_ == -1);
+// For the given shmem named |memname|, return a filename to mmap()
+// (and possibly create).  Modifies |filename|.  Return false on
+// error, or true of we are happy.
+bool SharedMemory::FilenameForMemoryName(const std::wstring &memname,
+                                         std::wstring *filename) {
+  std::wstring mem_filename;
 
-  name_ = L"/" + name;
+  // mem_name will be used for a filename; make sure it doesn't
+  // contain anything which will confuse us.
+  DCHECK(memname.find_first_of(L"/") == std::string::npos);
+  DCHECK(memname.find_first_of(L"\0") == std::string::npos);
 
-  mode_t posix_mode = S_IRUSR | S_IWUSR;  // owner read/write
-  std::string posix_name(WideToUTF8(name_));
-  mapped_file_ = shm_open(posix_name.c_str(), posix_flags, posix_mode);
-  if (mapped_file_ < 0)
+  FilePath temp_dir;
+  if (file_util::GetShmemTempDir(&temp_dir) == false)
     return false;
 
-  posix_name += kSemaphoreSuffix;
-  lock_ = sem_open(posix_name.c_str(), O_CREAT, posix_mode, 1);
+  mem_filename = UTF8ToWide(temp_dir.value());
+  file_util::AppendToPath(&mem_filename, L"com.google.chrome.shmem." + memname);
+  *filename = mem_filename;
+  return true;
+}
+
+// Current expectation is that Cromium only really needs
+// unique/private shmem as specified by "name == L"".
+// TODO(port): confirm that assumption.
+// TODO(jrg): there is no way to "clean up" all unused named shmem if
+// we restart from a crash.  (That isn't a new problem, but it is a problem.)
+bool SharedMemory::CreateOrOpen(const std::wstring &name,
+                                int posix_flags, size_t size) {
+  DCHECK(mapped_file_ == -1);
+
+  file_util::ScopedFILE file_closer;
+  FILE *fp;
+
+  if (name == L"") {
+    // It doesn't make sense to have a read-only private piece of shmem
+    DCHECK(posix_flags & (O_RDWR | O_WRONLY));
+
+    FilePath path;
+    fp = file_util::CreateAndOpenTemporaryShmemFile(&path);
+    name_ = UTF8ToWide(path.value());
+
+    // Deleting the file prevents anyone else from mapping it in
+    // (making it private), and prevents the need for cleanup (once
+    // the last fd is closed, it is truly freed).
+    file_util::Delete(path, false);
+  } else {
+    std::wstring mem_filename;
+    if (FilenameForMemoryName(name, &mem_filename) == false)
+      return false;
+
+    name_ = mem_filename;
+    std::string mode;
+    switch (posix_flags) {
+      case (O_RDWR | O_CREAT):
+        // Careful: "w+" will truncate if it already exists.
+        mode = "a+";
+        break;
+      case O_RDWR:
+        mode = "r+";
+        break;
+      case O_RDONLY:
+        mode = "r";
+        break;
+      default:
+        NOTIMPLEMENTED();
+        break;
+    }
+
+    fp = file_util::OpenFile(mem_filename, mode.c_str());
+  }
+
+  if (fp == NULL)
+    return false;
+  file_closer.reset(fp);  // close when we go out of scope
+
+  // Make sure the (new) file is the right size.
+  // According to the man page, "Use of truncate() to extend a file is
+  // not portable."
+  if (size && (posix_flags & (O_RDWR | O_CREAT))) {
+    // Get current size.
+    size_t current_size = 0;
+    struct stat stat;
+    if (fstat(fileno(fp), &stat) != 0)
+      return false;
+    current_size = stat.st_size;
+    // Possibly grow.
+    if (current_size < size) {
+      if (fseeko(fp, current_size, SEEK_SET) != 0)
+        return false;
+      size_t writesize = size - current_size;
+      scoped_array<char> buf(new char[writesize]);
+      memset(buf.get(), 0, writesize);
+      if (fwrite(buf.get(), 1, writesize, fp) != writesize) {
+          return false;
+      }
+      if (fflush(fp) != 0)
+        return false;
+    } else if (current_size > size) {
+      // possibly shrink.
+      if ((ftruncate(fileno(fp), size) != 0) ||
+          (fflush(fp) != 0)) {
+        return false;
+      }
+    }
+  }
+
+  mapped_file_ = dup(fileno(fp));
+  DCHECK(mapped_file_ >= 0);
+
+  mode_t posix_mode =  S_IRUSR | S_IWUSR;  // owner read/write
+  // name_ that includes a tmpdir easily exceeds SEM_NAME_LEN,
+  // so we cannot use it directly as the basis for a sem_name_.
+  sem_name_ = WideToUTF8(name) + kSemaphoreSuffix;
+  lock_ = sem_open(sem_name_.c_str(), O_CREAT, posix_mode, 1);
   if (lock_ == SEM_FAILED) {
     close(mapped_file_);
     mapped_file_ = -1;
-    shm_unlink(posix_name.c_str());
     lock_ = NULL;
     return false;
   }
@@ -147,13 +261,11 @@ void SharedMemory::Close() {
   std::string posix_name(WideToUTF8(name_));
   if (mapped_file_ > 0) {
     close(mapped_file_);
-    shm_unlink(posix_name.c_str());
     mapped_file_ = -1;
   }
 
   if (lock_) {
-    posix_name += kSemaphoreSuffix;
-    sem_unlink(posix_name.c_str());
+    sem_unlink(sem_name_.c_str());
     lock_ = NULL;
   }
 }

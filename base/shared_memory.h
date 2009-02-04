@@ -24,6 +24,10 @@ typedef HANDLE SharedMemoryHandle;
 typedef HANDLE SharedMemoryLock;
 #elif defined(OS_POSIX)
 typedef int SharedMemoryHandle;
+// TODO(port): these semaphores can leak if we crash, causing
+// autobuilder problems.  Transition to something easier to clean up
+// (e.g. lockf/flock).
+// TODO(port): make sure what we transition to is fast enough.
 typedef sem_t* SharedMemoryLock;
 #endif
 
@@ -51,12 +55,18 @@ class SharedMemory {
   // If read_only is true, opens the memory as read-only.
   // If open_existing is true, and the shared memory already exists,
   // opens the existing shared memory and ignores the size parameter.
+  // If name is the empty string, use a unique name.
   // Returns true on success, false on failure.
   bool Create(const std::wstring& name, bool read_only, bool open_existing,
               size_t size);
 
+  // Deletes resources associated with a shared memory segment based on name.
+  // Not all platforms require this call.
+  bool Delete(const std::wstring& name);
+
   // Opens a shared memory segment based on a name.
   // If read_only is true, opens for read-only access.
+  // If name is the empty string, use a unique name.
   // Returns true on success, false on failure.
   bool Open(const std::wstring& name, bool read_only);
 
@@ -120,7 +130,9 @@ class SharedMemory {
 
  private:
 #if defined(OS_POSIX)
-  bool CreateOrOpen(const std::wstring &name, int posix_flags);
+  bool CreateOrOpen(const std::wstring &name, int posix_flags, size_t size);
+  bool FilenameForMemoryName(const std::wstring &memname,
+                             std::wstring *filename);
 #endif
   bool ShareToProcessCommon(ProcessHandle process,
                             SharedMemoryHandle* new_handle,
@@ -132,6 +144,9 @@ class SharedMemory {
   bool               read_only_;
   size_t             max_size_;
   SharedMemoryLock   lock_;
+#if defined(OS_POSIX)
+  std::string        sem_name_;
+#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(SharedMemory);
 };
