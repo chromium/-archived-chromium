@@ -16,6 +16,103 @@
 
 namespace {
 
+// The web contents are completely drawn and handled by WebKit, except that
+// windowed plugins are GtkSockets on top of it.  GtkSockets are unhappy
+// if they cannot be put within a parent container, so what we want is basically
+// a GtkDrawingArea that is also a GtkContainer.  The existing Gtk classes for
+// this sort of thing (reasonably) assume that the positioning of the children
+// will be handled by the parent, which isn't the case for us where WebKit
+// drives everything.  So we create a custom widget that is just a GtkContainer
+// that contains a native window.
+
+// Sends a "configure" event to the widget, allowing it to repaint.
+// Used internally by the WebWidgetHostGtk implementation.
+void WebWidgetHostGtkSendConfigure(GtkWidget* widget) {
+  GdkEvent* event = gdk_event_new(GDK_CONFIGURE);
+  // This ref matches GtkDrawingArea code.  It must be balanced by the
+  // event-handling code.
+  g_object_ref(widget->window);
+  event->configure.window = widget->window;
+  event->configure.send_event = TRUE;
+  event->configure.x = widget->allocation.x;
+  event->configure.y = widget->allocation.y;
+  event->configure.width = widget->allocation.width;
+  event->configure.height = widget->allocation.height;
+  gtk_widget_event(widget, event);
+  gdk_event_free(event);
+}
+
+// Implementation of the "realize" event for the custom WebWidgetHostGtk
+// widget.  Creates an X window.  (Nearly identical to GtkDrawingArea code.)
+void WebWidgetHostGtkRealize(GtkWidget* widget) {
+  GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
+
+  GdkWindowAttr attributes;
+  attributes.window_type = GDK_WINDOW_CHILD;
+  attributes.x = widget->allocation.x;
+  attributes.y = widget->allocation.y;
+  attributes.width = widget->allocation.width;
+  attributes.height = widget->allocation.height;
+  attributes.wclass = GDK_INPUT_OUTPUT;
+  attributes.visual = gtk_widget_get_visual(widget);
+  attributes.colormap = gtk_widget_get_colormap(widget);
+  attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK;
+  int attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+
+  widget->window = gdk_window_new(gtk_widget_get_parent_window(widget),
+                                  &attributes, attributes_mask);
+  gdk_window_set_user_data(widget->window, widget);
+
+  WebWidgetHostGtkSendConfigure(widget);
+}
+
+// Implementation of the "size-allocate" event for the custom WebWidgetHostGtk
+// widget.  Resizes the window.  (Nearly identical to GtkDrawingArea code.)
+void WebWidgetHostGtkSizeAllocate(GtkWidget* widget,
+                                  GtkAllocation* allocation) {
+  widget->allocation = *allocation;
+  if (!GTK_WIDGET_REALIZED(widget)) {
+    // We don't have a window yet, so nothing to do.
+    return;
+  }
+
+  gdk_window_move_resize(widget->window,
+                         allocation->x, allocation->y,
+                         allocation->width, allocation->height);
+
+  WebWidgetHostGtkSendConfigure(widget);
+}
+
+// Implementation of the class init function for WebWidgetHostGtk.
+void WebWidgetHostGtkClassInit(GtkWidgetClass* klass) {
+  klass->realize = WebWidgetHostGtkRealize;
+  klass->size_allocate = WebWidgetHostGtkSizeAllocate;
+}
+
+// Constructs the GType for the custom Gtk widget.
+// (Gtk boilerplate, basically.)
+GType WebWidgetHostGtkGetType() {
+  static GType type = 0;
+  if (!type) {
+    static const GTypeInfo info = {
+      sizeof(GtkContainerClass),
+      NULL, NULL,
+      (GClassInitFunc)WebWidgetHostGtkClassInit,
+      NULL, NULL,
+      sizeof(GtkContainer),  // We are identical in memory to a GtkContainer.
+      0, NULL,
+    };
+    type = g_type_register_static(GTK_TYPE_CONTAINER, "WebWidgetHostGtk",
+                                  &info, (GTypeFlags)0);
+  }
+  return type;
+}
+
+// Create a new WebWidgetHostGtk.
+GtkWidget* WebWidgetHostGtkNew() {
+  return GTK_WIDGET(g_object_new(WebWidgetHostGtkGetType(), NULL));
+}
+
 // In response to an invalidation, we call into WebKit to do layout. On
 // Windows, WM_PAINT is a virtual message so any extra invalidates that come up
 // while it's doing layout are implicitly swallowed as soon as we actually do
@@ -119,10 +216,13 @@ gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
 // -----------------------------------------------------------------------------
 
 GtkWidget* WebWidgetHost::CreateWindow(GtkWidget* parent_view,
-                                              void* host) {
-  GtkWidget* widget = gtk_drawing_area_new();
+                                       void* host) {
+  GtkWidget* widget = WebWidgetHostGtkNew();
+
   gtk_box_pack_start(GTK_BOX(parent_view), widget, TRUE, TRUE, 0);
 
+  // TODO(evanm): it might be cleaner to just have the custom widget set
+  // all of this up rather than connecting signals.
   gtk_widget_add_events(widget, GDK_EXPOSURE_MASK |
                                 GDK_POINTER_MOTION_MASK |
                                 GDK_BUTTON_PRESS_MASK |
@@ -259,18 +359,19 @@ void WebWidgetHost::Paint() {
       total_paint.width(),
       total_paint.height(),
   };
-  gdk_window_begin_paint_rect(view_->window, &grect);
+  GdkWindow* window = view_->window;
+  gdk_window_begin_paint_rect(window, &grect);
 
   // BitBlit to the gdk window.
   skia::PlatformDeviceLinux &platdev = canvas_->getTopPlatformDevice();
   skia::BitmapPlatformDeviceLinux* const bitdev =
       static_cast<skia::BitmapPlatformDeviceLinux* >(&platdev);
-  cairo_t* cairo_drawable = gdk_cairo_create(view_->window);
+  cairo_t* cairo_drawable = gdk_cairo_create(window);
   cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
   cairo_paint(cairo_drawable);
   cairo_destroy(cairo_drawable);
 
-  gdk_window_end_paint(view_->window);
+  gdk_window_end_paint(window);
 }
 
 void WebWidgetHost::ResetScrollRect() {
