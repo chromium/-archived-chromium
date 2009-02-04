@@ -957,14 +957,6 @@ class FavIconHelper {
   void FetchFavIcon(const GURL&) { NOTIMPLEMENTED(); }
 };
 
-class AutofillManager {
- public:
-  AutofillManager(WebContents*) { }
-  void AutofillFormSubmitted(const AutofillForm&) { NOTIMPLEMENTED(); }
-  void FetchValuesForName(const std::wstring&, const std::wstring&, int,
-                          int64, int) { NOTIMPLEMENTED(); }
-};
-
 class PasswordManager {
  public:
   PasswordManager(WebContents*) { }

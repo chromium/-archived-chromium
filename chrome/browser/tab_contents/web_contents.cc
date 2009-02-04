@@ -10,6 +10,7 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
+#include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/google_util.h"
@@ -18,6 +19,7 @@
 #include "chrome/browser/load_from_memory_cache_details.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/common/chrome_switches.h"
@@ -32,7 +34,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): fill these in as we flesh out the implementation of this class
-#include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/character_encoding.h"
@@ -45,7 +46,6 @@
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
-#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
