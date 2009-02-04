@@ -202,21 +202,15 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
   return !ext->empty();
 }
 
-// TODO(port): Need to finish port ResourceBundle.
 std::string GetDataResource(int resource_id) {
-#if defined(OS_WIN)
   return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
-#else
-  NOTIMPLEMENTED();
-  return std::string();
-#endif
 }
 
-#if defined(OS_WIN)
 SkBitmap* GetBitmapResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetBitmapNamed(resource_id);
 }
 
+#if defined(OS_WIN)
 HCURSOR LoadCursor(int cursor_id) {
   return ResourceBundle::GetSharedInstance().LoadCursor(cursor_id);
 }

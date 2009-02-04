@@ -42,7 +42,10 @@ ResourceBundle::~ResourceBundle() {
   }
 }
 
-void ResourceBundle::LoadLocaleResources(const std::wstring& pref_locale) {
+void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
+  // As a convenience, set resources_data_ to the current module.
+  resources_data_ = _AtlBaseModule.GetModuleInstance();
+
   DCHECK(NULL == locale_resources_data_) << "locale dll already loaded";
   const FilePath& locale_path = GetLocaleFilePath(pref_locale);
   if (locale_path.value().empty()) {
@@ -64,7 +67,7 @@ FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
 
   const std::wstring app_locale = l10n_util::GetApplicationLocale(pref_locale);
   if (app_locale.empty())
-    return FilePath(app_locale);
+    return FilePath();
 
   return locale_path.Append(app_locale + L".dll");
 }
@@ -79,17 +82,6 @@ void ResourceBundle::LoadThemeResources() {
   theme_data_ = LoadLibraryEx(theme_data_path.c_str(), NULL,
                              GetDataDllLoadFlags());
   DCHECK(theme_data_ != NULL) << "unable to load " << theme_data_path;
-}
-
-bool ResourceBundle::LoadImageResourceBytes(int resource_id,
-                                            std::vector<unsigned char>* bytes) {
-  return LoadResourceBytes(theme_data_, resource_id, bytes);
-}
-
-bool ResourceBundle::LoadDataResourceBytes(int resource_id,
-                                           std::vector<unsigned char>* bytes) {
-  return LoadResourceBytes(_AtlBaseModule.GetModuleInstance(),
-                           resource_id, bytes);
 }
 
 /* static */
@@ -111,10 +103,6 @@ bool ResourceBundle::LoadResourceBytes(
 
 HICON ResourceBundle::LoadThemeIcon(int icon_id) {
   return ::LoadIcon(theme_data_, MAKEINTRESOURCE(icon_id));
-}
-
-std::string ResourceBundle::GetDataResource(int resource_id) {
-  return GetRawDataResource(resource_id).as_string();
 }
 
 StringPiece ResourceBundle::GetRawDataResource(int resource_id) {
@@ -149,8 +137,10 @@ HCURSOR ResourceBundle::LoadCursor(int cursor_id) {
 std::wstring ResourceBundle::GetLocalizedString(int message_id) {
   // If for some reason we were unable to load a resource dll, return an empty
   // string (better than crashing).
-  if (!locale_resources_data_)
+  if (!locale_resources_data_) {
+    LOG(WARNING) << "locale resources are not loaded";
     return std::wstring();
+  }
 
   DCHECK(IS_INTRESOURCE(message_id));
 

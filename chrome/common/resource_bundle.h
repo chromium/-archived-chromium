@@ -117,7 +117,7 @@ class ResourceBundle {
   // Windows stores resources in DLLs, which are managed by HINSTANCE.
   typedef HINSTANCE DataHandle;
 #elif defined(OS_LINUX)
-  // Linux will use base::DataPack.  TODO(evanm): finish this.
+  // Linux uses base::DataPack.
   typedef base::DataPack* DataHandle;
 #endif
 
@@ -128,8 +128,9 @@ class ResourceBundle {
   // Free skia_images_.
   void FreeImages();
 
-  // Try to load the locale specific strings from an external data module.
-  void LoadLocaleResources(const std::wstring& pref_locale);
+  // Try to load the main resources and the locale specific strings from an
+  // external data module.
+  void LoadResources(const std::wstring& pref_locale);
 
   // Initialize all the ChromeFont members if they haven't yet been initialized.
   void LoadFontsIfNecessary();
@@ -155,6 +156,7 @@ class ResourceBundle {
   Lock lock_;
 
   // Handles for data sources.
+  DataHandle resources_data_;
   DataHandle locale_resources_data_;
   DataHandle theme_data_;
 

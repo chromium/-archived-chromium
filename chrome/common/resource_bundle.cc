@@ -4,26 +4,20 @@
 
 #include "chrome/common/resource_bundle.h"
 
-#if defined(OS_WIN)
-#include <atlbase.h>
-#endif
-
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
+#include "base/string_piece.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "SkBitmap.h"
 
 ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
 
-// TODO(port): InitSharedInstance and CleanupSharedInstance are portable, but
-// they need LoadLocaleResource and ~ResourceBundle implemented.
-#if defined(OS_WIN)
 /* static */
 void ResourceBundle::InitSharedInstance(const std::wstring& pref_locale) {
   DCHECK(g_shared_instance_ == NULL) << "ResourceBundle initialized twice";
   g_shared_instance_ = new ResourceBundle();
 
-  g_shared_instance_->LoadLocaleResources(pref_locale);
+  g_shared_instance_->LoadResources(pref_locale);
 }
 
 /* static */
@@ -33,7 +27,6 @@ void ResourceBundle::CleanupSharedInstance() {
     g_shared_instance_ = NULL;
   }
 }
-#endif
 
 /* static */
 ResourceBundle& ResourceBundle::GetSharedInstance() {
@@ -43,7 +36,8 @@ ResourceBundle& ResourceBundle::GetSharedInstance() {
 }
 
 ResourceBundle::ResourceBundle()
-    : locale_resources_data_(NULL),
+    : resources_data_(NULL),
+      locale_resources_data_(NULL),
       theme_data_(NULL) {
 }
 
@@ -55,8 +49,6 @@ void ResourceBundle::FreeImages() {
   skia_images_.clear();
 }
 
-// TODO(port): LoadBitmap is portable, but it needs a LoadResourceBytes impl.
-#if defined(OS_WIN)
 /* static */
 SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
   std::vector<unsigned char> raw_data, png_data;
@@ -77,7 +69,20 @@ SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
                                                   image_width,
                                                   image_height);
 }
-#endif
+
+std::string ResourceBundle::GetDataResource(int resource_id) {
+  return GetRawDataResource(resource_id).as_string();
+}
+
+bool ResourceBundle::LoadImageResourceBytes(int resource_id,
+                                            std::vector<unsigned char>* bytes) {
+  return LoadResourceBytes(theme_data_, resource_id, bytes);
+}
+
+bool ResourceBundle::LoadDataResourceBytes(int resource_id,
+                                           std::vector<unsigned char>* bytes) {
+  return LoadResourceBytes(resources_data_, resource_id, bytes);
+}
 
 SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
   // Check to see if we already have the Skia image in the cache.
@@ -90,22 +95,12 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
 
   scoped_ptr<SkBitmap> bitmap;
 
-  if (theme_data_) {
-#if defined(OS_WIN)
-    // TODO(port): We need to implement LoadBitmap before this can link.
-    // Try to load the bitmap from the theme data.
+  if (theme_data_)
     bitmap.reset(LoadBitmap(theme_data_, resource_id));
-#else
-    NOTIMPLEMENTED();
-#endif
-  }
 
-#if defined(OS_WIN)
-  // TODO(port): refactor to remove this.
   // If we did not find the bitmap in the theme DLL, try the current one.
   if (!bitmap.get())
-    bitmap.reset(LoadBitmap(_AtlBaseModule.GetModuleInstance(), resource_id));
-#endif
+    bitmap.reset(LoadBitmap(resources_data_, resource_id));
 
   // We loaded successfully.  Cache the Skia version of the bitmap.
   if (bitmap.get()) {
