@@ -16,10 +16,11 @@
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
-#include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/autofill_form.h"
+#include "webkit/glue/console_message_level.h"
+#include "webkit/glue/password_form_dom_manager.h"
+#include "webkit/glue/window_open_disposition.h"
 
-enum ConsoleMessageLevel;
 class NavigationEntry;
 class RenderViewHostDelegate;
 class SiteInstance;
@@ -32,7 +33,6 @@ struct ViewMsg_Print_Params;
 struct ViewMsg_PrintPages_Params;
 struct WebDropData;
 struct WebPreferences;
-enum WindowOpenDisposition;
 
 namespace base {
 class WaitableEvent;

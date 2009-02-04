@@ -5,10 +5,6 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_HOST_MANAGER_H_
 #define CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_HOST_MANAGER_H_
 
-#include <windows.h>
-
-#include <string>
-
 #include "base/basictypes.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 
@@ -198,6 +194,9 @@ class RenderViewHostManager {
   // Our delegate, not owned by us. Guaranteed non-NULL.
   Delegate* delegate_;
 
+  // Whether a cross-site request is pending (in the new process model).
+  bool cross_navigation_pending_;
+
   // Allows tests to create their own render view host types.
   RenderViewHostFactory* render_view_factory_;
 
@@ -217,9 +216,6 @@ class RenderViewHostManager {
   // (the InterstitialPage is self-owned, it deletes itself when hidden).
   InterstitialPage* interstitial_page_;
 
-  // Whether a cross-site request is pending (in the new process model).
-  bool cross_navigation_pending_;
-
   DISALLOW_COPY_AND_ASSIGN(RenderViewHostManager);
 };
 
@@ -231,4 +227,3 @@ struct RenderViewHostSwitchedDetails {
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_HOST_MANAGER_H_
-
