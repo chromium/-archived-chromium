@@ -168,7 +168,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
                                       bool allowsScrolling, int marginWidth,
                                       int marginHeight);
   virtual WebCore::Widget* createPlugin(const WebCore::IntSize&,
-                                        WebCore::Element*, 
+                                        WebCore::HTMLPlugInElement*, 
                                         const WebCore::KURL&, 
                                         const WTF::Vector<WebCore::String>&, 
                                         const WTF::Vector<WebCore::String>&, 
@@ -176,10 +176,12 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
                                         bool loadManually);
   virtual void redirectDataToPlugin(WebCore::Widget* pluginWidget);
 
-  virtual WebCore::Widget* createJavaAppletWidget(const WebCore::IntSize&, 
-                                      WebCore::Element*, const WebCore::KURL& baseURL, 
-                                      const WTF::Vector<WebCore::String>& paramNames, 
-                                      const WTF::Vector<WebCore::String>& paramValues);
+  virtual WebCore::Widget* createJavaAppletWidget(
+      const WebCore::IntSize&, 
+      WebCore::HTMLAppletElement*,
+      const WebCore::KURL& baseURL, 
+      const WTF::Vector<WebCore::String>& paramNames, 
+      const WTF::Vector<WebCore::String>& paramValues);
 
   virtual WebCore::ObjectContentType objectContentType(const WebCore::KURL& url, 
                                               const WebCore::String& mimeType);

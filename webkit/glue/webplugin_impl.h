@@ -32,9 +32,9 @@ class WebPluginImpl;
 class MultipartResponseDelegate;
 
 namespace WebCore {
-  class Element;
   class Event;
   class Frame;
+  class HTMLPlugInElement;
   class IntRect;
   class KeyboardEvent;
   class KURL;
@@ -124,7 +124,7 @@ class WebPluginImpl : public WebPlugin,
                                  char** argn,
                                  char** argv,
                                  int argc,
-                                 WebCore::Element* element,
+                                 WebCore::HTMLPlugInElement* element,
                                  WebFrameImpl* frame,
                                  WebPluginDelegate* delegate,
                                  bool load_manually,
@@ -135,13 +135,13 @@ class WebPluginImpl : public WebPlugin,
 
   // Helper function for sorting post data.
   static bool SetPostData(WebCore::ResourceRequest* request,
-                          const char *buf,
+                          const char* buf,
                           uint32 length);
 
  private:
   friend class WebPluginContainer;
 
-  WebPluginImpl(WebCore::Element *element, WebFrameImpl *frame,
+  WebPluginImpl(WebCore::HTMLPlugInElement* element, WebFrameImpl* frame,
                 WebPluginDelegate* delegate, const GURL& plugin_url,
                 bool load_manually, const std::string& mime_type,
                 int arg_count, char** arg_names, char** arg_values);
@@ -325,7 +325,7 @@ class WebPluginImpl : public WebPlugin,
 
   bool windowless_;
   gfx::NativeView window_;
-  WebCore::Element* element_;
+  WebCore::HTMLPlugInElement* element_;
   WebFrameImpl* webframe_;
 
   WebPluginDelegate* delegate_;

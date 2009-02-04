@@ -13,8 +13,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "CString.h"
 #include "Document.h"
 #include "DocumentLoader.h"
-#include "Element.h"
 #include "HistoryItem.h"
+#include "HTMLAppletElement.h"
 #include "HTMLFormElement.h"  // needed by FormState.h
 #include "HTMLFormControlElement.h"
 #include "HTMLInputElement.h"
@@ -1340,10 +1340,11 @@ static void DeleteToArray(char** arr) {
 }
 
 Widget* WebFrameLoaderClient::createPlugin(const IntSize& size, // TODO(erikkay): how do we use this?
-                                           Element *element, const KURL &url,
-                                           const Vector<String> &param_names,
-                                           const Vector<String> &param_values,
-                                           const String &mime_type,
+                                           HTMLPlugInElement* element,
+                                           const KURL&url,
+                                           const Vector<String>& param_names,
+                                           const Vector<String>& param_values,
+                                           const String& mime_type,
                                            bool load_manually) {
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();
@@ -1449,11 +1450,12 @@ void WebFrameLoaderClient::redirectDataToPlugin(Widget* pluginWidget) {
 
 Widget* WebFrameLoaderClient::createJavaAppletWidget(
                                            const IntSize& size,
-                                           Element *element, const KURL &url,
-                                           const Vector<String> &param_names,
-                                           const Vector<String> &param_values) {
+                                           HTMLAppletElement* element,
+                                           const KURL& url,
+                                           const Vector<String>& param_names,
+                                           const Vector<String>& param_values) {
   return createPlugin(size, element, url, param_names, param_values,
-    "application/x-java-applet", false);
+      "application/x-java-applet", false);
 }
 
 ObjectContentType WebFrameLoaderClient::objectContentType(

@@ -11,7 +11,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cursor.h"
 #include "Document.h"
 #include "DocumentLoader.h"
-#include "Element.h"
 #include "Event.h"
 #include "EventNames.h"
 #include "FloatPoint.h"
@@ -279,8 +278,8 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
                                        char** argn,
                                        char** argv,
                                        int argc,
-                                       WebCore::Element *element,
-                                       WebFrameImpl *frame,
+                                       WebCore::HTMLPlugInElement* element,
+                                       WebFrameImpl* frame,
                                        WebPluginDelegate* delegate,
                                        bool load_manually,
                                        const std::string& mime_type) {
@@ -300,7 +299,7 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
   return container;
 }
 
-WebPluginImpl::WebPluginImpl(WebCore::Element* element,
+WebPluginImpl::WebPluginImpl(WebCore::HTMLPlugInElement* element,
                              WebFrameImpl* webframe,
                              WebPluginDelegate* delegate,
                              const GURL& plugin_url,
@@ -538,11 +537,7 @@ NPObject* WebPluginImpl::GetWindowScriptNPObject() {
 }
 
 NPObject* WebPluginImpl::GetPluginElement() {
-  // We don't really know that this is a
-  // HTMLPluginElement.  Cast to it and hope?
-  WebCore::HTMLPlugInElement *plugin_element =
-      static_cast<WebCore::HTMLPlugInElement*>(element_);
-  return plugin_element->getNPObject();
+  return element_->getNPObject();
 }
 
 void WebPluginImpl::SetCookie(const GURL& url,

@@ -252,6 +252,13 @@ class AutocompletePopupMenuClient
   WebViewImpl* webview_;
 };
 
+static const WebCore::PopupContainerSettings kAutocompletePopupSettings = {
+  false,  // focusOnShow
+  false,  // setTextOnIndexChange
+  false,  // acceptOnAbandon
+  true,   // loopSelectionNavigation
+};
+
 // WebView ----------------------------------------------------------------
 
 /*static*/
@@ -1504,10 +1511,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
       // have focus so the user can keep typing when the popup is showing.
       autocomplete_popup_ =
           WebCore::PopupContainer::create(autocomplete_popup_client_.get(),
-                                          false);
-      autocomplete_popup_->setTextOnIndexChange(false);
-      autocomplete_popup_->setAcceptOnAbandon(false);
-      autocomplete_popup_->setLoopSelectionNavigation(true);
+                                          kAutocompletePopupSettings);
       autocomplete_popup_->show(focused_node->getRect(), 
                                 page_->mainFrame()->view(), 0);
     } else {
