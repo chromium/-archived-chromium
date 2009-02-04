@@ -4,14 +4,29 @@
 
 #include "chrome/common/chrome_paths_internal.h"
 
+#include <glib.h>
+#include "base/file_path.h"
 #include "base/logging.h"
 
 namespace chrome {
 
+// Use ~/.chromium/ for Chromium and ~/.google/chrome for official builds.  We
+// use ~/.google/chrome because ~/.google/ is already used by other Google
+// Linux apps.
 bool GetDefaultUserDataDirectory(FilePath* result) {
-  // TODO(port): Decide what to do on linux.
-  NOTIMPLEMENTED();
-  return false;
+  // The glib documentation says that g_get_home_dir doesn't honor HOME so we
+  // should try that first.
+  const char* home_dir = g_getenv("HOME");
+  if (!home_dir)
+    home_dir = g_get_home_dir();
+  *result = FilePath(home_dir);
+#if defined(GOOGLE_CHROME_BUILD)
+  *result = result->Append(".google");
+  *result = result->Append("chrome");
+#else
+  *result = result->Append(".chromium");
+#endif
+  return true;
 }
 
 bool GetUserDocumentsDirectory(FilePath* result) {

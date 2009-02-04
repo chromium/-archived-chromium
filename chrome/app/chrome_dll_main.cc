@@ -36,7 +36,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 #include "chrome/common/resource_bundle.h"
 #endif
 #include "chrome/common/sandbox_init_wrapper.h"
@@ -166,13 +166,15 @@ void EnableHeapProfiler(const CommandLine& parsed_command_line) {
 }
 
 void CommonSubprocessInit() {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // Initialize ResourceBundle which handles files loaded from external
   // sources.  The language should have been passed in to us from the
   // browser process as a command line flag.
-  // TODO(port): enable when we figure out resource bundle issues
+  // TODO(port-mac): enable when we figure out resource bundle issues
   ResourceBundle::InitSharedInstance(std::wstring());
+#endif
 
+#if defined(OS_WIN)
   // HACK: Let Windows know that we have started.  This is needed to suppress
   // the IDC_APPSTARTING cursor from being displayed for a prolonged period
   // while a subprocess is starting.
@@ -315,8 +317,8 @@ int ChromeMain(int argc, const char** argv) {
   }
 
   if (!process_type.empty()) {
-#if defined(OS_WIN)
-    // TODO(port): enable when we figure out resource bundle issues
+#if defined(OS_WIN) || defined(OS_LINUX)
+    // TODO(port-mac): enable when we figure out resource bundle issues
     ResourceBundle::CleanupSharedInstance();
 #endif
   }
