@@ -1622,9 +1622,6 @@ SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 
 // Merge 39744:39829 - new tests
 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
-// This tests legacy mac encodings of form input values as part of URLs.
-// http://crbug.com/7388.
-LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
 // Merge 39744:39829 - regression likely due to bad implementation of RenderPath::strokeContains in PathSkia.cpp
