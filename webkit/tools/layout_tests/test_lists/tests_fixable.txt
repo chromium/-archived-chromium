@@ -777,6 +777,8 @@ WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FA
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
+
+// GURL/KURL difference in handling of "http:".  http://crbug.com/7386.
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 
 // Linux pixeltest failure: Font mismatch
@@ -1034,6 +1036,7 @@ LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL
 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38389:38450
+// WebKit regression: https://bugs.webkit.org/show_bug.cgi?id=20342
 LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 
 // Started failing with r5743 (darin)
@@ -1648,7 +1651,6 @@ LayoutTests/fast/js/numeric-conversion.html = FAIL
 LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
-WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = PASS TIMEOUT
 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
 LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
