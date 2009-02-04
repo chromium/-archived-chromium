@@ -252,6 +252,7 @@ html[dir='rtl'] .thumbnail-title {
   background-position:right;
   padding-left:0px;
   padding-right:22px;
+  text-align:right;
 }
 .thumbnail {
   width:195px;
@@ -353,8 +354,14 @@ html[dir='rtl'] #managesearcheslink {
 #recentlyBookmarked {
   background-color:#e1ecfe;
 }
+html[dir='rtl'] #recentlyBookmarkedContainer {
+  text-align:right;
+}
 #recentlyClosedContainer {
   position:relative;
+}
+html[dir='rtl'] #recentlyClosedContainer {
+  text-align:right;
 }
 #searches input {
   border:1px solid #7f9db9;
@@ -514,11 +521,12 @@ function bind(fn, selfObj, var_args) {
 }
 
 /* Return the DOM element for a "most visited" entry.
-   |page| should be an object with "title" and "url" fields. */
+   |page| should be an object with "title", "url", and "direction" fields. */
 function makeMostVisitedDOM(page, number) {
   /* The HTML we want looks like this:
     <a class="most-visited-item" href="URL" title="gmail.com">
-      <div class="thumbnail-title" style="background-image:url(faviconurl);">gmail.com</div>
+      <div class="thumbnail-title" 
+           style="background-image:url(faviconurl);direction:ltr">gmail.com</div>
       <img class="thumbnail" style="background-image:url(thumbnailurl);" />
     </a>
   */
@@ -543,6 +551,13 @@ function makeMostVisitedDOM(page, number) {
   var div_title = DOM('div', {className:'thumbnail-title'});
   div_title.style.backgroundImage =
       'url("chrome-ui://favicon/' + page.url + '")';
+  /* Set the title's directionality independently of the overall page
+     directionality. We need to do this since a purely LTR title should always
+     have it's direction set as ltr. We only set the title direction to rtl if
+     it contains a strong RTL character. Please refer to http://crbug.com/5926
+     for more information.
+  */
+  div_title.style.direction = page.direction;
   if (page.title) {
     div_title.appendChild(document.createTextNode(page.title));
   } else {
@@ -557,7 +572,8 @@ function makeMostVisitedDOM(page, number) {
 }
 
 /* This function is called by the browser with the most visited pages list.
-   |pages| is a list of page objects, which have url and title attributes. */
+   |pages| is a list of page objects, which have url, title, and direction
+   attributes. */
 function renderMostVisitedPages(pages) {
   logEvent('renderMostVisitedPages called: ' + pages.length);
 
@@ -654,8 +670,8 @@ function renderSearchURLs(urls) {
 }
 
 /* This function is called by the browser when the list of recently bookmarked
-   URLs is available.  |entries| is a list of objects with title and url
-   attributes. */
+   URLs is available.  |entries| is a list of objects with title, url, and
+   direction attributes. */
 function renderRecentlyBookmarked(entries) {
   logEvent('renderRecentlyBookmarked called: ' + entries.length);
   var section   = document.getElementById('recentlyBookmarked');
@@ -677,6 +693,10 @@ function renderRecentlyBookmarked(entries) {
           }, false);
       link.style.backgroundImage =
           'url("chrome-ui://favicon/' + entry.url + '")';
+      /* Set the bookmark title's directionality independently of the page, see
+         comment about setting div_title.style.direction above for details.
+      */
+      link.style.direction = entry.direction;
       link.appendChild(document.createTextNode(entry.title));
       container.appendChild(link);
     }
@@ -759,7 +779,7 @@ function renderRecentlyClosedTabs(entries) {
  * Creates an item to go in the recent bookmarks or recently closed lists.
  *
  * @param {String} tagName Tagname for the DOM element to create.
- * @param {Object} data Object with title and url to popuplate the element.
+ * @param {Object} data Object with title, url, and direction to popuplate the element.
  *
  * @return {Node} The element containing the bookmark.
  */
@@ -768,6 +788,10 @@ function createRecentBookmark(tagName, data) {
   if (tagName == 'a')
     link.href = data.url;
   link.style.backgroundImage = 'url("chrome-ui://favicon/' + data.url + '")';
+  /* Set the title's directionality independently of the page, see comment
+     about setting div_title.style.direction above for details.
+  */
+  link.style.direction = data.direction;
   link.appendChild(document.createTextNode(data.title));
   return link;
 }

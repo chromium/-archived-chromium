@@ -116,11 +116,11 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
   DISALLOW_COPY_AND_ASSIGN(PaintTimer);
 };
 
-// Adds "url" and "title" keys on incoming dictionary, setting title
-// as the url as a fallback on empty title.
-void SetURLAndTitle(DictionaryValue* dictionary,
-                    const std::wstring& title,
-                    const GURL& gurl) {
+// Adds "url", "title", and "direction" keys on incoming dictionary, setting
+// title as the url as a fallback on empty title.
+void SetURLTitleAndDirection(DictionaryValue* dictionary,
+                             const std::wstring& title,
+                             const GURL& gurl) {
   std::wstring wstring_url = UTF8ToWide(gurl.spec());
   dictionary->SetString(L"url", wstring_url);
 
@@ -131,20 +131,41 @@ void SetURLAndTitle(DictionaryValue* dictionary,
     title_to_set = wstring_url;
   }
 
+  // We set the "dir" attribute of the title, so that in RTL locales, a LTR
+  // title is rendered left-to-right and truncated from the right. For example,
+  // the title of http://msdn.microsoft.com/en-us/default.aspx is "MSDN:
+  // Microsoft developer network". In RTL locales, in the [New Tab] page, if
+  // the "dir" of this title is not specified, it takes Chrome UI's
+  // directionality. So the title will be truncated as "soft developer
+  // network". Setting the "dir" attribute as "ltr" renders the truncated title
+  // as "MSDN: Microsoft D...". As another example, the title of
+  // http://yahoo.com is "Yahoo!". In RTL locales, in the [New Tab] page, the
+  // title will be rendered as "!Yahoo" if its "dir" attribute is not set to
+  // "ltr".
+  //
   // Since the title can contain BiDi text, we need to mark the text as either
   // RTL or LTR, depending on the characters in the string. If we use the URL
   // as the title, we mark the title as LTR since URLs are always treated as
-  // left to right strings.
+  // left to right strings. Simply setting the title's "dir" attribute works
+  // fine for rendering and truncating the title. However, it does not work for
+  // entire title within a tooltip when the mouse is over the title link.. For
+  // example, without LRE-PDF pair, the title "Yahoo!" will be rendered as
+  // "!Yahoo" within the tooltip when the mouse is over the title link.
+  std::wstring direction = kDefaultHtmlTextDirection;
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
     if (using_url_as_the_title) {
       l10n_util::WrapStringWithLTRFormatting(&title_to_set);
     } else {
-      bool success =
-          l10n_util::AdjustStringForLocaleDirection(title, &title_to_set);
-      DCHECK(success ? (title != title_to_set) : (title == title_to_set));
+      if (l10n_util::StringContainsStrongRTLChars(title)) {
+        l10n_util::WrapStringWithRTLFormatting(&title_to_set);
+        direction = kRTLHtmlTextDirection;
+      } else {
+        l10n_util::WrapStringWithLTRFormatting(&title_to_set);
+      }
     }
   }
   dictionary->SetString(L"title", title_to_set);
+  dictionary->SetString(L"direction", direction);
 }
 
 }  // end anonymous namespace
@@ -314,7 +335,7 @@ void MostVisitedHandler::OnSegmentUsageAvailable(
   for (size_t i = 0; i < count; ++i) {
     const PageUsageData& page = *(*data)[i];
     DictionaryValue* page_value = new DictionaryValue;
-    SetURLAndTitle(page_value, page.GetTitle(), page.GetURL());
+    SetURLTitleAndDirection(page_value, page.GetTitle(), page.GetURL());
     pages_value.Append(page_value);
     most_visited_urls_.push_back(page.GetURL());
   }
@@ -500,7 +521,7 @@ void RecentlyBookmarkedHandler::SendBookmarksToPage() {
   for (size_t i = 0; i < recently_bookmarked.size(); ++i) {
     BookmarkNode* node = recently_bookmarked[i];
     DictionaryValue* entry_value = new DictionaryValue;
-    SetURLAndTitle(entry_value, node->GetTitle(), node->GetURL());
+    SetURLTitleAndDirection(entry_value, node->GetTitle(), node->GetURL());
     list_value.Append(entry_value);
   }
   dom_ui_host_->CallJavascriptFunction(L"recentlyBookmarked", list_value);
@@ -640,8 +661,8 @@ bool RecentlyClosedTabsHandler::TabToValue(
   if (current_navigation.url() == NewTabUIURL())
     return false;
 
-  SetURLAndTitle(dictionary, current_navigation.title(),
-                 current_navigation.url());
+  SetURLTitleAndDirection(dictionary, current_navigation.title(),
+                          current_navigation.url());
   dictionary->SetString(L"type", L"tab");
   return true;
 }
