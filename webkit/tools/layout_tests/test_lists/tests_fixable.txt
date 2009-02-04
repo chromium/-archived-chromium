@@ -1622,6 +1622,7 @@ SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 
 // Merge 39744:39829 - new tests
 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
+MAC : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
 // Merge 39744:39829 - regression likely due to bad implementation of RenderPath::strokeContains in PathSkia.cpp
