@@ -1736,8 +1736,9 @@ LayoutTests/http/tests/history/redirect-js-location-replace-before-load.html = F
 LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
 
 // Merge 40314:40364 -- new tests
-// See also comment above for LayoutTests/editing/spelling/inline_spelling_markers.html
-LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
+// See comment above LayoutTests/editing/spelling/inline_spelling_markers.html
+// for why this is disabled.
+DEFER LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 
 // Started failng at build 1379 (r8741).  passes locally
 LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL PASS
