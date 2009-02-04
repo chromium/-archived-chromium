@@ -208,12 +208,17 @@ DWORD IATPatchFunction::Unpatch() {
   DWORD error = RestoreImportedFunction(intercept_function_,
                                         original_function_,
                                         iat_thunk_);
+  DCHECK(NO_ERROR == error);
 
-  if (NO_ERROR == error) {
-    intercept_function_ = NULL;
-    original_function_ = NULL;
-    iat_thunk_ = NULL;
-  }
+  // Hands off the intercept if we fail to unpatch.
+  // If IATPatchFunction::Unpatch fails during RestoreImportedFunction
+  // it means that we cannot safely unpatch the import address table
+  // patch. In this case its better to be hands off the intercept as
+  // trying to unpatch again in the destructor of IATPatchFunction is
+  // not going to be any safer
+  intercept_function_ = NULL;
+  original_function_ = NULL;
+  iat_thunk_ = NULL;
 
   return error;
 }
