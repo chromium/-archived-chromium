@@ -20,9 +20,12 @@
 #include "chrome/common/stl_util-inl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#define IPC_MESSAGE_MACROS_ENUMS
+#include "chrome/common/ipc_sync_channel_unittest.h"
 
-#define MESSAGES_INTERNAL_FILE "chrome/common/ipc_sync_message_unittest.h"
-#include "chrome/common/ipc_message_macros.h"
+// define the classes
+#define IPC_MESSAGE_MACROS_CLASSES
+#include "chrome/common/ipc_sync_channel_unittest.h"
 
 using namespace IPC;
 using base::WaitableEvent;

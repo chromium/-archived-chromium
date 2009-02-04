@@ -54,7 +54,8 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void SetIsLoading(bool is_loading) {}
   virtual void UpdateCursor(const WebCursor& cursor) {}
   virtual void UpdateCursorIfOverSelf() {}
-  virtual void IMEUpdateStatus(int control, const gfx::Rect& caret_rect) {}
+  virtual void IMEUpdateStatus(ViewHostMsg_ImeControl control,
+                               const gfx::Rect& caret_rect) {}
   virtual void DidPaintRect(const gfx::Rect& rect) {}
   virtual void DidScrollRect(const gfx::Rect& rect, int dx, int dy) {}
   virtual void RendererGone() {}

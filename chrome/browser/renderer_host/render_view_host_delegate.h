@@ -10,9 +10,9 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/autofill_manager.h"
+#include "chrome/common/render_messages.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/webpreferences.h"
-#include "webkit/glue/window_open_disposition.h"
 
 class NavigationEntry;
 class Profile;
@@ -20,12 +20,8 @@ class RenderProcessHost;
 class RenderViewHost;
 class SkBitmap;
 class WebContents;
-class WebKeyboardEvent;
-struct ThumbnailScore;
-struct ViewHostMsg_ContextMenu_Params;
-struct ViewHostMsg_DidPrintPage_Params;
-struct ViewHostMsg_FrameNavigate_Params;
 struct WebDropData;
+enum WindowOpenDisposition;
 
 namespace base {
 class WaitableEvent;
@@ -37,10 +33,6 @@ class Message;
 
 namespace gfx {
 class Rect;
-}
-
-namespace webkit_glue {
-struct WebApplicationInfo;
 }
 
 //

@@ -20,11 +20,11 @@ TEST(IPCMessageTest, Serialize) {
   for (size_t i = 0; i < arraysize(serialize_cases); i++) {
     GURL input(serialize_cases[i]);
     IPC::Message msg(1, 2, IPC::Message::PRIORITY_NORMAL);
-    ParamTraits<GURL>::Write(&msg, input);
+    IPC::ParamTraits<GURL>::Write(&msg, input);
 
     GURL output;
     void* iter = NULL;
-    EXPECT_TRUE(ParamTraits<GURL>::Read(&msg, &iter, &output));
+    EXPECT_TRUE(IPC::ParamTraits<GURL>::Read(&msg, &iter, &output));
 
     // We want to test each component individually to make sure its range was
     // correctly serialized and deserialized, not just the spec.
@@ -45,6 +45,6 @@ TEST(IPCMessageTest, Serialize) {
   msg.WriteInt(99);
   GURL output;
   void* iter = NULL;
-  EXPECT_FALSE(ParamTraits<GURL>::Read(&msg, &iter, &output));
+  EXPECT_FALSE(IPC::ParamTraits<GURL>::Read(&msg, &iter, &output));
 }
 

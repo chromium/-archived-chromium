@@ -28,7 +28,6 @@ class ClipboardService;
 class Profile;
 class RenderWidgetHelper;
 class SpellChecker;
-struct ViewHostMsg_Resource_Request;
 struct WebPluginInfo;
 
 namespace printing {

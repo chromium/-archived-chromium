@@ -664,7 +664,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateTitle, OnMsgUpdateTitle)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateEncoding, OnMsgUpdateEncoding)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateTargetURL, OnMsgUpdateTargetURL)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_Thumbnail, OnMsgThumbnail)
+    IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_Thumbnail, OnMsgThumbnail(msg))
     IPC_MESSAGE_HANDLER(ViewHostMsg_Close, OnMsgClose)
     IPC_MESSAGE_HANDLER(ViewHostMsg_RequestMove, OnMsgRequestMove)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidStartLoading, OnMsgDidStartLoading)
@@ -834,7 +834,7 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
   // copy when we filter the URLs.
   void* iter = NULL;
   ViewHostMsg_FrameNavigate_Params validated_params;
-  if (!ParamTraits<ViewHostMsg_FrameNavigate_Params>::
+  if (!IPC::ParamTraits<ViewHostMsg_FrameNavigate_Params>::
       Read(&msg, &iter, &validated_params))
     return;
 
@@ -885,9 +885,22 @@ void RenderViewHost::OnMsgUpdateTargetURL(int32 page_id,
   Send(new ViewMsg_UpdateTargetURL_ACK(routing_id()));
 }
 
-void RenderViewHost::OnMsgThumbnail(const GURL& url,
-                                    const ThumbnailScore& score,
-                                    const SkBitmap& bitmap) {
+void RenderViewHost::OnMsgThumbnail(const IPC::Message& msg) {
+  // crack the message
+  void* iter = NULL;
+  GURL url;
+  if (!IPC::ParamTraits<GURL>::Read(&msg, &iter, &url))
+    return;
+
+  ThumbnailScore score;
+  if (!IPC::ParamTraits<ThumbnailScore>::Read(&msg, &iter, &score))
+    return;
+
+  // thumbnail data
+  SkBitmap bitmap;
+  if (!IPC::ParamTraits<SkBitmap>::Read(&msg, &iter, &bitmap))
+    return;
+
   delegate_->UpdateThumbnail(url, bitmap, score);
 }
 

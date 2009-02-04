@@ -12,6 +12,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
 #include "chrome/common/ipc_message.h"
+#include "chrome/common/plugin_messages.h"
 #include "chrome/plugin/npobject_stub.h"
 #include "chrome/renderer/plugin_channel_host.h"
 #include "webkit/glue/webplugin.h"
@@ -19,12 +20,10 @@
 
 class GURL;
 struct PluginHostMsg_RouteToFrame_Params;
-struct PluginHostMsg_URLRequest_Params;
 class RenderView;
 class SkBitmap;
 
 namespace base {
-class SharedMemory;
 class WaitableEvent;
 }
 

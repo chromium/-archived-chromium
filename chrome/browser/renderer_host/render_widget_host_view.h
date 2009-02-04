@@ -7,7 +7,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
-#include "webkit/glue/webplugin.h"
+#include "chrome/common/render_messages.h"
 
 namespace gfx {
 class Rect;
@@ -20,6 +20,7 @@ class Message;
 class RenderProcessHost;
 class RenderWidgetHost;
 class WebCursor;
+
 // RenderWidgetHostView is an interface implemented by an object that acts as
 // the "View" portion of a RenderWidgetHost. The RenderWidgetHost and its
 // associated RenderProcessHost own the "Model" in this case which is the
@@ -84,7 +85,8 @@ class RenderWidgetHostView {
   virtual void SetIsLoading(bool is_loading) = 0;
 
   // Enable or disable IME for the view.
-  virtual void IMEUpdateStatus(int control, const gfx::Rect& caret_rect) = 0;
+  virtual void IMEUpdateStatus(ViewHostMsg_ImeControl control,
+                               const gfx::Rect& caret_rect) = 0;
 
   // Informs the view that a portion of the widget's backing store was painted.
   // The view should copy the given rect from the backing store of the render

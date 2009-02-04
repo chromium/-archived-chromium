@@ -5,13 +5,12 @@
 #ifndef CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 #define CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 
-#include "base/ref_counted.h"
 #include "chrome/browser/printing/printed_pages_source.h"
 #include "chrome/common/notification_observer.h"
+#include "chrome/common/render_messages.h"
 
 class RenderViewHost;
 class WebContents;
-struct ViewHostMsg_DidPrintPage_Params;
 
 namespace printing {
 
@@ -118,6 +117,9 @@ class PrintViewManager : public NotificationObserver,
   // control flow, print_job_ is initialized whenever possible. No-op is
   // print_job_ is initialized.
   bool OpportunisticallyCreatePrintJob(int cookie);
+
+  // Cache the last print settings requested to the renderer.
+  ViewMsg_Print_Params print_params_;
 
   // Manages the low-level talk to the printer.
   scoped_refptr<PrintJob> print_job_;

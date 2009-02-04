@@ -11,7 +11,6 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/plugin_messages.h"
 #include "chrome/plugin/plugin_process.h"
 #include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/webplugin_proxy.h"

@@ -49,10 +49,12 @@ struct AutocompleteMatchData {
 };
 typedef std::vector<AutocompleteMatchData> Matches;
 
+namespace IPC {
+
 template <>
 struct ParamTraits<AutocompleteMatchData> {
   typedef AutocompleteMatchData param_type;
-  static void Write(IPC::Message* m, const param_type& p) {
+  static void Write(Message* m, const param_type& p) {
     m->WriteString(p.provider_name);
     m->WriteInt(p.relevance);
     m->WriteBool(p.deletable);
@@ -66,7 +68,7 @@ struct ParamTraits<AutocompleteMatchData> {
     m->WriteBool(p.starred);
   }
 
-  static bool Read(const IPC::Message* m, void** iter, param_type* r) {
+  static bool Read(const Message* m, void** iter, param_type* r) {
     std::string destination_url;
     if (!m->ReadString(iter, &r->provider_name) ||
         !m->ReadInt(iter, &r->relevance) ||
@@ -110,6 +112,7 @@ struct ParamTraits<AutocompleteMatchData> {
     l->append(L"]");
   }
 };
+}  // namespace IPC
 
 class AutocompleteEditProxy : public AutomationResourceProxy {
  public:

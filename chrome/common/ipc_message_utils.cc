@@ -9,6 +9,8 @@
 #include "SkBitmap.h"
 #include "webkit/glue/dom_operations.h"
 
+namespace IPC {
+
 namespace {
 
 struct SkBitmap_Data {
@@ -44,7 +46,7 @@ struct SkBitmap_Data {
 }  // namespace
 
 
-void ParamTraits<SkBitmap>::Write(IPC::Message* m, const SkBitmap& p) {
+void ParamTraits<SkBitmap>::Write(Message* m, const SkBitmap& p) {
   size_t fixed_size = sizeof(SkBitmap_Data);
   SkBitmap_Data bmp_data;
   bmp_data.InitSkBitmapDataForTransfer(p);
@@ -56,7 +58,7 @@ void ParamTraits<SkBitmap>::Write(IPC::Message* m, const SkBitmap& p) {
                static_cast<int>(pixel_size));
 }
 
-bool ParamTraits<SkBitmap>::Read(const IPC::Message* m, void** iter, SkBitmap* r) {
+bool ParamTraits<SkBitmap>::Read(const Message* m, void** iter, SkBitmap* r) {
   const char* fixed_data;
   int fixed_data_size = 0;
   if (!m->ReadData(iter, &fixed_data, &fixed_data_size) ||
@@ -85,12 +87,12 @@ void ParamTraits<SkBitmap>::Log(const SkBitmap& p, std::wstring* l) {
 }
 
 
-void ParamTraits<GURL>::Write(IPC::Message* m, const GURL& p) {
+void ParamTraits<GURL>::Write(Message* m, const GURL& p) {
   m->WriteString(p.possibly_invalid_spec());
   // TODO(brettw) bug 684583: Add encoding for query params.
 }
 
-bool ParamTraits<GURL>::Read(const IPC::Message* m, void** iter, GURL* p) {
+bool ParamTraits<GURL>::Read(const Message* m, void** iter, GURL* p) {
   std::string s;
   if (!m->ReadString(iter, &s)) {
     *p = GURL();
@@ -105,12 +107,12 @@ void ParamTraits<GURL>::Log(const GURL& p, std::wstring* l) {
 }
 
 
-void ParamTraits<gfx::Point>::Write(IPC::Message* m, const gfx::Point& p) {
+void ParamTraits<gfx::Point>::Write(Message* m, const gfx::Point& p) {
   m->WriteInt(p.x());
   m->WriteInt(p.y());
 }
 
-bool ParamTraits<gfx::Point>::Read(const IPC::Message* m, void** iter,
+bool ParamTraits<gfx::Point>::Read(const Message* m, void** iter,
                                    gfx::Point* r) {
   int x, y;
   if (!m->ReadInt(iter, &x) ||
@@ -126,14 +128,14 @@ void ParamTraits<gfx::Point>::Log(const gfx::Point& p, std::wstring* l) {
 }
 
 
-void ParamTraits<gfx::Rect>::Write(IPC::Message* m, const gfx::Rect& p) {
+void ParamTraits<gfx::Rect>::Write(Message* m, const gfx::Rect& p) {
   m->WriteInt(p.x());
   m->WriteInt(p.y());
   m->WriteInt(p.width());
   m->WriteInt(p.height());
 }
 
-bool ParamTraits<gfx::Rect>::Read(const IPC::Message* m, void** iter, gfx::Rect* r) {
+bool ParamTraits<gfx::Rect>::Read(const Message* m, void** iter, gfx::Rect* r) {
   int x, y, w, h;
   if (!m->ReadInt(iter, &x) ||
       !m->ReadInt(iter, &y) ||
@@ -153,12 +155,12 @@ void ParamTraits<gfx::Rect>::Log(const gfx::Rect& p, std::wstring* l) {
 }
 
 
-void ParamTraits<gfx::Size>::Write(IPC::Message* m, const gfx::Size& p) {
+void ParamTraits<gfx::Size>::Write(Message* m, const gfx::Size& p) {
   m->WriteInt(p.width());
   m->WriteInt(p.height());
 }
 
-bool ParamTraits<gfx::Size>::Read(const IPC::Message* m, void** iter, gfx::Size* r) {
+bool ParamTraits<gfx::Size>::Read(const Message* m, void** iter, gfx::Size* r) {
   int w, h;
   if (!m->ReadInt(iter, &w) ||
       !m->ReadInt(iter, &h))
@@ -173,7 +175,7 @@ void ParamTraits<gfx::Size>::Log(const gfx::Size& p, std::wstring* l) {
 }
 
 void ParamTraits<webkit_glue::WebApplicationInfo>::Write(
-    IPC::Message* m, const webkit_glue::WebApplicationInfo& p) {
+    Message* m, const webkit_glue::WebApplicationInfo& p) {
   WriteParam(m, p.title);
   WriteParam(m, p.description);
   WriteParam(m, p.app_url);
@@ -186,7 +188,7 @@ void ParamTraits<webkit_glue::WebApplicationInfo>::Write(
 }
 
 bool ParamTraits<webkit_glue::WebApplicationInfo>::Read(
-    const IPC::Message* m, void** iter, webkit_glue::WebApplicationInfo* r) {
+    const Message* m, void** iter, webkit_glue::WebApplicationInfo* r) {
   size_t icon_count;
   bool result =
     ReadParam(m, iter, &r->title) &&
@@ -210,3 +212,6 @@ void ParamTraits<webkit_glue::WebApplicationInfo>::Log(
     const webkit_glue::WebApplicationInfo& p, std::wstring* l) {
   l->append(L"<WebApplicationInfo>");
 }
+
+}  // namespace IPC
+

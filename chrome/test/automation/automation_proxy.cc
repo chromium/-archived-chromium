@@ -8,6 +8,7 @@
 
 #include "base/logging.h"
 #include "base/ref_counted.h"
+#include "chrome/common/ipc_message_macros.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -553,7 +554,7 @@ TabProxy* AutomationProxy::CreateExternalTab(HWND parent,
   void* iter = NULL;
   int handle = 0;
   TabProxy* tab_proxy = NULL;
-  if (ReadParam(response, &iter, external_tab_container) &&
+  if (IPC::ReadParam(response, &iter, external_tab_container) &&
       IsWindow(*external_tab_container)) {
     if (response->ReadInt(&iter, &handle) &&
         (handle >= 0)) {

@@ -9,9 +9,9 @@
 
 #include "base/gfx/rect.h"
 #include "base/ref_counted.h"
-#include "base/shared_memory.h"
 #include "base/task.h"
 #include "chrome/common/ipc_channel.h"
+#include "chrome/common/plugin_messages.h"
 #include "third_party/npapi/bindings/npapi.h"
 
 class GURL;
@@ -20,8 +20,6 @@ class WebPluginProxy;
 class WebPluginDelegateImpl;
 struct PluginMsg_Init_Params;
 struct PluginMsg_DidReceiveResponseParams;
-struct PluginMsg_PrintResponse_Params;
-struct PluginMsg_URLRequestReply_Params;
 class WebCursor;
 
 // Converts the IPC messages from WebPluginDelegateProxy into calls to the

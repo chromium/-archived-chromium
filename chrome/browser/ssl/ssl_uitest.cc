@@ -7,7 +7,6 @@
 
 #include <string>
 
-#include "chrome/common/filter_policy.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"

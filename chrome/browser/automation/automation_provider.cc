@@ -1071,9 +1071,7 @@ void AutomationProvider::GetRedirectsFrom(const IPC::Message& message,
   IPC::Message* msg = new IPC::Message(
     message.routing_id(), AutomationMsg_RedirectsFromResponse::ID,
     IPC::Message::PRIORITY_NORMAL);
-  msg->WriteBool(false);
-  std::vector<GURL> empty;
-  ParamTraits<std::vector<GURL>>::Write(msg, empty);
+  msg->WriteInt(-1);   // Negative string count indicates an error.
   Send(msg);
 }
 
@@ -1556,16 +1554,13 @@ void AutomationProvider::OnRedirectQueryComplete(
   IPC::Message* msg = new IPC::Message(redirect_query_routing_id_,
                                        AutomationMsg_RedirectsFromResponse::ID,
                                        IPC::Message::PRIORITY_NORMAL);
-  std::vector<GURL> redirects_gurl;
   if (success) {
-    msg->WriteBool(true);
+    msg->WriteInt(static_cast<int>(redirects->size()));
     for (size_t i = 0; i < redirects->size(); i++)
-      redirects_gurl.push_back(redirects->at(i));
+      IPC::ParamTraits<GURL>::Write(msg, redirects->at(i));
   } else {
     msg->WriteInt(-1);  // Negative count indicates failure.
   }
-
-  ParamTraits<std::vector<GURL>>::Write(msg, redirects_gurl);
 
   Send(msg);
   redirect_query_ = NULL;

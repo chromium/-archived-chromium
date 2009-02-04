@@ -271,7 +271,7 @@ void RenderWidgetHostViewWin::SetIsLoading(bool is_loading) {
   UpdateCursorIfOverSelf();
 }
 
-void RenderWidgetHostViewWin::IMEUpdateStatus(int control,
+void RenderWidgetHostViewWin::IMEUpdateStatus(ViewHostMsg_ImeControl control,
                                               const gfx::Rect& caret_rect) {
   if (control == IME_DISABLE) {
     ime_input_.DisableIME(m_hWnd);

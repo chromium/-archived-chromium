@@ -6,7 +6,7 @@
 #ifndef CHROME_COMMON_SECURITY_FILTER_PEER_H__
 #define CHROME_COMMON_SECURITY_FILTER_PEER_H__
 
-#include "chrome/common/filter_policy.h"
+#include "chrome/common/render_messages.h"
 #include "webkit/glue/resource_loader_bridge.h"
 
 // The SecurityFilterPeer is a proxy to a

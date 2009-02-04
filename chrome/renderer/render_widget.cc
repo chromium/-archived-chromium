@@ -10,7 +10,6 @@
 #include "base/message_loop.h"
 #include "base/scoped_ptr.h"
 #include "build/build_config.h"
-#include "chrome/common/render_messages.h"
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
 
@@ -726,26 +725,6 @@ void RenderWidget::OnMsgRepaint(const gfx::Size& size_to_paint) {
   set_next_paint_is_repaint_ack();
   gfx::Rect repaint_rect(size_to_paint.width(), size_to_paint.height());
   DidInvalidateRect(webwidget_, repaint_rect);
-}
-
-bool RenderWidget::next_paint_is_resize_ack() const {
-  return ViewHostMsg_PaintRect_Flags::is_resize_ack(next_paint_flags_);
-}
-
-bool RenderWidget::next_paint_is_restore_ack() const {
-  return ViewHostMsg_PaintRect_Flags::is_restore_ack(next_paint_flags_);
-}
-
-void RenderWidget::set_next_paint_is_resize_ack() {
-  next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_RESIZE_ACK;
-}
-
-void RenderWidget::set_next_paint_is_restore_ack() {
-  next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_RESTORE_ACK;
-}
-
-void RenderWidget::set_next_paint_is_repaint_ack() {
-  next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_REPAINT_ACK;
 }
 
 void RenderWidget::UpdateIME() {

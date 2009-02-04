@@ -17,7 +17,6 @@
 #include "webkit/glue/glue_accessibility.h"
 
 #include "base/ref_counted.h"
-#include "chrome/common/render_messages.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_impl.h"
 

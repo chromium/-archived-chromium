@@ -454,7 +454,12 @@ void RenderView::SendThumbnail() {
     return;
 
   // send the thumbnail message to the browser process
-  Send(new ViewHostMsg_Thumbnail(routing_id_, url, score, thumbnail));
+  IPC::Message* thumbnail_msg = new IPC::Message(routing_id_,
+      ViewHostMsg_Thumbnail::ID, IPC::Message::PRIORITY_NORMAL);
+  IPC::ParamTraits<GURL>::Write(thumbnail_msg, url);
+  IPC::ParamTraits<ThumbnailScore>::Write(thumbnail_msg, score);
+  IPC::ParamTraits<SkBitmap>::Write(thumbnail_msg, thumbnail);
+  Send(thumbnail_msg);
 }
 
 int RenderView::SwitchFrameToPrintMediaType(const ViewMsg_Print_Params& params,

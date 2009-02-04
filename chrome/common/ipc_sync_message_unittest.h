@@ -4,16 +4,7 @@
 
 #include "chrome/common/ipc_message_macros.h"
 
-IPC_BEGIN_MESSAGES(Test)
-  IPC_SYNC_MESSAGE_CONTROL0_0(SyncChannelTestMsg_NoArgs)
-
-  IPC_SYNC_MESSAGE_CONTROL0_1(SyncChannelTestMsg_AnswerToLife,
-                              int /* answer */)
-
-  IPC_SYNC_MESSAGE_CONTROL1_1(SyncChannelTestMsg_Double,
-                              int /* in */,
-                              int /* out */)
-
+IPC_BEGIN_MESSAGES(TestMsg, 8)
   // out1 is false
   IPC_SYNC_MESSAGE_CONTROL0_1(Msg_C_0_1, bool)
 

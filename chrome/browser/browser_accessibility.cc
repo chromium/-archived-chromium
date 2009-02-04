@@ -6,7 +6,6 @@
 
 #include "chrome/browser/browser_accessibility_manager.h"
 #include "chrome/browser/iaccessible_function_ids.h"
-#include "chrome/common/render_messages.h"
 
 BrowserAccessibility::BrowserAccessibility()
     : iaccessible_id_(-1),
@@ -547,7 +546,7 @@ bool BrowserAccessibility::RequestAccessibilityInfo(int iaccessible_func_id,
       input2);
 }
 
-const ViewHostMsg_Accessibility_Out_Params& BrowserAccessibility::response() {
+ViewHostMsg_Accessibility_Out_Params BrowserAccessibility::response() {
   return BrowserAccessibilityManager::GetInstance()->response();
 }
 
