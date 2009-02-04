@@ -35,7 +35,7 @@ WebWidgetHost* WebWidgetHost::Create(HWND parent_view,
   host->view_ = CreateWindowEx(WS_EX_TOOLWINDOW,
                                kWindowClassName, kWindowClassName, WS_POPUP,
                                0, 0, 0, 0,
-                               parent_window, NULL, GetModuleHandle(NULL), NULL);
+                               parent_view, NULL, GetModuleHandle(NULL), NULL);
   TRACK_HWND_CREATION(host->view_);
   win_util::SetWindowUserData(host->view_, host);
 
