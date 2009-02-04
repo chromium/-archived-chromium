@@ -41,6 +41,8 @@ Logging::Logging()
       consumer_(NULL),
       queue_invoke_later_pending_(false),
       main_thread_(MessageLoop::current()) {
+  memset(log_function_mapping_, sizeof(log_function_mapping_), 0);
+
   // Create an event for this browser instance that's set when logging is
   // enabled, so child processes can know when logging is enabled.
   int browser_pid;
@@ -88,8 +90,18 @@ void Logging::OnObjectSignaled(HANDLE object) {
   RegisterWaitForEvent(!enabled_);
 }
 
+void Logging::RegisterMessageLogger(int msg_start, LogFunction* func) {
+  int msg_class = msg_start >> 12;
+  if (msg_class > arraysize(log_function_mapping_)) {
+    NOTREACHED();
+    return;
+  }
+
+  log_function_mapping_[msg_class] = func;
+}
+
 std::wstring Logging::GetEventName(bool enabled) {
-  return Logging::current()->GetEventName(GetCurrentProcessId(), enabled);
+  return current()->GetEventName(GetCurrentProcessId(), enabled);
 }
 
 std::wstring Logging::GetEventName(int browser_pid, bool enabled) {
@@ -188,24 +200,12 @@ void Logging::OnPostDispatchMessage(const Message& message,
   }
 }
 
-// static
-LogFunction* g_log_function_mapping[16];
-void RegisterMessageLogger(int msg_start, LogFunction* func) {
-  int msg_class = msg_start >> 12;
-  if (msg_class > arraysize(g_log_function_mapping)) {
-    NOTREACHED();
-    return;
-  }
-
-  g_log_function_mapping[msg_class] = func;
-}
-
 void Logging::GetMessageText(uint16 type, std::wstring* name,
                              const Message* message,
                              std::wstring* params) {
   int message_class = type >> 12;
-  if (g_log_function_mapping[message_class] != NULL) {
-    g_log_function_mapping[message_class](type, name, message, params);
+  if (current()->log_function_mapping_[message_class] != NULL) {
+    current()->log_function_mapping_[message_class](type, name, message, params);
   } else {
     DLOG(INFO) << "No logger function associated with message class " <<
         message_class;

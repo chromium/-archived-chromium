@@ -8,7 +8,6 @@
 
 #include "base/logging.h"
 #include "base/ref_counted.h"
-#include "chrome/common/ipc_message_macros.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/test/automation/browser_proxy.h"

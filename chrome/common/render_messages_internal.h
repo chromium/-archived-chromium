@@ -25,8 +25,6 @@
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webplugin.h"
 
-void RenderMessagesInit();
-
 // TODO(mpcomplete): rename ViewMsg and ViewHostMsg to something that makes
 // more sense with our current design.
 
@@ -34,7 +32,7 @@ void RenderMessagesInit();
 // RenderView messages
 // These are messages sent from the browser to the renderer process.
 
-IPC_BEGIN_MESSAGES(View, 1)
+IPC_BEGIN_MESSAGES(View)
   // Used typically when recovering from a crash.  The new rendering process
   // sets its global "next page id" counter to the given value.
   IPC_MESSAGE_CONTROL1(ViewMsg_SetNextPageID,
@@ -486,7 +484,7 @@ IPC_END_MESSAGES(View)
 // WebContents messages
 // These are messages sent from the renderer to the browser process.
 
-IPC_BEGIN_MESSAGES(ViewHost, 2)
+IPC_BEGIN_MESSAGES(ViewHost)
   // Sent by the renderer when it is creating a new window.  The browser creates
   // a tab for it and responds with a ViewMsg_CreatingNew_ACK.  If route_id is
   // MSG_ROUTING_NONE, the view couldn't be created.  modal_dialog_event is set

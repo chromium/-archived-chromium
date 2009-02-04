@@ -15,7 +15,6 @@
 #include "base/shared_memory.h"
 #include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/filter_policy.h"
-#include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_transition_types.h"
@@ -31,6 +30,7 @@
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/screen_info.h"
 #include "webkit/glue/webdropdata.h"
+#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview_delegate.h"
@@ -445,28 +445,6 @@ enum ViewHostMsg_ImeControl {
   IME_MOVE_WINDOWS,
   IME_COMPLETE_COMPOSITION,
 };
-
-// Multi-pass include of render_messages_internal.  Preprocessor magic allows
-// us to use 1 header to define the enums and classes for our render messages.
-#define IPC_MESSAGE_MACROS_ENUMS
-#include "chrome/common/render_messages_internal.h"
-
-#ifdef IPC_MESSAGE_MACROS_LOG_ENABLED
-// When we are supposed to create debug strings, we run it through twice, once
-// with debug strings on, and once with only CLASSES on to generate both types
-// of messages.
-#  undef IPC_MESSAGE_MACROS_LOG
-#  define IPC_MESSAGE_MACROS_CLASSES
-#  include "chrome/common/render_messages_internal.h"
-
-#  undef IPC_MESSAGE_MACROS_CLASSES
-#  define IPC_MESSAGE_MACROS_LOG
-#  include "chrome/common/render_messages_internal.h"
-#else
-// No debug strings requested, just define the classes
-#  define IPC_MESSAGE_MACROS_CLASSES
-#  include "chrome/common/render_messages_internal.h"
-#endif
 
 
 namespace IPC {
@@ -1760,5 +1738,9 @@ struct ParamTraits<gfx::NativeView> {
 #endif  // defined(OS_POSIX)
 
 }  // namespace IPC
+
+
+#define MESSAGES_INTERNAL_FILE "chrome/common/render_messages_internal.h"
+#include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_RENDER_MESSAGES_H_

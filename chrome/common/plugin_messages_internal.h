@@ -9,7 +9,7 @@
 //-----------------------------------------------------------------------------
 // PluginProcess messages
 // These are messages sent from the browser to the plugin process.
-IPC_BEGIN_MESSAGES(PluginProcess, 3)
+IPC_BEGIN_MESSAGES(PluginProcess)
   // Tells the plugin process to create a new channel for communication with a
   // renderer.  The channel name is returned in a
   // PluginProcessHostMsg_ChannelCreated message.
@@ -35,7 +35,7 @@ IPC_END_MESSAGES(PluginProcess)
 //-----------------------------------------------------------------------------
 // PluginProcessHost messages
 // These are messages sent from the plugin process to the browser process.
-IPC_BEGIN_MESSAGES(PluginProcessHost, 4)
+IPC_BEGIN_MESSAGES(PluginProcessHost)
   // Response to a PluginProcessMsg_CreateChannel message.
   IPC_MESSAGE_CONTROL2(PluginProcessHostMsg_ChannelCreated,
                        int /* process_id */,
@@ -92,7 +92,7 @@ IPC_END_MESSAGES(PluginProcessHost)
 //-----------------------------------------------------------------------------
 // Plugin messages
 // These are messages sent from the renderer process to the plugin process.
-IPC_BEGIN_MESSAGES(Plugin, 5)
+IPC_BEGIN_MESSAGES(Plugin)
   // Tells the plugin process to create a new plugin instance with the given
   // id.  A corresponding WebPluginDelegateStub is created which hosts the
   // WebPluginDelegateImpl.
@@ -202,7 +202,7 @@ IPC_END_MESSAGES(Plugin)
 // PluginHost messages
 // These are messages sent from the plugin process to the renderer process.
 // They all map to the corresponding WebPlugin methods.
-IPC_BEGIN_MESSAGES(PluginHost, 6)
+IPC_BEGIN_MESSAGES(PluginHost)
   // Sends the plugin window information to the renderer.
   // The window parameter is a handle to the window if the plugin is a windowed
   // plugin. It is NULL for windowless plugins.
@@ -274,7 +274,7 @@ IPC_END_MESSAGES(PluginHost)
 // NPObject messages
 // These are messages used to marshall NPObjects.  They are sent both from the
 // plugin to the renderer and from the renderer to the plugin.
-IPC_BEGIN_MESSAGES(NPObject, 7)
+IPC_BEGIN_MESSAGES(NPObject)
   IPC_SYNC_MESSAGE_ROUTED0_0(NPObjectMsg_Release)
 
   IPC_SYNC_MESSAGE_ROUTED1_1(NPObjectMsg_HasMethod,

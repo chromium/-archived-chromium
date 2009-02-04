@@ -14,13 +14,9 @@
 #include "base/logging.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#define IPC_MESSAGE_MACROS_ENUMS
-#include "chrome/common/ipc_sync_message_unittest.h"
 
-// define the classes
-#define IPC_MESSAGE_MACROS_CLASSES
-#include "chrome/common/ipc_sync_message_unittest.h"
-
+#define MESSAGES_INTERNAL_FILE "chrome/common/ipc_sync_message_unittest.h"
+#include "chrome/common/ipc_message_macros.h"
 
 static IPC::Message* g_reply;
 

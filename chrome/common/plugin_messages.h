@@ -15,13 +15,10 @@
 
 #include "base/gfx/rect.h"
 #include "base/basictypes.h"
-#include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "webkit/glue/npruntime_util.h"
-
-void PluginMessagesInit();
 
 // Name prefix of the event handle when a message box is displayed.
 #define kMessageBoxEventPrefix L"message_box_active"
@@ -102,23 +99,6 @@ struct NPVariant_Param {
   void* npobject_pointer;
 };
 
-
-#define IPC_MESSAGE_MACROS_ENUMS
-#include "chrome/common/plugin_messages_internal.h"
-
-#ifdef IPC_MESSAGE_MACROS_LOG_ENABLED
-#  undef IPC_MESSAGE_MACROS_LOG
-#  define IPC_MESSAGE_MACROS_CLASSES
-
-#  include "chrome/common/plugin_messages_internal.h"
-#  define IPC_MESSAGE_MACROS_LOG
-#  undef IPC_MESSAGE_MACROS_CLASSES
-
-#  include "chrome/common/plugin_messages_internal.h"
-#else
-#  define IPC_MESSAGE_MACROS_CLASSES
-#  include "chrome/common/plugin_messages_internal.h"
-#endif
 
 namespace IPC {
 
@@ -474,6 +454,10 @@ struct ParamTraits<NPVariant_Param> {
 };
 
 }  // namespace IPC
+
+
+#define MESSAGES_INTERNAL_FILE "chrome/common/plugin_messages_internal.h"
+#include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_PLUGIN_MESSAGES_H__
 

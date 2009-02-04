@@ -96,10 +96,9 @@ TEST(IPCMessageIntegrity, ReadVectorTooLarge2) {
   EXPECT_FALSE(ReadParam(&m, &iter, &vec));
 }
 
-// Typically the ipc_message_macros files is included twice but here we only
-// include it once in 'enum mode' because we want more control of the class
-// definitions.
-#define IPC_MESSAGE_MACROS_ENUMS
+// We don't actually use the messages defined in this file, but we do this
+// to get to the IPC macros.
+#define MESSAGES_INTERNAL_FILE "chrome/common/ipc_sync_message_unittest.h"
 #include "chrome/common/ipc_message_macros.h"
 
 enum IPCMessageIds {

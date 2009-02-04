@@ -41,6 +41,33 @@
 
 #include "chrome/common/ipc_message_utils.h"
 
+
+#ifndef MESSAGES_INTERNAL_FILE
+#error This file should only be included by X_messages.h, which needs to define MESSAGES_INTERNAL_FILE first.
+#endif
+
+#ifndef IPC_MESSAGE_MACROS_INCLUDE_BLOCK
+#define IPC_MESSAGE_MACROS_INCLUDE_BLOCK
+
+// Multi-pass include of X_messages_internal.h.  Preprocessor magic allows
+// us to use 1 header to define the enums and classes for our render messages.
+#define IPC_MESSAGE_MACROS_ENUMS
+#include MESSAGES_INTERNAL_FILE
+
+#define IPC_MESSAGE_MACROS_CLASSES
+#include MESSAGES_INTERNAL_FILE
+
+#ifdef IPC_MESSAGE_MACROS_LOG_ENABLED
+#define IPC_MESSAGE_MACROS_LOG
+#include MESSAGES_INTERNAL_FILE
+#endif
+
+#undef MESSAGES_INTERNAL_FILE
+#undef IPC_MESSAGE_MACROS_INCLUDE_BLOCK
+
+#endif
+
+
 // Undefine the macros from the previous pass (if any).
 #undef IPC_BEGIN_MESSAGES
 #undef IPC_END_MESSAGES
@@ -102,10 +129,11 @@
 // 16 channel types (currently using 8) and 4K messages per type.  Should
 // really make type be 32 bits, but then we break automation with older Chrome
 // builds..
-#define IPC_BEGIN_MESSAGES(label, start) \
+
+#define IPC_BEGIN_MESSAGES(label) \
   enum label##MsgType { \
-  label##Start = start << 12, \
-  label##PreStart = (start << 12) - 1,  // Do this so that automation messages keep the same id as before
+  label##Start = label##MsgStart << 12, \
+  label##PreStart = (label##MsgStart << 12) - 1,  // Do this so that automation messages keep the same id as before
 
 #define IPC_END_MESSAGES(label) \
   label##End \
@@ -341,7 +369,7 @@ void class_name::OnMessageReceived(const IPC::Message& msg) \
 #elif defined(IPC_MESSAGE_MACROS_LOG)
 #undef IPC_MESSAGE_MACROS_LOG
 
-#define IPC_BEGIN_MESSAGES(label, start) \
+#define IPC_BEGIN_MESSAGES(label) \
   void label##MsgLog(uint16 type, std::wstring* name, const IPC::Message* msg, std::wstring* params) { \
   switch (type) {
 
@@ -510,7 +538,7 @@ void class_name::OnMessageReceived(const IPC::Message& msg) \
 #elif defined(IPC_MESSAGE_MACROS_CLASSES)
 #undef IPC_MESSAGE_MACROS_CLASSES
 
-#define IPC_BEGIN_MESSAGES(label, start)
+#define IPC_BEGIN_MESSAGES(label)
 #define IPC_END_MESSAGES(label)
 
 #define IPC_MESSAGE_CONTROL0(msg_class) \

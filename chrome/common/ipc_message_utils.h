@@ -34,16 +34,32 @@ namespace webkit_glue {
 struct WebApplicationInfo;
 }  // namespace webkit_glue
 
+// Used by IPC_BEGIN_MESSAGES so that each message class starts from a unique
+// base.  Messages have unique IDs across channels in order for the IPC logging
+// code to figure out the message class from its ID.
+enum IPCMessageStart {
+  // By using a start value of 0 for automation messages, we keep backward
+  // compatibility with old builds.
+  AutomationMsgStart = 0,
+  ViewMsgStart,
+  ViewHostMsgStart,
+  PluginProcessMsgStart,
+  PluginProcessHostMsgStart,
+  PluginMsgStart,
+  PluginHostMsgStart,
+  NPObjectMsgStart,
+  TestMsgStart,
+  // NOTE: When you add a new message class, also update
+  // IPCStatusView::IPCStatusView to ensure logging works.
+  // NOTE: this enum is used by IPC_MESSAGE_MACRO to generate a unique message
+  // id.  Only 4 bits are used for the message type, so if this enum needs more
+  // than 16 entries, that code needs to be updated.
+  LastMsgIndex
+};
+
+COMPILE_ASSERT(LastMsgIndex <= 16, need_to_update_IPC_MESSAGE_MACRO);
+
 namespace IPC {
-
-// Used by the message macros to register a logging function based on the
-// message class.
-typedef void (LogFunction)(uint16 type,
-                           std::wstring* name,
-                           const IPC::Message* msg,
-                           std::wstring* params);
-void RegisterMessageLogger(int msg_start, LogFunction* func);
-
 
 //-----------------------------------------------------------------------------
 // An iterator class for reading the fields contained within a Message.
