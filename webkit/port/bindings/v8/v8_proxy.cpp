@@ -2315,7 +2315,7 @@ void V8Proxy::InitContextIfNeeded()
   }
   v8::ExtensionConfiguration extensions(m_extensions.size(), extension_names);
   m_context = v8::Context::New(&extensions, global_template, m_global);
-  delete extension_names;
+  delete [] extension_names;
   extension_names = 0;
 
   if (m_context.IsEmpty())
