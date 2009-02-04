@@ -15,7 +15,9 @@
 SKIP : LayoutTests/dom/xhtml = PASS
 
 // We do not want to support Legacy mac encodings on Windows/Linux.
-SKIP WIN LINUX : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
+// On Mac, we can support them by building platform/text/mac, but
+// probably we don't want there, either.
+SKIP : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 
 // Fails due to different window.close() rules.  See bug 753420.  We need
 // to decide whether we ever expect to pass this.  Now also timing out.
