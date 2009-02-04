@@ -1021,7 +1021,6 @@ chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // NEW FOR MERGE 37604:38097
-LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 // This is a Safari specific test used to document the set of global
 // constructors they expose and the exact way they are printed.  Not
 // important - we might even want to ignore it.
@@ -1617,6 +1616,8 @@ SKIP : LayoutTests/fast/events/pointer-events.html = FAIL
 
 // Merge 39744:39829 - new tests
 WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
+// This tests legacy mac encodings of form input values as part of URLs.
+// http://crbug.com/7388.
 LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
