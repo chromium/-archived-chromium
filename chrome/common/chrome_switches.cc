@@ -141,10 +141,10 @@ const wchar_t kUserAgent[]                     = L"user-agent";
 // Specifies the flags passed to JS engine
 const wchar_t kJavaScriptFlags[]               = L"js-flags";
 
-// The GeoID we should use.  This is normally obtained from the operating system
-// during first run and cached in the preferences afterwards.  This is a numeric
-// value; see http://msdn.microsoft.com/en-us/library/ms776390.aspx .
-const wchar_t kGeoID[]                         = L"geoid";
+// The Country we should use.  This is normally obtained from the operating
+// system during first run and cached in the preferences afterwards.  This is a
+// string value, the 2 letter code from ISO 3166-1.
+const wchar_t kCountry[]                       = L"country";
 
 // The language file that we want to try to open.  Of the form
 // language[-country] where language is the 2 letter code from ISO-639.

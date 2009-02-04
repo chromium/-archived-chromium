@@ -156,7 +156,7 @@ TEST_F(TemplateURLTest, URLRefTermToWide) {
   ASSERT_TRUE(ref.IsValid());
   ASSERT_TRUE(ref.SupportsReplacement());
 
-  for (int i = 0; i < arraysize(to_wide_cases); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(to_wide_cases); i++) {
     std::wstring result = ref.SearchTermToWide(t_url,
         to_wide_cases[i].encoded_search_term);
 
@@ -168,12 +168,12 @@ TEST_F(TemplateURLTest, SetFavIcon) {
   TemplateURL url;
   GURL favicon_url("http://favicon.url");
   url.SetFavIconURL(favicon_url);
-  ASSERT_EQ(1, url.image_refs().size());
+  ASSERT_EQ(1U, url.image_refs().size());
   ASSERT_TRUE(favicon_url == url.GetFavIconURL());
 
   GURL favicon_url2("http://favicon2.url");
   url.SetFavIconURL(favicon_url2);
-  ASSERT_EQ(1, url.image_refs().size());
+  ASSERT_EQ(1U, url.image_refs().size());
   ASSERT_TRUE(favicon_url2 == url.GetFavIconURL());
 }
 
@@ -191,7 +191,7 @@ TEST_F(TemplateURLTest, DisplayURLToURLRef) {
     { L"http://foo{searchTerms}{language}",
       L"http://foo%s{language}" },
   };
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     TemplateURLRef ref(data[i].url, 1, 2);
     EXPECT_EQ(data[i].expected_result, ref.DisplayURL());
     EXPECT_EQ(data[i].url,
@@ -231,7 +231,7 @@ TEST_F(TemplateURLTest, ReplaceSearchTerms) {
   };
   TemplateURL turl;
   turl.add_input_encoding("UTF-8");
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     TemplateURLRef ref(data[i].url, 1, 2);
     EXPECT_TRUE(ref.IsValid());
     EXPECT_TRUE(ref.SupportsReplacement());
@@ -260,7 +260,7 @@ TEST_F(TemplateURLTest, ReplaceArbitrarySearchTerms) {
     { "UTF-8", L"blah",   L"http://foo/{searchTerms}{inputEncoding}",
       "http://foo/blahUTF-8" },
   };
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     TemplateURL turl;
     turl.add_input_encoding(data[i].encoding);
     TemplateURLRef ref(data[i].url, 1, 2);
@@ -294,7 +294,7 @@ TEST_F(TemplateURLTest, Suggestions) {
       L"{google:originalQueryForSuggestion}q={searchTerms}", 1, 2);
   ASSERT_TRUE(ref.IsValid());
   ASSERT_TRUE(ref.SupportsReplacement());
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     GURL result = ref.ReplaceSearchTerms(turl, L"foobar",
         data[i].accepted_suggestion, data[i].original_query_for_suggestion);
     EXPECT_TRUE(result.is_valid());
@@ -346,7 +346,7 @@ TEST_F(TemplateURLTest, HostAndSearchTermKey) {
   };
 
   TemplateURL t_url;
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     t_url.SetURL(data[i].url, 0, 0);
     EXPECT_EQ(data[i].host, t_url.url()->GetHost());
     EXPECT_EQ(data[i].path, t_url.url()->GetPath());
@@ -367,7 +367,7 @@ TEST_F(TemplateURLTest, GoogleBaseSuggestURL) {
     { L"http://google.com/intl/xx/", L"http://clients1.google.com/complete/", },
   };
 
-  for (int i = 0; i < arraysize(data); ++i)
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i)
     CheckSuggestBaseURL(data[i].base_url, data[i].base_suggest_url);
 }
 

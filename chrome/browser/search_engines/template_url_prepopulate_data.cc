@@ -5,11 +5,17 @@
 #include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 
 #include "base/command_line.h"
+#include "base/string_util.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+
+#if defined(OS_WIN)
 #undef IN  // On Windows, windef.h defines this, which screws up "India" cases.
+#elif defined(OS_MACOSX)
+#include "base/scoped_cftyperef.h"
+#endif
 
 using base::Time;
 
@@ -27,7 +33,7 @@ struct PrepopulatedEngine {
   // generated search URL should use this.
   // If the empty string, the engine has no keyword.
   const wchar_t* const keyword;      
-  const wchar_t* const favicon_url;  // If NULL, there is no favicon.
+  const char* const favicon_url;  // If NULL, there is no favicon.
   const wchar_t* const search_url;
   const char* const encoding;
   const wchar_t* const suggest_url;  // If NULL, this engine does not support
@@ -55,7 +61,7 @@ struct PrepopulatedEngine {
 const PrepopulatedEngine abcsok = {
   L"ABC S\x00f8k",
   L"abcsok.no",
-  L"http://abcsok.no/favicon.ico",
+  "http://abcsok.no/favicon.ico",
   L"http://abcsok.no/index.html?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -65,7 +71,7 @@ const PrepopulatedEngine abcsok = {
 const PrepopulatedEngine adonde = {
   L"Adonde.com",
   L"adonde.com",
-  L"http://www.adonde.com/favicon.ico",
+  "http://www.adonde.com/favicon.ico",
   L"http://www.adonde.com/peru/peru.html?sitesearch=adonde.com&"
       L"client=pub-6263803831447773&ie={inputEncoding}&cof=GALT%3A%23CC0000"
       L"%3BGL%3A1%3BDIV%3A%23E6E6E6%3BVLC%3A663399%3BAH%3Acenter%3BBGC%3AFFFFFF"
@@ -79,7 +85,7 @@ const PrepopulatedEngine adonde = {
 const PrepopulatedEngine aeiou = {
   L"AEIOU",
   L"aeiou.pt",
-  L"http://aeiou.pt/favicon.ico",
+  "http://aeiou.pt/favicon.ico",
   L"http://aeiou.pt/pesquisa/index.php?p={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -89,7 +95,7 @@ const PrepopulatedEngine aeiou = {
 const PrepopulatedEngine aladin = {
   L"Aladin",
   L"aladin.info",
-  L"http://www.aladin.info/favicon.ico",
+  "http://www.aladin.info/favicon.ico",
   L"http://www.aladin.info/search/index.php?term={searchTerms}&req=search&"
       L"source=2",
   "UTF-8",
@@ -100,7 +106,7 @@ const PrepopulatedEngine aladin = {
 const PrepopulatedEngine altavista = {
   L"AltaVista",
   L"altavista.com",
-  L"http://www.altavista.com/favicon.ico",
+  "http://www.altavista.com/favicon.ico",
   L"http://www.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -110,7 +116,7 @@ const PrepopulatedEngine altavista = {
 const PrepopulatedEngine altavista_ar = {
   L"AltaVista",
   L"ar.altavista.com",
-  L"http://ar.altavista.com/favicon.ico",
+  "http://ar.altavista.com/favicon.ico",
   L"http://ar.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -120,7 +126,7 @@ const PrepopulatedEngine altavista_ar = {
 const PrepopulatedEngine altavista_es = {
   L"AltaVista",
   L"es.altavista.com",
-  L"http://es.altavista.com/favicon.ico",
+  "http://es.altavista.com/favicon.ico",
   L"http://es.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -130,7 +136,7 @@ const PrepopulatedEngine altavista_es = {
 const PrepopulatedEngine altavista_mx = {
   L"AltaVista",
   L"mx.altavista.com",
-  L"http://mx.altavista.com/favicon.ico",
+  "http://mx.altavista.com/favicon.ico",
   L"http://mx.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -140,7 +146,7 @@ const PrepopulatedEngine altavista_mx = {
 const PrepopulatedEngine altavista_se = {
   L"AltaVista",
   L"se.altavista.com",
-  L"http://se.altavista.com/favicon.ico",
+  "http://se.altavista.com/favicon.ico",
   L"http://se.altavista.com/web/results?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -150,7 +156,7 @@ const PrepopulatedEngine altavista_se = {
 const PrepopulatedEngine aol = {
   L"AOL",
   L"aol.com",
-  L"http://search.aol.com/favicon.ico",
+  "http://search.aol.com/favicon.ico",
   L"http://search.aol.com/aol/search?query={searchTerms}",
   "UTF-8",
   NULL,
@@ -160,7 +166,7 @@ const PrepopulatedEngine aol = {
 const PrepopulatedEngine aol_fr = {
   L"AOL",
   L"aol.fr",
-  L"http://www.aol.fr/favicon.ico",
+  "http://www.aol.fr/favicon.ico",
   L"http://www.recherche.aol.fr/aol/search?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -170,7 +176,7 @@ const PrepopulatedEngine aol_fr = {
 const PrepopulatedEngine aonde = {
   L"AONDE.com",
   L"aonde.com",
-  L"http://busca.aonde.com/favicon.ico",
+  "http://busca.aonde.com/favicon.ico",
   L"http://busca.aonde.com/?keys={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -180,7 +186,7 @@ const PrepopulatedEngine aonde = {
 const PrepopulatedEngine araby = {
   L"\x0639\x0631\x0628\x064a",
   L"araby.com",
-  L"http://araby.com/favicon.ico",
+  "http://araby.com/favicon.ico",
   L"http://araby.com/?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -190,7 +196,7 @@ const PrepopulatedEngine araby = {
 const PrepopulatedEngine ask = {
   L"Ask",
   L"ask.com",
-  L"http://www.ask.com/favicon.ico",
+  "http://www.ask.com/favicon.ico",
   L"http://www.ask.com/web?q={searchTerms}",
   "UTF-8",
   L"http://ss.ask.com/query?q={searchTerms}&li=ff",
@@ -200,7 +206,7 @@ const PrepopulatedEngine ask = {
 const PrepopulatedEngine ask_de = {
   L"Ask.com Deutschland",
   L"de.ask.com",
-  L"http://de.ask.com/favicon.ico",
+  "http://de.ask.com/favicon.ico",
   L"http://de.ask.com/web?q={searchTerms}",
   "UTF-8",
   L"http://ss.de.ask.com/query?q={searchTerms}&li=ff",
@@ -210,7 +216,7 @@ const PrepopulatedEngine ask_de = {
 const PrepopulatedEngine ask_es = {
   L"Ask.com Espa" L"\x00f1" L"a",
   L"es.ask.com",
-  L"http://es.ask.com/favicon.ico",
+  "http://es.ask.com/favicon.ico",
   L"http://es.ask.com/web?q={searchTerms}",
   "UTF-8",
   L"http://ss.es.ask.com/query?q={searchTerms}&li=ff",
@@ -220,7 +226,7 @@ const PrepopulatedEngine ask_es = {
 const PrepopulatedEngine ask_it = {
   L"Ask.com Italia",
   L"it.ask.com",
-  L"http://it.ask.com/favicon.ico",
+  "http://it.ask.com/favicon.ico",
   L"http://it.ask.com/web?q={searchTerms}",
   "UTF-8",
   L"http://ss.it.ask.com/query?q={searchTerms}&li=ff",
@@ -230,7 +236,7 @@ const PrepopulatedEngine ask_it = {
 const PrepopulatedEngine ask_uk = {
   L"Ask.com UK",
   L"uk.ask.com",
-  L"http://uk.ask.com/favicon.ico",
+  "http://uk.ask.com/favicon.ico",
   L"http://uk.ask.com/web?q={searchTerms}",
   "UTF-8",
   L"http://ss.uk.ask.com/query?q={searchTerms}&li=ff",
@@ -240,7 +246,7 @@ const PrepopulatedEngine ask_uk = {
 const PrepopulatedEngine atlas_cz = {
   L"Atlas",
   L"atlas.cz",
-  L"http://img.atlas.cz/favicon.ico",
+  "http://img.atlas.cz/favicon.ico",
   L"http://search.atlas.cz/?q={searchTerms}",
   "windows-1250",
   NULL,
@@ -250,7 +256,7 @@ const PrepopulatedEngine atlas_cz = {
 const PrepopulatedEngine atlas_sk = {
   L"ATLAS.SK",
   L"atlas.sk",
-  L"http://www.atlas.sk/images/favicon.ico",
+  "http://www.atlas.sk/images/favicon.ico",
   L"http://hladaj.atlas.sk/fulltext/?phrase={searchTerms}",
   "UTF-8",
   NULL,
@@ -260,7 +266,7 @@ const PrepopulatedEngine atlas_sk = {
 const PrepopulatedEngine baidu = {
   L"\x767e\x5ea6",
   L"baidu.com",
-  L"http://www.baidu.com/favicon.ico",
+  "http://www.baidu.com/favicon.ico",
   L"http://www.baidu.com/s?wd={searchTerms}",
   "GB2312",
   NULL,
@@ -270,7 +276,7 @@ const PrepopulatedEngine baidu = {
 const PrepopulatedEngine biglobe = {
   L"BIGLOBE",
   L"biglobe.ne.jp",
-  L"http://cgi.search.biglobe.ne.jp/favicon.ico",
+  "http://cgi.search.biglobe.ne.jp/favicon.ico",
   L"http://cgi.search.biglobe.ne.jp/cgi-bin/search2-b?q={searchTerms}",
   "Shift_JIS",
   NULL,
@@ -280,7 +286,7 @@ const PrepopulatedEngine biglobe = {
 const PrepopulatedEngine bigmir = {
   L"bigmir)net",
   L"bigmir.net",
-  L"http://i.bigmir.net/favicon.ico",
+  "http://i.bigmir.net/favicon.ico",
   L"http://search.bigmir.net/index.php?q={searchTerms}",
   "windows-1251",
   NULL,
@@ -290,7 +296,7 @@ const PrepopulatedEngine bigmir = {
 const PrepopulatedEngine bluewin = {
   L"Bluewin",
   L"search.bluewin.ch",
-  L"http://search.bluewin.ch/favicon.ico",
+  "http://search.bluewin.ch/favicon.ico",
   L"http://search.bluewin.ch/bw/search/web/de/result.jsp?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -300,7 +306,7 @@ const PrepopulatedEngine bluewin = {
 const PrepopulatedEngine centrum_cz = {
   L"Centrum.cz",
   L"centrum.cz",
-  L"http://img.centrum.cz/6/vy2/o/favicon.ico",
+  "http://img.centrum.cz/6/vy2/o/favicon.ico",
   L"http://search.centrum.cz/index.php?charset={inputEncoding}&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -310,7 +316,7 @@ const PrepopulatedEngine centrum_cz = {
 const PrepopulatedEngine centrum_sk = {
   L"Centrum.sk",
   L"centrum.sk",
-  L"http://img.centrum.sk/4/favicon.ico",
+  "http://img.centrum.sk/4/favicon.ico",
   L"http://search.centrum.sk/index.php?charset={inputEncoding}&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -320,7 +326,7 @@ const PrepopulatedEngine centrum_sk = {
 const PrepopulatedEngine conexcol = {
   L"Conexcol.com",
   L"conexcol.com",
-  L"http://www.conexcol.com/favicon.ico",
+  "http://www.conexcol.com/favicon.ico",
   L"http://buscar.conexcol.com/cgi-ps/busqueda.cgi?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -330,7 +336,7 @@ const PrepopulatedEngine conexcol = {
 const PrepopulatedEngine daum = {
   L"Daum",
   L"daum.net",
-  L"http://search.daum.net/favicon.ico",
+  "http://search.daum.net/favicon.ico",
   L"http://search.daum.net/search?q={searchTerms}",
   "EUC-KR",
    L"http://sug.search.daum.net/search_nsuggest?mod=fxjson&q={searchTerms}",
@@ -340,7 +346,7 @@ const PrepopulatedEngine daum = {
 const PrepopulatedEngine delfi_ee = {
   L"DELFI",
   L"delfi.ee",
-  L"http://g.delfi.ee/s/search.png",
+  "http://g.delfi.ee/s/search.png",
   L"http://otsing.delfi.ee/i.php?q={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -350,7 +356,7 @@ const PrepopulatedEngine delfi_ee = {
 const PrepopulatedEngine delfi_lt = {
   L"DELFI",
   L"delfi.lt",
-  L"http://search.delfi.lt/img/favicon.png",
+  "http://search.delfi.lt/img/favicon.png",
   L"http://search.delfi.lt/search.php?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -360,7 +366,7 @@ const PrepopulatedEngine delfi_lt = {
 const PrepopulatedEngine delfi_lv = {
   L"DELFI",
   L"delfi.lv",
-  L"http://smart.delfi.lv/img/smart_search.png",
+  "http://smart.delfi.lv/img/smart_search.png",
   L"http://smart.delfi.lv/i.php?enc={inputEncoding}&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -370,7 +376,7 @@ const PrepopulatedEngine delfi_lv = {
 const PrepopulatedEngine embla = {
   L"Embla",
   L"embla.is",
-  L"http://embla.is/favicon.ico",
+  "http://embla.is/favicon.ico",
   L"http://embla.is/mm/embla/?s={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -380,7 +386,7 @@ const PrepopulatedEngine embla = {
 const PrepopulatedEngine empas = {
   L"\xc5e0\xd30c\xc2a4",
   L"empas.com",
-  L"http://search.empas.com/favicon.ico",
+  "http://search.empas.com/favicon.ico",
   L"http://search.empas.com/search/all.html?q={searchTerms}",
   "EUC-KR",
   // http://www.empas.com/ac/do.tsp?q={searchTerms}
@@ -393,7 +399,7 @@ const PrepopulatedEngine empas = {
 const PrepopulatedEngine eniro_dk = {
   L"Eniro",
   L"eniro.dk",
-  L"http://eniro.dk/favicon.ico",
+  "http://eniro.dk/favicon.ico",
   L"http://eniro.dk/query?search_word={searchTerms}&what=web_local",
   "ISO-8859-1",
   NULL,
@@ -403,7 +409,7 @@ const PrepopulatedEngine eniro_dk = {
 const PrepopulatedEngine eniro_fi = {
   L"Eniro",
   L"eniro.fi",
-  L"http://eniro.fi/favicon.ico",
+  "http://eniro.fi/favicon.ico",
   L"http://eniro.fi/query?search_word={searchTerms}&what=web_local",
   "ISO-8859-1",
   NULL,
@@ -413,7 +419,7 @@ const PrepopulatedEngine eniro_fi = {
 const PrepopulatedEngine eniro_se = {
   L"Eniro",
   L"eniro.se",
-  L"http://eniro.se/favicon.ico",
+  "http://eniro.se/favicon.ico",
   L"http://eniro.se/query?search_word={searchTerms}&what=web_local",
   "ISO-8859-1",
   NULL,
@@ -423,7 +429,7 @@ const PrepopulatedEngine eniro_se = {
 const PrepopulatedEngine finna = {
   L"FINNA",
   L"finna.is",
-  L"http://finna.is/favicon.ico",
+  "http://finna.is/favicon.ico",
   L"http://finna.is/WWW_Search/?query={searchTerms}",
   "UTF-8",
   NULL,
@@ -433,7 +439,7 @@ const PrepopulatedEngine finna = {
 const PrepopulatedEngine fonecta_02_fi = {
   L"Fonecta 02.fi",
   L"www.fi",
-  L"http://www.02.fi/img/favicon.ico",
+  "http://www.02.fi/img/favicon.ico",
   L"http://www.02.fi/haku/{searchTerms}",
   "UTF-8",
   NULL,
@@ -443,7 +449,7 @@ const PrepopulatedEngine fonecta_02_fi = {
 const PrepopulatedEngine forthnet = {
   L"Forthnet",
   L"forthnet.gr",
-  L"http://search.forthnet.gr/favicon.ico",
+  "http://search.forthnet.gr/favicon.ico",
   L"http://search.forthnet.gr/cgi-bin/query?mss=search&q={searchTerms}",
   "windows-1253",
   NULL,
@@ -453,7 +459,7 @@ const PrepopulatedEngine forthnet = {
 const PrepopulatedEngine gigabusca = {
   L"GiGaBusca",
   L"gigabusca.com.br",
-  L"http://www.gigabusca.com.br/favicon.ico",
+  "http://www.gigabusca.com.br/favicon.ico",
   L"http://www.gigabusca.com.br/buscar.php?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -463,7 +469,7 @@ const PrepopulatedEngine gigabusca = {
 const PrepopulatedEngine go = {
   L"GO.com",
   L"go.com",
-  L"http://search.yahoo.com/favicon.ico",
+  "http://search.yahoo.com/favicon.ico",
   L"http://search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}&"
       L"fr=hsusgo1",
   "ISO-8859-1",
@@ -474,7 +480,7 @@ const PrepopulatedEngine go = {
 const PrepopulatedEngine goo = {
   L"goo",
   L"goo.ne.jp",
-  L"http://goo.ne.jp/gooicon.ico",
+  "http://goo.ne.jp/gooicon.ico",
   L"http://search.goo.ne.jp/web.jsp?MT={searchTerms}&IE={inputEncoding}",
   "UTF-8",
   NULL,
@@ -484,7 +490,7 @@ const PrepopulatedEngine goo = {
 const PrepopulatedEngine google = {
   L"Google",
   NULL,
-  L"http://www.google.com/favicon.ico",
+  "http://www.google.com/favicon.ico",
   L"{google:baseURL}search?{google:RLZ}{google:acceptedSuggestion}"
       L"{google:originalQueryForSuggestion}sourceid=chrome&ie={inputEncoding}&"
       L"q={searchTerms}",
@@ -497,7 +503,7 @@ const PrepopulatedEngine google = {
 const PrepopulatedEngine guruji = {
   L"guruji",
   L"guruji.com",
-  L"http://guruji.com/favicon.ico",
+  "http://guruji.com/favicon.ico",
   L"http://guruji.com/search?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -517,7 +523,7 @@ const PrepopulatedEngine iafrica = {
 const PrepopulatedEngine ilse = {
   L"Ilse",
   L"ilse.nl",
-  L"http://search.ilse.nl/images/favicon.ico",
+  "http://search.ilse.nl/images/favicon.ico",
   L"http://search.ilse.nl/web?search_for={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -527,7 +533,7 @@ const PrepopulatedEngine ilse = {
 const PrepopulatedEngine in = {
   L"in.gr",
   L"in.gr",
-  L"http://www.in.gr/favicon.ico",
+  "http://www.in.gr/favicon.ico",
   L"http://find.in.gr/result.asp?q={searchTerms}",
   "ISO-8859-7",
   NULL,
@@ -537,7 +543,7 @@ const PrepopulatedEngine in = {
 const PrepopulatedEngine jabse = {
   L"Jabse",
   L"jabse.com",
-  L"http://www.jabse.com/favicon.ico",
+  "http://www.jabse.com/favicon.ico",
   L"http://www.jabse.com/searchmachine.php?query={searchTerms}",
   "UTF-8",
   NULL,
@@ -547,7 +553,7 @@ const PrepopulatedEngine jabse = {
 const PrepopulatedEngine jamaicalive = {
   L"JamaicaLive",
   L"jalive.com.jm",
-  L"http://jalive.com.jm/favicon.ico",
+  "http://jalive.com.jm/favicon.ico",
   L"http://jalive.com.jm/search/?mode=allwords&search={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -557,7 +563,7 @@ const PrepopulatedEngine jamaicalive = {
 const PrepopulatedEngine jubii = {
   L"Jubii",
   L"jubii.dk",
-  L"http://search.jubii.dk/favicon_jubii.ico",
+  "http://search.jubii.dk/favicon_jubii.ico",
   L"http://search.jubii.dk/cgi-bin/pursuit?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -567,7 +573,7 @@ const PrepopulatedEngine jubii = {
 const PrepopulatedEngine krstarica = {
   L"Krstarica",
   L"krstarica.rs",
-  L"http://pretraga.krstarica.com/favicon.ico",
+  "http://pretraga.krstarica.com/favicon.ico",
   L"http://pretraga.krstarica.com/index.php?q={searchTerms}",
   "windows-1250",
   NULL,
@@ -577,7 +583,7 @@ const PrepopulatedEngine krstarica = {
 const PrepopulatedEngine kvasir = {
   L"Kvasir",
   L"kvasir.no",
-  L"http://www.kvasir.no/img/favicon.ico",
+  "http://www.kvasir.no/img/favicon.ico",
   L"http://www.kvasir.no/nettsok/searchResult.html?searchExpr={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -587,7 +593,7 @@ const PrepopulatedEngine kvasir = {
 const PrepopulatedEngine latne = {
   L"LATNE",
   L"latne.lv",
-  L"http://latne.lv/favicon.ico",
+  "http://latne.lv/favicon.ico",
   L"http://latne.lv/siets.php?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -597,7 +603,7 @@ const PrepopulatedEngine latne = {
 const PrepopulatedEngine leit = {
   L"leit.is",
   L"leit.is",
-  L"http://leit.is/leit.ico",
+  "http://leit.is/leit.ico",
   L"http://leit.is/query.aspx?qt={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -607,7 +613,7 @@ const PrepopulatedEngine leit = {
 const PrepopulatedEngine libero = {
   L"Libero",
   L"libero.it",
-  L"http://arianna.libero.it/favicon.ico",
+  "http://arianna.libero.it/favicon.ico",
   L"http://arianna.libero.it/search/abin/integrata.cgi?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -617,7 +623,7 @@ const PrepopulatedEngine libero = {
 const PrepopulatedEngine live = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -627,7 +633,7 @@ const PrepopulatedEngine live = {
 const PrepopulatedEngine live_ar_XA = {
   L"Live Search (\x0627\x0644\x0639\x0631\x0628\x064a\x0629)",
   L"",  // "live.com" is already taken by live_en_XA (see comment on ID below).
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=ar-XA&mkt=ar-XA&"
       L"q={searchTerms}",
   "UTF-8",
@@ -639,7 +645,7 @@ const PrepopulatedEngine live_ar_XA = {
 const PrepopulatedEngine live_bg_BG = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=bg-BG&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -649,7 +655,7 @@ const PrepopulatedEngine live_bg_BG = {
 const PrepopulatedEngine live_cs_CZ = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=cs-CZ&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -659,7 +665,7 @@ const PrepopulatedEngine live_cs_CZ = {
 const PrepopulatedEngine live_el_GR = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=el-GR&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -669,7 +675,7 @@ const PrepopulatedEngine live_el_GR = {
 const PrepopulatedEngine live_en_ID = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=en_ID&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -679,7 +685,7 @@ const PrepopulatedEngine live_en_ID = {
 const PrepopulatedEngine live_en_NZ = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=en-NZ&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -689,7 +695,7 @@ const PrepopulatedEngine live_en_NZ = {
 const PrepopulatedEngine live_en_US = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=en-US&mkt=en-US&"
       L"q={searchTerms}",
   "UTF-8",
@@ -700,7 +706,7 @@ const PrepopulatedEngine live_en_US = {
 const PrepopulatedEngine live_en_XA = {
   L"Live Search (English)",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=en-XA&mkt=en-XA&"
       L"q={searchTerms}",
   "UTF-8",
@@ -711,7 +717,7 @@ const PrepopulatedEngine live_en_XA = {
 const PrepopulatedEngine live_et_EE = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=et-EE&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -721,7 +727,7 @@ const PrepopulatedEngine live_et_EE = {
 const PrepopulatedEngine live_hr_HR = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=hr-HR&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -731,7 +737,7 @@ const PrepopulatedEngine live_hr_HR = {
 const PrepopulatedEngine live_hu_HU = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=hu-HU&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -741,7 +747,7 @@ const PrepopulatedEngine live_hu_HU = {
 const PrepopulatedEngine live_it_IT = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=it-IT&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -751,7 +757,7 @@ const PrepopulatedEngine live_it_IT = {
 const PrepopulatedEngine live_lt_LT = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=lt-LT&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -761,7 +767,7 @@ const PrepopulatedEngine live_lt_LT = {
 const PrepopulatedEngine live_pl_PL = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=pl-PL&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -771,7 +777,7 @@ const PrepopulatedEngine live_pl_PL = {
 const PrepopulatedEngine live_pt_PT = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=pt-PT&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -781,7 +787,7 @@ const PrepopulatedEngine live_pt_PT = {
 const PrepopulatedEngine live_ro_RO = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=ro-RO&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -791,7 +797,7 @@ const PrepopulatedEngine live_ro_RO = {
 const PrepopulatedEngine live_ru_RU = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=ru-RU&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -801,7 +807,7 @@ const PrepopulatedEngine live_ru_RU = {
 const PrepopulatedEngine live_sk_SK = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=sk-SK&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -811,7 +817,7 @@ const PrepopulatedEngine live_sk_SK = {
 const PrepopulatedEngine live_sl_SI = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=sl-SI&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -821,7 +827,7 @@ const PrepopulatedEngine live_sl_SI = {
 const PrepopulatedEngine live_th_TH = {
   L"Live Search",
   L"live.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=th-TH&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -831,7 +837,7 @@ const PrepopulatedEngine live_th_TH = {
 const PrepopulatedEngine lycos_es = {
   L"Lycos Espa" L"\x00f1" L"a",
   L"lycos.es",
-  L"http://buscador.lycos.es/favicon.ico",
+  "http://buscador.lycos.es/favicon.ico",
   L"http://buscador.lycos.es/cgi-bin/pursuit?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -841,7 +847,7 @@ const PrepopulatedEngine lycos_es = {
 const PrepopulatedEngine lycos_nl = {
   L"Lycos",
   L"lycos.nl",
-  L"http://zoek.lycos.nl/favicon.ico",
+  "http://zoek.lycos.nl/favicon.ico",
   L"http://zoek.lycos.nl/cgi-bin/pursuit?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -851,7 +857,7 @@ const PrepopulatedEngine lycos_nl = {
 const PrepopulatedEngine mail_ru = {
   L"@MAIL.RU",
   L"mail.ru",
-  L"http://img.go.mail.ru/favicon.ico",
+  "http://img.go.mail.ru/favicon.ico",
   L"http://go.mail.ru/search?q={searchTerms}",
   "windows-1251",
   NULL,
@@ -861,7 +867,7 @@ const PrepopulatedEngine mail_ru = {
 const PrepopulatedEngine maktoob = {
   L"\x0645\x0643\x062a\x0648\x0628",
   L"maktoob.com",
-  L"http://www.maktoob.com/favicon.ico",
+  "http://www.maktoob.com/favicon.ico",
   L"http://www.maktoob.com/searchResult.php?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -871,7 +877,7 @@ const PrepopulatedEngine maktoob = {
 const PrepopulatedEngine masrawy = {
   L"\x0645\x0635\x0631\x0627\x0648\x064a",
   L"masrawy.com",
-  L"http://www.masrawy.com/new/images/masrawy.ico",
+  "http://www.masrawy.com/new/images/masrawy.ico",
   L"http://masrawy.com/new/search.aspx?sr={searchTerms}",
   "windows-1256",
   NULL,
@@ -881,7 +887,7 @@ const PrepopulatedEngine masrawy = {
 const PrepopulatedEngine matkurja = {
   L"Mat'Kurja",
   L"matkurja.com",
-  L"http://matkurja.com/favicon.ico",
+  "http://matkurja.com/favicon.ico",
   L"http://matkurja.com/si/iskalnik/?q={searchTerms}&search_source=directory",
   "ISO-8859-2",
   NULL,
@@ -891,7 +897,7 @@ const PrepopulatedEngine matkurja = {
 const PrepopulatedEngine meta = {
   L"<META>",
   L"meta.ua",
-  L"http://meta.ua/favicon.ico",
+  "http://meta.ua/favicon.ico",
   L"http://meta.ua/search.asp?q={searchTerms}",
   "windows-1251",
   L"http://meta.ua/suggestions/?output=fxjson&oe=utf-8&q={searchTerms}",
@@ -901,7 +907,7 @@ const PrepopulatedEngine meta = {
 const PrepopulatedEngine msn = {
   L"MSN",
   L"msn.com",
-  L"http://search.msn.com/s/wlflag.ico",
+  "http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -912,7 +918,7 @@ const PrepopulatedEngine msn_ar_XA = {
   L"MSN (\x0627\x0644\x0639\x0631\x0628\x064a\x0629)",
   L"",  // "arabia.msn.com" is already taken by msn_en_XA (see comment on ID
         // below).
-  L"http://search.msn.com/s/wlflag.ico",
+  "http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?setlang=ar-XA&mkt=ar-XA&"
       L"q={searchTerms}",
   "UTF-8",
@@ -924,7 +930,7 @@ const PrepopulatedEngine msn_ar_XA = {
 const PrepopulatedEngine msn_da_DK = {
   L"MSN Danmark",
   L"dk.msn.com",
-  L"http://search.msn.dk/s/wlflag.ico",
+  "http://search.msn.dk/s/wlflag.ico",
   L"http://search.msn.dk/results.aspx?mkt=da-DK&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -934,7 +940,7 @@ const PrepopulatedEngine msn_da_DK = {
 const PrepopulatedEngine msn_de_AT = {
   L"MSN \x00d6sterreich",
   L"at.msn.com",
-  L"http://search.msn.at/s/wlflag.ico",
+  "http://search.msn.at/s/wlflag.ico",
   L"http://search.msn.at/results.aspx?mkt=de-AT&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -944,7 +950,7 @@ const PrepopulatedEngine msn_de_AT = {
 const PrepopulatedEngine msn_de_CH = {
   L"MSN Schweiz (Deutsch)",
   L"ch.msn.com",
-  L"http://search.msn.ch/s/wlflag.ico",
+  "http://search.msn.ch/s/wlflag.ico",
   L"http://search.msn.ch/results.aspx?setlang=de-CH&mkt=de-CH&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -954,7 +960,7 @@ const PrepopulatedEngine msn_de_CH = {
 const PrepopulatedEngine msn_de_DE = {
   L"MSN",
   L"de.msn.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=de-DE&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -964,7 +970,7 @@ const PrepopulatedEngine msn_de_DE = {
 const PrepopulatedEngine msn_en_AU = {
   L"ninemsn.com.au",
   L"ninemsn.com.au",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=en-AU&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -974,7 +980,7 @@ const PrepopulatedEngine msn_en_AU = {
 const PrepopulatedEngine msn_en_CA = {
   L"Sympatico / MSN (English)",
   L"sympatico.msn.ca",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=en-CA&mkt=en-CA&"
       L"q={searchTerms}",
   "UTF-8",
@@ -985,7 +991,7 @@ const PrepopulatedEngine msn_en_CA = {
 const PrepopulatedEngine msn_en_GB = {
   L"MSN UK",
   L"uk.msn.com",
-  L"http://search.msn.co.uk/s/wlflag.ico",
+  "http://search.msn.co.uk/s/wlflag.ico",
   L"http://search.msn.co.uk/results.aspx?mkt=en-GB&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -995,7 +1001,7 @@ const PrepopulatedEngine msn_en_GB = {
 const PrepopulatedEngine msn_en_IE = {
   L"MSN IE",
   L"ie.msn.com",
-  L"http://search.msn.ie/s/wlflag.ico",
+  "http://search.msn.ie/s/wlflag.ico",
   L"http://search.msn.ie/results.aspx?mkt=en-IE&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1005,7 +1011,7 @@ const PrepopulatedEngine msn_en_IE = {
 const PrepopulatedEngine msn_en_IN = {
   L"MSN India",
   L"in.msn.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=en-IN&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1015,7 +1021,7 @@ const PrepopulatedEngine msn_en_IN = {
 const PrepopulatedEngine msn_en_MY = {
   L"MSN Malaysia",
   L"malaysia.msn.com",
-  L"http://search.msn.com.my/s/wlflag.ico",
+  "http://search.msn.com.my/s/wlflag.ico",
   L"http://search.msn.com.my/results.aspx?mkt=en-MY&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1025,7 +1031,7 @@ const PrepopulatedEngine msn_en_MY = {
 const PrepopulatedEngine msn_en_PH = {
   L"MSN Philippines",
   L"ph.msn.com",
-  L"http://search.msn.com.ph/s/wlflag.ico",
+  "http://search.msn.com.ph/s/wlflag.ico",
   L"http://search.msn.com.ph/results.aspx?mkt=en-PH&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1035,7 +1041,7 @@ const PrepopulatedEngine msn_en_PH = {
 const PrepopulatedEngine msn_en_SG = {
   L"MSN Singapore",
   L"sg.msn.com",
-  L"http://search.msn.com.sg/s/wlflag.ico",
+  "http://search.msn.com.sg/s/wlflag.ico",
   L"http://search.msn.com.sg/results.aspx?mkt=en-SG&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1045,7 +1051,7 @@ const PrepopulatedEngine msn_en_SG = {
 const PrepopulatedEngine msn_en_XA = {
   L"MSN (English)",
   L"arabia.msn.com",
-  L"http://search.msn.com/s/wlflag.ico",
+  "http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?setlang=en-XA&mkt=en-XA&"
       L"q={searchTerms}",
   "UTF-8",
@@ -1056,7 +1062,7 @@ const PrepopulatedEngine msn_en_XA = {
 const PrepopulatedEngine msn_en_ZA = {
   L"MSN ZA",
   L"za.msn.com",
-  L"http://search.msn.co.za/s/wlflag.ico",
+  "http://search.msn.co.za/s/wlflag.ico",
   L"http://search.msn.co.za/results.aspx?mkt=en-ZA&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1066,7 +1072,7 @@ const PrepopulatedEngine msn_en_ZA = {
 const PrepopulatedEngine msn_es_AR = {
   L"MSN Argentina",
   L"ar.msn.com",
-  L"http://search.msn.com/s/wlflag.ico",
+  "http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?mkt=es-AR&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1076,7 +1082,7 @@ const PrepopulatedEngine msn_es_AR = {
 const PrepopulatedEngine msn_es_CL = {
   L"MSN Chile",
   L"cl.msn.com",
-  L"http://search.msn.com/s/wlflag.ico",
+  "http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?mkt=es-CL&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1086,7 +1092,7 @@ const PrepopulatedEngine msn_es_CL = {
 const PrepopulatedEngine msn_es_CO = {
   L"MSN Colombia",
   L"co.msn.com",
-  L"http://search.msn.com/s/wlflag.ico",
+  "http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?mkt=es-CO&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1096,7 +1102,7 @@ const PrepopulatedEngine msn_es_CO = {
 const PrepopulatedEngine msn_es_ES = {
   L"MSN Espa" L"\x00f1" L"a",
   L"es.msn.com",
-  L"http://search.msn.es/s/wlflag.ico",
+  "http://search.msn.es/s/wlflag.ico",
   L"http://search.msn.es/results.aspx?mkt=es-ES&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1106,7 +1112,7 @@ const PrepopulatedEngine msn_es_ES = {
 const PrepopulatedEngine msn_es_MX = {
   L"Prodigy / MSN",
   L"prodigy.msn.com",
-  L"http://search.prodigy.msn.com/s/wlflag.ico",
+  "http://search.prodigy.msn.com/s/wlflag.ico",
   L"http://search.prodigy.msn.com/results.aspx?mkt=es-MX&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1116,7 +1122,7 @@ const PrepopulatedEngine msn_es_MX = {
 const PrepopulatedEngine msn_es_XL = {
   L"MSN Latinoam\x00e9rica",
   L"latam.msn.com",
-  L"http://search.msn.com/s/wlflag.ico",
+  "http://search.msn.com/s/wlflag.ico",
   L"http://search.msn.com/results.aspx?mkt=es-XL&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1126,7 +1132,7 @@ const PrepopulatedEngine msn_es_XL = {
 const PrepopulatedEngine msn_fi_FI = {
   L"MSN",
   L"fi.msn.com",
-  L"http://search.msn.fi/s/wlflag.ico",
+  "http://search.msn.fi/s/wlflag.ico",
   L"http://search.msn.fi/results.aspx?mkt=fi-FI&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1136,7 +1142,7 @@ const PrepopulatedEngine msn_fi_FI = {
 const PrepopulatedEngine msn_fr_BE = {
   L"MSN Belgique (Fran" L"\x00e7" L"ais)",
   L"",  // "be.msn.com" is already taken by msn_nl_BE (see comment on ID below).
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=fr-BE&mkt=fr-BE&"
       L"q={searchTerms}",
   "UTF-8",
@@ -1149,7 +1155,7 @@ const PrepopulatedEngine msn_fr_CA = {
   L"Sympatico / MSN (Fran" L"\x00e7" L"ais)",
   L"",  // "sympatico.msn.ca" is already taken by msn_en_CA (see comment on ID
         // below).
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=fr-CA&mkt=fr-CA&"
       L"q={searchTerms}",
   "UTF-8",
@@ -1161,7 +1167,7 @@ const PrepopulatedEngine msn_fr_CA = {
 const PrepopulatedEngine msn_fr_CH = {
   L"MSN Suisse (Fran" L"\x00e7" L"ais)",
   L"",  // "ch.msn.com" is already taken by msn_de_CH (see comment on ID below).
-  L"http://search.msn.ch/s/wlflag.ico",
+  "http://search.msn.ch/s/wlflag.ico",
   L"http://search.msn.ch/results.aspx?setlang=fr-CH&mkt=fr-CH&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1172,7 +1178,7 @@ const PrepopulatedEngine msn_fr_CH = {
 const PrepopulatedEngine msn_fr_FR = {
   L"MSN France",
   L"fr.msn.com",
-  L"http://search.msn.fr/s/wlflag.ico",
+  "http://search.msn.fr/s/wlflag.ico",
   L"http://search.msn.fr/results.aspx?mkt=fr-FR&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1182,7 +1188,7 @@ const PrepopulatedEngine msn_fr_FR = {
 const PrepopulatedEngine msn_he_IL = {
   L"msn.co.il",
   L"msn.co.il",
-  L"http://msn.co.il/favicon.ico",
+  "http://msn.co.il/favicon.ico",
   L"http://search.msn.co.il/Search.aspx?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1192,7 +1198,7 @@ const PrepopulatedEngine msn_he_IL = {
 const PrepopulatedEngine msn_ja_JP = {
   L"MSN Japan",
   L"jp.msn.com",
-  L"http://search.msn.co.jp/s/wlflag.ico",
+  "http://search.msn.co.jp/s/wlflag.ico",
   L"http://search.msn.co.jp/results.aspx?mkt=ja-JP&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1202,7 +1208,7 @@ const PrepopulatedEngine msn_ja_JP = {
 const PrepopulatedEngine msn_nb_NO = {
   L"MSN Norge",
   L"no.msn.com",
-  L"http://search.msn.no/s/wlflag.ico",
+  "http://search.msn.no/s/wlflag.ico",
   L"http://search.msn.no/results.aspx?mkt=nb-NO&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1212,7 +1218,7 @@ const PrepopulatedEngine msn_nb_NO = {
 const PrepopulatedEngine msn_nl_BE = {
   L"MSN (Nederlandstalige)",
   L"be.msn.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?setlang=nl-BE&mkt=nl-BE&"
       L"q={searchTerms}",
   "UTF-8",
@@ -1223,7 +1229,7 @@ const PrepopulatedEngine msn_nl_BE = {
 const PrepopulatedEngine msn_nl_NL = {
   L"MSN.nl",
   L"nl.msn.com",
-  L"http://search.msn.nl/s/wlflag.ico",
+  "http://search.msn.nl/s/wlflag.ico",
   L"http://search.msn.nl/results.aspx?mkt=nl-NL&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1233,7 +1239,7 @@ const PrepopulatedEngine msn_nl_NL = {
 const PrepopulatedEngine msn_pt_BR = {
   L"MSN Brasil",
   L"br.msn.com",
-  L"http://search.live.com/s/wlflag.ico",
+  "http://search.live.com/s/wlflag.ico",
   L"http://search.live.com/results.aspx?mkt=pt-BR&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1243,7 +1249,7 @@ const PrepopulatedEngine msn_pt_BR = {
 const PrepopulatedEngine msn_sv_SE = {
   L"MSN",
   L"se.msn.com",
-  L"http://search.msn.se/s/wlflag.ico",
+  "http://search.msn.se/s/wlflag.ico",
   L"http://search.msn.se/results.aspx?mkt=pv-SE&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1253,7 +1259,7 @@ const PrepopulatedEngine msn_sv_SE = {
 const PrepopulatedEngine msn_tr_TR = {
   L"MSN T\x00fckiye'ye",
   L"tr.msn.com",
-  L"http://search.msn.com.tr/s/wlflag.ico",
+  "http://search.msn.com.tr/s/wlflag.ico",
   L"http://search.msn.com.tr/results.aspx?mkt=tr-TR&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1263,7 +1269,7 @@ const PrepopulatedEngine msn_tr_TR = {
 const PrepopulatedEngine msn_zh_HK = {
   L"MSN Hong Kong",
   L"hk.msn.com",
-  L"http://search.msn.com.hk/s/wlflag.ico",
+  "http://search.msn.com.hk/s/wlflag.ico",
   L"http://search.msn.com.hk/results.aspx?mkt=zh-HK&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1273,7 +1279,7 @@ const PrepopulatedEngine msn_zh_HK = {
 const PrepopulatedEngine mweb = {
   L"MWEB",
   L"mweb.co.za",
-  L"http://mweb.co.za/favicon.ico",
+  "http://mweb.co.za/favicon.ico",
   L"http://search.mweb.co.za/search?&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1283,7 +1289,7 @@ const PrepopulatedEngine mweb = {
 const PrepopulatedEngine mynet = {
   L"MYNET",
   L"mynet.com",
-  L"http://img.mynet.com/mynetfavori.ico",
+  "http://img.mynet.com/mynetfavori.ico",
   L"http://arama.mynet.com/search.aspx?q={searchTerms}&pg=q",
   "windows-1254",
   NULL,
@@ -1304,7 +1310,7 @@ const PrepopulatedEngine mywebsearch = {
 const PrepopulatedEngine najdi = {
   L"Najdi.si",
   L"najdi.si",
-  L"http://www.najdi.si/master/favicon.ico",
+  "http://www.najdi.si/master/favicon.ico",
   L"http://www.najdi.si/search.jsp?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1314,7 +1320,7 @@ const PrepopulatedEngine najdi = {
 const PrepopulatedEngine nana10 = {
   L"\x05e0\x05e2\x05e0\x05e2 10",
   L"nana10.co.il",
-  L"http://f.nau.co.il/Common/Includes/Favicon.ico",
+  "http://f.nau.co.il/Common/Includes/favicon.ico",
   L"http://index.nana10.co.il/search.asp?q={searchTerms}",
   "windows-1255",
   NULL,
@@ -1324,7 +1330,7 @@ const PrepopulatedEngine nana10 = {
 const PrepopulatedEngine nate = {
   L"\xb124\xc774\xd2b8\xb2f7\xcef4",
   L"nate.com",
-  L"http://nate.search.empas.com/favicon.ico",
+  "http://nate.search.empas.com/favicon.ico",
   L"http://nate.search.empas.com/search/all.html?q={searchTerms}",
   "EUC-KR",
   NULL,
@@ -1334,7 +1340,7 @@ const PrepopulatedEngine nate = {
 const PrepopulatedEngine naver = {
   L"\xb124\xc774\xbc84",
   L"naver.com",
-  L"http://search.naver.com/favicon.ico",
+  "http://search.naver.com/favicon.ico",
   L"http://search.naver.com/search.naver?ie={inputEncoding}"
       L"&query={searchTerms}",
   "UTF-8",
@@ -1346,7 +1352,7 @@ const PrepopulatedEngine naver = {
 const PrepopulatedEngine neti = {
   L"NETI",
   L"neti.ee",
-  L"http://www.neti.ee/favicon.ico",
+  "http://www.neti.ee/favicon.ico",
   L"http://www.neti.ee/cgi-bin/otsing?query={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -1356,7 +1362,7 @@ const PrepopulatedEngine neti = {
 const PrepopulatedEngine netindex = {
   L"NetINDEX",
   L"netindex.pt",
-  L"http://www.netindex.pt/favicon.ico",
+  "http://www.netindex.pt/favicon.ico",
   L"http://www.netindex.pt/cgi-bin/index.cgi?question={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -1366,7 +1372,7 @@ const PrepopulatedEngine netindex = {
 const PrepopulatedEngine nifty = {
   L"@nifty",
   L"nifty.com",
-  L"http://www.nifty.com/favicon.ico",
+  "http://www.nifty.com/favicon.ico",
   L"http://search.nifty.com/cgi-bin/search.cgi?Text={searchTerms}",
   "Shift_JIS",
   NULL,
@@ -1392,7 +1398,7 @@ const PrepopulatedEngine ohperu = {
 const PrepopulatedEngine ok = {
   L"OK.hu",
   L"ok.hu",
-  L"http://ok.hu/gfx/favicon.ico",
+  "http://ok.hu/gfx/favicon.ico",
   L"http://ok.hu/katalogus?q={searchTerms}",
   "ISO-8859-2",
   NULL,
@@ -1402,7 +1408,7 @@ const PrepopulatedEngine ok = {
 const PrepopulatedEngine onet = {
   L"Onet.pl",
   L"onet.pl",
-  L"http://szukaj.onet.pl/favicon.ico",
+  "http://szukaj.onet.pl/favicon.ico",
   L"http://szukaj.onet.pl/query.html?qt={searchTerms}",
   "ISO-8859-2",
   NULL,
@@ -1412,7 +1418,7 @@ const PrepopulatedEngine onet = {
 const PrepopulatedEngine orange = {
   L"Orange",
   L"orange.fr",
-  L"http://www.orange.fr/favicon.ico",
+  "http://www.orange.fr/favicon.ico",
   L"http://rws.search.ke.voila.fr/RW/S/opensearch_orange?rdata={searchTerms}",
   "ISO-8859-1",
   L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
@@ -1423,7 +1429,7 @@ const PrepopulatedEngine orange = {
 const PrepopulatedEngine ozu = {
   L"OZ\x00da",
   L"ozu.es",
-  L"http://www.ozu.es/favicon.ico",
+  "http://www.ozu.es/favicon.ico",
   L"http://buscar.ozu.es/index.php?q={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -1433,7 +1439,7 @@ const PrepopulatedEngine ozu = {
 const PrepopulatedEngine pogodak_ba = {
   L"Pogodak!",
   L"pogodak.ba",
-  L"http://www.pogodak.ba/favicon.ico",
+  "http://www.pogodak.ba/favicon.ico",
   L"http://www.pogodak.ba/search.jsp?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1443,7 +1449,7 @@ const PrepopulatedEngine pogodak_ba = {
 const PrepopulatedEngine pogodak_hr = {
   L"Pogodak!",
   L"pogodak.hr",
-  L"http://www.pogodak.hr/favicon.ico",
+  "http://www.pogodak.hr/favicon.ico",
   L"http://www.pogodak.hr/search.jsp?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1453,7 +1459,7 @@ const PrepopulatedEngine pogodak_hr = {
 const PrepopulatedEngine pogodak_rs = {
   L"Pogodak!",
   L"pogodak.rs",
-  L"http://www.pogodak.rs/favicon.ico",
+  "http://www.pogodak.rs/favicon.ico",
   L"http://www.pogodak.rs/search.jsp?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1463,7 +1469,7 @@ const PrepopulatedEngine pogodak_rs = {
 const PrepopulatedEngine pogodok = {
   L"\x041f\x043e\x0433\x043e\x0434\x043e\x043a!",
   L"pogodok.com.mk",
-  L"http://www.pogodok.com.mk/favicon.ico",
+  "http://www.pogodok.com.mk/favicon.ico",
   L"http://www.pogodok.com.mk/search.jsp?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1473,7 +1479,7 @@ const PrepopulatedEngine pogodok = {
 const PrepopulatedEngine rambler = {
   L"Rambler",
   L"rambler.ru",
-  L"http://www.rambler.ru/favicon.ico",
+  "http://www.rambler.ru/favicon.ico",
   L"http://www.rambler.ru/srch?words={searchTerms}",
   "windows-1251",
   NULL,
@@ -1483,7 +1489,7 @@ const PrepopulatedEngine rambler = {
 const PrepopulatedEngine rediff = {
   L"Rediff",
   L"rediff.com",
-  L"http://search1.rediff.com/favicon.ico",
+  "http://search1.rediff.com/favicon.ico",
   L"http://search1.rediff.com/dirsrch/default.asp?MT={searchTerms}",
   "UTF-8",
   NULL,
@@ -1493,7 +1499,7 @@ const PrepopulatedEngine rediff = {
 const PrepopulatedEngine rednano = {
   L"Rednano",
   L"rednano.sg",
-  L"http://rednano.sg/favicon.ico",
+  "http://rednano.sg/favicon.ico",
   L"http://rednano.sg/sfe/lwi.action?querystring={searchTerms}",
   "UTF-8",
   NULL,
@@ -1503,7 +1509,7 @@ const PrepopulatedEngine rednano = {
 const PrepopulatedEngine sanook = {
   L"\x0e2a\x0e19\x0e38\x0e01!",
   L"sanook.com",
-  L"http://search.sanook.com/favicon.ico",
+  "http://search.sanook.com/favicon.ico",
   L"http://search.sanook.com/search.php?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1513,7 +1519,7 @@ const PrepopulatedEngine sanook = {
 const PrepopulatedEngine sapo = {
   L"SAPO",
   L"sapo.pt",
-  L"http://imgs.sapo.pt/images/sapo.ico",
+  "http://imgs.sapo.pt/images/sapo.ico",
   L"http://pesquisa.sapo.pt/?q={searchTerms}",
   "UTF-8",
   L"http://pesquisa.sapo.pt/livesapo?q={searchTerms}",
@@ -1523,7 +1529,7 @@ const PrepopulatedEngine sapo = {
 const PrepopulatedEngine search_ch = {
   L"search.ch",
   L"search.ch",
-  L"http://www.search.ch/favicon.ico",
+  "http://www.search.ch/favicon.ico",
   L"http://www.search.ch/?q={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -1533,7 +1539,7 @@ const PrepopulatedEngine search_ch = {
 const PrepopulatedEngine sensis = {
   L"sensis.com.au",
   L"sensis.com.au",
-  L"http://www.sensis.com.au/favicon.ico",
+  "http://www.sensis.com.au/favicon.ico",
   L"http://www.sensis.com.au/search.do?find={searchTerms}",
   "UTF-8",
   NULL,
@@ -1543,7 +1549,7 @@ const PrepopulatedEngine sensis = {
 const PrepopulatedEngine sesam = {
   L"Sesam",
   L"sesam.no",
-  L"http://sesam.no/images/favicon.gif",
+  "http://sesam.no/images/favicon.gif",
   L"http://sesam.no/search/?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1553,7 +1559,7 @@ const PrepopulatedEngine sesam = {
 const PrepopulatedEngine seznam = {
   L"Seznam",
   L"seznam.cz",
-  L"http://1.im.cz/szn/img/favicon.ico",
+  "http://1.im.cz/szn/img/favicon.ico",
   L"http://search.seznam.cz/?q={searchTerms}",
   "UTF-8",
   L"http:///suggest.fulltext.seznam.cz/?dict=fulltext_ff&phrase={searchTerms}&"
@@ -1564,7 +1570,7 @@ const PrepopulatedEngine seznam = {
 const PrepopulatedEngine sogou = {
   L"\x641c\x72d7",
   L"sogou.com",
-  L"http://www.sogou.com/favicon.ico",
+  "http://www.sogou.com/favicon.ico",
   L"http://www.sogou.com/web?query={searchTerms}",
   "GB2312",
   NULL,
@@ -1574,7 +1580,7 @@ const PrepopulatedEngine sogou = {
 const PrepopulatedEngine soso = {
   L"\x641c\x641c",
   L"soso.com",
-  L"http://www.soso.com/favicon.ico",
+  "http://www.soso.com/favicon.ico",
   L"http://www.soso.com/q?w={searchTerms}",
   "GB2312",
   NULL,
@@ -1584,7 +1590,7 @@ const PrepopulatedEngine soso = {
 const PrepopulatedEngine spray = {
   L"Spray",
   L"spray.se",
-  L"http://www.eniro.se/favicon.ico",
+  "http://www.eniro.se/favicon.ico",
   L"http://www.eniro.se/query?ax=spray&search_word={searchTerms}&what=web",
   "ISO-8859-1",
   NULL,
@@ -1594,7 +1600,7 @@ const PrepopulatedEngine spray = {
 const PrepopulatedEngine szm = {
   L"SZM.sk",
   L"szm.sk",
-  L"http://szm.sk/favicon.ico",
+  "http://szm.sk/favicon.ico",
   L"http://szm.sk/search/?co=1&q={searchTerms}",
   "windows-1250",
   NULL,
@@ -1604,7 +1610,7 @@ const PrepopulatedEngine szm = {
 const PrepopulatedEngine t_online = {
   L"T-Online",
   L"suche.t-online.de",
-  L"http://suche.t-online.de/favicon.ico",
+  "http://suche.t-online.de/favicon.ico",
   L"http://suche.t-online.de/fast-cgi/tsc?sr=chrome&q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1614,7 +1620,7 @@ const PrepopulatedEngine t_online = {
 const PrepopulatedEngine tango = {
   L"Tango",
   L"tango.hu",
-  L"http://tango.hu/favicon.ico",
+  "http://tango.hu/favicon.ico",
   L"http://tango.hu/search.php?q={searchTerms}",
   "windows-1250",
   NULL,
@@ -1624,7 +1630,7 @@ const PrepopulatedEngine tango = {
 const PrepopulatedEngine tapuz = {
   L"\x05ea\x05e4\x05d5\x05d6 \x05d0\x05e0\x05e9\x05d9\x05dd",
   L"tapuz.co.il",
-  L"http://www.tapuz.co.il/favicon.ico",
+  "http://www.tapuz.co.il/favicon.ico",
   L"http://www.tapuz.co.il/search/search.asp?q={searchTerms}",
   "windows-1255",
   NULL,
@@ -1634,7 +1640,7 @@ const PrepopulatedEngine tapuz = {
 const PrepopulatedEngine terra_ar = {
   L"Terra Argentina",
   L"terra.com.ar",
-  L"http://buscar.terra.com.ar/favicon.ico",
+  "http://buscar.terra.com.ar/favicon.ico",
   L"http://buscar.terra.com.ar/Default.aspx?query={searchTerms}&source=Search",
   "ISO-8859-1",
   NULL,
@@ -1644,7 +1650,7 @@ const PrepopulatedEngine terra_ar = {
 const PrepopulatedEngine terra_ec = {
   L"Terra Ecuador",
   L"terra.com.ec",
-  L"http://buscador.terra.com.ec/favicon.ico",
+  "http://buscador.terra.com.ec/favicon.ico",
   L"http://buscador.terra.com.ec/Default.aspx?query={searchTerms}&"
       L"source=Search",
   "ISO-8859-1",
@@ -1655,7 +1661,7 @@ const PrepopulatedEngine terra_ec = {
 const PrepopulatedEngine terra_es = {
   L"Terra",
   L"terra.es",
-  L"http://buscador.terra.es/favicon.ico",
+  "http://buscador.terra.es/favicon.ico",
   L"http://buscador.terra.es/Default.aspx?query={searchTerms}&source=Search",
   "ISO-8859-1",
   NULL,
@@ -1665,7 +1671,7 @@ const PrepopulatedEngine terra_es = {
 const PrepopulatedEngine terra_mx = {
   L"Terra",
   L"terra.com.mx",
-  L"http://buscador.terra.com.mx/favicon.ico",
+  "http://buscador.terra.com.mx/favicon.ico",
   L"http://buscador.terra.com.mx/Default.aspx?query={searchTerms}&"
       L"source=Search",
   "ISO-8859-1",
@@ -1676,7 +1682,7 @@ const PrepopulatedEngine terra_mx = {
 const PrepopulatedEngine terra_pe = {
   L"Terra",
   L"terra.com.pe",
-  L"http://buscador.terra.com.pe/favicon.ico",
+  "http://buscador.terra.com.pe/favicon.ico",
   L"http://buscador.terra.com.pe/Default.aspx?query={searchTerms}&"
       L"source=Search",
   "ISO-8859-1",
@@ -1687,7 +1693,7 @@ const PrepopulatedEngine terra_pe = {
 const PrepopulatedEngine toile = {
   L"La Toile du Qu" L"\x00e9" L"bec",
   L"toile.com",
-  L"http://static.search.canoe.ca/s-toile/img/favicon_toile.ico",
+  "http://static.search.canoe.ca/s-toile/img/favicon_toile.ico",
   L"http://www.toile.com/search?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1697,7 +1703,7 @@ const PrepopulatedEngine toile = {
 const PrepopulatedEngine tut = {
   L"TUT.BY",
   L"tut.by",
-  L"http://www.tut.by/favicon.ico",
+  "http://www.tut.by/favicon.ico",
   L"http://search.tut.by/?query={searchTerms}",
   "windows-1251",
   NULL,
@@ -1707,7 +1713,7 @@ const PrepopulatedEngine tut = {
 const PrepopulatedEngine uol = {
   L"UOL Busca",
   L"busca.uol.com.br",
-  L"http://busca.uol.com.br/favicon.ico",
+  "http://busca.uol.com.br/favicon.ico",
   L"http://busca.uol.com.br/www/index.html?q={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -1717,7 +1723,7 @@ const PrepopulatedEngine uol = {
 const PrepopulatedEngine vinden = {
   L"Vinden.nl",
   L"vinden.nl",
-  L"http://www.vinden.nl/favicon.ico",
+  "http://www.vinden.nl/favicon.ico",
   L"http://www.vinden.nl/?q={searchTerms}",
   "UTF-8",
   NULL,
@@ -1727,7 +1733,7 @@ const PrepopulatedEngine vinden = {
 const PrepopulatedEngine virgilio = {
   L"Virgilio",
   L"virgilio.alice.it",
-  L"http://ricerca.alice.it/favicon.ico",
+  "http://ricerca.alice.it/favicon.ico",
   L"http://ricerca.alice.it/ricerca?qs={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -1737,7 +1743,7 @@ const PrepopulatedEngine virgilio = {
 const PrepopulatedEngine voila = {
   L"Voila",
   L"voila.fr",
-  L"http://search.ke.voila.fr/favicon.ico",
+  "http://search.ke.voila.fr/favicon.ico",
   L"http://rws.search.ke.voila.fr/RW/S/opensearch_voila?rdata={searchTerms}",
   "ISO-8859-1",
   L"http://search.ke.voila.fr/fr/cmplopensearch/xml/fullxml?"
@@ -1748,7 +1754,7 @@ const PrepopulatedEngine voila = {
 const PrepopulatedEngine walla = {
   L"\x05d5\x05d5\x05d0\x05dc\x05d4!",
   L"walla.co.il",
-  L"http://www.walla.co.il/favicon.ico",
+  "http://www.walla.co.il/favicon.ico",
   L"http://search.walla.co.il/?e=hew&q={searchTerms}",
   "windows-1255",
   NULL,
@@ -1758,7 +1764,7 @@ const PrepopulatedEngine walla = {
 const PrepopulatedEngine web_de = {
   L"WEB.DE",
   L"web.de",
-  L"http://img.ui-portal.de/search/img/webde/favicon.ico",
+  "http://img.ui-portal.de/search/img/webde/favicon.ico",
   L"http://suche.web.de/search/web/?su={searchTerms}",
   "ISO-8859-1",
   NULL,
@@ -1768,7 +1774,7 @@ const PrepopulatedEngine web_de = {
 const PrepopulatedEngine wp = {
   L"Wirtualna Polska",
   L"wp.pl",
-  L"http://szukaj.wp.pl/favicon.ico",
+  "http://szukaj.wp.pl/favicon.ico",
   L"http://szukaj.wp.pl/szukaj.html?szukaj={searchTerms}",
   "ISO-8859-2",
   NULL,
@@ -1778,7 +1784,7 @@ const PrepopulatedEngine wp = {
 const PrepopulatedEngine yagua = {
   L"Yagua.com",
   L"yagua.com",
-  L"http://yagua.paraguay.com/favicon.ico",
+  "http://yagua.paraguay.com/favicon.ico",
   L"http://yagua.paraguay.com/buscador.php?q={searchTerms}&cs={inputEncoding}",
   "ISO-8859-1",
   NULL,
@@ -1788,7 +1794,7 @@ const PrepopulatedEngine yagua = {
 const PrepopulatedEngine yahoo = {
   L"Yahoo!",
   L"yahoo.com",
-  L"http://search.yahoo.com/favicon.ico",
+  "http://search.yahoo.com/favicon.ico",
   L"http://search.yahoo.com/search?ei={inputEncoding}&fr=crmas&p={searchTerms}",
   "UTF-8",
   L"http://ff.search.yahoo.com/gossip?output=fxjson&command={searchTerms}",
@@ -1801,7 +1807,7 @@ const PrepopulatedEngine yahoo = {
 const PrepopulatedEngine yahoo_ar = {
   L"Yahoo! Argentina",
   L"ar.yahoo.com",
-  L"http://ar.search.yahoo.com/favicon.ico",
+  "http://ar.search.yahoo.com/favicon.ico",
   L"http://ar.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1813,7 +1819,7 @@ const PrepopulatedEngine yahoo_ar = {
 const PrepopulatedEngine yahoo_at = {
   L"Yahoo! Suche",
   L"at.yahoo.com",
-  L"http://at.search.yahoo.com/favicon.ico",
+  "http://at.search.yahoo.com/favicon.ico",
   L"http://at.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1824,7 +1830,7 @@ const PrepopulatedEngine yahoo_at = {
 const PrepopulatedEngine yahoo_au = {
   L"Yahoo!7",
   L"au.yahoo.com",
-  L"http://au.search.yahoo.com/favicon.ico",
+  "http://au.search.yahoo.com/favicon.ico",
   L"http://au.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1836,7 +1842,7 @@ const PrepopulatedEngine yahoo_au = {
 const PrepopulatedEngine yahoo_br = {
   L"Yahoo! Brasil",
   L"br.yahoo.com",
-  L"http://br.search.yahoo.com/favicon.ico",
+  "http://br.search.yahoo.com/favicon.ico",
   L"http://br.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1848,7 +1854,7 @@ const PrepopulatedEngine yahoo_br = {
 const PrepopulatedEngine yahoo_ca = {
   L"Yahoo! Canada",
   L"ca.yahoo.com",
-  L"http://ca.search.yahoo.com/favicon.ico",
+  "http://ca.search.yahoo.com/favicon.ico",
   L"http://ca.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1860,7 +1866,7 @@ const PrepopulatedEngine yahoo_ca = {
 const PrepopulatedEngine yahoo_ch = {
   L"Yahoo! Suche",
   L"ch.yahoo.com",
-  L"http://ch.search.yahoo.com/favicon.ico",
+  "http://ch.search.yahoo.com/favicon.ico",
   L"http://ch.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1871,7 +1877,7 @@ const PrepopulatedEngine yahoo_ch = {
 const PrepopulatedEngine yahoo_cl = {
   L"Yahoo! Chile",
   L"cl.yahoo.com",
-  L"http://cl.search.yahoo.com/favicon.ico",
+  "http://cl.search.yahoo.com/favicon.ico",
   L"http://cl.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1883,7 +1889,7 @@ const PrepopulatedEngine yahoo_cl = {
 const PrepopulatedEngine yahoo_cn = {
   L"\x4e2d\x56fd\x96c5\x864e",
   L"cn.yahoo.com",
-  L"http://search.cn.yahoo.com/favicon.ico",
+  "http://search.cn.yahoo.com/favicon.ico",
   L"http://search.cn.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "GB2312",
@@ -1896,7 +1902,7 @@ const PrepopulatedEngine yahoo_cn = {
 const PrepopulatedEngine yahoo_co = {
   L"Yahoo! Colombia",
   L"co.yahoo.com",
-  L"http://co.search.yahoo.com/favicon.ico",
+  "http://co.search.yahoo.com/favicon.ico",
   L"http://co.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1908,7 +1914,7 @@ const PrepopulatedEngine yahoo_co = {
 const PrepopulatedEngine yahoo_de = {
   L"Yahoo! Deutschland",
   L"de.yahoo.com",
-  L"http://de.search.yahoo.com/favicon.ico",
+  "http://de.search.yahoo.com/favicon.ico",
   L"http://de.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1920,7 +1926,7 @@ const PrepopulatedEngine yahoo_de = {
 const PrepopulatedEngine yahoo_dk = {
   L"Yahoo! Danmark",
   L"dk.yahoo.com",
-  L"http://dk.search.yahoo.com/favicon.ico",
+  "http://dk.search.yahoo.com/favicon.ico",
   L"http://dk.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1931,7 +1937,7 @@ const PrepopulatedEngine yahoo_dk = {
 const PrepopulatedEngine yahoo_es = {
   L"Yahoo! Espa" L"\x00f1" L"a",
   L"es.yahoo.com",
-  L"http://es.search.yahoo.com/favicon.ico",
+  "http://es.search.yahoo.com/favicon.ico",
   L"http://es.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1943,7 +1949,7 @@ const PrepopulatedEngine yahoo_es = {
 const PrepopulatedEngine yahoo_fi = {
   L"Yahoo!-haku",
   L"fi.yahoo.com",
-  L"http://fi.search.yahoo.com/favicon.ico",
+  "http://fi.search.yahoo.com/favicon.ico",
   L"http://fi.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1954,7 +1960,7 @@ const PrepopulatedEngine yahoo_fi = {
 const PrepopulatedEngine yahoo_fr = {
   L"Yahoo! France",
   L"fr.yahoo.com",
-  L"http://fr.search.yahoo.com/favicon.ico",
+  "http://fr.search.yahoo.com/favicon.ico",
   L"http://fr.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1966,7 +1972,7 @@ const PrepopulatedEngine yahoo_fr = {
 const PrepopulatedEngine yahoo_hk = {
   L"Yahoo! Hong Kong",
   L"hk.yahoo.com",
-  L"http://hk.search.yahoo.com/favicon.ico",
+  "http://hk.search.yahoo.com/favicon.ico",
   L"http://hk.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1980,7 +1986,7 @@ const PrepopulatedEngine yahoo_hk = {
 const PrepopulatedEngine yahoo_id = {
   L"Yahoo! Indonesia",
   L"id.yahoo.com",
-  L"http://id.search.yahoo.com/favicon.ico",
+  "http://id.search.yahoo.com/favicon.ico",
   L"http://id.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -1992,7 +1998,7 @@ const PrepopulatedEngine yahoo_id = {
 const PrepopulatedEngine yahoo_in = {
   L"Yahoo! India",
   L"in.yahoo.com",
-  L"http://in.search.yahoo.com/favicon.ico",
+  "http://in.search.yahoo.com/favicon.ico",
   L"http://in.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2004,7 +2010,7 @@ const PrepopulatedEngine yahoo_in = {
 const PrepopulatedEngine yahoo_it = {
   L"Yahoo! Italia",
   L"it.yahoo.com",
-  L"http://it.search.yahoo.com/favicon.ico",
+  "http://it.search.yahoo.com/favicon.ico",
   L"http://it.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2016,7 +2022,7 @@ const PrepopulatedEngine yahoo_it = {
 const PrepopulatedEngine yahoo_jp = {
   L"Yahoo! JAPAN",
   L"yahoo.co.jp",
-  L"http://search.yahoo.co.jp/favicon.ico",
+  "http://search.yahoo.co.jp/favicon.ico",
   L"http://search.yahoo.co.jp/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2027,7 +2033,7 @@ const PrepopulatedEngine yahoo_jp = {
 const PrepopulatedEngine yahoo_kr = {
   L"\xc57c\xd6c4! \xcf54\xb9ac\xc544",
   L"kr.yahoo.com",
-  L"http://kr.search.yahoo.com/favicon.ico",
+  "http://kr.search.yahoo.com/favicon.ico",
   L"http://kr.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2039,7 +2045,7 @@ const PrepopulatedEngine yahoo_kr = {
 const PrepopulatedEngine yahoo_malaysia = {
   L"Yahoo! Malaysia",
   L"malaysia.yahoo.com",
-  L"http://malaysia.search.yahoo.com/favicon.ico",
+  "http://malaysia.search.yahoo.com/favicon.ico",
   L"http://malaysia.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2051,7 +2057,7 @@ const PrepopulatedEngine yahoo_malaysia = {
 const PrepopulatedEngine yahoo_mx = {
   L"Yahoo! M\x00e9xico",
   L"mx.yahoo.com",
-  L"http://mx.search.yahoo.com/favicon.ico",
+  "http://mx.search.yahoo.com/favicon.ico",
   L"http://mx.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2063,7 +2069,7 @@ const PrepopulatedEngine yahoo_mx = {
 const PrepopulatedEngine yahoo_nl = {
   L"Yahoo! Nederland",
   L"nl.yahoo.com",
-  L"http://nl.search.yahoo.com/favicon.ico",
+  "http://nl.search.yahoo.com/favicon.ico",
   L"http://nl.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2074,7 +2080,7 @@ const PrepopulatedEngine yahoo_nl = {
 const PrepopulatedEngine yahoo_no = {
   L"Yahoo! Norge",
   L"no.yahoo.com",
-  L"http://no.search.yahoo.com/favicon.ico",
+  "http://no.search.yahoo.com/favicon.ico",
   L"http://no.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2085,7 +2091,7 @@ const PrepopulatedEngine yahoo_no = {
 const PrepopulatedEngine yahoo_nz = {
   L"Yahoo!Xtra",
   L"nz.yahoo.com",
-  L"http://nz.search.yahoo.com/favicon.ico",
+  "http://nz.search.yahoo.com/favicon.ico",
   L"http://nz.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2097,7 +2103,7 @@ const PrepopulatedEngine yahoo_nz = {
 const PrepopulatedEngine yahoo_pe = {
   L"Yahoo! Per\x00fa",
   L"pe.yahoo.com",
-  L"http://pe.search.yahoo.com/favicon.ico",
+  "http://pe.search.yahoo.com/favicon.ico",
   L"http://pe.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2109,7 +2115,7 @@ const PrepopulatedEngine yahoo_pe = {
 const PrepopulatedEngine yahoo_ph = {
   L"Yahoo! Philippines",
   L"ph.yahoo.com",
-  L"http://ph.search.yahoo.com/favicon.ico",
+  "http://ph.search.yahoo.com/favicon.ico",
   L"http://ph.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2121,7 +2127,7 @@ const PrepopulatedEngine yahoo_ph = {
 const PrepopulatedEngine yahoo_qc = {
   L"Yahoo! Qu" L"\x00e9" L"bec",
   L"qc.yahoo.com",
-  L"http://qc.search.yahoo.com/favicon.ico",
+  "http://qc.search.yahoo.com/favicon.ico",
   L"http://qc.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2132,7 +2138,7 @@ const PrepopulatedEngine yahoo_qc = {
 const PrepopulatedEngine yahoo_ru = {
   L"Yahoo! \x043f\x043e-\x0440\x0443\x0441\x0441\x043a\x0438",
   L"ru.yahoo.com",
-  L"http://ru.search.yahoo.com/favicon.ico",
+  "http://ru.search.yahoo.com/favicon.ico",
   L"http://ru.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2143,7 +2149,7 @@ const PrepopulatedEngine yahoo_ru = {
 const PrepopulatedEngine yahoo_sg = {
   L"Yahoo! Singapore",
   L"sg.yahoo.com",
-  L"http://sg.search.yahoo.com/favicon.ico",
+  "http://sg.search.yahoo.com/favicon.ico",
   L"http://sg.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2155,7 +2161,7 @@ const PrepopulatedEngine yahoo_sg = {
 const PrepopulatedEngine yahoo_th = {
   L"Yahoo! \x0e1b\x0e23\x0e30\x0e40\x0e17\x0e28\x0e44\x0e17\x0e22",
   L"th.yahoo.com",
-  L"http://th.search.yahoo.com/favicon.ico",
+  "http://th.search.yahoo.com/favicon.ico",
   L"http://th.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2167,7 +2173,7 @@ const PrepopulatedEngine yahoo_th = {
 const PrepopulatedEngine yahoo_tw = {
   L"Yahoo!\x5947\x6469",
   L"tw.yahoo.com",
-  L"http://tw.search.yahoo.com/favicon.ico",
+  "http://tw.search.yahoo.com/favicon.ico",
   L"http://tw.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2180,7 +2186,7 @@ const PrepopulatedEngine yahoo_tw = {
 const PrepopulatedEngine yahoo_uk = {
   L"Yahoo! UK & Ireland",
   L"uk.yahoo.com",
-  L"http://uk.search.yahoo.com/favicon.ico",
+  "http://uk.search.yahoo.com/favicon.ico",
   L"http://uk.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2192,7 +2198,7 @@ const PrepopulatedEngine yahoo_uk = {
 const PrepopulatedEngine yahoo_ve = {
   L"Yahoo! Venezuela",
   L"ve.yahoo.com",
-  L"http://ve.search.yahoo.com/favicon.ico",
+  "http://ve.search.yahoo.com/favicon.ico",
   L"http://ve.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2204,7 +2210,7 @@ const PrepopulatedEngine yahoo_ve = {
 const PrepopulatedEngine yahoo_vn = {
   L"Yahoo! Vi\x1ec7t Nam",
   L"vn.yahoo.com",
-  L"http://vn.search.yahoo.com/favicon.ico",
+  "http://vn.search.yahoo.com/favicon.ico",
   L"http://vn.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
       L"p={searchTerms}",
   "UTF-8",
@@ -2216,7 +2222,7 @@ const PrepopulatedEngine yahoo_vn = {
 const PrepopulatedEngine yam = {
   L"\u5929\u7a7a",
   L"yam.com",
-  L"http://www.yam.com/i/8/sky.ico",
+  "http://www.yam.com/i/8/sky.ico",
   L"http://search.yam.com/wps?k={searchTerms}",
   "Big5",
   NULL,
@@ -2226,7 +2232,7 @@ const PrepopulatedEngine yam = {
 const PrepopulatedEngine yamli = {
   L"Yamli",
   L"yamli.com",
-  L"http://www.yamli.com/favicon.ico",
+  "http://www.yamli.com/favicon.ico",
   L"http://www.yamli.com/#q={searchTerms}",
   "UTF-8",
   NULL,
@@ -2236,7 +2242,7 @@ const PrepopulatedEngine yamli = {
 const PrepopulatedEngine yandex_ru = {
   L"\x042f\x043d\x0434\x0435\x043a\x0441",
   L"yandex.ru",
-  L"http://yandex.ru/favicon.ico",
+  "http://yandex.ru/favicon.ico",
   L"http://yandex.ru/yandsearch?text={searchTerms}",
   "UTF-8",
   L"http://suggest.yandex.net/suggest-ff.cgi?part={searchTerms}",
@@ -2246,7 +2252,7 @@ const PrepopulatedEngine yandex_ru = {
 const PrepopulatedEngine yandex_ua = {
   L"\x042f\x043d\x0434\x0435\x043a\x0441",
   L"yandex.ua",
-  L"http://yandex.ua/favicon.ico",
+  "http://yandex.ua/favicon.ico",
   L"http://yandex.ua/yandsearch?text={searchTerms}",
   "UTF-8",
   L"http://suggest.yandex.net/suggest-ff.cgi?part={searchTerms}",
@@ -2256,7 +2262,7 @@ const PrepopulatedEngine yandex_ua = {
 const PrepopulatedEngine zoznam = {
   L"Zoznam",
   L"zoznam.sk",
-  L"http://zoznam.sk/favicon.ico",
+  "http://zoznam.sk/favicon.ico",
   L"http://zoznam.sk/hladaj.fcgi?s={searchTerms}",
   "windows-1250",
   NULL,
@@ -2400,6 +2406,10 @@ const PrepopulatedEngine* engines_FI[] =
 const PrepopulatedEngine* engines_FR[] =
     { &google, &voila, &yahoo_fr, &msn_fr_FR, &orange, &aol_fr, };
 
+// United Kingdom
+const PrepopulatedEngine* engines_GB[] =
+    { &google, &yahoo_uk, &msn_en_GB, &ask_uk, };
+
 // Greece
 const PrepopulatedEngine* engines_GR[] =
     { &google, &yahoo, &forthnet, &in, &live_el_GR };
@@ -2506,6 +2516,10 @@ const PrepopulatedEngine* engines_MA[] =
 const PrepopulatedEngine* engines_MC[] =
     { &google, &voila, &yahoo_fr, &msn_fr_FR, &orange, &aol_fr, };
 
+// Montenegro
+const PrepopulatedEngine* engines_ME[] =
+    { &google, &yahoo, &krstarica, &pogodak_rs, &aladin, &live, };
+
 // Macedonia
 const PrepopulatedEngine* engines_MK[] = { &google, &pogodok, &yahoo, &live, };
 
@@ -2572,8 +2586,8 @@ const PrepopulatedEngine* engines_QA[] =
 // Romania
 const PrepopulatedEngine* engines_RO[] = { &google, &yahoo, &live_ro_RO, };
 
-// Serbia/Montenegro
-const PrepopulatedEngine* engines_RS_ME[] =
+// Serbia
+const PrepopulatedEngine* engines_RS[] =
     { &google, &yahoo, &krstarica, &pogodak_rs, &aladin, &live, };
 
 // Russia
@@ -2630,10 +2644,6 @@ const PrepopulatedEngine* engines_TW[] = { &google, &yahoo_tw, &yam, };
 const PrepopulatedEngine* engines_UA[] =
     { &google, &meta, &yandex_ua, &bigmir, &rambler, };
 
-// United Kingdom
-const PrepopulatedEngine* engines_UK[] =
-    { &google, &yahoo_uk, &msn_en_GB, &ask_uk, };
-
 // United States
 const PrepopulatedEngine* engines_US[] =
     { &google, &yahoo, &live_en_US, &aol, &ask, };
@@ -2660,375 +2670,509 @@ const PrepopulatedEngine* engines_ZA[] =
 // Zimbabwe
 const PrepopulatedEngine* engines_ZW[] = { &google, &yahoo, &msn, };
 
-// GeoID mappings //////////////////////////////////////////////////////////////
+// Geographic mappings /////////////////////////////////////////////////////////
 
-LONG GetCurrentGeoID() {
-  // TODO(pkasting): http://b/1225276  Much of this should live in a utility
-  // function somewhere.
-  typedef GEOID (WINAPI *GetUserGeoIDFunction)(GEOCLASS);
-  const HMODULE kernel32_handle = GetModuleHandle(L"kernel32.dll");
-  if (!kernel32_handle) {
-    NOTREACHED();
-    return GEOID_NOT_AVAILABLE;
+// Please refer to ISO 3166-1 for information about the two-character country
+// codes; http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 is useful. In the
+// following (C++) code, we pack the two letters of the country code into an int
+// value we call the CountryID.
+
+const int kCountryIDUnknown = -1;
+
+inline int CountryCharsToCountryID(char c1, char c2) {
+  return c1 << 8 | c2;
+}
+
+int CountryCharsToCountryIDWithUpdate(char c1, char c2) {
+  // SPECIAL CASE: In 2003, Yugoslavia renamed itself to Serbia and Montenegro.
+  // Serbia and Montenegro dissolved their union in June 2006. Yugoslavia was
+  // ISO 'YU' and Serbia and Montenegro were ISO 'CS'. Serbia was subsequently
+  // issued 'RS' and Montenegro 'ME'. Windows XP and Mac OS X Leopard still use
+  // the value 'YU'. If we get a value of 'YU' or 'CS' we will map it to 'RS'.
+  if (c1 == 'Y' && c2 == 'U' ||
+      c1 == 'C' && c2 == 'S') {
+    c1 = 'R';
+    c2 = 'S';
   }
-  const GetUserGeoIDFunction GetUserGeoIDPtr =
-      reinterpret_cast<GetUserGeoIDFunction>(GetProcAddress(kernel32_handle,
-                                                            "GetUserGeoID"));
-  return GetUserGeoIDPtr ?
-      ((*GetUserGeoIDPtr)(GEOCLASS_NATION)) : GEOID_NOT_AVAILABLE;
+  
+  // SPECIAL CASE: Timor-Leste changed from 'TP' to 'TL' in 2002. Windows XP
+  // predates this; we therefore map this value.
+  if (c1 == 'T' && c2 == 'P')
+    c2 = 'L';
+  
+  return CountryCharsToCountryID(c1, c2);
 }
 
-int GetGeoIDFromPrefs(PrefService* prefs) {
-  // See if the user overrode the GeoID on the command line.
-  const std::wstring geoID(
-    CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kGeoID));
-  if (!geoID.empty())
-    return _wtoi(geoID.c_str());
+#if defined(OS_WIN)
 
-  // Cache first run GeoID value in prefs, and use it afterwards.  This ensures
-  // that just because the user moves around, we won't automatically make major
-  // changes to their available search providers, which would feel surprising.
+// For reference, a list of GeoIDs can be found at
+// http://msdn.microsoft.com/en-us/library/ms776390.aspx .
+int GeoIDToCountryID(GEOID geo_id) {
+  const int kISOBufferSize = 3;  // Two plus one for the terminator.
+  wchar_t isobuf[kISOBufferSize] = { 0 };
+  int retval = GetGeoInfo(geo_id, GEO_ISO2, isobuf, kISOBufferSize, 0);
+  
+  if (retval == kISOBufferSize &&
+      !(isobuf[0] == L'X' && isobuf[1] == L'X'))
+    return CountryCharsToCountryIDWithUpdate(static_cast<char>(isobuf[0]),
+                                             static_cast<char>(isobuf[1]));
+
+  // Various locations have ISO codes that Windows does not return.
+  switch(geo_id) {
+    case 0x144:   // Guernsey
+      return CountryCharsToCountryID('G', 'G');
+    case 0x148:   // Jersey
+      return CountryCharsToCountryID('J', 'E');
+    case 0x3B16:  // Isle of Man
+      return CountryCharsToCountryID('I', 'M');
+      
+    // 'UM' (U.S. Minor Outlying Islands)
+    case 0x7F:    // Johnston Atoll
+    case 0x102:   // Wake Island
+    case 0x131:   // Baker Island
+    case 0x146:   // Howland Island
+    case 0x147:   // Jarvis Island
+    case 0x149:   // Kingman Reef
+    case 0x152:   // Palmyra Atoll
+    case 0x52FA:  // Midway Islands
+      return CountryCharsToCountryID('U', 'M');
+
+    // 'SH' (Saint Helena)
+    case 0x12F:  // Ascension Island
+    case 0x15C:  // Tristan da Cunha
+      return CountryCharsToCountryID('S', 'H');
+
+    // 'IO' (British Indian Ocean Territory)
+    case 0x13A:  // Diego Garcia
+      return CountryCharsToCountryID('I', 'O');
+
+    // Other cases where there is no ISO country code; we assign countries that
+    // can serve as reasonable defaults.
+    case 0x154:  // Rota Island
+    case 0x155:  // Saipan
+    case 0x15A:  // Tinian Island
+      return CountryCharsToCountryID('U', 'S');
+    case 0x134:  // Channel Islands
+      return CountryCharsToCountryID('G', 'B');
+    case 0x143:  // Guantanamo Bay
+    default:
+      return kCountryIDUnknown;
+  }
+}
+
+int GetCurrentCountryID() {
+  GEOID geo_id = GetUserGeoID(GEOCLASS_NATION);
+  
+  return GeoIDToCountryID(geo_id);
+}
+
+#elif defined(OS_MACOSX)
+
+int GetCurrentCountryID() {
+  scoped_cftyperef<CFLocaleRef> locale(CFLocaleCopyCurrent());
+  CFStringRef country = (CFStringRef)CFLocaleGetValue(locale.get(),
+                                                      kCFLocaleCountryCode);
+  if (!country)
+    return kCountryIDUnknown;
+
+  UniChar isobuf[2];
+  CFRange char_range = CFRangeMake(0, 2);
+  CFStringGetCharacters(country, char_range, isobuf);
+
+  return CountryCharsToCountryIDWithUpdate(static_cast<char>(isobuf[0]),
+                                           static_cast<char>(isobuf[1]));
+}
+
+#elif defined(OS_LINUX)
+
+int GetCurrentCountryID() {
+  NOTIMPLEMENTED();
+  return kCountryIDUnknown;
+}
+
+#endif  // OS_*
+
+int GetCountryIDFromPrefs(PrefService* prefs) {
+  // See if the user overrode the country on the command line.
+  const std::wstring country(
+    CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kCountry));
+  if (country.length() == 2)
+    return CountryCharsToCountryIDWithUpdate(static_cast<char>(country[0]),
+                                             static_cast<char>(country[1]));
+
+  // Cache first run Country ID value in prefs, and use it afterwards.  This
+  // ensures that just because the user moves around, we won't automatically
+  // make major changes to their available search providers, which would feel
+  // surprising.
   if (!prefs)
-    return GetCurrentGeoID();
-  if (!prefs->HasPrefPath(prefs::kGeoIDAtInstall))
-    prefs->SetInteger(prefs::kGeoIDAtInstall, GetCurrentGeoID());
-  return prefs->GetInteger(prefs::kGeoIDAtInstall);
+    return GetCurrentCountryID();
+
+  if (!prefs->HasPrefPath(prefs::kCountryIDAtInstall)) {
+    int new_country_id;
+#if defined(OS_WIN)
+    // Upgrade the old platform-specific value if it's present.
+    if (prefs->HasPrefPath(prefs::kGeoIDAtInstall)) {
+      int geo_id = prefs->GetInteger(prefs::kGeoIDAtInstall);
+      new_country_id = GeoIDToCountryID(geo_id);
+    } else {
+      new_country_id = GetCurrentCountryID();
+    }
+#else
+    new_country_id = GetCurrentCountryID();
+#endif
+    prefs->SetInteger(prefs::kCountryIDAtInstall, new_country_id);
+  }
+
+  return prefs->GetInteger(prefs::kCountryIDAtInstall);
 }
 
-void GetPrepopulationSetFromGeoID(PrefService* prefs,
-                                  const PrepopulatedEngine*** engines,
-                                  size_t* num_engines) {
+void GetPrepopulationSetFromCountryID(PrefService* prefs,
+                                      const PrepopulatedEngine*** engines,
+                                      size_t* num_engines) {
   // NOTE: This function should ALWAYS set its outparams.
 
-  // If you add a new geo id make sure and update the unit test for coverage.
+  // If you add a new country make sure to update the unit test for coverage.
+  switch (GetCountryIDFromPrefs(prefs)) {
 
-  // GeoIDs are from http://msdn.microsoft.com/en-us/library/ms776390.aspx .
-  // Country codes and names are from http://www.geonames.org/countries/ .
-  switch (GetGeoIDFromPrefs(prefs)) {
+#define CHAR_A 'A'
+#define CHAR_B 'B'
+#define CHAR_C 'C'
+#define CHAR_D 'D'
+#define CHAR_E 'E'
+#define CHAR_F 'F'
+#define CHAR_G 'G'
+#define CHAR_H 'H'
+#define CHAR_I 'I'
+#define CHAR_J 'J'
+#define CHAR_K 'K'
+#define CHAR_L 'L'
+#define CHAR_M 'M'
+#define CHAR_N 'N'
+#define CHAR_O 'O'
+#define CHAR_P 'P'
+#define CHAR_Q 'Q'
+#define CHAR_R 'R'
+#define CHAR_S 'S'
+#define CHAR_T 'T'
+#define CHAR_U 'U'
+#define CHAR_V 'V'
+#define CHAR_W 'W'
+#define CHAR_X 'X'
+#define CHAR_Y 'Y'
+#define CHAR_Z 'Z'
+#define CHAR(ch) CHAR_##ch
+#define CODE_TO_ID(code1, code2)\
+    (CHAR(code1) << 8 | CHAR(code2))
 
-#define UNHANDLED_COUNTRY(id, code)\
-    case id:
-#define END_UNHANDLED_COUNTRIES(code)\
-      *engines = engines_##code;\
-      *num_engines = arraysize(engines_##code);\
+#define UNHANDLED_COUNTRY(code1, code2)\
+    case CODE_TO_ID(code1, code2):
+#define END_UNHANDLED_COUNTRIES(code1, code2)\
+      *engines = engines_##code1##code2;\
+      *num_engines = arraysize(engines_##code1##code2);\
       return;
-#define DECLARE_COUNTRY(id, code)\
-    UNHANDLED_COUNTRY(id, code)\
-    END_UNHANDLED_COUNTRIES(code)
+#define DECLARE_COUNTRY(code1, code2)\
+    UNHANDLED_COUNTRY(code1, code2)\
+    END_UNHANDLED_COUNTRIES(code1, code2)
 
     // Countries with their own, dedicated engine set.
-    DECLARE_COUNTRY(0x4,    DZ)     // Algeria
-    DECLARE_COUNTRY(0x6,    AL)     // Albania
-    DECLARE_COUNTRY(0xB,    AR)     // Argentina
-    DECLARE_COUNTRY(0xC,    AU)     // Australia
-    DECLARE_COUNTRY(0xE,    AT)     // Austria
-    DECLARE_COUNTRY(0x11,   BH)     // Bahrain
-    DECLARE_COUNTRY(0x15,   BE)     // Belgium
-    DECLARE_COUNTRY(0x18,   BZ)     // Belize
-    DECLARE_COUNTRY(0x19,   BA)     // Bosnia and Herzegovina
-    DECLARE_COUNTRY(0x1A,   BO)     // Bolivia
-    DECLARE_COUNTRY(0x1D,   BY)     // Belarus
-    DECLARE_COUNTRY(0x20,   BR)     // Brazil
-    DECLARE_COUNTRY(0x23,   BG)     // Bulgaria
-    DECLARE_COUNTRY(0x25,   BN)     // Brunei
-    DECLARE_COUNTRY(0x27,   CA)     // Canada
-    DECLARE_COUNTRY(0x2D,   CN)     // China
-    DECLARE_COUNTRY(0x2E,   CL)     // Chile
-    DECLARE_COUNTRY(0x33,   CO)     // Colombia
-    DECLARE_COUNTRY(0x36,   CR)     // Costa Rica
-    DECLARE_COUNTRY(0x3D,   DK)     // Denmark
-    DECLARE_COUNTRY(0x41,   DO)     // Dominican Republic
-    DECLARE_COUNTRY(0x42,   EC)     // Ecuador
-    DECLARE_COUNTRY(0x43,   EG)     // Egypt
-    DECLARE_COUNTRY(0x44,   IE)     // Ireland
-    DECLARE_COUNTRY(0x46,   EE)     // Estonia
-    DECLARE_COUNTRY(0x48,   SV)     // El Salvador
-    DECLARE_COUNTRY(0x4B,   CZ)     // Czech Republic
-    DECLARE_COUNTRY(0x4D,   FI)     // Finland
-    DECLARE_COUNTRY(0x51,   FO)     // Faroe Islands
-    DECLARE_COUNTRY(0x54,   FR)     // France
-    DECLARE_COUNTRY(0x5E,   DE)     // Germany
-    DECLARE_COUNTRY(0x62,   GR)     // Greece
-    DECLARE_COUNTRY(0x63,   GT)     // Guatemala
-    DECLARE_COUNTRY(0x68,   HK)     // Hong Kong
-    DECLARE_COUNTRY(0x6A,   HN)     // Honduras
-    DECLARE_COUNTRY(0x6C,   HR)     // Croatia
-    DECLARE_COUNTRY(0x6D,   HU)     // Hungary
-    DECLARE_COUNTRY(0x6E,   IS)     // Iceland
-    DECLARE_COUNTRY(0x6F,   ID)     // Indonesia
-    DECLARE_COUNTRY(0x71,   IN)     // India
-    DECLARE_COUNTRY(0x74,   IR)     // Iran
-    DECLARE_COUNTRY(0x75,   IL)     // Israel
-    DECLARE_COUNTRY(0x76,   IT)     // Italy
-    DECLARE_COUNTRY(0x79,   IQ)     // Iraq
-    DECLARE_COUNTRY(0x7A,   JP)     // Japan
-    DECLARE_COUNTRY(0x7C,   JM)     // Jamaica
-    DECLARE_COUNTRY(0x7E,   JO)     // Jordan
-    DECLARE_COUNTRY(0x81,   KE)     // Kenya
-    DECLARE_COUNTRY(0x86,   KR)     // South Korea
-    DECLARE_COUNTRY(0x88,   KW)     // Kuwait
-    DECLARE_COUNTRY(0x8B,   LB)     // Lebanon
-    DECLARE_COUNTRY(0x8C,   LV)     // Latvia
-    DECLARE_COUNTRY(0x8D,   LT)     // Lithuania
-    DECLARE_COUNTRY(0x8F,   SK)     // Slovakia
-    DECLARE_COUNTRY(0x91,   LI)     // Liechtenstein
-    DECLARE_COUNTRY(0x93,   LU)     // Luxembourg
-    DECLARE_COUNTRY(0x94,   LY)     // Libya
-    DECLARE_COUNTRY(0x9E,   MC)     // Monaco
-    DECLARE_COUNTRY(0x9F,   MA)     // Morocco
-    DECLARE_COUNTRY(0xA4,   OM)     // Oman
-    DECLARE_COUNTRY(0xA6,   MX)     // Mexico
-    DECLARE_COUNTRY(0xA7,   MY)     // Malaysia
-    DECLARE_COUNTRY(0xB0,   NL)     // Netherlands
-    DECLARE_COUNTRY(0xB1,   NO)     // Norway
-    DECLARE_COUNTRY(0xB6,   NI)     // Nicaragua
-    DECLARE_COUNTRY(0xB7,   NZ)     // New Zealand
-    DECLARE_COUNTRY(0xB9,   PY)     // Paraguay
-    DECLARE_COUNTRY(0xBB,   PE)     // Peru
-    DECLARE_COUNTRY(0xBE,   PK)     // Pakistan
-    DECLARE_COUNTRY(0xBF,   PL)     // Poland
-    DECLARE_COUNTRY(0xC0,   PA)     // Panama
-    DECLARE_COUNTRY(0xC1,   PT)     // Portugal
-    DECLARE_COUNTRY(0xC5,   QA)     // Qatar
-    DECLARE_COUNTRY(0xC8,   RO)     // Romania
-    DECLARE_COUNTRY(0xC9,   PH)     // Philippines
-    DECLARE_COUNTRY(0xCA,   PR)     // Puerto Rico
-    DECLARE_COUNTRY(0xCB,   RU)     // Russia
-    DECLARE_COUNTRY(0xCD,   SA)     // Saudi Arabia
-    DECLARE_COUNTRY(0xD1,   ZA)     // South Africa
-    DECLARE_COUNTRY(0xD4,   SI)     // Slovenia
-    DECLARE_COUNTRY(0xD7,   SG)     // Singapore
-    DECLARE_COUNTRY(0xD9,   ES)     // Spain
-    DECLARE_COUNTRY(0xDD,   SE)     // Sweden
-    DECLARE_COUNTRY(0xDE,   SY)     // Syria
-    DECLARE_COUNTRY(0xDF,   CH)     // Switzerland
-    DECLARE_COUNTRY(0xE0,   AE)     // United Arab Emirates
-    DECLARE_COUNTRY(0xE1,   TT)     // Trinidad and Tobago
-    DECLARE_COUNTRY(0xE3,   TH)     // Thailand
-    DECLARE_COUNTRY(0xEA,   TN)     // Tunisia
-    DECLARE_COUNTRY(0xEB,   TR)     // Turkey
-    DECLARE_COUNTRY(0xED,   TW)     // Taiwan
-    DECLARE_COUNTRY(0xF1,   UA)     // Ukraine
-    DECLARE_COUNTRY(0xF2,   UK)     // United Kingdom
-    DECLARE_COUNTRY(0xF4,   US)     // United States
-    DECLARE_COUNTRY(0xF6,   UY)     // Uruguay
-    DECLARE_COUNTRY(0xF9,   VE)     // Venezuela
-    DECLARE_COUNTRY(0xFB,   VN)     // Vietnam
-    DECLARE_COUNTRY(0x105,  YE)     // Yemen
-    DECLARE_COUNTRY(0x108,  ZW)     // Zimbabwe
-    DECLARE_COUNTRY(0x10D,  RS_ME)  // Serbia/Montenegro
-    DECLARE_COUNTRY(0x4CA2, MK)     // Macedonia
+    DECLARE_COUNTRY(A, E)  // United Arab Emirates
+    DECLARE_COUNTRY(A, L)  // Albania
+    DECLARE_COUNTRY(A, R)  // Argentina
+    DECLARE_COUNTRY(A, T)  // Austria
+    DECLARE_COUNTRY(A, U)  // Australia
+    DECLARE_COUNTRY(B, A)  // Bosnia and Herzegovina
+    DECLARE_COUNTRY(B, E)  // Belgium
+    DECLARE_COUNTRY(B, G)  // Bulgaria
+    DECLARE_COUNTRY(B, H)  // Bahrain
+    DECLARE_COUNTRY(B, N)  // Brunei
+    DECLARE_COUNTRY(B, O)  // Bolivia
+    DECLARE_COUNTRY(B, R)  // Brazil
+    DECLARE_COUNTRY(B, Y)  // Belarus
+    DECLARE_COUNTRY(B, Z)  // Belize
+    DECLARE_COUNTRY(C, A)  // Canada
+    DECLARE_COUNTRY(C, H)  // Switzerland
+    DECLARE_COUNTRY(C, L)  // Chile
+    DECLARE_COUNTRY(C, N)  // China
+    DECLARE_COUNTRY(C, O)  // Colombia
+    DECLARE_COUNTRY(C, R)  // Costa Rica
+    DECLARE_COUNTRY(C, Z)  // Czech Republic
+    DECLARE_COUNTRY(D, E)  // Germany
+    DECLARE_COUNTRY(D, K)  // Denmark
+    DECLARE_COUNTRY(D, O)  // Dominican Republic
+    DECLARE_COUNTRY(D, Z)  // Algeria
+    DECLARE_COUNTRY(E, C)  // Ecuador
+    DECLARE_COUNTRY(E, E)  // Estonia
+    DECLARE_COUNTRY(E, G)  // Egypt
+    DECLARE_COUNTRY(E, S)  // Spain
+    DECLARE_COUNTRY(F, I)  // Finland
+    DECLARE_COUNTRY(F, O)  // Faroe Islands
+    DECLARE_COUNTRY(F, R)  // France
+    DECLARE_COUNTRY(G, B)  // United Kingdom
+    DECLARE_COUNTRY(G, R)  // Greece
+    DECLARE_COUNTRY(G, T)  // Guatemala
+    DECLARE_COUNTRY(H, K)  // Hong Kong
+    DECLARE_COUNTRY(H, N)  // Honduras
+    DECLARE_COUNTRY(H, R)  // Croatia
+    DECLARE_COUNTRY(H, U)  // Hungary
+    DECLARE_COUNTRY(I, D)  // Indonesia
+    DECLARE_COUNTRY(I, E)  // Ireland
+    DECLARE_COUNTRY(I, L)  // Israel
+    DECLARE_COUNTRY(I, N)  // India
+    DECLARE_COUNTRY(I, Q)  // Iraq
+    DECLARE_COUNTRY(I, R)  // Iran
+    DECLARE_COUNTRY(I, S)  // Iceland
+    DECLARE_COUNTRY(I, T)  // Italy
+    DECLARE_COUNTRY(J, M)  // Jamaica
+    DECLARE_COUNTRY(J, O)  // Jordan
+    DECLARE_COUNTRY(J, P)  // Japan
+    DECLARE_COUNTRY(K, E)  // Kenya
+    DECLARE_COUNTRY(K, R)  // South Korea
+    DECLARE_COUNTRY(K, W)  // Kuwait
+    DECLARE_COUNTRY(L, B)  // Lebanon
+    DECLARE_COUNTRY(L, I)  // Liechtenstein
+    DECLARE_COUNTRY(L, T)  // Lithuania
+    DECLARE_COUNTRY(L, U)  // Luxembourg
+    DECLARE_COUNTRY(L, V)  // Latvia
+    DECLARE_COUNTRY(L, Y)  // Libya
+    DECLARE_COUNTRY(M, A)  // Morocco
+    DECLARE_COUNTRY(M, C)  // Monaco
+    DECLARE_COUNTRY(M, E)  // Montenegro
+    DECLARE_COUNTRY(M, K)  // Macedonia
+    DECLARE_COUNTRY(M, X)  // Mexico
+    DECLARE_COUNTRY(M, Y)  // Malaysia
+    DECLARE_COUNTRY(N, I)  // Nicaragua
+    DECLARE_COUNTRY(N, L)  // Netherlands
+    DECLARE_COUNTRY(N, O)  // Norway
+    DECLARE_COUNTRY(N, Z)  // New Zealand
+    DECLARE_COUNTRY(O, M)  // Oman
+    DECLARE_COUNTRY(P, A)  // Panama
+    DECLARE_COUNTRY(P, E)  // Peru
+    DECLARE_COUNTRY(P, H)  // Philippines
+    DECLARE_COUNTRY(P, K)  // Pakistan
+    DECLARE_COUNTRY(P, L)  // Poland
+    DECLARE_COUNTRY(P, R)  // Puerto Rico
+    DECLARE_COUNTRY(P, T)  // Portugal
+    DECLARE_COUNTRY(P, Y)  // Paraguay
+    DECLARE_COUNTRY(Q, A)  // Qatar
+    DECLARE_COUNTRY(R, O)  // Romania
+    DECLARE_COUNTRY(R, S)  // Serbia
+    DECLARE_COUNTRY(R, U)  // Russia
+    DECLARE_COUNTRY(S, A)  // Saudi Arabia
+    DECLARE_COUNTRY(S, E)  // Sweden
+    DECLARE_COUNTRY(S, G)  // Singapore
+    DECLARE_COUNTRY(S, I)  // Slovenia
+    DECLARE_COUNTRY(S, K)  // Slovakia
+    DECLARE_COUNTRY(S, V)  // El Salvador
+    DECLARE_COUNTRY(S, Y)  // Syria
+    DECLARE_COUNTRY(T, H)  // Thailand
+    DECLARE_COUNTRY(T, N)  // Tunisia
+    DECLARE_COUNTRY(T, R)  // Turkey
+    DECLARE_COUNTRY(T, T)  // Trinidad and Tobago
+    DECLARE_COUNTRY(T, W)  // Taiwan
+    DECLARE_COUNTRY(U, A)  // Ukraine
+    DECLARE_COUNTRY(U, S)  // United States
+    DECLARE_COUNTRY(U, Y)  // Uruguay
+    DECLARE_COUNTRY(V, E)  // Venezuela
+    DECLARE_COUNTRY(V, N)  // Vietnam
+    DECLARE_COUNTRY(Y, E)  // Yemen
+    DECLARE_COUNTRY(Z, A)  // South Africa
+    DECLARE_COUNTRY(Z, W)  // Zimbabwe
 
     // Countries using the "Australia" engine set.
-    UNHANDLED_COUNTRY(0x130, XX)  // Ashmore and Cartier Islands
-    UNHANDLED_COUNTRY(0x135, CX)  // Christmas Island
-    UNHANDLED_COUNTRY(0x137, CC)  // Cocos Islands
-    UNHANDLED_COUNTRY(0x139, XX)  // Coral Sea Islands
-    UNHANDLED_COUNTRY(0x145, HM)  // Heard Island and McDonald Islands
-    UNHANDLED_COUNTRY(0x150, NF)  // Norfolk Island
-    END_UNHANDLED_COUNTRIES(AU)
+    UNHANDLED_COUNTRY(C, C)  // Cocos Islands
+    UNHANDLED_COUNTRY(C, X)  // Christmas Island
+    UNHANDLED_COUNTRY(H, M)  // Heard Island and McDonald Islands
+    UNHANDLED_COUNTRY(N, F)  // Norfolk Island
+    END_UNHANDLED_COUNTRIES(A, U)
 
     // Countries using the "China" engine set.
-    UNHANDLED_COUNTRY(0x97, MO)  // Macao
-    END_UNHANDLED_COUNTRIES(CN)
+    UNHANDLED_COUNTRY(M, O)  // Macao
+    END_UNHANDLED_COUNTRIES(C, N)
 
     // Countries using the "Denmark" engine set.
-    UNHANDLED_COUNTRY(0x5D, GL)  // Greenland
-    END_UNHANDLED_COUNTRIES(DK)
+    UNHANDLED_COUNTRY(G, L)  // Greenland
+    END_UNHANDLED_COUNTRIES(D, K)
 
     // Countries using the "Spain" engine set.
-    UNHANDLED_COUNTRY(0x8, AD)  // Andorra
-    END_UNHANDLED_COUNTRIES(ES)
+    UNHANDLED_COUNTRY(A, D)  // Andorra
+    END_UNHANDLED_COUNTRIES(E, S)
 
     // Countries using the "France" engine set.
-    UNHANDLED_COUNTRY(0x1C,  BJ)  // Benin
-    UNHANDLED_COUNTRY(0x26,  BI)  // Burundi
-    UNHANDLED_COUNTRY(0x29,  TD)  // Chad
-    UNHANDLED_COUNTRY(0x2B,  CG)  // Congo - Brazzaville
-    UNHANDLED_COUNTRY(0x2C,  CD)  // Congo - Kinshasa
-    UNHANDLED_COUNTRY(0x31,  CM)  // Cameroon
-    UNHANDLED_COUNTRY(0x37,  CF)  // Central African Republic
-    UNHANDLED_COUNTRY(0x3E,  DJ)  // Djibouti
-    UNHANDLED_COUNTRY(0x57,  GA)  // Gabon
-    UNHANDLED_COUNTRY(0x64,  GN)  // Guinea
-    UNHANDLED_COUNTRY(0x67,  HT)  // Haiti
-    UNHANDLED_COUNTRY(0x77,  CI)  // Ivory Coast
-    UNHANDLED_COUNTRY(0x9D,  ML)  // Mali
-    UNHANDLED_COUNTRY(0xAD,  NE)  // Niger
-    UNHANDLED_COUNTRY(0xC6,  RE)  // Reunion
-    UNHANDLED_COUNTRY(0xCE,  PM)  // Saint Pierre and Miquelon
-    UNHANDLED_COUNTRY(0xD2,  SN)  // Senegal
-    UNHANDLED_COUNTRY(0xE8,  TG)  // Togo
-    UNHANDLED_COUNTRY(0xF5,  BF)  // Burkina Faso
-    UNHANDLED_COUNTRY(0x136, XX)  // Clipperton Island
-    UNHANDLED_COUNTRY(0x13D, GF)  // French Guiana
-    UNHANDLED_COUNTRY(0x13E, PF)  // French Polynesia
-    UNHANDLED_COUNTRY(0x13F, TF)  // French Southern Territories
-    UNHANDLED_COUNTRY(0x141, GP)  // Guadeloupe
-    UNHANDLED_COUNTRY(0x14A, MQ)  // Martinique
-    UNHANDLED_COUNTRY(0x14B, YT)  // Mayotte
-    UNHANDLED_COUNTRY(0x14E, NC)  // New Caledonia
-    UNHANDLED_COUNTRY(0x160, WF)  // Wallis and Futuna
-    END_UNHANDLED_COUNTRIES(FR)
+    UNHANDLED_COUNTRY(B, F)  // Burkina Faso
+    UNHANDLED_COUNTRY(B, I)  // Burundi
+    UNHANDLED_COUNTRY(B, J)  // Benin
+    UNHANDLED_COUNTRY(C, D)  // Congo - Kinshasa
+    UNHANDLED_COUNTRY(C, F)  // Central African Republic
+    UNHANDLED_COUNTRY(C, G)  // Congo - Brazzaville
+    UNHANDLED_COUNTRY(C, I)  // Ivory Coast
+    UNHANDLED_COUNTRY(C, M)  // Cameroon
+    UNHANDLED_COUNTRY(D, J)  // Djibouti
+    UNHANDLED_COUNTRY(G, A)  // Gabon
+    UNHANDLED_COUNTRY(G, F)  // French Guiana
+    UNHANDLED_COUNTRY(G, N)  // Guinea
+    UNHANDLED_COUNTRY(G, P)  // Guadeloupe
+    UNHANDLED_COUNTRY(H, T)  // Haiti
+#if defined(OS_WIN)
+    UNHANDLED_COUNTRY(I, P)  // Clipperton Island ('IP' is an WinXP-ism; ISO
+                             //                    includes it with France)
+#endif
+    UNHANDLED_COUNTRY(M, L)  // Mali
+    UNHANDLED_COUNTRY(M, Q)  // Martinique
+    UNHANDLED_COUNTRY(N, C)  // New Caledonia
+    UNHANDLED_COUNTRY(N, E)  // Niger
+    UNHANDLED_COUNTRY(P, F)  // French Polynesia
+    UNHANDLED_COUNTRY(P, M)  // Saint Pierre and Miquelon
+    UNHANDLED_COUNTRY(R, E)  // Reunion
+    UNHANDLED_COUNTRY(S, N)  // Senegal
+    UNHANDLED_COUNTRY(T, D)  // Chad
+    UNHANDLED_COUNTRY(T, F)  // French Southern Territories
+    UNHANDLED_COUNTRY(T, G)  // Togo
+    UNHANDLED_COUNTRY(W, F)  // Wallis and Futuna
+    UNHANDLED_COUNTRY(Y, T)  // Mayotte
+    END_UNHANDLED_COUNTRIES(F, R)
 
     // Countries using the "Greece" engine set.
-    UNHANDLED_COUNTRY(0x3B, CY)  // Cyprus
-    END_UNHANDLED_COUNTRIES(GR)
+    UNHANDLED_COUNTRY(C, Y)  // Cyprus
+    END_UNHANDLED_COUNTRIES(G, R)
 
     // Countries using the "Italy" engine set.
-    UNHANDLED_COUNTRY(0xD6, SM)  // San Marino
-    UNHANDLED_COUNTRY(0xFD, VA)  // Vatican
-    END_UNHANDLED_COUNTRIES(IT)
+    UNHANDLED_COUNTRY(S, M)  // San Marino
+    UNHANDLED_COUNTRY(V, A)  // Vatican
+    END_UNHANDLED_COUNTRIES(I, T)
 
     // Countries using the "Netherlands" engine set.
-    UNHANDLED_COUNTRY(0x12E, AW)  // Aruba
-    UNHANDLED_COUNTRY(0x14D, AN)  // Netherlands Antilles
-    END_UNHANDLED_COUNTRIES(NL)
+    UNHANDLED_COUNTRY(A, N)  // Netherlands Antilles
+    UNHANDLED_COUNTRY(A, W)  // Aruba
+    END_UNHANDLED_COUNTRIES(N, L)
 
     // Countries using the "Norway" engine set.
-    UNHANDLED_COUNTRY(0x7D,  SJ)  // [Svalbard and] Jan Mayen
-    UNHANDLED_COUNTRY(0xDC,  SJ)  // Svalbard [and Jan Mayen]
-    UNHANDLED_COUNTRY(0x132, BV)  // Bouvet Island
-    END_UNHANDLED_COUNTRIES(NO)
+    UNHANDLED_COUNTRY(B, V)  // Bouvet Island
+    UNHANDLED_COUNTRY(S, J)  // Svalbard and Jan Mayen
+    END_UNHANDLED_COUNTRIES(N, O)
 
     // Countries using the "New Zealand" engine set.
-    UNHANDLED_COUNTRY(0x138, CK)  // Cook Islands
-    UNHANDLED_COUNTRY(0x14F, NU)  // Niue
-    UNHANDLED_COUNTRY(0x15B, TK)  // Tokelau
-    END_UNHANDLED_COUNTRIES(NZ)
+    UNHANDLED_COUNTRY(C, K)  // Cook Islands
+    UNHANDLED_COUNTRY(N, U)  // Niue
+    UNHANDLED_COUNTRY(T, K)  // Tokelau
+    END_UNHANDLED_COUNTRIES(N, Z)
 
     // Countries using the "Portugal" engine set.
-    UNHANDLED_COUNTRY(0x39,     CV)  // Cape Verde
-    UNHANDLED_COUNTRY(0xA8,     MZ)  // Mozambique
-    UNHANDLED_COUNTRY(0xC4,     GW)  // Guinea-Bissau
-    UNHANDLED_COUNTRY(0xE9,     ST)  // Sao Tome and Principe
-    UNHANDLED_COUNTRY(0x6F60E7, TL)  // East Timor
-    END_UNHANDLED_COUNTRIES(PT)
+    UNHANDLED_COUNTRY(C, V)  // Cape Verde
+    UNHANDLED_COUNTRY(G, W)  // Guinea-Bissau
+    UNHANDLED_COUNTRY(M, Z)  // Mozambique
+    UNHANDLED_COUNTRY(S, T)  // Sao Tome and Principe
+    UNHANDLED_COUNTRY(T, L)  // Timor-Leste
+    END_UNHANDLED_COUNTRIES(P, T)
 
     // Countries using the "Russia" engine set.
-    UNHANDLED_COUNTRY(0x5,  AZ)  // Azerbaijan
-    UNHANDLED_COUNTRY(0x7,  AM)  // Armenia
-    UNHANDLED_COUNTRY(0x82, KG)  // Kyrgyzstan
-    UNHANDLED_COUNTRY(0x89, KZ)  // Kazakhstan
-    UNHANDLED_COUNTRY(0xE4, TJ)  // Tajikistan
-    UNHANDLED_COUNTRY(0xEE, TM)  // Turkmenistan
-    UNHANDLED_COUNTRY(0xF7, UZ)  // Uzbekistan
-    END_UNHANDLED_COUNTRIES(RU)
+    UNHANDLED_COUNTRY(A, M)  // Armenia
+    UNHANDLED_COUNTRY(A, Z)  // Azerbaijan
+    UNHANDLED_COUNTRY(K, G)  // Kyrgyzstan
+    UNHANDLED_COUNTRY(K, Z)  // Kazakhstan
+    UNHANDLED_COUNTRY(T, J)  // Tajikistan
+    UNHANDLED_COUNTRY(T, M)  // Turkmenistan
+    UNHANDLED_COUNTRY(U, Z)  // Uzbekistan
+    END_UNHANDLED_COUNTRIES(R, U)
 
     // Countries using the "Saudi Arabia" engine set.
-    UNHANDLED_COUNTRY(0xA2, MR)  // Mauritania
-    UNHANDLED_COUNTRY(0xB8, PS)  // Palestinian Territory
-    UNHANDLED_COUNTRY(0xDB, SD)  // Sudan
-    END_UNHANDLED_COUNTRIES(SA)
+    UNHANDLED_COUNTRY(M, R)  // Mauritania
+    UNHANDLED_COUNTRY(P, S)  // Palestinian Territory
+    UNHANDLED_COUNTRY(S, D)  // Sudan
+    END_UNHANDLED_COUNTRIES(S, A)
 
     // Countries using the "United Kingdom" engine set.
-    UNHANDLED_COUNTRY(0x14,   BM)  // Bermuda
-    UNHANDLED_COUNTRY(0x5A,   GI)  // Gibraltar
-    UNHANDLED_COUNTRY(0x72,   IO)  // British Indian Ocean Territory
-    UNHANDLED_COUNTRY(0xA3,   MT)  // Malta
-    UNHANDLED_COUNTRY(0x12F,  XX)  // Ascension Island
-    UNHANDLED_COUNTRY(0x133,  KY)  // Cayman Islands
-    UNHANDLED_COUNTRY(0x134,  XX)  // Channel Islands
-    UNHANDLED_COUNTRY(0x13A,  XX)  // Diego Garcia
-    UNHANDLED_COUNTRY(0x13B,  FK)  // Falkland Islands
-    UNHANDLED_COUNTRY(0x144,  GG)  // Guernsey
-    UNHANDLED_COUNTRY(0x148,  JE)  // Jersey
-    UNHANDLED_COUNTRY(0x14C,  MS)  // Montserrat
-    UNHANDLED_COUNTRY(0x153,  PN)  // Pitcairn Islands
-    UNHANDLED_COUNTRY(0x156,  GS)  // South Georgia and the South Sandwich
-                                   // Islands
-    UNHANDLED_COUNTRY(0x157,  SH)  // Saint Helena
-    UNHANDLED_COUNTRY(0x15C,  XX)  // Tristan da Cunha
-    UNHANDLED_COUNTRY(0x15D,  TC)  // Turks and Caicos Islands
-    UNHANDLED_COUNTRY(0x15F,  VG)  // British Virgin Islands
-    UNHANDLED_COUNTRY(0x3B16, IM)  // Isle of Man
-    END_UNHANDLED_COUNTRIES(UK)
+    UNHANDLED_COUNTRY(B, M)  // Bermuda
+    UNHANDLED_COUNTRY(F, K)  // Falkland Islands
+    UNHANDLED_COUNTRY(G, G)  // Guernsey
+    UNHANDLED_COUNTRY(G, I)  // Gibraltar
+    UNHANDLED_COUNTRY(G, S)  // South Georgia and the South Sandwich
+                             //   Islands
+    UNHANDLED_COUNTRY(I, M)  // Isle of Man
+    UNHANDLED_COUNTRY(I, O)  // British Indian Ocean Territory
+    UNHANDLED_COUNTRY(J, E)  // Jersey
+    UNHANDLED_COUNTRY(K, Y)  // Cayman Islands
+    UNHANDLED_COUNTRY(M, S)  // Montserrat
+    UNHANDLED_COUNTRY(M, T)  // Malta
+    UNHANDLED_COUNTRY(P, N)  // Pitcairn Islands
+    UNHANDLED_COUNTRY(S, H)  // Saint Helena, Ascension Island, and Tristan da
+                             //   Cunha
+    UNHANDLED_COUNTRY(T, C)  // Turks and Caicos Islands
+    UNHANDLED_COUNTRY(V, G)  // British Virgin Islands
+    END_UNHANDLED_COUNTRIES(G, B)
 
     // Countries using the "United States" engine set.
-    UNHANDLED_COUNTRY(0xA,    AS)  // American Samoa
-    UNHANDLED_COUNTRY(0x7F,   XX)  // Johnston Atoll
-    UNHANDLED_COUNTRY(0xFC,   VI)  // U.S. Virgin Islands
-    UNHANDLED_COUNTRY(0x102,  XX)  // Wake Island
-    UNHANDLED_COUNTRY(0x131,  XX)  // Baker Island
-    UNHANDLED_COUNTRY(0x142,  GU)  // Guam
-    UNHANDLED_COUNTRY(0x146,  XX)  // Howland Island
-    UNHANDLED_COUNTRY(0x147,  XX)  // Jarvis Island
-    UNHANDLED_COUNTRY(0x149,  XX)  // Kingman Reef
-    UNHANDLED_COUNTRY(0x151,  MP)  // Northern Mariana Islands
-    UNHANDLED_COUNTRY(0x152,  XX)  // Palmyra Atoll
-    UNHANDLED_COUNTRY(0x154,  XX)  // Rota Island
-    UNHANDLED_COUNTRY(0x155,  XX)  // Saipan
-    UNHANDLED_COUNTRY(0x15A,  XX)  // Tinian Island
-    UNHANDLED_COUNTRY(0x52FA, XX)  // Midway Islands
-    END_UNHANDLED_COUNTRIES(US)
+    UNHANDLED_COUNTRY(A, S)  // American Samoa
+    UNHANDLED_COUNTRY(G, U)  // Guam
+    UNHANDLED_COUNTRY(M, P)  // Northern Mariana Islands
+    UNHANDLED_COUNTRY(U, M)  // U.S. Minor Outlying Islands
+    UNHANDLED_COUNTRY(V, I)  // U.S. Virgin Islands
+    END_UNHANDLED_COUNTRIES(U, S)
 
     // Countries using the "default" engine set.
-    UNHANDLED_COUNTRY(0x2,                 AG)  // Antigua and Barbuda
-    UNHANDLED_COUNTRY(0x3,                 AF)  // Afghanistan
-    UNHANDLED_COUNTRY(0x9,                 AO)  // Angola
-    UNHANDLED_COUNTRY(0x12,                BB)  // Barbados
-    UNHANDLED_COUNTRY(0x13,                BW)  // Botswana
-    UNHANDLED_COUNTRY(0x16,                BS)  // Bahamas
-    UNHANDLED_COUNTRY(0x17,                BD)  // Bangladesh
-    UNHANDLED_COUNTRY(0x1B,                MM)  // Myanmar
-    UNHANDLED_COUNTRY(0x1E,                SB)  // Solomon Islands
-    UNHANDLED_COUNTRY(0x22,                BT)  // Bhutan
-    UNHANDLED_COUNTRY(0x28,                KH)  // Cambodia
-    UNHANDLED_COUNTRY(0x2A,                LK)  // Sri Lanka
-    UNHANDLED_COUNTRY(0x32,                KM)  // Comoros
-    UNHANDLED_COUNTRY(0x38,                CU)  // Cuba
-    UNHANDLED_COUNTRY(0x3F,                DM)  // Dominica
-    UNHANDLED_COUNTRY(0x45,                GQ)  // Equatorial Guinea
-    UNHANDLED_COUNTRY(0x47,                ER)  // Eritrea
-    UNHANDLED_COUNTRY(0x49,                ET)  // Ethiopia
-    UNHANDLED_COUNTRY(0x4E,                FJ)  // Fiji
-    UNHANDLED_COUNTRY(0x50,                FM)  // Micronesia
-    UNHANDLED_COUNTRY(0x56,                GM)  // Gambia
-    UNHANDLED_COUNTRY(0x58,                GE)  // Georgia
-    UNHANDLED_COUNTRY(0x59,                GH)  // Ghana
-    UNHANDLED_COUNTRY(0x5B,                GD)  // Grenada
-    UNHANDLED_COUNTRY(0x65,                GY)  // Guyana
-    UNHANDLED_COUNTRY(0x83,                KP)  // North Korea
-    UNHANDLED_COUNTRY(0x85,                KI)  // Kiribati
-    UNHANDLED_COUNTRY(0x8A,                LA)  // Laos
-    UNHANDLED_COUNTRY(0x8E,                LR)  // Liberia
-    UNHANDLED_COUNTRY(0x92,                LS)  // Lesotho
-    UNHANDLED_COUNTRY(0x95,                MG)  // Madagascar
-    UNHANDLED_COUNTRY(0x98,                MD)  // Moldova
-    UNHANDLED_COUNTRY(0x9A,                MN)  // Mongolia
-    UNHANDLED_COUNTRY(0x9C,                MW)  // Malawi
-    UNHANDLED_COUNTRY(0xA0,                MU)  // Mauritius
-    UNHANDLED_COUNTRY(0xA5,                MV)  // Maldives
-    UNHANDLED_COUNTRY(0xAE,                VU)  // Vanuatu
-    UNHANDLED_COUNTRY(0xAF,                NG)  // Nigeria
-    UNHANDLED_COUNTRY(0xB2,                NP)  // Nepal
-    UNHANDLED_COUNTRY(0xB4,                NR)  // Nauru
-    UNHANDLED_COUNTRY(0xB5,                SR)  // Suriname
-    UNHANDLED_COUNTRY(0xC2,                PG)  // Papua New Guinea
-    UNHANDLED_COUNTRY(0xC3,                PW)  // Palau
-    UNHANDLED_COUNTRY(0xC7,                MH)  // Marshall Islands
-    UNHANDLED_COUNTRY(0xCC,                RW)  // Rwanda
-    UNHANDLED_COUNTRY(0xCF,                KN)  // Saint Kitts and Nevis
-    UNHANDLED_COUNTRY(0xD0,                SC)  // Seychelles
-    UNHANDLED_COUNTRY(0xD5,                SL)  // Sierra Leone
-    UNHANDLED_COUNTRY(0xD8,                SO)  // Somalia
-    UNHANDLED_COUNTRY(0xDA,                LC)  // Saint Lucia
-    UNHANDLED_COUNTRY(0xE7,                TO)  // Tonga
-    UNHANDLED_COUNTRY(0xEC,                TV)  // Tuvalu
-    UNHANDLED_COUNTRY(0xEF,                TZ)  // Tanzania
-    UNHANDLED_COUNTRY(0xF0,                UG)  // Uganda
-    UNHANDLED_COUNTRY(0xF8,                VC)  // Saint Vincent and the
-                                                // Grenadines
-    UNHANDLED_COUNTRY(0xFE,                NA)  // Namibia
-    UNHANDLED_COUNTRY(0x103,               WS)  // Samoa
-    UNHANDLED_COUNTRY(0x104,               SZ)  // Swaziland
-    UNHANDLED_COUNTRY(0x107,               ZM)  // Zambia
-    UNHANDLED_COUNTRY(0x12C,               AI)  // Anguilla
-    UNHANDLED_COUNTRY(0x12D,               AQ)  // Antarctica
-    UNHANDLED_COUNTRY(0x143,               XX)  // Guantanamo Bay
-    UNHANDLED_COUNTRY(GEOID_NOT_AVAILABLE, XX)  // Unknown location
-    default:                                    // Unhandled location
-    END_UNHANDLED_COUNTRIES(default)
+    UNHANDLED_COUNTRY(A, F)  // Afghanistan
+    UNHANDLED_COUNTRY(A, G)  // Antigua and Barbuda
+    UNHANDLED_COUNTRY(A, I)  // Anguilla
+    UNHANDLED_COUNTRY(A, O)  // Angola
+    UNHANDLED_COUNTRY(A, Q)  // Antarctica
+    UNHANDLED_COUNTRY(B, B)  // Barbados
+    UNHANDLED_COUNTRY(B, D)  // Bangladesh
+    UNHANDLED_COUNTRY(B, S)  // Bahamas
+    UNHANDLED_COUNTRY(B, T)  // Bhutan
+    UNHANDLED_COUNTRY(B, W)  // Botswana
+    UNHANDLED_COUNTRY(C, U)  // Cuba
+    UNHANDLED_COUNTRY(D, M)  // Dominica
+    UNHANDLED_COUNTRY(E, R)  // Eritrea
+    UNHANDLED_COUNTRY(E, T)  // Ethiopia
+    UNHANDLED_COUNTRY(F, J)  // Fiji
+    UNHANDLED_COUNTRY(F, M)  // Micronesia
+    UNHANDLED_COUNTRY(G, D)  // Grenada
+    UNHANDLED_COUNTRY(G, E)  // Georgia
+    UNHANDLED_COUNTRY(G, H)  // Ghana
+    UNHANDLED_COUNTRY(G, M)  // Gambia
+    UNHANDLED_COUNTRY(G, Q)  // Equatorial Guinea
+    UNHANDLED_COUNTRY(G, Y)  // Guyana
+    UNHANDLED_COUNTRY(K, H)  // Cambodia
+    UNHANDLED_COUNTRY(K, I)  // Kiribati
+    UNHANDLED_COUNTRY(K, M)  // Comoros
+    UNHANDLED_COUNTRY(K, N)  // Saint Kitts and Nevis
+    UNHANDLED_COUNTRY(K, P)  // North Korea
+    UNHANDLED_COUNTRY(L, A)  // Laos
+    UNHANDLED_COUNTRY(L, C)  // Saint Lucia
+    UNHANDLED_COUNTRY(L, K)  // Sri Lanka
+    UNHANDLED_COUNTRY(L, R)  // Liberia
+    UNHANDLED_COUNTRY(L, S)  // Lesotho
+    UNHANDLED_COUNTRY(M, D)  // Moldova
+    UNHANDLED_COUNTRY(M, G)  // Madagascar
+    UNHANDLED_COUNTRY(M, H)  // Marshall Islands
+    UNHANDLED_COUNTRY(M, M)  // Myanmar
+    UNHANDLED_COUNTRY(M, N)  // Mongolia
+    UNHANDLED_COUNTRY(M, U)  // Mauritius
+    UNHANDLED_COUNTRY(M, V)  // Maldives
+    UNHANDLED_COUNTRY(M, W)  // Malawi
+    UNHANDLED_COUNTRY(N, A)  // Namibia
+    UNHANDLED_COUNTRY(N, G)  // Nigeria
+    UNHANDLED_COUNTRY(N, P)  // Nepal
+    UNHANDLED_COUNTRY(N, R)  // Nauru
+    UNHANDLED_COUNTRY(P, G)  // Papua New Guinea
+    UNHANDLED_COUNTRY(P, W)  // Palau
+    UNHANDLED_COUNTRY(R, W)  // Rwanda
+    UNHANDLED_COUNTRY(S, B)  // Solomon Islands
+    UNHANDLED_COUNTRY(S, C)  // Seychelles
+    UNHANDLED_COUNTRY(S, L)  // Sierra Leone
+    UNHANDLED_COUNTRY(S, O)  // Somalia
+    UNHANDLED_COUNTRY(S, R)  // Suriname
+    UNHANDLED_COUNTRY(S, Z)  // Swaziland
+    UNHANDLED_COUNTRY(T, O)  // Tonga
+    UNHANDLED_COUNTRY(T, V)  // Tuvalu
+    UNHANDLED_COUNTRY(T, Z)  // Tanzania
+    UNHANDLED_COUNTRY(U, G)  // Uganda
+    UNHANDLED_COUNTRY(V, C)  // Saint Vincent and the Grenadines
+    UNHANDLED_COUNTRY(V, U)  // Vanuatu
+    UNHANDLED_COUNTRY(W, S)  // Samoa
+    UNHANDLED_COUNTRY(Z, M)  // Zambia
+    case kCountryIDUnknown:
+    default:                // Unhandled location
+    END_UNHANDLED_COUNTRIES(def, ault)
   }
 }
 
@@ -3038,6 +3182,7 @@ namespace TemplateURLPrepopulateData {
 
 void RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterIntegerPref(prefs::kGeoIDAtInstall, -1);
+  prefs->RegisterIntegerPref(prefs::kCountryIDAtInstall, kCountryIDUnknown);
 }
 
 int GetDataVersion() {
@@ -3048,11 +3193,9 @@ int GetDataVersion() {
 void GetPrepopulatedEngines(PrefService* prefs,
                             std::vector<TemplateURL*>* t_urls,
                             size_t* default_search_provider_index) {
-  // TODO(pkasting): http://b/1225464 GeoID is not available on Win2k.  We'll
-  // need to do something else there.
   const PrepopulatedEngine** engines;
   size_t num_engines;
-  GetPrepopulationSetFromGeoID(prefs, &engines, &num_engines);
+  GetPrepopulationSetFromCountryID(prefs, &engines, &num_engines);
   *default_search_provider_index = 0;
 
   for (size_t i = 0; i < num_engines; ++i) {

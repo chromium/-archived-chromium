@@ -173,6 +173,29 @@ class TabRestoreService : public base::RefCountedThreadSafe<TabRestoreService> {
   void CreateHistoricalTab(NavigationController*) { NOTIMPLEMENTED(); }
 };
 
+namespace history {
+
+class ExpireHistoryBackend {
+ public:
+  BookmarkService* bookmark_service_;
+};
+
+class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend> {
+ public:
+  BookmarkService* bookmark_service_;
+  ExpireHistoryBackend expirer_;
+};
+
+class HistoryDatabase {
+ public:
+  static std::string GURLToDatabaseURL(const GURL& url) {
+    NOTIMPLEMENTED();
+    return "";
+  }
+};
+
+}
+
 class HistoryService {
  public:
   class URLEnumerator {
@@ -198,6 +221,13 @@ class HistoryService {
     NOTIMPLEMENTED();
   }
   void IterateURLs(URLEnumerator* iterator) { NOTIMPLEMENTED(); }
+  void DeleteAllSearchTermsForKeyword(long long) { NOTIMPLEMENTED(); }
+  void SetKeywordSearchTermsForURL(const GURL& url,
+                                   long long keyword_id,
+                                   const std::wstring& term) {
+    NOTIMPLEMENTED();
+  }
+  void NotifyRenderProcessHostDestruction(int) { NOTIMPLEMENTED(); };
   void Cleanup() { NOTIMPLEMENTED(); }
   void AddRef() { NOTIMPLEMENTED(); }
   void Release() { NOTIMPLEMENTED(); }
@@ -208,17 +238,9 @@ class HistoryService {
   void SetPageTitle(const GURL&, const std::wstring&) {
     NOTIMPLEMENTED();
   }
-};
 
-namespace history {
-class HistoryDatabase {
- public:
-  static std::string GURLToDatabaseURL(const GURL& url) {
-    NOTIMPLEMENTED();
-    return "";
-  }
+  scoped_refptr<history::HistoryBackend> history_backend_;
 };
-}
 
 class MetricsService {
  public:
@@ -822,6 +844,12 @@ class Encryptor {
   }
 };
 
+class BookmarkNode {
+};
+
+class BookmarkModelObserver {
+};
+
 class BookmarkModel : public BookmarkService {
  public:
   explicit BookmarkModel(Profile* profile) { }
@@ -832,7 +860,13 @@ class BookmarkModel : public BookmarkService {
     return false;
   }
   virtual void GetBookmarks(std::vector<GURL>* urls) { NOTIMPLEMENTED(); }
+  virtual bool IsLoaded() {
+    NOTIMPLEMENTED();
+    return false;
+  }
   virtual void BlockTillLoaded() { NOTIMPLEMENTED(); }
+  void AddObserver(BookmarkModelObserver* observer) { NOTIMPLEMENTED(); }
+  void RemoveObserver(BookmarkModelObserver* observer) { NOTIMPLEMENTED(); }
 };
 
 class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
@@ -868,41 +902,6 @@ class URLFixerUpper {
     NOTIMPLEMENTED();
     return L"about:blank";
   }
-};
-
-class TemplateURLModel {
- public:
-  explicit TemplateURLModel(Profile* profile) { }
-  static std::wstring GenerateKeyword(const GURL& url, bool autodetected) {
-    NOTIMPLEMENTED();
-    return L"";
-  }
-  static GURL GenerateSearchURL(const TemplateURL* t_url) {
-    NOTIMPLEMENTED();
-    return GURL();
-  }
-  TemplateURL* GetDefaultSearchProvider() {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  bool loaded() const {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void Load() { NOTIMPLEMENTED(); }
-  TemplateURL* GetTemplateURLForKeyword(const std::wstring&) {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  void ScheduleDownload(const std::wstring&, const GURL&, const GURL&,
-                        const gfx::NativeView, bool) { NOTIMPLEMENTED(); }
-  bool CanReplaceKeyword(const std::wstring&, const std::wstring&,
-                         const TemplateURL**) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void Remove(const TemplateURL*) { NOTIMPLEMENTED(); }
-  void Add(const TemplateURL*) { NOTIMPLEMENTED(); }
 };
 
 //---------------------------------------------------------------------------

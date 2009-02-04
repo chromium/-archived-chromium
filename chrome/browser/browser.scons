@@ -766,7 +766,6 @@ if not env.Bit('windows'):
       'safe_browsing/safe_browsing_blocking_page.cc',
       'sandbox_policy.cc',
       'search_engines/template_url_fetcher.cc',
-      'search_engines/template_url_prepopulate_data.cc',
       'sessions/base_session_service.cc',
       'sessions/session_backend.cc',
       'sessions/session_restore.cc',

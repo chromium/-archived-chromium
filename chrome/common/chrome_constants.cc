@@ -41,7 +41,7 @@ const wchar_t kThumbnailsFilename[] = L"Thumbnails";
 const wchar_t kUserDataDirname[] = L"User Data";
 const FilePath::CharType kUserScriptsDirname[] = FPL("User Scripts");
 const FilePath::CharType kWebDataFilename[] = FPL("Web Data");
-const wchar_t kBookmarksFileName[] = L"Bookmarks";
+const FilePath::CharType kBookmarksFileName[] = FPL("Bookmarks");
 const wchar_t kHistoryBookmarksFileName[] = L"Bookmarks From History";
 const wchar_t kCustomDictionaryFileName[] = L"Custom Dictionary.txt";
 

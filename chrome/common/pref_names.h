@@ -148,7 +148,8 @@ extern const wchar_t kShouldShowWelcomePage[];
 
 extern const wchar_t kLastKnownGoogleURL[];
 
-extern const wchar_t kGeoIDAtInstall[];
+extern const wchar_t kCountryIDAtInstall[];
+extern const wchar_t kGeoIDAtInstall[];  // OBSOLETE
 
 extern const wchar_t kShutdownType[];
 extern const wchar_t kShutdownNumProcesses[];

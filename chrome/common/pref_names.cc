@@ -426,11 +426,14 @@ const wchar_t kShouldShowWelcomePage[] = L"show-welcome-page";
 // correct Google domain/country code for whatever location the user is in.
 const wchar_t kLastKnownGoogleURL[] = L"browser.last_known_google_url";
 
-// Integer containing the system GeoID the first time we checked the template
-// URL prepopulate data.  This is used to avoid adding a whole bunch of new
-// search engine choices if prepopulation runs when the user's GeoID differs
-// from their previous GeoID.  This pref does not exist until prepopulation has
-// been run at least once.
+// Integer containing the system Country ID the first time we checked the
+// template URL prepopulate data.  This is used to avoid adding a whole bunch of
+// new search engine choices if prepopulation runs when the user's Country ID
+// differs from their previous Country ID.  This pref does not exist until
+// prepopulation has been run at least once.
+const wchar_t kCountryIDAtInstall[] = L"countryid_at_install";
+// OBSOLETE. Same as above, but uses the Windows-specific GeoID value instead.
+// Updated if found to the above key.
 const wchar_t kGeoIDAtInstall[] = L"geoid_at_install";
 
 // An enum value of how the browser was shut down (see browser_shutdown.h).

@@ -6,15 +6,26 @@
 #define CHROME_TEST_TESTING_PROFILE_H_
 
 #include "base/base_paths.h"
+#include "base/file_path.h"
 #include "base/path_service.h"
 #include "base/file_util.h"
-#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_prefs.h"
-#include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/sessions/session_service.h"
 #include "chrome/common/pref_service.h"
+
+#if defined(OS_POSIX)
+// TODO(port): get rid of this include. It's used just to provide declarations
+// and stub definitions for classes we encouter during the porting effort.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
+// TODO(port): Get rid of this section and finish porting.
+#if defined(OS_WIN)
+#include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/history/history.h"
+#include "chrome/browser/sessions/session_service.h"
+#endif
 
 class TestingProfile : public Profile {
  public:
@@ -83,11 +94,12 @@ class TestingProfile : public Profile {
     return NULL;
   }
   virtual PrefService* GetPrefs() {
-    std::wstring prefs_filename;
+    FilePath prefs_filename;
     PathService::Get(base::DIR_TEMP, &prefs_filename);
-    file_util::AppendToPath(&prefs_filename, L"TestPreferences");
+    prefs_filename =
+        prefs_filename.Append(FILE_PATH_LITERAL("TestPreferences"));
     if (!prefs_.get()) {
-      prefs_.reset(new PrefService(prefs_filename));
+      prefs_.reset(new PrefService(prefs_filename.ToWStringHack()));
       Profile::RegisterUserPrefs(prefs_.get());
       browser::RegisterAllPrefs(prefs_.get(), prefs_.get());
     }
@@ -146,7 +158,7 @@ class TestingProfile : public Profile {
   virtual BookmarkModel* GetBookmarkModel() {
     return bookmark_bar_model_.get();
   }
-  virtual bool Profile::IsSameProfile(Profile *p) {
+  virtual bool IsSameProfile(Profile *p) {
     return this == p;
   }
   virtual base::Time GetStartTime() const {
