@@ -121,7 +121,7 @@ class LocationBarView : public LocationBar,
   virtual void FocusSearch();
   virtual void SaveStateToContents(TabContents* contents);
 
-  static const int kTextVertMargin;
+  static const int kVertMargin;
   static const COLORREF kBackgroundColorByLevel[];
 
  protected:
@@ -282,6 +282,16 @@ class LocationBarView : public LocationBar,
   // force_layout is true, or one of these views has changed in such a way as
   // to necessitate a layout, layout occurs as well.
   void DoLayout(bool force_layout);
+
+  // Returns the number of pixels to clip off the top edge of the background
+  // graphics.  With the Vista frame, the DWM draws a dark border around the
+  // content, so we clip the single dark pixel on the popup background image,
+  // which otherwise looks redundant.
+  int TopOffset() const;
+
+  // Returns the height in pixels of the margin at the top of the bar, after
+  // TopOffset() pixels have been clipped off.
+  int TopMargin() const;
 
   // Returns the width in pixels of the contents of the edit.
   int TextDisplayWidth();

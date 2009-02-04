@@ -122,7 +122,7 @@ void AutocompletePopupView::UpdatePopupAppearance() {
   // TODO(pkasting): http://b/972786 This shouldn't be hardcoded to rely on
   // LocationBarView constants.  Instead we should just make the edit be "at the
   // right coordinates", or something else generic.
-  rc.InflateRect(1, -LocationBarView::kTextVertMargin);
+  rc.InflateRect(1, -LocationBarView::kVertMargin);
   // Now rc is the exact width we want and is positioned like the edit would
   // be, so shift the top and bottom downwards so the new top is where the old
   // bottom is and the rect has the height we need for all our entries, plus a

@@ -113,17 +113,16 @@ static const int kPixel = 1;
 static const int kWindowSizingBorderSize = 8;
 // The size (width/height) of the window icon.
 static const int kWindowIconSize = 16;
-// The distance from the left of the window of the OTR avatar icon.
-static const int kOTRAvatarIconMargin = 9;
-// The distance from the right edge of the OTR avatar icon to the left edge of
-// the TabStrip.
-static const int kOTRAvatarIconTabStripSpacing = 6;
-// The distance from the top of the window of the OTR avatar icon when the
-// window is maximized.
-static const int kNoTitleOTRTopSpacing = 23;
-// The distance from the top of the window of the OTR avatar icon when the
-// window is maximized.
-static const int kNoTitleOTRZoomedTopSpacing = 3;
+// In maximized mode, the OTR avatar starts 2 px below the top of the screen, so
+// that it doesn't extend into the "3D edge" portion of the titlebar.
+const int kOTRMaximizedTopSpacing = 2;
+// The OTR avatar ends 2 px above the bottom of the tabstrip (which, given the
+// way the tabstrip draws its bottom edge, will appear like a 1 px gap to the
+// user).
+const int kOTRBottomSpacing = 2;
+// There are 2 px on each side of the OTR avatar (between the frame border and
+// it on the left, and between it and the tabstrip on the right).
+const int kOTRSideSpacing = 2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassNonClientView, public:
@@ -140,7 +139,7 @@ AeroGlassNonClientView::~AeroGlassNonClientView() {
 
 gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
-      (otr_avatar_bounds_.right() + kOTRAvatarIconTabStripSpacing) :
+      (otr_avatar_bounds_.right() + kOTRSideSpacing) :
       kWindowHorizontalClientEdgeWidth;
   int tabstrip_width = width() - tabstrip_x - kTabStripRightHorizOffset -
     (frame_->IsMaximized() ? frame_->GetMinimizeButtonOffset() : 0);
@@ -155,10 +154,8 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
 
 gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int win_width,
                                                             int win_height) const {
-  if (!browser_view_->IsToolbarVisible()) {
-    // App windows don't have a toolbar.
+  if (!browser_view_->IsTabStripVisible())
     return gfx::Rect(0, 0, width(), height());
-  }
 
   int top_margin = CalculateNonClientTopHeight();
   return gfx::Rect(kWindowHorizontalClientEdgeWidth, top_margin,
@@ -190,9 +187,9 @@ int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
   if (component != HTNOWHERE)
     return component;
 
-  // This check is only done when we have a toolbar, which is the only time
+  // This check is only done when we have a tabstrip, which is the only time
   // that we have a non-standard non-client area.
-  if (browser_view_->IsToolbarVisible()) {
+  if (browser_view_->IsTabStripVisible()) {
     // Because we tell Windows that our client area extends all the way to the
     // top of the browser window, but our BrowserView doesn't actually go up that
     // high, we need to make sure the right hit-test codes are returned for the
@@ -229,12 +226,12 @@ void AeroGlassNonClientView::ResetWindowControls() {
 // AeroGlassNonClientView, views::View overrides:
 
 void AeroGlassNonClientView::Paint(ChromeCanvas* canvas) {
-  PaintOTRAvatar(canvas);
   PaintDistributorLogo(canvas);
-  if (browser_view_->IsToolbarVisible()) {
+  if (browser_view_->IsTabStripVisible())
     PaintToolbarBackground(canvas);
+  PaintOTRAvatar(canvas);
+  if (browser_view_->IsTabStripVisible())
     PaintClientEdge(canvas);
-  }
 }
 
 void AeroGlassNonClientView::Layout() {
@@ -271,11 +268,15 @@ int AeroGlassNonClientView::CalculateNonClientTopHeight() const {
 }
 
 void AeroGlassNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
-  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
-    int icon_x = MirroredLeftPointForRect(otr_avatar_bounds_);
-    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(), icon_x,
-                          otr_avatar_bounds_.y());
-  }
+  if (!browser_view_->ShouldShowOffTheRecordAvatar())
+    return;
+
+  SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
+  canvas->DrawBitmapInt(otr_avatar_icon, 0,
+      (otr_avatar_icon.height() - otr_avatar_bounds_.height()) / 2,
+      otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), 
+      MirroredLeftPointForRect(otr_avatar_bounds_), otr_avatar_bounds_.y(),
+      otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }
 
 void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
@@ -289,43 +290,31 @@ void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
 }
 
 void AeroGlassNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
-  if (browser_view_->IsToolbarVisible() ||
-      browser_view_->IsTabStripVisible()) {
-    SkBitmap* toolbar_left =
-        resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
-    SkBitmap* toolbar_center =
-        resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
-    SkBitmap* toolbar_right =
-        resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT);
+  SkBitmap* toolbar_left =
+      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
+  SkBitmap* toolbar_center =
+      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
+  SkBitmap* toolbar_right =
+      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT);
 
-    gfx::Rect toolbar_bounds = browser_view_->GetToolbarBounds();
-    gfx::Point topleft(toolbar_bounds.x(), toolbar_bounds.y());
-    View::ConvertPointToView(frame_->client_view(), this, &topleft);
-    toolbar_bounds.set_x(topleft.x());
-    toolbar_bounds.set_y(topleft.y());
+  gfx::Rect toolbar_bounds = browser_view_->GetToolbarBounds();
+  gfx::Point topleft(toolbar_bounds.x(), toolbar_bounds.y());
+  View::ConvertPointToView(frame_->client_view(), this, &topleft);
+  toolbar_bounds.set_x(topleft.x());
+  toolbar_bounds.set_y(topleft.y());
 
-    // We use TileImageInt for the left and right caps to clip the rendering
-    // to the appropriate height of the toolbar.
-    canvas->TileImageInt(*toolbar_left,
-                         toolbar_bounds.x() - toolbar_left->width(),
-                         toolbar_bounds.y(), toolbar_left->width(),
-                         toolbar_bounds.height());
-    canvas->TileImageInt(*toolbar_center,
-                         toolbar_bounds.x(), toolbar_bounds.y(),
-                         toolbar_bounds.width(), toolbar_center->height());
-    canvas->TileImageInt(*toolbar_right, toolbar_bounds.right(),
-                         toolbar_bounds.y(), toolbar_right->width(),
-                         toolbar_bounds.height());
-
-    if (frame_->window_delegate()->ShouldShowWindowTitle()) {
-      // Since we're showing the toolbar or the tabstrip, we need to draw a
-      // single pixel grey line along underneath them to terminate them
-      // cleanly.
-      canvas->FillRectInt(SkColorSetRGB(180, 188, 199), toolbar_bounds.x(),
-                          toolbar_bounds.bottom() - 1, toolbar_bounds.width(),
-                          1);
-    }
-  }
+  // We use TileImageInt for the left and right caps to clip the rendering
+  // to the appropriate height of the toolbar.
+  canvas->TileImageInt(*toolbar_left,
+                       toolbar_bounds.x() - toolbar_left->width(),
+                       toolbar_bounds.y(), toolbar_left->width(),
+                       toolbar_bounds.height());
+  canvas->TileImageInt(*toolbar_center,
+                       toolbar_bounds.x(), toolbar_bounds.y(),
+                       toolbar_bounds.width(), toolbar_center->height());
+  canvas->TileImageInt(*toolbar_right, toolbar_bounds.right(),
+                       toolbar_bounds.y(), toolbar_right->width(),
+                       toolbar_bounds.height());
 }
 
 void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
@@ -377,20 +366,17 @@ void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
 }
 
 void AeroGlassNonClientView::LayoutOTRAvatar() {
-  int otr_x = 0;
-  int top_spacing = frame_->IsMaximized() ? kNoTitleOTRZoomedTopSpacing
-                                          : kNoTitleOTRTopSpacing;
-  int otr_y = browser_view_->GetTabStripHeight() + top_spacing;
-  int otr_width = 0;
-  int otr_height = 0;
-  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
-    SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
-    otr_width = otr_avatar_icon.width();
-    otr_height = otr_avatar_icon.height();
-    otr_x = kOTRAvatarIconMargin;
-    otr_y -= otr_avatar_icon.height() + 2;
-  }
-  otr_avatar_bounds_.SetRect(otr_x, otr_y, otr_width, otr_height);
+  SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
+  int top_height = (frame_->IsMaximized() ?
+      (CalculateNonClientTopHeight() - 2) : kTabStripY);
+  int tabstrip_height = browser_view_->GetTabStripHeight() - kOTRBottomSpacing;
+  int otr_height = frame_->IsMaximized() ?
+      (tabstrip_height - kOTRMaximizedTopSpacing) :
+      otr_avatar_icon.height();
+  otr_avatar_bounds_.SetRect(
+      kWindowHorizontalClientEdgeWidth + kOTRSideSpacing,
+      top_height + tabstrip_height - otr_height, otr_avatar_icon.width(),
+      otr_height);
 }
 
 void AeroGlassNonClientView::LayoutDistributorLogo() {

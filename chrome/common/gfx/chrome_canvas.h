@@ -152,6 +152,8 @@ class ChromeCanvas : public skia::PlatformCanvas {
 
   // Tiles the image in the specified region.
   void TileImageInt(const SkBitmap& bitmap, int x, int y, int w, int h);
+  void TileImageInt(const SkBitmap& bitmap, int src_x, int src_y,
+                    int dest_x, int dest_y, int w, int h);
 
   // Extracts a bitmap from the contents of this canvas.
   SkBitmap ExtractBitmap();

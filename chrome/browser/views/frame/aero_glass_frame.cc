@@ -143,33 +143,23 @@ LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
 LRESULT AeroGlassFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
   // By default the client side is set to the window size which is what
   // we want.
-  if (browser_view_->IsToolbarVisible() && mode == TRUE) {
-    // To be on the safe side and avoid side-effects, we only adjust the client
-    // size to non-standard values when we must - i.e. when we're showing a
-    // TabStrip.
-    if (browser_view_->IsTabStripVisible()) {
-      // Calculate new NCCALCSIZE_PARAMS based on custom NCA inset.
-      NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
+  if (browser_view_->IsTabStripVisible() && mode == TRUE) {
+    // Calculate new NCCALCSIZE_PARAMS based on custom NCA inset.
+    NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
 
-      // Hack necessary to stop black background flicker, we cut out
-      // resizeborder here to save us from having to do too much
-      // addition and subtraction in Layout(). We don't cut off the
-      // top + titlebar as that prevents the window controls from
-      // highlighting.
-      params->rgrc[0].left +=
-          (kResizeBorder - kWindowHorizontalClientEdgeWidth);
-      params->rgrc[0].right -=
-          (kResizeBorder - kWindowHorizontalClientEdgeWidth);
-      params->rgrc[0].bottom -=
-          (kResizeBorder - kWindowBottomClientEdgeHeight);
+    // Hack necessary to stop black background flicker, we cut out
+    // resizeborder here to save us from having to do too much
+    // addition and subtraction in Layout(). We don't cut off the
+    // top + titlebar as that prevents the window controls from
+    // highlighting.
+    params->rgrc[0].left +=
+        (kResizeBorder - kWindowHorizontalClientEdgeWidth);
+    params->rgrc[0].right -=
+        (kResizeBorder - kWindowHorizontalClientEdgeWidth);
+    params->rgrc[0].bottom -=
+        (kResizeBorder - kWindowBottomClientEdgeHeight);
 
-      SetMsgHandled(TRUE);
-    } else {
-      // We don't adjust the client size for detached popups, so we need to
-      // tell Windows we didn't handle the message here so that it doesn't
-      // screw up the non-client area.
-      SetMsgHandled(FALSE);
-    }
+    SetMsgHandled(TRUE);
 
     // We need to reset the frame, as Vista resets it whenever it changes
     // composition modes (and NCCALCSIZE is the closest thing we get to
@@ -206,10 +196,9 @@ void AeroGlassFrame::UpdateDWMFrame() {
   if (!client_view())
     return;
 
-  // We only adjust the DWM's glass rendering when we're a browser window or a
-  // detached popup. App windows get the standard client edge.
-  if (browser_view_->IsTabStripVisible() ||
-      browser_view_->IsToolbarVisible()) {
+  // We only adjust the DWM's glass rendering when we're a browser window.
+  // Popups and app windows get the standard client edge.
+  if (browser_view_->IsTabStripVisible()) {
     // By default, we just want to adjust the glass by the width of the inner
     // bevel that aero renders to demarcate the client area. We supply our own
     // client edge for the browser window and detached popups, so we don't want

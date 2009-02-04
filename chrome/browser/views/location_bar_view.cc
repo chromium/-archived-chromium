@@ -33,17 +33,13 @@
 
 using views::View;
 
-const int LocationBarView::kTextVertMargin = 2;
+const int LocationBarView::kVertMargin = 2;
 
 const COLORREF LocationBarView::kBackgroundColorByLevel[] = {
   RGB(255, 245, 195),  // SecurityLevel SECURE: Yellow.
   RGB(255, 255, 255),  // SecurityLevel NORMAL: White.
   RGB(255, 255, 255),  // SecurityLevel INSECURE: White.
 };
-
-// The margins around the solid color we draw.
-static const int kBackgroundVertMargin = 2;
-static const int kBackgroundHoriMargin = 0;
 
 // Padding on the right and left of the entry field.
 static const int kEntryPadding = 3;
@@ -54,7 +50,6 @@ static const int kInnerPadding = 3;
 static const SkBitmap* kBackground = NULL;
 
 static const SkBitmap* kPopupBackground = NULL;
-static const int kPopupBackgroundVertMargin = 2;
 
 // The delay the mouse has to be hovering over the lock/warning icon before the
 // info bubble is shown.
@@ -198,8 +193,8 @@ void LocationBarView::SetProfile(Profile* profile) {
 
 gfx::Size LocationBarView::GetPreferredSize() {
   return gfx::Size(0,
-      std::max((popup_window_mode_ ? kPopupBackground : kBackground)->height(),
-               security_image_view_.GetPreferredSize().height()));
+      (popup_window_mode_ ? kPopupBackground : kBackground)->height() -
+      TopOffset());
 }
 
 void LocationBarView::Layout() {
@@ -214,19 +209,13 @@ void LocationBarView::Paint(ChromeCanvas* canvas) {
       GetGValue(kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()]),
       GetBValue(kBackgroundColorByLevel[model_->GetSchemeSecurityLevel()]));
 
-  if (popup_window_mode_) {
-    canvas->TileImageInt(*kPopupBackground, 0, 0, width(),
-                         kPopupBackground->height());
-    canvas->FillRectInt(bg, 0, kPopupBackgroundVertMargin, width(),
-        kPopupBackground->height() - (kPopupBackgroundVertMargin * 2));
-  } else {
-    int bh = kBackground->height();
-    canvas->TileImageInt(*kBackground, 0, (height() - bh) / 2, width(),
-                         bh);
-    canvas->FillRectInt(bg, kBackgroundHoriMargin, kBackgroundVertMargin,
-                        width() - 2 * kBackgroundHoriMargin,
-                        bh - kBackgroundVertMargin * 2);
-  }
+  const SkBitmap* background =
+      popup_window_mode_ ? kPopupBackground : kBackground;
+  int top_offset = TopOffset();
+  canvas->TileImageInt(*background, 0, top_offset, 0, 0, width(), height());
+  int top_margin = TopMargin();
+  canvas->FillRectInt(bg, 0, top_margin, width(),
+                      height() - top_margin - kVertMargin);
 }
 
 bool LocationBarView::CanProcessTabKeyEvents() {
@@ -340,7 +329,7 @@ void LocationBarView::DoLayout(const bool force_layout) {
   RECT edit_bounds;
   location_entry_->GetClientRect(&edit_bounds);
 
-  int entry_width = width() - kEntryPadding - kEntryPadding;
+  int entry_width = width() - (kEntryPadding * 2);
   gfx::Size security_image_size;
   if (security_image_view_.IsVisible()) {
     security_image_size = security_image_view_.GetPreferredSize();
@@ -364,11 +353,8 @@ void LocationBarView::DoLayout(const bool force_layout) {
     return;
 
   // TODO(sky): baseline layout.
-  const SkBitmap* background =
-      popup_window_mode_ ? kPopupBackground : kBackground;
-  int bh = background->height();
-  int location_y = ((height() - bh) / 2) + kTextVertMargin;
-  int location_height = bh - (2 * kTextVertMargin);
+  int location_y = TopMargin();
+  int location_height = height() - location_y - kVertMargin;
   if (info_label_.IsVisible()) {
     info_label_.SetBounds(width() - kEntryPadding - info_label_size.width(),
                           location_y,
@@ -377,11 +363,9 @@ void LocationBarView::DoLayout(const bool force_layout) {
   if (security_image_view_.IsVisible()) {
     const int info_label_width = info_label_size.width() ?
         info_label_size.width() + kInnerPadding : 0;
-    security_image_view_.SetBounds(width() - kEntryPadding -
-                                      info_label_width  -
-                                      security_image_size.width(),
-                                   location_y,
-                                   security_image_size.width(), location_height);
+    security_image_view_.SetBounds(width() - kEntryPadding - info_label_width -
+        security_image_size.width(), location_y, security_image_size.width(),
+        location_height);
   }
   gfx::Rect location_bounds(kEntryPadding, location_y, entry_width,
                             location_height);
@@ -405,6 +389,14 @@ void LocationBarView::DoLayout(const bool force_layout) {
     // was added/removed or changed in size. We need to paint ourselves.
     SchedulePaint();
   }
+}
+
+int LocationBarView::TopOffset() const {
+  return (popup_window_mode_ && win_util::ShouldUseVistaFrame()) ? 1 : 0;
+}
+
+int LocationBarView::TopMargin() const {
+  return kVertMargin - TopOffset();
 }
 
 int LocationBarView::TextDisplayWidth() {

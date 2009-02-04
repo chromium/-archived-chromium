@@ -1094,10 +1094,6 @@ int BrowserView::LayoutToolbar(int top) {
     gfx::Size ps = toolbar_->GetPreferredSize();
     int toolbar_y =
         top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
-    // With detached popup windows with the aero glass frame, we need to offset
-    // by a pixel to make things look good.
-    if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
-      ps.Enlarge(0, -1);
     int browser_view_width = width();
 #ifdef CHROME_PERSONALIZATION
     if (IsPersonalizationEnabled())
