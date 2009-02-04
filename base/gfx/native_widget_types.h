@@ -47,6 +47,7 @@ class NSTextField;
 #endif  // __OBJC__
 #elif defined(OS_LINUX)
 typedef struct _GtkWidget GtkWidget;
+typedef struct _GtkWindow GtkWindow;
 #endif
 
 namespace gfx {
@@ -61,7 +62,7 @@ typedef NSWindow* NativeWindow;
 typedef NSTextField* NativeEditView;
 #elif defined(OS_LINUX)
 typedef GtkWidget* NativeView;
-typedef GtkWidget* NativeWindow;
+typedef GtkWindow* NativeWindow;
 typedef GtkWidget* NativeEditView;
 #else  // null port.
 #error No known OS defined

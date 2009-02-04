@@ -14,15 +14,15 @@
 #include "webkit/glue/webwidget.h"
 
 /*static*/
-WebWidgetHost* WebWidgetHost::Create(NSWindow* parent_window,
+WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
                                      WebWidgetDelegate* delegate) {
   WebWidgetHost* host = new WebWidgetHost();
 
-  NSRect content_rect = [parent_window frame];
+  NSRect content_rect = [parent_view frame];
   content_rect.origin.y += 64;
   content_rect.size.height -= 64;
   host->view_ = [[NSView alloc] initWithFrame:content_rect];
-  [[parent_window contentView] addSubview:host->view_];
+  [parent_view addSubview:host->view_];
   
   // win_util::SetWindowUserData(host->hwnd_, host);
 
@@ -33,13 +33,13 @@ WebWidgetHost* WebWidgetHost::Create(NSWindow* parent_window,
 }
 
 /*static*/
-WebWidgetHost* WebWidgetHost::FromWindow(NSWindow* hwnd) {
+WebWidgetHost* WebWidgetHost::FromWindow(NSView* view) {
   return NULL;
 }
 
 /*static*/
-void WebWidgetHost::HandleEvent(NSWindow *window, NSEvent *event) {
-  WebWidgetHost* host = FromWindow(window);
+void WebWidgetHost::HandleEvent(NSView* view, NSEvent* event) {
+  WebWidgetHost* host = FromWindow(view);
   if (host) {
     switch ([event type]) {
       case NSLeftMouseDown:

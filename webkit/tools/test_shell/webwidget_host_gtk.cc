@@ -118,10 +118,10 @@ gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
 
 // -----------------------------------------------------------------------------
 
-gfx::NativeWindow WebWidgetHost::CreateWindow(gfx::NativeWindow box,
+GtkWidget* WebWidgetHost::CreateWindow(GtkWidget* parent_view,
                                               void* host) {
   GtkWidget* widget = gtk_drawing_area_new();
-  gtk_box_pack_start(GTK_BOX(box), widget, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(parent_view), widget, TRUE, TRUE, 0);
 
   gtk_widget_add_events(widget, GDK_EXPOSURE_MASK |
                                 GDK_POINTER_MOTION_MASK |
@@ -152,10 +152,10 @@ gfx::NativeWindow WebWidgetHost::CreateWindow(gfx::NativeWindow box,
   return widget;
 }
 
-WebWidgetHost* WebWidgetHost::Create(gfx::NativeWindow box,
+WebWidgetHost* WebWidgetHost::Create(GtkWidget* parent_view,
                                      WebWidgetDelegate* delegate) {
   WebWidgetHost* host = new WebWidgetHost();
-  host->view_ = CreateWindow(box, host);
+  host->view_ = CreateWindow(parent_view, host);
   host->webwidget_ = WebWidget::Create(delegate);
   // We manage our own double buffering because we need to be able to update
   // the expose area in an ExposeEvent within the lifetime of the event handler.
@@ -185,7 +185,7 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DidInvalidateRect(clip_rect);
 }
 
-WebWidgetHost* FromWindow(gfx::NativeWindow view) {
+WebWidgetHost* FromWindow(GtkWidget* view) {
   const gpointer p = g_object_get_data(G_OBJECT(view), "webwidgethost");
   return (WebWidgetHost* ) p;
 }

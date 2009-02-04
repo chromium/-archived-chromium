@@ -265,7 +265,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   // Create a webview. Note that |web_view| takes ownership of this shell so we
   // will get cleaned up when it gets destroyed.
   m_webViewHost.reset(
-      WebViewHost::Create(m_mainWnd, delegate_.get(), *TestShell::web_prefs_));
+      WebViewHost::Create([m_mainWnd contentView], delegate_.get(), *TestShell::web_prefs_));
   webView()->SetUseEditorDelegate(true);
   delegate_->RegisterDragDrop();
   TestShellWebView* web_view = 
