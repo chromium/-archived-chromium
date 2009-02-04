@@ -9,28 +9,22 @@
 
 #include "base/file_version_info.h"
 #include "base/histogram.h"
-#include "base/image_util.h"
-#include "base/process_util.h"
 #include "base/stats_table.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/tracked_objects.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_resources.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/memory_details.h"
 #include "chrome/browser/net/dns_global.h"
-#include "chrome/browser/plugin_process_host.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/ipc_status_view.h"
-#include "chrome/browser/views/about_network_dialog.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
@@ -41,6 +35,10 @@
 #include "webkit/glue/webkit_glue.h"
 #ifdef CHROME_V8
 #include "v8/include/v8.h"
+#endif
+
+#if defined(OS_WIN)
+#include "chrome/browser/views/about_network_dialog.h"
 #endif
 
 #include "chromium_strings.h"
@@ -79,7 +77,7 @@ class AboutSource : public ChromeURLDataManager::DataSource {
   void FinishDataRequest(const std::string& html, int request_id);
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(AboutSource);
+  DISALLOW_COPY_AND_ASSIGN(AboutSource);
 };
 
 // Handling about:memory is complicated enough to encapsulate it's
@@ -99,7 +97,7 @@ class AboutMemoryHandler : public MemoryDetails {
 
   AboutSource* source_;
   int request_id_;
-  DISALLOW_EVIL_CONSTRUCTORS(AboutMemoryHandler);
+  DISALLOW_COPY_AND_ASSIGN(AboutMemoryHandler);
 };
 
 AboutSource::AboutSource()
@@ -336,7 +334,7 @@ std::string BrowserAboutHandler::AboutPlugins() {
 }
 
 // static
-std::string BrowserAboutHandler::AboutHistograms(const std::string query) {
+std::string BrowserAboutHandler::AboutHistograms(const std::string& query) {
   std::string data;
   StatisticsRecorder::WriteHTMLGraph(query, &data);
   return data;

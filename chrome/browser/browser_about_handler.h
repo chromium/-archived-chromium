@@ -4,27 +4,24 @@
 
 // Contains code for handling "about:" URLs in the browser process.
 
-#ifndef CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H__
-#define CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H__
+#ifndef CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H_
+#define CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H_
 
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/image_util.h"
+#include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 
-class GURL;
-class Profile;
-class ListValue;
-class DictionaryValue;
-class RenderProcessHost;
 class AboutSource;
-enum TabContentsType;
-namespace process_util {
-  struct CommittedKBytes;
-  struct WorkingSetKBytes;
-}
+class DictionaryValue;
+class GURL;
+class ListValue;
+class Profile;
+class RenderProcessHost;
+class RenderViewHostFactory;
+class SiteInstance;
 
 class BrowserAboutHandler : public WebContents {
  public:
@@ -51,7 +48,7 @@ class BrowserAboutHandler : public WebContents {
   static std::string AboutPlugins();
 
   // Renders a special page for about:histograms.
-  static std::string AboutHistograms(const std::string query);
+  static std::string AboutHistograms(const std::string& query);
 
   // Renders a special page about:objects (about tracked objects such as Tasks).
   static std::string AboutObjects(const std::string& query);
@@ -76,8 +73,7 @@ class BrowserAboutHandler : public WebContents {
 
  private:
   ChromeURLDataManager::DataSource* about_source_;
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserAboutHandler);
+  DISALLOW_COPY_AND_ASSIGN(BrowserAboutHandler);
 };
 
-#endif  // CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H__
-
+#endif  // CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H_
