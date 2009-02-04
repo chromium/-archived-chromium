@@ -674,6 +674,13 @@ void DefaultNonClientView::PaintMaximizedFrameBorder(
 
 void DefaultNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
   WindowDelegate* d = container_->window_delegate();
+
+  // It seems like in some conditions we can be asked to paint after the window
+  // that contains us is WM_DESTROYed. At this point, our delegate is NULL. The
+  // correct long term fix may be to shut down the RootView in WM_DESTROY.
+  if (!d)
+    return;
+
   canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
       MirroredLeftPointForRect(title_bounds_), title_bounds_.y(),
       title_bounds_.width(), title_bounds_.height());
