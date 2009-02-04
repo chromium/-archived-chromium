@@ -31,7 +31,8 @@ TEST_F(ChromeMainTest, AppTestingInterface) {
 }
 
 // Make sure that the second invocation creates a new window.
-TEST_F(ChromeMainTest, SecondLaunch) {
+// This test is disabled. See bug 5671.
+TEST_F(ChromeMainTest, DISABLED_SecondLaunch) {
   include_testing_id_ = false;
   use_existing_browser_ = true;
 
