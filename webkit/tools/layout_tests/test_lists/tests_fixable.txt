@@ -831,7 +831,7 @@ LINUX : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 // Linux: off-by-ones imply font metrics.
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 
-// Linux: fonts significantly different.
+// Linux: height of window is off.
 LINUX MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
 
 // Asks for "system" fonts, which we don't support at all.
