@@ -104,7 +104,7 @@ class StringTokenizerT {
   // it ignores delimiters that it finds.  It switches out of this mode once it
   // finds another instance of the quote char.  If a backslash is encountered
   // within a quoted string, then the next character is skipped.
-  void set_quote_chars(const std::string& quotes) { quotes_ = quotes; }
+  void set_quote_chars(const str& quotes) { quotes_ = quotes; }
 
   // Call this method to advance the tokenizer to the next delimiter.  This
   // returns false if the tokenizer is complete.  This method must be called
