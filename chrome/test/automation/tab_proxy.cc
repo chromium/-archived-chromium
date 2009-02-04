@@ -306,12 +306,11 @@ bool TabProxy::GetHWND(HWND* hwnd) const {
     return false;
   }
   IPC::Message* response = NULL;
-  HWND tab_hwnd = NULL;
   bool succeeded = false;
   if (sender_->SendAndWaitForResponse(
       new AutomationMsg_TabHWNDRequest(0, handle_), &response,
       AutomationMsg_TabHWNDResponse::ID)) {
-    succeeded = AutomationMsg_TabHWNDResponse::Read(response, &tab_hwnd);
+    succeeded = AutomationMsg_TabHWNDResponse::Read(response, hwnd);
   }
   scoped_ptr<IPC::Message> auto_deleter(response);
   return succeeded;
