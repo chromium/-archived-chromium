@@ -14,6 +14,7 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/thread.h"
+#include "base/win_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
@@ -351,6 +352,7 @@ class CreateWindowTask : public Task {
         MAKEINTATOM(window_class), 0,
         WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
         0, 0, 0, 0, parent_, 0, GetModuleHandle(NULL), 0);
+    TRACK_HWND_CREATION(window);
 
     PluginProcessHostMsg_CreateWindow::WriteReplyParams(
         reply_msg_, window);
@@ -372,6 +374,7 @@ class DestroyWindowTask : public Task {
 
   virtual void Run() {
     DestroyWindow(window_);
+    TRACK_HWND_DESTRUCTION(window_);
   }
 
  private:

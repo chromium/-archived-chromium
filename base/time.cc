@@ -4,6 +4,7 @@
 
 #include "base/time.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/third_party/nspr/prtime.h"
 
 #include "base/logging.h"
@@ -79,7 +80,7 @@ Time Time::LocalMidnight() const {
 // static
 bool Time::FromString(const wchar_t* time_string, Time* parsed_time) {
   DCHECK((time_string != NULL) && (parsed_time != NULL));
-  std::string ascii_time_string = WideToUTF8(time_string);
+  std::string ascii_time_string = SysWideToUTF8(time_string);
   if (ascii_time_string.length() == 0)
     return false;
   PRTime result_time = 0;
