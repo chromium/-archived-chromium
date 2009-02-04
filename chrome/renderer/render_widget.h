@@ -12,8 +12,8 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/ref_counted.h"
+#include "base/shared_memory.h"
 #include "chrome/common/ipc_channel.h"
-#include "chrome/common/render_messages.h"
 #include "skia/ext/platform_canvas.h"
 
 #include "webkit/glue/webwidget_delegate.h"
@@ -144,25 +144,11 @@ class RenderWidget : public IPC::Channel::Listener,
     return current_scroll_buf_ != NULL;
   }
 
-  bool next_paint_is_resize_ack() const {
-    return ViewHostMsg_PaintRect_Flags::is_resize_ack(next_paint_flags_);
-  }
-
-  bool next_paint_is_restore_ack() const {
-    return ViewHostMsg_PaintRect_Flags::is_restore_ack(next_paint_flags_);
-  }
-
-  void set_next_paint_is_resize_ack() {
-    next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_RESIZE_ACK;
-  }
-
-  void set_next_paint_is_restore_ack() {
-    next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_RESTORE_ACK;
-  }
-
-  void set_next_paint_is_repaint_ack() {
-    next_paint_flags_ |= ViewHostMsg_PaintRect_Flags::IS_REPAINT_ACK;
-  }
+  bool next_paint_is_resize_ack() const;
+  bool next_paint_is_restore_ack() const;
+  void set_next_paint_is_resize_ack();
+  void set_next_paint_is_restore_ack();
+  void set_next_paint_is_repaint_ack();
 
   // Called when a renderer process moves an input focus or updates the
   // position of its caret.

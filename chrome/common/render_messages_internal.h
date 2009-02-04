@@ -736,9 +736,11 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_CONTROL3(ViewHostMsg_PageContents, GURL, int32, std::wstring)
 
   // Specifies the URL as the first parameter (a wstring) and thumbnail as
-  // binary data as the second parameter. Our macros don't handle binary data,
-  // so this is declared "empty," to be encoded by the caller/receiver.
-  IPC_MESSAGE_EMPTY(ViewHostMsg_Thumbnail)
+  // binary data as the second parameter.
+  IPC_MESSAGE_ROUTED3(ViewHostMsg_Thumbnail,
+                      GURL /* url */,
+                      ThumbnailScore /* score */,
+                      SkBitmap /* bitmap */)
 
   // Notification that the url for the favicon of a site has been determined.
   IPC_MESSAGE_ROUTED2(ViewHostMsg_UpdateFavIconURL,

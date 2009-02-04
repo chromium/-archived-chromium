@@ -116,7 +116,8 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
   return success;
 }
 
-ViewHostMsg_Accessibility_Out_Params BrowserAccessibilityManager::response() {
+const ViewHostMsg_Accessibility_Out_Params&
+BrowserAccessibilityManager::response() {
   return out_params_;
 }
 

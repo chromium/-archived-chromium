@@ -15,6 +15,7 @@
 class BrowserAccessibility;
 class RenderProcessHost;
 class RenderWidgetHost;
+struct ViewHostMsg_Accessibility_Out_Params;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -52,7 +53,7 @@ class BrowserAccessibilityManager : public NotificationObserver {
                                 LONG input2);
 
   // Wrapper function, for cleaner code.
-  ViewHostMsg_Accessibility_Out_Params response();
+  const ViewHostMsg_Accessibility_Out_Params& response();
 
   // Retrieves the parent HWND connected to the provided id.
   HWND parent_hwnd(int id);

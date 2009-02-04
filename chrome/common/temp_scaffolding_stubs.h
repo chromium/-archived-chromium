@@ -16,6 +16,7 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/browser_process.h"
@@ -31,7 +32,6 @@
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/render_messages.h"
 #include "googleurl/src/gurl.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/password_form.h"
@@ -65,6 +65,7 @@ class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
 class WebContents;
+class WebPreferences;
 
 namespace IPC {
 class Message;
@@ -318,7 +319,8 @@ class BrokerServices {
 class IconManager {
 };
 
-struct ViewHostMsg_Resource_Request;
+struct ViewHostMsg_DidPrintPage_Params;
+struct ViewHostMsg_FrameNavigate_Params;
 
 class ResourceDispatcherHost {
  public:
