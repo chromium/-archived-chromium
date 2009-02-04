@@ -302,14 +302,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\renderer_main_platform_delegate.h"
-			>
-		</File>
-		<File
-			RelativePath=".\renderer_main_platform_delegate_win.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\renderer_resources.h"
 			>
 		</File>

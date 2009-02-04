@@ -7,6 +7,12 @@
 #include "base/command_line.h"
 #include "chrome/common/chrome_switches.h"
 
+#if defined(OS_MACOSX)
+extern "C" {
+#include <sandbox.h>
+}
+#endif
+
 #if defined(OS_WIN)
 
 void SandboxInitWrapper::SetServices(sandbox::SandboxInterfaceInfo* info) {
@@ -31,8 +37,13 @@ void SandboxInitWrapper::InitializeSandbox(const CommandLine& command_line,
 #if defined(OS_WIN)
       target_services_->Init();
 #elif defined(OS_MACOSX)
-      // Nothing to do here for OS X, see renderer_main_platform_delegate_mac.cc
-      // For Sandbox initialization.
+      // TODO(pinkerton): note, this leaks |error_buff|. What do we want to
+      // do with the error? Pass it back to main?
+      char* error_buff;
+      int error = sandbox_init(kSBXProfilePureComputation, SANDBOX_NAMED,
+                               &error_buff);
+      if (error)
+        exit(-1);
 #endif
     }
   }

@@ -15,11 +15,10 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/resource_bundle.h"
-#if defined(OS_WIN)
 #include "chrome/common/win_util.h"
-#endif
-#include "chrome/renderer/renderer_main_platform_delegate.h"
 #include "chrome/renderer/render_process.h"
+#include "chrome/test/injection_test_dll.h"
+#include "sandbox/src/sandbox.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
@@ -38,22 +37,19 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
     *bad_pointer = 0;
   }
 
-#if defined(OS_WIN)
   if (command_line.HasSwitch(switches::kRendererStartupDialog)) {
     std::wstring title = l10n_util::GetString(IDS_PRODUCT_NAME);
     title += L" renderer";  // makes attaching to process easier
     MessageBox(NULL, L"renderer starting...", title.c_str(),
                MB_OK | MB_SETFOREGROUND);
   }
-#else
-  NOTIMPLEMENTED();
-#endif  // !OS_WIN
 }
 
 // mainline routine for running as the Rendererer process
 int RendererMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
-  RendererMainPlatformDelegate platform(parameters);
+  sandbox::TargetServices* target_services = 
+      parameters.sandbox_info_.TargetServices();
 
   StatsScope<StatsCounterTimer>
       startup_timer(chrome::Counters::renderer_main());
@@ -66,10 +62,22 @@ int RendererMain(const MainFunctionParams& parameters) {
   // Initialize the SystemMonitor
   base::SystemMonitor::Start();
 
-  platform.PlatformInitialize();
+  CoInitialize(NULL);
 
+  DLOG(INFO) << "Started renderer with " <<
+    parsed_command_line.command_line_string();
+
+  HMODULE sandbox_test_module = NULL;
   bool no_sandbox = parsed_command_line.HasSwitch(switches::kNoSandbox);
-  platform.InitSandboxTests(no_sandbox);
+  if (target_services && !no_sandbox) {
+    // The command line might specify a test dll to load.
+    if (parsed_command_line.HasSwitch(switches::kTestSandbox)) {
+      std::wstring test_dll_name =
+        parsed_command_line.GetSwitchValue(switches::kTestSandbox);
+      sandbox_test_module = LoadLibrary(test_dll_name.c_str());
+      DCHECK(sandbox_test_module);
+    }
+  }
 
   HandleRendererErrorTestParameters(parsed_command_line);
 
@@ -78,10 +86,28 @@ int RendererMain(const MainFunctionParams& parameters) {
   if (RenderProcess::GlobalInit(channel_name)) {
     bool run_loop = true;
     if (!no_sandbox) {
-      run_loop = platform.EnableSandbox();
+      if (target_services) {
+        target_services->LowerToken();
+      } else {
+        run_loop = false;
+      }
     }
 
-    platform.RunSandboxTests();
+    if (sandbox_test_module) {
+      RunRendererTests run_security_tests =
+          reinterpret_cast<RunRendererTests>(GetProcAddress(sandbox_test_module,
+                                                            kRenderTestCall));
+      DCHECK(run_security_tests);
+      if (run_security_tests) {
+        int test_count = 0;
+        DLOG(INFO) << "Running renderer security tests";
+        BOOL result = run_security_tests(&test_count);
+        DCHECK(result) << "Test number " << test_count << " has failed.";
+        // If we are in release mode, debug or crash the process.
+        if (!result)
+          __debugbreak();
+      }
+    }
 
     startup_timer.Stop();  // End of Startup Time Measurement.
 
@@ -93,7 +119,8 @@ int RendererMain(const MainFunctionParams& parameters) {
 
     RenderProcess::GlobalCleanup();
   }
-  platform.PlatformUninitialize();
+
+  CoUninitialize();
   return 0;
 }
 
