@@ -1,4 +1,1 @@
-10.open
-36.assertTextNotPresent
-36.refreshAndWait
-4.open
+10.open,36.assertTextNotPresent,36.refreshAndWait,4.open
