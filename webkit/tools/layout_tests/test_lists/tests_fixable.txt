@@ -1025,7 +1025,6 @@ LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
 // important - we might even want to ignore it.
 LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
-LayoutTests/fast/profiler = FAIL TIMEOUT
 LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
@@ -1334,12 +1333,6 @@ MAC : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 // the url comes back wrong, it should have a question mark for args on it.
 MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL CRASH
 MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
-
-// contain extra output at the top, no clue why.
-
-// JS profiler not enabled?
-MAC : LayoutTests/fast/profiler/document-dot-write.html = FAIL
-MAC : LayoutTests/fast/profiler/stop-then-function-call.html = FAIL
 
 // whitespace differences (??)
 MAC : LayoutTests/fast/dom/tabindex-clamp.html = FAIL

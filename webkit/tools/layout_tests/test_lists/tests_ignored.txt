@@ -28,6 +28,11 @@ SKIP : LayoutTests/svg/custom/getPresentationAttribute.svg = PASS
 SKIP : LayoutTests/wml = FAIL
 SKIP : LayoutTests/http/tests/wml = FAIL
 
+// These tests are based on the JSC JavaScript profiler. The V8 JavaScript
+// profiler is in development and will use a different approach than JSC and
+// most likely these tests will always be JSC specific.
+SKIP : LayoutTests/fast/profiler = FAIL TIMEOUT
+
 // -----------------------------------------------------------------
 // FAILING TESTS
 // -----------------------------------------------------------------
