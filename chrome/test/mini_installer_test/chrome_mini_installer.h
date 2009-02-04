@@ -24,6 +24,9 @@ class ChromeMiniInstaller {
 
   ~ChromeMiniInstaller() {}
 
+  // Closes specified process.
+  void CloseProcesses(const std::wstring& executable_name);
+
   // Installs Google Chrome through meta installer.
   void InstallMetaInstaller();
 
@@ -49,9 +52,6 @@ class ChromeMiniInstaller {
 
   // Closes Chrome browser.
   void CloseChromeBrowser(LPCWSTR window_name);
-
-  // Closes specified process.
-  void CloseProcesses(const std::wstring& executable_name);
 
   // Checks for registry key.
   bool CheckRegistryKey(std::wstring key_path);
@@ -79,7 +79,7 @@ class ChromeMiniInstaller {
   std::wstring GetUninstallPath();
 
   // Returns Chrome pv registry key value
-  std::wstring GetRegistryKey();
+  bool GetRegistryKey(std::wstring *return_reg_key_value);
 
   // Checks for the build type
   bool IsChromiumBuild();

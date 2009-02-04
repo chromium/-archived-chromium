@@ -60,14 +60,16 @@ void ChromeMiniInstaller::InstallMetaInstaller() {
 void ChromeMiniInstaller::OverInstall() {
   if (!IsChromiumBuild()) {
     InstallMetaInstaller();
+    std::wstring reg_key_value_returned;
     // gets the registry key value before overinstall.
-    std::wstring reg_key_value_returned = GetRegistryKey();
+    GetRegistryKey(&reg_key_value_returned);
     printf("\n\nPreparing to overinstall...\n");
     std::wstring mini_installer_path = GetMiniInstallerExePath();
     printf("\nOverinstall path is %ls\n",  mini_installer_path.c_str());
     InstallMiniInstaller(true);
+    std::wstring reg_key_value_after_overinstall;
     // Get the registry key value after over install
-    std::wstring reg_key_value_after_overinstall = GetRegistryKey();
+    GetRegistryKey(&reg_key_value_after_overinstall);
     ASSERT_TRUE(VerifyOverInstall(reg_key_value_returned,
                                   reg_key_value_after_overinstall));
   } else {
@@ -167,7 +169,9 @@ bool ChromeMiniInstaller::CheckRegistryKey(std::wstring key_path) {
     printf("Cannot open reg key\n");
     return false;
   }
-  std::wstring reg_key_value_returned = GetRegistryKey();
+  std::wstring reg_key_value_returned;
+  if (!GetRegistryKey(&reg_key_value_returned))
+    return false;
   printf("Reg key value is%ls\n",  reg_key_value_returned.c_str());
   return true;
 }
@@ -238,10 +242,11 @@ std::wstring ChromeMiniInstaller::GetStartMenuShortcutPath() {
 
 // Gets the path for uninstall.
 std::wstring ChromeMiniInstaller::GetUninstallPath() {
-  std::wstring username, append_path, path;
+  std::wstring username, append_path, path, reg_key_value;
+  GetRegistryKey(&reg_key_value);
   path = GetChromeInstallDirectoryLocation();
   file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
-  file_util::AppendToPath(&path, GetRegistryKey());
+  file_util::AppendToPath(&path, reg_key_value);
   file_util::AppendToPath(&path, installer_util::kInstallerDir);
   file_util::AppendToPath(&path,
       mini_installer_constants::kChromeSetupExecutable);
@@ -250,14 +255,15 @@ std::wstring ChromeMiniInstaller::GetUninstallPath() {
 }
 
 // Returns Chrome pv registry key value
-std::wstring ChromeMiniInstaller::GetRegistryKey() {
-  std::wstring build_key_value;
+bool ChromeMiniInstaller::GetRegistryKey(std::wstring* build_key_value ) {
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   RegKey key(GetRootRegistryKey(), dist->GetVersionKey().c_str());
-  if (!key.ReadValue(L"pv", &build_key_value))
+  if (!key.ReadValue(L"pv", build_key_value)) {
+    printf("registry key not found\n");
     return false;
-  printf("Build key value is %ls\n", build_key_value.c_str());
-  return build_key_value;
+  }
+  printf("Build key value is %ls\n", build_key_value->c_str());
+  return true;
 }
 
 // Get HKEY based on install type.
@@ -281,10 +287,12 @@ bool ChromeMiniInstaller::IsChromiumBuild() {
 void ChromeMiniInstaller::LaunchInstaller(std::wstring path,
                                     const wchar_t process_name[]) {
   ASSERT_TRUE(file_util::PathExists(path));
-  std::wstring launch_args;
-  if (install_type_ == mini_installer_constants::kSystemInstall)
-    launch_args = L" -system-level";
-  base::LaunchApp(L"\"" + path + L"\"" + launch_args, false, false, NULL);
+  if (install_type_ == mini_installer_constants::kSystemInstall) {
+    std::wstring launch_args = L" -system-level";
+    base::LaunchApp(L"\"" + path + L"\"" + launch_args, false, false, NULL);
+  } else {
+    base::LaunchApp(L"\"" + path + L"\"", false, false, NULL);
+  }
   printf("Waiting while this process is running  %ls ....", process_name);
   WaitUntilProcessStartsRunning(process_name);
   WaitUntilProcessStopsRunning(process_name);
