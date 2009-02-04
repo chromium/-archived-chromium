@@ -364,6 +364,19 @@ class ProfileImpl : public Profile,
   DISALLOW_COPY_AND_ASSIGN(ProfileImpl);
 };
 
+#if defined(COMPILER_GCC)
+namespace __gnu_cxx {
+
+template<>
+struct hash<Profile*> {
+  size_t operator()(Profile* const& p) const {
+    return std::tr1::hash<long>()(reinterpret_cast<long>(p));
+  }
+};
+
+}  // namespace __gnu_cxx
+#endif
+
 // This struct is used to pass the spellchecker object through the notification
 // NOTIFY_SPELLCHECKER_REINITIALIZED. This is used as the details for the
 // notification service.

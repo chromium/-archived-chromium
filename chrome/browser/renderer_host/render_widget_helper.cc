@@ -43,7 +43,11 @@ class RenderWidgetHelper::PaintMsgProxy : public Task {
 RenderWidgetHelper::RenderWidgetHelper(int render_process_id)
     : render_process_id_(render_process_id),
       ui_loop_(MessageLoop::current()),
+#if defined(OS_WIN)
       event_(CreateEvent(NULL, FALSE /* auto-reset */, FALSE, NULL)),
+#elif defined(OS_POSIX)
+      event_(false /* auto-reset */, false),
+#endif
       block_popups_(false) {
 }
 

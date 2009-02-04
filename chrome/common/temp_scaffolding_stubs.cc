@@ -18,13 +18,19 @@
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile_manager.h"
+#include "chrome/browser/renderer_host/render_widget_helper.h"
+#include "chrome/browser/resource_message_filter.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/process_watcher.h"
+#include "chrome/common/resource_bundle.h"
+#include "net/url_request/url_request_context.h"
 
 // static
 size_t SessionRestore::num_tabs_to_load_ = 0;
@@ -195,6 +201,11 @@ std::string GetUserAgent(const GURL& url) {
   NOTIMPLEMENTED();
   return "";
 }
+// TODO(pinkerton): when these are removed, mock_webkit_glue.cc 
+// must be re-added to the unit_test target for tests.
+void SetRecordPlaybackMode(bool) { }
+void SetJavaScriptFlags(const std::wstring&) { }
+void CheckForLeaks() { }
 }
 #endif
 
@@ -226,11 +237,12 @@ void RunJavascriptMessageBox(WebContents* web_contents,
 
 CacheManagerHost::CacheManagerHost() : revise_allocation_factory_(this) { }
 CacheManagerHost::~CacheManagerHost() { }
-
-void CacheManagerHost::ObserveActivity(int) {
+void CacheManagerHost::ObserveActivity(int) { NOTIMPLEMENTED(); }
+void CacheManagerHost::Remove(int) { NOTIMPLEMENTED(); }
+void CacheManagerHost::Add(int) { NOTIMPLEMENTED(); }
+void CacheManagerHost::ObserveStats(int, const CacheManager::UsageStats&) {
   NOTIMPLEMENTED();
 }
-
 CacheManagerHost* CacheManagerHost::GetInstance() {
   return Singleton<CacheManagerHost>::get();
 }
@@ -238,9 +250,82 @@ CacheManagerHost* CacheManagerHost::GetInstance() {
 void RunBeforeUnloadDialog(WebContents* web_contents,
                            const std::wstring& message_text,
                            IPC::Message* reply_msg) {
+  NOTIMPLEMENTED(); 
 }
 
 bool SSLManager::DeserializeSecurityInfo(const std::string&, int*, int*, int*) {
   NOTIMPLEMENTED();
   return false;
+}
+
+//--------------------------------------------------------------------------
+
+ResourceMessageFilter::ResourceMessageFilter(
+    ResourceDispatcherHost* resource_dispatcher_host,
+    PluginService* plugin_service,
+    printing::PrintJobManager* print_job_manager,
+    int render_process_host_id,
+    Profile* profile,
+    RenderWidgetHelper* render_widget_helper,
+    SpellChecker* spellchecker) 
+      : ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)) {
+}
+ResourceMessageFilter::~ResourceMessageFilter() { NOTIMPLEMENTED(); }
+void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
+  NOTIMPLEMENTED();
+}
+void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
+  NOTIMPLEMENTED();
+}
+void ResourceMessageFilter::OnChannelClosing() { NOTIMPLEMENTED(); }
+bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
+  NOTIMPLEMENTED();
+  return false;
+}
+bool ResourceMessageFilter::Send(IPC::Message* message) {
+  NOTIMPLEMENTED();
+  return false;
+}
+void ResourceMessageFilter::Observe(NotificationType type,
+                                    const NotificationSource& source,
+                                    const NotificationDetails& details) { }
+void ResourceMessageFilter::OnResolveProxyCompleted(
+    IPC::Message* reply_msg,int result, const std::string& proxy_list) {
+  NOTIMPLEMENTED();
+}
+
+ResolveProxyMsgHelper::ResolveProxyMsgHelper(Delegate* delegate,
+                                             net::ProxyService* proxy_service)
+    : ALLOW_THIS_IN_INITIALIZER_LIST(callback_(
+          this, &ResolveProxyMsgHelper::OnResolveProxyCompleted)) {
+}
+ResolveProxyMsgHelper::~ResolveProxyMsgHelper() { }
+void ResolveProxyMsgHelper::OnResolveProxyCompleted(int) { NOTIMPLEMENTED(); }
+
+#if defined(OS_MACOSX)
+ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
+
+// GetBitmapNamed() will leak, but there's no way around it for stubs.
+SkBitmap* ResourceBundle::GetBitmapNamed(int) { 
+  NOTIMPLEMENTED();
+  return new SkBitmap();
+}
+ResourceBundle::ResourceBundle() { }
+ResourceBundle& ResourceBundle::GetSharedInstance() {
+  NOTIMPLEMENTED();
+  if (!g_shared_instance_)
+    g_shared_instance_ = new ResourceBundle;
+  return *g_shared_instance_;
+}
+#endif
+
+void ResourceDispatcherHost::OnClosePageACK(int, int) {
+  NOTIMPLEMENTED();
+}
+void ResourceDispatcherHost::CancelRequestsForRenderView(int, int) {
+  NOTIMPLEMENTED();
+}
+
+void ProcessWatcher::EnsureProcessTerminated(int) { 
+  NOTIMPLEMENTED();
 }

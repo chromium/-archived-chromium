@@ -21,6 +21,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
@@ -42,9 +43,11 @@ class ModalHtmlDialogDelegate;
 class NavigationController;
 class NavigationEntry;
 class NotificationService;
+class PluginService;
 class ProfileManager;
 class Profile;
 class RenderProcessHost;
+class RenderWidgetHelper;
 class SessionID;
 class SiteInstance;
 class SpellChecker;
@@ -293,30 +296,26 @@ struct ViewHostMsg_Resource_Request;
 class ResourceDispatcherHost {
  public:
   explicit ResourceDispatcherHost(MessageLoop* loop) {}
-
   class Receiver {
    public:
     virtual bool Send(IPC::Message* message) = 0;
   };
-
+  void OnClosePageACK(int, int);
+  void CancelRequestsForRenderView(int, int);
   void Initialize() { NOTIMPLEMENTED(); }
   void Shutdown() { NOTIMPLEMENTED(); }
-
   SafeBrowsingService* safe_browsing_service() {
     NOTIMPLEMENTED();
     return const_cast<SafeBrowsingService*>(&safe_browsing_service_);
   }
-
   DownloadFileManager* download_file_manager() {
     NOTIMPLEMENTED();
     return const_cast<DownloadFileManager*>(&download_file_manager_);
   }
-
   SaveFileManager* save_file_manager() {
     NOTIMPLEMENTED();
     return const_cast<SaveFileManager*>(&save_file_manager_);
   }
-
  private:
   SafeBrowsingService safe_browsing_service_;
   DownloadFileManager download_file_manager_;
@@ -400,30 +399,6 @@ class FaviconStatus {
   GURL url_;
 };
 
-class NavigationEntry {
- public:
-  const GURL& url() const { return url_; }
-  PageTransition::Type transition_type() const {
-    return PageTransition::LINK;
-  }
-  int page_id() { return 0; }
-  SiteInstance* site_instance() const { return NULL; }
-  std::string content_state() const { return ""; }
-  void set_content_state(const std::string&) { }
-  void set_display_url(const GURL&) { }
-  bool has_display_url() const { return false; }
-  const GURL& display_url() const { return url_; }
-  void set_url(const GURL& url) { url_ = url; }
-  TabContentsType tab_type() const { return TAB_CONTENTS_WEB; }
-  const GURL& user_typed_url() const { return url_; }
-  const FaviconStatus& favicon() const { return favicon_status_; }
-  std::wstring title() { return L""; }
-  void set_title(const std::wstring&) { }
- private:
-  GURL url_;
-  FaviconStatus favicon_status_;
-};
-
 class NavigationController {
  public:
   struct LoadCommittedDetails {
@@ -437,7 +412,7 @@ class NavigationController {
     std::string serialized_security_info;
     bool is_user_initiated_main_frame_load() const { return true; }
   };
-  NavigationController() : entry_(new NavigationEntry()) { }
+  NavigationController() : entry_(new NavigationEntry(TAB_CONTENTS_WEB)) { }
   virtual ~NavigationController() { }
   bool CanGoBack() const {
     NOTIMPLEMENTED();
@@ -772,20 +747,6 @@ class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
     NOTIMPLEMENTED();
     return new SelectFileDialog;
   }
-};
-
-class SiteInstance {
- public:
-  bool has_site() {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void SetSite(const GURL&) { NOTIMPLEMENTED(); }
-  int max_page_id() {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  void UpdateMaxPageID(int) { NOTIMPLEMENTED(); }
 };
 
 class DockInfo {
