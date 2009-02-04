@@ -330,3 +330,14 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(int, int) {
 void ProcessWatcher::EnsureProcessTerminated(int) { 
   NOTIMPLEMENTED();
 }
+
+#if defined(OS_MACOSX)
+WebCursor::WebCursor() {
+}
+WebCursor::~WebCursor() {
+}
+bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
+  NOTIMPLEMENTED();
+  return false;
+}
+#endif

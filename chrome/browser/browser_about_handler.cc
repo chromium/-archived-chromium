@@ -12,6 +12,7 @@
 #include "base/stats_table.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
+#include "base/thread.h"
 #include "base/tracked_objects.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser.h"

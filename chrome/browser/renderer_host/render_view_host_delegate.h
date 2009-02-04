@@ -9,11 +9,11 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "chrome/browser/autofill_manager.h"
 #include "chrome/common/render_messages.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/webpreferences.h"
 
+class AutofillForm;
 class NavigationEntry;
 class Profile;
 class RenderProcessHost;

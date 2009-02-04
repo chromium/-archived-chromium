@@ -11,6 +11,7 @@
 #include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 
+class MessageLoop;
 class NavigationEntry;
 class WebContents;
 

@@ -4,7 +4,9 @@
 
 #include "chrome/browser/automation/automation_provider.h"
 
+#include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h" 
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_provider_list.h"

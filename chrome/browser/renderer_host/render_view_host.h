@@ -21,6 +21,7 @@
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/window_open_disposition.h"
 
+class AutofillForm;
 class NavigationEntry;
 class RenderViewHostDelegate;
 class SiteInstance;

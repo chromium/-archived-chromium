@@ -4,6 +4,8 @@
 
 #include "chrome/browser/tab_contents/interstitial_page.h"
 
+#include "base/message_loop.h"
+#include "base/thread.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_resources.h"

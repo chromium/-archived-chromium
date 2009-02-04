@@ -23,9 +23,14 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "googleurl/src/gurl.h"
 #include "skia/include/SkBitmap.h"
@@ -352,6 +357,9 @@ class ResourceDispatcherHost {
 class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
  public:
   explicit DebuggerWrapper(int port) {}
+  void DebugMessage(const std::wstring&) {}
+  void OnDebugAttach() {}
+  void OnDebugDisconnect() {}
 };
 
 namespace views {
@@ -363,16 +371,6 @@ class AcceleratorHandler {
 
 //---------------------------------------------------------------------------
 // These stubs are for Browser
-
-class RenderViewHostDelegate {
- public:
-  class View {
-   public:
-  };
-  class Save {
-   public:
-  };
-};
 
 class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
                     public RenderViewHostDelegate::Save {
@@ -413,6 +411,13 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
     NOTIMPLEMENTED();
     return true;
   }
+  virtual void OnReceivedSavableResourceLinksForCurrentPage(
+      const std::vector<GURL>& resources_list,
+      const std::vector<GURL>& referrers_list,
+      const std::vector<GURL>& frames_list) { NOTIMPLEMENTED(); }
+  virtual void OnReceivedSerializedHtmlData(const GURL& frame_url,
+                                            const std::string& data,
+                                            int32 status) { NOTIMPLEMENTED(); }
 };
 
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
@@ -590,68 +595,16 @@ class RenderWidgetHostView {
     NOTIMPLEMENTED();
     return false;
   }
+  virtual gfx::NativeView GetPluginNativeView() {
+    NOTIMPLEMENTED(); 
+    return NULL;
+  }
+  virtual void UpdateCursorIfOverSelf() { NOTIMPLEMENTED(); }
+  virtual void SetTooltipText(const std::wstring& tooltip_text) 
+      { NOTIMPLEMENTED(); }
   virtual void SetSize(gfx::Size) { NOTIMPLEMENTED(); }
 };
 
-class RenderWidgetHost {
- public:
-  RenderWidgetHost() : process_(), view_() { }
-  RenderProcessHost* process() const {
-    NOTIMPLEMENTED();
-    return process_;
-  }
-  RenderWidgetHostView* view() const {
-    NOTIMPLEMENTED();
-    return view_;
-  }
- private:
-  RenderProcessHost* process_;
-  RenderWidgetHostView* view_;
-};
-
-class RenderViewHost : public RenderWidgetHost {
- public:
-  bool HasUnloadListener() const {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void FirePageBeforeUnload() { NOTIMPLEMENTED(); }
-  void SetPageEncoding(const std::wstring& encoding) { NOTIMPLEMENTED(); }
-  SiteInstance* site_instance() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  void NavigateToEntry(const NavigationEntry& entry, bool is_reload) {
-    NOTIMPLEMENTED();
-  }
-  void Cut() { NOTIMPLEMENTED(); }
-  void Copy() { NOTIMPLEMENTED(); }
-  void Paste() { NOTIMPLEMENTED(); }
-  void DisassociateFromPopupCount() { NOTIMPLEMENTED(); }
-  void PopupNotificationVisibilityChanged(bool) { NOTIMPLEMENTED(); }
-  void GetApplicationInfo(int32 page_id) { NOTIMPLEMENTED(); }
-  bool PrintPages() {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void SetInitialFocus(bool) { NOTIMPLEMENTED(); }
-  void UnloadListenerHasFired() { NOTIMPLEMENTED(); }
-  bool IsRenderViewLive() {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  void FileSelected(const std::wstring&) { NOTIMPLEMENTED(); }
-  void MultiFilesSelected(const std::vector<std::wstring>&) {
-    NOTIMPLEMENTED();
-  }
-  bool CreateRenderView() {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  void SetAlternateErrorPageURL(const GURL&) { NOTIMPLEMENTED(); }
-  void UpdateWebPreferences(WebPreferences) { NOTIMPLEMENTED(); }
-  void ReservePageIDRange(int) { NOTIMPLEMENTED(); }
-};
 
 class LoadNotificationDetails {
  public:
@@ -746,6 +699,9 @@ class TabContents : public NotificationObserver {
   void AddInfoBar(InfoBarDelegate* delegate) { NOTIMPLEMENTED(); }
   void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
                PageTransition::Type) { NOTIMPLEMENTED(); }
+  static void RegisterUserPrefs(PrefService* prefs) {
+    prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
+  }
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
@@ -935,64 +891,26 @@ class WebContentsView : public RenderViewHostDelegate::View {
   }
   void RenderWidgetHostDestroyed(RenderWidgetHost*) { NOTIMPLEMENTED(); }
   void SetPageTitle(const std::wstring&) { NOTIMPLEMENTED(); }
+  virtual void CreateNewWindow(int,
+                               base::WaitableEvent*) { NOTIMPLEMENTED(); }
+  virtual void CreateNewWidget(int, bool) { NOTIMPLEMENTED(); }
+  virtual void ShowCreatedWindow(int, WindowOpenDisposition,
+                                 const gfx::Rect&, bool) { NOTIMPLEMENTED(); }
+  virtual void ShowCreatedWidget(int, const gfx::Rect&) { NOTIMPLEMENTED(); }
+  virtual void ShowContextMenu(
+      const ViewHostMsg_ContextMenu_Params&) { NOTIMPLEMENTED(); }
+  virtual void StartDragging(const WebDropData&) { NOTIMPLEMENTED(); }
+  virtual void UpdateDragCursor(bool) { NOTIMPLEMENTED(); }
+  virtual void TakeFocus(bool) { NOTIMPLEMENTED(); }
+  virtual void HandleKeyboardEvent(const WebKeyboardEvent&) 
+      { NOTIMPLEMENTED(); }
+  virtual void OnFindReply(int, int, const gfx::Rect&, int,
+                           bool) { NOTIMPLEMENTED(); }
 };
 
 class WebContentsViewWin : public WebContentsView {
  public:
   WebContentsViewWin(WebContents*) { }
-};
-
-class RenderViewHostFactory {
- public:
-};
-
-class RenderViewHostManager {
- public:
-  class Delegate {
-   public:
-  };
-  RenderViewHostManager(RenderViewHostFactory*, RenderViewHostDelegate*,
-                        Delegate* delegate)
-      : render_view_host_(new RenderViewHost), interstitial_page_() { }
-  RenderViewHost* current_host() const {
-    NOTIMPLEMENTED();
-    return render_view_host_;
-  }
-  void Init(Profile*, SiteInstance*, int, base::WaitableEvent*) {
-    NOTIMPLEMENTED();
-  }
-  void Shutdown() { NOTIMPLEMENTED(); }
-  InterstitialPage* interstitial_page() const {
-    return interstitial_page_;
-  }
-  void set_interstitial_page(InterstitialPage* interstitial_page) {
-    interstitial_page_ = interstitial_page;
-  }
-  void remove_interstitial_page() { interstitial_page_ = NULL; }
-  RenderWidgetHostView* current_view() const {
-    if (!render_view_host_) return NULL;
-    return render_view_host_->view();
-  }
-  void CrossSiteNavigationCanceled() { NOTIMPLEMENTED(); }
-  void ShouldClosePage(bool) { NOTIMPLEMENTED(); }
-  void OnCrossSiteResponse(int, int) { NOTIMPLEMENTED(); }
-  RenderViewHost* Navigate(const NavigationEntry&) {
-    NOTIMPLEMENTED();
-    return render_view_host_;
-  }
-  void Stop() { NOTIMPLEMENTED(); }
-  void OnJavaScriptMessageBoxClosed(IPC::Message*, bool,
-                                    const std::wstring&) { NOTIMPLEMENTED(); }
-  void SetIsLoading(bool) { NOTIMPLEMENTED(); }
-  void DidNavigateMainFrame(RenderViewHost*) { NOTIMPLEMENTED(); }
-  void RendererAbortedProvisionalLoad(RenderViewHost*) { NOTIMPLEMENTED(); }
-  bool ShouldCloseTabOnUnresponsiveRenderer() {
-    NOTIMPLEMENTED();
-    return false;
-  }
- private:
-  RenderViewHost* render_view_host_;
-  InterstitialPage* interstitial_page_;
 };
 
 class WebApp : public base::RefCountedThreadSafe<WebApp> {

@@ -293,6 +293,9 @@
 		E434BBEB0F37DFA500B665C7 /* renderer_security_policy.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E42980F28ECAD009A7E88 /* renderer_security_policy.cc */; };
 		E434BE130F38DDA700B665C7 /* renderer_security_policy_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E429A0F28ECAD009A7E88 /* renderer_security_policy_unittest.cc */; };
 		E434BE3D0F3901A100B665C7 /* mock_render_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = E434BE240F38DF4300B665C7 /* mock_render_thread.cc */; };
+		E434BFA40F3A03E200B665C7 /* render_widget_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E42A30F28ED73009A7E88 /* render_widget_host.cc */; };
+		E434BFD90F3A074300B665C7 /* backing_store.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C613C40F30D82C008CEE5D /* backing_store.cc */; };
+		E434C0280F3A0C0100B665C7 /* render_view_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E429D0F28ED73009A7E88 /* render_view_host.cc */; };
 		E43A770B0F1660EA00ABD5D1 /* automation_resource_tracker.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9680EC4EA270052B72B /* automation_resource_tracker.cc */; };
 		E43A770D0F16610300ABD5D1 /* chrome_plugin_browsing_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF85B0E9D4839009A6919 /* chrome_plugin_browsing_context.cc */; };
 		E43A77110F16613700ABD5D1 /* chrome_url_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E43A77100F16613700ABD5D1 /* chrome_url_request_context.cc */; };
@@ -4535,6 +4538,7 @@
 				4D7BFA1E0E9D48FD009A6919 /* archived_database.cc in Sources */,
 				E45075DC0F150A53003BE099 /* async_resource_handler.cc in Sources */,
 				E43A770B0F1660EA00ABD5D1 /* automation_resource_tracker.cc in Sources */,
+				E434BFD90F3A074300B665C7 /* backing_store.cc in Sources */,
 				671555F7DF06E224B646E5D2 /* backing_store_posix.cc in Sources */,
 				E40CC5EE0F2E34C100708647 /* base_history_model.cc in Sources */,
 				4D7BFAEE0E9D49E5009A6919 /* bloom_filter.cc in Sources */,
@@ -4604,8 +4608,10 @@
 				E4F324500EE5CF7C002533CE /* query_parser.cc in Sources */,
 				E4F3247A0EE5D17E002533CE /* referrer.cc in Sources */,
 				A7C612990F30D63D008CEE5D /* render_process_host.cc in Sources */,
+				E434C0280F3A0C0100B665C7 /* render_view_host.cc in Sources */,
 				94542322A5E5A8F4FDDAB7F0 /* render_view_host_manager.cc in Sources */,
 				E434BBBF0F37D6DB00B665C7 /* render_widget_helper.cc in Sources */,
+				E434BFA40F3A03E200B665C7 /* render_widget_host.cc in Sources */,
 				E434BBEB0F37DFA500B665C7 /* renderer_security_policy.cc in Sources */,
 				4D7BFAF30E9D49EF009A6919 /* safe_browsing_database.cc in Sources */,
 				E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */,

@@ -62,8 +62,8 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   DownloadManager::RegisterUserPrefs(user_prefs);
   PasswordManager::RegisterUserPrefs(user_prefs);
   SSLManager::RegisterUserPrefs(user_prefs);
-  TabContents::RegisterUserPrefs(user_prefs);
 #endif
+  TabContents::RegisterUserPrefs(user_prefs);
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);
   WebContents::RegisterUserPrefs(user_prefs);
 }

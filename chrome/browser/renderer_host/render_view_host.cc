@@ -13,14 +13,12 @@
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cross_site_request_manager.h"
-#include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/metrics/user_metrics.h"
+#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -28,6 +26,13 @@
 #include "chrome/common/thumbnail_score.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
+#include "webkit/glue/autofill_form.h"
+
+#if defined(OS_WIN)
+// TODO(port): remove these when stubs are filled in
+#include "chrome/browser/debugger/debugger_wrapper.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#endif
 
 using base::TimeDelta;
 
@@ -79,12 +84,13 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
                                base::WaitableEvent* modal_dialog_event)
     : RenderWidgetHost(instance->GetProcess(), routing_id),
       instance_(instance),
-      enable_dom_ui_bindings_(false),
-      enable_external_host_bindings_(false),
       delegate_(delegate),
       renderer_initialized_(false),
       waiting_for_drag_context_response_(false),
       debugger_attached_(false),
+      enable_dom_ui_bindings_(false),
+      pending_request_id_(0),
+      enable_external_host_bindings_(false),
       modal_dialog_count_(0),
       navigations_suspended_(false),
       suspended_nav_message_(NULL),
@@ -1084,7 +1090,6 @@ void RenderViewHost::OnMsgRunJavaScriptMessage(
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     modal_dialog_event_->Signal();
-  bool did_suppress_message = false;
   delegate_->RunJavaScriptMessage(message, default_prompt, flags, reply_msg,
                                   &are_javascript_messages_suppressed_);
 }
