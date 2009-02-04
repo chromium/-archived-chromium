@@ -119,6 +119,9 @@ class ResourceBundle {
 #elif defined(OS_LINUX)
   // Linux uses base::DataPack.
   typedef base::DataPack* DataHandle;
+#elif defined(OS_MACOSX)
+  // TODO(port): Implement resource loading on OS X.
+  typedef void* DataHandle;
 #endif
 
   // Ctor/dtor are private, since we're a singleton.

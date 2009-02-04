@@ -250,6 +250,8 @@
 		B503E1030F017C1000547DC6 /* librenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */; };
 		B507AC1F0F0048E10060FEE8 /* ipc_sync_message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBA0E9D4C9F009A6919 /* ipc_sync_message.cc */; };
 		B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBC0E9D4C9F009A6919 /* ipc_sync_message_unittest.cc */; };
+		B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */; };
+		B51F6D2E0F37D04200152D66 /* renderer_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD90EAE868600EBCFC0 /* renderer_main.cc */; };
 		B52E29BE0F0AA333008AD1C8 /* l10n_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBCB0E9D4C9F009A6919 /* l10n_util_unittest.cc */; };
 		B54BD8FC0ED622C00093FD54 /* mach_message_source_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */; };
 		B555B2230F21506300F751B9 /* metrics_log.cc in Sources */ = {isa = PBXBuildFile; fileRef = B555B2200F21504D00F751B9 /* metrics_log.cc */; };
@@ -1909,6 +1911,9 @@
 		A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = shell_dialogs_mac.mm; path = cocoa/shell_dialogs_mac.mm; sourceTree = "<group>"; };
 		A9C335E39D39A7DE087850FC /* url_pattern_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url_pattern_unittest.cc; path = common/extensions/url_pattern_unittest.cc; sourceTree = SOURCE_ROOT; };
 		B503E0FB0F01764800547DC6 /* user_script_slave_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = user_script_slave_unittest.cc; sourceTree = "<group>"; };
+		B51F6D110F37C4DC00152D66 /* renderer_main_platform_delegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_main_platform_delegate.h; sourceTree = "<group>"; };
+		B51F6D120F37C4DC00152D66 /* renderer_main_platform_delegate_win.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_platform_delegate_win.cc; sourceTree = "<group>"; };
+		B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_platform_delegate_mac.cc; sourceTree = "<group>"; };
 		B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mach_message_source_mac.cc; sourceTree = "<group>"; };
 		B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_message_source_mac.h; sourceTree = "<group>"; };
 		B555B2160F21504D00F751B9 /* metrics_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metrics_service.h; path = metrics/metrics_service.h; sourceTree = "<group>"; };
@@ -2386,6 +2391,9 @@
 				4D640CD70EAE868600EBCFC0 /* render_widget_unittest.cc */,
 				4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */,
 				4D640CD90EAE868600EBCFC0 /* renderer_main.cc */,
+				B51F6D110F37C4DC00152D66 /* renderer_main_platform_delegate.h */,
+				B51F6D120F37C4DC00152D66 /* renderer_main_platform_delegate_win.cc */,
+				B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */,
 				4D640CDA0EAE868600EBCFC0 /* renderer_resources.h */,
 				4D640CC90EAE868600EBCFC0 /* user_script_slave.cc */,
 				4D640CCA0EAE868600EBCFC0 /* user_script_slave.h */,
@@ -4514,6 +4522,8 @@
 				3380A69D0F2E91D4004EF74F /* render_thread.cc in Sources */,
 				A7A20E650F3A1E1C00F62B4D /* render_view.cc in Sources */,
 				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
+				B51F6D2E0F37D04200152D66 /* renderer_main.cc in Sources */,
+				B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc in Sources */,
 				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
