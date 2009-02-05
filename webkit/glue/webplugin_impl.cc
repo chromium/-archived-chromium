@@ -1375,10 +1375,12 @@ void WebPluginImpl::TearDownPluginInstance(
     frame()->script()->cleanupScriptObjectsForPlugin(widget_);
   }
 
-  // Call PluginDestroyed() first to prevent the plugin from calling us back
-  // in the middle of tearing down the render tree.
-  delegate_->PluginDestroyed();
-  delegate_ = NULL;
+  if (delegate_) {
+    // Call PluginDestroyed() first to prevent the plugin from calling us back
+    // in the middle of tearing down the render tree.
+    delegate_->PluginDestroyed();
+    delegate_ = NULL;
+  }
 
   // Cancel any pending requests because otherwise this deleted object will
   // be called by the ResourceDispatcher.
