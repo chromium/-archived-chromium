@@ -8,6 +8,7 @@ StatsTableTest.MultipleThreads
 
 # this test takes a really long time to run in Purify
 TimeTicks.Rollover
+TimeTicks.WinRollover
 
 # see bug 1110206
 ConditionVariableTest.LargeFastTaskTest
@@ -17,3 +18,6 @@ MessageLoopTest.Crasher*
 
 # see bug 1195707
 WMIUtilTest.*
+
+# see issue 7412
+ScopedTempDir.FullPath
