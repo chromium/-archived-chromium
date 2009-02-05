@@ -1086,56 +1086,57 @@ bool WebViewImpl::ImeSetComposition(int string_type,
       return false;
   }
 
+  // We should verify the parent node of this IME composition node are
+  // editable because JavaScript may delete a parent node of the composition
+  // node. In this case, WebKit crashes while deleting texts from the parent
+  // node, which doesn't exist any longer.
+  PassRefPtr<Range> range = editor->compositionRange();
+  if (range) {
+    const Node* node = range->startPosition().node();
+    if (!node || !node->isContentEditable())
+      return false;
+  }
+
   if (string_type == 0) {
     // A browser process sent an IPC message which does not contain a valid
     // string, which means an ongoing composition has been canceled.
     // If the ongoing composition has been canceled, replace the ongoing
     // composition string with an empty string and complete it.
-    // TODO(hbono): Need to add a new function to cancel the ongoing
-    // composition to WebCore::Editor?
     WebCore::String empty_string;
-    editor->confirmComposition(empty_string);
+    WTF::Vector<WebCore::CompositionUnderline> empty_underlines;
+    editor->setComposition(empty_string, empty_underlines, 0, 0);
   } else {
     // A browser process sent an IPC message which contains a string to be
     // displayed in this Editor object.
     // To display the given string, set the given string to the
     // m_compositionNode member of this Editor object and display it.
-    // NOTE: An empty string (often sent by Chinese IMEs and Korean IMEs)
-    // causes a panic in Editor::setComposition(), which deactivates the
-    // m_frame.m_sel member of this Editor object, i.e. we can never display
-    // composition strings in the m_compositionNode member.
-    // (I have not been able to find good methods for re-activating it.)
-    // Therefore, I have to prevent from calling Editor::setComposition()
-    // with its first argument an empty string.
-    if (ime_string.length() > 0) {
-      if (target_start < 0) target_start = 0;
-      if (target_end < 0) target_end = static_cast<int>(ime_string.length());
-      WebCore::String composition_string(
-          webkit_glue::StdWStringToString(ime_string));
-      // Create custom underlines.
-      // To emphasize the selection, the selected region uses a solid black
-      // for its underline while other regions uses a pale gray for theirs.
-      WTF::Vector<WebCore::CompositionUnderline> underlines(3);
-      underlines[0].startOffset = 0;
-      underlines[0].endOffset = target_start;
-      underlines[0].thick = true;
-      underlines[0].color.setRGB(0xd3, 0xd3, 0xd3);
-      underlines[1].startOffset = target_start;
-      underlines[1].endOffset = target_end;
-      underlines[1].thick = true;
-      underlines[1].color.setRGB(0x00, 0x00, 0x00);
-      underlines[2].startOffset = target_end;
-      underlines[2].endOffset = static_cast<int>(ime_string.length());
-      underlines[2].thick = true;
-      underlines[2].color.setRGB(0xd3, 0xd3, 0xd3);
-      // When we use custom underlines, WebKit ("InlineTextBox.cpp" Line 282)
-      // prevents from writing a text in between 'selectionStart' and
-      // 'selectionEnd' somehow.
-      // Therefore, we use the 'cursor_position' for these arguments so that
-      // there are not any characters in the above region.
-      editor->setComposition(composition_string, underlines,
-                             cursor_position, cursor_position);
-    }
+    if (target_start < 0) target_start = 0;
+    if (target_end < 0) target_end = static_cast<int>(ime_string.length());
+    WebCore::String composition_string(
+        webkit_glue::StdWStringToString(ime_string));
+    // Create custom underlines.
+    // To emphasize the selection, the selected region uses a solid black
+    // for its underline while other regions uses a pale gray for theirs.
+    WTF::Vector<WebCore::CompositionUnderline> underlines(3);
+    underlines[0].startOffset = 0;
+    underlines[0].endOffset = target_start;
+    underlines[0].thick = true;
+    underlines[0].color.setRGB(0xd3, 0xd3, 0xd3);
+    underlines[1].startOffset = target_start;
+    underlines[1].endOffset = target_end;
+    underlines[1].thick = true;
+    underlines[1].color.setRGB(0x00, 0x00, 0x00);
+    underlines[2].startOffset = target_end;
+    underlines[2].endOffset = static_cast<int>(ime_string.length());
+    underlines[2].thick = true;
+    underlines[2].color.setRGB(0xd3, 0xd3, 0xd3);
+    // When we use custom underlines, WebKit ("InlineTextBox.cpp" Line 282)
+    // prevents from writing a text in between 'selectionStart' and
+    // 'selectionEnd' somehow.
+    // Therefore, we use the 'cursor_position' for these arguments so that
+    // there are not any characters in the above region.
+    editor->setComposition(composition_string, underlines,
+                           cursor_position, cursor_position);
 #if defined(OS_WIN)
     // The given string is a result string, which means the ongoing
     // composition has been completed. I have to call the
