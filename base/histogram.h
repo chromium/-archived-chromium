@@ -54,6 +54,11 @@
     counter.Add(sample); \
   } while (0)
 
+#define HISTOGRAM_COUNTS_100(name, sample) do { \
+    static Histogram counter((name), 1, 100, 50); \
+    counter.Add(sample); \
+  } while (0)
+
 // For folks that need real specific times, use this, but you'll only get
 // samples that are in the range (overly large samples are discarded).
 #define HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) do { \
