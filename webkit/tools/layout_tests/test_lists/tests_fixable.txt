@@ -1743,10 +1743,6 @@ SKIP : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = 
 // New tests added in http://trac.webkit.org/changeset/40424
 LayoutTests/http/tests/history/redirect-js-form-submit-before-load.html = FAIL
 
-// Regressions from WebKit merge 40409:40464
-LayoutTests/http/tests/misc/refresh-headers.php = TIMEOUT
-LayoutTests/http/tests/navigation/new-window-redirect-history.html = FAIL
-
 // Renders the width of "600" off by 3.  Looks OK but could still be a bug
 // that we shouldn't rebaseline.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
