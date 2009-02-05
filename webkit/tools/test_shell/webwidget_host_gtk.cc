@@ -83,10 +83,20 @@ void WebWidgetHostGtkSizeAllocate(GtkWidget* widget,
   WebWidgetHostGtkSendConfigure(widget);
 }
 
+// Implementation of "remove" for our GtkContainer subclass.
+// This called when plugins shut down.  We can just ignore it.
+void WebWidgetHostGtkRemove(GtkContainer* container, GtkWidget* widget) {
+  // Do nothing.
+}
+
 // Implementation of the class init function for WebWidgetHostGtk.
-void WebWidgetHostGtkClassInit(GtkWidgetClass* klass) {
-  klass->realize = WebWidgetHostGtkRealize;
-  klass->size_allocate = WebWidgetHostGtkSizeAllocate;
+void WebWidgetHostGtkClassInit(GtkContainerClass* container_class) {
+  GtkWidgetClass* widget_class =
+      reinterpret_cast<GtkWidgetClass*>(container_class);
+  widget_class->realize = WebWidgetHostGtkRealize;
+  widget_class->size_allocate = WebWidgetHostGtkSizeAllocate;
+
+  container_class->remove = WebWidgetHostGtkRemove;
 }
 
 // Constructs the GType for the custom Gtk widget.

@@ -179,8 +179,8 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   // used for windowed plugins
   gfx::NativeView windowed_handle_;
-#if defined(OS_WIN)
   bool windowed_did_set_window_;
+#if defined(OS_WIN)
   gfx::Rect windowed_last_pos_;
 #endif
 

@@ -59,6 +59,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     NPAPI::PluginInstance *instance)
     :
       windowed_handle_(0),
+      windowed_did_set_window_(false),
       windowless_(false),
       plugin_(NULL),
       instance_(instance),
@@ -130,10 +131,14 @@ void WebPluginDelegateImpl::DestroyInstance() {
     // instance uses the helper to do the download.
     instance_->CloseStreams();
 
-    window_.window = NULL;
+    // TODO(evanm): I played with this for quite a while but couldn't
+    // figure out a way to make Flash not crash unless I didn't call
+    // NPP_SetWindow.  Perhaps it just should be marked with the quirk
+    // that wraps the NPP_SetWindow call.
+    // window_.window = NULL;
     // if (!(quirks_ & PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY)) {
-      instance_->NPP_SetWindow(&window_);
-      // }
+    //   instance_->NPP_SetWindow(&window_);
+    // }
 
     instance_->NPP_Destroy();
 
@@ -192,7 +197,7 @@ void WebPluginDelegateImpl::DidReceiveManualResponse(
   if (!windowless_) {
     // Calling NPP_WriteReady before NPP_SetWindow causes movies to not load in
     // Flash.  See http://b/issue?id=892174.
-    // XXX DCHECK(windowed_did_set_window_);
+    DCHECK(windowed_did_set_window_);
   }
 
   instance()->DidReceiveManualResponse(url, mime_type, headers,
@@ -228,10 +233,20 @@ void WebPluginDelegateImpl::WindowedUpdateGeometry(
     const gfx::Rect& window_rect,
     const gfx::Rect& clip_rect) {
   if (WindowedReposition(window_rect, clip_rect) ||
-      false) { // !windowed_did_set_window_) {
+      !windowed_did_set_window_) {
     // Let the plugin know that it has been moved
     WindowedSetWindow();
   }
+}
+
+namespace {
+
+gboolean PlugRemovedCallback(GtkSocket* socket) {
+  // This is called when the other side of the socket goes away.
+  // We return TRUE to indicate that we don't want to destroy our side.
+  return TRUE;
+}
+
 }
 
 bool WebPluginDelegateImpl::WindowedCreatePlugin() {
@@ -247,6 +262,8 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
 
   windowed_handle_ = gtk_socket_new();
   gtk_widget_set_parent(windowed_handle_, parent_);
+  g_signal_connect(GTK_SOCKET(windowed_handle_), "plug-removed",
+                   G_CALLBACK(PlugRemovedCallback), NULL);
   // TODO(evanm): connect to signals on the socket, like when the other side
   // goes away.
 
@@ -266,21 +283,10 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
 }
 
 void WebPluginDelegateImpl::WindowedDestroyWindow() {
-#if 0
   if (windowed_handle_ != NULL) {
-    // Unsubclass the window.
-    WNDPROC current_wnd_proc = reinterpret_cast<WNDPROC>(
-        GetWindowLongPtr(windowed_handle_, GWLP_WNDPROC));
-    if (current_wnd_proc == NativeWndProc) {
-      SetWindowLongPtr(windowed_handle_,
-                       GWLP_WNDPROC,
-                       reinterpret_cast<LONG>(plugin_wnd_proc_));
-    }
-
-    DestroyWindow(windowed_handle_);
-    windowed_handle_ = 0;
+    gtk_widget_destroy(windowed_handle_);
+    windowed_handle_ = NULL;
   }
-#endif
 }
 
 bool WebPluginDelegateImpl::WindowedReposition(
@@ -295,14 +301,8 @@ bool WebPluginDelegateImpl::WindowedReposition(
     return false;
 
   // Clipping is handled by WebPlugin.
-  if (window_rect.size() != window_rect_.size()) {
-    gdk_window_resize(windowed_handle_->window,
-                      window_rect.width(),
-                      window_rect.height());
-  }
-
-  GtkAllocation allocation = { window_rect_.x(), window_rect_.y(),
-                               window_rect_.width(), window_rect_.height() };
+  GtkAllocation allocation = { window_rect.x(), window_rect.y(),
+                               window_rect.width(), window_rect.height() };
   gtk_widget_size_allocate(windowed_handle_, &allocation);
 
   window_rect_ = window_rect;
@@ -340,21 +340,10 @@ void WebPluginDelegateImpl::WindowedSetWindow() {
   window_.type = NPWindowTypeWindow;
 
   // Reset this flag before entering the instance in case of side-effects.
-  // XXX windowed_did_set_window_ = true;
+  windowed_did_set_window_ = true;
 
   NPError err = instance()->NPP_SetWindow(&window_);
   DCHECK(err == NPERR_NO_ERROR);
-#if 0
-  if (quirks_ & PLUGIN_QUIRK_SETWINDOW_TWICE)
-    instance()->NPP_SetWindow(&window_);
-
-  WNDPROC current_wnd_proc = reinterpret_cast<WNDPROC>(
-        GetWindowLongPtr(windowed_handle_, GWLP_WNDPROC));
-  if (current_wnd_proc != NativeWndProc) {
-    plugin_wnd_proc_ = reinterpret_cast<WNDPROC>(SetWindowLongPtr(
-        windowed_handle_, GWLP_WNDPROC, reinterpret_cast<LONG>(NativeWndProc)));
-  }
-#endif
 }
 
 void WebPluginDelegateImpl::WindowlessUpdateGeometry(
