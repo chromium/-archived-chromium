@@ -31,6 +31,8 @@ HWNDView::~HWNDView() {
 
 void HWNDView::Attach(HWND hwnd) {
   DCHECK(hwnd_ == NULL);
+  DCHECK(hwnd) << "Impossible detatched tab case; See crbug.com/6316";
+
   hwnd_ = hwnd;
 
   // First hide the new window. We don't want anything to draw (like sub-hwnd
