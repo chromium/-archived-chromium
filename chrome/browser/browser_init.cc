@@ -16,7 +16,6 @@
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -35,6 +34,7 @@
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/net/url_fixer_upper.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -194,9 +194,12 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     // the home pages if no additional URLs were passed on the command line.
     if (!OpenStartupURLs(process_startup, urls_to_open)) {
       // Add the home page and any special first run URLs.
-      AddStartupURLs(&urls_to_open);
-      OpenURLsInBrowser(BrowserList::GetLastActive(), process_startup,
-                        urls_to_open);
+      Browser* browser = NULL;
+      if (urls_to_open.empty())
+        AddStartupURLs(&urls_to_open);
+      else
+        browser = BrowserList::GetLastActive();
+      OpenURLsInBrowser(browser, process_startup, urls_to_open);
     }
   }
 
