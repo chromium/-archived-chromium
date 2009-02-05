@@ -45,6 +45,12 @@ export ENCODINGS_PREFIX=""
 # webkit/third_party/WebCore/Configurations/WebCore.xcconfig
 export FEATURE_DEFINES="ENABLE_VIDEO ENABLE_SVG ENABLE_SVG_ANIMATION ENABLE_SVG_AS_IMAGE ENABLE_SVG_FONTS ENABLE_SVG_FOREIGN_OBJECT ENABLE_SVG_USE ENABLE_XPATH ENABLE_XSLT"
 
+# Adjust the number of jobs spawned according to the CPU count.
+if [ -z "$NUMBER_OF_PROCESSORS" ]; then
+  echo "WARNING: NUMBER_OF_PROCESSORS environment variable not defined; assuming 2"
+fi
+JOBS=$((${NUMBER_OF_PROCESSORS:-2} + 1))
+
 echo Building DerivedSources ${PORTROOT}...
 # Use silent flag.
-make -s -f "${PORTROOT}/DerivedSources.make" -j 2 || exit 1
+make -s -f "${PORTROOT}/DerivedSources.make" -j $JOBS || exit 1
