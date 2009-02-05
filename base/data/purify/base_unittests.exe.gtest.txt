@@ -20,4 +20,4 @@ MessageLoopTest.Crasher*
 WMIUtilTest.*
 
 # see issue 7412
-ScopedTempDir.FullPath
+ScopedTempDir.*
