@@ -36,9 +36,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
-#if defined(OS_WIN) || defined(OS_LINUX)
 #include "chrome/common/resource_bundle.h"
-#endif
 #include "chrome/common/sandbox_init_wrapper.h"
 #if defined(OS_WIN)
 #include "sandbox/src/sandbox.h"

@@ -132,7 +132,16 @@ PrefService::~PrefService() {
 }
 
 bool PrefService::LoadPersistentPrefs(const std::wstring& file_path) {
+#if defined(OS_WIN)
   DCHECK(!file_path.empty());
+#else
+  // On non-Windows platforms we haven't gotten round to this yet.
+  // TODO(port): remove this exception
+  if (file_path.empty()) {
+    NOTIMPLEMENTED();
+    return false;
+  }
+#endif
   DCHECK(CalledOnValidThread());
 
   JSONFileValueSerializer serializer(file_path);
@@ -335,7 +344,11 @@ std::wstring PrefService::GetString(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
+#if defined(OS_WIN)
     DCHECK(false) << "Trying to read an unregistered pref: " << path;
+#else
+    // TODO(port): remove this exception
+#endif
     return result;
   }
   bool rv = pref->GetValue()->GetAsString(&result);
