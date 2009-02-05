@@ -4,9 +4,14 @@
 
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
 
+#if defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#elif defined(OS_WIN)
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#endif
+
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"

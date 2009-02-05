@@ -9,6 +9,7 @@
 #include "base/hash_tables.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/password_form.h"

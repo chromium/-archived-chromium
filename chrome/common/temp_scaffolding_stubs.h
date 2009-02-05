@@ -42,6 +42,7 @@ class Browser;
 class BookmarkService;
 class CommandLine;
 class ConstrainedWindow;
+class DOMUIHost;
 class DownloadManager;
 class HistoryService;
 class MetricsService;
@@ -434,105 +435,6 @@ class FaviconStatus {
   GURL url_;
 };
 
-class NavigationController {
- public:
-  struct LoadCommittedDetails {
-    NavigationEntry* entry;
-    bool is_main_frame;
-    GURL previous_url;
-    NavigationType::Type type;
-    bool is_auto;
-    bool is_in_page;
-    bool is_content_filtered;
-    std::string serialized_security_info;
-    bool is_user_initiated_main_frame_load() const { return true; }
-  };
-  NavigationController() : entry_(new NavigationEntry(TAB_CONTENTS_WEB)) { }
-  virtual ~NavigationController() { }
-  bool CanGoBack() const {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  bool CanGoForward() const {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void GoBack() { NOTIMPLEMENTED(); }
-  void GoForward() { NOTIMPLEMENTED(); }
-  void Reload(bool) { NOTIMPLEMENTED(); }
-  NavigationController* Clone() {
-    NOTIMPLEMENTED();
-    return new NavigationController();
-  }
-  TabContents* active_contents() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  NavigationEntry* GetLastCommittedEntry() const {
-    NOTIMPLEMENTED();
-    return entry_.get();
-  }
-  NavigationEntry* GetActiveEntry() const {
-    NOTIMPLEMENTED();
-    return entry_.get();
-  }
-  void LoadURL(const GURL& url, const GURL& referrer,
-               PageTransition::Type type) { NOTIMPLEMENTED(); }
-  NavigationEntry* GetPendingEntry() {
-    NOTIMPLEMENTED();
-    return entry_.get();
-  }
-  bool RendererDidNavigate(const ViewHostMsg_FrameNavigate_Params&,
-                           LoadCommittedDetails*) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  int GetEntryIndexWithPageID(TabContentsType, SiteInstance*,
-                              int32) const {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  NavigationEntry* GetEntryWithPageID(TabContentsType, SiteInstance*,
-                                      int32) const {
-    NOTIMPLEMENTED();
-    return entry_.get();
-  }
-  NavigationEntry* GetEntryAtIndex(int index) const {
-    NOTIMPLEMENTED();
-    return entry_.get();
-  }
-  NavigationEntry* GetEntryAtOffset(int index) const {
-    NOTIMPLEMENTED();
-    return entry_.get();
-  }
-  int GetLastCommittedEntryIndex() const {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  int GetEntryCount() const {
-    NOTIMPLEMENTED();
-    return 1;
-  }
-  int GetCurrentEntryIndex() const {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  void NotifyEntryChanged(NavigationEntry*, int) { NOTIMPLEMENTED(); }
-  bool IsURLInPageNavigation(const GURL&) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void DiscardNonCommittedEntries() { NOTIMPLEMENTED(); }
-  void GoToOffset(int) { NOTIMPLEMENTED(); }
-  static void DisablePromptOnRepost() { NOTIMPLEMENTED(); }
-  int max_restored_page_id() {
-    NOTIMPLEMENTED();
-    return 0;
-  }
- private:
-  scoped_ptr<NavigationEntry> entry_;
-};
-
 class TabContentsDelegate {
  public:
   virtual void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
@@ -570,6 +472,7 @@ class TabContentsDelegate {
   }
   virtual void URLStarredChanged(WebContents*, bool) { NOTIMPLEMENTED(); }
   virtual void ConvertContentsToApplication(WebContents*) { NOTIMPLEMENTED(); }
+  virtual void ReplaceContents(TabContents*, TabContents*) { NOTIMPLEMENTED(); }
 };
 
 class InterstitialPage {
@@ -599,6 +502,10 @@ class RenderWidgetHostView {
     NOTIMPLEMENTED(); 
     return NULL;
   }
+  virtual void Hide() { NOTIMPLEMENTED(); }
+  virtual void Show() { NOTIMPLEMENTED(); }
+  virtual bool HasFocus() { NOTIMPLEMENTED(); return false; }
+  virtual void Focus() { NOTIMPLEMENTED(); }
   virtual void UpdateCursorIfOverSelf() { NOTIMPLEMENTED(); }
   virtual void SetTooltipText(const std::wstring& tooltip_text) 
       { NOTIMPLEMENTED(); }
@@ -621,12 +528,10 @@ class TabContents : public NotificationObserver {
     INVALIDATE_LOAD = 8,
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };
-  TabContents(TabContentsType) : controller_(new NavigationController) { }
+  TabContents(TabContentsType) : controller_() { }
   virtual ~TabContents() { }
-  NavigationController* controller() const {
-    NOTIMPLEMENTED();
-    return controller_.get();
-  }
+  NavigationController* controller() const { return controller_; }
+  void set_controller(NavigationController* c) { controller_ = c; }
   virtual WebContents* AsWebContents() const {
     NOTIMPLEMENTED();
     return NULL;
@@ -653,12 +558,9 @@ class TabContents : public NotificationObserver {
     NOTIMPLEMENTED();
     return false;
   }
-  Profile* profile() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
+  Profile* profile() const;
   void CloseContents() { NOTIMPLEMENTED(); };
-  void SetupController(Profile* profile) { NOTIMPLEMENTED(); }
+  void SetupController(Profile* profile);
   bool WasHidden() {
     NOTIMPLEMENTED();
     return false;
@@ -688,19 +590,30 @@ class TabContents : public NotificationObserver {
   void set_capturing_contents(bool) { NOTIMPLEMENTED(); }
   bool is_active() {
     NOTIMPLEMENTED();
-    return false;
+    return true;
   }
+  void set_is_active(bool) { NOTIMPLEMENTED(); }
   void SetNotWaitingForResponse() { NOTIMPLEMENTED(); }
   void NotifyNavigationStateChanged(int) { NOTIMPLEMENTED(); }
   TabContentsDelegate* delegate() const {
     NOTIMPLEMENTED();
     return NULL;
   }
-  void AddInfoBar(InfoBarDelegate* delegate) { NOTIMPLEMENTED(); }
+  void AddInfoBar(InfoBarDelegate*) { NOTIMPLEMENTED(); }
   void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
                PageTransition::Type) { NOTIMPLEMENTED(); }
+  virtual void Activate() { NOTIMPLEMENTED(); }
+  virtual bool SupportsURL(GURL*) { NOTIMPLEMENTED(); return false; }
+  virtual SiteInstance* GetSiteInstance() const { return NULL; }
+  int32 GetMaxPageID() { NOTIMPLEMENTED(); return 0; }
+  void UpdateMaxPageID(int32) { NOTIMPLEMENTED(); }
+  virtual bool NavigateToPendingEntry(bool) { NOTIMPLEMENTED(); return true; }
+  virtual DOMUIHost* AsDOMUIHost() { NOTIMPLEMENTED(); return NULL; }
   static void RegisterUserPrefs(PrefService* prefs) {
     prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
+  }
+  static void MigrateShelfView(TabContents* from, TabContents* to) {
+    NOTIMPLEMENTED();
   }
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
@@ -708,7 +621,7 @@ class TabContents : public NotificationObserver {
  private:
   GURL url_;
   std::wstring title_;
-  scoped_ptr<NavigationController> controller_;
+  NavigationController* controller_;
 };
 
 class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
@@ -885,10 +798,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
     return gfx::Size();
   }
   void SizeContents(const gfx::Size& size) { NOTIMPLEMENTED(); }
-  RenderWidgetHostView* CreateViewForWidget(RenderWidgetHost*) {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
+  RenderWidgetHostView* CreateViewForWidget(RenderWidgetHost*);
   void RenderWidgetHostDestroyed(RenderWidgetHost*) { NOTIMPLEMENTED(); }
   void SetPageTitle(const std::wstring&) { NOTIMPLEMENTED(); }
   virtual void CreateNewWindow(int,
@@ -964,6 +874,10 @@ class PasswordManager {
   void PasswordFormsSeen(const std::vector<PasswordForm>&) { NOTIMPLEMENTED(); }
   void DidNavigate() { NOTIMPLEMENTED(); }
   void ProvisionallySavePassword(PasswordForm form) { NOTIMPLEMENTED(); }
+  void Autofill(const PasswordForm&, const PasswordFormMap&,
+                const PasswordForm* const) const {
+    NOTIMPLEMENTED();
+  }
 };
 
 class PluginInstaller {
@@ -989,6 +903,14 @@ class ConstrainedWindow {
 
 class SSLManager {
  public:
+  class Delegate {
+   public:
+  };
+  SSLManager(NavigationController* controller, Delegate* delegate) {
+    NOTIMPLEMENTED();
+  }
+  ~SSLManager() { }
+  void NavigationStateChanged() { NOTIMPLEMENTED(); }
   static bool DeserializeSecurityInfo(const std::string&, int*, int*, int*);
 };
 
@@ -1010,6 +932,12 @@ class CharacterEncoding {
 class SimpleAlertInfoBarDelegate : public InfoBarDelegate {
  public:
   SimpleAlertInfoBarDelegate(WebContents*, const std::wstring&, void*) {}
+};
+
+class RepostFormWarningDialog {
+ public:
+  static void RunRepostFormWarningDialog(NavigationController*) { }
+  virtual ~RepostFormWarningDialog() { }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

@@ -9,17 +9,20 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
-#include "chrome/browser/repost_form_warning_dialog.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "webkit/glue/webkit_glue.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
+#include "chrome/browser/repost_form_warning_dialog.h"
+#endif
 
 namespace {
 
@@ -920,7 +923,7 @@ void NavigationController::DiscardNonCommittedEntries() {
     // If we are transitioning from two types of WebContents, we need to migrate
     // the download shelf if it is visible. The download shelf may have been
     // created before the error that caused us to discard the entry.
-    WebContents::MigrateShelfView(from_contents, active_contents_);
+    TabContents::MigrateShelfView(from_contents, active_contents_);
 
     if (from_contents->delegate()) {
       from_contents->delegate()->ReplaceContents(from_contents,

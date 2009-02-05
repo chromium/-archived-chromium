@@ -772,7 +772,6 @@ if not env.Bit('windows'):
       'tab_contents/interstitial_page.cc',
       'tab_contents/ipc_status_view.cc',
       'tab_contents/native_ui_contents.cc',
-      'tab_contents/navigation_controller.cc',
       'tab_contents/network_status_view.cc',
       'tab_contents/render_view_context_menu.cc',
       'tab_contents/render_view_context_menu_controller.cc',

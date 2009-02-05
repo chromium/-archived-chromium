@@ -176,6 +176,30 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
   }
 }
 
+void TabContents::SetupController(Profile* profile) {
+  DCHECK(!controller_);
+  controller_ = new NavigationController(this, profile);
+}
+
+Profile* TabContents::profile() const {
+  return controller_ ? controller_->profile() : NULL;
+}
+
+//--------------------------------------------------------------------------
+
+class RenderWidgetHostViewStub : public RenderWidgetHostView {
+ public:
+  RenderWidgetHostViewStub(RenderWidgetHost* host) {
+    host->set_view(this);
+  }
+};
+
+RenderWidgetHostView*
+    WebContentsView::CreateViewForWidget(RenderWidgetHost* host) {
+  NOTIMPLEMENTED();
+  return new RenderWidgetHostViewStub(host);
+}
+
 //--------------------------------------------------------------------------
 
 bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {
@@ -208,6 +232,7 @@ std::string GetUserAgent(const GURL& url) {
 void SetRecordPlaybackMode(bool) { }
 void SetJavaScriptFlags(const std::wstring&) { }
 void CheckForLeaks() { }
+std::string CreateHistoryStateForURL(const GURL& url) { return ""; }
 }
 #endif
 

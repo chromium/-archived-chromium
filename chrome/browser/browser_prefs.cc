@@ -5,6 +5,8 @@
 #include "chrome/browser/browser_prefs.h"
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/session_startup_pref.h"
@@ -12,13 +14,11 @@
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
 #include "chrome/browser/browser_shutdown.h"
-#include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/password_manager/password_manager.h"
-#include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/ssl/ssl_manager.h"
@@ -37,16 +37,16 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   // Prefs in Local State
   GoogleURLTracker::RegisterPrefs(local_state);
   Browser::RegisterPrefs(local_state);
+  BrowserRenderProcessHost::RegisterPrefs(local_state);
+  CacheManagerHost::RegisterPrefs(local_state);
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
   BookmarkManagerView::RegisterPrefs(local_state);
   BrowserView::RegisterBrowserViewPrefs(local_state);
   browser_shutdown::RegisterPrefs(local_state);
-  CacheManagerHost::RegisterPrefs(local_state);
   chrome_browser_net::RegisterPrefs(local_state);
   MetricsLog::RegisterPrefs(local_state);
   MetricsService::RegisterPrefs(local_state);
   PageInfoWindow::RegisterPrefs(local_state);
-  BrowserRenderProcessHost::RegisterPrefs(local_state);
   TaskManager::RegisterPrefs(local_state);
   ExternalProtocolHandler::RegisterPrefs(local_state);
   SafeBrowsingService::RegisterPrefs(local_state);
