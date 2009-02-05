@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/base/net_util.h"
+#include "chrome/common/extensions/user_script.h"
 
 const char kExtensionURLScheme[] = "chrome-extension";
 const char kUserScriptURLScheme[] = "chrome-user-script";
@@ -262,16 +263,23 @@ bool Extension::InitFromValue(const DictionaryValue& source,
         return false;
       }
 
-      UserScriptInfo script_info;
+      UserScript script;
       for (size_t j = 0; j < matches->GetSize(); ++j) {
-        std::string match;
-        if (!matches->GetString(j, &match)) {
+        std::string match_str;
+        if (!matches->GetString(j, &match_str)) {
           *error = FormatErrorMessage(kInvalidMatchError, IntToString(i),
                                       IntToString(j));
           return false;
         }
 
-        script_info.matches.push_back(match);
+        URLPattern pattern;
+        if (!pattern.Parse(match_str)) {
+          *error = FormatErrorMessage(kInvalidMatchError, IntToString(i),
+                                      IntToString(j));
+          return false;
+        }
+
+        script.add_url_pattern(pattern);
       }
 
       // TODO(aa): Support multiple files.
@@ -281,10 +289,10 @@ bool Extension::InitFromValue(const DictionaryValue& source,
                                     IntToString(0));
         return false;
       }
-      script_info.path = Extension::GetResourcePath(path(), file);
-      script_info.url = Extension::GetResourceURL(url(), file);
+      script.set_path(Extension::GetResourcePath(path(), file));
+      script.set_url(Extension::GetResourceURL(url(), file));
 
-      user_scripts_.push_back(script_info);
+      user_scripts_.push_back(script);
     }
   }
 

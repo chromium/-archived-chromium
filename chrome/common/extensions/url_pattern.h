@@ -46,7 +46,7 @@
 //
 // From a 2008-ish crawl of userscripts.org, the following patterns were found
 // in @include lines:
-// - total lines                    : 24271
+// - total lines                    : 24471
 // - @include *                     :   919
 // - @include http://[^\*]+?/       : 11128 (no star in host)
 // - @include http://\*\.[^\*]+?/   :  2325 (host prefixed by *.)
@@ -76,6 +76,8 @@ class URLPattern {
 
   // Returns true if this instance matches the specified URL.
   bool MatchesUrl(const GURL& url);
+
+  std::string GetAsString() const;
 
   // Get the scheme the pattern matches. This will always return a valid scheme
   // if is_valid() returns true.

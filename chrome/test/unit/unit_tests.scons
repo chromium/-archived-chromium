@@ -205,6 +205,7 @@ input_files = ChromeFileList([
     '$CHROME_DIR/common/bzip2_unittest.cc',
     '$CHROME_DIR/common/chrome_plugin_unittest.cc',
     '$CHROME_DIR/common/extensions/url_pattern_unittest.cc',
+    '$CHROME_DIR/common/extensions/user_script_unittest.cc',
     '$CHROME_DIR/common/gfx/emf_unittest.cc',
     '$CHROME_DIR/common/gfx/icon_util_unittest.cc',
     '$CHROME_DIR/common/ipc_message_unittest.cc',
@@ -252,7 +253,6 @@ input_files = ChromeFileList([
     '$CHROME_DIR/renderer/net/render_dns_queue_unittest.cc',
     '$CHROME_DIR/renderer/render_view_unittest.cc',
     '$CHROME_DIR/renderer/render_widget_unittest.cc',
-    '$CHROME_DIR/renderer/user_script_slave_unittest.cc',
     '$CHROME_DIR/renderer/render_process_unittest.cc',
     '$CHROME_DIR/renderer/render_thread_unittest.cc',
 

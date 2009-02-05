@@ -22,7 +22,7 @@ extern const char kUserScriptURLScheme[];
 
 // static
 void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
-      const StringPiece& script_text, std::vector<std::string> *includes) {
+      const StringPiece& script_text, UserScript* script) {
   // http://wiki.greasespot.net/Metadata_block
   StringPiece line;
   size_t line_start = 0;
@@ -57,7 +57,12 @@ void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
                             line.length() - kIncludeDeclaration.length());
         std::string pattern_trimmed;
         TrimWhitespace(pattern, TRIM_ALL, &pattern_trimmed);
-        includes->push_back(pattern_trimmed);
+
+        // We escape some characters that MatchPattern() considers special.
+        ReplaceSubstringsAfterOffset(&pattern_trimmed, 0, "\\", "\\\\");
+        ReplaceSubstringsAfterOffset(&pattern_trimmed, 0, "?", "\\?");
+
+        script->add_glob(pattern_trimmed);
       }
 
       // TODO(aa): Handle more types of metadata.
@@ -68,8 +73,8 @@ void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
 
   // If no @include patterns were specified, default to @include *.
   // This is what Greasemonkey does.
-  if (includes->size() == 0) {
-    includes->push_back("*");
+  if (script->globs().size() == 0) {
+    script->add_glob("*");
   }
 }
 
@@ -121,11 +126,11 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
                                          FILE_PATH_LITERAL("*.user.js"));
     for (FilePath file = enumerator.Next(); !file.value().empty();
          file = enumerator.Next()) {
-      all_scripts.push_back(UserScriptInfo());
-      UserScriptInfo& info = all_scripts.back();
-      info.url = GURL(std::string(kUserScriptURLScheme) + ":/" + 
-          net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName());
-      info.path = file;
+      all_scripts.push_back(UserScript());
+      UserScript& info = all_scripts.back();
+      info.set_url(GURL(std::string(kUserScriptURLScheme) + ":/" + 
+          net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName()));
+      info.set_path(file);
     }
   }
 
@@ -137,21 +142,25 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
                      lone_scripts.end());
 
   // Load and pickle each script. Look for a metadata header if there are no
-  // matches specified already.
+  // url_patterns specified already.
   Pickle pickle;
   pickle.WriteSize(all_scripts.size());
   for (UserScriptList::iterator iter = all_scripts.begin();
        iter != all_scripts.end(); ++iter) {
     // TODO(aa): Support unicode script files.
     std::string contents;
-    file_util::ReadFileToString(iter->path.ToWStringHack(), &contents);
+    file_util::ReadFileToString(iter->path().ToWStringHack(), &contents);
 
-    if (iter->matches.empty()) {
+    if (iter->url_patterns().empty()) {
       // TODO(aa): Handle errors parsing header.
-      ParseMetadataHeader(contents, &iter->matches);
+      ParseMetadataHeader(contents, &(*iter));
     }
 
-    PickleScriptData(*iter, contents, &pickle);
+    iter->Pickle(&pickle);
+
+    // Write scripts as 'data' so that we can read it out in the slave without
+    // allocating a new string.
+    pickle.WriteData(contents.c_str(), contents.length());
   }
 
   // Create the shared memory object.
@@ -172,19 +181,6 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
   memcpy(shared_memory->memory(), pickle.data(), pickle.size());
 
   return shared_memory.release();
-}
-
-void UserScriptMaster::ScriptReloader::PickleScriptData(
-    const UserScriptInfo& script, const std::string& contents, Pickle* pickle) {
-  // Write scripts as 'data' so that we can read it out in the slave without
-  // allocating a new string.
-  pickle->WriteData(script.url.spec().c_str(), script.url.spec().length());
-  pickle->WriteData(contents.c_str(), contents.length());
-  pickle->WriteSize(script.matches.size());
-  for (std::vector<std::string>::const_iterator iter = script.matches.begin();
-       iter != script.matches.end(); ++iter) {
-    pickle->WriteString(*iter);
-  }
 }
 
 UserScriptMaster::UserScriptMaster(MessageLoop* worker_loop,

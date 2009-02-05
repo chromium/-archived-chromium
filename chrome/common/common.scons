@@ -46,6 +46,8 @@ input_files = ChromeFileList([
   MSVSFilter('extensions', [
     'extensions/url_pattern.cc',
     'extensions/url_pattern.h',
+    'extensions/user_script.cc',
+    'extensions/user_script.h',
   ]),
   MSVSFilter('net', [
     'net/cookie_monster_sqlite.cc',

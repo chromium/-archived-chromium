@@ -126,3 +126,21 @@ bool URLPattern::MatchesPath(const GURL& test) {
 
   return true;
 }
+
+std::string URLPattern::GetAsString() const {
+  std::string spec = scheme_ + kSchemeSeparator;
+
+  if (match_subdomains_) {
+    spec += "*";
+    if (!host_.empty())
+      spec += ".";
+  }
+
+  if (!host_.empty())
+    spec += host_;
+
+  if (!path_.empty())
+    spec += path_;
+
+  return spec;
+}

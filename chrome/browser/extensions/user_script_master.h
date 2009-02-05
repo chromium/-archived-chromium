@@ -12,16 +12,8 @@
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/string_piece.h"
+#include "chrome/common/extensions/user_script.h"
 #include "googleurl/src/gurl.h"
-
-class Pickle;
-
-struct UserScriptInfo {
-  GURL url;
-  FilePath path;
-  std::vector<std::string> matches;
-};
-typedef std::vector<UserScriptInfo> UserScriptList;
 
 // Manages a segment of shared memory that contains the user scripts the user
 // has installed.  Lives on the UI thread.
@@ -35,7 +27,7 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
   ~UserScriptMaster();
 
   // Add a single user script that exists outside the script directory.
-  void AddLoneScript(const UserScriptInfo& script) {
+  void AddLoneScript(const UserScript& script) {
     lone_scripts_.push_back(script);
   }
 
@@ -76,8 +68,8 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
       : public base::RefCounted<UserScriptMaster::ScriptReloader> {
    public:
     // Parses the includes out of |script| and returns them in |includes|.
-    static void ParseMetadataHeader(const StringPiece& script,
-                                    std::vector<std::string>* includes);
+    static void ParseMetadataHeader(const StringPiece& script_text,
+                                    UserScript* script);
 
     ScriptReloader(UserScriptMaster* master)
          : master_(master), master_message_loop_(MessageLoop::current()) {}
@@ -115,10 +107,6 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
     // SharedMemory or NULL on error.
     base::SharedMemory* GetNewScripts(const FilePath& script_dir,
                                       const UserScriptList& lone_scripts);
-
-    // Serialize script metadata and contents into the specified pickle.
-    void PickleScriptData(const UserScriptInfo& script,
-                          const std::string& contents, Pickle* pickle);
 
     // A pointer back to our master.
     // May be NULL if DisownMaster() is called.

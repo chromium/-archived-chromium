@@ -603,6 +603,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\net\resolve_proxy_msg_helper_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\net\resolve_proxy_msg_helper_unittest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\renderer_host\resource_dispatcher_host_unittest.cc"
 				>
 			</File>
@@ -708,14 +716,6 @@
 			</File>
 			<File
 				RelativePath="..\..\common\extensions\url_pattern_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\net\resolve_proxy_msg_helper_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\net\resolve_proxy_msg_helper_unittest.h"
 				>
 			</File>
 			<File
@@ -830,10 +830,6 @@
 				RelativePath="..\..\renderer\render_widget_unittest.cc"
 				>
 			</File>
-			<File
-				RelativePath="..\..\renderer\user_script_slave_unittest.cc"
-				>
-			</File>
 			<Filter
 				Name="test_infrastructure"
 				>
@@ -940,6 +936,10 @@
 			</File>
 			<File
 				RelativePath="..\..\common\unzip_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\extensions\user_script_unittest.cc"
 				>
 			</File>
 			<File

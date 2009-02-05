@@ -312,6 +312,14 @@
 				RelativePath=".\extensions\url_pattern.h"
 				>
 			</File>
+			<File
+				RelativePath=".\extensions\user_script.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\user_script.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\accessibility.h"

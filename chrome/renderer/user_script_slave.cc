@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -16,47 +16,9 @@
 static const char kUserScriptHead[] = "(function (unsafeWindow) {\n";
 static const char kUserScriptTail[] = "\n})(window);";
 
-// UserScript
-
-bool UserScript::MatchesUrl(const GURL& url) {
-  for (std::vector<std::string>::iterator pattern = include_patterns_.begin();
-       pattern != include_patterns_.end(); ++pattern) {
-    if (MatchPattern(url.spec(), *pattern)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-void UserScript::AddInclude(const std::string &glob_pattern) {
-  include_patterns_.push_back(EscapeGlob(glob_pattern));
-}
-
-std::string UserScript::EscapeGlob(const std::string& input_pattern) {
-  std::string output_pattern;
-
-  for (size_t i = 0; i < input_pattern.length(); ++i) {
-    switch (input_pattern[i]) {
-      // These characters have special meaning to the MatchPattern() function,
-      // so we escape them.
-      case '\\':
-      case '?':
-        output_pattern += '\\';
-        // fall through
-
-      default:
-        output_pattern += input_pattern[i];
-    }
-  }
-
-  return output_pattern;
-}
-
-
-// UserScriptSlave
 UserScriptSlave::UserScriptSlave()
     : shared_memory_(NULL),
+      script_deleter_(&scripts_),
       user_script_start_line_(0) {
   // TODO: Only windows supports resources and only windows supports user
   // scrips, so only load the Greasemonkey API on windows.  Fix this when
@@ -81,6 +43,7 @@ UserScriptSlave::UserScriptSlave()
 
 bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
   scripts_.clear();
+  script_contents_.clear();
 
   // Create the shared memory object (read only).
   shared_memory_.reset(new base::SharedMemory(shared_memory, true));
@@ -107,40 +70,33 @@ bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
   pickle.ReadSize(&iter, &num_scripts);
 
   for (size_t i = 0; i < num_scripts; ++i) {
-    const char* url = NULL;
-    int url_length = 0;
+    UserScript* script = new UserScript();
+    script->Unpickle(pickle, &iter);
+
+    // Note that this is a pointer into shared memory. We don't own it. It gets
+    // cleared up when the last renderer or browser process drops their
+    // reference to the shared memory.
     const char* body = NULL;
     int body_length = 0;
+    CHECK(pickle.ReadData(&iter, &body, &body_length));
 
-    pickle.ReadData(&iter, &url, &url_length);
-    pickle.ReadData(&iter, &body, &body_length);
-
-    scripts_.push_back(UserScript(StringPiece(url, url_length),
-                                  StringPiece(body, body_length)));
-    UserScript& script = scripts_.back();
-
-    size_t num_includes;
-    pickle.ReadSize(&iter, &num_includes);
-    for (size_t j = 0; j < num_includes; ++j) {
-      std::string include;
-      pickle.ReadString(&iter, &include);
-      script.AddInclude(include);
-    }
+    scripts_.push_back(script);
+    script_contents_[script] = StringPiece(body, body_length);
   }
 
   return true;
 }
 
 bool UserScriptSlave::InjectScripts(WebFrame* frame) {
-  for (std::vector<UserScript>::iterator script = scripts_.begin();
+  for (std::vector<UserScript*>::iterator script = scripts_.begin();
        script != scripts_.end(); ++script) {
-    if (script->MatchesUrl(frame->GetURL())) {
+    if ((*script)->MatchesUrl(frame->GetURL())) {
       std::string inject(kUserScriptHead);
       inject.append(api_js_.as_string());
-      inject.append(script->GetBody().as_string());
+      inject.append(script_contents_[*script].as_string());
       inject.append(kUserScriptTail);
       frame->ExecuteJavaScript(inject,
-                               GURL(script->GetURL().as_string()),
+                               GURL((*script)->url().spec()),
                                -user_script_start_line_);
     }
   }

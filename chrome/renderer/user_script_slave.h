@@ -1,64 +1,21 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_SLAVE_H_
 #define CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_SLAVE_H_
 
+#include <map>
+#include <vector>
+
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
+#include "chrome/common/extensions/user_script.h"
+#include "chrome/common/stl_util-inl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/webframe.h"
-
-
-// Parsed representation of a user script.
-class UserScript {
- public:
-  UserScript(const StringPiece& script_url,
-             const StringPiece& body)
-    : url_(script_url), body_(body) {}
-
-  // Gets a URL where this script can be found.
-  const StringPiece& GetURL() const {
-    return url_;
-  }
-
-  // Gets the script body that should be injected into matching content.
-  const StringPiece& GetBody() const {
-    return body_;
-  }
-
-  // Adds an include pattern that will be checked to determine whether to
-  // include a script on a given page.
-  void AddInclude(const std::string &glob_pattern);
-
-  // Returns true if the script should be applied to the specified URL, false
-  // otherwise.
-  bool MatchesUrl(const GURL& url);
-
- private:
-  FRIEND_TEST(UserScriptSlaveTest, EscapeGlob);
-
-  // Helper function to convert the user script glob format to the patterns
-  // used internally to test URLs.
-  static std::string EscapeGlob(const std::string& glob);
-
-  // The url of the file the script came from. This references shared_memory_,
-  // and is valid until that memory is either deleted or Unmap()'d.
-  StringPiece url_;
-
-  // The body of the script, which will be injected into content pages. This
-  // references shared_memory_, and is valid until that memory is either
-  // deleted or Unmap()'d.
-  StringPiece body_;
-
-  // List of patterns to test URLs against for this script. These patterns have
-  // been escaped for use with MatchPattern() in string_utils ('?' and '\' are
-  // escaped).
-  std::vector<std::string> include_patterns_;
-};
 
 
 // Manages installed UserScripts for a render process.
@@ -79,7 +36,11 @@ class UserScriptSlave {
   scoped_ptr<base::SharedMemory> shared_memory_;
 
   // Parsed script data.
-  std::vector<UserScript> scripts_;
+  std::vector<UserScript*> scripts_;
+  STLElementDeleter<std::vector<UserScript*> > script_deleter_;
+
+  // Script contents.
+  std::map<UserScript*, StringPiece> script_contents_;
 
   // Greasemonkey API source that is injected with the scripts.
   StringPiece api_js_;

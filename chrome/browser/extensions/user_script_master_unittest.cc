@@ -139,21 +139,21 @@ TEST_F(UserScriptMasterTest, Parse1) {
     "\n"
     "alert('hoo!');\n");
 
-  std::vector<std::string> includes;
-  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &includes);
-  EXPECT_EQ(3U, includes.size());
-  EXPECT_EQ("*mail.google.com*", includes[0]);
-  EXPECT_EQ("*mail.yahoo.com*", includes[1]);
-  EXPECT_EQ("*mail.msn.com*", includes[2]);
+  UserScript script;
+  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &script);
+  EXPECT_EQ(3U, script.globs().size());
+  EXPECT_EQ("*mail.google.com*", script.globs()[0]);
+  EXPECT_EQ("*mail.yahoo.com*", script.globs()[1]);
+  EXPECT_EQ("*mail.msn.com*", script.globs()[2]);
 }
 
 TEST_F(UserScriptMasterTest, Parse2) {
   const std::string text("default to @include *");
 
-  std::vector<std::string> includes;
-  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &includes);
-  EXPECT_EQ(1U, includes.size());
-  EXPECT_EQ("*", includes[0]);
+  UserScript script;
+  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &script);
+  EXPECT_EQ(1U, script.globs().size());
+  EXPECT_EQ("*", script.globs()[0]);
 }
 
 TEST_F(UserScriptMasterTest, Parse3) {
@@ -162,8 +162,8 @@ TEST_F(UserScriptMasterTest, Parse3) {
     "// @include *foo*\n"
     "// ==/UserScript=="); // no trailing newline
 
-  std::vector<std::string> includes;
-  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &includes);
-  EXPECT_EQ(1U, includes.size());
-  EXPECT_EQ("*foo*", includes[0]);
+  UserScript script;
+  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &script);
+  EXPECT_EQ(1U, script.globs().size());
+  EXPECT_EQ("*foo*", script.globs()[0]);
 }

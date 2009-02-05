@@ -154,15 +154,17 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   Extension* extension = frontend->extensions()->at(0);
   const UserScriptList& scripts = extension->user_scripts();
   ASSERT_EQ(2u, scripts.size());
-  EXPECT_EQ(2u, scripts[0].matches.size());
-  EXPECT_EQ("http://*.google.com/*", scripts[0].matches[0]);
-  EXPECT_EQ("https://*.google.com/*", scripts[0].matches[1]);
+  EXPECT_EQ(2u, scripts[0].url_patterns().size());
+  EXPECT_EQ("http://*.google.com/*",
+            scripts[0].url_patterns()[0].GetAsString());
+  EXPECT_EQ("https://*.google.com/*",
+            scripts[0].url_patterns()[1].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("script1.js").value(),
-            scripts[0].path.value());
-  EXPECT_EQ(1u, scripts[1].matches.size());
-  EXPECT_EQ("http://*.yahoo.com/*", scripts[1].matches[0]);
+            scripts[0].path().value());
+  EXPECT_EQ(1u, scripts[1].url_patterns().size());
+  EXPECT_EQ("http://*.yahoo.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
-            scripts[1].path.value());
+            scripts[1].path().value());
 
   EXPECT_EQ(std::string("com.google.myextension2"),
             frontend->extensions()->at(1)->id());
