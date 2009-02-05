@@ -378,7 +378,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
     CacheCurrentRequestInfo(datasource);
 
   if (data.isValid()) {
-    frame_->loader()->load(resource_request, data);
+    frame_->loader()->load(resource_request, data, false);
     if (replace) {
       // Do this to force WebKit to treat the load as replacing the currently
       // loaded page.
@@ -405,7 +405,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
   } else if (resource_request.cachePolicy() == ReloadIgnoringCacheData) {
     frame_->loader()->reload();
   } else {
-    frame_->loader()->load(resource_request);
+    frame_->loader()->load(resource_request, false);
   }
 
   currently_loading_request_ = NULL;
@@ -1627,7 +1627,7 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   // this child frame.
   HistoryItem* parent_item = frame_->loader()->currentHistoryItem();
   FrameLoadType load_type = frame_->loader()->loadType();
-  FrameLoadType child_load_type = WebCore::FrameLoadTypeRedirect;
+  FrameLoadType child_load_type = WebCore::FrameLoadTypeRedirectWithLockedBackForwardList;
   KURL new_url = request.resourceRequest().url();
 
   // If we're moving in the backforward list, we might want to replace the
@@ -1648,6 +1648,7 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   child_frame->loader()->loadURL(new_url,
                                  request.resourceRequest().httpReferrer(),
                                  child_frame->tree()->name(),
+                                 false,
                                  child_load_type, 0, 0);
 
   // A synchronous navigation (about:blank) would have already processed

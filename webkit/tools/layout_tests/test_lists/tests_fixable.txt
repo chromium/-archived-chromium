@@ -1770,3 +1770,15 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
       
+// Regressions from WebKit merge 40500:40539
+//
+// In particular this set all seems due to the same issue with web history,
+// and webkit revision r40508.
+LayoutTests/http/tests/navigation/document-location-click.html = FAIL
+LINUX WIN : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
+LINUX WIN : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
+LINUX WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
+// This set seems due to a different issue.
+LINUX WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+LINUX WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL

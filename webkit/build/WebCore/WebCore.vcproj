@@ -848,6 +848,18 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\ThreadableLoaderClient.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\ThreadableLoaderClientWrapper.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\WorkerThreadableLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\WorkerThreadableLoader.h"
+				>
+			</File>
 			<Filter
 				Name="archive"
 				>
@@ -4281,6 +4293,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CrossThreadCopier.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CrossThreadCopier.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CSSMappedAttributeDeclaration.cpp"
 				>
 			</File>
@@ -4834,14 +4854,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerRunLoop.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerTask.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerTask.h"
 				>
 			</File>
 			<File

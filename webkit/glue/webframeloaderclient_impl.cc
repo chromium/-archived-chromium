@@ -1107,6 +1107,9 @@ void WebFrameLoaderClient::finishedLoading(DocumentLoader* dl) {
 void WebFrameLoaderClient::updateGlobalHistory() {
 }
 
+void WebFrameLoaderClient::updateGlobalHistoryForRedirectWithoutHistoryItem() {
+}
+
 bool WebFrameLoaderClient::shouldGoToHistoryItem(HistoryItem*) const {
   // FIXME
   return true;

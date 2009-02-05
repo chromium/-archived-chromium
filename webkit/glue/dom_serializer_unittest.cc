@@ -121,7 +121,7 @@ class DomSerializerTests : public TestShellTest,
           buf, WebCore::String("text/html"), encoding_info, WebCore::KURL());
       WebCore::ResourceRequest request(webkit_glue::GURLToKURL(base_url),
                                        WebCore::CString());
-      web_frame->frame()->loader()->load(request, subst_data);
+      web_frame->frame()->loader()->load(request, subst_data, false);
     }
 
     test_shell_->WaitTestFinished();

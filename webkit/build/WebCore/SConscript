@@ -113,6 +113,7 @@ input_files = [
     '$WEBCORE_DIR/dom/ClipboardEvent.cpp',
     '$WEBCORE_DIR/dom/Comment.cpp',
     '$WEBCORE_DIR/dom/ContainerNode.cpp',
+    '$WEBCORE_DIR/dom/CrossThreadCopier.cpp',
     '$WEBCORE_DIR/dom/CSSMappedAttributeDeclaration.cpp',
     '$WEBCORE_DIR/dom/Document.cpp',
     '$WEBCORE_DIR/dom/DocumentFragment.cpp',
@@ -180,7 +181,6 @@ input_files = [
     '$WEBCORE_DIR/dom/WorkerLocation.cpp',
     '$WEBCORE_DIR/dom/WorkerMessagingProxy.cpp',
     '$WEBCORE_DIR/dom/WorkerRunLoop.cpp',
-    '$WEBCORE_DIR/dom/WorkerTask.cpp',
     '$WEBCORE_DIR/dom/WorkerThread.cpp',
     '$WEBCORE_DIR/dom/XMLTokenizer.cpp',
     '$WEBCORE_DIR/dom/XMLTokenizerLibxml2.cpp',
@@ -366,6 +366,7 @@ input_files = [
     '$WEBCORE_DIR/loader/TextDocument.cpp',
     '$WEBCORE_DIR/loader/TextResourceDecoder.cpp',
     '$WEBCORE_DIR/loader/ThreadableLoader.cpp',
+    '$WEBCORE_DIR/loader/WorkerThreadableLoader.cpp',
 
     '$WEBCORE_DIR/loader/archive/ArchiveFactory.cpp',
     '$WEBCORE_DIR/loader/archive/ArchiveResource.cpp',
