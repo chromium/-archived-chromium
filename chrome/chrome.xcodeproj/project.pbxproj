@@ -456,6 +456,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		33C594F30F3A68110026A42A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 826850040F2FC82D009F6555 /* webkit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E45626A20E268F03005E4685;
+			remoteInfo = glue;
+		};
 		4D1F59EE0F2A6B740040C1E3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
@@ -1306,7 +1313,6 @@
 		28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url_parser.cc; sourceTree = "<group>"; };
 		3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_thread_unittest.cc; sourceTree = "<group>"; };
 		3380A6B90F2E9275004EF74F /* render_view_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_view_unittest.cc; sourceTree = "<group>"; };
-		3380A9AA0F2FC3BF004EF74F /* mock_webkit_glue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mock_webkit_glue.cc; path = ../webkit/glue/mock_webkit_glue.cc; sourceTree = SOURCE_ROOT; };
 		3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_process_unittest.cc; sourceTree = "<group>"; };
 		3CCF8AA8A56FF8FE59F0C299 /* template_url.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url.cc; sourceTree = "<group>"; };
 		433B6EFB7A1D931A13C9556F /* url_fetcher_protect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_fetcher_protect.h; sourceTree = "<group>"; };
@@ -2395,7 +2401,6 @@
 				4D640CCF0EAE868600EBCFC0 /* render_process.cc */,
 				4D640CD00EAE868600EBCFC0 /* render_process.h */,
 				3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */,
-				3380A9AA0F2FC3BF004EF74F /* mock_webkit_glue.cc */,
 				4D640CD10EAE868600EBCFC0 /* render_thread.cc */,
 				3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */,
 				4D640CD20EAE868600EBCFC0 /* render_thread.h */,
@@ -3846,6 +3851,7 @@
 				4DDC64570EAE393800FB5EBE /* PBXTargetDependency */,
 				826852150F2FD152009F6555 /* PBXTargetDependency */,
 				8268521B0F2FD197009F6555 /* PBXTargetDependency */,
+				33C594F40F3A68110026A42A /* PBXTargetDependency */,
 			);
 			name = unit_tests;
 			productName = unit_tests;
@@ -4832,6 +4838,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		33C594F40F3A68110026A42A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = glue;
+			targetProxy = 33C594F30F3A68110026A42A /* PBXContainerItemProxy */;
+		};
 		4D1F59EF0F2A6B740040C1E3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4D1F59E90F2A6B590040C1E3 /* image_diff */;
