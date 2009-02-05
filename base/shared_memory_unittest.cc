@@ -3,12 +3,15 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
+#include "base/multiprocess_test.h"
 #include "base/platform_thread.h"
 #include "base/scoped_nsautorelease_pool.h"
 #include "base/shared_memory.h"
+#include "base/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 static const int kNumThreads = 5;
+static const int kNumTasks = 5;
 
 namespace base {
 
@@ -158,27 +161,40 @@ TEST(SharedMemoryTest, OpenClose) {
   EXPECT_TRUE(rv);
 }
 
-// Create a set of 5 threads to each open a shared memory segment and write to
+// Create a set of N threads to each open a shared memory segment and write to
 // it. Verify that they are always reading/writing consistent data.
 TEST(SharedMemoryTest, MultipleThreads) {
   MultipleThreadMain::CleanUp();
-  PlatformThreadHandle thread_handles[kNumThreads];
-  MultipleThreadMain* thread_delegates[kNumThreads];
+  // On POSIX we have a problem when 2 threads try to create the shmem
+  // (a file) at exactly the same time, since create both creates the
+  // file and zerofills it.  We solve the problem for this unit test
+  // (make it not flaky) by starting with 1 thread, then
+  // intentionally don't clean up its shmem before running with
+  // kNumThreads.
 
-  // Spawn the threads.
-  for (int16 index = 0; index < kNumThreads; index++) {
-    PlatformThreadHandle pth;
-    thread_delegates[index] = new MultipleThreadMain(index);
-    EXPECT_TRUE(PlatformThread::Create(0, thread_delegates[index], &pth));
-    thread_handles[index] = pth;
+  int threadcounts[] = { 1, kNumThreads };
+  for (size_t i = 0; i < sizeof(threadcounts) / sizeof(threadcounts); i++) {
+    int numthreads = threadcounts[i];
+    scoped_array<PlatformThreadHandle> thread_handles;
+    scoped_array<MultipleThreadMain*> thread_delegates;
+
+    thread_handles.reset(new PlatformThreadHandle[numthreads]);
+    thread_delegates.reset(new MultipleThreadMain*[numthreads]);
+
+    // Spawn the threads.
+    for (int16 index = 0; index < numthreads; index++) {
+      PlatformThreadHandle pth;
+      thread_delegates[index] = new MultipleThreadMain(index);
+      EXPECT_TRUE(PlatformThread::Create(0, thread_delegates[index], &pth));
+      thread_handles[index] = pth;
+    }
+
+    // Wait for the threads to finish.
+    for (int index = 0; index < numthreads; index++) {
+      PlatformThread::Join(thread_handles[index]);
+      delete thread_delegates[index];
+    }
   }
-
-  // Wait for the threads to finish.
-  for (int index = 0; index < kNumThreads; index++) {
-    PlatformThread::Join(thread_handles[index]);
-    delete thread_delegates[index];
-  }
-
   MultipleThreadMain::CleanUp();
 }
 
@@ -219,10 +235,10 @@ TEST(SharedMemoryTest, AnonymousPrivate) {
   bool rv;
   const int kDataSize = 8192;
 
-  SharedMemory* memories = new SharedMemory[count];
-  int **pointers = new int*[count];
-  ASSERT_TRUE(memories);
-  ASSERT_TRUE(pointers);
+  scoped_array<SharedMemory> memories(new SharedMemory[count]);
+  scoped_array<int*> pointers(new int*[count]);
+  ASSERT_TRUE(memories.get());
+  ASSERT_TRUE(pointers.get());
 
   for (i = 0; i < count; i++) {
     rv = memories[i].Create(L"", false, true, kDataSize);
@@ -254,6 +270,75 @@ TEST(SharedMemoryTest, AnonymousPrivate) {
   for (int i = 0; i < count; i++) {
     memories[i].Close();
   }
+
+}
+
+
+// On POSIX it is especially important we test shmem across processes,
+// not just across threads.  But the test is enabled on all platforms.
+class SharedMemoryProcessTest : public MultiProcessTest {
+ public:
+
+  static void CleanUp() {
+    SharedMemory memory;
+    memory.Delete(test_name_);
+  }
+
+  static int TaskTestMain() {
+    int errors = 0;
+    ScopedNSAutoreleasePool pool;  // noop if not OSX
+    const int kDataSize = 1024;
+    SharedMemory memory;
+    bool rv = memory.Create(test_name_, false, true, kDataSize);
+    EXPECT_TRUE(rv);
+    if (rv != true)
+      errors++;
+    rv = memory.Map(kDataSize);
+    EXPECT_TRUE(rv);
+    if (rv != true)
+      errors++;
+    int *ptr = static_cast<int*>(memory.memory());
+
+    for (int idx = 0; idx < 20; idx++) {
+      memory.Lock();
+      int i = (1 << 16) + idx;
+      *ptr = i;
+      PlatformThread::Sleep(10);  // Short wait.
+      if (*ptr != i)
+        errors++;
+      memory.Unlock();
+    }
+
+    memory.Close();
+    return errors;
+  }
+
+ private:
+  static const std::wstring test_name_;
+};
+
+const std::wstring SharedMemoryProcessTest::test_name_ = L"MPMem";
+
+
+TEST_F(SharedMemoryProcessTest, Tasks) {
+  SharedMemoryProcessTest::CleanUp();
+
+  base::ProcessHandle handles[kNumTasks];
+  for (int index = 0; index < kNumTasks; ++index) {
+    handles[index] = SpawnChild(L"SharedMemoryTestMain");
+  }
+
+  int exit_code = 0;
+  for (int index = 0; index < kNumTasks; ++index) {
+    EXPECT_TRUE(base::WaitForExitCode(handles[index], &exit_code));
+    EXPECT_TRUE(exit_code == 0);
+  }
+
+  SharedMemoryProcessTest::CleanUp();
+}
+
+MULTIPROCESS_TEST_MAIN(SharedMemoryTestMain) {
+  return SharedMemoryProcessTest::TaskTestMain();
 }
 
 

@@ -24,11 +24,9 @@ typedef HANDLE SharedMemoryHandle;
 typedef HANDLE SharedMemoryLock;
 #elif defined(OS_POSIX)
 typedef int SharedMemoryHandle;
-// TODO(port): these semaphores can leak if we crash, causing
-// autobuilder problems.  Transition to something easier to clean up
-// (e.g. lockf/flock).
-// TODO(port): make sure what we transition to is fast enough.
-typedef sem_t* SharedMemoryLock;
+// On POSIX, the lock is implemented as a lockf() on the mapped file,
+// so no additional member (or definition of SharedMemoryLock) is
+// needed.
 #endif
 
 // Platform abstraction for shared memory.  Provides a C++ wrapper
@@ -123,6 +121,12 @@ class SharedMemory {
   // Lock the shared memory.
   // This is a cross-process lock which may be recursively
   // locked by the same thread.
+  // TODO(port):
+  // WARNING: on POSIX the lock only works across processes, not
+  // across threads.  2 threads in the same process can both grab the
+  // lock at the same time.  There are several solutions for this
+  // (futex, lockf+anon_semaphore) but none are both clean and common
+  // across Mac and Linux.
   void Lock();
 
   // Release the shared memory lock.
@@ -133,6 +137,8 @@ class SharedMemory {
   bool CreateOrOpen(const std::wstring &name, int posix_flags, size_t size);
   bool FilenameForMemoryName(const std::wstring &memname,
                              std::wstring *filename);
+  void LockOrUnlockCommon(int function);
+
 #endif
   bool ShareToProcessCommon(ProcessHandle process,
                             SharedMemoryHandle* new_handle,
@@ -143,9 +149,8 @@ class SharedMemory {
   void*              memory_;
   bool               read_only_;
   size_t             max_size_;
+#if !defined(OS_POSIX)
   SharedMemoryLock   lock_;
-#if defined(OS_POSIX)
-  std::string        sem_name_;
 #endif
 
   DISALLOW_EVIL_CONSTRUCTORS(SharedMemory);

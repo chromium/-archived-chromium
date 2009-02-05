@@ -10,6 +10,7 @@
 
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 
 namespace base {
@@ -24,16 +25,14 @@ SharedMemory::SharedMemory()
     : mapped_file_(-1),
       memory_(NULL),
       read_only_(false),
-      max_size_(0),
-      lock_(NULL) {
+      max_size_(0) {
 }
 
 SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only)
     : mapped_file_(handle),
       memory_(NULL),
       read_only_(read_only),
-      max_size_(0),
-      lock_(NULL) {
+      max_size_(0) {
 }
 
 SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only,
@@ -41,8 +40,7 @@ SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only,
     : mapped_file_(handle),
       memory_(NULL),
       read_only_(read_only),
-      max_size_(0),
-      lock_(NULL) {
+      max_size_(0) {
   // We don't handle this case yet (note the ignored parameter); let's die if
   // someone comes calling.
   NOTREACHED();
@@ -50,8 +48,6 @@ SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only,
 
 SharedMemory::~SharedMemory() {
   Close();
-  if (lock_ != NULL)
-    sem_close(lock_);
 }
 
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
@@ -205,19 +201,6 @@ bool SharedMemory::CreateOrOpen(const std::wstring &name,
 
   mapped_file_ = dup(fileno(fp));
   DCHECK(mapped_file_ >= 0);
-
-  mode_t posix_mode =  S_IRUSR | S_IWUSR;  // owner read/write
-  // name_ that includes a tmpdir easily exceeds SEM_NAME_LEN,
-  // so we cannot use it directly as the basis for a sem_name_.
-  sem_name_ = WideToUTF8(name) + kSemaphoreSuffix;
-  lock_ = sem_open(sem_name_.c_str(), O_CREAT, posix_mode, 1);
-  if (lock_ == SEM_FAILED) {
-    close(mapped_file_);
-    mapped_file_ = -1;
-    lock_ = NULL;
-    return false;
-  }
-
   return true;
 }
 
@@ -263,24 +246,33 @@ void SharedMemory::Close() {
     close(mapped_file_);
     mapped_file_ = -1;
   }
+}
 
-  if (lock_) {
-    sem_unlink(sem_name_.c_str());
-    lock_ = NULL;
+void SharedMemory::LockOrUnlockCommon(int function) {
+  DCHECK(mapped_file_ >= 0);
+  while (lockf(mapped_file_, function, 0) < 0) {
+    if (errno == EINTR) {
+      continue;
+    } else if (errno == ENOLCK) {
+      // temporary kernel resource exaustion
+      PlatformThread::Sleep(500);
+      continue;
+    } else {
+      NOTREACHED() << "lockf() failed."
+                   << " function:" << function
+                   << " fd:" << mapped_file_
+                   << " errno:" << errno
+                   << " msg:" << strerror(errno);
+    }
   }
 }
 
 void SharedMemory::Lock() {
-  DCHECK(lock_ != NULL);
-  while(sem_wait(lock_) < 0) {
-    DCHECK(errno == EAGAIN || errno == EINTR);
-  }
+  LockOrUnlockCommon(F_LOCK);
 }
 
 void SharedMemory::Unlock() {
-  DCHECK(lock_ != NULL);
-  int result = sem_post(lock_);
-  DCHECK(result == 0);
+  LockOrUnlockCommon(F_ULOCK);
 }
 
 }  // namespace base
