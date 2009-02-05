@@ -257,9 +257,11 @@ void TabStripBridge::TabInsertedAt(TabContents* contents,
 }
 
 void TabStripBridge::TabClosingAt(TabContents* contents, int index) {
+  NOTIMPLEMENTED();
 }
 
 void TabStripBridge::TabDetachedAt(TabContents* contents, int index) {
+  NOTIMPLEMENTED();
 }
 
 void TabStripBridge::TabSelectedAt(TabContents* old_contents,
@@ -275,10 +277,13 @@ void TabStripBridge::TabSelectedAt(TabContents* old_contents,
 void TabStripBridge::TabMoved(TabContents* contents,
                               int from_index,
                               int to_index) {
+  NOTIMPLEMENTED();
 }
 
 void TabStripBridge::TabChangedAt(TabContents* contents, int index) {
+  NOTIMPLEMENTED();
 }
 
 void TabStripBridge::TabStripEmpty() {
+  NOTIMPLEMENTED();
 }

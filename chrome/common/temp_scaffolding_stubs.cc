@@ -184,6 +184,33 @@ Profile* TabContents::profile() const {
   return controller_ ? controller_->profile() : NULL;
 }
 
+void TabContents::CloseContents() {
+  // Destroy our NavigationController, which will Destroy all tabs it owns.
+  controller_->Destroy();
+  // Note that the controller may have deleted us at this point,
+  // so don't touch any member variables here.
+}
+
+void TabContents::Destroy() {
+  // TODO(pinkerton): this isn't the real version of Destroy(), just enough to
+  // get the scaffolding working.
+
+  // Notify any observer that have a reference on this tab contents.
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(this),
+      NotificationService::NoDetails());
+
+  // Notify our NavigationController.  Make sure we are deleted first, so
+  // that the controller is the last to die.
+  NavigationController* controller = controller_;
+  TabContentsType type = this->type();
+
+  delete this;
+
+  controller->TabContentsWasDestroyed(type);
+}
+
 //--------------------------------------------------------------------------
 
 class RenderWidgetHostViewStub : public RenderWidgetHostView {

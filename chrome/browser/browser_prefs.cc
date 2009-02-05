@@ -39,6 +39,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   Browser::RegisterPrefs(local_state);
   BrowserRenderProcessHost::RegisterPrefs(local_state);
   CacheManagerHost::RegisterPrefs(local_state);
+  SafeBrowsingService::RegisterPrefs(local_state);
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
   BookmarkManagerView::RegisterPrefs(local_state);
   BrowserView::RegisterBrowserViewPrefs(local_state);
@@ -49,7 +50,6 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   PageInfoWindow::RegisterPrefs(local_state);
   TaskManager::RegisterPrefs(local_state);
   ExternalProtocolHandler::RegisterPrefs(local_state);
-  SafeBrowsingService::RegisterPrefs(local_state);
 #endif
 
   // User prefs

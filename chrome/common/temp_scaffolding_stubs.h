@@ -570,20 +570,33 @@ class ConfirmInfoBarDelegate : public InfoBarDelegate {
 
 class RenderWidgetHostView {
  public:
-  virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
-  virtual void WasHidden() { NOTIMPLEMENTED(); }
-  virtual gfx::NativeView GetPluginNativeView() {
-    NOTIMPLEMENTED(); 
+  virtual RenderWidgetHost* GetRenderWidgetHost() const {
+    NOTIMPLEMENTED();
     return NULL;
   }
-  virtual void Hide() { NOTIMPLEMENTED(); }
-  virtual void Show() { NOTIMPLEMENTED(); }
-  virtual bool HasFocus() { NOTIMPLEMENTED(); return false; }
+  virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
+  virtual void WasHidden() { NOTIMPLEMENTED(); }
+  virtual void SetSize(const gfx::Size&) { NOTIMPLEMENTED(); }
+  virtual gfx::NativeView GetPluginNativeView()
+       { NOTIMPLEMENTED(); return NULL; };
+  virtual void MovePluginWindows(const std::vector<WebPluginGeometry>&) 
+        { NOTIMPLEMENTED(); }
   virtual void Focus() { NOTIMPLEMENTED(); }
+  virtual void Blur() { NOTIMPLEMENTED(); }
+  virtual bool HasFocus() { NOTIMPLEMENTED(); return false; }
+  virtual void Show() { NOTIMPLEMENTED(); }
+  virtual void Hide() { NOTIMPLEMENTED(); }
+  virtual gfx::Rect GetViewBounds() const
+      { NOTIMPLEMENTED(); return gfx::Rect(); }
+  virtual void UpdateCursor(const WebCursor&) { NOTIMPLEMENTED(); }
   virtual void UpdateCursorIfOverSelf() { NOTIMPLEMENTED(); }
-  virtual void SetTooltipText(const std::wstring& tooltip_text) 
-      { NOTIMPLEMENTED(); }
-  virtual void SetSize(gfx::Size) { NOTIMPLEMENTED(); }
+  virtual void SetIsLoading(bool) { NOTIMPLEMENTED(); }
+  virtual void IMEUpdateStatus(int, const gfx::Rect&) { NOTIMPLEMENTED(); }
+  virtual void DidPaintRect(const gfx::Rect&) { NOTIMPLEMENTED(); }
+  virtual void DidScrollRect(const gfx::Rect&, int, int) { NOTIMPLEMENTED(); }
+  virtual void RendererGone() { NOTIMPLEMENTED(); }
+  virtual void Destroy() { NOTIMPLEMENTED(); }
+  virtual void SetTooltipText(const std::wstring&) { NOTIMPLEMENTED(); }
 };
 
 class LoadNotificationDetails {
@@ -632,13 +645,13 @@ class TabContents : public NotificationObserver {
     return false;
   }
   Profile* profile() const;
-  void CloseContents() { NOTIMPLEMENTED(); };
-  void SetupController(Profile* profile);
+  virtual void CloseContents();
+  virtual void SetupController(Profile* profile);
   bool WasHidden() {
     NOTIMPLEMENTED();
     return false;
   }
-  void RestoreFocus() { NOTIMPLEMENTED(); }
+  virtual void RestoreFocus() { NOTIMPLEMENTED(); }
   static TabContentsType TypeForURL(GURL* url) {
     NOTIMPLEMENTED();
     return TAB_CONTENTS_WEB;
@@ -651,7 +664,7 @@ class TabContents : public NotificationObserver {
                        const NotificationDetails& details) { NOTIMPLEMENTED(); }
   virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
   virtual void SetDownloadShelfVisible(bool) { NOTIMPLEMENTED(); }
-  void Destroy() { NOTIMPLEMENTED(); }
+  virtual void Destroy();
   virtual void SetIsLoading(bool, LoadNotificationDetails*) {
     NOTIMPLEMENTED();
   }
@@ -673,7 +686,7 @@ class TabContents : public NotificationObserver {
     return NULL;
   }
   void AddInfoBar(InfoBarDelegate*) { NOTIMPLEMENTED(); }
-  void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
+  virtual void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
                PageTransition::Type) { NOTIMPLEMENTED(); }
   virtual void Activate() { NOTIMPLEMENTED(); }
   virtual bool SupportsURL(GURL*) { NOTIMPLEMENTED(); return false; }
