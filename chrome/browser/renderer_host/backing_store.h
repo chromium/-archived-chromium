@@ -33,6 +33,8 @@ class BackingStore {
 
 #if defined(OS_WIN)
   HDC hdc() { return hdc_; }
+#else
+  skia::PlatformCanvas* canvas() { return &canvas_; }
 #endif
 
   // Paints the bitmap from the renderer onto the backing store.
