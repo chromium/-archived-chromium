@@ -9,6 +9,7 @@ Changes from upstream:
 3) quotes.patch is applied to allow libevent to be used without
 being installed (alternative is adding crazy -I arguments to the commandline)
 4) The directories WIN32-Code and WIN32-Prj are not included
+5) add mac/config.h from a run of configure on a Mac.
 
 SConscript does not include a few files that don't build on Linux:
     devpoll.c, evport.c, kqueue.c
