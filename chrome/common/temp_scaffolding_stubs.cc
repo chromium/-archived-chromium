@@ -203,7 +203,7 @@ std::string GetUserAgent(const GURL& url) {
   NOTIMPLEMENTED();
   return "";
 }
-// TODO(pinkerton): when these are removed, mock_webkit_glue.cc 
+// TODO(pinkerton): when these are removed, mock_webkit_glue.cc
 // must be re-added to the unit_test target for tests.
 void SetRecordPlaybackMode(bool) { }
 void SetJavaScriptFlags(const std::wstring&) { }
@@ -237,22 +237,10 @@ void RunJavascriptMessageBox(WebContents* web_contents,
   NOTIMPLEMENTED();
 }
 
-CacheManagerHost::CacheManagerHost() : revise_allocation_factory_(this) { }
-CacheManagerHost::~CacheManagerHost() { }
-void CacheManagerHost::ObserveActivity(int) { NOTIMPLEMENTED(); }
-void CacheManagerHost::Remove(int) { NOTIMPLEMENTED(); }
-void CacheManagerHost::Add(int) { NOTIMPLEMENTED(); }
-void CacheManagerHost::ObserveStats(int, const CacheManager::UsageStats&) {
-  NOTIMPLEMENTED();
-}
-CacheManagerHost* CacheManagerHost::GetInstance() {
-  return Singleton<CacheManagerHost>::get();
-}
-
 void RunBeforeUnloadDialog(WebContents* web_contents,
                            const std::wstring& message_text,
                            IPC::Message* reply_msg) {
-  NOTIMPLEMENTED(); 
+  NOTIMPLEMENTED();
 }
 
 bool SSLManager::DeserializeSecurityInfo(const std::string&, int*, int*, int*) {
@@ -269,7 +257,7 @@ ResourceMessageFilter::ResourceMessageFilter(
     int render_process_host_id,
     Profile* profile,
     RenderWidgetHelper* render_widget_helper,
-    SpellChecker* spellchecker) 
+    SpellChecker* spellchecker)
       : ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)) {
 }
 ResourceMessageFilter::~ResourceMessageFilter() { NOTIMPLEMENTED(); }
@@ -296,19 +284,11 @@ void ResourceMessageFilter::OnResolveProxyCompleted(
   NOTIMPLEMENTED();
 }
 
-ResolveProxyMsgHelper::ResolveProxyMsgHelper(Delegate* delegate,
-                                             net::ProxyService* proxy_service)
-    : ALLOW_THIS_IN_INITIALIZER_LIST(callback_(
-          this, &ResolveProxyMsgHelper::OnResolveProxyCompleted)) {
-}
-ResolveProxyMsgHelper::~ResolveProxyMsgHelper() { }
-void ResolveProxyMsgHelper::OnResolveProxyCompleted(int) { NOTIMPLEMENTED(); }
-
 #if defined(OS_MACOSX)
 ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
 
 // GetBitmapNamed() will leak, but there's no way around it for stubs.
-SkBitmap* ResourceBundle::GetBitmapNamed(int) { 
+SkBitmap* ResourceBundle::GetBitmapNamed(int) {
   NOTIMPLEMENTED();
   return new SkBitmap();
 }
@@ -328,7 +308,7 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(int, int) {
   NOTIMPLEMENTED();
 }
 
-void ProcessWatcher::EnsureProcessTerminated(int) { 
+void ProcessWatcher::EnsureProcessTerminated(int) {
   NOTIMPLEMENTED();
 }
 

@@ -86,6 +86,7 @@
 		3380A9D70F2FC8F9004EF74F /* render_dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CE10EAE86A500EBCFC0 /* render_dns_master.cc */; };
 		3AEA44DB19C9D93B63D7A2E4 /* url_fetcher_protect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0B7CC9C105E90E0665852528 /* url_fetcher_protect.cc */; };
 		406DFE278638D6132B21B2C9 /* url_pattern.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6447F24FADC63E58A44DB762 /* url_pattern.cc */; };
+		475CAF858604B413561740C1 /* cache_manager_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8520E9D4839009A6919 /* cache_manager_host.cc */; };
 		4D175916B2FC058793051209 /* chrome_paths_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */; };
 		4D1F59FE0F2A6BBB0040C1E3 /* image_diff.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D1F59FD0F2A6BBB0040C1E3 /* image_diff.cc */; };
 		4D1F5A060F2A6D170040C1E3 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
@@ -245,6 +246,7 @@
 		A7C613C10F30D7E4008CEE5D /* mock_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C613BF0F30D7E4008CEE5D /* mock_render_process_host.cc */; };
 		A7C6146F0F30DA1D008CEE5D /* ipc_test_sink.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C6146D0F30DA1D008CEE5D /* ipc_test_sink.cc */; };
 		A7CBAD390F322A7E00360BF5 /* shell_dialogs_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */; };
+		B0AC9501DED2809AC208AEEA /* resolve_proxy_msg_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F9429998AC2703984BAB828 /* resolve_proxy_msg_helper.cc */; };
 		B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA180E9D48F7009A6919 /* visit_database_unittest.cc */; };
 		B502DA520F098888005BE90C /* l10n_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC90E9D4C9F009A6919 /* l10n_util.cc */; };
 		B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC90EAE868600EBCFC0 /* user_script_slave.cc */; };
@@ -1866,6 +1868,7 @@
 		4D7FA6210F13CA04004F1B19 /* ui_tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ui_tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DCE9E2C0EF0B8C000682526 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = third_party/zlib/zlib.xcodeproj; sourceTree = "<group>"; };
+		4F9429998AC2703984BAB828 /* resolve_proxy_msg_helper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resolve_proxy_msg_helper.cc; sourceTree = "<group>"; };
 		534E66C30F311BEC0006B2B2 /* temp_scaffolding_stubs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = temp_scaffolding_stubs.cc; sourceTree = "<group>"; };
 		56E1D7DF17D327BFCB0B895D /* test_web_contents.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_web_contents.cc; path = browser/tab_contents/test_web_contents.cc; sourceTree = SOURCE_ROOT; };
 		629BF493DEA096E2DD844F2B /* autofill_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = autofill_manager.cc; sourceTree = "<group>"; };
@@ -2841,6 +2844,7 @@
 				4D7BFA710E9D4981009A6919 /* dns_slave.h */,
 				E4F324780EE5D17E002533CE /* referrer.h */,
 				E4F324790EE5D17E002533CE /* referrer.cc */,
+				4F9429998AC2703984BAB828 /* resolve_proxy_msg_helper.cc */,
 				4D7BFA720E9D4981009A6919 /* sdch_dictionary_fetcher.cc */,
 				4D7BFA730E9D4981009A6919 /* sdch_dictionary_fetcher.h */,
 				778D7927798B7E3FAA498D3D /* url_fetcher.cc */,
@@ -4568,6 +4572,7 @@
 				E48B684D0F2630D3002E47EC /* browser_window_factory.mm in Sources */,
 				E434BBD00F37D93C00B665C7 /* browsing_instance.cc in Sources */,
 				E45075E20F150A6F003BE099 /* buffered_resource_handler.cc in Sources */,
+				475CAF858604B413561740C1 /* cache_manager_host.cc in Sources */,
 				4D7BF98D0E9D485B009A6919 /* cancelable_request.cc in Sources */,
 				E43A770D0F16610300ABD5D1 /* chrome_plugin_browsing_context.cc in Sources */,
 				4D7BF9920E9D485F009A6919 /* chrome_thread.cc in Sources */,
@@ -4620,6 +4625,7 @@
 				E434BBBF0F37D6DB00B665C7 /* render_widget_helper.cc in Sources */,
 				E434BFA40F3A03E200B665C7 /* render_widget_host.cc in Sources */,
 				E434BBEB0F37DFA500B665C7 /* renderer_security_policy.cc in Sources */,
+				B0AC9501DED2809AC208AEEA /* resolve_proxy_msg_helper.cc in Sources */,
 				4D7BFAF30E9D49EF009A6919 /* safe_browsing_database.cc in Sources */,
 				E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */,
 				E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */,

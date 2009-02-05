@@ -243,6 +243,9 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
             UpdateFinished(true);
           }
           break;
+        default:
+          NOTREACHED();
+          break;
       }
 
     } else if (response_code >= 300) {

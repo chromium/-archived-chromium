@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <algorithm>
-
 #include "chrome/browser/cache_manager_host.h"
 
+#include <algorithm>
+
+#include "base/compiler_specific.h"
 #include "base/sys_info.h"
 #include "base/time.h"
 #include "chrome/browser/browser_process.h"
@@ -54,8 +55,7 @@ CacheManagerHost* CacheManagerHost::GetInstance() {
 
 CacheManagerHost::CacheManagerHost()
     : global_size_limit_(GetDefaultGlobalSizeLimit()),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      revise_allocation_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(revise_allocation_factory_(this)) {
 }
 
 CacheManagerHost::~CacheManagerHost() {

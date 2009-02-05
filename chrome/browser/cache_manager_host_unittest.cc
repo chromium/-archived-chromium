@@ -81,7 +81,7 @@ class CacheManagerHostTest : public testing::Test {
     KEEP_LIVE_WITH_HEADROOM = CacheManagerHost::KEEP_LIVE_WITH_HEADROOM,
     KEEP_LIVE = CacheManagerHost::KEEP_LIVE,
   };
-  
+
  private:
   MessageLoop message_loop_;
 };
@@ -118,16 +118,16 @@ static bool operator==(const CacheManager::UsageStats& lhs,
 TEST_F(CacheManagerHostTest, AddRemoveRendererTest) {
   CacheManagerHost* h = CacheManagerHost::GetInstance();
 
-  EXPECT_EQ(0, active_renderers(h).size());
-  EXPECT_EQ(0, inactive_renderers(h).size());
+  EXPECT_EQ(0U, active_renderers(h).size());
+  EXPECT_EQ(0U, inactive_renderers(h).size());
 
   h->Add(kRendererID);
-  EXPECT_EQ(1, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(0, inactive_renderers(h).count(kRendererID));
+  EXPECT_EQ(1U, active_renderers(h).count(kRendererID));
+  EXPECT_EQ(0U, inactive_renderers(h).count(kRendererID));
 
   h->Remove(kRendererID);
-  EXPECT_EQ(0, active_renderers(h).size());
-  EXPECT_EQ(0, inactive_renderers(h).size());
+  EXPECT_EQ(0U, active_renderers(h).size());
+  EXPECT_EQ(0U, inactive_renderers(h).size());
 }
 
 TEST_F(CacheManagerHostTest, ActiveInactiveTest) {
@@ -136,16 +136,16 @@ TEST_F(CacheManagerHostTest, ActiveInactiveTest) {
   h->Add(kRendererID);
 
   h->ObserveActivity(kRendererID);
-  EXPECT_EQ(1, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(0, inactive_renderers(h).count(kRendererID));
+  EXPECT_EQ(1U, active_renderers(h).count(kRendererID));
+  EXPECT_EQ(0U, inactive_renderers(h).count(kRendererID));
 
   SimulateInactivity(h, kRendererID);
-  EXPECT_EQ(0, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(1, inactive_renderers(h).count(kRendererID));
+  EXPECT_EQ(0U, active_renderers(h).count(kRendererID));
+  EXPECT_EQ(1U, inactive_renderers(h).count(kRendererID));
 
   h->ObserveActivity(kRendererID);
-  EXPECT_EQ(1, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(0, inactive_renderers(h).count(kRendererID));
+  EXPECT_EQ(1U, active_renderers(h).count(kRendererID));
+  EXPECT_EQ(0U, inactive_renderers(h).count(kRendererID));
 
   h->Remove(kRendererID);
 }
@@ -155,11 +155,11 @@ TEST_F(CacheManagerHostTest, ObserveStatsTest) {
 
   h->Add(kRendererID);
 
-  EXPECT_EQ(1, stats(h).size());
+  EXPECT_EQ(1U, stats(h).size());
 
   h->ObserveStats(kRendererID, kStats);
 
-  EXPECT_EQ(1, stats(h).size());
+  EXPECT_EQ(1U, stats(h).size());
   EXPECT_TRUE(kStats == stats(h)[kRendererID]);
 
   h->Remove(kRendererID);
@@ -173,7 +173,7 @@ TEST_F(CacheManagerHostTest, SetGlobalSizeLimitTest) {
   EXPECT_EQ(limit, h->global_size_limit());
 
   h->SetGlobalSizeLimit(0);
-  EXPECT_EQ(0, h->global_size_limit());
+  EXPECT_EQ(0U, h->global_size_limit());
 }
 
 TEST_F(CacheManagerHostTest, GatherStatsTest) {
@@ -210,7 +210,7 @@ TEST_F(CacheManagerHostTest, GatherStatsTest) {
 }
 
 TEST_F(CacheManagerHostTest, GetSizeTest) {
-  EXPECT_EQ(0, GetSize(DIVIDE_EVENLY, kStats));
+  EXPECT_EQ(0U, GetSize(DIVIDE_EVENLY, kStats));
   EXPECT_LT(256 * 1024u + 512, GetSize(KEEP_CURRENT_WITH_HEADROOM, kStats));
   EXPECT_EQ(256 * 1024u + 512, GetSize(KEEP_CURRENT, kStats));
   EXPECT_LT(256 * 1024u, GetSize(KEEP_LIVE_WITH_HEADROOM, kStats));
@@ -248,7 +248,7 @@ TEST_F(CacheManagerHostTest, AttemptTacticTest) {
                             KEEP_LIVE,
                             kStats2,
                             &strategy));
-  EXPECT_EQ(2, strategy.size());
+  EXPECT_EQ(2U, strategy.size());
 
   AllocationStrategy::iterator iter = strategy.begin();
   while (iter != strategy.end()) {
@@ -287,7 +287,7 @@ TEST_F(CacheManagerHostTest, AddToStrategyTest) {
                 kExtraBytesToAllocate,
                 &strategy);
 
-  EXPECT_EQ(2, strategy.size());
+  EXPECT_EQ(2U, strategy.size());
 
   size_t total_bytes = 0;
   AllocationStrategy::iterator iter = strategy.begin();
