@@ -7,12 +7,6 @@ Import('env', 'env_res')
 env = env.Clone()
 env_res = env_res.Clone()
 
-env.SConscript([
-    '$BZIP2_DIR/using_bzip2.scons',
-    '$LIBXML_DIR/using_libxml.scons',
-    '$CHROME_SRC_DIR/build/using_v8.scons',
-], {'env':env})
-
 if env.Bit('windows'):
   env_res.Append(
       CPPPATH = [
@@ -103,6 +97,19 @@ if env.Bit('mac'):
       ],
   )
 
+env_lib = env.Clone()
+
+env.SConscript([
+    '$BZIP2_DIR/using_bzip2.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$CHROME_SRC_DIR/build/using_v8.scons',
+], {'env':env})
+
+env_lib.SConscript([
+    '$BZIP2_DIR/using_bzip2.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+], {'env':env_lib})
+
 input_files = [
     'event_sending_controller.cc',
     'layout_test_controller.cc',
@@ -139,7 +146,7 @@ elif env.Bit('linux'):
       'test_webview_delegate_gtk.cc',
   ])
 
-lib = env.ChromeLibrary('test_shell', input_files)
+lib = env_lib.ChromeLibrary('test_shell', input_files)
 
 env.Append(LIBS = ['test_shell'])
 
