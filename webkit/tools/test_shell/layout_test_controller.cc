@@ -30,9 +30,9 @@ namespace {
 // Stops the test from running and prints a brief warning to stdout.  Called
 // when the timer for loading a layout test expires.
 VOID CALLBACK TestTimeout(HWND hwnd, UINT msg, UINT_PTR timer_id, DWORD ms) {
+  puts("#TEST_TIMED_OUT\n");
   reinterpret_cast<TestShell*>(timer_id)->TestFinished();
   // Print a warning to be caught by the layout-test script.
-  puts("#TEST_TIMED_OUT\n");
 }
 
 }
