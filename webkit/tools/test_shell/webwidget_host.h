@@ -27,7 +27,6 @@ class WebWidgetHost {
   static WebWidgetHost* Create(gfx::NativeView parent_view,
                                WebWidgetDelegate* delegate);
 
-  static WebWidgetHost* FromWindow(gfx::NativeView view);
 #if defined(OS_MACOSX)
   static void HandleEvent(gfx::NativeView view, NSEvent* event);
 #endif

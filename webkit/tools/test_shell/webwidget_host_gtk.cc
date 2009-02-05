@@ -285,11 +285,6 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   DidInvalidateRect(clip_rect);
 }
 
-WebWidgetHost* FromWindow(GtkWidget* view) {
-  const gpointer p = g_object_get_data(G_OBJECT(view), "webwidgethost");
-  return (WebWidgetHost* ) p;
-}
-
 WebWidgetHost::WebWidgetHost()
     : view_(NULL),
       webwidget_(NULL),

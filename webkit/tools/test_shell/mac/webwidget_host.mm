@@ -33,13 +33,9 @@ WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
 }
 
 /*static*/
-WebWidgetHost* WebWidgetHost::FromWindow(NSView* view) {
-  return NULL;
-}
-
-/*static*/
 void WebWidgetHost::HandleEvent(NSView* view, NSEvent* event) {
-  WebWidgetHost* host = FromWindow(view);
+  /* TODO(port): rig up a way to get to the host */
+  WebWidgetHost* host = NULL;
   if (host) {
     switch ([event type]) {
       case NSLeftMouseDown:
