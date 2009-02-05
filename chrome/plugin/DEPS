@@ -1,0 +1,9 @@
+include_rules = [
+  "+chrome/renderer",
+  "+sandbox/src",
+  "+skia/ext",
+  "+third_party/npapi",
+  "+webkit/glue",
+  "+webkit/glue/plugins",
+]
+

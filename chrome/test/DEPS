@@ -1,4 +1,7 @@
 include_rules = [
   # The test directory can do whatever it wants in chrome.
   "+chrome",
+  "+sandbox/src",
+  "+sandbox/tests",
+  "+webkit/glue",
 ]

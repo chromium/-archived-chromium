@@ -1,8 +1,15 @@
 include_rules = [
+  "+chrome/app",
+  "+chrome/app/theme",  # For resource identifiers
+  "+chrome/app/locales",
   "+chrome/installer",
+  "+chrome/personalization",
   "+chrome/tools",
   "+chrome/tools/profiles",  # For history unit tests.
   "+chrome/views",
+  "+sandbox/src",
+  "+skia/include",
+  "+skia/ext",
   "+webkit/activex_shim",
   "+webkit/default_plugin",
   "+webkit/glue",  # Defines some types that are marshalled over IPC.

@@ -9,4 +9,11 @@ skip_child_includes = [
 include_rules = [
   # For bridge/c/c_utility.h in npruntime_util.cc
   "+bridge",
+
+  # TODO(brettw) - review these; move up if it's ok, or remove the dependency
+  "+net/base",
+  "+net/http",
+  "+net/proxy",
+  "+net/url_request",
+  "+third_party/npapi/bindings",
 ]

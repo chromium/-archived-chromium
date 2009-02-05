@@ -1,0 +1,9 @@
+include_rules = [
+  "+chrome/app",
+  "+chrome/app/theme",
+  "+chrome/browser",
+  "+chrome/browser/views",
+  "+skia/ext",
+  "+skia/include",
+  "+webkit/glue",
+]

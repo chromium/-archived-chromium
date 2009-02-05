@@ -1,8 +1,20 @@
 include_rules = [
   "+chrome/plugin",  # For checking whether we're a plugin process.
-
+  "+libxml",
+  "+sandbox/src",
+  "+skia/include",
+  "+webkit/glue",
+  
   # Other libraries.
   "+third_party/bzip2",
   "+third_party/npapi",
+  "+third_party/sqlite",
+  "+third_party/zlib",
+  
+  # FIXME - refactor code and remove these dependencies
+  "+chrome/app",
+  "+chrome/browser",
+  "+chrome/browser/net",
+  "+chrome/renderer",
+  "+chrome/views",
 ]
-

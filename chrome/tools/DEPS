@@ -1,0 +1,5 @@
+include_rules = [
+  "+chrome/browser/history",
+  "+chrome/third_party/hunspell/google",
+  "+skia/ext",
+]
