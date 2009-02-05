@@ -10,3 +10,5 @@ List of changes made to original code:
   - renamed .c files to .cc
   - added dmg_fp.h header
   - added #define IEEE_8087 to dtoa.cc
+  - made some minor changes to allow clean compilation under g++ -Wall, see
+    gcc_warnings.patch.
