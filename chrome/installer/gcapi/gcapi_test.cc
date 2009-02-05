@@ -8,11 +8,20 @@
 
 void call_statically() {
   DWORD reason = 0;
-  BOOL result = FALSE;
+  BOOL result_flag_on = FALSE;
+  BOOL result_flag_off = FALSE;
+
+  // running this twice verifies that the first call does not set
+  // a flag that would make the second fail.  Thus, the results
+  // of the two calls should be the same (no state should have changed)
+  result_flag_off = GoogleChromeCompatibilityCheck(FALSE, &reason);  
+  result_flag_on = GoogleChromeCompatibilityCheck(TRUE, &reason);
   
-  result = GoogleChromeCompatibilityCheck(&reason);
+  if (result_flag_off != result_flag_on)
+      printf("Registry key flag is not being set properly.");
+
   printf("Static call returned result as %d and reason as %d.\n",
-         result, reason);
+         result_flag_on, reason);
 }
 
 void call_dynamically() {
@@ -26,9 +35,18 @@ void call_dynamically() {
       module, "GoogleChromeCompatibilityCheck");
   if (gccfn != NULL) {
     DWORD reason = 0;
-    BOOL result = gccfn(&reason);
+
+    // running this twice verifies that the first call does not set
+    // a flag that would make the second fail.  Thus, the results
+    // of the two calls should be the same (no state should have changed)
+    BOOL result_flag_off = gccfn(FALSE, &reason);
+    BOOL result_flag_on = gccfn(TRUE, &reason);
+
+    if (result_flag_off != result_flag_on)
+      printf("Registry key flag is not being set properly.");
+
     printf("Dynamic call returned result as %d and reason as %d.\n",
-           result, reason);
+           result_flag_on, reason);
   } else {
     printf("Couldn't find GoogleChromeCompatibilityCheck() in gcapi_dll.\n");
   }
