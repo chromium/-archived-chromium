@@ -15,9 +15,6 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/resource_bundle.h"
-#if defined(OS_WIN)
-#include "chrome/common/win_util.h"
-#endif
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 #include "chrome/renderer/render_process.h"
 
@@ -42,9 +39,9 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
 #if defined(OS_WIN)
     std::wstring title = l10n_util::GetString(IDS_PRODUCT_NAME);
     title += L" renderer";  // makes attaching to process easier
-    MessageBox(NULL, L"renderer starting...", title.c_str(),
-               MB_OK | MB_SETFOREGROUND);
-#else if defined(OS_MACOSX)
+    ::MessageBox(NULL, L"renderer starting...", title.c_str(),
+                 MB_OK | MB_SETFOREGROUND);
+#elif defined(OS_POSIX)
   // TODO(playmobil): In the long term, overriding this flag doesn't seem
   // right, either use our own flag or open a dialog we can use.
   // This is just to ease debugging in the interim.
@@ -52,7 +49,7 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
                << getpid()
                << ") paused waiting for debugger to attach @ pid" ;
   pause();
-#endif  // !OS_WIN
+#endif  // defined(OS_POSIX)
   }
 }
 
