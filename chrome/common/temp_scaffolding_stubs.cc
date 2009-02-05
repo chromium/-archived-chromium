@@ -317,6 +317,9 @@ void ResourceMessageFilter::OnResolveProxyCompleted(
   NOTIMPLEMENTED();
 }
 
+void RunRepostFormWarningDialog(NavigationController*) {
+}
+
 #if defined(OS_MACOSX)
 ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
 
