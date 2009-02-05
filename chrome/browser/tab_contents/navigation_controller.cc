@@ -20,9 +20,9 @@
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)
+#include "chrome/browser/tab_contents/repost_form_warning.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/browser/repost_form_warning_dialog.h"
 #endif
 
 namespace {
