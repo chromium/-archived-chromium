@@ -11,27 +11,15 @@
 #include "base/message_loop.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
-#include "chrome/browser/cert_store.h"
 #include "chrome/browser/cross_site_request_manager.h"
-#include "chrome/browser/download/download_file.h"
-#include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/download/save_file_manager.h"
-#include "chrome/browser/external_protocol_handler.h"
-#include "chrome/browser/login_prompt.h"
-#include "chrome/browser/plugin_service.h"
-#include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/async_resource_handler.h"
 #include "chrome/browser/renderer_host/buffered_resource_handler.h"
-#include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 #include "chrome/browser/renderer_host/download_resource_handler.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/safe_browsing_resource_handler.h"
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
 #include "chrome/browser/renderer_host/sync_resource_handler.h"
 #include "chrome/browser/resource_request_details.h"
-#include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_service.h"
@@ -43,6 +31,24 @@
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
+
+// TODO(port): Move these includes to the above section when porting is done.
+#if defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#elif defined(OS_WIN)
+#include "chrome/browser/cert_store.h"
+#include "chrome/browser/download/download_file.h"
+#include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_request_manager.h"
+#include "chrome/browser/download/save_file_manager.h"
+#include "chrome/browser/external_protocol_handler.h"
+#include "chrome/browser/login_prompt.h"
+#include "chrome/browser/plugin_service.h"
+#include "chrome/browser/renderer_host/cross_site_resource_handler.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/safe_browsing/safe_browsing_service.h"
+#endif
 
 // Uncomment to enable logging of request traffic.
 //#define LOG_RESOURCE_DISPATCHER_REQUESTS

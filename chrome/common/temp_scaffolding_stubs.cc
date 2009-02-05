@@ -16,7 +16,6 @@
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/resource_message_filter.h"
@@ -272,6 +271,15 @@ bool SSLManager::DeserializeSecurityInfo(const std::string&, int*, int*, int*) {
   return false;
 }
 
+void SSLManager::OnSSLCertificateError(
+    ResourceDispatcherHost* resource_dispatcher,
+    URLRequest* request,
+    int cert_error,
+    net::X509Certificate* cert,
+    MessageLoop* ui_loop) {
+  NOTIMPLEMENTED();
+}
+
 //--------------------------------------------------------------------------
 
 ResourceMessageFilter::ResourceMessageFilter(
@@ -325,12 +333,29 @@ ResourceBundle& ResourceBundle::GetSharedInstance() {
 }
 #endif
 
-void ResourceDispatcherHost::OnClosePageACK(int, int) {
+LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
+                                URLRequest* request,
+                                MessageLoop* ui_loop) {
   NOTIMPLEMENTED();
+  return NULL;
 }
-void ResourceDispatcherHost::CancelRequestsForRenderView(int, int) {
+
+namespace tab_util {
+
+bool GetTabContentsID(URLRequest* request,
+                      int* render_process_host_id,
+                      int* routing_id) {
   NOTIMPLEMENTED();
+  return true;
 }
+
+WebContents* GetWebContentsByID(int render_process_host_id,
+                                int render_view_id) {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+}  // namespace
 
 void ProcessWatcher::EnsureProcessTerminated(int) {
   NOTIMPLEMENTED();
@@ -346,3 +371,4 @@ bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
   return false;
 }
 #endif
+

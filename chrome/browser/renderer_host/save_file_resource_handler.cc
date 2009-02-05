@@ -4,7 +4,12 @@
 
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
 
+#if defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#elif defined(OS_WIN)
 #include "chrome/browser/download/save_file_manager.h"
+#endif
+
 #include "net/base/io_buffer.h"
 
 SaveFileResourceHandler::SaveFileResourceHandler(int render_process_host_id,

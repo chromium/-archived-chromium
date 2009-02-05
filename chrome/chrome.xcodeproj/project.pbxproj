@@ -285,6 +285,7 @@
 		B61C4EDC0F34EE8300489E0F /* browser_process_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8430E9D4839009A6919 /* browser_process_impl.cc */; };
 		B6CCB9FA0F1EC33100106F0D /* provisional_load_details.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9DE0F1EC32700106F0D /* provisional_load_details.cc */; };
 		B9BF55F87A4BB2FD366B6DDC /* template_url_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = 28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */; };
+		BADB8B710F3A35AC00989B26 /* resource_dispatcher_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */; };
 		E40CC5E30F2E348900708647 /* history_contents_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5E10F2E348900708647 /* history_contents_provider.cc */; };
 		E40CC5EE0F2E34C100708647 /* base_history_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF82B0E9D4839009A6919 /* base_history_model.cc */; };
 		E40CC5F20F2E34EE00708647 /* bookmark_folder_tree_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5F00F2E34EE00708647 /* bookmark_folder_tree_model.cc */; };
@@ -2026,6 +2027,8 @@
 		B6CCB9F80F1EC32700106F0D /* web_drop_target.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = web_drop_target.cc; path = tab_contents/web_drop_target.cc; sourceTree = "<group>"; };
 		B6CCB9F90F1EC32700106F0D /* web_drop_target.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_drop_target.h; path = tab_contents/web_drop_target.h; sourceTree = "<group>"; };
 		B94B5B0CBF4D7FAC48BB1AE2 /* backing_store_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = backing_store_posix.cc; path = browser/renderer_host/backing_store_posix.cc; sourceTree = SOURCE_ROOT; };
+		BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = resource_dispatcher_host.cc; path = renderer_host/resource_dispatcher_host.cc; sourceTree = "<group>"; };
+		BADB8BD20F3A4E4900989B26 /* resource_dispatcher_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = resource_dispatcher_host.h; path = renderer_host/resource_dispatcher_host.h; sourceTree = "<group>"; };
 		C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_paths_mac.cc; sourceTree = "<group>"; };
 		E40CC5E10F2E348900708647 /* history_contents_provider.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = history_contents_provider.cc; path = autocomplete/history_contents_provider.cc; sourceTree = "<group>"; };
 		E40CC5E20F2E348900708647 /* history_contents_provider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = history_contents_provider.h; path = autocomplete/history_contents_provider.h; sourceTree = "<group>"; };
@@ -3617,6 +3620,8 @@
 				A76E42980F28ECAD009A7E88 /* renderer_security_policy.cc */,
 				A76E42990F28ECAD009A7E88 /* renderer_security_policy.h */,
 				A76E429A0F28ECAD009A7E88 /* renderer_security_policy_unittest.cc */,
+				BADB8BD20F3A4E4900989B26 /* resource_dispatcher_host.h */,
+				BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */,
 				E45075E60F150ABA003BE099 /* safe_browsing_resource_handler.cc */,
 				E45075E70F150ABA003BE099 /* safe_browsing_resource_handler.h */,
 				E45075E80F150ABA003BE099 /* save_file_resource_handler.cc */,
@@ -4630,6 +4635,7 @@
 				E434BBBF0F37D6DB00B665C7 /* render_widget_helper.cc in Sources */,
 				E434BFA40F3A03E200B665C7 /* render_widget_host.cc in Sources */,
 				E434BBEB0F37DFA500B665C7 /* renderer_security_policy.cc in Sources */,
+				BADB8B710F3A35AC00989B26 /* resource_dispatcher_host.cc in Sources */,
 				B0AC9501DED2809AC208AEEA /* resolve_proxy_msg_helper.cc in Sources */,
 				4D7BFAF30E9D49EF009A6919 /* safe_browsing_database.cc in Sources */,
 				E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */,

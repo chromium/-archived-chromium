@@ -751,7 +751,6 @@ if not env.Bit('windows'):
       'printing/printer_query.cc',
       'printing/win_printing_context.cc',
       'renderer_host/cross_site_resource_handler.cc',
-      'renderer_host/resource_dispatcher_host.cc',
       'repost_form_warning_dialog.cc',
       'resource_message_filter.cc',
       'rlz/rlz.cc',

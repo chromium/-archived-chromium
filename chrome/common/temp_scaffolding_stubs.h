@@ -21,6 +21,11 @@
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/download/save_types.h"
+#include "chrome/browser/history/download_types.h"
+#include "chrome/browser/renderer_host/resource_handler.h"
+#include "chrome/browser/safe_browsing/safe_browsing_util.h"
+#include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
@@ -34,6 +39,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/load_states.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -45,7 +51,9 @@ class ConstrainedWindow;
 class DOMUIHost;
 class DownloadManager;
 class HistoryService;
+class LoginHandler;
 class MetricsService;
+class MixedContentHandler;
 class ModalHtmlDialogDelegate;
 class NavigationController;
 class NavigationEntry;
@@ -63,6 +71,7 @@ struct ThumbnailScore;
 class Task;
 class TemplateURL;
 class TemplateURLRef;
+class URLRequest;
 class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
@@ -71,6 +80,12 @@ class WebPreferences;
 
 namespace IPC {
 class Message;
+}
+
+namespace net {
+class AuthChallengeInfo;
+class IOBuffer;
+class X509Certificate;
 }
 
 //---------------------------------------------------------------------------
@@ -287,21 +302,120 @@ class PrintJobManager {
 
 }  // namespace printing
 
-class SafeBrowsingService
-    : public base::RefCountedThreadSafe<SafeBrowsingService> {
+
+class SafeBrowsingBlockingPage {
+  public:
+  static void ShowBlockingPage(
+      SafeBrowsingService* service,
+      const SafeBrowsingService::UnsafeResource& resource) {
+    NOTIMPLEMENTED();
+  }
+};
+
+class SafeBrowsingProtocolManager {
  public:
-  void ShutDown() { NOTIMPLEMENTED(); }
+  SafeBrowsingProtocolManager(SafeBrowsingService* service,
+                              MessageLoop* notify_loop,
+                              const std::string& client_key,
+                              const std::string& wrapped_key) {
+    NOTIMPLEMENTED();
+  }
+
+  ~SafeBrowsingProtocolManager() { NOTIMPLEMENTED(); }
+  void OnChunkInserted() { NOTIMPLEMENTED(); }
+  void OnGetChunksComplete(const std::vector<SBListChunkRanges>& list,
+                           bool database_error) {
+    NOTIMPLEMENTED();
+  }
+  void Initialize() { NOTIMPLEMENTED(); }
+  base::Time last_update() const { return last_update_; }
+  void GetFullHash(SafeBrowsingService::SafeBrowsingCheck* check,
+                   const std::vector<SBPrefix>& prefixes) {
+    NOTIMPLEMENTED();
+  }
+ private:
+  base::Time last_update_;
+};
+
+struct DownloadBuffer {
+  Lock lock;
+  typedef std::pair<net::IOBuffer*, int> Contents;
+  std::vector<Contents> contents;
+};
+
+class DownloadItem {
+public:
+  enum DownloadState {
+    IN_PROGRESS,
+    COMPLETE,
+    CANCELLED,
+    REMOVING
+  };
 };
 
 class DownloadFileManager
     : public base::RefCountedThreadSafe<DownloadFileManager> {
  public:
+  DownloadFileManager(MessageLoop* ui_loop, ResourceDispatcherHost* rdh) {
+    NOTIMPLEMENTED();
+  }
+  void Initialize() { NOTIMPLEMENTED(); }
   void Shutdown() { NOTIMPLEMENTED(); }
+  MessageLoop* file_loop() const {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+  int GetNextId() {
+    NOTIMPLEMENTED();
+    return 0;
+  }
+  void StartDownload(DownloadCreateInfo* info) { NOTIMPLEMENTED(); }
+  void UpdateDownload(int id, DownloadBuffer* buffer) { NOTIMPLEMENTED(); }
+  void DownloadFinished(int id, DownloadBuffer* buffer) { NOTIMPLEMENTED(); }
+};
+
+class DownloadRequestManager
+    : public base::RefCountedThreadSafe<DownloadRequestManager> {
+ public:
+  DownloadRequestManager(MessageLoop* io_loop, MessageLoop* ui_loop) {
+    NOTIMPLEMENTED();
+  }
+  class Callback {
+   public:
+    virtual void ContinueDownload() = 0;
+    virtual void CancelDownload() = 0;
+  };
+  void CanDownloadOnIOThread(int render_process_host_id,
+                             int render_view_id,
+                             Callback* callback) {
+    NOTIMPLEMENTED();
+  }
 };
 
 class SaveFileManager : public base::RefCountedThreadSafe<SaveFileManager> {
  public:
+  SaveFileManager(MessageLoop* ui_loop,
+                  MessageLoop* io_loop,
+                  ResourceDispatcherHost* rdh) {
+    NOTIMPLEMENTED();
+  }
   void Shutdown() { NOTIMPLEMENTED(); }
+  void StartSave(SaveFileCreateInfo* info) { NOTIMPLEMENTED(); }
+  void UpdateSaveProgress(int save_id, net::IOBuffer* data, int size) {
+    NOTIMPLEMENTED();
+  }
+  void SaveFinished(int save_id, const std::wstring& save_url,
+                    int render_process_id, int is_success) {
+    NOTIMPLEMENTED();
+  }
+  int GetNextId() {
+    NOTIMPLEMENTED();
+    return 0;
+  }
+  MessageLoop* GetSaveLoop() {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
 };
 
 namespace sandbox {
@@ -318,40 +432,6 @@ class IconManager {
 
 struct ViewHostMsg_DidPrintPage_Params;
 struct ViewHostMsg_FrameNavigate_Params;
-
-class ResourceDispatcherHost {
- public:
-  explicit ResourceDispatcherHost(MessageLoop* loop) {}
-
-  class Receiver {
-   public:
-    virtual bool Send(IPC::Message* message) = 0;
-  };
-  void OnClosePageACK(int, int);
-  void CancelRequestsForRenderView(int, int);
-  void Initialize() { NOTIMPLEMENTED(); }
-  void Shutdown() { NOTIMPLEMENTED(); }
-
-  SafeBrowsingService* safe_browsing_service() {
-    NOTIMPLEMENTED();
-    return const_cast<SafeBrowsingService*>(&safe_browsing_service_);
-  }
-
-  DownloadFileManager* download_file_manager() {
-    NOTIMPLEMENTED();
-    return const_cast<DownloadFileManager*>(&download_file_manager_);
-  }
-
-  SaveFileManager* save_file_manager() {
-    NOTIMPLEMENTED();
-    return const_cast<SaveFileManager*>(&save_file_manager_);
-  }
-
- private:
-  SafeBrowsingService safe_browsing_service_;
-  DownloadFileManager download_file_manager_;
-  SaveFileManager save_file_manager_;
-};
 
 class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
  public:
@@ -506,7 +586,6 @@ class RenderWidgetHostView {
       { NOTIMPLEMENTED(); }
   virtual void SetSize(gfx::Size) { NOTIMPLEMENTED(); }
 };
-
 
 class LoadNotificationDetails {
  public:
@@ -880,6 +959,30 @@ class PluginInstaller {
   PluginInstaller(WebContents*) { }
 };
 
+class PluginService {
+ public:
+  static PluginService* GetInstance();
+  PluginService();
+  ~PluginService();
+  void LoadChromePlugins(ResourceDispatcherHost* rdh) {
+    NOTIMPLEMENTED();
+  }
+  bool HavePluginFor(const std::string& mime_type, bool allow_wildcard) {
+    NOTIMPLEMENTED();
+    return true;
+  }
+  void SetChromePluginDataDir(const FilePath& data_dir);
+ private:
+  MessageLoop* main_message_loop_;
+  ResourceDispatcherHost* resource_dispatcher_host_;
+  FilePath chrome_plugin_data_dir_;
+  std::wstring ui_locale_;
+  Lock lock_;
+  class ShutdownHandler : public base::RefCountedThreadSafe<ShutdownHandler> {
+  };
+  scoped_refptr<ShutdownHandler> plugin_shutdown_handler_;
+};
+
 class HungRendererWarning {
  public:
   static void HideForWebContents(WebContents*) { NOTIMPLEMENTED(); }
@@ -907,6 +1010,21 @@ class SSLManager {
   ~SSLManager() { }
   void NavigationStateChanged() { NOTIMPLEMENTED(); }
   static bool DeserializeSecurityInfo(const std::string&, int*, int*, int*);
+  static void OnSSLCertificateError(ResourceDispatcherHost* rdh,
+                                                  URLRequest* request,
+                                                  int cert_error,
+                                                  net::X509Certificate* cert,
+                                                  MessageLoop* ui_loop);
+  static std::string SerializeSecurityInfo(int cert_id,
+                                           int cert_status,
+                                           int security_bits) {
+    NOTIMPLEMENTED();
+    return std::string();
+  }
+  static void OnMixedContentRequest(ResourceDispatcherHost* rdh,
+                                    URLRequest* request,
+                                    MessageLoop* ui_loop) { NOTIMPLEMENTED(); }
+  void OnMixedContent(MixedContentHandler* mixed_content) { NOTIMPLEMENTED(); }
 };
 
 class ModalHtmlDialogDelegate {
@@ -928,6 +1046,92 @@ class SimpleAlertInfoBarDelegate : public InfoBarDelegate {
  public:
   SimpleAlertInfoBarDelegate(WebContents*, const std::wstring&, void*) {}
 };
+
+class CertStore {
+ public:
+  static CertStore* GetInstance() {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+  static CertStore* GetSharedInstance() {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+  int StoreCert(net::X509Certificate* cert, int render_process_host_id) {
+    NOTIMPLEMENTED();
+    return 0;
+  }
+};
+
+class LoginHandler {
+ public:
+  void SetAuth(const std::wstring& username,
+               const std::wstring& password) {
+    NOTIMPLEMENTED();
+  }
+  void CancelAuth() { NOTIMPLEMENTED(); }
+  void OnRequestCancelled() { NOTIMPLEMENTED(); }
+};
+
+LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
+                                URLRequest* request,
+                                MessageLoop* ui_loop);
+
+class CrossSiteResourceHandler : public ResourceHandler {
+ public:
+  CrossSiteResourceHandler(ResourceHandler* resource,
+                           int render_process_host_id,
+                           int render_view_id,
+                           ResourceDispatcherHost* rdh) {
+    NOTIMPLEMENTED();
+  }
+
+  void ResumeResponse() { NOTIMPLEMENTED(); }
+  bool OnUploadProgress(int request_id, uint64 position, uint64 size) {
+    NOTIMPLEMENTED();
+    return true;
+  }
+  bool OnRequestRedirected(int request_id, const GURL& url) {
+    NOTIMPLEMENTED();
+    return true;
+  }
+  bool OnResponseStarted(int request_id, ResourceResponse* response) {
+    NOTIMPLEMENTED();
+    return true;
+  }
+  bool OnWillRead(int request_id,
+                  net::IOBuffer** buf,
+                  int* buf_size,
+                  int min_size) {
+    NOTIMPLEMENTED();
+    return true;
+  }
+  bool OnReadCompleted(int request_id, int* bytes_read) {
+    NOTIMPLEMENTED();
+    return true;
+  }
+  bool OnResponseCompleted(int request_id,
+                           const URLRequestStatus& status) {
+    NOTIMPLEMENTED();
+    return true;
+  }
+};
+
+class ExternalProtocolHandler {
+ public:
+  static void LaunchUrl(const GURL& url, int render_process_host_id,
+                        int tab_contents_id) {
+    NOTIMPLEMENTED();
+  }
+};
+
+namespace tab_util {
+bool GetTabContentsID(URLRequest* request,
+                      int* render_process_host_id,
+                      int* routing_id);
+WebContents* GetWebContentsByID(int render_process_host_id,
+                                int render_view_id);
+}
 
 class RepostFormWarningDialog {
  public:

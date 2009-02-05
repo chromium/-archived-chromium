@@ -11,9 +11,10 @@
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/google_url_tracker.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
@@ -26,14 +27,16 @@
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/browser/metrics/metrics_service.h"
+#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job_manager.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
-#include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/accelerator_handler.h"
 #include "chrome/views/view_storage.h"
+#elif defined(OS_POSIX)
+// TODO(port): Remove the temporary scaffolding as we port the above headers.
+#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 namespace {

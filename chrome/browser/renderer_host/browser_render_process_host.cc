@@ -27,7 +27,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/extensions/user_script_master.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
@@ -48,6 +47,8 @@
 #include "net/base/net_util.h"
 
 #if defined(OS_WIN)
+#include "chrome/browser/plugin_service.h"
+
 // TODO(port): see comment by the only usage of RenderViewHost in this file.
 #include "chrome/browser/renderer_host/render_view_host.h"
 
@@ -61,6 +62,9 @@
 #include "chrome/browser/sandbox_policy.h"
 #include "chrome/common/win_util.h"
 #include "sandbox/src/sandbox.h"
+#elif defined(OS_POSIX)
+// TODO(port): Remove temporary scaffolding after porting the above headers.
+#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 #include "SkBitmap.h"
