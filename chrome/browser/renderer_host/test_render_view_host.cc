@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/tab_contents/test_web_contents.h"
+#include "chrome/common/render_messages.h"
 
 TestRenderViewHost::TestRenderViewHost(SiteInstance* instance,
                                        RenderViewHostDelegate* delegate,

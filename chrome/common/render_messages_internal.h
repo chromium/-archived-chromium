@@ -18,7 +18,6 @@
 #include "chrome/common/ipc_message_macros.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/console_message_level.h"
-#include "webkit/glue/context_node_types.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/screen_info.h"
 #include "webkit/glue/webcursor.h"
@@ -170,7 +169,7 @@ IPC_BEGIN_MESSAGES(View)
   // Sent when the headers are available for a resource request.
   IPC_MESSAGE_ROUTED2(ViewMsg_Resource_ReceivedResponse,
                       int /* request_id */,
-                      ViewMsg_Resource_ResponseHead)
+                      ResourceResponseHead)
 
   // Sent as upload progress is being made
   IPC_MESSAGE_ROUTED3(ViewMsg_Resource_UploadProgress,
@@ -382,9 +381,9 @@ IPC_BEGIN_MESSAGES(View)
 
   // Retreive information from the MSAA DOM subtree, for accessibility purposes.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewMsg_GetAccessibilityInfo,
-                             ViewMsg_Accessibility_In_Params
+                             AccessibilityInParams
                              /* input parameters */,
-                             ViewHostMsg_Accessibility_Out_Params
+                             AccessibilityOutParams
                              /* output parameters */)
 
   // Requests the renderer to clear cashed accessibility information. Takes an
@@ -662,7 +661,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_SYNC_MESSAGE_ROUTED2_1(ViewHostMsg_SyncLoad,
                              int /* request_id */,
                              ViewHostMsg_Resource_Request,
-                             ViewHostMsg_SyncLoad_Result)
+                             SyncLoadResult)
 
   // Used to set a cookie.  The cookie is set asynchronously, but will be
   // available to a subsequent ViewHostMsg_GetCookies request.
@@ -751,7 +750,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // content area, and a context menu should be shown for it. The params
   // object contains information about the node(s) that were selected when the
   // user right clicked.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_ContextMenu, ViewHostMsg_ContextMenu_Params)
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_ContextMenu, ContextMenuParams)
 
   // Request that the given URL be opened in the specified manner.
   IPC_MESSAGE_ROUTED3(ViewHostMsg_OpenURL,

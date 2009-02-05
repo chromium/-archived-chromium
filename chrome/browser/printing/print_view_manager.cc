@@ -15,6 +15,7 @@
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/render_messages.h"
 
 #include "generated_resources.h"
 

@@ -17,8 +17,7 @@
 #include "base/task.h"
 #include "chrome/browser/ime_input.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/common/render_messages.h"
-#include "chrome/views/focus_manager.h"
+#include "webkit/glue/webcursor.h"
 
 namespace gfx {
 class Rect;

@@ -43,6 +43,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/thumbnail_score.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"

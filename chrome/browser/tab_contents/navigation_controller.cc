@@ -17,6 +17,7 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "webkit/glue/webkit_glue.h"
 

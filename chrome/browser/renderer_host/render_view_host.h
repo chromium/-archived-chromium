@@ -26,9 +26,9 @@ class NavigationEntry;
 class RenderViewHostDelegate;
 class SiteInstance;
 class SkBitmap;
-struct ViewHostMsg_ContextMenu_Params;
-struct ViewHostMsg_DidPrintPage_Params;
 class ViewMsg_Navigate;
+struct ContextMenuParams;
+struct ViewHostMsg_DidPrintPage_Params;
 struct ViewMsg_Navigate_Params;
 struct ViewMsg_Print_Params;
 struct ViewMsg_PrintPages_Params;
@@ -465,7 +465,7 @@ class RenderViewHost : public RenderWidgetHost {
                              const GURL& image_url,
                              bool errored,
                              const SkBitmap& image_data);
-  void OnMsgContextMenu(const ViewHostMsg_ContextMenu_Params& params);
+  void OnMsgContextMenu(const ContextMenuParams& params);
   void OnMsgOpenURL(const GURL& url, const GURL& referrer,
                     WindowOpenDisposition disposition);
   void OnMsgDomOperationResponse(const std::string& json_string,

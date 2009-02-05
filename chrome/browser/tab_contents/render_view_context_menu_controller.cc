@@ -34,8 +34,7 @@
 #include "generated_resources.h"
 
 RenderViewContextMenuController::RenderViewContextMenuController(
-    WebContents* source_web_contents,
-    const ViewHostMsg_ContextMenu_Params& params)
+    WebContents* source_web_contents, const ContextMenuParams& params)
   : source_web_contents_(source_web_contents),
     params_(params) {
 }

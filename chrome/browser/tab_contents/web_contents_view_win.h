@@ -58,8 +58,7 @@ class WebContentsViewWin : public WebContentsView,
                                          bool user_gesture);
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
                                          const gfx::Rect& initial_pos);
-  virtual void ShowContextMenu(
-      const ViewHostMsg_ContextMenu_Params& params);
+  virtual void ShowContextMenu(const ContextMenuParams& params);
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);

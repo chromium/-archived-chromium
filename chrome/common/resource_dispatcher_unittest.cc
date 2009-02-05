@@ -8,6 +8,7 @@
 #include "base/process.h"
 #include "base/ref_counted.h"
 #include "chrome/common/filter_policy.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/resource_dispatcher.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
@@ -93,7 +94,7 @@ class ResourceDispatcherTest : public testing::Test,
       EXPECT_EQ(test_page_url, request.url.spec());
 
       // received response message
-      ViewMsg_Resource_ResponseHead response;
+      ResourceResponseHead response;
       std::string raw_headers(test_page_headers);
       std::replace(raw_headers.begin(), raw_headers.end(), '\n', '\0');
       response.headers = new net::HttpResponseHeaders(raw_headers);

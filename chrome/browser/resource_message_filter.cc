@@ -231,9 +231,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 
 void ResourceMessageFilter::OnReceiveContextMenuMsg(const IPC::Message& msg) {
   void* iter = NULL;
-  ViewHostMsg_ContextMenu_Params params;
-  if (!IPC::ParamTraits<ViewHostMsg_ContextMenu_Params>::
-      Read(&msg, &iter, &params))
+  ContextMenuParams params;
+  if (!IPC::ParamTraits<ContextMenuParams>::Read(&msg, &iter, &params))
     return;
 
   // Fill in the dictionary suggestions if required.

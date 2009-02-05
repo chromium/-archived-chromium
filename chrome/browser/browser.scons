@@ -471,7 +471,6 @@ input_files = ChromeFileList([
     'browser_accessibility.h',
     'browser_accessibility_manager.cc',
     'browser_accessibility_manager.h',
-    'iaccessible_function_ids.h',
   ]),
   MSVSFilter('Download', [
     'download/download_exe.cc',

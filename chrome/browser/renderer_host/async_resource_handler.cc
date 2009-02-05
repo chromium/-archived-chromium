@@ -5,6 +5,8 @@
 #include "chrome/browser/renderer_host/async_resource_handler.h"
 
 #include "base/process.h"
+#include "base/shared_memory.h"
+#include "chrome/common/render_messages.h"
 #include "net/base/io_buffer.h"
 
 SharedIOBuffer* AsyncResourceHandler::spare_read_buffer_;

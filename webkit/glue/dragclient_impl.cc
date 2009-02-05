@@ -21,7 +21,7 @@ MSVC_POP_WARNING();
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "webkit/glue/clipboard_conversion.h"
-#include "webkit/glue/context_node_types.h"
+#include "webkit/glue/context_menu.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webview_delegate.h"

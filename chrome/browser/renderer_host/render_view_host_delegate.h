@@ -25,7 +25,7 @@ class SkBitmap;
 class WebContents;
 class WebKeyboardEvent;
 struct ThumbnailScore;
-struct ViewHostMsg_ContextMenu_Params;
+struct ContextMenuParams;
 struct ViewHostMsg_DidPrintPage_Params;
 struct ViewHostMsg_FrameNavigate_Params;
 struct WebDropData;
@@ -96,8 +96,7 @@ class RenderViewHostDelegate {
 
     // A context menu should be shown, to be built using the context information
     // provided in the supplied params.
-    virtual void ShowContextMenu(
-        const ViewHostMsg_ContextMenu_Params& params) = 0;
+    virtual void ShowContextMenu(const ContextMenuParams& params) = 0;
 
     // The user started dragging content of the specified type within the
     // RenderView. Contextual information about the dragged content is supplied

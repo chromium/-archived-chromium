@@ -28,7 +28,7 @@ class SyncResourceHandler : public ResourceHandler {
   enum { kReadBufSize = 3840 };
   scoped_refptr<net::IOBuffer> read_buffer_;
 
-  ViewHostMsg_SyncLoad_Result result_;
+  SyncLoadResult result_;
   ResourceDispatcherHost::Receiver* receiver_;
   IPC::Message* result_message_;
 };

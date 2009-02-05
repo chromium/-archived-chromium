@@ -6,6 +6,7 @@
 
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/render_messages.h"
 
 ViewSourceContents::ViewSourceContents(Profile* profile, SiteInstance* instance)
     : WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL) {

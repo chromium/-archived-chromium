@@ -17,6 +17,7 @@
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/test/test_notification_tracker.h"
 #include "chrome/test/test_tab_contents.h"

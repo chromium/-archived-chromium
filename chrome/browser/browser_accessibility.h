@@ -12,7 +12,7 @@
 
 #include "base/basictypes.h"
 
-struct ViewHostMsg_Accessibility_Out_Params;
+struct AccessibilityOutParams;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -146,7 +146,7 @@ class ATL_NO_VTABLE BrowserAccessibility
                                 LONG input1, LONG input2);
 
   // Accessors.
-  const ViewHostMsg_Accessibility_Out_Params& response();
+  const AccessibilityOutParams& response();
   HWND parent_hwnd();
 
   // Id to uniquely distinguish this instance in the render-side caching,

@@ -36,6 +36,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/net/url_request_intercept_job.h"
 #include "chrome/common/plugin_messages.h"
+#include "chrome/common/render_messages.h"
 
 #include "base/gfx/png_encoder.h"
 #include "base/logging.h"

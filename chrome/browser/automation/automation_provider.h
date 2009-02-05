@@ -26,6 +26,7 @@
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/views/event.h"
+#include "webkit/glue/find_in_page_request.h"
 
 class LoginHandler;
 class NavigationControllerRestoredObserver;

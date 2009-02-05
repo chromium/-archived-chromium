@@ -23,7 +23,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/context_menu_client_impl.h"
 
 #include "base/string_util.h"
-#include "webkit/glue/context_node_types.h"
+#include "webkit/glue/context_menu.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdocumentloader_impl.h"
 #include "webkit/glue/webview_impl.h"

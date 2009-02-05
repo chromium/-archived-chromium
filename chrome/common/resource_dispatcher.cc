@@ -210,7 +210,7 @@ void IPCResourceLoaderBridge::SyncLoad(SyncLoadResponse* response) {
 
   request_id_ = MakeRequestID();
 
-  ViewHostMsg_SyncLoad_Result result;
+  SyncLoadResult result;
   IPC::Message::Sender* sender = dispatcher_->message_sender();
 
   if (sender) {
@@ -303,8 +303,7 @@ void ResourceDispatcher::OnUploadProgress(
 }
 
 void ResourceDispatcher::OnReceivedResponse(
-    int request_id,
-    const ViewMsg_Resource_ResponseHead& response_head) {
+    int request_id, const ResourceResponseHead& response_head) {
   PendingRequestList::iterator it = pending_requests_.find(request_id);
   if (it == pending_requests_.end()) {
     // This might happen for kill()ed requests on the webkit end, so perhaps it

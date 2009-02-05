@@ -99,6 +99,7 @@ input_files = ChromeFileList([
     'render_messages.h',
     'render_messages_internal.h',
   ]),
+    'accessibility.h',
     'animation.cc',
     'animation.h',
     'child_process.cc',

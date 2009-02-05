@@ -14,13 +14,34 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "chrome/common/render_messages.h"
+#include "chrome/common/filter_policy.h"
 #include "googleurl/src/gurl.h"
 #include "net/url_request/url_request.h"
+#include "webkit/glue/resource_loader_bridge.h"
 
-// Simple wrapper that refcounts ViewMsg_Resource_ResponseHead.
+// Parameters for a resource response header.
+struct ResourceResponseHead
+    : webkit_glue::ResourceLoaderBridge::ResponseInfo {
+  // The response status.
+  URLRequestStatus status;
+
+  // Specifies if the resource should be filtered before being displayed
+  // (insecure resources can be filtered to keep the page secure).
+  FilterPolicy::Type filter_policy;
+};
+
+// Parameters for a synchronous resource response.
+struct SyncLoadResult : ResourceResponseHead {
+  // The final URL after any redirects.
+  GURL final_url;
+
+  // The response data.
+  std::string data;
+};
+
+// Simple wrapper that refcounts ResourceResponseHead.
 struct ResourceResponse : public base::RefCounted<ResourceResponse> {
-  ViewMsg_Resource_ResponseHead response_head;
+  ResourceResponseHead response_head;
 };
 
 // The resource dispatcher host uses this interface to push load events to the

@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_H_
 
 #include "chrome/views/menu.h"
-#include "webkit/glue/context_node_types.h"
+#include "webkit/glue/context_menu.h"
 
 class Profile;
 

@@ -314,6 +314,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\accessibility.h"
+			>
+		</File>
+		<File
 			RelativePath=".\animation.cc"
 			>
 		</File>

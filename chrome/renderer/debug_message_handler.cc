@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 #include "chrome/renderer/debug_message_handler.h"
+
+#include "chrome/common/render_messages.h"
 #include "chrome/renderer/render_view.h"
 
 ////////////////////////////////////////

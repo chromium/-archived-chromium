@@ -18,6 +18,7 @@
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/visitedlink_slave.h"

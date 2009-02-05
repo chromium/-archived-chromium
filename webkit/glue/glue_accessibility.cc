@@ -20,9 +20,6 @@
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_impl.h"
 
-// TODO: Remove this evil dependency on Chrome!
-#include "chrome/browser/iaccessible_function_ids.h"
-
 // struct GlueAccessibility::GlueAccessibilityRoot
 struct GlueAccessibility::GlueAccessibilityRoot {
   GlueAccessibilityRoot() {}
@@ -41,8 +38,8 @@ GlueAccessibility::~GlueAccessibility() {
 }
 
 bool GlueAccessibility::GetAccessibilityInfo(WebView* view,
-    const ViewMsg_Accessibility_In_Params& in_params,
-    ViewHostMsg_Accessibility_Out_Params* out_params) {
+    const AccessibilityInParams& in_params,
+    AccessibilityOutParams* out_params) {
   WebFrame* main_frame = view->GetMainFrame();
   if (!main_frame || !static_cast<WebFrameImpl*>(main_frame)->frameview())
     return false;

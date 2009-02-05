@@ -26,6 +26,8 @@
 #include "chrome/common/os_exchange_data.h"
 #include "net/base/net_util.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#include "webkit/glue/webdropdata.h"
+#include "webkit/glue/webinputevent.h"
 
 namespace {
 
@@ -334,8 +336,7 @@ void WebContentsViewWin::OnFindReply(int request_id,
   }
 }
 
-void WebContentsViewWin::ShowContextMenu(
-    const ViewHostMsg_ContextMenu_Params& params) {
+void WebContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
   RenderViewContextMenuController menu_controller(web_contents_, params);
   RenderViewContextMenu menu(&menu_controller,
                              GetHWND(),

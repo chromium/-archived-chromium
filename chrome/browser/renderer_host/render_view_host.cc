@@ -986,15 +986,14 @@ void RenderViewHost::OnMsgDidDownloadImage(
   delegate_->DidDownloadImage(this, id, image_url, errored, image);
 }
 
-void RenderViewHost::OnMsgContextMenu(
-    const ViewHostMsg_ContextMenu_Params& params) {
+void RenderViewHost::OnMsgContextMenu(const ContextMenuParams& params) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (!view)
     return;
 
   // Validate the URLs in |params|.  If the renderer can't request the URLs
   // directly, don't show them in the context menu.
-  ViewHostMsg_ContextMenu_Params validated_params(params);
+  ContextMenuParams validated_params(params);
   const int renderer_id = process()->host_id();
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
 

@@ -5,6 +5,7 @@
 #ifndef CHROME_PLUGIN_PLUGIN_PROCESS_H_
 #define CHROME_PLUGIN_PLUGIN_PROCESS_H_
 
+#include "base/file_path.h"
 #include "chrome/common/child_process.h"
 #include "chrome/plugin/plugin_thread.h"
 

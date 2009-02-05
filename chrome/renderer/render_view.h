@@ -29,7 +29,10 @@
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/dom_serializer_delegate.h"
+#include "webkit/glue/find_in_page_request.h"
+#include "webkit/glue/form_data.h"
 #include "webkit/glue/glue_accessibility.h"
+#include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
@@ -45,11 +48,18 @@ class DebugMessageHandler;
 class GURL;
 class RenderThread;
 class SkBitmap;
-struct ThumbnailScore;
 class WebError;
 class WebFrame;
 class WebPluginDelegate;
 class WebPluginDelegateProxy;
+struct AccessibilityInParams;
+struct AccessibilityOutParams;
+struct ThumbnailScore;
+struct ViewMsg_Navigate_Params;
+struct ViewMsg_PrintPage_Params;
+struct ViewMsg_PrintPages_Params;
+struct ViewMsg_Print_Params;
+struct ViewMsg_UploadFile_Params;
 
 namespace base {
 class WaitableEvent;
@@ -469,8 +479,8 @@ class RenderView : public RenderWidget,
   void OnEnableViewSourceMode();
   void OnUpdateBackForwardListCount(int back_list_count,
                                     int forward_list_count);
-  void OnGetAccessibilityInfo(const ViewMsg_Accessibility_In_Params& in_params,
-                              ViewHostMsg_Accessibility_Out_Params* out_params);
+  void OnGetAccessibilityInfo(const AccessibilityInParams& in_params,
+                              AccessibilityOutParams* out_params);
   void OnClearAccessibilityInfo(int iaccessible_id, bool clear_all);
 
   // Checks if the RenderView should close, runs the beforeunload handler and

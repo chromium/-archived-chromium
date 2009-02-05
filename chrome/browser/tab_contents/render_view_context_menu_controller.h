@@ -6,15 +6,17 @@
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_CONTROLLER_H_
 
 #include "chrome/common/pref_member.h"
+#include "chrome/common/page_transition_types.h"
 #include "chrome/views/menu.h"
-#include "chrome/common/render_messages.h"
+#include "webkit/glue/context_menu.h"
+#include "webkit/glue/window_open_disposition.h"
 
 class WebContents;
 
 class RenderViewContextMenuController : public Menu::Delegate {
  public:
   RenderViewContextMenuController(WebContents* source_web_contents,
-                                  const ViewHostMsg_ContextMenu_Params& params);
+                                  const ContextMenuParams& params);
   virtual ~RenderViewContextMenuController();
 
   // Overridden from Menu::Delegate
@@ -47,7 +49,7 @@ class RenderViewContextMenuController : public Menu::Delegate {
 
  private:
   WebContents* source_web_contents_;
-  ViewHostMsg_ContextMenu_Params params_;
+  ContextMenuParams params_;
   StringPrefMember dictionary_language_;
   int current_dictionary_language_index_;
 };

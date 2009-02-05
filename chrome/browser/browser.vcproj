@@ -1785,10 +1785,6 @@
 				RelativePath=".\browser_accessibility_manager.h"
 				>
 			</File>
-			<File
-				RelativePath=".\iaccessible_function_ids.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Download"

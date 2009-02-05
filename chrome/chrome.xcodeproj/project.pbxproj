@@ -1454,7 +1454,6 @@
 		4D7BF88F0E9D4839009A6919 /* history_tab_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = history_tab_ui.h; sourceTree = "<group>"; };
 		4D7BF8900E9D4839009A6919 /* history_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = history_view.cc; sourceTree = "<group>"; };
 		4D7BF8910E9D4839009A6919 /* history_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = history_view.h; sourceTree = "<group>"; };
-		4D7BF8920E9D4839009A6919 /* iaccessible_function_ids.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iaccessible_function_ids.h; sourceTree = "<group>"; };
 		4D7BF8930E9D4839009A6919 /* icon_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = icon_loader.cc; sourceTree = "<group>"; };
 		4D7BF8940E9D4839009A6919 /* icon_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = icon_loader.h; sourceTree = "<group>"; };
 		4D7BF8950E9D4839009A6919 /* icon_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = icon_manager.cc; sourceTree = "<group>"; };
@@ -2645,7 +2644,6 @@
 				4D7BF88F0E9D4839009A6919 /* history_tab_ui.h */,
 				4D7BF8900E9D4839009A6919 /* history_view.cc */,
 				4D7BF8910E9D4839009A6919 /* history_view.h */,
-				4D7BF8920E9D4839009A6919 /* iaccessible_function_ids.h */,
 				4D7BF8930E9D4839009A6919 /* icon_loader.cc */,
 				4D7BF8940E9D4839009A6919 /* icon_loader.h */,
 				4D7BF8950E9D4839009A6919 /* icon_manager.cc */,

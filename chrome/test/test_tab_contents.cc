@@ -5,6 +5,7 @@
 #include "chrome/test/test_tab_contents.h"
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/render_messages.h"
 
 // static
 SiteInstance* TestTabContents::site_instance_ = NULL;

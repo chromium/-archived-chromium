@@ -9,13 +9,12 @@
 #include <hash_map>
 
 #include "base/singleton.h"
+#include "chrome/common/accessibility.h"
 #include "chrome/common/notification_observer.h"
-#include "chrome/common/render_messages.h"
 
 class BrowserAccessibility;
 class RenderProcessHost;
 class RenderWidgetHost;
-struct ViewHostMsg_Accessibility_Out_Params;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -53,7 +52,7 @@ class BrowserAccessibilityManager : public NotificationObserver {
                                 LONG input2);
 
   // Wrapper function, for cleaner code.
-  const ViewHostMsg_Accessibility_Out_Params& response();
+  const AccessibilityOutParams& response();
 
   // Retrieves the parent HWND connected to the provided id.
   HWND parent_hwnd(int id);
@@ -102,7 +101,7 @@ class BrowserAccessibilityManager : public NotificationObserver {
   // mapping, and the connected BrowserAccessibility ids/instances invalidated.
   RenderProcessHostMap render_process_host_map_;
 
-  ViewHostMsg_Accessibility_Out_Params out_params_;
+  AccessibilityOutParams out_params_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserAccessibilityManager);
 };

@@ -8,6 +8,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/render_messages.h"
 
 // The time in ms after which we give up and return an error when processing an
 // accessibility message and no response has been received from the renderer.
@@ -80,7 +81,7 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
     int iaccessible_id, int instance_id, int iaccessible_func_id,
     VARIANT var_id, LONG input1, LONG input2) {
   // Create and populate input message structure.
-  ViewMsg_Accessibility_In_Params in_params;
+  AccessibilityInParams in_params;
 
   in_params.iaccessible_id = iaccessible_id;
   in_params.iaccessible_function_id = iaccessible_func_id;
@@ -116,8 +117,7 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
   return success;
 }
 
-const ViewHostMsg_Accessibility_Out_Params&
-BrowserAccessibilityManager::response() {
+const AccessibilityOutParams& BrowserAccessibilityManager::response() {
   return out_params_;
 }
 

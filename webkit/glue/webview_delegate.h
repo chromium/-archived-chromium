@@ -32,7 +32,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/glue/context_node_types.h"
+#include "webkit/glue/context_menu.h"
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/window_open_disposition.h"
 

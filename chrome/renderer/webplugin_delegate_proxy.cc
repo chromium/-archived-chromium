@@ -19,6 +19,7 @@
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/plugin_messages.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/plugin/npobject_proxy.h"

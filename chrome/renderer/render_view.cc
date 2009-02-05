@@ -21,6 +21,7 @@
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/page_zoom.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/renderer/about_handler.h"
@@ -2012,7 +2013,7 @@ void RenderView::ShowContextMenu(WebView* webview,
                                  const std::wstring& misspelled_word,
                                  int edit_flags,
                                  const std::string& security_info) {
-  ViewHostMsg_ContextMenu_Params params;
+  ContextMenuParams params;
   params.node = node;
   params.x = x;
   params.y = y;
@@ -2667,8 +2668,8 @@ void RenderView::OnUpdateBackForwardListCount(int back_list_count,
 }
 
 void RenderView::OnGetAccessibilityInfo(
-    const ViewMsg_Accessibility_In_Params& in_params,
-    ViewHostMsg_Accessibility_Out_Params* out_params) {
+    const AccessibilityInParams& in_params,
+    AccessibilityOutParams* out_params) {
 #if defined(OS_WIN)
   if (!glue_accessibility_.get())
     glue_accessibility_.reset(new GlueAccessibility());

@@ -12,6 +12,7 @@
 #include "base/shared_memory.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/ipc_logging.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/notification_service.h"
 // TODO(port)
 #if defined(OS_WIN)

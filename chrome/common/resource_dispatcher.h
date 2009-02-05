@@ -10,10 +10,14 @@
 #include <queue>
 
 #include "base/hash_tables.h"
+#include "base/shared_memory.h"
 #include "base/task.h"
+#include "chrome/common/filter_policy.h"
 #include "chrome/common/ipc_channel.h"
-#include "chrome/common/render_messages.h"
 #include "webkit/glue/resource_loader_bridge.h"
+
+struct ResourceResponseHead;
+struct ViewMsg_Resource_ResponseHead;
 
 // Uncomment this to disable loading resources via the parent process.  This
 // may be useful for debugging purposes.
@@ -99,7 +103,7 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
 
   // Message response handlers, called by the message handler for this process.
   void OnUploadProgress(int request_id, int64 position, int64 size);
-  void OnReceivedResponse(int request_id, const ViewMsg_Resource_ResponseHead&);
+  void OnReceivedResponse(int request_id, const ResourceResponseHead&);
   void OnReceivedRedirect(int request_id, const GURL& new_url);
   void OnReceivedData(int request_id, base::SharedMemoryHandle data,
                       int data_len);

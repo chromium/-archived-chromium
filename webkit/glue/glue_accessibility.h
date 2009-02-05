@@ -14,7 +14,8 @@ class IAccessible;
 #endif
 
 #include "base/hash_tables.h"
-#include "chrome/common/render_messages.h"
+#include "base/ref_counted.h"
+#include "chrome/common/accessibility.h"
 
 class WebView;
 
@@ -40,8 +41,8 @@ class GlueAccessibility {
   // currently active (browser ref count not zero) IAccessibles. Returns true if
   // successful, false otherwise.
   bool GetAccessibilityInfo(WebView* view,
-                            const ViewMsg_Accessibility_In_Params& in_params,
-                            ViewHostMsg_Accessibility_Out_Params* out_params);
+                            const AccessibilityInParams& in_params,
+                            AccessibilityOutParams* out_params);
 
   // Erases the entry identified by the |iaccessible_id| from the hash map. If
   // |clear_all| is true, all entries are erased. Returns true if successful,
