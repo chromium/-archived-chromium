@@ -1675,9 +1675,6 @@ LINUX : LayoutTests/fast/canvas/pointInPath.html = FAIL
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT
 
 // TestShell change to dump() on notifyDone http://codereview.chromium.org/18440
-WIN : LayoutTests/fast/dom/Window/window-property-shadowing.html = TIMEOUT
-WIN : LayoutTests/fast/events/programmatic-check-no-change-event.html = TIMEOUT
-WIN : LayoutTests/plugins/open-and-close-window-with-plugin.html = TIMEOUT
 LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
@@ -1775,7 +1772,3 @@ LayoutTests/http/tests/navigation/document-location-click.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
-// This set seems due to a different issue.
-LINUX WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-LINUX WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
