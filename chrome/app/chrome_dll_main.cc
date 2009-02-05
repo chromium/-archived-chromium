@@ -16,6 +16,10 @@
 #include <new.h>
 #endif
 
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 #include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/icu_util.h"
@@ -202,6 +206,14 @@ int ChromeMain(int argc, const char** argv) {
   // which just cycles the pool under the covers and then call that just
   // before we invoke the main UI loop near the bottom of this function.
   base::ScopedNSAutoreleasePool autorelease_pool;
+
+#if defined(OS_LINUX)
+  // gtk_init() can change |argc| and |argv| and thus must be called before
+  // CommandLine::Init().
+  // TODO(estade): we should make a copy of |argv| instead of const_casting
+  // it.
+  gtk_init(&argc, const_cast<char***>(&argv));
+#endif
 
   // Initialize the command line.
 #if defined(OS_WIN)

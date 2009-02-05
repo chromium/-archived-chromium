@@ -262,13 +262,6 @@ std::string CreateHistoryStateForURL(const GURL& url) { return ""; }
 }
 #endif
 
-#if defined(OS_LINUX)
-BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
-  NOTIMPLEMENTED() << "CreateBrowserWindow";
-  return NULL;
-}
-#endif
-
 //--------------------------------------------------------------------------
 
 namespace chrome_browser_net {

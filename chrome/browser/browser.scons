@@ -815,6 +815,8 @@ if not env.Bit('windows'):
 if env.Bit('linux'):
   input_files.Extend([
       'browser_main_gtk.cc',
+      'browser_window_factory_gtk.cc',
+      'browser_window_gtk.cc',
       'renderer_host/render_widget_host_view_gtk.cc',
   ])
 
