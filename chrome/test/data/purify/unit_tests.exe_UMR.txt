@@ -1,0 +1,50 @@
+Uninitialized memory read in WriteFile
+Error Location
+   ...  
+   chrome/browser/chrome_plugin_host.cc  PluginRequestInterceptor::MaybeIntercept(URLRequest *)
+   net/url_request/url_request_job_manager.cc  URLRequestJobManager::CreateJob(URLRequest *)const
+   net/url_request/url_request.cc  URLRequest::Start(void)
+   chrome/browser/renderer_host/resource_dispatcher_host.cc  ResourceDispatcherHost::BeginRequestInternal(URLRequest *,bool)
+   chrome/browser/renderer_host/resource_dispatcher_host.cc  ResourceDispatcherHost::BeginRequest(Sender::Message::IPC *,void *,int,int,int,ViewHostMsg_Resource_Request const&,URLRequestContext *,Message::IPC *)
+   chrome/browser/resource_message_filter.cc  ResourceMessageFilter::OnRequestResource(Message::IPC const&,int,ViewHostMsg_Resource_Request const&)
+   chrome/common/ipc_message_utils.h  ?Dispatch@VResourceMessageFilter@@HABUViewHostMsg_Resource_Request@@@?$MessageWithTuple@U?$Tuple2@HUViewHostMsg_Resource_Request@@@@@IPC@@SA_NPBVMessage@1@PAVResourceMessageFilter@@P83@AEXABV21@HABUViewHostMsg_Resource_Request@@@Z@Z
+   chrome/browser/resource_message_filter.cc  ResourceMessageFilter::OnMessageReceived(Message::IPC const&)
+   chrome/common/ipc_channel_proxy.cc  IPC::ChannelProxy::Context::TryFilters(Message::IPC const&)
+   chrome/common/ipc_sync_channel.cc  IPC::SyncChannel::SyncContext::OnMessageReceived(Message::IPC const&)
+   chrome/common/ipc_channel_win.cc  IPC::Channel::ChannelImpl::ProcessIncomingMessages(IOContext::MessagePumpForIO::base *,DWORD)
+   chrome/common/ipc_channel_win.cc  IPC::Channel::ChannelImpl::OnIOCompleted(IOContext::MessagePumpForIO::base *,DWORD,DWORD)
+   base/message_pump_win.cc  base::MessagePumpForIO::WaitForIOCompletion(DWORD,IOHandler::MessagePumpForIO::base *)
+   base/message_pump_win.cc  base::MessagePumpForIO::WaitForWork(void)
+   base/message_pump_win.cc  base::MessagePumpForIO::DoRunLoop(void)
+   base/message_pump_win.cc  base::MessagePumpWin::RunWithDispatcher(Delegate::MessagePump::base *,Dispatcher::MessagePumpWin::base *)
+   base/message_pump_win.h  base::MessagePumpWin::Run(Delegate::MessagePump::base *)
+   base/message_loop.cc  MessageLoop::RunInternal(void)
+   base/message_loop.cc  MessageLoop::RunHandler(void)
+   base/message_loop.cc  MessageLoop::Run(void)
+   base/thread.cc  base::Thread::ThreadMain(void)
+   base/platform_thread_win.cc  ThreadFunc(void *)
+Alloc Location
+   ...  
+   chrome/browser/chrome_plugin_host.cc  PluginRequestInterceptor::MaybeIntercept(URLRequest *)
+   net/url_request/url_request_job_manager.cc  URLRequestJobManager::CreateJob(URLRequest *)const
+   net/url_request/url_request.cc  URLRequest::Start(void)
+   chrome/browser/renderer_host/resource_dispatcher_host.cc  ResourceDispatcherHost::BeginRequestInternal(URLRequest *,bool)
+   chrome/browser/renderer_host/resource_dispatcher_host.cc  ResourceDispatcherHost::BeginRequest(Sender::Message::IPC *,void *,int,int,int,ViewHostMsg_Resource_Request const&,URLRequestContext *,Message::IPC *)
+   chrome/browser/resource_message_filter.cc  ResourceMessageFilter::OnRequestResource(Message::IPC const&,int,ViewHostMsg_Resource_Request const&)
+   chrome/common/ipc_message_utils.h  ?Dispatch@VResourceMessageFilter@@HABUViewHostMsg_Resource_Request@@@?$MessageWithTuple@U?$Tuple2@HUViewHostMsg_Resource_Request@@@@@IPC@@SA_NPBVMessage@1@PAVResourceMessageFilter@@P83@AEXABV21@HABUViewHostMsg_Resource_Request@@@Z@Z
+   chrome/browser/resource_message_filter.cc  ResourceMessageFilter::OnMessageReceived(Message::IPC const&)
+   chrome/common/ipc_channel_proxy.cc  IPC::ChannelProxy::Context::TryFilters(Message::IPC const&)
+   chrome/common/ipc_sync_channel.cc  IPC::SyncChannel::SyncContext::OnMessageReceived(Message::IPC const&)
+   chrome/common/ipc_channel_win.cc  IPC::Channel::ChannelImpl::ProcessIncomingMessages(IOContext::MessagePumpForIO::base *,DWORD)
+   chrome/common/ipc_channel_win.cc  IPC::Channel::ChannelImpl::OnIOCompleted(IOContext::MessagePumpForIO::base *,DWORD,DWORD)
+   base/message_pump_win.cc  base::MessagePumpForIO::WaitForIOCompletion(DWORD,IOHandler::MessagePumpForIO::base *)
+   base/message_pump_win.cc  base::MessagePumpForIO::WaitForWork(void)
+   base/message_pump_win.cc  base::MessagePumpForIO::DoRunLoop(void)
+   base/message_pump_win.cc  base::MessagePumpWin::RunWithDispatcher(Delegate::MessagePump::base *,Dispatcher::MessagePumpWin::base *)
+   base/message_pump_win.h  base::MessagePumpWin::Run(Delegate::MessagePump::base *)
+   base/message_loop.cc  MessageLoop::RunInternal(void)
+   base/message_loop.cc  MessageLoop::RunHandler(void)
+   base/message_loop.cc  MessageLoop::Run(void)
+   base/thread.cc  base::Thread::ThreadMain(void)
+   base/platform_thread_win.cc  ThreadFunc(void *)
+
