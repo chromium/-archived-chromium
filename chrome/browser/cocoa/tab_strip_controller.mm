@@ -10,7 +10,10 @@
 #import "chrome/browser/cocoa/tab_contents_controller.h"
 #import "chrome/browser/tabs/tab_strip_model.h"
 
-// the private methods the brige object needs from the controller
+// The amount of overlap tabs have in their button frames.
+const short kTabOverlap = 16;
+
+// The private methods the brige object needs from the controller.
 @interface TabStripController(BridgeMethods)
 - (void)insertTabWithContents:(TabContents*)contents
                       atIndex:(NSInteger)index
@@ -19,6 +22,8 @@
              previousContents:(TabContents*)oldContents
                       atIndex:(NSInteger)index
                   userGesture:(bool)wasUserGesture;
+- (void)tabDetachedWithContents:(TabContents*)contents
+                        atIndex:(NSInteger)index;
 @end
 
 // A C++ bridge class to handle receiving notifications from the C++ tab
@@ -33,7 +38,6 @@ class TabStripBridge : public TabStripModelObserver {
   virtual void TabInsertedAt(TabContents* contents,
                              int index,
                              bool foreground);
-  virtual void TabClosingAt(TabContents* contents, int index);
   virtual void TabDetachedAt(TabContents* contents, int index);
   virtual void TabSelectedAt(TabContents* old_contents,
                              TabContents* new_contents,
@@ -157,7 +161,6 @@ class TabStripBridge : public TabStripModelObserver {
 - (NSRect)frameForNewTabAtIndex:(NSInteger)index {
   const short kIndentLeavingSpaceForControls = 66;
   const short kNewTabWidth = 160;
-  const short kTabOverlap = 16;
   
   short xOffset = kIndentLeavingSpaceForControls;
   if (index > 0) {
@@ -231,6 +234,30 @@ class TabStripBridge : public TabStripModelObserver {
   [self swapInTabContents:newContents];
 }
 
+// Called when a notification is received from the model that the given tab
+// has gone away. Remove all knowledge about this tab and it's associated 
+// controller and remove the view from the strip.
+- (void)tabDetachedWithContents:(TabContents*)contents
+                        atIndex:(NSInteger)index {
+  // Release the tab contents controller so those views get destroyed.
+  NSValue* key = [NSValue valueWithPointer:contents];
+  [tabContentsToController_ removeObjectForKey:key];
+  
+  // Remove the |index|th view from the tab strip
+  NSView* tab = [[tabView_ subviews] objectAtIndex:index];
+  NSInteger tabWidth = [tab frame].size.width;
+  [tab removeFromSuperview];
+  
+  // Move all the views to the right the width of the tab that was closed.
+  // TODO(pinkerton): Animate!
+  const int numSubviews = [[tabView_ subviews] count];
+  for (int i = index; i < numSubviews; i++) {
+    NSView* curr = [[tabView_ subviews] objectAtIndex:i];
+    NSRect newFrame = [curr frame];
+    newFrame.origin.x -= tabWidth - kTabOverlap;
+    [curr setFrame:newFrame];
+  }
+}
 @end
 
 //--------------------------------------------------------------------------
@@ -256,12 +283,8 @@ void TabStripBridge::TabInsertedAt(TabContents* contents,
                         inForeground:foreground];
 }
 
-void TabStripBridge::TabClosingAt(TabContents* contents, int index) {
-  NOTIMPLEMENTED();
-}
-
 void TabStripBridge::TabDetachedAt(TabContents* contents, int index) {
-  NOTIMPLEMENTED();
+  [controller_ tabDetachedWithContents:contents atIndex:index];
 }
 
 void TabStripBridge::TabSelectedAt(TabContents* old_contents,
