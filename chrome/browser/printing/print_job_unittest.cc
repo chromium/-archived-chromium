@@ -4,6 +4,7 @@
 
 #include "base/message_loop.h"
 #include "chrome/browser/printing/print_job.h"
+#include "chrome/browser/printing/print_job_worker.h"
 #include "chrome/browser/printing/printed_pages_source.h"
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
@@ -13,9 +14,6 @@ namespace {
 
 class TestSource : public printing::PrintedPagesSource {
  public:
-  virtual void RenderOnePrintedPage(printing::PrintedDocument* document,
-                                    int page_number) {
-  }
   virtual std::wstring RenderSourceName() {
     return L"";
   }
@@ -24,11 +22,52 @@ class TestSource : public printing::PrintedPagesSource {
   }
 };
 
+class TestPrintJobWorker : public printing::PrintJobWorker {
+ public:
+  explicit TestPrintJobWorker(printing::PrintJobWorkerOwner* owner)
+      : printing::PrintJobWorker(owner) {
+  }
+  friend class TestOwner;
+};
+
+class TestOwner : public printing::PrintJobWorkerOwner {
+ public:
+  virtual void AddRef() {
+    EXPECT_FALSE(true);
+  }
+  virtual void Release() {
+    EXPECT_FALSE(true);
+  }
+  virtual void GetSettingsDone(const printing::PrintSettings& new_settings,
+                               printing::PrintingContext::Result result) {
+    EXPECT_FALSE(true);
+  }
+  virtual printing::PrintJobWorker* DetachWorker(
+      printing::PrintJobWorkerOwner* new_owner) {
+    // We're screwing up here since we're calling worker from the main thread.
+    // That's fine for testing. It is actually simulating PrinterQuery behavior.
+    TestPrintJobWorker* worker(new TestPrintJobWorker(new_owner));
+    EXPECT_TRUE(worker->Start());
+    worker->printing_context().UseDefaultSettings();
+    settings_ = worker->printing_context().settings();
+    return worker;
+  }
+  virtual MessageLoop* message_loop() {
+    EXPECT_FALSE(true);
+    return NULL;
+  }
+  virtual const printing::PrintSettings& settings() const {
+    return settings_;
+  }
+  virtual int cookie() const {
+    return 42;
+  }
+ private:
+  printing::PrintSettings settings_;
+};
+
 class TestPrintJob : public printing::PrintJob {
  public:
-  TestPrintJob(printing::PrintedPagesSource* source, volatile bool* check)
-      : printing::PrintJob(source), check_(check) {
-  }
   TestPrintJob(volatile bool* check) : check_(check) {
   }
   ~TestPrintJob() {
@@ -44,22 +83,7 @@ class TestPrintNotifObserv : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) {
-    ASSERT_EQ(NotificationType::PRINT_JOB_EVENT, type.value);
-    printing::JobEventDetails::Type event_type =
-        Details<printing::JobEventDetails>(details)->type();
-    EXPECT_NE(printing::JobEventDetails::NEW_DOC, event_type);
-    EXPECT_NE(printing::JobEventDetails::NEW_PAGE, event_type);
-    EXPECT_NE(printing::JobEventDetails::PAGE_DONE, event_type);
-    EXPECT_NE(printing::JobEventDetails::DOC_DONE, event_type);
-    EXPECT_NE(printing::JobEventDetails::JOB_DONE, event_type);
-    EXPECT_NE(printing::JobEventDetails::ALL_PAGES_REQUESTED, event_type);
-    if (event_type == printing::JobEventDetails::USER_INIT_DONE ||
-        event_type == printing::JobEventDetails::USER_INIT_CANCELED ||
-        event_type == printing::JobEventDetails::DEFAULT_INIT_DONE ||
-        event_type == printing::JobEventDetails::FAILED) {
-      MessageLoop::current()->Quit();
-      return;
-    }
+    EXPECT_FALSE(true);
   }
 };
 
@@ -68,17 +92,20 @@ class TestPrintNotifObserv : public NotificationObserver {
 TEST(PrintJobTest, SimplePrint) {
   // Test the multithreaded nature of PrintJob to make sure we can use it with
   // known livetime.
-  TestPrintNotifObserv observ;
+
+  // This message loop is actually never run.
   MessageLoop current;
+
+  TestPrintNotifObserv observ;
   NotificationService::current()->AddObserver(
       &observ, NotificationType::ALL,
       NotificationService::AllSources());
-  TestSource source;
   volatile bool check = false;
-  scoped_refptr<printing::PrintJob> job(new TestPrintJob(&source, &check));
-  job->GetSettings(printing::PrintJob::DEFAULTS, NULL);
+  scoped_refptr<printing::PrintJob> job(new TestPrintJob(&check));
   EXPECT_EQ(MessageLoop::current(), job->message_loop());
-  current.Run();
+  TestOwner owner;
+  TestSource source;
+  job->Initialize(&owner, &source);
   job->Stop();
   job = NULL;
   EXPECT_TRUE(check);

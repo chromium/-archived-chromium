@@ -35,11 +35,6 @@ const Keys kOverlayKeys[] = {
 
 class PagesSource : public printing::PrintedPagesSource {
  public:
-  virtual void RenderOnePrintedPage(printing::PrintedDocument* document,
-                                    int page_number) {
-    EXPECT_FALSE(true);
-  }
-
   virtual std::wstring RenderSourceName() {
     return L"Foobar Document";
   }

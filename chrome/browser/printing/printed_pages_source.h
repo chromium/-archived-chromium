@@ -17,11 +17,6 @@ class PrintedDocument;
 // Source of printed pages.
 class PrintedPagesSource {
  public:
-  // Renders a printed page. It is not necessary to be synchronous. It must call
-  // document->SetPage() once the source is done rendering the requested page.
-  virtual void RenderOnePrintedPage(PrintedDocument* document,
-                                    int page_number) = 0;
-
   // Returns the document title.
   virtual std::wstring RenderSourceName() = 0;
 

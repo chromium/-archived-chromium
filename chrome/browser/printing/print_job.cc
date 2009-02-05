@@ -18,17 +18,6 @@ using base::TimeDelta;
 
 namespace printing {
 
-PrintJob::PrintJob(PrintedPagesSource* source)
-    : ui_message_loop_(MessageLoop::current()),
-      worker_(new PrintJobWorker(this)),
-      source_(source),
-      is_job_pending_(false),
-      is_print_dialog_box_shown_(false),
-      is_canceling_(false) {
-  DCHECK(ui_message_loop_);
-  ui_message_loop_->AddDestructionObserver(this);
-}
-
 PrintJob::PrintJob()
     : ui_message_loop_(MessageLoop::current()),
       worker_(),
@@ -103,38 +92,7 @@ void PrintJob::Observe(NotificationType type,
 
 void PrintJob::GetSettingsDone(const PrintSettings& new_settings,
                                PrintingContext::Result result) {
-  DCHECK(!is_job_pending_);
-
-  if (!source_ || result == PrintingContext::FAILED) {
-    // The source is gone, there's nothing to do.
-    Cancel();
-    return;
-  }
-
-  // Only create a new PrintedDocument if the settings have changed or if
-  // there was no printed document.
-  if (!document_.get() || !new_settings.Equals(settings_)) {
-    UpdatePrintedDocument(new PrintedDocument(new_settings, source_,
-                                              PrintSettings::NewCookie()));
-  }
-
-  JobEventDetails::Type type;
-  if (is_print_dialog_box_shown_) {
-    type = (result == PrintingContext::OK) ?
-        JobEventDetails::USER_INIT_DONE :
-        JobEventDetails::USER_INIT_CANCELED;
-    // Dialog box is not shown anymore.
-    is_print_dialog_box_shown_ = false;
-  } else {
-    DCHECK_EQ(result, PrintingContext::OK);
-    type = JobEventDetails::DEFAULT_INIT_DONE;
-  }
-  scoped_refptr<JobEventDetails> details(
-      new JobEventDetails(type, document_.get(), NULL));
-  NotificationService::current()->Notify(
-      NotificationType::PRINT_JOB_EVENT,
-      Source<PrintJob>(this),
-      Details<JobEventDetails>(details.get()));
+  NOTREACHED();
 }
 
 PrintJobWorker* PrintJob::DetachWorker(PrintJobWorkerOwner* new_owner) {
@@ -151,37 +109,6 @@ int PrintJob::cookie() const {
 
 void PrintJob::WillDestroyCurrentMessageLoop() {
   NOTREACHED();
-}
-
-void PrintJob::GetSettings(GetSettingsAskParam ask_user_for_settings,
-                           HWND parent_window) {
-  DCHECK_EQ(ui_message_loop_, MessageLoop::current());
-  DCHECK(!is_job_pending_);
-  DCHECK(!is_print_dialog_box_shown_);
-  // Is not reentrant.
-  if (is_job_pending_)
-    return;
-
-  // Lazy create the worker thread. There is one worker thread per print job.
-  if (!worker_->message_loop()) {
-    if (!worker_->Start())
-      return;
-
-    // Don't re-register if we were already registered.
-    NotificationService::current()->AddObserver(
-        this, NotificationType::PRINT_JOB_EVENT, Source<PrintJob>(this));
-  }
-
-  int page_count = 0;
-  if (document_.get()) {
-    page_count = document_->page_count();
-  }
-
-  // Real work is done in PrintJobWorker::Init().
-  is_print_dialog_box_shown_ = ask_user_for_settings == ASK_USER;
-  worker_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      worker_.get(), &PrintJobWorker::GetSettings, is_print_dialog_box_shown_,
-      parent_window, page_count));
 }
 
 void PrintJob::StartPrinting() {
@@ -258,25 +185,7 @@ void PrintJob::Cancel() {
   is_canceling_ = false;
 }
 
-bool PrintJob::RequestMissingPages() {
-  DCHECK_EQ(ui_message_loop_, MessageLoop::current());
-  DCHECK(!is_print_dialog_box_shown_);
-  if (!is_job_pending_ || is_print_dialog_box_shown_)
-    return false;
-
-  MessageLoop* worker_loop = worker_.get() ? worker_->message_loop() : NULL;
-  if (!worker_loop)
-    return false;
-
-  worker_loop->PostTask(FROM_HERE, NewRunnableMethod(
-      worker_.get(), &PrintJobWorker::RequestMissingPages));
-  return true;
-}
-
 bool PrintJob::FlushJob(int timeout_ms) {
-  if (!RequestMissingPages())
-    return false;
-
   // Make sure the object outlive this message loop.
   scoped_refptr<PrintJob> handle(this);
 

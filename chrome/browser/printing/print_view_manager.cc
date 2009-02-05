@@ -26,8 +26,7 @@ namespace printing {
 PrintViewManager::PrintViewManager(WebContents& owner)
     : owner_(owner),
       waiting_to_print_(false),
-      inside_inner_message_loop_(false),
-      waiting_to_show_print_dialog_(false) {
+      inside_inner_message_loop_(false) {
 }
 
 PrintViewManager::~PrintViewManager() {
@@ -40,33 +39,6 @@ void PrintViewManager::Destroy() {
 void PrintViewManager::Stop() {
   // Cancel the current job, wait for the worker to finish.
   TerminatePrintJob(true);
-}
-
-void PrintViewManager::ShowPrintDialog() {
-  if (!CreateNewPrintJob(NULL))
-    return;
-
-  // Retrieve default settings. PrintJob will send back a
-  // NOTIFY_PRINT_JOB_EVENT with either INIT_DONE, INIT_CANCELED or FAILED.
-  // On failure, simply back off. Otherwise, request the number of pages to
-  // the renderer. Wait for its response (DidGetPrintedPagesCount), which will
-  // give the value used to initialize the Print... dialog. PrintJob will send
-  // back (again) a NOTIFY_PRINT_JOB_EVENT with either INIT_DONE, INIT_CANCELED
-  // or FAILED. The result is to call PrintNowInternal or to back off.
-  waiting_to_show_print_dialog_ = true;
-  print_job_->GetSettings(PrintJob::DEFAULTS, NULL);
-}
-
-bool PrintViewManager::PrintNow() {
-  if (!CreateNewPrintJob(NULL))
-    return false;
-
-  // Retrieve default settings. PrintJob will send back a NOTIFY_PRINT_JOB_EVENT
-  // with either DEFAULT_INIT_DONE or FAILED. On failure, simply back off.
-  // Otherwise, call PrintNowInternal() again to start the print job.
-  waiting_to_print_ = true;
-  print_job_->GetSettings(PrintJob::DEFAULTS, NULL);
-  return true;
 }
 
 bool PrintViewManager::OnRendererGone(RenderViewHost* render_view_host) {
@@ -101,20 +73,11 @@ void PrintViewManager::DidGetPrintedPagesCount(int cookie, int number_pages) {
   // Time to inform our print job. Make sure it is for the right document.
   if (!document->page_count()) {
     document->set_page_count(number_pages);
-    if (waiting_to_show_print_dialog_) {
-      // Ask for user settings. There's a timing issue since we may not have
-      // received the INIT_DONE notification yet. If so, the dialog will be
-      // shown in Observe() since the page count arrived before the settings.
-      print_job_->GetSettings(PrintJob::ASK_USER,
-                              ::GetParent(owner_.GetContainerHWND()));
-      waiting_to_show_print_dialog_ = false;
-    }
   }
 }
 
 void PrintViewManager::DidPrintPage(
     const ViewHostMsg_DidPrintPage_Params& params) {
-  DCHECK(!inside_inner_message_loop_);
   if (!OpportunisticallyCreatePrintJob(params.document_cookie))
     return;
 
@@ -153,17 +116,6 @@ void PrintViewManager::DidPrintPage(
   // Update the rendered document. It will send notifications to the listener.
   document->SetPage(params.page_number, emf, params.actual_shrink);
   ShouldQuitFromInnerMessageLoop();
-}
-
-void PrintViewManager::RenderOnePrintedPage(PrintedDocument* document,
-                                            int page_number) {
-  // Currently a no-op. Rationale: printing is now completely synchronous and is
-  // handled by PrintAllPages. The reason is that PrintPreview is not used
-  // anymore and to make sure to not corrupt the screen, the whole generation is
-  // done synchronously. To make this work completely asynchronously, a
-  // duplicate copy of RenderView must be made to have an "innert" web page.
-  // Once this object is created, we'll have all the leasure to do whatever we
-  // want.
 }
 
 std::wstring PrintViewManager::RenderSourceName() {
@@ -207,7 +159,7 @@ void PrintViewManager::OnNotifyPrintJobEvent(
     case JobEventDetails::USER_INIT_DONE:
     case JobEventDetails::DEFAULT_INIT_DONE:
     case JobEventDetails::USER_INIT_CANCELED: {
-      OnNotifyPrintJobInitEvent(event_details);
+      NOTREACHED();
       break;
     }
     case JobEventDetails::ALL_PAGES_REQUESTED: {
@@ -238,71 +190,7 @@ void PrintViewManager::OnNotifyPrintJobEvent(
   }
 }
 
-void PrintViewManager::OnNotifyPrintJobInitEvent(
-    const JobEventDetails& event_details) {
-  // Continue even if owner_.render_view_host() is dead because we may already
-  // have buffered all the necessary pages.
-  switch (event_details.type()) {
-    case JobEventDetails::USER_INIT_DONE: {
-      // The user clicked the "Print" button in the Print... dialog.
-      // Time to print.
-      DCHECK_EQ(waiting_to_print_, false);
-      DCHECK_EQ(waiting_to_show_print_dialog_, false);
-      waiting_to_print_ = true;
-      PrintNowInternal();
-      break;
-    }
-    case JobEventDetails::USER_INIT_CANCELED: {
-      DCHECK(!waiting_to_show_print_dialog_);
-      // The print dialog box has been dismissed (Cancel button or the X).
-      TerminatePrintJob(false);
-      break;
-    }
-    case JobEventDetails::DEFAULT_INIT_DONE: {
-      // Init(false) returned.
-      if (waiting_to_print_) {
-        // PrintNow() is pending.
-        DCHECK_EQ(waiting_to_show_print_dialog_, false);
-        PrintNowInternal();
-      } else if (waiting_to_show_print_dialog_ &&
-                 event_details.document()->page_count()) {
-        // Time to ask the user for the print settings.
-        print_job_->GetSettings(PrintJob::ASK_USER,
-                                ::GetParent(owner_.GetContainerHWND()));
-        waiting_to_show_print_dialog_ = false;
-      } else {
-        // event_details.document()->page_count() is false. This simply means
-        // that the renderer was slower to calculate the number of pages than
-        // the print_job_ to initialize the default settings. If so, the dialog
-        // will be shown in DidGetPrintedPagesCount() since the settings arrived
-        // before the page count.
-        DCHECK_EQ(waiting_to_show_print_dialog_, true);
-      }
-      break;
-    }
-    default: {
-      NOTREACHED();
-      break;
-    }
-  }
-}
-
 bool PrintViewManager::RenderAllMissingPagesNow() {
-  if (waiting_to_show_print_dialog_) {
-    // TODO(maruel):  http://b/1186708 This happens in one of these case:
-    // - javascript:window.print();window.close(); which closes the window very
-    //   fast.
-    // - The worker thread is hung, like the network printer failed, the network
-    //   print server failed or the network cable is disconnected.
-    // In the first case we want to wait, but not on the second case.
-
-    if (!RunInnerMessageLoop()) {
-      // This function is always called from DisconnectFromCurrentPrintJob()
-      // so we know that the job will be stopped/canceled in any case.
-      return false;
-    }
-  }
-
   if (!print_job_.get() || !print_job_->is_job_pending()) {
     DCHECK_EQ(waiting_to_print_, false);
     return false;
@@ -356,7 +244,7 @@ void PrintViewManager::ShouldQuitFromInnerMessageLoop() {
 
 bool PrintViewManager::CreateNewPrintJob(PrintJobWorkerOwner* job) {
   DCHECK(!inside_inner_message_loop_);
-  if (waiting_to_print_ || waiting_to_show_print_dialog_) {
+  if (waiting_to_print_) {
     // We can't help; we are waiting for a print job initialization. The user is
     // button bashing. The only thing we could do is to batch up the requests.
     return false;
@@ -374,12 +262,12 @@ bool PrintViewManager::CreateNewPrintJob(PrintJobWorkerOwner* job) {
   // Ask the renderer to generate the print preview, create the print preview
   // view and switch to it, initialize the printer and show the print dialog.
   DCHECK(!print_job_.get());
-  if (job) {
-    print_job_ = new PrintJob();
-    print_job_->Initialize(job, this);
-  } else {
-    print_job_ = new PrintJob(this);
-  }
+  DCHECK(job);
+  if (!job)
+    return false;
+
+  print_job_ = new PrintJob();
+  print_job_->Initialize(job, this);
   NotificationService::current()->AddObserver(
       this,
       NotificationType::PRINT_JOB_EVENT,
@@ -413,11 +301,9 @@ void PrintViewManager::TerminatePrintJob(bool cancel) {
     // We don't need the EMF data anymore because the printing is canceled.
     print_job_->Cancel();
     waiting_to_print_ = false;
-    waiting_to_show_print_dialog_ = false;
     inside_inner_message_loop_ = false;
   } else {
     DCHECK(!inside_inner_message_loop_);
-    DCHECK(!waiting_to_show_print_dialog_);
     DCHECK(!print_job_->document() || print_job_->document()->IsComplete() ||
            !waiting_to_print_);
 
@@ -450,11 +336,8 @@ void PrintViewManager::PrintNowInternal() {
   // print_job_->is_job_pending() to true.
   print_job_->StartPrinting();
 
-  if (!print_job_->document() ||
-      !print_job_->document()->IsComplete()) {
-    // TODO(maruel): Will never happen. This code is about to be deleted.
-    NOTREACHED();
-  }
+  DCHECK(print_job_->document());
+  DCHECK(print_job_->document()->IsComplete());
 }
 
 bool PrintViewManager::RunInnerMessageLoop() {

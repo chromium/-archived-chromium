@@ -25,7 +25,7 @@ class PrintJobWorkerOwner;
 // PrintJob always outlives its worker instance.
 class PrintJobWorker : public base::Thread {
  public:
-  PrintJobWorker(PrintJobWorkerOwner* owner);
+  explicit PrintJobWorker(PrintJobWorkerOwner* owner);
   ~PrintJobWorker();
 
   void SetNewOwner(PrintJobWorkerOwner* new_owner);
@@ -57,6 +57,10 @@ class PrintJobWorker : public base::Thread {
   // Requests the missing pages in rendered_document_. Sends back a
   // ALL_PAGES_REQUESTED notification once done.
   void RequestMissingPages();
+
+ protected:
+  // Retrieves the context for testing only.
+  PrintingContext& printing_context() { return printing_context_; }
 
  private:
   // The shared NotificationService service can only be accessed from the UI

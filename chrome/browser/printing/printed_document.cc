@@ -344,12 +344,7 @@ void PrintedDocument::PrintPage_ThreadJump(int page_number) {
       AutoLock lock(lock_);
       source = mutable_.source_;
     }
-    if (source) {
-      // Don't render with the lock held.
-      source->RenderOnePrintedPage(this, page_number);
-    } else {
-      // Printing has probably been canceled already.
-    }
+    NOTREACHED();
   }
 }
 

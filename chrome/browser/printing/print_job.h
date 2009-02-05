@@ -38,15 +38,6 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
                  public PrintJobWorkerOwner,
                  public MessageLoop::DestructionObserver {
  public:
-  // GetSettings() UI parameter.
-  enum GetSettingsAskParam {
-    DEFAULTS,
-    ASK_USER,
-  };
-
-  // Create a standalone PrintJob. When initializing with this constructor,
-  // Initialize() must not be called.
-  PrintJob(PrintedPagesSource* source);
   // Create a empty PrintJob. When initializing with this constructor,
   // post-constructor initialization must be done with Initialize().
   PrintJob();
@@ -68,6 +59,7 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
   virtual void Release() {
     return base::RefCountedThreadSafe<PrintJob>::Release();
   }
+
   virtual void GetSettingsDone(const PrintSettings& new_settings,
                                PrintingContext::Result result);
   virtual PrintJobWorker* DetachWorker(PrintJobWorkerOwner* new_owner);
@@ -77,14 +69,6 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
 
   // DestructionObserver
   virtual void WillDestroyCurrentMessageLoop();
-
-  // Initializes the printing context. This can be done synchronously or not. It
-  // is fine to call this function multiple times to reinitialize the settings.
-  // |parent_window| parameter will be the owner of the print setting dialog
-  // box. It is unused when |ask_for_user_settings| is DEFAULTS. No-op if a
-  // print job is active.
-  void GetSettings(GetSettingsAskParam ask_user_for_settings,
-                   gfx::NativeView parent_window);
 
   // Starts the actual printing. Signals the worker that it should begin to
   // spool as soon as data is available.
@@ -98,13 +82,6 @@ class PrintJob : public base::RefCountedThreadSafe<PrintJob>,
 
   // Cancels printing job and stops the worker thread. Takes effect immediately.
   void Cancel();
-
-  // Requests all the missing pages in the PrintedDocument. Returns true if at
-  // least one page has been requested. Returns false if there was not enough
-  // information to request the missing pages, i.e.
-  // document()->document_page_count() is not initialized or no page
-  // has been requested.
-  bool RequestMissingPages();
 
   // Synchronously wait for the job to finish. It is mainly useful when the
   // process is about to be shut down and we're waiting for the spooler to eat

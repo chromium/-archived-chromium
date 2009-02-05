@@ -34,14 +34,6 @@ class PrintViewManager : public NotificationObserver,
   // Cancels the print job.
   void Stop();
 
-  // Shows the "Print..." dialog if none is shown and if no rendering is
-  // pending. This is done asynchronously.
-  void ShowPrintDialog();
-
-  // Initiates a print job immediately. This is done asynchronously. Returns
-  // false if printing is impossible at the moment.
-  bool PrintNow();
-
   // Terminates or cancels the print job if one was pending, depending on the
   // current state. Returns false if the renderer was not valuable.
   bool OnRendererGone(RenderViewHost* render_view_host);
@@ -55,7 +47,6 @@ class PrintViewManager : public NotificationObserver,
   void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
 
   // PrintedPagesSource implementation.
-  virtual void RenderOnePrintedPage(PrintedDocument* document, int page_number);
   virtual std::wstring RenderSourceName();
   virtual GURL RenderSourceUrl();
 
@@ -67,9 +58,6 @@ class PrintViewManager : public NotificationObserver,
  private:
   // Processes a NOTIFY_PRINT_JOB_EVENT notification.
   void OnNotifyPrintJobEvent(const JobEventDetails& event_details);
-
-  // Processes a xxx_INIT_xxx type of NOTIFY_PRINT_JOB_EVENT notification.
-  void OnNotifyPrintJobInitEvent(const JobEventDetails& event_details);
 
   // Requests the RenderView to render all the missing pages for the print job.
   // Noop if no print job is pending. Returns true if at least one page has been
@@ -131,27 +119,6 @@ class PrintViewManager : public NotificationObserver,
   // we are _blocking_ until all the necessary pages have been rendered or the
   // print settings are being loaded.
   bool inside_inner_message_loop_;
-
-  // The object is waiting for some information to call print_job_->Init(true).
-  // It is either a DEFAULT_INIT_DONE notification or the
-  // DidGetPrintedPagesCount() callback.
-  // Showing the Print... dialog box is a multi-step operation:
-  // - print_job_->Init(false) to get the default settings. Set
-  //   waiting_to_show_print_dialog_ = true.
-  // - on DEFAULT_INIT_DONE, gathers new settings.
-  // - did settings() or document() change since the last intialization?
-  //   - Call SwitchCssToPrintMediaType()
-  //     - On DidGetPrintedPagesCount() call, if
-  //       waiting_to_show_print_dialog_ = true
-  //       - calls print_job_->Init(true).
-  //       - waiting_to_show_print_dialog_ = false.
-  //       - DONE.
-  // - else (It may happens when redisplaying the dialog box with settings that
-  //         haven't changed)
-  //   - if waiting_to_show_print_dialog_ = true && page_count is initialized.
-  //     - calls print_job_->Init(true).
-  //     - waiting_to_show_print_dialog_ = false.
-  bool waiting_to_show_print_dialog_;
 
   // PrintViewManager is created as an extension of WebContent specialized for
   // printing-related behavior. Still, access to the renderer is needed so a
