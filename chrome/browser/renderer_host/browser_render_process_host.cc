@@ -406,7 +406,7 @@ bool BrowserRenderProcessHost::Init() {
       {
         // spawn child process
         base::ProcessHandle process = 0;
-        if (!base::LaunchApp(cmd_line, false, false, &process))
+        if (!SpawnChild(cmd_line, channel_.get(), &process))
           return false;
         process_.set_handle(process);
       }
@@ -424,6 +424,23 @@ bool BrowserRenderProcessHost::Init() {
 
   return true;
 }
+
+#if defined(OS_WIN)
+bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line, 
+    IPC::SyncChannel* channel, base::ProcessHandle* process_handle) {
+  return base::LaunchApp(command_line, false, false, process_handle);
+}
+#elif defined(OS_POSIX)
+bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line, 
+    IPC::SyncChannel* channel, base::ProcessHandle* process_handle) {
+  base::file_handle_mapping_vector fds_to_map;
+  int src_fd = -1, dest_fd = -1;
+  channel->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
+  if (src_fd > -1)
+    fds_to_map.push_back(std::pair<int,int>(src_fd, dest_fd));
+  return base::LaunchApp(command_line.argv(), fds_to_map, false, process_handle);
+}
+#endif
 
 int BrowserRenderProcessHost::GetNextRoutingID() {
   return widget_helper_->GetNextRoutingID();
