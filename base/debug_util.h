@@ -43,6 +43,10 @@ class DebugUtil {
   static bool WaitForDebugger(int wait_seconds, bool silent);
 
   // Are we running under a debugger?
+  // On OS X, the underlying mechanism doesn't work when the sandbox is enabled.
+  // To get around this, this function caches it's value.
+  // WARNING: Because of this, on OS X, a call MUST be made to this function
+  // BEFORE the sandbox is enabled.
   static bool BeingDebugged();
 
   // Break into the debugger, assumes a debugger is present.

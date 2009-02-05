@@ -78,10 +78,11 @@ class SuicidalListener : public IPC::Channel::Listener {
 
 MULTIPROCESS_TEST_MAIN(SimpleRenderer) {
   SandboxInitWrapper dummy_sandbox_init;
-  CommandLine command_line(L"");
-  command_line.AppendSwitchWithValue(switches::kProcessChannelID,
+  CommandLine cl(*CommandLine::ForCurrentProcess());
+  cl.AppendSwitchWithValue(switches::kProcessChannelID,
                                      kRendererTestChannelName);
-  MainFunctionParams dummy_params(command_line,
+
+  MainFunctionParams dummy_params(cl,
                                   dummy_sandbox_init);
   return RendererMain(dummy_params);
 }

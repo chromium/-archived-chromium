@@ -4,6 +4,8 @@
 
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 
+#include "base/debug_util.h"
+
 extern "C" {
 #include <sandbox.h>
 }
@@ -27,6 +29,11 @@ bool RendererMainPlatformDelegate::InitSandboxTests(bool no_sandbox) {
 }
 
 bool RendererMainPlatformDelegate::EnableSandbox() {
+  // This call doesn't work when the sandbox is enabled, the implementation
+  // caches it's return value so we call it here and then future calls will
+  // succeed.
+  DebugUtil::BeingDebugged();
+
   char* error_buff = NULL;
   int error = sandbox_init(kSBXProfilePureComputation, SANDBOX_NAMED,
                            &error_buff);

@@ -29,6 +29,15 @@ bool DebugUtil::SpawnDebuggerOnProcess(unsigned /* process_id */) {
 // http://developer.apple.com/qa/qa2004/qa1361.html
 // static
 bool DebugUtil::BeingDebugged() {
+  // If the process is sandboxed then we can't use the sysctl, so cache the
+  // value.
+  static bool is_set = false;
+  static bool being_debugged = false;
+
+  if (is_set) {
+    return being_debugged;
+  }
+
   // Initialize mib, which tells sysctl what info we want.  In this case,
   // we're looking for information about a specific process ID.
   int mib[] = {
@@ -45,11 +54,16 @@ bool DebugUtil::BeingDebugged() {
 
   int sysctl_result = sysctl(mib, arraysize(mib), &info, &info_size, NULL, 0);
   DCHECK(sysctl_result == 0);
-  if (sysctl_result != 0)
-    return false;
+  if (sysctl_result != 0) {
+    is_set = true;
+    being_debugged = false;
+    return being_debugged;
+  }
 
   // This process is being debugged if the P_TRACED flag is set.
-  return (info.kp_proc.p_flag & P_TRACED) != 0;
+  is_set = true;
+  being_debugged = (info.kp_proc.p_flag & P_TRACED) != 0;
+  return being_debugged;
 }
 
 #elif defined(OS_LINUX)

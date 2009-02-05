@@ -44,8 +44,14 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
     title += L" renderer";  // makes attaching to process easier
     MessageBox(NULL, L"renderer starting...", title.c_str(),
                MB_OK | MB_SETFOREGROUND);
-#else
-  NOTIMPLEMENTED();
+#else if defined(OS_MACOSX)
+  // TODO(playmobil): In the long term, overriding this flag doesn't seem
+  // right, either use our own flag or open a dialog we can use.
+  // This is just to ease debugging in the interim.
+  LOG(WARNING) << "Renderer ("
+               << getpid()
+               << ") paused waiting for debugger to attach @ pid" ;
+  pause();
 #endif  // !OS_WIN
   }
 }
