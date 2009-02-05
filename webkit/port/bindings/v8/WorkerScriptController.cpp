@@ -36,11 +36,20 @@
 #include "ScriptSourceCode.h"
 #include "ScriptValue.h"
 #include "v8_proxy.h"
+#include "DOMTimer.h"
 #include "WorkerContext.h"
 #include "WorkerMessagingProxy.h"
 #include "WorkerThread.h"
 
 namespace WebCore {
+
+// TODO(dimich): Move these stubs once they're implemented.
+int DOMTimer::install(ScriptExecutionContext*, ScheduledAction*, int timeout,
+                      bool singleShot) {
+  return 0;
+}
+void DOMTimer::removeById(ScriptExecutionContext*, int timeoutId) {
+}
 
 WorkerScriptController::WorkerScriptController(WorkerContext* workerContext)
     : m_workerContext(workerContext)
