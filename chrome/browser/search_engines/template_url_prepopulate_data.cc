@@ -2689,8 +2689,8 @@ int CountryCharsToCountryIDWithUpdate(char c1, char c2) {
   // ISO 'YU' and Serbia and Montenegro were ISO 'CS'. Serbia was subsequently
   // issued 'RS' and Montenegro 'ME'. Windows XP and Mac OS X Leopard still use
   // the value 'YU'. If we get a value of 'YU' or 'CS' we will map it to 'RS'.
-  if (c1 == 'Y' && c2 == 'U' ||
-      c1 == 'C' && c2 == 'S') {
+  if ((c1 == 'Y' && c2 == 'U') ||
+      (c1 == 'C' && c2 == 'S')) {
     c1 = 'R';
     c2 = 'S';
   }
