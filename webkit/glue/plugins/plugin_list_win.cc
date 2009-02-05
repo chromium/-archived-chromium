@@ -33,6 +33,7 @@ const TCHAR kMozillaActiveXPlugin[] = _T("npmozax.dll");
 const TCHAR kNewWMPPlugin[] = _T("np-mswmp.dll");
 const TCHAR kOldWMPPlugin[] = _T("npdsplay.dll");
 const TCHAR kYahooApplicationStatePlugin[] = _T("npystate.dll");
+const TCHAR kWanWangProtocolHandlerPlugin[] = _T("npww.dll");
 const TCHAR kRegistryJava[] =
     _T("Software\\JavaSoft\\Java Runtime Environment");
 const TCHAR kRegistryBrowserJavaVersion[] = _T("BrowserJavaVersion");
@@ -352,6 +353,13 @@ bool PluginList::ShouldLoadPlugin(const WebPluginInfo& info) {
   // process on return from NPObjectStub::OnInvoke. Please refer to
   // http://b/issue?id=1372124 for more information.
   if (filename == kYahooApplicationStatePlugin)
+    return false;
+
+  // Disable the WangWang protocol handler plugin (npww.dll) as it crashes
+  // chrome during shutdown. Firefox also disables this plugin.
+  // Please refer to http://code.google.com/p/chromium/issues/detail?id=3953
+  // for more information.
+  if (filename == kWanWangProtocolHandlerPlugin)
     return false;
 
   // Special WMP handling
