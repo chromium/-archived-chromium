@@ -55,9 +55,12 @@ MULTIPROCESS_TEST_MAIN(SlowChildProcess) {
 #define EXE_SUFFIX L""
 #endif
 
+#if defined(OS_MACOSX)
 // TODO(port): finish port on Mac
-#if !defined(OS_MACOSX)
+TEST_F(ProcessUtilTest, DISABLED_KillSlowChild) {
+#else
 TEST_F(ProcessUtilTest, KillSlowChild) {
+#endif
   remove("SlowChildProcess.die");
   int oldcount = GetProcessCount(L"base_unittests" EXE_SUFFIX, 0);
 
@@ -70,7 +73,6 @@ TEST_F(ProcessUtilTest, KillSlowChild) {
   EXPECT_TRUE(base::WaitForSingleProcess(handle, 5000));
   EXPECT_EQ(oldcount, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
 }
-#endif
 
 // TODO(estade): if possible, port these 2 tests.
 #if defined(OS_WIN)

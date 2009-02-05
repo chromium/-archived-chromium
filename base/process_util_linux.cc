@@ -14,7 +14,6 @@
 
 #include "base/file_util.h"
 #include "base/logging.h"
-#include "base/platform_thread.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -200,62 +199,6 @@ bool NamedProcessIterator::IncludeEntry() {
   if (!filter_)
     return true;
   return filter_->Includes(entry_.pid, entry_.ppid);
-}
-
-int GetProcessCount(const std::wstring& executable_name,
-                    const ProcessFilter* filter) {
-  int count = 0;
-
-  NamedProcessIterator iter(executable_name, filter);
-  while (iter.NextProcessEntry())
-    ++count;
-  return count;
-}
-
-bool KillProcesses(const std::wstring& executable_name, int exit_code,
-                   const ProcessFilter* filter) {
-  bool result = true;
-  const ProcessEntry* entry;
-
-  NamedProcessIterator iter(executable_name, filter);
-  while ((entry = iter.NextProcessEntry()) != NULL)
-    result = KillProcess((*entry).pid, exit_code, true) && result;
-
-  return result;
-}
-
-bool WaitForProcessesToExit(const std::wstring& executable_name,
-                            int wait_milliseconds,
-                            const ProcessFilter* filter) {
-  bool result = false;
-
-  // TODO(port): This is inefficient, but works if there are multiple procs.
-  // TODO(port): use waitpid to avoid leaving zombies around
-
-  base::Time end_time = base::Time::Now() +
-      base::TimeDelta::FromMilliseconds(wait_milliseconds);
-  do {
-    NamedProcessIterator iter(executable_name, filter);
-    if (!iter.NextProcessEntry()) {
-      result = true;
-      break;
-    }
-    PlatformThread::Sleep(100);
-  } while ((base::Time::Now() - end_time) > base::TimeDelta());
-
-  return result;
-}
-
-bool CleanupProcesses(const std::wstring& executable_name,
-                      int wait_milliseconds,
-                      int exit_code,
-                      const ProcessFilter* filter) {
-  bool exited_cleanly =
-    WaitForProcessesToExit(executable_name, wait_milliseconds,
-                           filter);
-  if (!exited_cleanly)
-    KillProcesses(executable_name, exit_code, filter);
-  return exited_cleanly;
 }
 
 // To have /proc/self/io file you must enable CONFIG_TASK_IO_ACCOUNTING

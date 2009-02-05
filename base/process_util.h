@@ -20,6 +20,7 @@
 #endif
 
 #include <string>
+#include <vector>
 
 #include "base/command_line.h"
 #include "base/process.h"
@@ -28,10 +29,11 @@
 typedef PROCESSENTRY32 ProcessEntry;
 typedef IO_COUNTERS IoCounters;
 #elif defined(OS_POSIX)
+// TODO(port): we should not rely on a Win32 structure.
 struct ProcessEntry {
   int pid;
   int ppid;
-  char szExeFile[NAME_MAX+1];
+  char szExeFile[NAME_MAX + 1];
 };
 
 struct IoCounters {
@@ -42,6 +44,10 @@ struct IoCounters {
   unsigned long long WriteTransferCount;
   unsigned long long OtherTransferCount;
 };
+#endif
+
+#if defined(OS_MACOSX)
+struct kinfo_proc;
 #endif
 
 namespace base {
@@ -215,9 +221,9 @@ class NamedProcessIterator {
 #elif defined(OS_LINUX)
   DIR *procfs_dir_;
 #elif defined(OS_MACOSX)
-  // probably kvm_t *kvmd_;
+  std::vector<kinfo_proc> kinfo_procs_;
+  size_t index_of_kinfo_proc_;
 #endif
-
   ProcessEntry entry_;
   const ProcessFilter* filter_;
 
