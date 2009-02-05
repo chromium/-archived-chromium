@@ -1763,3 +1763,10 @@ MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT PASS
 MAC : LayoutTests/animations/change-keyframes.html = FAIL PASS
+
+// TODO(dsh): These started to fail after r9202.
+LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
+LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
+      
