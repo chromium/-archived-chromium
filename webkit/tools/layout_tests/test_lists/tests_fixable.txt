@@ -1741,6 +1741,8 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 SKIP : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = CRASH
 
 // New tests added in http://trac.webkit.org/changeset/40424
+// The expected results indicate the test is failing upstream (see
+// https://bugs.webkit.org/show_bug.cgi?id=23772).
 LayoutTests/http/tests/history/redirect-js-form-submit-before-load.html = FAIL
 
 // Renders the width of "600" off by 3.  Looks OK but could still be a bug
