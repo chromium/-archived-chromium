@@ -25,6 +25,7 @@
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_process_impl.h"
+#include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile_manager.h"
@@ -37,6 +38,7 @@
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/resource_bundle.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
@@ -61,7 +63,6 @@
 #include "base/win_util.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/extensions/extension_protocols.h"
@@ -79,7 +80,6 @@
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/env_vars.h"
-#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/helper.h"
@@ -94,8 +94,10 @@
 #include "net/http/http_network_layer.h"
 #include "sandbox/src/sandbox.h"
 
-#include "net_resources.h"
+#endif  // defined(OS_WIN)
 
+#if !defined(OS_MACOSX)
+#include "net_resources.h"
 #endif
 
 namespace Platform {
@@ -134,7 +136,7 @@ void HandleErrorTestParameters(const CommandLine& command_line) {
   }
 }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 // The net module doesn't have access to this HTML or the strings that need to
 // be localized.  The Chrome locale will never change while we're running, so
 // it's safe to have a static string that we always return a pointer into.
@@ -173,7 +175,7 @@ StringPiece NetResourceProvider(int key) {
 
   return ResourceBundle::GetSharedInstance().GetRawDataResource(key);
 }
-#endif
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
 void RunUIMessageLoop(BrowserProcess* browser_process) {
 #if defined(OS_WIN)
@@ -302,7 +304,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
         parent_local_state.GetString(prefs::kApplicationLocale));
   }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // If we're running tests (ui_task is non-null), then the ResourceBundle
   // has already been initialized.
   if (!parameters.ui_task) {
@@ -311,7 +313,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
     // We only load the theme dll in the browser process.
     ResourceBundle::GetSharedInstance().LoadThemeResources();
   }
-#endif
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
   if (!parsed_command_line.HasSwitch(switches::kNoErrorDialogs)) {
     // Display a warning if the user is running windows 2000.
@@ -333,6 +335,11 @@ int BrowserMain(const MainFunctionParams& parameters) {
 #if defined(OS_WIN)
     user_data_dir = FilePath::FromWStringHack(
         UserDataDirDialog::RunUserDataDirDialog(user_data_dir.ToWStringHack()));
+#elif defined(OS_LINUX)
+    // TODO(port): fix this.
+    user_data_dir = FilePath("/tmp");
+#endif
+#if defined(OS_WIN) || defined(OS_LINUX)
     // Flush the message loop which lets the UserDataDirDialog close.
     MessageLoop::current()->Run();
 
@@ -355,7 +362,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
     }
 
     return ResultCodes::NORMAL_EXIT;
-#endif
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
   }
 
   PrefService* user_prefs = profile->GetPrefs();

@@ -262,11 +262,6 @@ class MetricsService {
   void RecordStartOfSessionEnd() { NOTIMPLEMENTED(); }
 };
 
-namespace browser_shutdown {
-void ReadLastShutdownInfo();
-void Shutdown();
-}
-
 namespace browser {
 void RegisterAllPrefs(PrefService*, PrefService*);
 }

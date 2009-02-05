@@ -32,7 +32,6 @@
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/resource_bundle.h"
 #include "net/url_request/url_request_context.h"
-#include "webkit/glue/webcursor.h"
 
 // static
 size_t SessionRestore::num_tabs_to_load_ = 0;
@@ -67,11 +66,11 @@ bool ShellIntegration::IsDefaultBrowser() {
 //--------------------------------------------------------------------------
 
 namespace browser_shutdown {
+bool delete_resources_on_shutdown = true;
 void ReadLastShutdownInfo()  { NOTIMPLEMENTED(); }
 void Shutdown() { NOTIMPLEMENTED(); }
 void OnShutdownStarting(ShutdownType type) { NOTIMPLEMENTED(); }
 }
-
 
 // static
 bool FirstRun::IsChromeFirstRun() {
