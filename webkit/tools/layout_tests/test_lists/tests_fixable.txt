@@ -1747,9 +1747,6 @@ LayoutTests/http/tests/history/redirect-js-form-submit-before-load.html = FAIL
 LayoutTests/http/tests/misc/refresh-headers.php = TIMEOUT
 LayoutTests/http/tests/navigation/new-window-redirect-history.html = FAIL
 
-// This has been flakey for a long time. Don't know when it started.
-LayoutTests/transitions/transition-end-event-nested.html = FAIL PASS
-
 // Renders the width of "600" off by 3.  Looks OK but could still be a bug
 // that we shouldn't rebaseline.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
