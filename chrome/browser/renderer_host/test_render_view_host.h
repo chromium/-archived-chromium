@@ -10,12 +10,17 @@
 #include "build/build_config.h"
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/test_web_contents.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class TestWebContents;
 
@@ -41,9 +46,11 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual gfx::NativeView GetPluginNativeView() { return NULL; }
   virtual void MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {}
+#if defined(OS_WIN)
   virtual void ForwardMouseEventToRenderer(UINT message,
                                            WPARAM wparam,
                                            LPARAM lparam) {}
+#endif
   virtual void Focus() {}
   virtual void Blur() {}
   virtual bool HasFocus() { return true; }

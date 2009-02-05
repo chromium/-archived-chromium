@@ -593,10 +593,7 @@ class ConfirmInfoBarDelegate : public InfoBarDelegate {
 class RenderWidgetHostView {
  public:
   virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
-  virtual bool WasHidden() {
-    NOTIMPLEMENTED();
-    return false;
-  }
+  virtual void WasHidden() { NOTIMPLEMENTED(); }
   virtual gfx::NativeView GetPluginNativeView() {
     NOTIMPLEMENTED(); 
     return NULL;
