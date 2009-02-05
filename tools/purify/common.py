@@ -52,8 +52,7 @@ class TimeoutError(Exception): pass
 def _print_line(line, flush=True):
   # Printing to a text file (including stdout) on Windows always winds up
   # using \r\n automatically.  On buildbot, this winds up being read by a master
-  # running on Linux, so this is a pain.  Unfortunately, it doesn't matter what
-  # we do here, so just leave this comment for future reference.
+  # running on Linux, so we manually convert crlf to '\n'
   print line.rstrip() + '\n',
   if flush:
     sys.stdout.flush()

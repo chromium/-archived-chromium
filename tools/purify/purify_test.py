@@ -100,11 +100,25 @@ class Purify(common.Rational):
           "[Purify]",
           "option -cache-dir=\"%s\"" % (self._cache_dir),
           "option -save-text-data=\"%s\"" % (common.FixPath(self._out_file)),
+          # Change the recorded stack depth to be much larger than the default.
+          # (webkit/v8 stacks in particular seem to get quite deep)
           "option -alloc-call-stack-length=30",
           "option -error-call-stack-length=30",
           "option -free-call-stack-length=30",
+          # Report leaks.
           "option -leaks-at-exit=yes",
-          "option -in-use-at-exit=no"
+          # Don't report memory in use (that's for memory profiling).
+          "option -in-use-at-exit=no",
+          # The maximum number of subprocesses.  If this is exceeded, Purify
+          # seems to lose its mind, and we have a number of tests that use
+          # much larger than the default of 5.
+          "option -number-of-puts=30",
+          # With our large pdbs, purify's default timeout (30) isn't always 
+          # enough.  If this isn't enough, -1 means no timeout.
+          "option -server-comm-timeout=120",
+          # check stack memory loads for UMRs, etc.
+          # currently disabled due to noisiness (see bug 5189)
+          #"option -stack-load-checking=yes",
           ]
       ini_file = self._exe.replace(".exe", "_pure.ini")
       if os.path.isfile(ini_file):
