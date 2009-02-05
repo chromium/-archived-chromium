@@ -1293,7 +1293,7 @@ MAC : LayoutTests/fast/forms/button-spacebar-click.html = FAIL
 MAC : LayoutTests/fast/forms/focus-control-to-page.html = FAIL
 
 // event failures
-MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL CRASH
+MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // history (currently flaky on Linx & Mac platforms)
 LINUX MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS FAIL
@@ -1347,16 +1347,12 @@ MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 // crash, and are noted as such)
 MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = PASS TIMEOUT CRASH
-MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT CRASH
 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT
 MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL CRASH
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-window-open.html = PASS TIMEOUT
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
 
 //  no html tags, bad html (unmatched tags)
@@ -1458,27 +1454,17 @@ MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT PAS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT FAIL
 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH PASS TIMEOUT
-MAC : chrome/http/tests/misc/set-window-opener-to-null.html = CRASH PASS TIMEOUT
+MAC : chrome/http/tests/misc/set-window-opener-to-null.html = PASS TIMEOUT
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH TIMEOUT FAIL
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = PASS CRASH TIMEOUT
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = PASS CRASH TIMEOUT
-MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = PASS CRASH TIMEOUT
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = PASS CRASH TIMEOUT
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-2-level.html = PASS CRASH
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH TIMEOUT PASS
 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
 MAC : LayoutTests/fast/borders/svg-as-border-image-2.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/pattern-with-transform.html = CRASH PASS FAIL
 MAC : LayoutTests/fast/canvas/pointInPath.html = CRASH PASS
-MAC : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/navigation/error404-subframeload.html = TIMEOUT PASS
 MAC : LayoutTests/fast/dom/Window/element-constructors-on-window.html = CRASH FAIL PASS
 MAC : LayoutTests/fast/loader/charset-parse.html = PASS CRASH FAIL
-MAC : LayoutTests/http/tests/xmlhttprequest/referer.html = PASS TIMEOUT
-MAC : LayoutTests/http/tests/misc/BOM-override-script.html = PASS TIMEOUT
 MAC : LayoutTests/fast/borders/border-image-omit-right-slice.html = CRASH PASS
 MAC : LayoutTests/editing/execCommand/paste-2.html = FAIL PASS
 MAC : LayoutTests/fast/borders/border-image-01.html = CRASH PASS
