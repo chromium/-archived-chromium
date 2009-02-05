@@ -1352,7 +1352,7 @@ MAC : LayoutTests/http/tests/security/frameNavigation/opener.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT CRASH
-MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT
+MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT
 MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL CRASH
@@ -1404,9 +1404,6 @@ MAC : LayoutTests/animations/change-one-anim.html = FAIL PASS
 // Fails due to a log message now that some, but not all plugin code is hooked
 // up (w/o the code, the log wasn't generated, and this passed).
 MAC : LayoutTests/fast/dom/object-plugin-hides-properties.html = FAIL
-
-// Unsure, linux says it needs to rebaseline this, bots fail a fair amount
-MAC : LayoutTests/editing/selection/drag-in-iframe.html = FAIL PASS
 
 // Unsure, seems to timeout a lot on build bots
 MAC : LayoutTests/http/tests/xmlhttprequest/null-auth.php = TIMEOUT PASS
@@ -1769,6 +1766,9 @@ LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
 
+// This has been flakey for a long time. Don't know when it started.
+LayoutTests/transitions/transition-end-event-nested.html = FAIL PASS
+
 // Started failing with r9120 (dsh)
 LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
 LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
@@ -1779,3 +1779,14 @@ LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
+
+// Flakey tests added 2/4/09. Don't know when they became flakey.
+WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = TIMEOUT PASS
+WIN MAC : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
+// Unsure, linux says it needs to rebaseline this, bots fail a fair amount
+WIN MAC : LayoutTests/editing/selection/drag-in-iframe.html = FAIL PASS
+WIN MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
+MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT PASS
+MAC : LayoutTests/animations/change-keyframes.html = FAIL PASS
