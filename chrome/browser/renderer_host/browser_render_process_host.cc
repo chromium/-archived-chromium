@@ -400,18 +400,11 @@ bool BrowserRenderProcessHost::Init() {
       } else
 #endif  // OS_WIN and sandbox
       {
-#if defined(OS_WIN)
         // spawn child process
         base::ProcessHandle process = 0;
-        // TODO(port): LaunchApp is actually no good on POSIX when
-        // we've constructed the command line as we have here, as the above
-        // calls all append to a single string while LaunchApp reaches in to
-        // the argv array.  CommandLine should be fixed, but once it is, this
-        // code will be correct.
         if (!base::LaunchApp(cmd_line, false, false, &process))
           return false;
         process_.set_handle(process);
-#endif
       }
     }
   }
