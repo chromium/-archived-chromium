@@ -10,10 +10,17 @@ namespace base {
 
 void Process::Close() {
   process_ = 0;
+  // if the process wasn't termiated (so we waited) or the state
+  // wasn't already collected w/ a wait from process_utils, we're gonna
+  // end up w/ a zombie when it does finally exit.
 }
 
 void Process::Terminate(int result_code) {
-  NOTIMPLEMENTED();
+  // result_code isn't supportable.
+  if (!process_)
+    return;
+  // Wait so we clean up the zombie
+  KillProcess(process_, result_code, true);
 }
 
 bool Process::IsProcessBackgrounded() const {
