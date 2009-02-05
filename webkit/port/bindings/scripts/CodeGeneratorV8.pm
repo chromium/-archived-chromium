@@ -741,8 +741,14 @@ sub GenerateNewFunctionTemplate
   my $interfaceName = $dataNode->name;
   my $name = $function->signature->name;
 
-  if ($function->signature->extendedAttributes->{"Custom"}) {
-    my $customFunc = $function->signature->extendedAttributes->{"Custom"};
+  if ($function->signature->extendedAttributes->{"Custom"} ||
+      $function->signature->extendedAttributes->{"V8Custom"}) {
+    if ($function->signature->extendedAttributes->{"Custom"} &&
+        $function->signature->extendedAttributes->{"V8Custom"}) {
+      die "Custom and V8Custom should be mutually exclusive!"
+    }
+    my $customFunc = $function->signature->extendedAttributes->{"Custom"} ||
+                     $function->signature->extendedAttributes->{"V8Custom"};
     if ($customFunc eq 1) {
       $customFunc = $interfaceName . WK_ucfirst($name);
     }
@@ -882,7 +888,7 @@ sub GenerateBatchedAttributeData
     $accessControl = "static_cast<v8::AccessControl>(" . $accessControl . ")";
 
 
-    my $customAccessor = $attrExt->{"Custom"} || $attrExt->{"CustomSetter"} || $attrExt->{"CustomGetter"} || "";
+    my $customAccessor = $attrExt->{"Custom"} || $attrExt->{"V8Custom"} || $attrExt->{"CustomSetter"} || $attrExt->{"CustomGetter"} || "";
     if ($customAccessor eq 1) {
       # use the naming convension, interface + (capitalize) attr name
       $customAccessor = $interfaceName . WK_ucfirst($attrName);
@@ -924,7 +930,7 @@ sub GenerateBatchedAttributeData
       }
 
     # Custom Getter and Setter
-    } elsif ($attrExt->{"Custom"}) {
+    } elsif ($attrExt->{"Custom"} || $attrExt->{"V8Custom"}) {
       $getter = "V8Custom::v8${customAccessor}AccessorGetter";
       $setter = "V8Custom::v8${customAccessor}AccessorSetter";
       
@@ -1050,7 +1056,8 @@ sub GenerateImplementation
       # Do not generate accessor if this is a custom attribute.  The
       # call will be forwarded to a hand-written accessor
       # implementation.
-      if ($attribute->signature->extendedAttributes->{"Custom"}) {
+      if ($attribute->signature->extendedAttributes->{"Custom"} ||
+          $attribute->signature->extendedAttributes->{"V8Custom"}) {
         $implIncludes{"v8_custom.h"} = 1;
         next;
       }
@@ -1079,7 +1086,8 @@ sub GenerateImplementation
     foreach my $function (@{$dataNode->functions}) {
       # hack for addEventListener/RemoveEventListener
       # TODO(fqian): avoid naming conflict
-      if ($function->signature->extendedAttributes->{"Custom"}) {
+      if ($function->signature->extendedAttributes->{"Custom"} ||
+          $function->signature->extendedAttributes->{"V8Custom"}) {
         $implIncludes{"v8_custom.h"} = 1;
 
       } else {
@@ -1829,7 +1837,8 @@ sub RequiresCustomSignature
 {
     my $function = shift;
     # No signature needed for Custom function
-    if ($function->signature->extendedAttributes->{"Custom"}) {
+    if ($function->signature->extendedAttributes->{"Custom"} ||
+        $function->signature->extendedAttributes->{"V8Custom"}) {
       return 0;
     }
 
