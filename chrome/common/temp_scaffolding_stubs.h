@@ -897,8 +897,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
   virtual void ShowCreatedWindow(int, WindowOpenDisposition,
                                  const gfx::Rect&, bool) { NOTIMPLEMENTED(); }
   virtual void ShowCreatedWidget(int, const gfx::Rect&) { NOTIMPLEMENTED(); }
-  virtual void ShowContextMenu(
-      const ViewHostMsg_ContextMenu_Params&) { NOTIMPLEMENTED(); }
+  virtual void ShowContextMenu(const ContextMenuParams&) { NOTIMPLEMENTED(); }
   virtual void StartDragging(const WebDropData&) { NOTIMPLEMENTED(); }
   virtual void UpdateDragCursor(bool) { NOTIMPLEMENTED(); }
   virtual void TakeFocus(bool) { NOTIMPLEMENTED(); }
