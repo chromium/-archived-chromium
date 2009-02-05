@@ -132,7 +132,9 @@ def _Scanner(file_node, env, path):
          node.parent.name == 'translations')):
       files.append(os.path.abspath(node.GetFilePath()))
     elif node.name == 'include' and node.attrs['filenameonly'] == 'false':
-      files.append(node.FilenameToOpen())
+      # TODO(tc): This doesn't work because the path is often relative to 
+      #files.append(node.FilenameToOpen())
+      pass
 
   # Add in the grit source files.  If one of these change, we want to re-run
   # grit.
