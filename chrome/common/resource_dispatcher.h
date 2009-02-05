@@ -7,7 +7,9 @@
 #ifndef CHROME_COMMON_RESOURCE_DISPATCHER_H__
 #define CHROME_COMMON_RESOURCE_DISPATCHER_H__
 
+#include <deque>
 #include <queue>
+#include <string>
 
 #include "base/hash_tables.h"
 #include "base/shared_memory.h"
@@ -17,7 +19,6 @@
 #include "webkit/glue/resource_loader_bridge.h"
 
 struct ResourceResponseHead;
-struct ViewMsg_Resource_ResponseHead;
 
 // Uncomment this to disable loading resources via the parent process.  This
 // may be useful for debugging purposes.
@@ -29,7 +30,7 @@ struct ViewMsg_Resource_ResponseHead;
 // processes.
 class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
  public:
-  ResourceDispatcher(IPC::Message::Sender* sender);
+  explicit ResourceDispatcher(IPC::Message::Sender* sender);
   ~ResourceDispatcher();
 
   // Called to possibly handle the incoming IPC message.  Returns true if
@@ -99,7 +100,7 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
     bool mixed_content;
     bool is_deferred;
   };
-  typedef base::hash_map<int,PendingRequestInfo> PendingRequestList;
+  typedef base::hash_map<int, PendingRequestInfo> PendingRequestList;
 
   // Message response handlers, called by the message handler for this process.
   void OnUploadProgress(int request_id, int64 position, int64 size);

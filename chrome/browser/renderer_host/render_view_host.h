@@ -30,8 +30,6 @@ class ViewMsg_Navigate;
 struct ContextMenuParams;
 struct ViewHostMsg_DidPrintPage_Params;
 struct ViewMsg_Navigate_Params;
-struct ViewMsg_Print_Params;
-struct ViewMsg_PrintPages_Params;
 struct WebDropData;
 struct WebPreferences;
 
@@ -379,7 +377,7 @@ class RenderViewHost : public RenderWidgetHost {
   void UnloadListenerHasFired() { has_unload_listener_ = false; }
 
 #ifdef CHROME_PERSONALIZATION
-  // Tells the RenderView to raise an personalization event with the given name 
+  // Tells the RenderView to raise an personalization event with the given name
   // and argument.
   void RaisePersonalizationEvent(std::string event_name, std::string event_arg);
 

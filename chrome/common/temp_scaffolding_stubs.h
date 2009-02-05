@@ -75,6 +75,7 @@ class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
 class WebContents;
+struct WebPluginGeometry;
 class WebPreferences;
 
 namespace IPC {
@@ -430,7 +431,6 @@ class IconManager {
 };
 
 struct ViewHostMsg_DidPrintPage_Params;
-struct ViewHostMsg_FrameNavigate_Params;
 
 class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
  public:

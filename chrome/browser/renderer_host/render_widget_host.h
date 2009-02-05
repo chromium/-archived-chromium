@@ -28,7 +28,6 @@ class WebMouseWheelEvent;
 class WebCursor;
 struct ViewHostMsg_PaintRect_Params;
 struct ViewHostMsg_ScrollRect_Params;
-struct WebPluginGeometry;
 
 // This class manages the browser side of a browser<->renderer HWND connection.
 // The HWND lives in the browser process, and windows events are sent over

@@ -19,7 +19,6 @@ class RenderViewHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
 class WebContents;
-struct WebDropData;
 class WebKeyboardEvent;
 
 namespace base {

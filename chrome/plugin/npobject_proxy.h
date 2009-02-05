@@ -14,7 +14,6 @@
 
 class PluginChannelBase;
 struct NPObject;
-struct NPVariant_Param;
 
 namespace base {
 class WaitableEvent;
