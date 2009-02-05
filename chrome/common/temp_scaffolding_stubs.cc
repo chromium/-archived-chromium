@@ -18,7 +18,7 @@
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
-#include "chrome/browser/resource_message_filter.h"
+#include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 #include "chrome/browser/shell_integration.h"
