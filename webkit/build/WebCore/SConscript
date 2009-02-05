@@ -407,6 +407,7 @@ input_files = [
     '$WEBCORE_DIR/page/NavigatorBase.cpp',
     '$WEBCORE_DIR/page/Page.cpp',
     '$WEBCORE_DIR/page/PageGroup.cpp',
+	'$WEBCORE_DIR/page/PrintContext.cpp',
     '$WEBCORE_DIR/page/Screen.cpp',
     '$WEBCORE_DIR/page/SecurityOrigin.cpp',
     '$WEBCORE_DIR/page/Settings.cpp',

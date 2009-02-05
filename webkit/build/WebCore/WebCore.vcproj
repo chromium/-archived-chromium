@@ -445,6 +445,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PrintContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PrintContext.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Screen.cpp"
 				>
 			</File>
@@ -553,6 +561,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\FrameChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\chromium\FrameChromium.h"
 					>
 				</File>
 			</Filter>
