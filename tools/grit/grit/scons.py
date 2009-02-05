@@ -26,7 +26,9 @@ def _SourceToFile(source):
     # line to get this to work with Repository() directories.
     # Get this functionality folded back into the upstream grit tool.
     #source = str(source[0])
-    source = str(source[0].rfile())
+    for s in source:
+      if str(s.rfile()).endswith('.grd'):
+        return str(s.rfile())
   else:
     # TODO(gspencer):  Had to add the .rfile() method to the following
     # line to get this to work with Repository() directories.
@@ -40,14 +42,14 @@ def _Builder(target, source, env):
   from grit import grit_runner
   from grit.tool import build
   options = grit_runner.Options()
-  # This sets options to default values  TODO(joi) Remove verbose
+  # This sets options to default values.
   options.ReadOptions(['-v'])
   options.input = _SourceToFile(source)
-  
-  # TODO(joi) Check if we can get the 'verbose' option from the environment.  
-  
+
+  # TODO(joi) Check if we can get the 'verbose' option from the environment.
+
   builder = build.RcBuilder()
-  
+
   # Get the CPP defines from the environment.
   for flag in env.get('RCFLAGS', []):
     if flag.startswith('/D'):
@@ -56,13 +58,12 @@ def _Builder(target, source, env):
     # Only apply to first instance of a given define
     if name not in builder.defines:
       builder.defines[name] = val
-  
+
   # To ensure that our output files match what we promised SCons, we
   # use the list of targets provided by SCons and update the file paths in
   # our .grd input file with the targets.
   builder.scons_targets = [str(t) for t in target]
   builder.Run(options, [])
-  return None  # success
 
 
 def _Emitter(target, source, env):
@@ -70,17 +71,17 @@ def _Emitter(target, source, env):
   include all files in the <outputs> section of the .grd file as well as
   any other files output by 'grit build' for the .grd file.
   '''
-  from grit import util
   from grit import grd_reader
-  
+  from grit import util
+
   # TODO(gspencer):  Had to use .abspath, not str(target[0]), to get
   # this to work with Repository() directories.
   # Get this functionality folded back into the upstream grit tool.
   #base_dir = util.dirname(str(target[0]))
   base_dir = util.dirname(target[0].abspath)
-  
+
   grd = grd_reader.Parse(_SourceToFile(source), debug=_IsDebugEnabled())
-  
+
   target = []
   lang_folders = {}
   # Add all explicitly-specified output files
@@ -91,7 +92,7 @@ def _Emitter(target, source, env):
       print "GRIT: Added target %s" % path
     if output.attrs['lang'] != '':
       lang_folders[output.attrs['lang']] = os.path.dirname(path)
-  
+
   # Add all generated files, once for each output language.
   for node in grd:
     if node.name == 'structure':
@@ -106,7 +107,7 @@ def _Emitter(target, source, env):
             target.append(path)
             if _IsDebugEnabled():
               print "GRIT: Added target %s" % path
-  
+
   # return target and source lists
   return (target, source)
 
@@ -115,8 +116,10 @@ def _Scanner(file_node, env, path):
   '''A SCons scanner function for .grd files, which outputs the list of files
   that changes in could change the output of building the .grd file.
   '''
+  if not str(file_node.rfile()).endswith('.grd'):
+    return []
+
   from grit import grd_reader
-  
   # TODO(gspencer):  Had to add the .rfile() method to the following
   # line to get this to work with Repository() directories.
   # Get this functionality folded back into the upstream grit tool.
@@ -128,7 +131,22 @@ def _Scanner(file_node, env, path):
         (node.name == 'file' and node.parent and
          node.parent.name == 'translations')):
       files.append(os.path.abspath(node.GetFilePath()))
+    elif node.name == 'include' and node.attrs['filenameonly'] == 'false':
+      files.append(node.FilenameToOpen())
+
+  # Add in the grit source files.  If one of these change, we want to re-run
+  # grit.
+  grit_root_dir = os.path.split(os.path.abspath(__file__))[0]
+  for root, dirs, filenames in os.walk(grit_root_dir):
+    grit_src = [os.path.join(root, f) for f in filenames if f.endswith('.py')]
+    files.extend(grit_src)
+
   return files
+
+
+def _BuildStr(targets, sources, env):
+  '''This message gets printed each time the builder runs.'''
+  return "Running GRIT on %s" % str(sources[0].rfile())
 
 
 # Function name is mandated by newer versions of SCons.
@@ -139,18 +157,17 @@ def generate(env):
   # TODO(gspencer):  change to use the public SCons API Action()
   # and Builder(), instead of reaching directly into internal APIs.
   # Get this change folded back into the upstream grit tool.
-  action = env.Action(_Builder, varlist=['RCFLAGS'])
-  
-  builder = env.Builder(action=action, emitter=_Emitter, src_suffix='.grd')
-  
-  scanner = env.Scanner(function=_Scanner, name='GRIT', skeys=['.grd'])
-  
+  action = env.Action(_Builder, _BuildStr, varlist=['RCFLAGS'])
+
+  scanner = env.Scanner(function=_Scanner, name='GRIT scanner', skeys=['.grd'])
+
+  builder = env.Builder(action=action, emitter=_Emitter,
+                        source_scanner=scanner,
+                        src_suffix='.grd')
+
   # add our builder and scanner to the environment
   env.Append(BUILDERS = {'GRIT': builder})
-  env.Prepend(SCANNERS = scanner)
-
 
 # Function name is mandated by newer versions of SCons.
 def exists(env):
   return 1
-

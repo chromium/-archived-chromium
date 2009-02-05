@@ -20,7 +20,6 @@ class TopLevel(interface.ItemFormatter):
   '''Writes the necessary preamble for a resource.h file.'''
   
   def Format(self, item, lang='', begin_item=True, output_dir='.'):
-    print 'TopLevel formatter called for item %s, begin %s' % (item, begin_item)
     if not begin_item:
       return ''
     else:
