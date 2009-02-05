@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_REPOST_FORM_WARNING_H_
-#define CHROME_BROWSER_REPOST_FORM_WARNING_H_
+#ifndef CHROME_BROWSER_VIEWS_REPOST_FORM_WARNING_VIEW_H_
+#define CHROME_BROWSER_VIEWS_REPOST_FORM_WARNING_VIEW_H_
 
 #include "chrome/common/notification_observer.h"
 #include "chrome/views/dialog_delegate.h"
@@ -14,14 +14,12 @@ namespace views {
 class Window;
 }
 
-class RepostFormWarningDialog : public views::DialogDelegate,
-                                public NotificationObserver {
+class RepostFormWarningView : public views::DialogDelegate,
+                              public NotificationObserver {
  public:
-  // Creates and runs a message box which asks the user if they want to resend
-  // an HTTP POST.
-  static void RunRepostFormWarningDialog(
-      NavigationController* navigation_controller);
-  virtual ~RepostFormWarningDialog();
+  // Use RunRepostFormWarningDialog (declared in repost_form_warning.h) to use.
+  RepostFormWarningView(NavigationController* navigation_controller);
+  virtual ~RepostFormWarningView();
 
   // views::DialogDelegate Methods:
   virtual std::wstring GetWindowTitle() const;
@@ -35,8 +33,6 @@ class RepostFormWarningDialog : public views::DialogDelegate,
   virtual views::View* GetContentsView();
 
  private:
-  // Use RunRepostFormWarningDialog to use.
-  RepostFormWarningDialog(NavigationController* navigation_controller);
 
   // NotificationObserver implementation.
   // Watch for a new load or a closed tab and dismiss the dialog if they occur.
@@ -50,7 +46,7 @@ class RepostFormWarningDialog : public views::DialogDelegate,
   // Navigation controller, used to continue the reload.
   NavigationController* navigation_controller_;
 
-  DISALLOW_COPY_AND_ASSIGN(RepostFormWarningDialog);
+  DISALLOW_COPY_AND_ASSIGN(RepostFormWarningView);
 };
 
-#endif // CHROME_BROWSER_REPOST_FORM_WARNING_H_
+#endif  // CHROME_BROWSER_VIEWS_REPOST_FORM_WARNING_VIEW_H_

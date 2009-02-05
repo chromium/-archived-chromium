@@ -6,23 +6,17 @@
 // resource request.  It copies many of the publicly accessible member variables
 // of URLRequest, but exists on the UI thread.
 
-#ifndef CHROME_BROWSER_RESOURCE_REQUEST_DETAILS_H__
-#define CHROME_BROWSER_RESOURCE_REQUEST_DETAILS_H__
+#ifndef CHROME_BROWSER_RENDERER_HOST_RESOURCE_REQUEST_DETAILS_H_
+#define CHROME_BROWSER_RENDERER_HOST_RESOURCE_REQUEST_DETAILS_H_
 
 #include <string>
 
 #include "base/basictypes.h"
+#include "chrome/browser/cert_store.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "googleurl/src/gurl.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_status.h"
-
-#if defined(OS_WIN)
-// TODO(port): Move header to the above section when CertStore has been ported.
-#include "chrome/browser/cert_store.h"
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 // Details about a resource request notification.
 class ResourceRequestDetails {
@@ -70,7 +64,7 @@ class ResourceRequestDetails {
   int ssl_cert_status_;
   ResourceType::Type resource_type_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ResourceRequestDetails);
+  DISALLOW_COPY_AND_ASSIGN(ResourceRequestDetails);
 };
 
 // Details about a redirection of a resource request.
@@ -89,5 +83,4 @@ class ResourceRedirectDetails : public ResourceRequestDetails {
   GURL new_url_;
 };
 
-#endif  // CHROME_BROWSER_RESOURCE_REQUEST_DETAILS_H__
-
+#endif  // CHROME_BROWSER_RENDERER_HOST_RESOURCE_REQUEST_DETAILS_H_

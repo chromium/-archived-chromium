@@ -30,7 +30,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
-#include "chrome/browser/resource_message_filter.h"
+#include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"

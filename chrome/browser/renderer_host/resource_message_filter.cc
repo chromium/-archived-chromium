@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/resource_message_filter.h"
+#include "chrome/browser/renderer_host/resource_message_filter.h"
 
 #include "base/clipboard.h"
 #include "base/gfx/native_widget_types.h"

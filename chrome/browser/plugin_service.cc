@@ -11,7 +11,7 @@
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/resource_message_filter.h"
+#include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/logging_chrome.h"
 #include "webkit/glue/plugins/plugin_list.h"

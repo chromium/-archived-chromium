@@ -490,18 +490,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resource_message_filter.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\resource_message_filter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\resource_request_details.h"
-				>
-			</File>
-			<File
 				RelativePath=".\session_startup_pref.cc"
 				>
 			</File>
@@ -750,14 +738,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\repost_form_warning_dialog.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\repost_form_warning_dialog.h"
-				>
-			</File>
-			<File
 				RelativePath=".\status_bubble.h"
 				>
 			</File>
@@ -986,11 +966,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\history\history_publisher_win.cc"
+				RelativePath=".\history\history_publisher.h"
 				>
 			</File>
 			<File
-				RelativePath=".\history\history_publisher.h"
+				RelativePath=".\history\history_publisher_win.cc"
 				>
 			</File>
 			<File
@@ -2070,6 +2050,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\resource_message_filter.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\resource_message_filter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\resource_request_details.h"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\safe_browsing_resource_handler.cc"
 				>
 			</File>
@@ -2183,6 +2175,10 @@
 			</File>
 			<File
 				RelativePath=".\tab_contents\render_view_host_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\repost_form_warning.h"
 				>
 			</File>
 			<File

@@ -698,6 +698,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\repost_form_warning_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\repost_form_warning_view.h"
+			>
+		</File>
+		<File
 			RelativePath=".\restart_message_box.cc"
 			>
 		</File>

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H_
-#define CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H_
+#ifndef CHROME_BROWSER_RENDERER_HOST_RESOURCE_MSG_FILTER_H_
+#define CHROME_BROWSER_RENDERER_HOST_RESOURCE_MSG_FILTER_H_
 
 #include "base/clipboard.h"
 #include "base/file_path.h"
@@ -12,7 +12,6 @@
 #include "base/ref_counted.h"
 #include "build/build_config.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/notification_observer.h"
@@ -20,7 +19,9 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #else
+// TODO(port): port ResourceDispatcherHost.
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
@@ -28,7 +29,6 @@ class ClipboardService;
 class Profile;
 class RenderWidgetHelper;
 class SpellChecker;
-struct ViewHostMsg_Resource_Request;
 struct WebPluginInfo;
 
 namespace printing {
@@ -242,4 +242,4 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   DISALLOW_COPY_AND_ASSIGN(ResourceMessageFilter);
 };
 
-#endif  // CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H_
+#endif  // CHROME_BROWSER_RENDERER_HOST_RESOURCE_MSG_FILTER_H_

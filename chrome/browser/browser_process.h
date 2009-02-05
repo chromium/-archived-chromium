@@ -90,7 +90,8 @@ class BrowserProcess {
   // It might be nicer to have a thread pool for this kind of thing.
   virtual base::Thread* file_thread() = 0;
 
-  // Returns the thread that is used for database operations such as history.
+  // Returns the thread that is used for database operations such as the web
+  // database. History has its own thread since it has much higher traffic.
   virtual base::Thread* db_thread() = 0;
 
   virtual sandbox::BrokerServices* broker_services() = 0;

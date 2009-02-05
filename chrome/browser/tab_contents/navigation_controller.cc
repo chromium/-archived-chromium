@@ -11,6 +11,7 @@
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/repost_form_warning.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
@@ -216,10 +217,10 @@ void NavigationController::Reload(bool check_for_repost) {
   if (check_for_repost_ && check_for_repost && current_index != -1 &&
       GetEntryAtIndex(current_index)->has_post_data()) {
     // The user is asking to reload a page with POST data. Prompt to make sure
-    // they really want to do this. If they do, RepostFormWarningDialog calls us
-    // back with ReloadDontCheckForRepost.
+    // they really want to do this. If they do, the dialog will call us back
+    // with check_for_repost = false.
     active_contents_->Activate();
-    RepostFormWarningDialog::RunRepostFormWarningDialog(this);
+    RunRepostFormWarningDialog(this);
   } else {
     // Base the navigation on where we are now...
     int current_index = GetCurrentEntryIndex();
