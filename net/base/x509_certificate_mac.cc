@@ -11,6 +11,7 @@
 #include "base/pickle.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/ev_root_ca_metadata.h"
+#include "net/base/net_errors.h"
 
 using base::Time;
 
@@ -250,6 +251,13 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
   
   if (dns_names->empty())
     dns_names->push_back(subject_.common_name);
+}
+
+int X509Certificate::Verify(const std::string& hostname,
+                            bool rev_checking_enabled,
+                            CertVerifyResult* verify_result) const {
+  NOTIMPLEMENTED();
+  return ERR_NOT_IMPLEMENTED;
 }
   
 // Returns true if the certificate is an extended-validation certificate.

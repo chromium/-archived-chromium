@@ -165,7 +165,8 @@ void GetCertSubjectAltName(PCCERT_CONTEXT cert,
 }
 
 // Saves some information about the certificate chain chain_context in
-// *verify_result.
+// *verify_result.  The caller MUST initialize *verify_result before calling
+// this function.
 void GetCertChainInfo(PCCERT_CHAIN_CONTEXT chain_context,
                       CertVerifyResult* verify_result) {
   PCERT_SIMPLE_CHAIN first_chain = chain_context->rgpChain[0];
@@ -433,12 +434,7 @@ bool X509Certificate::HasExpired() const {
 int X509Certificate::Verify(const std::string& hostname,
                             bool rev_checking_enabled,
                             CertVerifyResult* verify_result) const {
-  verify_result->cert_status = 0;
-  verify_result->has_md5 = false;
-  verify_result->has_md2 = false;
-  verify_result->has_md4 = false;
-  verify_result->has_md5_ca = false;
-  verify_result->has_md2_ca = false;
+  verify_result->Reset();
 
   // Build and validate certificate chain.
 

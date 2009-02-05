@@ -215,7 +215,6 @@ SSLClientSocketWin::SSLClientSocketWin(ClientSocket* transport_socket,
       user_buf_(NULL),
       user_buf_len_(0),
       next_state_(STATE_NONE),
-      server_cert_(NULL),
       creds_(NULL),
       payload_send_buffer_len_(0),
       bytes_sent_(0),
@@ -237,29 +236,20 @@ SSLClientSocketWin::~SSLClientSocketWin() {
 }
 
 void SSLClientSocketWin::GetSSLInfo(SSLInfo* ssl_info) {
-  SECURITY_STATUS status = SEC_E_OK;
-  if (server_cert_ == NULL) {
-    status = QueryContextAttributes(&ctxt_,
-                                    SECPKG_ATTR_REMOTE_CERT_CONTEXT,
-                                    &server_cert_);
-  }
-  if (status == SEC_E_OK) {
-    DCHECK(server_cert_);
-    PCCERT_CONTEXT dup_cert = CertDuplicateCertificateContext(server_cert_);
-    ssl_info->cert = X509Certificate::CreateFromHandle(
-        dup_cert, X509Certificate::SOURCE_FROM_NETWORK);
-  }
+  if (!server_cert_)
+    return;
+
+  ssl_info->cert = server_cert_;
+  ssl_info->cert_status = server_cert_verify_result_.cert_status;
   SecPkgContext_ConnectionInfo connection_info;
-  status = QueryContextAttributes(&ctxt_,
-                                  SECPKG_ATTR_CONNECTION_INFO,
-                                  &connection_info);
+  SECURITY_STATUS status = QueryContextAttributes(
+      &ctxt_, SECPKG_ATTR_CONNECTION_INFO, &connection_info);
   if (status == SEC_E_OK) {
     // TODO(wtc): compute the overall security strength, taking into account
     // dwExchStrength and dwHashStrength.  dwExchStrength needs to be
     // normalized.
     ssl_info->security_bits = connection_info.dwCipherStrength;
   }
-  ssl_info->cert_status = server_cert_verify_result_.cert_status;
 }
 
 int SSLClientSocketWin::Connect(CompletionCallback* callback) {
@@ -306,10 +296,8 @@ void SSLClientSocketWin::Disconnect() {
     DeleteSecurityContext(&ctxt_);
     memset(&ctxt_, 0, sizeof(ctxt_));
   }
-  if (server_cert_) {
-    CertFreeCertificateContext(server_cert_);
+  if (server_cert_)
     server_cert_ = NULL;
-  }
 
   // TODO(wtc): reset more members?
   bytes_decrypted_ = 0;
@@ -697,12 +685,8 @@ int SSLClientSocketWin::DoVerifyCert() {
   next_state_ = STATE_VERIFY_CERT_COMPLETE;
 
   DCHECK(server_cert_);
-
-  PCCERT_CONTEXT dup_cert = CertDuplicateCertificateContext(server_cert_);
-  scoped_refptr<X509Certificate> cert =
-      X509Certificate::CreateFromHandle(dup_cert,
-                                        X509Certificate::SOURCE_FROM_NETWORK);
-  return verifier_.Verify(cert, hostname_, ssl_config_.rev_checking_enabled,
+  return verifier_.Verify(server_cert_, hostname_,
+                          ssl_config_.rev_checking_enabled,
                           &server_cert_verify_result_, &io_callback_);
 }
 
@@ -924,12 +908,15 @@ int SSLClientSocketWin::DidCompleteHandshake() {
     return MapSecurityError(status);
   }
   DCHECK(!server_cert_);
+  PCCERT_CONTEXT server_cert_handle = NULL;
   status = QueryContextAttributes(
-      &ctxt_, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &server_cert_);
+      &ctxt_, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &server_cert_handle);
   if (status != SEC_E_OK) {
     DLOG(ERROR) << "QueryContextAttributes failed: " << status;
     return MapSecurityError(status);
   }
+  server_cert_ = X509Certificate::CreateFromHandle(
+      server_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
 
   completed_handshake_ = true;
   next_state_ = STATE_VERIFY_CERT;

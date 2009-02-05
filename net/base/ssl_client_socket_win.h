@@ -99,7 +99,7 @@ class SSLClientSocketWin : public SSLClientSocket {
   State next_state_;
 
   SecPkgContext_StreamSizes stream_sizes_;
-  PCCERT_CONTEXT server_cert_;
+  scoped_refptr<X509Certificate> server_cert_;
   CertVerifier verifier_;
   CertVerifyResult server_cert_verify_result_;
 

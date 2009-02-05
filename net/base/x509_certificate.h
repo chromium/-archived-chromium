@@ -135,17 +135,23 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // prefers the handle from the network because our HTTP cache isn't
   // caching the corresponding intermediate CA certificates yet
   // (http://crbug.com/7065).
+  //
+  // The returned pointer must be stored in a scoped_refptr<X509Certificate>.
   static X509Certificate* CreateFromHandle(OSCertHandle cert_handle,
                                            Source source);
 
   // Create an X509Certificate from the BER-encoded representation.
   // Returns NULL on failure.
+  //
+  // The returned pointer must be stored in a scoped_refptr<X509Certificate>.
   static X509Certificate* CreateFromBytes(const char* data, int length);
 
   // Create an X509Certificate from the representation stored in the given
   // pickle.  The data for this object is found relative to the given
   // pickle_iter, which should be passed to the pickle's various Read* methods.
   // Returns NULL on failure.
+  //
+  // The returned pointer must be stored in a scoped_refptr<X509Certificate>.
   static X509Certificate* CreateFromPickle(const Pickle& pickle,
                                            void** pickle_iter);
 

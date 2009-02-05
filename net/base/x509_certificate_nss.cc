@@ -16,6 +16,7 @@
 #include "base/logging.h"
 #include "base/time.h"
 #include "base/nss_init.h"
+#include "net/base/net_errors.h"
 
 namespace net {
 
@@ -197,6 +198,13 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
 
   if (dns_names->empty())
     dns_names->push_back(subject_.common_name);
+}
+
+int X509Certificate::Verify(const std::string& hostname,
+                            bool rev_checking_enabled,
+                            CertVerifyResult* verify_result) const {
+  NOTIMPLEMENTED();
+  return ERR_NOT_IMPLEMENTED;
 }
 
 // static
