@@ -36,6 +36,7 @@ WebCore::String StdWStringToString(const std::wstring& str);
 
 // WebCore::String -> string16. This is a direct copy of UTF-16 characters.
 string16 StringToString16(const WebCore::String& str);
+WebCore::String String16ToString(const string16& str);
 
 // WebCore::String <-> std::string. We assume the WebCore::String is UTF-16 and
 // the std::string is UTF-8, and convert as necessary.

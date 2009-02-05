@@ -183,8 +183,10 @@ class MessageNode(base.ContentNode):
     id = id_map[self.GetTextualIds()[0]]
 
     message = self.ws_at_start + self.Translate(lang) + self.ws_at_end
-    # |message| is a python unicode string, so convert to a utf8 byte stream.
-    return id, message.encode('utf8')
+    # |message| is a python unicode string, so convert to a utf16 byte stream
+    # because that's the format of datapacks.  We skip the first 2 bytes
+    # because it is the BOM.
+    return id, message.encode('utf16')[2:]
 
   # static method
   def Construct(parent, message, name, desc='', meaning='', translateable=True):

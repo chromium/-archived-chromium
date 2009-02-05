@@ -4,6 +4,8 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
+#include "base/string16.h"
+#include "base/string_util.h"
 #include "build/build_config.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -39,8 +41,8 @@ std::wstring GetWebKitLocale() {
   return lang;
 }
 
-std::wstring GetLocalizedString(int message_id) {
-  return l10n_util::GetString(message_id);
+string16 GetLocalizedString(int message_id) {
+  return WideToUTF16(l10n_util::GetString(message_id));
 }
 
 }  // namespace webkit_glue

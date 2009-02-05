@@ -48,6 +48,11 @@ string16 StringToString16(const WebCore::String& str) {
   return string16(chars ? chars : (UChar *)L"", str.length());
 }
 
+WebCore::String String16ToString(const string16& str) {
+  return WebCore::String(reinterpret_cast<const UChar*>(str.data()),
+                         str.length());
+}
+
 std::string StringToStdString(const WebCore::String& str) {
   if (str.length() == 0)
     return std::string();

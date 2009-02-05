@@ -683,7 +683,7 @@ StringPiece TestShell::NetResourceProvider(int key) {
 
 namespace webkit_glue {
 
-std::wstring GetLocalizedString(int message_id) {
+string16 GetLocalizedString(int message_id) {
   const ATLSTRINGRESOURCEIMAGE* image =
       AtlGetStringResourceImage(_AtlBaseModule.GetModuleInstance(),
                                 message_id);
@@ -691,7 +691,7 @@ std::wstring GetLocalizedString(int message_id) {
     NOTREACHED();
     return L"No string for this identifier!";
   }
-  return std::wstring(image->achString, image->nLength);
+  return string16(image->achString, image->nLength);
 }
 
 // TODO(tc): Convert this to using resources from test_shell.rc.

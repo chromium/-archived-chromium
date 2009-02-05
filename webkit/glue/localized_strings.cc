@@ -30,20 +30,21 @@
 
 #undef LOG
 
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webkit_glue.h"
 #include "base/logging.h"
 #include "base/file_util.h"
+#include "base/string16.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webkit_glue.h"
+
 #include "webkit_strings.h"
 
 using namespace WebCore;
 
 inline String GetLocalizedString(int message_id) {
-  const std::wstring& str(webkit_glue::GetLocalizedString(message_id));
-  return webkit_glue::StdWStringToString(str);
+  const string16& str = webkit_glue::GetLocalizedString(message_id);
+  return webkit_glue::String16ToString(str);
 }
 
 String WebCore::searchableIndexIntroduction() {

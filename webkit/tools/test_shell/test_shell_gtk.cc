@@ -16,6 +16,7 @@
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/string16.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "net/base/mime_util.h"
@@ -632,13 +633,14 @@ StringPiece TestShell::NetResourceProvider(int key) {
 
 namespace webkit_glue {
 
-std::wstring GetLocalizedString(int message_id) {
+string16 GetLocalizedString(int message_id) {
   StringPiece res;
   if (!g_resource_data_pack->Get(message_id, &res)) {
     LOG(FATAL) << "failed to load webkit string with id " << message_id;
   }
 
-  return UTF8ToWide(res.as_string());
+  return string16(reinterpret_cast<const char16*>(res.data()),
+                  res.length() / 2);
 }
 
 std::string GetDataResource(int resource_id) {

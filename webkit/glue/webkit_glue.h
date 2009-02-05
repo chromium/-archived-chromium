@@ -177,7 +177,7 @@ void NotifyCacheStats();
 
 // Gets a localized string given a message id.  Returns an empty string if the
 // message id is not found.
-std::wstring GetLocalizedString(int message_id);
+string16 GetLocalizedString(int message_id);
 
 // Returns the raw data for a resource.  This resource must have been
 // specified as BINDATA in the relevant .rc file.
