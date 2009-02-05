@@ -833,8 +833,7 @@ LINUX : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 // Linux: off-by-ones imply font metrics.
 LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 
-// Linux: height of window is off.
-LINUX MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
+MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
 
 // Asks for "system" fonts, which we don't support at all.
 LINUX : LayoutTests/fast/css/css2-system-fonts.html = FAIL
@@ -1769,16 +1768,10 @@ LINUX WIN : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = 
 // This has been flakey for a long time. Don't know when it started.
 LayoutTests/transitions/transition-end-event-nested.html = FAIL PASS
 
-// Started failing with r9120 (dsh)
-LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
-LINUX : LayoutTests/fast/css/line-height-font-order.html = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
+// Renders the width of "600" off by 3.  Looks OK but could still be a bug
+// that we shouldn't rebaseline.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
-LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
-LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
-LINUX : LayoutTests/tables/mozilla/bugs/bug2886-2.html = FAIL
 
 // Flakey tests added 2/4/09. Don't know when they became flakey.
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = TIMEOUT PASS
