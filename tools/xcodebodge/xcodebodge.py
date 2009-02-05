@@ -173,7 +173,7 @@ class XcodeProject(object):
         if section in ('PBXBuildFile', 'PBXFileReference'):
           content = eval('%s.FromContent(content)' % section)
         # Multiline sections
-        elif section in ('PBXGroup', 'PBXVariantGroup', 'PBXProject', 
+        elif section in ('PBXGroup', 'PBXVariantGroup', 'PBXProject',
                          'PBXNativeTarget', 'PBXSourcesBuildPhase'):
           # Accumulate lines
           content_lines = []
@@ -274,7 +274,7 @@ class XcodeProject(object):
         GroupPathRecurse(group, self.source_root_path)
     if not self._root_group:
       raise RuntimeError('XcodeProject failed to find root group by UUID')
-      
+
   def FileContent(self):
     """Generate and return the project file content as a list of lines"""
     content = []
@@ -393,7 +393,7 @@ class XcodeProject(object):
 
   def RemoveSourceFileReference(self, file_ref):
     """Remove a source file's PBXFileReference from the project, cleaning up all
-    PBXGroup and PBXBuildFile references to that PBXFileReference and 
+    PBXGroup and PBXBuildFile references to that PBXFileReference and
     furthermore, removing any PBXBuildFiles from all PBXNativeTarget source
     lists.
 
@@ -477,7 +477,7 @@ class XcodeProject(object):
     """
     needed_path = os.path.dirname(abs_path)
     possible_groups = [ g for g in self._sections['PBXGroup']
-                        if g.abs_path == needed_path and 
+                        if g.abs_path == needed_path and
                            not g.name in NON_SOURCE_GROUP_NAMES ]
     if len(possible_groups) < 1:
       return None
@@ -509,7 +509,7 @@ class XcodeProject(object):
       return groups_with_source[0]
     else:
       return possible_groups[0]
-      
+
   def AddSourceFile(self, path):
     """Add a source file to the project, attempting to position it
     in the GUI group heirarchy reasonably.
@@ -683,7 +683,7 @@ class PBXBuildFile(object):
     if parsed.group(2) !=  parsed.group(5):
       raise RuntimeError('PBXBuildFile name mismatch "%s" vs "%s"' %
                          (parsed.group(2), parsed.group(5)))
-    if not parsed.group(3) in ('Sources', 'Frameworks', 
+    if not parsed.group(3) in ('Sources', 'Frameworks',
                                'Resources', 'CopyFiles',
                                'Headers', 'Copy Into Framework',
                                'Rez', 'Copy Generated Headers'):
@@ -752,7 +752,7 @@ class PBXFileReference(object):
                  last_known_type, explicit_type, path_parsed.group(1),
                  tree_parsed.group(1), content_line)
 
-  def __init__(self, uuid, name, last_known_file_type, explicit_file_type, 
+  def __init__(self, uuid, name, last_known_file_type, explicit_file_type,
                path, source_tree, raw_line):
     self.uuid = uuid
     self.name = name
@@ -886,7 +886,7 @@ class PBXGroup(object):
     self.child_uuids = child_uuids
     self.child_names = child_names
     self.abs_path = None
-    # Semantically I'm not sure these aren't an error, but they 
+    # Semantically I'm not sure these aren't an error, but they
     # appear in some projects
     self._tab_width = tab_width
     self._uses_tabs = uses_tabs
@@ -939,15 +939,15 @@ class PBXGroup(object):
            '%s' \
            '%s' \
            '\t\t};\n' % (
-            self.uuid, header_comment, 
+            self.uuid, header_comment,
             self.__class__.__name__,
-            children, 
+            children,
             indent_width_attribute,
             name_attribute,
             path_attribute, self.source_tree,
             tab_width_attribute, uses_tabs_attribute)
-            
-            
+
+
 class PBXVariantGroup(PBXGroup):
   pass
 
@@ -1159,14 +1159,9 @@ def Main():
   project = XcodeProject(project_path)
 
   # Switch on command
-  if len(args) < 1:
-    Usage(option_parser)
 
-  # List native target names
-  elif args[0] == 'list_native_targets':
-    # List targets
-    if len(args) != 1:
-      option_parser.error('list_native_targets takes no arguments')
+  # List native target names (default command)
+  if len(args) < 1 or args[0] == 'list_native_targets':
     # Ape xcodebuild output
     target_names = []
     for target in project.NativeTargets():
@@ -1174,6 +1169,13 @@ def Main():
     print 'Information about project "%s"\n    Native Targets:\n        %s' % (
           project.name,
           '\n        '.join(target_names))
+
+    if len(args) < 1:
+      # Be friendly and print some hints for further actions.
+      print
+      print 'To add or remove files from given target, run:'
+      print '\txcodebodge.py -p <project> -t <target> add_source <file_name>'
+      print '\txcodebodge.py -p <project> -t <target> remove_source <file_name>'
 
   # List files in a native target
   elif args[0] == 'list_target_sources':
@@ -1257,13 +1259,13 @@ def Main():
       if source_ref.file_type in SOURCES_XCODE_FILETYPES:
         project.AddSourceFileToSourcesBuildPhase(source_ref, sources_phase)
     project.Update()
-    
+
   # Private sanity check. On an unmodified project make sure our output is
   # the same as the input
   elif args[0] == 'parse_sanity':
     if ''.join(project.FileContent()) != ''.join(project._raw_content):
       option_parser.error('Project rewrite sanity fail "%s"' % project.path)
-    
+
   else:
     Usage(option_parser)
 
