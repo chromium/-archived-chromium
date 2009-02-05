@@ -1472,6 +1472,8 @@ MAC : LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRASH PASS
 MAC : LayoutTests/fast/css/acid2-pixel.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/gradient-with-clip.html = CRASH PASS
 MAC LINUX : LayoutTests/fast/css/acid2.html = CRASH PASS
+MAC RELEASE : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS
+MAC DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 // These next few passes like 1 in 20 times, but it could be from corruption
 // from previous tests that is causing the problems.
 MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH FAIL PASS
