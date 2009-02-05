@@ -12,98 +12,60 @@
 #include "media/base/filters.h"
 #include "media/base/factory.h"
 #include "media/base/filter_host.h"
+#include "media/base/mock_media_filters.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using media::FilterFactory;
 using media::FilterFactoryCollection;
 using media::FilterHost;
+using media::InitializationHelper;
 using media::MediaFormat;
+using media::MockAudioDecoder;
+using media::MockAudioRenderer;
+using media::MockDataSource;
+using media::MockDemuxer;
 using media::PipelineImpl;
-using media::FilterFactoryImpl1;
 
-class TestDataSource : public media::DataSource {
- public:
-  static FilterFactory* CreateFactory(bool hang_in_init) {
-     return new FilterFactoryImpl1<TestDataSource, bool>(hang_in_init);
-  }
-  virtual void Stop() {}
-  // This filter will hang in initialization because it never calls
-  // FilterHost::InitializationComplete
-  virtual bool Initialize(const std::string& uri) {
-    if (!hang_in_init_) {
-      host_->InitializationComplete();
-    }
-    return true;
-  }
-  virtual const MediaFormat* GetMediaFormat() {
-    return NULL;  // TODO(ralphl):  Return octot thingie...
-  }
-  virtual size_t Read(char* data, size_t size) {
-    return 0;
-  }
-  virtual bool GetPosition(int64* position_out) {
-    return 0;
-  }
-  virtual bool SetPosition(int64 position) {
-    return true;
-  }
-  virtual bool GetSize(int64* size_out) {
-    return 0;
-  }
-
- protected:
-  bool hang_in_init_;
-  friend class media::FilterFactoryImpl1<TestDataSource, bool>;
-  explicit TestDataSource(bool hang_in_init) : hang_in_init_(hang_in_init) {}
-  ~TestDataSource() {}
-
-  DISALLOW_COPY_AND_ASSIGN(TestDataSource);
-};
-
-
-class InitWaiter : public base::WaitableEvent {
- public:
-  InitWaiter()
-    : WaitableEvent(true, false),
-      callback_success_status_(false) {}
-  void InitializationComplete(bool success) {
-    callback_success_status_ = success;
-    Signal();
-  }
-  bool HasBeenCalled() { return IsSignaled(); }
-  bool CallbackSuccessStatus() { return callback_success_status_; }
-  Callback1<bool>::Type* NewInitCallback() {
-    return NewCallback(this, &InitWaiter::InitializationComplete);
-  }
-  void Reset() {
-    base::WaitableEvent::Reset();
-    callback_success_status_ = false;
-  }
-
- private:
-  bool callback_success_status_;
-
-  DISALLOW_COPY_AND_ASSIGN(InitWaiter);
-};
-
-
-TEST(PipelineImplTest, Basic) {
-  std::string url("test.mov");
+TEST(PipelineImplTest, Initialization) {
+  std::string u("");
   PipelineImpl p;
-  InitWaiter w;
-  p.Start(TestDataSource::CreateFactory(true), url, w.NewInitCallback());
-  w.TimedWait(base::TimeDelta::FromSeconds(1));
-  EXPECT_FALSE(w.HasBeenCalled());
+  InitializationHelper h;
+  h.Start(&p, MockDataSource::CreateFactory(media::MOCK_FILTER_NEVER_INIT), u);
+  h.TimedWait(base::TimeDelta::FromMilliseconds(300));
+  EXPECT_TRUE(h.waiting_for_callback());
   EXPECT_FALSE(p.IsInitialized());
   EXPECT_TRUE(media::PIPELINE_OK == p.GetError());
   p.Stop();
+  EXPECT_FALSE(h.waiting_for_callback());
+  EXPECT_FALSE(h.callback_success_status());
+  EXPECT_TRUE(media::PIPELINE_OK == p.GetError());
 
-  w.Reset();
-  p.Start(TestDataSource::CreateFactory(false), url, w.NewInitCallback());
-  w.TimedWait(base::TimeDelta::FromSeconds(1));
-  EXPECT_TRUE(w.HasBeenCalled());
-  EXPECT_FALSE(w.CallbackSuccessStatus());
+  h.Start(&p, MockDataSource::CreateFactory(media::MOCK_FILTER_TASK_INIT), u);
+  h.TimedWait(base::TimeDelta::FromSeconds(5));
+  EXPECT_FALSE(h.waiting_for_callback());
+  EXPECT_FALSE(h.callback_success_status());
   EXPECT_FALSE(p.IsInitialized());
   EXPECT_FALSE(media::PIPELINE_OK == p.GetError());
   p.Stop();
+}
+
+TEST(PipelineImplTest, FullMockPipeline) {
+  std::string url("");
+  PipelineImpl p;
+  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
+  c->AddFactory(MockDataSource::CreateFactory(media::MOCK_FILTER_NORMAL_INIT));
+  c->AddFactory(MockDemuxer::CreateFactory());
+  c->AddFactory(MockAudioDecoder::CreateFactory());
+  c->AddFactory(MockAudioRenderer::CreateFactory());
+  InitializationHelper h;
+  h.Start(&p, c, url);
+  h.TimedWait(base::TimeDelta::FromSeconds(5));
+  EXPECT_FALSE(h.waiting_for_callback());
+  EXPECT_TRUE(h.callback_success_status());
+  EXPECT_TRUE(p.IsInitialized());
+  EXPECT_TRUE(media::PIPELINE_OK == p.GetError());
+  p.SetPlaybackRate(1.0f);
+  p.SetVolume(0.5f);
+  p.Stop();
+  EXPECT_FALSE(p.IsInitialized());
 }

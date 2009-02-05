@@ -48,6 +48,7 @@ if env.Bit('windows'):
 
 input_files = [
     'base/data_buffer_unittest.cc',
+    'base/mock_media_filters.h',
     'base/pipeline_impl_unittest.cc',
     'base/run_all_unittests.cc',
 ]

@@ -160,6 +160,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\base\mock_media_filters.h"
+					>
+				</File>
+				<File
 					RelativePath="..\base\pipeline_impl_unittest.cc"
 					>
 				</File>
