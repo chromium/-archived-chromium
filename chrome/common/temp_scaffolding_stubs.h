@@ -37,7 +37,6 @@
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/render_messages.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_states.h"
 #include "skia/include/SkBitmap.h"
