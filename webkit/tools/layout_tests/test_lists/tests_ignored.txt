@@ -99,6 +99,7 @@ LayoutTests/platform/mac-leopard = FAIL PASS
 LayoutTests/platform/mac-snowleopard = FAIL PASS
 LayoutTests/platform/mac-tiger = FAIL PASS
 LayoutTests/platform/qt = FAIL PASS
+LINUX MAC : LayoutTests/platform/win = FAIL PASS
 
 // Ignored because we do not have OBJC bindings
 SKIP : LayoutTests/editing/pasteboard/paste-RTFD.html = FAIL
@@ -202,7 +203,6 @@ LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
 LayoutTests/fast/js/date-proto-generic-invocation.html = FAIL
 LayoutTests/fast/js/kde/function.html = FAIL
 LayoutTests/fast/js/kde/inbuilt_function_tostring.html = FAIL
-
 
 // These tests have been rewritten, with the original being ignored,
 // because they rely on being able to shadow the 'top' variable on the
