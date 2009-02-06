@@ -63,9 +63,8 @@ static int ResolveAddrInfo(HostMapper* mapper, const std::string& host,
 
 //-----------------------------------------------------------------------------
 
-class HostResolver::Request
-    : public base::RefCountedThreadSafe<HostResolver::Request>,
-      public MessageLoop::DestructionObserver {
+class HostResolver::Request :
+    public base::RefCountedThreadSafe<HostResolver::Request> {
  public:
   Request(HostResolver* resolver,
           const std::string& host,
@@ -81,10 +80,9 @@ class HostResolver::Request
         host_mapper_(host_mapper),
         error_(OK),
         results_(NULL) {
-    MessageLoop::current()->AddDestructionObserver(this);
   }
 
-  virtual ~Request() {
+  ~Request() {
     if (results_)
       freeaddrinfo(results_);
   }
@@ -113,12 +111,6 @@ class HostResolver::Request
     // Running on the origin thread.
     DCHECK(error_ || results_);
 
-    {
-      AutoLock locked(origin_loop_lock_);
-      if (origin_loop_)
-        origin_loop_->RemoveDestructionObserver(this);
-    }
-
     // We may have been cancelled!
     if (!resolver_)
       return;
@@ -139,11 +131,6 @@ class HostResolver::Request
   void Cancel() {
     resolver_ = NULL;
 
-    AutoLock locked(origin_loop_lock_);
-    origin_loop_ = NULL;
-  }
-
-  virtual void WillDestroyCurrentMessageLoop() {
     AutoLock locked(origin_loop_lock_);
     origin_loop_ = NULL;
   }
@@ -182,10 +169,8 @@ HostResolver::HostResolver() {
 }
 
 HostResolver::~HostResolver() {
-  if (request_) {
+  if (request_)
     request_->Cancel();
-    MessageLoop::current()->RemoveDestructionObserver(request_.get());
-  }
 }
 
 int HostResolver::Resolve(const std::string& hostname, int port,
@@ -210,7 +195,6 @@ int HostResolver::Resolve(const std::string& hostname, int port,
   if (!WorkerPool::PostTask(FROM_HERE,
           NewRunnableMethod(request_.get(), &Request::DoLookup), true)) {
     NOTREACHED();
-    MessageLoop::current()->RemoveDestructionObserver(request_.get());
     request_ = NULL;
     return ERR_FAILED;
   }

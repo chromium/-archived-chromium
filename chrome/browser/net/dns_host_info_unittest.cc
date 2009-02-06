@@ -41,7 +41,8 @@ TEST(DnsHostInfoTest, StateChangeTest) {
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1))
     << "update needed after being queued";
   info.SetAssignedState();
-  EXPECT_FALSE(info.NeedsDnsUpdate(hostname1));
+  EXPECT_FALSE(info.NeedsDnsUpdate(hostname1))
+    << "update needed while assigned to slave";
   info.SetFoundState();
   EXPECT_FALSE(info.NeedsDnsUpdate(hostname1))
     << "default expiration time is TOOOOO short";
@@ -63,7 +64,8 @@ TEST(DnsHostInfoTest, StateChangeTest) {
   // be found.  We'll sleep for a while, and then come back with not-found.
   info.SetQueuedState(DnsHostInfo::UNIT_TEST_MOTIVATED);
   info.SetAssignedState();
-  EXPECT_FALSE(info.NeedsDnsUpdate(hostname1));
+  EXPECT_FALSE(info.NeedsDnsUpdate(hostname1))
+    << "update needed while assigned to slave";
   // Greater than minimal expected network latency on DNS lookup.
   PlatformThread::Sleep(25);
   info.SetNoSuchNameState();

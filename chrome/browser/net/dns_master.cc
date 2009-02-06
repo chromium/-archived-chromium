@@ -2,79 +2,61 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// See header file for description of class
+
 #include "chrome/browser/net/dns_master.h"
 
-#include <algorithm>
-#include <set>
 #include <sstream>
 
-#include "base/compiler_specific.h"
 #include "base/histogram.h"
-#include "base/lock.h"
-#include "base/ref_counted.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
-#include "base/time.h"
-#include "net/base/address_list.h"
-#include "net/base/completion_callback.h"
-#include "net/base/host_resolver.h"
-#include "net/base/net_errors.h"
+#include "base/thread.h"
+#include "base/win_util.h"
+#include "chrome/browser/net/dns_slave.h"
+
+using base::TimeDelta;
 
 namespace chrome_browser_net {
 
-// static
-const size_t DnsMaster::kMaxConcurrentLookups = 8;
-
-class DnsMaster::LookupRequest {
- public:
-  LookupRequest(DnsMaster* master, const std::string& hostname)
-      : ALLOW_THIS_IN_INITIALIZER_LIST(
-          net_callback_(this, &LookupRequest::OnLookupFinished)),
-        master_(master),
-        hostname_(hostname) {
-  }
-
-  bool Start() {
-    const int result = resolver_.Resolve(hostname_, 80, &addresses_,
-                                         &net_callback_);
-    return (result == net::ERR_IO_PENDING);
-  }
-
- private:
-  void OnLookupFinished(int result) {
-    master_->OnLookupFinished(this, hostname_, result == net::OK);
-  }
-
-  // HostResolver will call us using this callback when resolution is complete.
-  net::CompletionCallbackImpl<LookupRequest> net_callback_;
-
-  DnsMaster* master_;  // Master which started us.
-
-  const std::string hostname_;  // Hostname to resolve.
-  net::HostResolver resolver_;
-  net::AddressList addresses_;
-
-  DISALLOW_COPY_AND_ASSIGN(LookupRequest);
-};
-
-DnsMaster::DnsMaster() : peak_pending_lookups_(0) {
-}
-
-DnsMaster::~DnsMaster() {
-  for (std::set<LookupRequest*>::iterator it = pending_lookups_.begin();
-       it != pending_lookups_.end(); ++it) {
-    delete *it;
+DnsMaster::DnsMaster(TimeDelta shutdown_wait_time)
+  : slaves_have_work_(&lock_),
+    slave_count_(0),
+    running_slave_count_(0),
+    shutdown_(false),
+    kShutdownWaitTime_(shutdown_wait_time) {
+  for (size_t i = 0; i < kSlaveCountMax; i++) {
+    thread_ids_[i] = 0;
+    thread_handles_[i] = 0;
+    slaves_[i] = NULL;
   }
 }
 
 // Overloaded Resolve() to take a vector of names.
 void DnsMaster::ResolveList(const NameList& hostnames,
                             DnsHostInfo::ResolutionMotivation motivation) {
-  AutoLock auto_lock(lock_);
+  bool need_to_signal = false;
+  {
+    AutoLock auto_lock(lock_);
+    if (shutdown_) return;
+    if (slave_count_ < kSlaveCountMin) {
+      for (int target_count = std::min(hostnames.size(), kSlaveCountMin);
+           target_count > 0;
+           target_count--)
+        PreLockedCreateNewSlaveIfNeeded();
+    } else {
+      PreLockedCreateNewSlaveIfNeeded();  // Allocate one per list call.
+    }
 
-  NameList::const_iterator it;
-  for (it = hostnames.begin(); it < hostnames.end(); ++it)
-    PreLockedResolve(*it, motivation);
+    for (NameList::const_iterator it = hostnames.begin();
+      it < hostnames.end();
+         it++) {
+      if (PreLockedResolve(*it, motivation))
+        need_to_signal = true;
+    }
+  }
+  if (need_to_signal)
+    slaves_have_work_.Signal();
 }
 
 // Basic Resolve() takes an invidual name, and adds it
@@ -83,8 +65,16 @@ void DnsMaster::Resolve(const std::string& hostname,
                         DnsHostInfo::ResolutionMotivation motivation) {
   if (0 == hostname.length())
     return;
-  AutoLock auto_lock(lock_);
-  PreLockedResolve(hostname, motivation);
+  bool need_to_signal = false;
+  {
+    AutoLock auto_lock(lock_);
+    if (shutdown_) return;
+    PreLockedCreateNewSlaveIfNeeded();  // Allocate one at a time.
+    if (PreLockedResolve(hostname, motivation))
+      need_to_signal = true;
+  }
+  if (need_to_signal)
+    slaves_have_work_.Signal();
 }
 
 bool DnsMaster::AccruePrefetchBenefits(const GURL& referrer,
@@ -157,19 +147,26 @@ void DnsMaster::NonlinkNavigation(const GURL& referrer,
 }
 
 void DnsMaster::NavigatingTo(const std::string& host_name) {
-  AutoLock auto_lock(lock_);
-  Referrers::iterator it = referrers_.find(host_name);
-  if (referrers_.end() == it)
-    return;
-  Referrer* referrer = &(it->second);
-  for (Referrer::iterator future_host = referrer->begin();
-       future_host != referrer->end(); ++future_host) {
-    DnsHostInfo* queued_info = PreLockedResolve(
-        future_host->first,
-        DnsHostInfo::LEARNED_REFERAL_MOTIVATED);
-    if (queued_info)
-      queued_info->SetReferringHostname(host_name);
+  bool need_to_signal = false;
+  {
+    AutoLock auto_lock(lock_);
+    Referrers::iterator it = referrers_.find(host_name);
+    if (referrers_.end() == it)
+      return;
+    Referrer* referrer = &(it->second);
+    for (Referrer::iterator future_host = referrer->begin();
+         future_host != referrer->end(); ++future_host) {
+      DnsHostInfo* queued_info = PreLockedResolve(
+          future_host->first,
+          DnsHostInfo::LEARNED_REFERAL_MOTIVATED);
+      if (queued_info) {
+        need_to_signal = true;
+        queued_info->SetReferringHostname(host_name);
+      }
+    }
   }
+  if (need_to_signal)
+    slaves_have_work_.Signal();
 }
 
 // Provide sort order so all .com's are together, etc.
@@ -300,7 +297,7 @@ void DnsMaster::GetHtmlInfo(std::string* output) {
     }
     if (!it->second.was_found())
       continue;  // Still being processed.
-    if (base::TimeDelta() != it->second.benefits_remaining()) {
+    if (TimeDelta() != it->second.benefits_remaining()) {
       network_hits.push_back(it->second);  // With no benefit yet.
       continue;
     }
@@ -335,6 +332,7 @@ DnsHostInfo* DnsMaster::PreLockedResolve(
     const std::string& hostname,
     DnsHostInfo::ResolutionMotivation motivation) {
   // DCHECK(We have the lock);
+  DCHECK(0 != slave_count_);
   DCHECK(0 != hostname.length());
 
   DnsHostInfo* info = &results_[hostname];
@@ -351,52 +349,151 @@ DnsHostInfo* DnsMaster::PreLockedResolve(
 
   info->SetQueuedState(motivation);
   name_buffer_.push(hostname);
-
-  PreLockedScheduleLookups();
-
   return info;
 }
 
-void DnsMaster::PreLockedScheduleLookups() {
-  while (!name_buffer_.empty() &&
-         pending_lookups_.size() < kMaxConcurrentLookups) {
-    const std::string hostname(name_buffer_.front());
+// GetNextAssignment() is executed on the thread associated with
+// with a prefetch slave instance.
+// Return value of false indicates slave thread termination is needed.
+// Return value of true means info argument was populated
+// with a pointer to the assigned DnsHostInfo instance.
+bool DnsMaster::GetNextAssignment(std::string* hostname) {
+  bool ask_for_help = false;
+  {
+    AutoLock auto_lock(lock_);  // For map and buffer access
+    while (0 == name_buffer_.size() && !shutdown_) {
+      // No work pending, so just wait.
+      // wait on condition variable while releasing lock temporarilly.
+      slaves_have_work_.Wait();
+    }
+    if (shutdown_)
+      return false;  // Tell slaves to terminate also.
+    *hostname = name_buffer_.front();
     name_buffer_.pop();
 
-    DnsHostInfo* info = &results_[hostname];
-    DCHECK(info->HasHostname(hostname));
+    DnsHostInfo* info = &results_[*hostname];
+    DCHECK(info->HasHostname(*hostname));
     info->SetAssignedState();
 
-    LookupRequest* request = new LookupRequest(this, hostname);
-    if (request->Start()) {
-      pending_lookups_.insert(request);
-      peak_pending_lookups_ = std::max(peak_pending_lookups_,
-                                       pending_lookups_.size());
-    } else {
-      NOTREACHED();
-      delete request;
-    }
-  }
+    ask_for_help = name_buffer_.size() > 0;
+  }  // Release lock_
+  if (ask_for_help)
+    slaves_have_work_.Signal();
+  return true;
 }
 
-void DnsMaster::OnLookupFinished(LookupRequest* request,
-                                 const std::string& hostname, bool found) {
+void DnsMaster::SetFoundState(const std::string hostname) {
   AutoLock auto_lock(lock_);  // For map access (changing info values).
   DnsHostInfo* info = &results_[hostname];
   DCHECK(info->HasHostname(hostname));
   if (info->is_marked_to_delete())
     results_.erase(hostname);
-  else {
-    if (found)
-      info->SetFoundState();
-    else
-      info->SetNoSuchNameState();
+  else
+    info->SetFoundState();
+}
+
+void DnsMaster::SetNoSuchNameState(const std::string hostname) {
+  AutoLock auto_lock(lock_);  // For map access (changing info values).
+  DnsHostInfo* info = &results_[hostname];
+  DCHECK(info->HasHostname(hostname));
+  if (info->is_marked_to_delete())
+    results_.erase(hostname);
+  else
+    info->SetNoSuchNameState();
+}
+
+bool DnsMaster::PreLockedCreateNewSlaveIfNeeded() {
+  // Don't create more than max.
+  if (kSlaveCountMax <= slave_count_  || shutdown_)
+    return false;
+
+  DnsSlave* slave_instance = new DnsSlave(this, slave_count_);
+  DWORD thread_id;
+  size_t stack_size = 0;
+  unsigned int flags = CREATE_SUSPENDED;
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_XP) {
+    // 128kb stack size.
+    stack_size = 128*1024;
+    flags |= STACK_SIZE_PARAM_IS_A_RESERVATION;
+  }
+  HANDLE handle = CreateThread(NULL,  // security
+                               stack_size,
+                               DnsSlave::ThreadStart,
+                               reinterpret_cast<void*>(slave_instance),
+                               flags,
+                               &thread_id);
+  DCHECK(NULL != handle);
+  if (NULL == handle)
+    return false;
+
+  // Carlos suggests it is not valuable to do a set priority.
+  //  BOOL WINAPI SetThreadPriority(handle,int nPriority);
+
+  thread_ids_[slave_count_] = thread_id;
+  thread_handles_[slave_count_] = handle;
+  slaves_[slave_count_] = slave_instance;
+  slave_count_++;
+
+  ResumeThread(handle);  // WINAPI call.
+  running_slave_count_++;
+
+  return true;
+}
+
+void DnsMaster::SetSlaveHasTerminated(int slave_index) {
+  DCHECK_EQ(GetCurrentThreadId(), thread_ids_[slave_index]);
+  AutoLock auto_lock(lock_);
+  running_slave_count_--;
+  DCHECK(thread_ids_[slave_index]);
+  thread_ids_[slave_index] = 0;
+}
+
+bool DnsMaster::ShutdownSlaves() {
+  int running_slave_count;
+  {
+    AutoLock auto_lock(lock_);
+    shutdown_ = true;  // Block additional resolution requests.
+    // Empty the queue gracefully
+    while (name_buffer_.size() > 0) {
+      std::string hostname = name_buffer_.front();
+      name_buffer_.pop();
+      DnsHostInfo* info = &results_[hostname];
+      DCHECK(info->HasHostname(hostname));
+      // We should be in Queued state, so simulate to end of life.
+      info->SetAssignedState();  // Simulate slave assignment.
+      info->SetNoSuchNameState();  // Simulate failed lookup.
+      results_.erase(hostname);
+    }
+    running_slave_count = running_slave_count_;
+    // Release lock, so slaves can finish up.
   }
 
-  pending_lookups_.erase(request);
-  delete request;
+  if (running_slave_count) {
+    slaves_have_work_.Broadcast();  // Slaves need to check for termination.
 
-  PreLockedScheduleLookups();
+    DWORD result = WaitForMultipleObjects(
+                      slave_count_,
+                      thread_handles_,
+                      TRUE,  // Wait for all
+                      static_cast<DWORD>(kShutdownWaitTime_.InMilliseconds()));
+
+    DCHECK(result != WAIT_TIMEOUT) << "Some slaves didn't stop";
+    if (WAIT_TIMEOUT == result)
+      return false;
+  }
+  {
+    AutoLock auto_lock(lock_);
+    while (0 < slave_count_--) {
+      if (0 == thread_ids_[slave_count_]) {  // Thread terminated.
+        int result = CloseHandle(thread_handles_[slave_count_]);
+        CHECK(result);
+        thread_handles_[slave_count_] = 0;
+        delete slaves_[slave_count_];
+        slaves_[slave_count_] = NULL;
+      }
+    }
+  }
+  return true;
 }
 
 void DnsMaster::DiscardAllResults() {
@@ -417,11 +514,10 @@ void DnsMaster::DiscardAllResults() {
     info->SetAssignedState();
     info->SetNoSuchNameState();
   }
-  // Now every result_ is either resolved, or is being resolved
-  // (see LookupRequest).
+  // Now every result_ is either resolved, or is being worked on by a slave.
 
   // Step through result_, recording names of all hosts that can't be erased.
-  // We can't erase anything being worked on.
+  // We can't erase anything being worked on by a slave.
   Results assignees;
   for (Results::iterator it = results_.begin(); results_.end() != it; ++it) {
     std::string hostname = it->first;
@@ -432,9 +528,9 @@ void DnsMaster::DiscardAllResults() {
       assignees[hostname] = *info;
     }
   }
-  DCHECK(assignees.size() <= kMaxConcurrentLookups);
+  DCHECK(kSlaveCountMax >= assignees.size());
   results_.clear();
-  // Put back in the names being worked on.
+  // Put back in the names being worked on by slaves.
   for (Results::iterator it = assignees.begin(); assignees.end() != it; ++it) {
     DCHECK(it->second.is_marked_to_delete());
     results_[it->first] = it->second;
@@ -442,3 +538,4 @@ void DnsMaster::DiscardAllResults() {
 }
 
 }  // namespace chrome_browser_net
+

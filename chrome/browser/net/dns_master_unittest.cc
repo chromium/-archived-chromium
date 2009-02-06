@@ -2,97 +2,104 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Multi-threaded tests of DnsMaster and DnsPrefetch slave functionality.
+
 #include <time.h>
+#include <ws2tcpip.h>
+#include <Wspiapi.h>  // Needed for win2k compatibility
 
 #include <algorithm>
+#include <map>
 #include <sstream>
 #include <string>
 
-#include "base/message_loop.h"
 #include "base/platform_thread.h"
-#include "base/scoped_ptr.h"
-#include "base/timer.h"
+#include "base/spin_wait.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/dns_host_info.h"
-#include "chrome/common/net/dns.h"
-#include "net/base/address_list.h"
-#include "net/base/host_resolver.h"
-#include "net/base/host_resolver_unittest.h"
+#include "chrome/browser/net/dns_slave.h"
 #include "net/base/winsock_init.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
 
 using base::Time;
 using base::TimeDelta;
 
-namespace chrome_browser_net {
-
-class WaitForResolutionHelper;
-
-typedef base::RepeatingTimer<WaitForResolutionHelper> HelperTimer;
-
-class WaitForResolutionHelper {
- public:
-  WaitForResolutionHelper(DnsMaster* master, const NameList& hosts,
-                          HelperTimer* timer)
-      : master_(master),
-        hosts_(hosts),
-        timer_(timer) {
-  }
-
-  void Run() {
-    for (NameList::const_iterator i = hosts_.begin(); i != hosts_.end(); ++i)
-      if (master_->GetResolutionDuration(*i) == DnsHostInfo::kNullDuration)
-        return;  // We don't have resolution for that host.
-
-    // When all hostnames have been resolved, exit the loop.
-    timer_->Stop();
-    MessageLoop::current()->Quit();
-    delete timer_;
-    delete this;
-  }
-
- private:
-  DnsMaster* master_;
-  const NameList hosts_;
-  HelperTimer* timer_;
-};
+namespace {
 
 class DnsMasterTest : public testing::Test {
- public:
-  DnsMasterTest()
-      : loop_(new MessageLoop()),
-        mapper_(new net::RuleBasedHostMapper()),
-        scoped_mapper_(mapper_.get()) {
-  }
-
- protected:
-  virtual void SetUp() {
-#if defined(OS_WIN)
-    net::EnsureWinsockInit();
-#endif
-    mapper_->AddRuleWithLatency("www.google.com", "127.0.0.1", 50);
-    mapper_->AddRuleWithLatency("gmail.google.com.com", "127.0.0.1", 70);
-    mapper_->AddRuleWithLatency("mail.google.com", "127.0.0.1", 44);
-    mapper_->AddRuleWithLatency("gmail.com", "127.0.0.1", 63);
-  }
-
-  void WaitForResolution(DnsMaster* master, const NameList& hosts) {
-    HelperTimer* timer = new HelperTimer();
-    timer->Start(TimeDelta::FromMilliseconds(100),
-                 new WaitForResolutionHelper(master, hosts, timer),
-                 &WaitForResolutionHelper::Run);
-    MessageLoop::current()->Run();
-  }
-
-  void DestroyMessageLoop() {
-    loop_.reset();
-  }
-
- private:
-  scoped_ptr<MessageLoop> loop_;
-  scoped_refptr<net::RuleBasedHostMapper> mapper_;
-  net::ScopedHostMapper scoped_mapper_;
 };
+
+typedef chrome_browser_net::DnsMaster DnsMaster;
+typedef chrome_browser_net::DnsPrefetcherInit DnsPrefetcherInit;
+typedef chrome_browser_net::DnsHostInfo DnsHostInfo;
+typedef chrome_browser_net::NameList NameList;
+
+
+//------------------------------------------------------------------------------
+// Provide network function stubs to run tests offline (and avoid the variance
+// of real DNS lookups.
+//------------------------------------------------------------------------------
+
+static void __stdcall fake_free_addr_info(struct addrinfo* ai) {
+  // Kill off the dummy results.
+  EXPECT_TRUE(NULL != ai);
+  delete ai;
+}
+
+static int __stdcall fake_get_addr_info(const char* nodename,
+                                        const char* servname,
+                                        const struct addrinfo* hints,
+                                        struct addrinfo** result) {
+  static Lock lock;
+  int duration;
+  bool was_found;
+  std::string hostname(nodename);
+  // Dummy up *some* return results to pass along.
+  *result = new addrinfo;
+  EXPECT_TRUE(NULL != *result);
+  {
+    AutoLock autolock(lock);
+
+    static bool initialized = false;
+    typedef std::map<std::string, int> Latency;
+    static Latency latency;
+    static std::map<std::string, bool> found;
+    if (!initialized) {
+      initialized = true;
+      // List all known hostnames
+      latency["www.google.com"] = 50;
+      latency["gmail.google.com.com"] = 70;
+      latency["mail.google.com"] = 44;
+      latency["gmail.com"] = 63;
+
+      for (Latency::iterator it = latency.begin(); latency.end() != it; it++) {
+        found[it->first] = true;
+      }
+    }  // End static initialization
+
+    was_found = found[hostname];
+
+    if (latency.end() != latency.find(hostname)) {
+      duration = latency[hostname];
+    } else {
+      duration = 500;
+    }
+    // Change latency to simulate cache warming (next latency will be short).
+    latency[hostname] = 1;
+  }  // Release lock.
+
+  PlatformThread::Sleep(duration);
+
+  return was_found ? 0 : WSAHOST_NOT_FOUND;
+}
+
+static void SetupNetworkInfrastructure() {
+  bool kUseFakeNetwork = true;
+  if (kUseFakeNetwork)
+    chrome_browser_net::SetAddrinfoCallbacks(fake_get_addr_info,
+                                                 fake_free_addr_info);
+}
 
 //------------------------------------------------------------------------------
 // Provide a function to create unique (nonexistant) domains at *every* call.
@@ -113,63 +120,53 @@ static std::string GetNonexistantDomain() {
 // Use a blocking function to contrast results we get via async services.
 //------------------------------------------------------------------------------
 TimeDelta BlockingDnsLookup(const std::string& hostname) {
+    char* port = "80";  // I may need to get the real port
+    struct addrinfo* result = NULL;
     Time start = Time::Now();
 
-    net::HostResolver resolver;
-    net::AddressList addresses;
-    resolver.Resolve(hostname, 80, &addresses, NULL);
+    // Use the same underlying methods as dns_prefetch_slave does
+    chrome_browser_net::get_getaddrinfo()(hostname.c_str(), port,
+                                              NULL, &result);
 
-    return Time::Now() - start;
+    TimeDelta duration = Time::Now() - start;
+
+    if (result) {
+      chrome_browser_net::get_freeaddrinfo()(result);
+      result = NULL;
+    }
+
+    return duration;
 }
 
 //------------------------------------------------------------------------------
 
 // First test to be sure the OS is caching lookups, which is the whole premise
 // of DNS prefetching.
-TEST_F(DnsMasterTest, OsCachesLookupsTest) {
-  const Time start = Time::Now();
-  int all_lookups = 0;
-  int lookups_with_improvement = 0;
-  // This test can be really flaky on Linux. It should run in much shorter time,
-  // but sometimes it won't and we don't like bogus failures.
-  while (Time::Now() - start < TimeDelta::FromMinutes(1)) {
+TEST(DnsMasterTest, OsCachesLookupsTest) {
+  SetupNetworkInfrastructure();
+  net::EnsureWinsockInit();
+
+  for (int i = 0; i < 5; i++) {
     std::string badname;
     badname = GetNonexistantDomain();
-
     TimeDelta duration = BlockingDnsLookup(badname);
-
-    // Produce more than one result and remove the largest one
-    // to reduce flakiness.
-    std::vector<TimeDelta> cached_results;
-    for (int j = 0; j < 3; j++)
-      cached_results.push_back(BlockingDnsLookup(badname));
-    std::sort(cached_results.begin(), cached_results.end());
-    cached_results.pop_back();
-
-    TimeDelta cached_sum = TimeDelta::FromSeconds(0);
-    for (std::vector<TimeDelta>::const_iterator j = cached_results.begin();
-         j != cached_results.end(); ++j)
-      cached_sum += *j;
-    TimeDelta cached_duration = cached_sum / cached_results.size();
-
-    all_lookups++;
-    if (cached_duration < duration)
-      lookups_with_improvement++;
-    if (all_lookups >= 10)
-      if (lookups_with_improvement * 100 > all_lookups * 75)
-        // Okay, we see the improvement for more than 75% of all lookups.
-        return;
+    TimeDelta cached_duration = BlockingDnsLookup(badname);
+    EXPECT_TRUE(duration > cached_duration);
   }
-  FAIL() << "No substantial improvement in lookup time.";
 }
 
-TEST_F(DnsMasterTest, StartupShutdownTest) {
-  DnsMaster testing_master;
-  // We do shutdown on destruction.
+TEST(DnsMasterTest, StartupShutdownTest) {
+  DnsMaster testing_master(TimeDelta::FromMilliseconds(5000));
+
+  // With no threads, we should have no problem doing a shutdown.
+  EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
 
-TEST_F(DnsMasterTest, BenefitLookupTest) {
-  DnsMaster testing_master;
+TEST(DnsMasterTest, BenefitLookupTest) {
+  SetupNetworkInfrastructure();
+  net::EnsureWinsockInit();
+  DnsPrefetcherInit dns_init(NULL);  // Creates global service .
+  DnsMaster testing_master(TimeDelta::FromMilliseconds(5000));
 
   std::string goog("www.google.com"),
     goog2("gmail.google.com.com"),
@@ -199,9 +196,23 @@ TEST_F(DnsMasterTest, BenefitLookupTest) {
   names.insert(names.end(), goog3);
   names.insert(names.end(), goog4);
 
+  // First only cause a minimal set of threads to start up.
+  // Currently we actually start 4 threads when we get called with an array
   testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
 
-  WaitForResolution(&testing_master, names);
+  // Wait for some resoultion for each google.
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog).InMilliseconds());
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog2).InMilliseconds());
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog3).InMilliseconds());
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog4).InMilliseconds());
+
+  EXPECT_EQ(std::min(names.size(),
+                     4u /* chrome_browser_net::DnsMaster::kSlaveCountMin */ ),
+            testing_master.running_slave_count());
 
   EXPECT_TRUE(testing_master.WasFound(goog));
   EXPECT_TRUE(testing_master.WasFound(goog2));
@@ -223,84 +234,68 @@ TEST_F(DnsMasterTest, BenefitLookupTest) {
   EXPECT_FALSE(testing_master.AccruePrefetchBenefits(GURL(), &goog2_info));
   EXPECT_FALSE(testing_master.AccruePrefetchBenefits(GURL(), &goog3_info));
   EXPECT_FALSE(testing_master.AccruePrefetchBenefits(GURL(), &goog4_info));
+
+  // Ensure a clean shutdown.
+  EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
 
-TEST_F(DnsMasterTest, DestroyMessageLoop) {
-  scoped_refptr<net::WaitingHostMapper> mapper = new net::WaitingHostMapper();
-  net::ScopedHostMapper scoped_mapper(mapper.get());
+TEST(DnsMasterTest, DISABLED_SingleSlaveLookupTest) {
+  SetupNetworkInfrastructure();
+  net::EnsureWinsockInit();
+  DnsPrefetcherInit dns_init(NULL);  // Creates global service.
+  DnsMaster testing_master(TimeDelta::FromMilliseconds(5000));
 
-  {
-    DnsMaster testing_master;
+  std::string goog("www.google.com"),
+    goog2("gmail.google.com.com"),
+    goog3("mail.google.com"),
+    goog4("gmail.com");
+  std::string bad1(GetNonexistantDomain()),
+    bad2(GetNonexistantDomain());
 
-    std::string localhost("127.0.0.1");
-    NameList names;
-    names.insert(names.end(), localhost);
-
-    testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
-
-    MessageLoop::current()->PostDelayedTask(FROM_HERE,
-                                            new MessageLoop::QuitTask(), 500);
-    MessageLoop::current()->Run();
-
-    DestroyMessageLoop();
-    ASSERT_TRUE(MessageLoop::current() == NULL);
-  }
-
-  // Trigger the internal callback (for HostResolver). It should not crash.
-  mapper->Signal();
-}
-
-TEST_F(DnsMasterTest, ShutdownWhenResolutionIsPendingTest) {
-  scoped_refptr<net::WaitingHostMapper> mapper = new net::WaitingHostMapper();
-  net::ScopedHostMapper scoped_mapper(mapper.get());
-
-  {
-    DnsMaster testing_master;
-
-    std::string localhost("127.0.0.1");
-    NameList names;
-    names.insert(names.end(), localhost);
-
-    testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
-
-    MessageLoop::current()->PostDelayedTask(FROM_HERE,
-                                            new MessageLoop::QuitTask(), 500);
-    MessageLoop::current()->Run();
-
-    EXPECT_FALSE(testing_master.WasFound(localhost));
-  }
-
-  // Clean up after ourselves.
-  mapper->Signal();
-  MessageLoop::current()->RunAllPending();
-}
-
-TEST_F(DnsMasterTest, SingleLookupTest) {
-  DnsMaster testing_master;
-
-  std::string goog("www.google.com");
+  // Warm up local OS cache.
+  BlockingDnsLookup(goog);
 
   NameList names;
   names.insert(names.end(), goog);
+  names.insert(names.end(), bad1);
+  names.insert(names.end(), bad2);
 
-  // Try to flood the master with many concurrent requests.
-  for (int i = 0; i < 10; i++)
-    testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
+  // First only cause a single thread to start up
+  testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
 
-  WaitForResolution(&testing_master, names);
+  // Wait for some resoultion for google.
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog).InMilliseconds());
 
   EXPECT_TRUE(testing_master.WasFound(goog));
+  EXPECT_FALSE(testing_master.WasFound(bad1));
+  EXPECT_FALSE(testing_master.WasFound(bad2));
+  // Verify the reason it is not found is that it is still being proceessed.
+  // Negative time mean no resolution yet.
+  EXPECT_GT(0, testing_master.GetResolutionDuration(bad2).InMilliseconds());
 
-  MessageLoop::current()->RunAllPending();
+  // Spin long enough that we *do* find the resolution of bad2.
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(bad2).InMilliseconds());
 
-  EXPECT_GT(testing_master.peak_pending_lookups(), names.size() / 2);
-  EXPECT_LE(testing_master.peak_pending_lookups(), names.size());
-  EXPECT_LE(testing_master.peak_pending_lookups(),
-            DnsMaster::kMaxConcurrentLookups);
+  // Verify both fictitious names are resolved by now.
+  // Typical random name takes about 20-30 ms
+  EXPECT_LT(0, testing_master.GetResolutionDuration(bad1).InMilliseconds());
+  EXPECT_LT(0, testing_master.GetResolutionDuration(bad2).InMilliseconds());
+  EXPECT_FALSE(testing_master.WasFound(bad1));
+  EXPECT_FALSE(testing_master.WasFound(bad2));
+
+  EXPECT_EQ(1U, testing_master.running_slave_count());
+
+  // With just one thread (doing nothing now), ensure a clean shutdown.
+  EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
 
-TEST_F(DnsMasterTest, ConcurrentLookupTest) {
-  DnsMaster testing_master;
+TEST(DnsMasterTest, DISABLED_MultiThreadedLookupTest) {
+  SetupNetworkInfrastructure();
+  net::EnsureWinsockInit();
+  DnsMaster testing_master(TimeDelta::FromSeconds(30));
+  DnsPrefetcherInit dns_init(NULL);
 
   std::string goog("www.google.com"),
     goog2("gmail.google.com.com"),
@@ -324,11 +319,12 @@ TEST_F(DnsMasterTest, ConcurrentLookupTest) {
   BlockingDnsLookup(goog3);
   BlockingDnsLookup(goog4);
 
-  // Try to flood the master with many concurrent requests.
-  for (int i = 0; i < 10; i++)
+  // Get all 8 threads running by calling many times before queue is handled.
+  for (int i = 0; i < 10; i++) {
     testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
+  }
 
-  WaitForResolution(&testing_master, names);
+  Sleep(10);  // Allow time for async DNS to get answers.
 
   EXPECT_TRUE(testing_master.WasFound(goog));
   EXPECT_TRUE(testing_master.WasFound(goog3));
@@ -337,35 +333,100 @@ TEST_F(DnsMasterTest, ConcurrentLookupTest) {
   EXPECT_FALSE(testing_master.WasFound(bad1));
   EXPECT_FALSE(testing_master.WasFound(bad2));
 
-  MessageLoop::current()->RunAllPending();
+  EXPECT_EQ(8U, testing_master.running_slave_count());
 
-  EXPECT_FALSE(testing_master.WasFound(bad1));
-  EXPECT_FALSE(testing_master.WasFound(bad2));
-
-  EXPECT_GT(testing_master.peak_pending_lookups(), names.size() / 2);
-  EXPECT_LE(testing_master.peak_pending_lookups(), names.size());
-  EXPECT_LE(testing_master.peak_pending_lookups(),
-            DnsMaster::kMaxConcurrentLookups);
+  EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
 
-TEST_F(DnsMasterTest, MassiveConcurrentLookupTest) {
-  DnsMaster testing_master;
+TEST(DnsMasterTest, DISABLED_MultiThreadedSpeedupTest) {
+  SetupNetworkInfrastructure();
+  net::EnsureWinsockInit();
+  DnsMaster testing_master(TimeDelta::FromSeconds(30));
+  DnsPrefetcherInit dns_init(NULL);
+
+  std::string goog("www.google.com"),
+    goog2("gmail.google.com.com"),
+    goog3("mail.google.com"),
+    goog4("gmail.com");
+  std::string bad1(GetNonexistantDomain()),
+    bad2(GetNonexistantDomain()),
+    bad3(GetNonexistantDomain()),
+    bad4(GetNonexistantDomain());
 
   NameList names;
-  for (int i = 0; i < 100; i++)
-    names.push_back(GetNonexistantDomain());
+  names.insert(names.end(), goog);
+  names.insert(names.end(), bad1);
+  names.insert(names.end(), bad2);
+  names.insert(names.end(), goog3);
+  names.insert(names.end(), goog2);
+  names.insert(names.end(), bad3);
+  names.insert(names.end(), bad4);
+  names.insert(names.end(), goog4);
 
-  // Try to flood the master with many concurrent requests.
+  // First cause a lookup using a single thread.
+  testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
+
+  // Wait for some resoultion for google.
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog).InMilliseconds());
+
+  EXPECT_TRUE(testing_master.WasFound(goog));
+  EXPECT_FALSE(testing_master.WasFound(bad1));
+  EXPECT_FALSE(testing_master.WasFound(bad2));
+  // ...and due to delay in geting resolution of bad names, the single slave
+  // thread won't have time to finish the list.
+  EXPECT_FALSE(testing_master.WasFound(goog3));
+  EXPECT_FALSE(testing_master.WasFound(goog2));
+  EXPECT_FALSE(testing_master.WasFound(goog4));
+
+  EXPECT_EQ(1U, testing_master.running_slave_count());
+
+  // Get all 8 threads running by calling many times before queue is handled.
+  names.clear();
   for (int i = 0; i < 10; i++)
-    testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
+    testing_master.Resolve(GetNonexistantDomain(),
+                           DnsHostInfo::PAGE_SCAN_MOTIVATED);
 
-  WaitForResolution(&testing_master, names);
+  // Wait long enough for all the goog's to be resolved.
+  // They should all take about the same time, and run in parallel.
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog2).InMilliseconds());
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog3).InMilliseconds());
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(goog4).InMilliseconds());
 
-  MessageLoop::current()->RunAllPending();
+  EXPECT_TRUE(testing_master.WasFound(goog3));
+  EXPECT_TRUE(testing_master.WasFound(goog2));
+  EXPECT_TRUE(testing_master.WasFound(goog4));
 
-  EXPECT_LE(testing_master.peak_pending_lookups(), names.size());
-  EXPECT_LE(testing_master.peak_pending_lookups(),
-            DnsMaster::kMaxConcurrentLookups);
+  EXPECT_FALSE(testing_master.WasFound(bad1));
+  EXPECT_FALSE(testing_master.WasFound(bad2));  // Perhaps not even decided.
+
+  // Queue durations should be distinct from when 1 slave was working.
+  EXPECT_GT(testing_master.GetQueueDuration(goog3).InMilliseconds(),
+              testing_master.GetQueueDuration(goog).InMilliseconds());
+  EXPECT_GT(testing_master.GetQueueDuration(goog4).InMilliseconds(),
+              testing_master.GetQueueDuration(goog).InMilliseconds());
+
+  // Give bad names a chance to be determined as unresolved.
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(bad1).InMilliseconds());
+  SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
+      testing_master.GetResolutionDuration(bad2).InMilliseconds());
+
+
+  // Well known names should resolve faster than bad names.
+  EXPECT_GE(testing_master.GetResolutionDuration(bad1).InMilliseconds(),
+              testing_master.GetResolutionDuration(goog).InMilliseconds());
+
+  EXPECT_GE(testing_master.GetResolutionDuration(bad2).InMilliseconds(),
+              testing_master.GetResolutionDuration(goog4).InMilliseconds());
+
+  EXPECT_EQ(8U, testing_master.running_slave_count());
+
+  EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
 
-}  // namespace chrome_browser_net
+}  // namespace
+
