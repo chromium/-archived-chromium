@@ -13,6 +13,12 @@
   return self;
 }
 
+- (void)dealloc {
+  // make sure our contents have been removed from the window
+  [[self view] removeFromSuperview];
+  [super dealloc];
+}
+
 - (void)awakeFromNib {
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
 }

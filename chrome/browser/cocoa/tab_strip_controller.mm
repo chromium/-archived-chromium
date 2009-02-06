@@ -109,9 +109,16 @@ class TabStripBridge : public TabStripModelObserver {
   [newView setFrame:frame];
 
   // Remove the old view from the view hierarchy. We know there's only one
-  // child of the contentView because we're the one who put it there.
-  NSView* oldView = [[contentView subviews] objectAtIndex:0];
-  [contentView replaceSubview:oldView with:newView];
+  // child of the contentView because we're the one who put it there. There
+  // may not be any children in the case of a tab that's been closed, in
+  // which case there's no swapping going on.
+  NSArray* subviews = [contentView subviews];
+  if ([subviews count]) {
+    NSView* oldView = [subviews objectAtIndex:0];
+    [contentView replaceSubview:oldView with:newView];
+  } else {
+    [contentView addSubview:newView];
+  }
 }
 
 // Create a new tab view and set its cell correctly so it draws the way we
@@ -239,10 +246,13 @@ class TabStripBridge : public TabStripModelObserver {
 // controller and remove the view from the strip.
 - (void)tabDetachedWithContents:(TabContents*)contents
                         atIndex:(NSInteger)index {
-  // Release the tab contents controller so those views get destroyed.
+  // Release the tab contents controller so those views get destroyed. This
+  // will remove all the tab content Cocoa views from the hierarchy. A
+  // subsequent "select tab" notification will follow from the model. To
+  // tell us what to swap in in its absence.
   NSValue* key = [NSValue valueWithPointer:contents];
   [tabContentsToController_ removeObjectForKey:key];
-  
+
   // Remove the |index|th view from the tab strip
   NSView* tab = [[tabView_ subviews] objectAtIndex:index];
   NSInteger tabWidth = [tab frame].size.width;
