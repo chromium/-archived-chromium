@@ -408,7 +408,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/profile_manager_unittest.cc',
       '$CHROME_DIR/browser/renderer_host/resource_dispatcher_host_unittest.cc',
       '$CHROME_DIR/browser/rlz/rlz_unittest.cc',
-      '$CHROME_DIR/browser/safe_browsing/protocol_manager_unittest.cc',
       '$CHROME_DIR/browser/search_engines/template_url_model_unittest.cc',
       '$CHROME_DIR/browser/search_engines/template_url_parser_unittest.cc',
       '$CHROME_DIR/browser/search_engines/template_url_prepopulate_data_unittest.cc',

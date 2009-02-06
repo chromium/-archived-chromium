@@ -287,6 +287,7 @@
 		B61C4EDC0F34EE8300489E0F /* browser_process_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8430E9D4839009A6919 /* browser_process_impl.cc */; };
 		B6CCB9FA0F1EC33100106F0D /* provisional_load_details.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9DE0F1EC32700106F0D /* provisional_load_details.cc */; };
 		B9BF55F87A4BB2FD366B6DDC /* template_url_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = 28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */; };
+		BA60A6800F3CB09F005A6703 /* protocol_manager_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD70E9D49DE009A6919 /* protocol_manager_unittest.cc */; };
 		BAA609ED0F3BCAA800783510 /* protocol_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD50E9D49DE009A6919 /* protocol_manager.cc */; };
 		BADB8B710F3A35AC00989B26 /* resource_dispatcher_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */; };
 		E40CC5E30F2E348900708647 /* history_contents_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5E10F2E348900708647 /* history_contents_provider.cc */; };
@@ -4730,6 +4731,7 @@
 				4D7BFB5F0E9D4C46009A6919 /* page_setup_unittest.cc in Sources */,
 				8268477E0F2F69C8009F6555 /* profile_manager_unittest.cc in Sources */,
 				B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */,
+				BA60A6800F3CB09F005A6703 /* protocol_manager_unittest.cc in Sources */,
 				4D7BFB780E9D4C5A009A6919 /* protocol_parser_unittest.cc in Sources */,
 				3380A9D60F2FC8F6004EF74F /* render_dns_master.cc in Sources */,
 				B5D030F00F3A3C43001238AB /* renderer_main_unittest.cc in Sources */,
