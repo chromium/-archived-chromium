@@ -12,6 +12,10 @@
 - (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled;
 @end
 
+@interface TabContentsController(Private)
+- (void)updateToolbarCommandStatus;
+@end
+
 // A C++ bridge class that handles listening for updates to commands and
 // passing them back to the controller.
 class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
@@ -75,12 +79,7 @@ class LocationBarBridge : public LocationBar {
 - (void)awakeFromNib {
   // Provide a starting point since we won't get notifications if the state
   // doesn't change between tabs.
-  [backButton_ setEnabled:commands_->IsCommandEnabled(IDC_BACK) ? YES : NO];
-  [forwardButton_
-      setEnabled:commands_->IsCommandEnabled(IDC_FORWARD) ? YES : NO];
-  [reloadStopButton_
-      setEnabled:commands_->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
-  [starButton_ setEnabled:commands_->IsCommandEnabled(IDC_STAR) ? YES : NO];
+  [self updateToolbarCommandStatus];
 
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
 }
@@ -130,6 +129,23 @@ class LocationBarBridge : public LocationBar {
   } else {
     [[self view] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil];
   }
+}
+
+// Set the enabled state of the buttons on the toolbar to match the state in
+// the controller. We can't only rely on notifications to do this because the
+// command model only assumes a single toolbar and won't send notifications if
+// the state doesn't change.
+- (void)updateToolbarCommandStatus {
+  [backButton_ setEnabled:commands_->IsCommandEnabled(IDC_BACK) ? YES : NO];
+  [forwardButton_
+      setEnabled:commands_->IsCommandEnabled(IDC_FORWARD) ? YES : NO];
+  [reloadStopButton_
+      setEnabled:commands_->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
+  [starButton_ setEnabled:commands_->IsCommandEnabled(IDC_STAR) ? YES : NO];
+}
+
+- (void)willBecomeSelectedTab {
+  [self updateToolbarCommandStatus];
 }
 
 @end

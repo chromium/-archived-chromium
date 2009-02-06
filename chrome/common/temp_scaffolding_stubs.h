@@ -640,10 +640,7 @@ class TabContents : public NotificationObserver {
   virtual ~TabContents() { }
   NavigationController* controller() const { return controller_; }
   void set_controller(NavigationController* c) { controller_ = c; }
-  virtual WebContents* AsWebContents() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
+  virtual WebContents* AsWebContents() const { return NULL; }
   virtual SkBitmap GetFavIcon() const {
     NOTIMPLEMENTED();
     return SkBitmap();

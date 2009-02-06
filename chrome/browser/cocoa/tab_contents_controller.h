@@ -50,6 +50,11 @@ class TabStripModel;
 // Get the C++ bridge object representing the location bar for this tab.
 - (LocationBar*)locationBar;
 
+// Called when the tab contents is about to be put into the view hierarchy as
+// the selected tab. Handles things such as ensuring the toolbar is correctly
+// enabled.
+- (void)willBecomeSelectedTab;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_COTNENTS_CONTROLLER_H_

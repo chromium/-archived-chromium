@@ -242,6 +242,12 @@ class TabStripBridge : public TabStripModelObserver {
     [current setState:(i == index) ? NSOnState : NSOffState];
   }
   
+  // Tell the new tab contents it is about to become the selected tab. Here it
+  // can do things like make sure the toolbar is up to date.
+  TabContentsController* newController =
+      [self controllerWithContents:newContents];
+  [newController willBecomeSelectedTab];
+
   // Swap in the contents for the new tab
   [self swapInTabContents:newContents];
 }
