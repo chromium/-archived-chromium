@@ -1765,3 +1765,6 @@ LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 // did before and that may be a bug.  It looks like
 // jshin@chromium.org did several font related changes in this merge.
 LINUX WIN : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
+
+// Started failing with webkit merge 40539:40668
+MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
