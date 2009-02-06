@@ -357,6 +357,10 @@ void EventSendingController::keyDown(
       code = WebCore::VKEY_UP;
     } else if (L"delete" == code_str) {
       code = WebCore::VKEY_BACK;
+    } else if (L"pageUp" == code_str) {
+      code = WebCore::VKEY_PRIOR;
+    } else if (L"pageDown" == code_str) {
+      code = WebCore::VKEY_NEXT;
     } else {
       DCHECK(code_str.length() == 1);
       code = code_str[0];

@@ -164,11 +164,6 @@ DEFER LINUX WIN : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 // which are intended to be fixed for Beta.
 DEFER LINUX WIN : LayoutTests/editing/selection/move-begin-end.html = FAIL
 
-// The platform folder has been ignored until now. It is now considered passing
-// except for this one test, which may need additional functionality support
-// from TestShell to pass.
-DEFER WIN : LayoutTests/platform/win/editing/selection/shift-page-up-down.html = FAIL
-
 // Bug 845400
 // The end result looks right, but the event messages differ.
 DEFER : LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
