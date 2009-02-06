@@ -41,7 +41,7 @@ Logging::Logging()
       consumer_(NULL),
       queue_invoke_later_pending_(false),
       main_thread_(MessageLoop::current()) {
-  memset(log_function_mapping_, sizeof(log_function_mapping_), 0);
+  memset(log_function_mapping_, 0, sizeof(log_function_mapping_));
 
   // Create an event for this browser instance that's set when logging is
   // enabled, so child processes can know when logging is enabled.
