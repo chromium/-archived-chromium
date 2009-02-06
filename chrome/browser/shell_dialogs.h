@@ -94,7 +94,7 @@ class SelectFileDialog
                           const std::wstring& default_path,
                           const std::wstring& filter,
                           const std::wstring& default_extension,
-                          gfx::NativeView owning_window,
+                          gfx::NativeWindow owning_window,
                           void* params) = 0;
 };
 

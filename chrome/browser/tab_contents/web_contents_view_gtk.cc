@@ -49,7 +49,7 @@ gfx::NativeView WebContentsViewGtk::GetContentNativeView() const {
   return NULL;
 }
 
-gfx::NativeView WebContentsViewGtk::GetTopLevelNativeView() const {
+gfx::NativeWindow WebContentsViewGtk::GetTopLevelNativeView() const {
   NOTIMPLEMENTED();
   return NULL;
 }

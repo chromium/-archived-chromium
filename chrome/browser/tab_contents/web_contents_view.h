@@ -61,7 +61,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
 
   // Returns the outermost native view. This will be used as the parent for
   // dialog boxes.
-  virtual gfx::NativeView GetTopLevelNativeView() const = 0;
+  virtual gfx::NativeWindow GetTopLevelNativeView() const = 0;
 
   // Computes the rectangle for the native widget that contains the contents of
   // the tab relative to its parent.
@@ -130,6 +130,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // when the tab comes back.
   virtual void HideFindBar(bool end_session) = 0;
 
+#if defined(OS_WIN)
   // Called when the tab is reparented to a new browser window. On MS Windows,
   // we have to change the parent of our find bar to go with the new window.
   //
@@ -137,6 +138,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // around the tab like this, the download bar etc. should be managed by the
   // BrowserView2 object.
   virtual void ReparentFindWindow(Browser* new_browser) const = 0;
+#endif
 
   // Computes the location of the find bar and whether it is fully visible in
   // its parent window. The return value indicates if the window is visible at

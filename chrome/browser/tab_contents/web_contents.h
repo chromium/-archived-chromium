@@ -128,11 +128,11 @@ class WebContents : public TabContents,
   virtual void SetDownloadShelfVisible(bool visible);
   virtual void PopupNotificationVisibilityChanged(bool visible);
 
-#if defined(OS_WIN)
   // Retarded pass-throughs to the view.
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
   // it should be killed altogether.
   virtual void CreateView();
+#if defined(OS_WIN)
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND();
   virtual void GetContainerBounds(gfx::Rect *out) const;
@@ -390,7 +390,11 @@ class WebContents : public TabContents,
   friend class TestWebContents;
 
   // Temporary until the view/contents separation is complete.
+#if defined(OS_WIN)
   friend class WebContentsViewWin;
+#elif defined(OS_MACOSX)
+  friend class WebContentsViewMac;
+#endif
 
   // So InterstitialPage can access SetIsLoading.
   friend class InterstitialPage;

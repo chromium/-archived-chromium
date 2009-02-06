@@ -166,13 +166,22 @@ void Browser::LoadingStateChanged(TabContents* source) {
 TabContents* TabContents::CreateWithType(TabContentsType type,
                                          Profile* profile,
                                          SiteInstance* instance) {
+  TabContents* contents;
+  
   switch (type) {
     case TAB_CONTENTS_WEB:
-      return new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
+      contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE,
+                                 NULL);
+      break;
     default:
-      NOTIMPLEMENTED();
-      return NULL;
+      NOTREACHED() << "Don't know how to create tab contents of type " << type;
+      contents = NULL;
   }
+  
+  if (contents)
+    contents->CreateView();
+  
+  return contents;
 }
 
 void TabContents::SetupController(Profile* profile) {
@@ -210,23 +219,6 @@ void TabContents::Destroy() {
 
   controller->TabContentsWasDestroyed(type);
 }
-
-//--------------------------------------------------------------------------
-
-#if defined(OS_MACOSX)
-class RenderWidgetHostViewStub : public RenderWidgetHostView {
- public:
-  RenderWidgetHostViewStub(RenderWidgetHost* host) {
-    host->set_view(this);
-  }
-};
-
-RenderWidgetHostView*
-    WebContentsView::CreateViewForWidget(RenderWidgetHost* host) {
-  NOTIMPLEMENTED();
-  return new RenderWidgetHostViewStub(host);
-}
-#endif  // defined(OS_MACOSX)
 
 //--------------------------------------------------------------------------
 

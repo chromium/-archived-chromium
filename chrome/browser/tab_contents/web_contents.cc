@@ -20,8 +20,10 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -490,11 +492,12 @@ void WebContents::PopupNotificationVisibilityChanged(bool visible) {
   render_view_host()->PopupNotificationVisibilityChanged(visible);
 }
 
-#if defined(OS_WIN)
 // Stupid view pass-throughs
 void WebContents::CreateView() {
   view_->CreateView();
 }
+
+#if defined(OS_WIN)
 HWND WebContents::GetContainerHWND() const {
   return view_->GetNativeView();
 }

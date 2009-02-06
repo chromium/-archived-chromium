@@ -24,7 +24,7 @@ class WebContentsViewGtk : public WebContentsView {
 
   virtual gfx::NativeView GetNativeView() const;
   virtual gfx::NativeView GetContentNativeView() const;
-  virtual gfx::NativeView GetTopLevelNativeView() const;
+  virtual gfx::NativeWindow GetTopLevelNativeView() const;
   virtual void GetContainerBounds(gfx::Rect* out) const;
   virtual void OnContentsDestroy();
   virtual void SetPageTitle(const std::wstring& title);

@@ -77,6 +77,7 @@ class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
 class WebContents;
+class WebContentsView;
 struct WebPluginInfo;
 struct WebPluginGeometry;
 class WebPreferences;
@@ -620,39 +621,6 @@ class ConfirmInfoBarDelegate : public InfoBarDelegate {
   };
 };
 
-#if defined(OS_MACOSX)
-class RenderWidgetHostView {
- public:
-  virtual RenderWidgetHost* GetRenderWidgetHost() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
-  virtual void WasHidden() { NOTIMPLEMENTED(); }
-  virtual void SetSize(const gfx::Size&) { NOTIMPLEMENTED(); }
-  virtual gfx::NativeView GetPluginNativeView()
-       { NOTIMPLEMENTED(); return NULL; };
-  virtual void MovePluginWindows(const std::vector<WebPluginGeometry>&) 
-        { NOTIMPLEMENTED(); }
-  virtual void Focus() { NOTIMPLEMENTED(); }
-  virtual void Blur() { NOTIMPLEMENTED(); }
-  virtual bool HasFocus() { NOTIMPLEMENTED(); return false; }
-  virtual void Show() { NOTIMPLEMENTED(); }
-  virtual void Hide() { NOTIMPLEMENTED(); }
-  virtual gfx::Rect GetViewBounds() const
-      { NOTIMPLEMENTED(); return gfx::Rect(); }
-  virtual void UpdateCursor(const WebCursor&) { NOTIMPLEMENTED(); }
-  virtual void UpdateCursorIfOverSelf() { NOTIMPLEMENTED(); }
-  virtual void SetIsLoading(bool) { NOTIMPLEMENTED(); }
-  virtual void IMEUpdateStatus(int, const gfx::Rect&) { NOTIMPLEMENTED(); }
-  virtual void DidPaintRect(const gfx::Rect&) { NOTIMPLEMENTED(); }
-  virtual void DidScrollRect(const gfx::Rect&, int, int) { NOTIMPLEMENTED(); }
-  virtual void RendererGone() { NOTIMPLEMENTED(); }
-  virtual void Destroy() { NOTIMPLEMENTED(); }
-  virtual void SetTooltipText(const std::wstring&) { NOTIMPLEMENTED(); }
-};
-#endif  // defined(MAC_OSX)
-
 class LoadNotificationDetails {
  public:
   LoadNotificationDetails(const GURL&, PageTransition::Type,
@@ -742,6 +710,10 @@ class TabContents : public NotificationObserver {
   void AddInfoBar(InfoBarDelegate*) { NOTIMPLEMENTED(); }
   virtual void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
                PageTransition::Type) { NOTIMPLEMENTED(); }
+  void AddNewContents(TabContents* new_contents,
+                      WindowOpenDisposition disposition,
+                      const gfx::Rect& initial_pos,
+                      bool user_gesture) { NOTIMPLEMENTED(); }
   virtual void Activate() { NOTIMPLEMENTED(); }
   virtual bool SupportsURL(GURL*) { NOTIMPLEMENTED(); return false; }
   virtual SiteInstance* GetSiteInstance() const { return NULL; }
@@ -756,6 +728,7 @@ class TabContents : public NotificationObserver {
   static void MigrateShelfView(TabContents* from, TabContents* to) {
     NOTIMPLEMENTED();
   }
+  virtual void CreateView() {}
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
@@ -778,7 +751,7 @@ class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
   };
   void ListenerDestroyed() { NOTIMPLEMENTED(); }
   void SelectFile(Type, const std::wstring&, const std::wstring&,
-                  const std::wstring&, const std::wstring&, gfx::NativeView,
+                  const std::wstring&, const std::wstring&, gfx::NativeWindow,
                   void*) { NOTIMPLEMENTED(); }
   static SelectFileDialog* Create(WebContents*) {
     NOTIMPLEMENTED();
@@ -927,54 +900,6 @@ class URLFixerUpper {
 
 //---------------------------------------------------------------------------
 // These stubs are for WebContents
-
-#if defined(OS_MACOSX)
-class WebContentsView : public RenderViewHostDelegate::View {
- public:
-  void OnContentsDestroy() { NOTIMPLEMENTED(); }
-  void* GetNativeView() {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  void HideFindBar(bool) { NOTIMPLEMENTED(); }
-  void Invalidate() { NOTIMPLEMENTED(); }
-  static WebContentsView* Create(WebContents*) {
-    NOTIMPLEMENTED();
-    return new WebContentsView;
-  }
-  gfx::NativeView GetTopLevelNativeView() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  gfx::Size GetContainerSize() const {
-    NOTIMPLEMENTED();
-    return gfx::Size();
-  }
-  void SizeContents(const gfx::Size& size) { NOTIMPLEMENTED(); }
-  RenderWidgetHostView* CreateViewForWidget(RenderWidgetHost*);
-  void RenderWidgetHostDestroyed(RenderWidgetHost*) { NOTIMPLEMENTED(); }
-  void SetPageTitle(const std::wstring&) { NOTIMPLEMENTED(); }
-  virtual void CreateNewWindow(int,
-                               base::WaitableEvent*) { NOTIMPLEMENTED(); }
-  virtual void CreateNewWidget(int, bool) { NOTIMPLEMENTED(); }
-  virtual void ShowCreatedWindow(int, WindowOpenDisposition,
-                                 const gfx::Rect&, bool) { NOTIMPLEMENTED(); }
-  virtual void ShowCreatedWidget(int, const gfx::Rect&) { NOTIMPLEMENTED(); }
-  virtual void ShowContextMenu(const ContextMenuParams&) { NOTIMPLEMENTED(); }
-  virtual void StartDragging(const WebDropData&) { NOTIMPLEMENTED(); }
-  virtual void UpdateDragCursor(bool) { NOTIMPLEMENTED(); }
-  virtual void TakeFocus(bool) { NOTIMPLEMENTED(); }
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent&) 
-      { NOTIMPLEMENTED(); }
-  virtual void OnFindReply(int, int, const gfx::Rect&, int,
-                           bool) { NOTIMPLEMENTED(); }
-};
-
-class WebContentsViewWin : public WebContentsView {
- public:
-  WebContentsViewWin(WebContents*) { }
-};
-#endif  // defined(OS_MACOSX)
 
 class WebApp : public base::RefCountedThreadSafe<WebApp> {
  public:
@@ -1141,6 +1066,23 @@ class SimpleAlertInfoBarDelegate : public InfoBarDelegate {
  public:
   SimpleAlertInfoBarDelegate(WebContents*, const std::wstring&, void*) {}
 };
+
+#if defined(OS_MACOSX)
+class FindBarMac {
+ public:
+  FindBarMac(WebContentsView*, gfx::NativeWindow) { }
+  void Show() { }
+  void Close() { }
+  void StartFinding(bool&) { }
+  void EndFindSession() { }
+  void DidBecomeUnselected() { }
+  bool IsVisible() { return false; }
+  bool IsAnimating() { return false; }
+  gfx::NativeView GetView() { return nil; }
+  std::string find_string() { return ""; }
+  void OnFindReply(int, int, const gfx::Rect&, int, bool) { }
+};
+#endif
 
 class LoginHandler {
  public:

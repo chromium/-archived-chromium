@@ -19,6 +19,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -32,10 +33,6 @@
 #if defined(OS_WIN)
 // TODO(port): remove these when stubs are filled in
 #include "chrome/browser/debugger/debugger_wrapper.h"
-#endif
-
-#if !defined(OS_MACOSX)
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #endif
 
 using base::TimeDelta;

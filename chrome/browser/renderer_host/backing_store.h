@@ -33,7 +33,7 @@ class BackingStore {
 
 #if defined(OS_WIN)
   HDC hdc() { return hdc_; }
-#else
+#elif defined(OS_POSIX)
   skia::PlatformCanvas* canvas() { return &canvas_; }
 #endif
 
