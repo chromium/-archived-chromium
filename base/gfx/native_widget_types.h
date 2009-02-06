@@ -36,6 +36,7 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #elif defined(OS_MACOSX)
+struct CGContext;
 #ifdef __OBJC__
 @class NSView;
 @class NSWindow;
@@ -56,14 +57,17 @@ namespace gfx {
 typedef HWND NativeView;
 typedef HWND NativeWindow;
 typedef HWND NativeEditView;
+typedef HDC NativeDrawingContext;
 #elif defined(OS_MACOSX)
 typedef NSView* NativeView;
 typedef NSWindow* NativeWindow;
 typedef NSTextField* NativeEditView;
+typedef CGContext* NativeDrawingContext;
 #elif defined(OS_LINUX)
 typedef GtkWidget* NativeView;
 typedef GtkWindow* NativeWindow;
 typedef GtkWidget* NativeEditView;
+typedef void *NativeDrawingContext; // TODO(port): update for Gtk
 #else  // null port.
 #error No known OS defined
 #endif
