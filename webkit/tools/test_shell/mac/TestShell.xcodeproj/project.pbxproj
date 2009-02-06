@@ -55,6 +55,7 @@
 		4DB7FEA40E9BF92100C66CE0 /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FE760E9BF6CB00C66CE0 /* libwebcoresysteminterface.a */; };
 		4DB7FEA80E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */; };
 		4DCE96BE0EEF137C00682526 /* AHEM____.TTF in Resources */ = {isa = PBXBuildFile; fileRef = 4DCE96BD0EEF137C00682526 /* AHEM____.TTF */; };
+		4DFEFE300F3BE76400F73D51 /* test_shell.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4DFEFE150F3BE75500F73D51 /* test_shell.icns */; };
 		53E50D280ECA1B21001784B4 /* simple_clipboard_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 53E50D270ECA1B21001784B4 /* simple_clipboard_impl.cc */; };
 		7B779D510E83001A00C2971E /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B779D500E82FFAC00C2971E /* libevent.a */; };
 		7BA363BD0E8C40C30023C8B9 /* libsdch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA363BA0E8C409A0023C8B9 /* libsdch.a */; };
@@ -735,6 +736,7 @@
 		4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<group>"; };
 		4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../../../../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
 		4DCE96BD0EEF137C00682526 /* AHEM____.TTF */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AHEM____.TTF"; path = "../resources/AHEM____.TTF"; sourceTree = SOURCE_ROOT; };
+		4DFEFE150F3BE75500F73D51 /* test_shell.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = test_shell.icns; sourceTree = "<group>"; };
 		53E50D270ECA1B21001784B4 /* simple_clipboard_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = simple_clipboard_impl.cc; path = ../../../glue/simple_clipboard_impl.cc; sourceTree = SOURCE_ROOT; };
 		7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = v8.xcodeproj; path = build/v8.xcodeproj; sourceTree = "<group>"; };
 		7B779D4B0E82FFAC00C2971E /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
@@ -979,6 +981,7 @@
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
+				4DFEFE150F3BE75500F73D51 /* test_shell.icns */,
 				7BFDF5740E37AD0A00F1D7D8 /* WebCore */,
 			);
 			name = Resources;
@@ -1829,6 +1832,7 @@
 				E45629020E26B4FE005E4685 /* southEastResizeCursor.png in Resources */,
 				E45629030E26B4FE005E4685 /* southResizeCursor.png in Resources */,
 				E45629040E26B4FE005E4685 /* southWestResizeCursor.png in Resources */,
+				4DFEFE300F3BE76400F73D51 /* test_shell.icns in Resources */,
 				E43A79AA0F1CE23800ABD5D1 /* textAreaResizeCorner.png in Resources */,
 				E45629050E26B4FE005E4685 /* verticalTextCursor.png in Resources */,
 				E45629060E26B4FE005E4685 /* waitCursor.png in Resources */,
