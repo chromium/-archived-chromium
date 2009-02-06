@@ -16,10 +16,13 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 #if defined(OS_WIN)
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
+#if !defined(OS_MACOSX)
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #endif
 
 class TestWebContents;
