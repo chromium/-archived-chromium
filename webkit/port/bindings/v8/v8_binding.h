@@ -78,6 +78,7 @@ inline String valueToStringWithNullOrUndefinedCheck(
 // Convert a value to a 32-bit integer.  The conversion fails if the
 // value cannot be converted to an integer or converts to nan or to an
 // infinity.
+// FIXME: Rename to toWebCorString() once V8 bindings migration is complete.
 inline int ToInt32(v8::Handle<v8::Value> value, bool& ok) {
   ok = true;
 
@@ -112,6 +113,7 @@ inline int ToInt32(v8::Handle<v8::Value> value, bool& ok) {
 }
 
 // Convert a value to a 32-bit integer assuming the conversion cannot fail.
+// FIXME: Rename to toInt32() once V8 bindings migration is complete.
 inline int ToInt32(v8::Handle<v8::Value> value) {
   bool ok;
   return ToInt32(value, ok);

@@ -125,6 +125,30 @@
 	</References>
 	<Files>
 		<Filter
+			Name="custom"
+			>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomBinding.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomEventListener.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8SVGElementInstanceCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8SVGLengthCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8SVGMatrixCustom.cpp"
+			>
+		</File>
+		</Filter>
+		<Filter
 			Name="DerivedSources"
 			>
 			<File
@@ -2657,11 +2681,19 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8Binding.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\V8CanvasPixelArrayCustom.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\V8MessagePortCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8Proxy.h"
 			>
 		</File>
 		<File

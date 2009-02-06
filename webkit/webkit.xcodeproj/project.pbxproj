@@ -45,6 +45,9 @@
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		41807C570F268375007BB4CC /* ByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41807C550F268375007BB4CC /* ByteArray.cpp */; };
 		419E80750F264BBC006564E0 /* CSSPropertyLonghand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E80730F264BBC006564E0 /* CSSPropertyLonghand.cpp */; };
+		41DE748C0F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */; };
+		41DE748D0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */; };
+		41DE748E0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */; };
 		41DEA0680F27C0F900E40D43 /* BackForwardListChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */; };
 		453FFDF935221CD484A3AFED /* Interval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 35DEC96C125DC674B5C9FA27 /* Interval.cpp */; };
 		489B04B64226A8BC625C0DDB /* RenderLineBoxList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03F1A9ED31C43E9C91A48AE0 /* RenderLineBoxList.cpp */; };
@@ -1552,6 +1555,11 @@
 		41A365600F01AB3800778012 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
+		41DE74870F3CDBCB0049BC24 /* V8CustomBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CustomBinding.h; sourceTree = "<group>"; };
+		41DE74880F3CDBCB0049BC24 /* V8CustomEventListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CustomEventListener.h; sourceTree = "<group>"; };
+		41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGElementInstanceCustom.cpp; sourceTree = "<group>"; };
+		41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGLengthCustom.cpp; sourceTree = "<group>"; };
+		41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGMatrixCustom.cpp; sourceTree = "<group>"; };
 		41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BackForwardListChromium.cpp; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
 		4C04BF9CDE7B0B591087B440 /* RenderObjectChildList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderObjectChildList.h; sourceTree = "<group>"; };
@@ -4483,6 +4491,19 @@
 			path = inspector;
 			sourceTree = "<group>";
 		};
+		41DE74830F3CDAAE0049BC24 /* custom */ = {
+			isa = PBXGroup;
+			children = (
+				41DE74870F3CDBCB0049BC24 /* V8CustomBinding.h */,
+				41DE74880F3CDBCB0049BC24 /* V8CustomEventListener.h */,
+				41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */,
+				41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */,
+				41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */,
+			);
+			name = custom;
+			path = ../../../../third_party/WebKit/WebCore/bindings/v8/custom;
+			sourceTree = "<group>";
+		};
 		4D1637C20EBFA485008F024E /* sql */ = {
 			isa = PBXGroup;
 			children = (
@@ -4618,6 +4639,7 @@
 		7B0095D00DAFF0DC00F72082 /* v8 */ = {
 			isa = PBXGroup;
 			children = (
+				41DE74830F3CDAAE0049BC24 /* custom */,
 				7B0095D20DAFF0DC00F72082 /* dom_wrapper_map.h */,
 				B5B0D4190EC8FE4900EA3314 /* JSDOMBinding.h */,
 				B5B0D41A0EC8FE4900EA3314 /* JSDOMBinding.cpp */,
@@ -8442,6 +8464,7 @@
 				938448430F16B06E0075F4C5 /* V8SVGDocument.cpp in Sources */,
 				938448440F16B06E0075F4C5 /* V8SVGElement.cpp in Sources */,
 				938448450F16B06E0075F4C5 /* V8SVGElementInstance.cpp in Sources */,
+				41DE748C0F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp in Sources */,
 				938448460F16B06E0075F4C5 /* V8SVGElementInstanceList.cpp in Sources */,
 				938448470F16B06E0075F4C5 /* V8SVGEllipseElement.cpp in Sources */,
 				938448480F16B06E0075F4C5 /* V8SVGException.cpp in Sources */,
@@ -8457,12 +8480,14 @@
 				938448520F16B06E0075F4C5 /* V8SVGGradientElement.cpp in Sources */,
 				938448530F16B06E0075F4C5 /* V8SVGImageElement.cpp in Sources */,
 				938448540F16B06E0075F4C5 /* V8SVGLength.cpp in Sources */,
+				41DE748D0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp in Sources */,
 				938448550F16B06E0075F4C5 /* V8SVGLengthList.cpp in Sources */,
 				938448560F16B06E0075F4C5 /* V8SVGLinearGradientElement.cpp in Sources */,
 				938448570F16B06E0075F4C5 /* V8SVGLineElement.cpp in Sources */,
 				938448580F16B06E0075F4C5 /* V8SVGMarkerElement.cpp in Sources */,
 				938448590F16B06E0075F4C5 /* V8SVGMaskElement.cpp in Sources */,
 				9384485A0F16B06E0075F4C5 /* V8SVGMatrix.cpp in Sources */,
+				41DE748E0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp in Sources */,
 				9384485B0F16B06E0075F4C5 /* V8SVGMetadataElement.cpp in Sources */,
 				9384485C0F16B06E0075F4C5 /* V8SVGMissingGlyphElement.cpp in Sources */,
 				9384485D0F16B06E0075F4C5 /* V8SVGNumber.cpp in Sources */,
@@ -9765,6 +9790,7 @@
 					"$(DIR_PENDING)/kjs",
 					"$(DIR_PENDING)/wtf",
 					"$(DIR_WEBCORE)/bindings",
+					"$(DIR_WEBCORE)/bindings/v8",
 					"$(DIR_WEBCORE)/bindings/js",
 					"$(DIR_WEBCORE)/bridge",
 					"$(DIR_WEBCORE)/bridge/jni",
@@ -9898,6 +9924,7 @@
 					"$(DIR_PENDING)/kjs",
 					"$(DIR_PENDING)/wtf",
 					"$(DIR_WEBCORE)/bindings",
+					"$(DIR_WEBCORE)/bindings/v8",
 					"$(DIR_WEBCORE)/bindings/js",
 					"$(DIR_WEBCORE)/bridge",
 					"$(DIR_WEBCORE)/bridge/jni",
