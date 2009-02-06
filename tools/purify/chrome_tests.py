@@ -48,16 +48,40 @@ class ChromeTests:
 
     script_dir = google.path_utils.ScriptDir()
     utility = google.platform_utils.PlatformUtility(script_dir)
+
     # Compute the top of the tree (the "source dir") from the script dir (where
     # this script lives).  We assume that the script dir is in tools/purify
     # relative to the top of the tree.
     self._source_dir = os.path.dirname(os.path.dirname(script_dir))
+
     # since this path is used for string matching, make sure it's always
     # an absolute Windows-style path
     self._source_dir = utility.GetAbsolutePath(self._source_dir)
+
+    self._report_dir = options.report_dir
+    if not self._report_dir:
+      if not options.buildbot:
+        self._report_dir = os.path.join(script_dir, "latest")
+      else:
+        # On the buildbot, we archive to a specific location on chrome-web
+        # with a directory based on the test name and the current svn revision.
+        # NOTE: These modules are located in trunk/tools/buildbot, which is not
+        # in the default config.  You'll need to check this out and add 
+        # scripts/* to your PYTHONPATH to test outside of the buildbot.
+        import slave_utils
+        import chromium_config
+        chrome_web_dir = chromium_config.Archive.purify_test_result_archive
+        current_version = str(slave_utils.SubversionRevision(self._source_dir))
+        # This line is how the buildbot master figures out our directory.
+        print "last change:", current_version
+        self._report_dir = os.path.join(chrome_web_dir, test,current_version)
+    if not os.path.exists(self._report_dir):
+      os.makedirs(self._report_dir)
+
     purify_test = os.path.join(script_dir, "purify_test.py")
     self._command_preamble = ["python.exe", purify_test, "--echo_to_stdout", 
                               "--source_dir=%s" % (self._source_dir),
+                              "--report_dir=%s" % (self._report_dir),
                               "--save_cache"]
 
   def _DefaultCommand(self, module, exe=None):
@@ -68,6 +92,7 @@ class ChromeTests:
       self._data_dir = os.path.join(module_dir, "test", "data", "purify")
     else:
       self._data_dir = os.path.join(module_dir, "data", "purify")
+
     if not self._options.build_dir:
       dir_chrome = os.path.join(self._source_dir, "chrome", "Release")
       dir_module = os.path.join(module_dir, "Release")
@@ -297,8 +322,8 @@ class ChromeTests:
                               "--ui-test-timeout=180000",
                               "--ui-test-action-timeout=80000",
                               "--ui-test-action-max-timeout=180000",
-			      "--ui-test-sleep-timeout=40000"],
-                             multi=True)
+                              "--ui-test-sleep-timeout=40000"],
+                              multi=True)
 
 
 def _main(argv):
@@ -321,6 +346,10 @@ def _main(argv):
                     help="run tests independently of each other so that they "
                          "don't interfere with each other and so that errors " 
                          "can be accurately attributed to their source");
+  parser.add_option("", "--report_dir",
+                    help="path where report files are saved")
+  parser.add_option("", "--buildbot", action="store_true", default=False,
+                    help="whether we're being run in a buildbot environment")
   options, args = parser.parse_args()
 
   if options.verbose:

@@ -59,7 +59,9 @@ class Purify(common.Rational):
                                  "is useful when the exe you want to purify is "
                                  "run by another script or program.")
     self._parser.add_option("", "--data_dir",
-                            help="path to where purify data files live")
+                            help="path where global purify data files live")
+    self._parser.add_option("", "--report_dir",
+                            help="path where report files are saved")
 
   def ParseArgv(self):
     if common.Rational.ParseArgv(self):
@@ -74,9 +76,12 @@ class Purify(common.Rational):
       self._name = self._options.name
       if not self._name:
         self._name = os.path.basename(self._exe)
+      self._report_dir = self._options.report_dir
+      if not self._report_dir:
+        self._report_dir = os.path.join(script_dir, "latest")
       # _out_file can be set in common.Rational.ParseArgv
       if not self._out_file:
-        self._out_file = os.path.join(self._latest_dir, "%s.txt" % self._name)
+        self._out_file = os.path.join(self._report_dir, "%s.txt" % self._name)
       self._source_dir = self._options.source_dir
       self._data_dir = self._options.data_dir
       if not self._data_dir:
@@ -90,7 +95,6 @@ class Purify(common.Rational):
 
   def Setup(self):
     script_dir = google.path_utils.ScriptDir()
-    self._latest_dir = os.path.join(script_dir, "latest")
     if common.Rational.Setup(self):
       if self._instrument_only:
         return True
@@ -189,7 +193,7 @@ class Purify(common.Rational):
       return -1
     pa = purify_analyze.PurifyAnalyze(out_files, self._echo_to_stdout,
                                       self._name, self._source_dir,
-                                      self._data_dir)
+                                      self._data_dir, self._report_dir)
     if not pa.ReadFile():
       # even though there was a fatal error during Purify, it's still useful
       # to see the normalized output
@@ -207,7 +211,7 @@ class Purify(common.Rational):
     else:
       retcode = pa.CompareResults()
       if retcode != 0:
-        pa.SaveResults(self._latest_dir)
+        pa.SaveResults(self._report_dir)
       pa.PrintSummary()
       # with more than one output file, it's also important to emit the bug
       # report which includes info on the arguments that generated each stack

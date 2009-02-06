@@ -163,22 +163,37 @@ class PurifyAnalyze:
   types_excluded = ("EXH", "EXI", "EXC", "MPK")
 
 
-  def __init__(self, files, echo, name=None, source_dir=None, data_dir=None):
+  def __init__(self, files, echo, name=None, source_dir=None, data_dir=None,
+               report_dir=None):
     # The input file we're analyzing.
     self._files = files
+
     # Whether the input file contents should be echoed to stdout.
     self._echo = echo
+
     # A symbolic name for the run being analyzed, often the name of the
     # exe which was purified.
     self._name = name
+    
     # The top of the source code tree of the code we're analyzing.
     # This prefix is stripped from all filenames in stacks for normalization.
     if source_dir:
       purify_message.Stack.SetSourceDir(source_dir)
+
+    script_dir = google.path_utils.ScriptDir()
+
     if data_dir:
       self._data_dir = data_dir
+      self._global_data_dir = os.path.join(script_dir, "data")
     else:
-      self._data_dir = os.path.join(google.path_utils.ScriptDir(), "data")
+      self._data_dir = os.path.join(script_dir, "data")
+      self._global_data_dir = None
+
+    if report_dir:
+      self._report_dir = report_dir
+    else:
+      self._report_dir = os.path.join(script_dir, "latest")
+
     # A map of message_type to a MessageList of that type.
     self._message_lists = {}
     self._ReadIgnoreFile()
@@ -188,8 +203,9 @@ class PurifyAnalyze:
     top-most visible stack line.
     '''
     self._pat_ignore = []
-    filenames = [os.path.join(self._data_dir, "ignore.txt"),
-        os.path.join(google.path_utils.ScriptDir(), "data", "ignore.txt")]
+    filenames = [os.path.join(self._data_dir, "ignore.txt")]
+    if self._global_data_dir:
+      filenames.append(os.path.join(self._global_data_dir, "ignore.txt"))
     for filename in filenames:
       if os.path.exists(filename):
         f = open(filename, 'r')
@@ -595,12 +611,11 @@ class PurifyAnalyze:
     print
     sys.stdout.flush()
 
-  def SaveLatestStrings(self, string_list, key, fname_extra=""):
-    '''Output a list of strings to a file in the "latest" dir.
+  def SaveStrings(self, string_list, key, fname_extra=""):
+    '''Output a list of strings to a file in the report dir.
     '''
-    script_dir = google.path_utils.ScriptDir()
-    path = os.path.join(script_dir, "latest")
-    out = os.path.join(path, "%s_%s%s.txt" % (self._name, key, fname_extra))
+    out = os.path.join(self._report_dir, 
+                       "%s_%s%s.txt" % (self._name, key, fname_extra))
     logging.info("saving %s" % (out))
     try:
       f = open(out, "w+")
@@ -617,7 +632,7 @@ class PurifyAnalyze:
     type.  See Message.NormalizedStr() for details of what's written.
     '''
     if not path:
-      path = self._data_dir
+      path = self._report_dir
     for key in self._message_lists:
       out = os.path.join(path, "%s_%s.txt" % (self._name, key))
       logging.info("saving %s" % (out))
@@ -698,8 +713,8 @@ class PurifyAnalyze:
       logging.info("%s: %d msgs" % (filename, len(msgs)))
     return msgs
 
-  def _SaveLatestGroupSummary(self, message_list):
-    '''Save a summary of message groups and their counts to a file in "latest"
+  def _SaveGroupSummary(self, message_list):
+    '''Save a summary of message groups and their counts to a file in report_dir
     '''
     string_list = []
     groups = message_list.UniqueMessageGroups()
@@ -709,7 +724,7 @@ class PurifyAnalyze:
     for group in group_keys:
       string_list.append("%s: %d" % (group, len(groups[group])))
 
-    self.SaveLatestStrings(string_list, message_list.GetType(), "_GROUPS")
+    self.SaveStrings(string_list, message_list.GetType(), "_GROUPS")
 
   def CompareResults(self):
     ''' Compares the results from the current run with the baseline data
@@ -787,7 +802,7 @@ class PurifyAnalyze:
                       purify_message.GetMessageType(type), type, 
                       '\n'.join(strs)))
         strs = [current_hashes[x].NormalizedStr() for x in type_errors]
-        self.SaveLatestStrings(strs, type, "_NEW")
+        self.SaveStrings(strs, type, "_NEW")
         errors += len(type_errors)
 
       if len(type_fixes):
@@ -796,17 +811,17 @@ class PurifyAnalyze:
         logging.warning("%d new '%s(%s)' unexpected fixes found\n%s" % (
                         len(type_fixes), purify_message.GetMessageType(type), 
                         type, '\n'.join(type_fixes)))
-        self.SaveLatestStrings(type_fixes, type, "_FIXED")
+        self.SaveStrings(type_fixes, type, "_FIXED")
         fixes += len(type_fixes)
         if len(current_messages) == 0:
           logging.warning("all errors fixed in %s" % baseline_file)
 
       if len(type_fixes) or len(type_errors):
         strs = [baseline_hashes[x] for x in new_baseline]
-        self.SaveLatestStrings(strs, type, "_BASELINE")
+        self.SaveStrings(strs, type, "_BASELINE")
 
       if current_list:
-        self._SaveLatestGroupSummary(current_list)
+        self._SaveGroupSummary(current_list)
 
     if errors:
       logging.error("%d total new errors found" % errors)
@@ -852,6 +867,8 @@ def _main():
                     help="print output as an attempted summary of bugs")
   parser.add_option("-v", "--verbose", action="store_true", default=False,
                     help="verbose output - enable debug log messages")
+  parser.add_option("", "--report_dir",
+                    help="path where report files are saved")
 
   (options, args) = parser.parse_args()
   if not len(args) >= 1:
@@ -863,7 +880,7 @@ def _main():
   else:
     google.logging_utils.config_root(level=logging.INFO)
   pa = PurifyAnalyze(filenames, options.echo_to_stdout, options.name, 
-                     options.source_dir, options.data_dir)
+                     options.source_dir, options.data_dir, options.report_dir)
   execute_crash = not pa.ReadFile()
   if options.bug_report:
     pa.PrintBugReport()
@@ -876,9 +893,7 @@ def _main():
   elif options.validate:
     if pa.CompareResults() != 0:
       retcode = -1
-      script_dir = google.path_utils.ScriptDir()
-      latest_dir = os.path.join(script_dir, "latest")
-      pa.SaveResults(latest_dir)
+      pa.SaveResults()
     pa.PrintSummary()
   elif options.baseline:
     if not pa.SaveResults(verbose=True):
