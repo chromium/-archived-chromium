@@ -2110,14 +2110,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tab_contents\ipc_status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\ipc_status_view.h"
-				>
-			</File>
-			<File
 				RelativePath=".\tab_contents\native_ui_contents.cc"
 				>
 			</File>
@@ -2191,14 +2183,6 @@
 			</File>
 			<File
 				RelativePath=".\tab_contents\site_instance.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\status_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\status_view.h"
 				>
 			</File>
 			<File
