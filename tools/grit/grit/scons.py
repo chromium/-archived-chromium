@@ -138,7 +138,7 @@ def _Scanner(file_node, env, path):
 
   # Add in the grit source files.  If one of these change, we want to re-run
   # grit.
-  grit_root_dir = os.path.split(os.path.abspath(__file__))[0]
+  grit_root_dir = env.subst('$CHROME_SRC_DIR/tools/grit')
   for root, dirs, filenames in os.walk(grit_root_dir):
     grit_src = [os.path.join(root, f) for f in filenames if f.endswith('.py')]
     files.extend(grit_src)

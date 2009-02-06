@@ -23,10 +23,7 @@ if env_res.Bit('windows'):
       ],
   )
 
-import sys
-sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
 env_grd = env.Clone()
-env_grd.Tool('scons', toolpath=[env_grd.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
 # This dummy target (webkit_strings) is used to tell the emitter where
 # to put the target files.
 generated = env_grd.GRIT(

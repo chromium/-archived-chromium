@@ -8,6 +8,8 @@ wrappers around Hammer builders.  This gives us a central place for any
 customization we need to make to the different things we build.
 """
 
+import sys
+
 from SCons.Script import *
 
 import SCons.Node
@@ -162,6 +164,14 @@ def generate(env):
   env.AddMethod(ChromeMSVSFolder)
   env.AddMethod(ChromeMSVSProject)
   env.AddMethod(ChromeMSVSSolution)
+
+  # Add the grit tool to the base environment because we use this a lot.
+  sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
+  env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
+
+  # Add the repack python script tool that we use in multiple places.
+  sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/data_pack').abspath)
+  env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/data_pack/')])
 
 def exists(env):
   return True
