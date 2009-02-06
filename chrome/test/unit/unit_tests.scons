@@ -187,7 +187,7 @@ input_files = ChromeFileList([
     '$CHROME_DIR/browser/webdata/web_database_unittest.cc',
     '$CHROME_DIR/browser/printing/win_printing_context_unittest.cc',
     '$CHROME_DIR/browser/window_sizer_unittest.cc',
-    '$CHROME_DIR/browser/renderer_host/render_widget_host_unittests.cc',
+    '$CHROME_DIR/browser/renderer_host/render_widget_host_unittest.cc',
 
     # test_infrastructure
     '$CHROME_DIR/browser/renderer_host/mock_render_process_host.cc',

@@ -10,15 +10,21 @@
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#if defined(OS_POSIX)
+#include "skia/ext/platform_canvas.h"
+#endif
+
 namespace {
 
 // RenderWidgetHostProcess -----------------------------------------------------
 
 class RenderWidgetHostProcess : public MockRenderProcessHost {
  public:
-  RenderWidgetHostProcess(Profile* profile)
+  explicit RenderWidgetHostProcess(Profile* profile)
       : MockRenderProcessHost(profile),
+#if defined(OS_WIN)
         current_paint_buf_(NULL),
+#endif
         paint_msg_should_reply_(false),
         paint_msg_reply_flags_(0) {
     // DANGER! This is a hack. The RenderWidgetHost checks the channel to see
@@ -48,8 +54,12 @@ class RenderWidgetHostProcess : public MockRenderProcessHost {
                                const base::TimeDelta& max_delay,
                                IPC::Message* msg);
 
+#if defined(OS_WIN)
   scoped_ptr<base::SharedMemory> current_paint_buf_;
-  
+#elif defined(OS_POSIX)
+  skia::PlatformCanvas canvas;
+#endif
+
   // Set to true when WaitForPaintMsg should return a successful paint messaage
   // reply. False implies timeout.
   bool paint_msg_should_reply_;
@@ -65,12 +75,20 @@ void RenderWidgetHostProcess::InitPaintRectParams(
     ViewHostMsg_PaintRect_Params* params) {
   // Create the shared backing store.
   const int w = 100, h = 100;
+
+#if defined(OS_WIN)
   int pixel_size = w * h * 4;
+
   current_paint_buf_.reset(new base::SharedMemory());
   ASSERT_TRUE(current_paint_buf_->Create(std::wstring(), false, true,
                                          pixel_size));
 
   params->bitmap = current_paint_buf_->handle();
+#elif defined(OS_POSIX)
+  ASSERT_TRUE(canvas.initialize(w, h, true));
+  params->bitmap = canvas.getDevice()->accessBitmap(false);
+#endif
+
   params->bitmap_rect = gfx::Rect(0, 0, w, h);
   params->view_size = gfx::Size(w, h);
   params->flags = paint_msg_reply_flags_;
