@@ -61,6 +61,9 @@ class CommandUpdater {
 
   // Removes an observer to the state of a particular command.
   void RemoveCommandObserver(int id, CommandObserver* observer);
+  
+  // Removes |observer| for all commands on which it's registered.
+  void RemoveCommandObserver(CommandObserver* observer);
 
   // Notify all observers of a particular command that the command has been
   // enabled or disabled. If the command does not exist, it is created and

@@ -59,3 +59,13 @@ void CommandUpdater::AddCommandObserver(int id, CommandObserver* observer) {
 void CommandUpdater::RemoveCommandObserver(int id, CommandObserver* observer) {
   GetCommand(id, false)->observers.RemoveObserver(observer);
 }
+
+void CommandUpdater::RemoveCommandObserver(CommandObserver* observer) {
+  for (CommandMap::const_iterator it = commands_.begin();
+       it != commands_.end();
+       ++it) {
+    Command* command = it->second;
+    if (command)
+      command->observers.RemoveObserver(observer);
+  }
+}

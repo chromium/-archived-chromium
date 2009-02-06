@@ -166,11 +166,7 @@ TabContentsCommandObserver::TabContentsCommandObserver(
 
 TabContentsCommandObserver::~TabContentsCommandObserver() {
   // Unregister the notifications
-  commands_->RemoveCommandObserver(IDC_BACK, this);
-  commands_->RemoveCommandObserver(IDC_FORWARD, this);
-  commands_->RemoveCommandObserver(IDC_RELOAD, this);
-  commands_->RemoveCommandObserver(IDC_HOME, this);
-  commands_->RemoveCommandObserver(IDC_STAR, this);
+  commands_->RemoveCommandObserver(this);
 }
 
 void TabContentsCommandObserver::EnabledStateChangedForCommand(int command, 
