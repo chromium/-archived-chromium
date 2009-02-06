@@ -84,7 +84,6 @@
 #undef IPC_MESSAGE_ROUTED4
 #undef IPC_MESSAGE_ROUTED5
 #undef IPC_MESSAGE_ROUTED6
-#undef IPC_MESSAGE_EMPTY
 #undef IPC_SYNC_MESSAGE_CONTROL0_0
 #undef IPC_SYNC_MESSAGE_CONTROL0_1
 #undef IPC_SYNC_MESSAGE_CONTROL0_2
@@ -176,9 +175,6 @@
   msg_class##__ID,
 
 #define IPC_MESSAGE_ROUTED6(msg_class, type1, type2, type3, type4, type5, type6) \
-  msg_class##__ID,
-
-#define IPC_MESSAGE_EMPTY(msg_class) \
   msg_class##__ID,
 
 #define IPC_SYNC_MESSAGE_CONTROL0_0(msg_class) \
@@ -425,9 +421,6 @@ void class_name::OnMessageReceived(const IPC::Message& msg) \
   IPC_MESSAGE_LOG(msg_class)
 
 #define IPC_MESSAGE_ROUTED6(msg_class, type1, type2, type3, type4, type5, type6) \
-  IPC_MESSAGE_LOG(msg_class)
-
-#define IPC_MESSAGE_EMPTY(msg_class) \
   IPC_MESSAGE_LOG(msg_class)
 
 #define IPC_SYNC_MESSAGE_CONTROL0_0(msg_class) \
@@ -681,14 +674,6 @@ void class_name::OnMessageReceived(const IPC::Message& msg) \
       : IPC::MessageWithTuple< Tuple6<type1, type2, type3, type4, type5, \
       type6> >(                                                         \
           routing_id, ID, MakeTuple(arg1, arg2, arg3, arg4, arg5, arg6)) {} \
-  };
-
-// Dummy class for now, just to give us the ID field.
-#define IPC_MESSAGE_EMPTY(msg_class) \
-  class msg_class { \
-   public: \
-    enum { ID = msg_class##__ID }; \
-    static void Log(const IPC::Message* msg, std::wstring* l) {} \
   };
 
 #define IPC_SYNC_MESSAGE_CONTROL0_0(msg_class) \

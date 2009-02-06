@@ -204,7 +204,9 @@ IPC_BEGIN_MESSAGES(Automation)
   IPC_MESSAGE_ROUTED2(AutomationMsg_RedirectsFromRequest,
                       int,   // tab handle
                       GURL)  // source URL
-  IPC_MESSAGE_EMPTY(AutomationMsg_RedirectsFromResponse)
+  IPC_MESSAGE_ROUTED2(AutomationMsg_RedirectsFromResponse,
+                      bool /* succeeded */,
+                      std::vector<GURL> /* redirects */)
 
   // This message asks the AutomationProvider whether a tab is waiting for
   // login info.

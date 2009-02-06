@@ -1123,6 +1123,54 @@ class MessageWithTuple : public Message {
     if (Read(msg, &p))
       LogParam(p, l);
   }
+
+  // Functions used to do manual unpacking.  Only used by the automation code,
+  // these should go away once that code uses SyncChannel.
+  template<typename TA, typename TB>
+  static bool Read(const IPC::Message* msg, TA* a, TB* b) {
+    ParamType params;
+    if (!Read(msg, &params))
+      return false;
+    *a = params.a;
+    *b = params.b;
+    return true;
+  }
+
+  template<typename TA, typename TB, typename TC>
+  static bool Read(const IPC::Message* msg, TA* a, TB* b, TC* c) {
+    ParamType params;
+    if (!Read(msg, &params))
+      return false;
+    *a = params.a;
+    *b = params.b;
+    *c = params.c;
+    return true;
+  }
+
+  template<typename TA, typename TB, typename TC, typename TD>
+  static bool Read(const IPC::Message* msg, TA* a, TB* b, TC* c, TD* d) {
+    ParamType params;
+    if (!Read(msg, &params))
+      return false;
+    *a = params.a;
+    *b = params.b;
+    *c = params.c;
+    *d = params.d;
+    return true;
+  }
+
+  template<typename TA, typename TB, typename TC, typename TD, typename TE>
+  static bool Read(const IPC::Message* msg, TA* a, TB* b, TC* c, TD* d, TE* e) {
+    ParamType params;
+    if (!Read(msg, &params))
+      return false;
+    *a = params.a;
+    *b = params.b;
+    *c = params.c;
+    *d = params.d;
+    *e = params.e;
+    return true;
+  }
 };
 
 // This class assumes that its template argument is a RefTuple (a Tuple with
