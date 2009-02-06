@@ -115,7 +115,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                           const std::wstring& filter,
                           uint32 user_data);
 
-#if defined(OS_WIN)
+#if defined(OS_WIN)  // This hack is Windows-specific.
   // Cache fonts for the renderer. See ResourceMessageFilter::OnLoadFont
   // implementation for more details
   void OnLoadFont(LOGFONT font);

@@ -259,7 +259,8 @@ void SetRecordPlaybackMode(bool) { }
 void SetJavaScriptFlags(const std::wstring&) { }
 void CheckForLeaks() { }
 std::string CreateHistoryStateForURL(const GURL& url) { return ""; }
-}
+void GetScreenInfoHelper(NSView*) { NOTIMPLEMENTED(); }
+}  // namespace webkit_glue
 #endif
 
 //--------------------------------------------------------------------------
@@ -267,8 +268,15 @@ std::string CreateHistoryStateForURL(const GURL& url) { return ""; }
 namespace chrome_browser_net {
 
 void EnableDnsPrefetch(bool) { NOTIMPLEMENTED(); }
+  
+void DnsPrefetchList(const std::vector<std::string>& hostnames) { NOTIMPLEMENTED(); }
 
 }  // namespace chrome_browser_net
+
+//--------------------------------------------------------------------------
+
+// This is from chrome_plugin_util.cc.
+void CPB_Free(void* memory) { NOTIMPLEMENTED(); }
 
 //--------------------------------------------------------------------------
 
@@ -302,40 +310,6 @@ void SSLManager::OnSSLCertificateError(
 }
 
 //--------------------------------------------------------------------------
-
-ResourceMessageFilter::ResourceMessageFilter(
-    ResourceDispatcherHost* resource_dispatcher_host,
-    PluginService* plugin_service,
-    printing::PrintJobManager* print_job_manager,
-    int render_process_host_id,
-    Profile* profile,
-    RenderWidgetHelper* render_widget_helper,
-    SpellChecker* spellchecker)
-      : ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)) {
-}
-ResourceMessageFilter::~ResourceMessageFilter() { NOTIMPLEMENTED(); }
-void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
-  NOTIMPLEMENTED();
-}
-void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
-  NOTIMPLEMENTED();
-}
-void ResourceMessageFilter::OnChannelClosing() { NOTIMPLEMENTED(); }
-bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
-  NOTIMPLEMENTED();
-  return false;
-}
-bool ResourceMessageFilter::Send(IPC::Message* message) {
-  NOTIMPLEMENTED();
-  return false;
-}
-void ResourceMessageFilter::Observe(NotificationType type,
-                                    const NotificationSource& source,
-                                    const NotificationDetails& details) { }
-void ResourceMessageFilter::OnResolveProxyCompleted(
-    IPC::Message* reply_msg,int result, const std::string& proxy_list) {
-  NOTIMPLEMENTED();
-}
 
 void RunRepostFormWarningDialog(NavigationController*) {
 }

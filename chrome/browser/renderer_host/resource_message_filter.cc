@@ -7,20 +7,16 @@
 #include "base/clipboard.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/histogram.h"
+#include "base/process_util.h"
 #include "base/thread.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/net/dns_global.h"
-#include "chrome/browser/printing/print_job_manager.h"
-#include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
-#include "chrome/browser/spellchecker.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -29,6 +25,17 @@
 #include "net/base/mime_util.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/plugin_service.h"
+#include "chrome/browser/printing/print_job_manager.h"
+#include "chrome/browser/printing/printer_query.h"
+#include "chrome/browser/spellchecker.h"
+#include "chrome/common/clipboard_service.h"
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
+// TODO(port) remove this.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 namespace {
 
@@ -96,12 +103,12 @@ ResourceMessageFilter::ResourceMessageFilter(
       plugin_service_(plugin_service),
       print_job_manager_(print_job_manager),
       render_process_host_id_(render_process_host_id),
+      spellchecker_(spellchecker),
+      ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
       render_handle_(NULL),
       request_context_(profile->GetRequestContext()),
       profile_(profile),
-      render_widget_helper_(render_widget_helper),
-      spellchecker_(spellchecker),
-      ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)) {
+      render_widget_helper_(render_widget_helper) {
 
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());
@@ -109,7 +116,7 @@ ResourceMessageFilter::ResourceMessageFilter(
 
 ResourceMessageFilter::~ResourceMessageFilter() {
   if (render_handle_)
-    CloseHandle(render_handle_);
+    base::CloseProcessHandle(render_handle_);
 
   // This function should be called on the IO thread.
   DCHECK(MessageLoop::current() ==
@@ -134,8 +141,7 @@ void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
 // Called on the IPC thread:
 void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   DCHECK(!render_handle_);
-  render_handle_ = OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE,
-                               FALSE, peer_pid);
+  render_handle_ = base::OpenProcessHandle(peer_pid);
   DCHECK(render_handle_);
 }
 
@@ -170,7 +176,9 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetDataDir, OnGetDataDir)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PluginMessage, OnPluginMessage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PluginSyncMessage, OnPluginSyncMessage)
+#if defined(OS_WIN)  // This hack is Windows-specific.
     IPC_MESSAGE_HANDLER(ViewHostMsg_LoadFont, OnLoadFont)
+#endif
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetScreenInfo, OnGetScreenInfo)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetPlugins, OnGetPlugins)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetPluginPath, OnGetPluginPath)
@@ -385,6 +393,7 @@ void ResourceMessageFilter::OnPluginSyncMessage(const FilePath& plugin_path,
   }
 }
 
+#if defined(OS_WIN)  // This hack is Windows-specific. 
 void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
   // If renderer is running in a sandbox, GetTextMetrics
   // can sometimes fail. If a font has not been loaded
@@ -426,6 +435,7 @@ void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
   hdcs[font_index] = hdc;
   font_index = (font_index + 1) % kFontCacheSize;
 }
+#endif
 
 void ResourceMessageFilter::OnGetScreenInfo(
     gfx::NativeViewId window, webkit_glue::ScreenInfo* results) {
@@ -476,7 +486,11 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
   // We pass the render_handle_ to assist the clipboard with using shared
   // memory objects. render_handle_ is a handle to the process that would
   // own any shared memory that might be in the object list.
+#if defined(OS_WIN)
   Clipboard::DuplicateRemoteHandles(render_handle_, long_living_objects);
+#else
+  NOTIMPLEMENTED();  // TODO(port) implement this.
+#endif
 
   render_widget_helper_->ui_loop()->PostTask(FROM_HERE,
       new WriteClipboardTask(long_living_objects));
@@ -484,8 +498,13 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
 
 void ResourceMessageFilter::OnClipboardIsFormatAvailable(unsigned int format,
                                                          bool* result) {
+#if defined(OS_WIN)
   DCHECK(result);
   *result = GetClipboardService()->IsFormatAvailable(format);
+#else
+  NOTIMPLEMENTED();  // TODO(port) this function should take a
+                     // Clipboard::FormatType instead of an int.
+#endif
 }
 
 void ResourceMessageFilter::OnClipboardReadText(std::wstring* result) {
@@ -558,7 +577,7 @@ void ResourceMessageFilter::OnDuplicateSection(
   // Duplicate the handle in this process right now so the memory is kept alive
   // (even if it is not mapped)
   base::SharedMemory shared_buf(renderer_handle, true, render_handle_);
-  shared_buf.GiveToProcess(GetCurrentProcess(), browser_handle);
+  shared_buf.GiveToProcess(base::GetCurrentProcessHandle(), browser_handle);
 }
 
 void ResourceMessageFilter::OnResourceTypeStats(
@@ -576,7 +595,7 @@ void ResourceMessageFilter::OnResourceTypeStats(
 }
 
 void ResourceMessageFilter::OnResolveProxy(const GURL& url,
-                                    IPC::Message* reply_msg) { 
+                                           IPC::Message* reply_msg) { 
   resolve_proxy_msg_helper_.Start(url, reply_msg);
 }
 

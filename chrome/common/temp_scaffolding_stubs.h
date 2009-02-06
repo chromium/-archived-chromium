@@ -12,6 +12,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/clipboard.h"
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -62,6 +63,7 @@ class ProfileManager;
 class Profile;
 class RenderProcessHost;
 class RenderWidgetHelper;
+class ResourceMessageFilter;
 class SessionID;
 class SiteInstance;
 class SpellChecker;
@@ -75,6 +77,7 @@ class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
 class WebContents;
+struct WebPluginInfo;
 struct WebPluginGeometry;
 class WebPreferences;
 
@@ -290,14 +293,53 @@ GURL NewTabUIURL();
 //---------------------------------------------------------------------------
 // These stubs are for BrowserProcessImpl
 
-class ClipboardService {
+class ClipboardService : public Clipboard {
+ public:
 };
 
+class CancelableTask;
+class ViewMsg_Print_Params;
+
 namespace printing {
+  
+class PrintingContext {
+ public:
+  enum Result { OK, CANCEL, FAILED };
+};
+  
+class PrintSettings {
+ public:    
+  void RenderParams(ViewMsg_Print_Params* params) const { NOTIMPLEMENTED(); }
+  int dpi() const { NOTIMPLEMENTED(); return 92; }
+};
+
+class PrinterQuery : public base::RefCountedThreadSafe<PrinterQuery> {
+ public:
+  enum GetSettingsAskParam {
+    DEFAULTS,
+    ASK_USER,
+  };
+
+  void GetSettings(GetSettingsAskParam ask_user_for_settings,
+                   int parent_window,
+                   int expected_page_count,
+                   CancelableTask* callback) { NOTIMPLEMENTED(); }
+  PrintingContext::Result last_status() { return PrintingContext::FAILED; }
+  const PrintSettings& settings() { NOTIMPLEMENTED(); return settings_; }
+  int cookie() { NOTIMPLEMENTED(); return 0; }
+  void StopWorker() { NOTIMPLEMENTED(); }
+
+ private:
+  PrintSettings settings_;
+};
 
 class PrintJobManager {
  public:
   void OnQuit() { NOTIMPLEMENTED(); }
+  void PopPrinterQuery(int document_cookie, scoped_refptr<PrinterQuery>* job) {
+    NOTIMPLEMENTED();
+  }
+  void QueuePrinterQuery(PrinterQuery* job) { NOTIMPLEMENTED(); }
 };
 
 }  // namespace printing
@@ -831,6 +873,15 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
                const Language& language,
                URLRequestContext* request_context,
                const std::wstring& custom_dictionary_file_name) {}
+  
+  bool SpellCheckWord(const wchar_t* in_word,
+                     int in_word_len,
+                     int* misspelling_start,
+                     int* misspelling_len,
+                    std::vector<std::wstring>* optional_suggestions) {
+    NOTIMPLEMENTED();
+    return true;
+  }
 };
 
 class WebAppLauncher {
@@ -984,6 +1035,21 @@ class PluginService {
     return true;
   }
   void SetChromePluginDataDir(const FilePath& data_dir);
+  FilePath GetChromePluginDataDir() { return chrome_plugin_data_dir_; }
+  void GetPlugins(bool reload, std::vector<WebPluginInfo>* plugins) {}
+  FilePath GetPluginPath(const GURL& url,
+                         const std::string& mime_type,
+                         const std::string& clsid,
+                         std::string* actual_mime_type) {
+    NOTIMPLEMENTED();
+    return FilePath();
+  }
+  void OpenChannelToPlugin(ResourceMessageFilter* renderer_msg_filter,
+                           const GURL& url,
+                           const std::string& mime_type,
+                           const std::string& clsid,
+                           const std::wstring& locale,
+                           IPC::Message* reply_msg) { NOTIMPLEMENTED(); }
  private:
   MessageLoop* main_message_loop_;
   ResourceDispatcherHost* resource_dispatcher_host_;

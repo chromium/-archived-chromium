@@ -33,6 +33,14 @@ ProcessHandle GetCurrentProcessHandle() {
   return ::GetCurrentProcess();
 }
 
+ProcessHandle OpenProcessHandle(int pid) {
+  return OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE, FALSE, pid);
+}
+
+void CloseProcessHandle(ProcessHandle process) {
+  CloseHandle(process);
+}
+
 // Helper for GetProcId()
 bool GetProcIdViaGetProcessId(ProcessHandle process, DWORD* id) {
   // Dynamically get a pointer to GetProcessId().

@@ -66,6 +66,13 @@ int GetCurrentProcId();
 
 // Returns the ProcessHandle of the current process.
 ProcessHandle GetCurrentProcessHandle();
+  
+// Converts a PID to a process handle. This handle must be closed by
+// CloseProcessHandle when you are done with it.
+ProcessHandle OpenProcessHandle(int pid);
+  
+// Closes the process handle opened by OpenProcessHandle.
+void CloseProcessHandle(ProcessHandle process);
 
 // Returns the unique ID for the specified process. This is functionally the
 // same as Windows' GetProcessId(), but works on versions of Windows before
