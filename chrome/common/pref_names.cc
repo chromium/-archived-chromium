@@ -102,6 +102,8 @@ const wchar_t kWebKitMinimumLogicalFontSize[] =
     L"webkit.webprefs.minimum_logical_font_size";
 const wchar_t kWebKitJavascriptEnabled[] =
     L"webkit.webprefs.javascript_enabled";
+const wchar_t kWebKitWebSecurityEnabled[] =
+    L"webkit.webprefs.web_security_enabled";
 const wchar_t kWebKitJavascriptCanOpenWindowsAutomatically[] =
     L"webkit.webprefs.javascript_can_open_windows_automatically";
 const wchar_t kWebKitLoadsImagesAutomatically[] =

@@ -1266,6 +1266,7 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   settings->setDefaultTextEncodingName(webkit_glue::StdWStringToString(
     preferences.default_encoding));
   settings->setJavaScriptEnabled(preferences.javascript_enabled);
+  settings->setWebSecurityEnabled(preferences.web_security_enabled);
   settings->setJavaScriptCanOpenWindowsAutomatically(
     preferences.javascript_can_open_windows_automatically);
   settings->setLoadsImagesAutomatically(

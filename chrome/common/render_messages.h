@@ -1461,6 +1461,7 @@ struct ParamTraits<WebPreferences> {
     WriteParam(m, p.minimum_logical_font_size);
     WriteParam(m, p.default_encoding);
     WriteParam(m, p.javascript_enabled);
+    WriteParam(m, p.web_security_enabled);
     WriteParam(m, p.javascript_can_open_windows_automatically);
     WriteParam(m, p.loads_images_automatically);
     WriteParam(m, p.plugins_enabled);
@@ -1488,6 +1489,7 @@ struct ParamTraits<WebPreferences> {
         ReadParam(m, iter, &p->minimum_logical_font_size) &&
         ReadParam(m, iter, &p->default_encoding) &&
         ReadParam(m, iter, &p->javascript_enabled) &&
+        ReadParam(m, iter, &p->web_security_enabled) &&
         ReadParam(m, iter, &p->javascript_can_open_windows_automatically) &&
         ReadParam(m, iter, &p->loads_images_automatically) &&
         ReadParam(m, iter, &p->plugins_enabled) &&

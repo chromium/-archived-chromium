@@ -299,6 +299,9 @@ const wchar_t kDisablePopupBlocking[]          = L"disable-popup-blocking";
 // Don't execute JavaScript (browser JS like the new tab page still runs).
 const wchar_t kDisableJavaScript[]             = L"disable-javascript";
 
+// Don't enforce the same-origin policy.  (Used by people testing their sites.)
+const wchar_t kDisableWebSecurity[]            = L"disable-web-security";
+
 // Prevent Java from running.
 const wchar_t kDisableJava[]                   = L"disable-java";
 

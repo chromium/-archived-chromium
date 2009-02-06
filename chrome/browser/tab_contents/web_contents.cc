@@ -241,6 +241,8 @@ void WebContents::RegisterUserPrefs(PrefService* prefs) {
   WebPreferences pref_defaults;
   prefs->RegisterBooleanPref(prefs::kWebKitJavascriptEnabled,
                              pref_defaults.javascript_enabled);
+  prefs->RegisterBooleanPref(prefs::kWebKitWebSecurityEnabled,
+                             pref_defaults.web_security_enabled);
   prefs->RegisterBooleanPref(
       prefs::kWebKitJavascriptCanOpenWindowsAutomatically, true);
   prefs->RegisterBooleanPref(prefs::kWebKitLoadsImagesAutomatically,
@@ -1204,6 +1206,9 @@ WebPreferences WebContents::GetWebkitPrefs() {
     web_prefs.javascript_enabled =
         !command_line.HasSwitch(switches::kDisableJavaScript) &&
         prefs->GetBoolean(prefs::kWebKitJavascriptEnabled);
+    web_prefs.web_security_enabled =
+        !command_line.HasSwitch(switches::kDisableWebSecurity) &&
+        prefs->GetBoolean(prefs::kWebKitWebSecurityEnabled);
     web_prefs.plugins_enabled =
         !command_line.HasSwitch(switches::kDisablePlugins) &&
         prefs->GetBoolean(prefs::kWebKitPluginsEnabled);

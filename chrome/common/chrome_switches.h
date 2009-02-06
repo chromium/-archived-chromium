@@ -111,6 +111,7 @@ extern const wchar_t kDisableJavaScript[];
 extern const wchar_t kDisableJava[];
 extern const wchar_t kDisablePlugins[];
 extern const wchar_t kDisableImages[];
+extern const wchar_t kDisableWebSecurity[];
 
 extern const wchar_t kUseLowFragHeapCrt[];
 

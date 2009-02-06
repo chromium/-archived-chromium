@@ -27,6 +27,7 @@ struct WebPreferences {
   int minimum_logical_font_size;
   std::wstring default_encoding;
   bool javascript_enabled;
+  bool web_security_enabled;
   bool javascript_can_open_windows_automatically;
   bool loads_images_automatically;
   bool plugins_enabled;
@@ -60,6 +61,7 @@ struct WebPreferences {
         minimum_logical_font_size(6),
         default_encoding(L"ISO-8859-1"),
         javascript_enabled(true),
+        web_security_enabled(true),
         javascript_can_open_windows_automatically(true),
         loads_images_automatically(true),
         plugins_enabled(true),
