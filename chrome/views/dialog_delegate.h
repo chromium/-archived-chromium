@@ -10,7 +10,6 @@
 
 namespace views {
 
-class NativeButton;
 class View;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,5 +108,4 @@ class DialogDelegate : public WindowDelegate {
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_DIALOG_DELEGATE_H_
-
+#endif  // CHROME_VIEWS_DIALOG_DELEGATE_H_

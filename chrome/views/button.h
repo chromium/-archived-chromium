@@ -10,8 +10,6 @@
 
 namespace views {
 
-class MouseEvent;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Button
@@ -82,7 +80,7 @@ class Button : public BaseButton {
   // The tooltip text or empty string for none.
   std::wstring tooltip_text_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Button);
+  DISALLOW_COPY_AND_ASSIGN(Button);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,4 +129,3 @@ class ToggleButton : public Button {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_BUTTON_H_
-

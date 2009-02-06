@@ -13,8 +13,6 @@
 
 namespace views {
 
-class HWNDView;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // NativeButton is a wrapper for a windows native button
@@ -120,7 +118,7 @@ class NativeButton : public NativeControl {
   void Clicked();
 
   // Whether the button preferred size should follow the Microsoft layout
-  // guidelines.  Default is true.  
+  // guidelines.  Default is true.
   bool enforce_dlu_min_size_;
 
   std::wstring label_;
@@ -140,10 +138,9 @@ class NativeButton : public NativeControl {
   // Storage of strings needed for accessibility.
   std::wstring accessible_name_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(NativeButton);
+  DISALLOW_COPY_AND_ASSIGN(NativeButton);
 };
 
 }  // namespace views
 
 #endif  // CHROME_VIEWS_NATIVE_BUTTON_H__
-

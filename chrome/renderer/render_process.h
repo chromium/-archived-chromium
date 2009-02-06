@@ -9,8 +9,6 @@
 #include "chrome/common/child_process.h"
 #include "chrome/renderer/render_thread.h"
 
-class RenderView;
-
 // Represents the renderer end of the browser<->renderer connection. The
 // opposite end is the RenderProcessHost. This is a singleton object for
 // each renderer.
@@ -38,7 +36,7 @@ class RenderProcess : public ChildProcess {
 
  private:
   friend class ChildProcessFactory<RenderProcess>;
-  RenderProcess(const std::wstring& channel_name);
+  explicit RenderProcess(const std::wstring& channel_name);
   ~RenderProcess();
 
   // Returns a pointer to the RenderProcess singleton instance.  This is
@@ -80,8 +78,7 @@ class RenderProcess : public ChildProcess {
 
   static bool load_plugins_in_process_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderProcess);
+  DISALLOW_COPY_AND_ASSIGN(RenderProcess);
 };
 
 #endif  // CHROME_RENDERER_RENDER_PROCESS_H__
-

@@ -12,9 +12,7 @@
 #include "base/thread.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 
-class GURL;
 class BrowserProxy;
-class TabProxy;
 class WindowProxy;
 
 namespace gfx {
@@ -86,8 +84,7 @@ class WindowProxy : public AutomationResourceProxy {
   BrowserProxy* GetBrowserWithTimeout(uint32 timeout_ms, bool* is_timeout);
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(WindowProxy);
+  DISALLOW_COPY_AND_ASSIGN(WindowProxy);
 };
 
-#endif // CHROME_TEST_AUTOMATION_WINDOW_PROXY_H__
-
+#endif  // CHROME_TEST_AUTOMATION_WINDOW_PROXY_H__

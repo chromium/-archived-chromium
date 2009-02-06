@@ -8,12 +8,14 @@
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
-#include <atlbase.h>	 
-#include <atlapp.h>	 
-#include <atlmisc.h>	 
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlmisc.h>
 #endif  // defined(OS_WIN)
 
+#include <algorithm>
 #include <map>
+#include <string>
 #include <vector>
 
 #include "base/gfx/rect.h"
@@ -30,7 +32,6 @@ class Path;
 class AccessibleWrapper;
 class ChromeCanvas;
 class OSExchangeData;
-class SkBitmap;
 
 namespace views {
 
@@ -93,7 +94,7 @@ class DragController {
 // View class
 //
 //   A View is a rectangle within the views View hierarchy. It is the base
-///  class for all Views.
+//   class for all Views.
 //
 //   A View is a container of other Views (there is no such thing as a Leaf
 //   View - makes code simpler, reduces type conversion headaches, design
@@ -1331,4 +1332,3 @@ class View : public AcceleratorTarget {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_VIEW_H_
-

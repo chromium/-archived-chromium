@@ -13,7 +13,6 @@ namespace views {
 
 class HWNDView;
 class NativeControlContainer;
-class RootView;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -125,10 +124,9 @@ class NativeControl : public View {
 
   NativeControlContainer* container_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(NativeControl);
+  DISALLOW_COPY_AND_ASSIGN(NativeControl);
 };
 
 }  // namespace views
 
 #endif  // CHROME_VIEWS_NATIVE_CONTROL_H__
-

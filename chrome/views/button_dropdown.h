@@ -9,8 +9,6 @@
 #include "chrome/views/button.h"
 #include "chrome/views/menu.h"
 
-class Timer;
-
 namespace views {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,10 +64,9 @@ class ButtonDropDown : public Button {
   // A factory for tasks that show the dropdown context menu for the button.
   ScopedRunnableMethodFactory<ButtonDropDown> show_menu_factory_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ButtonDropDown);
+  DISALLOW_COPY_AND_ASSIGN(ButtonDropDown);
 };
 
 }  // namespace views
 
 #endif  // CHROME_VIEWS_BUTTON_DROPDOWN_H__
-

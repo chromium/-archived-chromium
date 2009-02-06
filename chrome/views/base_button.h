@@ -9,7 +9,6 @@
 #include "chrome/views/event.h"
 #include "chrome/views/view.h"
 
-class OSExchangeData;
 class ThrobAnimation;
 
 namespace views {
@@ -165,8 +164,6 @@ class BaseButton : public View,
   scoped_ptr<ThrobAnimation> hover_animation_;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(BaseButton);
-
   // The current listener
   ButtonListener* listener_;
 
@@ -179,6 +176,8 @@ class BaseButton : public View,
   // Should we animate when the state changes? Defaults to true, but false while
   // throbbing.
   bool animate_on_state_change_;
+
+  DISALLOW_COPY_AND_ASSIGN(BaseButton);
 };
 
 }  // namespace views

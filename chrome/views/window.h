@@ -9,12 +9,9 @@
 #include "chrome/views/widget_win.h"
 
 namespace gfx {
-class Size;
-class Path;
 class Point;
+class Size;
 };
-
-class PrefService;
 
 namespace views {
 
@@ -270,10 +267,9 @@ class Window : public WidgetWin,
   // Hold onto notifications.
   NotificationRegistrar notification_registrar_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Window);
+  DISALLOW_COPY_AND_ASSIGN(Window);
 };
 
 }  // namespace views
 
 #endif  // CHROME_VIEWS_WINDOW_H__
-

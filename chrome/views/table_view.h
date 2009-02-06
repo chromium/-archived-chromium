@@ -22,7 +22,7 @@
 // TODO(port): remove the ifdef when native_control.h is ported.
 #include "chrome/views/native_control.h"
 #endif  // defined(OS_WIN)
-#include "SkColor.h"
+#include "skia/include/SkColor.h"
 
 class SkBitmap;
 
@@ -50,7 +50,6 @@ class SkBitmap;
 // TableView is a wrapper around the window type ListView in report mode.
 namespace views {
 
-class HWNDView;
 class ListView;
 class ListViewParent;
 class TableView;

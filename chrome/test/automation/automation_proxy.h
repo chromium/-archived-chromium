@@ -18,9 +18,8 @@
 
 class AutomationRequest;
 class BrowserProxy;
-class WindowProxy;
 class TabProxy;
-class AutocompleteEditProxy;
+class WindowProxy;
 
 // This is an interface that AutomationProxy-related objects can use to
 // access the message-sending abilities of the Proxy.
@@ -178,9 +177,9 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Clears the current AutomationRequest object.
   void clear_current_request() { current_request_ = NULL; }
 
-  // Wrapper over AutomationHandleTracker::InvalidateHandle. Receives the message
-  // from AutomationProxy, unpacks the messages and routes that call to the
-  // tracker.
+  // Wrapper over AutomationHandleTracker::InvalidateHandle. Receives the
+  // message from AutomationProxy, unpacks the messages and routes that call to
+  // the tracker.
   void InvalidateHandle(const IPC::Message& message);
 
   // Creates a tab that can hosted in an external process. The function
@@ -194,8 +193,6 @@ class AutomationProxy : public IPC::Channel::Listener,
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(AutomationProxy);
-
   void InitializeEvents();
   void InitializeChannelID();
   void InitializeThread();
@@ -216,6 +213,8 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   // Delay to let the browser execute the command.
   int command_execution_timeout_ms_;
+
+  DISALLOW_COPY_AND_ASSIGN(AutomationProxy);
 };
 
 #endif  // CHROME_TEST_AUTOMATION_AUTOMATION_PROXY_H__

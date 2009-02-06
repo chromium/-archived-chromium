@@ -5,6 +5,8 @@
 #ifndef CHROME_RENDERER_RENDER_THREAD_H_
 #define CHROME_RENDERER_RENDER_THREAD_H_
 
+#include <vector>
+
 #include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
@@ -17,7 +19,6 @@
 #include "chrome/common/modal_dialog_event.h"
 
 class SkBitmap;
-class Task;
 class VisitedLinkSlave;
 struct WebPreferences;
 class RenderDnsMaster;
@@ -56,7 +57,7 @@ class RenderThread : public IPC::Channel::Listener,
                      public RenderThreadBase,
                      public base::Thread {
  public:
-  RenderThread(const std::wstring& channel_name);
+  explicit RenderThread(const std::wstring& channel_name);
   virtual ~RenderThread();
 
   // IPC::Channel::Listener implementation:
@@ -141,7 +142,7 @@ class RenderThread : public IPC::Channel::Listener,
 
   int in_send_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderThread);
+  DISALLOW_COPY_AND_ASSIGN(RenderThread);
 };
 
 // The global RenderThread object for this process. Note that this should only
