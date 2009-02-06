@@ -27,7 +27,6 @@
   delete browser_;
   delete windowShim_;
   [tabStripController_ release];
-  [contentsController_ release];
   [super dealloc];
 }
 
@@ -106,6 +105,10 @@
 - (void)commandDispatch:(id)sender {
   NSInteger tag = [sender tag];
   browser_->ExecuteCommand(tag);
+}
+
+- (LocationBar*)locationBar {
+  return [tabStripController_ locationBar];
 }
 
 @end

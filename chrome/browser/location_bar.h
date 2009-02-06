@@ -5,6 +5,9 @@
 #ifndef CHROME_BROWSER_LOCATION_BAR_H_
 #define CHROME_BROWSER_LOCATION_BAR_H_
 
+#include "chrome/common/page_transition_types.h"
+#include "webkit/glue/window_open_disposition.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 // LocationBar
 //  An interface providing access to the Location Bar component of the browser

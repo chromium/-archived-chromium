@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 class CommandUpdater;
+class LocationBar;
 @class TabStripView;
 class TabStripBridge;
 class TabStripModel;
@@ -40,6 +41,9 @@ class TabStripModel;
 - (id)initWithView:(TabStripView*)view 
              model:(TabStripModel*)model
           commands:(CommandUpdater*)commands;
+
+// Get the C++ bridge object representing the location bar for the current tab.
+- (LocationBar*)locationBar;
 
 @end
 

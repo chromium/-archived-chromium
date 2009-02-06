@@ -8,6 +8,7 @@
 #include <Cocoa/Cocoa.h>
 
 class CommandUpdater;
+class LocationBar;
 class TabContents;
 class TabContentsCommandObserver;
 class TabStripModel;
@@ -27,6 +28,7 @@ class TabStripModel;
  @private
   CommandUpdater* commands_;  // weak, may be nil
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
+  LocationBar* locationBarBrige_;
   IBOutlet NSButton* backButton_;
   IBOutlet NSButton* forwardButton_;
   IBOutlet NSButton* reloadStopButton_;
@@ -44,6 +46,9 @@ class TabStripModel;
 
 // Take this view (toolbar and web contents) full screen
 - (IBAction)fullScreen:(id)sender;
+
+// Get the C++ bridge object representing the location bar for this tab.
+- (LocationBar*)locationBar;
 
 @end
 

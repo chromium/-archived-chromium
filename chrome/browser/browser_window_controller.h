@@ -22,7 +22,6 @@ class BrowserWindow;
   Browser* browser_;
   BrowserWindow* windowShim_;
   TabStripController* tabStripController_;
-  TabContentsController* contentsController_;
 
   IBOutlet NSBox* contentBox_;
   IBOutlet TabStripView* tabStripView_;
@@ -42,6 +41,9 @@ class BrowserWindow;
 
 // Access the C++ bridge between the NSWindow and the rest of Chromium
 - (BrowserWindow*)browserWindow;
+
+// Get the C++ bridge object representing the location bar for the current tab.
+- (LocationBar*)locationBar;
 
 @end
 

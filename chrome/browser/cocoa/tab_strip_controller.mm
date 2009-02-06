@@ -273,6 +273,14 @@ class TabStripBridge : public TabStripModelObserver {
     [curr setFrame:newFrame];
   }
 }
+
+- (LocationBar*)locationBar {
+  TabContents* selectedContents = model_->GetSelectedTabContents();
+  TabContentsController* selectedController =
+      [self controllerWithContents:selectedContents];
+  return [selectedController locationBar];
+}
+
 @end
 
 //--------------------------------------------------------------------------

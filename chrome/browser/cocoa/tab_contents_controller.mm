@@ -6,6 +6,7 @@
 
 #import "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/command_updater.h"
+#import "chrome/browser/location_bar.h"
 
 @interface TabContentsController(CommandUpdates)
 - (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled;
@@ -23,10 +24,30 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
   void EnabledStateChangedForCommand(int command, bool enabled);
 
  private:
-  TabContentsController* controller_;  // weak, owns us
+  TabContentsController* controller_;  // weak, owns me
   CommandUpdater* commands_;  // weak
 };
 
+// TODO(pinkerton): implement these
+class LocationBarBridge : public LocationBar {
+ public:
+  LocationBarBridge(TabContentsController* controller);
+
+  // Overridden from LocationBar
+  virtual void ShowFirstRunBubble() { NOTIMPLEMENTED(); }
+  virtual std::wstring GetInputString() const { NOTIMPLEMENTED(); return L""; }
+  virtual WindowOpenDisposition GetWindowOpenDisposition() const
+      { NOTIMPLEMENTED(); return NEW_FOREGROUND_TAB; }
+  virtual PageTransition::Type GetPageTransition() const 
+      { NOTIMPLEMENTED(); return 0; }
+  virtual void AcceptInput() { NOTIMPLEMENTED(); }
+  virtual void FocusLocation() { NOTIMPLEMENTED(); }
+  virtual void FocusSearch() { NOTIMPLEMENTED(); }
+  virtual void SaveStateToContents(TabContents* contents) { NOTIMPLEMENTED(); }
+
+ private:
+  TabContentsController* controller_;  // weak, owns me
+};
 
 @implementation TabContentsController
 
@@ -38,6 +59,7 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
     commands_ = commands;
     if (commands_)
       observer_ = new TabContentsCommandObserver(self, commands);
+    locationBarBrige_ = new LocationBarBridge(self);
   }
   return self;
 }
@@ -46,11 +68,25 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
   // make sure our contents have been removed from the window
   [[self view] removeFromSuperview];
   delete observer_;
+  delete locationBarBrige_;
   [super dealloc];
 }
 
 - (void)awakeFromNib {
+  // Provide a starting point since we won't get notifications if the state
+  // doesn't change between tabs.
+  [backButton_ setEnabled:commands_->IsCommandEnabled(IDC_BACK) ? YES : NO];
+  [forwardButton_
+      setEnabled:commands_->IsCommandEnabled(IDC_FORWARD) ? YES : NO];
+  [reloadStopButton_
+      setEnabled:commands_->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
+  [starButton_ setEnabled:commands_->IsCommandEnabled(IDC_STAR) ? YES : NO];
+
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
+}
+
+- (LocationBar*)locationBar {
+  return locationBarBrige_;
 }
 
 // Returns YES if the tab represented by this controller is the front-most.
@@ -125,4 +161,10 @@ void TabContentsCommandObserver::EnabledStateChangedForCommand(int command,
                                                                bool enabled) {
   [controller_ enabledStateChangedForCommand:command 
                                      enabled:enabled ? YES : NO];
+}
+
+//--------------------------------------------------------------------------
+
+LocationBarBridge::LocationBarBridge(TabContentsController* controller)
+    : controller_(controller) {
 }

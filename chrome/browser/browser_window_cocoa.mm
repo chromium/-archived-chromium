@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/gfx/rect.h"
+#include "base/logging.h"
 #include "chrome/browser/browser_window_cocoa.h"
 #include "chrome/browser/browser_window_controller.h"
 
@@ -56,15 +57,19 @@ StatusBubble* BrowserWindowCocoa::GetStatusBubble() {
 }
 
 void BrowserWindowCocoa::SelectedTabToolbarSizeChanged(bool is_animating) {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::UpdateTitleBar() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::SetStarredState(bool is_starred) {
+  NOTIMPLEMENTED();
 }
 
 gfx::Rect BrowserWindowCocoa::GetNormalBounds() const {
@@ -82,63 +87,80 @@ bool BrowserWindowCocoa::IsMaximized() {
 }
 
 LocationBar* BrowserWindowCocoa::GetLocationBar() const {
-  return NULL;
+  return [controller_ locationBar];
 }
 
 void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::UpdateToolbar(TabContents* contents,
                                        bool should_restore_state) {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::FocusToolbar() {
+  NOTIMPLEMENTED();
 }
 
 bool BrowserWindowCocoa::IsBookmarkBarVisible() const {
+  NOTIMPLEMENTED();
   return true;
 }
 
 void BrowserWindowCocoa::ToggleBookmarkBar() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowAboutChromeDialog() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowBookmarkManager() {
+  NOTIMPLEMENTED();
 }
 
 bool BrowserWindowCocoa::IsBookmarkBubbleVisible() const {
+  NOTIMPLEMENTED();
   return false;
 }
 
 void BrowserWindowCocoa::ShowBookmarkBubble(const GURL& url,
                                             bool already_bookmarked) {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowReportBugDialog() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowClearBrowsingDataDialog() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowImportDialog() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowSearchEnginesDialog() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowPasswordManager() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowSelectProfileDialog() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowNewProfileDialog() {
+  NOTIMPLEMENTED();
 }
 
 void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                                         void* parent_window) {
+  NOTIMPLEMENTED();
 }
                             
 void BrowserWindowCocoa::DestroyBrowser() {
