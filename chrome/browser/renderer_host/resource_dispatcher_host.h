@@ -81,6 +81,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
           upload_size(upload_size),
           last_upload_position(0),
           waiting_for_upload_progress_ack(false),
+          memory_cost(0),
           is_paused(false),
           has_started_reading(false),
           paused_read_bytes(0) {
@@ -134,6 +135,10 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     base::TimeTicks last_upload_ticks;
 
     bool waiting_for_upload_progress_ack;
+
+    // The approximate in-memory size (bytes) that we credited this request
+    // as consuming in |outstanding_requests_memory_cost_map_|.
+    int memory_cost;
 
    private:
     // Request is temporarily not handling network data. Should be used only
@@ -246,6 +251,19 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   int pending_requests() const {
     return static_cast<int>(pending_requests_.size());
   }
+  
+  // Intended for unit-tests only. Returns the memory cost of all the
+  // outstanding requests (pending and blocked) for |render_process_host_id|.
+  int GetOutstandingRequestsMemoryCost(int render_process_host_id) const;
+
+  // Intended for unit-tests only. Overrides the outstanding requests bound.
+  void set_max_outstanding_requests_cost_per_process(int limit) {
+    max_outstanding_requests_cost_per_process_ = limit;
+  }
+
+  // The average private bytes increase of the browser for each new pending
+  // request. Experimentally obtained.
+  static const int kAvgBytesPerOutstandingRequest = 4400;
 
   DownloadFileManager* download_file_manager() const {
     return download_file_manager_;
@@ -341,6 +359,11 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
  private:
   FRIEND_TEST(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies);
+  FRIEND_TEST(ResourceDispatcherHostTest,
+              IncrementOutstandingRequestsMemoryCost);
+  FRIEND_TEST(ResourceDispatcherHostTest,
+              CalculateApproximateMemoryCost);
+
   class ShutdownTask;
 
   friend class ShutdownTask;
@@ -387,6 +410,18 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   // Helper function for regular and download requests.
   void BeginRequestInternal(URLRequest* request, bool mixed_content);
+
+  // Updates the "cost" of outstanding requests for |render_process_host_id|.
+  // The "cost" approximates how many bytes are consumed by all the in-memory
+  // data structures supporting this request (URLRequest object,
+  // HttpNetworkTransaction, etc...).
+  // The value of |cost| is added to the running total, and the resulting
+  // sum is returned. 
+  int IncrementOutstandingRequestsMemoryCost(int cost,
+                                             int render_process_host_id);
+
+  // Estimate how much heap space |request| will consume to run.
+  static int CalculateApproximateMemoryCost(URLRequest* request);
 
   // The list of all requests that we have pending. This list is not really
   // optimized, and assumes that we have relatively few requests pending at once
@@ -476,6 +511,20 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   typedef std::pair<int, int> ProcessRendererIDs;
   typedef std::map<ProcessRendererIDs, BlockedRequestsList*> BlockedRequestMap;
   BlockedRequestMap blocked_requests_map_;
+
+  // Maps the render_process_host_ids to the approximate number of bytes 
+  // being used to service its resource requests. No entry implies 0 cost.
+  typedef std::map<int, int> OutstandingRequestsMemoryCostMap;
+  OutstandingRequestsMemoryCostMap outstanding_requests_memory_cost_map_;
+
+  // |max_outstanding_requests_cost_per_process_| is the upper bound on how
+  // many outstanding requests can be issued per render process host.
+  // The constraint is expressed in terms of bytes (where the cost of
+  // individual requests is given by CalculateApproximateMemoryCost).
+  // The total number of outstanding requests is roughly:
+  //   (max_outstanding_requests_cost_per_process_ /
+  //       kAvgBytesPerOutstandingRequest)
+  int max_outstanding_requests_cost_per_process_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceDispatcherHost);
 };

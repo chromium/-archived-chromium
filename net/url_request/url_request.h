@@ -252,6 +252,9 @@ class URLRequest {
   // Set the upload data directly.
   void set_upload(net::UploadData* upload) { upload_ = upload; }
 
+  // Get the upload data directly.
+  net::UploadData* get_upload() { return upload_.get(); }
+
   // Returns true if the request has a non-empty message body to upload.
   bool has_upload() const { return upload_ != NULL; }
 
@@ -267,6 +270,8 @@ class URLRequest {
   // method may only be called before Start() is called.  It is an error to
   // call it later.
   void SetExtraRequestHeaders(const std::string& headers);
+
+  const std::string& extra_request_headers() { return extra_request_headers_; }
 
   // Returns the current load state for the request.
   net::LoadState GetLoadState() const;

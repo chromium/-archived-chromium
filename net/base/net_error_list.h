@@ -41,6 +41,9 @@ NET_ERROR(ACCESS_DENIED, -10)
 // The operation failed because of unimplemented functionality.
 NET_ERROR(NOT_IMPLEMENTED, -11)
 
+// There were not enough resources to complete the operation.
+NET_ERROR(INSUFFICIENT_RESOURCES, -12)
+
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 

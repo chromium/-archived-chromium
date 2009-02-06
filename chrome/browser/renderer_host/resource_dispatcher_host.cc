@@ -72,6 +72,11 @@ static const int kUpdateLoadStatesIntervalMsec = 100;
 // given time for a given request.
 static const int kMaxPendingDataMessages = 20;
 
+// Maximum byte "cost" of all the outstanding requests for a renderer.
+// See delcaration of |max_outstanding_requests_cost_per_process_| for details.
+// This bound is 25MB, which allows for around 6000 outstanding requests.
+static const int kMaxOutstandingRequestsCostPerProcess = 26214400;
+
 // A ShutdownTask proxies a shutdown task from the UI thread to the IO thread.
 // It should be constructed on the UI thread and run in the IO thread.
 class ResourceDispatcherHost::ShutdownTask : public Task {
@@ -135,7 +140,8 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
       request_id_(-1),
       plugin_service_(PluginService::GetInstance()),
       method_runner_(this),
-      is_shutdown_(false) {
+      is_shutdown_(false),
+      max_outstanding_requests_cost_per_process_(kMaxOutstandingRequestsCostPerProcess) {
 }
 
 ResourceDispatcherHost::~ResourceDispatcherHost() {
@@ -568,6 +574,14 @@ void ResourceDispatcherHost::PauseRequest(int render_process_host_id,
   }
 }
 
+int ResourceDispatcherHost::GetOutstandingRequestsMemoryCost(
+    int render_process_host_id) const {
+  OutstandingRequestsMemoryCostMap::const_iterator entry =
+      outstanding_requests_memory_cost_map_.find(render_process_host_id);
+  return (entry == outstanding_requests_memory_cost_map_.end()) ?
+      0 : entry->second;
+}
+
 void ResourceDispatcherHost::OnClosePageACK(int render_process_host_id,
                                             int request_id) {
   GlobalRequestID global_id(render_process_host_id, request_id);
@@ -674,8 +688,14 @@ void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
 
 void ResourceDispatcherHost::RemovePendingRequest(
     const PendingRequestList::iterator& iter) {
-  // Notify the login handler that this request object is going away.
   ExtraRequestInfo* info = ExtraInfoForRequest(iter->second);
+
+  // Remove the memory credit that we added when pushing the request onto
+  // the pending list.
+  IncrementOutstandingRequestsMemoryCost(-1 * info->memory_cost,
+                                         info->render_process_host_id);
+
+  // Notify the login handler that this request object is going away.
   if (info && info->login_handler)
     info->login_handler->OnRequestCancelled();
 
@@ -823,9 +843,88 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
                                                    response.get());
 }
 
+int ResourceDispatcherHost::IncrementOutstandingRequestsMemoryCost(
+    int cost, int render_process_host_id) {
+  // Retrieve the previous value (defaulting to 0 if not found).
+  OutstandingRequestsMemoryCostMap::iterator prev_entry =
+      outstanding_requests_memory_cost_map_.find(render_process_host_id);
+  int new_cost = 0;
+  if (prev_entry != outstanding_requests_memory_cost_map_.end())
+    new_cost = prev_entry->second;
+
+  // Insert/update the total; delete entries when their value reaches 0.
+  new_cost += cost;
+  CHECK(new_cost >= 0);
+  if (new_cost == 0)
+    outstanding_requests_memory_cost_map_.erase(prev_entry);
+  else
+    outstanding_requests_memory_cost_map_[render_process_host_id] = new_cost;
+
+  return new_cost;
+}
+
+// static
+int ResourceDispatcherHost::CalculateApproximateMemoryCost(
+    URLRequest* request) {
+  // The following fields should be a minor size contribution (experimentally
+  // on the order of 100). However since they are variable length, it could
+  // in theory be a sizeable contribution.
+  int strings_cost = request->extra_request_headers().size() +
+                     request->original_url().spec().size() +
+                     request->referrer().size() +
+                     request->method().size();
+
+  int upload_cost = 0;
+
+  // TODO(eroman): don't enable the upload throttling until we have data
+  // showing what a reasonable limit is (limiting to 25MB of uploads may
+  // be too restrictive).
+#if 0
+  // Sum all the (non-file) upload data attached to the request, if any.
+  if (request->has_upload()) {
+    const std::vector<net::UploadData::Element>& uploads =
+        request->get_upload()->elements();
+    std::vector<net::UploadData::Element>::const_iterator iter;
+    for (iter = uploads.begin(); iter != uploads.end(); ++iter) {
+      if (iter->type() == net::UploadData::TYPE_BYTES) {
+        int64 element_size = iter->GetContentLength();
+        // This cast should not result in truncation.
+        upload_cost += static_cast<int>(element_size);
+      }
+    }
+  }
+#endif
+
+  // Note that this expression will typically be dominated by:
+  // |kAvgBytesPerOutstandingRequest|.
+  return kAvgBytesPerOutstandingRequest + strings_cost + upload_cost;
+}
+
 void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
                                                   bool mixed_content) {
+  DCHECK(!request->is_pending());
   ExtraRequestInfo* info = ExtraInfoForRequest(request);
+
+  // Add the memory estimate that starting this request will consume.
+  info->memory_cost = CalculateApproximateMemoryCost(request);
+  int memory_cost = IncrementOutstandingRequestsMemoryCost(
+      info->memory_cost,
+      info->render_process_host_id);
+
+  // If enqueing/starting this request will exceed our per-process memory
+  // bound, abort it right away.
+  if (memory_cost > max_outstanding_requests_cost_per_process_) {
+    // We call "CancelWithError()" as a way of setting the URLRequest's
+    // status -- it has no effect beyond this, since the request hasn't started.
+    request->CancelWithError(net::ERR_INSUFFICIENT_RESOURCES);
+
+    // TODO(eroman): this is kinda funky -- we insert the unstarted request into
+    // |pending_requests_| simply to please OnResponseCompleted().
+    GlobalRequestID global_id(info->render_process_host_id, info->request_id);
+    pending_requests_[global_id] = request;
+    OnResponseCompleted(request);
+    return;
+  }
 
   std::pair<int, int> pair_id(info->render_process_host_id,
                               info->render_view_id);
@@ -1317,6 +1416,11 @@ void ResourceDispatcherHost::ProcessBlockedRequestsForRenderView(
 
   for (BlockedRequestsList::iterator req_iter = requests->begin();
        req_iter != requests->end(); ++req_iter) {
+    // Remove the memory credit that we added when pushing the request onto
+    // the blocked list.
+    ExtraRequestInfo* info = ExtraInfoForRequest(req_iter->url_request);
+    IncrementOutstandingRequestsMemoryCost(-1 * info->memory_cost,
+                                           info->render_process_host_id);
     if (cancel_requests)
       delete req_iter->url_request;
     else

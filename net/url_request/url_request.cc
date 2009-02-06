@@ -234,16 +234,16 @@ void URLRequest::Cancel() {
 void URLRequest::CancelWithError(int os_error) {
   DCHECK(os_error < 0);
 
-  // There's nothing to do if we are not waiting on a Job.
-  if (!is_pending_ || !job_)
-    return;
-
   // If the URL request already has an error status, then canceling is a no-op.
   // Plus, we don't want to change the error status once it has been set.
   if (status_.is_success()) {
     status_.set_status(URLRequestStatus::CANCELED);
     status_.set_os_error(os_error);
   }
+
+  // There's nothing to do if we are not waiting on a Job.
+  if (!is_pending_ || !job_)
+    return;
 
   job_->Kill();
 
@@ -350,7 +350,7 @@ int URLRequest::Redirect(const GURL& location, int http_status_code) {
     method_ = "GET";
   }
   url_ = location;
-  upload_ = 0;
+  upload_ = NULL;
   status_ = URLRequestStatus();
   --redirect_limit_;
 

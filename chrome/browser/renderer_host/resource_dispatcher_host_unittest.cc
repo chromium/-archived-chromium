@@ -104,7 +104,7 @@ class ResourceDispatcherHostTest : public testing::Test,
     URLRequest::RegisterProtocolFactory("test", NULL);
     RendererSecurityPolicy::GetInstance()->Remove(0);
 
-    // The plugin lib is automatically loaded during these test 
+    // The plugin lib is automatically loaded during these test
     // and we want a clean environment for other tests.
     ChromePluginLib::UnloadAllPlugins();
 
@@ -194,12 +194,16 @@ void CheckSuccessfulRequest(const std::vector<IPC::Message>& messages,
 
 // Tests whether many messages get dispatched properly.
 TEST_F(ResourceDispatcherHostTest, TestMany) {
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
   MakeTestRequest(0, 0, 2, URLRequestTestJob::test_url_2());
   MakeTestRequest(0, 0, 3, URLRequestTestJob::test_url_3());
 
   // flush all the pending requests
   while (URLRequestTestJob::ProcessOnePendingMessage());
+
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
   // sorts out all the messages we saw by request
   ResourceIPCAccumulator::ClassifiedMessages msgs;
@@ -218,6 +222,8 @@ TEST_F(ResourceDispatcherHostTest, TestMany) {
 TEST_F(ResourceDispatcherHostTest, Cancel) {
   ResourceDispatcherHost host(NULL);
 
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
   MakeTestRequest(0, 0, 2, URLRequestTestJob::test_url_2());
   MakeTestRequest(0, 0, 3, URLRequestTestJob::test_url_3());
@@ -225,6 +231,9 @@ TEST_F(ResourceDispatcherHostTest, Cancel) {
 
   // flush all the pending requests
   while (URLRequestTestJob::ProcessOnePendingMessage());
+  MessageLoop::current()->RunAllPending();
+
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
   ResourceIPCAccumulator::ClassifiedMessages msgs;
   accum_.GetClassifiedMessages(&msgs);
@@ -235,28 +244,19 @@ TEST_F(ResourceDispatcherHostTest, Cancel) {
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
   CheckSuccessfulRequest(msgs[2], URLRequestTestJob::test_data_3());
 
-  // Check that request 2 got canceled before it finished reading, which gives
-  // us 1 ReceivedResponse message.
-  ASSERT_EQ(1, msgs[1].size());
+  // Check that request 2 got canceled.
+  ASSERT_EQ(2, msgs[1].size());
   ASSERT_EQ(ViewMsg_Resource_ReceivedResponse::ID, msgs[1][0].type());
+  ASSERT_EQ(ViewMsg_Resource_RequestComplete::ID, msgs[1][1].type());
 
-  // TODO(mbelshe):
-  // Now that the async IO path is in place, the IO always completes on the
-  // initial call; so the cancel doesn't arrive until after we finished.
-  // This basically means the test doesn't work.
-#if 0
   int request_id;
   URLRequestStatus status;
 
-  // The message should be all data received with an error.
-  ASSERT_EQ(ViewMsg_Resource_RequestComplete::ID, msgs[1][2].type());
-
   void* iter = NULL;
-  ASSERT_TRUE(IPC::ReadParam(&msgs[1][2], &iter, &request_id));
-  ASSERT_TRUE(IPC::ReadParam(&msgs[1][2], &iter, &status));
+  ASSERT_TRUE(IPC::ReadParam(&msgs[1][1], &iter, &request_id));
+  ASSERT_TRUE(IPC::ReadParam(&msgs[1][1], &iter, &status));
 
   EXPECT_EQ(URLRequestStatus::CANCELED, status.status());
-#endif
 }
 
 // Tests CancelRequestsForProcess
@@ -270,7 +270,7 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
     virtual bool Send(IPC::Message* msg) {
       // no messages should be received when the process has been canceled
       if (has_canceled_)
-        received_after_canceled_ ++;
+        received_after_canceled_++;
       delete msg;
       return true;
     }
@@ -282,6 +282,8 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
   // request 1 goes to the test delegate
   ViewHostMsg_Resource_Request request =
       CreateResourceRequest("GET", URLRequestTestJob::test_url_1());
+
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
   host_.BeginRequest(&test_receiver, GetCurrentProcess(), 0, MSG_ROUTING_NONE,
                      1, request, NULL, NULL);
@@ -296,7 +298,7 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
                      3, request, NULL, NULL);
   KickOffRequest();
 
-  // TODO: mbelshe
+  // TODO(mbelshe):
   // Now that the async IO path is in place, the IO always completes on the
   // initial call; so the requests have already completed.  This basically
   // breaks the whole test.
@@ -314,6 +316,7 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
   while (URLRequestTestJob::ProcessOnePendingMessage());
 
   EXPECT_EQ(0, host_.pending_requests());
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
   // the test delegate should not have gotten any messages after being canceled
   ASSERT_EQ(0, test_receiver.received_after_canceled_);
@@ -327,6 +330,8 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
 
 // Tests blocking and resuming requests.
 TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
   host_.BlockRequestsForRenderView(0, 1);
   host_.BlockRequestsForRenderView(0, 2);
   host_.BlockRequestsForRenderView(0, 3);
@@ -376,6 +381,8 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
   KickOffRequest();
   while (URLRequestTestJob::ProcessOnePendingMessage());
 
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
   msgs.clear();
   accum_.GetClassifiedMessages(&msgs);
   ASSERT_EQ(2, msgs.size());
@@ -385,6 +392,8 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
 
 // Tests blocking and canceling requests.
 TEST_F(ResourceDispatcherHostTest, TestBlockingCancelingRequests) {
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
   host_.BlockRequestsForRenderView(0, 1);
 
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
@@ -409,6 +418,9 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingCancelingRequests) {
   host_.CancelBlockedRequestsForRenderView(0, 1);
   KickOffRequest();
   while (URLRequestTestJob::ProcessOnePendingMessage());
+
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
   msgs.clear();
   accum_.GetClassifiedMessages(&msgs);
   ASSERT_EQ(0, msgs.size());
@@ -416,6 +428,9 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingCancelingRequests) {
 
 // Tests that blocked requests are canceled if their associated process dies.
 TEST_F(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies) {
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(1));
+
   host_.BlockRequestsForRenderView(1, 0);
 
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
@@ -428,6 +443,9 @@ TEST_F(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies) {
 
   // Flush all the pending requests.
   while (URLRequestTestJob::ProcessOnePendingMessage());
+
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(1));
 
   // Sort out all the messages we saw by request.
   ResourceIPCAccumulator::ClassifiedMessages msgs;
@@ -461,3 +479,141 @@ TEST_F(ResourceDispatcherHostTest, TestBlockedRequestsDontLeak) {
   // Flush all the pending requests.
   while (URLRequestTestJob::ProcessOnePendingMessage());
 }
+
+// Test the private helper method "CalculateApproximateMemoryCost()".
+TEST_F(ResourceDispatcherHostTest, CalculateApproximateMemoryCost) {
+  URLRequest req(GURL("http://www.google.com"), NULL);
+  EXPECT_EQ(4425, ResourceDispatcherHost::CalculateApproximateMemoryCost(&req));
+
+  // Add 9 bytes of referrer.
+  req.set_referrer("123456789");
+  EXPECT_EQ(4434, ResourceDispatcherHost::CalculateApproximateMemoryCost(&req));
+
+  // Add 33 bytes of upload content.
+  std::string upload_content;
+  upload_content.resize(33);
+  std::fill(upload_content.begin(), upload_content.end(), 'x');
+  req.AppendBytesToUpload(upload_content.data(), upload_content.size());
+
+  // Since the upload throttling is disabled, this has no effect on the cost.
+  EXPECT_EQ(4434, ResourceDispatcherHost::CalculateApproximateMemoryCost(&req));
+
+  // Add a file upload -- should have no effect.
+  req.AppendFileToUpload(L"does-not-exist.png");
+  EXPECT_EQ(4434, ResourceDispatcherHost::CalculateApproximateMemoryCost(&req));
+}
+
+// Test the private helper method "IncrementOutstandingRequestsMemoryCost()".
+TEST_F(ResourceDispatcherHostTest, IncrementOutstandingRequestsMemoryCost) {
+  ResourceDispatcherHost host(NULL);
+
+  // Add some counts for render_process_host=7
+  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(7));
+  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(1, 7));
+  EXPECT_EQ(2, host.IncrementOutstandingRequestsMemoryCost(1, 7));
+  EXPECT_EQ(3, host.IncrementOutstandingRequestsMemoryCost(1, 7));
+
+  // Add some counts for render_process_host=3
+  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(3));
+  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(1, 3));
+  EXPECT_EQ(2, host.IncrementOutstandingRequestsMemoryCost(1, 3));
+
+  // Remove all the counts for render_process_host=7
+  EXPECT_EQ(3, host.GetOutstandingRequestsMemoryCost(7));
+  EXPECT_EQ(2, host.IncrementOutstandingRequestsMemoryCost(-1, 7));
+  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(-1, 7));
+  EXPECT_EQ(0, host.IncrementOutstandingRequestsMemoryCost(-1, 7));
+  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(7));
+
+  // Remove all the counts for render_process_host=3
+  EXPECT_EQ(2, host.GetOutstandingRequestsMemoryCost(3));
+  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(-1, 3));
+  EXPECT_EQ(0, host.IncrementOutstandingRequestsMemoryCost(-1, 3));
+  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(3));
+
+  // When an entry reaches 0, it should be deleted.
+  EXPECT_TRUE(host.outstanding_requests_memory_cost_map_.end() ==
+      host.outstanding_requests_memory_cost_map_.find(7));
+  EXPECT_TRUE(host.outstanding_requests_memory_cost_map_.end() ==
+      host.outstanding_requests_memory_cost_map_.find(3));
+}
+
+// Test that when too many requests are outstanding for a particular
+// render_process_host_id, any subsequent request from it fails.
+TEST_F(ResourceDispatcherHostTest, TooManyOutstandingRequests) {
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
+  // Expected cost of each request as measured by
+  // ResourceDispatcherHost::CalculateApproximateMemoryCost().
+  int kMemoryCostOfTest2Req =
+      ResourceDispatcherHost::kAvgBytesPerOutstandingRequest + 
+      std::string("GET").size() +
+      URLRequestTestJob::test_url_2().spec().size();
+
+  // Tighten the bound on the ResourceDispatcherHost, to speed things up.
+  int kMaxCostPerProcess = 440000;
+  host_.set_max_outstanding_requests_cost_per_process(kMaxCostPerProcess);
+
+  // Determine how many instance of test_url_2() we can request before
+  // throttling kicks in.
+  int kMaxRequests = kMaxCostPerProcess / kMemoryCostOfTest2Req;
+
+  // Saturate the number of outstanding requests for process 0.
+  for (int i = 0; i < kMaxRequests; ++i)
+    MakeTestRequest(0, 0, i + 1, URLRequestTestJob::test_url_2());
+
+  // Issue two more requests for process 0 -- these should fail immediately.
+  MakeTestRequest(0, 0, kMaxRequests + 1, URLRequestTestJob::test_url_2());
+  MakeTestRequest(0, 0, kMaxRequests + 2, URLRequestTestJob::test_url_2());
+
+  // Issue two requests for process 1 -- these should succeed since
+  // it is just process 0 that is saturated.
+  MakeTestRequest(1, 0, kMaxRequests + 3, URLRequestTestJob::test_url_2());
+  MakeTestRequest(1, 0, kMaxRequests + 4, URLRequestTestJob::test_url_2());
+
+  // Flush all the pending requests.
+  while (URLRequestTestJob::ProcessOnePendingMessage());
+  MessageLoop::current()->RunAllPending();
+
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
+
+  // Sorts out all the messages we saw by request.
+  ResourceIPCAccumulator::ClassifiedMessages msgs;
+  accum_.GetClassifiedMessages(&msgs);
+
+  // We issued (kMaxRequests + 4) total requests.
+  ASSERT_EQ(kMaxRequests + 4, msgs.size());
+
+  // Check that the first kMaxRequests succeeded.
+  for (int i = 0; i < kMaxRequests; ++i)
+    CheckSuccessfulRequest(msgs[i], URLRequestTestJob::test_data_2());
+
+  // Check that the subsequent two requests (kMaxRequests + 1) and
+  // (kMaxRequests + 2) were failed, since the per-process bound was reached.
+  for (int i = 0; i < 2; ++i) {
+    // Should have sent a single RequestComplete message.
+    int index = kMaxRequests + i;
+    EXPECT_EQ(1, msgs[index].size());
+    EXPECT_EQ(ViewMsg_Resource_RequestComplete::ID, msgs[index][0].type());
+
+    // The RequestComplete message should have had status
+    // (CANCELLED, ERR_INSUFFICIENT_RESOURCES).
+    int request_id;
+    URLRequestStatus status;
+
+    void* iter = NULL;
+    EXPECT_TRUE(IPC::ReadParam(&msgs[index][0], &iter, &request_id));
+    EXPECT_TRUE(IPC::ReadParam(&msgs[index][0], &iter, &status));
+
+    EXPECT_EQ(index + 1, request_id);
+    EXPECT_EQ(URLRequestStatus::CANCELED, status.status());
+    EXPECT_EQ(net::ERR_INSUFFICIENT_RESOURCES, status.os_error());
+  }
+
+  // The final 2 requests should have succeeded.
+  CheckSuccessfulRequest(msgs[kMaxRequests + 2],
+                         URLRequestTestJob::test_data_2());
+  CheckSuccessfulRequest(msgs[kMaxRequests + 3],
+                         URLRequestTestJob::test_data_2());
+}
+

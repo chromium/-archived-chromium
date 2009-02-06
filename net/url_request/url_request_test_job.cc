@@ -129,12 +129,8 @@ void URLRequestTestJob::GetResponseInfo(net::HttpResponseInfo* info) {
 }
 
 void URLRequestTestJob::Kill() {
-  if (request_) {
-    // Note that this state will still cause a NotifyDone to get called
-    // in ProcessNextOperation, which is required for jobs.
-    stage_ = ALL_DATA;
-    pending_jobs.push_back(scoped_refptr<URLRequestTestJob>(this));
-  }
+  stage_ = DONE;
+  URLRequestJob::Kill();
 }
 
 bool URLRequestTestJob::ProcessNextOperation() {
