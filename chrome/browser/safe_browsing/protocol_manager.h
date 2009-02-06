@@ -29,6 +29,18 @@ class MessageLoop;
 class Task;
 class Timer;
 
+#if defined(COMPILER_GCC)
+// Allows us to use URLFetchers in a hash_map with gcc (MSVC is okay without
+// specifying this).
+namespace __gnu_cxx {
+template<>
+struct hash<const URLFetcher*> {
+  size_t operator()(const URLFetcher* fetcher) const {
+    return reinterpret_cast<size_t>(fetcher);
+  }
+};
+}
+#endif
 
 class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   // Testing friends:
