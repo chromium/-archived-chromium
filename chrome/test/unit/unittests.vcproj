@@ -547,6 +547,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\navigation_entry_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\printing\page_number_unittest.cc"
 				>
 			</File>

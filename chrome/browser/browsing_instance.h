@@ -45,7 +45,9 @@ class SiteInstance;
 //
 // Currently, the BrowsingInstance class is not visible outside of the
 // SiteInstance class.  To get a new SiteInstance that is part of the same
-// BrowsingInstance, use SiteInstance::GetRelatedSiteInstance.
+// BrowsingInstance, use SiteInstance::GetRelatedSiteInstance.  Because of
+// this, BrowsingInstances and SiteInstances are tested together in
+// site_instance_unittest.cc.
 //
 ///////////////////////////////////////////////////////////////////////////////
 class BrowsingInstance : public base::RefCounted<BrowsingInstance> {
