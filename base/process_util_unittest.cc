@@ -55,17 +55,10 @@ MULTIPROCESS_TEST_MAIN(SlowChildProcess) {
 #define EXE_SUFFIX L""
 #endif
 
-#if defined(OS_MACOSX)
-// TODO(port): finish port on Mac
-TEST_F(ProcessUtilTest, DISABLED_KillSlowChild) {
-#else
 TEST_F(ProcessUtilTest, KillSlowChild) {
-#endif
   remove("SlowChildProcess.die");
   int oldcount = GetProcessCount(L"base_unittests" EXE_SUFFIX, 0);
-
   ProcessHandle handle = this->SpawnChild(L"SlowChildProcess");
-
   ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
   EXPECT_EQ(oldcount+1, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
   FILE *fp = fopen("SlowChildProcess.die", "w");

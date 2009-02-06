@@ -97,94 +97,130 @@ NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
   : executable_name_(executable_name),
     index_of_kinfo_proc_(0),
     filter_(filter) {
+  // Get a snapshot of all of my processes (yes, as we loop it can go stale, but
+  // but trying to find where we were in a constantly changing list is basically
+  // impossible.
+
+  int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_UID, geteuid() };
+  
+  // Since more processes could start between when we get the size and when
+  // we get the list, we do a loop to keep trying until we get it.
+  bool done = false;
+  int try_num = 1;
+  const int max_tries = 10;
+  do {
+    // Get the size of the buffer
+    size_t len = 0;
+    if (sysctl(mib, arraysize(mib), NULL, &len, NULL, 0) < 0) {
+      LOG(ERROR) << "failed to get the size needed for the process list";
+      kinfo_procs_.resize(0);
+      done = true;
+    } else {
+      size_t num_of_kinfo_proc = len / sizeof(struct kinfo_proc);
+      // Leave some spare room for process table growth (more could show up
+      // between when we check and now)
+      num_of_kinfo_proc += 4; 
+      kinfo_procs_.resize(num_of_kinfo_proc);
+      len = num_of_kinfo_proc * sizeof(struct kinfo_proc);
+      // Load the list of processes
+      if (sysctl(mib, arraysize(mib), &kinfo_procs_[0], &len, NULL, 0) < 0) {
+        // If we get a mem error, it just means we need a bigger buffer, so
+        // loop around again.  Anything else is a real error and give up.
+        if (errno != ENOMEM) {
+          LOG(ERROR) << "failed to get the process list";
+          kinfo_procs_.resize(0);
+          done = true;
+        }
+      } else {
+        // Got the list, just make sure we're sized exactly right
+        size_t num_of_kinfo_proc = len / sizeof(struct kinfo_proc);
+        kinfo_procs_.resize(num_of_kinfo_proc);
+        done = true;
+      }
+    }
+  } while (!done && (try_num++ < max_tries));
+  
+  if (!done) {
+    LOG(ERROR) << "failed to collect the process list in a few tries";
+    kinfo_procs_.resize(0);
+  }
 }
 
 NamedProcessIterator::~NamedProcessIterator() {
 }
 
 const ProcessEntry* NamedProcessIterator::NextProcessEntry() {
-  // Every call, you have to get new kinfo_procs_.
-  // Because the process status might be changed.
-  int num_of_kinfo_proc = 0;
-  index_of_kinfo_proc_ = 0;
-  int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL };
-  size_t len = 0;
-
-  if (sysctl(mib, arraysize(mib), NULL, &len, NULL, 0) < 0)
-    return NULL;
-
-  num_of_kinfo_proc = len / sizeof(struct kinfo_proc);
-  // Leave some spare room for process table growth.
-  num_of_kinfo_proc += 16; 
-  kinfo_procs_.resize(num_of_kinfo_proc);
-  len = num_of_kinfo_proc * sizeof(struct kinfo_proc);
-  if (sysctl(mib, arraysize(mib), &kinfo_procs_[0], &len, NULL, 0) < 0)
-    return NULL;
-
-  num_of_kinfo_proc = len / sizeof(struct kinfo_proc);
-  kinfo_procs_.resize(num_of_kinfo_proc);
-
   bool result = false;
   do {
     result = CheckForNextProcess();
   } while (result && !IncludeEntry());
-
-  if (result)
+  
+  if (result) {
     return &entry_;
-
+  }
+  
   return NULL;
 }
 
 bool NamedProcessIterator::CheckForNextProcess() {
+  std::string executable_name_utf8(WideToUTF8(executable_name_));
+
+  std::string data;
   std::string exec_name;
-  kinfo_proc* kinfo = NULL;
-  for (; index_of_kinfo_proc_ < kinfo_procs_.size(); ++index_of_kinfo_proc_) {
-    if (kinfo_procs_[index_of_kinfo_proc_].kp_proc.p_stat != SZOMB) {
-      kinfo = &kinfo_procs_[index_of_kinfo_proc_];
-
-      int mib[] = { KERN_PROCARGS, KERN_PROCARGS, kinfo->kp_proc.p_pid };
-      
-      size_t data_len = 0;
-      if (sysctl(mib, arraysize(mib), NULL, &data_len, NULL, 0) < 0)
-	continue;
-
-      std::string data;
-      data.resize(data_len);
-      if (sysctl(mib, arraysize(mib), &data[0], &data_len, NULL, 0) < 0)
-	continue;
-	
-      // "data" has absolute process path with '/',
-      // so we get the last part as execution process name.
-      
-      int exec_name_end = data.find('\0');
-      int last_slash = data.rfind('/', exec_name_end);
-
-      // If the index is not -1, it means valid exec name is found.
-      // Get the exec name and store the name into exec_name and break.
-      // "last_slash" point is '/', so get substr from the next.
-      if (last_slash != -1) {  
-	exec_name = data.substr(exec_name_end - last_slash - 1);
-      } else {
-	exec_name = data.substr(0, exec_name_end);
-      }
-      break;
-    }    
-  }
-
-  if (index_of_kinfo_proc_ >= kinfo_procs_.size())
-    return false;
   
-  entry_.pid = kinfo->kp_proc.p_pid;
-  entry_.ppid = kinfo->kp_proc.p_oppid;
+  for (; index_of_kinfo_proc_ < kinfo_procs_.size(); ++index_of_kinfo_proc_) {
+    kinfo_proc* kinfo = &kinfo_procs_[index_of_kinfo_proc_];
 
-  base::strlcpy(entry_.szExeFile, exec_name.c_str(), sizeof(entry_.szExeFile));
+    // Skip processes just awaiting collection
+    if ((kinfo->kp_proc.p_pid > 0) && (kinfo->kp_proc.p_stat == SZOMB))
+      continue;
+    
+    int mib[] = { CTL_KERN, KERN_PROCARGS, kinfo->kp_proc.p_pid };
 
-  return true;
+    // Found out what size buffer we need
+    size_t data_len = 0;
+    if (sysctl(mib, arraysize(mib), NULL, &data_len, NULL, 0) < 0) {
+      LOG(ERROR) << "failed to figure out the buffer size for a commandline";
+      continue;
+    }
+    
+    data.resize(data_len);
+    if (sysctl(mib, arraysize(mib), &data[0], &data_len, NULL, 0) < 0) {
+      LOG(ERROR) << "failed to fetch a commandline";
+      continue;
+    }
+    
+    // Data starts w/ the full path null termed, so we have to extract just the
+    // executable name from the path.
+
+    size_t exec_name_end = data.find('\0');
+    if (exec_name_end == std::string::npos) {
+      LOG(ERROR) << "command line data didn't match expected format";
+      continue;
+    }
+    size_t last_slash = data.rfind('/', exec_name_end);
+    if (last_slash == std::string::npos)
+      exec_name = data.substr(0, exec_name_end);
+    else
+      exec_name = data.substr(last_slash + 1, exec_name_end - last_slash - 1);
+    
+    // Check the name
+    if (executable_name_utf8 == exec_name) {
+      entry_.pid = kinfo->kp_proc.p_pid;
+      entry_.ppid = kinfo->kp_proc.p_oppid;
+      base::strlcpy(entry_.szExeFile, exec_name.c_str(),
+                    sizeof(entry_.szExeFile));
+      // Start w/ the next entry next time through
+      ++index_of_kinfo_proc_;
+      // Done
+      return true;
+    }
+  }
+  return false;
 }
 
 bool NamedProcessIterator::IncludeEntry() {
-  if (WideToUTF8(executable_name_) != entry_.szExeFile)
-    return false;
+  // Don't need to check the name, we did that w/in CheckForNextProcess.
   if (!filter_)
     return true;
   return filter_->Includes(entry_.pid, entry_.ppid);
