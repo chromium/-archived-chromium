@@ -1764,4 +1764,4 @@ LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 // like it is using a different font to render now than it
 // did before and that may be a bug.  It looks like
 // jshin@chromium.org did several font related changes in this merge.
-LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
+LINUX WIN : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
