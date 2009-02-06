@@ -210,6 +210,8 @@ ChromePluginLib::~ChromePluginLib() {
 }
 
 bool ChromePluginLib::CP_Initialize(const CPBrowserFuncs* bfuncs) {
+  LOG(INFO) << "ChromePluginLib::CP_Initialize(" << filename_.value() <<
+               "): initialized=" << initialized_;
   if (initialized_)
     return true;
 
@@ -229,6 +231,9 @@ bool ChromePluginLib::CP_Initialize(const CPBrowserFuncs* bfuncs) {
   initialized_ = (rv == CPERR_SUCCESS) &&
       (CP_GET_MAJOR_VERSION(plugin_funcs_.version) == CP_MAJOR_VERSION) &&
       (CP_GET_MINOR_VERSION(plugin_funcs_.version) <= CP_MINOR_VERSION);
+  LOG(INFO) << "ChromePluginLib::CP_Initialize(" << filename_.value() <<
+               "): initialized=" << initialized_ <<
+               "): result=" << rv;
 
   return initialized_;
 }

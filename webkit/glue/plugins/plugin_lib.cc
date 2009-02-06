@@ -94,6 +94,8 @@ NPPluginFuncs* PluginLib::functions() {
 }
 
 NPError PluginLib::NP_Initialize() {
+  LOG(INFO) << "PluginLib::NP_Initialize(" << web_plugin_info_.path.value() <<
+               "): initialized=" << initialized_;
   if (initialized_)
     return NPERR_NO_ERROR;
 
@@ -110,6 +112,8 @@ NPError PluginLib::NP_Initialize() {
 #else
   NPError rv = entry_points_.np_initialize(host->host_functions());
 #endif
+  LOG(INFO) << "PluginLib::NP_Initialize(" << web_plugin_info_.path.value() <<
+               "): result=" << rv;
   initialized_ = (rv == NPERR_NO_ERROR);
   return rv;
 }
