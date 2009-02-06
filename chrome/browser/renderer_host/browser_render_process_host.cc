@@ -10,17 +10,14 @@
 #include "build/build_config.h"
 
 #include <algorithm>
-#include <sstream>
-#include <vector>
 
 #include "base/command_line.h"
 #include "base/debug_util.h"
-#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
+#include "base/rand_util.h"
 #include "base/shared_memory.h"
-#include "base/singleton.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/app/result_codes.h"
@@ -32,10 +29,8 @@
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/visitedlink_master.h"
-#include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/debug_flags.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -43,8 +38,6 @@
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/render_process.h"
-#include "net/base/cookie_monster.h"
-#include "net/base/net_util.h"
 
 #if defined(OS_WIN)
 #include "chrome/browser/plugin_service.h"
@@ -60,14 +53,13 @@
 #include "base/win_util.h"
 #include "chrome/common/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
-#include "chrome/common/win_util.h"
 #include "sandbox/src/sandbox.h"
 #elif defined(OS_POSIX)
 // TODO(port): Remove temporary scaffolding after porting the above headers.
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
-#include "SkBitmap.h"
+#include "skia/include/SkBitmap.h"
 
 #include "generated_resources.h"
 
@@ -149,9 +141,10 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
       NotificationType::USER_SCRIPTS_LOADED,
       NotificationService::AllSources());
 
-  // Note: When we create the BrowserRenderProcessHost, it's technically backgrounded,
-  //       because it has no visible listeners.  But the process doesn't
-  //       actually exist yet, so we'll Background it later, after creation.
+  // Note: When we create the BrowserRenderProcessHost, it's technically
+  //       backgrounded, because it has no visible listeners.  But the process
+  //       doesn't actually exist yet, so we'll Background it later, after
+  //       creation.
 }
 
 BrowserRenderProcessHost::~BrowserRenderProcessHost() {
@@ -426,19 +419,20 @@ bool BrowserRenderProcessHost::Init() {
 }
 
 #if defined(OS_WIN)
-bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line, 
+bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line,
     IPC::SyncChannel* channel, base::ProcessHandle* process_handle) {
   return base::LaunchApp(command_line, false, false, process_handle);
 }
 #elif defined(OS_POSIX)
-bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line, 
+bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line,
     IPC::SyncChannel* channel, base::ProcessHandle* process_handle) {
   base::file_handle_mapping_vector fds_to_map;
   int src_fd = -1, dest_fd = -1;
   channel->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
   if (src_fd > -1)
-    fds_to_map.push_back(std::pair<int,int>(src_fd, dest_fd));
-  return base::LaunchApp(command_line.argv(), fds_to_map, false, process_handle);
+    fds_to_map.push_back(std::pair<int, int>(src_fd, dest_fd));
+  return base::LaunchApp(command_line.argv(), fds_to_map, false,
+                         process_handle);
 }
 #endif
 
