@@ -185,9 +185,7 @@ void RenderThread::OnMessageReceived(const IPC::Message& msg) {
       IPC_MESSAGE_HANDLER(ViewMsg_SetNextPageID, OnSetNextPageID)
       // TODO(port): removed from render_messages_internal.h;
       // is there a new non-windows message I should add here?
-#if defined(OS_WIN)
       IPC_MESSAGE_HANDLER(ViewMsg_New, OnCreateNewView)
-#endif
       IPC_MESSAGE_HANDLER(ViewMsg_SetCacheCapacities, OnSetCacheCapacities)
       IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                           OnGetCacheResourceStats)
@@ -225,12 +223,11 @@ void RenderThread::OnSetNextPageID(int32 next_page_id) {
 #endif
 }
 
-#if defined(OS_WIN)
-
 void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
                                    ModalDialogEvent modal_dialog_event,
                                    const WebPreferences& webkit_prefs,
                                    int32 view_id) {
+#if defined(OS_WIN)
   base::WaitableEvent* waitable_event = new base::WaitableEvent(
 #if defined(OS_WIN)
       modal_dialog_event.event);
@@ -243,9 +240,8 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
   RenderView::Create(
       this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, webkit_prefs,
       new SharedRenderViewCounter(0), view_id);
-}
-
 #endif
+}
 
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
                                         size_t max_dead_capacity,

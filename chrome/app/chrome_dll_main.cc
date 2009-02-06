@@ -4,8 +4,8 @@
 
 // TODO(port): the ifdefs in here are a first step towards trying to determine
 // the correct abstraction for all the OS functionality required at this
-// stage of process initialization. It should not be taken as a final 
-// abstraction. 
+// stage of process initialization. It should not be taken as a final
+// abstraction.
 
 #include "build/build_config.h"
 
@@ -200,7 +200,7 @@ int ChromeMain(int argc, const char** argv) {
   // The exit manager is in charge of calling the dtors of singleton objects.
   base::AtExitManager exit_manager;
 
-  // TODO(pinkerton): We need this pool here for all the objects created 
+  // TODO(pinkerton): We need this pool here for all the objects created
   // before we get to the UI event loop, but we don't want to leave them
   // hanging around until the app quits. We should add a "flush" to the class
   // which just cycles the pool under the covers and then call that just
@@ -224,7 +224,7 @@ int ChromeMain(int argc, const char** argv) {
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
 
   SetupCRT(parsed_command_line);
-  
+
   // Initialize the Chrome path provider.
   chrome::RegisterPathProvider();
 
@@ -254,7 +254,7 @@ int ChromeMain(int argc, const char** argv) {
 
   std::wstring process_type =
     parsed_command_line.GetSwitchValue(switches::kProcessType);
-  
+
   // Checks if the sandbox is enabled in this process and initializes it if this
   // is the case. The crash handler depends on this so it has to be done before
   // its initialization.
@@ -263,7 +263,7 @@ int ChromeMain(int argc, const char** argv) {
   sandbox_wrapper.SetServices(sandbox_info);
 #endif
   sandbox_wrapper.InitializeSandbox(parsed_command_line, process_type);
-  
+
 #if defined(OS_WIN)
   _Module.Init(NULL, instance);
 #endif
@@ -308,11 +308,12 @@ int ChromeMain(int argc, const char** argv) {
   startup_timer.Stop();  // End of Startup Time Measurement.
 
   MainFunctionParams main_params(parsed_command_line, sandbox_wrapper);
-  
+
   // TODO(port): turn on these main() functions as they've been de-winified.
   int rv = -1;
   if (process_type == switches::kRendererProcess) {
-#if defined(OS_WIN)
+    // TODO(port) turn this on and follow the link chain...
+#if !defined(OS_LINUX)
     rv = RendererMain(main_params);
 #endif
   } else if (process_type == switches::kPluginProcess) {
