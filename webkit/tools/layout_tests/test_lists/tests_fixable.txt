@@ -633,7 +633,6 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 // a point in a path. See
 // http://code.google.com/p/chromium/issues/detail?id=7465 for details.
 DEFER LINUX WIN : LayoutTests/fast/canvas/pointInPath.html = FAIL
-LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
 // Bug: 1026885
 // Following tests are failing because Chrome does not allow file url
