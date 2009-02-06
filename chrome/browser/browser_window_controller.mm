@@ -43,7 +43,9 @@
   // managing the creation of new tabs.
   tabStripController_ = 
       [[TabStripController alloc]
-          initWithView:tabStripView_ model:browser_->tabstrip_model()];
+          initWithView:tabStripView_ 
+                 model:browser_->tabstrip_model()
+              commands:browser_->command_updater()];
 
   // Place the tab bar above the content box and add it to the view hierarchy
   // as a sibling of the content view so it can overlap with the window frame.

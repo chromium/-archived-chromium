@@ -56,11 +56,14 @@ class TabStripBridge : public TabStripModelObserver {
 
 @implementation TabStripController
 
-- (id)initWithView:(TabStripView*)view model:(TabStripModel*)model {
+- (id)initWithView:(TabStripView*)view 
+             model:(TabStripModel*)model
+          commands:(CommandUpdater*)commands {
   DCHECK(view && model);
   if ((self = [super init])) {
     tabView_ = view;
     model_ = model;
+    commands_ = commands;
     bridge_ = new TabStripBridge(model, self);
     tabContentsToController_ = [[NSMutableDictionary alloc] init];
     
@@ -193,8 +196,10 @@ class TabStripBridge : public TabStripModelObserver {
   // TODO(pinkerton): will eventually need to pass |contents| to the 
   // controller to complete hooking things up.
   TabContentsController* contentsController =
-      [[[TabContentsController alloc] initWithNibName:@"TabContents" bundle:nil]
-          autorelease];
+      [[[TabContentsController alloc] initWithNibName:@"TabContents" 
+                                               bundle:nil
+                                             contents:contents
+                                             commands:commands_] autorelease];
   NSValue* key = [NSValue valueWithPointer:contents];
   [tabContentsToController_ setObject:contentsController forKey:key];
   

@@ -348,6 +348,7 @@ class Browser : public TabStripModelDelegate,
                              bool foreground);
   virtual void TabClosingAt(TabContents* contents, int index);
   virtual void TabDetachedAt(TabContents* contents, int index);
+#endif
   virtual void TabSelectedAt(TabContents* old_contents,
                              TabContents* new_contents,
                              int index,
@@ -357,6 +358,7 @@ class Browser : public TabStripModelDelegate,
                         int to_index);
   virtual void TabStripEmpty();
 
+#if defined(OS_WIN)
   // Overridden from TabContentsDelegate:
   virtual void OpenURLFromTab(TabContents* source,
                              const GURL& url, const GURL& referrer,
@@ -517,13 +519,13 @@ class Browser : public TabStripModelDelegate,
   // Advance the find selection by one. Direction is either forward or
   // backwards depending on parameter passed in.
   void AdvanceFindSelection(bool forward_direction);
+#endif
 
   // Closes the frame.
   // TODO(beng): figure out if we need this now that the frame itself closes
   //             after a return to the message loop.
   void CloseFrame();
 
-#endif  // OS_WIN
 
   // Compute a deterministic name based on the URL. We use this pseudo name
   // as a key to store window location per application URLs.

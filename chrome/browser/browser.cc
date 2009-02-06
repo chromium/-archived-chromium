@@ -1446,6 +1446,8 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
       Source<TabContents>(contents));
 }
 
+#endif
+
 void Browser::TabSelectedAt(TabContents* old_contents,
                             TabContents* new_contents,
                             int index,
@@ -1511,6 +1513,8 @@ void Browser::TabStripEmpty() {
   MessageLoop::current()->PostTask(FROM_HERE,
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
 }
+
+#if defined(OS_WIN)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabContentsDelegate implementation:
@@ -2420,11 +2424,11 @@ void Browser::AdvanceFindSelection(bool forward_direction) {
       *this, true, forward_direction);
 }
 
+#endif  // OS_WIN
+
 void Browser::CloseFrame() {
   window_->Close();
 }
-
-#endif  // OS_WIN
 
 // static
 std::wstring Browser::ComputeApplicationNameFromURL(const GURL& url) {

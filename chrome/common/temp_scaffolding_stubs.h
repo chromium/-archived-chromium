@@ -175,6 +175,7 @@ class SessionService : public base::RefCountedThreadSafe<SessionService> {
   void WindowClosing(const SessionID&) { NOTIMPLEMENTED(); }
   void SetTabIndexInWindow(const SessionID&, const SessionID&, int)
       { NOTIMPLEMENTED(); }
+  void SetSelectedTabInWindow(const SessionID&, int) { NOTIMPLEMENTED(); }
 };
 
 class SessionRestore {
@@ -498,6 +499,7 @@ class AcceleratorHandler {
 class StatusBubble {
  public:
   void SetStatus(const std::wstring&) { NOTIMPLEMENTED(); }
+  void Hide() { NOTIMPLEMENTED(); }
 };
 
 class SavePackage : public base::RefCountedThreadSafe<SavePackage>,

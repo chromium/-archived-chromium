@@ -7,6 +7,11 @@
 
 #include <Cocoa/Cocoa.h>
 
+class CommandUpdater;
+class TabContents;
+class TabContentsCommandObserver;
+class TabStripModel;
+
 // A class that controls the contents of a tab, including the toolbar and
 // web area.
 
@@ -20,10 +25,24 @@
 
 @interface TabContentsController : NSViewController {
  @private
+  CommandUpdater* commands_;  // weak, may be nil
+  TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
+  IBOutlet NSButton* backButton_;
+  IBOutlet NSButton* forwardButton_;
+  IBOutlet NSButton* reloadStopButton_;
+  IBOutlet NSButton* starButton_;
   IBOutlet NSTextField* locationBar_;
 }
 
-// take this view (toolbar and web contents) full screen
+// Create the contents of a tab represented by |contents| and loaded from the
+// nib given by |name|. |commands| allows tracking of what's enabled and
+// disabled. It may be nil if no updating is desired.
+- (id)initWithNibName:(NSString*)name 
+               bundle:(NSBundle*)bundle
+             contents:(TabContents*)contents
+             commands:(CommandUpdater*)commands;
+
+// Take this view (toolbar and web contents) full screen
 - (IBAction)fullScreen:(id)sender;
 
 @end

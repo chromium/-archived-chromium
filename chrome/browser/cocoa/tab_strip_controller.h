@@ -7,6 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+class CommandUpdater;
 @class TabStripView;
 class TabStripBridge;
 class TabStripModel;
@@ -26,14 +27,19 @@ class TabStripModel;
   TabStripView* tabView_;  // weak
   NSButton* newTabButton_;
   TabStripBridge* bridge_;
-  TabStripModel* model_;
+  TabStripModel* model_;  // weak
+  CommandUpdater* commands_;  // weak, may be nil
   // maps TabContents to a TabContentsController (which owns the parent view
   // for the toolbar and associated tab contents)
   NSMutableDictionary* tabContentsToController_;
 }
 
-// Initialize the controller with a view and model. Both must be non-nil.
-- (id)initWithView:(TabStripView*)view model:(TabStripModel*)model;
+// Initialize the controller with a view, model, and command updater for
+// tracking what's enabled and disabled. |commands| may be nil if no updating
+// is desired.
+- (id)initWithView:(TabStripView*)view 
+             model:(TabStripModel*)model
+          commands:(CommandUpdater*)commands;
 
 @end
 
