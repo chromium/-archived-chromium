@@ -14,7 +14,6 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
-#include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/color_utils.h"
@@ -50,7 +49,6 @@
 #include "webkit/glue/webresponse.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
-//#include "webkit/port/platform/graphics/PlatformContextSkia.h"
 
 #include "generated_resources.h"
 

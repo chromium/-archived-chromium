@@ -11,7 +11,6 @@ include_rules = [
   "+webkit/glue/plugins",
   
   # FIXME - refactor code and remove these dependencies
-  "+chrome/app/theme",
   "+chrome/browser/net",
   "+chrome/views",
 ]
