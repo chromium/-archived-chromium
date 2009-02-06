@@ -39,8 +39,8 @@ bool DnsHostInfo::NeedsDnsUpdate(const std::string& hostname) {
       return true;
 
     case QUEUED:  // In queue.
-    case ASSIGNED:  // Slave is working on it.
-    case ASSIGNED_BUT_MARKED:  // Slave is working on it.
+    case ASSIGNED:  // It's being resolved.
+    case ASSIGNED_BUT_MARKED:  // It's being resolved.
       return false;  // We're already working on it
 
     case NO_SUCH_NAME:  // Lookup failed.

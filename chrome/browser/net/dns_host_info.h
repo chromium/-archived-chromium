@@ -4,9 +4,8 @@
 
 // A DnsHostInfo object is used to store status of a Dns lookup of a specific
 // hostname.
-// It includes progress, from placement in the DnsMaster's queue, to assignment
-// to a slave, to resolution by the (blocking) DNS service as either FOUND or
-// NO_SUCH_NAME.
+// It includes progress, from placement in the DnsMaster's queue, to resolution
+// by the DNS service as either FOUND or NO_SUCH_NAME.
 
 #ifndef CHROME_BROWSER_NET_DNS_HOST_INFO_H_
 #define CHROME_BROWSER_NET_DNS_HOST_INFO_H_
@@ -54,9 +53,9 @@ class DnsHostInfo {
   enum DnsProcessingState {
       // When processed by our prefetching system, the states are:
       PENDING,       // Constructor has completed.
-      QUEUED,        // In prefetch queue but not yet assigned to a slave.
-      ASSIGNED,      // Currently being processed by a slave.
-      ASSIGNED_BUT_MARKED,  // Needs to be deleted as soon as slave is done.
+      QUEUED,        // In prefetch queue but not yet being resolved.
+      ASSIGNED,      // Currently being processed.
+      ASSIGNED_BUT_MARKED,  // Needs to be deleted as soon as it's resolved.
       FOUND,         // DNS prefetch search completed.
       NO_SUCH_NAME,  // DNS prefetch search completed.
       // When processed by the network stack during navigation, the states are:
