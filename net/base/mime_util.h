@@ -19,7 +19,7 @@ bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type);
 
 // Get the preferred extension (if any) associated with the given mime type.
 // Returns true if a corresponding file extension exists.  The extension is
-// returned with a prefixed dot (as stored in the registry), ex ".avi".
+// returned without a prefixed dot, ex "html".
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
                                       std::wstring* extension);
 

@@ -153,7 +153,8 @@ bool GetMimeTypeFromExtension(const std::wstring& ext, std::string* mime_type);
 bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type);
 
 // Get the preferred extension (if any) associated with the given mime type.
-// Returns true if a corresponding file extension exists.
+// Returns true if a corresponding file extension exists.  The extension does
+// not include a prefixed dot, ex "html".
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
                                       std::wstring* ext);
 
