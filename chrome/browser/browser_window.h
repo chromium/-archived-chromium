@@ -66,7 +66,6 @@ class BrowserWindow {
 
   // Inform the frame that the selected tab favicon or title has changed. Some
   // frames may need to refresh their title bar.
-  // TODO(beng): make this pure virtual after XPFrame/VistaFrame retire.
   virtual void UpdateTitleBar() = 0;
 
   // Update any loading animations running in the window. |should_animate| is

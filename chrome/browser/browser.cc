@@ -201,7 +201,11 @@ Browser::Browser(Type type, Profile* profile)
 
 Browser::~Browser() {
   // The tab strip should be empty at this point.
+#if !defined(OS_LINUX)
+  // TODO(erg): Temporarily disabling this DCHECK while we build the linux
+  // views system. We don't have a tabstrip model up yet.
   DCHECK(tabstrip_model_.empty());
+#endif
   tabstrip_model_.RemoveObserver(this);
 
   BrowserList::RemoveBrowser(this);

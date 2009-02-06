@@ -8,12 +8,21 @@
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
+#include "chrome/browser/browser.h"
+
+namespace {
+
+gboolean MainWindowDestroyed(GtkWindow* window, BrowserWindowGtk* browser_win) {
+  delete browser_win;
+  return FALSE;  // Don't stop this message.
+}
+
+}  // namespace
 
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser) : browser_(browser) {
   Init();
 }
 
-// TODO(estade): are we the owners of browser_? If so, we need to free it here.
 BrowserWindowGtk::~BrowserWindowGtk() {
   Close();
 }
@@ -22,6 +31,8 @@ void BrowserWindowGtk::Init() {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_title(window_, "Chromium");
   gtk_window_set_default_size(window_, 640, 480);
+  g_signal_connect(G_OBJECT(window_), "destroy",
+                   G_CALLBACK(MainWindowDestroyed), this);
 }
 
 void BrowserWindowGtk::Show() {
@@ -168,6 +179,6 @@ void BrowserWindowGtk::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
 }
 
 void BrowserWindowGtk::DestroyBrowser() {
-  NOTIMPLEMENTED();
+  browser_.reset();
 }
 

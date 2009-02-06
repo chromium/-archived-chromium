@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_WINDOW_GTK_H_
 #define CHROME_BROWSER_WINDOW_GTK_H_
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/browser_window.h"
 
 typedef struct _GtkWindow GtkWindow;
@@ -58,7 +59,7 @@ class BrowserWindowGtk : public BrowserWindow {
  protected:
   virtual void DestroyBrowser();
   GtkWindow* window_;
-  Browser* browser_;
+  scoped_ptr<Browser> browser_;
 };
 
 #endif  // CHROME_BROWSER_WINDOW_GTK_H_
