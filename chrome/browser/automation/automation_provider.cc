@@ -2088,16 +2088,16 @@ void AutomationProvider::CreateExternalTab(const IPC::Message& message,
 
 void AutomationProvider::NavigateInExternalTab(const IPC::Message& message,
                                                int handle, const GURL& url) {
-  bool status = false;
+  AutomationMsg_NavigationResponseValues rv = AUTOMATION_MSG_NAVIGATION_ERROR;
 
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     tab->LoadURL(url, GURL(), PageTransition::TYPED);
-    status = true;
+    rv = AUTOMATION_MSG_NAVIGATION_SUCCESS;
   }
 
   Send(new AutomationMsg_NavigateInExternalTabResponse(message.routing_id(),
-                                                       status));
+                                                       rv));
 }
 
 void AutomationProvider::SetAcceleratorsForTab(const IPC::Message& message,

@@ -12,6 +12,7 @@
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/security_style.h"
+#include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 
 class ConstrainedWindowProxy;
@@ -67,21 +68,19 @@ class TabProxy : public AutomationResourceProxy {
   // Navigates to a url. This method accepts the same kinds of URL input that
   // can be passed to Chrome on the command line. This is a synchronous call and
   // hence blocks until the navigation completes.
-  // Returns a status from AutomationMsg_NavigationResponseValues.
-  int NavigateToURL(const GURL& url);
+  AutomationMsg_NavigationResponseValues NavigateToURL(const GURL& url);
 
   // Navigates to a url. This is same as NavigateToURL with a timeout option.
   // The function returns until the navigation completes or timeout (in
   // milliseconds) occurs. If return after timeout, is_timeout is set to true.
-  int NavigateToURLWithTimeout(const GURL& url, uint32 timeout_ms,
-                               bool* is_timeout);
+  AutomationMsg_NavigationResponseValues NavigateToURLWithTimeout(
+      const GURL& url, uint32 timeout_ms, bool* is_timeout);
 
   // Navigates to a url in an externally hosted tab.
   // This method accepts the same kinds of URL input that
   // can be passed to Chrome on the command line. This is a synchronous call and
   // hence blocks until the navigation completes.
-  // Returns a status from AutomationMsg_NavigationResponseValues.
-  int NavigateInExternalTab(const GURL& url);
+  AutomationMsg_NavigationResponseValues NavigateInExternalTab(const GURL& url);
 
   // Navigates to a url. This is an asynchronous version of NavigateToURL.
   // The function returns immediately after sending the LoadURL notification
@@ -99,16 +98,15 @@ class TabProxy : public AutomationResourceProxy {
 
   // Equivalent to hitting the Back button. This is a synchronous call and
   // hence blocks until the navigation completes.
-  int GoBack();
+  AutomationMsg_NavigationResponseValues GoBack();
 
   // Equivalent to hitting the Forward button. This is a synchronous call and
   // hence blocks until the navigation completes.
-  // Returns a status from AutomationMsg_NavigationResponseValues.
-  int GoForward();
+  AutomationMsg_NavigationResponseValues GoForward();
 
   // Equivalent to hitting the Reload button. This is a synchronous call and
   // hence blocks until the navigation completes.
-  int Reload();
+  AutomationMsg_NavigationResponseValues Reload();
 
   // Closes the tab. This is synchronous, but does NOT block until the tab has
   // closed, rather it blocks until the browser has initiated the close. Use
@@ -131,7 +129,6 @@ class TabProxy : public AutomationResourceProxy {
 
   // Gets the HWND that corresponds to the content area of this tab.
   // Returns true if the call was successful.
-  // Returns a status from AutomationMsg_NavigationResponseValues.
   bool GetHWND(HWND* hwnd) const;
 
   // Gets the process ID that corresponds to the content area of this tab.

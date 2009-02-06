@@ -10,4 +10,10 @@ namespace automation {
   static const int kSleepTime = 250;
 }
 
+enum AutomationMsg_NavigationResponseValues {
+  AUTOMATION_MSG_NAVIGATION_ERROR = 0,
+  AUTOMATION_MSG_NAVIGATION_SUCCESS,
+  AUTOMATION_MSG_NAVIGATION_AUTH_NEEDED,
+};
+
 #endif  // CHROME_TEST_AUTOMATION_AUTOMATION_CONSTANTS_H__
