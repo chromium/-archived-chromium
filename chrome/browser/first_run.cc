@@ -220,7 +220,10 @@ bool FirstRun::ProcessMasterPreferences(
       LOG(WARNING) << "EULA rejected. Fast exit.";
       ::ExitProcess(1);
     }
-    if (retcode == installer_util::EULA_ACCEPTED_OPT_IN) {
+    if (retcode == installer_util::EULA_ACCEPTED) {
+      LOG(INFO) << "EULA : no collection";
+      GoogleUpdateSettings::SetCollectStatsConsent(false);
+    } else if (retcode == installer_util::EULA_ACCEPTED_OPT_IN) {
       LOG(INFO) << "EULA : collection consent";
       GoogleUpdateSettings::SetCollectStatsConsent(true);
     }
