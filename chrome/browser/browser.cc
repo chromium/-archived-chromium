@@ -2,19 +2,27 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/browser.h"
+
 #include "base/command_line.h"
 #include "base/idle_timer.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/sessions/session_types.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
@@ -34,12 +42,9 @@
 #include <windows.h>
 #include <shellapi.h>
 
-#include "chrome/browser/browser.h"
-
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/cert_store.h"
@@ -57,9 +62,6 @@
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/status_bubble.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
-#include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/user_data_manager.h"
@@ -67,7 +69,6 @@
 #include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/window_sizer.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
 
 #include "chromium_strings.h"
@@ -391,9 +392,8 @@ SkBitmap Browser::GetCurrentPageIcon() const {
   return contents ? contents->GetFavIcon() : SkBitmap();
 }
 
-#if defined(OS_WIN)
-
 std::wstring Browser::GetCurrentPageTitle() const {
+#if defined(OS_WIN)
   TabContents* contents = tabstrip_model_.GetSelectedTabContents();
   std::wstring title;
 
@@ -407,6 +407,10 @@ std::wstring Browser::GetCurrentPageTitle() const {
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
 
   return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, title);
+#elif defined(OS_POSIX)
+  // TODO(port): turn on when generating chrome_strings.h from grit
+  return L"untitled";
+#endif
 }
 
 // static
@@ -419,6 +423,7 @@ void Browser::FormatTitleForDisplay(std::wstring* title) {
     current_index = match_index;
   }
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, OnBeforeUnload handling:
@@ -462,8 +467,6 @@ void Browser::OnWindowClosing() {
   CloseAllTabs();
 }
 
-#endif  // OS_WIN
-
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Tab adding/showing functions:
 
@@ -496,8 +499,6 @@ TabContents* Browser::AddTabWithNavigationController(
   return tc;
 }
 
-#if defined(OS_WIN)
-
 NavigationController* Browser::AddRestoredTab(
     const std::vector<TabNavigation>& navigations,
     int tab_index,
@@ -529,6 +530,7 @@ void Browser::ReplaceRestoredTab(
       restored_controller);
 }
 
+#if defined(OS_WIN)
 void Browser::ShowNativeUITab(const GURL& url) {
   int i, c;
   TabContents* tc;
@@ -546,7 +548,6 @@ void Browser::ShowNativeUITab(const GURL& url) {
                                                   NULL);
   AddNewContents(NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(), true);
 }
-
 #endif  // OS_WIN
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -575,7 +576,6 @@ void Browser::GoForward() {
   if (GetSelectedTabContents()->controller()->CanGoForward())
     GetSelectedTabContents()->controller()->GoForward();
 }
-
 
 void Browser::Reload() {
   UserMetrics::RecordAction(L"Reload", profile_);
@@ -691,8 +691,6 @@ void Browser::SelectLastTab() {
   tabstrip_model_.SelectLastTab();
 }
 
-#if defined(OS_WIN)
-
 void Browser::DuplicateTab() {
   UserMetrics::RecordAction(L"Duplicate", profile_);
   DuplicateContentsAt(selected_index());
@@ -751,6 +749,8 @@ void Browser::ViewSource() {
     OpenURL(url, GURL(), NEW_FOREGROUND_TAB, PageTransition::LINK);
   }
 }
+
+#if defined(OS_WIN)
 
 void Browser::ClosePopups() {
   UserMetrics::RecordAction(L"CloseAllSuppressedPopups", profile_);
@@ -1108,7 +1108,6 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SELECT_TAB_7:          SelectNumberedTab(id - IDC_SELECT_TAB_0);
                                                                    break;
     case IDC_SELECT_LAST_TAB:       SelectLastTab();               break;
-#if defined(OS_WIN)
     case IDC_DUPLICATE_TAB:         DuplicateTab();                break;
     case IDC_RESTORE_TAB:           RestoreTab();                  break;
     case IDC_SHOW_AS_TAB:           ConvertPopupToTabbedBrowser(); break;
@@ -1117,6 +1116,7 @@ void Browser::ExecuteCommand(int id) {
     // Page-related commands
     case IDC_STAR:                  BookmarkCurrentPage();         break;
     case IDC_VIEW_SOURCE:           ViewSource();                  break;
+#if defined(OS_WIN)
     case IDC_CLOSE_POPUPS:          ClosePopups();                 break;
     case IDC_PRINT:                 Print();                       break;
     case IDC_SAVE_PAGE:             SavePage();                    break;
@@ -2128,7 +2128,6 @@ void Browser::UpdateStopGoState(bool is_loading) {
   command_updater_.UpdateCommandEnabled(IDC_STOP, is_loading);
 }
 
-#if defined(OS_WIN)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, UI update coalescing and handling (private):
@@ -2258,7 +2257,6 @@ void Browser::RemoveScheduledUpdatesFor(TabContents* contents) {
   }
 }
 
-#endif  // OS_WIN
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Getters for UI (private):
@@ -2267,7 +2265,6 @@ StatusBubble* Browser::GetStatusBubble() {
   return window_->GetStatusBubble();
 }
 
-#if defined(OS_WIN)
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Session restore functions (private):
 
@@ -2344,6 +2341,7 @@ bool Browser::HasCompletedUnloadProcessing() {
       tabs_needing_unload_fired_.empty();
 }
 
+#if defined(OS_WIN)
 void Browser::CancelWindowClose() {
   DCHECK(is_attempting_to_close_browser_);
   // Only cancelling beforeunload should be able to cancel the window's close.

@@ -168,11 +168,13 @@ class SessionService : public base::RefCountedThreadSafe<SessionService> {
  public:
   explicit SessionService(Profile* profile) { }
   void WindowClosed(const SessionID &) { NOTIMPLEMENTED(); }
-  void SetWindowBounds(const SessionID&, const gfx::Rect&, bool) {
-    NOTIMPLEMENTED();
-  }
+  void SetWindowBounds(const SessionID&, const gfx::Rect&, bool)
+      { NOTIMPLEMENTED(); }
   void ResetFromCurrentBrowsers() { NOTIMPLEMENTED(); }
   void TabRestored(NavigationController*) { NOTIMPLEMENTED(); }
+  void WindowClosing(const SessionID&) { NOTIMPLEMENTED(); }
+  void SetTabIndexInWindow(const SessionID&, const SessionID&, int)
+      { NOTIMPLEMENTED(); }
 };
 
 class SessionRestore {
@@ -197,6 +199,7 @@ class TabRestoreService : public base::RefCountedThreadSafe<TabRestoreService> {
   void BrowserClosing(Browser*) { NOTIMPLEMENTED(); }
   void BrowserClosed(Browser*) { NOTIMPLEMENTED(); }
   void CreateHistoricalTab(NavigationController*) { NOTIMPLEMENTED(); }
+  void RestoreMostRecentEntry(Browser*) { NOTIMPLEMENTED(); }
 };
 
 namespace history {
@@ -492,6 +495,11 @@ class AcceleratorHandler {
 //---------------------------------------------------------------------------
 // These stubs are for Browser
 
+class StatusBubble {
+ public:
+  void SetStatus(const std::wstring&) { NOTIMPLEMENTED(); }
+};
+
 class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
                     public RenderViewHostDelegate::Save {
  public:
@@ -737,6 +745,7 @@ class TabContents : public NotificationObserver {
   void UpdateMaxPageID(int32) { NOTIMPLEMENTED(); }
   virtual bool NavigateToPendingEntry(bool) { NOTIMPLEMENTED(); return true; }
   virtual DOMUIHost* AsDOMUIHost() { NOTIMPLEMENTED(); return NULL; }
+  virtual std::wstring GetStatusText() const { return std::wstring(); }
   static void RegisterUserPrefs(PrefService* prefs) {
     prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
   }
@@ -864,6 +873,8 @@ class BookmarkModel : public BookmarkService {
   virtual void BlockTillLoaded() { NOTIMPLEMENTED(); }
   void AddObserver(BookmarkModelObserver* observer) { NOTIMPLEMENTED(); }
   void RemoveObserver(BookmarkModelObserver* observer) { NOTIMPLEMENTED(); }
+  void SetURLStarred(const GURL&, const std::wstring, bool)
+      { NOTIMPLEMENTED(); }
 };
 
 class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {

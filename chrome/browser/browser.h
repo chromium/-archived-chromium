@@ -138,7 +138,6 @@ class Browser : public TabStripModelDelegate,
   // Gets the FavIcon of the page in the selected tab.
   SkBitmap GetCurrentPageIcon() const;
 
-#if defined(OS_WIN)
   // Gets the title of the page in the selected tab.
   std::wstring GetCurrentPageTitle() const;
 
@@ -153,7 +152,6 @@ class Browser : public TabStripModelDelegate,
   // Invoked when the window containing us is closing. Performs the necessary
   // cleanup.
   void OnWindowClosing();
-#endif  // OS_WIN
 
   // TabStripModel pass-thrus /////////////////////////////////////////////////
 
@@ -196,7 +194,6 @@ class Browser : public TabStripModelDelegate,
   TabContents* AddTabWithNavigationController(NavigationController* ctrl,
                                               PageTransition::Type type);
 
-#if defined(OS_WIN)
   // Add a tab with its session history restored from the SessionRestore
   // system. If select is true, the tab is selected. Returns the created
   // NavigationController. |tab_index| gives the index to insert the tab at.
@@ -217,14 +214,15 @@ class Browser : public TabStripModelDelegate,
   // Show a native UI tab given a URL. If a tab with the same URL is already
   // visible in this browser, it becomes selected. Otherwise a new tab is
   // created.
+#if defined(OS_WIN)
   void ShowNativeUITab(const GURL& url);
+#endif
 
   // Assorted browser commands ////////////////////////////////////////////////
 
   // NOTE: Within each of the following sections, the IDs are ordered roughly by
   // how they appear in the GUI/menus (left to right, top to bottom, etc.).
 
-#endif
   // Navigation commands
   void GoBack();
   void GoForward();
@@ -246,7 +244,6 @@ class Browser : public TabStripModelDelegate,
   void SelectPreviousTab();
   void SelectNumberedTab(int index);
   void SelectLastTab();
-#if defined(OS_WIN)
   void DuplicateTab();
   void RestoreTab();
   void ConvertPopupToTabbedBrowser();
@@ -255,6 +252,7 @@ class Browser : public TabStripModelDelegate,
   // Page-related commands
   void BookmarkCurrentPage();
   void ViewSource();
+#if defined(OS_WIN)
   void ClosePopups();
   void Print();
   void SavePage();
@@ -421,7 +419,6 @@ class Browser : public TabStripModelDelegate,
   // |is_loading| is true if the current TabContents is loading.
   void UpdateStopGoState(bool is_loading);
 
-#if defined(OS_WIN)
   // UI update coalescing and handling ////////////////////////////////////////
 
   // Asks the toolbar (and as such the location bar) to update its state to
@@ -448,7 +445,6 @@ class Browser : public TabStripModelDelegate,
   // TODO(beng): remove, and provide AutomationProvider a better way to access
   //             the LocationBarView's edit.
   friend class AutomationProvider;
-#endif  // OS_WIN
 
   // Getters for the location bar and go button.
   GoButton* GetGoButton();
@@ -458,7 +454,6 @@ class Browser : public TabStripModelDelegate,
   // TODO(beng): remove this.
   StatusBubble* GetStatusBubble();
 
-#if defined(OS_WIN)
   // Session restore functions ////////////////////////////////////////////////
 
   // Notifies the history database of the index for all tabs whose index is
@@ -473,17 +468,16 @@ class Browser : public TabStripModelDelegate,
       int selected_navigation);
 
   // OnBeforeUnload handling //////////////////////////////////////////////////
-#endif
 
   typedef std::set<TabContents*> UnloadListenerSet;
 
-#if defined(OS_WIN)
   // Processes the next tab that needs it's beforeunload/unload event fired.
   void ProcessPendingTabs();
 
   // Whether we've completed firing all the tabs' beforeunload/unload events.
   bool HasCompletedUnloadProcessing();
 
+#if defined(OS_WIN)
   // Clears all the state associated with processing tabs' beforeunload/unload
   // events since the user cancelled closing the window.
   void CancelWindowClose();
