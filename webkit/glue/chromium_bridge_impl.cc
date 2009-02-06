@@ -24,6 +24,7 @@
 #include "ScrollView.h"
 #include "SystemTime.h"
 #include "Widget.h"
+#include <wtf/CurrentTime.h>
 
 #undef LOG
 #include "base/clipboard.h"
@@ -489,7 +490,7 @@ void ChromiumBridge::setSharedTimerFiredFunction(void (*func)()) {
 
 void ChromiumBridge::setSharedTimerFireTime(double fire_time) {
   DCHECK(shared_timer_function);
-  int interval = static_cast<int>((fire_time - currentTime()) * 1000);
+  int interval = static_cast<int>((fire_time - WTF::currentTime()) * 1000);
   if (interval < 0)
     interval = 0;
 
@@ -531,7 +532,8 @@ void ChromiumBridge::initV8CounterFunction() {
 // Called by SystemTimeChromium.cpp
 
 double ChromiumBridge::currentTime() {
-  // Get the current time in seconds since epoch.
+  // TODO(mbelshe): This can be deleted; SystemTimeChromium does not need this
+  // anymore.
   return base::Time::Now().ToDoubleT();
 }
 
