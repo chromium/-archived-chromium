@@ -179,6 +179,15 @@ LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 SKIP : LayoutTests/fast/js/date-DST-time-cusps.html = PASS FAIL
 SKIP : LayoutTests/fast/js/date-big-setdate.html = PASS FAIL
 
+// The following tests fail because of difference in how the test shell
+// navigation controller tracks navigations as compared to how the Mac
+// implementation does it.
+LayoutTests/http/tests/history/redirect-200-refresh-0-seconds.pl = FAIL
+LayoutTests/http/tests/history/redirect-js-location-replace-0-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-replace-2-seconds.html = FAIL
+LayoutTests/http/tests/history/redirect-js-location-replace-before-load.html = FAIL
+LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
+
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS
 // -----------------------------------------------------------------
