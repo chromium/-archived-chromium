@@ -329,7 +329,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
   // parents any plugins instantiated in this RenderView instance.
   // Plugins can be instantiated only when we receive the parent window
   // handle as they are child windows.
-  if (waiting_for_create_window_ack_ && 
+  if (waiting_for_create_window_ack_ &&
       resource_dispatcher_->IsResourceMessage(message)) {
     queued_resource_messages_.push(new IPC::Message(message));
     return;
@@ -1140,7 +1140,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
 
 #if defined(OS_WIN)
   if (glue_accessibility_.get()) {
-    // Clear accessibility info cache. 
+    // Clear accessibility info cache.
     glue_accessibility_->ClearIAccessibleMap(-1, true);
   }
 #else
@@ -1340,7 +1340,7 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
     }
   }
 
-  // Fallback to a local error page.  
+  // Fallback to a local error page.
   LoadNavigationErrorPage(frame, &failed_request, error, std::string(),
                           replace);
 }
@@ -1923,7 +1923,13 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 }
 
 webkit_glue::WebMediaPlayerDelegate* RenderView::CreateMediaPlayerDelegate() {
+#if defined(OS_WIN)
   return new WebMediaPlayerDelegateImpl(this);
+#else
+  // TODO(port)
+  NOTIMPLEMENTED();
+  return NULL;
+#endif
 }
 
 void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,
@@ -2023,7 +2029,7 @@ void RenderView::ShowContextMenu(WebView* webview,
   params.frame_url = frame_url;
   params.selection_text = selection_text;
   params.misspelled_word = misspelled_word;
-  params.spellcheck_enabled = 
+  params.spellcheck_enabled =
       webview->GetFocusedFrame()->SpellCheckEnabled();
   params.edit_flags = edit_flags;
   params.security_info = security_info;
@@ -2856,7 +2862,13 @@ std::string RenderView::GetAltHTMLForTemplate(
     NOTREACHED() << "unable to load template. ID: " << template_resource_id;
     return "";
   }
+#if defined(OS_WIN)
   // "t" is the id of the templates root node.
   return jstemplate_builder::GetTemplateHtml(
       template_html, &error_strings, "t");
+#else
+  // TODO(port)
+  NOTIMPLEMENTED();
+  return std::string();
+#endif  // OS_WIN
 }

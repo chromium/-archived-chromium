@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/thread.h"
 #include "base/path_service.h"
+#include "base/string_piece.h"
 #include "base/singleton.h"
 #include "base/task.h"
 #include "build/build_config.h"
@@ -32,6 +33,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webcursor.h"
+#include "webkit/glue/webkit_glue.h"
 
 // static
 size_t SessionRestore::num_tabs_to_load_ = 0;
@@ -239,30 +241,12 @@ bool IsPluginProcess() {
   return false;
 }
 
-#if defined(OS_MACOSX)
-// We link this in for now to avoid hauling in all of WebCore (which we will
-// have to eventually do).
-namespace webkit_glue {
-std::string GetUserAgent(const GURL& url) {
-  NOTIMPLEMENTED();
-  return "";
-}
-// TODO(pinkerton): when these are removed, mock_webkit_glue.cc
-// must be re-added to the unit_test target for tests.
-void SetRecordPlaybackMode(bool) { }
-void SetJavaScriptFlags(const std::wstring&) { }
-void CheckForLeaks() { }
-std::string CreateHistoryStateForURL(const GURL& url) { return ""; }
-void GetScreenInfoHelper(NSView*) { NOTIMPLEMENTED(); }
-}  // namespace webkit_glue
-#endif
-
 //--------------------------------------------------------------------------
 
 namespace chrome_browser_net {
 
 void EnableDnsPrefetch(bool) { NOTIMPLEMENTED(); }
-  
+
 void DnsPrefetchList(const std::vector<std::string>& hostnames) { NOTIMPLEMENTED(); }
 
 }  // namespace chrome_browser_net
@@ -323,6 +307,17 @@ ResourceBundle& ResourceBundle::GetSharedInstance() {
     g_shared_instance_ = new ResourceBundle;
   return *g_shared_instance_;
 }
+
+StringPiece ResourceBundle::GetRawDataResource(int resource_id) {
+  NOTIMPLEMENTED();
+  return StringPiece();
+}
+
+std::string ResourceBundle::GetDataResource(int resource_id) {
+  NOTIMPLEMENTED();
+  return "";
+}
+
 #endif
 
 LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
@@ -353,14 +348,49 @@ void ProcessWatcher::EnsureProcessTerminated(int) {
   NOTIMPLEMENTED();
 }
 
+
+//--------------------------------------------------------------------------
+
+namespace l10n_util {
+
+std::wstring GetStringF(int message_id,
+                        const std::wstring& a) {
+  NOTIMPLEMENTED();
+  return L"";
+}
+
+std::wstring GetStringF(int message_id,
+                        const std::wstring& a,
+                        const std::wstring& b,
+                        std::vector<size_t>* offsets) {
+  NOTIMPLEMENTED();
+  return L"";
+}
+
+std::wstring GetStringF(int id,
+                        const std::wstring& a,
+                        const std::wstring& b,
+                        const std::wstring& c) {
+  NOTIMPLEMENTED();
+  return L"";
+}
+
+}  // l10n_util
+
+//--------------------------------------------------------------------------
+namespace webkit_glue {
+
+bool IsDefaultPluginEnabled() {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 #if defined(OS_MACOSX)
-WebCursor::WebCursor() {
-}
-WebCursor::~WebCursor() {
-}
-bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
+bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
   NOTIMPLEMENTED();
   return false;
 }
 #endif
+
+}  // webkit_glue
 

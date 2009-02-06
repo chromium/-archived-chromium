@@ -218,7 +218,7 @@ void RenderThread::OnSetNextPageID(int32 next_page_id) {
   // This should only be called at process initialization time, so we shouldn't
   // have to worry about thread-safety.
   // TODO(port)
-#if defined(OS_WIN)
+#if !defined(OS_LINUX)
   RenderView::SetNextPageID(next_page_id);
 #endif
 }
@@ -227,7 +227,10 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
                                    ModalDialogEvent modal_dialog_event,
                                    const WebPreferences& webkit_prefs,
                                    int32 view_id) {
-#if defined(OS_WIN)
+  // TODO(port): this routine is a noop only for Linux.
+  // When bringing in render_view, also bring in webkit's glue and jsbindings.
+#if !defined(OS_LINUX)
+
   base::WaitableEvent* waitable_event = new base::WaitableEvent(
 #if defined(OS_WIN)
       modal_dialog_event.event);
@@ -235,12 +238,16 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
       true, false);
 #endif
 
+#if defined(OS_MACOSX)
+  // TODO(jrg): causes a crash.
+  if (0)
+#endif
   // TODO(darin): once we have a RenderThread per RenderView, this will need to
   // change to assert that we are not creating more than one view.
   RenderView::Create(
       this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, webkit_prefs,
       new SharedRenderViewCounter(0), view_id);
-#endif
+#endif  // !OS_LINUX
 }
 
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,

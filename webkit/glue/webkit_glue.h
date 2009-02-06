@@ -45,10 +45,24 @@ class Frame;
 class SkBitmap;
 
 #if defined(OS_MACOSX)
+// TODO(port):
+// When the code (that got compiled) only used SkBitmap*, it was OK to
+// make a GlueBitmap be a SkBitmap* or CGImageRef.  However, lots of
+// other chrome files that need to be brought in (such as
+// chrome/viewas/tree_model.h) uses SkBitmap (as a non-pointer).
+// Although *(GlueBitmap) makes sense as *(SkBitmap*), it does not
+// make sense as *(CGImageRef).
 typedef struct CGImage* CGImageRef;
-typedef CGImageRef GlueBitmap;
+class GlueBitmap {
+ public:
+  explicit GlueBitmap(CGImageRef ref) : ref_(ref) { }
+  GlueBitmap() : ref_(0) { }
+  operator CGImageRef() { return ref_; }
+ private:
+  CGImageRef ref_;
+};
 #else
-typedef SkBitmap* GlueBitmap;
+typedef SkBitmap GlueBitmap;
 #endif
 
 namespace webkit_glue {
@@ -128,7 +142,7 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image);
 //-----------------------------------------------------------------------------
 // Functions implemented by the embedder, called by WebKit:
 
-// This function is called from WebCore::MediaPlayerPrivate, 
+// This function is called from WebCore::MediaPlayerPrivate,
 // Returns true if media player is available and can be created.
 bool IsMediaPlayerAvailable();
 
@@ -137,7 +151,7 @@ bool IsMediaPlayerAvailable();
 void PrefetchDns(const std::string& hostname);
 
 // This function is called to request a prefetch of the entire URL, loading it
-// into our cache for (expected) future needs.  The given URL may NOT be in 
+// into our cache for (expected) future needs.  The given URL may NOT be in
 // canonical form and it will NOT be null-terminated; use the length instead.
 void PrecacheUrl(const char16* url, int url_length);
 
@@ -148,7 +162,7 @@ void AppendToLog(const char* filename, int line, const char* message);
 // Returns true if a corresponding mime type exists.
 bool GetMimeTypeFromExtension(const std::wstring& ext, std::string* mime_type);
 
-// Get the mime type (if any) that is associated with the given file.  
+// Get the mime type (if any) that is associated with the given file.
 // Returns true if a corresponding mime type exists.
 bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type);
 
@@ -186,7 +200,12 @@ std::string GetDataResource(int resource_id);
 
 // Returns a GlueBitmap for a resource.  This resource must have been
 // specified as BINDATA in the relevant .rc file.
-GlueBitmap GetBitmapResource(int resource_id);
+#if defined(OS_MACOSX)
+// TODO(port)
+SkBitmap* GetBitmapResource(int resource_id);
+#else
+GlueBitmap* GetBitmapResource(int resource_id);
+#endif
 
 #if defined(OS_WIN)
 // Loads and returns a cursor.

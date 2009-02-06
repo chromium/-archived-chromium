@@ -706,9 +706,12 @@ class RenderView : public RenderWidget,
   // shouldn't count against their own |shared_popup_counter_|.
   bool decrement_shared_popup_at_destruction_;
 
+  // TODO(port): revisit once qwe have accessibility
+#if defined(OS_WIN)
   // Handles accessibility requests into the renderer side, as well as
   // maintains the cache and other features of the accessibility tree.
   scoped_ptr<GlueAccessibility> glue_accessibility_;
+#endif
 
   // Resource message queue. Used to queue up resource IPCs if we need
   // to wait for an ACK from the browser before proceeding.

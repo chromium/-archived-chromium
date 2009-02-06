@@ -75,6 +75,68 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		331217510F3BFEC5006CB2B0 /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B924A0F3BD184008B1C46 /* libglue.a */; };
+		3312181A0F3BFEE4006CB2B0 /* libjsbindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B924C0F3BD1CB008B1C46 /* libjsbindings.a */; };
+		3312181B0F3BFEEA006CB2B0 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B927E0F3BD54D008B1C46 /* libjscre.a */; };
+		3312181C0F3BFEFF006CB2B0 /* libport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B92740F3BD4D7008B1C46 /* libport.a */; };
+		3312181D0F3BFF0E006CB2B0 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B925A0F3BD364008B1C46 /* libv8.a */; };
+		3312181E0F3BFF14006CB2B0 /* libwebcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B925B0F3BD364008B1C46 /* libwebcore.a */; };
+		3312181F0F3BFF1B006CB2B0 /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B926B0F3BD455008B1C46 /* libwebcoresysteminterface.a */; };
+		331218200F3BFF20006CB2B0 /* libwtf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B926C0F3BD455008B1C46 /* libwtf.a */; };
+		331218210F3BFF24006CB2B0 /* libxslt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B92780F3BD4F9008B1C46 /* libxslt.a */; };
+		331218220F3BFF32006CB2B0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
+		331218230F3BFF36006CB2B0 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
+		331218290F3C007A006CB2B0 /* renderer_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */; };
+		3312182A0F3C007B006CB2B0 /* renderer_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */; };
+		3312182F0F3C010A006CB2B0 /* external_js_object.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC70EAE868600EBCFC0 /* external_js_object.cc */; };
+		331218300F3C010A006CB2B0 /* external_js_object.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC70EAE868600EBCFC0 /* external_js_object.cc */; };
+		331218320F3C0122006CB2B0 /* debug_message_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC10EAE868600EBCFC0 /* debug_message_handler.cc */; };
+		331218330F3C0123006CB2B0 /* debug_message_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC10EAE868600EBCFC0 /* debug_message_handler.cc */; };
+		331218390F3C019A006CB2B0 /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93240F3BF176008B1C46 /* libpcre.a */; };
+		3312183D0F3C01D9006CB2B0 /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC90E9D525B009A6919 /* libbase_gfx.a */; };
+		3312183E0F3C01E2006CB2B0 /* libsqlite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B01410E9D56BC009A6919 /* libsqlite.a */; };
+		3312183F0F3C01F8006CB2B0 /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF6E0E9D540F009A6919 /* libgoogleurl.a */; };
+		331218410F3C0208006CB2B0 /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B004E0E9D5464009A6919 /* libnet.a */; };
+		331218430F3C0223006CB2B0 /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF4B0E9D53B4009A6919 /* libevent.a */; };
+		331218440F3C0226006CB2B0 /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B924A0F3BD184008B1C46 /* libglue.a */; };
+		331218460F3C024A006CB2B0 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF370E9D5362009A6919 /* libjpeg.a */; };
+		331218470F3C024F006CB2B0 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D1F5AB60F2A6EE90040C1E3 /* libpng.a */; };
+		33121A2B0F3C02CB006CB2B0 /* libbzip2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF540E9D53C1009A6919 /* libbzip2.a */; };
+		33121A2C0F3C02E2006CB2B0 /* libjsbindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B924C0F3BD1CB008B1C46 /* libjsbindings.a */; };
+		33121A2D0F3C02EA006CB2B0 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B927E0F3BD54D008B1C46 /* libjscre.a */; };
+		33121A2E0F3C02F2006CB2B0 /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93240F3BF176008B1C46 /* libpcre.a */; };
+		33121A2F0F3C02FD006CB2B0 /* libport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B92740F3BD4D7008B1C46 /* libport.a */; };
+		33121A300F3C0301006CB2B0 /* librenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */; };
+		33121A310F3C0310006CB2B0 /* libsdch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684D0A0F2FB101009F6555 /* libsdch.a */; };
+		33121A320F3C0316006CB2B0 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B925A0F3BD364008B1C46 /* libv8.a */; };
+		33121A330F3C0318006CB2B0 /* libwebcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B925B0F3BD364008B1C46 /* libwebcore.a */; };
+		33121A340F3C0322006CB2B0 /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B926B0F3BD455008B1C46 /* libwebcoresysteminterface.a */; };
+		33121A350F3C0328006CB2B0 /* libwtf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B926C0F3BD455008B1C46 /* libwtf.a */; };
+		33121A360F3C032A006CB2B0 /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFB230E9D4BBF009A6919 /* libxml.a */; };
+		33121A370F3C032D006CB2B0 /* libxslt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B92780F3BD4F9008B1C46 /* libxslt.a */; };
+		33121A380F3C0336006CB2B0 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DDC64550EAE392400FB5EBE /* libzlib.a */; };
+		33121A390F3C0339006CB2B0 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
+		33121A3A0F3C033F006CB2B0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
+		33121A3B0F3C0343006CB2B0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684C5F0F2FAE68009F6555 /* Security.framework */; };
+		33121A3C0F3C0349006CB2B0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684CCF0F2FAEC2009F6555 /* SystemConfiguration.framework */; };
+		33121A450F3C0365006CB2B0 /* libskia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B00330E9D5459009A6919 /* libskia.a */; };
+		33121A470F3C037E006CB2B0 /* libmodp_b64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B005D0E9D54AA009A6919 /* libmodp_b64.a */; };
+		331B91820F3BCF1A008B1C46 /* debug_message_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC10EAE868600EBCFC0 /* debug_message_handler.cc */; };
+		331B924B0F3BD184008B1C46 /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B924A0F3BD184008B1C46 /* libglue.a */; };
+		331B924D0F3BD1CB008B1C46 /* libjsbindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B924C0F3BD1CB008B1C46 /* libjsbindings.a */; };
+		331B925C0F3BD364008B1C46 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B925A0F3BD364008B1C46 /* libv8.a */; };
+		331B925D0F3BD364008B1C46 /* libwebcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B925B0F3BD364008B1C46 /* libwebcore.a */; };
+		331B92670F3BD408008B1C46 /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B92660F3BD408008B1C46 /* libxml.a */; };
+		331B926D0F3BD455008B1C46 /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B926B0F3BD455008B1C46 /* libwebcoresysteminterface.a */; };
+		331B926E0F3BD455008B1C46 /* libwtf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B926C0F3BD455008B1C46 /* libwtf.a */; };
+		331B92750F3BD4D7008B1C46 /* libport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B92740F3BD4D7008B1C46 /* libport.a */; };
+		331B92790F3BD4F9008B1C46 /* libxslt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B92780F3BD4F9008B1C46 /* libxslt.a */; };
+		331B927F0F3BD54D008B1C46 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B927E0F3BD54D008B1C46 /* libjscre.a */; };
+		331B92820F3BE2B4008B1C46 /* renderer_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */; };
+		331B93250F3BF176008B1C46 /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93240F3BF176008B1C46 /* libpcre.a */; };
+		331B93920F3BF237008B1C46 /* external_js_object.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CC70EAE868600EBCFC0 /* external_js_object.cc */; };
+		331B93AA0F3BF2B9008B1C46 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
+		331B93AC0F3BF2DA008B1C46 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
 		3380A69B0F2E91AE004EF74F /* child_process.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB890E9D4C9F009A6919 /* child_process.cc */; };
 		3380A69D0F2E91D4004EF74F /* render_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD10EAE868600EBCFC0 /* render_thread.cc */; };
 		3380A69F0F2E91E5004EF74F /* chrome_plugin_lib.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB920E9D4C9F009A6919 /* chrome_plugin_lib.cc */; };
@@ -1312,6 +1374,19 @@
 		0B7CC9C105E90E0665852528 /* url_fetcher_protect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_fetcher_protect.cc; sourceTree = "<group>"; };
 		26D97CE692D919FEB1521E43 /* ssl_error_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ssl_error_info.cc; path = ssl/ssl_error_info.cc; sourceTree = "<group>"; };
 		28AA584AB2ECFB33C7C7FD8A /* template_url_parser.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url_parser.cc; sourceTree = "<group>"; };
+		331B924A0F3BD184008B1C46 /* libglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libglue.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B924C0F3BD1CB008B1C46 /* libjsbindings.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjsbindings.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B925A0F3BD364008B1C46 /* libv8.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libv8.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B925B0F3BD364008B1C46 /* libwebcore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwebcore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B92660F3BD408008B1C46 /* libxml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libxml.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B926B0F3BD455008B1C46 /* libwebcoresysteminterface.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwebcoresysteminterface.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B926C0F3BD455008B1C46 /* libwtf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwtf.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B92740F3BD4D7008B1C46 /* libport.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libport.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B92780F3BD4F9008B1C46 /* libxslt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libxslt.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B927E0F3BD54D008B1C46 /* libjscre.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjscre.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B93240F3BF176008B1C46 /* libpcre.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpcre.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		331B93AB0F3BF2DA008B1C46 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_thread_unittest.cc; sourceTree = "<group>"; };
 		3380A6B90F2E9275004EF74F /* render_view_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_view_unittest.cc; sourceTree = "<group>"; };
 		3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render_process_unittest.cc; sourceTree = "<group>"; };
@@ -2242,31 +2317,43 @@
 			buildActionMask = 2147483647;
 			files = (
 				E45066CE0EEF1AA7003BE099 /* AppKit.framework in Frameworks */,
+				331218230F3BFF36006CB2B0 /* Carbon.framework in Frameworks */,
 				4D7BFDD20E9D5295009A6919 /* CoreFoundation.framework in Frameworks */,
 				E45066CD0EEF1AA7003BE099 /* Foundation.framework in Frameworks */,
+				331218220F3BFF32006CB2B0 /* QuartzCore.framework in Frameworks */,
+				826852120F2FD143009F6555 /* Security.framework in Frameworks */,
+				826852160F2FD156009F6555 /* SystemConfiguration.framework in Frameworks */,
 				4D7BFDCE0E9D5267009A6919 /* libbase.a in Frameworks */,
 				4D7BFF5E0E9D53FD009A6919 /* libbase_gfx.a in Frameworks */,
 				4D7BFD960E9D5223009A6919 /* libbrowser.a in Frameworks */,
 				4D7BFF590E9D53E0009A6919 /* libbzip2.a in Frameworks */,
 				4D7BFD970E9D5226009A6919 /* libcommon.a in Frameworks */,
 				4D7BFF5A0E9D53E0009A6919 /* libevent.a in Frameworks */,
+				331217510F3BFEC5006CB2B0 /* libglue.a in Frameworks */,
 				4D7BFF730E9D5425009A6919 /* libgoogleurl.a in Frameworks */,
 				4D7BFF440E9D53A0009A6919 /* libgtest.a in Frameworks */,
 				4D7B01480E9D56F2009A6919 /* libicudata.a in Frameworks */,
 				4D7BFE800E9D5317009A6919 /* libicui18n.a in Frameworks */,
 				4D7BFE760E9D52E4009A6919 /* libicuuc.a in Frameworks */,
+				3312181A0F3BFEE4006CB2B0 /* libjsbindings.a in Frameworks */,
+				3312181B0F3BFEEA006CB2B0 /* libjscre.a in Frameworks */,
 				4D7BFF3A0E9D5378009A6919 /* libjpeg.a in Frameworks */,
 				4D7B005E0E9D54BB009A6919 /* libmodp_b64.a in Frameworks */,
 				4D7B00510E9D5473009A6919 /* libnet.a in Frameworks */,
+				331218390F3C019A006CB2B0 /* libpcre.a in Frameworks */,
 				826852130F2FD146009F6555 /* libpng.a in Frameworks */,
+				3312181C0F3BFEFF006CB2B0 /* libport.a in Frameworks */,
 				B503E1030F017C1000547DC6 /* librenderer.a in Frameworks */,
 				826852190F2FD190009F6555 /* libsdch.a in Frameworks */,
 				4D7B00520E9D5473009A6919 /* libskia.a in Frameworks */,
 				4D7B01420E9D56C4009A6919 /* libsqlite.a in Frameworks */,
+				3312181D0F3BFF0E006CB2B0 /* libv8.a in Frameworks */,
+				3312181E0F3BFF14006CB2B0 /* libwebcore.a in Frameworks */,
+				3312181F0F3BFF1B006CB2B0 /* libwebcoresysteminterface.a in Frameworks */,
+				331218200F3BFF20006CB2B0 /* libwtf.a in Frameworks */,
 				4DDC644B0EAE390800FB5EBE /* libxml.a in Frameworks */,
+				331218210F3BFF24006CB2B0 /* libxslt.a in Frameworks */,
 				4DDC64580EAE394200FB5EBE /* libzlib.a in Frameworks */,
-				826852120F2FD143009F6555 /* Security.framework in Frameworks */,
-				826852160F2FD156009F6555 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2282,14 +2369,42 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D7FA6940F13CC01004F1B19 /* AppKit.framework in Frameworks */,
+				33121A390F3C0339006CB2B0 /* Carbon.framework in Frameworks */,
 				4D7FA6660F13CBF8004F1B19 /* CoreFoundation.framework in Frameworks */,
+				33121A3A0F3C033F006CB2B0 /* QuartzCore.framework in Frameworks */,
+				33121A3B0F3C0343006CB2B0 /* Security.framework in Frameworks */,
+				33121A3C0F3C0349006CB2B0 /* SystemConfiguration.framework in Frameworks */,
 				4D7FA6490F13CB9D004F1B19 /* libbase.a in Frameworks */,
+				3312183D0F3C01D9006CB2B0 /* libbase_gfx.a in Frameworks */,
 				4D7FA75F0F13CC58004F1B19 /* libbrowser.a in Frameworks */,
+				33121A2B0F3C02CB006CB2B0 /* libbzip2.a in Frameworks */,
 				4D7FA75B0F13CC4B004F1B19 /* libcommon.a in Frameworks */,
-				4D7FA7540F13CC31004F1B19 /* libgtest.a in Frameworks */,
+				331218430F3C0223006CB2B0 /* libevent.a in Frameworks */,
+				331218440F3C0226006CB2B0 /* libglue.a in Frameworks */,
+				3312183F0F3C01F8006CB2B0 /* libgoogleurl.a in Frameworks */,
 				4D7FA65E0F13CBDD004F1B19 /* libicudata.a in Frameworks */,
 				4D7FA7490F13CC0D004F1B19 /* libicui18n.a in Frameworks */,
 				4D7FA6600F13CBDD004F1B19 /* libicuuc.a in Frameworks */,
+				4D7FA7540F13CC31004F1B19 /* libgtest.a in Frameworks */,
+				331218460F3C024A006CB2B0 /* libjpeg.a in Frameworks */,
+				33121A2C0F3C02E2006CB2B0 /* libjsbindings.a in Frameworks */,
+				33121A2D0F3C02EA006CB2B0 /* libjscre.a in Frameworks */,
+				33121A470F3C037E006CB2B0 /* libmodp_b64.a in Frameworks */,
+				331218410F3C0208006CB2B0 /* libnet.a in Frameworks */,
+				33121A2E0F3C02F2006CB2B0 /* libpcre.a in Frameworks */,
+				331218470F3C024F006CB2B0 /* libpng.a in Frameworks */,
+				33121A2F0F3C02FD006CB2B0 /* libport.a in Frameworks */,
+				33121A300F3C0301006CB2B0 /* librenderer.a in Frameworks */,
+				33121A310F3C0310006CB2B0 /* libsdch.a in Frameworks */,
+				33121A450F3C0365006CB2B0 /* libskia.a in Frameworks */,
+				3312183E0F3C01E2006CB2B0 /* libsqlite.a in Frameworks */,
+				33121A320F3C0316006CB2B0 /* libv8.a in Frameworks */,
+				33121A330F3C0318006CB2B0 /* libwebcore.a in Frameworks */,
+				33121A340F3C0322006CB2B0 /* libwebcoresysteminterface.a in Frameworks */,
+				33121A350F3C0328006CB2B0 /* libwtf.a in Frameworks */,
+				33121A360F3C032A006CB2B0 /* libxml.a in Frameworks */,
+				33121A370F3C032D006CB2B0 /* libxslt.a in Frameworks */,
+				33121A380F3C0336006CB2B0 /* libzlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2318,27 +2433,40 @@
 			buildActionMask = 2147483647;
 			files = (
 				E45065DE0EEEC6FF003BE099 /* AppKit.framework in Frameworks */,
+				331B93AC0F3BF2DA008B1C46 /* Carbon.framework in Frameworks */,
 				E45065E00EEEC709003BE099 /* Foundation.framework in Frameworks */,
+				331B93AA0F3BF2B9008B1C46 /* QuartzCore.framework in Frameworks */,
+				82684C600F2FAE68009F6555 /* Security.framework in Frameworks */,
+				82684CD00F2FAEC2009F6555 /* SystemConfiguration.framework in Frameworks */,
 				E45062680EE890C2003BE099 /* libbase.a in Frameworks */,
 				E48B67ED0F262823002E47EC /* libbase_gfx.a in Frameworks */,
 				E45063130EE990A4003BE099 /* libbrowser.a in Frameworks */,
 				82684CE30F2FAEEE009F6555 /* libbzip2.a in Frameworks */,
 				E45063120EE99096003BE099 /* libcommon.a in Frameworks */,
 				E450631C0EE990FA003BE099 /* libevent.a in Frameworks */,
+				331B924B0F3BD184008B1C46 /* libglue.a in Frameworks */,
 				E48B67320F2625B8002E47EC /* libgoogleurl.a in Frameworks */,
 				E45062A90EE89154003BE099 /* libicudata.a in Frameworks */,
 				E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */,
 				E45062AC0EE89154003BE099 /* libicuuc.a in Frameworks */,
+				331B924D0F3BD1CB008B1C46 /* libjsbindings.a in Frameworks */,
+				331B927F0F3BD54D008B1C46 /* libjscre.a in Frameworks */,
 				E48B67CB0F262607002E47EC /* libmodp_b64.a in Frameworks */,
 				E48B66A80F26257E002E47EC /* libnet.a in Frameworks */,
+				331B93250F3BF176008B1C46 /* libpcre.a in Frameworks */,
 				82684C510F2FAE06009F6555 /* libpng.a in Frameworks */,
+				331B92750F3BD4D7008B1C46 /* libport.a in Frameworks */,
 				E45063140EE990AB003BE099 /* librenderer.a in Frameworks */,
 				82684D0B0F2FB104009F6555 /* libsdch.a in Frameworks */,
 				E48B67CF0F26263C002E47EC /* libskia.a in Frameworks */,
 				82684C490F2FADD6009F6555 /* libsqlite.a in Frameworks */,
+				331B925C0F3BD364008B1C46 /* libv8.a in Frameworks */,
+				331B925D0F3BD364008B1C46 /* libwebcore.a in Frameworks */,
+				331B926D0F3BD455008B1C46 /* libwebcoresysteminterface.a in Frameworks */,
+				331B926E0F3BD455008B1C46 /* libwtf.a in Frameworks */,
+				331B92670F3BD408008B1C46 /* libxml.a in Frameworks */,
+				331B92790F3BD4F9008B1C46 /* libxslt.a in Frameworks */,
 				82684CCB0F2FAE90009F6555 /* libzlib.a in Frameworks */,
-				82684C600F2FAE68009F6555 /* Security.framework in Frameworks */,
-				82684CD00F2FAEC2009F6555 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2478,6 +2606,17 @@
 		4D7BF2E70E9D46A4009A6919 = {
 			isa = PBXGroup;
 			children = (
+				331B93240F3BF176008B1C46 /* libpcre.a */,
+				331B927E0F3BD54D008B1C46 /* libjscre.a */,
+				331B92780F3BD4F9008B1C46 /* libxslt.a */,
+				331B92740F3BD4D7008B1C46 /* libport.a */,
+				331B926B0F3BD455008B1C46 /* libwebcoresysteminterface.a */,
+				331B926C0F3BD455008B1C46 /* libwtf.a */,
+				331B92660F3BD408008B1C46 /* libxml.a */,
+				331B925A0F3BD364008B1C46 /* libv8.a */,
+				331B925B0F3BD364008B1C46 /* libwebcore.a */,
+				331B924C0F3BD1CB008B1C46 /* libjsbindings.a */,
+				331B924A0F3BD184008B1C46 /* libglue.a */,
 				4D7BF2FA0E9D46CD009A6919 /* Configuration */,
 				4D7BF3380E9D479D009A6919 /* Source */,
 				4D7BFDD00E9D527E009A6919 /* Frameworks */,
@@ -2489,6 +2628,8 @@
 				56E1D7DF17D327BFCB0B895D /* test_web_contents.cc */,
 				699499C4FBA07FB2D7B298A2 /* user_script.cc */,
 				37521A11B07C479E93A39D52 /* user_script_unittest.cc */,
+				331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */,
+				331B93AB0F3BF2DA008B1C46 /* Carbon.framework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -4713,9 +4854,11 @@
 				4D7BFB350E9D4C18009A6919 /* chrome_thread_unittest.cc in Sources */,
 				4D7BFB710E9D4C55009A6919 /* chunk_range_unittest.cc in Sources */,
 				E46C4EF30F27A9B000B393B8 /* command_updater_unittest.cc in Sources */,
+				331218330F3C0123006CB2B0 /* debug_message_handler.cc in Sources */,
 				4D7BFB510E9D4C3E009A6919 /* dns_host_info_unittest.cc in Sources */,
 				E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */,
 				A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */,
+				331218300F3C010A006CB2B0 /* external_js_object.cc in Sources */,
 				4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */,
 				8268533F0F30AE1C009F6555 /* ipc_sync_channel.cc in Sources */,
 				B5D031270F3A4009001238AB /* ipc_sync_channel_unittest.cc in Sources */,
@@ -4737,6 +4880,7 @@
 				B5D030F00F3A3C43001238AB /* renderer_main_unittest.cc in Sources */,
 				8268533B0F30AE13009F6555 /* render_process.cc in Sources */,
 				3380A9C00F2FC61E004EF74F /* render_process_unittest.cc in Sources */,
+				3312182A0F3C007B006CB2B0 /* renderer_glue.cc in Sources */,
 				E434BE130F38DDA700B665C7 /* renderer_security_policy_unittest.cc in Sources */,
 				826853350F30AE04009F6555 /* render_thread.cc in Sources */,
 				3380A6B60F2E9252004EF74F /* render_thread_unittest.cc in Sources */,
@@ -4818,6 +4962,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				331218320F3C0122006CB2B0 /* debug_message_handler.cc in Sources */,
+				3312182F0F3C010A006CB2B0 /* external_js_object.cc in Sources */,
+				331218290F3C007A006CB2B0 /* renderer_glue.cc in Sources */,
 				4D7FA6440F13CB5C004F1B19 /* run_all_unittests.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4839,6 +4986,9 @@
 				E46C4A740F1FE04F00B393B8 /* app_controller_mac.mm in Sources */,
 				E45062EB0EE9877F003BE099 /* chrome_dll_main.cc in Sources */,
 				E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */,
+				331B91820F3BCF1A008B1C46 /* debug_message_handler.cc in Sources */,
+				331B93920F3BF237008B1C46 /* external_js_object.cc in Sources */,
+				331B92820F3BE2B4008B1C46 /* renderer_glue.cc in Sources */,
 				E42155D80F3240AF00A4A951 /* tab_strip_view.mm in Sources */,
 				E46C519A0F2A20CC00B393B8 /* toolbar_button_cell.mm in Sources */,
 				E46C51640F2A1DAB00B393B8 /* toolbar_view.mm in Sources */,

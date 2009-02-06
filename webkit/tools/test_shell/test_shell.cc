@@ -63,7 +63,7 @@ class URLRequestTestShellFileJob : public URLRequestFileJob {
  public:
   virtual ~URLRequestTestShellFileJob() { }
 
-  static URLRequestJob* InspectorFactory(URLRequest* request, 
+  static URLRequestJob* InspectorFactory(URLRequest* request,
                                          const std::string& scheme) {
     std::wstring path;
     PathService::Get(base::DIR_EXE, &path);
@@ -90,7 +90,7 @@ WebPreferences* TestShell::web_prefs_ = NULL;
 bool TestShell::layout_test_mode_ = false;
 int TestShell::file_test_timeout_ms_ = kDefaultFileTestTimeoutMillisecs;
 
-TestShell::TestShell() 
+TestShell::TestShell()
     : m_mainWnd(NULL),
       m_editWnd(NULL),
       m_webViewHost(NULL),
@@ -111,7 +111,7 @@ TestShell::TestShell()
     navigation_controller_.reset(new TestNavigationController(this));
 
     URLRequestFilter* filter = URLRequestFilter::GetInstance();
-    filter->AddHostnameHandler("test-shell-resource", "inspector", 
+    filter->AddHostnameHandler("test-shell-resource", "inspector",
                                &URLRequestTestShellFileJob::InspectorFactory);
     url_util::AddStandardScheme("test-shell-resource");
 }
@@ -220,7 +220,7 @@ void TestShell::Dump(TestShell* shell) {
         printf("%s", WideToUTF8(bfDump).c_str());
       }
     }
-    
+
     if (params->dump_pixels && !should_dump_as_text) {
       // Image output: we write the image data to the file given on the
       // command line (for the dump pixels argument), and the MD5 sum to
@@ -288,7 +288,7 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
                          SEM_NOOPENFILEERRORBOX;
         if (!enable_gp_fault_error_box)
             new_flags |= SEM_NOGPFAULTERRORBOX;
-        
+
         // Preserve existing error mode, as discussed at
         // http://blogs.msdn.com/oldnewthing/archive/2004/07/27/198410.aspx
         UINT existing_flags = SetErrorMode(new_flags);
@@ -298,7 +298,7 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
 
     // Only log to a file if we're running layout tests. This prevents debugging
     // output from disrupting whether or not we pass.
-    logging::LoggingDestination destination = 
+    logging::LoggingDestination destination =
         logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
     if (layout_test_mode)
       destination = logging::LOG_ONLY_TO_FILE;
@@ -353,10 +353,10 @@ void TestShell::ResetWebPreferences() {
 
         // These two fonts are picked from the intersection of
         // Win XP font list and Vista font list :
-        //   http://www.microsoft.com/typography/fonts/winxp.htm 
+        //   http://www.microsoft.com/typography/fonts/winxp.htm
         //   http://blogs.msdn.com/michkap/archive/2006/04/04/567881.aspx
         // Some of them are installed only with CJK and complex script
-        // support enabled on Windows XP and are out of consideration here. 
+        // support enabled on Windows XP and are out of consideration here.
         // (although we enabled both on our buildbots.)
         // They (especially Impact for fantasy) are not typical cursive
         // and fantasy fonts, but it should not matter for layout tests
@@ -405,7 +405,7 @@ void TestShell::Show(WebView* webview, WindowOpenDisposition disposition) {
 void TestShell::BindJSObjectsToWindow(WebFrame* frame) {
     // Only bind the test classes if we're running tests.
     if (layout_test_mode_) {
-        layout_test_controller_->BindToJavascript(frame, 
+        layout_test_controller_->BindToJavascript(frame,
                                                   L"layoutTestController");
         event_sending_controller_->BindToJavascript(frame,
                                                     L"eventSender");
@@ -462,7 +462,7 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
     // Otherwise, we give it the state to navigate to.
     if (!reload)
       request->SetHistoryState(entry.GetContentState());
-      
+
     request->SetExtraData(
         new TestShellExtraRequestData(entry.GetPageID()));
 
@@ -567,7 +567,12 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
   return net::GetPreferredExtensionForMimeType(mime_type, ext);
 }
 
-GlueBitmap GetBitmapResource(int resource_id) {
+#if defined(OS_MACOSX)
+SkBitmap*
+#else
+GlueBitmap*
+#endif
+GetBitmapResource(int resource_id) {
   return NULL;
 }
 
