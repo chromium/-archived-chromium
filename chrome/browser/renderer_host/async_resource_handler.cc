@@ -14,7 +14,7 @@ SharedIOBuffer* AsyncResourceHandler::spare_read_buffer_;
 // Our version of IOBuffer that uses shared memory.
 class SharedIOBuffer : public net::IOBuffer {
  public:
-  SharedIOBuffer(int buffer_size) : net::IOBuffer(NULL), ok_(false) {
+  SharedIOBuffer(int buffer_size) : net::IOBuffer(), ok_(false) {
     if (shared_memory_.Create(std::wstring(), false, false, buffer_size) &&
         shared_memory_.Map(buffer_size)) {
       ok_ = true;
