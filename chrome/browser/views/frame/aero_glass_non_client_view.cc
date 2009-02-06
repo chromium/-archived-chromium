@@ -89,13 +89,13 @@ SkBitmap AeroGlassWindowResources::app_top_right_;
 AeroGlassWindowResources* AeroGlassNonClientView::resources_ = NULL;
 SkBitmap AeroGlassNonClientView::distributor_logo_;
 
-// The distance between the top of the TabStrip and the top of the non-client
-// area of the window.
-static const int kNoTitleTopSpacing = 8;
 // The width of the client edge to the left and right of the window.
-static const int kWindowHorizontalClientEdgeWidth = 3;
+static const int kClientEdgeWidth = 3;
 // The height of the client edge to the bottom of the window.
-static const int kWindowBottomClientEdgeHeight = 2;
+static const int kClientEdgeHeight = 2;
+// In the window corners, the resize areas don't actually expand bigger, but the
+// 16 px at the end of the top and bottom edges triggers diagonal resizing.
+const int kResizeEdgeWidth = 16;
 // The horizontal distance between the left of the minimize button and the
 // right edge of the distributor logo.
 static const int kDistributorLogoHorizontalOffset = 7;
@@ -109,8 +109,6 @@ static const int kTabStripY = 19;
 static const int kTabStripRightHorizOffset = 30;
 // A single pixel.
 static const int kPixel = 1;
-// The height of the sizing border.
-static const int kWindowSizingBorderSize = 8;
 // The size (width/height) of the window icon.
 static const int kWindowIconSize = 16;
 // In maximized mode, the OTR avatar starts 2 px below the top of the screen, so
@@ -139,8 +137,7 @@ AeroGlassNonClientView::~AeroGlassNonClientView() {
 
 gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
-      (otr_avatar_bounds_.right() + kOTRSideSpacing) :
-      kWindowHorizontalClientEdgeWidth;
+      (otr_avatar_bounds_.right() + kOTRSideSpacing) : kClientEdgeWidth;
   int tabstrip_width = width() - tabstrip_x - kTabStripRightHorizOffset -
     (frame_->IsMaximized() ? frame_->GetMinimizeButtonOffset() : 0);
   int tabstrip_y =
@@ -158,17 +155,17 @@ gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int win_width,
     return gfx::Rect(0, 0, width(), height());
 
   int top_margin = CalculateNonClientTopHeight();
-  return gfx::Rect(kWindowHorizontalClientEdgeWidth, top_margin,
-      std::max(0, win_width - (2 * kWindowHorizontalClientEdgeWidth)),
-      std::max(0, win_height - top_margin - kWindowBottomClientEdgeHeight));
+  return gfx::Rect(kClientEdgeWidth, top_margin,
+      std::max(0, win_width - (2 * kClientEdgeWidth)),
+      std::max(0, win_height - top_margin - kClientEdgeHeight));
 }
 
 gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
   int top_margin = CalculateNonClientTopHeight();
-  return gfx::Size(width + (2 * kWindowHorizontalClientEdgeWidth),
-                   height + top_margin + kWindowBottomClientEdgeHeight);
+  return gfx::Size(width + (2 * kClientEdgeWidth),
+                   height + top_margin + kClientEdgeHeight);
 }
 
 CPoint AeroGlassNonClientView::GetSystemMenuPoint() const {
@@ -178,35 +175,49 @@ CPoint AeroGlassNonClientView::GetSystemMenuPoint() const {
 }
 
 int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
-  CRect bounds;
-  CPoint test_point = point.ToPOINT();
+  // If we don't have a tabstrip, we haven't customized the frame, so Windows
+  // can figure this out.  If the point isn't within our bounds, then it's in
+  // the native portion of the frame, so again Windows can figure it out.
+  if (!browser_view_->IsTabStripVisible() || !bounds().Contains(point))
+    return HTNOWHERE;
 
   // See if the client view intersects the non-client area (e.g. blank areas
   // of the TabStrip).
-  int component = frame_->client_view()->NonClientHitTest(point);
-  if (component != HTNOWHERE)
-    return component;
+  int frame_component = frame_->client_view()->NonClientHitTest(point);
+  if (frame_component != HTNOWHERE)
+    return frame_component;
 
-  // This check is only done when we have a tabstrip, which is the only time
-  // that we have a non-standard non-client area.
-  if (browser_view_->IsTabStripVisible()) {
-    // Because we tell Windows that our client area extends all the way to the
-    // top of the browser window, but our BrowserView doesn't actually go up that
-    // high, we need to make sure the right hit-test codes are returned for the
-    // caption area above the tabs and the top sizing border.
-    int client_view_right =
-        frame_->client_view()->x() + frame_->client_view()->width();
-    if (point.x() >= frame_->client_view()->x() &&
-        point.x() < client_view_right) {
-      if (point.y() < kWindowSizingBorderSize)
-        return HTTOP;
-      if (point.y() < (y() + height()))
-        return HTCAPTION;
-    }
+  int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
+  int resize_width = kResizeEdgeWidth - border_thickness;
+  if (point.x() < kClientEdgeWidth) {
+    if (point.y() < border_thickness)
+      return HTTOPLEFT;
+    if (point.y() >= (height() - kClientEdgeHeight))
+      return HTBOTTOMLEFT;
+    return HTLEFT;
   }
-
-  // Let Windows figure it out.
-  return HTNOWHERE;
+  if (point.x() >= (width() - kClientEdgeWidth)) {
+    if (point.y() < border_thickness)
+      return HTTOPRIGHT;
+    if (point.y() >= (height() - kClientEdgeHeight))
+      return HTBOTTOMRIGHT;
+    return HTRIGHT;
+  }
+  if (point.y() < border_thickness) {
+    if (point.x() < resize_width)
+      return HTTOPLEFT;
+    if (point.x() >= (width() - resize_width))
+      return HTTOPRIGHT;
+    return HTTOP;
+  }
+  if (point.y() >= (height() - kClientEdgeHeight)) {
+    if (point.x() < resize_width)
+      return HTBOTTOMLEFT;
+    if (point.x() >= (width() - resize_width))
+      return HTBOTTOMRIGHT;
+    return HTBOTTOM;
+  }
+  return HTCAPTION;
 }
 
 void AeroGlassNonClientView::GetWindowMask(const gfx::Size& size,
@@ -242,9 +253,8 @@ void AeroGlassNonClientView::Layout() {
 
 gfx::Size AeroGlassNonClientView::GetPreferredSize() {
   gfx::Size prefsize = frame_->client_view()->GetPreferredSize();
-  prefsize.Enlarge(2 * kWindowHorizontalClientEdgeWidth, 
-                   CalculateNonClientTopHeight() +
-                       kWindowBottomClientEdgeHeight);
+  prefsize.Enlarge(2 * kClientEdgeWidth,
+                   CalculateNonClientTopHeight() + kClientEdgeHeight);
   return prefsize;
 }
 
@@ -262,9 +272,8 @@ void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
 // AeroGlassNonClientView, private:
 
 int AeroGlassNonClientView::CalculateNonClientTopHeight() const {
-  if (frame_->window_delegate()->ShouldShowWindowTitle())
-    return browser_view_->IsToolbarVisible() ? -1 : 0;
-  return kNoTitleTopSpacing;
+  return browser_view_->IsTabStripVisible() ?
+      GetSystemMetrics(SM_CYSIZEFRAME) : 0;
 }
 
 void AeroGlassNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
@@ -373,8 +382,7 @@ void AeroGlassNonClientView::LayoutOTRAvatar() {
   int otr_height = frame_->IsMaximized() ?
       (tabstrip_height - kOTRMaximizedTopSpacing) :
       otr_avatar_icon.height();
-  otr_avatar_bounds_.SetRect(
-      kWindowHorizontalClientEdgeWidth + kOTRSideSpacing,
+  otr_avatar_bounds_.SetRect(kClientEdgeWidth + kOTRSideSpacing,
       top_height + tabstrip_height - otr_height, otr_avatar_icon.width(),
       otr_height);
 }

@@ -15,14 +15,10 @@
 
 // static
 
-// The width of the sizing borders.
-static const int kResizeBorder = 8;
 // The width of the client edge to the left and right of the window.
-static const int kWindowHorizontalClientEdgeWidth = 3;
+static const int kClientEdgeWidth = 3;
 // The height of the client edge to the bottom of the window.
-static const int kWindowBottomClientEdgeHeight = 2;
-// By how much the toolbar overlaps with the tab strip.
-static const int kToolbarOverlapVertOffset = 5;
+static const int kClientEdgeHeight = 2;
 
 HICON AeroGlassFrame::throbber_icons_[AeroGlassFrame::kThrobberIconCount];
 
@@ -130,9 +126,11 @@ LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
     return TRUE;
 
   if (!frame_initialized_) {
-    ::SetWindowPos(GetHWND(), NULL, 0, 0, 0, 0,
-                   SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED);
-    UpdateDWMFrame();
+    if (browser_view_->IsTabStripVisible()) {
+      ::SetWindowPos(GetHWND(), NULL, 0, 0, 0, 0,
+                     SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED);
+      UpdateDWMFrame();
+    }
     frame_initialized_ = true;
   }
   browser_view_->ActivationChanged(!!active);
@@ -141,34 +139,20 @@ LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
 }
 
 LRESULT AeroGlassFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
-  // By default the client side is set to the window size which is what
-  // we want.
-  if (browser_view_->IsTabStripVisible() && mode == TRUE) {
-    // Calculate new NCCALCSIZE_PARAMS based on custom NCA inset.
-    NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
-
-    // Hack necessary to stop black background flicker, we cut out
-    // resizeborder here to save us from having to do too much
-    // addition and subtraction in Layout(). We don't cut off the
-    // top + titlebar as that prevents the window controls from
-    // highlighting.
-    params->rgrc[0].left +=
-        (kResizeBorder - kWindowHorizontalClientEdgeWidth);
-    params->rgrc[0].right -=
-        (kResizeBorder - kWindowHorizontalClientEdgeWidth);
-    params->rgrc[0].bottom -=
-        (kResizeBorder - kWindowBottomClientEdgeHeight);
-
-    SetMsgHandled(TRUE);
-
-    // We need to reset the frame, as Vista resets it whenever it changes
-    // composition modes (and NCCALCSIZE is the closest thing we get to
-    // a reliable message about the change).
-    UpdateDWMFrame();
-
+  if (!browser_view_->IsTabStripVisible() || !mode) {
+    SetMsgHandled(FALSE);
     return 0;
   }
-  SetMsgHandled(FALSE);
+
+  NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
+  int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
+  params->rgrc[0].left += (border_thickness - kClientEdgeWidth);
+  params->rgrc[0].right -= (border_thickness - kClientEdgeWidth);
+  params->rgrc[0].bottom -= (border_thickness - kClientEdgeHeight);
+
+  UpdateDWMFrame();
+
+  SetMsgHandled(TRUE);
   return 0;
 }
 
@@ -196,31 +180,14 @@ void AeroGlassFrame::UpdateDWMFrame() {
   if (!client_view())
     return;
 
-  // We only adjust the DWM's glass rendering when we're a browser window.
-  // Popups and app windows get the standard client edge.
-  if (browser_view_->IsTabStripVisible()) {
-    // By default, we just want to adjust the glass by the width of the inner
-    // bevel that aero renders to demarcate the client area. We supply our own
-    // client edge for the browser window and detached popups, so we don't want
-    // to show the default one.
-    int client_edge_left_width = kWindowHorizontalClientEdgeWidth + 1;
-    int client_edge_right_width = kWindowHorizontalClientEdgeWidth + 1;
-    int client_edge_bottom_height = kWindowBottomClientEdgeHeight + 1;
-    int client_edge_top_height = kWindowBottomClientEdgeHeight;
-    if (browser_view_->IsTabStripVisible()) {
-      gfx::Rect tabstrip_bounds =
-          GetBoundsForTabStrip(browser_view_->tabstrip());
-      client_edge_top_height = tabstrip_bounds.bottom();
-    }
-
-    // Now poke the DWM.
-    MARGINS margins = { client_edge_left_width, client_edge_right_width,
-                        client_edge_top_height, client_edge_bottom_height };
-    // Note: we don't use DwmEnableBlurBehindWindow because any region not
-    // included in the glass region is composited source over. This means
-    // that anything drawn directly with GDI appears fully transparent.
-    DwmExtendFrameIntoClientArea(GetHWND(), &margins);
-  }
+  MARGINS margins = { kClientEdgeWidth + 1,
+                      kClientEdgeWidth + 1,
+                      GetBoundsForTabStrip(browser_view_->tabstrip()).bottom(),
+                      kClientEdgeHeight + 1 };
+  // Note: we don't use DwmEnableBlurBehindWindow because any region not
+  // included in the glass region is composited source over. This means
+  // that anything drawn directly with GDI appears fully transparent.
+  DwmExtendFrameIntoClientArea(GetHWND(), &margins);
 }
 
 AeroGlassNonClientView* AeroGlassFrame::GetAeroGlassNonClientView() const {
