@@ -634,6 +634,12 @@ LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 // End of SVG tests
 // -----------------------------------------------------------------
 
+// This fails because of differences between how CG and Skia tests for
+// a point in a path. See
+// http://code.google.com/p/chromium/issues/detail?id=7465 for details.
+DEFER LINUX WIN : LayoutTests/fast/canvas/pointInPath.html = FAIL
+LayoutTests/svg/custom/path-bad-data.svg = FAIL
+
 // Bug: 1026885
 // Following tests are failing because Chrome does not allow file url
 // to access non-file urls.
@@ -1611,8 +1617,7 @@ WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.html = FAIL
 MAC : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
-// Merge 39744:39829 - regression likely due to bad implementation of RenderPath::strokeContains in PathSkia.cpp
-WIN : LayoutTests/fast/canvas/pointInPath.html = FAIL
+// Merge 39744:39829 - regression
 LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
 // Release failures are Merge 39829:39744 regressions
