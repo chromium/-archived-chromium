@@ -329,7 +329,10 @@ void URLRequestHttpJob::CancelAuth() {
 }
 
 void URLRequestHttpJob::ContinueDespiteLastError() {
-  DCHECK(transaction_.get());
+  // If the transaction was destroyed, then the job was cancelled.
+  if (!transaction_.get())
+    return;
+
   DCHECK(!response_info_) << "should not have a response yet";
 
   // No matter what, we want to report our status as IO pending since we will
