@@ -43,6 +43,7 @@ class EventSendingController : public CppBoundClass {
   void mouseMoveTo(const CppArgumentList& args, CppVariant* result);
   void leapForward(const CppArgumentList& args, CppVariant* result);
   void keyDown(const CppArgumentList& args, CppVariant* result);
+  void dispatchMessage(const CppArgumentList& args, CppVariant* result);
   void textZoomIn(const CppArgumentList& args, CppVariant* result);
   void textZoomOut(const CppArgumentList& args, CppVariant* result);
 
@@ -52,6 +53,18 @@ class EventSendingController : public CppBoundClass {
   void fireKeyboardEventsToElement(const CppArgumentList& args, CppVariant* result);
   void clearKillRing(const CppArgumentList& args, CppVariant* result);
   CppVariant dragMode;
+
+  // Properties used in layout tests.
+#if defined(OS_WIN)
+  CppVariant wmKeyDown;
+  CppVariant wmKeyUp;
+  CppVariant wmChar;
+  CppVariant wmDeadChar;
+  CppVariant wmSysKeyDown;
+  CppVariant wmSysKeyUp;
+  CppVariant wmSysChar;
+  CppVariant wmSysDeadChar;
+#endif
 
  private:
   // Returns the test shell's webview.

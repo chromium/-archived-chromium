@@ -11,7 +11,7 @@
 // we queue up all the mouse move and mouse up events.  When the test tries to
 // start a drag (by calling EvenSendingController::DoDragDrop), we take the
 // events in the queue and replay them.
-// The behavior of queueing events and replaying them can be disabled by a
+// The behavior of queuing events and replaying them can be disabled by a
 // layout test by setting eventSender.dragMode to false.
 
 #include "webkit/tools/test_shell/event_sending_controller.h"
@@ -38,7 +38,7 @@ using base::TimeTicks;
 
 TestShell* EventSendingController::shell_ = NULL;
 gfx::Point EventSendingController::last_mouse_pos_;
-WebMouseEvent::Button EventSendingController::pressed_button_ = 
+WebMouseEvent::Button EventSendingController::pressed_button_ =
     WebMouseEvent::BUTTON_NONE;
 
 int EventSendingController::last_button_number_ = -1;
@@ -50,7 +50,7 @@ static bool replaying_saved_events = false;
 static std::queue<WebMouseEvent> mouse_event_queue;
 
 // Time and place of the last mouse up event.
-static double last_click_time_sec = 0;  
+static double last_click_time_sec = 0;
 static gfx::Point last_click_pos;
 static int click_count = 0;
 
@@ -60,7 +60,7 @@ static const double kMultiClickTimeSec = 1;
 static const int kMultiClickRadiusPixels = 5;
 
 inline bool outside_multiclick_radius(const gfx::Point &a, const gfx::Point &b) {
-  return ((a.x() - b.x()) * (a.x() - b.x()) + (a.y() - b.y()) * (a.y() - b.y())) > 
+  return ((a.x() - b.x()) * (a.x() - b.x()) + (a.y() - b.y()) * (a.y() - b.y())) >
     kMultiClickRadiusPixels * kMultiClickRadiusPixels;
 }
 
@@ -123,7 +123,7 @@ void ApplyKeyModifiers(const CppVariant* arg, WebKeyboardEvent* event) {
 }  // anonymous namespace
 
 EventSendingController::EventSendingController(TestShell* shell) {
-  // Set static shell_ variable since we can't do it in an initializer list. 
+  // Set static shell_ variable since we can't do it in an initializer list.
   // We also need to be careful not to assign shell_ to new windows which are
   // temporary.
   if (NULL == shell_)
@@ -139,6 +139,7 @@ EventSendingController::EventSendingController(TestShell* shell) {
   BindMethod("mouseMoveTo", &EventSendingController::mouseMoveTo);
   BindMethod("leapForward", &EventSendingController::leapForward);
   BindMethod("keyDown", &EventSendingController::keyDown);
+  BindMethod("dispatchMessage", &EventSendingController::dispatchMessage);
   BindMethod("enableDOMUIEventLogging", &EventSendingController::enableDOMUIEventLogging);
   BindMethod("fireKeyboardEventsToElement", &EventSendingController::fireKeyboardEventsToElement);
   BindMethod("clearKillRing", &EventSendingController::clearKillRing);
@@ -148,6 +149,16 @@ EventSendingController::EventSendingController(TestShell* shell) {
   // When set to true (the default value), we batch mouse move and mouse up
   // events so we can simulate drag & drop.
   BindProperty("dragMode", &dragMode);
+#if defined(OS_WIN)
+  BindProperty("WM_KEYDOWN", &wmKeyDown);
+  BindProperty("WM_KEYUP", &wmKeyUp);
+  BindProperty("WM_CHAR", &wmChar);
+  BindProperty("WM_DEADCHAR", &wmDeadChar);
+  BindProperty("WM_SYSKEYDOWN", &wmSysKeyDown);
+  BindProperty("WM_SYSKEYUP", &wmSysKeyUp);
+  BindProperty("WM_SYSCHAR", &wmSysChar);
+  BindProperty("WM_SYSDEADCHAR", &wmSysDeadChar);
+#endif
 }
 
 void EventSendingController::Reset() {
@@ -156,6 +167,16 @@ void EventSendingController::Reset() {
   drag_data_object.reset();
   pressed_button_ = WebMouseEvent::BUTTON_NONE;
   dragMode.Set(true);
+#if defined(OS_WIN)
+  wmKeyDown.Set(WM_KEYDOWN);
+  wmKeyUp.Set(WM_KEYUP);
+  wmChar.Set(WM_CHAR);
+  wmDeadChar.Set(WM_DEADCHAR);
+  wmSysKeyDown.Set(WM_SYSKEYDOWN);
+  wmSysKeyUp.Set(WM_SYSKEYUP);
+  wmSysChar.Set(WM_SYSCHAR);
+  wmSysDeadChar.Set(WM_SYSDEADCHAR);
+#endif
   last_click_time_sec = 0;
   click_count = 0;
   last_button_number_ = -1;
@@ -354,7 +375,7 @@ void EventSendingController::keyDown(
 #if defined(OS_LINUX)
     // TODO(deanm): This code is a confusing mix of different platform key
     // codes.  Since we're not working with a GDK event, we can't use our
-    // GDK -> webkit converter, which means the Linux specific extra |text|
+    // GDK -> WebKit converter, which means the Linux specific extra |text|
     // field goes uninitialized.  I don't know how to correctly calculate this
     // field, but for now we will at least initialize it, even if it's wrong.
     event_down.text = code;
@@ -384,6 +405,32 @@ void EventSendingController::keyDown(
   }
 }
 
+void EventSendingController::dispatchMessage(
+    const CppArgumentList& args, CppVariant* result) {
+  result->SetNull();
+
+#if defined(OS_WIN)
+  if (args.size() == 3) {
+    // Grab the message id to see if we need to dispatch it.
+    int msg = args[0].ToInt32();
+
+    // WebKit's version of this function stuffs a MSG struct and uses
+    // TranslateMessage and DispatchMessage. We use a WebKeyboardEvent, which
+    // doesn't need to receive the DeadChar and SysDeadChar messages.
+    if (msg == WM_DEADCHAR || msg == WM_SYSDEADCHAR)
+      return;
+
+    webview()->Layout();
+
+    unsigned long lparam = static_cast<unsigned long>(args[2].ToDouble());
+    WebKeyboardEvent key_event(0, msg, args[1].ToInt32(), lparam);
+    webview()->HandleInputEvent(&key_event);
+  } else {
+    NOTREACHED() << L"Wrong number of arguments";
+  }
+#endif
+}
+
 bool EventSendingController::NeedsShiftModifer(int key_code) {
   // If code is an uppercase letter, assign a SHIFT key to
   // event_down.modifier, this logic comes from
@@ -391,7 +438,7 @@ bool EventSendingController::NeedsShiftModifer(int key_code) {
   if ((key_code & 0xFF) >= 'A' && (key_code & 0xFF) <= 'Z')
     return true;
   return false;
- }
+}
 
 void EventSendingController::leapForward(
     const CppArgumentList& args, CppVariant* result) {
@@ -404,7 +451,7 @@ void EventSendingController::leapForward(
   }
 }
 
-// Apple's port of webkit zooms by a factor of 1.2 (see
+// Apple's port of WebKit zooms by a factor of 1.2 (see
 // WebKit/WebView/WebView.mm)
 void EventSendingController::textZoomIn(
     const CppArgumentList& args, CppVariant* result) {
@@ -435,7 +482,7 @@ void EventSendingController::ReplaySavedEvents() {
         NOTREACHED();
     }
   }
- 
+
   replaying_saved_events = false;
 }
 

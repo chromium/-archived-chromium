@@ -92,9 +92,13 @@ SKIP : LayoutTests/http/tests/webarchive = FAIL PASS
 // Bug 932737
 LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 
-// Mac-specific stuff
-// Run the platform/mac* tests, but only to check for crashes.
-LayoutTests/platform = FAIL PASS
+// Run the Mac-specific platform tests, but only to check for crashes.
+LayoutTests/platform/gtk = FAIL PASS
+LayoutTests/platform/mac = FAIL PASS
+LayoutTests/platform/mac-leopard = FAIL PASS
+LayoutTests/platform/mac-snowleopard = FAIL PASS
+LayoutTests/platform/mac-tiger = FAIL PASS
+LayoutTests/platform/qt = FAIL PASS
 
 // Ignored because we do not have OBJC bindings
 SKIP : LayoutTests/editing/pasteboard/paste-RTFD.html = FAIL

@@ -257,6 +257,50 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
 
 // WebKeyboardEvent -----------------------------------------------------------
 
+bool IsKeyPad(WPARAM wparam, LPARAM lparam) {
+  bool keypad = false;
+  switch (wparam) {
+    case VK_RETURN:
+      keypad = (lparam >> 16) & KF_EXTENDED;
+      break;
+    case VK_INSERT:
+    case VK_DELETE:
+    case VK_HOME:
+    case VK_END:
+    case VK_PRIOR:
+    case VK_NEXT:
+    case VK_UP:
+    case VK_DOWN:
+    case VK_LEFT:
+    case VK_RIGHT:
+      keypad = !((lparam >> 16) & KF_EXTENDED);
+      break;
+    case VK_NUMLOCK:
+    case VK_NUMPAD0:
+    case VK_NUMPAD1:
+    case VK_NUMPAD2:
+    case VK_NUMPAD3:
+    case VK_NUMPAD4:
+    case VK_NUMPAD5:
+    case VK_NUMPAD6:
+    case VK_NUMPAD7:
+    case VK_NUMPAD8:
+    case VK_NUMPAD9:
+    case VK_DIVIDE:
+    case VK_MULTIPLY:
+    case VK_SUBTRACT:
+    case VK_ADD:
+    case VK_DECIMAL:
+    case VK_CLEAR:
+      keypad = true;
+      break;
+    default:
+      keypad = false;
+  }
+
+  return keypad;
+}
+
 WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
                                    LPARAM lparam) {
   system_key = false;
@@ -289,7 +333,7 @@ WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
       type = CHAR;
       break;
     default:
-      NOTREACHED() << "unexpected native message";
+      NOTREACHED() << "unexpected native message: " << message;
   }
 
   if (GetKeyState(VK_SHIFT) & 0x8000)
@@ -301,7 +345,7 @@ WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
 
   if (LOWORD(lparam) > 1)
     modifiers |= IS_AUTO_REPEAT;
-
-  // TODO(darin): figure out if we should set IS_KEYPAD
+  if (IsKeyPad(wparam, lparam))
+    modifiers |= IS_KEYPAD;
 }
 
