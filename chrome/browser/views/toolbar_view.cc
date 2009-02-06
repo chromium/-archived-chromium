@@ -36,6 +36,9 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 #include "chrome/views/background.h"
 #include "chrome/views/button_dropdown.h"
 #include "chrome/views/hwnd_view.h"
@@ -592,6 +595,10 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
   menu.AppendMenuItemWithLabel(IDC_SHOW_DOWNLOADS,
                                l10n_util::GetString(IDS_SHOW_DOWNLOADS));
   menu.AppendSeparator();
+#ifdef CHROME_PERSONALIZATION
+  menu.AppendMenuItemWithLabel(IDC_P13N_INFO,
+                               Personalization::GetMenuItemInfoText(browser()));
+#endif
   menu.AppendMenuItemWithLabel(IDC_CLEAR_BROWSING_DATA,
                                l10n_util::GetString(IDS_CLEAR_BROWSING_DATA));
   menu.AppendMenuItemWithLabel(IDC_IMPORT_SETTINGS,

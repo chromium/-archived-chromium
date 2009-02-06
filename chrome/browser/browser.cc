@@ -19,6 +19,9 @@
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 #include "net/base/cookie_monster.h"
 #include "net/base/cookie_policy.h"
 #include "net/base/net_util.h"
@@ -1185,6 +1188,10 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SHOW_HISTORY:          ShowHistoryTab();              break;
     case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;
     case IDC_SHOW_DOWNLOADS:        ShowDownloadsTab();            break;
+#ifdef CHROME_PERSONALIZATION
+    case IDC_P13N_INFO:
+      Personalization::HandleMenuItemClick(profile());             break;
+#endif
     case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
     case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
     case IDC_OPTIONS:               OpenOptionsDialog();           break;
