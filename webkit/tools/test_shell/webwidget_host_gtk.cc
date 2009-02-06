@@ -7,6 +7,7 @@
 #include <cairo/cairo.h>
 #include <gtk/gtk.h>
 
+#include "base/basictypes.h"
 #include "base/logging.h"
 #include "skia/ext/bitmap_platform_device_linux.h"
 #include "skia/ext/platform_canvas_linux.h"
@@ -23,105 +24,110 @@ namespace {
 // this sort of thing (reasonably) assume that the positioning of the children
 // will be handled by the parent, which isn't the case for us where WebKit
 // drives everything.  So we create a custom widget that is just a GtkContainer
-// that contains a native window.
-
-// Sends a "configure" event to the widget, allowing it to repaint.
-// Used internally by the WebWidgetHostGtk implementation.
-void WebWidgetHostGtkSendConfigure(GtkWidget* widget) {
-  GdkEvent* event = gdk_event_new(GDK_CONFIGURE);
-  // This ref matches GtkDrawingArea code.  It must be balanced by the
-  // event-handling code.
-  g_object_ref(widget->window);
-  event->configure.window = widget->window;
-  event->configure.send_event = TRUE;
-  event->configure.x = widget->allocation.x;
-  event->configure.y = widget->allocation.y;
-  event->configure.width = widget->allocation.width;
-  event->configure.height = widget->allocation.height;
-  gtk_widget_event(widget, event);
-  gdk_event_free(event);
-}
-
-// Implementation of the "realize" event for the custom WebWidgetHostGtk
-// widget.  Creates an X window.  (Nearly identical to GtkDrawingArea code.)
-void WebWidgetHostGtkRealize(GtkWidget* widget) {
-  GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
-
-  GdkWindowAttr attributes;
-  attributes.window_type = GDK_WINDOW_CHILD;
-  attributes.x = widget->allocation.x;
-  attributes.y = widget->allocation.y;
-  attributes.width = widget->allocation.width;
-  attributes.height = widget->allocation.height;
-  attributes.wclass = GDK_INPUT_OUTPUT;
-  attributes.visual = gtk_widget_get_visual(widget);
-  attributes.colormap = gtk_widget_get_colormap(widget);
-  attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK;
-  int attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
-
-  widget->window = gdk_window_new(gtk_widget_get_parent_window(widget),
-                                  &attributes, attributes_mask);
-  gdk_window_set_user_data(widget->window, widget);
-
-  WebWidgetHostGtkSendConfigure(widget);
-}
-
-// Implementation of the "size-allocate" event for the custom WebWidgetHostGtk
-// widget.  Resizes the window.  (Nearly identical to GtkDrawingArea code.)
-void WebWidgetHostGtkSizeAllocate(GtkWidget* widget,
-                                  GtkAllocation* allocation) {
-  widget->allocation = *allocation;
-  if (!GTK_WIDGET_REALIZED(widget)) {
-    // We don't have a window yet, so nothing to do.
-    return;
+// that contains a native window.  This class is just a collection of static
+// methods, which implement the GTK functions for the container.
+class CustomGtkContainer {
+ public:
+  // Create a new instance of our GTK widget object.
+  static GtkWidget* CreateNewWidget() {
+    return GTK_WIDGET(g_object_new(GetType(), NULL));
   }
 
-  gdk_window_move_resize(widget->window,
-                         allocation->x, allocation->y,
-                         allocation->width, allocation->height);
-
-  WebWidgetHostGtkSendConfigure(widget);
-}
-
-// Implementation of "remove" for our GtkContainer subclass.
-// This called when plugins shut down.  We can just ignore it.
-void WebWidgetHostGtkRemove(GtkContainer* container, GtkWidget* widget) {
-  // Do nothing.
-}
-
-// Implementation of the class init function for WebWidgetHostGtk.
-void WebWidgetHostGtkClassInit(GtkContainerClass* container_class) {
-  GtkWidgetClass* widget_class =
-      reinterpret_cast<GtkWidgetClass*>(container_class);
-  widget_class->realize = WebWidgetHostGtkRealize;
-  widget_class->size_allocate = WebWidgetHostGtkSizeAllocate;
-
-  container_class->remove = WebWidgetHostGtkRemove;
-}
-
-// Constructs the GType for the custom Gtk widget.
-// (Gtk boilerplate, basically.)
-GType WebWidgetHostGtkGetType() {
-  static GType type = 0;
-  if (!type) {
-    static const GTypeInfo info = {
-      sizeof(GtkContainerClass),
-      NULL, NULL,
-      (GClassInitFunc)WebWidgetHostGtkClassInit,
-      NULL, NULL,
-      sizeof(GtkContainer),  // We are identical in memory to a GtkContainer.
-      0, NULL,
-    };
-    type = g_type_register_static(GTK_TYPE_CONTAINER, "WebWidgetHostGtk",
-                                  &info, (GTypeFlags)0);
+ private:
+  // Create and register our custom container type with GTK.
+  static GType GetType() {
+    static GType type = 0;  // We only want to register our type once.
+    if (!type) {
+      static const GTypeInfo info = {
+        sizeof(GtkContainerClass),
+        NULL, NULL,
+        static_cast<GClassInitFunc>(&ClassInit),
+        NULL, NULL,
+        sizeof(GtkContainer),  // We are identical in memory to a GtkContainer.
+        0, NULL,
+      };
+      type = g_type_register_static(GTK_TYPE_CONTAINER, "WebWidgetHostGtk",
+                                    &info, static_cast<GTypeFlags>(0));
+    }
+    return type;
   }
-  return type;
-}
 
-// Create a new WebWidgetHostGtk.
-GtkWidget* WebWidgetHostGtkNew() {
-  return GTK_WIDGET(g_object_new(WebWidgetHostGtkGetType(), NULL));
-}
+  // Implementation of the class initializer.
+  static void ClassInit(gpointer klass, gpointer class_data_unusued) {
+    GtkWidgetClass* widget_class = reinterpret_cast<GtkWidgetClass*>(klass);
+    GtkContainerClass* container_class =
+        reinterpret_cast<GtkContainerClass*>(klass);
+
+    widget_class->realize = &HandleRealize;
+    widget_class->size_allocate = &HandleSizeAllocate;
+    container_class->remove = &HandleRemove;
+  }
+
+  // Implementation of the "realize" event.  Creates an X window.
+  // (Nearly identical to GtkDrawingArea code.)
+  static void HandleRealize(GtkWidget* widget) {
+    GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
+
+    GdkWindowAttr attributes;
+    attributes.window_type = GDK_WINDOW_CHILD;
+    attributes.x = widget->allocation.x;
+    attributes.y = widget->allocation.y;
+    attributes.width = widget->allocation.width;
+    attributes.height = widget->allocation.height;
+    attributes.wclass = GDK_INPUT_OUTPUT;
+    attributes.visual = gtk_widget_get_visual(widget);
+    attributes.colormap = gtk_widget_get_colormap(widget);
+    attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK;
+    int attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+
+    widget->window = gdk_window_new(gtk_widget_get_parent_window(widget),
+                                    &attributes, attributes_mask);
+    gdk_window_set_user_data(widget->window, widget);
+
+    SendConfigureMessage(widget);
+  }
+
+  // Implementation of the "size-allocate" event.  Resizes the window.
+  // (Nearly identical to GtkDrawingArea code.)
+  static void HandleSizeAllocate(GtkWidget* widget,
+                                 GtkAllocation* allocation) {
+    widget->allocation = *allocation;
+    if (!GTK_WIDGET_REALIZED(widget)) {
+      // We don't have a window yet, so nothing to do.
+      return;
+    }
+
+    gdk_window_move_resize(widget->window,
+                           allocation->x, allocation->y,
+                           allocation->width, allocation->height);
+
+    SendConfigureMessage(widget);
+  }
+
+  // Implementation of "remove" event.  This called when plugins shut down.
+  // We can just ignore it.
+  static void HandleRemove(GtkContainer* container, GtkWidget* widget) {
+    // Do nothing.
+  }
+
+  // Sends a "configure" event to the widget, allowing it to repaint.
+  static void SendConfigureMessage(GtkWidget* widget) {
+    GdkEvent* event = gdk_event_new(GDK_CONFIGURE);
+    // This ref matches GtkDrawingArea code.  It must be balanced by the
+    // event-handling code.
+    g_object_ref(widget->window);
+    event->configure.window = widget->window;
+    event->configure.send_event = TRUE;
+    event->configure.x = widget->allocation.x;
+    event->configure.y = widget->allocation.y;
+    event->configure.width = widget->allocation.width;
+    event->configure.height = widget->allocation.height;
+    gtk_widget_event(widget, event);
+    gdk_event_free(event);
+  }
+
+  DISALLOW_IMPLICIT_CONSTRUCTORS(CustomGtkContainer);
+};
 
 // In response to an invalidation, we call into WebKit to do layout. On
 // Windows, WM_PAINT is a virtual message so any extra invalidates that come up
@@ -221,13 +227,10 @@ gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
   return FALSE;
 }
 
-}  // anonymous namespace
+}  // namespace
 
-// -----------------------------------------------------------------------------
-
-GtkWidget* WebWidgetHost::CreateWindow(GtkWidget* parent_view,
-                                       void* host) {
-  GtkWidget* widget = WebWidgetHostGtkNew();
+GtkWidget* WebWidgetHost::CreateWindow(GtkWidget* parent_view, void* host) {
+  GtkWidget* widget = CustomGtkContainer::CreateNewWidget();
 
   gtk_box_pack_start(GTK_BOX(parent_view), widget, TRUE, TRUE, 0);
 
