@@ -762,7 +762,6 @@ if not env.Bit('windows'):
       'tab_contents/tab_contents_factory.cc',
       'tab_contents/tab_util.cc',
       'tab_contents/view_source_contents.cc',
-      'tab_contents/web_contents_view.cc',
       'tab_contents/web_drag_source.cc',
       'tab_contents/web_drop_target.cc',
       'task_manager.cc',
@@ -803,11 +802,13 @@ if env.Bit('linux'):
       'browser_window_factory_gtk.cc',
       'browser_window_gtk.cc',
       'renderer_host/render_widget_host_view_gtk.cc',
+      'tab_contents/web_contents_view_gtk.cc',
   ])
 
 if env.Bit('mac'):
   input_files.Remove(
       'spellchecker.cc',
+      'tab_contents/web_contents_view.cc',
   )
 
 if env.Bit('windows'):

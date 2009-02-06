@@ -4,9 +4,9 @@
 
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
 
-#if defined(OS_POSIX)
+#if defined(OS_MACOSX)
 #include "chrome/common/temp_scaffolding_stubs.h"
-#elif defined(OS_WIN)
+#else
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #endif
 

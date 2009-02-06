@@ -78,6 +78,8 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 
 RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget)
     : widget_(widget) {
+  widget_->set_view(this);
+
   view_ = gtk_drawing_area_new();
 
   gtk_widget_add_events(view_, GDK_EXPOSURE_MASK |
@@ -222,3 +224,4 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
     NOTIMPLEMENTED();
   }
 }
+

@@ -47,15 +47,19 @@
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
 #include "chrome/common/resource_bundle.h"
 #endif
 
 #include "generated_resources.h"
+
+#if !defined(OS_MACOSX)
+// TODO(port): port this to mac.
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
+#endif
 
 // Cross-Site Navigations
 //

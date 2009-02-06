@@ -620,6 +620,7 @@ class ConfirmInfoBarDelegate : public InfoBarDelegate {
   };
 };
 
+#if defined(OS_MACOSX)
 class RenderWidgetHostView {
  public:
   virtual RenderWidgetHost* GetRenderWidgetHost() const {
@@ -650,6 +651,7 @@ class RenderWidgetHostView {
   virtual void Destroy() { NOTIMPLEMENTED(); }
   virtual void SetTooltipText(const std::wstring&) { NOTIMPLEMENTED(); }
 };
+#endif  // defined(MAC_OSX)
 
 class LoadNotificationDetails {
  public:
@@ -926,6 +928,7 @@ class URLFixerUpper {
 //---------------------------------------------------------------------------
 // These stubs are for WebContents
 
+#if defined(OS_MACOSX)
 class WebContentsView : public RenderViewHostDelegate::View {
  public:
   void OnContentsDestroy() { NOTIMPLEMENTED(); }
@@ -971,6 +974,7 @@ class WebContentsViewWin : public WebContentsView {
  public:
   WebContentsViewWin(WebContents*) { }
 };
+#endif  // defined(OS_MACOSX)
 
 class WebApp : public base::RefCountedThreadSafe<WebApp> {
  public:

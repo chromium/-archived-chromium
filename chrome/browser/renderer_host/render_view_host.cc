@@ -32,6 +32,9 @@
 #if defined(OS_WIN)
 // TODO(port): remove these when stubs are filled in
 #include "chrome/browser/debugger/debugger_wrapper.h"
+#endif
+
+#if !defined(OS_MACOSX)
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #endif
 

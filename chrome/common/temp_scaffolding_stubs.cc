@@ -213,6 +213,7 @@ void TabContents::Destroy() {
 
 //--------------------------------------------------------------------------
 
+#if defined(OS_MACOSX)
 class RenderWidgetHostViewStub : public RenderWidgetHostView {
  public:
   RenderWidgetHostViewStub(RenderWidgetHost* host) {
@@ -225,6 +226,7 @@ RenderWidgetHostView*
   NOTIMPLEMENTED();
   return new RenderWidgetHostViewStub(host);
 }
+#endif  // defined(OS_MACOSX)
 
 //--------------------------------------------------------------------------
 
