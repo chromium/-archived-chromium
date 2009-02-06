@@ -125,10 +125,18 @@ class ScopedHostMapper {
     current_host_mapper_->set_previous_mapper(previous_host_mapper_.get());
   }
 
+  ScopedHostMapper() {}
+
   ~ScopedHostMapper() {
     HostMapper* old_mapper = SetHostMapper(previous_host_mapper_.get());
     // The lifetimes of multiple instances must be nested.
     CHECK(old_mapper == current_host_mapper_.get());
+  }
+
+  void Init(HostMapper* mapper) {
+    current_host_mapper_ = mapper;
+    previous_host_mapper_ = SetHostMapper(current_host_mapper_.get());
+    current_host_mapper_->set_previous_mapper(previous_host_mapper_.get());
   }
 
  private:

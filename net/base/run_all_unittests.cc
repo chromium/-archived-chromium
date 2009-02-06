@@ -34,18 +34,18 @@
 
 class NetTestSuite : public TestSuite {
  public:
-  NetTestSuite(int argc, char** argv)
-      : TestSuite(argc, argv),
-        host_mapper_(new net::RuleBasedHostMapper()),
-        scoped_host_mapper_(host_mapper_.get()) {
-    // In case any attempts are made to resolve host names, force them all to
-    // be mapped to localhost.  This prevents DNS queries from being sent in
-    // the process of running these unit tests.
-    host_mapper_->AddRule("*", "127.0.0.1");
+  NetTestSuite(int argc, char** argv) : TestSuite(argc, argv) {
   }
 
   virtual void Initialize() {
     TestSuite::Initialize();
+
+    host_mapper_ = new net::RuleBasedHostMapper();
+    scoped_host_mapper_.Init(host_mapper_.get());
+    // In case any attempts are made to resolve host names, force them all to
+    // be mapped to localhost.  This prevents DNS queries from being sent in
+    // the process of running these unit tests.
+    host_mapper_->AddRule("*", "127.0.0.1");
 
     message_loop_.reset(new MessageLoopForIO());
   }
