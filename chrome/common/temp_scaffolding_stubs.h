@@ -1142,22 +1142,6 @@ class SimpleAlertInfoBarDelegate : public InfoBarDelegate {
   SimpleAlertInfoBarDelegate(WebContents*, const std::wstring&, void*) {}
 };
 
-class CertStore {
- public:
-  static CertStore* GetInstance() {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  static CertStore* GetSharedInstance() {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  int StoreCert(net::X509Certificate* cert, int render_process_host_id) {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-};
-
 class LoginHandler {
  public:
   void SetAuth(const std::wstring& username,
