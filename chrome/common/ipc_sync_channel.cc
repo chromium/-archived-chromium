@@ -309,6 +309,7 @@ void SyncChannel::SyncContext::OnMessageReceived(const Message& msg) {
 
 void SyncChannel::SyncContext::OnChannelError() {
   CancelPendingSends();
+  shutdown_watcher_.StopWatching();
   Context::OnChannelError();
 }
 

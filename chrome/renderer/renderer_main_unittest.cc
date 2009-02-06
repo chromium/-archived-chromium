@@ -101,14 +101,7 @@ TEST_F(RendererMainTest, CreateDestroy) {
   // The renderer should exit when we close the channel.
   control_channel.Close();
 
-  // TODO(playmobil): Remove this.
-  // The renderer should shut down automatically when the Channel is closed
-  // but there are still issues with this, leave in the kill for bringup.
-  base::KillProcess(renderer_pid, 9, true);
-
-  // TODO(playmobil): Enable this.
-  // see comment above KillProcess()
-  // EXPECT_TRUE(base::WaitForSingleProcess(renderer_pid, 5000));
+  EXPECT_TRUE(base::WaitForSingleProcess(renderer_pid, 5000));
 }
 
 #endif  // defined(OS_MACOSX)
