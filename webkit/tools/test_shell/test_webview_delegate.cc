@@ -384,12 +384,12 @@ void TestWebViewDelegate::AddMessageToConsole(WebView* webview,
                                               unsigned int line_no,
                                               const std::wstring& source_id) {
   if (!shell_->layout_test_mode()) {
-    logging::LogMessage("CONSOLE", 0).stream() << "\"" 
-                                               << message.c_str() 
-                                               << ",\" source: " 
-                                               << source_id.c_str() 
-                                               << "(" 
-                                               << line_no 
+    logging::LogMessage("CONSOLE", 0).stream() << "\""
+                                               << message.c_str()
+                                               << ",\" source: "
+                                               << source_id.c_str()
+                                               << "("
+                                               << line_no
                                                << ")";
   } else {
     // This matches win DumpRenderTree's UIDelegate.cpp.
@@ -443,6 +443,15 @@ bool TestWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
   return false;
 }
 
+void TestWebViewDelegate::SetStatusbarText(WebView* webview,
+                                           const std::wstring& message) {
+  if (webkit_glue::IsLayoutTestMode() &&
+      shell_->layout_test_controller()->ShouldDumpStatusCallbacks()) {
+    // When running tests, write to stdout.
+    printf("UI DELEGATE STATUS CALLBACK: setStatusText:%S\n", message.c_str());
+  }
+}
+
 void TestWebViewDelegate::StartDragging(WebView* webview,
                                         const WebDropData& drop_data) {
   if (webkit_glue::IsLayoutTestMode()) {
@@ -488,28 +497,28 @@ void TestWebViewDelegate::ShowContextMenu(WebView* webview,
 
 // The output from these methods in layout test mode should match that
 // expected by the layout tests.  See EditingDelegate.m in DumpRenderTree.
-bool TestWebViewDelegate::ShouldBeginEditing(WebView* webview, 
+bool TestWebViewDelegate::ShouldBeginEditing(WebView* webview,
                                              std::wstring range) {
   if (shell_->ShouldDumpEditingCallbacks()) {
     std::string utf8 = WideToUTF8(range);
-    printf("EDITING DELEGATE: shouldBeginEditingInDOMRange:%s\n", 
+    printf("EDITING DELEGATE: shouldBeginEditingInDOMRange:%s\n",
            utf8.c_str());
   }
   return shell_->AcceptsEditing();
 }
 
-bool TestWebViewDelegate::ShouldEndEditing(WebView* webview, 
+bool TestWebViewDelegate::ShouldEndEditing(WebView* webview,
                                            std::wstring range) {
   if (shell_->ShouldDumpEditingCallbacks()) {
     std::string utf8 = WideToUTF8(range);
-    printf("EDITING DELEGATE: shouldEndEditingInDOMRange:%s\n", 
+    printf("EDITING DELEGATE: shouldEndEditingInDOMRange:%s\n",
            utf8.c_str());
   }
   return shell_->AcceptsEditing();
 }
 
-bool TestWebViewDelegate::ShouldInsertNode(WebView* webview, 
-                                           std::wstring node, 
+bool TestWebViewDelegate::ShouldInsertNode(WebView* webview,
+                                           std::wstring node,
                                            std::wstring range,
                                            std::wstring action) {
   if (shell_->ShouldDumpEditingCallbacks()) {
@@ -517,14 +526,14 @@ bool TestWebViewDelegate::ShouldInsertNode(WebView* webview,
     std::string utf8_range = WideToUTF8(range);
     std::string utf8_action = WideToUTF8(action);
     printf("EDITING DELEGATE: shouldInsertNode:%s "
-               "replacingDOMRange:%s givenAction:%s\n", 
+               "replacingDOMRange:%s givenAction:%s\n",
            utf8_node.c_str(), utf8_range.c_str(), utf8_action.c_str());
   }
   return shell_->AcceptsEditing();
 }
 
-bool TestWebViewDelegate::ShouldInsertText(WebView* webview, 
-                                           std::wstring text, 
+bool TestWebViewDelegate::ShouldInsertText(WebView* webview,
+                                           std::wstring text,
                                            std::wstring range,
                                            std::wstring action) {
   if (shell_->ShouldDumpEditingCallbacks()) {
@@ -532,32 +541,32 @@ bool TestWebViewDelegate::ShouldInsertText(WebView* webview,
     std::string utf8_range = WideToUTF8(range);
     std::string utf8_action = WideToUTF8(action);
     printf("EDITING DELEGATE: shouldInsertText:%s "
-               "replacingDOMRange:%s givenAction:%s\n", 
+               "replacingDOMRange:%s givenAction:%s\n",
            utf8_text.c_str(), utf8_range.c_str(), utf8_action.c_str());
   }
   return shell_->AcceptsEditing();
 }
 
-bool TestWebViewDelegate::ShouldChangeSelectedRange(WebView* webview, 
-                                                    std::wstring fromRange, 
-                                                    std::wstring toRange, 
-                                                    std::wstring affinity, 
+bool TestWebViewDelegate::ShouldChangeSelectedRange(WebView* webview,
+                                                    std::wstring fromRange,
+                                                    std::wstring toRange,
+                                                    std::wstring affinity,
                                                     bool stillSelecting) {
   if (shell_->ShouldDumpEditingCallbacks()) {
     std::string utf8_from = WideToUTF8(fromRange);
     std::string utf8_to = WideToUTF8(toRange);
     std::string utf8_affinity = WideToUTF8(affinity);
     printf("EDITING DELEGATE: shouldChangeSelectedDOMRange:%s "
-               "toDOMRange:%s affinity:%s stillSelecting:%s\n", 
-           utf8_from.c_str(), 
-           utf8_to.c_str(), 
+               "toDOMRange:%s affinity:%s stillSelecting:%s\n",
+           utf8_from.c_str(),
+           utf8_to.c_str(),
            utf8_affinity.c_str(),
            (stillSelecting ? "TRUE" : "FALSE"));
   }
   return shell_->AcceptsEditing();
 }
 
-bool TestWebViewDelegate::ShouldDeleteRange(WebView* webview, 
+bool TestWebViewDelegate::ShouldDeleteRange(WebView* webview,
                                             std::wstring range) {
   if (shell_->ShouldDumpEditingCallbacks()) {
     std::string utf8 = WideToUTF8(range);
@@ -566,13 +575,13 @@ bool TestWebViewDelegate::ShouldDeleteRange(WebView* webview,
   return shell_->AcceptsEditing();
 }
 
-bool TestWebViewDelegate::ShouldApplyStyle(WebView* webview, 
+bool TestWebViewDelegate::ShouldApplyStyle(WebView* webview,
                                            std::wstring style,
                                            std::wstring range) {
   if (shell_->ShouldDumpEditingCallbacks()) {
     std::string utf8_style = WideToUTF8(style);
     std::string utf8_range = WideToUTF8(range);
-    printf("EDITING DELEGATE: shouldApplyStyle:%s toElementsInDOMRange:%s\n", 
+    printf("EDITING DELEGATE: shouldApplyStyle:%s toElementsInDOMRange:%s\n",
            utf8_style.c_str(), utf8_range.c_str());
   }
   return shell_->AcceptsEditing();
@@ -600,7 +609,7 @@ void TestWebViewDelegate::SetSelectTrailingWhitespaceEnabled(bool enabled) {
   // allows both.
 }
 
-void TestWebViewDelegate::DidBeginEditing() { 
+void TestWebViewDelegate::DidBeginEditing() {
   if (shell_->ShouldDumpEditingCallbacks()) {
     printf("EDITING DELEGATE: "
            "webViewDidBeginEditing:WebViewDidBeginEditingNotification\n");

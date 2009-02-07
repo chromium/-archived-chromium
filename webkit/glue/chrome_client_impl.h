@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_CHROME_CLIENT_IMPL_H__
-#define WEBKIT_GLUE_CHROME_CLIENT_IMPL_H__
+#ifndef WEBKIT_GLUE_CHROME_CLIENT_IMPL_H_
+#define WEBKIT_GLUE_CHROME_CLIENT_IMPL_H_
 
 #include "base/compiler_specific.h"
 
@@ -21,7 +21,7 @@ struct WindowFeatures;
 
 // Handles window-level notifications from WebCore on behalf of a WebView.
 class ChromeClientImpl : public WebCore::ChromeClientChromium {
-public:
+ public:
   ChromeClientImpl(WebViewImpl* webview);
   virtual ~ChromeClientImpl();
 
@@ -81,7 +81,7 @@ public:
                                    const WebCore::String& defaultValue,
                                    WebCore::String& result);
 
-  virtual void setStatusbarText(const WebCore::String&);
+  virtual void setStatusbarText(const WebCore::String& message);
   virtual bool shouldInterruptJavaScript();
 
   // Returns true if anchors should accept keyboard focus with the tab key.
@@ -127,7 +127,7 @@ public:
 
   virtual void formStateDidChange(const WebCore::Node*);
 
-private:
+ private:
   WebViewImpl* webview_;  // weak pointer
   bool toolbars_visible_;
   bool statusbar_visible_;
@@ -138,5 +138,4 @@ private:
   bool ignore_next_set_cursor_;
 };
 
-#endif // WEBKIT_GLUE_CHROME_CLIENT_IMPL_H__
-
+#endif  // WEBKIT_GLUE_CHROME_CLIENT_IMPL_H_
