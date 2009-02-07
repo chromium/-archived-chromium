@@ -21,3 +21,6 @@ WMIUtilTest.*
 
 # see issue 7412
 ScopedTempDir.*
+
+# see issue 7477
+ObserverListThreadSafeTest.CrossThreadObserver
