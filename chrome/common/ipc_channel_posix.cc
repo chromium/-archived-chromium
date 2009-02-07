@@ -400,7 +400,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
     }
 
     // a pointer to an array of |num_wire_fds| file descriptors from the read
-    const int* wire_fds;
+    const int* wire_fds = NULL;
     unsigned num_wire_fds = 0;
 
     // walk the list of control messages and, if we find an array of file

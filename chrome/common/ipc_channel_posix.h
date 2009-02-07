@@ -80,7 +80,12 @@ class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
   };
 
   // This is a control message buffer large enough to hold kMaxReadFDs
+#if defined(OS_MACOSX)
+  // TODO(agl): OSX appears to have non-constant CMSG macros!
+  char input_cmsg_buf_[1024];
+#else
   char input_cmsg_buf_[CMSG_SPACE(sizeof(int) * MAX_READ_FDS)];
+#endif
 
   // Large messages that span multiple pipe buffers, get built-up using
   // this buffer.
