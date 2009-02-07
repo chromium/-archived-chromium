@@ -7,10 +7,14 @@
 
 #include "chrome/common/ipc_channel.h"
 
+#include <sys/socket.h>  // for CMSG macros
+
 #include <queue>
 #include <string>
+#include <vector>
 
 #include "base/message_loop.h"
+#include "chrome/common/file_descriptor_posix.h"
 
 namespace IPC {
 
@@ -68,9 +72,20 @@ class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
   // We read from the pipe into this buffer
   char input_buf_[Channel::kReadBufferSize];
 
+  enum {
+    // We assume a worst case: kReadBufferSize bytes of messages, where each
+    // message has no payload and a full complement of descriptors.
+    MAX_READ_FDS = (Channel::kReadBufferSize / sizeof(IPC::Message::Header)) *
+                   DescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE,
+  };
+
+  // This is a control message buffer large enough to hold kMaxReadFDs
+  char input_cmsg_buf_[CMSG_SPACE(sizeof(int) * MAX_READ_FDS)];
+
   // Large messages that span multiple pipe buffers, get built-up using
   // this buffer.
   std::string input_overflow_buf_;
+  std::vector<int> input_overflow_fds_;
 
   // In server-mode, we have to wait for the client to connect before we
   // can begin reading.  We make use of the input_state_ when performing

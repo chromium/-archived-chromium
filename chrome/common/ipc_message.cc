@@ -5,6 +5,7 @@
 #include "chrome/common/ipc_message.h"
 
 #include "base/logging.h"
+#include "build/build_config.h"
 
 namespace IPC {
 
@@ -16,6 +17,9 @@ Message::~Message() {
 Message::Message()
     : Pickle(sizeof(Header)) {
   header()->routing = header()->type = header()->flags = 0;
+#if defined(OS_POSIX)
+  header()->num_fds = 0;
+#endif
   InitLoggingVariables();
 }
 
@@ -24,6 +28,9 @@ Message::Message(int32 routing_id, uint16 type, PriorityValue priority)
   header()->routing = routing_id;
   header()->type = type;
   header()->flags = priority;
+#if defined(OS_POSIX)
+  header()->num_fds = 0;
+#endif
   InitLoggingVariables();
 }
 

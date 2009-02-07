@@ -16,6 +16,8 @@
 #ifndef NDEBUG
 #define IPC_MESSAGE_LOG_ENABLED
 #endif
+#elif defined(OS_POSIX)
+#include "chrome/common/file_descriptor_posix.h"
 #endif
 
 namespace IPC {
@@ -159,6 +161,10 @@ class Message : public Pickle {
     return Pickle::FindNext(sizeof(Header), range_start, range_end);
   }
 
+#if defined(OS_POSIX)
+  DescriptorSet* descriptor_set() const { return &descriptor_set_; }
+#endif
+
 #ifdef IPC_MESSAGE_LOG_ENABLED
   // Adds the outgoing time from Time::Now() at the end of the message and sets
   // a bit to indicate that it's been added.
@@ -201,9 +207,12 @@ class Message : public Pickle {
 
 #pragma pack(push, 2)
   struct Header : Pickle::Header {
-    int32 routing; // ID of the view that this message is destined for
-    uint16 type;   // specifies the user-defined message type
-    uint16 flags;  // specifies control flags for the message
+    int32 routing;  // ID of the view that this message is destined for
+    uint16 type;    // specifies the user-defined message type
+    uint16 flags;   // specifies control flags for the message
+#if defined(OS_POSIX)
+    uint32 num_fds; // the number of descriptors included with this message
+#endif
   };
 #pragma pack(pop)
 
@@ -215,6 +224,11 @@ class Message : public Pickle {
   }
 
   void InitLoggingVariables();
+
+#if defined(OS_POSIX)
+  // The set of file descriptors associated with this message.
+  mutable DescriptorSet descriptor_set_;
+#endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
   // Used for logging.

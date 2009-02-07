@@ -218,7 +218,8 @@ input_files = ChromeFileList([
 if not env.Bit('windows'):
   # TODO(port): This is temporary so we can link.
   input_files.Append(
-      'temp_scaffolding_stubs.cc'
+      'temp_scaffolding_stubs.cc',
+      'file_descriptor_posix.cc',
   )
 
   # TODO(port): Port these.

@@ -12,6 +12,9 @@
 #include "base/file_path.h"
 #include "base/string_util.h"
 #include "base/tuple.h"
+#if defined(OS_POSIX)
+#include "chrome/common/file_descriptor_posix.h"
+#endif
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
 #include "webkit/glue/cache_manager.h"
@@ -661,6 +664,35 @@ struct ParamTraits<gfx::Size> {
   static bool Read(const Message* m, void** iter, param_type* r);
   static void Log(const param_type& p, std::wstring* l);
 };
+
+#if defined(OS_POSIX)
+
+template<>
+struct ParamTraits<FileDescriptor> {
+  typedef FileDescriptor param_type;
+  static void Write(Message* m, const param_type& p) {
+    if (p.auto_close) {
+      m->descriptor_set()->AddAndAutoClose(p.fd);
+    } else {
+      m->descriptor_set()->Add(p.fd);
+    }
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    r->auto_close = false;
+    r->fd = m->descriptor_set()->NextDescriptor();
+
+    return r->fd >= 0;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    if (p.auto_close) {
+      l->append(StringPrintf(L"FD(%d auto-close)", p.fd));
+    } else {
+      l->append(StringPrintf(L"FD(%d)", p.fd));
+    }
+  }
+};
+
+#endif // defined(OS_POSIX)
 
 template<>
 struct ParamTraits<ThumbnailScore> {

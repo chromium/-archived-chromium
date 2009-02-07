@@ -12,6 +12,7 @@
 // a client reflector and a IPC server used for fuzzing tests.
 enum ChildType {
   TEST_CLIENT,
+  TEST_DESCRIPTOR_CLIENT,
   TEST_REFLECTOR,
   FUZZER_SERVER
 };
