@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/message_loop.h"
+#include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/timer.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -26,6 +27,26 @@ class OneShotTimerTester {
   }
   bool* did_run_;
   base::OneShotTimer<OneShotTimerTester> timer_;
+};
+
+class OneShotSelfDeletingTimerTester {
+ public:
+  OneShotSelfDeletingTimerTester(bool* did_run) :
+      did_run_(did_run),
+      timer_(new base::OneShotTimer<OneShotSelfDeletingTimerTester>()) {
+  }
+  void Start() {
+    timer_->Start(TimeDelta::FromMilliseconds(10), this,
+                  &OneShotSelfDeletingTimerTester::Run);
+  }
+ private:
+  void Run() {
+    *did_run_ = true;
+    timer_.reset();
+    MessageLoop::current()->Quit();
+  }
+  bool* did_run_;
+  scoped_ptr<base::OneShotTimer<OneShotSelfDeletingTimerTester> > timer_;
 };
 
 class RepeatingTimerTester {
@@ -82,6 +103,18 @@ void RunTest_OneShotTimer_Cancel(MessageLoop::Type message_loop_type) {
   EXPECT_TRUE(did_run_b);
 }
 
+void RunTest_OneShotSelfDeletingTimer(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  bool did_run = false;
+  OneShotSelfDeletingTimerTester f(&did_run);
+  f.Start();
+
+  MessageLoop::current()->Run();
+
+  EXPECT_TRUE(did_run);
+}
+
 void RunTest_RepeatingTimer(MessageLoop::Type message_loop_type) {
   MessageLoop loop(message_loop_type);
 
@@ -132,6 +165,14 @@ TEST(TimerTest, OneShotTimer_Cancel) {
   RunTest_OneShotTimer_Cancel(MessageLoop::TYPE_DEFAULT);
   RunTest_OneShotTimer_Cancel(MessageLoop::TYPE_UI);
   RunTest_OneShotTimer_Cancel(MessageLoop::TYPE_IO);
+}
+
+// If underline timer does not handle properly, we will crash or fail
+// in full page heap or purify environment.
+TEST(TimerTest, OneShotSelfDeletingTimer) {
+  RunTest_OneShotSelfDeletingTimer(MessageLoop::TYPE_DEFAULT);
+  RunTest_OneShotSelfDeletingTimer(MessageLoop::TYPE_UI);
+  RunTest_OneShotSelfDeletingTimer(MessageLoop::TYPE_IO);
 }
 
 TEST(TimerTest, RepeatingTimer) {

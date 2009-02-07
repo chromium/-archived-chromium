@@ -168,6 +168,10 @@ class BaseTimer : public BaseTimer_Helper {
         // that the Timer has already taken care of properly setting the task.
         if (self->delayed_task_ == this)
           self->delayed_task_ = NULL;
+        // By now the delayed_task_ in the Timer does not point to us anymore.
+        // We should reset our own timer_ because the Timer can not do this
+        // for us in its destructor. 
+        timer_ = NULL;
       }
     }
 
