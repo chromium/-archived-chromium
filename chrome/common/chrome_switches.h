@@ -40,6 +40,7 @@ extern const wchar_t kTrustedPlugins[];
 extern const wchar_t kTestSandbox[];
 extern const wchar_t kUserDataDir[];
 extern const wchar_t kPluginDataDir[];
+extern const wchar_t kDiskCacheDir[];
 extern const wchar_t kParentProfile[];
 extern const wchar_t kApp[];
 extern const wchar_t kAppUploadFile[];

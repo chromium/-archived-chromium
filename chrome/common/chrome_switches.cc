@@ -116,6 +116,10 @@ const wchar_t kUserDataDir[]                   = L"user-data-dir";
 // specifically) will store its state.
 const wchar_t kPluginDataDir[]                 = L"plugin-data-dir";
 
+// Use a specific disk cache location, rather than one derived from the
+// UserDatadir.
+const wchar_t kDiskCacheDir[]                  = L"disk-cache-dir";
+
 // Specifies the path to the user data folder for the parent profile.
 const wchar_t kParentProfile[]                 = L"parent-profile";
 

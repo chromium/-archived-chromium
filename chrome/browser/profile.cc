@@ -532,6 +532,15 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
     FilePath cookie_path = GetPath();
     cookie_path = cookie_path.Append(chrome::kCookieFilename);
     FilePath cache_path = GetPath();
+
+    // Override the cache location if specified by the user.
+    const std::wstring user_cache_dir(
+        CommandLine::ForCurrentProcess()->GetSwitchValue(
+            switches::kDiskCacheDir));
+    if (!user_cache_dir.empty()) {
+      cache_path = FilePath::FromWStringHack(user_cache_dir);
+    }
+
     cache_path = cache_path.Append(chrome::kCacheDirname);
     request_context_ = ChromeURLRequestContext::CreateOriginal(
         this, cookie_path, cache_path);
