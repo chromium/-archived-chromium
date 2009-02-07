@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// TestWebViewDelegate class:
+// TestWebViewDelegate class: 
 // This class implements the WebViewDelegate methods for the test shell.  One
 // instance is owned by each TestShell.
 
@@ -55,7 +55,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
 
   typedef std::vector<CapturedContextMenuEvent> CapturedContextMenuEvents;
 
-  TestWebViewDelegate(TestShell* shell)
+  TestWebViewDelegate(TestShell* shell) 
     : is_custom_policy_delegate_(false),
       shell_(shell),
       top_loading_frame_(NULL),
@@ -70,7 +70,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
 #if defined(OS_LINUX)
       , cursor_type_(GDK_X_CURSOR)
 #endif
-      {
+      { 
   }
   virtual ~TestWebViewDelegate();
 
@@ -95,10 +95,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                    const std::wstring& message,
                                    const std::wstring& default_value,
                                    std::wstring* result);
-
-  virtual void SetStatusbarText(WebView* webview,
-                                const std::wstring& message);
-
   virtual void AddMessageToConsole(WebView* webview,
                                    const std::wstring& message,
                                    unsigned int line_no,
@@ -145,7 +141,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                          const std::wstring& dest_url,
                                          unsigned int delay_seconds,
                                          unsigned int fire_date);
-  virtual void DidCancelClientRedirect(WebView* webview,
+  virtual void DidCancelClientRedirect(WebView* webview, 
                                        WebFrame* frame);
 
   virtual void DidFinishLoadForFrame(WebView* webview, WebFrame* frame);
@@ -166,21 +162,21 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
 
   virtual bool ShouldBeginEditing(WebView* webview, std::wstring range);
   virtual bool ShouldEndEditing(WebView* webview, std::wstring range);
-  virtual bool ShouldInsertNode(WebView* webview,
-                                std::wstring node,
+  virtual bool ShouldInsertNode(WebView* webview, 
+                                std::wstring node, 
                                 std::wstring range,
                                 std::wstring action);
-  virtual bool ShouldInsertText(WebView* webview,
-                                std::wstring text,
+  virtual bool ShouldInsertText(WebView* webview, 
+                                std::wstring text, 
                                 std::wstring range,
                                 std::wstring action);
-  virtual bool ShouldChangeSelectedRange(WebView* webview,
-                                         std::wstring fromRange,
-                                         std::wstring toRange,
-                                         std::wstring affinity,
+  virtual bool ShouldChangeSelectedRange(WebView* webview, 
+                                         std::wstring fromRange, 
+                                         std::wstring toRange, 
+                                         std::wstring affinity, 
                                          bool stillSelecting);
   virtual bool ShouldDeleteRange(WebView* webview, std::wstring range);
-  virtual bool ShouldApplyStyle(WebView* webview,
+  virtual bool ShouldApplyStyle(WebView* webview, 
                                 std::wstring style,
                                 std::wstring range);
   virtual bool SmartInsertDeleteEnabled();
@@ -217,11 +213,11 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual void CloseWidgetSoon(WebWidget* webwidget);
   virtual void Focus(WebWidget* webwidget);
   virtual void Blur(WebWidget* webwidget);
-  virtual void SetCursor(WebWidget* webwidget,
+  virtual void SetCursor(WebWidget* webwidget, 
                          const WebCursor& cursor);
   virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect);
-  virtual void GetRootWindowRect(WebWidget *, gfx::Rect *);
+  virtual void GetRootWindowRect(WebWidget *,gfx::Rect *);
   virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget);
@@ -239,11 +235,11 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   IDropTarget* drop_delegate() { return drop_delegate_.get(); }
   IDropSource* drag_delegate() { return drag_delegate_.get(); }
 #endif
-  const CapturedContextMenuEvents& captured_context_menu_events() const {
-    return captured_context_menu_events_;
+  const CapturedContextMenuEvents& captured_context_menu_events() const { 
+    return captured_context_menu_events_; 
   }
-  void clear_captured_context_menu_events() {
-    captured_context_menu_events_.clear();
+  void clear_captured_context_menu_events() { 
+    captured_context_menu_events_.clear(); 
   }
 
   // Methods for modifying WebPreferences
@@ -287,7 +283,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   std::wstring GetFrameDescription(WebFrame* webframe);
 
  private:
-  // Causes navigation actions just printout the intended navigation instead
+  // Causes navigation actions just printout the intended navigation instead 
   // of taking you to the page. This is used for cases like mailto, where you
   // don't actually want to open the mail program.
   bool is_custom_policy_delegate_;
@@ -326,10 +322,10 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   // cursor.
   GdkCursorType cursor_type_;
 #endif
-
+  
   CapturedContextMenuEvents captured_context_menu_events_;
 
-  DISALLOW_COPY_AND_ASSIGN(TestWebViewDelegate);
+  DISALLOW_EVIL_CONSTRUCTORS(TestWebViewDelegate);
 };
 
-#endif  // WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H_
+#endif // WEBKIT_TOOLS_TEST_SHELL_TEST_WEBVIEW_DELEGATE_H_

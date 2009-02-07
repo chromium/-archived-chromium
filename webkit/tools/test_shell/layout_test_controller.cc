@@ -46,7 +46,6 @@ bool LayoutTestController::dump_resource_load_callbacks_ = false;
 bool LayoutTestController::dump_back_forward_list_ = false;
 bool LayoutTestController::dump_child_frame_scroll_positions_ = false;
 bool LayoutTestController::dump_child_frames_as_text_ = false;
-bool LayoutTestController::dump_window_status_changes_ = false;
 bool LayoutTestController::dump_title_changes_ = false;
 bool LayoutTestController::accepts_editing_ = true;
 bool LayoutTestController::wait_until_done_ = false;
@@ -59,7 +58,7 @@ CppVariant LayoutTestController::globalFlag_;
 CppVariant LayoutTestController::webHistoryItemCount_;
 
 LayoutTestController::LayoutTestController(TestShell* shell) {
-  // Set static shell_ variable since we can't do it in an initializer list.
+  // Set static shell_ variable since we can't do it in an initializer list. 
   // We also need to be careful not to assign shell_ to new windows which are
   // temporary.
   if (NULL == shell_)
@@ -76,7 +75,6 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("dumpBackForwardList", &LayoutTestController::dumpBackForwardList);
   BindMethod("dumpFrameLoadCallbacks", &LayoutTestController::dumpFrameLoadCallbacks);
   BindMethod("dumpResourceLoadCallbacks", &LayoutTestController::dumpResourceLoadCallbacks);
-  BindMethod("dumpStatusCallbacks", &LayoutTestController::dumpWindowStatusChanges);
   BindMethod("dumpTitleChanges", &LayoutTestController::dumpTitleChanges);
   BindMethod("setAcceptsEditing", &LayoutTestController::setAcceptsEditing);
   BindMethod("waitUntilDone", &LayoutTestController::waitUntilDone);
@@ -186,7 +184,7 @@ void LayoutTestController::WorkQueue::AddWork(WorkItem* work) {
   queue_.push(work);
 }
 
-void LayoutTestController::dumpAsText(const CppArgumentList& args,
+void LayoutTestController::dumpAsText(const CppArgumentList& args, 
                                                    CppVariant* result) {
   dump_as_text_ = true;
   result->SetNull();
@@ -225,12 +223,6 @@ void LayoutTestController::dumpChildFrameScrollPositions(
 void LayoutTestController::dumpChildFramesAsText(
     const CppArgumentList& args, CppVariant* result) {
   dump_child_frames_as_text_ = true;
-  result->SetNull();
-}
-
-void LayoutTestController::dumpWindowStatusChanges(
-    const CppArgumentList& args, CppVariant* result) {
-  dump_window_status_changes_ = true;
   result->SetNull();
 }
 

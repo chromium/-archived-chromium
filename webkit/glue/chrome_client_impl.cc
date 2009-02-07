@@ -60,7 +60,7 @@ class WebFileChooserCallbackImpl : public WebFileChooserCallback {
 
  private:
   RefPtr<WebCore::FileChooser> file_chooser_;
-  DISALLOW_COPY_AND_ASSIGN(WebFileChooserCallbackImpl);
+  DISALLOW_EVIL_CONSTRUCTORS(WebFileChooserCallbackImpl);
 };
 
 ChromeClientImpl::ChromeClientImpl(WebViewImpl* webview)
@@ -295,7 +295,7 @@ bool ChromeClientImpl::runBeforeUnloadConfirmPanel(const WebCore::String& messag
 void ChromeClientImpl::closeWindowSoon() {
   // Make sure this Page can no longer be found by JS.
   webview_->page()->setGroupName(WebCore::String());
-
+  
   // Make sure that all loading is stopped.  Ensures that JS stops executing!
   webview_->StopLoading();
 
@@ -348,12 +348,8 @@ bool ChromeClientImpl::runJavaScriptPrompt(WebCore::Frame* frame,
   return false;
 }
 
-void ChromeClientImpl::setStatusbarText(const WebCore::String& message) {
-  WebViewDelegate* d = webview_->delegate();
-  if (d) {
-    std::wstring wstr = webkit_glue::StringToStdWString(message);
-    d->SetStatusbarText(webview_, wstr);
-  }
+void ChromeClientImpl::setStatusbarText(const WebCore::String&) {
+  // TODO(mbelshe): implement me
 }
 
 bool ChromeClientImpl::shouldInterruptJavaScript() {
@@ -374,7 +370,7 @@ WebCore::IntRect ChromeClientImpl::windowResizerRect() const {
   if (webview_->delegate()) {
     gfx::Rect resizer_rect;
     webview_->delegate()->GetRootWindowResizerRect(webview_, &resizer_rect);
-    rv = WebCore::IntRect(resizer_rect.x(),
+    rv = WebCore::IntRect(resizer_rect.x(), 
                           resizer_rect.y(),
                           resizer_rect.width(),
                           resizer_rect.height());

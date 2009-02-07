@@ -23,8 +23,8 @@
 // of ChromeClient and FrameLoaderClient not delegated in the WebKit
 // implementation; and some WebView additions.
 
-#ifndef WEBKIT_GLUE_WEBVIEW_DELEGATE_H_
-#define WEBKIT_GLUE_WEBVIEW_DELEGATE_H_
+#ifndef WEBKIT_GLUE_WEBVIEW_DELEGATE_H__
+#define WEBKIT_GLUE_WEBVIEW_DELEGATE_H__
 
 #include <string>
 #include <vector>
@@ -93,7 +93,7 @@ class WebFileChooserCallback {
   virtual void OnFileChoose(const std::vector<std::wstring>& file_names) { }
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(WebFileChooserCallback);
+  DISALLOW_EVIL_CONSTRUCTORS(WebFileChooserCallback);
 };
 
 
@@ -518,10 +518,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return false;
   }
 
-  // Sets the status bar text.
-  virtual void SetStatusbarText(WebView* webview,
-                                const std::wstring& message) { }
-
   // Displays a "before unload" confirm panel associated with the given view.
   // The panel should have two buttons, e.g. "OK" and "Cancel", where OK means
   // that the navigation should continue, and Cancel means that the navigation
@@ -776,7 +772,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual ~WebViewDelegate() { }
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(WebViewDelegate);
+  DISALLOW_EVIL_CONSTRUCTORS(WebViewDelegate);
 };
 
-#endif  // WEBKIT_GLUE_WEBVIEW_DELEGATE_H_
+#endif  // WEBKIT_GLUE_WEBVIEW_DELEGATE_H__
+
