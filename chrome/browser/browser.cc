@@ -606,11 +606,10 @@ void Browser::Home() {
       homepage_url, GURL(), PageTransition::AUTO_BOOKMARK);
 }
 
-#if defined(OS_WIN)
 void Browser::OpenCurrentURL() {
   UserMetrics::RecordAction(L"LoadURL", profile_);
   LocationBar* location_bar = window_->GetLocationBar();
-  OpenURL(GURL(location_bar->GetInputString()), GURL(),
+  OpenURL(GURL(WideToUTF8(location_bar->GetInputString())), GURL(),
                location_bar->GetWindowOpenDisposition(),
                location_bar->GetPageTransition());
 }
@@ -619,7 +618,6 @@ void Browser::Go() {
   UserMetrics::RecordAction(L"Go", profile_);
   window_->GetLocationBar()->AcceptInput();
 }
-#endif
 
 void Browser::Stop() {
   UserMetrics::RecordAction(L"Stop", profile_);
@@ -1072,10 +1070,8 @@ void Browser::ExecuteCommand(int id) {
     case IDC_FORWARD:               GoForward();                   break;
     case IDC_RELOAD:                Reload();                      break;
     case IDC_HOME:                  Home();                        break;
-#if defined(OS_WIN)
     case IDC_OPEN_CURRENT_URL:      OpenCurrentURL();              break;
     case IDC_GO:                    Go();                          break;
-#endif
     case IDC_STOP:                  Stop();                        break;
 
      // Window management commands

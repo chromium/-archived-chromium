@@ -228,9 +228,7 @@ class Browser : public TabStripModelDelegate,
   void GoForward();
   void Reload();
   void Home();
-#if defined(OS_WIN)
   void OpenCurrentURL();
-#endif
   void Go();
   void Stop();
   // Window management commands
@@ -391,7 +389,7 @@ class Browser : public TabStripModelDelegate,
   virtual void ContentsStateChanged(TabContents* source);
   virtual bool ShouldDisplayURLField();
   virtual void BeforeUnloadFired(TabContents* source,
-                                 bool proceed, 
+                                 bool proceed,
                                  bool* proceed_to_fire_unload);
   virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
@@ -490,7 +488,7 @@ class Browser : public TabStripModelDelegate,
   bool RemoveFromSet(UnloadListenerSet* set, TabContents* tab);
 
   // Cleans up state appropriately when we are trying to close the browser and
-  // the tab has finished firing it's unload handler. We also use this in the 
+  // the tab has finished firing its unload handler. We also use this in the
   // cases where a tab crashes or hangs even if the beforeunload/unload haven't
   // successfully fired.
   void ClearUnloadState(TabContents* tab);
