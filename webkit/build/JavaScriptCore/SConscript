@@ -148,6 +148,7 @@ if env.Bit('windows'):
 wtf_inputs = [
     '$WTF_DIR/ByteArray.cpp',
     '$WTF_DIR/Assertions.cpp',
+    '$WTF_DIR/chromium/MainThreadChromium.cpp',
     '$WTF_DIR/CurrentTime.cpp',
     '$WTF_DIR/dtoa.cpp',
     '$WTF_DIR/FastMalloc.cpp',
@@ -155,6 +156,8 @@ wtf_inputs = [
     '$WTF_DIR/MainThread.cpp',
     '$WTF_DIR/RandomNumber.cpp',
     '$WTF_DIR/RefCountedLeakCounter.cpp',
+    '$WTF_DIR/Threading.cpp',
+    '$WTF_DIR/ThreadingPthreads.cpp',
     '$WTF_DIR/TCSystemAlloc.cpp',
     '$WTF_DIR/chromium/MainThreadChromium.cpp',
     '$WTF_DIR/unicode/UTF8.cpp',
@@ -167,11 +170,6 @@ if env.Bit('windows'):
       '$WTF_DIR/ThreadSpecificWin.cpp',
   ])
 elif env.Bit('linux'):
-  wtf_inputs.extend([
-      '$WTF_DIR/gtk/MainThreadGtk.cpp',
-      '$WTF_DIR/ThreadingPthreads.cpp',
-  ])
-
   # Re-add the include path for glib.h because it got lost when cloning the
   # environment.
   env.ParseConfig('pkg-config --cflags --libs glib-2.0')

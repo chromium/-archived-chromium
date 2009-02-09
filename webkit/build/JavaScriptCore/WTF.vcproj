@@ -121,6 +121,18 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="chromium"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\chromium\ChromiumThreading.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\chromium\MainThreadChromium.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\AlwaysInline.h"
 			>
@@ -331,6 +343,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\TCSystemAlloc.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Threading.cpp"
 			>
 		</File>
 		<File

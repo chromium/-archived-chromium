@@ -2629,10 +2629,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\Threading.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\port\bindings\v8\v8_binding.h"
 			>
 		</File>
