@@ -230,18 +230,18 @@ bool EditorClientImpl::shouldDeleteRange(WebCore::Range* range) {
   return true;
 }
 
-bool EditorClientImpl::shouldChangeSelectedRange(WebCore::Range* from_range, 
-                                                 WebCore::Range* to_range, 
+bool EditorClientImpl::shouldChangeSelectedRange(WebCore::Range* fromRange, 
+                                                 WebCore::Range* toRange, 
                                                  WebCore::EAffinity affinity, 
-                                                 bool still_selecting) {
+                                                 bool stillSelecting) {
   if (use_editor_delegate_) {
     WebViewDelegate* d = web_view_->delegate();
     if (d) {
       return d->ShouldChangeSelectedRange(web_view_, 
-                                          Describe(from_range), 
-                                          Describe(to_range), 
+                                          Describe(fromRange), 
+                                          Describe(toRange), 
                                           Describe(affinity), 
-                                          still_selecting);
+                                          stillSelecting);
     }
   }
   return true;

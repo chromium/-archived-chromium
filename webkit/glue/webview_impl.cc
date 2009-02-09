@@ -628,7 +628,7 @@ bool WebViewImpl::SendContextMenuEvent(const WebKeyboardEvent& event) {
     if (!renderer)
       return false;
 
-    RefPtr<Range> selection = main_frame->selection()->toNormalizedRange();
+    RefPtr<Range> selection = main_frame->selection()->toRange();
     IntRect first_rect = main_frame->firstRectForRange(selection.get());
 
     int x = right_aligned ? first_rect.right() : first_rect.x();

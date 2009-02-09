@@ -118,7 +118,7 @@ void WebTextInputImpl::MarkedRange(std::string* range_str) {
 
 void WebTextInputImpl::SelectedRange(std::string* range_str) {
   WTF::RefPtr<WebCore::Range> range
-      = GetFrame()->selection()->toNormalizedRange();
+      = GetFrame()->selection()->toRange();
 
   // Range::toString() returns a string different from what test expects.
   // So we need to construct the string ourselves.

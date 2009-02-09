@@ -120,8 +120,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   virtual void finishedLoading(WebCore::DocumentLoader*);
 
   virtual void updateGlobalHistory();
-  virtual void updateGlobalHistoryRedirectLinks();
-
+  virtual void updateGlobalHistoryForRedirectWithoutHistoryItem();
   virtual bool shouldGoToHistoryItem(WebCore::HistoryItem*) const;
 
   virtual WebCore::ResourceError blockedError(const WebCore::ResourceRequest&);

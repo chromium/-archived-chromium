@@ -827,7 +827,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
         (new_selection.start() == new_selection.end())) {
       active_match_ = NULL;
     } else {
-      active_match_ = new_selection.toNormalizedRange();
+      active_match_ = new_selection.toRange();
       curr_selection_rect = active_match_->boundingBox();
     }
 
@@ -1179,8 +1179,7 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
     // don't focus anything.
     Selection selection(frame()->selection()->selection());
     if (selection.isNone() || (selection.start() == selection.end()) ||
-        active_match_->boundingBox() !=
-            selection.toNormalizedRange()->boundingBox())
+        active_match_->boundingBox() != selection.toRange()->boundingBox())
       return;
 
     // We will be setting focus ourselves, so we want the view to forget its
@@ -1308,8 +1307,8 @@ void WebFrameImpl::Paste() {
 
 void WebFrameImpl::Replace(const std::wstring& wtext) {
   String text = webkit_glue::StdWStringToString(wtext);
-  RefPtr<DocumentFragment> fragment = createFragmentFromText(
-      frame()->selection()->toNormalizedRange().get(), text);
+  RefPtr<DocumentFragment> fragment =
+      createFragmentFromText(frame()->selection()->toRange().get(), text);
   WebCore::applyCommand(WebCore::ReplaceSelectionCommand::create(
       frame()->document(), fragment.get(), false, true, true));
 }
@@ -1351,7 +1350,7 @@ void WebFrameImpl::ClearSelection() {
 }
 
 std::string WebFrameImpl::GetSelection(bool as_html) {
-  RefPtr<Range> range = frame()->selection()->toNormalizedRange();
+  RefPtr<Range> range = frame()->selection()->toRange();
   if (!range.get())
     return std::string();
 
