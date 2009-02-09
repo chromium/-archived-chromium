@@ -17,118 +17,6 @@
 
 namespace {
 
-// The web contents are completely drawn and handled by WebKit, except that
-// windowed plugins are GtkSockets on top of it.  GtkSockets are unhappy
-// if they cannot be put within a parent container, so what we want is basically
-// a GtkDrawingArea that is also a GtkContainer.  The existing Gtk classes for
-// this sort of thing (reasonably) assume that the positioning of the children
-// will be handled by the parent, which isn't the case for us where WebKit
-// drives everything.  So we create a custom widget that is just a GtkContainer
-// that contains a native window.  This class is just a collection of static
-// methods, which implement the GTK functions for the container.
-class CustomGtkContainer {
- public:
-  // Create a new instance of our GTK widget object.
-  static GtkWidget* CreateNewWidget() {
-    return GTK_WIDGET(g_object_new(GetType(), NULL));
-  }
-
- private:
-  // Create and register our custom container type with GTK.
-  static GType GetType() {
-    static GType type = 0;  // We only want to register our type once.
-    if (!type) {
-      static const GTypeInfo info = {
-        sizeof(GtkContainerClass),
-        NULL, NULL,
-        static_cast<GClassInitFunc>(&ClassInit),
-        NULL, NULL,
-        sizeof(GtkContainer),  // We are identical in memory to a GtkContainer.
-        0, NULL,
-      };
-      type = g_type_register_static(GTK_TYPE_CONTAINER, "WebWidgetHostGtk",
-                                    &info, static_cast<GTypeFlags>(0));
-    }
-    return type;
-  }
-
-  // Implementation of the class initializer.
-  static void ClassInit(gpointer klass, gpointer class_data_unusued) {
-    GtkWidgetClass* widget_class = reinterpret_cast<GtkWidgetClass*>(klass);
-    GtkContainerClass* container_class =
-        reinterpret_cast<GtkContainerClass*>(klass);
-
-    widget_class->realize = &HandleRealize;
-    widget_class->size_allocate = &HandleSizeAllocate;
-    container_class->remove = &HandleRemove;
-  }
-
-  // Implementation of the "realize" event.  Creates an X window.
-  // (Nearly identical to GtkDrawingArea code.)
-  static void HandleRealize(GtkWidget* widget) {
-    GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
-
-    GdkWindowAttr attributes;
-    attributes.window_type = GDK_WINDOW_CHILD;
-    attributes.x = widget->allocation.x;
-    attributes.y = widget->allocation.y;
-    attributes.width = widget->allocation.width;
-    attributes.height = widget->allocation.height;
-    attributes.wclass = GDK_INPUT_OUTPUT;
-    attributes.visual = gtk_widget_get_visual(widget);
-    attributes.colormap = gtk_widget_get_colormap(widget);
-    attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK;
-    int attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
-
-    widget->window = gdk_window_new(gtk_widget_get_parent_window(widget),
-                                    &attributes, attributes_mask);
-    gdk_window_set_user_data(widget->window, widget);
-
-    SendConfigureMessage(widget);
-  }
-
-  // Implementation of the "size-allocate" event.  Resizes the window.
-  // (Nearly identical to GtkDrawingArea code.)
-  static void HandleSizeAllocate(GtkWidget* widget,
-                                 GtkAllocation* allocation) {
-    widget->allocation = *allocation;
-    if (!GTK_WIDGET_REALIZED(widget)) {
-      // We don't have a window yet, so nothing to do.
-      return;
-    }
-
-    gdk_window_move_resize(widget->window,
-                           allocation->x, allocation->y,
-                           allocation->width, allocation->height);
-
-    SendConfigureMessage(widget);
-  }
-
-  // Implementation of "remove" event.  This called when plugins shut down.
-  // We can just ignore it.
-  static void HandleRemove(GtkContainer* container, GtkWidget* widget) {
-    // Do nothing.
-  }
-
-  // Sends a "configure" event to the widget, allowing it to repaint.
-  static void SendConfigureMessage(GtkWidget* widget) {
-    GdkEvent* event = gdk_event_new(GDK_CONFIGURE);
-    // This ref matches GtkDrawingArea code.  It must be balanced by the
-    // event-handling code.
-    g_object_ref(widget->window);
-    event->configure.window = widget->window;
-    event->configure.send_event = TRUE;
-    event->configure.x = widget->allocation.x;
-    event->configure.y = widget->allocation.y;
-    event->configure.width = widget->allocation.width;
-    event->configure.height = widget->allocation.height;
-    gtk_widget_event(widget, event);
-    gdk_event_free(event);
-  }
-
-  DISALLOW_IMPLICIT_CONSTRUCTORS(CustomGtkContainer);
-};
-
 // In response to an invalidation, we call into WebKit to do layout. On
 // Windows, WM_PAINT is a virtual message so any extra invalidates that come up
 // while it's doing layout are implicitly swallowed as soon as we actually do
@@ -140,135 +28,205 @@ class CustomGtkContainer {
 // during that if we get told by WebKit that a region has become invalid, we
 // still add that region to the local dirty rect but *don't* enqueue yet
 // another "do a paint" message.
-bool handling_expose = false;
+bool g_handling_expose = false;
 
 // -----------------------------------------------------------------------------
 // Callback functions to proxy to host...
 
-gboolean ConfigureEvent(GtkWidget* widget, GdkEventConfigure* config,
-                        WebWidgetHost* host) {
-  host->Resize(gfx::Size(config->width, config->height));
-  return FALSE;
-}
+// The web contents are completely drawn and handled by WebKit, except that
+// windowed plugins are GtkSockets on top of it.  We need to place the
+// GtkSockets inside a GtkContainer.  We use a GtkFixed container, and the
+// GtkSocket objects override a little bit to manage their size (see the code
+// in webplugin_delegate_impl_gtk.cc).  We listen on a the events we're
+// interested in and forward them on to the WebWidgetHost.  This class is a
+// collection of static methods, implementing the widget related code.
+class WebWidgetHostGtkWidget {
+ public:
+  // This will create a new widget used for hosting the web contents.  We use
+  // our GtkDrawingAreaContainer here, for the reasons mentioned above.
+  static GtkWidget* CreateNewWidget(GtkWidget* parent_view,
+                                    WebWidgetHost* host) {
+    GtkWidget* widget = gtk_fixed_new();
+    gtk_fixed_set_has_window(GTK_FIXED(widget), true);
 
-gboolean ExposeEvent(GtkWidget* widget, GdkEventExpose* expose,
-                     WebWidgetHost* host) {
-  // See comments above about what handling_expose is for.
-  handling_expose = true;
-  gfx::Rect rect(expose->area);
-  host->UpdatePaintRect(rect);
-  host->Paint();
-  handling_expose = false;
-  return FALSE;
-}
+    gtk_box_pack_start(GTK_BOX(parent_view), widget, TRUE, TRUE, 0);
 
-gboolean WindowDestroyed(GtkWidget* widget, WebWidgetHost* host) {
-  host->WindowDestroyed();
-  return FALSE;
-}
+    gtk_widget_add_events(widget, GDK_EXPOSURE_MASK |
+                                  GDK_POINTER_MOTION_MASK |
+                                  GDK_BUTTON_PRESS_MASK |
+                                  GDK_BUTTON_RELEASE_MASK |
+                                  GDK_KEY_PRESS_MASK |
+                                  GDK_KEY_RELEASE_MASK);
+    GTK_WIDGET_SET_FLAGS(widget, GTK_CAN_FOCUS);
+    g_signal_connect(widget, "size-allocate",
+                     G_CALLBACK(&HandleSizeAllocate), host);
+    g_signal_connect(widget, "configure-event",
+                     G_CALLBACK(&HandleConfigure), host);
+    g_signal_connect(widget, "expose-event",
+                     G_CALLBACK(&HandleExpose), host);
+    g_signal_connect(widget, "destroy",
+                     G_CALLBACK(&HandleDestroy), host);
+    g_signal_connect(widget, "key-press-event",
+                     G_CALLBACK(&HandleKeyPress), host);
+    g_signal_connect(widget, "key-release-event",
+                     G_CALLBACK(&HandleKeyRelease), host);
+    g_signal_connect(widget, "focus",
+                     G_CALLBACK(&HandleFocus), host);
+    g_signal_connect(widget, "focus-in-event",
+                     G_CALLBACK(&HandleFocusIn), host);
+    g_signal_connect(widget, "focus-out-event",
+                     G_CALLBACK(&HandleFocusOut), host);
+    g_signal_connect(widget, "button-press-event",
+                     G_CALLBACK(&HandleButtonPress), host);
+    g_signal_connect(widget, "button-release-event",
+                     G_CALLBACK(&HandleButtonRelease), host);
+    g_signal_connect(widget, "motion-notify-event",
+                     G_CALLBACK(&HandleMotionNotify), host);
+    g_signal_connect(widget, "scroll-event",
+                     G_CALLBACK(&HandleScroll), host);
 
-gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
-                              WebWidgetHost* host) {
-  WebKeyboardEvent wke(event);
-  host->webwidget()->HandleInputEvent(&wke);
-
-  // The WebKeyboardEvent model, when holding down a key, is:
-  //   KEY_DOWN, CHAR, (repeated CHAR as key repeats,) KEY_UP
-  // The GDK model for the same sequence is just:
-  //   KEY_PRESS, (repeated KEY_PRESS as key repeats,) KEY_RELEASE
-  // So we must simulate a CHAR event for every key press.
-  if (event->type == GDK_KEY_PRESS) {
-    wke.type = WebKeyboardEvent::CHAR;
-    host->webwidget()->HandleInputEvent(&wke);
+    return widget;
   }
 
-  return FALSE;
-}
-
-// This signal is called when arrow keys or tab is pressed.  If we return true,
-// we prevent focus from being moved to another widget.  If we want to allow
-// focus to be moved outside of web contents, we need to implement
-// WebViewDelegate::TakeFocus in the test webview delegate.
-gboolean FocusMove(GtkWidget* widget, GdkEventFocus* focus,
-                   WebWidgetHost* host) {
-  return TRUE;
-}
-
-gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus,
-                 WebWidgetHost* host) {
-  host->webwidget()->SetFocus(true);
-  return FALSE;
-}
-
-gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus,
-                  WebWidgetHost* host) {
-  host->webwidget()->SetFocus(false);
-  return FALSE;
-}
-
-gboolean ButtonPressReleaseEvent(GtkWidget* widget, GdkEventButton* event,
+ private:
+  // Our size has changed.
+  static void HandleSizeAllocate(GtkWidget* widget,
+                                 GtkAllocation* allocation,
                                  WebWidgetHost* host) {
-  WebMouseEvent wme(event);
-  host->webwidget()->HandleInputEvent(&wme);
-  return FALSE;
-}
+    host->Resize(gfx::Size(allocation->width, allocation->height));
+  }
 
-gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
-                        WebWidgetHost* host) {
-  WebMouseEvent wme(event);
-  host->webwidget()->HandleInputEvent(&wme);
-  return FALSE;
-}
+  // Size, position, or stacking of the GdkWindow changed.
+  static gboolean HandleConfigure(GtkWidget* widget,
+                                  GdkEventConfigure* config,
+                                  WebWidgetHost* host) {
+    host->Resize(gfx::Size(config->width, config->height));
+    return FALSE;
+  }
 
-gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
-                          WebWidgetHost* host) {
-  WebMouseWheelEvent wmwe(event);
-  host->webwidget()->HandleInputEvent(&wmwe);
-  return FALSE;
-}
+  // A portion of the GdkWindow needs to be redraw.
+  static gboolean HandleExpose(GtkWidget* widget,
+                               GdkEventExpose* expose,
+                               WebWidgetHost* host) {
+    // See comments above about what g_handling_expose is for.
+    g_handling_expose = true;
+    gfx::Rect rect(expose->area);
+    host->UpdatePaintRect(rect);
+    host->Paint();
+    g_handling_expose = false;
+    return FALSE;
+  }
+
+  // The GdkWindow was destroyed.
+  static gboolean HandleDestroy(GtkWidget* widget, WebWidgetHost* host) {
+    host->WindowDestroyed();
+    return FALSE;
+  }
+
+  // Keyboard key pressed.
+  static gboolean HandleKeyPress(GtkWidget* widget,
+                                 GdkEventKey* event,
+                                 WebWidgetHost* host) {
+    WebKeyboardEvent wke(event);
+    host->webwidget()->HandleInputEvent(&wke);
+
+    // The WebKeyboardEvent model, when holding down a key, is:
+    //   KEY_DOWN, CHAR, (repeated CHAR as key repeats,) KEY_UP
+    // The GDK model for the same sequence is just:
+    //   KEY_PRESS, (repeated KEY_PRESS as key repeats,) KEY_RELEASE
+    // So we must simulate a CHAR event for every key press.
+    if (event->type == GDK_KEY_PRESS) {
+      wke.type = WebKeyboardEvent::CHAR;
+      host->webwidget()->HandleInputEvent(&wke);
+    }
+
+    return FALSE;
+  }
+
+  // Keyboard key released.
+  static gboolean HandleKeyRelease(GtkWidget* widget,
+                                   GdkEventKey* event,
+                                   WebWidgetHost* host) {
+    return HandleKeyPress(widget, event, host);
+  }
+
+  // This signal is called when arrow keys or tab is pressed.  If we return
+  // true, we prevent focus from being moved to another widget.  If we want to
+  // allow focus to be moved outside of web contents, we need to implement
+  // WebViewDelegate::TakeFocus in the test webview delegate.
+  static gboolean HandleFocus(GtkWidget* widget,
+                              GdkEventFocus* focus,
+                              WebWidgetHost* host) {
+    return TRUE;
+  }
+
+  // Keyboard focus entered.
+  static gboolean HandleFocusIn(GtkWidget* widget,
+                                GdkEventFocus* focus,
+                                WebWidgetHost* host) {
+    host->webwidget()->SetFocus(true);
+    return FALSE;
+  }
+
+  // Keyboard focus left.
+  static gboolean HandleFocusOut(GtkWidget* widget,
+                                 GdkEventFocus* focus,
+                                 WebWidgetHost* host) {
+    host->webwidget()->SetFocus(false);
+    return FALSE;
+  }
+
+  // Mouse button down.
+  static gboolean HandleButtonPress(GtkWidget* widget,
+                                    GdkEventButton* event,
+                                    WebWidgetHost* host) {
+    WebMouseEvent wme(event);
+    host->webwidget()->HandleInputEvent(&wme);
+    return FALSE;
+  }
+
+  // Mouse button up.
+  static gboolean HandleButtonRelease(GtkWidget* widget,
+                                      GdkEventButton* event,
+                                      WebWidgetHost* host) {
+    return HandleButtonPress(widget, event, host);
+  }
+
+  // Mouse pointer movements.
+  static gboolean HandleMotionNotify(GtkWidget* widget,
+                                     GdkEventMotion* event,
+                                     WebWidgetHost* host) {
+    WebMouseEvent wme(event);
+    host->webwidget()->HandleInputEvent(&wme);
+    return FALSE;
+  }
+
+  // Mouse scroll wheel.
+  static gboolean HandleScroll(GtkWidget* widget,
+                               GdkEventScroll* event,
+                               WebWidgetHost* host) {
+    WebMouseWheelEvent wmwe(event);
+    host->webwidget()->HandleInputEvent(&wmwe);
+    return FALSE;
+  }
+
+  DISALLOW_IMPLICIT_CONSTRUCTORS(WebWidgetHostGtkWidget);
+};
 
 }  // namespace
 
-GtkWidget* WebWidgetHost::CreateWindow(GtkWidget* parent_view, void* host) {
-  GtkWidget* widget = CustomGtkContainer::CreateNewWidget();
-
-  gtk_box_pack_start(GTK_BOX(parent_view), widget, TRUE, TRUE, 0);
-
-  // TODO(evanm): it might be cleaner to just have the custom widget set
-  // all of this up rather than connecting signals.
-  gtk_widget_add_events(widget, GDK_EXPOSURE_MASK |
-                                GDK_POINTER_MOTION_MASK |
-                                GDK_BUTTON_PRESS_MASK |
-                                GDK_BUTTON_RELEASE_MASK |
-                                GDK_KEY_PRESS_MASK |
-                                GDK_KEY_RELEASE_MASK);
-  GTK_WIDGET_SET_FLAGS(widget, GTK_CAN_FOCUS);
-  g_signal_connect(widget, "configure-event", G_CALLBACK(ConfigureEvent), host);
-  g_signal_connect(widget, "expose-event", G_CALLBACK(ExposeEvent), host);
-  g_signal_connect(widget, "destroy", G_CALLBACK(::WindowDestroyed), host);
-  g_signal_connect(widget, "key-press-event", G_CALLBACK(KeyPressReleaseEvent),
-                   host);
-  g_signal_connect(widget, "key-release-event",
-                   G_CALLBACK(KeyPressReleaseEvent), host);
-  g_signal_connect(widget, "focus", G_CALLBACK(FocusMove), host);
-  g_signal_connect(widget, "focus-in-event", G_CALLBACK(FocusIn), host);
-  g_signal_connect(widget, "focus-out-event", G_CALLBACK(FocusOut), host);
-  g_signal_connect(widget, "button-press-event",
-                   G_CALLBACK(ButtonPressReleaseEvent), host);
-  g_signal_connect(widget, "button-release-event",
-                   G_CALLBACK(ButtonPressReleaseEvent), host);
-  g_signal_connect(widget, "motion-notify-event", G_CALLBACK(MouseMoveEvent),
-                   host);
-  g_signal_connect(widget, "scroll-event", G_CALLBACK(MouseScrollEvent),
-                   host);
-
-  return widget;
+// This is provided so that the webview can reuse the custom GTK window code.
+// static
+gfx::NativeView WebWidgetHost::CreateWidget(
+    gfx::NativeView parent_view, WebWidgetHost* host) {
+  return WebWidgetHostGtkWidget::CreateNewWidget(parent_view, host);
 }
 
+// static
 WebWidgetHost* WebWidgetHost::Create(GtkWidget* parent_view,
                                      WebWidgetDelegate* delegate) {
   WebWidgetHost* host = new WebWidgetHost();
-  host->view_ = CreateWindow(parent_view, host);
+  host->view_ = CreateWidget(parent_view, host);
   host->webwidget_ = WebWidget::Create(delegate);
   // We manage our own double buffering because we need to be able to update
   // the expose area in an ExposeEvent within the lifetime of the event handler.
@@ -286,7 +244,7 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
 
   UpdatePaintRect(damaged_rect);
 
-  if (!handling_expose) {
+  if (!g_handling_expose) {
     gtk_widget_queue_draw_area(GTK_WIDGET(view_), damaged_rect.x(),
         damaged_rect.y(), damaged_rect.width(), damaged_rect.height());
   }

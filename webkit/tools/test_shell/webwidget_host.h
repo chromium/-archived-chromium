@@ -82,7 +82,8 @@ class WebWidgetHost {
   //   parent: a GtkBox to pack the new widget at the end of
   //   host: a pointer to a WebWidgetHost (or subclass thereof)
   // ---------------------------------------------------------------------------
-  static gfx::NativeView CreateWindow(gfx::NativeView parent_view, void* host);
+  static gfx::NativeView CreateWidget(gfx::NativeView parent_view,
+                                      WebWidgetHost* host);
   void WindowDestroyed();
   void Resize(const gfx::Size& size);
 #endif
