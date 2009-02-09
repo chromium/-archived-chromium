@@ -345,10 +345,11 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO: {
       NavigationEntry* nav_entry =
           source_web_contents_->controller()->GetActiveEntry();
-      PageInfoWindow::CreatePageInfo(source_web_contents_->profile(),
-                                     nav_entry,
-                                     source_web_contents_->GetContentHWND(),
-                                     PageInfoWindow::SECURITY);      
+      PageInfoWindow::CreatePageInfo(
+          source_web_contents_->profile(),
+          nav_entry,
+          source_web_contents_->GetContentNativeView(),
+          PageInfoWindow::SECURITY);      
       break;
     }
 
@@ -392,11 +393,12 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
         ssl.set_cert_status(cert_status);
         ssl.set_security_bits(security_bits);
       }
-      PageInfoWindow::CreateFrameInfo(source_web_contents_->profile(),
-                                      params_.frame_url,
-                                      ssl,
-                                      source_web_contents_->GetContentHWND(),
-                                      PageInfoWindow::SECURITY);
+      PageInfoWindow::CreateFrameInfo(
+          source_web_contents_->profile(),
+          params_.frame_url,
+          ssl,
+          source_web_contents_->GetContentNativeView(),
+          PageInfoWindow::SECURITY);
       break;
     }
 
@@ -461,8 +463,9 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
     case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS: {
       FontsLanguagesWindowView* window_ = new FontsLanguagesWindowView(
           source_web_contents_->profile());
-      views::Window::CreateChromeWindow(source_web_contents_->GetContentHWND(),
-                                        gfx::Rect(), window_)->Show();
+      views::Window::CreateChromeWindow(
+          source_web_contents_->GetContentNativeView(),
+          gfx::Rect(), window_)->Show();
       window_->SelectLanguagesTab();
       break;
     }

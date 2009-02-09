@@ -1637,7 +1637,7 @@ void AutomationProvider::GetTabHWND(const IPC::Message& message, int handle) {
 
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    tab_hwnd = tab->active_contents()->GetContainerHWND();
+    tab_hwnd = tab->active_contents()->GetNativeView();
   }
 
   Send(new AutomationMsg_TabHWNDResponse(message.routing_id(), tab_hwnd));
@@ -2109,8 +2109,7 @@ void AutomationProvider::SetAcceleratorsForTab(const IPC::Message& message,
     NavigationController* tab = tab_tracker_->GetResource(handle);
     TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
     ExternalTabContainer* external_tab_container =
-        ExternalTabContainer::GetContainerForTab(
-            tab_contents->GetContainerHWND());
+        ExternalTabContainer::GetContainerForTab(tab_contents->GetNativeView());
     // This call is only valid on an externally hosted tab
     if (external_tab_container) {
       external_tab_container->SetAccelerators(accel_table,
@@ -2128,8 +2127,7 @@ void AutomationProvider::ProcessUnhandledAccelerator(
     NavigationController* tab = tab_tracker_->GetResource(handle);
     TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
     ExternalTabContainer* external_tab_container =
-        ExternalTabContainer::GetContainerForTab(
-            tab_contents->GetContainerHWND());
+        ExternalTabContainer::GetContainerForTab(tab_contents->GetNativeView());
     // This call is only valid on an externally hosted tab
     if (external_tab_container) {
       external_tab_container->ProcessUnhandledAccelerator(msg);

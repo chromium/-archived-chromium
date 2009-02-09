@@ -106,8 +106,8 @@ void TabContents::Destroy() {
 
   // If we still have a window handle, destroy it. GetContainerHWND can return
   // NULL if this contents was part of a window that closed.
-  if (GetContainerHWND())
-    ::DestroyWindow(GetContainerHWND());
+  if (GetNativeView())
+    ::DestroyWindow(GetNativeView());
 
   // Notify our NavigationController.  Make sure we are deleted first, so
   // that the controller is the last to die.
@@ -244,7 +244,7 @@ void TabContents::DidBecomeSelected() {
     controller_->SetActive(true);
 
   // Invalidate all descendants. (take care to exclude invalidating ourselves!)
-  EnumChildWindows(GetContainerHWND(), InvalidateWindow, 0);
+  EnumChildWindows(GetNativeView(), InvalidateWindow, 0);
 }
 
 void TabContents::WasHidden() {
@@ -311,7 +311,7 @@ void TabContents::AddConstrainedPopup(TabContents* new_contents,
                                       const gfx::Rect& initial_pos) {
   if (!blocked_popups_) {
     CRect client_rect;
-    GetClientRect(GetContainerHWND(), &client_rect);
+    GetClientRect(GetNativeView(), &client_rect);
     gfx::Point anchor_position(
         client_rect.Width() -
           views::NativeScrollBar::GetVerticalScrollBarWidth(),
@@ -332,7 +332,7 @@ void TabContents::CloseAllSuppressedPopups() {
 }
 
 void TabContents::Focus() {
-  HWND container_hwnd = GetContainerHWND();
+  HWND container_hwnd = GetNativeView();
   if (!container_hwnd)
     return;
 
@@ -353,7 +353,7 @@ void TabContents::StoreFocus() {
     view_storage->RemoveView(last_focused_view_storage_id_);
 
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetContainerHWND());
+      views::FocusManager::GetFocusManager(GetNativeView());
   if (focus_manager) {
     // |focus_manager| can be NULL if the tab has been detached but still
     // exists.
@@ -364,7 +364,7 @@ void TabContents::StoreFocus() {
     // If the focus was on the page, explicitly clear the focus so that we
     // don't end up with the focused HWND not part of the window hierarchy.
     // TODO(brettw) this should move to the view somehow.
-    HWND container_hwnd = GetContainerHWND();
+    HWND container_hwnd = GetNativeView();
     if (container_hwnd) {
       views::View* focused_view = focus_manager->GetFocusedView();
       if (focused_view) {
@@ -386,7 +386,7 @@ void TabContents::RestoreFocus() {
     SetInitialFocus();
   } else {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetContainerHWND());
+        views::FocusManager::GetFocusManager(GetNativeView());
 
     // If you hit this DCHECK, please report it to Jay (jcampan).
     DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
@@ -404,7 +404,7 @@ void TabContents::RestoreFocus() {
 }
 
 void TabContents::SetInitialFocus() {
-  ::SetFocus(GetContainerHWND());
+  ::SetFocus(GetNativeView());
 }
 
 void TabContents::AddInfoBar(InfoBarDelegate* delegate) {
@@ -489,8 +489,8 @@ void TabContents::OnStartDownload(DownloadItem* download) {
 
   // This animation will delete itself when it finishes, or if we become hidden
   // or destroyed.
-  if (IsWindowVisible(GetContainerHWND())) {  // For minimized windows, unit
-                                              // tests, etc.
+  if (IsWindowVisible(GetNativeView())) {  // For minimized windows, unit
+                                           // tests, etc.
     new DownloadStartedAnimation(tab_contents);
   }
 }
@@ -519,16 +519,16 @@ void TabContents::WillClose(ConstrainedWindow* window) {
   if (window == blocked_popups_)
     blocked_popups_ = NULL;
 
-  if (::IsWindow(GetContainerHWND())) {
+  if (::IsWindow(GetNativeView())) {
     CRect client_rect;
-    GetClientRect(GetContainerHWND(), &client_rect);
+    GetClientRect(GetNativeView(), &client_rect);
     RepositionSupressedPopupsToFit(
         gfx::Size(client_rect.Width(), client_rect.Height()));
   }
 }
 
 void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
-  UpdateWindow(GetContainerHWND());
+  UpdateWindow(GetNativeView());
 }
 
 void TabContents::Observe(NotificationType type,

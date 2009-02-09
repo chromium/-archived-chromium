@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
@@ -343,17 +344,17 @@ class TabContents : public PageNavigator,
   // Views and focus -----------------------------------------------------------
 
   // Returns the actual window that is focused when this TabContents is shown.
-  virtual HWND GetContentHWND() {
-    return GetContainerHWND();
+  virtual gfx::NativeView GetContentNativeView() {
+    return GetNativeView();
   }
 
   // Tell the subclass to set up the view (e.g. create the container HWND if
   // applicable) and any other create-time setup.
   virtual void CreateView() {}
 
-  // Returns the HWND associated with this TabContents. Outside of automation
-  // in the context of the UI, this is required to be implemented.
-  virtual HWND GetContainerHWND() const { return NULL; }
+  // Returns the NativeView associated with this TabContents. Outside of
+  // automation in the context of the UI, this is required to be implemented.
+  virtual gfx::NativeView GetNativeView() const { return NULL; }
 
   // Returns the bounds of this TabContents in the screen coordinate system.
   virtual void GetContainerBounds(gfx::Rect *out) const {
