@@ -86,7 +86,6 @@ inputs = [
     '$DERIVED_DIR/V8EntityReference.cpp',
     '$DERIVED_DIR/V8Event.cpp',
     '$DERIVED_DIR/V8EventException.cpp',
-    '$DERIVED_DIR/V8EventTargetNode.cpp',
     '$DERIVED_DIR/V8File.cpp',
     '$DERIVED_DIR/V8FileList.cpp',
     '$DERIVED_DIR/V8History.cpp',

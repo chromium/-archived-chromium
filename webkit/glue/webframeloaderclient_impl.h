@@ -43,6 +43,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   // giving it a chance to bind native objects to the window before script
   // parsing begins.
   virtual void windowObjectCleared();
+  virtual void documentElementAvailable();
 
   virtual bool hasWebView() const; // mainly for assertions
   virtual bool hasFrameView() const; // ditto

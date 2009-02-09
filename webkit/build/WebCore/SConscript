@@ -128,7 +128,6 @@ input_files = [
     '$WEBCORE_DIR/dom/Event.cpp',
     '$WEBCORE_DIR/dom/EventNames.cpp',
     '$WEBCORE_DIR/dom/EventTarget.cpp',
-    '$WEBCORE_DIR/dom/EventTargetNode.cpp',
     '$WEBCORE_DIR/dom/ExceptionBase.cpp',
     '$WEBCORE_DIR/dom/ExceptionCode.cpp',
     '$WEBCORE_DIR/dom/FormControlElementWithState.cpp',
@@ -542,6 +541,8 @@ input_files = [
     '$WEBCORE_DIR/platform/image-decoders/skia/PNGImageDecoder.cpp',
     '$WEBCORE_DIR/platform/image-decoders/skia/XBMImageDecoder.cpp',
 
+    '$WEBCORE_DIR/platform/image-encoders/skia/PNGImageEncoder.cpp',
+    
     '$WEBCORE_DIR/platform/network/AuthenticationChallengeBase.cpp',
     '$WEBCORE_DIR/platform/network/Credential.cpp',
     '$WEBCORE_DIR/platform/network/FormData.cpp',
