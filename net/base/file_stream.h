@@ -27,6 +27,13 @@ enum Whence {
 class FileStream {
  public:
   FileStream();
+
+  // Construct a FileStream with an existing file handle and opening flags.
+  // |file| is valid file handle.
+  // |flags| is a bitfield of base::PlatformFileFlags when the file handle was
+  // opened.
+  FileStream(base::PlatformFile file, int flags);
+
   ~FileStream();
 
   // Call this method to close the FileStream.  It is OK to call Close

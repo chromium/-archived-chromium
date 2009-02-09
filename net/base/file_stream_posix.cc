@@ -47,6 +47,12 @@ FileStream::FileStream() : file_(base::kInvalidPlatformFileValue) {
   DCHECK(!IsOpen());
 }
 
+FileStream::FileStream(base::PlatformFile file, int flags)
+    : file_(file), open_flags_(flags) {
+  // TODO(hclam): initialize the aync_context_ if the file handle
+  // is opened as an asynchronous file handle.
+}
+
 FileStream::~FileStream() {
   Close();
 }

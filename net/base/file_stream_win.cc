@@ -110,6 +110,17 @@ void FileStream::AsyncContext::OnIOCompleted(
 FileStream::FileStream() : file_(INVALID_HANDLE_VALUE) {
 }
 
+FileStream::FileStream(base::PlatformFile file, int flags)
+    : file_(file), open_flags_(flags) {
+  // If the file handle is opened with base::PLATFORM_FILE_ASYNC, we need to
+  // make sure we will perform asynchronous File IO to it.
+  if (flags & base::PLATFORM_FILE_ASYNC) {
+    async_context_.reset(new AsyncContext(this));
+    MessageLoopForIO::current()->RegisterIOHandler(file_,
+                                                   async_context_.get());
+  }
+}
+
 FileStream::~FileStream() {
   Close();
 }

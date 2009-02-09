@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_file.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_errors.h"
 #include "net/base/test_completion_callback.h"
@@ -37,6 +38,44 @@ TEST_F(FileStreamTest, BasicOpenClose) {
   int rv = stream.Open(temp_file_path(), 
       base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ);
   EXPECT_EQ(net::OK, rv);
+}
+
+// Test the use of FileStream with a file handle provided at construction.
+TEST_F(FileStreamTest, UseFileHandle) {
+  bool created = false;
+
+  // 1. Test reading with a file handle.
+  ASSERT_EQ(kTestDataSize,
+      file_util::WriteFile(temp_file_path(), kTestData, kTestDataSize));
+  int flags = base::PLATFORM_FILE_OPEN_ALWAYS | base::PLATFORM_FILE_READ;
+  base::PlatformFile file = base::CreatePlatformFile(
+      temp_file_path().ToWStringHack(), flags, &created);
+
+  // Seek to the beginning of the file and read.
+  net::FileStream read_stream(file, flags);
+  ASSERT_EQ(0, read_stream.Seek(net::FROM_BEGIN, 0));
+  ASSERT_EQ(kTestDataSize, read_stream.Available());
+  // Read into buffer and compare.
+  char buffer[kTestDataSize];
+  ASSERT_EQ(kTestDataSize, read_stream.Read(buffer, kTestDataSize, NULL));
+  ASSERT_EQ(0, memcmp(kTestData, buffer, kTestDataSize));
+  read_stream.Close();
+
+  // 2. Test writing with a file handle.
+  file_util::Delete(temp_file_path(), false);
+  flags = base::PLATFORM_FILE_OPEN_ALWAYS | base::PLATFORM_FILE_WRITE;
+  file = base::CreatePlatformFile(temp_file_path().ToWStringHack(),
+                                  flags, &created);
+
+  net::FileStream write_stream(file, flags);
+  ASSERT_EQ(0, write_stream.Seek(net::FROM_BEGIN, 0));
+  ASSERT_EQ(kTestDataSize, write_stream.Write(kTestData, kTestDataSize, NULL));
+  write_stream.Close();
+
+  // Read into buffer and compare to make sure the handle worked fine.
+  ASSERT_EQ(kTestDataSize,
+      file_util::ReadFile(temp_file_path(), buffer, kTestDataSize));
+  ASSERT_EQ(0, memcmp(kTestData, buffer, kTestDataSize));
 }
 
 TEST_F(FileStreamTest, UseClosedStream) {
