@@ -123,17 +123,21 @@ static const WebCore::DragOperation kDropTargetOperation =
     static_cast<WebCore::DragOperation>(DragOperationCopy | DragOperationLink);
 
 // AutocompletePopupMenuClient
-class AutocompletePopupMenuClient
-    : public RefCounted<AutocompletePopupMenuClient>,
-      public WebCore::PopupMenuClient {
+class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
  public:
-  AutocompletePopupMenuClient(WebViewImpl* webview,
-                              WebCore::HTMLInputElement* text_field,
-                              const std::vector<std::wstring>& suggestions,
-                              int default_suggestion_index)
-      : text_field_(text_field),
-        selected_index_(default_suggestion_index),
-        webview_(webview) {
+  AutocompletePopupMenuClient(WebViewImpl* webview) : text_field_(NULL),
+                                                      selected_index_(0),
+                                                      webview_(webview) {
+  }
+
+  void Init(WebCore::HTMLInputElement* text_field,
+            const std::vector<std::wstring>& suggestions,
+            int default_suggestion_index) {
+    DCHECK(default_suggestion_index < static_cast<int>(suggestions.size()));
+    text_field_ = text_field;
+    selected_index_ = default_suggestion_index;
+    SetSuggestions(suggestions);
+
     FontDescription font_description;
 #if defined(OS_WIN)
     theme()->systemFont(CSSValueWebkitControl, text_field->document(),
@@ -148,8 +152,9 @@ class AutocompletePopupMenuClient
     Font font(font_description, 0, 0);
     font.update(text_field->document()->styleSelector()->fontSelector());
     style_.reset(new PopupMenuStyle(Color::black, Color::white, font, true));
-    SetSuggestions(suggestions);
+
   }
+
   virtual ~AutocompletePopupMenuClient() {
   }
 
@@ -267,6 +272,9 @@ class AutocompletePopupMenuClient
   scoped_ptr<PopupMenuStyle> style_;
 };
 
+// Note that focusOnShow is false so that the autocomplete popup is shown not
+// activated.  We need the page to still have focus so the user can keep typing
+// while the popup is showing.
 static const WebCore::PopupContainerSettings kAutocompletePopupSettings = {
   false,  // focusOnShow
   false,  // setTextOnIndexChange
@@ -310,7 +318,8 @@ WebViewImpl::WebViewImpl()
       doing_drag_and_drop_(false),
       suppress_next_keypress_event_(false),
       window_open_disposition_(IGNORE_ACTION),
-      ime_accept_events_(true) {
+      ime_accept_events_(true),
+      autocomplete_popup_showing_(false) {
   // WebKit/win/WebView.cpp does the same thing, except they call the
   // KJS specific wrapper around this method. We need to have threading
   // initialized because CollatorICU requires it.
@@ -520,7 +529,7 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 }
 
 bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
-  if (!autocomplete_popup_ ||
+  if (!autocomplete_popup_showing_ ||
       // Home and End should be left to the text field to process.
       event.key_code == base::VKEY_HOME || event.key_code == base::VKEY_END) {
     return false;
@@ -1531,21 +1540,21 @@ void WebViewImpl::AutofillSuggestionsForNode(
 
     WebCore::HTMLInputElement* input_elem =
         static_cast<WebCore::HTMLInputElement*>(focused_node.get());
-    if (!autocomplete_popup_client_.get() ||
-        autocomplete_popup_client_->text_field() != input_elem) {
-      autocomplete_popup_client_ =
-          adoptRef(new AutocompletePopupMenuClient(this, input_elem,
-                                                   suggestions,
-                                                   default_suggestion_index));
-      // The autocomplete popup is not activated.  We need the page to still
-      // have focus so the user can keep typing when the popup is showing.
+
+    // The first time the autocomplete is shown we'll create the client and the
+    // popup.
+    if (!autocomplete_popup_client_.get())
+      autocomplete_popup_client_.reset(new AutocompletePopupMenuClient(this));
+    autocomplete_popup_client_->Init(input_elem,
+                                     suggestions,
+                                     default_suggestion_index);
+    if (!autocomplete_popup_.get()) {
       autocomplete_popup_ =
           WebCore::PopupContainer::create(autocomplete_popup_client_.get(),
                                           kAutocompletePopupSettings);
-      autocomplete_popup_->show(focused_node->getRect(), 
-                                page_->mainFrame()->view(), 0);
-    } else {
-      // There is already a popup, reuse it.
+    }
+
+    if (autocomplete_popup_showing_) {
       autocomplete_popup_client_->SetSuggestions(suggestions);
       IntRect old_bounds = autocomplete_popup_->boundsRect();
       autocomplete_popup_->refresh();
@@ -1557,6 +1566,10 @@ void WebViewImpl::AutofillSuggestionsForNode(
         web_widget->delegate()->SetWindowRect(
             web_widget, webkit_glue::FromIntRect(new_bounds));
       }
+    } else {
+      autocomplete_popup_->show(focused_node->getRect(), 
+                                page_->mainFrame()->view(), 0);
+      autocomplete_popup_showing_ = true;
     }
   }
 }
@@ -1653,8 +1666,7 @@ void WebViewImpl::DeleteImageResourceFetcher(ImageResourceFetcher* fetcher) {
 void WebViewImpl::HideAutoCompletePopup() {
   if (autocomplete_popup_) {
     autocomplete_popup_->hidePopup();
-    autocomplete_popup_.clear();
-    autocomplete_popup_client_.clear();
+    autocomplete_popup_showing_ = false;
   }
 }
 
