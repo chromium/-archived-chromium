@@ -328,18 +328,22 @@ std::wstring GetString(int message_id) {
 #endif
 }
 
-#if defined(OS_WIN)
-// TODO(port): re-enable.
 static std::wstring GetStringF(int message_id,
                                const std::wstring& a,
                                const std::wstring& b,
                                const std::wstring& c,
                                const std::wstring& d,
                                std::vector<size_t>* offsets) {
+#if defined(OS_WIN)
+// TODO(port): re-enable.
   const std::wstring& format_string = GetString(message_id);
   std::wstring formatted = ReplaceStringPlaceholders(format_string, a, b, c,
                                                      d, offsets);
   return formatted;
+#else
+  NOTIMPLEMENTED();
+  return L"GetStringF NOTIMPLEMENTED";
+#endif  // defined(OS_WIN)
 }
 
 std::wstring GetStringF(int message_id,
@@ -387,7 +391,6 @@ std::wstring GetStringF(int message_id, int a) {
 std::wstring GetStringF(int message_id, int64 a) {
   return GetStringF(message_id, Int64ToWString(a));
 }
-#endif  // defined(OS_WIN)
 
 std::wstring TruncateString(const std::wstring& string, size_t length) {
   if (string.size() <= length)

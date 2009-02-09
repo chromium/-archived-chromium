@@ -350,34 +350,6 @@ void ProcessWatcher::EnsureProcessTerminated(int) {
 
 
 //--------------------------------------------------------------------------
-
-namespace l10n_util {
-
-std::wstring GetStringF(int message_id,
-                        const std::wstring& a) {
-  NOTIMPLEMENTED();
-  return L"";
-}
-
-std::wstring GetStringF(int message_id,
-                        const std::wstring& a,
-                        const std::wstring& b,
-                        std::vector<size_t>* offsets) {
-  NOTIMPLEMENTED();
-  return L"";
-}
-
-std::wstring GetStringF(int id,
-                        const std::wstring& a,
-                        const std::wstring& b,
-                        const std::wstring& c) {
-  NOTIMPLEMENTED();
-  return L"";
-}
-
-}  // l10n_util
-
-//--------------------------------------------------------------------------
 namespace webkit_glue {
 
 bool IsDefaultPluginEnabled() {
