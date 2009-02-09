@@ -641,14 +641,6 @@ bool TabProxy::ProcessUnhandledAccelerator(const MSG& msg) {
   // This message expects no response
 }
 
-bool TabProxy::SetInitialFocus(bool reverse) {
-  if (!is_valid())
-    return false;
-  return sender_->Send(
-      new AutomationMsg_SetInitialFocus(0, handle_, reverse));
-  // This message expects no response
-}
-
 bool TabProxy::WaitForTabToBeRestored(uint32 timeout_ms) {
   if (!is_valid())
     return false;

@@ -219,9 +219,6 @@ class TabProxy : public AutomationResourceProxy {
   // to handle the keys
   bool ProcessUnhandledAccelerator(const MSG& msg);
 
-  // Ask the tab to set focus to either the first or last element on the page.
-  bool SetInitialFocus(bool reverse);
-
   // Waits for the tab to finish being restored. Returns true on success.
   // timeout_ms gives the max amount of time to wait for restore to complete.
   bool WaitForTabToBeRestored(uint32 timeout_ms);

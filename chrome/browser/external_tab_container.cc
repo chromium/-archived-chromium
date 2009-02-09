@@ -74,22 +74,12 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
 
   // Create a TabContentsContainerView to handle focus cycling using Tab and
   // Shift-Tab.
+  // TODO(sanjeevr): We need to create a dummy FocusTraversable object to
+  // represent the frame of the external host. This will allow Tab and
+  // Shift-Tab to cycle into the external frame.
   tab_contents_container_ = new TabContentsContainerView();
   root_view_.AddChildView(tab_contents_container_);
-  // Note that SetTabContents must be called after AddChildView is called
   tab_contents_container_->SetTabContents(tab_contents_);
-  // Add a dummy view to catch when the user tabs out of the tab
-  // Create a dummy FocusTraversable object to represent the frame of the
-  // external host. This will allow Tab and Shift-Tab to cycle into the
-  // external frame.  When the tab_contents_container_ loses focus,
-  // the focus will be moved to this class (See OnSetFocus in this file).
-  // An alternative to using views::View and catching when the focus manager
-  // shifts the focus to the dummy view could be to implement our own view
-  // and handle AboutToRequestFocusFromTabTraversal.
-  views::View* dummy = new views::View();
-  dummy->SetFocusable(true);
-  DCHECK(dummy->IsFocusable());
-  root_view_.AddChildView(dummy);
 
   NavigationController* controller = tab_contents_->controller();
   DCHECK(controller);
@@ -114,7 +104,7 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
 }
 
 void ExternalTabContainer::OnDestroy() {
-  views::FocusManager* focus_manager =
+  views::FocusManager * focus_manager =
       views::FocusManager::GetFocusManager(GetHWND());
   if (focus_manager) {
     focus_manager->RemoveKeystrokeListener(this);
@@ -150,21 +140,9 @@ LRESULT ExternalTabContainer::OnSize(UINT, WPARAM, LPARAM, BOOL& handled) {
   return 0;
 }
 
-LRESULT ExternalTabContainer::OnSetFocus(UINT msg, WPARAM wp, LPARAM lp,
-                                         BOOL& handled) {
-  if (automation_) {
-    views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetHWND());
-    DCHECK(focus_manager);
-    if (focus_manager) {
-      focus_manager->ClearFocus();
-      automation_->Send(new AutomationMsg_TabbedOut(win_util::IsShiftPressed(),
-                                                    false));
-    }
-  }
-
-  return 0;
-}
+// TODO(sanjeevr): The implementation of the TabContentsDelegate interface
+// needs to be fully fleshed out based on the requirements of the
+// "Chrome tab in external browser" feature.
 
 void ExternalTabContainer::OpenURLFromTab(TabContents* source,
                            const GURL& url,
@@ -186,10 +164,10 @@ void ExternalTabContainer::OpenURLFromTab(TabContents* source,
 }
 
 void ExternalTabContainer::NavigationStateChanged(const TabContents* source,
-                                                  unsigned changed_flags) {
+                                    unsigned changed_flags) {
   if (automation_) {
     automation_->Send(
-        new AutomationMsg_NavigationStateChanged(0, changed_flags));
+        new AutomationMsg_NavigationStateChanged(0,changed_flags));
   }
 }
 
@@ -212,16 +190,14 @@ void ExternalTabContainer::LoadingStateChanged(TabContents* source) {
 void ExternalTabContainer::CloseContents(TabContents* source) {
 }
 
-void ExternalTabContainer::MoveContents(TabContents* source,
-                                        const gfx::Rect& pos) {
+void ExternalTabContainer::MoveContents(TabContents* source, const gfx::Rect& pos) {
 }
 
 bool ExternalTabContainer::IsPopup(TabContents* source) {
   return false;
 }
 
-void ExternalTabContainer::URLStarredChanged(TabContents* source,
-                                             bool starred) {
+void ExternalTabContainer::URLStarredChanged(TabContents* source, bool starred) {
 }
 
 void ExternalTabContainer::UpdateTargetURL(TabContents* source,
@@ -237,7 +213,7 @@ void ExternalTabContainer::ContentsZoomChange(bool zoom_in) {
 }
 
 void ExternalTabContainer::ToolbarSizeChanged(TabContents* source,
-                                              bool finished) {
+                                            bool finished) {
 }
 
 void ExternalTabContainer::ForwardMessageToExternalHost(
@@ -305,7 +281,7 @@ bool ExternalTabContainer::IsActive() {
 }
 
 bool ExternalTabContainer::ProcessKeyDown(HWND window, UINT message,
-                                          WPARAM wparam, LPARAM lparam) {
+                                            WPARAM wparam, LPARAM lparam) {
   if (!automation_) {
     return false;
   }
@@ -346,13 +322,6 @@ void ExternalTabContainer::ProcessUnhandledAccelerator(const MSG& msg) {
   // also need to call TranslateMessage to generate a WM_CHAR if needed).
   TranslateMessage(&msg);
   DispatchMessage(&msg);
-}
-
-void ExternalTabContainer::SetInitialFocus(bool reverse) {
-  DCHECK(tab_contents_);
-  if (tab_contents_) {
-    tab_contents_->SetInitialFocus(reverse);
-  }
 }
 
 // static
