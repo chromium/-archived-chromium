@@ -82,8 +82,7 @@ MULTIPROCESS_TEST_MAIN(SimpleRenderer) {
   cl.AppendSwitchWithValue(switches::kProcessChannelID,
                                      kRendererTestChannelName);
 
-  MainFunctionParams dummy_params(cl,
-                                  dummy_sandbox_init);
+  MainFunctionParams dummy_params(cl, dummy_sandbox_init, NULL);
   return RendererMain(dummy_params);
 }
 

@@ -6,14 +6,25 @@
 
 #import <Foundation/Foundation.h>
 
+#include "base/logging.h"
+
 namespace base {
 
 ScopedNSAutoreleasePool::ScopedNSAutoreleasePool()
     : autorelease_pool_([[NSAutoreleasePool alloc] init]) {
+  DCHECK(autorelease_pool_);
 }
 
 ScopedNSAutoreleasePool::~ScopedNSAutoreleasePool() {
   [autorelease_pool_ drain];
+}
+
+// Cycle the internal pool, allowing everything there to get cleaned up and
+// start anew.
+void ScopedNSAutoreleasePool::Recycle() {
+  [autorelease_pool_ drain];
+  autorelease_pool_ = [[NSAutoreleasePool alloc] init];
+  DCHECK(autorelease_pool_);
 }
 
 }  // namespace base

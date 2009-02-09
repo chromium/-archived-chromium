@@ -12,13 +12,19 @@
 #include "base/command_line.h"
 #include "chrome/common/sandbox_init_wrapper.h"
 
+namespace base {
+class ScopedNSAutoreleasePool;
+};
 class Task;
 
 struct MainFunctionParams {
-  MainFunctionParams(const CommandLine& cl, const SandboxInitWrapper& sb)
-      : command_line_(cl), sandbox_info_(sb), ui_task(NULL) { }
+  MainFunctionParams(const CommandLine& cl, const SandboxInitWrapper& sb,
+                     base::ScopedNSAutoreleasePool* pool)
+      : command_line_(cl), sandbox_info_(sb), autorelease_pool_(pool),
+        ui_task(NULL) { }
   const CommandLine& command_line_;
   const SandboxInitWrapper& sandbox_info_;
+  base::ScopedNSAutoreleasePool* autorelease_pool_;
   // Used by InProcessBrowserTest. If non-null BrowserMain schedules this
   // task to run on the MessageLoop and BrowserInit is not invoked.
   Task* ui_task;

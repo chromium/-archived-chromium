@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/lazy_instance.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/string_piece.h"
@@ -190,6 +191,7 @@ void RunUIMessageLoop(BrowserProcess* browser_process) {
 // Main routine for running as the Browser process.
 int BrowserMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
+  base::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool_;
 
   // WARNING: If we get a WM_ENDSESSION objects created on the stack here
   // are NOT deleted. If you need something to run during WM_ENDSESSION add it
@@ -554,13 +556,18 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // This should happen before ProcessCommandLine.
   profile->InitExtensions();
 
+  // Call Recycle() here as late as possible, just before going into the main
+  // loop. We can't do it any earlier, as ProcessCommandLine() will add things
+  // to it in the act of creating the initial browser window.
   int result_code = ResultCodes::NORMAL_EXIT;
   if (parameters.ui_task) {
+    if (pool) pool->Recycle();
     MessageLoopForUI::current()->PostTask(FROM_HERE, parameters.ui_task);
     RunUIMessageLoop(browser_process.get());
   } else if (BrowserInit::ProcessCommandLine(parsed_command_line,
                                              std::wstring(), local_state, true,
                                              profile, &result_code)) {
+    if (pool) pool->Recycle();
     RunUIMessageLoop(browser_process.get());
   }
 

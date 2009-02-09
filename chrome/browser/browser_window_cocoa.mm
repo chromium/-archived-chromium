@@ -33,6 +33,7 @@ void BrowserWindowCocoa::SetBounds(const gfx::Rect& bounds) {
 
 void BrowserWindowCocoa::Close() {
   [window_ orderOut:controller_];
+  [window_ performClose:controller_];
 }
 
 void BrowserWindowCocoa::Activate() {

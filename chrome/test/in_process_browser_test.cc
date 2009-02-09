@@ -88,7 +88,7 @@ void InProcessBrowserTest::SetUp() {
 
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   SandboxInitWrapper sandbox_wrapper;
-  MainFunctionParams params(*command_line, sandbox_wrapper);
+  MainFunctionParams params(*command_line, sandbox_wrapper, NULL);
   params.ui_task =
       NewRunnableMethod(this, &InProcessBrowserTest::RunTestOnMainThreadLoop);
   BrowserMain(params);

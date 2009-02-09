@@ -6,6 +6,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
+#include "base/scoped_nsautorelease_pool.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
 #include "chrome/common/chrome_constants.h"
@@ -56,6 +57,7 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
 // mainline routine for running as the Rendererer process
 int RendererMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
+  base::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool_;
   RendererMainPlatformDelegate platform(parameters);
 
   StatsScope<StatsCounterTimer>
@@ -91,6 +93,7 @@ int RendererMain(const MainFunctionParams& parameters) {
     if (run_loop) {
       // Load the accelerator table from the browser executable and tell the
       // message loop to use it when translating messages.
+      if (pool) pool->Recycle();
       MessageLoop::current()->Run();
     }
 

@@ -200,11 +200,10 @@ int ChromeMain(int argc, const char** argv) {
   // The exit manager is in charge of calling the dtors of singleton objects.
   base::AtExitManager exit_manager;
 
-  // TODO(pinkerton): We need this pool here for all the objects created
-  // before we get to the UI event loop, but we don't want to leave them
-  // hanging around until the app quits. We should add a "flush" to the class
-  // which just cycles the pool under the covers and then call that just
-  // before we invoke the main UI loop near the bottom of this function.
+  // We need this pool for all the objects created before we get to the 
+  // event loop, but we don't want to leave them hanging around until the
+  // app quits. Each "main" needs to flush this pool right before it goes into
+  // its main event loop to get rid of the cruft.
   base::ScopedNSAutoreleasePool autorelease_pool;
 
 #if defined(OS_LINUX)
@@ -307,7 +306,8 @@ int ChromeMain(int argc, const char** argv) {
 
   startup_timer.Stop();  // End of Startup Time Measurement.
 
-  MainFunctionParams main_params(parsed_command_line, sandbox_wrapper);
+  MainFunctionParams main_params(parsed_command_line, sandbox_wrapper,
+                                 &autorelease_pool);
 
   // TODO(port): turn on these main() functions as they've been de-winified.
   int rv = -1;

@@ -19,8 +19,16 @@
 @implementation AppController
 
 - (void)awakeFromNib {
-  // set up the command updater for when there are no windows open
+  // Set up the command updater for when there are no windows open
   [self initMenuState];
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification*)notify {
+  // Hold an extra ref to the BrowserProcess singleton so it doesn't go away
+  // when all the browser windows get closed. We'll release it on quit which
+  // will be the signal to exit.
+  DCHECK(g_browser_process);
+  g_browser_process->AddRefModule();
 }
 
 - (void)dealloc {
@@ -41,14 +49,11 @@
   // go back to normal.
 
   // Close all the windows.
-  // TODO(pinkerton): the close code assumes that teardown happens 
-  // synchronously, however with autorelease pools and ref-counting, we can't
-  // guarantee the window controller hits 0 inside this call, and thus the
-  // number of Browsers still alive will certainly be non-zero. Not sure yet
-  // how to handle this case.
-  // BrowserList::CloseAllBrowsers(false);
+  BrowserList::CloseAllBrowsers(true);
   
-  MessageLoopForUI::current()->Quit();
+  // Release the reference to the browser process. Once all the browsers get
+  // dealloc'd, it will stop the RunLoop and fall back into main().
+  g_browser_process->ReleaseModule();
 }
 
 // Called to validate menu items when there are no key windows. All the

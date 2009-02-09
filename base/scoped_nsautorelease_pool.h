@@ -29,10 +29,16 @@ class ScopedNSAutoreleasePool {
  public:
 #if !defined(OS_MACOSX)
   ScopedNSAutoreleasePool() {}
+  void Recycle() { }
 #else  // OS_MACOSX
   ScopedNSAutoreleasePool();
   ~ScopedNSAutoreleasePool();
 
+  // Clear out the pool in case its position on the stack causes it to be
+  // alive for long periods of time (such as the entire length of the app).
+  // Only use then when you're certain the items currently in the pool are
+  // no longer needed.
+  void Recycle();
  private:
   NSAutoreleasePool* autorelease_pool_;
 #endif  // OS_MACOSX
