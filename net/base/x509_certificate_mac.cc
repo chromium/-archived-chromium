@@ -243,6 +243,11 @@ void X509Certificate::Persist(Pickle* pickle) {
   pickle->WriteData(reinterpret_cast<char*>(cert_data.Data), cert_data.Length);
 }
 
+bool X509Certificate::HasExpired() const {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
   dns_names->clear();
   
