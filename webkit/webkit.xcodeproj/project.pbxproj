@@ -1039,7 +1039,6 @@
 		938447C00F16B06E0075F4C5 /* V8EntityReference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0091850DAFEFE300F72082 /* V8EntityReference.cpp */; };
 		938447C10F16B06E0075F4C5 /* V8Event.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0091870DAFEFE300F72082 /* V8Event.cpp */; };
 		938447C20F16B06E0075F4C5 /* V8EventException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0091890DAFEFE300F72082 /* V8EventException.cpp */; };
-		938447C30F16B06E0075F4C5 /* V8EventTargetNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00918B0DAFEFE300F72082 /* V8EventTargetNode.cpp */; };
 		938447C40F16B06E0075F4C5 /* V8File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF820E9B9F6300C66CE0 /* V8File.cpp */; };
 		938447C50F16B06E0075F4C5 /* V8FileList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF840E9B9F6300C66CE0 /* V8FileList.cpp */; };
 		938447C60F16B06E0075F4C5 /* V8History.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00918D0DAFEFE300F72082 /* V8History.cpp */; };
@@ -1526,7 +1525,6 @@
 		3CF1E7520F09B425009BC1A7 /* RenderTextControlSingleLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderTextControlSingleLine.h; sourceTree = "<group>"; };
 		3CF1E7570F09B441009BC1A7 /* FormControlElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormControlElement.h; sourceTree = "<group>"; };
 		3E9CDA0420F5FBB839D45544 /* CrossThreadCopier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrossThreadCopier.cpp; sourceTree = "<group>"; };
-		410303530EFB0C7C008832CA /* ScriptCachedPageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptCachedPageData.h; sourceTree = "<group>"; };
 		4103039E0EFB0F7C008832CA /* CachedPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CachedPage.cpp; sourceTree = "<group>"; };
 		410303A10EFB0F8D008832CA /* CachedPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedPage.h; sourceTree = "<group>"; };
 		4112E7040EFB0A26001E0E7A /* RandomNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandomNumber.h; sourceTree = "<group>"; };
@@ -1967,8 +1965,6 @@
 		7B0091880DAFEFE300F72082 /* V8Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8Event.h; sourceTree = "<group>"; };
 		7B0091890DAFEFE300F72082 /* V8EventException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8EventException.cpp; sourceTree = "<group>"; };
 		7B00918A0DAFEFE300F72082 /* V8EventException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8EventException.h; sourceTree = "<group>"; };
-		7B00918B0DAFEFE300F72082 /* V8EventTargetNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8EventTargetNode.cpp; sourceTree = "<group>"; };
-		7B00918C0DAFEFE300F72082 /* V8EventTargetNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8EventTargetNode.h; sourceTree = "<group>"; };
 		7B00918D0DAFEFE300F72082 /* V8History.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8History.cpp; sourceTree = "<group>"; };
 		7B00918E0DAFEFE300F72082 /* V8History.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8History.h; sourceTree = "<group>"; };
 		7B00918F0DAFEFE300F72082 /* V8HTMLAnchorElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLAnchorElement.cpp; sourceTree = "<group>"; };
@@ -2420,7 +2416,6 @@
 		7B0095EC0DAFF0DD00F72082 /* v8_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_utility.h; sourceTree = "<group>"; };
 		7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = v8_vectornodelist.cpp; sourceTree = "<group>"; };
 		7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_vectornodelist.h; sourceTree = "<group>"; };
-		7B00961D0DAFF19C00F72082 /* ScheduledAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScheduledAction.h; sourceTree = "<group>"; };
 		7B0E595B0DB3D195007D4907 /* IconDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IconDatabase.h; path = icon/IconDatabase.h; sourceTree = "<group>"; };
 		7B0E595C0DB3D195007D4907 /* IconDatabaseClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IconDatabaseClient.h; path = icon/IconDatabaseClient.h; sourceTree = "<group>"; };
 		7B0E595D0DB3D195007D4907 /* IconDatabaseNone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IconDatabaseNone.cpp; path = icon/IconDatabaseNone.cpp; sourceTree = "<group>"; };
@@ -2635,7 +2630,6 @@
 		7B5E8A020D7F3A7C001ECF42 /* EventNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventNames.h; sourceTree = "<group>"; };
 		7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventTarget.cpp; sourceTree = "<group>"; };
 		7B5E8A040D7F3A7C001ECF42 /* EventTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventTarget.h; sourceTree = "<group>"; };
-		7B5E8A070D7F3A7C001ECF42 /* EventTargetNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventTargetNode.h; sourceTree = "<group>"; };
 		7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionBase.cpp; sourceTree = "<group>"; };
 		7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExceptionBase.h; sourceTree = "<group>"; };
 		7B5E8A0A0D7F3A7C001ECF42 /* ExceptionCode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionCode.cpp; sourceTree = "<group>"; };
@@ -4366,7 +4360,6 @@
 		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Collator.h; sourceTree = "<group>"; };
 		E40060D90EA69E0B0055B38E /* ScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptController.h; sourceTree = "<group>"; };
 		E40060DA0EA69E0B0055B38E /* ScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptController.cpp; sourceTree = "<group>"; };
-		E40063760EA908220055B38E /* ScriptCallContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScriptCallContext.cpp; path = ../third_party/WebKit/WebCore/bindings/js/ScriptCallContext.cpp; sourceTree = SOURCE_ROOT; };
 		E4506C0A0EF039DE003BE099 /* dom_serializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_serializer.cc; sourceTree = "<group>"; };
 		E4506C0B0EF039DE003BE099 /* dom_serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_serializer.h; sourceTree = "<group>"; };
 		E4506C0E0EF03A2F003BE099 /* entity_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = entity_map.h; sourceTree = "<group>"; };
@@ -4622,21 +4615,10 @@
 		7B0091290DAFEF0E00F72082 /* jsbindings */ = {
 			isa = PBXGroup;
 			children = (
-				7B00912A0DAFEF2000F72082 /* bindings */,
 				7B0095D00DAFF0DC00F72082 /* v8 */,
-				7B00960E0DAFF19B00F72082 /* dom */,
 			);
 			name = jsbindings;
 			sourceTree = "<group>";
-		};
-		7B00912A0DAFEF2000F72082 /* bindings */ = {
-			isa = PBXGroup;
-			children = (
-				E40063760EA908220055B38E /* ScriptCallContext.cpp */,
-			);
-			name = bindings;
-			path = generated/bindings/v8;
-			sourceTree = CONFIGURATION_TEMP_DIR;
 		};
 		7B0095D00DAFF0DC00F72082 /* v8 */ = {
 			isa = PBXGroup;
@@ -4655,7 +4637,6 @@
 				7B0095DA0DAFF0DC00F72082 /* npruntime_priv.h */,
 				934CC2270EDCC37600A658F2 /* RGBColor.cpp */,
 				934CC2290EDCC38400A658F2 /* RGBColor.h */,
-				410303530EFB0C7C008832CA /* ScriptCachedPageData.h */,
 				419107550EF319C300BFDCC5 /* ScriptCallFrame.cpp */,
 				419107540EF319C300BFDCC5 /* ScriptCallFrame.h */,
 				4191075E0EF319FC00BFDCC5 /* ScriptCallStack.cpp */,
@@ -4695,15 +4676,6 @@
 			);
 			name = v8;
 			path = port/bindings/v8;
-			sourceTree = "<group>";
-		};
-		7B00960E0DAFF19B00F72082 /* dom */ = {
-			isa = PBXGroup;
-			children = (
-				7B00961D0DAFF19C00F72082 /* ScheduledAction.h */,
-			);
-			name = dom;
-			path = port/dom;
 			sourceTree = "<group>";
 		};
 		7B0E59590DB3D195007D4907 /* icon */ = {
@@ -5076,7 +5048,6 @@
 				7B5E8A020D7F3A7C001ECF42 /* EventNames.h */,
 				7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */,
 				7B5E8A040D7F3A7C001ECF42 /* EventTarget.h */,
-				7B5E8A070D7F3A7C001ECF42 /* EventTargetNode.h */,
 				7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */,
 				7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */,
 				7B5E8A0A0D7F3A7C001ECF42 /* ExceptionCode.cpp */,
@@ -6990,8 +6961,6 @@
 				7B0091880DAFEFE300F72082 /* V8Event.h */,
 				7B0091890DAFEFE300F72082 /* V8EventException.cpp */,
 				7B00918A0DAFEFE300F72082 /* V8EventException.h */,
-				7B00918B0DAFEFE300F72082 /* V8EventTargetNode.cpp */,
-				7B00918C0DAFEFE300F72082 /* V8EventTargetNode.h */,
 				4DB7EF820E9B9F6300C66CE0 /* V8File.cpp */,
 				4DB7EF830E9B9F6300C66CE0 /* V8File.h */,
 				4DB7EF840E9B9F6300C66CE0 /* V8FileList.cpp */,
@@ -8335,7 +8304,6 @@
 				938447C00F16B06E0075F4C5 /* V8EntityReference.cpp in Sources */,
 				938447C10F16B06E0075F4C5 /* V8Event.cpp in Sources */,
 				938447C20F16B06E0075F4C5 /* V8EventException.cpp in Sources */,
-				938447C30F16B06E0075F4C5 /* V8EventTargetNode.cpp in Sources */,
 				938447C40F16B06E0075F4C5 /* V8File.cpp in Sources */,
 				938447C50F16B06E0075F4C5 /* V8FileList.cpp in Sources */,
 				938447C60F16B06E0075F4C5 /* V8History.cpp in Sources */,
