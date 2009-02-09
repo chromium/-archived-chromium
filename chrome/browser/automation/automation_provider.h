@@ -30,6 +30,7 @@
 
 class LoginHandler;
 class NavigationControllerRestoredObserver;
+class ExternalTabContainer;
 
 class AutomationProvider : public base::RefCounted<AutomationProvider>,
                            public IPC::Channel::Listener,
@@ -248,6 +249,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void ProcessUnhandledAccelerator(const IPC::Message& message, int handle,
                                    const MSG& msg);
 
+  void SetInitialFocus(const IPC::Message& message, int handle, bool reverse);
+
   // See comment in AutomationMsg_WaitForTabToBeRestored.
   void WaitForTabToBeRestored(const IPC::Message& message, int tab_handle);
 
@@ -369,6 +372,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // to the tab is also returned. Returns NULL in case of failure or if the tab
   // is not of the WebContents type.
   WebContents* GetWebContentsForHandle(int handle, NavigationController** tab);
+
+  ExternalTabContainer* GetExternalTabForHandle(int handle);
 
   // Callback for history redirect queries.
   virtual void OnRedirectQueryComplete(

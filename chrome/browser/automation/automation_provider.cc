@@ -770,6 +770,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         SetAcceleratorsForTab)
     IPC_MESSAGE_HANDLER(AutomationMsg_ProcessUnhandledAccelerator,
                         ProcessUnhandledAccelerator)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetInitialFocus,
+                        SetInitialFocus)
     IPC_MESSAGE_HANDLER(AutomationMsg_WaitForTabToBeRestored,
                         WaitForTabToBeRestored)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetSecurityState,
@@ -2105,18 +2107,10 @@ void AutomationProvider::SetAcceleratorsForTab(const IPC::Message& message,
                                                HACCEL accel_table,
                                                int accel_entry_count) {
   bool status = false;
-  if (tab_tracker_->ContainsHandle(handle)) {
-    NavigationController* tab = tab_tracker_->GetResource(handle);
-    TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
-    ExternalTabContainer* external_tab_container =
-        ExternalTabContainer::GetContainerForTab(
-            tab_contents->GetContainerHWND());
-    // This call is only valid on an externally hosted tab
-    if (external_tab_container) {
-      external_tab_container->SetAccelerators(accel_table,
-                                              accel_entry_count);
-      status = true;
-    }
+  ExternalTabContainer* external_tab = GetExternalTabForHandle(handle);
+  if (external_tab) {
+    external_tab->SetAccelerators(accel_table, accel_entry_count);
+    status = true;
   }
   Send(new AutomationMsg_SetAcceleratorsForTabResponse(message.routing_id(),
                                                        status));
@@ -2124,16 +2118,18 @@ void AutomationProvider::SetAcceleratorsForTab(const IPC::Message& message,
 
 void AutomationProvider::ProcessUnhandledAccelerator(
     const IPC::Message& message, int handle, const MSG& msg) {
-  if (tab_tracker_->ContainsHandle(handle)) {
-    NavigationController* tab = tab_tracker_->GetResource(handle);
-    TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
-    ExternalTabContainer* external_tab_container =
-        ExternalTabContainer::GetContainerForTab(
-            tab_contents->GetContainerHWND());
-    // This call is only valid on an externally hosted tab
-    if (external_tab_container) {
-      external_tab_container->ProcessUnhandledAccelerator(msg);
-    }
+  ExternalTabContainer* external_tab = GetExternalTabForHandle(handle);
+  if (external_tab) {
+    external_tab->ProcessUnhandledAccelerator(msg);
+  }
+  // This message expects no response.
+}
+
+void AutomationProvider::SetInitialFocus(const IPC::Message& message,
+                                           int handle, bool reverse) {
+  ExternalTabContainer* external_tab = GetExternalTabForHandle(handle);
+  if (external_tab) {
+    external_tab->SetInitialFocus(reverse);
   }
   // This message expects no response.
 }
@@ -2389,6 +2385,20 @@ WebContents* AutomationProvider::GetWebContentsForHandle(
     }
   }
   return web_contents;
+}
+
+ExternalTabContainer* AutomationProvider::GetExternalTabForHandle(int handle) {
+  if (tab_tracker_->ContainsHandle(handle)) {
+    NavigationController* tab = tab_tracker_->GetResource(handle);
+    TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
+    DCHECK(tab_contents);
+    if (tab_contents) {
+      HWND hwnd = tab_contents->GetContainerHWND();
+      return ExternalTabContainer::GetContainerForTab(hwnd);
+    }
+  }
+
+  return NULL;
 }
 
 TestingAutomationProvider::TestingAutomationProvider(Profile* profile)
