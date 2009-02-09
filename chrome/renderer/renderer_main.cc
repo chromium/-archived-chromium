@@ -19,6 +19,10 @@
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 #include "chrome/renderer/render_process.h"
 
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
@@ -42,14 +46,22 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
     title += L" renderer";  // makes attaching to process easier
     ::MessageBox(NULL, L"renderer starting...", title.c_str(),
                  MB_OK | MB_SETFOREGROUND);
-#elif defined(OS_POSIX)
-  // TODO(playmobil): In the long term, overriding this flag doesn't seem
-  // right, either use our own flag or open a dialog we can use.
-  // This is just to ease debugging in the interim.
-  LOG(WARNING) << "Renderer ("
-               << getpid()
-               << ") paused waiting for debugger to attach @ pid" ;
-  pause();
+#elif defined(OS_LINUX)
+    // TODO(port): create an abstraction layer for dialog boxes and use it here.
+    GtkDialog *dialog =
+        GTK_DIALOG(gtk_dialog_new_with_buttons("renderer starting...",
+        NULL, static_cast<GtkDialogFlags>(GTK_DIALOG_MODAL |
+                                          GTK_DIALOG_DESTROY_WITH_PARENT),
+        GTK_STOCK_OK));
+    gtk_dialog_run(dialog);
+#elif defined(OS_MACOSX)
+    // TODO(playmobil): In the long term, overriding this flag doesn't seem
+    // right, either use our own flag or open a dialog we can use.
+    // This is just to ease debugging in the interim.
+    LOG(WARNING) << "Renderer ("
+                 << getpid()
+                 << ") paused waiting for debugger to attach @ pid";
+    pause();
 #endif  // defined(OS_POSIX)
   }
 }
