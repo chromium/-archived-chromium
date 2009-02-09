@@ -88,9 +88,6 @@ root_env = Environment(
     # Where ComponentProgram() will build program executables.
     STAGING_DIR = '$DESTINATION_ROOT',
 
-    # Where ComponentLibrary() will build libraries.
-    LIBS_DIR              = '$COMPONENT_LIBRARY_DIR',
-
     # TODO(hammer):  when Hammer supports this...
     # Have Hammer prefix all Library aliases with lib_ (to avoid
     # collisions with the component names themselves).

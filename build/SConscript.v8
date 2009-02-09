@@ -79,7 +79,7 @@ env.Precious(v8)
 
 
 env.Install('$TARGET_ROOT', v8[0])
-env.Install('$LIBS_DIR', v8[1])
+env.Install('$LIB_DIR', v8[1])
 env.Install('$V8_DIR', '$V8_MODE_DIR/snapshot-empty${OBJSUFFIX}')
 
 # To satisfy tests expecting the following .exe name.

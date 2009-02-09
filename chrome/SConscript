@@ -759,7 +759,7 @@ env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])
 
 # TODO(port)
 if env.Bit('windows'):
-  env.InstallAs('$LIBS_DIR/${LIBPREFIX}jscre${LIBSUFFIX}',
+  env.InstallAs('$LIB_DIR/${LIBPREFIX}jscre${LIBSUFFIX}',
                 '$WEBKIT_DIR/JavaScriptCore_pcre.lib')
 
 
