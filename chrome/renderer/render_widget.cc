@@ -229,10 +229,14 @@ void RenderWidget::OnClose() {
   }
 }
 
-void RenderWidget::OnResize(const gfx::Size& new_size) {
+void RenderWidget::OnResize(const gfx::Size& new_size,
+                            const gfx::Rect& resizer_rect) {
   // During shutdown we can just ignore this message.
   if (!webwidget_)
     return;
+
+  // Remember the rect where the resize corner will be drawn.
+  resizer_rect_ = resizer_rect;
 
   // TODO(darin): We should not need to reset this here.
   is_hidden_ = false;
@@ -694,8 +698,7 @@ void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
 
 void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget,
                                             gfx::Rect* rect) {
-  Send(new ViewHostMsg_GetRootWindowResizerRect(routing_id_, host_window_,
-                                                rect));
+  *rect = resizer_rect_;
 }
 
 void RenderWidget::OnImeSetInputMode(bool is_active) {

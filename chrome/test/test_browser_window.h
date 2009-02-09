@@ -34,7 +34,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void UpdateLoadingAnimations(bool should_animate) {}
   virtual void SetStarredState(bool is_starred) {}
   virtual gfx::Rect GetNormalBounds() const { return gfx::Rect(); }
-  virtual bool IsMaximized() { return false; }
+  virtual bool IsMaximized() const { return false; }
   virtual LocationBar* GetLocationBar() const {
     return const_cast<TestLocationBar*>(&location_bar_);
   }
@@ -43,6 +43,7 @@ class TestBrowserWindow : public BrowserWindow {
                              bool should_restore_state) {}
   virtual void FocusToolbar() {}
   virtual bool IsBookmarkBarVisible() const { return false; }
+  virtual gfx::Rect GetRootWindowResizerRect() const { return gfx::Rect(); }
   virtual void ToggleBookmarkBar() {}
   virtual void ShowAboutChromeDialog() {}
   virtual void ShowBookmarkManager() {}

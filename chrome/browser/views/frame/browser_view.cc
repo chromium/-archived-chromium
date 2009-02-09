@@ -47,12 +47,15 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_notification_source.h"
+#include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
+#include "webkit_resources.h"
+
 
 using base::TimeDelta;
 
@@ -86,7 +89,11 @@ static const int kLoadingAnimationFrameTimeMs = 30;
 // If not -1, windows are shown with this state.
 static int explicit_show_state = -1;
 
-static const struct { bool separator; int command; int label; } kMenuLayout[] = {
+static const struct {
+  bool separator;
+  int command;
+  int label;
+} kMenuLayout[] = {
   { true, 0, 0 },
   { false, IDC_TASK_MANAGER, IDS_TASK_MANAGER },
   { true, 0, 0 },
@@ -111,6 +118,53 @@ static const struct { bool separator; int command; int label; } kMenuLayout[] = 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+// ResizeCorner, private:
+
+class ResizeCorner : public views::View {
+ public:
+  ResizeCorner() {}
+  virtual void Paint(ChromeCanvas* canvas) {
+    SkBitmap * bitmap = ResourceBundle::GetSharedInstance().GetBitmapNamed(
+        IDR_TEXTAREA_RESIZER);
+    bitmap->buildMipMap(false);
+    bool rtl_dir = (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT);
+    if (rtl_dir) {
+      canvas->TranslateInt(width(), 0);
+      canvas->ScaleInt(-1, 1);
+      canvas->save();
+    }
+    canvas->DrawBitmapInt(*bitmap, width() - bitmap->width(),
+        height() - bitmap->height());
+    if (rtl_dir)
+      canvas->restore();
+  }
+
+  static gfx::Size GetSize() {
+    return gfx::Size(views::NativeScrollBar::GetVerticalScrollBarWidth(),
+        views::NativeScrollBar::GetHorizontalScrollBarHeight());
+  }
+
+  virtual gfx::Size GetPreferredSize() {
+    return GetSize();
+  }
+
+  virtual void Layout() {
+    views::View* parent_view = GetParent();
+    if (parent_view) {
+      gfx::Size ps = GetPreferredSize();
+      // No need to handle Right to left text direction here,
+      // our parent must take care of it for us...
+      SetBounds(parent_view->width() - ps.width(),
+          parent_view->height() - ps.height(), ps.width(), ps.height());
+    }
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ResizeCorner);
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
 // BrowserView, public:
 
 // static
@@ -119,7 +173,7 @@ void BrowserView::SetShowState(int state) {
 }
 
 BrowserView::BrowserView(Browser* browser)
-    : ClientView(NULL, NULL),
+    : views::ClientView(NULL, NULL),
       frame_(NULL),
       browser_(browser),
       active_bookmark_bar_(NULL),
@@ -177,7 +231,7 @@ void BrowserView::WindowMoved() {
   // Cancel any tabstrip animations, some of them may be invalidated by the
   // window being repositioned.
   // Comment out for one cycle to see if this fixes dist tests.
-  //tabstrip_->DestroyDragController();
+  // tabstrip_->DestroyDragController();
 
   status_bubble_->Reposition();
 
@@ -491,7 +545,7 @@ gfx::Rect BrowserView::GetNormalBounds() const {
   return gfx::Rect(wp.rcNormalPosition);
 }
 
-bool BrowserView::IsMaximized() {
+bool BrowserView::IsMaximized() const {
   return frame_->GetWindow()->IsMaximized();
 }
 
@@ -533,6 +587,32 @@ bool BrowserView::IsBookmarkBarVisible() const {
 
   // 1 is the minimum in GetPreferredSize for the bookmark bar.
   return bookmark_bar_view_->GetPreferredSize().height() > 1;
+}
+
+gfx::Rect BrowserView::GetRootWindowResizerRect() const {
+  // There is no resize corner when we are maximized
+  if (IsMaximized())
+    return gfx::Rect();
+
+  // We don't specify a resize corner size if we have a bottom shelf either.
+  // This is because we take care of drawing the resize corner on top of that
+  // shelf, so we don't want others to do it for us in this case.
+  // Currently, the only visible bottom shelf is the download shelf.
+  // Other tests should be added here if we add more bottom shelves.
+  TabContents* current_tab = browser_->GetSelectedTabContents();
+  if (current_tab && current_tab->IsDownloadShelfVisible()) {
+    DownloadShelfView* download_shelf = current_tab->GetDownloadShelfView();
+    if (download_shelf && download_shelf->IsShowing())
+      return gfx::Rect();
+  }
+
+  gfx::Rect client_rect = contents_container_->bounds();
+  gfx::Size resize_corner_size = ResizeCorner::GetSize();
+  int x = client_rect.width() - resize_corner_size.width();
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+    x = 0;
+  return gfx::Rect(x, client_rect.height() - resize_corner_size.height(),
+                   resize_corner_size.width(), resize_corner_size.height());
 }
 
 void BrowserView::ToggleBookmarkBar() {
@@ -887,6 +967,24 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // area of the window. So we need to treat hit-tests in these regions as
   // hit-tests of the titlebar.
 
+  // There is not resize corner when we are maximised
+  if (!IsMaximized()) {
+    CRect client_rect;
+    ::GetClientRect(frame_->GetWindow()->GetHWND(), &client_rect);
+    gfx::Size resize_corner_size = ResizeCorner::GetSize();
+    gfx::Rect resize_corner_rect(client_rect.right - resize_corner_size.width(),
+        client_rect.bottom - resize_corner_size.height(),
+        resize_corner_size.width(), resize_corner_size.height());
+    bool rtl_dir = (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT);
+    if (rtl_dir)
+      resize_corner_rect.set_x(0);
+    if (resize_corner_rect.Contains(point)) {
+      if (rtl_dir)
+        return HTBOTTOMLEFT;
+      return HTBOTTOMRIGHT;
+    }
+  }
+
   // Determine if the TabStrip exists and is capable of being clicked on. We
   // might be a popup window without a TabStrip, or the TabStrip could be
   // animating.
@@ -940,7 +1038,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
     return HTNOWHERE;
 
   // If the point is somewhere else, delegate to the default implementation.
-  return ClientView::NonClientHitTest(point);
+  return views::ClientView::NonClientHitTest(point);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1119,7 +1217,7 @@ int BrowserView::LayoutBookmarkAndInfoBars(int top) {
       return LayoutBookmarkBar(top);
     }
 
-    // If we're showing a regular bookmark bar and it's not below an infobar, 
+    // If we're showing a regular bookmark bar and it's not below an infobar,
     // make it overlap the toolbar so that the bar items can be drawn higher.
     if (active_bookmark_bar_)
       top -= bookmark_bar_view_->GetToolbarOverlap();
@@ -1200,8 +1298,11 @@ bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
 
 bool BrowserView::MaybeShowDownloadShelf(TabContents* contents) {
   views::View* new_shelf = NULL;
-  if (contents && contents->IsDownloadShelfVisible())
+  if (contents && contents->IsDownloadShelfVisible()) {
     new_shelf = contents->GetDownloadShelfView();
+    if (new_shelf != active_download_shelf_)
+      new_shelf->AddChildView(new ResizeCorner());
+  }
   return UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
 }
 

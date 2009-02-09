@@ -123,6 +123,11 @@ bool BrowserWindowGtk::IsBookmarkBarVisible() const {
   return false;
 }
 
+gfx::Rect BrowserWindow::GetRootWindowResizerRect() const {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 void BrowserWindowGtk::ToggleBookmarkBar() {
   NOTIMPLEMENTED();
 }

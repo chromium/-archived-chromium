@@ -34,13 +34,14 @@ class BrowserWindowGtk : public BrowserWindow {
   virtual void UpdateLoadingAnimations(bool should_animate);
   virtual void SetStarredState(bool is_starred);
   virtual gfx::Rect GetNormalBounds() const;
-  virtual bool IsMaximized();
+  virtual bool IsMaximized() const;
   virtual LocationBar* GetLocationBar() const;
   virtual void UpdateStopGoState(bool is_loading);
   virtual void UpdateToolbar(TabContents* contents,
                              bool should_restore_state);
   virtual void FocusToolbar();
   virtual bool IsBookmarkBarVisible() const;
+  virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ToggleBookmarkBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
