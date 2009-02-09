@@ -309,8 +309,8 @@ DECLARE_CALLBACK(LocationValueOf)
 
 // Implementation of EventTarget::addEventListener
 // and EventTarget::removeEventListener
-DECLARE_CALLBACK(NodeAddEventListener)
-DECLARE_CALLBACK(NodeRemoveEventListener)
+DECLARE_CALLBACK(EventTargetNodeAddEventListener)
+DECLARE_CALLBACK(EventTargetNodeRemoveEventListener)
 
 // Custom implementation is Navigator properties.
 // We actually only need this because WebKit has

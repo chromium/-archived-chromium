@@ -1762,11 +1762,5 @@ LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 // jshin@chromium.org did several font related changes in this merge.
 LINUX WIN : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
 
-// This is related to merging EventTargetNode into Node, but I don't understand
-// this well enough to know if this just needs a rebase. One of the V8 folk
-// should take a look at this. The upstream expected results changed as well, 
-// but differently than ours did.
-LayoutTests/fast/dom/prototype-chain.html = FAIL
-
 // Started failing with webkit merge 40539:40668
 MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL

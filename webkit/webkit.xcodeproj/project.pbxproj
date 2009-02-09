@@ -38,7 +38,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		07390253EA4F1C8D86C78CCD /* PNGImageEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */; };
 		25B9F25199984DFE5E4A59AE /* V8WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */; };
 		31BF82F52CDAED9621AC244E /* CrossThreadCopier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E9CDA0420F5FBB839D45544 /* CrossThreadCopier.cpp */; };
 		3C9197C6A7DABB989CBDBF81 /* Playback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1174C9D4E12AB30D653019A /* Playback.cpp */; };
@@ -99,7 +98,6 @@
 		89F4A0D50F200D5B000A326A /* V8CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */; };
 		89F4A2090F2106EF000A326A /* V8CanvasPixelArrayCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */; };
 		8EFD7D527676BF3B3C92361E /* ThreadTimers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6A9898388068C93C5A7C011C /* ThreadTimers.cpp */; };
-		926BA16FA5646FDB1353DBD1 /* MainThreadChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
 		938444080F16B0570075F4C5 /* AccessibilityImageMapLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F1E80E9BAE2900C66CE0 /* AccessibilityImageMapLink.cpp */; };
@@ -277,6 +275,7 @@
 		938444B70F16B0570075F4C5 /* EventHandlerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */; };
 		938444B80F16B0570075F4C5 /* EventNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A010D7F3A7C001ECF42 /* EventNames.cpp */; };
 		938444B90F16B0570075F4C5 /* EventTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */; };
+		938444BA0F16B0570075F4C5 /* EventTargetNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A060D7F3A7C001ECF42 /* EventTargetNode.cpp */; };
 		938444BB0F16B0570075F4C5 /* ExceptionBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */; };
 		938444BC0F16B0570075F4C5 /* ExceptionCode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A0A0D7F3A7C001ECF42 /* ExceptionCode.cpp */; };
 		938444BD0F16B0570075F4C5 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F04D0E9BA86A00C66CE0 /* File.cpp */; };
@@ -1494,7 +1493,6 @@
 		0F9CD02EE3AE2D8974EDFE58 /* RenderBoxModelObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderBoxModelObject.h; sourceTree = "<group>"; };
 		1DF458E80DD265C670E05B03 /* RenderSelectionInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderSelectionInfo.h; sourceTree = "<group>"; };
 		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
-		31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNGImageEncoder.cpp; path = "../third_party/WebKit/WebCore/platform/image-encoders/skia/PNGImageEncoder.cpp"; sourceTree = SOURCE_ROOT; };
 		35DEC96C125DC674B5C9FA27 /* Interval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Interval.cpp; path = port/bindings/v8/extensions/Interval.cpp; sourceTree = SOURCE_ROOT; };
 		3CBAF5EB0EFC892100E752CB /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
 		3CBAF5EC0EFC892100E752CB /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
@@ -2635,6 +2633,7 @@
 		7B5E8A020D7F3A7C001ECF42 /* EventNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventNames.h; sourceTree = "<group>"; };
 		7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventTarget.cpp; sourceTree = "<group>"; };
 		7B5E8A040D7F3A7C001ECF42 /* EventTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventTarget.h; sourceTree = "<group>"; };
+		7B5E8A060D7F3A7C001ECF42 /* EventTargetNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventTargetNode.cpp; sourceTree = "<group>"; };
 		7B5E8A070D7F3A7C001ECF42 /* EventTargetNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventTargetNode.h; sourceTree = "<group>"; };
 		7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionBase.cpp; sourceTree = "<group>"; };
 		7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExceptionBase.h; sourceTree = "<group>"; };
@@ -3904,7 +3903,6 @@
 		7BF891E70E7311B1000BAF8A /* ucptable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ucptable.cpp; sourceTree = "<group>"; };
 		7BF891FD0E731414000BAF8A /* chartables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = chartables.c; sourceTree = "<group>"; };
 		7BFD8E660DAFE7630084BC4B /* libjsbindings.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsbindings.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MainThreadChromium.cpp; path = ../third_party/WebKit/JavaScriptCore/wtf/chromium/MainThreadChromium.cpp; sourceTree = SOURCE_ROOT; };
 		820A61930DE7592C00871E2D /* WebCoreURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreURLResponse.h; sourceTree = "<group>"; };
 		820A61940DE7592C00871E2D /* WebCoreURLResponse.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreURLResponse.mm; sourceTree = "<group>"; };
 		823E8F320F1CF88B00CD2F6C /* plugin_lib.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plugin_lib.cc; sourceTree = "<group>"; };
@@ -4730,8 +4728,6 @@
 				35DEC96C125DC674B5C9FA27 /* Interval.cpp */,
 				C1174C9D4E12AB30D653019A /* Playback.cpp */,
 				4CDA86D8A0B62BD0EBF07D78 /* AnimationControllerPrivate.h */,
-				7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */,
-				31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */,
 			);
 			sourceTree = "<group>";
 		};
@@ -5076,6 +5072,7 @@
 				7B5E8A020D7F3A7C001ECF42 /* EventNames.h */,
 				7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */,
 				7B5E8A040D7F3A7C001ECF42 /* EventTarget.h */,
+				7B5E8A060D7F3A7C001ECF42 /* EventTargetNode.cpp */,
 				7B5E8A070D7F3A7C001ECF42 /* EventTargetNode.h */,
 				7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */,
 				7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */,
@@ -8253,7 +8250,6 @@
 				7B5E862C0D7F2B56001ECF42 /* FastMalloc.cpp in Sources */,
 				7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */,
 				4DB7F5290E9BD3FB00C66CE0 /* MainThread.cpp in Sources */,
-				926BA16FA5646FDB1353DBD1 /* MainThreadChromium.cpp in Sources */,
 				4DB7F5420E9BD50600C66CE0 /* MainThreadMac.mm in Sources */,
 				4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */,
 				E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */,
@@ -8770,6 +8766,7 @@
 				938444B70F16B0570075F4C5 /* EventHandlerChromium.cpp in Sources */,
 				938444B80F16B0570075F4C5 /* EventNames.cpp in Sources */,
 				938444B90F16B0570075F4C5 /* EventTarget.cpp in Sources */,
+				938444BA0F16B0570075F4C5 /* EventTargetNode.cpp in Sources */,
 				938444BB0F16B0570075F4C5 /* ExceptionBase.cpp in Sources */,
 				938444BC0F16B0570075F4C5 /* ExceptionCode.cpp in Sources */,
 				938444BD0F16B0570075F4C5 /* File.cpp in Sources */,
@@ -9037,7 +9034,6 @@
 				938445BA0F16B0570075F4C5 /* PluginDataChromium.cpp in Sources */,
 				938445BB0F16B0570075F4C5 /* PluginDocument.cpp in Sources */,
 				93EF1C0F0F214F260070601B /* PNGImageDecoder.cpp in Sources */,
-				07390253EA4F1C8D86C78CCD /* PNGImageEncoder.cpp in Sources */,
 				938445BD0F16B0570075F4C5 /* PointerEventsHitRules.cpp in Sources */,
 				938445BE0F16B0570075F4C5 /* PopupMenuChromium.cpp in Sources */,
 				938445BF0F16B0570075F4C5 /* Position.cpp in Sources */,
