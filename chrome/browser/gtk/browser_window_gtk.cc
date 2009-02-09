@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/browser_window_gtk.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 
 #include "base/logging.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/browser_toolbar_view_gtk.h"
 
 namespace {
 
@@ -58,6 +59,14 @@ void BrowserWindowGtk::Init() {
   g_signal_connect(G_OBJECT(window_), "window-state-event",
                    G_CALLBACK(MainWindowStateChanged), this);
   bounds_ = GetInitialWindowBounds(window_);
+
+  GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
+
+  toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
+  toolbar_->Init(browser_->profile());
+  toolbar_->AddToolbarToBox(vbox);
+
+  gtk_container_add(GTK_CONTAINER(window_), vbox);
 }
 
 void BrowserWindowGtk::Show() {
