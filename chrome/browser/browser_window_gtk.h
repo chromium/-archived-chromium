@@ -5,10 +5,12 @@
 #ifndef CHROME_BROWSER_WINDOW_GTK_H_
 #define CHROME_BROWSER_WINDOW_GTK_H_
 
+#include <gtk/gtk.h>
+
+#include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/browser_window.h"
 
-typedef struct _GtkWindow GtkWindow;
 
 // An implementation of BrowserWindow for GTK.
 // Cross-platform code will interact with this object when
@@ -57,10 +59,17 @@ class BrowserWindowGtk : public BrowserWindow {
   virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
 
+  void OnBoundsChanged(const gfx::Rect& bounds);
+  void OnStateChanged(GdkWindowState state);
+
  protected:
   virtual void DestroyBrowser();
   GtkWindow* window_;
   scoped_ptr<Browser> browser_;
+
+ private:
+  gfx::Rect bounds_;
+  GdkWindowState state_;
 };
 
 #endif  // CHROME_BROWSER_WINDOW_GTK_H_

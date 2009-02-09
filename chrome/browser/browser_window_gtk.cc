@@ -4,9 +4,6 @@
 
 #include "chrome/browser/browser_window_gtk.h"
 
-#include <gtk/gtk.h>
-
-#include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "chrome/browser/browser.h"
 
@@ -15,6 +12,29 @@ namespace {
 gboolean MainWindowDestroyed(GtkWindow* window, BrowserWindowGtk* browser_win) {
   delete browser_win;
   return FALSE;  // Don't stop this message.
+}
+
+gboolean MainWindowConfigured(GtkWindow* window, GdkEventConfigure* event,
+                              BrowserWindowGtk* browser_win) {
+  gfx::Rect bounds = gfx::Rect(event->x, event->y, event->width, event->height);
+  browser_win->OnBoundsChanged(bounds);
+  return FALSE;
+}
+
+gboolean MainWindowStateChanged(GtkWindow* window, GdkEventWindowState* event,
+                                BrowserWindowGtk* browser_win) {
+  browser_win->OnStateChanged(event->new_window_state);
+  return FALSE;
+}
+
+// Using gtk_window_get_position/size creates a race condition, so only use
+// this to get the initial bounds.  After window creation, we pick up the
+// normal bounds by connecting to the configure-event signal.
+gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
+  gint x, y, width, height;
+  gtk_window_get_position(window, &x, &y);
+  gtk_window_get_size(window, &width, &height);
+  return gfx::Rect(x, y, width, height);
 }
 
 }  // namespace
@@ -33,6 +53,11 @@ void BrowserWindowGtk::Init() {
   gtk_window_set_default_size(window_, 640, 480);
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(MainWindowDestroyed), this);
+  g_signal_connect(G_OBJECT(window_), "configure-event",
+                   G_CALLBACK(MainWindowConfigured), this);
+  g_signal_connect(G_OBJECT(window_), "window-state-event",
+                   G_CALLBACK(MainWindowStateChanged), this);
+  bounds_ = GetInitialWindowBounds(window_);
 }
 
 void BrowserWindowGtk::Show() {
@@ -40,7 +65,13 @@ void BrowserWindowGtk::Show() {
 }
 
 void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
-  NOTIMPLEMENTED();
+  gint x = static_cast<gint>(bounds.x());
+  gint y = static_cast<gint>(bounds.y());
+  gint width = static_cast<gint>(bounds.width());
+  gint height = static_cast<gint>(bounds.height());
+
+  gtk_window_move(window_, x, y);
+  gtk_window_resize(window_, width, height);
 }
 
 void BrowserWindowGtk::Close() {
@@ -52,16 +83,16 @@ void BrowserWindowGtk::Close() {
 }
 
 void BrowserWindowGtk::Activate() {
-  NOTIMPLEMENTED();
+  gtk_window_present(window_);
 }
 
 void BrowserWindowGtk::FlashFrame() {
-  NOTIMPLEMENTED();
+  // May not be respected by all window managers.
+  gtk_window_set_urgency_hint(window_, TRUE);
 }
 
 void* BrowserWindowGtk::GetNativeHandle() {
-  NOTIMPLEMENTED();
-  return NULL;
+  return window_;
 }
 
 BrowserWindowTesting* BrowserWindowGtk::GetBrowserWindowTesting() {
@@ -91,13 +122,11 @@ void BrowserWindowGtk::SetStarredState(bool is_starred) {
 }
 
 gfx::Rect BrowserWindowGtk::GetNormalBounds() const {
-  NOTIMPLEMENTED();
-  return gfx::Rect();
+  return bounds_;
 }
 
 bool BrowserWindowGtk::IsMaximized() const {
-  NOTIMPLEMENTED();
-  return false;
+  return (state_ & GDK_WINDOW_STATE_MAXIMIZED);
 }
 
 LocationBar* BrowserWindowGtk::GetLocationBar() const {
@@ -187,3 +216,10 @@ void BrowserWindowGtk::DestroyBrowser() {
   browser_.reset();
 }
 
+void BrowserWindowGtk::OnBoundsChanged(const gfx::Rect& bounds) {
+  bounds_ = bounds;
+}
+
+void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
+  state_ = state;
+}
