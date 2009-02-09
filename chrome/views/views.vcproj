@@ -466,6 +466,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\resize_corner.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\resize_corner.h"
+			>
+		</File>
+		<File
 			RelativePath=".\root_view.cc"
 			>
 		</File>

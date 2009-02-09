@@ -70,11 +70,9 @@ IPC_BEGIN_MESSAGES(View)
   // Tells the render view to change its size.  A ViewHostMsg_PaintRect message
   // is generated in response provided new_size is not empty and not equal to
   // the view's current size.  The generated ViewHostMsg_PaintRect message will
-  // have the IS_RESIZE_ACK flag set. It also receives the resizer rect so that
-  // we don't have to fetch it every time WebKit asks for it.
-  IPC_MESSAGE_ROUTED2(ViewMsg_Resize,
-                      gfx::Size /* new_size */,
-                      gfx::Rect /* resizer_rect */)
+  // have the IS_RESIZE_ACK flag set.
+  IPC_MESSAGE_ROUTED1(ViewMsg_Resize,
+                      gfx::Size /* new_size */)
 
   // Sent to inform the view that it was hidden.  This allows it to reduce its
   // resource utilization.

@@ -164,8 +164,7 @@ void RenderWidgetHost::WasResized() {
   if (!new_size.IsEmpty())
     resize_ack_pending_ = true;
 
-  if (!Send(new ViewMsg_Resize(routing_id_, new_size,
-                               GetRootWindowResizerRect())))
+  if (!Send(new ViewMsg_Resize(routing_id_, new_size)))
     resize_ack_pending_ = false;
 }
 
@@ -329,10 +328,6 @@ void RenderWidgetHost::RendererExited() {
   }
 
   BackingStoreManager::RemoveBackingStore(this);
-}
-
-gfx::Rect RenderWidgetHost::GetRootWindowResizerRect() const {
-  return gfx::Rect();
 }
 
 void RenderWidgetHost::Destroy() {

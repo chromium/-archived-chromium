@@ -73,7 +73,7 @@ class SlideAnimation : public Animation {
   void SetTweenType(TweenType tween_type) { tween_type_ = tween_type; }
 
   double GetCurrentValue() const { return value_current_; }
-  bool IsShowing() const { return showing_; }
+  bool IsShowing() { return showing_; }
 
  private:
   // Overridden from Animation.

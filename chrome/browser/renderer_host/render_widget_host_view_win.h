@@ -213,10 +213,6 @@ class RenderWidgetHostViewWin :
   // asynchronously.
   void Redraw(const gfx::Rect& invalid_rect);
 
-  // Draw the resize corner bitmap on top of the given HDC, if it intersects the
-  // given paint rect.
-  void DrawResizeCorner(const gfx::Rect& paint_rect, HDC dc);
-
   // The associated Model.
   RenderWidgetHost* render_widget_host_;
 

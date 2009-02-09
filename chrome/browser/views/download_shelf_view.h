@@ -31,7 +31,7 @@ class DownloadShelfView : public views::View,
                           public views::LinkController,
                           public AnimationDelegate {
  public:
-  explicit DownloadShelfView(TabContents* tab_contents);
+  DownloadShelfView(TabContents* tab_contents);
 
   // A new download has started, so add it to our shelf.
   void AddDownload(DownloadItem* download);
@@ -67,12 +67,6 @@ class DownloadShelfView : public views::View,
   // Invoked when the download shelf is migrated from one tab contents to a new
   // one.
   void ChangeTabContents(TabContents* old_contents, TabContents* new_contents);
-
-  // The browser view needs to know when we are going away to properly return
-  // the resize corner size to WebKit so that we don't draw on top of it.
-  // This returns the showing state of our animation which is set to false at
-  // the beginning Show and true at the beginning of a Hide.
-  bool IsShowing() const;
 
  private:
   void Init();
@@ -113,5 +107,5 @@ class DownloadShelfView : public views::View,
   DISALLOW_EVIL_CONSTRUCTORS(DownloadShelfView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_DOWNLOAD_SHELF_VIEW_H__
+#endif // CHROME_BROWSER_VIEWS_DOWNLOAD_SHELF_VIEW_H__
 
