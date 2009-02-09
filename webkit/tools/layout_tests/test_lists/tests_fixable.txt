@@ -1048,13 +1048,13 @@ SKIP LINUX MAC : LayoutTests/animations/animation-drt-api.html = PASS
 LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 
 // MERGE 38625:38653: Expectations changed upstream
-LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
+MAC LINUX : LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
 
 // MERGE 38625:38653: Regressions
 LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 
 // MERGE 38625:38653: New tests
-LayoutTests/fast/css/computed-style.html = FAIL
+MAC LINUX : LayoutTests/fast/css/computed-style.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
 
 // MERGE 38653:38729: New tests
@@ -1755,7 +1755,7 @@ LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 // like it is using a different font to render now than it
 // did before and that may be a bug.  It looks like
 // jshin@chromium.org did several font related changes in this merge.
-LINUX WIN : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
+LINUX : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
 
 // This is related to merging EventTargetNode into Node, but I don't understand
 // this well enough to know if this just needs a rebase. One of the V8 folk

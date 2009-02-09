@@ -1,0 +1,52 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x572
+      RenderBlock (anonymous) at (0,0) size 784x100
+        RenderText {#text} at (0,0) size 535x19
+          text run at (0,0) width 535: "This tests checks that the text-overflow:ellipses property is handled correctly for bidi text."
+        RenderBR {BR} at (535,15) size 0x0
+        RenderBR {BR} at (0,20) size 0x19
+        RenderText {#text} at (0,40) size 713x19
+          text run at (0,40) width 713: "Pass if the ellipses do not overlap the text and the underlines for the links are placed under the text and not the ellipses. "
+        RenderBR {BR} at (713,55) size 0x0
+        RenderBR {BR} at (0,60) size 0x19
+        RenderText {#text} at (0,80) size 31x19
+          text run at (0,80) width 31: "LTR:"
+      RenderBlock (anonymous) at (0,142) size 784x20
+        RenderText {#text} at (0,0) size 31x19
+          text run at (0,0) width 31: "RTL:"
+      RenderBlock (anonymous) at (0,204) size 784x20
+        RenderText {#text} at (0,0) size 89x19
+          text run at (0,0) width 89: "RTL Override:"
+      RenderBlock (anonymous) at (0,266) size 784x20
+        RenderText {#text} at (0,0) size 56x19
+          text run at (0,0) width 56: "LTR link:"
+      RenderBlock (anonymous) at (0,328) size 784x20
+        RenderText {#text} at (0,0) size 56x19
+          text run at (0,0) width 56: "RTL link:"
+layer at (8,108) size 182x22 clip at (9,109) size 180x20 scrollWidth 305
+  RenderBlock {DIV} at (0,100) size 182x22 [border: (1px solid #000000)]
+    RenderText {#text} at (1,1) size 305x19
+      text run at (1,1) width 305: "Lorem ipsum dolor sit amet, consectetur adipiscing"
+layer at (8,170) size 182x22 clip at (9,171) size 180x20 scrollX 118 scrollWidth 298
+  RenderBlock {DIV} at (0,162) size 182x22 [border: (1px solid #000000)]
+    RenderText {#text} at (-117,1) size 298x19
+      text run at (-117,1) width 298 RTL: "\x{5DB}\x{5E9}\x{5D4}\x{5D8}\x{5E7}\x{5E1}\x{5D8} \x{5E2}\x{5E8}\x{5D5}\x{5DA} \x{5DE}\x{5D3}\x{5D9} \x{5E0}\x{5E8}\x{5E6}\x{5D4} \x{5DC}\x{5D4}\x{5D5}\x{5E1}\x{5D9}\x{5E3} \x{5D0}\x{5DC}\x{5D9}\x{5E4}\x{5E1}\x{5D5}\x{5EA} \x{5D1}\x{5E1}\x{5D5}\x{5E3} \x{5E9}\x{5D5}\x{5E8}\x{5D4}"
+layer at (8,232) size 182x22 clip at (9,233) size 180x20 scrollX 125 scrollWidth 305
+  RenderBlock {DIV} at (0,224) size 182x22 [border: (1px solid #000000)]
+    RenderText {#text} at (-124,1) size 305x19
+      text run at (-124,1) width 305 RTL override: "Lorem ipsum dolor sit amet, consectetur adipiscing"
+layer at (8,294) size 182x22 clip at (9,295) size 180x20 scrollWidth 305
+  RenderBlock {DIV} at (0,286) size 182x22 [border: (1px solid #000000)]
+    RenderInline {A} at (0,0) size 305x19 [color=#0000EE]
+      RenderText {#text} at (1,1) size 305x19
+        text run at (1,1) width 305: "Lorem ipsum dolor sit amet, consectetur adipiscing"
+    RenderText {#text} at (0,0) size 0x0
+layer at (8,356) size 182x22 clip at (9,357) size 180x20 scrollX 125 scrollWidth 305
+  RenderBlock {DIV} at (0,348) size 182x22 [border: (1px solid #000000)]
+    RenderInline {A} at (0,0) size 305x19 [color=#0000EE]
+      RenderText {#text} at (-124,1) size 305x19
+        text run at (-124,1) width 305 RTL override: "Lorem ipsum dolor sit amet, consectetur adipiscing"
+    RenderText {#text} at (0,0) size 0x0
