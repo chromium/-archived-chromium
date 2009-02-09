@@ -1763,3 +1763,8 @@ LayoutTests/fast/dom/prototype-chain.html = FAIL
 
 // Started failing with webkit merge 40539:40668
 MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
+
+// We could fix this test for us and upstream it if the test shell user agent
+// would let us differentiate test_shell and WebKit DumpTreeNode.
+// See http://crbug.com/7482
+DEFER SKIP : LayoutTests/http/tests/misc/timer-vs-loading.html = PASS
