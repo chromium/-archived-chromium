@@ -27,7 +27,7 @@ class AeroGlassFrame : public BrowserFrame,
   void Init();
 
   // Determine the distance of the left edge of the minimize button from the
-  // right edge of the window. Used in our Non-Client View's Layout.
+  // left edge of the window. Used in our Non-Client View's Layout.
   int GetMinimizeButtonOffset() const;
 
   // Overridden from BrowserFrame:

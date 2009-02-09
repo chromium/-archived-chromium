@@ -199,8 +199,6 @@ class ConstrainedWindowNonClientView
 
   // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
-  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const;
   virtual CPoint GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
@@ -210,7 +208,6 @@ class ConstrainedWindowNonClientView
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
 
   // Overridden from views::BaseButton::ButtonListener:
@@ -346,14 +343,6 @@ gfx::Rect ConstrainedWindowNonClientView::CalculateClientAreaBounds(
                    std::max(0, height - top_height - border_thickness));
 }
 
-gfx::Size ConstrainedWindowNonClientView::CalculateWindowSizeForClientSize(
-    int width,
-    int height) const {
-  int border_thickness = NonClientBorderThickness();
-  return gfx::Size(width + (2 * border_thickness),
-                   height + NonClientTopBorderHeight() + border_thickness);
-}
-
 CPoint ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
   // Doesn't matter what we return, since this is only used when the user clicks
   // a window icon, and we never have an icon.
@@ -361,8 +350,9 @@ CPoint ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
 }
 
 int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
-  // First see if it's within the grow box area, since that overlaps the client
-  // bounds.
+  if (!bounds().Contains(point))
+    return HTNOWHERE;
+
   int frame_component = container_->client_view()->NonClientHitTest(point);
   if (frame_component != HTNOWHERE)
     return frame_component;
@@ -372,11 +362,10 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
     return HTCLOSE;
 
   int window_component = GetHTComponentForFrame(point, FrameBorderThickness(),
-      NonClientBorderThickness(), kResizeAreaCornerSize,
+      NonClientBorderThickness(), kResizeAreaCornerSize, kResizeAreaCornerSize,
       container_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
-  return ((window_component == HTNOWHERE) && bounds().Contains(point)) ?
-      HTCAPTION : window_component;
+  return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
 
 void ConstrainedWindowNonClientView::GetWindowMask(const gfx::Size& size,
@@ -419,14 +408,6 @@ void ConstrainedWindowNonClientView::Layout() {
   LayoutWindowControls();
   LayoutTitleBar();
   LayoutClientView();
-}
-
-gfx::Size ConstrainedWindowNonClientView::GetPreferredSize() {
-  gfx::Size prefsize(container_->client_view()->GetPreferredSize());
-  int border_thickness = NonClientBorderThickness();
-  prefsize.Enlarge(2 * border_thickness,
-                   NonClientTopBorderHeight() + border_thickness);
-  return prefsize;
 }
 
 void ConstrainedWindowNonClientView::ViewHierarchyChanged(bool is_add,

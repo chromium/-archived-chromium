@@ -15,10 +15,7 @@
 
 // static
 
-// The width of the client edge to the left and right of the window.
-static const int kClientEdgeWidth = 3;
-// The height of the client edge to the bottom of the window.
-static const int kClientEdgeHeight = 2;
+static const int kClientEdgeThickness = 3;
 
 HICON AeroGlassFrame::throbber_icons_[AeroGlassFrame::kThrobberIconCount];
 
@@ -50,10 +47,11 @@ int AeroGlassFrame::GetMinimizeButtonOffset() const {
   titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
   SendMessage(GetHWND(), WM_GETTITLEBARINFOEX, 0, (WPARAM)&titlebar_info);
 
-  RECT wr;
-  GetWindowRect(&wr);
+  CPoint minimize_button_corner(titlebar_info.rgrect[2].left,
+                                titlebar_info.rgrect[2].top);
+  MapWindowPoints(HWND_DESKTOP, GetHWND(), &minimize_button_corner, 1);
 
-  return wr.right - titlebar_info.rgrect[2].left;
+  return minimize_button_corner.x;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,9 +144,9 @@ LRESULT AeroGlassFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
 
   NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
   int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
-  params->rgrc[0].left += (border_thickness - kClientEdgeWidth);
-  params->rgrc[0].right -= (border_thickness - kClientEdgeWidth);
-  params->rgrc[0].bottom -= (border_thickness - kClientEdgeHeight);
+  params->rgrc[0].left += (border_thickness - kClientEdgeThickness);
+  params->rgrc[0].right -= (border_thickness - kClientEdgeThickness);
+  params->rgrc[0].bottom -= (border_thickness - kClientEdgeThickness);
 
   UpdateDWMFrame();
 
@@ -180,10 +178,10 @@ void AeroGlassFrame::UpdateDWMFrame() {
   if (!client_view())
     return;
 
-  MARGINS margins = { kClientEdgeWidth + 1,
-                      kClientEdgeWidth + 1,
+  MARGINS margins = { kClientEdgeThickness + 1,
+                      kClientEdgeThickness + 1,
                       GetBoundsForTabStrip(browser_view_->tabstrip()).bottom(),
-                      kClientEdgeHeight + 1 };
+                      kClientEdgeThickness + 1 };
   // Note: we don't use DwmEnableBlurBehindWindow because any region not
   // included in the glass region is composited source over. This means
   // that anything drawn directly with GDI appears fully transparent.

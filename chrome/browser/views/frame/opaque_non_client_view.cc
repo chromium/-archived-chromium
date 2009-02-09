@@ -5,7 +5,6 @@
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -509,8 +508,9 @@ CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
 }
 
 int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
-  // First see if it's within the grow box area, since that overlaps the client
-  // bounds.
+  if (!bounds().Contains(point))
+    return HTNOWHERE;
+
   int frame_component = frame_->client_view()->NonClientHitTest(point);
   if (frame_component != HTNOWHERE)
     return frame_component;
@@ -532,11 +532,10 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
     return HTSYSMENU;
 
   int window_component = GetHTComponentForFrame(point, TopResizeHeight(),
-      NonClientBorderThickness(), kResizeAreaCornerSize,
+      NonClientBorderThickness(), kResizeAreaCornerSize, kResizeAreaCornerSize,
       frame_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
-  return ((window_component == HTNOWHERE) && bounds().Contains(point)) ?
-      HTCAPTION : window_component;
+  return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
 
 void OpaqueNonClientView::GetWindowMask(const gfx::Size& size,
@@ -595,14 +594,6 @@ void OpaqueNonClientView::Layout() {
   LayoutTitleBar();
   LayoutOTRAvatar();
   LayoutClientView();
-}
-
-gfx::Size OpaqueNonClientView::GetPreferredSize() {
-  gfx::Size prefsize(frame_->client_view()->GetPreferredSize());
-  int border_thickness = NonClientBorderThickness();
-  prefsize.Enlarge(2 * border_thickness,
-                   NonClientTopBorderHeight() + border_thickness);
-  return prefsize;
 }
 
 views::View* OpaqueNonClientView::GetViewForPoint(const gfx::Point& point,

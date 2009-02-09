@@ -25,36 +25,41 @@ class AeroGlassNonClientView : public views::NonClientView {
  protected:
   // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
-  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const;
   virtual CPoint GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
-  virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
-  virtual void EnableClose(bool enable);
-  virtual void ResetWindowControls();
+  virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask) { }
+  virtual void EnableClose(bool enable) { }
+  virtual void ResetWindowControls() { }
 
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);
 
  private:
-  // Returns the height of the non-client area at the top of the window (the
-  // title bar, etc).
-  int CalculateNonClientTopHeight() const;
+  // Returns the thickness of the border that makes up the window frame edges.
+  // This does not include any client edge.
+  int FrameBorderThickness() const;
+
+  // Returns the thickness of the entire nonclient left, right, and bottom
+  // borders, including both the window frame and any client edge.
+  int NonClientBorderThickness() const;
+
+  // Returns the height of the entire nonclient top border, including the window
+  // frame, any title area, and any connected client edge.
+  int NonClientTopBorderHeight() const;
 
   // Paint various sub-components of this view.
-  void PaintOTRAvatar(ChromeCanvas* canvas);
   void PaintDistributorLogo(ChromeCanvas* canvas);
   void PaintToolbarBackground(ChromeCanvas* canvas);
+  void PaintOTRAvatar(ChromeCanvas* canvas);
   void PaintClientEdge(ChromeCanvas* canvas);
 
   // Layout various sub-components of this view.
-  void LayoutOTRAvatar();
   void LayoutDistributorLogo();
+  void LayoutOTRAvatar();
   void LayoutClientView();
  
   // The layout rect of the distributor logo, if visible.

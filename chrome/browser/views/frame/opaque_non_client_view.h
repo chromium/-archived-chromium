@@ -52,7 +52,6 @@ class OpaqueNonClientView : public views::NonClientView,
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual gfx::Size GetPreferredSize();
   virtual views::View* GetViewForPoint(const gfx::Point& point,
                                        bool can_create_floating);
   virtual void ViewHierarchyChanged(bool is_add,

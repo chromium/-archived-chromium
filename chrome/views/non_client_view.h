@@ -37,9 +37,12 @@ class NonClientView : public View {
                                               int height) const = 0;
 
   // Calculates the size of window required to display a client area of the
-  // specified width and height.
+  // specified width and height.  Only views used by CustomFrameWindow need
+  // implement this.
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const = 0;
+                                                     int height) const {
+    return gfx::Size();
+  }
 
   // Returns the point, in screen coordinates, where the system menu should
   // be shown so it shows up anchored to the system menu icon.
@@ -81,7 +84,8 @@ class NonClientView : public View {
   int GetHTComponentForFrame(const gfx::Point& point,
                              int top_resize_border_height,
                              int resize_border_thickness,
-                             int resize_corner_size,
+                             int top_resize_corner_height,
+                             int resize_corner_width,
                              bool can_resize);
 
   // Accessor for paint_as_active_.
