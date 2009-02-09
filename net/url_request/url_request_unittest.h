@@ -208,32 +208,36 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
 
  public:
   virtual ~BaseTestServer() {
-    if (process_handle_)
+    if (!IsFinished())
       if (!WaitToFinish(1000))
         Kill();
+  }
+
+  bool IsFinished() {
+    return WaitToFinish(0);
   }
 
   void Kill() {
     if (process_handle_) {
 #if defined(OS_WIN)
       base::KillProcess(process_handle_, 0, true);
-      ::CloseHandle(process_handle_);
 #elif defined(OS_POSIX)
       // Make sure the process has exited and clean up the process to avoid
       // a zombie.
       kill(process_handle_, SIGINT);
       waitpid(process_handle_, 0, 0);
 #endif
+      base::CloseProcessHandle(process_handle_);
       process_handle_ = NULL;
     }
   }
 
   bool WaitToFinish(int milliseconds) {
+    if (process_handle_ == 0)
+      return true;
     bool ret = base::WaitForSingleProcess(process_handle_, milliseconds);
     if (ret) {
-#if defined(OS_WIN)
-      ::CloseHandle(process_handle_);
-#endif
+      base::CloseProcessHandle(process_handle_);
       process_handle_ = NULL;
     }
 
@@ -352,6 +356,7 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
     if (!normalized_document_root.empty())
       file_util::AppendToPath(test_data_directory, normalized_document_root);
 
+    data_directory_ = *test_data_directory;
   }
 
 #if defined(OS_WIN)
@@ -384,6 +389,10 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
     return true;
   }
 
+  std::wstring GetDataDirectory() {
+    return data_directory_;
+  }
+
  protected:
   // Used by MakeGETRequest to implement sync load behavior.
   class SyncTestDelegate : public TestDelegate {
@@ -413,8 +422,10 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
   std::string url_user_;
   std::string url_password_;
   std::wstring python_runtime_;
+  std::wstring data_directory_;
   base::ProcessHandle process_handle_;
   std::string port_str_;
+  
 };
 
 class HTTPTestServer : public BaseTestServer {
@@ -503,6 +514,9 @@ class HTTPTestServer : public BaseTestServer {
   }
 
   void Stop() {
+    if (IsFinished())
+      return;
+
     // here we append the time to avoid problems where the kill page
     // is being cached rather than being executed on the server
     std::string page_name = StringPrintf("kill?%u",
@@ -665,6 +679,9 @@ class FTPTestServer : public BaseTestServer {
   }
 
   void Stop() {
+    if (IsFinished())
+      return;
+
     const std::string base_address = scheme() + "://" + host_name_ + ":" +
         port_str_ + "/";
     const GURL& url = TestServerPage(base_address, "kill");
