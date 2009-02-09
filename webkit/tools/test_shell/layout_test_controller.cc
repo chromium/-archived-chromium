@@ -39,6 +39,8 @@ VOID CALLBACK TestTimeout(HWND hwnd, UINT msg, UINT_PTR timer_id, DWORD ms) {
 #endif
 
 TestShell* LayoutTestController::shell_ = NULL;
+// Most of these flags need to be cleared in Reset() so that they get turned
+// off between each test run.
 bool LayoutTestController::dump_as_text_ = false;
 bool LayoutTestController::dump_editing_callbacks_ = false;
 bool LayoutTestController::dump_frame_load_callbacks_ = false;
@@ -380,6 +382,7 @@ void LayoutTestController::Reset() {
   dump_back_forward_list_ = false;
   dump_child_frame_scroll_positions_ = false;
   dump_child_frames_as_text_ = false;
+  dump_window_status_changes_ = false;
   dump_title_changes_ = false;
   accepts_editing_ = true;
   wait_until_done_ = false;
