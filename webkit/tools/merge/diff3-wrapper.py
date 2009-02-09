@@ -62,6 +62,8 @@ def main(args):
   
   if diff_tool == "--use-beyondcompare":
     exe = GetPathToBinary("c:/Progra~1/Beyond~1/BComp.exe")
+    if not os.path.exists(exe):
+      exe = GetPathToBinary("c:/Progra~2/Beyond~1/BComp.exe")
     cmd = [exe, 
            mine,
            yours,
