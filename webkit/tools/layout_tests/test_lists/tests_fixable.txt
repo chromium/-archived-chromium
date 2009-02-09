@@ -698,8 +698,8 @@ MAC DEBUG : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 
 // Shadows don't render correctly for these tests.
-// http://code.google.com/p/chromium/issues/detail?id=2969
-LINUX WIN : LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
+// The first likely just needs a rebaseline on Linux.
+LINUX : LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
 LINUX WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
 
 // Problems with getImageData and toDataURL: http://crbug.com/2972
