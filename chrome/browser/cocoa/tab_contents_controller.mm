@@ -63,7 +63,7 @@ class LocationBarBridge : public LocationBar {
     commands_ = commands;
     if (commands_)
       observer_ = new TabContentsCommandObserver(self, commands);
-    locationBarBrige_ = new LocationBarBridge(self);
+    locationBarBridge_ = new LocationBarBridge(self);
   }
   return self;
 }
@@ -72,7 +72,7 @@ class LocationBarBridge : public LocationBar {
   // make sure our contents have been removed from the window
   [[self view] removeFromSuperview];
   delete observer_;
-  delete locationBarBrige_;
+  delete locationBarBridge_;
   [super dealloc];
 }
 
@@ -85,7 +85,7 @@ class LocationBarBridge : public LocationBar {
 }
 
 - (LocationBar*)locationBar {
-  return locationBarBrige_;
+  return locationBarBridge_;
 }
 
 // Returns YES if the tab represented by this controller is the front-most.
