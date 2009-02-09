@@ -125,7 +125,7 @@ gfx::Rect BrowserWindowGtk::GetNormalBounds() const {
   return bounds_;
 }
 
-bool BrowserWindowGtk::IsMaximized() const {
+bool BrowserWindowGtk::IsMaximized() {
   return (state_ & GDK_WINDOW_STATE_MAXIMIZED);
 }
 
@@ -150,11 +150,6 @@ void BrowserWindowGtk::FocusToolbar() {
 bool BrowserWindowGtk::IsBookmarkBarVisible() const {
   NOTIMPLEMENTED();
   return false;
-}
-
-gfx::Rect BrowserWindowGtk::GetRootWindowResizerRect() const {
-  NOTIMPLEMENTED();
-  return gfx::Rect();
 }
 
 void BrowserWindowGtk::ToggleBookmarkBar() {
