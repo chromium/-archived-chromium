@@ -95,7 +95,7 @@ gfx::Rect BrowserWindowGtk::GetNormalBounds() const {
   return gfx::Rect();
 }
 
-bool BrowserWindowGtk::IsMaximized() {
+bool BrowserWindowGtk::IsMaximized() const {
   NOTIMPLEMENTED();
   return false;
 }
@@ -123,9 +123,9 @@ bool BrowserWindowGtk::IsBookmarkBarVisible() const {
   return false;
 }
 
-gfx::Rect BrowserWindow::GetRootWindowResizerRect() const {
+gfx::Rect BrowserWindowGtk::GetRootWindowResizerRect() const {
   NOTIMPLEMENTED();
-  return false;
+  return gfx::Rect();
 }
 
 void BrowserWindowGtk::ToggleBookmarkBar() {
