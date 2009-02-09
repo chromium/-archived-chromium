@@ -45,7 +45,6 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(ELEMENT, Element)                                                   \
   V(ENTITY, Entity)                                                     \
   V(ENTITYREFERENCE, EntityReference)                                   \
-  V(EVENTTARGETNODE, EventTargetNode)                                   \
   V(HTMLDOCUMENT, HTMLDocument)                                         \
   V(NODE, Node)                                                         \
   V(NOTATION, Notation)                                                 \

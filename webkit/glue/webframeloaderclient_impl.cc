@@ -100,6 +100,11 @@ void WebFrameLoaderClient::windowObjectCleared() {
     d->WindowObjectCleared(webframe_);
 }
 
+void WebFrameLoaderClient::documentElementAvailable() {
+  // TODO(aa): Implement.
+  notImplemented();
+}
+
 void WebFrameLoaderClient::didPerformFirstNavigation() const {
 }
 

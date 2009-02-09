@@ -275,7 +275,6 @@
 		938444B70F16B0570075F4C5 /* EventHandlerChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */; };
 		938444B80F16B0570075F4C5 /* EventNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A010D7F3A7C001ECF42 /* EventNames.cpp */; };
 		938444B90F16B0570075F4C5 /* EventTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */; };
-		938444BA0F16B0570075F4C5 /* EventTargetNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A060D7F3A7C001ECF42 /* EventTargetNode.cpp */; };
 		938444BB0F16B0570075F4C5 /* ExceptionBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */; };
 		938444BC0F16B0570075F4C5 /* ExceptionCode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A0A0D7F3A7C001ECF42 /* ExceptionCode.cpp */; };
 		938444BD0F16B0570075F4C5 /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F04D0E9BA86A00C66CE0 /* File.cpp */; };
@@ -2633,7 +2632,6 @@
 		7B5E8A020D7F3A7C001ECF42 /* EventNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventNames.h; sourceTree = "<group>"; };
 		7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventTarget.cpp; sourceTree = "<group>"; };
 		7B5E8A040D7F3A7C001ECF42 /* EventTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventTarget.h; sourceTree = "<group>"; };
-		7B5E8A060D7F3A7C001ECF42 /* EventTargetNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventTargetNode.cpp; sourceTree = "<group>"; };
 		7B5E8A070D7F3A7C001ECF42 /* EventTargetNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventTargetNode.h; sourceTree = "<group>"; };
 		7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionBase.cpp; sourceTree = "<group>"; };
 		7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExceptionBase.h; sourceTree = "<group>"; };
@@ -5072,7 +5070,6 @@
 				7B5E8A020D7F3A7C001ECF42 /* EventNames.h */,
 				7B5E8A030D7F3A7C001ECF42 /* EventTarget.cpp */,
 				7B5E8A040D7F3A7C001ECF42 /* EventTarget.h */,
-				7B5E8A060D7F3A7C001ECF42 /* EventTargetNode.cpp */,
 				7B5E8A070D7F3A7C001ECF42 /* EventTargetNode.h */,
 				7B5E8A080D7F3A7C001ECF42 /* ExceptionBase.cpp */,
 				7B5E8A090D7F3A7C001ECF42 /* ExceptionBase.h */,
@@ -8766,7 +8763,6 @@
 				938444B70F16B0570075F4C5 /* EventHandlerChromium.cpp in Sources */,
 				938444B80F16B0570075F4C5 /* EventNames.cpp in Sources */,
 				938444B90F16B0570075F4C5 /* EventTarget.cpp in Sources */,
-				938444BA0F16B0570075F4C5 /* EventTargetNode.cpp in Sources */,
 				938444BB0F16B0570075F4C5 /* ExceptionBase.cpp in Sources */,
 				938444BC0F16B0570075F4C5 /* ExceptionCode.cpp in Sources */,
 				938444BD0F16B0570075F4C5 /* File.cpp in Sources */,
