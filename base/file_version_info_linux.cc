@@ -23,3 +23,8 @@ std::wstring FileVersionInfo::product_version() {
   NOTIMPLEMENTED();
   return L"";
 }
+
+bool FileVersionInfo::is_official_build() {
+  NOTIMPLEMENTED();
+  return false;
+}
