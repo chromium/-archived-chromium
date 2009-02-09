@@ -36,7 +36,8 @@ if env_res.Bit('windows'):
       ],
   )
 
-  browser_res = env_res.RES('browser/browser_resources.rc')
+  browser_res = env_res.RES(
+      '$TARGET_ROOT/grit_derived_sources/browser_resources.rc')
   chrome_exe_res = env_res.RES('app/chrome_exe.rc'),
   chrome_dll_res = env_res.RES('app/chrome_dll.rc')
   env_res.Depends(chrome_dll_res, 'installer/util/installer_util_strings.rc')
@@ -81,6 +82,12 @@ google_chrome = env_grd.GRIT(
     '$TARGET_ROOT/grit_derived_sources/fake_google_chrome_target',
     '$CHROME_SRC_DIR/chrome/app/google_chrome_strings.grd')
 grit_files.extend(google_chrome)
+
+# NOTE: fake target gets replaced with real targets from reading .grd
+browser_resources = env_grd.GRIT(
+    '$TARGET_ROOT/grit_derived_sources/fake_browser_target',
+    '$CHROME_SRC_DIR/chrome/browser/browser_resources.grd')
+grit_files.extend(browser_resources)
 
 input_files = ChromeFileList([
     'app/generated_resources.grd',
@@ -260,7 +267,8 @@ input_files = ChromeFileList([
   # in favor of generating the hierarchy to reflect the file system.
   MSVSFilter('resources', [
     '$WEBKIT_DIR/glue/resources/aliasb.cur',
-    'browser/browser_resources.rc',
+    Derived(env_dll.File('$TARGET_ROOT/'
+                         + 'grit_derived_sources/browser_resources.rc')),
     '$WEBKIT_DIR/glue/resources/cell.cur',
     'app/check_dependents.bat',
     'app/chrome.dll.deps',
@@ -658,25 +666,6 @@ p.AddConfig('Release|Win32',
 ##############################################################################
 # TODO(sgk):  move to separate .scons file for browser_resources #############
 
-env_flat = env.Clone(
-    BROWSER_RESOURCES = Dir('browser_resources'),
-    HTML_INLINE = env.File(
-        '$CHROME_SRC_DIR/chrome/tools/build/win/html_inline.py'),
-    FLATTEN_HTML_COM = '$PYTHON $HTML_INLINE $SOURCE $TARGET',
-)
-
-def FlatHtmlEmitter(target, source, env):
-    # When we get the target, it will have the "_flat.html" suffix,
-    # but will be next to the sourcefile.  Replace it with a
-    # string that puts it in the $BROWSER_RESOURCES directory.
-    target = [env.File('$BROWSER_RESOURCES/' + target[0].name)]
-    return target, source
-
-env_flat['BUILDERS']['FlatHtml'] = Builder(action='$FLATTEN_HTML_COM',
-                                           suffix='_flat.html',
-                                           source_suffix='.html',
-                                           emitter=FlatHtmlEmitter)
-
 input_files = ChromeFileList([
     'browser/resources/about_credits.html',
     'browser/resources/about_memory.html',
@@ -693,17 +682,6 @@ input_files = ChromeFileList([
     'browser/security/resources/ssl_roadblock_icon.png',
 ])
 
-# TODO(port)
-if env_flat.Bit('windows'):
-  flats_out = []
-  for i in input_files:
-    if str(i).endswith('.html'):
-      flats_out.extend(env_flat.FlatHtml(i))
-
-  # TODO(sgk):  Remove when we upgrade to SCons 1.1.0, which
-  # determines implicit dependencies from .rc files.
-  env_flat.Depends(browser_res, flats_out)
-
 p = env.ChromeMSVSProject('browser/resources/browser_resources.vcproj',
                           dest=('$CHROME_SRC_DIR/chrome/'
                                 + 'browser/resources/browser_resources.vcproj'),
@@ -715,14 +693,11 @@ p = env.ChromeMSVSProject('browser/resources/browser_resources.vcproj',
                           local_directory_prefix='./',
                           tools=[
                               'VCPreBuildEventTool',
-                              'Flattened HTML Resource',
                               'VCCustomBuildTool',
                               'VCMIDLTool',
                               'VCPostBuildEventTool',
                           ],
                           ConfigurationType='10')
-
-p.AddToolFile('tools/build/win/flattened_html_file.rules')
 
 p.AddConfig('Debug|Win32',
             InheritedPropertySheets=[
@@ -759,7 +734,7 @@ env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])
 
 # TODO(port)
 if env.Bit('windows'):
-  env.InstallAs('$LIB_DIR/${LIBPREFIX}jscre${LIBSUFFIX}',
+  env.InstallAs('$LIBS_DIR/${LIBPREFIX}jscre${LIBSUFFIX}',
                 '$WEBKIT_DIR/JavaScriptCore_pcre.lib')
 
 

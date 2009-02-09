@@ -164,11 +164,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\browser\browser_resources.h"
-				>
-			</File>
-			<File
-				RelativePath="..\browser\browser_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\browser_resources.rc"
 				>
 			</File>
 			<File

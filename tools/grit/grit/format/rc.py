@@ -11,8 +11,8 @@ import types
 import re
 
 from grit import util
+from grit.format import html_inline
 from grit.format import interface
-
 
 # Matches all different types of linebreaks.
 _LINEBREAKS = re.compile('\r\n|\n|\r')
@@ -390,7 +390,8 @@ class RcSection(interface.ItemFormatter):
 class RcInclude(interface.ItemFormatter):
   '''Writes out an item that is included in an .rc file (e.g. an ICON)'''
   
-  def __init__(self, type, filenameWithoutPath = 0, relative_path = 0):
+  def __init__(self, type, filenameWithoutPath = 0, relative_path = 0,
+               flatten_html = 0):
     '''Indicates to the instance what the type of the resource include is,
     e.g. 'ICON' or 'HTML'.  Case must be correct, i.e. if the type is all-caps
     the parameter should be all-caps.
@@ -401,6 +402,7 @@ class RcInclude(interface.ItemFormatter):
     self.type_ = type
     self.filenameWithoutPath = filenameWithoutPath
     self.relative_path_ = relative_path
+    self.flatten_html = flatten_html
   
   def Format(self, item, lang='en', begin_item=True, output_dir='.'):
     if not begin_item:
@@ -419,10 +421,18 @@ class RcInclude(interface.ItemFormatter):
     # The FileForLanguage() Function has the side effect of generating the file
     # if needed (e.g. if it is an HTML file include).
     filename = os.path.abspath(item.FileForLanguage(lang, output_dir))
-    if self.filenameWithoutPath:
+    if self.flatten_html:
+      # Generate the flattened HTML file.
+      flat_filename = os.path.join(output_dir, os.path.basename(filename))
+      html_inline.InlineFile(filename, flat_filename)
+
+      # Include the flattened HTML file.
+      filename = os.path.basename(filename)
+    elif self.filenameWithoutPath:
       filename = os.path.basename(filename)
     elif self.relative_path_:
       filename = _MakeRelativePath(output_dir, filename)
+
     filename = filename.replace('\\', '\\\\')  # escape for the RC format
 
     if isinstance(item, structure.StructureNode) and item.IsExcludedFromRc():

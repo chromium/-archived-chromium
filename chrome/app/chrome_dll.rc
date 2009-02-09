@@ -235,6 +235,10 @@ END
 
 #include "installer_util_strings.rc"
 
+#ifdef CHROME_PERSONALIZATION
+#include "chrome\\personalization\\personalization_resources.rc"
+#endif
+
 // We include these resources because all ICON types need to be in the
 // same .rc file.  See:
 // http://www.technewsgroups.net/group/microsoft.public.dotnet.general/topic2111.aspx

@@ -266,10 +266,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\browser_resources.h"
-				>
-			</File>
-			<File
 				RelativePath=".\browser_shutdown.cc"
 				>
 			</File>

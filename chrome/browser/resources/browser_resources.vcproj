@@ -5,6 +5,7 @@
 	Name="browser_resources"
 	ProjectGUID="{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}"
 	RootNamespace="browser_resources"
+	Keyword="Win32Proj"
 	>
 	<Platforms>
 		<Platform
@@ -13,7 +14,7 @@
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
-			RelativePath="..\..\tools\build\win\flattened_html_file.rules"
+			RelativePath="..\..\..\tools\grit\build\grit_resources.rules"
 		/>
 	</ToolFiles>
 	<Configurations>
@@ -26,7 +27,10 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="Flattened HTML Resource"
+				Name="WebKitVersion"
+			/>
+			<Tool
+				Name="GRIT Generated Resources"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -47,7 +51,10 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="Flattened HTML Resource"
+				Name="WebKitVersion"
+			/>
+			<Tool
+				Name="GRIT Generated Resources"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -63,60 +70,17 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath=".\about_credits.html"
+		<Filter
+			Name="Generated Files"
+			SourceControlFiles="false"
 			>
-		</File>
+			<File
+				RelativePath="$(OutDir)\grit_derived_sources\browser_resources.h"
+				>
+			</File>
+		</Filter>
 		<File
-			RelativePath=".\about_memory.html"
-			>
-		</File>
-		<File
-			RelativePath=".\about_stats.html"
-			>
-		</File>
-		<File
-			RelativePath=".\about_version.html"
-			>
-		</File>
-		<File
-			RelativePath=".\history.html"
-			>
-		</File>
-		<File
-			RelativePath=".\incognito_tab.html"
-			>
-		</File>
-		<File
-			RelativePath=".\new_tab.html"
-			>
-		</File>
-		<File
-			RelativePath=".\safe_browsing_malware_block.html"
-			>
-		</File>
-		<File
-			RelativePath=".\safe_browsing_multiple_threat_block.html"
-			>
-		</File>
-		<File
-			RelativePath=".\safe_browsing_phishing_block.html"
-			>
-		</File>
-		<File
-			RelativePath="..\security\resources\ssl_error.html"
-			>
-		</File>
-		<File
-			RelativePath="..\security\resources\ssl_roadblock.html"
-			>
-		</File>
-		<File
-			RelativePath="..\security\resources\ssl_roadblock_background.png"
-			>
-		</File>
-		<File
-			RelativePath="..\security\resources\ssl_roadblock_icon.png"
+			RelativePath="..\browser_resources.grd"
 			>
 		</File>
 	</Files>

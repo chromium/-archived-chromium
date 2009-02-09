@@ -77,7 +77,6 @@ input_files = ChromeFileList([
     'browser_process.h',
     'browser_process_impl.cc',
     'browser_process_impl.h',
-    'browser_resources.h',
     'browser_shutdown.cc',
     'browser_shutdown.h',
     'browser_url_handler.cc',

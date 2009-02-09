@@ -27,6 +27,7 @@ class IncludeNode(base.Node):
     return {'translateable' : 'true', 
       'generateid': 'true', 
       'filenameonly': 'false',
+      'flattenhtml': 'false',
       'relativepath': 'false',
       }
 
@@ -37,7 +38,8 @@ class IncludeNode(base.Node):
           self.SatisfiesOutputCondition()):
       return grit.format.rc.RcInclude(self.attrs['type'].upper(), 
         self.attrs['filenameonly'] == 'true',
-        self.attrs['relativepath'] == 'true')
+        self.attrs['relativepath'] == 'true',
+        self.attrs['flattenhtml'] == 'true')
     else:
       return super(type(self), self).ItemFormatter(t)
   

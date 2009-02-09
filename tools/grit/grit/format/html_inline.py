@@ -19,7 +19,7 @@ import sys
 import base64
 import mimetypes
 
-DIST_DEFAULT = 'CHROMIUM'
+DIST_DEFAULT = 'chromium'
 DIST_ENV_VAR = 'CHROMIUM_BUILD'
 DIST_SUBSTR = '%DISTRIBUTION%'
 
