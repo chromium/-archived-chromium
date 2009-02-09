@@ -135,7 +135,6 @@ DEFER : LayoutTests/fast/html/keygen.html = FAIL
 // Other
 // -----------------------------------------------------------------
 
-
 // Bug 5248
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
@@ -144,12 +143,6 @@ MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 // Also skipped by Apple on Windows (rdar://5723191).
 // Linux pixeltest failure: Form control metrics incorrect
 LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
-
-// Bug: 1143492
-// Window status should always return a string object
-// WebKit does this to match IE, FF also fails this test.
-// Obscure, not sure we care. DEFER for now.
-DEFER : LayoutTests/fast/dom/assign-to-window-status.html = FAIL
 
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
