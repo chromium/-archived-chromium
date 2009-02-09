@@ -312,10 +312,7 @@ int ChromeMain(int argc, const char** argv) {
   // TODO(port): turn on these main() functions as they've been de-winified.
   int rv = -1;
   if (process_type == switches::kRendererProcess) {
-    // TODO(port) turn this on and follow the link chain...
-#if !defined(OS_LINUX)
     rv = RendererMain(main_params);
-#endif
   } else if (process_type == switches::kPluginProcess) {
 #if defined(OS_WIN)
     rv = PluginMain(main_params);

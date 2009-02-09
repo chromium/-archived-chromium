@@ -48,12 +48,12 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
                  MB_OK | MB_SETFOREGROUND);
 #elif defined(OS_LINUX)
     // TODO(port): create an abstraction layer for dialog boxes and use it here.
-    GtkDialog *dialog =
-        GTK_DIALOG(gtk_dialog_new_with_buttons("renderer starting...",
-        NULL, static_cast<GtkDialogFlags>(GTK_DIALOG_MODAL |
-                                          GTK_DIALOG_DESTROY_WITH_PARENT),
-        GTK_STOCK_OK));
-    gtk_dialog_run(dialog);
+    std::string text = StringPrintf("attach to me at pid %d", getpid());
+    GtkWidget* dialog = gtk_message_dialog_new(
+        NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, text.c_str());
+    gtk_window_set_title(GTK_WINDOW(dialog), "renderer starting...");
+    gtk_dialog_run(GTK_DIALOG(dialog));  // Runs a nested message loop.
+    gtk_widget_destroy(dialog);
 #elif defined(OS_MACOSX)
     // TODO(playmobil): In the long term, overriding this flag doesn't seem
     // right, either use our own flag or open a dialog we can use.
@@ -62,7 +62,7 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
                  << getpid()
                  << ") paused waiting for debugger to attach @ pid";
     pause();
-#endif  // defined(OS_POSIX)
+#endif  // defined(OS_MACOSX)
   }
 }
 
