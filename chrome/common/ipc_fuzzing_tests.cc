@@ -302,6 +302,7 @@ TEST_F(IPCFuzzingTest, SanityTest) {
   EXPECT_TRUE(listener.ExpectMessage(value, MsgClassSI::ID));
 
   EXPECT_TRUE(base::WaitForSingleProcess(server_process, 5000));
+  base::CloseProcessHandle(server_process);
 }
 
 // This test uses a payload that is smaller than expected.
@@ -331,6 +332,7 @@ TEST_F(IPCFuzzingTest, MsgBadPayloadShort) {
   EXPECT_TRUE(listener.ExpectMessage(1, MsgClassSI::ID));
 
   EXPECT_TRUE(base::WaitForSingleProcess(server_process, 5000));
+  base::CloseProcessHandle(server_process);
 }
 #endif  // NDEBUG
 
@@ -365,6 +367,7 @@ TEST_F(IPCFuzzingTest, MsgBadPayloadArgs) {
   EXPECT_TRUE(listener.ExpectMessage(3, MsgClassIS::ID));
 
   EXPECT_TRUE(base::WaitForSingleProcess(server_process, 5000));
+  base::CloseProcessHandle(server_process);
 }
 
 // This class is for testing the IPC_BEGIN_MESSAGE_MAP_EX macros.

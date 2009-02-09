@@ -144,7 +144,7 @@ class CrashTask : public Task {
       printf("sweet death...\n");
 #if defined(OS_WIN)
       // Windows does more work on _exit() that we would like, so we use Kill.
-      base::KillProcess(base::GetCurrentProcId(), kExpectedCrash, false);
+      base::KillProcessById(base::GetCurrentProcId(), kExpectedCrash, false);
 #elif defined(OS_POSIX)
       // On POSIX, _exit() will terminate the process with minimal cleanup,
       // and it is cleaner than killing.

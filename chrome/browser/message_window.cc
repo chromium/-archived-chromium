@@ -106,7 +106,7 @@ bool MessageWindow::NotifyOtherProcess() {
   }
 
   // Time to take action. Kill the browser process.
-  base::KillProcess(process_id, ResultCodes::HUNG, true);
+  base::KillProcessById(process_id, ResultCodes::HUNG, true);
   remote_window_ = NULL;
   return false;
 }

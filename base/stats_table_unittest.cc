@@ -210,6 +210,7 @@ TEST_F(StatsTableTest, MultipleProcesses) {
   // Wait for the processes to finish.
   for (int index = 0; index < kMaxProcs; index++) {
     EXPECT_TRUE(WaitForSingleProcess(procs[index], 60 * 1000));
+    base::CloseProcessHandle(procs[index]);
   }
 
   StatsCounter zero_counter(kCounterZero);

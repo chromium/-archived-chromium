@@ -91,7 +91,8 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   int process_id = 0;
   ASSERT_TRUE(tab->GetProcessID(&process_id));
   ASSERT_NE(0, process_id);
-  base::KillProcess(process_id, 0xc0000005, true);  // Fake Access Violation.
+  // Fake Access Violation.
+  base::KillProcessById(process_id, 0xc0000005, true);
 
   // Give the browser a chance to notice the crashed tab.
   Sleep(1000);

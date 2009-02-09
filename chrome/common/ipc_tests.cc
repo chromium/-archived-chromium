@@ -231,6 +231,7 @@ TEST_F(IPCChannelTest, ChannelTest) {
 
   // Cleanup child process.
   EXPECT_TRUE(base::WaitForSingleProcess(process_handle, 5000));
+  base::CloseProcessHandle(process_handle);
 }
 
 #if defined(OS_POSIX)
@@ -357,6 +358,7 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
 
     // cleanup child process
     EXPECT_TRUE(base::WaitForSingleProcess(process_handle, 5000));
+    base::CloseProcessHandle(process_handle);
   }
   thread.Stop();
 }

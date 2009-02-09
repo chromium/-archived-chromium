@@ -52,7 +52,7 @@ int GetProcId(ProcessHandle process) {
 // Attempts to kill the process identified by the given process
 // entry structure.  Ignores specified exit_code; posix can't force that.
 // Returns true if this is successful, false otherwise.
-bool KillProcess(int process_id, int exit_code, bool wait) {
+bool KillProcess(ProcessHandle process_id, int exit_code, bool wait) {
   bool result = false;
 
   int status = kill(process_id, SIGTERM);
