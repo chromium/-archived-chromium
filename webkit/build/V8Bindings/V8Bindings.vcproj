@@ -520,6 +520,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8EventTargetNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8EventTargetNode.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8File.cpp"
 				>
 			</File>

@@ -659,6 +659,7 @@ all : \
     V8EntityReference.h \
     V8Event.h \
     V8EventException.h \
+    V8EventTargetNode.h \
     V8File.h \
     V8FileList.h \
     V8HTMLAnchorElement.h \

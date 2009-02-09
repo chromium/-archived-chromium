@@ -1644,7 +1644,7 @@ sub GetNativeType
     return "SVGPaint::SVGPaintType" if $type eq "SVGPaintType";
     return "DOMTimeStamp" if $type eq "DOMTimeStamp";
     return "unsigned" if $type eq "RGBColor";
-    return "Node*" if $type eq "EventTarget" and $isParameter;
+    return "EventTargetNode*" if $type eq "EventTarget" and $isParameter;
 
     return "String" if $type eq "DOMUserData";  # temporary hack, TODO
 
@@ -1763,7 +1763,7 @@ sub JSValueToNative
       $implIncludes{"V8Node.h"} = 1;
 
       # EventTarget is not in DOM hierarchy, but all Nodes are EventTarget.
-      return "V8Node::HasInstance($value) ? V8Proxy::DOMWrapperToNode<Node>($value) : 0";
+      return "V8Node::HasInstance($value) ? V8Proxy::DOMWrapperToNode<EventTargetNode>($value) : 0";
     }
 
     AddIncludesForType($type);

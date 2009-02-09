@@ -79,6 +79,7 @@
 #include "DOMWindow.h"
 #include "Entity.h"
 #include "EventListener.h"
+#include "EventTargetNode.h"
 #include "EventTarget.h"
 #include "Event.h"
 #include "EventException.h"

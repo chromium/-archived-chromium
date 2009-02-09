@@ -197,6 +197,7 @@ idl_files = [
     'dom/EventException.idl',
     'dom/EventListener.idl',
     'dom/EventTarget.idl',
+    'dom/EventTargetNode.idl',
     'dom/KeyboardEvent.idl',
     'dom/MessageChannel.idl',
     'dom/MessageEvent.idl',

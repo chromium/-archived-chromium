@@ -153,6 +153,7 @@
 #include "V8DOMWindow.h"
 #include "V8Event.h"
 #include "V8EventException.h"
+#include "V8EventTargetNode.h"
 #include "V8KeyboardEvent.h"
 #include "V8MouseEvent.h"
 #include "V8WebKitAnimationEvent.h"
