@@ -1760,10 +1760,12 @@ LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 // like it is using a different font to render now than it
 // did before and that may be a bug.  It looks like
 // jshin@chromium.org did several font related changes in this merge.
+LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
+
 LINUX WIN : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
 
 // Regressions from webkit merge 40668:40722
-LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 // This is related to merging EventTargetNode into Node, but I don't understand
 // this well enough to know if this just needs a rebase. One of the V8 folk
 // should take a look at this. The upstream expected results changed as well, 
