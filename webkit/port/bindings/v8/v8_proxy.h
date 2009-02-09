@@ -56,7 +56,6 @@ class MimeType;
 class MimeTypeArray;
 class Plugin;
 class PluginArray;
-class EventTargetNode;
 class StyleSheetList;
 class CSSValue;
 class CSSRule;

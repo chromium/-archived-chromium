@@ -62,7 +62,6 @@
 #include "Event.h"
 #include "EventListener.h"
 #include "EventTarget.h"
-#include "EventTargetNode.h"
 #include "ExceptionCode.h"
 #include "FloatRect.h"
 #include "Frame.h"
@@ -2888,12 +2887,11 @@ CALLBACK_FUNC_DECL(DOMWindowNOP)
 }
 
 
-// EventTargetNode -------------------------------------------------------------
+// Node -------------------------------------------------------------
 
-CALLBACK_FUNC_DECL(EventTargetNodeAddEventListener) {
-  INC_STATS("DOM.EventTargetNode.addEventListener()");
-  EventTargetNode* node =
-      V8Proxy::DOMWrapperToNode<EventTargetNode>(args.Holder());
+CALLBACK_FUNC_DECL(NodeAddEventListener) {
+  INC_STATS("DOM.Node.addEventListener()");
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(args.Holder());
 
   V8Proxy* proxy = V8Proxy::retrieve(node->document()->frame());
   if (!proxy)
@@ -2909,10 +2907,9 @@ CALLBACK_FUNC_DECL(EventTargetNodeAddEventListener) {
   return v8::Undefined();
 }
 
-CALLBACK_FUNC_DECL(EventTargetNodeRemoveEventListener) {
-  INC_STATS("DOM.EventTargetNode.removeEventListener()");
-  EventTargetNode* node =
-      V8Proxy::DOMWrapperToNode<EventTargetNode>(args.Holder());
+CALLBACK_FUNC_DECL(NodeRemoveEventListener) {
+  INC_STATS("DOM.Node.removeEventListener()");
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(args.Holder());
 
   V8Proxy* proxy = V8Proxy::retrieve(node->document()->frame());
   // It is possbile that the owner document of the node is detached
@@ -3192,8 +3189,7 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
 
 
 ACCESSOR_SETTER(ElementEventHandler) {
-  EventTargetNode* node =
-      V8Proxy::DOMWrapperToNode<EventTargetNode>(info.Holder());
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(info.Holder());
 
   // Name starts with 'on', remove them.
   String key = ToWebCoreString(name);
@@ -3223,8 +3219,7 @@ ACCESSOR_SETTER(ElementEventHandler) {
 
 
 ACCESSOR_GETTER(ElementEventHandler) {
-  EventTargetNode* node =
-      V8Proxy::DOMWrapperToNode<EventTargetNode>(info.Holder());
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(info.Holder());
 
   // Name starts with 'on', remove them.
   String key = ToWebCoreString(name);

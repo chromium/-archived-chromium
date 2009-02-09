@@ -128,6 +128,7 @@ env.Prepend(
 
         '$JAVASCRIPTCORE_DIR',
         '$JAVASCRIPTCORE_DIR/wtf',
+        '$JAVASCRIPTCORE_DIR/wtf/chromium',
 
         # Directories in third_party/WebKit/Webcore that we pull headers
         # from.  We don't have to list directories that are listed in the
@@ -155,6 +156,7 @@ env.Prepend(
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/graphics/opentype',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/graphics/transforms',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/image-decoders/skia',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/image-encoders/skia',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/network',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/network/chromium',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/platform/sql',
