@@ -17,6 +17,10 @@
 
 namespace WebCore {
 
+#if ENABLE(WORKERS)
+class WorkerContextExecutionProxy;
+#endif  // WORKERS
+
 // There are two kinds of event listeners: HTML or non-HMTL.
 // onload, onfocus, etc (attributes) are always HTML event handler type;
 // Event listeners added by Window.addEventListener
@@ -34,7 +38,7 @@ class V8AbstractEventListener : public EventListener {
   Frame* frame() { return m_frame; }
 
   // Handle event.
-  void handleEvent(Event*, bool isWindowEvent);
+  virtual void handleEvent(Event*, bool isWindowEvent);
 
   // Returns the listener object, either a function or an object.
   virtual v8::Local<v8::Object> GetListenerObject() {
@@ -44,9 +48,17 @@ class V8AbstractEventListener : public EventListener {
   // Dispose listener object and clear the handle
   void DisposeListenerObject();
 
+  virtual bool disconnected() const { return m_frame == NULL; }
+
+ protected:
+  // Listener object.
+  v8::Persistent<v8::Object> m_listener;
+
+  // Flags this is a HTML type listener.
+  bool m_isInline;
+
  private:
   V8AbstractEventListener(Frame* frame, bool isInline);
-
 
   // Call listener function.
   virtual v8::Local<v8::Value> CallListenerFunction(
@@ -65,12 +77,6 @@ class V8AbstractEventListener : public EventListener {
   // TODO(fqian): this could hold m_frame live until
   // the event listener is deleted. Fix this!
   Frame* m_frame;
-
-  // Listener object.
-  v8::Persistent<v8::Object> m_listener;
-
-  // Flags this is a HTML type listener.
-  bool m_isInline;
 
   // Position in the HTML source for HTML event listeners.
   int m_lineNumber;
@@ -98,11 +104,13 @@ class V8EventListener : public V8AbstractEventListener {
   // Detach the listener from its owner frame.
   void disconnectFrame() { m_frame = 0; }
 
+ protected:
+  v8::Local<v8::Function> GetListenerFunction();
+
  private:
   // Call listener function.
   virtual v8::Local<v8::Value> CallListenerFunction(
       v8::Handle<v8::Value> jsevent, Event* event, bool isWindowEvent);
-  v8::Local<v8::Function> GetListenerFunction();
 };
 
 
@@ -157,6 +165,37 @@ class V8LazyEventListener : public V8AbstractEventListener {
 
   v8::Local<v8::Function> GetListenerFunction();
 };
+
+#if ENABLE(WORKERS)
+class V8WorkerContextEventListener : public V8ObjectEventListener {
+ public:
+  static PassRefPtr<V8WorkerContextEventListener> create(
+      WorkerContextExecutionProxy* proxy,
+      v8::Local<v8::Object> listener,
+      bool isInline) {
+    return adoptRef(new V8WorkerContextEventListener(proxy,
+                                                     listener,
+                                                     isInline));
+  }
+  V8WorkerContextEventListener(WorkerContextExecutionProxy* proxy,
+                               v8::Local<v8::Object> listener,
+                               bool isInline);
+
+  virtual ~V8WorkerContextEventListener();
+  virtual void handleEvent(Event*, bool isWindowEvent);
+  virtual bool disconnected() const { return m_proxy == NULL; }
+
+  void disconnect() { m_proxy = NULL; }
+
+ private:
+  virtual v8::Local<v8::Value>
+    CallListenerFunction(v8::Handle<v8::Value> jsevent,
+                         Event* event, bool isWindowEvent);
+  v8::Local<v8::Object> GetReceiverObject(Event* event,
+                                          bool isWindowEvent);
+  WorkerContextExecutionProxy* m_proxy;
+};
+#endif  // WORKERS
 
 }  // namespace WebCore
 

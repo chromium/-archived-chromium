@@ -29,6 +29,8 @@
 
 #if ENABLE(WORKERS)
 
+#include <wtf/OwnPtr.h>
+#include <wtf/Threading.h>
 #include "v8.h"
 
 namespace WebCore {
@@ -36,22 +38,22 @@ namespace WebCore {
     class ScriptSourceCode;
     class ScriptValue;
     class WorkerContext;
+    class WorkerContextExecutionProxy;
 
     class WorkerScriptController {
     public:
         WorkerScriptController(WorkerContext*);
         ~WorkerScriptController();
 
+        WorkerContextExecutionProxy* proxy() { return m_proxy.get(); }
+
         ScriptValue evaluate(const ScriptSourceCode&);
 
         void forbidExecution();
 
     private:
-        void InitContextIfNeeded();
-        void Dispose();
-
         WorkerContext* m_workerContext;
-        v8::Persistent<v8::Context> m_context;
+        OwnPtr<WorkerContextExecutionProxy> m_proxy;
 
         Mutex m_sharedDataMutex;
         bool m_executionForbidden;

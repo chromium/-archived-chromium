@@ -193,7 +193,9 @@
 
 #if ENABLE(WORKERS)
 #include "Worker.h"
+#include "WorkerContext.h"
 #include "WorkerLocation.h"
+#include "WorkerNavigator.h"
 #endif  // WORKERS
 
 #if ENABLE(XPATH)
@@ -380,7 +382,7 @@ static void WeakActiveDOMObjectCallback(v8::Persistent<v8::Value> obj,
                                         void* para);
 static void WeakNodeCallback(v8::Persistent<v8::Value> obj, void* para);
 // A map from DOM node to its JS wrapper.
-static DOMWrapperMap<Node>& dom_node_map()
+static DOMWrapperMap<Node>& GetDOMNodeMap()
 {
   static DOMWrapperMap<Node> static_dom_node_map(&WeakNodeCallback);
   return static_dom_node_map;
@@ -389,7 +391,7 @@ static DOMWrapperMap<Node>& dom_node_map()
 
 // A map from a DOM object (non-node) to its JS wrapper. This map does not
 // contain the DOM objects which can have pending activity (active dom objects).
-static DOMWrapperMap<void>& dom_object_map()
+DOMWrapperMap<void>& GetDOMObjectMap()
 {
   static DOMWrapperMap<void>
     static_dom_object_map(&WeakDOMObjectCallback);
@@ -399,7 +401,7 @@ static DOMWrapperMap<void>& dom_object_map()
 
 // A map from a DOM object to its JS wrapper for DOM objects which
 // can have pending activity.
-static DOMWrapperMap<void>& active_dom_object_map()
+static DOMWrapperMap<void>& GetActiveDOMObjectMap()
 {
   static DOMWrapperMap<void>
     static_active_dom_object_map(&WeakActiveDOMObjectCallback);
@@ -560,18 +562,17 @@ SVGElement* V8Proxy::GetSVGContext(void* obj)
 
 #endif
 
-
 // Called when obj is near death (not reachable from JS roots)
 // It is time to remove the entry from the table and dispose
 // the handle.
 static void WeakDOMObjectCallback(v8::Persistent<v8::Value> obj,
                                   void* dom_obj) {
   v8::HandleScope scope;
-  ASSERT(dom_object_map().contains(dom_obj));
+  ASSERT(GetDOMObjectMap().contains(dom_obj));
   ASSERT(obj->IsObject());
 
   // Forget function removes object from the map and dispose the wrapper.
-  dom_object_map().forget(dom_obj);
+  GetDOMObjectMap().forget(dom_obj);
 
   V8ClassIndex::V8WrapperType type =
     V8Proxy::GetDOMWrapperType(v8::Handle<v8::Object>::Cast(obj));
@@ -590,11 +591,11 @@ static void WeakActiveDOMObjectCallback(v8::Persistent<v8::Value> obj,
                                         void* dom_obj)
 {
   v8::HandleScope scope;
-  ASSERT(active_dom_object_map().contains(dom_obj));
+  ASSERT(GetActiveDOMObjectMap().contains(dom_obj));
   ASSERT(obj->IsObject());
 
   // Forget function removes object from the map and dispose the wrapper.
-  active_dom_object_map().forget(dom_obj);
+  GetActiveDOMObjectMap().forget(dom_obj);
 
   V8ClassIndex::V8WrapperType type =
     V8Proxy::GetDOMWrapperType(v8::Handle<v8::Object>::Cast(obj));
@@ -611,9 +612,9 @@ static void WeakActiveDOMObjectCallback(v8::Persistent<v8::Value> obj,
 static void WeakNodeCallback(v8::Persistent<v8::Value> obj, void* param)
 {
   Node* node = static_cast<Node*>(param);
-  ASSERT(dom_node_map().contains(node));
+  ASSERT(GetDOMNodeMap().contains(node));
 
-  dom_node_map().forget(node);
+  GetDOMNodeMap().forget(node);
   node->deref();
 }
 
@@ -632,11 +633,11 @@ void V8Proxy::GCProtect(void* dom_object)
       return;
   if (gc_protected_map().contains(dom_object))
       return;
-  if (!dom_object_map().contains(dom_object))
+  if (!GetDOMObjectMap().contains(dom_object))
       return;
 
   // Create a new (strong) persistent handle for the object.
-  v8::Persistent<v8::Object> wrapper = dom_object_map().get(dom_object);
+  v8::Persistent<v8::Object> wrapper = GetDOMObjectMap().get(dom_object);
   if (wrapper.IsEmpty()) return;
 
   gc_protected_map().set(dom_object, *v8::Persistent<v8::Object>::New(wrapper));
@@ -663,12 +664,12 @@ static void GCPrologue()
   v8::HandleScope scope;
 
 #ifndef NDEBUG
-  EnumerateDOMObjectMap(dom_object_map().impl());
+  EnumerateDOMObjectMap(GetDOMObjectMap().impl());
 #endif
 
   // Run through all objects with possible pending activity making their
   // wrappers non weak if there is pending activity.
-  DOMObjectMap active_map = active_dom_object_map().impl();
+  DOMObjectMap active_map = GetActiveDOMObjectMap().impl();
   for (DOMObjectMap::iterator it = active_map.begin(), end = active_map.end();
     it != end; ++it) {
     void* obj = it->first;
@@ -731,7 +732,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
   typedef std::pair<uintptr_t, Node*> GrouperPair;
   typedef Vector<GrouperPair> GrouperList;
 
-  DOMNodeMap node_map = dom_node_map().impl();
+  DOMNodeMap node_map = GetDOMNodeMap().impl();
   GrouperList grouper;
   grouper.reserveCapacity(node_map.size());
 
@@ -797,7 +798,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     group.reserveCapacity(next_key_index - i);
     for (; i < next_key_index; ++i) {
       v8::Persistent<v8::Value> wrapper =
-          dom_node_map().get(grouper[i].second);
+          GetDOMNodeMap().get(grouper[i].second);
       if (!wrapper.IsEmpty())
         group.append(wrapper);
     }
@@ -816,7 +817,7 @@ static void GCEpilogue()
 
   // Run through all objects with pending activity making their wrappers weak
   // again.
-  DOMObjectMap active_map = active_dom_object_map().impl();
+  DOMObjectMap active_map = GetActiveDOMObjectMap().impl();
   for (DOMObjectMap::iterator it = active_map.begin(), end = active_map.end();
     it != end; ++it) {
     void* obj = it->first;
@@ -841,8 +842,8 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
 
 #ifndef NDEBUG
   // Check all survivals are weak.
-  EnumerateDOMObjectMap(dom_object_map().impl());
-  EnumerateDOMNodeMap(dom_node_map().impl());
+  EnumerateDOMObjectMap(GetDOMObjectMap().impl());
+  EnumerateDOMNodeMap(GetDOMNodeMap().impl());
   EnumerateDOMObjectMap(gc_protected_map());
   EnumerateGlobalHandles();
 #undef USE_VAR
@@ -1104,8 +1105,8 @@ void V8Proxy::DestroyGlobal()
 
 
 bool V8Proxy::DOMObjectHasJSWrapper(void* obj) {
-    return dom_object_map().contains(obj) ||
-           active_dom_object_map().contains(obj);
+    return GetDOMObjectMap().contains(obj) ||
+           GetActiveDOMObjectMap().contains(obj);
 }
 
 
@@ -1123,7 +1124,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
       default: break;
     }
 #endif
-    dom_object_map().set(obj, wrapper);
+    GetDOMObjectMap().set(obj, wrapper);
 }
 
 // The caller must have increased obj's ref count.
@@ -1139,14 +1140,14 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
 #undef MAKE_CASE
     }
 #endif
-    active_dom_object_map().set(obj, wrapper);
+    GetActiveDOMObjectMap().set(obj, wrapper);
 }
 
 // The caller must have increased node's ref count.
 void V8Proxy::SetJSWrapperForDOMNode(Node* node, v8::Persistent<v8::Object> wrapper)
 {
     ASSERT(MaybeDOMWrapper(wrapper));
-    dom_node_map().set(node, wrapper);
+    GetDOMNodeMap().set(node, wrapper);
 }
 
 PassRefPtr<EventListener> V8Proxy::createInlineEventListener(
@@ -1379,7 +1380,7 @@ v8::Local<v8::Value> V8Proxy::RunScript(v8::Handle<v8::Script> script,
     return v8::Local<v8::Value>();
 
   // Compute the source string and prevent against infinite recursion.
-  if (m_recursion >= 20) {
+  if (m_recursion >= kMaxRecursionDepth) {
     v8::Local<v8::String> code =
         v8ExternalString("throw RangeError('Recursion too deep')");
     // TODO(kasperl): Ideally, we should be able to re-use the origin of the
@@ -1794,7 +1795,17 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
         desc->SetCallHandler(USE_CALLBACK(WorkerConstructor));
         break;
     }
+
+    case V8ClassIndex::WORKERCONTEXT: {
+        // Reserve one more internal field for keeping event listeners.
+        v8::Local<v8::ObjectTemplate> instance_template =
+            desc->InstanceTemplate();
+        instance_template->SetInternalFieldCount(
+            V8Custom::kWorkerContextInternalFieldCount);
+        break;
+    }
 #endif  // WORKERS
+
 
     // The following objects are created from JavaScript.
     case V8ClassIndex::DOMPARSER:
@@ -2520,8 +2531,8 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type, void
 
   // Non DOM node
   v8::Persistent<v8::Object> result = is_active_dom_object ?
-                                      active_dom_object_map().get(imp) :
-                                      dom_object_map().get(imp);
+                                      GetActiveDOMObjectMap().get(imp) :
+                                      GetDOMObjectMap().get(imp);
   if (result.IsEmpty()) {
     v8::Local<v8::Object> v8obj = InstantiateV8Object(type, type, imp);
     if (!v8obj.IsEmpty()) {
@@ -2666,6 +2677,7 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
       static_cast<HTMLCollection*>(imp)->type() == HTMLCollection::DocAll) {
     desc_type = V8ClassIndex::UNDETECTABLEHTMLCOLLECTION;
   }
+
 
   v8::Local<v8::Function> function;
   V8Proxy* proxy = V8Proxy::retrieve();
@@ -2994,7 +3006,7 @@ v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event)
   if (!event)
       return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = dom_object_map().get(event);
+  v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(event);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3053,7 +3065,7 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
 {
   if (!node) return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = dom_node_map().get(node);
+  v8::Handle<v8::Object> wrapper = GetDOMNodeMap().get(node);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3171,9 +3183,9 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
 }
 
 
-// A JS object of type EventTarget can only be five possible types:
+// A JS object of type EventTarget can only be the following possible types:
 // 1) EventTargetNode; 2) XMLHttpRequest; 3) MessagePort; 4) SVGElementInstance;
-// 5) XMLHttpRequestUpload
+// 5) XMLHttpRequestUpload 6) Worker
 // check EventTarget.h for new type conversion methods
 v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
 {
@@ -3186,6 +3198,12 @@ v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
       return ToV8Object(V8ClassIndex::SVGELEMENTINSTANCE, instance);
 #endif
 
+#if ENABLE(WORKERS)
+  Worker* worker = target->toWorker();
+  if (worker)
+      return ToV8Object(V8ClassIndex::WORKER, worker);
+#endif  // WORKERS
+
   Node* node = target->toNode();
   if (node)
       return NodeToV8Object(node);
@@ -3193,7 +3211,7 @@ v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
   // XMLHttpRequest is created within its JS counterpart.
   XMLHttpRequest* xhr = target->toXMLHttpRequest();
   if (xhr) {
-    v8::Handle<v8::Object> wrapper = active_dom_object_map().get(xhr);
+    v8::Handle<v8::Object> wrapper = GetActiveDOMObjectMap().get(xhr);
     ASSERT(!wrapper.IsEmpty());
     return wrapper;
   }
@@ -3201,14 +3219,14 @@ v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
   // MessagePort is created within its JS counterpart
   MessagePort* port = target->toMessagePort();
   if (port) {
-    v8::Handle<v8::Object> wrapper = active_dom_object_map().get(port);
+    v8::Handle<v8::Object> wrapper = GetActiveDOMObjectMap().get(port);
     ASSERT(!wrapper.IsEmpty());
     return wrapper;
   }
 
   XMLHttpRequestUpload* upload = target->toXMLHttpRequestUpload();
   if (upload) {
-    v8::Handle<v8::Object> wrapper = dom_object_map().get(upload);
+    v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(upload);
     ASSERT(!wrapper.IsEmpty());
     return wrapper;
   }
@@ -3250,7 +3268,7 @@ v8::Handle<v8::Value> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet)
 {
   if (!sheet) return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = dom_object_map().get(sheet);
+  v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(sheet);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3282,7 +3300,7 @@ v8::Handle<v8::Value> V8Proxy::CSSValueToV8Object(CSSValue* value)
 {
   if (!value) return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = dom_object_map().get(value);
+  v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(value);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3319,7 +3337,7 @@ v8::Handle<v8::Value> V8Proxy::CSSRuleToV8Object(CSSRule* rule)
 {
     if (!rule) return v8::Null();
 
-    v8::Handle<v8::Object> wrapper = dom_object_map().get(rule);
+    v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(rule);
     if (!wrapper.IsEmpty())
         return wrapper;
 

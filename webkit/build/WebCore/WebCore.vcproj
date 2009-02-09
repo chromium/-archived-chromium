@@ -281,6 +281,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\DOMTimer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\DOMTimer.h"
 				>
 			</File>

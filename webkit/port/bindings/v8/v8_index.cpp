@@ -355,7 +355,9 @@
 
 #if ENABLE(WORKERS)
 #include "V8Worker.h"
+#include "V8WorkerContext.h"
 #include "V8WorkerLocation.h"
+#include "V8WorkerNavigator.h"
 #endif
 
 namespace WebCore {

@@ -222,6 +222,7 @@ idl_files = [
     'dom/WebKitTransitionEvent.idl',
     'dom/WheelEvent.idl',
     'dom/Worker.idl',
+    'dom/WorkerContext.idl',
     'dom/WorkerLocation.idl',
 
     'html/CanvasGradient.idl',
@@ -311,6 +312,7 @@ idl_files = [
     'page/Location.idl',
     'page/Navigator.idl',
     'page/Screen.idl',
+    'page/WorkerNavigator.idl',
 
     'inspector/InspectorController.idl',
 

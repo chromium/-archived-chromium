@@ -899,7 +899,9 @@ all : \
     V8WebKitTransitionEvent.h \
     V8WheelEvent.h \
     V8Worker.h \
+    V8WorkerContext.h \
     V8WorkerLocation.h \
+    V8WorkerNavigator.h \
     V8XMLHttpRequest.h \
     V8XMLHttpRequestException.h \
     V8XMLHttpRequestProgressEvent.h \

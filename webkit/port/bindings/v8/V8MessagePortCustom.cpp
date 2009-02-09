@@ -54,7 +54,7 @@ static void CreateHiddenDependency(v8::Local<v8::Object> object,
     v8::Local<v8::Value> cache = object->GetInternalField(V8Custom::kMessagePortRequestCacheIndex);
     if (cache->IsNull() || cache->IsUndefined()) {
         cache = v8::Array::New();
-        object->SetInternalField(V8Custom::kXMLHttpRequestCacheIndex, cache);
+        object->SetInternalField(V8Custom::kMessagePortRequestCacheIndex, cache);
     }
 
     v8::Local<v8::Array> cacheArray = v8::Local<v8::Array>::Cast(cache);

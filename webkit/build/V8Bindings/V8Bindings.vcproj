@@ -2304,11 +2304,27 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WorkerContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WorkerContext.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8WorkerLocation.cpp"
 				>
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8WorkerLocation.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WorkerNavigator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WorkerNavigator.h"
 				>
 			</File>
 			<File
@@ -2693,7 +2709,19 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\V8WorkerContextCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\WorkerContextExecutionProxy.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\WorkerContextExecutionProxy.h"
 			>
 		</File>
 		<File

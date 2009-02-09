@@ -413,6 +413,7 @@ END
 sub GenerateConstructorGetter
 {
   my $implClassName = shift;
+  my $classIndex = shift;
       
   push(@implContentDecls, <<END);
   static v8::Handle<v8::Value> ${implClassName}ConstructorGetter(v8::Local<v8::String> name, const v8::AccessorInfo& info) {
@@ -420,6 +421,10 @@ sub GenerateConstructorGetter
     v8::Handle<v8::Value> data = info.Data();
     ASSERT(data->IsNumber());
     V8ClassIndex::V8WrapperType type = V8ClassIndex::FromInt(data->Int32Value());
+END
+
+  if ($classIndex eq "DOMWINDOW") {
+    push(@implContentDecls, <<END);
     DOMWindow* window = V8Proxy::ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, info.Holder());
     Frame* frame = window->frame();
     if (frame) {
@@ -428,7 +433,19 @@ sub GenerateConstructorGetter
       // context of the DOMWindow and not in the context of the caller.
       return V8Proxy::retrieve(frame)->GetConstructor(type);
     }
-    return V8Proxy::retrieve()->GetConstructor(type);
+END
+  }
+  
+  if ($classIndex eq "WORKERCONTEXT") {
+    $implIncludes{"WorkerContextExecutionProxy.h"} = 1;
+    push(@implContentDecls, <<END);
+    return WorkerContextExecutionProxy::retrieve()->GetConstructor(type);
+END
+  } else {
+    push(@implContentDecls, "    return V8Proxy::retrieve()->GetConstructor(type);");
+  }
+
+  push(@implContentDecls, <<END);
   }
 
 END
@@ -932,7 +949,12 @@ sub GenerateBatchedAttributeData
     # Custom Getter and Setter
     } elsif ($attrExt->{"Custom"} || $attrExt->{"V8Custom"}) {
       $getter = "V8Custom::v8${customAccessor}AccessorGetter";
-      $setter = "V8Custom::v8${customAccessor}AccessorSetter";
+      if ($interfaceName eq "WorkerContext" and $attrName eq "self") {
+        $setter = "0";
+        $propAttr = "v8::ReadOnly";
+      } else {
+        $setter = "V8Custom::v8${customAccessor}AccessorSetter";
+      }
       
     # Custom Setter
     } elsif ($attrExt->{"CustomSetter"}) {
@@ -1071,7 +1093,7 @@ sub GenerateImplementation
       if ($attribute->signature->extendedAttributes->{"CustomSetter"}) {
         $implIncludes{"v8_custom.h"} = 1;
       } elsif ($attribute->signature->extendedAttributes->{"Replaceable"}) {
-        $interfaceName eq "DOMWindow" || die "Replaceable attribute can only be used in DOMWindow interface!";
+        $dataNode->extendedAttributes->{"ExtendsDOMGlobalObject"} || die "Replaceable attribute can only be used in interface that defines ExtendsDOMGlobalObject attribute!";
 #        GenerateReplaceableAttrSetter($implClassName);
       } elsif ($attribute->type !~ /^readonly/) {
         GenerateNormalAttrSetter($attribute, $dataNode, $classIndex, $implClassName);
@@ -1079,7 +1101,7 @@ sub GenerateImplementation
     }
 
     if ($hasConstructors) {
-      GenerateConstructorGetter($implClassName);
+      GenerateConstructorGetter($implClassName, $classIndex);
     }
 
     # Generate methods for functions.
@@ -1615,7 +1637,9 @@ sub IsWorkerClassName
 {
     my $class = shift;
     return 1 if $class eq "V8Worker";
+    return 1 if $class eq "V8WorkerContext";
     return 1 if $class eq "V8WorkerLocation";
+    return 1 if $class eq "V8WorkerNavigator";
 
     return 0;
 }
@@ -1966,6 +1990,13 @@ sub NativeToJSValue
 
     if ($type eq "RGBColor") {
       return "V8Proxy::ToV8Object(V8ClassIndex::RGBCOLOR, new RGBColor($value))";
+    }
+    
+    if ($type eq "WorkerLocation" or $type eq "WorkerNavigator") {
+      $implIncludes{"WorkerContextExecutionProxy.h"} = 1;
+      my $classIndex = uc($type);
+
+      return "WorkerContextExecutionProxy::ToV8Object(V8ClassIndex::$classIndex, $value)";
     }
 
     else {

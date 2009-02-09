@@ -40,14 +40,14 @@
 #include "Tokenizer.h"
 #include "Node.h"
 #include "XMLHttpRequest.h"
+#include "WorkerContextExecutionProxy.h"
 #include "CString.h"
 
 namespace WebCore {
 
 
 V8AbstractEventListener::V8AbstractEventListener(Frame* frame, bool isInline)
-    : m_frame(frame), m_isInline(isInline) {
-  ASSERT(m_frame);
+    : m_isInline(isInline), m_frame(frame) {
   if (!m_frame) return;
 
   // Get the position in the source if any.
@@ -61,7 +61,7 @@ V8AbstractEventListener::V8AbstractEventListener(Frame* frame, bool isInline)
 
 void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
   // EventListener could be disconnected from the frame.
-  if (!m_frame)
+  if (disconnected())
     return;
 
   // The callback function on XMLHttpRequest can clear the event listener
@@ -448,5 +448,133 @@ v8::Local<v8::Function> V8LazyEventListener::GetWrappedListenerFunction() {
 
   return v8::Local<v8::Function>::New(m_wrapped_function);
 }
+
+#if ENABLE(WORKERS)
+V8WorkerContextEventListener::V8WorkerContextEventListener(
+      WorkerContextExecutionProxy* proxy,
+      v8::Local<v8::Object> listener,
+      bool isInline)
+    : V8ObjectEventListener(NULL, listener, isInline)
+    , m_proxy(proxy) {
+}
+
+V8WorkerContextEventListener::~V8WorkerContextEventListener() {
+  if (m_proxy) {
+    m_proxy->RemoveEventListener(this);
+  }
+  DisposeListenerObject();
+}
+
+void V8WorkerContextEventListener::handleEvent(Event* event,
+                                               bool isWindowEvent) {
+  // EventListener could be disconnected from the frame.
+  if (disconnected())
+    return;
+
+  // The callback function on XMLHttpRequest can clear the event listener
+  // and destroys 'this' object. Keep a local reference of it.
+  // See issue 889829
+  RefPtr<V8AbstractEventListener> self(this);
+
+  v8::HandleScope handle_scope;
+
+  v8::Handle<v8::Context> context = m_proxy->GetContext();
+  if (context.IsEmpty())
+    return;
+  v8::Context::Scope scope(context);
+
+  v8::Handle<v8::Value> jsevent =
+      WorkerContextExecutionProxy::EventToV8Object(event);
+
+  // For compatibility, we store the event object as a property on the window
+  // called "event".  Because this is the global namespace, we save away any
+  // existing "event" property, and then restore it after executing the
+  // javascript handler.
+  v8::Local<v8::String> event_symbol = v8::String::NewSymbol("event");
+
+  // Save the old 'event' property.
+  v8::Local<v8::Value> saved_evt = context->Global()->Get(event_symbol);
+
+  // Make the event available in the window object.
+  //
+  // TODO: This does not work as in safari if the window.event
+  // property is already set. We need to make sure that property
+  // access is intercepted correctly.
+  context->Global()->Set(event_symbol, jsevent);
+
+  v8::Local<v8::Value> ret;
+  {
+    // Catch exceptions thrown in the event handler so they do not
+    // propagate to javascript code that caused the event to fire.
+    v8::TryCatch try_catch;
+    try_catch.SetVerbose(true);
+
+    // Call the event handler.
+    ret = CallListenerFunction(jsevent, event, isWindowEvent);
+  }
+
+  // Restore the old event. This must be done for all exit paths through
+  // this method.
+  context->Global()->Set(event_symbol, saved_evt);
+
+  if (V8Proxy::HandleOutOfMemory())
+    ASSERT(ret.IsEmpty());
+
+  if (ret.IsEmpty()) {
+    return;
+  }
+
+  if (!ret.IsEmpty()) {
+    if (!ret->IsNull() && !ret->IsUndefined() &&
+        event->storesResultAsString()) {
+      event->storeResult(ToWebCoreString(ret));
+    }
+    // Prevent default action if the return value is false;
+    // TODO(fqian): example, and reference to buganizer entry
+    if (m_isInline) {
+      if (ret->IsBoolean() && !ret->BooleanValue()) {
+        event->preventDefault();
+      }
+    }
+  }
+}
+
+v8::Local<v8::Value> V8WorkerContextEventListener::CallListenerFunction(
+    v8::Handle<v8::Value> jsevent, Event* event, bool isWindowEvent) {
+  v8::Local<v8::Function> handler_func = GetListenerFunction();
+  if (handler_func.IsEmpty()) return v8::Local<v8::Value>();
+
+  v8::Local<v8::Object> receiver = GetReceiverObject(event, isWindowEvent);
+  v8::Handle<v8::Value> parameters[1] = {jsevent};
+
+  v8::Local<v8::Value> result;
+  { 
+    //ConsoleMessageScope scope;
+
+    result = handler_func->Call(receiver, 1, parameters);
+  }
+
+  m_proxy->TrackEvent(event);
+
+  return result;
+}
+
+v8::Local<v8::Object> V8WorkerContextEventListener::GetReceiverObject(
+    Event* event, bool isWindowEvent) {
+  if (!m_listener.IsEmpty() && !m_listener->IsFunction()) {
+    return v8::Local<v8::Object>::New(m_listener);
+  }
+
+  if (isWindowEvent) {
+    return v8::Context::GetCurrent()->Global();
+  }
+
+  EventTarget* target = event->currentTarget();
+  v8::Handle<v8::Value> value =
+      WorkerContextExecutionProxy::EventTargetToV8Object(target);
+  if (value.IsEmpty()) return v8::Local<v8::Object>();
+  return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
+}
+#endif  // WORKERS
 
 }  // namespace WebCore

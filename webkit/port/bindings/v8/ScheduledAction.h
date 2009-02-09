@@ -13,6 +13,7 @@ class ScheduledAction {
 public:
   virtual ~ScheduledAction() { }
   virtual void execute(DOMWindow* window) = 0;
+  virtual void execute(ScriptExecutionContext*) {}
 };
 
 }

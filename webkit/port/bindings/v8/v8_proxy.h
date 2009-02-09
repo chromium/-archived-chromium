@@ -6,6 +6,7 @@
 #define V8_PROXY_H__
 
 #include <v8.h>
+#include "dom_wrapper_map.h"
 #include "v8_index.h"
 #include "v8_custom.h"
 #include "v8_utility.h"
@@ -141,6 +142,10 @@ void BatchConfigureConstants(v8::Handle<v8::FunctionTemplate> desc,
                              v8::Handle<v8::ObjectTemplate> proto,
                              const BatchedConstant* consts,
                              size_t num_consts);
+
+DOMWrapperMap<void>& GetDOMObjectMap();
+
+const int kMaxRecursionDepth = 20;
 
 class V8Proxy {
  public:

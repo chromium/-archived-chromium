@@ -1277,6 +1277,9 @@
 		938448AF0F16B06E0075F4C5 /* XLinkNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095C30DAFF00100F72082 /* XLinkNames.cpp */; };
 		938448B00F16B06E0075F4C5 /* XMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095C50DAFF00100F72082 /* XMLNames.cpp */; };
 		938448B10F16B06E0075F4C5 /* XPathGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095C70DAFF00100F72082 /* XPathGrammar.cpp */; };
+		938448C10F16B06E0075F4C5 /* V8WorkerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0093830DAFEFE500F72082 /* V8WorkerContext.cpp */; };
+		938448C20F16B06E0075F4C5 /* V8WorkerLocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0093850DAFEFE500F72082 /* V8WorkerLocation.cpp */; };
+		938448C30F16B06E0075F4C5 /* V8WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0093870DAFEFE500F72082 /* V8WorkerNavigator.cpp */; };
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
 		93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */; };
 		93EF1C090F214F260070601B /* BMPImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1BF80F214F260070601B /* BMPImageDecoder.cpp */; };
@@ -2381,6 +2384,14 @@
 		7B00937E0DAFEFE500F72082 /* V8XPathResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8XPathResult.h; sourceTree = "<group>"; };
 		7B00937F0DAFEFE500F72082 /* V8XSLTProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8XSLTProcessor.cpp; sourceTree = "<group>"; };
 		7B0093800DAFEFE500F72082 /* V8XSLTProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8XSLTProcessor.h; sourceTree = "<group>"; };
+		7B0093810DAFEFE500F72082 /* V8Worker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8Worker.cpp; sourceTree = "<group>"; };
+		7B0093820DAFEFE500F72082 /* V8Worker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8Worker.h; sourceTree = "<group>"; };
+		7B0093830DAFEFE500F72082 /* V8WorkerContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WorkerContext.cpp; sourceTree = "<group>"; };
+		7B0093840DAFEFE500F72082 /* V8WorkerContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WorkerContext.h; sourceTree = "<group>"; };
+		7B0093850DAFEFE500F72082 /* V8WorkerLocation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WorkerLocation.cpp; sourceTree = "<group>"; };
+		7B0093860DAFEFE500F72082 /* V8WorkerLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WorkerLocation.h; sourceTree = "<group>"; };
+		7B0093870DAFEFE500F72082 /* V8WorkerNavigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WorkerNavigator.cpp; sourceTree = "<group>"; };
+		7B0093880DAFEFE500F72082 /* V8WorkerNavigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WorkerNavigator.h; sourceTree = "<group>"; };
 		7B0095C30DAFF00100F72082 /* XLinkNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XLinkNames.cpp; sourceTree = "<group>"; };
 		7B0095C40DAFF00100F72082 /* XLinkNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLinkNames.h; sourceTree = "<group>"; };
 		7B0095C50DAFF00100F72082 /* XMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XMLNames.cpp; sourceTree = "<group>"; };
@@ -7479,6 +7490,14 @@
 				7B00937E0DAFEFE500F72082 /* V8XPathResult.h */,
 				7B00937F0DAFEFE500F72082 /* V8XSLTProcessor.cpp */,
 				7B0093800DAFEFE500F72082 /* V8XSLTProcessor.h */,
+				7B0093810DAFEFE500F72082 /* V8Worker.cpp */,
+				7B0093820DAFEFE500F72082 /* V8Worker.h */,
+				7B0093830DAFEFE500F72082 /* V8WorkerContext.cpp */,
+				7B0093840DAFEFE500F72082 /* V8WorkerContext.h */,
+				7B0093850DAFEFE500F72082 /* V8WorkerLocation.cpp */,
+				7B0093860DAFEFE500F72082 /* V8WorkerLocation.h */,
+				7B0093870DAFEFE500F72082 /* V8WorkerNavigator.cpp */,
+				7B0093880DAFEFE500F72082 /* V8WorkerNavigator.h */,
 				7B0095C30DAFF00100F72082 /* XLinkNames.cpp */,
 				7B0095C40DAFF00100F72082 /* XLinkNames.h */,
 				7B0095C50DAFF00100F72082 /* XMLNames.cpp */,
@@ -8545,6 +8564,9 @@
 				938448AC0F16B06E0075F4C5 /* V8XPathNSResolver.cpp in Sources */,
 				938448AD0F16B06E0075F4C5 /* V8XPathResult.cpp in Sources */,
 				938448AE0F16B06E0075F4C5 /* V8XSLTProcessor.cpp in Sources */,
+				938448C10F16B06E0075F4C5 /* V8WorkerContext.cpp in Sources */,
+				938448C20F16B06E0075F4C5 /* V8WorkerLocation.cpp in Sources */,
+				938448C30F16B06E0075F4C5 /* V8WorkerNavigator.cpp in Sources */,
 				938448AF0F16B06E0075F4C5 /* XLinkNames.cpp in Sources */,
 				938448B00F16B06E0075F4C5 /* XMLNames.cpp in Sources */,
 				938448B10F16B06E0075F4C5 /* XPathGrammar.cpp in Sources */,
