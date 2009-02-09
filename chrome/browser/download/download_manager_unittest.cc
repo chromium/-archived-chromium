@@ -318,7 +318,7 @@ const struct {
 
 // Tests to ensure that the file names we generate from hints from the server
 // (content-disposition, URL name, etc) don't cause security holes.
-TEST_F(DownloadManagerTest, DISABLED_TestDownloadFilename) {
+TEST_F(DownloadManagerTest, TestDownloadFilename) {
   for (int i = 0; i < arraysize(kGeneratedFiles); ++i) {
     std::wstring file_name;
     GetGeneratedFilename(kGeneratedFiles[i].disposition,

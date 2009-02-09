@@ -1111,10 +1111,12 @@ void DownloadManager::GenerateExtension(
     //         application/x-javascript.
     FilePath::StringType append_extension;
     if (net::GetPreferredExtensionForMimeType(mime_type, &append_extension)) {
-      if (append_extension != FILE_PATH_LITERAL(".txt") &&
+      if (append_extension != FILE_PATH_LITERAL("txt") &&
           append_extension != extension &&
-          !IsExecutable(append_extension))
+          !IsExecutable(append_extension)) {
+        extension += FILE_PATH_LITERAL(".");
         extension += append_extension;
+      }
     }
   }
 
