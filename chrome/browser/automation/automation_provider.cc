@@ -1639,7 +1639,7 @@ void AutomationProvider::GetTabHWND(const IPC::Message& message, int handle) {
 
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    tab_hwnd = tab->active_contents()->GetNativeView();
+    tab_hwnd = tab->active_contents()->GetContainerHWND();
   }
 
   Send(new AutomationMsg_TabHWNDResponse(message.routing_id(), tab_hwnd));

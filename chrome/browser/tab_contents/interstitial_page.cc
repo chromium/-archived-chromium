@@ -216,8 +216,8 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
   RenderWidgetHostViewWin* view =
       new RenderWidgetHostViewWin(render_view_host);
   render_view_host->set_view(view);
-  view->Create(tab_->GetContentNativeView());
-  view->set_parent_hwnd(tab_->GetContentNativeView());
+  view->Create(tab_->GetContentHWND());
+  view->set_parent_hwnd(tab_->GetContentHWND());
   WebContentsViewWin* web_contents_view =
       static_cast<WebContentsViewWin*>(tab_->view());
   render_view_host->CreateRenderView();

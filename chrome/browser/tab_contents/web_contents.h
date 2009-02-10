@@ -132,9 +132,11 @@ class WebContents : public TabContents,
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
   // it should be killed altogether.
   virtual void CreateView();
-  virtual gfx::NativeView GetNativeView() const;
-  virtual gfx::NativeView GetContentNativeView();
+#if defined(OS_WIN)
+  virtual HWND GetContainerHWND() const;
+  virtual HWND GetContentHWND();
   virtual void GetContainerBounds(gfx::Rect *out) const;
+#endif
 
   // Web apps ------------------------------------------------------------------
 

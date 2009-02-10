@@ -34,7 +34,7 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
   if (tab_contents_) {
     // TODO(brettw) should this move to HWNDView::Detach which is called below?
     // It needs cleanup regardless.
-    HWND container_hwnd = tab_contents_->GetNativeView();
+    HWND container_hwnd = tab_contents_->GetContainerHWND();
 
     // Hide the contents before adjusting its parent to avoid a full desktop
     // flicker.
@@ -47,7 +47,7 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
 
     // Unregister the tab contents window from the FocusManager.
     views::FocusManager::UninstallFocusSubclass(container_hwnd);
-    HWND hwnd = tab_contents_->GetContentNativeView();
+    HWND hwnd = tab_contents_->GetContentHWND();
     if (hwnd) {
       // We may not have an HWND anymore, if the renderer crashed and we are
       // displaying the sad tab for example.
@@ -80,8 +80,8 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
   // TabContents window (for the WebContents case).
   SetAssociatedFocusView(this);
 
-  Attach(tab_contents->GetNativeView());
-  HWND contents_hwnd = tab_contents_->GetContentNativeView();
+  Attach(tab_contents->GetContainerHWND());
+  HWND contents_hwnd = tab_contents_->GetContentHWND();
   if (contents_hwnd)
     FocusManager::InstallFocusSubclass(contents_hwnd, this);
 
@@ -151,7 +151,7 @@ views::View* TabContentsContainerView::GetFocusTraversableParentView() {
 void TabContentsContainerView::Focus() {
   if (tab_contents_ && !tab_contents_->GetContentsRootView()) {
     // Set the native focus on the actual content of the tab.
-    ::SetFocus(tab_contents_->GetContentNativeView());
+    ::SetFocus(tab_contents_->GetContentHWND());
   }
 }
 

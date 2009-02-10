@@ -832,7 +832,7 @@ void DraggedTabController::Detach() {
   // Set up the photo booth to start capturing the contents of the dragged
   // TabContents.
   if (!photobooth_.get())
-    photobooth_.reset(new HWNDPhotobooth(dragged_contents_->GetNativeView()));
+    photobooth_.reset(new HWNDPhotobooth(dragged_contents_->GetContainerHWND()));
 
   // Update the View. This NULL check is necessary apparently in some
   // conditions during automation where the view_ is destroyed inside a
@@ -1111,7 +1111,7 @@ bool DraggedTabController::CompleteDrag() {
 void DraggedTabController::EnsureDraggedView() {
   if (!view_.get()) {
     RECT wr;
-    GetWindowRect(dragged_contents_->GetNativeView(), &wr);
+    GetWindowRect(dragged_contents_->GetContainerHWND(), &wr);
 
     view_.reset(new DraggedTabView(dragged_contents_, mouse_offset_,
         gfx::Size(wr.right - wr.left, wr.bottom - wr.top)));

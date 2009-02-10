@@ -223,7 +223,7 @@ void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
   // Don't show the warning unless the foreground window is the frame, or this
   // window (but still invisible). If the user has another window or
   // application selected, activating ourselves is rude.
-  HWND frame_hwnd = GetAncestor(contents->GetNativeView(), GA_ROOT);
+  HWND frame_hwnd = GetAncestor(contents->GetContainerHWND(), GA_ROOT);
   HWND foreground_window = GetForegroundWindow();
   if (foreground_window != frame_hwnd &&
       foreground_window != window()->GetHWND()) {
@@ -400,7 +400,7 @@ void HungRendererWarningView::CreateKillButtonView() {
 
 gfx::Rect HungRendererWarningView::GetDisplayBounds(
     WebContents* contents) {
-  HWND contents_hwnd = contents->GetNativeView();
+  HWND contents_hwnd = contents->GetContainerHWND();
   CRect contents_bounds;
   GetWindowRect(contents_hwnd, &contents_bounds);
 
