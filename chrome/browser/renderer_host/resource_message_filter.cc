@@ -205,6 +205,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowResizerRect,
+                        OnGetRootWindowResizerRect)
 #endif
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
                         OnGetMimeTypeFromExtension)
@@ -536,6 +538,12 @@ void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
   RECT window_rect = {0};
   HWND root_window = ::GetAncestor(window, GA_ROOT);
   GetWindowRect(root_window, &window_rect);
+  *rect = window_rect;
+}
+
+void ResourceMessageFilter::OnGetRootWindowResizerRect(gfx::NativeViewId window,
+                                                       gfx::Rect* rect) {
+  RECT window_rect = {0};
   *rect = window_rect;
 }
 

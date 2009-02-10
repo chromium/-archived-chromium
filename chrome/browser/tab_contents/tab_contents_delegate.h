@@ -6,9 +6,13 @@
 #define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_
 
 #include "base/basictypes.h"
-#include "base/gfx/rect.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/common/navigation_types.h"
+
+namespace gfx {
+class Point;
+class Rect;
+}
 
 class TabContents;
 class HtmlDialogContentsDelegate;
@@ -26,7 +30,8 @@ class TabContentsDelegate : public PageNavigator {
 
   virtual void OpenURL(const GURL& url, const GURL& referrer,
                        WindowOpenDisposition disposition,
-                       PageTransition::Type transition) {
+                       PageTransition::Type transition)
+  {
     OpenURLFromTab(NULL, url, referrer, disposition, transition);
   }
 
@@ -101,7 +106,7 @@ class TabContentsDelegate : public PageNavigator {
   // a WebContents with a valid WebApp set.
   virtual void ConvertContentsToApplication(TabContents* source) { }
 
-  // Informs the TabContentsDelegate that some of our state has changed
+  // Informs the TabContentsDelegate that some of our state has changed 
   // for this tab.
   virtual void ContentsStateChanged(TabContents* source) {}
 
@@ -114,10 +119,6 @@ class TabContentsDelegate : public PageNavigator {
   // call. ConstrainedWindows shouldn't be able to be blurred.
   virtual bool CanBlur() const { return true; }
 
-  // Return the rect where to display the resize corner, if any, otherwise
-  // an empty rect.
-  virtual gfx::Rect GetRootWindowResizerRect() const { return gfx::Rect(); }
-
   // Show a dialog with HTML content. |delegate| contains a pointer to the
   // delegate who knows how to display the dialog (which file URL and JSON
   // string input to use during initialization). |parent_window| is the window
@@ -128,17 +129,17 @@ class TabContentsDelegate : public PageNavigator {
   // Tells us that we've finished firing this tab's beforeunload event.
   // The proceed bool tells us whether the user chose to proceed closing the
   // tab. Returns true if the tab can continue on firing it's unload event.
-  // If we're closing the entire browser, then we'll want to delay firing
+  // If we're closing the entire browser, then we'll want to delay firing 
   // unload events until all the beforeunload events have fired.
   virtual void BeforeUnloadFired(TabContents* tab,
-                                 bool proceed,
-                                 bool* proceed_to_fire_unload) {
+                                 bool proceed, 
+                                 bool* proceed_to_fire_unload) { 
     *proceed_to_fire_unload = true;
   }
 
   // Send IPC to external host. Default implementation is do nothing.
   virtual void ForwardMessageToExternalHost(const std::string& receiver,
-                                            const std::string& message) {}
+                                            const std::string& message) {};
 
   // If the delegate is hosting tabs externally.
   virtual bool IsExternalTabContainer() const { return false; }

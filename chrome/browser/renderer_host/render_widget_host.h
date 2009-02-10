@@ -205,10 +205,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
   void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
 
-  // This is for derived classes to give us access to the resizer rect.
-  // And to also expose it to the RenderWidgetHostView.
-  virtual gfx::Rect GetRootWindowResizerRect() const;
-
  protected:
   // Called when we receive a notification indicating that the renderer
   // process has gone. This will reset our state so that our state will be

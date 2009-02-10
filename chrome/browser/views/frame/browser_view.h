@@ -172,14 +172,13 @@ class BrowserView : public BrowserWindow,
   virtual void UpdateLoadingAnimations(bool should_animate);
   virtual void SetStarredState(bool is_starred);
   virtual gfx::Rect GetNormalBounds() const;
-  virtual bool IsMaximized() const;
+  virtual bool IsMaximized();
   virtual LocationBar* GetLocationBar() const;
   virtual void UpdateStopGoState(bool is_loading);
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
   virtual bool IsBookmarkBarVisible() const;
-  virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ToggleBookmarkBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
@@ -429,4 +428,4 @@ class BrowserView : public BrowserWindow,
   DISALLOW_EVIL_CONSTRUCTORS(BrowserView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
+#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_

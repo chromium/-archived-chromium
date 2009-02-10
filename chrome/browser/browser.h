@@ -391,7 +391,6 @@ class Browser : public TabStripModelDelegate,
   virtual void BeforeUnloadFired(TabContents* source,
                                  bool proceed,
                                  bool* proceed_to_fire_unload);
-  virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
   virtual void SetFocusToLocationBar();

@@ -153,8 +153,7 @@ bool RenderViewHost::CreateRenderView() {
       SYNCHRONIZE,
       FALSE,
       0);
-  DCHECK(result) <<
-      "Couldn't duplicate the modal dialog handle for the renderer.";
+  DCHECK(result) << "Couldn't duplicate the modal dialog handle for the renderer.";
 #endif
 
   DCHECK(view());
@@ -312,7 +311,7 @@ void RenderViewHost::ClosePage(int new_render_process_host_id,
   }
 }
 
-void RenderViewHost::SetHasPendingCrossSiteRequest(bool has_pending_request,
+void RenderViewHost::SetHasPendingCrossSiteRequest(bool has_pending_request, 
                                                    int request_id) {
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
       process()->host_id(), routing_id(), has_pending_request);
@@ -386,8 +385,7 @@ void RenderViewHost::DragTargetDragEnter(const WebDropData& drop_data,
   // Grant the renderer the ability to load the drop_data.
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
   policy->GrantRequestURL(process()->host_id(), drop_data.url);
-  for (std::vector<std::wstring>::const_iterator
-         iter(drop_data.filenames.begin());
+  for (std::vector<std::wstring>::const_iterator iter(drop_data.filenames.begin());
        iter != drop_data.filenames.end(); ++iter) {
     policy->GrantRequestURL(process()->host_id(),
                             net::FilePathToFileURL(*iter));
@@ -520,8 +518,7 @@ void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
 
   if (--modal_dialog_count_ == 0)
     modal_dialog_event_->Reset();
-  ViewHostMsg_RunJavaScriptMessage::WriteReplyParams(reply_msg,
-                                                     success, prompt);
+  ViewHostMsg_RunJavaScriptMessage::WriteReplyParams(reply_msg, success, prompt);
   Send(reply_msg);
 }
 
@@ -578,8 +575,7 @@ void RenderViewHost::AllowDomAutomationBindings() {
 void RenderViewHost::AllowDOMUIBindings() {
   DCHECK(!renderer_initialized_);
   enable_dom_ui_bindings_ = true;
-  RendererSecurityPolicy::GetInstance()->GrantDOMUIBindings(
-      process()->host_id());
+  RendererSecurityPolicy::GetInstance()->GrantDOMUIBindings(process()->host_id());
 }
 
 void RenderViewHost::AllowExternalHostBindings() {
@@ -943,8 +939,7 @@ void RenderViewHost::OnMsgDidStartProvisionalLoadForFrame(bool is_main_frame,
   FilterURL(RendererSecurityPolicy::GetInstance(),
             process()->host_id(), &validated_url);
 
-  delegate_->DidStartProvisionalLoadForFrame(this, is_main_frame,
-                                             validated_url);
+  delegate_->DidStartProvisionalLoadForFrame(this, is_main_frame, validated_url);
 }
 
 void RenderViewHost::OnMsgDidFailProvisionalLoadWithError(
@@ -1279,10 +1274,6 @@ void RenderViewHost::NotifyRendererUnresponsive() {
 
 void RenderViewHost::NotifyRendererResponsive() {
   delegate_->RendererResponsive(this);
-}
-
-gfx::Rect RenderViewHost::GetRootWindowResizerRect() const {
-  return delegate_->GetRootWindowResizerRect();
 }
 
 void RenderViewHost::OnDebugDisconnect() {

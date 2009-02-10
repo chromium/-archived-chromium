@@ -10,7 +10,6 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/password_form.h"
@@ -37,6 +36,10 @@ class WaitableEvent;
 
 namespace IPC {
 class Message;
+}
+
+namespace gfx {
+class Rect;
 }
 
 namespace webkit_glue {
@@ -298,13 +301,13 @@ class RenderViewHostDelegate {
   // Forms fillable by autofill have been detected in the page.
   virtual void AutofillFormSubmitted(const AutofillForm& form) { }
 
-  // Called to retrieve a list of suggestions from the web database given
+  // Called to retrieve a list of suggestions from the web database given 
   // the name of the field |field_name| and what the user has already typed in
   // the field |user_text|.  Appeals to the database thead to perform the query.
   // When the database thread is finished, the autofill manager retrieves the
   // calling RenderViewHost and then passes the vector of suggestions to
   // RenderViewHost::AutofillSuggestionsReturned.
-  virtual void GetAutofillSuggestions(const std::wstring& field_name,
+  virtual void GetAutofillSuggestions(const std::wstring& field_name, 
                                       const std::wstring& user_text,
                                       int64 node_id,
                                       int request_id) { }
@@ -369,13 +372,9 @@ class RenderViewHostDelegate {
   // blurred.
   virtual bool CanBlur() const { return true; }
 
-  // Return the rect where to display the resize corner, if any, otherwise
-  // an empty rect.
-  virtual gfx::Rect GetRootWindowResizerRect() const { return gfx::Rect(); }
-
   // Notification that the renderer has become unresponsive. The
   // delegate can use this notification to show a warning to the user.
-  virtual void RendererUnresponsive(RenderViewHost* render_view_host,
+  virtual void RendererUnresponsive(RenderViewHost* render_view_host, 
                                     bool is_during_unload) { }
 
   // Notification that a previously unresponsive renderer has become
