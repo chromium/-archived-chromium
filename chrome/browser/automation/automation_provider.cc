@@ -1639,7 +1639,7 @@ void AutomationProvider::GetTabHWND(const IPC::Message& message, int handle) {
 
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    tab_hwnd = tab->active_contents()->GetContainerHWND();
+    tab_hwnd = tab->active_contents()->GetNativeView();
   }
 
   Send(new AutomationMsg_TabHWNDResponse(message.routing_id(), tab_hwnd));
@@ -2394,7 +2394,7 @@ ExternalTabContainer* AutomationProvider::GetExternalTabForHandle(int handle) {
     DCHECK(tab_contents);
     if (tab_contents) {
       return ExternalTabContainer::GetContainerForTab(
-          tab_contents->GetContainerHWND());
+          tab_contents->GetNativeView());
     }
   }
 

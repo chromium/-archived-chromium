@@ -450,7 +450,7 @@ void BlockedPopupContainer::Init(const gfx::Point& initial_anchor) {
   container_view_->SetVisible(true);
 
   set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-  WidgetWin::Init(owner_->GetContainerHWND(), gfx::Rect(), false);
+  WidgetWin::Init(owner_->GetNativeView(), gfx::Rect(), false);
   SetContentsView(container_view_);
   RepositionConstrainedWindowTo(initial_anchor);
 

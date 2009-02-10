@@ -622,7 +622,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     std::wstring filter =
         win_util::GetFileFilterFromPath(info->suggested_path.value());
     HWND owning_hwnd =
-        contents ? GetAncestor(contents->GetContainerHWND(), GA_ROOT) : NULL;
+        contents ? GetAncestor(contents->GetNativeView(), GA_ROOT) : NULL;
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
                                     std::wstring(),
                                     info->suggested_path.ToWStringHack(),

@@ -499,17 +499,17 @@ void WebContents::CreateView() {
   view_->CreateView();
 }
 
-#if defined(OS_WIN)
-HWND WebContents::GetContainerHWND() const {
+gfx::NativeView WebContents::GetNativeView() const {
   return view_->GetNativeView();
 }
-HWND WebContents::GetContentHWND() {
+
+gfx::NativeView WebContents::GetContentNativeView() {
   return view_->GetContentNativeView();
 }
+
 void WebContents::GetContainerBounds(gfx::Rect *out) const {
   view_->GetContainerBounds(out);
 }
-#endif
 
 void WebContents::CreateShortcut() {
   NavigationEntry* entry = controller()->GetLastCommittedEntry();

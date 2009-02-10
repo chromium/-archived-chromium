@@ -664,7 +664,7 @@ void ConstrainedWindowImpl::Init(TabContents* owner) {
 }
 
 void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
-  CustomFrameWindow::Init(owner_->GetContainerHWND(), initial_bounds);
+  CustomFrameWindow::Init(owner_->GetNativeView(), initial_bounds);
   ActivateConstrainedWindow();
 }
 

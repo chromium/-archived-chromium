@@ -39,7 +39,7 @@ class NativeUIContents : public TabContents,
   explicit NativeUIContents(Profile* profile);
 
   virtual void CreateView();
-  virtual HWND GetContainerHWND() const { return GetHWND(); }
+  virtual gfx::NativeView GetNativeView() const { return GetHWND(); }
   virtual void GetContainerBounds(gfx::Rect* out) const;
 
   // Sets the page state. NativeUIContents takes ownership of the supplied
