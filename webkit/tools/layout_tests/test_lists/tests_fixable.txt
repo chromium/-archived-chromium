@@ -1747,7 +1747,7 @@ LINUX : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
 
 // This is related to merging EventTargetNode into Node, but I don't understand
 // this well enough to know if this just needs a rebase. One of the V8 folk
-// should take a look at this. The upstream expected results changed as well, 
+// should take a look at this. The upstream expected results changed as well,
 // but differently than ours did.
 LayoutTests/fast/dom/prototype-chain.html = FAIL
 
@@ -1757,7 +1757,7 @@ MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
 // We could fix this test for us and upstream it if the test shell user agent
 // would let us differentiate test_shell and WebKit DumpTreeNode.
 // See http://crbug.com/7482
-DEFER SKIP : LayoutTests/http/tests/misc/timer-vs-loading.html = PASS
+DEFER WIN : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL
 
 // Regressions from WebKit merge 40722:40785
 //
