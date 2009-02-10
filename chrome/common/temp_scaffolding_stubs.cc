@@ -349,23 +349,6 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
   return NULL;
 }
 
-namespace tab_util {
-
-bool GetTabContentsID(URLRequest* request,
-                      int* render_process_host_id,
-                      int* routing_id) {
-  NOTIMPLEMENTED();
-  return true;
-}
-
-WebContents* GetWebContentsByID(int render_process_host_id,
-                                int render_view_id) {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
-}  // namespace
-
 void ProcessWatcher::EnsureProcessTerminated(int) {
   NOTIMPLEMENTED();
 }

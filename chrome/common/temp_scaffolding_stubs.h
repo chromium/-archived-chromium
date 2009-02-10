@@ -1130,14 +1130,6 @@ class ExternalProtocolHandler {
   }
 };
 
-namespace tab_util {
-bool GetTabContentsID(URLRequest* request,
-                      int* render_process_host_id,
-                      int* routing_id);
-WebContents* GetWebContentsByID(int render_process_host_id,
-                                int render_view_id);
-}
-
 class RepostFormWarningDialog {
  public:
   static void RunRepostFormWarningDialog(NavigationController*) { }
