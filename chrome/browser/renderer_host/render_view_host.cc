@@ -25,6 +25,8 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/thumbnail_score.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
@@ -121,6 +123,11 @@ RenderViewHost::~RenderViewHost() {
   // Be sure to clean up any leftover state from cross-site requests.
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
       process()->host_id(), routing_id(), false);
+
+  NotificationService::current()->Notify(
+      NotificationType::RENDER_VIEW_HOST_DELETED,
+      Source<RenderViewHost>(this),
+      NotificationService::NoDetails());
 }
 
 bool RenderViewHost::CreateRenderView() {

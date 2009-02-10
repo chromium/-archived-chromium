@@ -7,6 +7,8 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_observer.h"
 
 class InterstitialPage;
 class NavigationController;
@@ -20,7 +22,7 @@ class SiteInstance;
 // Manages RenderViewHosts for a WebContents. Normally there is only one and
 // it is easy to do. But we can also have transitions of processes (and hence
 // RenderViewHosts) that can get complex.
-class RenderViewHostManager {
+class RenderViewHostManager : public NotificationObserver {
  public:
   // Functions implemented by our owner that we need.
   //
@@ -153,6 +155,10 @@ class RenderViewHostManager {
     return interstitial_page_;
   }
 
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
  private:
   friend class TestWebContents;
 
@@ -215,6 +221,8 @@ class RenderViewHostManager {
   // The intersitial page currently shown if any, not own by this class
   // (the InterstitialPage is self-owned, it deletes itself when hidden).
   InterstitialPage* interstitial_page_;
+
+  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHostManager);
 };
