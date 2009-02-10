@@ -108,6 +108,10 @@ def _Emitter(target, source, env):
             if _IsDebugEnabled():
               print "GRIT: Added target %s" % path
 
+  # GRIT is not thread safe so we should only build one grit target at a time. 
+  # We tell scons about this by making a fake side effect target.
+  env.SideEffect('grit_lock', target)
+
   # return target and source lists
   return (target, source)
 
