@@ -365,17 +365,6 @@ void class_name::OnMessageReceived(const IPC::Message& msg) \
 #elif defined(IPC_MESSAGE_MACROS_LOG)
 #undef IPC_MESSAGE_MACROS_LOG
 
-#ifndef IPC_LOG_TABLE_CREATED
-#define IPC_LOG_TABLE_CREATED
-typedef void (LogFunction)(uint16 type,
-                           std::wstring* name,
-                           const IPC::Message* msg,
-                           std::wstring* params);
-
-LogFunction* g_log_function_mapping[LastMsgIndex];
-#endif
-
-
 #define IPC_BEGIN_MESSAGES(label) \
   void label##MsgLog(uint16 type, std::wstring* name, const IPC::Message* msg, std::wstring* params) { \
   switch (type) {
@@ -385,14 +374,7 @@ LogFunction* g_log_function_mapping[LastMsgIndex];
       if (name) \
         *name = L"[UNKNOWN " L ## #label L" MSG"; \
     } \
-  } \
-  class LoggerRegisterHelper##label { \
-   public: \
-    LoggerRegisterHelper##label() { \
-      g_log_function_mapping[label##MsgStart] = label##MsgLog; \
-    } \
-  }; \
-  LoggerRegisterHelper##label g_LoggerRegisterHelper##label;
+  }
 
 #define IPC_MESSAGE_LOG(msg_class) \
      case msg_class##__ID: \
