@@ -726,6 +726,7 @@ class TabContents : public NotificationObserver {
     NOTIMPLEMENTED();
   }
   virtual void CreateView() {}
+  virtual gfx::NativeView GetNativeView() const { return NULL; }
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;

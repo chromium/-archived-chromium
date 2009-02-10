@@ -34,6 +34,7 @@ class TabStripModel;
   IBOutlet NSButton* reloadStopButton_;
   IBOutlet NSButton* starButton_;
   IBOutlet NSTextField* locationBar_;
+  IBOutlet NSBox* contentsBox_;
 }
 
 // Create the contents of a tab represented by |contents| and loaded from the

@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="112"/>
+			<integer value="94"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -285,13 +285,6 @@
 							<reference key="NSSuperview" ref="675542922"/>
 							<string key="NSClassName">ToolbarView</string>
 						</object>
-						<object class="NSCustomView" id="281255543">
-							<reference key="NSNextResponder" ref="675542922"/>
-							<int key="NSvFlags">274</int>
-							<string key="NSFrame">{{480, 322}, {0, 0}}</string>
-							<reference key="NSSuperview" ref="675542922"/>
-							<string key="NSClassName">NSView</string>
-						</object>
 						<object class="NSBox" id="753762894">
 							<reference key="NSNextResponder" ref="675542922"/>
 							<int key="NSvFlags">18</int>
@@ -445,6 +438,14 @@
 					</object>
 					<int key="connectionID">168</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">contentsBox_</string>
+						<reference key="source" ref="326691890"/>
+						<reference key="destination" ref="753762894"/>
+					</object>
+					<int key="connectionID">169</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -485,7 +486,6 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="588745489"/>
-							<reference ref="281255543"/>
 							<reference ref="753762894"/>
 						</object>
 						<reference key="parent" ref="886393115"/>
@@ -610,11 +610,6 @@
 						<reference key="parent" ref="17343997"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">152</int>
-						<reference key="object" ref="281255543"/>
-						<reference key="parent" ref="675542922"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">164</int>
 						<reference key="object" ref="753762894"/>
 						<reference key="parent" ref="675542922"/>
@@ -648,7 +643,6 @@
 					<string>133.IBPluginDependency</string>
 					<string>137.IBPluginDependency</string>
 					<string>138.IBPluginDependency</string>
-					<string>152.IBPluginDependency</string>
 					<string>164.IBPluginDependency</string>
 					<string>93.IBEditorWindowLastContentRect</string>
 					<string>93.IBViewEditorWindowController.showingLayoutRectangles</string>
@@ -685,7 +679,6 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{523, 153}, {480, 360}}</string>
 					<boolean value="YES" id="5"/>
 					<string>{{523, 153}, {480, 360}}</string>
@@ -716,7 +709,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">168</int>
+			<int key="maxID">169</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -745,6 +738,7 @@
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>backButton_</string>
+							<string>contentsBox_</string>
 							<string>forwardButton_</string>
 							<string>locationBar_</string>
 							<string>reloadStopButton_</string>
@@ -753,6 +747,7 @@
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSButton</string>
+							<string>NSBox</string>
 							<string>NSButton</string>
 							<string>NSTextField</string>
 							<string>NSButton</string>

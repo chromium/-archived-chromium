@@ -8,6 +8,9 @@
 #import "chrome/browser/command_updater.h"
 #import "chrome/browser/location_bar.h"
 
+// For now, tab_contents lives here. TODO(port):fix
+#include "chrome/common/temp_scaffolding_stubs.h"
+
 @interface TabContentsController(CommandUpdates)
 - (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled;
 @end
@@ -64,6 +67,7 @@ class LocationBarBridge : public LocationBar {
     if (commands_)
       observer_ = new TabContentsCommandObserver(self, commands);
     locationBarBridge_ = new LocationBarBridge(self);
+    [contentsBox_ setContentView:contents->GetNativeView()];
   }
   return self;
 }
