@@ -8,6 +8,14 @@
 #include "base/observer_list_threadsafe.h"
 #include "base/singleton.h"
 
+// Windows HiRes timers drain the battery faster so we need to know the battery
+// status.  This isn't true for other platforms.
+#if defined(OS_WIN)
+#define ENABLE_BATTERY_MONITORING 1
+#else
+#undef ENABLE_BATTERY_MONITORING
+#endif  // !OS_WIN
+
 namespace base {
 
 // Class for monitoring various system-related subsystems
@@ -18,7 +26,7 @@ class SystemMonitor {
   // Access to the Singleton
   static SystemMonitor* Get() {
     // Uses the LeakySingletonTrait because cleanup is optional.
-    return 
+    return
         Singleton<SystemMonitor, LeakySingletonTraits<SystemMonitor> >::get();
   }
 
@@ -26,6 +34,8 @@ class SystemMonitor {
   // is provided so that the battery check can be deferred.
   // The MessageLoop must be started before calling this
   // method.
+  // This is a no-op on platforms for which ENABLE_BATTERY_MONITORING is
+  // disabled.
   static void Start();
 
   //
@@ -34,7 +44,7 @@ class SystemMonitor {
 
   // Is the computer currently on battery power.
   // Can be called on any thread.
-  bool BatteryPower() { 
+  bool BatteryPower() {
     // Using a lock here is not necessary for just a bool.
     return battery_in_use_;
   }
@@ -84,7 +94,7 @@ class SystemMonitor {
   // Cross-platform handling of a power event.
   void ProcessPowerMessage(PowerEvent event_id);
 
-  // Constructor.  
+  // Constructor.
   // Don't use this; access SystemMonitor via the Singleton.
   SystemMonitor();
 
@@ -107,7 +117,9 @@ class SystemMonitor {
   bool battery_in_use_;
   bool suspended_;
 
+#if defined(ENABLE_BATTERY_MONITORING)
   base::OneShotTimer<SystemMonitor> delayed_battery_check_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(SystemMonitor);
 };

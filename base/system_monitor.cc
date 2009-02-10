@@ -8,9 +8,11 @@
 
 namespace base {
 
+#if defined(ENABLE_BATTERY_MONITORING)
 // The amount of time (in ms) to wait before running the initial
 // battery check.
 static int kDelayedBatteryCheckMs = 10 * 1000;
+#endif  // defined(ENABLE_BATTERY_MONITORING)
 
 SystemMonitor::SystemMonitor()
     : battery_in_use_(false),
@@ -19,7 +21,7 @@ SystemMonitor::SystemMonitor()
 }
 
 void SystemMonitor::ProcessPowerMessage(PowerEvent event_id) {
-  // Suppress duplicate notifications.  Some platforms may 
+  // Suppress duplicate notifications.  Some platforms may
   // send multiple notifications of the same event.
   switch (event_id) {
     case POWER_STATE_EVENT:
@@ -55,7 +57,7 @@ void SystemMonitor::RemoveObserver(PowerObserver* obs) {
 }
 
 void SystemMonitor::NotifyPowerStateChange() {
-  LOG(INFO) << L"PowerStateChange: " 
+  LOG(INFO) << L"PowerStateChange: "
            << (BatteryPower() ? L"On" : L"Off") << L" battery";
   observer_list_->Notify(&PowerObserver::OnPowerStateChange, this);
 }
@@ -71,11 +73,13 @@ void SystemMonitor::NotifyResume() {
 }
 
 void SystemMonitor::Start() {
+#if defined(ENABLE_BATTERY_MONITORING)
   DCHECK(MessageLoop::current());  // Can't call start too early.
   SystemMonitor* monitor = Get();
   monitor->delayed_battery_check_.Start(
       TimeDelta::FromMilliseconds(kDelayedBatteryCheckMs), monitor,
       &SystemMonitor::BatteryCheck);
+#endif  // defined(ENABLE_BATTERY_MONITORING)
 }
 
 void SystemMonitor::BatteryCheck() {
