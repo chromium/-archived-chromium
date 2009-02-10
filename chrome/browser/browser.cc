@@ -1085,7 +1085,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_NEW_WINDOW_PROFILE_5:
     case IDC_NEW_WINDOW_PROFILE_6:
     case IDC_NEW_WINDOW_PROFILE_7:
-    case IDC_NEW_WINDOW_PROFILE_8: 
+    case IDC_NEW_WINDOW_PROFILE_8:
         NewProfileWindowByIndex(id - IDC_NEW_WINDOW_PROFILE_0);    break;
 #if defined(OS_WIN)
     case IDC_CLOSE_WINDOW:          CloseWindow();                 break;
@@ -1368,7 +1368,7 @@ bool Browser::RunUnloadListenerBeforeClosing(TabContents* contents) {
   if (web_contents) {
     // If the WebContents is not connected yet, then there's no unload
     // handler we can fire even if the WebContents has an unload listener.
-    // One case where we hit this is in a tab that has an infinite loop 
+    // One case where we hit this is in a tab that has an infinite loop
     // before load.
     if (TabHasUnloadListener(contents)) {
       // If the page has unload listeners, then we tell the renderer to fire
@@ -1868,6 +1868,10 @@ void Browser::BeforeUnloadFired(TabContents* tab,
   }
 
   *proceed_to_fire_unload = true;
+}
+
+gfx::Rect Browser::GetRootWindowResizerRect() const {
+  return window_->GetRootWindowResizerRect();
 }
 
 void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,

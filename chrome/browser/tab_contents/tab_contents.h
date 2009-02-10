@@ -399,7 +399,7 @@ class TabContents : public PageNavigator,
 
   // Removes the InfoBar for the specified |delegate|.
   void RemoveInfoBar(InfoBarDelegate* delegate);
-  
+
   // Enumeration and access functions.
   int infobar_delegate_count() const { return infobar_delegates_.size(); }
   InfoBarDelegate* GetInfoBarDelegateAt(int index) {
@@ -407,7 +407,7 @@ class TabContents : public PageNavigator,
   }
 
   // Toolbars and such ---------------------------------------------------------
- 
+
   // Returns whether the bookmark bar should be visible.
   virtual bool IsBookmarkBarAlwaysVisible() { return false; }
 
