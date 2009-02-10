@@ -323,6 +323,7 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+MAC LINUX : LayoutTests/fast/dom/prototype-chain.html = FAIL
 MAC LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 LINUX : LayoutTests/fast/runin/002.html = FAIL
@@ -1489,8 +1490,8 @@ SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
 // Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
-// coming out with with a slightly-less-than-100% red channel.
-// Looks like we need to investigate HSL color conversion.
+// coming out with with a slightly-less-than-100% red channel. This test fails
+// because we enforce non-transparent color in Font::drawGlyphs. See <b/700464>.
 LINUX WIN : LayoutTests/fast/css/hsla-color.html = FAIL
 
 // Windows pixeltest failure: upstream baseline has the background of the
@@ -1742,12 +1743,6 @@ LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 // did before and that may be a bug.  It looks like
 // jshin@chromium.org did several font related changes in this merge.
 LINUX : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
-
-// This is related to merging EventTargetNode into Node, but I don't understand
-// this well enough to know if this just needs a rebase. One of the V8 folk
-// should take a look at this. The upstream expected results changed as well,
-// but differently than ours did.
-LayoutTests/fast/dom/prototype-chain.html = FAIL
 
 // Started failing with webkit merge 40539:40668
 MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
