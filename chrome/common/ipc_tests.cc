@@ -110,6 +110,12 @@ base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
                                        debug_on_start);
     channel->OnClientConnected();
     break;
+  case TEST_DESCRIPTOR_CLIENT_SANDBOXED:
+    ret = MultiProcessTest::SpawnChild(L"RunTestDescriptorClientSandboxed",
+                                       fds_to_map,
+                                       debug_on_start);
+    channel->OnClientConnected();
+    break;
   case TEST_REFLECTOR:
     ret = MultiProcessTest::SpawnChild(L"RunReflector",
                                        fds_to_map,

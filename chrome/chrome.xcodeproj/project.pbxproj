@@ -2421,6 +2421,7 @@
 		B5D16EF40F2145C600861FAC /* url_fixer_upper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_fixer_upper.cc; sourceTree = "<group>"; };
 		B5D16EF50F2145C600861FAC /* url_fixer_upper_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_fixer_upper_unittest.cc; sourceTree = "<group>"; };
 		B5D7CD350EF0702F00EE645F /* ipc_channel_posix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_channel_posix.h; sourceTree = "<group>"; };
+		B5EEB5E00F42044300CD3A28 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = System/Library/Frameworks/System.framework; sourceTree = SDKROOT; };
 		B5FDBFAE0EE4623000BEC6E6 /* ipc_tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ipc_tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_channel_posix.cc; sourceTree = "<group>"; };
 		B6CCB9CE0F1EC32700106F0D /* constrained_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = constrained_window.h; path = tab_contents/constrained_window.h; sourceTree = "<group>"; };
@@ -2974,6 +2975,7 @@
 				56E1D7DF17D327BFCB0B895D /* test_web_contents.cc */,
 				699499C4FBA07FB2D7B298A2 /* user_script.cc */,
 				37521A11B07C479E93A39D52 /* user_script_unittest.cc */,
+				B5EEB5E00F42044300CD3A28 /* System.framework */,
 			);
 			sourceTree = "<group>";
 		};
