@@ -685,7 +685,7 @@ LINUX WIN : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL PASS
 // This passes on Mac release
 MAC DEBUG : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 // http://b/issue?id=1344252
-LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
+DEFER : LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 
 // Shadows don't render correctly for these tests.
 // The first likely just needs a rebaseline on Linux.
