@@ -139,8 +139,8 @@ DEFER : LayoutTests/fast/html/keygen.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
-// Linux pixeltest failure: Form control metrics incorrect
-LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
+// Pixeltest failure: Form control metrics incorrect
+MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
@@ -359,9 +359,6 @@ LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
 
 // SVG text fills not working. Note that linux baseline is wrong.
 LINUX : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
-
-// Bug 1198880
-DEFER LINUX WIN : LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
 
 // Marking this again as failed. This test failed even after rebaseline due to
 // the fact that the font is not specified in the test and it seems that the
@@ -1044,13 +1041,13 @@ SKIP LINUX MAC : LayoutTests/animations/animation-drt-api.html = PASS
 LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 
 // MERGE 38625:38653: Expectations changed upstream
-MAC LINUX : LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
+MAC : LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
 
 // MERGE 38625:38653: Regressions
 LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 
 // MERGE 38625:38653: New tests
-MAC LINUX : LayoutTests/fast/css/computed-style.html = FAIL
+MAC : LayoutTests/fast/css/computed-style.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
 
 // MERGE 38653:38729: New tests
@@ -1771,49 +1768,54 @@ DEFER SKIP : LayoutTests/http/tests/misc/timer-vs-loading.html = PASS
 //
 // Obvious render tree rebaselines:
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-LayoutTests/svg/custom/js-late-clipPath-and-object-creation.svg = FAIL
-LayoutTests/svg/custom/js-late-clipPath-creation.svg = FAIL
-LayoutTests/svg/text/text-text-05-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/js-late-clipPath-and-object-creation.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/js-late-clipPath-creation.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
 // These ones look to just need fresh pixel baselines (likely caused by
 // transformation matrices now using doubles instead of floats):
-LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
-LayoutTests/fast/transforms/matrix-02.html = FAIL
-LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
+WIN LINUX : LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
+WIN LINUX : LayoutTests/fast/transforms/matrix-02.html = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
-LayoutTests/svg/text/text-text-07-t.svg = FAIL
+WIN : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
+WIN : LayoutTests/svg/text/text-text-07-t.svg = FAIL
 WIN : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 WIN : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
-LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
-LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
+WIN : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
+WIN : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
 // Some kind of serious rendering bug w/ background painting and/or clipping:
-LayoutTests/svg/W3C-SVG-1.1/struct-frag-02-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/struct-frag-03-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/paths-data-05-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/paths-data-06-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/paths-data-07-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/paths-data-09-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/linking-a-05-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-frag-02-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/struct-frag-03-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-05-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-06-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-07-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/paths-data-09-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/linking-a-05-t.svg = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
-LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
-LayoutTests/svg/text/text-tref-01-b.svg = FAIL
-LayoutTests/svg/text/text-text-06-t.svg = FAIL
-LayoutTests/svg/text/text-text-04-t.svg = FAIL
-LayoutTests/svg/text/text-text-03-b.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-tref-01-b.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-text-04-t.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-text-03-b.svg = FAIL
 WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
-LayoutTests/svg/text/text-align-01-b.svg = FAIL
-LayoutTests/svg/text/text-align-03-b.svg = FAIL
-LayoutTests/svg/text/text-align-05-b.svg = FAIL
-LayoutTests/svg/text/text-align-06-b.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-align-01-b.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-align-03-b.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-align-05-b.svg = FAIL
+WIN LINUX : LayoutTests/svg/text/text-align-06-b.svg = FAIL
 WIN LINUX : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
-LayoutTests/svg/custom/shapes-supporting-markers.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/shapes-supporting-markers.svg = FAIL
 WIN LINUX : LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
-LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
-LayoutTests/svg/custom/js-late-marker-and-object-creation.svg = FAIL
-LayoutTests/svg/custom/invalid-css.svg = FAIL
-LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/js-late-marker-and-object-creation.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/invalid-css.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
 // Misc failures:
-LayoutTests/fast/forms/option-mouseevents.html = FAIL
+WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
 LayoutTests/fast/inline/percentage-margins.html = FAIL
-LayoutTests/fast/runin/002.html = FAIL
+WIN LINUX : LayoutTests/fast/runin/002.html = FAIL
+MAC : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
+LINUX : LayoutTests/svg/custom/getTransformToElement.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-transform.svg = FAIL
+LINUX : LayoutTests/fast/clip/012.html = CRASH
