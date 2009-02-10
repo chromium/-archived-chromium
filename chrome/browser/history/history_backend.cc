@@ -477,7 +477,7 @@ void HistoryBackend::InitImpl() {
   std::wstring archived_name = GetArchivedFileName();
   std::wstring tmp_bookmarks_file = history_dir_;
   file_util::AppendToPath(&tmp_bookmarks_file,
-                          chrome::kHistoryBookmarksFileName);
+      FilePath(chrome::kHistoryBookmarksFileName).ToWStringHack());
 
   // History database.
   db_.reset(new HistoryDatabase());
