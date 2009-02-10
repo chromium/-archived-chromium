@@ -70,7 +70,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WTF", "build\JavaScriptCore
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "localized_strings", "build\localized_strings\localized_strings.vcproj", "{60B43839-95E6-4526-A661-209F16335E0E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "webkit_strings", "build\webkit_strings\webkit_strings.vcproj", "{60B43839-95E6-4526-A661-209F16335E0E}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"

@@ -242,7 +242,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lzma_sdk", "..\third_party\
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chrome_strings", "app\chrome_strings.vcproj", "{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "generated_resources", "app\generated_resources.vcproj", "{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -718,7 +718,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "browser_resources", "browse
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "localized_strings", "..\webkit\build\localized_strings\localized_strings.vcproj", "{60B43839-95E6-4526-A661-209F16335E0E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "webkit_strings", "..\webkit\build\webkit_strings\webkit_strings.vcproj", "{60B43839-95E6-4526-A661-209F16335E0E}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="localized_strings"
+	Name="webkit_strings"
 	ProjectGUID="{60B43839-95E6-4526-A661-209F16335E0E}"
-	RootNamespace="localized_strings"
+	RootNamespace="webkit_strings"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
