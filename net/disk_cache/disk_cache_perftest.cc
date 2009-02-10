@@ -11,7 +11,6 @@
 #include "base/string_util.h"
 #include "base/test_file_util.h"
 #include "base/timer.h"
-#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
@@ -42,12 +41,11 @@ const int kMaxSize = 16 * 1024 - 1;
 // to kMaxSize of data to each entry.
 int TimeWrite(int num_entries, disk_cache::Backend* cache,
               TestEntries* entries) {
-  const int kSize1 = 200;
-  scoped_refptr<net::IOBuffer> buffer1 = new net::IOBuffer(kSize1);
-  scoped_refptr<net::IOBuffer> buffer2 = new net::IOBuffer(kMaxSize);
+  char buffer1[200];
+  char buffer2[kMaxSize];
 
-  CacheTestFillBuffer(buffer1->data(), kSize1, false);
-  CacheTestFillBuffer(buffer2->data(), kMaxSize, false);
+  CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
+  CacheTestFillBuffer(buffer2, sizeof(buffer2), false);
 
   CallbackTest callback(1);
   g_cache_tests_error = false;
@@ -62,16 +60,17 @@ int TimeWrite(int num_entries, disk_cache::Backend* cache,
   for (int i = 0; i < num_entries; i++) {
     TestEntry entry;
     entry.key = GenerateKey(true);
-    entry.data_len = rand() % kMaxSize;
+    entry.data_len = rand() % sizeof(buffer2);
     entries->push_back(entry);
 
     disk_cache::Entry* cache_entry;
     if (!cache->CreateEntry(entry.key, &cache_entry))
       break;
-    int ret = cache_entry->WriteData(0, 0, buffer1, kSize1, &callback, false);
+    int ret = cache_entry->WriteData(0, 0, buffer1, sizeof(buffer1), &callback,
+                                     false);
     if (net::ERR_IO_PENDING == ret)
       expected++;
-    else if (kSize1 != ret)
+    else if (sizeof(buffer1) != ret)
       break;
 
     ret = cache_entry->WriteData(1, 0, buffer2, entry.data_len, &callback,
@@ -92,12 +91,11 @@ int TimeWrite(int num_entries, disk_cache::Backend* cache,
 // Reads the data and metadata from each entry listed on |entries|.
 int TimeRead(int num_entries, disk_cache::Backend* cache,
              const TestEntries& entries, bool cold) {
-  const int kSize1 = 200;
-  scoped_refptr<net::IOBuffer> buffer1 = new net::IOBuffer(kSize1);
-  scoped_refptr<net::IOBuffer> buffer2 = new net::IOBuffer(kMaxSize);
+  char buffer1[200];
+  char buffer2[kMaxSize];
 
-  CacheTestFillBuffer(buffer1->data(), kSize1, false);
-  CacheTestFillBuffer(buffer2->data(), kMaxSize, false);
+  CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
+  CacheTestFillBuffer(buffer2, sizeof(buffer2), false);
 
   CallbackTest callback(1);
   g_cache_tests_error = false;
@@ -115,10 +113,10 @@ int TimeRead(int num_entries, disk_cache::Backend* cache,
     disk_cache::Entry* cache_entry;
     if (!cache->OpenEntry(entries[i].key, &cache_entry))
       break;
-    int ret = cache_entry->ReadData(0, 0, buffer1, kSize1, &callback);
+    int ret = cache_entry->ReadData(0, 0, buffer1, sizeof(buffer1), &callback);
     if (net::ERR_IO_PENDING == ret)
       expected++;
-    else if (kSize1 != ret)
+    else if (sizeof(buffer1) != ret)
       break;
 
     ret = cache_entry->ReadData(1, 0, buffer2, entries[i].data_len, &callback);

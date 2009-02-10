@@ -5,7 +5,6 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "net/base/io_buffer.h"
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/entry_impl.h"
 
@@ -445,10 +444,8 @@ void MasterSM::DoReadData(int bytes_read) {
     return SendReadData();
   }
 
-  scoped_refptr<net::WrappedIOBuffer> buf =
-      new net::WrappedIOBuffer(input_->buffer);
-  if (read_size != entry_->WriteData(stream_, offset_, buf, read_size, NULL,
-                                     false))
+  if (read_size != entry_->WriteData(stream_, offset_, input_->buffer,
+                                     read_size, NULL, false))
     return Fail();
 
   offset_ += read_size;
@@ -716,9 +713,8 @@ void SlaveSM::DoReadData() {
       stream < 0 || stream > 1 || size > kBufferSize) {
     msg.result =  RESULT_INVALID_PARAMETER;
   } else {
-    scoped_refptr<net::WrappedIOBuffer> buf =
-        new net::WrappedIOBuffer(output_->buffer);
-    int ret = entry_->ReadData(stream, input_->msg.arg3, buf, size, NULL);
+    int ret = entry_->ReadData(stream, input_->msg.arg3, output_->buffer, size,
+                               NULL);
 
     msg.buffer_bytes = (ret < 0) ? 0 : ret;
     msg.result = RESULT_OK;

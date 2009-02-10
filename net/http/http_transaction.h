@@ -12,7 +12,6 @@ namespace net {
 
 class HttpRequestInfo;
 class HttpResponseInfo;
-class IOBuffer;
 
 // Represents a single HTTP transaction (i.e., a single request/response pair).
 // HTTP redirects are not followed and authentication challenges are not

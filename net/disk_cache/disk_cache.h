@@ -15,10 +15,6 @@
 #include "base/time.h"
 #include "net/base/completion_callback.h"
 
-namespace net {
-class IOBuffer;
-}
-
 namespace disk_cache {
 
 class Entry;
@@ -127,13 +123,12 @@ class Entry {
   // operation is complete.  Otherwise, completion_callback will be
   // called on the current thread once the read completes.  Returns the
   // number of bytes read or a network error code. If a completion callback is
-  // provided then it will be called if this function returns ERR_IO_PENDING,
-  // and a reference to |buf| will be retained until the callback is called.
+  // provided then it will be called if this function returns ERR_IO_PENDING.
   // Note that the callback will be invoked in any case, even after Close has
   // been called; in other words, the caller may close this entry without
   // having to wait for all the callbacks, and still rely on the cleanup
   // performed from the callback code.
-  virtual int ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
+  virtual int ReadData(int index, int offset, char* buf, int buf_len,
                        net::CompletionCallback* completion_callback) = 0;
 
   // Copies cache data from the given buffer of length |buf_len|.  If
@@ -141,15 +136,14 @@ class Entry {
   // operation is complete.  Otherwise, completion_callback will be
   // called on the current thread once the write completes.  Returns the
   // number of bytes written or a network error code. If a completion callback
-  // is provided then it will be called if this function returns ERR_IO_PENDING,
-  // and a reference to |buf| will be retained until the callback is called.
+  // is provided then it will be called if this function returns ERR_IO_PENDING.
   // Note that the callback will be invoked in any case, even after Close has
   // been called; in other words, the caller may close this entry without
   // having to wait for all the callbacks, and still rely on the cleanup
   // performed from the callback code.
   // If truncate is true, this call will truncate the stored data at the end of
   // what we are writing here.
-  virtual int WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
+  virtual int WriteData(int index, int offset, const char* buf, int buf_len,
                         net::CompletionCallback* completion_callback,
                         bool truncate) = 0;
 

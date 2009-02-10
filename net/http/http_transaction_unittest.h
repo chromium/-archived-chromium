@@ -13,7 +13,6 @@
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/load_flags.h"
 #include "net/base/test_completion_callback.h"

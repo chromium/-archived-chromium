@@ -23,7 +23,6 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "net/base/io_buffer.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 
@@ -97,9 +96,9 @@ void StressTheCache(int iteration) {
     keys[i] = GenerateKey(true);
   }
 
-  const int kSize = 4000;
-  scoped_refptr<net::IOBuffer> buffer = new net::IOBuffer(kSize);
-  memset(buffer->data(), 'k', kSize);
+  const int kDataLen = 4000;
+  char data[kDataLen];
+  memset(data, 'k', kDataLen);
 
   for (int i = 0;; i++) {
     int slot = rand() % kNumEntries;
@@ -111,8 +110,9 @@ void StressTheCache(int iteration) {
     if (!cache->OpenEntry(keys[key], &entries[slot]))
       CHECK(cache->CreateEntry(keys[key], &entries[slot]));
 
-    base::snprintf(buffer->data(), kSize, "%d %d", iteration, i);
-    CHECK(kSize == entries[slot]->WriteData(0, 0, buffer, kSize, NULL, false));
+    base::snprintf(data, kDataLen, "%d %d", iteration, i);
+    CHECK(kDataLen == entries[slot]->WriteData(0, 0, data, kDataLen, NULL,
+                                               false));
 
     if (rand() % 100 > 80) {
       key = rand() % kNumKeys;
@@ -188,7 +188,7 @@ int main(int argc, const char* argv[]) {
 
   // Some time for the memory manager to flush stuff.
   PlatformThread::Sleep(3000);
-  MessageLoop message_loop(MessageLoop::TYPE_IO);
+  MessageLoop message_loop;
 
   char* end;
   long int iteration = strtol(argv[1], &end, 0);

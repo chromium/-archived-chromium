@@ -7,7 +7,6 @@
 #include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/cache_util.h"
@@ -24,9 +23,9 @@ const int kKeyFileIndex = 3;
 // operation from the actual net class.
 class SyncCallback: public disk_cache::FileIOCallback {
  public:
-  SyncCallback(disk_cache::EntryImpl* entry, net::IOBuffer* buffer,
+  SyncCallback(disk_cache::EntryImpl* entry,
                net::CompletionCallback* callback )
-      : entry_(entry), callback_(callback), buf_(buffer) {
+      : entry_(entry), callback_(callback) {
     entry->AddRef();
     entry->IncrementIoCount();
   }
@@ -37,7 +36,6 @@ class SyncCallback: public disk_cache::FileIOCallback {
  private:
   disk_cache::EntryImpl* entry_;
   net::CompletionCallback* callback_;
-  scoped_refptr<net::IOBuffer> buf_;
 
   DISALLOW_EVIL_CONSTRUCTORS(SyncCallback);
 };
@@ -52,7 +50,6 @@ void SyncCallback::OnFileIOComplete(int bytes_copied) {
 
 void SyncCallback::Discard() {
   callback_ = NULL;
-  buf_ = NULL;
   OnFileIOComplete(0);
 }
 
@@ -197,7 +194,7 @@ int32 EntryImpl::GetDataSize(int index) const {
   return entry->Data()->data_size[index];
 }
 
-int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
+int EntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
                         net::CompletionCallback* completion_callback) {
   DCHECK(node_.Data()->dirty);
   if (index < 0 || index >= NUM_STREAMS)
@@ -225,7 +222,7 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
   if (user_buffers_[index].get()) {
     // Complete the operation locally.
     DCHECK(kMaxBlockSize >= offset + buf_len);
-    memcpy(buf->data() , user_buffers_[index].get() + offset, buf_len);
+    memcpy(buf , user_buffers_[index].get() + offset, buf_len);
     stats.AddTime(Time::Now() - start);
     return buf_len;
   }
@@ -246,10 +243,10 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
 
   SyncCallback* io_callback = NULL;
   if (completion_callback)
-    io_callback = new SyncCallback(this, buf, completion_callback);
+    io_callback = new SyncCallback(this, completion_callback);
 
   bool completed;
-  if (!file->Read(buf->data(), buf_len, file_offset, io_callback, &completed)) {
+  if (!file->Read(buf, buf_len, file_offset, io_callback, &completed)) {
     if (io_callback)
       io_callback->Discard();
     return net::ERR_FAILED;
@@ -262,7 +259,7 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 
-int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
+int EntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
                          net::CompletionCallback* completion_callback,
                          bool truncate) {
   DCHECK(node_.Data()->dirty);
@@ -321,7 +318,7 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
   if (user_buffers_[index].get()) {
     // Complete the operation locally.
     DCHECK(kMaxBlockSize >= offset + buf_len);
-    memcpy(user_buffers_[index].get() + offset, buf->data(), buf_len);
+    memcpy(user_buffers_[index].get() + offset, buf, buf_len);
     stats.AddTime(Time::Now() - start);
     return buf_len;
   }
@@ -345,11 +342,10 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
 
   SyncCallback* io_callback = NULL;
   if (completion_callback)
-    io_callback = new SyncCallback(this, buf, completion_callback);
+    io_callback = new SyncCallback(this, completion_callback);
 
   bool completed;
-  if (!file->Write(buf->data(), buf_len, file_offset, io_callback,
-                   &completed)) {
+  if (!file->Write(buf, buf_len, file_offset, io_callback, &completed)) {
     if (io_callback)
       io_callback->Discard();
     return net::ERR_FAILED;

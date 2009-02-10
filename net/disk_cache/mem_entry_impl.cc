@@ -4,7 +4,6 @@
 
 #include "net/disk_cache/mem_entry_impl.h"
 
-#include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/mem_backend_impl.h"
 
@@ -83,8 +82,8 @@ int32 MemEntryImpl::GetDataSize(int index) const {
   return data_size_[index];
 }
 
-int MemEntryImpl::ReadData(int index, int offset, net::IOBuffer* buf,
-    int buf_len, net::CompletionCallback* completion_callback) {
+int MemEntryImpl::ReadData(int index, int offset, char* buf, int buf_len,
+                           net::CompletionCallback* completion_callback) {
   if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
@@ -100,12 +99,13 @@ int MemEntryImpl::ReadData(int index, int offset, net::IOBuffer* buf,
 
   UpdateRank(false);
 
-  memcpy(buf->data() , &(data_[index])[offset], buf_len);
+  memcpy(buf , &(data_[index])[offset], buf_len);
   return buf_len;
 }
 
-int MemEntryImpl::WriteData(int index, int offset, net::IOBuffer* buf,
-    int buf_len, net::CompletionCallback* completion_callback, bool truncate) {
+int MemEntryImpl::WriteData(int index, int offset, const char* buf, int buf_len,
+                         net::CompletionCallback* completion_callback,
+                         bool truncate) {
   if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
@@ -143,7 +143,7 @@ int MemEntryImpl::WriteData(int index, int offset, net::IOBuffer* buf,
   if (!buf_len)
     return 0;
 
-  memcpy(&(data_[index])[offset], buf->data(), buf_len);
+  memcpy(&(data_[index])[offset], buf, buf_len);
   return buf_len;
 }
 

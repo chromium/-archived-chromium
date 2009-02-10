@@ -24,9 +24,9 @@ class MemEntryImpl : public Entry {
   virtual base::Time GetLastUsed() const;
   virtual base::Time GetLastModified() const;
   virtual int32 GetDataSize(int index) const;
-  virtual int ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
+  virtual int ReadData(int index, int offset, char* buf, int buf_len,
                        net::CompletionCallback* completion_callback);
-  virtual int WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
+  virtual int WriteData(int index, int offset, const char* buf, int buf_len,
                         net::CompletionCallback* completion_callback,
                         bool truncate);
 
