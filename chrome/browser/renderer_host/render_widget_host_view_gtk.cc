@@ -72,18 +72,27 @@ class RenderWidgetHostViewGtkWidget {
 
   static gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
                                        RenderWidgetHostViewGtk* host_view) {
+    WebKeyboardEvent wke(event);
+    host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+
+    // See note in webwidget_host_gtk.cc::HandleKeyPress().
+    if (event->type == GDK_KEY_PRESS) {
+      wke.type = WebKeyboardEvent::CHAR;
+      host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+    }
+
     return FALSE;
   }
 
   static gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus,
                           RenderWidgetHostViewGtk* host_view) {
-    NOTIMPLEMENTED();
+    host_view->GetRenderWidgetHost()->Focus();
     return FALSE;
   }
 
   static gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus,
                            RenderWidgetHostViewGtk* host_view) {
-    NOTIMPLEMENTED();
+    host_view->GetRenderWidgetHost()->Blur();
     return FALSE;
   }
 
@@ -97,12 +106,15 @@ class RenderWidgetHostViewGtkWidget {
 
   static gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
                                  RenderWidgetHostViewGtk* host_view) {
+    WebMouseEvent wme(event);
+    host_view->GetRenderWidgetHost()->ForwardMouseEvent(wme);
     return FALSE;
   }
 
   static gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
                                    RenderWidgetHostViewGtk* host_view) {
-    NOTIMPLEMENTED();
+    WebMouseWheelEvent wmwe(event);
+    host_view->GetRenderWidgetHost()->ForwardWheelEvent(wmwe);
     return FALSE;
   }
 };
