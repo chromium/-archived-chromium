@@ -20,7 +20,7 @@
 namespace {
 
 // The maximum length of short list of recently user selected encodings is 3.
-const int kUserSelectedEncodingsMaxLength = 3;
+const size_t kUserSelectedEncodingsMaxLength = 3;
 
 typedef struct {
   int resource_id;
@@ -431,4 +431,3 @@ bool CharacterEncoding::UpdateRecentlySelectdEncoding(
   }
   return true;
 }
-
