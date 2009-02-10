@@ -75,7 +75,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		2974AF430AA6D66F204D0C56 /* history.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9EC0E9D48F7009A6919 /* history.cc */; };
 		331218220F3BFF32006CB2B0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
 		331218230F3BFF36006CB2B0 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
 		331218290F3C007A006CB2B0 /* renderer_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */; };
@@ -5121,7 +5120,6 @@
 				E45075C60F15070D003BE099 /* firefox_profile_lock.cc in Sources */,
 				4D7BF9990E9D486B009A6919 /* google_url_tracker.cc in Sources */,
 				4D7BF99E0E9D486F009A6919 /* google_util.cc in Sources */,
-				2974AF430AA6D66F204D0C56 /* history.cc in Sources */,
 				E4F3244A0EE5CF3C002533CE /* history_backend.cc in Sources */,
 				E40CC5E30F2E348900708647 /* history_contents_provider.cc in Sources */,
 				E4F3244D0EE5CF4A002533CE /* history_database.cc in Sources */,

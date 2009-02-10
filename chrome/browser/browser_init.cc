@@ -12,7 +12,6 @@
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "chrome/app/result_codes.h"
-#include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/extensions_service.h"

@@ -12,8 +12,6 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "build/build_config.h"
-#include "chrome/browser/autocomplete/autocomplete.h"
-#include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -36,7 +34,6 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
-
 
 // static
 size_t SessionRestore::num_tabs_to_load_ = 0;
@@ -369,98 +366,3 @@ bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
 
 }  // webkit_glue
 
-
-//--------------------------------------------------------------------------
-size_t AutocompleteProvider::max_matches_ = 42;
-size_t AutocompleteResult::max_matches_ = 42;
-
-// static
-std::string AutocompleteInput::TypeToString(Type type) {
-  NOTIMPLEMENTED();
-  return "";
-}
-
-AutocompleteMatch::AutocompleteMatch(AutocompleteProvider* provider,
-                                     int relevance,
-                                     bool deletable,
-                                     Type type) {
-  NOTIMPLEMENTED();
-}
-
-// static
-void AutocompleteMatch::ClassifyLocationInString(
-    size_t match_location,
-    size_t match_length,
-    size_t overall_length,
-    int style,
-    ACMatchClassifications* classifications) {
-  NOTIMPLEMENTED();
-}
-
-// static
-std::string AutocompleteMatch::TypeToString(Type type) {
-  NOTIMPLEMENTED();
-  return "";
-}
-
-AutocompleteProvider::~AutocompleteProvider() {
-  NOTIMPLEMENTED();
-}
-
-std::wstring AutocompleteProvider::StringForURLDisplay(const GURL& url,
-                                                       bool check_accept_lang) {
-  NOTIMPLEMENTED();
-  return L"";
-}
-
-void HistoryURLProvider::ExecuteWithDB(history::HistoryBackend* backend,
-                                       history::URLDatabase* db,
-                                       HistoryURLProviderParams* params) {
-  NOTIMPLEMENTED();
-}
-
-//--------------------------------------------------------------------------
-namespace bookmark_utils {
-
-struct TitleMatch {
-  void* undefined;
-};
-
-void GetBookmarksMatchingText(BookmarkModel* model,
-                              const std::wstring& text,
-                              size_t max_count,
-                              std::vector<TitleMatch>* matches) {
-  NOTIMPLEMENTED();
-}
-
-bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(BookmarkModel* model,
-                                                         size_t max_count) {
-  NOTIMPLEMENTED();
-  return std::vector<BookmarkNode*>();
-}
-
-
-void GetBookmarksContainingText(BookmarkModel* model,
-                                const std::wstring& text,
-                                size_t max_count,
-                                std::vector<BookmarkNode*>* nodes) {
-  NOTIMPLEMENTED();
-}
-
-bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-void GetMostRecentlyAddedEntries(BookmarkModel* model,
-                                 size_t count,
-                                 std::vector<BookmarkNode*>* nodes) {
-  NOTIMPLEMENTED();
-}
-
-}  // bookmark_utils

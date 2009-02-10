@@ -37,7 +37,7 @@ extern const wchar_t kUserDataDirname[];
 extern const FilePath::CharType kUserScriptsDirname[];
 extern const FilePath::CharType kWebDataFilename[];
 extern const FilePath::CharType kBookmarksFileName[];
-extern const FilePath::CharType kHistoryBookmarksFileName[];
+extern const wchar_t kHistoryBookmarksFileName[];
 extern const wchar_t kCustomDictionaryFileName[];
 
 extern const unsigned int kMaxRendererProcessCount;

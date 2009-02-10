@@ -204,6 +204,75 @@ class TabRestoreService : public base::RefCountedThreadSafe<TabRestoreService> {
   void RestoreMostRecentEntry(Browser*) { NOTIMPLEMENTED(); }
 };
 
+namespace history {
+
+class ExpireHistoryBackend {
+ public:
+  BookmarkService* bookmark_service_;
+};
+
+class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend> {
+ public:
+  BookmarkService* bookmark_service_;
+  ExpireHistoryBackend expirer_;
+};
+
+class HistoryDatabase {
+ public:
+  static std::string GURLToDatabaseURL(const GURL& url) {
+    NOTIMPLEMENTED();
+    return "";
+  }
+};
+
+}
+
+class HistoryService {
+ public:
+  class URLEnumerator {
+   public:
+    virtual ~URLEnumerator() {}
+    virtual void OnURL(const GURL& url) = 0;
+    virtual void OnComplete(bool success) = 0;
+  };
+  class Handle {
+   public:
+  };
+  HistoryService() {}
+  HistoryService(Profile* profile) {}
+  bool Init(const FilePath& history_dir, BookmarkService* bookmark_service) {
+    NOTIMPLEMENTED();
+    return false;
+  }
+  void SetOnBackendDestroyTask(Task*) { NOTIMPLEMENTED(); }
+  void AddPage(GURL const&, void const*, int, GURL const&,
+               int, std::vector<GURL> const&) { NOTIMPLEMENTED(); }
+  void AddPage(const GURL& url) { NOTIMPLEMENTED(); }
+  void SetPageContents(const GURL& url, const std::wstring& contents) {
+    NOTIMPLEMENTED();
+  }
+  void IterateURLs(URLEnumerator* iterator) { NOTIMPLEMENTED(); }
+  void DeleteAllSearchTermsForKeyword(long long) { NOTIMPLEMENTED(); }
+  void SetKeywordSearchTermsForURL(const GURL& url,
+                                   long long keyword_id,
+                                   const std::wstring& term) {
+    NOTIMPLEMENTED();
+  }
+  void NotifyRenderProcessHostDestruction(int) { NOTIMPLEMENTED(); };
+  void Cleanup() { NOTIMPLEMENTED(); }
+  void AddRef() { NOTIMPLEMENTED(); }
+  void Release() { NOTIMPLEMENTED(); }
+  void SetFavIconOutOfDateForPage(const GURL&) { NOTIMPLEMENTED(); }
+  void SetPageThumbnail(const GURL&, const SkBitmap&, const ThumbnailScore&) {
+    NOTIMPLEMENTED();
+  }
+  void SetPageTitle(const GURL&, const std::wstring&) {
+    NOTIMPLEMENTED();
+  }
+
+  scoped_refptr<history::HistoryBackend> history_backend_;
+};
+
 class MetricsService {
  public:
   MetricsService() { }
@@ -805,6 +874,16 @@ class WebAppLauncher {
   static void Launch(Profile* profile, const GURL& url) {
     NOTIMPLEMENTED();
   }
+};
+
+class AutocompleteResult {
+ public:
+  static void set_max_matches(int) { NOTIMPLEMENTED(); }
+};
+
+class AutocompleteProvider {
+ public:
+  static void set_max_matches(int) { NOTIMPLEMENTED(); }
 };
 
 class URLFixerUpper {

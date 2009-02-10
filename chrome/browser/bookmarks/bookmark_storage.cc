@@ -19,11 +19,11 @@
 namespace {
 
 // Extension used for backup files (copy of main file created during startup).
-const FilePath::CharType kBackupExtension[] = FILE_PATH_LITERAL("bak");
+const wchar_t* const kBackupExtension = L"bak";
 
 // Extension for the temporary file. We write to the temp file than move to
 // kBookmarksFileName.
-const FilePath::CharType kTmpExtension[] = FILE_PATH_LITERAL("tmp");
+const wchar_t* const kTmpExtension = L"tmp";
 
 // How often we save.
 const int kSaveDelayMS = 2500;
@@ -36,9 +36,10 @@ BookmarkStorage::BookmarkStorage(Profile* profile, BookmarkModel* model)
     : model_(model),
       ALLOW_THIS_IN_INITIALIZER_LIST(save_factory_(this)),
       backend_thread_(g_browser_process->file_thread()) {
-  FilePath path = profile->GetPath().Append(chrome::kBookmarksFileName);
-  FilePath tmp_history_path =
-      profile->GetPath().Append(chrome::kHistoryBookmarksFileName);
+  std::wstring path = profile->GetPath().ToWStringHack();
+  file_util::AppendToPath(&path, chrome::kBookmarksFileName);
+  std::wstring tmp_history_path = profile->GetPath().ToWStringHack();
+  file_util::AppendToPath(&tmp_history_path, chrome::kHistoryBookmarksFileName);
   backend_ = new BookmarkStorageBackend(path, tmp_history_path);
 }
 
@@ -114,12 +115,13 @@ void BookmarkStorage::SaveNow() {
 // BookmarkStorageBackend ------------------------------------------------------
 
 BookmarkStorageBackend::BookmarkStorageBackend(
-    const FilePath& path,
-    const FilePath& tmp_history_path)
-    : path_(path.ToWStringHack()),
-      tmp_history_path_(tmp_history_path.ToWStringHack()) {
+    const std::wstring& path,
+    const std::wstring& tmp_history_path)
+    : path_(path),
+      tmp_history_path_(tmp_history_path) {
   // Make a backup of the current file.
-  FilePath backup_path = path.ReplaceExtension(kBackupExtension);
+  std::wstring backup_path = path;
+  file_util::ReplaceExtension(&backup_path, kBackupExtension);
   file_util::CopyFile(path, backup_path);
 }
 
@@ -133,11 +135,8 @@ void BookmarkStorageBackend::Write(Value* value) {
   JSONWriter::Write(value, true, &content);
 
   // Write to a temp file, then rename.
-  // TODO(port): this code was all written to use wstrings; needs cleaning up
-  // for FilePath.
-  FilePath tmp_file_filepath =
-      FilePath::FromWStringHack(path_).ReplaceExtension(kTmpExtension);
-  std::wstring tmp_file = tmp_file_filepath.ToWStringHack();
+  std::wstring tmp_file = path_;
+  file_util::ReplaceExtension(&tmp_file, kTmpExtension);
 
   int bytes_written = file_util::WriteFile(tmp_file, content.c_str(),
                                            static_cast<int>(content.length()));

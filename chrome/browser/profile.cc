@@ -15,7 +15,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
-#include "chrome/browser/history/history.h"
 #include "chrome/browser/net/chrome_url_request_context.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -42,6 +41,7 @@
 #if defined(OS_WIN)
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/tab_restore_service.h"

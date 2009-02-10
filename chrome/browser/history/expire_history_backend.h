@@ -18,7 +18,6 @@
 class BookmarkService;
 class GURL;
 class NotificationType;
-class TestingProfile;
 
 namespace history {
 
@@ -86,7 +85,7 @@ class ExpireHistoryBackend {
   FRIEND_TEST(ExpireHistoryTest, DeleteTextIndexForURL);
   FRIEND_TEST(ExpireHistoryTest, DeleteFaviconsIfPossible);
   FRIEND_TEST(ExpireHistoryTest, ArchiveSomeOldHistory);
-  friend class ::TestingProfile;
+  friend class TestingProfile;
 
   struct DeleteDependencies {
     // The time range affected. These can be is_null() to be unbounded in one

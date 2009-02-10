@@ -26,7 +26,6 @@
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class BookmarkService;
-class TestingProfile;
 struct ThumbnailScore;
 
 namespace history {
@@ -261,7 +260,7 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   friend class HistoryTest;  // So the unit tests can poke our innards.
   FRIEND_TEST(HistoryBackendTest, DeleteAll);
   FRIEND_TEST(HistoryBackendTest, URLsNoLongerBookmarked);
-  friend class ::TestingProfile;
+  friend class TestingProfile;
 
   // Computes the name of the specified database on disk.
   std::wstring GetThumbnailFileName() const;
