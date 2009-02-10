@@ -486,15 +486,12 @@ LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 // Flaky on both release and debug.
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
-LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
 LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
 // Difference between numeric precision in output.
 LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 // Our green is darker and we seem to be a pixel taller.
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
-LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
-LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
@@ -502,7 +499,6 @@ LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
 LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
-
 
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 

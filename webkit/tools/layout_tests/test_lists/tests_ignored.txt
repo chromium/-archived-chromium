@@ -74,6 +74,9 @@ LayoutTests/http/tests/security/cross-frame-access-private-browsing.html = FAIL
 // We don't care about dashboard compatibility mode.
 SKIP : LayoutTests/http/tests/xmlhttprequest/default-content-type-dashboard.html = FAIL
 SKIP : LayoutTests/http/tests/xmlhttprequest/svg-created-by-xhr-disallowed-in-dashboard.html = FAIL
+LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
+LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
+LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
 
 // Chrome uses different keyboard accelerators from those used by Safari, so
 // these tests will always fail.
