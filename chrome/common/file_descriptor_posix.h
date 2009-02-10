@@ -101,6 +101,15 @@ class DescriptorSet {
 
   // ---------------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------------
+  // Interfaces for IPC::Message...
+
+  // Take all the FileDescriptors from another set. Just like a copy
+  // constructor, except that the source is emptied.
+  void TakeFrom(DescriptorSet* other);
+
+  // ---------------------------------------------------------------------------
+
  private:
   // A vector of descriptors and close flags. If this message is sent, then
   // these descriptors are sent as control data. After sending, any descriptors

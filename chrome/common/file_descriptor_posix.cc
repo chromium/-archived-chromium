@@ -80,3 +80,11 @@ void DescriptorSet::SetDescriptors(const int* buffer, unsigned count) {
     descriptors_.push_back(sd);
   }
 }
+
+void DescriptorSet::TakeFrom(DescriptorSet* other) {
+  DCHECK(descriptors_.size() == 0);
+
+  descriptors_.swap(other->descriptors_);
+  next_descriptor_ = other->next_descriptor_;
+  other->next_descriptor_ = 0;
+}
