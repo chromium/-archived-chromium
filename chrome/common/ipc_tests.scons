@@ -76,6 +76,7 @@ if env.Bit('windows'):
 
 input_files = ChromeFileList([
     'ipc_fuzzing_tests.cc',
+    'ipc_send_fds_test.cc',
     'ipc_tests.cc',
     'ipc_tests.h',
     '$BASE_DIR/perftimer$OBJSUFFIX',

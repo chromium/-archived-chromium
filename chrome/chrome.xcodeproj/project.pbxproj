@@ -301,6 +301,7 @@
 		B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F60F05843C00FB1A4F /* property_bag.cc */; };
 		B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */; };
 		B56E281B0F057F2800447108 /* message_router.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD10E9D4C9F009A6919 /* message_router.cc */; };
+		B58331850F40FE4E00FABC29 /* ipc_send_fds_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B58331690F40FC1F00FABC29 /* ipc_send_fds_test.cc */; };
 		B5D030F00F3A3C43001238AB /* renderer_main_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */; };
 		B5D031270F3A4009001238AB /* ipc_sync_channel_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB80E9D4C9F009A6919 /* ipc_sync_channel_unittest.cc */; };
 		B5DBEA900EFC60E200C95176 /* ipc_channel_proxy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAB0E9D4C9F009A6919 /* ipc_channel_proxy.cc */; };
@@ -2358,6 +2359,7 @@
 		B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = property_bag_unittest.cc; sourceTree = "<group>"; };
 		B562E2F50F05843C00FB1A4F /* property_bag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = property_bag.h; sourceTree = "<group>"; };
 		B562E2F60F05843C00FB1A4F /* property_bag.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = property_bag.cc; sourceTree = "<group>"; };
+		B58331690F40FC1F00FABC29 /* ipc_send_fds_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_send_fds_test.cc; sourceTree = "<group>"; };
 		B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_unittest.cc; sourceTree = "<group>"; };
 		B5D16EAB0F21445600861FAC /* ie7_password.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ie7_password.cc; path = password_manager/ie7_password.cc; sourceTree = "<group>"; };
 		B5D16EAC0F21445600861FAC /* encryptor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = encryptor.cc; path = password_manager/encryptor.cc; sourceTree = "<group>"; };
@@ -3498,6 +3500,7 @@
 				4D7BFBB30E9D4C9F009A6919 /* ipc_message_unittest.cc */,
 				4D7BFBB40E9D4C9F009A6919 /* ipc_message_utils.cc */,
 				4D7BFBB50E9D4C9F009A6919 /* ipc_message_utils.h */,
+				B58331690F40FC1F00FABC29 /* ipc_send_fds_test.cc */,
 				4D7BFBB60E9D4C9F009A6919 /* ipc_sync_channel.cc */,
 				4D7BFBB70E9D4C9F009A6919 /* ipc_sync_channel.h */,
 				4D7BFBB80E9D4C9F009A6919 /* ipc_sync_channel_unittest.cc */,
@@ -5343,6 +5346,7 @@
 			files = (
 				E4F325C80EE83A45002533CE /* ipc_fuzzing_tests.cc in Sources */,
 				E4F325850EE836F2002533CE /* ipc_message_unittest.cc in Sources */,
+				B58331850F40FE4E00FABC29 /* ipc_send_fds_test.cc in Sources */,
 				E4F325D10EE83B71002533CE /* ipc_tests.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

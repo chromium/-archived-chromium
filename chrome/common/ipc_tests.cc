@@ -8,7 +8,6 @@
 #include <windows.h>
 #elif defined(OS_POSIX)
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
@@ -41,6 +40,8 @@
 const wchar_t kTestClientChannel[] = L"T1";
 const wchar_t kReflectorChannel[] = L"T2";
 const wchar_t kFuzzerChannel[] = L"F3";
+
+const size_t kLongMessageStringNumBytes = 50000;
 
 #ifndef PERFORMANCE_TEST
 
@@ -170,7 +171,7 @@ static void Send(IPC::Message::Sender* sender, const char* text) {
   message->WriteString(std::string(text));
 
   // Make sure we can handle large messages.
-  char junk[50000];
+  char junk[kLongMessageStringNumBytes];
   memset(junk, 'a', sizeof(junk)-1);
   junk[sizeof(junk)-1] = 0;
   message->WriteString(std::string(junk));
@@ -186,6 +187,10 @@ class MyChannelListener : public IPC::Channel::Listener {
 
     iter.NextInt();
     const std::string data = iter.NextString();
+    const std::string big_string = iter.NextString();
+    EXPECT_EQ(kLongMessageStringNumBytes - 1, big_string.length());
+
+
     if (--messages_left_ == 0) {
       MessageLoop::current()->Quit();
     } else {
@@ -208,9 +213,9 @@ class MyChannelListener : public IPC::Channel::Listener {
   IPC::Message::Sender* sender_;
   int messages_left_;
 };
-static MyChannelListener channel_listener;
 
 TEST_F(IPCChannelTest, ChannelTest) {
+  MyChannelListener channel_listener;
   // Setup IPC channel.
   IPC::Channel chan(kTestClientChannel, IPC::Channel::MODE_SERVER,
                     &channel_listener);
@@ -234,89 +239,9 @@ TEST_F(IPCChannelTest, ChannelTest) {
   base::CloseProcessHandle(process_handle);
 }
 
-#if defined(OS_POSIX)
-
-class MyChannelDescriptorListener : public IPC::Channel::Listener {
- public:
-  virtual void OnMessageReceived(const IPC::Message& message) {
-    void* iter = NULL;
-
-    FileDescriptor descriptor;
-
-    ASSERT_TRUE(
-        IPC::ParamTraits<FileDescriptor>::Read(&message, &iter, &descriptor));
-    VerifyDescriptor(&descriptor);
-    MessageLoop::current()->Quit();
-  }
-
-  virtual void OnChannelError() {
-    MessageLoop::current()->Quit();
-  }
-
-private:
-  static void VerifyDescriptor(FileDescriptor* descriptor) {
-    const int fd = open("/dev/null", O_RDONLY);
-    struct stat st1, st2;
-    fstat(fd, &st1);
-    close(fd);
-    fstat(descriptor->fd, &st2);
-    close(descriptor->fd);
-    ASSERT_EQ(st1.st_ino, st2.st_ino);
-  }
-};
-
-TEST_F(IPCChannelTest, DescriptorTest) {
-  // Setup IPC channel.
-  MyChannelDescriptorListener listener;
-
-  IPC::Channel chan(kTestClientChannel, IPC::Channel::MODE_SERVER,
-                    &listener);
-  chan.Connect();
-
-  base::ProcessHandle process_handle = SpawnChild(TEST_DESCRIPTOR_CLIENT,
-                                                  &chan);
-  ASSERT_TRUE(process_handle);
-
-  FileDescriptor descriptor;
-  const int fd = open("/dev/null", O_RDONLY);
-  ASSERT_GE(fd, 0);
-  descriptor.auto_close = true;
-  descriptor.fd = fd;
-
-  IPC::Message* message = new IPC::Message(0, // routing_id
-                                           3, // message type
-                                           IPC::Message::PRIORITY_NORMAL);
-  IPC::ParamTraits<FileDescriptor>::Write(message, descriptor);
-  chan.Send(message);
-
-  // Run message loop.
-  MessageLoop::current()->Run();
-
-  // Close Channel so client gets its OnChannelError() callback fired.
-  chan.Close();
-
-  // Cleanup child process.
-  EXPECT_TRUE(base::WaitForSingleProcess(process_handle, 5000));
-}
-
-MULTIPROCESS_TEST_MAIN(RunTestDescriptorClient) {
-  MessageLoopForIO main_message_loop;
-  MyChannelDescriptorListener listener;
-
-  // setup IPC channel
-  IPC::Channel chan(kTestClientChannel, IPC::Channel::MODE_CLIENT,
-                    &listener);
-  chan.Connect();
-
-  // run message loop
-  MessageLoop::current()->Run();
-  // return true;
-  return NULL;
-}
-
-#endif  // defined(OS_POSIX)
-
 TEST_F(IPCChannelTest, ChannelProxyTest) {
+  MyChannelListener channel_listener;
+
   // The thread needs to out-live the ChannelProxy.
   base::Thread thread("ChannelProxyTestServer");
   base::Thread::Options options;
@@ -365,6 +290,7 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
 
 MULTIPROCESS_TEST_MAIN(RunTestClient) {
   MessageLoopForIO main_message_loop;
+  MyChannelListener channel_listener;
 
   // setup IPC channel
   IPC::Channel chan(kTestClientChannel, IPC::Channel::MODE_CLIENT,
