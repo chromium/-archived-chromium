@@ -114,6 +114,10 @@ class CommandLine {
   void AppendArguments(const CommandLine& other,
                        bool include_program);
 
+  // On POSIX systems it's common to run processes via a wrapper (like
+  // "valgrind" or "gdb --args"). *Note, only availible on POSIX*
+  void PrependWrapper(const std::wstring& wrapper);
+
  private:
   friend class InProcessBrowserTest;
 

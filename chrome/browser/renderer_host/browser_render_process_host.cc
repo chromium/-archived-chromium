@@ -284,6 +284,13 @@ bool BrowserRenderProcessHost::Init() {
       DebugFlags::ProcessDebugFlags(&cmd_line,
                                     DebugFlags::RENDERER,
                                     in_sandbox);
+#elif defined(OS_POSIX)
+  if (browser_command_line.HasSwitch(switches::kRendererCmdPrefix)) {
+    // launch the renderer child with some prefix (usually "gdb --args")
+    const std::wstring prefix =
+        browser_command_line.GetSwitchValue(switches::kRendererCmdPrefix);
+    cmd_line.PrependWrapper(prefix);
+  }
 #endif
 
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
@@ -644,7 +651,15 @@ void BrowserRenderProcessHost::OnChannelConnected(int32 peer_pid) {
   } else {
     // Need to verify that the peer_pid is actually the process we know, if
     // it is not, we need to panic now. See bug 1002150.
-    CHECK(peer_pid == process_.pid());
+    if (peer_pid != process_.pid()) {
+      // In the case that we are running the renderer in a wrapper, this check
+      // is invalid as it's the wrapper PID that we'll have, not the actual
+      // renderer
+      const CommandLine& cmd_line = *CommandLine::ForCurrentProcess();
+      if (cmd_line.HasSwitch(switches::kRendererCmdPrefix))
+        return;
+      CHECK(peer_pid == process_.pid());
+    }
   }
 }
 

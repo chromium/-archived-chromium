@@ -371,4 +371,8 @@ const wchar_t kEnableVideo[]                   = L"enable-video";
 // Pass the name of the current running automated test to Chrome.
 const wchar_t kTestName[]                      = L"test-name";
 
+// On POSIX only: the contents of this flag are prepended to the renderer
+// command line. (Useful values might be "valgrind" or "gdb --args")
+const wchar_t kRendererCmdPrefix[]             = L"renderer-cmd-prefix";
+
 }  // namespace switches
