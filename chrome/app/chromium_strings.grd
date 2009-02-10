@@ -262,6 +262,12 @@ be available for now. -->
       <message name="IDS_START_IN_PROFILE_SHORTCUT_NAME" desc="Name of the desktop shortcut to start the application in a specific profile.">
         Chromium for <ph name="profile_name">$1</ph>
       </message>
+      <message name="IDS_OEM_MAIN_SHORTCUT_NAME" desc="Name of the desktop shortcut to start the application for OEM pre-installations.">
+        Internet Browser
+      </message>
+      <message name="IDS_SHORTCUT_TOOLTIP" desc="Text for the hover-on tooltip for the Chromium shortcuts.">
+        Access the Internet
+      </message>
     </messages>
   </release>
 </grit>
