@@ -40,7 +40,9 @@ Message::Message(const char* data, int data_len) : Pickle(data, data_len) {
 
 Message::Message(const Message& other) : Pickle(other) {
   InitLoggingVariables();
+#if defined(OS_POSIX)
   descriptor_set_.TakeFrom(&other.descriptor_set_);
+#endif
 }
 
 void Message::InitLoggingVariables() {
