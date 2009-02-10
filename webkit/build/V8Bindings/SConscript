@@ -349,7 +349,9 @@ inputs = [
     '$PORT_DIR/bindings/v8/extensions/GCController.cpp',
     '$PORT_DIR/bindings/v8/extensions/Interval.cpp',
     '$PORT_DIR/bindings/v8/extensions/Playback.cpp',
-    
+
+    '$WEBCORE_DIR/bindings/v8/custom/V8HTMLInputElementCustom.cpp',
+    '$WEBCORE_DIR/bindings/v8/custom/V8HTMLOptionsCollectionCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8SVGElementInstanceCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8SVGLengthCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8SVGMatrixCustom.cpp',
