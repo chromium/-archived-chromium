@@ -186,6 +186,18 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="filters"
+			>
+			<File
+				RelativePath="..\filters\audio_renderer_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\audio_renderer_impl.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="audio"
 			>
 			<File

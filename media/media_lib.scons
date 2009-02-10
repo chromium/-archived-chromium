@@ -41,6 +41,10 @@ input_files = ChromeFileList([
     'base/synchronizer.cc',
     'base/synchronizer.h',
   ]),
+  MSVSFilter('filters', [
+    'filters/audio_renderer_impl.cc',
+    'filters/audio_renderer_impl.h',
+  ]),
   MSVSFilter('audio', [
     'audio/win/audio_manager_win.h',
     'audio/audio_output.h',
