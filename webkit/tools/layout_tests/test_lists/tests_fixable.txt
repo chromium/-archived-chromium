@@ -27,13 +27,13 @@ DEFER WIN LINUX : LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 // Maybe flaky and need to be forked?  Bug 1234761.
 
 // Difference in caching headers
-LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
+DEFER : LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods
-LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
-LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
+DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
+DEFER : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
-LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
+DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 // http://crbug.com/2975 : Need to support upload progress notifications in
 // the resource bridge.
 LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL CRASH
@@ -55,7 +55,7 @@ DEFER LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
 // Can defer this test once the crash is fixed.
-LayoutTests/fast/forms/input-text-maxlength.html = FAIL CRASH
+DEFER : LayoutTests/fast/forms/input-text-maxlength.html = FAIL
 DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
 // Bug: 628529: complex text effects
@@ -214,11 +214,10 @@ DEFER : LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
 DEFER : LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
 
 // Bug 1204878
-LayoutTests/http/tests/navigation/post-goback1.html = FAIL
+DEFER : LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 
 // Bug 1135948: Fails because we cannot call plugins as functions.
-// Can defer this test once the crash is fixed.
-LayoutTests/plugins/bindings-test.html = FAIL CRASH
+DEFER : LayoutTests/plugins/bindings-test.html = FAIL
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
@@ -644,7 +643,7 @@ LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
-chrome/fast/dom/java-applet-calls.html = FAIL
+DEFER : chrome/fast/dom/java-applet-calls.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
