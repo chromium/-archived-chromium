@@ -176,8 +176,7 @@ DEFER : LayoutTests/fast/encoding/idn-security.html = FAIL
 // implemented in test shell.
 // This is a test tool problem, not a Chrome problem.
 DEFER : LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
-// Can defer this test once the crash is fixed.
-LayoutTests/fast/history/subframe-is-visited.html = FAIL CRASH
+DEFER : LayoutTests/fast/history/subframe-is-visited.html = FAIL
 
 // Probably needs to be rebaselined on MAC and LINUX
 DEFER LINUX : LayoutTests/editing/selection/drag-in-iframe.html = FAIL TIMEOUT
@@ -211,9 +210,8 @@ DEFER : LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
 // Bug: 879449
 // TODO(joshia): Need some changes to the test shell in order to support
 // Java applet related unit tests. So disable the following for now.
-// These tests should be fixed immediately after the Java applets work is done.
-LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
-LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
+DEFER : LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
+DEFER : LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
 
 // Bug 1204878
 LayoutTests/http/tests/navigation/post-goback1.html = FAIL
