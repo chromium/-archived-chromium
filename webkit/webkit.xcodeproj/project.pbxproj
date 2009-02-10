@@ -51,8 +51,6 @@
 		41DE748C0F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */; };
 		41DE748D0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */; };
 		41DE748E0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */; };
-		41DE7B6C0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */; };
-		41DE7B6F0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */; };
 		41DEA0680F27C0F900E40D43 /* BackForwardListChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */; };
 		453FFDF935221CD484A3AFED /* Interval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 35DEC96C125DC674B5C9FA27 /* Interval.cpp */; };
 		489B04B64226A8BC625C0DDB /* RenderLineBoxList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03F1A9ED31C43E9C91A48AE0 /* RenderLineBoxList.cpp */; };
@@ -102,6 +100,7 @@
 		89F4A0D50F200D5B000A326A /* V8CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */; };
 		89F4A2090F2106EF000A326A /* V8CanvasPixelArrayCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */; };
 		8EFD7D527676BF3B3C92361E /* ThreadTimers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6A9898388068C93C5A7C011C /* ThreadTimers.cpp */; };
+		926BA16FA5646FDB1353DBD1 /* MainThreadChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
 		938444080F16B0570075F4C5 /* AccessibilityImageMapLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F1E80E9BAE2900C66CE0 /* AccessibilityImageMapLink.cpp */; };
@@ -1568,8 +1567,6 @@
 		41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGElementInstanceCustom.cpp; sourceTree = "<group>"; };
 		41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGLengthCustom.cpp; sourceTree = "<group>"; };
 		41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGMatrixCustom.cpp; sourceTree = "<group>"; };
-		41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLOptionsCollectionCustom.cpp; sourceTree = "<group>"; };
-		41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLInputElementCustom.cpp; sourceTree = "<group>"; };
 		41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BackForwardListChromium.cpp; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
 		4C04BF9CDE7B0B591087B440 /* RenderObjectChildList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderObjectChildList.h; sourceTree = "<group>"; };
@@ -4516,8 +4513,6 @@
 			children = (
 				41DE74870F3CDBCB0049BC24 /* V8CustomBinding.h */,
 				41DE74880F3CDBCB0049BC24 /* V8CustomEventListener.h */,
-				41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */,
-				41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */,
 				41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */,
 				41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */,
 				41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */,
@@ -8365,7 +8360,6 @@
 				938447E20F16B06E0075F4C5 /* V8HTMLIFrameElement.cpp in Sources */,
 				938447E30F16B06E0075F4C5 /* V8HTMLImageElement.cpp in Sources */,
 				938447E40F16B06E0075F4C5 /* V8HTMLInputElement.cpp in Sources */,
-				41DE7B6F0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp in Sources */,
 				938447E50F16B06E0075F4C5 /* V8HTMLIsIndexElement.cpp in Sources */,
 				938447E60F16B06E0075F4C5 /* V8HTMLLabelElement.cpp in Sources */,
 				938447E70F16B06E0075F4C5 /* V8HTMLLegendElement.cpp in Sources */,
@@ -8382,7 +8376,6 @@
 				938447F20F16B06E0075F4C5 /* V8HTMLOptGroupElement.cpp in Sources */,
 				938447F30F16B06E0075F4C5 /* V8HTMLOptionElement.cpp in Sources */,
 				938447F40F16B06E0075F4C5 /* V8HTMLOptionsCollection.cpp in Sources */,
-				41DE7B6C0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp in Sources */,
 				938447F50F16B06E0075F4C5 /* V8HTMLParagraphElement.cpp in Sources */,
 				938447F60F16B06E0075F4C5 /* V8HTMLParamElement.cpp in Sources */,
 				938447F70F16B06E0075F4C5 /* V8HTMLPreElement.cpp in Sources */,

@@ -79,8 +79,10 @@
 #include "HTMLFrameSetElement.h"
 #include "HTMLIFrameElement.h"
 #include "HTMLImageElement.h"
+#include "HTMLInputElement.h"
 #include "HTMLNames.h"
 #include "HTMLOptionElement.h"
+#include "HTMLOptionsCollection.h"
 #include "HTMLSelectElement.h"
 #include "History.h"
 #include "JSXPathNSResolver.h"
@@ -109,6 +111,13 @@
 #include "XPathEvaluator.h"
 #include "XPathResult.h"
 #include "XSLTProcessor.h"
+
+#if ENABLE(SVG)
+#include "V8SVGPODTypeWrapper.h"
+#include "SVGElementInstance.h"
+#include "SVGException.h"
+#include "SVGPathSeg.h"
+#endif
 
 #include "Navigator.h"
 
@@ -3219,6 +3228,116 @@ ACCESSOR_GETTER(ElementEventHandler) {
 
   EventListener* listener = node->inlineEventListenerForType(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
+}
+
+
+ACCESSOR_GETTER(HTMLOptionsCollectionLength) {
+  INC_STATS("DOM.HTMLOptionsCollection.length._get");
+  HTMLOptionsCollection* imp =
+    V8Proxy::ToNativeObject<HTMLOptionsCollection>(
+        V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
+  int v = imp->length();
+  return v8::Integer::New(v);
+}
+
+
+ACCESSOR_SETTER(HTMLOptionsCollectionLength) {
+  INC_STATS("DOM.HTMLOptionsCollection.length._set");
+  HTMLOptionsCollection* imp =
+    V8Proxy::ToNativeObject<HTMLOptionsCollection>(
+        V8ClassIndex::HTMLOPTIONSCOLLECTION, info.Holder());
+  double v = value->NumberValue();
+  unsigned newLength = 0;
+  ExceptionCode ec = 0;
+  if (!isnan(v) && !isinf(v)) {
+    if (v < 0.0) {
+      ec = INDEX_SIZE_ERR;
+    } else if (v > static_cast<double>(UINT_MAX)) {
+      newLength = UINT_MAX;
+    } else {
+      newLength = static_cast<unsigned>(v);
+    }
+  }
+  if (!ec) imp->setLength(value->Uint32Value(), ec);
+  V8Proxy::SetDOMException(ec);
+}
+
+ACCESSOR_GETTER(HTMLInputElementSelectionStart) {
+  INC_STATS("DOM.HTMLInputElement.selectionStart._get");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Accessing selectionStart on an input element that "
+                        "cannot have a selection.");
+    return v8::Undefined();
+  }
+
+  int v = imp->selectionStart();
+  return v8::Integer::New(v);
+}
+
+ACCESSOR_SETTER(HTMLInputElementSelectionStart) {
+  INC_STATS("DOM.HTMLInputElement.selectionStart._set");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR, 
+                        "Accessing selectionStart on an input element that "
+                        "cannot have a selection.");
+    return;
+  }
+  imp->setSelectionStart(value->Int32Value());
+}
+
+ACCESSOR_GETTER(HTMLInputElementSelectionEnd) {
+  INC_STATS("DOM.HTMLInputElement.selectionEnd._get");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Accessing selectionEnd on an input element that "
+                        "cannot have a selection.");
+    return v8::Undefined();
+  }
+
+  int v = imp->selectionEnd();
+  return v8::Integer::New(v);
+}
+
+ACCESSOR_SETTER(HTMLInputElementSelectionEnd) {
+  INC_STATS("DOM.HTMLInputElement.selectionEnd._set");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Accessing selectionEnd on an input element that "
+                        "cannot have a selection.");
+    return;
+  }
+  imp->setSelectionEnd(value->Int32Value());
+}
+
+CALLBACK_FUNC_DECL(HTMLInputElementSetSelectionRange) {
+  INC_STATS("DOM.HTMLInputElement.setSelectionRange");
+  v8::Handle<v8::Object> holder = args.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection()) {
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "Calling setSelectionRange on an input element that "
+                        "cannot have a selection.");
+    return v8::Undefined();
+  }
+  int start = args[0]->Int32Value();
+  int end = args[1]->Int32Value();
+
+  imp->setSelectionRange(start, end);
+  return v8::Undefined();
 }
 
 // --------------- Security Checks -------------------------

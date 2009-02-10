@@ -136,14 +136,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLInputElementCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLOptionsCollectionCustom.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8SVGElementInstanceCustom.cpp"
 			>
 		</File>
