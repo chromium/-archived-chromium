@@ -146,6 +146,13 @@ void TaskManagerWebContentsResourceProvider::StartUpdating() {
                        NotificationService::AllSources());
   service->AddObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
                        NotificationService::AllSources());
+  // WEB_CONTENTS_DISCONNECTED should be enough to know when to remove a
+  // resource.  This is an attempt at mitigating a crasher that seem to
+  // indicate a resource is still referencing a deleted WebContents
+  // (http://crbug.com/7321).
+  service->AddObserver(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                       NotificationService::AllSources());
+
 }
 
 void TaskManagerWebContentsResourceProvider::StopUpdating() {
@@ -159,6 +166,8 @@ void TaskManagerWebContentsResourceProvider::StopUpdating() {
   service->RemoveObserver(this, NotificationType::WEB_CONTENTS_SWAPPED,
                           NotificationService::AllSources());
   service->RemoveObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
+                          NotificationService::AllSources());
+  service->RemoveObserver(this, NotificationType::TAB_CONTENTS_DESTROYED,
                           NotificationService::AllSources());
 
   // Delete all the resources.
@@ -230,6 +239,12 @@ void TaskManagerWebContentsResourceProvider::Observe(NotificationType type,
       Remove(Source<WebContents>(source).ptr());
       Add(Source<WebContents>(source).ptr());
       break;
+    case NotificationType::TAB_CONTENTS_DESTROYED:
+      // If this DCHECK is triggered, it could explain http://crbug.com/7321.
+      DCHECK(resources_.find(Source<WebContents>(source).ptr()) ==
+             resources_.end()) << "TAB_CONTENTS_DESTROYED with no associated "
+                                  "WEB_CONTENTS_DISCONNECTED";
+      // Fall through.
     case NotificationType::WEB_CONTENTS_DISCONNECTED:
       Remove(Source<WebContents>(source).ptr());
       break;
