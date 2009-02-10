@@ -159,7 +159,6 @@ wtf_inputs = [
     '$WTF_DIR/Threading.cpp',
     '$WTF_DIR/ThreadingPthreads.cpp',
     '$WTF_DIR/TCSystemAlloc.cpp',
-    '$WTF_DIR/chromium/MainThreadChromium.cpp',
     '$WTF_DIR/unicode/UTF8.cpp',
     '$WTF_DIR/unicode/icu/CollatorICU.cpp',
 ]
