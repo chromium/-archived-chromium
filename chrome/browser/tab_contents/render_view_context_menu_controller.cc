@@ -134,6 +134,14 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
              URLRequest::IsHandledURL(params_.image_url);
 
     case IDS_CONTENT_CONTEXT_OPENIMAGENEWTAB:
+      // The images shown in the most visited thumbnails do not currently open
+      // in a new tab as they should. Disabling this context menu option for
+      // now, as a quick hack, before we resolve this issue (Issue = 2608).
+      // TODO (sidchat): Enable this option once this issue is resolved.
+      if (params_.image_url.scheme() == "chrome-ui")
+        return false;
+      return true;
+
     case IDS_CONTENT_CONTEXT_COPYIMAGELOCATION:
       return params_.image_url.is_valid();
 
