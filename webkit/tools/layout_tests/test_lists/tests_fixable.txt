@@ -139,10 +139,8 @@ DEFER : LayoutTests/fast/html/keygen.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
-// Bug 865472, this should just need proper pixel test rebaselining.
-// Also skipped by Apple on Windows (rdar://5723191).
 // Linux pixeltest failure: Form control metrics incorrect
-LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
+LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
