@@ -51,7 +51,7 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   
   base::TimeTicks& whiteout_start_time() { return whiteout_start_time_; }
   
-  gfx::NativeView GetNativeView() const;
+  gfx::NativeView native_view() const { return cocoa_view_; }
 
   // Implementation of RenderWidgetHostView:
   virtual RenderWidgetHost* GetRenderWidgetHost() const;

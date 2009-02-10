@@ -46,10 +46,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
 RenderWidgetHostViewMac::~RenderWidgetHostViewMac() {
 }
 
-gfx::NativeView RenderWidgetHostViewMac::GetNativeView() const {
-  return cocoa_view_;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewMac, RenderWidgetHostView implementation:
 

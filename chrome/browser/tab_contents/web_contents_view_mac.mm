@@ -45,7 +45,7 @@ RenderWidgetHostView* WebContentsViewMac::CreateViewForWidget(
   
   // Fancy layout comes later; for now just make it our size and resize it
   // with us.
-  NSView* view_view = view->GetNativeView();
+  NSView* view_view = view->native_view();
   [cocoa_view_.get() addSubview:view_view];
   [view_view setFrame:[cocoa_view_.get() bounds]];
   [view_view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
