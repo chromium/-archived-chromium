@@ -18,6 +18,7 @@ class FilterHostImpl : public FilterHost {
   // FilterHost interface.
   virtual const PipelineStatus* GetPipelineStatus() const;
   virtual void SetTimeUpdateCallback(Callback1<base::TimeDelta>::Type* cb);
+  virtual void ScheduleTimeUpdateCallback(base::TimeDelta time);
   virtual void InitializationComplete();
   virtual void PostTask(Task* task);
   virtual void Error(PipelineError error);
@@ -40,6 +41,7 @@ class FilterHostImpl : public FilterHost {
       : pipeline_thread_(pipeline_thread),
         filter_type_(Filter::filter_type()),
         filter_(filter),
+        scheduled_time_update_task_(NULL),
         stopped_(false) {
   }
   ~FilterHostImpl() {}
@@ -66,6 +68,50 @@ class FilterHostImpl : public FilterHost {
   MediaFilter* media_filter() const { return filter_; }
 
  private:
+  // This task class is used to schedule a time update callback for the filter.
+  // Because a filter may call the ScheduleTimeUpdateCallback method from any
+  // thread, and becuase we only want to honor the last call to that method,
+  // we always have only one current task.
+  // We are required to keep a pointer to the host and a boolean that tells
+  // us if the task was canceled because the cancelation could happen on one
+  // thread, just as the pipeline thread is calling the Run method on this task.
+  // So, we can't just NULL out the host_ to cancel this because it could
+  // fault.  Once we have called the host, it needs to enter it's critical
+  // section and make sure that the task that has Run is, in fact, the last one
+  // that was scheduled.
+  // In the case where the filter host is Stopping (or being destroyed), it will
+  // be guaranteed to happen on the pipeline thread, thus making the setting
+  // of the |canceled_| bool thread safe since the task would only execute on
+  // the pipeline thread.  This means that it could be possible for a task to
+  // hold a pointer to a |host_| that has been deleted, but it will never access
+  // that pointer because the task was canceled.
+  class TimeUpdateTask : public CancelableTask {
+   public:
+    explicit TimeUpdateTask(FilterHostImpl* host)
+        : host_(host),
+          canceled_(false) {}
+
+    virtual void Run() {
+      if (!canceled_) {
+        host_->RunScheduledTimeUpdateCallback(this);
+      }
+    }
+
+    virtual void Cancel() {
+      canceled_ = true;
+    }
+
+   private:
+    FilterHostImpl* const host_;
+    bool canceled_;
+
+    DISALLOW_COPY_AND_ASSIGN(TimeUpdateTask);
+  };
+
+  // Method used by the TimeUpdateTask to call back to the filter.
+  void RunScheduledTimeUpdateCallback(TimeUpdateTask* caller);
+
+  // Useful method for getting the pipeline.
   PipelineImpl* pipeline() const { return pipeline_thread_->pipeline(); }
 
   // PipelineThread that owns this FilterHostImpl.
@@ -79,6 +125,12 @@ class FilterHostImpl : public FilterHost {
 
   // An optional callback that will be called when the time is updated.
   scoped_ptr<Callback1<base::TimeDelta>::Type> time_update_callback_;
+
+  // Critical section used for scheduled time update callbacks.
+  Lock time_update_lock_;
+
+  // Pointer to the current time update callback task.
+  TimeUpdateTask* scheduled_time_update_task_;
 
   // Used to avoid calling Filter's Stop method multiplie times.  It is also
   // used to prevent a filter that has been stopped from calling PostTask.

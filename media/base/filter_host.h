@@ -46,6 +46,14 @@ class FilterHost {
   //   base::TimeDelta - the new pipeline time, in microseconds.
   virtual void SetTimeUpdateCallback(Callback1<base::TimeDelta>::Type* cb) = 0;
 
+  // Request that the time callback be called at the specified stream
+  // time.  This will set a timer specific to the filter that will be fired
+  // no sooner than the specified time based on the interpolated time.  Note
+  // that, becuase the callback will be made with the interpolated time, it is
+  // possible for time to move "backward" slightly when the audio device updates
+  // the pipeline time though the SetTime method.
+  virtual void ScheduleTimeUpdateCallback(base::TimeDelta time) = 0;
+
   // Filters must call this method to indicate that their initialization is
   // complete.  They may call this from within their Initialize() method or may
   // choose call it after processing some data.

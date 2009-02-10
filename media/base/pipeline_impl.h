@@ -41,6 +41,7 @@ class PipelineImpl : public Pipeline {
   virtual float GetVolume() const;
   virtual float GetPlaybackRate() const;
   virtual base::TimeDelta GetTime() const;
+  virtual base::TimeDelta GetInterpolatedTime() const;
   virtual PipelineError GetError() const;
 
   // Impementation of Pipeline methods.
@@ -67,8 +68,19 @@ class PipelineImpl : public Pipeline {
     return (pipeline_thread_ && initialized_ && PIPELINE_OK == error_);
   }
 
-  // Called directly by the FilterHostImpl object to set the video size.
+  // Methods called by FilterHostImpl to update pipeline state.
+  void SetDuration(base::TimeDelta duration);
+  void SetBufferedTime(base::TimeDelta buffered_time);
+  void SetTotalBytes(int64 total_bytes);
+  void SetBufferedBytes(int64 buffered_bytes);
   void SetVideoSize(size_t width, size_t height);
+  void SetTime(base::TimeDelta time);
+  void InternalSetPlaybackRate(float rate);
+
+  // Sets the error to the new error code only if the current error state is
+  // PIPELINE_OK. Returns true if error set, otherwise leaves current error
+  // alone, and returns false.
+  bool InternalSetError(PipelineError error);
 
   // Holds a ref counted reference to the PipelineThread object associated
   // with this pipeline.  Prior to the call to the Start method, this member
@@ -95,10 +107,12 @@ class PipelineImpl : public Pipeline {
   // of a filter.
   int64 total_bytes_;
 
+  // Lock used to serialize access for getter/setter methods.
+  Lock lock_;
+
   // Video width and height.  Set by a FilterHostImpl object on behalf
   // of a filter.  The video_size_access_lock_ is used to make sure access
   // to the pair of width and height are modified or read in thread safe way.
-  Lock video_size_access_lock_;
   size_t video_width_;
   size_t video_height_;
 
@@ -118,6 +132,10 @@ class PipelineImpl : public Pipeline {
   // Current playback time.  Set by a FilterHostImpl object on behalf of the
   // audio renderer filter.
   base::TimeDelta time_;
+
+  // Internal system timer at last time the SetTime method was called.  Used to
+  // compute interpolated time.
+  base::TimeTicks ticks_at_last_set_time_;
 
   // Status of the pipeline.  Initialized to PIPELINE_OK which indicates that
   // the pipeline is operating correctly. Any other value indicates that the
@@ -172,6 +190,9 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // pipeline object.
   PipelineImpl* pipeline() const { return pipeline_; }
 
+  // Accessor used to post messages to thread's message loop.
+  MessageLoop* message_loop() const { return thread_.message_loop(); }
+
  private:
   // Implementation of MessageLoop::DestructionObserver.  StartTask registers
   // this class as a destruction observer on the thread's message loop.
@@ -182,8 +203,6 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
 
   friend class base::RefCountedThreadSafe<PipelineThread>;
   virtual ~PipelineThread();
-
-  MessageLoop* message_loop() const { return thread_.message_loop(); }
 
   // The following "task" methods correspond to the public methods, but these
   // methods are run as the result of posting a task to the PipelineThread's

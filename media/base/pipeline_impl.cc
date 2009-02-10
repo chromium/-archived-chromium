@@ -18,47 +18,98 @@ PipelineImpl::~PipelineImpl() {
 }
 
 bool PipelineImpl::IsInitialized() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return initialized_;
 }
 
 base::TimeDelta PipelineImpl::GetDuration() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return duration_;
 }
 
 base::TimeDelta PipelineImpl::GetBufferedTime() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return buffered_time_;
 }
 
 int64 PipelineImpl::GetTotalBytes() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return total_bytes_;
 }
 
 int64 PipelineImpl::GetBufferedBytes() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return buffered_bytes_;
 }
 
 void PipelineImpl::GetVideoSize(size_t* width_out, size_t* height_out) const {
   DCHECK(width_out);
   DCHECK(height_out);
-  AutoLock auto_lock(const_cast<Lock&>(video_size_access_lock_));
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   *width_out = video_width_;
   *height_out = video_height_;
 }
 
 float PipelineImpl::GetVolume() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return volume_;
 }
 
 float PipelineImpl::GetPlaybackRate() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return playback_rate_;
 }
 
 base::TimeDelta PipelineImpl::GetTime() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return time_;
 }
 
+base::TimeDelta PipelineImpl::GetInterpolatedTime() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
+  base::TimeDelta time = time_;
+  if (playback_rate_ > 0.0f) {
+    base::TimeDelta delta = base::TimeTicks::Now() - ticks_at_last_set_time_;
+    if (playback_rate_ == 1.0f) {
+      time += delta;
+    } else {
+      int64 adjusted_delta = static_cast<int64>(delta.InMicroseconds() *
+                                                playback_rate_);
+      time += base::TimeDelta::FromMicroseconds(adjusted_delta);
+    }
+  }
+  return time;
+}
+
+void PipelineImpl::SetTime(base::TimeDelta time) {
+  AutoLock auto_lock(lock_);
+  time_ = time;
+  ticks_at_last_set_time_ = base::TimeTicks::Now();
+}
+
+void PipelineImpl::InternalSetPlaybackRate(float rate) {
+  AutoLock auto_lock(lock_);
+  if (playback_rate_ == 0.0f && rate > 0.0f) {
+    ticks_at_last_set_time_ = base::TimeTicks::Now();
+  }
+  playback_rate_ = rate;
+}
+
+
 PipelineError PipelineImpl::GetError() const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
   return error_;
+}
+
+bool PipelineImpl::InternalSetError(PipelineError error) {
+  AutoLock auto_lock(lock_);
+  bool changed_error = false;
+  DCHECK(PIPELINE_OK != error);
+  if (PIPELINE_OK == error_) {
+    error_ = error;
+    changed_error = true;
+  }
+  return changed_error;
 }
 
 // Creates the PipelineThread and calls it's start method.
@@ -119,6 +170,7 @@ void PipelineImpl::SetVolume(float volume) {
 }
 
 void PipelineImpl::ResetState() {
+  AutoLock auto_lock(lock_);
   pipeline_thread_  = NULL;
   initialized_      = false;
   duration_         = base::TimeDelta();
@@ -129,12 +181,33 @@ void PipelineImpl::ResetState() {
   video_height_     = 0;
   volume_           = 0.0f;
   playback_rate_    = 0.0f;
-  time_             = base::TimeDelta();
   error_            = PIPELINE_OK;
+  time_             = base::TimeDelta();
+  ticks_at_last_set_time_ = base::TimeTicks::Now();
+}
+
+void PipelineImpl::SetDuration(base::TimeDelta duration) {
+  AutoLock auto_lock(lock_);
+  duration_ = duration;
+}
+
+void PipelineImpl::SetBufferedTime(base::TimeDelta buffered_time) {
+  AutoLock auto_lock(lock_);
+  buffered_time_ = buffered_time;
+}
+
+void PipelineImpl::SetTotalBytes(int64 total_bytes) {
+  AutoLock auto_lock(lock_);
+  total_bytes_ = total_bytes;
+}
+
+void PipelineImpl::SetBufferedBytes(int64 buffered_bytes) {
+  AutoLock auto_lock(lock_);
+  buffered_bytes_ = buffered_bytes;
 }
 
 void PipelineImpl::SetVideoSize(size_t width, size_t height) {
-  AutoLock auto_lock(video_size_access_lock_);
+  AutoLock auto_lock(lock_);
   width = width;
   height = height;
 }
@@ -221,7 +294,7 @@ void PipelineThread::InitializationComplete(FilterHostImpl* host) {
 // Called from any thread.  Updates the pipeline time and schedules a task to
 // call back to filters that have registered a callback for time updates.
 void PipelineThread::SetTime(base::TimeDelta time) {
-  pipeline()->time_ = time;
+  pipeline()->SetTime(time);
   if (!time_update_callback_scheduled_) {
     time_update_callback_scheduled_ = true;
     PostTask(NewRunnableMethod(this, &PipelineThread::SetTimeTask));
@@ -233,9 +306,9 @@ void PipelineThread::SetTime(base::TimeDelta time) {
 // continue to run until the client calls Pipeline::Stop, but nothing will
 // be processed since filters will not be able to post tasks.
 void PipelineThread::Error(PipelineError error) {
-  DCHECK(PIPELINE_OK != error);
-  if (PIPELINE_OK == pipeline()->error_) {
-    pipeline()->error_ = error;
+  // If this method returns false, then an error has already happened, so no
+  // reason to run the StopTask again.  It's going to happen.
+  if (pipeline()->InternalSetError(error)) {
     PostTask(NewRunnableMethod(this, &PipelineThread::StopTask));
   }
 }
@@ -296,7 +369,7 @@ void PipelineThread::StartTask(FilterFactory* filter_factory,
   }
   if (success) {
     pipeline_->initialized_ = true;
-  } else if (PIPELINE_OK == pipeline_->error_) {
+  } else {
     Error(PIPELINE_ERROR_INITIALIZATION_FAILED);
   }
 
@@ -342,7 +415,7 @@ void PipelineThread::InitializationCompleteTask(FilterHostImpl* host) {
 }
 
 void PipelineThread::SetPlaybackRateTask(float rate) {
-  pipeline_->playback_rate_ = rate;
+  pipeline_->InternalSetPlaybackRate(rate);
   FilterHostVector::iterator iter = filter_hosts_.begin();
   while (iter != filter_hosts_.end()) {
     (*iter)->media_filter()->SetPlaybackRate(rate);
@@ -434,7 +507,7 @@ bool PipelineThread::CreateFilter(FilterFactory* filter_factory,
 
   // If this method fails, but no error set, then indicate a general
   // initialization failure.
-  if (PIPELINE_OK == pipeline_->error_ && (!success)) {
+  if (!success) {
     Error(PIPELINE_ERROR_INITIALIZATION_FAILED);
   }
   return success;
