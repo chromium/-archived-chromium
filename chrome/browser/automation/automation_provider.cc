@@ -2394,7 +2394,7 @@ ExternalTabContainer* AutomationProvider::GetExternalTabForHandle(int handle) {
     DCHECK(tab_contents);
     if (tab_contents) {
       return ExternalTabContainer::GetContainerForTab(
-          tab_contents->GetNativeView());
+          tab_contents->GetContainerHWND());
     }
   }
 
