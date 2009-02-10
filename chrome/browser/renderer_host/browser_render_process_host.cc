@@ -515,6 +515,7 @@ void BrowserRenderProcessHost::InitVisitedLinks() {
     return;
   }
 
+#if defined(OS_WIN)
   base::SharedMemoryHandle handle_for_process = NULL;
   visitedlink_master->ShareToProcess(GetRendererProcessHandle(),
                                      &handle_for_process);
@@ -522,6 +523,10 @@ void BrowserRenderProcessHost::InitVisitedLinks() {
   if (handle_for_process) {
     channel_->Send(new ViewMsg_VisitedLink_NewTable(handle_for_process));
   }
+#else
+  // TODO(port): ShareToProcess is Windows-specific.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void BrowserRenderProcessHost::InitUserScripts() {
