@@ -87,9 +87,9 @@ static std::string FormatEntryDetails(disk_cache::Entry* entry) {
 
     int data_size = entry->GetDataSize(i);
 
-    char* data = new char[data_size];
-    if (entry->ReadData(i, 0, data, data_size, NULL) == data_size)
-      HexDump(data, data_size, &result);
+    scoped_refptr<net::IOBuffer> buffer = new net::IOBuffer(data_size);
+    if (entry->ReadData(i, 0, buffer, data_size, NULL) == data_size)
+      HexDump(buffer->data(), data_size, &result);
 
     result.append("</pre>");
   }

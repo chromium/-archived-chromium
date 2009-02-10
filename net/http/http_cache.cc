@@ -12,6 +12,7 @@
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/disk_cache.h"
@@ -168,7 +169,6 @@ class HttpCache::Transaction : public HttpTransaction {
         network_trans_(NULL),
         callback_(NULL),
         mode_(NONE),
-        read_buf_(NULL),
         read_offset_(0),
         effective_load_flags_(0),
         final_upload_progress_(0),
@@ -278,13 +278,13 @@ class HttpCache::Transaction : public HttpTransaction {
   // Called to write data to the cache entry.  If the write fails, then the
   // cache entry is destroyed.  Future calls to this function will just do
   // nothing without side-effect.
-  void WriteToEntry(int index, int offset, const char* data, int data_len);
+  void WriteToEntry(int index, int offset, IOBuffer* data, int data_len);
 
   // Called to write response_ to the cache entry.
   void WriteResponseInfoToEntry();
 
   // Called to append response data to the cache entry.
-  void AppendResponseDataToEntry(const char* data, int data_len);
+  void AppendResponseDataToEntry(IOBuffer* data, int data_len);
 
   // Called when we are done writing to the cache entry.
   void DoneWritingToEntry(bool success);
@@ -308,7 +308,7 @@ class HttpCache::Transaction : public HttpTransaction {
   HttpResponseInfo auth_response_;
   std::string cache_key_;
   Mode mode_;
-  char* read_buf_;
+  scoped_refptr<IOBuffer> read_buf_;
   int read_offset_;
   int effective_load_flags_;
   uint64 final_upload_progress_;
@@ -435,23 +435,20 @@ int HttpCache::Transaction::Read(IOBuffer* buf, int buf_len,
     case WRITE:
       DCHECK(network_trans_.get());
       rv = network_trans_->Read(buf, buf_len, &network_read_callback_);
-      read_buf_ = buf->data();
+      read_buf_ = buf;
       if (rv >= 0)
         OnNetworkReadCompleted(rv);
       break;
     case READ:
       DCHECK(entry_);
       cache_read_callback_->AddRef();  // Balanced in OnCacheReadCompleted.
-      cache_read_callback_->UseBuffer(buf);
       rv = entry_->disk_entry->ReadData(kResponseContentIndex, read_offset_,
-                                        buf->data(), buf_len,
-                                        cache_read_callback_);
-      read_buf_ = buf->data();
+                                        buf, buf_len, cache_read_callback_);
+      read_buf_ = buf;
       if (rv >= 0) {
         OnCacheReadCompleted(rv);
       } else if (rv != ERR_IO_PENDING) {
         cache_read_callback_->Release();
-        cache_read_callback_->ReleaseBuffer();
       }
       break;
     default:
@@ -777,7 +774,7 @@ int HttpCache::Transaction::ReadResponseInfoFromEntry() {
 }
 
 void HttpCache::Transaction::WriteToEntry(int index, int offset,
-                                          const char* data, int data_len) {
+                                          IOBuffer* data, int data_len) {
   if (!entry_)
     return;
 
@@ -820,7 +817,7 @@ void HttpCache::Transaction::WriteResponseInfoToEntry() {
   }
 }
 
-void HttpCache::Transaction::AppendResponseDataToEntry(const char* data,
+void HttpCache::Transaction::AppendResponseDataToEntry(IOBuffer* data,
                                                        int data_len) {
   if (!entry_)
     return;
@@ -909,7 +906,6 @@ void HttpCache::Transaction::OnNetworkReadCompleted(int result) {
 void HttpCache::Transaction::OnCacheReadCompleted(int result) {
   DCHECK(cache_);
   cache_read_callback_->Release();  // Balance the AddRef() from Start().
-  cache_read_callback_->ReleaseBuffer();
 
   if (result > 0) {
     read_offset_ += result;
@@ -1001,16 +997,14 @@ bool HttpCache::ReadResponseInfo(disk_cache::Entry* disk_entry,
                                  HttpResponseInfo* response_info) {
   int size = disk_entry->GetDataSize(kResponseInfoIndex);
 
-  std::string data;
-  int rv = disk_entry->ReadData(kResponseInfoIndex, 0,
-                                WriteInto(&data, size + 1),
-                                size, NULL);
+  scoped_refptr<IOBuffer> buffer = new IOBuffer(size);
+  int rv = disk_entry->ReadData(kResponseInfoIndex, 0, buffer, size, NULL);
   if (rv != size) {
     DLOG(ERROR) << "ReadData failed: " << rv;
     return false;
   }
 
-  Pickle pickle(data.data(), static_cast<int>(data.size()));
+  Pickle pickle(buffer->data(), size);
   void* iter = NULL;
 
   // read flags and verify version
@@ -1108,7 +1102,8 @@ bool HttpCache::WriteResponseInfo(disk_cache::Entry* disk_entry,
   if (response_info->vary_data.is_valid())
     response_info->vary_data.Persist(&pickle);
 
-  const char* data = static_cast<const char*>(pickle.data());
+  scoped_refptr<WrappedIOBuffer> data = new WrappedIOBuffer(
+      reinterpret_cast<const char*>(pickle.data()));
   int len = static_cast<int>(pickle.size());
 
   return disk_entry->WriteData(kResponseInfoIndex, 0, data, len, NULL,
