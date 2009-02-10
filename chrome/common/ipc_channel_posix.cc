@@ -364,9 +364,10 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
   msg.msg_iov = &iov;
   msg.msg_iovlen = 1;
   msg.msg_control = input_cmsg_buf_;
-  msg.msg_controllen = sizeof(input_cmsg_buf_);
 
   for (;;) {
+    msg.msg_controllen = sizeof(input_cmsg_buf_);
+
     if (bytes_read == 0) {
       if (pipe_ == -1)
         return false;
