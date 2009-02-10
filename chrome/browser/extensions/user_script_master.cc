@@ -21,7 +21,19 @@ extern const char kExtensionURLScheme[];
 extern const char kUserScriptURLScheme[];
 
 // static
-void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
+bool GetDeclarationValue(const StringPiece& line, const StringPiece& prefix,
+                         std::string* value) {
+  if (!line.starts_with(prefix))
+    return false;
+
+  std::string temp(line.data() + prefix.length(),
+                   line.length() - prefix.length());
+  TrimWhitespace(temp, TRIM_ALL, value);
+  return true;
+}
+
+// static
+bool UserScriptMaster::ScriptReloader::ParseMetadataHeader(
       const StringPiece& script_text, UserScript* script) {
   // http://wiki.greasespot.net/Metadata_block
   StringPiece line;
@@ -32,6 +44,7 @@ void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
   static const StringPiece kUserScriptBegin("// ==UserScript==");
   static const StringPiece kUserScriptEng("// ==/UserScript==");
   static const StringPiece kIncludeDeclaration("// @include ");
+  static const StringPiece kMatchDeclaration("// @match ");
 
   while (line_start < script_text.length()) {
     line_end = script_text.find('\n', line_start);
@@ -52,17 +65,17 @@ void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
         break;
       }
 
-      if (line.starts_with(kIncludeDeclaration)) {
-        std::string pattern(line.data() + kIncludeDeclaration.length(),
-                            line.length() - kIncludeDeclaration.length());
-        std::string pattern_trimmed;
-        TrimWhitespace(pattern, TRIM_ALL, &pattern_trimmed);
-
+      std::string value;
+      if (GetDeclarationValue(line, kIncludeDeclaration, &value)) {
         // We escape some characters that MatchPattern() considers special.
-        ReplaceSubstringsAfterOffset(&pattern_trimmed, 0, "\\", "\\\\");
-        ReplaceSubstringsAfterOffset(&pattern_trimmed, 0, "?", "\\?");
-
-        script->add_glob(pattern_trimmed);
+        ReplaceSubstringsAfterOffset(&value, 0, "\\", "\\\\");
+        ReplaceSubstringsAfterOffset(&value, 0, "?", "\\?");
+        script->add_glob(value);
+      } else if (GetDeclarationValue(line, kMatchDeclaration, &value)) {
+        URLPattern pattern;
+        if (!pattern.Parse(value))
+          return false;
+        script->add_url_pattern(pattern);
       }
 
       // TODO(aa): Handle more types of metadata.
@@ -71,11 +84,16 @@ void UserScriptMaster::ScriptReloader::ParseMetadataHeader(
     line_start = line_end + 1;
   }
 
-  // If no @include patterns were specified, default to @include *.
-  // This is what Greasemonkey does.
-  if (script->globs().size() == 0) {
+  // It is probably a mistake to declare both @include and @match rules.
+  if (script->globs().size() > 0 && script->url_patterns().size() > 0)
+    return false;
+
+  // If no patterns were specified, default to @include *. This is what
+  // Greasemonkey does.
+  if (script->globs().size() == 0 && script->url_patterns().size() == 0)
     script->add_glob("*");
-  }
+
+  return true;
 }
 
 void UserScriptMaster::ScriptReloader::StartScan(
@@ -153,7 +171,8 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
 
     if (iter->url_patterns().empty()) {
       // TODO(aa): Handle errors parsing header.
-      ParseMetadataHeader(contents, &(*iter));
+      if (!ParseMetadataHeader(contents, &(*iter)))
+        return NULL;
     }
 
     iter->Pickle(&pickle);

@@ -57,6 +57,9 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
   FRIEND_TEST(UserScriptMasterTest, Parse1);
   FRIEND_TEST(UserScriptMasterTest, Parse2);
   FRIEND_TEST(UserScriptMasterTest, Parse3);
+  FRIEND_TEST(UserScriptMasterTest, Parse4);
+  FRIEND_TEST(UserScriptMasterTest, Parse5);
+  FRIEND_TEST(UserScriptMasterTest, Parse6);
 
   // We reload user scripts on the file thread to prevent blocking the UI.
   // ScriptReloader lives on the file thread and does the reload
@@ -68,7 +71,7 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
       : public base::RefCounted<UserScriptMaster::ScriptReloader> {
    public:
     // Parses the includes out of |script| and returns them in |includes|.
-    static void ParseMetadataHeader(const StringPiece& script_text,
+    static bool ParseMetadataHeader(const StringPiece& script_text,
                                     UserScript* script);
 
     ScriptReloader(UserScriptMaster* master)

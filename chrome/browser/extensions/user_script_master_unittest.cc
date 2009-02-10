@@ -140,7 +140,8 @@ TEST_F(UserScriptMasterTest, Parse1) {
     "alert('hoo!');\n");
 
   UserScript script;
-  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &script);
+  EXPECT_TRUE(UserScriptMaster::ScriptReloader::ParseMetadataHeader(
+      text, &script));
   EXPECT_EQ(3U, script.globs().size());
   EXPECT_EQ("*mail.google.com*", script.globs()[0]);
   EXPECT_EQ("*mail.yahoo.com*", script.globs()[1]);
@@ -151,7 +152,8 @@ TEST_F(UserScriptMasterTest, Parse2) {
   const std::string text("default to @include *");
 
   UserScript script;
-  UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &script);
+  EXPECT_TRUE(UserScriptMaster::ScriptReloader::ParseMetadataHeader(
+      text, &script));
   EXPECT_EQ(1U, script.globs().size());
   EXPECT_EQ("*", script.globs()[0]);
 }
@@ -166,4 +168,47 @@ TEST_F(UserScriptMasterTest, Parse3) {
   UserScriptMaster::ScriptReloader::ParseMetadataHeader(text, &script);
   EXPECT_EQ(1U, script.globs().size());
   EXPECT_EQ("*foo*", script.globs()[0]);
+}
+
+TEST_F(UserScriptMasterTest, Parse4) {
+  const std::string text(
+    "// ==UserScript==\n"
+    "// @match http://*.mail.google.com/*\n"
+    "// @match  \t http://mail.yahoo.com/*\n"
+    "// ==/UserScript==\n");
+
+  UserScript script;
+  EXPECT_TRUE(UserScriptMaster::ScriptReloader::ParseMetadataHeader(
+      text, &script));
+  EXPECT_EQ(0U, script.globs().size());
+  EXPECT_EQ(2U, script.url_patterns().size());
+  EXPECT_EQ("http://*.mail.google.com/*",
+            script.url_patterns()[0].GetAsString());
+  EXPECT_EQ("http://mail.yahoo.com/*",
+            script.url_patterns()[1].GetAsString());
+}
+
+TEST_F(UserScriptMasterTest, Parse5) {
+  const std::string text(
+    "// ==UserScript==\n"
+    "// @match http://*mail.google.com/*\n"
+    "// ==/UserScript==\n");
+
+  // Invalid @match value.
+  UserScript script;
+  EXPECT_FALSE(UserScriptMaster::ScriptReloader::ParseMetadataHeader(
+      text, &script));
+}
+
+TEST_F(UserScriptMasterTest, Parse6) {
+  const std::string text(
+    "// ==UserScript==\n"
+    "// @include http://*.mail.google.com/*\n"
+    "// @match  \t http://mail.yahoo.com/*\n"
+    "// ==/UserScript==\n");
+
+  // Not allowed to mix @include and @value.
+  UserScript script;
+  EXPECT_FALSE(UserScriptMaster::ScriptReloader::ParseMetadataHeader(
+      text, &script));
 }
