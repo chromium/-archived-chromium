@@ -660,19 +660,19 @@ LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
 // HTTPS tests fail on the open source buildbot with error "cross-site
 // not access allowed".  See bug # 2306
-LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
+LINUX MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
 
 // V8 doesn't stable sort. This is not required and may never be fixed. It is
 // tracked by: http://code.google.com/p/v8/issues/detail?id=90
-LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
-LayoutTests/fast/js/sort-stability.html = FAIL
+DEFER : LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
+DEFER : LayoutTests/fast/js/sort-stability.html = FAIL
 
 // These require application cache to be enabled.  Skip the tests because
 // they're all timing out.  TODO(tc): Upstream changes to the test so they
 // fail quickly if window.applicationCache is undefined (then we don't have to
 // skip them).
 // http://crbug.com/2844
-SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
+DEFER SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 
 // V8 failures as a result of the WebKit merge.
 // http://code.google.com/p/v8/issues/detail?id=92
