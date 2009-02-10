@@ -681,13 +681,17 @@ struct ParamTraits<FileDescriptor> {
     r->auto_close = false;
     r->fd = m->descriptor_set()->NextDescriptor();
 
-    return r->fd >= 0;
+    // We always return true here because some of the IPC message logging
+    // functions want to parse the message multiple times. On the second and
+    // later attempts, the descriptor_set will be empty and so will return -1,
+    // however, failing to parse at log time is a fatal error.
+    return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
     if (p.auto_close) {
-      l->append(StringPrintf(L"FD(%d auto-close)", p.fd));
+      l->append(L"FD(auto-close)");
     } else {
-      l->append(StringPrintf(L"FD(%d)", p.fd));
+      l->append(L"FD");
     }
   }
 };
