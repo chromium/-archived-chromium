@@ -553,6 +553,26 @@ IPC_BEGIN_MESSAGES(Automation)
   IPC_MESSAGE_ROUTED2(AutomationMsg_ProcessUnhandledAccelerator, int, MSG)
 #endif  // defined(OS_WIN)
 
+  // Sent by the external tab to the host to notify that the user has tabbed
+  // out of the tab.
+  // Request:
+  //   - bool: |reverse| set to true when shift-tabbing out of the tab, false
+  //    otherwise.
+  // Response:
+  //   None expected
+  IPC_MESSAGE_ROUTED1(AutomationMsg_TabbedOut, bool)
+
+  // Sent by the external tab host to ask focus to be set to either the first
+  // or last element on the page.
+  // Request:
+  //   - int: handle of the tab
+  //   - bool: |reverse|
+  //      true: Focus will be set to the last focusable element
+  //      false: Focus will be set to the first focusable element
+  // Response:
+  //   None expected
+  IPC_MESSAGE_ROUTED2(AutomationMsg_SetInitialFocus, int, bool)
+
   // This message is an outgoing message from Chrome to an external host.
   // It is a request to open a url
   // Request:

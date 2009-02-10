@@ -39,6 +39,7 @@ class ExternalTabContainer : public TabContentsDelegate,
  public:
   BEGIN_MSG_MAP(ExternalTabContainer)
     MESSAGE_HANDLER(WM_SIZE, OnSize)
+    MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
     MSG_WM_DESTROY(OnDestroy)
   END_MSG_MAP()
 
@@ -114,6 +115,9 @@ class ExternalTabContainer : public TabContentsDelegate,
   // message it did not process
   void ProcessUnhandledAccelerator(const MSG& msg);
 
+  // See TabContents::SetInitialFocus	
+  void SetInitialFocus(bool reverse);
+
   // A helper method that tests whether the given window is an
   // ExternalTabContainer window
   static bool IsExternalTabContainer(HWND window);
@@ -124,6 +128,7 @@ class ExternalTabContainer : public TabContentsDelegate,
 
  protected:
   LRESULT OnSize(UINT, WPARAM, LPARAM, BOOL& handled);
+  LRESULT OnSetFocus(UINT msg, WPARAM wp, LPARAM lp, BOOL& handled);
   void OnDestroy();
   void OnFinalMessage(HWND window);
 
