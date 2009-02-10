@@ -1766,3 +1766,54 @@ MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
 // would let us differentiate test_shell and WebKit DumpTreeNode.
 // See http://crbug.com/7482
 DEFER SKIP : LayoutTests/http/tests/misc/timer-vs-loading.html = PASS
+
+// Regressions from WebKit merge 40722:40785
+//
+// Obvious render tree rebaselines:
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
+LayoutTests/svg/custom/js-late-clipPath-and-object-creation.svg = FAIL
+LayoutTests/svg/custom/js-late-clipPath-creation.svg = FAIL
+LayoutTests/svg/text/text-text-05-t.svg = FAIL
+// These ones look to just need fresh pixel baselines (likely caused by
+// transformation matrices now using doubles instead of floats):
+LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
+LayoutTests/fast/transforms/matrix-02.html = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
+LayoutTests/svg/text/text-text-07-t.svg = FAIL
+LayoutTests/svg/text/text-path-01-b.svg = FAIL
+LayoutTests/svg/custom/pattern-rotate.svg = FAIL
+LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
+LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
+// Some kind of serious rendering bug w/ background painting and/or clipping:
+LayoutTests/svg/W3C-SVG-1.1/struct-frag-02-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-frag-03-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-05-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-06-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-07-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-09-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/linking-a-05-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
+LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
+LayoutTests/svg/text/text-tref-01-b.svg = FAIL
+LayoutTests/svg/text/text-text-06-t.svg = FAIL
+LayoutTests/svg/text/text-text-04-t.svg = FAIL
+LayoutTests/svg/text/text-text-03-b.svg = FAIL
+LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
+LayoutTests/svg/text/text-align-01-b.svg = FAIL
+LayoutTests/svg/text/text-align-03-b.svg = FAIL
+LayoutTests/svg/text/text-align-05-b.svg = FAIL
+LayoutTests/svg/text/text-align-06-b.svg = FAIL
+LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
+LayoutTests/svg/custom/shapes-supporting-markers.svg = FAIL
+LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
+LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
+LayoutTests/svg/custom/js-late-marker-and-object-creation.svg = FAIL
+LayoutTests/svg/custom/invalid-css.svg = FAIL
+LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
+// Misc failures:
+LayoutTests/fast/forms/option-mouseevents.html = FAIL
+LayoutTests/fast/inline/percentage-margins.html = FAIL
+LayoutTests/fast/runin/002.html = FAIL
