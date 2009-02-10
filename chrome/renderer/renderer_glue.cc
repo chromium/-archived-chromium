@@ -295,6 +295,7 @@ bool IsLinkVisited(uint64 link_hash) {
   // message is ever sent to the renderer with the VisitiedLink shared memory
   // region and we end up crashing with SIGFPE as we try to hash by taking a
   // fingerprint mod 0.
+  NOTIMPLEMENTED();
   return false;
 #endif
 }
