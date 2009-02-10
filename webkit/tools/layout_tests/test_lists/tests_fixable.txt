@@ -323,7 +323,9 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+MAC LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
+LINUX : LayoutTests/fast/runin/002.html = FAIL
 LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
@@ -1779,8 +1781,6 @@ WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 WIN : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 // Misc failures:
 WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
-LayoutTests/fast/inline/percentage-margins.html = FAIL
-WIN LINUX : LayoutTests/fast/runin/002.html = FAIL
 MAC : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
 LINUX : LayoutTests/svg/custom/getTransformToElement.svg = FAIL
