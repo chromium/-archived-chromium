@@ -23,7 +23,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // ---------------------------------------------------------------------------
   // Implementation of RenderWidgetHostView...
 
-  RenderWidgetHost* GetRenderWidgetHost() const { return widget_; }
+  RenderWidgetHost* GetRenderWidgetHost() const { return host_; }
   void DidBecomeSelected();
   void WasHidden();
   void SetSize(const gfx::Size& size);
@@ -53,7 +53,9 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void Paint(const gfx::Rect&);
 
  private:
-  RenderWidgetHost *const widget_;
+  // The model object.
+  RenderWidgetHost *const host_;
+  // The native UI widget.
   gfx::NativeView view_;
 };
 
