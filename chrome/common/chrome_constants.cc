@@ -42,7 +42,8 @@ const wchar_t kUserDataDirname[] = L"User Data";
 const FilePath::CharType kUserScriptsDirname[] = FPL("User Scripts");
 const FilePath::CharType kWebDataFilename[] = FPL("Web Data");
 const FilePath::CharType kBookmarksFileName[] = FPL("Bookmarks");
-const wchar_t kHistoryBookmarksFileName[] = L"Bookmarks From History";
+const FilePath::CharType kHistoryBookmarksFileName[] =
+    FPL("Bookmarks From History");
 const wchar_t kCustomDictionaryFileName[] = L"Custom Dictionary.txt";
 
 // Note, this shouldn't go above 64.  See bug 535234.

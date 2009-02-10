@@ -5,6 +5,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
 #include "base/gfx/png_decoder.h"
+#include "build/build_config.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/profile.h"
@@ -61,13 +62,15 @@ void BookmarkNode::Reset(const history::StarredEntry& entry) {
 BookmarkModel::BookmarkModel(Profile* profile)
     : profile_(profile),
       loaded_(false),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      root_(this, GURL()),
+      ALLOW_THIS_IN_INITIALIZER_LIST(root_(this, GURL())),
       bookmark_bar_node_(NULL),
       other_node_(NULL),
       observers_(ObserverList<BookmarkModelObserver>::NOTIFY_EXISTING_ONLY),
-      waiting_for_history_load_(false),
-      loaded_signal_(CreateEvent(NULL, TRUE, FALSE, NULL)) {
+      waiting_for_history_load_(false)
+#if defined(OS_WIN)
+    , loaded_signal_(CreateEvent(NULL, TRUE, FALSE, NULL))
+#endif
+{
   // Create the bookmark bar and other bookmarks folders. These always exist.
   CreateBookmarkNode();
   CreateOtherBookmarksNode();
@@ -437,8 +440,12 @@ void BookmarkModel::DoneLoading() {
 
   loaded_ = true;
 
+#if defined(OS_WIN)
   if (loaded_signal_.Get())
     SetEvent(loaded_signal_.Get());
+#else
+  NOTIMPLEMENTED();
+#endif
 
 
   // Notify our direct observers.
@@ -467,10 +474,15 @@ void BookmarkModel::RemoveAndDeleteNode(BookmarkNode* delete_me) {
     // allow duplicates we need to remove any entries that are still bookmarked.
     for (std::set<GURL>::iterator i = details.changed_urls.begin();
          i != details.changed_urls.end(); ){
-      if (IsBookmarkedNoLock(*i))
-        i = details.changed_urls.erase(i);
-      else
+      if (IsBookmarkedNoLock(*i)) {
+        // When we erase the iterator pointing at the erasee is
+        // invalidated, so using i++ here within the "erase" call is
+        // important as it advances the iterator before passing the
+        // old value through to erase.
+        details.changed_urls.erase(i++);
+      } else {
         ++i;
+      }
     }
   }
 
@@ -522,8 +534,12 @@ BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
 }
 
 void BookmarkModel::BlockTillLoaded() {
+#if defined(OS_WIN)
   if (loaded_signal_.Get())
     WaitForSingleObject(loaded_signal_.Get(), INFINITE);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 BookmarkNode* BookmarkModel::GetNodeByID(BookmarkNode* node, int id) {

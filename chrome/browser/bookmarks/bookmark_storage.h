@@ -10,6 +10,7 @@
 
 class BookmarkModel;
 class BookmarkStorageBackend;
+class FilePath;
 class Profile;
 class MessageLoop;
 class Value;
@@ -75,8 +76,8 @@ class BookmarkStorage : public base::RefCountedThreadSafe<BookmarkStorage> {
 class BookmarkStorageBackend :
     public base::RefCountedThreadSafe<BookmarkStorageBackend> {
  public:
-  explicit BookmarkStorageBackend(const std::wstring& path,
-                                  const std::wstring& tmp_histor_path);
+  explicit BookmarkStorageBackend(const FilePath& path,
+                                  const FilePath& tmp_history_path);
 
   // Writes the specified value to disk. This takes ownership of |value| and
   // deletes it when done.

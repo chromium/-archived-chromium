@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
