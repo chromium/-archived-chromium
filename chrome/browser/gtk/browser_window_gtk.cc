@@ -79,7 +79,6 @@ void BrowserWindowGtk::Show() {
     content_area_ = ((RenderWidgetHostViewGtk*)contents->
         render_view_host()->view())->native_view();
     gtk_box_pack_start(GTK_BOX(vbox_), content_area_, TRUE, TRUE, 0);
-    contents->NavigateToPendingEntry(false);
   }
 
   gtk_widget_show_all(GTK_WIDGET(window_));

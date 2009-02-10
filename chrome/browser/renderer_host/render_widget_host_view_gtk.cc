@@ -58,7 +58,6 @@ gboolean ButtonPressReleaseEvent(GtkWidget* widget, GdkEventButton* event,
 
 gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
                         RenderWidgetHostViewGtk* host) {
-  NOTIMPLEMENTED();
   return FALSE;
 }
 
