@@ -42,7 +42,9 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
 
 }  // namespace
 
-BrowserWindowGtk::BrowserWindowGtk(Browser* browser) : browser_(browser) {
+BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
+    :  content_area_(NULL),
+       browser_(browser) {
   Init();
 }
 
