@@ -9,6 +9,7 @@
 
 #include "base/time.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "webkit/glue/webcursor.h"
 
 class RenderWidgetHostViewMac;
 
@@ -92,7 +93,7 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   RenderWidgetHost* render_widget_host_;
 
   // The cursor for the page. This is passed up from the renderer.
-//  WebCursor current_cursor_; // temporarily commented for link issues
+  WebCursor current_cursor_;
 
   // Indicates if the page is loading.
   bool is_loading_;

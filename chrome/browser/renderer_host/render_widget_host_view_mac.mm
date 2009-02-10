@@ -124,17 +124,27 @@ gfx::Rect RenderWidgetHostViewMac::GetViewBounds() const {
 }
 
 void RenderWidgetHostViewMac::UpdateCursor(const WebCursor& cursor) {
-//  current_cursor_ = cursor;  // temporarily commented for link issues
+  current_cursor_ = cursor;
   UpdateCursorIfOverSelf();
 }
 
 void RenderWidgetHostViewMac::UpdateCursorIfOverSelf() {
-  // Do something special (as Windows does) for arrow cursor while loading a
-  // page? TODO(avi): decide
-  // TODO(avi): check to see if mouse pointer is within our bounds
-  // Disabled so we don't have to link in glue... yet
-//  NSCursor* ns_cursor = current_cursor_.GetCursor();
-//  [ns_cursor set];
+  // Do something special (as Win Chromium does) for arrow cursor while loading
+  // a page? TODO(avi): decide
+  // Can we synchronize to the event stream? Switch to -[NSWindow
+  // mouseLocationOutsideOfEventStream] if we cannot. TODO(avi): test and see
+  NSEvent* event = [[cocoa_view_ window] currentEvent];
+  if ([event window] != [cocoa_view_ window])
+    return;
+  
+  NSPoint event_location = [event locationInWindow];
+  NSPoint local_point = [cocoa_view_ convertPoint:event_location fromView:nil];
+  
+  if (!NSPointInRect(local_point, [cocoa_view_ bounds]))
+    return;
+  
+  NSCursor* ns_cursor = current_cursor_.GetCursor();
+  [ns_cursor set];
 }
 
 void RenderWidgetHostViewMac::SetIsLoading(bool is_loading) {
