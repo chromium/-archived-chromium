@@ -4865,6 +4865,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerContextProxy.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerLocation.cpp"
 				>
 			</File>
@@ -4878,6 +4882,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerMessagingProxy.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerObjectProxy.h"
 				>
 			</File>
 			<File

@@ -1112,7 +1112,7 @@ void WebFrameLoaderClient::finishedLoading(DocumentLoader* dl) {
 void WebFrameLoaderClient::updateGlobalHistory() {
 }
 
-void WebFrameLoaderClient::updateGlobalHistoryForRedirectWithoutHistoryItem() {
+void WebFrameLoaderClient::updateGlobalHistoryRedirectLinks() {
 }
 
 bool WebFrameLoaderClient::shouldGoToHistoryItem(HistoryItem*) const {
