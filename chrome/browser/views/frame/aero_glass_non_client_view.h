@@ -25,6 +25,8 @@ class AeroGlassNonClientView : public views::NonClientView {
  protected:
   // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
+  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
+                                                     int height) const;
   virtual CPoint GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask) { }

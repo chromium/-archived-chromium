@@ -37,12 +37,9 @@ class NonClientView : public View {
                                               int height) const = 0;
 
   // Calculates the size of window required to display a client area of the
-  // specified width and height.  Only views used by CustomFrameWindow need
-  // implement this.
+  // specified width and height.
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const {
-    return gfx::Size();
-  }
+                                                     int height) const = 0;
 
   // Returns the point, in screen coordinates, where the system menu should
   // be shown so it shows up anchored to the system menu icon.

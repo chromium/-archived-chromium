@@ -158,6 +158,14 @@ gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int width,
                    std::max(0, height - top_height - border_thickness));
 }
 
+gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
+    int width,
+    int height) const {
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Size(width + (2 * border_thickness),
+                   height + NonClientTopBorderHeight() + border_thickness);
+}
+
 CPoint AeroGlassNonClientView::GetSystemMenuPoint() const {
   CPoint offset;
   MapWindowPoints(GetWidget()->GetHWND(), HWND_DESKTOP, &offset, 1);

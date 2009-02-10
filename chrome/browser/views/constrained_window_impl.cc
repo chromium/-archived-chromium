@@ -199,6 +199,8 @@ class ConstrainedWindowNonClientView
 
   // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
+  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
+                                                     int height) const;
   virtual CPoint GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
@@ -341,6 +343,14 @@ gfx::Rect ConstrainedWindowNonClientView::CalculateClientAreaBounds(
   return gfx::Rect(border_thickness, top_height,
                    std::max(0, width - (2 * border_thickness)),
                    std::max(0, height - top_height - border_thickness));
+}
+
+gfx::Size ConstrainedWindowNonClientView::CalculateWindowSizeForClientSize(
+    int width,
+    int height) const {
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Size(width + (2 * border_thickness),
+                   height + NonClientTopBorderHeight() + border_thickness);
 }
 
 CPoint ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
