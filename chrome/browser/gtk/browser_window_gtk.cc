@@ -7,6 +7,8 @@
 #include "base/logging.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/browser_toolbar_view_gtk.h"
+#include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 
 namespace {
 
@@ -70,6 +72,16 @@ void BrowserWindowGtk::Init() {
 }
 
 void BrowserWindowGtk::Show() {
+  // TODO(estade): fix this block. As it stands, it is a temporary hack to get
+  // the browser displaying something.
+  if (content_area_ == NULL) {
+    WebContents* contents = (WebContents*)(browser_->GetTabContentsAt(0));
+    content_area_ = ((RenderWidgetHostViewGtk*)contents->
+        render_view_host()->view())->native_view();
+    gtk_container_add(GTK_CONTAINER(window_), content_area_);
+    contents->NavigateToPendingEntry(false);
+  }
+
   gtk_widget_show_all(GTK_WIDGET(window_));
 }
 

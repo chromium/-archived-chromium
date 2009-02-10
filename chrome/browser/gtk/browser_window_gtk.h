@@ -65,6 +65,7 @@ class BrowserWindowGtk : public BrowserWindow {
  protected:
   virtual void DestroyBrowser();
   GtkWindow* window_;
+  GtkWidget* content_area_;
 
   scoped_ptr<Browser> browser_;
 

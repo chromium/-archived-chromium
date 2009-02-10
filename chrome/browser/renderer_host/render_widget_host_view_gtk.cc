@@ -155,8 +155,8 @@ void RenderWidgetHostViewGtk::Hide() {
 }
 
 gfx::Rect RenderWidgetHostViewGtk::GetViewBounds() const {
-  NOTIMPLEMENTED();
-  return gfx::Rect();
+  return gfx::Rect(view_->allocation.x, view_->allocation.y,
+                   view_->allocation.width, view_->allocation.height);
 }
 
 void RenderWidgetHostViewGtk::UpdateCursor(const WebCursor& cursor) {

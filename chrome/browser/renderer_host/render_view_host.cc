@@ -648,9 +648,9 @@ bool RenderViewHost::CanTerminate() const {
 
 void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
   if (msg.is_sync() && !msg.is_caller_pumping_messages()) {
-    NOTREACHED() << "Can't send sync messages to UI thread without pumping " \
-        "messages in the renderer or else deadlocks can occur if the page" \
-        "has windowed plugins!";
+    NOTREACHED() << "Can't send sync messages to UI thread without pumping "
+        "messages in the renderer or else deadlocks can occur if the page"
+        "has windowed plugins! (message type " << msg.type() << ")";
     IPC::Message* reply = IPC::SyncMessage::GenerateReply(&msg);
     reply->set_reply_error();
     Send(reply);

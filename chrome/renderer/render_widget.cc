@@ -694,8 +694,14 @@ void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
 
 void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget,
                                             gfx::Rect* rect) {
+#if defined(OS_WIN)
   Send(new ViewHostMsg_GetRootWindowResizerRect(routing_id_, host_window_,
                                                 rect));
+#else
+  // TODO(port): mac/linux currently choke on this message.
+  // See browser/renderer_host/render_message_host.cc.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void RenderWidget::OnImeSetInputMode(bool is_active) {

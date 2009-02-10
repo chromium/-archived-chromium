@@ -227,10 +227,7 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
                                    ModalDialogEvent modal_dialog_event,
                                    const WebPreferences& webkit_prefs,
                                    int32 view_id) {
-  // TODO(port): this routine is a noop only for Linux.
   // When bringing in render_view, also bring in webkit's glue and jsbindings.
-#if !defined(OS_LINUX)
-
   base::WaitableEvent* waitable_event = new base::WaitableEvent(
 #if defined(OS_WIN)
       modal_dialog_event.event);
@@ -247,7 +244,6 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
   RenderView::Create(
       this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, webkit_prefs,
       new SharedRenderViewCounter(0), view_id);
-#endif  // !OS_LINUX
 }
 
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
