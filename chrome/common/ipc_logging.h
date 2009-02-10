@@ -67,12 +67,6 @@ class Logging : public base::ObjectWatcher::Delegate {
   // ObjectWatcher::Delegate implementation
   void OnObjectSignaled(HANDLE object);
 
-  typedef void (LogFunction)(uint16 type,
-                             std::wstring* name,
-                             const Message* msg,
-                             std::wstring* params);
-  void RegisterMessageLogger(int msg_start, LogFunction* func); 
-
  private:
   friend struct DefaultSingletonTraits<Logging>;
   Logging();
@@ -96,8 +90,6 @@ class Logging : public base::ObjectWatcher::Delegate {
   MessageLoop* main_thread_;
 
   Consumer* consumer_;
-
-  LogFunction* log_function_mapping_[LastMsgIndex];
 };
 
 }  // namespace IPC

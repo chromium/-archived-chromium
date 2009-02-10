@@ -2,16 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Need to include this before any other file because it defines
-// IPC_MESSAGE_LOG_ENABLED. We need to use it to define
-// IPC_MESSAGE_MACROS_LOG_ENABLED so render_messages.h will generate the
-// ViewMsgLog et al. functions.
-#include "chrome/common/ipc_message.h"
+#include "chrome/browser/views/about_ipc_dialog.h"
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
-#define IPC_MESSAGE_MACROS_LOG_ENABLED
-
-#include "chrome/browser/views/about_ipc_dialog.h"
 
 #include <set>
 
@@ -268,17 +261,7 @@ AboutIPCDialog::AboutIPCDialog()
       table_(NULL),
       tracking_(false) {
   SetupControls();
-
-  IPC::Logging* log = IPC::Logging::current();
-  log->RegisterMessageLogger(ViewStart, ViewMsgLog);
-  log->RegisterMessageLogger(ViewHostStart, ViewHostMsgLog);
-  log->RegisterMessageLogger(PluginProcessStart, PluginProcessMsgLog);
-  log->RegisterMessageLogger(PluginProcessHostStart, PluginProcessHostMsgLog);
-  log->RegisterMessageLogger(PluginStart, PluginMsgLog);
-  log->RegisterMessageLogger(PluginHostStart, PluginHostMsgLog);
-  log->RegisterMessageLogger(NPObjectStart, NPObjectMsgLog);
-
-  log->SetConsumer(this);
+  IPC::Logging::current()->SetConsumer(this);
 }
 
 AboutIPCDialog::~AboutIPCDialog() {

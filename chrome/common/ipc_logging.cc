@@ -2,6 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Need to include this before any other file because it defines
+// IPC_MESSAGE_LOG_ENABLED. We need to use it to define
+// IPC_MESSAGE_MACROS_LOG_ENABLED so render_messages.h will generate the
+// ViewMsgLog et al. functions.
+#include "chrome/common/ipc_message.h"
+
+#ifdef IPC_MESSAGE_LOG_ENABLED
+#define IPC_MESSAGE_MACROS_LOG_ENABLED
+
 #include "chrome/common/ipc_logging.h"
 
 #include "base/command_line.h"
@@ -15,8 +24,6 @@
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/plugin_messages.h"
-
-#ifdef IPC_MESSAGE_LOG_ENABLED
 
 using base::Time;
 
@@ -41,8 +48,6 @@ Logging::Logging()
       consumer_(NULL),
       queue_invoke_later_pending_(false),
       main_thread_(MessageLoop::current()) {
-  memset(log_function_mapping_, 0, sizeof(log_function_mapping_));
-
   // Create an event for this browser instance that's set when logging is
   // enabled, so child processes can know when logging is enabled.
   int browser_pid;
@@ -88,16 +93,6 @@ void Logging::RegisterWaitForEvent(bool enabled) {
 void Logging::OnObjectSignaled(HANDLE object) {
   enabled_ = object == logging_event_on_;
   RegisterWaitForEvent(!enabled_);
-}
-
-void Logging::RegisterMessageLogger(int msg_start, LogFunction* func) {
-  int msg_class = msg_start >> 12;
-  if (msg_class > arraysize(log_function_mapping_)) {
-    NOTREACHED();
-    return;
-  }
-
-  log_function_mapping_[msg_class] = func;
 }
 
 std::wstring Logging::GetEventName(bool enabled) {
@@ -204,8 +199,8 @@ void Logging::GetMessageText(uint16 type, std::wstring* name,
                              const Message* message,
                              std::wstring* params) {
   int message_class = type >> 12;
-  if (current()->log_function_mapping_[message_class] != NULL) {
-    current()->log_function_mapping_[message_class](type, name, message, params);
+  if (g_log_function_mapping[message_class] != NULL) {
+    g_log_function_mapping[message_class](type, name, message, params);
   } else {
     DLOG(INFO) << "No logger function associated with message class " <<
         message_class;
