@@ -95,7 +95,8 @@ public:
 // For example, FontMatchString(FC_FILE, FcTypeString,
 //                              "/usr/share/fonts/myfont.ttf", NULL);
 // -----------------------------------------------------------------------------
-static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
+static FcPattern* FontMatch(bool is_fallback,
+                            const char* type, FcType vtype, const void* value,
                             ...)
 {
     va_list ap;
@@ -179,7 +180,7 @@ static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
 
     FcPatternDestroy(pattern);
 
-    if (!family_names_match) {
+    if (!family_names_match && !is_fallback) {
         FcPatternDestroy(match);
         return NULL;
     }
@@ -227,7 +228,8 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
             return NULL;
 
         FcInit();
-        face_match = FontMatch(FC_FILE, FcTypeString, i->second.c_str(), NULL);
+        face_match = FontMatch(false, FC_FILE, FcTypeString, i->second.c_str(),
+                               NULL);
 
         if (!face_match)
             return NULL;
@@ -258,7 +260,8 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
                      FC_WEIGHT_BOLD : FC_WEIGHT_NORMAL;
     const int italic = style & SkTypeface::kItalic ?
                        FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-    FcPattern* match = FontMatch(FC_FAMILY, FcTypeString, resolved_family_name,
+    FcPattern* match = FontMatch(false,
+                                 FC_FAMILY, FcTypeString, resolved_family_name,
                                  FC_WEIGHT, FcTypeInteger, bold,
                                  FC_SLANT, FcTypeInteger, italic,
                                  NULL);
@@ -330,7 +333,7 @@ void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
 
 SkScalerContext* SkFontHost::CreateFallbackScalerContext
         (const SkScalerContext::Rec& rec) {
-    FcPattern* match = FontMatch(FC_FAMILY, FcTypeString, "serif",
+    FcPattern* match = FontMatch(true, FC_FAMILY, FcTypeString, "serif",
                                  NULL);
 
     // This will fail when we have no fonts on the system.
