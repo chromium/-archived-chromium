@@ -445,11 +445,13 @@ void RenderWidgetHost::OnMsgPaintRect(
     return;
 
   // Now paint the view. Watch out: it might be destroyed already.
-  if (view_ && !suppress_view_updating_) {
-    view_being_painted_ = true;
+  if (view_) {
     view_->MovePluginWindows(params.plugin_window_moves);
-    view_->DidPaintRect(params.bitmap_rect);
-    view_being_painted_ = false;
+    if (!suppress_view_updating_) {
+      view_being_painted_ = true;
+      view_->DidPaintRect(params.bitmap_rect);
+      view_being_painted_ = false;
+    }
   }
 
   if (paint_observer_.get())
