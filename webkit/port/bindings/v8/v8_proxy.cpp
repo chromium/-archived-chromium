@@ -2172,6 +2172,12 @@ bool V8Proxy::CanAccessPrivate(DOMWindow* target_window)
     const SecurityOrigin* active_security_origin = origin_window->securityOrigin();
     const SecurityOrigin* target_security_origin = target_window->securityOrigin();
 
+    // We have seen crashes were the security origin of the target has not been
+    // initialized.  Defend against that.
+    ASSERT(target_security_origin);
+    if (!target_security_origin)
+        return false;
+
     String ui_resource_protocol = ChromiumBridge::uiResourceProtocol();
     if (active_security_origin->protocol() == ui_resource_protocol) {
         KURL inspector_url = ChromiumBridge::inspectorURL();
