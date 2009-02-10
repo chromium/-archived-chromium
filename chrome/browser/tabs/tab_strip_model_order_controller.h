@@ -25,12 +25,12 @@ class TabStripModelOrderController : public TabStripModelObserver {
 
   // Determine where to place a newly opened tab by using the supplied
   // transition and foreground flag to figure out how it was opened.
-  virtual int DetermineInsertionIndex(TabContents* new_contents,
-                                      PageTransition::Type transition,
-                                      bool foreground);
+  int DetermineInsertionIndex(TabContents* new_contents,
+                              PageTransition::Type transition,
+                              bool foreground);
 
   // Determine where to shift selection after a tab is closed.
-  virtual int DetermineNewSelectedIndex(int removed_index) const;
+  int DetermineNewSelectedIndex(int removed_index) const;
 
   // Overridden from TabStripModelObserver:
   virtual void TabSelectedAt(TabContents* old_contents,

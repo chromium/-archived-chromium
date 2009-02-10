@@ -1581,36 +1581,8 @@ void Browser::OpenURLFromTab(TabContents* source,
                                           instance);
     browser->window()->Show();
   } else if ((disposition == CURRENT_TAB) && current_tab) {
-    // TODO(beng): move this block into the TabStripModelOrderController.
-    if (transition == PageTransition::TYPED ||
-        transition == PageTransition::AUTO_BOOKMARK ||
-        transition == PageTransition::GENERATED ||
-        transition == PageTransition::START_PAGE) {
-      // Don't forget the openers if this tab is a New Tab page opened at the
-      // end of the TabStrip (e.g. by pressing Ctrl+T). Give the user one
-      // navigation of one of these transition types before resetting the
-      // opener relationships (this allows for the use case of opening a new
-      // tab to do a quick look-up of something while viewing a tab earlier in
-      // the strip). We can make this heuristic more permissive if need be.
-      // TODO(beng): (http://b/1306495) write unit tests for this once this
-      //             object is unit-testable.
-      int current_tab_index =
-          tabstrip_model_.GetIndexOfTabContents(current_tab);
-      bool forget_openers =
-          !(current_tab->type() == TAB_CONTENTS_NEW_TAB_UI &&
-          current_tab_index == (tab_count() - 1) &&
-          current_tab->controller()->GetEntryCount() == 1);
-      if (forget_openers) {
-        // If the user navigates the current tab to another page in any way
-        // other than by clicking a link, we want to pro-actively forget all
-        // TabStrip opener relationships since we assume they're beginning a
-        // different task by reusing the current tab.
-        tabstrip_model_.ForgetAllOpeners();
-        // In this specific case we also want to reset the group relationship,
-        // since it is now technically invalid.
-        tabstrip_model_.ForgetGroup(current_tab);
-      }
-    }
+    tabstrip_model_.TabNavigating(current_tab, transition);
+
     // TODO(beng): remove all this once there are no TabContents types.
     // It seems like under some circumstances current_tab can be dust after the
     // call to LoadURL (perhaps related to TabContents type switching), so we

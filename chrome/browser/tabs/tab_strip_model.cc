@@ -20,6 +20,22 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/stl_util-inl.h"
 
+namespace {
+
+// Returns true if the specified transition is one of the types that cause the
+// opener relationships for the tab in which the transition occured to be
+// forgotten. This is generally any navigation that isn't a link click (i.e.
+// any navigation that can be considered to be the start of a new task distinct
+// from what had previously occurred in that tab).
+bool ShouldForgetOpenersForTransition(PageTransition::Type transition) {
+  return transition == PageTransition::TYPED ||
+      transition == PageTransition::AUTO_BOOKMARK ||
+      transition == PageTransition::GENERATED ||
+      transition == PageTransition::START_PAGE;
+}
+
+}  // namespace
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabStripModel, public:
 
@@ -33,7 +49,7 @@ TabStripModel::TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
   NotificationService::current()->AddObserver(this,
       NotificationType::TAB_CONTENTS_DESTROYED,
       NotificationService::AllSources());
-  SetOrderController(new TabStripModelOrderController(this));
+  order_controller_ = new TabStripModelOrderController(this);
 }
 
 TabStripModel::~TabStripModel() {
@@ -50,13 +66,6 @@ void TabStripModel::AddObserver(TabStripModelObserver* observer) {
 
 void TabStripModel::RemoveObserver(TabStripModelObserver* observer) {
   observers_.RemoveObserver(observer);
-}
-
-void TabStripModel::SetOrderController(
-    TabStripModelOrderController* order_controller) {
-  if (order_controller_)
-    delete order_controller_;
-  order_controller_ = order_controller;
 }
 
 bool TabStripModel::ContainsIndex(int index) const {
@@ -287,6 +296,28 @@ int TabStripModel::GetIndexOfLastTabContentsOpenedBy(
   return kNoTab;
 }
 
+void TabStripModel::TabNavigating(TabContents* contents,
+                                  PageTransition::Type transition) {
+  if (ShouldForgetOpenersForTransition(transition)) {
+    // Don't forget the openers if this tab is a New Tab page opened at the
+    // end of the TabStrip (e.g. by pressing Ctrl+T). Give the user one
+    // navigation of one of these transition types before resetting the
+    // opener relationships (this allows for the use case of opening a new
+    // tab to do a quick look-up of something while viewing a tab earlier in
+    // the strip). We can make this heuristic more permissive if need be.
+    if (!IsNewTabAtEndOfTabStrip(contents)) {
+      // If the user navigates the current tab to another page in any way
+      // other than by clicking a link, we want to pro-actively forget all
+      // TabStrip opener relationships since we assume they're beginning a
+      // different task by reusing the current tab.
+      ForgetAllOpeners();
+      // In this specific case we also want to reset the group relationship,
+      // since it is now technically invalid.
+      ForgetGroup(contents);
+    }
+  }
+}
+
 void TabStripModel::ForgetAllOpeners() {
   // Forget all opener memories so we don't do anything weird with tab
   // re-selection ordering.
@@ -499,6 +530,12 @@ void TabStripModel::Observe(NotificationType type,
 
 ///////////////////////////////////////////////////////////////////////////////
 // TabStripModel, private:
+
+bool TabStripModel::IsNewTabAtEndOfTabStrip(TabContents* contents) const {
+  return contents->type() == TAB_CONTENTS_NEW_TAB_UI &&
+      contents == GetContentsAt(count() - 1) &&
+      contents->controller()->GetEntryCount() == 1;
+}
 
 bool TabStripModel::InternalCloseTabContentsAt(int index,
                                                bool create_historical_tab) {

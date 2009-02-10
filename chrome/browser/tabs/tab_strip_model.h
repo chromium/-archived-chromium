@@ -185,13 +185,6 @@ class TabStripModel : public NotificationObserver {
   // Retrieve the Profile associated with this TabStripModel.
   Profile* profile() const { return profile_; }
 
-  // Retrieve/set the active TabStripModelOrderController associated with this
-  // TabStripModel
-  TabStripModelOrderController* order_controller() const {
-    return order_controller_;
-  }
-  void SetOrderController(TabStripModelOrderController* order_controller);
-
   // Retrieve the index of the currently selected TabContents.
   int selected_index() const { return selected_index_; }
 
@@ -203,6 +196,11 @@ class TabStripModel : public NotificationObserver {
   // changes which notifies observers, which can use this as an optimization to
   // avoid doing meaningless or unhelpful work.
   bool closing_all() const { return closing_all_; }
+
+  // Access the order controller. Exposed only for unit tests.
+  TabStripModelOrderController* order_controller() const {
+    return order_controller_;
+  }
 
   // Basic API /////////////////////////////////////////////////////////////////
 
@@ -312,6 +310,12 @@ class TabStripModel : public NotificationObserver {
   int GetIndexOfLastTabContentsOpenedBy(NavigationController* opener,
                                         int start_index);
 
+  // Called by the Browser when a navigation is about to occur in the specified
+  // TabContents. Depending on the tab, and the transition type of the
+  // navigation, the TabStripModel may adjust its selection and grouping
+  // behavior.
+  void TabNavigating(TabContents* contents, PageTransition::Type transition);
+
   // Forget all Opener relationships that are stored (but _not_ group
   // relationships!) This is to reduce unpredictable tab switching behavior
   // in complex session states. The exact circumstances under which this method
@@ -397,6 +401,13 @@ class TabStripModel : public NotificationObserver {
  private:
   // We cannot be constructed without a delegate.
   TabStripModel();
+
+  // Returns true if the specified TabContents is a New Tab at the end of the
+  // TabStrip. We check for this because opener relationships are _not_
+  // forgotten for the New Tab page opened as a result of a New Tab gesture
+  // (e.g. Ctrl+T, etc) since the user may open a tab transiently to look up
+  // something related to their current activity.
+  bool IsNewTabAtEndOfTabStrip(TabContents* contents) const;
 
   // Closes the TabContents at the specified index. This causes the TabContents
   // to be destroyed, but it may not happen immediately (e.g. if it's a

@@ -1190,3 +1190,102 @@ TEST_F(TabStripModelTest, AddTabContents_NewTabAtEndOfStripInheritsGroup) {
   strip.CloseAllTabs();
 }
 
+// A test of navigations in a tab that is part of a group of opened from some
+// parent tab. If the navigations are link clicks, the group relationship of
+// the tab to its parent are preserved. If they are of any other type, they are
+// not preserved.
+TEST_F(TabStripModelTest, NavigationForgetsOpeners) {
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel strip(&delegate, profile_);
+
+  // Open page A
+  TabContents* page_a_contents = CreateTabContents();
+  strip.AddTabContents(page_a_contents, -1, PageTransition::START_PAGE, true);
+
+  // Open pages B, C and D in the background from links on page A...
+  TabContents* page_b_contents = CreateTabContents();
+  TabContents* page_c_contents = CreateTabContents();
+  TabContents* page_d_contents = CreateTabContents();
+  strip.AddTabContents(page_b_contents, -1, PageTransition::LINK, false);
+  strip.AddTabContents(page_c_contents, -1, PageTransition::LINK, false);
+  strip.AddTabContents(page_d_contents, -1, PageTransition::LINK, false);
+
+  // Open page E in a different opener group from page A.
+  TabContents* page_e_contents = CreateTabContents();
+  strip.AddTabContents(page_e_contents, -1, PageTransition::START_PAGE, false);
+
+  // Tell the TabStripModel that we are navigating page D via a link click.
+  strip.SelectTabContentsAt(3, true);
+  strip.TabNavigating(page_d_contents, PageTransition::LINK);
+
+  // Close page D, page C should be selected. (part of same group).
+  strip.CloseTabContentsAt(3);
+  EXPECT_EQ(2, strip.selected_index());
+
+  // Tell the TabStripModel that we are navigating in page C via a bookmark.
+  strip.TabNavigating(page_c_contents, PageTransition::AUTO_BOOKMARK);
+
+  // Close page C, page E should be selected. (C is no longer part of the
+  // A-B-C-D group, selection moves to the right).
+  strip.CloseTabContentsAt(2);
+  EXPECT_EQ(page_e_contents, strip.GetTabContentsAt(strip.selected_index()));
+
+  strip.CloseAllTabs();
+}
+
+// A test that the forgetting behavior tested in NavigationForgetsOpeners above
+// doesn't cause the opener relationship for a New Tab opened at the end of the
+// TabStrip to be reset (Test 1 below), unless another any other tab is
+// seelcted (Test 2 below).
+TEST_F(TabStripModelTest, NavigationForgettingDoesntAffectNewTab) {
+  TabStripDummyDelegate delegate(NULL);
+  TabStripModel strip(&delegate, profile_);
+
+  // Open a tab and several tabs from it, then select one of the tabs that was
+  // opened.
+  TabContents* page_a_contents = CreateTabContents();
+  strip.AddTabContents(page_a_contents, -1, PageTransition::START_PAGE, true);
+
+  TabContents* page_b_contents = CreateTabContents();
+  TabContents* page_c_contents = CreateTabContents();
+  TabContents* page_d_contents = CreateTabContents();
+  strip.AddTabContents(page_b_contents, -1, PageTransition::LINK, false);
+  strip.AddTabContents(page_c_contents, -1, PageTransition::LINK, false);
+  strip.AddTabContents(page_d_contents, -1, PageTransition::LINK, false);
+
+  strip.SelectTabContentsAt(2, true);
+
+  // TEST 1: If the user is in a group of tabs and opens a new tab at the end
+  // of the strip, closing that new tab will select the tab that they were
+  // last on.
+
+  // Now simulate opening a new tab at the end of the TabStrip.
+  TabContents* new_tab_contents1 = CreateNewTabTabContents();
+  strip.AddTabContents(new_tab_contents1, -1, PageTransition::TYPED, true);
+
+  // At this point, if we close this tab the last selected one should be
+  // re-selected.
+  strip.CloseTabContentsAt(strip.count() - 1);
+  EXPECT_EQ(page_c_contents, strip.GetTabContentsAt(strip.selected_index()));
+
+  // TEST 2: If the user is in a group of tabs and opens a new tab at the end
+  // of the strip, selecting any other tab in the strip will cause that new
+  // tab's opener relationship to be forgotten.
+
+  // Open a new tab again.
+  TabContents* new_tab_contents2 = CreateNewTabTabContents();
+  strip.AddTabContents(new_tab_contents2, -1, PageTransition::TYPED, true);
+
+  // Now select the first tab.
+  strip.SelectTabContentsAt(0, true);
+
+  // Now select the last tab.
+  strip.SelectTabContentsAt(strip.count() - 1, true);
+
+  // Now close the last tab. The next adjacent should be selected.
+  strip.CloseTabContentsAt(strip.count() - 1);
+  EXPECT_EQ(page_d_contents, strip.GetTabContentsAt(strip.selected_index()));
+
+  strip.CloseAllTabs();
+}
+
