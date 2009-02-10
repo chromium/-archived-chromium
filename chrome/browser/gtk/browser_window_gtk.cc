@@ -40,11 +40,6 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
   return gfx::Rect(x, y, width, height);
 }
 
-gboolean FalseMachine(GtkWindow* window, GdkEventWindowState* event,
-                                BrowserWindowGtk* browser_win) {
-  return FALSE;
-}
-
 }  // namespace
 
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser) : browser_(browser) {
@@ -63,8 +58,6 @@ void BrowserWindowGtk::Init() {
                    G_CALLBACK(MainWindowDestroyed), this);
   g_signal_connect(G_OBJECT(window_), "configure-event",
                    G_CALLBACK(MainWindowConfigured), this);
-  g_signal_connect(G_OBJECT(window_), "expose-event",
-                   G_CALLBACK(FalseMachine), this);
   g_signal_connect(G_OBJECT(window_), "window-state-event",
                    G_CALLBACK(MainWindowStateChanged), this);
   bounds_ = GetInitialWindowBounds(window_);
