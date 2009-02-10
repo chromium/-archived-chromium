@@ -12,9 +12,11 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "build/build_config.h"
+#include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/profile_manager.h"
@@ -37,6 +39,26 @@
 
 // static
 size_t SessionRestore::num_tabs_to_load_ = 0;
+
+//--------------------------------------------------------------------------
+
+// static
+size_t AutocompleteProvider::max_matches_;
+
+// static
+size_t AutocompleteResult::max_matches_;
+
+//static
+std::string AutocompleteInput::TypeToString(AutocompleteInput::Type type) {
+  NOTIMPLEMENTED();
+  return "";
+}
+
+//static
+std::string AutocompleteMatch::TypeToString(AutocompleteMatch::Type type) {
+  NOTIMPLEMENTED();
+  return "";
+}
 
 //--------------------------------------------------------------------------
 
@@ -169,7 +191,7 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
                                          Profile* profile,
                                          SiteInstance* instance) {
   TabContents* contents;
-  
+
   switch (type) {
     case TAB_CONTENTS_WEB:
       contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE,
@@ -179,10 +201,10 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       NOTREACHED() << "Don't know how to create tab contents of type " << type;
       contents = NULL;
   }
-  
+
   if (contents)
     contents->CreateView();
-  
+
   return contents;
 }
 
@@ -366,3 +388,17 @@ bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
 
 }  // webkit_glue
 
+#ifndef CHROME_DEBUGGER_DISABLED
+DebuggerShell::DebuggerShell(DebuggerInputOutput *io) { }
+DebuggerShell::~DebuggerShell() { }
+void DebuggerShell::Start() { NOTIMPLEMENTED(); }
+void DebuggerShell::Debug(TabContents* tab) { NOTIMPLEMENTED(); }
+void DebuggerShell::DebugMessage(const std::wstring& msg) { NOTIMPLEMENTED(); }
+void DebuggerShell::OnDebugAttach() { NOTIMPLEMENTED(); }
+void DebuggerShell::OnDebugDisconnect() { NOTIMPLEMENTED(); }
+void DebuggerShell::DidConnect() { NOTIMPLEMENTED(); }
+void DebuggerShell::DidDisconnect() { NOTIMPLEMENTED(); }
+void DebuggerShell::ProcessCommand(const std::wstring& data) {
+  NOTIMPLEMENTED();
+}
+#endif  // !CHROME_DEBUGGER_DISABLED

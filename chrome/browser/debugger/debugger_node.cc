@@ -15,7 +15,7 @@
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/common/notification_service.h"
 
-DebuggerNode::DebuggerNode() : valid_(true), observing_(false), data_(NULL) {
+DebuggerNode::DebuggerNode() : data_(NULL), valid_(true), observing_(false) {
 }
 
 void DebuggerNode::Observe(NotificationType type,
@@ -131,7 +131,7 @@ ChromeNode::~ChromeNode() {
 v8::Handle<v8::Value> ChromeNode::PropGetter(v8::Handle<v8::String> prop,
                                              const v8::AccessorInfo& info) {
   if (prop->Equals(v8::String::New("pid"))) {
-    return v8::Number::New(GetCurrentProcessId());
+    return v8::Number::New(base::GetCurrentProcId());
   } else if (prop->Equals(v8::String::New("browser"))) {
     BrowserListNode *node = BrowserListNode::BrowserList();
     return node->NewInstance();

@@ -21,8 +21,10 @@ class TestBrowsingInstance : public BrowsingInstance {
  public:
   TestBrowsingInstance(Profile* profile, int* deleteCounter)
       : BrowsingInstance(profile),
-        deleteCounter_(deleteCounter),
-        use_process_per_site(false) {}
+        use_process_per_site(false),
+        deleteCounter_(deleteCounter) {
+  }
+
   ~TestBrowsingInstance() {
     (*deleteCounter_)++;
   }
@@ -86,7 +88,7 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
 
   // Add a second reference
   NavigationEntry* e2 = new NavigationEntry(TAB_CONTENTS_WEB, instance, 0, url,
-                                            GURL(), std::wstring(), 
+                                            GURL(), std::wstring(),
                                             PageTransition::LINK);
 
   // Now delete both entries and be sure the SiteInstance goes away.

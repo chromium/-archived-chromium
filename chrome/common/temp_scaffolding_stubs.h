@@ -306,14 +306,14 @@ class CancelableTask;
 class ViewMsg_Print_Params;
 
 namespace printing {
-  
+
 class PrintingContext {
  public:
   enum Result { OK, CANCEL, FAILED };
 };
-  
+
 class PrintSettings {
- public:    
+ public:
   void RenderParams(ViewMsg_Print_Params* params) const { NOTIMPLEMENTED(); }
   int dpi() const { NOTIMPLEMENTED(); return 92; }
 };
@@ -478,14 +478,6 @@ class IconManager {
 };
 
 struct ViewHostMsg_DidPrintPage_Params;
-
-class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
- public:
-  explicit DebuggerWrapper(int port) {}
-  void DebugMessage(const std::wstring&) {}
-  void OnDebugAttach() {}
-  void OnDebugDisconnect() {}
-};
 
 namespace views {
 
@@ -859,7 +851,7 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
                const Language& language,
                URLRequestContext* request_context,
                const std::wstring& custom_dictionary_file_name) {}
-  
+
   bool SpellCheckWord(const wchar_t* in_word,
                      int in_word_len,
                      int* misspelling_start,
@@ -875,16 +867,6 @@ class WebAppLauncher {
   static void Launch(Profile* profile, const GURL& url) {
     NOTIMPLEMENTED();
   }
-};
-
-class AutocompleteResult {
- public:
-  static void set_max_matches(int) { NOTIMPLEMENTED(); }
-};
-
-class AutocompleteProvider {
- public:
-  static void set_max_matches(int) { NOTIMPLEMENTED(); }
 };
 
 class URLFixerUpper {

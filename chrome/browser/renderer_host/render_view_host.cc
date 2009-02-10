@@ -13,6 +13,7 @@
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cross_site_request_manager.h"
+#include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
@@ -31,11 +32,6 @@
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/autofill_form.h"
-
-#if defined(OS_WIN)
-// TODO(port): remove these when stubs are filled in
-#include "chrome/browser/debugger/debugger_wrapper.h"
-#endif
 
 using base::TimeDelta;
 

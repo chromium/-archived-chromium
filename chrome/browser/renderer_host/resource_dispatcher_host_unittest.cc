@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "base/message_loop.h"
+#include "base/process_util.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
@@ -143,7 +144,7 @@ void ResourceDispatcherHostTest::MakeTestRequest(int render_process_id,
                                                  const GURL& url) {
   ViewHostMsg_Resource_Request request = CreateResourceRequest("GET", url);
 
-  host_.BeginRequest(this, GetCurrentProcess(), render_process_id,
+  host_.BeginRequest(this, base::GetCurrentProcessHandle(), render_process_id,
                      render_view_id, request_id, request, NULL, NULL);
   KickOffRequest();
 }
@@ -162,7 +163,7 @@ void CheckSuccessfulRequest(const std::vector<IPC::Message>& messages,
   //
   // This function verifies that we received 4 messages and that they
   // are appropriate.
-  ASSERT_EQ(messages.size(), 3);
+  ASSERT_EQ(messages.size(), 3U);
 
   // The first messages should be received response
   ASSERT_EQ(ViewMsg_Resource_ReceivedResponse::ID, messages[0].type());
@@ -176,7 +177,7 @@ void CheckSuccessfulRequest(const std::vector<IPC::Message>& messages,
   ASSERT_TRUE(IPC::ReadParam(&messages[1], &iter, &request_id));
   base::SharedMemoryHandle shm_handle;
   ASSERT_TRUE(IPC::ReadParam(&messages[1], &iter, &shm_handle));
-  int data_len;
+  size_t data_len;
   ASSERT_TRUE(IPC::ReadParam(&messages[1], &iter, &data_len));
 
   ASSERT_EQ(reference_data.size(), data_len);
@@ -210,7 +211,7 @@ TEST_F(ResourceDispatcherHostTest, TestMany) {
   accum_.GetClassifiedMessages(&msgs);
 
   // there are three requests, so we should have gotten them classified as such
-  ASSERT_EQ(3, msgs.size());
+  ASSERT_EQ(3U, msgs.size());
 
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_2());
@@ -239,13 +240,13 @@ TEST_F(ResourceDispatcherHostTest, Cancel) {
   accum_.GetClassifiedMessages(&msgs);
 
   // there are three requests, so we should have gotten them classified as such
-  ASSERT_EQ(3, msgs.size());
+  ASSERT_EQ(3U, msgs.size());
 
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
   CheckSuccessfulRequest(msgs[2], URLRequestTestJob::test_data_3());
 
   // Check that request 2 got canceled.
-  ASSERT_EQ(2, msgs[1].size());
+  ASSERT_EQ(2U, msgs[1].size());
   ASSERT_EQ(ViewMsg_Resource_ReceivedResponse::ID, msgs[1][0].type());
   ASSERT_EQ(ViewMsg_Resource_RequestComplete::ID, msgs[1][1].type());
 
@@ -285,8 +286,8 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
 
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
-  host_.BeginRequest(&test_receiver, GetCurrentProcess(), 0, MSG_ROUTING_NONE,
-                     1, request, NULL, NULL);
+  host_.BeginRequest(&test_receiver, base::GetCurrentProcessHandle(), 0,
+                     MSG_ROUTING_NONE, 1, request, NULL, NULL);
   KickOffRequest();
 
   // request 2 goes to us
@@ -294,8 +295,8 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
 
   // request 3 goes to the test delegate
   request.url = URLRequestTestJob::test_url_3();
-  host_.BeginRequest(&test_receiver, GetCurrentProcess(), 0, MSG_ROUTING_NONE,
-                     3, request, NULL, NULL);
+  host_.BeginRequest(&test_receiver, base::GetCurrentProcessHandle(), 0,
+                     MSG_ROUTING_NONE, 3, request, NULL, NULL);
   KickOffRequest();
 
   // TODO(mbelshe):
@@ -324,7 +325,7 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
   // we should have gotten exactly one result
   ResourceIPCAccumulator::ClassifiedMessages msgs;
   accum_.GetClassifiedMessages(&msgs);
-  ASSERT_EQ(1, msgs.size());
+  ASSERT_EQ(1U, msgs.size());
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_2());
 }
 
@@ -351,7 +352,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
   accum_.GetClassifiedMessages(&msgs);
 
   // All requests but the 2 for the RVH 0 should have been blocked.
-  ASSERT_EQ(2, msgs.size());
+  ASSERT_EQ(2U, msgs.size());
 
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_3());
@@ -363,7 +364,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
 
   msgs.clear();
   accum_.GetClassifiedMessages(&msgs);
-  ASSERT_EQ(2, msgs.size());
+  ASSERT_EQ(2U, msgs.size());
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_2());
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_1());
 
@@ -372,7 +373,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
   while (URLRequestTestJob::ProcessOnePendingMessage());
   msgs.clear();
   accum_.GetClassifiedMessages(&msgs);
-  ASSERT_EQ(1, msgs.size());
+  ASSERT_EQ(1U, msgs.size());
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
 
   // Now resumes requests for all RVH (2 and 3).
@@ -385,7 +386,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
 
   msgs.clear();
   accum_.GetClassifiedMessages(&msgs);
-  ASSERT_EQ(2, msgs.size());
+  ASSERT_EQ(2U, msgs.size());
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_2());
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_3());
 }
@@ -409,7 +410,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingCancelingRequests) {
   accum_.GetClassifiedMessages(&msgs);
 
   // The 2 requests for the RVH 0 should have been processed.
-  ASSERT_EQ(2, msgs.size());
+  ASSERT_EQ(2U, msgs.size());
 
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_3());
@@ -423,7 +424,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingCancelingRequests) {
 
   msgs.clear();
   accum_.GetClassifiedMessages(&msgs);
-  ASSERT_EQ(0, msgs.size());
+  ASSERT_EQ(0U, msgs.size());
 }
 
 // Tests that blocked requests are canceled if their associated process dies.
@@ -452,7 +453,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies) {
   accum_.GetClassifiedMessages(&msgs);
 
   // The 2 requests for the RVH 0 should have been processed.
-  ASSERT_EQ(2, msgs.size());
+  ASSERT_EQ(2U, msgs.size());
 
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_3());
@@ -546,7 +547,7 @@ TEST_F(ResourceDispatcherHostTest, TooManyOutstandingRequests) {
   // Expected cost of each request as measured by
   // ResourceDispatcherHost::CalculateApproximateMemoryCost().
   int kMemoryCostOfTest2Req =
-      ResourceDispatcherHost::kAvgBytesPerOutstandingRequest + 
+      ResourceDispatcherHost::kAvgBytesPerOutstandingRequest +
       std::string("GET").size() +
       URLRequestTestJob::test_url_2().spec().size();
 
@@ -556,10 +557,10 @@ TEST_F(ResourceDispatcherHostTest, TooManyOutstandingRequests) {
 
   // Determine how many instance of test_url_2() we can request before
   // throttling kicks in.
-  int kMaxRequests = kMaxCostPerProcess / kMemoryCostOfTest2Req;
+  size_t kMaxRequests = kMaxCostPerProcess / kMemoryCostOfTest2Req;
 
   // Saturate the number of outstanding requests for process 0.
-  for (int i = 0; i < kMaxRequests; ++i)
+  for (size_t i = 0; i < kMaxRequests; ++i)
     MakeTestRequest(0, 0, i + 1, URLRequestTestJob::test_url_2());
 
   // Issue two more requests for process 0 -- these should fail immediately.
@@ -585,7 +586,7 @@ TEST_F(ResourceDispatcherHostTest, TooManyOutstandingRequests) {
   ASSERT_EQ(kMaxRequests + 4, msgs.size());
 
   // Check that the first kMaxRequests succeeded.
-  for (int i = 0; i < kMaxRequests; ++i)
+  for (size_t i = 0; i < kMaxRequests; ++i)
     CheckSuccessfulRequest(msgs[i], URLRequestTestJob::test_data_2());
 
   // Check that the subsequent two requests (kMaxRequests + 1) and
@@ -593,7 +594,7 @@ TEST_F(ResourceDispatcherHostTest, TooManyOutstandingRequests) {
   for (int i = 0; i < 2; ++i) {
     // Should have sent a single RequestComplete message.
     int index = kMaxRequests + i;
-    EXPECT_EQ(1, msgs[index].size());
+    EXPECT_EQ(1U, msgs[index].size());
     EXPECT_EQ(ViewMsg_Resource_RequestComplete::ID, msgs[index][0].type());
 
     // The RequestComplete message should have had status
