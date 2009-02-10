@@ -40,6 +40,11 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
   return gfx::Rect(x, y, width, height);
 }
 
+gboolean FalseMachine(GtkWindow* window, GdkEventWindowState* event,
+                                BrowserWindowGtk* browser_win) {
+  return FALSE;
+}
+
 }  // namespace
 
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser) : browser_(browser) {
@@ -58,17 +63,19 @@ void BrowserWindowGtk::Init() {
                    G_CALLBACK(MainWindowDestroyed), this);
   g_signal_connect(G_OBJECT(window_), "configure-event",
                    G_CALLBACK(MainWindowConfigured), this);
+  g_signal_connect(G_OBJECT(window_), "expose-event",
+                   G_CALLBACK(FalseMachine), this);
   g_signal_connect(G_OBJECT(window_), "window-state-event",
                    G_CALLBACK(MainWindowStateChanged), this);
   bounds_ = GetInitialWindowBounds(window_);
 
-  GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
+  vbox_ = gtk_vbox_new(FALSE, 0);
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
   toolbar_->Init(browser_->profile());
-  toolbar_->AddToolbarToBox(vbox);
+  toolbar_->AddToolbarToBox(vbox_);
 
-  gtk_container_add(GTK_CONTAINER(window_), vbox);
+  gtk_container_add(GTK_CONTAINER(window_), vbox_);
 }
 
 void BrowserWindowGtk::Show() {
@@ -78,7 +85,7 @@ void BrowserWindowGtk::Show() {
     WebContents* contents = (WebContents*)(browser_->GetTabContentsAt(0));
     content_area_ = ((RenderWidgetHostViewGtk*)contents->
         render_view_host()->view())->native_view();
-    gtk_container_add(GTK_CONTAINER(window_), content_area_);
+    gtk_box_pack_start(GTK_BOX(vbox_), content_area_, TRUE, TRUE, 0);
     contents->NavigateToPendingEntry(false);
   }
 
