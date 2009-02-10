@@ -7,7 +7,7 @@ layer at (0,0) size 800x600
         RenderSVGInlineText {#text} at (0,-36) size 342x45
           chunk 1 text run 1 at (5.00,40.00) startOffset 0 endOffset 21 width 342.00: "Test of 'text-anchor'"
       RenderPath {line} at (374.17,125) size 1.67x250 [stroke={[type=SOLID] [color=#FF0000]}] [fill={[type=SOLID] [color=#000000]}] [data="M225.00,75.00 L225.00,225.00"]
-      RenderSVGContainer {g} at (-1.67,136.67) size 778.33x225
+      RenderSVGContainer {g} at (-1.67,136.67) size 778.33x225.00
         RenderSVGText {text} at (-1,110) size 467x135 contains 3 chunk(s)
           RenderSVGInlineText {#text} at (0,-28) size 226x35
             chunk 1 (end anchor) text run 1 at (-1.00,110.00) startOffset 0 endOffset 17 width 226.00: "Begin with \"end\","

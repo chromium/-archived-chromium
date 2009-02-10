@@ -14,7 +14,7 @@ layer at (0,0) size 480x360
           chunk 1 text run 1 at (10.00,45.00) startOffset 0 endOffset 28 width 116.00: "transform=\"rotate(20,225,65)"
       RenderSVGContainer {g} at (10,116.96) size 300.80x74.08 [transform={m=((1.00,0.00)(0.00,1.00)) t=(0.00,90.00)}]
         RenderPath {path} at (164.50,116.96) size 146.30x74.08 [stroke={[type=SOLID] [color=#000080]}] [fill={[type=SOLID] [color=#008000]}] [data="M165.00,40.00 L265.00,40.00 L265.00,28.00 L310.00,64.00 L265.00,100.00 L265.00,88.00 L165.00,88.00 Z"]
-        RenderSVGContainer {a} at (106.16,116.96) size 189.07x74.08 [transform={m=((1.00,0.00)(-0.58,1.00)) t=(0.00,-0.00)}]
+        RenderSVGContainer {a} at (106.16,116.96) size 189.07x74.08 [transform={m=((1.00,0.00)(-0.58,1.00)) t=(0.00,0.00)}]
           RenderPath {path} at (106.16,116.96) size 189.07x74.08 [stroke={[type=SOLID] [color=#0000FF]}] [fill={[type=SOLID] [color=#00FF00]}] [data="M165.00,40.00 L265.00,40.00 L265.00,28.00 L310.00,64.00 L265.00,100.00 L265.00,88.00 L165.00,88.00 Z"]
         RenderSVGText {text} at (10,45) size 93x12 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-10) size 93x12
