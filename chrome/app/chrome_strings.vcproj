@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="generated_resources"
+	Name="chrome_strings"
 	ProjectGUID="{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}"
-	RootNamespace="generated_resources"
+	RootNamespace="chrome_strings"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
