@@ -1051,9 +1051,6 @@ LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 
-// MERGE 38729:38760: New tests
-LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
-
 // MERGE 38729:38760: Regressions
 LINUX : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
@@ -1759,7 +1756,7 @@ MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
 // We could fix this test for us and upstream it if the test shell user agent
 // would let us differentiate test_shell and WebKit DumpTreeNode.
 // See http://crbug.com/7482
-DEFER WIN : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL
+DEFER : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
 
 // Regressions from WebKit merge 40722:40785
 //
