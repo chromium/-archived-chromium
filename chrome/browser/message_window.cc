@@ -68,7 +68,12 @@ bool MessageWindow::NotifyOtherProcess() {
   // window (otherwise it will just flash in the taskbar).
   DWORD process_id = 0;
   DWORD thread_id = GetWindowThreadProcessId(remote_window_, &process_id);
-  DCHECK(process_id);
+  // It is possible that the process owning this window may have died by now.
+  if (!thread_id || !process_id) {
+    remote_window_ = NULL;
+    return false;
+  }
+
   AllowSetForegroundWindow(process_id);
 
   // Gives 20 seconds timeout for the current browser process to respond.
@@ -85,7 +90,18 @@ bool MessageWindow::NotifyOtherProcess() {
                          SMTO_ABORTIFHUNG,
                          kTimeout,
                          &result)) {
+    // It is possible that the process owning this window may have died by now.
+    if (!result) {
+      remote_window_ = NULL;
+      return false;
+    }
     return true;
+  }
+
+  // It is possible that the process owning this window may have died by now.
+  if (!IsWindow(remote_window_)) {
+    remote_window_ = NULL;
+    return false;
   }
 
   // The window is hung. Scan for every window to find a visible one.
@@ -137,8 +153,10 @@ void MessageWindow::Create() {
 
 LRESULT MessageWindow::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
   // Ignore the request if the browser process is already in shutdown path.
-  if (!g_browser_process || g_browser_process->IsShuttingDown())
-    return TRUE;
+  if (!g_browser_process || g_browser_process->IsShuttingDown()) {
+    LOG(WARNING) << "Not handling WM_COPYDATA as browser is shutting down";
+    return FALSE;
+  }
 
   // If locked, it means we are not ready to process this message because
   // we are probably in a first run critical phase.

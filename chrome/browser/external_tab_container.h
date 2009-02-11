@@ -134,7 +134,7 @@ class ExternalTabContainer : public TabContentsDelegate,
 
  protected:
   TabContents *tab_contents_;
-  AutomationProvider* automation_;
+  scoped_refptr<AutomationProvider> automation_;
 
   NotificationRegistrar registrar_;
 
