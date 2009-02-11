@@ -23,6 +23,7 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/plugin_messages.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/text_button.h"
 #include "chrome/views/window.h"
@@ -31,11 +32,6 @@
 #include "net/url_request/url_request_job_tracker.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/root_view.h"
-
-#include "chrome/common/render_messages.h"
-#include "chrome/common/ipc_message.h"
-
-#include "chrome/common/render_messages.h"
 
 namespace {
 
@@ -54,6 +50,16 @@ enum {
   kProcessColumn,
   kParamsColumn,
 };
+
+// This class registers the browser IPC logger functions with IPC::Logging.
+class RegisterLoggerFuncs {
+ public:
+  RegisterLoggerFuncs() {
+    IPC::Logging::SetLoggerFunctions(g_log_function_mapping);
+  }
+};
+
+RegisterLoggerFuncs g_register_logger_funcs;
 
 // The singleton dialog box. This is non-NULL when a dialog is active so we
 // know not to create a new one.
@@ -268,17 +274,7 @@ AboutIPCDialog::AboutIPCDialog()
       table_(NULL),
       tracking_(false) {
   SetupControls();
-
-  IPC::Logging* log = IPC::Logging::current();
-  log->RegisterMessageLogger(ViewStart, ViewMsgLog);
-  log->RegisterMessageLogger(ViewHostStart, ViewHostMsgLog);
-  log->RegisterMessageLogger(PluginProcessStart, PluginProcessMsgLog);
-  log->RegisterMessageLogger(PluginProcessHostStart, PluginProcessHostMsgLog);
-  log->RegisterMessageLogger(PluginStart, PluginMsgLog);
-  log->RegisterMessageLogger(PluginHostStart, PluginHostMsgLog);
-  log->RegisterMessageLogger(NPObjectStart, NPObjectMsgLog);
-
-  log->SetConsumer(this);
+  IPC::Logging::current()->SetConsumer(this);
 }
 
 AboutIPCDialog::~AboutIPCDialog() {

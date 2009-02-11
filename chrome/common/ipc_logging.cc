@@ -33,6 +33,10 @@ namespace IPC {
 const wchar_t kLoggingEventName[] = L"ChromeIPCLog.%d";
 const int kLogSendDelayMs = 100;
 
+// We use a pointer to the function table to avoid any linker dependencies on
+// all the traits used as IPC message parameters.
+Logging::LogFunction *Logging::log_function_mapping_;
+
 Logging::Logging()
     : logging_event_on_(NULL),
       logging_event_off_(NULL),
@@ -41,8 +45,6 @@ Logging::Logging()
       consumer_(NULL),
       queue_invoke_later_pending_(false),
       main_thread_(MessageLoop::current()) {
-  memset(log_function_mapping_, 0, sizeof(log_function_mapping_));
-
   // Create an event for this browser instance that's set when logging is
   // enabled, so child processes can know when logging is enabled.
   int browser_pid;
@@ -90,14 +92,8 @@ void Logging::OnObjectSignaled(HANDLE object) {
   RegisterWaitForEvent(!enabled_);
 }
 
-void Logging::RegisterMessageLogger(int msg_start, LogFunction* func) {
-  int msg_class = msg_start >> 12;
-  if (msg_class > arraysize(log_function_mapping_)) {
-    NOTREACHED();
-    return;
-  }
-
-  log_function_mapping_[msg_class] = func;
+void Logging::SetLoggerFunctions(LogFunction *functions) {
+  log_function_mapping_ = functions;
 }
 
 std::wstring Logging::GetEventName(bool enabled) {
@@ -203,9 +199,12 @@ void Logging::OnPostDispatchMessage(const Message& message,
 void Logging::GetMessageText(uint16 type, std::wstring* name,
                              const Message* message,
                              std::wstring* params) {
+  if (!log_function_mapping_)
+    return;
+
   int message_class = type >> 12;
-  if (current()->log_function_mapping_[message_class] != NULL) {
-    current()->log_function_mapping_[message_class](type, name, message, params);
+  if (log_function_mapping_[message_class] != NULL) {
+    log_function_mapping_[message_class](type, name, message, params);
   } else {
     DLOG(INFO) << "No logger function associated with message class " <<
         message_class;
