@@ -105,7 +105,7 @@
 using base::Time;
 
 // Current version number.
-static const int kCurrentVersionNumber = 21;
+static const int kCurrentVersionNumber = 22;
 static const int kCompatibleVersionNumber = 21;
 
 // Keys used in the meta table.
@@ -846,6 +846,30 @@ bool WebDatabase::AddAutofillFormElements(
   return result;
 }
 
+bool WebDatabase::ClearAutofillEmptyValueElements() {
+  SQLStatement s;
+
+  if (s.prepare(db_, "SELECT pair_id FROM autofill "
+                     "WHERE TRIM(value)= \"\"") != SQLITE_OK) {
+    NOTREACHED() << "Statement prepare failed";
+    return false;
+  }
+
+  std::set<int64> ids;
+  int result;
+  while ((result = s.step()) == SQLITE_ROW)
+    ids.insert(s.column_int64(0));
+
+  bool success = true;
+  for (std::set<int64>::const_iterator iter = ids.begin(); iter != ids.end();
+       ++iter) {
+    if (!RemoveFormElement(*iter)) 
+      success = false;
+  }
+  
+  return success;
+}
+
 bool WebDatabase::GetIDAndCountOfFormElement(
     const AutofillForm::Element& element, int64* pair_id, int* count) {
   SQLStatement s;
@@ -1054,8 +1078,10 @@ bool WebDatabase::RemoveFormElementsAddedBetween(const Time delete_begin,
        itr != pair_ids.end();
        itr++) {
     int how_many = 0;
-    if (!RemovePairIDAndDate(*itr, delete_begin, delete_end, &how_many))
+    if (!RemoveFormElementForTimeRange(*itr, delete_begin, delete_end,
+                                       &how_many)) {
       return false;
+    }
     if (!AddToCountOfFormElement(*itr, -how_many))
       return false;
   }
@@ -1063,8 +1089,10 @@ bool WebDatabase::RemoveFormElementsAddedBetween(const Time delete_begin,
   return true;
 }
 
-bool WebDatabase::RemovePairIDAndDate(int64 pair_id, const Time delete_begin,
-    const Time delete_end, int* how_many) {
+bool WebDatabase::RemoveFormElementForTimeRange(int64 pair_id,
+                                                const Time delete_begin,
+                                                const Time delete_end,
+                                                int* how_many) {
   SQLStatement s;
   if (s.prepare(db_,
                 "DELETE FROM autofill_dates WHERE pair_id = ? AND "
@@ -1073,14 +1101,13 @@ bool WebDatabase::RemovePairIDAndDate(int64 pair_id, const Time delete_begin,
     return false;
   }
   s.bind_int64(0, pair_id);
-  s.bind_int64(1, delete_begin.ToTimeT());
-  s.bind_int64(2, 
-               delete_end.is_null() ?
-                   std::numeric_limits<int64>::max() :
-                   delete_end.ToTimeT());
+  s.bind_int64(1, delete_begin.is_null() ? 0 : delete_begin.ToTimeT());
+  s.bind_int64(2, delete_end.is_null() ? std::numeric_limits<int64>::max() :
+                                         delete_end.ToTimeT());
 
   bool result = (s.step() == SQLITE_DONE);
-  *how_many = sqlite3_changes(db_);
+  if (how_many)
+    *how_many = sqlite3_changes(db_);
 
   return result;
 }
@@ -1105,12 +1132,14 @@ bool WebDatabase::RemoveFormElement(int64 pair_id) {
   SQLStatement s;
   if (s.prepare(db_,
                 "DELETE FROM autofill WHERE pair_id = ?") != SQLITE_OK) {
-    NOTREACHED() << "Statement 1 prepare failed";
+    NOTREACHED() << "Statement prepare failed";
     return false;
   }
   s.bind_int64(0, pair_id);
+  if (s.step() != SQLITE_DONE)
+    return false;
 
-  return (s.step() == SQLITE_DONE);
+  return RemoveFormElementForTimeRange(pair_id, Time(), Time(), NULL);
 }
 
 void WebDatabase::MigrateOldVersionsAsNeeded() {
@@ -1139,6 +1168,15 @@ void WebDatabase::MigrateOldVersionsAsNeeded() {
       meta_table_.SetVersionNumber(21);
       meta_table_.SetCompatibleVersionNumber(
           std::min(21, kCompatibleVersionNumber));
+      // FALL THROUGH
+
+    case 21:
+      if (!ClearAutofillEmptyValueElements()) {
+        NOTREACHED() << "Failed to clean-up autofill DB.";
+      }
+      meta_table_.SetVersionNumber(22);
+      // No change in the compatibility version number.
+
       // FALL THROUGH
 
     // Add successive versions here.  Each should set the version number and

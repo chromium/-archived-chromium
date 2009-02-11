@@ -1018,9 +1018,6 @@ void Browser::RegisterUserPrefs(PrefService* prefs) {
                              net::CookiePolicy::ALLOW_ALL_COOKIES);
   prefs->RegisterBooleanPref(prefs::kShowHomeButton, false);
   prefs->RegisterStringPref(prefs::kRecentlySelectedEncoding, L"");
-  // TODO(peterson): bug #3870 move this to the AutofillManager once it is
-  //                 checked-in.
-  prefs->RegisterBooleanPref(prefs::kFormAutofillEnabled, true);
   prefs->RegisterBooleanPref(prefs::kDeleteBrowsingHistory, true);
   prefs->RegisterBooleanPref(prefs::kDeleteDownloadHistory, true);
   prefs->RegisterBooleanPref(prefs::kDeleteCache, true);

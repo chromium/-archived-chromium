@@ -147,10 +147,10 @@ class WebDatabase {
 
   // Removes from autofill_dates rows with given pair_id where date_created lies
   // between delte_begin and delte_end.
-  bool RemovePairIDAndDate(int64 pair_id,
-                           const base::Time delete_begin,
-                           const base::Time delete_end,
-                           int* how_many);
+  bool RemoveFormElementForTimeRange(int64 pair_id,
+                                     const base::Time delete_begin,
+                                     const base::Time delete_end,
+                                     int* how_many);
 
   // Increments the count in the row corresponding to |pair_id| by |delta|.
   // Removes the row from the table if the count becomes 0.
@@ -176,7 +176,7 @@ class WebDatabase {
   // Adds a new row to the autofill_dates table.
   bool InsertPairIDAndDate(int64 pair_id, const base::Time date_created);
 
-  // Removes row from the autofill table given |pair_id|.
+  // Removes row from the autofill tables given |pair_id|.
   bool RemoveFormElement(int64 pair_id);
 
   //////////////////////////////////////////////////////////////////////////////
@@ -194,7 +194,13 @@ class WebDatabase {
   bool RemoveWebApp(const GURL& url);
 
  private:
-  friend class WebDatabaseTest;
+  FRIEND_TEST(WebDatabaseTest, Autofill);
+
+  // Removes empty values for autofill that were incorrectly stored in the DB
+  // (see bug http://crbug.com/6111).
+  // TODO(jcampan): http://crbug.com/7564 remove when we think all users have
+  //                run this code.
+  bool ClearAutofillEmptyValueElements();
 
   bool InitKeywordsTable();
   bool InitLoginsTable();

@@ -15,6 +15,7 @@ MSVC_POP_WARNING();
 
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/glue_util.h"
 
@@ -57,9 +58,18 @@ AutofillForm* AutofillForm::CreateAutofillForm(
       continue;
 
     // For each TEXT input field, store the name and value
-    std::wstring name = webkit_glue::StringToStdWString(input_element->name());
     std::wstring value = webkit_glue::StringToStdWString(
         input_element->value());
+    TrimWhitespace(value, TRIM_LEADING, &value);
+    if (value.length() == 0)
+      continue;
+
+    std::wstring name = webkit_glue::StringToStdWString(input_element->name());
+    // Test that the name is not blank.
+    std::wstring trimmed_name;
+    TrimWhitespace(name, TRIM_LEADING, &trimmed_name);
+    if (trimmed_name.length() == 0)
+      continue;
 
     result->elements.push_back(AutofillForm::Element(name, value));
   }

@@ -464,6 +464,31 @@ TEST_F(WebDatabaseTest, Autofill) {
 
   EXPECT_TRUE(db.GetFormValuesForElementName(L"Name", L"", &v, 6));
   EXPECT_EQ(0U, v.size());
+
+  // Now add some values with empty strings.
+  const std::wstring kValue = L"  toto   ";
+  EXPECT_TRUE(db.AddAutofillFormElement(AutofillForm::Element(L"blank", L"")));
+  EXPECT_TRUE(db.AddAutofillFormElement(AutofillForm::Element(L"blank",
+                                                              L" ")));
+  EXPECT_TRUE(db.AddAutofillFormElement(AutofillForm::Element(L"blank",
+                                                              L"      ")));
+  EXPECT_TRUE(db.AddAutofillFormElement(AutofillForm::Element(L"blank",
+                                                              kValue)));
+
+  // They should be stored normally as the DB layer does not check for empty
+  // values.
+  v.clear();
+  EXPECT_TRUE(db.GetFormValuesForElementName(L"blank", L"", &v, 10));
+  EXPECT_EQ(4U, v.size());
+
+  // Now we'll check that ClearAutofillEmptyValueElements() works as expected.
+  db.ClearAutofillEmptyValueElements();
+
+  v.clear();
+  EXPECT_TRUE(db.GetFormValuesForElementName(L"blank", L"", &v, 10));
+  ASSERT_EQ(1U, v.size());
+
+  EXPECT_EQ(kValue, v[0]);
 }
 
 static bool AddTimestampedLogin(WebDatabase* db, std::string url,

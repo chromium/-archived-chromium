@@ -42,6 +42,8 @@ class AutofillManager : public WebDataServiceConsumer {
   virtual void OnWebDataServiceRequestDone(WebDataService::Handle h,
                                            const WDTypedResult* result);
 
+  static void RegisterUserPrefs(PrefService* prefs);
+
  private:
   void StoreFormEntriesInWebDatabase(const AutofillForm& form);
 
