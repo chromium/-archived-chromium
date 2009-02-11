@@ -41,3 +41,4 @@ class AboutHandler {
 };
 
 #endif  // CHROME_RENDERER_ABOUT_HANDLER_H__
+

@@ -5,12 +5,9 @@
 #ifndef CHROME_RENDERER_RENDER_PROCESS_H__
 #define CHROME_RENDERER_RENDER_PROCESS_H__
 
+#include "base/shared_memory.h"
 #include "chrome/common/child_process.h"
 #include "chrome/renderer/render_thread.h"
-
-namespace base {
-  class SharedMemory;
-}
 
 // Represents the renderer end of the browser<->renderer connection. The
 // opposite end is the RenderProcessHost. This is a singleton object for

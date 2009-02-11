@@ -44,16 +44,13 @@
 
 #include "base/lock.h"
 #include "base/message_loop.h"
+#include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/base/pipeline_impl.h"
 #include "webkit/glue/webmediaplayer_delegate.h"
 
 class RenderView;
 class VideoRendererImpl;
-
-namespace media {
-class FilterFactoryCollection;
-}
 
 // This typedef is used for WebMediaPlayerDelegateImpl::PostTask() and
 // NotifyWebMediaPlayerTask in the source file.

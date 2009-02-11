@@ -5,19 +5,21 @@
 #ifndef CHROME_RENDERER_WEBPLUGIN_DELEGATE_PROXY_H__
 #define CHROME_RENDERER_WEBPLUGIN_DELEGATE_PROXY_H__
 
+#include <set>
 #include <string>
 
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
+#include "base/scoped_handle.h"
 #include "chrome/common/ipc_message.h"
+#include "chrome/plugin/npobject_stub.h"
 #include "chrome/renderer/plugin_channel_host.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webplugin_delegate.h"
 
 class GURL;
 struct PluginHostMsg_URLRequest_Params;
-class NPObjectStub;
 class RenderView;
 class SkBitmap;
 

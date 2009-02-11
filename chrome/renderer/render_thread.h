@@ -7,22 +7,23 @@
 
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
+#include "base/ref_counted.h"
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "base/thread.h"
 #include "build/build_config.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/message_router.h"
+#include "chrome/common/modal_dialog_event.h"
 
-class FilePath;
-class NotificationService;
-class RenderDnsMaster;
 class SkBitmap;
-class UserScriptSlave;
 class VisitedLinkSlave;
-struct ModalDialogEvent;
 struct WebPreferences;
+class RenderDnsMaster;
+class NotificationService;
+class UserScriptSlave;
 
 // The RenderThreadBase is the minimal interface that a RenderView/Widget
 // expects from a render thread. The interface basically abstracts a way to send

@@ -18,9 +18,9 @@
 
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webcursor.h"
+#include "webkit/glue/webplugin.h"
 
 class RenderThreadBase;
-struct WebPluginGeometry;
 
 // RenderWidget provides a communication bridge between a WebWidget and
 // a RenderWidgetHost, the latter of which lives in a different process.
