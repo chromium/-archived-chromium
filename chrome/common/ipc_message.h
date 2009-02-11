@@ -17,7 +17,7 @@
 #define IPC_MESSAGE_LOG_ENABLED
 #endif
 #elif defined(OS_POSIX)
-#include "chrome/common/file_descriptor_posix.h"
+#include "chrome/common/descriptor_set_posix.h"
 #endif
 
 namespace IPC {

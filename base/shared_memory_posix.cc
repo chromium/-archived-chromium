@@ -29,7 +29,7 @@ SharedMemory::SharedMemory()
 }
 
 SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only)
-    : mapped_file_(handle),
+    : mapped_file_(handle.fd),
       memory_(NULL),
       read_only_(read_only),
       max_size_(0) {
@@ -37,7 +37,7 @@ SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only)
 
 SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only,
                            ProcessHandle process)
-    : mapped_file_(handle),
+    : mapped_file_(handle.fd),
       memory_(NULL),
       read_only_(read_only),
       max_size_(0) {
@@ -48,6 +48,11 @@ SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only,
 
 SharedMemory::~SharedMemory() {
   Close();
+}
+
+// static
+bool SharedMemory::IsHandleValid(const SharedMemoryHandle& handle) {
+  return handle.fd >= 0;
 }
 
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
@@ -232,10 +237,15 @@ bool SharedMemory::Unmap() {
 bool SharedMemory::ShareToProcessCommon(ProcessHandle process,
                                         SharedMemoryHandle *new_handle,
                                         bool close_self) {
-  *new_handle = 0;
-  // TODO(awalker): figure out if we need this, and do the appropriate
-  // VM magic if so.
-  return false;
+  const int new_fd = dup(mapped_file_);
+  DCHECK(new_fd >= -1);
+  new_handle->fd = new_fd;
+  new_handle->auto_close = true;
+
+  if (close_self)
+    Close();
+
+  return true;
 }
 
 
@@ -275,6 +285,10 @@ void SharedMemory::Lock() {
 
 void SharedMemory::Unlock() {
   LockOrUnlockCommon(F_ULOCK);
+}
+
+SharedMemoryHandle SharedMemory::handle() const {
+  return FileDescriptor(mapped_file_, false);
 }
 
 }  // namespace base

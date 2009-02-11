@@ -342,7 +342,8 @@ void ResourceDispatcher::OnReceivedData(int request_id,
     sender->Send(
         new ViewHostMsg_DataReceived_ACK(MSG_ROUTING_NONE, request_id));
 
-  DCHECK((shm_handle && data_len > 0) || (!shm_handle && !data_len));
+  const bool shm_valid = base::SharedMemory::IsHandleValid(shm_handle);
+  DCHECK((shm_valid && data_len > 0) || (!shm_valid && !data_len));
   base::SharedMemory shared_mem(shm_handle, true);  // read only
 
   PendingRequestList::iterator it = pending_requests_.find(request_id);

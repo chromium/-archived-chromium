@@ -28,7 +28,7 @@
 #include "base/singleton.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/file_descriptor_posix.h"
+#include "chrome/common/descriptor_set_posix.h"
 #include "chrome/common/ipc_message_utils.h"
 
 namespace IPC {

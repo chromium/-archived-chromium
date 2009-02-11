@@ -164,13 +164,13 @@ void RenderThread::CleanUp() {
 }
 
 void RenderThread::OnUpdateVisitedLinks(base::SharedMemoryHandle table) {
-  DCHECK(table) << "Bad table handle";
+  DCHECK(base::SharedMemory::IsHandleValid(table)) << "Bad table handle";
   visited_link_slave_->Init(table);
 }
 
 void RenderThread::OnUpdateUserScripts(
     base::SharedMemoryHandle scripts) {
-  DCHECK(scripts) << "Bad scripts handle";
+  DCHECK(base::SharedMemory::IsHandleValid(scripts)) << "Bad scripts handle";
   user_script_slave_->UpdateScripts(scripts);
 }
 

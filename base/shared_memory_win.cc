@@ -45,6 +45,11 @@ SharedMemory::~SharedMemory() {
     CloseHandle(lock_);
 }
 
+// static
+bool SharedMemory::IsHandleValid(const SharedMemoryHandle& handle) {
+  return handle != NULL;
+}
+
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
                           bool open_existing, size_t size) {
   DCHECK(mapped_file_ == NULL);
@@ -166,6 +171,10 @@ void SharedMemory::Lock() {
 void SharedMemory::Unlock() {
   DCHECK(lock_ != NULL);
   ReleaseMutex(lock_);
+}
+
+SharedMemoryHandle SharedMemory::handle() const {
+  return mapped_file_;
 }
 
 }  // namespace base

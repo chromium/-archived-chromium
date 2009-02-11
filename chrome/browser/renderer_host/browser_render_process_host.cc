@@ -524,18 +524,14 @@ void BrowserRenderProcessHost::InitVisitedLinks() {
     return;
   }
 
-#if defined(OS_WIN)
-  base::SharedMemoryHandle handle_for_process = NULL;
-  visitedlink_master->ShareToProcess(GetRendererProcessHandle(),
-                                     &handle_for_process);
-  DCHECK(handle_for_process);
-  if (handle_for_process) {
+  base::SharedMemoryHandle handle_for_process;
+  bool r = visitedlink_master->ShareToProcess(GetRendererProcessHandle(),
+                                              &handle_for_process);
+  DCHECK(r);
+
+  if (base::SharedMemory::IsHandleValid(handle_for_process)) {
     channel_->Send(new ViewMsg_VisitedLink_NewTable(handle_for_process));
   }
-#else
-  // TODO(port): ShareToProcess is Windows-specific.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void BrowserRenderProcessHost::InitUserScripts() {
@@ -553,11 +549,11 @@ void BrowserRenderProcessHost::InitUserScripts() {
 
 void BrowserRenderProcessHost::SendUserScriptsUpdate(
     base::SharedMemory *shared_memory) {
-  base::SharedMemoryHandle handle_for_process = NULL;
-  shared_memory->ShareToProcess(GetRendererProcessHandle(),
-                                &handle_for_process);
-  DCHECK(handle_for_process);
-  if (handle_for_process) {
+  base::SharedMemoryHandle handle_for_process;
+  bool r = shared_memory->ShareToProcess(GetRendererProcessHandle(),
+                                         &handle_for_process);
+  DCHECK(r);
+  if (base::SharedMemory::IsHandleValid(handle_for_process)) {
     channel_->Send(new ViewMsg_UserScripts_NewScripts(handle_for_process));
   }
 }

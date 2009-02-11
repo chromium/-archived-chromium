@@ -13,7 +13,7 @@
 #include "base/string_util.h"
 #include "base/tuple.h"
 #if defined(OS_POSIX)
-#include "chrome/common/file_descriptor_posix.h"
+#include "chrome/common/descriptor_set_posix.h"
 #endif
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
@@ -668,13 +668,15 @@ struct ParamTraits<gfx::Size> {
 #if defined(OS_POSIX)
 
 template<>
-struct ParamTraits<FileDescriptor> {
-  typedef FileDescriptor param_type;
+struct ParamTraits<base::FileDescriptor> {
+  typedef base::FileDescriptor param_type;
   static void Write(Message* m, const param_type& p) {
     if (p.auto_close) {
-      m->descriptor_set()->AddAndAutoClose(p.fd);
+      if (!m->descriptor_set()->AddAndAutoClose(p.fd))
+        NOTREACHED();
     } else {
-      m->descriptor_set()->Add(p.fd);
+      if (!m->descriptor_set()->Add(p.fd))
+        NOTREACHED();
     }
   }
   static bool Read(const Message* m, void** iter, param_type* r) {

@@ -9,6 +9,7 @@
 
 #if defined(OS_POSIX)
 #include <semaphore.h>
+#include "base/file_descriptor_posix.h"
 #endif
 #include <string>
 
@@ -23,7 +24,7 @@ namespace base {
 typedef HANDLE SharedMemoryHandle;
 typedef HANDLE SharedMemoryLock;
 #elif defined(OS_POSIX)
-typedef int SharedMemoryHandle;
+typedef FileDescriptor SharedMemoryHandle;
 // On POSIX, the lock is implemented as a lockf() on the mapped file,
 // so no additional member (or definition of SharedMemoryLock) is
 // needed.
@@ -48,6 +49,10 @@ class SharedMemory {
 
   // Destructor.  Will close any open files.
   ~SharedMemory();
+
+  // Return true iff the given handle is valid (i.e. not the distingished
+  // invalid value; NULL for a HANDLE and -1 for a file descriptor)
+  static bool IsHandleValid(const SharedMemoryHandle& handle);
 
   // Creates or opens a shared memory segment based on a name.
   // If read_only is true, opens the memory as read-only.
@@ -92,7 +97,7 @@ class SharedMemory {
   // Get access to the underlying OS handle for this segment.
   // Use of this handle for anything other than an opaque
   // identifier is not portable.
-  SharedMemoryHandle handle() const { return mapped_file_; }
+  SharedMemoryHandle handle() const;
 
   // Closes the open shared memory segment.
   // It is safe to call Close repeatedly.
@@ -147,7 +152,11 @@ class SharedMemory {
                             bool close_self);
 
   std::wstring       name_;
-  SharedMemoryHandle mapped_file_;
+#if defined(OS_WIN)
+  HANDLE mapped_file_;
+#elif defined(OS_POSIX)
+  int mapped_file_;
+#endif
   void*              memory_;
   bool               read_only_;
   size_t             max_size_;

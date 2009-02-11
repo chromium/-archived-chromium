@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/file_descriptor_posix.h"
+#include "chrome/common/descriptor_set_posix.h"
 
 #include "base/logging.h"
 
@@ -29,20 +29,27 @@ DescriptorSet::~DescriptorSet() {
   }
 }
 
-void DescriptorSet::Add(int fd) {
-  struct FileDescriptor sd;
+bool DescriptorSet::Add(int fd) {
+  if (descriptors_.size() == MAX_DESCRIPTORS_PER_MESSAGE)
+    return false;
+
+  struct base::FileDescriptor sd;
   sd.fd = fd;
   sd.auto_close = false;
   descriptors_.push_back(sd);
-  DCHECK(descriptors_.size() <= MAX_DESCRIPTORS_PER_MESSAGE);
+  return true;
 }
 
-void DescriptorSet::AddAndAutoClose(int fd) {
-  struct FileDescriptor sd;
+bool DescriptorSet::AddAndAutoClose(int fd) {
+  if (descriptors_.size() == MAX_DESCRIPTORS_PER_MESSAGE)
+    return false;
+
+  struct base::FileDescriptor sd;
   sd.fd = fd;
   sd.auto_close = true;
   descriptors_.push_back(sd);
   DCHECK(descriptors_.size() <= MAX_DESCRIPTORS_PER_MESSAGE);
+  return true;
 }
 
 int DescriptorSet::NextDescriptor() {
@@ -53,19 +60,22 @@ int DescriptorSet::NextDescriptor() {
 }
 
 void DescriptorSet::GetDescriptors(int* buffer) const {
-  for (std::vector<FileDescriptor>::const_iterator
+  DCHECK_EQ(next_descriptor_, 0u);
+
+  for (std::vector<base::FileDescriptor>::const_iterator
        i = descriptors_.begin(); i != descriptors_.end(); ++i) {
     *(buffer++) = i->fd;
   }
 }
 
 void DescriptorSet::CommitAll() {
-  for (std::vector<FileDescriptor>::iterator
+  for (std::vector<base::FileDescriptor>::iterator
        i = descriptors_.begin(); i != descriptors_.end(); ++i) {
     if (i->auto_close)
       close(i->fd);
   }
   descriptors_.clear();
+  next_descriptor_ = 0;
 }
 
 void DescriptorSet::SetDescriptors(const int* buffer, unsigned count) {
@@ -74,7 +84,7 @@ void DescriptorSet::SetDescriptors(const int* buffer, unsigned count) {
 
   descriptors_.reserve(count);
   for (unsigned i = 0; i < count; ++i) {
-    struct FileDescriptor sd;
+    struct base::FileDescriptor sd;
     sd.fd = buffer[i];
     sd.auto_close = true;
     descriptors_.push_back(sd);

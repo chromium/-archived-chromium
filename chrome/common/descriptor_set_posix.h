@@ -2,30 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_FILE_DESCRIPTOR_POSIX_H_
-#define CHROME_COMMON_FILE_DESCRIPTOR_POSIX_H_
+#ifndef CHROME_COMMON_DESCRIPTOR_SET_POSIX_H_
+#define CHROME_COMMON_DESCRIPTOR_SET_POSIX_H_
 
 #include <vector>
 
-// -----------------------------------------------------------------------------
-// A FileDescriptor is a structure for use in IPC messages. It allows one to
-// send descriptors over an IPC channel.
-//
-// In the Windows world, processes can peek and poke the HANDLE table of other
-// processes. On POSIX, in order to transmit descriptors we need to include
-// them in a control-message (a side-channel on the UNIX domain socket).
-// Serialising this type adds descriptors to a vector in the IPC Message, from
-// which the IPC channel can package them up for the kernel.
-// -----------------------------------------------------------------------------
-struct FileDescriptor {
-  FileDescriptor()
-      : fd(-1),
-        auto_close(false) { }
-
-  int fd;
-  // If true, close this descriptor after it has been sent.
-  bool auto_close;
-};
+#include "base/basictypes.h"
+#include "base/file_descriptor_posix.h"
 
 // -----------------------------------------------------------------------------
 // A DescriptorSet is an ordered set of POSIX file descriptors. These are
@@ -52,11 +35,11 @@ class DescriptorSet {
   // ---------------------------------------------------------------------------
   // Interfaces for building during message serialisation...
 
-  // Add a descriptor to the end of the set
-  void Add(int fd);
+  // Add a descriptor to the end of the set. Returns false iff the set is full.
+  bool Add(int fd);
   // Add a descriptor to the end of the set and automatically close it after
-  // transmission.
-  void AddAndAutoClose(int fd);
+  // transmission. Returns false iff the set is full.
+  bool AddAndAutoClose(int fd);
 
   // ---------------------------------------------------------------------------
 
@@ -115,10 +98,12 @@ class DescriptorSet {
   // these descriptors are sent as control data. After sending, any descriptors
   // with a true flag are closed. If this message has been received, then these
   // are the descriptors which were received and all close flags are true.
-  std::vector<FileDescriptor> descriptors_;
+  std::vector<base::FileDescriptor> descriptors_;
   // When deserialising the message, the descriptors will be extracted
   // one-by-one. This contains the index of the next unused descriptor.
   unsigned next_descriptor_;
+
+  DISALLOW_COPY_AND_ASSIGN(DescriptorSet);
 };
 
 #endif  // CHROME_COMMON_FILE_DESCRIPTOR_POSIX_H_

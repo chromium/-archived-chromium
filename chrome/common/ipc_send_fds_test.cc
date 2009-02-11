@@ -47,10 +47,11 @@ class MyChannelDescriptorListener : public IPC::Channel::Listener {
   virtual void OnMessageReceived(const IPC::Message& message) {
     void* iter = NULL;
 
-    FileDescriptor descriptor;
+    base::FileDescriptor descriptor;
 
     ASSERT_TRUE(
-        IPC::ParamTraits<FileDescriptor>::Read(&message, &iter, &descriptor));
+        IPC::ParamTraits<base::FileDescriptor>::Read(
+            &message, &iter, &descriptor));
 
     VerifyAndCloseDescriptor(descriptor.fd, expected_inode_num_);
     MessageLoop::current()->Quit();
@@ -67,7 +68,7 @@ void TestDescriptorServer(IPC::Channel &chan,
                           base::ProcessHandle process_handle) {
   ASSERT_TRUE(process_handle);
 
-  FileDescriptor descriptor;
+  base::FileDescriptor descriptor;
   const int fd = open(kDevRandomPath, O_RDONLY);
   ASSERT_GE(fd, 0);
   descriptor.auto_close = true;
@@ -76,7 +77,7 @@ void TestDescriptorServer(IPC::Channel &chan,
   IPC::Message* message = new IPC::Message(0, // routing_id
                                            3, // message type
                                            IPC::Message::PRIORITY_NORMAL);
-  IPC::ParamTraits<FileDescriptor>::Write(message, descriptor);
+  IPC::ParamTraits<base::FileDescriptor>::Write(message, descriptor);
   chan.Send(message);
 
   // Run message loop.

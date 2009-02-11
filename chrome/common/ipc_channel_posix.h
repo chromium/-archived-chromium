@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "base/message_loop.h"
-#include "chrome/common/file_descriptor_posix.h"
+#include "chrome/common/descriptor_set_posix.h"
 
 namespace IPC {
 
