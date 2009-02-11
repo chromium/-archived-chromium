@@ -328,6 +328,7 @@
 		BA60A6800F3CB09F005A6703 /* protocol_manager_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD70E9D49DE009A6919 /* protocol_manager_unittest.cc */; };
 		BAA609ED0F3BCAA800783510 /* protocol_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD50E9D49DE009A6919 /* protocol_manager.cc */; };
 		BADB8B710F3A35AC00989B26 /* resource_dispatcher_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */; };
+		DDB41CECE38B852000F30D9F /* browsing_data_remover.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF84E0E9D4839009A6919 /* browsing_data_remover.cc */; };
 		E40CC5E30F2E348900708647 /* history_contents_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5E10F2E348900708647 /* history_contents_provider.cc */; };
 		E40CC5EE0F2E34C100708647 /* base_history_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF82B0E9D4839009A6919 /* base_history_model.cc */; };
 		E40CC5F20F2E34EE00708647 /* bookmark_folder_tree_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5F00F2E34EE00708647 /* bookmark_folder_tree_model.cc */; };
@@ -5147,6 +5148,7 @@
 				E48B68640F2637B6002E47EC /* browser_window_cocoa.mm in Sources */,
 				E48B68570F26330C002E47EC /* browser_window_controller.mm in Sources */,
 				E48B684D0F2630D3002E47EC /* browser_window_factory.mm in Sources */,
+				DDB41CECE38B852000F30D9F /* browsing_data_remover.cc in Sources */,
 				E434BBD00F37D93C00B665C7 /* browsing_instance.cc in Sources */,
 				E45075E20F150A6F003BE099 /* buffered_resource_handler.cc in Sources */,
 				475CAF858604B413561740C1 /* cache_manager_host.cc in Sources */,

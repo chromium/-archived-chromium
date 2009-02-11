@@ -46,6 +46,7 @@
 
 class Browser;
 class BookmarkService;
+class CancelableRequestConsumerBase;
 class CommandLine;
 class ConstrainedWindow;
 class DOMUIHost;
@@ -165,7 +166,23 @@ class UserDataManager {
   static UserDataManager* instance_;
 };
 
-class SessionService : public base::RefCountedThreadSafe<SessionService> {
+class BaseSessionService
+    : public base::RefCountedThreadSafe<BaseSessionService> {
+ public:
+  enum SessionType {
+    SESSION_RESTORE,
+    TAB_RESTORE
+  };
+  BaseSessionService() { NOTIMPLEMENTED(); }
+  BaseSessionService(SessionType type,
+                     Profile* profile,
+                     const std::wstring& path) {
+    NOTIMPLEMENTED();
+  }
+  void DeleteLastSession() { NOTIMPLEMENTED(); }
+};
+
+class SessionService : public BaseSessionService {
  public:
   explicit SessionService(Profile* profile) { }
   void WindowClosed(const SessionID &) { NOTIMPLEMENTED(); }
@@ -195,11 +212,12 @@ class SessionRestore {
   static size_t num_tabs_to_load_;
 };
 
-class TabRestoreService : public base::RefCountedThreadSafe<TabRestoreService> {
+class TabRestoreService : public BaseSessionService {
  public:
   explicit TabRestoreService(Profile* profile) { }
   void BrowserClosing(Browser*) { NOTIMPLEMENTED(); }
   void BrowserClosed(Browser*) { NOTIMPLEMENTED(); }
+  void ClearEntries() { NOTIMPLEMENTED(); }
   void CreateHistoricalTab(NavigationController*) { NOTIMPLEMENTED(); }
   void RestoreMostRecentEntry(Browser*) { NOTIMPLEMENTED(); }
 };
@@ -267,6 +285,12 @@ class HistoryService {
     NOTIMPLEMENTED();
   }
   void SetPageTitle(const GURL&, const std::wstring&) {
+    NOTIMPLEMENTED();
+  }
+  typedef Callback0::Type ExpireHistoryCallback;
+  void ExpireHistoryBetween(base::Time begin_time, base::Time end_time,
+                            CancelableRequestConsumerBase* consumer,
+                            ExpireHistoryCallback* callback) {
     NOTIMPLEMENTED();
   }
 
@@ -781,6 +805,12 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager> {
   }
   void DownloadUrl(const GURL& url, const GURL& referrer,
                    WebContents* web_contents) { NOTIMPLEMENTED(); }
+  int RemoveDownloadsBetween(const base::Time remove_begin,
+                             const base::Time remove_end) {
+    NOTIMPLEMENTED();
+    return 0;
+  }
+  void ClearLastDownloadPath() { NOTIMPLEMENTED(); }
   int in_progress_count() {
     NOTIMPLEMENTED();
     return 0;
