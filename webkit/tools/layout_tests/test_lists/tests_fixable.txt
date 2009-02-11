@@ -319,14 +319,23 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
+LINUX : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 LINUX MAC : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
+// For these two fast/frames tests it looks like the win baseline had some weird
+// artifacts on the scrollbars on one of the frames, which has now been removed.
+// This artifact does not exist on the mac baseline.
+LINUX : LayoutTests/fast/frames/invalid.html = FAIL
+LINUX : LayoutTests/fast/frames/valid.html = FAIL
+LINUX : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 // Compact support was removed from WebKit by Hyatt and layout tests rebaselined in r40259.
 LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 MAC LINUX : LayoutTests/fast/dom/prototype-chain.html = FAIL
 MAC LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
+MAC LINUX : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
+MAC LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 LINUX : LayoutTests/fast/runin/002.html = FAIL
 LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
@@ -606,8 +615,8 @@ WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 // The pattern we generate is wrong.
 LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 
-// Background SVGs fail upstream but were rebaselined to pass (r38335)
-// https://bugs.webkit.org/show_bug.cgi?id=21910
+// Fixed upstream, see https://bugs.webkit.org/show_bug.cgi?id=21910.
+// However, we don't seem to draw the "eyeballs" at the correct location.
 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 
 //
@@ -986,15 +995,7 @@ LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
 // The pixel diff looks ok, but the render trees are pretty different.
 LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
-// Linux pixeltest failure: Small scrollbar error
-LINUX WIN : LayoutTests/fast/frames/invalid.html = FAIL
-// Linux pixeltest failure: Looks like we're screwing up the scollbar
-LINUX WIN : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
-// Linux pixeltest failure: Looks like we're screwing up the scollbar
-LINUX WIN : LayoutTests/fast/frames/valid.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
-LayoutTests/fast/overflow/overflow-x-y.html = FAIL
-LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
@@ -1677,7 +1678,6 @@ LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
 WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 
 // Merge 40165:40297 -- regressions
-LINUX WIN : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 LayoutTests/fast/forms/textarea-no-scroll-on-blur.html = FAIL
 LINUX WIN : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT

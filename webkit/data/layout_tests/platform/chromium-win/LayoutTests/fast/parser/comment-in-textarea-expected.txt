@@ -6,14 +6,14 @@ layer at (0,0) size 800x600
       RenderText {#text} at (0,0) size 0x0
       RenderText {#text} at (0,0) size 0x0
       RenderText {#text} at (0,0) size 0x0
-layer at (8,9) size 159x32 clip at (9,10) size 142x30 scrollHeight 72
-  RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 138x70
-      RenderText {#text} at (0,0) size 138x56
-        text run at (0,0) width 133: "<!-- </textarea> --"
-        text run at (0,14) width 7: ">"
-        text run at (7,14) width 0: " "
-        text run at (0,28) width 138: "This should be part "
-        text run at (0,42) width 105: "of the textarea"
-        text run at (105,42) width 0: " "
-      RenderBR {BR} at (0,56) size 0x14
+layer at (8,9) size 179x36 clip at (9,10) size 162x34 scrollHeight 82
+  RenderTextControl {TEXTAREA} at (0,1) size 179x36 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
+    RenderBlock {DIV} at (3,3) size 158x80
+      RenderText {#text} at (0,0) size 158x64
+        text run at (0,0) width 152: "<!-- </textarea> --"
+        text run at (0,16) width 8: ">"
+        text run at (8,16) width 0: " "
+        text run at (0,32) width 158: "This should be part "
+        text run at (0,48) width 120: "of the textarea"
+        text run at (120,48) width 0: " "
+      RenderBR {BR} at (0,64) size 0x16
