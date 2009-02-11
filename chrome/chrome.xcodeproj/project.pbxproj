@@ -391,6 +391,7 @@
 		E43A7A0F0F1D192000ABD5D1 /* westResizeCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79F10F1D192000ABD5D1 /* westResizeCursor.png */; };
 		E43A7A100F1D192000ABD5D1 /* zoomInCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79F20F1D192000ABD5D1 /* zoomInCursor.png */; };
 		E43A7A110F1D192000ABD5D1 /* zoomOutCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79F30F1D192000ABD5D1 /* zoomOutCursor.png */; };
+		E43D07310F433A8D003F39CA /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF370E9D5362009A6919 /* libjpeg.a */; };
 		E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */ = {isa = PBXBuildFile; fileRef = E45060F10EE87D41003BE099 /* chrome_exe_main.mm */; };
 		E45062680EE890C2003BE099 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
 		E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6D0E9D52DC009A6919 /* libicui18n.a */; };
@@ -1544,35 +1545,35 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = ABFA33790F424EC5008FCF5D /* media.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = E4BA04540E25613300BE02C6 /* libmedia.a */;
+			remoteGlobalIDString = E4BA04540E25613300BE02C6;
 			remoteInfo = media;
 		};
 		ABFA33890F424EC5008FCF5D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABFA33790F424EC5008FCF5D /* media.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = E4AFA6230E523E2900201347 /* media_unittests */;
+			remoteGlobalIDString = E4AFA6230E523E2900201347;
 			remoteInfo = media_unittests;
 		};
 		ABFA338D0F424F39008FCF5D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABFA33790F424EC5008FCF5D /* media.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* media */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = media;
 		};
 		ABFA33DA0F4252CD008FCF5D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABFA33790F424EC5008FCF5D /* media.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* media */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = media;
 		};
 		ABFA34C90F425694008FCF5D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABFA33790F424EC5008FCF5D /* media.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* media */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = media;
 		};
 		B503E1010F017BE300547DC6 /* PBXContainerItemProxy */ = {
@@ -2852,6 +2853,7 @@
 				E45062A90EE89154003BE099 /* libicudata.a in Frameworks */,
 				E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */,
 				E45062AC0EE89154003BE099 /* libicuuc.a in Frameworks */,
+				E43D07310F433A8D003F39CA /* libjpeg.a in Frameworks */,
 				E4DCDC910F40929C0084059A /* libjsbindings.a in Frameworks */,
 				E4DCDC970F4092C10084059A /* libjscre.a in Frameworks */,
 				ABFA34C50F4255CC008FCF5D /* libmedia.a in Frameworks */,
