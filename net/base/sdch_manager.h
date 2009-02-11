@@ -243,13 +243,13 @@ class SdchManager {
   // by 1 the number of times it will be reported as blacklisted.
   const bool IsInSupportedDomain(const GURL& url);
 
-  // Schedule the URL fetching to load a dictionary. This will generally return
-  // long before the dictionary is actually loaded and added.
+  // Schedule the URL fetching to load a dictionary. This will always return
+  // before the dictionary is actually loaded and added.
   // After the implied task does completes, the dictionary will have been
   // cached in memory.
-  void FetchDictionary(const GURL& referring_url, const GURL& dictionary_url);
+  void FetchDictionary(const GURL& dictionary_url);
 
-  // Security test function used before initiating a fetch.
+  // Security test function used before initiating a FetchDictionary.
   // Return true if fetch is legal.
   bool CanFetchDictionary(const GURL& referring_url,
                           const GURL& dictionary_url) const;

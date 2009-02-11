@@ -18,8 +18,6 @@ void SdchDictionaryFetcher::Schedule(const GURL& dictionary_url) {
   ScheduleDelayedRun();
 }
 
-// TODO(jar): If QOS low priority is supported, switch to using that instead of
-// just waiting to do the fetch.
 void SdchDictionaryFetcher::ScheduleDelayedRun() {
   if (fetch_queue_.empty() || current_fetch_.get() || task_is_pending_)
     return;

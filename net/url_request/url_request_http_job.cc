@@ -64,6 +64,9 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
 }
 
 URLRequestHttpJob::~URLRequestHttpJob() {
+  if (sdch_dictionary_url_.is_valid()) {
+    SdchManager::Global()->FetchDictionary(sdch_dictionary_url_);
+  }
 }
 
 void URLRequestHttpJob::SetUpload(net::UploadData* upload) {
@@ -445,7 +448,6 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
     }
   }
 
-  // Get list of SDCH dictionary requests, and schedule them to be loaded.
   if (SdchManager::Global() &&
       SdchManager::Global()->IsInSupportedDomain(request_->url())) {
     static const std::string name = "Get-Dictionary";
@@ -459,7 +461,9 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
     // before we even download it (so that we don't waste memory or bandwidth).
     if (response_info_->headers->EnumerateHeader(&iter, name, &url_text)) {
       GURL dictionary_url = request_->url().Resolve(url_text);
-      SdchManager::Global()->FetchDictionary(request_->url(), dictionary_url);
+      if (SdchManager::Global()->CanFetchDictionary(request_->url(),
+                                                    dictionary_url))
+         sdch_dictionary_url_ = dictionary_url;
     }
   }
 
