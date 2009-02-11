@@ -136,11 +136,35 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLCollectionCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLFormElementCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLInputElementCustom.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLOptionsCollectionCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLSelectElementCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLSelectElementCustom.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8NamedNodesCollection.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8NamedNodesCollection.h"
 			>
 		</File>
 		<File
@@ -2682,14 +2706,6 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\v8_utility.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\v8_vectornodelist.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\v8_vectornodelist.h"
 			>
 		</File>
 		<File

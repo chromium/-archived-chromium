@@ -30,7 +30,6 @@
 #include "v8_events.h"
 #include "v8_binding.h"
 #include "v8_npobject.h"
-#include "v8_vectornodelist.h"
 #include "v8_custom.h"
 
 #include "V8Attr.h"
@@ -93,6 +92,7 @@
 #include "MessagePort.h"
 #include "MouseEvent.h"
 #include "NodeIterator.h"
+#include "NodeList.h"
 #include "Page.h"
 #include "PlatformScreen.h"
 #include "RGBColor.h"
@@ -126,31 +126,6 @@
 static const int kPopupTilePixels = 10;
 
 namespace WebCore {
-
-#define NAMED_PROPERTY_GETTER(NAME)  \
-v8::Handle<v8::Value> V8Custom::v8##NAME##NamedPropertyGetter(\
-    v8::Local<v8::String> name, const v8::AccessorInfo& info)
-
-#define NAMED_PROPERTY_SETTER(NAME)  \
-v8::Handle<v8::Value> V8Custom::v8##NAME##NamedPropertySetter(\
-    v8::Local<v8::String> name, v8::Local<v8::Value> value, \
-    const v8::AccessorInfo& info)
-
-#define NAMED_PROPERTY_DELETER(NAME) \
-v8::Handle<v8::Boolean> V8Custom::v8##NAME##NamedPropertyDeleter(\
-    v8::Local<v8::String> name, const v8::AccessorInfo& info)
-
-#define NAMED_ACCESS_CHECK(NAME) \
-bool V8Custom::v8##NAME##NamedSecurityCheck(v8::Local<v8::Object> host, \
-                                            v8::Local<v8::Value> key, \
-                                            v8::AccessType type, \
-                                            v8::Local<v8::Value> data)
-
-#define INDEXED_ACCESS_CHECK(NAME) \
-bool V8Custom::v8##NAME##IndexedSecurityCheck(v8::Local<v8::Object> host, \
-                                              uint32_t index, \
-                                              v8::AccessType type, \
-                                              v8::Local<v8::Value> data)
 
 class V8ScheduledAction : public ScheduledAction {
  public:
@@ -640,179 +615,6 @@ ACCESSOR_GETTER(EventClipboardData) {
     return V8Proxy::ToV8Object(V8ClassIndex::CLIPBOARD, clipboard);
   }
 
-  return v8::Undefined();
-}
-
-
-static v8::Handle<v8::Value> HTMLCollectionGetNamedItems(
-    HTMLCollection* collection, String name) {
-  Vector<RefPtr<Node> > namedItems;
-  collection->namedItems(name, namedItems);
-  switch (namedItems.size()) {
-    case 0:
-      return v8::Handle<v8::Value>();
-    case 1:
-      return V8Proxy::NodeToV8Object(namedItems.at(0).get());
-    default:
-      NodeList* list = new V8VectorNodeList(namedItems);
-      return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, list);
-  }
-}
-
-
-static v8::Handle<v8::Value> HTMLCollectionGetItem(
-    HTMLCollection* collection, v8::Handle<v8::Value> argument) {
-  v8::Local<v8::Uint32> index = argument->ToArrayIndex();
-  if (index.IsEmpty()) {
-    v8::Handle<v8::String> str = argument->ToString();
-    v8::Handle<v8::Value> result =
-      HTMLCollectionGetNamedItems(collection, ToWebCoreString(str));
-    if (result.IsEmpty())
-      return v8::Undefined();
-    else
-      return result;
-  }
-  unsigned i = index->Uint32Value();
-  RefPtr<Node> result = collection->item(i);
-  return V8Proxy::NodeToV8Object(result.get());
-}
-
-
-NAMED_PROPERTY_GETTER(HTMLCollection) {
-  INC_STATS("DOM.HTMLCollection.NamedPropertyGetter");
-  // Search the prototype chain first.
-  v8::Handle<v8::Value> value =
-      info.Holder()->GetRealNamedPropertyInPrototypeChain(name);
-
-  if (!value.IsEmpty()) {
-    return value;
-  }
-
-  // Search local callback properties next to find IDL defined
-  // properties.
-  if (info.Holder()->HasRealNamedCallbackProperty(name)) {
-    return v8::Handle<v8::Value>();
-  }
-
-  // Finally, search the DOM structure.
-  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
-      V8ClassIndex::HTMLCOLLECTION, info.Holder());
-  String key = ToWebCoreString(name);
-  return HTMLCollectionGetNamedItems(imp, key);
-}
-
-
-CALLBACK_FUNC_DECL(HTMLCollectionItem) {
-  INC_STATS("DOM.HTMLCollection.item()");
-  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
-      V8ClassIndex::HTMLCOLLECTION, args.Holder());
-  return HTMLCollectionGetItem(imp, args[0]);
-}
-
-
-CALLBACK_FUNC_DECL(HTMLCollectionNamedItem) {
-  INC_STATS("DOM.HTMLCollection.namedItem()");
-  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
-      V8ClassIndex::HTMLCOLLECTION, args.Holder());
-  String name = ToWebCoreString(args[0]);
-  v8::Handle<v8::Value> result =
-    HTMLCollectionGetNamedItems(imp, name);
-  if (result.IsEmpty())
-    return v8::Undefined();
-  else
-    return result;
-}
-
-
-CALLBACK_FUNC_DECL(HTMLCollectionCallAsFunction) {
-  INC_STATS("DOM.HTMLCollection.callAsFunction()");
-  if (args.Length() < 1) return v8::Undefined();
-
-  HTMLCollection* imp = V8Proxy::ToNativeObject<HTMLCollection>(
-      V8ClassIndex::HTMLCOLLECTION, args.Holder());
-
-  if (args.Length() == 1) {
-    return HTMLCollectionGetItem(imp, args[0]);
-  }
-
-  // If there is a second argument it is the index of the item we
-  // want.
-  String name = ToWebCoreString(args[0]);
-  v8::Local<v8::Uint32> index = args[1]->ToArrayIndex();
-  if (index.IsEmpty()) return v8::Undefined();
-  unsigned i = index->Uint32Value();
-  Node* node = imp->namedItem(name);
-  while (node) {
-    if (i == 0) return V8Proxy::NodeToV8Object(node);
-    node = imp->nextNamedItem(name);
-    i--;
-  }
-
-  return v8::Undefined();
-}
-
-
-static v8::Handle<v8::Value> V8HTMLSelectElementRemoveHelper(
-    HTMLSelectElement* imp, const v8::Arguments& args) {
-  if (V8HTMLOptionElement::HasInstance(args[0])) {
-    HTMLOptionElement* element =
-        V8Proxy::DOMWrapperToNode<HTMLOptionElement>(args[0]);
-    imp->remove(element->index());
-    return v8::Undefined();
-  }
-
-  imp->remove(ToInt32(args[0]));
-  return v8::Undefined();
-}
-
-CALLBACK_FUNC_DECL(HTMLSelectElementRemove) {
-  INC_STATS("DOM.HTMLSelectElement.remove");
-  HTMLSelectElement* imp =
-      V8Proxy::DOMWrapperToNode<HTMLSelectElement>(args.Holder());
-  return V8HTMLSelectElementRemoveHelper(imp, args);
-}
-
-CALLBACK_FUNC_DECL(HTMLOptionsCollectionRemove) {
-  INC_STATS("DOM.HTMLOptionsCollection.remove()");
-  HTMLOptionsCollection* imp =
-      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
-          V8ClassIndex::HTMLOPTIONSCOLLECTION, args.Holder());
-  HTMLSelectElement* base = static_cast<HTMLSelectElement*>(imp->base());
-  return V8HTMLSelectElementRemoveHelper(base, args);
-}
-
-
-CALLBACK_FUNC_DECL(HTMLOptionsCollectionAdd) {
-  INC_STATS("DOM.HTMLOptionsCollection.add()");
-  if (!V8HTMLOptionElement::HasInstance(args[0])) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Undefined();
-  }
-  HTMLOptionsCollection* imp =
-      V8Proxy::ToNativeObject<HTMLOptionsCollection>(
-          V8ClassIndex::HTMLOPTIONSCOLLECTION, args.Holder());
-  HTMLOptionElement* option =
-      V8Proxy::DOMWrapperToNode<HTMLOptionElement>(args[0]);
-
-  ExceptionCode ec = 0;
-  if (args.Length() < 2) {
-    imp->add(option, ec);
-  } else {
-    bool ok;
-    v8::TryCatch try_catch;
-    int index = ToInt32(args[1], ok);
-    if (try_catch.HasCaught()) {
-      return v8::Undefined();
-    }
-    if (!ok) {
-      ec = TYPE_MISMATCH_ERR;
-    } else {
-      imp->add(option, index, ec);
-    }
-  }
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-  }
   return v8::Undefined();
 }
 
@@ -1500,35 +1302,6 @@ NAMED_PROPERTY_GETTER(HTMLFrameSetElement)
     return v8::Undefined();
   }
   return v8::Handle<v8::Value>();
-}
-
-
-NAMED_PROPERTY_GETTER(HTMLFormElement) {
-  INC_STATS("DOM.HTMLFormElement.NamedPropertyGetter");
-  HTMLFormElement* imp =
-      V8Proxy::DOMWrapperToNode<HTMLFormElement>(info.Holder());
-  String v = ToWebCoreString(name);
-
-  // Call getNamedElements twice, first time check if it has a value
-  // and let HTMLFormElement update its cache.
-  // See issue: 867404
-  {
-    Vector<RefPtr<Node> > elements;
-    imp->getNamedElements(v, elements);
-    if (elements.size() == 0)
-      return v8::Handle<v8::Value>();
-  }
-  // Second call may return different results from the first call,
-  // but if the first the size cannot be zero.
-  Vector<RefPtr<Node> > elements;
-  imp->getNamedElements(v, elements);
-  ASSERT(elements.size() != 0);
-  if (elements.size() == 1) {
-    return V8Proxy::NodeToV8Object(elements.at(0).get());
-  } else {
-    NodeList* collection = new V8VectorNodeList(elements);
-    return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, collection);
-  }
 }
 
 

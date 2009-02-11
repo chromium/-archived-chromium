@@ -53,6 +53,10 @@
 		41DE748E0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */; };
 		41DE7B6C0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */; };
 		41DE7B6F0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */; };
+		41DE7C970F424AAC0049BC24 /* V8HTMLCollectionCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7C960F424AAC0049BC24 /* V8HTMLCollectionCustom.cpp */; };
+		41DE7C9E0F424ACD0049BC24 /* V8HTMLFormElementCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7C9D0F424ACD0049BC24 /* V8HTMLFormElementCustom.cpp */; };
+		41DE7CA00F424AE80049BC24 /* V8HTMLSelectElementCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7C9F0F424AE80049BC24 /* V8HTMLSelectElementCustom.cpp */; };
+		41DE7CA30F424B020049BC24 /* V8NamedNodesCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE7CA20F424B020049BC24 /* V8NamedNodesCollection.cpp */; };
 		41DEA0680F27C0F900E40D43 /* BackForwardListChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */; };
 		453FFDF935221CD484A3AFED /* Interval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 35DEC96C125DC674B5C9FA27 /* Interval.cpp */; };
 		489B04B64226A8BC625C0DDB /* RenderLineBoxList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03F1A9ED31C43E9C91A48AE0 /* RenderLineBoxList.cpp */; };
@@ -1000,7 +1004,6 @@
 		938447970F16B06E0075F4C5 /* v8_np_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095E60DAFF0DC00F72082 /* v8_np_utils.cpp */; };
 		938447980F16B06E0075F4C5 /* v8_npobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095E80DAFF0DD00F72082 /* v8_npobject.cpp */; };
 		938447990F16B06E0075F4C5 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
-		9384479A0F16B06E0075F4C5 /* v8_vectornodelist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */; };
 		9384479B0F16B06E0075F4C5 /* V8Attr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00913F0DAFEFE200F72082 /* V8Attr.cpp */; };
 		9384479C0F16B06E0075F4C5 /* V8BarInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0091410DAFEFE200F72082 /* V8BarInfo.cpp */; };
 		9384479D0F16B06E0075F4C5 /* V8CanvasGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0091430DAFEFE200F72082 /* V8CanvasGradient.cpp */; };
@@ -1571,6 +1574,12 @@
 		41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGMatrixCustom.cpp; sourceTree = "<group>"; };
 		41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLOptionsCollectionCustom.cpp; sourceTree = "<group>"; };
 		41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLInputElementCustom.cpp; sourceTree = "<group>"; };
+		41DE7C960F424AAC0049BC24 /* V8HTMLCollectionCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLCollectionCustom.cpp; sourceTree = "<group>"; };
+		41DE7C9D0F424ACD0049BC24 /* V8HTMLFormElementCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLFormElementCustom.cpp; sourceTree = "<group>"; };
+		41DE7C9F0F424AE80049BC24 /* V8HTMLSelectElementCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLSelectElementCustom.cpp; sourceTree = "<group>"; };
+		41DE7CA10F424B020049BC24 /* V8NamedNodesCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8NamedNodesCollection.h; sourceTree = "<group>"; };
+		41DE7CA20F424B020049BC24 /* V8NamedNodesCollection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8NamedNodesCollection.cpp; sourceTree = "<group>"; };
+		41DE7CA40F424BEE0049BC24 /* V8HTMLSelectElementCustom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8HTMLSelectElementCustom.h; sourceTree = "<group>"; };
 		41DEA0670F27C0F900E40D43 /* BackForwardListChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BackForwardListChromium.cpp; sourceTree = "<group>"; };
 		41F1D4620EF70D1600DA8753 /* FontFastPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontFastPath.cpp; sourceTree = "<group>"; };
 		4C04BF9CDE7B0B591087B440 /* RenderObjectChildList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderObjectChildList.h; sourceTree = "<group>"; };
@@ -2432,8 +2441,6 @@
 		7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = v8_proxy.cpp; sourceTree = "<group>"; };
 		7B0095EB0DAFF0DD00F72082 /* v8_proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_proxy.h; sourceTree = "<group>"; };
 		7B0095EC0DAFF0DD00F72082 /* v8_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_utility.h; sourceTree = "<group>"; };
-		7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = v8_vectornodelist.cpp; sourceTree = "<group>"; };
-		7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_vectornodelist.h; sourceTree = "<group>"; };
 		7B0E595B0DB3D195007D4907 /* IconDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IconDatabase.h; path = icon/IconDatabase.h; sourceTree = "<group>"; };
 		7B0E595C0DB3D195007D4907 /* IconDatabaseClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IconDatabaseClient.h; path = icon/IconDatabaseClient.h; sourceTree = "<group>"; };
 		7B0E595D0DB3D195007D4907 /* IconDatabaseNone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IconDatabaseNone.cpp; path = icon/IconDatabaseNone.cpp; sourceTree = "<group>"; };
@@ -4518,8 +4525,14 @@
 			children = (
 				41DE74870F3CDBCB0049BC24 /* V8CustomBinding.h */,
 				41DE74880F3CDBCB0049BC24 /* V8CustomEventListener.h */,
+				41DE7C960F424AAC0049BC24 /* V8HTMLCollectionCustom.cpp */,
+				41DE7C9D0F424ACD0049BC24 /* V8HTMLFormElementCustom.cpp */,
 				41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */,
 				41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */,
+				41DE7CA40F424BEE0049BC24 /* V8HTMLSelectElementCustom.h */,
+				41DE7C9F0F424AE80049BC24 /* V8HTMLSelectElementCustom.cpp */,
+				41DE7CA20F424B020049BC24 /* V8NamedNodesCollection.cpp */,
+				41DE7CA10F424B020049BC24 /* V8NamedNodesCollection.h */,
 				41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */,
 				41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */,
 				41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */,
@@ -4688,8 +4701,6 @@
 				7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */,
 				7B0095EB0DAFF0DD00F72082 /* v8_proxy.h */,
 				7B0095EC0DAFF0DD00F72082 /* v8_utility.h */,
-				7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */,
-				7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */,
 				89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */,
 				ABBD24780EB7B31B00BEC658 /* V8MessagePortCustom.cpp */,
 				4DB7F55A0E9BD66300C66CE0 /* V8SVGPODTypeWrapper.h */,
@@ -8294,7 +8305,6 @@
 				938447970F16B06E0075F4C5 /* v8_np_utils.cpp in Sources */,
 				938447980F16B06E0075F4C5 /* v8_npobject.cpp in Sources */,
 				938447990F16B06E0075F4C5 /* v8_proxy.cpp in Sources */,
-				9384479A0F16B06E0075F4C5 /* v8_vectornodelist.cpp in Sources */,
 				9384479B0F16B06E0075F4C5 /* V8Attr.cpp in Sources */,
 				9384479C0F16B06E0075F4C5 /* V8BarInfo.cpp in Sources */,
 				9384479D0F16B06E0075F4C5 /* V8CanvasGradient.cpp in Sources */,
@@ -8350,6 +8360,7 @@
 				938447D00F16B06E0075F4C5 /* V8HTMLButtonElement.cpp in Sources */,
 				938447D10F16B06E0075F4C5 /* V8HTMLCanvasElement.cpp in Sources */,
 				938447D20F16B06E0075F4C5 /* V8HTMLCollection.cpp in Sources */,
+				41DE7C970F424AAC0049BC24 /* V8HTMLCollectionCustom.cpp in Sources */,
 				938447D30F16B06E0075F4C5 /* V8HTMLDirectoryElement.cpp in Sources */,
 				938447D40F16B06E0075F4C5 /* V8HTMLDivElement.cpp in Sources */,
 				938447D50F16B06E0075F4C5 /* V8HTMLDListElement.cpp in Sources */,
@@ -8359,6 +8370,7 @@
 				938447D90F16B06E0075F4C5 /* V8HTMLFieldSetElement.cpp in Sources */,
 				938447DA0F16B06E0075F4C5 /* V8HTMLFontElement.cpp in Sources */,
 				938447DB0F16B06E0075F4C5 /* V8HTMLFormElement.cpp in Sources */,
+				41DE7C9E0F424ACD0049BC24 /* V8HTMLFormElementCustom.cpp in Sources */,
 				938447DC0F16B06E0075F4C5 /* V8HTMLFrameElement.cpp in Sources */,
 				938447DD0F16B06E0075F4C5 /* V8HTMLFrameSetElement.cpp in Sources */,
 				938447DE0F16B06E0075F4C5 /* V8HTMLHeadElement.cpp in Sources */,
@@ -8392,6 +8404,7 @@
 				938447F80F16B06E0075F4C5 /* V8HTMLQuoteElement.cpp in Sources */,
 				938447F90F16B06E0075F4C5 /* V8HTMLScriptElement.cpp in Sources */,
 				938447FA0F16B06E0075F4C5 /* V8HTMLSelectElement.cpp in Sources */,
+				41DE7CA00F424AE80049BC24 /* V8HTMLSelectElementCustom.cpp in Sources */,
 				938447FB0F16B06E0075F4C5 /* V8HTMLSourceElement.cpp in Sources */,
 				938447FC0F16B06E0075F4C5 /* V8HTMLStyleElement.cpp in Sources */,
 				938447FD0F16B06E0075F4C5 /* V8HTMLTableCaptionElement.cpp in Sources */,
@@ -8419,6 +8432,7 @@
 				938448130F16B06E0075F4C5 /* V8MouseEvent.cpp in Sources */,
 				938448140F16B06E0075F4C5 /* V8MutationEvent.cpp in Sources */,
 				938448150F16B06E0075F4C5 /* V8NamedNodeMap.cpp in Sources */,
+				41DE7CA30F424B020049BC24 /* V8NamedNodesCollection.cpp in Sources */,
 				938448160F16B06E0075F4C5 /* V8Navigator.cpp in Sources */,
 				938448170F16B06E0075F4C5 /* V8Node.cpp in Sources */,
 				938448180F16B06E0075F4C5 /* V8NodeFilter.cpp in Sources */,

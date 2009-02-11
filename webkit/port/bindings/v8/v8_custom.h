@@ -34,6 +34,31 @@ v8::Handle<v8::Value> V8Custom::v8##NAME##IndexedPropertySetter(\
 v8::Handle<v8::Boolean> V8Custom::v8##NAME##IndexedPropertyDeleter(\
     uint32_t index, const v8::AccessorInfo& info)
 
+#define NAMED_PROPERTY_GETTER(NAME)  \
+    v8::Handle<v8::Value> V8Custom::v8##NAME##NamedPropertyGetter(\
+    v8::Local<v8::String> name, const v8::AccessorInfo& info)
+
+#define NAMED_PROPERTY_SETTER(NAME)  \
+    v8::Handle<v8::Value> V8Custom::v8##NAME##NamedPropertySetter(\
+    v8::Local<v8::String> name, v8::Local<v8::Value> value, \
+    const v8::AccessorInfo& info)
+
+#define NAMED_PROPERTY_DELETER(NAME) \
+    v8::Handle<v8::Boolean> V8Custom::v8##NAME##NamedPropertyDeleter(\
+    v8::Local<v8::String> name, const v8::AccessorInfo& info)
+
+#define NAMED_ACCESS_CHECK(NAME) \
+    bool V8Custom::v8##NAME##NamedSecurityCheck(v8::Local<v8::Object> host, \
+    v8::Local<v8::Value> key, \
+    v8::AccessType type, \
+    v8::Local<v8::Value> data)
+
+#define INDEXED_ACCESS_CHECK(NAME) \
+    bool V8Custom::v8##NAME##IndexedSecurityCheck(v8::Local<v8::Object> host, \
+    uint32_t index, \
+    v8::AccessType type, \
+    v8::Local<v8::Value> data)
+
 namespace WebCore {
 
 class Frame;
