@@ -22,8 +22,9 @@
 #include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/common/ipc_channel_proxy.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/ipc_message.h"
+#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/views/event.h"
 #include "webkit/glue/find_in_page_request.h"
@@ -31,6 +32,8 @@
 class LoginHandler;
 class NavigationControllerRestoredObserver;
 class ExternalTabContainer;
+enum AutomationMsg_NavigationResponseValues;
+struct AutocompleteMatchData;
 
 class AutomationProvider : public base::RefCounted<AutomationProvider>,
                            public IPC::Channel::Listener,
@@ -55,9 +58,17 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // navigation observer is returned. This object should NOT be deleted and
   // should be released by calling the corresponding
   // RemoveNavigationStatusListener method.
+  // The template argument NavigationCodeType facilitate the creation of the
+  // approriate NavigationNotificationObserver instance, which subscribes to
+  // the events published by the NotificationService and sends out a response
+  // to the IPC message.
+  template<class NavigationCodeType>
   NotificationObserver* AddNavigationStatusListener(
-      NavigationController* tab, IPC::Message* completed_response,
-      IPC::Message* auth_needed_response);
+      NavigationController* tab, IPC::Message* reply_message, 
+      NavigationCodeType success_code,
+      NavigationCodeType auth_needed_code,
+      NavigationCodeType failed_code);
+
   void RemoveNavigationStatusListener(NotificationObserver* obs);
 
   // Add an observer for the TabStrip. Currently only Tab append is observed. A
@@ -66,7 +77,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // NOT be deleted and should be released by calling the corresponding
   // RemoveTabStripObserver method.
   NotificationObserver* AddTabStripObserver(Browser* parent,
-                                            int32 routing_id);
+                                            int32 routing_id,
+                                            IPC::Message* reply_message);
   void RemoveTabStripObserver(NotificationObserver* obs);
 
   // Get the index of a particular NavigationController object
@@ -92,41 +104,43 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Received response from inspector controller
   void ReceivedInspectElementResponse(int num_resources);
 
+  IPC::Message* reply_message_release() {
+    IPC::Message* reply_message = reply_message_; 
+    reply_message_ = NULL;
+    return reply_message;
+  }
+
  private:
   // IPC Message callbacks.
-  void CloseBrowser(const IPC::Message& message, int handle);
-  void ActivateTab(const IPC::Message& message, int handle, int at_index);
-  void AppendTab(const IPC::Message& message, int handle, const GURL& url);
-  void CloseTab(const IPC::Message& message,
-                int tab_handle,
-                bool wait_until_closed);
+  void CloseBrowser(int handle, IPC::Message* reply_message);
+  void CloseBrowserAsync(int browser_handle);
+  void ActivateTab(int handle, int at_index, int* status);
+  void AppendTab(int handle, const GURL& url, IPC::Message* reply_message);
+  void CloseTab(int tab_handle, bool wait_until_closed,
+                IPC::Message* reply_message);
 
-  void GetActiveTabIndex(const IPC::Message& message, int handle);
-  void GetCookies(const IPC::Message& message, const GURL& url, int handle);
-  void SetCookie(const IPC::Message& message,
-                 const GURL& url,
+  void GetActiveTabIndex(int handle, int* active_tab_index);
+  void GetCookies(const GURL& url, int handle, int* value_size,
+                  std::string* value);
+  void SetCookie(const GURL& url,
                  const std::string value,
-                 int handle);
-  void GetBrowserWindowCount(const IPC::Message& message);
-  void GetShowingAppModalDialog(const IPC::Message& message);
-  void ClickAppModalDialogButton(const IPC::Message& message,
-                                 int button);
-  void GetBrowserWindow(const IPC::Message& message, int index);
-  void GetLastActiveBrowserWindow(const IPC::Message& message);
-  void GetActiveWindow(const IPC::Message& message);
-  void GetWindowHWND(const IPC::Message& message, int handle);
-  void ExecuteBrowserCommand(const IPC::Message& message,
-                             int handle,
-                             int command);
-  void WindowGetViewBounds(const IPC::Message& message,
-                           int handle,
-                           int view_id,
-                           bool screen_coordinates);
-  void WindowSimulateDrag(const IPC::Message& message,
-                          int handle,
+                 int handle,
+                 int* response_value);
+  void GetBrowserWindowCount(int* window_count);
+  void GetShowingAppModalDialog(bool* showing_dialog, int* dialog_button);
+  void ClickAppModalDialogButton(int button, bool* success);
+  void GetBrowserWindow(int index, int* handle);
+  void GetLastActiveBrowserWindow(int* handle);
+  void GetActiveWindow(int* handle);
+  void GetWindowHWND(int handle, HWND* win32_handle);
+  void ExecuteBrowserCommand(int handle, int command, bool* success);
+  void WindowGetViewBounds(int handle, int view_id, bool screen_coordinates,
+                           bool* success, gfx::Rect* bounds);
+  void WindowSimulateDrag(int handle,
                           std::vector<POINT> drag_path,
                           int flags,
-                          bool press_escape_en_route);
+                          bool press_escape_en_route,
+                          IPC::Message* reply_message);
   void WindowSimulateClick(const IPC::Message& message,
                           int handle,
                           POINT click,
@@ -135,43 +149,41 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                               int handle,
                               wchar_t key,
                               int flags);
-  void SetWindowVisible(const IPC::Message& message, int handle, bool visible);
-  void IsWindowActive(const IPC::Message& message, int handle);
+  void SetWindowVisible(int handle, bool visible, bool* result);
+  void IsWindowActive(int handle, bool* success, bool* is_active);
   void ActivateWindow(const IPC::Message& message, int handle);
 
-  void GetTabCount(const IPC::Message& message, int handle);
-  void GetTab(const IPC::Message& message, int win_handle, int tab_index);
-  void GetTabHWND(const IPC::Message& message, int handle);
-  void GetTabProcessID(const IPC::Message& message, int handle);
-  void GetTabTitle(const IPC::Message& message, int handle);
-  void GetTabURL(const IPC::Message& message, int handle);
+  void GetTabCount(int handle, int* tab_count);
+  void GetTab(int win_handle, int tab_index, int* tab_handle);
+  void GetTabHWND(int handle, HWND* tab_hwnd);
+  void GetTabProcessID(int handle, int* process_id);
+  void GetTabTitle(int handle, int* title_string_size, std::wstring* title);
+  void GetTabURL(int handle, bool* success, GURL* url);
   void HandleUnused(const IPC::Message& message, int handle);
-  void NavigateToURL(const IPC::Message& message, int handle, const GURL& url);
-  void NavigationAsync(const IPC::Message& message,
-                       int handle,
-                       const GURL& url);
-  void GoBack(const IPC::Message& message, int handle);
-  void GoForward(const IPC::Message& message, int handle);
-  void Reload(const IPC::Message& message, int handle);
-  void SetAuth(const IPC::Message& message, int tab_handle,
-               const std::wstring& username, const std::wstring& password);
-  void CancelAuth(const IPC::Message& message, int tab_handle);
-  void NeedsAuth(const IPC::Message& message, int tab_handle);
-  void GetRedirectsFrom(const IPC::Message& message,
-                        int tab_handle,
-                        const GURL& source_url);
-  void ExecuteJavascript(const IPC::Message& message,
-                         int handle,
+  void NavigateToURL(int handle, const GURL& url, IPC::Message* reply_message);
+  void NavigationAsync(int handle, const GURL& url, bool* status);
+  void GoBack(int handle, IPC::Message* reply_message);
+  void GoForward(int handle, IPC::Message* reply_message);
+  void Reload(int handle, IPC::Message* reply_message);
+  void SetAuth(int tab_handle, const std::wstring& username,
+               const std::wstring& password, IPC::Message* reply_message);
+  void CancelAuth(int tab_handle, IPC::Message* reply_message);
+  void NeedsAuth(int tab_handle, bool* needs_auth);
+  void GetRedirectsFrom(int tab_handle,
+                        const GURL& source_url,
+                        IPC::Message* reply_message);
+  void ExecuteJavascript(int handle,
                          const std::wstring& frame_xpath,
-                         const std::wstring& script);
-  void GetShelfVisibility(const IPC::Message& message, int handle);
+                         const std::wstring& script,
+                         IPC::Message* reply_message);
+  void GetShelfVisibility(int handle, bool* visible);
   void SetFilteredInet(const IPC::Message& message, bool enabled);
 
   void ScheduleMouseEvent(views::View* view,
                           views::Event::EventType type,
                           POINT point,
                           int flags);
-  void GetFocusedViewID(const IPC::Message& message, int handle);
+  void GetFocusedViewID(int handle, int* view_id);
 
   // Helper function to find the browser window that contains a given
   // NavigationController and activate that tab.
@@ -182,67 +194,72 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // to the Browser with given handle.
   void ApplyAccelerator(int handle, int id);
 
-  void GetConstrainedWindowCount(const IPC::Message& message,
-                                 int handle);
-  void GetConstrainedWindow(const IPC::Message& message, int handle, int index);
+  void GetConstrainedWindowCount(int handle, int* count);
+  void GetConstrainedWindow(int handle, int index, int* cwindow_handle);
 
-  void GetConstrainedTitle(const IPC::Message& message, int handle);
+  void GetConstrainedTitle(int handle, int* title,
+                           std::wstring* title_string_size);
 
-  void GetConstrainedWindowBounds(const IPC::Message& message,
-                                  int handle);
+  void GetConstrainedWindowBounds(int handle, bool* exists,
+                                  gfx::Rect* rect);
 
   // This function has been deprecated, please use HandleFindRequest.
-  void HandleFindInPageRequest(const IPC::Message& message,
-                               int handle,
+  void HandleFindInPageRequest(int handle,
                                const std::wstring& find_request,
                                int forward,
-                               int match_case);
+                               int match_case,
+                               int* active_ordinal,
+                               int* matches_found);
 
   // Responds to the FindInPage request, retrieves the search query parameters,
   // launches an observer to listen for results and issues a StartFind request.
-  void HandleFindRequest(const IPC::Message& message,
-                         int handle,
-                         const FindInPageRequest& request);
+  void HandleFindRequest(int handle,
+                         const FindInPageRequest& request,
+                         IPC::Message* reply_message);
 
   // Responds to requests to open the FindInPage window.
   void HandleOpenFindInPageRequest(const IPC::Message& message,
                                    int handle);
 
   // Get the visibility state of the Find window.
-  void GetFindWindowVisibility(const IPC::Message& message, int handle);
+  void GetFindWindowVisibility(int handle, bool* visible);
 
   // Responds to requests to find the location of the Find window.
-  void HandleFindWindowLocationRequest(const IPC::Message& message, int handle);
+  void HandleFindWindowLocationRequest(int handle, int* x, int* y);
 
   // Get the visibility state of the Bookmark bar.
-  void GetBookmarkBarVisitility(const IPC::Message& message, int handle);
+  void GetBookmarkBarVisibility(int handle, bool* visible, bool* animating);
 
   // Responds to InspectElement request
-  void HandleInspectElementRequest(const IPC::Message& message,
-                                   int handle,
+  void HandleInspectElementRequest(int handle,
                                    int x,
-                                   int y);
+                                   int y,
+                                   IPC::Message* reply_message);
 
-  void GetDownloadDirectory(const IPC::Message& message, int handle);
+  void GetDownloadDirectory(int handle,
+                            std::wstring* download_directory);
 
   // Retrieves a Browser from a Window and vice-versa.
-  void GetWindowForBrowser(const IPC::Message& message, int window_handle);
-  void GetBrowserForWindow(const IPC::Message& message, int browser_handle);
+  void GetWindowForBrowser(int window_handle, bool* success, int* handle);
+  void GetBrowserForWindow(int window_handle, bool* success,
+                           int* browser_handle);
 
-  void GetAutocompleteEditForBrowser(const IPC::Message& message,
-                                     int browser_handle);
+  void GetAutocompleteEditForBrowser(int browser_handle, bool* success,
+                                     int* autocomplete_edit_handle);
 
   void OpenNewBrowserWindow(int show_command);
 
-  void ShowInterstitialPage(const IPC::Message& message,
-                            int tab_handle,
-                            const std::string& html_text);
-  void HideInterstitialPage(const IPC::Message& message, int tab_handle);
+  void ShowInterstitialPage(int tab_handle,
+                            const std::string& html_text,
+                            IPC::Message* reply_message);
+  void HideInterstitialPage(int tab_handle, bool* success);
 
-  void CreateExternalTab(const IPC::Message& message, HWND parent,
-                         const gfx::Rect& dimensions, unsigned int style);
-  void NavigateInExternalTab(const IPC::Message& message, int handle,
-                             const GURL& url);
+  void CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
+                         unsigned int style, HWND* tab_container_window,
+                         int* tab_handle);
+  void NavigateInExternalTab(
+      int handle, const GURL& url,
+      AutomationMsg_NavigationResponseValues* status);
   // The container of an externally hosted tab calls this to reflect any
   // accelerator keys that it did not process. This gives the tab a chance
   // to handle the keys
@@ -252,118 +269,123 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void SetInitialFocus(const IPC::Message& message, int handle, bool reverse);
 
   // See comment in AutomationMsg_WaitForTabToBeRestored.
-  void WaitForTabToBeRestored(const IPC::Message& message, int tab_handle);
+  void WaitForTabToBeRestored(int tab_handle, IPC::Message* reply_message);
 
   // This sets the keyboard accelerators to be used by an externally
   // hosted tab. This call is not valid on a regular tab hosted within
   // Chrome.
-  void SetAcceleratorsForTab(const IPC::Message& message, int handle,
-                             HACCEL accel_table, int accel_entry_count);
+  void SetAcceleratorsForTab(int handle, HACCEL accel_table,
+                             int accel_entry_count, bool* status);
 
   // Gets the security state for the tab associated to the specified |handle|.
-  void GetSecurityState(const IPC::Message& message, int handle);
+  void GetSecurityState(int handle, bool* success,
+                        SecurityStyle* security_style, int* ssl_cert_status,
+                        int* mixed_content_status);
 
   // Gets the page type for the tab associated to the specified |handle|.
-  void GetPageType(const IPC::Message& message, int handle);
+  void GetPageType(int handle, bool* success,
+                   NavigationEntry::PageType* page_type);
 
   // Simulates an action on the SSL blocking page at the tab specified by
   // |handle|. If |proceed| is true, it is equivalent to the user pressing the
   // 'Proceed' button, if false the 'Get me out of there button'.
   // Not that this fails if the tab is not displaying a SSL blocking page.
-  void ActionOnSSLBlockingPage(const IPC::Message& message,
-                               int handle,
-                               bool proceed);
+  void ActionOnSSLBlockingPage(int handle,
+                               bool proceed,
+                               IPC::Message* reply_message);
 
   // Brings the browser window to the front and activates it.
-  void BringBrowserToFront(const IPC::Message& message, int browser_handle);
+  void BringBrowserToFront(int browser_handle, bool* success);
 
   // Checks to see if a command on the browser's CommandController is enabled.
-  void IsPageMenuCommandEnabled(const IPC::Message& message,
-                                int browser_handle,
-                                int message_num);
+  void IsPageMenuCommandEnabled(int browser_handle,
+                                int message_num,
+                                bool* menu_item_enabled);
 
   // Prints the current tab immediately.
-  void PrintNow(const IPC::Message& message, int tab_handle);
+  void PrintNow(int tab_handle, IPC::Message* reply_message);
 
   // Save the current web page.
-  void SavePage(const IPC::Message& message,
-                int tab_handle,
+  void SavePage(int tab_handle,
                 const std::wstring& file_name,
                 const std::wstring& dir_path,
-                int type);
+                int type,
+                bool* success);
 
   // Retrieves the visible text from the autocomplete edit.
-  void GetAutocompleteEditText(const IPC::Message& message,
-                               int autocomplete_edit_handle);
+  void GetAutocompleteEditText(int autocomplete_edit_handle,
+                               bool* success, std::wstring* text);
 
   // Sets the visible text from the autocomplete edit.
-  void SetAutocompleteEditText(const IPC::Message& message,
-                               int autocomplete_edit_handle,
-                               const std::wstring& text);
+  void SetAutocompleteEditText(int autocomplete_edit_handle,
+                               const std::wstring& text,
+                               bool* success);
 
   // Retrieves if a query to an autocomplete provider is in progress.
-  void AutocompleteEditIsQueryInProgress(const IPC::Message& message,
-                                         int autocomplete_edit_handle);
+  void AutocompleteEditIsQueryInProgress(int autocomplete_edit_handle,
+                                         bool* success,
+                                         bool* query_in_progress);
 
   // Retrieves the individual autocomplete matches displayed by the popup.
-  void AutocompleteEditGetMatches(const IPC::Message& message,
-                                  int autocomplete_edit_handle);
+  void AutocompleteEditGetMatches(int autocomplete_edit_handle,
+                                  bool* success,
+                                  std::vector<AutocompleteMatchData>* matches);
 
   // Handler for a message sent by the automation client.
   void OnMessageFromExternalHost(int handle, const std::string& target,
                                  const std::string& message);
 
   // Retrieves the number of SSL related info-bars currently showing in |count|.
-  void GetSSLInfoBarCount(const IPC::Message& message, int handle);
+  void GetSSLInfoBarCount(int handle, int* count);
 
   // Causes a click on the link of the info-bar at |info_bar_index|.  If
   // |wait_for_navigation| is true, it sends the reply after a navigation has
   // occurred.
-  void ClickSSLInfoBarLink(const IPC::Message& message,
-                           int handle,
-                           int info_bar_index,
-                           bool wait_for_navigation);
+  void ClickSSLInfoBarLink(int handle, int info_bar_index,
+                           bool wait_for_navigation,
+                           IPC::Message* reply_message);
 
   // Retrieves the last time a navigation occurred for the tab.
-  void GetLastNavigationTime(const IPC::Message& message, int handle);
+  void GetLastNavigationTime(int handle, int64* last_navigation_time);
 
   // Waits for a new navigation in the tab if none has happened since
   // |last_navigation_time|.
-  void WaitForNavigation(const IPC::Message& message,
-                         int handle,
-                         int64 last_navigation_time);
+  void WaitForNavigation(int handle,
+                         int64 last_navigation_time,
+                         IPC::Message* reply_message);
 
   // Sets the int value for preference with name |name|.
-  void SetIntPreference(const IPC::Message& message,
-                        int handle,
+  void SetIntPreference(int handle,
                         const std::wstring& name,
-                        int value);
+                        int value,
+                        bool* success);
 
   // Sets the string value for preference with name |name|.
-  void SetStringPreference(const IPC::Message& message,
-                           int handle,
+  void SetStringPreference(int handle,
                            const std::wstring& name,
-                           const std::wstring& value);
+                           const std::wstring& value,
+                           bool* success);
 
   // Gets the bool value for preference with name |name|.
-  void GetBooleanPreference(const IPC::Message& message,
-                            int handle,
-                            const std::wstring& name);
+  void GetBooleanPreference(int handle,
+                            const std::wstring& name,
+                            bool* success,
+                            bool* value);
 
   // Sets the bool value for preference with name |name|.
-  void SetBooleanPreference(const IPC::Message& message,
-                            int handle,
+  void SetBooleanPreference(int handle,
                             const std::wstring& name,
-                            bool value);
+                            bool value,
+                            bool* success);
 
   // Gets the current used encoding name of the page in the specified tab.
-  void GetPageCurrentEncoding(const IPC::Message& message, int tab_handle);
+  void GetPageCurrentEncoding(int tab_handle, std::wstring* current_encoding);
 
   // Uses the specified encoding to override the encoding of the page in the
   // specified tab.
-  void OverrideEncoding(const IPC::Message& message,
-                        int tab_handle,
-                        const std::wstring& encoding_name);
+  void OverrideEncoding(int tab_handle,
+                        const std::wstring& encoding_name,
+                        bool* success);
 
   void SavePackageShouldPromptUser(const IPC::Message& message,
                                    bool should_prompt);
@@ -416,6 +438,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   CancelableRequestConsumer consumer_;
 
   Profile* profile_;
+
+  IPC::Message* reply_message_;
 
   DISALLOW_COPY_AND_ASSIGN(AutomationProvider);
 };

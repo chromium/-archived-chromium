@@ -698,7 +698,7 @@ std::wstring UITest::GetDownloadDirectory() {
 
 void UITest::CloseBrowserAsync(BrowserProxy* browser) const {
   server_->Send(
-      new AutomationMsg_CloseBrowserRequest(0, browser->handle()));
+      new AutomationMsg_CloseBrowserRequestAsync(0, browser->handle()));
 }
 
 bool UITest::CloseBrowser(BrowserProxy* browser,
@@ -707,18 +707,13 @@ bool UITest::CloseBrowser(BrowserProxy* browser,
   if (!browser->is_valid() || !browser->handle())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = server_->SendAndWaitForResponse(
-      new AutomationMsg_CloseBrowserRequest(0, browser->handle()),
-      &response, AutomationMsg_CloseBrowserResponse__ID);
+  bool result = true;
+
+  bool succeeded = server_->Send(new AutomationMsg_CloseBrowser(
+      0, browser->handle(), &result, application_closed));
 
   if (!succeeded)
     return false;
-
-  void* iter = NULL;
-  bool result = true;
-  response->ReadBool(&iter, &result);
-  response->ReadBool(&iter, application_closed);
 
   if (*application_closed) {
     // Let's wait until the process dies (if it is not gone already).
@@ -726,7 +721,6 @@ bool UITest::CloseBrowser(BrowserProxy* browser,
     DCHECK(r != WAIT_FAILED);
   }
 
-  delete response;
   return result;
 }
 

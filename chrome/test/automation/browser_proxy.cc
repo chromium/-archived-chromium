@@ -27,25 +27,15 @@ bool BrowserProxy::ActivateTabWithTimeout(int tab_index, uint32 timeout_ms,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-    new AutomationMsg_ActivateTabRequest(0, handle_, tab_index), &response,
-    AutomationMsg_ActivateTabResponse::ID, timeout_ms, is_timeout);
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
   int activate_tab_response = -1;
-  if (response->ReadInt(&iter, &activate_tab_response) &&
-      (activate_tab_response >= 0)) {
-    succeeded = true;
-  } else {
-    succeeded = false;
-  }
 
-  return succeeded;
+  sender_->SendWithTimeout(new AutomationMsg_ActivateTab(
+      0, handle_, tab_index, &activate_tab_response), timeout_ms, is_timeout);
+
+  if (activate_tab_response >= 0)
+    return true;
+
+  return false;
 }
 
 bool BrowserProxy::BringToFront() {
@@ -57,18 +47,10 @@ bool BrowserProxy::BringToFrontWithTimeout(uint32 timeout_ms,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-    new AutomationMsg_BringBrowserToFront(0, handle_), &response,
-    AutomationMsg_BringBrowserToFrontResponse::ID, timeout_ms, is_timeout);
+  bool succeeded = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
-  if (!response->ReadBool(&iter, &succeeded))
-    succeeded = false;
+  sender_->SendWithTimeout(new AutomationMsg_BringBrowserToFront(
+      0, handle_, &succeeded), timeout_ms, is_timeout);
 
   return succeeded;
 }
@@ -79,18 +61,10 @@ bool BrowserProxy::IsPageMenuCommandEnabledWithTimeout(int id,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-    new AutomationMsg_IsPageMenuCommandEnabled(0, handle_, id), &response,
-    AutomationMsg_IsPageMenuCommandEnabledResponse::ID, timeout_ms, is_timeout);
+  bool succeeded = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
-  if (!response->ReadBool(&iter, &succeeded))
-    succeeded = false;
+  sender_->SendWithTimeout(new AutomationMsg_IsPageMenuCommandEnabled(
+      0, handle_, id, &succeeded), timeout_ms, is_timeout);
 
   return succeeded;
 }
@@ -99,26 +73,11 @@ bool BrowserProxy::AppendTab(const GURL& tab_url) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_AppendTabRequest(0, handle_, tab_url), &response,
-    AutomationMsg_AppendTabResponse::ID);
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
   int append_tab_response = -1;
-  if (response->ReadInt(&iter, &append_tab_response) &&
-      (append_tab_response >= 0)) {
-    succeeded = true;
-  } else {
-    succeeded = false;
-  }
 
-  return succeeded;
+  sender_->Send(new AutomationMsg_AppendTab(0, handle_, tab_url,
+                                            &append_tab_response));
+  return append_tab_response >= 0;
 }
 
 bool BrowserProxy::GetActiveTabIndex(int* active_tab_index) const {
@@ -136,19 +95,13 @@ bool BrowserProxy::GetActiveTabIndexWithTimeout(int* active_tab_index,
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-    new AutomationMsg_ActiveTabIndexRequest(0, handle_), &response,
-    AutomationMsg_ActiveTabIndexResponse::ID, timeout_ms, is_timeout);
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
   int active_tab_index_response = -1;
-  if (response->ReadInt(&iter, &active_tab_index_response) &&
-      (active_tab_index_response >= 0)) {
+
+  bool succeeded = sender_->SendWithTimeout(
+      new AutomationMsg_ActiveTabIndex(0, handle_, &active_tab_index_response),
+      timeout_ms, is_timeout);
+
+  if (active_tab_index_response >= 0) {
     *active_tab_index = active_tab_index_response;
   } else {
     succeeded = false;
@@ -161,19 +114,12 @@ TabProxy* BrowserProxy::GetTab(int tab_index) const {
   if (!is_valid())
     return NULL;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_TabRequest(0, handle_, tab_index), &response,
-                                 AutomationMsg_TabResponse::ID);
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
+  int handle = 0;
+
+  sender_->Send(new AutomationMsg_Tab(0, handle_, tab_index, &handle));
+  if (!handle)
     return NULL;
 
-  void* iter = NULL;
-  int handle;
-
-  if (!response->ReadInt(&iter, &handle) || (handle == 0))
-    return NULL;
   return new TabProxy(sender_, tracker_, handle);
 }
 
@@ -203,19 +149,12 @@ bool BrowserProxy::GetTabCountWithTimeout(int* num_tabs, uint32 timeout_ms,
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-    new AutomationMsg_TabCountRequest(0, handle_), &response,
-    AutomationMsg_TabCountResponse::ID, timeout_ms, is_timeout);
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
   int tab_count_response = -1;
-  if (response->ReadInt(&iter, &tab_count_response) &&
-      (tab_count_response >= 0)) {
+
+  bool succeeded = sender_->SendWithTimeout(new AutomationMsg_TabCount(
+      0, handle_, &tab_count_response), timeout_ms, is_timeout);
+
+  if (tab_count_response >= 0) {
     *num_tabs = tab_count_response;
   } else {
     succeeded = false;
@@ -229,7 +168,7 @@ bool BrowserProxy::ApplyAccelerator(int id) {
     return false;
 
   return sender_->Send(
-      new AutomationMsg_ApplyAcceleratorRequest(0, handle_, id));
+      new AutomationMsg_ApplyAccelerator(0, handle_, id));
 }
 
 bool BrowserProxy::SimulateDrag(const POINT& start,
@@ -253,21 +192,13 @@ bool BrowserProxy::SimulateDragWithTimeout(const POINT& start,
   drag_path.push_back(start);
   drag_path.push_back(end);
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_WindowDragRequest(0, handle_, drag_path, flags,
-                                          press_escape_en_route),
-      &response, AutomationMsg_WindowDragResponse::ID, timeout_ms, is_timeout);
+  bool result = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
+  sender_->SendWithTimeout(new AutomationMsg_WindowDrag(
+      0, handle_, drag_path, flags, press_escape_en_route, &result),
+      timeout_ms, is_timeout);
 
-  void* iter = NULL;
-  if (!response->ReadBool(&iter, &succeeded))
-    succeeded = false;
-
-  return succeeded;
+  return result;
 }
 
 bool BrowserProxy::WaitForTabCountToChange(int count, int* new_count,
@@ -329,45 +260,20 @@ bool BrowserProxy::GetHWND(HWND* handle) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_WindowHWNDRequest(0, handle_), &response,
-    AutomationMsg_WindowHWNDResponse::ID);
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
-
-  HWND hwnd_response;
-  if (AutomationMsg_WindowHWNDResponse::Read(response, &hwnd_response) &&
-    hwnd_response) {
-      *handle = hwnd_response;
-  } else {
-    succeeded = false;
-  }
-
-  return succeeded;
+  return sender_->Send(new AutomationMsg_WindowHWND(0, handle_, handle));
 }
 
 bool BrowserProxy::RunCommand(int browser_command) const {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_WindowExecuteCommandRequest(0, handle_, browser_command),
-    &response, AutomationMsg_WindowExecuteCommandResponse::ID);
+  bool result = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!succeeded)
-    return false;
+  sender_->Send(new AutomationMsg_WindowExecuteCommand(0, handle_,
+                                                       browser_command,
+                                                       &result));
 
-  bool success = false;
-  if (AutomationMsg_WindowExecuteCommandResponse::Read(response, &success))
-    return success;
-
-  // We failed to deserialize the returned value.
-  return false;
+  return result;
 }
 
 bool BrowserProxy::GetBookmarkBarVisibility(bool* is_visible,
@@ -380,40 +286,19 @@ bool BrowserProxy::GetBookmarkBarVisibility(bool* is_visible,
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_BookmarkBarVisibilityRequest(0, handle_),
-      &response,
-      AutomationMsg_BookmarkBarVisibilityResponse::ID);
-
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
-  response->ReadBool(&iter, is_visible);
-  response->ReadBool(&iter, is_animating);
-  delete response;
-  return true;
+  return sender_->Send(new AutomationMsg_BookmarkBarVisibility(
+      0, handle_, is_visible, is_animating));
 }
 
 bool BrowserProxy::SetIntPreference(const std::wstring& name, int value) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-    new AutomationMsg_SetIntPreferenceRequest(0, handle_, name , value),
-    &response, AutomationMsg_SetIntPreferenceResponse::ID);
+  bool result = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!success)
-    return false;
-
-  if (AutomationMsg_SetIntPreferenceResponse::Read(response, &success))
-    return success;
-
-  // We failed to deserialize the returned value.
-  return false;
+  sender_->Send(new AutomationMsg_SetIntPreference(0, handle_, name, value,
+                                                   &result));
+  return result;
 }
 
 bool BrowserProxy::SetStringPreference(const std::wstring& name,
@@ -421,19 +306,11 @@ bool BrowserProxy::SetStringPreference(const std::wstring& name,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-    new AutomationMsg_SetStringPreferenceRequest(0, handle_, name , value),
-    &response, AutomationMsg_SetStringPreferenceResponse::ID);
+  bool result = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!success)
-    return false;
-
-  if (AutomationMsg_SetStringPreferenceResponse::Read(response, &success))
-    return success;
-
-  return false;
+  sender_->Send(new AutomationMsg_SetStringPreference(0, handle_, name, value,
+                                                      &result));
+  return result;
 }
 
 bool BrowserProxy::GetBooleanPreference(const std::wstring& name,
@@ -441,23 +318,11 @@ bool BrowserProxy::GetBooleanPreference(const std::wstring& name,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-    new AutomationMsg_GetBooleanPreferenceRequest(0, handle_, name),
-    &response, AutomationMsg_GetBooleanPreferenceResponse::ID);
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!success)
-    return false;
-
-  void* iter = NULL;
-  bool successed_get_value;
-  success = response->ReadBool(&iter, &successed_get_value);
-  if (!success || !successed_get_value)
-    return false;
-  DCHECK(iter);
-  success = response->ReadBool(&iter, value);
-  return success;
+  bool result = false;
+  
+  sender_->Send(new AutomationMsg_GetBooleanPreference(0, handle_, name, value,
+                                                       &result));
+  return result;
 }
 
 bool BrowserProxy::SetBooleanPreference(const std::wstring& name,
@@ -465,63 +330,39 @@ bool BrowserProxy::SetBooleanPreference(const std::wstring& name,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-    new AutomationMsg_SetBooleanPreferenceRequest(0, handle_, name , value),
-    &response, AutomationMsg_SetBooleanPreferenceResponse::ID);
+  bool result = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on return.
-  if (!success)
-    return false;
-
-  if (AutomationMsg_SetBooleanPreferenceResponse::Read(response, &success))
-    return success;
-
-  return false;
+  sender_->Send(new AutomationMsg_SetBooleanPreference(0, handle_, name,
+                                                       value, &result));
+  return result;
 }
 
 WindowProxy* BrowserProxy::GetWindow() {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_WindowForBrowserRequest(0, handle_), &response,
-    AutomationMsg_WindowForBrowserResponse::ID);
-  if (!succeeded)
+  bool handle_ok = false;
+  int window_handle = 0;
+
+  sender_->Send(new AutomationMsg_WindowForBrowser(0, handle_, &handle_ok,
+                                                   &window_handle));
+  if (!handle_ok)
     return NULL;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on exit.
-  int window_handle;
-  void* iter = NULL;
-  bool handle_ok;
-  succeeded = response->ReadBool(&iter, &handle_ok);
-  if (succeeded)
-    succeeded = response->ReadInt(&iter, &window_handle);
-
-  if (succeeded) {
-    return new WindowProxy(sender_, tracker_, window_handle);
-  } else {
-    return NULL;
-  }
+  return new WindowProxy(sender_, tracker_, window_handle);
 }
 
 AutocompleteEditProxy* BrowserProxy::GetAutocompleteEdit() {
   if (!is_valid())
     return NULL;
 
-  IPC::Message* response = NULL;
-  if (!sender_->SendAndWaitForResponse(
-    new AutomationMsg_AutocompleteEditForBrowserRequest(0, handle_),
-    &response, AutomationMsg_AutocompleteEditForBrowserResponse::ID))
-    return NULL;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool handle_ok = false;
+  int autocomplete_edit_handle = 0;
 
-  int autocomplete_edit_handle;
-  void* iter = NULL;
-  bool handle_ok;
-  if (!response->ReadBool(&iter, &handle_ok) ||
-    !response->ReadInt(&iter, &autocomplete_edit_handle))
+  sender_->Send(new AutomationMsg_AutocompleteEditForBrowser(
+      0, handle_, &handle_ok, &autocomplete_edit_handle));
+
+  if (!handle_ok)
     return NULL;
 
   return new AutocompleteEditProxy(sender_, tracker_, autocomplete_edit_handle);

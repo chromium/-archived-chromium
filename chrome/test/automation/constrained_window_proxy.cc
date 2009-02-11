@@ -16,25 +16,12 @@ bool ConstrainedWindowProxy::GetTitle(std::wstring* title) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_ConstrainedTitleRequest(0, handle_), &response,
-    AutomationMsg_ConstrainedTitleResponse::ID);
-
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
   int title_size_response = -1;
-  if (response->ReadInt(&iter, &title_size_response) &&
-    (title_size_response >= 0)) {
-      response->ReadWString(&iter, title);
-  } else {
-    succeeded = false;
-  }
 
-  delete response;
-  return succeeded;
+  sender_->Send(new AutomationMsg_ConstrainedTitle(0, handle_,
+                                                   &title_size_response,
+                                                   title));
+  return title_size_response >= 0;
 }
 
 bool ConstrainedWindowProxy::GetBoundsWithTimeout(gfx::Rect* bounds,
@@ -48,21 +35,10 @@ bool ConstrainedWindowProxy::GetBoundsWithTimeout(gfx::Rect* bounds,
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_ConstrainedWindowBoundsRequest(0, handle_),
-      &response,
-      AutomationMsg_ConstrainedWindowBoundsResponse::ID,
-      timeout_ms,
-      is_timeout);
-  scoped_ptr<IPC::Message> responseDeleter(response);
-  if (!succeeded)
-    return false;
+  bool result = false;
 
-  Tuple2<bool, gfx::Rect> result;
-  AutomationMsg_WindowViewBoundsResponse::Read(response, &result);
+  sender_->SendWithTimeout(new AutomationMsg_ConstrainedWindowBounds(
+      0, handle_, &result, bounds), timeout_ms, NULL);
 
-  *bounds = result.b;
-  return result.a;
+  return result;
 }
-

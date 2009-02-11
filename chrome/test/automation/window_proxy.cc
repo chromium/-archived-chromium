@@ -24,78 +24,40 @@ bool WindowProxy::GetHWND(HWND* handle) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_WindowHWNDRequest(0, handle_), &response,
-    AutomationMsg_WindowHWNDResponse::ID);
-  if (!succeeded)
-    return false;
-
-  HWND hwnd_response;
-  if (AutomationMsg_WindowHWNDResponse::Read(response, &hwnd_response) &&
-      hwnd_response) {
-    *handle = hwnd_response;
-  } else {
-    succeeded = false;
-  }
-
-  delete response;
-  return succeeded;
+  return sender_->Send(new AutomationMsg_WindowHWND(0, handle_, handle));
 }
 
 bool WindowProxy::SimulateOSClick(const POINT& click, int flags) {
   if (!is_valid()) return false;
 
   return sender_->Send(
-      new AutomationMsg_WindowClickRequest(0, handle_, click, flags));
+      new AutomationMsg_WindowClick(0, handle_, click, flags));
 }
 
 bool WindowProxy::SimulateOSKeyPress(wchar_t key, int flags) {
   if (!is_valid()) return false;
 
   return sender_->Send(
-      new AutomationMsg_WindowKeyPressRequest(0, handle_, key, flags));
+      new AutomationMsg_WindowKeyPress(0, handle_, key, flags));
 }
 
 bool WindowProxy::SetVisible(bool visible) {
   if (!is_valid()) return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_SetWindowVisibleRequest(0, handle_, visible),
-        &response, AutomationMsg_SetWindowVisibleResponse::ID);
+  bool result = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Ensure deleted.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
-  if (!response->ReadBool(&iter, &succeeded))
-    succeeded = false;
-
-  return succeeded;
+  sender_->Send(new AutomationMsg_SetWindowVisible(0, handle_, visible,
+                                                   &result));
+  return result;
 }
 
 bool WindowProxy::IsActive(bool* active) {
   if (!is_valid()) return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-    new AutomationMsg_IsWindowActiveRequest(0, handle_),
-        &response, AutomationMsg_IsWindowActiveResponse::ID);
+  bool result = false;
 
-  scoped_ptr<IPC::Message> response_deleter(response);  // Ensure deleted.
-  if (!succeeded)
-    return false;
-
-  void* iter = NULL;
-  if (!response->ReadBool(&iter, &succeeded) || !succeeded)
-    return false;
-
-  if (!response->ReadBool(&iter, active))
-    return false;
-
-  return true;
+  sender_->Send(new AutomationMsg_IsWindowActive(0, handle_, &result, active));
+  return result;
 }
 
 bool WindowProxy::Activate() {
@@ -114,29 +76,21 @@ bool WindowProxy::GetViewBoundsWithTimeout(int view_id, gfx::Rect* bounds,
                                            bool screen_coordinates,
                                            uint32 timeout_ms,
                                            bool* is_timeout) {
-  if (!is_valid()) return false;
+  if (!is_valid())
+    return false;
 
   if (!bounds) {
     NOTREACHED();
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_WindowViewBoundsRequest(0, handle_, view_id,
-                                                screen_coordinates),
-      &response,
-      AutomationMsg_WindowViewBoundsResponse::ID,
-      timeout_ms,
-      is_timeout);
-  if (!succeeded)
-    return false;
+  bool result = false;
 
-  Tuple2<bool, gfx::Rect> result;
-  AutomationMsg_WindowViewBoundsResponse::Read(response, &result);
+  sender_->SendWithTimeout(new AutomationMsg_WindowViewBounds(
+      0, handle_, view_id, screen_coordinates, &result, bounds),
+      timeout_ms, is_timeout);
 
-  *bounds = result.b;
-  return result.a;
+  return result;
 }
 
 bool WindowProxy::GetFocusedViewID(int* view_id) {
@@ -147,18 +101,8 @@ bool WindowProxy::GetFocusedViewID(int* view_id) {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_GetFocusedViewIDRequest(0, handle_),
-      &response,
-      AutomationMsg_GetFocusedViewIDResponse::ID);
-
-  *view_id = -1;
-  if (succeeded &&
-      AutomationMsg_GetFocusedViewIDResponse::Read(response, view_id))
-    return true;
-
-  return false;
+  return sender_->Send(new AutomationMsg_GetFocusedViewID(0, handle_,
+                                                          view_id));
 }
 
 BrowserProxy* WindowProxy::GetBrowser() {
@@ -170,24 +114,13 @@ BrowserProxy* WindowProxy::GetBrowserWithTimeout(uint32 timeout_ms,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-    new AutomationMsg_BrowserForWindowRequest(0, handle_), &response,
-    AutomationMsg_BrowserForWindowResponse::ID, timeout_ms, is_timeout);
-  if (!succeeded)
-    return NULL;
-
-  scoped_ptr<IPC::Message> response_deleter(response);  // Delete on exit.
+  bool handle_ok = false;
   int browser_handle = 0;
-  void* iter = NULL;
-  bool handle_ok;
-  succeeded = response->ReadBool(&iter, &handle_ok);
-  if (succeeded)
-    succeeded = response->ReadInt(&iter, &browser_handle);
 
-  if (succeeded) {
-    return new BrowserProxy(sender_, tracker_, browser_handle);
-  } else {
+  sender_->Send(new AutomationMsg_BrowserForWindow(0, handle_, &handle_ok,
+                                                   &browser_handle));
+  if (!handle_ok)
     return NULL;
-  }
+
+  return new BrowserProxy(sender_, tracker_, browser_handle);
 }

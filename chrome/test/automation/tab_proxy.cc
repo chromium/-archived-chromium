@@ -23,16 +23,10 @@ bool TabProxy::GetTabTitle(std::wstring* title) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  int tab_title_size_response;
+  int tab_title_size_response = 0;
 
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_TabTitleRequest(0, handle_), &response,
-      AutomationMsg_TabTitleResponse::ID) &&
-      AutomationMsg_TabTitleResponse::Read(response, &tab_title_size_response, title) &&
-      tab_title_size_response >= 0;
-  scoped_ptr<IPC::Message> auto_deleter(response);
-
+  bool succeeded = sender_->Send(
+      new AutomationMsg_TabTitle(0, handle_, &tab_title_size_response, title));
   return succeeded;
 }
 
@@ -45,20 +39,15 @@ bool TabProxy::IsShelfVisible(bool* is_visible) {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_ShelfVisibilityRequest(0, handle_),
-      &response, AutomationMsg_ShelfVisibilityResponse::ID) &&
-      AutomationMsg_ShelfVisibilityResponse::Read(response, is_visible);
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+  return sender_->Send(new AutomationMsg_ShelfVisibility(0, handle_,
+                                                         is_visible));
 }
 
 bool TabProxy::OpenFindInPage() {
   if (!is_valid())
     return false;
 
-  return sender_->Send(new AutomationMsg_OpenFindInPageRequest(0, handle_));
+  return sender_->Send(new AutomationMsg_OpenFindInPage(0, handle_));
   // This message expects no response.
 }
 
@@ -71,26 +60,16 @@ bool TabProxy::IsFindWindowFullyVisible(bool* is_visible) {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_FindWindowVisibilityRequest(0, handle_),
-      &response, AutomationMsg_FindWindowVisibilityResponse::ID) &&
-      AutomationMsg_FindWindowVisibilityResponse::Read(response, is_visible);
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+  return sender_->Send(new AutomationMsg_FindWindowVisibility(
+      0, handle_, is_visible));
 }
 
 bool TabProxy::GetFindWindowLocation(int* x, int* y) {
   if (!is_valid() || !x || !y)
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_FindWindowLocationRequest(0, handle_),
-      &response, AutomationMsg_FindWindowLocationResponse::ID) &&
-      AutomationMsg_FindWindowLocationResponse::Read(response, x, y);
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+  return sender_->Send(new AutomationMsg_FindWindowLocation(
+      0, handle_, x, y));
 }
 
 int TabProxy::FindInPage(const std::wstring& search_string,
@@ -108,14 +87,12 @@ int TabProxy::FindInPage(const std::wstring& search_string,
   request.match_case = match_case == TRUE;
   request.forward = forward == TRUE;
 
-  IPC::Message* response = NULL;
-  int matches;
-  int ordinal2;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_FindRequest(0, handle_, request),
-      &response, AutomationMsg_FindInPageResponse2::ID) &&
-      AutomationMsg_FindInPageResponse2::Read(response, &ordinal2, &matches);
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  int matches = 0;
+  int ordinal2 = 0;
+  bool succeeded = sender_->Send(new AutomationMsg_Find(0, handle_,
+                                                        request,
+                                                        &ordinal2,
+                                                        &matches));
   if (!succeeded)
     return -1;
   if (ordinal)
@@ -132,15 +109,12 @@ AutomationMsg_NavigationResponseValues TabProxy::NavigateToURLWithTimeout(
   if (!is_valid())
     return AUTOMATION_MSG_NAVIGATION_ERROR;
 
-  IPC::Message* response = NULL;
   AutomationMsg_NavigationResponseValues navigate_response =
       AUTOMATION_MSG_NAVIGATION_ERROR;
-  if (sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_NavigateToURLRequest(0, handle_, url), &response,
-      AutomationMsg_NavigateToURLResponse::ID, timeout_ms, is_timeout)) {
-    AutomationMsg_NavigateToURLResponse::Read(response, &navigate_response);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
+
+  sender_->SendWithTimeout(new AutomationMsg_NavigateToURL(
+      0, handle_, url, &navigate_response), timeout_ms, is_timeout);
+
   return navigate_response;
 }
 
@@ -149,16 +123,8 @@ AutomationMsg_NavigationResponseValues TabProxy::NavigateInExternalTab(
   if (!is_valid())
     return AUTOMATION_MSG_NAVIGATION_ERROR;
 
-  IPC::Message* response = NULL;
-  bool is_timeout = false;
   AutomationMsg_NavigationResponseValues rv = AUTOMATION_MSG_NAVIGATION_ERROR;
-  if (sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_NavigateInExternalTabRequest(0, handle_, url),
-      &response, AutomationMsg_NavigateInExternalTabResponse::ID, INFINITE,
-      &is_timeout)) {
-    AutomationMsg_NavigateInExternalTabResponse::Read(response, &rv);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  sender_->Send(new AutomationMsg_NavigateInExternalTab(0, handle_, url, &rv));
   return rv;
 }
 
@@ -167,15 +133,10 @@ bool TabProxy::SetAuth(const std::wstring& username,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
   int navigate_response = -1;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_SetAuthRequest(0, handle_, username, password),
-      &response, AutomationMsg_SetAuthResponse::ID) &&
-      AutomationMsg_SetAuthResponse::Read(response, &navigate_response) &&
-      navigate_response >= 0;
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+  sender_->Send(new AutomationMsg_SetAuth(0, handle_, username, password,
+                                          &navigate_response));
+  return navigate_response >= 0;
 }
 
 bool TabProxy::CancelAuth() {
@@ -184,13 +145,8 @@ bool TabProxy::CancelAuth() {
 
   IPC::Message* response = NULL;
   int navigate_response = -1;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_CancelAuthRequest(0, handle_), &response,
-      AutomationMsg_CancelAuthResponse::ID) &&
-      AutomationMsg_CancelAuthResponse::Read(response, &navigate_response) &&
-      navigate_response >= 0;
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+  sender_->Send(new AutomationMsg_CancelAuth(0, handle_, &navigate_response));
+  return navigate_response >= 0;
 }
 
 bool TabProxy::NeedsAuth() const {
@@ -199,11 +155,7 @@ bool TabProxy::NeedsAuth() const {
 
   IPC::Message* response = NULL;
   bool needs_auth = false;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_NeedsAuthRequest(0, handle_), &response,
-      AutomationMsg_NeedsAuthResponse::ID) &&
-      AutomationMsg_NeedsAuthResponse::Read(response, &needs_auth);
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  sender_->Send(new AutomationMsg_NeedsAuth(0, handle_, &needs_auth));
   return needs_auth;
 }
 
@@ -211,15 +163,9 @@ AutomationMsg_NavigationResponseValues TabProxy::GoBack() {
   if (!is_valid())
     return AUTOMATION_MSG_NAVIGATION_ERROR;
 
-  IPC::Message* response = NULL;
   AutomationMsg_NavigationResponseValues navigate_response =
       AUTOMATION_MSG_NAVIGATION_ERROR;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_GoBackRequest(0, handle_), &response,
-      AutomationMsg_GoBackResponse::ID)) {
-    AutomationMsg_GoBackResponse::Read(response, &navigate_response);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  sender_->Send(new AutomationMsg_GoBack(0, handle_, &navigate_response));
   return navigate_response;
 }
 
@@ -227,15 +173,9 @@ AutomationMsg_NavigationResponseValues TabProxy::GoForward() {
   if (!is_valid())
     return AUTOMATION_MSG_NAVIGATION_ERROR;
 
-  IPC::Message* response = NULL;
   AutomationMsg_NavigationResponseValues navigate_response =
       AUTOMATION_MSG_NAVIGATION_ERROR;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_GoForwardRequest(0, handle_), &response,
-      AutomationMsg_GoForwardResponse::ID)) {
-    AutomationMsg_GoForwardResponse::Read(response, &navigate_response);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  sender_->Send(new AutomationMsg_GoForward(0, handle_, &navigate_response));
   return navigate_response;
 }
 
@@ -243,31 +183,19 @@ AutomationMsg_NavigationResponseValues TabProxy::Reload() {
   if (!is_valid())
     return AUTOMATION_MSG_NAVIGATION_ERROR;
 
-  IPC::Message* response = NULL;
   AutomationMsg_NavigationResponseValues navigate_response =
       AUTOMATION_MSG_NAVIGATION_ERROR;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_ReloadRequest(0, handle_), &response,
-      AutomationMsg_ReloadResponse::ID)) {
-    AutomationMsg_ReloadResponse::Read(response, &navigate_response);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  sender_->Send(new AutomationMsg_Reload(0, handle_, &navigate_response));
   return navigate_response;
 }
 
 bool TabProxy::GetRedirectsFrom(const GURL& source_url,
                                 std::vector<GURL>* redirects) {
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_RedirectsFromRequest(0, handle_, source_url), &response,
-      AutomationMsg_RedirectsFromResponse::ID);
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  if (succeeded) {
-    succeeded = AutomationMsg_RedirectsFromResponse::Read(
-        response, &succeeded, redirects) &&
-        succeeded;
-  }
-
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_RedirectsFrom(0, handle_,
+                                                source_url,
+                                                &succeeded,
+                                                redirects));
   return succeeded;
 }
 
@@ -280,13 +208,8 @@ bool TabProxy::GetCurrentURL(GURL* url) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_TabURLRequest(0, handle_), &response,
-      AutomationMsg_TabURLResponse::ID) &&
-      AutomationMsg_TabURLResponse::Read(response, &succeeded, url) &&
-      succeeded;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_TabURL(0, handle_, &succeeded, url));
   return succeeded;
 }
 
@@ -294,14 +217,8 @@ bool TabProxy::NavigateToURLAsync(const GURL& url) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
   bool status = false;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_NavigationAsyncRequest(0, handle_, url), &response,
-      AutomationMsg_NavigationAsyncResponse::ID)) {
-    AutomationMsg_NavigationAsyncResponse::Read(response, &status);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  sender_->Send(new AutomationMsg_NavigationAsync(0, handle_, url, &status));
   return status;
 }
 
@@ -312,15 +229,8 @@ bool TabProxy::GetHWND(HWND* hwnd) const {
     NOTREACHED();
     return false;
   }
-  IPC::Message* response = NULL;
-  bool succeeded = false;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_TabHWNDRequest(0, handle_), &response,
-      AutomationMsg_TabHWNDResponse::ID)) {
-    succeeded = AutomationMsg_TabHWNDResponse::Read(response, hwnd);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+
+  return sender_->Send(new AutomationMsg_TabHWND(0, handle_, hwnd));
 }
 
 bool TabProxy::GetProcessID(int* process_id) const {
@@ -332,15 +242,7 @@ bool TabProxy::GetProcessID(int* process_id) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = false;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_TabProcessIDRequest(0, handle_), &response,
-      AutomationMsg_TabProcessIDResponse::ID)) {
-    succeeded = AutomationMsg_TabProcessIDResponse::Read(response, process_id);
-  }
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+  return sender_->Send(new AutomationMsg_TabProcessID(0, handle_, process_id));
 }
 
 bool TabProxy::ExecuteAndExtractString(const std::wstring& frame_xpath,
@@ -423,15 +325,9 @@ bool TabProxy::ExecuteAndExtractValue(const std::wstring& frame_xpath,
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_DomOperationRequest(0, handle_, frame_xpath, jscript),
-      &response, AutomationMsg_DomOperationResponse::ID);
   std::string json;
-  if (succeeded)
-    succeeded = AutomationMsg_DomOperationResponse::Read(response, &json);
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  if (!succeeded)
+  if (!sender_->Send(new AutomationMsg_DomOperation(0, handle_, frame_xpath,
+                                                    jscript, &json)))
     return false;
   // Wrap |json| in an array before deserializing because valid JSON has an
   // array or an object as the root.
@@ -452,13 +348,8 @@ bool TabProxy::GetConstrainedWindowCount(int* count) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_ConstrainedWindowCountRequest(0, handle_),
-      &response, AutomationMsg_ConstrainedWindowCountResponse::ID) &&
-      AutomationMsg_ConstrainedWindowCountResponse::Read(response, count);
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return succeeded;
+  return sender_->Send(new AutomationMsg_ConstrainedWindowCount(
+      0, handle_, count));
 }
 
 ConstrainedWindowProxy* TabProxy::GetConstrainedWindow(
@@ -466,15 +357,13 @@ ConstrainedWindowProxy* TabProxy::GetConstrainedWindow(
   if (!is_valid())
     return NULL;
 
-  IPC::Message* response = NULL;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_ConstrainedWindowRequest(0, handle_, window_index),
-      &response, AutomationMsg_ConstrainedWindowResponse::ID)) {
-    scoped_ptr<IPC::Message> response_deleter(response);
-    int handle;
-    if (AutomationMsg_ConstrainedWindowResponse::Read(response, &handle))
-      return new ConstrainedWindowProxy(sender_, tracker_, handle);
+  int handle = 0;
+  if (sender_->Send(new AutomationMsg_ConstrainedWindow(0, handle_,
+                                                        window_index,
+                                                        &handle))) {
+    return new ConstrainedWindowProxy(sender_, tracker_, handle);
   }
+
   return NULL;
 }
 
@@ -495,15 +384,9 @@ bool TabProxy::GetCookies(const GURL& url, std::string* cookies) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  int size;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_GetCookiesRequest(0, url, handle_), &response,
-      AutomationMsg_GetCookiesResponse::ID) &&
-      AutomationMsg_GetCookiesResponse::Read(response, &size, cookies) &&
-      size >= 0;
-  scoped_ptr<IPC::Message> response_deleter(response);
-  return succeeded;
+  int size = 0;
+  return sender_->Send(new AutomationMsg_GetCookies(0, url, handle_, &size,
+                                                    cookies));
 }
 
 bool TabProxy::GetCookieByName(const GURL& url,
@@ -526,29 +409,17 @@ bool TabProxy::GetCookieByName(const GURL& url,
 }
 
 bool TabProxy::SetCookie(const GURL& url, const std::string& value) {
-  IPC::Message* response = NULL;
-  int response_value;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_SetCookieRequest(0, url, value, handle_), &response,
-      AutomationMsg_SetCookieResponse::ID) &&
-      AutomationMsg_SetCookieResponse::Read(response, &response_value) &&
-      response_value >= 0;
-  scoped_ptr<IPC::Message> response_deleter(response);
-  return succeeded;
+  int response_value = 0;
+  return sender_->Send(new AutomationMsg_SetCookie(0, url, value, handle_,
+                                                   &response_value));
 }
 
 int TabProxy::InspectElement(int x, int y) {
   if (!is_valid())
     return -1;
 
-  IPC::Message* response = NULL;
   int ret = -1;
-  if (sender_->SendAndWaitForResponse(
-      new AutomationMsg_InspectElementRequest(0, handle_, x, y),
-      &response, AutomationMsg_InspectElementResponse::ID)) {
-    AutomationMsg_InspectElementResponse::Read(response, &ret);
-  }
-  scoped_ptr<IPC::Message> response_deleter(response);
+  sender_->Send(new AutomationMsg_InspectElement(0, handle_, x, y, &ret));
   return ret;
 }
 
@@ -557,13 +428,8 @@ bool TabProxy::GetDownloadDirectory(std::wstring* directory) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_DownloadDirectoryRequest(0, handle_), &response,
-      AutomationMsg_DownloadDirectoryResponse::ID) &&
-      AutomationMsg_DownloadDirectoryResponse::Read(response, directory);
-  scoped_ptr<IPC::Message> response_deleter(response);
-  return succeeded;
+  return sender_->Send(new AutomationMsg_DownloadDirectory(0, handle_,
+                                                           directory));
 }
 
 bool TabProxy::ShowInterstitialPage(const std::string& html_text,
@@ -571,15 +437,9 @@ bool TabProxy::ShowInterstitialPage(const std::string& html_text,
   if (!is_valid())
     return false;
 
-  bool is_timeout = false;
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_ShowInterstitialPageRequest(0, handle_, html_text),
-      &response, AutomationMsg_ShowInterstitialPageResponse::ID, timeout_ms,
-      &is_timeout) &&
-      AutomationMsg_ShowInterstitialPageResponse::Read(response, &succeeded) &&
-      succeeded;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool succeeded = false;
+  sender_->SendWithTimeout(new AutomationMsg_ShowInterstitialPage(
+      0, handle_, html_text, &succeeded), timeout_ms, NULL);
   return succeeded;
 }
 
@@ -587,14 +447,9 @@ bool TabProxy::HideInterstitialPage() {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_HideInterstitialPageRequest(0, handle_),
-      &response, AutomationMsg_HideInterstitialPageResponse::ID) &&
-      AutomationMsg_HideInterstitialPageResponse::Read(response, &succeeded) &&
-      succeeded;
-  scoped_ptr<IPC::Message> response_deleter(response);
-  return succeeded;
+  bool result = false;
+  sender_->Send(new AutomationMsg_HideInterstitialPage(0, handle_, &result));
+  return result;
 }
 
 bool TabProxy::Close() {
@@ -605,13 +460,9 @@ bool TabProxy::Close(bool wait_until_closed) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_CloseTabRequest(0, handle_, wait_until_closed),
-      &response, AutomationMsg_CloseTabResponse::ID) &&
-      AutomationMsg_CloseTabResponse::Read(response, &succeeded) &&
-      succeeded;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_CloseTab(0, handle_, wait_until_closed,
+                                           &succeeded));
   return succeeded;
 }
 
@@ -620,16 +471,9 @@ bool TabProxy::SetAccelerators(HACCEL accel_table,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool is_timeout = false;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_SetAcceleratorsForTab(
-          0, handle_, accel_table, accel_table_entry_count),
-      &response, AutomationMsg_SetAcceleratorsForTabResponse::ID, INFINITE,
-      &is_timeout) &&
-      AutomationMsg_SetAcceleratorsForTabResponse::Read(response, &succeeded) &&
-      succeeded;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_SetAcceleratorsForTab(
+      0, handle_, accel_table, accel_table_entry_count, &succeeded));
   return succeeded;
 }
 
@@ -652,13 +496,7 @@ bool TabProxy::SetInitialFocus(bool reverse) {
 bool TabProxy::WaitForTabToBeRestored(uint32 timeout_ms) {
   if (!is_valid())
     return false;
-  IPC::Message* response = NULL;
-  bool is_timeout;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_WaitForTabToBeRestored(0, handle_), &response,
-      AutomationMsg_TabFinishedRestoring::ID, timeout_ms, &is_timeout);
-  scoped_ptr<IPC::Message> response_deleter(response);
-  return succeeded;
+  return sender_->Send(new AutomationMsg_WaitForTabToBeRestored(0, handle_));
 }
 
 bool TabProxy::GetSecurityState(SecurityStyle* security_style,
@@ -669,17 +507,12 @@ bool TabProxy::GetSecurityState(SecurityStyle* security_style,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool is_timeout = false;
-  bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_GetSecurityState(0, handle_),
-      &response,
-      AutomationMsg_GetSecurityStateResponse::ID, INFINITE, &is_timeout) &&
-      AutomationMsg_GetSecurityStateResponse::Read(
-          response, &succeeded, security_style, ssl_cert_status,
-          mixed_content_state) &&
-      succeeded;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool succeeded = false;
+
+  sender_->Send(new AutomationMsg_GetSecurityState(
+      0, handle_, &succeeded, security_style, ssl_cert_status,
+      mixed_content_state));
+
   return succeeded;
 }
 
@@ -689,16 +522,8 @@ bool TabProxy::GetPageType(NavigationEntry::PageType* type) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool is_timeout = false;
-  bool succeeded;
-  succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_GetPageType(0, handle_),
-      &response,
-      AutomationMsg_GetPageTypeResponse::ID, INFINITE, &is_timeout) &&
-      AutomationMsg_GetPageTypeResponse::Read(response, &succeeded, type) &&
-      succeeded;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_GetPageType(0, handle_, &succeeded, type));
   return succeeded;
 }
 
@@ -706,15 +531,9 @@ bool TabProxy::TakeActionOnSSLBlockingPage(bool proceed) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool timeout = false;
-  bool success = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_ActionOnSSLBlockingPage(0, handle_, proceed),
-      &response,
-      AutomationMsg_ActionOnSSLBlockingPageResponse::ID, INFINITE, &timeout) &&
-      AutomationMsg_ActionOnSSLBlockingPageResponse::Read(response, &success) &&
-      success;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool success = false;
+  sender_->Send(new AutomationMsg_ActionOnSSLBlockingPage(0, handle_, proceed,
+                                                          &success));
   return success;
 }
 
@@ -722,13 +541,8 @@ bool TabProxy::PrintNow() {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_PrintNowRequest(0, handle_), &response,
-      AutomationMsg_PrintNowResponse::ID) &&
-      AutomationMsg_PrintNowResponse::Read(response, &succeeded) &&
-      succeeded;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_PrintNow(0, handle_, &succeeded));
   return succeeded;
 }
 
@@ -738,14 +552,10 @@ bool TabProxy::SavePage(const std::wstring& file_name,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_SavePageRequest(
-          0, handle_, file_name, dir_path, static_cast<int>(type)),
-      &response, AutomationMsg_SavePageResponse::ID) &&
-      AutomationMsg_SavePageResponse::Read(response, &succeeded) &&
-      succeeded;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_SavePage(0, handle_, file_name, dir_path,
+                                           static_cast<int>(type),
+                                           &succeeded));
   return succeeded;
 }
 
@@ -766,14 +576,8 @@ bool TabProxy::GetSSLInfoBarCount(int* count) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-      new AutomationMsg_GetSSLInfoBarCountRequest(0, handle_),
-      &response, AutomationMsg_GetSSLInfoBarCountResponse::ID) &&
-      AutomationMsg_GetSSLInfoBarCountResponse::Read(response, count) &&
-      count >= 0;
-  scoped_ptr<IPC::Message> auto_deleter(response);
-  return success;
+  return sender_->Send(new AutomationMsg_GetSSLInfoBarCount(0, handle_,
+                                                            count));
 }
 
 bool TabProxy::ClickSSLInfoBarLink(int info_bar_index,
@@ -781,14 +585,9 @@ bool TabProxy::ClickSSLInfoBarLink(int info_bar_index,
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-      new AutomationMsg_ClickSSLInfoBarLinkRequest(
-          0, handle_, info_bar_index, wait_for_navigation),
-      &response, AutomationMsg_ClickSSLInfoBarLinkResponse::ID) &&
-      AutomationMsg_ClickSSLInfoBarLinkResponse::Read(response, &success) &&
-      success;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool success = false;
+  sender_->Send(new AutomationMsg_ClickSSLInfoBarLink(
+      0, handle_, info_bar_index, wait_for_navigation, &success));
   return success;
 }
 
@@ -796,12 +595,9 @@ bool TabProxy::GetLastNavigationTime(int64* nav_time) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-      new AutomationMsg_GetLastNavigationTimeRequest(0, handle_),
-      &response, AutomationMsg_GetLastNavigationTimeResponse::ID) &&
-      AutomationMsg_GetLastNavigationTimeResponse::Read(response, nav_time);
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool success = false;
+  success = sender_->Send(new AutomationMsg_GetLastNavigationTime(
+      0, handle_, nav_time));
   return success;
 }
 
@@ -809,14 +605,10 @@ bool TabProxy::WaitForNavigation(int64 last_navigation_time) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  bool success = sender_->SendAndWaitForResponse(
-      new AutomationMsg_WaitForNavigationRequest(
-          0, handle_, last_navigation_time),
-      &response, AutomationMsg_WaitForNavigationResponse::ID) &&
-      AutomationMsg_WaitForNavigationResponse::Read(response, &success) &&
-      success;
-  scoped_ptr<IPC::Message> auto_deleter(response);
+  bool success = false;
+  sender_->Send(new AutomationMsg_WaitForNavigation(0, handle_,
+                                                    last_navigation_time,
+                                                    &success));
   return success;
 }
 
@@ -824,12 +616,8 @@ bool TabProxy::GetPageCurrentEncoding(std::wstring* encoding) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_GetPageCurrentEncodingRequest(0, handle_),
-      &response, AutomationMsg_GetPageCurrentEncodingResponse::ID) &&
-      AutomationMsg_GetPageCurrentEncodingResponse::Read(response, encoding);
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool succeeded = sender_->Send(
+      new AutomationMsg_GetPageCurrentEncoding(0, handle_, encoding));
   return succeeded;
 }
 
@@ -837,12 +625,8 @@ bool TabProxy::OverrideEncoding(const std::wstring& encoding) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response;
-  bool succeeded = sender_->SendAndWaitForResponse(
-      new AutomationMsg_OverrideEncodingRequest(0, handle_, encoding),
-      &response, AutomationMsg_OverrideEncodingResponse::ID) &&
-      AutomationMsg_OverrideEncodingResponse::Read(response, &succeeded) &&
-      succeeded;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool succeeded = false;
+  sender_->Send(new AutomationMsg_OverrideEncoding(0, handle_, encoding,
+                                                   &succeeded));
   return succeeded;
 }

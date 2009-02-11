@@ -12,6 +12,7 @@
 #include "base/thread.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message.h"
+#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/views/dialog_delegate.h"
@@ -25,33 +26,17 @@ class WindowProxy;
 // access the message-sending abilities of the Proxy.
 class AutomationMessageSender : public IPC::Message::Sender {
  public:
-  // Sends a message synchronously (from the perspective of the caller's
-  // thread, at least); it doesn't return until a response has been received.
-  // This method takes ownership of the request object passed in.  The caller
-  // is responsible for deleting the response object when they're done with it.
-  // response_type should be set to the message type of the expected response.
-  // A response object will only be available if the method returns true.
-  // NOTE: This method will overwrite any routing_id on the request message,
-  //       since it uses this field to match the response up with the request.
-  virtual bool SendAndWaitForResponse(IPC::Message* request,
-                                      IPC::Message** response,
-                                      int response_type) = 0;
-
   // Sends a message synchronously; it doesn't return until a response has been
   // received or a timeout has expired.
   // The function returns true if a response is received, and returns false if
   // there is a failure or timeout (in milliseconds). If return after timeout,
   // is_timeout is set to true.
-  // See the comments in SendAndWaitForResponse for other details on usage.
   // NOTE: When timeout occurs, the connection between proxy provider may be
   //       in transit state. Specifically, there might be pending IPC messages,
   //       and the proxy provider might be still working on the previous
   //       request.
-  virtual bool SendAndWaitForResponseWithTimeout(IPC::Message* request,
-                                                 IPC::Message** response,
-                                                 int response_type,
-                                                 uint32 timeout_ms,
-                                                 bool* is_timeout) = 0;
+  virtual bool SendWithTimeout(IPC::Message* message, int timeout,
+                               bool* is_timeout) = 0;
 };
 
 // This is the interface that external processes can use to interact with
@@ -163,14 +148,8 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   // AutomationMessageSender implementations.
   virtual bool Send(IPC::Message* message);
-  virtual bool SendAndWaitForResponse(IPC::Message* request,
-                                      IPC::Message** response,
-                                      int response_type);
-  virtual bool SendAndWaitForResponseWithTimeout(IPC::Message* request,
-                                                 IPC::Message** response,
-                                                 int response_type,
-                                                 uint32 timeout_ms,
-                                                 bool* is_timeout);
+  virtual bool SendWithTimeout(IPC::Message* message, int timeout,
+                               bool* is_timeout);
 
   // Returns the current AutomationRequest object.
   AutomationRequest* current_request() { return current_request_; }
@@ -201,13 +180,16 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   std::wstring channel_id_;
   scoped_ptr<base::Thread> thread_;
-  scoped_ptr<IPC::ChannelProxy> channel_;
+  scoped_ptr<IPC::SyncChannel> channel_;
   scoped_ptr<AutomationHandleTracker> tracker_;
 
   HANDLE app_launched_;
   HANDLE initial_loads_complete_;
   HANDLE new_tab_ui_load_complete_;
   int new_tab_ui_load_time_;
+
+  // An event that notifies when we are shutting-down.
+  scoped_ptr<base::WaitableEvent> shutdown_event_;
 
   AutomationRequest* current_request_;
 

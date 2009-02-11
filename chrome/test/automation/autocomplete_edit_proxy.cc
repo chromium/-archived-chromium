@@ -21,34 +21,23 @@ bool AutocompleteEditProxy::GetText(std::wstring* text) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  if (!sender_->SendAndWaitForResponse(
-      new AutomationMsg_AutocompleteEditGetTextRequest(0, handle_), &response,
-      AutomationMsg_AutocompleteEditGetTextResponse::ID))
-    return false;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool result = false;
 
-  Tuple2<bool, std::wstring> returned_result;
-  if (!AutomationMsg_AutocompleteEditGetTextResponse::Read(response,
-      &returned_result) || !returned_result.a)
-    return false;
+  sender_->Send(new AutomationMsg_AutocompleteEditGetText(0, handle_, &result,
+                                                          text));
 
-  text->swap(returned_result.b);
-  return true;
+  return result;
 }
 
 bool AutocompleteEditProxy::SetText(const std::wstring& text) {
   if (!is_valid())
     return false;
 
-  IPC::Message* response = NULL;
-  if (!sender_->SendAndWaitForResponse(
-      new AutomationMsg_AutocompleteEditSetTextRequest(0, handle_, text),
-      &response, AutomationMsg_AutocompleteEditSetTextResponse::ID))
-    return false;
+  bool result = false;
 
-  delete response;
-  return true;
+  sender_->Send(new AutomationMsg_AutocompleteEditSetText(0, handle_, text,
+                                                          &result));
+  return result;
 }
 
 bool AutocompleteEditProxy::IsQueryInProgress(bool* query_in_progress) const {
@@ -59,20 +48,13 @@ bool AutocompleteEditProxy::IsQueryInProgress(bool* query_in_progress) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  if (!sender_->SendAndWaitForResponse(
-      new AutomationMsg_AutocompleteEditIsQueryInProgressRequest(0, handle_),
-      &response, AutomationMsg_AutocompleteEditIsQueryInProgressResponse::ID))
-    return false;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool edit_exists = false;
 
-  Tuple2<bool, bool> returned_result;
-  if (!AutomationMsg_AutocompleteEditIsQueryInProgressResponse::Read(
-      response, &returned_result) || !returned_result.a)
-    return false;
+  sender_->Send(
+      new AutomationMsg_AutocompleteEditIsQueryInProgress(
+          0, handle_, &edit_exists, query_in_progress));
 
-  *query_in_progress = returned_result.b;
-  return true;
+  return edit_exists;
 }
 
 
@@ -97,19 +79,10 @@ bool AutocompleteEditProxy::GetAutocompleteMatches(Matches* matches) const {
     return false;
   }
 
-  IPC::Message* response = NULL;
-  if (!sender_->SendAndWaitForResponse(
-      new AutomationMsg_AutocompleteEditGetMatchesRequest(0, handle_),
-      &response, AutomationMsg_AutocompleteEditGetMatchesResponse::ID))
-    return false;
-  scoped_ptr<IPC::Message> response_deleter(response);
+  bool edit_exists = false;
 
-  Tuple2<bool, Matches> returned_result;
-  if (!AutomationMsg_AutocompleteEditGetMatchesResponse::Read(
-      response, &returned_result) || !returned_result.a)
-    return false;
+  sender_->Send(new AutomationMsg_AutocompleteEditGetMatches(
+      0, handle_, &edit_exists, matches));
 
-  *matches = returned_result.b;
-  return true;
+  return edit_exists;
 }
-
