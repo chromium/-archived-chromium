@@ -332,12 +332,11 @@ LINUX : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-MAC LINUX : LayoutTests/fast/dom/prototype-chain.html = FAIL
+MAC : LayoutTests/fast/dom/prototype-chain.html = FAIL
 MAC LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
 MAC LINUX : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 MAC LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-LINUX : LayoutTests/fast/runin/002.html = FAIL
 LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
@@ -648,7 +647,7 @@ DEFER DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
 DEFER WIN LINUX : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // Linux pixeltest failure: Form control metrics incorrect
-LINUX MAC : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
@@ -1480,7 +1479,7 @@ LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 LayoutTests/fast/dom/dom-constructors.html = FAIL
 
 // WebKit Merge 39050:39100 failures:
-LayoutTests/fast/dom/java-applet-calls.html = FAIL
+LINUX MAC : LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
