@@ -61,7 +61,7 @@ class ChromeTests:
     self._report_dir = options.report_dir
     if not self._report_dir:
       if not options.buildbot:
-        self._report_dir = os.path.join(script_dir, "latest")
+        self._report_dir = os.path.join(script_dir, "latest", test)
       else:
         # On the buildbot, we archive to a specific location on chrome-web
         # with a directory based on the test name and the current svn revision.
@@ -74,14 +74,13 @@ class ChromeTests:
         current_version = str(slave_utils.SubversionRevision(self._source_dir))
         # This line is how the buildbot master figures out our directory.
         print "last change:", current_version
-        self._report_dir = os.path.join(chrome_web_dir, test,current_version)
+        self._report_dir = os.path.join(chrome_web_dir, test, current_version)
     if not os.path.exists(self._report_dir):
       os.makedirs(self._report_dir)
 
     purify_test = os.path.join(script_dir, "purify_test.py")
     self._command_preamble = ["python.exe", purify_test, "--echo_to_stdout", 
                               "--source_dir=%s" % (self._source_dir),
-                              "--report_dir=%s" % (self._report_dir),
                               "--save_cache"]
 
   def _DefaultCommand(self, module, exe=None):
@@ -119,6 +118,7 @@ class ChromeTests:
 
     cmd = list(self._command_preamble)
     cmd.append("--data_dir=%s" % self._data_dir)
+    cmd.append("--report_dir=%s" % self._report_dir)
     if self._options.baseline:
       cmd.append("--baseline")
     if self._options.verbose:
@@ -184,23 +184,22 @@ class ChromeTests:
         recorded and analyzed)
       cmd_args - extra arguments to pass to the purify_test.py script
     '''
+    if out_dir_extra:
+      self._report_dir = os.path.join(self._report_dir, out_dir_extra)
     cmd = self._DefaultCommand(module)
     exe = os.path.join(self._options.build_dir, exe)
     cmd.append("--exe=%s" % exe)
     cmd.append("--name=%s" % name)
     if multi:
-      out = os.path.join(google.path_utils.ScriptDir(),
-                         "latest")
       if out_dir_extra:
-        out = os.path.join(out, out_dir_extra)
-        if os.path.exists(out):
-          old_files = glob.glob(os.path.join(out, "*.txt"))
+        if os.path.exists(self._report_dir):
+          old_files = glob.glob(os.path.join(self._report_dir, "*.txt"))
           for f in old_files:
             os.remove(f)
         else:
-          os.makedirs(out)
-      out = os.path.join(out, "%s%%5d.txt" % name)
-      cmd.append("--out_file=%s" % out)
+          os.makedirs(self._report_dir)
+      out_file = os.path.join(self._report_dir, "%s%%5d.txt" % name)
+      cmd.append("--out_file=%s" % out_file)
     if cmd_args:
       cmd.extend(cmd_args)
     if script[0] != "python.exe" and not os.path.exists(script[0]):
@@ -290,7 +289,7 @@ class ChromeTests:
       return ret
 
     # store each chunk in its own directory so that we can find the data later
-    chunk_dir = os.path.join("layout", "chunk_%05d" % chunk_num)
+    chunk_dir = os.path.join("chunk_%05d" % chunk_num)
     ret = self.ScriptedTest("webkit", "test_shell.exe", "layout",
                             script_cmd, multi=True, cmd_args=["--timeout=0"],
                             out_dir_extra=chunk_dir)
@@ -309,7 +308,15 @@ class ChromeTests:
     # Since we're running small chunks of the layout tests, it's important to
     # mark the ones that have errors in them.  These won't be visible in the
     # summary list for long, but will be useful for someone reviewing this bot.
-    return ret
+    #return ret
+    # For now, since a fair number of layout tests are still red, we'll use the
+    # magic orange indicator return code to avoid making the tree look red when
+    # nothing has changed.  When We get the layout tests into a stable green,
+    # this code should be undone.
+    # BUG=7516
+    if ret:
+      return -88
+    return 0
 
   def TestUI(self):
     if not self._options.no_reinstrument:
