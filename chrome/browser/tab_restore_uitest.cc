@@ -97,6 +97,7 @@ TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
   while (tab_count > 1) {
     scoped_ptr<TabProxy> tab_to_close(browser_proxy->GetTab(0));
     tab_to_close->Close(true);
+    ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
   }
 
   // Navigate to url1 then url2.
