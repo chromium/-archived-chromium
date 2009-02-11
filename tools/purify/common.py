@@ -58,9 +58,8 @@ def _print_line(line, flush=True):
     sys.stdout.flush()
 
 def RunSubprocess(proc, timeout=0, detach=False):
-  """ Runs a subprocess, polling every .2 seconds until it finishes or until
-  timeout is reached.  Then kills the process with taskkill.  A timeout <= 0
-  means no timeout.
+  """ Runs a subprocess, until it finishes or |timeout| is exceeded and the
+  process is killed with taskkill.  A |timeout| <= 0  means no timeout.
   
   Args:
     proc: list of process components (exe + args)
@@ -83,36 +82,48 @@ def RunSubprocess(proc, timeout=0, detach=False):
     # necessary.
     # TODO(erikkay): should we buffer stderr and stdout separately?
     p = subprocess.Popen(proc, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-  if timeout <= 0:
-    while p.poll() is None:
-      if not detach:
-        line = p.stdout.readline()
-        while line:
-          _print_line(line)
-          line = p.stdout.readline()
-      time.sleep(0.2)
-  else:
+
+  # How long to wait (in seconds) before printing progress log messages.
+  progress_delay = 300
+  progress_delay_time = time.time() + progress_delay
+  did_timeout = False
+  if timeout > 0:
     wait_until = time.time() + timeout
-    while p.poll() is None and time.time() < wait_until:
-      if not detach:
+  while p.poll() is None and not did_timeout:
+    if not detach:
+      line = p.stdout.readline()
+      while line:
+        _print_line(line)
         line = p.stdout.readline()
-        while line:
-          _print_line(line)
-          line = p.stdout.readline()
-      time.sleep(0.2)
-  if not detach:
-    for line in p.stdout.readlines():
-      _print_line(line, False)
-    p.stdout.flush()
-  result = p.poll()
-  if result is None:
+    else:
+      # When we detach, blocking on reading stdout doesn't work, so we sleep
+      # a short time and poll.
+      time.sleep(0.5)
+      if time.time() >= progress_delay_time:
+        # Force output on a periodic basis to avoid getting killed off by the
+        # buildbot.
+        # TODO(erikkay): I'd prefer a less obtrusive 'print ".",' with a flush
+        # but because of how we're doing subprocesses, this doesn't appear to
+        # work reliably.
+        logging.info("%s still running..." % os.path.basename(proc[0]))
+        progress_delay_time = time.time() + progress_delay
+    if timeout > 0:
+      did_timeout = time.time() > wait_until
+
+  if did_timeout:
     subprocess.call(["taskkill", "/T", "/F", "/PID", str(p.pid)])
     logging.error("KILLED %d" % p.pid)
-    # give the process a chance to actually die before continuing
-    # so that cleanup can happen safely
+    # Give the process a chance to actually die before continuing
+    # so that cleanup can happen safely.
     time.sleep(1.0)
     logging.error("TIMEOUT waiting for %s" % proc[0])
     raise TimeoutError(proc[0])
+  elif not detach:
+    for line in p.stdout.readlines():
+      _print_line(line, False)
+    p.stdout.flush()
+
+  result = p.poll()
   if result:
     logging.error("%s exited with non-zero result code %d" % (proc[0], result))
   return result
