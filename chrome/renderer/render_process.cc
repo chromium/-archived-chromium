@@ -105,6 +105,11 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
 #endif
   }
 
+  if (command_line.HasSwitch(switches::kEnableVideo)) {
+    // TODO(scherkus): check for any DLL dependencies.
+    webkit_glue::SetMediaPlayerAvailable(true);
+  }
+
   ChildProcessFactory<RenderProcess> factory;
   return ChildProcess::GlobalInit(channel_name, &factory);
 }
