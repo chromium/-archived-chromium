@@ -33,8 +33,11 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver {
   void SetProfile(Profile* profile);
 
  private:
-  // Builds a GtkButton with all the properties set.
-  GtkWidget* BuildToolbarButton(const std::wstring& localized_tooltip);
+  class CustomDrawButton;  // Defined in the .cc file.
+
+  // Builds a toolbar button with all the properties set.
+  CustomDrawButton* BuildToolbarButton(const std::string& filename,
+                                       const std::wstring& localized_tooltip);
 
   // Gtk callback for the "clicked" signal.
   static void ButtonClickCallback(GtkWidget* button,
@@ -47,15 +50,11 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver {
   // Tooltip container for all GTK widgets in this class.
   GtkTooltips* toolbar_tooltips_;
 
-  // All the GTK buttons in the toolbar.
-  GtkWidget* back_;
-  GtkWidget* forward_;
-  GtkWidget* reload_;
-  GtkWidget* home_;
-  GtkWidget* star_;
-  GtkWidget* go_;
-  GtkWidget* page_menu_;
-  GtkWidget* app_menu_;
+  // All the buttons in the toolbar.
+  scoped_ptr<CustomDrawButton> back_, forward_;
+  scoped_ptr<CustomDrawButton> reload_, home_;
+  scoped_ptr<CustomDrawButton> star_, go_;
+  scoped_ptr<CustomDrawButton> page_menu_, app_menu_;
 
   // The model that contains the security level, text, icon to display...
   ToolbarModel* model_;
