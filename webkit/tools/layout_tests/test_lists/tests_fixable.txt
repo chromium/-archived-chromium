@@ -319,6 +319,8 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
+LINUX MAC : chrome/fast/forms/basic-textareas.html = FAIL
+LINUX MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 // Compact support was removed from WebKit by Hyatt and layout tests rebaselined in r40259.
 LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
@@ -773,7 +775,6 @@ LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html
 
 // Linux pixeltest failure: Font mismatch
 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
-chrome/fast/forms/basic-textareas-quirks.html = FAIL
 
 // This test seems to fail on the builders but not locally.
 LINUX WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
@@ -1004,7 +1005,6 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-da
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
-chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // NEW FOR MERGE 37604:38097
 // This is a Safari specific test used to document the set of global
