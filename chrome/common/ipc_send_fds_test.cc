@@ -21,13 +21,15 @@ extern "C" {
 
 namespace {
 
-const char* kDevRandomPath = "/dev/random";
+const unsigned kNumFDsToSend = 20;
+const char* kDevZeroPath = "/dev/zero";
 
 static void VerifyAndCloseDescriptor(int fd, ino_t inode_num) {
   // Check that we can read from the FD.
   char buf;
   ssize_t amt_read = read(fd, &buf, 1);
   ASSERT_EQ(amt_read, 1);
+  ASSERT_EQ(buf, 0);  // /dev/zero always reads NUL bytes.
 
   struct stat st;
   ASSERT_EQ(fstat(fd, &st), 0);
@@ -42,11 +44,13 @@ static void VerifyAndCloseDescriptor(int fd, ino_t inode_num) {
 class MyChannelDescriptorListener : public IPC::Channel::Listener {
  public:
   MyChannelDescriptorListener(ino_t expected_inode_num)
-      : expected_inode_num_(expected_inode_num) {}
+      : expected_inode_num_(expected_inode_num),
+        num_fds_received_(0) {}
 
   virtual void OnMessageReceived(const IPC::Message& message) {
     void* iter = NULL;
 
+    ++num_fds_received_;
     base::FileDescriptor descriptor;
 
     ASSERT_TRUE(
@@ -54,7 +58,9 @@ class MyChannelDescriptorListener : public IPC::Channel::Listener {
             &message, &iter, &descriptor));
 
     VerifyAndCloseDescriptor(descriptor.fd, expected_inode_num_);
-    MessageLoop::current()->Quit();
+    if (num_fds_received_ == kNumFDsToSend) {
+      MessageLoop::current()->Quit();
+    }
   }
 
   virtual void OnChannelError() {
@@ -62,23 +68,26 @@ class MyChannelDescriptorListener : public IPC::Channel::Listener {
   }
  private:
   ino_t expected_inode_num_;
+  unsigned num_fds_received_;
 };
 
 void TestDescriptorServer(IPC::Channel &chan,
                           base::ProcessHandle process_handle) {
   ASSERT_TRUE(process_handle);
 
-  base::FileDescriptor descriptor;
-  const int fd = open(kDevRandomPath, O_RDONLY);
-  ASSERT_GE(fd, 0);
-  descriptor.auto_close = true;
-  descriptor.fd = fd;
+  for (unsigned i = 0; i < kNumFDsToSend; ++i) {
+    base::FileDescriptor descriptor;
+    const int fd = open(kDevZeroPath, O_RDONLY);
+    ASSERT_GE(fd, 0);
+    descriptor.auto_close = true;
+    descriptor.fd = fd;
 
-  IPC::Message* message = new IPC::Message(0, // routing_id
-                                           3, // message type
-                                           IPC::Message::PRIORITY_NORMAL);
-  IPC::ParamTraits<base::FileDescriptor>::Write(message, descriptor);
-  chan.Send(message);
+    IPC::Message* message = new IPC::Message(0, // routing_id
+                                             3, // message type
+                                             IPC::Message::PRIORITY_NORMAL);
+    IPC::ParamTraits<base::FileDescriptor>::Write(message, descriptor);
+    chan.Send(message);
+  }
 
   // Run message loop.
   MessageLoop::current()->Run();
@@ -110,7 +119,7 @@ int TestDescriptorClient(ino_t expected_inode_num) {
 // TODO(port): Make this test cross-platform.
 MULTIPROCESS_TEST_MAIN(RunTestDescriptorClientSandboxed) {
   struct stat st;
-  const int fd = open(kDevRandomPath, O_RDONLY);
+  const int fd = open(kDevZeroPath, O_RDONLY);
   fstat(fd, &st);
   close(fd);
 
@@ -126,7 +135,7 @@ MULTIPROCESS_TEST_MAIN(RunTestDescriptorClientSandboxed) {
   sandbox_free_error(error_buff);
 
   // Make sure Sandbox is really enabled.
-  if (open(kDevRandomPath, O_RDONLY) != -1) {
+  if (open(kDevZeroPath, O_RDONLY) != -1) {
     LOG(ERROR) << "Sandbox wasn't properly enabled";
     return -1;
   }
@@ -153,7 +162,7 @@ TEST_F(IPCChannelTest, DescriptorTestSandboxed) {
 
 MULTIPROCESS_TEST_MAIN(RunTestDescriptorClient) {
   struct stat st;
-  const int fd = open(kDevRandomPath, O_RDONLY);
+  const int fd = open(kDevZeroPath, O_RDONLY);
   fstat(fd, &st);
   close(fd);
 
