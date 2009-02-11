@@ -9,6 +9,7 @@
 #include <cairo/cairo.h>
 
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "skia/ext/bitmap_platform_device_linux.h"
@@ -223,7 +224,11 @@ void RenderWidgetHostViewGtk::Destroy() {
 }
 
 void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
-  // TODO(port): implement this
+  if (tooltip_text.empty()) {
+    gtk_widget_set_has_tooltip(view_, FALSE);
+  } else {
+    gtk_widget_set_tooltip_text(view_, WideToUTF8(tooltip_text).c_str());
+  }
 }
 
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
