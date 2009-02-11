@@ -55,6 +55,9 @@ void Message::InitLoggingVariables() {
 
 Message& Message::operator=(const Message& other) {
   *static_cast<Pickle*>(this) = other;
+#if defined(OS_POSIX)
+  descriptor_set_.TakeFrom(&other.descriptor_set_);
+#endif
   return *this;
 }
 
