@@ -31,11 +31,6 @@ bool BackingStore::PaintRect(base::ProcessHandle process,
   return true;
 }
 
-// Return the given value, clipped to 0..max (inclusive)
-static int RangeClip(int value, int max) {
-  return std::min(max, std::max(value, 0));
-}
-
 void BackingStore::ScrollRect(base::ProcessHandle process,
                               BitmapWireData bitmap,
                               const gfx::Rect& bitmap_rect,
@@ -55,10 +50,14 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
   // The Windows code always sets the whole backing store as the source of the
   // scroll. Thus, we only have to worry about pixels which will end up inside
   // the clipping rectangle. (Note that the clipping rectangle is not
-  // translated by the scrol.)
+  // translated by the scroll.)
 
   // We only support scrolling in one direction at a time.
   DCHECK(dx == 0 || dy == 0);
+
+  // We assume |clip_rect| is contained within the backing store.
+  DCHECK(clip_rect.bottom() <= canvas_.getDevice()->height());
+  DCHECK(clip_rect.right() <= canvas_.getDevice()->width());
 
   if (bitmap.width() != bitmap_rect.width() ||
       bitmap.height() != bitmap_rect.height() ||
@@ -66,96 +65,58 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
     return;
   }
 
-  // We assume that |clip_rect| is within the backing store.
-
   const SkBitmap &backing_bitmap = canvas_.getDevice()->accessBitmap(true);
   const int stride = backing_bitmap.rowBytes();
   uint8_t* x = static_cast<uint8_t*>(backing_bitmap.getPixels());
 
   if (dx) {
-    // Horizontal scroll. Positive values of |dx| scroll right.
-
-    // We know that |clip_rect| is the destination rectangle. The source
-    // rectangle, in an infinite world, would be the destination rectangle
-    // translated by -dx. However, we can't pull pixels from beyound the
-    // edge of the backing store. By truncating the source rectangle to the
-    // backing store, we might have made it thinner, thus we find the final
-    // dest rectangle by translating the resulting source rectangle back.
-    const int bs_width = canvas_.getDevice()->width();
-    const int src_rect_left = RangeClip(clip_rect.x() - dx, bs_width);
-    const int src_rect_right = RangeClip(clip_rect.right() - dx, bs_width);
-
-    const int dest_rect_left = RangeClip(src_rect_left + dx, bs_width);
-    const int dest_rect_right = RangeClip(src_rect_right + dx, bs_width);
-
-    DCHECK(dest_rect_right >= dest_rect_left);
-    DCHECK(src_rect_right >= src_rect_left);
-    DCHECK(dest_rect_right - dest_rect_left ==
-           src_rect_right - src_rect_left);
+    // Horizontal scroll. According to msdn, positive values of |dx| scroll
+    // left, but in practice this seems reversed. TODO(port): figure this
+    // out. For now just reverse the sign.
+    dx *= -1;
 
     // This is the number of bytes to move per line at 4 bytes per pixel.
-    const int len = (dest_rect_right - dest_rect_left) * 4;
+    const int len = (clip_rect.width() - abs(dx)) * 4;
 
-    // Position the pixel data pointer at the top-left corner of the dest rect
+    // Move |x| to the first pixel of the first row.
     x += clip_rect.y() * stride;
     x += clip_rect.x() * 4;
 
-    // This is the number of bytes to reach left in order to find the source
-    // rectangle. (Will be negative for a left scroll.)
-    const int left_reach = dest_rect_left - src_rect_left;
+    // If we are scrolling left, move |x| to the |dx|^th pixel.
+    if (dx < 0) {
+      x -= dx * 4;
+    }
 
-    for (int y = clip_rect.y(); y < clip_rect.bottom(); ++y) {
+    for (int i = clip_rect.y(); i < clip_rect.bottom(); ++i) {
       // Note that overlapping regions requires memmove, not memcpy.
-      memmove(x, x + left_reach, len);
+      memmove(x, x + dx * 4, len);
       x += stride;
     }
   } else {
-    // Vertical scroll. Positive values of |dy| scroll down.
-
-    // The logic is very similar to the horizontal case, above.
-    const int bs_height = canvas_.getDevice()->height();
-    const int src_rect_top = RangeClip(clip_rect.y() - dy, bs_height);
-    const int src_rect_bottom = RangeClip(clip_rect.bottom() - dy, bs_height);
-
-    const int dest_rect_top = RangeClip(src_rect_top + dy, bs_height);
-    const int dest_rect_bottom = RangeClip(src_rect_bottom + dy, bs_height);
+    // Vertical scroll. According to msdn, positive values of |dy| scroll down,
+    // but in practice this seems reversed. TODO(port): figure this out. For now
+    // just reverse the sign.
+    dy *= -1;
 
     const int len = clip_rect.width() * 4;
 
-    DCHECK(dest_rect_bottom >= dest_rect_top);
-    DCHECK(src_rect_bottom >= src_rect_top);
-
-    // We need to consider the two directions separately here because the order
-    // of copying rows must vary to avoid writing data which we later need to
-    // read.
+    // For down scrolls, we copy bottom-up (in screen coordinates).
+    // For up scrolls, we copy top-down.
     if (dy > 0) {
-      // Scrolling down; dest rect is above src rect.
-
-      // Position the pixel data pointer at the top-left corner of the dest
-      // rect.
-      x += dest_rect_top * stride;
+      // Move |x| to the first pixel of this row.
       x += clip_rect.x() * 4;
 
-      DCHECK(dest_rect_top <= src_rect_top);
-      const int down_reach_bytes = stride * (src_rect_top - dest_rect_top);
-
-      for (int y = dest_rect_top; y < dest_rect_bottom; ++y) {
-        memcpy(x, x + down_reach_bytes, len);
+      for (int i = clip_rect.y(); i < clip_rect.height() - dy; ++i) {
+        memcpy(x, x + stride * dy, len);
         x += stride;
       }
     } else {
-      // Scrolling up; dest rect is below src rect.
-
-      // Position the pixel data pointer at the bottom-left corner of the dest
-      // rect.
-      x += (dest_rect_bottom - 1) * stride;
+      // Move |x| to the first pixel of the last row of the clip rect.
       x += clip_rect.x() * 4;
+      x += clip_rect.bottom() * stride;
 
-      DCHECK(src_rect_top <= dest_rect_top);
-      const int up_reach_bytes = stride * (dest_rect_bottom - src_rect_bottom);
-
-      for (int y = dest_rect_bottom - 1; y >= dest_rect_top; --y) {
-        memcpy(x, x - up_reach_bytes, len);
+      for (int i = clip_rect.y(); i < clip_rect.height() + dy; ++i) {
+        memcpy(x, x + stride * dy, len);
         x -= stride;
       }
     }

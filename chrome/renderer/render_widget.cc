@@ -301,10 +301,12 @@ void RenderWidget::OnPaintRectAck() {
 }
 
 void RenderWidget::OnScrollRectAck() {
+#if defined(OS_WIN)
   DCHECK(scroll_reply_pending());
 
   RenderProcess::FreeSharedMemory(current_scroll_buf_);
   current_scroll_buf_ = NULL;
+#endif
 
   // Continue scrolling if necessary...
   DoDeferredScroll();

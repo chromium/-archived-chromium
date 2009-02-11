@@ -206,12 +206,12 @@ void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
 }
 
 void RenderWidgetHostViewGtk::DidPaintRect(const gfx::Rect& rect) {
-  NOTIMPLEMENTED();
+  Paint(rect);
 }
 
 void RenderWidgetHostViewGtk::DidScrollRect(const gfx::Rect& rect, int dx,
                                             int dy) {
-  NOTIMPLEMENTED();
+  Paint(rect);
 }
 
 void RenderWidgetHostViewGtk::RendererGone() {
@@ -223,7 +223,7 @@ void RenderWidgetHostViewGtk::Destroy() {
 }
 
 void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
-  NOTIMPLEMENTED();
+  // TODO(port): implement this
 }
 
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
