@@ -22,12 +22,14 @@
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download/save_types.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
@@ -47,7 +49,6 @@
 
 class Browser;
 class BookmarkService;
-class CancelableRequestConsumerBase;
 class CommandLine;
 class ConstrainedWindow;
 class DOMUIHost;
@@ -66,10 +67,12 @@ class Profile;
 class RenderProcessHost;
 class RenderWidgetHelper;
 class ResourceMessageFilter;
+class SessionCommand;
 class SessionID;
 class SiteInstance;
 class SpellChecker;
 class TabContents;
+class TabNavigation;
 struct ThumbnailScore;
 class Task;
 class TemplateURL;
@@ -83,6 +86,10 @@ class WebContentsView;
 struct WebPluginInfo;
 struct WebPluginGeometry;
 class WebPreferences;
+
+namespace base {
+class Thread;
+}
 
 namespace IPC {
 class Message;
@@ -167,8 +174,13 @@ class UserDataManager {
   static UserDataManager* instance_;
 };
 
-class BaseSessionService
-    : public base::RefCountedThreadSafe<BaseSessionService> {
+class SessionBackend : public base::RefCountedThreadSafe<SessionBackend> {
+ public:
+   void MoveCurrentSessionToLastSession() { NOTIMPLEMENTED(); }
+};
+
+class BaseSessionService : public CancelableRequestProvider,
+    public base::RefCountedThreadSafe<BaseSessionService> {
  public:
   enum SessionType {
     SESSION_RESTORE,
@@ -180,21 +192,68 @@ class BaseSessionService
                      const std::wstring& path) {
     NOTIMPLEMENTED();
   }
+  Profile* profile() const { NOTIMPLEMENTED(); return NULL; }
   void DeleteLastSession() { NOTIMPLEMENTED(); }
-};
-
-class SessionService : public BaseSessionService {
- public:
-  explicit SessionService(Profile* profile) { }
-  void WindowClosed(const SessionID &) { NOTIMPLEMENTED(); }
-  void SetWindowBounds(const SessionID&, const gfx::Rect&, bool)
-      { NOTIMPLEMENTED(); }
-  void ResetFromCurrentBrowsers() { NOTIMPLEMENTED(); }
-  void TabRestored(NavigationController*) { NOTIMPLEMENTED(); }
-  void WindowClosing(const SessionID&) { NOTIMPLEMENTED(); }
-  void SetTabIndexInWindow(const SessionID&, const SessionID&, int)
-      { NOTIMPLEMENTED(); }
-  void SetSelectedTabInWindow(const SessionID&, int) { NOTIMPLEMENTED(); }
+  class InternalGetCommandsRequest;
+  typedef Callback2<Handle, scoped_refptr<InternalGetCommandsRequest> >::Type
+      InternalGetCommandsCallback;
+  class InternalGetCommandsRequest :
+      public CancelableRequest<InternalGetCommandsCallback> {
+   public:
+    explicit InternalGetCommandsRequest(CallbackType* callback)
+      : CancelableRequest<InternalGetCommandsCallback>(callback) {
+    }
+    virtual ~InternalGetCommandsRequest() { }
+    std::vector<SessionCommand*> commands;
+   private:
+    DISALLOW_COPY_AND_ASSIGN(InternalGetCommandsRequest);
+  };
+ protected:
+  SessionBackend* backend() const {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+  base::Thread* backend_thread() const {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+  std::vector<SessionCommand*>&  pending_commands() {
+    NOTIMPLEMENTED();
+    return pending_commands_;
+  }
+  void set_pending_reset(bool value) { NOTIMPLEMENTED(); }
+  bool pending_reset() const { NOTIMPLEMENTED(); return false; }
+  int commands_since_reset() const { NOTIMPLEMENTED(); return 0; }
+  virtual void ScheduleCommand(SessionCommand* command) { NOTIMPLEMENTED(); }
+  void StartSaveTimer() { NOTIMPLEMENTED(); }
+  virtual void Save() { NOTIMPLEMENTED(); }
+  SessionCommand* CreateUpdateTabNavigationCommand(
+      SessionID::id_type command_id,
+      SessionID::id_type tab_id,
+      int index,
+      const NavigationEntry& entry) {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+  bool RestoreUpdateTabNavigationCommand(const SessionCommand& command,
+                                         TabNavigation* navigation,
+                                         SessionID::id_type* tab_id) {
+    NOTIMPLEMENTED();
+    return false;
+  }
+  bool ShouldTrackEntry(const NavigationEntry& entry) {
+    NOTIMPLEMENTED();
+    return false;
+  }
+  Handle ScheduleGetLastSessionCommands(
+      InternalGetCommandsRequest* request,
+      CancelableRequestConsumerBase* consumer) {
+    NOTIMPLEMENTED();
+    return 0;
+  }
+  static const int max_persist_navigation_count = 6;
+ private:
+   std::vector<SessionCommand*> pending_commands_;
 };
 
 class SessionRestore {

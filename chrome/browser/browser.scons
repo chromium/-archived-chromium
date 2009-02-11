@@ -750,7 +750,6 @@ if not env.Bit('windows'):
       'sessions/base_session_service.cc',
       'sessions/session_backend.cc',
       'sessions/session_restore.cc',
-      'sessions/session_service.cc',
       'sessions/tab_restore_service.cc',
       'shell_integration.cc',
       'ssl/ssl_blocking_page.cc',

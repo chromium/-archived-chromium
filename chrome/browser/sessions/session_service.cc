@@ -16,16 +16,21 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/session_startup_pref.h"
-#include "chrome/browser/sessions/session_backend.h"
-#include "chrome/browser/sessions/session_restore.h"
+#include "chrome/browser/sessions/session_command.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/scoped_vector.h"
+
+// TODO(port): Get rid of this section and finish porting.
+#if defined(OS_WIN)
+#include "chrome/browser/sessions/session_backend.h"
+#include "chrome/browser/sessions/session_restore.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/win_util.h"
+#endif
 
 using base::Time;
 
@@ -679,7 +684,7 @@ void SessionService::SortTabsBasedOnVisualOrderAndPrune(
     if (i->second->tabs.empty() || i->second->is_constrained ||
         !should_track_changes_for_browser_type(i->second->type)) {
       delete i->second;
-      i = windows->erase(i);
+      windows->erase(i++);
     } else {
       // Valid window; sort the tabs and add it to the list of valid windows.
       std::sort(i->second->tabs.begin(), i->second->tabs.end(),
@@ -706,7 +711,7 @@ void SessionService::AddTabsToWindows(std::map<int, SessionTab*>* tabs,
     if (tab->window_id.id() && !tab->navigations.empty()) {
       SessionWindow* window = GetWindow(tab->window_id.id(), windows);
       window->tabs.push_back(tab);
-      i = tabs->erase(i);
+      tabs->erase(i++);
 
       // See note in SessionTab as to why we do this.
       std::vector<TabNavigation>::iterator j =
