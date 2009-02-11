@@ -49,7 +49,9 @@ typedef enum {
   KEYWORDS_RESULT,       // WDResult<WDKeywordsResult>
   INT64_RESULT,          // WDResult<int64>
   PASSWORD_RESULT,       // WDResult<std::vector<PasswordForm*>>
+#if defined(OS_WIN)
   PASSWORD_IE7_RESULT,   // WDResult<IE7PasswordInfo>
+#endif
   WEB_APP_IMAGES,        // WDResult<WDAppImagesResult>
   AUTOFILL_VALUE_RESULT, // WDResult<std::vector<std::wstring>>
 } WDResultType;
@@ -345,7 +347,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
 
   // Removes |info| from the list of imported passwords from ie7/ie8.
   void RemoveIE7Login(const IE7PasswordInfo& info);
- 
+
   // Get the login matching the information in |info|. |consumer| will be
   // notified when the request is done. The result is of type
   // WDResult<IE7PasswordInfo>.

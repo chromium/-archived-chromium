@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_PASSWORD_FORM_MANAGER_H__
 #define CHROME_BROWSER_PASSWORD_FORM_MANAGER_H__
 
+#include "build/build_config.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "webkit/glue/password_form.h"
@@ -32,7 +33,9 @@ class PasswordFormManager : public WebDataServiceConsumer {
 
   // Retrieves potential matching logins from the database.
   void FetchMatchingLoginsFromWebDatabase();
+#if defined(OS_WIN)
   void FetchMatchingIE7LoginFromWebDatabase();
+#endif
 
   // Simple state-check to verify whether this object as received a callback
   // from the web database and completed its matching phase. Note that the
@@ -64,9 +67,11 @@ class PasswordFormManager : public WebDataServiceConsumer {
   // Determines if we need to autofill given the results of the query.
   void OnRequestDone(WebDataService::Handle h, const WDTypedResult* result);
 
+#if defined(OS_WIN)
   // Determines if we need to autofill given the results of the query in the
   // ie7_password table.
   void OnIE7RequestDone(WebDataService::Handle h, const WDTypedResult* result);
+#endif
 
   // A user opted to 'never remember' passwords for this form.
   // Blacklist it so that from now on when it is seen we ignore it.

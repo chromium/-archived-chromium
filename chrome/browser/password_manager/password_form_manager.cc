@@ -246,8 +246,10 @@ void PasswordFormManager::OnRequestDone(WebDataService::Handle h,
   state_ = POST_MATCHING_PHASE;
 
   if (best_score <= 0) {
+#if defined(OS_WIN)
     state_ = PRE_MATCHING_PHASE;
     FetchMatchingIE7LoginFromWebDatabase();
+#endif
     return;
   }
 
@@ -291,10 +293,12 @@ void PasswordFormManager::OnWebDataServiceRequestDone(WebDataService::Handle h,
       OnRequestDone(h, result);
       break;
     }
+#if defined(OS_WIN)
     case PASSWORD_IE7_RESULT: {
       OnIE7RequestDone(h, result);
       break;
     }
+#endif
     default:
       NOTREACHED();
   }
