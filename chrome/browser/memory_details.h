@@ -12,6 +12,7 @@
 #include "base/file_path.h"
 #include "base/process_util.h"
 #include "base/ref_counted.h"
+#include "chrome/common/child_process_info.h"
 
 class MessageLoop;
 
@@ -38,16 +39,13 @@ struct ProcessMemoryInformation {
   // A process is a diagnostics process if it is rendering
   // about:xxx information.
   bool is_diagnostics;
+  // If this is a child process of Chrome, what type (i.e. plugin) it is.
+  ChildProcessInfo::ProcessType type;
+  // A collection of titles used, i.e. for a tab it'll show all the page titles.
+  std::vector<std::wstring> titles;
 };
 
 typedef std::vector<ProcessMemoryInformation> ProcessMemoryInformationList;
-
-// Information that we need about a plugin process.
-struct PluginProcessInformation {
-  int pid;
-  FilePath plugin_path;
-};
-typedef std::vector<PluginProcessInformation> PluginProcessInformationList;
 
 // Browser Process Information.
 struct ProcessData {
@@ -95,9 +93,6 @@ class MemoryDetails : public base::RefCountedThreadSafe<MemoryDetails> {
   // after OnDetailsAvailable() has been called.
   ProcessData* processes() { return process_data_; }
 
-  // Access to the plugin details.
-  const PluginProcessInformationList* plugins() const { return &plugins_; }
-
   // Initiate updating the current memory details.  These are fetched
   // asynchronously because data must be collected from multiple threads.
   // OnDetailsAvailable will be called when this process is complete.
@@ -106,30 +101,30 @@ class MemoryDetails : public base::RefCountedThreadSafe<MemoryDetails> {
   virtual void OnDetailsAvailable() {}
 
  private:
-  // Collect the a list of information about current plugin processes that
-  // will be used by about:memory.  When finished, invokes back to the
-  // return_loop to run the rest of the about:memory functionality.
-  // Runs on the IO thread because the PluginProcessHost is only accessible
-  // from the IO thread.
-  void CollectPluginInformation();
+  // Collect child process information on the IO thread.  This is needed because
+  // information about some child process types (i.e. plugins) can only be taken
+  // on that thread.  The data will be used by about:memory.  When finished,
+  // invokes back to the file thread to run the rest of the about:memory
+  // functionality.
+  void CollectChildInfoOnIOThread();
 
   // Collect current process information from the OS and store it
   // for processing.  If data has already been collected, clears old
   // data and re-collects the data.
   // Note - this function enumerates memory details from many processes
-  // and is fairly expensive to run.
-  void CollectProcessData();
+  // and is fairly expensive to run, hence it's run on the file thread.
+  // The parameter holds information about processes from the IO thread.
+  void CollectProcessData(std::vector<ProcessMemoryInformation>);
 
-  // Collect renderer specific information.  This information is gathered
-  // on the Browser thread, where the RenderHostIterator is accessible.
-  void CollectRenderHostInformation();
+  // Collect child process information on the UI thread.  Information about
+  // renderer processes is only available there.
+  void CollectChildInfoOnUIThread();
 
   // Each time we take a memory sample, we do a little work to update
   // the global histograms for tracking memory usage.
   void UpdateHistograms();
 
   ProcessData process_data_[MAX_BROWSERS];
-  PluginProcessInformationList plugins_;
   MessageLoop* ui_loop_;
 
   DISALLOW_EVIL_CONSTRUCTORS(MemoryDetails);

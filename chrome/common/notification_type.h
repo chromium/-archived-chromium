@@ -319,47 +319,35 @@ class NotificationType {
     // guaranteed to be valid after the notification.
     WEB_CACHE_STATS_OBSERVED,
 
-    // Plugins -----------------------------------------------------------------
+    // Child Processes ---------------------------------------------------------
 
-    // This notification is sent when a plugin process host has connected to a
-    // plugin process.  There is no usable source, since it is sent from an
+    // This notification is sent when a child process host has connected to a
+    // child process.  There is no usable source, since it is sent from an
     // ephemeral task; register for AllSources() to receive this notification.
-    // The details are in a Details<PluginProcessInfo> with a pointer to a
-    // plug-in process info for the plugin, that is only valid for the time of
-    // the notification (don't keep this pointer around, make a copy of the
-    // object if you need to keep it).
-    PLUGIN_PROCESS_HOST_CONNECTED,
+    // The details are in a Details<ChildProcessInfo>.
+    CHILD_PROCESS_HOST_CONNECTED,
 
-    // This message is sent after a PluginProcessHost is disconnected from the
-    // plugin process.  There is no usable source, since it is sent from an
+    // This message is sent after a ChildProcessHost is disconnected from the
+    // child process.  There is no usable source, since it is sent from an
     // ephemeral task; register for AllSources() to receive this notification.
-    // The details are in a Details<PluginProcessInfo> with a pointer to a
-    // plug-in process info for the plugin, that is only valid for the time of
-    // the notification (don't keep this pointer around, make a copy of the
-    // object if you need to keep it).
-    PLUGIN_PROCESS_HOST_DISCONNECTED,
+    // The details are in a Details<ChildProcessInfo>.
+    CHILD_PROCESS_HOST_DISCONNECTED,
 
-    // This message is sent when a plugin process disappears unexpectedly.
+    // This message is sent when a child process disappears unexpectedly.
     // There is no usable source, since it is sent from an ephemeral task;
     // register for AllSources() to receive this notification.  The details are
-    // in a Details<PluginProcessInfo> with a pointer to a plug-in process info
-    // for the plugin, that is only valid for the time of the notification
-    // (don't keep this pointer around, make a copy of the object if you need
-    // to keep it).
-    PLUGIN_PROCESS_CRASHED,
+    // in a Details<ChildProcessInfo>.
+    CHILD_PROCESS_CRASHED,
 
-    // This message indicates that an instance of a particular plugin was
+    // This message indicates that an instance of a particular child was
     // created in a page.  (If one page contains several regions rendered by
-    // the same plugin, this notification will occur once for each region
+    // the same child, this notification will occur once for each region
     // during the page load.)
     //
     // There is no usable source, since it is sent from an ephemeral task;
     // register for AllSources() to receive this notification.  The details are
-    // in a Details<PluginProcessInfo> with a pointer to a plug-in process info
-    // for the plugin, that is only valid for the time of the notification
-    // (don't keep this pointer around, make a copy of the object if you need
-    // to keep it).
-    PLUGIN_INSTANCE_CREATED,
+    // in a Details<ChildProcessInfo>.
+    CHILD_INSTANCE_CREATED,
 
     // This is sent when network interception is disabled for a plugin, or the
     // plugin is unloaded.  This should only be sent/received on the browser IO

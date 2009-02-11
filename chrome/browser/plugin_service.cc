@@ -85,9 +85,15 @@ PluginProcessHost* PluginService::FindOrStartPluginProcess(
   if (plugin_host)
     return plugin_host;
 
+  WebPluginInfo info;
+  if (!GetPluginInfoByPath(plugin_path, &info)) {
+    DCHECK(false);
+    return NULL;
+  }
+
   // This plugin isn't loaded by any plugin process, so create a new process.
   plugin_host = new PluginProcessHost(this);
-  if (!plugin_host->Init(plugin_path, clsid, ui_locale_)) {
+  if (!plugin_host->Init(info, clsid, ui_locale_)) {
     DCHECK(false);  // Init is not expected to fail
     delete plugin_host;
     return NULL;

@@ -434,10 +434,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\plugin_process_info.h"
-				>
-			</File>
-			<File
 				RelativePath=".\plugin_service.cc"
 				>
 			</File>

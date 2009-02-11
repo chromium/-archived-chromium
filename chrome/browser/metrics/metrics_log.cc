@@ -382,16 +382,13 @@ void MetricsLog::WritePluginStabilityElements(PrefService* pref) {
       }
       DictionaryValue* plugin_dict = static_cast<DictionaryValue*>(*iter);
 
-      std::wstring plugin_path;
-      plugin_dict->GetString(prefs::kStabilityPluginPath, &plugin_path);
-      plugin_path = file_util::GetFilenameFromPath(plugin_path);
-      if (plugin_path.empty()) {
-        NOTREACHED();
-        continue;
-      }
+      std::wstring plugin_name;
+      plugin_dict->GetString(prefs::kStabilityPluginName, &plugin_name);
 
       OPEN_ELEMENT_FOR_SCOPE("pluginstability");
-      WriteAttribute("filename", CreateBase64Hash(WideToUTF8(plugin_path)));
+      // Use "filename" instead of "name", otherwise we need to update the
+      // UMA servers.
+      WriteAttribute("filename", CreateBase64Hash(WideToUTF8(plugin_name)));
 
       int launches = 0;
       plugin_dict->GetInteger(prefs::kStabilityPluginLaunches, &launches);

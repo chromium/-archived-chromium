@@ -118,7 +118,6 @@ input_files = ChromeFileList([
     'meta_table_helper.h',
     'plugin_process_host.cc',
     'plugin_process_host.h',
-    'plugin_process_info.h',
     'plugin_service.cc',
     'plugin_service.h',
     '../tools/build/win/precompiled_wtl.cc',

@@ -170,12 +170,12 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/memory_details.h"
-#include "chrome/browser/plugin_process_info.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/common/child_process_info.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/libxml_utils.h"
 #include "chrome/common/notification_service.h"
@@ -464,10 +464,10 @@ void MetricsService::Observe(NotificationType type,
       LogRendererInSandbox(*Details<bool>(details).ptr());
       break;
 
-    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
-    case NotificationType::PLUGIN_PROCESS_CRASHED:
-    case NotificationType::PLUGIN_INSTANCE_CREATED:
-      LogPluginChange(type, source, details);
+    case NotificationType::CHILD_PROCESS_HOST_CONNECTED:
+    case NotificationType::CHILD_PROCESS_CRASHED:
+    case NotificationType::CHILD_INSTANCE_CREATED:
+      LogChildProcessChange(type, source, details);
       break;
 
     case NotificationType::TEMPLATE_URL_MODEL_LOADED:
@@ -723,11 +723,11 @@ void MetricsService::ListenerRegistration(bool start_listening) {
                       start_listening);
   AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_HANG,
                       start_listening);
-  AddOrRemoveObserver(this, NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
+  AddOrRemoveObserver(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
                       start_listening);
-  AddOrRemoveObserver(this, NotificationType::PLUGIN_INSTANCE_CREATED,
+  AddOrRemoveObserver(this, NotificationType::CHILD_INSTANCE_CREATED,
                       start_listening);
-  AddOrRemoveObserver(this, NotificationType::PLUGIN_PROCESS_CRASHED,
+  AddOrRemoveObserver(this, NotificationType::CHILD_PROCESS_CRASHED,
                       start_listening);
   AddOrRemoveObserver(this, NotificationType::TEMPLATE_URL_MODEL_LOADED,
                       start_listening);
@@ -1533,26 +1533,29 @@ void MetricsService::LogRendererHang() {
   IncrementPrefValue(prefs::kStabilityRendererHangCount);
 }
 
-void MetricsService::LogPluginChange(NotificationType type,
-                                     const NotificationSource& source,
-                                     const NotificationDetails& details) {
-  FilePath plugin = Details<PluginProcessInfo>(details)->plugin_path();
+void MetricsService::LogChildProcessChange(
+    NotificationType type,
+    const NotificationSource& source,
+    const NotificationDetails& details) {
+  const std::wstring& child_name =
+      Details<ChildProcessInfo>(details)->name();
 
-  if (plugin_stats_buffer_.find(plugin) == plugin_stats_buffer_.end()) {
-    plugin_stats_buffer_[plugin] = PluginStats();
+  if (child_process_stats_buffer_.find(child_name) ==
+      child_process_stats_buffer_.end()) {
+    child_process_stats_buffer_[child_name] = ChildProcessStats();
   }
 
-  PluginStats& stats = plugin_stats_buffer_[plugin];
+  ChildProcessStats& stats = child_process_stats_buffer_[child_name];
   switch (type.value) {
-    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
+    case NotificationType::CHILD_PROCESS_HOST_CONNECTED:
       stats.process_launches++;
       break;
 
-    case NotificationType::PLUGIN_INSTANCE_CREATED:
+    case NotificationType::CHILD_INSTANCE_CREATED:
       stats.instances++;
       break;
 
-    case NotificationType::PLUGIN_PROCESS_CRASHED:
+    case NotificationType::CHILD_PROCESS_CRASHED:
       stats.process_crashes++;
       break;
 
@@ -1620,18 +1623,18 @@ void MetricsService::RecordPluginChanges(PrefService* pref) {
     }
 
     DictionaryValue* plugin_dict = static_cast<DictionaryValue*>(*value_iter);
-    FilePath::StringType plugin_path_str;
-    plugin_dict->GetString(prefs::kStabilityPluginPath, &plugin_path_str);
-    if (plugin_path_str.empty()) {
+    std::wstring plugin_name;
+    plugin_dict->GetString(prefs::kStabilityPluginName, &plugin_name);
+    if (plugin_name.empty()) {
       NOTREACHED();
       continue;
     }
 
-    FilePath plugin_path(plugin_path_str);
-    if (plugin_stats_buffer_.find(plugin_path) == plugin_stats_buffer_.end())
+    if (child_process_stats_buffer_.find(plugin_name) ==
+        child_process_stats_buffer_.end())
       continue;
 
-    PluginStats stats = plugin_stats_buffer_[plugin_path];
+    ChildProcessStats stats = child_process_stats_buffer_[plugin_name];
     if (stats.process_launches) {
       int launches = 0;
       plugin_dict->GetInteger(prefs::kStabilityPluginLaunches, &launches);
@@ -1651,19 +1654,19 @@ void MetricsService::RecordPluginChanges(PrefService* pref) {
       plugin_dict->SetInteger(prefs::kStabilityPluginInstances, instances);
     }
 
-    plugin_stats_buffer_.erase(plugin_path);
+    child_process_stats_buffer_.erase(plugin_name);
   }
 
   // Now go through and add dictionaries for plugins that didn't already have
   // reports in Local State.
-  for (std::map<FilePath, PluginStats>::iterator cache_iter =
-           plugin_stats_buffer_.begin();
-       cache_iter != plugin_stats_buffer_.end(); ++cache_iter) {
-    FilePath plugin_path = cache_iter->first;
-    PluginStats stats = cache_iter->second;
+  for (std::map<std::wstring, ChildProcessStats>::iterator cache_iter =
+           child_process_stats_buffer_.begin();
+       cache_iter != child_process_stats_buffer_.end(); ++cache_iter) {
+    std::wstring plugin_name = cache_iter->first;
+    ChildProcessStats stats = cache_iter->second;
     DictionaryValue* plugin_dict = new DictionaryValue;
 
-    plugin_dict->SetString(prefs::kStabilityPluginPath, plugin_path.value());
+    plugin_dict->SetString(prefs::kStabilityPluginName, plugin_name);
     plugin_dict->SetInteger(prefs::kStabilityPluginLaunches,
                             stats.process_launches);
     plugin_dict->SetInteger(prefs::kStabilityPluginCrashes,
@@ -1672,7 +1675,7 @@ void MetricsService::RecordPluginChanges(PrefService* pref) {
                             stats.instances);
     plugins->Append(plugin_dict);
   }
-  plugin_stats_buffer_.clear();
+  child_process_stats_buffer_.clear();
 }
 
 bool MetricsService::CanLogNotification(NotificationType type,

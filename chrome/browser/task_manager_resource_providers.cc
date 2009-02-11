@@ -255,74 +255,64 @@ void TaskManagerWebContentsResourceProvider::Observe(NotificationType type,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TaskManagerPluginProcessResource class
+// TaskManagerChildProcessResource class
 ////////////////////////////////////////////////////////////////////////////////
-SkBitmap* TaskManagerPluginProcessResource::default_icon_ = NULL;
+SkBitmap* TaskManagerChildProcessResource::default_icon_ = NULL;
 
-TaskManagerPluginProcessResource::TaskManagerPluginProcessResource(
-    PluginProcessInfo plugin_proc)
-    : plugin_process_(plugin_proc),
+TaskManagerChildProcessResource::TaskManagerChildProcessResource(
+    ChildProcessInfo child_proc)
+    : child_process_(child_proc),
       title_(),
       network_usage_support_(false) {
-  pid_ = base::GetProcId(plugin_proc.process());
+  // We cache the process id because it's not cheap to calculate, and it won't
+  // be available when we get the plugin disconnected notification.
+  pid_ = child_proc.process().pid();
   if (!default_icon_) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     default_icon_ = rb.GetBitmapNamed(IDR_PLUGIN);
+    // TODO(jabdelmalek): use different icon for web workers.
   }
 }
 
-TaskManagerPluginProcessResource::~TaskManagerPluginProcessResource() {
+TaskManagerChildProcessResource::~TaskManagerChildProcessResource() {
 }
 
 // TaskManagerResource methods:
-std::wstring TaskManagerPluginProcessResource::GetTitle() const {
-  if (title_.empty()) {
-    std::wstring plugin_name;
-    WebPluginInfo info;
-    if (PluginService::GetInstance()->
-            GetPluginInfoByPath(plugin_process_.plugin_path(), &info))
-      plugin_name = info.name;
-    else
-      plugin_name = l10n_util::GetString(IDS_TASK_MANAGER_UNKNOWN_PLUGIN_NAME);
-    // Explicitly mark plugin_name as LTR if there is no strong RTL character,
-    // to avoid the wrong concatenation result similar to "!Yahoo! Mail: the
-    // best web-based Email: NIGULP", in which "NIGULP" stands for the Hebrew
-    // or Arabic word for "plugin".
-    l10n_util::AdjustStringForLocaleDirection(plugin_name, &plugin_name);
-    title_ = l10n_util::GetStringF(IDS_TASK_MANAGER_PLUGIN_PREFIX,
-                                   plugin_name);
-  }
+std::wstring TaskManagerChildProcessResource::GetTitle() const {
+  if (title_.empty())
+    title_ = child_process_.GetLocalizedTitle();
+
   return title_;
 }
 
-SkBitmap TaskManagerPluginProcessResource::GetIcon() const {
+SkBitmap TaskManagerChildProcessResource::GetIcon() const {
   return *default_icon_;
 }
 
-HANDLE TaskManagerPluginProcessResource::GetProcess() const {
-  return plugin_process_.process();
+HANDLE TaskManagerChildProcessResource::GetProcess() const {
+  return (const_cast<ChildProcessInfo&>(child_process_)).process().handle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TaskManagerPluginProcessResourceProvider class
+// TaskManagerChildProcessResourceProvider class
 ////////////////////////////////////////////////////////////////////////////////
 
-TaskManagerPluginProcessResourceProvider::
-    TaskManagerPluginProcessResourceProvider(TaskManager* task_manager)
+TaskManagerChildProcessResourceProvider::
+    TaskManagerChildProcessResourceProvider(TaskManager* task_manager)
     : task_manager_(task_manager),
       updating_(false),
       ui_loop_(MessageLoop::current()) {
 }
 
-TaskManagerPluginProcessResourceProvider::
-    ~TaskManagerPluginProcessResourceProvider() {
+TaskManagerChildProcessResourceProvider::
+    ~TaskManagerChildProcessResourceProvider() {
 }
 
-TaskManager::Resource* TaskManagerPluginProcessResourceProvider::GetResource(
+TaskManager::Resource* TaskManagerChildProcessResourceProvider::GetResource(
     int origin_pid,
     int render_process_host_id,
     int routing_id) {
-  std::map<int, TaskManagerPluginProcessResource*>::iterator iter =
+  std::map<int, TaskManagerChildProcessResource*>::iterator iter =
       pid_to_resources_.find(origin_pid);
   if (iter != pid_to_resources_.end())
     return iter->second;
@@ -330,33 +320,33 @@ TaskManager::Resource* TaskManagerPluginProcessResourceProvider::GetResource(
     return NULL;
 }
 
-void TaskManagerPluginProcessResourceProvider::StartUpdating() {
+void TaskManagerChildProcessResourceProvider::StartUpdating() {
   DCHECK(!updating_);
   updating_ = true;
 
   // Register for notifications to get new plugin processes.
   NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
+  service->AddObserver(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
                        NotificationService::AllSources());
-  service->AddObserver(this, NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED,
+  service->AddObserver(this, NotificationType::CHILD_PROCESS_HOST_DISCONNECTED,
                        NotificationService::AllSources());
 
   // Get the existing plugins
   MessageLoop* io_loop_ = g_browser_process->io_thread()->message_loop();
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
-      &TaskManagerPluginProcessResourceProvider::RetrievePluginProcessInfo));
+      &TaskManagerChildProcessResourceProvider::RetrieveChildProcessInfo));
 }
 
-void TaskManagerPluginProcessResourceProvider::StopUpdating() {
+void TaskManagerChildProcessResourceProvider::StopUpdating() {
   DCHECK(updating_);
   updating_ = false;
 
   // Unregister for notifications to get new plugin processes.
   NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
+  service->RemoveObserver(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
                           NotificationService::AllSources());
   service->RemoveObserver(this,
-                          NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED,
+                          NotificationType::CHILD_PROCESS_HOST_DISCONNECTED,
                           NotificationService::AllSources());
 
   // Delete all the resources.
@@ -364,19 +354,19 @@ void TaskManagerPluginProcessResourceProvider::StopUpdating() {
 
   resources_.clear();
   pid_to_resources_.clear();
-  existing_plugin_process_info.clear();
+  existing_child_process_info_.clear();
 }
 
-void TaskManagerPluginProcessResourceProvider::Observe(
+void TaskManagerChildProcessResourceProvider::Observe(
     NotificationType type,
     const NotificationSource& source,
     const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
-      Add(*Details<PluginProcessInfo>(details).ptr());
+    case NotificationType::CHILD_PROCESS_HOST_CONNECTED:
+      Add(*Details<ChildProcessInfo>(details).ptr());
       break;
-    case NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED:
-      Remove(*Details<PluginProcessInfo>(details).ptr());
+    case NotificationType::CHILD_PROCESS_HOST_DISCONNECTED:
+      Remove(*Details<ChildProcessInfo>(details).ptr());
       break;
     default:
       NOTREACHED() << "Unexpected notification.";
@@ -384,41 +374,41 @@ void TaskManagerPluginProcessResourceProvider::Observe(
   }
 }
 
-void TaskManagerPluginProcessResourceProvider::Add(
-    PluginProcessInfo plugin_process_info) {
+void TaskManagerChildProcessResourceProvider::Add(
+    ChildProcessInfo child_process_info) {
   if (!updating_)
     return;
-  std::map<PluginProcessInfo, TaskManagerPluginProcessResource*>::
-      const_iterator iter = resources_.find(plugin_process_info);
+  std::map<ChildProcessInfo, TaskManagerChildProcessResource*>::
+      const_iterator iter = resources_.find(child_process_info);
   if (iter != resources_.end()) {
-    // The case may happen that we have added a plugin_process_host as part of
+    // The case may happen that we have added a child_process_info as part of
     // the iteration performed during StartUpdating() call but the notification
     // that it has connected was not fired yet. So when the notification
     // happens, we already know about this plugin and just ignore it.
     return;
   }
-  AddToTaskManager(plugin_process_info);
+  AddToTaskManager(child_process_info);
 }
 
-void TaskManagerPluginProcessResourceProvider::Remove(
-    PluginProcessInfo plugin_process_info) {
+void TaskManagerChildProcessResourceProvider::Remove(
+    ChildProcessInfo child_process_info) {
   if (!updating_)
     return;
-  std::map<PluginProcessInfo, TaskManagerPluginProcessResource*>
-      ::iterator iter = resources_.find(plugin_process_info);
+  std::map<ChildProcessInfo, TaskManagerChildProcessResource*>
+      ::iterator iter = resources_.find(child_process_info);
   if (iter == resources_.end()) {
-    // PluginProcessHost disconnection notifications are asynchronous, so we
+    // ChildProcessInfo disconnection notifications are asynchronous, so we
     // might be notified for a plugin we don't know anything about (if it was
     // closed before the task manager was shown and destroyed after that).
     return;
   }
   // Remove the resource from the Task Manager.
-  TaskManagerPluginProcessResource* resource = iter->second;
+  TaskManagerChildProcessResource* resource = iter->second;
   task_manager_->RemoveResource(resource);
   // Remove it from the provider.
   resources_.erase(iter);
   // Remove it from our pid map.
-  std::map<int, TaskManagerPluginProcessResource*>::iterator pid_iter =
+  std::map<int, TaskManagerChildProcessResource*>::iterator pid_iter =
       pid_to_resources_.find(resource->process_id());
   DCHECK(pid_iter != pid_to_resources_.end());
   if (pid_iter != pid_to_resources_.end())
@@ -428,37 +418,34 @@ void TaskManagerPluginProcessResourceProvider::Remove(
   delete resource;
 }
 
-void TaskManagerPluginProcessResourceProvider::AddToTaskManager(
-    PluginProcessInfo plugin_process_info) {
-  TaskManagerPluginProcessResource* resource =
-      new TaskManagerPluginProcessResource(plugin_process_info);
-  resources_[plugin_process_info] = resource;
-  pid_to_resources_[base::GetProcId(plugin_process_info.process())] =
-      resource;
+void TaskManagerChildProcessResourceProvider::AddToTaskManager(
+    ChildProcessInfo child_process_info) {
+  TaskManagerChildProcessResource* resource =
+      new TaskManagerChildProcessResource(child_process_info);
+  resources_[child_process_info] = resource;
+  pid_to_resources_[resource->process_id()] = resource;
   task_manager_->AddResource(resource);
 }
 
 // The PluginProcessIterator has to be used from the IO thread.
-void TaskManagerPluginProcessResourceProvider::RetrievePluginProcessInfo() {
+void TaskManagerChildProcessResourceProvider::RetrieveChildProcessInfo() {
   for (PluginProcessHostIterator iter; !iter.Done(); ++iter) {
-    PluginProcessHost* plugin = const_cast<PluginProcessHost*>(*iter);
-    DCHECK(plugin->process());
-    PluginProcessInfo plugin_info(plugin->plugin_path(), plugin->process());
-    existing_plugin_process_info.push_back(plugin_info);
+    const ChildProcessInfo* child = *iter;
+    existing_child_process_info_.push_back(*child);
   }
   // Now notify the UI thread that we have retrieved the PluginProcessHosts.
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
-      &TaskManagerPluginProcessResourceProvider::PluginProcessInfoRetreived));
+      &TaskManagerChildProcessResourceProvider::ChildProcessInfoRetreived));
 }
 
 // This is called on the UI thread.
-void TaskManagerPluginProcessResourceProvider::PluginProcessInfoRetreived() {
-  std::vector<PluginProcessInfo>::const_iterator iter;
-  for (iter = existing_plugin_process_info.begin();
-       iter != existing_plugin_process_info.end(); ++iter) {
+void TaskManagerChildProcessResourceProvider::ChildProcessInfoRetreived() {
+  std::vector<ChildProcessInfo>::const_iterator iter;
+  for (iter = existing_child_process_info_.begin();
+       iter != existing_child_process_info_.end(); ++iter) {
     Add(*iter);
   }
-  existing_plugin_process_info.clear();
+  existing_child_process_info_.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

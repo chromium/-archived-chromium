@@ -10,12 +10,13 @@
 #include "base/basictypes.h"
 #include "base/id_map.h"
 #include "base/object_watcher.h"
-#include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
+#include "chrome/common/child_process_info.h"
 #include "chrome/common/ipc_channel_proxy.h"
+#include "webkit/glue/webplugin.h"
 
 class PluginService;
 class PluginProcessHost;
@@ -32,7 +33,8 @@ class GURL;
 // starting the plugin process when a plugin is created that doesn't already
 // have a process.  After that, most of the communication is directly between
 // the renderer and plugin processes.
-class PluginProcessHost : public IPC::Channel::Listener,
+class PluginProcessHost : public ChildProcessInfo,
+                          public IPC::Channel::Listener,
                           public IPC::Message::Sender,
                           public base::ObjectWatcher::Delegate,
                           public ResolveProxyMsgHelper::Delegate {
@@ -44,7 +46,7 @@ class PluginProcessHost : public IPC::Channel::Listener,
   // be called before the object can be used. If plugin_path is the
   // ActiveX-shim, then activex_clsid is the class id of ActiveX control,
   // otherwise activex_clsid is ignored.
-  bool Init(const FilePath& plugin_path,
+  bool Init(const WebPluginInfo& info,
             const std::string& activex_clsid,
             const std::wstring& locale);
 
@@ -64,17 +66,12 @@ class PluginProcessHost : public IPC::Channel::Listener,
                                        int result,
                                        const std::string& proxy_list);
 
-  // Getter to the process, may return NULL if there is no connection.
-  HANDLE process() { return process_.handle(); }
-
   // Tells the plugin process to create a new channel for communication with a
   // renderer.  When the plugin process responds with the channel name,
   // reply_msg is used to send the name to the renderer.
   void OpenChannelToPlugin(ResourceMessageFilter* renderer_message_filter,
                            const std::string& mime_type,
                            IPC::Message* reply_msg);
-
-  const FilePath& plugin_path() const { return plugin_path_; }
 
   // Sends the reply to an open channel request to the renderer with the given
   // channel name.
@@ -140,9 +137,6 @@ class PluginProcessHost : public IPC::Channel::Listener,
   // the plugin process, but haven't heard back about yet.
   std::vector<ChannelRequest> sent_requests_;
 
-  // The handle to our plugin process.
-  base::Process process_;
-
   // Used to watch the plugin process handle.
   base::ObjectWatcher watcher_;
 
@@ -156,8 +150,8 @@ class PluginProcessHost : public IPC::Channel::Listener,
   // IPC Channel's id.
   std::wstring channel_id_;
 
-  // Path to the file of that plugin.
-  FilePath plugin_path_;
+  // Information about the plugin.
+  WebPluginInfo info_;
 
   PluginService* plugin_service_;
 

@@ -1526,6 +1526,9 @@ each locale. -->
       <message name="IDS_TASK_MANAGER_UNKNOWN_PLUGIN_NAME" desc="The prefix for a Task Manager plugin row">
         Unknown plug-in
       </message>
+      <message name="IDS_TASK_MANAGER_WORKER_PREFIX" desc="The prefix for a Task Manager HTML5 Web Worker process row">
+        Web Worker: <ph name="WORKER_NAME">$1<ex>http://www.domain.com</ex></ph>
+      </message>
 
       <!-- Session Crashed Info Bar-->
       <message name="IDS_SESSION_CRASHED_VIEW_RESTORE_BUTTON" desc="Title of the restore button in the session crashed view.">

@@ -15,7 +15,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/histogram.h"
 #include "base/scoped_ptr.h"
 #include "base/values.h"
@@ -30,22 +29,23 @@ class PrefService;
 class Profile;
 class TemplateURLModel;
 
-// This is used to quickly log stats from plugin-related notifications in
-// MetricsService::plugin_stats_buffer_.  The buffer's contents are transferred
+// This is used to quickly log stats from child process related notifications in
+// MetricsService::child_stats_buffer_.  The buffer's contents are transferred
 // out when Local State is periodically saved.  The information is then
 // reported to the UMA server on next launch.
-struct PluginStats {
+struct ChildProcessStats {
  public:
-  PluginStats() : process_launches(0), process_crashes(0), instances(0) {}
+  ChildProcessStats() : process_launches(0), process_crashes(0), instances(0) {}
 
-  // The number of times that the given plugin process has been launched
+  // The number of times that the given child process has been launched
   int process_launches;
 
-  // The number of times that the given plugin process has crashed
+  // The number of times that the given child process has crashed
   int process_crashes;
 
-  // The number of instances of this plugin that have been created.
-  // An instance is a DOM object rendered by this plugin during a page load.
+  // The number of instances of this child process that have been created.
+  // An instance is a DOM object rendered by this child process during a page
+  // load.
   int instances;
 };
 
@@ -315,12 +315,12 @@ class MetricsService : public NotificationObserver,
   // Sets preferences for the for the number of bookmarks in model.
   void LogBookmarks(BookmarkModel* model);
 
-  // Records a plugin-related notification.  These are recorded to an in-object
-  // buffer because these notifications are sent on page load, and we don't
-  // want to slow that down.
-  void LogPluginChange(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
+  // Records a child process related notification.  These are recorded to an
+  // in-object buffer because these notifications are sent on page load, and we
+  // don't want to slow that down.
+  void LogChildProcessChange(NotificationType type,
+                             const NotificationSource& source,
+                             const NotificationDetails& details);
 
   // Logs keywords specific metrics. Keyword metrics are recorded in the
   // profile specific metrics.
@@ -421,9 +421,9 @@ class MetricsService : public NotificationObserver,
   WindowMap window_map_;
   int next_window_id_;
 
-  // Buffer of plugin notifications for quick access.  See PluginStats
-  // documentation above for more details.
-  std::map<FilePath, PluginStats> plugin_stats_buffer_;
+  // Buffer of child process notifications for quick access.  See
+  // ChildProcessStats documentation above for more details.
+  std::map<std::wstring, ChildProcessStats> child_process_stats_buffer_;
 
   ScopedRunnableMethodFactory<MetricsService> log_sender_factory_;
   ScopedRunnableMethodFactory<MetricsService> state_saver_factory_;

@@ -96,10 +96,9 @@ class ReducePluginsWorkingSetTask : public Task {
   virtual void Run() {
 #if defined(OS_WIN)
     for (PluginProcessHostIterator iter; !iter.Done(); ++iter) {
-      PluginProcessHost* plugin = const_cast<PluginProcessHost*>(*iter);
-      DCHECK(plugin->process());
-      base::Process process(plugin->process());
-      process.ReduceWorkingSet();
+      ChildProcessInfo* child = const_cast<PluginProcessHost*>(*iter);
+      DCHECK(child->process().handle());
+      child->process().ReduceWorkingSet();
     }
 #endif
   }

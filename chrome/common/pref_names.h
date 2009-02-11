@@ -116,7 +116,7 @@ extern const wchar_t kSecurityRendererOnSboxDesktop[];
 extern const wchar_t kSecurityRendererOnDefaultDesktop[];
 
 extern const wchar_t kStabilityPluginStats[];
-extern const wchar_t kStabilityPluginPath[];
+extern const wchar_t kStabilityPluginName[];
 extern const wchar_t kStabilityPluginLaunches[];
 extern const wchar_t kStabilityPluginInstances[];
 extern const wchar_t kStabilityPluginCrashes[];

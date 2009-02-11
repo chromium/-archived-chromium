@@ -10,15 +10,16 @@
 #include "base/command_line.h"
 #include "base/debug_util.h"
 #include "base/file_util.h"
+#include "base/file_version_info.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
+#include "base/scoped_ptr.h"
 #include "base/thread.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/browser/plugin_process_info.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
@@ -32,6 +33,7 @@
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/render_messages.h"
@@ -51,47 +53,20 @@ static const char kDefaultPluginFinderURL[] =
 class PluginNotificationTask : public Task {
  public:
   PluginNotificationTask(NotificationType notification_type,
-                         FilePath plugin_path,
-                         HANDLE process);
+                         ChildProcessInfo* info)
+      : notification_type_(notification_type), info_(*info) { }
 
-  virtual void Run();
+  virtual void Run() {
+    NotificationService::current()->
+        Notify(notification_type_, NotificationService::AllSources(),
+               Details<ChildProcessInfo>(&info_));
+  }
 
  private:
   NotificationType notification_type_;
-  FilePath plugin_path_;
-  HANDLE process_;
+  ChildProcessInfo info_;
 };
 
-PluginNotificationTask::PluginNotificationTask(
-    NotificationType notification_type,
-    FilePath plugin_path,
-    HANDLE process)
-    : notification_type_(notification_type),
-      process_(process),
-      plugin_path_(plugin_path) {
-}
-
-void PluginNotificationTask::Run() {
-  // Verify that the notification type is one that makes sense.
-  switch (notification_type_.value) {
-    case NotificationType::PLUGIN_PROCESS_HOST_CONNECTED:
-    case NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED:
-    case NotificationType::PLUGIN_PROCESS_CRASHED:
-    case NotificationType::PLUGIN_INSTANCE_CREATED:
-      break;
-
-    default:
-      NOTREACHED();
-      return;
-  }
-
-  PluginProcessInfo ppi(plugin_path_, process_);
-  // As mentioned in the notification_types.h, the PluginProcessInfo details
-  // are only valid for the time of the notification.
-  NotificationService::current()->
-      Notify(notification_type_, NotificationService::AllSources(),
-             Details<PluginProcessInfo>(&ppi));
-}
 
 // The PluginDownloadUrlHelper is used to handle one download URL request
 // from the plugin. Each download request is handled by a new instance
@@ -383,27 +358,29 @@ class DestroyWindowTask : public Task {
 
 
 PluginProcessHost::PluginProcessHost(PluginService* plugin_service)
-    : process_(NULL),
-      opening_channel_(false),
+    : opening_channel_(false),
       resource_dispatcher_host_(plugin_service->resource_dispatcher_host()),
       ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
       plugin_service_(plugin_service) {
   DCHECK(resource_dispatcher_host_);
+  set_type(PLUGIN_PROCESS);
 }
 
 PluginProcessHost::~PluginProcessHost() {
-  if (process_.handle()) {
+  if (process().handle()) {
     watcher_.StopWatching();
-    ProcessWatcher::EnsureProcessTerminated(process_.handle());
+    ProcessWatcher::EnsureProcessTerminated(process().handle());
   }
 }
 
-bool PluginProcessHost::Init(const FilePath& plugin_path,
+bool PluginProcessHost::Init(const WebPluginInfo& info,
                              const std::string& activex_clsid,
                              const std::wstring& locale) {
   DCHECK(channel_.get() == NULL);
 
-  plugin_path_ = plugin_path;
+  info_ = info;
+  set_name(info_.name);
+
   channel_id_ = GenerateRandomChannelID(this);
   channel_.reset(new IPC::Channel(channel_id_,
                                   IPC::Channel::MODE_SERVER,
@@ -480,7 +457,7 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
                                  channel_id_);
 
   cmd_line.AppendSwitchWithValue(switches::kPluginPath,
-                                 plugin_path.ToWStringHack());
+                                 info.path.ToWStringHack());
 
   bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox) &&
                     browser_command_line.HasSwitch(switches::kSafePlugins);
@@ -499,7 +476,7 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
 
     std::wstring trusted_plugins =
         browser_command_line.GetSwitchValue(switches::kTrustedPlugins);
-    if (!AddPolicyForPlugin(plugin_path, activex_clsid, trusted_plugins,
+    if (!AddPolicyForPlugin(info.path, activex_clsid, trusted_plugins,
                             policy)) {
       NOTREACHED();
       return false;
@@ -520,7 +497,7 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
 
     ResumeThread(target.hThread);
     CloseHandle(target.hThread);
-    process_.set_handle(target.hProcess);
+    process().set_handle(target.hProcess);
 
     // Help the process a little. It can't start the debugger by itself if
     // the process is in a sandbox.
@@ -528,23 +505,23 @@ bool PluginProcessHost::Init(const FilePath& plugin_path,
       DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
   } else {
     // spawn child process
-    HANDLE process;
-    if (!base::LaunchApp(cmd_line, false, false, &process))
+    HANDLE handle;
+    if (!base::LaunchApp(cmd_line, false, false, &handle))
       return false;
-    process_.set_handle(process);
+    process().set_handle(handle);
   }
 
-  watcher_.StartWatching(process_.handle(), this);
+  watcher_.StartWatching(process().handle(), this);
 
   FilePath gears_path;
   if (PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_path)) {
     FilePath::StringType gears_path_lc = StringToLowerASCII(gears_path.value());
     FilePath::StringType plugin_path_lc =
-        StringToLowerASCII(plugin_path.value());
+        StringToLowerASCII(info.path.value());
     if (plugin_path_lc == gears_path_lc) {
       // Give Gears plugins "background" priority.  See
       // http://b/issue?id=1280317.
-      process_.SetProcessBackgrounded(true);
+      process().SetProcessBackgrounded(true);
     }
   }
 
@@ -563,22 +540,21 @@ bool PluginProcessHost::Send(IPC::Message* msg) {
 
 // indicates the plugin process has exited
 void PluginProcessHost::OnObjectSignaled(HANDLE object) {
-  DCHECK(process_.handle());
-  DCHECK_EQ(object, process_.handle());
+  DCHECK(process().handle());
+  DCHECK_EQ(object, process().handle());
 
   bool did_crash = base::DidProcessCrash(object);
 
   if (did_crash) {
     // Report that this plugin crashed.
     plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-        new PluginNotificationTask(NotificationType::PLUGIN_PROCESS_CRASHED,
-                                   plugin_path(), object));
+        new PluginNotificationTask(
+            NotificationType::CHILD_PROCESS_CRASHED, this));
   }
   // Notify in the main loop of the disconnection.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
       new PluginNotificationTask(
-          NotificationType::PLUGIN_PROCESS_HOST_DISCONNECTED,
-          plugin_path(), object));
+          NotificationType::CHILD_PROCESS_HOST_DISCONNECTED, this));
 
   // Cancel all requests for plugin processes.
   // TODO(mpcomplete): use a real process ID when http://b/issue?id=1210062 is
@@ -647,8 +623,7 @@ void PluginProcessHost::OnChannelConnected(int32 peer_pid) {
   // Notify in the main loop of the connection.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
       new PluginNotificationTask(
-          NotificationType::PLUGIN_PROCESS_HOST_CONNECTED,
-          plugin_path(), process()));
+          NotificationType::CHILD_PROCESS_HOST_CONNECTED, this));
 }
 
 void PluginProcessHost::OnChannelError() {
@@ -669,8 +644,8 @@ void PluginProcessHost::OpenChannelToPlugin(
     IPC::Message* reply_msg) {
   // Notify in the main loop of the instantiation.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new PluginNotificationTask(NotificationType::PLUGIN_INSTANCE_CREATED,
-                                 plugin_path(), process()));
+      new PluginNotificationTask(
+          NotificationType::CHILD_INSTANCE_CREATED, this));
 
   if (opening_channel_) {
     pending_requests_.push_back(
@@ -704,7 +679,7 @@ void PluginProcessHost::OnRequestResource(
     context = Profile::GetDefaultRequestContext();
 
   resource_dispatcher_host_->BeginRequest(this,
-                                          process_.handle(),
+                                          process().handle(),
                                           render_process_host_id,
                                           MSG_ROUTING_CONTROL,
                                           request_id,
@@ -743,7 +718,7 @@ void PluginProcessHost::OnSyncLoad(
     context = Profile::GetDefaultRequestContext();
 
   resource_dispatcher_host_->BeginRequest(this,
-                                          process_.handle(),
+                                          process().handle(),
                                           render_process_host_id,
                                           MSG_ROUTING_CONTROL,
                                           request_id,
@@ -802,7 +777,7 @@ void PluginProcessHost::RequestPluginChannel(
   HANDLE renderer_handle = NULL;
   BOOL result = DuplicateHandle(GetCurrentProcess(),
                                 renderer_message_filter->renderer_handle(),
-                                process(), &renderer_handle, 0, FALSE,
+                                process().handle(), &renderer_handle, 0, FALSE,
                                 DUPLICATE_SAME_ACCESS);
   DCHECK(result);
 
@@ -826,7 +801,7 @@ void PluginProcessHost::OnChannelCreated(int process_id,
         == process_id) {
       ReplyToRenderer(sent_requests_[i].renderer_message_filter_.get(),
                       channel_name,
-                      plugin_path(),
+                      info_.path,
                       sent_requests_[i].reply_msg);
 
       sent_requests_.erase(sent_requests_.begin() + i);
@@ -874,7 +849,7 @@ void PluginProcessHost::OnPluginMessage(
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path_);
+  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(info_.path);
   if (chrome_plugin) {
     void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
     uint32 data_len = static_cast<uint32>(data.size());
@@ -885,7 +860,7 @@ void PluginProcessHost::OnPluginMessage(
 void PluginProcessHost::OnCreateWindow(HWND parent, IPC::Message* reply_msg) {
   // Need to create this window on the UI thread.
   plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new CreateWindowTask(plugin_path_, parent, reply_msg));
+      new CreateWindowTask(info_.path, parent, reply_msg));
 }
 
 void PluginProcessHost::OnDestroyWindow(HWND window) {
@@ -897,4 +872,3 @@ void PluginProcessHost::Shutdown() {
 
   Send(new PluginProcessMsg_BrowserShutdown);
 }
-

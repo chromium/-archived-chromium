@@ -22,7 +22,6 @@
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
-#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/views/about_ipc_dialog.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -93,8 +92,7 @@ class AboutMemoryHandler : public MemoryDetails {
  private:
   void BindProcessMetrics(DictionaryValue* data,
                           ProcessMemoryInformation* info);
-  void GetTabContentsTitles(RenderProcessHost* rph, ListValue* titles);
-  void AppendProcess(ListValue* renderers, ProcessMemoryInformation* info);
+  void AppendProcess(ListValue* child_data, ProcessMemoryInformation* info);
   void FinishAboutMemory();
 
   AboutSource* source_;
@@ -496,85 +494,25 @@ void AboutMemoryHandler::BindProcessMetrics(DictionaryValue* data,
   data->SetInteger(L"processes", info->num_processes);
 }
 
-// Helper for AboutMemory to iterate over a RenderProcessHost's listeners
-// and retrieve the tab titles.
-void AboutMemoryHandler::GetTabContentsTitles(RenderProcessHost* rph,
-                                              ListValue* titles) {
-  RenderProcessHost::listeners_iterator iter;
-  // NOTE: This is a bit dangerous.  We know that for now, listeners
-  //       are always RenderWidgetHosts.  But in theory, they don't
-  //       have to be.
-  for (iter = rph->listeners_begin(); iter != rph->listeners_end(); iter++) {
-    RenderWidgetHost* widget = static_cast<RenderWidgetHost*>(iter->second);
-    DCHECK(widget);
-    if (!widget || !widget->IsRenderView())
-      continue;
-
-    RenderViewHost* host = static_cast<RenderViewHost*>(widget);
-    TabContents* contents = static_cast<WebContents*>(host->delegate());
-    DCHECK(contents);
-    if (!contents)
-      continue;
-
-    std::wstring title = contents->GetTitle();
-    StringValue* val = NULL;
-    if (!title.length())
-      title = L"Untitled";
-    val = new StringValue(title);
-    titles->Append(val);
-  }
-}
-
 // Helper for AboutMemory to append memory usage information for all
-// sub-processes (renderers & plugins) used by chrome.
-void AboutMemoryHandler::AppendProcess(ListValue* renderers,
+// sub-processes (i.e. renderers, plugins) used by Chrome.
+void AboutMemoryHandler::AppendProcess(ListValue* child_data,
                                        ProcessMemoryInformation* info) {
-  DCHECK(renderers && info);
+  DCHECK(child_data && info);
 
   // Append a new DictionaryValue for this renderer to our list.
-  DictionaryValue* renderer = new DictionaryValue();
-  renderers->Append(renderer);
-  BindProcessMetrics(renderer, info);
+  DictionaryValue* child = new DictionaryValue();
+  child_data->Append(child);
+  BindProcessMetrics(child, info);
 
-  // Now get more information about the process.
-
-  // First, figure out if it is a renderer.
-  RenderProcessHost::iterator renderer_iter;
-  for (renderer_iter = RenderProcessHost::begin(); renderer_iter !=
-       RenderProcessHost::end(); ++renderer_iter) {
-    if (renderer_iter->second->process().pid() == info->pid)
-      break;
-  }
-  if (renderer_iter != RenderProcessHost::end()) {
-    std::wstring renderer_label(L"Tab ");
-    renderer_label.append(FormatNumber(renderer_iter->second->host_id()));
-    if (info->is_diagnostics)
-      renderer_label.append(L" (diagnostics)");
-    renderer->SetString(L"renderer_id", renderer_label);
-    ListValue* titles = new ListValue();
-    renderer->Set(L"titles", titles);
-    GetTabContentsTitles(renderer_iter->second, titles);
-    return;
-  }
-
-  // Figure out if this is a plugin process.
-  for (size_t index = 0; index < plugins()->size(); ++index) {
-    if (info->pid == (*plugins())[index].pid) {
-      // It is a plugin!
-      std::wstring label(L"Plug-in");
-      std::wstring name;
-      renderer->SetString(L"renderer_id", label);
-      FileVersionInfo* version_info =
-          FileVersionInfo::CreateFileVersionInfo(
-              (*plugins())[index].plugin_path);
-      if (version_info)
-        name = version_info->product_name();
-      ListValue* titles = new ListValue();
-      renderer->Set(L"titles", titles);
-      titles->Append(new StringValue(name));
-      return;
-    }
-  }
+  std::wstring child_label(ChildProcessInfo::GetTypeNameInEnglish(info->type));
+  if (info->is_diagnostics)
+    child_label.append(L" (diagnostics)");
+  child->SetString(L"child_name", child_label);
+  ListValue* titles = new ListValue();
+  child->Set(L"titles", titles);
+  for (size_t i = 0; i < info->titles.size(); ++i)
+    titles->Append(new StringValue(info->titles[i]));
 }
 
 
@@ -631,20 +569,18 @@ void AboutMemoryHandler::OnDetailsAvailable() {
   if (log_string.length() > 0)
     LOG(INFO) << "memory: " << log_string;
 
-
   // Set the browser & renderer detailed process data.
   DictionaryValue* browser_data = new DictionaryValue();
   root.Set(L"browzr_data", browser_data);
-  ListValue* renderer_data = new ListValue();
-  root.Set(L"renderer_data", renderer_data);
+  ListValue* child_data = new ListValue();
+  root.Set(L"child_data", child_data);
 
-  DWORD browser_pid = GetCurrentProcessId();
   ProcessData process = browser_processes[0];  // Chrome is the first browser.
   for (size_t index = 0; index < process.processes.size(); index++) {
-    if (process.processes[index].pid == browser_pid)
+    if (process.processes[index].type == ChildProcessInfo::BROWSER_PROCESS)
       BindProcessMetrics(browser_data, &process.processes[index]);
     else
-      AppendProcess(renderer_data, &process.processes[index]);
+      AppendProcess(child_data, &process.processes[index]);
   }
 
   // Get about_memory.html
@@ -665,4 +601,3 @@ void BrowserAboutHandler::AboutMemory(AboutSource* source, int request_id) {
   // The AboutMemoryHandler cleans itself up.
   new AboutMemoryHandler(source, request_id);
 }
-

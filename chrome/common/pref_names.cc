@@ -328,7 +328,7 @@ const wchar_t kStabilityUptimeSec[] =
 
 // This is the location of a list of dictionaries of plugin stability stats.
 const wchar_t kStabilityPluginStats[] =
-    L"user_experience_metrics.stability.plugin_stats";
+    L"user_experience_metrics.stability.plugin_stats2";
 
 // Number of times the renderer has become non-responsive since the last
 // report.
@@ -353,7 +353,7 @@ const wchar_t kStabilityDebuggerNotPresent[] =
 
 // The keys below are used for the dictionaries in the
 // kStabilityPluginStats list.
-const wchar_t kStabilityPluginPath[] = L"path";
+const wchar_t kStabilityPluginName[] = L"name";
 const wchar_t kStabilityPluginLaunches[] = L"launches";
 const wchar_t kStabilityPluginInstances[] = L"instances";
 const wchar_t kStabilityPluginCrashes[] = L"crashes";

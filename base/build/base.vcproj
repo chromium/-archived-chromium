@@ -718,6 +718,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\scoped_handle_win.h"
+			>
+		</File>
+		<File
 			RelativePath="..\scoped_nsautorelease_pool.h"
 			>
 		</File>

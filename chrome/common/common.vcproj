@@ -342,6 +342,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\child_process_info.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\child_process_info.h"
+			>
+		</File>
+		<File
 			RelativePath=".\chrome_constants.cc"
 			>
 		</File>
@@ -525,7 +533,7 @@
 			RelativePath=".\notification_details.h"
 			>
 		</File>
-		<File
+                <File
 			RelativePath=".\notification_observer.h"
 			>
 		</File>
