@@ -142,6 +142,10 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image);
 //-----------------------------------------------------------------------------
 // Functions implemented by the embedder, called by WebKit:
 
+// Set during RenderProcess::GlobalInit when --enable-video has been passed in
+// and all media related libraries were successfully loaded.
+void SetMediaPlayerAvailable(bool value);
+
 // This function is called from WebCore::MediaPlayerPrivate,
 // Returns true if media player is available and can be created.
 bool IsMediaPlayerAvailable();

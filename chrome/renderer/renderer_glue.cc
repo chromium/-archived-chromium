@@ -12,7 +12,6 @@
 #endif
 
 #include "base/clipboard.h"
-#include "base/command_line.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/renderer/net/render_dns_master.h"
@@ -144,8 +143,16 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 
 namespace webkit_glue {
 
+// Global variable set during RenderProcess::GlobalInit if video was enabled
+// and our media libraries were successfully loaded.
+static bool g_media_player_available = false;
+
+void SetMediaPlayerAvailable(bool value) {
+  g_media_player_available = value;
+}
+
 bool IsMediaPlayerAvailable() {
-  return CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableVideo);
+  return g_media_player_available;
 }
 
 void PrefetchDns(const std::string& hostname) {
