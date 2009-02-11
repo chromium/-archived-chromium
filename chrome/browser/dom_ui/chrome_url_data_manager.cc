@@ -231,7 +231,9 @@ void ChromeURLDataManager::DataAvailable(
   // Forward this data on to the pending URLRequest, if it exists.
   PendingRequestMap::iterator i = pending_requests_.find(request_id);
   if (i != pending_requests_.end()) {
-    URLRequestChromeJob* job = i->second;
+    // We acquire a reference to the job so that it doesn't disappear under the
+    // feet of any method invoked here (we could trigger a callback).
+    scoped_refptr<URLRequestChromeJob> job = i->second;
     pending_requests_.erase(i);
     job->DataAvailable(bytes);
   }
@@ -291,8 +293,8 @@ void URLRequestChromeJob::DataAvailable(RefCountedBytes* bytes) {
     int bytes_read;
     if (pending_buf_.get()) {
       CompleteRead(pending_buf_, pending_buf_size_, &bytes_read);
-      NotifyReadComplete(bytes_read);
       pending_buf_ = NULL;
+      NotifyReadComplete(bytes_read);
     }
   } else {
     // The request failed.
