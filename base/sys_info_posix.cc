@@ -24,7 +24,7 @@ namespace base {
 int SysInfo::NumberOfProcessors() {
   // It seems that sysconf returns the number of "logical" processors on both
   // mac and linux.  So we get the number of "online logical" processors.
-  long res = sysconf(_SC_NPROCESSORS_ONLN);
+  static long res = sysconf(_SC_NPROCESSORS_ONLN);
   if (res == -1) {
     NOTREACHED();
     return 1;
@@ -48,7 +48,7 @@ int64 SysInfo::AmountOfPhysicalMemory() {
     NOTREACHED();
     return 0;
   }
-  
+
   return static_cast<int64>(hostinfo.max_mem);
 #else
   long pages = sysconf(_SC_PHYS_PAGES);
@@ -132,6 +132,15 @@ int SysInfo::DisplayCount() {
 // static
 size_t SysInfo::VMAllocationGranularity() {
   return getpagesize();
+}
+
+// static
+void SysInfo::CacheSysInfo() {
+  // Due to startup time concerns [premature optimization?] we only cache values
+  // from functions we know to be called in the renderer & fail when the sandbox
+  // is enabled.
+  NumberOfProcessors();
+
 }
 
 }  // namespace base

@@ -15,7 +15,7 @@ class SysInfo {
  public:
   // Return the number of logical processors/cores on the current machine.
   static int NumberOfProcessors();
-  
+
   // Return the number of bytes of physical memory on the current machine.
   static int64 AmountOfPhysicalMemory();
 
@@ -57,6 +57,14 @@ class SysInfo {
   // Return the smallest amount of memory (in bytes) which the VM system will
   // allocate.
   static size_t VMAllocationGranularity();
+
+#if defined(OS_MACOSX)
+  // Under the OS X Sandbox, our access to the system is limited, this call
+  // caches the system info on startup before we turn the Sandbox on.
+  // The above functions are all wired up to return the cached value so the rest
+  // of the code can call them in the Sandbox without worrying.
+  static void CacheSysInfo();
+#endif
 };
 
 }  // namespace base

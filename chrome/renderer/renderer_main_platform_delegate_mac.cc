@@ -10,6 +10,8 @@ extern "C" {
 #include <sandbox.h>
 }
 
+#include "base/sys_info.h"
+
 RendererMainPlatformDelegate::RendererMainPlatformDelegate(
     const MainFunctionParams& parameters)
         : parameters_(parameters) {
@@ -33,6 +35,10 @@ bool RendererMainPlatformDelegate::EnableSandbox() {
   // caches it's return value so we call it here and then future calls will
   // succeed.
   DebugUtil::BeingDebugged();
+
+  // Cache the System info information, since we can't query certain attributes
+  // with the Sandbox enabled.
+  base::SysInfo::CacheSysInfo();
 
   char* error_buff = NULL;
   int error = sandbox_init(kSBXProfilePureComputation, SANDBOX_NAMED,
