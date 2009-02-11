@@ -10,7 +10,6 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
-#include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"

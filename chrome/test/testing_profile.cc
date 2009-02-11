@@ -6,16 +6,12 @@
 
 #include "base/string_util.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/browser/history/history_backend.h"
 
 #if defined(OS_POSIX)
 // TODO(port): get rid of this include. It's used just to provide declarations
 // and stub definitions for classes we encouter during the porting effort.
 #include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/history/history_backend.h"
 #endif
 
 using base::Time;

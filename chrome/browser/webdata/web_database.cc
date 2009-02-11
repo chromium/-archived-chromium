@@ -13,6 +13,7 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "base/values.h"
+#include "chrome/browser/history/history_database.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/scoped_vector.h"
@@ -29,7 +30,6 @@
 // Encryptor is the *wrong* way of doing things; we need to turn it into a
 // bottleneck to use the platform methods (e.g. Keychain on the Mac). That's
 // going to take a massive change in its API...
-#include "chrome/browser/history/history_database.h"
 #include "chrome/browser/password_manager/encryptor.h"
 #endif
 

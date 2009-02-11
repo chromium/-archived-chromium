@@ -25,6 +25,7 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download/save_types.h"
 #include "chrome/browser/history/download_types.h"
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
@@ -280,81 +281,6 @@ class TabRestoreService : public BaseSessionService {
   void ClearEntries() { NOTIMPLEMENTED(); }
   void CreateHistoricalTab(NavigationController*) { NOTIMPLEMENTED(); }
   void RestoreMostRecentEntry(Browser*) { NOTIMPLEMENTED(); }
-};
-
-namespace history {
-
-class ExpireHistoryBackend {
- public:
-  BookmarkService* bookmark_service_;
-};
-
-class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend> {
- public:
-  BookmarkService* bookmark_service_;
-  ExpireHistoryBackend expirer_;
-};
-
-class HistoryDatabase {
- public:
-  static std::string GURLToDatabaseURL(const GURL& url) {
-    NOTIMPLEMENTED();
-    return "";
-  }
-};
-
-}
-
-class HistoryService {
- public:
-  class URLEnumerator {
-   public:
-    virtual ~URLEnumerator() {}
-    virtual void OnURL(const GURL& url) = 0;
-    virtual void OnComplete(bool success) = 0;
-  };
-  class Handle {
-   public:
-  };
-  HistoryService() {}
-  HistoryService(Profile* profile) {}
-  bool Init(const FilePath& history_dir, BookmarkService* bookmark_service) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void SetOnBackendDestroyTask(Task*) { NOTIMPLEMENTED(); }
-  void AddPage(GURL const&, void const*, int, GURL const&,
-               int, std::vector<GURL> const&) { NOTIMPLEMENTED(); }
-  void AddPage(const GURL& url) { NOTIMPLEMENTED(); }
-  void SetPageContents(const GURL& url, const std::wstring& contents) {
-    NOTIMPLEMENTED();
-  }
-  void IterateURLs(URLEnumerator* iterator) { NOTIMPLEMENTED(); }
-  void DeleteAllSearchTermsForKeyword(long long) { NOTIMPLEMENTED(); }
-  void SetKeywordSearchTermsForURL(const GURL& url,
-                                   long long keyword_id,
-                                   const std::wstring& term) {
-    NOTIMPLEMENTED();
-  }
-  void NotifyRenderProcessHostDestruction(int) { NOTIMPLEMENTED(); };
-  void Cleanup() { NOTIMPLEMENTED(); }
-  void AddRef() { NOTIMPLEMENTED(); }
-  void Release() { NOTIMPLEMENTED(); }
-  void SetFavIconOutOfDateForPage(const GURL&) { NOTIMPLEMENTED(); }
-  void SetPageThumbnail(const GURL&, const SkBitmap&, const ThumbnailScore&) {
-    NOTIMPLEMENTED();
-  }
-  void SetPageTitle(const GURL&, const std::wstring&) {
-    NOTIMPLEMENTED();
-  }
-  typedef Callback0::Type ExpireHistoryCallback;
-  void ExpireHistoryBetween(base::Time begin_time, base::Time end_time,
-                            CancelableRequestConsumerBase* consumer,
-                            ExpireHistoryCallback* callback) {
-    NOTIMPLEMENTED();
-  }
-
-  scoped_refptr<history::HistoryBackend> history_backend_;
 };
 
 class MetricsService {

@@ -13,6 +13,7 @@
 #include "base/task.h"
 #include "build/build_config.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
+#include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -428,3 +429,24 @@ void DebuggerShell::ProcessCommand(const std::wstring& data) {
   NOTIMPLEMENTED();
 }
 #endif  // !CHROME_DEBUGGER_DISABLED
+
+void HistoryURLProvider::ExecuteWithDB(history::HistoryBackend*,
+                                       history::URLDatabase*,
+                                       HistoryURLProviderParams*) {
+  NOTIMPLEMENTED();
+}
+
+namespace bookmark_utils {
+
+bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2) {
+  NOTIMPLEMENTED();
+  return false;
+}
+
+std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(BookmarkModel* model,
+                                                         size_t max_count) {
+  NOTIMPLEMENTED();
+  return std::vector<BookmarkNode*>();
+}
+
+}
