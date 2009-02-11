@@ -28,10 +28,6 @@ if env.Bit('windows'):
 input_files = ChromeFileList([
     'jpeg_codec.cc',
     'jpeg_codec.h',
-    'gdi_util.cc',
-    'gdi_util.h',
-    'native_theme.cc',
-    'native_theme.h',
     'png_decoder.cc',
     'png_decoder.h',
     'png_encoder.cc',
@@ -44,19 +40,17 @@ input_files = ChromeFileList([
     'size.h',
 ])
 
-if env.Bit('posix'):
-  # Remove files that still need to be ported from the input_files list.
-  # TODO(port): delete files from this list as they get ported.
-  input_files.Remove(
-      'gdi_util.cc',
-      'native_theme.cc',
-  )
-
 if env.Bit('windows'):
   input_files.Extend([
+      'native_theme.cc',
+      'native_theme.h',
+      'gdi_util.cc',
+      'gdi_util.h',
   ])
 elif env.Bit('linux'):
   input_files.Extend([
+      'gtk_util.cc',
+      'gtk_util.h',
   ])
 
 env.ChromeLibrary('base_gfx', input_files)

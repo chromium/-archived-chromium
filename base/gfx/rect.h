@@ -97,6 +97,8 @@ class Rect {
 #if defined(OS_WIN)
   // Construct an equivalent Win32 RECT object.
   RECT ToRECT() const;
+#elif defined(OS_LINUX)
+  GdkRectangle ToGdkRectangle() const;
 #elif defined(OS_MACOSX)
   // Construct an equivalent CoreGraphics object.
   CGRect ToCGRect() const;

@@ -140,6 +140,11 @@ RECT Rect::ToRECT() const {
   r.bottom = bottom();
   return r;
 }
+#elif defined(OS_LINUX)
+GdkRectangle Rect::ToGdkRectangle() const {
+  GdkRectangle r = {x(), y(), width(), height()};
+  return r;
+}
 #elif defined(OS_MACOSX)
 CGRect Rect::ToCGRect() const {
   return CGRectMake(x(), y(), width(), height());
