@@ -197,14 +197,14 @@ class Purify(common.Rational):
     if not pa.ReadFile():
       # even though there was a fatal error during Purify, it's still useful
       # to see the normalized output
-      pa.PrintSummary()
+      pa.Summary()
       if self._baseline:
         logging.warning("baseline not generated due to fatal error")
       else:
         logging.warning("baseline comparison skipped due to fatal error")
       return -1
     if self._baseline:
-      pa.PrintSummary(False)
+      pa.Summary(False)
       if pa.SaveResults():
         return 0
       return -1
@@ -212,11 +212,11 @@ class Purify(common.Rational):
       retcode = pa.CompareResults()
       if retcode != 0:
         pa.SaveResults(self._report_dir)
-      pa.PrintSummary()
+      pa.Summary()
       # with more than one output file, it's also important to emit the bug
       # report which includes info on the arguments that generated each stack
       if len(out_files) > 1:
-        pa.PrintBugReport()
+        pa.BugReport()
       return retcode
 
   def Cleanup(self):

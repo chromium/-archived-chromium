@@ -412,13 +412,18 @@ class PurifyAnalyze:
     else:
       return None
 
-  def PrintSummary(self, echo=None):
+  def Summary(self, echo=None, save=True):
     ''' Print a summary of how many messages of each type were found. '''
     # make sure everyone else is done first
     sys.stderr.flush()
     sys.stdout.flush()
     if echo == None:
       echo = self._echo
+    if save:
+      filename = os.path.join(self._report_dir, "Summary.txt")
+      file = open(filename, "w")
+    else:
+      file = None
     logging.info("summary of Purify messages:")
     self._ReportFixableMessages()
     for key in self._message_lists:
@@ -428,8 +433,8 @@ class PurifyAnalyze:
       count = 0
       for msg in all:
         count += msg._count
-      logging.info("%s(%s) unique:%d total:%d" % (self._name, 
-          purify_message.GetMessageType(key), len(unique), count))
+      self._PrintAndSave("%s(%s) unique:%d total:%d" % (self._name, 
+          purify_message.GetMessageType(key), len(unique), count), file)
       if key not in ["MIU"]:
         ignore_file = "%s_%s_ignore.txt" % (self._name, key)
         ignore_hashes = self._MessageHashesFromFile(ignore_file)
@@ -444,28 +449,32 @@ class PurifyAnalyze:
           ignored += len(groups[group]) - len(kept_msgs)
           groups[group] = kept_msgs
         if ignored:
-          logging.info("%s(%s) ignored:%d" % (self._name, 
-            purify_message.GetMessageType(key), ignored))
+          self._PrintAndSave("%s(%s) ignored:%d" % (self._name, 
+            purify_message.GetMessageType(key), ignored), file)
         total = reduce(lambda x, y: x + len(groups[y]), group_keys, 0)
         if total:
-          print "%s(%s) group summary:" % (self._name, 
-            purify_message.GetMessageType(key))
-          print "   TOTAL: %d" % total
+          self._PrintAndSave("%s(%s) group summary:" % (self._name, 
+            purify_message.GetMessageType(key)), file)
+          self._PrintAndSave("   TOTAL: %d" % total, file)
           for group in group_keys:
             if len(groups[group]):
-              print "   %s: %d" % (group, len(groups[group]))
+              self._PrintAndSave("   %s: %d" % (group, len(groups[group])),
+                                 file)
         if echo:
           for group in group_keys:
             msgs = groups[group]
             if len(msgs) == 0:
               continue
-            print "messages from %s (%d)" % (group, len(msgs))
-            print "="*79
+            self._PrintAndSave("messages from %s (%d)" % (group, len(msgs)),
+                               file)
+            self._PrintAndSave("="*79, file)
             for msg in msgs:
               # for the summary output, line numbers are useful
-              print msg.NormalizedStr(verbose=True)
+              self._PrintAndSave(msg.NormalizedStr(verbose=True), file)
         # make sure stdout is flushed to avoid weird overlaps with logging
         sys.stdout.flush()
+    if file:
+      file.close()
 
   def PrintMemoryInUse(self, byte_filter=16384):
     ''' Print one or more trees showing a hierarchy of memory allocations.
@@ -528,15 +537,24 @@ class PurifyAnalyze:
     # make sure stdout is flushed to avoid weird overlaps with logging
     sys.stdout.flush()
 
-  def PrintBugReport(self):
-    ''' Print a summary of how many messages of each type were found. '''
+  def BugReport(self, save=True):
+    ''' Print a summary of how many messages of each type were found and write
+    to BugReport.txt
+    '''
+    if save:
+      filename = os.path.join(self._report_dir, "BugReport.txt")
+      file = open(filename, "w")
+    else:
+      file = None
     # make sure everyone else is done first
     sys.stderr.flush()
     sys.stdout.flush()
     logging.info("summary of Purify bugs:")
+    
     # This is a specialized set of counters for unit tests, with some
     # unfortunate hard-coded knowledge.
     test_counts = {}
+    total_count = 0
     for key in self._message_lists:
       bug = {}
       list = self._message_lists[key]
@@ -551,6 +569,7 @@ class PurifyAnalyze:
                              "total":0,
                              "count":0,
                              "programs":set()}
+        total_count += 1
         this_bug = bug[msg._title]
         this_bug["total"] += msg._count
         this_bug["count"] += 1
@@ -590,26 +609,29 @@ class PurifyAnalyze:
 
       for title in bug:
         b = bug[title]
-        print "[%s] %s" % (key, title)
-        print "%d tests, %d stacks, %d instances" % (len(b["programs"]),
-            b["count"], b["total"])
-        print "Reproducible with:"
+        self._PrintAndSave("[%s] %s" % (key, title), file)
+        self._PrintAndSave("%d tests, %d stacks, %d instances" % (
+            len(b["programs"]), b["count"], b["total"]), file)
+        self._PrintAndSave("Reproducible with:", file)
         for program in b["programs"]:
-          print "   %s" % program
-        print "Sample error details:"
-        print "====================="
-        print b["message"].NormalizedStr(verbose=True)
+          self._PrintAndSave("   %s" % program, file)
+        self._PrintAndSave("Sample error details:", file)
+        self._PrintAndSave("=====================", file)
+        self._PrintAndSave(b["message"].NormalizedStr(verbose=True), file)
     if len(test_counts):
-      print
-      print "test error counts"
-      print "========================"
+      self._PrintAndSave("", file)
+      self._PrintAndSave("test error counts", file)
+      self._PrintAndSave("========================", file)
       tests = test_counts.keys()
       tests.sort()
       for test in tests:
-        print "%s: %d" % (test, test_counts[test])
+        self._PrintAndSave("%s: %d" % (test, test_counts[test]), file)
+    if total_count == 0:
+      self._PrintAndSave("No bugs.  Shocking, I know.", file)
     # make sure stdout is flushed to avoid weird overlaps with logging
-    print
     sys.stdout.flush()
+    if file:
+      file.close()
 
   def SaveStrings(self, string_list, key, fname_extra=""):
     '''Output a list of strings to a file in the report dir.
@@ -645,6 +667,13 @@ class PurifyAnalyze:
         f.write("\n")
       f.close()
     return True
+
+  def _PrintAndSave(self, msg, file):
+    ''' Print |msg| to both stdout and to file. '''
+    if file:
+      file.write(msg + "\n")
+    print msg
+    sys.stdout.flush()
 
   def _ReportFixableMessages(self):
     ''' Collects all baseline files for the executable being tested, including
@@ -883,8 +912,8 @@ def _main():
                      options.source_dir, options.data_dir, options.report_dir)
   execute_crash = not pa.ReadFile()
   if options.bug_report:
-    pa.PrintBugReport()
-    pa.PrintSummary(False)
+    pa.BugReport()
+    pa.Summary(False)
   elif options.memory_in_use:
     pa.PrintMemoryInUse(int(options.byte_filter))
   elif execute_crash:
@@ -894,13 +923,13 @@ def _main():
     if pa.CompareResults() != 0:
       retcode = -1
       pa.SaveResults()
-    pa.PrintSummary()
+    pa.Summary()
   elif options.baseline:
     if not pa.SaveResults(verbose=True):
       retcode = -1
-    pa.PrintSummary(False)
+    pa.Summary(False)
   else:
-    pa.PrintSummary(False)
+    pa.Summary(False)
 
   sys.exit(retcode)
 
