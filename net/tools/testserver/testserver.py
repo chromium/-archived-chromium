@@ -75,6 +75,9 @@ class HTTPSServer(tlslite.api.TLSSocketServerMixIn, StoppableHTTPServer):
 class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
   def __init__(self, request, client_address, socket_server):
+    self._connect_handlers = [
+      self.RedirectConnectHandler,
+      self.DefaultConnectResponseHandler]
     self._get_handlers = [
       self.KillHandler,
       self.NoCacheMaxAgeTimeHandler,
@@ -854,7 +857,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.wfile.write('<html><head>')
     self.wfile.write('</head><body>Redirecting to %s</body></html>' % dest)
 
-    return True;
+    return True
 
   def ClientRedirectHandler(self):
     """Sends a client redirect to the given URL. The syntax is
@@ -892,6 +895,41 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.end_headers()
     self.wfile.write(contents)
     return True
+
+  def RedirectConnectHandler(self):
+    """Sends a redirect to the CONNECT request for www.redirect.com. This
+    response is not specified by the RFC, so the browser should not follow
+    the redirect."""
+
+    if (self.path.find("www.redirect.com") < 0):
+      return False
+
+    dest = "http://www.destination.com/foo.js"
+
+    self.send_response(302)  # moved temporarily
+    self.send_header('Location', dest)
+    self.send_header('Connection', 'close')
+    self.end_headers()
+    return True
+
+
+  def DefaultConnectResponseHandler(self):
+    """This is the catch-all response handler for CONNECT requests that aren't
+    handled by one of the special handlers above.  Real Web servers respond
+    with 400 to CONNECT requests."""
+
+    contents = "Your client has issued a malformed or illegal request."
+    self.send_response(400)  # bad request
+    self.send_header('Content-type', 'text/html')
+    self.send_header("Content-Length", len(contents))
+    self.end_headers()
+    self.wfile.write(contents)
+    return True
+
+  def do_CONNECT(self):
+    for handler in self._connect_handlers:
+      if handler():
+        return
 
   def do_GET(self):
     for handler in self._get_handlers:

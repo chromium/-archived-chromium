@@ -207,8 +207,7 @@ net::ProxyService* CreateNullProxyService() {
 net::ProxyService* CreateFixedProxyService(const std::string& proxy) {
   net::ProxyInfo proxy_info;
   proxy_info.UseNamedProxy(proxy);
-  return new net::ProxyService(
-      new net::ProxyConfigServiceFixed(proxy_info), NULL);
+  return net::ProxyService::Create(&proxy_info);
 }
 
 

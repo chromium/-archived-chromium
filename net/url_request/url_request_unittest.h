@@ -45,6 +45,14 @@ class TestURLRequestContext : public URLRequestContext {
         net::HttpNetworkLayer::CreateFactory(proxy_service_);
   }
 
+  explicit TestURLRequestContext(const std::string& proxy) {
+    net::ProxyInfo proxy_info;
+    proxy_info.UseNamedProxy(proxy);
+    proxy_service_ = net::ProxyService::Create(&proxy_info);
+    http_transaction_factory_ =
+        net::HttpNetworkLayer::CreateFactory(proxy_service_);
+  }
+
   virtual ~TestURLRequestContext() {
     delete http_transaction_factory_;
     delete proxy_service_;
@@ -355,7 +363,6 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
 #endif
     if (!normalized_document_root.empty())
       file_util::AppendToPath(test_data_directory, normalized_document_root);
-
     data_directory_ = *test_data_directory;
   }
 
@@ -482,7 +489,7 @@ class HTTPTestServer : public BaseTestServer {
     {
       MessageLoop* loop = loop_;
       scoped_ptr<base::Thread> io_thread;
-      
+
       if (!loop) {
         io_thread.reset(new base::Thread("MakeGETRequest"));
         base::Thread::Options options;
