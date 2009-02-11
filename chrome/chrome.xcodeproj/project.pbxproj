@@ -332,6 +332,7 @@
 		BA3176FD0F410A2F0065D532 /* tab_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9EA0F1EC32700106F0D /* tab_util.cc */; };
 		BA60A6800F3CB09F005A6703 /* protocol_manager_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD70E9D49DE009A6919 /* protocol_manager_unittest.cc */; };
 		BAA609ED0F3BCAA800783510 /* protocol_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD50E9D49DE009A6919 /* protocol_manager.cc */; };
+		BAC2B8AD0F436C7F0063A33E /* cross_site_resource_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C613DC0F30D886008CEE5D /* cross_site_resource_handler.cc */; };
 		BADB8B710F3A35AC00989B26 /* resource_dispatcher_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */; };
 		CA81330E0F423C4D0096C1DC /* query_parser_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA020E9D48F7009A6919 /* query_parser_unittest.cc */; };
 		CA8133120F423C710096C1DC /* url_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA150E9D48F7009A6919 /* url_database_unittest.cc */; };
@@ -5251,6 +5252,7 @@
 				4D7BFAEF0E9D49E7009A6919 /* chunk_range.cc in Sources */,
 				E46C4ED40F27A94100B393B8 /* command_updater.cc in Sources */,
 				4D7BF9970E9D4863009A6919 /* cross_site_request_manager.cc in Sources */,
+				BAC2B8AD0F436C7F0063A33E /* cross_site_resource_handler.cc in Sources */,
 				4D7BFA7C0E9D4994009A6919 /* dns_host_info.cc in Sources */,
 				E4F324550EE5CFB1002533CE /* download_database.cc in Sources */,
 				E43A77170F16616E00ABD5D1 /* download_resource_handler.cc in Sources */,

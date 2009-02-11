@@ -1171,46 +1171,6 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop);
 
-class CrossSiteResourceHandler : public ResourceHandler {
- public:
-  CrossSiteResourceHandler(ResourceHandler* resource,
-                           int render_process_host_id,
-                           int render_view_id,
-                           ResourceDispatcherHost* rdh) {
-    NOTIMPLEMENTED();
-  }
-
-  void ResumeResponse() { NOTIMPLEMENTED(); }
-  bool OnUploadProgress(int request_id, uint64 position, uint64 size) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  bool OnRequestRedirected(int request_id, const GURL& url) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  bool OnResponseStarted(int request_id, ResourceResponse* response) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  bool OnWillRead(int request_id,
-                  net::IOBuffer** buf,
-                  int* buf_size,
-                  int min_size) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  bool OnReadCompleted(int request_id, int* bytes_read) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  bool OnResponseCompleted(int request_id,
-                           const URLRequestStatus& status) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-};
-
 class ExternalProtocolHandler {
  public:
   static void LaunchUrl(const GURL& url, int render_process_host_id,
