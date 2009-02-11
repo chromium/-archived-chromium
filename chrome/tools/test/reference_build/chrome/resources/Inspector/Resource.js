@@ -93,7 +93,12 @@ WebInspector.Resource.prototype = {
 
         var oldURL = this._url;
         this._url = x;
+
+        // FIXME: We should make the WebInspector object listen for the "url changed" event.
+        // Then resourceURLChanged can be removed.
         WebInspector.resourceURLChanged(this, oldURL);
+
+        this.dispatchEventToListeners("url changed");
     },
 
     get domain()
@@ -126,7 +131,9 @@ WebInspector.Resource.prototype = {
         var title = this.lastPathComponent;
         if (!title)
             title = this.displayDomain;
-        if (!title)
+        if (!title && this.url)
+            title = this.url.trimURL(WebInspector.mainResource ? WebInspector.mainResource.domain : "");
+        if (title === "/")
             title = this.url;
         return title;
     },
@@ -141,7 +148,7 @@ WebInspector.Resource.prototype = {
 
     get startTime()
     {
-        return this._startTime;
+        return this._startTime || -1;
     },
 
     set startTime(x)
@@ -157,7 +164,7 @@ WebInspector.Resource.prototype = {
 
     get responseReceivedTime()
     {
-        return this._responseReceivedTime;
+        return this._responseReceivedTime || -1;
     },
 
     set responseReceivedTime(x)
@@ -173,7 +180,7 @@ WebInspector.Resource.prototype = {
 
     get endTime()
     {
-        return this._endTime;
+        return this._endTime || -1;
     },
 
     set endTime(x)
@@ -187,9 +194,23 @@ WebInspector.Resource.prototype = {
             WebInspector.panels.resources.refreshResource(this);
     },
 
+    get duration()
+    {
+        if (this._endTime === -1 || this._startTime === -1)
+            return -1;
+        return this._endTime - this._startTime;
+    },
+
+    get latency()
+    {
+        if (this._responseReceivedTime === -1 || this._startTime === -1)
+            return -1;
+        return this._responseReceivedTime - this._startTime;
+    },
+
     get contentLength()
     {
-        return this._contentLength;
+        return this._contentLength || 0;
     },
 
     set contentLength(x)
@@ -205,7 +226,7 @@ WebInspector.Resource.prototype = {
 
     get expectedContentLength()
     {
-        return this._expectedContentLength;
+        return this._expectedContentLength || 0;
     },
 
     set expectedContentLength(x)
@@ -230,6 +251,7 @@ WebInspector.Resource.prototype = {
         if (x) {
             this._checkTips();
             this._checkWarnings();
+            this.dispatchEventToListeners("finished");
         }
     },
 
@@ -340,8 +362,7 @@ WebInspector.Resource.prototype = {
         this._requestHeaders = x;
         delete this._sortedRequestHeaders;
 
-        if (WebInspector.panels.resources)
-            WebInspector.panels.resources.refreshResource(this);
+        this.dispatchEventToListeners("requestHeaders changed");
     },
 
     get sortedRequestHeaders()
@@ -372,8 +393,7 @@ WebInspector.Resource.prototype = {
         this._responseHeaders = x;
         delete this._sortedResponseHeaders;
 
-        if (WebInspector.panels.resources)
-            WebInspector.panels.resources.refreshResource(this);
+        this.dispatchEventToListeners("responseHeaders changed");
     },
 
     get sortedResponseHeaders()
@@ -389,37 +409,65 @@ WebInspector.Resource.prototype = {
         return this._sortedResponseHeaders;
     },
 
+    get scripts()
+    {
+        if (!("_scripts" in this))
+            this._scripts = [];
+        return this._scripts;
+    },
+
+    addScript: function(script)
+    {
+        if (!script)
+            return;
+        this.scripts.unshift(script);
+        script.resource = this;
+    },
+
+    removeAllScripts: function()
+    {
+        if (!this._scripts)
+            return;
+
+        for (var i = 0; i < this._scripts.length; ++i) {
+            if (this._scripts[i].resource === this)
+                delete this._scripts[i].resource;
+        }
+
+        delete this._scripts;
+    },
+
+    removeScript: function(script)
+    {
+        if (!script)
+            return;
+
+        if (script.resource === this)
+            delete script.resource;
+
+        if (!this._scripts)
+            return;
+
+        this._scripts.remove(script);
+    },
+
     get errors()
     {
-        if (!("_errors" in this))
-            this._errors = 0;
-        return this._errors;
+        return this._errors || 0;
     },
 
     set errors(x)
     {
-        if (this._errors === x)
-            return;
-           
-        var difference = x - this._errors; 
-        WebInspector.errors += difference;    
         this._errors = x;
     },
 
     get warnings()
     {
-        if (!("_warnings" in this))
-            this._warnings = 0;
-        return this._warnings;
+        return this._warnings || 0;
     },
 
     set warnings(x)
     {
-        if (this._warnings === x)
-            return;
-        
-        var difference = x - this._warnings; 
-        WebInspector.warnings += difference; 
         this._warnings = x;
     },
 
@@ -441,8 +489,8 @@ WebInspector.Resource.prototype = {
         // Otherwise, we flood the Console with too many tips.
         /*
         var msg = new WebInspector.ConsoleMessage(WebInspector.ConsoleMessage.MessageSource.Other,
-                    WebInspector.ConsoleMessage.MessageLevel.Tip, -1, this.url, tip.message);
-        WebInspector.consolePanel.addMessage(msg);
+            WebInspector.ConsoleMessage.MessageLevel.Tip, -1, this.url, null, 1, tip.message);
+        WebInspector.console.addMessage(msg);
         */
     },
 
@@ -501,9 +549,9 @@ WebInspector.Resource.prototype = {
             case WebInspector.Warnings.IncorrectMIMEType.id:
                 if (!this._mimeTypeIsConsistentWithType())
                     msg = new WebInspector.ConsoleMessage(WebInspector.ConsoleMessage.MessageSource.Other,
-                                WebInspector.ConsoleMessage.MessageLevel.Warning, -1, this.url,
-                                String.sprintf(WebInspector.Warnings.IncorrectMIMEType.message,
-                                    WebInspector.Resource.Type.toString(this.type), this.mimeType));
+                        WebInspector.ConsoleMessage.MessageLevel.Warning, -1, this.url, null, 1,
+                        String.sprintf(WebInspector.Warnings.IncorrectMIMEType.message,
+                        WebInspector.Resource.Type.toString(this.type), this.mimeType));
                 break;
         }
 
@@ -512,19 +560,57 @@ WebInspector.Resource.prototype = {
     }
 }
 
-WebInspector.Resource.CompareByTime = function(a, b)
+WebInspector.Resource.prototype.__proto__ = WebInspector.Object.prototype;
+
+WebInspector.Resource.CompareByStartTime = function(a, b)
 {
-    if (a.responseReceivedTime < b.responseReceivedTime)
-        return -1;
-    if (a.responseReceivedTime > b.responseReceivedTime)
-        return 1;
     if (a.startTime < b.startTime)
         return -1;
     if (a.startTime > b.startTime)
         return 1;
+    return 0;
+}
+
+WebInspector.Resource.CompareByResponseReceivedTime = function(a, b)
+{
+    if (a.responseReceivedTime === -1 && b.responseReceivedTime !== -1)
+        return 1;
+    if (a.responseReceivedTime !== -1 && b.responseReceivedTime === -1)
+        return -1;
+    if (a.responseReceivedTime < b.responseReceivedTime)
+        return -1;
+    if (a.responseReceivedTime > b.responseReceivedTime)
+        return 1;
+    return 0;
+}
+
+WebInspector.Resource.CompareByEndTime = function(a, b)
+{
+    if (a.endTime === -1 && b.endTime !== -1)
+        return 1;
+    if (a.endTime !== -1 && b.endTime === -1)
+        return -1;
     if (a.endTime < b.endTime)
         return -1;
     if (a.endTime > b.endTime)
+        return 1;
+    return 0;
+}
+
+WebInspector.Resource.CompareByDuration = function(a, b)
+{
+    if (a.duration < b.duration)
+        return -1;
+    if (a.duration > b.duration)
+        return 1;
+    return 0;
+}
+
+WebInspector.Resource.CompareByLatency = function(a, b)
+{
+    if (a.latency < b.latency)
+        return -1;
+    if (a.latency > b.latency)
         return 1;
     return 0;
 }
@@ -536,9 +622,4 @@ WebInspector.Resource.CompareBySize = function(a, b)
     if (a.contentLength > b.contentLength)
         return 1;
     return 0;
-}
-
-WebInspector.Resource.CompareByDescendingSize = function(a, b)
-{
-    return this.CompareBySize(a, b) * -1;
 }

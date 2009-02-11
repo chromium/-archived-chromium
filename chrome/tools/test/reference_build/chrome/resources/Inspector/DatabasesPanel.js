@@ -46,9 +46,21 @@ WebInspector.DatabasesPanel = function(database)
 
     this.sidebarTree = new TreeOutline(this.sidebarTreeElement);
 
-    this.databaseViews = document.createElement("div");
-    this.databaseViews.id = "database-views";
-    this.element.appendChild(this.databaseViews);
+    this.databasesListTreeElement = new WebInspector.SidebarSectionTreeElement(WebInspector.UIString("DATABASES"), {}, true);
+    this.sidebarTree.appendChild(this.databasesListTreeElement);
+    this.databasesListTreeElement.expand();
+
+    this.localStorageListTreeElement = new WebInspector.SidebarSectionTreeElement(WebInspector.UIString("LOCAL STORAGE"), {}, true);
+    this.sidebarTree.appendChild(this.localStorageListTreeElement);
+    this.localStorageListTreeElement.expand();
+
+    this.sessionStorageListTreeElement = new WebInspector.SidebarSectionTreeElement(WebInspector.UIString("SESSION STORAGE"), {}, true);
+    this.sidebarTree.appendChild(this.sessionStorageListTreeElement);
+    this.sessionStorageListTreeElement.expand();
+
+    this.storageViews = document.createElement("div");
+    this.storageViews.id = "storage-views";
+    this.element.appendChild(this.storageViews);
 
     this.reset();
 }
@@ -81,8 +93,21 @@ WebInspector.DatabasesPanel.prototype = {
 
         this._databases = [];
 
-        this.sidebarTree.removeChildren();
-        this.databaseViews.removeChildren();
+        if (this._domStorage) {
+            var domStorageLength = this._domStorage.length;
+            for (var i = 0; i < domStorageLength; ++i) {
+                var domStorage = this._domStorage[i];
+
+                delete domStorage._domStorageView;
+            }
+        }
+
+        this._domStorage = [];
+
+        this.databasesListTreeElement.removeChildren();
+        this.localStorageListTreeElement.removeChildren();
+        this.sessionStorageListTreeElement.removeChildren();
+        this.storageViews.removeChildren();
     },
 
     handleKeyEvent: function(event)
@@ -96,8 +121,18 @@ WebInspector.DatabasesPanel.prototype = {
 
         var databaseTreeElement = new WebInspector.DatabaseSidebarTreeElement(database);
         database._databasesTreeElement = databaseTreeElement;
+        this.databasesListTreeElement.appendChild(databaseTreeElement);
+    },
 
-        this.sidebarTree.appendChild(databaseTreeElement);
+    addDOMStorage: function(domStorage)
+    {
+        this._domStorage.push(domStorage);
+        var domStorageTreeElement = new WebInspector.DOMStorageSidebarTreeElement(domStorage);
+        domStorage._domStorageTreeElement = domStorageTreeElement;
+        if (domStorage.isLocalStorage)
+            this.localStorageListTreeElement.appendChild(domStorageTreeElement);
+        else
+            this.sessionStorageListTreeElement.appendChild(domStorageTreeElement);
     },
 
     showDatabase: function(database, tableName)
@@ -105,8 +140,8 @@ WebInspector.DatabasesPanel.prototype = {
         if (!database)
             return;
 
-        if (this.visibleDatabaseView)
-            this.visibleDatabaseView.hide();
+        if (this.visibleView)
+            this.visibleView.hide();
 
         var view;
         if (tableName) {
@@ -125,16 +160,36 @@ WebInspector.DatabasesPanel.prototype = {
             }
         }
 
-        view.show(this.databaseViews);
+        view.show(this.storageViews);
 
-        this.visibleDatabaseView = view;
+        this.visibleView = view;
+    },
+
+    showDOMStorage: function(domStorage)
+    {
+        if (!domStorage)
+            return;
+
+        if (this.visibleView)
+            this.visibleView.hide();
+
+        var view;
+        view = domStorage._domStorageView;
+        if (!view) {
+            view = new WebInspector.DOMStorageItemsView(domStorage);
+            domStorage._domStorageView = view;
+        }
+
+        view.show(this.storageViews);
+
+        this.visibleView = view;
     },
 
     closeVisibleView: function()
     {
-        if (this.visibleDatabaseView)
-            this.visibleDatabaseView.hide();
-        delete this.visibleDatabaseView;
+        if (this.visibleView)
+            this.visibleView.hide();
+        delete this.visibleView;
     },
 
     updateDatabaseTables: function(database)
@@ -155,86 +210,73 @@ WebInspector.DatabasesPanel.prototype = {
 
         for (var tableName in database._tableViews) {
             if (!(tableName in tableNamesHash)) {
-                if (this.visibleDatabaseView === database._tableViews[tableName])
+                if (this.visibleView === database._tableViews[tableName])
                     this.closeVisibleView();
                 delete database._tableViews[tableName];
             }
         }
     },
 
-    _tableForResult: function(result)
+    dataGridForResult: function(result)
     {
         if (!result.rows.length)
             return null;
 
+        var columns = {};
+
         var rows = result.rows;
-        var length = rows.length;
-        var columnWidths = [];
+        for (var columnIdentifier in rows.item(0)) {
+            var column = {};
+            column.width = columnIdentifier.length;
+            column.title = columnIdentifier;
 
-        var table = document.createElement("table");
-        table.className = "database-result-table";
-
-        var headerRow = document.createElement("tr");
-        table.appendChild(headerRow);
-
-        var j = 0;
-        for (var column in rows.item(0)) {
-            var th = document.createElement("th");
-            headerRow.appendChild(th);
-
-            var div = document.createElement("div");
-            div.textContent = column;
-            div.title = column;
-            th.appendChild(div);
-
-            columnWidths[j++] = column.length;
+            columns[columnIdentifier] = column;
         }
 
+        var nodes = [];
+        var length = rows.length;
         for (var i = 0; i < length; ++i) {
+            var data = {};
+
             var row = rows.item(i);
-            var tr = document.createElement("tr");
-            if (i % 2)
-                tr.className = "alternate";
-            table.appendChild(tr);
-
-            var j = 0;
-            for (var column in row) {
-                var td = document.createElement("td");
-                tr.appendChild(td);
-
-                var text = row[column];
-                var div = document.createElement("div");
-                div.textContent = text;
-                div.title = text;
-                td.appendChild(div);
-
-                if (text.length > columnWidths[j])
-                    columnWidths[j] = text.length;
-                ++j;
+            for (var columnIdentifier in row) {
+                // FIXME: (Bug 19439) We should specially format SQL NULL here
+                // (which is represented by JavaScript null here, and turned
+                // into the string "null" by the String() function).
+                var text = String(row[columnIdentifier]);
+                data[columnIdentifier] = text;
+                if (text.length > columns[columnIdentifier].width)
+                    columns[columnIdentifier].width = text.length;
             }
+
+            var node = new WebInspector.DataGridNode(data, false);
+            node.selectable = false;
+            nodes.push(node);
         }
 
         var totalColumnWidths = 0;
-        length = columnWidths.length;
-        for (var i = 0; i < length; ++i)
-            totalColumnWidths += columnWidths[i];
+        for (var columnIdentifier in columns)
+            totalColumnWidths += columns[columnIdentifier].width;
 
         // Calculate the percentage width for the columns.
-        var minimumPrecent = 5;
+        const minimumPrecent = 5;
         var recoupPercent = 0;
-        for (var i = 0; i < length; ++i) {
-            columnWidths[i] = Math.round((columnWidths[i] / totalColumnWidths) * 100);
-            if (columnWidths[i] < minimumPrecent) {
-                recoupPercent += (minimumPrecent - columnWidths[i]);
-                columnWidths[i] = minimumPrecent;
+        for (var columnIdentifier in columns) {
+            var width = columns[columnIdentifier].width;
+            width = Math.round((width / totalColumnWidths) * 100);
+            if (width < minimumPrecent) {
+                recoupPercent += (minimumPrecent - width);
+                width = minimumPrecent;
             }
+
+            columns[columnIdentifier].width = width;
         }
 
         // Enforce the minimum percentage width.
         while (recoupPercent > 0) {
-            for (var i = 0; i < length; ++i) {
-                if (columnWidths[i] > minimumPrecent) {
-                    --columnWidths[i];
+            for (var columnIdentifier in columns) {
+                if (columns[columnIdentifier].width > minimumPrecent) {
+                    --columns[columnIdentifier].width;
                     --recoupPercent;
                     if (!recoupPercent)
                         break;
@@ -242,13 +284,69 @@ WebInspector.DatabasesPanel.prototype = {
             }
         }
 
-        length = headerRow.childNodes.length;
-        for (var i = 0; i < length; ++i) {
-            var th = headerRow.childNodes[i];
-            th.style.width = columnWidths[i] + "%";
+        // Change the width property to a string suitable for a style width.
+        for (var columnIdentifier in columns)
+            columns[columnIdentifier].width += "%";
+
+        var dataGrid = new WebInspector.DataGrid(columns);
+        var length = nodes.length;
+        for (var i = 0; i < length; ++i)
+            dataGrid.appendChild(nodes[i]);
+
+        return dataGrid;
+    },
+
+    dataGridForDOMStorage: function(domStorage)
+    {
+        if (!domStorage.length)
+            return null;
+
+        var columns = {};
+        columns[0] = {};
+        columns[1] = {};
+        columns[0].title = WebInspector.UIString("Key");
+        columns[0].width = columns[0].title.length;
+        columns[1].title = WebInspector.UIString("Value");
+        columns[1].width = columns[0].title.length;
+
+        var nodes = [];
+        
+        var length = domStorage.length;
+        for (index = 0; index < domStorage.length; index++) {
+            var data = {};
+       
+            var key = String(domStorage.key(index));
+            data[0] = key;
+            if (key.length > columns[0].width)
+                columns[0].width = key.length;
+        
+            var value = String(domStorage.getItem(key));
+            data[1] = value;
+            if (value.length > columns[1].width)
+                columns[1].width = value.length;
+            var node = new WebInspector.DataGridNode(data, false);
+            node.selectable = false;
+            nodes.push(node);
         }
 
-        return table;
+        var totalColumnWidths = columns[0].width + columns[1].width;
+        width = Math.round((columns[0].width * 100) / totalColumnWidths);
+        const minimumPrecent = 10;
+        if (width < minimumPrecent)
+            width = minimumPrecent;
+        if (width > 100 - minimumPrecent)
+            width = 100 - minimumPrecent;
+        columns[0].width = width;
+        columns[1].width = 100 - width;
+        columns[0].width += "%";
+        columns[1].width += "%";
+
+        var dataGrid = new WebInspector.DataGrid(columns);
+        var length = nodes.length;
+        for (var i = 0; i < length; ++i)
+            dataGrid.appendChild(nodes[i]);
+
+        return dataGrid;
     },
 
     _startSidebarDragging: function(event)
@@ -271,8 +369,8 @@ WebInspector.DatabasesPanel.prototype = {
     _updateSidebarWidth: function(width)
     {
         if (this.sidebarElement.offsetWidth <= 0) {
-            // The stylesheet hasn't loaded yet, so we need to update later.
-            setTimeout(this._updateSidebarWidth.bind(this), 0, width);
+            // The stylesheet hasn't loaded yet or the window is closed,
+            // so we can't calculate what is need. Return early.
             return;
         }
 
@@ -287,7 +385,7 @@ WebInspector.DatabasesPanel.prototype = {
         this._currentSidebarWidth = width;
 
         this.sidebarElement.style.width = width + "px";
-        this.databaseViews.style.left = width + "px";
+        this.storageViews.style.left = width + "px";
         this.sidebarResizeElement.style.left = (width - 3) + "px";
     }
 }
@@ -365,3 +463,42 @@ WebInspector.SidebarDatabaseTableTreeElement.prototype = {
 }
 
 WebInspector.SidebarDatabaseTableTreeElement.prototype.__proto__ = WebInspector.SidebarTreeElement.prototype;
+
+WebInspector.DOMStorageSidebarTreeElement = function(domStorage)
+{
+
+    this.domStorage = domStorage;
+
+    WebInspector.SidebarTreeElement.call(this, "domstorage-sidebar-tree-item", domStorage, "", null, false);
+
+    this.refreshTitles();
+}
+
+WebInspector.DOMStorageSidebarTreeElement.prototype = {
+    onselect: function()
+    {
+        WebInspector.panels.databases.showDOMStorage(this.domStorage);
+    },
+
+    get mainTitle()
+    {
+        return this.domStorage.domain;
+    },
+
+    set mainTitle(x)
+    {
+        // Do nothing.
+    },
+
+    get subtitle()
+    {
+        return ""; //this.database.displayDomain;
+    },
+
+    set subtitle(x)
+    {
+        // Do nothing.
+    }
+}
+
+WebInspector.DOMStorageSidebarTreeElement.prototype.__proto__ = WebInspector.SidebarTreeElement.prototype;

@@ -38,7 +38,12 @@ WebInspector.MetricsSidebarPane.prototype = {
 
         body.removeChildren();
 
-        if (!node)
+        if (node)
+            this.node = node;
+        else
+            node = this.node;
+
+        if (!node || !node.ownerDocument.defaultView)
             return;
 
         var style;
@@ -50,12 +55,21 @@ WebInspector.MetricsSidebarPane.prototype = {
         var metricsElement = document.createElement("div");
         metricsElement.className = "metrics";
 
-        function boxPartValue(style, name, suffix)
+        function createBoxPartElement(style, name, side, suffix)
         {
-            var value = style.getPropertyValue(name + suffix);
-            if (value === "" || value === "0px")
+            var propertyName = (name !== "position" ? name + "-" : "") + side + suffix;
+            var value = style.getPropertyValue(propertyName);
+            if (value === "" || (name !== "position" && value === "0px"))
                 value = "\u2012";
-            return value.replace(/px$/, "");
+            else if (name === "position" && value === "auto")
+                value = "\u2012";
+            value = value.replace(/px$/, "");
+
+            var element = document.createElement("div");
+            element.className = side;
+            element.textContent = value;
+            element.addEventListener("dblclick", this.startEditing.bind(this, element, name, propertyName), false);
+            return element;
         }
 
         // Display types for which margin is ignored.
@@ -79,8 +93,13 @@ WebInspector.MetricsSidebarPane.prototype = {
             "table-row-group": true
         };
 
-        var boxes = ["content", "padding", "border", "margin"];
-        var boxLabels = [WebInspector.UIString("content"), WebInspector.UIString("padding"), WebInspector.UIString("border"), WebInspector.UIString("margin")];
+        // Position types for which top, left, bottom and right are ignored.
+        var noPositionType = {
+            "static": true
+        };
+
+        var boxes = ["content", "padding", "border", "margin", "position"];
+        var boxLabels = [WebInspector.UIString("content"), WebInspector.UIString("padding"), WebInspector.UIString("border"), WebInspector.UIString("margin"), WebInspector.UIString("position")];
         var previousBox;
         for (var i = 0; i < boxes.length; ++i) {
             var name = boxes[i];
@@ -89,14 +108,26 @@ WebInspector.MetricsSidebarPane.prototype = {
                 continue;
             if (name === "padding" && noPaddingDisplayType[style.display])
                 continue;
+            if (name === "position" && noPositionType[style.position])
+                continue;
 
             var boxElement = document.createElement("div");
             boxElement.className = name;
 
             if (name === "content") {
                 var width = style.width.replace(/px$/, "");
+                var widthElement = document.createElement("span");
+                widthElement.textContent = width;
+                widthElement.addEventListener("dblclick", this.startEditing.bind(this, widthElement, "width", "width"), false);
+
                 var height = style.height.replace(/px$/, "");
-                boxElement.textContent = width + " \u00D7 " + height;
+                var heightElement = document.createElement("span");
+                heightElement.textContent = height;
+                heightElement.addEventListener("dblclick", this.startEditing.bind(this, heightElement, "height", "height"), false);
+
+                boxElement.appendChild(widthElement);
+                boxElement.appendChild(document.createTextNode(" \u00D7 "));
+                boxElement.appendChild(heightElement);
             } else {
                 var suffix = (name === "border" ? "-width" : "");
 
@@ -105,28 +136,16 @@ WebInspector.MetricsSidebarPane.prototype = {
                 labelElement.textContent = boxLabels[i];
                 boxElement.appendChild(labelElement);
 
-                var topElement = document.createElement("div");
-                topElement.className = "top";
-                topElement.textContent = boxPartValue(style, name + "-top", suffix);
-                boxElement.appendChild(topElement);
-
-                var leftElement = document.createElement("div");
-                leftElement.className = "left";
-                leftElement.textContent = boxPartValue(style, name + "-left", suffix);
-                boxElement.appendChild(leftElement);
+                boxElement.appendChild(createBoxPartElement.call(this, style, name, "top", suffix));
+                boxElement.appendChild(document.createElement("br"));
+                boxElement.appendChild(createBoxPartElement.call(this, style, name, "left", suffix));
 
                 if (previousBox)
                     boxElement.appendChild(previousBox);
 
-                var rightElement = document.createElement("div");
-                rightElement.className = "right";
-                rightElement.textContent = boxPartValue(style, name + "-right", suffix);
-                boxElement.appendChild(rightElement);
-
-                var bottomElement = document.createElement("div");
-                bottomElement.className = "bottom";
-                bottomElement.textContent = boxPartValue(style, name + "-bottom", suffix);
-                boxElement.appendChild(bottomElement);
+                boxElement.appendChild(createBoxPartElement.call(this, style, name, "right", suffix));
+                boxElement.appendChild(document.createElement("br"));
+                boxElement.appendChild(createBoxPartElement.call(this, style, name, "bottom", suffix));
             }
 
             previousBox = boxElement;
@@ -134,6 +153,42 @@ WebInspector.MetricsSidebarPane.prototype = {
 
         metricsElement.appendChild(previousBox);
         body.appendChild(metricsElement);
+    },
+
+    startEditing: function(targetElement, box, styleProperty)
+    {
+        if (WebInspector.isBeingEdited(targetElement))
+            return;
+
+        var context = { box: box, styleProperty: styleProperty };
+
+        WebInspector.startEditing(targetElement, this.editingCommitted.bind(this), this.editingCancelled.bind(this), context);
+    },
+
+    editingCancelled: function(element, context)
+    {
+        this.update();
+    },
+
+    editingCommitted: function(element, userInput, previousContent, context)
+    {
+        if (userInput === previousContent)
+            return this.editingCancelled(element, context); // nothing changed, so cancel
+
+        if (context.box !== "position" && (!userInput || userInput === "\u2012"))
+            userInput = "0px";
+        else if (context.box === "position" && (!userInput || userInput === "\u2012"))
+            userInput = "auto";
+
+        // Append a "px" unit if the user input was just a number.
+        if (/^\d+$/.test(userInput))
+            userInput += "px";
+
+        this.node.style.setProperty(context.styleProperty, userInput, "");
+
+        this.dispatchEventToListeners("metrics edited");
+
+        this.update();
     }
 }
 

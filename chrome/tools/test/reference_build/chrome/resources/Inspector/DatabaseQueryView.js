@@ -29,17 +29,16 @@ WebInspector.DatabaseQueryView = function(database)
 
     this.database = database;
 
-    this.element.addStyleClass("database-view");
+    this.element.addStyleClass("storage-view");
     this.element.addStyleClass("query");
-    this.element.addStyleClass("focusable");
+    this.element.tabIndex = 0;
 
     this.element.addEventListener("selectstart", this._selectStart.bind(this), false);
-    this.element.focused = this._focused.bind(this);
-    this.element.handleKeyEvent = this._promptKeyDown.bind(this);
 
     this.promptElement = document.createElement("div");
     this.promptElement.className = "database-query-prompt";
     this.promptElement.appendChild(document.createElement("br"));
+    this.promptElement.handleKeyEvent = this._promptKeyDown.bind(this);
     this.element.appendChild(this.promptElement);
 
     this.prompt = new WebInspector.TextPrompt(this.promptElement, this.completions.bind(this), " ");
@@ -100,13 +99,6 @@ WebInspector.DatabaseQueryView.prototype = {
         this.prompt.handleKeyEvent(event);
     },
 
-    _focused: function(previousFocusElement)
-    {
-        this._previousFocusElement = previousFocusElement;
-        if (!this.prompt.isCaretInsidePrompt())
-            this.prompt.moveCaretToEndOfPrompt();
-    },
-
     _selectStart: function(event)
     {
         if (this._selectionTimeout)
@@ -142,7 +134,7 @@ WebInspector.DatabaseQueryView.prototype = {
 
         function queryTransaction(tx)
         {
-            tx.executeSql(query, null, InspectorController.wrapCallback(this._queryFinished.bind(this, query)), InspectorController.wrapCallback(this._queryError.bind(this, query)));
+            tx.executeSql(query, null, InspectorController.wrapCallback(this._queryFinished.bind(this, query)), InspectorController.wrapCallback(this._executeSqlError.bind(this, query)));
         }
 
         this.database.database.transaction(InspectorController.wrapCallback(queryTransaction.bind(this)), InspectorController.wrapCallback(this._queryError.bind(this, query)));
@@ -150,13 +142,15 @@ WebInspector.DatabaseQueryView.prototype = {
 
     _queryFinished: function(query, tx, result)
     {
-        this._appendQueryResult(query, WebInspector.panels.databases._tableForResult(result));
+        var dataGrid = WebInspector.panels.databases.dataGridForResult(result);
+        dataGrid.element.addStyleClass("inline");
+        this._appendQueryResult(query, dataGrid.element);
 
         if (query.match(/^create /i) || query.match(/^drop table /i))
             WebInspector.panels.databases.updateDatabaseTables(this.database);
     },
 
-    _queryError: function(query, tx, error)
+    _queryError: function(query, error)
     {
         if (error.code == 1)
             var message = error.message;
@@ -166,6 +160,11 @@ WebInspector.DatabaseQueryView.prototype = {
             var message = WebInspector.UIString("An unexpected error %s occured.", error.code);
 
         this._appendQueryResult(query, message, "error");
+    },
+
+    _executeSqlError: function(query, tx, error)
+    {
+        this._queryError(query, error);
     },
 
     _appendQueryResult: function(query, result, resultClassName)

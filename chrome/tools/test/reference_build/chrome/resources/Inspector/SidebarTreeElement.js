@@ -31,6 +31,24 @@ WebInspector.SidebarSectionTreeElement = function(title, representedObject, hasC
 WebInspector.SidebarSectionTreeElement.prototype = {
     selectable: false,
 
+    get smallChildren()
+    {
+        return this._smallChildren;
+    },
+
+    set smallChildren(x)
+    {
+        if (this._smallChildren === x)
+            return;
+
+        this._smallChildren = x;
+
+        if (this._smallChildren)
+            this._childrenListNode.addStyleClass("small");
+        else
+            this._childrenListNode.removeStyleClass("small");
+    },
+
     onattach: function()
     {
         this._listItemNode.addStyleClass("sidebar-tree-section");
@@ -54,6 +72,11 @@ WebInspector.SidebarTreeElement = function(className, title, subtitle, represent
         this.disclosureButton.className = "disclosure-button";
     }
 
+    if (!this.iconElement) {
+        this.iconElement = document.createElement("img");
+        this.iconElement.className = "icon";
+    }
+
     this.statusElement = document.createElement("div");
     this.statusElement.className = "status";
 
@@ -74,6 +97,23 @@ WebInspector.SidebarTreeElement = function(className, title, subtitle, represent
 }
 
 WebInspector.SidebarTreeElement.prototype = {
+    get small()
+    {
+        return this._small;
+    },
+
+    set small(x)
+    {
+        this._small = x;
+
+        if (this._listItemNode) {
+            if (this._small)
+                this._listItemNode.addStyleClass("small");
+            else
+                this._listItemNode.removeStyleClass("small");
+        }
+    },
+
     get mainTitle()
     {
         return this._mainTitle;
@@ -140,13 +180,13 @@ WebInspector.SidebarTreeElement.prototype = {
         if (this.className)
             this._listItemNode.addStyleClass(this.className);
 
+        if (this.small)
+            this._listItemNode.addStyleClass("small");
+
         if (this.hasChildren && this.disclosureButton)
             this._listItemNode.appendChild(this.disclosureButton);
 
-        var iconElement = document.createElement("img");
-        iconElement.className = "icon";
-
-        this._listItemNode.appendChild(iconElement);
+        this._listItemNode.appendChild(this.iconElement);
         this._listItemNode.appendChild(this.statusElement);
         this._listItemNode.appendChild(this.titlesElement);
     },

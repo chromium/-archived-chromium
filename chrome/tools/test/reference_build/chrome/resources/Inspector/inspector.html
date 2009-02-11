@@ -33,45 +33,60 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <script type="text/javascript" src="utilities.js"></script>
     <script type="text/javascript" src="treeoutline.js"></script>
     <script type="text/javascript" src="inspector.js"></script>
+    <script type="text/javascript" src="Object.js"></script>
     <script type="text/javascript" src="TextPrompt.js"></script>
+    <script type="text/javascript" src="Placard.js"></script>
     <script type="text/javascript" src="View.js"></script>
     <script type="text/javascript" src="Console.js"></script>
     <script type="text/javascript" src="Resource.js"></script>
     <script type="text/javascript" src="ResourceCategory.js"></script>
     <script type="text/javascript" src="Database.js"></script>
+    <script type="text/javascript" src="DOMStorage.js"></script>
+    <script type="text/javascript" src="DOMStorageItemsView.js"></script>
+    <script type="text/javascript" src="DataGrid.js"></script>
+    <script type="text/javascript" src="Script.js"></script>
+    <script type="text/javascript" src="Breakpoint.js"></script>
     <script type="text/javascript" src="SidebarPane.js"></script>
+    <script type="text/javascript" src="ElementsTreeOutline.js"></script>
     <script type="text/javascript" src="SidebarTreeElement.js"></script>
     <script type="text/javascript" src="PropertiesSection.js"></script>
+    <script type="text/javascript" src="ObjectPropertiesSection.js"></script>
     <script type="text/javascript" src="BreakpointsSidebarPane.js"></script>
     <script type="text/javascript" src="CallStackSidebarPane.js"></script>
+    <script type="text/javascript" src="ScopeChainSidebarPane.js"></script>
     <script type="text/javascript" src="MetricsSidebarPane.js"></script>
     <script type="text/javascript" src="PropertiesSidebarPane.js"></script>
     <script type="text/javascript" src="StylesSidebarPane.js"></script>
     <script type="text/javascript" src="Panel.js"></script>
+    <script type="text/javascript" src="PanelEnablerView.js"></script>
     <script type="text/javascript" src="ElementsPanel.js"></script>
     <script type="text/javascript" src="ResourcesPanel.js"></script>
     <script type="text/javascript" src="ScriptsPanel.js"></script>
-    <!--script type="text/javascript" src="DatabasesPanel.js"></script-->
+    <script type="text/javascript" src="DatabasesPanel.js"></script>
+    <script type="text/javascript" src="ProfilesPanel.js"></script>
     <script type="text/javascript" src="ResourceView.js"></script>
+    <script type="text/javascript" src="SourceFrame.js"></script>
     <script type="text/javascript" src="SourceView.js"></script>
     <script type="text/javascript" src="FontView.js"></script>
     <script type="text/javascript" src="ImageView.js"></script>
-    <!--script type="text/javascript" src="DatabaseTableView.js"></script>
-    <script type="text/javascript" src="DatabaseQueryView.js"></script-->
+    <script type="text/javascript" src="DatabaseTableView.js"></script>
+    <script type="text/javascript" src="DatabaseQueryView.js"></script>
+    <script type="text/javascript" src="ScriptView.js"></script>
+    <script type="text/javascript" src="ProfileView.js"></script>
 </head>
 <body class="detached">
     <div id="toolbar">
+        <div class="toolbar-item close"><button id="close-button"></button></div>
         <div class="toolbar-item flexable-space"></div>
-        <div class="toolbar-item"><input id="search" type="search" results="20" incremental="incremental" onsearch="WebInspector.performSearch(this.value)"><div id="search-toolbar-label" class="toolbar-label"></div></div>
+        <div class="toolbar-item hidden" id="search-results-matches"></div>
+        <div class="toolbar-item"><input id="search" type="search" incremental results="0"><div id="search-toolbar-label" class="toolbar-label"></div></div>
     </div>
     <div id="main">
-        <div id="searchResults" class="focusable hidden"></div>
-        <div id="searchResultsResizer" class="hidden"></div>
-        <div id="main-panels" class="focusable focused"></div>
-        <div id="main-status-bar" class="status-bar"><div id="anchored-status-bar-items"><button id="dock-status-bar-item" class="status-bar-item toggled"></button><button id="console-status-bar-item" class="status-bar-item"></button><div id="error-warning-count" class="hidden"></div></div></div> 
+        <div id="main-panels" tabindex="0"></div>
+        <div id="main-status-bar" class="status-bar"><div id="anchored-status-bar-items"><button id="dock-status-bar-item" class="status-bar-item toggled"></button><button id="console-status-bar-item" class="status-bar-item"></button><div id="error-warning-count" class="hidden"></div></div></div>
     </div>
     <div id="console">
-        <div id="console-messages" class="focusable blurred"><div id="console-prompt"><br></div></div>
+        <div id="console-messages"><div id="console-prompt"><br></div></div>
         <div id="console-status-bar" class="status-bar"><div id="other-console-status-bar-items"><button id="clear-console-status-bar-item" class="status-bar-item"></button></div></div>
     </div>
 </body>

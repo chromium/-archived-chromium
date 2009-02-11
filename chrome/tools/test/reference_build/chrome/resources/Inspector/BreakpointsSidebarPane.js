@@ -26,10 +26,60 @@
 WebInspector.BreakpointsSidebarPane = function()
 {
     WebInspector.SidebarPane.call(this, WebInspector.UIString("Breakpoints"));
+
+    this.breakpoints = [];
+
+    this.emptyElement = document.createElement("div");
+    this.emptyElement.className = "info";
+    this.emptyElement.textContent = WebInspector.UIString("No Breakpoints");
+
+    this.bodyElement.appendChild(this.emptyElement);
 }
 
 WebInspector.BreakpointsSidebarPane.prototype = {
-    
+    addBreakpoint: function(breakpoint)
+    {
+        this.breakpoints.push(breakpoint);
+        breakpoint.addEventListener("enabled", this._breakpointEnableChanged, this);
+        breakpoint.addEventListener("disabled", this._breakpointEnableChanged, this);
+
+        // FIXME: add to the breakpoints UI.
+
+        if (!InspectorController.debuggerEnabled() || !breakpoint.sourceID)
+            return;
+
+        if (breakpoint.enabled)
+            InspectorController.addBreakpoint(breakpoint.sourceID, breakpoint.line);
+    },
+
+    removeBreakpoint: function(breakpoint)
+    {
+        this.breakpoints.remove(breakpoint);
+        breakpoint.removeEventListener("enabled", null, this);
+        breakpoint.removeEventListener("disabled", null, this);
+
+        // FIXME: remove from the breakpoints UI.
+
+        if (!InspectorController.debuggerEnabled() || !breakpoint.sourceID)
+            return;
+
+        InspectorController.removeBreakpoint(breakpoint.sourceID, breakpoint.line);
+    },
+
+    _breakpointEnableChanged: function(event)
+    {
+        var breakpoint = event.target;
+
+        // FIXME: change the breakpoint checkbox state in the UI.
+
+        if (!InspectorController.debuggerEnabled() || !breakpoint.sourceID)
+            return;
+
+        if (breakpoint.enabled)
+            InspectorController.addBreakpoint(breakpoint.sourceID, breakpoint.line);
+        else
+            InspectorController.removeBreakpoint(breakpoint.sourceID, breakpoint.line);
+    }
 }
 
 WebInspector.BreakpointsSidebarPane.prototype.__proto__ = WebInspector.SidebarPane.prototype;

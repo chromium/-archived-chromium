@@ -54,6 +54,15 @@ Object.type = function(obj, win)
     return type;
 }
 
+Object.hasProperties = function(obj)
+{
+    if (typeof obj === "undefined" || typeof obj === "null")
+        return false;
+    for (var name in obj)
+        return true;
+    return false;
+}
+
 Object.describe = function(obj, abbreviated)
 {
     var type1 = Object.type(obj);
@@ -98,6 +107,93 @@ Function.prototype.bind = function(thisObject)
     return function() { return func.apply(thisObject, args.concat(Array.prototype.slice.call(arguments, 0))) };
 }
 
+Node.prototype.rangeOfWord = function(offset, stopCharacters, stayWithinNode, direction)
+{
+    var startNode;
+    var startOffset = 0;
+    var endNode;
+    var endOffset = 0;
+
+    if (!stayWithinNode)
+        stayWithinNode = this;
+
+    if (!direction || direction === "backward" || direction === "both") {
+        var node = this;
+        while (node) {
+            if (node === stayWithinNode) {
+                if (!startNode)
+                    startNode = stayWithinNode;
+                break;
+            }
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                var start = (node === this ? (offset - 1) : (node.nodeValue.length - 1));
+                for (var i = start; i >= 0; --i) {
+                    if (stopCharacters.indexOf(node.nodeValue[i]) !== -1) {
+                        startNode = node;
+                        startOffset = i + 1;
+                        break;
+                    }
+                }
+            }
+
+            if (startNode)
+                break;
+
+            node = node.traversePreviousNode(false, stayWithinNode);
+        }
+
+        if (!startNode) {
+            startNode = stayWithinNode;
+            startOffset = 0;
+        }
+    } else {
+        startNode = this;
+        startOffset = offset;
+    }
+
+    if (!direction || direction === "forward" || direction === "both") {
+        node = this;
+        while (node) {
+            if (node === stayWithinNode) {
+                if (!endNode)
+                    endNode = stayWithinNode;
+                break;
+            }
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                var start = (node === this ? offset : 0);
+                for (var i = start; i < node.nodeValue.length; ++i) {
+                    if (stopCharacters.indexOf(node.nodeValue[i]) !== -1) {
+                        endNode = node;
+                        endOffset = i;
+                        break;
+                    }
+                }
+            }
+
+            if (endNode)
+                break;
+
+            node = node.traverseNextNode(false, stayWithinNode);
+        }
+
+        if (!endNode) {
+            endNode = stayWithinNode;
+            endOffset = stayWithinNode.nodeType === Node.TEXT_NODE ? stayWithinNode.nodeValue.length : stayWithinNode.childNodes.length;
+        }
+    } else {
+        endNode = this;
+        endOffset = offset;
+    }
+
+    var result = this.ownerDocument.createRange();
+    result.setStart(startNode, startOffset);
+    result.setEnd(endNode, endOffset);
+
+    return result;
+}
+
 Element.prototype.removeStyleClass = function(className) 
 {
     // Test for the simple case before using a RegExp.
@@ -106,7 +202,12 @@ Element.prototype.removeStyleClass = function(className)
         return;
     }
 
-    var regex = new RegExp("(^|\\s+)" + className.escapeForRegExp() + "($|\\s+)");
+    this.removeMatchingStyleClasses(className.escapeForRegExp());
+}
+
+Element.prototype.removeMatchingStyleClasses = function(classNameRegex)
+{
+    var regex = new RegExp("(^|\\s+)" + classNameRegex + "($|\\s+)");
     if (regex.test(this.className))
         this.className = this.className.replace(regex, " ");
 }
@@ -130,7 +231,7 @@ Element.prototype.hasStyleClass = function(className)
 
 Node.prototype.enclosingNodeOrSelfWithNodeNameInArray = function(nameArray)
 {
-    for (var node = this; node && (node !== document); node = node.parentNode)
+    for (var node = this; node && !objectsAreSame(node, this.ownerDocument); node = node.parentNode)
         for (var i = 0; i < nameArray.length; ++i)
             if (node.nodeName.toLowerCase() === nameArray[i].toLowerCase())
                 return node;
@@ -144,7 +245,7 @@ Node.prototype.enclosingNodeOrSelfWithNodeName = function(nodeName)
 
 Node.prototype.enclosingNodeOrSelfWithClass = function(className)
 {
-    for (var node = this; node && (node !== document); node = node.parentNode)
+    for (var node = this; node && !objectsAreSame(node, this.ownerDocument); node = node.parentNode)
         if (node.nodeType === Node.ELEMENT_NODE && node.hasStyleClass(className))
             return node;
     return null;
@@ -159,7 +260,7 @@ Node.prototype.enclosingNodeWithClass = function(className)
 
 Element.prototype.query = function(query) 
 {
-    return document.evaluate(query, this, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    return this.ownerDocument.evaluate(query, this, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
 
 Element.prototype.removeChildren = function()
@@ -275,6 +376,37 @@ String.prototype.trimURL = function(baseURLDomain)
     if (baseURLDomain)
         result = result.replace(new RegExp("^" + baseURLDomain.escapeForRegExp(), "i"), "");
     return result;
+}
+
+function getStyleTextWithShorthands(style)
+{
+    var cssText = "";
+    var foundProperties = {};
+    for (var i = 0; i < style.length; ++i) {
+        var individualProperty = style[i];
+        var shorthandProperty = style.getPropertyShorthand(individualProperty);
+        var propertyName = (shorthandProperty || individualProperty);
+
+        if (propertyName in foundProperties)
+            continue;
+
+        if (shorthandProperty) {
+            var value = getShorthandValue(style, shorthandProperty);
+            var priority = getShorthandPriority(style, shorthandProperty);
+        } else {
+            var value = style.getPropertyValue(individualProperty);
+            var priority = style.getPropertyPriority(individualProperty);
+        }
+
+        foundProperties[propertyName] = true;
+
+        cssText += propertyName + ": " + value;
+        if (priority)
+            cssText += " !" + priority;
+        cssText += "; ";
+    }
+
+    return cssText;
 }
 
 function getShorthandValue(style, shorthandProperty)
@@ -486,6 +618,21 @@ function nodeContentPreview()
     return preview.collapseWhitespace();
 }
 
+function objectsAreSame(a, b)
+{
+    // FIXME: Make this more generic so is works with any wrapped object, not just nodes.
+    // This function is used to compare nodes that might be JSInspectedObjectWrappers, since
+    // JavaScript equality is not true for JSInspectedObjectWrappers of the same node wrapped
+    // with different global ExecStates, we use isSameNode to compare them.
+    if (a === b)
+        return true;
+    if (!a || !b)
+        return false;
+    if (a.isSameNode && b.isSameNode)
+        return a.isSameNode(b);
+    return false;
+}
+
 function isAncestorNode(ancestor)
 {
     if (!this || !ancestor)
@@ -493,7 +640,7 @@ function isAncestorNode(ancestor)
 
     var currentNode = ancestor.parentNode;
     while (currentNode) {
-        if (this === currentNode)
+        if (objectsAreSame(this, currentNode))
             return true;
         currentNode = currentNode.parentNode;
     }
@@ -514,13 +661,13 @@ function firstCommonNodeAncestor(node)
     var node1 = this.parentNode;
     var node2 = node.parentNode;
 
-    if ((!node1 || !node2) || node1 !== node2)
+    if ((!node1 || !node2) || !objectsAreSame(node1, node2))
         return null;
 
     while (node1 && node2) {
         if (!node1.parentNode || !node2.parentNode)
             break;
-        if (node1 !== node2)
+        if (!objectsAreSame(node1, node2))
             break;
 
         node1 = node1.parentNode;
@@ -579,7 +726,7 @@ function traverseNextNode(skipWhitespace, stayWithin)
     if (node)
         return node;
 
-    if (stayWithin && this === stayWithin)
+    if (stayWithin && objectsAreSame(this, stayWithin))
         return null;
 
     node = skipWhitespace ? nextSiblingSkippingWhitespace.call(this) : this.nextSibling;
@@ -587,7 +734,7 @@ function traverseNextNode(skipWhitespace, stayWithin)
         return node;
 
     node = this;
-    while (node && !(skipWhitespace ? nextSiblingSkippingWhitespace.call(node) : node.nextSibling) && (!stayWithin || !node.parentNode || node.parentNode !== stayWithin))
+    while (node && !(skipWhitespace ? nextSiblingSkippingWhitespace.call(node) : node.nextSibling) && (!stayWithin || !node.parentNode || !objectsAreSame(node.parentNode, stayWithin)))
         node = node.parentNode;
     if (!node)
         return null;
@@ -595,10 +742,12 @@ function traverseNextNode(skipWhitespace, stayWithin)
     return skipWhitespace ? nextSiblingSkippingWhitespace.call(node) : node.nextSibling;
 }
 
-function traversePreviousNode(skipWhitespace)
+function traversePreviousNode(skipWhitespace, stayWithin)
 {
     if (!this)
         return;
+    if (stayWithin && objectsAreSame(this, stayWithin))
+        return null;
     var node = skipWhitespace ? previousSiblingSkippingWhitespace.call(this) : this.previousSibling;
     while (node && (skipWhitespace ? lastChildSkippingWhitespace.call(node) : node.lastChild) )
         node = skipWhitespace ? lastChildSkippingWhitespace.call(node) : node.lastChild;
@@ -635,15 +784,17 @@ function nodeTitleInfo(hasChildren, linkify)
             if (this.hasAttributes()) {
                 for (var i = 0; i < this.attributes.length; ++i) {
                     var attr = this.attributes[i];
-                    var value = attr.value.escapeHTML();
-                    value = value.replace(/([\/;:\)\]\}])/g, "$1&#8203;");
-
                     info.title += " <span class=\"webkit-html-attribute\"><span class=\"webkit-html-attribute-name\">" + attr.name.escapeHTML() + "</span>=&#8203;\"";
 
-                    if (linkify && (attr.name === "src" || attr.name === "href"))
+                    var value = attr.value;
+                    if (linkify && (attr.name === "src" || attr.name === "href")) {
+                        var value = value.replace(/([\/;:\)\]\}])/g, "$1\u200B");
                         info.title += linkify(attr.value, value, "webkit-html-attribute-value", this.nodeName.toLowerCase() == "a");
-                    else
+                    } else {
+                        var value = value.escapeHTML();
+                        value = value.replace(/([\/;:\)\]\}])/g, "$1&#8203;");
                         info.title += "<span class=\"webkit-html-attribute-value\">" + value + "</span>";
+                    }
                     info.title += "\"</span>";
                 }
             }
@@ -692,13 +843,36 @@ function nodeTitleInfo(hasChildren, linkify)
     return info;
 }
 
-Number.secondsToString = function(seconds, formatterFunction)
+function getDocumentForNode(node) {
+    return node.nodeType == Node.DOCUMENT_NODE ? node : node.ownerDocument;
+}
+
+function parentNodeOrFrameElement(node) {
+    var parent = node.parentNode;
+    if (parent)
+        return parent;
+
+    return getDocumentForNode(node).defaultView.frameElement;
+}
+
+function isAncestorIncludingParentFrames(a, b) {
+    if (objectsAreSame(a, b))
+        return false;
+    for (var node = b; node; node = getDocumentForNode(node).defaultView.frameElement)
+        if (objectsAreSame(a, node) || isAncestorNode.call(a, node))
+            return true;
+    return false;
+}
+
+Number.secondsToString = function(seconds, formatterFunction, higherResolution)
 {
     if (!formatterFunction)
         formatterFunction = String.sprintf;
 
     var ms = seconds * 1000;
-    if (ms < 1000)
+    if (higherResolution && ms < 1000)
+        return formatterFunction("%.3fms", ms);
+    else if (ms < 1000)
         return formatterFunction("%.0fms", ms);
 
     if (seconds < 60)
@@ -745,6 +919,22 @@ HTMLTextAreaElement.prototype.moveCursorToEnd = function()
 {
     var length = this.value.length;
     this.setSelectionRange(length, length);
+}
+
+Array.prototype.remove = function(value, onlyFirst)
+{
+    if (onlyFirst) {
+        var index = this.indexOf(value);
+        if (index !== -1)
+            this.splice(index, 1);
+        return;
+    }
+
+    var length = this.length;
+    for (var i = 0; i < length; ++i) {
+        if (this[i] === value)
+            this.splice(i, 1);
+    }
 }
 
 String.sprintf = function(format)

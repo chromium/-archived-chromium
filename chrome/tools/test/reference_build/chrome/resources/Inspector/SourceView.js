@@ -28,134 +28,275 @@
 
 WebInspector.SourceView = function(resource)
 {
+    // Set the sourceFrame first since WebInspector.ResourceView will set headersVisible
+    // and our override of headersVisible needs the sourceFrame.
+    this.sourceFrame = new WebInspector.SourceFrame(null, this._addBreakpoint.bind(this));
+
     WebInspector.ResourceView.call(this, resource);
+
+    resource.addEventListener("finished", this._resourceLoadingFinished, this);
 
     this.element.addStyleClass("source");
 
-    this.messages = [];
     this._frameNeedsSetup = true;
 
-    this.frameElement = document.createElement("iframe");
-    this.frameElement.className = "source-view-frame";
-    this.frameElement.setAttribute("viewsource", "true");
-    this.contentElement.appendChild(this.frameElement);
+    this.contentElement.appendChild(this.sourceFrame.element);
+
+    var gutterElement = document.createElement("div");
+    gutterElement.className = "webkit-line-gutter-backdrop";
+    this.element.appendChild(gutterElement);
 }
 
 WebInspector.SourceView.prototype = {
-    show: function()
+    set headersVisible(x)
     {
-        WebInspector.ResourceView.prototype.show.call(this);
+        if (x === this._headersVisible)
+            return;
+
+        var superSetter = WebInspector.ResourceView.prototype.__lookupSetter__("headersVisible");
+        if (superSetter)
+            superSetter.call(this, x);
+
+        this.sourceFrame.autoSizesToFitContentHeight = x;
+    },
+
+    show: function(parentElement)
+    {
+        WebInspector.ResourceView.prototype.show.call(this, parentElement);
         this.setupSourceFrameIfNeeded();
+    },
+
+    hide: function()
+    {
+        WebInspector.View.prototype.hide.call(this);
+        this._currentSearchResultIndex = -1;
+    },
+
+    resize: function()
+    {
+        if (this.sourceFrame.autoSizesToFitContentHeight)
+            this.sourceFrame.sizeToFitContentHeight();
+    },
+
+    detach: function()
+    {
+        WebInspector.ResourceView.prototype.detach.call(this);
+
+        // FIXME: We need to mark the frame for setup on detach because the frame DOM is cleared
+        // when it is removed from the document. Is this a bug?
+        this._frameNeedsSetup = true;
+        this._sourceFrameSetup = false;
     },
 
     setupSourceFrameIfNeeded: function()
     {
-        if (this.resource.finished && !this.resource.failed && this._frameNeedsSetup) {
-            delete this._frameNeedsSetup;
+        if (!this._frameNeedsSetup)
+            return;
 
-            this.attach();
+        this.attach();
 
-            InspectorController.addSourceToFrame(this.resource.identifier, this.frameElement);
-            WebInspector.addMainEventListeners(this.frameElement.contentDocument);
+        if (!InspectorController.addResourceSourceToFrame(this.resource.identifier, this.sourceFrame.element))
+            return;
 
-            var length = this.messages.length;
-            for (var i = 0; i < length; ++i)
-                this._addMessageToSource(this.messages[i]);
+        delete this._frameNeedsSetup;
+
+        if (this.resource.type === WebInspector.Resource.Type.Script) {
+            this.sourceFrame.addEventListener("syntax highlighting complete", this._syntaxHighlightingComplete, this);
+            this.sourceFrame.syntaxHighlightJavascript();
+        } else
+            this._sourceFrameSetupFinished();
+    },
+
+    _resourceLoadingFinished: function(event)
+    {
+        this._frameNeedsSetup = true;
+        this._sourceFrameSetup = false;
+        if (this.visible)
+            this.setupSourceFrameIfNeeded();
+        this.resource.removeEventListener("finished", this._resourceLoadingFinished, this);
+    },
+
+    _addBreakpoint: function(line)
+    {
+        var sourceID = null;
+        var closestStartingLine = 0;
+        var scripts = this.resource.scripts;
+        for (var i = 0; i < scripts.length; ++i) {
+            var script = scripts[i];
+            if (script.startingLine <= line && script.startingLine >= closestStartingLine) {
+                closestStartingLine = script.startingLine;
+                sourceID = script.sourceID;
+            }
+        }
+
+        if (WebInspector.panels.scripts) {
+            var breakpoint = new WebInspector.Breakpoint(this.resource.url, line, sourceID);
+            WebInspector.panels.scripts.addBreakpoint(breakpoint);
         }
     },
 
-    sourceRow: function(lineNumber)
+    // The rest of the methods in this prototype need to be generic enough to work with a ScriptView.
+    // The ScriptView prototype pulls these methods into it's prototype to avoid duplicate code.
+
+    searchCanceled: function()
     {
-        if (!lineNumber)
-            return;
-
-        this.setupSourceFrameIfNeeded();
-
-        var doc = this.frameElement.contentDocument;
-        var rows = doc.getElementsByTagName("table")[0].rows;
-
-        // Line numbers are a 1-based index, but the rows collection is 0-based.
-        --lineNumber;
-        if (lineNumber >= rows.length)
-            lineNumber = rows.length - 1;
-
-        return rows[lineNumber];
+        this._currentSearchResultIndex = -1;
+        this._searchResults = [];
+        delete this._delayedFindSearchMatches;
     },
 
-    showLine: function(lineNumber)
+    performSearch: function(query, finishedCallback)
     {
-        var row = this.sourceRow(lineNumber);
-        if (!row)
+        // Call searchCanceled since it will reset everything we need before doing a new search.
+        this.searchCanceled();
+
+        var lineQueryRegex = /(^|\s)(?:#|line:\s*)(\d+)(\s|$)/i;
+        var lineQueryMatch = query.match(lineQueryRegex);
+        if (lineQueryMatch) {
+            var lineToSearch = parseInt(lineQueryMatch[2]);
+
+            // If there was a space before and after the line query part, replace with a space.
+            // Otherwise replace with an empty string to eat the prefix or postfix space.
+            var lineQueryReplacement = (lineQueryMatch[1] && lineQueryMatch[3] ? " " : "");
+            var filterlessQuery = query.replace(lineQueryRegex, lineQueryReplacement);
+        }
+
+        this._searchFinishedCallback = finishedCallback;
+
+        function findSearchMatches(query, finishedCallback)
+        {
+            if (isNaN(lineToSearch)) {
+                // Search the whole document since there was no line to search.
+                this._searchResults = (InspectorController.search(this.sourceFrame.element.contentDocument, query) || []);
+            } else {
+                var sourceRow = this.sourceFrame.sourceRow(lineToSearch);
+                if (sourceRow) {
+                    if (filterlessQuery) {
+                        // There is still a query string, so search for that string in the line.
+                        this._searchResults = (InspectorController.search(sourceRow, filterlessQuery) || []);
+                    } else {
+                        // Match the whole line, since there was no remaining query string to match.
+                        var rowRange = this.sourceFrame.element.contentDocument.createRange();
+                        rowRange.selectNodeContents(sourceRow);
+                        this._searchResults = [rowRange];
+                    }
+                }
+
+                // Attempt to search for the whole query, just incase it matches a color like "#333".
+                var wholeQueryMatches = InspectorController.search(this.sourceFrame.element.contentDocument, query);
+                if (wholeQueryMatches)
+                    this._searchResults = this._searchResults.concat(wholeQueryMatches);
+            }
+
+            if (this._searchResults)
+                finishedCallback(this, this._searchResults.length);
+        }
+
+        if (!this._sourceFrameSetup) {
+            // The search is performed in _sourceFrameSetupFinished by calling _delayedFindSearchMatches.
+            this._delayedFindSearchMatches = findSearchMatches.bind(this, query, finishedCallback);
+            this.setupSourceFrameIfNeeded();
             return;
-        row.scrollIntoViewIfNeeded(true);
+        }
+
+        findSearchMatches.call(this, query, finishedCallback);
+    },
+
+    jumpToFirstSearchResult: function()
+    {
+        if (!this._searchResults || !this._searchResults.length)
+            return;
+        this._currentSearchResultIndex = 0;
+        this._jumpToSearchResult(this._currentSearchResultIndex);
+    },
+
+    jumpToLastSearchResult: function()
+    {
+        if (!this._searchResults || !this._searchResults.length)
+            return;
+        this._currentSearchResultIndex = (this._searchResults.length - 1);
+        this._jumpToSearchResult(this._currentSearchResultIndex);
+    },
+
+    jumpToNextSearchResult: function()
+    {
+        if (!this._searchResults || !this._searchResults.length)
+            return;
+        if (++this._currentSearchResultIndex >= this._searchResults.length)
+            this._currentSearchResultIndex = 0;
+        this._jumpToSearchResult(this._currentSearchResultIndex);
+    },
+
+    jumpToPreviousSearchResult: function()
+    {
+        if (!this._searchResults || !this._searchResults.length)
+            return;
+        if (--this._currentSearchResultIndex < 0)
+            this._currentSearchResultIndex = (this._searchResults.length - 1);
+        this._jumpToSearchResult(this._currentSearchResultIndex);
+    },
+
+    showingFirstSearchResult: function()
+    {
+        return (this._currentSearchResultIndex === 0);
+    },
+
+    showingLastSearchResult: function()
+    {
+        return (this._searchResults && this._currentSearchResultIndex === (this._searchResults.length - 1));
+    },
+
+    revealLine: function(lineNumber)
+    {
+        this.setupSourceFrameIfNeeded();
+        this.sourceFrame.revealLine(lineNumber);
+    },
+
+    highlightLine: function(lineNumber)
+    {
+        this.setupSourceFrameIfNeeded();
+        this.sourceFrame.highlightLine(lineNumber);
     },
 
     addMessage: function(msg)
     {
-        this.messages.push(msg);
-        if (!this._frameNeedsSetup)
-            this._addMessageToSource(msg);
+        this.sourceFrame.addMessage(msg);
     },
 
     clearMessages: function()
     {
-        this.messages = [];
+        this.sourceFrame.clearMessages();
+    },
 
-        if (this._frameNeedsSetup)
+    _jumpToSearchResult: function(index)
+    {
+        var foundRange = this._searchResults[index];
+        if (!foundRange)
             return;
 
-        var bubbles = this.frameElement.contentDocument.querySelectorAll(".webkit-html-message-bubble");
-        if (!bubbles)
-            return;
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(foundRange);
 
-        for (var i = 0; i < bubbles.length; ++i) {
-            var bubble = bubbles[i];
-            bubble.parentNode.removeChild(bubble);
+        if (foundRange.startContainer.scrollIntoViewIfNeeded)
+            foundRange.startContainer.scrollIntoViewIfNeeded(true);
+        else if (foundRange.startContainer.parentNode)
+            foundRange.startContainer.parentNode.scrollIntoViewIfNeeded(true);
+    },
+
+    _sourceFrameSetupFinished: function()
+    {
+        this._sourceFrameSetup = true;
+        if (this._delayedFindSearchMatches) {
+            this._delayedFindSearchMatches();
+            delete this._delayedFindSearchMatches;
         }
     },
 
-    _addMessageToSource: function(msg)
+    _syntaxHighlightingComplete: function(event)
     {
-        var row = this.sourceRow(msg.line);
-        if (!row)
-            return;
-
-        var doc = this.frameElement.contentDocument;
-        var cell = row.getElementsByTagName("td")[1];
-
-        var errorDiv = cell.lastChild;
-        if (!errorDiv || errorDiv.nodeName.toLowerCase() !== "div" || !errorDiv.hasStyleClass("webkit-html-message-bubble")) {
-            errorDiv = doc.createElement("div");
-            errorDiv.className = "webkit-html-message-bubble";
-            cell.appendChild(errorDiv);
-        }
-
-        var imageURL;
-        switch (msg.level) {
-            case WebInspector.ConsoleMessage.MessageLevel.Error:
-                errorDiv.addStyleClass("webkit-html-error-message");
-                imageURL = "Images/errorIcon.png";
-                break;
-            case WebInspector.ConsoleMessage.MessageLevel.Warning:
-                errorDiv.addStyleClass("webkit-html-warning-message");
-                imageURL = "Images/warningIcon.png";
-                break;
-        }
-
-        var lineDiv = doc.createElement("div");
-        lineDiv.className = "webkit-html-message-line";
-        errorDiv.appendChild(lineDiv);
-
-        // Create the image element in the Inspector's document so we can use relative image URLs.
-        var image = document.createElement("img");
-        image.src = imageURL;
-        image.className = "webkit-html-message-icon";
-
-        // Adopt the image element since it wasn't created in doc.
-        image = doc.adoptNode(image);
-        lineDiv.appendChild(image);
-
-        lineDiv.appendChild(doc.createTextNode(msg.message));
+        this._sourceFrameSetupFinished();
+        this.sourceFrame.removeEventListener("syntax highlighting complete", null, this);
     }
 }
 
