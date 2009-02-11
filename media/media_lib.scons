@@ -56,6 +56,16 @@ input_files = ChromeFileList([
   ]),
 ])
 
+if env.Bit('linux'):
+  input_files.Extend([
+      'audio/linux/audio_manager_linux.cc',
+  ])
+
+if env.Bit('mac'):
+  input_files.Extend([
+      'audio/mac/audio_manager_mac.cc',
+  ])
+
 if not env.Bit('windows'):
   # Windows-specific files.
   input_files.Remove(

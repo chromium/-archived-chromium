@@ -5,6 +5,8 @@
 #ifndef MEDIA_AUDIO_AUDIO_OUTPUT_H_
 #define MEDIA_AUDIO_AUDIO_OUTPUT_H_
 
+#include "base/basictypes.h"
+
 // Low-level audio output support. To make sound there are 3 objects involved:
 // - AudioSource : produces audio samples on a pull model. Implements
 //   the AudioSourceCallback interface.

@@ -17,11 +17,31 @@
 // passing a SharedMemoryHandle for filling the buffer.
 // NotifyPacketReady(|stream_id|) would be called when the buffer is filled
 // and ready to be consumed.
+//
+// This class is owned by BrowserRenderProcessHost, and instantiated on UI
+// thread, but all other operations and method calls (except Destroy()) happens
+// in IO thread, so we need to be extra careful about the lifetime of this
+// object. AudioManager is a singleton and created in IO thread, audio output
+// streams are also created in the IO thread, so we need to destroy them also
+// in IO thread. After this class is created, a task of OnInitialized() is
+// posted on IO thread in which singleton of AudioManager is created and
+// AddRef() is called to increase one ref count of this object. Owner of this
+// class should call Destroy() before decrementing the ref count to this object,
+// which essentially post a task of OnDestroyed() on IO thread. Inside
+// OnDestroyed(), audio output streams are destroyed and Release() is called
+// which may result in self-destruction.
+//
+// TODO(hclam): Have these things done before having real implementations:
+//   1. Make sure this class has greater or equal lifetime to
+//      IPC:Message::Sender, essentially ResourceMessageFilter.
+//   2. Listen to destruction event of the browser and do cleanup in case this
+//      class is not destructed nicely during browser close.
 
 #ifndef CHROME_BROWSER_RENDERER_HOST_AUDIO_RENDERER_HOST_H_
 #define CHROME_BROWSER_RENDERER_HOST_AUDIO_RENDERER_HOST_H_
 
 #include "base/id_map.h"
+#include "base/ref_counted.h"
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_message.h"
 #include "media/audio/audio_output.h"
@@ -29,7 +49,7 @@
 class AudioManager;
 class MessageLoop;
 
-class AudioRendererHost {
+class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
  public:
   static const int32 INVALID_ID = 0;
 
@@ -74,14 +94,24 @@ class AudioRendererHost {
   // consumed.
   void NotifyPacketReady(int32 stream_id);
 
-  // Destroy all audio output streams.
-  void DestroyAllStreams();
+  // Called from UI thread from the owner of this object.
+  void Destroy();
 
   // Destroy the stream specified by |stream_id| and remove it from map.
   // *DO NOT* call this method other than from IPCAudioSource.
   void DestroySource(int32 stream_id);
 
  private:
+  // Methods called on IO thread.
+  // Called on IO thread when this object is created and initialized.
+  void OnInitialized();
+  // Called on IO thread when this object needs to be destroyed and after
+  // Destroy() is called from owner of this class in UI thread.
+  void OnDestroyed();
+
+  // Destroy all audio output streams.
+  void DestroyAllStreams();
+
   // The container for AudioOutputStream and serves audio packet for it by IPC.
   class IPCAudioSource : public AudioOutputStream::AudioSourceCallback {
    public:
@@ -124,7 +154,7 @@ class AudioRendererHost {
 
   // Only used for DCHECKs to make sure all methods calls are from the same
   // thread as this object is created.
-  MessageLoop* message_loop_;
+  MessageLoop* io_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(AudioRendererHost);
 };

@@ -68,18 +68,21 @@ void AudioRendererHost::IPCAudioSource::NotifyPacketReady() {
 
 AudioRendererHost::AudioRendererHost(MessageLoop* message_loop)
     : next_id_(INVALID_ID+1),
-      message_loop_(message_loop) {
+      io_loop_(message_loop) {
+  // Make sure we perform actual initialization operations in the thread where
+  // this object should live.
+  io_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &AudioRendererHost::OnInitialized));
 }
 
 AudioRendererHost::~AudioRendererHost() {
-  DestroyAllStreams();
 }
 
 int AudioRendererHost::CreateStream(
     IPC::Message::Sender* sender, base::ProcessHandle handle,
     AudioManager::Format format, int channels, int sample_rate,
     int bits_per_sample, size_t packet_size) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
 
   // Create the stream in the first place.
   AudioOutputStream* stream = AudioManager::GetAudioManager()->MakeAudioStream(
@@ -100,7 +103,7 @@ int AudioRendererHost::CreateStream(
 }
 
 bool AudioRendererHost::Start(int stream_id) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   IPCAudioSource* source = sources_.Lookup(stream_id);
   if (source) {
     source->stream()->Start(source);
@@ -110,7 +113,7 @@ bool AudioRendererHost::Start(int stream_id) {
 }
 
 bool AudioRendererHost::Stop(int stream_id) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   IPCAudioSource* source = sources_.Lookup(stream_id);
   if (source) {
     source->stream()->Stop();
@@ -120,7 +123,7 @@ bool AudioRendererHost::Stop(int stream_id) {
 }
 
 bool AudioRendererHost::Close(int stream_id) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   IPCAudioSource* source = sources_.Lookup(stream_id);
   if (source) {
     source->stream()->Close();
@@ -131,7 +134,7 @@ bool AudioRendererHost::Close(int stream_id) {
 
 bool AudioRendererHost::SetVolume(
     int stream_id, double left_channel, double right_channel) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   IPCAudioSource* source = sources_.Lookup(stream_id);
   if (source) {
     source->stream()->SetVolume(left_channel, right_channel);
@@ -141,7 +144,7 @@ bool AudioRendererHost::SetVolume(
 
 bool AudioRendererHost::GetVolume(
     int stream_id, double* left_channel, double* right_channel) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   IPCAudioSource* source = sources_.Lookup(stream_id);
   if (source) {
     source->stream()->GetVolume(left_channel, right_channel);
@@ -151,7 +154,7 @@ bool AudioRendererHost::GetVolume(
 }
 
 void AudioRendererHost::NotifyPacketReady(int stream_id) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   IPCAudioSource* source = sources_.Lookup(stream_id);
   if (source) {
     source->NotifyPacketReady();
@@ -159,16 +162,48 @@ void AudioRendererHost::NotifyPacketReady(int stream_id) {
 }
 
 void AudioRendererHost::DestroyAllStreams() {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   // TODO(hclam): iterate on the map, close and delete every stream, and clear
   // the map.
 }
 
 void AudioRendererHost::DestroySource(int stream_id) {
-  DCHECK(MessageLoop::current() == message_loop_);
+  DCHECK(MessageLoop::current() == io_loop_);
   IPCAudioSource* source = sources_.Lookup(stream_id);
   if (source) {
     sources_.Remove(stream_id);
     delete source;
   }
+}
+
+void AudioRendererHost::Destroy() {
+  // Post a message to the thread where this object should live and do the
+  // actual operations there.
+  io_loop_->PostTask(
+      FROM_HERE, NewRunnableMethod(this, &AudioRendererHost::OnDestroyed));
+}
+
+void AudioRendererHost::OnInitialized() {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  // Increase the ref count of this object so it is active until we do
+  // Release().
+  AddRef();
+
+  // Also create the AudioManager singleton in this thread.
+  // TODO(hclam): figure out a better location to initialize the AudioManager
+  // singleton.
+  AudioManager::GetAudioManager();
+}
+
+void AudioRendererHost::OnDestroyed() {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  // Destroy audio streams only in the thread it should happen.
+  // TODO(hclam): make sure we don't call IPC::Message::Sender inside
+  // IPCAudioSource because it is most likely be destroyed.
+  DestroyAllStreams();
+
+  // Decrease the reference to this object, which may lead to self-destruction.
+  Release();
 }

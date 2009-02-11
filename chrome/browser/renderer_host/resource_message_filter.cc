@@ -13,6 +13,7 @@
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/common/chrome_plugin_lib.h"
@@ -92,6 +93,7 @@ class WriteClipboardTask : public Task {
 
 ResourceMessageFilter::ResourceMessageFilter(
     ResourceDispatcherHost* resource_dispatcher_host,
+    AudioRendererHost* audio_renderer_host,
     PluginService* plugin_service,
     printing::PrintJobManager* print_job_manager,
     int render_process_host_id,
@@ -108,7 +110,8 @@ ResourceMessageFilter::ResourceMessageFilter(
       render_handle_(NULL),
       request_context_(profile->GetRequestContext()),
       profile_(profile),
-      render_widget_helper_(render_widget_helper) {
+      render_widget_helper_(render_widget_helper),
+      audio_renderer_host_(audio_renderer_host) {
 
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());

@@ -15,6 +15,7 @@ env.SConscript([
     '$ICU38_DIR/using_icu38.scons',
     '$LIBPNG_DIR/using_libpng.scons',
     '$LIBXML_DIR/using_libxml.scons',
+    '$MEDIA_DIR/using_media.scons',
     '$NPAPI_DIR/using_npapi.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
@@ -508,6 +509,8 @@ input_files = ChromeFileList([
   MSVSFilter('Renderer Host', [
     'renderer_host/async_resource_handler.cc',
     'renderer_host/async_resource_handler.h',
+    'renderer_host/audio_renderer_host.cc',
+    'renderer_host/audio_renderer_host.h',
     'renderer_host/backing_store.h',
     'renderer_host/backing_store.cc',
     'renderer_host/backing_store_win.cc',

@@ -46,6 +46,7 @@
 		8200F2030E5F741E005A3C44 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8200F2020E5F741E005A3C44 /* CoreServices.framework */; };
 		820706940EB8D9D4005CD9E7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 820706930EB8D9D4005CD9E7 /* SystemConfiguration.framework */; };
 		82113A280E84360200E3848F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82113A270E84360200E3848F /* Security.framework */; };
+		ABFA33A30F424FBD008FCF5D /* audio_manager_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABFA33A20F424FBD008FCF5D /* audio_manager_mac.cc */; };
 		DC5E24F40EFC4CE5006AD1A7 /* data_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = DC5E24E10EFC4CC8006AD1A7 /* data_buffer.cc */; };
 		DC5E24F50EFC4CE5006AD1A7 /* media_format.cc in Sources */ = {isa = PBXBuildFile; fileRef = DC5E24E60EFC4CC8006AD1A7 /* media_format.cc */; };
 		DC5E24F60EFC4CF7006AD1A7 /* data_buffer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = DC5E24E30EFC4CC8006AD1A7 /* data_buffer_unittest.cc */; };
@@ -225,6 +226,7 @@
 		8200F2020E5F741E005A3C44 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = "<group>"; };
 		820706930EB8D9D4005CD9E7 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		82113A270E84360200E3848F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = "<group>"; };
+		ABFA33A20F424FBD008FCF5D /* audio_manager_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audio_manager_mac.cc; path = mac/audio_manager_mac.cc; sourceTree = "<group>"; };
 		DC5E24DE0EFC4CC8006AD1A7 /* audio_output.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio_output.h; sourceTree = "<group>"; };
 		DC5E24E00EFC4CC8006AD1A7 /* buffers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffers.h; sourceTree = "<group>"; };
 		DC5E24E10EFC4CC8006AD1A7 /* data_buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data_buffer.cc; sourceTree = "<group>"; };
@@ -373,9 +375,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		ABFA33980F424FAF008FCF5D /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				ABFA33A20F424FBD008FCF5D /* audio_manager_mac.cc */,
+			);
+			name = mac;
+			sourceTree = "<group>";
+		};
 		DC5E24DD0EFC4CC8006AD1A7 /* audio */ = {
 			isa = PBXGroup;
 			children = (
+				ABFA33980F424FAF008FCF5D /* mac */,
 				DC5E24DE0EFC4CC8006AD1A7 /* audio_output.h */,
 			);
 			path = audio;
@@ -620,6 +631,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABFA33A30F424FBD008FCF5D /* audio_manager_mac.cc in Sources */,
 				DC5E24F40EFC4CE5006AD1A7 /* data_buffer.cc in Sources */,
 				DC66E6E30F13FE6A00E13554 /* filter_host_impl.cc in Sources */,
 				DC5E24F50EFC4CE5006AD1A7 /* media_format.cc in Sources */,

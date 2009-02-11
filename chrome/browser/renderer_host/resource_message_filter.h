@@ -25,6 +25,7 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
+class AudioRendererHost;
 class ClipboardService;
 class Profile;
 class RenderWidgetHelper;
@@ -57,6 +58,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   //        ResourceMessageFilter is 'given' ownership of the spellchecker
   //        object and must clean it up on exit.
   ResourceMessageFilter(ResourceDispatcherHost* resource_dispatcher_host,
+                        AudioRendererHost* audio_renderer_host,
                         PluginService* plugin_service,
                         printing::PrintJobManager* print_job_manager,
                         int render_process_host_id,
@@ -238,6 +240,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void* profile_;
 
   scoped_refptr<RenderWidgetHelper> render_widget_helper_;
+
+  // Object that should take care of audio related resource requests.
+  scoped_refptr<AudioRendererHost> audio_renderer_host_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceMessageFilter);
 };

@@ -11,10 +11,17 @@
 class AudioRendererHostTest : public testing::Test {
  protected:
   virtual void SetUp() {
-    host_.reset(new AudioRendererHost(MessageLoop::current()));
+    // Create a message loop so AudioRendererHost can use it.
+    message_loop_.reset(new MessageLoop(MessageLoop::TYPE_IO));
+    host_ = new AudioRendererHost(MessageLoop::current());
   }
 
-  scoped_ptr<AudioRendererHost> host_;
+  virtual void TearDown() {
+    host_->Destroy();
+  }
+
+  scoped_refptr<AudioRendererHost> host_;
+  scoped_ptr<MessageLoop> message_loop_;
 };
 
 TEST_F(AudioRendererHostTest, NoTest) {

@@ -22,6 +22,7 @@ env.SConscript([
     '$LIBXML_DIR/using_libxml.scons',
     '$LIBXSLT_DIR/using_libxslt.scons',
     '$MODP_B64_DIR/using_modp_b64.scons',
+    '$MEDIA_DIR/using_media.scons',
     '$NET_DIR/using_net.scons',
     '$NPAPI_DIR/using_npapi.scons',
     '$SDCH_DIR/using_sdch.scons',

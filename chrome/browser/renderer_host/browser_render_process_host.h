@@ -13,6 +13,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
+#include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/notification_observer.h"
 #include "webkit/glue/cache_manager.h"
@@ -135,6 +136,9 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // Used to allow a RenderWidgetHost to intercept various messages on the
   // IO thread.
   scoped_refptr<RenderWidgetHelper> widget_helper_;
+
+  // The host of audio renderers in the renderer process.
+  scoped_refptr<AudioRendererHost> audio_renderer_host_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserRenderProcessHost);
 };

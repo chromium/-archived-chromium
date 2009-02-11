@@ -155,6 +155,10 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
   // We may have some unsent messages at this point, but that's OK.
   channel_.reset();
 
+  // Destroy the AudioRendererHost properly.
+  if (audio_renderer_host_.get())
+    audio_renderer_host_->Destroy();
+
   if (process_.handle() && !run_renderer_in_process()) {
     ProcessWatcher::EnsureProcessTerminated(process_.handle());
   }
@@ -195,8 +199,13 @@ bool BrowserRenderProcessHost::Init() {
   // run the IPC channel on the shared IO thread.
   base::Thread* io_thread = g_browser_process->io_thread();
 
+  // Construct the AudioRendererHost with the IO thread.
+  audio_renderer_host_ =
+      new AudioRendererHost(io_thread->message_loop());
+
   scoped_refptr<ResourceMessageFilter> resource_message_filter =
       new ResourceMessageFilter(g_browser_process->resource_dispatcher_host(),
+                                audio_renderer_host_.get(),
                                 PluginService::GetInstance(),
                                 g_browser_process->print_job_manager(),
                                 host_id(),
