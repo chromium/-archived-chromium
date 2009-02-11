@@ -531,8 +531,8 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
     const std::string current_tab_mime_type;
     PrefService* prefs;
     SavePackageType save_type;
-    std::wstring saved_main_file_path;
-    std::wstring dir;
+    FilePath saved_main_file_path;
+    FilePath dir;
   };
   static bool IsSavableContents(const std::string&) {
     NOTIMPLEMENTED();
@@ -542,18 +542,18 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
     NOTIMPLEMENTED();
     return false;
   }
-  static std::wstring GetSuggestNameForSaveAs(PrefService*,
-                                              const std::wstring&) {
+  static FilePath GetSuggestNameForSaveAs(PrefService*,
+                                          const FilePath&) {
     NOTIMPLEMENTED();
-    return L"";
+    return FilePath();
   }
-  static bool GetSaveInfo(const std::wstring&, void*,
+  static bool GetSaveInfo(const FilePath&, void*,
                           SavePackageParam*, DownloadManager*) {
     NOTIMPLEMENTED();
     return false;
   }
-  SavePackage(WebContents*, SavePackageType, const std::wstring&,
-              const std::wstring&) { NOTIMPLEMENTED(); }
+  SavePackage(WebContents*, SavePackageType, const FilePath&,
+              const FilePath&) { NOTIMPLEMENTED(); }
   bool Init() {
     NOTIMPLEMENTED();
     return true;

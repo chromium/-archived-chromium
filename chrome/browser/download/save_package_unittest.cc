@@ -38,7 +38,7 @@ class SavePackageTest : public testing::Test {
       save_package = save_package_success_.get();
     else
       save_package = save_package_fail_.get();
-    return save_package->GenerateFilename(disposition, url, need_htm_ext,
+    return save_package->GenerateFilename(disposition, GURL(url), need_htm_ext,
                                           generated_name);
   }
 
@@ -152,7 +152,7 @@ TEST_F(SavePackageTest, TestSuccessfullyGenerateSavePackageFilename) {
                                    kGeneratedFiles[i].need_htm_ext,
                                    &file_name);
     ASSERT_TRUE(ok);
-    EXPECT_EQ(file_name, kGeneratedFiles[i].expected_name);
+    EXPECT_EQ(kGeneratedFiles[i].expected_name, file_name);
   }
 }
 

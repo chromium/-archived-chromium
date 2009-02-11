@@ -556,8 +556,8 @@ void WebContents::OnSavePage() {
   PrefService* prefs = profile()->GetPrefs();
   DCHECK(prefs);
 
-  std::wstring suggest_name =
-      SavePackage::GetSuggestNameForSaveAs(prefs, GetTitle());
+  FilePath suggest_name = SavePackage::GetSuggestNameForSaveAs(prefs,
+      FilePath::FromWStringHack(GetTitle()));
 
   SavePackage::SavePackageParam param(contents_mime_type());
   param.prefs = prefs;
@@ -565,8 +565,11 @@ void WebContents::OnSavePage() {
   // TODO(rocking): Use new asynchronous dialog boxes to prevent the SaveAs
   // dialog blocking the UI thread. See bug: http://b/issue?id=1129694.
   if (SavePackage::GetSaveInfo(suggest_name, view_->GetNativeView(),
-                               &param, profile()->GetDownloadManager()))
-    SavePage(param.saved_main_file_path, param.dir, param.save_type);
+                               &param, profile()->GetDownloadManager())) {
+    SavePage(param.saved_main_file_path.ToWStringHack(),
+             param.dir.ToWStringHack(),
+             param.save_type);
+  }
 }
 
 void WebContents::SavePage(const std::wstring& main_file,
@@ -575,7 +578,9 @@ void WebContents::SavePage(const std::wstring& main_file,
   // Stop the page from navigating.
   Stop();
 
-  save_package_ = new SavePackage(this, save_type, main_file, dir_path);
+  save_package_ = new SavePackage(this, save_type,
+                                  FilePath::FromWStringHack(main_file),
+                                  FilePath::FromWStringHack(dir_path));
   save_package_->Init();
 }
 

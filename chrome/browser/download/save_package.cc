@@ -43,6 +43,9 @@ using base::Time;
 
 namespace {
 
+const FilePath::CharType kLeftParen = FILE_PATH_LITERAL('(');
+const FilePath::CharType kRightParen = FILE_PATH_LITERAL(')');
+
 // Default name which will be used when we can not get proper name from
 // resource URL.
 const wchar_t kDefaultSaveName[] = L"saved_resource";
@@ -65,12 +68,33 @@ const uint32 kMaxFileOrdinalNumberPartLength = 6;
 // exists only for testing.
 bool g_should_prompt_for_filename = true;
 
+// Strip current ordinal number, if any. Should only be used on pure
+// file names, i.e. those stripped of their extensions.
+// TODO(estade): improve this to not choke on alternate encodings.
+FilePath::StringType StripOrdinalNumber(
+    const FilePath::StringType& pure_file_name) {
+  FilePath::StringType::size_type r_paren_index =
+      pure_file_name.rfind(FILE_PATH_LITERAL(')'));
+  FilePath::StringType::size_type l_paren_index =
+      pure_file_name.rfind(FILE_PATH_LITERAL('('));
+  if (l_paren_index >= r_paren_index)
+    return pure_file_name;
+
+  for (FilePath::StringType::size_type i = l_paren_index + 1;
+       i != r_paren_index; ++i) {
+    if (!IsAsciiDigit(pure_file_name[i]))
+      return pure_file_name;
+  }
+
+  return pure_file_name.substr(0, l_paren_index);
+}
+
 }  // namespace
 
 SavePackage::SavePackage(WebContents* web_content,
                          SavePackageType save_type,
-                         const std::wstring& file_full_path,
-                         const std::wstring& directory_full_path)
+                         const FilePath& file_full_path,
+                         const FilePath& directory_full_path)
     : web_contents_(web_content),
       save_type_(save_type),
       saved_main_file_path_(file_full_path),
@@ -89,15 +113,15 @@ SavePackage::SavePackage(WebContents* web_content,
   DCHECK(save_type_ == SAVE_AS_ONLY_HTML ||
          save_type_ == SAVE_AS_COMPLETE_HTML);
   DCHECK(!saved_main_file_path_.empty() &&
-         saved_main_file_path_.length() <= kMaxFilePathLength);
+         saved_main_file_path_.value().length() <= kMaxFilePathLength);
   DCHECK(!saved_main_directory_path_.empty() &&
-         saved_main_directory_path_.length() < kMaxFilePathLength);
+         saved_main_directory_path_.value().length() < kMaxFilePathLength);
 }
 
 // This is for testing use. Set |finished_| as true because we don't want
 // method Cancel to be be called in destructor in test mode.
-SavePackage::SavePackage(const wchar_t* file_full_path,
-                         const wchar_t* directory_full_path)
+SavePackage::SavePackage(const FilePath::CharType* file_full_path,
+                         const FilePath::CharType* directory_full_path)
     : all_save_items_count_(0),
       saved_main_file_path_(file_full_path),
       saved_main_directory_path_(directory_full_path),
@@ -107,9 +131,9 @@ SavePackage::SavePackage(const wchar_t* file_full_path,
       disk_error_occurred_(false),
       tab_id_(0) {
   DCHECK(!saved_main_file_path_.empty() &&
-         saved_main_file_path_.length() <= kMaxFilePathLength);
+         saved_main_file_path_.value().length() <= kMaxFilePathLength);
   DCHECK(!saved_main_directory_path_.empty() &&
-         saved_main_directory_path_.length() < kMaxFilePathLength);
+         saved_main_directory_path_.value().length() < kMaxFilePathLength);
 }
 
 SavePackage::~SavePackage() {
@@ -186,8 +210,7 @@ bool SavePackage::Init() {
   }
 
   // Create the fake DownloadItem and display the view.
-  download_ = new DownloadItem(1,
-      FilePath::FromWStringHack(saved_main_file_path_), 0, page_url_,
+  download_ = new DownloadItem(1, saved_main_file_path_, 0, page_url_,
       FilePath(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(web_contents_->profile()->GetDownloadManager());
   DownloadShelfView* shelf = web_contents_->GetDownloadShelfView();
@@ -223,45 +246,34 @@ bool SavePackage::Init() {
 
 // Generate name for saving resource.
 bool SavePackage::GenerateFilename(const std::string& disposition,
-                                   const std::wstring& url,
+                                   const GURL& url,
                                    bool need_html_ext,
-                                   std::wstring* generated_name) {
-  std::wstring file_name =
-      net::GetSuggestedFilename(GURL(url), disposition, kDefaultSaveName);
+                                   FilePath::StringType* generated_name) {
+  FilePath file_path = FilePath::FromWStringHack(
+      net::GetSuggestedFilename(url, disposition, kDefaultSaveName));
 
-  DCHECK(!file_name.empty());
-  // Check whether we have same name before.
-  std::wstring::size_type last_dot = file_name.rfind(L'.');
-  std::wstring pure_file_name, file_name_ext;
-  if (last_dot == std::wstring::npos) {
-    pure_file_name = file_name;
-  } else {
-    pure_file_name = std::wstring(file_name, 0, last_dot);
-    file_name_ext = std::wstring(file_name, last_dot);
-  }
+  DCHECK(!file_path.empty());
+  FilePath::StringType pure_file_name =
+      file_path.RemoveExtension().BaseName().value();
+  FilePath::StringType file_name_ext = file_path.Extension();
+
   // If it is HTML resource, use ".htm" as its extension name.
   if (need_html_ext)
-    file_name_ext = L".htm";
-  if (file_name_ext == L".")
-    file_name_ext.clear();
+    file_name_ext = FILE_PATH_LITERAL(".htm");
 
   // Get safe pure file name.
   if (!GetSafePureFileName(saved_main_directory_path_, file_name_ext,
                            kMaxFilePathLength, &pure_file_name))
     return false;
 
-  file_name = pure_file_name + file_name_ext;
+  FilePath::StringType file_name = pure_file_name + file_name_ext;
 
   // Check whether we already have same name.
   if (file_name_set_.find(file_name) == file_name_set_.end()) {
     file_name_set_.insert(file_name);
   } else {
     // Found same name, increase the ordinal number for the file name.
-    std::wstring base_file_name, file_ordinal_number;
-
-    if (!GetBaseFileNameAndFileOrdinalNumber(pure_file_name, &base_file_name,
-                                             &file_ordinal_number))
-      base_file_name = pure_file_name;
+    FilePath::StringType base_file_name = StripOrdinalNumber(pure_file_name);
 
     // We need to make sure the length of base file name plus maximum ordinal
     // number path will be less than or equal to kMaxFilePathLength.
@@ -283,17 +295,19 @@ bool SavePackage::GenerateFilename(const std::string& disposition,
 
     if (ordinal_number > (kMaxFileOrdinalNumber - 1)) {
       // Use a random file from temporary file.
-      file_util::CreateTemporaryFileName(&file_name);
-      file_name = file_util::GetFilenameFromPath(file_name);
+      FilePath temp_file;
+      file_util::CreateTemporaryFileName(&temp_file);
+      file_name = temp_file.RemoveExtension().BaseName().value();
       // Get safe pure file name.
-      if (!GetSafePureFileName(saved_main_directory_path_, std::wstring(),
+      if (!GetSafePureFileName(saved_main_directory_path_,
+                               FilePath::StringType(),
                                kMaxFilePathLength, &file_name))
         return false;
     } else {
       uint32 i;
       for (i = ordinal_number; i < kMaxFileOrdinalNumber; ++i) {
-        std::wstring new_name =
-            StringPrintf(L"%ls(%d)", base_file_name.c_str(), i) + file_name_ext;
+        FilePath::StringType new_name = base_file_name +
+            StringPrintf(FILE_PATH_LITERAL("(%d)"), i) + file_name_ext;
         if (file_name_set_.find(new_name) == file_name_set_.end()) {
           // Resolved name conflict.
           file_name = new_name;
@@ -334,7 +348,7 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
   // save directory, or prompting the user.
   DCHECK(!save_item->has_final_name());
   if (info->url != page_url_) {
-    std::wstring generated_name;
+    FilePath::StringType generated_name;
     // For HTML resource file, make sure it will have .htm as extension name,
     // otherwise, when you open the saved page in Chrome again, download
     // file manager will treat it as downloadable resource, and download it
@@ -342,7 +356,7 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
     bool need_html_ext =
         info->save_source == SaveFileCreateInfo::SAVE_FILE_FROM_DOM;
     if (!GenerateFilename(info->content_disposition,
-                          info->url,
+                          GURL(info->url),
                           need_html_ext,
                           &generated_name)) {
       // We can not generate file name for this SaveItem, so we cancel the
@@ -365,12 +379,11 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
 
     // Now we get final name retrieved from GenerateFilename, we will use it
     // rename the SaveItem.
-    std::wstring final_name = saved_main_directory_path_;
-    file_util::AppendToPath(&final_name, generated_name);
-    save_item->Rename(final_name);
+    FilePath final_name = saved_main_directory_path_.Append(generated_name);
+    save_item->Rename(final_name.ToWStringHack());
   } else {
     // It is the main HTML file, use the name chosen by the user.
-    save_item->Rename(saved_main_file_path_);
+    save_item->Rename(saved_main_file_path_.ToWStringHack());
   }
 
   // If the save source is from file system, inform SaveFileManager to copy
@@ -494,9 +507,9 @@ void SavePackage::CheckFinish() {
   if (in_process_count() || finished_)
     return;
 
-  std::wstring dir = save_type_ == SAVE_AS_COMPLETE_HTML ?
-                     saved_main_directory_path_ :
-                     L"";
+  FilePath dir = save_type_ == SAVE_AS_COMPLETE_HTML ?
+                 saved_main_directory_path_ :
+                 FilePath();
 
   // This vector contains the final names of all the successfully saved files
   // along with their save ids. It will be passed to SaveFileManager to do the
@@ -511,7 +524,7 @@ void SavePackage::CheckFinish() {
       NewRunnableMethod(file_manager_,
                         &SaveFileManager::RenameAllFiles,
                         final_names,
-                        dir,
+                        dir.ToWStringHack(),
                         web_contents_->process()->host_id(),
                         web_contents_->render_view_host()->routing_id()));
 }
@@ -671,7 +684,7 @@ void SavePackage::ShowDownloadInShell() {
   file_manager_->GetSaveLoop()->PostTask(FROM_HERE,
       NewRunnableMethod(file_manager_,
                         &SaveFileManager::OnShowSavedFileInShell,
-                        saved_main_file_path_));
+                        saved_main_file_path_.ToWStringHack()));
 }
 
 // Calculate the percentage of whole save page job.
@@ -763,16 +776,14 @@ void SavePackage::GetSerializedHtmlDataForCurrentPageWithLocalLinks() {
   }
 
   // Get the relative directory name.
-  std::wstring::size_type last_slash = saved_main_directory_path_.rfind(L'\\');
-  DCHECK(last_slash != std::wstring::npos);
-  std::wstring relative_dir_name = std::wstring(saved_main_directory_path_,
-                                                last_slash + 1);
+  FilePath relative_dir_name = saved_main_directory_path_.BaseName();
 
-  relative_dir_name = std::wstring(L"./") + relative_dir_name + L"/";
+  std::wstring relative_dir_name_str = std::wstring(L"./") +
+      relative_dir_name.ToWStringHack() + L"/";
 
   web_contents_->render_view_host()->
       GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-          saved_links, saved_file_paths, relative_dir_name);
+          saved_links, saved_file_paths, relative_dir_name_str);
 }
 
 // Process the serialized HTML content data of a specified web page
@@ -899,17 +910,18 @@ void SavePackage::SetShouldPromptUser(bool should_prompt) {
   g_should_prompt_for_filename = should_prompt;
 }
 
-std::wstring SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
-                                                  const std::wstring& name) {
+// static
+FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
+                                              const FilePath& name) {
   // Check whether the preference has the preferred directory for saving file.
   // If not, initialize it with default directory.
   if (!prefs->IsPrefRegistered(prefs::kSaveFileDefaultDirectory)) {
-    std::wstring default_save_path;
+    FilePath default_save_path;
     if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
                           &default_save_path))
       NOTREACHED();
     prefs->RegisterStringPref(prefs::kSaveFileDefaultDirectory,
-                              default_save_path);
+                              default_save_path.ToWStringHack());
   }
 
   // Get the directory from preference.
@@ -918,18 +930,16 @@ std::wstring SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
   DCHECK(!(*save_file_path).empty());
 
   // Ask user for getting final saving name.
-  std::wstring suggest_name, file_name;
-
-  file_name = name;
+  std::wstring file_name = name.ToWStringHack();
   file_util::ReplaceIllegalCharacters(&file_name, L' ');
-  suggest_name = *save_file_path;
-  file_util::AppendToPath(&suggest_name, file_name);
+  FilePath suggest_name = FilePath::FromWStringHack(save_file_path.GetValue());
+  suggest_name = suggest_name.Append(file_name);
 
   return suggest_name;
 }
 
 // Static.
-bool SavePackage::GetSaveInfo(const std::wstring& suggest_name,
+bool SavePackage::GetSaveInfo(const FilePath& suggest_name,
                               HWND container_hwnd,
                               SavePackageParam* param,
                               DownloadManager* download_manager) {
@@ -952,21 +962,29 @@ bool SavePackage::GetSaveInfo(const std::wstring& suggest_name,
       // Since we take the suggested name from the web page's title, we want to
       // ignore the file extension generated by SaveFileAsWithFilter, since it
       // will always be ".htm".
+      // TODO(estade): is this saved_main_file_path assignment behavior desired?
+      // It was copied from previous code but seems strange.
+      std::wstring main_file_path;
       if (!win_util::SaveFileAsWithFilter(container_hwnd,
-                                          suggest_name,
+                                          suggest_name.value(),
                                           filter,
                                           L"htm",
                                           true,
                                           &index,
-                                          &param->saved_main_file_path))
+                                          &main_file_path)) {
+        param->saved_main_file_path = FilePath(main_file_path);
         return false;
+      }
     } else {
       param->saved_main_file_path = suggest_name;
     }
   } else {
     if (g_should_prompt_for_filename) {
-      if (!win_util::SaveFileAs(container_hwnd, suggest_name,
-                                &param->saved_main_file_path))
+      // TODO(estade): see above comment.
+      std::wstring main_file_path;
+      if (!win_util::SaveFileAs(container_hwnd, suggest_name.value(),
+                                &main_file_path))
+        param->saved_main_file_path = FilePath(main_file_path);
         return false;
     } else {
       param->saved_main_file_path = suggest_name;
@@ -978,80 +996,30 @@ bool SavePackage::GetSaveInfo(const std::wstring& suggest_name,
 
   DCHECK(download_manager);
   // Ensure the filename is safe.
-  FilePath path(param->saved_main_file_path);
-  download_manager->GenerateSafeFilename(param->current_tab_mime_type, &path);
-  param->saved_main_file_path = path.ToWStringHack();
+  download_manager->GenerateSafeFilename(param->current_tab_mime_type,
+                                         &param->saved_main_file_path);
 
   // The option index is not zero-based.
   DCHECK(index > 0 && index < 3);
-  param->dir = file_util::GetDirectoryFromPath(param->saved_main_file_path);
+  param->dir = param->saved_main_file_path.DirName();
 
   StringPrefMember save_file_path;
   save_file_path.Init(prefs::kSaveFileDefaultDirectory, param->prefs, NULL);
   // If user change the default saving directory, we will remember it just
   // like IE and FireFox.
-  if (save_file_path.GetValue() != param->dir)
-    save_file_path.SetValue(param->dir);
+  if (save_file_path.GetValue() != param->dir.ToWStringHack())
+    save_file_path.SetValue(param->dir.ToWStringHack());
 
   param->save_type = (index == 1) ? SavePackage::SAVE_AS_ONLY_HTML :
                                     SavePackage::SAVE_AS_COMPLETE_HTML;
 
   if (param->save_type == SavePackage::SAVE_AS_COMPLETE_HTML) {
     // Make new directory for saving complete file.
-    std::wstring file_name =
-        file_util::GetFilenameFromPath(param->saved_main_file_path);
-    std::wstring::size_type last_dot = file_name.rfind(L'.');
-    std::wstring pure_file_name;
-    if (last_dot == std::wstring::npos)
-      pure_file_name = file_name;
-    else
-      pure_file_name = std::wstring(file_name, 0, last_dot);
-    pure_file_name += L"_files";
-    file_util::AppendToPath(&param->dir, pure_file_name);
+    param->dir = param->dir.Append(
+        param->saved_main_file_path.RemoveExtension().BaseName().value() + 
+        FILE_PATH_LITERAL("_files"));
   }
 
-  return true;
-}
-
-// Static.
-bool SavePackage::GetBaseFileNameAndFileOrdinalNumber(
-    const std::wstring& file_name,
-    std::wstring* base_file_name,
-    std::wstring* file_ordinal_number) {
-  if (file_name.empty() || !base_file_name || !file_ordinal_number)
-    return false;
-
-  // Find dot position.
-  std::wstring::size_type dot_position = file_name.rfind(L".");
-  // Find position of right parenthesis.
-  std::wstring::size_type parenthesis_right;
-  if (std::wstring::npos == dot_position)
-    parenthesis_right = file_name.rfind(L')');
-  else
-    parenthesis_right = dot_position - 1;
-  // The latest character of pure file name is not ")", return false.
-  if (std::wstring::npos == parenthesis_right)
-    return false;
-  if (file_name.at(parenthesis_right) != L')')
-    return false;
-  // Find position of left parenthesis.
-  std::wstring::size_type parenthesis_left = file_name.rfind(L'(');
-  if (std::wstring::npos == parenthesis_left)
-    return false;
-
-  if (parenthesis_right <= parenthesis_left)
-    return false;
-  // Check whether content between left parenthesis and right parenthesis is
-  // numeric or not.
-  std::wstring ordinal_number(file_name, parenthesis_left + 1,
-                              parenthesis_right - parenthesis_left - 1);
-  for (std::wstring::const_iterator cit = ordinal_number.begin();
-       cit != ordinal_number.end(); ++cit)
-    if (!IsAsciiDigit(*cit))
-      return false;
-
-  *base_file_name = std::wstring(file_name, 0, parenthesis_left);
-  *file_ordinal_number = ordinal_number;
   return true;
 }
 
@@ -1079,30 +1047,30 @@ bool SavePackage::CanSaveAsComplete(const std::string& contents_mime_type) {
 }
 
 // Static
-bool SavePackage::GetSafePureFileName(const std::wstring& dir_path,
-                                      const std::wstring& file_name_ext,
+bool SavePackage::GetSafePureFileName(const FilePath& dir_path,
+                                      const FilePath::StringType& file_name_ext,
                                       uint32 max_file_path_len,
-                                      std::wstring* pure_file_name) {
+                                      FilePath::StringType* pure_file_name) {
   DCHECK(!pure_file_name->empty());
-  std::wstring final_name = dir_path;
-  file_util::AppendToPath(&final_name, *pure_file_name);
-  // Get total length of dir path, including ending "\".
-  const std::wstring::size_type dir_path_length =
-      final_name.length() - pure_file_name->length();
-  // Get available length for putting dir path and pure file name.
-  const std::wstring::size_type available_length =
-      static_cast<std::wstring::size_type>(max_file_path_len) -
-      file_name_ext.length();
+  int available_length = static_cast<int>(
+    max_file_path_len - dir_path.value().length() - file_name_ext.length());
+  // Need an extra space for the separator.
+  if (!file_util::EndsWithSeparator(dir_path))
+    --available_length;
 
-  if (final_name.length() <= available_length)
+  // Plenty of room.
+  if (static_cast<int>(pure_file_name->length()) <= available_length)
     return true;
 
-  if (available_length > dir_path_length) {
+  // Limited room. Truncate |pure_file_name| to fit.
+  if (available_length > 0) {
     *pure_file_name =
-        pure_file_name->substr(0, available_length - dir_path_length);
+        pure_file_name->substr(0, available_length);
     return true;
-  } else {
-    pure_file_name->clear();
-    return false;
   }
+
+  // Not enough room to even use a shortened |pure_file_name|.
+  pure_file_name->clear();
+  return false;
 }
+

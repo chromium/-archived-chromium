@@ -5,12 +5,14 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
 #define CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
 
-#include <string>
-#include <vector>
+#include <hash_map>
 #include <queue>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
@@ -77,8 +79,8 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 
   SavePackage(WebContents* web_content,
               SavePackageType save_type,
-              const std::wstring& file_full_path,
-              const std::wstring& directory_full_path);
+              const FilePath& file_full_path,
+              const FilePath& directory_full_path);
 
   ~SavePackage();
 
@@ -141,8 +143,8 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // Helper function for preparing suggested name for the SaveAs Dialog. The
   // suggested name is composed of the default save path and the web document's
   // title.
-  static std::wstring GetSuggestNameForSaveAs(PrefService* prefs,
-                                              const std::wstring& name);
+  static FilePath GetSuggestNameForSaveAs(PrefService* prefs,
+                                          const FilePath& name);
 
   // This structure is for storing parameters which we will use to create
   // a SavePackage object later.
@@ -154,32 +156,17 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
     // Type about saving page as only-html or complete-html.
     SavePackageType save_type;
     // File path for main html file.
-    std::wstring saved_main_file_path;
+    FilePath saved_main_file_path;
     // Directory path for saving sub resources and sub html frames.
-    std::wstring dir;
+    FilePath dir;
 
     SavePackageParam(const std::string& mime_type)
         : current_tab_mime_type(mime_type) { }
   };
-  static bool GetSaveInfo(const std::wstring& suggest_name,
+  static bool GetSaveInfo(const FilePath& suggest_name,
                           HWND container_hwnd,
                           SavePackageParam* param,
                           DownloadManager* download_manager);
-
-  // File name is consist of pure file name, dot and file extension name. File
-  // name might has no dot and file extension, or has multiple dot inside file
-  // name. The dot, which separates the pure file name and file extension name,
-  // is last dot in the file name. If the file name matches following patterns:
-  // base_file_name(ordinal_number) or base_file_name(ordinal_number).extension,
-  // this function will return true and get the base file name part and
-  // ordinal_number part via output parameters. The |file_ordinal_number| could
-  // be empty if there is no content in ordinal_number part. If the file name
-  // does not match the pattern or the ordinal_number part has non-digit
-  // content, just return false.
-  static bool GetBaseFileNameAndFileOrdinalNumber(
-      const std::wstring& file_name,
-      std::wstring* base_file_name,
-      std::wstring* file_ordinal_number);
 
   // Check whether we can do the saving page operation for the specified URL.
   static bool IsSavableURL(const GURL& url);
@@ -210,16 +197,15 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // part for making sure the length of specified file path is less than
   // specified maximum length of file path. Return false if the function can
   // not get a safe pure file name, otherwise it returns true.
-  static bool GetSafePureFileName(const std::wstring& dir_path,
-                                  const std::wstring& file_name_ext,
+  static bool GetSafePureFileName(const FilePath& dir_path,
+                                  const FilePath::StringType& file_name_ext,
                                   uint32 max_file_path_len,
-                                  std::wstring* pure_file_name);
+                                  FilePath::StringType* pure_file_name);
 
  private:
-  // For testing.
-  friend class SavePackageTest;
-  SavePackage(const wchar_t* file_full_path,
-              const wchar_t* directory_full_path);
+  // For testing only.
+  SavePackage(const FilePath::CharType* file_full_path,
+              const FilePath::CharType* directory_full_path);
 
   void Stop();
   void CheckFinish();
@@ -228,9 +214,9 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 
   // Create a file name based on the response from the server.
   bool GenerateFilename(const std::string& disposition,
-                        const std::wstring& url,
+                        const GURL& url,
                         bool need_html_ext,
-                        std::wstring* generated_name);
+                        FilePath::StringType* generated_name);
 
   // Get all savable resource links from current web page, include main
   // frame and sub-frame.
@@ -283,8 +269,8 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 
   // The URL of the page the user wants to save.
   std::wstring page_url_;
-  std::wstring saved_main_file_path_;
-  std::wstring saved_main_directory_path_;
+  FilePath saved_main_file_path_;
+  FilePath saved_main_directory_path_;
 
   // Indicates whether the actual saving job is finishing or not.
   bool finished_;
@@ -305,7 +291,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // This set is used to eliminate duplicated file names in saving directory.
   FileNameSet file_name_set_;
 
-  typedef base::hash_map<std::wstring, uint32> FileNameCountMap;
+  typedef base::hash_map<FilePath::StringType, uint32> FileNameCountMap;
   // This map is used to track serial number for specified filename.
   FileNameCountMap file_name_count_map_;
 
@@ -316,7 +302,9 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // Unique id for this SavePackage.
   const int tab_id_;
 
+  friend class SavePackageTest;
   DISALLOW_COPY_AND_ASSIGN(SavePackage);
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
+
