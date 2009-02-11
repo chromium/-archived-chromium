@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/gfx/rect.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/renderer/plugin_channel_host.h"
@@ -106,7 +107,8 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   // Message handlers for messages that proxy WebPlugin methods, which
   // we translate into calls to the real WebPlugin.
-  void OnSetWindow(HWND window, HANDLE modal_loop_pump_messages_event);
+  void OnSetWindow(gfx::NativeView window,
+                   HANDLE modal_loop_pump_messages_event);
   void OnCompleteURL(const std::string& url_in, std::string* url_out,
                      bool* result);
   void OnHandleURLRequest(const PluginHostMsg_URLRequest_Params& params);

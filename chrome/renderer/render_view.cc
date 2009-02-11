@@ -31,14 +31,18 @@
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
+#include "chrome/renderer/webplugin_delegate_proxy.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/image_operations.h"
+#include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
 #include "webkit/glue/glue_accessibility.h"
 #include "webkit/glue/password_form.h"
+#include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
@@ -66,11 +70,7 @@
 #include "chrome/views/message_box_view.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/renderer/chrome_plugin_host.h"
-#include "chrome/renderer/webplugin_delegate_proxy.h"
 #include "skia/ext/vector_canvas.h"
-#include "webkit/default_plugin/default_plugin_shared.h"
-#include "webkit/glue/plugins/plugin_list.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #endif
 
 using base::TimeDelta;
@@ -188,17 +188,12 @@ RenderView::~RenderView() {
     shared_popup_counter_->data--;
 
   resource_dispatcher_->ClearMessageSender();
-#if defined(OS_WIN)
   // Clear any back-pointers that might still be held by plugins.
   PluginDelegateList::iterator it = plugin_delegates_.begin();
   while (it != plugin_delegates_.end()) {
     (*it)->DropRenderView();
     it = plugin_delegates_.erase(it);
   }
-#else
-  // TODO(port): plugins not implemented yet
-  NOTIMPLEMENTED();
-#endif
 
   render_thread_->RemoveFilter(debug_message_handler_);
 
@@ -2627,28 +2622,18 @@ void RenderView::OnSetAltErrorPageURL(const GURL& url) {
 }
 
 void RenderView::DidPaint() {
-#if defined(OS_WIN)
   PluginDelegateList::iterator it = plugin_delegates_.begin();
   while (it != plugin_delegates_.end()) {
     (*it)->FlushGeometryUpdates();
     ++it;
   }
-#else  // defined(OS_WIN)
-  // TODO(port): plugins not yet implemented
-  NOTIMPLEMENTED();
-#endif
 }
 
 void RenderView::OnInstallMissingPlugin() {
-#if defined(OS_WIN)
   // This could happen when the first default plugin is deleted.
   if (first_default_plugin_ == NULL)
     return;
   first_default_plugin_->InstallMissingPlugin();
-#else  // defined(OS_WIN)
-  // TODO(port): plugins not yet implemented
-  NOTIMPLEMENTED();
-#endif
 }
 
 void RenderView::OnFileChooserResponse(

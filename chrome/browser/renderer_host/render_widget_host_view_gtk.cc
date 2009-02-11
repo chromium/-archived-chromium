@@ -160,6 +160,9 @@ gfx::NativeView RenderWidgetHostViewGtk::GetPluginNativeView() {
 
 void RenderWidgetHostViewGtk::MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {
+  if (plugin_window_moves.empty())
+    return;
+
   NOTIMPLEMENTED();
 }
 
