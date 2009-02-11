@@ -31,7 +31,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): make these files work everywhere.
-#include "base/gfx/gdi_util.h"
 #include "webkit/tools/test_shell/drag_delegate.h"
 #include "webkit/tools/test_shell/drop_delegate.h"
 #endif
@@ -703,38 +702,6 @@ void TestWebViewDelegate::Focus(WebWidget* webwidget) {
 void TestWebViewDelegate::Blur(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     shell_->SetFocus(host, false);
-}
-
-
-void TestWebViewDelegate::DidMove(WebWidget* webwidget,
-                                  const WebPluginGeometry& move) {
-#if defined(OS_WIN)
-  HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
-                              move.clip_rect.y(),
-                              move.clip_rect.right(),
-                              move.clip_rect.bottom());
-  gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
-
-  // Note: System will own the hrgn after we call SetWindowRgn,
-  // so we don't need to call DeleteObject(hrgn)
-  ::SetWindowRgn(move.window, hrgn, FALSE);
-
-  unsigned long flags = 0;
-  if (move.visible)
-    flags |= SWP_SHOWWINDOW;
-  else
-    flags |= SWP_HIDEWINDOW;
-
-  ::SetWindowPos(move.window,
-                 NULL,
-                 move.window_rect.x(),
-                 move.window_rect.y(),
-                 move.window_rect.width(),
-                 move.window_rect.height(),
-                 flags);
-
-#endif
-  // TODO(port): add me once plugins work.
 }
 
 bool TestWebViewDelegate::IsHidden() {

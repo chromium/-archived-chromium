@@ -138,6 +138,11 @@ void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
   *out_rect = gfx::Rect(NSRectToCGRect(resize_rect));
 }
 
+void TestWebViewDelegate::DidMove(WebWidget* webwidget,
+                                  const WebPluginGeometry& move) {
+  // TODO(port): add me once plugins work.
+}
+
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
   NOTIMPLEMENTED();
 }

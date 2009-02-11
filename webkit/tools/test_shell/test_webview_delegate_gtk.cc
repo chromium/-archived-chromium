@@ -8,6 +8,7 @@
 
 #include <gtk/gtk.h>
 
+#include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -197,6 +198,20 @@ void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
                                                    gfx::Rect* out_rect) {
   // Not necessary on Linux.
   *out_rect = gfx::Rect();
+}
+
+void TestWebViewDelegate::DidMove(WebWidget* webwidget,
+                                  const WebPluginGeometry& move) {
+  // The window on WebPluginGeometry is misnamed, as it's a view.  In our case
+  // it should be the GtkSocket of the plugin window.
+  GtkWidget* widget = move.window;
+  DCHECK(!GTK_WIDGET_NO_WINDOW(widget) && GTK_WIDGET_REALIZED(widget));
+
+  GdkRectangle clip_rect = move.clip_rect.ToGdkRectangle();
+  GdkRegion* clip_region = gdk_region_rectangle(&clip_rect);
+  gfx::SubtractRectanglesFromRegion(clip_region, move.cutout_rects);
+  gdk_window_shape_combine_region(widget->window, clip_region, 0, 0);
+  gdk_region_destroy(clip_region);
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {

@@ -12,8 +12,9 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 
-#include "base/gfx/point.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/native_widget_types.h"
+#include "base/gfx/point.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
@@ -127,6 +128,33 @@ void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
                                                    gfx::Rect* out_rect) {
   // Not necessary on Windows.
   *out_rect = gfx::Rect();
+}
+
+void TestWebViewDelegate::DidMove(WebWidget* webwidget,
+                                  const WebPluginGeometry& move) {
+  HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
+                              move.clip_rect.y(),
+                              move.clip_rect.right(),
+                              move.clip_rect.bottom());
+  gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
+
+  // Note: System will own the hrgn after we call SetWindowRgn,
+  // so we don't need to call DeleteObject(hrgn)
+  ::SetWindowRgn(move.window, hrgn, FALSE);
+
+  unsigned long flags = 0;
+  if (move.visible)
+    flags |= SWP_SHOWWINDOW;
+  else
+    flags |= SWP_HIDEWINDOW;
+
+  ::SetWindowPos(move.window,
+                 NULL,
+                 move.window_rect.x(),
+                 move.window_rect.y(),
+                 move.window_rect.width(),
+                 move.window_rect.height(),
+                 flags);
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
