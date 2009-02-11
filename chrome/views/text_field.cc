@@ -419,6 +419,7 @@ void TextField::Edit::OnCopy() {
 }
 
 LRESULT TextField::Edit::OnCreate(CREATESTRUCT* create_struct) {
+  SetMsgHandled(FALSE);
   TRACK_HWND_CREATION(m_hWnd);
   return 0;
 }
