@@ -356,7 +356,6 @@ class Browser : public TabStripModelDelegate,
                         int to_index);
   virtual void TabStripEmpty();
 
-#if defined(OS_WIN)
   // Overridden from TabContentsDelegate:
   virtual void OpenURLFromTab(TabContents* source,
                              const GURL& url, const GURL& referrer,
@@ -365,6 +364,7 @@ class Browser : public TabStripModelDelegate,
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
   virtual void ReplaceContents(TabContents* source, TabContents* new_contents);
+#if defined(OS_WIN)
   virtual void AddNewContents(TabContents* source,
                               TabContents* new_contents,
                               WindowOpenDisposition disposition,
@@ -477,7 +477,6 @@ class Browser : public TabStripModelDelegate,
   // Whether we've completed firing all the tabs' beforeunload/unload events.
   bool HasCompletedUnloadProcessing();
 
-#if defined(OS_WIN)
   // Clears all the state associated with processing tabs' beforeunload/unload
   // events since the user cancelled closing the window.
   void CancelWindowClose();
@@ -492,7 +491,6 @@ class Browser : public TabStripModelDelegate,
   // cases where a tab crashes or hangs even if the beforeunload/unload haven't
   // successfully fired.
   void ClearUnloadState(TabContents* tab);
-#endif
 
   // Assorted utility functions ///////////////////////////////////////////////
 
@@ -523,7 +521,6 @@ class Browser : public TabStripModelDelegate,
   // TODO(beng): figure out if we need this now that the frame itself closes
   //             after a return to the message loop.
   void CloseFrame();
-
 
   // Compute a deterministic name based on the URL. We use this pseudo name
   // as a key to store window location per application URLs.

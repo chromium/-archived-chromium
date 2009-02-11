@@ -29,6 +29,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -580,8 +581,17 @@ class FaviconStatus {
 
 class TabContentsDelegate {
  public:
-  virtual void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
-                       PageTransition::Type) { NOTIMPLEMENTED(); }
+  virtual void OpenURLFromTab(TabContents* source,
+                              const GURL& url, const GURL& referrer,
+                              WindowOpenDisposition disposition,
+                              PageTransition::Type transition) {
+    NOTIMPLEMENTED();
+  }
+  virtual void OpenURL(const GURL& url, const GURL& referrer,
+                       WindowOpenDisposition disposition,
+                       PageTransition::Type transition) {
+    OpenURLFromTab(NULL, url, referrer, disposition, transition);
+  }
   virtual void UpdateTargetURL(TabContents*, const GURL&) { NOTIMPLEMENTED(); }
   virtual void CloseContents(TabContents*) { NOTIMPLEMENTED(); }
   virtual void MoveContents(TabContents*, const gfx::Rect&) {
@@ -616,6 +626,9 @@ class TabContentsDelegate {
   virtual void URLStarredChanged(WebContents*, bool) { NOTIMPLEMENTED(); }
   virtual void ConvertContentsToApplication(WebContents*) { NOTIMPLEMENTED(); }
   virtual void ReplaceContents(TabContents*, TabContents*) { NOTIMPLEMENTED(); }
+  virtual void NavigationStateChanged(const TabContents*, unsigned int) {
+    NOTIMPLEMENTED();
+  }
 };
 
 class InterstitialPage {
@@ -643,7 +656,7 @@ class LoadNotificationDetails {
                           base::TimeDelta, NavigationController*, int) { }
 };
 
-class TabContents : public NotificationObserver {
+class TabContents : public PageNavigator, public NotificationObserver {
  public:
   enum InvalidateTypes {
     INVALIDATE_URL = 1,
@@ -652,33 +665,26 @@ class TabContents : public NotificationObserver {
     INVALIDATE_LOAD = 8,
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };
-  TabContents(TabContentsType) : controller_() { }
+  TabContents(TabContentsType type) 
+      : type_(type), is_active_(true), is_loading_(false), controller_(), 
+        delegate_() { }
   virtual ~TabContents() { }
   NavigationController* controller() const { return controller_; }
   void set_controller(NavigationController* c) { controller_ = c; }
-  virtual WebContents* AsWebContents() const { return NULL; }
+  virtual WebContents* AsWebContents() { return NULL; }
+  WebContents* AsWebContents() const {
+    return const_cast<TabContents*>(this)->AsWebContents();
+  }
   virtual SkBitmap GetFavIcon() const {
     NOTIMPLEMENTED();
     return SkBitmap();
   }
-  const GURL& GetURL() const {
-    NOTIMPLEMENTED();
-    return url_;
-  }
-  virtual const std::wstring& GetTitle() const {
-    NOTIMPLEMENTED();
-    return title_;
-  }
-  TabContentsType type() const {
-    NOTIMPLEMENTED();
-    return TAB_CONTENTS_WEB;
-  }
+  const GURL& GetURL() const;
+  virtual const std::wstring& GetTitle() const;
+  TabContentsType type() const { return type_; }
+  void set_type(TabContentsType type) { type_ = type; }
   virtual void Focus() { NOTIMPLEMENTED(); }
   virtual void Stop() { NOTIMPLEMENTED(); }
-  bool is_loading() const {
-    NOTIMPLEMENTED();
-    return false;
-  }
   Profile* profile() const;
   virtual void CloseContents();
   virtual void SetupController(Profile* profile);
@@ -700,29 +706,23 @@ class TabContents : public NotificationObserver {
   virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
   virtual void SetDownloadShelfVisible(bool) { NOTIMPLEMENTED(); }
   virtual void Destroy();
-  virtual void SetIsLoading(bool, LoadNotificationDetails*) {
-    NOTIMPLEMENTED();
-  }
+  virtual void SetIsLoading(bool, LoadNotificationDetails*);
   virtual void SetIsCrashed(bool) { NOTIMPLEMENTED(); }
   bool capturing_contents() const {
     NOTIMPLEMENTED();
     return false;
   }
   void set_capturing_contents(bool) { NOTIMPLEMENTED(); }
-  bool is_active() {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  void set_is_active(bool) { NOTIMPLEMENTED(); }
+  bool is_active() const { return is_active_; }
+  void set_is_active(bool active) { is_active_ = active; }
+  bool is_loading() const { return is_loading_; }
   void SetNotWaitingForResponse() { NOTIMPLEMENTED(); }
-  void NotifyNavigationStateChanged(int) { NOTIMPLEMENTED(); }
-  TabContentsDelegate* delegate() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
+  void NotifyNavigationStateChanged(unsigned int);
+  TabContentsDelegate* delegate() const { return delegate_; }
+  void set_delegate(TabContentsDelegate* d) { delegate_ = d; }
   void AddInfoBar(InfoBarDelegate*) { NOTIMPLEMENTED(); }
   virtual void OpenURL(const GURL&, const GURL&, WindowOpenDisposition,
-               PageTransition::Type) { NOTIMPLEMENTED(); }
+               PageTransition::Type);
   void AddNewContents(TabContents* new_contents,
                       WindowOpenDisposition disposition,
                       const gfx::Rect& initial_pos,
@@ -747,9 +747,13 @@ class TabContents : public NotificationObserver {
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
  private:
+  TabContentsType type_;
+  bool is_active_;
+  bool is_loading_;
   GURL url_;
   std::wstring title_;
   NavigationController* controller_;
+  TabContentsDelegate* delegate_;
 };
 
 class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {

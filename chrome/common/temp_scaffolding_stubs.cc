@@ -244,6 +244,49 @@ void TabContents::Destroy() {
   controller->TabContentsWasDestroyed(type);
 }
 
+const GURL& TabContents::GetURL() const {
+  // We may not have a navigation entry yet
+  NavigationEntry* entry = controller_->GetActiveEntry();
+  return entry ? entry->display_url() : GURL::EmptyGURL();
+}
+
+const std::wstring& TabContents::GetTitle() const {
+  // We use the title for the last committed entry rather than a pending
+  // navigation entry. For example, when the user types in a URL, we want to
+  // keep the old page's title until the new load has committed and we get a new
+  // title.
+  // The exception is with transient pages, for which we really want to use
+  // their title, as they are not committed.
+  NavigationEntry* entry = controller_->GetTransientEntry();
+  if (entry)
+    return entry->GetTitleForDisplay();
+  
+  entry = controller_->GetLastCommittedEntry();
+  if (entry)
+    return entry->GetTitleForDisplay();
+  else if (controller_->LoadingURLLazily())
+    return controller_->GetLazyTitle();
+  return EmptyWString();
+}
+
+void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
+  if (delegate_)
+    delegate_->NavigationStateChanged(this, changed_flags);
+}
+
+void TabContents::OpenURL(const GURL& url, const GURL& referrer,
+                          WindowOpenDisposition disposition,
+                          PageTransition::Type transition) {
+  if (delegate_)
+    delegate_->OpenURLFromTab(this, url, referrer, disposition, transition);
+}
+
+void TabContents::SetIsLoading(bool is_loading,
+                               LoadNotificationDetails* details) {
+  // TODO(port): this is a subset of SetIsLoading() as a stub
+  is_loading_ = is_loading;
+}
+
 //--------------------------------------------------------------------------
 
 bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {

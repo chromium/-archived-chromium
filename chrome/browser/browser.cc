@@ -1507,8 +1507,6 @@ void Browser::TabStripEmpty() {
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
 }
 
-#if defined(OS_WIN)
-
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabContentsDelegate implementation:
 
@@ -1651,6 +1649,8 @@ void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
       NotificationType::WEB_CONTENTS_DISCONNECTED,
       Source<TabContents>(new_contents));
 }
+
+#if defined(OS_WIN)
 
 void Browser::AddNewContents(TabContents* source,
                              TabContents* new_contents,
@@ -2310,7 +2310,6 @@ bool Browser::HasCompletedUnloadProcessing() {
       tabs_needing_unload_fired_.empty();
 }
 
-#if defined(OS_WIN)
 void Browser::CancelWindowClose() {
   DCHECK(is_attempting_to_close_browser_);
   // Only cancelling beforeunload should be able to cancel the window's close.
@@ -2341,7 +2340,6 @@ void Browser::ClearUnloadState(TabContents* tab) {
   ProcessPendingTabs();
 }
 
-#endif  // OS_WIN
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Assorted utility functions (private):
