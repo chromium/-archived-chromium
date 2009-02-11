@@ -214,7 +214,9 @@ bool SharedMemory::Map(size_t bytes) {
   if (memory_)
     max_size_ = bytes;
 
-  return (memory_ != NULL);
+  bool mmap_succeeded = (memory_ != (void*)-1);
+  DCHECK(mmap_succeeded) << "Call to mmap failed, errno=" << errno;
+  return mmap_succeeded;
 }
 
 bool SharedMemory::Unmap() {

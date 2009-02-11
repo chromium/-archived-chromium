@@ -21,6 +21,7 @@ extern "C" {
 
 namespace {
 
+const int kNumFDsToSend = 200;
 const char* kDevRandomPath = "/dev/random";
 
 static void VerifyAndCloseDescriptor(int fd, ino_t inode_num) {
@@ -42,18 +43,22 @@ static void VerifyAndCloseDescriptor(int fd, ino_t inode_num) {
 class MyChannelDescriptorListener : public IPC::Channel::Listener {
  public:
   MyChannelDescriptorListener(ino_t expected_inode_num)
-      : expected_inode_num_(expected_inode_num) {}
+      : expected_inode_num_(expected_inode_num),
+        num_fds_received_(0) {}
 
   virtual void OnMessageReceived(const IPC::Message& message) {
     void* iter = NULL;
 
+    ++num_fds_received_;
     FileDescriptor descriptor;
-
     ASSERT_TRUE(
         IPC::ParamTraits<FileDescriptor>::Read(&message, &iter, &descriptor));
 
     VerifyAndCloseDescriptor(descriptor.fd, expected_inode_num_);
-    MessageLoop::current()->Quit();
+
+    if (num_fds_received_ == kNumFDsToSend) {
+      MessageLoop::current()->Quit();
+    }
   }
 
   virtual void OnChannelError() {
@@ -61,23 +66,26 @@ class MyChannelDescriptorListener : public IPC::Channel::Listener {
   }
  private:
   ino_t expected_inode_num_;
+  int num_fds_received_;
 };
 
 void TestDescriptorServer(IPC::Channel &chan,
                           base::ProcessHandle process_handle) {
   ASSERT_TRUE(process_handle);
 
-  FileDescriptor descriptor;
-  const int fd = open(kDevRandomPath, O_RDONLY);
-  ASSERT_GE(fd, 0);
-  descriptor.auto_close = true;
-  descriptor.fd = fd;
+  for (int i = 0; i < kNumFDsToSend; ++i) {
+    FileDescriptor descriptor;
+    const int fd = open(kDevRandomPath, O_RDONLY);
+    ASSERT_GE(fd, 0);
+    descriptor.auto_close = true;
+    descriptor.fd = fd;
 
-  IPC::Message* message = new IPC::Message(0, // routing_id
-                                           3, // message type
-                                           IPC::Message::PRIORITY_NORMAL);
-  IPC::ParamTraits<FileDescriptor>::Write(message, descriptor);
-  chan.Send(message);
+    IPC::Message* message = new IPC::Message(0, // routing_id
+                                             3, // message type
+                                             IPC::Message::PRIORITY_NORMAL);
+    IPC::ParamTraits<FileDescriptor>::Write(message, descriptor);
+    chan.Send(message);
+  }
 
   // Run message loop.
   MessageLoop::current()->Run();
