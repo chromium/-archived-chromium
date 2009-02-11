@@ -1661,12 +1661,6 @@ MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
 WIN LINUX : LayoutTests/editing/selection/move-by-line-001.html = PASS FAIL
 MAC : LayoutTests/fast/forms/002.html = FAIL
 
-// Merge 40124:40164 -- regressions
-// This test tries to remove an iframe on the page then generate the pixel
-// output.  For some reason, we're taking the snapshot before the iframe is
-// removed (maybe getting the clientWidth isn't causing a re-layout?)
-WIN : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-
 // Flakey tests
 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
 
