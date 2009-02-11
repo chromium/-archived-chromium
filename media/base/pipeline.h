@@ -70,9 +70,21 @@ class PipelineStatus {
   // values for playback rate are >= 0.0f.
   virtual float GetPlaybackRate() const = 0;
 
-  // Gets the current pipeline time in microseconds.  For a pipeline "time"
-  // progresses from 0 to the end of the media.
+  // Gets the current pipeline time in microseconds. For a pipeline "time"
+  // progresses from 0 to the end of the media. This time base is updated
+  // by the audio renderer to allow for synchronization of audio and video.
+  // Note that a more accurate time may be obtained by calling the
+  // GetInterpolatedTime method which estimates the position of the audio
+  // device based on a combination of the last time the audio device reported
+  // it's position and the current system time.
   virtual base::TimeDelta GetTime() const = 0;
+
+  // Gets the current pipeline time in microseconds. For a pipeline "time"
+  // progresses from 0 to the end of the media. Becuase this method provides
+  // an estimated time, it is possible that subsequent calls to this method will
+  // actually progress backwards slightly, so callers must not assume that this
+  // method will always return times larger than the last one.
+  virtual base::TimeDelta GetInterpolatedTime() const = 0;
 
   // Gets the current error status for the pipeline.  If the pipeline is
   // operating correctly, this will return OK.
