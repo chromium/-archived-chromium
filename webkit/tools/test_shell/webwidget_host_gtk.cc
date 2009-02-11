@@ -58,6 +58,8 @@ class WebWidgetHostGtkWidget {
                                   GDK_KEY_PRESS_MASK |
                                   GDK_KEY_RELEASE_MASK);
     GTK_WIDGET_SET_FLAGS(widget, GTK_CAN_FOCUS);
+    g_signal_connect(widget, "size-request",
+                     G_CALLBACK(&HandleSizeRequest), host);
     g_signal_connect(widget, "size-allocate",
                      G_CALLBACK(&HandleSizeAllocate), host);
     g_signal_connect(widget, "configure-event",
@@ -89,6 +91,22 @@ class WebWidgetHostGtkWidget {
   }
 
  private:
+  // Our size was requested.  We let the GtkFixed do its normal calculation,
+  // after which this callback is called.  The GtkFixed will come up with a
+  // requisition based on its children, which include plugin windows.  Since
+  // we don't want to prevent resizing smaller than a plugin window, we need to
+  // control the size ourself.
+  static void HandleSizeRequest(GtkWidget* widget,
+                                GtkRequisition* req,
+                                WebWidgetHost* host) {
+    // This is arbitrary, but the WebKit scrollbars try to shrink themselves
+    // if the browser window is too small.  Give them some space.
+    static const int kMinWidthHeight = 64;
+
+    req->width = kMinWidthHeight;
+    req->height = kMinWidthHeight;
+  }
+
   // Our size has changed.
   static void HandleSizeAllocate(GtkWidget* widget,
                                  GtkAllocation* allocation,
