@@ -1759,6 +1759,8 @@ DEFER : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
 LINUX : LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
 LINUX : LayoutTests/fast/transforms/matrix-02.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = PASS FAIL
+LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-07-t.svg = PASS FAIL
 // Misc failures:
 WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
@@ -1768,4 +1770,5 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
 LINUX : LayoutTests/svg/custom/getTransformToElement.svg = FAIL
 LINUX : LayoutTests/svg/custom/use-transform.svg = FAIL
 LINUX : LayoutTests/fast/clip/007.html = PASS CRASH
+LINUX : LayoutTests/fast/clip/010.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
