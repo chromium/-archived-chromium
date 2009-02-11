@@ -406,7 +406,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/printing/print_job_unittest.cc',
       '$CHROME_DIR/browser/printing/win_printing_context_unittest.cc',
       '$CHROME_DIR/browser/profile_manager_unittest.cc',
-      '$CHROME_DIR/browser/renderer_host/resource_dispatcher_host_unittest.cc',
       '$CHROME_DIR/browser/rlz/rlz_unittest.cc',
       '$CHROME_DIR/browser/search_engines/template_url_model_unittest.cc',
       '$CHROME_DIR/browser/sessions/session_backend_unittest.cc',
