@@ -11,12 +11,10 @@
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/string_piece.h"
-#include "base/string_util.h"
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/stl_util-inl.h"
-#include "testing/gtest/include/gtest/gtest_prod.h"
-#include "webkit/glue/webframe.h"
 
+class WebFrame;
 
 // Manages installed UserScripts for a render process.
 class UserScriptSlave {

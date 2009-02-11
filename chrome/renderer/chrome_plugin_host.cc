@@ -11,6 +11,7 @@
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_dispatcher.h"
+#include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
 #include "net/base/data_url.h"
 #include "net/base/upload_data.h"

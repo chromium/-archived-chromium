@@ -10,6 +10,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/renderer/renderer_resources.h" 
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/webframe.h"
 
 // These two strings are injected before and after the Greasemonkey API and
 // user script to wrap it in an anonymous scope.
