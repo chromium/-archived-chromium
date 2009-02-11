@@ -92,7 +92,14 @@ std::wstring GetMisspelledWord(const WebCore::ContextMenu* default_menu,
   misspelled_word_string = CollapseWhitespace(
       webkit_glue::StringToStdWString(selected_frame->selectedText()),                  
                                       false);
-  
+
+  // If misspelled word is empty, then that portion should not be selected.
+  // Set the selection to that position only, and do not expand.
+  if (misspelled_word_string.empty()) {
+    selection = WebCore::Selection(pos);
+    selected_frame->selection()->setSelection(selection);
+  }
+
   return misspelled_word_string;
 }
 
