@@ -526,6 +526,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\notification_observer.h"
+			>
+		</File>
+		<File
 			RelativePath=".\notification_registrar.cc"
 			>
 		</File>
@@ -546,7 +550,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\notification_types.h"
+			RelativePath=".\notification_type.h"
 			>
 		</File>
 		<File
