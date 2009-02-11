@@ -4,6 +4,7 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+#include <objbase.h>
 #endif
 #include <algorithm>
 
