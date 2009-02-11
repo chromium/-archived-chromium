@@ -2596,7 +2596,6 @@ void AutomationProvider::OverrideEncoding(int tab_handle,
   }
 }
 
-void AutomationProvider::SavePackageShouldPromptUser(
-    const IPC::Message& message, bool should_prompt) {
+void AutomationProvider::SavePackageShouldPromptUser(bool should_prompt) {
   SavePackage::SetShouldPromptUser(should_prompt);
 }

@@ -387,8 +387,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                         const std::wstring& encoding_name,
                         bool* success);
 
-  void SavePackageShouldPromptUser(const IPC::Message& message,
-                                   bool should_prompt);
+  void SavePackageShouldPromptUser(bool should_prompt);
 
   // Convert a tab handle into a WebContents. If |tab| is non-NULL a pointer
   // to the tab is also returned. Returns NULL in case of failure or if the tab
