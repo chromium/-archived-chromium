@@ -54,7 +54,7 @@ bool ActivateTabByClick(AutomationProxy* automation,
 
 }  // namespace
 
-TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
+TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
