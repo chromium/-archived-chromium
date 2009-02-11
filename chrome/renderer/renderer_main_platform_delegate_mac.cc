@@ -11,6 +11,7 @@ extern "C" {
 }
 
 #include "base/sys_info.h"
+#include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
 RendererMainPlatformDelegate::RendererMainPlatformDelegate(
     const MainFunctionParams& parameters)
@@ -21,6 +22,8 @@ RendererMainPlatformDelegate::~RendererMainPlatformDelegate() {
 }
 
 void RendererMainPlatformDelegate::PlatformInitialize() {
+  // Load WebKit system interfaces.
+  InitWebCoreSystemInterface();
 }
 
 void RendererMainPlatformDelegate::PlatformUninitialize() {
