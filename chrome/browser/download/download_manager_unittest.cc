@@ -65,6 +65,9 @@ const struct {
   // No useful information in disposition or URL, use default
   {"", L"http://www.truncated.com/path/", "text/plain", L"download.txt"},
 
+  // A normal avi should get .avi and not .avi.avi
+  {"", L"https://blah.google.com/misc/2.avi", "video/x-msvideo", L"2.avi"},
+
   // Spaces in the disposition file name
   {"filename=My Downloaded File.exe",
    L"http://www.frontpagehacker.com/a_download.exe",
