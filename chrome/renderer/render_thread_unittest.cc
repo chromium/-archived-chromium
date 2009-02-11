@@ -49,7 +49,7 @@ TEST_F(RenderThreadTest, TestVisitedMsg) {
   IPC::Message* msg = new ViewMsg_VisitedLink_NewTable(NULL);
 #elif defined(OS_POSIX)
   IPC::Message* msg = new ViewMsg_VisitedLink_NewTable(
-      base::SharedMemoryHandle());
+      base::SharedMemoryHandle(0, false));
 #endif
   ASSERT_TRUE(msg);
   // Message goes nowhere, but this confirms Init() has happened.
