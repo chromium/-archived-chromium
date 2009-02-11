@@ -24,6 +24,7 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
@@ -31,7 +32,6 @@
 #if defined(OS_WIN)
 // TODO(port): make these files work everywhere.
 #include "base/gfx/gdi_util.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/tools/test_shell/drag_delegate.h"
 #include "webkit/tools/test_shell/drop_delegate.h"
 #endif

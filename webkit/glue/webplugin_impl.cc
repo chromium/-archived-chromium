@@ -56,7 +56,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/plugins/plugin_host.h"
-#if defined(OS_WIN)
+#if !defined(OS_LINUX)
 #include "webkit/glue/plugins/plugin_instance.h"
 #endif
 #include "webkit/glue/stacking_order_iterator.h"
@@ -702,18 +702,21 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
                 static_cast<float>(origin.y()));
 
 #if defined(OS_WIN)
-  // Note that HDC is only used when in windowless mode.
-  HDC dc = gc->platformContext()->canvas()->beginPlatformPaint();
+  // Note that |context| is only used when in windowless mode.
+  gfx::NativeDrawingContext context =
+      gc->platformContext()->canvas()->beginPlatformPaint();
+#elif defined (OS_MACOSX)
+  gfx::NativeDrawingContext context = gc->platformContext();
 #else
   // TODO(port): the equivalent of the above.
-  void* dc = NULL;  // Temporary, to reduce ifdefs.
+  void* context = NULL;  // Temporary, to reduce ifdefs.
 #endif
 
   WebCore::IntRect window_rect =
       WebCore::IntRect(view->contentsToWindow(damage_rect.location()),
                        damage_rect.size());
 
-  delegate_->Paint(dc, webkit_glue::FromIntRect(window_rect));
+  delegate_->Paint(context, webkit_glue::FromIntRect(window_rect));
 
 #if defined(OS_WIN)
   gc->platformContext()->canvas()->endPlatformPaint();
@@ -730,7 +733,8 @@ void WebPluginImpl::print(WebCore::GraphicsContext* gc) {
 
   gc->save();
 #if defined(OS_WIN)
-  HDC hdc = gc->platformContext()->canvas()->beginPlatformPaint();
+  gfx::NativeDrawingContext hdc =
+       gc->platformContext()->canvas()->beginPlatformPaint();
   delegate_->Print(hdc);
   gc->platformContext()->canvas()->endPlatformPaint();
 #else

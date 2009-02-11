@@ -29,14 +29,13 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   static WebPluginDelegateImpl* Create(const FilePath& filename,
                                        const std::string& mime_type,
                                        gfx::NativeView containing_view);
-#if defined(OS_WIN)
-  static bool IsPluginDelegateWindow(HWND window);
-  static bool GetPluginNameFromWindow(HWND window, std::wstring *plugin_name);
+  static bool IsPluginDelegateWindow(gfx::NativeWindow window);
+  static bool GetPluginNameFromWindow(gfx::NativeWindow window,
+                                      std::wstring *plugin_name);
 
   // Returns true if the window handle passed in is that of the dummy
   // activation window for windowless plugins.
-  static bool IsDummyActivationWindow(HWND window);
-#endif  // OS_WIN)
+  static bool IsDummyActivationWindow(gfx::NativeWindow window);
 
   // WebPluginDelegate implementation
   virtual void PluginDestroyed();
@@ -48,14 +47,9 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
                           bool load_manually);
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
                               const gfx::Rect& clip_rect);
-#if defined(OS_WIN)
-  virtual void Paint(HDC hdc, const gfx::Rect& rect);
-  virtual void Print(HDC hdc);
-#else
-  // TODO(port): temporary workaround.
-  virtual void Paint(void* dc, const gfx::Rect& rect);
-  virtual void Print(void* dc);
-#endif
+  virtual void Paint(gfx::NativeDrawingContext context, const gfx::Rect& rect);
+  virtual void Print(gfx::NativeDrawingContext context);
+
   virtual void SetFocus();  // only called when windowless
 // only called when windowless
   virtual bool HandleEvent(NPEvent* event,
@@ -157,12 +151,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // used for windowless plugins
   void WindowlessUpdateGeometry(const gfx::Rect& window_rect,
                                 const gfx::Rect& clip_rect);
-#if defined(OS_WIN)
-  void WindowlessPaint(HDC hdc, const gfx::Rect& rect);
-#else
-  // TODO(port): implement.
-  void WindowlessPaint(void* dc, const gfx::Rect& rect);
-#endif
+  void WindowlessPaint(gfx::NativeDrawingContext hdc, const gfx::Rect& rect);
 
   // Tells the plugin about the current state of the window.
   // See NPAPI NPP_SetWindow for more information.
@@ -184,13 +173,11 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   gfx::Rect windowed_last_pos_;
 #endif
 
-#if defined(OS_WIN)
   // this is an optimization to avoid calling SetWindow to the plugin
   // when it is not necessary.  Initially, we need to call SetWindow,
   // and after that we only need to call it when the geometry changes.
   // use this flag to indicate whether we really need it or not.
   bool windowless_needs_set_window_;
-#endif
 
   // used by windowed and windowless plugins
   bool windowless_;
@@ -209,6 +196,9 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   gfx::NativeView parent_;
   NPWindow window_;
+#if defined(OS_MACOSX)
+  NP_CGContext cg_context_;
+#endif
   gfx::Rect window_rect_;
   gfx::Rect clip_rect_;
   std::vector<gfx::Rect> cutout_rects_;
@@ -225,6 +215,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // To fix a majority of these activation issues we create a dummy visible
   // child window to which we set focus whenever the windowless plugin
   // receives a WM_LBUTTONDOWN/WM_RBUTTONDOWN message via NPP_HandleEvent.
+
   HWND dummy_window_for_activation_;
   bool CreateDummyWindowForActivation();
 
@@ -252,10 +243,13 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 #if defined(OS_WIN)
   // Handle to the message filter hook
   HHOOK handle_event_message_filter_hook_;
+#endif
 
   // Event which is set when the plugin enters a modal loop in the course
   // of a NPP_HandleEvent call.
+#if defined(OS_WIN)
   HANDLE handle_event_pump_messages_event_;
+#endif
 
   // Holds the depth of the HandleEvent callstack.
   int handle_event_depth_;
@@ -267,6 +261,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // asynchronously.
   ScopedRunnableMethodFactory<WebPluginDelegateImpl> user_gesture_msg_factory_;
 
+#if defined(OS_WIN)
   // The plugin module handle.
   HMODULE plugin_module_handle_;
 
@@ -278,10 +273,10 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   // SetCursor interceptor for windowless plugins.
   static HCURSOR WINAPI SetCursorPatch(HCURSOR cursor);
+#endif
 
   // Holds the current cursor set by the windowless plugin.
   WebCursor current_windowless_cursor_;
-#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateImpl);
 };

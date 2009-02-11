@@ -55,24 +55,13 @@ class WebPluginDelegate {
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
                               const gfx::Rect& clip_rect) = 0;
 
-#if defined(OS_WIN)
-  // Tells the plugin to paint the damaged rect.  The HDC is only used for
+  // Tells the plugin to paint the damaged rect.  |context| is only used for
   // windowless plugins.
-  virtual void Paint(HDC hdc, const gfx::Rect& rect) = 0;
+  virtual void Paint(gfx::NativeDrawingContext context,
+                     const gfx::Rect& rect) = 0;
 
   // Tells the plugin to print itself.
-  virtual void Print(HDC hdc) = 0;
-#else
-  // TODO(port): these are not intended to be implementable for now,
-  // and will have the prototypes fixed once they are implemented.
-
-  // Tells the plugin to paint the damaged rect.  The HDC is only used for
-  // windowless plugins.
-  virtual void Paint(void* dc, const gfx::Rect& rect) = 0;
-
-  // Tells the plugin to print itself.
-  virtual void Print(void* dc) = 0;
-#endif
+  virtual void Print(gfx::NativeDrawingContext hdc) = 0;
 
   // Informs the plugin that it now has focus.
   virtual void SetFocus() = 0;

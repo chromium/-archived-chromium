@@ -8,6 +8,8 @@
 #include "base/string_util.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview.h"
+#include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
 
@@ -22,10 +24,22 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-  // TODO(awalker): once Mac plugins are working, enable this code to
-  // connect up the web plugin delegate for a plugin.
-  NOTIMPLEMENTED();
-  return NULL;
+  WebWidgetHost *host = GetHostForWidget(webview);
+  if (!host)
+    return NULL;
+  gfx::NativeView view = host->view_handle();
+
+  bool allow_wildcard = true;
+  WebPluginInfo info;
+  if (!NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
+                                                     allow_wildcard, &info,
+                                                     actual_mime_type))
+    return NULL;
+
+  if (actual_mime_type && !actual_mime_type->empty())
+    return WebPluginDelegateImpl::Create(info.path, *actual_mime_type, view);
+  else
+    return WebPluginDelegateImpl::Create(info.path, mime_type, view);
 }
 
 void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {

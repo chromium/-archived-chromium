@@ -589,7 +589,15 @@ const char* NPN_UserAgent(NPP id) {
       return webkit_glue::GetUserAgent(GURL()).c_str();
   }
 
+#if defined(OS_WIN)
   static const char *UA = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20061103 Firefox/2.0a1";
+#elif defined(OS_MACOSX)
+  // TODO(port): this is probably wrong...
+  static const char *UA = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_6; en-us) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1";
+#else
+  // TODO(port): set appropriately for other platforms
+  static const char *UA = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20061103 Firefox/2.0a1";
+#endif
   return UA;
 }
 
@@ -601,7 +609,6 @@ void NPN_Status(NPP id, const char* message) {
 }
 
 void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
-#if defined(OS_WIN)
   // Invalidates specified drawing area prior to repainting or refreshing a
   // windowless plugin
 
@@ -619,12 +626,18 @@ void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
   if (plugin.get() && plugin->webplugin()) {
     if (invalidRect) {
       if (!plugin->windowless()) {
+#if defined(OS_WIN)
         RECT rect = {0};
         rect.left = invalidRect->left;
         rect.right = invalidRect->right;
         rect.top = invalidRect->top;
         rect.bottom = invalidRect->bottom;
         ::InvalidateRect(plugin->window_handle(), &rect, FALSE);
+#elif defined(OS_MACOSX)
+        NOTIMPLEMENTED();
+#else
+        NOTIMPLEMENTED();
+#endif
         return;
       }
 
@@ -637,9 +650,6 @@ void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
       plugin->webplugin()->Invalidate();
     }
   }
-#else
-  NOTIMPLEMENTED();
-#endif
 }
 
 void NPN_InvalidateRegion(NPP id, NPRegion invalidRegion) {
@@ -792,6 +802,24 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
     }
     break;
   }
+#if defined(OS_MACOSX)
+  case NPNVsupportsQuickDrawBool:
+  {
+    // we do not support the QuickDraw drawing model
+    NPBool* supports_qd = reinterpret_cast<NPBool*>(value);
+    *supports_qd = FALSE;
+    rv = NPERR_NO_ERROR;
+    break;
+  }
+  case NPNVsupportsCoreGraphicsBool:
+  {
+    // we do support (and in fact require) the CoreGraphics drawing model
+    NPBool* supports_cg = reinterpret_cast<NPBool*>(value);
+    *supports_cg = TRUE;
+    rv = NPERR_NO_ERROR;
+    break;
+  }
+#endif
   default:
   {
     // TODO: implement me
@@ -842,6 +870,13 @@ NPError  NPN_SetValue(NPP id, NPPVariable variable, void *value) {
     // TODO: implement me
     DLOG(INFO) << "NPN_SetValue(NPPVpluginKeepLibraryInMemory) is not implemented.";
     return NPERR_GENERIC_ERROR;
+#if defined(OS_MACOSX)
+  case NPNVpluginDrawingModel:
+    // we only support the CoreGraphics drawing model
+    if (reinterpret_cast<int>(value) == NPDrawingModelCoreGraphics)
+      return NPERR_NO_ERROR;
+    return NPERR_GENERIC_ERROR;    
+#endif
   default:
     // TODO: implement me
     DLOG(INFO) << "NPN_SetValue(" << variable << ") is not implemented.";
