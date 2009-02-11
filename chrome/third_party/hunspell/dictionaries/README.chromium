@@ -9,7 +9,7 @@ The .bdic files are binary files, generated from the corresponding .dic and .aff
 
 The final binary file, .bdic, is generated with words from the .dic and additional words from the .dic_delta file. In order to get the current-most bdic file versions, it is a good idea to rebuild them using convert_dict from the .dic, .aff and .dic_delta files in this folder.
 
-The following 19 dictionaries have been appended with additional words using the .dic_delta files (January 5th 2009):
+The following 19 dictionaries have been appended with additional words using the .dic_delta files (January 5th 2009), and are covered under the existing GPL/LGPL/MPL tri-license in ../COPYING:
 
 en_US: 	Added words
 
