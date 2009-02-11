@@ -213,7 +213,7 @@ TEST(RectTest, AdjustToFit) {
   }
 }
 
-TEST(RectText, Subtract) {
+TEST(RectTest, Subtract) {
   // Matching
   EXPECT_TRUE(
       gfx::Rect(10, 10, 20, 20).Subtract(

@@ -28,6 +28,8 @@ bool IsURLRowEqual(const URLRow& a,
       a.last_visit() - b.last_visit() <= TimeDelta::FromSeconds(1) &&
       a.hidden() == b.hidden();
 }
+  
+}  // namespace
 
 class URLDatabaseTest : public testing::Test,
                         public URLDatabase {
@@ -69,8 +71,6 @@ class URLDatabaseTest : public testing::Test,
   sqlite3* db_;
   SqliteStatementCache* statement_cache_;
 };
-
-}  // namespace
 
 // Test add and query for the URL table in the HistoryDatabase
 TEST_F(URLDatabaseTest, AddURL) {

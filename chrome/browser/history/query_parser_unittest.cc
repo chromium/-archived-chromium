@@ -7,8 +7,6 @@
 #include "chrome/common/scoped_vector.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-
 class QueryParserTest : public testing::Test {
  public:
   struct TestData {
@@ -21,8 +19,6 @@ class QueryParserTest : public testing::Test {
  protected:
   QueryParser query_parser_;
 };
-
-};  // namespace
 
 // Test helper: Convert a user query string to a SQLite query string.
 std::wstring QueryParserTest::QueryToString(const std::wstring& query) {

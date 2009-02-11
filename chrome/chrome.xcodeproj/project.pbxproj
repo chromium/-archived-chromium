@@ -328,6 +328,9 @@
 		BA60A6800F3CB09F005A6703 /* protocol_manager_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD70E9D49DE009A6919 /* protocol_manager_unittest.cc */; };
 		BAA609ED0F3BCAA800783510 /* protocol_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAD50E9D49DE009A6919 /* protocol_manager.cc */; };
 		BADB8B710F3A35AC00989B26 /* resource_dispatcher_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */; };
+		CA81330E0F423C4D0096C1DC /* query_parser_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA020E9D48F7009A6919 /* query_parser_unittest.cc */; };
+		CA8133120F423C710096C1DC /* url_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA150E9D48F7009A6919 /* url_database_unittest.cc */; };
+		CA81331D0F423DB40096C1DC /* pref_member_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBE70E9D4C9F009A6919 /* pref_member_unittest.cc */; };
 		DDB41CECE38B852000F30D9F /* browsing_data_remover.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF84E0E9D4839009A6919 /* browsing_data_remover.cc */; };
 		E40CC5E30F2E348900708647 /* history_contents_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E40CC5E10F2E348900708647 /* history_contents_provider.cc */; };
 		E40CC5EE0F2E34C100708647 /* base_history_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF82B0E9D4839009A6919 /* base_history_model.cc */; };
@@ -5302,10 +5305,12 @@
 				E45077620F15405C003BE099 /* notification_service_unittest.cc in Sources */,
 				4D7BFB580E9D4C43009A6919 /* page_range_unittest.cc in Sources */,
 				4D7BFB5F0E9D4C46009A6919 /* page_setup_unittest.cc in Sources */,
+				CA81331D0F423DB40096C1DC /* pref_member_unittest.cc in Sources */,
 				8268477E0F2F69C8009F6555 /* profile_manager_unittest.cc in Sources */,
 				B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */,
 				BA60A6800F3CB09F005A6703 /* protocol_manager_unittest.cc in Sources */,
 				4D7BFB780E9D4C5A009A6919 /* protocol_parser_unittest.cc in Sources */,
+				CA81330E0F423C4D0096C1DC /* query_parser_unittest.cc in Sources */,
 				3380A9D60F2FC8F6004EF74F /* render_dns_master.cc in Sources */,
 				8268533B0F30AE13009F6555 /* render_process.cc in Sources */,
 				3380A9C00F2FC61E004EF74F /* render_process_unittest.cc in Sources */,
@@ -5326,6 +5331,7 @@
 				4D7BFB3E0E9D4C2F009A6919 /* text_database_unittest.cc in Sources */,
 				4D7BFB610E9D4C4B009A6919 /* units_unittest.cc in Sources */,
 				A572828F0F31156100384E1B /* unzip_unittest.cc in Sources */,
+				CA8133120F423C710096C1DC /* url_database_unittest.cc in Sources */,
 				8570EB3F140C07ABF1957F12 /* url_pattern_unittest.cc in Sources */,
 				A0EB956531B9DB1E40DAE980 /* user_script_unittest.cc in Sources */,
 				B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */,

@@ -221,31 +221,27 @@ TEST(JSONValueSerializerTest, JSONReaderComments) {
   ASSERT_FALSE(root.get());
 }
 
-namespace {
-  class JSONFileValueSerializerTest : public testing::Test {
-  protected:
-    virtual void SetUp() {
-      // Name a subdirectory of the temp directory.
-      ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-      file_util::AppendToPath(&test_dir_, L"JSONFileValueSerializerTest");
+class JSONFileValueSerializerTest : public testing::Test {
+protected:
+  virtual void SetUp() {
+    // Name a subdirectory of the temp directory.
+    ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
+    file_util::AppendToPath(&test_dir_, L"JSONFileValueSerializerTest");
 
-      // Create a fresh, empty copy of this directory.
-      file_util::Delete(test_dir_, true);
-      file_util::CreateDirectory(test_dir_);
-    }
-    virtual void TearDown() {
-      // Clean up test directory
-      ASSERT_TRUE(file_util::Delete(test_dir_, false));
-      ASSERT_FALSE(file_util::PathExists(test_dir_));
-    }
+    // Create a fresh, empty copy of this directory.
+    file_util::Delete(test_dir_, true);
+    file_util::CreateDirectory(test_dir_);
+  }
+  virtual void TearDown() {
+    // Clean up test directory
+    ASSERT_TRUE(file_util::Delete(test_dir_, false));
+    ASSERT_FALSE(file_util::PathExists(test_dir_));
+  }
 
-    // the path to temporary directory used to contain the test operations
-    std::wstring test_dir_;
-  };
-}  // anonymous namespace
+  // the path to temporary directory used to contain the test operations
+  std::wstring test_dir_;
+};
 
-// TODO(port): Enable these when PathService::Get with DIR_TEST_DATA is ported.
-#if defined(OS_WIN)
 TEST_F(JSONFileValueSerializerTest, Roundtrip) {
   std::wstring original_file_path;
   ASSERT_TRUE(
@@ -332,4 +328,3 @@ TEST_F(JSONFileValueSerializerTest, NoWhitespace) {
   root.reset(serializer.Deserialize(NULL));
   ASSERT_TRUE(root.get());
 }
-#endif  // defined(OS_WIN)
