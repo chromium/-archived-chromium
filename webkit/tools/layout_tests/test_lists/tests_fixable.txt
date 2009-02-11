@@ -1763,7 +1763,6 @@ LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-07-t.svg = PASS FAIL
 // Misc failures:
-WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
 MAC : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
