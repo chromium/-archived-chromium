@@ -407,7 +407,7 @@ void NotifyHWNDDestruction(const tracked_objects::Location& from_here,
       birth_iter->second.Write(true, true, &allocation);
     death_iter->second.Write(true, true, &first_delete);
     from_here.Write(true, true, &second_delete);
-    NOTREACHED() << "Double delete of an HWND. Please file a bug with info on "
+    LOG(FATAL) << "Double delete of an HWND. Please file a bug with info on "
         "how you got that assertion and the following information:\n"
         "Double delete of HWND 0x" << hwnd << "\n" <<
         "Allocated at " << allocation << "\n" <<
