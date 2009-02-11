@@ -259,7 +259,9 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   // Runnable Method Factory used to invoke the OnUserGestureEnd method
   // asynchronously.
+#if !defined(OS_LINUX)
   ScopedRunnableMethodFactory<WebPluginDelegateImpl> user_gesture_msg_factory_;
+#endif
 
 #if defined(OS_WIN)
   // The plugin module handle.
