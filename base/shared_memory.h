@@ -113,6 +113,8 @@ class SharedMemory {
   //   bool ok = ShareToProcess(process, new_handle);
   //   Close();
   //   return ok;
+  // Note that the memory is unmapped by calling this method, regardless of the
+  // return value.
   bool GiveToProcess(ProcessHandle process,
                      SharedMemoryHandle* new_handle) {
     return ShareToProcessCommon(process, new_handle, true);

@@ -103,6 +103,8 @@ bool AsyncResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
     // it's killing our read_buffer_, and we don't want that when we pause
     // the request.
     rdh_->OnDataReceivedACK(render_process_host_id_, request_id);
+    // We just unmapped the memory.
+    read_buffer_ = NULL;
     return false;
   }
   // We just unmapped the memory.
@@ -130,5 +132,8 @@ bool AsyncResourceHandler::OnResponseCompleted(int request_id,
 
 // static
 void AsyncResourceHandler::GlobalCleanup() {
-  spare_read_buffer_ = NULL;
+  if (spare_read_buffer_) {
+    spare_read_buffer_->Release();
+    spare_read_buffer_ = NULL;
+  }
 }
