@@ -296,7 +296,7 @@ int ChromeMain(int argc, const char** argv) {
   if (parsed_command_line.HasSwitch(switches::kSilentDumpOnDCHECK) &&
       parsed_command_line.HasSwitch(switches::kEnableDCHECK)) {
 #if defined(OS_WIN)
-    logging::SetLogAssertHandler(ChromeAssert);
+    logging::SetLogReportHandler(ChromeAssert);
 #endif
   }
 #endif  // NDEBUG

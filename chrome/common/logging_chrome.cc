@@ -39,6 +39,8 @@ MSVC_DISABLE_OPTIMIZE();
 static void SilentRuntimeAssertHandler(const std::string& str) {
   DebugUtil::BreakDebugger();
 }
+static void SilentRuntimeReportHandler(const std::string& str) {
+}
 MSVC_ENABLE_OPTIMIZE();
 
 // Suppresses error/assertion dialogs and enables the logging of
@@ -48,6 +50,7 @@ static void SuppressDialogs() {
     return;
 
   logging::SetLogAssertHandler(SilentRuntimeAssertHandler);
+  logging::SetLogReportHandler(SilentRuntimeReportHandler);
 
 #if defined(OS_WIN)
   UINT new_flags = SEM_FAILCRITICALERRORS |
