@@ -29,6 +29,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
@@ -440,4 +441,8 @@ std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(BookmarkModel* model,
   return std::vector<BookmarkNode*>();
 }
 
+}
+
+ScopableCPRequest::~ScopableCPRequest() {
+  NOTIMPLEMENTED();
 }
