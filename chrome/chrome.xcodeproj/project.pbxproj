@@ -75,8 +75,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		2DF2A9EB8AF96926EE9B6B02 /* ipc_logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAE0E9D4C9F009A6919 /* ipc_logging.cc */; };
 		1C284EB767D0E3D302AC675C /* tab_restore_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = B020A11D500D7519E54F2957 /* tab_restore_service.cc */; };
+		2DF2A9EB8AF96926EE9B6B02 /* ipc_logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAE0E9D4C9F009A6919 /* ipc_logging.cc */; };
 		331218220F3BFF32006CB2B0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
 		331218230F3BFF36006CB2B0 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
 		331218290F3C007A006CB2B0 /* renderer_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */; };
@@ -6594,6 +6594,19 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4D7BF2FD0E9D46E6009A6919 /* executable.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					..,
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
+					../skia/include,
+					../skia/include/corecg,
+					../third_party/icu38/public/i18n,
+					../third_party/icu38/public/common,
+					../third_party/libjpeg,
+					../third_party/libxml/include,
+					../third_party/npapi,
+					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
+				);
 				INFOPLIST_FILE = "app/app-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6607,6 +6620,19 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4D7BF2FD0E9D46E6009A6919 /* executable.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					..,
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
+					../skia/include,
+					../skia/include/corecg,
+					../third_party/icu38/public/i18n,
+					../third_party/icu38/public/common,
+					../third_party/libjpeg,
+					../third_party/libxml/include,
+					../third_party/npapi,
+					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
+				);
 				INFOPLIST_FILE = "app/app-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
