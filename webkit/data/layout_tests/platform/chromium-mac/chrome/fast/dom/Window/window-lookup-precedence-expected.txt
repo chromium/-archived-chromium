@@ -1,4 +1,3 @@
-
 window.Attr IS function Attr() { [native code] }
 window.CDATASection IS function CDATASection() { [native code] }
 window.CSSCharsetRule IS function CSSCharsetRule() { [native code] }
@@ -229,4 +228,3 @@ window.toString IS [object global]
 window.toolbar IS [object BarInfo]
 window.top IS [object global]
 window.window IS [object global]
-

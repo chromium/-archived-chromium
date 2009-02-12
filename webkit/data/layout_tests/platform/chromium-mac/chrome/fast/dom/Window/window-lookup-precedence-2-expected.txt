@@ -1,4 +1,3 @@
-
 window.Attr : PASS
 window.CDATASection : PASS
 window.CSSCharsetRule : PASS
@@ -229,4 +228,3 @@ window.toString : PASS
 window.toolbar : PASS
 window.top : PASS
 window.window : PASS
-

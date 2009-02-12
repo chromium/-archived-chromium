@@ -1046,10 +1046,6 @@ WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 // MAC PORT TESTS
 // -----------------------------------------------------------------
 
-// These tests hang for an unknown reason. Need to debug why the watchdog
-// thread doesn't kill the app correctly.
-SKIP MAC : LayoutTests/fast/regex/ = TIMEOUT
-
 //
 // *** TESTS TO WORK ON FIRST ***
 // These tests fail because of work that needs to be done in Mac TestShell to
@@ -1462,7 +1458,6 @@ LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
 MAC : LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
-LayoutTests/fast/regex/non-pattern-characters.html = FAIL
 SKIP : LayoutTests/fast/workers/worker-navigator.html = FAIL
 SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
 
