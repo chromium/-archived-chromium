@@ -33,7 +33,7 @@ class BrowserAboutHandler : public WebContents {
   // We don't want a favicon on the about pages.
   virtual bool ShouldDisplayFavIcon() { return false; }
   // Enable javascript urls for the about pages.
-  virtual bool BrowserAboutHandler::SupportsURL(GURL* url);
+  virtual bool SupportsURL(GURL* url);
 
   // If |url| is a known "about:" URL, this method handles it
   // and sets |url| to an alternate URL indicating the real content to load.

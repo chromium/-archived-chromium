@@ -23,7 +23,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/views/about_ipc_dialog.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
@@ -37,6 +36,7 @@
 #endif
 
 #if defined(OS_WIN)
+#include "chrome/browser/views/about_ipc_dialog.h"
 #include "chrome/browser/views/about_network_dialog.h"
 #endif
 
@@ -111,7 +111,7 @@ void AboutSource::StartDataRequest(const std::string& path_raw,
                                    int request_id) {
   std::string path = path_raw;
   std::string info;
-  if (path.find("/") != -1) {
+  if (path.find("/") != std::string::npos) {
     size_t pos = path.find("/");
     info = path.substr(pos + 1, path.length() - (pos + 1));
     path = path.substr(0, pos);
@@ -172,8 +172,13 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
   }
 
   if (LowerCaseEqualsASCII(url->path(), "network")) {
+#if defined(OS_WIN)
     // Run the dialog. This will re-use the existing one if it's already up.
     AboutNetworkDialog::RunDialog();
+#else
+    NOTIMPLEMENTED();
+    // TODO(port) Implement this.
+#endif
 
     // Navigate the renderer to about:blank. This is kind of stupid but is the
     // easiest thing to do in this situation without adding a lot of complexity
@@ -184,8 +189,13 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
   if (LowerCaseEqualsASCII(url->path(), "ipc")) {
+#if defined(OS_WIN)
     // Run the dialog. This will re-use the existing one if it's already up.
     AboutIPCDialog::RunDialog();
+#else
+    NOTIMPLEMENTED();
+    // TODO(port) Implement this.
+#endif
     *url = GURL("about:blank");
     return false;
   }
@@ -390,7 +400,7 @@ std::string BrowserAboutHandler::AboutStats() {
 
     // JSON doesn't allow '.' in names.
     size_t pos;
-    while ((pos = name.find(".")) != -1)
+    while ((pos = name.find(".")) != std::string::npos)
       name.replace(pos, 1, ":");
 
     // Try to see if this name already exists.
