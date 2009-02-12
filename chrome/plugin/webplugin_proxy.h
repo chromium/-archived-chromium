@@ -20,7 +20,7 @@ class WaitableEvent;
 }
 
 class PluginChannel;
-class WebPluginDelegateImpl;
+class WebPluginDelegate;
 
 // This is an implementation of WebPlugin that proxies all calls to the
 // renderer.
@@ -30,7 +30,7 @@ class WebPluginProxy : public WebPlugin {
   // marshalled WebPlugin calls.
   WebPluginProxy(PluginChannel* channel,
                  int route_id,
-                 WebPluginDelegateImpl* delegate,
+                 WebPluginDelegate* delegate,
                  HANDLE modal_dialog_event);
   ~WebPluginProxy();
 
@@ -125,7 +125,7 @@ class WebPluginProxy : public WebPlugin {
   int route_id_;
   NPObject* window_npobject_;
   NPObject* plugin_element_;
-  WebPluginDelegateImpl* delegate_;
+  WebPluginDelegate* delegate_;
   gfx::Rect damaged_rect_;
   bool waiting_for_paint_;
   uint32 cp_browsing_context_;

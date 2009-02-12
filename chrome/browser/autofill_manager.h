@@ -10,8 +10,8 @@
 
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/pref_member.h"
-#include "webkit/glue/autofill_form.h"
 
+class AutofillForm;
 class Profile;
 class WebContents;
 

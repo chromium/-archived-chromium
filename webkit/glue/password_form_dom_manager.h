@@ -52,10 +52,11 @@ class PasswordFormDomManager {
   // preferred_match should equal (address) one of matches.
   // wait_for_username_before_autofill is true if we should not autofill
   // anything until the user typed in a valid username and blurred the field.
-  static FillData* CreateFillData(const PasswordForm& form_on_page, 
-                                  const PasswordFormMap& matches,
-                                  const PasswordForm* const preferred_match,
-                                  bool wait_for_username_before_autofill);
+  static void InitFillData(const PasswordForm& form_on_page, 
+                           const PasswordFormMap& matches,
+                           const PasswordForm* const preferred_match,
+                           bool wait_for_username_before_autofill,
+                           FillData* result);
  private:
   // Helper structure to locate username, passwords and submit fields.
   struct PasswordFormFields {

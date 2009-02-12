@@ -18,7 +18,7 @@
 #include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/webplugin_delegate_stub.h"
 #include "skia/ext/platform_device.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#include "webkit/glue/webplugin_delegate.h"
 
 typedef std::map<CPBrowsingContext, WebPluginProxy*> ContextMap;
 static ContextMap& GetContextMap() {
@@ -28,7 +28,7 @@ static ContextMap& GetContextMap() {
 WebPluginProxy::WebPluginProxy(
     PluginChannel* channel,
     int route_id,
-    WebPluginDelegateImpl* delegate,
+    WebPluginDelegate* delegate,
     HANDLE modal_dialog_event)
     : channel_(channel),
       route_id_(route_id),
@@ -109,7 +109,9 @@ void WebPluginProxy::CancelResource(int id) {
 }
 
 void WebPluginProxy::Invalidate() {
-  gfx::Rect rect(0, 0, delegate_->rect().width(), delegate_->rect().height());
+  gfx::Rect rect(0, 0,
+                 delegate_->GetRect().width(),
+                 delegate_->GetRect().height());
   InvalidateRect(rect);
 }
 
@@ -118,7 +120,7 @@ void WebPluginProxy::InvalidateRect(const gfx::Rect& rect) {
   // Ignore NPN_InvalidateRect calls with empty rects.  Also don't send an
   // invalidate if it's outside the clipping region, since if we did it won't
   // lead to a paint and we'll be stuck waiting forever for a DidPaint response.
-  if (rect.IsEmpty() || !delegate_->clip_rect().Intersects(rect))
+  if (rect.IsEmpty() || !delegate_->GetClipRect().Intersects(rect))
     return;
 
   // Only send a single InvalidateRect message at a time.  From DidPaint we
@@ -267,8 +269,8 @@ void WebPluginProxy::HandleURLRequest(const char *method,
   if (!target && (0 == _strcmpi(method, "GET"))) {
     // Please refer to https://bugzilla.mozilla.org/show_bug.cgi?id=366082
     // for more details on this.
-    if (delegate_->quirks() &
-        WebPluginDelegateImpl::PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS) {
+    if (delegate_->GetQuirks() &
+        WebPluginDelegate::PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS) {
       GURL request_url(url);
       if (!request_url.SchemeIs("http") && !request_url.SchemeIs("https") &&
           !request_url.SchemeIs("ftp")) {
@@ -304,7 +306,7 @@ void WebPluginProxy::Paint(const gfx::Rect& rect) {
   // Clear the damaged area so that if the plugin doesn't paint there we won't
   // end up with the old values.
   gfx::Rect offset_rect = rect;
-      offset_rect.Offset(delegate_->rect().x(), delegate_->rect().y());
+  offset_rect.Offset(delegate_->GetRect().origin());
   if (!background_hdc_) {
     FillRect(windowless_hdc_, &offset_rect.ToRECT(),
         static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
@@ -324,11 +326,10 @@ void WebPluginProxy::UpdateGeometry(
     const gfx::Rect& clip_rect,
     const base::SharedMemoryHandle& windowless_buffer,
     const base::SharedMemoryHandle& background_buffer) {
-  gfx::Rect old = delegate_->rect();
-  gfx::Rect old_clip_rect = delegate_->clip_rect();
+  gfx::Rect old = delegate_->GetRect();
+  gfx::Rect old_clip_rect = delegate_->GetClipRect();
 
-  bool moved = delegate_->rect().x() != window_rect.x() ||
-               delegate_->rect().y() != window_rect.y();
+  bool moved = old.x() != window_rect.x() || old.y() != window_rect.y();
   delegate_->UpdateGeometry(window_rect, clip_rect);
   if (windowless_buffer) {
     // The plugin's rect changed, so now we have a new buffer to draw into.
@@ -339,7 +340,7 @@ void WebPluginProxy::UpdateGeometry(
   }
   // Send over any pending invalidates which occured when the plugin was
   // off screen.
-  if (delegate_->windowless() && !clip_rect.IsEmpty() &&
+  if (delegate_->IsWindowless() && !clip_rect.IsEmpty() &&
       old_clip_rect.IsEmpty() && !damaged_rect_.IsEmpty()) {
     InvalidateRect(damaged_rect_);
   }
@@ -377,8 +378,8 @@ void WebPluginProxy::ConvertBuffer(const base::SharedMemoryHandle& buffer,
   void* data = NULL;
   HDC screen_dc = GetDC(NULL);
   BITMAPINFOHEADER bitmap_header;
-  gfx::CreateBitmapHeader(delegate_->rect().width(),
-                          delegate_->rect().height(),
+  gfx::CreateBitmapHeader(delegate_->GetRect().width(),
+                          delegate_->GetRect().height(),
                           &bitmap_header);
   bitmap->Set(CreateDIBSection(
       screen_dc, reinterpret_cast<const BITMAPINFO*>(&bitmap_header),
@@ -404,8 +405,8 @@ void WebPluginProxy::UpdateTransform() {
     return;
 
   XFORM xf;
-  xf.eDx = static_cast<FLOAT>(-delegate_->rect().x());
-  xf.eDy = static_cast<FLOAT>(-delegate_->rect().y());
+  xf.eDx = static_cast<FLOAT>(-delegate_->GetRect().x());
+  xf.eDy = static_cast<FLOAT>(-delegate_->GetRect().y());
   xf.eM11 = 1;
   xf.eM21 = 0;
   xf.eM12 = 0;

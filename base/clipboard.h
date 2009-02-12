@@ -7,12 +7,10 @@
 
 #include <map>
 #include <string>
-#include <utility>
 #include <vector>
 
-#include "base/basictypes.h"
+#include "base/process.h"
 #include "base/gfx/size.h"
-#include "base/shared_memory.h"
 
 #if defined(OS_MACOSX)
 #if defined(__OBJC__)

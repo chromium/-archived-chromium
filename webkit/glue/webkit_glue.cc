@@ -35,6 +35,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webkit_glue.h"
 
 #include "base/file_version_info.h"
+#include "base/singleton.h"
 #include "base/string_util.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/event_conversion.h"
@@ -316,9 +317,19 @@ std::string GetWebKitVersion() {
 
 namespace {
 
-const std::string* user_agent = NULL;
-bool user_agent_requested = false;
-bool user_agent_is_overridden = false;
+struct UserAgentState {
+  UserAgentState()
+      : user_agent_requested(false),
+        user_agent_is_overridden(false) {
+  }
+
+  std::string user_agent;
+  std::string mimic_safari_user_agent;
+  bool user_agent_requested;
+  bool user_agent_is_overridden;
+};
+
+Singleton<UserAgentState> g_user_agent;
 
 void BuildUserAgent(bool mimic_safari, std::string* result) {
 #if defined(OS_WIN) || defined(OS_MACOSX)
@@ -392,38 +403,34 @@ void BuildUserAgent(bool mimic_safari, std::string* result) {
 }
 
 void SetUserAgentToDefault() {
-  static std::string default_user_agent;
-  BuildUserAgent(false, &default_user_agent);
-  user_agent = &default_user_agent;
+  BuildUserAgent(false, &g_user_agent->user_agent);
 }
 
 }  // namespace
 
 void SetUserAgent(const std::string& new_user_agent) {
-  DCHECK(!user_agent_requested) << "Setting the user agent after someone has "
+  // If you combine this with the previous line, the function only works the
+  // first time.
+  DCHECK(!g_user_agent->user_agent_requested) <<
+      "Setting the user agent after someone has "
       "already requested it can result in unexpected behavior.";
-  static std::string overridden_user_agent;
-  overridden_user_agent = new_user_agent;  // If you combine this with the
-                                           // previous line, the function only
-                                           // works the first time.
-  user_agent_is_overridden = true;
-  user_agent = &overridden_user_agent;
+  g_user_agent->user_agent_is_overridden = true;
+  g_user_agent->user_agent = new_user_agent;
 }
 
 const std::string& GetUserAgent(const GURL& url) {
-  if (!user_agent)
+  if (g_user_agent->user_agent.empty())
     SetUserAgentToDefault();
-  user_agent_requested = true;
-  if (!user_agent_is_overridden) {
-    static std::string mimic_safari_user_agent;
+  g_user_agent->user_agent_requested = true;
+  if (!g_user_agent->user_agent_is_overridden) {
     // For hotmail, we need to spoof as Safari (bug 4111).
     if (MatchPattern(url.host(), "*.mail.live.com")) {
-      if (mimic_safari_user_agent.empty()) 
-        BuildUserAgent(true, &mimic_safari_user_agent);
-      return mimic_safari_user_agent;
+      if (g_user_agent->mimic_safari_user_agent.empty()) 
+        BuildUserAgent(true, &g_user_agent->mimic_safari_user_agent);
+      return g_user_agent->mimic_safari_user_agent;
     }
   }
-  return *user_agent;
+  return g_user_agent->user_agent;
 }
 
 void NotifyJSOutOfMemory(WebCore::Frame* frame) {

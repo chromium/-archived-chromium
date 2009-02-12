@@ -62,15 +62,13 @@ PasswordForm* PasswordFormDomManager::CreatePasswordForm(
 }
 
 // static
-PasswordFormDomManager::FillData* PasswordFormDomManager::CreateFillData(
+void PasswordFormDomManager::InitFillData(
     const PasswordForm& form_on_page, 
     const PasswordFormMap& matches, 
     const PasswordForm* const preferred_match,
-    bool wait_for_username_before_autofill) {
+    bool wait_for_username_before_autofill,
+    PasswordFormDomManager::FillData* result) {
   DCHECK(preferred_match);
-  PasswordFormDomManager::FillData* result = 
-      new PasswordFormDomManager::FillData();
-
   // Fill basic form data.
   result->basic_data.origin = form_on_page.origin;
   result->basic_data.action = form_on_page.action;
@@ -87,7 +85,6 @@ PasswordFormDomManager::FillData* PasswordFormDomManager::CreateFillData(
     if (iter->second != preferred_match) 
       result->additional_logins[iter->first] = iter->second->password_value;
   }
-  return result;
 }
 
 // static

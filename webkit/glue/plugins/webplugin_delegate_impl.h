@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H__
-#define WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H__
+#ifndef WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H_
+#define WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H_
 
 #include "build/build_config.h"
 
@@ -26,9 +26,6 @@ namespace NPAPI {
 // the plugin process.
 class WebPluginDelegateImpl : public WebPluginDelegate {
  public:
-  static WebPluginDelegateImpl* Create(const FilePath& filename,
-                                       const std::string& mime_type,
-                                       gfx::NativeView containing_view);
   static bool IsPluginDelegateWindow(gfx::NativeWindow window);
   static bool GetPluginNameFromWindow(gfx::NativeWindow window,
                                       std::wstring *plugin_name);
@@ -82,24 +79,10 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 
   virtual void URLRequestRouted(const std::string&url, bool notify_needed,
                                 void* notify_data);
-  bool windowless() const { return windowless_ ; }
-  gfx::Rect rect() const { return window_rect_; }
-  gfx::Rect clip_rect() const { return clip_rect_; }
-
-#if defined(OS_WIN)
-  enum PluginQuirks {
-    PLUGIN_QUIRK_SETWINDOW_TWICE = 1 << 0,
-    PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE = 1 << 1,
-    PLUGIN_QUIRK_DONT_CALL_WND_PROC_RECURSIVELY = 1 << 2,
-    PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES = 1 << 3,
-    PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 1 << 4,
-    PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU = 1 << 5,
-    PLUGIN_QUIRK_PATCH_SETCURSOR = 1 << 6,
-    PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS = 1 << 7,
-  };
-#endif
-
-  int quirks() { return quirks_; }
+  virtual bool IsWindowless() const { return windowless_ ; }
+  virtual const gfx::Rect& GetRect() const { return window_rect_; }
+  virtual const gfx::Rect& GetClipRect() const { return clip_rect_; }
+  virtual int GetQuirks() const { return quirks_; }
 
  private:
   WebPluginDelegateImpl(gfx::NativeView containing_view,
@@ -279,8 +262,9 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // Holds the current cursor set by the windowless plugin.
   WebCursor current_windowless_cursor_;
 
+  friend class WebPluginDelegate;
+
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateImpl);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H__
-
+#endif  // #ifndef WEBKIT_GLUE_PLUGIN_WEBPLUGIN_DELEGATE_IMPL_H_

@@ -228,11 +228,12 @@ void PasswordManager::Autofill(const PasswordForm& form_for_autofill,
       // schemed password form may have been freed, so we need to distinguish.
       bool action_mismatch = form_for_autofill.action.GetWithEmptyPath() !=
                              preferred_match->action.GetWithEmptyPath();
-      scoped_ptr<PasswordFormDomManager::FillData> fill_data(
-          PasswordFormDomManager::CreateFillData(form_for_autofill,
-                                                 best_matches, preferred_match,
-                                                 action_mismatch));
-      web_contents_->render_view_host()->FillPasswordForm(*fill_data);
+      PasswordFormDomManager::FillData fill_data;
+      PasswordFormDomManager::InitFillData(form_for_autofill,
+                                           best_matches, preferred_match,
+                                           action_mismatch,
+                                           &fill_data);
+      web_contents_->render_view_host()->FillPasswordForm(fill_data);
       return;
     }
     default:

@@ -17,7 +17,7 @@
 class GURL;
 class PluginChannel;
 class WebPluginProxy;
-class WebPluginDelegateImpl;
+class WebPluginDelegate;
 struct PluginMsg_Init_Params;
 struct PluginMsg_DidReceiveResponseParams;
 struct PluginMsg_PrintResponse_Params;
@@ -98,7 +98,7 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
 
   scoped_refptr<PluginChannel> channel_;
 
-  WebPluginDelegateImpl* delegate_;
+  WebPluginDelegate* delegate_;
   WebPluginProxy* webplugin_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateStub);

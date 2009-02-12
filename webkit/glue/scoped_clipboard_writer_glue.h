@@ -5,8 +5,13 @@
 #ifndef SCOPED_CLIPBOARD_WRITER_GLUE_H_
 #define SCOPED_CLIPBOARD_WRITER_GLUE_H_
 
-#include "base/clipboard.h"
 #include "base/scoped_clipboard_writer.h"
+
+class SkBitmap;
+
+namespace base {
+class SharedMemory;
+}
 
 class ScopedClipboardWriterGlue : public ScopedClipboardWriter {
  public:

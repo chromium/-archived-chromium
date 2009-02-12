@@ -37,7 +37,7 @@
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
 
-WebPluginDelegateImpl* WebPluginDelegateImpl::Create(
+WebPluginDelegate* WebPluginDelegate::Create(
     const FilePath& filename,
     const std::string& mime_type,
     gfx::NativeView containing_view) {

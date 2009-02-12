@@ -5,14 +5,15 @@
 // Many of these functions are based on those found in
 // webkit/port/platform/PasteboardWin.cpp
 
+#include "base/clipboard.h"
+
 #include <shlobj.h>
 #include <shellapi.h>
-
-#include "base/clipboard.h"
 
 #include "base/clipboard_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
+#include "base/shared_memory.h"
 #include "base/string_util.h"
 
 namespace {

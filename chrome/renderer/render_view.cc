@@ -42,7 +42,6 @@
 #include "webkit/glue/glue_accessibility.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/plugins/plugin_list.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
@@ -52,6 +51,7 @@
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
+#include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webresponse.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
@@ -1895,9 +1895,9 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 
     if (is_gears)
       ChromePluginLib::Create(path, GetCPBrowserFuncsForRenderer());
-    return WebPluginDelegateImpl::Create(path,
-                                         mime_type_to_use,
-                                         gfx::NativeViewFromId(host_window_));
+    return WebPluginDelegate::Create(path,
+                                     mime_type_to_use,
+                                     gfx::NativeViewFromId(host_window_));
   }
 
   WebPluginDelegateProxy* proxy =

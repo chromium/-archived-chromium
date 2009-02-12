@@ -17,8 +17,8 @@
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
 #include "skia/ext/platform_device.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webcursor.h"
+#include "webkit/glue/webplugin_delegate.h"
 
 class FinishDestructionTask : public Task {
  public:
@@ -126,7 +126,7 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   FilePath path =
       FilePath(command_line.GetSwitchValue(switches::kPluginPath));
-  delegate_ = WebPluginDelegateImpl::Create(
+  delegate_ = WebPluginDelegate::Create(
       path, mime_type_, params.containing_window);
   if (delegate_) {
     webplugin_ = new WebPluginProxy(

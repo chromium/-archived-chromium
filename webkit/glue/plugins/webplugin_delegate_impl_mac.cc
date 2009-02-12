@@ -50,7 +50,7 @@ WebPluginDelegateImpl* g_current_plugin_instance = NULL;
 
 }  // namespace
 
-WebPluginDelegateImpl* WebPluginDelegateImpl::Create(
+WebPluginDelegate* WebPluginDelegate::Create(
     const FilePath& filename,
     const std::string& mime_type,
     gfx::NativeView containing_view) {

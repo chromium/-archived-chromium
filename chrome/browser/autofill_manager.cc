@@ -9,6 +9,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "webkit/glue/autofill_form.h"
 
 // static
 void AutofillManager::RegisterUserPrefs(PrefService* prefs) {
@@ -114,4 +115,3 @@ void AutofillManager::StoreFormEntriesInWebDatabase(
   profile()->GetWebDataService(Profile::EXPLICIT_ACCESS)->
       AddAutofillFormElements(form.elements);
 }
-
