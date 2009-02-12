@@ -27,35 +27,7 @@ class SSLInfo {
 
   // Adds the specified |error| to the cert status.
   void SetCertError(int error) {
-    int error_flag = 0;
-    switch (error) {
-    case ERR_CERT_COMMON_NAME_INVALID:
-      error_flag = CERT_STATUS_COMMON_NAME_INVALID;
-      break;
-    case ERR_CERT_DATE_INVALID:
-      error_flag = CERT_STATUS_DATE_INVALID;
-      break;
-    case ERR_CERT_AUTHORITY_INVALID:
-      error_flag = CERT_STATUS_AUTHORITY_INVALID;
-      break;
-    case ERR_CERT_NO_REVOCATION_MECHANISM:
-      error_flag = CERT_STATUS_NO_REVOCATION_MECHANISM;
-      break;
-    case ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
-      error_flag = CERT_STATUS_UNABLE_TO_CHECK_REVOCATION;
-      break;
-    case ERR_CERT_REVOKED:
-      error_flag = CERT_STATUS_REVOKED;
-      break;
-    case ERR_CERT_CONTAINS_ERRORS:
-    case ERR_CERT_INVALID:
-      error_flag = CERT_STATUS_INVALID;
-      break;
-    default:
-      NOTREACHED();
-      return;
-    }
-    cert_status |= error_flag;
+    cert_status |= MapNetErrorToCertStatus(error);
   }
 
   // The SSL certificate.
