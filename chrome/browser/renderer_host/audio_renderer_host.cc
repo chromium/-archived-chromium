@@ -192,8 +192,8 @@ void AudioRendererHost::OnInitialized() {
 
   // Also create the AudioManager singleton in this thread.
   // TODO(hclam): figure out a better location to initialize the AudioManager
-  // singleton.
-  AudioManager::GetAudioManager();
+  // singleton. The following method call seems to create a memory leak.
+  // AudioManager::GetAudioManager();
 }
 
 void AudioRendererHost::OnDestroyed() {

@@ -32,9 +32,10 @@
 // which may result in self-destruction.
 //
 // TODO(hclam): Have these things done before having real implementations:
-//   1. Make sure this class has greater or equal lifetime to
+//   1. Make AudioManager a singleton and construct/destruct it properly.
+//   2. Make sure this class has greater or equal lifetime to
 //      IPC:Message::Sender, essentially ResourceMessageFilter.
-//   2. Listen to destruction event of the browser and do cleanup in case this
+//   3. Listen to destruction event of the browser and do cleanup in case this
 //      class is not destructed nicely during browser close.
 
 #ifndef CHROME_BROWSER_RENDERER_HOST_AUDIO_RENDERER_HOST_H_
