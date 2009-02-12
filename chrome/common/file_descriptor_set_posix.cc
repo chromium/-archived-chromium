@@ -2,19 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/descriptor_set_posix.h"
+#include "chrome/common/file_descriptor_set_posix.h"
 
 #include "base/logging.h"
 
-DescriptorSet::DescriptorSet()
+FileDescriptorSet::FileDescriptorSet()
     : consumed_descriptor_highwater_(0) {
 }
 
-DescriptorSet::~DescriptorSet() {
+FileDescriptorSet::~FileDescriptorSet() {
   if (consumed_descriptor_highwater_ == descriptors_.size())
     return;
 
-  LOG(WARNING) << "DescriptorSet destroyed with unconsumed descriptors";
+  LOG(WARNING) << "FileDescriptorSet destroyed with unconsumed descriptors";
   // We close all the descriptors where the close flag is set. If this
   // message should have been transmitted, then closing those with close
   // flags set mirrors the expected behaviour.
@@ -30,7 +30,7 @@ DescriptorSet::~DescriptorSet() {
   }
 }
 
-bool DescriptorSet::Add(int fd) {
+bool FileDescriptorSet::Add(int fd) {
   if (descriptors_.size() == MAX_DESCRIPTORS_PER_MESSAGE)
     return false;
 
@@ -41,7 +41,7 @@ bool DescriptorSet::Add(int fd) {
   return true;
 }
 
-bool DescriptorSet::AddAndAutoClose(int fd) {
+bool FileDescriptorSet::AddAndAutoClose(int fd) {
   if (descriptors_.size() == MAX_DESCRIPTORS_PER_MESSAGE)
     return false;
 
@@ -53,7 +53,7 @@ bool DescriptorSet::AddAndAutoClose(int fd) {
   return true;
 }
 
-int DescriptorSet::GetDescriptorAt(unsigned index) const {
+int FileDescriptorSet::GetDescriptorAt(unsigned index) const {
   if (index >= descriptors_.size())
     return -1;
 
@@ -86,14 +86,14 @@ int DescriptorSet::GetDescriptorAt(unsigned index) const {
   return descriptors_[index].fd;
 }
 
-void DescriptorSet::GetDescriptors(int* buffer) const {
+void FileDescriptorSet::GetDescriptors(int* buffer) const {
   for (std::vector<base::FileDescriptor>::const_iterator
        i = descriptors_.begin(); i != descriptors_.end(); ++i) {
     *(buffer++) = i->fd;
   }
 }
 
-void DescriptorSet::CommitAll() {
+void FileDescriptorSet::CommitAll() {
   for (std::vector<base::FileDescriptor>::iterator
        i = descriptors_.begin(); i != descriptors_.end(); ++i) {
     if (i->auto_close)
@@ -103,7 +103,7 @@ void DescriptorSet::CommitAll() {
   consumed_descriptor_highwater_ = 0;
 }
 
-void DescriptorSet::SetDescriptors(const int* buffer, unsigned count) {
+void FileDescriptorSet::SetDescriptors(const int* buffer, unsigned count) {
   DCHECK_LE(count, MAX_DESCRIPTORS_PER_MESSAGE);
   DCHECK_EQ(descriptors_.size(), 0u);
   DCHECK_EQ(consumed_descriptor_highwater_, 0u);

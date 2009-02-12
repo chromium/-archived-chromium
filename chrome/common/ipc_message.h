@@ -23,7 +23,7 @@ namespace base {
 class FileDescriptor;
 }
 
-class DescriptorSet;
+class FileDescriptorSet;
 
 namespace IPC {
 
@@ -239,17 +239,17 @@ class Message : public Pickle {
 
 #if defined(OS_POSIX)
   // The set of file descriptors associated with this message.
-  scoped_refptr<DescriptorSet> descriptor_set_;
+  scoped_refptr<FileDescriptorSet> file_descriptor_set_;
 
-  // Ensure that a DescriptorSet is allocated
-  void EnsureDescriptorSet();
+  // Ensure that a FileDescriptorSet is allocated
+  void EnsureFileDescriptorSet();
 
-  DescriptorSet* descriptor_set() {
-    EnsureDescriptorSet();
-    return descriptor_set_.get();
+  FileDescriptorSet* file_descriptor_set() {
+    EnsureFileDescriptorSet();
+    return file_descriptor_set_.get();
   }
-  const DescriptorSet* descriptor_set() const {
-    return descriptor_set_.get();
+  const FileDescriptorSet* file_descriptor_set() const {
+    return file_descriptor_set_.get();
   }
 #endif
 

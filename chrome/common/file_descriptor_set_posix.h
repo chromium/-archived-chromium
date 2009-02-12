@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_DESCRIPTOR_SET_POSIX_H_
-#define CHROME_COMMON_DESCRIPTOR_SET_POSIX_H_
+#ifndef CHROME_COMMON_FILE_DESCRIPTOR_SET_POSIX_H_
+#define CHROME_COMMON_FILE_DESCRIPTOR_SET_POSIX_H_
 
 #include <vector>
 
@@ -12,14 +12,14 @@
 #include "base/ref_counted.h"
 
 // -----------------------------------------------------------------------------
-// A DescriptorSet is an ordered set of POSIX file descriptors. These are
+// A FileDescriptorSet is an ordered set of POSIX file descriptors. These are
 // associated with IPC messages so that descriptors can be transmitted over a
 // UNIX domain socket.
 // -----------------------------------------------------------------------------
-class DescriptorSet : public base::RefCountedThreadSafe<DescriptorSet> {
+class FileDescriptorSet : public base::RefCountedThreadSafe<FileDescriptorSet> {
  public:
-  DescriptorSet();
-  ~DescriptorSet();
+  FileDescriptorSet();
+  ~FileDescriptorSet();
 
   // This is the maximum number of descriptors per message. We need to know this
   // because the control message kernel interface has to be given a buffer which
@@ -28,7 +28,7 @@ class DescriptorSet : public base::RefCountedThreadSafe<DescriptorSet> {
   // lost.
   //
   // In debugging mode, it's a fatal error to try and add more than this number
-  // of descriptors to a DescriptorSet.
+  // of descriptors to a FileDescriptorSet.
   enum {
     MAX_DESCRIPTORS_PER_MESSAGE = 4,
   };
@@ -102,7 +102,7 @@ class DescriptorSet : public base::RefCountedThreadSafe<DescriptorSet> {
   // can check that they are read in order.
   mutable unsigned consumed_descriptor_highwater_;
 
-  DISALLOW_COPY_AND_ASSIGN(DescriptorSet);
+  DISALLOW_COPY_AND_ASSIGN(FileDescriptorSet);
 };
 
-#endif  // CHROME_COMMON_FILE_DESCRIPTOR_POSIX_H_
+#endif  // CHROME_COMMON_FILE_DESCRIPTOR_SET_POSIX_H_

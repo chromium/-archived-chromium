@@ -28,7 +28,7 @@
 #include "base/singleton.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/descriptor_set_posix.h"
+#include "chrome/common/file_descriptor_set_posix.h"
 #include "chrome/common/ipc_message_utils.h"
 
 namespace IPC {
@@ -494,7 +494,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
           }
 
           if (m.header()->num_fds >
-              DescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE) {
+              FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE) {
             // There are too many descriptors in this message
             error = "Message requires an excessive number of descriptors";
           }
@@ -514,7 +514,8 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
             return false;
           }
 
-          m.descriptor_set()->SetDescriptors(&fds[fds_i], m.header()->num_fds);
+          m.file_descriptor_set()->SetDescriptors(
+              &fds[fds_i], m.header()->num_fds);
           fds_i += m.header()->num_fds;
         }
 #ifdef IPC_MESSAGE_DEBUG_EXTRA
@@ -578,15 +579,15 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
       msgh.msg_iov = &iov;
       msgh.msg_iovlen = 1;
       char buf[CMSG_SPACE(
-          sizeof(int[DescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE]))];
+          sizeof(int[FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE]))];
 
       if (message_send_bytes_written_ == 0 &&
-          !msg->descriptor_set()->empty()) {
+          !msg->file_descriptor_set()->empty()) {
         // This is the first chunk of a message which has descriptors to send
         struct cmsghdr *cmsg;
-        const unsigned num_fds = msg->descriptor_set()->size();
+        const unsigned num_fds = msg->file_descriptor_set()->size();
 
-        DCHECK_LE(num_fds, DescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE);
+        DCHECK_LE(num_fds, FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE);
 
         msgh.msg_control = buf;
         msgh.msg_controllen = CMSG_SPACE(sizeof(int) * num_fds);
@@ -594,7 +595,7 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
         cmsg->cmsg_level = SOL_SOCKET;
         cmsg->cmsg_type = SCM_RIGHTS;
         cmsg->cmsg_len = CMSG_LEN(sizeof(int) * num_fds);
-        msg->descriptor_set()->GetDescriptors(
+        msg->file_descriptor_set()->GetDescriptors(
             reinterpret_cast<int*>(CMSG_DATA(cmsg)));
         msgh.msg_controllen = cmsg->cmsg_len;
 
@@ -603,7 +604,7 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
 
       bytes_written = sendmsg(pipe_, &msgh, MSG_DONTWAIT);
       if (bytes_written > 0)
-        msg->descriptor_set()->CommitAll();
+        msg->file_descriptor_set()->CommitAll();
     } while (bytes_written == -1 && errno == EINTR);
 
     if (bytes_written < 0 && errno != EAGAIN) {

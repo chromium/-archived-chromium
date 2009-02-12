@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "base/message_loop.h"
-#include "chrome/common/descriptor_set_posix.h"
+#include "chrome/common/file_descriptor_set_posix.h"
 
 namespace IPC {
 
@@ -76,7 +76,7 @@ class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
     // We assume a worst case: kReadBufferSize bytes of messages, where each
     // message has no payload and a full complement of descriptors.
     MAX_READ_FDS = (Channel::kReadBufferSize / sizeof(IPC::Message::Header)) *
-                   DescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE,
+                   FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE,
   };
 
   // This is a control message buffer large enough to hold kMaxReadFDs
