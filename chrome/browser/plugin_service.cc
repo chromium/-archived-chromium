@@ -4,6 +4,7 @@
 
 #include "chrome/browser/plugin_service.h"
 
+#include "base/command_line.h"
 #include "base/singleton.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
@@ -13,6 +14,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/chrome_plugin_lib.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
@@ -28,6 +30,12 @@ PluginService::PluginService()
       plugin_shutdown_handler_(new ShutdownHandler) {
   // Have the NPAPI plugin list search for Chrome plugins as well.
   ChromePluginLib::RegisterPluginsWithNPAPI();
+
+  // Load the one specified on the command line as well.
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  std::wstring path = command_line->GetSwitchValue(switches::kLoadPlugin);
+  if (!path.empty())
+    NPAPI::PluginList::AddExtraPluginPath(FilePath::FromWStringHack(path));
 }
 
 PluginService::~PluginService() {

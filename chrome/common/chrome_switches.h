@@ -134,6 +134,7 @@ extern const wchar_t kEnableUserScripts[];
 extern const wchar_t kEnableExtensions[];
 extern const wchar_t kInstallExtension[];
 extern const wchar_t kLoadExtension[];
+extern const wchar_t kLoadPlugin[];
 
 extern const wchar_t kIncognito[];
 extern const wchar_t kUseOldSafeBrowsing[];

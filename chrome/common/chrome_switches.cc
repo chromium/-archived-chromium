@@ -355,6 +355,9 @@ const wchar_t kInstallExtension[]              = L"install-extension";
 // Load an extension from the specified directory.
 const wchar_t kLoadExtension[]                 = L"load-extension";
 
+// Load an NPAPI plugin from the specified path.
+const wchar_t kLoadPlugin[]                    = L"load-plugin";
+
 // Causes the browser to launch directly in incognito mode.
 const wchar_t kIncognito[]                     = L"incognito";
 
