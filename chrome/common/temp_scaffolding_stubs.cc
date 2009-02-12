@@ -47,6 +47,12 @@ size_t SessionRestore::num_tabs_to_load_ = 0;
 // static
 size_t AutocompleteProvider::max_matches_;
 
+AutocompleteProvider::~AutocompleteProvider() {
+  // Though nothing needs this function yet, we want to get the C++ metadata
+  // for this class grounded in this file.
+  NOTIMPLEMENTED();
+}
+
 // static
 size_t AutocompleteResult::max_matches_;
 
