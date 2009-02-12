@@ -8,11 +8,13 @@ Settings for other components using Google Update.
 
 Import("env")
 
-env.Append(
-    CPPPATH = [
-        '$GOOGLE_UPDATE_DIR',
-    ],
-    LIBS = [
-        'google_update',
-    ],
-)
+# Google Update only works on Windows.
+if env.Bit('windows'):
+  env.Append(
+      CPPPATH = [
+          '$GOOGLE_UPDATE_DIR',
+      ],
+      LIBS = [
+          'google_update',
+      ],
+  )
