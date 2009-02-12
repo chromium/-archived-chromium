@@ -8,7 +8,7 @@ Configuration for building net.lib / libnet.a.
 
 Import('env')
 
-env = env.Clone(COMPONENT_STATIC=True)
+env = env.Clone()
 
 env.ApplySConscript([
     '$GRIT_DIR/build/using_generated_resources.scons',
@@ -179,14 +179,6 @@ input_files = ChromeFileList([
     'http/http_auth.h',
     'http/http_auth_cache.cc',
     'http/http_auth_cache.h',
-    'http/http_auth_handler.h',
-    'http/http_auth_handler.cc',
-    'http/http_auth_handler_basic.cc',
-    'http/http_auth_handler_basic.h',
-    'http/http_auth_handler_digest.cc',
-    'http/http_auth_handler_digest.h',
-    'http/http_auth.cc',
-    'http/http_auth.h',
     'http/http_auth_handler.h',
     'http/http_auth_handler.cc',
     'http/http_auth_handler_basic.cc',
