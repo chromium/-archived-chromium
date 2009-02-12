@@ -7,7 +7,7 @@
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"

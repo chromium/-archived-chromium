@@ -8,7 +8,7 @@
 #include "base/path_service.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/first_run.h"

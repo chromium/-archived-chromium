@@ -7,7 +7,7 @@
 #include "base/gfx/png_decoder.h"
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

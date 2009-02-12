@@ -9,7 +9,7 @@
 #include "base/file_version_info.h"
 #include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"

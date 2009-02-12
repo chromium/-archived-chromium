@@ -12,7 +12,7 @@
 #include "base/string_util.h"
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/spellchecker.h"

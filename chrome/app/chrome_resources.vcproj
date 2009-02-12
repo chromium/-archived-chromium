@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="browser_resources"
+	Name="chrome_resources"
 	ProjectGUID="{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}"
-	RootNamespace="browser_resources"
+	RootNamespace="chrome_resources"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -14,7 +14,7 @@
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
-			RelativePath="..\..\..\tools\grit\build\grit_resources.rules"
+			RelativePath="..\..\tools\grit\build\grit_resources.rules"
 		/>
 	</ToolFiles>
 	<Configurations>
@@ -27,10 +27,8 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="WebKitVersion"
-			/>
-			<Tool
 				Name="GRIT Generated Resources"
+				PreprocessorDefinitions="$(CHROMIUM_BUILD)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -51,9 +49,6 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="WebKitVersion"
-			/>
-			<Tool
 				Name="GRIT Generated Resources"
 			/>
 			<Tool
@@ -72,15 +67,22 @@
 	<Files>
 		<Filter
 			Name="Generated Files"
-			SourceControlFiles="false"
 			>
 			<File
 				RelativePath="$(OutDir)\grit_derived_sources\browser_resources.h"
 				>
 			</File>
+			<File
+				RelativePath="$(OutDir)\grit_derived_sources\theme_resources.h"
+				>
+			</File>
 		</Filter>
 		<File
-			RelativePath="..\browser_resources.grd"
+			RelativePath="..\browser\browser_resources.grd"
+			>
+		</File>
+		<File
+			RelativePath="theme\theme_resources.grd"
 			>
 		</File>
 	</Files>

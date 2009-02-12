@@ -5,7 +5,7 @@
 #include "chrome/browser/password_manager/password_manager.h"
 
 #include "base/string_util.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"

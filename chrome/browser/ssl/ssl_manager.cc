@@ -6,7 +6,7 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/load_from_memory_cache_details.h"

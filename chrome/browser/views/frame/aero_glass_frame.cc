@@ -6,7 +6,7 @@
 
 #include <dwmapi.h>
 
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
