@@ -247,6 +247,10 @@ class BaseSessionService : public CancelableRequestProvider,
     NOTIMPLEMENTED();
     return false;
   }
+  bool ShouldTrackEntry(const TabNavigation& navigation) {
+    NOTIMPLEMENTED();
+    return false;
+  }
   Handle ScheduleGetLastSessionCommands(
       InternalGetCommandsRequest* request,
       CancelableRequestConsumerBase* consumer) {
@@ -272,16 +276,6 @@ class SessionRestore {
       const std::vector<GURL>& urls_to_open) { NOTIMPLEMENTED(); }
 
   static size_t num_tabs_to_load_;
-};
-
-class TabRestoreService : public BaseSessionService {
- public:
-  explicit TabRestoreService(Profile* profile) { }
-  void BrowserClosing(Browser*) { NOTIMPLEMENTED(); }
-  void BrowserClosed(Browser*) { NOTIMPLEMENTED(); }
-  void ClearEntries() { NOTIMPLEMENTED(); }
-  void CreateHistoricalTab(NavigationController*) { NOTIMPLEMENTED(); }
-  void RestoreMostRecentEntry(Browser*) { NOTIMPLEMENTED(); }
 };
 
 class MetricsService {

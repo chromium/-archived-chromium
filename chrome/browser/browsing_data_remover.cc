@@ -10,6 +10,7 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/notification_service.h"
 #include "net/base/cookie_monster.h"
@@ -27,7 +28,6 @@
 // TODO(port): Get rid of this section and finish porting.
 #if defined(OS_WIN)
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/sessions/tab_restore_service.h"
 #endif
 
 using base::Time;

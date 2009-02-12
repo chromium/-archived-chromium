@@ -75,6 +75,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		1C284EB767D0E3D302AC675C /* tab_restore_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = B020A11D500D7519E54F2957 /* tab_restore_service.cc */; };
 		331218220F3BFF32006CB2B0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
 		331218230F3BFF36006CB2B0 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
 		331218290F3C007A006CB2B0 /* renderer_glue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */; };
@@ -2420,6 +2421,7 @@
 		ABFA33750F424E06008FCF5D /* audio_renderer_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_renderer_host.h; path = renderer_host/audio_renderer_host.h; sourceTree = "<group>"; };
 		ABFA33760F424E06008FCF5D /* audio_renderer_host_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audio_renderer_host_unittest.cc; path = renderer_host/audio_renderer_host_unittest.cc; sourceTree = "<group>"; };
 		ABFA33790F424EC5008FCF5D /* media.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = media.xcodeproj; path = media/media.xcodeproj; sourceTree = "<group>"; };
+		B020A11D500D7519E54F2957 /* tab_restore_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tab_restore_service.cc; path = browser/sessions/tab_restore_service.cc; sourceTree = SOURCE_ROOT; };
 		B51F6D110F37C4DC00152D66 /* renderer_main_platform_delegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_main_platform_delegate.h; sourceTree = "<group>"; };
 		B51F6D120F37C4DC00152D66 /* renderer_main_platform_delegate_win.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_platform_delegate_win.cc; sourceTree = "<group>"; };
 		B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_platform_delegate_mac.cc; sourceTree = "<group>"; };
@@ -3045,6 +3047,7 @@
 				C8D26D9EC81E03E91E270463 /* session_service.cc */,
 				3D00CDB6C665E7ED1A1090D7 /* bookmark_model.cc */,
 				D941DBEFD8B8B537DE8A4DAE /* bookmark_storage.cc */,
+				B020A11D500D7519E54F2957 /* tab_restore_service.cc */,
 			);
 			sourceTree = "<group>";
 		};
@@ -5347,6 +5350,7 @@
 				E45075EE0F150ABA003BE099 /* sync_resource_handler.cc in Sources */,
 				E455DDBA0F3227A600DD4383 /* tab_cell.mm in Sources */,
 				E455DCF10F320CFE00DD4383 /* tab_contents_controller.mm in Sources */,
+				1C284EB767D0E3D302AC675C /* tab_restore_service.cc in Sources */,
 				E455DCF00F320CF700DD4383 /* tab_strip_controller.mm in Sources */,
 				E46C53A40F2F660900B393B8 /* tab_strip_model.cc in Sources */,
 				E46C53AA0F2F662F00B393B8 /* tab_strip_model_order_controller.cc in Sources */,

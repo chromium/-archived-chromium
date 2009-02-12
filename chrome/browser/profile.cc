@@ -20,6 +20,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/chrome_constants.h"
@@ -44,7 +45,6 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
-#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #endif

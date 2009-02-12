@@ -9,8 +9,8 @@
 
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_service.h"
+#include "chrome/browser/sessions/session_command.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/scoped_vector.h"
@@ -232,7 +232,8 @@ void TabRestoreService::RestoreEntryById(Browser* browser,
         NavigationController* restored_controller =
             browser->AddRestoredTab(tab.navigations, browser->tab_count(),
                                     tab.current_navigation_index,
-                                    (tab_i == window->selected_tab_index));
+                                    (static_cast<int>(tab_i) ==
+                                     window->selected_tab_index));
         if (restored_controller)
           restored_controller->LoadIfNecessary();
       }
