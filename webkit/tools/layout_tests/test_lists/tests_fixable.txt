@@ -34,6 +34,10 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
 DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
+// This passes when run in Chrome. It appears to be because of a difference
+// in how lighttpd serves up the svn resource image (or the image
+// contained in the svg image).
+DEFER : LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 // http://crbug.com/2975 : Need to support upload progress notifications in
 // the resource bridge.
 LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL CRASH
@@ -705,7 +709,6 @@ LINUX WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
 
 // Problems with getImageData and toDataURL: http://crbug.com/2972
 LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
-LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 // We're much closer now. To fully pass this we need encoders for jpg
 // and gif, which is a low priority.
 DEFER LINUX WIN : LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
