@@ -108,9 +108,6 @@ def main(args):
   # Return an errorcode of 0 on successful merge, 1 if unresolved conflicts
   # remain in the result.  Any other errorcode will be treated as fatal.
   merged_file_contents = open(mine).read()
-  # Ensure that the file doesn't use CRLF, in case the diff program converted
-  # line endings.
-  merged_file_contents.replace('\r\n', '\n')
 
   # For reasons I don't understand, an extra line break gets added at the end
   # of the file. Strip it.

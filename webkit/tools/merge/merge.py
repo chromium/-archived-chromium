@@ -18,6 +18,7 @@ import optparse
 import os
 import re
 import subprocess
+import sys
 import xml.dom.minidom
 
 import google.path_utils
@@ -67,6 +68,28 @@ class Merger(object):
       returncode = subprocess.call(command, cwd=self._webkit_root, shell=True)
       if returncode != 0:
         raise "Are you sure you're running SVN 1.5?  svn --version to check"
+
+    # On Windows, find modified files and force them to LF. We trust dos2unix
+    # not to change binary files.
+    if sys.platform == 'win32':
+      command = [self._svn, "status", "--xml", directory]
+      print ' '.join(command)
+      info = subprocess.Popen(command, cwd=self._webkit_root, shell=True,
+                              stdout=subprocess.PIPE).communicate()[0]
+      dom = xml.dom.minidom.parseString(info)
+      for entry in dom.getElementsByTagName("entry"):
+        file_path = entry.getAttribute("path")
+        type = os.path.splitext(file_path)[-1]
+        status = (entry.getElementsByTagName('wc-status')[0]
+                       .getAttribute('item'))
+        # TODO(pamg): Is this the same in non-English svn?
+        if status == "modified":
+          command = ["dos2unix.exe", file_path]
+          if self._is_dry_run:
+            print ' '.join(command)
+          else:
+            subprocess.call(command, cwd=self._webkit_root, shell=True)
+
 
 def GetCurrentRepositoryAndRevision(webkit_merge_revision_path):
   """ Gets the repository and revision we're currently merged to according to
