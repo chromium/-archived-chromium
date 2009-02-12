@@ -353,8 +353,6 @@ inputs = [
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLFormElementCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLInputElementCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLOptionsCollectionCustom.cpp',
-    '$WEBCORE_DIR/bindings/v8/custom/V8HTMLInputElementCustom.cpp',
-    '$WEBCORE_DIR/bindings/v8/custom/V8HTMLOptionsCollectionCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLSelectElementCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLSelectElementCustom.h',
     '$WEBCORE_DIR/bindings/v8/custom/V8NamedNodesCollection.cpp',
