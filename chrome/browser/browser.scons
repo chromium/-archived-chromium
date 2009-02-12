@@ -700,7 +700,6 @@ if not env.Bit('windows'):
       'encoding_menu_controller_delegate.cc',
       'external_protocol_handler.cc',
       'external_tab_container.cc',
-      'fav_icon_helper.cc',
       'first_run.cc',
       'gears_integration.cc',
       'hang_monitor/hung_plugin_action.cc',

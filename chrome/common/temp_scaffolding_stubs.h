@@ -903,15 +903,6 @@ class PrintViewManager {
 };
 }
 
-class FavIconHelper {
- public:
-  FavIconHelper(WebContents*) { }
-  void SetFavIconURL(const GURL&) { NOTIMPLEMENTED(); }
-  void SetFavIcon(int, const GURL&, const SkBitmap&) { NOTIMPLEMENTED(); }
-  void FavIconDownloadFailed(int) { NOTIMPLEMENTED(); }
-  void FetchFavIcon(const GURL&) { NOTIMPLEMENTED(); }
-};
-
 class PasswordManager {
  public:
   PasswordManager(WebContents*) { }

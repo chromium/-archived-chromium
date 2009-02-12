@@ -6,6 +6,7 @@
 
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
@@ -206,4 +207,3 @@ void JavascriptMessageBoxHandler::Observe(NotificationType type,
       dialog_->Close();
   }
 }
-

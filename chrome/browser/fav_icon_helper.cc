@@ -4,15 +4,22 @@
 
 #include "chrome/browser/fav_icon_helper.h"
 
+#include "build/build_config.h"
+
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "skia/ext/image_operations.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 FavIconHelper::FavIconHelper(WebContents* web_contents)
     : web_contents_(web_contents),
@@ -258,4 +265,3 @@ SkBitmap FavIconHelper::ConvertToFavIconSize(const SkBitmap& image) {
   }
   return image;
 }
-

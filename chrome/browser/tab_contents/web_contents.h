@@ -5,9 +5,14 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 #define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
@@ -20,7 +25,6 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #elif defined(OS_WIN)
 #include "chrome/browser/download/save_package.h"
-#include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -212,7 +216,7 @@ class WebContents : public TabContents,
 
   // Override the encoding and reload the page by sending down
   // ViewMsg_SetPageEncoding to the renderer. |UpdateEncoding| is kinda
-  // the opposite of this, by which 'browser' is notified of 
+  // the opposite of this, by which 'browser' is notified of
   // the encoding of the current tab from 'renderer' (determined by
   // auto-detect, http header, meta, bom detection, etc).
   void override_encoding(const std::wstring& encoding) {
@@ -306,7 +310,7 @@ class WebContents : public TabContents,
                                    IPC::Message* reply_msg);
   virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms);
   virtual void AutofillFormSubmitted(const AutofillForm& form);
-  virtual void GetAutofillSuggestions(const std::wstring& field_name, 
+  virtual void GetAutofillSuggestions(const std::wstring& field_name,
       const std::wstring& user_text, int64 node_id, int request_id);
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& url, bool autodetected);
@@ -330,7 +334,7 @@ class WebContents : public TabContents,
                                         new_request_id);
   }
   virtual bool CanBlur() const;
-  virtual void RendererUnresponsive(RenderViewHost* render_view_host, 
+  virtual void RendererUnresponsive(RenderViewHost* render_view_host,
                                     bool is_during_unload);
   virtual void RendererResponsive(RenderViewHost* render_view_host);
   virtual void LoadStateChanged(const GURL& url, net::LoadState load_state);

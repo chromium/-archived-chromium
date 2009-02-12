@@ -6,15 +6,17 @@
 #define CHROME_BROWSER_FAV_ICON_HELPER_H__
 
 #include <map>
+#include <vector>
 
 #include "base/basictypes.h"
-#include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/browser/profile.h"
+#include "chrome/common/ref_counted_util.h"
 #include "googleurl/src/gurl.h"
 
 class NavigationEntry;
+class Profile;
 class SkBitmap;
 class WebContents;
 
@@ -157,11 +159,10 @@ class FavIconHelper {
   bool fav_icon_expired_;
 
   // Requests to the renderer to download favicons.
-  typedef std::map<int,DownloadRequest> DownloadRequests;
+  typedef std::map<int, DownloadRequest> DownloadRequests;
   DownloadRequests download_requests_;
 
   DISALLOW_EVIL_CONSTRUCTORS(FavIconHelper);
 };
 
 #endif  // CHROME_BROWSER_FAV_ICON_HELPER_H__
-

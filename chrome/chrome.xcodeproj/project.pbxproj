@@ -283,6 +283,7 @@
 		884BD6B5D58856CAC05DE5C0 /* descriptor_set_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = FE95CE48F3AD7531827F63CF /* descriptor_set_posix.cc */; };
 		8F51B73AAAF1772ECF9BD180 /* url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 778D7927798B7E3FAA498D3D /* url_fetcher.cc */; };
 		94542322A5E5A8F4FDDAB7F0 /* render_view_host_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E42AD0F28EDB5009A7E88 /* render_view_host_manager.cc */; };
+		9E85B39CA40439D93CE52E60 /* fav_icon_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8760E9D4839009A6919 /* fav_icon_helper.cc */; };
 		A0BC9272AD709E86D492DAEC /* bookmark_storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = D941DBEFD8B8B537DE8A4DAE /* bookmark_storage.cc */; };
 		A0EB956531B9DB1E40DAE980 /* user_script_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 37521A11B07C479E93A39D52 /* user_script_unittest.cc */; };
 		A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612DB0EE9958600A8EE5D /* extensions_service_unittest.cc */; };
@@ -5319,6 +5320,7 @@
 				E4F324430EE5CE94002533CE /* extension.cc in Sources */,
 				E48B6C280F2783E9002E47EC /* extension_protocols.cc in Sources */,
 				A54612E20EE995F600A8EE5D /* extensions_service.cc in Sources */,
+				9E85B39CA40439D93CE52E60 /* fav_icon_helper.cc in Sources */,
 				E45075C10F1506F2003BE099 /* firefox2_importer.cc in Sources */,
 				E45075C40F150701003BE099 /* firefox3_importer.cc in Sources */,
 				E45075C60F15070D003BE099 /* firefox_profile_lock.cc in Sources */,
