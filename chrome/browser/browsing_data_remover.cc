@@ -6,6 +6,7 @@
 
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/search_engines/template_url_model.h"

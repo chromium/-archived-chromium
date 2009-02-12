@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/location_bar.h"

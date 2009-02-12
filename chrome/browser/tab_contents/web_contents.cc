@@ -11,6 +11,7 @@
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/autofill_manager.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/google_util.h"
@@ -37,7 +38,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): fill these in as we flesh out the implementation of this class
-#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/download/download_manager.h"

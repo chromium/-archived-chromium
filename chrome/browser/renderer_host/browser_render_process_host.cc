@@ -24,6 +24,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
@@ -45,7 +46,6 @@
 // TODO(port): see comment by the only usage of RenderViewHost in this file.
 #include "chrome/browser/renderer_host/render_view_host.h"
 
-#include "chrome/browser/history/history.h"
 #include "chrome/browser/spellchecker.h"
 
 // Once the above TODO is finished, then this block is all Windows-specific

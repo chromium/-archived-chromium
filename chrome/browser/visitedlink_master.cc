@@ -23,14 +23,8 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/profile.h"
-#if defined(OS_WIN)
 #include "chrome/browser/history/history.h"
-#else
-// TODO(port): We should be using history.h, remove scaffolding
-// when it is ported.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif  // !defined(OS_WIN)
+#include "chrome/browser/profile.h"
 #if defined(OS_WIN)
 #include "chrome/common/win_util.h"
 #endif

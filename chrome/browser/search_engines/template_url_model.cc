@@ -11,6 +11,7 @@
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/google_url_tracker.h"
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/search_engines/template_url.h"
@@ -25,17 +26,6 @@
 #include "net/base/net_util.h"
 #include "unicode/rbbi.h"
 #include "unicode/uchar.h"
-
-#if defined(OS_POSIX)
-// TODO(port): get rid of this include. It's used just to provide declarations
-// and stub definitions for classes we encouter during the porting effort.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/history/history.h"
-#endif
 
 using base::Time;
 

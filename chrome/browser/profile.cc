@@ -11,10 +11,12 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/net/chrome_url_request_context.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -41,9 +43,7 @@
 
 // TODO(port): Get rid of this section and finish porting.
 #if defined(OS_WIN)
-#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/history/history.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -343,7 +343,7 @@ void ProfileImpl::InitExtensions() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   bool user_scripts_enabled =
       command_line->HasSwitch(switches::kEnableUserScripts);
-  bool extensions_enabled = 
+  bool extensions_enabled =
       command_line->HasSwitch(switches::kEnableExtensions);
 
   FilePath script_dir;
@@ -693,7 +693,7 @@ void ProfileImpl::ResetTabRestoreService() {
   tab_restore_service_ = NULL;
 }
 
-// To be run in the IO thread to notify all resource message filters that the 
+// To be run in the IO thread to notify all resource message filters that the
 // spellchecker has changed.
 class NotifySpellcheckerChangeTask : public Task {
  public:
@@ -737,7 +737,7 @@ void ProfileImpl::InitializeSpellChecker(bool need_to_broadcast) {
   if (enable_spellcheck) {
     std::wstring dict_dir;
     PathService::Get(chrome::DIR_APP_DICTIONARIES, &dict_dir);
-    // Note that, as the object pointed to by previously by spellchecker_ 
+    // Note that, as the object pointed to by previously by spellchecker_
     // is being deleted in the io thread, the spellchecker_ can be made to point
     // to a new object (RE-initialized) in parallel in this UI thread.
     spellchecker_ = new SpellChecker(dict_dir,
@@ -753,7 +753,7 @@ void ProfileImpl::InitializeSpellChecker(bool need_to_broadcast) {
     scoped_spellchecker.spellchecker = spellchecker_;
     if (io_thread) {
       io_thread->message_loop()->PostTask(
-          FROM_HERE, 
+          FROM_HERE,
           new NotifySpellcheckerChangeTask(this, scoped_spellchecker));
     }
   }
