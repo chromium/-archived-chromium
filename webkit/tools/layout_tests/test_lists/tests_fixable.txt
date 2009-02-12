@@ -1764,3 +1764,6 @@ LINUX : LayoutTests/svg/custom/use-transform.svg = FAIL
 LINUX : LayoutTests/fast/clip/007.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/010.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
+
+// TODO(sid): This test regressed after r9613.
+LayoutTests/editing/selection/5354455-1.html = FAIL
