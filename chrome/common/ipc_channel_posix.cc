@@ -406,24 +406,40 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
 
     // walk the list of control messages and, if we find an array of file
     // descriptors, save a pointer to the array
-    for (struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg); cmsg;
-         cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-      if (cmsg->cmsg_level == SOL_SOCKET &&
-          cmsg->cmsg_type == SCM_RIGHTS) {
-        const unsigned payload_len = cmsg->cmsg_len - CMSG_LEN(0);
-        DCHECK(payload_len % sizeof(int) == 0);
-        wire_fds = reinterpret_cast<int*>(CMSG_DATA(cmsg));
-        num_wire_fds = payload_len / 4;
 
-        if (msg.msg_flags & MSG_CTRUNC) {
-          LOG(ERROR) << "SCM_RIGHTS message was truncated"
-                     << " cmsg_len:" << cmsg->cmsg_len
-                     << " fd:" << pipe_;
-          for (unsigned i = 0; i < num_wire_fds; ++i)
-            close(wire_fds[i]);
-          return false;
+    // This next if statement is to work around an OSX issue where
+    // CMSG_FIRSTHDR will return non-NULL in the case that controllen == 0.
+    // Here's a test case:
+    //
+    // int main() {
+    // struct msghdr msg;
+    //   msg.msg_control = &msg;
+    //   msg.msg_controllen = 0;
+    //   if (CMSG_FIRSTHDR(&msg))
+    //     printf("Bug found!\n");
+    // }
+    if (msg.msg_controllen > 0) {
+      // On OSX, CMSG_FIRSTHDR doesn't handle the case where controllen is 0
+      // and will return a pointer into nowhere.
+      for (struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg); cmsg;
+           cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+        if (cmsg->cmsg_level == SOL_SOCKET &&
+            cmsg->cmsg_type == SCM_RIGHTS) {
+          const unsigned payload_len = cmsg->cmsg_len - CMSG_LEN(0);
+          DCHECK(payload_len % sizeof(int) == 0);
+          wire_fds = reinterpret_cast<int*>(CMSG_DATA(cmsg));
+          num_wire_fds = payload_len / 4;
+
+          if (msg.msg_flags & MSG_CTRUNC) {
+            LOG(ERROR) << "SCM_RIGHTS message was truncated"
+                       << " cmsg_len:" << cmsg->cmsg_len
+                       << " fd:" << pipe_;
+            for (unsigned i = 0; i < num_wire_fds; ++i)
+              close(wire_fds[i]);
+            return false;
+          }
+          break;
         }
-        break;
       }
     }
 
@@ -508,6 +524,14 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
     }
     input_overflow_buf_.assign(p, end - p);
     input_overflow_fds_ = std::vector<int>(&fds[fds_i], &fds[num_fds]);
+
+    // When the input data buffer is empty, the overflow fds should be too. If
+    // this is not the case, we probably have a rogue renderer which is trying
+    // to fill our descriptor table.
+    if (input_overflow_buf_.empty() && !input_overflow_fds_.empty()) {
+      // We close these descriptors in Close()
+      return false;
+    }
 
     bytes_read = 0;  // Get more data.
   }
