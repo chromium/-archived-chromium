@@ -81,6 +81,7 @@
 		53AAC3800F291F4400233688 /* ThreadableLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC37F0F291F4300233688 /* ThreadableLoader.cpp */; };
 		53AAC3940F291FCF00233688 /* HTTPHeaderMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC3930F291FCF00233688 /* HTTPHeaderMap.cpp */; };
 		53E8BE100EC36A4E00B3F8B0 /* dom_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405050D92E3DA0006B936 /* dom_operations.cc */; };
+		6B873B9C0A9CB97EE5F350BC /* V8DOMWindowCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31C1FF1C3BB820B928CFE9BD /* V8DOMWindowCustom.cpp */; };
 		7B1438070E7874FC00901940 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
 		7B5E85E70D7F28F5001ECF42 /* Assertions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E85B60D7F28F5001ECF42 /* Assertions.cpp */; };
 		7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E85C30D7F28F5001ECF42 /* HashTable.cpp */; };
@@ -1351,6 +1352,7 @@
 		E48A06DE0E3F840F00172919 /* image_resource_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06D80E3F840F00172919 /* image_resource_fetcher.cc */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
+		FA5597EF54C7B6F57B05E0EF /* DOMTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 753B36EAFA2321BA827FFE23 /* DOMTimer.cpp */; };
 		FBBBF2E4099C8EA9BDAF80F9 /* CurrentTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */; };
 /* End PBXBuildFile section */
 
@@ -1503,6 +1505,7 @@
 		1DF458E80DD265C670E05B03 /* RenderSelectionInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderSelectionInfo.h; sourceTree = "<group>"; };
 		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
 		31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNGImageEncoder.cpp; path = "../third_party/WebKit/WebCore/platform/image-encoders/skia/PNGImageEncoder.cpp"; sourceTree = SOURCE_ROOT; };
+		31C1FF1C3BB820B928CFE9BD /* V8DOMWindowCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8DOMWindowCustom.cpp; sourceTree = "<group>"; };
 		35DEC96C125DC674B5C9FA27 /* Interval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Interval.cpp; path = port/bindings/v8/extensions/Interval.cpp; sourceTree = SOURCE_ROOT; };
 		3CBAF5EB0EFC892100E752CB /* Animation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Animation.cpp; sourceTree = "<group>"; };
 		3CBAF5EC0EFC892100E752CB /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
@@ -1899,6 +1902,7 @@
 		688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitCSSMatrix.cpp; sourceTree = "<group>"; };
 		6A9898388068C93C5A7C011C /* ThreadTimers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadTimers.cpp; sourceTree = "<group>"; };
 		715E874BCC05E0A3DD5E5D8F /* GCController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCController.cpp; path = port/bindings/v8/extensions/GCController.cpp; sourceTree = SOURCE_ROOT; };
+		753B36EAFA2321BA827FFE23 /* DOMTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DOMTimer.cpp; sourceTree = "<group>"; };
 		75B1AE2852D804B43A010B65 /* ThreadableLoaderClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadableLoaderClientWrapper.h; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
@@ -4494,6 +4498,7 @@
 				41A362480F003B3000778012 /* AccessibilityObjectWrapper.h */,
 				41A362490F003B3000778012 /* AXObjectCacheChromium.cpp */,
 				41A3624A0F003B3000778012 /* ChromeClientChromium.h */,
+				753B36EAFA2321BA827FFE23 /* DOMTimer.cpp */,
 				41A3624B0F003B3000778012 /* DragControllerChromium.cpp */,
 				41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */,
 				41A3624D0F003B3000778012 /* FrameChromium.cpp */,
@@ -4525,6 +4530,7 @@
 			children = (
 				41DE74870F3CDBCB0049BC24 /* V8CustomBinding.h */,
 				41DE74880F3CDBCB0049BC24 /* V8CustomEventListener.h */,
+				31C1FF1C3BB820B928CFE9BD /* V8DOMWindowCustom.cpp */,
 				41DE7C960F424AAC0049BC24 /* V8HTMLCollectionCustom.cpp */,
 				41DE7C9D0F424ACD0049BC24 /* V8HTMLFormElementCustom.cpp */,
 				41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */,
@@ -8340,6 +8346,7 @@
 				938447BB0F16B06E0075F4C5 /* V8DOMSelection.cpp in Sources */,
 				938447BC0F16B06E0075F4C5 /* V8DOMStringList.cpp in Sources */,
 				938447BD0F16B06E0075F4C5 /* V8DOMWindow.cpp in Sources */,
+				6B873B9C0A9CB97EE5F350BC /* V8DOMWindowCustom.cpp in Sources */,
 				938447BE0F16B06E0075F4C5 /* V8Element.cpp in Sources */,
 				938447BF0F16B06E0075F4C5 /* V8Entity.cpp in Sources */,
 				938447C00F16B06E0075F4C5 /* V8EntityReference.cpp in Sources */,
@@ -8766,6 +8773,7 @@
 				938444A10F16B0570075F4C5 /* DOMParser.cpp in Sources */,
 				938444A20F16B0570075F4C5 /* DOMSelection.cpp in Sources */,
 				938444A30F16B0570075F4C5 /* DOMStringList.cpp in Sources */,
+				FA5597EF54C7B6F57B05E0EF /* DOMTimer.cpp in Sources */,
 				938444A40F16B0570075F4C5 /* DOMWindow.cpp in Sources */,
 				938444A50F16B0570075F4C5 /* DragController.cpp in Sources */,
 				938444A60F16B0570075F4C5 /* DragControllerChromium.cpp in Sources */,

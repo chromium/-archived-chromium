@@ -211,8 +211,6 @@ var properties = [
   "getMatchedCSSRules",
   "open",
   "showModalDialog",
-  "back",
-  "forward",
   "scrollBy",
   "scrollTo",
   "scroll",

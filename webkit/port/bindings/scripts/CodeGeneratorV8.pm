@@ -833,6 +833,8 @@ END
   
   my $paramIndex = 0;
   foreach my $parameter (@{$function->parameters}) {
+    TranslateParameter($parameter);
+
     my $parameterName = $parameter->name;
 
     if ($parameter->extendedAttributes->{"Optional"}) {
@@ -905,7 +907,14 @@ sub GenerateBatchedAttributeData
     $accessControl = "static_cast<v8::AccessControl>(" . $accessControl . ")";
 
 
-    my $customAccessor = $attrExt->{"Custom"} || $attrExt->{"V8Custom"} || $attrExt->{"CustomSetter"} || $attrExt->{"CustomGetter"} || "";
+    my $customAccessor = 
+      $attrExt->{"Custom"} || 
+      $attrExt->{"CustomSetter"} || 
+      $attrExt->{"CustomGetter"} || 
+      $attrExt->{"V8Custom"} || 
+      $attrExt->{"V8CustomSetter"} || 
+      $attrExt->{"V8CustomGetter"} || 
+      "";
     if ($customAccessor eq 1) {
       # use the naming convension, interface + (capitalize) attr name
       $customAccessor = $interfaceName . WK_ucfirst($attrName);
@@ -957,7 +966,7 @@ sub GenerateBatchedAttributeData
       }
       
     # Custom Setter
-    } elsif ($attrExt->{"CustomSetter"}) {
+    } elsif ($attrExt->{"CustomSetter"} || $attrExt->{"V8CustomSetter"}) {
       $getter = "${interfaceName}Internal::${attrName}AttrGetter";
       $setter = "V8Custom::v8${customAccessor}AccessorSetter";
 
@@ -1090,7 +1099,8 @@ sub GenerateImplementation
       } else {
 	    GenerateNormalAttrGetter($attribute, $dataNode, $classIndex, $implClassName);
       }
-      if ($attribute->signature->extendedAttributes->{"CustomSetter"}) {
+      if ($attribute->signature->extendedAttributes->{"CustomSetter"} ||
+          $attribute->signature->extendedAttributes->{"V8CustomSetter"}) {
         $implIncludes{"v8_custom.h"} = 1;
       } elsif ($attribute->signature->extendedAttributes->{"Replaceable"}) {
         $dataNode->extendedAttributes->{"ExtendsDOMGlobalObject"} || die "Replaceable attribute can only be used in interface that defines ExtendsDOMGlobalObject attribute!";
@@ -1181,7 +1191,8 @@ END
     push(@implContentDecls, "} // namespace ${interfaceName}Internal\n\n");
 
     my $access_check = "/* no access check */";
-    if ($dataNode->extendedAttributes->{"CheckDomainSecurity"}) {
+    if ($dataNode->extendedAttributes->{"CheckDomainSecurity"} &&
+        !($interfaceName eq "DOMWindow")) {
       $access_check = "instance->SetAccessCheckCallbacks(V8Custom::v8${interfaceName}NamedSecurityCheck, V8Custom::v8${interfaceName}IndexedSecurityCheck, v8::Integer::New(V8ClassIndex::ToInt(V8ClassIndex::${classIndex})));";
     }
 
@@ -1724,6 +1735,16 @@ my %typeCanFailConversion = (
     "unsigned short" => 0,
 );
 
+
+sub TranslateParameter
+{
+    my $signature = shift;
+
+    # The IDL uses some pseudo-types which don't really exist.
+    if ($signature->type eq "TimeoutHandler") {
+      $signature->type("DOMString");
+    }
+}
 
 sub BasicTypeCanFailConversion
 {

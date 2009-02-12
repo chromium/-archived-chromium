@@ -434,6 +434,12 @@ class V8Proxy {
   static int GetSourceLineNumber();
   static String GetSourceName();
 
+  
+  // Returns a local handle of the context.
+  v8::Local<v8::Context> GetContext() {
+    return v8::Local<v8::Context>::New(m_context);
+  }
+
  private:
   // Register extensions before initializing the context.  Once the context
   // is initialized, extensions cannot be registered.
@@ -507,11 +513,6 @@ class V8Proxy {
   static V8ClassIndex::V8WrapperType GetSVGElementType(SVGElement* elm);
   static const char* GetSVGExceptionName(int exception_code);
 #endif
-
-  // Returns a local handle of the context.
-  v8::Local<v8::Context> GetContext() {
-    return v8::Local<v8::Context>::New(m_context);
-  }
 
   // Create and populate the utility context.
   static void CreateUtilityContext();

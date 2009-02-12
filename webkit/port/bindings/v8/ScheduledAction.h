@@ -7,13 +7,12 @@
 
 namespace WebCore {
 
-class DOMWindow;
+class ScriptExecutionContext;
 
 class ScheduledAction {
 public:
   virtual ~ScheduledAction() { }
-  virtual void execute(DOMWindow* window) = 0;
-  virtual void execute(ScriptExecutionContext*) {}
+  virtual void execute(ScriptExecutionContext* window) = 0;
 };
 
 }

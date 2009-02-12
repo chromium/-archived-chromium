@@ -1929,10 +1929,6 @@ void V8Proxy::disconnectFrame()
 {
     // disconnect all event listeners
     DisconnectEventListeners();
-
-    // remove all timeouts
-    if (m_frame->domWindow())
-      m_frame->domWindow()->clearAllTimeouts();
 }
 
 
@@ -2048,11 +2044,6 @@ void V8Proxy::clearForNavigation()
             LookupDOMWrapper(V8ClassIndex::DOMWINDOW, m_global);
         ASSERT(!wrapper.IsEmpty());
         wrapper->TurnOnAccessCheck();
-
-        // Clear all timeouts.
-        DOMWindow* domWindow =
-            ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, wrapper);
-        domWindow->clearAllTimeouts();
 
         // disconnect all event listeners
         DisconnectEventListeners();

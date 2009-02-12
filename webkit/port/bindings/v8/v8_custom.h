@@ -65,6 +65,7 @@ class Frame;
 class V8Proxy;
 class String;
 class HTMLCollection;
+class DOMWindow;
 
 class V8Custom {
  public:
@@ -287,6 +288,8 @@ DECLARE_CALLBACK(DOMWindowNOP)
 DECLARE_CALLBACK(DOMWindowToString)
 DECLARE_CALLBACK(DOMWindowShowModalDialog)
 DECLARE_CALLBACK(DOMWindowOpen)
+DECLARE_CALLBACK(DOMWindowClearTimeout)
+DECLARE_CALLBACK(DOMWindowClearInterval)
 
 DECLARE_CALLBACK(DOMParserConstructor)
 DECLARE_CALLBACK(MessageChannelConstructor)
@@ -499,6 +502,8 @@ DECLARE_CALLBACK(WorkerContextRemoveEventListener)
  private:
   static v8::Handle<v8::Value> WindowSetTimeoutImpl(const v8::Arguments& args,
                                                     bool single_shot);
+  static void ClearTimeoutImpl(const v8::Arguments& args);
+  static void WindowSetLocation(DOMWindow*, const String&);
 };
 
 }  // namespace WebCore

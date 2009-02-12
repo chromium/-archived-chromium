@@ -349,6 +349,7 @@ inputs = [
     '$PORT_DIR/bindings/v8/extensions/Interval.cpp',
     '$PORT_DIR/bindings/v8/extensions/Playback.cpp',
 
+    '$WEBCORE_DIR/bindings/v8/custom/V8DOMWindowCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLCollectionCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLFormElementCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLInputElementCustom.cpp',

@@ -131,7 +131,6 @@ window.XPathResult IS function XPathResult() { [native code] }
 window.XSLTProcessor IS function XSLTProcessor() { [native code] }
 window.alert IS [object global]
 window.atob IS [object global]
-window.back IS [object global]
 window.blur IS [object global]
 window.btoa IS [object global]
 window.captureEvents IS [object global]
@@ -148,7 +147,6 @@ window.devicePixelRatio IS Number
 window.document IS [object HTMLDocument]
 window.find IS [object global]
 window.focus IS [object global]
-window.forward IS [object global]
 window.frameElement IS undefined
 window.frames IS [object global]
 window.getComputedStyle IS [object global]
