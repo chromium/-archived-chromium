@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/toolbar_star_toggle.h"
 
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/views/bookmark_bubble_view.h"

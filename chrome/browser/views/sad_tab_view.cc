@@ -5,7 +5,7 @@
 #include "chrome/browser/views/sad_tab_view.h"
 
 #include "base/gfx/size.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"

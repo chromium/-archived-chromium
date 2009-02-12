@@ -1,0 +1,28 @@
+// Resources used by common/*.
+//
+// Paths in this file are relative to the current file.
+
+#include "theme_resources.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// data resources
+//
+
+#if defined(GOOGLE_CHROME_BUILD)
+IDR_ABOUT_BACKGROUND               BINDATA  "google_chrome/about_background.png"
+IDR_ABOUT_BACKGROUND_RTL           BINDATA  "google_chrome/about_background_rtl.png"
+IDR_ABOUT_BACKGROUND_COLOR         BINDATA  "google_chrome/about_background_color.png"
+IDR_DISTRIBUTOR_LOGO               BINDATA  "google_chrome/distributor_logo.png"
+IDR_DISTRIBUTOR_LOGO_LIGHT         BINDATA  "google_chrome/distributor_logo_light.png"
+IDR_PRODUCT_LOGO                   BINDATA  "google_chrome/product_logo.png"
+IDR_WIZARD_ICON                    BINDATA  "google_chrome/wizard_icon.png"
+IDR_WIZARD_ICON_RTL                BINDATA  "google_chrome/wizard_icon_rtl.png"
+#else
+IDR_ABOUT_BACKGROUND               BINDATA  "chromium/about_background.png"
+IDR_ABOUT_BACKGROUND_RTL           BINDATA  "chromium/about_background_rtl.png"
+IDR_ABOUT_BACKGROUND_COLOR         BINDATA  "chromium/about_background_color.png"
+IDR_PRODUCT_LOGO                   BINDATA  "chromium/product_logo.png"
+IDR_WIZARD_ICON                    BINDATA  "chromium/wizard_icon.png"
+IDR_WIZARD_ICON_RTL                BINDATA  "chromium/wizard_icon_rtl.png"
+#endif

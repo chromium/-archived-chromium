@@ -13,7 +13,7 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/common/clipboard_service.h"

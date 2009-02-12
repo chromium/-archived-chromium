@@ -6,7 +6,7 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

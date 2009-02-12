@@ -11,7 +11,7 @@
 
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/views/options/fonts_languages_window_view.h"

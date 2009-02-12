@@ -5,7 +5,7 @@
 #include "chrome/browser/views/bookmark_bubble_view.h"
 
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"

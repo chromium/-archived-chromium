@@ -11,7 +11,7 @@
 #include "base/win_util.h"
 #include "base/word_iterator.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"

@@ -14,7 +14,7 @@
 #include "base/task.h"
 #include "base/time_format.h"
 #include "base/timer.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"

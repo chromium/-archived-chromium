@@ -5,7 +5,7 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 
 #include "base/gfx/size.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

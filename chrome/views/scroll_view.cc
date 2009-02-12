@@ -5,7 +5,7 @@
 #include "chrome/views/scroll_view.h"
 
 #include "base/logging.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"

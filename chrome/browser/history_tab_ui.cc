@@ -5,7 +5,7 @@
 #include "chrome/browser/history_tab_ui.h"
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/history_model.h"
 #include "chrome/browser/history_view.h"
 #include "chrome/browser/metrics/user_metrics.h"

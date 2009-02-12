@@ -9,7 +9,7 @@
 #include "base/gfx/png_decoder.h"
 #include "base/string_util.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/metrics/user_metrics.h"

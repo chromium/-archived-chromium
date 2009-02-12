@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/l10n_util.h"

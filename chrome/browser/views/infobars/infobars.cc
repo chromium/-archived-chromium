@@ -5,7 +5,7 @@
 #include "chrome/browser/views/infobars/infobars.h"
 
 #include "base/message_loop.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/common/l10n_util.h"

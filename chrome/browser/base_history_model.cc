@@ -6,7 +6,7 @@
 
 #include "base/gfx/jpeg_codec.h"
 #include "base/gfx/png_decoder.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/resource_bundle.h"
 #include "SkBitmap.h"

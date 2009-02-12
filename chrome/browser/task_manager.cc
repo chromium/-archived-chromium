@@ -8,7 +8,7 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/renderer_host/render_process_host.h"

@@ -10,7 +10,7 @@
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/history/history.h"

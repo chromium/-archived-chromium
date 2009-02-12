@@ -9,7 +9,7 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/plugin_process_host.h"

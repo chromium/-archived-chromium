@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
 
-#include "grit/theme_resources.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/resource_bundle.h"
