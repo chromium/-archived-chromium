@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "base/time.h"
+#include "chrome/browser/cocoa/event_view.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "webkit/glue/webcursor.h"
 
@@ -18,7 +19,7 @@ class RenderWidgetHostViewMac;
 // but that means that the view needs to own the delegate and will dispose of it
 // when it's removed from the view system.
 
-@interface RenderWidgetHostViewCocoa : NSView {
+@interface RenderWidgetHostViewCocoa : EventView {
  @private
   RenderWidgetHostViewMac* renderWidgetHostView_;
 }

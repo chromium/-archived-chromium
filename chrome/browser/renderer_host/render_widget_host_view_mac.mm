@@ -11,6 +11,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "skia/ext/platform_canvas.h"
+#include "webkit/glue/webinputevent.h"
 
 @interface RenderWidgetHostViewCocoa (Private)
 - (id)initWithRenderWidgetHostViewMac:(RenderWidgetHostViewMac*)r;
@@ -215,7 +216,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 // them into the C++ system. TODO(avi): all that jazz
 
 - (id)initWithRenderWidgetHostViewMac:(RenderWidgetHostViewMac*)r {
-  self = [super init];
+  self = [super initWithFrame:NSZeroRect];
   if (self != nil) {
     renderWidgetHostView_ = r;
   }
@@ -226,6 +227,21 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   delete renderWidgetHostView_;
   
   [super dealloc];
+}
+
+- (void)mouseEvent:(NSEvent *)theEvent {
+  WebMouseEvent event(theEvent, self);
+  renderWidgetHostView_->render_widget_host()->ForwardMouseEvent(event);
+}
+
+- (void)keyEvent:(NSEvent *)theEvent {
+  WebKeyboardEvent event(theEvent);
+  renderWidgetHostView_->render_widget_host()->ForwardKeyboardEvent(event);
+}
+
+- (void)scrollWheel:(NSEvent *)theEvent {
+  WebMouseWheelEvent event(theEvent, self);
+  renderWidgetHostView_->render_widget_host()->ForwardWheelEvent(event);
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
