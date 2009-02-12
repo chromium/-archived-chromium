@@ -19,6 +19,7 @@
 #include "base/ref_counted.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -834,33 +835,6 @@ class Encryptor {
     NOTIMPLEMENTED();
     return false;
   }
-};
-
-class BookmarkNode {
-};
-
-class BookmarkModelObserver {
-};
-
-class BookmarkModel : public BookmarkService {
- public:
-  explicit BookmarkModel(Profile* profile) { }
-  virtual ~BookmarkModel() { }
-  void Load() { NOTIMPLEMENTED(); }
-  virtual bool IsBookmarked(const GURL& url) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  virtual void GetBookmarks(std::vector<GURL>* urls) { NOTIMPLEMENTED(); }
-  virtual bool IsLoaded() {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  virtual void BlockTillLoaded() { NOTIMPLEMENTED(); }
-  void AddObserver(BookmarkModelObserver* observer) { NOTIMPLEMENTED(); }
-  void RemoveObserver(BookmarkModelObserver* observer) { NOTIMPLEMENTED(); }
-  void SetURLStarred(const GURL&, const std::wstring, bool)
-      { NOTIMPLEMENTED(); }
 };
 
 class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
