@@ -187,6 +187,7 @@ env_dll.Append(
 
         'browser',
         'common',
+        'debugger',
         'util',
         'renderer',
         'hunspell',
@@ -200,7 +201,6 @@ if env.Bit('windows'):
   # These libraries don't work on non-Windows yet.
   env_dll.Append(
       LIBS = [
-          'debugger',
           'plugin',
       ]
   )
