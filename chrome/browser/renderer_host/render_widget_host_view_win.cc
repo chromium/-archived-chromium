@@ -20,12 +20,15 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
 #include "chrome/views/widget_win.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webcursor.h"
+#include "webkit_resources.h"
+
 
 using base::TimeDelta;
 using base::TimeTicks;
@@ -250,28 +253,40 @@ void RenderWidgetHostViewWin::UpdateCursor(const WebCursor& cursor) {
 }
 
 void RenderWidgetHostViewWin::UpdateCursorIfOverSelf() {
+  static HCURSOR kCursorResizeRight = LoadCursor(NULL, IDC_SIZENWSE);
+  static HCURSOR kCursorResizeLeft = LoadCursor(NULL, IDC_SIZENESW);
   static HCURSOR kCursorArrow = LoadCursor(NULL, IDC_ARROW);
   static HCURSOR kCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
   static HINSTANCE module_handle =
       GetModuleHandle(chrome::kBrowserResourcesDll);
 
-  // We cannot pass in NULL as the module handle as this would only work for
-  // standard win32 cursors. We can also receive cursor types which are defined
-  // as webkit resources. We need to specify the module handle of chrome.dll
-  // while loading these cursors.
-  HCURSOR display_cursor = current_cursor_.GetCursor(module_handle);
-
-  // If a page is in the loading state, we want to show the Arrow+Hourglass
-  // cursor only when the current cursor is the ARROW cursor. In all other
-  // cases we should continue to display the current cursor.
-  if (is_loading_ && display_cursor == kCursorArrow)
-    display_cursor = kCursorAppStarting;
-
   // If the mouse is over our HWND, then update the cursor state immediately.
   CPoint pt;
   GetCursorPos(&pt);
-  if (WindowFromPoint(pt) == m_hWnd)
-    SetCursor(display_cursor);
+  if (WindowFromPoint(pt) == m_hWnd) {
+    BOOL result = ::ScreenToClient(m_hWnd, &pt);
+    DCHECK(result);
+    if (render_widget_host_->GetRootWindowResizerRect().Contains(pt.x, pt.y)) {
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+        SetCursor(kCursorResizeLeft);
+      else
+        SetCursor(kCursorResizeRight);
+    } else {
+      // We cannot pass in NULL as the module handle as this would only work for
+      // standard win32 cursors. We can also receive cursor types which are
+      // defined as webkit resources. We need to specify the module handle of
+      // chrome.dll while loading these cursors.
+      HCURSOR display_cursor = current_cursor_.GetCursor(module_handle);
+
+      // If a page is in the loading state, we want to show the Arrow+Hourglass
+      // cursor only when the current cursor is the ARROW cursor. In all other
+      // cases we should continue to display the current cursor.
+      if (is_loading_ && display_cursor == kCursorArrow)
+        display_cursor = kCursorAppStarting;
+
+      SetCursor(display_cursor);
+    }
+  }
 }
 
 void RenderWidgetHostViewWin::SetIsLoading(bool is_loading) {
@@ -327,6 +342,37 @@ void RenderWidgetHostViewWin::Redraw(const gfx::Rect& rect) {
 
   LPARAM lparam = reinterpret_cast<LPARAM>(&invalid_screen_rect);
   EnumChildWindows(m_hWnd, EnumChildProc, lparam);
+}
+
+void RenderWidgetHostViewWin::DrawResizeCorner(const gfx::Rect& paint_rect,
+                                               HDC dc) {
+  gfx::Rect resize_corner_rect =
+      render_widget_host_->GetRootWindowResizerRect();
+  if (!paint_rect.Intersect(resize_corner_rect).IsEmpty()) {
+    SkBitmap* bitmap = ResourceBundle::GetSharedInstance().
+        GetBitmapNamed(IDR_TEXTAREA_RESIZER);
+    ChromeCanvas canvas(bitmap->width(), bitmap->height(), false);
+    // TODO(jcampan): This const_cast should not be necessary once the
+    // SKIA API has been changed to return a non-const bitmap.
+    const_cast<SkBitmap&>(canvas.getDevice()->accessBitmap(true)).
+        eraseARGB(0, 0, 0, 0);
+    int x = resize_corner_rect.x() + resize_corner_rect.width() -
+        bitmap->width();
+    bool rtl_dir = (l10n_util::GetTextDirection() ==
+        l10n_util::RIGHT_TO_LEFT);
+    if (rtl_dir) {
+      canvas.TranslateInt(bitmap->width(), 0);
+      canvas.ScaleInt(-1, 1);
+      canvas.save();
+      x = 0;
+    }
+    canvas.DrawBitmapInt(*bitmap, 0, 0);
+    canvas.getTopPlatformDevice().drawToHDC(dc, x,
+        resize_corner_rect.y() + resize_corner_rect.height() -
+        bitmap->height(), NULL);
+    if (rtl_dir)
+      canvas.restore();
+  }
 }
 
 void RenderWidgetHostViewWin::DidPaintRect(const gfx::Rect& rect) {
@@ -441,6 +487,7 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
 
     gfx::Rect paint_rect = bitmap_rect.Intersect(damaged_rect);
     if (!paint_rect.IsEmpty()) {
+      DrawResizeCorner(paint_rect, backing_store->hdc());
       BitBlt(paint_dc.m_hDC,
              paint_rect.x(),
              paint_rect.y(),
@@ -729,6 +776,20 @@ LRESULT RenderWidgetHostViewWin::OnMouseEvent(UINT message, WPARAM wparam,
   // call).  So the WebContents window would have to be specified to the
   // RenderViewHostHWND as there is no way to retrieve it from the HWND.
   if (!close_on_deactivate_) {  // Don't forward if the container is a popup.
+    if (message == WM_LBUTTONDOWN) {
+      // If we get clicked on, where the resize corner is drawn, we delegate the
+      // message to the root window, with the proper HTBOTTOMXXX wparam so that
+      // Windows can take care of the resizing for us.
+      if (render_widget_host_->GetRootWindowResizerRect().
+          Contains(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam))) {
+        WPARAM wparam = HTBOTTOMRIGHT;
+        if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+          wparam = HTBOTTOMLEFT;
+        HWND root_hwnd = ::GetAncestor(m_hWnd, GA_ROOT);
+        if (SendMessage(root_hwnd, WM_NCLBUTTONDOWN, wparam, lparam) == 0)
+          return 0;
+      }
+    }
     switch (message) {
       case WM_LBUTTONDOWN:
       case WM_MBUTTONDOWN:

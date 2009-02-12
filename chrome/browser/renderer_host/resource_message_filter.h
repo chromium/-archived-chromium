@@ -152,7 +152,6 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 #if defined(OS_WIN)
   void OnGetWindowRect(gfx::NativeViewId window, gfx::Rect *rect);
   void OnGetRootWindowRect(gfx::NativeViewId window, gfx::Rect *rect);
-  void OnGetRootWindowResizerRect(gfx::NativeViewId window, gfx::Rect *rect);
 #endif
   void OnGetMimeTypeFromExtension(const std::wstring& ext,
                                   std::string* mime_type);

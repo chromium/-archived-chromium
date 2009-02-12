@@ -83,8 +83,12 @@ gfx::Rect BrowserWindowCocoa::GetNormalBounds() const {
   return bounds;
 }
 
-bool BrowserWindowCocoa::IsMaximized() {
+bool BrowserWindowCocoa::IsMaximized() const {
   return [window_ isZoomed];
+}
+
+gfx::Rect BrowserWindowCocoa::GetRootWindowResizerRect() const {
+  return gfx::Rect();
 }
 
 LocationBar* BrowserWindowCocoa::GetLocationBar() const {

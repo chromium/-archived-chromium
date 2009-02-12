@@ -394,7 +394,7 @@ bool WebContents::NavigateToPendingEntry(bool reload) {
   }
 
   // Clear any provisional password saves - this stops password infobars
-  // showing up on pages the user navigates to while the right page is 
+  // showing up on pages the user navigates to while the right page is
   // loading.
   GetPasswordManager()->ClearProvisionalSave();
 
@@ -422,7 +422,7 @@ void WebContents::Copy() {
 }
 
 void WebContents::Paste() {
-   render_view_host()->Paste();
+  render_view_host()->Paste();
 }
 
 void WebContents::DisassociateFromPopupCount() {
@@ -608,7 +608,7 @@ bool WebContents::IsActiveEntry(int32 page_id) {
 }
 
 void WebContents::SetInitialFocus(bool reverse) {
-   render_view_host()->SetInitialFocus(reverse);
+  render_view_host()->SetInitialFocus(reverse);
 }
 
 // Notifies the RenderWidgetHost instance about the fact that the page is
@@ -675,20 +675,20 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
 
   // We can't do anything about navigations when we're inactive.
   if (!controller() || !is_active())
-    return;  
+    return;
 
   // Update the site of the SiteInstance if it doesn't have one yet.
   if (!GetSiteInstance()->has_site())
     GetSiteInstance()->SetSite(params.url);
 
-  // Need to update MIME type here because it's referred to in 
+  // Need to update MIME type here because it's referred to in
   // UpdateNavigationCommands() called by RendererDidNavigate() to
-  // determine whether or not to enable the encoding menu. 
-  // It's updated only for the main frame. For a subframe, 
+  // determine whether or not to enable the encoding menu.
+  // It's updated only for the main frame. For a subframe,
   // RenderView::UpdateURL does not set params.contents_mime_type.
   // (see http://code.google.com/p/chromium/issues/detail?id=2929 )
-  // TODO(jungshik): Add a test for the encoding menu to avoid 
-  // regressing it again. 
+  // TODO(jungshik): Add a test for the encoding menu to avoid
+  // regressing it again.
   if (PageTransition::IsMainFrame(params.transition))
     contents_mime_type_ = params.contents_mime_type;
 
@@ -1054,7 +1054,7 @@ void WebContents::AutofillFormSubmitted(
   GetAutofillManager()->AutofillFormSubmitted(form);
 }
 
-void WebContents::GetAutofillSuggestions(const std::wstring& field_name, 
+void WebContents::GetAutofillSuggestions(const std::wstring& field_name,
     const std::wstring& user_text, int64 node_id, int request_id) {
   GetAutofillManager()->FetchValuesForName(field_name, user_text,
       kMaxAutofillMenuItems, node_id, request_id);
@@ -1283,16 +1283,21 @@ bool WebContents::CanBlur() const {
   return delegate() ? delegate()->CanBlur() : true;
 }
 
-void WebContents::RendererUnresponsive(RenderViewHost* rvh, 
+gfx::Rect WebContents::GetRootWindowResizerRect() const {
+  if (delegate())
+    return delegate()->GetRootWindowResizerRect();
+  return gfx::Rect();
+}
+
+void WebContents::RendererUnresponsive(RenderViewHost* rvh,
                                        bool is_during_unload) {
   if (is_during_unload) {
     // Hang occurred while firing the beforeunload/unload handler.
     // Pretend the handler fired so tab closing continues as if it had.
     rvh->UnloadListenerHasFired();
 
-    if (!render_manager_.ShouldCloseTabOnUnresponsiveRenderer()) {
+    if (!render_manager_.ShouldCloseTabOnUnresponsiveRenderer())
       return;
-    }
 
     // If the tab hangs in the beforeunload/unload handler there's really
     // nothing we can do to recover. Pretend the unload listeners have
@@ -1657,7 +1662,7 @@ bool WebContents::UpdateTitleForEntry(NavigationEntry* entry,
         profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
     if (hs)
       hs->SetPageTitle(entry->display_url(), final_title);
-    
+
     // Don't allow the title to be saved again for explicitly set ones.
     received_page_title_ = explicit_set;
   }

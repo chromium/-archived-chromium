@@ -596,6 +596,10 @@ class TabContentsDelegate {
     NOTIMPLEMENTED();
     return true;
   }
+  virtual gfx::Rect GetRootWindowResizerRect() const {
+    return gfx::Rect();
+  }
+
   virtual bool IsExternalTabContainer() {
     NOTIMPLEMENTED();
     return false;

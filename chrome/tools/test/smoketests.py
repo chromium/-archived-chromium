@@ -185,8 +185,9 @@ def main(options, args):
     print 'Running %s:' % test,
     try:
       result = google.process_utils.RunCommand(command, options.verbose)
-    except google.process_utils.CommandNotFound:
+    except google.process_utils.CommandNotFound, e:
       print '%s' % e
+      raise
     if options.verbose:
       print test,
     print '(%ds)' % (time.time() - test_start_time),

@@ -120,7 +120,7 @@ class RenderWidget : public IPC::Channel::Listener,
   // RenderWidget IPC message handlers
   void OnClose();
   void OnCreatingNewAck(gfx::NativeViewId parent);
-  void OnResize(const gfx::Size& new_size);
+  void OnResize(const gfx::Size& new_size, const gfx::Rect& resizer_rect);
   void OnWasHidden();
   void OnWasRestored(bool needs_repainting);
   void OnPaintRectAck();
@@ -204,6 +204,9 @@ class RenderWidget : public IPC::Channel::Listener,
   // scroll event is pending.
   gfx::Rect scroll_rect_;
 
+  // The area that must be reserved for drawing the resize corner.
+  gfx::Rect resizer_rect_;
+
   // The scroll delta for a pending scroll event.
   gfx::Point scroll_delta_;
 
@@ -262,4 +265,4 @@ class RenderWidget : public IPC::Channel::Listener,
   DISALLOW_EVIL_CONSTRUCTORS(RenderWidget);
 };
 
-#endif // CHROME_RENDERER_RENDER_WIDGET_H__
+#endif  // CHROME_RENDERER_RENDER_WIDGET_H__

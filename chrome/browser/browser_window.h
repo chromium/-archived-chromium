@@ -83,7 +83,7 @@ class BrowserWindow {
 
   // TODO(beng): REMOVE?
   // Returns true if the frame is maximized (aka zoomed).
-  virtual bool IsMaximized() = 0;
+  virtual bool IsMaximized() const = 0;
 
   // Returns the location bar.
   virtual LocationBar* GetLocationBar() const = 0;
@@ -101,6 +101,12 @@ class BrowserWindow {
 
   // Returns whether the bookmark bar is visible or not.
   virtual bool IsBookmarkBarVisible() const = 0;
+
+  // Returns the rect where the resize corner should be drawn by the render
+  // widget host view (on top of what the renderer returns). We return an empty
+  // rect to identify that there shouldn't be a resize corner (in the cases
+  // where we take care of it ourselves at the browser level).
+  virtual gfx::Rect GetRootWindowResizerRect() const = 0;
 
   // Shows or hides the bookmark bar depending on its current visibility.
   virtual void ToggleBookmarkBar() = 0;
@@ -126,7 +132,7 @@ class BrowserWindow {
 
   // Shows the Import Bookmarks & Settings dialog box.
   virtual void ShowImportDialog() = 0;
-  
+
   // Shows the Search Engines dialog box.
   virtual void ShowSearchEnginesDialog() = 0;
 

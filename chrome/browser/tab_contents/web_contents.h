@@ -334,6 +334,7 @@ class WebContents : public TabContents,
                                         new_request_id);
   }
   virtual bool CanBlur() const;
+  virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void RendererUnresponsive(RenderViewHost* render_view_host,
                                     bool is_during_unload);
   virtual void RendererResponsive(RenderViewHost* render_view_host);

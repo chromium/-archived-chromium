@@ -73,7 +73,7 @@ int CenterPosition(int size, int target_size) {
   return std::max((target_size - size) / 2, kTopBottomPadding);
 }
 
-} // namespace
+}  // namespace
 
 DownloadShelfView::DownloadShelfView(TabContents* tab_contents)
     : tab_contents_(tab_contents) {
@@ -207,6 +207,9 @@ void DownloadShelfView::Layout() {
   if (!GetWidget())
     return;
 
+  // Let our base class layout our child views
+  views::View::Layout();
+
   gfx::Size image_size = arrow_image_->GetPreferredSize();
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   gfx::Size show_all_size = show_all_view_->GetPreferredSize();
@@ -270,3 +273,6 @@ void DownloadShelfView::ButtonPressed(views::BaseButton* button) {
   shelf_animation_->Hide();
 }
 
+bool DownloadShelfView::IsShowing() const {
+  return shelf_animation_->IsShowing();
+}

@@ -410,6 +410,7 @@ class RenderViewHost : public RenderWidgetHost {
   virtual bool IsRenderView() { return true; }
   virtual void OnMessageReceived(const IPC::Message& msg);
   virtual bool CanBlur() const;
+  virtual gfx::Rect GetRootWindowResizerRect() const;
 
  protected:
   // RenderWidgetHost protected overrides.
