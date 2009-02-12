@@ -350,16 +350,38 @@ DEFER LINUX : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 DEFER LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 LINUX : LayoutTests/fast/transforms/transform-on-inline.html = FAIL
 LINUX : LayoutTests/fast/transforms/transform-table-row.html = FAIL
+LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
+LINUX : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
 DEFER MAC : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
+LINUX : LayoutTests/svg/batik/text/textLength.svg = FAIL
+DEFER MAC LINUX : LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
+LINUX : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
+LINUX : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
+LINUX : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
+DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-65-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-66-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-67-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-68-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-69-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-70-t.svg = FAIL
+DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
 DEFER LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
@@ -367,9 +389,6 @@ LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 
 // Pixel test passes. Texts differ by 1 on SVGRenderText bounding box.
 LINUX : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
-
-// The blue box around 'the' is too dark.
-LINUX WIN : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
 
 // No anti-aliasing on the text.
 LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
@@ -456,7 +475,6 @@ DEFER : LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL PASS
 // Bug 1107191.  These flakily fail image diffs.  Punting on SVG for now.
 // Note that the "expected" images checked in are not necessarily correct.
 // pixeltest failure: font baseline should be on the path, not the centerline
-DEFER : LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
 DEFER : LayoutTests/svg/batik/text/textStyles.svg = FAIL PASS
 
 // These two tests have a highlight color that is different from the Mac,
@@ -476,9 +494,6 @@ LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 // We don't seem to draw this as well as Mac.  The numbers have gaps at the
 // corners.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
-// We're missing rectangle outlines on the 6th and 7th example.  This may
-// just be the timing of when we take the pixel snapshot.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 // Fails in release and debug. Sometimes crashes in debug.
 // Linux pixeltest failure: background is all blue instead of white.
 WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
@@ -487,12 +502,10 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 // Radial gradients with offset focal points are not implemented in Skia.
 // See comment in WebCore/platform/graphics/skia/GradientSkia.cpp
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
@@ -505,12 +518,9 @@ LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX WIN : LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
-// Difference between numeric precision in output.
-LINUX WIN : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 // Our green is darker and we seem to be a pixel taller.
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
@@ -550,17 +560,6 @@ LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
 LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-65-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-66-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-67-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-68-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-69-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-70-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
@@ -570,8 +569,6 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textLength.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
 LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
@@ -589,8 +586,6 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = 
 
 // These have been failing for as long as we've had SVG support and were
 // incorrectly removed during a merge.
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
-DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
 
