@@ -288,8 +288,9 @@ const wchar_t kMessageLoopHistogrammer[]       = L"message-loop-histogrammer";
 // setting encodes the target browser and what items to import.
 const wchar_t kImport[]                        = L"import";
 
-// Change the DCHECKS to dump memory and continue instead of crashing.
-// This is valid only in Release mode when --enable-dcheck is specified.
+// Change the DCHECKS to dump memory and continue instead of displaying error
+// dialog. This is valid only in Release mode when --enable-dcheck is
+// specified.
 const wchar_t kSilentDumpOnDCHECK[]            = L"silent-dump-on-dcheck";
 
 // Normally when the user attempts to navigate to a page that was the result of
