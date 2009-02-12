@@ -539,15 +539,6 @@ if ARGUMENTS.get('SYMBOLS') == '1':
 if ARGUMENTS.get('SHARED') == '1':
   linux_env.Replace(COMPONENT_STATIC=False)
 
-  # The shared library build only works for test_shell and test_shell_tests,
-  # so filter out Chrome.
-  print "Filtering out chrome and media build targets in shared object build."
-  linux_env.FilterOut(
-      BUILD_SCONSCRIPTS = [
-          '$CHROME_DIR/chrome.scons',
-      ]
-  )
-
 # Build with system-provided NSS and GTK.
 if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
   try:
