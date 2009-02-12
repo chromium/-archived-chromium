@@ -75,7 +75,7 @@ class LocationBarBridge : public LocationBar {
     if (commands_)
       observer_ = new TabContentsCommandObserver(self, commands);
     locationBarBridge_ = new LocationBarBridge(self);
-    [contentsBox_ setContentView:contents->GetNativeView()];
+    contents_ = contents;
   }
   return self;
 }
@@ -89,6 +89,8 @@ class LocationBarBridge : public LocationBar {
 }
 
 - (void)awakeFromNib {
+  [contentsBox_ setContentView:contents_->GetNativeView()];
+  
   // Provide a starting point since we won't get notifications if the state
   // doesn't change between tabs.
   [self updateToolbarCommandStatus];

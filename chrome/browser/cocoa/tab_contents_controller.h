@@ -29,6 +29,7 @@ class TabStripModel;
   CommandUpdater* commands_;  // weak, may be nil
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
   LocationBar* locationBarBridge_;
+  TabContents* contents_;  // weak
   IBOutlet NSButton* backButton_;
   IBOutlet NSButton* forwardButton_;
   IBOutlet NSButton* reloadStopButton_;
