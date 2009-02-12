@@ -57,10 +57,15 @@ __builtin__.ChromeFileList = ChromeFileList
 
 non_compilable_suffixes = {
     'LINUX' : set([
-        '.h',
+        '.bdic',
+        '.css',
         '.dat',
-        '.rc',
+        '.h',
+        '.html',
+        '.hxx',
         '.idl',
+        '.js',
+        '.rc',
     ]),
     'WINDOWS' : set([
         '.h',
