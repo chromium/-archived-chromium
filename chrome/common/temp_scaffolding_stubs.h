@@ -456,7 +456,7 @@ class SaveFileManager : public base::RefCountedThreadSafe<SaveFileManager> {
   void UpdateSaveProgress(int save_id, net::IOBuffer* data, int size) {
     NOTIMPLEMENTED();
   }
-  void SaveFinished(int save_id, const std::wstring& save_url,
+  void SaveFinished(int save_id, const GURL& save_url,
                     int render_process_id, int is_success) {
     NOTIMPLEMENTED();
   }

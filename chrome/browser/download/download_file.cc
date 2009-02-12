@@ -531,12 +531,13 @@ void DownloadFileManager::OnShowDownloadInShell(const FilePath& full_path) {
 // a valid parent window, the 'safer' version will be used which can
 // display a modal dialog asking for user consent on dangerous files.
 void DownloadFileManager::OnOpenDownloadInShell(const FilePath& full_path,
-                                                const std::wstring& url,
+                                                const GURL& url,
                                                 gfx::NativeView parent_window) {
 #if defined(OS_WIN)
   DCHECK(MessageLoop::current() == file_loop_);
   if (NULL != parent_window) {
-    win_util::SaferOpenItemViaShell(parent_window, L"", full_path, url, true);
+    win_util::SaferOpenItemViaShell(parent_window, L"", full_path,
+                                    UTF8ToWide(url.spec()), true);
   } else {
     win_util::OpenItemViaShell(full_path, true);
   }

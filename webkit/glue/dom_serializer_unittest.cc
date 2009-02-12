@@ -58,42 +58,41 @@ class DomSerializerTests : public TestShellTest,
       return;
     }
 
-    std::wstring current_frame_url = UTF8ToWide(frame_url.spec());
     // Check finish status of current frame.
     SerializationFinishStatusMap::iterator it =
-        serialization_finish_status_.find(current_frame_url);
+        serialization_finish_status_.find(frame_url.spec());
     // New frame, set initial status as false.
     if (it == serialization_finish_status_.end())
-      serialization_finish_status_[current_frame_url] = false;
+      serialization_finish_status_[frame_url.spec()] = false;
 
-    it = serialization_finish_status_.find(current_frame_url);
+    it = serialization_finish_status_.find(frame_url.spec());
     ASSERT_TRUE(it != serialization_finish_status_.end());
     // In process frame, finish status should be false.
     ASSERT_FALSE(it->second);
 
     // Add data to corresponding frame's content.
-    serialized_frame_map_[current_frame_url] += data;
+    serialized_frame_map_[frame_url.spec()] += data;
 
     // Current frame is completed saving, change the finish status.
     if (status == CURRENT_FRAME_IS_FINISHED)
       it->second = true;
   }
 
-  bool HasSerializedFrame(const std::wstring& frame_url) {
-    return serialized_frame_map_.find(frame_url) !=
+  bool HasSerializedFrame(const GURL& frame_url) {
+    return serialized_frame_map_.find(frame_url.spec()) !=
            serialized_frame_map_.end();
   }
 
   const std::string& GetSerializedContentForFrame(
-      const std::wstring& frame_url) {
-    return serialized_frame_map_[frame_url];
+      const GURL& frame_url) {
+    return serialized_frame_map_[frame_url.spec()];
   }
 
   // Load web page according to specific URL.
-  void LoadPageFromURL(const std::wstring& page_url) {
+  void LoadPageFromURL(const GURL& page_url) {
     // Load the test file.
     test_shell_->ResetTestController();
-    test_shell_->LoadURL(page_url.c_str());
+    test_shell_->LoadURL(UTF8ToWide(page_url.spec()).c_str());
     test_shell_->WaitTestFinished();
   }
 
@@ -130,12 +129,12 @@ class DomSerializerTests : public TestShellTest,
   // Serialize page DOM according to specific page URL. The parameter
   // recursive_serialization indicates whether we will serialize all
   // sub-frames.
-  void SerializeDomForURL(const std::wstring& page_url,
+  void SerializeDomForURL(const GURL& page_url,
                           bool recursive_serialization) {
     // Find corresponding WebFrameImpl according to page_url.
     WebFrameImpl* web_frame =
       webkit_glue::GetWebFrameImplFromWebViewForSpecificURL(
-          test_shell_->webView(), GURL(WideToUTF8(page_url)));
+          test_shell_->webView(), page_url);
     ASSERT_TRUE(web_frame != NULL);
     // Add input file URl to links_.
     links_.push_back(page_url);
@@ -151,15 +150,15 @@ class DomSerializerTests : public TestShellTest,
 
  private:
   // Map frame_url to corresponding serialized_content.
-  typedef base::hash_map<std::wstring, std::string> SerializedFrameContentMap;
+  typedef base::hash_map<std::string, std::string> SerializedFrameContentMap;
   SerializedFrameContentMap serialized_frame_map_;
   // Map frame_url to corresponding status of serialization finish.
-  typedef base::hash_map<std::wstring, bool> SerializationFinishStatusMap;
+  typedef base::hash_map<std::string, bool> SerializationFinishStatusMap;
   SerializationFinishStatusMap serialization_finish_status_;
   // Flag indicates whether the process of serializing DOM is finished or not.
   bool serialized_;
   // The links_ contain dummy original URLs of all saved links.
-  std::vector<std::wstring> links_;
+  std::vector<GURL> links_;
   // The local_paths_ contain dummy corresponding local file paths of all saved
   // links, which matched links_ one by one.
   std::vector<std::wstring> local_paths_;
@@ -241,9 +240,8 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
   file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_1.htm");
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
   // Make sure original contents have document type.
   WebFrameImpl* web_frame =
       webkit_glue::GetWebFrameImplFromWebViewForSpecificURL(
@@ -252,12 +250,12 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
   WebCore::Document* doc = web_frame->frame()->document();
   ASSERT_TRUE(doc->doctype() != NULL);
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
   // Load the serialized contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
+      GetSerializedContentForFrame(file_url);
+  LoadContents(serialized_contents, file_url,
                web_frame->frame()->loader()->encoding());
   // Make sure serialized contents still have document type.
   web_frame =
@@ -273,9 +271,8 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithoutDocType) {
   file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_2.htm");
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
   // Make sure original contents do not have document type.
   WebFrameImpl* web_frame =
       webkit_glue::GetWebFrameImplFromWebViewForSpecificURL(
@@ -284,12 +281,12 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithoutDocType) {
   WebCore::Document* doc = web_frame->frame()->document();
   ASSERT_TRUE(doc->doctype() == NULL);
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
   // Load the serialized contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
+      GetSerializedContentForFrame(file_url);
+  LoadContents(serialized_contents, file_url,
                web_frame->frame()->loader()->encoding());
   // Make sure serialized contents do not have document type.
   web_frame =
@@ -310,15 +307,14 @@ TEST_F(DomSerializerTests, SerialzeXMLDocWithBuiltInEntities) {
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
   // Compare the serialized contents with original contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
+      GetSerializedContentForFrame(file_url);
   ASSERT_EQ(orginal_contents, serialized_contents);
 }
 
@@ -332,25 +328,24 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithAddingMOTW) {
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Make sure original contents does not have MOTW;
-  std::wstring motw_declaration =
-      webkit_glue::DomSerializer::GenerateMarkOfTheWebDeclaration(page_url);
+  std::string motw_declaration =
+      webkit_glue::DomSerializer::GenerateMarkOfTheWebDeclaration(file_url);
   ASSERT_FALSE(motw_declaration.empty());
   // The encoding of original contents is ISO-8859-1, so we convert the MOTW
   // declaration to ASCII and search whether original contents has it or not.
-  ASSERT_TRUE(std::wstring::npos ==
-      orginal_contents.find(WideToASCII(motw_declaration)));
+  ASSERT_TRUE(std::string::npos ==
+      orginal_contents.find(motw_declaration));
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
   // Make sure the serialized contents have MOTW ;
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
-  ASSERT_TRUE(std::wstring::npos !=
-      serialized_contents.find(WideToUTF8(motw_declaration)));
+      GetSerializedContentForFrame(file_url);
+  ASSERT_FALSE(std::string::npos ==
+      serialized_contents.find(motw_declaration));
 }
 
 // When serializing DOM, we will add the META which have correct charset
@@ -363,9 +358,8 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithNoMetaCharsetInOriginalDoc) {
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
 
   // Make sure there is no META charset declaration in original document.
   WebFrameImpl* web_frame =
@@ -384,13 +378,13 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithNoMetaCharsetInOriginalDoc) {
       ASSERT_TRUE(charset_info.isEmpty());
 
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
 
   // Load the serialized contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
+      GetSerializedContentForFrame(file_url);
+  LoadContents(serialized_contents, file_url,
                web_frame->frame()->loader()->encoding());
   // Make sure the first child of HEAD element is META which has charset
   // declaration in serialized contents.
@@ -426,9 +420,8 @@ TEST_F(DomSerializerTests,
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
 
   // Make sure there are multiple META charset declarations in original
   // document.
@@ -452,13 +445,13 @@ TEST_F(DomSerializerTests,
   ASSERT(charset_declaration_count > 1);
 
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
 
   // Load the serialized contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
+      GetSerializedContentForFrame(file_url);
+  LoadContents(serialized_contents, file_url,
                web_frame->frame()->loader()->encoding());
   // Make sure only first child of HEAD element is META which has charset
   // declaration in serialized contents.
@@ -494,9 +487,8 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInText) {
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
   // Get BODY's text content in DOM.
   WebFrameImpl* web_frame =
       webkit_glue::GetWebFrameImplFromWebViewForSpecificURL(
@@ -510,16 +502,16 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInText) {
   ASSERT_TRUE(text_node->isTextNode());
   ASSERT_TRUE(createMarkup(text_node) == "&amp;&lt;&gt;\"\'");
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
   // Compare the serialized contents with original contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
+      GetSerializedContentForFrame(file_url);
   // Because we add MOTW when serializing DOM, so before comparison, we also
   // need to add MOTW to original_contents.
-  std::wstring motw_declaration =
-    webkit_glue::DomSerializer::GenerateMarkOfTheWebDeclaration(page_url);
-  orginal_contents = WideToASCII(motw_declaration) + orginal_contents;
+  std::string motw_declaration =
+    webkit_glue::DomSerializer::GenerateMarkOfTheWebDeclaration(file_url);
+  orginal_contents = motw_declaration + orginal_contents;
   ASSERT_EQ(orginal_contents, serialized_contents);
 }
 
@@ -535,9 +527,8 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInAttributeValue) {
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
   // Get value of BODY's title attribute in DOM.
   WebFrameImpl* web_frame =
       webkit_glue::GetWebFrameImplFromWebViewForSpecificURL(
@@ -551,16 +542,16 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInAttributeValue) {
       WebCore::HTMLNames::titleAttr);
   ASSERT_TRUE(value == WebCore::String("&<>\"\'"));
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
   // Compare the serialized contents with original contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
+      GetSerializedContentForFrame(file_url);
   // Because we add MOTW when serializing DOM, so before comparison, we also
   // need to add MOTW to original_contents.
-  std::wstring motw_declaration =
-    webkit_glue::DomSerializer::GenerateMarkOfTheWebDeclaration(page_url);
-  orginal_contents = WideToASCII(motw_declaration) + orginal_contents;
+  std::string motw_declaration =
+    webkit_glue::DomSerializer::GenerateMarkOfTheWebDeclaration(file_url);
+  orginal_contents = motw_declaration + orginal_contents;
   ASSERT_EQ(serialized_contents, orginal_contents);
 }
 
@@ -584,9 +575,8 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path.ToWStringHack());
   ASSERT_TRUE(file_url.SchemeIsFile());
-  std::wstring page_url = ASCIIToWide(file_url.spec());
   // Load the test file.
-  LoadPageFromURL(page_url);
+  LoadPageFromURL(file_url);
   // Since for this test, we assume there is no savable sub-resource links for
   // this test file, also all links are relative URLs in this test file, so we
   // need to check those relative URLs and make sure document has BASE tag.
@@ -630,13 +620,13 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   ASSERT_NE(original_base_url, path_dir_url);
 
   // Do serialization.
-  SerializeDomForURL(page_url, false);
+  SerializeDomForURL(file_url, false);
 
   // Load the serialized contents.
-  ASSERT_TRUE(HasSerializedFrame(page_url));
+  ASSERT_TRUE(HasSerializedFrame(file_url));
   const std::string& serialized_contents =
-      GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
+      GetSerializedContentForFrame(file_url);
+  LoadContents(serialized_contents, file_url,
                web_frame->frame()->loader()->encoding());
 
   // Make sure all links are absolute URLs and doc there are some number of
@@ -677,7 +667,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   ASSERT_EQ(new_base_tag_count, original_base_tag_count + 1);
   // Make sure in new document, the base URL is equal with the |path_dir_url|.
   GURL new_base_url(
-    WideToUTF8(webkit_glue::StringToStdWString(doc->baseURL())));
+      webkit_glue::StringToStdString(doc->baseURL()));
   ASSERT_EQ(new_base_url, path_dir_url);
 }
 

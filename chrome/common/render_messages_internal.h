@@ -401,7 +401,7 @@ IPC_BEGIN_MESSAGES(View)
   // Get html data by serializing all frames of current page with lists
   // which contain all resource links that have local copy.
   IPC_MESSAGE_ROUTED3(ViewMsg_GetSerializedHtmlDataForCurrentPageWithLocalLinks,
-                      std::vector<std::wstring> /* urls that have local copy */,
+                      std::vector<GURL> /* urls that have local copy */,
                       std::vector<std::wstring> /* paths of local copy */,
                       std::wstring /* local directory path */)
 

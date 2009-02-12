@@ -98,7 +98,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   void StartSave(const SaveFileCreateInfo* info);
   bool UpdateSaveProgress(int32 save_id, int64 size, bool write_success);
   void SaveFinished(int32 save_id, int64 size, bool is_success);
-  void SaveFailed(const std::wstring& save_url);
+  void SaveFailed(const GURL& save_url);
   void SaveCanceled(SaveItem* save_item);
 
   // Rough percent complete, -1 means we don't know (since we didn't receive a
@@ -228,7 +228,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   SaveItem* LookupItemInProcessBySaveId(int32 save_id);
   void PutInProgressItemToSavedMap(SaveItem* save_item);
 
-  typedef base::hash_map<std::wstring, SaveItem*> SaveUrlItemMap;
+  typedef base::hash_map<std::string, SaveItem*> SaveUrlItemMap;
   // in_progress_items_ is map of all saving job in in-progress state.
   SaveUrlItemMap in_progress_items_;
   // saved_failed_items_ is map of all saving job which are failed.
@@ -268,7 +268,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   DownloadItem* download_;
 
   // The URL of the page the user wants to save.
-  std::wstring page_url_;
+  GURL page_url_;
   FilePath saved_main_file_path_;
   FilePath saved_main_directory_path_;
 

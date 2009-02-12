@@ -16,7 +16,7 @@ class SaveFileResourceHandler : public ResourceHandler {
  public:
   SaveFileResourceHandler(int render_process_host_id,
                           int render_view_id,
-                          const std::string& url,
+                          const GURL& url,
                           SaveFileManager* manager);
 
   // Saves the redirected URL to final_url_, we need to use the original
@@ -53,8 +53,8 @@ class SaveFileResourceHandler : public ResourceHandler {
   int render_view_id_;
   scoped_refptr<net::IOBuffer> read_buffer_;
   std::string content_disposition_;
-  std::wstring url_;
-  std::wstring final_url_;
+  GURL url_;
+  GURL final_url_;
   int64 content_length_;
   SaveFileManager* save_manager_;
 

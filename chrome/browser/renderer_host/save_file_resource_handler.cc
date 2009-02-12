@@ -14,19 +14,19 @@
 
 SaveFileResourceHandler::SaveFileResourceHandler(int render_process_host_id,
                                                  int render_view_id,
-                                                 const std::string& url,
+                                                 const GURL& url,
                                                  SaveFileManager* manager)
     : save_id_(-1),
       render_process_id_(render_process_host_id),
       render_view_id_(render_view_id),
-      url_(UTF8ToWide(url)),
+      url_(url),
       content_length_(0),
       save_manager_(manager) {
 }
 
 bool SaveFileResourceHandler::OnRequestRedirected(int request_id,
                                                   const GURL& url) {
-  final_url_ = UTF8ToWide(url.spec());
+  final_url_ = url;
   return true;
 }
 

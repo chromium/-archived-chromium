@@ -19,7 +19,7 @@ class DownloadResourceHandler : public ResourceHandler {
                           int render_process_host_id,
                           int render_view_id,
                           int request_id,
-                          const std::string& url,
+                          const GURL& url,
                           DownloadFileManager* manager,
                           URLRequest* request,
                           bool save_as);
@@ -56,7 +56,7 @@ class DownloadResourceHandler : public ResourceHandler {
   int render_view_id_;
   scoped_refptr<net::IOBuffer> read_buffer_;
   std::string content_disposition_;
-  std::wstring url_;
+  GURL url_;
   int64 content_length_;
   DownloadFileManager* download_manager_;
   URLRequest* request_;

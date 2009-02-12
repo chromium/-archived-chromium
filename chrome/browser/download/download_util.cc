@@ -112,7 +112,7 @@ void BaseContextMenu::ExecuteCommand(int id) {
       download_->manager()->ShowDownloadInShell(download_);
       break;
     case COPY_LINK:
-      scw.WriteText(download_->url());
+      scw.WriteText(UTF8ToWide(download_->url().spec()));
       break;
     case COPY_PATH:
       scw.WriteText(download_->full_path().ToWStringHack());

@@ -1223,7 +1223,7 @@ void RenderViewHost::OnDidGetApplicationInfo(
 }
 
 void RenderViewHost::GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-    const std::vector<std::wstring>& links,
+    const std::vector<GURL>& links,
     const std::vector<std::wstring>& local_paths,
     const std::wstring& local_directory_name) {
   Send(new ViewMsg_GetSerializedHtmlDataForCurrentPageWithLocalLinks(

@@ -19,7 +19,7 @@ DownloadResourceHandler::DownloadResourceHandler(ResourceDispatcherHost* rdh,
                                                  int render_process_host_id,
                                                  int render_view_id,
                                                  int request_id,
-                                                 const std::string& url,
+                                                 const GURL& url,
                                                  DownloadFileManager* manager,
                                                  URLRequest* request,
                                                  bool save_as)
@@ -27,7 +27,7 @@ DownloadResourceHandler::DownloadResourceHandler(ResourceDispatcherHost* rdh,
       global_id_(ResourceDispatcherHost::GlobalRequestID(render_process_host_id,
                                                          request_id)),
       render_view_id_(render_view_id),
-      url_(UTF8ToWide(url)),
+      url_(url),
       content_length_(0),
       download_manager_(manager),
       request_(request),
@@ -40,7 +40,7 @@ DownloadResourceHandler::DownloadResourceHandler(ResourceDispatcherHost* rdh,
 // Not needed, as this event handler ought to be the final resource.
 bool DownloadResourceHandler::OnRequestRedirected(int request_id,
                                                   const GURL& url) {
-  url_ = UTF8ToWide(url.spec());
+  url_ = url;
   return true;
 }
 

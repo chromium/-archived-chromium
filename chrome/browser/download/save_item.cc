@@ -13,8 +13,8 @@
 #include "chrome/browser/download/save_package.h"
 
 // Constructor for SaveItem when creating each saving job.
-SaveItem::SaveItem(const std::wstring& url,
-                   const std::wstring& referrer,
+SaveItem::SaveItem(const GURL& url,
+                   const GURL& referrer,
                    SavePackage* package,
                    SaveFileCreateInfo::SaveFileSource save_source)
   : save_id_(-1),

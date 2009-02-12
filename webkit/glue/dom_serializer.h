@@ -52,12 +52,12 @@ class DomSerializer {
   DomSerializer(WebFrame* webframe,
                 bool recursive_serialization,
                 DomSerializerDelegate* delegate,
-                const std::vector<std::wstring>& links,
+                const std::vector<GURL>& links,
                 const std::vector<std::wstring>& local_paths,
                 const std::wstring& local_directory_name);
 
   // Generate the MOTW declaration.
-  static std::wstring GenerateMarkOfTheWebDeclaration(const std::wstring& url);
+  static std::string GenerateMarkOfTheWebDeclaration(const GURL& url);
   // Generate the default base tag declaration.
   static std::wstring GenerateBaseTagDeclaration(
       const std::wstring& base_target);
@@ -67,7 +67,7 @@ class DomSerializer {
   WebFrameImpl* specified_webframeimpl_;
   // This hash_map is used to map resource URL of original link to its local
   // file path.
-  typedef base::hash_map<std::wstring, std::wstring> LinkLocalPathMap;
+  typedef base::hash_map<std::string, std::wstring> LinkLocalPathMap;
   // local_links_ include all pair of local resource path and corresponding
   // original link.
   LinkLocalPathMap local_links_;
@@ -90,8 +90,6 @@ class DomSerializer {
   struct SerializeDomParam {
     // Frame URL of current processing document presented by GURL
     const GURL& current_frame_gurl;
-    // Frame URL of current processing document presented by std::wstring.
-    const std::wstring& current_frame_wurl;
     // Current using text encoding object.
     const WebCore::TextEncoding& text_encoding;
 
@@ -118,7 +116,6 @@ class DomSerializer {
     // Constructor.
     SerializeDomParam(
         const GURL& current_frame_gurl,
-        const std::wstring& current_frame_wurl,
         const WebCore::TextEncoding& text_encoding,
         WebCore::Document* doc,
         const std::wstring& directory_name);

@@ -351,7 +351,7 @@ class RenderViewHost : public RenderWidgetHost {
   // The parameter local_directory_name is relative path of directory which
   // contain all saved auxiliary files included all sub frames and resouces.
   void GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-      const std::vector<std::wstring>& links,
+      const std::vector<GURL>& links,
       const std::vector<std::wstring>& local_paths,
       const std::wstring& local_directory_name);
 

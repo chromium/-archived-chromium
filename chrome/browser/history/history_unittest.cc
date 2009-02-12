@@ -194,7 +194,7 @@ class HistoryTest : public testing::Test {
 
   int64 AddDownload(int32 state, const Time& time) {
     DownloadCreateInfo download(FilePath(FILE_PATH_LITERAL("foo-path")),
-                                L"foo-url", time, 0, 512, state, 0);
+                                GURL("foo-url"), time, 0, 512, state, 0);
     return db_->CreateDownload(download);
   }
 

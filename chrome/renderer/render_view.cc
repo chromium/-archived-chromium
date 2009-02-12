@@ -2718,7 +2718,7 @@ void RenderView::OnGetAllSavableResourceLinksForCurrentPage(
 }
 
 void RenderView::OnGetSerializedHtmlDataForCurrentPageWithLocalLinks(
-    const std::vector<std::wstring>& links,
+    const std::vector<GURL>& links,
     const std::vector<std::wstring>& local_paths,
     const std::wstring& local_directory_name) {
   webkit_glue::DomSerializer dom_serializer(webview()->GetMainFrame(),

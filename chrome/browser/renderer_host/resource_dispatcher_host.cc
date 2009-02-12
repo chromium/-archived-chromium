@@ -349,7 +349,7 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
                                   render_process_host_id,
                                   render_view_id,
                                   request_id_,
-                                  url.spec(),
+                                  url,
                                   download_file_manager_.get(),
                                   request,
                                   true);
@@ -405,7 +405,7 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
   scoped_refptr<ResourceHandler> handler =
       new SaveFileResourceHandler(render_process_host_id,
                                   render_view_id,
-                                  url.spec(),
+                                  url,
                                   save_file_manager_.get());
   request_id_--;
 

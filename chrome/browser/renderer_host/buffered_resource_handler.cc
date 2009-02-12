@@ -248,7 +248,7 @@ bool BufferedResourceHandler::CompleteResponseStarted(int request_id,
     scoped_refptr<DownloadThrottlingResourceHandler> download_handler =
         new DownloadThrottlingResourceHandler(host_,
                                            request_,
-                                           request_->url().spec(),
+                                           request_->url(),
                                            info->render_process_host_id,
                                            info->render_view_id,
                                            request_id,

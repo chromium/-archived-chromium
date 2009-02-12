@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/download/save_types.h"
+#include "googleurl/src/gurl.h"
 
 class SavePackage;
 
@@ -23,8 +24,8 @@ class SaveItem {
     CANCELED
   };
 
-  SaveItem(const std::wstring& url,
-           const std::wstring& referrer,
+  SaveItem(const GURL& url,
+           const GURL& referrer,
            SavePackage* package,
            SaveFileCreateInfo::SaveFileSource save_source);
 
@@ -56,8 +57,8 @@ class SaveItem {
   SaveState state() const { return state_; }
   const std::wstring full_path() const { return full_path_; }
   const std::wstring file_name() const { return file_name_; }
-  const std::wstring& url() const { return url_; }
-  const std::wstring& referrer() const { return referrer_; }
+  const GURL& url() const { return url_; }
+  const GURL& referrer() const { return referrer_; }
   int64 total_bytes() const { return total_bytes_; }
   int64 received_bytes() const { return received_bytes_; }
   int32 save_id() const { return save_id_; }
@@ -82,8 +83,8 @@ class SaveItem {
   std::wstring file_name_;
 
   // The URL for this save item.
-  std::wstring url_;
-  std::wstring referrer_;
+  GURL url_;
+  GURL referrer_;
 
   // Total bytes expected.
   int64 total_bytes_;

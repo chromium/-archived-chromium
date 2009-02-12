@@ -200,7 +200,7 @@ class DownloadFileManager
   void OnShowDownloadInShell(const FilePath& full_path);
   // Handler to open or execute a downloaded file.
   void OnOpenDownloadInShell(const FilePath& full_path,
-                             const std::wstring& url,
+                             const GURL& url,
                              gfx::NativeView parent_window);
 
   // The download manager has provided a final name for a download. Sent from

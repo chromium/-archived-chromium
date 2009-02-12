@@ -435,7 +435,7 @@ class RenderView : public RenderWidget,
   void OnSetPageEncoding(const std::wstring& encoding_name);
   void OnGetAllSavableResourceLinksForCurrentPage(const GURL& page_url);
   void OnGetSerializedHtmlDataForCurrentPageWithLocalLinks(
-      const std::vector<std::wstring>& links,
+      const std::vector<GURL>& links,
       const std::vector<std::wstring>& local_paths,
       const std::wstring& local_directory_name);
   void OnUploadFileRequest(const ViewMsg_UploadFile_Params& p);

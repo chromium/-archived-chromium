@@ -82,8 +82,8 @@ MSVC_POP_WARNING();
 namespace {
 
 // Default "mark of the web" declaration
-static const wchar_t* const kDefaultMarkOfTheWeb =
-    L"\n<!-- saved from url=(%04d)%ls -->\n";
+static const char* const kDefaultMarkOfTheWeb =
+    "\n<!-- saved from url=(%04d)%s -->\n";
 
 // Default meat content for writing correct charset declaration.
 static const wchar_t* const kDefaultMetaContent =
@@ -146,12 +146,10 @@ namespace webkit_glue {
 // SerializeDomParam Constructor.
 DomSerializer::SerializeDomParam::SerializeDomParam(
     const GURL& current_frame_gurl,
-    const std::wstring& current_frame_wurl,
     const WebCore::TextEncoding& text_encoding,
     WebCore::Document* doc,
     const std::wstring& directory_name)
     : current_frame_gurl(current_frame_gurl),
-      current_frame_wurl(current_frame_wurl),
       text_encoding(text_encoding),
       doc(doc),
       directory_name(directory_name),
@@ -165,9 +163,10 @@ DomSerializer::SerializeDomParam::SerializeDomParam(
 }
 
 // Static.
-std::wstring DomSerializer::GenerateMarkOfTheWebDeclaration(
-    const std::wstring& url) {
-  return StringPrintf(kDefaultMarkOfTheWeb, url.size(), url.c_str());
+std::string DomSerializer::GenerateMarkOfTheWebDeclaration(
+    const GURL& url) {
+  return StringPrintf(kDefaultMarkOfTheWeb,
+                      url.spec().size(), url.spec().c_str());
 }
 
 // Static.
@@ -212,7 +211,8 @@ WebCore::String DomSerializer::PreActionBeforeSerializeOpenTag(
 
       // Add MOTW declaration before html tag.
       // See http://msdn2.microsoft.com/en-us/library/ms537628(VS.85).aspx.
-      result += StdWStringToString(GenerateMarkOfTheWebDeclaration(param->current_frame_wurl));
+      result += StdStringToString(GenerateMarkOfTheWebDeclaration(
+          param->current_frame_gurl));
     } else if (element->hasTagName(WebCore::HTMLNames::baseTag)) {
       // Comment the BASE tag when serializing dom.
       result += StdWStringToString(kStartCommentNotation);
@@ -375,7 +375,7 @@ void DomSerializer::OpenTagToString(const WebCore::Element* element,
             result += attr_value;
           } else {
             WebCore::String str_value = param->doc->completeURL(attr_value);
-            std::wstring value(StringToStdWString(str_value));
+            std::string value(StringToStdString(str_value));
             // Check whether we local files for those link.
             LinkLocalPathMap::const_iterator it = local_links_.find(value);
             if (it != local_links_.end()) {
@@ -481,7 +481,7 @@ void DomSerializer::BuildContentForNode(const WebCore::Node* node,
 DomSerializer::DomSerializer(WebFrame* webframe,
                              bool recursive_serialization,
                              DomSerializerDelegate* delegate,
-                             const std::vector<std::wstring>& links,
+                             const std::vector<GURL>& links,
                              const std::vector<std::wstring>& local_paths,
                              const std::wstring& local_directory_name)
     : delegate_(delegate),
@@ -495,11 +495,11 @@ DomSerializer::DomSerializer(WebFrame* webframe,
   DCHECK(delegate);
   // Build local resources map.
   DCHECK(links.size() == local_paths.size());
-  for (std::vector<std::wstring>::const_iterator link_it = links.begin(),
-       path_it = local_paths.begin(); link_it != links.end();
-       ++link_it, ++path_it) {
+  std::vector<GURL>::const_iterator link_it = links.begin();
+  std::vector<std::wstring>::const_iterator path_it = local_paths.begin();
+  for (; link_it != links.end(); ++link_it, ++path_it) {
     bool never_present = local_links_.insert(
-        LinkLocalPathMap::value_type(*link_it, *path_it)).
+        LinkLocalPathMap::value_type(link_it->spec(), *path_it)).
         second;
     DCHECK(never_present);
   }
@@ -561,10 +561,9 @@ bool DomSerializer::SerializeDom() {
     const WebCore::KURL& current_frame_kurl =
         current_frame->frame()->loader()->url();
     GURL current_frame_gurl(KURLToGURL(current_frame_kurl));
-    std::wstring current_frame_wurl = ASCIIToWide(current_frame_gurl.spec());
 
     // Check whether we have done this document.
-    if (local_links_.find(current_frame_wurl) != local_links_.end()) {
+    if (local_links_.find(current_frame_gurl.spec()) != local_links_.end()) {
       // A new document, we will serialize it.
       did_serialization = true;
       // Get target encoding for current document.
@@ -574,7 +573,6 @@ bool DomSerializer::SerializeDom() {
       // Construct serialize parameter for late processing document.
       SerializeDomParam param(
           current_frame_gurl,
-          current_frame_wurl,
           encoding.length() ? text_encoding : WebCore::UTF8Encoding(),
           current_doc,
           current_frame_gurl == main_page_gurl ?

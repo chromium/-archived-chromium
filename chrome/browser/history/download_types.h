@@ -13,6 +13,7 @@
 #include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/time.h"
+#include "googleurl/src/gurl.h"
 
 // Used for informing the download database of a new download, where we don't
 // want to pass DownloadItems between threads. The history service also uses a
@@ -20,7 +21,7 @@
 // initialization time (see DownloadQueryInfo below).
 struct DownloadCreateInfo {
   DownloadCreateInfo(const FilePath& path,
-                     const std::wstring& url,
+                     const GURL& url,
                      base::Time start_time,
                      int64 received_bytes,
                      int64 total_bytes,
@@ -46,7 +47,7 @@ struct DownloadCreateInfo {
 
   // DownloadItem fields
   FilePath path;
-  std::wstring url;
+  GURL url;
   FilePath suggested_path;
   // A number that should be added to the suggested path to make it unique.
   // 0 means no number should be appended.  Not actually stored in the db.

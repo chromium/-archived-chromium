@@ -109,7 +109,7 @@ SavePackage::SavePackage(WebContents* web_content,
   DCHECK(web_content);
   const GURL& current_page_url = web_contents_->GetURL();
   DCHECK(current_page_url.is_valid());
-  page_url_ = UTF8ToWide(current_page_url.spec());
+  page_url_ = current_page_url;
   DCHECK(save_type_ == SAVE_AS_ONLY_HTML ||
          save_type_ == SAVE_AS_COMPLETE_HTML);
   DCHECK(!saved_main_file_path_.empty() &&
@@ -230,7 +230,7 @@ bool SavePackage::Init() {
         SaveFileCreateInfo::SAVE_FILE_FROM_FILE :
         SaveFileCreateInfo::SAVE_FILE_FROM_NET;
     SaveItem* save_item = new SaveItem(page_url_,
-                                       L"",
+                                       GURL(),
                                        this,
                                        save_source);
     // Add this item to waiting list.
@@ -329,9 +329,9 @@ bool SavePackage::GenerateFilename(const std::string& disposition,
 // We have received a message from SaveFileManager about a new saving job. We
 // create a SaveItem and store it in our in_progress list.
 void SavePackage::StartSave(const SaveFileCreateInfo* info) {
-  DCHECK(info && !info->url.empty());
+  DCHECK(info && !info->url.is_empty());
 
-  SaveUrlItemMap::iterator it = in_progress_items_.find(info->url);
+  SaveUrlItemMap::iterator it = in_progress_items_.find(info->url.spec());
   if (it == in_progress_items_.end()) {
     // If not found, we must have cancel action.
     DCHECK(canceled());
@@ -409,8 +409,8 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
 // Look up SaveItem by save id from in progress map.
 SaveItem* SavePackage::LookupItemInProcessBySaveId(int32 save_id) {
   if (in_process_count()) {
-    SaveUrlItemMap::iterator it = in_progress_items_.begin();
-    for (; it != in_progress_items_.end(); ++it) {
+    for (SaveUrlItemMap::iterator it = in_progress_items_.begin();
+        it != in_progress_items_.end(); ++it) {
       SaveItem* save_item = it->second;
       DCHECK(save_item->state() == SaveItem::IN_PROGRESS);
       if (save_item->save_id() == save_id)
@@ -423,7 +423,7 @@ SaveItem* SavePackage::LookupItemInProcessBySaveId(int32 save_id) {
 // Remove SaveItem from in progress map and put it to saved map.
 void SavePackage::PutInProgressItemToSavedMap(SaveItem* save_item) {
   SaveUrlItemMap::iterator it = in_progress_items_.find(
-      save_item->url());
+      save_item->url().spec());
   DCHECK(it != in_progress_items_.end());
   DCHECK(save_item == it->second);
   in_progress_items_.erase(it);
@@ -435,9 +435,9 @@ void SavePackage::PutInProgressItemToSavedMap(SaveItem* save_item) {
     saved_success_items_[save_item->save_id()] = save_item;
   } else {
     // Add it to saved_failed_items_.
-    DCHECK(saved_failed_items_.find(save_item->url()) ==
+    DCHECK(saved_failed_items_.find(save_item->url().spec()) ==
            saved_failed_items_.end());
-    saved_failed_items_[save_item->url()] = save_item;
+    saved_failed_items_[save_item->url().spec()] = save_item;
   }
 }
 
@@ -599,8 +599,8 @@ void SavePackage::SaveFinished(int32 save_id, int64 size, bool is_success) {
 // this error.
 // Saving an item failed. If it's a sub-resource, ignore it. If the error comes
 // from serializing HTML data, then cancel saving page.
-void SavePackage::SaveFailed(const std::wstring& save_url) {
-  SaveUrlItemMap::iterator it = in_progress_items_.find(save_url);
+void SavePackage::SaveFailed(const GURL& save_url) {
+  SaveUrlItemMap::iterator it = in_progress_items_.find(save_url.spec());
   if (it == in_progress_items_.end()) {
     NOTREACHED();  // Should not exist!
     return;
@@ -660,9 +660,9 @@ void SavePackage::SaveNextFile(bool process_all_remaining_items) {
 
     // Add the item to in_progress_items_.
     SaveUrlItemMap::iterator it = in_progress_items_.find(
-        save_item->url());
+        save_item->url().spec());
     DCHECK(it == in_progress_items_.end());
-    in_progress_items_[save_item->url()] = save_item;
+    in_progress_items_[save_item->url().spec()] = save_item;
     save_item->Start();
     file_manager_->SaveURL(save_item->url(),
                            save_item->referrer(),
@@ -744,7 +744,7 @@ void SavePackage::DoSavingProcess() {
 void SavePackage::GetSerializedHtmlDataForCurrentPageWithLocalLinks() {
   if (wait_state_ != HTML_DATA)
     return;
-  std::vector<std::wstring> saved_links;
+  std::vector<GURL> saved_links;
   std::vector<std::wstring> saved_file_paths;
   int successful_started_items_count = 0;
 
@@ -815,8 +815,7 @@ void SavePackage::OnReceivedSerializedHtmlData(const GURL& frame_url,
     return;
   }
 
-  std::wstring current_frame_url = UTF8ToWide(frame_url.spec());
-  SaveUrlItemMap::iterator it = in_progress_items_.find(current_frame_url);
+  SaveUrlItemMap::iterator it = in_progress_items_.find(frame_url.spec());
   if (it == in_progress_items_.end())
     return;
   SaveItem* save_item = it->second;
@@ -886,15 +885,15 @@ void SavePackage::OnReceivedSavableResourceLinksForCurrentPage(
       SaveFileCreateInfo::SaveFileSource save_source = u.SchemeIsFile() ?
           SaveFileCreateInfo::SAVE_FILE_FROM_FILE :
           SaveFileCreateInfo::SAVE_FILE_FROM_NET;
-      SaveItem* save_item = new SaveItem(UTF8ToWide(u.spec()),
-          UTF8ToWide(referrers_list[i].spec()), this, save_source);
+      SaveItem* save_item = new SaveItem(u, referrers_list[i],
+                                         this, save_source);
       waiting_item_queue_.push(save_item);
     }
     // Put all HTML resources to wait list.
     for (int i = 0; i < static_cast<int>(frames_list.size()); ++i) {
       const GURL& u = frames_list[i];
       DCHECK(u.is_valid());
-      SaveItem* save_item = new SaveItem(UTF8ToWide(u.spec()), L"",
+      SaveItem* save_item = new SaveItem(u, GURL(),
           this, SaveFileCreateInfo::SAVE_FILE_FROM_DOM);
       waiting_item_queue_.push(save_item);
     }

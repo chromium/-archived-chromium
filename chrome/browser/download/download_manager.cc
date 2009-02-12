@@ -126,7 +126,7 @@ DownloadItem::DownloadItem(const DownloadCreateInfo& info)
 DownloadItem::DownloadItem(int32 download_id,
                            const FilePath& path,
                            int path_uniquifier,
-                           const std::wstring& url,
+                           const GURL& url,
                            const FilePath& original_name,
                            const base::Time start_time,
                            int64 download_size,

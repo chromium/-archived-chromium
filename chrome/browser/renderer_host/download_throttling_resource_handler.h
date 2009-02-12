@@ -8,6 +8,7 @@
 #include <string>
 
 #include "chrome/browser/renderer_host/resource_handler.h"
+#include "googleurl/src/gurl.h"
 
 #if defined(OS_WIN)
 // TODO(port): Remove ifdef when downloads are ported.
@@ -33,7 +34,7 @@ class DownloadThrottlingResourceHandler
  public:
   DownloadThrottlingResourceHandler(ResourceDispatcherHost* host,
                                     URLRequest* request,
-                                    const std::string& url,
+                                    const GURL& url,
                                     int render_process_host_id,
                                     int render_view_id,
                                     int request_id,
@@ -61,7 +62,7 @@ class DownloadThrottlingResourceHandler
 
   ResourceDispatcherHost* host_;
   URLRequest* request_;
-  std::string url_;
+  GURL url_;
   int render_process_host_id_;
   int render_view_id_;
   int request_id_;

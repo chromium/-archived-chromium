@@ -72,7 +72,9 @@ void DownloadDatabase::QueryDownloads(std::vector<DownloadCreateInfo>* results) 
     std::wstring path_str;
     statement->column_wstring(1, &path_str);
     info.path = FilePath::FromWStringHack(path_str);
-    statement->column_wstring(2, &info.url);
+    std::wstring url_str;
+    statement->column_wstring(2, &url_str);
+    info.url = GURL(WideToUTF8(url_str));
     info.start_time = Time::FromTimeT(statement->column_int64(3));
     info.received_bytes = statement->column_int64(4);
     info.total_bytes = statement->column_int64(5);
@@ -120,7 +122,7 @@ int64 DownloadDatabase::CreateDownload(const DownloadCreateInfo& info) {
     return 0;
 
   statement->bind_wstring(0, info.path.ToWStringHack());
-  statement->bind_wstring(1, info.url);
+  statement->bind_wstring(1, UTF8ToWide(info.url.spec()));
   statement->bind_int64(2, info.start_time.ToTimeT());
   statement->bind_int64(3, info.received_bytes);
   statement->bind_int64(4, info.total_bytes);

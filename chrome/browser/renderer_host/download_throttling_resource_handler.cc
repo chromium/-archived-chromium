@@ -10,7 +10,7 @@
 DownloadThrottlingResourceHandler::DownloadThrottlingResourceHandler(
     ResourceDispatcherHost* host,
     URLRequest* request,
-    const std::string& url,
+    const GURL& url,
     int render_process_host_id,
     int render_view_id,
     int request_id,
@@ -44,7 +44,7 @@ bool DownloadThrottlingResourceHandler::OnRequestRedirected(int request_id,
                                                             const GURL& url) {
   if (download_handler_.get())
     return download_handler_->OnRequestRedirected(request_id, url);
-  url_ = url.spec();
+  url_ = url;
   return true;
 }
 

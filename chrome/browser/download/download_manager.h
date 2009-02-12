@@ -103,7 +103,7 @@ class DownloadItem {
   DownloadItem(int32 download_id,
                const FilePath& path,
                int path_uniquifier,
-               const std::wstring& url,
+               const GURL& url,
                const FilePath& original_name,
                const base::Time start_time,
                int64 download_size,
@@ -176,7 +176,7 @@ class DownloadItem {
   void set_full_path(const FilePath& path) { full_path_ = path; }
   int path_uniquifier() const { return path_uniquifier_; }
   void set_path_uniquifier(int uniquifier) { path_uniquifier_ = uniquifier; }
-  std::wstring url() const { return url_; }
+  GURL url() const { return url_; }
   int64 total_bytes() const { return total_bytes_; }
   void set_total_bytes(int64 total_bytes) { total_bytes_ = total_bytes; }
   int64 received_bytes() const { return received_bytes_; }
@@ -221,8 +221,8 @@ class DownloadItem {
   // Short display version of the file
   FilePath file_name_;
 
-  // The URL from whence we came, for display
-  std::wstring url_;
+  // The URL from whence we came.
+  GURL url_;
 
   // Total bytes expected
   int64 total_bytes_;
