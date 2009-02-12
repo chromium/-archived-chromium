@@ -186,19 +186,24 @@ env_dll.Append(
         'port',
 
         'browser',
-        'browser_views',
-        'debugger',
         'common',
         'util',
-        'plugin',
         'renderer',
         'hunspell',
         'sdch',
         'sqlite',
-        'views',
         'v8_snapshot',
     ],
 )
+
+if env.Bit('windows'):
+  # These libraries don't work on non-Windows yet.
+  env_dll.Append(
+      LIBS = [
+          'debugger',
+          'plugin',
+      ]
+  )
 
 if env_dll.Bit('windows'):
   env_dll.Append(
@@ -215,6 +220,8 @@ if env_dll.Bit('windows'):
       ],
       LIBS = [
           'activex_shim',
+          'browser_views',
+          'views',
 
           #'comctl32.lib',
           #'dwmapi.lib',
