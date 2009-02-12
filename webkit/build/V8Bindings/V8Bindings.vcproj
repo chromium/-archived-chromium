@@ -292,6 +292,22 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8ClientRect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8ClientRect.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8ClientRectList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8ClientRectList.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8Clipboard.cpp"
 				>
 			</File>
@@ -2729,11 +2745,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\V8WorkerCustom.cpp"
+			RelativePath="..\..\port\bindings\v8\V8WorkerContextCustom.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\V8WorkerContextCustom.cpp"
+			RelativePath="..\..\port\bindings\v8\V8WorkerCustom.cpp"
 			>
 		</File>
 		<File

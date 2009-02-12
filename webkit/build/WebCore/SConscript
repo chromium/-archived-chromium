@@ -109,6 +109,8 @@ input_files = [
     '$WEBCORE_DIR/dom/ChildNodeList.cpp',
     '$WEBCORE_DIR/dom/ClassNames.cpp',
     '$WEBCORE_DIR/dom/ClassNodeList.cpp',
+    '$WEBCORE_DIR/dom/ClientRect.cpp',
+    '$WEBCORE_DIR/dom/ClientRectList.cpp',
     '$WEBCORE_DIR/dom/Clipboard.cpp',
     '$WEBCORE_DIR/dom/ClipboardEvent.cpp',
     '$WEBCORE_DIR/dom/Comment.cpp',

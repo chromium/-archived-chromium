@@ -54,6 +54,8 @@ inputs = [
     '$DERIVED_DIR/V8CDATASection.cpp',
     '$DERIVED_DIR/V8CharacterData.cpp',
     '$DERIVED_DIR/V8Clipboard.cpp',
+    '$DERIVED_DIR/V8ClientRect.cpp',
+    '$DERIVED_DIR/V8ClientRectList.cpp',
     '$DERIVED_DIR/V8Comment.cpp',
     '$DERIVED_DIR/V8Console.cpp',
     '$DERIVED_DIR/V8Counter.cpp',

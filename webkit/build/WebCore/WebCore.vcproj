@@ -4297,6 +4297,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ClientRect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ClientRect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ClientRectList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ClientRectList.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Clipboard.cpp"
 				>
 			</File>
@@ -5189,14 +5205,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\Selection.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\Selection.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\SelectionController.cpp"
 				>
 			</File>
@@ -5290,6 +5298,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\VisiblePosition.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\VisibleSelection.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\VisibleSelection.h"
 				>
 			</File>
 			<File

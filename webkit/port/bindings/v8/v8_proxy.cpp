@@ -54,6 +54,8 @@
 #include "CanvasRenderingContext2D.h"
 #include "CanvasStyle.h"
 #include "CharacterData.h"
+#include "ClientRect.h"
+#include "ClientRectList.h"
 #include "Clipboard.h"
 #include "Console.h"
 #include "Counter.h"

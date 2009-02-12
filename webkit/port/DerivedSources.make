@@ -621,6 +621,8 @@ all : \
     V8Attr.h \
     V8BarInfo.h \
     V8CanvasPixelArray.h \
+    V8ClientRect.h \
+    V8ClientRectList.h \
     V8CDATASection.h \
     V8CSSCharsetRule.h \
     V8CSSFontFaceRule.h \

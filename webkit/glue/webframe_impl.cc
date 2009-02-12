@@ -176,7 +176,7 @@ using WebCore::RenderObject;
 using WebCore::ResourceError;
 using WebCore::ResourceHandle;
 using WebCore::ResourceRequest;
-using WebCore::Selection;
+using WebCore::VisibleSelection;
 using WebCore::SharedBuffer;
 using WebCore::String;
 using WebCore::SubstituteData;
@@ -814,7 +814,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
     main_frame_impl->active_match_frame_ = this;
 
     // We found something, so we can now query the selection for its position.
-    Selection new_selection(frame()->selection()->selection());
+    VisibleSelection new_selection(frame()->selection()->selection());
     IntRect curr_selection_rect;
 
     // If we thought we found something, but it couldn't be selected (perhaps
@@ -1176,7 +1176,7 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
       active_match_.get()) {
     // If the user has changed the selection since the match was found, we
     // don't focus anything.
-    Selection selection(frame()->selection()->selection());
+    VisibleSelection selection(frame()->selection()->selection());
     if (selection.isNone() || (selection.start() == selection.end()) ||
         active_match_->boundingBox() !=
             selection.toNormalizedRange()->boundingBox())

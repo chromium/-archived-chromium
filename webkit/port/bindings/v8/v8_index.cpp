@@ -41,6 +41,8 @@
 #include "V8CanvasPixelArray.h"
 #include "V8CDATASection.h"
 #include "V8CharacterData.h"
+#include "V8ClientRect.h"
+#include "V8ClientRectList.h"
 #include "V8Clipboard.h"
 #include "V8Comment.h"
 #include "V8Console.h"

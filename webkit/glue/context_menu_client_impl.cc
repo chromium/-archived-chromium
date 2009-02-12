@@ -76,9 +76,9 @@ std::wstring GetMisspelledWord(const WebCore::ContextMenu* default_menu,
   WebCore::VisiblePosition pos(inner_node->renderer()->positionForPoint(
       hit_test_result.localPoint()));
 
-  WebCore::Selection selection;
+  WebCore::VisibleSelection selection;
   if (pos.isNotNull()) {
-    selection = WebCore::Selection(pos);
+    selection = WebCore::VisibleSelection(pos);
     selection.expandUsingGranularity(WebCore::WordGranularity);
   }
       
@@ -96,7 +96,7 @@ std::wstring GetMisspelledWord(const WebCore::ContextMenu* default_menu,
   // If misspelled word is empty, then that portion should not be selected.
   // Set the selection to that position only, and do not expand.
   if (misspelled_word_string.empty()) {
-    selection = WebCore::Selection(pos);
+    selection = WebCore::VisibleSelection(pos);
     selected_frame->selection()->setSelection(selection);
   }
 

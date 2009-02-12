@@ -1577,6 +1577,8 @@ sub IsRefPtrType
     my $type = shift;
     return 1 if $type eq "Attr";
     return 1 if $type eq "CanvasGradient";
+    return 1 if $type eq "ClientRect";
+    return 1 if $type eq "ClientRectList";
     return 1 if $type eq "CDATASection";
     return 1 if $type eq "Comment";
     return 1 if $type eq "CSSRule";

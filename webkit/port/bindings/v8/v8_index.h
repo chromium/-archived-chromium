@@ -244,6 +244,8 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(CANVASGRADIENT, CanvasGradient)                                     \
   V(CANVASPATTERN, CanvasPattern)                                       \
   V(CANVASRENDERINGCONTEXT2D, CanvasRenderingContext2D)                 \
+  V(CLIENTRECT, ClientRect)                                             \
+  V(CLIENTRECTLIST, ClientRectList)                                     \
   V(CLIPBOARD, Clipboard)                                               \
   V(CONSOLE, Console)                                                   \
   V(COUNTER, Counter)                                                   \
