@@ -10,8 +10,8 @@
 #ifdef IPC_MESSAGE_LOG_ENABLED
 
 #include "base/lock.h"
-#include "base/object_watcher.h"
 #include "base/singleton.h"
+#include "base/waitable_event_watcher.h"
 #include "chrome/common/ipc_message_utils.h"
 
 class MessageLoop;
@@ -23,7 +23,7 @@ class Message;
 // One instance per process.  Needs to be created on the main thread (the UI
 // thread in the browser) but OnPreDispatchMessage/OnPostDispatchMessage
 // can be called on other threads.
-class Logging : public base::ObjectWatcher::Delegate {
+class Logging : public base::WaitableEventWatcher::Delegate {
  public:
   // Implemented by consumers of log messages.
   class Consumer {
@@ -38,7 +38,7 @@ class Logging : public base::ObjectWatcher::Delegate {
 
   void Enable();
   void Disable();
-  bool inline Enabled() const;
+  bool Enabled() const { return enabled_; }
 
   // Called by child processes to give the logger object the channel to send
   // logging data to the browser process.
@@ -64,8 +64,8 @@ class Logging : public base::ObjectWatcher::Delegate {
   static void GetMessageText(uint16 type, std::wstring* name,
                              const Message* message, std::wstring* params);
 
-  // ObjectWatcher::Delegate implementation
-  void OnObjectSignaled(HANDLE object);
+  // WaitableEventWatcher::Delegate implementation
+  void OnWaitableEventSignaled(base::WaitableEvent* event);
 
   typedef void (*LogFunction)(uint16 type,
                              std::wstring* name,
@@ -84,10 +84,10 @@ class Logging : public base::ObjectWatcher::Delegate {
 
   void RegisterWaitForEvent(bool enabled);
 
-  base::ObjectWatcher watcher_;
+  base::WaitableEventWatcher watcher_;
 
-  HANDLE logging_event_on_;
-  HANDLE logging_event_off_;
+  scoped_ptr<base::WaitableEvent> logging_event_on_;
+  scoped_ptr<base::WaitableEvent> logging_event_off_;
   bool enabled_;
 
   std::vector<LogData> queued_logs_;

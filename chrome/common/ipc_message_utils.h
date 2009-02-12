@@ -867,6 +867,7 @@ struct LogData {
                   // OnMessageReceived).
   int64 dispatch;  // Time after it was dispatched (i.e. after calling
                    // OnMessageReceived).
+  std::wstring message_name;
   std::wstring params;
 };
 

@@ -8,6 +8,8 @@ env = env.Clone()
 
 env.SConscript([
     '$BASE_DIR/using_base.scons',
+    '$BASE_DIR/gfx/using_base_gfx.scons',  # needed for logging
+    '$CHROME_SRC_DIR/build/using_googleurl.scons',  # needed for logging
     '$BREAKPAD_DIR/using_breakpad.scons',
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
     '$GTEST_DIR/../using_gtest.scons',
@@ -15,10 +17,19 @@ env.SConscript([
     '$LIBJPEG_DIR/using_libjpeg.scons',
     '$LIBPNG_DIR/using_libpng.scons',
     '$LIBXML_DIR/using_libxml.scons',
+    '$NET_DIR/using_net.scons',  # needed for logging
     '$NPAPI_DIR/using_npapi.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
+
+# needed for logging
+env.Append(
+  LIBS = [
+    'glue',
+    'WTF',
+  ],
+)
 
 if env.Bit('posix'):
   env.SConscript([

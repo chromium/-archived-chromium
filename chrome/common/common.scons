@@ -232,7 +232,6 @@ if not env.Bit('windows'):
       'gfx/emf.cc',
       'gfx/icon_util.cc',
       'gfx/path.cc',
-      'ipc_logging.cc',
       'os_exchange_data.cc',
       'process_watcher.cc',
   )

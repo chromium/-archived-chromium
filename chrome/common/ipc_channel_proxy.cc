@@ -5,18 +5,10 @@
 #include "base/message_loop.h"
 #include "base/thread.h"
 #include "chrome/common/ipc_channel_proxy.h"
-#if defined(OS_WIN)
-// TODO(playmobil): remove ifdef once ObjectWatcher is ported
 #include "chrome/common/ipc_logging.h"
-#endif
 #include "chrome/common/ipc_message_utils.h"
 
 namespace IPC {
-
-#if defined(OS_POSIX)
-// TODO(playmobil): remove once ObjectWatcher is ported
-#undef IPC_MESSAGE_LOG_ENABLED
-#endif
 
 //-----------------------------------------------------------------------------
 

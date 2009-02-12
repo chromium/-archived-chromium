@@ -11,12 +11,11 @@
 #include "base/pickle.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
-#if defined(OS_WIN)
-// TODO(port): IPC message logging hasn't been ported to other platforms yet.
 #ifndef NDEBUG
 #define IPC_MESSAGE_LOG_ENABLED
 #endif
-#elif defined(OS_POSIX)
+
+#if defined(OS_POSIX)
 #include "chrome/common/descriptor_set_posix.h"
 #endif
 
