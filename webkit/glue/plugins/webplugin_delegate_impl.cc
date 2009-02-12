@@ -184,9 +184,6 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     quirks_ |= PLUGIN_QUIRK_DONT_CALL_WND_PROC_RECURSIVELY;
   } else if (plugin_info.name.find(L"VLC Multimedia Plugin") !=
              std::wstring::npos) {
-    // VLC hangs on NPP_Destroy if we call NPP_SetWindow with a null window
-    // handle
-    quirks_ |= PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY;
     // VLC 0.8.6d and 0.8.6e crash if multiple instances are created.
     quirks_ |= PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES;
   } else if (filename == "npctrl.dll") {
@@ -304,10 +301,11 @@ void WebPluginDelegateImpl::DestroyInstance() {
     // instance uses the helper to do the download.
     instance_->CloseStreams();
 
-    window_.window = NULL;
-    if (!(quirks_ & PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY)) {
-      instance_->NPP_SetWindow(&window_);
-    }
+    // The MDC documentation suggests that you should call SetWindow(NULL) or
+    // SetWindow(window->window = NULL) when you destroy an instance.  However,
+    // Firefox does not do this, and hence many plugins don't expect it.  This
+    // leads to NULL pointer deference crashes, etc.  We will have to follow
+    // Firefox here and not call SetWindow during destruction.
 
     instance_->NPP_Destroy();
 
