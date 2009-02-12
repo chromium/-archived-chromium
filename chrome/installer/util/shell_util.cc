@@ -13,6 +13,7 @@
 
 #include "chrome/installer/util/shell_util.h"
 
+#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -219,35 +220,13 @@ bool IsChromeRegistered(const std::wstring& chrome_exe) {
   return registered;
 }
 
-bool CreateChromeRegKeysForXP(HKEY root_key, const std::wstring& chrome_exe) {
+bool BindChromeAssociations(HKEY root_key, const std::wstring& chrome_exe) {
   // Create a list of registry entries to create so that we can rollback
   // in case of problem.
   scoped_ptr<WorkItemList> items(WorkItem::CreateWorkItemList());
-  std::wstring classes_path(ShellUtil::kRegClasses);
-
-  std::wstring exe_name = file_util::GetFilenameFromPath(chrome_exe);
-  std::wstring chrome_open = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
-  std::wstring chrome_icon(chrome_exe);
-  ShellUtil::GetChromeIcon(chrome_icon);
-
-  // Create Software\Classes\ChromeHTML
-  std::wstring html_prog_id = classes_path + L"\\" +
-                              ShellUtil::kChromeHTMLProgId;
-  items->AddCreateRegKeyWorkItem(root_key, html_prog_id);
-  items->AddSetRegValueWorkItem(root_key, html_prog_id,
-                                L"", ShellUtil::kChromeHTMLProgIdDesc, true);
-  items->AddSetRegValueWorkItem(root_key, html_prog_id,
-                                ShellUtil::kRegUrlProtocol, L"", true);
-  std::wstring default_icon = html_prog_id + ShellUtil::kRegDefaultIcon;
-  items->AddCreateRegKeyWorkItem(root_key, default_icon);
-  items->AddSetRegValueWorkItem(root_key, default_icon, L"",
-                                chrome_icon, true);
-  std::wstring open_cmd = html_prog_id + ShellUtil::kRegShellOpen;
-  items->AddCreateRegKeyWorkItem(root_key, open_cmd);
-  items->AddSetRegValueWorkItem(root_key, open_cmd, L"",
-                                chrome_open, true);
 
   // file extension associations
+  std::wstring classes_path(ShellUtil::kRegClasses);
   for (int i = 0; ShellUtil::kFileAssociations[i] != NULL; i++) {
     std::wstring key_path = classes_path + L"\\" +
                             ShellUtil::kFileAssociations[i];
@@ -257,6 +236,9 @@ bool CreateChromeRegKeysForXP(HKEY root_key, const std::wstring& chrome_exe) {
   }
 
   // protocols associations
+  std::wstring chrome_open = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
+  std::wstring chrome_icon(chrome_exe);
+  ShellUtil::GetChromeIcon(chrome_icon);
   for (int i = 0; ShellUtil::kProtocolAssociations[i] != NULL; i++) {
     std::wstring key_path = classes_path + L"\\" +
                             ShellUtil::kProtocolAssociations[i];
@@ -281,6 +263,7 @@ bool CreateChromeRegKeysForXP(HKEY root_key, const std::wstring& chrome_exe) {
   }
 
   // start->Internet shortcut.
+  std::wstring exe_name = file_util::GetFilenameFromPath(chrome_exe);
   std::wstring start_internet(ShellUtil::kRegStartMenuInternet);
   items->AddCreateRegKeyWorkItem(root_key, start_internet);
   items->AddSetRegValueWorkItem(root_key, start_internet, L"",
@@ -293,6 +276,25 @@ bool CreateChromeRegKeysForXP(HKEY root_key, const std::wstring& chrome_exe) {
     return false;
   }
   return true;
+}
+
+// Populate work_item_list with WorkItem entries that will add chrome.exe to
+// the set of App Paths registry keys so that ShellExecute can find it. Note
+// that this is done in HKLM, regardless of whether this is a single-user
+// install or not. For non-admin users, this will fail.
+// chrome_exe: full path to chrome.exe
+// work_item_list: pointer to the WorkItemList that will be populated
+void AddChromeAppPathWorkItems(const std::wstring& chrome_exe,
+                               WorkItemList* item_list) {
+  FilePath chrome_path(chrome_exe);
+  std::wstring app_path_key(ShellUtil::kAppPathsRegistryKey);
+  file_util::AppendToPath(&app_path_key, chrome_path.BaseName().value());
+  item_list->AddCreateRegKeyWorkItem(HKEY_LOCAL_MACHINE, app_path_key);
+  item_list->AddSetRegValueWorkItem(HKEY_LOCAL_MACHINE, app_path_key, L"",
+                                    chrome_exe, true);
+  item_list->AddSetRegValueWorkItem(HKEY_LOCAL_MACHINE, app_path_key,
+                                    ShellUtil::kAppPathsRegistryPathName,
+                                    chrome_path.DirName().value(), true);
 }
 
 // This method creates the registry entries required for Add/Remove Programs->
@@ -316,7 +318,7 @@ bool SetAccessDefaultRegEntries(HKEY root_key,
   // Append the App Paths registry entries. Do this only if we are an admin,
   // since they are always written to HKLM.
   if (IsUserAnAdmin())
-    ShellUtil::AddChromeAppPathWorkItems(chrome_exe, items.get());
+    AddChromeAppPathWorkItems(chrome_exe, items.get());
 
   // Apply all the registry changes and if there is a problem, rollback.
   if (!items->Do()) {
@@ -347,8 +349,9 @@ ShellUtil::RegisterStatus RegisterOnVista(const std::wstring& chrome_exe,
       BrowserDistribution* dist = BrowserDistribution::GetDistribution();
       RegKey key(HKEY_CURRENT_USER, dist->GetUninstallRegPath().c_str());
       key.ReadValue(installer_util::kUninstallStringField, &exe_path);
-      exe_path = exe_path.substr(0, exe_path.find_first_of(L" --"));
-      TrimString(exe_path, L" \"", &exe_path);
+      CommandLine command_line(L"");
+      command_line.ParseFromString(exe_path);
+      exe_path = command_line.program();
     }
     if (file_util::PathExists(exe_path)) {
       std::wstring params(L"--");
@@ -376,6 +379,9 @@ const wchar_t* ShellUtil::kRegRegisteredApplications =
     L"Software\\RegisteredApplications";
 const wchar_t* ShellUtil::kRegVistaUrlPrefs =
     L"Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice";
+const wchar_t* ShellUtil::kAppPathsRegistryKey =
+    L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths";
+const wchar_t* ShellUtil::kAppPathsRegistryPathName = L"Path";
 
 const wchar_t* ShellUtil::kChromeHTMLProgId = L"ChromeHTML";
 const wchar_t* ShellUtil::kChromeHTMLProgIdDesc = L"Chrome HTML";
@@ -471,29 +477,6 @@ bool ShellUtil::GetQuickLaunchPath(bool system_level, std::wstring* path) {
   return true;
 }
 
-void ShellUtil::AddChromeAppPathWorkItems(
-    const std::wstring& chrome_exe, WorkItemList* item_list) {
-  WorkItem* create_work_item = WorkItem::CreateCreateRegKeyWorkItem(
-      HKEY_LOCAL_MACHINE, installer_util::kAppPathsRegistryKey);
-
-  item_list->AddWorkItem(create_work_item);
-
-  WorkItem* set_default_value_work_item =
-      WorkItem::CreateSetRegValueWorkItem(HKEY_LOCAL_MACHINE,
-          installer_util::kAppPathsRegistryKey,
-          installer_util::kAppPathsRegistryDefaultName,
-          chrome_exe, true);
-  item_list->AddWorkItem(set_default_value_work_item);
-
-  FilePath chrome_path(chrome_exe);
-  WorkItem* set_path_value_work_item =
-      WorkItem::CreateSetRegValueWorkItem(HKEY_LOCAL_MACHINE,
-          installer_util::kAppPathsRegistryKey,
-          installer_util::kAppPathsRegistryPathName,
-          chrome_path.DirName().value(), true);
-  item_list->AddWorkItem(set_path_value_work_item);
-}
-
 bool ShellUtil::CreateChromeDesktopShortcut(const std::wstring& chrome_exe,
                                             int shell_change,
                                             bool create_new) {
@@ -566,6 +549,8 @@ bool ShellUtil::CreateChromeQuickLaunchShortcut(const std::wstring& chrome_exe,
 bool ShellUtil::MakeChromeDefault(int shell_change,
                                   const std::wstring chrome_exe) {
   bool ret = true;
+  // First use the new "recommended" way on Vista to make Chrome default
+  // browser.
   if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
     LOG(INFO) << "Registering Chrome as default browser on Vista.";
     IApplicationAssociationRegistration* pAAR;
@@ -581,17 +566,21 @@ bool ShellUtil::MakeChromeDefault(int shell_change,
       ret = false;
       LOG(ERROR) << "Could not make Chrome default browser.";
     }
-  } else {
-    // Change the default browser for current user.
-    if ((shell_change & ShellUtil::CURRENT_USER) &&
-        !CreateChromeRegKeysForXP(HKEY_CURRENT_USER, chrome_exe))
-      ret = false;
-
-    // Chrome as default browser at system level.
-    if ((shell_change & ShellUtil::SYSTEM_LEVEL) &&
-        !CreateChromeRegKeysForXP(HKEY_LOCAL_MACHINE, chrome_exe))
-      ret = false;
   }
+
+  // Now use the old way to associate Chrome with supported protocols and file
+  // associations. This should not be required on Vista but since some
+  // applications still read Software\Classes\http key directly, we have to do
+  // this on Vista also.
+  // Change the default browser for current user.
+  if ((shell_change & ShellUtil::CURRENT_USER) &&
+      !BindChromeAssociations(HKEY_CURRENT_USER, chrome_exe))
+    ret = false;
+
+  // Chrome as default browser at system level.
+  if ((shell_change & ShellUtil::SYSTEM_LEVEL) &&
+      !BindChromeAssociations(HKEY_LOCAL_MACHINE, chrome_exe))
+    ret = false;
 
   // Send Windows notification event so that it can update icons for
   // file associations.

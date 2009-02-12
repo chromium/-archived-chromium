@@ -54,6 +54,11 @@ class ShellUtil {
   // we add Chrome as a Windows application
   static const wchar_t* kRegRegisteredApplications;
 
+  // The key path and key name required to register Chrome on Windows such
+  // that it can be launched from Start->Run just by name (chrome.exe).
+  static const wchar_t* kAppPathsRegistryKey;
+  static const wchar_t* kAppPathsRegistryPathName;
+
   // Name that we give to Chrome file association handler ProgId.
   static const wchar_t* kChromeHTMLProgId;
 
@@ -77,15 +82,6 @@ class ShellUtil {
 
   // Description of Chrome file/URL association handler ProgId.
   static const wchar_t* kChromeExtProgIdDesc;
-
-  // Populate work_item_list with WorkItem entries that will add chrome.exe to
-  // the set of App Paths registry keys so that ShellExecute can find it. Note
-  // that this is done in HKLM, regardless of whether this is a single-user
-  // install or not. For non-admin users, this will fail.
-  // chrome_exe: full path to chrome.exe
-  // work_item_list: pointer to the WorkItemList that will be populated
-  static void AddChromeAppPathWorkItems(const std::wstring& chrome_exe,
-                                        WorkItemList* work_item_list);
 
   // This method adds Chrome to the list that shows up in Add/Remove Programs->
   // Set Program Access and Defaults and also creates Chrome ProgIds under
@@ -204,4 +200,3 @@ class ShellUtil {
 
 
 #endif  // CHROME_INSTALLER_UTIL_SHELL_UTIL_H__
-

@@ -257,7 +257,9 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
                         dist->GetApplicationName());
 
     // Delete the App Paths key that lets explorer find Chrome.
-    DeleteRegistryKey(hklm_key, installer_util::kAppPathsRegistryKey);
+    std::wstring app_path_key(ShellUtil::kAppPathsRegistryKey);
+    file_util::AppendToPath(&app_path_key, installer_util::kChromeExe);
+    DeleteRegistryKey(hklm_key, app_path_key);
 
     // Delete media player registry key that exists only in HKLM.
     std::wstring reg_path(installer::kMediaPlayerRegPath);
