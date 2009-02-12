@@ -324,7 +324,6 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
-LINUX : LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 LINUX MAC : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 // For these two fast/frames tests it looks like the win baseline had some weird
@@ -339,8 +338,8 @@ LINUX : LayoutTests/fast/compact/002.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 MAC : LayoutTests/fast/dom/prototype-chain.html = FAIL
 MAC LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
-MAC LINUX : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
-MAC LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
+MAC : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
+MAC : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
