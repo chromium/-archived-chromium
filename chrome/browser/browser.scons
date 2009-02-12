@@ -708,6 +708,10 @@ if not env.Bit('windows'):
       'icon_loader.cc',
       'icon_manager.cc',
       'ime_input.cc',
+      # Hold off on firefox[23]_importer.cc until importer.cc has been ported.
+      # Otherwise shared link builds won't work on Linux.
+      'importer/firefox2_importer.cc',
+      'importer/firefox3_importer.cc',
       'importer/firefox_importer_utils.cc',
       'importer/ie_importer.cc',
       'importer/importer.cc',
