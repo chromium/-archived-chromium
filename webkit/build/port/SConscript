@@ -182,6 +182,8 @@ idl_files = [
     'dom/Attr.idl',
     'dom/CDATASection.idl',
     'dom/CharacterData.idl',
+    'dom/ClientRect.idl'
+    'dom/ClientRectList.idl'
     'dom/Clipboard.idl',
     'dom/Comment.idl',
     'dom/Document.idl',
