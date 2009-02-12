@@ -6594,16 +6594,7 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					..,
 					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
-					../skia/include,
-					../skia/include/corecg,
-					../third_party/icu38/public/i18n,
-					../third_party/icu38/public/common,
-					../third_party/libjpeg,
-					../third_party/libxml/include,
-					../third_party/npapi,
-					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
 				);
 				INFOPLIST_FILE = "app/app-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -6620,16 +6611,7 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					..,
 					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
-					../skia/include,
-					../skia/include/corecg,
-					../third_party/icu38/public/i18n,
-					../third_party/icu38/public/common,
-					../third_party/libjpeg,
-					../third_party/libxml/include,
-					../third_party/npapi,
-					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
 				);
 				INFOPLIST_FILE = "app/app-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
