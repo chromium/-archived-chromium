@@ -508,7 +508,7 @@ const TestPool kTestPool[] = {
   // L"files/printing/test5.html", L"test5",
 };
 
-TEST_F(PrintingLayoutTestHidden, DISABLED_ManyTimes) {
+TEST_F(PrintingLayoutTestHidden, ManyTimes) {
   if (IsTestCaseDisabled())
     return;
 
@@ -593,7 +593,7 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
+TEST_F(PrintingLayoutTest, IFrame) {
   if (IsTestCaseDisabled())
     return;
 
