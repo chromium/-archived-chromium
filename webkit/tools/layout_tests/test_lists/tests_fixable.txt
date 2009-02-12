@@ -324,8 +324,8 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 
 // These were recently rebaselined on Windows and probably just need a
 // rebaseline on other platforms as well.
-LINUX MAC : chrome/fast/forms/basic-textareas.html = FAIL
-LINUX MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
+LINUX : chrome/fast/forms/basic-textareas.html = FAIL
+LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 // For these two fast/frames tests it looks like the win baseline had some weird
 // artifacts on the scrollbars on one of the frames, which has now been removed.
 // This artifact does not exist on the mac baseline.
