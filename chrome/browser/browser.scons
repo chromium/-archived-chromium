@@ -746,6 +746,7 @@ if not env.Bit('windows'):
       'sessions/session_restore.cc',
       'shell_integration.cc',
       'ssl/ssl_blocking_page.cc',
+      'ssl/ssl_manager.cc',
       'ssl/ssl_policy.cc',
       'tab_contents/infobar_delegate.cc',
       'tab_contents/interstitial_page.cc',

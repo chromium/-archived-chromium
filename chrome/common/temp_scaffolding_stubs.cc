@@ -340,6 +340,20 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
   NOTIMPLEMENTED();
 }
 
+bool SSLManager::DeserializeSecurityInfo(const std::string&, int*, int*, int*) {
+  NOTIMPLEMENTED();
+  return false;
+}
+
+void SSLManager::OnSSLCertificateError(
+    ResourceDispatcherHost* resource_dispatcher,
+    URLRequest* request,
+    int cert_error,
+    net::X509Certificate* cert,
+    MessageLoop* ui_loop) {
+  NOTIMPLEMENTED();
+}
+
 //--------------------------------------------------------------------------
 
 void RunRepostFormWarningDialog(NavigationController*) {
@@ -416,11 +430,6 @@ void DebuggerShell::ProcessCommand(const std::wstring& data) {
   NOTIMPLEMENTED();
 }
 #endif  // !CHROME_DEBUGGER_DISABLED
-
-SSLPolicy* SSLPolicy::GetDefaultPolicy() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
 
 void HistoryURLProvider::ExecuteWithDB(history::HistoryBackend*,
                                        history::URLDatabase*,

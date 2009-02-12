@@ -32,8 +32,6 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/sessions/session_id.h"
-#include "chrome/browser/ssl/ssl_error_info.h"
-#include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
@@ -983,6 +981,34 @@ class ConstrainedWindow {
   void CloseConstrainedWindow() { NOTIMPLEMENTED(); }
 };
 
+class SSLManager {
+ public:
+  class Delegate {
+   public:
+  };
+  SSLManager(NavigationController* controller, Delegate* delegate) {
+    NOTIMPLEMENTED();
+  }
+  ~SSLManager() { }
+  void NavigationStateChanged() { NOTIMPLEMENTED(); }
+  static bool DeserializeSecurityInfo(const std::string&, int*, int*, int*);
+  static void OnSSLCertificateError(ResourceDispatcherHost* rdh,
+                                                  URLRequest* request,
+                                                  int cert_error,
+                                                  net::X509Certificate* cert,
+                                                  MessageLoop* ui_loop);
+  static std::string SerializeSecurityInfo(int cert_id,
+                                           int cert_status,
+                                           int security_bits) {
+    NOTIMPLEMENTED();
+    return std::string();
+  }
+  static void OnMixedContentRequest(ResourceDispatcherHost* rdh,
+                                    URLRequest* request,
+                                    MessageLoop* ui_loop) { NOTIMPLEMENTED(); }
+  void OnMixedContent(MixedContentHandler* mixed_content) { NOTIMPLEMENTED(); }
+};
+
 class ModalHtmlDialogDelegate {
  public:
   ModalHtmlDialogDelegate(const GURL&, int, int, const std::string&,
@@ -1046,69 +1072,6 @@ class RepostFormWarningDialog {
  public:
   static void RunRepostFormWarningDialog(NavigationController*) { }
   virtual ~RepostFormWarningDialog() { }
-};
-
-class SSLBlockingPage : public InterstitialPage {
- public:
-  class Delegate {
-   public:
-    virtual SSLErrorInfo GetSSLErrorInfo(SSLManager::CertError* error) = 0;
-    virtual void OnDenyCertificate(SSLManager::CertError* error) = 0;
-    virtual void OnAllowCertificate(SSLManager::CertError* error) = 0;
-  };
-
-  SSLBlockingPage(SSLManager::CertError* error, Delegate* delegate);
-  virtual ~SSLBlockingPage();
-
-  static void SetExtraInfo(DictionaryValue* strings,
-                           const std::vector<std::wstring>& extra_info);
-
- protected:
-  virtual std::string GetHTMLContents();
-  virtual void CommandReceived(const std::string& command);
-  virtual void UpdateEntry(NavigationEntry* entry);
-  virtual void Proceed();
-  virtual void DontProceed();
-
- private:
-   void NotifyDenyCertificate();
-   void NotifyAllowCertificate();
-
-  DISALLOW_COPY_AND_ASSIGN(SSLBlockingPage);
-};
-
-class SSLPolicy : public SSLManager::Delegate,
-                  public SSLBlockingPage::Delegate {
- public:
-  static SSLPolicy* GetDefaultPolicy();
-
-  virtual void OnCertError(const GURL& main_frame_url,
-                           SSLManager::CertError* error);
-  virtual void OnMixedContent(
-      NavigationController* navigation_controller,
-      const GURL& main_frame_url,
-      SSLManager::MixedContentHandler* mixed_content_handler) {
-  }
-
-  virtual void OnRequestStarted(SSLManager* manager,
-                                const GURL& url,
-                                ResourceType::Type resource_type,
-                                int ssl_cert_id,
-                                int ssl_cert_status);
-  virtual SecurityStyle GetDefaultStyle(const GURL& url);
-
-  virtual SSLErrorInfo GetSSLErrorInfo(SSLManager::CertError* error);
-  virtual void OnDenyCertificate(SSLManager::CertError* error);
-  virtual void OnAllowCertificate(SSLManager::CertError* error);
-
- protected:
-  SSLPolicy();
-  void OnOverridableCertError(const GURL& main_frame_url,
-                              SSLManager::CertError* error);
-  void OnFatalCertError(const GURL& main_frame_url,
-                        SSLManager::CertError* error);
- private:
-  DISALLOW_EVIL_CONSTRUCTORS(SSLPolicy);
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

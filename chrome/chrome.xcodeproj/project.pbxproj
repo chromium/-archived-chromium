@@ -124,7 +124,6 @@
 		406DFE278638D6132B21B2C9 /* url_pattern.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6447F24FADC63E58A44DB762 /* url_pattern.cc */; };
 		423A79243BC7B7C0B1E9B97A /* session_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = C8D26D9EC81E03E91E270463 /* session_service.cc */; };
 		475CAF858604B413561740C1 /* cache_manager_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8520E9D4839009A6919 /* cache_manager_host.cc */; };
-		486456FF9CB2AA650DB9FE26 /* ssl_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16ECC0F21451600861FAC /* ssl_manager.cc */; };
 		49C8AD19AA0094034F59B6F0 /* user_script.cc in Sources */ = {isa = PBXBuildFile; fileRef = 699499C4FBA07FB2D7B298A2 /* user_script.cc */; };
 		4D175916B2FC058793051209 /* chrome_paths_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */; };
 		4D1F59FE0F2A6BBB0040C1E3 /* image_diff.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D1F59FD0F2A6BBB0040C1E3 /* image_diff.cc */; };
@@ -5386,7 +5385,6 @@
 				4D7BFA2D0E9D4910009A6919 /* snippet.cc in Sources */,
 				E45075FA0F150C28003BE099 /* spellcheck_worditerator.cc in Sources */,
 				F775995035B63E51251B0922 /* ssl_error_info.cc in Sources */,
-				486456FF9CB2AA650DB9FE26 /* ssl_manager.cc in Sources */,
 				E4F3245D0EE5CFDF002533CE /* starred_url_database.cc in Sources */,
 				E45075EE0F150ABA003BE099 /* sync_resource_handler.cc in Sources */,
 				E455DDBA0F3227A600DD4383 /* tab_cell.mm in Sources */,

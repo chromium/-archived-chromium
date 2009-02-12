@@ -8,13 +8,17 @@
 #include "base/string_util.h"
 #include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/resource_request_details.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_policy.h"
+#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
@@ -22,24 +26,13 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/views/decision.h"
+#include "chrome/views/link.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_type.h"
 #include "generated_resources.h"
-
-#if defined(OS_WIN)
-// TODO(port): Port these files.
-#include "chrome/browser/load_notification_details.h"
-#include "chrome/browser/ssl/ssl_policy.h"
-#include "chrome/browser/tab_contents/infobar_delegate.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/views/decision.h"
-#include "chrome/views/link.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
 
 class SSLInfoBarDelegate : public ConfirmInfoBarDelegate {
  public:
@@ -100,8 +93,8 @@ void SSLManager::RegisterUserPrefs(PrefService* prefs) {
 }
 
 SSLManager::SSLManager(NavigationController* controller, Delegate* delegate)
-    : delegate_(delegate),
-      controller_(controller) {
+    : controller_(controller),
+      delegate_(delegate) {
   DCHECK(controller_);
 
   // If do delegate is supplied, use the default policy.
@@ -239,10 +232,10 @@ SSLManager::ErrorHandler::ErrorHandler(ResourceDispatcherHost* rdh,
     : ui_loop_(ui_loop),
       io_loop_(MessageLoop::current()),
       manager_(NULL),
-      request_id_(0, 0),
       resource_dispatcher_host_(rdh),
-      request_url_(request->url()),
-      request_has_been_notified_(false) {
+      request_has_been_notified_(false),
+      request_id_(0, 0),
+      request_url_(request->url()) {
   DCHECK(MessageLoop::current() != ui_loop);
 
   ResourceDispatcherHost::ExtraRequestInfo* info =
