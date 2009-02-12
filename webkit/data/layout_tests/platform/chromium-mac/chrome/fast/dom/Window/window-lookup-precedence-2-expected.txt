@@ -131,7 +131,6 @@ window.XPathResult : PASS
 window.XSLTProcessor : PASS
 window.alert : PASS
 window.atob : PASS
-window.back : PASS
 window.blur : PASS
 window.btoa : PASS
 window.captureEvents : PASS
@@ -148,7 +147,6 @@ window.devicePixelRatio : PASS
 window.document : PASS
 window.find : PASS
 window.focus : PASS
-window.forward : PASS
 window.frameElement : PASS
 window.frames : PASS
 window.getComputedStyle : PASS
