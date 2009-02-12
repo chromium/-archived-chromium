@@ -5,11 +5,17 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_H_
 #define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_H_
 
+#include "build/build_config.h"
+
 #include <string>
 #include <vector>
 
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
+#if defined(OS_WIN)
+// TODO(evanm): I mean really, c'mon, this can't have broken the build, right?
+#include "chrome/browser/autocomplete/autocomplete_edit.h"
+#endif
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
