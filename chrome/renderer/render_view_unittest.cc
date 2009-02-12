@@ -130,3 +130,58 @@ TEST_F(RenderViewTest, OnNavStateChanged) {
   EXPECT_TRUE(render_thread_.sink().GetUniqueMessageMatching(
       ViewHostMsg_UpdateState::ID));
 }
+
+// Test that our IME backend sends a notification message when the input focus
+// changes.
+TEST_F(RenderViewTest, OnImeStateChanged) {
+  // Enable our IME backend code.
+  view_->OnImeSetInputMode(true);
+
+  // Load an HTML page consisting of two input fields.
+  view_->set_delay_seconds_for_form_state_sync(0);
+  LoadHTML("<html>"
+           "<head>"
+           "</head>"
+           "<body>"
+           "<input id=\"test1\" type=\"text\"></input>"
+           "<input id=\"test2\" type=\"password\"></input>"
+           "</body>"
+           "</html>");
+  render_thread_.sink().ClearMessages();
+
+  const int kRepeatCount = 10;
+  for (int i = 0; i < kRepeatCount; i++) {
+    // Move the input focus to the first <input> element, where we should
+    // activate IMEs.
+    ExecuteJavaScript("document.getElementById('test1').focus();");
+    ProcessPendingMessages();
+    render_thread_.sink().ClearMessages();
+
+    // Update the IME status and verify if our IME backend sends an IPC message
+    // to activate IMEs.
+    view_->UpdateIME();
+    const IPC::Message* msg = render_thread_.sink().GetMessageAt(0);
+    EXPECT_TRUE(msg != NULL);
+    EXPECT_EQ(ViewHostMsg_ImeUpdateStatus::ID, msg->type());
+    ViewHostMsg_ImeUpdateStatus::Param params;
+    ViewHostMsg_ImeUpdateStatus::Read(msg, &params);
+    EXPECT_EQ(params.a, IME_COMPLETE_COMPOSITION);
+    EXPECT_TRUE(params.b.x() > 0 && params.b.y() > 0);
+
+    // Move the input focus to the second <input> element, where we should
+    // de-activate IMEs.
+    ExecuteJavaScript("document.getElementById('test2').focus();");
+    ProcessPendingMessages();
+    render_thread_.sink().ClearMessages();
+
+    // Update the IME status and verify if our IME backend sends an IPC message
+    // to de-activate IMEs.
+    view_->UpdateIME();
+    msg = render_thread_.sink().GetMessageAt(0);
+    EXPECT_TRUE(msg != NULL);
+    EXPECT_EQ(ViewHostMsg_ImeUpdateStatus::ID, msg->type());
+    ViewHostMsg_ImeUpdateStatus::Read(msg, &params);
+    EXPECT_EQ(params.a, IME_DISABLE);
+  }
+}
+
