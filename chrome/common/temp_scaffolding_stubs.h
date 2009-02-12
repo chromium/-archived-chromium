@@ -32,6 +32,8 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/sessions/session_id.h"
+#include "chrome/browser/ssl/ssl_error_info.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
@@ -617,7 +619,16 @@ class TabContentsDelegate {
 
 class InterstitialPage {
  public:
+  InterstitialPage(WebContents* tab, bool new_navigation, const GURL& url) {
+    NOTIMPLEMENTED();
+  }
   virtual void DontProceed() { NOTIMPLEMENTED(); }
+  virtual void Proceed() { NOTIMPLEMENTED(); }
+  virtual void Show() { NOTIMPLEMENTED(); }
+  WebContents* tab() const {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
 };
 
 class InfoBarDelegate {
@@ -971,34 +982,6 @@ class ConstrainedWindow {
   }
   void DidBecomeSelected() { NOTIMPLEMENTED(); }
   void CloseConstrainedWindow() { NOTIMPLEMENTED(); }
-};
-
-class SSLManager {
- public:
-  class Delegate {
-   public:
-  };
-  SSLManager(NavigationController* controller, Delegate* delegate) {
-    NOTIMPLEMENTED();
-  }
-  ~SSLManager() { }
-  void NavigationStateChanged() { NOTIMPLEMENTED(); }
-  static bool DeserializeSecurityInfo(const std::string&, int*, int*, int*);
-  static void OnSSLCertificateError(ResourceDispatcherHost* rdh,
-                                                  URLRequest* request,
-                                                  int cert_error,
-                                                  net::X509Certificate* cert,
-                                                  MessageLoop* ui_loop);
-  static std::string SerializeSecurityInfo(int cert_id,
-                                           int cert_status,
-                                           int security_bits) {
-    NOTIMPLEMENTED();
-    return std::string();
-  }
-  static void OnMixedContentRequest(ResourceDispatcherHost* rdh,
-                                    URLRequest* request,
-                                    MessageLoop* ui_loop) { NOTIMPLEMENTED(); }
-  void OnMixedContent(MixedContentHandler* mixed_content) { NOTIMPLEMENTED(); }
 };
 
 class ModalHtmlDialogDelegate {

@@ -7,9 +7,13 @@
 
 #include <string>
 
-#include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/ssl/ssl_manager.h"
-#include "chrome/views/decision.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/interstitial_page.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class DictionaryValue;
 

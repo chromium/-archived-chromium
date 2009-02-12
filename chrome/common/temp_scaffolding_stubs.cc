@@ -376,20 +376,6 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
   NOTIMPLEMENTED();
 }
 
-bool SSLManager::DeserializeSecurityInfo(const std::string&, int*, int*, int*) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-void SSLManager::OnSSLCertificateError(
-    ResourceDispatcherHost* resource_dispatcher,
-    URLRequest* request,
-    int cert_error,
-    net::X509Certificate* cert,
-    MessageLoop* ui_loop) {
-  NOTIMPLEMENTED();
-}
-
 //--------------------------------------------------------------------------
 
 void RunRepostFormWarningDialog(NavigationController*) {

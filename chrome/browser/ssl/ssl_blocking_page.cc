@@ -72,6 +72,7 @@ std::string SSLBlockingPage::GetHTMLContents() {
 }
 
 void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
+#if defined(OS_WIN)
   DCHECK(tab()->type() == TAB_CONTENTS_WEB);
   WebContents* web = tab()->AsWebContents();
   const net::SSLInfo& ssl_info = error_->ssl_info();
@@ -86,6 +87,9 @@ void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
       NotificationType::SSL_STATE_CHANGED,
       Source<NavigationController>(web->controller()),
       NotificationService::NoDetails());
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void SSLBlockingPage::CommandReceived(const std::string& command) {
