@@ -160,7 +160,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\base\mock_filter_host.h"
+					>
+				</File>
+				<File
 					RelativePath="..\base\mock_media_filters.h"
+					>
+				</File>
+				<File
+					RelativePath="..\base\mock_pipeline.h"
 					>
 				</File>
 				<File
@@ -173,6 +181,14 @@
 				>
 				<File
 					RelativePath="..\audio\win\audio_output_win_unittest.cc"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="filters"
+				>
+				<File
+					RelativePath="..\filters\file_data_source_unittest.cc"
 					>
 				</File>
 			</Filter>

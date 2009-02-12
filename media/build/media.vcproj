@@ -196,6 +196,14 @@
 				RelativePath="..\filters\audio_renderer_impl.h"
 				>
 			</File>
+			<File
+				RelativePath="..\filters\file_data_source.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\file_data_source.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="audio"
