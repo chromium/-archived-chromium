@@ -342,6 +342,7 @@ TEST_F(DiskCacheBackendTest, ValidEntry) {
 
   const int kSize = 50;
   scoped_refptr<net::IOBuffer> buffer1 = new net::IOBuffer(kSize);
+  memset(buffer1->data(), 0, kSize);
   base::strlcpy(buffer1->data(), "And the data to save", kSize);
   EXPECT_EQ(kSize, entry1->WriteData(0, 0, buffer1, kSize, NULL, false));
   entry1->Close();
@@ -370,6 +371,7 @@ TEST_F(DiskCacheBackendTest, InvalidEntry) {
 
   const int kSize = 50;
   scoped_refptr<net::IOBuffer> buffer1 = new net::IOBuffer(kSize);
+  memset(buffer1->data(), 0, kSize);
   base::strlcpy(buffer1->data(), "And the data to save", kSize);
   EXPECT_EQ(kSize, entry1->WriteData(0, 0, buffer1, kSize, NULL, false));
   SimulateCrash();
@@ -391,6 +393,7 @@ TEST_F(DiskCacheBackendTest, InvalidEntryRead) {
 
   const int kSize = 50;
   scoped_refptr<net::IOBuffer> buffer1 = new net::IOBuffer(kSize);
+  memset(buffer1->data(), 0, kSize);
   base::strlcpy(buffer1->data(), "And the data to save", kSize);
   EXPECT_EQ(kSize, entry1->WriteData(0, 0, buffer1, kSize, NULL, false));
   entry1->Close();
@@ -556,6 +559,7 @@ TEST_F(DiskCacheBackendTest, InvalidEntryEnumeration) {
 
   const int kSize = 50;
   scoped_refptr<net::IOBuffer> buffer1 = new net::IOBuffer(kSize);
+  memset(buffer1->data(), 0, kSize);
   base::strlcpy(buffer1->data(), "And the data to save", kSize);
   EXPECT_EQ(kSize, entry1->WriteData(0, 0, buffer1, kSize, NULL, false));
   entry1->Close();
