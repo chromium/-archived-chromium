@@ -861,15 +861,6 @@ class WebAppLauncher {
   }
 };
 
-class URLFixerUpper {
- public:
-  static std::wstring FixupRelativeFile(const std::wstring& base_dir,
-                                        const std::wstring& text) {
-    NOTIMPLEMENTED();
-    return L"about:blank";
-  }
-};
-
 //---------------------------------------------------------------------------
 // These stubs are for WebContents
 

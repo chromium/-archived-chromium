@@ -31,6 +31,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
@@ -490,3 +491,15 @@ std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(BookmarkModel* model,
 ScopableCPRequest::~ScopableCPRequest() {
   NOTIMPLEMENTED();
 }
+
+#if defined(OS_MACOSX)
+namespace gfx {
+std::wstring GetCleanStringFromUrl(const GURL& url,
+                                   const std::wstring& languages,
+                                   url_parse::Parsed* new_parsed,
+                                   size_t* prefix_end) {
+  NOTIMPLEMENTED();
+  return L"";
+}
+}
+#endif
