@@ -6,7 +6,6 @@
 #define NET_BASE_COMPLETION_CALLBACK_H__
 
 #include "base/task.h"
-#include "net/base/io_buffer.h"
 
 namespace net {
 
@@ -42,23 +41,8 @@ class CancelableCompletionCallback :
     is_canceled_ = true;
   }
 
-  // Attaches the given buffer to this callback so it is valid until the
-  // operation completes. TODO(rvargas): This is a temporal fix for bug 5325
-  // while I send IOBuffer to the lower layers of code.
-  void UseBuffer(net::IOBuffer* buffer) {
-    DCHECK(!buffer_.get());
-    buffer_ = buffer;
-  }
-
-  // The callback is not expected anymore so release the buffer.
-  void ReleaseBuffer() {
-    DCHECK(buffer_.get());
-    buffer_ = NULL;
-  }
-
   virtual void RunWithParams(const Tuple1<int>& params) {
     if (is_canceled_) {
-      CancelableCompletionCallback<T>::ReleaseBuffer();
       base::RefCounted<CancelableCompletionCallback<T> >::Release();
     } else {
       CompletionCallbackImpl<T>::RunWithParams(params);
@@ -66,7 +50,6 @@ class CancelableCompletionCallback :
   }
 
  private:
-  scoped_refptr<net::IOBuffer> buffer_;
   bool is_canceled_;
 };
 
