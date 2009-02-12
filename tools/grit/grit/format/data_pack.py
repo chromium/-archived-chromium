@@ -37,6 +37,8 @@ class DataPack(interface.ItemFormatter):
   def GetDataNodes(item):
     '''Returns a list of nodes that can be packed into the data pack file.'''
     nodes = []
+    if (isinstance(item, misc.IfNode) and not item.IsConditionSatisfied()):
+      return nodes
     if (isinstance(item, include.IncludeNode) or
         isinstance(item, message.MessageNode)):
       return [item]
