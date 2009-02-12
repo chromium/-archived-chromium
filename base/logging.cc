@@ -46,7 +46,7 @@ namespace logging {
 bool g_enable_dcheck = false;
 
 const char* const log_severity_names[LOG_NUM_SEVERITIES] = {
-  "INFO", "WARNING", "ERROR", "FATAL" };
+  "INFO", "WARNING", "ERROR", "ERROR_REPORT", "FATAL" };
 
 int min_log_level = 0;
 LogLockingState lock_log_file = LOCK_LOG_FILE;
@@ -89,8 +89,11 @@ bool log_timestamp = true;
 bool log_tickcount = false;
 
 // An assert handler override specified by the client to be called instead of
-// the debug message dialog.
+// the debug message dialog and process termination.
 LogAssertHandlerFunction log_assert_handler = NULL;
+// An report handler override specified by the client to be called instead of
+// the debug message dialog.
+LogReportHandlerFunction log_report_handler = NULL;
 
 // The lock is used if log file locking is false. It helps us avoid problems
 // with multiple threads writing to the log file at the same time.  Use
@@ -291,6 +294,10 @@ void SetLogAssertHandler(LogAssertHandlerFunction handler) {
   log_assert_handler = handler;
 }
 
+void SetLogReportHandler(LogReportHandlerFunction handler) {
+  log_report_handler = handler;
+}
+
 // Displays a message box to the user with the error message in it. For
 // Windows programs, it's possible that the message loop is messed up on
 // a fatal error, and creating a MessageBox will cause that message loop
@@ -344,6 +351,13 @@ LogMessage::LogMessage(const char* file, int line, LogSeverity severity,
 
 LogMessage::LogMessage(const char* file, int line, const CheckOpString& result)
     : severity_(LOG_FATAL) {
+  Init(file, line);
+  stream_ << "Check failed: " << (*result.str_);
+}
+
+LogMessage::LogMessage(const char* file, int line, LogSeverity severity,
+                       const CheckOpString& result)
+    : severity_(severity) {
   Init(file, line);
   stream_ << "Check failed: " << (*result.str_);
 }
@@ -510,6 +524,13 @@ LogMessage::~LogMessage() {
         // TODO(mmentovai): when we have breakpad support, generate a breakpad
         // dump, but until then, do not invoke the Apple crash reporter.
       }
+    }
+  } else if (severity_ == LOG_ERROR_REPORT) {
+    // We are here only if the user runs with --enable-dcheck in release mode.
+    if (log_report_handler) {
+      log_report_handler(std::string(stream_.str()));
+    } else {
+      DisplayDebugMessage(stream_.str());
     }
   }
 }

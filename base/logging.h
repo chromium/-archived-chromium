@@ -77,13 +77,18 @@
 // We also override the standard 'assert' to use 'DLOG_ASSERT'.
 //
 // The supported severity levels for macros that allow you to specify one
-// are (in increasing order of severity) INFO, WARNING, ERROR, and FATAL.
-//
-// There is also the special severity of DFATAL, which logs FATAL in
-// debug mode, ERROR in normal mode.
+// are (in increasing order of severity) INFO, WARNING, ERROR, ERROR_REPORT,
+// and FATAL.
 //
 // Very important: logging a message at the FATAL severity level causes
 // the program to terminate (after the message is logged).
+//
+// Note the special severity of ERROR_REPORT only available/relevant in normal
+// mode, which displays error dialog without terminating the program. There is
+// no error dialog for severity ERROR or below in normal mode.
+//
+// There is also the special severity of DFATAL, which logs FATAL in
+// debug mode, ERROR_REPORT in normal mode.
 
 namespace logging {
 
@@ -151,22 +156,29 @@ void SetLogItems(bool enable_process_id, bool enable_thread_id,
                  bool enable_timestamp, bool enable_tickcount);
 
 // Sets the Log Assert Handler that will be used to notify of check failures.
-// The default handler shows a dialog box, however clients can use this
-// function to override with their own handling (e.g. a silent one for Unit
-// Tests)
+// The default handler shows a dialog box and then terminate the process,
+// however clients can use this function to override with their own handling
+// (e.g. a silent one for Unit Tests)
 typedef void (*LogAssertHandlerFunction)(const std::string& str);
 void SetLogAssertHandler(LogAssertHandlerFunction handler);
+// Sets the Log Report Handler that will be used to notify of check failures
+// in non-debug mode. The default handler shows a dialog box and continues
+// the execution, however clients can use this function to override with their
+// own handling.
+typedef void (*LogReportHandlerFunction)(const std::string& str);
+void SetLogReportHandler(LogReportHandlerFunction handler);
 
 typedef int LogSeverity;
 const LogSeverity LOG_INFO = 0;
 const LogSeverity LOG_WARNING = 1;
 const LogSeverity LOG_ERROR = 2;
-const LogSeverity LOG_FATAL = 3;
-const LogSeverity LOG_NUM_SEVERITIES = 4;
+const LogSeverity LOG_ERROR_REPORT = 3;
+const LogSeverity LOG_FATAL = 4;
+const LogSeverity LOG_NUM_SEVERITIES = 5;
 
-// LOG_DFATAL_LEVEL is LOG_FATAL in debug mode, ERROR in normal mode
+// LOG_DFATAL_LEVEL is LOG_FATAL in debug mode, ERROR_REPORT in normal mode
 #ifdef NDEBUG
-const LogSeverity LOG_DFATAL_LEVEL = LOG_ERROR;
+const LogSeverity LOG_DFATAL_LEVEL = LOG_ERROR_REPORT;
 #else
 const LogSeverity LOG_DFATAL_LEVEL = LOG_FATAL;
 #endif
@@ -180,6 +192,8 @@ const LogSeverity LOG_DFATAL_LEVEL = LOG_FATAL;
   logging::LogMessage(__FILE__, __LINE__, logging::LOG_WARNING)
 #define COMPACT_GOOGLE_LOG_ERROR \
   logging::LogMessage(__FILE__, __LINE__, logging::LOG_ERROR)
+#define COMPACT_GOOGLE_LOG_ERROR_REPORT \
+  logging::LogMessage(__FILE__, __LINE__, logging::LOG_ERROR_REPORT)
 #define COMPACT_GOOGLE_LOG_FATAL \
   logging::LogMessage(__FILE__, __LINE__, logging::LOG_FATAL)
 #define COMPACT_GOOGLE_LOG_DFATAL \
@@ -395,7 +409,7 @@ enum { DEBUG_MODE = 0 };
 extern bool g_enable_dcheck;
 #define DCHECK(condition) \
     !logging::g_enable_dcheck ? void (0) : \
-        LOG_IF(FATAL, !(condition)) << "Check failed: " #condition ". "
+        LOG_IF(ERROR_REPORT, !(condition)) << "Check failed: " #condition ". "
 
 // Helper macro for binary operators.
 // Don't use this macro directly in your code, use DCHECK_EQ et al below.
@@ -403,7 +417,8 @@ extern bool g_enable_dcheck;
   if (logging::g_enable_dcheck) \
     if (logging::CheckOpString _result = \
         logging::Check##name##Impl((val1), (val2), #val1 " " #op " " #val2)) \
-      logging::LogMessage(__FILE__, __LINE__, _result).stream()
+      logging::LogMessage(__FILE__, __LINE__, logging::LOG_ERROR_REPORT, \
+                          _result).stream()
 
 #define DCHECK_STREQ(str1, str2) \
   while (false) NDEBUG_EAT_STREAM_PARAMETERS
@@ -507,6 +522,11 @@ class LogMessage {
   // A special constructor used for check failures.
   // Implied severity = LOG_FATAL
   LogMessage(const char* file, int line, const CheckOpString& result);
+
+  // A special constructor used for check failures, with the option to
+  // specify severity.
+  LogMessage(const char* file, int line, LogSeverity severity,
+             const CheckOpString& result);
 
   ~LogMessage();
 
