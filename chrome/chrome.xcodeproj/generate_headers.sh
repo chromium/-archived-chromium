@@ -38,3 +38,13 @@ then
       -i "${PROJECT_DIR}/browser/browser_resources.grd" build \
       -o "${GRIT_DIR}"
 fi
+
+# compare theme_resources.grd to theme_resources.h. If the .h is
+# older or doesn't exist, rebuild it
+if [ "${GRIT_DIR}/grit/theme_resources.h" -ot \
+     "${PROJECT_DIR}/app/theme/theme_resources.grd" ]
+then
+  python "${PROJECT_DIR}/../tools/grit/grit.py" \
+      -i "${PROJECT_DIR}/app/theme/theme_resources.grd" build \
+      -o "${GRIT_DIR}"
+fi

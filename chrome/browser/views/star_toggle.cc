@@ -5,7 +5,7 @@
 #include "chrome/browser/views/star_toggle.h"
 
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
 

@@ -12,7 +12,7 @@
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
 #include "base/string_util.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"

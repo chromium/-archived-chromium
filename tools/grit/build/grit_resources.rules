@@ -7,13 +7,21 @@
 		<CustomBuildRule
 			Name="GRIT Generated Resources"
 			DisplayName="GRIT Generated Resources"
-			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\grit_derived_sources&quot;"
+			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\grit_derived_sources&quot; [AllOptions]"
 			Outputs="$(OutDir)\grit_derived_sources\$(InputName).h"
 			AdditionalDependencies="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat;$(SolutionDir)..\tools\grit\grit.py"
 			FileExtensions="*.grd"
 			ExecutionDescription="Generating resources..."
 			>
 			<Properties>
+			  <StringProperty
+			    Name="PreprocessorDefinitions"
+			    DisplayName="Preprocessor Definitions"
+			    Description="Defines a text macro with the given name."
+			    Switch="&quot;[value]&quot;"
+			    Delimited="true"
+			    Inheritable="true"
+        />
 			</Properties>
 		</CustomBuildRule>
 	</Rules>

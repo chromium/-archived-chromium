@@ -7,7 +7,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/alternate_nav_url_fetcher.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"

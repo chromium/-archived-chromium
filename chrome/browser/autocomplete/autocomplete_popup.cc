@@ -8,7 +8,7 @@
 
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/net/dns_global.h"

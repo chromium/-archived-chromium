@@ -3,6 +3,7 @@ include_rules = [
   "+chrome/app/theme",
   "+chrome/browser",
   "+chrome/browser/views",
+  "+grit",  # For generated headers
   "+skia/ext",
   "+skia/include",
   "+webkit/glue",

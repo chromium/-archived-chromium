@@ -140,15 +140,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="theme_resources.h"
-			>
-		</File>
-		<File
-			RelativePath="theme_resources.rc"
-			>
-		</File>
-		<File
-			RelativePath="distribution_resources.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\theme_resources.rc"
 			>
 		</File>
 	</Files>

@@ -114,6 +114,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "views", "views\views.vcproj
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject
@@ -142,6 +143,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "automation", "test\automati
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icu", "..\third_party\icu38\build\icu.vcproj", "{8C27D792-2648-4F5E-9ED0-374276327308}"
@@ -710,7 +714,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "locales", "locales", "{2325
 		app\locales\locale_settings.h = app\locales\locale_settings.h
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "browser_resources", "browser\resources\browser_resources.vcproj", "{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chrome_resources", "app\chrome_resources.vcproj", "{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
@@ -726,6 +730,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "theme_dll", "app\theme\them
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "security_tests", "test\security_tests\security_tests.vcproj", "{E750512D-FC7C-4C98-BF04-0A0DAF882055}"
@@ -1797,6 +1804,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "browser_views", "browser\vi
 	ProjectSection(ProjectDependencies) = postProject
 		{0B469837-3D46-484A-AFB3-C5A6C68730B9} = {0B469837-3D46-484A-AFB3-C5A6C68730B9}
 		{4052059A-D72B-4183-B5C2-9D1B099E9E35} = {4052059A-D72B-4183-B5C2-9D1B099E9E35}
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject
@@ -3345,7 +3353,7 @@ Global
 		{B802A2FE-E4E2-4F5A-905A-D5128875C954} = {EB684A4B-98F7-4E68-8EA7-EA74ACF7060B}
 		{B84553C8-5676-427B-B3E4-23DDDC4DBC7B} = {EF78C1F9-AA17-4CA5-B6CB-39B37A73A3DA}
 		{B92AE829-E1CD-4781-824A-DCB1603A1672} = {1174D37F-6ABB-45DA-81B3-C631281273B7}
-		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {97555540-8163-4D0F-BCAC-EFA0FFED3453}
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B6867423-23BD-4588-9321-2D500F128A3D}
 		{BA62FF5E-08A6-4102-9675-C12E8C9D4CC0} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
 		{BE6D5659-A8D5-4890-A42C-090DD10EF62C} = {1174D37F-6ABB-45DA-81B3-C631281273B7}
 		{BF4F447B-72B5-4059-BE1B-F94337B1F385} = {97555540-8163-4D0F-BCAC-EFA0FFED3453}

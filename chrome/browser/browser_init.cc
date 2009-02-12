@@ -35,7 +35,7 @@
 
 #include "base/win_util.h"
 #include "chrome/app/locales/locale_settings.h"
-#include "chrome/app/theme/theme_resources.h"
+#include "grit/theme_resources.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/net/url_fixer_upper.h"

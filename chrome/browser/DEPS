@@ -1,12 +1,12 @@
 include_rules = [
   "+chrome/app",
-  "+chrome/app/theme",  # For resource identifiers
   "+chrome/app/locales",
   "+chrome/installer",
   "+chrome/personalization",
   "+chrome/tools",
   "+chrome/tools/profiles",  # For history unit tests.
   "+chrome/views",
+  "+grit",  # For generated headers
   "+sandbox/src",
   "+skia/include",
   "+skia/ext",

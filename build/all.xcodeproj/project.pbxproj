@@ -638,14 +638,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D7B02380E9D5816009A6919 /* chrome.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 4D1F59EA0F2A6B590040C1E3 /* image_diff */;
+			remoteGlobalIDString = 4D1F59EA0F2A6B590040C1E3;
 			remoteInfo = image_diff;
 		};
 		F40437680F2E0EE10091972E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D7B02380E9D5816009A6919 /* chrome.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 4D7FA6210F13CA04004F1B19 /* ui_tests */;
+			remoteGlobalIDString = 4D7FA6210F13CA04004F1B19;
 			remoteInfo = ui_tests;
 		};
 /* End PBXContainerItemProxy section */

@@ -12,83 +12,92 @@ env_res.Append(
         '.',
         '$CHROME_SRC_DIR',
     ],
-    RCFLAGS = [
-        ['/l', '0x409'],
-    ],
 )
 
+if env.Bit('windows'):
+  env_res.Append(
+      RCFLAGS = [
+          ['/l', '0x409'],
+      ],
+  )
 
-env.Append(
-    LINKFLAGS = [
-        '/INCREMENTAL:NO',
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
+  env.Append(
+      LINKFLAGS = [
+          '/INCREMENTAL:NO',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
 
-        '/NOENTRY',
-        '/BASE:"0x3CE00000"',
-        '/MACHINE:X86',
-        '/FIXED:No',
+          '/NOENTRY',
+          '/BASE:"0x3CE00000"',
+          '/MACHINE:X86',
+          '/FIXED:No',
 
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-    ],
-)
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+  )
 
-input_files = ChromeFileList([
-    'theme_resources.h',
-    'theme_resources.rc',
-    'distribution_resources.rc',
-])
+# TODO(tc): We need to pass in a preprocessor define for official builds.
+generated = env.GRIT(
+    '$TARGET_ROOT/grit_derived_sources/fake_theme_target',
+    '$CHROME_SRC_DIR/chrome/app/theme/theme_resources.grd')
 
-res = []
-res.extend(env_res.RES('theme_resources.rc'))
-res.extend(env_res.RES('distribution_resources.rc'))
+if env.Bit('windows'):
+  input_files = ChromeFileList([
+      '$TARGET_ROOT/grit_derived_sources/theme_resources.rc',
+  ])
 
-themes_default = env.ChromeSharedLibrary("default", res)
-env.Install("$DESTINATION_ROOT/themes", themes_default)
+  # TODO(tc): This causes scons to die because the regular expression that
+  # scans .rc files for dependencies overflows (see
+  # SCons/Tool/Scanner/RC.py).  Disable it for now because it's only for the
+  # Windows build.
+  #res = env.RES('$TARGET_ROOT/grit_derived_sources/theme_resources.rc')
 
-p = env.ChromeMSVSProject('theme_dll.vcproj',
-                          dest=('$CHROME_SRC_DIR/chrome/'
-                                + 'app/theme/theme_dll.vcproj'),
-                          guid='{FD683DD6-D9BF-4B1B-AB6D-A3AC03EDAA4D}',
-                          keyword='Win32Proj',
-                          # TODO(sgk):  when we can intuit the hierarchy
-                          # from the built targets.
-                          #buildtargets=TODO,
-                          files=input_files,
-                          tools=[
-                              'VCPreBuildEventTool',
-                              'VCCustomBuildTool',
-                              'VCXMLDataGeneratorTool',
-                              'VCWebServiceProxyGeneratorTool',
-                              'VCMIDLTool',
-                              'VCCLCompilerTool',
-                              'VCManagedResourceCompilerTool',
-                              'VCResourceCompilerTool',
-                              'VCPreLinkEventTool',
-                              'VCLinkerTool',
-                              'VCALinkTool',
-                              'VCManifestTool',
-                              'VCXDCMakeTool',
-                              'VCBscMakeTool',
-                              'VCFxCopTool',
-                              'VCAppVerifierTool',
-                              'VCWebDeploymentTool',
-                              'VCPostBuildEventTool',
-                          ],
-                          ConfigurationType='2')
+  #themes_default = env.ChromeSharedLibrary("default", res)
+  #env.Install("$DESTINATION_ROOT/themes", themes_default)
+
+  p = env.ChromeMSVSProject('theme_dll.vcproj',
+                            dest=('$CHROME_SRC_DIR/chrome/'
+                                  + 'app/theme/theme_dll.vcproj'),
+                            guid='{FD683DD6-D9BF-4B1B-AB6D-A3AC03EDAA4D}',
+                            keyword='Win32Proj',
+                            # TODO(sgk):  when we can intuit the hierarchy
+                            # from the built targets.
+                            #buildtargets=TODO,
+                            files=input_files,
+                            tools=[
+                                'VCPreBuildEventTool',
+                                'VCCustomBuildTool',
+                                'VCXMLDataGeneratorTool',
+                                'VCWebServiceProxyGeneratorTool',
+                                'VCMIDLTool',
+                                'VCCLCompilerTool',
+                                'VCManagedResourceCompilerTool',
+                                'VCResourceCompilerTool',
+                                'VCPreLinkEventTool',
+                                'VCLinkerTool',
+                                'VCALinkTool',
+                                'VCManifestTool',
+                                'VCXDCMakeTool',
+                                'VCBscMakeTool',
+                                'VCFxCopTool',
+                                'VCAppVerifierTool',
+                                'VCWebDeploymentTool',
+                                'VCPostBuildEventTool',
+                            ],
+                            ConfigurationType='2')
 
 
-p.AddConfig('Debug|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/debug.vsprops',
-                './theme_dll.vsprops',
-            ])
+  p.AddConfig('Debug|Win32',
+              InheritedPropertySheets=[
+                  '$(SolutionDir)../build/debug.vsprops',
+                  './theme_dll.vsprops',
+              ])
 
-p.AddConfig('Release|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/release.vsprops',
-                './theme_dll.vsprops',
-            ])
+  p.AddConfig('Release|Win32',
+              InheritedPropertySheets=[
+                  '$(SolutionDir)../build/release.vsprops',
+                  './theme_dll.vsprops',
+              ])

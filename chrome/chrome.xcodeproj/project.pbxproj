@@ -6449,6 +6449,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					../testing/gtest/include,
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6469,6 +6470,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					../testing/gtest/include,
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
