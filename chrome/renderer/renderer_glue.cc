@@ -296,17 +296,7 @@ uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
 }
 
 bool IsLinkVisited(uint64 link_hash) {
-#if defined(OS_WIN)
   return g_render_thread->visited_link_slave()->IsVisited(link_hash);
-#elif defined(OS_POSIX)
-  // TODO(port): Currently we don't have a HistoryService. This stops the
-  // VisitiedLinkMaster from sucessfully calling Init(). In that case, no
-  // message is ever sent to the renderer with the VisitiedLink shared memory
-  // region and we end up crashing with SIGFPE as we try to hash by taking a
-  // fingerprint mod 0.
-  NOTIMPLEMENTED();
-  return false;
-#endif
 }
 
 int ResolveProxyFromRenderThread(const GURL& url, std::string* proxy_result) {
