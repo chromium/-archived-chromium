@@ -357,9 +357,18 @@ MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
 LINUX : LayoutTests/svg/batik/text/textLength.svg = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textProperties.svg = FAIL PASS
+DEFER LINUX : LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL
+DEFER LINUX : LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL
+DEFER LINUX : LayoutTests/svg/custom/linking-a-03-b-viewBox-transform.svg = FAIL
+DEFER LINUX : LayoutTests/svg/custom/linking-a-03-b-viewBox.svg = FAIL
 LINUX : LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
 LINUX : LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
+DEFER LINUX : LayoutTests/svg/hixie/perf/007.xml = FAIL
+DEFER LINUX : LayoutTests/svg/hixie/shapes/path/001.xml = FAIL
+DEFER LINUX : LayoutTests/svg/hixie/text/003a.xml = FAIL
+DEFER LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL
+DEFER LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL
 DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
@@ -438,20 +447,11 @@ DEFER : LayoutTests/svg/custom/stroke-width-click.svg = FAIL
 // positions and/or widths that deviate from Apple's expectations by varying
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
-DEFER LINUX WIN : LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
-DEFER LINUX WIN : LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
-DEFER LINUX WIN : LayoutTests/svg/custom/linking-a-03-b-viewBox-transform.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
-DEFER LINUX WIN : LayoutTests/svg/custom/linking-a-03-b-viewBox.svg = FAIL   // 2 numbers differ, by an absolute total of 0.04
-DEFER LINUX WIN : LayoutTests/svg/custom/marker-changes.svg = FAIL   // 6 numbers differ, by an absolute total of 5.00
+DEFER LINUX WIN : LayoutTests/svg/custom/marker-changes.svg = FAIL   // The red marker is not drawing the same way as the mac.
 DEFER : LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL   // 11 numbers differ, by an absolute total of 4.69
-DEFER LINUX WIN : LayoutTests/svg/hixie/perf/001.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
-DEFER LINUX WIN : LayoutTests/svg/hixie/perf/002.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
-DEFER LINUX WIN : LayoutTests/svg/hixie/perf/007.xml = FAIL   // 745 numbers differ, by an absolute total of 37.97
-DEFER LINUX WIN : LayoutTests/svg/hixie/shapes/path/001.xml = FAIL   // 6 numbers differ, by an absolute total of 100.56
+DEFER LINUX WIN : LayoutTests/svg/hixie/perf/001.xml = FAIL   // There are gaps in the whiskers of the tiger
+DEFER LINUX WIN : LayoutTests/svg/hixie/perf/002.xml = FAIL   // There are gaps in the whiskers of the tiger
 DEFER LINUX WIN : LayoutTests/svg/hixie/text/003.html = FAIL   // 1 numbers differ, by an absolute total of 1.00
-DEFER LINUX WIN : LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers differ, by an absolute total of 1.00
-DEFER LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
-DEFER LINUX WIN : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
 
 // SVG combined with font metrics.
 DEFER LINUX : LayoutTests/svg/hixie/text/001-broken.xml = FAIL
