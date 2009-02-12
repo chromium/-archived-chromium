@@ -126,6 +126,7 @@ LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 
 // Worker related tests (ENABLE_WORKERS):
 DEFER SKIP : LayoutTests/fast/workers = TIMEOUT
+DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
 // This test relies on the keygen tag, which we haven't wired up.
 // See bug 802185 for details.
@@ -1470,9 +1471,6 @@ MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH
 // -----------------------------------------------------------------
 // END MAC PORT TESTS
 // -----------------------------------------------------------------
-
-// WebKit Merge 38800:38850 regressions
-LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
 // WebKit Merge 38850:38900 new tests
 
