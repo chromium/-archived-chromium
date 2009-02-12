@@ -165,6 +165,13 @@ void RenderWidgetHostViewWin::MovePluginWindows(
     if (!::IsWindow(move.window))
       continue;
 
+    // The renderer should only be trying to move windows that are children
+    // of its render widget window.
+    if (::IsChild(m_hWnd, move.window) == 0) {
+      NOTREACHED();
+      continue;
+    }
+
     if (move.visible)
       flags |= SWP_SHOWWINDOW;
     else
