@@ -97,7 +97,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "markup.h"
 #include "Page.h"
 #include "PlatformContextSkia.h"
-#include "PrintContext.h"
 #include "RenderFrame.h"
 #if defined(OS_WIN)
 #include "RenderThemeChromiumWin.h"
@@ -1769,13 +1768,10 @@ int WebFrameImpl::ComputePageRects(const gfx::Size& page_size_px) {
   // TODO(maruel): Weird. We don't do that.
   // Everything is in pixels :(
   // pages_ and page_height are actually output parameters.
-  WebCore::FloatRect rect(0, 0,
-						  static_cast<float>(page_size_px.width()),
-						  static_cast<float>(page_size_px.height()));
-  WebCore::PrintContext print_context(frame());
-  float page_height;
-  print_context.computePageRects(rect, 0, 0, 1.0, page_height);
-  return print_context.pageCount();
+  int page_height;
+  WebCore::IntRect rect(0, 0, page_size_px.width(), page_size_px.height());
+  computePageRectsForFrame(frame(), rect, 0, 0, 1.0, pages_, page_height);
+  return pages_.size();
 }
 
 void WebFrameImpl::GetPageRect(int page, gfx::Rect* page_size) const {
