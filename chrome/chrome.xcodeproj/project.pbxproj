@@ -3577,6 +3577,9 @@
 		4D7BFB840E9D4C6F009A6919 /* common */ = {
 			isa = PBXGroup;
 			children = (
+				F4C2EDE20F44BCF300327718 /* extensions */,
+				4D7BFCA80E9D4D5D009A6919 /* gfx */,
+				4D7BFCBD0E9D4D6B009A6919 /* net */,
 				4D7BFB850E9D4C9F009A6919 /* animation.cc */,
 				4D7BFB860E9D4C9F009A6919 /* animation.h */,
 				4D7BFB870E9D4C9F009A6919 /* animation_unittest.cc */,
@@ -3612,11 +3615,9 @@
 				4D7BFBA40E9D4C9F009A6919 /* drag_drop_types.h */,
 				4D7BFBA50E9D4C9F009A6919 /* env_vars.cc */,
 				4D7BFBA60E9D4C9F009A6919 /* env_vars.h */,
-				F4C2EDE20F44BCF300327718 /* extensions */,
 				4590B61B84978823B2BADA68 /* file_descriptor_set_posix.cc */,
 				4D7BFBA70E9D4C9F009A6919 /* filter_policy.h */,
 				4D7BFBA80E9D4C9F009A6919 /* gears_api.h */,
-				4D7BFCA80E9D4D5D009A6919 /* gfx */,
 				4D7BFBAA0E9D4C9F009A6919 /* ipc_channel.h */,
 				B5FDC0570EE488E500BEC6E6 /* ipc_channel_posix.cc */,
 				B5D7CD350EF0702F00EE645F /* ipc_channel_posix.h */,
@@ -3667,7 +3668,6 @@
 				4D7BFBD30E9D4C9F009A6919 /* mru_cache.h */,
 				4D7BFBD40E9D4C9F009A6919 /* mru_cache_unittest.cc */,
 				4D7BFBD50E9D4C9F009A6919 /* navigation_types.h */,
-				4D7BFCBD0E9D4D6B009A6919 /* net */,
 				4D7BFBD60E9D4C9F009A6919 /* notification_details.h */,
 				4D7BFBD70E9D4C9F009A6919 /* notification_registrar.cc */,
 				4D7BFBD80E9D4C9F009A6919 /* notification_registrar.h */,
@@ -4403,8 +4403,8 @@
 		F4C2EDE20F44BCF300327718 /* extensions */ = {
 			isa = PBXGroup;
 			children = (
-				A9C335E39D39A7DE087850FC /* url_pattern_unittest.cc */,
 				6447F24FADC63E58A44DB762 /* url_pattern.cc */,
+				A9C335E39D39A7DE087850FC /* url_pattern_unittest.cc */,
 				699499C4FBA07FB2D7B298A2 /* user_script.cc */,
 				37521A11B07C479E93A39D52 /* user_script_unittest.cc */,
 			);
