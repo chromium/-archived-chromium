@@ -23,7 +23,9 @@
 #include "config.h"
 #include "KeyboardCodes.h"
 
+#include "base/compiler_specific.h"
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -122,7 +124,8 @@ void ApplyKeyModifiers(const CppVariant* arg, WebKeyboardEvent* event) {
 
 }  // anonymous namespace
 
-EventSendingController::EventSendingController(TestShell* shell) {
+EventSendingController::EventSendingController(TestShell* shell)
+    : ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)) {
   // Set static shell_ variable since we can't do it in an initializer list.
   // We also need to be careful not to assign shell_ to new windows which are
   // temporary.
@@ -140,11 +143,15 @@ EventSendingController::EventSendingController(TestShell* shell) {
   BindMethod("leapForward", &EventSendingController::leapForward);
   BindMethod("keyDown", &EventSendingController::keyDown);
   BindMethod("dispatchMessage", &EventSendingController::dispatchMessage);
-  BindMethod("enableDOMUIEventLogging", &EventSendingController::enableDOMUIEventLogging);
-  BindMethod("fireKeyboardEventsToElement", &EventSendingController::fireKeyboardEventsToElement);
+  BindMethod("enableDOMUIEventLogging",
+             &EventSendingController::enableDOMUIEventLogging);
+  BindMethod("fireKeyboardEventsToElement",
+             &EventSendingController::fireKeyboardEventsToElement);
   BindMethod("clearKillRing", &EventSendingController::clearKillRing);
   BindMethod("textZoomIn", &EventSendingController::textZoomIn);
   BindMethod("textZoomOut", &EventSendingController::textZoomOut);
+  BindMethod("scheduleAsynchronousClick",
+             &EventSendingController::scheduleAsynchronousClick);
 
   // When set to true (the default value), we batch mouse move and mouse up
   // events so we can simulate drag & drop.
@@ -224,7 +231,8 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 
 void EventSendingController::mouseDown(
     const CppArgumentList& args, CppVariant* result) {
-  result->SetNull();
+  if (result)  // Could be NULL if invoked asynchronously.
+    result->SetNull();
 
   webview()->Layout();
 
@@ -253,7 +261,8 @@ void EventSendingController::mouseDown(
 
 void EventSendingController::mouseUp(
     const CppArgumentList& args, CppVariant* result) {
-  result->SetNull();
+  if (result)  // Could be NULL if invoked asynchronously.
+    result->SetNull();
 
   webview()->Layout();
 
@@ -515,6 +524,18 @@ void EventSendingController::contextClick(
   webview()->HandleInputEvent(&event);
 
   pressed_button_ = WebMouseEvent::BUTTON_NONE;
+}
+
+void EventSendingController::scheduleAsynchronousClick(
+    const CppArgumentList& args, CppVariant* result) {
+  result->SetNull();
+
+  MessageLoop::current()->PostTask(FROM_HERE,
+      method_factory_.NewRunnableMethod(&EventSendingController::mouseDown,
+                                        args, static_cast<CppVariant*>(NULL)));
+  MessageLoop::current()->PostTask(FROM_HERE,
+      method_factory_.NewRunnableMethod(&EventSendingController::mouseUp,
+                                        args, static_cast<CppVariant*>(NULL)));
 }
 
 //

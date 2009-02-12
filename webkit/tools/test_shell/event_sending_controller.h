@@ -18,6 +18,7 @@
 
 #include "build/build_config.h"
 #include "base/gfx/point.h"
+#include "base/task.h"
 #include "webkit/glue/cpp_bound_class.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webinputevent.h"
@@ -46,6 +47,8 @@ class EventSendingController : public CppBoundClass {
   void dispatchMessage(const CppArgumentList& args, CppVariant* result);
   void textZoomIn(const CppArgumentList& args, CppVariant* result);
   void textZoomOut(const CppArgumentList& args, CppVariant* result);
+  void scheduleAsynchronousClick(const CppArgumentList& args,
+                                 CppVariant* result);
 
   // Unimplemented stubs
   void contextClick(const CppArgumentList& args, CppVariant* result);
@@ -89,6 +92,8 @@ class EventSendingController : public CppBoundClass {
   // Returns true if the key_code passed in needs a shift key modifier to
   // be passed into the generated event.
   bool NeedsShiftModifer(int key_code);
+
+  ScopedRunnableMethodFactory<EventSendingController> method_factory_;
 
   // Non-owning pointer.  The LayoutTestController is owned by the host.
   static TestShell* shell_;
