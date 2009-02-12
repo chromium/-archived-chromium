@@ -12,6 +12,7 @@ class LocationBar;
 @class TabStripView;
 class TabStripBridge;
 class TabStripModel;
+class TabContents;
 
 // A class that handles managing the tab strip in a browser window. It uses
 // a supporting C++ bridge object to register for notifications from the
@@ -25,6 +26,7 @@ class TabStripModel;
 
 @interface TabStripController : NSObject {
  @private
+  TabContents* currentTab_;   // weak, tab for which we're showing state
   TabStripView* tabView_;  // weak
   NSButton* newTabButton_;
   TabStripBridge* bridge_;
@@ -44,6 +46,13 @@ class TabStripModel;
 
 // Get the C++ bridge object representing the location bar for the current tab.
 - (LocationBar*)locationBar;
+
+// Updates the toolbar (and transitively the location bar) with the states of
+// the specified |tab|.  If |shouldRestore| is true, we're switching
+// (back?) to this tab and should restore any previous location bar state
+// (such as user editing) as well.
+- (void)updateToolbarWithContents:(TabContents*)tab
+               shouldRestoreState:(BOOL)shouldRestore;
 
 @end
 

@@ -287,6 +287,19 @@ class TabStripBridge : public TabStripModelObserver {
   return [selectedController locationBar];
 }
 
+- (void)updateToolbarWithContents:(TabContents*)tab
+               shouldRestoreState:(BOOL)shouldRestore {
+  // TODO(pinkerton): windows maintains this, we probably should though we
+  // currently aren't using it. 
+  currentTab_ = tab;
+  
+  // tell the appropriate controller to update its state. |shouldRestore| being
+  // YES means we're going back to this tab and should put back any state
+  // associated with it.
+  TabContentsController* controller = [self controllerWithContents:tab];
+  [controller updateToolbarWithContents:shouldRestore ? tab : nil];
+}
+
 @end
 
 //--------------------------------------------------------------------------

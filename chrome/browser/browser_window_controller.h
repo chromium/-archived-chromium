@@ -45,6 +45,13 @@ class BrowserWindow;
 // Get the C++ bridge object representing the location bar for the current tab.
 - (LocationBar*)locationBar;
 
+// Updates the toolbar (and transitively the location bar) with the states of
+// the specified |tab|.  If |shouldRestore| is true, we're switching
+// (back?) to this tab and should restore any previous location bar state
+// (such as user editing) as well.
+- (void)updateToolbarWithContents:(TabContents*)tab
+               shouldRestoreState:(BOOL)shouldRestore;
+
 @end
 
 #endif  // CHROME_BROWSER_BROWSER_WINDOW_CONTROLLER_H_

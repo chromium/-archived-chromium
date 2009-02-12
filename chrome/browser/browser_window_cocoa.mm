@@ -101,7 +101,8 @@ void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {
 
 void BrowserWindowCocoa::UpdateToolbar(TabContents* contents,
                                        bool should_restore_state) {
-  NOTIMPLEMENTED();
+  [controller_ updateToolbarWithContents:contents 
+                      shouldRestoreState:should_restore_state ? YES : NO];
 }
 
 void BrowserWindowCocoa::FocusToolbar() {

@@ -168,6 +168,22 @@ class LocationBarBridge : public LocationBar {
   [[locationBar_ window] makeFirstResponder:locationBar_];
 }
 
+- (void)updateToolbarWithContents:(TabContents*)tab {
+  // TODO(pinkerton): there's a lot of ui code in autocomplete_edit.cc
+  // that we'll want to duplicate. For now, just handle setting the text.
+  
+  // TODO(pinkerton): update the security lock icon and background color
+  
+  if (tab) {
+    NSString* urlString =
+        [NSString stringWithUTF8String:tab->GetURL().spec().c_str()];
+    [locationBar_ setStringValue:urlString];
+  } else {
+    // TODO(pinkerton): just reset the state of the url bar. We're currently
+    // not saving any state as that drags in too much Omnibar code.
+  }
+}
+
 @end
 
 //--------------------------------------------------------------------------

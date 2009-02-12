@@ -111,4 +111,10 @@
   return [tabStripController_ locationBar];
 }
 
+- (void)updateToolbarWithContents:(TabContents*)tab
+               shouldRestoreState:(BOOL)shouldRestore {
+  [tabStripController_ updateToolbarWithContents:tab
+                                 shouldRestoreState:shouldRestore];
+}
+
 @end

@@ -56,6 +56,10 @@ class TabStripModel;
 // enabled.
 - (void)willBecomeSelectedTab;
 
+// Called when any url bar state changes. If |tabForRestoring| is non-NULL,
+// it points to a TabContents whose state we should restore.
+- (void)updateToolbarWithContents:(TabContents*)tabForRestoring;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_COTNENTS_CONTROLLER_H_
