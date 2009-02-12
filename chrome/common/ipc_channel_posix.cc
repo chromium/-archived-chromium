@@ -483,13 +483,24 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
       const char* message_tail = Message::FindNext(p, end);
       if (message_tail) {
         int len = static_cast<int>(message_tail - p);
-        const Message m(p, len);
+        Message m(p, len);
         if (m.header()->num_fds) {
           // the message has file descriptors
+          const char* error = NULL;
           if (m.header()->num_fds > num_fds - fds_i) {
             // the message has been completely received, but we didn't get
             // enough file descriptors.
-            LOG(WARNING) << "Message needs unreceived descriptors"
+            error = "Message needs unreceived descriptors";
+          }
+
+          if (m.header()->num_fds >
+              DescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE) {
+            // There are too many descriptors in this message
+            error = "Message requires an excessive number of descriptors";
+          }
+
+          if (error) {
+            LOG(WARNING) << error
                          << " channel:" << this
                          << " message-type:" << m.type()
                          << " header()->num_fds:" << m.header()->num_fds
@@ -499,6 +510,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
             for (unsigned i = fds_i; i < num_fds; ++i)
               close(fds[i]);
             input_overflow_fds_.clear();
+            // abort the connection
             return false;
           }
 

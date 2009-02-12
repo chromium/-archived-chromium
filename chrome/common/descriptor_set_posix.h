@@ -9,13 +9,14 @@
 
 #include "base/basictypes.h"
 #include "base/file_descriptor_posix.h"
+#include "base/ref_counted.h"
 
 // -----------------------------------------------------------------------------
 // A DescriptorSet is an ordered set of POSIX file descriptors. These are
 // associated with IPC messages so that descriptors can be transmitted over a
 // UNIX domain socket.
 // -----------------------------------------------------------------------------
-class DescriptorSet {
+class DescriptorSet : public base::RefCountedThreadSafe<DescriptorSet> {
  public:
   DescriptorSet();
   ~DescriptorSet();
@@ -47,14 +48,18 @@ class DescriptorSet {
   // ---------------------------------------------------------------------------
   // Interfaces for accessing during message deserialisation...
 
-  // Return the number of descriptors remaining
-  unsigned size() const { return descriptors_.size() - next_descriptor_; }
+  // Return the number of descriptors
+  unsigned size() const { return descriptors_.size(); }
   // Return true if no unconsumed descriptors remain
-  bool empty() const { return descriptors_.size() == next_descriptor_; }
-  // Fetch the next descriptor from the beginning of the set. This interface is
-  // designed for the deserialising code as it doesn't support close flags.
+  bool empty() const { return descriptors_.empty(); }
+  // Fetch the nth descriptor from the beginning of the set. Code using this
+  // /must/ access the descriptors in order, except that it may wrap from the
+  // end to index 0 again.
+  //
+  // This interface is designed for the deserialising code as it doesn't
+  // support close flags.
   //   returns: file descriptor, or -1 on error
-  int NextDescriptor();
+  int GetDescriptorAt(unsigned n) const;
 
   // ---------------------------------------------------------------------------
 
@@ -84,24 +89,18 @@ class DescriptorSet {
 
   // ---------------------------------------------------------------------------
 
-  // ---------------------------------------------------------------------------
-  // Interfaces for IPC::Message...
-
-  // Take all the FileDescriptors from another set. Just like a copy
-  // constructor, except that the source is emptied.
-  void TakeFrom(DescriptorSet* other);
-
-  // ---------------------------------------------------------------------------
-
  private:
   // A vector of descriptors and close flags. If this message is sent, then
   // these descriptors are sent as control data. After sending, any descriptors
   // with a true flag are closed. If this message has been received, then these
   // are the descriptors which were received and all close flags are true.
   std::vector<base::FileDescriptor> descriptors_;
-  // When deserialising the message, the descriptors will be extracted
-  // one-by-one. This contains the index of the next unused descriptor.
-  unsigned next_descriptor_;
+
+  // This contains the index of the next descriptor which should be consumed.
+  // It's used in a couple of ways. Firstly, at destruction we can check that
+  // all the descriptors have been read (with GetNthDescriptor). Secondly, we
+  // can check that they are read in order.
+  mutable unsigned consumed_descriptor_highwater_;
 
   DISALLOW_COPY_AND_ASSIGN(DescriptorSet);
 };

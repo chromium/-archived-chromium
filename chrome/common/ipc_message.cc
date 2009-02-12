@@ -7,6 +7,10 @@
 #include "base/logging.h"
 #include "build/build_config.h"
 
+#if defined(OS_POSIX)
+#include "chrome/common/descriptor_set_posix.h"
+#endif
+
 namespace IPC {
 
 //------------------------------------------------------------------------------
@@ -41,7 +45,7 @@ Message::Message(const char* data, int data_len) : Pickle(data, data_len) {
 Message::Message(const Message& other) : Pickle(other) {
   InitLoggingVariables();
 #if defined(OS_POSIX)
-  descriptor_set_.TakeFrom(&other.descriptor_set_);
+  descriptor_set_ = other.descriptor_set_;
 #endif
 }
 
@@ -56,7 +60,7 @@ void Message::InitLoggingVariables() {
 Message& Message::operator=(const Message& other) {
   *static_cast<Pickle*>(this) = other;
 #if defined(OS_POSIX)
-  descriptor_set_.TakeFrom(&other.descriptor_set_);
+  descriptor_set_ = other.descriptor_set_;
 #endif
   return *this;
 }
@@ -80,6 +84,41 @@ int64 Message::sent_time() const {
 void Message::set_received_time(int64 time) const {
   received_time_ = time;
 }
+#endif
+
+#if defined(OS_POSIX)
+bool Message::WriteFileDescriptor(const base::FileDescriptor& descriptor) {
+  // We write the index of the descriptor so that we don't have to
+  // keep the current descriptor as extra decoding state when deserialising.
+  WriteInt(descriptor_set()->size());
+  if (descriptor.auto_close) {
+    return descriptor_set()->AddAndAutoClose(descriptor.fd);
+  } else {
+    return descriptor_set()->Add(descriptor.fd);
+  }
+}
+
+bool Message::ReadFileDescriptor(void** iter,
+                                base::FileDescriptor* descriptor) const {
+  int descriptor_index;
+  if (!ReadInt(iter, &descriptor_index))
+    return false;
+
+  DescriptorSet* descriptor_set = descriptor_set_.get();
+  if (!descriptor_set)
+    return false;
+
+  descriptor->fd = descriptor_set->GetDescriptorAt(descriptor_index);
+  descriptor->auto_close = false;
+
+  return descriptor->fd >= 0;
+}
+
+void Message::EnsureDescriptorSet() {
+  if (descriptor_set_.get() == NULL)
+    descriptor_set_ = new DescriptorSet;
+}
+
 #endif
 
 }  // namespace IPC

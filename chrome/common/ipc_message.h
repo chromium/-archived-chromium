@@ -16,8 +16,14 @@
 #endif
 
 #if defined(OS_POSIX)
-#include "chrome/common/descriptor_set_posix.h"
+#include "base/ref_counted.h"
 #endif
+
+namespace base {
+class FileDescriptor;
+}
+
+class DescriptorSet;
 
 namespace IPC {
 
@@ -161,7 +167,14 @@ class Message : public Pickle {
   }
 
 #if defined(OS_POSIX)
-  DescriptorSet* descriptor_set() const { return &descriptor_set_; }
+  // On POSIX, a message supports reading / writing FileDescriptor objects.
+  // This is used to pass a file descriptor to the peer of an IPC channel.
+
+  // Add a descriptor to the end of the set. Returns false iff the set is full.
+  bool WriteFileDescriptor(const base::FileDescriptor& descriptor);
+  // Get a file descriptor from the message. Returns false on error.
+  //   iter: a Pickle iterator to the current location in the message.
+  bool ReadFileDescriptor(void** iter, base::FileDescriptor* descriptor) const;
 #endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
@@ -226,7 +239,18 @@ class Message : public Pickle {
 
 #if defined(OS_POSIX)
   // The set of file descriptors associated with this message.
-  mutable DescriptorSet descriptor_set_;
+  scoped_refptr<DescriptorSet> descriptor_set_;
+
+  // Ensure that a DescriptorSet is allocated
+  void EnsureDescriptorSet();
+
+  DescriptorSet* descriptor_set() {
+    EnsureDescriptorSet();
+    return descriptor_set_.get();
+  }
+  const DescriptorSet* descriptor_set() const {
+    return descriptor_set_.get();
+  }
 #endif
 
 #ifdef IPC_MESSAGE_LOG_ENABLED

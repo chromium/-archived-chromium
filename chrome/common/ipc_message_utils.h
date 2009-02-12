@@ -671,29 +671,17 @@ template<>
 struct ParamTraits<base::FileDescriptor> {
   typedef base::FileDescriptor param_type;
   static void Write(Message* m, const param_type& p) {
-    if (p.auto_close) {
-      if (!m->descriptor_set()->AddAndAutoClose(p.fd))
-        NOTREACHED();
-    } else {
-      if (!m->descriptor_set()->Add(p.fd))
-        NOTREACHED();
-    }
+    if (!m->WriteFileDescriptor(p))
+      NOTREACHED();
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
-    r->auto_close = false;
-    r->fd = m->descriptor_set()->NextDescriptor();
-
-    // We always return true here because some of the IPC message logging
-    // functions want to parse the message multiple times. On the second and
-    // later attempts, the descriptor_set will be empty and so will return -1,
-    // however, failing to parse at log time is a fatal error.
-    return true;
+    return m->ReadFileDescriptor(iter, r);
   }
   static void Log(const param_type& p, std::wstring* l) {
     if (p.auto_close) {
-      l->append(L"FD(auto-close)");
+      l->append(StringPrintf(L"FD(%d auto-close)", p.fd));
     } else {
-      l->append(L"FD");
+      l->append(StringPrintf(L"FD(%d)", p.fd));
     }
   }
 };

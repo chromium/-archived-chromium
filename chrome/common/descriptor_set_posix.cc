@@ -7,11 +7,11 @@
 #include "base/logging.h"
 
 DescriptorSet::DescriptorSet()
-    : next_descriptor_(0) {
+    : consumed_descriptor_highwater_(0) {
 }
 
 DescriptorSet::~DescriptorSet() {
-  if (next_descriptor_ == descriptors_.size())
+  if (consumed_descriptor_highwater_ == descriptors_.size())
     return;
 
   LOG(WARNING) << "DescriptorSet destroyed with unconsumed descriptors";
@@ -20,10 +20,11 @@ DescriptorSet::~DescriptorSet() {
   // flags set mirrors the expected behaviour.
   //
   // If this message was received with more descriptors than expected
-  // (which could a DOS against the browser by a rouge renderer) then all
+  // (which could a DOS against the browser by a rogue renderer) then all
   // the descriptors have their close flag set and we free all the extra
   // kernel resources.
-  for (unsigned i = next_descriptor_; i < descriptors_.size(); ++i) {
+  for (unsigned i = consumed_descriptor_highwater_;
+       i < descriptors_.size(); ++i) {
     if (descriptors_[i].auto_close)
       close(descriptors_[i].fd);
   }
@@ -52,16 +53,40 @@ bool DescriptorSet::AddAndAutoClose(int fd) {
   return true;
 }
 
-int DescriptorSet::NextDescriptor() {
-  if (next_descriptor_ == descriptors_.size())
+int DescriptorSet::GetDescriptorAt(unsigned index) const {
+  if (index >= descriptors_.size())
     return -1;
 
-  return descriptors_[next_descriptor_++].fd;
+  // We should always walk the descriptors in order, so it's reasonable to
+  // enforce this. Consider the case where a compromised renderer sends us
+  // the following message:
+  //
+  //   ExampleMsg:
+  //     num_fds:2 msg:FD(index = 1) control:SCM_RIGHTS {n, m}
+  //
+  // Here the renderer sent us a message which should have a descriptor, but
+  // actually sent two in an attempt to fill our fd table and kill us. By
+  // setting the index of the descriptor in the message to 1 (it should be
+  // 0), we would record a highwater of 1 and then consider all the
+  // descriptors to have been used.
+  //
+  // So we can either track of the use of each descriptor in a bitset, or we
+  // can enforce that we walk the indexes strictly in order.
+  //
+  // There's one more wrinkle: When logging messages, we may reparse them. So
+  // we have an exception: When the consumed_descriptor_highwater_ is at the
+  // end of the array and index 0 is requested, we reset the highwater value.
+  if (index == 0 && consumed_descriptor_highwater_ == descriptors_.size())
+    consumed_descriptor_highwater_ = 0;
+
+  if (index != consumed_descriptor_highwater_)
+    return -1;
+
+  consumed_descriptor_highwater_ = index + 1;
+  return descriptors_[index].fd;
 }
 
 void DescriptorSet::GetDescriptors(int* buffer) const {
-  DCHECK_EQ(next_descriptor_, 0u);
-
   for (std::vector<base::FileDescriptor>::const_iterator
        i = descriptors_.begin(); i != descriptors_.end(); ++i) {
     *(buffer++) = i->fd;
@@ -75,12 +100,13 @@ void DescriptorSet::CommitAll() {
       close(i->fd);
   }
   descriptors_.clear();
-  next_descriptor_ = 0;
+  consumed_descriptor_highwater_ = 0;
 }
 
 void DescriptorSet::SetDescriptors(const int* buffer, unsigned count) {
-  DCHECK(count <= MAX_DESCRIPTORS_PER_MESSAGE);
-  DCHECK(descriptors_.size() == 0);
+  DCHECK_LE(count, MAX_DESCRIPTORS_PER_MESSAGE);
+  DCHECK_EQ(descriptors_.size(), 0u);
+  DCHECK_EQ(consumed_descriptor_highwater_, 0u);
 
   descriptors_.reserve(count);
   for (unsigned i = 0; i < count; ++i) {
@@ -89,12 +115,4 @@ void DescriptorSet::SetDescriptors(const int* buffer, unsigned count) {
     sd.auto_close = true;
     descriptors_.push_back(sd);
   }
-}
-
-void DescriptorSet::TakeFrom(DescriptorSet* other) {
-  DCHECK(descriptors_.size() == 0);
-
-  descriptors_.swap(other->descriptors_);
-  next_descriptor_ = other->next_descriptor_;
-  other->next_descriptor_ = 0;
 }
