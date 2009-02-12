@@ -8,15 +8,17 @@
 This script requires 'dos2unix.exe' and 'unix2dos.exe' from Cygwin; they
 must be in the user's PATH.
 
-Arg: a file containing a list of relative or absolute file paths.  The
-    argument passed to this script, as well as the paths in the file, may be
-    relative paths or absolute Windows-style paths (with either type of
-    slash).  The list might be generated with 'find -type f' or extracted from
-    a gvn changebranch listing, for example.
+Arg: Either one or more files to examine, or (with --file-list) one or more
+    files that themselves contain lists of files. The argument(s) passed to
+    this script, as well as the paths in the file if any, may be relative or
+    absolute Windows-style paths (with either type of slash). The list might
+    be generated with 'find -type f' or extracted from a gcl change listing,
+    for example.
 """
 
 import errno
 import logging
+import optparse
 import subprocess
 import sys
 
@@ -67,12 +69,9 @@ def FixEndings(file, crlf, cr, lf):
       raise Error('Error running dos2unix.exe %s' % file)
 
 
-def main(argv=None):
-  """Process the list of files."""
-  if not argv or len(argv) < 2:
-    raise Error('No file list given.')
-
-  for filename in open(argv[1], 'r'):
+def ProcessFiles(filelist):
+  """Fix line endings in each file in the filelist list."""
+  for filename in filelist:
     filename = filename.strip()
     logging.debug(filename)
     try:
@@ -83,15 +82,35 @@ def main(argv=None):
         raise
       logging.warning('File %s not found.' % filename)
       continue
+
     crlf = CountChars(text, '\r\n')
     cr = CountChars(text, '\r') - crlf
     lf = CountChars(text, '\n') - crlf
 
-    if ((crlf > 0 and cr > 0) or
-        (crlf > 0 and lf > 0) or
-        (  lf > 0 and cr > 0)):
-      print ('%s: mostly %s' % (filename, PrevailingEOLName(crlf, cr, lf)))
-      FixEndings(filename, crlf, cr, lf)
+    if options.force_lf:
+      if crlf > 0 or cr > 0:
+        print '%s: forcing to LF' % filename
+        # Fudge the counts to force switching to LF.
+        FixEndings(filename, 0, 0, 1)
+    else:
+      if ((crlf > 0 and cr > 0) or
+          (crlf > 0 and lf > 0) or
+          (  lf > 0 and cr > 0)):
+        print '%s: mostly %s' % (filename, PrevailingEOLName(crlf, cr, lf))
+        FixEndings(filename, crlf, cr, lf)
+
+def main(options, args):
+  """Process the files."""
+  if not args or len(args) < 1:
+    raise Error('No files given.')
+
+  if options.file_list:
+    for arg in args:
+      filelist = open(arg, 'r').readlines()
+      ProcessFiles(filelist)
+  else:
+    filelist = args
+    ProcessFiles(filelist)
 
 if '__main__' == __name__:
   if DEBUGGING:
@@ -102,5 +121,15 @@ if '__main__' == __name__:
                       format='%(asctime)s %(levelname)-7s: %(message)s',
                       datefmt='%H:%M:%S')
 
-  sys.exit(main(sys.argv))
+  option_parser = optparse.OptionParser()
+  option_parser.add_option("", "--file-list", action="store_true",
+                           default=False,
+                           help="Treat the arguments as files containing "
+                                "lists of files to examine, rather than as "
+                                "the files to be checked.")
+  option_parser.add_option("", "--force-lf", action="store_true",
+                           default=False,
+                           help="Force any files with CRLF to LF instead.")
+  options, args = option_parser.parse_args()
 
+  sys.exit(main(options, args))
