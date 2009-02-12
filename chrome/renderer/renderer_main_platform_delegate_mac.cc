@@ -34,6 +34,11 @@ bool RendererMainPlatformDelegate::InitSandboxTests(bool no_sandbox) {
 }
 
 bool RendererMainPlatformDelegate::EnableSandbox() {
+
+  // TODO(port): hack
+  // With the sandbox on we don't have fonts in WebKit!
+  return true;
+
   // This call doesn't work when the sandbox is enabled, the implementation
   // caches it's return value so we call it here and then future calls will
   // succeed.
