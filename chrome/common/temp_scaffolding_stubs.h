@@ -651,7 +651,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   };
   TabContents(TabContentsType type) 
       : type_(type), is_active_(true), is_loading_(false), controller_(), 
-        delegate_() { }
+        delegate_(), max_page_id_(-1) { }
   virtual ~TabContents() { }
   NavigationController* controller() const { return controller_; }
   void set_controller(NavigationController* c) { controller_ = c; }
@@ -712,10 +712,10 @@ class TabContents : public PageNavigator, public NotificationObserver {
                       const gfx::Rect& initial_pos,
                       bool user_gesture) { NOTIMPLEMENTED(); }
   virtual void Activate() { NOTIMPLEMENTED(); }
-  virtual bool SupportsURL(GURL*) { NOTIMPLEMENTED(); return false; }
+  virtual bool SupportsURL(GURL*);
   virtual SiteInstance* GetSiteInstance() const { return NULL; }
-  int32 GetMaxPageID() { NOTIMPLEMENTED(); return 0; }
-  void UpdateMaxPageID(int32) { NOTIMPLEMENTED(); }
+  int32 GetMaxPageID();
+  void UpdateMaxPageID(int32);
   virtual bool NavigateToPendingEntry(bool) { NOTIMPLEMENTED(); return true; }
   virtual DOMUIHost* AsDOMUIHost() { NOTIMPLEMENTED(); return NULL; }
   virtual std::wstring GetStatusText() const { return std::wstring(); }
@@ -738,6 +738,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   std::wstring title_;
   NavigationController* controller_;
   TabContentsDelegate* delegate_;
+  int32 max_page_id_;
 };
 
 class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {

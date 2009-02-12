@@ -295,6 +295,35 @@ void TabContents::SetIsLoading(bool is_loading,
   is_loading_ = is_loading;
 }
 
+bool TabContents::SupportsURL(GURL* url) {
+  GURL u(*url);
+  if (TabContents::TypeForURL(&u) == type()) {
+    *url = u;
+    return true;
+  }
+  return false;
+}
+
+int32 TabContents::GetMaxPageID() {
+  if (GetSiteInstance())
+    return GetSiteInstance()->max_page_id();
+  else
+    return max_page_id_;
+}
+
+void TabContents::UpdateMaxPageID(int32 page_id) {
+  // Ensure both the SiteInstance and RenderProcessHost update their max page
+  // IDs in sync. Only WebContents will also have site instances, except during
+  // testing.
+  if (GetSiteInstance())
+    GetSiteInstance()->UpdateMaxPageID(page_id);
+  
+  if (AsWebContents())
+    AsWebContents()->process()->UpdateMaxPageID(page_id);
+  else
+    max_page_id_ = std::max(max_page_id_, page_id);
+}
+
 //--------------------------------------------------------------------------
 
 bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {
