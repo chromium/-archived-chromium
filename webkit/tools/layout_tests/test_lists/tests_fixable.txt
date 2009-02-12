@@ -910,21 +910,9 @@ LINUX : chrome/fast/forms/basic-selects.html = FAIL
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
-MAC : LayoutTests/fast/loader/loadInProgress.html = FAIL
 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
 MAC : chrome/plugins/call-as-function.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/AppletsCollection.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement01.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement02.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement03.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement04.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement05.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement06.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement07.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement08.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement09.html = FAIL
-MAC : LayoutTests/dom/html/level2/html/HTMLAppletElement10.html = FAIL
 LINUX : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 LINUX MAC : LayoutTests/http/tests/plugins/get-url.html = TIMEOUT
@@ -934,9 +922,7 @@ LINUX MAC : LayoutTests/http/tests/plugins/interrupted-get-url.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 LINUX MAC : LayoutTests/http/tests/plugins/post-url-file.html = CRASH TIMEOUT
 LINUX MAC : LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-navigation.html = TIMEOUT
-MAC : LayoutTests/plugins/createScriptableObject-before-start.html = CRASH FAIL
 LINUX MAC : LayoutTests/plugins/embed-attributes-setting.html = CRASH FAIL
-MAC : LayoutTests/plugins/embed-attributes-style.html = FAIL
 LINUX MAC : LayoutTests/plugins/embed-inside-object.html = TIMEOUT
 LINUX MAC : LayoutTests/plugins/get-empty-url.html = CRASH FAIL
 LINUX MAC : LayoutTests/plugins/get-url-that-the-resource-load-delegate-will-disallow.html = FAIL
@@ -963,7 +949,7 @@ LINUX MAC : chrome/plugins/refcount-leaks.html = FAIL
 LINUX MAC : chrome/plugins/return-npobject.html = FAIL
 LINUX MAC : chrome/plugins/script-object-invoke.html = FAIL
 LINUX MAC : pending/plugins/destroy-stream-twice.html = TIMEOUT
-MAC : pending/plugins/iframe-shims.html = FAIL
+MAC : pending/plugins/iframe-shims.html = FAIL CRASH
 
 // Depends on event_sending_controller fixes.
 MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL TIMEOUT
@@ -1381,10 +1367,6 @@ MAC : LayoutTests/svg/hixie/perf/007.xml = FAIL PASS
 MAC : LayoutTests/animations/combo-transform-translate+scale.html = PASS FAIL
 MAC : LayoutTests/animations/change-one-anim.html = FAIL PASS
 
-// Fails due to a log message now that some, but not all plugin code is hooked
-// up (w/o the code, the log wasn't generated, and this passed).
-MAC : LayoutTests/fast/dom/object-plugin-hides-properties.html = FAIL
-
 // Unsure, seems to timeout a lot on build bots
 MAC : LayoutTests/http/tests/xmlhttprequest/null-auth.php = TIMEOUT PASS
 
@@ -1735,9 +1717,6 @@ LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 // jshin@chromium.org did several font related changes in this merge.
 LINUX : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
 
-// Started failing with webkit merge 40539:40668
-MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
-
 // We could fix this test for us and upstream it if the test shell user agent
 // would let us differentiate test_shell and WebKit DumpTreeNode.
 // See http://crbug.com/7482
@@ -1755,7 +1734,7 @@ LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-07-t.svg = PASS FAIL
 // Misc failures:
 WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
-MAC : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
+MAC DEBUG : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
 LINUX : LayoutTests/svg/custom/getTransformToElement.svg = FAIL
 LINUX : LayoutTests/svg/custom/use-transform.svg = FAIL
