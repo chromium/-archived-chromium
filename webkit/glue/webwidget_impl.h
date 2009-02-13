@@ -30,7 +30,8 @@ class WebMouseWheelEvent;
 class WebWidgetDelegate;
 
 class WebWidgetImpl : public WebWidget,
-                      public WebCore::FramelessScrollViewClient {
+                      public WebCore::FramelessScrollViewClient,
+                      public base::RefCounted<WebWidgetImpl> {
  public:
   // WebWidget
   virtual void Close();
@@ -69,6 +70,7 @@ class WebWidgetImpl : public WebWidget,
 
  protected:
   friend class WebWidget;  // So WebWidget::Create can call our constructor
+  friend class base::RefCounted<WebWidgetImpl>;
 
   WebWidgetImpl(WebWidgetDelegate* delegate);
   ~WebWidgetImpl();

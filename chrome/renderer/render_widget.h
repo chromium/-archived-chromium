@@ -165,7 +165,8 @@ class RenderWidget : public IPC::Channel::Listener,
   // RenderWidgetHost. When MSG_ROUTING_NONE, no messages may be sent.
   int32 routing_id_;
 
-  scoped_refptr<WebWidget> webwidget_;
+  // We are responsible for destroying this object via its Close method.
+  WebWidget* webwidget_;
 
   // Set to the ID of the view that initiated creating this view, if any. When
   // the view was initiated by the browser (the common case), this will be

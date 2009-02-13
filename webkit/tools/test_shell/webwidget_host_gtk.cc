@@ -285,7 +285,6 @@ WebWidgetHost::WebWidgetHost()
 
 WebWidgetHost::~WebWidgetHost() {
   webwidget_->Close();
-  webwidget_->Release();
 }
 
 void WebWidgetHost::Resize(const gfx::Size &newsize) {

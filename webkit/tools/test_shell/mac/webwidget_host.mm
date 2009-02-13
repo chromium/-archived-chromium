@@ -136,7 +136,6 @@ WebWidgetHost::~WebWidgetHost() {
   TrackMouseLeave(false);
 
   webwidget_->Close();
-  webwidget_->Release();
 }
 
 void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {

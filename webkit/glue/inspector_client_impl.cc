@@ -28,7 +28,7 @@ static const float kDefaultInspectorYPos = 50;
 static const float kDefaultInspectorHeight = 640;
 static const float kDefaultInspectorWidth = 480;
 
-WebInspectorClient::WebInspectorClient(WebView* webView)
+WebInspectorClient::WebInspectorClient(WebViewImpl* webView)
   : inspected_web_view_(webView)
   , inspector_web_view_(0) {
   ASSERT(inspected_web_view_);
@@ -45,7 +45,7 @@ Page* WebInspectorClient::createPage() {
   WebCore::Page* page;
 
   if (inspector_web_view_ != NULL) {
-    page = static_cast<WebViewImpl*>(inspector_web_view_)->page();
+    page = inspector_web_view_->page();
     ASSERT(page != NULL);
     if (page != NULL)
       return page;
@@ -54,17 +54,16 @@ Page* WebInspectorClient::createPage() {
   WebViewDelegate* delegate = inspected_web_view_->GetDelegate();
   if (!delegate)
     return NULL;
-  inspector_web_view_ = delegate->CreateWebView(inspected_web_view_, true);
+  inspector_web_view_ = static_cast<WebViewImpl*>(
+      delegate->CreateWebView(inspected_web_view_, true));
   if (!inspector_web_view_)
     return NULL;
 
   GURL inspector_url(webkit_glue::GetInspectorURL());
   scoped_ptr<WebRequest> request(WebRequest::Create(inspector_url));
-  WebViewImpl* inspector_web_view_impl =
-    static_cast<WebViewImpl*>(inspector_web_view_);
-  inspector_web_view_impl->main_frame()->LoadRequest(request.get());
+  inspector_web_view_->main_frame()->LoadRequest(request.get());
 
-  page = inspector_web_view_impl->page();
+  page = inspector_web_view_->page();
 
   page->chrome()->setToolbarsVisible(false);
   page->chrome()->setStatusbarVisible(false);
@@ -92,31 +91,29 @@ Page* WebInspectorClient::createPage() {
 }
 
 void WebInspectorClient::showWindow() {
-  WebViewImpl* impl = static_cast<WebViewImpl*>(inspected_web_view_.get());
-  InspectorController* inspector = impl->page()->inspectorController();
+  InspectorController* inspector = inspected_web_view_->page()->inspectorController();
   inspector->setWindowVisible(true);
 
   // Notify the webview delegate of how many resources we're inspecting.
-  WebViewDelegate* d = impl->delegate();
+  WebViewDelegate* d = inspected_web_view_->delegate();
   DCHECK(d);
   d->WebInspectorOpened(inspector->resources().size());
 }
 
 void WebInspectorClient::closeWindow() {
   inspector_web_view_ = NULL;
-  WebViewImpl* impl = static_cast<WebViewImpl*>(inspected_web_view_.get());
-  WebFrameImpl* frame = static_cast<WebFrameImpl*>(impl->GetMainFrame());
+  WebFrameImpl* frame = inspected_web_view_->main_frame();
 
   if (frame && frame->inspected_node())
     hideHighlight();
 
-  if (impl->page())
-    impl->page()->inspectorController()->setWindowVisible(false);
+  if (inspected_web_view_->page())
+    inspected_web_view_->page()->inspectorController()->setWindowVisible(false);
 }
 
 bool WebInspectorClient::windowVisible() {
   if (inspector_web_view_ != NULL) {
-    Page* page = static_cast<WebViewImpl*>(inspector_web_view_)->page();
+    Page* page = inspector_web_view_->page();
     ASSERT(page != NULL);
     if (page != NULL)
       return true;
@@ -147,21 +144,19 @@ static void invalidateNodeBoundingRect(WebViewImpl* web_view) {
 }
 
 void WebInspectorClient::highlight(Node* node) {
-  WebViewImpl* web_view = static_cast<WebViewImpl*>(inspected_web_view_.get());
-  WebFrameImpl* frame = static_cast<WebFrameImpl*>(web_view->GetMainFrame());
+  WebFrameImpl* frame = inspected_web_view_->main_frame();
 
   if (frame->inspected_node())
     hideHighlight();
 
-  invalidateNodeBoundingRect(web_view);
+  invalidateNodeBoundingRect(inspected_web_view_);
   frame->selectNodeFromInspector(node);
 }
 
 void WebInspectorClient::hideHighlight() {
-  WebViewImpl* web_view = static_cast<WebViewImpl*>(inspected_web_view_.get());
-  WebFrameImpl* frame = static_cast<WebFrameImpl*>(web_view->GetMainFrame());
+  WebFrameImpl* frame = static_cast<WebFrameImpl*>(inspected_web_view_->GetMainFrame());
 
-  invalidateNodeBoundingRect(web_view);
+  invalidateNodeBoundingRect(inspected_web_view_);
   frame->selectNodeFromInspector(NULL);
 }
 

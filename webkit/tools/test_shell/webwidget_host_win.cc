@@ -186,7 +186,6 @@ WebWidgetHost::~WebWidgetHost() {
   TrackMouseLeave(false);
 
   webwidget_->Close();
-  webwidget_->Release();
 }
 
 bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {

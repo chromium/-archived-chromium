@@ -9,11 +9,11 @@
 #include "base/ref_counted.h"
 
 class WebNodeHighlight;
-class WebView;
+class WebViewImpl;
 
 class WebInspectorClient : public WebCore::InspectorClient {
 public:
-  WebInspectorClient(WebView*);
+  WebInspectorClient(WebViewImpl*);
 
   // InspectorClient
   virtual void inspectorDestroyed();
@@ -43,11 +43,11 @@ public:
 private:
   ~WebInspectorClient();
 
-  // The WebView of the page being inspected; gets passed to the constructor
-  scoped_refptr<WebView> inspected_web_view_;
+  // The WebViewImpl of the page being inspected; gets passed to the constructor
+  scoped_refptr<WebViewImpl> inspected_web_view_;
 
   // The WebView of the Inspector popup window
-  WebView* inspector_web_view_;
+  WebViewImpl* inspector_web_view_;
 };
 
 #endif // WEBKIT_GLUE_INSPECTOR_CLIENT_IMPL_H__

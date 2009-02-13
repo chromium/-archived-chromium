@@ -820,6 +820,8 @@ void WebViewImpl::Close() {
       page_->mainFrame()->loader()->frameDetached();
     page_.reset();
   }
+
+  Release();  // Balances AddRef from WebView::Create
 }
 
 WebViewDelegate* WebViewImpl::GetDelegate() {

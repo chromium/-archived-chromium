@@ -100,6 +100,8 @@ void WebWidgetImpl::Close() {
     widget_->hide();
 
   delegate_ = NULL;
+
+  Release();  // Balances AddRef from WebWidget::Create
 }
 
 void WebWidgetImpl::Resize(const gfx::Size& new_size) {

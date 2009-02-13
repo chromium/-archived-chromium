@@ -76,6 +76,7 @@ DeferredCloses* DeferredCloses::current_ = NULL;
 
 RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
     : routing_id_(MSG_ROUTING_NONE),
+      webwidget_(NULL),
       opener_id_(MSG_ROUTING_NONE),
       render_thread_(render_thread),
       host_window_(NULL),
@@ -101,6 +102,7 @@ RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
 }
 
 RenderWidget::~RenderWidget() {
+  DCHECK(!webwidget_) << "Leaking our WebWidget!";
   if (current_paint_buf_) {
     RenderProcess::FreeSharedMemory(current_paint_buf_);
     current_paint_buf_ = NULL;
@@ -129,9 +131,7 @@ void RenderWidget::Init(int32 opener_id) {
   if (opener_id != MSG_ROUTING_NONE)
     opener_id_ = opener_id;
 
-  // Avoid a leak here by not assigning, since WebWidget::Create addrefs for us.
-  WebWidget* webwidget = WebWidget::Create(this);
-  webwidget_.swap(&webwidget);
+  webwidget_ = WebWidget::Create(this);
 
   bool result = render_thread_->Send(
       new ViewHostMsg_CreateWidget(opener_id, activatable_, &routing_id_));

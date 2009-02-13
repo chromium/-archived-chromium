@@ -282,9 +282,7 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
     decrement_shared_popup_at_destruction_ = false;
   }
 
-  // Avoid a leak here by not assigning, since WebView::Create addrefs for us.
-  WebWidget* view = WebView::Create(this, webkit_prefs);
-  webwidget_.swap(&view);
+  webwidget_ = WebView::Create(this, webkit_prefs);
 
   // Don't let WebCore keep a B/F list - we have our own.
   // We let it keep 1 entry because FrameLoader::goToItem expects an item in the

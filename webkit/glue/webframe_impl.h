@@ -70,7 +70,7 @@ class BitmapPlatformDeviceWin;
 }
 
 // Implementation of WebFrame, note that this is a reference counted object.
-class WebFrameImpl : public WebFrame {
+class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
  public:
   WebFrameImpl();
   ~WebFrameImpl();

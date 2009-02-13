@@ -34,10 +34,9 @@ class Size;
 
 // Every frame in a web page is represented by one WebFrame, including the
 // outermost frame.
-class WebFrame : public base::RefCounted<WebFrame> {
+class WebFrame {
  public:
   WebFrame() {}
-  virtual ~WebFrame() {}
 
   // Binds a C++ class to a JavaScript property of the window object.  This
   // should generally be used via CppBoundClass::BindToJavascript() instead of
@@ -370,6 +369,9 @@ class WebFrame : public base::RefCounted<WebFrame> {
 
   // Only for test_shell
   virtual int PendingFrameUnloadEventCount() const = 0;
+
+ protected:
+  virtual ~WebFrame() {}
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebFrame);

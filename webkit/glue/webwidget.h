@@ -16,10 +16,9 @@ class Size;
 class WebInputEvent;
 class WebWidgetDelegate;
 
-class WebWidget : public base::RefCounted<WebWidget> {
+class WebWidget {
  public:
   WebWidget() {}
-  virtual ~WebWidget() {}
 
   // This method creates a WebWidget that is initially invisible and positioned
   // according to the given bounds relative to the specified parent window.
@@ -27,7 +26,7 @@ class WebWidget : public base::RefCounted<WebWidget> {
   // GetViewWindow) once it is ready to have the WebWidget appear on the screen.
   static WebWidget* Create(WebWidgetDelegate* delegate);
 
-  // This method closes the WebWidget.
+  // This method closes and deletes the WebWidget.
   virtual void Close() = 0;
 
   // Called to resize the WebWidget.
@@ -66,6 +65,9 @@ class WebWidget : public base::RefCounted<WebWidget> {
   // Retrieve the status of this widget required by IME APIs.
   virtual bool ImeUpdateStatus(bool* enable_ime, const void** node,
                                gfx::Rect* caret_rect) = 0;
+
+ protected:
+  virtual ~WebWidget() {}
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebWidget);
