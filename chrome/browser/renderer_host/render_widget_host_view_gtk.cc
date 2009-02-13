@@ -151,7 +151,6 @@ void RenderWidgetHostViewGtk::SetSize(const gfx::Size& size) {
 }
 
 gfx::NativeView RenderWidgetHostViewGtk::GetPluginNativeView() {
-  NOTIMPLEMENTED();
   // TODO(port): We need to pass some widget pointer out here because the
   // renderer echos it back to us when it asks for GetScreenInfo. However, we
   // should probably be passing the top-level window or some such instead.
