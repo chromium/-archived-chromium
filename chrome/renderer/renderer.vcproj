@@ -310,10 +310,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\renderer_resources.h"
-			>
-		</File>
-		<File
 			RelativePath=".\user_script_slave.cc"
 			>
 		</File>

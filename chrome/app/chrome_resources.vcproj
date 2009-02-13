@@ -73,12 +73,36 @@
 				>
 			</File>
 			<File
+				RelativePath="$(OutDir)\grit_derived_sources\common_resources.h"
+				>
+			</File>
+			<File
+				RelativePath="$(OutDir)\grit_derived_sources\debugger_resources.h"
+				>
+			</File>
+			<File
+				RelativePath="$(OutDir)\grit_derived_sources\renderer_resources.h"
+				>
+			</File>
+			<File
 				RelativePath="$(OutDir)\grit_derived_sources\theme_resources.h"
 				>
 			</File>
 		</Filter>
 		<File
 			RelativePath="..\browser\browser_resources.grd"
+			>
+		</File>
+		<File
+			RelativePath="..\common\common_resources.grd"
+			>
+		</File>
+		<File
+			RelativePath="..\browser\debugger\resources\debugger_resources.grd"
+			>
+		</File>
+		<File
+			RelativePath="..\renderer\renderer_resources.grd"
 			>
 		</File>
 		<File

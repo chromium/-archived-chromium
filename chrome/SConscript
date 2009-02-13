@@ -11,8 +11,6 @@ env_test = env.Clone()
 env = env.Clone()
 
 install_targets = []
-grit_files = []
-
 
 env.Prepend(
     CPPPATH = [
@@ -41,9 +39,12 @@ if env_res.Bit('windows'):
   chrome_exe_res = env_res.RES('app/chrome_exe.rc'),
   chrome_dll_res = env_res.RES('app/chrome_dll.rc')
   env_res.Depends(chrome_dll_res, 'installer/util/installer_util_strings.rc')
-  common_res = env_res.RES('common/common_resources.rc')
-  debugger_res = env_res.RES('browser/debugger/resources/debugger_resources.rc')
-  renderer_res = env_res.RES('renderer/renderer_resources.rc')
+  common_res = env_res.RES(
+      '$TARGET_ROOT/grit_derived_sources/common_resources.rc')
+  debugger_res = env_res.RES(
+      '$TARGET_ROOT/grit_derived_sources/debugger_resources.rc')
+  renderer_res = env_res.RES(
+      '$TARGET_ROOT/grit_derived_sources/renderer_resources.rc')
   test_data_res = env_res.RES('test/data/resource.rc')
 
   net_res = '$TARGET_ROOT/grit_derived_sources/net_resources.res'
@@ -65,29 +66,26 @@ if env_res.Bit('windows'):
 env_grd = env.Clone()
 env_grd.Tool('scons', toolpath=[env_grd.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
 
-# NOTE: fake target gets replaced with real targets from reading .grd
-generated = env_grd.GRIT(
-    '$TARGET_ROOT/grit_derived_sources/fake_generated_target',
-    '$CHROME_SRC_DIR/chrome/app/generated_resources.grd')
-grit_files.extend(generated)
+grd_files = [
+  # Strings
+  '$CHROME_SRC_DIR/chrome/app/generated_resources.grd',
+  '$CHROME_SRC_DIR/chrome/app/chromium_strings.grd',
+  '$CHROME_SRC_DIR/chrome/app/google_chrome_strings.grd',
 
-# NOTE: fake target gets replaced with real targets from reading .grd
-chromium = env_grd.GRIT(
-    '$TARGET_ROOT/grit_derived_sources/fake_chromium_target',
-    '$CHROME_SRC_DIR/chrome/app/chromium_strings.grd')
-grit_files.extend(chromium)
+  # Data resources
+  '$CHROME_SRC_DIR/chrome/browser/browser_resources.grd',
+  '$CHROME_SRC_DIR/chrome/browser/debugger/resources/debugger_resources.grd',
+  '$CHROME_SRC_DIR/chrome/common/common_resources.grd',
+  '$CHROME_SRC_DIR/chrome/renderer/renderer_resources.grd',
+]
+grit_files = []
 
-# NOTE: fake target gets replaced with real targets from reading .grd
-google_chrome = env_grd.GRIT(
-    '$TARGET_ROOT/grit_derived_sources/fake_google_chrome_target',
-    '$CHROME_SRC_DIR/chrome/app/google_chrome_strings.grd')
-grit_files.extend(google_chrome)
-
-# NOTE: fake target gets replaced with real targets from reading .grd
-browser_resources = env_grd.GRIT(
-    '$TARGET_ROOT/grit_derived_sources/fake_browser_target',
-    '$CHROME_SRC_DIR/chrome/browser/browser_resources.grd')
-grit_files.extend(browser_resources)
+for grd_file in grd_files:
+  # NOTE: fake target gets replaced with real targets from reading .grd
+  generated = env_grd.GRIT(
+      '$TARGET_ROOT/grit_derived_sources/fake_' + os.path.basename(grd_file),
+      grd_file)
+  grit_files.extend(generated)
 
 input_files = ChromeFileList([
     'app/generated_resources.grd',

@@ -31,6 +31,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "renderer", "renderer\render
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{6AE76406-B03B-11DD-94B1-80B556D89593} = {6AE76406-B03B-11DD-94B1-80B556D89593}
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject
@@ -52,6 +53,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcp
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject
@@ -1738,6 +1740,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "debugger", "browser\debugge
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject

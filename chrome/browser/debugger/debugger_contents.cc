@@ -11,11 +11,12 @@
 #include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
-#include "chrome/browser/debugger/resources/debugger_resources.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
 #include "net/base/mime_util.h"
+
+#include "grit/debugger_resources.h"
 
 class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
  public:

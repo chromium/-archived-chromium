@@ -190,10 +190,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\resources\debugger_resources.h"
-			>
-		</File>
-		<File
 			RelativePath=".\debugger_view.cc"
 			>
 		</File>

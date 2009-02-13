@@ -48,3 +48,33 @@ then
       -i "${PROJECT_DIR}/app/theme/theme_resources.grd" build \
       -o "${GRIT_DIR}"
 fi
+
+# compare common_resources.grd to common_resources.h. If the .h is
+# older or doesn't exist, rebuild it
+if [ "${GRIT_DIR}/grit/common_resources.h" -ot \
+     "${PROJECT_DIR}/common/common_resources.grd" ]
+then
+  python "${PROJECT_DIR}/../tools/grit/grit.py" \
+      -i "${PROJECT_DIR}/common/common_resources.grd" build \
+      -o "${GRIT_DIR}"
+fi
+
+# compare renderer_resources.grd to renderer_resources.h. If the .h is
+# older or doesn't exist, rebuild it
+if [ "${GRIT_DIR}/grit/renderer_resources.h" -ot \
+     "${PROJECT_DIR}/renderer/renderer_resources.grd" ]
+then
+  python "${PROJECT_DIR}/../tools/grit/grit.py" \
+      -i "${PROJECT_DIR}/renderer/renderer_resources.grd" build \
+      -o "${GRIT_DIR}"
+fi
+
+# compare debugger_resources.grd to debugger_resources.h. If the .h is
+# older or doesn't exist, rebuild it
+if [ "${GRIT_DIR}/grit/debugger_resources.h" -ot \
+     "${PROJECT_DIR}/browser/debugger/resources/debugger_resources.grd" ]
+then
+  python "${PROJECT_DIR}/../tools/grit/grit.py" \
+      -i "${PROJECT_DIR}/browser/debugger/debugger/debugger_resources.grd" build \
+      -o "${GRIT_DIR}"
+fi

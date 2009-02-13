@@ -10,7 +10,6 @@
 #include "base/values.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/debugger/resources/debugger_resources.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/browser/debugger/debugger_view.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
@@ -29,6 +28,7 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/view.h"
 
+#include "grit/debugger_resources.h"
 
 DebuggerView::DebuggerView() : output_ready_(false) {
   web_container_ = new TabContentsContainerView();

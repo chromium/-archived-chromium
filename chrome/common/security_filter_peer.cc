@@ -11,12 +11,13 @@
 #include "net/http/http_response_headers.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/renderer/renderer_resources.h"
 #include "generated_resources.h"
 #include "skia/include/SkBitmap.h"
 #include "skia/include/SkCanvas.h"
 #include "webkit/glue/webkit_glue.h"
 #include "SkDevice.h"
+
+#include "grit/renderer_resources.h"
 
 SecurityFilterPeer::SecurityFilterPeer(
     webkit_glue::ResourceLoaderBridge* resource_loader_bridge,

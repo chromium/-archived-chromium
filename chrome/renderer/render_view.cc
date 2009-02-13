@@ -27,7 +27,6 @@
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/render_process.h"
-#include "chrome/renderer/renderer_resources.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
@@ -57,6 +56,7 @@
 #include "webkit/glue/webview.h"
 
 #include "generated_resources.h"
+#include "grit/renderer_resources.h"
 
 #if defined(OS_WIN)
 // TODO(port): these files are currently Windows only because they concern:

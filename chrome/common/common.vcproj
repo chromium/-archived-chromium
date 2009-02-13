@@ -434,10 +434,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\common_resources.h"
-			>
-		</File>
-		<File
 			RelativePath=".\debug_flags.cc"
 			>
 		</File>

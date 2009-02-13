@@ -15,10 +15,11 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/debugger_io.h"
 #include "chrome/browser/debugger/debugger_node.h"
-#include "chrome/browser/debugger/resources/debugger_resources.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/resource_bundle.h"
+
+#include "grit/debugger_resources.h"
 
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"

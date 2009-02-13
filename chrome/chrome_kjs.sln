@@ -30,6 +30,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "renderer", "renderer\render
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject
@@ -51,6 +52,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcp
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
 		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 		{F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7} = {F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7}
 	EndProjectSection
@@ -1647,6 +1649,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "debugger_disabled", "browse
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE} = {B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}
+		{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28} = {D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "browser_views", "browser\views\browser_views.vcproj", "{FA537565-7B03-4FFC-AF15-F7A979B72E22}"

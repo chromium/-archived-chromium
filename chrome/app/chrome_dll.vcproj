@@ -196,11 +196,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\common\common_resources.h"
-				>
-			</File>
-			<File
-				RelativePath="..\common\common_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\common_resources.rc"
 				>
 			</File>
 			<File
@@ -208,11 +204,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\browser\debugger\resources\debugger_resources.h"
-				>
-			</File>
-			<File
-				RelativePath="..\browser\debugger\resources\debugger_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\debugger_resources.rc"
 				>
 			</File>
 			<File
@@ -220,11 +212,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\renderer\renderer_resources.h"
-				>
-			</File>
-			<File
-				RelativePath="..\renderer\renderer_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\renderer_resources.rc"
 				>
 			</File>
 			<File
