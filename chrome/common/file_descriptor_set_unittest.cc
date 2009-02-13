@@ -4,6 +4,9 @@
 
 // This test is POSIX only.
 
+#include <unistd.h>
+#include <stdio.h>
+
 #include "base/basictypes.h"
 #include "chrome/common/file_descriptor_set_posix.h"
 #include "testing/gtest/include/gtest/gtest.h"
