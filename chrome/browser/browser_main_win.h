@@ -15,7 +15,9 @@ class MetricsService;
 bool CheckForWin2000();
 
 // Handle uninstallation when given the appropriate the command-line switch.
-int DoUninstallTasks();
+// If |chrome_still_running| is true a modal dialog will be shown asking the
+// user to close the other chrome instance.
+int DoUninstallTasks(bool chrome_still_running);
 
 // Prepares the localized strings that are going to be displayed to
 // the user if the browser process dies. These strings are stored in the

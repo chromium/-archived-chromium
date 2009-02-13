@@ -45,7 +45,18 @@ bool AskForUninstallConfirmation() {
   return (IDOK == win_util::MessageBox(NULL, text, caption, flags));
 }
 
-int DoUninstallTasks() {
+void ShowCloseBrowserFirstMessageBox() {
+  const std::wstring text = l10n_util::GetString(IDS_UNINSTALL_CLOSE_APP);
+  const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
+  const UINT flags = MB_OK | MB_ICONWARNING | MB_TOPMOST;
+  win_util::MessageBox(NULL, text, caption, flags);
+}
+
+int DoUninstallTasks(bool chrome_still_running) {
+  if (chrome_still_running) {
+    ShowCloseBrowserFirstMessageBox();
+    return ResultCodes::UNINSTALL_CHROME_ALIVE;
+  }
   if (!AskForUninstallConfirmation())
     return ResultCodes::UNINSTALL_USER_CANCEL;
   // The following actions are just best effort.

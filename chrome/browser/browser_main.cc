@@ -379,19 +379,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   // If the command line specifies 'uninstall' then we need to work here
   // unless we detect another chrome browser running.
-  if (parsed_command_line.HasSwitch(switches::kUninstall)) {
-    if (already_running) {
-#if defined(OS_WIN)
-      const std::wstring text = l10n_util::GetString(IDS_UNINSTALL_CLOSE_APP);
-      const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
-      win_util::MessageBox(NULL, text, caption,
-                           MB_OK | MB_ICONWARNING | MB_TOPMOST);
-#endif
-      return ResultCodes::UNINSTALL_CHROME_ALIVE;
-    } else {
-      return DoUninstallTasks();
-    }
-  }
+  if (parsed_command_line.HasSwitch(switches::kUninstall))
+    return DoUninstallTasks(already_running);
 
   if (parsed_command_line.HasSwitch(switches::kHideIcons) ||
       parsed_command_line.HasSwitch(switches::kShowIcons)) {

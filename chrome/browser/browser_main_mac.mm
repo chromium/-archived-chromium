@@ -39,7 +39,7 @@ void WillTerminate() {
 
 // From browser_main_win.h, stubs until we figure out the right thing...
 
-int DoUninstallTasks() {
+int DoUninstallTasks(bool chrome_still_running) {
   return ResultCodes::NORMAL_EXIT;
 }
 
