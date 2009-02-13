@@ -1,5 +1,6 @@
 include_rules = [
   "+chrome/plugin",  # For checking whether we're a plugin process.
+  "+grit",  # For generated headers
   "+libxml",
   "+sandbox/src",
   "+skia/include",
