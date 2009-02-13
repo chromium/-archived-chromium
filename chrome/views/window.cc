@@ -326,7 +326,7 @@ void Window::SizeWindowToDefault() {
                                 true);
 }
 
-void Window::RunSystemMenu(const CPoint& point) {
+void Window::RunSystemMenu(const gfx::Point& point) {
   // We need to reset and clean up any currently created system menu objects.
   // We need to call this otherwise there's a small chance that we aren't going
   // to get a system menu. We also can't take the return value of this
@@ -335,7 +335,7 @@ void Window::RunSystemMenu(const CPoint& point) {
   HMENU system_menu = ::GetSystemMenu(GetHWND(), FALSE);
   int id = ::TrackPopupMenu(system_menu,
                             TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
-                            point.x, point.y, 0, GetHWND(), NULL);
+                            point.x(), point.y(), 0, GetHWND(), NULL);
   ExecuteSystemMenuCommand(id);
 }
 
@@ -406,17 +406,26 @@ LRESULT Window::OnNCHitTest(const CPoint& point) {
 }
 
 void Window::OnNCLButtonDown(UINT ht_component, const CPoint& point) {
-  if (non_client_view_ && ht_component == HTSYSMENU)
-    RunSystemMenu(non_client_view_->GetSystemMenuPoint());
-  WidgetWin::OnNCLButtonDown(ht_component, point);
+  if (ht_component == HTSYSMENU) {
+    gfx::Point system_menu_point;
+    if (non_client_view_) {
+      system_menu_point = non_client_view_->GetSystemMenuPoint();
+    } else {
+      CPoint temp(0, -NonClientView::kFrameShadowThickness);
+      MapWindowPoints(GetHWND(), HWND_DESKTOP, &temp, 1);
+      system_menu_point = gfx::Point(temp);
+    }
+    RunSystemMenu(system_menu_point);
+  } else {
+    WidgetWin::OnNCLButtonDown(ht_component, point);
+  }
 }
 
 void Window::OnNCRButtonDown(UINT ht_component, const CPoint& point) {
-  if (ht_component == HTCAPTION || ht_component == HTSYSMENU) {
-    RunSystemMenu(point);
-  } else {
+  if (ht_component == HTCAPTION || ht_component == HTSYSMENU)
+    RunSystemMenu(gfx::Point(point));
+  else
     WidgetWin::OnNCRButtonDown(ht_component, point);
-  }
 }
 
 
@@ -464,6 +473,10 @@ void Window::OnSysCommand(UINT notification_code, CPoint click) {
 
     // Now change the actual window's behavior.
     AlwaysOnTopChanged();
+  } else if ((notification_code == SC_KEYMENU) && (click.x == VK_SPACE) &&
+             non_client_view_) {
+    // Run the system menu at the NonClientView's desired location.
+    RunSystemMenu(non_client_view_->GetSystemMenuPoint());
   } else {
     // Use the default implementation for any other command.
     DefWindowProc(GetHWND(), WM_SYSCOMMAND, notification_code,

@@ -19,8 +19,6 @@
 
 // An enumeration of bitmap resources used by this window.
 enum {
-  FRAME_PART_BITMAP_FIRST = 0,  // Must be first.
-
   // Window Controls.
   FRAME_CLOSE_BUTTON_ICON,
   FRAME_CLOSE_BUTTON_ICON_H,
@@ -58,6 +56,11 @@ enum {
   FRAME_CLIENT_EDGE_BOTTOM_LEFT,
   FRAME_CLIENT_EDGE_LEFT,
 
+  // No-toolbar client edge.
+  FRAME_NO_TOOLBAR_TOP_LEFT,
+  FRAME_NO_TOOLBAR_TOP_CENTER,
+  FRAME_NO_TOOLBAR_TOP_RIGHT,
+
   // Popup-mode toolbar edges.
   FRAME_TOOLBAR_POPUP_EDGE_LEFT,
   FRAME_TOOLBAR_POPUP_EDGE_RIGHT,
@@ -82,7 +85,6 @@ class ActiveWindowResources : public views::WindowResources {
     static bool initialized = false;
     if (!initialized) {
       static const int kFramePartBitmapIds[] = {
-        0,
         IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
         IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
         IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
@@ -96,22 +98,18 @@ class ActiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
         IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
-        0
       };
 
       ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kFramePartBitmapIds[i];
-        if (id != 0)
-          standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
+      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
+        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
       initialized = true;
     }
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ActiveWindowResources);
 };
@@ -133,7 +131,6 @@ class InactiveWindowResources : public views::WindowResources {
     static bool initialized = false;
     if (!initialized) {
       static const int kFramePartBitmapIds[] = {
-        0,
         IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
         IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
         IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
@@ -147,22 +144,18 @@ class InactiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
         IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
-        0
       };
 
       ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kFramePartBitmapIds[i];
-        if (id != 0)
-          standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
+      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
+        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
       initialized = true;
     }
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(InactiveWindowResources);
 };
@@ -184,7 +177,6 @@ class OTRActiveWindowResources : public views::WindowResources {
     static bool initialized = false;
     if (!initialized) {
       static const int kFramePartBitmapIds[] = {
-        0,
         IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
         IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
         IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
@@ -198,16 +190,13 @@ class OTRActiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
         IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
-        0
       };
 
       ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kFramePartBitmapIds[i];
-        if (id != 0)
-          standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
+      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
+        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
       initialized = true;
     }
   }
@@ -234,7 +223,6 @@ class OTRInactiveWindowResources : public views::WindowResources {
     static bool initialized = false;
     if (!initialized) {
       static const int kFramePartBitmapIds[] = {
-        0,
         IDR_CLOSE, IDR_CLOSE_H, IDR_CLOSE_P,
         IDR_CLOSE_SA, IDR_CLOSE_SA_H, IDR_CLOSE_SA_P,
         IDR_RESTORE, IDR_RESTORE_H, IDR_RESTORE_P,
@@ -249,22 +237,18 @@ class OTRInactiveWindowResources : public views::WindowResources {
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
+        IDR_APP_TOP_LEFT, IDR_APP_TOP_CENTER, IDR_APP_TOP_RIGHT,
         IDR_LOCATIONBG_POPUPMODE_LEFT, IDR_LOCATIONBG_POPUPMODE_RIGHT,
-        0
       };
 
       ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kFramePartBitmapIds[i];
-        if (id != 0)
-          standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
+      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
+        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
       initialized = true;
     }
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(OTRInactiveWindowResources);
 };
@@ -279,19 +263,13 @@ views::WindowResources* OpaqueNonClientView::active_resources_ = NULL;
 views::WindowResources* OpaqueNonClientView::inactive_resources_ = NULL;
 views::WindowResources* OpaqueNonClientView::active_otr_resources_ = NULL;
 views::WindowResources* OpaqueNonClientView::inactive_otr_resources_ = NULL;
-SkBitmap OpaqueNonClientView::distributor_logo_;
-SkBitmap OpaqueNonClientView::app_top_left_;
-SkBitmap OpaqueNonClientView::app_top_center_;
-SkBitmap OpaqueNonClientView::app_top_right_;
+SkBitmap* OpaqueNonClientView::distributor_logo_ = NULL;
 ChromeFont OpaqueNonClientView::title_font_;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
 // each side regardless of the system window border size.
 const int kFrameBorderThickness = 4;
-// Various edges of the frame border have a 1 px shadow along their edges; in a
-// few cases we shift elements based on this amount for visual appeal.
-const int kFrameShadowThickness = 1;
 // Besides the frame border, there's another 11 px of empty space atop the
 // window in restored mode, to use to drag the window around.
 const int kNonClientRestoredExtraThickness = 11;
@@ -499,11 +477,13 @@ gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
                    height + NonClientTopBorderHeight() + border_thickness);
 }
 
-CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
-  // TODO(pkasting): This is wrong; Windows native runs the menu at the bottom
-  // of the titlebar, not the bottom of the window icon.
-  CPoint system_menu_point(icon_bounds_.x(), icon_bounds_.bottom());
-  MapWindowPoints(frame_->GetHWND(), HWND_DESKTOP, &system_menu_point, 1);
+gfx::Point OpaqueNonClientView::GetSystemMenuPoint() const {
+  int tabstrip_height = browser_view_->IsTabStripVisible() ?
+      browser_view_->GetTabStripHeight() : 0;
+  gfx::Point system_menu_point(FrameBorderThickness(),
+      NonClientTopBorderHeight() + tabstrip_height -
+      BottomEdgeThicknessWithinNonClientHeight());
+  ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }
 
@@ -795,10 +775,12 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
 
   if (!browser_view_->IsToolbarVisible()) {
     // There's no toolbar to edge the frame border, so we need to draw a bottom
-    // edge.  The App Window graphic we use for this has a built in client edge,
-    // so we clip it off the bottom.
-    int edge_height = app_top_center_.height() - kClientEdgeThickness;
-    canvas->TileImageInt(app_top_center_, 0,
+    // edge.  The graphic we use for this has a built in client edge, so we clip
+    // it off the bottom.
+    SkBitmap* top_center =
+        resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_CENTER);
+    int edge_height = top_center->height() - kClientEdgeThickness;
+    canvas->TileImageInt(*top_center, 0,
         frame_->client_view()->y() - edge_height, width(), edge_height);
   }
 }
@@ -806,8 +788,8 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
 void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
-  if (!frame_->IsMaximized() && !distributor_logo_.empty()) {
-    canvas->DrawBitmapInt(distributor_logo_,
+  if (!frame_->IsMaximized() && distributor_logo_) {
+    canvas->DrawBitmapInt(*distributor_logo_,
         MirroredLeftPointForRect(logo_bounds_), logo_bounds_.y());
   }
 }
@@ -893,15 +875,18 @@ void OpaqueNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
     // shorter than the top left and right bitmaps.  We need their top edges to
     // line up, and we need the left and right edges to start below the corners'
     // bottoms.
-    int top_edge_y = client_area_top - app_top_center_.height();
-    client_area_top = top_edge_y + app_top_left_.height();
-    canvas->DrawBitmapInt(app_top_left_,
-                          client_area_bounds.x() - app_top_left_.width(),
+    SkBitmap* top_center =
+        resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_CENTER);
+    SkBitmap* top_left = resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_LEFT);
+    int top_edge_y = client_area_top - top_center->height();
+    client_area_top = top_edge_y + top_left->height();
+    canvas->DrawBitmapInt(*top_left, client_area_bounds.x() - top_left->width(),
                           top_edge_y);
-    canvas->TileImageInt(app_top_center_, client_area_bounds.x(), top_edge_y,
-                         client_area_bounds.width(), app_top_center_.height());
-    canvas->DrawBitmapInt(app_top_right_, client_area_bounds.right(),
-                          top_edge_y);
+    canvas->TileImageInt(*top_center, client_area_bounds.x(), top_edge_y,
+                         client_area_bounds.width(), top_center->height());
+    canvas->DrawBitmapInt(
+        *resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_RIGHT),
+        client_area_bounds.right(), top_edge_y);
   }
 
   int client_area_bottom =
@@ -982,10 +967,13 @@ void OpaqueNonClientView::LayoutWindowControls() {
 void OpaqueNonClientView::LayoutDistributorLogo() {
   // Always lay out the logo, even when it's not present, so we can lay out the
   // window title based on its position.
-  int logo_x = minimize_button_->x() - (distributor_logo_.empty() ?
-      0 : (distributor_logo_.width() + kLogoCaptionSpacing));
-  logo_bounds_.SetRect(logo_x, TopResizeHeight(), distributor_logo_.width(),
-                       distributor_logo_.height());
+  if (distributor_logo_) {
+    logo_bounds_.SetRect(minimize_button_->x() - distributor_logo_->width() -
+        kLogoCaptionSpacing, TopResizeHeight(), distributor_logo_->width(),
+        distributor_logo_->height());
+  } else {
+    logo_bounds_.SetRect(minimize_button_->x(), TopResizeHeight(), 0, 0);
+  }
 }
 
 void OpaqueNonClientView::LayoutTitleBar() {
@@ -1020,15 +1008,13 @@ void OpaqueNonClientView::LayoutTitleBar() {
   views::WindowDelegate* d = frame_->window_delegate();
   if (!d->ShouldShowWindowIcon())
     icon_size = 0;
-  icon_bounds_.SetRect(icon_x, icon_y, icon_size, icon_size);
   if (window_icon_)
-    window_icon_->SetBounds(icon_bounds_);
+    window_icon_->SetBounds(icon_x, icon_y, icon_size, icon_size);
 
   // Size the title, if visible.
   if (d->ShouldShowWindowTitle()) {
-    int icon_right = icon_bounds_.right();
-    int title_x =
-        icon_right + (d->ShouldShowWindowIcon() ? kIconTitleSpacing : 0);
+    int title_x = icon_x + icon_size +
+        (d->ShouldShowWindowIcon() ? kIconTitleSpacing : 0);
     title_bounds_.SetRect(title_x,
         title_top_spacing + ((title_thickness - title_font_.height()) / 2),
         std::max(0, logo_bounds_.x() - kTitleLogoSpacing - title_x),
@@ -1060,14 +1046,10 @@ void OpaqueNonClientView::InitClass() {
     active_resources_ = new ActiveWindowResources;
     inactive_resources_ = new InactiveWindowResources;
 
-    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 #if defined(GOOGLE_CHROME_BUILD)
-    distributor_logo_ = *rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
+    distributor_logo_ = ResourceBundle::GetSharedInstance().
+        GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
 #endif
-
-    app_top_left_ = *rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
-    app_top_center_ = *rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
-    app_top_right_ = *rb.GetBitmapNamed(IDR_APP_TOP_RIGHT);      
 
     initialized = true;
   }

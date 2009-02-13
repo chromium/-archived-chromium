@@ -27,7 +27,7 @@ class AeroGlassNonClientView : public views::NonClientView {
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
-  virtual CPoint GetSystemMenuPoint() const;
+  virtual gfx::Point GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask) { }
   virtual void EnableClose(bool enable) { }
@@ -67,17 +67,17 @@ class AeroGlassNonClientView : public views::NonClientView {
   // The layout rect of the distributor logo, if visible.
   gfx::Rect logo_bounds_;
 
-  // The layout rect of the OTR avatar.
+  // The layout rect of the OTR avatar icon, if visible.
   gfx::Rect otr_avatar_bounds_;
 
   // The frame that hosts this view.
   AeroGlassFrame* frame_;
 
-  // The BrowserView that we contain.
+  // The BrowserView hosted within this View.
   BrowserView* browser_view_;
 
   static void InitClass();
-  static SkBitmap distributor_logo_;
+  static SkBitmap* distributor_logo_;
   static AeroGlassWindowResources* resources_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AeroGlassNonClientView);

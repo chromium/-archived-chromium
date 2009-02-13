@@ -230,11 +230,11 @@ class DefaultNonClientView : public NonClientView,
   explicit DefaultNonClientView(CustomFrameWindow* container);
   virtual ~DefaultNonClientView();
 
-  // Overridden from CustomFrameWindow::NonClientView:
+  // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
-  virtual CPoint GetSystemMenuPoint() const;
+  virtual gfx::Point GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
@@ -440,12 +440,10 @@ gfx::Size DefaultNonClientView::CalculateWindowSizeForClientSize(
                    height + NonClientTopBorderHeight() + border_thickness);
 }
 
-CPoint DefaultNonClientView::GetSystemMenuPoint() const {
-  // TODO(pkasting): This is wrong; Windows native runs the menu at the bottom
-  // of the titlebar, not the bottom of the window icon.
-  CPoint system_menu_point(system_menu_button_->x(),
-      system_menu_button_->y() + system_menu_button_->height());
-  MapWindowPoints(container_->GetHWND(), HWND_DESKTOP, &system_menu_point, 1);
+gfx::Point DefaultNonClientView::GetSystemMenuPoint() const {
+  gfx::Point system_menu_point(FrameBorderThickness(),
+      NonClientTopBorderHeight() - BottomEdgeThicknessWithinNonClientHeight());
+  ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }
 

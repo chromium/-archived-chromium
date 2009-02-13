@@ -684,14 +684,14 @@ class View : public AcceleratorTarget {
   // Widget. This is useful for example when sizing HWND children of the
   // Widget that don't know about the View hierarchy and need to be placed
   // relative to the Widget that is their parent.
-  static void ConvertPointToWidget(View* src, gfx::Point* point);
+  static void ConvertPointToWidget(const View* src, gfx::Point* point);
 
   // Convert a point from a view Widget to a View dest
-  static void ConvertPointFromWidget(View *dest, gfx::Point* p);
+  static void ConvertPointFromWidget(const View* dest, gfx::Point* p);
 
   // Convert a point from the coordinate system of a View to that of the
   // screen. This is useful for example when placing popup windows.
-  static void ConvertPointToScreen(View* src, gfx::Point* point);
+  static void ConvertPointToScreen(const View* src, gfx::Point* point);
 
   // Event Handlers
 

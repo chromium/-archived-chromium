@@ -43,7 +43,7 @@ class OpaqueNonClientView : public views::NonClientView,
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
-  virtual CPoint GetSystemMenuPoint() const;
+  virtual gfx::Point GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
@@ -123,9 +123,6 @@ class OpaqueNonClientView : public views::NonClientView,
   // The layout rect of the title, if visible.
   gfx::Rect title_bounds_;
 
-  // The layout rect of the window icon.
-  gfx::Rect icon_bounds_;
-
   // The layout rect of the distributor logo, if visible.
   gfx::Rect logo_bounds_;
 
@@ -156,10 +153,7 @@ class OpaqueNonClientView : public views::NonClientView,
 
   static void InitClass();
   static void InitAppWindowResources();
-  static SkBitmap distributor_logo_;
-  static SkBitmap app_top_left_;
-  static SkBitmap app_top_center_;
-  static SkBitmap app_top_right_;
+  static SkBitmap* distributor_logo_;
   static views::WindowResources* active_resources_;
   static views::WindowResources* inactive_resources_;
   static views::WindowResources* active_otr_resources_;

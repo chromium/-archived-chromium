@@ -155,7 +155,7 @@ class Window : public WidgetWin,
   void set_client_view(ClientView* client_view) { client_view_ = client_view; }
 
   // Shows the system menu at the specified screen point.
-  void RunSystemMenu(const CPoint& point);
+  void RunSystemMenu(const gfx::Point& point);
 
   // Overridden from WidgetWin:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);

@@ -13,8 +13,6 @@
 
 // An enumeration of bitmap resources used by this window.
 enum {
-  FRAME_PART_BITMAP_FIRST = 0,  // must be first.
-
   // Client Edge Border.
   FRAME_CLIENT_EDGE_TOP_LEFT,
   FRAME_CLIENT_EDGE_TOP,
@@ -30,60 +28,44 @@ enum {
 
 class AeroGlassWindowResources {
  public:
-  AeroGlassWindowResources() { InitClass(); }
+  AeroGlassWindowResources() {
+    InitClass();
+  }
   virtual ~AeroGlassWindowResources() { }
 
   virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
   }
 
-  SkBitmap app_top_left() const { return app_top_left_; }
-  SkBitmap app_top_center() const { return app_top_center_; }
-  SkBitmap app_top_right() const { return app_top_right_; }
-
  private:
   static void InitClass() {
     static bool initialized = false;
     if (!initialized) {
       static const int kFramePartBitmapIds[] = {
-        0,
         IDR_CONTENT_TOP_LEFT_CORNER, IDR_CONTENT_TOP_CENTER,
             IDR_CONTENT_TOP_RIGHT_CORNER, IDR_CONTENT_RIGHT_SIDE,
             IDR_CONTENT_BOTTOM_RIGHT_CORNER, IDR_CONTENT_BOTTOM_CENTER,
             IDR_CONTENT_BOTTOM_LEFT_CORNER, IDR_CONTENT_LEFT_SIDE,
-        0
       };
 
       ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i) {
-        int id = kFramePartBitmapIds[i];
-        if (id != 0)
-          standard_frame_bitmaps_[i] = rb.GetBitmapNamed(id);
-      }
-      app_top_left_ = *rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
-      app_top_center_ = *rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
-      app_top_right_ = *rb.GetBitmapNamed(IDR_APP_TOP_RIGHT);      
+      for (int i = 0; i < FRAME_PART_BITMAP_COUNT; ++i)
+        standard_frame_bitmaps_[i] = rb.GetBitmapNamed(kFramePartBitmapIds[i]);
 
       initialized = true;
     }
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static SkBitmap app_top_left_;
-  static SkBitmap app_top_center_;
-  static SkBitmap app_top_right_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AeroGlassWindowResources);
 };
 
 // static
 SkBitmap* AeroGlassWindowResources::standard_frame_bitmaps_[];
-SkBitmap AeroGlassWindowResources::app_top_left_;
-SkBitmap AeroGlassWindowResources::app_top_center_;
-SkBitmap AeroGlassWindowResources::app_top_right_;
 
 AeroGlassWindowResources* AeroGlassNonClientView::resources_ = NULL;
-SkBitmap AeroGlassNonClientView::distributor_logo_;
+SkBitmap* AeroGlassNonClientView::distributor_logo_ = NULL;
 
 namespace {
 // There are 3 px of client edge drawn inside the outer frame borders.
@@ -166,10 +148,17 @@ gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
                    height + NonClientTopBorderHeight() + border_thickness);
 }
 
-CPoint AeroGlassNonClientView::GetSystemMenuPoint() const {
-  CPoint offset;
-  MapWindowPoints(GetWidget()->GetHWND(), HWND_DESKTOP, &offset, 1);
-  return offset;
+gfx::Point AeroGlassNonClientView::GetSystemMenuPoint() const {
+  gfx::Point system_menu_point;
+  if (browser_view_->IsTabStripVisible()) {
+    system_menu_point.SetPoint(
+        NonClientBorderThickness() - kClientEdgeThickness,
+        NonClientTopBorderHeight() + browser_view_->GetTabStripHeight());
+  } else {
+    system_menu_point.SetPoint(0, -kFrameShadowThickness);
+  }
+  ConvertPointToScreen(this, &system_menu_point);
+  return system_menu_point;
 }
 
 int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
@@ -239,11 +228,11 @@ int AeroGlassNonClientView::NonClientTopBorderHeight() const {
 void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
-  if (!frame_->IsMaximized() && !distributor_logo_.empty()) {
+  if (!frame_->IsMaximized() && distributor_logo_) {
     // NOTE: We don't mirror the logo placement here because the outer frame
     // itself isn't mirrored in RTL.  This is a bug; if it is fixed, this should
     // be mirrored as in opaque_non_client_view.cc.
-    canvas->DrawBitmapInt(distributor_logo_, logo_bounds_.x(),
+    canvas->DrawBitmapInt(*distributor_logo_, logo_bounds_.x(),
                           logo_bounds_.y());
   }
 }
@@ -324,10 +313,14 @@ void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
 }
 
 void AeroGlassNonClientView::LayoutDistributorLogo() {
-  int logo_x = frame_->GetMinimizeButtonOffset() - (distributor_logo_.empty() ?
-      0 : (distributor_logo_.width() + kLogoCaptionSpacing));
-  logo_bounds_.SetRect(logo_x, kLogoTopSpacing, distributor_logo_.width(),
-                       distributor_logo_.height());
+  if (distributor_logo_) {
+    logo_bounds_.SetRect(frame_->GetMinimizeButtonOffset() -
+        distributor_logo_->width() - kLogoCaptionSpacing, kLogoTopSpacing,
+        distributor_logo_->width(), distributor_logo_->height());
+  } else {
+    logo_bounds_.SetRect(frame_->GetMinimizeButtonOffset(), kLogoTopSpacing, 0,
+                         0);
+  }
 }
 
 void AeroGlassNonClientView::LayoutOTRAvatar() {
@@ -353,9 +346,9 @@ void AeroGlassNonClientView::InitClass() {
   if (!initialized) {
     resources_ = new AeroGlassWindowResources;
 
-    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 #if defined(GOOGLE_CHROME_BUILD)
-    distributor_logo_ = *rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
+    distributor_logo_ = ResourceBundle::GetSharedInstance().
+        GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
 #endif
 
     initialized = true;

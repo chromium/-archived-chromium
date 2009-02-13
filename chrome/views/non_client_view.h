@@ -27,6 +27,9 @@ class ClientView;
 //
 class NonClientView : public View {
  public:
+  // Various edges of the frame border have a 1 px shadow along their edges; in
+  // a few cases we shift elements based on this amount for visual appeal.
+  static const int kFrameShadowThickness;
   // In restored mode, we draw a 1 px edge around the content area inside the
   // frame border.
   static const int kClientEdgeThickness;
@@ -43,7 +46,7 @@ class NonClientView : public View {
 
   // Returns the point, in screen coordinates, where the system menu should
   // be shown so it shows up anchored to the system menu icon.
-  virtual CPoint GetSystemMenuPoint() const = 0;
+  virtual gfx::Point GetSystemMenuPoint() const = 0;
 
   // Determines the windows HT* code when the mouse cursor is at the
   // specified point, in window coordinates.

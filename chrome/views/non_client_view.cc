@@ -6,6 +6,7 @@
 
 namespace views {
 
+const int NonClientView::kFrameShadowThickness = 1;
 const int NonClientView::kClientEdgeThickness = 1;
 
 int NonClientView::GetHTComponentForFrame(const gfx::Point& point,
