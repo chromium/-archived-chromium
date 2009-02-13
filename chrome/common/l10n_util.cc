@@ -285,8 +285,14 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
   if (IsLocaleAvailable(fallback_locale, locale_path))
     return fallback_locale;
 
+#if defined(OS_WIN)
   // No DLL, we shouldn't get here.
   NOTREACHED();
+#else
+  // We need a locale data file.
+  NOTIMPLEMENTED();
+#endif
+
   return std::wstring();
 }
 

@@ -19,6 +19,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -31,7 +32,6 @@
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/common/clipboard_service.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/views/accelerator_handler.h"
 #include "chrome/views/view_storage.h"
 #elif defined(OS_POSIX)
@@ -260,15 +260,10 @@ printing::PrintJobManager* BrowserProcessImpl::print_job_manager() {
 
 const std::wstring& BrowserProcessImpl::GetApplicationLocale() {
   DCHECK(CalledOnValidThread());
-#if defined(OS_WIN)
   if (locale_.empty()) {
     locale_ = l10n_util::GetApplicationLocale(local_state()->GetString(
         prefs::kApplicationLocale));
   }
-#else
-  NOTIMPLEMENTED();
-  // TODO(port): port l10n_util
-#endif
   return locale_;
 }
 
