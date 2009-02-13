@@ -75,6 +75,13 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) const {
   result.setConfig(SkBitmap::kARGB_8888_Config, CGImageGetWidth(image.get()),
                    CGImageGetHeight(image.get()));
 
+  // TODO(port):
+  // This line is a waste, but is needed when the renderer sends a
+  // ViewHostMsg_DidDownloadImage and tries to pickle the SkBitmap.
+  // Presumably this will be removed when we (ImageDecoder::Decode())
+  // are changed to not return a fake SkBitmap.
+  result.allocPixels();
+
   RetainPtr<CGColorSpace> cg_color(AdoptCF, CGColorSpaceCreateDeviceRGB());
   // The last parameter is a total guess. Feel free to adjust it if images draw
   // incorrectly. TODO(avi): Verify byte ordering; it should be possible to

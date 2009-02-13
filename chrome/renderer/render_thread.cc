@@ -238,10 +238,6 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
       true, false);
 #endif
 
-#if defined(OS_MACOSX)
-  // TODO(jrg): causes a crash.
-  if (0)
-#endif
   // TODO(darin): once we have a RenderThread per RenderView, this will need to
   // change to assert that we are not creating more than one view.
   RenderView::Create(
