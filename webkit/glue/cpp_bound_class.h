@@ -36,8 +36,12 @@ class CppBoundClass {
   // The constructor should call BindMethod, BindProperty, and
   // SetFallbackMethod as needed to set up the methods, properties, and
   // fallback method.
-  CppBoundClass() { }
+  CppBoundClass() : bound_to_frame_(false) { }
   virtual ~CppBoundClass();
+
+  // Return a CppVariant representing this class, for use with BindProperty().
+  // The variant type is guaranteed to be NPVariantType_Object.
+  CppVariant* GetAsCppVariant();
 
   // Given a WebFrame, BindToJavascript builds the NPObject that will represent
   // the class and binds it to the frame's window under the given name.  This
@@ -128,10 +132,13 @@ class CppBoundClass {
   bool GetProperty(NPIdentifier ident, NPVariant* result) const;
   bool SetProperty(NPIdentifier ident, const NPVariant* value);
 
-  // A list of all NPObjects we created and bound in BindToJavascript(), so we
-  // can clean them up when we're destroyed.
-  typedef std::vector<NPObject*> BoundObjectList;
-  BoundObjectList bound_objects_;
+  // A lazily-initialized CppVariant representing this class.  We retain 1
+  // reference to this object, and it is released on deletion.
+  CppVariant self_variant_;
+
+  // True if our np_object has been bound to a WebFrame, in which case it must
+  // be unregistered with V8 when we delete it.
+  bool bound_to_frame_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CppBoundClass);
 };

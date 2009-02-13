@@ -17,9 +17,21 @@
 
 namespace {
 
+class CppBindingExampleSubObject : public CppBindingExample {
+ public:
+  CppBindingExampleSubObject() {
+    sub_value_.Set("sub!");
+    BindProperty("sub_value", &sub_value_);
+  }
+ private:
+  CppVariant sub_value_;
+};
+
+
 class CppBindingExampleWithOptionalFallback : public CppBindingExample {
  public:
   CppBindingExampleWithOptionalFallback() {
+    BindProperty("sub_object", sub_object_.GetAsCppVariant());
   }
 
   void set_fallback_method_enabled(bool state) {
@@ -30,9 +42,11 @@ class CppBindingExampleWithOptionalFallback : public CppBindingExample {
 
   // The fallback method does nothing, but because of it the JavaScript keeps
   // running when a nonexistent method is called on an object.
-  void fallbackMethod(const CppArgumentList& args,
-                      CppVariant* result) {
+  void fallbackMethod(const CppArgumentList& args, CppVariant* result) {
   }
+
+ private:
+  CppBindingExampleSubObject sub_object_;
 };
 
 class ExampleTestShell : public TestShell {
@@ -155,6 +169,15 @@ TEST_F(CppBoundClassTest, PropertiesAreInitialized) {
   CheckJavaScriptSuccess(js);
 
   js = BuildJSCondition("example.my_other_value", "'Reinitialized!'");
+  CheckJavaScriptSuccess(js);
+}
+
+TEST_F(CppBoundClassTest, SubOject) {
+  std::string js = BuildJSCondition("typeof window.example.sub_object",
+                                    "'object'");
+  CheckJavaScriptSuccess(js);
+
+  js = BuildJSCondition("example.sub_object.sub_value", "'sub!'");
   CheckJavaScriptSuccess(js);
 }
 

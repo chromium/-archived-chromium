@@ -146,14 +146,11 @@ CppBoundClass::~CppBoundClass() {
   for (MethodList::iterator i = methods_.begin(); i != methods_.end(); ++i)
     delete i->second;
 
-  // Unregister objects we created and bound to a frame.
-  for (BoundObjectList::iterator i = bound_objects_.begin();
-      i != bound_objects_.end(); ++i) {
+  // Unregister ourselves if we were bound to a frame.
 #if USE(V8)
-    _NPN_UnregisterObject(*i);
+  if (bound_to_frame_)
+    _NPN_UnregisterObject(NPVARIANT_TO_OBJECT(self_variant_));
 #endif
-    NPN_ReleaseObject(*i);
-  }
 }
 
 bool CppBoundClass::HasMethod(NPIdentifier ident) const {
@@ -237,22 +234,30 @@ bool CppBoundClass::IsMethodRegistered(std::string name) const {
   return (callback != methods_.end());
 }
 
+CppVariant* CppBoundClass::GetAsCppVariant() {
+  if (!self_variant_.isObject()) {
+    // Create an NPObject using our static NPClass.  The first argument (a
+    // plugin's instance handle) is passed through to the allocate function
+    // directly, and we don't use it, so it's ok to be 0.
+    NPObject* np_obj = NPN_CreateObject(0, &CppNPObject::np_class_);
+    CppNPObject* obj = reinterpret_cast<CppNPObject*>(np_obj);
+    obj->bound_class = this;
+    self_variant_.Set(np_obj);
+    NPN_ReleaseObject(np_obj);  // CppVariant takes the reference.
+  }
+  DCHECK(self_variant_.isObject());
+  return &self_variant_;
+}
+
 void CppBoundClass::BindToJavascript(WebFrame* frame,
                                      const std::wstring& classname) {
 #if USE(JSC)
   JSC::JSLock lock(false);
 #endif
 
-  // Create an NPObject using our static NPClass.  The first argument (a
-  // plugin's instance handle) is passed through to the allocate function
-  // directly, and we don't use it, so it's ok to be 0.
-  NPObject* np_obj = NPN_CreateObject(0, &CppNPObject::np_class_);
-  CppNPObject* obj = reinterpret_cast<CppNPObject*>(np_obj);
-  obj->bound_class = this;
-
-  // BindToWindowObject will (indirectly) retain the np_object. We save it
-  // so we can release it when we're destroyed.
-  frame->BindToWindowObject(classname, np_obj);
-  bound_objects_.push_back(np_obj);
+  // BindToWindowObject will take its own reference to the NPObject, and clean
+  // up after itself.  It will also (indirectly) register the object with V8,
+  // so we must remember this so we can unregister it when we're destroyed.
+  frame->BindToWindowObject(classname, NPVARIANT_TO_OBJECT(*GetAsCppVariant()));
+  bound_to_frame_ = true;
 }
-
