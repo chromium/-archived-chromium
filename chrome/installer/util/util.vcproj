@@ -129,6 +129,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\compat_checks.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\compat_checks.h"
+			>
+		</File>
+		<File
 			RelativePath=".\copy_tree_work_item.cc"
 			>
 		</File>

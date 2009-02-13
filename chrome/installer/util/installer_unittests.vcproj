@@ -152,6 +152,10 @@
 			Name="tests"
 			>
 			<File
+				RelativePath="..\setup\compat_checks_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="copy_tree_work_item_unittest.cc"
 				>
 			</File>
@@ -172,11 +176,11 @@
 				>
 			</File>
 			<File
-				RelativePath="helper_unittest.cc"
+				RelativePath="google_chrome_distribution_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="google_chrome_distribution_unittest.cc"
+				RelativePath="helper_unittest.cc"
 				>
 			</File>
 			<File
