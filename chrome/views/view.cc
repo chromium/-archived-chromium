@@ -1372,9 +1372,8 @@ bool View::IsVisibleInRootView() const {
 
 void View::RequestFocus() {
   RootView* rv = GetRootView();
-  if (rv) {
+  if (rv && IsFocusable())
     rv->FocusView(this);
-  }
 }
 
 void View::WillGainFocus() {

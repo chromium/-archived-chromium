@@ -191,8 +191,7 @@ void NativeButton::Init(const std::wstring& label, bool is_default) {
 void NativeButton::Clicked() {
   DCHECK(enabled_);
   // Give the focus to the button.
-  if (IsFocusable())
-    RequestFocus();
+  RequestFocus();
 
   if (listener_)
     listener_->ButtonPressed(this);

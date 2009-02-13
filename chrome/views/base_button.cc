@@ -147,8 +147,7 @@ bool BaseButton::OnMousePressed(const MouseEvent& e) {
     if (IsTriggerableEvent(e) && HitTest(e.location())) {
       SetState(BS_PUSHED);
     }
-    if (IsFocusable())
-      RequestFocus();
+    RequestFocus();
   }
   return true;
 }

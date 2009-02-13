@@ -391,12 +391,15 @@ void TabContents::RestoreFocus() {
     // If you hit this DCHECK, please report it to Jay (jcampan).
     DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
 
-    if (focus_manager && focus_manager->ContainsView(last_focused_view)) {
+    if (last_focused_view->IsFocusable() && focus_manager &&
+        focus_manager->ContainsView(last_focused_view)) {
       last_focused_view->RequestFocus();
     } else {
-      // The focused view may not belong to the same window hierarchy (for
-      // example if the location bar was focused and the tab is dragged out).
-      // In that case we default to the default focus.
+      // The focused view may not belong to the same window hierarchy (e.g.
+      // if the location bar was focused and the tab is dragged out), or it may
+      // no longer be focusable (e.g. if the location bar was focused and then
+      // we switched to fullscreen mode).  In that case we default to the
+      // default focus.
       SetInitialFocus();
     }
     view_storage->RemoveView(last_focused_view_storage_id_);
