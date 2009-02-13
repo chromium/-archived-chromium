@@ -1480,6 +1480,8 @@ std::string View::GetClassName() const {
 }
 
 gfx::Rect View::GetVisibleBounds() {
+  if (!IsVisibleInRootView())
+    return gfx::Rect();
   gfx::Rect vis_bounds(0, 0, width(), height());
   gfx::Rect ancestor_bounds;
   View* view = this;
