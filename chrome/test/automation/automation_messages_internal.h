@@ -355,11 +355,12 @@ IPC_BEGIN_MESSAGES(Automation)
                              bool /* active */)
 
   // Makes the specified window the active window.
-  IPC_MESSAGE_ROUTED1(AutomationMsg_ActivateWindow, int /* view_handle */)
+  IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_ActivateWindow,
+                             int /* view_handle */)
 
   // Opens a new browser window.
-  IPC_MESSAGE_ROUTED1(AutomationMsg_OpenNewBrowserWindow,
-                      int /* show_command*/ )
+  IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_OpenNewBrowserWindow,
+                             int /* show_command*/ )
 
   // This message requests the handle (int64 app-unique identifier) of the
   // current active top window.  On error, the returned handle value is 0.

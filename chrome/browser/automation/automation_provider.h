@@ -151,7 +151,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                               int flags);
   void SetWindowVisible(int handle, bool visible, bool* result);
   void IsWindowActive(int handle, bool* success, bool* is_active);
-  void ActivateWindow(const IPC::Message& message, int handle);
+  void ActivateWindow(int handle);
 
   void GetTabCount(int handle, int* tab_count);
   void GetTab(int win_handle, int tab_index, int* tab_handle);

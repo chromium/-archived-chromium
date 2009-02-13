@@ -1535,8 +1535,7 @@ void AutomationProvider::IsWindowActive(int handle, bool* success,
   }
 }
 
-void AutomationProvider::ActivateWindow(const IPC::Message& message,
-                                        int handle) {
+void AutomationProvider::ActivateWindow(int handle) {
   if (window_tracker_->ContainsHandle(handle)) {
     ::SetActiveWindow(window_tracker_->GetResource(handle));
   }
