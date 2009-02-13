@@ -151,6 +151,9 @@ class RenderViewHostDelegate {
   // Retrieves the profile to be used.
   virtual Profile* GetProfile() const = 0;
 
+  // Return this object cast to a WebContents, if it is one.
+  virtual WebContents* GetAsWebContents() { return NULL; }
+
   // The RenderView is being constructed (message sent to the renderer process
   // to construct a RenderView).  Now is a good time to send other setup events
   // to the RenderView.  This precedes any other commands to the RenderView.

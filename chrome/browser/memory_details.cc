@@ -222,9 +222,9 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
           continue;
 
         RenderViewHost* host = static_cast<RenderViewHost*>(widget);
-        TabContents* contents =
-            static_cast<WebContents*>(host->delegate());
-        DCHECK(contents);
+        TabContents* contents = NULL;
+        if (host->delegate())
+          contents = host->delegate()->GetAsWebContents();
         if (!contents)
           continue;
         std::wstring title = contents->GetTitle();

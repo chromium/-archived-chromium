@@ -34,6 +34,5 @@ WebContents* tab_util::GetWebContentsByID(int render_process_id,
   if (!render_view_host)
     return NULL;
 
-  return static_cast<WebContents*>(render_view_host->delegate());
+  return render_view_host->delegate()->GetAsWebContents();
 }
-

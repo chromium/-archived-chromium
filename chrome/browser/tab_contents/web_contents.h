@@ -246,6 +246,7 @@ class WebContents : public TabContents,
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual Profile* GetProfile() const;
+  virtual WebContents* GetAsWebContents() { return this; }
   virtual void RendererReady(RenderViewHost* render_view_host);
   virtual void RendererGone(RenderViewHost* render_view_host);
   virtual void DidNavigate(RenderViewHost* render_view_host,
