@@ -85,6 +85,8 @@ class Link : public Label {
 
   // The color when the link is neither highlighted nor disabled.
   SkColor normal_color_;
+
+  DISALLOW_COPY_AND_ASSIGN(Link);
 };
 
 }  // namespace views

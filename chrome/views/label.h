@@ -143,6 +143,12 @@ class Label : public View {
   virtual bool GetAccessibleState(VARIANT* state);
 #endif  // defined(OS_WIN)
 
+  // Gets/sets the flag to determine whether the label should be collapsed when
+  // it's hidden (not visible). If this flag is true, the label will return a
+  // preferred size of (0, 0) when it's not visible.
+  void set_collapse_when_hidden(bool value) { collapse_when_hidden_ = value; }
+  bool collapse_when_hidden() const { return collapse_when_hidden_; }
+
  private:
   // These tests call CalculateDrawStringParams in order to verify the
   // calculations done for drawing text.
@@ -184,6 +190,10 @@ class Label : public View {
   // Whether the mouse is over this label.
   bool contains_mouse_;
   scoped_ptr<Background> mouse_over_background_;
+  // Whether to collapse the label when it's not visible.
+  bool collapse_when_hidden_;
+
+  DISALLOW_COPY_AND_ASSIGN(Label);
 };
 
 }  // namespace views

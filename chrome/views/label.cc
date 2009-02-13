@@ -44,6 +44,7 @@ void Label::Init(const std::wstring& text, const ChromeFont& font) {
   color_ = kEnabledColor;
   horiz_alignment_ = ALIGN_CENTER;
   is_multi_line_ = false;
+  collapse_when_hidden_ = false;
 }
 
 Label::~Label() {
@@ -51,6 +52,15 @@ Label::~Label() {
 
 gfx::Size Label::GetPreferredSize() {
   gfx::Size prefsize;
+
+  // Return a size of (0, 0) if the label is not visible and if the
+  // collapse_when_hidden_ flag is set.
+  // TODO(munjal): This logic probably belongs to the View class. But for now,
+  // put it here since putting it in View class means all inheriting classes
+  // need ot respect the collapse_when_hidden_ flag.
+  if (!IsVisible() && collapse_when_hidden_)
+    return prefsize;
+
   if (is_multi_line_) {
     int w = width(), h = 0;
     ChromeCanvas::SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
