@@ -1062,6 +1062,9 @@ void WebPluginImpl::didFinishLoading(WebCore::ResourceHandle* handle) {
     if (index != multi_part_response_map_.end()) {
       delete (*index).second;
       multi_part_response_map_.erase(index);
+
+      WebView* web_view = webframe_->GetView();
+      web_view->GetDelegate()->DidStopLoading(web_view);
     }
     client->DidFinishLoading();
   }
@@ -1292,6 +1295,9 @@ void WebPluginImpl::HandleHttpMultipartResponse(
     NOTREACHED();
     return;
   }
+
+  WebView* web_view = webframe_->GetView();
+  web_view->GetDelegate()->DidStartLoading(web_view);
 
   MultiPartResponseClient* multi_part_response_client =
       new MultiPartResponseClient(client);
