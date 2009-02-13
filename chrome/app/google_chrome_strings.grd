@@ -297,6 +297,9 @@ Chrome supports. -->
       <message name="IDS_INSTALL_INSUFFICIENT_RIGHTS" desc="Error displayed when a non admin user tries to attempt system level install/uninstall.">
         You do not have appropriate rights for system-level install. Try running the installer again as Administrator.
       </message>
+      <message name="IDS_INSTALL_APP_CONFLICT" desc="Error displayed if installation fails due to another existing application.">
+        A conflict with another installed application has been detected.
+      </message>
       <message name="IDS_UNINSTALL_FAILED" desc="Error during uninstall if we can not find the installation directory from registry.">
         Google Chrome is not installed or it failed to find installation directory. Please download Google Chrome again.
       </message>
