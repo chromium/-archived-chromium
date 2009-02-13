@@ -51,6 +51,16 @@ class DebugUtil {
 
   // Break into the debugger, assumes a debugger is present.
   static void BreakDebugger();
+
+#if defined(OS_MACOSX)
+  // On OS X, it can take a really long time for the OS Crash handler to
+  // process a Chrome crash.  This translates into a long wait till the process
+  // actually dies.
+  // This method disables OS Crash reporting entireley.
+  // TODO(playmobil): Remove this when we have Breakpad integration enabled -
+  // see http://crbug.com/7652
+  static void DisableOSCrashDumps();
+#endif  // defined(OS_MACOSX)
 };
 
 #endif  // BASE_DEBUG_UTIL_H_

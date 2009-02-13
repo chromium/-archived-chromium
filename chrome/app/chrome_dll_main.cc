@@ -22,6 +22,7 @@
 
 #include "base/at_exit.h"
 #include "base/command_line.h"
+#include "base/debug_util.h"
 #include "base/icu_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -194,6 +195,10 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
                                  TCHAR* command_line) {
 #elif defined(OS_POSIX)
 int ChromeMain(int argc, const char** argv) {
+#endif
+
+#if defined(OS_MACOSX)
+  DebugUtil::DisableOSCrashDumps();
 #endif
   RegisterInvalidParamHandler();
 
