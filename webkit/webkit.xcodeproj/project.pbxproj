@@ -367,7 +367,6 @@
 		9384450C0F16B0570075F4C5 /* HTMLDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8C220D7F3B62001ECF42 /* HTMLDocument.cpp */; };
 		9384450D0F16B0570075F4C5 /* htmlediting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8B160D7F3AFA001ECF42 /* htmlediting.cpp */; };
 		9384450E0F16B0570075F4C5 /* HTMLElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8C250D7F3B62001ECF42 /* HTMLElement.cpp */; };
-		9384450F0F16B0570075F4C5 /* HTMLElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8C280D7F3B62001ECF42 /* HTMLElementFactory.cpp */; };
 		938445100F16B0570075F4C5 /* HTMLEmbedElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8C2A0D7F3B62001ECF42 /* HTMLEmbedElement.cpp */; };
 		938445110F16B0570075F4C5 /* HTMLFieldSetElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8C2F0D7F3B62001ECF42 /* HTMLFieldSetElement.cpp */; };
 		938445120F16B0570075F4C5 /* HTMLFontElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8C320D7F3B62001ECF42 /* HTMLFontElement.cpp */; };
@@ -1297,6 +1296,9 @@
 		93EF1C0F0F214F260070601B /* PNGImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1C050F214F260070601B /* PNGImageDecoder.cpp */; };
 		93EF1C100F214F260070601B /* XBMImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93EF1C070F214F260070601B /* XBMImageDecoder.cpp */; };
 		A5779DD6BC0DA17AB7DE63D4 /* GCController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 715E874BCC05E0A3DD5E5D8F /* GCController.cpp */; };
+		A743B38C0F45CF860035EFA9 /* Matrix3DTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A743B3880F45CF860035EFA9 /* Matrix3DTransformOperation.cpp */; };
+		A743B38D0F45CF860035EFA9 /* PerspectiveTransformOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A743B38A0F45CF860035EFA9 /* PerspectiveTransformOperation.cpp */; };
+		A743B3FB0F45E9CB0035EFA9 /* HTMLElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A743B3F80F45E9CB0035EFA9 /* HTMLElementFactory.cpp */; };
 		A7CBB2A60F327C8D00360BF5 /* debugger_bridge.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7CBB2A40F327C8D00360BF5 /* debugger_bridge.cc */; };
 		A7FBE6100F1EC18A00BB13F2 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */; };
 		A7FBE6600F1FDFF900BB13F2 /* WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */; };
@@ -2883,8 +2885,6 @@
 		7B5E8C230D7F3B62001ECF42 /* HTMLDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLDocument.h; sourceTree = "<group>"; };
 		7B5E8C250D7F3B62001ECF42 /* HTMLElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLElement.cpp; sourceTree = "<group>"; };
 		7B5E8C260D7F3B62001ECF42 /* HTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLElement.h; sourceTree = "<group>"; };
-		7B5E8C280D7F3B62001ECF42 /* HTMLElementFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLElementFactory.cpp; sourceTree = "<group>"; };
-		7B5E8C290D7F3B62001ECF42 /* HTMLElementFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLElementFactory.h; sourceTree = "<group>"; };
 		7B5E8C2A0D7F3B62001ECF42 /* HTMLEmbedElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLEmbedElement.cpp; sourceTree = "<group>"; };
 		7B5E8C2B0D7F3B62001ECF42 /* HTMLEmbedElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLEmbedElement.h; sourceTree = "<group>"; };
 		7B5E8C2F0D7F3B62001ECF42 /* HTMLFieldSetElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLFieldSetElement.cpp; sourceTree = "<group>"; };
@@ -4169,6 +4169,12 @@
 		9A4CDAA44657D29017C6C78D /* ThreadTimers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadTimers.h; sourceTree = "<group>"; };
 		9DEAFAB44D279360C80A1BA9 /* PtrAndFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PtrAndFlags.h; sourceTree = "<group>"; };
 		A7218BEB0EEDF5BD000FC021 /* CSSSelectorList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSSelectorList.cpp; sourceTree = "<group>"; };
+		A743B3880F45CF860035EFA9 /* Matrix3DTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Matrix3DTransformOperation.cpp; sourceTree = "<group>"; };
+		A743B3890F45CF860035EFA9 /* Matrix3DTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix3DTransformOperation.h; sourceTree = "<group>"; };
+		A743B38A0F45CF860035EFA9 /* PerspectiveTransformOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PerspectiveTransformOperation.cpp; sourceTree = "<group>"; };
+		A743B38B0F45CF860035EFA9 /* PerspectiveTransformOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerspectiveTransformOperation.h; sourceTree = "<group>"; };
+		A743B3F80F45E9CB0035EFA9 /* HTMLElementFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLElementFactory.cpp; sourceTree = "<group>"; };
+		A743B3F90F45E9CB0035EFA9 /* HTMLElementFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLElementFactory.h; sourceTree = "<group>"; };
 		A7CBB2A40F327C8D00360BF5 /* debugger_bridge.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugger_bridge.cc; sourceTree = "<group>"; };
 		A7CBB2A50F327C8D00360BF5 /* debugger_bridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugger_bridge.h; sourceTree = "<group>"; };
 		A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditorChromium.cpp; path = chromium/EditorChromium.cpp; sourceTree = "<group>"; };
@@ -4483,17 +4489,21 @@
 		3CBAF5F00EFC893600E752CB /* transforms */ = {
 			isa = PBXGroup;
 			children = (
-				3CBAF5F10EFC893600E752CB /* TransformationMatrix.cpp */,
-				3CBAF5F20EFC893600E752CB /* TransformationMatrix.h */,
 				3CBAF5F30EFC893600E752CB /* IdentityTransformOperation.h */,
+				A743B3880F45CF860035EFA9 /* Matrix3DTransformOperation.cpp */,
+				A743B3890F45CF860035EFA9 /* Matrix3DTransformOperation.h */,
 				3CBAF5F40EFC893600E752CB /* MatrixTransformOperation.cpp */,
 				3CBAF5F50EFC893600E752CB /* MatrixTransformOperation.h */,
+				A743B38A0F45CF860035EFA9 /* PerspectiveTransformOperation.cpp */,
+				A743B38B0F45CF860035EFA9 /* PerspectiveTransformOperation.h */,
 				3CBAF5F60EFC893600E752CB /* RotateTransformOperation.cpp */,
 				3CBAF5F70EFC893600E752CB /* RotateTransformOperation.h */,
 				3CBAF5F80EFC893600E752CB /* ScaleTransformOperation.cpp */,
 				3CBAF5F90EFC893600E752CB /* ScaleTransformOperation.h */,
 				3CBAF5FA0EFC893600E752CB /* SkewTransformOperation.cpp */,
 				3CBAF5FB0EFC893600E752CB /* SkewTransformOperation.h */,
+				3CBAF5F10EFC893600E752CB /* TransformationMatrix.cpp */,
+				3CBAF5F20EFC893600E752CB /* TransformationMatrix.h */,
 				3CBAF5FC0EFC893600E752CB /* TransformOperation.h */,
 				3CBAF5FD0EFC893600E752CB /* TransformOperations.cpp */,
 				3CBAF5FE0EFC893600E752CB /* TransformOperations.h */,
@@ -5416,8 +5426,6 @@
 				7B5E8C230D7F3B62001ECF42 /* HTMLDocument.h */,
 				7B5E8C250D7F3B62001ECF42 /* HTMLElement.cpp */,
 				7B5E8C260D7F3B62001ECF42 /* HTMLElement.h */,
-				7B5E8C280D7F3B62001ECF42 /* HTMLElementFactory.cpp */,
-				7B5E8C290D7F3B62001ECF42 /* HTMLElementFactory.h */,
 				7B5E8C2A0D7F3B62001ECF42 /* HTMLEmbedElement.cpp */,
 				7B5E8C2B0D7F3B62001ECF42 /* HTMLEmbedElement.h */,
 				7B5E8C2F0D7F3B62001ECF42 /* HTMLFieldSetElement.cpp */,
@@ -6925,6 +6933,8 @@
 				7B14AAA80DE3340400F4E646 /* CharsetData.cpp */,
 				7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */,
 				7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */,
+				A743B3F80F45E9CB0035EFA9 /* HTMLElementFactory.cpp */,
+				A743B3F90F45E9CB0035EFA9 /* HTMLElementFactory.h */,
 				7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */,
 				7B00912E0DAFEFBE00F72082 /* HTMLNames.h */,
 				7B00912F0DAFEFBE00F72082 /* SVGElementFactory.cpp */,
@@ -8308,6 +8318,7 @@
 			files = (
 				938447810F16B06E0075F4C5 /* CharsetData.cpp in Sources */,
 				938447820F16B06E0075F4C5 /* CSSGrammar.cpp in Sources */,
+				A743B3FB0F45E9CB0035EFA9 /* HTMLElementFactory.cpp in Sources */,
 				938447830F16B06E0075F4C5 /* HTMLNames.cpp in Sources */,
 				938447840F16B06E0075F4C5 /* JSDOMBinding.cpp in Sources */,
 				938447850F16B06E0075F4C5 /* JSXPathNSResolver.cpp in Sources */,
@@ -8906,7 +8917,6 @@
 				9384450C0F16B0570075F4C5 /* HTMLDocument.cpp in Sources */,
 				9384450D0F16B0570075F4C5 /* htmlediting.cpp in Sources */,
 				9384450E0F16B0570075F4C5 /* HTMLElement.cpp in Sources */,
-				9384450F0F16B0570075F4C5 /* HTMLElementFactory.cpp in Sources */,
 				938445100F16B0570075F4C5 /* HTMLEmbedElement.cpp in Sources */,
 				938445110F16B0570075F4C5 /* HTMLFieldSetElement.cpp in Sources */,
 				938445120F16B0570075F4C5 /* HTMLFontElement.cpp in Sources */,
@@ -9021,6 +9031,7 @@
 				9384457A0F16B0570075F4C5 /* MainResourceLoader.cpp in Sources */,
 				9384457B0F16B0570075F4C5 /* MappedAttribute.cpp in Sources */,
 				9384457C0F16B0570075F4C5 /* markup.cpp in Sources */,
+				A743B38C0F45CF860035EFA9 /* Matrix3DTransformOperation.cpp in Sources */,
 				9384457D0F16B0570075F4C5 /* MatrixTransformOperation.cpp in Sources */,
 				9384457E0F16B0570075F4C5 /* MediaControlElements.cpp in Sources */,
 				9384457F0F16B0570075F4C5 /* MediaDocument.cpp in Sources */,
@@ -9078,6 +9089,7 @@
 				938445B10F16B0570075F4C5 /* PatternCG.cpp in Sources */,
 				938445B20F16B0570075F4C5 /* PDFDocumentImage.cpp in Sources */,
 				938445B30F16B0570075F4C5 /* Pen.cpp in Sources */,
+				A743B38D0F45CF860035EFA9 /* PerspectiveTransformOperation.cpp in Sources */,
 				938445B40F16B0570075F4C5 /* PlatformContextSkia.cpp in Sources */,
 				938445B50F16B0570075F4C5 /* PlatformKeyboardEventChromium.cpp in Sources */,
 				938445B60F16B0570075F4C5 /* PlatformScreenChromium.cpp in Sources */,
@@ -9797,7 +9809,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",
@@ -9931,7 +9943,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",

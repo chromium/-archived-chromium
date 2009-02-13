@@ -1495,11 +1495,27 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\Matrix3DTransformOperation.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\Matrix3DTransformOperation.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\MatrixTransformOperation.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\MatrixTransformOperation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\PerspectiveTransformOperation.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\transforms\PerspectiveTransformOperation.h"
 						>
 					</File>
 					<File
@@ -5518,14 +5534,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLElement.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLElementFactory.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLElementFactory.h"
 				>
 			</File>
 			<File

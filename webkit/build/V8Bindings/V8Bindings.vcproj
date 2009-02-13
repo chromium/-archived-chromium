@@ -196,6 +196,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\HTMLElementFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\HTMLElementFactory.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\HTMLNames.cpp"
 				>
 			</File>

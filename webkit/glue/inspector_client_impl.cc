@@ -169,6 +169,11 @@ String WebInspectorClient::localizedStringsURL() {
   return String();
 }
 
+String WebInspectorClient::hiddenPanels() {
+  NOTIMPLEMENTED();
+  return String();
+}
+
 void WebInspectorClient::populateSetting(
     const String& key, InspectorController::Setting&) {
   NOTIMPLEMENTED();

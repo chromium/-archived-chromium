@@ -34,6 +34,7 @@ else:
 
 inputs = [
     '$DERIVED_DIR/CSSGrammar.cpp',
+    '$DERIVED_DIR/HTMLElementFactory.cpp',
     '$DERIVED_DIR/HTMLNames.cpp',
     '$DERIVED_DIR/SVGElementFactory.cpp',
     '$DERIVED_DIR/SVGNames.cpp',
