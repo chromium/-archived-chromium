@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "base/scoped_handle_win.h"
+#include "base/win_util.h"
 #include "sandbox/src/crosscall_client.h"
 #include "sandbox/src/interception.h"
 #include "sandbox/src/ipc_tags.h"
@@ -60,8 +61,12 @@ bool RegistryDispatcher::SetupService(InterceptionManager* manager,
   if (IPC_NTCREATEKEY_TAG == service)
     return INTERCEPT_NT(manager, NtCreateKey, "_TargetNtCreateKey@32");
 
-  if (IPC_NTOPENKEY_TAG == service)
-      return INTERCEPT_NT(manager, NtOpenKey, "_TargetNtOpenKey@16");
+  if (IPC_NTOPENKEY_TAG == service) {
+    bool result = INTERCEPT_NT(manager, NtOpenKey, "_TargetNtOpenKey@16");
+    if (win_util::GetWinVersion() >= win_util::WINVERSION_WIN7)
+      result &= INTERCEPT_NT(manager, NtOpenKeyEx, "_TargetNtOpenKeyEx@20");
+    return result;
+  }
 
   return false;
 }
