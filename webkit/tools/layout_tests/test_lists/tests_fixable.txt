@@ -1726,12 +1726,17 @@ LayoutTests/fast/dom/getClientRects.html = FAIL
 LayoutTests/fast/dom/navigator-detached-no-crash.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 LayoutTests/fast/text/line-breaks.html = FAIL
+// Prior to the merge, the two wagon wheels were exactly the same.
+// Now the left one is slightly different.
 LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 WIN MAC : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 WIN MAC : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
+// Upstream dumprendertree changes caused the expected to change.
+// Now our baseline is out of date, and we differ from Mac expected on the
+// caret position in the last line of the text output.
 LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
+// Shading differences.
 LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
-LayoutTests/transitions/transition-end-event-attributes.html = FAIL
 LayoutTests/fast/loader/frame-creation-removal.html = CRASH
 chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 
