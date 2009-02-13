@@ -1168,6 +1168,7 @@ GURL WebContents::GetAlternateErrorPageURL() const {
 WebPreferences WebContents::GetWebkitPrefs() {
   // Initialize web_preferences_ to chrome defaults.
   WebPreferences web_prefs;
+#if defined(OS_WIN)
   PrefService* prefs = profile()->GetPrefs();
 
   web_prefs.fixed_font_family =
@@ -1244,6 +1245,14 @@ WebPreferences WebContents::GetWebkitPrefs() {
     web_prefs.default_encoding = prefs->GetString(
         prefs::kDefaultCharset);
   }
+#else
+  // TODO(port): we skip doing the above settings because the default values
+  // for these prefs->GetFoo() calls aren't filled in yet.  By leaving the
+  // the WebPreferences alone, we get the moderately-sane default values out
+  // of WebKit.  Remove this ifdef block once we properly load font sizes, etc.
+  NOTIMPLEMENTED();
+#endif
+
   DCHECK(!web_prefs.default_encoding.empty());
   return web_prefs;
 }
