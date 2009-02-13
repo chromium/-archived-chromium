@@ -113,7 +113,7 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
     } else {
       // Move |x| to the first pixel of the last row of the clip rect.
       x += clip_rect.x() * 4;
-      x += clip_rect.bottom() * stride;
+      x += (clip_rect.bottom() - 1) * stride;
 
       for (int i = clip_rect.y(); i < clip_rect.height() + dy; ++i) {
         memcpy(x, x + stride * dy, len);
