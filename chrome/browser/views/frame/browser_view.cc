@@ -977,9 +977,8 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   }
 
   // Determine if the TabStrip exists and is capable of being clicked on. We
-  // might be a popup window without a TabStrip, or the TabStrip could be
-  // animating.
-  if (IsTabStripVisible() && tabstrip_->CanProcessInputEvents()) {
+  // might be a popup window without a TabStrip.
+  if (IsTabStripVisible()) {
     gfx::Point point_in_view_coords(point);
     View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
 
