@@ -33,7 +33,8 @@ namespace {
 
 // Windows callback for OnDestroy to detach the plugin windows.
 BOOL CALLBACK DetachPluginWindowsCallback(HWND window, LPARAM param) {
-  if (WebPluginDelegateImpl::IsPluginDelegateWindow(window)) {
+  if (WebPluginDelegateImpl::IsPluginDelegateWindow(window) &&
+      !IsHungAppWindow(window)) {
     ::ShowWindow(window, SW_HIDE);
     SetParent(window, NULL);
   }
