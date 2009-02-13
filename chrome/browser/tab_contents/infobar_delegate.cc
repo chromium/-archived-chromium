@@ -5,12 +5,18 @@
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 
 #include "base/logging.h"
+#include "build/build_config.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 
 #include "generated_resources.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/tab_contents.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 // InfoBarDelegate: ------------------------------------------------------------
 

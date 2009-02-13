@@ -34,6 +34,7 @@
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/ssl/ssl_manager.h"
+#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
@@ -636,20 +637,6 @@ class InterstitialPage {
   }
 };
 
-class InfoBarDelegate {
-};
-
-class ConfirmInfoBarDelegate : public InfoBarDelegate {
- public:
-  explicit ConfirmInfoBarDelegate(TabContents* contents) {}
-
-  enum InfoBarButton {
-    BUTTON_NONE = 0,
-    BUTTON_OK,
-    BUTTON_CANCEL
-  };
-};
-
 class TabContents : public PageNavigator, public NotificationObserver {
  public:
   enum InvalidateTypes {
@@ -996,11 +983,6 @@ class CharacterEncoding {
     NOTIMPLEMENTED();
     return L"";
   }
-};
-
-class SimpleAlertInfoBarDelegate : public InfoBarDelegate {
- public:
-  SimpleAlertInfoBarDelegate(WebContents*, const std::wstring&, void*) {}
 };
 
 #if defined(OS_MACOSX)

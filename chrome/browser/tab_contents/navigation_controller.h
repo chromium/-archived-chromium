@@ -9,11 +9,6 @@
 
 #include "build/build_config.h"
 
-#if defined(OS_POSIX)
-// TODO(port): remove when dependent classes are ported
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"

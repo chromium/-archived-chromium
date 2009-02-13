@@ -749,7 +749,6 @@ if not env.Bit('windows'):
       'sessions/session_backend.cc',
       'sessions/session_restore.cc',
       'shell_integration.cc',
-      'tab_contents/infobar_delegate.cc',
       'tab_contents/interstitial_page.cc',
       'tab_contents/native_ui_contents.cc',
       'tab_contents/render_view_context_menu.cc',

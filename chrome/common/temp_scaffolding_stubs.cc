@@ -498,3 +498,18 @@ MemoryDetails::MemoryDetails() {
 void MemoryDetails::StartFetch() {
   NOTIMPLEMENTED();
 }
+
+InfoBar* ConfirmInfoBarDelegate::CreateInfoBar() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+InfoBar* AlertInfoBarDelegate::CreateInfoBar() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+InfoBar* LinkInfoBarDelegate::CreateInfoBar() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
