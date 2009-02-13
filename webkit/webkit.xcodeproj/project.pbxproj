@@ -46,6 +46,7 @@
 		4112E7060EFB0A26001E0E7A /* RandomNumber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4112E7050EFB0A26001E0E7A /* RandomNumber.cpp */; };
 		41807C570F268375007BB4CC /* ByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41807C550F268375007BB4CC /* ByteArray.cpp */; };
 		419E80750F264BBC006564E0 /* CSSPropertyLonghand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 419E80730F264BBC006564E0 /* CSSPropertyLonghand.cpp */; };
+		41D0113F0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41D0113E0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp */; };
 		41DE6EBC0F3A328C0049BC24 /* MainThreadChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE6EBB0F3A328C0049BC24 /* MainThreadChromium.cpp */; };
 		41DE6EBF0F3A32EE0049BC24 /* chromium_threading.cc in Sources */ = {isa = PBXBuildFile; fileRef = 41DE6EBE0F3A32EE0049BC24 /* chromium_threading.cc */; };
 		41DE748C0F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */; };
@@ -1573,6 +1574,7 @@
 		41A365600F01AB3800778012 /* InspectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectorController.h; sourceTree = "<group>"; };
 		41AF32C40EE5E6ED00BF6361 /* ScriptInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptInstance.cpp; sourceTree = "<group>"; };
 		41AF32C50EE5E6ED00BF6361 /* ScriptInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptInstance.h; sourceTree = "<group>"; };
+		41D0113E0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLPlugInElementCustom.cpp; sourceTree = "<group>"; };
 		41DE6EBB0F3A328C0049BC24 /* MainThreadChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainThreadChromium.cpp; sourceTree = "<group>"; };
 		41DE6EBD0F3A329F0049BC24 /* ChromiumThreading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromiumThreading.h; sourceTree = "<group>"; };
 		41DE6EBE0F3A32EE0049BC24 /* chromium_threading.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_threading.cc; sourceTree = "<group>"; };
@@ -4556,6 +4558,7 @@
 				41DE7C960F424AAC0049BC24 /* V8HTMLCollectionCustom.cpp */,
 				41DE7C9D0F424ACD0049BC24 /* V8HTMLFormElementCustom.cpp */,
 				41DE7B6E0F40EA7C0049BC24 /* V8HTMLInputElementCustom.cpp */,
+				41D0113E0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp */,
 				41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */,
 				41DE7CA40F424BEE0049BC24 /* V8HTMLSelectElementCustom.h */,
 				41DE7C9F0F424AE80049BC24 /* V8HTMLSelectElementCustom.cpp */,
@@ -8440,6 +8443,7 @@
 				41DE7B6C0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp in Sources */,
 				938447F50F16B06E0075F4C5 /* V8HTMLParagraphElement.cpp in Sources */,
 				938447F60F16B06E0075F4C5 /* V8HTMLParamElement.cpp in Sources */,
+				41D0113F0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp in Sources */,
 				938447F70F16B06E0075F4C5 /* V8HTMLPreElement.cpp in Sources */,
 				938447F80F16B06E0075F4C5 /* V8HTMLQuoteElement.cpp in Sources */,
 				938447F90F16B06E0075F4C5 /* V8HTMLScriptElement.cpp in Sources */,
