@@ -6,6 +6,7 @@
 
 #include "base/debug_util.h"
 
+#include <ApplicationServices/ApplicationServices.h>
 extern "C" {
 #include <sandbox.h>
 }
@@ -24,6 +25,20 @@ RendererMainPlatformDelegate::~RendererMainPlatformDelegate() {
 void RendererMainPlatformDelegate::PlatformInitialize() {
   // Load WebKit system interfaces.
   InitWebCoreSystemInterface();
+
+  // Warmup CG - without these calls these two functions won't work in the
+  // sandbox.
+  CGColorSpaceRef rgb_colorspace =
+      CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+
+  // Allocate a 1 byte image.
+  char data[8];
+  CGContextRef tmp = CGBitmapContextCreate(data, 1, 1, 8, 1*8,
+                                           rgb_colorspace,
+                                           kCGImageAlphaPremultipliedFirst |
+                                           kCGBitmapByteOrder32Host);
+  CGColorSpaceRelease(rgb_colorspace);
+  CGContextRelease(tmp);
 }
 
 void RendererMainPlatformDelegate::PlatformUninitialize() {
