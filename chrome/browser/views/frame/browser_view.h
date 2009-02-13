@@ -196,7 +196,7 @@ class BrowserView : public BrowserWindow,
                               void* parent_window);
 
   // Overridden from BrowserWindowTesting:
-  virtual BookmarkBarView* GetBookmarkBarView();
+  virtual BookmarkBarView* GetBookmarkBarView() const;
   virtual LocationBarView* GetLocationBarView() const;
 
   // Overridden from NotificationObserver:

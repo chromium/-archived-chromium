@@ -42,6 +42,7 @@ class BrowserFrame {
 
   // Returns the views::Window associated with this frame.
   virtual views::Window* GetWindow() = 0;
+  virtual const views::Window* GetWindow() const = 0;
 
   enum FrameType {
     FRAMETYPE_OPAQUE,

@@ -58,6 +58,10 @@ views::Window* OpaqueFrame::GetWindow() {
   return this;
 }
 
+const views::Window* OpaqueFrame::GetWindow() const {
+  return this;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, views::CustomFrameWindow overrides:
 

@@ -169,7 +169,7 @@ class BrowserWindowTesting {
  public:
 #if defined(OS_WIN)
   // Returns the BookmarkBarView.
-  virtual BookmarkBarView* GetBookmarkBarView() = 0;
+  virtual BookmarkBarView* GetBookmarkBarView() const = 0;
 
   // Returns the LocationBarView.
   virtual LocationBarView* GetLocationBarView() const = 0;

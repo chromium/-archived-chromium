@@ -84,6 +84,10 @@ views::Window* AeroGlassFrame::GetWindow() {
   return this;
 }
 
+const views::Window* AeroGlassFrame::GetWindow() const {
+  return this;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, views::WidgetWin overrides:
 

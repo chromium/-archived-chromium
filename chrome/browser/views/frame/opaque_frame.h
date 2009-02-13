@@ -39,6 +39,7 @@ class OpaqueFrame : public BrowserFrame,
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual void UpdateThrobber(bool running);
   virtual views::Window* GetWindow();
+  virtual const views::Window* GetWindow() const;
 
   // Overridden from views::CustomFrameWindow:
   virtual void UpdateWindowIcon();

@@ -721,16 +721,7 @@ void BrowserView::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, BrowserWindowTesting implementation:
 
-BookmarkBarView* BrowserView::GetBookmarkBarView() {
-  TabContents* current_tab = browser_->GetSelectedTabContents();
-  if (!bookmark_bar_view_.get()) {
-    bookmark_bar_view_.reset(new BookmarkBarView(current_tab->profile(),
-                                                 browser_.get()));
-    bookmark_bar_view_->SetParentOwned(false);
-  } else {
-    bookmark_bar_view_->SetProfile(current_tab->profile());
-  }
-  bookmark_bar_view_->SetPageNavigator(current_tab);
+BookmarkBarView* BrowserView::GetBookmarkBarView() const {
   return bookmark_bar_view_.get();
 }
 
@@ -1279,7 +1270,15 @@ void BrowserView::LayoutStatusBubble(int top) {
 bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
   views::View* new_bookmark_bar_view = NULL;
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
-    new_bookmark_bar_view = GetBookmarkBarView();
+    if (!bookmark_bar_view_.get()) {
+      bookmark_bar_view_.reset(new BookmarkBarView(contents->profile(),
+                                                   browser_.get()));
+      bookmark_bar_view_->SetParentOwned(false);
+    } else {
+      bookmark_bar_view_->SetProfile(contents->profile());
+    }
+    bookmark_bar_view_->SetPageNavigator(contents);
+    new_bookmark_bar_view = bookmark_bar_view_.get();
     if (!show_bookmark_bar_pref_.GetValue() &&
         new_bookmark_bar_view->GetPreferredSize().height() == 0) {
       new_bookmark_bar_view = NULL;

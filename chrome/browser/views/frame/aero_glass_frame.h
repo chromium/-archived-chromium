@@ -37,6 +37,7 @@ class AeroGlassFrame : public BrowserFrame,
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual void UpdateThrobber(bool running);
   virtual views::Window* GetWindow();
+  virtual const views::Window* GetWindow() const;
 
  protected:
   // Overridden from views::WidgetWin:
