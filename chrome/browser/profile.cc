@@ -21,7 +21,6 @@
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/ssl/ssl_host_state.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/visitedlink_master.h"
@@ -60,7 +59,7 @@ static const int kCreateSessionServiceDelayMS = 500;
 // Profile::GetDefaultRequestContext.
 URLRequestContext* Profile::default_request_context_;
 
-// static
+//static
 void Profile::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kSearchSuggestEnabled, true);
   prefs->RegisterBooleanPref(prefs::kSessionExitedCleanly, true);
@@ -77,12 +76,12 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kEnableSpellCheck, true);
 }
 
-// static
+//static
 Profile* Profile::CreateProfile(const FilePath& path) {
   return new ProfileImpl(path);
 }
 
-// static
+//static
 URLRequestContext* Profile::GetDefaultRequestContext() {
   return default_request_context_;
 }
@@ -151,14 +150,6 @@ class OffTheRecordProfileImpl : public Profile,
 
   virtual UserScriptMaster* GetUserScriptMaster() {
     return profile_->GetUserScriptMaster();
-  }
-
-  virtual SSLHostState* GetSSLHostState() {
-    if (!ssl_host_state_.get())
-      ssl_host_state_.reset(new SSLHostState());
-
-    DCHECK(ssl_host_state_->CalledOnValidThread());
-    return ssl_host_state_.get();
   }
 
   virtual HistoryService* GetHistoryService(ServiceAccessType sat) {
@@ -314,11 +305,6 @@ class OffTheRecordProfileImpl : public Profile,
 
   // The download manager that only stores downloaded items in memory.
   scoped_refptr<DownloadManager> download_manager_;
-
-  // We don't want SSLHostState from the OTR profile to leak back to the main
-  // profile because then the main profile would learn some of the host names
-  // the user visited while OTR.
-  scoped_ptr<SSLHostState> ssl_host_state_;
 
   // Time we were started.
   Time start_time_;
@@ -511,14 +497,6 @@ ExtensionsService* ProfileImpl::GetExtensionsService() {
 
 UserScriptMaster* ProfileImpl::GetUserScriptMaster() {
   return user_script_master_.get();
-}
-
-SSLHostState* ProfileImpl::GetSSLHostState() {
-  if (!ssl_host_state_.get())
-    ssl_host_state_.reset(new SSLHostState());
-
-  DCHECK(ssl_host_state_->CalledOnValidThread());
-  return ssl_host_state_.get();
 }
 
 PrefService* ProfileImpl::GetPrefs() {
@@ -790,7 +768,7 @@ SpellChecker* ProfileImpl::GetSpellChecker() {
     // This is where spellchecker gets initialized. Note that this is being
     // initialized in the ui_thread. However, this is not a problem as long as
     // it is *used* in the io thread.
-    // TODO(sidchat): One day, change everything so that spellchecker gets
+    // TODO (sidchat) One day, change everything so that spellchecker gets
     // initialized in the IO thread itself.
     InitializeSpellChecker(false);
   }

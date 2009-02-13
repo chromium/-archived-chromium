@@ -2358,14 +2358,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ssl\ssl_host_state.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ssl\ssl_host_state.h"
-				>
-			</File>
-			<File
 				RelativePath=".\ssl\ssl_manager.cc"
 				>
 			</File>
