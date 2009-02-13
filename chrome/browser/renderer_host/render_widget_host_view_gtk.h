@@ -9,6 +9,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "webkit/glue/webcursor.h"
 
 class RenderWidgetHost;
 
@@ -57,6 +58,9 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   RenderWidgetHost *const host_;
   // The native UI widget.
   gfx::NativeView view_;
+
+  // The cursor for the page. This is passed up from the renderer.
+  WebCursor current_cursor_;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_

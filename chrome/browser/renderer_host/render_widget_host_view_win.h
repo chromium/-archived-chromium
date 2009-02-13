@@ -27,7 +27,6 @@ class Message;
 }
 class RenderWidgetHost;
 class WebMouseEvent;
-class WebCursor;
 
 typedef CWinTraits<WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0>
     RenderWidgetHostHWNDTraits;
