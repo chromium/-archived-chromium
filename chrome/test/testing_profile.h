@@ -84,6 +84,9 @@ class TestingProfile : public Profile {
   virtual UserScriptMaster* GetUserScriptMaster() {
     return NULL;
   }
+  virtual SSLHostState* GetSSLHostState() {
+    return NULL;
+  }
   virtual HistoryService* GetHistoryService(ServiceAccessType access) {
     return history_service_.get();
   }
