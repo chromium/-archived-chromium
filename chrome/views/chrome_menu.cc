@@ -125,7 +125,7 @@ namespace {
 
 // Returns the font menus are to use.
 ChromeFont GetMenuFont() {
-	NONCLIENTMETRICS metrics;
+  NONCLIENTMETRICS metrics;
   win_util::GetNonClientMetrics(&metrics);
 
   HFONT font = CreateFontIndirect(&metrics.lfMenuFont);
@@ -214,7 +214,7 @@ static void ScrollToVisible(View* view) {
 // appropriately.
 
 class MenuScrollTask {
-public:
+ public:
   MenuScrollTask() : submenu_(NULL) {
     pixels_per_second_ = pref_menu_height * 20;
   }
@@ -286,7 +286,7 @@ public:
   // Y-coordinate of submenu_view_ when scrolling started.
   int start_y_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MenuScrollTask);
+  DISALLOW_COPY_AND_ASSIGN(MenuScrollTask);
 };
 
 // MenuScrollButton ------------------------------------------------------------
@@ -366,7 +366,7 @@ class MenuScrollButton : public View {
   // Preferred height.
   int pref_height_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MenuScrollButton);
+  DISALLOW_COPY_AND_ASSIGN(MenuScrollButton);
 };
 
 // MenuScrollView --------------------------------------------------------------
@@ -403,7 +403,7 @@ class MenuScrollView : public View {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(MenuScrollView);
+  DISALLOW_COPY_AND_ASSIGN(MenuScrollView);
 };
 
 // MenuScrollViewContainer -----------------------------------------------------
@@ -488,7 +488,7 @@ class MenuScrollViewContainer : public View {
   // The scroll view.
   MenuScrollView* scroll_view_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MenuScrollViewContainer);
+  DISALLOW_COPY_AND_ASSIGN(MenuScrollViewContainer);
 };
 
 // MenuSeparator ---------------------------------------------------------------
@@ -523,12 +523,12 @@ class MenuSeparator : public View {
   }
 
   gfx::Size GetPreferredSize() {
-    return gfx::Size(10, // Just in case we're the only item in a menu.
+    return gfx::Size(10,  // Just in case we're the only item in a menu.
                      separator_height);
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(MenuSeparator);
+  DISALLOW_COPY_AND_ASSIGN(MenuSeparator);
 };
 
 // MenuHostRootView ----------------------------------------------------------
@@ -626,7 +626,7 @@ class MenuHostRootView : public RootView {
     return submenu_->GetMenuItem()->GetMenuController();
   }
 
-  /// The SubmenuView we contain.
+  // The SubmenuView we contain.
   SubmenuView* submenu_;
 
   // Whether mouse dragged/released should be forwarded to the MenuController.
@@ -636,7 +636,7 @@ class MenuHostRootView : public RootView {
   // MenuController.
   bool suspend_events_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MenuHostRootView);
+  DISALLOW_COPY_AND_ASSIGN(MenuHostRootView);
 };
 
 // MenuHost ------------------------------------------------------------------
@@ -757,7 +757,7 @@ class MenuHost : public WidgetWin {
   // The view we contain.
   SubmenuView* submenu_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(MenuHost);
+  DISALLOW_COPY_AND_ASSIGN(MenuHost);
 };
 
 // EmptyMenuMenuItem ---------------------------------------------------------
@@ -779,7 +779,7 @@ class EmptyMenuMenuItem : public MenuItemView {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(EmptyMenuMenuItem);
+  DISALLOW_COPY_AND_ASSIGN(EmptyMenuMenuItem);
 };
 
 // static
@@ -1820,12 +1820,12 @@ void MenuController::OnMouseDragged(SubmenuView* source,
                  DragDropTypes::DragOperationToDropEffect(drag_ops),
                  &effects);
       if (GetActiveInstance() == this) {
-        if (showing_ ) {
+        if (showing_) {
           // We're still showing, close all menus.
           CloseAllNestedMenus();
           Cancel(true);
-        } // else case, drop was on us.
-      } // else case, someone canceled us, don't do anything
+        }  // else case, drop was on us.
+      }  // else case, someone canceled us, don't do anything
     }
     return;
   }
@@ -2596,7 +2596,7 @@ void MenuController::IncrementSelection(int delta) {
     if (item->GetSubmenu()->GetMenuItemCount()) {
       SetSelection(item->GetSubmenu()->GetMenuItemAt(0), false, false);
       ScrollToVisible(item->GetSubmenu()->GetMenuItemAt(0));
-      return; // return so else case can fall through.
+      return;  // return so else case can fall through.
     }
   }
   if (item->GetParentMenuItem()) {
@@ -2764,8 +2764,8 @@ void MenuController::RepostEvent(SubmenuView* source,
         PostMessage(window, event_type, event.GetWindowsFlags(),
                     MAKELPARAM(window_x, window_y));
       } else {
-        PostMessage(window, WM_NCLBUTTONDOWN, nc_hit_result,
-                    MAKELPARAM(window_x, window_y));
+        PostMessage(window, event_type, nc_hit_result,
+                    MAKELPARAM(screen_loc.x(), screen_loc.y()));
       }
     }
   }
