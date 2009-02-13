@@ -499,13 +499,16 @@ env.Alias('webkit', i)
 # If we add ENABLE_ flags via HTML_FLAGS, we need to pass in
 # --extraDefines $HTML_FLAGS.
 env.Command(['$DERIVED_DIR/HTMLNames.cpp',
-             '$DERIVED_DIR/HTMLNames.h'],
+             '$DERIVED_DIR/HTMLNames.h',
+             '$DERIVED_DIR/HTMLElementFactory.cpp',
+             '$DERIVED_DIR/HTMLElementFactory.h'],
             ['$PORT_DIR/dom/make_names.pl',
              '$PORT_DIR/html/HTMLTagNames.in',
              '$PORT_DIR/html/HTMLAttributeNames.in'],
             '$PERL $_PERL_INCLUDE_FLAGS ${SOURCES[0].posix} '
             '--tags ${SOURCES[1].posix} '
             '--attrs ${SOURCES[2].posix} '
+            '--factory '
             '--wrapperFactory '
             '--outputDir $DERIVED_DIR')
 
