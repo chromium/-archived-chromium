@@ -40,6 +40,7 @@
 namespace WebCore {
 
 class Event;
+class EventTarget;
 class V8EventListener;
 class WorkerContext;
 

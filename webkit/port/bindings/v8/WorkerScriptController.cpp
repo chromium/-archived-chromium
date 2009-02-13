@@ -68,7 +68,7 @@ ScriptValue WorkerScriptController::evaluate(const ScriptSourceCode& sourceCode)
                           sourceCode.startLine() - 1);
 
     m_workerContext->thread()->messagingProxy()->
-        reportWorkerThreadActivity(m_workerContext->hasPendingActivity());
+        reportPendingActivity(m_workerContext->hasPendingActivity());
 
     return ScriptValue();
 }
