@@ -177,7 +177,6 @@ BrowserView::BrowserView(Browser* browser)
       frame_(NULL),
       browser_(browser),
       active_bookmark_bar_(NULL),
-      active_info_bar_(NULL),
       active_download_shelf_(NULL),
       toolbar_(NULL),
       contents_container_(NULL),
@@ -191,8 +190,6 @@ BrowserView::BrowserView(Browser* browser)
 #endif
       forwarding_to_tab_strip_(false) {
   InitClass();
-  show_bookmark_bar_pref_.Init(prefs::kShowBookmarkBar,
-                               browser_->profile()->GetPrefs(), this);
   browser_->tabstrip_model()->AddObserver(this);
 }
 
@@ -366,19 +363,15 @@ void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
 }
 
 bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
-  return !!(FeaturesForBrowserType(browser_->type()) & feature);
-}
-
-// static
-unsigned int BrowserView::FeaturesForBrowserType(Browser::Type type) {
+  const Browser::Type type = browser_->type();
   unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
   if (type == Browser::TYPE_NORMAL)
     features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR | FEATURE_BOOKMARKBAR;
+  else
+    features |= FEATURE_TITLEBAR;
   if (type != Browser::TYPE_APP)
     features |= FEATURE_LOCATIONBAR;
-  if (type != Browser::TYPE_NORMAL)
-    features |= FEATURE_TITLEBAR;
-  return features;
+  return !!(features & feature);
 }
 
 // static
@@ -579,14 +572,9 @@ void BrowserView::DestroyBrowser() {
 }
 
 bool BrowserView::IsBookmarkBarVisible() const {
-  if (!bookmark_bar_view_.get())
-    return false;
-
-  if (bookmark_bar_view_->OnNewTabPage() || bookmark_bar_view_->IsAnimating())
-    return true;
-
-  // 1 is the minimum in GetPreferredSize for the bookmark bar.
-  return bookmark_bar_view_->GetPreferredSize().height() > 1;
+  return SupportsWindowFeature(FEATURE_BOOKMARKBAR) &&
+      bookmark_bar_view_.get() &&
+      (bookmark_bar_view_->GetPreferredSize().height() != 0);
 }
 
 gfx::Rect BrowserView::GetRootWindowResizerRect() const {
@@ -1165,52 +1153,40 @@ views::DropTargetEvent* BrowserView::MapEventToTabStrip(
 }
 
 int BrowserView::LayoutTabStrip() {
-  if (IsTabStripVisible()) {
-    gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
-    gfx::Point tabstrip_origin = tabstrip_bounds.origin();
-    ConvertPointToView(GetParent(), this, &tabstrip_origin);
-    tabstrip_bounds.set_origin(tabstrip_origin);
-    tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
-                         tabstrip_bounds.width(), tabstrip_bounds.height());
-    return tabstrip_bounds.bottom();
-  }
-  return 0;
+  gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
+  gfx::Point tabstrip_origin = tabstrip_bounds.origin();
+  ConvertPointToView(GetParent(), this, &tabstrip_origin);
+  tabstrip_bounds.set_origin(tabstrip_origin);
+  bool visible = IsTabStripVisible();
+  int y = visible ? tabstrip_bounds.y() : 0;
+  int height = visible ? tabstrip_bounds.height() : 0;
+  tabstrip_->SetVisible(visible);
+  tabstrip_->SetBounds(tabstrip_bounds.x(), y, tabstrip_bounds.width(), height);
+  return y + height;
 }
 
 int BrowserView::LayoutToolbar(int top) {
-  if (IsToolbarVisible()) {
-    gfx::Size ps = toolbar_->GetPreferredSize();
-    int toolbar_y =
-        top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
-    int browser_view_width = width();
+  int browser_view_width = width();
 #ifdef CHROME_PERSONALIZATION
-    if (IsPersonalizationEnabled())
-      Personalization::AdjustBrowserView(personalization_, &browser_view_width);
+  if (IsPersonalizationEnabled())
+    Personalization::AdjustBrowserView(personalization_, &browser_view_width);
 #endif
-    toolbar_->SetBounds(0, toolbar_y, browser_view_width, ps.height());
-    return toolbar_y + ps.height();
-  }
-  toolbar_->SetVisible(false);
-  return top;
+  bool visible = IsToolbarVisible();
+  int y = top -
+      ((visible && IsTabStripVisible()) ? kToolbarTabStripVerticalOverlap : 0);
+  int height = visible ? toolbar_->GetPreferredSize().height() : 0;
+  toolbar_->SetVisible(visible);
+  toolbar_->SetBounds(0, y, browser_view_width, height);
+  return y + height;
 }
 
 int BrowserView::LayoutBookmarkAndInfoBars(int top) {
-  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR)) {
-    // If we have an Info-bar showing, and we're showing the New Tab Page, and
-    // the Bookmark bar isn't visible on all tabs, then we need to show the
-    // Info bar _above_ the Bookmark bar, since the Bookmark bar is styled to
-    // look like it's part of the New Tab Page...
-    if (active_bookmark_bar_ &&
-        bookmark_bar_view_->OnNewTabPage() &&
-        !bookmark_bar_view_->IsAlwaysShown()) {
-      top = LayoutInfoBar(top);
-      return LayoutBookmarkBar(top);
-    }
-
-    // If we're showing a regular bookmark bar and it's not below an infobar,
-    // make it overlap the toolbar so that the bar items can be drawn higher.
-    if (active_bookmark_bar_)
-      top -= bookmark_bar_view_->GetToolbarOverlap();
+  if (bookmark_bar_view_.get()) {
+    // If we're showing the Bookmark bar in detached style, then we need to show
+    // any Info bar _above_ the Bookmark bar, since the Bookmark bar is styled
+    // to look like it's part of the page.
+    if (bookmark_bar_view_->IsDetachedStyle())
+      return LayoutBookmarkBar(LayoutInfoBar(top));
 
     // Otherwise, Bookmark bar first, Info bar second.
     top = LayoutBookmarkBar(top);
@@ -1219,24 +1195,27 @@ int BrowserView::LayoutBookmarkAndInfoBars(int top) {
 }
 
 int BrowserView::LayoutBookmarkBar(int top) {
-  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_) {
-    gfx::Size ps = active_bookmark_bar_->GetPreferredSize();
-    if (!active_info_bar_ || show_bookmark_bar_pref_.GetValue())
-      top -= kSeparationLineHeight;
-    active_bookmark_bar_->SetBounds(0, top, width(), ps.height());
-    top += ps.height();
+  DCHECK(bookmark_bar_view_.get());
+  bool visible = IsBookmarkBarVisible();
+  int height, y = top;
+  if (visible) {
+    y -= kSeparationLineHeight + (bookmark_bar_view_->IsDetachedStyle() ?
+        0 : bookmark_bar_view_->GetToolbarOverlap());
+    height = bookmark_bar_view_->GetPreferredSize().height();
+  } else {
+    height = 0;
   }
-  return top;
+  bookmark_bar_view_->SetVisible(visible);
+  bookmark_bar_view_->SetBounds(0, y, width(), height);
+  return y + height;
 }
 
 int BrowserView::LayoutInfoBar(int top) {
-  if (SupportsWindowFeature(FEATURE_INFOBAR)) {
-    // Layout the InfoBar container.
-    gfx::Size ps = infobar_container_->GetPreferredSize();
-    infobar_container_->SetBounds(0, top, width(), ps.height());
-    top += ps.height();
-  }
-  return top;
+  bool visible = SupportsWindowFeature(FEATURE_INFOBAR);
+  int height = visible ? infobar_container_->GetPreferredSize().height() : 0;
+  infobar_container_->SetVisible(visible);
+  infobar_container_->SetBounds(0, top, width(), height);
+  return top + height;
 }
 
 void BrowserView::LayoutTabContents(int top, int bottom) {
@@ -1245,12 +1224,14 @@ void BrowserView::LayoutTabContents(int top, int bottom) {
 
 int BrowserView::LayoutDownloadShelf() {
   int bottom = height();
-  if (SupportsWindowFeature(FEATURE_DOWNLOADSHELF) && active_download_shelf_) {
-    gfx::Size ps = active_download_shelf_->GetPreferredSize();
-    active_download_shelf_->SetBounds(0, bottom - ps.height(), width(),
-                                      ps.height());
+  if (active_download_shelf_) {
+    bool visible = SupportsWindowFeature(FEATURE_DOWNLOADSHELF);
+    int height =
+        visible ? active_download_shelf_->GetPreferredSize().height() : 0;
+    active_download_shelf_->SetVisible(visible);
+    active_download_shelf_->SetBounds(0, bottom - height, width(), height);
     active_download_shelf_->Layout();
-    bottom -= ps.height();
+    bottom -= height;
   }
   return bottom;
 }
@@ -1268,8 +1249,9 @@ void BrowserView::LayoutStatusBubble(int top) {
 
 bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
   views::View* new_bookmark_bar_view = NULL;
+  views::View* old_bookmark_bar_view = bookmark_bar_view_.get();
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
-    if (!bookmark_bar_view_.get()) {
+    if (!old_bookmark_bar_view) {
       bookmark_bar_view_.reset(new BookmarkBarView(contents->profile(),
                                                    browser_.get()));
       bookmark_bar_view_->SetParentOwned(false);
@@ -1278,13 +1260,9 @@ bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
     }
     bookmark_bar_view_->SetPageNavigator(contents);
     new_bookmark_bar_view = bookmark_bar_view_.get();
-    if (!show_bookmark_bar_pref_.GetValue() &&
-        new_bookmark_bar_view->GetPreferredSize().height() == 0) {
-      new_bookmark_bar_view = NULL;
-    }
   }
   return UpdateChildViewAndLayout(new_bookmark_bar_view,
-                                  &active_bookmark_bar_);
+                                  &old_bookmark_bar_view);
 }
 
 bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
@@ -1372,8 +1350,7 @@ void BrowserView::LoadAccelerators() {
   ACCEL* accelerators = static_cast<ACCEL*>(malloc(sizeof(ACCEL) * count));
   CopyAcceleratorTable(accelerator_table, accelerators, count);
 
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetWidget()->GetHWND());
+  views::FocusManager* focus_manager = GetFocusManager();
   DCHECK(focus_manager);
 
   // Let's build our own accelerator table.

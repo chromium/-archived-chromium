@@ -129,10 +129,11 @@ class BookmarkBarView : public views::View,
   // Returns the model.
   BookmarkModel* GetModel() { return model_; }
 
-  // Returns true if the bookmarks bar preference is set to 'always show', we
-  // use this as a shorthand way of knowing what style of bar to draw (if the
-  // pref is set to false but we're painting, then we must be on the new tab
-  // page).
+  // Returns true if the bookmark bar is drawn detached from the toolbar.  This
+  // can only be true when OnNewTabPage() is true (see below).
+  bool IsDetachedStyle();
+
+  // Returns true if the bookmarks bar preference is set to 'always show'.
   bool IsAlwaysShown();
 
   // True if we're on a page where the bookmarks bar is always visible.

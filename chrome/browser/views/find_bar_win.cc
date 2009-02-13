@@ -481,39 +481,18 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   // Start with browser's client rect, then change it below.
   *bounds = gfx::Rect(browser_client_rect);
 
-  // Find the dimensions of the toolbar and the BookmarkBar.
-  gfx::Rect toolbar_bounds, bookmark_bar_bounds;
-  if (toolbar) {
-    toolbar_bounds = toolbar->GetLocalBounds(false);
-    // Need to convert toolbar bounds into Widget coords because the toolbar
-    // is the child of another view that isn't the top level view. This is
-    // required to ensure correct positioning relative to the top,left of the
-    // window.
-    gfx::Point topleft;
-    views::View::ConvertPointToWidget(toolbar, &topleft);
-    toolbar_bounds.Offset(topleft.x(), topleft.y());
-  }
-
-  // If the bookmarks bar is available, we need to update our
-  // position and paint accordingly
-  if (bookmark_bar) {
-    if (bookmark_bar->IsAlwaysShown()) {
-      // If it's always on, don't try to blend with the toolbar.
+  // Find the bounds of the toolbar we want to dock to.
+  gfx::Rect toolbar_bounds;
+  views::View* bounds_view = NULL;
+  view_->SetToolbarBlend(true);
+  if (bookmark_bar && !bookmark_bar->IsDetachedStyle()) {
+    bounds_view = bookmark_bar;
+    toolbar_bounds = bookmark_bar->GetLocalBounds(false);
+    if (bookmark_bar->IsAlwaysShown())
       view_->SetToolbarBlend(false);
-    } else {
-      // Else it's on, but hidden (in which case we should try
-      // to blend with the toolbar.
-      view_->SetToolbarBlend(true);
-    }
-
-    // If we're not in the New Tab page style, align ourselves with
-    // the bookmarks bar (this works even if the bar is hidden).
-    if (!bookmark_bar->OnNewTabPage() ||
-        bookmark_bar->IsAlwaysShown()) {
-      bookmark_bar_bounds = bookmark_bar->bounds();
-    }
-  } else {
-    view_->SetToolbarBlend(true);
+  } else if (toolbar) {
+    bounds_view = toolbar;
+    toolbar_bounds = toolbar->GetLocalBounds(false);
   }
 
   // Figure out at which y coordinate to draw the FindInPage window. If we have
@@ -523,20 +502,18 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   // window or a Chrome application so we want to draw at the top of the page
   // content (right beneath the title bar).
   int y_pos_offset = 0;
-  if (!toolbar_bounds.IsEmpty()) {
+  if (bounds_view) {
     // We have a toolbar (chrome), so overlap it by one pixel.
+    gfx::Point origin;
+    views::View::ConvertPointToWidget(bounds_view, &origin);
+    toolbar_bounds.Offset(origin);
     y_pos_offset = toolbar_bounds.bottom() - 1;
-    // If there is a bookmark bar attached to the toolbar we should appear
-    // attached to it instead of the toolbar.
-    if (!bookmark_bar_bounds.IsEmpty()) {
-      y_pos_offset += bookmark_bar_bounds.height() - 1 - 
-          bookmark_bar->GetToolbarOverlap();
-    }
   } else {
-    // There is no toolbar, so this is probably a constrained window or a Chrome
-    // Application. This means we draw the Find window at the top of the page
-    // content window. We subtract 1 to overlap the light-blue line that is part
-    // of the title bar (so that we don't look detached by 1 pixel).
+    // The toolbar isn't visible, so we're in fullscreen mode or this is an app
+    // window. This means we draw the Find window at the top of the page content
+    // window. We subtract 1 to overlap the client edge that is part of the
+    // title bar (so that we don't look detached by 1 pixel).
+    // TODO(pkasting): This -1 is wrong in maximized mode.
     WINDOWINFO wi;
     wi.cbSize = sizeof(WINDOWINFO);
     GetWindowInfo(parent_hwnd_, &wi);

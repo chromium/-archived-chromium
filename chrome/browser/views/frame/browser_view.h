@@ -11,7 +11,6 @@
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
-#include "chrome/common/pref_member.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/window_delegate.h"
 #ifdef CHROME_PERSONALIZATION
@@ -150,9 +149,6 @@ class BrowserView : public BrowserWindow,
   // Returns true if the Browser object associated with this BrowserView
   // supports the specified feature.
   bool SupportsWindowFeature(WindowFeature feature) const;
-
-  // Returns the set of WindowFeatures supported by the specified BrowserType.
-  static unsigned int FeaturesForBrowserType(Browser::Type type);
 
   // Register preferences specific to this view.
   static void RegisterBrowserViewPrefs(PrefService* prefs);
@@ -351,7 +347,6 @@ class BrowserView : public BrowserWindow,
 
   // Tool/Info bars that we are currently showing. Used for layout.
   views::View* active_bookmark_bar_;
-  views::View* active_info_bar_;
   views::View* active_download_shelf_;
 
   // The TabStrip.
@@ -374,9 +369,6 @@ class BrowserView : public BrowserWindow,
 
   // A mapping between accelerators and commands.
   scoped_ptr<std::map<views::Accelerator, int>> accelerator_table_;
-
-  // A PrefMember to track the "always show bookmark bar" pref.
-  BooleanPrefMember show_bookmark_bar_pref_;
 
   // True if we have already been initialized.
   bool initialized_;
