@@ -326,6 +326,7 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 // rebaseline on other platforms as well.
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
+LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 // For these two fast/frames tests it looks like the win baseline had some weird
 // artifacts on the scrollbars on one of the frames, which has now been removed.
 // This artifact does not exist on the mac baseline.
@@ -1712,9 +1713,6 @@ LINUX : LayoutTests/fast/clip/007.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/010.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
 
-// TODO(sid): This test regressed after r9613.
-LayoutTests/editing/selection/5354455-1.html = FAIL
-
 // Regressions from WebKit merge to 40864
 WIN LINUX : LayoutTests/fast/block/positioning/001.html = FAIL
 WIN LINUX : LayoutTests/fast/dom/getBoundingClientRect.html = FAIL
@@ -1739,3 +1737,4 @@ chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 // Sharted showing up the mac build bots on 02/16/09
 MAC : LayoutTests/fast/events/overflow-events.html = FAIL
 MAC DEBUG : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
+
