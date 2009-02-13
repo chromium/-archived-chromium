@@ -29,8 +29,10 @@ To import a new snapshot of libxml:
 - Apply the patch in google.patch and reconcile any conflict
 - Then, make any necessary changes to remove compile-time warnings.
 - Update google.patch
-- 'cd linux && sh ../configure --without-iconv' to re-generate config.h and
-  include/libxml/xmlversion.h.
-- run build/generate-win32-headers.bat to re-generate config.h and
-  include/libxml/xmlversion.h for the windows build
+- On a Linux system, 'cd linux && sh ../configure --without-iconv' to
+  generate config.h and include/libxml/xmlversion.h for Linux.
+- On a Mac, 'cd mac && sh ../configure --without-iconv' to generate config.h
+  and include/libxml/xmlversion.h for Macs.
+- On Windows, run build/generate-win32-headers.bat to re-generate config.h and
+  include/libxml/xmlversion.h for Windows builds.
 - Update this README to reflect the new version number.
