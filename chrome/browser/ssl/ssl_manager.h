@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SSL_MANAGER_H_
-#define CHROME_BROWSER_SSL_MANAGER_H_
+#ifndef CHROME_BROWSER_SSL_SSL_MANAGER_H_
+#define CHROME_BROWSER_SSL_SSL_MANAGER_H_
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/observer_list.h"
@@ -32,6 +33,7 @@ class PrefService;
 class ResourceRedirectDetails;
 class ResourceRequestDetails;
 class SSLErrorInfo;
+class SSLHostState;
 class Task;
 class URLRequest;
 class WebContents;
@@ -59,7 +61,7 @@ class SSLManager : public NotificationObserver {
   // necessary for ensuring the instance is not leaked.
   class ErrorHandler : public base::RefCountedThreadSafe<ErrorHandler> {
    public:
-     virtual ~ErrorHandler() { }
+    virtual ~ErrorHandler() { }
 
     // Find the appropriate SSLManager for the URLRequest and begin handling
     // this error.
@@ -71,7 +73,7 @@ class SSLManager : public NotificationObserver {
     const GURL& request_url() const { return request_url_; }
 
     // Call on the UI thread.
-    SSLManager* manager() const { return manager_; };
+    SSLManager* manager() const { return manager_; }
 
     // Returns the WebContents this object is associated with.  Should be
     // called from the UI thread.
@@ -162,8 +164,8 @@ class SSLManager : public NotificationObserver {
     const GURL request_url_;  // The URL that we requested.
 
     // Should only be accessed on the IO thread
-    bool request_has_been_notified_; // A flag to make sure we notify the
-                                     // URLRequest exactly once.
+    bool request_has_been_notified_;  // A flag to make sure we notify the
+                                      // URLRequest exactly once.
 
     DISALLOW_EVIL_CONSTRUCTORS(ErrorHandler);
   };
@@ -198,7 +200,7 @@ class SSLManager : public NotificationObserver {
 
     // These read-only members can be accessed on any thread.
     net::SSLInfo ssl_info_;
-    const int cert_error_; // The error we represent.
+    const int cert_error_;  // The error we represent.
 
     // What kind of resource is associated with the requested that generated
     // that error.
@@ -337,7 +339,7 @@ class SSLManager : public NotificationObserver {
   // Called when a mixed-content sub-resource request has been detected.  The
   // request is not started yet.  The SSLManager will make a decision on whether
   // to filter that request's content (with the filter_policy flag).
-  // TODO (jcampan): Implement a way to just cancel the request.  This is not
+  // TODO(jcampan): Implement a way to just cancel the request.  This is not
   // straight-forward as canceling a request that has not been started will
   // not remove from the pending_requests_ of the ResourceDispatcherHost.
   // Called on the IO thread.
@@ -398,24 +400,25 @@ class SSLManager : public NotificationObserver {
   // in an info-bar.
   struct SSLMessageInfo {
    public:
-     explicit SSLMessageInfo(const std::wstring& text)
+    explicit SSLMessageInfo(const std::wstring& text)
         : message(text),
           action(NULL) { }
-     SSLMessageInfo(const std::wstring& message,
-                    const std::wstring& link_text,
-                    Task* action)
+
+    SSLMessageInfo(const std::wstring& message,
+                   const std::wstring& link_text,
+                   Task* action)
         : message(message), link_text(link_text), action(action) { }
 
-     // Overridden so that std::find works.
-     bool operator==(const std::wstring& other_message) const {
-       // We are uniquing SSLMessageInfo by their message only.
-       return message == other_message;
-     }
+    // Overridden so that std::find works.
+    bool operator==(const std::wstring& other_message) const {
+      // We are uniquing SSLMessageInfo by their message only.
+      return message == other_message;
+    }
 
-     std::wstring message;
-     std::wstring link_text;
-     Task* action;
-   };
+    std::wstring message;
+    std::wstring link_text;
+    Task* action;
+  };
 
   // Entry points for notifications to which we subscribe. Note that
   // DidCommitProvisionalLoad uses the abstract NotificationDetails type since
@@ -447,11 +450,8 @@ class SSLManager : public NotificationObserver {
   // Handles registering notifications with the NotificationService.
   NotificationRegistrar registrar_;
 
-  // Certificate policies for each host.
-  std::map<std::string, net::X509Certificate::Policy> cert_policy_for_host_;
-
-  // Domains for which it is OK to show insecure content.
-  std::set<std::string> can_show_insecure_content_for_host_;
+  // SSL state specific for each host.
+  SSLHostState* ssl_host_state_;
 
   // The list of messages that should be displayed (in info bars) when the page
   // currently loading had loaded.
@@ -460,5 +460,4 @@ class SSLManager : public NotificationObserver {
   DISALLOW_COPY_AND_ASSIGN(SSLManager);
 };
 
-#endif // CHROME_BROWSER_SSL_MANAGER_H_
-
+#endif  // CHROME_BROWSER_SSL_SSL_MANAGER_H_

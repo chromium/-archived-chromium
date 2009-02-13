@@ -28,6 +28,7 @@ class NavigationController;
 class PrefService;
 class SessionService;
 class SpellChecker;
+class SSLHostState;
 class TabRestoreService;
 class TemplateURLFetcher;
 class TemplateURLModel;
@@ -109,6 +110,11 @@ class Profile {
   // profile.  The UserScriptMaster is lazily created the first time
   // that this method is called.
   virtual UserScriptMaster* GetUserScriptMaster() = 0;
+
+  // Retrieves a pointer to the SSLHostState associated with this profile.
+  // The SSLHostState is lazily created the first time that this method is
+  // called.
+  virtual SSLHostState* GetSSLHostState() = 0;
 
   // Retrieves a pointer to the HistoryService associated with this
   // profile.  The HistoryService is lazily created the first time
@@ -261,6 +267,7 @@ class ProfileImpl : public Profile,
   virtual Profile* GetOriginalProfile();
   virtual VisitedLinkMaster* GetVisitedLinkMaster();
   virtual UserScriptMaster* GetUserScriptMaster();
+  virtual SSLHostState* GetSSLHostState();
   virtual ExtensionsService* GetExtensionsService();
   virtual HistoryService* GetHistoryService(ServiceAccessType sat);
   virtual WebDataService* GetWebDataService(ServiceAccessType sat);
@@ -323,6 +330,7 @@ class ProfileImpl : public Profile,
   scoped_ptr<VisitedLinkMaster> visited_link_master_;
   scoped_refptr<ExtensionsService> extensions_service_;
   scoped_refptr<UserScriptMaster> user_script_master_;
+  scoped_ptr<SSLHostState> ssl_host_state_;
   scoped_ptr<PrefService> prefs_;
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;
   scoped_ptr<TemplateURLModel> template_url_model_;
