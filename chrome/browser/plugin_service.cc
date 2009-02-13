@@ -5,7 +5,6 @@
 #include "chrome/browser/plugin_service.h"
 
 #include "base/command_line.h"
-#include "base/singleton.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_plugin_host.h"
@@ -30,7 +29,6 @@ PluginService::PluginService()
       plugin_shutdown_handler_(new ShutdownHandler) {
   // Have the NPAPI plugin list search for Chrome plugins as well.
   ChromePluginLib::RegisterPluginsWithNPAPI();
-
   // Load the one specified on the command line as well.
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   std::wstring path = command_line->GetSwitchValue(switches::kLoadPlugin);
@@ -77,9 +75,13 @@ PluginProcessHost* PluginService::FindPluginProcess(
     return NULL;
   }
 
-  PluginMap::iterator found = plugin_hosts_.find(plugin_path);
-  if (found != plugin_hosts_.end())
-    return found->second;
+  for (ChildProcessInfo::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
+       !iter.Done(); ++iter) {
+    PluginProcessHost* plugin = static_cast<PluginProcessHost*>(*iter);
+    if (plugin->info().path == plugin_path)
+      return plugin;
+  }
+
   return NULL;
 }
 
@@ -100,13 +102,13 @@ PluginProcessHost* PluginService::FindOrStartPluginProcess(
   }
 
   // This plugin isn't loaded by any plugin process, so create a new process.
-  plugin_host = new PluginProcessHost(this);
+  plugin_host = new PluginProcessHost();
   if (!plugin_host->Init(info, clsid, ui_locale_)) {
     DCHECK(false);  // Init is not expected to fail
     delete plugin_host;
     return NULL;
   }
-  plugin_hosts_[plugin_path] = plugin_host;
+
   return plugin_host;
 
   // TODO(jabdelmalek): adding a new channel means we can have one less
@@ -130,31 +132,6 @@ void PluginService::OpenChannelToPlugin(
                                        std::wstring(),
                                        FilePath(),
                                        reply_msg);
-  }
-}
-
-void PluginService::OnPluginProcessIsShuttingDown(PluginProcessHost* host) {
-  RemoveHost(host);
-}
-
-void PluginService::OnPluginProcessExited(PluginProcessHost* host) {
-  RemoveHost(host);  // in case shutdown was not graceful
-  delete host;
-}
-
-void PluginService::RemoveHost(PluginProcessHost* host) {
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO));
-  // Search for the instance rather than lookup by plugin path,
-  // there is a small window where two instances for the same
-  // plugin path can co-exists.
-  PluginMap::iterator i = plugin_hosts_.begin();
-  while (i != plugin_hosts_.end()) {
-    if (i->second == host) {
-      plugin_hosts_.erase(i);
-      return;
-    }
-    i++;
   }
 }
 
@@ -193,27 +170,10 @@ void PluginService::Shutdown() {
 }
 
 void PluginService::OnShutdown() {
-  PluginMap::iterator host_index;
-  for (host_index = plugin_hosts_.begin(); host_index != plugin_hosts_.end();
-          ++host_index) {
-    host_index->second->Shutdown();
+  for (ChildProcessInfo::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
+       !iter.Done(); ++iter) {
+    static_cast<PluginProcessHost*>(*iter)->Shutdown();
   }
-}
-
-PluginProcessHostIterator::PluginProcessHostIterator()
-    : iterator_(PluginService::GetInstance()->plugin_hosts_.begin()),
-      end_(PluginService::GetInstance()->plugin_hosts_.end()) {
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO)) <<
-             "PluginProcessHostIterator must be used on the IO thread.";
-}
-
-PluginProcessHostIterator::PluginProcessHostIterator(
-      const PluginProcessHostIterator& instance)
-    : iterator_(instance.iterator_) {
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO)) <<
-             "PluginProcessHostIterator must be used on the IO thread.";
 }
 
 void PluginService::ShutdownHandler::InitiateShutdown() {

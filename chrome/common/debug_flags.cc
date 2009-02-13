@@ -9,7 +9,7 @@
 #include "chrome/common/chrome_switches.h"
 
 bool DebugFlags::ProcessDebugFlags(CommandLine* command_line,
-                                   ChildProcessType type,
+                                   ChildProcessInfo::ProcessType type,
                                    bool is_in_sandbox) {
   bool should_help_child = false;
   const CommandLine& current_cmd_line = *CommandLine::ForCurrentProcess();
@@ -18,8 +18,10 @@ bool DebugFlags::ProcessDebugFlags(CommandLine* command_line,
     std::wstring value;
     value = current_cmd_line.GetSwitchValue(switches::kDebugChildren);
     if (value.empty() ||
-        (type == RENDERER && value == switches::kRendererProcess) ||
-        (type == PLUGIN && value == switches::kPluginProcess)) {
+        (type == ChildProcessInfo::RENDER_PROCESS &&
+         value == switches::kRendererProcess) ||
+        (type == ChildProcessInfo::PLUGIN_PROCESS &&
+         value == switches::kPluginProcess)) {
       command_line->AppendSwitch(switches::kDebugOnStart);
       should_help_child = true;
     }
@@ -29,8 +31,10 @@ bool DebugFlags::ProcessDebugFlags(CommandLine* command_line,
     std::wstring value;
     value = current_cmd_line.GetSwitchValue(switches::kWaitForDebuggerChildren);
     if (value.empty() ||
-        (type == RENDERER && value == switches::kRendererProcess) ||
-        (type == PLUGIN && value == switches::kPluginProcess)) {
+        (type == ChildProcessInfo::RENDER_PROCESS &&
+         value == switches::kRendererProcess) ||
+        (type == ChildProcessInfo::PLUGIN_PROCESS &&
+         value == switches::kPluginProcess)) {
       command_line->AppendSwitch(switches::kWaitForDebugger);
     }
     command_line->AppendSwitchWithValue(switches::kWaitForDebuggerChildren,

@@ -5,6 +5,8 @@
 #ifndef CHROME_COMMON_DEBUG_FLAGS_H__
 #define CHROME_COMMON_DEBUG_FLAGS_H__
 
+#include "chrome/common/child_process_info.h"
+
 class CommandLine;
 
 class DebugFlags {
@@ -24,7 +26,7 @@ class DebugFlags {
   // calling the JIT debugger on it. It may only happen if
   // is_in_sandbox is true.
   static bool ProcessDebugFlags(CommandLine* command_line,
-                                ChildProcessType type,
+                                ChildProcessInfo::ProcessType type,
                                 bool is_in_sandbox);
 };
 

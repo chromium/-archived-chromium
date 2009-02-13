@@ -8,18 +8,15 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/id_map.h"
 #include "base/object_watcher.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/child_process_info.h"
-#include "chrome/common/ipc_channel_proxy.h"
+#include "chrome/common/ipc_channel.h"
 #include "webkit/glue/webplugin.h"
 
-class PluginService;
-class PluginProcessHost;
 class ResourceDispatcherHost;
 class URLRequestContext;
 struct ViewHostMsg_Resource_Request;
@@ -39,7 +36,7 @@ class PluginProcessHost : public ChildProcessInfo,
                           public base::ObjectWatcher::Delegate,
                           public ResolveProxyMsgHelper::Delegate {
  public:
-  PluginProcessHost(PluginService* plugin_service);
+  PluginProcessHost();
   ~PluginProcessHost();
 
   // Initialize the new plugin process, returning true on success. This must
@@ -88,6 +85,8 @@ class PluginProcessHost : public ChildProcessInfo,
 
   // Shuts down the current plugin process instance.
   void Shutdown();
+
+  const WebPluginInfo& info() const { return info_; }
 
  private:
   friend class PluginResolveProxyHelper;
@@ -152,10 +151,6 @@ class PluginProcessHost : public ChildProcessInfo,
 
   // Information about the plugin.
   WebPluginInfo info_;
-
-  PluginService* plugin_service_;
-
-  ResourceDispatcherHost* resource_dispatcher_host_;
 
   // Helper class for handling PluginProcessHost_ResolveProxy messages (manages
   // the requests to the proxy service).

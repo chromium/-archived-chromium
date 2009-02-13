@@ -23,6 +23,7 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/child_process_info.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
@@ -59,8 +60,6 @@
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/net/url_fixer_upper.h"
-#include "chrome/browser/plugin_process_host.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/status_bubble.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
@@ -92,15 +91,15 @@ static const int kWindowTilePixels = 20;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// A task to reduce the working set of the plugins.
-class ReducePluginsWorkingSetTask : public Task {
+// A task to reduce the working set of the child processes that live on the IO
+// thread (i.e. plugins, workers).
+class ReduceChildProcessesWorkingSetTask : public Task {
  public:
   virtual void Run() {
 #if defined(OS_WIN)
-    for (PluginProcessHostIterator iter; !iter.Done(); ++iter) {
-      ChildProcessInfo* child = const_cast<PluginProcessHost*>(*iter);
-      DCHECK(child->process().handle());
-      child->process().ReduceWorkingSet();
+    for (ChildProcessInfo::Iterator iter; !iter.Done(); ++iter) {
+      DCHECK(iter->process().handle());
+      iter->process().ReduceWorkingSet();
     }
 #endif
   }
@@ -132,11 +131,10 @@ class BrowserIdleTimer : public base::IdleTimer {
        process.ReduceWorkingSet();
     }
 
-    // Handle the Plugin(s).  We need to iterate through the plugin processes
-    // on the IO thread because that thread manages the plugin process
-    // collection.
+    // Handle the child processe.  We need to iterate through them on the IO
+    // thread because that thread manages the child process collection.
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-        new ReducePluginsWorkingSetTask());
+        new ReduceChildProcessesWorkingSetTask());
 #endif
   }
 };

@@ -357,13 +357,10 @@ class DestroyWindowTask : public Task {
 };
 
 
-PluginProcessHost::PluginProcessHost(PluginService* plugin_service)
-    : opening_channel_(false),
-      resource_dispatcher_host_(plugin_service->resource_dispatcher_host()),
-      ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
-      plugin_service_(plugin_service) {
-  DCHECK(resource_dispatcher_host_);
-  set_type(PLUGIN_PROCESS);
+PluginProcessHost::PluginProcessHost()
+    : ChildProcessInfo(PLUGIN_PROCESS),
+      opening_channel_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)) {
 }
 
 PluginProcessHost::~PluginProcessHost() {
@@ -446,7 +443,7 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
 
   // Gears requires the data dir to be available on startup.
   std::wstring data_dir =
-      plugin_service_->GetChromePluginDataDir().ToWStringHack();
+    PluginService::GetInstance()->GetChromePluginDataDir().ToWStringHack();
   DCHECK(!data_dir.empty());
   cmd_line.AppendSwitchWithValue(switches::kPluginDataDir, data_dir);
 
@@ -463,7 +460,7 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
                     browser_command_line.HasSwitch(switches::kSafePlugins);
 
   bool child_needs_help =
-      DebugFlags::ProcessDebugFlags(&cmd_line, DebugFlags::PLUGIN, in_sandbox);
+      DebugFlags::ProcessDebugFlags(&cmd_line, type(), in_sandbox);
 
   if (in_sandbox) {
     // spawn the child process in the sandbox
@@ -547,23 +544,22 @@ void PluginProcessHost::OnObjectSignaled(HANDLE object) {
 
   if (did_crash) {
     // Report that this plugin crashed.
-    plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-        new PluginNotificationTask(
+    PluginService::GetInstance()->main_message_loop()->PostTask(
+        FROM_HERE, new PluginNotificationTask(
             NotificationType::CHILD_PROCESS_CRASHED, this));
   }
   // Notify in the main loop of the disconnection.
-  plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new PluginNotificationTask(
+  PluginService::GetInstance()->main_message_loop()->PostTask(
+      FROM_HERE, new PluginNotificationTask(
           NotificationType::CHILD_PROCESS_HOST_DISCONNECTED, this));
 
   // Cancel all requests for plugin processes.
   // TODO(mpcomplete): use a real process ID when http://b/issue?id=1210062 is
   // fixed.
-  resource_dispatcher_host_->CancelRequestsForProcess(-1);
+  PluginService::GetInstance()->resource_dispatcher_host()->
+      CancelRequestsForProcess(-1);
 
-  // This next line will delete this. It should be kept at the end of the
-  // method.
-  plugin_service_->OnPluginProcessExited(this);
+  delete this;
 }
 
 
@@ -621,8 +617,8 @@ void PluginProcessHost::OnChannelConnected(int32 peer_pid) {
   pending_requests_.clear();
 
   // Notify in the main loop of the connection.
-  plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new PluginNotificationTask(
+  PluginService::GetInstance()->main_message_loop()->PostTask(
+      FROM_HERE, new PluginNotificationTask(
           NotificationType::CHILD_PROCESS_HOST_CONNECTED, this));
 }
 
@@ -643,8 +639,8 @@ void PluginProcessHost::OpenChannelToPlugin(
     const std::string& mime_type,
     IPC::Message* reply_msg) {
   // Notify in the main loop of the instantiation.
-  plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new PluginNotificationTask(
+  PluginService::GetInstance()->main_message_loop()->PostTask(
+      FROM_HERE, new PluginNotificationTask(
           NotificationType::CHILD_INSTANCE_CREATED, this));
 
   if (opening_channel_) {
@@ -678,32 +674,27 @@ void PluginProcessHost::OnRequestResource(
   if (!context)
     context = Profile::GetDefaultRequestContext();
 
-  resource_dispatcher_host_->BeginRequest(this,
-                                          process().handle(),
-                                          render_process_host_id,
-                                          MSG_ROUTING_CONTROL,
-                                          request_id,
-                                          request,
-                                          context,
-                                          NULL);
+  PluginService::GetInstance()->resource_dispatcher_host()->
+      BeginRequest(this, process().handle(), render_process_host_id,
+                   MSG_ROUTING_CONTROL, request_id, request, context, NULL);
 }
 
 void PluginProcessHost::OnCancelRequest(int request_id) {
   int render_process_host_id = -1;
-  resource_dispatcher_host_->CancelRequest(render_process_host_id,
-                                           request_id, true);
+  PluginService::GetInstance()->resource_dispatcher_host()->
+      CancelRequest(render_process_host_id, request_id, true);
 }
 
 void PluginProcessHost::OnDataReceivedACK(int request_id) {
   int render_process_host_id = -1;
-  resource_dispatcher_host_->OnDataReceivedACK(render_process_host_id,
-                                               request_id);
+  PluginService::GetInstance()->resource_dispatcher_host()->
+      OnDataReceivedACK(render_process_host_id, request_id);
 }
 
 void PluginProcessHost::OnUploadProgressACK(int request_id) {
   int render_process_host_id = -1;
-  resource_dispatcher_host_->OnUploadProgressACK(render_process_host_id,
-                                                 request_id);
+  PluginService::GetInstance()->resource_dispatcher_host()->
+      OnUploadProgressACK(render_process_host_id, request_id);
 }
 
 void PluginProcessHost::OnSyncLoad(
@@ -717,14 +708,10 @@ void PluginProcessHost::OnSyncLoad(
   if (!context)
     context = Profile::GetDefaultRequestContext();
 
-  resource_dispatcher_host_->BeginRequest(this,
-                                          process().handle(),
-                                          render_process_host_id,
-                                          MSG_ROUTING_CONTROL,
-                                          request_id,
-                                          request,
-                                          context,
-                                          sync_result);
+  PluginService::GetInstance()->resource_dispatcher_host()->
+      BeginRequest(this, process().handle(), render_process_host_id,
+                   MSG_ROUTING_CONTROL, request_id, request, context,
+                   sync_result);
 }
 
 void PluginProcessHost::OnGetCookies(uint32 request_context,
@@ -837,10 +824,6 @@ void PluginProcessHost::OnPluginShutdownRequest() {
   // If we have pending channel open requests from the renderers, then
   // refuse the shutdown request from the plugin process.
   bool ok_to_shutdown = sent_requests_.empty();
-
-  if (ok_to_shutdown)
-    plugin_service_->OnPluginProcessIsShuttingDown(this);
-
   Send(new PluginProcessMsg_ShutdownResponse(ok_to_shutdown));
 }
 
@@ -859,16 +842,15 @@ void PluginProcessHost::OnPluginMessage(
 
 void PluginProcessHost::OnCreateWindow(HWND parent, IPC::Message* reply_msg) {
   // Need to create this window on the UI thread.
-  plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new CreateWindowTask(info_.path, parent, reply_msg));
+  PluginService::GetInstance()->main_message_loop()->PostTask(
+      FROM_HERE, new CreateWindowTask(info_.path, parent, reply_msg));
 }
 
 void PluginProcessHost::OnDestroyWindow(HWND window) {
-  plugin_service_->main_message_loop()->PostTask(FROM_HERE,
-      new DestroyWindowTask(window));
+  PluginService::GetInstance()->main_message_loop()->PostTask(
+      FROM_HERE, new DestroyWindowTask(window));
 }
 
 void PluginProcessHost::Shutdown() {
-
   Send(new PluginProcessMsg_BrowserShutdown);
 }

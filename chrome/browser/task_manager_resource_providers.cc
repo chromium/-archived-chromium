@@ -12,8 +12,6 @@
 #include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/plugin_process_host.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_util.h"
@@ -427,13 +425,13 @@ void TaskManagerChildProcessResourceProvider::AddToTaskManager(
   task_manager_->AddResource(resource);
 }
 
-// The PluginProcessIterator has to be used from the IO thread.
+// The ChildProcessInfo::Iterator has to be used from the IO thread.
 void TaskManagerChildProcessResourceProvider::RetrieveChildProcessInfo() {
-  for (PluginProcessHostIterator iter; !iter.Done(); ++iter) {
-    const ChildProcessInfo* child = *iter;
-    existing_child_process_info_.push_back(*child);
+  for (ChildProcessInfo::Iterator iter; !iter.Done(); ++iter) {
+    existing_child_process_info_.push_back(**iter);
   }
-  // Now notify the UI thread that we have retrieved the PluginProcessHosts.
+  // Now notify the UI thread that we have retrieved information about child
+  // processes.
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
       &TaskManagerChildProcessResourceProvider::ChildProcessInfoRetreived));
 }

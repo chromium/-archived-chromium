@@ -14,6 +14,7 @@
 #include "base/hash_tables.h"
 #include "base/lock.h"
 #include "base/ref_counted.h"
+#include "base/singleton.h"
 #include "chrome/browser/browser_process.h"
 #include "webkit/glue/webplugin.h"
 
@@ -33,13 +34,6 @@ class PluginService {
  public:
   // Returns the PluginService singleton.
   static PluginService* GetInstance();
-
-  // Creates the PluginService object, but doesn't actually build the plugin
-  // list yet.  It's generated lazily.
-  // Note: don't call these directly - use GetInstance() above.  They are public
-  // so Singleton can access them.
-  PluginService();
-  ~PluginService();
 
   // Gets the list of available plugins.
   void GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
@@ -78,13 +72,6 @@ class PluginService {
                            const std::wstring& locale,
                            IPC::Message* reply_msg);
 
-  // A PluginProcessHost object calls this before its process is shut down.
-  void OnPluginProcessIsShuttingDown(PluginProcessHost* host);
-
-  // A PluginProcessHost object calls this after its process has exited. This
-  // call deletes the host instance.
-  void OnPluginProcessExited(PluginProcessHost* host);
-
   bool HavePluginFor(const std::string& mime_type, bool allow_wildcard);
 
   FilePath GetPluginPath(const GURL& url,
@@ -114,10 +101,12 @@ class PluginService {
   void Shutdown();
 
  private:
-  friend class PluginProcessHostIterator;
+  friend DefaultSingletonTraits<PluginService>;
 
-  // Removes a host from the plugin_hosts collection
-  void RemoveHost(PluginProcessHost* host);
+  // Creates the PluginService object, but doesn't actually build the plugin
+  // list yet.  It's generated lazily.
+  PluginService();
+  ~PluginService();
 
   // Shutdown handler which executes in the context of the IO thread.
   void OnShutdown();
@@ -163,56 +152,6 @@ class PluginService {
   scoped_refptr<ShutdownHandler> plugin_shutdown_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(PluginService);
-};
-
-// The PluginProcessHostIterator allows to iterate through all the
-// PluginProcessHosts. Note that this should be done from the IO thread and that
-// the iterator should not be kept around as it may be invalidated on
-// subsequent event processing in the event loop.
-class PluginProcessHostIterator {
- public:
-  PluginProcessHostIterator();
-  PluginProcessHostIterator(const PluginProcessHostIterator& instance);
-
-  PluginProcessHostIterator& operator=(
-      const PluginProcessHostIterator& instance) {
-    iterator_ = instance.iterator_;
-    return *this;
-  }
-
-  const PluginProcessHost* operator->() const {
-    return iterator_->second;
-  }
-
-  const PluginProcessHost* operator*() const {
-    return iterator_->second;
-  }
-
-  const PluginProcessHost* operator++() { // ++preincrement
-    ++iterator_;
-    if (iterator_ == end_)
-      return NULL;
-    else
-      return iterator_->second;
-  }
-
-  const PluginProcessHost* operator++(int) { // postincrement++
-    const PluginProcessHost* r;
-    if (iterator_ == end_)
-      r = NULL;
-    else
-      r = iterator_->second;
-    iterator_++;
-    return r;
-  }
-
-  bool Done() {
-    return (iterator_ == end_);
-  }
-
- private:
-  PluginService::PluginMap::const_iterator iterator_;
-  PluginService::PluginMap::const_iterator end_;
 };
 
 #endif  // CHROME_BROWSER_PLUGIN_SERVICE_H_

@@ -332,7 +332,8 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
     command_line.AppendSwitchWithValue(switches::kTestName,
                                        ui_test_name_);
 
-  DebugFlags::ProcessDebugFlags(&command_line, DebugFlags::UNKNOWN, false);
+  DebugFlags::ProcessDebugFlags(
+      &command_line, ChildProcessInfo::UNKNOWN_PROCESS, false);
   command_line.AppendArguments(arguments, false);
 
   // Clear user data directory to make sure test environment is consistent

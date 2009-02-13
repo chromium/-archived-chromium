@@ -291,7 +291,7 @@ bool BrowserRenderProcessHost::Init() {
 #if defined(OS_WIN)
   bool child_needs_help =
       DebugFlags::ProcessDebugFlags(&cmd_line,
-                                    DebugFlags::RENDERER,
+                                    ChildProcessInfo::RENDER_PROCESS,
                                     in_sandbox);
 #elif defined(OS_POSIX)
   if (browser_command_line.HasSwitch(switches::kRendererCmdPrefix)) {

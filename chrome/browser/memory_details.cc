@@ -14,12 +14,11 @@
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/browser/plugin_process_host.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/child_process_info.h"
 
 class RenderViewHostDelegate;
 
@@ -38,7 +37,7 @@ static ProcessData g_process_template[] = {
 //
 // This operation will hit no fewer than 3 threads.
 //
-// The PluginHostIterator can only be accessed from the IO thread.
+// The ChildProcessInfo::Iterator can only be accessed from the IO thread.
 //
 // The RenderProcessHostIterator can only be accessed from the UI thread.
 //
@@ -73,21 +72,18 @@ void MemoryDetails::CollectChildInfoOnIOThread() {
 
   std::vector<ProcessMemoryInformation> child_info;
 
-  // Collect the list of plugins.
-  for (PluginProcessHostIterator plugin_iter;
-       !plugin_iter.Done(); ++plugin_iter) {
-    ChildProcessInfo* child = const_cast<PluginProcessHost*>(*plugin_iter);
-    DCHECK(child);
-    if (!child || !child->process().handle())
+  // Collect the list of child processes.
+  for (ChildProcessInfo::Iterator iter; !iter.Done(); ++iter) {
+    if (!iter->process().handle())
       continue;
 
     ProcessMemoryInformation info;
-    info.pid = child->process().pid();
+    info.pid = iter->process().pid();
     if (!info.pid)
       continue;
 
-    info.type = child->type();
-    info.titles.push_back(child->name());
+    info.type = iter->type();
+    info.titles.push_back(iter->name());
     child_info.push_back(info);
   }
 
@@ -244,7 +240,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
         ChildProcessInfo::UNKNOWN_PROCESS) {
       process_data_[CHROME_BROWSER].processes.erase(
           process_data_[CHROME_BROWSER].processes.begin() + index);
-      index --;
+      index--;
     }
   }
 
