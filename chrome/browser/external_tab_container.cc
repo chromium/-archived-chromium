@@ -158,8 +158,8 @@ LRESULT ExternalTabContainer::OnSetFocus(UINT msg, WPARAM wp, LPARAM lp,
     DCHECK(focus_manager);
     if (focus_manager) {
       focus_manager->ClearFocus();
-      automation_->Send(new AutomationMsg_TabbedOut(win_util::IsShiftPressed(),
-                                                    false));
+      automation_->Send(new AutomationMsg_TabbedOut(0,
+          win_util::IsShiftPressed()));
     }
   }
 
