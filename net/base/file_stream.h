@@ -81,6 +81,13 @@ class FileStream {
   // You can pass NULL as the callback for synchronous I/O.
   int Read(char* buf, int buf_len, CompletionCallback* callback);
 
+  // Performs the same as Read, but ensures that exactly buf_len bytes
+  // are copied into buf.  A partial read may occur, but only as a result of
+  // end-of-file or fatal error.  Returns the number of bytes copied into buf,
+  // 0 if at end-of-file and no bytes have been read into buf yet,
+  // or an error code if the operation could not be performed.
+  int ReadUntilComplete(char *buf, int buf_len);
+
   // Call this method to write data at the current stream position.  Up to
   // buf_len bytes will be written from buf. (In other words, partial writes are
   // allowed.)  Returns the number of bytes written, or an error code if the 

@@ -234,6 +234,27 @@ int FileStream::Read(
   return rv;
 }
 
+int FileStream::ReadUntilComplete(char *buf, int buf_len) {
+  int to_read = buf_len;
+  int bytes_total = 0;
+
+  do {
+    int bytes_read = Read(buf, to_read, NULL);
+    if (bytes_read <= 0) {
+      if (bytes_total == 0)
+        return bytes_read;
+
+      return bytes_total;
+    }
+
+    bytes_total += bytes_read;
+    buf += bytes_read;
+    to_read -= bytes_read;
+  } while (bytes_total < buf_len);
+
+  return bytes_total;
+}
+
 int FileStream::Write(
     const char* buf, int buf_len, CompletionCallback* callback) {
   if (!IsOpen())
