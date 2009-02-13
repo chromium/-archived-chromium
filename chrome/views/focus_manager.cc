@@ -469,7 +469,12 @@ bool FocusManager::ContainsView(View* view) {
 
 void FocusManager::AdvanceFocus(bool reverse) {
   View* v = GetNextFocusableView(focused_view_, reverse, false);
-  if (v && (v != focused_view_)) {
+  // Note: Do not skip this next block when v == focused_view_.  If the user
+  // tabs past the last focusable element in a webpage, we'll get here, and if
+  // the TabContentsContainerView is the only focusable view (possible in
+  // fullscreen mode), we need to run this block in order to cycle around to the
+  // first element on the page.
+  if (v) {
     v->AboutToRequestFocusFromTabTraversal(reverse);
     v->RequestFocus();
   }
@@ -553,18 +558,11 @@ View* FocusManager::GetNextFocusableView(View* original_starting_view,
 }
 
 View* FocusManager::FindLastFocusableView() {
-  // For now we'll just walk the entire focus loop until we reach the end.
-
-  // Let's start at whatever focused view we are at.
-  View* starting_view = focused_view_;
-
-  // Now advance until you reach the end.
+  // Just walk the entire focus loop from where we're at until we reach the end.
   View* new_focused = NULL;
-  View* last_focused = NULL;
-  while (new_focused = GetNextFocusableView(starting_view, false, true)) {
+  View* last_focused = focused_view_;
+  while (new_focused = GetNextFocusableView(last_focused, false, true))
     last_focused = new_focused;
-    starting_view = new_focused;
-  }
   return last_focused;
 }
 
