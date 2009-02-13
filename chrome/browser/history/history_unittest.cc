@@ -46,15 +46,17 @@
 using base::Time;
 using base::TimeDelta;
 
+namespace history {
 class HistoryTest;
+}
 
 // Specialize RunnableMethodTraits for HistoryTest so we can create callbacks.
 // None of these callbacks can outlast the test, so there is not need to retain
 // the HistoryTest object.
 template <>
-struct RunnableMethodTraits<HistoryTest> {
-  static void RetainCallee(HistoryTest* obj) { }
-  static void ReleaseCallee(HistoryTest* obj) { }
+struct RunnableMethodTraits<history::HistoryTest> {
+  static void RetainCallee(history::HistoryTest* obj) { }
+  static void ReleaseCallee(history::HistoryTest* obj) { }
 };
 
 namespace history {
@@ -62,11 +64,11 @@ namespace history {
 namespace {
 
 // Compares the two data values. Used for comparing thumbnail data.
-bool DataEqual(const unsigned char* reference, int reference_len,
-                      const std::vector<unsigned char>& data) {
+bool DataEqual(const unsigned char* reference, size_t reference_len,
+               const std::vector<unsigned char>& data) {
   if (reference_len != data.size())
     return false;
-  for (int i = 0; i < reference_len; i++) {
+  for (size_t i = 0; i < reference_len; i++) {
     if (data[i] != reference[i])
       return false;
   }
@@ -81,6 +83,8 @@ static void* MakeFakeHost(int id) {
   memcpy(&host, &id, sizeof(id));
   return host;
 }
+
+}  // namespace
 
 // Delegate class for when we create a backend without a HistoryService.
 class BackendDelegate : public HistoryBackend::Delegate {
@@ -98,8 +102,6 @@ class BackendDelegate : public HistoryBackend::Delegate {
  private:
   HistoryTest* history_test_;
 };
-
-}  // namespace
 
 // This must be outside the anonymous namespace for the friend statement in
 // HistoryBackend to work.
@@ -245,7 +247,7 @@ class HistoryTest : public testing::Test {
       saved_redirects_.clear();
     MessageLoop::current()->Quit();
   }
-  
+
   MessageLoopForUI message_loop_;
 
   // PageUsageData vector to test segments.
@@ -283,8 +285,6 @@ class HistoryTest : public testing::Test {
   HistoryDatabase* db_;  // Cached reference to the backend's database.
 };
 
-namespace {
-
 void BackendDelegate::NotifyTooNew() {
 }
 
@@ -306,8 +306,6 @@ void BackendDelegate::BroadcastNotifications(NotificationType type,
   delete details;
 }
 
-}  // namespace
-
 TEST_F(HistoryTest, ClearBrowsingData_Downloads) {
   CreateBackendAndDatabase();
 
@@ -318,7 +316,7 @@ TEST_F(HistoryTest, ClearBrowsingData_Downloads) {
   // Initially there should be nothing in the downloads database.
   std::vector<DownloadCreateInfo> downloads;
   db_->QueryDownloads(&downloads);
-  EXPECT_EQ(0, downloads.size());
+  EXPECT_EQ(0U, downloads.size());
 
   // Keep track of these as we need to update them later during the test.
   DownloadID in_progress, removing;
@@ -337,19 +335,19 @@ TEST_F(HistoryTest, ClearBrowsingData_Downloads) {
 
   // Test to see if inserts worked.
   db_->QueryDownloads(&downloads);
-  EXPECT_EQ(8, downloads.size());
+  EXPECT_EQ(8U, downloads.size());
 
   // Try removing from current timestamp. This should delete the one in the
   // future and one very recent one.
   db_->RemoveDownloadsBetween(now, Time());
   db_->QueryDownloads(&downloads);
-  EXPECT_EQ(6, downloads.size());
+  EXPECT_EQ(6U, downloads.size());
 
   // Try removing from two months ago. This should not delete items that are
   // 'in progress' or in 'removing' state.
   db_->RemoveDownloadsBetween(now - TimeDelta::FromDays(60), Time());
   db_->QueryDownloads(&downloads);
-  EXPECT_EQ(3, downloads.size());
+  EXPECT_EQ(3U, downloads.size());
 
   // Download manager converts to TimeT, which is lossy, so we do the same
   // for comparison.
@@ -372,7 +370,7 @@ TEST_F(HistoryTest, ClearBrowsingData_Downloads) {
   // Try removing from Time=0. This should delete all.
   db_->RemoveDownloadsBetween(Time(), Time());
   db_->QueryDownloads(&downloads);
-  EXPECT_EQ(0, downloads.size());
+  EXPECT_EQ(0U, downloads.size());
 }
 
 TEST_F(HistoryTest, AddPage) {
@@ -406,9 +404,9 @@ TEST_F(HistoryTest, AddPageSameTimes) {
 
   Time now = Time::Now();
   const GURL test_urls[] = {
-    GURL(L"http://timer.first.page/"),
-    GURL(L"http://timer.second.page/"),
-    GURL(L"http://timer.third.page/"),
+    GURL("http://timer.first.page/"),
+    GURL("http://timer.second.page/"),
+    GURL("http://timer.third.page/"),
   };
 
   // Make sure that two pages added at the same time with no intervening
@@ -444,9 +442,9 @@ TEST_F(HistoryTest, AddRedirect) {
   history_service_ = history;
   ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
-  const wchar_t* first_sequence[] = {
-    L"http://first.page/",
-    L"http://second.page/"};
+  const char* first_sequence[] = {
+    "http://first.page/",
+    "http://second.page/"};
   int first_count = arraysize(first_sequence);
   HistoryService::RedirectList first_redirects;
   for (int i = 0; i < first_count; i++)
@@ -461,8 +459,8 @@ TEST_F(HistoryTest, AddRedirect) {
   // LINK when we added the original URL, and a referrer of nowhere (0).
   EXPECT_TRUE(QueryURL(history, first_redirects[0]));
   EXPECT_EQ(1, query_url_row_.visit_count());
-  ASSERT_EQ(1, query_url_visits_.size());
-  __int64 first_visit = query_url_visits_[0].visit_id;
+  ASSERT_EQ(1U, query_url_visits_.size());
+  int64 first_visit = query_url_visits_[0].visit_id;
   EXPECT_EQ(PageTransition::LINK |
             PageTransition::CHAIN_START, query_url_visits_[0].transition);
   EXPECT_EQ(0, query_url_visits_[0].referring_visit);  // No referrer.
@@ -471,8 +469,8 @@ TEST_F(HistoryTest, AddRedirect) {
   // first page.
   EXPECT_TRUE(QueryURL(history, first_redirects[1]));
   EXPECT_EQ(1, query_url_row_.visit_count());
-  ASSERT_EQ(1, query_url_visits_.size());
-  __int64 second_visit = query_url_visits_[0].visit_id;
+  ASSERT_EQ(1U, query_url_visits_.size());
+  int64 second_visit = query_url_visits_[0].visit_id;
   EXPECT_EQ(PageTransition::SERVER_REDIRECT |
             PageTransition::CHAIN_END, query_url_visits_[0].transition);
   EXPECT_EQ(first_visit, query_url_visits_[0].referring_visit);
@@ -480,7 +478,7 @@ TEST_F(HistoryTest, AddRedirect) {
   // Check that the redirect finding function successfully reports it.
   saved_redirects_.clear();
   QueryRedirectsFrom(history, first_redirects[0]);
-  ASSERT_EQ(1, saved_redirects_.size());
+  ASSERT_EQ(1U, saved_redirects_.size());
   EXPECT_EQ(first_redirects[1], saved_redirects_[0]);
 
   // Now add a client redirect from that second visit to a third, client
@@ -504,7 +502,7 @@ TEST_F(HistoryTest, AddRedirect) {
   // The final page should be set as a client redirect from the previous visit.
   EXPECT_TRUE(QueryURL(history, second_redirects[1]));
   EXPECT_EQ(1, query_url_row_.visit_count());
-  ASSERT_EQ(1, query_url_visits_.size());
+  ASSERT_EQ(1U, query_url_visits_.size());
   EXPECT_EQ(PageTransition::CLIENT_REDIRECT |
             PageTransition::CHAIN_END, query_url_visits_[0].transition);
   EXPECT_EQ(second_visit, query_url_visits_[0].referring_visit);
@@ -559,7 +557,7 @@ TEST_F(HistoryTest, SetTitle) {
   ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
 
   // Add a URL.
-  const GURL existing_url(L"http://www.google.com/");
+  const GURL existing_url("http://www.google.com/");
   history->AddPage(existing_url);
 
   // Set some title.
@@ -571,7 +569,7 @@ TEST_F(HistoryTest, SetTitle) {
   EXPECT_EQ(existing_title, query_url_row_.title());
 
   // set a title on a nonexistent page
-  const GURL nonexistent_url(L"http://news.google.com/");
+  const GURL nonexistent_url("http://news.google.com/");
   const std::wstring nonexistent_title(L"Google News");
   history->SetPageTitle(nonexistent_url, nonexistent_title);
 
@@ -605,7 +603,7 @@ TEST_F(HistoryTest, Segments) {
   // Wait for processing.
   MessageLoop::current()->Run();
 
-  EXPECT_EQ(page_usage_data_->size(), 1);
+  EXPECT_EQ(page_usage_data_->size(), 1U);
   EXPECT_TRUE(page_usage_data_[0]->GetURL() == existing_url);
   EXPECT_DOUBLE_EQ(3.0, page_usage_data_[0]->GetScore());
 
@@ -624,7 +622,7 @@ TEST_F(HistoryTest, Segments) {
   MessageLoop::current()->Run();
 
   // Make sure we still have one segment.
-  EXPECT_EQ(page_usage_data_->size(), 1);
+  EXPECT_EQ(page_usage_data_->size(), 1U);
   EXPECT_TRUE(page_usage_data_[0]->GetURL() == existing_url);
 
   // Add a page linked from existing_url.
@@ -641,7 +639,7 @@ TEST_F(HistoryTest, Segments) {
   MessageLoop::current()->Run();
 
   // Make sure we still have one segment.
-  EXPECT_EQ(page_usage_data_->size(), 1);
+  EXPECT_EQ(page_usage_data_->size(), 1U);
   EXPECT_TRUE(page_usage_data_[0]->GetURL() == existing_url);
 
   // However, the score should have increased.
@@ -686,7 +684,7 @@ TEST_F(HistoryTest, Thumbnails) {
                               &HistoryTest::OnThumbnailDataAvailable)));
   thumbnail_data_.clear();
   MessageLoop::current()->Run();
-  EXPECT_EQ(0, thumbnail_data_.size());
+  EXPECT_EQ(0U, thumbnail_data_.size());
 
   // Request the thumbnail and cancel the request..
   got_thumbnail_callback_ = false;
@@ -766,10 +764,6 @@ HistoryAddPageArgs* MakeAddArgs(const char* url) {
   return MakeAddArgs(GURL(url));
 }
 
-}  // namespace
-
-namespace {
-
 // A HistoryDBTask implementation. Each time RunOnDBThread is invoked
 // invoke_count is increment. When invoked kWantInvokeCount times, true is
 // returned from RunOnDBThread which should stop RunOnDBThread from being
@@ -777,7 +771,7 @@ namespace {
 // true.
 class HistoryDBTaskImpl : public HistoryDBTask {
  public:
-  static const int kWantInvokeCount = 2;
+  static const int kWantInvokeCount;
 
   HistoryDBTaskImpl() : invoke_count(0), done_invoked(false) {}
   virtual ~HistoryDBTaskImpl() {}
@@ -797,6 +791,9 @@ class HistoryDBTaskImpl : public HistoryDBTask {
  private:
   DISALLOW_EVIL_CONSTRUCTORS(HistoryDBTaskImpl);
 };
+
+// static
+const int HistoryDBTaskImpl::kWantInvokeCount = 2;
 
 }  // namespace
 
