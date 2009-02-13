@@ -151,6 +151,15 @@ public:
     // as a string.
     ScriptValue evaluate(const ScriptSourceCode&);
 
+    // JSC has a WindowShell object, but for V8, the ScriptController
+    // is the WindowShell.
+    bool haveWindowShell() const { return true; }
+
+    // Masquerade 'this' as the windowShell.
+    // This is a bit of a hack, but provides reasonable compatibility 
+    // with what JSC does as well.
+    ScriptController* windowShell() { return this; }
+
     void disposeJSResult(JSResult result);
     void collectGarbage();
 
@@ -166,7 +175,6 @@ public:
 
     PassScriptInstance createScriptInstanceForWidget(Widget*);
 
-    void clearPluginObjects();
     void disconnectFrame();
 
     // Check if the javascript engine has been initialized.

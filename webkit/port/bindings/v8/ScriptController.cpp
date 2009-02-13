@@ -120,7 +120,12 @@ ScriptController::~ScriptController()
 
 void ScriptController::clearScriptObjects()
 {
-    // TODO(eseidel): JSC handles binding root objects here, why don't we?
+    PluginObjectMap::iterator it = m_pluginObjects.begin();
+    for (; it != m_pluginObjects.end(); ++it) {
+        _NPN_UnregisterObject(it->second);
+        NPN_ReleaseObject(it->second);
+    }
+    m_pluginObjects.clear();
 
 #if ENABLE(NETSCAPE_PLUGIN_API)
     if (m_windowScriptNPObject) {
@@ -141,16 +146,6 @@ void ScriptController::updateSecurityOrigin()
 void ScriptController::updatePlatformScriptObjects()
 {
     notImplemented();
-}
-
-void ScriptController::clearPluginObjects()
-{
-    PluginObjectMap::iterator it = m_pluginObjects.begin();
-    for (; it != m_pluginObjects.end(); ++it) {
-        _NPN_UnregisterObject(it->second);
-        NPN_ReleaseObject(it->second);
-    }
-    m_pluginObjects.clear();
 }
 
 // Disconnect the proxy from its owner frame;
