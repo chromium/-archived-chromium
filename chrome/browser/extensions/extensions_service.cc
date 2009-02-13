@@ -18,6 +18,9 @@
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
+#if defined(OS_WIN)
+#include "chrome/common/win_util.h"
+#endif
 
 // ExtensionsService
 
@@ -128,11 +131,19 @@ void ExtensionsService::OnExtensionLoadError(const std::string& error) {
   // TODO(aa): Print the error message out somewhere better. I think we are
   // going to need some sort of 'extension inspector'.
   LOG(WARNING) << error;
+#if defined(OS_WIN)
+  win_util::MessageBox(NULL, UTF8ToWide(error),
+      L"Extension load error", MB_OK | MB_SETFOREGROUND);
+#endif
 }
 
 void ExtensionsService::OnExtensionInstallError(const std::string& error) {
   // TODO(erikkay): Print the error message out somewhere better.
   LOG(WARNING) << error;
+#if defined(OS_WIN)
+  win_util::MessageBox(NULL, UTF8ToWide(error),
+      L"Extension load error", MB_OK | MB_SETFOREGROUND);
+#endif
 }
 
 void ExtensionsService::OnExtensionInstalled(FilePath path) {
