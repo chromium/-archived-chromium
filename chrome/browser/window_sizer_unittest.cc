@@ -48,7 +48,7 @@ class TestMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
   virtual gfx::Rect GetPrimaryMonitorBounds() const {
     return monitor_bounds_[0];
   }
-  virtual gfx::Rect GetMonitorBoundsMatching(
+  virtual gfx::Rect GetMonitorWorkingRectMatching(
       const gfx::Rect& match_rect) const {
     return GetWorkingRectAt(GetMonitorIndexMatchingBounds(match_rect));
   }

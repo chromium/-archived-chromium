@@ -28,40 +28,28 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
 
   // Overridden from WindowSizer::MonitorInfoProvider:
   virtual gfx::Rect GetPrimaryMonitorWorkingRect() const {
-    HMONITOR monitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFO monitor_info;
-    monitor_info.cbSize = sizeof(monitor_info);
-    GetMonitorInfo(monitor, &monitor_info);
-    return gfx::Rect(monitor_info.rcWork);
+    return gfx::Rect(GetMonitorInfoForMonitor(MonitorFromWindow(NULL,
+        MONITOR_DEFAULTTOPRIMARY)).rcWork);
   }
 
   virtual gfx::Rect GetPrimaryMonitorBounds() const {
-    HMONITOR monitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFO monitor_info;
-    monitor_info.cbSize = sizeof(monitor_info);
-    GetMonitorInfo(monitor, &monitor_info);
-    return gfx::Rect(monitor_info.rcMonitor);
+    return gfx::Rect(GetMonitorInfoForMonitor(MonitorFromWindow(NULL,
+        MONITOR_DEFAULTTOPRIMARY)).rcMonitor);
   }
 
-  virtual gfx::Rect GetMonitorBoundsMatching(
+  virtual gfx::Rect GetMonitorWorkingRectMatching(
       const gfx::Rect& match_rect) const {
     CRect other_bounds_crect = match_rect.ToRECT();
-    HMONITOR monitor =
-        MonitorFromRect(&other_bounds_crect, MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFO monitor_info;
-    monitor_info.cbSize = sizeof(monitor_info);
-    GetMonitorInfo(monitor, &monitor_info);
+    MONITORINFO monitor_info = GetMonitorInfoForMonitor(MonitorFromRect(
+        &other_bounds_crect, MONITOR_DEFAULTTOPRIMARY));
     return gfx::Rect(monitor_info.rcWork);
   }
 
   virtual gfx::Point GetBoundsOffsetMatching(
       const gfx::Rect& match_rect) const {
     CRect other_bounds_crect = match_rect.ToRECT();
-    HMONITOR monitor =
-        MonitorFromRect(&other_bounds_crect, MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFO monitor_info;
-    monitor_info.cbSize = sizeof(monitor_info);
-    GetMonitorInfo(monitor, &monitor_info);
+    MONITORINFO monitor_info = GetMonitorInfoForMonitor(MonitorFromRect(
+        &other_bounds_crect, MONITOR_DEFAULTTOPRIMARY));
     return gfx::Point(monitor_info.rcWork.left - monitor_info.rcMonitor.left,
                       monitor_info.rcWork.top - monitor_info.rcMonitor.top);
   }
@@ -89,6 +77,13 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
     GetMonitorInfo(monitor, &info);
     working_rects->push_back(gfx::Rect(info.rcWork));
     return TRUE;
+  }
+
+  static MONITORINFO GetMonitorInfoForMonitor(HMONITOR monitor) {
+    MONITORINFO monitor_info;
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(monitor, &monitor_info);
+    return monitor_info;
   }
 
   std::vector<gfx::Rect> working_rects_;
@@ -307,7 +302,7 @@ void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
   // Find the size of the work area of the monitor that intersects the bounds
   // of the anchor window.
   gfx::Rect work_area =
-      monitor_info_provider_->GetMonitorBoundsMatching(other_bounds);
+      monitor_info_provider_->GetMonitorWorkingRectMatching(other_bounds);
 
   // If height or width are 0, reset to the default size.
   gfx::Rect default_bounds;

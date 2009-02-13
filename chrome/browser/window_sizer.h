@@ -44,7 +44,7 @@ class WindowSizer {
 
     // Returns the bounds of the working rect of the monitor that most closely
     // intersects the provided bounds.
-    virtual gfx::Rect GetMonitorBoundsMatching(
+    virtual gfx::Rect GetMonitorWorkingRectMatching(
         const gfx::Rect& match_rect) const = 0;
 
     // Returns the delta between the working rect and the monitor size of the
