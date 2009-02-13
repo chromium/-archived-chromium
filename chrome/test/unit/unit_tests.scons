@@ -367,6 +367,12 @@ if not env.Bit('windows'):
       '$TARGET_ROOT/grit_derived_sources/webkit_resources.res',
   )
 
+if env.Bit('posix'):
+  # POSIX only unittests
+  input_files.Append(
+      '$CHROME_DIR/common/file_descriptor_set_unittest.cc'
+  )
+
 if not env.Bit('windows'):
   # TODO(port): Port these.
   input_files.Remove(
