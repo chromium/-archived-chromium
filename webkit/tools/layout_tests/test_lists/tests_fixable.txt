@@ -337,7 +337,7 @@ LINUX : LayoutTests/fast/compact/001.html = FAIL
 LINUX : LayoutTests/fast/compact/002.html = FAIL
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 MAC : LayoutTests/fast/dom/prototype-chain.html = FAIL
-MAC LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
+LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
 MAC : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 MAC : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
@@ -1378,6 +1378,8 @@ MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-85-t.svg = FAIL PASS
+// This next one seems to be timing related (passes some times)
+MAC DEBUG : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL PASS
 
 // These may be similar timing issue as above.
 MAC : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
@@ -1703,7 +1705,6 @@ LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-07-t.svg = PASS FAIL
 // Misc failures:
 WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
-MAC DEBUG : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
 LINUX : LayoutTests/svg/custom/getTransformToElement.svg = FAIL
 LINUX : LayoutTests/svg/custom/use-transform.svg = FAIL
@@ -1715,23 +1716,26 @@ LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
 LayoutTests/editing/selection/5354455-1.html = FAIL
 
 // Regressions from WebKit merge to 40864
-LayoutTests/fast/block/positioning/001.html = FAIL
-LayoutTests/fast/dom/getBoundingClientRect.html = FAIL
+WIN LINUX : LayoutTests/fast/block/positioning/001.html = FAIL
+WIN LINUX : LayoutTests/fast/dom/getBoundingClientRect.html = FAIL
 LayoutTests/fast/dom/getClientRects.html = FAIL
 LayoutTests/fast/dom/navigator-detached-no-crash.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
-LayoutTests/fast/text/line-breaks.html = FAIL
+WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
 // Prior to the merge, the two wagon wheels were exactly the same.
 // Now the left one is slightly different.
-LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
-WIN MAC : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
-WIN MAC : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
+WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
+WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
+WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 // Upstream dumprendertree changes caused the expected to change.
 // Now our baseline is out of date, and we differ from Mac expected on the
 // caret position in the last line of the text output.
-LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
+WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
 // Shading differences.
-LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
+WIN LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 LayoutTests/fast/loader/frame-creation-removal.html = CRASH
 chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 
+// Sharted showing up the mac build bots on 02/16/09
+MAC : LayoutTests/fast/events/overflow-events.html = FAIL
+MAC DEBUG : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
