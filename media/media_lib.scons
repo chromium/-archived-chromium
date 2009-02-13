@@ -46,6 +46,8 @@ input_files = ChromeFileList([
     'filters/audio_renderer_impl.h',
     'filters/file_data_source.cc',
     'filters/file_data_source.h',
+    'filters/null_audio_renderer.cc',
+    'filters/null_audio_renderer.h',
   ]),
   MSVSFilter('audio', [
     'audio/win/audio_manager_win.h',
