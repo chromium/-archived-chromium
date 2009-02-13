@@ -60,7 +60,6 @@ if env.Bit('linux'):
   # TODO(port): Port these.
   input_files.Remove(
       'debugger_contents.cc',
-      'debugger_shell.cc',
       'debugger_view.cc',
       'debugger_window.cc',
   )
@@ -71,7 +70,6 @@ if env.Bit('mac'):
       'debugger_contents.cc',
       'debugger_host_impl.cpp',
       'debugger_node.cc',
-      'debugger_shell.cc',
       'debugger_view.cc',
       'debugger_window.cc',
   )
