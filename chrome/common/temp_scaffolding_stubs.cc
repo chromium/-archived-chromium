@@ -20,6 +20,7 @@
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
+#include "chrome/browser/memory_details.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
@@ -489,3 +490,11 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
 }
 }
 #endif
+
+MemoryDetails::MemoryDetails() {
+  NOTIMPLEMENTED();
+}
+
+void MemoryDetails::StartFetch() {
+  NOTIMPLEMENTED();
+}

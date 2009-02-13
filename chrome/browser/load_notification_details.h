@@ -23,10 +23,10 @@ class LoadNotificationDetails {
                           NavigationController* controller,
                           int session_index)
       : url_(url),
-        origin_(origin),
         load_time_(load_time),
-        controller_(controller),
-        session_index_(session_index) {}
+        session_index_(session_index),
+        origin_(origin),
+        controller_(controller) {}
 
   ~LoadNotificationDetails() {}
 
@@ -45,7 +45,7 @@ class LoadNotificationDetails {
 
   LoadNotificationDetails() {}
 
-  DISALLOW_EVIL_CONSTRUCTORS(LoadNotificationDetails);
+  DISALLOW_COPY_AND_ASSIGN(LoadNotificationDetails);
 };
 
 #endif  // CHROME_BROWSER_LOAD_NOTIFICATION_DETAILS_H__

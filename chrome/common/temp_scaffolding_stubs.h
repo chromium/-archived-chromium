@@ -280,18 +280,6 @@ class SessionRestore {
   static size_t num_tabs_to_load_;
 };
 
-class MetricsService {
- public:
-  MetricsService() { }
-  ~MetricsService() { }
-  void Start() { NOTIMPLEMENTED(); }
-  void StartRecordingOnly() { NOTIMPLEMENTED(); }
-  void Stop() { NOTIMPLEMENTED(); }
-  void SetUserPermitsUpload(bool enabled) { NOTIMPLEMENTED(); }
-  void RecordCleanShutdown() { NOTIMPLEMENTED(); }
-  void RecordStartOfSessionEnd() { NOTIMPLEMENTED(); }
-};
-
 namespace browser {
 void RegisterAllPrefs(PrefService*, PrefService*);
 }
@@ -643,12 +631,6 @@ class ConfirmInfoBarDelegate : public InfoBarDelegate {
     BUTTON_OK,
     BUTTON_CANCEL
   };
-};
-
-class LoadNotificationDetails {
- public:
-  LoadNotificationDetails(const GURL&, PageTransition::Type,
-                          base::TimeDelta, NavigationController*, int) { }
 };
 
 class TabContents : public PageNavigator, public NotificationObserver {

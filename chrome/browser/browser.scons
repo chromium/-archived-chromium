@@ -719,7 +719,6 @@ if not env.Bit('windows'):
       'jankometer.cc',
       'login_prompt.cc',
       'memory_details.cc',
-      'metrics/metrics_service.cc',
       'modal_html_dialog_delegate.cc',
       'net/dns_global.cc',
       'net/dns_master.cc',

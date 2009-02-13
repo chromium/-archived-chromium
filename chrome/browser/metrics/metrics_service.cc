@@ -155,13 +155,16 @@
 //
 //------------------------------------------------------------------------------
 
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 
 #include "chrome/browser/metrics/metrics_service.h"
 
 #include "base/file_path.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "base/task.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -170,7 +173,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/memory_details.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url.h"
@@ -182,10 +184,17 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/installer/util/google_update_settings.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_flags.h"
 #include "third_party/bzip2/bzlib.h"
+
+#if defined(OS_POSIX)
+// TODO(port): Move these headers above as they are ported.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#else
+#include "chrome/browser/plugin_service.h"
+#include "chrome/installer/util/google_update_settings.h"
+#endif
 
 using base::Time;
 using base::TimeDelta;
@@ -615,6 +624,7 @@ void MetricsService::OnGetPluginListTaskComplete() {
 }
 
 std::string MetricsService::GenerateClientID() {
+#if defined(OS_WIN)
   const int kGUIDSize = 39;
 
   GUID guid;
@@ -627,6 +637,11 @@ std::string MetricsService::GenerateClientID() {
   DCHECK(result == kGUIDSize);
 
   return WideToUTF8(guid_string.substr(1, guid_string.length() - 2));
+#else
+  // TODO(port): Implement for Mac and linux.
+  NOTIMPLEMENTED();
+  return std::string();
+#endif
 }
 
 
@@ -780,7 +795,8 @@ void MetricsService::PushPendingLogTextToUnsentOngoingLogs() {
   if (!server_permits_upload_)
     return;
 
-  if (pending_log_text_.length() > kUploadLogAvoidRetransmitSize) {
+  if (pending_log_text_.length() >
+      static_cast<size_t>(kUploadLogAvoidRetransmitSize)) {
     UMA_HISTOGRAM_COUNTS(L"UMA.Large Accumulated Log Not Persisted",
                          static_cast<int>(pending_log_text_.length()));
     return;
@@ -1169,10 +1185,11 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
       StatusToString(status);
 
   // Provide boolean for error recovery (allow us to ignore response_code).
-  boolean discard_log = false;
+  bool discard_log = false;
 
   if (response_code != 200 &&
-      pending_log_text_.length() > kUploadLogAvoidRetransmitSize) {
+      pending_log_text_.length() >
+      static_cast<size_t>(kUploadLogAvoidRetransmitSize)) {
     UMA_HISTOGRAM_COUNTS(L"UMA.Large Rejected Log was Discarded",
                          static_cast<int>(pending_log_text_.length()));
     discard_log = true;
@@ -1413,8 +1430,6 @@ bool MetricsService::ProbabilityTest(double probability,
   // client_id_ we need in order to make a nice pseudorandomish
   // number in the range [0,denominator).  Too many digits is
   // fine.
-  int relevant_digits =
-      static_cast<int>(log10(static_cast<double>(denominator)) + 1.0);
 
   // n is the length of the client_id_ string
   size_t n = client_id_.size();
@@ -1775,8 +1790,8 @@ void MetricsService::AddProfileMetric(Profile* profile,
 }
 
 static bool IsSingleThreaded() {
-  static int thread_id = 0;
+  static PlatformThreadId thread_id = 0;
   if (!thread_id)
-    thread_id = GetCurrentThreadId();
-  return GetCurrentThreadId() == thread_id;
+    thread_id = PlatformThread::CurrentId();
+  return PlatformThread::CurrentId() == thread_id;
 }
