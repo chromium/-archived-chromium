@@ -25,7 +25,7 @@ deps = {
     "/trunk/deps/third_party/icu38@9252",
 
   "src/v8":
-    "http://v8.googlecode.com/svn/trunk@1243",
+    "http://v8.googlecode.com/svn/trunk@1266",
 
   "src/webkit/data/layout_tests/LayoutTests":
     Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),
