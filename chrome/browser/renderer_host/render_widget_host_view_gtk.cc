@@ -196,11 +196,15 @@ void RenderWidgetHostViewGtk::UpdateCursor(const WebCursor& cursor) {
 }
 
 void RenderWidgetHostViewGtk::UpdateCursorIfOverSelf() {
+  // Windows uses this to show the resizer arrow if the mouse is over the
+  // bottom-right corner.
   NOTIMPLEMENTED();
 }
 
 void RenderWidgetHostViewGtk::SetIsLoading(bool is_loading) {
-  NOTIMPLEMENTED();
+  // Windows tracks loading whether it's loading to switch the cursor
+  // out for the arrow+hourglass one.  We don't have such a cursor, so we just
+  // ignore this.
 }
 
 void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
