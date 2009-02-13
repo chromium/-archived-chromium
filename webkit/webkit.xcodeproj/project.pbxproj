@@ -645,7 +645,7 @@
 		938446270F16B0570075F4C5 /* SecurityOrigin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E918C0D7F3CC2001ECF42 /* SecurityOrigin.cpp */; };
 		938446280F16B0570075F4C5 /* SegmentedFontData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90390D7F3CC2001ECF42 /* SegmentedFontData.cpp */; };
 		938446290F16B0570075F4C5 /* SegmentedString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91D00D7F3CC3001ECF42 /* SegmentedString.cpp */; };
-		9384462A0F16B0570075F4C5 /* Selection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8B430D7F3AFA001ECF42 /* Selection.cpp */; };
+		9384462A0F16B0570075F4C5 /* VisibleSelection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8B430D7F3AFA001ECF42 /* VisibleSelection.cpp */; };
 		9384462B0F16B0570075F4C5 /* SelectionController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8B450D7F3AFA001ECF42 /* SelectionController.cpp */; };
 		9384462C0F16B0570075F4C5 /* SelectorNodeList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8A4E0D7F3A7C001ECF42 /* SelectorNodeList.cpp */; };
 		9384462D0F16B0570075F4C5 /* SetNodeAttributeCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8B470D7F3AFA001ECF42 /* SetNodeAttributeCommand.cpp */; };
@@ -1301,6 +1301,10 @@
 		A7FBE6100F1EC18A00BB13F2 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE60F0F1EC15D00BB13F2 /* EditorChromium.cpp */; };
 		A7FBE6600F1FDFF900BB13F2 /* WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7FBE65A0F1FDFDB00BB13F2 /* WebKitCSSMatrix.cpp */; };
 		AA3147AA7951CBFF1512D731 /* RenderBoxModelObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B85EBAF470DCB5F664CB69B1 /* RenderBoxModelObject.cpp */; };
+		AB7FC2370F44ED820083BB25 /* ClientRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB7FC2330F44ED820083BB25 /* ClientRect.cpp */; };
+		AB7FC2380F44ED820083BB25 /* ClientRectList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB7FC2350F44ED820083BB25 /* ClientRectList.cpp */; };
+		AB7FC24C0F44EF2A0083BB25 /* V8ClientRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB7FC2480F44EF2A0083BB25 /* V8ClientRect.cpp */; };
+		AB7FC24D0F44EF2A0083BB25 /* V8ClientRectList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB7FC24A0F44EF2A0083BB25 /* V8ClientRectList.cpp */; };
 		AB9552760F37AA2E0015C8FB /* webplugin_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB9552750F37AA2E0015C8FB /* webplugin_impl.cc */; };
 		AB9552AE0F37AC0B0015C8FB /* stacking_order_iterator.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB9552AD0F37AC0B0015C8FB /* stacking_order_iterator.cc */; };
 		ABF923090F3A388C009B64EC /* webplugin_delegate_impl_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405ED0D92E3FF0006B936 /* webplugin_delegate_impl_mac.cc */; };
@@ -2802,8 +2806,8 @@
 		7B5E8B400D7F3AFA001ECF42 /* RemoveNodePreservingChildrenCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RemoveNodePreservingChildrenCommand.h; sourceTree = "<group>"; };
 		7B5E8B410D7F3AFA001ECF42 /* ReplaceSelectionCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplaceSelectionCommand.cpp; sourceTree = "<group>"; };
 		7B5E8B420D7F3AFA001ECF42 /* ReplaceSelectionCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplaceSelectionCommand.h; sourceTree = "<group>"; };
-		7B5E8B430D7F3AFA001ECF42 /* Selection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Selection.cpp; sourceTree = "<group>"; };
-		7B5E8B440D7F3AFA001ECF42 /* Selection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Selection.h; sourceTree = "<group>"; };
+		7B5E8B430D7F3AFA001ECF42 /* VisibleSelection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VisibleSelection.cpp; sourceTree = "<group>"; };
+		7B5E8B440D7F3AFA001ECF42 /* VisibleSelection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisibleSelection.h; sourceTree = "<group>"; };
 		7B5E8B450D7F3AFA001ECF42 /* SelectionController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectionController.cpp; sourceTree = "<group>"; };
 		7B5E8B460D7F3AFA001ECF42 /* SelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionController.h; sourceTree = "<group>"; };
 		7B5E8B470D7F3AFA001ECF42 /* SetNodeAttributeCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetNodeAttributeCommand.cpp; sourceTree = "<group>"; };
@@ -4178,6 +4182,14 @@
 		AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyClients.h; sourceTree = "<group>"; };
 		AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FloatQuad.cpp; sourceTree = "<group>"; };
 		AB59A1610ECCBD560059F5F3 /* FloatQuad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatQuad.h; sourceTree = "<group>"; };
+		AB7FC2330F44ED820083BB25 /* ClientRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientRect.cpp; sourceTree = "<group>"; };
+		AB7FC2340F44ED820083BB25 /* ClientRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientRect.h; sourceTree = "<group>"; };
+		AB7FC2350F44ED820083BB25 /* ClientRectList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientRectList.cpp; sourceTree = "<group>"; };
+		AB7FC2360F44ED820083BB25 /* ClientRectList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientRectList.h; sourceTree = "<group>"; };
+		AB7FC2480F44EF2A0083BB25 /* V8ClientRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8ClientRect.cpp; sourceTree = "<group>"; };
+		AB7FC2490F44EF2A0083BB25 /* V8ClientRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8ClientRect.h; sourceTree = "<group>"; };
+		AB7FC24A0F44EF2A0083BB25 /* V8ClientRectList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8ClientRectList.cpp; sourceTree = "<group>"; };
+		AB7FC24B0F44EF2A0083BB25 /* V8ClientRectList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8ClientRectList.h; sourceTree = "<group>"; };
 		AB9552750F37AA2E0015C8FB /* webplugin_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webplugin_impl.cc; sourceTree = "<group>"; };
 		AB9552AD0F37AC0B0015C8FB /* stacking_order_iterator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stacking_order_iterator.cc; sourceTree = "<group>"; };
 		ABA23E6B0E9FC43700C96905 /* Navigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Navigator.cpp; sourceTree = "<group>"; };
@@ -5042,6 +5054,10 @@
 				7B5E89CE0D7F3A7C001ECF42 /* ClassNames.h */,
 				7B5E89CF0D7F3A7C001ECF42 /* ClassNodeList.cpp */,
 				7B5E89D00D7F3A7C001ECF42 /* ClassNodeList.h */,
+				AB7FC2330F44ED820083BB25 /* ClientRect.cpp */,
+				AB7FC2340F44ED820083BB25 /* ClientRect.h */,
+				AB7FC2350F44ED820083BB25 /* ClientRectList.cpp */,
+				AB7FC2360F44ED820083BB25 /* ClientRectList.h */,
 				7B5E89D10D7F3A7C001ECF42 /* Clipboard.cpp */,
 				7B5E89D20D7F3A7C001ECF42 /* Clipboard.h */,
 				7B5E89D30D7F3A7C001ECF42 /* ClipboardAccessPolicy.h */,
@@ -5281,8 +5297,6 @@
 				7B5E8B400D7F3AFA001ECF42 /* RemoveNodePreservingChildrenCommand.h */,
 				7B5E8B410D7F3AFA001ECF42 /* ReplaceSelectionCommand.cpp */,
 				7B5E8B420D7F3AFA001ECF42 /* ReplaceSelectionCommand.h */,
-				7B5E8B430D7F3AFA001ECF42 /* Selection.cpp */,
-				7B5E8B440D7F3AFA001ECF42 /* Selection.h */,
 				7B5E8B450D7F3AFA001ECF42 /* SelectionController.cpp */,
 				7B5E8B460D7F3AFA001ECF42 /* SelectionController.h */,
 				7B5E8B470D7F3AFA001ECF42 /* SetNodeAttributeCommand.cpp */,
@@ -5309,6 +5323,8 @@
 				7B5E8B5C0D7F3AFA001ECF42 /* visible_units.h */,
 				7B5E8B5D0D7F3AFA001ECF42 /* VisiblePosition.cpp */,
 				7B5E8B5E0D7F3AFA001ECF42 /* VisiblePosition.h */,
+				7B5E8B430D7F3AFA001ECF42 /* VisibleSelection.cpp */,
+				7B5E8B440D7F3AFA001ECF42 /* VisibleSelection.h */,
 				7B5E8B5F0D7F3AFA001ECF42 /* WrapContentsInDummySpanCommand.cpp */,
 				7B5E8B600D7F3AFA001ECF42 /* WrapContentsInDummySpanCommand.h */,
 			);
@@ -6933,6 +6949,10 @@
 				7B00914A0DAFEFE300F72082 /* V8CDATASection.h */,
 				7B00914B0DAFEFE300F72082 /* V8CharacterData.cpp */,
 				7B00914C0DAFEFE300F72082 /* V8CharacterData.h */,
+				AB7FC2480F44EF2A0083BB25 /* V8ClientRect.cpp */,
+				AB7FC2490F44EF2A0083BB25 /* V8ClientRect.h */,
+				AB7FC24A0F44EF2A0083BB25 /* V8ClientRectList.cpp */,
+				AB7FC24B0F44EF2A0083BB25 /* V8ClientRectList.h */,
 				7B00914D0DAFEFE300F72082 /* V8Clipboard.cpp */,
 				7B00914E0DAFEFE300F72082 /* V8Clipboard.h */,
 				7B00914F0DAFEFE300F72082 /* V8Comment.cpp */,
@@ -8318,6 +8338,8 @@
 				9384479F0F16B06E0075F4C5 /* V8CanvasRenderingContext2D.cpp in Sources */,
 				938447A00F16B06E0075F4C5 /* V8CDATASection.cpp in Sources */,
 				938447A10F16B06E0075F4C5 /* V8CharacterData.cpp in Sources */,
+				AB7FC24C0F44EF2A0083BB25 /* V8ClientRect.cpp in Sources */,
+				AB7FC24D0F44EF2A0083BB25 /* V8ClientRectList.cpp in Sources */,
 				938447A20F16B06E0075F4C5 /* V8Clipboard.cpp in Sources */,
 				938447A30F16B06E0075F4C5 /* V8Comment.cpp in Sources */,
 				938447A40F16B06E0075F4C5 /* V8Console.cpp in Sources */,
@@ -8682,6 +8704,8 @@
 				938444490F16B0570075F4C5 /* ChromiumDataObject.cpp in Sources */,
 				9384444A0F16B0570075F4C5 /* ClassNames.cpp in Sources */,
 				9384444B0F16B0570075F4C5 /* ClassNodeList.cpp in Sources */,
+				AB7FC2370F44ED820083BB25 /* ClientRect.cpp in Sources */,
+				AB7FC2380F44ED820083BB25 /* ClientRectList.cpp in Sources */,
 				9384444C0F16B0570075F4C5 /* Clipboard.cpp in Sources */,
 				9384444D0F16B0570075F4C5 /* ClipboardChromium.cpp in Sources */,
 				9384444E0F16B0570075F4C5 /* ClipboardEvent.cpp in Sources */,
@@ -9173,7 +9197,6 @@
 				938446270F16B0570075F4C5 /* SecurityOrigin.cpp in Sources */,
 				938446280F16B0570075F4C5 /* SegmentedFontData.cpp in Sources */,
 				938446290F16B0570075F4C5 /* SegmentedString.cpp in Sources */,
-				9384462A0F16B0570075F4C5 /* Selection.cpp in Sources */,
 				9384462B0F16B0570075F4C5 /* SelectionController.cpp in Sources */,
 				9384462C0F16B0570075F4C5 /* SelectorNodeList.cpp in Sources */,
 				9384462D0F16B0570075F4C5 /* SetNodeAttributeCommand.cpp in Sources */,
@@ -9452,6 +9475,7 @@
 				938447400F16B0570075F4C5 /* UnlinkCommand.cpp in Sources */,
 				938447410F16B0570075F4C5 /* visible_units.cpp in Sources */,
 				938447420F16B0570075F4C5 /* VisiblePosition.cpp in Sources */,
+				9384462A0F16B0570075F4C5 /* VisibleSelection.cpp in Sources */,
 				938447430F16B0570075F4C5 /* WebCoreKeyGenerator.m in Sources */,
 				938447440F16B0570075F4C5 /* WebCoreNSStringExtras.mm in Sources */,
 				938447450F16B0570075F4C5 /* WebCoreObjCExtras.mm in Sources */,

@@ -220,7 +220,6 @@ input_files = [
     '$WEBCORE_DIR/editing/RemoveNodeCommand.cpp',
     '$WEBCORE_DIR/editing/RemoveNodePreservingChildrenCommand.cpp',
     '$WEBCORE_DIR/editing/ReplaceSelectionCommand.cpp',
-    '$WEBCORE_DIR/editing/Selection.cpp',
     '$WEBCORE_DIR/editing/SelectionController.cpp',
     '$WEBCORE_DIR/editing/SetNodeAttributeCommand.cpp',
     #'$WEBCORE_DIR/editing/SmartReplace.cpp',
@@ -233,6 +232,7 @@ input_files = [
     '$WEBCORE_DIR/editing/UnlinkCommand.cpp',
     '$WEBCORE_DIR/editing/visible_units.cpp',
     '$WEBCORE_DIR/editing/VisiblePosition.cpp',
+    '$WEBCORE_DIR/editing/VisibleSelection.cpp',
     '$WEBCORE_DIR/editing/WrapContentsInDummySpanCommand.cpp',
 
     '$WEBCORE_DIR/history/BackForwardListChromium.cpp',
