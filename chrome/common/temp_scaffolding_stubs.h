@@ -479,6 +479,23 @@ namespace views {
 class AcceleratorHandler {
 };
 
+class TableModelObserver {
+ public:
+  virtual void OnModelChanged() = 0;
+  virtual void OnItemsChanged(int, int) = 0;
+  virtual void OnItemsAdded(int, int) = 0;
+  virtual void OnItemsRemoved(int, int) = 0;
+};
+
+class TableModel {
+ public:
+  int CompareValues(int row1, int row2, int column_id) {
+    NOTIMPLEMENTED();
+    return 0;
+  }
+  virtual int RowCount() = 0;
+};
+
 }  // namespace views
 
 //---------------------------------------------------------------------------

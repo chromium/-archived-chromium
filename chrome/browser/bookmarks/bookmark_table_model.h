@@ -6,7 +6,14 @@
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_TABLE_MODEL_H_
 
 #include "chrome/browser/bookmarks/bookmark_model.h"
+
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include "chrome/views/table_view.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 // BookmarkTableModel provides a view of the BookmarkModel as a TableModel.
 // Three variations are provided:
