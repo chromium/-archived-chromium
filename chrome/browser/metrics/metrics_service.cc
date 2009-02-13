@@ -1491,7 +1491,7 @@ void MetricsService::LogWindowChange(NotificationType type,
 
     default:
       NOTREACHED();
-      break;
+      return;
   }
 
   // TODO(brettw) we should have some kind of ID for the parent.
