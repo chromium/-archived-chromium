@@ -133,16 +133,8 @@ void InitExperiment(int* stored_value) {
   if (*stored_value)
     return;
 
-  srand(static_cast<int>(Time::Now().ToInternalValue()));
-  int option = rand() % 10;
-
-  // Values used by the current experiment are 1 through 4.
-  if (option > 2) {
-    // 70% will be here.
-    *stored_value = 1;
-  } else {
-    *stored_value = option + 2;
-  }
+  // Don't add more people to the experiment; send them to group 1.
+  *stored_value = 1;
 }
 
 }  // namespace
