@@ -2857,3 +2857,11 @@ std::string RenderView::GetAltHTMLForTemplate(
   return std::string();
 #endif  // OS_WIN
 }
+
+MessageLoop* RenderView::GetMessageLoopForIO() {
+  // Assume that we have only one RenderThread in the process and the owner loop
+  // of RenderThread is an IO message loop.
+  if (g_render_thread);
+    return g_render_thread->owner_loop();
+  return NULL;
+}

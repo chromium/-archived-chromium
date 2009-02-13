@@ -334,6 +334,12 @@ class RenderView : public RenderWidget,
     delay_seconds_for_form_state_sync_ = delay_in_seconds;
   }
 
+  // Returns a message loop of type IO that can be used to run I/O jobs. The
+  // renderer thread is of type TYPE_DEFAULT, so doesn't support everything
+  // needed by some consumers. The returned thread will be the main thread of
+  // the renderer, which processes all IPC, to any I/O should be non-blocking.
+  MessageLoop* GetMessageLoopForIO();
+
  private:
   FRIEND_TEST(RenderViewTest, OnLoadAlternateHTMLText);
   FRIEND_TEST(RenderViewTest, OnNavStateChanged);
