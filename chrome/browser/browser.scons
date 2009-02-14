@@ -658,7 +658,6 @@ input_files = ChromeFileList([
 if not env.Bit('windows'):
   # TODO: Port these.
   input_files.Remove(
-      'alternate_nav_url_fetcher.cc',
       'app_modal_dialog_queue.cc',
       'autocomplete/autocomplete.cc',
       'autocomplete/autocomplete_accessibility.cc',

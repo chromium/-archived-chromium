@@ -71,7 +71,7 @@ class AlternateNavURLFetcher : public NotificationObserver,
   NavigationController* controller_;
   State state_;
   bool navigated_to_entry_;
-  
+
   // The TabContents the InfoBarDelegate was added to.
   TabContents* infobar_contents_;
 

@@ -567,6 +567,7 @@
 		E4F325D10EE83B71002533CE /* ipc_tests.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBE0E9D4C9F009A6919 /* ipc_tests.cc */; };
 		E54EDFC97B4932925C31CB41 /* file_descriptor_set_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4590B61B84978823B2BADA68 /* file_descriptor_set_posix.cc */; };
 		E765478D55A73228BAD044E3 /* cert_store.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8570E9D4839009A6919 /* cert_store.cc */; };
+		E9104FE91402AE1783A22D93 /* alternate_nav_url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8240E9D4839009A6919 /* alternate_nav_url_fetcher.cc */; };
 		F081CEE97F8C75FEAF3D0FD2 /* jstemplate_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC70E9D4C9F009A6919 /* jstemplate_builder.cc */; };
 		F47CA1280F44AE0E00FFFAFB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B004E0E9D5464009A6919 /* libnet.a */; };
 		F47CA1290F44AE2800FFFAFB /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
@@ -5297,6 +5298,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9104FE91402AE1783A22D93 /* alternate_nav_url_fetcher.cc in Sources */,
 				4D7BFA1E0E9D48FD009A6919 /* archived_database.cc in Sources */,
 				E45075DC0F150A53003BE099 /* async_resource_handler.cc in Sources */,
 				ABFA33770F424E47008FCF5D /* audio_renderer_host.cc in Sources */,
