@@ -34,7 +34,21 @@ env.Append(
 if env.Bit('posix'):
   env.SConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
+      '$CHROME_SRC_DIR/build/using_v8.scons', # needed for shared link deps
+      '$LIBXSLT_DIR/using_libxslt.scons', # needed for shared link deps
   ], {'env':env})
+  # needed for shared link deps
+  env.Append(
+      LIBS = [
+        'JavaScriptCore_pcre',
+        'V8Bindings',
+        'WebCore',
+        'browser',
+        'port',
+        'renderer',
+        'sqlite',
+      ]
+  )
 
 # TODO(sgk):  convert into a using_*.scons pattern when we update WebKit.
 env.Append(
