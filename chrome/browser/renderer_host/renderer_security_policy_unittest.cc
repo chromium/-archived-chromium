@@ -33,6 +33,7 @@ TEST_F(RendererSecurityPolicyTest, IsWebSafeSchemeTest) {
   EXPECT_TRUE(p->IsWebSafeScheme("ftp"));
   EXPECT_TRUE(p->IsWebSafeScheme("data"));
   EXPECT_TRUE(p->IsWebSafeScheme("feed"));
+  EXPECT_TRUE(p->IsWebSafeScheme("chrome-extension"));
 
   EXPECT_FALSE(p->IsWebSafeScheme("registered-web-safe-scheme"));
   p->RegisterWebSafeScheme("registered-web-safe-scheme");
@@ -63,6 +64,7 @@ TEST_F(RendererSecurityPolicyTest, StandardSchemesTest) {
   EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("data:text/html,<b>Hi</b>")));
   EXPECT_TRUE(p->CanRequestURL(kRendererID,
                                GURL("view-source:http://www.google.com/")));
+  EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("chrome-extension://xy/z")));
 
   // Dangerous
   EXPECT_FALSE(p->CanRequestURL(kRendererID,

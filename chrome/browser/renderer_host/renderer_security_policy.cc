@@ -82,6 +82,7 @@ RendererSecurityPolicy::RendererSecurityPolicy() {
   RegisterWebSafeScheme("ftp");
   RegisterWebSafeScheme("data");
   RegisterWebSafeScheme("feed");
+  RegisterWebSafeScheme("chrome-extension");
 
   // We know about the following psuedo schemes and treat them specially.
   RegisterPseudoScheme("about");
