@@ -23,6 +23,21 @@
 
 static const int kRecvBufferSize = 4096;
 
+namespace {
+
+// NSS calls this if an incoming certificate is invalid.
+SECStatus OwnBadCertHandler(void* arg, PRFileDesc* socket) {
+  PRErrorCode err = PR_GetError();
+  LOG(INFO) << "server certificate is invalid; NSS error code " << err;
+  // Return SECSuccess to override the problem,
+  // or SECFailure to let the original function fail
+  // Chromium wants it to fail here, and may retry it later.
+  LOG(WARNING) << "TODO(dkegel): return SECFailure here";
+  return SECSuccess;
+}
+
+}  // anonymous namespace
+
 namespace net {
 
 // State machines are easier to debug if you log state transitions.
@@ -64,8 +79,6 @@ int NetErrorFromNSPRError(PRErrorCode err) {
     case SEC_ERROR_REVOKED_KEY:
       return ERR_CERT_REVOKED;
     case SEC_ERROR_UNKNOWN_ISSUER:
-    case SEC_ERROR_UNTRUSTED_CERT:
-    case SEC_ERROR_UNTRUSTED_ISSUER:
       return ERR_CERT_AUTHORITY_INVALID;
 
     default: {
@@ -106,7 +119,7 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocket* transport_socket,
       user_callback_(NULL),
       user_buf_(NULL),
       user_buf_len_(0),
-      server_cert_error_(0),
+      server_cert_status_(0),
       completed_handshake_(false),
       next_state_(STATE_NONE),
       nss_fd_(NULL),
@@ -229,12 +242,9 @@ void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
                   << " for cipherSuite " << channel_info.cipherSuite;
     }
   }
-  if (server_cert_error_ != net::OK)
-    ssl_info->SetCertError(server_cert_error_);
-  X509Certificate::OSCertHandle nss_cert = SSL_PeerCertificate(nss_fd_);
-  if (nss_cert)
-    ssl_info->cert = X509Certificate::CreateFromHandle(nss_cert,
-                         X509Certificate::SOURCE_FROM_NETWORK);
+  ssl_info->cert_status = server_cert_status_;
+  // TODO(port): implement X509Certificate so we can set the cert field!
+  // CERTCertificate *nssCert = SSL_PeerCertificate(nss_fd_);
   LeaveFunction("");
 }
 
@@ -391,19 +401,6 @@ int SSLClientSocketNSS::DoConnect() {
   return transport_->Connect(&io_callback_);
 }
 
-// static
-// NSS calls this if an incoming certificate is invalid.
-SECStatus SSLClientSocketNSS::OwnBadCertHandler(void* arg, PRFileDesc* socket) {
-  SSLClientSocketNSS* that = reinterpret_cast<SSLClientSocketNSS*>(arg);
-  PRErrorCode prerr = PR_GetError();
-  that->server_cert_error_ = NetErrorFromNSPRError(prerr);
-  LOG(INFO) << "server certificate is invalid; NSS error code " << prerr
-            << ", net error " << that->server_cert_error_;
-  // Return SECSuccess to override the problem.
-  // Chromium wants it to succeed here, and may abort the connection later.
-  return SECSuccess;
-}
-
 int SSLClientSocketNSS::DoConnectComplete(int result) {
   EnterFunction(result);
   if (result < 0)
@@ -482,7 +479,7 @@ int SSLClientSocketNSS::DoConnectComplete(int result) {
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
-  rv = SSL_BadCertHook(nss_fd_, OwnBadCertHandler, this);
+  rv = SSL_BadCertHook(nss_fd_, OwnBadCertHandler, NULL);
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
@@ -503,10 +500,11 @@ int SSLClientSocketNSS::DoHandshakeRead() {
   int rv = SSL_ForceHandshake(nss_fd_);
 
   if (rv == SECSuccess) {
-    net_error = server_cert_error_;
+    net_error = OK;
     // there's a callback for this, too
     completed_handshake_ = true;
-    // Done!
+    // Indicate we're ready to handle I/O.  Badly named?
+    GotoState(STATE_NONE);
   } else {
     PRErrorCode prerr = PR_GetError();
     net_error = NetErrorFromNSPRError(prerr);
@@ -515,9 +513,10 @@ int SSLClientSocketNSS::DoHandshakeRead() {
     if (net_error == ERR_IO_PENDING) {
       GotoState(STATE_HANDSHAKE_READ);
     } else {
-      server_cert_error_ = net_error;
+      server_cert_status_ = MapNetErrorToCertStatus(net_error);
       LOG(ERROR) << "handshake failed; NSS error code " << prerr
-                 << ", net_error " << net_error;
+                 << ", net_error " << net_error << ", server_cert_status "
+                 << server_cert_status_;
     }
   }
 

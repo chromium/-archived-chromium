@@ -180,14 +180,17 @@ TEST_F(URLRequestTest, GetTest) {
 }
 
 class HTTPSRequestTest : public testing::Test {
+ protected:
+  HTTPSRequestTest() : util_() {}
+
+  SSLTestUtil util_;
 };
 
 #if defined(OS_MACOSX)
-// ssl_client_socket_mac.cc crashes currently in GetSSLInfo
-// when called on a connection with an unrecognized certificate
-#define MAYBE_HTTPSGetTest   DISABLED_HTTPSGetTest
+// TODO(port): support temporary root cert on mac
+#define MAYBE_HTTPSGetTest DISABLED_HTTPSGetTest
 #else
-#define MAYBE_HTTPSGetTest   HTTPSGetTest
+#define MAYBE_HTTPSGetTest HTTPSGetTest
 #endif
 
 TEST_F(HTTPSRequestTest, MAYBE_HTTPSGetTest) {
@@ -196,9 +199,11 @@ TEST_F(HTTPSRequestTest, MAYBE_HTTPSGetTest) {
   // so this test doesn't really need to specify a document root.
   // But if it did, a good one would be net/data/ssl.
   scoped_refptr<HTTPSTestServer> server =
-      HTTPSTestServer::CreateGoodServer(L"net/data/ssl");
+      HTTPSTestServer::CreateServer(util_.kHostName, util_.kOKHTTPSPort,
+      L"net/data/ssl", util_.GetOKCertPath().ToWStringHack());
   ASSERT_TRUE(NULL != server.get());
 
+  EXPECT_TRUE(util_.CheckCATrusted());
   TestDelegate d;
   {
     TestURLRequest r(server->TestServerPage(""), &d);
@@ -216,8 +221,6 @@ TEST_F(HTTPSRequestTest, MAYBE_HTTPSGetTest) {
   DCHECK_EQ(url_request_metrics.object_count, 0);
 #endif
 }
-
-// TODO(dkegel): add test for expired and mismatched certificates here
 
 TEST_F(URLRequestTest, CancelTest) {
   TestDelegate d;
