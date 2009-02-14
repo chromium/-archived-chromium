@@ -9,20 +9,10 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/sessions/base_session_service.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
-
-#if defined(OS_POSIX)
-// TODO(port): get rid of this include. It's used just to provide declarations
-// and stub definitions for classes we encouter during the porting effort.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/sessions/base_session_service.h"
-#endif
 
 class Browser;
 class NavigationController;

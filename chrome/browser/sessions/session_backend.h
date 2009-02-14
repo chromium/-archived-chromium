@@ -9,15 +9,9 @@
 
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "chrome/browser/sessions/base_session_service.h"
 #include "chrome/browser/sessions/session_command.h"
 #include "net/base/file_stream.h"
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/sessions/base_session_service.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 class Pickle;
 

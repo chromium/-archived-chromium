@@ -64,7 +64,7 @@ class BaseSessionService : public CancelableRequestProvider,
       public CancelableRequest<InternalGetCommandsCallback> {
    public:
     explicit InternalGetCommandsRequest(CallbackType* callback)
-        : CancelableRequest(callback) {
+        : CancelableRequest<InternalGetCommandsCallback>(callback) {
     }
     virtual ~InternalGetCommandsRequest();
 

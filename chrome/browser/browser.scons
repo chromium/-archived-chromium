@@ -744,7 +744,6 @@ if not env.Bit('windows'):
       'safe_browsing/safe_browsing_blocking_page.cc',
       'sandbox_policy.cc',
       'search_engines/template_url_fetcher.cc',
-      'sessions/base_session_service.cc',
       'shell_integration.cc',
       'tab_contents/interstitial_page.cc',
       'tab_contents/native_ui_contents.cc',
