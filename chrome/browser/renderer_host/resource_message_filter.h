@@ -83,7 +83,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   int render_process_host_id() const { return render_process_host_id_;}
 
   base::ProcessHandle renderer_handle() const { return render_handle_;}
-  
+
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -154,12 +154,12 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetWindowRect(gfx::NativeViewId window, gfx::Rect *rect);
   void OnGetRootWindowRect(gfx::NativeViewId window, gfx::Rect *rect);
 #endif
-  void OnGetMimeTypeFromExtension(const std::wstring& ext,
+  void OnGetMimeTypeFromExtension(const FilePath::StringType& ext,
                                   std::string* mime_type);
-  void OnGetMimeTypeFromFile(const std::wstring& file_path,
+  void OnGetMimeTypeFromFile(const FilePath& file_path,
                              std::string* mime_type);
   void OnGetPreferredExtensionForMimeType(const std::string& mime_type,
-                                          std::wstring* ext);
+                                          FilePath::StringType* ext);
   void OnGetCPBrowsingContext(uint32* context);
   void OnDuplicateSection(base::SharedMemoryHandle renderer_handle,
                           base::SharedMemoryHandle* browser_handle);

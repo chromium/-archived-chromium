@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include "base/file_path.h"
+
 namespace net {
 
 // Encapsulates the platform-specific functionality in mime_util
@@ -14,12 +16,12 @@ class PlatformMimeUtil {
  public:
   // See documentation for base::GetPreferredExtensionForMimeType [mime_util.h]
   bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                        std::wstring* extension) const;
+                                        FilePath::StringType* extension) const;
  protected:
-  
+
   // Get the mime type (if any) that is associated with the file extension.
   // Returns true if a corresponding mime type exists.
-  bool GetPlatformMimeTypeFromExtension(const std::wstring& ext,
+  bool GetPlatformMimeTypeFromExtension(const FilePath::StringType& ext,
                                         std::string* mime_type) const;
 };
 

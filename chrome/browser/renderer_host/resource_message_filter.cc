@@ -545,17 +545,17 @@ void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
 #endif  // OS_WIN
 
 void ResourceMessageFilter::OnGetMimeTypeFromExtension(
-    const std::wstring& ext, std::string* mime_type) {
+    const FilePath::StringType& ext, std::string* mime_type) {
   net::GetMimeTypeFromExtension(ext, mime_type);
 }
 
 void ResourceMessageFilter::OnGetMimeTypeFromFile(
-    const std::wstring& file_path, std::string* mime_type) {
+    const FilePath& file_path, std::string* mime_type) {
   net::GetMimeTypeFromFile(file_path, mime_type);
 }
 
 void ResourceMessageFilter::OnGetPreferredExtensionForMimeType(
-    const std::string& mime_type, std::wstring* ext) {
+    const std::string& mime_type, FilePath::StringType* ext) {
   net::GetPreferredExtensionForMimeType(mime_type, ext);
 }
 

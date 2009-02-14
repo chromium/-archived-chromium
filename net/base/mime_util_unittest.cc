@@ -13,15 +13,15 @@ namespace {
 
 TEST(MimeUtilTest, ExtensionTest) {
   const struct {
-    const wchar_t* extension;
+    const FilePath::CharType* extension;
     const char* mime_type;
     bool valid;
   } tests[] = {
-    { L"png", "image/png", true },
-    { L"css", "text/css", true },
-    { L"pjp", "image/jpeg", true },
-    { L"pjpeg", "image/jpeg", true },
-    { L"not an extension / for sure", "", false },
+    { FILE_PATH_LITERAL("png"), "image/png", true },
+    { FILE_PATH_LITERAL("css"), "text/css", true },
+    { FILE_PATH_LITERAL("pjp"), "image/jpeg", true },
+    { FILE_PATH_LITERAL("pjpeg"), "image/jpeg", true },
+    { FILE_PATH_LITERAL("not an extension / for sure"), "", false },
   };
 
   std::string mime_type;
@@ -37,23 +37,24 @@ TEST(MimeUtilTest, ExtensionTest) {
 
 TEST(MimeUtilTest, FileTest) {
   const struct {
-    const wchar_t* file_path;
+    const FilePath::CharType* file_path;
     const char* mime_type;
     bool valid;
   } tests[] = {
-    { L"c:\\foo\\bar.css", "text/css", true },
-    { L"c:\\blah", "", false },
-    { L"/usr/local/bin/mplayer", "", false },
-    { L"/home/foo/bar.css", "text/css", true },
-    { L"/blah.", "", false },
-    { L"c:\\blah.", "", false },
+    { FILE_PATH_LITERAL("c:\\foo\\bar.css"), "text/css", true },
+    { FILE_PATH_LITERAL("c:\\blah"), "", false },
+    { FILE_PATH_LITERAL("/usr/local/bin/mplayer"), "", false },
+    { FILE_PATH_LITERAL("/home/foo/bar.css"), "text/css", true },
+    { FILE_PATH_LITERAL("/blah."), "", false },
+    { FILE_PATH_LITERAL("c:\\blah."), "", false },
   };
 
   std::string mime_type;
   bool rv;
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
-    rv = net::GetMimeTypeFromFile(tests[i].file_path, &mime_type);
+    rv = net::GetMimeTypeFromFile(FilePath(tests[i].file_path),
+                                  &mime_type);
     EXPECT_EQ(rv, tests[i].valid);
     if (rv)
       EXPECT_EQ(mime_type, tests[i].mime_type);

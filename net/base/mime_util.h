@@ -7,21 +7,24 @@
 
 #include <string>
 
+#include "base/file_path.h"
+
 namespace net {
 
 // Get the mime type (if any) that is associated with the given file extension.
 // Returns true if a corresponding mime type exists.
-bool GetMimeTypeFromExtension(const std::wstring& ext, std::string* mime_type);
+bool GetMimeTypeFromExtension(const FilePath::StringType& ext,
+                              std::string* mime_type);
 
 // Get the mime type (if any) that is associated with the given file.  Returns
 // true if a corresponding mime type exists.
-bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type);
+bool GetMimeTypeFromFile(const FilePath& file_path, std::string* mime_type);
 
 // Get the preferred extension (if any) associated with the given mime type.
 // Returns true if a corresponding file extension exists.  The extension is
 // returned without a prefixed dot, ex "html".
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      std::wstring* extension);
+                                      FilePath::StringType* extension);
 
 // Check to see if a particular MIME type is in our list.
 bool IsSupportedImageMimeType(const char* mime_type);

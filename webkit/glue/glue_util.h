@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/file_path.h"
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"
 
@@ -42,6 +43,9 @@ WebCore::String String16ToString(const string16& str);
 // the std::string is UTF-8, and convert as necessary.
 std::string StringToStdString(const WebCore::String& str);
 WebCore::String StdStringToString(const std::string& str);
+
+FilePath::StringType StringToFilePathString(const WebCore::String& str);
+WebCore::String FilePathStringToString(const FilePath::StringType& str);
 
 GURL KURLToGURL(const WebCore::KURL& url);
 WebCore::KURL GURLToKURL(const GURL& url);

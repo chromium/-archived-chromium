@@ -51,7 +51,12 @@ bool PluginStream::Open(const std::string &mime_type,
     char_mime_type = mime_type.c_str();
   } else {
     GURL gurl(stream_.url);
-    std::wstring path(UTF8ToWide(gurl.path()));
+
+#if defined(OS_WIN)
+    FilePath path(UTF8ToWide(gurl.path()));
+#elif defined(OS_POSIX)
+    FilePath path(gurl.path());
+#endif
     if (webkit_glue::GetMimeTypeFromFile(path, &temp_mime_type))
       char_mime_type = temp_mime_type.c_str();
   }

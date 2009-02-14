@@ -69,7 +69,12 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
     // Currently but three choices {"", "debugger.js", "debugger.css"}.
     // Map the extension to mime-type, defaulting to "text/html".
     std::string mime_type("text/html");
-    net::GetMimeTypeFromFile(ASCIIToWide(path), &mime_type);
+#if defined(OS_WIN)
+    FilePath file_path(ASCIIToWide(path));
+#elif defined(OS_POSIX)
+    FilePath file_path(path);
+#endif
+    net::GetMimeTypeFromFile(file_path, &mime_type);
     return mime_type;
   }
 

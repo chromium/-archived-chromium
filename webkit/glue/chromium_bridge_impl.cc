@@ -277,7 +277,7 @@ bool ChromiumBridge::isSupportedNonImageMIMEType(const char* mime_type) {
 
 bool ChromiumBridge::matchesMIMEType(const String& pattern,
                                      const String& type) {
-  return net::MatchesMimeType(webkit_glue::StringToStdString(pattern), 
+  return net::MatchesMimeType(webkit_glue::StringToStdString(pattern),
                               webkit_glue::StringToStdString(type));
 }
 
@@ -286,8 +286,8 @@ String ChromiumBridge::mimeTypeForExtension(const String& ext) {
     return String();
 
   std::string type;
-  webkit_glue::GetMimeTypeFromExtension(webkit_glue::StringToStdWString(ext),
-                                        &type);
+  webkit_glue::GetMimeTypeFromExtension(
+      webkit_glue::StringToFilePathString(ext), &type);
   return webkit_glue::StdStringToString(type);
 }
 
@@ -296,8 +296,8 @@ String ChromiumBridge::mimeTypeFromFile(const String& file_path) {
     return String();
 
   std::string type;
-  webkit_glue::GetMimeTypeFromFile(webkit_glue::StringToStdWString(file_path),
-                                   &type);
+  webkit_glue::GetMimeTypeFromFile(
+      FilePath(webkit_glue::StringToFilePathString(file_path)), &type);
   return webkit_glue::StdStringToString(type);
 }
 
@@ -305,10 +305,10 @@ String ChromiumBridge::preferredExtensionForMIMEType(const String& mime_type) {
   if (mime_type.isEmpty())
     return String();
 
-  std::wstring stdext;
+  FilePath::StringType stdext;
   webkit_glue::GetPreferredExtensionForMimeType(
       webkit_glue::StringToStdString(mime_type), &stdext);
-  return webkit_glue::StdWStringToString(stdext);
+  return webkit_glue::FilePathStringToString(stdext);
 }
 
 // Plugin ---------------------------------------------------------------------

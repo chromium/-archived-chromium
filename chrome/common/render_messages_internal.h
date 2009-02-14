@@ -1037,14 +1037,14 @@ IPC_BEGIN_MESSAGES(ViewHost)
 
   // Sent to query MIME information.
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetMimeTypeFromExtension,
-                              std::wstring /* extension */,
+                              FilePath::StringType /* extension */,
                               std::string /* mime_type */)
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetMimeTypeFromFile,
-                              std::wstring /* file_path */,
+                              FilePath /* file_path */,
                               std::string /* mime_type */)
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetPreferredExtensionForMimeType,
                               std::string /* mime_type */,
-                              std::wstring /* extension */)
+                              FilePath::StringType /* extension */)
 
   // Get the CPBrowsingContext associated with the renderer sending this
   // message.

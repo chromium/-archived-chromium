@@ -9,7 +9,7 @@
 namespace net {
 
 bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
-    const std::wstring& ext, std::string* result) const {
+    const FilePath::StringType& ext, std::string* result) const {
   // The correct thing to do is to interact somehow with the freedesktop shared
   // mime info cache. Since Linux (and other traditional *IX systems) don't use
   // file extensions; they use mime types and have multiple ways of detecting
@@ -24,7 +24,7 @@ bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
 }
 
 bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
-    const std::string& mime_type, std::wstring* ext) const {
+    const std::string& mime_type, FilePath::StringType* ext) const {
   // Unlike GetPlatformMimeTypeFromExtension, this method doesn't have a
   // default list that it uses, but for now we are also returning false since
   // this doesn't really matter as much under Linux.

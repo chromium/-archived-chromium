@@ -13,17 +13,16 @@
 #include "base/string_util.h"
 
 using std::string;
-using std::wstring;
 
 namespace net {
 
 // Singleton utility class for mime types.
 class MimeUtil : public PlatformMimeUtil {
  public:
-  bool GetMimeTypeFromExtension(const std::wstring& ext,
+  bool GetMimeTypeFromExtension(const FilePath::StringType& ext,
                                 std::string* mime_type) const;
 
-  bool GetMimeTypeFromFile(const std::wstring& file_path,
+  bool GetMimeTypeFromFile(const FilePath& file_path,
                            std::string* mime_type) const;
 
   bool IsSupportedImageMimeType(const char* mime_type) const;
@@ -111,7 +110,7 @@ static const char* FindMimeType(const MimeInfo* mappings,
   return NULL;
 }
 
-bool MimeUtil::GetMimeTypeFromExtension(const wstring& ext,
+bool MimeUtil::GetMimeTypeFromExtension(const FilePath::StringType& ext,
                                         string* result) const {
   // We implement the same algorithm as Mozilla for mapping a file extension to
   // a mime type.  That is, we first check a hard-coded list (that cannot be
@@ -119,11 +118,15 @@ bool MimeUtil::GetMimeTypeFromExtension(const wstring& ext,
   // Finally, we scan a secondary hard-coded list to catch types that we can
   // deduce but that we also want to allow the OS to override.
 
-  string ext_utf8 = WideToUTF8(ext);
+#if defined(OS_WIN)
+  string ext_narrow_str = WideToUTF8(ext);
+#elif defined(OS_POSIX)
+  const string& ext_narrow_str = ext;
+#endif
   const char* mime_type;
 
   mime_type = FindMimeType(primary_mappings, arraysize(primary_mappings),
-                           ext_utf8.c_str());
+                           ext_narrow_str.c_str());
   if (mime_type) {
     *result = mime_type;
     return true;
@@ -133,7 +136,7 @@ bool MimeUtil::GetMimeTypeFromExtension(const wstring& ext,
     return true;
 
   mime_type = FindMimeType(secondary_mappings, arraysize(secondary_mappings),
-                           ext_utf8.c_str());
+                           ext_narrow_str.c_str());
   if (mime_type) {
     *result = mime_type;
     return true;
@@ -142,14 +145,12 @@ bool MimeUtil::GetMimeTypeFromExtension(const wstring& ext,
   return false;
 }
 
-bool MimeUtil::GetMimeTypeFromFile(const wstring& file_path,
+bool MimeUtil::GetMimeTypeFromFile(const FilePath& file_path,
                                    string* result) const {
-  // TODO(ericroman): this doesn't work properly with paths like
-  // /home/foo/.ssh/known_hosts
-  wstring::size_type dot = file_path.find_last_of('.');
-  if (dot == wstring::npos)
+  FilePath::StringType file_name_str = file_path.Extension();
+  if (file_name_str.empty())
     return false;
-  return GetMimeTypeFromExtension(file_path.substr(dot + 1), result);
+  return GetMimeTypeFromExtension(file_name_str.substr(1), result);
 }
 
 // From WebKit's WebCore/platform/MIMETypeRegistry.cpp:
@@ -292,16 +293,17 @@ static MimeUtil* GetMimeUtil() {
   return Singleton<MimeUtil>::get();
 }
 
-bool GetMimeTypeFromExtension(const std::wstring& ext, std::string* mime_type) {
+bool GetMimeTypeFromExtension(const FilePath::StringType& ext,
+                              std::string* mime_type) {
   return GetMimeUtil()->GetMimeTypeFromExtension(ext, mime_type);
 }
 
-bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type) {
+bool GetMimeTypeFromFile(const FilePath& file_path, std::string* mime_type) {
   return GetMimeUtil()->GetMimeTypeFromFile(file_path, mime_type);
 }
 
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      std::wstring* extension) {
+                                      FilePath::StringType* extension) {
   return GetMimeUtil()->GetPreferredExtensionForMimeType(mime_type, extension);
 }
 

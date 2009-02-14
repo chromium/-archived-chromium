@@ -12,11 +12,11 @@
 namespace net {
 
 bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
-    const std::wstring& ext, std::string* result) const {
-  std::wstring ext_nodot = ext;
+    const FilePath::StringType& ext, std::string* result) const {
+  std::string ext_nodot = ext;
   if (ext_nodot.length() >= 1 && ext_nodot[0] == L'.')
     ext_nodot.erase(ext_nodot.begin());
-  scoped_cftyperef<CFStringRef> ext_ref(base::SysWideToCFStringRef(ext_nodot));
+  scoped_cftyperef<CFStringRef> ext_ref(base::SysUTF8ToCFStringRef(ext_nodot));
   if (!ext_ref)
     return false;
   scoped_cftyperef<CFStringRef> uti(
@@ -35,7 +35,7 @@ bool PlatformMimeUtil::GetPlatformMimeTypeFromExtension(
 }
 
 bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
-    const std::string& mime_type, std::wstring* ext) const {
+    const std::string& mime_type, FilePath::StringType* ext) const {
   scoped_cftyperef<CFStringRef> mime_ref(base::SysUTF8ToCFStringRef(mime_type));
   if (!mime_ref)
     return false;
@@ -55,7 +55,7 @@ bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
                                          CFSTR(".%@"),
                                          ext_ref.get()));
 
-  *ext = base::SysCFStringRefToWide(ext_ref);
+  *ext = base::SysCFStringRefToUTF8(ext_ref);
   return true;
 }
 
