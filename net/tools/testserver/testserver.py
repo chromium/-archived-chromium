@@ -77,6 +77,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def __init__(self, request, client_address, socket_server):
     self._connect_handlers = [
       self.RedirectConnectHandler,
+      self.ServerAuthConnectHandler,
       self.DefaultConnectResponseHandler]
     self._get_handlers = [
       self.KillHandler,
@@ -912,6 +913,21 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.end_headers()
     return True
 
+  def ServerAuthConnectHandler(self):
+    """Sends a 401 to the CONNECT request for www.server-auth.com. This
+    response doesn't make sense because the proxy server cannot request
+    server authentication."""
+
+    if (self.path.find("www.server-auth.com") < 0):
+      return False
+
+    challenge = 'Basic realm="WallyWorld"'
+
+    self.send_response(401)  # unauthorized
+    self.send_header('WWW-Authenticate', challenge)
+    self.send_header('Connection', 'close')
+    self.end_headers()
+    return True
 
   def DefaultConnectResponseHandler(self):
     """This is the catch-all response handler for CONNECT requests that aren't

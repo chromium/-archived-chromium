@@ -212,12 +212,6 @@ bool URLRequestHttpJob::IsRedirectResponse(GURL* location,
   if (!response_info_->headers->IsRedirect(&value))
     return false;
 
-  // For HTTPS, if we didn't receive a server certificate, the response was
-  // from the proxy server (a response to the CONNECT request) rather than
-  // the server.
-  if (request_->url().SchemeIsSecure() && !response_info_->ssl_info.cert)
-    return false;
-
   *location = request_->url().Resolve(value);
   *http_status_code = response_info_->headers->response_code();
   return true;

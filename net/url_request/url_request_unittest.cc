@@ -84,8 +84,8 @@ class URLRequestTest : public PlatformTest {
 
 TEST_F(URLRequestTest, ProxyTunnelRedirectTest) {
   // In this unit test, we're using the HTTPTestServer as a proxy server and
-  // issue a CONNECT request with the magic host name "www.redirect.com" to
-  // it.  The HTTPTestServer will return a 302 response, which we should not
+  // issuing a CONNECT request with the magic host name "www.redirect.com".
+  // The HTTPTestServer will return a 302 response, which we should not
   // follow.
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(L"", NULL);
@@ -102,11 +102,36 @@ TEST_F(URLRequestTest, ProxyTunnelRedirectTest) {
 
     MessageLoop::current()->Run();
 
-    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_EQ(URLRequestStatus::SUCCESS, r.status().status());
     // We should have rewritten the 302 response code as 500.
     EXPECT_EQ(500, r.GetResponseCode());
+    EXPECT_EQ(1, d.response_started_count());
     // We should not have followed the redirect.
     EXPECT_EQ(0, d.received_redirect_count());
+  }
+}
+
+TEST_F(URLRequestTest, UnexpectedServerAuthTest) {
+  // In this unit test, we're using the HTTPTestServer as a proxy server and
+  // issuing a CONNECT request with the magic host name "www.server-auth.com".
+  // The HTTPTestServer will return a 401 response, which we should balk at.
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"", NULL);
+  ASSERT_TRUE(NULL != server.get());
+  TestDelegate d;
+  {
+    URLRequest r(GURL("https://www.server-auth.com/"), &d);
+    std::string proxy("localhost:");
+    proxy.append(IntToString(kHTTPDefaultPort));
+    r.set_context(new TestURLRequestContext(proxy));
+
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+
+    EXPECT_EQ(URLRequestStatus::FAILED, r.status().status());
+    EXPECT_EQ(net::ERR_UNEXPECTED_SERVER_AUTH, r.status().os_error());
   }
 }
 
