@@ -41,9 +41,6 @@
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
 
-// static
-size_t SessionRestore::num_tabs_to_load_ = 0;
-
 //--------------------------------------------------------------------------
 
 // static

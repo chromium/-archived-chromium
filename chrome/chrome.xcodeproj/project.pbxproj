@@ -119,6 +119,7 @@
 		3380A9C00F2FC61E004EF74F /* render_process_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */; };
 		3380A9D60F2FC8F6004EF74F /* render_dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CE10EAE86A500EBCFC0 /* render_dns_master.cc */; };
 		3380A9D70F2FC8F9004EF74F /* render_dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CE10EAE86A500EBCFC0 /* render_dns_master.cc */; };
+		34A17287EFE747DE84BAE6E6 /* session_restore.cc in Sources */ = {isa = PBXBuildFile; fileRef = C3F9577C67188A5A4E3A6E41 /* session_restore.cc */; };
 		3AEA44DB19C9D93B63D7A2E4 /* url_fetcher_protect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0B7CC9C105E90E0665852528 /* url_fetcher_protect.cc */; };
 		406DFE278638D6132B21B2C9 /* url_pattern.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6447F24FADC63E58A44DB762 /* url_pattern.cc */; };
 		423A79243BC7B7C0B1E9B97A /* session_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = C8D26D9EC81E03E91E270463 /* session_service.cc */; };
@@ -2573,6 +2574,7 @@
 		BADB8B6D0F3A356000989B26 /* resource_dispatcher_host.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = resource_dispatcher_host.cc; path = renderer_host/resource_dispatcher_host.cc; sourceTree = "<group>"; };
 		BADB8BD20F3A4E4900989B26 /* resource_dispatcher_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = resource_dispatcher_host.h; path = renderer_host/resource_dispatcher_host.h; sourceTree = "<group>"; };
 		C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_paths_mac.cc; sourceTree = "<group>"; };
+		C3F9577C67188A5A4E3A6E41 /* session_restore.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = session_restore.cc; path = browser/sessions/session_restore.cc; sourceTree = SOURCE_ROOT; };
 		C8D26D9EC81E03E91E270463 /* session_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = session_service.cc; path = sessions/session_service.cc; sourceTree = "<group>"; };
 		D74DA6A9031CAE292790BD5E /* file_descriptor_set_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_descriptor_set_unittest.cc; sourceTree = "<group>"; };
 		D941DBEFD8B8B537DE8A4DAE /* bookmark_storage.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_storage.cc; path = bookmarks/bookmark_storage.cc; sourceTree = "<group>"; };
@@ -3092,6 +3094,7 @@
 				F60D7722C1302E1EC789B67A /* ssl_host_state.cc */,
 				3C56D1B8B7580A18DB8FE677 /* ssl_host_state.h */,
 				35AC9D9A03545594C102C5C1 /* session_backend.cc */,
+				C3F9577C67188A5A4E3A6E41 /* session_restore.cc */,
 			);
 			sourceTree = "<group>";
 		};
@@ -5419,6 +5422,7 @@
 				9084D27A4F8690E6FD31083B /* session_backend.cc in Sources */,
 				E45075F40F150C01003BE099 /* session_command.cc in Sources */,
 				E45075F70F150C0C003BE099 /* session_id.cc in Sources */,
+				34A17287EFE747DE84BAE6E6 /* session_restore.cc in Sources */,
 				423A79243BC7B7C0B1E9B97A /* session_service.cc in Sources */,
 				4D7BF9B60E9D4894009A6919 /* session_startup_pref.cc in Sources */,
 				E434C46A0F3A5C6000B665C7 /* session_types.cc in Sources */,

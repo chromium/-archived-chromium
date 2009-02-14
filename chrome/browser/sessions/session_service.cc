@@ -18,6 +18,7 @@
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_command.h"
+#include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -27,7 +28,6 @@
 
 // TODO(port): Get rid of this section and finish porting.
 #if defined(OS_WIN)
-#include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/win_util.h"
 #endif

@@ -261,22 +261,6 @@ class BaseSessionService : public CancelableRequestProvider,
    std::vector<SessionCommand*> pending_commands_;
 };
 
-class SessionRestore {
- public:
-  static void RestoreSession(Profile* profile,
-                             Browser* browser,
-                             bool clobber_existing_window,
-                             bool always_create_tabbed_browser,
-                             const std::vector<GURL>& urls_to_open) {
-    NOTIMPLEMENTED();
-  }
-  static void RestoreSessionSynchronously(
-      Profile* profile,
-      const std::vector<GURL>& urls_to_open) { NOTIMPLEMENTED(); }
-
-  static size_t num_tabs_to_load_;
-};
-
 namespace browser {
 void RegisterAllPrefs(PrefService*, PrefService*);
 }

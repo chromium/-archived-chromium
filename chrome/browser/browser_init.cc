@@ -21,6 +21,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/session_startup_pref.h"
+#include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -40,7 +41,6 @@
 #include "grit/theme_resources.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/automation/automation_provider_list.h"
-#include "chrome/browser/sessions/session_restore.h"
 #include "chrome/common/resource_bundle.h"
 
 #include "chromium_strings.h"
