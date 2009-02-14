@@ -276,7 +276,6 @@ if env.Bit('posix'):
   input_files.Remove(
     'clipboard_util.cc',
     'event_recorder.cc',
-    'file_version_info.cc',
 
     # We have an implementation of idle_timer that depends on XScreenSaver,
     # but it's unclear if we want it yet, so it's commented out for now.
@@ -311,6 +310,7 @@ if not env.Bit('windows'):
       'debug_util_win.cc',
       'directory_watcher_win.cc',
       'file_util_win.cc',
+      'file_version_info.cc',
       'hmac_win.cc',
       'iat_patch.cc',
       'image_util.cc',

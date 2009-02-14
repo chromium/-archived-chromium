@@ -24,6 +24,16 @@ std::wstring FileVersionInfo::product_version() {
   return L"";
 }
 
+std::wstring FileVersionInfo::file_version() {
+  NOTIMPLEMENTED();
+  return L"";
+}
+
+std::wstring FileVersionInfo::last_change() {
+  NOTIMPLEMENTED();
+  return L"";
+}
+
 bool FileVersionInfo::is_official_build() {
   NOTIMPLEMENTED();
   return false;
