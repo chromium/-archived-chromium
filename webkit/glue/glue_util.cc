@@ -8,7 +8,7 @@
 #include "webkit/glue/glue_util.h"
 #include "base/compiler_specific.h"
 #include "base/gfx/rect.h"
-#include "base/string_part.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 
