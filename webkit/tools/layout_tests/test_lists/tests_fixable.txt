@@ -145,7 +145,7 @@ MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domai
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Pixeltest failure: Form control metrics incorrect
-MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
+LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL PASS
 
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
@@ -889,7 +889,7 @@ LINUX : chrome/fast/forms/basic-selects.html = FAIL
 // Depends on plugin support.
 LINUX MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
-MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
+MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL PASS
 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
 MAC : chrome/plugins/call-as-function.html = FAIL
@@ -1174,7 +1174,7 @@ MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
+LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
 MAC : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = FAIL
@@ -1185,15 +1185,15 @@ MAC : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-frames.html = FAIL
+LINUX MAC : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL
+WIN MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
 MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
 MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL
+LINUX WIN MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
@@ -1421,7 +1421,7 @@ MAC RELEASE : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIME
 MAC DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 // These next few passes like 1 in 20 times, but it could be from corruption
 // from previous tests that is causing the problems.
-MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH FAIL PASS
+MAC : LayoutTests/http/tests/misc/xhtml.php = CRASH FAIL PASS TIMEOUT
 MAC : LayoutTests/fast/dom/Window/console-functions.html = CRASH FAIL PASS
 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-get.html = CRASH FAIL PASS
 MAC : LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.html = CRASH FAIL PASS
@@ -1714,12 +1714,12 @@ LINUX : LayoutTests/fast/clip/010.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
 
 // Regressions from WebKit merge to 40864
-WIN LINUX : LayoutTests/fast/block/positioning/001.html = FAIL
+WIN LINUX : LayoutTests/fast/block/positioning/001.html = FAIL PASS
 WIN LINUX : LayoutTests/fast/dom/getBoundingClientRect.html = FAIL
 LayoutTests/fast/dom/getClientRects.html = FAIL
 LayoutTests/fast/dom/navigator-detached-no-crash.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
-WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL
+WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
 // Prior to the merge, the two wagon wheels were exactly the same.
 // Now the left one is slightly different.
 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
@@ -1736,16 +1736,24 @@ chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 
 // Sharted showing up the mac build bots on 02/16/09
 MAC : LayoutTests/fast/events/overflow-events.html = FAIL
-MAC DEBUG : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
+MAC : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
 
 // Regressions from WebKit merge 40847-40875
 LINUX WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/textarea-scrolled-endline-caret.html = FAIL
+MAC LINUX WIN : LayoutTests/fast/forms/textarea-scrolled-endline-caret.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
-WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL
+WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
-WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
-WIN : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
-WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL
-LINUX : LayoutTests/fast/clip/017.html = CRASH
+WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL PASS
+WIN : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL PASS
+WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
+WIN : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL PASS
+LINUX : LayoutTests/fast/clip/017.html = CRASH PASS
+
+// Unknown reason.
+WIN : LayoutTests/transitions/transition-shorthand-delay.html = FAIL
+LINUX : LayoutTests/fast/clip/009.html = CRASH PASS
+LINUX : LayoutTests/fast/clip/013.html = CRASH PASS 
+LINUX : LayoutTests/fast/canvas/unclosed-canvas-4.html = CRASH PASS
+MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL
 
