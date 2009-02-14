@@ -71,10 +71,7 @@ BaseSessionService::BaseSessionService(SessionType type,
     : profile_(profile),
       path_(path),
       backend_thread_(NULL),
-#if defined(OS_WIN)
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-#endif
-      save_factory_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(save_factory_(this)),
       pending_reset_(false),
       commands_since_reset_(0) {
   if (profile) {
