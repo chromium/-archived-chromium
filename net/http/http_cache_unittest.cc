@@ -1088,3 +1088,12 @@ TEST(HttpCache, SimpleGET_SSLError) {
     rv = callback.WaitForResult();
   ASSERT_EQ(net::ERR_CACHE_MISS, rv);
 }
+
+// Ensure that we don't crash by if left-behind transactions.
+TEST(HttpCache, OutlivedTransactions) {
+  MockHttpCache* cache = new MockHttpCache;
+
+  net::HttpTransaction* trans = cache->http_cache()->CreateTransaction();
+  delete cache; 
+  delete trans;
+}

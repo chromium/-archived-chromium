@@ -164,6 +164,8 @@ class HttpCache : public HttpTransactionFactory {
   typedef base::hash_map<std::string, int> PlaybackCacheMap;
   scoped_ptr<PlaybackCacheMap> playback_cache_map_;
 
+  RevocableStore transactions_;
+
   DISALLOW_COPY_AND_ASSIGN(HttpCache);
 };
 

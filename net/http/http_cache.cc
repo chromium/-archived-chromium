@@ -160,10 +160,12 @@ HttpCache::ActiveEntry::~ActiveEntry() {
 
 //-----------------------------------------------------------------------------
 
-class HttpCache::Transaction : public HttpTransaction {
+class HttpCache::Transaction
+    : public HttpTransaction, public RevocableStore::Revocable {
  public:
   explicit Transaction(HttpCache* cache)
-      : request_(NULL),
+      : RevocableStore::Revocable(&cache->transactions_),
+        request_(NULL),
         cache_(cache),
         entry_(NULL),
         network_trans_(NULL),
@@ -318,10 +320,12 @@ class HttpCache::Transaction : public HttpTransaction {
 };
 
 HttpCache::Transaction::~Transaction() {
-  if (entry_) {
-    cache_->DoneWithEntry(entry_, this);
-  } else {
-    cache_->RemovePendingTransaction(this);
+  if (!revoked()) {
+    if (entry_) {
+      cache_->DoneWithEntry(entry_, this);
+    } else {
+      cache_->RemovePendingTransaction(this);
+    }
   }
 
   // If there is an outstanding callback, mark it as cancelled so running it
@@ -340,6 +344,9 @@ int HttpCache::Transaction::Start(const HttpRequestInfo* request,
 
   // ensure that we only have one asynchronous call at a time.
   DCHECK(!callback_);
+
+  if (revoked())
+    return ERR_UNEXPECTED;
 
   SetRequest(request);
 
@@ -382,6 +389,9 @@ int HttpCache::Transaction::RestartIgnoringLastError(
   // ensure that we only have one asynchronous call at a time.
   DCHECK(!callback_);
 
+  if (revoked())
+    return ERR_UNEXPECTED;
+
   int rv = RestartNetworkRequest();
 
   if (rv == ERR_IO_PENDING)
@@ -399,6 +409,9 @@ int HttpCache::Transaction::RestartWithAuth(
 
   // Ensure that we only have one asynchronous call at a time.
   DCHECK(!callback_);
+
+  if (revoked())
+    return ERR_UNEXPECTED;
 
   // Clear the intermediate response since we are going to start over.
   auth_response_ = HttpResponseInfo();
@@ -418,6 +431,9 @@ int HttpCache::Transaction::Read(IOBuffer* buf, int buf_len,
   DCHECK(callback);
 
   DCHECK(!callback_);
+
+  if (revoked())
+    return ERR_UNEXPECTED;
 
   // If we have an intermediate auth response at this point, then it means the
   // user wishes to read the network response (the error page).  If there is a
@@ -484,6 +500,9 @@ uint64 HttpCache::Transaction::GetUploadProgress() const {
 
 int HttpCache::Transaction::AddToEntry() {
   ActiveEntry* entry = NULL;
+
+  if (revoked())
+    return ERR_UNEXPECTED;
 
   if (mode_ == WRITE) {
     cache_->DoomEntry(cache_key_);
@@ -842,6 +861,11 @@ void HttpCache::Transaction::DoneWritingToEntry(bool success) {
 void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
   DCHECK(result != ERR_IO_PENDING);
 
+  if (revoked()) {
+    HandleResult(ERR_UNEXPECTED);
+    return;
+  }
+
   if (result == OK) {
     const HttpResponseInfo* new_response = network_trans_->GetResponseInfo();
     if (new_response->headers->response_code() == 401 ||
@@ -895,6 +919,11 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
 void HttpCache::Transaction::OnNetworkReadCompleted(int result) {
   DCHECK(mode_ & WRITE || mode_ == NONE);
 
+  if (revoked()) {
+    HandleResult(ERR_UNEXPECTED);
+    return;
+  }
+
   if (result > 0) {
     AppendResponseDataToEntry(read_buf_, result);
   } else if (result == 0) {  // end of file
@@ -906,6 +935,11 @@ void HttpCache::Transaction::OnNetworkReadCompleted(int result) {
 void HttpCache::Transaction::OnCacheReadCompleted(int result) {
   DCHECK(cache_);
   cache_read_callback_->Release();  // Balance the AddRef() from Start().
+
+  if (revoked()) {
+    HandleResult(ERR_UNEXPECTED);
+    return;
+  }
 
   if (result > 0) {
     read_offset_ += result;
