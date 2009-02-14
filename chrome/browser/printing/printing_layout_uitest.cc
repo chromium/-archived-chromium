@@ -508,7 +508,8 @@ const TestPool kTestPool[] = {
   // L"files/printing/test5.html", L"test5",
 };
 
-TEST_F(PrintingLayoutTestHidden, ManyTimes) {
+// TODO(maruel:)  http://code.google.com/p/chromium/issues/detail?id=7721
+TEST_F(PrintingLayoutTestHidden, DISABLED_ManyTimes) {
   if (IsTestCaseDisabled())
     return;
 
@@ -593,7 +594,8 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
 }
 
 // Prints a popup and immediately closes it.
-TEST_F(PrintingLayoutTest, IFrame) {
+// TODO(maruel:)  http://code.google.com/p/chromium/issues/detail?id=7721
+TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
   if (IsTestCaseDisabled())
     return;
 
