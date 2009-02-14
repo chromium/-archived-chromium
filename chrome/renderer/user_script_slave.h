@@ -27,7 +27,7 @@ class UserScriptSlave {
   // Inject the appropriate scripts into a frame based on its URL.
   // TODO(aa): Extract a UserScriptFrame interface out of this to improve
   // testability.
-  bool InjectScripts(WebFrame* frame);
+  bool InjectScripts(WebFrame* frame, UserScript::RunLocation location);
 
  private:
   // Shared memory containing raw script data.

@@ -1454,15 +1454,9 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
   // Check whether we have new encoding name.
   UpdateEncoding(frame, webview->GetMainFrameEncodingName());
 
-  // Inject any user scripts. Do not inject into chrome UI pages, but do inject
-  // into any other document.
-  const GURL &gurl = frame->GetURL();
-  if (g_render_thread &&  // Will be NULL when testing.
-      (gurl.SchemeIs("file") ||
-       gurl.SchemeIs("http") ||
-       gurl.SchemeIs("https"))) {
-    g_render_thread->user_script_slave()->InjectScripts(frame);
-  }
+  if (g_render_thread)  // Will be NULL during unit tests.
+    g_render_thread->user_script_slave()->InjectScripts(
+        frame, UserScript::DOCUMENT_END);
 }
 
 void RenderView::DidHandleOnloadEventsForFrame(WebView* webview,
@@ -1528,6 +1522,12 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
   Personalization::ConfigureRendererPersonalization(personalization_, this,
                                                     routing_id_, webframe);
 #endif
+}
+
+void RenderView::DocumentElementAvailable(WebFrame* frame) {
+  if (g_render_thread)  // Will be NULL during unit tests.
+    g_render_thread->user_script_slave()->InjectScripts(
+        frame, UserScript::DOCUMENT_START);
 }
 
 WindowOpenDisposition RenderView::DispositionForNavigationAction(

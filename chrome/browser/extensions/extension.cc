@@ -22,8 +22,12 @@ const wchar_t* Extension::kIdKey = L"id";
 const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
 const wchar_t* Extension::kUserScriptsKey = L"user_scripts";
+const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kVersionKey = L"version";
 const wchar_t* Extension::kZipHashKey = L"zip_hash";
+
+const char* Extension::kRunAtDocumentStartValue = "document_start";
+const char* Extension::kRunAtDocumentEndValue = "document_end";
 
 // Extension-related error messages. Some of these are simple patterns, where a
 // '*' is replaced at runtime with a specific value. This is used instead of
@@ -53,6 +57,8 @@ const char* Extension::kInvalidMatchesError =
     "Required value 'user_scripts[*].matches' is missing or invalid.";
 const char* Extension::kInvalidNameError =
     "Required value 'name' is missing or invalid.";
+const char* Extension::kInvalidRunAtError =
+    "Invalid value for 'user_scripts[*].run_at'.";
 const char* Extension::kInvalidUserScriptError =
     "Invalid value for 'user_scripts[*]'.";
 const char* Extension::kInvalidUserScriptsListError =
@@ -264,6 +270,23 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       }
 
       UserScript script;
+      if (user_script->HasKey(kRunAtKey)) {
+        std::string run_location;
+        if (!user_script->GetString(kRunAtKey, &run_location)) {
+          *error = FormatErrorMessage(kInvalidRunAtError, IntToString(i));
+          return false;
+        }
+
+        if (run_location == kRunAtDocumentStartValue) {
+          script.set_run_location(UserScript::DOCUMENT_START);
+        } else if (run_location == kRunAtDocumentEndValue) {
+          script.set_run_location(UserScript::DOCUMENT_END);
+        } else {
+          *error = FormatErrorMessage(kInvalidRunAtError, IntToString(i));
+          return false;
+        }
+      }
+
       for (size_t j = 0; j < matches->GetSize(); ++j) {
         std::string match_str;
         if (!matches->GetString(j, &match_str)) {

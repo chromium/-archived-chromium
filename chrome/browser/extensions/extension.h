@@ -44,8 +44,13 @@ class Extension {
   static const wchar_t* kMatchesKey;
   static const wchar_t* kNameKey;
   static const wchar_t* kUserScriptsKey;
+  static const wchar_t* kRunAtKey;
   static const wchar_t* kVersionKey;
   static const wchar_t* kZipHashKey;
+
+  // Some values expected in manifests.
+  static const char* kRunAtDocumentStartValue;
+  static const char* kRunAtDocumentEndValue;
 
   // Error messages returned from InitFromValue().
   static const char* kInvalidDescriptionError;
@@ -59,6 +64,7 @@ class Extension {
   static const char* kInvalidMatchError;
   static const char* kInvalidMatchesError;
   static const char* kInvalidNameError;
+  static const char* kInvalidRunAtError;
   static const char* kInvalidUserScriptError;
   static const char* kInvalidUserScriptsListError;
   static const char* kInvalidVersionError;

@@ -198,6 +198,12 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual void WindowObjectCleared(WebFrame* webframe) {
   }
 
+  // Notifies that the documentElement for the document in a webframe has been
+  // created. This is called before anything else is parsed or executed for the
+  // document.
+  virtual void DocumentElementAvailable(WebFrame* webframe) {
+  }
+
   // PolicyDelegate ----------------------------------------------------------
 
   // This method is called to notify the delegate, and let it modify a

@@ -101,8 +101,10 @@ void WebFrameLoaderClient::windowObjectCleared() {
 }
 
 void WebFrameLoaderClient::documentElementAvailable() {
-  // TODO(aa): Implement.
-  notImplemented();
+  WebViewImpl* webview = webframe_->webview_impl();
+  WebViewDelegate* d = webview->delegate();
+  if (d)
+    d->DocumentElementAvailable(webframe_);
 }
 
 void WebFrameLoaderClient::didPerformFirstNavigation() const {

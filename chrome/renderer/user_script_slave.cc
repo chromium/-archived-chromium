@@ -4,7 +4,9 @@
 
 #include "chrome/renderer/user_script_slave.h"
 
+#include "base/histogram.h"
 #include "base/logging.h"
+#include "base/perftimer.h"
 #include "base/pickle.h"
 #include "base/shared_memory.h"
 #include "chrome/common/resource_bundle.h"
@@ -89,10 +91,15 @@ bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
   return true;
 }
 
-bool UserScriptSlave::InjectScripts(WebFrame* frame) {
+bool UserScriptSlave::InjectScripts(WebFrame* frame,
+                                    UserScript::RunLocation location) {
+  PerfTimer timer;
+  int num_matched = 0;
+
   for (std::vector<UserScript*>::iterator script = scripts_.begin();
        script != scripts_.end(); ++script) {
-    if ((*script)->MatchesUrl(frame->GetURL())) {
+    if ((*script)->MatchesUrl(frame->GetURL()) &&
+        (*script)->run_location() == location) {
       std::string inject(kUserScriptHead);
       inject.append(api_js_.as_string());
       inject.append(script_contents_[*script].as_string());
@@ -100,7 +107,16 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame) {
       frame->ExecuteJavaScript(inject,
                                GURL((*script)->url().spec()),
                                -user_script_start_line_);
+      ++num_matched;
     }
+  }
+
+  if (location == UserScript::DOCUMENT_START) {
+    HISTOGRAM_COUNTS_100(L"UserScripts:DocStart:Count", num_matched);
+    HISTOGRAM_TIMES(L"UserScripts:DocStart:Time", timer.Elapsed());
+  } else {
+    HISTOGRAM_COUNTS_100(L"UserScripts:DocEnd:Count", num_matched);
+    HISTOGRAM_TIMES(L"UserScripts:DocEnd:Time", timer.Elapsed());
   }
 
   return true;

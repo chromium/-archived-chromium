@@ -78,6 +78,7 @@ TEST(UserScriptTest, Pickle) {
 
   UserScript script1;
   script1.set_url(GURL("chrome-user-script:/foo.user.js"));
+  script1.set_run_location(UserScript::DOCUMENT_START);
   script1.add_url_pattern(pattern1);
   script1.add_url_pattern(pattern2);
 
@@ -98,4 +99,9 @@ TEST(UserScriptTest, Pickle) {
     EXPECT_EQ(script1.url_patterns()[i].GetAsString(),
               script2.url_patterns()[i].GetAsString());
   }
+}
+
+TEST(UserScriptTest, Defaults) {
+  UserScript script;
+  ASSERT_EQ(UserScript::DOCUMENT_END, script.run_location());
 }

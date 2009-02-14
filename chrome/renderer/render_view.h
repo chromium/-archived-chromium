@@ -214,6 +214,8 @@ class RenderView : public RenderWidget,
                                          const GURL& source);
 
   virtual void WindowObjectCleared(WebFrame* webframe);
+  virtual void DocumentElementAvailable(WebFrame* webframe);
+
   virtual WindowOpenDisposition DispositionForNavigationAction(
       WebView* webview,
       WebFrame* frame,

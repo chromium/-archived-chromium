@@ -24,6 +24,7 @@ bool UserScript::MatchesUrl(const GURL& url) {
 
 void UserScript::Pickle(::Pickle* pickle) {
   pickle->WriteString(url_.spec());
+  pickle->WriteInt(run_location_);
 
   // Don't write path as we don't need that in the renderer.
 
@@ -44,6 +45,11 @@ void UserScript::Unpickle(const ::Pickle& pickle, void** iter) {
   std::string url_spec;
   CHECK(pickle.ReadString(iter, &url_spec));
   url_ = GURL(url_spec);
+
+  int run_location = 0;
+  CHECK(pickle.ReadInt(iter, &run_location));
+  CHECK(run_location >= 0 && run_location < UserScript::RUN_LOCATION_LAST);
+  run_location_ = static_cast<UserScript::RunLocation>(run_location);
 
   size_t num_globs = 0;
   CHECK(pickle.ReadSize(iter, &num_globs));

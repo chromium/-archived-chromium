@@ -17,7 +17,19 @@
 // extension.
 class UserScript {
  public:
-  UserScript(){}
+  // Locations that user scripts can be run inside the document.
+  enum RunLocation {
+    DOCUMENT_START,  // After the documentElemnet is created, but before
+                     // anything else happens.
+    DOCUMENT_END,  // After the entire document is parsed. Same as
+                   // DOMContentLoaded.
+
+    RUN_LOCATION_LAST  // Leave this as the last item.
+  };
+
+  // Constructor. Default the run location to document end, which is like
+  // Greasemonkey and probably more useful for typical scripts.
+  UserScript() : run_location_(DOCUMENT_END) {}
 
   // The URL to retrieve the content of this script at.
   const GURL& url() const { return url_; }
@@ -26,6 +38,10 @@ class UserScript {
   // The path to find the script at.
   const FilePath& path() const { return path_; }
   void set_path(const FilePath& path) { path_ = path; }
+
+  // The place in the document to run the script.
+  RunLocation run_location() const { return run_location_; }
+  void set_run_location(RunLocation location) { run_location_ = location; }
 
   // The globs, if any, that determine which pages this script runs against.
   // These are only used with "standalone" Greasemonkey-like user scripts.
@@ -59,6 +75,9 @@ class UserScript {
 
   // The path to the content of the script.
   FilePath path_;
+
+  // The location to run the script inside the document.
+  RunLocation run_location_;
 
   // Greasemonkey-style globs that determine pages to inject the script into.
   // These are only used with standalone scripts.

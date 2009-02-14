@@ -45,6 +45,9 @@ bool UserScriptMaster::ScriptReloader::ParseMetadataHeader(
   static const StringPiece kUserScriptEng("// ==/UserScript==");
   static const StringPiece kIncludeDeclaration("// @include ");
   static const StringPiece kMatchDeclaration("// @match ");
+  static const StringPiece kRunAtDeclaration("// @run-at ");
+  static const StringPiece kRunAtDocumentStartValue("document-start");
+  static const StringPiece kRunAtDocumentEndValue("document-end");
 
   while (line_start < script_text.length()) {
     line_end = script_text.find('\n', line_start);
@@ -76,6 +79,11 @@ bool UserScriptMaster::ScriptReloader::ParseMetadataHeader(
         if (!pattern.Parse(value))
           return false;
         script->add_url_pattern(pattern);
+      } else if (GetDeclarationValue(line, kRunAtDeclaration, &value)) {
+        if (value == kRunAtDocumentStartValue)
+          script->set_run_location(UserScript::DOCUMENT_START);
+        else if (value != kRunAtDocumentEndValue)
+          return false;
       }
 
       // TODO(aa): Handle more types of metadata.
