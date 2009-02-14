@@ -8,9 +8,16 @@
 #include <vector>
 
 #include "base/ref_counted.h"
-#include "base/scoped_handle.h"
-#include "chrome/browser/sessions/base_session_service.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/sessions/session_command.h"
+#include "net/base/file_stream.h"
+
+// TODO(port): Get rid of this section and finish porting.
+#if defined(OS_WIN)
+#include "chrome/browser/sessions/base_session_service.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class Pickle;
 
@@ -44,7 +51,7 @@ class SessionBackend : public base::RefCountedThreadSafe<SessionBackend> {
   // indicates which service is using this backend. |type| is used to determine
   // the name of the files to use as well as for logging.
   SessionBackend(BaseSessionService::SessionType type,
-                 const std::wstring& path_to_dir);
+                 const FilePath& path_to_dir);
 
   // Moves the current file to the last file, and recreates the current file.
   //
@@ -86,28 +93,28 @@ class SessionBackend : public base::RefCountedThreadSafe<SessionBackend> {
 
   // Opens the current file and writes the header. On success a handle to
   // the file is returned.
-  HANDLE OpenAndWriteHeader(const std::wstring& path);
+  net::FileStream* OpenAndWriteHeader(const FilePath& path);
 
   // Appends the specified commands to the specified file.
-  bool AppendCommandsToFile(HANDLE handle,
+  bool AppendCommandsToFile(net::FileStream* file,
                             const std::vector<SessionCommand*>& commands);
 
   const BaseSessionService::SessionType type_;
 
   // Returns the path to the last file.
-  std::wstring GetLastSessionPath();
+  FilePath GetLastSessionPath();
 
   // Returns the path to the current file.
-  std::wstring GetCurrentSessionPath();
+  FilePath GetCurrentSessionPath();
 
   // Directory files are relative to.
-  const std::wstring path_to_dir_;
+  const FilePath path_to_dir_;
 
   // Whether the previous target file is valid.
   bool last_session_valid_;
 
   // Handle to the target file.
-  ScopedHandle current_session_handle_;
+  scoped_ptr<net::FileStream> current_session_file_;
 
   // Whether we've inited. Remember, the constructor is run on the
   // Main thread, all others on the IO thread, hence lazy initialization.

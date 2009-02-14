@@ -61,7 +61,7 @@ const int BaseSessionService::max_persist_navigation_count = 6;
 
 BaseSessionService::BaseSessionService(SessionType type,
                                        Profile* profile,
-                                       const std::wstring& path)
+                                       const FilePath& path)
     : profile_(profile),
       path_(path),
       backend_thread_(NULL),
@@ -74,7 +74,7 @@ BaseSessionService::BaseSessionService(SessionType type,
     DCHECK(!profile->IsOffTheRecord());
   }
   backend_ = new SessionBackend(type,
-      profile_ ? profile_->GetPath().ToWStringHack() : path_);
+      profile_ ? profile_->GetPath() : path_);
   DCHECK(backend_.get());
   backend_thread_ = g_browser_process->file_thread();
   if (!backend_thread_)

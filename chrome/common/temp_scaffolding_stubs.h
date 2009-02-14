@@ -72,6 +72,7 @@ class Profile;
 class RenderProcessHost;
 class RenderWidgetHelper;
 class ResourceMessageFilter;
+class SessionBackend;
 class SessionCommand;
 class SessionID;
 class SiteInstance;
@@ -179,11 +180,6 @@ class UserDataManager {
   static UserDataManager* instance_;
 };
 
-class SessionBackend : public base::RefCountedThreadSafe<SessionBackend> {
- public:
-   void MoveCurrentSessionToLastSession() { NOTIMPLEMENTED(); }
-};
-
 class BaseSessionService : public CancelableRequestProvider,
     public base::RefCountedThreadSafe<BaseSessionService> {
  public:
@@ -194,7 +190,7 @@ class BaseSessionService : public CancelableRequestProvider,
   BaseSessionService() { NOTIMPLEMENTED(); }
   BaseSessionService(SessionType type,
                      Profile* profile,
-                     const std::wstring& path) {
+                     const FilePath& path) {
     NOTIMPLEMENTED();
   }
   Profile* profile() const { NOTIMPLEMENTED(); return NULL; }

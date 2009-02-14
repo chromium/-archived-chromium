@@ -16,6 +16,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/session_startup_pref.h"
+#include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_command.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -26,7 +27,6 @@
 
 // TODO(port): Get rid of this section and finish porting.
 #if defined(OS_WIN)
-#include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/win_util.h"
@@ -115,13 +115,13 @@ typedef IDAndIndexPayload TabNavigationPathPrunedFromFrontPayload;
 // SessionService -------------------------------------------------------------
 
 SessionService::SessionService(Profile* profile)
-    : BaseSessionService(SESSION_RESTORE, profile, std::wstring()),
+    : BaseSessionService(SESSION_RESTORE, profile, FilePath()),
       has_open_tabbed_browsers_(false),
       move_on_new_browser_(false) {
   Init();
 }
 
-SessionService::SessionService(const std::wstring& save_path)
+SessionService::SessionService(const FilePath& save_path)
     : BaseSessionService(SESSION_RESTORE, NULL, save_path),
       has_open_tabbed_browsers_(false),
       move_on_new_browser_(false) {

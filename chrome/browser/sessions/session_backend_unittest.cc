@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/string_util.h"
 #include "base/path_service.h"
 #include "base/time.h"
 #include "chrome/browser/sessions/session_backend.h"
@@ -33,13 +35,12 @@ SessionCommand* CreateCommandFromData(const TestData& data) {
 class SessionBackendTest : public testing::Test {
  protected:
   virtual void SetUp() {
-    wchar_t b[32];
-    _itow_s(static_cast<int>(GetTickCount()), b, arraysize(b), 10);
+    std::wstring b = IntToWString(static_cast<int>(GetTickCount()));
 
     PathService::Get(base::DIR_TEMP, &path_);
-    file_util::AppendToPath(&path_, L"SessionTestDirs");
+    path_ = path_.Append(FILE_PATH_LITERAL("SessionTestDirs"));
     file_util::CreateDirectory(path_);
-    file_util::AppendToPath(&path_, b);
+    path_ = path_.Append(b);
   }
 
   virtual void TearDown() {
@@ -54,7 +55,7 @@ class SessionBackendTest : public testing::Test {
   }
 
   // Path used in testing.
-  std::wstring path_;
+  FilePath path_;
 };
 
 TEST_F(SessionBackendTest, SimpleReadWrite) {

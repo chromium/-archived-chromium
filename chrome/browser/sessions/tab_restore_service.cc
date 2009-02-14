@@ -92,7 +92,7 @@ void RemoveEntryByID(SessionID::id_type id,
 
 TabRestoreService::TabRestoreService(Profile* profile)
     : BaseSessionService(BaseSessionService::TAB_RESTORE, profile,
-                         std::wstring()),
+                         FilePath()),
       load_state_(NOT_LOADED),
       restoring_(false),
       reached_max_(false),

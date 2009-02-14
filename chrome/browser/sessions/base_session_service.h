@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_SESSIONS_BASE_SESSION_SERVICE_H_
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "chrome/browser/cancelable_request.h"
@@ -43,7 +44,7 @@ class BaseSessionService : public CancelableRequestProvider,
   // ignored and instead the path comes from the profile.
   BaseSessionService(SessionType type,
                      Profile* profile,
-                     const std::wstring& path);
+                     const FilePath& path);
 
   virtual ~BaseSessionService();
 
@@ -141,7 +142,7 @@ class BaseSessionService : public CancelableRequestProvider,
   Profile* profile_;
 
   // Path to read from. This is only used if profile_ is NULL.
-  const std::wstring& path_;
+  const FilePath& path_;
 
   // The backend.
   scoped_refptr<SessionBackend> backend_;

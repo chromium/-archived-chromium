@@ -32,13 +32,13 @@ class SessionFileReader {
   typedef SessionCommand::id_type id_type;
   typedef SessionCommand::size_type size_type;
 
-  SessionFileReader(const std::wstring& path)
-      : handle_(CreateFile(path.c_str(), GENERIC_READ, 0, NULL,
-                           OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)),
-                           buffer_(SessionBackend::kFileReadBufferSize, 0),
+  explicit SessionFileReader(const FilePath& path)
+      : errored_(false),
+        buffer_(SessionBackend::kFileReadBufferSize, 0),
         buffer_position_(0),
-        available_count_(0),
-        errored_(false) {
+        available_count_(0) {
+    file_.reset(new net::FileStream());
+    file_->Open(path, base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ);
   }
   // Reads the contents of the file specified in the constructor, returning
   // true on success. It is up to the caller to free all SessionCommands
@@ -66,7 +66,7 @@ class SessionFileReader {
   std::string buffer_;
 
   // The file.
-  ScopedHandle handle_;
+  scoped_ptr<net::FileStream> file_;
 
   // Position in buffer_ of the data.
   size_t buffer_position_;
@@ -79,13 +79,14 @@ class SessionFileReader {
 
 bool SessionFileReader::Read(BaseSessionService::SessionType type,
                              std::vector<SessionCommand*>* commands) {
-  if (!handle_.IsValid())
+  if (!file_->IsOpen())
     return false;
   int32 header[2];
-  DWORD read_count;
+  int read_count;
   TimeTicks start_time = TimeTicks::Now();
-  if (!ReadFile(handle_, &header, sizeof(header), &read_count, NULL) ||
-      read_count != sizeof(header) || header[0] != kFileSignature ||
+  read_count = file_->ReadUntilComplete(reinterpret_cast<char*>(&header),
+                                        sizeof(header));
+  if (read_count != sizeof(header) || header[0] != kFileSignature ||
       header[1] != kFileCurrentVersion)
     return false;
 
@@ -158,16 +159,16 @@ bool SessionFileReader::FillBuffer() {
   }
   buffer_position_ = 0;
   DCHECK(buffer_position_ + available_count_ < buffer_.size());
-  DWORD read_count;
-  if (!ReadFile(handle_, &(buffer_[available_count_]),
-                static_cast<DWORD>(buffer_.size() - available_count_),
-                &read_count, NULL)) {
+  int to_read = static_cast<int>(buffer_.size() - available_count_);
+  int read_count = file_->ReadUntilComplete(&(buffer_[available_count_]),
+                                            to_read);
+  if (read_count < 0) {
     errored_ = true;
     return false;
   }
   if (read_count == 0)
     return false;
-  available_count_ += static_cast<int>(read_count);
+  available_count_ += read_count;
   return true;
 }
 
@@ -176,18 +177,18 @@ bool SessionFileReader::FillBuffer() {
 // SessionBackend -------------------------------------------------------------
 
 // File names (current and previous) for a type of TAB.
-static const wchar_t* const kCurrentTabSessionFileName = L"Current Tabs";
-static const wchar_t* const kLastTabSessionFileName = L"Last Tabs";
+static const char* kCurrentTabSessionFileName = "Current Tabs";
+static const char* kLastTabSessionFileName = "Last Tabs";
 
 // File names (current and previous) for a type of SESSION.
-static const wchar_t* const kCurrentSessionFileName = L"Current Session";
-static const wchar_t* const kLastSessionFileName = L"Last Session";
+static const char* kCurrentSessionFileName = "Current Session";
+static const char* kLastSessionFileName = "Last Session";
 
 // static
 const int SessionBackend::kFileReadBufferSize = 1024;
 
 SessionBackend::SessionBackend(BaseSessionService::SessionType type,
-                               const std::wstring& path_to_dir)
+                               const FilePath& path_to_dir)
     : type_(type),
       path_to_dir_(path_to_dir),
       last_session_valid_(false),
@@ -212,11 +213,11 @@ void SessionBackend::AppendCommands(
     std::vector<SessionCommand*>* commands,
     bool reset_first) {
   Init();
-  if ((reset_first && !empty_file_) || !current_session_handle_.IsValid())
+  if ((reset_first && !empty_file_) || !current_session_file_->IsOpen())
     ResetFile();
-  if (current_session_handle_.IsValid() &&
-      !AppendCommandsToFile(current_session_handle_, *commands)) {
-    current_session_handle_.Set(NULL);
+  if (current_session_file_->IsOpen() &&
+      !AppendCommandsToFile(current_session_file_.get(), *commands)) {
+    current_session_file_.reset(NULL);
   }
   empty_file_ = false;
   STLDeleteElements(commands);
@@ -248,10 +249,10 @@ void SessionBackend::DeleteLastSession() {
 
 void SessionBackend::MoveCurrentSessionToLastSession() {
   Init();
-  current_session_handle_.Set(NULL);
+  current_session_file_.reset(NULL);
 
-  const std::wstring current_session_path = GetCurrentSessionPath();
-  const std::wstring last_session_path = GetLastSessionPath();
+  const FilePath current_session_path = GetCurrentSessionPath();
+  const FilePath last_session_path = GetLastSessionPath();
   if (file_util::PathExists(last_session_path))
     file_util::Delete(last_session_path, false);
   if (file_util::PathExists(current_session_path)) {
@@ -276,31 +277,33 @@ void SessionBackend::MoveCurrentSessionToLastSession() {
   ResetFile();
 }
 
-bool SessionBackend::AppendCommandsToFile(
-    HANDLE handle,
+bool SessionBackend::AppendCommandsToFile(net::FileStream* file,
     const std::vector<SessionCommand*>& commands) {
   for (std::vector<SessionCommand*>::const_iterator i = commands.begin();
        i != commands.end(); ++i) {
-    DWORD wrote;
+    int wrote;
     const size_type content_size = static_cast<size_type>((*i)->size());
     const size_type total_size =  content_size + sizeof(id_type);
     if (type_ == BaseSessionService::TAB_RESTORE)
       UMA_HISTOGRAM_COUNTS(L"TabRestore.command_size", total_size);
     else
       UMA_HISTOGRAM_COUNTS(L"SessionRestore.command_size", total_size);
-    if (!WriteFile(handle, &total_size, sizeof(total_size), &wrote, NULL) ||
-        wrote != sizeof(total_size)) {
+    wrote = file->Write(reinterpret_cast<const char*>(&total_size),
+                        sizeof(total_size), NULL);
+    if (wrote != sizeof(total_size)) {
       NOTREACHED() << "error writing";
       return false;
     }
     id_type command_id = (*i)->id();
-    if (!WriteFile(handle, &command_id, sizeof(command_id), &wrote, NULL) ||
-        wrote != sizeof(command_id)) {
+    wrote = file->Write(reinterpret_cast<char*>(&command_id),
+                        sizeof(command_id), NULL);
+    if (wrote != sizeof(command_id)) {
       NOTREACHED() << "error writing";
       return false;
     }
-    if (!WriteFile(handle, (*i)->contents(), content_size, &wrote, NULL) ||
-        wrote != content_size) {
+    wrote = file->Write(reinterpret_cast<char*>((*i)->contents()),
+                        content_size, NULL);
+    if (wrote != content_size) {
       NOTREACHED() << "error writing";
       return false;
     }
@@ -310,43 +313,41 @@ bool SessionBackend::AppendCommandsToFile(
 
 void SessionBackend::ResetFile() {
   DCHECK(inited_);
-  // Do Set(NULL) first to make sure we close current file (if open).
-  current_session_handle_.Set(NULL);
-  current_session_handle_.Set(OpenAndWriteHeader(GetCurrentSessionPath()));
+  current_session_file_.reset(OpenAndWriteHeader(GetCurrentSessionPath()));
   empty_file_ = true;
 }
 
-HANDLE SessionBackend::OpenAndWriteHeader(const std::wstring& path) {
+net::FileStream* SessionBackend::OpenAndWriteHeader(const FilePath& path) {
   DCHECK(!path.empty());
-  ScopedHandle hfile(
-      CreateFile(path.c_str(), GENERIC_WRITE, 0, NULL,
-                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
-  if (!hfile.IsValid())
+  net::FileStream* file = new net::FileStream();
+  file->Open(path, base::PLATFORM_FILE_CREATE_ALWAYS |
+             base::PLATFORM_FILE_WRITE);
+  if (!file->IsOpen())
     return NULL;
   int32 header[2];
   header[0] = kFileSignature;
   header[1] = kFileCurrentVersion;
-  DWORD wrote;
-  if (!WriteFile(hfile, &header, sizeof(header), &wrote, NULL) ||
-      wrote != sizeof(header))
+  int wrote = file->Write(reinterpret_cast<char*>(&header),
+                          sizeof(header), NULL);
+  if (wrote != sizeof(header))
     return NULL;
-  return hfile.Take();
+  return file;
 }
 
-std::wstring SessionBackend::GetLastSessionPath() {
-  std::wstring path = path_to_dir_;
+FilePath SessionBackend::GetLastSessionPath() {
+  FilePath path = path_to_dir_;
   if (type_ == BaseSessionService::TAB_RESTORE)
-    file_util::AppendToPath(&path, kLastTabSessionFileName);
+    path = path.AppendASCII(kLastTabSessionFileName);
   else
-    file_util::AppendToPath(&path, kLastSessionFileName);
+    path = path.AppendASCII(kLastSessionFileName);
   return path;
 }
 
-std::wstring SessionBackend::GetCurrentSessionPath() {
-  std::wstring path = path_to_dir_;
+FilePath SessionBackend::GetCurrentSessionPath() {
+  FilePath path = path_to_dir_;
   if (type_ == BaseSessionService::TAB_RESTORE)
-    file_util::AppendToPath(&path, kCurrentTabSessionFileName);
+    path = path.AppendASCII(kCurrentTabSessionFileName);
   else
-    file_util::AppendToPath(&path, kCurrentSessionFileName);
+    path = path.AppendASCII(kCurrentSessionFileName);
   return path;
 }

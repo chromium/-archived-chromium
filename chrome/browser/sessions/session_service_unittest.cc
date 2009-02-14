@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "base/file_util.h"
+#include "base/string_util.h"
 #include "base/path_service.h"
 #include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_service.h"
@@ -22,13 +23,12 @@ class SessionServiceTest : public testing::Test {
 
  protected:
   virtual void SetUp() {
-    wchar_t b[32];
-    _itow_s(static_cast<int>(GetTickCount()), b, arraysize(b), 10);
+    std::wstring b = IntToWString(static_cast<int>(GetTickCount()));
 
     PathService::Get(base::DIR_TEMP, &path_);
-    file_util::AppendToPath(&path_, L"SessionTestDirs");
+    path_ = path_.Append(FILE_PATH_LITERAL("SessionTestDirs"));
     file_util::CreateDirectory(path_);
-    file_util::AppendToPath(&path_, b);
+    path_ = path_.Append(b);
 
     SessionService* session_service = new SessionService(path_);
     helper_.set_service(session_service);
@@ -78,7 +78,7 @@ class SessionServiceTest : public testing::Test {
   SessionID window_id;
 
   // Path used in testing.
-  std::wstring path_;
+  FilePath path_;
 
   SessionServiceTestHelper helper_;
 };
