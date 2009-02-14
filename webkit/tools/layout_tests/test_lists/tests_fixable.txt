@@ -1747,7 +1747,6 @@ WIN : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
 WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL PASS
 LINUX : LayoutTests/fast/clip/017.html = CRASH PASS
 
 // Unknown reason.
