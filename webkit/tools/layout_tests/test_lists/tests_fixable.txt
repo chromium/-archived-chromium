@@ -1744,9 +1744,11 @@ MAC LINUX WIN : LayoutTests/fast/forms/textarea-scrolled-endline-caret.html = FA
 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
+WIN : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
+WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL PASS
 LINUX : LayoutTests/fast/clip/017.html = CRASH PASS
 
 // Unknown reason.
@@ -1757,4 +1759,7 @@ LINUX : LayoutTests/fast/clip/015.html = CRASH PASS
 LINUX : LayoutTests/fast/canvas/unclosed-canvas-4.html = CRASH PASS
 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/redirect302-frames.html = PASS FAIL
+
+// Regression from r9839.
+LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_position-table-column.html = FAIL
 
