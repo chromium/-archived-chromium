@@ -88,9 +88,9 @@ void PasswordManager::RegisterUserPrefs(PrefService* prefs) {
 }
 
 PasswordManager::PasswordManager(WebContents* web_contents)
-    : web_contents_(web_contents),
-      observer_(NULL),
-      login_managers_deleter_(&pending_login_managers_) {
+    : login_managers_deleter_(&pending_login_managers_),
+      web_contents_(web_contents),
+      observer_(NULL) {
   password_manager_enabled_.Init(prefs::kPasswordManagerEnabled,
       web_contents->profile()->GetPrefs(), NULL);
 }

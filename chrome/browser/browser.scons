@@ -725,7 +725,6 @@ if not env.Bit('windows'):
       'net/dns_slave.cc',
       'google_update.cc',
       'password_manager/encryptor.cc',
-      'password_manager/password_manager.cc',
       'plugin_installer.cc',
       'plugin_process_host.cc',
       'plugin_service.cc',

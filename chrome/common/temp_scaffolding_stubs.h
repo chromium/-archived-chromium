@@ -795,20 +795,6 @@ class PrintViewManager {
 };
 }
 
-class PasswordManager {
- public:
-  PasswordManager(WebContents*) { }
-  void ClearProvisionalSave() { NOTIMPLEMENTED(); }
-  void DidStopLoading() { NOTIMPLEMENTED(); }
-  void PasswordFormsSeen(const std::vector<PasswordForm>&) { NOTIMPLEMENTED(); }
-  void DidNavigate() { NOTIMPLEMENTED(); }
-  void ProvisionallySavePassword(PasswordForm form) { NOTIMPLEMENTED(); }
-  void Autofill(const PasswordForm&, const PasswordFormMap&,
-                const PasswordForm* const) const {
-    NOTIMPLEMENTED();
-  }
-};
-
 class PluginInstaller {
  public:
   PluginInstaller(WebContents*) { }
