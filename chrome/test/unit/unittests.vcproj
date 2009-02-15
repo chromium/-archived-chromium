@@ -230,14 +230,6 @@
 				RelativePath="..\..\..\net\url_request\url_request_test_job.h"
 				>
 			</File>
-			<File
-				RelativePath="..\v8_unit_test.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\v8_unit_test.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="hunspell"
@@ -802,10 +794,6 @@
 		<Filter
 			Name="renderer"
 			>
-			<File
-				RelativePath="..\..\renderer\extensions\greasemonkey_api_unittest.cc"
-				>
-			</File>
 			<File
 				RelativePath="..\..\renderer\net\render_dns_master_unittest.cc"
 				>

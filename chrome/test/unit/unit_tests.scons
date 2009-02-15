@@ -250,7 +250,6 @@ input_files = ChromeFileList([
     '$CHROME_DIR/third_party/hunspell/google/hunspell_tests.cc',
   ]),
   MSVSFilter('renderer', [
-    '$CHROME_DIR/renderer/extensions/greasemonkey_api_unittest.cc',
     '$CHROME_DIR/renderer/net/render_dns_master_unittest.cc',
     '$CHROME_DIR/renderer/net/render_dns_queue_unittest.cc',
     '$CHROME_DIR/renderer/render_view_unittest.cc',
@@ -263,8 +262,6 @@ input_files = ChromeFileList([
     '$CHROME_DIR/renderer/mock_render_process.h',
     '$CHROME_DIR/renderer/mock_render_thread.cc',
     '$CHROME_DIR/renderer/mock_render_thread.h',
-    '$CHROME_DIR/test/v8_unit_test.h',
-    '$CHROME_DIR/test/v8_unit_test.cc',
   ]),
   MSVSFilter('resources', [
     '$CHROME_DIR/browser/browser_resources.h',
