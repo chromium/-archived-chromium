@@ -4,8 +4,8 @@
 
 // Contains code for managing local HTML UI at chrome-ui:// URLs.
 
-#ifndef CHROME_BROWSER_DOM_UI_CONTENTS_H__
-#define CHROME_BROWSER_DOM_UI_CONTENTS_H__
+#ifndef CHROME_BROWSER_DOM_UI_CONTENTS_H_
+#define CHROME_BROWSER_DOM_UI_CONTENTS_H_
 
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -120,4 +120,4 @@ class DOMUIContents : public WebContents {
   DISALLOW_COPY_AND_ASSIGN(DOMUIContents);
 };
 
-#endif  // CHROME_BROWSER_DOM_UI_CONTENTS_H__
+#endif  // CHROME_BROWSER_DOM_UI_CONTENTS_H_

@@ -97,7 +97,7 @@ class MostVisitedHandler : public DOMMessageHandler,
   DOMUIHost* dom_ui_host_;
 
   // Our consumer for the history service.
-  CancelableRequestConsumerT<PageUsageData*, NULL> cancelable_consumer_;
+  CancelableRequestConsumerTSimple<PageUsageData*> cancelable_consumer_;
 
   // The most visited URLs, in priority order.
   // Only used for matching up clicks on the page to which most visited entry

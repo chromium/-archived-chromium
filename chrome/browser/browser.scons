@@ -677,7 +677,6 @@ if not env.Bit('windows'):
       'browser_accessibility.cc',
       'browser_accessibility_manager.cc',
       'browser_shutdown.cc',
-      'browser_url_handler.cc',
       'chrome_plugin_host.cc',
       'dock_info.cc',
       'dom_ui/dom_ui_contents.cc',

@@ -9,13 +9,14 @@
 // random web pages (because from the resource loader's perspective, these
 // URL schemes don't exist).
 
-#ifndef CHROME_BROWSER_BROWSER_URL_HANDLER_H__
-#define CHROME_BROWSER_BROWSER_URL_HANDLER_H__
+#ifndef CHROME_BROWSER_BROWSER_URL_HANDLER_H_
+#define CHROME_BROWSER_BROWSER_URL_HANDLER_H_
 
 #include <vector>
 
+#include "chrome/browser/tab_contents/tab_contents_type.h"
+
 class GURL;
-enum TabContentsType;
 
 // BrowserURLHandler manages the list of all special URLs and manages
 // dispatching the URL handling to registered handlers.
@@ -44,5 +45,5 @@ class BrowserURLHandler {
   static std::vector<URLHandler> url_handlers_;
 };
 
-#endif  // CHROME_BROWSER_BROWSER_URL_HANDLER_H__
+#endif  // CHROME_BROWSER_BROWSER_URL_HANDLER_H_
 
