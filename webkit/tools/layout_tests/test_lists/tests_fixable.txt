@@ -1756,4 +1756,5 @@ LINUX : LayoutTests/fast/clip/013.html = CRASH PASS
 LINUX : LayoutTests/fast/clip/015.html = CRASH PASS
 LINUX : LayoutTests/fast/canvas/unclosed-canvas-4.html = CRASH PASS
 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL
+LINUX WIN : LayoutTests/http/tests/navigation/redirect302-frames.html = PASS FAIL
 
