@@ -296,9 +296,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     }
     const SkMatrix* m;
     
-    if (inv.getType() <= SkMatrix::kTranslate_Mask ||
-        (SkShader::kClamp_TileMode == fTileModeX &&
-         SkShader::kClamp_TileMode == fTileModeY)) {
+    if (SkShader::kClamp_TileMode == fTileModeX &&
+            SkShader::kClamp_TileMode == fTileModeY) {
         m = &inv;
     } else {
         fUnitInvMatrix = inv;

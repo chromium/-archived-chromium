@@ -1,5 +1,4 @@
 
-#define TRANSLATE_NOFILTER_NAME MAKENAME(_nofilter_translate)
 #define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
 #define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
@@ -17,38 +16,6 @@
     #define PREAMBLE_ARG_X
     #define PREAMBLE_ARG_Y
 #endif
-
-#ifndef PREAMBLE_TRANS
-    #define PREAMBLE_TRANS(state)
-#endif
-
-static void TRANSLATE_NOFILTER_NAME(const SkBitmapProcState& s,
-                                    uint32_t xy[], int count, int x, int y)
-{
-    SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
-
-    PREAMBLE_TRANS(s);
-
-    x += SkScalarFloor(s.fInvMatrix->getTranslateX());
-    y += SkScalarFloor(s.fInvMatrix->getTranslateY());
-
-    *xy++ = (uint32_t)TILEY_TRANS(y, (s.fBitmap->height() - 1));
-    
-    unsigned maxX = s.fBitmap->width() - 1;
-    int i;
-    uint16_t* xx = (uint16_t*)xy;
-    for (i = (count >> 2); i > 0; --i)
-    {
-        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
-        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
-        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
-        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
-    }
-    for (i = (count & 3); i > 0; --i)
-    {
-        *xx++ = (uint16_t)TILEX_TRANS(x, maxX); x++;
-    }
-}
 
 static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
                                 uint32_t xy[], int count, int x, int y) {
@@ -274,9 +241,6 @@ static void PERSP_FILTER_NAME(const SkBitmapProcState& s,
 }
 
 static SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
-    TRANSLATE_NOFILTER_NAME,
-    TRANSLATE_NOFILTER_NAME,    // No need to do filtering if the matrix is no
-                                // more complex than identity/translate.
     SCALE_NOFILTER_NAME,
     SCALE_FILTER_NAME,
     AFFINE_NOFILTER_NAME,
@@ -292,10 +256,6 @@ static SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
     #undef CHECK_FOR_DECAL
 #endif
 
-#undef TILEX_TRANS
-#undef TILEY_TRANS
-
-#undef TRANSLATE_NOFILTER_NAME
 #undef SCALE_NOFILTER_NAME
 #undef SCALE_FILTER_NAME
 #undef AFFINE_NOFILTER_NAME
@@ -308,8 +268,6 @@ static SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
 #undef PREAMBLE_PARAM_Y
 #undef PREAMBLE_ARG_X
 #undef PREAMBLE_ARG_Y
-
-#undef PREAMBLE_TRANS
 
 #undef TILEX_LOW_BITS
 #undef TILEY_LOW_BITS
