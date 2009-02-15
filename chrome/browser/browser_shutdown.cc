@@ -4,7 +4,6 @@
 
 #include "chrome/browser/browser_shutdown.h"
 
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
@@ -16,6 +15,8 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/metrics_service.h"
+#include "chrome/browser/plugin_process_host.h"
+#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -25,16 +26,8 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/resource_bundle.h"
-#include "net/dns_global.h"
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
+#include "net/dns_global.h"
 
 using base::Time;
 using base::TimeDelta;
@@ -48,7 +41,7 @@ int shutdown_num_processes_slow_;
 
 bool delete_resources_on_shutdown = true;
 
-const char* const kShutdownMsFile = "chrome_shutdown_ms.txt";
+const wchar_t* const kShutdownMsFile = L"chrome_shutdown_ms.txt";
 
 void RegisterPrefs(PrefService* local_state) {
   local_state->RegisterIntegerPref(prefs::kShutdownType, NOT_VALID);
@@ -85,10 +78,11 @@ void OnShutdownStarting(ShutdownType type) {
   }
 }
 
-FilePath GetShutdownMsPath() {
-  FilePath shutdown_ms_file;
+std::wstring GetShutdownMsPath() {
+  std::wstring shutdown_ms_file;
   PathService::Get(base::DIR_TEMP, &shutdown_ms_file);
-  return shutdown_ms_file.AppendASCII(kShutdownMsFile);
+  file_util::AppendToPath(&shutdown_ms_file, kShutdownMsFile);
+  return shutdown_ms_file;
 }
 
 void Shutdown() {
@@ -158,7 +152,7 @@ void Shutdown() {
     TimeDelta shutdown_delta = Time::Now() - shutdown_started_;
     std::string shutdown_ms = Int64ToString(shutdown_delta.InMilliseconds());
     int len = static_cast<int>(shutdown_ms.length()) + 1;
-    FilePath shutdown_ms_file = GetShutdownMsPath();
+    std::wstring shutdown_ms_file = GetShutdownMsPath();
     file_util::WriteFile(shutdown_ms_file, shutdown_ms.c_str(), len);
   }
 
@@ -166,12 +160,12 @@ void Shutdown() {
 }
 
 void ReadLastShutdownInfo() {
-  FilePath shutdown_ms_file = GetShutdownMsPath();
+  std::wstring shutdown_ms_file = GetShutdownMsPath();
   std::string shutdown_ms_str;
   int64 shutdown_ms = 0;
   if (file_util::ReadFileToString(shutdown_ms_file, &shutdown_ms_str))
     shutdown_ms = StringToInt64(shutdown_ms_str);
-  file_util::Delete(shutdown_ms_file, false);
+  DeleteFile(shutdown_ms_file.c_str());
 
   PrefService* prefs = g_browser_process->local_state();
   ShutdownType type =
