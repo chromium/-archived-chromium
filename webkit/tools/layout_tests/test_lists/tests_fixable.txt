@@ -1752,7 +1752,8 @@ LINUX : LayoutTests/fast/clip/017.html = CRASH PASS
 // Unknown reason.
 WIN : LayoutTests/transitions/transition-shorthand-delay.html = FAIL
 LINUX : LayoutTests/fast/clip/009.html = CRASH PASS
-LINUX : LayoutTests/fast/clip/013.html = CRASH PASS 
+LINUX : LayoutTests/fast/clip/013.html = CRASH PASS
+LINUX : LayoutTests/fast/clip/015.html = CRASH PASS
 LINUX : LayoutTests/fast/canvas/unclosed-canvas-4.html = CRASH PASS
 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL
 
