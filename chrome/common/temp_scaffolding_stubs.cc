@@ -410,6 +410,10 @@ std::string ResourceBundle::GetDataResource(int resource_id) {
   return "";
 }
 
+void ResourceBundle::CleanupSharedInstances() {
+  NOTIMPLEMENTED();
+}
+
 #endif
 
 LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
