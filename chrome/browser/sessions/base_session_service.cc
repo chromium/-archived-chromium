@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "build/build_config.h"
-
 #include "chrome/browser/sessions/base_session_service.h"
 
 #include "base/pickle.h"
@@ -14,11 +12,6 @@
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/stl_util-inl.h"
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/tab_contents/tab_contents.h"
-#endif
 
 // InternalGetCommandsRequest -------------------------------------------------
 

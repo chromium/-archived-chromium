@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "build/build_config.h"
-
 #include "chrome/browser/sessions/session_restore.h"
 
 #include <vector>
@@ -18,10 +16,6 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
-
-#if defined(OS_WIN)
-#include "chrome/browser/tab_contents/tab_contents.h"
-#endif
 
 namespace {
 
