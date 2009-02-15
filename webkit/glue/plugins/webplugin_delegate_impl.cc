@@ -690,7 +690,15 @@ bool WebPluginDelegateImpl::WindowedReposition(
   if (window_rect_ == window_rect && clip_rect_ == clip_rect)
     return false;
 
-  // Clipping is handled by WebPlugin.
+  // There are a few parts to managing the plugin windows:
+  //   - Initial geometry, show / resize / position the window.
+  //   - Geometry updates, resize the window.
+  //   - Geometry updates, move the window or update the clipping region.
+  // This code should handle the first two, positioning and sizing the window
+  // initially, and resizing it when the size changes.  Clipping and moving are
+  // handled separately by WebPlugin, after it has called this code.  This
+  // allows window moves, like scrolling, to be synchronized with painting.
+  // See WebPluginImpl::setFrameRect().
   if (window_rect.size() != window_rect_.size()) {
     ::SetWindowPos(windowed_handle_,
                    NULL,

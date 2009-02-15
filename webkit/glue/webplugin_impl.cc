@@ -56,9 +56,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/plugins/plugin_host.h"
-#if !defined(OS_LINUX)
 #include "webkit/glue/plugins/plugin_instance.h"
-#endif
 #include "webkit/glue/stacking_order_iterator.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"

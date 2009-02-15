@@ -580,6 +580,7 @@ NPError NPN_DestroyStream(NPP id, NPStream* stream, NPReason reason) {
 }
 
 const char* NPN_UserAgent(NPP id) {
+#if defined(OS_WIN)
   // Flash passes in a null id during the NP_initialize call.  We need to
   // default to the Mozilla user agent if we don't have an NPP instance or
   // else Flash won't request windowless mode.
@@ -589,16 +590,12 @@ const char* NPN_UserAgent(NPP id) {
       return webkit_glue::GetUserAgent(GURL()).c_str();
   }
 
-#if defined(OS_WIN)
-  static const char *UA = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20061103 Firefox/2.0a1";
-#elif defined(OS_MACOSX)
-  // TODO(port): this is probably wrong...
-  static const char *UA = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_6; en-us) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1";
+  return "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20061103 Firefox/2.0a1";
 #else
-  // TODO(port): set appropriately for other platforms
-  static const char *UA = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20061103 Firefox/2.0a1";
+  // TODO(port): For now we always use our real useragent on Mac and Linux.
+  // We might eventually need to spoof for some plugins.
+  return webkit_glue::GetUserAgent(GURL()).c_str();
 #endif
-  return UA;
 }
 
 void NPN_Status(NPP id, const char* message) {
@@ -842,8 +839,7 @@ NPError  NPN_SetValue(NPP id, NPPVariable variable, void *value) {
     // Note: the documentation at http://developer.mozilla.org/en/docs/NPN_SetValue
     // is wrong.  When value is NULL, the mode is set to true.  This is the same
     // way Mozilla works.
-    bool mode = (value == 0);
-    plugin->set_windowless(mode);
+    plugin->set_windowless(value == 0);
     return NPERR_NO_ERROR;
   }
   case NPPVpluginTransparentBool:

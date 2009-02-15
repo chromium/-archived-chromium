@@ -207,11 +207,22 @@ void TestWebViewDelegate::DidMove(WebWidget* webwidget,
   GtkWidget* widget = move.window;
   DCHECK(!GTK_WIDGET_NO_WINDOW(widget) && GTK_WIDGET_REALIZED(widget));
 
+  // Update the clipping region on the GdkWindow.
   GdkRectangle clip_rect = move.clip_rect.ToGdkRectangle();
   GdkRegion* clip_region = gdk_region_rectangle(&clip_rect);
   gfx::SubtractRectanglesFromRegion(clip_region, move.cutout_rects);
   gdk_window_shape_combine_region(widget->window, clip_region, 0, 0);
   gdk_region_destroy(clip_region);
+
+  // Update the window position.  Resizing is handled by WebPluginDelegate.
+  // TODO(deanm): Verify that we only need to move and not resize.
+  // TODO(deanm): Can we avoid the X call if it's already at the right place,
+  // the GtkFixed knows where the child is, maybe it handles this for us?
+  WebWidgetHost* host = GetHostForWidget(webwidget);
+  gtk_fixed_move(GTK_FIXED(host->view_handle()),
+                 widget,
+                 move.window_rect.x(),
+                 move.window_rect.y());
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {

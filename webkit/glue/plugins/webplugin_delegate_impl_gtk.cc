@@ -341,17 +341,23 @@ bool WebPluginDelegateImpl::WindowedReposition(
   if (window_rect_ == window_rect && clip_rect_ == clip_rect)
     return false;
 
-  // Clipping is handled by WebPlugin.
-  GtkAllocation allocation = { window_rect.x(), window_rect.y(),
-                               window_rect.width(), window_rect.height() };
-  // Tell our parent GtkFixed container where to place the widget.
-  gtk_fixed_move(
-      GTK_FIXED(parent_), windowed_handle_, window_rect.x(), window_rect.y());
-  gtk_widget_size_allocate(windowed_handle_, &allocation);
+
+  if (window_rect.size() != window_rect_.size()) {
+    // Clipping is handled by WebPlugin.
+    GtkAllocation allocation = { window_rect.x(), window_rect.y(),
+                                 window_rect.width(), window_rect.height() };
+    // TODO(deanm): we probably want to match Windows here, where x and y is
+    // fixed at 0, and we're just sizing the window.
+    // Tell our parent GtkFixed container where to place the widget.
+    gtk_fixed_move(
+        GTK_FIXED(parent_), windowed_handle_, window_rect.x(), window_rect.y());
+    gtk_widget_size_allocate(windowed_handle_, &allocation);
+  }
 
   window_rect_ = window_rect;
   clip_rect_ = clip_rect;
 
+  // TODO(deanm): Is this really needed?
   // Ensure that the entire window gets repainted.
   gtk_widget_queue_draw(windowed_handle_);
 
