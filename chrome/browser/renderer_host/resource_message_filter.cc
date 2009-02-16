@@ -226,13 +226,6 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ScriptedPrint,
                                     OnScriptedPrint)
 #endif
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateAudioStream, OnCreateAudioStream)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_StartAudioStream, OnStartAudioStream)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CloseAudioStream, OnCloseAudioStream)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_NotifyAudioPacketReady,
-                        OnNotifyAudioPacketReady)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetAudioVolume, OnGetAudioVolume)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_SetAudioVolume, OnSetAudioVolume)
     IPC_MESSAGE_UNHANDLED(
         handled = false)
   IPC_END_MESSAGE_MAP_EX()
@@ -757,39 +750,4 @@ void ResourceMessageFilter::Observe(NotificationType type,
 void ResourceMessageFilter::OnDnsPrefetch(
     const std::vector<std::string>& hostnames) {
   chrome_browser_net::DnsPrefetchList(hostnames);
-}
-
-void ResourceMessageFilter::OnCreateAudioStream(
-   const IPC::Message& msg, int stream_id,
-   const ViewHostMsg_Audio_CreateStream& params) {
-  // TODO(hclam): call to AudioRendererHost::CreateStream and send a message to
-  // renderer to notify the result.
-}
-
-void ResourceMessageFilter::OnNotifyAudioPacketReady(
-    const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
-}
-
-void ResourceMessageFilter::OnStartAudioStream(
-    const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
-}
-
-
-void ResourceMessageFilter::OnCloseAudioStream(
-    const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
-}
-
-void ResourceMessageFilter::OnGetAudioVolume(
-    const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message. Send
-  // a message about the volume.
-}
-
-void ResourceMessageFilter::OnSetAudioVolume(
-    const IPC::Message& msg, int stream_id,
-    double left_channel, double right_channel) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
 }

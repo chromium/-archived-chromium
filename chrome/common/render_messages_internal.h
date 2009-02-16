@@ -1109,33 +1109,4 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               int /* network error */,
                               std::string /* proxy list */)
 
-  // Request that got sent to browser for creating an audio output stream
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateAudioStream,
-                      int /* stream_id */,
-                      ViewHostMsg_Audio_CreateStream)
-
-  // Tell the browser the audio buffer prepared for stream
-  // (render_view_id, stream_id) is filled and is ready to be consumed.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_NotifyAudioPacketReady,
-                      int /* stream_id */)
-
-  // Start playing the audio stream specified by (render_view_id, stream_id).
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_StartAudioStream,
-                      int /* stream_id */)
-
-  // Close an audio stream specified by (render_view_id, stream_id).
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_CloseAudioStream,
-                      int /* stream_id */)
-
-  // Get audio volume of the stream specified by (render_view_id, stream_id).
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_GetAudioVolume,
-                      int /* stream_id */)
-
-  // Set audio volume of the stream specified by (render_view_id, stream_id).
-  // TODO(hclam): change this to vector if we have channel numbers other than 2.
-  IPC_MESSAGE_ROUTED3(ViewHostMsg_SetAudioVolume,
-                      int /* stream_id */,
-                      double /* left_channel */,
-                      double /* right_channel */)
-
 IPC_END_MESSAGES(ViewHost)

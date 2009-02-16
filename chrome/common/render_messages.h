@@ -21,7 +21,6 @@
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
-#include "media/audio/audio_output.h"
 #include "net/base/upload_data.h"
 #include "net/url_request/url_request_status.h"
 #include "webkit/glue/autofill_form.h"
@@ -325,23 +324,6 @@ enum ViewHostMsg_ImeControl {
   IME_COMPLETE_COMPOSITION,
 };
 
-// Parameters for creating an audio output stream.
-struct ViewHostMsg_Audio_CreateStream {
-  // Format request for the stream.
-  AudioManager::Format format;
-
-  // Number of channels.
-  int channels;
-
-  // Sampling rate (frequency) of the output stream.
-  int sample_rate;
-
-  // Number of bits per sample;
-  int bits_per_sample;
-
-  // Number of bytes per packet.
-  size_t packet_size;
-};
 
 namespace IPC {
 
@@ -1604,75 +1586,6 @@ struct ParamTraits<ModalDialogEvent> {
     l->append(L"<ModalDialogEvent>");
   }
 };
-
-// Traits for AudioManager::Format.
-template <>
-struct ParamTraits<AudioManager::Format> {
-  typedef AudioManager::Format param_type;
-  static void Write(Message* m, const param_type& p) {
-    m->WriteInt(p);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    int type;
-    if (!m->ReadInt(iter, &type))
-      return false;
-    *p = static_cast<AudioManager::Format>(type);
-    return true;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    std::wstring format;
-    switch (p) {
-     case AudioManager::AUDIO_PCM_LINEAR:
-       format = L"AUDIO_PCM_LINEAR";
-       break;
-     case AudioManager::AUDIO_PCM_DELTA:
-       format = L"AUDIO_PCM_DELTA";
-       break;
-     case AudioManager::AUDIO_MOCK:
-       format = L"AUDIO_MOCK";
-       break;
-     default:
-       format = L"AUDIO_LAST_FORMAT";
-       break;
-    }
-    LogParam(format, l);
-  }
-};
-
-// Traits for ViewHostMsg_Audio_CreateStream.
-template <>
-struct ParamTraits<ViewHostMsg_Audio_CreateStream> {
-  typedef ViewHostMsg_Audio_CreateStream param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.format);
-    WriteParam(m, p.channels);
-    WriteParam(m, p.sample_rate);
-    WriteParam(m, p.bits_per_sample);
-    WriteParam(m, p.packet_size);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->format) &&
-      ReadParam(m, iter, &p->channels) &&
-      ReadParam(m, iter, &p->sample_rate) &&
-      ReadParam(m, iter, &p->bits_per_sample) &&
-      ReadParam(m, iter, &p->packet_size);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<ViewHostMsg_Audio_CreateStream>(");
-    LogParam(p.format, l);
-    l->append(L", ");
-    LogParam(p.channels, l);
-    l->append(L", ");
-    LogParam(p.sample_rate, l);
-    l->append(L", ");
-    LogParam(p.bits_per_sample, l);
-    l->append(L", ");
-    LogParam(p.packet_size, l);
-    l->append(L")");
-  }
-};
-
 
 #if defined(OS_POSIX)
 

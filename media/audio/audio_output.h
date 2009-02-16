@@ -104,11 +104,9 @@ class AudioOutputStream {
 class AudioManager {
  public:
   enum Format {
-    AUDIO_PCM_LINEAR = 0, // Pulse code modulation means 'raw' amplitude
-                          // samples.
-    AUDIO_PCM_DELTA,      // Delta-encoded pulse code modulation.
-    AUDIO_MOCK,           // Creates a dummy AudioOutputStream object.
-    AUDIO_LAST_FORMAT     // Only used for validation of format.
+    AUDIO_PCM_LINEAR,  // Pulse code modulation means 'raw' amplitude samples.
+    AUDIO_PCM_DELTA,   // Delta-encoded pulse code modulation. 
+    AUDIO_MOCK         // Creates a dummy AudioOutputStream object.
   };
 
   // Telephone quality sample rate, mostly for speech-only audio.

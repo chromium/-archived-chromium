@@ -31,7 +31,6 @@ class ClipboardService;
 class Profile;
 class RenderWidgetHelper;
 class SpellChecker;
-struct ViewHostMsg_Audio_CreateStream;
 struct WebPluginInfo;
 
 namespace printing {
@@ -192,16 +191,6 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
       scoped_refptr<printing::PrinterQuery> printer_query,
       IPC::Message* reply_msg);
 #endif
-
-  // Audio related IPC message handlers.
-  void OnCreateAudioStream(const IPC::Message& msg, int stream_id,
-                           const ViewHostMsg_Audio_CreateStream& params);
-  void OnNotifyAudioPacketReady(const IPC::Message& msg, int stream_id);
-  void OnStartAudioStream(const IPC::Message& msg, int stream_id);
-  void OnCloseAudioStream(const IPC::Message& msg, int stream_id);
-  void OnGetAudioVolume(const IPC::Message& msg, int stream_id);
-  void OnSetAudioVolume(const IPC::Message& msg, int stream_id,
-                        double left_channel, double right_channel);
 
   // We have our own clipboard service because we want to access the clipboard
   // on the IO thread instead of forwarding (possibly synchronous) messages to
