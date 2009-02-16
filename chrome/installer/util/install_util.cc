@@ -78,8 +78,7 @@ bool InstallUtil::IsOSSupported() {
   // We do not support Win2K or older, or XP without service pack 1.
   LOG(INFO) << "Windows Version: " << version
             << ", Service Pack: " << major << "." << minor;
-  if ((version == win_util::WINVERSION_VISTA) ||
-      (version == win_util::WINVERSION_SERVER_2003) ||
+  if ((version > win_util::WINVERSION_XP) ||
       (version == win_util::WINVERSION_XP && major >= 1)) {
     return true;
   }
