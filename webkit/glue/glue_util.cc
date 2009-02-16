@@ -110,7 +110,8 @@ WebCore::KURL GURLToKURL(const GURL& url) {
   const std::string& spec = url.possibly_invalid_spec();
 #if USE(GOOGLEURL)
   // Convert using the internal structures to avoid re-parsing.
-  return WebCore::KURL(spec.c_str(), static_cast<int>(spec.length()),
+  return WebCore::KURL(WebCore::CString(spec.c_str(),
+                                        static_cast<unsigned>(spec.length())),
                        url.parsed_for_possibly_invalid_spec(), url.is_valid());
 #else
   return WebCore::KURL(StdWStringToString(UTF8ToWide(spec)));

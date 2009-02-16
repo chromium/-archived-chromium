@@ -9,6 +9,7 @@
 #include "GraphicsContext.h"
 #include "IntRect.h"
 #include "MediaPlayerPrivateChromium.h"
+#include "NotImplemented.h"
 #include "PlatformContextSkia.h"
 #undef LOG
 
@@ -82,6 +83,25 @@ IntSize MediaPlayerPrivate::naturalSize() const {
   } else {
     return IntSize(0, 0);
   }
+}
+
+MediaPlayerPrivateInterface* MediaPlayerPrivate::create(MediaPlayer* player)
+{
+    return new MediaPlayerPrivate(player);
+}
+
+void MediaPlayerPrivate::registerMediaEngine(MediaEngineRegistrar registrar)
+{
+    if (isAvailable())
+        registrar(create, getSupportedTypes, supportsType);
+}
+
+MediaPlayer::SupportsType MediaPlayerPrivate::supportsType(const String &type, const String &codecs)
+{
+    // FIXME: Do the real thing
+    notImplemented();
+
+    return MediaPlayer::IsSupported;
 }
 
 bool MediaPlayerPrivate::hasVideo() const {
@@ -271,7 +291,7 @@ void MediaPlayerPrivate::paint(GraphicsContext* p, const IntRect& r) {
 
 // Called from WebMediaPlayer -------------------------------------------------
 FrameView* MediaPlayerPrivate::frameView() {
-  return m_player->m_frameView;
+  return m_player->frameView();
 }
 
 void MediaPlayerPrivate::networkStateChanged() {

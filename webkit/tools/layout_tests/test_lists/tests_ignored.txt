@@ -220,7 +220,7 @@ SKIP : LayoutTests/plugins/get-url-with-blank-target.html = FAIL
 SKIP : chrome/http/tests/plugins/get-file-url.html = FAIL PASS TIMEOUT
 
 // Dashboard-related test
-SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL
+SKIP : LayoutTests/platform/mac/fast/css/dashboard-region-parser.html = FAIL
 
 // Not a test?
 SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL
