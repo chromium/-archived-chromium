@@ -27,6 +27,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/profile_manager.h"
@@ -65,7 +66,6 @@
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_trial.h"
-#include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/message_window.h"
@@ -462,10 +462,13 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   // Config the network module so it has access to resources.
   net::NetModule::SetResourceProvider(NetResourceProvider);
+#endif
 
   // Register our global network handler for chrome-ui:// and
   // chrome-extension:// URLs.
   RegisterURLRequestChromeJob();
+
+#if defined(OS_WIN)
   RegisterExtensionProtocols();
 
   sandbox::BrokerServices* broker_services =
