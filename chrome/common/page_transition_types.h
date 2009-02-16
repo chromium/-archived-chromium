@@ -22,9 +22,6 @@ class PageTransition {
   // A type is made of a core value and a set of qualifiers. A type has one
   // core value and 0 or or more qualifiers.
   enum {
-    // force this enum to be signed for gcc's benefit
-    UNUSED = -1,
-    
     // User got to this page by clicking a link on another page.
     LINK = 0,
 
@@ -111,10 +108,10 @@ class PageTransition {
   };
 
   // The type used for the bitfield.
-  typedef int Type;
+  typedef unsigned int Type;
 
   static bool ValidType(int32 type) {
-    int32 t = StripQualifier(static_cast<Type>(type));
+    Type t = StripQualifier(static_cast<Type>(type));
     return (t >= 0 && t <= LAST_CORE);
   }
 
