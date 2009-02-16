@@ -56,7 +56,7 @@ class HistoryContentsProviderTest : public testing::Test,
         profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
 
     // Populate history.
-    for (int i = 0; i < arraysize(test_entries); i++) {
+    for (size_t i = 0; i < arraysize(test_entries); i++) {
       // We need the ID scope and page ID so that the visit tracker can find it.
       // We just use the index for the page ID below.
       const void* id_scope = reinterpret_cast<void*>(1);
@@ -102,7 +102,7 @@ TEST_F(HistoryContentsProviderTest, Body) {
 
   // The results should be the first two pages, in decreasing order.
   const ACMatches& m = matches();
-  ASSERT_EQ(2, m.size());
+  ASSERT_EQ(2U, m.size());
   EXPECT_EQ(test_entries[1].url, m[0].destination_url.spec());
   EXPECT_STREQ(test_entries[1].title, m[0].description.c_str());
   EXPECT_EQ(test_entries[0].url, m[1].destination_url.spec());
@@ -115,7 +115,7 @@ TEST_F(HistoryContentsProviderTest, Title) {
 
   // The results should be the first two pages.
   const ACMatches& m = matches();
-  ASSERT_EQ(2, m.size());
+  ASSERT_EQ(2U, m.size());
   EXPECT_EQ(test_entries[1].url, m[0].destination_url.spec());
   EXPECT_STREQ(test_entries[1].title, m[0].description.c_str());
   EXPECT_EQ(test_entries[0].url, m[1].destination_url.spec());
@@ -129,19 +129,19 @@ TEST_F(HistoryContentsProviderTest, MinimalChanges) {
   AutocompleteInput sync_input(L"PAGEONE", std::wstring(), true, false, true);
   RunQuery(sync_input, true);
   const ACMatches& m1 = matches();
-  EXPECT_EQ(0, m1.size());
+  EXPECT_EQ(0U, m1.size());
 
   // Now do a "regular" query to get the results.
   AutocompleteInput async_input(L"PAGEONE", std::wstring(), true, false, false);
   RunQuery(async_input, false);
   const ACMatches& m2 = matches();
-  EXPECT_EQ(2, m2.size());
+  EXPECT_EQ(2U, m2.size());
 
   // Now do a minimal one where we want synchronous results, and the results
   // should still be there.
   RunQuery(sync_input, true);
   const ACMatches& m3 = matches();
-  EXPECT_EQ(2, m3.size());
+  EXPECT_EQ(2U, m3.size());
 }
 
 // Tests that the BookmarkModel is queried correctly.
@@ -157,7 +157,7 @@ TEST_F(HistoryContentsProviderTest, Bookmarks) {
   AutocompleteInput sync_input(L"bar", std::wstring(), true, false, true);
   RunQuery(sync_input, false);
   const ACMatches& m1 = matches();
-  ASSERT_EQ(1, m1.size());
+  ASSERT_EQ(1U, m1.size());
   EXPECT_EQ(bookmark_url, m1[0].destination_url);
   EXPECT_EQ(L"bar", m1[0].description);
   EXPECT_TRUE(m1[0].starred);
@@ -166,7 +166,7 @@ TEST_F(HistoryContentsProviderTest, Bookmarks) {
   AutocompleteInput async_input(L"bar", std::wstring(), true, false, false);
   provider()->Start(async_input, false);
   const ACMatches& m2 = matches();
-  ASSERT_EQ(1, m2.size());
+  ASSERT_EQ(1U, m2.size());
   EXPECT_EQ(bookmark_url, m2[0].destination_url);
 
   // Run the message loop (needed for async history results).
@@ -174,7 +174,7 @@ TEST_F(HistoryContentsProviderTest, Bookmarks) {
 
   // We should two urls now, bookmark_url and http://www.google.com/3.
   const ACMatches& m3 = matches();
-  ASSERT_EQ(2, m3.size());
+  ASSERT_EQ(2U, m3.size());
   if (bookmark_url == m3[0].destination_url) {
     EXPECT_EQ("http://www.google.com/3", m3[1].destination_url.spec());
   } else {

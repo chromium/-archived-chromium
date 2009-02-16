@@ -16,7 +16,7 @@ using base::Time;
 using base::TimeDelta;
 
 struct TestURLInfo {
-  std::wstring url;
+  std::string url;
   std::wstring title;
   int visit_count;
   int typed_count;
@@ -25,60 +25,60 @@ struct TestURLInfo {
 
 // Contents of the test database.
 static TestURLInfo test_db[] = {
-  {L"http://www.google.com/", L"Google", 3, 3, false},
+  {"http://www.google.com/", L"Google", 3, 3, false},
 
   // High-quality pages should get a host synthesized as a lower-quality match.
-  {L"http://slashdot.org/favorite_page.html", L"Favorite page", 200, 100,
+  {"http://slashdot.org/favorite_page.html", L"Favorite page", 200, 100,
    false},
 
   // Less popular pages should have hosts synthesized as higher-quality
   // matches.
-  {L"http://kerneltrap.org/not_very_popular.html", L"Less popular", 4, 0,
+  {"http://kerneltrap.org/not_very_popular.html", L"Less popular", 4, 0,
    false},
 
   // Unpopular pages should not appear in the results at all.
-  {L"http://freshmeat.net/unpopular.html", L"Unpopular", 1, 1, false},
+  {"http://freshmeat.net/unpopular.html", L"Unpopular", 1, 1, false},
 
   // If a host has a match, we should pick it up during host synthesis.
-  {L"http://news.google.com/?ned=us&topic=n", L"Google News - U.S.", 2, 2,
+  {"http://news.google.com/?ned=us&topic=n", L"Google News - U.S.", 2, 2,
    false},
-  {L"http://news.google.com/", L"Google News", 1, 1, false},
+  {"http://news.google.com/", L"Google News", 1, 1, false},
 
   // Suggested short URLs must be "good enough" and must match user input.
-  {L"http://foo.com/", L"Dir", 5, 5, false},
-  {L"http://foo.com/dir/", L"Dir", 2, 2, false},
-  {L"http://foo.com/dir/another/", L"Dir", 5, 1, false},
-  {L"http://foo.com/dir/another/again/", L"Dir", 10, 0, false},
-  {L"http://foo.com/dir/another/again/myfile.html", L"File", 10, 2, false},
+  {"http://foo.com/", L"Dir", 5, 5, false},
+  {"http://foo.com/dir/", L"Dir", 2, 2, false},
+  {"http://foo.com/dir/another/", L"Dir", 5, 1, false},
+  {"http://foo.com/dir/another/again/", L"Dir", 10, 0, false},
+  {"http://foo.com/dir/another/again/myfile.html", L"File", 10, 2, false},
 
   // Starred state is more important than visit count (but less important than
   // typed count) when sorting URLs.  The order in which the URLs were starred
   // shouldn't matter.
   // We throw in a lot of extra URLs here to make sure we're testing the
   // history database's query, not just the autocomplete provider.
-  {L"http://startest.com/y/a", L"A", 2, 2, true},
-  {L"http://startest.com/y/b", L"B", 5, 2, false},
-  {L"http://startest.com/x/c", L"C", 5, 2, true},
-  {L"http://startest.com/x/d", L"D", 5, 5, false},
-  {L"http://startest.com/y/e", L"E", 4, 2, false},
-  {L"http://startest.com/y/f", L"F", 3, 2, false},
-  {L"http://startest.com/y/g", L"G", 3, 2, false},
-  {L"http://startest.com/y/h", L"H", 3, 2, false},
-  {L"http://startest.com/y/i", L"I", 3, 2, false},
-  {L"http://startest.com/y/j", L"J", 3, 2, false},
-  {L"http://startest.com/y/k", L"K", 3, 2, false},
-  {L"http://startest.com/y/l", L"L", 3, 2, false},
-  {L"http://startest.com/y/m", L"M", 3, 2, false},
+  {"http://startest.com/y/a", L"A", 2, 2, true},
+  {"http://startest.com/y/b", L"B", 5, 2, false},
+  {"http://startest.com/x/c", L"C", 5, 2, true},
+  {"http://startest.com/x/d", L"D", 5, 5, false},
+  {"http://startest.com/y/e", L"E", 4, 2, false},
+  {"http://startest.com/y/f", L"F", 3, 2, false},
+  {"http://startest.com/y/g", L"G", 3, 2, false},
+  {"http://startest.com/y/h", L"H", 3, 2, false},
+  {"http://startest.com/y/i", L"I", 3, 2, false},
+  {"http://startest.com/y/j", L"J", 3, 2, false},
+  {"http://startest.com/y/k", L"K", 3, 2, false},
+  {"http://startest.com/y/l", L"L", 3, 2, false},
+  {"http://startest.com/y/m", L"M", 3, 2, false},
 
   // A file: URL is useful for testing that fixup does the right thing w.r.t.
   // the number of trailing slashes on the user's input.
-  {L"file:///C:/foo.txt", L"", 2, 2, false},
+  {"file:///C:/foo.txt", L"", 2, 2, false},
 
   // Results with absurdly high typed_counts so that very generic queries like
   // "http" will give consistent results even if more data is added above.
-  {L"http://bogussite.com/a", L"Bogus A", 10002, 10000, false},
-  {L"http://bogussite.com/b", L"Bogus B", 10001, 10000, false},
-  {L"http://bogussite.com/c", L"Bogus C", 10000, 10000, false},
+  {"http://bogussite.com/a", L"Bogus A", 10002, 10000, false},
+  {"http://bogussite.com/b", L"Bogus B", 10001, 10000, false},
+  {"http://bogussite.com/c", L"Bogus C", 10000, 10000, false},
 };
 
 class HistoryURLProviderTest : public testing::Test,
@@ -100,7 +100,7 @@ class HistoryURLProviderTest : public testing::Test,
                const std::wstring& desired_tld,
                bool prevent_inline_autocomplete,
                const std::string* expected_urls,
-               int num_results);
+               size_t num_results);
 
   MessageLoopForUI message_loop_;
   ACMatches matches_;
@@ -141,7 +141,7 @@ void HistoryURLProviderTest::FillData() {
   // case the time would be specifed in the test_db structure.
   Time visit_time = Time::Now() - TimeDelta::FromDays(80);
 
-  for (int i = 0; i < arraysize(test_db); ++i) {
+  for (size_t i = 0; i < arraysize(test_db); ++i) {
     const TestURLInfo& cur = test_db[i];
     const GURL current_url(cur.url);
     history_service_->AddPageWithDetails(current_url, cur.title,
@@ -158,7 +158,7 @@ void HistoryURLProviderTest::RunTest(const std::wstring text,
                                      const std::wstring& desired_tld,
                                      bool prevent_inline_autocomplete,
                                      const std::string* expected_urls,
-                                     int num_results) {
+                                     size_t num_results) {
   AutocompleteInput input(text, desired_tld, prevent_inline_autocomplete,
                           false, false);
   autocomplete_->Start(input, false);
@@ -167,7 +167,7 @@ void HistoryURLProviderTest::RunTest(const std::wstring text,
 
   matches_ = autocomplete_->matches();
   ASSERT_EQ(num_results, matches_.size());
-  for (int i = 0; i < num_results; ++i)
+  for (size_t i = 0; i < num_results; ++i)
     EXPECT_EQ(expected_urls[i], matches_[i].destination_url.spec());
 }
 
@@ -288,7 +288,7 @@ TEST_F(HistoryURLProviderTest, CullRedirects) {
     {"http://redirects/B", 20},
     {"http://redirects/C", 10}
   };
-  for (int i = 0; i < arraysize(redirect); i++) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(redirect); i++) {
     history_service_->AddPageWithDetails(GURL(redirect[i].url), L"Title",
                                          redirect[i].count, redirect[i].count,
                                          Time::Now(), false);
