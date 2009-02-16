@@ -11,7 +11,6 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/debugger/debugger_contents.h"
-#include "chrome/browser/debugger/tools_contents.h"
 #include "chrome/browser/tab_contents/native_ui_contents.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
@@ -62,9 +61,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_DEBUGGER:
       contents = new DebuggerContents(profile, instance);
       break;
-    case TAB_CONTENTS_TOOLS:
-      contents = new ToolsContents(profile, instance);
-      break;
     case TAB_CONTENTS_DOM_UI:
       contents = new DOMUIContents(profile, instance, NULL);
       break;
@@ -111,9 +107,6 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
 
   if (DebuggerContents::IsDebuggerUrl(*url))
     return TAB_CONTENTS_DEBUGGER;
-
-  if (ToolsContents::IsToolsUrl(*url))
-    return TAB_CONTENTS_TOOLS;
 
   if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))
     return TAB_CONTENTS_DOM_UI;

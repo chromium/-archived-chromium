@@ -11,7 +11,6 @@
 #include "base/command_line.h"
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/native_widget_types.h"
-#include "base/process_util.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
@@ -26,7 +25,6 @@
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/renderer/about_handler.h"
 #include "chrome/renderer/debug_message_handler.h"
-#include "chrome/renderer/tools_client.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/user_script_slave.h"
@@ -170,9 +168,6 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       method_factory_(this),
       first_default_plugin_(NULL),
       printed_document_width_(0),
-      tools_agent_(NULL),
-      enable_tools_client_(false),
-      tools_client_(NULL),
       history_back_list_count_(0),
       history_forward_list_count_(0),
       disable_popup_blocking_(false),
@@ -201,10 +196,6 @@ RenderView::~RenderView() {
   }
 
   render_thread_->RemoveFilter(debug_message_handler_);
-  render_thread_->RemoveFilter(tools_agent_);
-  if (tools_client_.get()) {
-    render_thread_->RemoveFilter(tools_client_);
-  }
 
 #ifdef CHROME_PERSONALIZATION
   Personalization::CleanupRendererPersonalization(personalization_);
@@ -322,9 +313,6 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
-
-  tools_agent_ = new ToolsAgent(this);
-  render_thread_->AddFilter(tools_agent_);
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -367,7 +355,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_SetPageEncoding, OnSetPageEncoding)
     IPC_MESSAGE_HANDLER(ViewMsg_InspectElement, OnInspectElement)
     IPC_MESSAGE_HANDLER(ViewMsg_ShowJavaScriptConsole, OnShowJavaScriptConsole)
-    IPC_MESSAGE_HANDLER(ViewMsg_SetUpToolsClient, OnSetUpToolsClient)
     IPC_MESSAGE_HANDLER(ViewMsg_DownloadImage, OnDownloadImage)
     IPC_MESSAGE_HANDLER(ViewMsg_ScriptEvalRequest, OnScriptEvalRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_AddMessageToConsole, OnAddMessageToConsole)
@@ -908,10 +895,6 @@ void RenderView::OnInspectElement(int x, int y) {
 
 void RenderView::OnShowJavaScriptConsole() {
   webview()->ShowJavaScriptConsole();
-}
-
-void RenderView::OnSetUpToolsClient() {
-  enable_tools_client_ = true;
 }
 
 void RenderView::OnStopFinding(bool clear_selection) {
@@ -1519,13 +1502,6 @@ void RenderView::BindDOMAutomationController(WebFrame* webframe) {
                                               L"domAutomationController");
 }
 
-void RenderView::CreateToolsClient() {
-  DCHECK(!tools_client_.get());
-  tools_client_ = new ToolsClient(this);
-  webview()->SetUpToolsProxy(tools_client_);
-  render_thread_->AddFilter(tools_client_);
-}
-
 void RenderView::WindowObjectCleared(WebFrame* webframe) {
   external_js_object_.set_render_view(this);
   external_js_object_.BindToJavascript(webframe, L"external");
@@ -1540,11 +1516,6 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
     external_host_bindings_.set_message_sender(this);
     external_host_bindings_.set_routing_id(routing_id_);
     external_host_bindings_.BindToJavascript(webframe, L"externalHost");
-  }
-  // TODO(yurys): we wouldn't need to check that tools_client_ is not set yet if
-  // WindowObjectCleared were not called several times recursively
-  if (enable_tools_client_ && !tools_client_.get()) {
-    CreateToolsClient();
   }
 
 #ifdef CHROME_PERSONALIZATION

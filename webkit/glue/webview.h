@@ -12,7 +12,6 @@
 #include "base/ref_counted.h"
 #include "webkit/glue/webwidget.h"
 
-class ToolsProxy;
 struct WebDropData;
 struct WebPreferences;
 class GURL;
@@ -165,10 +164,6 @@ class WebView : public WebWidget {
 
   // Show the JavaScript console.
   virtual void ShowJavaScriptConsole() = 0;
-
-  // Set up developer tools UI bindings. It is guaranteed that tools_proxy will 
-  // overlive this webview.
-  virtual void SetUpToolsProxy(ToolsProxy* tools_proxy) = 0;
 
   // Notifies the webview that a drag has terminated.
   virtual void DragSourceEndedAt(
