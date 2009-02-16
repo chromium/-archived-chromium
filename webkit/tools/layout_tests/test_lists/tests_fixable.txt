@@ -1763,3 +1763,8 @@ LINUX WIN : LayoutTests/http/tests/navigation/redirect302-frames.html = PASS FAI
 // Regression from r9839.
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_position-table-column.html = FAIL
 
+// Regressions from WebKit merge 40875:41017
+LINUX : LayoutTests/fast/css-generated-content/beforeAfter-interdocument.html = FAIL
+// just need to be rebaselined
+LINUX : LayoutTests/fast/lists/drag-into-marker.html = FAIL
+MAC : LayoutTests/fast/lists/001.html = FAIL
