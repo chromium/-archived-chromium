@@ -48,10 +48,10 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
                  MB_OK | MB_SETFOREGROUND);
 #elif defined(OS_LINUX)
     // TODO(port): create an abstraction layer for dialog boxes and use it here.
-    std::string text = StringPrintf("attach to me at pid %d", getpid());
     GtkWidget* dialog = gtk_message_dialog_new(
-        NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, text.c_str());
-    gtk_window_set_title(GTK_WINDOW(dialog), "renderer starting...");
+        NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+        "Attach to renderer at pid %d.", getpid());
+    gtk_window_set_title(GTK_WINDOW(dialog), "Renderer starting...");
     gtk_dialog_run(GTK_DIALOG(dialog));  // Runs a nested message loop.
     gtk_widget_destroy(dialog);
 #elif defined(OS_MACOSX)
