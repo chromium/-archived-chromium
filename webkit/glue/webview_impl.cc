@@ -1426,6 +1426,11 @@ void WebViewImpl::ShowJavaScriptConsole() {
   page_->inspectorController()->showPanel(InspectorController::ConsolePanel);
 }
 
+void WebViewImpl::SetUpToolsProxy(ToolsProxy* tools_proxy) {
+  DCHECK(page_ != NULL);
+  // TODO(yurys): implement
+}
+
 void WebViewImpl::DragSourceEndedAt(
     int client_x, int client_y, int screen_x, int screen_y) {
   PlatformMouseEvent pme(IntPoint(client_x, client_y),
