@@ -96,13 +96,6 @@ bool ShellIntegration::IsDefaultBrowser() {
 
 //--------------------------------------------------------------------------
 
-namespace browser_shutdown {
-bool delete_resources_on_shutdown = true;
-void ReadLastShutdownInfo()  { NOTIMPLEMENTED(); }
-void Shutdown() { NOTIMPLEMENTED(); }
-void OnShutdownStarting(ShutdownType type) { NOTIMPLEMENTED(); }
-}
-
 // static
 bool FirstRun::IsChromeFirstRun() {
   NOTIMPLEMENTED();
@@ -172,6 +165,10 @@ void PluginService::SetChromePluginDataDir(const FilePath& data_dir) {
 //--------------------------------------------------------------------------
 
 void InstallJankometer(const CommandLine&) {
+  NOTIMPLEMENTED();
+}
+
+void UninstallJankometer() {
   NOTIMPLEMENTED();
 }
 
@@ -325,6 +322,10 @@ void TabContents::UpdateMaxPageID(int32 page_id) {
 
 //--------------------------------------------------------------------------
 
+void RLZTracker::CleanupRlz() {
+  NOTIMPLEMENTED();
+}
+
 bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {
   NOTIMPLEMENTED();
   return false;
@@ -348,7 +349,11 @@ namespace chrome_browser_net {
 
 void EnableDnsPrefetch(bool) { NOTIMPLEMENTED(); }
 
-void DnsPrefetchList(const std::vector<std::string>& hostnames) { NOTIMPLEMENTED(); }
+void DnsPrefetchList(const std::vector<std::string>& hostnames) {
+  NOTIMPLEMENTED();
+}
+
+void SaveHostNamesForNextStartup(PrefService* local_state) { NOTIMPLEMENTED(); }
 
 }  // namespace chrome_browser_net
 
@@ -403,6 +408,10 @@ StringPiece ResourceBundle::GetRawDataResource(int resource_id) {
 std::string ResourceBundle::GetDataResource(int resource_id) {
   NOTIMPLEMENTED();
   return "";
+}
+
+void ResourceBundle::CleanupSharedInstance() {
+  NOTIMPLEMENTED();
 }
 
 #endif

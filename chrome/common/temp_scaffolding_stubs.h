@@ -828,6 +828,7 @@ class PluginService {
                            const std::string& clsid,
                            const std::wstring& locale,
                            IPC::Message* reply_msg) { NOTIMPLEMENTED(); }
+  void Shutdown() { NOTIMPLEMENTED(); }
  private:
   MessageLoop* main_message_loop_;
   ResourceDispatcherHost* resource_dispatcher_host_;
