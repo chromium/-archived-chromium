@@ -48,8 +48,9 @@ class WebCoreStringResource: public v8::String::ExternalStringResource {
 // Convert a v8::String to a WebCore::String. If the V8 string is not already
 // an external string then it is transformed into an external string at this
 // point to avoid repeated conversions.
-inline String ToWebCoreString(v8::Handle<v8::Value> obj,
-                              bool atomic = false) {
+inline String ToWebCoreString(v8::Handle<v8::Value> obj) {
+  bool morph = false;
+  bool atomic = false;
   v8::TryCatch block;
   v8::Local<v8::String> v8_str = obj->ToString();
   if (v8_str.IsEmpty())
@@ -78,10 +79,12 @@ inline String ToWebCoreString(v8::Handle<v8::Value> obj,
   } else {
     result = StringImpl::adopt(buf);
   }
-  WebCoreStringResource* resource = new WebCoreStringResource(result);
-  if (!v8_str->MakeExternal(resource)) {
-    // In case of a failure delete the external resource as it was not used.
-    delete resource;
+  if (morph) {
+    WebCoreStringResource* resource = new WebCoreStringResource(result);
+    if (!v8_str->MakeExternal(resource)) {
+      // In case of a failure delete the external resource as it was not used.
+      delete resource;
+    }
   }
   return result;
 }
