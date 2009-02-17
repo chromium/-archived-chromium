@@ -30,6 +30,7 @@ import shutil
 import subprocess
 import sys
 import time
+import traceback
 
 import google.path_utils
 
@@ -362,9 +363,27 @@ class TestRunner:
 
     # Wait for the threads to finish and collect test failures.
     test_failures = {}
+    try:
+      for thread in threads:
+        while thread.isAlive():
+          # Let it timeout occasionally so it can notice a KeyboardInterrupt
+          # Actually, the timeout doesn't really matter: apparently it
+          # suffices to not use an indefinite blocking join for it to
+          # be interruptible by KeyboardInterrupt.
+          thread.join(1.0)
+        test_failures.update(thread.GetFailures())
+    except KeyboardInterrupt:
+      for thread in threads:
+        thread.Cancel()
+      raise
     for thread in threads:
-      thread.join()
-      test_failures.update(thread.GetFailures())
+      # Check whether a TestShellThread died before normal completion.
+      exception_info = thread.GetExceptionInfo()
+      if exception_info is not None:
+        # Re-raise the thread's exception here to make it clear that
+        # testing was aborted. Otherwise, the tests that did not run
+        # would be assumed to have passed.
+        raise exception_info[0], exception_info[1], exception_info[2]
 
     print
     end_time = time.time()

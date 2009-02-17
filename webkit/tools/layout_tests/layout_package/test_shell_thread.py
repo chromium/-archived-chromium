@@ -14,7 +14,9 @@ import copy
 import logging
 import os
 import Queue
+import signal
 import subprocess
+import sys
 import thread
 import threading
 
@@ -57,7 +59,12 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
       # This is hex code 0xc000001d, which is used for abrupt termination.
       # This happens if we hit ctrl+c from the prompt and we happen to
       # be waiting on the test_shell.
-      if -1073741510 == proc.returncode:
+      # sdoyon: Not sure for which OS and in what circumstances the
+      # above code is valid. What works for me under Linux to detect
+      # ctrl+c is for the subprocess returncode to be negative SIGINT. And
+      # that agrees with the subprocess documentation.
+      if (-1073741510 == proc.returncode or
+          -signal.SIGINT == proc.returncode):
         raise KeyboardInterrupt
       crash_or_timeout = True
       break
@@ -162,6 +169,8 @@ class TestShellThread(threading.Thread):
     self._shell_args = shell_args
     self._options = options
     self._failures = {}
+    self._canceled = False
+    self._exception_info = None
 
     if self._options.run_singly:
       # When we're running one test per test_shell process, we can enforce
@@ -180,8 +189,30 @@ class TestShellThread(threading.Thread):
     TestFailures."""
     return self._failures
 
+  def Cancel(self):
+    """Set a flag telling this thread to quit."""
+    self._canceled = True
+
+  def GetExceptionInfo(self):
+    """If run() terminated on an uncaught exception, return it here
+    ((type, value, traceback) tuple).
+    Returns None if run() terminated normally. Meant to be called after
+    joining this thread."""
+    return self._exception_info
+
   def run(self):
-    """Main work entry point of the thread.  Basically we pull urls from the
+    """Delegate main work to a helper method and watch for uncaught
+    exceptions."""
+    try:
+      self._Run()
+    except:
+      # Save the exception for our caller to see.
+      self._exception_info = sys.exc_info()
+      # Re-raise it and die.
+      raise
+
+  def _Run(self):
+    """Main work entry point of the thread. Basically we pull urls from the
     filename queue and run the tests until we run out of urls."""
     batch_size = 0
     batch_count = 0
@@ -192,6 +223,9 @@ class TestShellThread(threading.Thread):
         logging.info("Ignoring invalid batch size '%s'" %
                      self._options.batch_size)
     while True:
+      if self._canceled:
+        logging.info('Testing canceled')
+        return
       try:
         filename, test_uri = self._filename_queue.get_nowait()
       except Queue.Empty:
@@ -270,6 +304,12 @@ class TestShellThread(threading.Thread):
 
     # Ok, load the test URL...
     self._test_shell_proc.stdin.write(test_uri + "\n")
+    # If the test shell is dead, the above may cause an IOError as we
+    # try to write onto the broken pipe. If this is the first test for
+    # this test shell process, than the test shell did not
+    # successfully start. If this is not the first test, then the
+    # previous tests have caused some kind of delayed crash. We don't
+    # try to recover here.
     self._test_shell_proc.stdin.flush()
 
     # ...and read the response
@@ -296,4 +336,3 @@ class TestShellThread(threading.Thread):
       if self._test_shell_proc.stderr:
         self._test_shell_proc.stderr.close()
       self._test_shell_proc = None
-
