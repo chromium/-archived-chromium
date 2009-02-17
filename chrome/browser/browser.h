@@ -339,11 +339,11 @@ class Browser : public TabStripModelDelegate,
   virtual void CreateHistoricalTab(TabContents* contents);
   virtual bool RunUnloadListenerBeforeClosing(TabContents* contents);
 
-#if defined(OS_WIN)
   // Overridden from TabStripModelObserver:
   virtual void TabInsertedAt(TabContents* contents,
                              int index,
                              bool foreground);
+#if defined(OS_WIN)
   virtual void TabClosingAt(TabContents* contents, int index);
   virtual void TabDetachedAt(TabContents* contents, int index);
 #endif
@@ -386,7 +386,9 @@ class Browser : public TabStripModelDelegate,
   virtual void ContentsZoomChange(bool zoom_in);
   virtual bool IsApplication() const;
   virtual void ConvertContentsToApplication(TabContents* source);
+#endif
   virtual void ContentsStateChanged(TabContents* source);
+#if defined(OS_WIN)
   virtual bool ShouldDisplayURLField();
   virtual void BeforeUnloadFired(TabContents* source,
                                  bool proceed,

@@ -4,11 +4,13 @@
 
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 
+#import "base/sys_string_conversions.h"
 #import "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_cell.h"
 #import "chrome/browser/cocoa/tab_contents_controller.h"
 #import "chrome/browser/tabs/tab_strip_model.h"
+#import "chrome/common/temp_scaffolding_stubs.h"
 
 // The amount of overlap tabs have in their button frames.
 const short kTabOverlap = 16;
@@ -24,6 +26,8 @@ const short kTabOverlap = 16;
                   userGesture:(bool)wasUserGesture;
 - (void)tabDetachedWithContents:(TabContents*)contents
                         atIndex:(NSInteger)index;
+- (void)tabChangedWithContents:(TabContents*)contents 
+                       atIndex:(NSInteger)index;
 @end
 
 // A C++ bridge class to handle receiving notifications from the C++ tab
@@ -181,6 +185,17 @@ class TabStripBridge : public TabStripModelObserver {
   return NSMakeRect(xOffset, 0, kNewTabWidth, [tabView_ frame].size.height);
 }
 
+// Handles setting the title of the tab based on the given |contents|. Uses
+// a canned string if |contents| is NULL.
+- (void)setTabTitle:(NSButton*)tab withContents:(TabContents*)contents {
+  NSString* titleString = nil;
+  if (contents)
+    titleString = base::SysWideToNSString(contents->GetTitle());
+  if (![titleString length])
+    titleString = NSLocalizedString(@"untitled", nil);
+  [tab setTitle:titleString];
+}
+
 // Called when a notification is received from the model to insert a new tab
 // at |index|.
 - (void)insertTabWithContents:(TabContents*)contents
@@ -193,8 +208,6 @@ class TabStripBridge : public TabStripModelObserver {
 
   // Make a new tab. Load the contents of this tab from the nib and associate
   // the new controller with |contents| so it can be looked up later.
-  // TODO(pinkerton): will eventually need to pass |contents| to the 
-  // controller to complete hooking things up.
   TabContentsController* contentsController =
       [[[TabContentsController alloc] initWithNibName:@"TabContents" 
                                                bundle:nil
@@ -213,6 +226,8 @@ class TabStripBridge : public TabStripModelObserver {
   NSRect newTabFrame = [self frameForNewTabAtIndex:index];
   NSButton* newView = [self newTabWithFrame:newTabFrame];
   [tabView_ addSubview:newView];
+  
+  [self setTabTitle:newView withContents:contents];
   
   // Add the new tab button back in to the right of the last tab.
   const NSInteger kNewTabXOffset = 10;
@@ -278,6 +293,18 @@ class TabStripBridge : public TabStripModelObserver {
     newFrame.origin.x -= tabWidth - kTabOverlap;
     [curr setFrame:newFrame];
   }
+}
+
+// Called when a notification is received from the model that the given tab
+// has been updated.
+- (void)tabChangedWithContents:(TabContents*)contents 
+                       atIndex:(NSInteger)index {
+  NSButton* tab = [[tabView_ subviews] objectAtIndex:index];
+  [self setTabTitle:tab withContents:contents];
+  
+  TabContentsController* updatedController =
+      [self controllerWithContents:contents];
+  [updatedController tabDidChange];
 }
 
 - (LocationBar*)locationBar {
@@ -353,7 +380,7 @@ void TabStripBridge::TabMoved(TabContents* contents,
 }
 
 void TabStripBridge::TabChangedAt(TabContents* contents, int index) {
-  NOTIMPLEMENTED();
+  [controller_ tabChangedWithContents:contents atIndex:index];
 }
 
 void TabStripBridge::TabStripEmpty() {

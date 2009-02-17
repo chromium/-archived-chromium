@@ -1378,7 +1378,6 @@ bool Browser::RunUnloadListenerBeforeClosing(TabContents* contents) {
   return false;
 }
 
-#if defined(OS_WIN)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabStripModelObserver implementation:
@@ -1391,6 +1390,7 @@ void Browser::TabInsertedAt(TabContents* contents,
 
   SyncHistoryWithTabs(tabstrip_model_.GetIndexOfTabContents(contents));
 
+#if defined(OS_WIN)
   // When a tab is dropped into a tab strip we need to make sure that the
   // associated Find window is moved along with it. We therefore change the
   // parent of the Find window (if the parent is already correctly set this
@@ -1400,6 +1400,7 @@ void Browser::TabInsertedAt(TabContents* contents,
   WebContents* web_contents = contents->AsWebContents();
   if (web_contents)
     web_contents->view()->ReparentFindWindow(this);
+#endif
 
   // Make sure the loading state is updated correctly, otherwise the throbber
   // won't start if the page is loading.
@@ -1412,6 +1413,8 @@ void Browser::TabInsertedAt(TabContents* contents,
       NotificationType::WEB_CONTENTS_DISCONNECTED,
       Source<TabContents>(contents));
 }
+
+#if defined(OS_WIN)
 
 void Browser::TabClosingAt(TabContents* contents, int index) {
   NavigationController* controller = contents->controller();
@@ -1799,11 +1802,15 @@ void Browser::ConvertContentsToApplication(TabContents* contents) {
   browser->window()->Show();
 }
 
+#endif // OS_WIN
+
 void Browser::ContentsStateChanged(TabContents* source) {
   int index = tabstrip_model_.GetIndexOfTabContents(source);
   if (index != TabStripModel::kNoTab)
     tabstrip_model_.UpdateTabContentsStateAt(index);
 }
+
+#if defined(OS_WIN)
 
 bool Browser::ShouldDisplayURLField() {
   return !IsApplication();

@@ -166,6 +166,11 @@ class LocationBarBridge : public LocationBar {
   [self updateToolbarCommandStatus];
 }
 
+- (void)tabDidChange {
+  // TODO(pinkerton): what specificaly do we need to update here?
+  NOTIMPLEMENTED();
+}
+
 - (NSString*)locationBarString {
   return [locationBar_ stringValue];
 }
