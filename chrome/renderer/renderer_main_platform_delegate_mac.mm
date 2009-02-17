@@ -6,12 +6,14 @@
 
 #include "base/debug_util.h"
 
-#include <ApplicationServices/ApplicationServices.h>
+#import <Foundation/Foundation.h>
+#import <ApplicationServices/ApplicationServices.h>
 extern "C" {
 #include <sandbox.h>
 }
 
 #include "base/sys_info.h"
+#include "chrome/common/chrome_switches.h"
 #include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
 RendererMainPlatformDelegate::RendererMainPlatformDelegate(
@@ -50,10 +52,6 @@ bool RendererMainPlatformDelegate::InitSandboxTests(bool no_sandbox) {
 
 bool RendererMainPlatformDelegate::EnableSandbox() {
 
-  // TODO(port): hack
-  // With the sandbox on we don't have fonts in WebKit!
-  return true;
-
   // This call doesn't work when the sandbox is enabled, the implementation
   // caches it's return value so we call it here and then future calls will
   // succeed.
@@ -63,8 +61,28 @@ bool RendererMainPlatformDelegate::EnableSandbox() {
   // with the Sandbox enabled.
   base::SysInfo::CacheSysInfo();
 
+  // For the renderer, we give it a custom sandbox to lock down as tight as
+  // possible, but still be able to draw.  If we're not a renderer process, it
+  // usually means we're a unittest, so we use a pure compute sandbox instead.
+  
+  const char *sandbox_profile = kSBXProfilePureComputation;
+  uint64_t sandbox_flags = SANDBOX_NAMED;
+
+  if (parameters_.sandbox_info_.ProcessType() == switches::kRendererProcess) {
+    NSString* sandbox_profile_path =
+        [[NSBundle mainBundle] pathForResource:@"renderer" ofType:@"sb"];
+    BOOL is_dir = NO;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:sandbox_profile_path
+                                              isDirectory:&is_dir] || is_dir) {
+      LOG(ERROR) << "Failed to find the sandbox profile on disk";
+      return false;
+    }
+    sandbox_profile = [sandbox_profile_path fileSystemRepresentation];
+    sandbox_flags = SANDBOX_NAMED_EXTERNAL;
+  }
+  
   char* error_buff = NULL;
-  int error = sandbox_init(kSBXProfilePureComputation, SANDBOX_NAMED,
+  int error = sandbox_init(sandbox_profile, sandbox_flags,
                            &error_buff);
   bool success = (error == 0 && error_buff == NULL);
   if (error == -1) {

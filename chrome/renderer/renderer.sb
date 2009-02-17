@@ -1,0 +1,15 @@
+;;
+;; Copyright (c) 2009 The Chromium Authors. All rights reserved.
+;; Use of this source code is governed by a BSD-style license that can be
+;; found in the LICENSE file.
+;;
+(version 1)
+(deny default)
+
+; Allow following symlinks
+(allow file-read-metadata)
+; Allow reading files out of /System/Library
+(allow file-read-data (regex #"^/System/Library"))
+
+; Needed for Fonts
+(allow mach-lookup (global-name "com.apple.FontObjectsServer"))

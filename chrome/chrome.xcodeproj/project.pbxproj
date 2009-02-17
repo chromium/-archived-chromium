@@ -322,7 +322,7 @@
 		B503E1030F017C1000547DC6 /* librenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */; };
 		B507AC1F0F0048E10060FEE8 /* ipc_sync_message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBA0E9D4C9F009A6919 /* ipc_sync_message.cc */; };
 		B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBBC0E9D4C9F009A6919 /* ipc_sync_message_unittest.cc */; };
-		B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */; };
+		B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm */; };
 		B51F6D2E0F37D04200152D66 /* renderer_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD90EAE868600EBCFC0 /* renderer_main.cc */; };
 		B52E29BE0F0AA333008AD1C8 /* l10n_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBCB0E9D4C9F009A6919 /* l10n_util_unittest.cc */; };
 		B54BD8FC0ED622C00093FD54 /* mach_message_source_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */; };
@@ -581,6 +581,7 @@
 		E9104FE91402AE1783A22D93 /* alternate_nav_url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8240E9D4839009A6919 /* alternate_nav_url_fetcher.cc */; };
 		EA8058FD371756B46906B157 /* password_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EB40F21445600861FAC /* password_manager.cc */; };
 		F081CEE97F8C75FEAF3D0FD2 /* jstemplate_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC70E9D4C9F009A6919 /* jstemplate_builder.cc */; };
+		F4143C8C0F4B1D43008C8F73 /* renderer.sb in Resources */ = {isa = PBXBuildFile; fileRef = F4143C8B0F4B1D07008C8F73 /* renderer.sb */; };
 		F47CA1280F44AE0E00FFFAFB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B004E0E9D5464009A6919 /* libnet.a */; };
 		F47CA1290F44AE2800FFFAFB /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
 		F47CA12A0F44AE3500FFFAFB /* libwtf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850240F2FC82E009F6555 /* libwtf.a */; };
@@ -2489,7 +2490,7 @@
 		B020A11D500D7519E54F2957 /* tab_restore_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tab_restore_service.cc; path = sessions/tab_restore_service.cc; sourceTree = "<group>"; };
 		B51F6D110F37C4DC00152D66 /* renderer_main_platform_delegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_main_platform_delegate.h; sourceTree = "<group>"; };
 		B51F6D120F37C4DC00152D66 /* renderer_main_platform_delegate_win.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_platform_delegate_win.cc; sourceTree = "<group>"; };
-		B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_main_platform_delegate_mac.cc; sourceTree = "<group>"; };
+		B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = renderer_main_platform_delegate_mac.mm; sourceTree = "<group>"; };
 		B54BD8FA0ED622C00093FD54 /* mach_message_source_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mach_message_source_mac.cc; sourceTree = "<group>"; };
 		B54BD8FB0ED622C00093FD54 /* mach_message_source_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mach_message_source_mac.h; sourceTree = "<group>"; };
 		B555B2160F21504D00F751B9 /* metrics_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metrics_service.h; path = metrics/metrics_service.h; sourceTree = "<group>"; };
@@ -2765,6 +2766,7 @@
 		E4F324790EE5D17E002533CE /* referrer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = referrer.cc; sourceTree = "<group>"; };
 		EA72C084DB3FC0FC595E525E /* template_url_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url_model.cc; sourceTree = "<group>"; };
 		EA72CF50C0AB4492A644C703 /* url_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_fetcher.h; sourceTree = "<group>"; };
+		F4143C8B0F4B1D07008C8F73 /* renderer.sb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = renderer.sb; sourceTree = "<group>"; };
 		F60D7722C1302E1EC789B67A /* ssl_host_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ssl_host_state.cc; path = ssl/ssl_host_state.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3030,6 +3032,7 @@
 				4D640CCF0EAE868600EBCFC0 /* render_process.cc */,
 				4D640CD00EAE868600EBCFC0 /* render_process.h */,
 				3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */,
+				F4143C8B0F4B1D07008C8F73 /* renderer.sb */,
 				4D640CD10EAE868600EBCFC0 /* render_thread.cc */,
 				4D640CD20EAE868600EBCFC0 /* render_thread.h */,
 				3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */,
@@ -3042,7 +3045,7 @@
 				4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */,
 				4D640CD90EAE868600EBCFC0 /* renderer_main.cc */,
 				B51F6D110F37C4DC00152D66 /* renderer_main_platform_delegate.h */,
-				B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc */,
+				B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm */,
 				B51F6D120F37C4DC00152D66 /* renderer_main_platform_delegate_win.cc */,
 				B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */,
 				4D640CDA0EAE868600EBCFC0 /* renderer_resources.h */,
@@ -5164,6 +5167,7 @@
 				E43A7A070F1D192000ABD5D1 /* notAllowedCursor.png in Resources */,
 				E43A7A080F1D192000ABD5D1 /* progressCursor.png in Resources */,
 				E46C50560F291C1E00B393B8 /* reload.pdf in Resources */,
+				F4143C8C0F4B1D43008C8F73 /* renderer.sb in Resources */,
 				824FC14F0F44C56A000299E5 /* sadtab.png in Resources */,
 				E43A7A090F1D192000ABD5D1 /* southEastResizeCursor.png in Resources */,
 				E43A7A0A0F1D192000ABD5D1 /* southResizeCursor.png in Resources */,
@@ -5331,7 +5335,7 @@
 				A7A20E650F3A1E1C00F62B4D /* render_view.cc in Sources */,
 				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
 				B51F6D2E0F37D04200152D66 /* renderer_main.cc in Sources */,
-				B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.cc in Sources */,
+				B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm in Sources */,
 				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
