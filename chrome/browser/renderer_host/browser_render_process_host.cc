@@ -13,11 +13,13 @@
 
 #include "base/command_line.h"
 #include "base/debug_util.h"
+#include "base/linked_ptr.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/rand_util.h"
 #include "base/shared_memory.h"
+#include "base/singleton.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/app/result_codes.h"
@@ -326,9 +328,12 @@ bool BrowserRenderProcessHost::Init() {
     // communicating IO.  This can lead to deadlocks where the RenderThread is
     // waiting for the IO to complete, while the browsermain is trying to pass
     // an event to the RenderThread.
-    //
-    // TODO: We should consider how to better cleanup threads on exit.
-    base::Thread *render_thread = new RendererMainThread(channel_id);
+    RendererMainThread* render_thread = new RendererMainThread(channel_id);
+
+    // This singleton keeps track of our pointers to avoid a leak.
+    Singleton<std::vector<linked_ptr<RendererMainThread> > >::get()->push_back(
+        linked_ptr<RendererMainThread>(render_thread));
+
     base::Thread::Options options;
     options.message_loop_type = MessageLoop::TYPE_IO;
     render_thread->StartWithOptions(options);
