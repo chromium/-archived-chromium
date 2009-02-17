@@ -786,7 +786,7 @@ class PrintViewManager {
   void Destroy() { NOTIMPLEMENTED(); }
   bool OnRendererGone(RenderViewHost*) {
     NOTIMPLEMENTED();
-    return false;
+    return true;  // Assume for now that all renderer crashes are important.
   }
   void DidGetPrintedPagesCount(int, int) { NOTIMPLEMENTED(); }
   void DidPrintPage(const ViewHostMsg_DidPrintPage_Params&) {

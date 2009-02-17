@@ -10,8 +10,10 @@
 #include "base/gfx/size.h"
 #include "base/scoped_cftyperef.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/common/notification_registrar.h"
 
 class FindBarMac;
+@class SadTabView;
 
 @interface WebContentsViewCocoa : NSView {
 }
@@ -20,7 +22,8 @@ class FindBarMac;
 
 // Mac-specific implementation of the WebContentsView. It owns an NSView that
 // contains all of the contents of the tab and associated child views.
-class WebContentsViewMac : public WebContentsView {
+class WebContentsViewMac : public WebContentsView,
+                           public NotificationObserver {
  public:
   // The corresponding WebContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
@@ -70,6 +73,12 @@ class WebContentsViewMac : public WebContentsView {
                            int active_match_ordinal,
                            bool final_update);
 
+  // NotificationObserver implementation ---------------------------------------
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
  private:
   // ---------------------------------------------------------------------------
 
@@ -81,6 +90,13 @@ class WebContentsViewMac : public WebContentsView {
   // For find in page. This may be NULL if there is no find bar, and if it is
   // non-NULL, it may or may not be visible.
   scoped_ptr<FindBarMac> find_bar_;
+
+  // Used to get notifications about renderers coming and going.
+  NotificationRegistrar registrar_;
+
+  // Used to render the sad tab. This will be non-NULL only when the sad tab is
+  // visible.
+  scoped_cftyperef<SadTabView*> sad_tab_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewMac);
 };
