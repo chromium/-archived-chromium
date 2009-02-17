@@ -132,6 +132,15 @@ void WebPluginDelegateImpl::DestroyInstance() {
     // instance uses the helper to do the download.
     instance_->CloseStreams();
 
+    // TODO(evanm): I played with this for quite a while but couldn't
+    // figure out a way to make Flash not crash unless I didn't call
+    // NPP_SetWindow.  Perhaps it just should be marked with the quirk
+    // that wraps the NPP_SetWindow call.
+    // window_.window = NULL;
+    // if (!(quirks_ & PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY)) {
+    //   instance_->NPP_SetWindow(&window_);
+    // }
+
     instance_->NPP_Destroy();
 
     instance_->set_web_plugin(NULL);
