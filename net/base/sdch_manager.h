@@ -247,7 +247,7 @@ class SdchManager {
   // before the dictionary is actually loaded and added.
   // After the implied task does completes, the dictionary will have been
   // cached in memory.
-  void FetchDictionary(const GURL& dictionary_url);
+  void FetchDictionary(const GURL& request_url, const GURL& dictionary_url);
 
   // Security test function used before initiating a FetchDictionary.
   // Return true if fetch is legal.

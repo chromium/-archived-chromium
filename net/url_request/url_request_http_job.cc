@@ -65,7 +65,11 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
 
 URLRequestHttpJob::~URLRequestHttpJob() {
   if (sdch_dictionary_url_.is_valid()) {
-    SdchManager::Global()->FetchDictionary(sdch_dictionary_url_);
+    // Prior to reaching the destructor, request_ has been set to a NULL
+    // pointer, so request_->url() is no longer valid in the destructor, and we
+    // use an alternate copy |request_info_.url|.
+    SdchManager::Global()->FetchDictionary(request_info_.url,
+                                           sdch_dictionary_url_);
   }
 }
 
@@ -454,10 +458,11 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
     // Eventually we should wait until a dictionary is requested several times
     // before we even download it (so that we don't waste memory or bandwidth).
     if (response_info_->headers->EnumerateHeader(&iter, name, &url_text)) {
-      GURL dictionary_url = request_->url().Resolve(url_text);
-      if (SdchManager::Global()->CanFetchDictionary(request_->url(),
-                                                    dictionary_url))
-         sdch_dictionary_url_ = dictionary_url;
+      // request_->url() won't be valid in the destructor, so we use an
+      // alternate copy.
+      DCHECK(request_->url() == request_info_.url);
+      // Resolve suggested URL relative to request url.
+      sdch_dictionary_url_ = request_info_.url.Resolve(url_text);
     }
   }
 

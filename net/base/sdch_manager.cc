@@ -172,8 +172,10 @@ bool SdchManager::CanFetchDictionary(const GURL& referring_url,
   return true;
 }
 
-void SdchManager::FetchDictionary(const GURL& dictionary_url) {
-  if (fetcher_.get())
+void SdchManager::FetchDictionary(const GURL& request_url,
+                                  const GURL& dictionary_url) {
+  if (SdchManager::Global()->CanFetchDictionary(request_url, dictionary_url) &&
+      fetcher_.get())
     fetcher_->Schedule(dictionary_url);
 }
 
