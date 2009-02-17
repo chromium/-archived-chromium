@@ -95,6 +95,10 @@ LocationBar* BrowserWindowCocoa::GetLocationBar() const {
   return [controller_ locationBar];
 }
 
+void BrowserWindowCocoa::SetFocusToLocationBar() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {
   NOTIMPLEMENTED();
 }
