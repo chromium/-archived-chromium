@@ -5,13 +5,13 @@
 #ifndef CHROME_BROWSER_COCOA_SAD_TAB_VIEW_H_
 #define CHROME_BROWSER_COCOA_SAD_TAB_VIEW_H_
 
-#include "chrome/browser/cocoa/event_view.h"
+#include "chrome/browser/cocoa/base_view.h"
 
 #import <Cocoa/Cocoa.h>
 
 // A view that displays the "sad tab".
 
-@interface SadTabView : EventView {
+@interface SadTabView : BaseView {
  @private
 }
 

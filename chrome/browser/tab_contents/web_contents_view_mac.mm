@@ -73,7 +73,7 @@ gfx::NativeWindow WebContentsViewMac::GetTopLevelNativeView() const {
 }
 
 void WebContentsViewMac::GetContainerBounds(gfx::Rect* out) const {
-  *out = gfx::Rect(NSRectToCGRect([cocoa_view_.get() frame]));
+  *out = [cocoa_view_.get() NSRectToRect:[cocoa_view_.get() bounds]];
 }
 
 void WebContentsViewMac::StartDragging(const WebDropData& drop_data) {
@@ -96,9 +96,7 @@ void WebContentsViewMac::Invalidate() {
 
 void WebContentsViewMac::SizeContents(const gfx::Size& size) {
   // TODO(brettw) this is a hack and should be removed. See web_contents_view.h.
-  NSRect rect = [cocoa_view_.get() frame];
-  rect.size = NSSizeFromCGSize(size.ToCGSize());
-  [cocoa_view_.get() setBounds:rect];
+  NOTIMPLEMENTED();  // Leaving the hack unimplemented.
 }
 
 void WebContentsViewMac::FindInPage(const Browser& browser,

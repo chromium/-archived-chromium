@@ -80,9 +80,7 @@ void RenderWidgetHostViewMac::SetSize(const gfx::Size& size) {
   if (is_hidden_)
     return;
 
-  NSRect rect = [cocoa_view_ frame];
-  rect.size = NSSizeFromCGSize(size.ToCGSize());
-  [cocoa_view_ setFrame:rect];
+  NOTIMPLEMENTED();  // Who is trying to force a size? We're a Cocoa view.
 }
 
 gfx::NativeView RenderWidgetHostViewMac::GetPluginNativeView() {
@@ -121,7 +119,7 @@ void RenderWidgetHostViewMac::Hide() {
 }
 
 gfx::Rect RenderWidgetHostViewMac::GetViewBounds() const {
-  return gfx::Rect(NSRectToCGRect([cocoa_view_ frame]));
+  return [cocoa_view_ NSRectToRect:[cocoa_view_ bounds]];
 }
 
 void RenderWidgetHostViewMac::UpdateCursor(const WebCursor& cursor) {
@@ -159,7 +157,7 @@ void RenderWidgetHostViewMac::IMEUpdateStatus(int control,
 }
 
 void RenderWidgetHostViewMac::Redraw(const gfx::Rect& rect) {
-  [cocoa_view_ setNeedsDisplayInRect:NSRectFromCGRect(rect.ToCGRect())];
+  [cocoa_view_ setNeedsDisplayInRect:[cocoa_view_ RectToNSRect:rect]];
 }
 
 void RenderWidgetHostViewMac::DidPaintRect(const gfx::Rect& rect) {
@@ -173,9 +171,14 @@ void RenderWidgetHostViewMac::DidScrollRect(
     const gfx::Rect& rect, int dx, int dy) {
   if (is_hidden_)
     return;
+
+  [cocoa_view_ scrollRect:[cocoa_view_ RectToNSRect:rect]
+                       by:NSMakeSize(dx, -dy)];
   
-  [cocoa_view_ scrollRect:NSRectFromCGRect(rect.ToCGRect())
-                       by:NSMakeSize(dx, dy)];
+  gfx::Rect new_rect = rect;
+  new_rect.Offset(dx, dy);
+  gfx::Rect dirty_rect = rect.Subtract(new_rect);
+  [cocoa_view_ setNeedsDisplayInRect:[cocoa_view_ RectToNSRect:dirty_rect]];
 }
 
 void RenderWidgetHostViewMac::RendererGone() {
@@ -257,20 +260,22 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   skia::PlatformCanvas* canvas = backing_store->canvas();
 
   if (backing_store) {
-    gfx::Rect damaged_rect(NSRectToCGRect(dirtyRect));
+    gfx::Rect damaged_rect([self NSRectToRect:dirtyRect]);
 
-    gfx::Rect bitmap_rect(
-        0, 0, backing_store->size().width(), backing_store->size().height());
+    gfx::Rect bitmap_rect(0, 0,
+                          backing_store->size().width(),
+                          backing_store->size().height());
 
     gfx::Rect paint_rect = bitmap_rect.Intersect(damaged_rect);
     if (!paint_rect.IsEmpty()) {
       if ([self lockFocusIfCanDraw]) {
         CGContextRef context = static_cast<CGContextRef>(
             [[NSGraphicsContext currentContext] graphicsPort]);
-        
+
         CGRect damaged_rect_cg = damaged_rect.ToCGRect();
+        NSRect damaged_rect_ns = [self RectToNSRect:damaged_rect];
         canvas->getTopPlatformDevice().DrawToContext(
-            context, damaged_rect.x(), damaged_rect.y(),
+            context, damaged_rect_ns.origin.x, damaged_rect_ns.origin.y,
             &damaged_rect_cg);
         
         [self unlockFocus];

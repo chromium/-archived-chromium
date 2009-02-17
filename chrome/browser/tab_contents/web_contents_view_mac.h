@@ -9,13 +9,14 @@
 
 #include "base/gfx/size.h"
 #include "base/scoped_cftyperef.h"
+#include "chrome/browser/cocoa/base_view.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/notification_registrar.h"
 
 class FindBarMac;
 @class SadTabView;
 
-@interface WebContentsViewCocoa : NSView {
+@interface WebContentsViewCocoa : BaseView {
 }
 
 @end

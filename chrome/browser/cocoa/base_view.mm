@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/cocoa/event_view.h"
+#include "chrome/browser/cocoa/base_view.h"
 
-@implementation EventView
+@implementation BaseView
 
 - (id)initWithFrame:(NSRect)frame {
   self = [super initWithFrame:frame];
@@ -94,6 +94,19 @@
 
 - (BOOL)isOpaque {
   return YES;
+}
+
+- (gfx::Rect)NSRectToRect:(NSRect)rect {
+  gfx::Rect new_rect(NSRectToCGRect(rect));
+  new_rect.set_y([self bounds].size.height - new_rect.y() - new_rect.height());
+  return new_rect;
+}
+
+- (NSRect)RectToNSRect:(gfx::Rect)rect {
+  NSRect new_rect(NSRectFromCGRect(rect.ToCGRect()));
+  new_rect.origin.y =
+      [self bounds].size.height - new_rect.origin.y - new_rect.size.height;
+  return new_rect;
 }
 
 @end
