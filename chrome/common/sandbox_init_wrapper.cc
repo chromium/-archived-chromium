@@ -31,8 +31,10 @@ void SandboxInitWrapper::InitializeSandbox(const CommandLine& command_line,
 #if defined(OS_WIN)
       target_services_->Init();
 #elif defined(OS_MACOSX)
-      // Nothing to do here for OS X, see renderer_main_platform_delegate_mac.cc
-      // For Sandbox initialization.
+      // We just cache the process type so we can configure the sandbox
+      // correctly, see renderer_main_platform_delegate_mac.cc for one of those
+      // places.
+      process_type_ = process_type;
 #endif
     }
   }

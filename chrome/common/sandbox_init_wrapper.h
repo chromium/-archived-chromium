@@ -53,6 +53,14 @@ class SandboxInitWrapper {
   void InitializeSandbox(const CommandLine& parsed_command_line, 
                          const std::wstring& process_type);
 
+#if defined(OS_MACOSX)
+  // We keep the process type so we can configure the sandbox as needed.
+ public:
+  std::wstring ProcessType() const { return process_type_; }
+ private:
+  std::wstring process_type_;
+#endif
+
  private:
   DISALLOW_COPY_AND_ASSIGN(SandboxInitWrapper);
 };
