@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser_prefs.h"
 
+#include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -16,7 +17,6 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
-#include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
@@ -63,8 +63,8 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   chrome_browser_net::RegisterUserPrefs(user_prefs);
   DownloadManager::RegisterUserPrefs(user_prefs);
   SSLManager::RegisterUserPrefs(user_prefs);
-  AutofillManager::RegisterUserPrefs(user_prefs);
 #endif
+  AutofillManager::RegisterUserPrefs(user_prefs);
   TabContents::RegisterUserPrefs(user_prefs);
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);
   WebContents::RegisterUserPrefs(user_prefs);
