@@ -318,6 +318,9 @@ a.thumbnail {
 .recently-closed-window-link {
   'text-decoration:none';
 }
+.recently-closed-window-link:hover {
+  cursor:pointer;
+}
 .recently-close-window-text {
   text-decoration:underline;
 }
@@ -744,9 +747,7 @@ function renderRecentlyClosedTabs(entries) {
         }
         linkSpan.appendChild(document.createTextNode(")"));
 
-        link = DOM('a', { href: 'window',
-                          className: 'recently-closed-window-link',
-                          title: localStrings.getString('closedWindow') } );
+        link = DOM('span', { className: 'recently-closed-window-link' } );
         windowSpan = DOM('span', {className: 'recently-close-window-text'});
         windowSpan.appendChild(
             document.createTextNode(localStrings.getString('closedwindow')));
