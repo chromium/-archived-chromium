@@ -423,6 +423,7 @@
 		E43A7A110F1D192000ABD5D1 /* zoomOutCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79F30F1D192000ABD5D1 /* zoomOutCursor.png */; };
 		E43D07310F433A8D003F39CA /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF370E9D5362009A6919 /* libjpeg.a */; };
 		E43D096E0F44C7BA003F39CA /* starred.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E43D096D0F44C7BA003F39CA /* starred.pdf */; };
+		E43D0AE50F4B0A2B003F39CA /* history_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9F90E9D48F7009A6919 /* history_unittest.cc */; };
 		E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */ = {isa = PBXBuildFile; fileRef = E45060F10EE87D41003BE099 /* chrome_exe_main.mm */; };
 		E45062680EE890C2003BE099 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
 		E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6D0E9D52DC009A6919 /* libicui18n.a */; };
@@ -5518,6 +5519,7 @@
 				0EE123B79B750A2FCEFB4569 /* history_backend_unittest.cc in Sources */,
 				71784BA931A610A94A7FEDC9 /* history_querying_unittest.cc in Sources */,
 				4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */,
+				E43D0AE50F4B0A2B003F39CA /* history_unittest.cc in Sources */,
 				8268533F0F30AE1C009F6555 /* ipc_sync_channel.cc in Sources */,
 				B5D031270F3A4009001238AB /* ipc_sync_channel_unittest.cc in Sources */,
 				B507AC440F004B610060FEE8 /* ipc_sync_message_unittest.cc in Sources */,
