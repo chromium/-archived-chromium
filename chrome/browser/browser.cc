@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
+#include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_types.h"
@@ -59,7 +60,6 @@
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/options_window.h"
-#include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/status_bubble.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
@@ -450,8 +450,12 @@ void Browser::OnWindowClosing() {
   if (!ShouldCloseWindow())
     return;
 
+#if defined(OS_WIN) || defined(OS_LINUX)
+  // We don't want to do this on Mac since closing all windows isn't a sign
+  // that the app is shutting down.
   if (BrowserList::size() == 1)
     browser_shutdown::OnShutdownStarting(browser_shutdown::WINDOW_CLOSE);
+#endif
 
   // Don't use HasSessionService here, we want to force creation of the
   // session service so that user can restore what was open.
@@ -529,7 +533,6 @@ void Browser::ReplaceRestoredTab(
       restored_controller);
 }
 
-#if defined(OS_WIN)
 void Browser::ShowNativeUITab(const GURL& url) {
   int i, c;
   TabContents* tc;
@@ -547,7 +550,6 @@ void Browser::ShowNativeUITab(const GURL& url) {
                                                   NULL);
   AddNewContents(NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(), true);
 }
-#endif  // OS_WIN
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Assorted browser commands:
@@ -1414,8 +1416,6 @@ void Browser::TabInsertedAt(TabContents* contents,
       Source<TabContents>(contents));
 }
 
-#if defined(OS_WIN)
-
 void Browser::TabClosingAt(TabContents* contents, int index) {
   NavigationController* controller = contents->controller();
   DCHECK(controller);
@@ -1440,8 +1440,6 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
       NotificationType::WEB_CONTENTS_DISCONNECTED,
       Source<TabContents>(contents));
 }
-
-#endif
 
 void Browser::TabSelectedAt(TabContents* old_contents,
                             TabContents* new_contents,
@@ -1652,8 +1650,6 @@ void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
       Source<TabContents>(new_contents));
 }
 
-#if defined(OS_WIN)
-
 void Browser::AddNewContents(TabContents* source,
                              TabContents* new_contents,
                              WindowOpenDisposition disposition,
@@ -1756,6 +1752,8 @@ void Browser::URLStarredChanged(TabContents* source, bool starred) {
     window_->SetStarredState(starred);
 }
 
+#if defined(OS_WIN)
+// TODO(port): Refactor this to win-specific delegate?
 void Browser::ContentsMouseEvent(TabContents* source, UINT message) {
   if (!GetStatusBubble())
     return;
@@ -1768,6 +1766,7 @@ void Browser::ContentsMouseEvent(TabContents* source, UINT message) {
     }
   }
 }
+#endif
 
 void Browser::UpdateTargetURL(TabContents* source, const GURL& url) {
   if (!GetStatusBubble())
@@ -1802,15 +1801,11 @@ void Browser::ConvertContentsToApplication(TabContents* contents) {
   browser->window()->Show();
 }
 
-#endif // OS_WIN
-
 void Browser::ContentsStateChanged(TabContents* source) {
   int index = tabstrip_model_.GetIndexOfTabContents(source);
   if (index != TabStripModel::kNoTab)
     tabstrip_model_.UpdateTabContentsStateAt(index);
 }
-
-#if defined(OS_WIN)
 
 bool Browser::ShouldDisplayURLField() {
   return !IsApplication();
@@ -1865,6 +1860,7 @@ void Browser::SetFocusToLocationBar() {
   window_->SetFocusToLocationBar();
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, SelectFileDialog::Listener implementation:
 
@@ -1873,6 +1869,7 @@ void Browser::FileSelected(const std::wstring& path, void* params) {
   if (!file_url.is_empty())
     OpenURL(file_url, GURL(), CURRENT_TAB, PageTransition::TYPED);
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, NotificationObserver implementation:
@@ -1909,7 +1906,6 @@ void Browser::Observe(NotificationType type,
   }
 }
 
-#endif  // OS_WIN
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Command and state updating (private):
@@ -2366,8 +2362,6 @@ Browser* Browser::GetOrCreateTabbedBrowser() {
   return browser;
 }
 
-#if defined(OS_WIN)
-
 void Browser::BuildPopupWindow(TabContents* source,
                                TabContents* new_contents,
                                const gfx::Rect& initial_pos) {
@@ -2389,13 +2383,14 @@ GURL Browser::GetHomePage() {
   if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
     return NewTabUIURL();
   GURL home_page = GURL(URLFixerUpper::FixupURL(
-      profile_->GetPrefs()->GetString(prefs::kHomePage),
-      std::wstring()));
+      WideToUTF8(profile_->GetPrefs()->GetString(prefs::kHomePage)),
+      std::string()));
   if (!home_page.is_valid())
     return NewTabUIURL();
   return home_page;
 }
 
+#if defined(OS_WIN)
 void Browser::AdvanceFindSelection(bool forward_direction) {
   GetSelectedTabContents()->AsWebContents()->view()->FindInPage(
       *this, true, forward_direction);

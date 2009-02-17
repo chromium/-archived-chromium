@@ -78,6 +78,7 @@ class SessionID;
 class SiteInstance;
 class SpellChecker;
 class TabContents;
+class TabContentsDelegate;
 class TabNavigation;
 struct ThumbnailScore;
 class Task;
@@ -405,6 +406,7 @@ class StatusBubble {
  public:
   void SetStatus(const std::wstring&) { NOTIMPLEMENTED(); }
   void Hide() { NOTIMPLEMENTED(); }
+  void SetURL(const GURL&, const std::wstring&) { NOTIMPLEMENTED(); }
 };
 
 class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
@@ -464,62 +466,6 @@ class FaviconStatus {
   const GURL& url() const { return url_; }
  private:
   GURL url_;
-};
-
-class TabContentsDelegate {
- public:
-  virtual void OpenURLFromTab(TabContents* source,
-                              const GURL& url, const GURL& referrer,
-                              WindowOpenDisposition disposition,
-                              PageTransition::Type transition) {
-    NOTIMPLEMENTED();
-  }
-  virtual void OpenURL(const GURL& url, const GURL& referrer,
-                       WindowOpenDisposition disposition,
-                       PageTransition::Type transition) {
-    OpenURLFromTab(NULL, url, referrer, disposition, transition);
-  }
-  virtual void UpdateTargetURL(TabContents*, const GURL&) { NOTIMPLEMENTED(); }
-  virtual void CloseContents(TabContents*) { NOTIMPLEMENTED(); }
-  virtual void MoveContents(TabContents*, const gfx::Rect&) {
-    NOTIMPLEMENTED();
-  }
-  virtual bool IsPopup(TabContents*) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  virtual void ForwardMessageToExternalHost(const std::string&,
-                                            const std::string&) {
-    NOTIMPLEMENTED();
-  }
-  virtual TabContents* GetConstrainingContents(TabContents*) {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  virtual void ShowHtmlDialog(ModalHtmlDialogDelegate*, void*) {
-    NOTIMPLEMENTED();
-  }
-  virtual bool CanBlur() {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  virtual gfx::Rect GetRootWindowResizerRect() const {
-    return gfx::Rect();
-  }
-
-  virtual bool IsExternalTabContainer() {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  virtual void BeforeUnloadFired(WebContents*, bool, bool*) {
-    NOTIMPLEMENTED();
-  }
-  virtual void URLStarredChanged(WebContents*, bool) { NOTIMPLEMENTED(); }
-  virtual void ConvertContentsToApplication(WebContents*) { NOTIMPLEMENTED(); }
-  virtual void ReplaceContents(TabContents*, TabContents*) { NOTIMPLEMENTED(); }
-  virtual void NavigationStateChanged(const TabContents*, unsigned int) {
-    NOTIMPLEMENTED();
-  }
 };
 
 class InterstitialPage {
@@ -856,7 +802,11 @@ class ConstrainedWindow {
   void CloseConstrainedWindow() { NOTIMPLEMENTED(); }
 };
 
-class ModalHtmlDialogDelegate {
+class HtmlDialogContentsDelegate {
+ public:
+};
+
+class ModalHtmlDialogDelegate : public HtmlDialogContentsDelegate {
  public:
   ModalHtmlDialogDelegate(const GURL&, int, int, const std::string&,
                           IPC::Message*, WebContents*) { }

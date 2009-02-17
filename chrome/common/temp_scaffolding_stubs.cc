@@ -138,7 +138,9 @@ void OpenFirstRunDialog(Profile* profile) { NOTIMPLEMENTED(); }
 
 GURL NewTabUIURL() {
   NOTIMPLEMENTED();
-  return GURL();
+  // TODO(port): returning a blank URL here confuses the page IDs so make sure 
+  // we load something
+  return GURL("http://dev.chromium.org");
 }
 
 //--------------------------------------------------------------------------
@@ -169,23 +171,6 @@ void InstallJankometer(const CommandLine&) {
 }
 
 void UninstallJankometer() {
-  NOTIMPLEMENTED();
-}
-
-//--------------------------------------------------------------------------
-
-void Browser::Observe(NotificationType type,
-                      const NotificationSource& source,
-                      const NotificationDetails& details) {
-  NOTIMPLEMENTED();
-}
-
-GURL Browser::GetHomePage() {
-  NOTIMPLEMENTED();
-  return GURL("http://dev.chromium.org");
-}
-
-void Browser::LoadingStateChanged(TabContents* source) {
   NOTIMPLEMENTED();
 }
 

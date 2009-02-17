@@ -20,6 +20,7 @@
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/pref_member.h"
 #include "base/gfx/rect.h"
@@ -29,7 +30,6 @@
 #if defined(OS_WIN)
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/toolbar_model.h"
 #endif
 
@@ -214,9 +214,7 @@ class Browser : public TabStripModelDelegate,
   // Show a native UI tab given a URL. If a tab with the same URL is already
   // visible in this browser, it becomes selected. Otherwise a new tab is
   // created.
-#if defined(OS_WIN)
   void ShowNativeUITab(const GURL& url);
-#endif
 
   // Assorted browser commands ////////////////////////////////////////////////
 
@@ -343,10 +341,8 @@ class Browser : public TabStripModelDelegate,
   virtual void TabInsertedAt(TabContents* contents,
                              int index,
                              bool foreground);
-#if defined(OS_WIN)
   virtual void TabClosingAt(TabContents* contents, int index);
   virtual void TabDetachedAt(TabContents* contents, int index);
-#endif
   virtual void TabSelectedAt(TabContents* old_contents,
                              TabContents* new_contents,
                              int index,
@@ -364,31 +360,28 @@ class Browser : public TabStripModelDelegate,
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
   virtual void ReplaceContents(TabContents* source, TabContents* new_contents);
-#if defined(OS_WIN)
   virtual void AddNewContents(TabContents* source,
                               TabContents* new_contents,
                               WindowOpenDisposition disposition,
                               const gfx::Rect& initial_pos,
                               bool user_gesture);
   virtual void ActivateContents(TabContents* contents);
-#endif
   virtual void LoadingStateChanged(TabContents* source);
-#if defined(OS_WIN)
   virtual void CloseContents(TabContents* source);
   virtual void MoveContents(TabContents* source, const gfx::Rect& pos);
   virtual bool IsPopup(TabContents* source);
   virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
   virtual void URLStarredChanged(TabContents* source, bool starred);
 
+#if defined(OS_WIN)
   virtual void ContentsMouseEvent(TabContents* source, uint32 message);
+#endif
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
 
   virtual void ContentsZoomChange(bool zoom_in);
   virtual bool IsApplication() const;
   virtual void ConvertContentsToApplication(TabContents* source);
-#endif
   virtual void ContentsStateChanged(TabContents* source);
-#if defined(OS_WIN)
   virtual bool ShouldDisplayURLField();
   virtual void BeforeUnloadFired(TabContents* source,
                                  bool proceed,
@@ -400,8 +393,6 @@ class Browser : public TabStripModelDelegate,
 
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const std::wstring& path, void* params);
-
-#endif  // OS_WIN
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,
@@ -501,14 +492,12 @@ class Browser : public TabStripModelDelegate,
   // receiving Browser. Creates a new Browser if none are available.
   Browser* GetOrCreateTabbedBrowser();
 
-#if defined(OS_WIN)
   // Creates a new popup window with its own Browser object with the
   // incoming sizing information. |initial_pos|'s origin() is the
   // window origin, and its size() is the size of the content area.
   void BuildPopupWindow(TabContents* source,
                         TabContents* new_contents,
                         const gfx::Rect& initial_pos);
-#endif
 
   // Returns what the user's home page is, or the new tab page if the home page
   // has not been set.
