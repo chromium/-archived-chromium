@@ -146,13 +146,28 @@ TEST(DnsMasterTest, OsCachesLookupsTest) {
   SetupNetworkInfrastructure();
   net::EnsureWinsockInit();
 
-  for (int i = 0; i < 5; i++) {
-    std::string badname;
-    badname = GetNonexistantDomain();
-    TimeDelta duration = BlockingDnsLookup(badname);
-    TimeDelta cached_duration = BlockingDnsLookup(badname);
-    EXPECT_TRUE(duration > cached_duration);
-  }
+  // To avoid flaky nature of a timed test, we'll run an outer loop until we get
+  // 90% of the inner loop tests to pass.
+  // Originally we just did one set of 5 tests and demand 100%, but that proved
+  // flakey.  With this set-looping approach, we always pass in one set (when it
+  // used to pass). If we don't get that first set to pass, then we allow an
+  // average of one failure per two major sets. If the test runs too long, then
+  // there probably is a real problem, and the test harness will terminate us
+  // with a failure.
+  int pass_count(0);
+  int fail_count(0);
+  do {
+    for (int i = 0; i < 5; i++) {
+      std::string badname;
+      badname = GetNonexistantDomain();
+      TimeDelta duration = BlockingDnsLookup(badname);
+      TimeDelta cached_duration = BlockingDnsLookup(badname);
+      if (duration > cached_duration)
+        pass_count++;
+      else
+        fail_count++;
+    }
+  } while (fail_count * 9 > pass_count);
 }
 
 TEST(DnsMasterTest, StartupShutdownTest) {
@@ -427,6 +442,190 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedSpeedupTest) {
 
   EXPECT_TRUE(testing_master.ShutdownSlaves());
 }
+
+//------------------------------------------------------------------------------
+// Functions to help synthesize and test serializations of subresource referrer
+// lists.
+
+// Return a motivation_list if we can find one for the given motivating_host (or
+// NULL if a match is not found).
+static ListValue* FindSerializationMotivation(const std::string& motivation,
+                                              const ListValue& referral_list) {
+  ListValue* motivation_list(NULL);
+  for (size_t i = 0; i < referral_list.GetSize(); ++i) {
+    referral_list.GetList(i, &motivation_list);
+    std::string existing_motivation;
+    EXPECT_TRUE(motivation_list->GetString(i, &existing_motivation));
+    if (existing_motivation == motivation)
+      break;
+    motivation_list = NULL;
+  }
+  return motivation_list;
+}
+
+// Add a motivating_host and a subresource_host to a serialized list, using
+// this given latency. This is a helper function for quickly building these
+// lists.
+static void AddToSerializedList(const std::string& motivation,
+                                const std::string& subresource, int latency,
+                                ListValue* referral_list ) {
+  // Find the motivation if it is already used.
+  ListValue* motivation_list = FindSerializationMotivation(motivation,
+                                                           *referral_list);
+  if (!motivation_list) {
+    // This is the first mention of this motivation, so build a list.
+    motivation_list = new ListValue;
+    motivation_list->Append(new StringValue(motivation));
+    // Provide empty subresource list.
+    motivation_list->Append(new ListValue());
+
+    // ...and make it part of the serialized referral_list.
+    referral_list->Append(motivation_list);
+  }
+
+  ListValue* subresource_list(NULL);
+  EXPECT_TRUE(motivation_list->GetList(1, &subresource_list));
+
+  // We won't bother to check for the subresource being there already.  Worst
+  // case, during deserialization, the latency value we supply plus the
+  // existing value(s) will be added to the referrer.
+  subresource_list->Append(new StringValue(subresource));
+  subresource_list->Append(new FundamentalValue(latency));
+}
+
+static const int kLatencyNotFound = -1;
+
+// For a given motivation_hostname, and subresource_hostname, find what latency
+// is currently listed.  This assume a well formed serialization, which has
+// at most one such entry for any pair of names.  If no such pair is found, then
+// return kLatencyNotFound.
+int GetLatencyFromSerialization(const std::string& motivation,
+                                const std::string& subresource,
+                                const ListValue& referral_list) {
+  ListValue* motivation_list = FindSerializationMotivation(motivation,
+                                                           referral_list);
+  if (!motivation_list)
+    return kLatencyNotFound;
+  ListValue* subresource_list;
+  EXPECT_TRUE(motivation_list->GetList(1, &subresource_list));
+  for (size_t i = 0; i < subresource_list->GetSize(); ++i) {
+    std::string subresource_name;
+    EXPECT_TRUE(subresource_list->GetString(i, &subresource_name));
+    if (subresource_name == subresource) {
+      int latency;
+      EXPECT_TRUE(subresource_list->GetInteger(i + 1, &latency));
+      return latency;
+    }
+    ++i;  // Skip latency value.
+  }
+  return kLatencyNotFound;
+}
+
+//------------------------------------------------------------------------------
+
+// Make sure nil referral lists really have no entries, and no latency listed.
+TEST(DnsMasterTest, ReferrerSerializationNilTest) {
+  DnsMaster master(TimeDelta::FromSeconds(30));
+  ListValue referral_list;
+  master.SerializeReferrers(&referral_list);
+  EXPECT_EQ(0, referral_list.GetSize());
+  EXPECT_EQ(kLatencyNotFound, GetLatencyFromSerialization("a.com", "b.com",
+                                                          referral_list));
+}
+
+// Make sure that when a serialization list includes a value, that it can be
+// deserialized into the database, and can be extracted back out via
+// serialization without being changed.
+TEST(DnsMasterTest, ReferrerSerializationSingleReferrerTest) {
+  DnsMaster master(TimeDelta::FromSeconds(30));
+  std::string motivation_hostname = "www.google.com";
+  std::string subresource_hostname = "icons.google.com";
+  const int kLatency = 3;
+  ListValue referral_list;
+
+  AddToSerializedList(motivation_hostname, subresource_hostname, kLatency,
+                      &referral_list);
+
+  master.DeserializeReferrers(referral_list);
+
+  ListValue recovered_referral_list;
+  master.SerializeReferrers(&recovered_referral_list);
+  EXPECT_EQ(1, recovered_referral_list.GetSize());
+  EXPECT_EQ(kLatency, GetLatencyFromSerialization(motivation_hostname,
+                                                  subresource_hostname,
+                                                  recovered_referral_list));
+}
+
+// Make sure the Trim() functionality works as expected.
+TEST(DnsMasterTest, ReferrerSerializationTrimTest) {
+  DnsMaster master(TimeDelta::FromSeconds(30));
+  std::string motivation_hostname = "www.google.com";
+  std::string icon_subresource_hostname = "icons.google.com";
+  std::string img_subresource_hostname = "img.google.com";
+  ListValue referral_list;
+
+  AddToSerializedList(motivation_hostname, icon_subresource_hostname, 10,
+                      &referral_list);
+  AddToSerializedList(motivation_hostname, img_subresource_hostname, 3,
+                      &referral_list);
+
+  master.DeserializeReferrers(referral_list);
+
+  ListValue recovered_referral_list;
+  master.SerializeReferrers(&recovered_referral_list);
+  EXPECT_EQ(1, recovered_referral_list.GetSize());
+  EXPECT_EQ(10, GetLatencyFromSerialization(motivation_hostname,
+                                            icon_subresource_hostname,
+                                            recovered_referral_list));
+  EXPECT_EQ(3, GetLatencyFromSerialization(motivation_hostname,
+                                            img_subresource_hostname,
+                                            recovered_referral_list));
+
+  // Each time we Trim, the latency figures should reduce by a factor of two,
+  // until they both are 0, an then a trim will delete the whole entry.
+  master.TrimReferrers();
+  master.SerializeReferrers(&recovered_referral_list);
+  EXPECT_EQ(1, recovered_referral_list.GetSize());
+  EXPECT_EQ(5, GetLatencyFromSerialization(motivation_hostname,
+                                            icon_subresource_hostname,
+                                            recovered_referral_list));
+  EXPECT_EQ(1, GetLatencyFromSerialization(motivation_hostname,
+                                            img_subresource_hostname,
+                                            recovered_referral_list));
+
+  master.TrimReferrers();
+  master.SerializeReferrers(&recovered_referral_list);
+  EXPECT_EQ(1, recovered_referral_list.GetSize());
+  EXPECT_EQ(2, GetLatencyFromSerialization(motivation_hostname,
+                                            icon_subresource_hostname,
+                                            recovered_referral_list));
+  EXPECT_EQ(0, GetLatencyFromSerialization(motivation_hostname,
+                                            img_subresource_hostname,
+                                            recovered_referral_list));
+
+  master.TrimReferrers();
+  master.SerializeReferrers(&recovered_referral_list);
+  EXPECT_EQ(1, recovered_referral_list.GetSize());
+  EXPECT_EQ(1, GetLatencyFromSerialization(motivation_hostname,
+                                           icon_subresource_hostname,
+                                           recovered_referral_list));
+  EXPECT_EQ(0, GetLatencyFromSerialization(motivation_hostname,
+                                           img_subresource_hostname,
+                                           recovered_referral_list));
+
+  master.TrimReferrers();
+  master.SerializeReferrers(&recovered_referral_list);
+  EXPECT_EQ(0, recovered_referral_list.GetSize());
+  EXPECT_EQ(kLatencyNotFound,
+            GetLatencyFromSerialization(motivation_hostname,
+                                        icon_subresource_hostname,
+                                        recovered_referral_list));
+  EXPECT_EQ(kLatencyNotFound,
+            GetLatencyFromSerialization(motivation_hostname,
+                                        img_subresource_hostname,
+                                        recovered_referral_list));
+}
+
 
 }  // namespace
 

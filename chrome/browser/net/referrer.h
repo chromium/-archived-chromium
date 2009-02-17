@@ -19,6 +19,7 @@
 
 #include "base/basictypes.h"
 #include "base/time.h"
+#include "base/values.h"
 #include "googleurl/src/gurl.h"
 
 namespace chrome_browser_net {
@@ -34,6 +35,11 @@ class ReferrerValue {
   base::TimeDelta latency() const { return latency_; }
   base::Time birth_time() const { return birth_time_; }
   void AccrueValue(const base::TimeDelta& delta) { latency_ += delta; }
+
+  // Reduce the latency figure by a factor of 2, and return true if any latency
+  // remains.
+  bool Trim();
+
  private:
   base::TimeDelta latency_;  // Accumulated latency savings.
   const base::Time birth_time_;
@@ -49,7 +55,7 @@ typedef std::map<std::string, ReferrerValue> HostNameMap;
 // There is one Referrer instance for each hostname that has acted as an HTTP
 // referer (note mispelling is intentional) for a hostname that was otherwise
 // unexpectedly navgated towards ("unexpected" in the sense that the hostname
-// was probably needad as a subresource of a page, and was not otherwise
+// was probably needed as a subresource of a page, and was not otherwise
 // predictable until the content with the reference arrived).  Most typically,
 // an outer page was a page fetched by the user, and this instance lists names
 // in HostNameMap which are subresources and that were needed to complete the
@@ -64,6 +70,15 @@ class Referrer : public HostNameMap {
   // Record additional usefulness of having this host name in the list.
   // Value is expressed as positive latency of amount delta.
   void AccrueValue(const base::TimeDelta& delta, const std::string host);
+
+  // Trim the Referrer, by first diminishing (scaling down) the latency for each
+  // ReferredValue.
+  // Returns true if there are any referring names with some latency left.
+  bool Trim();
+
+  // Provide methods for persisting, and restoring contents into a Value class.
+  Value* Serialize() const;
+  void Deserialize(const Value& referrers);
 
  private:
   // Helper function for pruning list.  Metric for usefulness is "large accrued

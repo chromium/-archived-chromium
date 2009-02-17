@@ -60,6 +60,7 @@ void OnTheRecord(bool enable) {
 
 void RegisterPrefs(PrefService* local_state) {
   local_state->RegisterListPref(prefs::kDnsStartupPrefetchList);
+  local_state->RegisterListPref(prefs::kDnsHostReferralList);
 }
 
 void RegisterUserPrefs(PrefService* user_prefs) {
@@ -73,8 +74,7 @@ static DnsMaster* dns_master;
 // This API is only used in the browser process.
 // It is called from an IPC message originating in the renderer.  It currently
 // includes both Page-Scan, and Link-Hover prefetching.
-// TODO(jar): Separate out link-hover prefetching, and histogram results
-// separately.
+// TODO(jar): Separate out link-hover prefetching, and page-scan results.
 void DnsPrefetchList(const NameList& hostnames) {
   DnsPrefetchMotivatedList(hostnames, DnsHostInfo::PAGE_SCAN_MOTIVATED);
 }
@@ -221,7 +221,7 @@ void PrefetchObserver::OnFinishResolutionWithStatus(bool was_resolved,
     return;
   // TODO(jar): Don't add host to our list if it is a non-linked lookup, and
   // instead rely on Referrers to pull this in automatically with the enclosing
-  // page load.
+  // page load (once we start to persist elements of our referrer tree).
   StartupListAppend(navigation_info);
 }
 
@@ -466,6 +466,32 @@ void DnsPrefetchHostNamesAtStartup(PrefService* user_prefs,
                          DnsHostInfo::STARTUP_LIST_MOTIVATED);
 }
 
+//------------------------------------------------------------------------------
+// Functions to persist and restore host references, that are used to direct DNS
+// prefetch of names (probably) used in subresources when the major resource is
+// navigated towards.
+
+void SaveSubresourceReferrers(PrefService* local_state) {
+  if (NULL == dns_master)
+    return;
+  ListValue* referral_list =
+      local_state->GetMutableList(prefs::kDnsHostReferralList);
+  dns_master->SerializeReferrers(referral_list);
+}
+
+void RestoreSubresourceReferrers(PrefService* local_state) {
+  if (NULL == dns_master)
+    return;
+  ListValue* referral_list =
+      local_state->GetMutableList(prefs::kDnsHostReferralList);
+  dns_master->DeserializeReferrers(*referral_list);
+}
+
+void TrimSubresourceReferrers() {
+  if (NULL == dns_master)
+    return;
+  dns_master->TrimReferrers();
+}
 
 }  // namespace chrome_browser_net
 

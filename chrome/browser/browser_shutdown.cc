@@ -114,6 +114,12 @@ void Shutdown() {
   PrefService* prefs = g_browser_process->local_state();
 
   chrome_browser_net::SaveHostNamesForNextStartup(prefs);
+  // TODO(jar): Trimming should be done more regularly, such as every 48 hours
+  // of physical time, or perhaps after 48 hours of running (excluding time
+  // between sessions possibly).
+  // For now, we'll just trim at shutdown.
+  chrome_browser_net::TrimSubresourceReferrers();
+  chrome_browser_net::SaveSubresourceReferrers(prefs);
 
   MetricsService* metrics = g_browser_process->metrics_service();
   if (metrics) {

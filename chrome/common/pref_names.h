@@ -62,6 +62,7 @@ extern const wchar_t kPromptForDownload[];
 extern const wchar_t kAlternateErrorPagesEnabled[];
 extern const wchar_t kDnsPrefetchingEnabled[];
 extern const wchar_t kDnsStartupPrefetchList[];
+extern const wchar_t kDnsHostReferralList[];
 extern const wchar_t kIpcDisabledMessages[];
 extern const wchar_t kShowHomeButton[];
 extern const wchar_t kRecentlySelectedEncoding[];

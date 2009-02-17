@@ -188,6 +188,12 @@ const wchar_t kDnsPrefetchingEnabled[] = L"dns_prefetching.enabled";
 // next startup, based on what was actually needed during this startup.
 const wchar_t kDnsStartupPrefetchList[] = L"StartupDNSPrefetchList";
 
+// A list of host names used to fetch web pages, and their commonly used
+// sub-resource hostnames (and expected latency benefits from pre-resolving such
+// sub-resource hostnames).
+// This list is adaptively grown and pruned.
+extern const wchar_t kDnsHostReferralList[] = L"HostReferralList";
+
 // The disabled messages in IPC logging.
 const wchar_t kIpcDisabledMessages[] = L"ipc_log_disabled_messages";
 

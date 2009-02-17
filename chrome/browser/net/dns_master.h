@@ -23,6 +23,7 @@
 
 #include "base/condition_variable.h"
 #include "base/scoped_ptr.h"
+#include "base/values.h"
 #include "chrome/browser/net/dns_host_info.h"
 #include "chrome/browser/net/referrer.h"
 #include "chrome/common/net/dns.h"
@@ -118,6 +119,22 @@ class DnsMaster {
     return running_slave_count_;
   }
 
+  // Discard any referrer for which all the suggested host names are currently
+  // annotated with no user latency reduction.  Also scale down (diminish) the
+  // total benefit of those that did help, so that their reported contribution
+  // wll go done by a factor of 2 each time we trim (moving the referrer closer
+  // to being discarded at a future Trim).
+  void TrimReferrers();
+
+  // Construct a ListValue object that contains all the data in the referrers_
+  // so that it can be persisted in a pref.
+  void SerializeReferrers(ListValue* referral_list);
+
+  // Process a ListValue that contains all the data from a previous reference
+  // list, as constructed by SerializeReferrers(), and add all the identified
+  // values into the current referrer list.
+  void DeserializeReferrers(const ListValue& referral_list);
+
   //----------------------------------------------------------------------------
   // Methods below this line should only be called by slave processes.
 
@@ -184,7 +201,7 @@ class DnsMaster {
   HANDLE thread_handles_[kSlaveCountMax];
   DnsSlave* slaves_[kSlaveCountMax];
 #endif
-  
+
   // shutdown_ is set to tell the slaves to terminate.
   bool shutdown_;
 

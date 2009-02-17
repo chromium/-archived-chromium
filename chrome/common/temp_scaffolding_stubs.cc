@@ -340,6 +340,10 @@ void DnsPrefetchList(const std::vector<std::string>& hostnames) {
 
 void SaveHostNamesForNextStartup(PrefService* local_state) { NOTIMPLEMENTED(); }
 
+void TrimSubresourceReferrers()  { NOTIMPLEMENTED(); }
+
+void SaveSubresourceReferrers(PrefService* local_state) { NOTIMPLEMENTED(); }
+
 }  // namespace chrome_browser_net
 
 //--------------------------------------------------------------------------

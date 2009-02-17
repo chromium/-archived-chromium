@@ -34,7 +34,7 @@ void Referrer::DeleteLeastUseful() {
   int64 least_useful_lifetime = 0;  // Duration in milliseconds.
 
   const base::Time kNow(base::Time::Now());  // Avoid multiple calls.
-  for (HostNameMap::iterator it = this->begin(); it != this->end(); ++it) {
+  for (HostNameMap::iterator it = begin(); it != end(); ++it) {
     int64 lifetime = (kNow - it->second.birth_time()).InMilliseconds();
     int64 latency = it->second.latency().InMilliseconds();
     if (!least_useful_name.empty()) {
@@ -66,10 +66,67 @@ void Referrer::DeleteLeastUseful() {
 
 void Referrer::AccrueValue(const base::TimeDelta& delta,
                            const std::string host) {
-  HostNameMap::iterator it = this->find(host);
+  HostNameMap::iterator it = find(host);
   // Be careful that we weren't evicted from this referrer in DeleteLeastUseful.
-  if (it != this->end())
+  if (it != end())
     it->second.AccrueValue(delta);
+}
+
+bool Referrer::Trim() {
+  bool has_some_latency_left = false;
+  for (HostNameMap::iterator it = begin(); it != end(); ++it)
+    if (it->second.Trim())
+      has_some_latency_left = true;
+  return has_some_latency_left;
+}
+
+bool ReferrerValue::Trim() {
+  int64 latency_ms = latency_.InMilliseconds() / 2;
+  latency_ = base::TimeDelta::FromMilliseconds(latency_ms);
+  return latency_ms > 0;
+}
+
+
+void Referrer::Deserialize(const Value& value) {
+  if (value.GetType() != Value::TYPE_LIST)
+    return;
+  const ListValue* subresource_list(static_cast<const ListValue*>(&value));
+  for (size_t index = 0; index + 1 < subresource_list->GetSize(); index += 2) {
+    std::string host;
+    if (!subresource_list->GetString(index, &host))
+      return;
+    int latency_ms;
+    if (!subresource_list->GetInteger(index + 1, &latency_ms))
+      return;
+    base::TimeDelta latency = base::TimeDelta::FromMilliseconds(latency_ms);
+    // TODO(jar): We could be more direct, and change birth date or similar to
+    // show that this is a resurrected value we're adding in.  I'm not yet sure
+    // of how best to optimize the learning and pruning (Trim) algorithm at this
+    // level, so for now, we just suggest subresources, which leaves them all
+    // with the same birth date (typically start of process).
+    SuggestHost(host);
+    AccrueValue(latency, host);
+  }
+}
+
+Value* Referrer::Serialize() const {
+  ListValue* subresource_list(new ListValue);
+  for (const_iterator it = begin(); it != end(); ++it) {
+    StringValue* host(new StringValue(it->first));
+    int latency_integer = static_cast<int>(it->second.latency().
+                                           InMilliseconds());
+    // Watch out for overflow in the above static_cast!  Check to see if we went
+    // negative, and just use a "big" value.  The value seems unimportant once
+    // we get to such high latencies.  Probable cause of high latency is a bug
+    // in other code, so also do a DCHECK.
+    DCHECK(latency_integer >= 0);
+    if (latency_integer < 0)
+      latency_integer = INT_MAX;
+    FundamentalValue* latency(new FundamentalValue(latency_integer));
+    subresource_list->Append(host);
+    subresource_list->Append(latency);
+  }
+  return subresource_list;
 }
 
 }  // namespace chrome_browser_net

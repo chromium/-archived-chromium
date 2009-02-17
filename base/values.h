@@ -260,14 +260,14 @@ class DictionaryValue : public Value {
   // It can't be used to modify the dictionary.
   class key_iterator
     : private std::iterator<std::input_iterator_tag, const std::wstring> {
-  public:
+   public:
     key_iterator(ValueMap::const_iterator itr) { itr_ = itr; }
     key_iterator operator++() { ++itr_; return *this; }
     const std::wstring& operator*() { return itr_->first; }
     bool operator!=(const key_iterator& other) { return itr_ != other.itr_; }
     bool operator==(const key_iterator& other) { return itr_ == other.itr_; }
 
-  private:
+   private:
     ValueMap::const_iterator itr_;
   };
 

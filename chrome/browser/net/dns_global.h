@@ -41,6 +41,11 @@ void SaveHostNamesForNextStartup(PrefService* local_state);
 void DnsPrefetchHostNamesAtStartup(PrefService* user_prefs,
                                    PrefService* local_state);
 
+// Functions to save and restore sub-resource references.
+void SaveSubresourceReferrers(PrefService* local_state);
+void RestoreSubresourceReferrers(PrefService* local_state);
+void TrimSubresourceReferrers();
+
 //------------------------------------------------------------------------------
 // Helper class to handle global init and shutdown.
 class DnsPrefetcherInit {

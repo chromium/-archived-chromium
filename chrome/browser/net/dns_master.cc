@@ -537,5 +537,51 @@ void DnsMaster::DiscardAllResults() {
   }
 }
 
+void DnsMaster::TrimReferrers() {
+  std::vector<std::string> hosts;
+  AutoLock auto_lock(lock_);
+  for (Referrers::const_iterator it = referrers_.begin();
+       it != referrers_.end(); ++it)
+    hosts.push_back(it->first);
+  for (size_t i = 0; i < hosts.size(); ++i)
+    if (!referrers_[hosts[i]].Trim())
+      referrers_.erase(hosts[i]);
+}
+
+void DnsMaster::SerializeReferrers(ListValue* referral_list) {
+  referral_list->Clear();
+  AutoLock auto_lock(lock_);
+  for (Referrers::const_iterator it = referrers_.begin();
+       it != referrers_.end(); ++it) {
+    // Serialize the list of subresource names.
+    Value* subresource_list(it->second.Serialize());
+
+    // Create a list for each referer.
+    ListValue* motivating_host(new ListValue);
+    motivating_host->Append(new StringValue(it->first));
+    motivating_host->Append(subresource_list);
+
+    referral_list->Append(motivating_host);
+  }
+}
+
+void DnsMaster::DeserializeReferrers(const ListValue& referral_list) {
+  AutoLock auto_lock(lock_);
+  for (size_t i = 0; i < referral_list.GetSize(); ++i) {
+    ListValue* motivating_host;
+    if (!referral_list.GetList(i, &motivating_host))
+      continue;
+    std::string motivating_referrer;
+    if (!motivating_host->GetString(0, &motivating_referrer))
+      continue;
+    Value* subresource_list;
+    if (!motivating_host->Get(1, &subresource_list))
+      continue;
+    if (motivating_referrer.empty())
+      continue;
+    referrers_[motivating_referrer].Deserialize(*subresource_list);
+  }
+}
+
 }  // namespace chrome_browser_net
 

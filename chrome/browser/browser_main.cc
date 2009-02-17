@@ -446,6 +446,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Initialize the DNS prefetch system
   chrome_browser_net::DnsPrefetcherInit dns_prefetch_init(user_prefs);
   chrome_browser_net::DnsPrefetchHostNamesAtStartup(user_prefs, local_state);
+  chrome_browser_net::RestoreSubresourceReferrers(local_state);
 
   // Init common control sex.
   INITCOMMONCONTROLSEX config;
