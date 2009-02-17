@@ -85,7 +85,6 @@ bool ResourceBundle::LoadDataResourceBytes(int resource_id,
 }
 
 SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
-#if defined(OS_WIN)
   // Check to see if we already have the Skia image in the cache.
   {
     AutoLock lock_scope(lock_);
@@ -115,17 +114,10 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
     return bitmap.release();
   }
 
-#else
-  NOTIMPLEMENTED() << "image resource loading disabled; need data files";
-#endif
   // We failed to retrieve the bitmap, show a debugging red square.
   {
     LOG(WARNING) << "Unable to load bitmap with id " << resource_id;
-#if defined(OS_WIN)
     NOTREACHED();  // Want to assert in debug mode.
-#else
-    // TODO(port): remove this exception
-#endif
 
     AutoLock lock_scope(lock_);  // Guard empty_bitmap initialization.
 

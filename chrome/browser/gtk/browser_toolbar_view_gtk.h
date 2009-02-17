@@ -48,7 +48,10 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   class CustomDrawButton;  // Defined in the .cc file.
 
   // Builds a toolbar button with all the properties set.
-  CustomDrawButton* BuildToolbarButton(const std::string& filename,
+  CustomDrawButton* BuildToolbarButton(int normal_id,
+                                       int active_id,
+                                       int highlight_id,
+                                       int depressed_id,
                                        const std::wstring& localized_tooltip,
                                        bool menu_button);
 

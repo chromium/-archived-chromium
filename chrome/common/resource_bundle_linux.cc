@@ -4,7 +4,9 @@
 
 #include "chrome/common/resource_bundle.h"
 
+#include "base/base_paths.h"
 #include "base/data_pack.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -26,9 +28,16 @@ ResourceBundle::~ResourceBundle() {
 }
 
 void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
-  // TODO(tc): Load the .pak files to locale_resources_data_ and
-  // resources_data_.
-  NOTIMPLEMENTED();
+  FilePath resources_data_path;
+  PathService::Get(base::DIR_EXE, &resources_data_path);
+  resources_data_path = resources_data_path.Append(
+      FILE_PATH_LITERAL("chrome.pak"));
+  DCHECK(resources_data_ == NULL) << "resource data already loaded!";
+  resources_data_ = new base::DataPack;
+  bool success = resources_data_->Load(resources_data_path);
+  DCHECK(success) << "failed to load chrome.pak";
+
+  // TODO(tc): Load the .pak file for locale_resources_data_.
 }
 
 FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
@@ -43,8 +52,12 @@ FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
 }
 
 void ResourceBundle::LoadThemeResources() {
-  // TODO(tc): Load the theme .pak file.
-  NOTIMPLEMENTED();
+  FilePath theme_data_path;
+  PathService::Get(chrome::DIR_THEMES, &theme_data_path);
+  theme_data_path = theme_data_path.Append(FILE_PATH_LITERAL("default.pak"));
+  theme_data_ = new base::DataPack;
+  bool success = theme_data_->Load(theme_data_path);
+  DCHECK(success) << "failed to load theme data";
 }
 
 /* static */

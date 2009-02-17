@@ -12,42 +12,32 @@
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/resource_bundle.h"
 
 #include "chromium_strings.h"
 #include "generated_resources.h"
+#include "grit/theme_resources.h"
 
 const int BrowserToolbarGtk::kToolbarHeight = 38;
-
-static GdkPixbuf* LoadThemeImage(const std::string& filename) {
-  FilePath path;
-  bool ok = PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  DCHECK(ok);
-  path = path.Append("chrome/app/theme").Append(filename);
-  // We intentionally ignore errors here, as some buttons don't have images
-  // for all states.  This will all be removed once ResourceBundle works.
-  return gdk_pixbuf_new_from_file(path.value().c_str(), NULL);
-}
 
 // CustomDrawButton manages the lifetimes of some resources used to make a
 // custom-drawn Gtk button.  We use them on the toolbar.
 class BrowserToolbarGtk::CustomDrawButton {
  public:
-  // The constructor takes a filename, which is used as the base filename
-  // in loading the theme graphics pngs.  This will be replaced by the
-  // ResourceBundle graphics soon.
+  // The constructor takes 4 resource ids.  If a resource doesn't exist for a
+  // button, pass in 0.
+  CustomDrawButton(int normal_id,
+                   int active_id,
+                   int highlight_id,
+                   int depressed_id);
   explicit CustomDrawButton(const std::string& filename);
   ~CustomDrawButton();
 
   GtkWidget* widget() const { return widget_; }
 
  private:
-  // Load an image from a path.
-  // TODO(port): Temporary until ResourceBundle works.
-  GdkPixbuf* LoadImage(const std::string& filename);
-
-  // Load all the button images from a base theme filename.
-  // TODO(port): Temporary until ResourceBundle works.
-  void LoadImages(const std::string& filename);
+  // Load an image given a resource id.
+  GdkPixbuf* LoadImage(int resource_id);
 
   // Callback for expose, used to draw the custom graphics.
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
@@ -61,10 +51,20 @@ class BrowserToolbarGtk::CustomDrawButton {
   GdkPixbuf* pixbufs_[GTK_STATE_INSENSITIVE + 1];
 };
 
-BrowserToolbarGtk::CustomDrawButton::CustomDrawButton(
-    const std::string& filename) {
+BrowserToolbarGtk::CustomDrawButton::CustomDrawButton(int normal_id,
+    int active_id, int highlight_id, int depressed_id) {
   widget_ = gtk_button_new();
-  LoadImages(filename);
+
+  // Load the button images from the theme resources .pak file.
+  pixbufs_[GTK_STATE_NORMAL] = LoadImage(normal_id);
+  pixbufs_[GTK_STATE_ACTIVE] = LoadImage(active_id);
+  pixbufs_[GTK_STATE_PRELIGHT] = LoadImage(highlight_id);
+  pixbufs_[GTK_STATE_SELECTED] = NULL;
+  pixbufs_[GTK_STATE_INSENSITIVE] = LoadImage(depressed_id);
+
+  gtk_widget_set_size_request(widget_,
+                              gdk_pixbuf_get_width(pixbufs_[0]),
+                              gdk_pixbuf_get_height(pixbufs_[0]));
 
   gtk_widget_set_app_paintable(widget_, TRUE);
   g_signal_connect(G_OBJECT(widget_), "expose-event",
@@ -78,25 +78,31 @@ BrowserToolbarGtk::CustomDrawButton::~CustomDrawButton() {
   }
 }
 
-GdkPixbuf* BrowserToolbarGtk::CustomDrawButton::LoadImage(
-    const std::string& filename) {
-  // We intentionally ignore errors here, as some buttons don't have images
-  // for all states.  This will all be removed once ResourceBundle works.
-  return gdk_pixbuf_new_from_file(filename.c_str(), NULL);
-}
+GdkPixbuf* BrowserToolbarGtk::CustomDrawButton::LoadImage(int resource_id) {
+  if (0 == resource_id)
+    return NULL;
 
-void BrowserToolbarGtk::CustomDrawButton::LoadImages(
-    const std::string& filename) {
-  // TODO(evanm): make this use ResourceBundle once that is ported.
-  pixbufs_[GTK_STATE_NORMAL] = LoadThemeImage(filename + ".png");
-  pixbufs_[GTK_STATE_ACTIVE] = LoadThemeImage(filename + "_p.png");
-  pixbufs_[GTK_STATE_PRELIGHT] = LoadThemeImage(filename + "_h.png");
-  pixbufs_[GTK_STATE_SELECTED] = NULL;
-  pixbufs_[GTK_STATE_INSENSITIVE] = LoadThemeImage(filename + "_d.png");
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  std::vector<unsigned char> data;
+  rb.LoadImageResourceBytes(resource_id, &data);
 
-  gtk_widget_set_size_request(widget_,
-                              gdk_pixbuf_get_width(pixbufs_[0]),
-                              gdk_pixbuf_get_height(pixbufs_[0]));
+  GdkPixbufLoader* loader = gdk_pixbuf_loader_new();
+  bool ok = gdk_pixbuf_loader_write(loader, static_cast<guint8*>(data.data()),
+      data.size(), NULL);
+  DCHECK(ok) << "failed to write " << resource_id;
+  // Calling gdk_pixbuf_loader_close forces the data to be parsed by the
+  // loader.  We must do this before calling gdk_pixbuf_loader_get_pixbuf.
+  ok = gdk_pixbuf_loader_close(loader, NULL);
+  DCHECK(ok) << "close failed " << resource_id;
+  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+  DCHECK(pixbuf) << "failed to load " << resource_id << " " << data.size();
+
+  // The pixbuf is owned by the loader, so add a ref so when we delete the
+  // loader, the pixbuf still exists.
+  g_object_ref(pixbuf);
+  g_object_unref(loader);
+
+  return pixbuf;
 }
 
 // static
@@ -153,41 +159,36 @@ void BrowserToolbarGtk::Init(Profile* profile) {
 
   toolbar_tooltips_ = gtk_tooltips_new();
 
-  back_.reset(BuildToolbarButton("back",
-                                 l10n_util::GetString(IDS_TOOLTIP_BACK),
-                                 false));
-  forward_.reset(BuildToolbarButton("forward",
-                                    l10n_util::GetString(IDS_TOOLTIP_FORWARD),
-                                    false));
+  back_.reset(BuildToolbarButton(IDR_BACK, IDR_BACK_P, IDR_BACK_H, IDR_BACK_D,
+      l10n_util::GetString(IDS_TOOLTIP_BACK), false));
+  forward_.reset(BuildToolbarButton(IDR_FORWARD, IDR_FORWARD_P, IDR_FORWARD_H,
+      IDR_FORWARD_D, l10n_util::GetString(IDS_TOOLTIP_FORWARD), false));
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
-  reload_.reset(BuildToolbarButton("reload",
-                                   l10n_util::GetString(IDS_TOOLTIP_RELOAD),
-                                   false));
-  home_.reset(BuildToolbarButton("home",
-                                 l10n_util::GetString(IDS_TOOLTIP_HOME),
-                                 false));
+  reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
+      l10n_util::GetString(IDS_TOOLTIP_RELOAD), false));
+  home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
+      l10n_util::GetString(IDS_TOOLTIP_HOME), false));
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new("  "), FALSE, FALSE, 0);
 
-  star_.reset(BuildToolbarButton("star",
-                                 l10n_util::GetString(IDS_TOOLTIP_STAR),
-                                 false));
+  star_.reset(BuildToolbarButton(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D,
+      l10n_util::GetString(IDS_TOOLTIP_STAR), false));
 
   GtkWidget* entry = gtk_entry_new();
   gtk_widget_set_size_request(entry, 0, 27);
   gtk_box_pack_start(GTK_BOX(toolbar_), entry, TRUE, TRUE, 0);
 
-  go_.reset(BuildToolbarButton("go", L"", false));
+  go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L"", false));
 
   // TODO(port): these buttons need even stranger drawing than the others.
-  page_menu_button_.reset(BuildToolbarButton("menu_page",
+  page_menu_button_.reset(BuildToolbarButton(IDR_MENU_PAGE, 0, 0, 0,
       l10n_util::GetString(IDS_PAGEMENU_TOOLTIP), true));
 
   // TODO(port): Need to get l10n_util::GetStringF working under linux to get
   // the correct string here.
-  app_menu_button_.reset(BuildToolbarButton("menu_chrome",
+  app_menu_button_.reset(BuildToolbarButton(IDR_MENU_CHROME, 0, 0, 0,
       l10n_util::GetString(IDS_APPMENU_TOOLTIP), true));
 
   // TODO(erg): wchar_t mismatch on linux. Fix later.
@@ -252,10 +253,10 @@ void BrowserToolbarGtk::SetProfile(Profile* profile) {
 
 // TODO(port): This needs to deal with our styled pixmaps.
 BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
-    const std::string& filename,
-    const std::wstring& localized_tooltip,
-    bool menu_button) {
-  CustomDrawButton* button = new CustomDrawButton(filename);
+    int normal_id, int active_id, int highlight_id, int depressed_id,
+    const std::wstring& localized_tooltip, bool menu_button) {
+  CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
+      highlight_id, depressed_id);
 
   // TODO(erg): Mismatch between wstring and string.
   // gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
