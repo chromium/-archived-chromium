@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/task.h"
 #include "chrome/common/gears_api.h"
 
@@ -27,16 +28,16 @@ struct GearsCreateShortcutData : public GearsShortcutData2 {
   CPCommandInterface* command_interface;
 };
 
-// Called when the Gears Settings button is pressed. |parent_hwnd| is the
+// Called when the Gears Settings button is pressed. |parent_wnd| is the
 // window the Gears Settings dialog should be parented to.
-void GearsSettingsPressed(HWND parent_hwnd);
+void GearsSettingsPressed(gfx::NativeWindow parent_wnd);
 
 // Calls into the Gears API to create a shortcut with the given parameters.
 // 'app_info' is the optional information provided by the page.  If any info is
 // missing, we fallback to the given fallback params.  'fallback_icon' must be a
 // 16x16 favicon.  'callback' will be called with a value indicating whether the
 // shortcut has been created successfully.
-typedef Callback2<const GearsShortcutData&, bool>::Type
+typedef Callback2<const GearsShortcutData2&, bool>::Type
     GearsCreateShortcutCallback;
 
 void GearsCreateShortcut(

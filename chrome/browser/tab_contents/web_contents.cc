@@ -14,6 +14,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
+#include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/js_before_unload_handler.h"
 #include "chrome/browser/jsmessage_box_handler.h"
@@ -44,7 +45,6 @@
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/gears_integration.h"
 #include "chrome/browser/modal_html_dialog_delegate.h"
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
@@ -169,7 +169,7 @@ class WebContents::GearsCreateShortcutCallbackFunctor {
   explicit GearsCreateShortcutCallbackFunctor(WebContents* contents)
      : contents_(contents) {}
 
-  void Run(const GearsShortcutData& shortcut_data, bool success) {
+  void Run(const GearsShortcutData2& shortcut_data, bool success) {
     if (contents_)
       contents_->OnGearsCreateShortcutDone(shortcut_data, success);
     delete this;
@@ -1340,15 +1340,12 @@ void WebContents::OnDidGetApplicationInfo(
   if (pending_install_.page_id != page_id)
     return;  // The user clicked create on a separate page. Ignore this.
 
-#if defined(OS_WIN)
-  // TODO(port): include when gears integration is ported
   pending_install_.callback_functor =
       new GearsCreateShortcutCallbackFunctor(this);
   GearsCreateShortcut(
       info, pending_install_.title, pending_install_.url, pending_install_.icon,
       NewCallback(pending_install_.callback_functor,
                   &GearsCreateShortcutCallbackFunctor::Run));
-#endif
 }
 
 void WebContents::OnEnterOrSpace() {
@@ -1575,7 +1572,7 @@ void WebContents::UpdateWebPreferences() {
 }
 
 void WebContents::OnGearsCreateShortcutDone(
-    const GearsShortcutData& shortcut_data, bool success) {
+    const GearsShortcutData2& shortcut_data, bool success) {
   NavigationEntry* current_entry = controller()->GetLastCommittedEntry();
   bool same_page =
       current_entry && pending_install_.page_id == current_entry->page_id();

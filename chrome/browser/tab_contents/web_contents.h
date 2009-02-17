@@ -16,6 +16,7 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
+#include "chrome/common/gears_api.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/webpreferences.h"
@@ -28,7 +29,6 @@
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/gears_api.h"
 #endif
 
 class AutofillForm;
@@ -461,7 +461,7 @@ class WebContents : public TabContents,
 
   // Called when the user dismisses the shortcut creation dialog.  'success' is
   // true if the shortcut was created.
-  void OnGearsCreateShortcutDone(const GearsShortcutData& shortcut_data,
+  void OnGearsCreateShortcutDone(const GearsShortcutData2& shortcut_data,
                                  bool success);
 
   // If our controller was restored and the page id is > than the site

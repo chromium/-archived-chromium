@@ -412,6 +412,7 @@ CPError STDCALL CPB_ShowHtmlDialog(
   ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
   CHECK(plugin);
 
+#if defined(OS_WIN)
   HWND parent_hwnd = reinterpret_cast<HWND>(static_cast<uintptr_t>(context));
   PluginService* service = PluginService::GetInstance();
   if (!service)
@@ -421,6 +422,11 @@ CPError STDCALL CPB_ShowHtmlDialog(
       new ModelessHtmlDialogDelegate(GURL(url), width, height, json_arguments,
                                      plugin_context, plugin, main_message_loop,
                                      parent_hwnd);
+#else
+  // TODO(port): port ModelessHtmlDialogDelegate
+  NOTIMPLEMENTED();
+#endif
+
   return CPERR_SUCCESS;
 }
 

@@ -508,3 +508,8 @@ InfoBar* LinkInfoBarDelegate::CreateInfoBar() {
   NOTIMPLEMENTED();
   return NULL;
 }
+
+void CPHandleCommand(int command, CPCommandInterface* data,
+                     CPBrowsingContext context) {
+  NOTIMPLEMENTED();
+}

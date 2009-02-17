@@ -56,6 +56,7 @@ class Browser;
 class BookmarkService;
 class CommandLine;
 class ConstrainedWindow;
+class CPCommandInterface;
 class DOMUIHost;
 class DownloadManager;
 class HistoryService;
@@ -718,10 +719,6 @@ class WebApp : public base::RefCountedThreadSafe<WebApp> {
     NOTIMPLEMENTED();
     return SkBitmap();
   }
-};
-
-class GearsShortcutData {
- public:
 };
 
 namespace printing {
