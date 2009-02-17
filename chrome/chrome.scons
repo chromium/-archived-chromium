@@ -46,11 +46,18 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
     LOAD_NAMES = ['chrome'],
 
     chrome_sln          = 'chrome_sln.scons',
+
     locales             = 'app/locales/locales.scons',
+    chrome_resources    = 'app/chrome_resources.scons',
+    chrome_strings      = 'app/chrome_strings.scons',
+    theme_dll           = 'app/theme/theme_dll.scons',
+
     browser             = 'browser/browser.scons',
     debugger            = 'browser/debugger/debugger.scons',
+
     common              = 'common/common.scons',
     ipc_tests           = 'common/ipc_tests.scons',
+
     #gcapi_dll           = 'installer/gcapi/gcapi_dll.scons',
     #gcapi_lib           = 'installer/gcapi/gcapi_lib.scons',
     #gcapi_test          = 'installer/gcapi/gcapi_test.scons',
@@ -59,8 +66,11 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
     #installer_unittests = 'installer/util/installer_unittests.scons',
     util                = 'installer/util/util.scons',
     installer_unittests = 'installer/util/installer_unittests.scons',
+
     plugin              = 'plugin/plugin.scons',
+
     renderer            = 'renderer/renderer.scons',
+
     activex_test_controls = 
 			'test/activex_test_control/activex_test_control.scons',
     automated_ui_tests  = 'test/automated_ui_tests/automated_ui_tests.scons',
@@ -79,6 +89,7 @@ sconscript_files = env.ChromiumLoadComponentSConscripts(
     tab_switching_test  = 'test/tab_switching/tab_switching_test.scons',
     ui_tests            = 'test/ui/ui_tests.scons',
     unit_tests          = 'test/unit/unit_tests.scons',
+
     convert_dict        = 'tools/convert_dict/convert_dict.scons',
     crash_service       = 'tools/crash_service/crash_service.scons',
     flush_cache         = 'tools/perf/flush_cache/flush_cache.scons',

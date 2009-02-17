@@ -153,7 +153,7 @@ locale_GUIDMap = {
 
 gcs_rc = '$TARGET_ROOT/grit_derived_sources/google_chrome_strings_%s.rc'
 cs_rc = '$TARGET_ROOT/grit_derived_sources/chromium_strings_%s.rc'
-gr_res = '$TARGET_ROOT/grit_derived_sources/generated_resources_%s.res'
+gr_rc = '$TARGET_ROOT/grit_derived_sources/generated_resources_%s.rc'
 ws_res = '$TARGET_ROOT/grit_derived_sources/webkit_strings_%s.res'
 
 dest_vcproj = '$CHROME_SRC_DIR/chrome/app/locales/%s.vcproj'
@@ -162,6 +162,7 @@ locale_dlls = []
 
 for locale in locale_list:
   res = env_res.RES('locale_settings_%s.rc' % locale)
+  gr_res = env_res.RES(gr_rc % locale)
 
   # TODO(sgk):  find out why this implicit dependency isn't discovered
   env.Depends(res, gcs_rc % locale)

@@ -1,0 +1,22 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+
+Import('env')
+
+env = env.Clone()
+
+grd_files = [
+    '$CHROME_SRC_DIR/chrome/app/generated_resources.grd',
+    '$CHROME_SRC_DIR/chrome/app/chromium_strings.grd',
+    '$CHROME_SRC_DIR/chrome/app/google_chrome_strings.grd',
+]
+
+for grd_file in grd_files:
+  # The fake target gets replaced with real targets when the GRIT Builder
+  # runs.
+  generated = env.GRIT(
+      '$TARGET_ROOT/grit_derived_sources/fake_' + os.path.basename(grd_file),
+      grd_file)

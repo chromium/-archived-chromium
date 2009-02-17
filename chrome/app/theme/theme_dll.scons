@@ -1,0 +1,19 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+# The fake target gets replaced with real targets when the GRIT Builder runs.
+generated = env.GRIT(
+    '$TARGET_ROOT/grit_derived_sources/fake_theme_resources.grd',
+    '$CHROME_SRC_DIR/chrome/app/theme/theme_resources.grd')
+
+if env.Bit('linux'):
+  theme_default_pak = env.Repack('$TARGET_ROOT/themes/default.pak',
+      ['$TARGET_ROOT/grit_derived_sources/theme_resources.pak']
+  )
+  i = env.Install('$DESTINATION_ROOT/themes/', theme_default_pak)
+  env.Requires('$DESTINATION_ROOT/chrome', i)

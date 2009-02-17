@@ -61,70 +61,6 @@ if env_res.Bit('windows'):
   ]
 
 ##############################################################################
-# TODO(sgk):  move to separate .scons file for generated_resources ###########
-
-env_grd = env.Clone()
-env_grd.Tool('scons', toolpath=[env_grd.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
-
-grd_files = [
-  # Strings
-  '$CHROME_SRC_DIR/chrome/app/generated_resources.grd',
-  '$CHROME_SRC_DIR/chrome/app/chromium_strings.grd',
-  '$CHROME_SRC_DIR/chrome/app/google_chrome_strings.grd',
-
-  # Data resources
-  '$CHROME_SRC_DIR/chrome/browser/browser_resources.grd',
-  '$CHROME_SRC_DIR/chrome/browser/debugger/resources/debugger_resources.grd',
-  '$CHROME_SRC_DIR/chrome/common/common_resources.grd',
-  '$CHROME_SRC_DIR/chrome/renderer/renderer_resources.grd',
-]
-grit_files = []
-
-for grd_file in grd_files:
-  # NOTE: fake target gets replaced with real targets from reading .grd
-  generated = env_grd.GRIT(
-      '$TARGET_ROOT/grit_derived_sources/fake_' + os.path.basename(grd_file),
-      grd_file)
-  grit_files.extend(generated)
-
-input_files = ChromeFileList([
-    'app/generated_resources.grd',
-    'app/google_chrome_strings.grd',
-    'app/chromium_strings.grd',
-    Derived(env.File('$TARGET_ROOT/grit_derived_sources/'
-                     + 'generated_resources.h')),
-])
-
-p = env.ChromeMSVSProject('app/generated_resources.vcproj',
-                          dest=('$CHROME_SRC_DIR/chrome/'
-                                + 'app/generated_resources.vcproj'),
-                          guid='{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}',
-                          keyword='Win32Proj',
-                          # TODO(sgk):  when we can intuit the hierarchy
-                          # from the built targets.
-                          #buildtargets=TODO,
-                          files=input_files,
-                          relative_path_substitutions = [
-                            ('../../../grit_derived_sources', '$(IntDir)'),
-                          ],
-                          local_directory_prefix='./',
-                          ConfigurationType='10')
-
-p.AddToolFile('../tools/grit/build/grit_localized_resources.rules')
-
-p.AddConfig('Debug|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/debug.vsprops',
-            ])
-
-p.AddConfig('Release|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/release.vsprops',
-            ])
-
-##############################################################################
 # TODO(sgk):  move to separate .scons file for chrome.dll ####################
 
 env_dll = env.Clone()
@@ -305,9 +241,6 @@ if env_dll.Bit('windows'):
                                             input_files + additional,
                                             PDB='chrome_dll.pdb')
   install_targets.extend(dll_targets)
-
-  for g in [ g for g in grit_files if str(g).endswith('.rc') ]:
-    env_res.RES(g)
 
   chrome_exe_version_rc = env.ChromeVersionRC(
       'chrome_exe_version.rc',
@@ -669,59 +602,9 @@ p.AddConfig('Release|Win32',
 
 
 ##############################################################################
-# TODO(sgk):  move to separate .scons file for browser_resources #############
-
-input_files = ChromeFileList([
-    'browser/resources/about_credits.html',
-    'browser/resources/about_memory.html',
-    'browser/resources/about_stats.html',
-    'browser/resources/about_version.html',
-    'browser/resources/history.html',
-    'browser/resources/incognito_tab.html',
-    'browser/resources/new_tab.html',
-    'browser/resources/safe_browsing_malware_block.html',
-    'browser/resources/safe_browsing_phishing_block.html',
-    'browser/security/resources/ssl_error.html',
-    'browser/security/resources/ssl_roadblock.html',
-    'browser/security/resources/ssl_roadblock_background.png',
-    'browser/security/resources/ssl_roadblock_icon.png',
-])
-
-p = env.ChromeMSVSProject('browser/resources/browser_resources.vcproj',
-                          dest=('$CHROME_SRC_DIR/chrome/'
-                                + 'browser/resources/browser_resources.vcproj'),
-                          guid='{B95AB527-F7DB-41E9-AD91-EB51EE0F56BE}',
-                          # TODO(sgk):  when we can intuit the hierarchy
-                          # from the built targets.
-                          #buildtargets=TODO,
-                          files=input_files,
-                          local_directory_prefix='./',
-                          tools=[
-                              'VCPreBuildEventTool',
-                              'VCCustomBuildTool',
-                              'VCMIDLTool',
-                              'VCPostBuildEventTool',
-                          ],
-                          ConfigurationType='10')
-
-p.AddConfig('Debug|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/debug.vsprops',
-            ])
-
-p.AddConfig('Release|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/release.vsprops',
-            ])
-
-
-##############################################################################
-# TODO(sgk):  move to separate .scons file for browser_resources #############
+# TODO(sgk): Port these to browser_views.scons and views.scons.
 
 sconscript_files = [
-    'app/theme/SConscript',
     'browser/views/SConscript',
     'views/SConscript',
 ]
