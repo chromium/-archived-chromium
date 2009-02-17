@@ -352,6 +352,7 @@ LINUX : LayoutTests/fast/transforms/transform-on-inline.html = FAIL
 LINUX : LayoutTests/fast/transforms/transform-table-row.html = FAIL
 LINUX : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL CRASH
 DEFER MAC : LayoutTests/svg/batik/text/textFeatures.svg = FAIL PASS
+// Needs to be rebaselined.
 LINUX : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 MAC : LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
 DEFER MAC LINUX : LayoutTests/svg/batik/text/textDecoration2.svg = FAIL PASS
@@ -689,13 +690,11 @@ LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 // and gif, which is a low priority.
 DEFER LINUX WIN : LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
-// Our shadows looks wrong. The text not having shadows is to be expected, but
-// it looks like we're missing a red shadow that Safari has.
-// http://code.google.com/p/chromium/issues/detail?id=2982
-LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
-LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
-LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
-LINUX WIN : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
+// These need to be rebaselined on Linux.
+LINUX : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
+LINUX : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
+LINUX : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
+LINUX : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 
 // We don't render reflection masks properly.
 // http://code.google.com/p/chromium/issues/detail?id=3229
@@ -1719,7 +1718,6 @@ WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
 // Now the left one is slightly different.
 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
-WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 // Upstream dumprendertree changes caused the expected to change.
 // Now our baseline is out of date, and we differ from Mac expected on the
 // caret position in the last line of the text output.
