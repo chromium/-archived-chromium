@@ -789,6 +789,8 @@ if env.Bit('linux'):
       'gtk/browser_toolbar_view_gtk.cc',
       'gtk/browser_window_factory_gtk.cc',
       'gtk/browser_window_gtk.cc',
+      'gtk/standard_menus.cc',
+      'gtk/menu_gtk.cc',
       'renderer_host/render_widget_host_view_gtk.cc',
       'tab_contents/web_contents_view_gtk.cc',
   ])

@@ -9,6 +9,8 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/menu_gtk.h"
+#include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/common/l10n_util.h"
 
 #include "chromium_strings.h"
@@ -21,7 +23,7 @@ class BrowserToolbarGtk::CustomDrawButton {
   // The constructor takes a filename, which is used as the base filename
   // in loading the theme graphics pngs.  This will be replaced by the
   // ResourceBundle graphics soon.
-  CustomDrawButton(const std::string& filename);
+  explicit CustomDrawButton(const std::string& filename);
   ~CustomDrawButton();
 
   GtkWidget* widget() const { return widget_; }
@@ -140,36 +142,41 @@ void BrowserToolbarGtk::Init(Profile* profile) {
   toolbar_tooltips_ = gtk_tooltips_new();
 
   back_.reset(BuildToolbarButton("back",
-                                 l10n_util::GetString(IDS_TOOLTIP_BACK)));
+                                 l10n_util::GetString(IDS_TOOLTIP_BACK),
+                                 false));
   forward_.reset(BuildToolbarButton("forward",
-                                 l10n_util::GetString(IDS_TOOLTIP_FORWARD)));
+                                    l10n_util::GetString(IDS_TOOLTIP_FORWARD),
+                                    false));
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton("reload",
-                                   l10n_util::GetString(IDS_TOOLTIP_RELOAD)));
+                                   l10n_util::GetString(IDS_TOOLTIP_RELOAD),
+                                   false));
   home_.reset(BuildToolbarButton("home",
-                                 l10n_util::GetString(IDS_TOOLTIP_HOME)));
+                                 l10n_util::GetString(IDS_TOOLTIP_HOME),
+                                 false));
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new("  "), FALSE, FALSE, 0);
 
   star_.reset(BuildToolbarButton("star",
-                                 l10n_util::GetString(IDS_TOOLTIP_STAR)));
+                                 l10n_util::GetString(IDS_TOOLTIP_STAR),
+                                 false));
 
   GtkWidget* entry = gtk_entry_new();
   gtk_widget_set_size_request(entry, 0, 27);
   gtk_box_pack_start(GTK_BOX(toolbar_), entry, TRUE, TRUE, 0);
 
-  go_.reset(BuildToolbarButton("go", L""));
+  go_.reset(BuildToolbarButton("go", L"", false));
 
   // TODO(port): these buttons need even stranger drawing than the others.
-  page_menu_.reset(BuildToolbarButton("menu_page",
-      l10n_util::GetString(IDS_PAGEMENU_TOOLTIP)));
+  page_menu_button_.reset(BuildToolbarButton("menu_page",
+      l10n_util::GetString(IDS_PAGEMENU_TOOLTIP), true));
 
   // TODO(port): Need to get l10n_util::GetStringF working under linux to get
   // the correct string here.
-  app_menu_.reset(BuildToolbarButton("menu_chrome",
-      l10n_util::GetString(IDS_APPMENU_TOOLTIP)));
+  app_menu_button_.reset(BuildToolbarButton("menu_chrome",
+      l10n_util::GetString(IDS_APPMENU_TOOLTIP), true));
 
   // TODO(erg): wchar_t mismatch on linux. Fix later.
   //  show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
@@ -204,6 +211,23 @@ void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {
     gtk_widget_set_sensitive(widget, enabled);
 }
 
+bool BrowserToolbarGtk::IsCommandEnabled(int command_id) const {
+  return browser_->command_updater()->IsCommandEnabled(command_id);
+}
+
+bool BrowserToolbarGtk::IsItemChecked(int id) const {
+  if (!profile_)
+    return false;
+  if (id == IDC_SHOW_BOOKMARK_BAR)
+    return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
+  // TODO(port): Fix this when we get some items that want checking!
+  return false;
+}
+
+void BrowserToolbarGtk::ExecuteCommand(int id) {
+  browser_->ExecuteCommand(id);
+}
+
 void BrowserToolbarGtk::SetProfile(Profile* profile) {
   if (profile == profile_)
     return;
@@ -217,23 +241,29 @@ void BrowserToolbarGtk::SetProfile(Profile* profile) {
 // TODO(port): This needs to deal with our styled pixmaps.
 BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     const std::string& filename,
-    const std::wstring& localized_tooltip) {
+    const std::wstring& localized_tooltip,
+    bool menu_button) {
   CustomDrawButton* button = new CustomDrawButton(filename);
 
   // TODO(erg): Mismatch between wstring and string.
   // gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
   //                      GTK_WIDGET(back_),
   //                      localized_tooltip, localized_tooltip);
-  g_signal_connect(G_OBJECT(button->widget()), "clicked",
-                   G_CALLBACK(ButtonClickCallback), this);
-  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
+  if (menu_button) {
+    g_signal_connect(G_OBJECT(button->widget()), "button_press_event",
+                     G_CALLBACK(OnMenuButtonPressEvent), this);
+  } else {
+    g_signal_connect(G_OBJECT(button->widget()), "clicked",
+                     G_CALLBACK(OnButtonClick), this);
+  }
 
+  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
 }
 
 /* static */
-void BrowserToolbarGtk::ButtonClickCallback(GtkWidget* button,
-                                            BrowserToolbarGtk* toolbar) {
+void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
+                                      BrowserToolbarGtk* toolbar) {
   int tag = -1;
   if (button == toolbar->back_->widget())
     tag = IDC_BACK;
@@ -246,9 +276,43 @@ void BrowserToolbarGtk::ButtonClickCallback(GtkWidget* button,
   else if (button == toolbar->star_->widget())
     tag = IDC_STAR;
 
-  if (tag != -1) {
-    toolbar->browser_->ExecuteCommand(tag);
-  } else {
-    // TODO(erg): The menu buttons are special; they need to spawn menus.
+  DCHECK(tag != -1) << "Impossible button click callback";
+  toolbar->browser_->ExecuteCommand(tag);
+}
+
+/* static */
+gint BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
+                                               GdkEvent* event,
+                                               BrowserToolbarGtk* toolbar) {
+  if (event->type == GDK_BUTTON_PRESS) {
+    GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
+    if (event_button->button == 1) {
+      // We have a button press we should respond to.
+      if (button == toolbar->page_menu_button_->widget()) {
+        toolbar->RunPageMenu(event);
+        return TRUE;
+      } else if (button == toolbar->app_menu_button_->widget()) {
+        toolbar->RunAppMenu(event);
+        return TRUE;
+      }
+    }
   }
+
+  return FALSE;
+}
+
+void BrowserToolbarGtk::RunPageMenu(GdkEvent* button_press_event) {
+  if (page_menu_ == NULL) {
+    page_menu_.reset(new MenuGtk(this, GetStandardPageMenu()));
+  }
+
+  page_menu_->Popup(page_menu_button_->widget(), button_press_event);
+}
+
+void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
+  if (app_menu_ == NULL) {
+    app_menu_.reset(new MenuGtk(this, GetStandardAppMenu()));
+  }
+
+  app_menu_->Popup(app_menu_button_->widget(), button_press_event);
 }
