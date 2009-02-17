@@ -12,6 +12,10 @@
 // For now, tab_contents lives here. TODO(port):fix
 #include "chrome/common/temp_scaffolding_stubs.h"
 
+// Names of images in the bundle for the star icon (normal and 'starred').
+static NSString* const kStarImageName = @"star";
+static NSString* const kStarredImageName = @"starred";
+
 @interface TabContentsController(CommandUpdates)
 - (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled;
 @end
@@ -184,6 +188,13 @@ class LocationBarBridge : public LocationBar {
     // TODO(pinkerton): just reset the state of the url bar. We're currently
     // not saving any state as that drags in too much Omnibar code.
   }
+}
+
+- (void)setStarredState:(BOOL)isStarred {
+  NSString* starImageName = kStarImageName;
+  if (isStarred)
+    starImageName = kStarredImageName;
+  [starButton_ setImage:[NSImage imageNamed:starImageName]];
 }
 
 @end

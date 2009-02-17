@@ -422,6 +422,7 @@
 		E43A7A100F1D192000ABD5D1 /* zoomInCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79F20F1D192000ABD5D1 /* zoomInCursor.png */; };
 		E43A7A110F1D192000ABD5D1 /* zoomOutCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = E43A79F30F1D192000ABD5D1 /* zoomOutCursor.png */; };
 		E43D07310F433A8D003F39CA /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF370E9D5362009A6919 /* libjpeg.a */; };
+		E43D096E0F44C7BA003F39CA /* starred.pdf in Resources */ = {isa = PBXBuildFile; fileRef = E43D096D0F44C7BA003F39CA /* starred.pdf */; };
 		E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */ = {isa = PBXBuildFile; fileRef = E45060F10EE87D41003BE099 /* chrome_exe_main.mm */; };
 		E45062680EE890C2003BE099 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC70E9D525B009A6919 /* libbase.a */; };
 		E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFE6D0E9D52DC009A6919 /* libicui18n.a */; };
@@ -2642,6 +2643,7 @@
 		E43A79F10F1D192000ABD5D1 /* westResizeCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = westResizeCursor.png; sourceTree = "<group>"; };
 		E43A79F20F1D192000ABD5D1 /* zoomInCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoomInCursor.png; sourceTree = "<group>"; };
 		E43A79F30F1D192000ABD5D1 /* zoomOutCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoomOutCursor.png; sourceTree = "<group>"; };
+		E43D096D0F44C7BA003F39CA /* starred.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = starred.pdf; path = theme/starred.pdf; sourceTree = "<group>"; };
 		E45060E40EE87B86003BE099 /* Chromium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chromium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45060E60EE87B86003BE099 /* app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "app-Info.plist"; sourceTree = "<group>"; };
 		E45060F10EE87D41003BE099 /* chrome_exe_main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = chrome_exe_main.mm; sourceTree = "<group>"; };
@@ -4352,6 +4354,7 @@
 				E46C50570F291C3B00B393B8 /* newtab.pdf */,
 				E46C50540F291C1E00B393B8 /* reload.pdf */,
 				E46C504F0F291C0600B393B8 /* star.pdf */,
+				E43D096D0F44C7BA003F39CA /* starred.pdf */,
 			);
 			name = theme;
 			sourceTree = "<group>";
@@ -5148,6 +5151,7 @@
 				E43A7A0A0F1D192000ABD5D1 /* southResizeCursor.png in Resources */,
 				E43A7A0B0F1D192000ABD5D1 /* southWestResizeCursor.png in Resources */,
 				E46C50500F291C0600B393B8 /* star.pdf in Resources */,
+				E43D096E0F44C7BA003F39CA /* starred.pdf in Resources */,
 				E46C50EF0F2A12DC00B393B8 /* TabContents.xib in Resources */,
 				E43A7A0C0F1D192000ABD5D1 /* textAreaResizeCorner.png in Resources */,
 				E43A7A0D0F1D192000ABD5D1 /* verticalTextCursor.png in Resources */,

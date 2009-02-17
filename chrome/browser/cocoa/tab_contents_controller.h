@@ -61,6 +61,9 @@ class TabStripModel;
 // it points to a TabContents whose state we should restore.
 - (void)updateToolbarWithContents:(TabContents*)tabForRestoring;
 
+// Sets whether or not the current page in the frontmost tab is bookmarked.
+- (void)setStarredState:(BOOL)isStarred;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_COTNENTS_CONTROLLER_H_

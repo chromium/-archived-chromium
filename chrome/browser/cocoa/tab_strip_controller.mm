@@ -289,8 +289,8 @@ class TabStripBridge : public TabStripModelObserver {
 
 - (void)updateToolbarWithContents:(TabContents*)tab
                shouldRestoreState:(BOOL)shouldRestore {
-  // TODO(pinkerton): windows maintains this, we probably should though we
-  // currently aren't using it. 
+  // TODO(pinkerton): OS_WIN maintains this, but I'm not sure why. It's
+  // available by querying the model, which we have available to us. 
   currentTab_ = tab;
   
   // tell the appropriate controller to update its state. |shouldRestore| being
@@ -298,6 +298,13 @@ class TabStripBridge : public TabStripModelObserver {
   // associated with it.
   TabContentsController* controller = [self controllerWithContents:tab];
   [controller updateToolbarWithContents:shouldRestore ? tab : nil];
+}
+
+- (void)setStarredState:(BOOL)isStarred {
+  TabContents* selectedContents = model_->GetSelectedTabContents();
+  TabContentsController* selectedController =
+      [self controllerWithContents:selectedContents];
+  [selectedController setStarredState:isStarred];
 }
 
 @end

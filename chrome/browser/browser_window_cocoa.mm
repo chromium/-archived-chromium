@@ -70,7 +70,7 @@ void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
 }
 
 void BrowserWindowCocoa::SetStarredState(bool is_starred) {
-  NOTIMPLEMENTED();
+  [controller_ setStarredState:is_starred ? YES : NO];
 }
 
 gfx::Rect BrowserWindowCocoa::GetNormalBounds() const {

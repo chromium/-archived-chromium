@@ -52,6 +52,9 @@ class BrowserWindow;
 - (void)updateToolbarWithContents:(TabContents*)tab
                shouldRestoreState:(BOOL)shouldRestore;
 
+// Sets whether or not the current page in the frontmost tab is bookmarked.
+- (void)setStarredState:(BOOL)isStarred;
+
 @end
 
 #endif  // CHROME_BROWSER_BROWSER_WINDOW_CONTROLLER_H_

@@ -117,4 +117,8 @@
                                  shouldRestoreState:shouldRestore];
 }
 
+- (void)setStarredState:(BOOL)isStarred {
+  [tabStripController_ setStarredState:isStarred];
+}
+
 @end
