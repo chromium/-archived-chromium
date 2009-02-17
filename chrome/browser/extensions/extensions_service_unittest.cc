@@ -124,11 +124,12 @@ class ExtensionsServiceTestFrontend
 // make the test a PlatformTest to setup autorelease pools properly on mac
 typedef PlatformTest ExtensionsServiceTest;
 
-// Test loading extensions from the profile directory.
-TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
+// Test loading good extensions from the profile directory.
+TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
+  extensions_path = extensions_path.AppendASCII("good");
 
   scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
@@ -139,9 +140,6 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
   frontend->GetMessageLoop()->RunAllPending();
 
-  // Note: There can be more errors if there are extra directories, like .svn
-  // directories.
-  EXPECT_TRUE(frontend->errors()->size() >= 2u);
   ASSERT_EQ(3u, frontend->extensions()->size());
 
   EXPECT_EQ(std::string("com.google.myextension1"),
@@ -181,6 +179,28 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectory) {
   EXPECT_EQ(std::string(""),
             frontend->extensions()->at(2)->description());
   ASSERT_EQ(0u, frontend->extensions()->at(2)->user_scripts().size());
+};
+
+// Test loading bad extensions from the profile directory.
+TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+  extensions_path = extensions_path.AppendASCII("bad");
+
+  scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
+  scoped_refptr<ExtensionsServiceTestFrontend> frontend(
+      new ExtensionsServiceTestFrontend);
+
+  std::vector<Extension*> extensions;
+  EXPECT_TRUE(backend->LoadExtensionsFromDirectory(extensions_path,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
+  frontend->GetMessageLoop()->RunAllPending();
+
+  // Note: There can be more errors if there are extra directories, like .svn
+  // directories.
+  EXPECT_TRUE(frontend->errors()->size() >= 3u);
+  ASSERT_EQ(0u, frontend->extensions()->size());
 };
 
 // Test installing extensions.
@@ -231,18 +251,20 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
-  FilePath ext1 = extensions_path.AppendASCII("extension1");
+  FilePath ext1 = extensions_path.AppendASCII("good").AppendASCII("extension1")
+      .AppendASCII("1");
   EXPECT_TRUE(backend->LoadSingleExtension(ext1,
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
   frontend->GetMessageLoop()->RunAllPending();
-  EXPECT_EQ(frontend->errors()->size(), 0u);
+  EXPECT_EQ(0u, frontend->errors()->size());
   ASSERT_EQ(1u, frontend->extensions()->size());
 
-  FilePath no_manifest = extensions_path.AppendASCII("no_manifest");
+  FilePath no_manifest = extensions_path.AppendASCII("bad")
+      .AppendASCII("no_manifest").AppendASCII("1");
   EXPECT_FALSE(backend->LoadSingleExtension(no_manifest,
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
   frontend->GetMessageLoop()->RunAllPending();
-  EXPECT_EQ(frontend->errors()->size(), 1u);
+  EXPECT_EQ(1u, frontend->errors()->size());
   ASSERT_EQ(1u, frontend->extensions()->size());
 }
 

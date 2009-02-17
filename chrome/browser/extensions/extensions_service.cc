@@ -111,12 +111,7 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
     }
   }
 
-  // Tell UserScriptMaster to also watch the extensions directory for changes
-  // and then kick off the first scan.
-  // TODO(aa): This should go away when we implement the --extension flag, since
-  // developing scripts in the Extensions directory will no longer be a common
-  // use-case.
-  user_script_master_->AddWatchedPath(install_directory_);
+  // Tell UserScriptMaster to kick off the first scan.
   user_script_master_->StartScan();
 
   NotificationService::current()->Notify(
@@ -179,15 +174,14 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
   for (FilePath child_path = enumerator.Next(); !child_path.value().empty();
        child_path = enumerator.Next()) {
     std::string version_str;
-    if (ReadCurrentVersion(child_path, &version_str)) {
-      child_path = child_path.AppendASCII(version_str);
-    } else {
-      // For now, continue to allow fallback to a non-versioned directory
-      // structure.  This is so that we can use this same method to load
-      // from local directories that developers are just hacking in place.
-      // TODO(erikkay): perhaps we should use a different code path for this.
+    if (!ReadCurrentVersion(child_path, &version_str)) {
+      ReportExtensionLoadError(frontend.get(), child_path, StringPrintf(
+          "Could not read '%s' file.", 
+          ExtensionsService::kCurrentVersionFileName));
+      continue;
     }
 
+    child_path = child_path.AppendASCII(version_str);
     Extension* extension = LoadExtension(child_path, frontend);
     if (extension)
       extensions->push_back(extension);

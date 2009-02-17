@@ -26,7 +26,9 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_dir));
   FilePath extensions_path = FilePath::FromWStringHack(extensions_dir)
       .AppendASCII("extensions")
+      .AppendASCII("good")
       .AppendASCII("extension1")
+      .AppendASCII("1")
       .AppendASCII(Extension::kManifestFilename);
 
   JSONFileValueSerializer serializer(extensions_path.ToWStringHack());

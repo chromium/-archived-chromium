@@ -488,6 +488,7 @@ bool BrowserInit::ProcessCommandLine(
         command_line.GetSwitchValue(switches::kLoadExtension);
     FilePath path = FilePath::FromWStringHack(path_string);
     profile->GetExtensionsService()->LoadExtension(path);
+    profile->GetUserScriptMaster()->AddWatchedPath(path);
   }
 
   if (command_line.HasSwitch(switches::kInstallExtension)) {
