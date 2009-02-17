@@ -546,6 +546,17 @@ LocationBar* BrowserView::GetLocationBar() const {
   return toolbar_->GetLocationBarView();
 }
 
+void BrowserView::SetFocusToLocationBar() {
+  LocationBarView* location_bar = toolbar_->GetLocationBarView();
+  if (location_bar->IsFocusable()) {
+    location_bar->FocusLocation();
+  } else {
+    views::FocusManager* focus_manager = GetFocusManager();
+    DCHECK(focus_manager);
+    focus_manager->ClearFocus();
+  }
+}
+
 void BrowserView::UpdateStopGoState(bool is_loading) {
   toolbar_->GetGoButton()->ChangeMode(
       is_loading ? GoButton::MODE_STOP : GoButton::MODE_GO);

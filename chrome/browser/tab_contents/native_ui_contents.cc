@@ -317,7 +317,7 @@ void NativeUIContents::SetInitialFocus() {
     Browser* browser = Browser::GetBrowserForController(
         this->controller(), &tab_index);
     if (browser)
-      browser->FocusLocationBar();
+      browser->SetFocusToLocationBar();
     else
       TabContents::SetInitialFocus();  // Will set focus to our HWND.
   }

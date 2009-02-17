@@ -1848,10 +1848,14 @@ void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
 }
 
 void Browser::SetFocusToLocationBar() {
-  // This is the same as FocusLocationBar above but doesn't record the user
-  // metrics. This TabContentsDelegate version is called internally, so
-  // shouldn't get recorded in user commands.
-  window_->GetLocationBar()->FocusLocation();
+  // Two differences between this and FocusLocationBar():
+  // (1) This doesn't get recorded in user metrics, since it's called
+  //     internally.
+  // (2) This checks whether the location bar can be focused, and if not, clears
+  //     the focus.  FocusLocationBar() is only reached when the location bar is
+  //     focusable, but this may be reached at other times, e.g. while in
+  //     fullscreen mode, where we need to leave focus in a consistent state.
+  window_->SetFocusToLocationBar();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

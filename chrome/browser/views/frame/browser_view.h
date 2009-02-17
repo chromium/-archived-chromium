@@ -170,6 +170,7 @@ class BrowserView : public BrowserWindow,
   virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized() const;
   virtual LocationBar* GetLocationBar() const;
+  virtual void SetFocusToLocationBar();
   virtual void UpdateStopGoState(bool is_loading);
   virtual void UpdateToolbar(TabContents* contents, bool should_restore_state);
   virtual void FocusToolbar();

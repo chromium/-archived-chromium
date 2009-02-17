@@ -88,6 +88,10 @@ class BrowserWindow {
   // Returns the location bar.
   virtual LocationBar* GetLocationBar() const = 0;
 
+  // Tries to focus the location bar.  Clears the window focus (to avoid
+  // inconsistent state) if this fails.
+  virtual void SetFocusToLocationBar() = 0;
+
   // Informs the view whether or not a load is in progress for the current tab.
   // The view can use this notification to update the go/stop button.
   virtual void UpdateStopGoState(bool is_loading) = 0;

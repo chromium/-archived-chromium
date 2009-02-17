@@ -38,6 +38,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual LocationBar* GetLocationBar() const {
     return const_cast<TestLocationBar*>(&location_bar_);
   }
+  virtual void SetFocusToLocationBar() {}
   virtual void UpdateStopGoState(bool is_loading) {}
   virtual void UpdateToolbar(TabContents* contents,
                              bool should_restore_state) {}
