@@ -98,7 +98,7 @@ be available for now. -->
         The Chromium Authors
       </message>
       <message name="IDS_ABOUT_VERSION_COPYRIGHT" desc="Copyright information on the about pages">
-        Copyright © 2006-2008 The Chromium Authors. All Rights Reserved.
+        Copyright © 2006-2009 The Chromium Authors. All Rights Reserved.
       </message>
       <message name="IDS_ABOUT_VERSION_LICENSE" desc="The label below the copyright message, containing the URLs.">
         Chromium is made possible by the <ph name="BEGIN_LINK_CHROMIUM">BEGIN_LINK_CHR</ph>Chromium<ph name="END_LINK_CHROMIUM">END_LINK_CHR</ph> open source project and other <ph name="BEGIN_LINK_OSS">BEGIN_LINK_OSS</ph>open source software<ph name="END_LINK_OSS">END_LINK_OSS</ph>.
