@@ -1632,7 +1632,7 @@ const PrepopulatedEngine tapuz = {
   L"tapuz.co.il",
   "http://www.tapuz.co.il/favicon.ico",
   L"http://www.tapuz.co.il/search/search.asp?q={searchTerms}",
-  "windows-1255",
+  "UTF-8",
   NULL,
   57,
 };
@@ -3186,7 +3186,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 19;  // Increment this if you change the above data in ways that mean
+  return 20;  // Increment this if you change the above data in ways that mean
               // users with existing data should get a new version.
 }
 
