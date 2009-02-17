@@ -29,11 +29,13 @@ namespace {
 // infobubble provides.
 static const int kBubblePadding = 4;
 
-std::wstring GetDefaultSearchEngineName() {
-  Browser* browser = BrowserList::GetLastActive();
-  DCHECK(browser);
+std::wstring GetDefaultSearchEngineName(Profile* profile) {
+  if (!profile) {
+    NOTREACHED();
+    return std::wstring();
+  }
   const TemplateURL* const default_provider =
-      browser->profile()->GetTemplateURLModel()->GetDefaultSearchProvider();
+      profile->GetTemplateURLModel()->GetDefaultSearchProvider();
   if (!default_provider) {
     // TODO(cpu): bug 1187517. It is possible to have no default provider.
     // returning an empty string is a stopgap measure for the crash
@@ -50,7 +52,7 @@ std::wstring GetDefaultSearchEngineName() {
 class FirstRunBubbleView : public views::View,
                            public views::NativeButton::Listener {
  public:
-  explicit FirstRunBubbleView(FirstRunBubble* bubble_window)
+  FirstRunBubbleView(FirstRunBubble* bubble_window, Profile* profile)
       : bubble_window_(bubble_window),
         label1_(NULL),
         label2_(NULL),
@@ -76,7 +78,7 @@ class FirstRunBubbleView : public views::View,
 
     std::wstring question_str
         = l10n_util::GetStringF(IDS_FR_BUBBLE_QUESTION,
-                                GetDefaultSearchEngineName());
+                                GetDefaultSearchEngineName(profile));
     label3_ = new views::Label(question_str);
     label3_->SetMultiLine(true);
     label3_->SetFont(font);
@@ -84,8 +86,9 @@ class FirstRunBubbleView : public views::View,
     label3_->SizeToFit(ps.width() - kBubblePadding * 2);
     AddChildView(label3_);
 
-    std::wstring keep_str = l10n_util::GetStringF(IDS_FR_BUBBLE_OK,
-                                                  GetDefaultSearchEngineName());
+    std::wstring keep_str =
+        l10n_util::GetStringF(IDS_FR_BUBBLE_OK,
+                              GetDefaultSearchEngineName(profile));
     keep_button_ = new views::NativeButton(keep_str, true);
     keep_button_->SetListener(this);
     AddChildView(keep_button_);
@@ -203,10 +206,10 @@ void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble,
   enable_window_method_factory_.RevokeAll();
 }
 
-FirstRunBubble* FirstRunBubble::Show(HWND parent_hwnd,
+FirstRunBubble* FirstRunBubble::Show(Profile* profile, HWND parent_hwnd,
                                      const gfx::Rect& position_relative_to) {
   FirstRunBubble* window = new FirstRunBubble();
-  views::View* view = new FirstRunBubbleView(window);
+  views::View* view = new FirstRunBubbleView(window, profile);
   window->SetDelegate(window);
   window->Init(parent_hwnd, position_relative_to, view);
   window->ShowWindow(SW_SHOW);

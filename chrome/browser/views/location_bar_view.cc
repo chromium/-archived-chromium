@@ -835,7 +835,7 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
   if (UILayoutIsRightToLeft())
     bounds.set_x(location.x() - 20);
 
-  FirstRunBubble::Show(
+  FirstRunBubble::Show(profile_,
       location_entry_view_->GetRootView()->GetWidget()->GetHWND(),
       bounds);
 }

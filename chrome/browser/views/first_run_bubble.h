@@ -8,10 +8,12 @@
 #include "base/task.h"
 #include "chrome/browser/views/info_bubble.h"
 
+class Profile;
+
 class FirstRunBubble : public InfoBubble,
                        public InfoBubbleDelegate {
  public:
-  static FirstRunBubble* Show(HWND parent_hwnd,
+  static FirstRunBubble* Show(Profile* profile, HWND parent_hwnd,
                               const gfx::Rect& position_relative_to);
 
   FirstRunBubble()
