@@ -104,7 +104,7 @@ class AsyncWriter : public Task {
   // object to avoid mallocs in that case.
   StackVector<char, sizeof(VisitedLinkCommon::Fingerprint)> data_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AsyncWriter);
+  DISALLOW_COPY_AND_ASSIGN(AsyncWriter);
 };
 
 // Used to asynchronously set the end of the file. This must be done on the
@@ -119,7 +119,7 @@ class AsyncSetEndOfFile : public Task {
 
  private:
   FILE* file_;
-  DISALLOW_EVIL_CONSTRUCTORS(AsyncSetEndOfFile);
+  DISALLOW_COPY_AND_ASSIGN(AsyncSetEndOfFile);
 };
 
 // Used to asynchronously close a file. This must be done on the same thread as
@@ -134,7 +134,7 @@ class AsyncCloseHandle : public Task {
 
  private:
   FILE* file_;
-  DISALLOW_EVIL_CONSTRUCTORS(AsyncCloseHandle);
+  DISALLOW_COPY_AND_ASSIGN(AsyncCloseHandle);
 };
 
 }  // namespace
@@ -525,19 +525,14 @@ bool VisitedLinkMaster::WriteFullTable() {
   // We should pick up the most common types of these failures when we notice
   // that the file size is different when we load it back in, and then we will
   // regenerate the table.
-  ScopedFILE file_closer;  // Valid only when not open already.
-  FILE* file;                         // Always valid.
-  if (file_) {
-    file = file_;
-  } else {
+  if (!file_) {
     FilePath filename;
     GetDatabaseFileName(&filename);
-    file_closer.reset(OpenFile(filename, "wb+"));
-    if (!file_closer.get()) {
+    file_ = OpenFile(filename, "wb+");
+    if (!file_) {
       DLOG(ERROR) << "Failed to open file " << filename.value();
       return false;
     }
-    file = file_closer.get();
   }
 
   // Write the new header.
@@ -546,25 +541,21 @@ bool VisitedLinkMaster::WriteFullTable() {
   header[1] = kFileCurrentVersion;
   header[2] = table_length_;
   header[3] = used_items_;
-  WriteToFile(file, 0, header, sizeof(header));
-  WriteToFile(file, sizeof(header), salt_, LINK_SALT_LENGTH);
+  WriteToFile(file_, 0, header, sizeof(header));
+  WriteToFile(file_, sizeof(header), salt_, LINK_SALT_LENGTH);
 
   // Write the hash data.
-  WriteToFile(file, kFileHeaderSize,
+  WriteToFile(file_, kFileHeaderSize,
               hash_table_, table_length_ * sizeof(Fingerprint));
 
   // The hash table may have shrunk, so make sure this is the end.
   if (file_thread_) {
-    AsyncSetEndOfFile* setter = new AsyncSetEndOfFile(file);
+    AsyncSetEndOfFile* setter = new AsyncSetEndOfFile(file_);
     file_thread_->PostTask(FROM_HERE, setter);
   } else {
-    TruncateFile(file);
+    TruncateFile(file_);
   }
 
-  // Keep the file open so we can dynamically write changes to it. When the
-  // file was already open, the file_closer is NULL, and file_ is already good.
-  if (file_closer.get())
-    file_ = file_closer.release();
   return true;
 }
 
@@ -947,10 +938,14 @@ void VisitedLinkMaster::WriteToFile(FILE* file,
 }
 
 void VisitedLinkMaster::WriteUsedItemCountToFile() {
+  if (!file_)
+    return;  // See comment on the file_ variable for why this might happen.
   WriteToFile(file_, kFileHeaderUsedOffset, &used_items_, sizeof(used_items_));
 }
 
 void VisitedLinkMaster::WriteHashRangeToFile(Hash first_hash, Hash last_hash) {
+  if (!file_)
+    return;  // See comment on the file_ variable for why this might happen.
   if (last_hash < first_hash) {
     // Handle wraparound at 0. This first write is first_hash->EOF
     WriteToFile(file_, first_hash * sizeof(Fingerprint) + kFileHeaderSize,
