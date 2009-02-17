@@ -244,6 +244,11 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   renderWidgetHostView_->render_widget_host()->ForwardWheelEvent(event);
 }
 
+- (void)setFrame:(NSRect)frameRect {
+  [super setFrame:frameRect];
+  renderWidgetHostView_->render_widget_host()->WasResized();
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
   DCHECK(renderWidgetHostView_->render_widget_host()->process()->channel());
 
