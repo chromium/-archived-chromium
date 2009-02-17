@@ -102,6 +102,10 @@ void WebContentsViewGtk::TakeFocus(bool reverse) {
 }
 
 void WebContentsViewGtk::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+  // The renderer returned a keyboard event it did not process. This may be
+  // a keyboard shortcut that we have to process.
+  // The windows code forwards this event onwards to accelerator handling,
+  // and then to DefWindowProc.  TODO(port): should do something similar.
   NOTIMPLEMENTED();
 }
 

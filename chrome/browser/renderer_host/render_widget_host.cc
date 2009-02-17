@@ -6,6 +6,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
+#include "base/keyboard_codes.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
@@ -283,15 +284,11 @@ void RenderWidgetHost::ForwardWheelEvent(
 }
 
 void RenderWidgetHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {
-#if defined(OS_WIN)
   if (key_event.type == WebKeyboardEvent::CHAR &&
-      (key_event.key_code == VK_RETURN || key_event.key_code == VK_SPACE))
+      (key_event.key_code == base::VKEY_RETURN ||
+       key_event.key_code == base::VKEY_SPACE)) {
     OnEnterOrSpace();
-#else
-  // TODO(port): we don't have portable keyboard codes yet
-  // Maybe use keyboard_codes.h if we stick with it
-  NOTIMPLEMENTED();
-#endif
+  }
 
   ForwardInputEvent(key_event, sizeof(WebKeyboardEvent));
 }

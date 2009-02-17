@@ -41,6 +41,8 @@ class RenderWidgetHostViewGtkWidget {
                      G_CALLBACK(KeyPressReleaseEvent), host_view);
     g_signal_connect(widget, "key-release-event",
                      G_CALLBACK(KeyPressReleaseEvent), host_view);
+    g_signal_connect(widget, "focus",
+                     G_CALLBACK(Focus), host_view);
     g_signal_connect(widget, "focus-in-event",
                      G_CALLBACK(FocusIn), host_view);
     g_signal_connect(widget, "focus-out-event",
@@ -85,6 +87,16 @@ class RenderWidgetHostViewGtkWidget {
     return FALSE;
   }
 
+  static gboolean Focus(GtkWidget* widget, GtkDirectionType focus,
+                        RenderWidgetHostViewGtk* host_view) {
+    // We override this so that pressing tab navigates within the web contents
+    // rather than tabbing out of it.  However, we do want to be able to tab
+    // out of it at the appropriate points.  TODO(port): study how this works
+    // on Windows and implement it.
+    NOTIMPLEMENTED();
+    return TRUE;
+  }
+
   static gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus,
                           RenderWidgetHostViewGtk* host_view) {
     host_view->GetRenderWidgetHost()->Focus();
@@ -102,6 +114,12 @@ class RenderWidgetHostViewGtkWidget {
       RenderWidgetHostViewGtk* host_view) {
     WebMouseEvent wme(event);
     host_view->GetRenderWidgetHost()->ForwardMouseEvent(wme);
+
+    // TODO(evanm): why is this necessary here but not in test shell?
+    // This logic is the same as GtkButton.
+    if (event->type == GDK_BUTTON_PRESS && !GTK_WIDGET_HAS_FOCUS(widget))
+      gtk_widget_grab_focus(widget);
+
     return FALSE;
   }
 
@@ -118,6 +136,8 @@ class RenderWidgetHostViewGtkWidget {
     host_view->GetRenderWidgetHost()->ForwardWheelEvent(wmwe);
     return FALSE;
   }
+
+  DISALLOW_IMPLICIT_CONSTRUCTORS(RenderWidgetHostViewGtkWidget);
 };
 
 }  // namespace
