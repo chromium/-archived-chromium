@@ -56,7 +56,7 @@ class LocationBarBridge : public LocationBar {
   virtual void ShowFirstRunBubble() { NOTIMPLEMENTED(); }
   virtual std::wstring GetInputString() const;
   virtual WindowOpenDisposition GetWindowOpenDisposition() const
-      { NOTIMPLEMENTED(); return NEW_FOREGROUND_TAB; }
+      { NOTIMPLEMENTED(); return CURRENT_TAB; }
   virtual PageTransition::Type GetPageTransition() const 
       { NOTIMPLEMENTED(); return 0; }
   virtual void AcceptInput() { NOTIMPLEMENTED(); }
