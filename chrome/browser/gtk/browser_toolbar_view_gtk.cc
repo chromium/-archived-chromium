@@ -16,6 +16,18 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+const int BrowserToolbarGtk::kToolbarHeight = 38;
+
+static GdkPixbuf* LoadThemeImage(const std::string& filename) {
+  FilePath path;
+  bool ok = PathService::Get(base::DIR_SOURCE_ROOT, &path);
+  DCHECK(ok);
+  path = path.Append("chrome/app/theme").Append(filename);
+  // We intentionally ignore errors here, as some buttons don't have images
+  // for all states.  This will all be removed once ResourceBundle works.
+  return gdk_pixbuf_new_from_file(path.value().c_str(), NULL);
+}
+
 // CustomDrawButton manages the lifetimes of some resources used to make a
 // custom-drawn Gtk button.  We use them on the toolbar.
 class BrowserToolbarGtk::CustomDrawButton {
@@ -76,15 +88,11 @@ GdkPixbuf* BrowserToolbarGtk::CustomDrawButton::LoadImage(
 void BrowserToolbarGtk::CustomDrawButton::LoadImages(
     const std::string& filename) {
   // TODO(evanm): make this use ResourceBundle once that is ported.
-  FilePath path;
-  bool ok = PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  DCHECK(ok);
-  path = path.Append("chrome/app/theme").Append(filename);
-  pixbufs_[GTK_STATE_NORMAL] = LoadImage(path.value() + ".png");
-  pixbufs_[GTK_STATE_ACTIVE] = LoadImage(path.value() + "_p.png");
-  pixbufs_[GTK_STATE_PRELIGHT] = LoadImage(path.value() + "_h.png");
+  pixbufs_[GTK_STATE_NORMAL] = LoadThemeImage(filename + ".png");
+  pixbufs_[GTK_STATE_ACTIVE] = LoadThemeImage(filename + "_p.png");
+  pixbufs_[GTK_STATE_PRELIGHT] = LoadThemeImage(filename + "_h.png");
   pixbufs_[GTK_STATE_SELECTED] = NULL;
-  pixbufs_[GTK_STATE_INSENSITIVE] = LoadImage(path.value() + "_d.png");
+  pixbufs_[GTK_STATE_INSENSITIVE] = LoadThemeImage(filename + "_d.png");
 
   gtk_widget_set_size_request(widget_,
                               gdk_pixbuf_get_width(pixbufs_[0]),
@@ -137,7 +145,11 @@ BrowserToolbarGtk::~BrowserToolbarGtk() {
 
 void BrowserToolbarGtk::Init(Profile* profile) {
   toolbar_ = gtk_hbox_new(FALSE, 0);
-  gtk_container_set_border_width(GTK_CONTAINER(toolbar_), 6);
+  gtk_container_set_border_width(GTK_CONTAINER(toolbar_), 4);
+  // TODO(evanm): this setting of the x-size to 0 makes it so the window
+  // can be resized arbitrarily small.  We should figure out what we want
+  // with respect to resizing before engineering around it, though.
+  gtk_widget_set_size_request(toolbar_, 0, kToolbarHeight);
 
   toolbar_tooltips_ = gtk_tooltips_new();
 

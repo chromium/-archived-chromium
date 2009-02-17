@@ -1,4 +1,4 @@
- // Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,6 +12,7 @@
 #include "chrome/browser/browser_window.h"
 
 class BrowserToolbarGtk;
+class NineBox;
 
 // An implementation of BrowserWindow for GTK.
 // Cross-platform code will interact with this object when
@@ -73,8 +74,25 @@ class BrowserWindowGtk : public BrowserWindow {
   scoped_ptr<Browser> browser_;
 
  private:
+  // Change whether we're showing the custom blue frame.
+  // Must be called once at startup.
+  // Triggers relayout of the content.
+  void SetCustomFrame(bool custom_frame);
+
+  // Callback for when the "content area" vbox needs to be redrawn.
+  // The content area includes the toolbar and web page but not the tab strip.
+  // It has a soft gray border when we have a custom frame.
+  static gboolean OnContentAreaExpose(GtkWidget* widget, GdkEventExpose* e,
+                                      BrowserWindowGtk* window);
+
   gfx::Rect bounds_;
   GdkWindowState state_;
+
+  // Theme graphics for the content area.
+  scoped_ptr<NineBox> content_area_ninebox_;
+
+  // Whether we're drawing the custom Chrome frame (including title bar).
+  bool custom_frame_;
 
   scoped_ptr<BrowserToolbarGtk> toolbar_;
 };

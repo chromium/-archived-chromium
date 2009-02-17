@@ -22,6 +22,9 @@ class ToolbarModel;
 class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                           public MenuGtk::Delegate {
  public:
+  // Height of the toolbar, in pixels.
+  static const int kToolbarHeight;
+
   explicit BrowserToolbarGtk(Browser* browser);
   virtual ~BrowserToolbarGtk();
 

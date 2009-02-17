@@ -5,12 +5,25 @@
 #include "chrome/browser/gtk/browser_window_gtk.h"
 
 #include "base/logging.h"
+#include "base/base_paths_linux.h"
+#include "base/path_service.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/browser_toolbar_view_gtk.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
 namespace {
+
+static GdkPixbuf* LoadThemeImage(const std::string& filename) {
+  FilePath path;
+  bool ok = PathService::Get(base::DIR_SOURCE_ROOT, &path);
+  DCHECK(ok);
+  path = path.Append("chrome/app/theme").Append(filename);
+  // We intentionally ignore errors here, as some buttons don't have images
+  // for all states.  This will all be removed once ResourceBundle works.
+  return gdk_pixbuf_new_from_file(path.value().c_str(), NULL);
+}
 
 gboolean MainWindowDestroyed(GtkWindow* window, BrowserWindowGtk* browser_win) {
   delete browser_win;
@@ -44,12 +57,50 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
 
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  content_area_(NULL),
-       browser_(browser) {
+       browser_(browser),
+       custom_frame_(false)  // TODO(port): make this a pref.
+{
   Init();
 }
 
 BrowserWindowGtk::~BrowserWindowGtk() {
   Close();
+}
+
+gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
+                                               GdkEventExpose* e,
+                                               BrowserWindowGtk* window) {
+  if (window->custom_frame_) {
+    NOTIMPLEMENTED() << " needs custom drawing for the custom frame.";
+    return FALSE;
+  }
+
+  // The theme graphics include the 2px frame, but we don't draw the frame
+  // in the non-custom-frame mode.  So we subtract it off.
+  const int kFramePixels = 2;
+
+  GdkPixbuf* pixbuf =
+      gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, // alpha
+                     8, // bit depth
+                     widget->allocation.width,
+                     BrowserToolbarGtk::kToolbarHeight + kFramePixels);
+
+#ifndef NDEBUG
+  // Fill with a bright color so we can see any pixels we're missing.
+  gdk_pixbuf_fill(pixbuf, 0x00FFFFFF);
+#endif
+
+  window->content_area_ninebox_->RenderTopCenterStrip(pixbuf, 0,
+                                                      widget->allocation.width);
+  gdk_draw_pixbuf(widget->window, NULL, pixbuf,
+                  0, 0,
+                  widget->allocation.x,
+                  widget->allocation.y - kFramePixels,
+                  -1, -1,
+                  GDK_RGB_DITHER_NORMAL, 0, 0);
+  gdk_pixbuf_unref(pixbuf);
+
+  return FALSE;  // Allow subwidgets to paint.
 }
 
 void BrowserWindowGtk::Init() {
@@ -64,11 +115,35 @@ void BrowserWindowGtk::Init() {
                    G_CALLBACK(MainWindowStateChanged), this);
   bounds_ = GetInitialWindowBounds(window_);
 
+  GdkPixbuf* images[9] = {
+    LoadThemeImage("content_top_left_corner.png"),
+    LoadThemeImage("content_top_center.png"),
+    LoadThemeImage("content_top_right_corner.png"),
+    LoadThemeImage("content_left_side.png"),
+    NULL,
+    LoadThemeImage("content_right_side.png"),
+    LoadThemeImage("content_bottom_left_corner.png"),
+    LoadThemeImage("content_bottom_center.png"),
+    LoadThemeImage("content_bottom_right_corner.png")
+  };
+  content_area_ninebox_.reset(new NineBox(images));
+
+  // This vbox is intended to surround the "content": toolbar+page.
+  // When we add the tab strip, it should go in a vbox surrounding this one.
   vbox_ = gtk_vbox_new(FALSE, 0);
+  gtk_widget_set_app_paintable(vbox_, TRUE);
+  gtk_widget_set_double_buffered(vbox_, FALSE);
+  g_signal_connect(G_OBJECT(vbox_), "expose-event",
+                   G_CALLBACK(&OnContentAreaExpose), this);
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
   toolbar_->Init(browser_->profile());
   toolbar_->AddToolbarToBox(vbox_);
+
+  // Note that calling this the first time is necessary to get the
+  // proper control layout.
+  // TODO(port): make this a pref.
+  SetCustomFrame(false);
 
   gtk_container_add(GTK_CONTAINER(window_), vbox_);
 }
@@ -247,4 +322,15 @@ void BrowserWindowGtk::OnBoundsChanged(const gfx::Rect& bounds) {
 
 void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
   state_ = state;
+}
+
+void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
+  custom_frame_ = custom_frame;
+  if (custom_frame_) {
+    gtk_container_set_border_width(GTK_CONTAINER(vbox_), 2);
+    // TODO(port): all the crazy blue title bar, etc.
+    NOTIMPLEMENTED();
+  } else {
+    gtk_container_set_border_width(GTK_CONTAINER(vbox_), 0);
+  }
 }
