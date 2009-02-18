@@ -25,8 +25,9 @@ class FavIconSource : public ChromeURLDataManager::DataSource {
   virtual void StartDataRequest(const std::string& path, int request_id);
 
   virtual std::string GetMimeType(const std::string&) const {
-    // Rely on image decoder inferring the correct type.
-    return std::string();
+    // We need to explicitly return a mime type, otherwise if the user tries to
+    // drag the image they get no extension.
+    return "image/png";
   }
 
   // Called when favicon data is available from the history backend.
@@ -59,8 +60,9 @@ class ThumbnailSource : public ChromeURLDataManager::DataSource {
   virtual void StartDataRequest(const std::string& path, int request_id);
 
   virtual std::string GetMimeType(const std::string&) const {
-    // Rely on image decoder inferring the correct type.
-    return std::string();
+    // We need to explicitly return a mime type, otherwise if the user tries to
+    // drag the image they get no extension.
+    return "image/png";
   }
 
   // Called when thumbnail data is available from the history backend.
