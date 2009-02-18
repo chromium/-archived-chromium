@@ -722,6 +722,7 @@ void NavigationController::RendererDidNavigateToNewPage(
   }
 
   new_entry->set_url(params.url);
+  new_entry->set_referrer(params.referrer);
   new_entry->set_page_id(params.page_id);
   new_entry->set_transition_type(params.transition);
   new_entry->set_site_instance(active_contents_->GetSiteInstance());
