@@ -115,17 +115,11 @@ static CFStringRef STLStringToCFStringWithEncodingsT(
 // when strings don't carry BOMs, as they typically won't.
 static const CFStringEncoding kNarrowStringEncoding = kCFStringEncodingUTF8;
 #ifdef __BIG_ENDIAN__
-#if defined(WCHAR_T_IS_UTF16)
-static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF16BE;
-#elif defined(WCHAR_T_IS_UTF32)
+static const CFStringEncoding kMediumStringEncoding = kCFStringEncodingUTF16BE;
 static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF32BE;
-#endif  // WCHAR_T_IS_UTF32
 #elif defined(__LITTLE_ENDIAN__)
-#if defined(WCHAR_T_IS_UTF16)
-static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF16LE;
-#elif defined(WCHAR_T_IS_UTF32)
+static const CFStringEncoding kMediumStringEncoding = kCFStringEncodingUTF16LE;
 static const CFStringEncoding kWideStringEncoding = kCFStringEncodingUTF32LE;
-#endif  // WCHAR_T_IS_UTF32
 #endif  // __LITTLE_ENDIAN__
 
 }  // namespace
@@ -154,12 +148,20 @@ CFStringRef SysUTF8ToCFStringRef(const std::string& utf8) {
   return STLStringToCFStringWithEncodingsT(utf8, kNarrowStringEncoding);
 }
 
+CFStringRef SysUTF16ToCFStringRef(const string16& utf16) {
+  return STLStringToCFStringWithEncodingsT(utf16, kMediumStringEncoding);
+}
+
 CFStringRef SysWideToCFStringRef(const std::wstring& wide) {
   return STLStringToCFStringWithEncodingsT(wide, kWideStringEncoding);
 }
 
 NSString* SysUTF8ToNSString(const std::string& utf8) {
   return CFTypeRefToNSObjectAutorelease(SysUTF8ToCFStringRef(utf8));
+}
+
+NSString* SysUTF16ToNSString(const string16& utf16) {
+  return CFTypeRefToNSObjectAutorelease(SysUTF16ToCFStringRef(utf16));
 }
 
 NSString* SysWideToNSString(const std::wstring& wide) {
@@ -171,6 +173,11 @@ std::string SysCFStringRefToUTF8(CFStringRef ref) {
                                                        kNarrowStringEncoding);
 }
 
+string16 SysCFStringRefToUTF16(CFStringRef ref) {
+  return CFStringToSTLStringWithEncodingT<string16>(ref,
+                                                    kMediumStringEncoding);
+}
+
 std::wstring SysCFStringRefToWide(CFStringRef ref) {
   return CFStringToSTLStringWithEncodingT<std::wstring>(ref,
                                                         kWideStringEncoding);
@@ -178,6 +185,10 @@ std::wstring SysCFStringRefToWide(CFStringRef ref) {
 
 std::string SysNSStringToUTF8(NSString* nsstring) {
   return SysCFStringRefToUTF8(reinterpret_cast<CFStringRef>(nsstring));
+}
+
+string16 SysNSStringToUTF16(NSString* nsstring) {
+  return SysCFStringRefToUTF16(reinterpret_cast<CFStringRef>(nsstring));
 }
 
 std::wstring SysNSStringToWide(NSString* nsstring) {
