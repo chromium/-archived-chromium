@@ -255,93 +255,69 @@ void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
 }
 
 void BrowserToolbarView::Layout() {
-  gfx::Size sz;
-
   // If we have not been initialized yet just do nothing.
   if (back_ == NULL)
     return;
 
-  int location_bar_y = kControlVertOffset;
-  int location_bar_height = 0;
-  // The width of all of the controls to the left of the location bar.
-  int left_side_width = 0;
-  // The width of all of the controls to the right of the location bar.
-  int right_side_width = 0;
-  if (IsDisplayModeNormal()) {
-    sz = back_->GetPreferredSize();
-    // TODO(abarth):  If the window becomes maximized but is not resized,
-    //                then Layout() might not be called and the back button
-    //                will be slightly the wrong size.  We should force a
-    //                Layout() in this case.
-    //                http://crbug.com/5540
-    if (browser_->window() && browser_->window()->IsMaximized()) {
-      // If the window is maximized, we extend the back button to the left so
-      // that clicking on the left-most pixel will activate the back button.
-      back_->SetBounds(0, kControlVertOffset, sz.width() + kControlIndent,
-                       sz.height());
-    } else {
-      back_->SetBounds(kControlIndent, kControlVertOffset, sz.width(),
-                       sz.height());
-    }
+  if (!IsDisplayModeNormal()) {
+    location_bar_->SetBounds(0, 0, width(),
+                             location_bar_->GetPreferredSize().height());
+    return;
+  }
 
-    sz = forward_->GetPreferredSize();
-    forward_->SetBounds(back_->x() + back_->width(), kControlVertOffset,
-                        sz.width(), sz.height());
+  int child_y = kControlVertOffset;
+  // We assume all child elements are the same height.
+  int child_height = go_->GetPreferredSize().height();
 
-    sz = reload_->GetPreferredSize();
-    reload_->SetBounds(forward_->x() + forward_->width() +
-                           kControlHorizOffset,
-                       kControlVertOffset, sz.width(), sz.height());
+  // If the window is maximized, we extend the back button to the left so that
+  // clicking on the left-most pixel will activate the back button.
+  // TODO(abarth):  If the window becomes maximized but is not resized,
+  //                then Layout() might not be called and the back button
+  //                will be slightly the wrong size.  We should force a
+  //                Layout() in this case.
+  //                http://crbug.com/5540
+  int back_width = back_->GetPreferredSize().width();
+  if (browser_->window() && browser_->window()->IsMaximized())
+    back_->SetBounds(0, child_y, back_width + kControlIndent, child_height);
+  else
+    back_->SetBounds(kControlIndent, child_y, back_width, child_height);
 
-    int offset = 0;
-    if (show_home_button_.GetValue()) {
-      sz = home_->GetPreferredSize();
-      offset = kControlHorizOffset;
-      home_->SetVisible(true);
-    } else {
-      sz = gfx::Size();
-      home_->SetVisible(false);
-    }
-    home_->SetBounds(reload_->x() + reload_->width() + offset,
-                     kControlVertOffset, sz.width(), sz.height());
+  forward_->SetBounds(back_->x() + back_->width(), child_y,
+                      forward_->GetPreferredSize().width(), child_height);
 
-    sz = star_->GetPreferredSize();
-    star_->SetBounds(home_->x() + home_->width() + kControlHorizOffset,
-                     kControlVertOffset, sz.width(), sz.height());
+  reload_->SetBounds(forward_->x() + forward_->width() + kControlHorizOffset,
+                     child_y, reload_->GetPreferredSize().width(),
+                     child_height);
 
-    sz = page_menu_->GetPreferredSize();
-    right_side_width = sz.width() + kMenuButtonOffset;
-
-    sz = app_menu_->GetPreferredSize();
-    right_side_width += sz.width() + kPaddingRight;
-
-    sz = go_->GetPreferredSize();
-    location_bar_height = sz.height();
-    right_side_width += sz.width();
-
-    left_side_width = star_->x() + star_->width();
+  if (show_home_button_.GetValue()) {
+    home_->SetVisible(true);
+    home_->SetBounds(reload_->x() + reload_->width() + kControlHorizOffset,
+                     child_y, home_->GetPreferredSize().width(), child_height);
   } else {
-    location_bar_height = location_bar_->GetPreferredSize().height();
-    location_bar_y = 0;
+    home_->SetVisible(false);
+    home_->SetBounds(reload_->x() + reload_->width(), child_y, 0, child_height);
   }
 
-  location_bar_->SetBounds(left_side_width, location_bar_y,
-                           width() - left_side_width - right_side_width,
-                           location_bar_height);
+  star_->SetBounds(home_->x() + home_->width() + kControlHorizOffset,
+                   child_y, star_->GetPreferredSize().width(), child_height);
 
-  if (IsDisplayModeNormal()) {
-    go_->SetBounds(location_bar_->x() + location_bar_->width(),
-                   kControlVertOffset, sz.width(), sz.height());
+  int go_button_width = go_->GetPreferredSize().width();
+  int page_menu_width = page_menu_->GetPreferredSize().width();
+  int app_menu_width = app_menu_->GetPreferredSize().width();
+  int location_x = star_->x() + star_->width();
+  int available_width = width() - kPaddingRight - app_menu_width -
+      page_menu_width - kMenuButtonOffset - go_button_width - location_x;
+  location_bar_->SetBounds(location_x, child_y, std::max(available_width, 0),
+                           child_height);
 
-    // Make sure the Page menu never overlaps the location bar.
-    int page_x = go_->x() + go_->width() + kMenuButtonOffset;
-    sz = page_menu_->GetPreferredSize();
-    page_menu_->SetBounds(page_x, kControlVertOffset, sz.width(),
-                          go_->height());
-    sz = app_menu_->GetPreferredSize();
-    app_menu_->SetBounds(page_menu_->x() + page_menu_->width(),
-                         page_menu_->y(), sz.width(), go_->height());
-  }
+  go_->SetBounds(location_bar_->x() + location_bar_->width(), child_y,
+                 go_button_width, child_height);
+
+  page_menu_->SetBounds(go_->x() + go_->width() + kMenuButtonOffset, child_y,
+                        page_menu_width, child_height);
+
+  app_menu_->SetBounds(page_menu_->x() + page_menu_->width(), child_y,
+                       app_menu_width, child_height);
 }
 
 void BrowserToolbarView::DidGainFocus() {
