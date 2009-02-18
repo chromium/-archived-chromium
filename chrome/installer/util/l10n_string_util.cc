@@ -168,16 +168,59 @@ std::wstring GetLocalizedEulaResource() {
   int len = ::GetModuleFileNameW(NULL, full_exe_path, MAX_PATH);
   if (len <= 0 && len >= MAX_PATH)
     return L"";
-  // The default language is English, but we also support Spanish,French and
-  // Portuguese.
   std::wstring language = GetSystemLanguage();
   const wchar_t* resource = L"IDR_OEMPG_EN.HTML";
-  if (language == L"fr")
-    resource = L"IDR_OEMPG_FR.HTML";
-  else if (language == L"es-419")
-    resource = L"IDR_OEMPG_ES_419.HTML";
-  else if (language == L"pt-br")
-    resource = L"IDR_OEMPG_PT_BR.HTML";
+
+  static std::map<int, wchar_t*> html_map;
+  if (html_map.empty()) {
+    html_map[IDS_L10N_OFFSET_AR] = L"IDR_OEMPG_AR.HTML";
+    html_map[IDS_L10N_OFFSET_BG] = L"IDR_OEMPG_BG.HTML";
+    html_map[IDS_L10N_OFFSET_CA] = L"IDR_OEMPG_CA.HTML";
+    html_map[IDS_L10N_OFFSET_CS] = L"IDR_OEMPG_CS.HTML";
+    html_map[IDS_L10N_OFFSET_DA] = L"IDR_OEMPG_DA.HTML";
+    html_map[IDS_L10N_OFFSET_DE] = L"IDR_OEMPG_DE.HTML";
+    html_map[IDS_L10N_OFFSET_EL] = L"IDR_OEMPG_EL.HTML";
+    html_map[IDS_L10N_OFFSET_EN_US] = L"IDR_OEMPG_EN.HTML";
+    html_map[IDS_L10N_OFFSET_EN_GB] = L"IDR_OEMPG_EN_GB.HTML";
+    html_map[IDS_L10N_OFFSET_ES] = L"IDR_OEMPG_ES.HTML";
+    html_map[IDS_L10N_OFFSET_ES_419] = L"IDR_OEMPG_ES_419.HTML";
+    html_map[IDS_L10N_OFFSET_ET] = L"IDR_OEMPG_ET.HTML";
+    html_map[IDS_L10N_OFFSET_FI] = L"IDR_OEMPG_FI.HTML";
+    html_map[IDS_L10N_OFFSET_FIL] = L"IDR_OEMPG_FIL.HTML";
+    html_map[IDS_L10N_OFFSET_FR] = L"IDR_OEMPG_FR.HTML";
+    html_map[IDS_L10N_OFFSET_HI] = L"IDR_OEMPG_HI.HTML";
+    html_map[IDS_L10N_OFFSET_HR] = L"IDR_OEMPG_HR.HTML";
+    html_map[IDS_L10N_OFFSET_HU] = L"IDR_OEMPG_HU.HTML";
+    html_map[IDS_L10N_OFFSET_ID] = L"IDR_OEMPG_ID.HTML";
+    html_map[IDS_L10N_OFFSET_IT] = L"IDR_OEMPG_IT.HTML";
+    html_map[IDS_L10N_OFFSET_JA] = L"IDR_OEMPG_JA.HTML";
+    html_map[IDS_L10N_OFFSET_KO] = L"IDR_OEMPG_KO.HTML";
+    html_map[IDS_L10N_OFFSET_LT] = L"IDR_OEMPG_LT.HTML";
+    html_map[IDS_L10N_OFFSET_LV] = L"IDR_OEMPG_LV.HTML";
+    html_map[IDS_L10N_OFFSET_NL] = L"IDR_OEMPG_NL.HTML";
+    html_map[IDS_L10N_OFFSET_NO] = L"IDR_OEMPG_NO.HTML";
+    html_map[IDS_L10N_OFFSET_PL] = L"IDR_OEMPG_PL.HTML";
+    html_map[IDS_L10N_OFFSET_PT_BR] = L"IDR_OEMPG_PT_BR.HTML";
+    html_map[IDS_L10N_OFFSET_PT_PT] = L"IDR_OEMPG_PT_PT.HTML";
+    html_map[IDS_L10N_OFFSET_RO] = L"IDR_OEMPG_RO.HTML";
+    html_map[IDS_L10N_OFFSET_RU] = L"IDR_OEMPG_RU.HTML";
+    html_map[IDS_L10N_OFFSET_SK] = L"IDR_OEMPG_SK.HTML";
+    html_map[IDS_L10N_OFFSET_SL] = L"IDR_OEMPG_SL.HTML";
+    html_map[IDS_L10N_OFFSET_SR] = L"IDR_OEMPG_SR.HTML";
+    html_map[IDS_L10N_OFFSET_SV] = L"IDR_OEMPG_SV.HTML";
+    html_map[IDS_L10N_OFFSET_TH] = L"IDR_OEMPG_TH.HTML";
+    html_map[IDS_L10N_OFFSET_TR] = L"IDR_OEMPG_TR.HTML";
+    html_map[IDS_L10N_OFFSET_UK] = L"IDR_OEMPG_UK.HTML";
+    html_map[IDS_L10N_OFFSET_VI] = L"IDR_OEMPG_VI.HTML";
+    html_map[IDS_L10N_OFFSET_ZH_CN] = L"IDR_OEMPG_ZH_CN.HTML";
+    html_map[IDS_L10N_OFFSET_ZH_TW] = L"IDR_OEMPG_ZH_TW.HTML";
+  }
+
+  std::map<int, wchar_t*>::iterator it = html_map.find(
+      GetLanguageOffset(language));
+  if (it != html_map.end())
+    resource = it->second;
+
   // Spaces and DOS paths must be url encoded.
   std::wstring url_path =
       StringPrintf(L"res://%ls/#23/%ls", full_exe_path, resource);
