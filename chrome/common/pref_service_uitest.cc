@@ -57,16 +57,7 @@ public:
   void TearDown() {
     UITest::TearDown();
 
-    const int kWaitForDeleteMs = 100;
-    int num_retries = 5;
-    while (num_retries > 0) {
-      file_util::Delete(tmp_profile_, true);
-      if (!file_util::PathExists(tmp_profile_))
-        break;
-      --num_retries;
-      Sleep(kWaitForDeleteMs);
-    }
-    EXPECT_FALSE(file_util::PathExists(tmp_profile_));
+    EXPECT_TRUE(DieFileDie(tmp_profile_, true));
   }
 
 public:
