@@ -6,6 +6,8 @@
 
 #include "webkit/glue/plugins/plugin_list.h"
 
+#import <Foundation/Foundation.h>
+
 #include "base/file_util.h"
 #include "base/mac_util.h"
 #include "webkit/glue/plugins/plugin_lib.h"
