@@ -4,6 +4,8 @@
 
 #include "webkit/glue/webcursor.h"
 
+#import <AppKit/AppKit.h>
+
 #include "config.h"
 #include "PlatformCursor.h"
 #include "RetainPtr.h"
