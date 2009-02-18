@@ -577,7 +577,6 @@
 		938445E10F16B0570075F4C5 /* RenderImageGeneratedContent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5442A860E9BDD600098766D /* RenderImageGeneratedContent.cpp */; };
 		938445E20F16B0570075F4C5 /* RenderInline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E95590D7F3E94001ECF42 /* RenderInline.cpp */; };
 		938445E30F16B0570075F4C5 /* RenderLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E955B0D7F3E94001ECF42 /* RenderLayer.cpp */; };
-		938445E40F16B0570075F4C5 /* RenderLegend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E955D0D7F3E94001ECF42 /* RenderLegend.cpp */; };
 		938445E50F16B0570075F4C5 /* RenderListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E955F0D7F3E94001ECF42 /* RenderListBox.cpp */; };
 		938445E60F16B0570075F4C5 /* RenderListItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E95610D7F3E94001ECF42 /* RenderListItem.cpp */; };
 		938445E70F16B0570075F4C5 /* RenderListMarker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E95630D7F3E94001ECF42 /* RenderListMarker.cpp */; };
@@ -3427,8 +3426,6 @@
 		7B5E955A0D7F3E94001ECF42 /* RenderInline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderInline.h; sourceTree = "<group>"; };
 		7B5E955B0D7F3E94001ECF42 /* RenderLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderLayer.cpp; sourceTree = "<group>"; };
 		7B5E955C0D7F3E94001ECF42 /* RenderLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderLayer.h; sourceTree = "<group>"; };
-		7B5E955D0D7F3E94001ECF42 /* RenderLegend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderLegend.cpp; sourceTree = "<group>"; };
-		7B5E955E0D7F3E94001ECF42 /* RenderLegend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderLegend.h; sourceTree = "<group>"; };
 		7B5E955F0D7F3E94001ECF42 /* RenderListBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderListBox.cpp; sourceTree = "<group>"; };
 		7B5E95600D7F3E94001ECF42 /* RenderListBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderListBox.h; sourceTree = "<group>"; };
 		7B5E95610D7F3E94001ECF42 /* RenderListItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderListItem.cpp; sourceTree = "<group>"; };
@@ -6294,8 +6291,6 @@
 				7B5E955A0D7F3E94001ECF42 /* RenderInline.h */,
 				7B5E955B0D7F3E94001ECF42 /* RenderLayer.cpp */,
 				7B5E955C0D7F3E94001ECF42 /* RenderLayer.h */,
-				7B5E955D0D7F3E94001ECF42 /* RenderLegend.cpp */,
-				7B5E955E0D7F3E94001ECF42 /* RenderLegend.h */,
 				7B5E955F0D7F3E94001ECF42 /* RenderListBox.cpp */,
 				7B5E95600D7F3E94001ECF42 /* RenderListBox.h */,
 				7B5E95610D7F3E94001ECF42 /* RenderListItem.cpp */,
@@ -9151,7 +9146,6 @@
 				938445E10F16B0570075F4C5 /* RenderImageGeneratedContent.cpp in Sources */,
 				938445E20F16B0570075F4C5 /* RenderInline.cpp in Sources */,
 				938445E30F16B0570075F4C5 /* RenderLayer.cpp in Sources */,
-				938445E40F16B0570075F4C5 /* RenderLegend.cpp in Sources */,
 				489B04B64226A8BC625C0DDB /* RenderLineBoxList.cpp in Sources */,
 				938445E50F16B0570075F4C5 /* RenderListBox.cpp in Sources */,
 				938445E60F16B0570075F4C5 /* RenderListItem.cpp in Sources */,

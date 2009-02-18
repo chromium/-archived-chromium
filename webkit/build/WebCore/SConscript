@@ -636,7 +636,6 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderImageGeneratedContent.cpp',
     '$WEBCORE_DIR/rendering/RenderInline.cpp',
     '$WEBCORE_DIR/rendering/RenderLayer.cpp',
-    '$WEBCORE_DIR/rendering/RenderLegend.cpp',
     '$WEBCORE_DIR/rendering/RenderLineBoxList.cpp',
     '$WEBCORE_DIR/rendering/RenderListBox.cpp',
     '$WEBCORE_DIR/rendering/RenderListItem.cpp',

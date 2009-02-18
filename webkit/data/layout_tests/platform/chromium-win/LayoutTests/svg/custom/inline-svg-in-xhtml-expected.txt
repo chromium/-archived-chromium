@@ -15,7 +15,7 @@ layer at (48,38) size 722x542 layerType: foreground only
   RenderBody {body} at (48,38) size 722x542 [border: (1px solid #000000)]
     RenderBlock {form} at (1,1) size 720x129
       RenderFieldSet {fieldset} at (2,0) size 716x129 [border: (2px groove #C0C0C0)]
-        RenderLegend {legend} at (14,0) size 84x20
+        RenderBlock {legend} at (14,0) size 84x20
           RenderText {#text} at (2,0) size 80x19
             text run at (2,0) width 80: "HTML Form"
         RenderBlock {p} at (14,41) size 688x22
