@@ -51,6 +51,7 @@ BEGIN
     "T",            IDC_FOCUS_TOOLBAR,          VIRTKEY, SHIFT, ALT
     VK_RIGHT,       IDC_FORWARD,                VIRTKEY, ALT
     VK_BACK,        IDC_FORWARD,                VIRTKEY, SHIFT
+    VK_F11,         IDC_FULLSCREEN,             VIRTKEY
     VK_F1,          IDC_HELP_PAGE,              VIRTKEY
     "J",            IDC_JS_CONSOLE,             VIRTKEY, CONTROL, SHIFT
     "N",            IDC_NEW_INCOGNITO_WINDOW,   VIRTKEY, CONTROL, SHIFT

@@ -522,6 +522,9 @@ void OpaqueNonClientView::GetWindowMask(const gfx::Size& size,
                                         gfx::Path* window_mask) {
   DCHECK(window_mask);
 
+  if (browser_view_->IsFullscreen())
+    return;
+
   // Redefine the window visible region for the new size.
   window_mask->moveTo(0, 3);
   window_mask->lineTo(1, 2);
@@ -556,6 +559,9 @@ void OpaqueNonClientView::ResetWindowControls() {
 // OpaqueNonClientView, views::View overrides:
 
 void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
+  if (browser_view_->IsFullscreen())
+    return;  // Nothing is visible, so don't bother to paint.
+
   if (frame_->IsMaximized())
     PaintMaximizedFrameBorder(canvas);
   else
@@ -662,6 +668,8 @@ SkBitmap OpaqueNonClientView::GetFavIconForTabIconView() {
 // OpaqueNonClientView, private:
 
 int OpaqueNonClientView::FrameBorderThickness() const {
+  if (browser_view_->IsFullscreen())
+    return 0;
   return frame_->IsMaximized() ?
       GetSystemMetrics(SM_CXSIZEFRAME) : kFrameBorderThickness;
 }
@@ -673,7 +681,8 @@ int OpaqueNonClientView::TopResizeHeight() const {
 int OpaqueNonClientView::NonClientBorderThickness() const {
   // In maximized mode, we don't show a client edge.
   return FrameBorderThickness() +
-      (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
+      ((frame_->IsMaximized() || browser_view_->IsFullscreen()) ?
+      0 : kClientEdgeThickness);
 }
 
 int OpaqueNonClientView::NonClientTopBorderHeight() const {
@@ -683,7 +692,8 @@ int OpaqueNonClientView::NonClientTopBorderHeight() const {
   }
 
   return FrameBorderThickness() +
-      (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
+      ((frame_->IsMaximized() || browser_view_->IsFullscreen()) ?
+      0 : kNonClientRestoredExtraThickness);
 }
 
 int OpaqueNonClientView::BottomEdgeThicknessWithinNonClientHeight() const {

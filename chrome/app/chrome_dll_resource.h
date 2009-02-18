@@ -75,7 +75,8 @@
 #define IDC_DUPLICATE_TAB               34027
 #define IDC_RESTORE_TAB                 34028
 #define IDC_SHOW_AS_TAB                 34029
-#define IDC_EXIT                        34030
+#define IDC_FULLSCREEN                  34030
+#define IDC_EXIT                        34031
 
 // Page-related commands
 #define IDC_STAR                        35000

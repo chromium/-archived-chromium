@@ -106,6 +106,9 @@ class BookmarkBarView : public views::View,
   virtual void OnDragExited();
   virtual int OnPerformDrop(const views::DropTargetEvent& event);
 
+  // Called when fullscreen mode toggles on or off; this affects our layout.
+  void OnFullscreenToggled(bool fullscreen);
+
   // Sets the model change listener to listener.
   void SetModelChangedListener(ModelChangedListener* listener) {
     model_changed_listener_ = listener;

@@ -169,6 +169,8 @@ class BrowserView : public BrowserWindow,
   virtual void SetStarredState(bool is_starred);
   virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized() const;
+  virtual void SetFullscreen(bool fullscreen);
+  virtual bool IsFullscreen() const;
   virtual LocationBar* GetLocationBar() const;
   virtual void SetFocusToLocationBar();
   virtual void UpdateStopGoState(bool is_loading);
@@ -259,6 +261,14 @@ class BrowserView : public BrowserWindow,
   virtual int OnPerformDrop(const views::DropTargetEvent& event);
 
  private:
+  // Information saved before going into fullscreen mode, used to restore the
+  // window afterwards.
+  struct SavedWindowInfo {
+    LONG style;
+    LONG ex_style;
+    RECT window_rect;
+  };
+
   // Creates the system menu.
   void InitSystemMenu();
 
@@ -373,6 +383,12 @@ class BrowserView : public BrowserWindow,
 
   // True if we have already been initialized.
   bool initialized_;
+
+  // True if we're in fullscreen mode.
+  bool fullscreen_;
+
+  // Saved window information from before entering fullscreen mode.
+  SavedWindowInfo saved_window_info_;
 
   // Lazily created representation of the system menu.
   scoped_ptr<Menu> system_menu_;

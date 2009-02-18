@@ -181,6 +181,7 @@ BrowserView::BrowserView(Browser* browser)
       toolbar_(NULL),
       contents_container_(NULL),
       initialized_(false),
+      fullscreen_(false),
       can_drop_(false),
       hung_window_detector_(&hung_plugin_action_),
       ticker_(0),
@@ -366,11 +367,15 @@ bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
   const Browser::Type type = browser_->type();
   unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
   if (type == Browser::TYPE_NORMAL)
-    features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR | FEATURE_BOOKMARKBAR;
-  else
-    features |= FEATURE_TITLEBAR;
-  if (type != Browser::TYPE_APP)
-    features |= FEATURE_LOCATIONBAR;
+     features |= FEATURE_BOOKMARKBAR;
+  if (!fullscreen_) {
+    if (type == Browser::TYPE_NORMAL)
+      features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
+    else
+      features |= FEATURE_TITLEBAR;
+    if (type != Browser::TYPE_APP)
+      features |= FEATURE_LOCATIONBAR;
+  }
   return !!(features & feature);
 }
 
@@ -531,6 +536,13 @@ void BrowserView::SetStarredState(bool is_starred) {
 }
 
 gfx::Rect BrowserView::GetNormalBounds() const {
+  // If we're in fullscreen mode, we've changed the rect associated with the
+  // current window style to the monitor rect.  If we weren't maximized, that
+  // means it's the rcNormalPosition which has been changed, so we need to
+  // return the saved rect here instead of the current one.
+  if (fullscreen_ && !IsMaximized())
+    return gfx::Rect(saved_window_info_.window_rect);
+
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
   const bool ret = !!GetWindowPlacement(frame_->GetWindow()->GetHWND(), &wp);
@@ -540,6 +552,61 @@ gfx::Rect BrowserView::GetNormalBounds() const {
 
 bool BrowserView::IsMaximized() const {
   return frame_->GetWindow()->IsMaximized();
+}
+
+void BrowserView::SetFullscreen(bool fullscreen) {
+  if (fullscreen_ == fullscreen)
+    return;  // Nothing to do.
+
+  // Move focus out of the location bar if necessary, and make it unfocusable.
+  LocationBarView* location_bar = toolbar_->GetLocationBarView();
+  if (!fullscreen_) {
+    views::FocusManager* focus_manager = GetFocusManager();
+    DCHECK(focus_manager);
+    if (focus_manager->GetFocusedView() == location_bar)
+      focus_manager->ClearFocus();
+  }
+  location_bar->SetFocusable(fullscreen_);
+
+  // Toggle fullscreen mode.
+  fullscreen_ = fullscreen;
+
+  // Notify bookmark bar, so it can set itself to the appropriate drawing state.
+  if (bookmark_bar_view_.get())
+    bookmark_bar_view_->OnFullscreenToggled(fullscreen_);
+
+  HWND hwnd = GetWidget()->GetHWND();
+  gfx::Rect new_rect;
+  if (fullscreen_) {
+    // Save current window information.
+    saved_window_info_.style = GetWindowLong(hwnd, GWL_STYLE);
+    saved_window_info_.ex_style = GetWindowLong(hwnd, GWL_EXSTYLE);
+    GetWindowRect(hwnd, &saved_window_info_.window_rect);
+
+    // Set new window style and size.
+    SetWindowLong(hwnd, GWL_STYLE,
+                  saved_window_info_.style & ~(WS_CAPTION | WS_THICKFRAME));
+    SetWindowLong(hwnd, GWL_EXSTYLE,
+                  saved_window_info_.ex_style & ~(WS_EX_DLGMODALFRAME |
+                  WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+    MONITORINFO monitor_info;
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY),
+                   &monitor_info);
+    new_rect = monitor_info.rcMonitor;
+  } else {
+    // Reset original window style and size.
+    SetWindowLong(hwnd, GWL_STYLE, saved_window_info_.style);
+    SetWindowLong(hwnd, GWL_EXSTYLE, saved_window_info_.ex_style);
+    new_rect = saved_window_info_.window_rect;
+  }
+  // This will cause the window to re-layout.
+  SetWindowPos(hwnd, NULL, new_rect.x(), new_rect.y(), new_rect.width(),
+      new_rect.height(), SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+}
+
+bool BrowserView::IsFullscreen() const {
+  return fullscreen_;
 }
 
 LocationBar* BrowserView::GetLocationBar() const {
@@ -858,7 +925,10 @@ std::wstring BrowserView::GetWindowName() const {
 void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
                                       bool maximized,
                                       bool always_on_top) {
-  if (browser_->ShouldSaveWindowPlacement()) {
+  // If fullscreen_ is true, we've just changed into fullscreen mode, and we're
+  // catching the going-into-fullscreen sizing and positioning calls, which we
+  // want to ignore.
+  if (!fullscreen_ && browser_->ShouldSaveWindowPlacement()) {
     WindowDelegate::SaveWindowPlacement(bounds, maximized, always_on_top);
     browser_->SaveWindowPlacement(bounds, maximized);
   }

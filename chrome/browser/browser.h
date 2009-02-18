@@ -243,6 +243,7 @@ class Browser : public TabStripModelDelegate,
   void DuplicateTab();
   void RestoreTab();
   void ConvertPopupToTabbedBrowser();
+  void ToggleFullscreenMode();
   void Exit();
 
   // Page-related commands
@@ -405,9 +406,12 @@ class Browser : public TabStripModelDelegate,
   // Initialize state for all browser commands.
   void InitCommandState();
 
-  // Update commands which may be enabled or disabled depending on the tab's
-  // state.
+  // Update commands whose state depends on the tab's state.
   void UpdateCommandsForTabState();
+
+  // Update commands whose state depends on whether the window is in fullscreen
+  // mode.
+  void UpdateCommandsForFullscreenMode(bool is_fullscreen);
 
   // Set the correct stop/go icon and update the Go and Stop command states.
   // |is_loading| is true if the current TabContents is loading.

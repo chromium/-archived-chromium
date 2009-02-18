@@ -1105,6 +1105,13 @@ int BookmarkBarView::OnPerformDrop(const DropTargetEvent& event) {
   return PerformDropImpl(data, parent_node, index);
 }
 
+void BookmarkBarView::OnFullscreenToggled(bool fullscreen) {
+  if (!fullscreen)
+    size_animation_->Reset(IsAlwaysShown() ? 1 : 0);
+  else if (IsAlwaysShown())
+    size_animation_->Reset(0);
+}
+
 bool BookmarkBarView::IsDetachedStyle() {
   return OnNewTabPage() && (size_animation_->GetCurrentValue() != 1);
 }

@@ -85,6 +85,10 @@ class BrowserWindow {
   // Returns true if the frame is maximized (aka zoomed).
   virtual bool IsMaximized() const = 0;
 
+  // Accessors for fullscreen mode state.
+  virtual void SetFullscreen(bool fullscreen) = 0;
+  virtual bool IsFullscreen() const = 0;
+
   // Returns the location bar.
   virtual LocationBar* GetLocationBar() const = 0;
 
