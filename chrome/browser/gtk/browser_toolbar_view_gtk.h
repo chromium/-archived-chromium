@@ -15,6 +15,7 @@
 
 class Browser;
 class Profile;
+class TabContents;
 class ToolbarModel;
 
 // View class that displays the GTK version of the toolbar and routes gtk
@@ -44,6 +45,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   void SetProfile(Profile* profile);
 
+  // Message that we should react to a state change.
+  void UpdateTabContents(TabContents* contents, bool should_restore_state);
+
  private:
   class CustomDrawButton;  // Defined in the .cc file.
 
@@ -54,6 +58,10 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                                        int depressed_id,
                                        const std::wstring& localized_tooltip,
                                        bool menu_button);
+
+  // Gtk callback for the "activate" signal on the |entry_| widget. Responds to
+  // enter.
+  static void OnEntryActivate(GtkEntry *entry, BrowserToolbarGtk* toolbar);
 
   // Gtk callback for the "clicked" signal.
   static void OnButtonClick(GtkWidget* button, BrowserToolbarGtk* toolbar);
@@ -75,6 +83,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   // Tooltip container for all GTK widgets in this class.
   GtkTooltips* toolbar_tooltips_;
+
+  // Our temporary URL bar (until we get the omnibox up).
+  GtkWidget* entry_;
 
   // All the buttons in the toolbar.
   scoped_ptr<CustomDrawButton> back_, forward_;

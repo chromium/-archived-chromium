@@ -241,7 +241,7 @@ void BrowserWindowGtk::UpdateStopGoState(bool is_loading) {
 
 void BrowserWindowGtk::UpdateToolbar(TabContents* contents,
                                      bool should_restore_state) {
-  NOTIMPLEMENTED();
+  toolbar_->UpdateTabContents(contents, should_restore_state);
 }
 
 void BrowserWindowGtk::FocusToolbar() {

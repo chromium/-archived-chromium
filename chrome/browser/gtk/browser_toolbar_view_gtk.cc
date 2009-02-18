@@ -130,6 +130,7 @@ gboolean BrowserToolbarGtk::CustomDrawButton::OnExpose(
 
 BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
     : toolbar_(NULL),
+      entry_(NULL),
       model_(browser->toolbar_model()),
       browser_(browser),
       profile_(NULL) {
@@ -176,9 +177,11 @@ void BrowserToolbarGtk::Init(Profile* profile) {
   star_.reset(BuildToolbarButton(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D,
       l10n_util::GetString(IDS_TOOLTIP_STAR), false));
 
-  GtkWidget* entry = gtk_entry_new();
-  gtk_widget_set_size_request(entry, 0, 27);
-  gtk_box_pack_start(GTK_BOX(toolbar_), entry, TRUE, TRUE, 0);
+  entry_ = gtk_entry_new();
+  gtk_widget_set_size_request(entry_, 0, 27);
+  g_signal_connect(G_OBJECT(entry_), "activate",
+                   G_CALLBACK(OnEntryActivate), this);
+  gtk_box_pack_start(GTK_BOX(toolbar_), entry_, TRUE, TRUE, 0);
 
   go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L"", false));
 
@@ -251,6 +254,13 @@ void BrowserToolbarGtk::SetProfile(Profile* profile) {
   //  location_bar_->SetProfile(profile);
 }
 
+void BrowserToolbarGtk::UpdateTabContents(TabContents* contents,
+                                          bool should_restore_state) {
+  // Extract the UTF-8 representation of the URL.
+  gtk_entry_set_text(GTK_ENTRY(entry_),
+                     contents->GetURL().possibly_invalid_spec().c_str());
+}
+
 // TODO(port): This needs to deal with our styled pixmaps.
 BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
@@ -258,10 +268,10 @@ BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
       highlight_id, depressed_id);
 
-  // TODO(erg): Mismatch between wstring and string.
-  // gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
-  //                      GTK_WIDGET(back_),
-  //                      localized_tooltip, localized_tooltip);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
+                       GTK_WIDGET(button->widget()),
+                       WideToUTF8(localized_tooltip).c_str(),
+                       WideToUTF8(localized_tooltip).c_str());
   if (menu_button) {
     g_signal_connect(G_OBJECT(button->widget()), "button_press_event",
                      G_CALLBACK(OnMenuButtonPressEvent), this);
@@ -272,6 +282,17 @@ BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
+}
+
+/* static */
+void BrowserToolbarGtk::OnEntryActivate(GtkEntry *entry,
+                                        BrowserToolbarGtk* toolbar) {
+  GURL dest(std::string(gtk_entry_get_text(entry)));
+  toolbar->browser_->OpenURLFromTab(NULL, dest, GURL(),
+                                    CURRENT_TAB,
+                                    PageTransition::TYPED);
+  toolbar->browser_->GetSelectedTabContents()->
+      OpenURL(dest, GURL(), CURRENT_TAB, PageTransition::TYPED);
 }
 
 /* static */
