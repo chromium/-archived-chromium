@@ -87,6 +87,15 @@ bool BrowserWindowCocoa::IsMaximized() const {
   return [window_ isZoomed];
 }
 
+void BrowserWindowCocoa::SetFullscreen(bool fullscreen) {
+  NOTIMPLEMENTED();
+}
+
+bool BrowserWindowCocoa::IsFullscreen() const {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 gfx::Rect BrowserWindowCocoa::GetRootWindowResizerRect() const {
   return gfx::Rect();
 }

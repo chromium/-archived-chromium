@@ -35,6 +35,8 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void SetStarredState(bool is_starred);
   virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized() const;
+  virtual void SetFullscreen(bool fullscreen);
+  virtual bool IsFullscreen() const;
   virtual LocationBar* GetLocationBar() const;
   virtual void SetFocusToLocationBar();
   virtual void UpdateStopGoState(bool is_loading);
