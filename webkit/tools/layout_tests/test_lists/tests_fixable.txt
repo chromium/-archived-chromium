@@ -1300,6 +1300,10 @@ MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL CRASH
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
 
+// This some times failed w/ a timeout on the build bot (w/o a clear cause),
+// but it happens enough, we tag w/ timeout to keep the build green otherwise.
+MAC : LayoutTests/http/tests/misc/BOM-override-script.html = TIMEOUT PASS
+
 //  no html tags, bad html (unmatched tags)
 MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH PASS
 // Script -- onload hooks
@@ -1727,9 +1731,10 @@ WIN LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 LayoutTests/fast/loader/frame-creation-removal.html = CRASH
 chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 
-// Sharted showing up the mac build bots on 02/16/09
-MAC : LayoutTests/fast/events/overflow-events.html = FAIL
-MAC : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
+// Sharted showing up the mac build bots on 02/16/09 (sometimes passes in
+// debug, but haven't seen it pass in release)
+MAC DEBUG : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT PASS
+MAC RELEASE : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
 
 // Regressions from WebKit merge 40847-40875
 LINUX WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
