@@ -422,8 +422,8 @@ IPC_BEGIN_MESSAGES(View)
   // which contain all resource links that have local copy.
   IPC_MESSAGE_ROUTED3(ViewMsg_GetSerializedHtmlDataForCurrentPageWithLocalLinks,
                       std::vector<GURL> /* urls that have local copy */,
-                      std::vector<std::wstring> /* paths of local copy */,
-                      std::wstring /* local directory path */)
+                      std::vector<FilePath> /* paths of local copy */,
+                      FilePath /* local directory path */)
 
   // Requests application info for the page. The renderer responds back with
   // ViewHostMsg_DidGetApplicationInfo.

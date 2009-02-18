@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "chrome/browser/download/save_types.h"
 #include "googleurl/src/gurl.h"
 
@@ -47,7 +48,7 @@ class SaveItem {
   int PercentComplete() const;
 
   // Update path for SaveItem, the actual file is renamed on the file thread.
-  void Rename(const std::wstring& full_path);
+  void Rename(const FilePath& full_path);
 
   void SetSaveId(int32 save_id);
 
@@ -55,8 +56,8 @@ class SaveItem {
 
   // Accessors.
   SaveState state() const { return state_; }
-  const std::wstring full_path() const { return full_path_; }
-  const std::wstring file_name() const { return file_name_; }
+  const FilePath& full_path() const { return full_path_; }
+  const FilePath& file_name() const { return file_name_; }
   const GURL& url() const { return url_; }
   const GURL& referrer() const { return referrer_; }
   int64 total_bytes() const { return total_bytes_; }
@@ -77,10 +78,10 @@ class SaveItem {
   int32 save_id_;
 
   // Full path to the save item file.
-  std::wstring full_path_;
+  FilePath full_path_;
 
   // Short display version of the file.
-  std::wstring file_name_;
+  FilePath file_name_;
 
   // The URL for this save item.
   GURL url_;

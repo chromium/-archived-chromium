@@ -380,10 +380,10 @@ void SavePackage::StartSave(const SaveFileCreateInfo* info) {
     // Now we get final name retrieved from GenerateFilename, we will use it
     // rename the SaveItem.
     FilePath final_name = saved_main_directory_path_.Append(generated_name);
-    save_item->Rename(final_name.ToWStringHack());
+    save_item->Rename(final_name);
   } else {
     // It is the main HTML file, use the name chosen by the user.
-    save_item->Rename(saved_main_file_path_.ToWStringHack());
+    save_item->Rename(saved_main_file_path_);
   }
 
   // If the save source is from file system, inform SaveFileManager to copy
@@ -524,7 +524,7 @@ void SavePackage::CheckFinish() {
       NewRunnableMethod(file_manager_,
                         &SaveFileManager::RenameAllFiles,
                         final_names,
-                        dir.ToWStringHack(),
+                        dir,
                         web_contents_->process()->host_id(),
                         web_contents_->render_view_host()->routing_id()));
 }
@@ -684,7 +684,7 @@ void SavePackage::ShowDownloadInShell() {
   file_manager_->GetSaveLoop()->PostTask(FROM_HERE,
       NewRunnableMethod(file_manager_,
                         &SaveFileManager::OnShowSavedFileInShell,
-                        saved_main_file_path_.ToWStringHack()));
+                        saved_main_file_path_));
 }
 
 // Calculate the percentage of whole save page job.
@@ -745,7 +745,7 @@ void SavePackage::GetSerializedHtmlDataForCurrentPageWithLocalLinks() {
   if (wait_state_ != HTML_DATA)
     return;
   std::vector<GURL> saved_links;
-  std::vector<std::wstring> saved_file_paths;
+  std::vector<FilePath> saved_file_paths;
   int successful_started_items_count = 0;
 
   // Collect all saved items which have local storage.
@@ -778,12 +778,9 @@ void SavePackage::GetSerializedHtmlDataForCurrentPageWithLocalLinks() {
   // Get the relative directory name.
   FilePath relative_dir_name = saved_main_directory_path_.BaseName();
 
-  std::wstring relative_dir_name_str = std::wstring(L"./") +
-      relative_dir_name.ToWStringHack() + L"/";
-
   web_contents_->render_view_host()->
       GetSerializedHtmlDataForCurrentPageWithLocalLinks(
-          saved_links, saved_file_paths, relative_dir_name_str);
+      saved_links, saved_file_paths, relative_dir_name);
 }
 
 // Process the serialized HTML content data of a specified web page

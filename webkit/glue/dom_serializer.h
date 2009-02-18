@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "googleurl/src/gurl.h"
 
@@ -53,8 +54,8 @@ class DomSerializer {
                 bool recursive_serialization,
                 DomSerializerDelegate* delegate,
                 const std::vector<GURL>& links,
-                const std::vector<std::wstring>& local_paths,
-                const std::wstring& local_directory_name);
+                const std::vector<FilePath>& local_paths,
+                const FilePath& local_directory_name);
 
   // Generate the MOTW declaration.
   static std::string GenerateMarkOfTheWebDeclaration(const GURL& url);
@@ -67,7 +68,7 @@ class DomSerializer {
   WebFrameImpl* specified_webframeimpl_;
   // This hash_map is used to map resource URL of original link to its local
   // file path.
-  typedef base::hash_map<std::string, std::wstring> LinkLocalPathMap;
+  typedef base::hash_map<std::string, FilePath> LinkLocalPathMap;
   // local_links_ include all pair of local resource path and corresponding
   // original link.
   LinkLocalPathMap local_links_;
@@ -83,7 +84,7 @@ class DomSerializer {
   // serialized or not;
   bool frames_collected_;
   // Local directory name of all local resource files.
-  const std::wstring& local_directory_name_;
+  const FilePath& local_directory_name_;
   // Vector for saving all frames which need to be serialized.
   std::vector<WebFrameImpl*> frames_;
 
@@ -96,7 +97,7 @@ class DomSerializer {
     // Document object of current frame.
     WebCore::Document* doc;
     // Local directory name of all local resource files.
-    const std::wstring& directory_name;
+    const FilePath& directory_name;
 
     // Flag indicates current doc is html document or not. It's a cache value
     // of Document.isHTMLDocument().
@@ -118,7 +119,7 @@ class DomSerializer {
         const GURL& current_frame_gurl,
         const WebCore::TextEncoding& text_encoding,
         WebCore::Document* doc,
-        const std::wstring& directory_name);
+        const FilePath& directory_name);
 
    private:
     DISALLOW_EVIL_CONSTRUCTORS(SerializeDomParam);

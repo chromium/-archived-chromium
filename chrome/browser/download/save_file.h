@@ -5,9 +5,8 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_SAVE_FILE_H__
 #define CHROME_BROWSER_DOWNLOAD_SAVE_FILE_H__
 
-#include <string>
-
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/save_types.h"
 
@@ -30,7 +29,7 @@ class SaveFile {
   void Cancel();
 
   // Rename the saved file. Returns 'true' if the rename was successful.
-  bool Rename(const std::wstring& full_path);
+  bool Rename(const FilePath& full_path);
 
   void Finish();
 
@@ -44,7 +43,7 @@ class SaveFile {
   }
 
   int64 bytes_so_far() const { return bytes_so_far_; }
-  std::wstring full_path() const { return full_path_; }
+  FilePath full_path() const { return full_path_; }
   bool path_renamed() const { return path_renamed_; }
   bool in_progress() const { return in_progress_; }
 
@@ -65,7 +64,7 @@ class SaveFile {
   int64 bytes_so_far_;
 
   // Full path to the saved file including the file name.
-  std::wstring full_path_;
+  FilePath full_path_;
 
   // Whether the saved file is still using its initial temporary path.
   bool path_renamed_;

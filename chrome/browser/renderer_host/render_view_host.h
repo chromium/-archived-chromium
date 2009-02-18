@@ -352,8 +352,8 @@ class RenderViewHost : public RenderWidgetHost {
   // contain all saved auxiliary files included all sub frames and resouces.
   void GetSerializedHtmlDataForCurrentPageWithLocalLinks(
       const std::vector<GURL>& links,
-      const std::vector<std::wstring>& local_paths,
-      const std::wstring& local_directory_name);
+      const std::vector<FilePath>& local_paths,
+      const FilePath& local_directory_name);
 
   // Notifies the RenderViewHost that a file has been chosen by the user from
   // an Open File dialog for the form.

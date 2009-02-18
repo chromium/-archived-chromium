@@ -148,7 +148,7 @@ DomSerializer::SerializeDomParam::SerializeDomParam(
     const GURL& current_frame_gurl,
     const WebCore::TextEncoding& text_encoding,
     WebCore::Document* doc,
-    const std::wstring& directory_name)
+    const FilePath& directory_name)
     : current_frame_gurl(current_frame_gurl),
       text_encoding(text_encoding),
       doc(doc),
@@ -380,8 +380,8 @@ void DomSerializer::OpenTagToString(const WebCore::Element* element,
             LinkLocalPathMap::const_iterator it = local_links_.find(value);
             if (it != local_links_.end()) {
               // Replace the link when we have local files.
-              result += StdWStringToString(param->directory_name);
-              result += StdWStringToString(it->second);
+              result += FilePathStringToString(param->directory_name.value());
+              result += FilePathStringToString(it->second.value());
             } else {
               // If not found local path, replace it with absolute link.
               result += str_value;
@@ -482,8 +482,8 @@ DomSerializer::DomSerializer(WebFrame* webframe,
                              bool recursive_serialization,
                              DomSerializerDelegate* delegate,
                              const std::vector<GURL>& links,
-                             const std::vector<std::wstring>& local_paths,
-                             const std::wstring& local_directory_name)
+                             const std::vector<FilePath>& local_paths,
+                             const FilePath& local_directory_name)
     : delegate_(delegate),
       recursive_serialization_(recursive_serialization),
       frames_collected_(false),
@@ -496,7 +496,7 @@ DomSerializer::DomSerializer(WebFrame* webframe,
   // Build local resources map.
   DCHECK(links.size() == local_paths.size());
   std::vector<GURL>::const_iterator link_it = links.begin();
-  std::vector<std::wstring>::const_iterator path_it = local_paths.begin();
+  std::vector<FilePath>::const_iterator path_it = local_paths.begin();
   for (; link_it != links.end(); ++link_it, ++path_it) {
     bool never_present = local_links_.insert(
         LinkLocalPathMap::value_type(link_it->spec(), *path_it)).
@@ -576,7 +576,8 @@ bool DomSerializer::SerializeDom() {
           encoding.length() ? text_encoding : WebCore::UTF8Encoding(),
           current_doc,
           current_frame_gurl == main_page_gurl ?
-                                local_directory_name_ : L"./");
+                                local_directory_name_ :
+                                FilePath(FilePath::kCurrentDirectory));
 
       // Process current document.
       WebCore::Element* root_element = current_doc->documentElement();

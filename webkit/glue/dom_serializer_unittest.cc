@@ -44,7 +44,7 @@ class DomSerializerTests : public TestShellTest,
                            public webkit_glue::DomSerializerDelegate {
  public:
   DomSerializerTests()
-    : local_directory_name_(L"./dummy_files/") { }
+    : local_directory_name_(FILE_PATH_LITERAL("./dummy_files/")) { }
 
   // DomSerializerDelegate.
   void DidSerializeDataForFrame(const GURL& frame_url,
@@ -140,7 +140,7 @@ class DomSerializerTests : public TestShellTest,
     // Add input file URl to links_.
     links_.push_back(page_url);
     // Add dummy file path to local_path_.
-    local_paths_.push_back(std::wstring(L"c:\\dummy.htm"));
+    local_paths_.push_back(FilePath(FILE_PATH_LITERAL("c:\\dummy.htm")));
     // Start serializing DOM.
     webkit_glue::DomSerializer dom_serializer(web_frame,
         recursive_serialization, this, links_, local_paths_,
@@ -162,10 +162,10 @@ class DomSerializerTests : public TestShellTest,
   std::vector<GURL> links_;
   // The local_paths_ contain dummy corresponding local file paths of all saved
   // links, which matched links_ one by one.
-  std::vector<std::wstring> local_paths_;
+  std::vector<FilePath> local_paths_;
   // The local_directory_name_ is dummy relative path of directory which
   // contain all saved auxiliary files included all sub frames and resources.
-  const std::wstring local_directory_name_;
+  const FilePath local_directory_name_;
 
  protected:
   // testing::Test

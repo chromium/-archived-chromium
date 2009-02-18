@@ -445,8 +445,8 @@ class RenderView : public RenderWidget,
   void OnGetAllSavableResourceLinksForCurrentPage(const GURL& page_url);
   void OnGetSerializedHtmlDataForCurrentPageWithLocalLinks(
       const std::vector<GURL>& links,
-      const std::vector<std::wstring>& local_paths,
-      const std::wstring& local_directory_name);
+      const std::vector<FilePath>& local_paths,
+      const FilePath& local_directory_name);
   void OnUploadFileRequest(const ViewMsg_UploadFile_Params& p);
   void OnFormFill(const FormData& form);
   void OnFillPasswordForm(const PasswordFormDomManager::FillData& form_data);

@@ -2,8 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <Windows.h>
-#include <objbase.h>
+#include "build/build_config.h"
 
 #include "chrome/browser/download/save_file_manager.h"
 
@@ -21,12 +20,14 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/stl_util-inl.h"
-#include "chrome/common/win_util.h"
-#include "chrome/common/win_safe_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 #include "net/base/io_buffer.h"
 #include "net/url_request/url_request_context.h"
+
+#if defined(OS_WIN)
+#include "chrome/common/win_util.h"
+#endif
 
 SaveFileManager::SaveFileManager(MessageLoop* ui_loop,
                                  MessageLoop* io_loop,
@@ -154,7 +155,7 @@ void SaveFileManager::SaveURL(const GURL& url,
                               int render_process_host_id,
                               int render_view_id,
                               SaveFileCreateInfo::SaveFileSource save_source,
-                              const std::wstring& file_full_path,
+                              const FilePath& file_full_path,
                               URLRequestContext* request_context,
                               SavePackage* save_package) {
   DCHECK(MessageLoop::current() == ui_loop_);
@@ -224,7 +225,7 @@ SavePackage* SaveFileManager::GetSavePackageFromRenderIds(
 }
 
 // Utility function for deleting specified file.
-void SaveFileManager::DeleteDirectoryOrFile(const std::wstring& full_path,
+void SaveFileManager::DeleteDirectoryOrFile(const FilePath& full_path,
                                             bool is_dir) {
   DCHECK(MessageLoop::current() == ui_loop_);
   MessageLoop* loop = GetSaveLoop();
@@ -497,14 +498,13 @@ void SaveFileManager::SaveLocalFile(const GURL& original_file_url,
 
   // Copy the local file to the temporary file. It will be renamed to its
   // final name later.
-  bool success = file_util::CopyFile(file_path,
-      FilePath::FromWStringHack(save_file->full_path()));
+  bool success = file_util::CopyFile(file_path, save_file->full_path());
   if (!success)
     file_util::Delete(save_file->full_path(), false);
   SaveFinished(save_id, original_file_url, render_process_id, success);
 }
 
-void SaveFileManager::OnDeleteDirectoryOrFile(const std::wstring& full_path,
+void SaveFileManager::OnDeleteDirectoryOrFile(const FilePath& full_path,
                                               bool is_dir) {
   DCHECK(MessageLoop::current() == GetSaveLoop());
   DCHECK(!full_path.empty());
@@ -514,14 +514,19 @@ void SaveFileManager::OnDeleteDirectoryOrFile(const std::wstring& full_path,
 
 // Open a saved page package, show it in a Windows Explorer window.
 // We run on this thread to avoid blocking the UI with slow Shell operations.
-void SaveFileManager::OnShowSavedFileInShell(const std::wstring full_path) {
+void SaveFileManager::OnShowSavedFileInShell(const FilePath full_path) {
   DCHECK(MessageLoop::current() == GetSaveLoop());
-  win_util::ShowItemInFolder(full_path);
+  // TODO(port): make an equivalent call on mac/linux.
+#if defined(OS_WIN)
+  win_util::ShowItemInFolder(full_path.value());
+#elif defined(OS_POSIX)
+  NOTIMPLEMENTED();
+#endif
 }
 
 void SaveFileManager::RenameAllFiles(
     const FinalNameList& final_names,
-    const std::wstring& resource_dir,
+    const FilePath& resource_dir,
     int render_process_id,
     int render_view_id) {
   DCHECK(MessageLoop::current() == GetSaveLoop());
@@ -571,7 +576,7 @@ void SaveFileManager::RemoveSavedFileFromFileMap(
     if (it != save_file_map_.end()) {
       SaveFile* save_file = it->second;
       DCHECK(!save_file->in_progress());
-      DeleteFile(save_file->full_path().c_str());
+      file_util::Delete(save_file->full_path(), false);
       delete save_file;
       save_file_map_.erase(it);
     }

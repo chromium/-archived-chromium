@@ -61,6 +61,7 @@
 #include <utility>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
@@ -98,7 +99,7 @@ class SaveFileManager
                int render_process_host_id,
                int render_view_id,
                SaveFileCreateInfo::SaveFileSource save_source,
-               const std::wstring& file_full_path,
+               const FilePath& file_full_path,
                URLRequestContext* request_context,
                SavePackage* save_package);
 
@@ -118,10 +119,10 @@ class SaveFileManager
                       SavePackage* package);
 
   // Handler for shell operations sent from the UI to the file thread.
-  void OnShowSavedFileInShell(const std::wstring full_path);
+  void OnShowSavedFileInShell(const FilePath full_path);
 
   // Helper function for deleting specified file.
-  void DeleteDirectoryOrFile(const std::wstring& full_path, bool is_dir);
+  void DeleteDirectoryOrFile(const FilePath& full_path, bool is_dir);
 
   // For posting notifications from the UI and IO threads.
   MessageLoop* GetSaveLoop() const { return file_loop_; }
@@ -137,7 +138,7 @@ class SaveFileManager
   // final names of successfully saved files.
   void RenameAllFiles(
       const FinalNameList& final_names,
-      const std::wstring& resource_dir,
+      const FilePath& resource_dir,
       int render_process_id,
       int render_view_id);
 
@@ -204,7 +205,7 @@ class SaveFileManager
   // Notifications sent from the UI thread and run on the file thread.
 
   // Deletes a specified file on the file thread.
-  void OnDeleteDirectoryOrFile(const std::wstring& full_path, bool is_dir);
+  void OnDeleteDirectoryOrFile(const FilePath& full_path, bool is_dir);
 
   // Notifications sent from the UI thread and run on the IO thread
 
