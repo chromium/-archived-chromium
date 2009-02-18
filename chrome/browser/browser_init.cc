@@ -37,14 +37,13 @@
 #if defined(OS_WIN)
 
 #include "base/win_util.h"
-#include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/common/resource_bundle.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
+#include "grit/theme_resources.h"
 
 #endif
 

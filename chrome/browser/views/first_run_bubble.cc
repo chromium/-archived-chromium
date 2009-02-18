@@ -5,7 +5,6 @@
 #include "chrome/browser/views/first_run_bubble.h"
 
 #include "base/win_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_window.h"
@@ -19,9 +18,9 @@
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 namespace {
 

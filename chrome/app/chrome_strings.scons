@@ -12,6 +12,7 @@ grd_files = [
     '$CHROME_SRC_DIR/chrome/app/generated_resources.grd',
     '$CHROME_SRC_DIR/chrome/app/chromium_strings.grd',
     '$CHROME_SRC_DIR/chrome/app/google_chrome_strings.grd',
+    '$CHROME_SRC_DIR/chrome/app/resources/locale_settings.grd',
 ]
 
 for grd_file in grd_files:
@@ -20,3 +21,15 @@ for grd_file in grd_files:
   generated = env.GRIT(
       '$TARGET_ROOT/grit_derived_sources/fake_' + os.path.basename(grd_file),
       grd_file)
+
+if env.Bit('linux'):
+  # TODO(tc): Generate all the locales and handle official build vs chromium
+  # build.
+  lang_pak = env.Repack('$TARGET_ROOT/locales/en-US.pak',
+      ['$TARGET_ROOT/grit_derived_sources/generated_resources_en-US.pak',
+       '$TARGET_ROOT/grit_derived_sources/chromium_strings_en-US.pak',
+       '$TARGET_ROOT/grit_derived_sources/locale_settings_en-US.pak',
+      ]
+  )
+  i = env.Install('$DESTINATION_ROOT/locales', lang_pak)
+  env.Requires('$DESTINATION_ROOT/chrome', i)

@@ -15,7 +15,6 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/gfx/native_theme.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -39,10 +38,10 @@
 #include "chrome/views/combo_box.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/scroll_view.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 #include "net/base/ssl_config_service.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 using views::GridLayout;
 using views::ColumnSet;

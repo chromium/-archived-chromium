@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "base/thread.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/browser/bookmarks/bookmark_html_writer.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -32,9 +31,10 @@
 #include "chrome/views/menu_button.h"
 #include "chrome/views/single_split_view.h"
 #include "chrome/views/window.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 #include "skia/ext/skia_utils.h"
 
-#include "generated_resources.h"
 
 // If non-null, there is an open editor and this is the window it is contained
 // in it.

@@ -4,7 +4,6 @@
 
 #include "chrome/browser/options_window.h"
 
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/options/advanced_page_view.h"
@@ -22,9 +21,9 @@
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // OptionsWindowView

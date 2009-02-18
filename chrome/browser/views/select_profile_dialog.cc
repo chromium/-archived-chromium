@@ -8,7 +8,6 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/new_profile_dialog.h"
 #include "chrome/browser/views/standard_layout.h"
@@ -19,9 +18,9 @@
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 using views::ColumnSet;
 using views::GridLayout;

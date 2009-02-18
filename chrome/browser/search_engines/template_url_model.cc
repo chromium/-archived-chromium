@@ -8,7 +8,6 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/history/history.h"
@@ -23,6 +22,7 @@
 #include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
+#include "grit/locale_settings.h"
 #include "net/base/net_util.h"
 #include "unicode/rbbi.h"
 #include "unicode/uchar.h"

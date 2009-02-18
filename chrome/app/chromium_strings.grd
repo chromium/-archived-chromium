@@ -60,6 +60,8 @@ be available for now. -->
     <output filename="chromium_strings_vi.rc" type="rc_all" lang="vi" />
     <output filename="chromium_strings_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="chromium_strings_zh-TW.rc" type="rc_all" lang="zh-TW" />
+
+    <output filename="chromium_strings_en-US.pak" type="data_package" lang="en" />
   </outputs>
   <translations>
     <!-- No translations available. -->

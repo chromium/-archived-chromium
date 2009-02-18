@@ -10,8 +10,6 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "base/word_iterator.h"
-#include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
@@ -25,10 +23,11 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/throbber.h"
 #include "chrome/views/window.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
+#include "grit/theme_resources.h"
 #include "webkit/glue/webkit_glue.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 namespace {
 // The pixel width of the version text field. Ideally, we'd like to have the

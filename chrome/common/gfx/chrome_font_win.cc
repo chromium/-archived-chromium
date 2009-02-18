@@ -11,10 +11,9 @@
 
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/common/l10n_util.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 /*static*/
 ChromeFont::HFontRef* ChromeFont::base_font_ref_;

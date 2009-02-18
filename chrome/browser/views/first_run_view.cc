@@ -4,8 +4,6 @@
 
 #include "chrome/browser/views/first_run_view.h"
 
-#include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -19,9 +17,10 @@
 #include "chrome/views/throbber.h"
 #include "chrome/views/separator.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
+#include "grit/theme_resources.h"
 
 namespace {
 

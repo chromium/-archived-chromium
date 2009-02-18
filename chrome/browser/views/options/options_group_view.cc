@@ -8,7 +8,6 @@
 #include "chrome/browser/views/options/options_group_view.h"
 
 #include "base/gfx/native_theme.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -17,7 +16,8 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
 #include "chrome/views/separator.h"
-#include "generated_resources.h"
+#include "grit/locale_settings.h"
+#include "grit/generated_resources.h"
 
 static const int kLeftColumnWidthChars = 20;
 static const int kOptionsGroupViewColumnSpacing = 30;

@@ -7,7 +7,6 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -19,9 +18,9 @@
 #include "chrome/views/label.h"
 #include "chrome/views/window.h"
 #include "googleurl/src/gurl.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 using base::Time;
 using views::ColumnSet;

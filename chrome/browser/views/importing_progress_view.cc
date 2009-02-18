@@ -4,16 +4,15 @@
 
 #include "chrome/browser/views/importing_progress_view.h"
 
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
 #include "chrome/views/throbber.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // ImportingProgressView, public:

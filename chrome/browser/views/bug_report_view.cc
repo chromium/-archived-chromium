@@ -8,7 +8,6 @@
 #include <fstream>
 
 #include "base/string_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
@@ -24,11 +23,11 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
 #include "chrome/views/Window.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 #include "net/base/escape.h"
 #include "unicode/locid.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 using views::ColumnSet;
 using views::GridLayout;

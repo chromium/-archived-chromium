@@ -11,8 +11,6 @@
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/shell_dialogs.h"
@@ -30,7 +28,9 @@
 #include "chrome/views/radio_button.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/widget.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
+#include "grit/locale_settings.h"
 #include "skia/include/SkBitmap.h"
 
 class DefaultEncodingComboboxModel : public views::ComboBox::Model {

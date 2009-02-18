@@ -9,8 +9,6 @@
 
 #include "base/string_util.h"
 #include "base/time_format.h"
-#include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/history/history.h"
@@ -28,10 +26,12 @@
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/separator.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
+#include "grit/theme_resources.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/x509_certificate.h"
 #include "skia/include/SkColor.h"
-#include "generated_resources.h"
 
 using base::Time;
 

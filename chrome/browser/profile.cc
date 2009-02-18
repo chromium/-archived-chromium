@@ -10,7 +10,6 @@
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -34,6 +33,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
+#include "grit/locale_settings.h"
 #include "net/url_request/url_request_context.h"
 
 #if defined(OS_POSIX)

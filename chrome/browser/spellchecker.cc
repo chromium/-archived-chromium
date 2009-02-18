@@ -11,7 +11,6 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/net/url_fetcher.h"
 #if defined(OS_WIN)
@@ -25,9 +24,9 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/third_party/hunspell/src/hunspell/hunspell.hxx"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 #include "net/url_request/url_request.h"
-
-#include "generated_resources.h"
 
 using base::TimeTicks;
 

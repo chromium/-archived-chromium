@@ -4,7 +4,6 @@
 
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/options/fonts_page_view.h"
 #include "chrome/browser/views/options/languages_page_view.h"
@@ -14,9 +13,9 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 // static
 static FontsLanguagesWindowView* instance_ = NULL;

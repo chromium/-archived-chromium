@@ -8,8 +8,6 @@
 
 #include "base/string_util.h"
 #include "base/time_format.h"
-#include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/color_utils.h"
@@ -21,7 +19,9 @@
 #include "chrome/views/label.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/table_view.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
+#include "grit/theme_resources.h"
 #include "net/base/cookie_monster.h"
 #include "net/url_request/url_request_context.h"
 

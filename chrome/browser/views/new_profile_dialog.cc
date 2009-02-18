@@ -8,16 +8,15 @@
 
 #include "base/logging.h"
 #include "base/file_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 // static
 void NewProfileDialog::RunDialog() {

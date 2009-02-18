@@ -8,8 +8,6 @@
 
 #include "base/gfx/png_decoder.h"
 #include "base/string_util.h"
-#include "chrome/app/locales/locale_settings.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -29,9 +27,10 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/window.h"
 #include "googleurl/src/gurl.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
+#include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
-
-#include "generated_resources.h"
 
 using views::GridLayout;
 using views::NativeButton;

@@ -1,5 +1,5 @@
 
-#include "chrome/app/locales/locale_settings.h"
+#include "grit/locale_settings.h"
 
 STRINGTABLE
 BEGIN

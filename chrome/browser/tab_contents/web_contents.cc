@@ -9,7 +9,6 @@
 #include "base/file_version_info.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
@@ -34,6 +33,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
+#include "grit/locale_settings.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "net/base/registry_controlled_domain.h"
@@ -55,7 +55,7 @@
 #include "chrome/common/resource_bundle.h"
 #endif
 
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 #if !defined(OS_MACOSX)
 // TODO(port): port this to mac.

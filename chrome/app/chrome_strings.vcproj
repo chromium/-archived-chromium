@@ -64,5 +64,13 @@
 			RelativePath="$(IntDir)\google_chrome_strings.h"
 			>
 		</File>
+		<File
+			RelativePath=".\resources\locale_settings.grd"
+			>
+		</File>
+		<File
+			RelativePath="$(IntDir)\locale_settings.h"
+			>
+		</File>
 	</Files>
 </VisualStudioProject>

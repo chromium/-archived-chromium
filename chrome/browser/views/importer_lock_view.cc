@@ -4,15 +4,14 @@
 
 #include "chrome/browser/views/importer_lock_view.h"
 
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/label.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 using views::ColumnSet;
 using views::GridLayout;

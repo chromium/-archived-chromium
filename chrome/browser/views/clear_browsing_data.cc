@@ -4,7 +4,6 @@
 
 #include "chrome/browser/views/clear_browsing_data.h"
 
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/standard_layout.h"
@@ -17,9 +16,9 @@
 #include "chrome/views/window.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 #include "net/url_request/url_request_context.h"
-
-#include "generated_resources.h"
 
 using base::Time;
 using base::TimeDelta;

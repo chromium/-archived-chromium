@@ -61,6 +61,8 @@ each locale. -->
     <output filename="generated_resources_vi.rc" type="rc_all" lang="vi" />
     <output filename="generated_resources_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="generated_resources_zh-TW.rc" type="rc_all" lang="zh-TW" />
+
+    <output filename="generated_resources_en-US.pak" type="data_package" lang="en" />
   </outputs>
   <translations>
     <file path="resources/generated_resources_ar.xtb" lang="ar" />

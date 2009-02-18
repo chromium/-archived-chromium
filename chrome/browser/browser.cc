@@ -46,7 +46,6 @@
 #include <windows.h>
 #include <shellapi.h>
 
-#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_url_handler.h"
@@ -71,9 +70,9 @@
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/win_util.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 #endif  // OS_WIN
 
