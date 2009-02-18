@@ -163,10 +163,11 @@ class MessageNode(base.ContentNode):
     '''Returns a translated version of this message.
     '''
     assert self.clique
-    return self.clique.MessageForLanguage(lang,
-                                          self.PseudoIsAllowed(),
-                                          self.ShouldFallbackToEnglish()
-                                          ).GetRealContent()
+    msg = self.clique.MessageForLanguage(lang,
+                                         self.PseudoIsAllowed(),
+                                         self.ShouldFallbackToEnglish()
+                                         ).GetRealContent()
+    return msg.replace('[GRITLANGCODE]', lang)
   
   def NameOrOffset(self):
     if 'name' in self.attrs:

@@ -23,17 +23,37 @@
 			ConfigurationType="10"
 			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops"
 			>
+			<Tool
+				Name="GRIT Generated Localized Resources"
+				PreprocessorDefinitions="$(CHROMIUM_BUILD)"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="10"
 			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops"
 			>
+			<Tool
+				Name="GRIT Generated Localized Resources"
+				PreprocessorDefinitions="$(CHROMIUM_BUILD)"
+			/>
 		</Configuration>
 	</Configurations>
 	<Files>
 		<File
+			RelativePath=".\chromium_strings.grd"
+			>
+		</File>
+		<File
+			RelativePath="$(IntDir)\chromium_strings.h"
+			>
+		</File>
+		<File
 			RelativePath=".\generated_resources.grd"
+			>
+		</File>
+		<File
+			RelativePath="$(IntDir)\generated_resources.h"
 			>
 		</File>
 		<File
@@ -41,11 +61,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\chromium_strings.grd"
-			>
-		</File>
-		<File
-			RelativePath="$(IntDir)\generated_resources.h"
+			RelativePath="$(IntDir)\google_chrome_strings.h"
 			>
 		</File>
 	</Files>

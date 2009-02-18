@@ -50,6 +50,7 @@
 			/>
 			<Tool
 				Name="GRIT Generated Resources"
+				PreprocessorDefinitions="$(CHROMIUM_BUILD)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

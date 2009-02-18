@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="GRIT Generated Localized Resources"
 			DisplayName="GRIT Generated Localized Resources"
-			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\grit_derived_sources&quot;"
+			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\grit_derived_sources&quot; [AllOptions]"
 			Outputs="$(OutDir)\grit_derived_sources\$(InputName).h;
 			  $(OutDir)\grit_derived_sources\$(InputName)_ar.rc;
 			  $(OutDir)\grit_derived_sources\$(InputName)_bg.rc;
@@ -113,6 +113,14 @@
 			ExecutionDescription="Generating resources..."
 			>
 			<Properties>
+			  <StringProperty
+			    Name="PreprocessorDefinitions"
+			    DisplayName="Preprocessor Definitions"
+			    Description="Defines a text macro with the given name."
+			    Switch="&quot;[value]&quot;"
+			    Delimited="true"
+			    Inheritable="true"
+        />
 			</Properties>
 		</CustomBuildRule>
 	</Rules>
