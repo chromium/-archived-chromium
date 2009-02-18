@@ -238,6 +238,24 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_ROUTED1(ViewMsg_DebugCommand,
                       std::wstring  /* cmd */)
 
+  // Message addressed to ToolsClient. It results from forwarding
+  // ViewHostMsg_ToolsClientMsg by the browser.
+  IPC_MESSAGE_ROUTED2(ViewMsg_ToolsClientMsg,
+                      int, /* tools msg type */
+                      std::wstring  /* body */)
+
+  // Message addressed to ToolsAgent. It results from forwarding
+  // ViewHostMsg_ToolsAgentMsg by the browser.
+  IPC_MESSAGE_ROUTED2(ViewMsg_ToolsAgentMsg,
+                      int, /* tools msg type */
+                      std::wstring  /* body */)
+
+  // RenderViewHostDelegate::RendererCreated method sends this message to a new
+  // renderer to notify it that it will host developer tools UI and should set
+  // up all neccessary bindings and create ToolsClient instance that will
+  // handle communication with inspected page ToolsAgent.
+  IPC_MESSAGE_ROUTED0(ViewMsg_SetUpToolsClient)
+
   // Change the zoom level in the renderer.
   IPC_MESSAGE_ROUTED1(ViewMsg_Zoom,
                       int /* One of PageZoom::Function */)
@@ -965,6 +983,18 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // or debugger UI.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_DebuggerOutput,
                       std::wstring /* msg */)
+
+  // Message addressed to ToolsClient sent by ToolsAgent to browser so that the
+  // latter can forward it.
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_ToolsClientMsg,
+                      int, /* tools msg type */
+                      std::wstring  /* body */)
+
+  // Message addressed to ToolsAgent sent by ToolsClient to browser so that the
+  // latter can forward it.
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_ToolsAgentMsg,
+                      int, /* tools msg type */
+                      std::wstring  /* body */)
 
   // Send back a string to be recorded by UserMetrics.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UserMetricsRecordAction,
