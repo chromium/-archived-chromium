@@ -19,8 +19,6 @@
 #include "base/ref_counted.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
-#include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/cancelable_request.h"
@@ -53,7 +51,6 @@
 #include "webkit/glue/window_open_disposition.h"
 
 class Browser;
-class BookmarkService;
 class CommandLine;
 class ConstrainedWindow;
 class CPCommandInterface;
