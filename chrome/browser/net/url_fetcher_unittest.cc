@@ -105,10 +105,6 @@ class URLFetcherBadHTTPSTest : public URLFetcherTest {
                                   const ResponseCookies& cookies,
                                   const std::string& data);
 
- protected:
-  FilePath GetExpiredCertPath();
-  SSLTestUtil util_;
-
  private:
   FilePath cert_dir_;
 };
@@ -300,10 +296,6 @@ void URLFetcherBadHTTPSTest::OnURLFetchComplete(
   io_loop_.Quit();
 }
 
-FilePath URLFetcherBadHTTPSTest::GetExpiredCertPath() {
-  return cert_dir_.AppendASCII("expired_cert.pem");
-}
-
 void URLFetcherCancelTest::CreateFetcher(const GURL& url) {
   fetcher_ = new URLFetcher(url, URLFetcher::GET, this);
   fetcher_->set_request_context(
@@ -436,8 +428,7 @@ TEST_F(URLFetcherBadHTTPSTest, BadHTTPSTest) {
 TEST_F(URLFetcherBadHTTPSTest, DISABLED_BadHTTPSTest) {
 #endif
   scoped_refptr<HTTPSTestServer> server =
-      HTTPSTestServer::CreateServer(util_.kHostName, util_.kBadHTTPSPort,
-          kDocRoot, util_.GetExpiredCertPath().ToWStringHack());
+      HTTPSTestServer::CreateExpiredServer(kDocRoot);
   ASSERT_TRUE(NULL != server.get());
 
   CreateFetcher(GURL(server->TestServerPage("defaultresponse")));

@@ -76,6 +76,7 @@ input_files = ChromeFileList([
     'base/base64_unittest.cc',
     'base/bzip2_filter_unittest.cc',
     'base/client_socket_pool_unittest.cc',
+    'base/tcp_pinger_unittest.cc',
     'base/cookie_monster_unittest.cc',
     'base/cookie_policy_unittest.cc',
     'base/data_url_unittest.cc',

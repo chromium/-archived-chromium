@@ -13,6 +13,7 @@
 
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
@@ -23,6 +24,7 @@
 #include "base/waitable_event.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
+#include "net/base/ssl_test_util.h"
 #include "net/http/http_network_layer.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
@@ -211,46 +213,17 @@ class TestDelegate : public URLRequest::Delegate {
 // that can provide various responses useful for testing.
 class BaseTestServer : public base::RefCounted<BaseTestServer> {
  protected:
-  BaseTestServer()
-      : process_handle_(NULL) {
-  }
+  BaseTestServer() { }
 
  public:
-  virtual ~BaseTestServer() {
-    if (!IsFinished())
-      if (!WaitToFinish(1000))
-        Kill();
-  }
 
-  bool IsFinished() {
-    return WaitToFinish(0);
-  }
-
-  void Kill() {
-    if (process_handle_) {
-#if defined(OS_WIN)
-      base::KillProcess(process_handle_, 0, true);
-#elif defined(OS_POSIX)
-      // Make sure the process has exited and clean up the process to avoid
-      // a zombie.
-      kill(process_handle_, SIGINT);
-      waitpid(process_handle_, 0, 0);
-#endif
-      base::CloseProcessHandle(process_handle_);
-      process_handle_ = NULL;
-    }
-  }
-
+  // Used with e.g. HTTPTestServer::SendQuit()
   bool WaitToFinish(int milliseconds) {
-    if (process_handle_ == 0)
-      return true;
-    bool ret = base::WaitForSingleProcess(process_handle_, milliseconds);
-    if (ret) {
-      base::CloseProcessHandle(process_handle_);
-      process_handle_ = NULL;
-    }
+    return launcher_.WaitToFinish(milliseconds);
+  }
 
-    return ret;
+  bool Stop() {
+    return launcher_.Stop();
   }
 
   GURL TestServerPage(const std::string& base_address,
@@ -266,142 +239,54 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
     return GURL(base_address_ + WideToUTF8(path));
   }
 
-  void SetPythonPaths() {
-#if defined(OS_WIN)
-     // Set up PYTHONPATH so that Python is able to find the in-tree copy of
-    // pyftpdlib.
-    static bool set_python_path = false;
-    if (!set_python_path) {
-      FilePath pyftpdlib_path;
-      ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &pyftpdlib_path));
-      pyftpdlib_path = pyftpdlib_path.Append(L"third_party");
-      pyftpdlib_path = pyftpdlib_path.Append(L"pyftpdlib");
-
-      const wchar_t kPythonPath[] = L"PYTHONPATH";
-      wchar_t python_path_c[1024];
-      if (GetEnvironmentVariable(kPythonPath, python_path_c, 1023) > 0) {
-        // PYTHONPATH is already set, append to it.
-        std::wstring python_path(python_path_c);
-        python_path.append(L":");
-        python_path.append(pyftpdlib_path.value());
-        SetEnvironmentVariableW(kPythonPath, python_path.c_str());
-      } else {
-        SetEnvironmentVariableW(kPythonPath, pyftpdlib_path.value().c_str());
-      }
-
-      set_python_path = true;
-    }
-#elif defined(OS_POSIX)
-    // Set up PYTHONPATH so that Python is able to find the in-tree copy of
-    // tlslite and pyftpdlib.
-    static bool set_python_path = false;
-    if (!set_python_path) {
-      FilePath tlslite_path;
-      FilePath pyftpdlib_path;
-      ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &tlslite_path));
-      tlslite_path = tlslite_path.Append("third_party");
-      tlslite_path = tlslite_path.Append("tlslite");
-
-      ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &pyftpdlib_path));
-      pyftpdlib_path = pyftpdlib_path.Append("third_party");
-      pyftpdlib_path = pyftpdlib_path.Append("pyftpdlib");
-
-      const char kPythonPath[] = "PYTHONPATH";
-      char* python_path_c = getenv(kPythonPath);
-      if (python_path_c) {
-        // PYTHONPATH is already set, append to it.
-        std::string python_path(python_path_c);
-        python_path.append(":");
-        python_path.append(tlslite_path.value());
-        python_path.append(":");
-        python_path.append(pyftpdlib_path.value());
-        setenv(kPythonPath, python_path.c_str(), 1);
-      } else {
-        std::string python_path = tlslite_path.value().c_str();
-        python_path.append(":");
-        python_path.append(pyftpdlib_path.value());
-        setenv(kPythonPath, python_path.c_str(), 1);
-      }
-      set_python_path = true;
-    }
-#endif
-  }
-
-  void SetAppPath(const std::string& host_name, int port,
-      const std::wstring& document_root, const std::string& scheme,
-      std::wstring* testserver_path, std::wstring* test_data_directory) {
-    port_str_ = IntToString(port);
-    if (url_user_.empty()) {
-      base_address_ = scheme + "://" + host_name + ":" + port_str_ + "/";
-    } else {
-      if (url_password_.empty())
-        base_address_ = scheme + "://" + url_user_ + "@" +
-            host_name + ":" + port_str_ + "/";
-      else
-        base_address_ = scheme + "://" + url_user_ + ":" + url_password_ +
-            "@" + host_name + ":" + port_str_ + "/";
-    }
-
-    ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, testserver_path));
-    file_util::AppendToPath(testserver_path, L"net");
-    file_util::AppendToPath(testserver_path, L"tools");
-    file_util::AppendToPath(testserver_path, L"testserver");
-    file_util::AppendToPath(testserver_path, L"testserver.py");
-
-    ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &python_runtime_));
-    file_util::AppendToPath(&python_runtime_, L"third_party");
-    file_util::AppendToPath(&python_runtime_, L"python_24");
-    file_util::AppendToPath(&python_runtime_, L"python.exe");
-
-    PathService::Get(base::DIR_SOURCE_ROOT, test_data_directory);
-    std::wstring normalized_document_root = document_root;
-
-#if defined(OS_WIN)
-    // It is just for windows only and have no effect on other OS
-    std::replace(normalized_document_root.begin(),
-        normalized_document_root.end(),
-        L'/', FilePath::kSeparators[0]);
-#endif
-    if (!normalized_document_root.empty())
-      file_util::AppendToPath(test_data_directory, normalized_document_root);
-    data_directory_ = *test_data_directory;
-  }
-
-#if defined(OS_WIN)
-  void LaunchApp(const std::wstring& command_line) {
-    ASSERT_TRUE(base::LaunchApp(command_line, false, true, &process_handle_)) <<
-                "Failed to launch " << command_line;
-  }
-#elif defined(OS_POSIX)
-  void LaunchApp(const std::vector<std::string>& command_line) {
-    base::file_handle_mapping_vector fds_empty;
-    ASSERT_TRUE(base::LaunchApp(command_line, fds_empty, false,
-                                &process_handle_)) <<
-                "Failed to launch " << command_line[0] << " ...";
-  }
-#endif
-
   virtual bool MakeGETRequest(const std::string& page_name) = 0;
 
-  // Verify that the Server is actually started.
-  // Otherwise tests can fail if they run faster than Python can start.
-  bool VerifyLaunchApp(const std::string& page_name) {
-    int retries = 10;
-    bool success;
-    while ((success = MakeGETRequest(page_name)) == false && retries > 0) {
-      retries--;
-      PlatformThread::Sleep(500);
-    }
-    if (!success)
-      return false;
-    return true;
-  }
-
   std::wstring GetDataDirectory() {
-    return data_directory_;
+    return launcher_.GetDocumentRootPath().ToWStringHack();
   }
 
  protected:
+  bool Start(net::TestServerLauncher::Protocol protocol,
+             const std::string& host_name, int port,
+             const FilePath& document_root,
+             const FilePath& cert_path) {
+    std::string blank;
+    return Start(protocol, host_name, port, document_root, cert_path,
+                 blank, blank);
+  }
+
+  bool Start(net::TestServerLauncher::Protocol protocol,
+             const std::string& host_name, int port,
+             const FilePath& document_root,
+             const FilePath& cert_path,
+             const std::string& url_user,
+             const std::string& url_password) {
+    if (!launcher_.Start(protocol,
+        host_name, port, document_root, cert_path))
+      return false;
+
+    std::string scheme;
+    if (protocol == net::TestServerLauncher::ProtoFTP)
+      scheme = "ftp";
+    else
+      scheme = "http";
+    if (!cert_path.empty())
+      scheme.push_back('s');
+
+    std::string port_str = IntToString(port);
+    if (url_user.empty()) {
+      base_address_ = scheme + "://" + host_name + ":" + port_str + "/";
+    } else {
+      if (url_password.empty())
+        base_address_ = scheme + "://" + url_user + "@" +
+            host_name + ":" + port_str + "/";
+      else
+        base_address_ = scheme + "://" + url_user + ":" + url_password +
+            "@" + host_name + ":" + port_str + "/";
+    }
+    return true;
+  }
+
   // Used by MakeGETRequest to implement sync load behavior.
   class SyncTestDelegate : public TestDelegate {
    public:
@@ -424,18 +309,13 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
     bool success_;
     DISALLOW_COPY_AND_ASSIGN(SyncTestDelegate);
   };
+  net::TestServerLauncher launcher_;
 
-  std::string host_name_;
   std::string base_address_;
-  std::string url_user_;
-  std::string url_password_;
-  std::wstring python_runtime_;
-  std::wstring data_directory_;
-  base::ProcessHandle process_handle_;
-  std::string port_str_;
-  
 };
 
+
+// HTTP
 class HTTPTestServer : public BaseTestServer {
  protected:
   explicit HTTPTestServer() : loop_(NULL) {
@@ -448,35 +328,14 @@ class HTTPTestServer : public BaseTestServer {
                                       MessageLoop* loop) {
     HTTPTestServer* test_server = new HTTPTestServer();
     test_server->loop_ = loop;
-    if (!test_server->Init(kDefaultHostName, kHTTPDefaultPort, document_root)) {
-      delete test_server;
+    FilePath no_cert;
+    FilePath docroot = FilePath::FromWStringHack(document_root);
+    if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
+        kDefaultHostName, kHTTPDefaultPort, docroot, no_cert)) {
+      test_server->Release();
       return NULL;
     }
     return test_server;
-  }
-
-  bool Init(const std::string& host_name, int port,
-            const std::wstring& document_root) {
-    std::wstring testserver_path;
-    std::wstring test_data_directory;
-    host_name_ = host_name;
-#if defined(OS_WIN)
-    std::wstring command_line;
-#elif defined(OS_POSIX)
-    std::vector<std::string> command_line;
-#endif
-
-    // Set PYTHONPATH for tlslite and pyftpdlib
-    SetPythonPaths();
-    SetAppPath(host_name, port, document_root, scheme(),
-        &testserver_path, &test_data_directory);
-    SetCommandLineOption(testserver_path, test_data_directory, &command_line);
-    LaunchApp(command_line);
-    if (!VerifyLaunchApp("hello.html")) {
-      LOG(ERROR) << "Webserver not starting properly";
-      return false;
-    }
-    return true;
   }
 
   // A subclass may wish to send the request in a different manner
@@ -517,15 +376,13 @@ class HTTPTestServer : public BaseTestServer {
     EXPECT_TRUE(request->is_pending());
   }
 
-  virtual ~HTTPTestServer() {
-    Stop();
-  }
-
-  void Stop() {
-    if (IsFinished())
-      return;
-
-    // here we append the time to avoid problems where the kill page
+  // Some tests use browser javascript to fetch a 'kill' url that causes
+  // the server to exit by itself (rather than letting TestServerLauncher's
+  // destructor kill it).
+  // This method does the same thing so we can unit test that mechanism.
+  // You can then use WaitToFinish() to sleep until the server terminates.
+  void SendQuit() {
+    // Append the time to avoid problems where the kill page
     // is being cached rather than being executed on the server
     std::string page_name = StringPrintf("kill?%u",
         static_cast<int>(base::Time::Now().ToInternalValue()));
@@ -540,30 +397,11 @@ class HTTPTestServer : public BaseTestServer {
         break;
       retry_count--;
     }
-    // Make sure we were successfull in stopping the testserver.
+    // Make sure we were successful in stopping the testserver.
     DCHECK(retry_count > 0);
   }
 
   virtual std::string scheme() { return "http"; }
-
-#if defined(OS_WIN)
-  virtual void SetCommandLineOption(const std::wstring& testserver_path,
-                            const std::wstring& test_data_directory,
-                            std::wstring* command_line ) {
-    command_line->append(L"\"" + python_runtime_ + L"\" " + L"\"" +
-    testserver_path + L"\" --port=" + UTF8ToWide(port_str_) +
-    L" --data-dir=\"" + test_data_directory + L"\"");
-  }
-#elif defined(OS_POSIX)
-  virtual void SetCommandLineOption(const std::wstring& testserver_path,
-                            const std::wstring& test_data_directory,
-                            std::vector<std::string>* command_line) {
-    command_line->push_back("python");
-    command_line->push_back(WideToUTF8(testserver_path));
-    command_line->push_back("--port=" + port_str_);
-    command_line->push_back("--data-dir=" + WideToUTF8(test_data_directory));
-  }
-#endif
 
  private:
   // If non-null a background thread isn't created and instead this message loop
@@ -573,50 +411,74 @@ class HTTPTestServer : public BaseTestServer {
 
 class HTTPSTestServer : public HTTPTestServer {
  protected:
-  explicit HTTPSTestServer(const std::wstring& cert_path)
-      : cert_path_(cert_path) {
+  explicit HTTPSTestServer() {
   }
 
  public:
-  static HTTPSTestServer* CreateServer(const std::string& host_name, int port,
-                                       const std::wstring& document_root,
-                                       const std::wstring& cert_path) {
-    HTTPSTestServer* test_server = new HTTPSTestServer(cert_path);
-    if (!test_server->Init(host_name, port, document_root)) {
-      delete test_server;
+  // Create a server with a valid certificate
+  // TODO(dkegel): HTTPSTestServer should not require an instance to specify
+  // stock test certificates
+  static HTTPSTestServer* CreateGoodServer(const std::wstring& document_root) {
+    HTTPSTestServer* test_server = new HTTPSTestServer();
+    FilePath docroot = FilePath::FromWStringHack(document_root);
+    FilePath certpath = test_server->launcher_.GetOKCertPath();
+    if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
+        net::TestServerLauncher::kHostName,
+        net::TestServerLauncher::kOKHTTPSPort,
+        docroot, certpath)) {
+      test_server->Release();
       return NULL;
     }
     return test_server;
   }
 
-#if defined(OS_WIN)
-  virtual void SetCommandLineOption(const std::wstring& testserver_path,
-                            const std::wstring& test_data_directory,
-                            std::wstring* command_line ) {
-    command_line->append(L"\"" + python_runtime_ + L"\" " + L"\"" +
-    testserver_path + L"\"" + L" --port=" +
-    UTF8ToWide(port_str_) + L" --data-dir=\"" +
-    test_data_directory + L"\"");
-    if (!cert_path_.empty()) {
-      command_line->append(L" --https=\"");
-      command_line->append(cert_path_);
-      command_line->append(L"\"");
-    }
+  // Create a server with an up to date certificate for the wrong hostname
+  // for this host
+  static HTTPSTestServer* CreateMismatchedServer(
+      const std::wstring& document_root) {
+    HTTPSTestServer* test_server = new HTTPSTestServer();
+    FilePath docroot = FilePath::FromWStringHack(document_root);
+    FilePath certpath = test_server->launcher_.GetOKCertPath();
+    if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
+        net::TestServerLauncher::kMismatchedHostName,
+        net::TestServerLauncher::kOKHTTPSPort,
+        docroot, certpath)) {
+      test_server->Release();
+      return NULL;
+     }
+    return test_server;
   }
-#elif defined(OS_POSIX)
-  virtual void SetCommandLineOption(const std::wstring& testserver_path,
-                            const std::wstring& test_data_directory,
-                            std::vector<std::string>* command_line) {
-    command_line->push_back("python");
-    command_line->push_back(WideToUTF8(testserver_path));
-    command_line->push_back("--port=" + port_str_);
-    command_line->push_back("--data-dir=" + WideToUTF8(test_data_directory));
-    if (!cert_path_.empty())
-      command_line->push_back("--https=" + WideToUTF8(cert_path_));
-}
-#endif
 
-  virtual std::string scheme() { return "https"; }
+  // Create a server with an expired certificate
+  static HTTPSTestServer* CreateExpiredServer(
+      const std::wstring& document_root) {
+    HTTPSTestServer* test_server = new HTTPSTestServer();
+    FilePath docroot = FilePath::FromWStringHack(document_root);
+    FilePath certpath = test_server->launcher_.GetExpiredCertPath();
+    if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
+        net::TestServerLauncher::kHostName,
+        net::TestServerLauncher::kBadHTTPSPort,
+        docroot, certpath)) {
+      test_server->Release();
+      return NULL;
+    }
+    return test_server;
+  }
+
+  // Create a server with an arbitrary certificate
+  static HTTPSTestServer* CreateServer(const std::string& host_name, int port,
+                                       const std::wstring& document_root,
+                                       const std::wstring& cert_path) {
+    HTTPSTestServer* test_server = new HTTPSTestServer();
+    FilePath docroot = FilePath::FromWStringHack(document_root);
+    FilePath certpath = FilePath::FromWStringHack(cert_path);
+    if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
+        host_name, port, docroot, certpath)) {
+      test_server->Release();
+      return NULL;
+    }
+    return test_server;
+  }
 
   virtual ~HTTPSTestServer() {
   }
@@ -627,88 +489,32 @@ class HTTPSTestServer : public HTTPTestServer {
 
 
 class FTPTestServer : public BaseTestServer {
- protected:
+ public:
   FTPTestServer() {
   }
 
- public:
-  FTPTestServer(const std::string& url_user, const std::string& url_password) {
-    url_user_ = url_user;
-    url_password_ = url_password;
-  }
-
   static FTPTestServer* CreateServer(const std::wstring& document_root) {
-    FTPTestServer* test_server = new FTPTestServer();
-    if (!test_server->Init(kDefaultHostName, kFTPDefaultPort, document_root)) {
-      delete test_server;
-      return NULL;
-    }
-    return test_server;
+    std::string blank;
+    return CreateServer(document_root, blank, blank);
   }
 
   static FTPTestServer* CreateServer(const std::wstring& document_root,
                                      const std::string& url_user,
                                      const std::string& url_password) {
-    FTPTestServer* test_server = new FTPTestServer(url_user, url_password);
-    if (!test_server->Init(kDefaultHostName, kFTPDefaultPort, document_root)) {
-      delete test_server;
+    FTPTestServer* test_server = new FTPTestServer();
+    FilePath docroot = FilePath::FromWStringHack(document_root);
+    FilePath no_cert;
+    if (!test_server->Start(net::TestServerLauncher::ProtoFTP,
+        kDefaultHostName, kFTPDefaultPort, docroot, no_cert,
+        url_user, url_password)) {
+      test_server->Release();
       return NULL;
     }
     return test_server;
   }
 
-  bool Init(const std::string& host_name, int port,
-            const std::wstring& document_root) {
-    std::wstring testserver_path;
-    std::wstring test_data_directory;
-    host_name_ = host_name;
-
-#if defined(OS_WIN)
-    std::wstring command_line;
-#elif defined(OS_POSIX)
-    std::vector<std::string> command_line;
-#endif
-
-    // Set PYTHONPATH for tlslite and pyftpdlib
-    SetPythonPaths();
-    SetAppPath(kDefaultHostName, port, document_root, scheme(),
-        &testserver_path, &test_data_directory);
-    SetCommandLineOption(testserver_path, test_data_directory, &command_line);
-    LaunchApp(command_line);
-    if (!VerifyLaunchApp("/LICENSE")) {
-      LOG(ERROR) << "FTPServer not starting properly.";
-      return false;
-    }
-    return true;
-  }
-
-  virtual ~FTPTestServer() {
-    Stop();
-  }
-
-  void Stop() {
-    if (IsFinished())
-      return;
-
-    const std::string base_address = scheme() + "://" + host_name_ + ":" +
-        port_str_ + "/";
-    const GURL& url = TestServerPage(base_address, "kill");
-    TestDelegate d;
-    URLRequest request(url, &d);
-    request.set_context(new TestURLRequestContext());
-    request.set_method("GET");
-    request.Start();
-    EXPECT_TRUE(request.is_pending());
-
-    MessageLoop::current()->Run();
-  }
-
-  virtual std::string scheme() { return "ftp"; }
-
   virtual bool MakeGETRequest(const std::string& page_name) {
-    const std::string base_address = scheme() + "://" + host_name_ + ":" +
-        port_str_ + "/";
-    const GURL& url = TestServerPage(base_address, page_name);
+    const GURL& url = TestServerPage(base_address_, page_name);
     TestDelegate d;
     URLRequest request(url, &d);
     request.set_context(new TestURLRequestContext());
@@ -723,26 +529,6 @@ class FTPTestServer : public BaseTestServer {
     return true;
   }
 
-#if defined(OS_WIN)
-  virtual void SetCommandLineOption(const std::wstring& testserver_path,
-                            const std::wstring& test_data_directory,
-                            std::wstring* command_line ) {
-    command_line->append(L"\"" + python_runtime_ + L"\" " + L"\"" +
-    testserver_path + L"\"" + L" -f " + L" --port=" +
-    UTF8ToWide(port_str_) + L" --data-dir=\"" +
-    test_data_directory + L"\"");
-  }
-#elif defined(OS_POSIX)
-  virtual void SetCommandLineOption(const std::wstring& testserver_path,
-                            const std::wstring& test_data_directory,
-                            std::vector<std::string>* command_line) {
-    command_line->push_back("python");
-    command_line->push_back(WideToUTF8(testserver_path));
-    command_line->push_back(" -f ");
-    command_line->push_back("--data-dir=" + WideToUTF8(test_data_directory));
-    command_line->push_back("--port=" + port_str_);
-  }
-#endif
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_UNITTEST_H_
