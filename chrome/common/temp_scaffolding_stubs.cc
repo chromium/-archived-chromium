@@ -65,6 +65,13 @@ std::wstring AutocompleteProvider::StringForURLDisplay(const GURL& url,
 // static
 size_t AutocompleteResult::max_matches_;
 
+AutocompleteMatch::AutocompleteMatch(AutocompleteProvider* provider,
+                                     int relevance,
+                                     bool deletable,
+                                     Type type) {
+  NOTIMPLEMENTED();
+}
+
 //static
 std::string AutocompleteInput::TypeToString(AutocompleteInput::Type type) {
   NOTIMPLEMENTED();
@@ -352,6 +359,8 @@ bool IsPluginProcess() {
 namespace chrome_browser_net {
 
 void EnableDnsPrefetch(bool) { NOTIMPLEMENTED(); }
+
+void DnsPrefetchGetHtmlInfo(std::string* output) { NOTIMPLEMENTED(); }
 
 void DnsPrefetchList(const std::vector<std::string>& hostnames) {
   NOTIMPLEMENTED();
