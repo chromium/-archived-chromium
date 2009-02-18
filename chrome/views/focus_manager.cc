@@ -250,13 +250,19 @@ void FocusManager::UninstallFocusSubclass(HWND window) {
 // static
 FocusManager* FocusManager::GetFocusManager(HWND window) {
   DCHECK(window);
-  FocusManager* focus_manager =
-        reinterpret_cast<FocusManager*>(GetProp(window, kFocusManagerKey));
-  HWND parent = GetParent(window);
-  while (!focus_manager && parent) {
-    focus_manager =
-        reinterpret_cast<FocusManager*>(GetProp(parent, kFocusManagerKey));
-    parent = GetParent(parent);
+
+  // In case parent windows belong to a different process, yet
+  // have the kFocusManagerKey property set, we have to be careful
+  // to also check the process id of the window we're checking.
+  DWORD window_pid = 0, current_pid = GetCurrentProcessId();
+  FocusManager* focus_manager;
+  for (focus_manager = NULL; focus_manager == NULL && IsWindow(window);
+       window = GetParent(window)) {
+    GetWindowThreadProcessId(window, &window_pid);
+    if (current_pid != window_pid)
+      break;
+    focus_manager = reinterpret_cast<FocusManager*>(
+        GetProp(window, kFocusManagerKey));
   }
   return focus_manager;
 }
