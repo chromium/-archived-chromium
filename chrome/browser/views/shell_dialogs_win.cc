@@ -7,7 +7,7 @@
 #include <windows.h>
 #include <commdlg.h>
 #include <shlobj.h>
-//#include <atlbase.h>
+#include <atlbase.h>
 
 #include <algorithm>
 #include <set>
