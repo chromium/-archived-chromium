@@ -143,8 +143,4 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   DISALLOW_COPY_AND_ASSIGN(BrowserRenderProcessHost);
 };
 
-// Generates a unique channel name for a child renderer/plugin process.
-// The "instance" pointer value is baked into the channel id.
-std::wstring GenerateRandomChannelID(void* instance);
-
 #endif  // CHROME_BROWSER_RENDERER_HOST_BROWSER_RENDER_PROCESS_HOST_H_

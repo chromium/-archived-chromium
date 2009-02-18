@@ -16,6 +16,7 @@
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/child_process_host.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
@@ -264,7 +265,7 @@ TaskManagerChildProcessResource::TaskManagerChildProcessResource(
       network_usage_support_(false) {
   // We cache the process id because it's not cheap to calculate, and it won't
   // be available when we get the plugin disconnected notification.
-  pid_ = child_proc.process().pid();
+  pid_ = child_proc.pid();
   if (!default_icon_) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     default_icon_ = rb.GetBitmapNamed(IDR_PLUGIN);
@@ -288,7 +289,7 @@ SkBitmap TaskManagerChildProcessResource::GetIcon() const {
 }
 
 HANDLE TaskManagerChildProcessResource::GetProcess() const {
-  return (const_cast<ChildProcessInfo&>(child_process_)).process().handle();
+  return child_process_.handle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -427,7 +428,7 @@ void TaskManagerChildProcessResourceProvider::AddToTaskManager(
 
 // The ChildProcessInfo::Iterator has to be used from the IO thread.
 void TaskManagerChildProcessResourceProvider::RetrieveChildProcessInfo() {
-  for (ChildProcessInfo::Iterator iter; !iter.Done(); ++iter) {
+  for (ChildProcessHost::Iterator iter; !iter.Done(); ++iter) {
     existing_child_process_info_.push_back(**iter);
   }
   // Now notify the UI thread that we have retrieved information about child

@@ -75,7 +75,7 @@ PluginProcessHost* PluginService::FindPluginProcess(
     return NULL;
   }
 
-  for (ChildProcessInfo::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
+  for (ChildProcessHost::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
        !iter.Done(); ++iter) {
     PluginProcessHost* plugin = static_cast<PluginProcessHost*>(*iter);
     if (plugin->info().path == plugin_path)
@@ -102,7 +102,7 @@ PluginProcessHost* PluginService::FindOrStartPluginProcess(
   }
 
   // This plugin isn't loaded by any plugin process, so create a new process.
-  plugin_host = new PluginProcessHost();
+  plugin_host = new PluginProcessHost(main_message_loop_);
   if (!plugin_host->Init(info, clsid, ui_locale_)) {
     DCHECK(false);  // Init is not expected to fail
     delete plugin_host;
@@ -170,7 +170,7 @@ void PluginService::Shutdown() {
 }
 
 void PluginService::OnShutdown() {
-  for (ChildProcessInfo::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
+  for (ChildProcessHost::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
        !iter.Done(); ++iter) {
     static_cast<PluginProcessHost*>(*iter)->Shutdown();
   }

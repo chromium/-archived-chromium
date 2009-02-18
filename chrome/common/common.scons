@@ -106,6 +106,8 @@ input_files = ChromeFileList([
     'animation.h',
     'child_process.cc',
     'child_process.h',
+    'child_process_host.cc',
+    'child_process_host.h',
     'child_process_info.cc',
     'child_process_info.h',
     'chrome_constants.cc',
@@ -234,6 +236,8 @@ if not env.Bit('windows'):
       'gfx/path.cc',
       'os_exchange_data.cc',
       'process_watcher.cc',
+      'child_process_host.cc',
+      'child_process_host.h',
   )
 
 if not env.Bit('windows'):

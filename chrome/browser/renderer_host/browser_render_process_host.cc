@@ -33,6 +33,7 @@
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/child_process_info.h"
 #include "chrome/common/debug_flags.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/notification_service.h"
@@ -218,7 +219,8 @@ bool BrowserRenderProcessHost::Init() {
   const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
 
   // setup IPC channel
-  const std::wstring channel_id = GenerateRandomChannelID(this);
+  const std::wstring channel_id =
+      ChildProcessInfo::GenerateRandomChannelID(this);
   channel_.reset(
       new IPC::SyncChannel(channel_id, IPC::Channel::MODE_SERVER, this,
                            resource_message_filter,
@@ -812,17 +814,4 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
       break;
     }
   }
-}
-
-std::wstring GenerateRandomChannelID(void* instance) {
-  // Note: the string must start with the current process id, this is how
-  // child processes determine the pid of the parent.
-  // Build the channel ID.  This is composed of a unique identifier for the
-  // parent browser process, an identifier for the renderer/plugin instance,
-  // and a random component. We use a random component so that a hacked child
-  // process can't cause denial of service by causing future named pipe creation
-  // to fail.
-  return StringPrintf(L"%d.%x.%d",
-                      base::GetCurrentProcId(), instance,
-                      base::RandInt(0, std::numeric_limits<int>::max()));
 }

@@ -8,13 +8,11 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/object_watcher.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
-#include "chrome/common/child_process_info.h"
-#include "chrome/common/ipc_channel.h"
+#include "chrome/common/child_process_host.h"
 #include "webkit/glue/webplugin.h"
 
 class ResourceDispatcherHost;
@@ -30,13 +28,10 @@ class GURL;
 // starting the plugin process when a plugin is created that doesn't already
 // have a process.  After that, most of the communication is directly between
 // the renderer and plugin processes.
-class PluginProcessHost : public ChildProcessInfo,
-                          public IPC::Channel::Listener,
-                          public IPC::Message::Sender,
-                          public base::ObjectWatcher::Delegate,
+class PluginProcessHost : public ChildProcessHost,
                           public ResolveProxyMsgHelper::Delegate {
  public:
-  PluginProcessHost();
+  PluginProcessHost(MessageLoop* main_message_loop);
   ~PluginProcessHost();
 
   // Initialize the new plugin process, returning true on success. This must
@@ -47,13 +42,6 @@ class PluginProcessHost : public ChildProcessInfo,
             const std::string& activex_clsid,
             const std::wstring& locale);
 
-  // IPC::Message::Sender implementation:
-  virtual bool Send(IPC::Message* msg);
-
-  // ObjectWatcher::Delegate implementation:
-  virtual void OnObjectSignaled(HANDLE object);
-
-  // IPC::Channel::Listener implementation:
   virtual void OnMessageReceived(const IPC::Message& msg);
   virtual void OnChannelConnected(int32 peer_pid);
   virtual void OnChannelError();
@@ -135,19 +123,6 @@ class PluginProcessHost : public ChildProcessInfo,
   // These are the channel requests that we have already sent to
   // the plugin process, but haven't heard back about yet.
   std::vector<ChannelRequest> sent_requests_;
-
-  // Used to watch the plugin process handle.
-  base::ObjectWatcher watcher_;
-
-  // true while we're waiting the channel to be opened.  In the meantime,
-  // plugin instance requests will be buffered.
-  bool opening_channel_;
-
-  // The IPC::Channel.
-  scoped_ptr<IPC::Channel> channel_;
-
-  // IPC Channel's id.
-  std::wstring channel_id_;
 
   // Information about the plugin.
   WebPluginInfo info_;

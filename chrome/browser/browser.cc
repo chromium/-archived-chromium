@@ -24,7 +24,6 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/common/child_process_info.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
@@ -70,6 +69,7 @@
 #include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/window_sizer.h"
+#include "chrome/common/child_process_host.h"
 #include "chrome/common/win_util.h"
 
 #include "chromium_strings.h"
@@ -97,10 +97,8 @@ class ReduceChildProcessesWorkingSetTask : public Task {
  public:
   virtual void Run() {
 #if defined(OS_WIN)
-    for (ChildProcessInfo::Iterator iter; !iter.Done(); ++iter) {
-      DCHECK(iter->process().handle());
-      iter->process().ReduceWorkingSet();
-    }
+    for (ChildProcessHost::Iterator iter; !iter.Done(); ++iter)
+      iter->ReduceWorkingSet();
 #endif
   }
 };

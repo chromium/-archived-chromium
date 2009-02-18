@@ -342,6 +342,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\child_process_host.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\child_process_host.h"
+			>
+		</File>
+		<File
 			RelativePath=".\child_process_info.cc"
 			>
 		</File>

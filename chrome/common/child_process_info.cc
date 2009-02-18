@@ -4,15 +4,15 @@
 
 #include "chrome/common/child_process_info.h"
 
+#include <limits>
+
 #include "base/logging.h"
-#include "base/singleton.h"
-#include "chrome/browser/chrome_thread.h"
+#include "base/process_util.h"
+#include "base/rand_util.h"
+#include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
 
 #include "generated_resources.h"
-
-typedef std::list<ChildProcessInfo*> ChildProcessList;
-
 
 std::wstring ChildProcessInfo::GetTypeNameInEnglish(
     ChildProcessInfo::ProcessType type) {
@@ -61,45 +61,20 @@ ChildProcessInfo::ChildProcessInfo(ProcessType type) {
   // just a simple object that contains information about it.  So add it to our
   // list of running processes.
   type_ = type;
-  Singleton<ChildProcessList>::get()->push_back(this);
 }
 
 
 ChildProcessInfo::~ChildProcessInfo() {
-  Singleton<ChildProcessList>::get()->remove(this);
 }
 
-
-ChildProcessInfo::Iterator::Iterator() : all_(true) {
-  iterator_ = Singleton<ChildProcessList>::get()->begin();
-  DCHECK(MessageLoop::current() ==
-      ChromeThread::GetMessageLoop(ChromeThread::IO)) <<
-          "ChildProcessInfo::Iterator must be used on the IO thread.";
-}
-
-ChildProcessInfo::Iterator::Iterator(ProcessType type)
-    : all_(false), type_(type) {
-  iterator_ = Singleton<ChildProcessList>::get()->begin();
-  DCHECK(MessageLoop::current() ==
-      ChromeThread::GetMessageLoop(ChromeThread::IO)) <<
-          "ChildProcessInfo::Iterator must be used on the IO thread.";
-}
-
-ChildProcessInfo* ChildProcessInfo::Iterator::operator++() {
-  do {
-    ++iterator_;
-    if (Done())
-      break;
-
-    if (!all_ && (*iterator_)->type() != type_)
-      continue;
-
-    return *iterator_;
-  } while (true);
-
-  return NULL;
-}
-
-bool ChildProcessInfo::Iterator::Done() {
-  return iterator_ == Singleton<ChildProcessList>::get()->end();
+std::wstring ChildProcessInfo::GenerateRandomChannelID(void* instance) {
+  // Note: the string must start with the current process id, this is how
+  // child processes determine the pid of the parent.
+  // Build the channel ID.  This is composed of a unique identifier for the
+  // parent browser process, an identifier for the child instance, and a random
+  // component. We use a random component so that a hacked child process can't 
+  // cause denial of service by causing future named pipe creation to fail.
+  return StringPrintf(L"%d.%x.%d",
+                      base::GetCurrentProcId(), instance,
+                      base::RandInt(0, std::numeric_limits<int>::max()));
 }

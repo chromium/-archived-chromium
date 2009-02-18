@@ -5,16 +5,12 @@
 #ifndef CHROME_COMMON_CHILD_PROCESS_INFO_H_
 #define CHROME_COMMON_CHILD_PROCESS_INFO_H_
 
-#include <list>
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/process.h"
 
-class ChildProcessInfo;
-
-// Holds information about a child process.  Plugins/workers and other child
-// processes that live on the IO thread derive from this.
+// Holds information about a child process.
 class ChildProcessInfo {
  public:
   enum ProcessType {
@@ -32,8 +28,12 @@ class ChildProcessInfo {
   // for workers it might be the domain that it's from.
   std::wstring name() const { return name_; }
 
-  // Getter to the process.
-  base::Process& process() { return process_; }
+  // Getter to the process handle.
+  base::ProcessHandle handle() const { return process_.handle(); }
+
+  int pid() const { return process_.pid(); }
+  void SetProcessBackgrounded() const { process_.SetProcessBackgrounded(true); }
+  void ReduceWorkingSet() const { process_.ReduceWorkingSet(); }
 
   // Returns an English name of the process type, should only be used for non
   // user-visible strings, or debugging pages like about:memory.
@@ -58,7 +58,7 @@ class ChildProcessInfo {
     return *this;
   }
 
-  ~ChildProcessInfo();
+  virtual ~ChildProcessInfo();
 
   // We define the < operator so that the ChildProcessInfo can be used as a key
   // in a std::map.
@@ -72,29 +72,14 @@ class ChildProcessInfo {
     return (process_.handle() == rhs.process_.handle()) && (name_ == rhs.name_);
   }
 
-  // The Iterator class allows iteration through either all child processes, or
-  // ones of a specific type, depending on which constructor is used.  Note that
-  // this should be done from the IO thread and that the iterator should not be
-  // kept around as it may be invalidated on subsequent event processing in the
-  // event loop.
-  class Iterator {
-   public:
-    Iterator();
-    Iterator(ProcessType type);
-    ChildProcessInfo* operator->() { return *iterator_; }
-    ChildProcessInfo* operator*() { return *iterator_; }
-    ChildProcessInfo* operator++();
-    bool Done();
-
-   private:
-    bool all_;
-    ProcessType type_;
-    std::list<ChildProcessInfo*>::iterator iterator_;
-  };
+  // Generates a unique channel name for a child renderer/plugin process.
+  // The "instance" pointer value is baked into the channel id.
+  static std::wstring GenerateRandomChannelID(void* instance);
 
  protected:
   void set_type(ProcessType type) { type_ = type; }
   void set_name(const std::wstring& name) { name_ = name; }
+  void set_handle(base::ProcessHandle handle) { process_.set_handle(handle); }
 
   // Derived objects need to use this constructor so we know what type we are.
   ChildProcessInfo(ProcessType type);
@@ -110,7 +95,7 @@ class ChildProcessInfo {
   std::wstring name_;
 
   // The handle to the process.
-  base::Process process_;
+  mutable base::Process process_;
 };
 
 #endif  // CHROME_COMMON_CHILD_PROCESS_INFO_H_
