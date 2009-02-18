@@ -96,7 +96,7 @@ class DialogDelegate : public WindowDelegate {
   virtual bool Accept() { return true; }
 
   // Overridden from WindowDelegate:
-  virtual View* GetInitiallyFocusedView() const;
+  virtual View* GetInitiallyFocusedView();
 
   // Overridden from WindowDelegate:
   virtual ClientView* CreateClientView(Window* window);

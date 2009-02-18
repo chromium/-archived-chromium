@@ -50,7 +50,7 @@ int NewProfileDialog::GetDialogButtons() const {
   return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
 }
 
-views::View* NewProfileDialog::GetInitiallyFocusedView() const {
+views::View* NewProfileDialog::GetInitiallyFocusedView() {
   views::TextField* text_box = message_box_view_->text_box();
   DCHECK(text_box);
   return text_box;

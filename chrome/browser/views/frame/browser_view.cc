@@ -818,7 +818,7 @@ std::wstring BrowserView::GetWindowTitle() const {
   return browser_->GetCurrentPageTitle();
 }
 
-views::View* BrowserView::GetInitiallyFocusedView() const {
+views::View* BrowserView::GetInitiallyFocusedView() {
   return toolbar_->GetLocationBarView();
 }
 

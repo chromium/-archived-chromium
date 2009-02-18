@@ -54,7 +54,7 @@ class CookiesView : public views::View,
 
   // views::WindowDelegate implementation:
   virtual int GetDialogButtons() const { return DIALOGBUTTON_CANCEL; }
-  virtual views::View* GetInitiallyFocusedView() const {
+  virtual views::View* GetInitiallyFocusedView() {
       return search_field_;
   }
   virtual bool CanResize() const { return true; }

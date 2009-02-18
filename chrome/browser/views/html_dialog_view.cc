@@ -61,6 +61,10 @@ views::View* HtmlDialogView::GetContentsView() {
   return this;
 }
 
+views::View* HtmlDialogView::GetInitiallyFocusedView() {
+  return this;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // HtmlDialogContentsDelegate implementation:
 

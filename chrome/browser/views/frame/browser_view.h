@@ -214,7 +214,7 @@ class BrowserView : public BrowserWindow,
   virtual bool CanMaximize() const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
-  virtual views::View* GetInitiallyFocusedView() const;
+  virtual views::View* GetInitiallyFocusedView();
   virtual bool ShouldShowWindowTitle() const;
   virtual SkBitmap GetWindowIcon();
   virtual bool ShouldShowWindowIcon() const;

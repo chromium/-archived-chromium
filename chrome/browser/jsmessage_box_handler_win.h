@@ -44,7 +44,7 @@ class JavascriptMessageBoxHandler
   // views::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
   virtual views::View* GetContentsView();
-  virtual views::View* GetInitiallyFocusedView() const;
+  virtual views::View* GetInitiallyFocusedView();
 
  private:
   // NotificationObserver implementation.

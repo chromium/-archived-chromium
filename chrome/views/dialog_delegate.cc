@@ -18,7 +18,7 @@ int DialogDelegate::GetDefaultDialogButton() const {
   return DIALOGBUTTON_NONE;
 }
 
-View* DialogDelegate::GetInitiallyFocusedView() const {
+View* DialogDelegate::GetInitiallyFocusedView() {
   // Focus the default button if any.
   DialogClientView* dcv = GetDialogClientView();
   int default_button = GetDefaultDialogButton();

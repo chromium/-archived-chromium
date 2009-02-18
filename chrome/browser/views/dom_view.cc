@@ -8,6 +8,7 @@
 
 DOMView::DOMView(const GURL& contents)
     : contents_(contents), initialized_(false), host_(NULL) {
+  SetFocusable(true);
 }
 
 DOMView::~DOMView() {

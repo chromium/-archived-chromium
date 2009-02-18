@@ -28,6 +28,8 @@ class DOMView : public views::HWNDView {
   bool Init(Profile* profile, SiteInstance* instance);
 
  protected:
+  virtual bool CanProcessTabKeyEvents() { return true; }
+
   DOMUIHost* host_;
 
  private:

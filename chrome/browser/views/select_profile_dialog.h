@@ -51,7 +51,7 @@ class SelectProfileDialog
   virtual bool Cancel();
   virtual views::View* GetContentsView();
   virtual int GetDialogButtons() const;
-  virtual views::View* GetInitiallyFocusedView() const;
+  virtual views::View* GetInitiallyFocusedView();
   virtual std::wstring GetWindowTitle() const;
   virtual bool IsModal() const { return false; }
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_HTML_DIALOG_VIEW_H__
-#define CHROME_BROWSER_VIEWS_HTML_DIALOG_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_HTML_DIALOG_VIEW_H_
+#define CHROME_BROWSER_VIEWS_HTML_DIALOG_VIEW_H_
 
 #include <string>
 
@@ -47,6 +47,7 @@ class HtmlDialogView
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual views::View* GetContentsView();
+  virtual views::View* GetInitiallyFocusedView();
 
   // Overridden from HtmlDialogContentsDelegate:
   virtual GURL GetDialogContentURL() const;
@@ -91,8 +92,8 @@ class HtmlDialogView
   // using this variable.
   HtmlDialogContentsDelegate* delegate_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HtmlDialogView);
+  DISALLOW_COPY_AND_ASSIGN(HtmlDialogView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_HTML_DIALOG_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_HTML_DIALOG_VIEW_H_
 

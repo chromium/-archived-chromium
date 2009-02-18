@@ -171,6 +171,10 @@ void HWNDView::VisibleBoundsInRootChanged() {
   UpdateHWNDBounds();
 }
 
+void HWNDView::Focus() {
+  ::SetFocus(hwnd_);
+}
+
 void HWNDView::Paint(ChromeCanvas* canvas) {
   // The area behind our window is black, so during a fast resize (where our 
   // content doesn't draw over the full size of our HWND, and the HWND 

@@ -80,7 +80,7 @@ class WindowDelegate {
 
   // Returns the view that should have the focus when the dialog is opened.  If
   // NULL no view is focused.
-  virtual View* GetInitiallyFocusedView() const { return NULL; }
+  virtual View* GetInitiallyFocusedView() { return NULL; }
 
   // Returns true if the window should show a title in the title bar.
   virtual bool ShouldShowWindowTitle() const {

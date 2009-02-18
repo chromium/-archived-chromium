@@ -69,6 +69,8 @@ class HWNDView : public View {
   // Notification that our visible bounds relative to the root has changed.
   // This updates the bounds of the HWND.
   virtual void VisibleBoundsInRootChanged();
+  
+  virtual void Focus();
 
  private:
   // The hosted window handle.
