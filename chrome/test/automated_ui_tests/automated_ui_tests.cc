@@ -6,13 +6,16 @@
 
 #include "base/command_line.h"
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/rand_util.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/env_vars.h"
 #include "chrome/common/libxml_utils.h"
 #include "chrome/common/win_util.h"
 #include "chrome/test/automated_ui_tests/automated_ui_tests.h"
@@ -46,6 +49,9 @@ const int kDebuggingTimeoutMsec = 5000;
 
 // How many commands to run when testing a dialog box.
 const int kTestDialogActionsToRun = 7;
+
+void SilentRuntimeReportHandler(const std::string& str) {
+}
 
 }  // namespace
 
@@ -90,6 +96,8 @@ AutomatedUITest::AutomatedUITest()
       post_action_delay_ = static_cast<int>(StringToInt64(str));
     }
   }
+  if (base::SysInfo::HasEnvVar(env_vars::kHeadless))
+    logging::SetLogReportHandler(SilentRuntimeReportHandler);
 }
 
 AutomatedUITest::~AutomatedUITest() {}
@@ -1007,4 +1015,3 @@ TEST_F(AutomatedUITest, TheOneAndOnlyTest) {
   else
     RunAutomatedUITest();
 }
-
