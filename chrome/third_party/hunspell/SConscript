@@ -52,7 +52,7 @@ if env.Bit('windows'):
   env.Append(
       CPPDEFINES = [
           'W32',
-      ], 
+      ],
       CCFLAGS = [
           '/TP',
 
@@ -108,6 +108,8 @@ input_files = ChromeFileList([
     'google/bdict_affentry.h',
     'google/bdict_reader.cc',
     'google/bdict_reader.h',
+    'google/bdict_writer.cc',
+    'google/bdict_writer.h',
   ]),
 ])
 

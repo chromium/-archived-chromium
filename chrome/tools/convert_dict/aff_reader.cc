@@ -91,20 +91,24 @@ bool AffReader::Read() {
       // Affix. The first one is the number of ones following which we don't
       // bother with.
       has_indexed_affixes_ = true;
-      if (got_first_af)
-        AddAffixGroup(&line.substr(3));
-      else
+      if (got_first_af) {
+        std::string group(line.substr(3));
+        AddAffixGroup(&group);
+      } else {
         got_first_af = true;
+      }
     } else if (StringBeginsWith(line, "SFX ") ||
                StringBeginsWith(line, "PFX ")) {
       AddAffix(&line);
     } else if (StringBeginsWith(line, "REP ")) {
       // The first rep line is the number of ones following which we don't
       // bother with.
-      if (got_first_rep)
-        AddReplacement(&line.substr(4));
-      else
+      if (got_first_rep) {
+        std::string replacement(line.substr(4));
+        AddReplacement(&replacement);
+      } else {
         got_first_rep = true;
+      }
     } else if (StringBeginsWith(line, "TRY ") ||
                StringBeginsWith(line, "MAP ")) {
       HandleEncodedCommand(line);

@@ -191,7 +191,7 @@ size_t ComputeTrieStorage(DicNode* node) {
   static const int kListHeaderSize = 1;
 
   // Lists can only store up to 16 items.
-  static const int kListThreshold = 16;
+  static const size_t kListThreshold = 16;
   if (node->children.size() < kListThreshold && child_size <= 0xFF) {
     node->storage = DicNode::LIST8;
     return kListHeaderSize + node->children.size() * 2 + child_size;
@@ -265,7 +265,7 @@ void SerializeLeaf(const DicNode* node, std::string* output) {
       output->push_back(
           static_cast<char>((node->affix_indices[i] >> 8) & 0xFF));
     }
-    
+
     // Terminator for affix list. We use 0xFFFF.
     output->push_back(static_cast<unsigned char>(0xFF));
     output->push_back(static_cast<unsigned char>(0xFF));
@@ -442,7 +442,7 @@ void BDictWriter::SetWords(const WordList& words) {
 
 std::string BDictWriter::GetBDict() const {
   std::string ret;
-  
+
   // Save room for the header. This will be populated at the end.
   ret.resize(sizeof(hunspell::BDict::Header));
 
