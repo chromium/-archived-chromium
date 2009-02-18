@@ -104,9 +104,13 @@
 #endif /* _WINDOWS */
 
 // BEGIN GOOGLE MODIFICATIONS
-// On Linux, be sure to set the Mozilla-specific flag.
-#ifdef OS_LINUX
+// On Linux and Mac, be sure to set Mozilla-specific macros.
+#if defined(OS_LINUX)
 #define XP_UNIX 1
+#elif defined(OS_MACOSX)
+#ifndef XP_MACOSX
+#define XP_MACOSX 1
+#endif
 #endif
 // END GOOGLE MODIFICATIONS
 
