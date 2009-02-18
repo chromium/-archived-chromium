@@ -76,33 +76,32 @@
 class DomAutomationController : public CppBoundClass {
  public:
   DomAutomationController();
-  ~DomAutomationController() {}
 
   // Makes the renderer send a javascript value to the app.
   // The value to be sent can be either of type NPString,
   // Number (double casted to int32) or boolean.
   // The function returns true/false based on the result of actual send over
   // IPC. It sets the return value to null on unexpected errors or arguments.
-  void send(const CppArgumentList& args, CppVariant* result);
+  void Send(const CppArgumentList& args, CppVariant* result);
 
-  void setAutomationId(const CppArgumentList& args, CppVariant* result);
+  void SetAutomationId(const CppArgumentList& args, CppVariant* result);
 
   // TODO(vibhor): Implement later
   // static CppBindingObjectMethod sendLater;
   // static CppBindingObjectMethod sendNow;
 
-  static void set_routing_id(int routing_id) { routing_id_ = routing_id; }
+  void set_routing_id(int routing_id) { routing_id_ = routing_id; }
 
-  static void set_message_sender(IPC::Message::Sender* sender) {
+  void set_message_sender(IPC::Message::Sender* sender) {
     sender_ = sender;
   }
 
  private:
-   static IPC::Message::Sender* sender_;
+   IPC::Message::Sender* sender_;
 
    // Refer to the comments at the top of the file for more details.
-   static int routing_id_;  // routing id to be used by first channel.
-   static int automation_id_;  // routing id to be used by the next channel.
+   int routing_id_;  // routing id to be used by first channel.
+   int automation_id_;  // routing id to be used by the next channel.
 };
 
 #endif  // CHROME_RENDERER_AUTOMATION_DOM_AUTOMATION_CONTROLLER_H__

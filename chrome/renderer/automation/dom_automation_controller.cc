@@ -8,16 +8,15 @@
 #include "chrome/common/render_messages.h"
 #include "base/string_util.h"
 
-IPC::Message::Sender* DomAutomationController::sender_(NULL);
-int DomAutomationController::routing_id_(MSG_ROUTING_NONE);
-int DomAutomationController::automation_id_(MSG_ROUTING_NONE);
-
-DomAutomationController::DomAutomationController(){
-  BindMethod("send", &DomAutomationController::send);
-  BindMethod("setAutomationId", &DomAutomationController::setAutomationId);
+DomAutomationController::DomAutomationController()
+    : sender_(NULL),
+      routing_id_(MSG_ROUTING_NONE),
+      automation_id_(MSG_ROUTING_NONE) {
+  BindMethod("send", &DomAutomationController::Send);
+  BindMethod("setAutomationId", &DomAutomationController::SetAutomationId);
 }
 
-void DomAutomationController::send(const CppArgumentList& args,
+void DomAutomationController::Send(const CppArgumentList& args,
                                    CppVariant* result) {
   if (args.size() != 1) {
     result->SetNull();
@@ -25,6 +24,12 @@ void DomAutomationController::send(const CppArgumentList& args,
   }
 
   if (automation_id_ == MSG_ROUTING_NONE) {
+    result->SetNull();
+    return;
+  }
+
+  if (!sender_) {
+    NOTREACHED();
     result->SetNull();
     return;
   }
@@ -81,7 +86,7 @@ void DomAutomationController::send(const CppArgumentList& args,
   return;
 }
 
-void DomAutomationController::setAutomationId(
+void DomAutomationController::SetAutomationId(
     const CppArgumentList& args, CppVariant* result) {
   if (args.size() != 1) {
     result->SetNull();

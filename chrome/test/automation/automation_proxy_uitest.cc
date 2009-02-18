@@ -908,3 +908,37 @@ TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
       L"", L"window.domAutomationController.send(result);", &result));
   EXPECT_EQ(1, result);
 }
+
+class AutomationProxyTest5 : public UITest {
+ protected:
+  AutomationProxyTest5() {
+    show_window_ = true;
+    dom_automation_enabled_ = true;
+    // We need to disable popup blocking to ensure that the RenderView
+    // instance for the popup actually closes.
+    launch_arguments_.AppendSwitch(switches::kDisablePopupBlocking);
+  }
+};
+
+TEST_F(AutomationProxyTest5, TestLifetimeOfDomAutomationController) {
+  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(window.get());
+
+  scoped_ptr<TabProxy> tab(window->GetTab(0));
+  ASSERT_TRUE(tab.get());
+
+  std::wstring filename(test_data_directory_);
+  file_util::AppendToPath(&filename, L"dom_automation_test_with_popup.html");
+
+  tab->NavigateToURL(net::FilePathToFileURL(filename));
+
+  // Allow some time for the popup to show up and close.
+  Sleep(2000);
+
+  std::wstring expected(L"string");
+  std::wstring jscript = CreateJSString(L"\"" + expected + L"\"");
+  std::wstring actual;
+  ASSERT_TRUE(tab->ExecuteAndExtractString(L"", jscript, &actual));
+  ASSERT_STREQ(expected.c_str(), actual.c_str());
+}
+
