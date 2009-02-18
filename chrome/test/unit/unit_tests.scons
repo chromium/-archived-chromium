@@ -295,8 +295,8 @@ input_files = ChromeFileList([
     '$CHROME_DIR/test/testing_browser_process.h',
     '$CHROME_DIR/test/testing_profile.cc',
     '$CHROME_DIR/test/testing_profile.h',
-    '$CHROME_DIR/../net/url_request/url_request_test_job$OBJSUFFIX',
-    '$CHROME_DIR/../net/url_request/url_request_test_job.h',
+    '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
+    '$NET_DIR/url_request/url_request_test_job.h',
   ]),
   MSVSFilter('views', [
     '$CHROME_DIR/views/focus_manager_unittest.cc',
