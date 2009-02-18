@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Opnieuw</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">&amp;Paginagegevens</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;Nieuw venster</translation>
 <translation id="7567293639574541773">Eleme&amp;nt inspecteren</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Beheren</translation>
 <translation id="254416073296957292">&amp;Taalinstellingen...</translation>
 <translation id="4222982218026733335">Ongeldig servercertificaat</translation>
-<translation id="495091556140548787">Recent gesloten tabbladen</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>U bent incognito<ph name="END_BOLD"/>. Pagina's die u in dit venster weergeeft, worden niet opgenomen in uw browsergeschiedenis of zoekgeschiedenis. Nadat u het incognitovenster heeft gesloten, blijven er geen andere sporen (zoals cookies) op uw computer achter. Alle bestanden die u downloadt of bladwijzers die u maakt, blijven echter bewaard.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Incognito gaan heeft geen invloed op het gedrag van andere mensen, servers of software. Wees alert op:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>websites die gegevens over u verzamelen of delen<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internetproviders of werkgevers die uw bezochte pagina's bijhouden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>schadelijke software die uw toetsaanslagen bijhoudt in ruil voor gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>surveillance door geheim agenten<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>mensen die over uw schouder meekijken<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Meer informatie<ph name="END_LINK"/> over incognito browsen.</translation>
 <translation id="1813414402673211292">Browsegegevens wissen</translation>
 <translation id="2356762928523809690">De updateserver is niet beschikbaar (fout: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Afbeeldingen automatisch laden</translation>
 <translation id="7227780179130368205">Malware gedetecteerd!</translation>
 <translation id="3942946088478181888">Meer informatie</translation>
-<translation id="1586296736502814947">(Geen actie mogelijk)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (standaard)</translation>
 <translation id="111844081046043029">Weet u zeker dat u deze pagina wilt verlaten?</translation>
 <translation id="4497415007571823067">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar u heeft een server bereikt die zich identificeert als &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Dit kan worden veroorzaakt door een verkeerde configuratie op de server, of door iets ernstigers. Een hacker op uw netwerk wil u misschien een nepversie laten bezoeken van &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;, die mogelijk schadelijk is. U kunt beter niet verder gaan.</translation>
@@ -428,7 +425,7 @@
 <translation id="2496180316473517155">Browsegeschiedenis</translation>
 <translation id="602251597322198729">Deze site probeert meerdere bestanden te downloaden. Wilt u dit toestaan?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> uur</translation>
-<translation id="6691936601825168937">&amp;Doorsturen</translation>
+<translation id="6691936601825168937">&amp;Vooruit</translation>
 <translation id="7736284018483078792">Wijzig de taal van het woordenboek voor spellingcontrole.</translation>
 <translation id="2148716181193084225">Vandaag</translation>
 <translation id="3574305903863751447"><ph name="CITY"/>, <ph name="STATE"/> <ph name="COUNTRY"/></translation>
@@ -667,7 +664,7 @@
 <translation id="988159990683914416">Ontwikkelaarsbuild</translation>
 <translation id="3705722231355495246">-</translation>
 <translation id="4268574628540273656">URL:</translation>
-<translation id="7481312909269577407">Doorsturen</translation>
+<translation id="7481312909269577407">Vooruit</translation>
 <translation id="3759876923365568382"><ph name="NUMBER_FEW"/> dagen resterend</translation>
 <translation id="1664314758578115406">Pagina toevoegen...</translation>
 <translation id="4084682180776658562">Bladwijzer maken</translation>

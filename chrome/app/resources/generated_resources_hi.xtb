@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;पुन: करें</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">पृष्ठ &amp;जानकारी</translation>
 <translation id="528468243742722775">समाप्त करें</translation>
 <translation id="1723824996674794290">&amp;नई विंडो</translation>
 <translation id="7567293639574541773">तत्व की &amp;जाँच करें</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">प्रबंधन करें</translation>
 <translation id="254416073296957292">&amp;भाषा सेटिंग्स...</translation>
 <translation id="4222982218026733335">अज्ञात सर्वर प्रमाणपत्र</translation>
-<translation id="495091556140548787">हाल ही में बंद किए गए टैब</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>आप गुप्त हो गए हैं<ph name="END_BOLD"/>. इस विंडो में आपके द्वारा देखे जाने वाले पृष्ठ आपके ब्राउज़र इतिहास या खोज इतिहास में दिखाई नहीं देंगे, और आपके द्वारा गुप्त विंडो बंद किए जाने के बाद वे कुंकीज़ जैसे दूसरे निशान भी आपके कम्प्यूटर पर नहीं छोड़ेंगे. तथापि, आपके द्वारा डाउनलोड की गई कोई भी फ़ाइल या बनाए गए बुकमार्क सुरक्षित रहेंगे.    <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>गुप्त रहने से दूसरे लोगों, सर्वरों, या सॉफ़्टवेयर का व्यवहार प्रभावित नहीं होता है. निम्न से सावधान रहें:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>आपके बारे में जानकारी एकत्रित या साझा करने वाली वेबसाइटें<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>इंटरनेट सेवा प्रदाता या नियोक्ता जो आपके द्वारा देखे जाने वाले पृष्ठों का पता लगाते हैं<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>मुफ़्त स्माइलीज़ के बदले आपके कीस्ट्रॉक तक पहुँचने वाले हानिकारक सॉफ़्टवेयर<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>गुप्त एजेंटों द्वारा चौकसी<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>आपके पीछे खड़े लोग<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>गुप्त ब्राउज़िंग के बारे में<ph name="END_LINK"/> और जानें.</translation>
 <translation id="1813414402673211292">ब्राउज़िंग डेटा साफ़ करें</translation>
 <translation id="2356762928523809690">अद्यतन सर्वर उपलब्ध नहीं (त्रुटि: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">स्वचालित रूप से चित्र लोड करें</translation>
 <translation id="7227780179130368205">मालवेयर का पता लगाया गया!</translation>
 <translation id="3942946088478181888">समझने में मेरी सहायता करें</translation>
-<translation id="1586296736502814947">(कोई क्रिया संभव नहीं है)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (डिफ़ॉल्ट)</translation>
 <translation id="111844081046043029">क्या आप वाकई इस पृष्ठ को छोड़ना चाहते हैं ?</translation>
 <translation id="4497415007571823067">आपने &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; पर पहुँचने का प्रयास किया, परन्तु उसके बजाए वास्तव में आप &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; के रूप में अपनी पहचान करने वाले सर्वर पर पहुँच गए. ऐसा संभवत: सर्वर पर किसी संरूपण त्रुटि या किसी अन्य गंभीर चीज़ के कारण हो सकता है. आपके नेटवर्क में संभवत: कोई आक्रमणकारी आपको &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; के किसी नकली (और संभवत: हानिकारक) संस्करण पर ने जाने का प्रयास कर रहा है. आपको आगे नहीं जाना चाहिए.</translation>

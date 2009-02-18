@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Повторити</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">&amp;Інформація про сторінку</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;Нове вікно</translation>
 <translation id="7567293639574541773">П&amp;еревірити елемент</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Змінити</translation>
 <translation id="254416073296957292">&amp;Налаштування мови...</translation>
 <translation id="4222982218026733335">Недійсний сертифікат сервера</translation>
-<translation id="495091556140548787">Нещодавно закриті вкладки</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ви перейшли до анонімного перегляду<ph name="END_BOLD"/>. Сторінки, відкриті в цьому вікні, не будуть записані до історії веб-переглядача або пошуку. Після закриття анонімного вікна на комп’ютері не залишиться жодних слідів відвідування цих сторінок, наприклад, cookie-файлів. Проте всі завантажені файли та створені закладки будуть збережені.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Анонімний перегляд не впливає на реакцію інших користувачів, серверів або програмного забезпечення. Обережно ставтеся до:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Веб-сайтів, які збирають або відкривають спільний доступ до Вашої особистої інформації<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Постачальників Інтернет-послуг, що відстежують сторінки, які Ви відвідуєте<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Зловмисного програмного забезпечення, яке пропонує Вам безкоштовні набори смайлів, а насправді відстежує натискання клавіш<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Нагляду з боку секретних служб<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Людей, що стоять позаду Вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Докладніше<ph name="END_LINK"/> про анонімний перегляд сторінок.</translation>
 <translation id="1813414402673211292">Очистити дані переглядача</translation>
 <translation id="2356762928523809690">Сервер оновлення недоступний (помилка: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Завантажувати зображення автоматично</translation>
 <translation id="7227780179130368205">Виявлено шкідливі програми!</translation>
 <translation id="3942946088478181888">Підкажіть</translation>
-<translation id="1586296736502814947">(Дія неможлива)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (за замовчуванням)</translation>
 <translation id="111844081046043029">Ви дійсно бажаєте залишити цю сторінку?</translation>
 <translation id="4497415007571823067">Ви спробували отримати доступ до &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, але натомість встановлено з’єднання з сервером, який ідентифікує себе як &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Це може бути спричинено неправильною конфігурацією на сервері або чимось серйознішим. Зловмисник у мережі міг спробувати змусити вас відвідати оманну (та потенційно шкідливу) версію &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Рекомендуємо не продовжувати.</translation>

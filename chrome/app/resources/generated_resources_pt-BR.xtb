@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Refazer</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">&amp;Informações da página</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;Nova janela</translation>
 <translation id="7567293639574541773">&amp;Inspecionar elemento</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Gerenciar</translation>
 <translation id="254416073296957292">&amp;Configurações de idioma...</translation>
 <translation id="4222982218026733335">Certificado de servidor inválido</translation>
-<translation id="495091556140548787">Guias recentemente fechadas</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Você está navegando no modo anônimo.<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não aparecerão nos históricos do navegador ou da pesquisa, nem deixarão outros rastros em seu computador (por exemplo, cookies) após você fechar a janela anônima. Porém, todos os arquivos que você baixar ou os favoritos que marcar serão preservados. <ph name="LINE_BREAK"/> <ph name="BEGIN_BOLD"/>A navegação no modo anônimo não afeta o comportamento de outras pessoas, servidores ou softwares. Tenha cuidado com:<ph name="END_BOLD"/> <ph name="BEGIN_LIST"/> <ph name="BEGIN_LIST_ITEM"/>Sites que coletam ou compartilham informações a seu respeito<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Provedores de internet ou empregadores que rastreiam as páginas visitadas por você<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Smileys gratuitos, pois eles podem ser iscas de softwares maliciosos<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Vigilância de agentes secretos<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Pessoas que ficam atrás de você quando você está navegando<ph name="END_LIST_ITEM"/> <ph name="END_LIST"/> <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre a navegação no modo anônimo.</translation>
 <translation id="1813414402673211292">Limpar dados de navegação</translation>
 <translation id="2356762928523809690">Servidor de atualização não disponível (erro: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Carregar imagens automaticamente</translation>
 <translation id="7227780179130368205">Malware detectado.</translation>
 <translation id="3942946088478181888">Mais informações</translation>
-<translation id="1586296736502814947">(Nenhuma ação possível)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (padrão)</translation>
 <translation id="111844081046043029">Tem certeza de que deseja sair desta página?</translation>
 <translation id="4497415007571823067">Você tentou acessar &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mas, na realidade, acessou um servidor que se identifica como &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Isso pode ser causado por uma configuração incorreta do servidor ou por algo mais grave. Um invasor na sua rede pode estar tentando influenciar você a visitar uma versão falsa (e possivelmente prejudicial) de &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Você não deve continuar.</translation>

@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;மீண்டும் செய்</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">பக்க &amp;தகவல்</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;புதிய சாளரம்</translation>
 <translation id="7567293639574541773">கூறை&amp;ஆய்வு செய்க</translation>
@@ -46,8 +45,10 @@
 <translation id="7931071620596053769">பின்வரும் பக்கங்கள் பதிலளிக்கவில்லை.  அவை இயக்கத்திற்கு வரும்வரை நீங்கள் காத்திருக்கலாம், அல்லது அவற்றை மூடி விடலாம்.</translation>
 <translation id="1209866192426315618">இன்னும் <ph name="NUMBER_DEFAULT"/> நிமிடங்கள் உள்ளன</translation>
 <translation id="2179052183774520942">தேடுபொறியைச் சேர்</translation>
+<translation id="2956948609882871496">புக்மார்க்ஸை இறக்குமதி செய்க...</translation>
 <translation id="1621207256975573490">&amp;சட்டகத்தை இவ்வாறு சேமி...</translation>
 <translation id="2278562042389100163">உலாவி சாளரத்தைத் திற</translation>
+<translation id="4589279373639964403">புக்மார்க்ஸை ஏற்றுமதி செய்க...</translation>
 <translation id="5463275305984126951"><ph name="LOCATION"/> இன் பொருளடக்கம்</translation>
 <translation id="5154917547274118687">நினைவகம்</translation>
 <translation id="873849583815421063">முடிக்கிறது…</translation>
@@ -61,6 +62,7 @@
 <translation id="4684748086689879921">இறக்குமதியை புறக்கணி</translation>
 <translation id="5516565854418269276">&amp;எப்பொழுதும் புக்மார்க் பட்டியை காண்பி</translation>
 <translation id="6426222199977479699">SSL பிழை</translation>
+<translation id="443008484043213881">கருவிகள்</translation>
 <translation id="8534801226027872331">இந்த சமயத்தில், உங்கள் உலாவிக்கு அளிக்கப்பட்ட சான்றிதழில் பிழைகள் உள்ளன மேலும் அதைப் புரிந்து கொள்ள முடியவில்லை. அதாவது சான்றிதழில் உள்ள அடையாளம் அல்லது இணைப்பைப் பாதுகாக்கப் பயன்படுத்தப்பட்ட சான்றிதழில் உள்ள வேறு குறிப்பிட்ட தகவலை எங்களால் புரிந்து கொள்ள முடியவில்லை. நீங்கள் தொடரக்கூடாது.</translation>
 <translation id="4422347585044846479">இந்த பக்கத்திற்கான புக்மார்க்ஸைத் திருத்துக</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -133,6 +135,7 @@
 <translation id="350069200438440499">கோப்பு பெயர்:</translation>
 <translation id="8494979374722910010">சர்வரும் இணைப்பதற்கான முயற்சி தோல்வியடைந்தது.</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> நிமிடங்கள்</translation>
+<translation id="5296476177639202243">'<ph name="SEARCH_TEXT"/>' வினவலுக்கு பொருத்தமான புக்மார்க்குகள் இல்லை.</translation>
 <translation id="939736085109172342">புதிய கோப்புறை</translation>
 <translation id="5641560969478423183">சர்வரின் சான்றிதழ் URL உடன் பொருந்தாது</translation>
 <translation id="121827551500866099">அனைத்து பதிவிறக்கங்களையும் காண்பி…</translation>
@@ -140,6 +143,7 @@
 <translation id="1426410128494586442">ஆம்</translation>
 <translation id="6513615899227776181">செருகுநிரல்: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184">இன்னும் <ph name="NUMBER_MANY"/> நாட்கள் உள்ளன</translation>
+<translation id="1059307158073710225">எழுத்துப்பிழை சரிபார்:</translation>
 <translation id="7643817847124207232">இணைய இணைப்பு துண்டிக்கப்பட்டது.</translation>
 <translation id="932327136139879170">முகப்பு</translation>
 <translation id="5600907569873192868">இன்னும் <ph name="NUMBER_MANY"/> நிமிடங்கள் உள்ளன</translation>
@@ -159,14 +163,17 @@
 <translation id="7012108905414904806">இருப்பினும், இந்த பக்கமானது பாதுகாப்பு இல்லாத பிற ஆதாரங்களை கொண்டுள்ளது.  இந்த ஆதாரங்கள் மாற்றத்தின் போது பிறரால் பார்க்க முடியும், மேலும் தாக்குதல் நடத்துபவரால் பக்கத்தின் தோற்றத்தை அல்லது பக்கத்தின் இயல்பை மாற்ற முடியும்.</translation>
 <translation id="4515911410595374805">இந்த பக்கத்தின் சில கூறுகள், சரிபார்க்கப்படாத ஆதாரத்திலிருந்து வந்துள்ளன, மேலும் அவை காண்பிக்கப்படவில்லை.</translation>
 <translation id="1195447618553298278">தெரியாத பிழை.</translation>
+<translation id="1087119889335281750">&amp;எழுத்து சரிபார்ப்பு பரிந்துரைகள் இல்லை</translation>
 <translation id="5076340679995252485">&amp;ஒட்டு</translation>
 <translation id="14171126816530869"><ph name="LOCALITY"/> இல் <ph name="ORGANIZATION"/> அடையாளம் <ph name="ISSUER"/> ஆல் பரிசோதிக்கப்பட்டது.</translation>
 <translation id="1587275751631642843">&amp;JavaScript கன்சோல்</translation>
 <translation id="5821894118254011366">மூன்றாம் தரப்பு குக்கீகளை முழுமையாக தடு</translation>
+<translation id="1134009406053225289">மறைநிலை சாளரத்தில் திற</translation>
 <translation id="3473105180351527598">ஃபிஷிங் மற்றும் தீம்பொருள் பாதுகாப்பைச் செயலாக்குக</translation>
 <translation id="6151323131516309312"><ph name="SITE_NAME"/> ஐத் தேட <ph name="SEARCH_KEY"/> ஐ அழுத்துக</translation>
 <translation id="2342959293776168129">பதிவிறக்க வரலாறை சுத்தமாக்கு</translation>
 <translation id="2503522102815150840">உலாவி சிதைந்தது... டமால்</translation>
+<translation id="2815500128677761940">புக்மார்க் பட்டி</translation>
 <translation id="8041183585493091279">பரிந்துரை சேவை URL:</translation>
 <translation id="9189691339671500905">சர்வபுலத்தில் பயன்படுத்தப்படும் தேடுபொறியை அமையுங்கள்.</translation>
 <translation id="4571852245489094179">புக்மார்க்ஸ் மற்றும் அமைப்புகளை இறக்குமதி செய்க</translation>
@@ -182,14 +189,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">ஹோஸ்ட் சிக்கலைத் தீர்க்கிறது...</translation>
 <translation id="3967132639560659870">இந்த பக்கத்தில் பல SSL பிழைகள் உள்ளன:</translation>
+<translation id="5039804452771397117">அனுமதி</translation>
 <translation id="2266011376676382776">பக்கங்கள் பதிலளிக்கவில்லை</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome</translation>
 <translation id="5782620817391526544">புக்மார்க் பட்டி</translation>
+<translation id="3493653833301553455">படிவ தானியங்குநிரப்பு:</translation>
 <translation id="644038709730536388">ஆன்லைனில் தீங்கு தரும் மென்பொருளிடமிருந்து உங்களைப் பாதுகாத்துக்கொள்வது எவ்வாறு என்பது பற்றி மேலும் அறிக.</translation>
 <translation id="4172706149171596436">பிராக்ஸி அமைப்புகளை மாற்றுக</translation>
 <translation id="5650551054760837876">தேடல் முடிவுகள் எதுவும் காணப்படவில்லை.</translation>
 <translation id="3234408098842461169">கீழ்நோக்கிய அம்பு</translation>
 <translation id="825608351287166772">உங்களிடம் உள்ள பிற அடையாள ஆவணத்தைப் போலவே (பாஸ்போட் போன்றவை) சான்றிதழ்களுக்கும் ஒரு செல்லுபடிக்காலம் உள்ளது. உங்கள் உலாவிக்கு வழங்கப்பட்டுள்ள சான்றிதழ் தற்போது செல்லுபடியானதல்ல. ஒரு சான்றிதழானது அதன் செல்லுபடிக்காலத்தைக் கடந்த பின்னர், சான்றிதழின் நிலை குறித்த குறிப்பிட்ட தகவலை (அது திரும்பப்பெறப்பட்டதா மற்றும் இனி நம்பக்கூடாததா என்பது போன்ற தகவல்) பராமரித்து வைக்க வேண்டிய அவசியம் இல்லை. அதாவது, இந்த சான்றிதழ் நம்பத் தகுந்ததா என்பதைச் சரிபார்க்க முடியாது. நீங்கள் தொடரக்கூடாது.</translation>
+<translation id="2742457360514408037">தடுக்கப்பட்ட பாப்-அப்கள்: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">தலைப்பில் குறைந்தது ஒரு எழுத்தாவது இருக்க வேண்டும்</translation>
 <translation id="3549657413697417275">உங்கள் வரலாற்றைத் தேடுக</translation>
 <translation id="4250680216510889253">இல்லை</translation>
@@ -199,8 +209,9 @@
 <translation id="8899388739470541164">வியட்நாமிஸ்</translation>
 <translation id="4089663545127310568">சேமிக்கப்பட்ட கடவுச்சொற்களை சுத்தமாக்கு</translation>
 <translation id="6500444002471948304">கோப்புறையைச் சேர்...</translation>
-<translation id="2794293857160098038">இயல்புநிலைத் தேடல் விருப்பங்கள்</translation>
+<translation id="2794293857160098038">இயல்புநிலைத் தேடல் விருப்பத்தேர்வுகள்</translation>
 <translation id="5935630983280450497">இன்னும் <ph name="NUMBER_ONE"/> நிமிடம் உள்ளது</translation>
+<translation id="5496587651328244253">ஒழுங்கமை</translation>
 <translation id="5568069709869097550">உள்நுழைய முடியவில்லை</translation>
 <translation id="4181898366589410653">சர்வரின் சான்றிதழில் திரும்பப்பெறுதல் செயல்முறை காணப்படவில்லை.</translation>
 <translation id="6364916375976753737">இடப்புறம் உருட்டு</translation>
@@ -223,14 +234,15 @@
 <translation id="877010697526426622">&lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; இல் உள்ள வலைப்பக்கமானது தற்காலிகமாக இயங்காமல் இருக்கலாம் அல்லது அது ஒரு புதிய வலை முகவரிக்கு நிரந்தரமாக நகர்த்தப்பட்டிருக்கலாம்.</translation>
 <translation id="4378551569595875038">இணைக்கிறது...</translation>
 <translation id="7029809446516969842">கடவுச்சொற்கள்</translation>
+<translation id="8211437954284917092">உங்கள் புக்மார்க்குகளைத் தேடுவதற்கு, மேலே உள்ள உரைப் புலத்தில் வினவலை உள்ளிடுக.</translation>
 <translation id="5958418293370246440"><ph name="TOTAL_FILES"/> இல் <ph name="SAVED_FILES"/> கோப்புகள்</translation>
 <translation id="6805291412499505360">மூன்றாம் தரப்பினரின் குக்கீகள் எவ்வாறு பயன்படுத்தப்பட வேண்டும் என்பதைக் கட்டுப்படுத்துக</translation>
 <translation id="1201402288615127009">அடுத்து</translation>
 <translation id="370665806235115550">நினைவேறுகிறது...</translation>
 <translation id="6592392877063354583"><ph name="SECURE_PAGE_URL"/> இல் உள்ள பக்கமானது, <ph name="INSECURE_RESOURCE_URL"/> இலிருந்து பாதுகாப்பற்ற உள்ளடக்கத்தைக் கொண்டுள்ளது.</translation>
 <translation id="3810973564298564668">நிர்வகி</translation>
+<translation id="254416073296957292">&amp;மொழி அமைப்புகள்...</translation>
 <translation id="4222982218026733335">செல்லுபடியாகாத சர்வர் சான்றிதழ்</translation>
-<translation id="495091556140548787">சமீபத்தில் மூடிய தாவல்கள்</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>மறை நிலைக்குச் சென்றுவிட்டீர்கள்<ph name="END_BOLD"/>. இந்த சாளரத்தில் நீங்கள் பார்வையிடும் பக்கங்கள் உங்கள் உலாவல் வரலாறு அல்லது தேடல் வரலாற்றில் காணப்படாது, நீங்கள் மறை நிலை சாளரத்தை மூடிய பின்னர் உங்கள் கணினியில் அவை குக்கீகள் போன்ற எந்த தடத்தையும் விட்டுச் செல்லாது, இருப்பினும், நீங்கள் பதிவிறக்கம் செய்த கோப்புகள் அல்லது உருவாக்கும் புக்மார்க்ஸ் ஆகியவை பாதுகாப்பாக இருக்கும்.
         <ph name="LINE_BREAK"/>
         <ph name="BEGIN_BOLD"/>மறை நிலைக்குச் செல்வதனால், பிற நபர்கள், சர்வர்கள் அல்லது மென்பொருள் ஆகியவற்றின் குணங்கள் பாதிக்கப்படாது. பின்வருவனவற்றிலிருந்து பாதுகாக்கப்படுவீர்கள்:<ph name="END_BOLD"/>
@@ -260,6 +272,8 @@
 <translation id="5329858601952122676">&amp;நீக்கு</translation>
 <translation id="6100736666660498114">தொடக்க மெனு</translation>
 <translation id="1120098871254928930">அனைத்து உள்ளடக்கத்தையும் நினைவேற அனுமதி</translation>
+<translation id="3994878504415702912">&amp;பெரிதாக்கு</translation>
+<translation id="5602600725402519729">மறு&amp;நினைவேற்று</translation>
 <translation id="7965010376480416255">பகிரப்பட்ட நினைவகம்</translation>
 <translation id="6248988683584659830">தேடல் அமைப்புகள்</translation>
 <translation id="8887733174653581061">எப்போதும் மேலே</translation>
@@ -285,6 +299,7 @@
 <translation id="3819791248093819058">வலை முகவரிக்கான வலைப்பக்கங்கள் ஏதும் காணப்படவில்லை: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">முந்தையது</translation>
 <translation id="583281660410589416">அறியப்படாத</translation>
+<translation id="5528368756083817449">புக்மார்க் நிர்வாகி</translation>
 <translation id="1560991001553749272">புக்மார்க் சேர்க்கப்பட்டது!</translation>
 <translation id="3966072572894326936">வேறு கோப்புறையைத் தேர்வு செய்க?</translation>
 <translation id="7781829728241885113">நேற்று</translation>
@@ -297,8 +312,10 @@
 <translation id="7334704644505105275">JavaScript பிழைத்திருத்தி - பணிமிகுதி</translation>
 <translation id="7629827748548208700">தாவல்: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">அளவு</translation>
+<translation id="1383876407941801731">தேடு</translation>
 <translation id="8398877366907290961">இருப்பினும் தொடர்க</translation>
 <translation id="290414493736480793">ஒப்புகைகள்</translation>
+<translation id="6449085810994685586">&amp;இந்தப் புலத்திற்கான எழுத்துக்கூட்டுருவைச் சரிபார்</translation>
 <translation id="50960180632766478">இன்னும் <ph name="NUMBER_FEW"/> நிமிடங்கள் உள்ளன</translation>
 <translation id="8664389313780386848">&amp;பக்கத்தின் ஆதாரத்தைக் காண்க</translation>
 <translation id="57646104491463491">மாற்றிய தேதி</translation>
@@ -362,7 +379,6 @@
 <translation id="3268761268932257769">படங்களைத் தானாக நினைவேற்று</translation>
 <translation id="7227780179130368205">தீம்பொருள் கண்டறியப்பட்டது!</translation>
 <translation id="3942946088478181888">புரிந்துகொள்ள உதவு</translation>
-<translation id="1586296736502814947">(எதையும் செயல்படுத்த முடியாது)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (இயல்புநிலை)</translation>
 <translation id="111844081046043029">இந்த பக்கத்தை விட்டு நிச்சயமாக வெளியேற வேண்டுமா?</translation>
 <translation id="4497415007571823067">நீங்கள் &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; ஐ அடைய முயற்சி செய்தீர்கள், ஆனால் உண்மையில் தன்னை &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. என அடையாளம் காணும் ஒரு சர்வரை அடைந்துள்ளீர்கள். இதற்கு சர்வரின் தவறான உள்ளமைவோ அல்லது பிற தீவிரமான சிக்கல் ஏதேனும் காரணமாக இருக்கலாம். உங்கள் நெட்வொர்க்கிலுள்ள பாதிக்கக்கூடிய நபர் உங்களை &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; இன் போலி பதிப்பை (பாதிக்கும் தன்மையுடையதாக இருக்க வாய்ப்புள்ள) பார்வையிடவைக்க முயற்சிக்கலாம். நீங்கள் தொடரக்கூடாது.</translation>
@@ -392,6 +408,7 @@
 <translation id="8695758493354644945">வரலாற்றில் <ph name="SEARCH_TERMS"/> ஐ கொண்டுள்ள <ph name="NUM_MATCHES"/> சமீபத்திய பக்கங்களைக் காண்க</translation>
 <translation id="8186012393692847636">தேடல்களையும் முகவரிப் பட்டியில் தட்டச்சு செய்யப்பட்ட URLகளையும் பூர்த்தி செய்ய, ஒரு பரிந்துரை சேவையைப் பயன்படுத்துக</translation>
 <translation id="4711094779914110278">டர்கிஷ்</translation>
+<translation id="4002066346123236978">தலைப்பு</translation>
 <translation id="9015241028623917394">நடப்பு பக்கத்தைக் கட்டுப்படுத்து</translation>
 <translation id="7861215335140947162">&amp;பதிவிறக்கங்கள்</translation>
 <translation id="2505402373176859469"><ph name="TOTAL_SIZE"/> இல் <ph name="RECEIVED_AMOUNT"/></translation>
@@ -420,7 +437,9 @@
 <translation id="3745810751851099214">இதற்காக அனுப்பு:</translation>
 <translation id="8877448029301136595">[மூலக் கோப்பகம்]</translation>
 <translation id="1963227389609234879">அனைத்தையும் அகற்று</translation>
+<translation id="7052633198403197513">F1</translation>
 <translation id="2496180316473517155">உலாவல் வரலாறு</translation>
+<translation id="602251597322198729">பல கோப்புகளை பதிவிறக்க, இந்த தளம் முயற்சி செய்கிறது. இதனை அனுமதிக்க விரும்புகிறீர்களா?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> மணிநேரம்</translation>
 <translation id="6691936601825168937">&amp;முன்னுப்பு</translation>
 <translation id="7736284018483078792">எழுத்துப் பிழை சரிபார்ப்பு அகராதியின் மொழியை மாற்று.</translation>
@@ -450,7 +469,10 @@
 <translation id="8053959338015477773">இந்த பக்கத்தில் உள்ள சில கூறுகளைக் காண்பிக்க, ஒரு கூடுதல் செருகுநிரல் தேவைப்படுகிறது.</translation>
 <translation id="4666192354592784528">இந்த பக்கமானது முழுவதுமாக ஒரு பாதுகாப்பான இணைப்பிலிருந்து மீட்கப்படவில்லை.  இது பாதுகாப்பற்ற இணைப்புகளிலிருந்து மீட்கப்பட்ட சில கூறுகளையும் கொண்டுள்ளது.</translation>
 <translation id="7414887922320653780">இன்னும் <ph name="NUMBER_ONE"/> மணிநேரம் உள்ளது</translation>
+<translation id="399179161741278232">இறக்குமதியானது</translation>
+<translation id="3927932062596804919">மறு</translation>
 <translation id="6484929352454160200"><ph name="PRODUCT_NAME"/> இன் ஒரு புதிய பதிப்பு உள்ளது</translation>
+<translation id="7035824132811506448">சமீபத்தில் சேர்த்தவை</translation>
 <translation id="2371076942591664043">&amp;முடிந்ததும் திற</translation>
 <translation id="6069278982995177296">பிரதி</translation>
 <translation id="2979639724566107830">புதிய சாளரத்தில் திற</translation>
@@ -480,6 +502,7 @@
 <translation id="8434177709403049435">&amp;குறியீட்டு முறை</translation>
 <translation id="7895330511272068835">செருகுநிரல்கள் பற்றி</translation>
 <translation id="9012607008263791152">இந்த தளத்தைப் பார்வையிடுவது எனது கணினிக்கு தீங்கு விளைவிக்கலாம் என்பதைப் புரிந்துகொண்டேன்.</translation>
+<translation id="6004539838376062211">&amp;பிழைத்திருத்த விருப்பங்கள்</translation>
 <translation id="7887334752153342268">பிரதி</translation>
 <translation id="703748601351783580">புக்மார்க்ஸ் அனைத்தையும் புதிய சாளரத்தில் திற</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -488,6 +511,7 @@
 <translation id="5291303148298143069">ஒரு பாப்-அப் தடுக்கப்படும்போது எனக்கு அறிவி</translation>
 <translation id="2115926821277323019">ஒரு செல்லுபடியாகும் URL ஆக இருக்க வேண்டும்</translation>
 <translation id="7397054681783221164">பின்வருவனவற்றை முற்றிலும் நீக்கு:</translation>
+<translation id="4891251785049117953">சேமித்த படிவத் தரவை காலிசெய்</translation>
 <translation id="7554791636758816595">புதிய தாவல்</translation>
 <translation id="4400697530699263877">பக்க நினைவேற்ற செயல்திறனை மேம்படுத்த DNS முன்னெடுத்தலைப் பயன்படுத்துக.</translation>
 <translation id="1086613338090581534">காலாவதியாகாத ஒரு சான்றிதழுக்காக, திரும்பப்பெறல் பட்டியல்? என்றழைக்கப்படுவதை கடைபிடிப்பது அந்த சான்றிதழ் வழங்கியவரின் கடமையாகும். ஒரு சான்றிதழ் எப்போதும் ஏற்கப்படவில்லை என்றால், அதை வழங்கியவர் அதை திரும்பப்பெறல் பட்டியலுடன் சேர்ப்பதன் மூலம் அதனைத் திரும்பப் பெற முடியும், அதன் பிறகு இந்த சான்றிதழானது உங்கள் உலாவியினால் என்றும் நம்பப்படுவதாக இருக்காது. திரும்பப் பெறல் நிலையை காலாவதியான சான்றிதழ்களுக்கு கடைபிடிக்கத் தேவையில்லை, ஆகவே இந்த சான்றிதழ் நீங்கள் பார்க்கும் வலைத்தளத்தை செல்லுபடியாக்குவதற்கு பயன்படுகிறது, இந்தப் புள்ளியில் சான்றிதழ் ஏற்றுக்கொள்ளப்பட்டதையும் அடுத்தடுத்து திரும்பப்பெற்றதையும் அல்லது அது இன்னும் பாதுகாப்பானதாக உள்ளதா என்பதையும் கண்டுபிடிக்க முடியாது. நீங்கள் முறையான வலைத்தளத்துடன் தொடர்புகொண்டுள்ளீர்களா, அல்லது சான்றிதழ் ஏற்றுக்கொள்ளப்பட்டதா என்பதையும், நீங்கள்  இப்பொழுது தொடர்புகொண்டுள்ளது தாக்குதல் ஏற்படுத்துபவருடையதா என்பதையும் சொல்ல இயலாது.  நீங்கள் இந்தப் புள்ளியை மீறி கண்டிப்பாக தொடரக் கூடாது.</translation>
@@ -504,6 +528,7 @@
 <translation id="4890855023395992542">சேவை URL:</translation>
 <translation id="2814489978934728345">இந்த பக்கத்தை நினைவேற்றுவதை நிறுத்து</translation>
 <translation id="2354001756790975382">பிற புக்மார்க்ஸ்</translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/> புதுப்பிக்கப்பட்டது</translation>
 <translation id="641480858134062906"><ph name="URL"/> நினவேறுவதில் தோல்வியடைந்தது</translation>
 <translation id="3693415264595406141">கடவுச்சொல்:</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/> ஐ இயல்புநிலை தேடுபொறியாக வைத்துக்கொள்</translation>
@@ -525,6 +550,7 @@
 <translation id="345693547134384690">&amp;படத்தை புதிய தாவலில் திற</translation>
 <translation id="1375198122581997741">பதிப்பைப் பற்றி</translation>
 <translation id="1474307029659222435">சட்டகத்தை புதிய &amp;சாளரத்தில் திற</translation>
+<translation id="3527085408025491307">கோப்புறை</translation>
 <translation id="3169621169201401257">இந்த கூறுகளுடனான சிக்கல்கள் குறித்த விவரமான தகவலுக்கு, <ph name="DOMAIN"/> க்கான Google <ph name="DIAGNOSTIC_PAGE"/> ஐ பார்வையிடுக.</translation>
 <translation id="2559292239863842334">பிற தளங்களில் நீங்கள் அதிகமாக அடிக்கடிப் பயன்படுத்தும் தேடல் பெட்டிகள் இங்கு தோன்றும்.</translation>
 <translation id="770015031906360009">கிரேக்கம்</translation>
@@ -532,6 +558,7 @@
 <translation id="884923133447025588">திரும்பப்பெறுதல் செயல்முறை காணப்படவில்லை.</translation>
 <translation id="9170848237812810038">&amp;செயல்தவிர்</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729"><ph name="VERSION"/> க்கு <ph name="PRODUCT_NAME"/> புதுப்பிக்கப்பட்டது</translation>
 <translation id="9154176715500758432">இந்தப் பக்கத்திலேயே இருக்க</translation>
 <translation id="5875565123733157100">பிழை வகை:</translation>
 <translation id="2440604414813129000">ஆ&amp;தாரத்தைக் காண்பி</translation>
@@ -558,6 +585,7 @@
 <translation id="4745142959976410383">இந்த கோரிக்கையை நீங்கள் தொடங்கவில்லை எனில், அது உங்கள் கணினியின் மீதான ஒரு தாக்குதல் முயற்சியைக் குறிக்கலாம். இந்த கோரிக்கையைத் தொடங்க நீங்கள் வெளிப்படையான நடவடிக்கை எதுவும் எடுக்காதவரை ரத்துசெய் என்பதை அழுத்த வேண்டும்.</translation>
 <translation id="8288345061925649502">தேடு பொறியை மாற்று</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> நொடிகள்</translation>
+<translation id="6652942492341627832">ஒரே மாதிரியான புலங்களில் தட்டச்சு செய்யப்பட்ட உரையைச் சேமித்துக் காண்பி</translation>
 <translation id="5139955368427980650">&amp;திற</translation>
 <translation id="746319800473277382">தளத்தின் முகப்புப் பக்கத்திற்குச் செல்க:</translation>
 <translation id="8562413501751825163">இறக்குமதி செய்யும் முன்பு Firefox ஐ மூடுக</translation>
@@ -567,6 +595,7 @@
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="3891357445869647828">JavaScript ஐ செயலாக்குக</translation>
 <translation id="6451458296329894277">படிவ மறுசமர்ப்பிப்பை உறுதிசெய்க</translation>
+<translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
 <translation id="5116333507878097773"><ph name="NUMBER_ONE"/> மணி நேரம்</translation>
 <translation id="1851266746056575977">இப்போது புதுப்பி</translation>
 <translation id="9065203028668620118">திருத்து</translation>
@@ -580,6 +609,7 @@
 <translation id="1485146213770915382">தேடல் சொற்கள் தோன்ற வேண்டிய URL இல் <ph name="SEARCH_TERMS_LITERAL"/> ஐ செருகுங்கள்.</translation>
 <translation id="5626134646977739690">பெயர்:</translation>
 <translation id="7125953501962311360">இயல்புநிலை உலாவி:</translation>
+<translation id="721197778055552897">இந்த சிக்கல் குறித்து <ph name="BEGIN_LINK"/>மேலும் அறிக<ph name="END_LINK"/>.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">இந்த சட்டகம் சில பாதுகாப்பாற்ற உள்ளடக்கத்தைக் கொண்டுள்ளதால் தடுக்கப்பட்டது.</translation>
 <translation id="8112223930265703044">அனைத்தும்</translation>
@@ -589,6 +619,7 @@
 <translation id="486595306984036763">ஃபிஷிங் புகாரைத் திற</translation>
 <translation id="1568162916422682473">பின்வரும் செருகுநிரல் சிதைந்துவிட்டது : <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">இயல்புநிலைக்கு மீட்டமை</translation>
+<translation id="8116972784401310538">&amp;புக்மார்க் நிர்வாகி</translation>
 <translation id="6040143037577758943">மூடுக</translation>
 <translation id="4910619056351738551">இதோ சில பரிந்துரைகள்:</translation>
 <translation id="7451556917824271099">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; இல் உள்ள வலைத்தளமானது, &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; தளத்திலிருந்து தீம்பொருள் என சந்தேகிக்கக்கூடிய கூறுகளைக் கொண்டுள்ளது – அது உங்கள் கணினிக்கு தீங்கிழைக்கலாம் அல்லது உங்கள் அனுமதியின்றி இயங்கலாம்.  தீம்பொருளைக் கொண்டுள்ள ஒரு தளத்தை பார்வையிட்டாலும் கூட உங்கள் கணினிக்கு பாதிப்பு ஏற்படலாம்.</translation>
@@ -599,6 +630,7 @@
 <translation id="7442246004212327644">அ&amp;ழி</translation>
 <translation id="9002707937526687073">அ&amp;ச்சிடு...</translation>
 <translation id="5556459405103347317">மீண்டும் நினைவேற்றுக</translation>
+<translation id="7727721885715384408">மறுபெயரிடு...</translation>
 <translation id="5508407262627860757">இருப்பினும் ரத்துசெய்</translation>
 <translation id="7587108133605326224">பால்டிக்</translation>
 <translation id="8598751847679122414">வலைப்பக்கத்தில் ஒரு திருப்பிவிடல் சுழற்சி உள்ளது.</translation>
@@ -623,7 +655,7 @@
 <translation id="3761000923495507277">கருவிப்பட்டியில் முகப்புப் பொத்தானைக் காண்பி</translation>
 <translation id="8709969075297564489">சர்வர் சான்றிதழ் திரும்பப்பெறப்பட்டதா என சரிபார்</translation>
 <translation id="5869522115854928033">சேமிக்கப்பட்ட கடவுச்சொற்கள்</translation>
-<translation id="1709220265083931213">அடிப்படைக் காரணங்கள்</translation>
+<translation id="1709220265083931213">மேம்பட்ட விருப்பத்தேர்வுகள்</translation>
 <translation id="4771973620359291008">அறியப்படாத பிழை ஏற்பட்டுள்ளது.</translation>
 <translation id="8155798677707647270">புதிய பதிப்பை நிறுவுகிறது...</translation>
 <translation id="6886871292305414135">இணைப்பை புதிய &amp;தாவலில் திற</translation>
@@ -664,6 +696,7 @@
 <translation id="7447718177945067973">சேவையகத்தைக் கண்டுபிடிக்க இயலவில்லை.</translation>
 <translation id="715468010956678290">மறை&amp;நிலை சாளரத்தில் சட்டகத்தைத் திற</translation>
 <translation id="7755167023778553803">இருப்பினும், இந்த பக்கமானது, அடையாளம் சரிபார்க்க முடியாத பிற வலைத்தளங்களிலிருந்தும் ஆதரங்களைக் கொண்டுள்ளது.</translation>
+<translation id="1273291576878293349">மறைநிலை சாளரத்தில் அனைத்து புக்மார்க்ஸையும் திற</translation>
 <translation id="3455546154539383562">நீங்கள் &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; ஐ அடைய முயற்சி செய்தீர்கள், ஆனால் அந்த சர்வர் வழங்கிய சான்றிதழ், அதனை வழங்கியவரால் திரும்பப் பெறப்பட்டது. இதன் பொருள், சர்வர் வழங்கிய பாதுகாப்பு நம்பிக்கைச்சான்றுகளை கண்டிப்பாக நம்பக்கூடாது என்பதாகும். நீங்கள் ஒரு தாக்குதல் நடத்துபவருடன் தொடர்புகொள்ளலாம். நீங்கள் தொடரக்கூடாது.</translation>
 <translation id="1177437665183591855">தெரியாத சர்வர் சான்றிதழ் பிழை</translation>
 <translation id="3737554291183722650">பக்க தலைப்பு:</translation>

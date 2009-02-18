@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Atlikti iš naujo</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Puslapio &amp;informacija</translation>
 <translation id="528468243742722775">Pabaiga</translation>
 <translation id="1723824996674794290">&amp;Naujas langas</translation>
 <translation id="7567293639574541773">P&amp;atikrinti elementą</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Tvarkyti</translation>
 <translation id="254416073296957292">&amp;Kalbos nustatymai...</translation>
 <translation id="4222982218026733335">Negaliojantis serverio sertifikatas</translation>
-<translation id="495091556140548787">Neseniai uždaryti skirtukai</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jums taikomas svetimas vardas<ph name="END_BOLD"/>. Kai tik uždarote šį nežinomą langą, šiame lange peržiūrėti puslapiai nebus įrašomi į naršyklės retrospektyvą ar paieškos retrospektyvą bei kompiuteryje nepaliks jokių kitų programų, pvz. slapukų. Tačiau bus išsaugoti atsisiųsti failai ar sukurtos žymos.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Svetimo vardo taikymas neturi įtakos kitiems asmenims, serveriams ar programinei įrangai. Saugokitės:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>svetainių, kurios renka ar platina informaciją apie jus<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>interneto paslaugos teikėjų ar darbdavių, kurie stebi, kuriuos puslapius peržiūrite<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>kenkėjiškos programinės įrangos, kuri siūlydama nemokamą šypsniukų paslaugą fiksuoja klavišų paspaudimus<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>slaptųjų agentų sekimo<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>už nugaros stovinčių asmenų<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Sužinokite daugiau<ph name="END_LINK"/> apie naršymą svetimu vardu.</translation>
 <translation id="1813414402673211292">Išvalyti naršymo duomenis</translation>
 <translation id="2356762928523809690">Naujinimo serveris nepasiekiamas (klaida: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Įkelti paveikslėlius automatiškai</translation>
 <translation id="7227780179130368205">Pastebėta kenkėjiška programa!</translation>
 <translation id="3942946088478181888">Padėkite man suprasti</translation>
-<translation id="1586296736502814947">(Negalimi jokie veiksmai)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Numatytasis)</translation>
 <translation id="111844081046043029">Ar tikrai norite išeiti iš šio puslapio?</translation>
 <translation id="4497415007571823067">Bandėte pasiekti &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, tačiau iš tikrųjų pasiekėte serverį, prisistačiusį kaip &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Tai galėjo atsitikti dėl netinkamos serverio konfigūracijos arba dėl rimtesnės priežasties.  Galbūt jūsų tinkle esantis kompiuterių piratas bando priversti jus aplankyti netikrą (ir greičiausiai pavojingą) puslapio &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; kopiją. Kitų veiksmų atlikti neturėtumėte.</translation>

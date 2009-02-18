@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Újra</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Oldal&amp;információk</translation>
 <translation id="528468243742722775">Befejezés</translation>
 <translation id="1723824996674794290">&amp;Új ablak</translation>
 <translation id="7567293639574541773">E&amp;lem kivizsgálása</translation>
@@ -115,7 +114,7 @@
 <translation id="7615851733760445951">&lt;nincs kiválasztott cookie&gt;</translation>
 <translation id="3660179305079774227">Felfelé nyíl</translation>
 <translation id="7400418766976504921">URL</translation>
-<translation id="68541483639528434">Egyéb lapok bezárása</translation>
+<translation id="68541483639528434">A többi lap bezárása</translation>
 <translation id="2897878306272793870">Biztosan meg szeretne nyitni <ph name="TAB_COUNT"/> lapot?</translation>
 <translation id="362276910939193118">Minden előzmény megjelenítése</translation>
 <translation id="1635247229519770914">Telepítés folytatása</translation>
@@ -123,7 +122,7 @@
 <translation id="5872213955895293073">JavaScript hibaelhárítás</translation>
 <translation id="5903264686717710770">Megszólítás:</translation>
 <translation id="8899851313684471736">Link megnyitása új &amp;ablakban</translation>
-<translation id="6686490380836145850">Zárja a lapokat jobbra</translation>
+<translation id="6686490380836145850">Jobbra lévő lapok bezárása</translation>
 <translation id="5608669887400696928"><ph name="NUMBER_DEFAULT"/> óra</translation>
 <translation id="3990502903496589789">Jobb sarok</translation>
 <translation id="5303890401939113396">A JavaScript hibajavító megszakadt</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Szerkesztés</translation>
 <translation id="254416073296957292">&amp;Nyelvi beállítások...</translation>
 <translation id="4222982218026733335">A szervezet tanúsítványa érvénytelen</translation>
-<translation id="495091556140548787">Nemrégiben bezárt lapok</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ön inkognitóra váltott<ph name="END_BOLD"/>. Az inkognitóablakban megtekintett oldalak nem jelennek meg böngészője előzményeiben, illetve keresési előzményeiben, és nem hagynak más nyomot pl. cookie-t sem a számítógépén az inkognitóablak bezárását követően. A letöltött fájlok, valamint a létrehozott könyvjelzők azonban megmaradnak.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Az inkognitó üzemmód nem befolyásolja a többi felhasználó, szerver vagy szoftver viselkedését. Ügyeljen a következőkre:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan webhelyek, amelyek információt gyűjtenek vagy osztanak meg Önről<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan internetszolgáltatók vagy alkalmazottaik, akik nyomon követik az Ön által látogatott oldalakat<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan kártékony szoftverek, amelyek ingyenes hangulatjelekért cserébe nyomon követik billentyűbeviteleit<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Titkos ügynökök megfigyelése<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Az Ön mögött álló emberek<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>További tájékoztatás<ph name="END_LINK"/> az inkognitóban történő böngészésről.</translation>
 <translation id="1813414402673211292">Böngészési adatok törlése</translation>
 <translation id="2356762928523809690">A szerver frissítése nem érhető el (hiba: <ph name="ERROR_NUMBER"/>)</translation>
@@ -367,7 +365,6 @@
 <translation id="3268761268932257769">Képek betöltése automatikusan</translation>
 <translation id="7227780179130368205">Ártalmas programot észleltünk!</translation>
 <translation id="3942946088478181888">Segítsenek, hogy megérthessem</translation>
-<translation id="1586296736502814947">(Nincs elérhető művelet)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Alapértelmezett)</translation>
 <translation id="111844081046043029">Biztos, hogy el szeretné hagyni ezt az oldalt?</translation>
 <translation id="4497415007571823067">Megpróbálta elérni a(z) &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; szervert, de valójában a magát &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; néven azonosító szerverrel lépett kapcsolatba. Ennek az oka a szerver helytelen konfigurálása is lehet, de előfordulhat, hogy egy súlyosabb problémáról van szó. Előfordulhat, hogy egy támadó megpróbálta Önnel meglátogattatni a(z) &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; egy hamis (és esetlegesen ártalmas) verzióját. Nem javasoljuk, hogy folytassa.</translation>

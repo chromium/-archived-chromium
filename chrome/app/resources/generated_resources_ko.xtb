@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Insert</translation>
 <translation id="2972581237482394796">다시 실행(&amp;R)</translation>
 <translation id="6135826906199951471">삭제</translation>
-<translation id="3842377959466606212">페이지 정보(&amp;i)</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">새 창(&amp;N)</translation>
 <translation id="7567293639574541773">요소 검사(&amp;n)</translation>
@@ -155,7 +154,7 @@
 <translation id="5965640700983474726">검색어 입력</translation>
 <translation id="5904714272463161824">버그 및 깨진 웹사이트 신고하기...(&amp;R)</translation>
 <translation id="1608306110678187802">프레임 인쇄...(&amp;r)</translation>
-<translation id="4948468046837535074">페이지 설정:</translation>
+<translation id="4948468046837535074">페이지 목록:</translation>
 <translation id="6978121630131642226">검색엔진</translation>
 <translation id="7012108905414904806">그러나 이 페이지에는 안전하지 않은 다른 자료도 포함되어 있습니다. 이러한 자료는 전송 중에 다른 사용자에게 노출될 수 있으며, 해커에 의해 조작될 경우 페이지의 모양이나 움직임이 변경될 수도 있습니다.</translation>
 <translation id="4515911410595374805">이 페이지의 일부 요소는 통합 소스에서 가져온 것이므로 표시되지 않았습니다.</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">설정</translation>
 <translation id="254416073296957292">&amp;언어 설정...</translation>
 <translation id="4222982218026733335">유효하지 않은 서버 인증서</translation>
-<translation id="495091556140548787">최근 닫은 탭</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>시크릿 모드로 바뀌었습니다<ph name="END_BOLD"/>. 시크릿 창에서 연 페이지는 브라우저의 웹 기록이나 검색 기록에 나타나지 않으며 창을 닫은 후에는 쿠키 같은 기록을 컴퓨터에 남기지 않습니다. 그러나 다운로드한 파일이나 작성한 북마크는 저장됩니다.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>시크릿 모드는 다른 사용자나 서버 또는 소프트웨어의 동작에 영향을 주지 않습니다. 주의:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>사용자 정보를 수집하고 공유하는 사이트<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>사용자가 방문한 페이지를 추적하는 인터넷 서비스 제공업체 또는 기업<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>무료 이모티콘을 제공하고 사용자의 키보드 입력을 추적하는 악성 소프트웨어<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>스파이의 감시<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>뒤에 서 있는 사람<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        시크릿 검색에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
 <translation id="1813414402673211292">인터넷 사용정보 삭제</translation>
 <translation id="2356762928523809690">서버를 업데이트할 수 없습니다(오류: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">이미지 자동 로드</translation>
 <translation id="7227780179130368205">악성코드가 감지되었습니다.</translation>
 <translation id="3942946088478181888">자세한 정보</translation>
-<translation id="1586296736502814947">(가능한 작업이 없음)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/>(기본)</translation>
 <translation id="111844081046043029">이 페이지에서 벗어나시겠습니까?</translation>
 <translation id="4497415007571823067">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 실제는 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;라는 서버에 도달했습니다. 이는 서버의 구성 오류나 이보다 심각한 어떤 원인 때문인 것으로 보입니다. 사용 중인 네트워크에 침입한 해커가 &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;의 허위 버전이나 잠재 위험이 있는 버전에 방문하도록 유도한 것일 수 있습니다. 더 이상 진행하지 않는 것이 좋습니다.</translation>
@@ -466,7 +463,7 @@
 <translation id="2822854841007275488">아랍어</translation>
 <translation id="2815448242176260024">비밀번호 저장 안 함</translation>
 <translation id="2666092431469916601">맨 위</translation>
-<translation id="4047498523333824092">가장 최근에 열어본 페이지</translation>
+<translation id="4047498523333824092">이전 종료 시 열려있던 페이지</translation>
 <translation id="6503077044568424649">자주 방문한 페이지</translation>
 <translation id="1040471547130882189">플러그인 응답없음</translation>
 <translation id="790025292736025802"><ph name="URL"/>을(를) 찾을 수 없습니다.</translation>
@@ -474,7 +471,7 @@
 <translation id="3319048459796106952">새 시크릿 창(&amp;I)</translation>
 <translation id="4195643157523330669">새 탭에서 열기</translation>
 <translation id="4178055285485194276">시작 페이지:</translation>
-<translation id="1154228249304313899">페이지 설정:</translation>
+<translation id="1154228249304313899">페이지 목록:</translation>
 <translation id="3627588569887975815">시크릿(&amp;g) 창에서 링크 열기</translation>
 <translation id="5578327870501192725"><ph name="DOMAIN"/>에 대한 연결은 <ph name="BIT_COUNT"/>비트 암호로 암호화됩니다.</translation>
 <translation id="7079333361293827276">서버의 인증서를 신뢰할 수 없음</translation>

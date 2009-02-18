@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Insér.</translation>
 <translation id="2972581237482394796">&amp;Rétablir</translation>
 <translation id="6135826906199951471">Suppr</translation>
-<translation id="3842377959466606212">&amp;Infos sur la page</translation>
 <translation id="528468243742722775">Fin</translation>
 <translation id="1723824996674794290">&amp;Nouvelle fenêtre</translation>
 <translation id="7567293639574541773">I&amp;nspecter l'élément</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Gérer</translation>
 <translation id="254416073296957292">&amp;Paramètres linguistiques...</translation>
 <translation id="4222982218026733335">Certificat serveur invalide</translation>
-<translation id="495091556140548787">Onglets récemment fermés</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Vous êtes passé en navigation privée<ph name="END_BOLD"/>. Les pages que vous consultez dans cette fenêtre n'apparaîtront ni dans l'historique de votre navigateur ni dans l'historique des recherches, et ne laisseront aucune trace (comme les cookies) sur votre ordinateur une fois que vous aurez fermé la fenêtre de navigation privée. Tous les fichiers téléchargés et les favoris créés seront toutefois conservés.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Passer en navigation privée n'a aucun effet sur les autres utilisateurs, serveurs ou logiciels. Méfiez-vous :<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>des sites Web qui collectent ou partagent des informations vous concernant ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des fournisseurs d'accès Internet ou des employeurs qui conservent une trace des pages que vous visitez ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des programmes indésirables qui enregistrent vos frappes en échange d'émoticônes gratuites ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des agents secrets ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des personnes qui se tiennent derrière vous.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>En savoir plus<ph name="END_LINK"/> sur la navigation privée.</translation>
 <translation id="1813414402673211292">Effacer les données de navigation</translation>
 <translation id="2356762928523809690">Serveur de mise à jour non disponible (erreur : <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Charger automatiquement les images</translation>
 <translation id="7227780179130368205">Un logiciel malveillant a été détecté !</translation>
 <translation id="3942946088478181888">Plus d'informations</translation>
-<translation id="1586296736502814947">(Aucune action possible)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (défaut)</translation>
 <translation id="111844081046043029">Voulez-vous vraiment quitter cette page ?</translation>
 <translation id="4497415007571823067">Vous avez tenté d'accéder à &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mais, au lieu de cela, vous communiquez actuellement avec un serveur identifié comme &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Cela est peut-être dû à un défaut de configuration du serveur ou à quelque chose de plus grave. Un pirate informatique sur votre réseau cherche peut-être à vous faire visiter une version falsifiée de <ph name="DOMAIN3"/>&lt;/strong&gt;, qui est potentiellement préjudiciable. Ne poursuivez pas.</translation>

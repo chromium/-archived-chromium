@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;ทำซ้ำ</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">&amp;ข้อมูลหน้าเว็บ</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;หน้าต่างใหม่</translation>
 <translation id="7567293639574541773">&amp;ตรวจสอบองค์ประกอบ</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">จัดการ</translation>
 <translation id="254416073296957292">&amp;การตั้งค่าภาษา...</translation>
 <translation id="4222982218026733335">ใบรับรองของเซิร์ฟเวอร์ไม่ถูกต้อง</translation>
-<translation id="495091556140548787">แท็บที่เพิ่งปิด</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>คุณกำลังเข้าชมแบบไม่ระบุตัวตน<ph name="END_BOLD"/> หน้าเว็บที่คุณดูในหน้าต่างนี้จะไม่ปรากฏในประวัติของเบราว์เซอร์หรือประวัติการเข้าชม และจะไม่ทิ้งร่องรอยใดๆ ไว้เหมือนกับคุกกี้ในคอมพิวเตอร์ของคุณหลังจากที่คุณปิดหน้าต่างที่ไม่ระบุตัวตน อย่างไรก็ตาม ไฟล์ที่คุณดาวน์โหลดหรือสร้างบุ๊คมาร์คจะถูกเก็บไว้        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>การเข้าชมแบบไม่ระบุตัวตนจะไม่ส่งผลต่อพฤติกรรมของบุคคลอื่น เซิร์ฟเวอร์ หรือซอฟต์แวร์ ควรระวัง: <ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>เว็บไซต์ที่รวบรวมหรือแบ่งปันข้อมูลเกี่ยวกับตัวคุณ <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ผู้ให้บริการอินเทอร์เน็ตหรือนายจ้างที่ติดตามหน้าเว็บไซต์ที่คุณเยี่ยมชม <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ซอฟต์แวร์ที่เป็นอันตรายซึ่งติดตามการเคาะแป้นพิมพ์ของคุณเพื่อแลกกับสไมลี่ฟรี   <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>การตรวจตราจากเจ้าหน้าที่สืบราชการลับ<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>บุคคลที่ยืนอยู่ด้านหลังคุณ<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>เรียนรู้เพิ่มเติม<ph name="END_LINK"/> เกี่ยวกับการเรียกดูเว็บโดยไม่เปิดเผยตัวตน</translation>
 <translation id="1813414402673211292">ลบข้อมูลที่เรียกดู</translation>
 <translation id="2356762928523809690">ไม่สามารถอัปเดตเซิร์ฟเวอร์ได้ (ข้อผิดพลาด: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">โหลดรูปภาพโดยอัตโนมัติ</translation>
 <translation id="7227780179130368205">ตรวจพบมัลแวร์!</translation>
 <translation id="3942946088478181888">ทำความเข้าใจ</translation>
-<translation id="1586296736502814947">(ปฏิบัติการไม่ได้)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (ค่าเริ่มต้น)</translation>
 <translation id="111844081046043029">คุณแน่ใจหรือไม่ว่าต้องการออกจากหน้านี้</translation>
 <translation id="4497415007571823067">คุณพยายามเข้าถึง &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; แต่คุณกลับเข้าถึงเซิร์ฟเวอร์ที่ระบุว่าตนเองเป็น &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; แทน ซึ่งอาจเกิดจากการกำหนดค่าที่ไม่ถูกต้องในเซิร์ฟเวอร์หรือสาเหตุอื่นที่ร้ายแรงกว่า ผู้โจมตีในเครือข่ายของคุณอาจพยายามที่จะให้คุณเข้าชม &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; รุ่นปลอมแปลง (และอาจก่อให้เกิดอันตราย) คุณไม่ควรดำเนินการต่อ</translation>

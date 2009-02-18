@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Понови радњу</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">&amp;Информације о страници</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;Нови прозор</translation>
 <translation id="7567293639574541773">И&amp;спитај елемент</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Управљај</translation>
 <translation id="254416073296957292">&amp;Подешавања језика...</translation>
 <translation id="4222982218026733335">Неважећи сертификат сервера</translation>
-<translation id="495091556140548787">Недавно затворене картице</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Пребацили сте се на „Без архивирања“<ph name="END_BOLD"/>. Странице које буду приказане у овом прозору неће се појавити у историји вашег прегледача ни у историји претраге, нити ће оставити било какве друге трагове, рецимо колачиће, на вашем рачунару након што затворите прозор „Без архивирања“. Међутим, све датотеке које будете преузели и обележивачи које направите биће сачувани.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Ако се пребаците на „Без архивирања“, то неће утицати на понашање других особа, сервера и софтвера. Заштитите се од:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>веб сајтова који прикупљају или деле информације о вама<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>добављача интернет услуга или послодаваца који прате странице које посећујете<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>злонамерног софтвера који прати оно што куцате на тастатури, а за узврат добијате бесплатне смајлије<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>праћење од стране тајних агената<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>особа које стоје иза вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Сазнајте више<ph name="END_LINK"/> о прегледању без архивирања.</translation>
 <translation id="1813414402673211292">Брисање података прегледања</translation>
 <translation id="2356762928523809690">Сервер за ажурирање није доступан (грешка: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Аутоматски учитај слике</translation>
 <translation id="7227780179130368205">Откривен је малвер!</translation>
 <translation id="3942946088478181888">Помоћ у разумевању</translation>
-<translation id="1586296736502814947">(Није могућа ниједна радња)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (подразумевано)</translation>
 <translation id="111844081046043029">Желите ли заиста да напустите ову страницу?</translation>
 <translation id="4497415007571823067">Покушали сте да дођете до домена &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, али уместо тога сте дошли на сервер који се идентификује као &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Ово може да буде проузроковано погрешном конфигурацијом на серверу или нечим још озбиљнијим. Неки нападач на вашој мрежи можда покушава да вас наведе да посетите лажну (и потенцијално опасну) верзију домена &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Не би требало да наставите.</translation>

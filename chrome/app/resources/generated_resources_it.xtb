@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Ripeti</translation>
 <translation id="6135826906199951471">Canc</translation>
-<translation id="3842377959466606212">&amp;Informazioni pagina</translation>
 <translation id="528468243742722775">Fine</translation>
 <translation id="1723824996674794290">&amp;Nuova finestra</translation>
 <translation id="7567293639574541773">Ispeziona eleme&amp;nto</translation>
@@ -243,7 +242,6 @@
 <translation id="3810973564298564668">Gestisci</translation>
 <translation id="254416073296957292">Impostazioni di &amp;lingua...</translation>
 <translation id="4222982218026733335">Certificato del server non valido</translation>
-<translation id="495091556140548787">Schede chiuse di recente</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sei passato alla navigazione in incognito<ph name="END_BOLD"/>. Le pagine aperte in questa finestra non vengono registrate nella cronologia di navigazione o di ricerca, e non lasciano traccia sul tuo computer, ad esempio sotto forma di cookie, una volta chiusa la finestra. Tuttavia, qualsiasi file scaricato o preferito creato verrà conservato.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La navigazione in incognito non influisce sul comportamento di altri utenti, server o software. Diffida di:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Siti web che raccolgono o condividono informazioni su di te<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provider di servizi Internet o datori di lavoro che registrano le pagine da te visitate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software dannosi che registrano le sequenze di tasti da te utilizzate in cambio di smiley gratuiti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Agenti segreti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persone che ti stanno alle spalle<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Ulteriori informazioni<ph name="END_LINK"/> sulla navigazione in incognito.</translation>
 <translation id="1813414402673211292">Cancella dati di navigazione</translation>
 <translation id="2356762928523809690">Server di aggiornamento non disponibile (errore: <ph name="ERROR_NUMBER"/>)</translation>
@@ -323,7 +321,7 @@
 <translation id="59174027418879706">Attivati</translation>
 <translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
 <translation id="6659594942844771486">TAB</translation>
-<translation id="5452592754878692665">Modifica impostazioni Google Gears</translation>
+<translation id="5452592754878692665">Modifica impostazioni Gears</translation>
 <translation id="5316814419223884568">Cerca da qui</translation>
 <translation id="965674096648379287">Questa pagina web richiede dati che hai già inserito per essere visualizzata correttamente. Puoi inviare nuovamente tali dati, ma così facendo ripeterai le azioni precedentemente eseguite dalla pagina. Fai clic su Ricarica per reinviare i dati e visualizzare la pagina.</translation>
 <translation id="43742617823094120">In questo caso il certificato presentato al browser è stato revocato dall'autorità emittente. Ciò significa che l'integrità del certificato è stata compromessa e il certificato non è affidabile. Non procedere oltre questo punto.</translation>
@@ -370,7 +368,6 @@
 <translation id="3268761268932257769">Carica immagini automaticamente</translation>
 <translation id="7227780179130368205">Malware rilevato!</translation>
 <translation id="3942946088478181888">Ulteriori informazioni</translation>
-<translation id="1586296736502814947">(Nessuna azione possibile)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (predefinito)</translation>
 <translation id="111844081046043029">Vuoi uscire dalla pagina?</translation>
 <translation id="4497415007571823067">Hai tentato di accedere a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ma sei stato indirizzato a un server che si identifica come &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Questo problema potrebbe essere causato da un errore di configurazione sul server o da qualcosa di più grave. È possibile che qualcuno stia cercando di indirizzarti a una versione fasulla (e potenzialmente pericolosa) di &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Non procedere oltre.</translation>

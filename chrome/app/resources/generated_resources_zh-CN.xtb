@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">重做(&amp;R)</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">网页信息(&amp;I)</translation>
 <translation id="528468243742722775">结束</translation>
 <translation id="1723824996674794290">新窗口(&amp;N)</translation>
 <translation id="7567293639574541773">审查元素(&amp;N)</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">管理</translation>
 <translation id="254416073296957292">语言设置(&amp;L)...</translation>
 <translation id="4222982218026733335">服务器证书无效</translation>
-<translation id="495091556140548787">最近关闭的标签页</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>您已经隐身了<ph name="END_BOLD"/>。 您在此窗口查看的网页将不会显示在浏览器历史记录或搜索历史记录中，并且在您关闭隐身窗口后，这些网页也不会在您的计算机上留下其他记录，例如 Cookie。 不过，您下载的所有文件或创建的书签都会被保存。        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>隐身状态并不影响其他人、服务器或软件的行为。 请警惕：<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>收集或共享有关您的信息的网站<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您所访问的网页的互联网服务提供商或雇主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您为获取免费笑脸图标所用按键的恶意软件<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>间谍的监视<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>站在您身后的人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>了解<ph name="END_LINK"/>有关隐身浏览的详情。</translation>
 <translation id="1813414402673211292">清除浏览数据</translation>
 <translation id="2356762928523809690">无法获得更新服务器（错误：<ph name="ERROR_NUMBER"/>）</translation>
@@ -380,7 +378,6 @@
 <translation id="3268761268932257769">自动加载图片</translation>
 <translation id="7227780179130368205">检测到恶意软件！</translation>
 <translation id="3942946088478181888">帮助我理解</translation>
-<translation id="1586296736502814947">（无法采取任何操作）</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (预设)</translation>
 <translation id="111844081046043029">您确定要离开此页吗？</translation>
 <translation id="4497415007571823067"><ph name="DOMAIN"/><ph name="DOMAIN2"/> 可能是服务器配置有误，也可能更糟。 <ph name="DOMAIN3"/> 您不应再继续。</translation>

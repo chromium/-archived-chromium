@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Insert</translation>
 <translation id="2972581237482394796">やり直し(&amp;R)</translation>
 <translation id="6135826906199951471">Delete</translation>
-<translation id="3842377959466606212">ページ情報(&amp;I)</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">新しいウィンドウ(&amp;N)</translation>
 <translation id="7567293639574541773">要素を検証(&amp;N)</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">管理</translation>
 <translation id="254416073296957292">言語設定(&amp;L)...</translation>
 <translation id="4222982218026733335">無効なサーバー証明書です</translation>
-<translation id="495091556140548787">最近閉じたタブ</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>シークレット モードを使用中です<ph name="END_BOLD"/>。このウィンドウで開いたページはブラウザの履歴や検索履歴に残りません。このウィンドウを閉じると Cookie などの記録もパソコンから消去されます。ただし、ダウンロードしたファイルやブックマークしたページは保存されます。
         <ph name="LINE_BREAK"/>
         <ph name="BEGIN_BOLD"/>シークレット モードが他のユーザーやサーバー、ソフトウェアの動作に影響することはありません。なお、下記のようなケースにご注意ください。<ph name="END_BOLD"/>
@@ -376,7 +374,6 @@
 <translation id="3268761268932257769">画像の自動読み込み</translation>
 <translation id="7227780179130368205">不正なソフトウェアが検知されました</translation>
 <translation id="3942946088478181888">ヘルプ情報</translation>
-<translation id="1586296736502814947">(操作できません)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (既定)</translation>
 <translation id="111844081046043029">このページから移動してもよろしいですか？</translation>
 <translation id="4497415007571823067">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとして、実際には &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; と名乗るサーバーにアクセスしています。サーバー上で誤って設定されたか、またはより深刻な問題が発生している可能性があります。ご使用のネットワーク上で、悪意のあるユーザーが &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; の偽ドメイン (または有害なドメイン) へのアクセスを誘導している可能性があります。処理を続行しないでください。</translation>

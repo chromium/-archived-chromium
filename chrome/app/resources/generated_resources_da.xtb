@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Annuller fortryd</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Side &amp;info</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;Nyt vindue</translation>
 <translation id="7567293639574541773">Vis detaljer om eleme&amp;ntet</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Valgmuligheder</translation>
 <translation id="254416073296957292">&amp;Sprogindstillinger...</translation>
 <translation id="4222982218026733335">Ugyldigt servercertifikat</translation>
-<translation id="495091556140548787">Senest lukkede faner</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Du er nu inkognito<ph name="END_BOLD"/>. Sider, du ser i dette vindue, vil ikke fremgå af din browserhistorik eller søgehistorik, og de vil ikke efterlade andre spor, som f.eks. cookies, på din computer, efter du har lukket inkognitovinduet. Alle filer, du downloader, eller bogmærker, du opretter, vil dog blive bevaret.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Når du vælger at være inkognito, påvirker det ikke andre mennesker, servere eller software. Vær forsigtig med:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>websteder, der indsamler eller videregiver oplysninger om dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internetudbydere og arbejdsgivere, der sporer, hvilke sider du besøger<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ondsindet software, der sporer dine tasteanslag i bytte for gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>hemmelige agenter, der overvåger dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>mennesker, der kigger dig over skulderen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Få flere oplysninger<ph name="END_LINK"/> om inkognitobrowsing.</translation>
 <translation id="1813414402673211292">Ryd browserdata</translation>
 <translation id="2356762928523809690">Server til opdatering er ikke tilgængelig (fejl: <ph name="ERROR_NUMBER"/>)</translation>
@@ -367,7 +365,6 @@
 <translation id="3268761268932257769">Indlæs automatisk billeder</translation>
 <translation id="7227780179130368205">Skadevoldende programmer registreret!</translation>
 <translation id="3942946088478181888">Hjælp mig med at forstå dette</translation>
-<translation id="1586296736502814947">(Ingen mulig handling)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Standard)</translation>
 <translation id="111844081046043029">Er du sikker på, at du vil forlade denne side?</translation>
 <translation id="4497415007571823067">Du har forsøgt på at kontakte &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men i stedet har du fået kontakt med en server, der identificerer sig som &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Det kan skyldes en konfigurationsfejl på serveren eller noget andet og mere alvorligt. Det kan være en ondsindet part på dit netværk, som forsøger at få dig til at besøge en forfalsket (og potentielt skadelig) udgave af &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Du bør ikke fortsætte herfra.</translation>

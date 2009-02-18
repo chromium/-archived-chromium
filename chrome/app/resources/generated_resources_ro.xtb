@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins (Inseraţi)</translation>
 <translation id="2972581237482394796">&amp;Refaceţi</translation>
 <translation id="6135826906199951471">Del (Ştergeţi)</translation>
-<translation id="3842377959466606212">&amp;Informaţii despre pagină</translation>
 <translation id="528468243742722775">End (La sfârşit)</translation>
 <translation id="1723824996674794290">&amp;Fereastră nouă</translation>
 <translation id="7567293639574541773">I&amp;nspectaţi elementul</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Gestionaţi</translation>
 <translation id="254416073296957292">Setaţi &amp;limba...</translation>
 <translation id="4222982218026733335">Certificat de server nevalabil</translation>
-<translation id="495091556140548787">File închise recent</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aţi trecut în modul incognito<ph name="END_BOLD"/>. Paginile pe care le vedeţi în această fereastră nu vor apărea în istoricul browserului sau în istoricul căutării şi nu vor lăsa urme pe computer, cum ar fi cookie-uri, după ce închideţi fereastra incognito. Cu toate acestea, vor fi păstrate orice fişiere descărcate sau marcaje create.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Intrarea incognito nu afectează comportamentul altor persoane, servere sau aplicaţii software. Fiţi atent la:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Site-urile Web care colectează sau distribuie informaţii despre dvs.<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Furnizorii de servicii Internet sau angajaţii care urmăresc paginile pe care le vizitaţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Aplicaţiile software dăunătoare care urmăresc apăsarea tastelor în schimbul emoticoanelor gratuite<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Supravegherea de către agenţi secreţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persoanele care stau în spatele dvs.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Aflaţi mai multe<ph name="END_LINK"/> despre accesarea incognito.</translation>
 <translation id="1813414402673211292">Ştergeţi datele de navigare</translation>
 <translation id="2356762928523809690">Serverul de actualizare nu este disponibil (eroare: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Încărcaţi imaginile automat</translation>
 <translation id="7227780179130368205">A fost detectat malware!</translation>
 <translation id="3942946088478181888">Ajută-mă să înţeleg</translation>
-<translation id="1586296736502814947">(Nicio acţiune posibilă)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Prestabilit)</translation>
 <translation id="111844081046043029">Sigur doriţi să părăsiţi această pagină?</translation>
 <translation id="4497415007571823067">Aţi încercat să accesaţi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, dar aţi accesat de fapt un server autoidentificat ca &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Motivul ar putea fi o configurare greşită pe server sau ceva mai grav. Un atacator de pe reţeaua dvs. ar putea încerca să vă determine să accesaţi o versiune falsă (şi posibil rău-intenţionată) de &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Nu trebuie să mergeţi mai departe.</translation>

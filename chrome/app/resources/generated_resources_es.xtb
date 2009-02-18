@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Insert</translation>
 <translation id="2972581237482394796">&amp;Rehacer</translation>
 <translation id="6135826906199951471">Supr</translation>
-<translation id="3842377959466606212">&amp;Información de la página</translation>
 <translation id="528468243742722775">Fin</translation>
 <translation id="1723824996674794290">&amp;Nueva ventana</translation>
 <translation id="7567293639574541773">I&amp;nspeccionar elemento</translation>
@@ -21,7 +20,7 @@
 <translation id="6021004449668343960">Fuente Sans-Serif:</translation>
 <translation id="4422428420715047158">Dominio:</translation>
 <translation id="4021918302616263355">Buscar <ph name="SEARCH_TERMS"/> con <ph name="ENGINE"/></translation>
-<translation id="5376169624176189338">Haz clic para volver atrás o espera para ver el historial</translation>
+<translation id="5376169624176189338">Haz clic para retroceder una página o pulsa unos segundos para ver el historial</translation>
 <translation id="6310545596129886942">Faltan <ph name="NUMBER_FEW"/> segundos</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="1383861834909034572">Abrir cuando haya finalizado</translation>
@@ -97,12 +96,12 @@
 <translation id="2154710561487035718">Copiar URL</translation>
 <translation id="4244236525807044920">Cambiar la configuración de fuente e idioma</translation>
 <translation id="2679629658858164554">URL de página:</translation>
-<translation id="6746124502594467657">Mover hacia abajo</translation>
+<translation id="6746124502594467657">Bajar</translation>
 <translation id="3383487468758466563">Fuentes e idiomas:</translation>
 <translation id="6163363155248589649">&amp;Normal</translation>
 <translation id="3873963583678942942">(Sin título)</translation>
 <translation id="8725178340343806893">Favoritos/Marcadores</translation>
-<translation id="3605499851022050619">Página de diagnóstico de Safe Browsing</translation>
+<translation id="3605499851022050619">Página de diagnóstico de navegación segura</translation>
 <translation id="4307992518367153382">Básicas</translation>
 <translation id="5912378097832178659">&amp;Editar motores de búsqueda...</translation>
 <translation id="4813345808229079766">Conexión</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Administrar</translation>
 <translation id="254416073296957292">Configuración de &amp;idioma...</translation>
 <translation id="4222982218026733335">Certificado del servidor no válido</translation>
-<translation id="495091556140548787">Pestañas cerradas recientemente</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Has entrado en el modo &quot;Navegar de incógnito&quot;<ph name="END_BOLD"/>. Las páginas que consultes a través de esta ventana no quedarán registradas en el historial del navegador ni en el historial de búsquedas, y tampoco dejarán otros rastros en el equipo (como cookies) una vez cerrada. Aunque sí quedarán almacenados los archivos que descargues y los marcadores que guardes durante la sesión.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La función &quot;Navegar de incógnito&quot; no afecta al comportamiento de otros usuarios, servidores o programas. Atención con:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>sitios web que recopilan o comparten información personal,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>proveedores de servicios de Internet o trabajadores de estas empresas que supervisan las páginas que visita el usuario,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>software malicioso que realiza un seguimiento de las teclas que pulsa el usuario a cambio de unos emoticones gratuitos,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>el seguimiento por parte de detectives privados,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>personas merodeando cerca de tu equipo.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Más información<ph name="END_LINK"/> sobre la función &quot;Navegar de incógnito&quot;.</translation>
 <translation id="1813414402673211292">Eliminar datos de navegación</translation>
 <translation id="2356762928523809690">No es posible actualizar el servidor (error: <ph name="ERROR_NUMBER"/>)</translation>
@@ -287,7 +285,7 @@
 <translation id="6710213216561001401">Anterior</translation>
 <translation id="583281660410589416">Desconocido</translation>
 <translation id="5528368756083817449">Administrador de marcadores</translation>
-<translation id="1560991001553749272">Añadido a Marcadores.</translation>
+<translation id="1560991001553749272">Añadido a Marcadores</translation>
 <translation id="3966072572894326936">Seleccionar otra carpeta...</translation>
 <translation id="7781829728241885113">Ayer</translation>
 <translation id="7596288230018319236">Las páginas que visites aparecerán aquí a menos que las abras en una ventana de navegación de incógnito. Con el botón &quot;Buscar&quot; puedes buscar en las páginas de tu historial.</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Cargar imágenes automáticamente</translation>
 <translation id="7227780179130368205">Detectado software malintencionado.</translation>
 <translation id="3942946088478181888">Más información</translation>
-<translation id="1586296736502814947">(No es posible realizar ninguna acción)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (predeterminado)</translation>
 <translation id="111844081046043029">¿Estás seguro de que deseas abandonar esta página?</translation>
 <translation id="4497415007571823067">Has intentado acceder a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, pero en su lugar has llegado a un servidor que se identifica como &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Esto puede deberse a un error de configuración del servidor o a algún otro motivo más grave. Es posible que un atacante esté intentando obligarte a visitar una versión falsa (y potencialmente peligrosa) de &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. No deberías seguir adelante.</translation>
@@ -610,7 +607,7 @@
 <translation id="4910619056351738551">A continuación se detallan algunas sugerencias:</translation>
 <translation id="7451556917824271099">El sitio web de &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; contiene elementos del sitio &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, que parece alojar software malintencionado, es decir, software que puede dañar tu equipo o puede operar sin tu consentimiento. Tu equipo puede resultar infectado con solo visitar un sitio que aloje software malintencionado.</translation>
 <translation id="1232569758102978740">Sin título</translation>
-<translation id="9149866541089851383">Edición...</translation>
+<translation id="9149866541089851383">Editar...</translation>
 <translation id="7000311294523403548">Página web sin título</translation>
 <translation id="7649070708921625228">Ayuda</translation>
 <translation id="7442246004212327644">E&amp;liminar</translation>
@@ -654,7 +651,7 @@
 <translation id="8400147561352026160">Mayús+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3366404380928138336">Solicitud de protocolo externo</translation>
 <translation id="566920818739465183">Visitaste este sitio por primera vez el <ph name="VISIT_DATE"/>.</translation>
-<translation id="2961695502793809356">Haz clic para continuar o espera para ver el historial</translation>
+<translation id="2961695502793809356">Haz clic para avanzar una página o pulsa unos segundos para ver el historial</translation>
 <translation id="8421864404045570940"><ph name="NUMBER_DEFAULT"/> seg.</translation>
 <translation id="8689341121182997459">Caduca:</translation>
 <translation id="1857842694030005096">Más información sobre este error</translation>

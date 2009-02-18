@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">重做(&amp;R)</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">網頁資訊(&amp;I)</translation>
 <translation id="528468243742722775">結束</translation>
 <translation id="1723824996674794290">新增視窗(&amp;N)</translation>
 <translation id="7567293639574541773">檢查元素(&amp;N)</translation>
@@ -241,7 +240,6 @@
 <translation id="3810973564298564668">管理</translation>
 <translation id="254416073296957292">語言設定(&amp;L)...</translation>
 <translation id="4222982218026733335">無效的伺服器憑證</translation>
-<translation id="495091556140548787">最近關閉的分頁</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>您已採用無痕式瀏覽<ph name="END_BOLD"/>。 您在此視窗內檢視的網頁不會在瀏覽記錄或搜尋記錄中顯示，關閉無痕式視窗後，也不會在電腦上留下其他痕跡，例如 Cookie。 但是，您下載的任何檔案或建立的書籤都會保留下來。        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>無痕式瀏覽不會影響其他使用者、伺服器或軟體的行為。 請小心：<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>收集或共用關於您之資訊的網站<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>追蹤您造訪網頁的網際網路服務供應商或雇主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>以免費表情圖示騙取並追蹤按鍵組合的惡意軟體<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>秘密代理程式所進行的監控<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>站在您身後的人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>瞭解更多<ph name="END_LINK"/>關於無痕式瀏覽的資訊。</translation>
 <translation id="1813414402673211292">清除瀏覽資料</translation>
 <translation id="2356762928523809690">無法使用更新伺服器 (錯誤: <ph name="ERROR_NUMBER"/>)</translation>
@@ -368,7 +366,6 @@
 <translation id="3268761268932257769">自動載入影像</translation>
 <translation id="7227780179130368205">偵測到惡意程式!</translation>
 <translation id="3942946088478181888">進一步資訊</translation>
-<translation id="1586296736502814947">(無法採取行動)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (預設)</translation>
 <translation id="111844081046043029">您確定要離開此網頁嗎?</translation>
 <translation id="4497415007571823067">您嘗試到達 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，而您卻到達了一個自稱為 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; 的伺服器。這可能由於伺服器的錯誤設定，或更嚴重的原因。您網路中的攻擊者可能正嘗試讓您造訪假的 (甚至有可能造成潛在性危險的) &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;。您必須就此停住。</translation>
@@ -591,7 +588,7 @@
 <translation id="4881695831933465202">開啟</translation>
 <translation id="5981759340456370804">統計資料</translation>
 <translation id="6644971472240498405"><ph name="NUMBER_ONE"/> 天</translation>
-<translation id="6512448926095770873">離開此網頁</translation>
+<translation id="6512448926095770873">離開此頁</translation>
 <translation id="5607455023223000189">已安裝的外掛程式</translation>
 <translation id="494645311413743213">剩下 <ph name="NUMBER_TWO"/> 秒</translation>
 <translation id="1485146213770915382">在網址中應該出現搜尋字詞的位置插入 <ph name="SEARCH_TERMS_LITERAL"/>。</translation>

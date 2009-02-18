@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Redo</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Page &amp;info</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;New window</translation>
 <translation id="7567293639574541773">I&amp;nspect element</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Manage</translation>
 <translation id="254416073296957292">&amp;Language settings...</translation>
 <translation id="4222982218026733335">Invalid Server Certificate</translation>
-<translation id="495091556140548787">Recently closed tabs</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>You've gone incognito<ph name="END_BOLD"/>. Pages that you view in this window won't appear in your browser history or search history, and they won't leave other traces, like cookies, on your computer after you close the incognito window. Any files that you download or bookmarks that you create will be preserved, however.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Going incognito doesn't affect the behaviour of other people, servers or software. Be wary of:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites that collect or share information about you<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internet service providers or employers that track the pages that you visit<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Malicious software that tracks your keystrokes in exchange for free smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Surveillance by secret agents<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>People standing behind you<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Learn more<ph name="END_LINK"/> about incognito browsing.</translation>
 <translation id="1813414402673211292">Clear Browsing Data</translation>
 <translation id="2356762928523809690">Update server not available (error: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Load images automatically</translation>
 <translation id="7227780179130368205">Malware Detected!</translation>
 <translation id="3942946088478181888">Help me understand</translation>
-<translation id="1586296736502814947">(No action possible)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Default)</translation>
 <translation id="111844081046043029">Are you sure that you want to leave this page?</translation>
 <translation id="4497415007571823067">You attempted to reach &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, but instead you actually reached a server identifying itself as &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. This may be caused by a misconfiguration on the server or by something more serious. An attacker on your network could be trying to get you to visit a fake (and potentially harmful) version of &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. You should not proceed.</translation>

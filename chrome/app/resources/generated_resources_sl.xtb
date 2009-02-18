@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Uveljavi</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Informacije o &amp;strani</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;Novo okno</translation>
 <translation id="7567293639574541773">P&amp;reglej element</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Upravljanje</translation>
 <translation id="254416073296957292">&amp;Jezikovne nastavitve</translation>
 <translation id="4222982218026733335">Neveljaven certifikat strežnika</translation>
-<translation id="495091556140548787">Pred kratkim zaprti zavihki</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Zdaj se vaša dejanja ne beležijo v zgodovino<ph name="END_BOLD"/>. Strani, ki jih gledate v tem oknu, ne bodo zabeležene v zgodovini vašega brskalnika ali zgodovini iskanja in ko boste to okno zaprli, v vašem računalniku ne bodo puščale drugih sledi, na primer piškotkov. Vendar pa se bodo vaše prenesene datoteke in ustvarjeni zaznamki ohranili.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Stanje, ko se dejanja ne beležijo v zgodovino, ne vpliva na obnašanje drugih ljudi, strežnikov ali programske opreme. Bodite pozorni na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Spletna mesta, ki vaše podatke zbirajo ali dajejo v skupno rabo<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ponudnike internetnih storitev ali delodajalce, ki sledijo stranem, ki ste jih obiskali<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Zlonamerno programsko opremo, ki v zameno za brezplačne smeške zabeleži vse, kar natipkate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Nadzor tajnih agentov<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ljudi, ki stojijo za vami<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Več <ph name="END_LINK"/> o brskanju brez beleženja v zgodovino.</translation>
 <translation id="1813414402673211292">Počisti podatke brskanja</translation>
 <translation id="2356762928523809690">Strežnik za posodobitev ni na voljo (napaka: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Samodejno naloži slike</translation>
 <translation id="7227780179130368205">Zaznana je zlonamerna programska oprema!</translation>
 <translation id="3942946088478181888">Za lažje razumevanje</translation>
-<translation id="1586296736502814947">(Nobeno dejanje ni mogoče)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (privzeto)</translation>
 <translation id="111844081046043029">Ali ste prepričani, da želite zapustiti to stran?</translation>
 <translation id="4497415007571823067">Poskušali ste priti do &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, vendar pa ste namesto tega prišli do strežnika, ki se predstavlja za &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Do tega je morda prišlo zaradi napačne konfiguracije v strežniku ali pa zaradi nečesa resnejšega. Napadalec v vašem omrežju vas morda poskuša pripraviti do obiska lažne (in morda zlonamerne) različice domene &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Priporočamo vam, da ne nadaljujete.</translation>

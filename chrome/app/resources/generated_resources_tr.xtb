@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Yinele</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Sayfa &amp;bilgisi</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">Ye&amp;ni pencere</translation>
 <translation id="7567293639574541773">Öğeyi de&amp;netle</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Yönet</translation>
 <translation id="254416073296957292">&amp;Dil ayarları...</translation>
 <translation id="4222982218026733335">Geçersiz Sunucu Sertifikası</translation>
-<translation id="495091556140548787">Yeni kapatılan sekmeler</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Kimliğinizi gizlediniz<ph name="END_BOLD"/>. Bu pencerede görüntülediğiniz sayfalar tarayıcı geçmişinizde veya arama geçmişinizde görünmez ve gizli pencereyi kapattığınızda bilgisayarınızda çerezler gibi başka izler bırakmaz. Ancak indirdiğiniz dosyalar veya oluşturduğunuz yer imleri korunur.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Kimliğinizi gizlemeniz, diğer kullanıcıların, sunucuların veya yazılımın davranışını etkilemez. Dikkat etmeniz gerekenler:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Hakkınızda bilgi toplayan veya sizinle ilgili bilgileri paylaşan web siteleri<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ziyaret ettiğiniz sayfaları izleyen İnternet hizmet sağlayıcıları veya işverenler<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ücretsiz gülen suratlar karşılığında hangi tuşlara bastığınızı izleyen kötü amaçlı yazılımlar<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Gizli aracıların gözetimi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Arkanızda duran kişiler<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Gizli kimlikle tarama hakkında daha fazla bilgi<ph name="END_LINK"/>.</translation>
 <translation id="1813414402673211292">Tarama Verilerini Temizle</translation>
 <translation id="2356762928523809690">Güncelleme sunucusu kullanılamıyor (hata: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Resimleri otomatik olarak yükle</translation>
 <translation id="7227780179130368205">Kötü Amaçlı Yazılım Algılandı!</translation>
 <translation id="3942946088478181888">Daha fazla bilgi</translation>
-<translation id="1586296736502814947">(Eylem mümkün değil)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Varsayılan)</translation>
 <translation id="111844081046043029">Bu sayfadan ayrılmak istediğinizden emin misiniz?</translation>
 <translation id="4497415007571823067">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanına ulaşmayı denediniz, ancak aslında kendini &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; olarak tanımlayan bir sunucuya eriştiniz. Bunun nedeni, sunucudaki bir yapılandırma hatası veya daha ciddi başka bir sorun olabilir. Ağınızdaki bir saldırgan, &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; etki alanının sahte (ve büyük olasılıkla zararlı) bir sürümünü ziyaret etmenizi sağlamaya çalışıyor olabilir. İlerlememelisiniz.</translation>

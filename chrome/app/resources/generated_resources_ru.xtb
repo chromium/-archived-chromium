@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Повторить</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">&amp;Сведения о странице</translation>
 <translation id="528468243742722775">Завершить</translation>
 <translation id="1723824996674794290">&amp;Новое окно</translation>
 <translation id="7567293639574541773">П&amp;росмотр кода элемента</translation>
@@ -179,7 +178,7 @@
 <translation id="5710435578057952990">Идентификационные данные этого веб-сайта не проверены.</translation>
 <translation id="5287240709317226393">Показать файлы сookie</translation>
 <translation id="333371639341676808">Предотвратить создание дополнительных диалоговых окон на этой странице.</translation>
-<translation id="5844183150118566785"><ph name="PRODUCT_NAME"/> является самой свежей (<ph name="VERSION"/>)</translation>
+<translation id="5844183150118566785">Вы используете самую последнюю версию <ph name="PRODUCT_NAME"/> (<ph name="VERSION"/>).</translation>
 <translation id="7791543448312431591">Добавить</translation>
 <translation id="772440777491435074">Информация сертификата...</translation>
 <translation id="2869459179306435079">Импорт настроек из:</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Управление</translation>
 <translation id="254416073296957292">&amp;Настройки языка...</translation>
 <translation id="4222982218026733335">Недействительный сертификат сервера</translation>
-<translation id="495091556140548787">Недавно закрытые вкладки</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Вы перешли в режим инкогнито<ph name="END_BOLD"/>. Страницы, которые вы просматриваете в окне в режиме инкогнито, не появятся в истории вашего браузера или истории поиска, а также не оставят на вашем компьютере других следов, таких как файлы cookie, когда вы закроете это окно. Тем не менее, все файлы, которые вы загружаете, или закладки, которые вы создаете, останутся в целости и сохранности.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Переход в режим инкогнито не влияет на поведение других пользователей, серверов или программ. Опасайтесь:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Веб-сайтов, которые собирают информацию о вас или передают ее другим<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Поставщиков услуг Интернета или их сотрудников, которые отслеживают, какие страницы вы посещаете<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Вредоносного ПО, которое отслеживает нажатие клавиш клавиатуры в обмен на бесплатные смайлики<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Слежки тайными агентами<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Людей, которые стоят у вас за спиной<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Подробнее<ph name="END_LINK"/> о просмотре веб-страниц режиме инкогнито.</translation>
 <translation id="1813414402673211292">Очистить данные просмотров</translation>
 <translation id="2356762928523809690">Обновление сервера недоступно (ошибка: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Автоматически загружать картинки</translation>
 <translation id="7227780179130368205">Обнаружено вредоносное ПО!</translation>
 <translation id="3942946088478181888">Подробные сведения</translation>
-<translation id="1586296736502814947">(Действия недоступны)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (по умолчанию)</translation>
 <translation id="111844081046043029">Вы действительно хотите покинуть эту страницу?</translation>
 <translation id="4497415007571823067">Вы попытались открыть &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, однако фактически обратились к серверу, который указывает о себе следующие данные: &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Это может быть вызвано ошибками кофигурации сервера или более серьезными ошибками. Возможно, атакующий в сети пытается заставить вас посетить фальсифицированныую (и возможно вредоносную) версию &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Мы не рекомендуем продолжать далее.</translation>
@@ -461,7 +458,7 @@
 <translation id="6484929352454160200">Доступна новая версия <ph name="PRODUCT_NAME"/></translation>
 <translation id="7035824132811506448">Недавно добавлено</translation>
 <translation id="2371076942591664043">Открыть по &amp;завершении</translation>
-<translation id="6069278982995177296">Повторяющиеся</translation>
+<translation id="6069278982995177296">Дублировать</translation>
 <translation id="2979639724566107830">Открыть в новом окне</translation>
 <translation id="2822854841007275488">Арабская</translation>
 <translation id="2815448242176260024">Не сохранять пароли</translation>

@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;בצע שנית</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">פרטי&amp; דף</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;חלון חדש</translation>
 <translation id="7567293639574541773">בדוק מרכיב</translation>
@@ -149,7 +148,7 @@
 <translation id="8666066831007952346">נותרו <ph name="NUMBER_TWO"/> ימים</translation>
 <translation id="6390842777729054533">נותרו <ph name="NUMBER_ZERO"/> שניות</translation>
 <translation id="3909791450649380159">גז&amp;ור</translation>
-<translation id="2955913368246107853">סגור את סרגל האיתור</translation>
+<translation id="2955913368246107853">סגור את חלונית החיפוש</translation>
 <translation id="3122464029669770682">CPU</translation>
 <translation id="1684861821302948641">מחק דפים</translation>
 <translation id="5965640700983474726">הקלד לחיפוש</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">נהל</translation>
 <translation id="254416073296957292">&amp;הגדרות שפה...</translation>
 <translation id="4222982218026733335">אישור שרת לא תקף</translation>
-<translation id="495091556140548787">כרטיסיות שנסגרו לאחרונה</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>הפכת לגולש נסתר.<ph name="END_BOLD"/> דפים שאתה מציג בחלון זה לא יופיעו בהיסטוריית הדפדפן או בהיסטוריית החיפוש שלך, והם לא יותירו במחשב שלך כל עקבות, כגון קובצי cookie, לאחר שתסגור את חלון הגלישה בסתר. עם זאת, קבצים שתוריד או סימניות שתיצור יישמרו.        <ph name="LINE_BREAK"/>       גלישה בסתר אינה משפיעה על התנהגותם של אנשים, שרתים או תוכנות אחרים.<ph name="BEGIN_BOLD"/> היזהר מ: <ph name="END_BOLD"/>    <ph name="BEGIN_LIST"/>אתרים האוספים או משתפים מידע עליך<ph name="BEGIN_LIST_ITEM"/>      <ph name="END_LIST_ITEM"/>         <ph name="BEGIN_LIST_ITEM"/>ספקי שירותי אינטרנט או מעסיקים העוקבים אחר הדפים שבהם אתה מבקר<ph name="END_LIST_ITEM"/>         <ph name="BEGIN_LIST_ITEM"/>תוכנה זדונית העוקבת אחר הקשות המקשים שלך בתמורה ל'סמיילי' חינם  <ph name="BEGIN_LIST_ITEM"/> <ph name="END_LIST_ITEM"/>        <ph name="BEGIN_LIST_ITEM"/>מעקב באמצעות סוכנים מוסווים<ph name="END_LIST_ITEM"/>    אנשים שעומדים מאחוריך <ph name="BEGIN_LINK"/><ph name="END_LIST_ITEM"/>   <ph name="END_LIST"/>מידע נוסף<ph name="END_LINK"/> על גלישה בסתר.</translation>
 <translation id="1813414402673211292">הסר נתוני גלישה</translation>
 <translation id="2356762928523809690">שרת עדכונים אינו זמין (שגיאה: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">טען תמונות אוטומטית</translation>
 <translation id="7227780179130368205">אותרה תוכנה זדונית!</translation>
 <translation id="3942946088478181888">עזור לי להבין</translation>
-<translation id="1586296736502814947">(לא ניתן לבצע פעולה)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (ברירת מחדל)</translation>
 <translation id="111844081046043029">האם אתה בטוח שברצונך לצאת מדף זה?</translation>
 <translation id="4497415007571823067">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך במקום זאת הגעת לשרת שמציג עצמו כ-&lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. יתכן שהדבר נגרם בשל בעיית תצורה בשרת, או בשל בעיה רצינית יותר. גורם פוגע ברשת שלך עלול לנסות לגרום לך לבקר בגרסה מזויפת (ואולי אף מזיקה) של &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. מומלץ לא להמשיך.</translation>

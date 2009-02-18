@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;పునరావృతం</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">పేజీ &amp;సమాచారం</translation>
 <translation id="528468243742722775">ముగింపు</translation>
 <translation id="1723824996674794290">&amp;క్రొత్త విండో</translation>
 <translation id="7567293639574541773">ఎలిమెంట్‌ను క్షుణ్ణంగా ప&amp;రిశీలించండి</translation>
@@ -46,8 +45,10 @@
 <translation id="7931071620596053769">ఈ క్రింది పేజీ(లు) స్పందించడంలేదు. అవి స్పందించే వరకు మీరు వాటి కోసం వేచి ఉండవచ్చు లేదా మీరు వాటిని నాశనం చెయ్యవచ్చు.</translation>
 <translation id="1209866192426315618"><ph name="NUMBER_DEFAULT"/> నిమిషాలు మిగిలి ఉన్నాయి</translation>
 <translation id="2179052183774520942">శోధన ఇంజన్‌ను జోడించు</translation>
+<translation id="2956948609882871496">బుక్‌మార్క్‌లను దిగుమతి చెయ్యి...</translation>
 <translation id="1621207256975573490">&amp;ఫ్రేమ్‌ను ఇలా సేవ్ చెయ్యి...</translation>
 <translation id="2278562042389100163">బ్రౌజర్ విండోను తెరువు</translation>
+<translation id="4589279373639964403">బుక్‌మార్క్‌లను ఎగుమతి చెయ్యి...</translation>
 <translation id="5463275305984126951"><ph name="LOCATION"/> యొక్క స్థానం</translation>
 <translation id="5154917547274118687">మెమరీ</translation>
 <translation id="873849583815421063">పూర్తి అవుతోంది...</translation>
@@ -61,6 +62,7 @@
 <translation id="4684748086689879921">దిగుమతిని దాటవేయి</translation>
 <translation id="5516565854418269276">&amp;ఎల్లప్పుడూ బుక్‌మార్క్‌ల పట్టీని చూపు</translation>
 <translation id="6426222199977479699">SSL లోపం</translation>
+<translation id="443008484043213881">ఉపకరణాలు</translation>
 <translation id="8534801226027872331">ఈ సందర్భంలో, మీ బ్రౌజర్‌కు అందించిన సర్టిఫికెట్‌లో లోపాలు ఉన్నాయి కాబట్టి అవి అర్థం కావడం లేదు. దీని అర్థం సర్టిఫికెట్‌లోని గుర్తింపు సమాచారాన్ని మేము అర్థం చేసుకోలేము లేదా కనెక్షన్‌ను సురక్షితం చెయ్యడానికి సర్టిఫికెట్‌లోని ప్రత్యేకమైన సమాచారం ఉపయోగించబడిందని కావచ్చు. మీరు ముందుకు సాగకూడదు.</translation>
 <translation id="4422347585044846479">ఈ పేజీకి బుక్‌మార్క్‌ను సవరించు</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -133,6 +135,7 @@
 <translation id="350069200438440499">ఫైల్ పేరు:</translation>
 <translation id="8494979374722910010">సర్వర్‌కు కనెక్ట్ చెయ్యడానికి చేసిన ప్రయత్నం విఫలమైంది.</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> నిమిషాలు</translation>
+<translation id="5296476177639202243">'<ph name="SEARCH_TEXT"/>' ప్రశ్నకు ఏ బుక్‌మార్క్‌లు సరిపోలలేదు.</translation>
 <translation id="939736085109172342">క్రొత్త  ఫోల్డర్</translation>
 <translation id="5641560969478423183">URLతో సర్వర్ సర్టిఫికెట్ సరిపోలడం లేదు</translation>
 <translation id="121827551500866099">అన్ని డౌన్‌లోడ్‌లను చూపు...</translation>
@@ -140,6 +143,7 @@
 <translation id="1426410128494586442">అవును</translation>
 <translation id="6513615899227776181">ప్లగ్ ఇన్: <ph name="PLUGIN_NAME"/></translation>
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/> రోజులు మిగిలి ఉన్నాయి</translation>
+<translation id="1059307158073710225">స్పెల్లింగ్‌ను తనిఖీ చెయ్యి:</translation>
 <translation id="7643817847124207232">ఇంటర్నెట్ కనెక్షన్ కోల్పోయింది.</translation>
 <translation id="932327136139879170">హోమ్</translation>
 <translation id="5600907569873192868"><ph name="NUMBER_MANY"/> నిమిషాలు మిగిలాయి</translation>
@@ -159,14 +163,17 @@
 <translation id="7012108905414904806">అయినప్పటికీ, ఈ పేజీలో సురక్షితం కాని ఇతర రిసోర్స్‌లు ఉన్నాయి. ప్రసారంలో ఉన్నప్పుడు ఈ రిసోర్స్‌లను ఇతరులు చూడవచ్చు మరియు ఇవి పేజీ యొక్క కనిపించే తీరు, ప్రవర్తనలను మార్చడానికి ఒక అటాకర్‌చే సవరించబడవచ్చు.</translation>
 <translation id="4515911410595374805">ఈ పేజీలోని కొన్ని ఎలిమెంట్‌లు తనిఖీ చెయ్యబడని సోర్స్ నుండి వచ్చాయి మరియు ప్రదర్శించబడటంలేదు.</translation>
 <translation id="1195447618553298278">తెలియని లోపం.</translation>
+<translation id="1087119889335281750">&amp;స్పెల్లింగ్ సూచనలు ఏమి లేవు</translation>
 <translation id="5076340679995252485">&amp;అతికించు</translation>
 <translation id="14171126816530869"><ph name="LOCALITY"/> వద్ద <ph name="ORGANIZATION"/> యొక్క గుర్తింపు <ph name="ISSUER"/>చే ధ్రువీకరించబడింది.</translation>
 <translation id="1587275751631642843">&amp; JavaScript కన్‌సోల్</translation>
 <translation id="5821894118254011366">మూడవ-పార్టీ కుక్కీలను పూర్తిగా బ్లాక్ చెయ్యి</translation>
+<translation id="1134009406053225289">అజ్ఞాత విండోలో తెరువు</translation>
 <translation id="3473105180351527598">ఫిషింగ్ మరియు మాల్వేర్ రక్షణను ప్రారంభించు</translation>
 <translation id="6151323131516309312"><ph name="SITE_NAME"/>ను శోధించడానికి <ph name="SEARCH_KEY"/>ని నొక్కండి</translation>
 <translation id="2342959293776168129">డౌన్‌లోడ్ చరిత్రను క్లియర్ చెయ్యి</translation>
 <translation id="2503522102815150840">బ్రౌజర్ క్రాష్...బూమ్‌కు వెళ్లు</translation>
+<translation id="2815500128677761940">బుక్‌మార్క్‌ల పట్టీ</translation>
 <translation id="8041183585493091279">సూచన సేవా URL:</translation>
 <translation id="9189691339671500905">ఓమ్నిబాక్స్లో ఉపయోగించిన శోధన ఇంజిన్‌ను సెట్ చెయ్యండి.</translation>
 <translation id="4571852245489094179">బుక్‌మార్క్‌లు మరియు సెట్టింగులను దిగుమతి చెయ్యి</translation>
@@ -182,14 +189,17 @@
 <translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="3369624026883419694">హోస్ట్‌ను పరిష్కరిస్తోంది...</translation>
 <translation id="3967132639560659870">ఈ పేజీలో చాలా SSL లోపాలు ఉన్నాయి:</translation>
+<translation id="5039804452771397117">అనుమతించు</translation>
 <translation id="2266011376676382776">పేజీల(లు)కి స్పందన లేదు</translation>
 <translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
 <translation id="5782620817391526544">బుక్‌‌మార్క్ పట్టీ</translation>
+<translation id="3493653833301553455">ఫారమ్ ఆటోఫిల్:</translation>
 <translation id="644038709730536388">ఆన్‌లైన్‌లో హానికరమైన సాఫ్ట్‌వేర్ నుండి మిమ్మల్ని మీరు  ఎలా రక్షించుకోవాలో అనే దాని గురించి మరింత తెలుసుకోండి.</translation>
 <translation id="4172706149171596436">ప్రాక్సీ సెట్టింగులను మార్చు</translation>
 <translation id="5650551054760837876">శోధన ఫలితాలు ఏవీ దొరకలేదు.</translation>
 <translation id="3234408098842461169">క్రింది బాణం</translation>
 <translation id="825608351287166772">సర్టిఫికెట్‌లకి మీ దగ్గర  న్న ఏవైనా గుర్తింపు పత్రాలకు  (పాస్‌పోర్ట్ వంటివి) ఉన్నట్లు ఒక ధ్రువీకరణ వ్యవధిని కలిగి ఉంటాయి. మీ బ్రౌజర్‌కు అందించిన సర్టిఫికెట్ ఇంకా ధ్రువీకరించబడలేదు. ఒక సర్టిఫికెట్ దాని ధ్రువీకరణ వ్యవథి ముగిసిన తర్వాత, సర్టిఫికెట్ (అది రద్దు చెయ్యబడిందా మరియు ఇకపై నమ్మకూడనదా)  అనేదాని    గురించి నిర్దిష్ట సమాచారాన్ని నిర్వహించాల్సిన అవసరం లేదు. అలాగే, ఈ సర్టిఫికెట్ నమ్మదగినదని ధ్రువీకరించడం సాధ్యం కాదు. మీరు ముందుకు కొనసాగకూడదు.</translation>
+<translation id="2742457360514408037">బ్లాక్ చేసిన పాప-అప్‌లు: <ph name="COUNT"/></translation>
 <translation id="4874539263382920044">శీర్షికలో తప్పకుండా ఒక అక్షరమైనా  ఉండాలి</translation>
 <translation id="3549657413697417275">మీ చరిత్రను శోధించండి</translation>
 <translation id="4250680216510889253">కాదు</translation>
@@ -201,6 +211,7 @@
 <translation id="6500444002471948304">ఫోల్డర్‌ను జోడించు...</translation>
 <translation id="2794293857160098038">డిఫాల్ట్ శోధన ఎంపికలు</translation>
 <translation id="5935630983280450497"><ph name="NUMBER_ONE"/> నిమిషాలు మిగిలి ఉన్నాయి</translation>
+<translation id="5496587651328244253">క్రమంగా పేర్చు</translation>
 <translation id="5568069709869097550">సైన్ ఇన్ చెయ్యలేరు</translation>
 <translation id="4181898366589410653">సర్వర్ యొక్క సర్టిఫికెట్‌లో రద్దు విధానం ఏమి కనుగొనబడలేదు.</translation>
 <translation id="6364916375976753737">ఎడమకి స్క్రోల్ చేయి</translation>
@@ -223,14 +234,15 @@
 <translation id="877010697526426622">&lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; వద్ద వెబ్‌పేజీ తాత్కాలికంగా తెరుచుకోవటం  లేదు లేదా దాన్ని శాశ్వతంగా క్రొత్త వెబ్ చిరునామాకు తరలించి ఉండవచ్చు</translation>
 <translation id="4378551569595875038">కనెక్ట్ అవుతోంది...</translation>
 <translation id="7029809446516969842">పాస్‌వర్డ్‌లు</translation>
+<translation id="8211437954284917092">మీ బుక్‌మార్క్‌లను శోధించడానికి పైన ఉన్న టెక్స్ట్ ఫీల్డ్‌లో ఒక ప్రశ్నను ఎంటర్ చెయ్యండి.</translation>
 <translation id="5958418293370246440"><ph name="SAVED_FILES"/> / <ph name="TOTAL_FILES"/> ఫైళ్ళు</translation>
 <translation id="6805291412499505360">మూడవ పార్టీ కుక్కీలను ఉపయోగించగల విధానాన్ని నిరోధించండి</translation>
 <translation id="1201402288615127009">తదుపరి</translation>
 <translation id="370665806235115550">లోడ్ అవుతోంది...</translation>
 <translation id="6592392877063354583"><ph name="SECURE_PAGE_URL"/> వద్ద పేజీ <ph name="INSECURE_RESOURCE_URL"/> నుండి. అసురక్షిత కంటెంట్‌ను కలిగి ఉంది.</translation>
 <translation id="3810973564298564668">నిర్వహించు</translation>
+<translation id="254416073296957292">&amp;భాషా సెట్టింగులు...</translation>
 <translation id="4222982218026733335">చెల్లుబాటు కాని సర్వర్ సర్టిఫికెట్</translation>
-<translation id="495091556140548787">ఇటీవల మూసివేసిన టాబ్‌లు</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>మీరు అజ్ఞాతంగా మారారు<ph name="END_BOLD"/>. ఈ విండోలో మీరు చూసే పేజీలు మీ బ్రౌజర్ చరిత్రలో కానీ, శోధన చరిత్రలో కానీ ప్రత్యక్షం కావు, మీరు అజ్ఞాత విండోను మూసివేసిన తర్వాత కుక్కీలు వంటి వి మీ కంప్యూటర్‌లో ఉ ఉండవు. కాని మీరు డౌన్‌లోడ్ చేసిన ఫైళ్ళు లేదా మీరు సృష్టించిన బుక్‌మార్క్‌లు మటుకు అలాగే ఉంచబడతాయి.
         <ph name="LINE_BREAK"/>
         <ph name="BEGIN_BOLD"/>అజ్ఞాతంలోకి వెళ్ళడం వల్ల  ఇతర వ్యక్తులు, సర్వర్‌లు లేదా సాఫ్ట్‌వేర్‌లు ప్రభావం చెందవు.  వీటి నుండి జాగ్రత్తగా ఉండండి:<ph name="END_BOLD"/>
@@ -260,6 +272,8 @@
 <translation id="5329858601952122676">&amp;తొలగించు</translation>
 <translation id="6100736666660498114">ప్రారంభ మెను</translation>
 <translation id="1120098871254928930">లోడ్ చెయ్యడానికి మొత్తం కంటెంట్‌ను అనుమతించు</translation>
+<translation id="3994878504415702912">&amp;జూమ్</translation>
+<translation id="5602600725402519729">రీ&amp;లోడ్</translation>
 <translation id="7965010376480416255">భాగస్వామ్యం చెయ్యబడిన మెమరీ</translation>
 <translation id="6248988683584659830">శోధన సెట్టింగులు</translation>
 <translation id="8887733174653581061">ఎల్లప్పుడు ఎగువ స్థానంలో</translation>
@@ -285,6 +299,7 @@
 <translation id="3819791248093819058">వెబ్ చిరునామాకు ఏ వెబ్‌పేజీ దొరకలేదు: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
 <translation id="6710213216561001401">మునుపటి</translation>
 <translation id="583281660410589416">తెలియనిది</translation>
+<translation id="5528368756083817449">బుక్‌మార్క్ మేనేజర్</translation>
 <translation id="1560991001553749272">బుక్‌మార్క్ జోడించబడింది!</translation>
 <translation id="3966072572894326936">మరొక ఫోల్డర్‌ను ఎంచుకోండి...</translation>
 <translation id="7781829728241885113">నిన్న</translation>
@@ -297,8 +312,10 @@
 <translation id="7334704644505105275">JavaScript డీబగ్గర్ - బిజీగా ఉంది</translation>
 <translation id="7629827748548208700">టాబ్: <ph name="TAB_NAME"/></translation>
 <translation id="8028993641010258682">పరిమాణం</translation>
+<translation id="1383876407941801731">శోధన</translation>
 <translation id="8398877366907290961">ఏ విధంగానైనా ముందు సాగు</translation>
 <translation id="290414493736480793">రసీదులు</translation>
+<translation id="6449085810994685586">&amp;ఈ ఫీల్డ్ యొక్క స్పెల్లింగ్ తనిఖీ చెయ్యి</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/> నిమిషాలు మిగిలిలాయి</translation>
 <translation id="8664389313780386848">పేజీ సోర్స్‌‌ను &amp;వీక్షించండి</translation>
 <translation id="57646104491463491">తేదీ సవరించబడింది</translation>
@@ -362,7 +379,6 @@
 <translation id="3268761268932257769">ఆటోమేటిక్‌గా చిత్రాలను లోడ్ చెయ్యి</translation>
 <translation id="7227780179130368205">మాల్‌వేర్ దొరికింది !</translation>
 <translation id="3942946088478181888">నేను అర్థం చేసుకోవడానికి సహాయం చెయ్యి</translation>
-<translation id="1586296736502814947">(ఏ చర్య సాధ్యం కాదు)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (డిఫాల్ట్)</translation>
 <translation id="111844081046043029">మీరు దీన్ని ఖచ్చితంగా వదిలేయాలనుకుంటున్నారా?</translation>
 <translation id="4497415007571823067">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;ను చేరుకోవడానికి మీరు ప్రయత్నించారు, కానీ మీరు నిజంగా దానికదే &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;గా గుర్తించుకునే సర్వర్‌ను చేరుకున్నారు. ఇది సర్వర్‌పై తప్పుగా కన్ఫిగర్ అవ్వడం లేదా ఇంకేదో మరింత పెద్ద అపాయం జరగడం వల్ల సంభవించి ఉండవచ్చు. మీ నెట్‌వర్క్‌లోని ఒక అటాకర్ మీరు &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; యొక్క ఒక నకిలీ (మరియు సమర్థవంతమైన హానికరమైన) వెర్షన్‌ను సందర్శించేలా చెయ్యడానికి ప్రయత్నిస్తున్నట్లున్నారు. మీరు ముందుకు సాగకూడదు.</translation>
@@ -392,6 +408,7 @@
 <translation id="8695758493354644945">ఇటీవల చరిత్ర పేజీలలో <ph name="SEARCH_TERMS"/> లను కలిగి ఉన్న <ph name="NUM_MATCHES"/> చూడండి</translation>
 <translation id="8186012393692847636">చిరునామా పట్టీలో టైప్ చేసిన URLలు మరియు శోధనలను పూర్తి చెయ్యడానికి సూచన సేవను ఉపయోగించండి</translation>
 <translation id="4711094779914110278">టర్కిష్</translation>
+<translation id="4002066346123236978">శీర్షిక</translation>
 <translation id="9015241028623917394">ప్రస్తుత పేజీని నియంత్రించు</translation>
 <translation id="7861215335140947162">&amp;డౌన్‌లోడ్‌లు</translation>
 <translation id="2505402373176859469"><ph name="TOTAL_SIZE"/>లో <ph name="RECEIVED_AMOUNT"/></translation>
@@ -420,7 +437,9 @@
 <translation id="3745810751851099214">వీరి కోసం పంపించు:</translation>
 <translation id="8877448029301136595">[పేరెంట్ డైరెక్టరీ]</translation>
 <translation id="1963227389609234879">అన్నీ తొలగించు</translation>
+<translation id="7052633198403197513">F1</translation>
 <translation id="2496180316473517155">బ్రౌజింగ్ చరిత్ర</translation>
+<translation id="602251597322198729">ఈ సైట్ బహుళ ఫైళ్లను డౌన్‌లోడ్ చెయ్యడానికి ప్రయత్నిస్తుంది. మీరు దీనిని అనుమతించదలిచారా?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> గంటలు</translation>
 <translation id="6691936601825168937">&amp;ఫార్వార్డ్ చెయ్యి</translation>
 <translation id="7736284018483078792">స్పెల్-చెకింగ్ నిఘంటువు యొక్క భాషను మార్చండి.</translation>
@@ -450,7 +469,10 @@
 <translation id="8053959338015477773">ఈ పేజీపై కొన్ని ఎలిమెంట్‌లను ప్రదర్శించడానికి ఒక అదనపు ప్లగ్-ఇన్ అవసరం.</translation>
 <translation id="4666192354592784528">ఈ పేజీని  సురక్షిత కనెక్షన్‌పై  పూర్తిగా పొందడం సాధ్యం కాదు.  అసురక్షిత కనెక్షన్‌లపై పొందగలిగే కొన్ని ఎలిమెంట్లను అది కలిగి ఉంది.</translation>
 <translation id="7414887922320653780"><ph name="NUMBER_ONE"/> గంటలు మిగిలా యి</translation>
+<translation id="399179161741278232">దిగుమతి అయ్యింది</translation>
+<translation id="3927932062596804919">తిరస్కరించు</translation>
 <translation id="6484929352454160200"><ph name="PRODUCT_NAME"/> యొక్క కొత్త వెర్షన్ అందుబాటులో ఉంది</translation>
+<translation id="7035824132811506448">ఇటీవల జోడించబడినవి</translation>
 <translation id="2371076942591664043">&amp;పూర్తవగానే తెరువు</translation>
 <translation id="6069278982995177296">నకిలీ</translation>
 <translation id="2979639724566107830">క్రొత్త విండోలో తెరువు</translation>
@@ -480,6 +502,7 @@
 <translation id="8434177709403049435">&amp;ఎన్‌కోడింగ్</translation>
 <translation id="7895330511272068835">ప్లగ్-ఇన్‌ల గురించి</translation>
 <translation id="9012607008263791152">ఈ సైట్‌ను సందర్శించడం ద్వారా నా కంప్యూటర్‌కు హాని కలుగవచ్చని నేను అర్థం చేసుకున్నాను.</translation>
+<translation id="6004539838376062211">&amp;స్పెల్- చెక్కర్ ఎంపికలు</translation>
 <translation id="7887334752153342268">నకిలీ</translation>
 <translation id="703748601351783580">అన్ని బుక్‌మార్క్‌లను క్రొత్త విండోలో తెరువు</translation>
 <translation id="1293699935367580298">Esc</translation>
@@ -488,6 +511,7 @@
 <translation id="5291303148298143069">పాప్ అప్ బ్లాక్ అయినప్పుడు నాకు తెలియజేయి</translation>
 <translation id="2115926821277323019">చెల్లుబాటులో ఉండే URL అయి ఉండాలి</translation>
 <translation id="7397054681783221164">ఈ క్రింది  అంశాలను తుడిచివెయ్యి:</translation>
+<translation id="4891251785049117953">సేవ్ అయిన ఫారమ్ డేటాను క్లియర్ చెయ్యి</translation>
 <translation id="7554791636758816595">క్రొత్త టాబ్</translation>
 <translation id="4400697530699263877">పేజీ లోడ్ పనితీరును మెరుగుపరచడానికి DNS ప్రి- ఫెచిన్గ్ ని ఉపయోగించండి.</translation>
 <translation id="1086613338090581534">గడువు ముగియని ఒక సర్టిఫికెట్ కోసం, “రద్దు జాబితా”ను నిర్వహించాల్సిన బాధ్యత ఆ సర్టిఫికెట్ కేటాయింపుదారులకు ఉంది. ఒక సర్టిఫికెట్ ఎప్పుడూ రాజీ పడకపోతే, దాన్ని రద్దు జాబితాకు జోడించడం ద్వారా కేటాయింపుదారులు దాన్ని ఉపసంహరించుకోవచ్చు మరియు ఈ సర్టిఫికెట్ ఇకపై మీ బ్రౌజర్‌చే నమ్మబడదు. గడువు ముగిసిన సర్టిఫికెట్‌లకు రద్దు స్థితిని నిర్వహించాల్సిన అవసరం లేదు, కాబట్టి మీరు సందర్శించే వెబ్‌సైట్‌కు ఈ సర్టిఫికెట్ చెల్లుబాటు అయ్యేదిగా ఉపయోగిస్తున్నప్పుడు, సర్టిఫికెట్ రాజీ అయి ఉపసంహరించబడిందా లేదా సురక్షితంగా ఉందా అని ఈ సందర్భంలో కనుగొనడం సాధ్యం కాదు. మీరు చట్టపరమైన వెబ్ సైట్‌తో కమ్యూనికేట్ చేస్తున్నారో లేదా సర్టిఫికెట్ రాజీ పడిందో చెప్పడం అసాధ్యం మరియు ప్రస్తుతం మీరు కమ్యూనికేట్ చేసే అటాకర్ ఆధీనంలో ఉంది. ఈ అంశాన్ని దాటవేసి మీరు ఇక  ముందుకు సాగకూడదు.</translation>
@@ -504,6 +528,7 @@
 <translation id="4890855023395992542">సేవా URL:</translation>
 <translation id="2814489978934728345">ఈ పేజిని లోడ్ చెయ్యడం ఆపు</translation>
 <translation id="2354001756790975382">ఇతర బుక్‌మార్క్‌లు</translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/> అప్‌డేట్ చెయ్యబడింది</translation>
 <translation id="641480858134062906"><ph name="URL"/> లోడ్ చెయ్యడం విఫలమైంది</translation>
 <translation id="3693415264595406141">పాస్‌వర్డ్:</translation>
 <translation id="74568296546932365"><ph name="PAGE_TITLE"/>ను డిఫాల్ట్ శోధన ఇంజన్ వలె ఉంచు</translation>
@@ -525,6 +550,7 @@
 <translation id="345693547134384690">క్రొత్త టాబ్‌లో &amp;చిత్రాన్ని తెరువు</translation>
 <translation id="1375198122581997741">వెర్షన్ గురించి</translation>
 <translation id="1474307029659222435">ఫ్రేమ్‌ను క్రొత్త &amp;విండోలో తెరువు</translation>
+<translation id="3527085408025491307">ఫోల్డర్</translation>
 <translation id="3169621169201401257">ఈ ఎలిమెంట్‌లతో సమస్యల గురించి వివరమైన  సమాచారం కోసం <ph name="DOMAIN"/> కోసం Google <ph name="DIAGNOSTIC_PAGE"/>ను సందర్శించండి.</translation>
 <translation id="2559292239863842334">ఇతర సైట్‌లపై మీరు అధికంగా ఉపయోగించే శోధన బాక్సులు ఇక్కడ కనిపిస్తాయి.</translation>
 <translation id="770015031906360009">గ్రీక్</translation>
@@ -532,6 +558,7 @@
 <translation id="884923133447025588">ఏ రద్దు విధానం కనుగొనబడలేదు.</translation>
 <translation id="9170848237812810038">&amp;అన్డు</translation>
 <translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> <ph name="VERSION"/>కు అప్‌డేట్ చెయ్యబడింది</translation>
 <translation id="9154176715500758432">ఈ పేజీపై ఉండు</translation>
 <translation id="5875565123733157100">బగ్ రకం:</translation>
 <translation id="2440604414813129000">&amp;సోర్స్‌ను చూడండి</translation>
@@ -558,6 +585,7 @@
 <translation id="4745142959976410383">మీరు ఈ అభ్యర్థనను  చేయకపోయినట్లైతే, ఇది మీ సిస్టమ్‌పై ప్రయత్నించబడిన అటాక్‌అయి ఉంటుంది. మీరు ఈ అభ్యర్థనను ప్రారంభించడానికి ప్రత్యేక చర్యను తీసుకుంటే తప్ప, మీరు ఖచ్చితంగా రద్దు చెయ్యి పై నొక్కాలి.</translation>
 <translation id="8288345061925649502">శోధన ఇంజిన్‌ను మార్చు</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> సెకన్లు</translation>
+<translation id="6652942492341627832">సేవ్ చేసి, పోలిన ఫీల్డ్‌లో టైప్ చేసిన టెక్స్ట్‌ను చూపు</translation>
 <translation id="5139955368427980650">&amp;తెరువు</translation>
 <translation id="746319800473277382">ఈ సైట్ యొక్క హోమ్‌పేజీకి వెళ్లు:</translation>
 <translation id="8562413501751825163">దిగుమతి చేసే ముందు Firefoxను మూసివెయ్యండి</translation>
@@ -567,6 +595,7 @@
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="3891357445869647828">JavaScriptను  ఎనేబుల్ చెయ్యి</translation>
 <translation id="6451458296329894277">ఫారమ్ పునఃసమర్పణను నిర్థారించండి</translation>
+<translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
 <translation id="5116333507878097773"><ph name="NUMBER_ONE"/> గంట</translation>
 <translation id="1851266746056575977">ఇప్పుడు అప్‌డేట్ చెయ్యి</translation>
 <translation id="9065203028668620118">సవరించు</translation>
@@ -580,6 +609,7 @@
 <translation id="1485146213770915382">శోధన నిబంధనలు ప్రత్యక్షమవ్వాల్సిన చోట <ph name="SEARCH_TERMS_LITERAL"/>ను URLలో ఇన్సర్ట్ చెయ్యి.</translation>
 <translation id="5626134646977739690">పేరు:</translation>
 <translation id="7125953501962311360">డిఫాల్ట్ బ్రౌజర్:</translation>
+<translation id="721197778055552897">ఈ సమస్య గురించి <ph name="BEGIN_LINK"/>మరింత తెలుసుకోండి <ph name="END_LINK"/>.</translation>
 <translation id="7774607445702416100">Internet Explorer</translation>
 <translation id="146000042969587795">అసురక్షిత కంటెంట్ కలిగి ఉండటంతో ఈ ఫ్రేమ్ లో  బ్లాక్ చెయ్యబడింది.</translation>
 <translation id="8112223930265703044">అంతా</translation>
@@ -589,6 +619,7 @@
 <translation id="486595306984036763">ఫిషింగ్ నివేదికను తెరువు</translation>
 <translation id="1568162916422682473">ఈ క్రింది  ప్లగ్-ఇన్‌ క్రాష్  అయ్యింది : <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">డిఫాల్ట్‌లకు రీసెట్ చెయ్యి</translation>
+<translation id="8116972784401310538">&amp;బుక్‌మార్క్ మేనేజర్</translation>
 <translation id="6040143037577758943">మూసివేయి</translation>
 <translation id="4910619056351738551">ఇక్కడ కొన్ని సూచనలు ఉన్నాయి:</translation>
 <translation id="7451556917824271099">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; వద్ద వెబ్‌సైట్ మాల్వేర్-సాఫ్ట్‌వేర్‌ను హోస్ట్ చేసి ఉండవచ్చు లేదా మీ అనుమతి లేకుండా ఆపరేట్ చెయ్యగలిగే &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; సైట్ నుండి ఎలిమెంట్‌లను కలిగి ఉంది.  కేవలం మాల్వేర్‌ను కలిగిన ఒక సైట్‌యొక్క సందర్శన కూడా  మీ కంప్యూటర్‌కు హాని కలిగించవచ్చు.</translation>
@@ -599,6 +630,7 @@
 <translation id="7442246004212327644">క్లి&amp;యర్ చెయ్యి</translation>
 <translation id="9002707937526687073">ము&amp;ద్రణ...</translation>
 <translation id="5556459405103347317">రీలోడ్</translation>
+<translation id="7727721885715384408">పేరుమార్చు...</translation>
 <translation id="5508407262627860757">ఏమైనా రద్దు చెయ్యి</translation>
 <translation id="7587108133605326224">బాల్టిక్</translation>
 <translation id="8598751847679122414">ఈ వెబ్‌పేజీ ఒక దారిమళ్ళించబడ్డ లూప్‌ను కలిగి ఉంది.</translation>
@@ -664,6 +696,7 @@
 <translation id="7447718177945067973">సర్వర్ దొరకలేదు.</translation>
 <translation id="715468010956678290">ఫ్రేమ్‌ను ఒక అ&amp;జ్ఞాత విండోలో తెరువు</translation>
 <translation id="7755167023778553803">గుర్తింపును నిర్థారించలేని ఇతర వెబ్‌సైట్‌ల రిసోర్స్‌లు  ఈ పేజీలో ఉన్నాయి.</translation>
+<translation id="1273291576878293349">అన్ని బుక్‌మార్క్‌లను అజ్ఞాత విండోలో తెరువు</translation>
 <translation id="3455546154539383562">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;ను చేరుకోవడానికి మీరు ప్రయత్నించారు కానీ సర్వర్ అందించిన సర్టిఫికెట్ కేటాయించిన వారిచే ఉపసంహరించుకోబడింది. దీని అర్థం సర్వర్ ఖచ్చితంగా అందించిన భద్రతా ఆధారాలు నమ్మదగినవి కావు. మీరు ఒక అటాకర్‌తో కమ్యూనికేట్ అవుతూ ఉండవచ్చు. మీరు ముందుకు కొనసాగకూడదు.</translation>
 <translation id="1177437665183591855">తెలియని సర్వర్ సర్టిఫికెట్ లోపం</translation>
 <translation id="3737554291183722650">పేజీ శీర్షిక:</translation>

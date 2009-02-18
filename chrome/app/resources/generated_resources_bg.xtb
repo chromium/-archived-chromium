@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Възстановяване</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Информацията за страни&amp;цата</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">&amp;Нов прозорец</translation>
 <translation id="7567293639574541773">&amp;Проверка на елемента</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Управление</translation>
 <translation id="254416073296957292">&amp;Езикови настройки...</translation>
 <translation id="4222982218026733335">Невалиден сертификат на сървъра</translation>
-<translation id="495091556140548787">Наскоро затворени раздели</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Преминахте в режим „инкогнито“<ph name="END_BOLD"/>. Страниците, които разглеждате в този прозорец, няма да се показват в хронологията на браузъра ви или в хронологията на търсенията и няма да оставят други доказателства, като например бисквитки в компютъра ви, след затварянето на прозореца при използване на функция „инкогнито“. Всички файлове, които изтегляте, или отметки, които създавате, ще бъдат запазени обаче.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Преминаването в режим „инкогнито“ не засяга поведението на други хора, сървъри или софтуер. Внимавайте за следното:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Уебсайтове, които събират или споделят информация за Вас<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Доставчици на интернет услуги или работодатели, които проследяват страниците, които посещавате<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Злонамерен софтуер, който проследява колко пъти натискате клавишите в замяна на безплатни емотикони<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Наблюдение от тайни агенти<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Хора, които са стоят зад вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Научете повече<ph name="END_LINK"/> за сърфирането инкогнито.</translation>
 <translation id="1813414402673211292">Изчистване на данните за сърфирането</translation>
 <translation id="2356762928523809690">Няма достъп до сървъра за актуализация (грешка: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Изображенията да се зареждат автоматично</translation>
 <translation id="7227780179130368205">Засечен е злонамерен софтуер!</translation>
 <translation id="3942946088478181888">Помогнете ми да разбера</translation>
-<translation id="1586296736502814947">(Няма възможно действие)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (по подразбиране)</translation>
 <translation id="111844081046043029">Наистина ли искате да излезете от тази страница?</translation>
 <translation id="4497415007571823067">Опитахте да се свържете с &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, но вместо това се свързахте със сървър, представящ се за &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Причината може да е неправилно конфигуриране на сървъра или нещо по-сериозно. Възможно е хакер в мрежата да се опитва да ви подведе да посетите фалшива (и потенциално зловредна) версия на &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Не продължавайте нататък!</translation>

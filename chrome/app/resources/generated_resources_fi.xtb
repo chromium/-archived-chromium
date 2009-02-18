@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;Tee uudelleen</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Sivutie&amp;dot</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">Uusi ikku&amp;na</translation>
 <translation id="7567293639574541773">Tar&amp;kastele elementtiä</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Hallinnoi</translation>
 <translation id="254416073296957292">&amp;Kieliasetukset...</translation>
 <translation id="4222982218026733335">Palvelimen varmenne ei kelpaa</translation>
-<translation id="495091556140548787">Hiljattain suljetut välilehdet</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Esiinnyt nyt tuntemattomana<ph name="END_BOLD"/>. Tässä ikkunassa näytettäviä sivuja ei näytetä selaimen historiassa tai selaushistoriassa. Niistä ei jätetä tietokoneelle muitakaan jälkiä, kuten evästeitä, kun suljet incognito-ikkunan. Lataamasi tiedostot tai luomasi kirjanmerkit kuitenkin säilytetään.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Tuntemattomana esiintyminen ei vaikuta muiden ihmisten, palvelinten tai ohjelmistojen toimintaan. Varo:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>verkkosivustoja, jotka keräävät tai jakavat tietoja sinusta<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internet-palveluntarjoajia tai työntekijöitä, jotka seuraavat sivuja, joilla käyt<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>haittaohjelmia, jotka seuraavat näppäinpainalluksia ja antavat vastineeksi ilmaisia hymiöitä<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>turvallisuuspalveluiden työntekijöiden tekemää seurantaa<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>takanasi seisovia ihmisiä<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Lisätietoja<ph name="END_LINK"/> selaamisesta incognito-tilassa.</translation>
 <translation id="1813414402673211292">Poista selaustiedot</translation>
 <translation id="2356762928523809690">Päivityspalvelin ei ole käytettävissä (virhe: <ph name="ERROR_NUMBER"/>)</translation>
@@ -304,7 +302,7 @@
 <translation id="290414493736480793">Vahvistukset</translation>
 <translation id="6449085810994685586">&amp;Tarkista oikeinkirjoitus tässä kentässä</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/> minuuttia jäljellä</translation>
-<translation id="8664389313780386848">&amp;Näytä sivun alkuperä</translation>
+<translation id="8664389313780386848">&amp;Näytä sivun lähdekoodi</translation>
 <translation id="57646104491463491">Muokkauspäivämäärä</translation>
 <translation id="3867260226944967367">Verkkosivua ei löytynyt.</translation>
 <translation id="6507969014813375884">yksinkertaistettu kiina</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Lataa kuvat automaattisesti</translation>
 <translation id="7227780179130368205">Haittaohjelma havaittu!</translation>
 <translation id="3942946088478181888">Lisätietoa</translation>
-<translation id="1586296736502814947">(Mikään toimenpide ei ole mahdollinen)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Oletus)</translation>
 <translation id="111844081046043029">Haluatko varmasti poistua tältä sivulta?</translation>
 <translation id="4497415007571823067">Yritit päästä verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta tavoitit palvelimen, joka yksilöi itsensä verkkotunnukseksi &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Tämä voi johtua palvelimen virhemäärityksestä tai jostain vakavammasta. Verkossasi oleva hyökkääjä voi yrittää saada sinut siirtymään verkkotunnuksen &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; väärään (ja mahdollisesti haitalliseen) versioon. Sinun ei tule jatkaa.</translation>
@@ -440,7 +437,7 @@
 <translation id="5107325588313356747">Jotta voit piilottaa tämän ohjelman käyttöoikeuden, sinun on poistettava sen asennus käyttämällä sovelmaa\n<ph name="CONTROL_PANEL_APPLET_NAME"/> ohjauspaneelissa.\n\nHaluatko käynnistää sovelman <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
 <translation id="8627795981664801467">Vain suojatut yhteydet</translation>
 <translation id="2190355936436201913">(tyhjä)</translation>
-<translation id="5868426874618963178">Lähetä nykyisen sivun alkuperä</translation>
+<translation id="5868426874618963178">Lähetä nykyisen sivun lähdekoodi</translation>
 <translation id="5818003990515275822">Korea</translation>
 <translation id="4182252350869425879">Varoitus: Epäilty tietojenkalastelusivu!</translation>
 <translation id="1164369517022005061"><ph name="NUMBER_DEFAULT"/> tuntia jäljellä</translation>
@@ -504,7 +501,7 @@
 <translation id="1086613338090581534">Varmenteen myöntäjä vastaa sellaisen varmenteen &quot;kumoamisluettelon&quot; ylläpidosta, joka ei ole vanhentunut. Jos varmenne vaarantuu, myöntäjä voi kumota sen lisäämällä sen kumoamisluetteloon. Silloin selaimesi ei enää luota kyseiseen varmenteeseen. Kumoamistilaa ei tarvitse ylläpitää vanhentuneiden varmenteiden osalta. Vaikka varmenne on ollut voimassa sivustossa, jossa käyt, sen osalta ei voida enää määrittää, onko se vaarantunut ja sen jälkeen kumottu, vai onko se edelleen turvallinen. Näin ollen ei voida tietää, oletko yhteydessä sallittuun sivustoon vai vaarantuiko varmenne ja olet yhteydessä hyökkääjään, jolla on se nyt hallussaan. Älä jatka tästä eteenpäin.</translation>
 <translation id="3157931365184549694">Palauta</translation>
 <translation id="6059232451013891645">Kansio:</translation>
-<translation id="8182985032676093812">Osoitteen <ph name="PAGE_URL"/> alkuperä</translation>
+<translation id="8182985032676093812">Osoitteen <ph name="PAGE_URL"/> lähdekoodi</translation>
 <translation id="7042418530779813870">&amp;Liitä ja tee haku</translation>
 <translation id="1570242578492689919">Kirjasimet ja koodaus</translation>
 <translation id="3031557471081358569">Valitse tuotavat kohteet:</translation>
@@ -555,7 +552,7 @@
 <translation id="6325525973963619867">Epäonnistui</translation>
 <translation id="1676388805288306495">Vaihda verkkosivujen oletuskirjasin ja -kieli.</translation>
 <translation id="4701488924964507374"><ph name="SENTENCE1"/> <ph name="SENTENCE2"/></translation>
-<translation id="1163931534039071049">&amp;Näytä kehyksen alkuperä</translation>
+<translation id="1163931534039071049">&amp;Näytä kehyksen lähdekoodi</translation>
 <translation id="7564847347806291057">Lopeta prosessi</translation>
 <translation id="7851589172948533362">Vahvistaja: <ph name="ISSUER"/></translation>
 <translation id="5501358408399407103">Verkkosivu, vain HTML\0*.htm\0Web Page, Complete\0*.htm</translation>

@@ -13,7 +13,6 @@
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">Làm lại (&amp;R)</translation>
 <translation id="6135826906199951471">Del</translation>
-<translation id="3842377959466606212">Thông tin (&amp;I) trang</translation>
 <translation id="528468243742722775">End</translation>
 <translation id="1723824996674794290">Cửa sổ Mới (&amp;N)</translation>
 <translation id="7567293639574541773">Kiểm tra phần tử(&amp;N)</translation>
@@ -239,7 +238,6 @@
 <translation id="3810973564298564668">Quản lý</translation>
 <translation id="254416073296957292">&amp;Cài đặt ngôn ngữ...</translation>
 <translation id="4222982218026733335">Chứng chỉ Máy chủ Không hợp lệ</translation>
-<translation id="495091556140548787">Các tab đã đóng gần đây</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Bạn vừa truy cập nặc danh<ph name="END_BOLD"/>. Các trang bạn xem trong cửa sổ này sẽ không xuất hiện trong lịch sử trình duyệt hoặc lịch sử tìm kiếm, đồng thời các trang này sẽ không để lại dấu vết nào khác, ví dụ như cookie, trên máy vi tính của bạn sau khi bạn đóng cửa sổ nặc danh. Tuy nhiên, bất kỳ tệp tin nào bạn tải xuống hoặc dấu trang bạn tạo sẽ được giữ lại.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Truy cập nặc danh không ảnh hưởng đến hoạt động của mọi người, máy chủ hay phần mềm khác. Cảnh giác:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Các trang web thu thập hoặc chia sẻ thông tin về bạn<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Nhà cung cấp hoặc người cho thuê dịch vụ Internet theo dõi các trang bạn truy cập<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Phần mềm độc hại theo dõi thao tác gõ phím của bạn để trao đổi miễn phí các biểu tượng mặt cười<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Việc theo dõi của các đại lý bí mật<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Những người đứng đằng sau bạn<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Tìm hiểu thêm<ph name="END_LINK"/> về duyệt web nặc danh.</translation>
 <translation id="1813414402673211292">Xoá Dữ liệu Duyệt</translation>
 <translation id="2356762928523809690">Máy chủ cập nhật không có sẵn (lỗi: <ph name="ERROR_NUMBER"/>)</translation>
@@ -366,7 +364,6 @@
 <translation id="3268761268932257769">Nạp hình ảnh tự động</translation>
 <translation id="7227780179130368205">Đã phát hiện Malware!</translation>
 <translation id="3942946088478181888">Giúp tôi hiểu</translation>
-<translation id="1586296736502814947">(Không có tác vụ nào có thể)</translation>
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Mặc định)</translation>
 <translation id="111844081046043029">Bạn có chắc chắn muốn thoát khỏi trang này không?</translation>
 <translation id="4497415007571823067">Bạn đã cố truy cập &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, nhưng thực ra bạn đã truy cập vào máy chủ tự nhận dạng là &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Điều này có thể gây ra bởi lỗi về cấu hình trên máy chủ hay bởi các lỗi nghiêm trọng khác. Kẻ tấn công trên mạng của bạn có thể cố mời bạn truy cập phiên bản &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; giả mạo (và tiềm ẩn mối nguy hại). Bạn không nên tiếp tục.</translation>

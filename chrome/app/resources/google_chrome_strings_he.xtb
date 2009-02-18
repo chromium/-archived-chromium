@@ -5,12 +5,11 @@
 <translation id="698670068493841342">Google Chrome הותקן כבר עבור משתמש זה. אם התוכנה אינה פועלת, הסר את Google Chrome שמותקן והורד אותו שוב.</translation>
 <translation id="7400722733683201933">על אודות  Google Chrome</translation>
 <translation id="7101265395643981223">התחל את Google Chrome</translation>
-<translation id="6622748519798088408">זכויות יוצרים © 2008-2006 Google Inc. כל הזכויות שמורות.</translation>
 <translation id="1549918799472947005">Chrome משתמש במנוע חיפוש ברירת המחדל שלך, שמוגדר כרגע ל-<ph name="PAGE_TITLE"/>. האם ברצונך להשאיר את מנוע חיפוש ברירת המחדל שלך?</translation>
 <translation id="2370289711218562573">Google Chrome מייבא כעת מועדפים/סימניות.</translation>
 <translation id="8970027151245482499">Google Chrome אינו מותקן או שהוא נכשל במציאת ספריה להתקנה. הורד שוב את Google Chrome.</translation>
 <translation id="7958215378280655655">כשתגדיר מחדש את אפשרויות Google Chrome, כל שינוי שתערוך יוחזר להגדרות ברירת המחדל. האם אתה רוצה לאפס את אפשרויות Chrome?</translation>
-<translation id="4281844954008187215">מונחי שירות</translation>
+<translation id="4281844954008187215">תנאי שירות</translation>
 <translation id="1137776625614346046">האזור &quot;הכי פופולרי&quot; מציג את האתרים שביקרת בהם בתדירות הרבה ביותר. אחרי שתשתמש ב-Google Chrome למשך זמן מה, תראה את האתרים הפופולריים ביותר שלך בכל פעם שתפתח כרטיסייה חדשה. ניתן לקבל מידע נוסף על תכונה זו ועל תכונות נוספות בדף <ph name="BEGIN_LINK"/>התחלת העבודה<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">ההתקנה נכשלה בשל שגיאה לא צפויה. אם Google Chrome פועל כעת, סגור אותו ונסה שוב.</translation>
 <translation id="4149882025268051530">המתקין נכשל בביצוע דחיסה לארכיון. הורד שוב את Google Chrome.</translation>
@@ -35,7 +34,7 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">סרגל הכלים של Google Chrome</translation>
 <translation id="6481075104394517441">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך השרת הציג אישור שתוקפו פג. אין מידע זמין שיכול לרמוז על מידת אמינותו של האישור. Google Chrome אינו יכול להבטיח כי אתה מתקשר עם  &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ולא עם גורם תוקפן. מומלץ לוודא שהשעון ואזור הזמן שלך מוגדרים כהלכה במחשב שלך. אם הם לא מעודכנים, מומלץ לתקן את הבעיה ולרענן דף זה. אם הם מעודכנים, מומלץ לא להמשיך.</translation>
-<translation id="2874156562296220396">Google Chromeהפך להיות אפשרי על ידי פרוייקט המקור הפתוח <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> ועל ידי <ph name="BEGIN_LINK_OSS"/>תוכנת מקור פתוחה<ph name="END_LINK_OSS"/>.</translation>
+<translation id="2874156562296220396">Google Chrome התאפשר תודות לפרוייקט המקור הפתוח <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> ו<ph name="BEGIN_LINK_OSS"/>תוכנות מקור פתוח אחרות<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome מוכן להשלים את ההתקנה.</translation>
 <translation id="7100330187273168372">Google Chrome אינו יכול לקרוא ולכתוב אל ספריית המידע שלו:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">הפוך את Google Chrome לדפדפן ברירת המחדל</translation>
