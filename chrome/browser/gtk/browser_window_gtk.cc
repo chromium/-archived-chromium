@@ -226,6 +226,15 @@ bool BrowserWindowGtk::IsMaximized() const {
   return (state_ & GDK_WINDOW_STATE_MAXIMIZED);
 }
 
+void BrowserWindowGtk::SetFullscreen(bool fullscreen) {
+  NOTIMPLEMENTED();
+}
+
+bool BrowserWindowGtk::IsFullscreen() const {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 LocationBar* BrowserWindowGtk::GetLocationBar() const {
   NOTIMPLEMENTED();
   return NULL;
