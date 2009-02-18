@@ -12,6 +12,7 @@
 
 #include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
+#include "base/gfx/rect.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "third_party/npapi/bindings/npapi.h"

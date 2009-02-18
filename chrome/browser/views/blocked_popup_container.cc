@@ -12,6 +12,7 @@
 
 #include <math.h>
 
+#include "base/string_util.h"
 #include "grit/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

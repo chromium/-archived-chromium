@@ -15,6 +15,7 @@
 #include "net/base/net_util.h"
 #include "net/base/wininet_util.h"
 #include "net/url_request/url_request.h"
+#include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_error_job.h"
 #include "net/base/escape.h"
 

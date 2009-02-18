@@ -39,9 +39,7 @@ class SaveFileResourceHandler : public ResourceHandler {
   // If the content-length header is not present (or contains something other
   // than numbers), StringToInt64 returns 0, which indicates 'unknown size' and
   // is handled correctly by the SaveManager.
-  void set_content_length(const std::string& content_length) {
-    content_length_ = StringToInt64(content_length);
-  }
+  void set_content_length(const std::string& content_length);
 
   void set_content_disposition(const std::string& content_disposition) {
     content_disposition_ = content_disposition;
@@ -62,4 +60,5 @@ class SaveFileResourceHandler : public ResourceHandler {
 
   DISALLOW_COPY_AND_ASSIGN(SaveFileResourceHandler);
 };
+
 #endif  // CHROME_BROWSER_RENDERER_HOST_SAVE_FILE_RESOURCE_HANDLER_H_

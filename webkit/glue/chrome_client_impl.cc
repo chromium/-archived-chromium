@@ -31,6 +31,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"

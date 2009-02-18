@@ -5,24 +5,24 @@
 #ifndef WEBKIT_GLUE_WEBPLUGIN_DELEGATE_H_
 #define WEBKIT_GLUE_WEBPLUGIN_DELEGATE_H_
 
-#include <string>
 #include <vector>
 
-#include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
-#include "base/gfx/rect.h"
-#include "build/build_config.h"
 #include "third_party/npapi/bindings/npapi.h"
 
 // TODO(port): put in OS_WIN check.
 typedef struct HDC__* HDC;
 struct NPObject;
 
+class FilePath;
 class GURL;
 class WebCursor;
 class WebPlugin;
 class WebPluginResourceClient;
+
+namespace gfx {
+class Rect;
+}
 
 // This is the interface that a plugin implementation needs to provide.
 class WebPluginDelegate {
@@ -139,32 +139,19 @@ class WebPluginDelegate {
   virtual void URLRequestRouted(const std::string&url, bool notify_needed,
                                 void* notify_data) = 0;
 
-  virtual bool IsWindowless() const {
-    NOTREACHED();
-    return false;
-  }
+  virtual bool IsWindowless() const;
 
-  virtual const gfx::Rect& GetRect() const {
-    NOTREACHED();
-    static gfx::Rect dummy;
-    return dummy;
-  }
+  virtual const gfx::Rect& GetRect() const;
 
-  virtual const gfx::Rect& GetClipRect() const {
-    NOTREACHED();
-    return GetRect();
-  }
+  virtual const gfx::Rect& GetClipRect() const;
 
 #if defined(OS_WIN)
   // Returns a combinaison of PluginQuirks.
-  virtual int GetQuirks() const {
-    NOTREACHED();
-    return 0;
-  }
+  virtual int GetQuirks() const;
 #endif
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegate);
+  DISALLOW_COPY_AND_ASSIGN(WebPluginDelegate);
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBPLUGIN_DELEGATE_H_

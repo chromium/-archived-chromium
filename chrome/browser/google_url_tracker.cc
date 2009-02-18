@@ -12,6 +12,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/load_flags.h"
+#include "net/url_request/url_request_status.h"
 
 const char GoogleURLTracker::kDefaultGoogleHomepage[] =
     "http://www.google.com/";

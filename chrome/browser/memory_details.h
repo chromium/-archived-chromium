@@ -5,11 +5,8 @@
 #ifndef CHROME_BROWSER_MEMORY_DETAILS_H_
 #define CHROME_BROWSER_MEMORY_DETAILS_H_
 
-
-#include <string>
 #include <vector>
 
-#include "base/file_path.h"
 #include "base/process_util.h"
 #include "base/ref_counted.h"
 #include "chrome/common/child_process_info.h"

@@ -6,7 +6,7 @@
 
 #include "chrome/browser/net/dns_master.h"
 
-#include <sstream>
+#include <set>
 
 #include "base/histogram.h"
 #include "base/stats_counters.h"

@@ -134,10 +134,13 @@ MSVC_POP_WARNING();
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/glue_serialize.h"
+#include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdocumentloader_impl.h"
+#include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webhistoryitem_impl.h"
+#include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webtextinput_impl.h"
 #include "webkit/glue/webview_impl.h"
 
@@ -588,6 +591,11 @@ void WebFrameImpl::CacheCurrentRequestInfo(WebDataSourceImpl* datasource) {
   // We must only update this if it is valid, or the valid state will be lost.
   if (extra)
     datasource->SetExtraData(extra);
+}
+
+void WebFrameImpl::set_currently_loading_history_item(
+    WebHistoryItemImpl* item) {
+  currently_loading_history_item_ = item;
 }
 
 void WebFrameImpl::StopLoading() {

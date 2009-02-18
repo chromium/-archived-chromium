@@ -14,7 +14,7 @@
 	</Platforms>
 	<ToolFiles>
 		<ToolFile
-			RelativePath="convert_tld_data.rules"
+			RelativePath=".\convert_tld_data.rules"
 		/>
 	</ToolFiles>
 	<Configurations>
@@ -185,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\client_socket.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\base\client_socket.h"
 				>
 			</File>
@@ -322,6 +326,10 @@
 			</File>
 			<File
 				RelativePath="..\base\host_resolver.h"
+				>
+			</File>
+			<File
+				RelativePath="..\base\io_buffer.cc"
 				>
 			</File>
 			<File
@@ -789,6 +797,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\http\http_response_info.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\http\http_response_info.h"
 				>
 			</File>
@@ -820,6 +832,10 @@
 		<Filter
 			Name="disk_cache"
 			>
+			<File
+				RelativePath="..\disk_cache\addr.cc"
+				>
+			</File>
 			<File
 				RelativePath="..\disk_cache\addr.h"
 				>

@@ -3,23 +3,28 @@
 // found in the LICENSE file.
 
 #include "config.h"
-#include <string>
+#include "base/compiler_specific.h"
 
 #include "webkit/glue/glue_util.h"
+
+#include <string>
+
+MSVC_PUSH_WARNING_LEVEL(0);
+#include "CString.h"
+#include "IntRect.h"
+#include "PlatformString.h"
+#include "KURL.h"
+MSVC_POP_WARNING();
+
+#undef LOG
+
 #include "base/compiler_specific.h"
 #include "base/gfx/rect.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
+#include "googleurl/src/gurl.h"
 
-MSVC_PUSH_WARNING_LEVEL(0);
-#undef LOG
-#include "CString.h"
-#include "IntRect.h"
-#include "PlatformString.h"
-MSVC_POP_WARNING();
-
-#include "KURL.h"
 
 namespace webkit_glue {
 

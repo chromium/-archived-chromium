@@ -26,6 +26,8 @@ MSVC_POP_WARNING();
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdocumentloader_impl.h"
+#include "webkit/glue/webresponse.h"
+#include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webview_impl.h"
 
 #include "base/word_iterator.h"

@@ -23,6 +23,7 @@
 #include "googleurl/src/gurl.h"
 #include "media/audio/audio_output.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_response_headers.h"
 #include "net/url_request/url_request_status.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/cache_manager.h"

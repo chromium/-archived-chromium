@@ -22,8 +22,11 @@
 #ifndef NET_URL_REQUEST_MIME_SNIFFER_PROXY_H_
 #define NET_URL_REQUEST_MIME_SNIFFER_PROXY_H_
 
-#include "net/base/io_buffer.h"
 #include "net/url_request/url_request.h"
+
+namespace net {
+class IOBuffer;
+}
 
 class MimeSnifferProxy : public URLRequest::Delegate {
  public:

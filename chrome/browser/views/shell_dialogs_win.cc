@@ -5,12 +5,12 @@
 #include "chrome/browser/shell_dialogs.h"
 
 #include <windows.h>
-#include <Commdlg.h>
+#include <commdlg.h>
 #include <shlobj.h>
-#include <atlbase.h>
+//#include <atlbase.h>
 
 #include <algorithm>
-#include <map>
+#include <set>
 
 #include "base/file_util.h"
 #include "base/registry.h"

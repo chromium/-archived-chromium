@@ -4,6 +4,7 @@
 
 #include "chrome/browser/jsmessage_box_handler_win.h"
 
+#include "base/string_util.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"

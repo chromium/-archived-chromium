@@ -6,7 +6,6 @@
 #define BASE_REF_COUNTED_H_
 
 #include "base/atomic_ref_count.h"
-#include "base/basictypes.h"
 #include "base/thread_collision_warner.h"
 
 namespace base {

@@ -5,11 +5,9 @@
 // This is an internal class that handles the address of a cache record.
 // See net/disk_cache/disk_cache.h for the public interface of the cache.
 
-#ifndef NET_DISK_CACHE_ADDR_H__
-#define NET_DISK_CACHE_ADDR_H__
+#ifndef NET_DISK_CACHE_ADDR_H_
+#define NET_DISK_CACHE_ADDR_H_
 
-#include "base/basictypes.h"
-#include "base/logging.h"
 #include "net/disk_cache/disk_format.h"
 
 namespace disk_cache {
@@ -87,24 +85,9 @@ class Addr {
       return ((value_ & kFileSelectorMask) >> kFileSelectorOffset);
   }
 
-  int start_block() const {
-    DCHECK(is_block_file());
-    return value_ & kStartBlockMask;
-  }
-
-  int num_blocks() const {
-    DCHECK(is_block_file() || !value_);
-    return ((value_ & kNumBlocksMask) >> kNumBlocksOffset) + 1;
-  }
-
-  bool SetFileNumber(int file_number) {
-    DCHECK(is_separate_file());
-    if (file_number & ~kFileNameMask)
-      return false;
-    value_ = kInitializedMask | file_number;
-    return true;
-  }
-
+  int start_block() const;
+  int num_blocks() const;
+  bool SetFileNumber(int file_number);
   int BlockSize() const {
     return BlockSizeForFileType(file_type());
   }
@@ -151,5 +134,4 @@ class Addr {
 
 }  // namespace disk_cache
 
-#endif  // NET_DISK_CACHE_ADDR_H__
-
+#endif  // NET_DISK_CACHE_ADDR_H_

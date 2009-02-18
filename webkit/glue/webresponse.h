@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBURLRESPONSE_H__
-#define WEBKIT_GLUE_WEBURLRESPONSE_H__
+#ifndef WEBKIT_GLUE_WEBURLRESPONSE_H_
+#define WEBKIT_GLUE_WEBURLRESPONSE_H_
 
 #include <string>
+
+#include "base/basictypes.h"
 
 class GURL;
 
@@ -33,5 +35,4 @@ private:
   DISALLOW_EVIL_CONSTRUCTORS(WebResponse);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBURLRESPONSE_H__
-
+#endif  // #ifndef WEBKIT_GLUE_WEBURLRESPONSE_H_

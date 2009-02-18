@@ -4,9 +4,9 @@
 
 // See http://dev.chromium.org/developers/design-documents/multi-process-resource-loading
 
-#include <vector>
-
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+
+#include <vector>
 
 #include "base/message_loop.h"
 #include "base/scoped_ptr.h"

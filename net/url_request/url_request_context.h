@@ -15,9 +15,9 @@
 #include "base/string_util.h"
 #include "net/base/cookie_policy.h"
 #include "net/ftp/ftp_auth_cache.h"
-#include "net/http/http_transaction_factory.h"
 
 namespace net {
+class HttpTransactionFactory;
 class CookieMonster;
 class ProxyService;
 }

@@ -42,6 +42,7 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "net/base/ssl_config_service.h"
+#include "net/base/cookie_policy.h"
 
 using views::GridLayout;
 using views::ColumnSet;

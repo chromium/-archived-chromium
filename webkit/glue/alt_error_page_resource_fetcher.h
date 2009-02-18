@@ -13,13 +13,13 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Timer.h"
 MSVC_POP_WARNING();
 
-#include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "webkit/glue/resource_fetcher.h"
 #include "webkit/glue/weberror_impl.h"
-#include "webkit/glue/weburlrequest.h"
 
+class ResourceFetcherWithTimeout;
 class WebFrameImpl;
+class WebRequest;
 class WebView;
 
 // Used for downloading alternate dns error pages. Once downloading is done
@@ -30,6 +30,7 @@ class AltErrorPageResourceFetcher : public ResourceFetcher::Delegate {
                               const WebErrorImpl& web_error,
                               WebFrameImpl* web_frame,
                               const GURL& url);
+  ~AltErrorPageResourceFetcher();
 
   virtual void OnURLFetchComplete(const WebCore::ResourceResponse& response,
                                   const std::string& data);
@@ -44,7 +45,7 @@ class AltErrorPageResourceFetcher : public ResourceFetcher::Delegate {
   // Does the actual fetching.
   scoped_ptr<ResourceFetcherWithTimeout> fetcher_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AltErrorPageResourceFetcher);
+  DISALLOW_COPY_AND_ASSIGN(AltErrorPageResourceFetcher);
 };
 
 #endif  // WEBKIT_GLUE_ALT_ERROR_PAGE_RESOURCE_FETCHER_H__

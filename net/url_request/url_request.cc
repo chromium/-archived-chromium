@@ -4,17 +4,17 @@
 
 #include "net/url_request/url_request.h"
 
-#include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/singleton.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
-#include "googleurl/src/gurl.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
+#include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_manager.h"
 
@@ -101,6 +101,19 @@ void URLRequest::AppendFileRangeToUpload(const wstring& file_path,
   upload_->AppendFileRange(file_path, offset, length);
 }
 
+void URLRequest::set_upload(net::UploadData* upload) {
+  upload_ = upload;
+}
+
+// Get the upload data directly.
+net::UploadData* URLRequest::get_upload() {
+  return upload_.get();
+}
+
+bool URLRequest::has_upload() const {
+  return upload_ != NULL;
+}
+
 void URLRequest::SetExtraRequestHeaderById(int id, const string& value,
                                            bool overwrite) {
   DCHECK(!is_pending_);
@@ -171,6 +184,10 @@ void URLRequest::GetAllResponseHeaders(string* headers) {
   }
 }
 
+net::HttpResponseHeaders* URLRequest::response_headers() const {
+  return response_info_.headers.get();
+}
+
 bool URLRequest::GetResponseCookies(ResponseCookies* cookies) {
   DCHECK(job_);
   return job_->GetResponseCookies(cookies);
@@ -204,6 +221,21 @@ bool URLRequest::IsHandledURL(const GURL& url) {
   }
 
   return IsHandledProtocol(url.scheme());
+}
+
+void URLRequest::set_policy_url(const GURL& policy_url) {
+  DCHECK(!is_pending_);
+  policy_url_ = policy_url;
+}
+
+void URLRequest::set_method(const std::string& method) {
+  DCHECK(!is_pending_);
+  method_ = method;
+}
+
+void URLRequest::set_referrer(const std::string& referrer) {
+  DCHECK(!is_pending_);
+  referrer_ = referrer;
 }
 
 void URLRequest::Start() {
@@ -377,6 +409,14 @@ int URLRequest::Redirect(const GURL& location, int http_status_code) {
   return net::OK;
 }
 
+URLRequestContext* URLRequest::context() {
+  return context_.get();
+}
+
+void URLRequest::set_context(URLRequestContext* context) {
+  context_ = context;
+}
+
 int64 URLRequest::GetExpectedContentSize() const {
   int64 expected_content_size = -1;
   if (job_)
@@ -384,3 +424,12 @@ int64 URLRequest::GetExpectedContentSize() const {
 
   return expected_content_size;
 }
+
+#ifndef NDEBUG
+
+URLRequestMetrics::~URLRequestMetrics() {
+  DLOG_IF(WARNING, object_count != 0) <<
+    "Leaking " << object_count << " URLRequest object(s)";
+}
+
+#endif

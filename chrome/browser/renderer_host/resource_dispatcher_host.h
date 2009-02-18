@@ -13,13 +13,9 @@
 #define CHROME_BROWSER_RENDERER_HOST_RESOURCE_DISPATCHER_HOST_H_
 
 #include <map>
-#include <string>
-#include <vector>
 
-#include "base/logging.h"
 #include "base/observer_list.h"
 #include "base/process.h"
-#include "base/ref_counted.h"
 #include "base/timer.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/common/filter_policy.h"

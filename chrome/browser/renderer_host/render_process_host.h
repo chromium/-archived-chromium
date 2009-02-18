@@ -5,7 +5,8 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_PROCESS_HOST_H_
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_PROCESS_HOST_H_
 
-#include "base/basictypes.h"
+#include <set>
+
 #include "base/id_map.h"
 #include "base/process.h"
 #include "base/scoped_ptr.h"

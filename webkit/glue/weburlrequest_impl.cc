@@ -13,6 +13,7 @@ MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/upload_data.h"
 #include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/glue_serialize.h"

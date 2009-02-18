@@ -12,12 +12,13 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RESOURCE_HANDLER_H_
 #define CHROME_BROWSER_RENDERER_HOST_RESOURCE_HANDLER_H_
 
-#include "base/basictypes.h"
-#include "base/ref_counted.h"
 #include "chrome/common/filter_policy.h"
-#include "googleurl/src/gurl.h"
-#include "net/url_request/url_request.h"
+#include "net/url_request/url_request_status.h"
 #include "webkit/glue/resource_loader_bridge.h"
+
+namespace net {
+class IOBuffer;
+}
 
 // Parameters for a resource response header.
 struct ResourceResponseHead

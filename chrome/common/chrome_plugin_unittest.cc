@@ -12,6 +12,7 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/test/chrome_plugin/test_chrome_plugin.h"
 #include "net/base/io_buffer.h"
+#include "net/http/http_response_headers.h"
 #include "net/url_request/url_request_test_job.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"

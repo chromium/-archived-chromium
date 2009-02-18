@@ -8,9 +8,6 @@
 #include "webkit/glue/form_data.h"
 #include "webkit/glue/password_form.h"
 
-#include <map>
-#include <vector>
-
 namespace WebCore {
 class HTMLFormElement;
 class HTMLInputElement;

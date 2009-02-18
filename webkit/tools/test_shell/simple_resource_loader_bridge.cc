@@ -40,6 +40,7 @@
 #include "net/base/io_buffer.h"
 #include "net/base/net_util.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_response_headers.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"

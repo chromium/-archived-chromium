@@ -15,7 +15,7 @@
 #define NET_HTTP_HTTP_CACHE_H_
 
 #include <list>
-#include <string>
+#include <set>
 
 #include "base/basictypes.h"
 #include "base/hash_tables.h"

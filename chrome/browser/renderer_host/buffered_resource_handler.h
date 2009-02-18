@@ -10,6 +10,7 @@
 #include "chrome/browser/renderer_host/resource_handler.h"
 
 class ResourceDispatcherHost;
+class URLRequest;
 
 // Used to buffer a request until enough data has been received.
 class BufferedResourceHandler : public ResourceHandler {

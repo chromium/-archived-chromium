@@ -37,6 +37,7 @@
 #include "net/base/cookie_monster.h"
 #include "net/base/io_buffer.h"
 #include "net/url_request/url_request.h"
+#include "net/url_request/url_request_context.h"
 #include "sandbox/src/sandbox.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 

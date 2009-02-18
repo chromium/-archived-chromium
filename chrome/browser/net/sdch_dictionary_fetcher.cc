@@ -3,7 +3,9 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/net/sdch_dictionary_fetcher.h"
+
 #include "chrome/browser/profile.h"
+#include "net/url_request/url_request_status.h"
 
 void SdchDictionaryFetcher::Schedule(const GURL& dictionary_url) {
   // Avoid pushing duplicate copy onto queue.  We may fetch this url again later

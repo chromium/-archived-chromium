@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "config.h"
-
 #include "base/compiler_specific.h"
 
 #include "webkit/glue/feed_preview.h"
@@ -17,6 +16,7 @@ MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/logging.h"
+#include "googleurl/src/gurl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 

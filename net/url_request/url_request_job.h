@@ -8,14 +8,12 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "net/base/auth.h"
 #include "net/base/filter.h"
 #include "net/base/load_states.h"
-#include "net/url_request/url_request_status.h"
 
 namespace net {
+class AuthChallengeInfo;
 class HttpResponseInfo;
 class IOBuffer;
 class UploadData;
@@ -23,6 +21,7 @@ class UploadData;
 
 class GURL;
 class URLRequest;
+class URLRequestStatus;
 class URLRequestJobMetrics;
 
 // The URLRequestJob is using RefCounterThreadSafe because some sub classes
@@ -201,13 +200,13 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   void NotifyReadComplete(int bytes_read);
 
   // Notifies the request that a start error has occurred.
-  void NotifyStartError(const URLRequestStatus &status);
+  void NotifyStartError(const URLRequestStatus& status);
 
   // NotifyDone marks when we are done with a request.  It is really
   // a glorified set_status, but also does internal state checking and
   // job tracking.  It should be called once per request, when the job is
   // finished doing all IO.
-  void NotifyDone(const URLRequestStatus &status);
+  void NotifyDone(const URLRequestStatus& status);
 
   // Some work performed by NotifyDone must be completed on a separate task
   // so as to avoid re-entering the delegate.  This method exists to perform
@@ -251,7 +250,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   const URLRequestStatus GetStatus();
 
   // Set the status of the job.
-  void SetStatus(const URLRequestStatus &status);
+  void SetStatus(const URLRequestStatus& status);
 
   // Whether the job is doing performance profiling
   bool is_profiling_;
@@ -304,4 +303,3 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_JOB_H_
-

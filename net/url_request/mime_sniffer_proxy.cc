@@ -4,6 +4,7 @@
 
 #include "net/url_request/mime_sniffer_proxy.h"
 
+#include "net/base/io_buffer.h"
 #include "net/base/mime_sniffer.h"
 
 static const int kBufferSize = 1024;

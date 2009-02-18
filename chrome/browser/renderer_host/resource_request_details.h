@@ -11,11 +11,11 @@
 
 #include <string>
 
-#include "base/basictypes.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "googleurl/src/gurl.h"
-#include "net/url_request/url_request.h"
 #include "net/url_request/url_request_status.h"
+
+class URLRequest;
 
 #if defined(OS_WIN)
 // TODO(port): Move header to the above section when CertStore has been ported.

@@ -5,12 +5,8 @@
 #ifndef WEBKIT_GLUE_WEBFRAME_H_
 #define WEBKIT_GLUE_WEBFRAME_H_
 
-#include <string>
-
-#include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "base/gfx/size.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/console_message_level.h"
@@ -29,8 +25,6 @@ namespace gfx {
 class Rect;
 class Size;
 }
-
-// TODO(darin): use GURL everywhere a URL string appears
 
 // Every frame in a web page is represented by one WebFrame, including the
 // outermost frame.

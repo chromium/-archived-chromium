@@ -2,13 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBHISTORYITEM_H__
-#define WEBKIT_GLUE_WEBHISTORYITEM_H__
+#ifndef WEBKIT_GLUE_WEBHISTORYITEM_H_
+#define WEBKIT_GLUE_WEBHISTORYITEM_H_
 
-#include <string>
-
-#include "base/basictypes.h"
-#include "base/ref_counted.h"
 #include "webkit/glue/weburlrequest.h"  // for WebRequest::ExtraData
 
 class GURL;
@@ -40,5 +36,4 @@ class WebHistoryItem : public base::RefCounted<WebHistoryItem> {
   DISALLOW_EVIL_CONSTRUCTORS(WebHistoryItem);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBHISTORYITEM_H__
-
+#endif  // #ifndef WEBKIT_GLUE_WEBHISTORYITEM_H_

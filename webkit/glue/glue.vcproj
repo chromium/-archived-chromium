@@ -505,6 +505,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resource_loader_bridge.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\resource_loader_bridge.h"
 				>
 			</File>
@@ -621,6 +625,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webplugin_delegate.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\webplugin_impl.cc"
 				>
 			</File>
@@ -646,6 +654,10 @@
 			</File>
 			<File
 				RelativePath=".\weburlrequest_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webview_delegate.cc"
 				>
 			</File>
 			<File

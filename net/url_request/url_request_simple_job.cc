@@ -6,6 +6,7 @@
 
 #include "base/message_loop.h"
 #include "net/base/net_errors.h"
+#include "net/url_request/url_request_status.h"
 
 URLRequestSimpleJob::URLRequestSimpleJob(URLRequest* request)
     : URLRequestJob(request),

@@ -15,9 +15,8 @@
 #ifndef CHROME_COMMON_PREF_SERVICE_H_
 #define CHROME_COMMON_PREF_SERVICE_H_
 
-#include <string>
+#include <set>
 
-#include "base/basictypes.h"
 #include "base/hash_tables.h"
 #include "base/non_thread_safe.h"
 #include "base/observer_list.h"

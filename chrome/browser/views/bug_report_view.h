@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H__
-#define CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H_
+#define CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H_
 
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/views/combo_box.h"
@@ -11,6 +11,7 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/view.h"
+#include "googleurl/src/gurl.h"
 
 namespace views {
 class CheckBox;
@@ -123,5 +124,4 @@ class BugReportView : public views::View,
   DISALLOW_EVIL_CONSTRUCTORS(BugReportView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H__
-
+#endif  // CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H_

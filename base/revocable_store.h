@@ -2,11 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_REVOCABLE_STORE_H__
-#define BASE_REVOCABLE_STORE_H__
+#ifndef BASE_REVOCABLE_STORE_H_
+#define BASE_REVOCABLE_STORE_H_
 
-#include "base/basictypes.h"
-#include "base/logging.h"
 #include "base/ref_counted.h"
 
 // |RevocableStore| is a container of items that can be removed from the store.
@@ -73,5 +71,4 @@ class RevocableStore {
   DISALLOW_EVIL_CONSTRUCTORS(RevocableStore);
 };
 
-#endif  // BASE_REVOCABLE_STORE_H__
-
+#endif  // BASE_REVOCABLE_STORE_H_

@@ -2,12 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBRESPONSEIMPL_H__
-#define WEBKIT_GLUE_WEBRESPONSEIMPL_H__
+#ifndef WEBKIT_GLUE_WEBRESPONSEIMPL_H_
+#define WEBKIT_GLUE_WEBRESPONSEIMPL_H_
 
-#include <string>
-
-#include "googleurl/src/gurl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webresponse.h"
 
@@ -48,5 +45,4 @@ class WebResponseImpl : public WebResponse {
   DISALLOW_EVIL_CONSTRUCTORS(WebResponseImpl);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBRESPONSEIMPL_H__
-
+#endif  // #ifndef WEBKIT_GLUE_WEBRESPONSEIMPL_H_

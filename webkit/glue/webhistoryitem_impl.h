@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBHISTORYITEM_IMPL_H__
-#define WEBKIT_GLUE_WEBHISTORYITEM_IMPL_H__
+#ifndef WEBKIT_GLUE_WEBHISTORYITEM_IMPL_H_
+#define WEBKIT_GLUE_WEBHISTORYITEM_IMPL_H_
 
-#include "base/basictypes.h"
 #include "webkit/glue/webhistoryitem.h"
 #include "googleurl/src/gurl.h"
 
@@ -42,8 +41,7 @@ class WebHistoryItemImpl : public WebHistoryItem {
   scoped_refptr<WebRequest::ExtraData> extra_data_;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(WebHistoryItemImpl);
+  DISALLOW_COPY_AND_ASSIGN(WebHistoryItemImpl);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBHISTORYITEM_IMPL_H__
-
+#endif  // #ifndef WEBKIT_GLUE_WEBHISTORYITEM_IMPL_H_

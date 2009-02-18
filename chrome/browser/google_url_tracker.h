@@ -7,6 +7,7 @@
 
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/common/notification_observer.h"
+#include "googleurl/src/gurl.h"
 
 class PrefService;
 

@@ -5,10 +5,10 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H_
 #define NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H_
 
-#include <string>
 #include <vector>
 
 #include "base/scoped_ptr.h"
+#include "net/base/auth.h"
 #include "net/base/completion_callback.h"
 #include "net/http/http_request_info.h"
 #include "net/url_request/url_request_job.h"

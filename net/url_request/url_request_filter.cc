@@ -6,6 +6,8 @@
 
 #include <set>
 
+#include "base/logging.h"
+
 URLRequestFilter* URLRequestFilter::shared_instance_ = NULL;
 
 /* static */

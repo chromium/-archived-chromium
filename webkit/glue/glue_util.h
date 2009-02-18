@@ -5,11 +5,10 @@
 #ifndef WEBKIT_GLUE_GLUE_UTIL_H_
 #define WEBKIT_GLUE_GLUE_UTIL_H_
 
-#include <string>
-
 #include "base/file_path.h"
 #include "base/string16.h"
-#include "googleurl/src/gurl.h"
+
+class GURL;
 
 namespace WebCore {
 class CString;
@@ -57,4 +56,3 @@ WebCore::IntRect ToIntRect(const gfx::Rect& r);
 }  // namespace webkit_glue
 
 #endif  // #ifndef WEBKIT_GLUE_GLUE_UTIL_H_
-

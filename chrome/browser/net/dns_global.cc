@@ -20,7 +20,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "googleurl/src/gurl.h"
 #include "net/base/dns_resolution_observer.h"
 
 using base::TimeDelta;

@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H__
-#define WEBKIT_GLUE_WEBURLREQUEST_IMPL_H__
+#ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_
+#define WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "webkit/glue/weburlrequest.h"
 
@@ -66,5 +65,4 @@ class WebRequestImpl : public WebRequest {
   scoped_refptr<ExtraData> extra_data_;
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H__
-
+#endif  // #ifndef WEBKIT_GLUE_WEBURLREQUEST_IMPL_H_

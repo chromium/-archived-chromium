@@ -27,7 +27,6 @@
 #ifndef MEDIA_BASE_BUFFERS_H_
 #define MEDIA_BASE_BUFFERS_H_
 
-#include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/time.h"

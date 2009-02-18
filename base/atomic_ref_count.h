@@ -9,7 +9,6 @@
 #define BASE_ATOMIC_REF_COUNT_H_
 
 #include "base/atomicops.h"
-#include "base/basictypes.h"
 
 namespace base {
 

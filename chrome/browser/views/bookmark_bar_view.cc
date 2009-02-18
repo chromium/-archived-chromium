@@ -6,6 +6,7 @@
 
 #include <limits>
 
+#include "base/string_util.h"
 #include "base/base_drag_source.h"
 #include "grit/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"

@@ -2,11 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H__
-#define CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H__
+#ifndef CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H_
+#define CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H_
 
-#include "base/basictypes.h"
-#include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/common/chrome_plugin_api.h"
@@ -14,6 +12,7 @@
 #include "chrome/common/notification_observer.h"
 
 class ChromePluginLib;
+class URLRequest;
 
 // A request job that handles network requests intercepted by a Chrome plugin.
 class URLRequestInterceptJob
@@ -56,9 +55,7 @@ class URLRequestInterceptJob
   net::IOBuffer* read_buffer_;
   int read_buffer_size_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(URLRequestInterceptJob);
+  DISALLOW_COPY_AND_ASSIGN(URLRequestInterceptJob);
 };
 
-
-#endif  // CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H__
-
+#endif  // CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H_

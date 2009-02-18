@@ -23,13 +23,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef WEBKIT_GLUE_WEBDATASOURCE_IMPL_H__
-#define WEBKIT_GLUE_WEBDATASOURCE_IMPL_H__
+#ifndef WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_
+#define WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_
 
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webresponse_impl.h"
 #include "webkit/glue/weburlrequest_impl.h"
-#include "base/basictypes.h"
 
 struct PasswordForm;
 class SearchableFormData;
@@ -91,7 +90,7 @@ private:
   // who modifies this when to keep it up to date.
   std::vector<GURL> redirect_chain_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebDataSourceImpl);
+  DISALLOW_COPY_AND_ASSIGN(WebDataSourceImpl);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBDATASOURCE_IMPL_H__
+#endif  // #ifndef WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_

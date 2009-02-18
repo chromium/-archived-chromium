@@ -37,6 +37,7 @@
 #include "chrome/views/window.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "net/base/cookie_monster.h"
+#include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_filter.h"
 
 using base::Time;

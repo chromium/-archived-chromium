@@ -31,6 +31,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
 #include "webkit/glue/dom_serializer_delegate.h"
+#include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview.h"

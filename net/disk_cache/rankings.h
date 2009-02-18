@@ -9,6 +9,7 @@
 
 #include <list>
 
+#include "base/scoped_ptr.h"
 #include "net/disk_cache/addr.h"
 #include "net/disk_cache/mapped_file.h"
 #include "net/disk_cache/storage_block.h"

@@ -17,6 +17,7 @@
 #include "chrome/plugin/webplugin_proxy.h"
 #include "net/base/data_url.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_response_headers.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/resource_type.h"

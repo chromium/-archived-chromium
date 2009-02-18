@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBURLREQUEST_H__
-#define WEBKIT_GLUE_WEBURLREQUEST_H__
+#ifndef WEBKIT_GLUE_WEBURLREQUEST_H_
+#define WEBKIT_GLUE_WEBURLREQUEST_H_
 
 #include <map>
 #include <string>
 
-#include "base/basictypes.h"
 #include "base/ref_counted.h"
 
 enum WebRequestCachePolicy {
@@ -127,5 +126,4 @@ class WebRequest {
   virtual ~WebRequest() { }
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBURLREQUEST_H__
-
+#endif  // #ifndef WEBKIT_GLUE_WEBURLREQUEST_H_

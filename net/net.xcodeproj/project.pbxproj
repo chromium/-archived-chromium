@@ -52,6 +52,7 @@
 		04C626D80E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04C626D70E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc */; };
 		04C626DA0E8DE3BA0067E92A /* http_auth_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04C626D90E8DE3BA0067E92A /* http_auth_unittest.cc */; };
 		04E7BD550EC4ECF60078FE58 /* http_auth_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04E7BD540EC4ECF60078FE58 /* http_auth_cache.cc */; };
+		3853286C2A6C0BE6E1113FA2 /* client_socket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2C481A2E21097E841607B968 /* client_socket.cc */; };
 		4D4C5BE20EF1B89E002CA805 /* directory_lister_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325A0E5A181C00A747DB /* directory_lister_unittest.cc */; };
 		4D4C5C060EF1B8C5002CA805 /* filter_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D4C5C050EF1B8C5002CA805 /* filter_unittest.cc */; };
 		4D4C5C070EF1B915002CA805 /* http_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33550E5A194700A747DB /* http_cache_unittest.cc */; };
@@ -134,6 +135,7 @@
 		7BED34190E5A1A8600A747DB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BA04540E25613300BE02C6 /* libnet.a */; };
 		7BED34450E5A1A9600A747DB /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED324A0E5A17C000A747DB /* libbase.a */; };
 		7BED34520E5A1ABC00A747DB /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED32530E5A17C300A747DB /* libgtest.a */; };
+		81C766A4F7089E3ED5BD33A4 /* addr.cc in Sources */ = {isa = PBXBuildFile; fileRef = D7745B2B51F48114C05EB14A /* addr.cc */; };
 		8200F2030E5F741E005A3C44 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8200F2020E5F741E005A3C44 /* CoreServices.framework */; };
 		820701040EB6611F005CD9E7 /* proxy_resolver_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820701020EB6611F005CD9E7 /* proxy_resolver_mac.cc */; };
 		820706940EB8D9D4005CD9E7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 820706930EB8D9D4005CD9E7 /* SystemConfiguration.framework */; };
@@ -159,6 +161,7 @@
 		827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32800E5A181C00A747DB /* x509_certificate_mac.cc */; };
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
 		93D11DCE0E91463000C36437 /* file_stream_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93D11DCD0E91463000C36437 /* file_stream_posix.cc */; };
+		A2420E59B0E92F1C5DF8FE67 /* io_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = D67E592A64772BE82718FD4C /* io_buffer.cc */; };
 		A50055BF0EBF7CB2007B0A90 /* telnet_server_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED328B0E5A181C00A747DB /* telnet_server_unittest.cc */; };
 		A50055C00EBF7CD6007B0A90 /* listen_socket_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32B10E5A181C00A747DB /* listen_socket_unittest.cc */; };
 		A50055FE0EBF800D007B0A90 /* telnet_server.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED328D0E5A181C00A747DB /* telnet_server.cc */; };
@@ -186,6 +189,7 @@
 		E4CE9C260E8C027900D5378C /* http_network_layer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED335C0E5A194700A747DB /* http_network_layer_unittest.cc */; };
 		E4CE9C2E0E8C02ED00D5378C /* http_transaction_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334A0E5A194700A747DB /* http_transaction_unittest.cc */; };
 		E4CE9C380E8C035C00D5378C /* http_network_transaction_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33590E5A194700A747DB /* http_network_transaction_unittest.cc */; };
+		E51639B07E0FC884891C5135 /* http_response_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = AD46F9C0118A7D723526A361 /* http_response_info.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -442,6 +446,7 @@
 		04E7BD560EC4ED020078FE58 /* http_auth_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_auth_cache.h; sourceTree = "<group>"; };
 		0E81748E2B2E8B814DBB78EC /* ftp_auth_cache.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftp_auth_cache.cc; path = ftp/ftp_auth_cache.cc; sourceTree = SOURCE_ROOT; };
 		15C6370BF6FE62308A559648 /* ftp_auth_cache_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftp_auth_cache_unittest.cc; path = ftp/ftp_auth_cache_unittest.cc; sourceTree = SOURCE_ROOT; };
+		2C481A2E21097E841607B968 /* client_socket.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client_socket.cc; sourceTree = "<group>"; };
 		4D4C5C050EF1B8C5002CA805 /* filter_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_unittest.cc; sourceTree = "<group>"; };
 		533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_util_posix.cc; sourceTree = "<group>"; };
 		58586B4C2F020D851B930BF2 /* cert_verify_result.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cert_verify_result.h; sourceTree = "<group>"; };
@@ -689,9 +694,12 @@
 		93D11DCD0E91463000C36437 /* file_stream_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_stream_posix.cc; sourceTree = "<group>"; };
 		A5AB7BFB0EB7DBA10070A7D3 /* file_stream_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_stream_unittest.cc; sourceTree = "<group>"; };
 		ACAB6D5C0F43A727D039E138 /* ftp_auth_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftp_auth_cache.h; path = ftp/ftp_auth_cache.h; sourceTree = SOURCE_ROOT; };
+		AD46F9C0118A7D723526A361 /* http_response_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_response_info.cc; sourceTree = "<group>"; };
 		B87DD6154A7A9ED60F28F016 /* cert_verifier.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cert_verifier.cc; sourceTree = "<group>"; };
 		C081BA94B2F59669BFAFD808 /* cert_status_flags.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cert_status_flags.cc; sourceTree = "<group>"; };
 		D4726BC70CCE10F4FF2A5E12 /* connection_type_histograms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = connection_type_histograms.h; sourceTree = "<group>"; };
+		D67E592A64772BE82718FD4C /* io_buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = io_buffer.cc; sourceTree = "<group>"; };
+		D7745B2B51F48114C05EB14A /* addr.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = addr.cc; sourceTree = "<group>"; };
 		DD0B3349460AB0703FCE0C7A /* cert_verifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cert_verifier.h; sourceTree = "<group>"; };
 		DFC96EF80EF9BC5D003C335B /* eviction.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eviction.cc; sourceTree = "<group>"; };
 		DFC96EF90EF9BC5D003C335B /* eviction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eviction.h; sourceTree = "<group>"; };
@@ -904,6 +912,7 @@
 				B87DD6154A7A9ED60F28F016 /* cert_verifier.cc */,
 				DD0B3349460AB0703FCE0C7A /* cert_verifier.h */,
 				58586B4C2F020D851B930BF2 /* cert_verify_result.h */,
+				2C481A2E21097E841607B968 /* client_socket.cc */,
 				7BED32710E5A181C00A747DB /* client_socket.h */,
 				7BED32700E5A181C00A747DB /* client_socket_factory.cc */,
 				7BED326F0E5A181C00A747DB /* client_socket_factory.h */,
@@ -950,6 +959,7 @@
 				7BED32B40E5A181C00A747DB /* host_resolver.h */,
 				7B82FF450E763620008F45CF /* host_resolver_unittest.cc */,
 				7BA3615D0E8C35A50023C8B9 /* host_resolver_unittest.h */,
+				D67E592A64772BE82718FD4C /* io_buffer.cc */,
 				7BED32B30E5A181C00A747DB /* listen_socket.cc */,
 				7BED32B20E5A181C00A747DB /* listen_socket.h */,
 				7BED32B10E5A181C00A747DB /* listen_socket_unittest.cc */,
@@ -1017,6 +1027,7 @@
 		7BED32D30E5A18E800A747DB /* disk_cache */ = {
 			isa = PBXGroup;
 			children = (
+				D7745B2B51F48114C05EB14A /* addr.cc */,
 				7BED32F50E5A190600A747DB /* addr.h */,
 				7BED32EE0E5A190600A747DB /* addr_unittest.cc */,
 				7BED32EB0E5A190600A747DB /* backend_impl.cc */,
@@ -1107,6 +1118,7 @@
 				7BED33440E5A194700A747DB /* http_response_headers.cc */,
 				7BED334D0E5A194700A747DB /* http_response_headers.h */,
 				7BED33480E5A194700A747DB /* http_response_headers_unittest.cc */,
+				AD46F9C0118A7D723526A361 /* http_response_info.cc */,
 				7BED33450E5A194700A747DB /* http_response_info.h */,
 				7BED33650E5A194700A747DB /* http_transaction.h */,
 				7BED33530E5A194700A747DB /* http_transaction_factory.h */,
@@ -1471,6 +1483,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				81C766A4F7089E3ED5BD33A4 /* addr.cc in Sources */,
 				7B8503E90E5B2D4700730B43 /* address_list.cc in Sources */,
 				7B8503EA0E5B2D4F00730B43 /* backend_impl.cc in Sources */,
 				7BA015440E5A1BFA00044150 /* base64.cc in Sources */,
@@ -1479,6 +1492,7 @@
 				7B8504050E5B2DBD00730B43 /* cache_util_posix.cc in Sources */,
 				7BCF4CF2ECABD68C18FA59F7 /* cert_status_flags.cc in Sources */,
 				B07E3550EFE4B6C6680D49BE /* cert_verifier.cc in Sources */,
+				3853286C2A6C0BE6E1113FA2 /* client_socket.cc in Sources */,
 				E4CE9C0D0E8BFFFA00D5378C /* client_socket_factory.cc in Sources */,
 				7B8504080E5B2DD800730B43 /* client_socket_handle.cc in Sources */,
 				7B8504090E5B2DD800730B43 /* client_socket_pool.cc in Sources */,
@@ -1511,8 +1525,10 @@
 				E49DD3290E893336003C7A87 /* http_network_layer.cc in Sources */,
 				E4CE9BC50E8BF92400D5378C /* http_network_transaction.cc in Sources */,
 				821F21300E5CD746003C7E38 /* http_response_headers.cc in Sources */,
+				E51639B07E0FC884891C5135 /* http_response_info.cc in Sources */,
 				7B85042F0E5B2E4900730B43 /* http_util.cc in Sources */,
 				821F207F0E5CD3C6003C7E38 /* http_vary_data.cc in Sources */,
+				A2420E59B0E92F1C5DF8FE67 /* io_buffer.cc in Sources */,
 				A50055FF0EBF8018007B0A90 /* listen_socket.cc in Sources */,
 				7B8504320E5B2E4900730B43 /* mapped_file_posix.cc in Sources */,
 				7B8504330E5B2E4900730B43 /* mem_backend_impl.cc in Sources */,

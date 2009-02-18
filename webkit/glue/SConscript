@@ -65,6 +65,7 @@ input_files = [
   'plugins/plugin_string_stream.cc',
   'resource_fetcher.cc',
   'resource_handle_impl.cc',
+  'resource_loader_bridge.cc',
   'searchable_form_data.cc',
   'stacking_order_iterator.cc',
   'webcursor.cc',
@@ -76,10 +77,12 @@ input_files = [
   'webhistoryitem_impl.cc',
   'webkit_glue.cc',
   'webmediaplayer_impl.cc',
+  'webplugin_delegate.cc',
   'webplugin_impl.cc',
   'webtextinput_impl.cc',
   'weburlrequest_impl.cc',
   'webwidget_impl.cc',
+  'webview_delegate.cc',
   'webview_impl.cc',
 ]
 

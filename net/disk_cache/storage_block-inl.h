@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_DISK_CACHE_CACHE_INTERNAL_INL_H__
-#define NET_DISK_CACHE_CACHE_INTERNAL_INL_H__
+#ifndef NET_DISK_CACHE_CACHE_INTERNAL_INL_H_
+#define NET_DISK_CACHE_CACHE_INTERNAL_INL_H_
 
 #include "net/disk_cache/storage_block.h"
 
+#include "base/logging.h"
 #include "net/disk_cache/trace.h"
 
 namespace disk_cache {
@@ -132,5 +133,4 @@ template<typename T> void StorageBlock<T>::DeleteData() {
 
 }  // namespace disk_cache
 
-#endif  // NET_DISK_CACHE_CACHE_INTERNAL_INL_H__
-
+#endif  // NET_DISK_CACHE_CACHE_INTERNAL_INL_H_

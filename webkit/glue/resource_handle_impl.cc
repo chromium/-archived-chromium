@@ -57,6 +57,7 @@ MSVC_POP_WARNING();
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/base/load_flags.h"
+#include "net/http/http_response_headers.h"
 
 using webkit_glue::ResourceLoaderBridge;
 using base::Time;

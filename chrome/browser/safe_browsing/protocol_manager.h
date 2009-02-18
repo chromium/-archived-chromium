@@ -11,8 +11,6 @@
 // The SafeBrowsingProtocolParser class to do the actual parsing.
 
 #include <deque>
-#include <string>
-#include <vector>
 
 #include "base/hash_tables.h"
 #include "base/scoped_ptr.h"
@@ -22,12 +20,12 @@
 #include "chrome/browser/safe_browsing/protocol_parser.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
-#include "net/url_request/url_request.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class MessageLoop;
 class Task;
 class Timer;
+class URLRequestStatus;
 
 #if defined(COMPILER_GCC)
 // Allows us to use URLFetchers in a hash_map with gcc (MSVC is okay without

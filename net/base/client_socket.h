@@ -5,9 +5,13 @@
 #ifndef NET_BASE_CLIENT_SOCKET_H_
 #define NET_BASE_CLIENT_SOCKET_H_
 
-#include "base/logging.h"
+#include "build/build_config.h"
+
+#if defined(OS_LINUX)
+#include <sys/socket.h>
+#endif
+
 #include "net/base/socket.h"
-#include "net/base/net_errors.h"
 
 namespace net {
 
@@ -46,11 +50,7 @@ class ClientSocket : public Socket {
 #if defined(OS_LINUX)
   // Identical to posix system call getpeername().
   // Needed by ssl_client_socket_nss.
-  virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen) {
-    // Default implementation just permits some unit tests to link.
-    NOTREACHED();
-    return ERR_UNEXPECTED;
-  }
+  virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen);
 #endif
 };
 

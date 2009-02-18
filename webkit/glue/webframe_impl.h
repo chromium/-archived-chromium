@@ -26,20 +26,12 @@
 #ifndef WEBKIT_GLUE_WEBFRAME_IMPL_H_
 #define WEBKIT_GLUE_WEBFRAME_IMPL_H_
 
-#include <string>
-
-#include "base/basictypes.h"
-#include "base/compiler_specific.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/password_autocomplete_listener.h"
-#include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
-#include "webkit/glue/webhistoryitem_impl.h"
-#include "webkit/glue/webplugin_delegate.h"
-#include "webkit/glue/webview_delegate.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceHandleClient.h"
@@ -48,7 +40,10 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 class AltErrorPageResourceFetcher;
+class WebDataSourceImpl;
 class WebErrorImpl;
+class WebHistoryItemImpl;
+class WebPluginDelegate;
 class WebRequest;
 class WebView;
 class WebViewImpl;
@@ -220,9 +215,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // If currently_loading_request is NULL, does nothing.
   void CacheCurrentRequestInfo(WebDataSourceImpl* datasource);
 
-  void set_currently_loading_history_item(WebHistoryItemImpl* item) {
-    currently_loading_history_item_ = item;
-  }
+  void set_currently_loading_history_item(WebHistoryItemImpl* item);
 
   // Getters for the impls corresponding to Get(Provisional)DataSource. They
   // may return NULL if there is no corresponding data source.

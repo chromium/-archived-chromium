@@ -6,6 +6,7 @@
 
 #include "base/json_reader.h"
 #include "base/json_writer.h"
+#include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/common/l10n_util.h"
 

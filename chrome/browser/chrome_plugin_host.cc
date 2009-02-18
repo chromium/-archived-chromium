@@ -8,14 +8,13 @@
 
 #include "base/command_line.h"
 #include "base/file_util.h"
+#include "base/gfx/png_encoder.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
-#include "net/base/cookie_monster.h"
-#include "net/url_request/url_request_error_job.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
@@ -37,12 +36,10 @@
 #include "chrome/common/net/url_request_intercept_job.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
-
-#include "base/gfx/png_encoder.h"
-#include "base/logging.h"
-#include "base/string_util.h"
-#include "googleurl/src/gurl.h"
 #include "net/base/base64.h"
+#include "net/base/cookie_monster.h"
+#include "net/url_request/url_request_context.h"
+#include "net/url_request/url_request_error_job.h"
 #include "skia/include/SkBitmap.h"
 
 using base::TimeDelta;

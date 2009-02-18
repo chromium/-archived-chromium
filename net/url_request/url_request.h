@@ -8,22 +8,22 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
-#include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_states.h"
-#include "net/base/ssl_info.h"
-#include "net/base/upload_data.h"
-#include "net/base/x509_certificate.h"
 #include "net/http/http_response_info.h"
-#include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_status.h"
 
 namespace net {
+
 class IOBuffer;
+class UploadData;
+class X509Certificate;
+
 }
+
+class URLRequestContext;
 class URLRequestJob;
 
 // This stores the values of the Set-Cookie headers received during the request.
@@ -203,29 +203,20 @@ class URLRequest {
   // The URL that should be consulted for the third-party cookie blocking
   // policy.
   const GURL& policy_url() const { return policy_url_; }
-  void set_policy_url(const GURL& policy_url) {
-    DCHECK(!is_pending_);
-    policy_url_ = policy_url;
-  }
+  void set_policy_url(const GURL& policy_url);
 
   // The request method, as an uppercase string.  "GET" is the default value.
   // The request method may only be changed before Start() is called and
   // should only be assigned an uppercase value.
   const std::string& method() const { return method_; }
-  void set_method(const std::string& method) {
-    DCHECK(!is_pending_);
-    method_ = method;
-  }
+  void set_method(const std::string& method);
 
   // The referrer URL for the request.  This header may actually be suppressed
   // from the underlying network request for security reasons (e.g., a HTTPS
   // URL will not be sent as the referrer for a HTTP request).  The referrer
   // may only be changed before Start() is called.
   const std::string& referrer() const { return referrer_; }
-  void set_referrer(const std::string& referrer) {
-    DCHECK(!is_pending_);
-    referrer_ = referrer;
-  }
+  void set_referrer(const std::string& referrer);
 
   // The delegate of the request.  This value may be changed at any time,
   // and it is permissible for it to be null.
@@ -250,13 +241,13 @@ class URLRequest {
   }
 
   // Set the upload data directly.
-  void set_upload(net::UploadData* upload) { upload_ = upload; }
+  void set_upload(net::UploadData* upload);
 
   // Get the upload data directly.
-  net::UploadData* get_upload() { return upload_.get(); }
+  net::UploadData* get_upload();
 
   // Returns true if the request has a non-empty message body to upload.
-  bool has_upload() const { return upload_ != NULL; }
+  bool has_upload() const;
 
   // Set an extra request header by ID or name.  These methods may only be
   // called before Start() is called.  It is an error to call it later.
@@ -309,9 +300,7 @@ class URLRequest {
 
   // Get all response headers, as a HttpResponseHeaders object.  See comments
   // in HttpResponseHeaders class as to the format of the data.
-  net::HttpResponseHeaders* response_headers() const {
-    return response_info_.headers.get();
-  }
+  net::HttpResponseHeaders* response_headers() const;
 
   // Get the SSL connection info.
   const net::SSLInfo& ssl_info() const {
@@ -421,8 +410,8 @@ class URLRequest {
   void set_enable_profiling(bool profiling) { enable_profiling_ = profiling; }
 
   // Used to specify the context (cookie store, cache) for this request.
-  URLRequestContext* context() { return context_.get(); }
-  void set_context(URLRequestContext* context) { context_ = context; }
+  URLRequestContext* context();
+  void set_context(URLRequestContext* context);
 
   // Returns the expected content size if available
   int64 GetExpectedContentSize() const;
@@ -497,7 +486,7 @@ class URLRequest {
   // first transaction in a request involving redirects.
   uint64 final_upload_progress_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(URLRequest);
+  DISALLOW_COPY_AND_ASSIGN(URLRequest);
 };
 
 //-----------------------------------------------------------------------------
@@ -510,10 +499,7 @@ class URLRequest {
 struct URLRequestMetrics {
   int object_count;
   URLRequestMetrics() : object_count(0) {}
-  ~URLRequestMetrics() {
-    DLOG_IF(WARNING, object_count != 0) <<
-      "Leaking " << object_count << " URLRequest object(s)";
-  }
+  ~URLRequestMetrics();
 };
 
 extern URLRequestMetrics url_request_metrics;
@@ -526,8 +512,6 @@ extern URLRequestMetrics url_request_metrics;
 #define URLREQUEST_COUNT_CTOR()
 #define URLREQUEST_COUNT_DTOR()
 
-#endif
-
+#endif  // #ifndef NDEBUG
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_H_
-

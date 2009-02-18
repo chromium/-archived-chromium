@@ -2,19 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_HTTP_HTTP_RESPONSE_INFO_H__
-#define NET_HTTP_HTTP_RESPONSE_INFO_H__
+#ifndef NET_HTTP_HTTP_RESPONSE_INFO_H_
+#define NET_HTTP_HTTP_RESPONSE_INFO_H_
 
 #include "base/time.h"
 #include "net/base/auth.h"
 #include "net/base/ssl_info.h"
-#include "net/http/http_response_headers.h"
 #include "net/http/http_vary_data.h"
 
 namespace net {
 
+class HttpResponseHeaders;
+
 class HttpResponseInfo {
  public:
+  HttpResponseInfo();
+  ~HttpResponseInfo();
+
   // The following is only defined if the request_time memmber is set.
   // If this response was resurrected from cache, then this bool is set, and
   // request_time may corresponds to a time "far" in the past.  Note that
@@ -48,5 +52,4 @@ class HttpResponseInfo {
 
 }  // namespace net
 
-#endif  // NET_HTTP_HTTP_RESPONSE_INFO_H__
-
+#endif  // NET_HTTP_HTTP_RESPONSE_INFO_H_

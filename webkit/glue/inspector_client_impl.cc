@@ -17,6 +17,7 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "webkit/glue/inspector_client_impl.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"

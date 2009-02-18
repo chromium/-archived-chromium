@@ -5,7 +5,6 @@
 #ifndef NET_BASE_IO_BUFFER_H_
 #define NET_BASE_IO_BUFFER_H_
 
-#include "base/logging.h"
 #include "base/ref_counted.h"
 
 namespace net {
@@ -15,10 +14,7 @@ namespace net {
 class IOBuffer : public base::RefCountedThreadSafe<IOBuffer> {
  public:
   IOBuffer() : data_(NULL) {}
-  explicit IOBuffer(int buffer_size) {
-    DCHECK(buffer_size);
-    data_ = new char[buffer_size];
-  }
+  explicit IOBuffer(int buffer_size);
   explicit IOBuffer(char* data) : data_(data) {}
   virtual ~IOBuffer() {
     delete[] data_;

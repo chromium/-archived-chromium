@@ -13,7 +13,7 @@
 
 class ChromePluginLib;
 class MessageLoop;
-namespace net{
+namespace net {
 class HttpResponseHeaders;
 }
 

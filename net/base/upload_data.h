@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_UPLOAD_DATA_H__
-#define NET_BASE_UPLOAD_DATA_H__
+#ifndef NET_BASE_UPLOAD_DATA_H_
+#define NET_BASE_UPLOAD_DATA_H_
 
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
 #include "base/ref_counted.h"
 
 namespace net {
@@ -98,5 +97,4 @@ class UploadData : public base::RefCounted<UploadData> {
 
 }  // namespace net
 
-#endif  // NET_BASE_UPLOAD_DATA_H__
-
+#endif  // NET_BASE_UPLOAD_DATA_H_

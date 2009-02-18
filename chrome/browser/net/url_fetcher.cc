@@ -12,8 +12,86 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/load_flags.h"
 #include "net/base/io_buffer.h"
+#include "net/http/http_response_headers.h"
+#include "net/url_request/url_request.h"
+#include "net/url_request/url_request_context.h"
 
 static const int kBufferSize = 4096;
+
+class URLFetcher::Core
+    : public base::RefCountedThreadSafe<URLFetcher::Core>,
+      public URLRequest::Delegate {
+ public:
+  // For POST requests, set |content_type| to the MIME type of the content
+  // and set |content| to the data to upload.  |flags| are flags to apply to
+  // the load operation--these should be one or more of the LOAD_* flags
+  // defined in url_request.h.
+  Core(URLFetcher* fetcher,
+       const GURL& original_url,
+       RequestType request_type,
+       URLFetcher::Delegate* d);
+
+  // Starts the load.  It's important that this not happen in the constructor
+  // because it causes the IO thread to begin AddRef()ing and Release()ing
+  // us.  If our caller hasn't had time to fully construct us and take a
+  // reference, the IO thread could interrupt things, run a task, Release()
+  // us, and destroy us, leaving the caller with an already-destroyed object
+  // when construction finishes.
+  void Start();
+
+  // Stops any in-progress load and ensures no callback will happen.  It is
+  // safe to call this multiple times.
+  void Stop();
+
+  // URLRequest::Delegate implementations
+  virtual void OnReceivedRedirect(URLRequest* request,
+                                  const GURL& new_url) { }
+  virtual void OnResponseStarted(URLRequest* request);
+  virtual void OnReadCompleted(URLRequest* request, int bytes_read);
+
+ private:
+  // Wrapper functions that allow us to ensure actions happen on the right
+  // thread.
+  void StartURLRequest();
+  void CancelURLRequest();
+  void OnCompletedURLRequest(const URLRequestStatus& status);
+
+  URLFetcher* fetcher_;              // Corresponding fetcher object
+  GURL original_url_;                // The URL we were asked to fetch
+  GURL url_;                         // The URL we eventually wound up at
+  RequestType request_type_;         // What type of request is this?
+  URLFetcher::Delegate* delegate_;   // Object to notify on completion
+  MessageLoop* delegate_loop_;       // Message loop of the creating thread
+  MessageLoop* io_loop_;             // Message loop of the IO thread
+  URLRequest* request_;              // The actual request this wraps
+  int load_flags_;                   // Flags for the load operation
+  int response_code_;                // HTTP status code for the request
+  std::string data_;                 // Results of the request
+  scoped_refptr<net::IOBuffer> buffer_;
+                                     // Read buffer
+  scoped_refptr<URLRequestContext> request_context_;
+                                     // Cookie/cache info for the request
+  ResponseCookies cookies_;          // Response cookies
+  std::string extra_request_headers_;// Extra headers for the request, if any
+  scoped_refptr<net::HttpResponseHeaders> response_headers_;
+
+  std::string upload_content_;       // HTTP POST payload
+  std::string upload_content_type_;  // MIME type of POST payload
+
+  // The overload protection entry for this URL.  This is used to
+  // incrementally back off how rapidly we'll send requests to a particular
+  // URL, to avoid placing too much demand on the remote resource.  We update
+  // this with the status of all requests as they return, and in turn use it
+  // to determine how long to wait before making another request.
+  URLFetcherProtectEntry* protect_entry_;
+  // |num_retries_| indicates how many times we've failed to successfully
+  // fetch this URL.  Once this value exceeds the maximum number of retries
+  // specified by the protection manager, we'll give up.
+  int num_retries_;
+
+  friend class URLFetcher;
+  DISALLOW_COPY_AND_ASSIGN(Core);
+};
 
 URLFetcher::URLFetcher(const GURL& url,
                        RequestType request_type,
@@ -183,4 +261,39 @@ void URLFetcher::Core::OnCompletedURLRequest(const URLRequestStatus& status) {
       delegate_->OnURLFetchComplete(fetcher_, url_, status, response_code_,
                                     cookies_, data_);
   }
+}
+
+void URLFetcher::set_io_loop(MessageLoop* io_loop) {
+  core_->io_loop_ = io_loop;
+}
+
+void URLFetcher::set_upload_data(const std::string& upload_content_type,
+                     const std::string& upload_content) {
+  core_->upload_content_type_ = upload_content_type;
+  core_->upload_content_ = upload_content;
+}
+
+void URLFetcher::set_load_flags(int load_flags) {
+  core_->load_flags_ = load_flags;
+}
+
+void URLFetcher::set_extra_request_headers(
+    const std::string& extra_request_headers) {
+  core_->extra_request_headers_ = extra_request_headers;
+}
+
+void URLFetcher::set_request_context(URLRequestContext* request_context) {
+  core_->request_context_ = request_context;
+}
+
+net::HttpResponseHeaders* URLFetcher::response_headers() const {
+  return core_->response_headers_;
+}
+
+void URLFetcher::Start() {
+  core_->Start();
+}
+
+const GURL& URLFetcher::url() const {
+  return core_->url_;
 }

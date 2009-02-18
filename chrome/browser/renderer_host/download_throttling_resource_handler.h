@@ -19,6 +19,7 @@
 
 class DownloadResourceHandler;
 class ResourceDispatcherHost;
+class URLRequest;
 
 // DownloadThrottlingResourceHandler is used to determine if a download should
 // be allowed. When a DownloadThrottlingResourceHandler is created it pauses the

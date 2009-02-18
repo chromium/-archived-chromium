@@ -10,16 +10,13 @@
 #include <atlcrack.h>
 #include <atlmisc.h>
 
-#include "base/basictypes.h"
-#include "base/gfx/size.h"
-#include "base/scoped_handle.h"
-#include "base/shared_memory.h"
 #include "base/task.h"
 #include "chrome/browser/ime_input.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "webkit/glue/webcursor.h"
 
 namespace gfx {
+class Size;
 class Rect;
 }
 namespace IPC {

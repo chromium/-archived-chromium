@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_IME_INPUT_H__
-#define CHROME_BROWSER_IME_INPUT_H__
+#ifndef CHROME_BROWSER_IME_INPUT_H_
+#define CHROME_BROWSER_IME_INPUT_H_
 
 #include <windows.h>
 
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/gfx/Rect.h"
+#include "base/gfx/rect.h"
 
 // This header file defines a struct and a class used for encapsulating IMM32
 // APIs, controls IMEs attached to a window, and enables the 'on-the-spot'
@@ -303,5 +303,4 @@ class ImeInput {
   DISALLOW_EVIL_CONSTRUCTORS(ImeInput);
 };
 
-#endif  // #ifndef CHROME_BROWSER_IME_INPUT_H__
-
+#endif  // #ifndef CHROME_BROWSER_IME_INPUT_H_

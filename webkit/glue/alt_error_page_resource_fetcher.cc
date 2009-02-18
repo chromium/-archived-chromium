@@ -14,7 +14,9 @@ MSVC_POP_WARNING();
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
 
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webframe_impl.h"
+#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview.h"
 
@@ -34,6 +36,9 @@ AltErrorPageResourceFetcher::AltErrorPageResourceFetcher(
       GetRequest().Clone());
   fetcher_.reset(new ResourceFetcherWithTimeout(url, web_frame->frame(),
                                                 kDownloadTimeoutSec, this));
+}
+
+AltErrorPageResourceFetcher::~AltErrorPageResourceFetcher() {
 }
 
 void AltErrorPageResourceFetcher::OnURLFetchComplete(

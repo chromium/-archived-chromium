@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "googleurl/src/gurl.h"
 
+class GURL;
 struct PasswordForm;
 class SearchableFormData;
 class WebFrame;
