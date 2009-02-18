@@ -310,26 +310,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\tools_agent.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_agent.h"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_client.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_client.h"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_messages.h"
-			>
-		</File>
-		<File
 			RelativePath=".\user_script_slave.cc"
 			>
 		</File>

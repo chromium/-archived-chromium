@@ -22,8 +22,6 @@
 #include "chrome/renderer/dom_ui_bindings.h"
 #include "chrome/renderer/external_host_bindings.h"
 #include "chrome/renderer/external_js_object.h"
-#include "chrome/renderer/tools_agent.h"
-#include "chrome/renderer/tools_client.h"
 #include "chrome/renderer/render_widget.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/console_message_level.h"
@@ -440,7 +438,6 @@ class RenderView : public RenderWidget,
   void OnCopyImageAt(int x, int y);
   void OnInspectElement(int x, int y);
   void OnShowJavaScriptConsole();
-  void OnSetUpToolsClient();
   void OnCancelDownload(int32 download_id);
   void OnFind(const FindInPageRequest& request);
   void OnZoom(int function);
@@ -553,10 +550,6 @@ class RenderView : public RenderWidget,
   // Exposes the DOMAutomationController object that allows JS to send
   // information to the browser process.
   void BindDOMAutomationController(WebFrame* webframe);
-
-  // Creates ToolsClient and sets up JavaScript bindings for developer tools UI
-  // that is going to be hosted by this RenderView.
-  void CreateToolsClient();
 
   void set_opened_by_user_gesture(bool value) {
     opened_by_user_gesture_ = value;
@@ -699,14 +692,6 @@ class RenderView : public RenderWidget,
   gfx::Size printing_view_size_;
 
   scoped_refptr<DebugMessageHandler> debug_message_handler_;
-
-  // Provides access to this renderer from the remote Inspector UI.
-  scoped_refptr<ToolsAgent> tools_agent_;
-
-  // Whether this renderer will serve as Inspector UI.
-  bool enable_tools_client_;
-
-  scoped_refptr<ToolsClient> tools_client_;
 
   scoped_ptr<WebFileChooserCallback> file_chooser_;
 
