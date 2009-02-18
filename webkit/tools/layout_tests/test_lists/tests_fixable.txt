@@ -337,7 +337,7 @@ LINUX : LayoutTests/fast/frames/valid.html = FAIL
 LINUX : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 // Compact support was removed from WebKit by Hyatt and layout tests rebaselined in r40259.
 LINUX : LayoutTests/fast/compact/001.html = FAIL
-LINUX : LayoutTests/fast/compact/002.html = FAIL
+LINUX : LayoutTests/fast/compact/002.html = FAIL CRASH
 DEFER LINUX : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
 MAC : LayoutTests/fast/dom/prototype-chain.html = FAIL
 LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
@@ -1766,3 +1766,7 @@ LINUX : LayoutTests/fast/css-generated-content/beforeAfter-interdocument.html = 
 // just need to be rebaselined
 LINUX : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 MAC : LayoutTests/fast/lists/001.html = FAIL
+
+LINUX : LayoutTests/fast/clip/008.html = PASS CRASH
+LINUX : LayoutTests/fast/clip/014.html = PASS CRASH
+LINUX : LayoutTests/fast/compact/003.html = PASS CRASH
