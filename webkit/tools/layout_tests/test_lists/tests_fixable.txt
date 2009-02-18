@@ -1773,3 +1773,5 @@ LINUX : LayoutTests/fast/compact/003.html = PASS CRASH
 
 // New test from WebKit merge 41017:41057
 LayoutTests/fast/js/function-toString-semicolon-insertion.html = FAIL
+// Will fix this upstream to be a text-only test, marking as failed for now
+MAC LINUX : LayoutTests/fast/forms/inline-ignored-on-legend.html = FAIL
