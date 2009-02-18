@@ -38,7 +38,7 @@
 #include "DOMTimer.h"
 #include "WorkerContext.h"
 #include "WorkerContextExecutionProxy.h"
-#include "WorkerMessagingProxy.h"
+#include "WorkerObjectProxy.h"
 #include "WorkerThread.h"
 
 namespace WebCore {
@@ -67,7 +67,7 @@ ScriptValue WorkerScriptController::evaluate(const ScriptSourceCode& sourceCode)
                           sourceCode.url().string(),
                           sourceCode.startLine() - 1);
 
-    m_workerContext->thread()->messagingProxy()->
+    m_workerContext->thread()->workerObjectProxy()->
         reportPendingActivity(m_workerContext->hasPendingActivity());
 
     return ScriptValue();
