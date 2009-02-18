@@ -32,3 +32,4 @@ if env.Bit('linux'):
   )
   i = env.Install('$DESTINATION_ROOT', chrome_pak)
   env.Requires('$DESTINATION_ROOT/chrome', i)
+  env.Requires('$DESTINATION_ROOT/unit_tests', i)
