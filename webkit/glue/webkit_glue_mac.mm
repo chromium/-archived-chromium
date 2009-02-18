@@ -3,10 +3,10 @@
 // LICENSE file.
 
 #include "config.h"
+
 #include "webkit/glue/webkit_glue.h"
 
-#import <AppKit/NSGraphics.h>
-#import <Foundation/NSGeometry.h>
+#import <AppKit/AppKit.h>
 
 namespace webkit_glue {
 
