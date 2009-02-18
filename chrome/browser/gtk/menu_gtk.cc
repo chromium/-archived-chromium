@@ -8,6 +8,30 @@
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
 
+namespace {
+
+// GTK uses _ for accelerators.  Windows uses & with && as an escape for &.
+std::wstring ConvertAcceleratorsFromWindowsStyle(const std::wstring& label) {
+  std::wstring ret;
+  ret.reserve(label.length());
+  for (size_t i = 0; i < label.length(); ++i) {
+    if (L'&' == label[i]) {
+      if (i + 1 < label.length() && L'&' == label[i + 1]) {
+        ret.push_back(label[i]);
+        ++i;
+      } else {
+        ret.push_back(L'_');
+      }
+    } else {
+      ret.push_back(label[i]);
+    }
+  }
+
+  return ret;
+}
+
+}
+
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data)
     : delegate_(delegate),
@@ -58,9 +82,11 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
       DCHECK(menu_data->type == MENU_SEPARATOR) << "Menu definition broken";
     }
 
+    label = ConvertAcceleratorsFromWindowsStyle(label);
+
     switch (menu_data->type) {
       case MENU_CHECKBOX:
-        menu_item = gtk_check_menu_item_new_with_label(
+        menu_item = gtk_check_menu_item_new_with_mnemonic(
             WideToUTF8(label).c_str());
         break;
       case MENU_SEPARATOR:
@@ -68,7 +94,7 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
         break;
       case MENU_NORMAL:
       default:
-        menu_item = gtk_menu_item_new_with_label(WideToUTF8(label).c_str());
+        menu_item = gtk_menu_item_new_with_mnemonic(WideToUTF8(label).c_str());
         break;
     }
 
