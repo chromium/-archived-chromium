@@ -1185,7 +1185,10 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
     return false;
   *enable_ime = node->shouldUseInputMethod() &&
       !controller->isInPasswordField();
-  const IntRect rect(controller->absoluteCaretBounds());
+  const FrameView* view = node->document()->view();
+  if (!view)
+    return false;
+  const IntRect rect(view->contentsToWindow(controller->absoluteCaretBounds()));
   caret_rect->SetRect(rect.x(), rect.y(), rect.width(), rect.height());
   return true;
 }
