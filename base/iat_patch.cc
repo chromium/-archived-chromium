@@ -205,9 +205,25 @@ DWORD IATPatchFunction::Patch(HMODULE module_handle,
 }
 
 DWORD IATPatchFunction::Unpatch() {
-  DWORD error = RestoreImportedFunction(intercept_function_,
-                                        original_function_,
-                                        iat_thunk_);
+  DWORD error = 0;  
+  MEMORY_BASIC_INFORMATION memory_info = {0};
+
+  // If the module has already unloaded, no point trying to unpatch.
+  if (!VirtualQuery(original_function_, &memory_info,
+                    sizeof(memory_info))) {
+    error = GetLastError();
+    NOTREACHED();
+    return error;
+  }
+
+  if ((memory_info.State  & MEM_COMMIT) != MEM_COMMIT) {
+    NOTREACHED();
+    return ERROR_ACCESS_DENIED;
+  }
+
+  error = RestoreImportedFunction(intercept_function_,
+                                  original_function_,
+                                  iat_thunk_);
   DCHECK(NO_ERROR == error);
 
   // Hands off the intercept if we fail to unpatch.
