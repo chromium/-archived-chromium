@@ -66,7 +66,6 @@ if env.Bit('posix'):
       'chrome_plugin_host.cc',
       'npobject_proxy.cc',
       'npobject_stub.cc',
-      'npobject_util.cc',
       'plugin_channel.cc',
       'plugin_channel_base.cc',
       'plugin_main.cc',

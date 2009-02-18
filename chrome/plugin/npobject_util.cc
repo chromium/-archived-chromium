@@ -4,8 +4,11 @@
 
 #include "chrome/plugin/npobject_util.h"
 
+#if defined(OS_WIN)
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
+#endif
+
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/plugin_channel_base.h"
 #include "webkit/glue/plugins/nphostapi.h"
@@ -124,6 +127,7 @@ bool IsPluginProcess() {
   return g_plugin_process;
 }
 
+#if defined(OS_WIN)
 void CreateNPIdentifierParam(NPIdentifier id, NPIdentifier_Param* param) {
   param->identifier = id;
 }
@@ -243,4 +247,4 @@ void CreateNPVariant(const NPVariant_Param& param,
       NOTREACHED();
   }
 }
-
+#endif
