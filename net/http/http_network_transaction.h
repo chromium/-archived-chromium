@@ -75,6 +75,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoReadHeadersComplete(int result);
   int DoReadBody();
   int DoReadBodyComplete(int result);
+  int DoDrainBodyForAuthRestart();
+  int DoDrainBodyForAuthRestartComplete(int result);
 
   // Record histogram of latency (first byte sent till last byte received) as
   // well as effective bandwidth used.
@@ -125,6 +127,11 @@ class HttpNetworkTransaction : public HttpTransaction {
 
   // Sets up the state machine to restart the transaction with auth.
   void PrepareForAuthRestart(HttpAuth::Target target);
+
+  // Called when we don't need to drain the response body or have drained it.
+  // Resets |connection_| unless |keep_alive| is true, then calls
+  // ResetStateForRestart.  Sets |next_state_| appropriately.
+  void DidDrainBodyForAuthRestart(bool keep_alive);
 
   // Resets the members of the transaction so it can be restarted.
   void ResetStateForRestart();
@@ -245,6 +252,11 @@ class HttpNetworkTransaction : public HttpTransaction {
   // Note: |kMaxHeaderBufSize| should be a multiple of |kHeaderBufInitialSize|.
   enum { kMaxHeaderBufSize = 32768 };  // 32 kilobytes.
 
+  // The size in bytes of the buffer we use to drain the response body that
+  // we want to throw away.  The response body is typically a small error
+  // page just a few hundred bytes long.
+  enum { kDrainBodyBufferSize = 1024 };
+
   // The position where status line starts; -1 if not found yet.
   int header_buf_http_offset_;
 
@@ -281,6 +293,8 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_READ_HEADERS_COMPLETE,
     STATE_READ_BODY,
     STATE_READ_BODY_COMPLETE,
+    STATE_DRAIN_BODY_FOR_AUTH_RESTART,
+    STATE_DRAIN_BODY_FOR_AUTH_RESTART_COMPLETE,
     STATE_NONE
   };
   State next_state_;
