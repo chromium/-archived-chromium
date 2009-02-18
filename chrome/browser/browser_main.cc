@@ -69,7 +69,6 @@
 #include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/user_metrics.h"
-#include "chrome/browser/process_singleton.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/sdch_dictionary_fetcher.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -99,6 +98,7 @@
 
 #if !defined(OS_MACOSX)
 #include "net_resources.h"
+#include "chrome/browser/process_singleton.h"
 #endif
 
 namespace Platform {

@@ -5,8 +5,11 @@
 #ifndef CHROME_BROWSER_PROCESS_SINGLETON_H_
 #define CHROME_BROWSER_PROCESS_SINGLETON_H_
 
-#include <string>
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
@@ -18,8 +21,9 @@
 // we can be sure that no more than one copy of the application can be
 // running at once with a given data directory.
 //
-// The Windows implementation uses an invisible global message window for
-// IPC.
+// Implementation notes:
+// - the Windows implementation uses an invisible global message window;
+// - the Linux implementation uses a Unix domain socket in ~/.chromium.
 
 class ProcessSingleton {
  public:
@@ -27,14 +31,15 @@ class ProcessSingleton {
   ~ProcessSingleton();
 
   // Returns true if another process was found and notified, false if we
-  // should continue with this process. Roughly based on Mozilla
+  // should continue with this process.
+  // Windows code roughly based on Mozilla.
   //
   // TODO(brettw): this will not handle all cases. If two process start up too
-  // close to each other, the window might not have been created yet for the
+  // close to each other, the Create() might not yet have happened for the
   // first one, so this function won't find it.
   bool NotifyOtherProcess();
 
-  // Create the toplevel message window for IPC.
+  // Set ourselves up as the singleton instance.
   void Create();
 
   // Blocks the dispatch of CopyData messages.
@@ -47,13 +52,16 @@ class ProcessSingleton {
     locked_ = false;
   }
 
-  // This ugly behemoth handles startup commands sent from another process.
-  LRESULT OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds);
-
   // Looks for zombie renderer and plugin processes that could have survived.
   void HuntForZombieChromeProcesses();
 
  private:
+  bool locked_;
+
+#if defined(OS_WIN)
+  // This ugly behemoth handles startup commands sent from another process.
+  LRESULT OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds);
+
   LRESULT CALLBACK WndProc(HWND hwnd,
                            UINT message,
                            WPARAM wparam,
@@ -70,7 +78,13 @@ class ProcessSingleton {
 
   HWND remote_window_;  // The HWND_MESSAGE of another browser.
   HWND window_;  // The HWND_MESSAGE window.
-  bool locked_;
+#elif defined(OS_LINUX)
+  // Set up a socket and sockaddr appropriate for messaging.
+  void SetupSocket(int* sock, struct sockaddr_un* addr);
+
+  // Path in file system to the socket.
+  FilePath socket_path_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(ProcessSingleton);
 };
