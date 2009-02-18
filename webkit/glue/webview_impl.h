@@ -37,6 +37,7 @@ class Widget;
 class AutocompletePopupMenuClient;
 class ImageResourceFetcher;
 class SearchableFormData;
+class ToolsProxy;
 struct WebDropData;
 class WebHistoryItemImpl;
 class WebKeyboardEvent;
@@ -89,6 +90,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual void CopyImageAt(int x, int y);
   virtual void InspectElement(int x, int y);
   virtual void ShowJavaScriptConsole();
+  virtual void SetUpToolsProxy(ToolsProxy* tools_proxy);
   virtual void DragSourceEndedAt(
       int client_x, int client_y, int screen_x, int screen_y);
   virtual void DragSourceMovedTo(

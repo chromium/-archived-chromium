@@ -54,6 +54,12 @@ input_files = ChromeFileList([
     'debugger_window.h',
     'debugger_wrapper.cc',
     'debugger_wrapper.h',
+    'tools_contents.cc',
+    'tools_contents.h',
+    'tools_view.cc',
+    'tools_view.h',
+    'tools_window.cc',
+    'tools_window.h',
 ])
 
 if env.Bit('linux'):
@@ -62,6 +68,9 @@ if env.Bit('linux'):
       'debugger_contents.cc',
       'debugger_view.cc',
       'debugger_window.cc',
+      'tools_contents.cc',
+      'tools_view.cc',
+      'tools_window.cc',
   )
 
 if env.Bit('mac'):
@@ -72,6 +81,9 @@ if env.Bit('mac'):
       'debugger_node.cc',
       'debugger_view.cc',
       'debugger_window.cc',
+      'tools_contents.cc',
+      'tools_view.cc',
+      'tools_window.cc',
   )
 
 if not env.Bit('mac'):

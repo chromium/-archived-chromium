@@ -173,6 +173,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tools_proxy.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webdatasource.h"
 				>
 			</File>

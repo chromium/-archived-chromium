@@ -26,6 +26,7 @@ class NavigationEntry;
 class RenderViewHostDelegate;
 class SiteInstance;
 class SkBitmap;
+class ToolsWindow;
 class ViewMsg_Navigate;
 struct ContextMenuParams;
 struct ViewHostMsg_DidPrintPage_Params;
@@ -291,6 +292,9 @@ class RenderViewHost : public RenderWidgetHost {
   // Show the JavaScript console.
   void ShowJavaScriptConsole();
 
+  // Show the Web Inspector.
+  void ShowDeveloperTools();
+
   // Notifies the renderer that a drop occurred. This is necessary because the
   // render may be the one that started the drag.
   void DragSourceEndedAt(
@@ -319,6 +323,11 @@ class RenderViewHost : public RenderWidgetHost {
   // This is used for HTML-based UI.
   // Must be called before CreateRenderView().
   void AllowDOMUIBindings();
+
+  // Tell the render view to connect as a tools client to the specified
+  // renderer. Must be called when RenderView is created but before any
+  // navigation.
+  void SetUpToolsClient(int inspected_process_id, int inspected_view_id);
 
   // Sets a property with the given name and value on the DOM UI binding object.
   // Must call AllowDOMUIBindings() on this renderer first.
@@ -506,6 +515,8 @@ class RenderViewHost : public RenderWidgetHost {
                              const std::wstring& source_id);
   void OnDebuggerOutput(const std::wstring& output);
   void DidDebugAttach();
+  void OnToolsAgentMsg(int tools_message_type, const std::wstring& body);
+  void OnToolsClientMsg(int tools_message_type, const std::wstring& body);
   void OnUserMetricsRecordAction(const std::wstring& action);
   void OnMissingPluginStatus(int status);
   void OnMessageReceived(IPC::Message* msg) { }
@@ -561,8 +572,11 @@ class RenderViewHost : public RenderWidgetHost {
   // information.
   bool waiting_for_drag_context_response_;
 
-  // is the debugger attached to us or not
+  // If the debugger attached to us or not.
   bool debugger_attached_;
+
+  // Allows to show exactly one developer tools window for this render view.
+  scoped_ptr<ToolsWindow> tools_window_;
 
   // True if we've been told to set up the the Javascript bindings for
   // sending messages back to the browser.
@@ -609,6 +623,10 @@ class RenderViewHost : public RenderWidgetHost {
   bool is_waiting_for_unload_ack_;
 
   bool are_javascript_messages_suppressed_;
+
+  int inspected_process_id_;
+
+  int inspected_view_id_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };
