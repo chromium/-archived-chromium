@@ -109,13 +109,14 @@ class X509Certificate;
 //---------------------------------------------------------------------------
 // These stubs are for Browser_main()
 
-// TODO(port): MessageWindow is very windows-specific, but provides the concept
-//             of singleton browser process per user-data-dir. Investigate how
-//             to achieve this on other platforms and see if this API works.
-class MessageWindow {
+// TODO(port): the current ProcessSingleton implementation is very
+// windows-specific, but provides the concept of a singleton browser
+// process per user-data-dir. Investigate how achieve this on other
+// platforms and see if this API works.
+class ProcessSingleton {
  public:
-  explicit MessageWindow(const FilePath& user_data_dir) { }
-  ~MessageWindow() { }
+  explicit ProcessSingleton(const FilePath& user_data_dir) { }
+  ~ProcessSingleton() { }
   bool NotifyOtherProcess() {
     NOTIMPLEMENTED();
     return false;

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/message_window.h"
+#include "chrome/browser/process_singleton.h"
 
 #include "base/base_paths.h"
 #include "base/command_line.h"
@@ -34,7 +34,7 @@ BOOL CALLBACK BrowserWindowEnumeration(HWND window, LPARAM param) {
 
 }  // namespace
 
-MessageWindow::MessageWindow(const FilePath& user_data_dir)
+ProcessSingleton::ProcessSingleton(const FilePath& user_data_dir)
     : window_(NULL),
       locked_(false) {
   // Look for a Chrome instance that uses the same profile directory:
@@ -44,12 +44,12 @@ MessageWindow::MessageWindow(const FilePath& user_data_dir)
                                 user_data_dir.ToWStringHack().c_str());
 }
 
-MessageWindow::~MessageWindow() {
+ProcessSingleton::~ProcessSingleton() {
   if (window_)
     DestroyWindow(window_);
 }
 
-bool MessageWindow::NotifyOtherProcess() {
+bool ProcessSingleton::NotifyOtherProcess() {
   if (!remote_window_)
     return false;
 
@@ -127,14 +127,14 @@ bool MessageWindow::NotifyOtherProcess() {
   return false;
 }
 
-void MessageWindow::Create() {
+void ProcessSingleton::Create() {
   DCHECK(!window_);
   DCHECK(!remote_window_);
   HINSTANCE hinst = GetModuleHandle(NULL);
 
   WNDCLASSEX wc = {0};
   wc.cbSize = sizeof(wc);
-  wc.lpfnWndProc = MessageWindow::WndProcStatic;
+  wc.lpfnWndProc = ProcessSingleton::WndProcStatic;
   wc.hInstance = hinst;
   wc.lpszClassName = chrome::kMessageWindowClass;
   RegisterClassEx(&wc);
@@ -151,7 +151,7 @@ void MessageWindow::Create() {
   win_util::SetWindowUserData(window_, this);
 }
 
-LRESULT MessageWindow::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
+LRESULT ProcessSingleton::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
   // Ignore the request if the browser process is already in shutdown path.
   if (!g_browser_process || g_browser_process->IsShuttingDown()) {
     LOG(WARNING) << "Not handling WM_COPYDATA as browser is shutting down";
@@ -237,7 +237,7 @@ LRESULT MessageWindow::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
   return TRUE;
 }
 
-LRESULT CALLBACK MessageWindow::WndProc(HWND hwnd, UINT message,
+LRESULT CALLBACK ProcessSingleton::WndProc(HWND hwnd, UINT message,
                                         WPARAM wparam, LPARAM lparam) {
   switch (message) {
     case WM_COPYDATA:
@@ -250,7 +250,7 @@ LRESULT CALLBACK MessageWindow::WndProc(HWND hwnd, UINT message,
   return ::DefWindowProc(hwnd, message, wparam, lparam);
 }
 
-void MessageWindow::HuntForZombieChromeProcesses() {
+void ProcessSingleton::HuntForZombieChromeProcesses() {
   // Detecting dead renderers is simple:
   // - The process is named chrome.exe.
   // - The process' parent doesn't exist anymore.

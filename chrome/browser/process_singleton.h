@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_MESSAGE_WINDOW_H_
-#define CHROME_BROWSER_MESSAGE_WINDOW_H_
+#ifndef CHROME_BROWSER_PROCESS_SINGLETON_H_
+#define CHROME_BROWSER_PROCESS_SINGLETON_H_
 
 #include <string>
 #include <windows.h>
@@ -11,18 +11,20 @@
 #include "base/basictypes.h"
 #include "base/file_path.h"
 
-// MessageWindow -------------------------------------------------------------
+// ProcessSingleton ----------------------------------------------------------
 //
-// Class for dealing with the invisible global message window for IPC. This
-// window allows different browser processes to communicate with each other.
-// It is named according to the user data directory, so we can be sure that
-// no more than one copy of the application can be running at once with a
-// given data directory.
+// This class allows different browser processes to communicate with
+// each other.  It is named according to the user data directory, so
+// we can be sure that no more than one copy of the application can be
+// running at once with a given data directory.
+//
+// The Windows implementation uses an invisible global message window for
+// IPC.
 
-class MessageWindow {
+class ProcessSingleton {
  public:
-  explicit MessageWindow(const FilePath& user_data_dir);
-  ~MessageWindow();
+  explicit ProcessSingleton(const FilePath& user_data_dir);
+  ~ProcessSingleton();
 
   // Returns true if another process was found and notified, false if we
   // should continue with this process. Roughly based on Mozilla
@@ -61,7 +63,7 @@ class MessageWindow {
                                         UINT message,
                                         WPARAM wparam,
                                         LPARAM lparam) {
-    MessageWindow* msg_wnd = reinterpret_cast<MessageWindow*>(
+    ProcessSingleton* msg_wnd = reinterpret_cast<ProcessSingleton*>(
         GetWindowLongPtr(hwnd, GWLP_USERDATA));
     return msg_wnd->WndProc(hwnd, message, wparam, lparam);
   }
@@ -70,7 +72,7 @@ class MessageWindow {
   HWND window_;  // The HWND_MESSAGE window.
   bool locked_;
 
-  DISALLOW_COPY_AND_ASSIGN(MessageWindow);
+  DISALLOW_COPY_AND_ASSIGN(ProcessSingleton);
 };
 
-#endif  // #ifndef CHROME_BROWSER_MESSAGE_WINDOW_H_
+#endif  // #ifndef CHROME_BROWSER_PROCESS_SINGLETON_H_

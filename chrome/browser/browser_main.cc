@@ -68,8 +68,8 @@
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/jankometer.h"
-#include "chrome/browser/message_window.h"
 #include "chrome/browser/metrics/user_metrics.h"
+#include "chrome/browser/process_singleton.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/sdch_dictionary_fetcher.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -230,7 +230,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   FilePath user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
-  MessageWindow message_window(user_data_dir);
+  ProcessSingleton process_singleton(user_data_dir);
 
   bool is_first_run = FirstRun::IsChromeFirstRun() ||
       parsed_command_line.HasSwitch(switches::kFirstRun);
@@ -399,10 +399,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
     return FirstRun::ImportNow(profile, parsed_command_line);
 
   // When another process is running, use it instead of starting us.
-  if (message_window.NotifyOtherProcess())
+  if (process_singleton.NotifyOtherProcess())
     return ResultCodes::NORMAL_EXIT;
 
-  message_window.HuntForZombieChromeProcesses();
+  process_singleton.HuntForZombieChromeProcesses();
 
   // Do the tasks if chrome has been upgraded while it was last running.
   if (!already_running && DoUpgradeTasks(parsed_command_line)) {
@@ -419,7 +419,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (CheckMachineLevelInstall())
     return ResultCodes::MACHINE_LEVEL_INSTALL_EXISTS;
 
-  message_window.Create();
+  process_singleton.Create();
 
   // Show the First Run UI if this is the first time Chrome has been run on
   // this computer, or we're being compelled to do so by a command line flag.
@@ -429,9 +429,9 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (is_first_run && !first_run_ui_bypass) {
     // We need to avoid dispatching new tabs when we are doing the import
     // because that will lead to data corruption or a crash. Lock() does that.
-    message_window.Lock();
+    process_singleton.Lock();
     OpenFirstRunDialog(profile);
-    message_window.Unlock();
+    process_singleton.Unlock();
   }
 
   // Sets things up so that if we crash from this point on, a dialog will

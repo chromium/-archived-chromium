@@ -90,7 +90,7 @@ class BrowserInit {
   // process (via the WM_COPYDATA message). |command_line| holds the command
   // line we need to process - either from this process or from some other one
   // (if |process_startup| is true and we are being called from
-  //  MessageWindow::OnCopyData).
+  //  ProcessSingleton::OnCopyData).
   static bool ProcessCommandLine(const CommandLine& command_line,
                                  const std::wstring& cur_dir,
                                  PrefService* prefs, bool process_startup,

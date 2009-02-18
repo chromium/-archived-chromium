@@ -410,11 +410,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\message_window.cc"
+				RelativePath=".\process_singleton.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\message_window.h"
+				RelativePath=".\process_singleton.h"
 				>
 			</File>
 			<File
