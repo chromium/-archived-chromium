@@ -8,6 +8,7 @@
 #import "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/browser.h"
 #import "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_shutdown.h"
 #import "chrome/browser/command_updater.h"
 #import "chrome/browser/profile_manager.h"
 #import "chrome/common/temp_scaffolding_stubs.h"
@@ -47,6 +48,12 @@
   // require posting UI and may require spinning up another run loop to 
   // handle it. If it says to continue, post the quit message, otherwise
   // go back to normal.
+
+  // TODO(pinkerton): Not sure where this should live, including it here
+  // causes all sorts of asserts from the open renderers. On Windows, it
+  // lives in Browser::OnWindowClosing, but that's not appropriate on Mac
+  // since we don't shut down when we reach zero windows.
+  // browser_shutdown::OnShutdownStarting(browser_shutdown::WINDOW_CLOSE);
 
   // Close all the windows.
   BrowserList::CloseAllBrowsers(true);

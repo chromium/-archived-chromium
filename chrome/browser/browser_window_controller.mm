@@ -24,9 +24,9 @@
 
 - (void)dealloc {
   browser_->CloseAllTabs();
+  [tabStripController_ release];
   delete browser_;
   delete windowShim_;
-  [tabStripController_ release];
   [super dealloc];
 }
 
@@ -56,24 +56,48 @@
 }
 
 - (void)destroyBrowser {
-  // we need the window to go away now, other areas of code will be checking
-  // the number of browser objects remaining after we finish so we can't defer
-  // deletion via autorelease.
+  // We need the window to go away now.
   [self autorelease];
 }
 
-// Called when the window is closing from Cocoa. Destroy this controller,
-// which will tear down the rest of the infrastructure as the Browser is
-// itself destroyed.
+// Called when the window meets the criteria to be closed (ie,
+// |-windowShoudlClose:| returns YES). We must be careful to preserve the
+// semantics of BrowserWindow::Close() and not call the Browser's dtor directly
+// from this method.
 - (void)windowWillClose:(NSNotification *)notification {
-  [self autorelease];
+  DCHECK(!browser_->tabstrip_model()->count());
+  
+  // We can't acutally use |-autorelease| here because there's an embedded
+  // run loop in the |-performClose:| which contains its own autorelease pool.
+  // Instead we use call it after a zero-length delay, which gets us back
+  // to the main event loop.
+  [self performSelector:@selector(autorelease)
+              withObject:nil
+              afterDelay:0];
 }
 
-// Called when the user wants to close a window. Usually it's ok, but we may
-// want to prompt the user when they have multiple tabs open, for example.
+// Called when the user wants to close a window or from the shutdown process.
+// The Browser object is in control of whether or not we're allowed to close. It
+// may defer closing due to several states, such as onUnload handlers needing to
+// be fired. If closing is deferred, the Browser will handle the processing
+// required to get us to the closing state and (by watching for all the tabs
+// going away) will again call to close the window when it's finally ready.
 - (BOOL)windowShouldClose:(id)sender {
-  // TODO(pinkerton): check tab model to see if it's ok to close the 
-  // window. Use NSGetAlertPanel() and runModalForWindow:.
+  // Give beforeunload handlers the chance to cancel the close before we hide
+  // the window below.
+  if (!browser_->ShouldCloseWindow())
+    return NO;
+
+  if (!browser_->tabstrip_model()->empty()) {
+    // Tab strip isn't empty.  Hide the frame (so it appears to have closed
+    // immediately) and close all the tabs, allowing the renderers to shut
+    // down. When the tab strip is empty we'll be called back again.
+    [[self window] orderOut:self];
+    browser_->OnWindowClosing();
+    return NO;
+  }
+
+  // the tab strip is empty, it's ok to close the window
   return YES;
 }
 

@@ -37,7 +37,11 @@ class BrowserWindow {
 
   // Closes the frame as soon as possible.  If the frame is not in a drag
   // session, it will close immediately; otherwise, it will move offscreen (so
-  // events are still fired) until the drag ends, then close.
+  // events are still fired) until the drag ends, then close. This assumes
+  // that the Browser is not immediately destroyed, but will be eventually
+  // destroyed by other means (eg, the tab strip going to zero elements).
+  // Bad things happen if the Browser dtor is called directly as a result of
+  // invoking this method.
   virtual void Close() = 0;
 
   // Activates (brings to front) the window. Restores the window from minimized

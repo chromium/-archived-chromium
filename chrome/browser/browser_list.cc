@@ -27,6 +27,7 @@ std::vector<BrowserList::Observer*> BrowserList::observers_;
 
 // static
 void BrowserList::AddBrowser(Browser* browser) {
+  DCHECK(browser);
   browsers_.push_back(browser);
 
   g_browser_process->AddRefModule();

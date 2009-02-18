@@ -31,6 +31,9 @@ void BrowserWindowCocoa::SetBounds(const gfx::Rect& bounds) {
       [screen frame].size.height - bounds.height() - bounds.y();
 }
 
+// Callers assume that this doesn't immediately delete the Browser object.
+// The controller implementing the window delegate methods called from
+// |-performClose:| must take precautiions to ensure that.
 void BrowserWindowCocoa::Close() {
   [window_ orderOut:controller_];
   [window_ performClose:controller_];
@@ -97,6 +100,8 @@ bool BrowserWindowCocoa::IsFullscreen() const {
 }
 
 gfx::Rect BrowserWindowCocoa::GetRootWindowResizerRect() const {
+  // TODO(pinkerton): fill this in so scrollbars go in the correct places
+  NOTIMPLEMENTED();
   return gfx::Rect();
 }
 
