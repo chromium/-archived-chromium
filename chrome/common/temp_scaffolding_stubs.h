@@ -467,20 +467,6 @@ class FaviconStatus {
   GURL url_;
 };
 
-class InterstitialPage {
- public:
-  InterstitialPage(WebContents* tab, bool new_navigation, const GURL& url) {
-    NOTIMPLEMENTED();
-  }
-  virtual void DontProceed() { NOTIMPLEMENTED(); }
-  virtual void Proceed() { NOTIMPLEMENTED(); }
-  virtual void Show() { NOTIMPLEMENTED(); }
-  WebContents* tab() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-};
-
 class TabContents : public PageNavigator, public NotificationObserver {
  public:
   enum InvalidateTypes {
