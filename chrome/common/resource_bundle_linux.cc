@@ -37,15 +37,7 @@ void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
   bool success = resources_data_->Load(resources_data_path);
   DCHECK(success) << "failed to load chrome.pak";
 
-  FilePath locale_path;
-  PathService::Get(chrome::DIR_LOCALES, &locale_path);
-  // TODO(tc): Handle other locales properly.
-  NOTIMPLEMENTED() << " loading en-US strings only";
-  locale_path = locale_path.Append(FILE_PATH_LITERAL("en-US.pak"));
-  DCHECK(locale_resources_data_ == NULL) << "locale data already loaded!";
-  locale_resources_data_ = new base::DataPack;
-  success = locale_resources_data_->Load(locale_path);
-  DCHECK(success) << "failed to load locale pak file";
+  // TODO(tc): Load the .pak file for locale_resources_data_.
 }
 
 FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
@@ -108,9 +100,6 @@ std::wstring ResourceBundle::GetLocalizedString(int message_id) {
       return std::wstring();
     }
   }
-
-  // Data pack encodes strings as UTF16.
-  string16 msg(reinterpret_cast<const char16*>(data.data()),
-               data.length() / 2);
-  return UTF16ToWide(msg);
+  // Copy into a wstring and return.
+  return UTF8ToWide(data.as_string());
 }

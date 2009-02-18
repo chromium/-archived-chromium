@@ -17,11 +17,9 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN)
 // TODO(port): re-enable.
 #include "chrome/common/resource_bundle.h"
-#endif
-#if defined(OS_WIN)
 #include "chrome/views/view.h"
 #endif  // defined(OS_WIN)
 #include "unicode/coll.h"
@@ -327,7 +325,7 @@ std::wstring GetLocalName(const std::wstring& locale_code_wstr,
 }
 
 std::wstring GetString(int message_id) {
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN)
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
   return rb.GetLocalizedString(message_id);
 #else
@@ -343,7 +341,7 @@ static std::wstring GetStringF(int message_id,
                                const std::wstring& c,
                                const std::wstring& d,
                                std::vector<size_t>* offsets) {
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN)
 // TODO(port): re-enable.
   const std::wstring& format_string = GetString(message_id);
   std::wstring formatted = ReplaceStringPlaceholders(format_string, a, b, c,
