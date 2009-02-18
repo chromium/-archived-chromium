@@ -2,23 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_H__
-#define CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_H__
+#ifndef CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_H_
+#define CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_H_
 
-#include "chrome/views/menu.h"
+#include <string>
+
+#include "base/basictypes.h"
 
 class Browser;
-class TabContents;
 class SkBitmap;
+class TabContents;
 class NavigationEntry;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // BackForwardMenuModel
 //
-// Implements the showing of the dropdown menu for the Back/Forward buttons.
+// Interface for the showing of the dropdown menu for the Back/Forward buttons.
+// Actual implementations are platform-specific.
 ///////////////////////////////////////////////////////////////////////////////
-class BackForwardMenuModel : public Menu::Delegate {
+class BackForwardMenuModel {
  public:
   // These are IDs used to identify individual UI elements within the
   // browser window using View::GetViewByID.
@@ -27,23 +30,10 @@ class BackForwardMenuModel : public Menu::Delegate {
     BACKWARD_MENU_DELEGATE = 2
   };
 
-  BackForwardMenuModel(Browser* browser, ModelType model_type);
-  virtual ~BackForwardMenuModel();
-
-  // Menu::Delegate
-  virtual std::wstring GetLabel(int menu_id) const;
-  virtual const SkBitmap& GetIcon(int menu_id) const;
-  virtual bool SupportsCommand(int menu_id) const;
-  virtual bool IsCommandEnabled(int menu_id) const;
-  virtual bool IsItemSeparator(int menu_id) const;
-  virtual bool HasIcon(int menu_id) const;
-  virtual void ExecuteCommand(int menu_id);
-  virtual void MenuWillShow();
-  // Returns how many items the menu should show, including history items,
-  // chapter-stops, separators and the Show Full History link. This function
-  // uses GetHistoryItemCount() and GetChapterStopCount() internally to figure
-  // out the total number of items to show.
-  virtual int GetItemCount() const;
+  // Factory function. Defined in back_forward_menu_model_{platform}.cc.
+  // This is only used in unit tests. In the browser we use the platform-
+  // specific constructors directly.
+  static BackForwardMenuModel* Create(Browser* browser, ModelType model_type);
 
   // Returns how many history items the menu should show. For example, if the
   // navigation controller of the current tab has a current entry index of 5 and
@@ -61,6 +51,12 @@ class BackForwardMenuModel : public Menu::Delegate {
   // returned does not include the separator lines before and after the
   // chapter-stops.
   int GetChapterStopCount(int history_items) const;
+
+  // Returns how many items the menu should show, including history items,
+  // chapter-stops, separators and the Show Full History link. This function
+  // uses GetHistoryItemCount() and GetChapterStopCount() internally to figure
+  // out the total number of items to show.
+  int GetTotalItemCount() const;
 
   // Finds the next chapter-stop in the NavigationEntryList starting from
   // the index specified in |start_from| and continuing in the direction
@@ -90,6 +86,26 @@ class BackForwardMenuModel : public Menu::Delegate {
   // function returns -1.
   int FindChapterStop(int offset, bool forward, int skip) const;
 
+  // Execute the command associated with |menu_id|.
+  void ExecuteCommandById(int menu_id);
+
+  // Is the item at |menu_id| a separator?
+  bool IsSeparator(int menu_id) const;
+
+  // Get the display text for the item. This should not be called on a
+  // separator.
+  std::wstring GetItemLabel(int menu_id) const;
+
+  // Get the display icon for the item. This should not be called on a
+  // separator or an item that does not have an icon.
+  const SkBitmap& GetItemIcon(int menu_id) const;
+
+  // Returns true if there is an icon for this menu item.
+  bool ItemHasIcon(int menu_id) const;
+
+  // Does the item does something when you click on it?
+  bool ItemHasCommand(int menu_id) const;
+
   // Allows the unit test to use its own dummy tab contents.
   void set_test_tab_contents(TabContents* test_tab_contents) {
     test_tab_contents_ = test_tab_contents;
@@ -109,7 +125,21 @@ class BackForwardMenuModel : public Menu::Delegate {
   // How many chapter-stops (max) to show in the back/forward dropdown list.
   static const int kMaxChapterStops;
 
- private:
+ protected:
+  BackForwardMenuModel()
+      : browser_(NULL),
+        test_tab_contents_(NULL),
+        model_type_(FORWARD_MENU_DELEGATE) {}
+
+  Browser* browser_;
+
+  // The unit tests will provide their own TabContents to use.
+  TabContents* test_tab_contents_;
+
+  // Represents whether this is the delegate for the forward button or the
+  // back button.
+  ModelType model_type_;
+
   // Converts a menu item id, as passed in through one of the menu delegate
   // functions and converts it into an absolute index into the
   // NavigationEntryList vector. |menu_id| can point to a separator, or the
@@ -125,18 +155,9 @@ class BackForwardMenuModel : public Menu::Delegate {
   // An index of -1 means no index.
   std::wstring BuildActionName(const std::wstring& name, int index) const;
 
-  Browser* browser_;
-
-  // The unit tests will provide their own TabContents to use.
-  TabContents* test_tab_contents_;
-
-  // Represents whether this is the delegate for the forward button or the
-  // back button.
-  ModelType model_type_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(BackForwardMenuModel);
+ private:
+  DISALLOW_COPY_AND_ASSIGN(BackForwardMenuModel);
 };
 
-#endif  // CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_H__
-
+#endif  // CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_H_
 

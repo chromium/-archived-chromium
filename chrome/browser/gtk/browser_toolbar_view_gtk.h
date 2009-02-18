@@ -9,10 +9,12 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
+#include "base/task.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/common/pref_member.h"
 
+class BackForwardMenuModelGtk;
 class Browser;
 class Profile;
 class TabContents;
@@ -67,9 +69,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   static void OnButtonClick(GtkWidget* button, BrowserToolbarGtk* toolbar);
 
   // Gtk callback to intercept mouse clicks to the menu buttons.
-  static gint OnMenuButtonPressEvent(GtkWidget* button,
-                                      GdkEvent *event,
-                                      BrowserToolbarGtk* toolbar);
+  static gboolean OnMenuButtonPressEvent(GtkWidget* button,
+                                         GdkEvent *event,
+                                         BrowserToolbarGtk* toolbar);
 
   // Displays the page menu.
   void RunPageMenu(GdkEvent* button_press_event);
@@ -99,15 +101,42 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   scoped_ptr<MenuGtk> page_menu_;
   scoped_ptr<MenuGtk> app_menu_;
 
-  // TODO(port): Port BackForwardMenuModel
-  // scoped_ptr<BackForwardMenuModel> back_menu_model_;
-  // scoped_ptr<BackForwardMenuModel> forward_menu_model_;
-
   Browser* browser_;
   Profile* profile_;
 
   // Controls whether or not a home button should be shown on the toolbar.
   BooleanPrefMember show_home_button_;
+
+  // Back/Forward menus ------------------------------------------------------
+  // When clicked, these buttons will navigate forward or backward. When
+  // pressed and held, they show a dropdown menu of recent web sites.
+  // TODO(port): to match windows, we need to immediately show the back/forward
+  // menu when the user starts dragging the mouse.
+
+  // Builds a toolbar button for the back or forward dropdown menus.
+  CustomDrawButton* BuildBackForwardButton(
+    int normal_id,
+    int active_id,
+    int highlight_id,
+    int depressed_id,
+    const std::wstring& localized_tooltip);
+
+  // Starts a timer to show the dropdown menu.
+  static gboolean OnBackForwardPressEvent(GtkWidget* button,
+                                          GdkEventButton* event,
+                                          BrowserToolbarGtk* toolbar);
+
+  // Shows the dropdown menu when the timer fires. |button_type| refers to the
+  // click that originated the button press event.
+  void ShowBackForwardMenu(GtkWidget* button, gint button_type);
+
+  // The back/forward menu gets reset every time it is shown.
+  scoped_ptr<MenuGtk> back_forward_menu_;
+
+  scoped_ptr<BackForwardMenuModelGtk> back_menu_model_;
+  scoped_ptr<BackForwardMenuModelGtk> forward_menu_model_;
+
+  ScopedRunnableMethodFactory<BrowserToolbarGtk> show_menu_factory_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BROWSER_TOOLBAR_VIEW_GTK_H_

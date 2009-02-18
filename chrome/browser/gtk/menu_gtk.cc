@@ -15,6 +15,12 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
   BuildMenuIn(menu_, menu_data);
 }
 
+MenuGtk::MenuGtk(MenuGtk::Delegate* delegate)
+    : delegate_(delegate),
+      menu_(gtk_menu_new()) {
+  BuildMenuFromDelegate();
+}
+
 MenuGtk::~MenuGtk() {
   g_object_unref(menu_);
 }
@@ -23,13 +29,17 @@ void MenuGtk::Popup(GtkWidget* widget, GdkEvent* event) {
   DCHECK(event->type == GDK_BUTTON_PRESS)
       << "Non-button press event sent to RunMenuAt";
 
+  GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
+  Popup(widget, event_button->button, event_button->time);
+}
+
+void MenuGtk::Popup(GtkWidget* widget, gint button_type, guint32 timestamp) {
   gtk_container_foreach(GTK_CONTAINER(menu_), SetMenuItemInfo, this);
 
-  GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
   gtk_menu_popup(GTK_MENU(menu_), NULL, NULL,
                  MenuPositionFunc,
                  widget,
-                 event_button->button, event_button->time);
+                 button_type, timestamp);
 }
 
 void MenuGtk::BuildMenuIn(GtkWidget* menu,
@@ -79,7 +89,33 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
   }
 }
 
-/* static */
+void MenuGtk::BuildMenuFromDelegate() {
+  // Note that the menu IDs start at 1, not 0.
+  for (int i = 1; i <= delegate_->GetItemCount(); ++i) {
+    GtkWidget* menu_item = NULL;
+
+    if (delegate_->IsItemSeparator(i)) {
+      menu_item = gtk_separator_menu_item_new();
+    } else if (delegate_->HasIcon(i)) {
+      menu_item = gtk_image_menu_item_new_with_label(
+          delegate_->GetLabel(i).c_str());
+      // TODO(port): set the image with delegate->GetIcon()
+    } else {
+      menu_item = gtk_menu_item_new_with_label(delegate_->GetLabel(i).c_str());
+    }
+
+    g_object_set_data(G_OBJECT(menu_item), "menu-id",
+                      reinterpret_cast<void*>(i));
+
+    g_signal_connect(G_OBJECT(menu_item), "activate",
+                     G_CALLBACK(OnMenuItemActivatedById), this);
+
+    gtk_widget_show(menu_item);
+    gtk_menu_append(menu_, menu_item);
+  }
+}
+
+// static
 void MenuGtk::OnMenuItemActivated(GtkMenuItem* menuitem, MenuGtk* menu) {
   // We receive activation messages when highlighting a menu that has a
   // submenu. Ignore them.
@@ -91,7 +127,18 @@ void MenuGtk::OnMenuItemActivated(GtkMenuItem* menuitem, MenuGtk* menu) {
   }
 }
 
-/* static */
+// static
+void MenuGtk::OnMenuItemActivatedById(GtkMenuItem* menuitem, MenuGtk* menu) {
+  // We receive activation messages when highlighting a menu that has a
+  // submenu. Ignore them.
+  if (!gtk_menu_item_get_submenu(menuitem)) {
+    int id = reinterpret_cast<int>(
+        g_object_get_data(G_OBJECT(menuitem), "menu-id"));
+    menu->delegate_->ExecuteCommand(id);
+  }
+}
+
+// static
 void MenuGtk::MenuPositionFunc(GtkMenu* menu,
                                int* x,
                                int* y,
@@ -110,10 +157,17 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
   gdk_screen_get_monitor_geometry(screen, monitor_num, &monitor);
 
   gdk_window_get_origin(widget->window, x, y);
-  *x += widget->allocation.x + widget->allocation.width;
+  *x += widget->allocation.x;
   *y += widget->allocation.y + widget->allocation.height;
 
-  *x -= menu_req.width;
+  // g_object_get_data() returns NULL if no such object is found. |left_align|
+  // acts as a boolean, but we can't actually cast it to bool because gcc
+  // complains about losing precision.
+  void* left_align =
+      g_object_get_data(G_OBJECT(widget), "left-align-popup");
+
+  if (!left_align)
+    *x += widget->allocation.width - menu_req.width;
 
   // TODO(erg): Deal with this scrolling off the bottom of the screen.
 
@@ -123,7 +177,7 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
   *push_in = FALSE;
 }
 
-/* static */
+// static
 void MenuGtk::SetMenuItemInfo(GtkWidget* widget, void* raw_menu) {
   MenuGtk* menu = static_cast<MenuGtk*>(raw_menu);
   const MenuCreateMaterial* data =

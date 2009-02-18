@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/back_forward_menu_model.h"
+#include "chrome/browser/back_forward_menu_model_win.h"
 
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -124,11 +124,11 @@ TEST_F(BackFwdMenuModelTest, BasicCase) {
   TabContents* contents = CreateTabContents();
 
   {
-    BackForwardMenuModel back_model(
+    BackForwardMenuModelWin back_model(
       NULL, BackForwardMenuModel::BACKWARD_MENU_DELEGATE);
     back_model.set_test_tab_contents(contents);
 
-    BackForwardMenuModel forward_model(
+    BackForwardMenuModelWin forward_model(
       NULL, BackForwardMenuModel::FORWARD_MENU_DELEGATE);
     forward_model.set_test_tab_contents(contents);
 
@@ -207,11 +207,11 @@ TEST_F(BackFwdMenuModelTest, MaxItemsTest) {
   TabContents* contents = CreateTabContents();
 
   {
-    BackForwardMenuModel back_model(
+    BackForwardMenuModelWin back_model(
       NULL, BackForwardMenuModel::BACKWARD_MENU_DELEGATE);
     back_model.set_test_tab_contents(contents);
 
-    BackForwardMenuModel forward_model(
+    BackForwardMenuModelWin forward_model(
       NULL, BackForwardMenuModel::FORWARD_MENU_DELEGATE);
     forward_model.set_test_tab_contents(contents);
 
@@ -298,7 +298,7 @@ TEST_F(BackFwdMenuModelTest, MaxItemsTest) {
   contents->CloseContents();
 }
 
-void ValidateModel(BackForwardMenuModel* model, int history_items,
+void ValidateModel(BackForwardMenuModelWin* model, int history_items,
                    int chapter_stops) {
   int h = std::min(BackForwardMenuModel::kMaxHistoryItems, history_items);
   int c = std::min(BackForwardMenuModel::kMaxChapterStops, chapter_stops);
@@ -315,11 +315,11 @@ TEST_F(BackFwdMenuModelTest, ChapterStops) {
   TabContents* contents = CreateTabContents();
 
   {
-    BackForwardMenuModel back_model(
+    BackForwardMenuModelWin back_model(
       NULL, BackForwardMenuModel::BACKWARD_MENU_DELEGATE);
     back_model.set_test_tab_contents(contents);
 
-    BackForwardMenuModel forward_model(
+    BackForwardMenuModelWin forward_model(
       NULL, BackForwardMenuModel::FORWARD_MENU_DELEGATE);
     forward_model.set_test_tab_contents(contents);
 

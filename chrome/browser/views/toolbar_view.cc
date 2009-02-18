@@ -83,9 +83,9 @@ BrowserToolbarView::BrowserToolbarView(Browser* browser)
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
   browser_->command_updater()->AddCommandObserver(IDC_HOME, this);
   browser_->command_updater()->AddCommandObserver(IDC_STAR, this);
-  back_menu_model_.reset(new BackForwardMenuModel(
+  back_menu_model_.reset(new BackForwardMenuModelWin(
       browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
-  forward_menu_model_.reset(new BackForwardMenuModel(
+  forward_menu_model_.reset(new BackForwardMenuModelWin(
       browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
   if (browser->type() == Browser::TYPE_NORMAL)
     display_mode_ = DISPLAYMODE_NORMAL;

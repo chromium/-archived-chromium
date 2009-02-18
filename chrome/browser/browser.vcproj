@@ -642,6 +642,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\back_forward_menu_model_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\back_forward_menu_model_win.h"
+				>
+			</File>
+			<File
 				RelativePath=".\browser.cc"
 				>
 			</File>

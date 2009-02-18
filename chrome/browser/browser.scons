@@ -168,6 +168,8 @@ input_files = ChromeFileList([
     'app_modal_dialog_queue.h',
     'back_forward_menu_model.cc',
     'back_forward_menu_model.h',
+    'back_forward_menu_model_win.cc',
+    'back_forward_menu_model_win.h',
     'browser.cc',
     'browser.h',
     'browser_list.cc',
@@ -669,7 +671,6 @@ if not env.Bit('windows'):
       'automation/automation_provider.cc',
       'automation/automation_provider_list.cc',
       'automation/ui_controls.cc',
-      'back_forward_menu_model.cc',
       'bookmarks/bookmark_context_menu.cc',
       'bookmarks/bookmark_drag_data.cc',
       'bookmarks/bookmark_drop_info.cc',
@@ -759,6 +760,7 @@ if not env.Bit('windows'):
 
   # Remove Windows-specific files on other platforms.
   input_files.Remove(
+      'back_forward_menu_model_win.cc',
       'browser_main_win.cc',
       'history/history_publisher_win.cc',
       'importer/firefox_profile_lock_win.cc',
@@ -785,13 +787,14 @@ if not env.Bit('windows'):
 if env.Bit('linux'):
   input_files.Extend([
       'browser_main_gtk.cc',
-      'process_singleton_linux.cc',
+      'gtk/back_forward_menu_model_gtk.cc',
       'gtk/browser_toolbar_view_gtk.cc',
       'gtk/browser_window_factory_gtk.cc',
       'gtk/browser_window_gtk.cc',
       'gtk/menu_gtk.cc',
       'gtk/nine_box.cc',
       'gtk/standard_menus.cc',
+      'process_singleton_linux.cc',
       'renderer_host/render_widget_host_view_gtk.cc',
       'tab_contents/web_contents_view_gtk.cc',
   ])

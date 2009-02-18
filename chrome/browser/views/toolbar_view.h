@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H__
-#define CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H_
+#define CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H_
 
 #include <vector>
 
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/back_forward_menu_model.h"
+#include "chrome/browser/back_forward_menu_model_win.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/user_data_manager.h"
@@ -168,8 +168,8 @@ class BrowserToolbarView : public views::View,
   // accessibility focus.
   virtual void ShowContextMenu(int x, int y, bool is_mouse_gesture);
 
-  scoped_ptr<BackForwardMenuModel> back_menu_model_;
-  scoped_ptr<BackForwardMenuModel> forward_menu_model_;
+  scoped_ptr<BackForwardMenuModelWin> back_menu_model_;
+  scoped_ptr<BackForwardMenuModelWin> forward_menu_model_;
 
   // The model that contains the security level, text, icon to display...
   ToolbarModel* model_;
@@ -209,4 +209,4 @@ class BrowserToolbarView : public views::View,
   DisplayMode display_mode_;
 };
 
-#endif  // CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H_

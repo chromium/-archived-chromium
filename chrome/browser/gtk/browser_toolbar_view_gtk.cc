@@ -9,6 +9,7 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/common/l10n_util.h"
@@ -19,6 +20,9 @@
 #include "grit/theme_resources.h"
 
 const int BrowserToolbarGtk::kToolbarHeight = 38;
+// For the back/forward dropdown menus, the time in milliseconds between
+// when the user clicks and the popup menu appears.
+static const int kMenuTimerDelay = 500;
 
 // CustomDrawButton manages the lifetimes of some resources used to make a
 // custom-drawn Gtk button.  We use them on the toolbar.
@@ -133,18 +137,18 @@ BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
       entry_(NULL),
       model_(browser->toolbar_model()),
       browser_(browser),
-      profile_(NULL) {
+      profile_(NULL),
+      show_menu_factory_(this) {
   browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
   browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
   browser_->command_updater()->AddCommandObserver(IDC_HOME, this);
   browser_->command_updater()->AddCommandObserver(IDC_STAR, this);
 
-  // TODO(port): Port BackForwardMenuModel
-  // back_menu_model_.reset(new BackForwardMenuModel(
-  //     browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
-  // forward_menu_model_.reset(new BackForwardMenuModel(
-  //     browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
+  back_menu_model_.reset(new BackForwardMenuModelGtk(
+      browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
+  forward_menu_model_.reset(new BackForwardMenuModelGtk(
+      browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
 }
 
 BrowserToolbarGtk::~BrowserToolbarGtk() {
@@ -160,10 +164,12 @@ void BrowserToolbarGtk::Init(Profile* profile) {
 
   toolbar_tooltips_ = gtk_tooltips_new();
 
-  back_.reset(BuildToolbarButton(IDR_BACK, IDR_BACK_P, IDR_BACK_H, IDR_BACK_D,
-      l10n_util::GetString(IDS_TOOLTIP_BACK), false));
-  forward_.reset(BuildToolbarButton(IDR_FORWARD, IDR_FORWARD_P, IDR_FORWARD_H,
-      IDR_FORWARD_D, l10n_util::GetString(IDS_TOOLTIP_FORWARD), false));
+  back_.reset(BuildBackForwardButton(IDR_BACK, IDR_BACK_P, IDR_BACK_H,
+              IDR_BACK_D,
+              l10n_util::GetString(IDS_TOOLTIP_BACK)));
+  forward_.reset(BuildBackForwardButton(IDR_FORWARD, IDR_FORWARD_P,
+                 IDR_FORWARD_H, IDR_FORWARD_D,
+                 l10n_util::GetString(IDS_TOOLTIP_FORWARD)));
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
@@ -273,7 +279,7 @@ BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
                        WideToUTF8(localized_tooltip).c_str(),
                        WideToUTF8(localized_tooltip).c_str());
   if (menu_button) {
-    g_signal_connect(G_OBJECT(button->widget()), "button_press_event",
+    g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
                      G_CALLBACK(OnMenuButtonPressEvent), this);
   } else {
     g_signal_connect(G_OBJECT(button->widget()), "clicked",
@@ -284,7 +290,7 @@ BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
   return button;
 }
 
-/* static */
+// static
 void BrowserToolbarGtk::OnEntryActivate(GtkEntry *entry,
                                         BrowserToolbarGtk* toolbar) {
   GURL dest(std::string(gtk_entry_get_text(entry)));
@@ -310,14 +316,17 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
   else if (button == toolbar->star_->widget())
     tag = IDC_STAR;
 
+  if (tag == IDC_BACK || tag == IDC_FORWARD)
+    toolbar->show_menu_factory_.RevokeAll();
+
   DCHECK(tag != -1) << "Impossible button click callback";
   toolbar->browser_->ExecuteCommand(tag);
 }
 
-/* static */
-gint BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
-                                               GdkEvent* event,
-                                               BrowserToolbarGtk* toolbar) {
+// static
+gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
+                                                   GdkEvent* event,
+                                                   BrowserToolbarGtk* toolbar) {
   if (event->type == GDK_BUTTON_PRESS) {
     GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
     if (event_button->button == 1) {
@@ -333,6 +342,57 @@ gint BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
   }
 
   return FALSE;
+}
+
+BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
+    int normal_id,
+    int active_id,
+    int highlight_id,
+    int depressed_id,
+    const std::wstring& localized_tooltip) {
+  CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
+                                                  highlight_id, depressed_id);
+
+  // TODO(erg): Mismatch between wstring and string.
+  // gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
+  //                      GTK_WIDGET(back_),
+  //                      localized_tooltip, localized_tooltip);
+
+  g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
+                   G_CALLBACK(OnBackForwardPressEvent), this);
+  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+                   G_CALLBACK(OnButtonClick), this);
+
+  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
+  // Popup the menu as left-aligned relative to this widget rather than the
+  // default of right aligned.
+  g_object_set_data(G_OBJECT(button->widget()), "left-align-popup",
+                    reinterpret_cast<void*>(true));
+  return button;
+}
+
+// static
+gboolean BrowserToolbarGtk::OnBackForwardPressEvent(GtkWidget* widget,
+    GdkEventButton* event,
+    BrowserToolbarGtk* toolbar) {
+  // TODO(port): only allow left clicks to open the menu.
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      toolbar->show_menu_factory_.NewRunnableMethod(
+          &BrowserToolbarGtk::ShowBackForwardMenu,
+          widget, event->button),
+      kMenuTimerDelay);
+  return FALSE;
+}
+
+void BrowserToolbarGtk::ShowBackForwardMenu(GtkWidget* widget,
+                                            gint button_type) {
+  if (widget == back_->widget()) {
+    back_forward_menu_.reset(new MenuGtk(back_menu_model_.get()));
+  } else {
+    back_forward_menu_.reset(new MenuGtk(forward_menu_model_.get()));
+  }
+
+  back_forward_menu_->Popup(widget, button_type, gtk_get_current_event_time());
 }
 
 void BrowserToolbarGtk::RunPageMenu(GdkEvent* button_press_event) {
