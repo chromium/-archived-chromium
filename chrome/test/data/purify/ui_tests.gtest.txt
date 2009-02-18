@@ -17,10 +17,6 @@ NPAPITester.ManyPlugins
 # Bug: http://crbug.com/6494
 SessionHistoryTest.*
 
-# Bug: http://crbug.com/6495
-SessionRestoreUITest.*
-
-
 # Bug: http://crbug.com/6584
 SSLUITest.*
 

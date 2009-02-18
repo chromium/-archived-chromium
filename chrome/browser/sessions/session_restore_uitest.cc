@@ -117,7 +117,8 @@ TEST_F(SessionRestoreUITest, RestoresForwardAndBackwardNavs) {
   NavigateToURL(url2);
   NavigateToURL(url3);
 
-  ASSERT_TRUE(GetActiveTab()->GoBack());
+  scoped_ptr<TabProxy> active_tab(GetActiveTab());
+  ASSERT_TRUE(active_tab->GoBack());
 
   QuitBrowserAndRestore();
 
@@ -154,7 +155,8 @@ TEST_F(SessionRestoreUITest, RestoresCrossSiteForwardAndBackwardNavs) {
   NavigateToURL(cross_site_url);
   NavigateToURL(url2);
 
-  ASSERT_TRUE(GetActiveTab()->GoBack());
+  scoped_ptr<TabProxy> active_tab(GetActiveTab());
+  ASSERT_TRUE(active_tab->GoBack());
 
   QuitBrowserAndRestore();
 
@@ -241,7 +243,8 @@ TEST_F(SessionRestoreUITest, ClosedTabStaysClosed) {
 
   browser_proxy->AppendTab(url2);
 
-  browser_proxy->GetActiveTab()->Close(true);
+  scoped_ptr<TabProxy> active_tab(browser_proxy->GetActiveTab());
+  active_tab->Close(true);
 
   QuitBrowserAndRestore();
   browser_proxy.reset();
@@ -428,4 +431,3 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
 
   ASSERT_EQ(expected_process_count, GetBrowserProcessCount());
 }
-
