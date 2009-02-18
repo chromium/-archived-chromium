@@ -328,6 +328,7 @@ LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 LINUX : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 // For these two fast/frames tests it looks like the win baseline had some weird
 // artifacts on the scrollbars on one of the frames, which has now been removed.
 // This artifact does not exist on the mac baseline.
@@ -542,7 +543,6 @@ LINUX : LayoutTests/svg/hixie/perf/006.xml = FAIL
 LINUX : LayoutTests/svg/hixie/text/003b.xml = FAIL
 LINUX : LayoutTests/svg/text/text-spacing-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
