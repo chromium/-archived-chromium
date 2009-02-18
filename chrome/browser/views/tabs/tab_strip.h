@@ -142,6 +142,7 @@ class TabStrip : public views::View,
   virtual void MaybeStartDrag(Tab* tab, const views::MouseEvent& event);
   virtual void ContinueDrag(const views::MouseEvent& event);
   virtual bool EndDrag(bool canceled);
+  virtual bool ContainsExactlyOneTab() const;
 
   // views::Button::ButtonListener implementation:
   virtual void ButtonPressed(views::BaseButton* sender);

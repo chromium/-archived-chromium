@@ -529,11 +529,6 @@ bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
   if (v == this)
     return true;
 
-  // If the point is within the bounds of a Tab, the point can be considered
-  // part of the caption if there are no available drag operations for the Tab.
-  if (v->GetClassName() == Tab::kTabClassName && !HasAvailableDragActions())
-    return true;
-
   // Check to see if the point is within the non-button parts of the new tab
   // button. The button has a non-rectangular shape, so if it's not in the
   // visual portions of the button we treat it as a click to the caption.
@@ -1025,6 +1020,10 @@ void TabStrip::ContinueDrag(const views::MouseEvent& event) {
 
 bool TabStrip::EndDrag(bool canceled) {
   return drag_controller_.get() ? drag_controller_->EndDrag(canceled) : false;
+}
+
+bool TabStrip::ContainsExactlyOneTab() const {
+  return GetTabCount() == 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

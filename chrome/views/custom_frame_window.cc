@@ -1149,20 +1149,6 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
   }
 }
 
-void CustomFrameWindow::OnNCMButtonDown(UINT ht_component,
-                                        const CPoint& point) {
-  if (ht_component == HTCAPTION) {
-    // When there's only one window and only one tab, the tab area is reported
-    // to be part of the caption area of the window. However users should still
-    // be able to middle click that tab to close it so we need to make sure
-    // these messages reach the View system.
-    ProcessNCMousePress(point, MK_MBUTTON);
-    SetMsgHandled(FALSE);
-    return;
-  }
-  WidgetWin::OnNCMButtonDown(ht_component, point);
-}
-
 LRESULT CustomFrameWindow::OnNCUAHDrawCaption(UINT msg, WPARAM w_param,
                                               LPARAM l_param) {
   // See comment in widget_win.h at the definition of WM_NCUAHDRAWCAPTION for
@@ -1319,8 +1305,7 @@ void CustomFrameWindow::ProcessNCMousePress(const CPoint& point, int flags) {
   if ((GetKeyState(VK_SHIFT) & 0x80) == 0x80)
     message_flags |= MK_SHIFT;
   message_flags |= flags;
-  ProcessMousePressed(temp, message_flags, false);
+  ProcessMousePressed(temp, message_flags, false, false);
 }
 
 }  // namespace views
-

@@ -156,7 +156,10 @@ class LocatedEvent : public Event {
 class MouseEvent : public LocatedEvent {
  public:
   // Flags specific to mouse events
-  enum MouseEventFlags { EF_IS_DOUBLE_CLICK = 1 << 16 };
+  enum MouseEventFlags {
+    EF_IS_DOUBLE_CLICK = 1 << 16,
+    EF_IS_NON_CLIENT = 1 << 17
+  };
 
   // Create a new mouse event
   MouseEvent(EventType type, int x, int y, int flags)

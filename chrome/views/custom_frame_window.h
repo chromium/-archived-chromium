@@ -55,7 +55,6 @@ class CustomFrameWindow : public Window {
   virtual LRESULT OnNCHitTest(const CPoint& point);
   virtual void OnNCPaint(HRGN rgn);
   virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
-  virtual void OnNCMButtonDown(UINT ht_component, const CPoint& point);
   virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);

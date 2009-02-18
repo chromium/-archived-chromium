@@ -69,6 +69,9 @@ class Tab : public TabRenderer,
     // other than the user releasing the mouse. Returns whether the tab has been
     // destroyed.
     virtual bool EndDrag(bool canceled) = 0;
+
+    // Returns true if only one tab exists.
+    virtual bool ContainsExactlyOneTab() const = 0;
   };
 
   explicit Tab(TabDelegate* delegate);

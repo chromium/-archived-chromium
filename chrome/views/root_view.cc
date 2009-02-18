@@ -265,8 +265,19 @@ void RootView::SetFocusOnMousePressed(bool f) {
 }
 
 bool RootView::OnMousePressed(const MouseEvent& e) {
-  UpdateCursor(e);
+  static View* last_click_handler = 0;
 
+  // This function is not to handle non-client messages, so we return that
+  // we are not handling it quickly except for the double-click because we
+  // need to absorb it when it occurs on a different view than its single
+  // click part.
+  if ((e.GetFlags() & MouseEvent::EF_IS_NON_CLIENT) &&
+      !(e.GetFlags() & MouseEvent::EF_IS_DOUBLE_CLICK)) {
+    last_click_handler = 0;
+    return false;
+  }
+
+  UpdateCursor(e);
   SetMouseLocationAndFlags(e);
 
   // If mouse_pressed_handler_ is non null, we are currently processing
@@ -296,6 +307,8 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
     const MouseEvent mouse_pressed_event(e, this, mouse_pressed_handler_);
     drag_info.Reset();
     const bool handled =
+        (!(e.GetFlags() & MouseEvent::EF_IS_DOUBLE_CLICK) ||
+        (mouse_move_handler_ == last_click_handler)) &&
         mouse_pressed_handler_->ProcessMousePressed(mouse_pressed_event,
                                                     &drag_info);
 
@@ -312,8 +325,10 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
     // If the view handled the event, leave mouse_pressed_handler_ set and
     // return true, which will cause subsequent drag/release events to get
     // forwarded to that view.
-    if (handled)
+    if (handled) {
+      last_click_handler = mouse_pressed_handler_;
       return true;
+    }
   }
 
   // Reset mouse_pressed_handler_ to indicate that no processing is occurring.
@@ -329,6 +344,15 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
     NOTIMPLEMENTED();
 #endif
   }
+
+  // If we go through the whole hierarchy and we did not find the same handler
+  // for the double-click as we did for the single-click, then mark it as
+  // handled to eat up any double-click that ends up in a different location
+  // than its single-click part.
+  if (last_click_handler && e.GetFlags() & MouseEvent::EF_IS_DOUBLE_CLICK)
+    hit_disabled_view = true;
+
+  last_click_handler = 0;
   return hit_disabled_view;
 }
 

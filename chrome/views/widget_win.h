@@ -463,7 +463,10 @@ class WidgetWin : public Widget,
   // Actually handle mouse events. These functions are called by subclasses who
   // override the message handlers above to do the actual real work of handling
   // the event in the View system.
-  bool ProcessMousePressed(const CPoint& point, UINT flags, bool dbl_click);
+  bool ProcessMousePressed(const CPoint& point,
+                           UINT flags,
+                           bool dbl_click,
+                           bool non_client);
   void ProcessMouseDragged(const CPoint& point, UINT flags);
   void ProcessMouseReleased(const CPoint& point, UINT flags);
   void ProcessMouseMoved(const CPoint& point, UINT flags, bool is_nonclient);
