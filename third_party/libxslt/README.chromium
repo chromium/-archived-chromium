@@ -14,7 +14,9 @@ To import a new snapshot of libxslt:
   here.
 - Run build/generate-win32-headers.bat to re-generate the configuration
   headers.
-- 'cd linux && sh ../configure --with-libxml-src=../../libxml/linux/' to
-  re-generate configuration headers.
+- On Linux, 'cd linux && sh ../configure --with-libxml-src=../../libxml/linux/'
+  to re-generate configuration headers.
+- On Mac, 'cd mac && sh ../configure --with-libxml-src=../../libxml/mac/'
+  to re-generate configuration headers.
 - Perform the modification above.
 - Update this README to reflect the new version number.
