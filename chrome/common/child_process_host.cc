@@ -4,6 +4,7 @@
 
 #include "chrome/common/child_process_host.h"
 
+#include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/singleton.h"
