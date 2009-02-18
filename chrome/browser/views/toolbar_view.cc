@@ -265,9 +265,10 @@ void BrowserToolbarView::Layout() {
     return;
   }
 
-  int child_y = kControlVertOffset;
+  int child_y = std::min(kControlVertOffset, height());
   // We assume all child elements are the same height.
-  int child_height = go_->GetPreferredSize().height();
+  int child_height =
+      std::min(go_->GetPreferredSize().height(), height() - child_y);
 
   // If the window is maximized, we extend the back button to the left so that
   // clicking on the left-most pixel will activate the back button.

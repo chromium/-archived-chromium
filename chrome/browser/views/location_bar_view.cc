@@ -211,11 +211,11 @@ void LocationBarView::Paint(ChromeCanvas* canvas) {
 
   const SkBitmap* background =
       popup_window_mode_ ? kPopupBackground : kBackground;
-  int top_offset = TopOffset();
+  int top_offset = std::min(TopOffset(), height());
   canvas->TileImageInt(*background, 0, top_offset, 0, 0, width(), height());
   int top_margin = TopMargin();
   canvas->FillRectInt(bg, 0, top_margin, width(),
-                      height() - top_margin - kVertMargin);
+                      std::max(height() - top_margin - kVertMargin, 0));
 }
 
 bool LocationBarView::CanProcessTabKeyEvents() {
@@ -354,7 +354,7 @@ void LocationBarView::DoLayout(const bool force_layout) {
 
   // TODO(sky): baseline layout.
   int location_y = TopMargin();
-  int location_height = height() - location_y - kVertMargin;
+  int location_height = std::max(height() - location_y - kVertMargin, 0);
   if (info_label_.IsVisible()) {
     info_label_.SetBounds(width() - kEntryPadding - info_label_size.width(),
                           location_y,
@@ -396,7 +396,7 @@ int LocationBarView::TopOffset() const {
 }
 
 int LocationBarView::TopMargin() const {
-  return kVertMargin - TopOffset();
+  return std::min(kVertMargin - TopOffset(), height());
 }
 
 int LocationBarView::TextDisplayWidth() {

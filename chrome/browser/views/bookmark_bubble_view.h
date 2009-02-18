@@ -40,6 +40,10 @@ class BookmarkBubbleView : public views::View,
                     const GURL& url,
                     bool newly_bookmarked);
 
+  static bool IsShowing();
+
+  static void Hide();
+
   virtual ~BookmarkBubbleView();
 
   // Overriden to force a layout.
@@ -120,6 +124,9 @@ class BookmarkBubbleView : public views::View,
 
   // Sets the title and parent of the node.
   void ApplyEdits();
+
+  // The bookmark bubble, if we're showing one.
+  static BookmarkBubbleView* bubble_;
 
   // Delegate for the bubble, may be null.
   InfoBubbleDelegate* delegate_;

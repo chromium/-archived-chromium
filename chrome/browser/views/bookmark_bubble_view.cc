@@ -110,6 +110,8 @@ void BookmarkBubbleView::RecentlyUsedFoldersModel::RemoveNode(
 
 // BookmarkBubbleView ---------------------------------------------------------
 
+BookmarkBubbleView* BookmarkBubbleView::bubble_ = NULL;
+
 // static
 void BookmarkBubbleView::Show(HWND parent,
                               const gfx::Rect& bounds,
@@ -117,15 +119,27 @@ void BookmarkBubbleView::Show(HWND parent,
                               Profile* profile,
                               const GURL& url,
                               bool newly_bookmarked) {
-  BookmarkBubbleView* view = new BookmarkBubbleView(delegate, profile, url,
-                                                    newly_bookmarked);
-  InfoBubble::Show(parent, bounds, view, view);
+  if (IsShowing())
+    return;
+
+  bubble_ = new BookmarkBubbleView(delegate, profile, url, newly_bookmarked);
+  InfoBubble::Show(parent, bounds, bubble_, bubble_);
   GURL url_ptr(url);
   NotificationService::current()->Notify(
       NotificationType::BOOKMARK_BUBBLE_SHOWN,
       Source<Profile>(profile->GetOriginalProfile()),
       Details<GURL>(&url_ptr));
-  view->BubbleShown();
+  bubble_->BubbleShown();
+}
+
+// static
+bool BookmarkBubbleView::IsShowing() {
+  return bubble_ != NULL;
+}
+
+void BookmarkBubbleView::Hide() {
+  if (IsShowing())
+    bubble_->Close();
 }
 
 BookmarkBubbleView::~BookmarkBubbleView() {
@@ -316,6 +330,11 @@ void BookmarkBubbleView::InfoBubbleClosing(InfoBubble* info_bubble,
     remove_bookmark_ = newly_bookmarked_;
     apply_edits_ = false;
   }
+
+  // We have to reset |bubble_| here, not in our destructor, because we'll be
+  // destroyed asynchronously and the shown state will be checked before then.
+  DCHECK(bubble_ == this);
+  bubble_ = NULL;
 
   if (delegate_)
     delegate_->InfoBubbleClosing(info_bubble, closed_by_escape);

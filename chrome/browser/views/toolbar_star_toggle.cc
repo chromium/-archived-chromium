@@ -29,16 +29,10 @@ static const int64 kDisallowClickMS = 40;
 
 ToolbarStarToggle::ToolbarStarToggle(BrowserToolbarView* host)
     : host_(host),
-      ignore_click_(false),
-      is_bubble_showing_(false) {
+      ignore_click_(false) {
 }
 
 void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
-  if (is_bubble_showing_) {
-    // Don't show if we're already showing the bubble.
-    return;
-  }
-
   gfx::Point star_location;
   views::View::ConvertPointToScreen(this, &star_location);
   // Shift the x location by 1 as visually the center of the star appears 1
@@ -50,7 +44,6 @@ void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
       reinterpret_cast<HWND>(host_->browser()->window()->GetNativeHandle());
   BookmarkBubbleView::Show(parent_hwnd, star_bounds, this, host_->profile(),
                            url, newly_bookmarked);
-  is_bubble_showing_ = true;
 }
 
 bool ToolbarStarToggle::OnMousePressed(const views::MouseEvent& e) {
@@ -71,12 +64,12 @@ void ToolbarStarToggle::OnDragDone() {
 }
 
 void ToolbarStarToggle::NotifyClick(int mouse_event_flags) {
-  if (!ignore_click_ && !is_bubble_showing_)
+  if (!ignore_click_ && !BookmarkBubbleView::IsShowing())
     ToggleButton::NotifyClick(mouse_event_flags);
 }
 
 SkBitmap ToolbarStarToggle::GetImageToPaint() {
-  if (is_bubble_showing_) {
+  if (BookmarkBubbleView::IsShowing()) {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
     return *rb.GetBitmapNamed(IDR_STARRED_P);
   }
@@ -85,7 +78,6 @@ SkBitmap ToolbarStarToggle::GetImageToPaint() {
 
 void ToolbarStarToggle::InfoBubbleClosing(InfoBubble* info_bubble,
                                           bool closed_by_escape) {
-  is_bubble_showing_ = false;
   SchedulePaint();
   bubble_closed_time_ = TimeTicks::Now();
 }

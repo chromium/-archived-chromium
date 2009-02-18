@@ -50,7 +50,6 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ToggleBookmarkBar() {}
   virtual void ShowAboutChromeDialog() {}
   virtual void ShowBookmarkManager() {}
-  virtual bool IsBookmarkBubbleVisible() const { return false; }
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {}
   virtual void ShowReportBugDialog() {}
   virtual void ShowClearBrowsingDataDialog() {}

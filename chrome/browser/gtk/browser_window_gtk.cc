@@ -278,11 +278,6 @@ void BrowserWindowGtk::ShowBookmarkManager() {
   NOTIMPLEMENTED();
 }
 
-bool BrowserWindowGtk::IsBookmarkBubbleVisible() const {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 void BrowserWindowGtk::ShowBookmarkBubble(const GURL& url,
                                           bool already_bookmarked) {
   NOTIMPLEMENTED();

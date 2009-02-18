@@ -17,6 +17,7 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/about_chrome_view.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
+#include "chrome/browser/views/bookmark_bubble_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/bug_report_view.h"
 #include "chrome/browser/views/clear_browsing_data.h"
@@ -232,6 +233,8 @@ void BrowserView::WindowMoved() {
   // tabstrip_->DestroyDragController();
 
   status_bubble_->Reposition();
+
+  BookmarkBubbleView::Hide();
 
   // Close the omnibox popup, if any.
   if (toolbar_->GetLocationBarView())
@@ -693,10 +696,6 @@ void BrowserView::ShowAboutChromeDialog() {
 
 void BrowserView::ShowBookmarkManager() {
   BookmarkManagerView::Show(browser_->profile());
-}
-
-bool BrowserView::IsBookmarkBubbleVisible() const {
-  return toolbar_->star_button()->is_bubble_showing();
 }
 
 void BrowserView::ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {

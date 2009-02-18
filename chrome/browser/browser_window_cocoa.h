@@ -48,7 +48,6 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void ToggleBookmarkBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
-  virtual bool IsBookmarkBubbleVisible() const;
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
   virtual void ShowReportBugDialog();
   virtual void ShowClearBrowsingDataDialog();

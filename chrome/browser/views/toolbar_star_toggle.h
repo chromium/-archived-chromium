@@ -24,8 +24,6 @@ class ToolbarStarToggle : public views::ToggleButton,
   // If the bubble isn't showing, shows it.
   void ShowStarBubble(const GURL& url, bool newly_bookmarked);
 
-  bool is_bubble_showing() const { return is_bubble_showing_; }
-
   // Overridden to update ignore_click_ based on whether the mouse was clicked
   // quickly after the bubble was hidden.
   virtual bool OnMousePressed(const views::MouseEvent& e);
@@ -56,9 +54,6 @@ class ToolbarStarToggle : public views::ToggleButton,
   // If true NotifyClick does nothing. This is set in OnMousePressed based on
   // the amount of time between when the bubble clicked and now.
   bool ignore_click_;
-
-  // Is the bubble showing?
-  bool is_bubble_showing_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ToolbarStarToggle);
 };

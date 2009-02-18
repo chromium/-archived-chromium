@@ -737,8 +737,7 @@ void Browser::BookmarkCurrentPage() {
     return;
 
   model->SetURLStarred(url, entry->title(), true);
-  if (!window_->IsBookmarkBubbleVisible())
-    window_->ShowBookmarkBubble(url, model->IsBookmarked(url));
+  window_->ShowBookmarkBubble(url, model->IsBookmarked(url));
 }
 
 void Browser::ViewSource() {
@@ -2047,7 +2046,7 @@ void Browser::UpdateCommandsForTabState() {
     bool is_web_contents = web_contents != NULL;
 
     // Page-related commands
-    // Only allow bookmarking for tabbed browsers.
+    // Only allow bookmarking for web content in normal windows.
     command_updater_.UpdateCommandEnabled(IDC_STAR,
         is_web_contents && (type() == TYPE_NORMAL));
     window_->SetStarredState(is_web_contents && web_contents->is_starred());

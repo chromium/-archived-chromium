@@ -144,11 +144,6 @@ void BrowserWindowCocoa::ShowBookmarkManager() {
   NOTIMPLEMENTED();
 }
 
-bool BrowserWindowCocoa::IsBookmarkBubbleVisible() const {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 void BrowserWindowCocoa::ShowBookmarkBubble(const GURL& url,
                                             bool already_bookmarked) {
   NOTIMPLEMENTED();
