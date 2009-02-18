@@ -159,14 +159,30 @@ class TopMostFinder : public BaseWindowFinder {
       return true;
     }
 
-    if (::IsWindowVisible(hwnd)) {
-      CRect r;
-      if (::GetWindowRect(hwnd, &r) && r.PtInRect(screen_loc_.ToPOINT())) {
-        // Not the topmost, stop iterating.
-        return true;
-      }
+    if (!::IsWindowVisible(hwnd)) {
+      // The window isn't visible, keep iterating.
+      return false;
     }
-    return false;
+
+    CRect r;
+    if (!::GetWindowRect(hwnd, &r) || !r.PtInRect(screen_loc_.ToPOINT())) {
+      // The window doesn't contain the point, keep iterating.
+      return false;
+    }
+
+    // hwnd is at the point. Make sure the point is within the windows region.
+    if (GetWindowRgn(hwnd, tmp_region_.Get()) == ERROR) {
+      // There's no region on the window and the window contains the point. Stop
+      // iterating.
+      return true;
+    }
+
+    // The region is relative to the window's rect.
+    BOOL is_point_in_region = PtInRegion(tmp_region_.Get(),
+        screen_loc_.x() - r.left, screen_loc_.y() - r.top);
+    tmp_region_ = CreateRectRgn(0, 0, 0, 0);
+    // Stop iterating if the region contains the point.
+    return !!is_point_in_region;
   }
 
  private:
@@ -176,7 +192,8 @@ class TopMostFinder : public BaseWindowFinder {
       : BaseWindowFinder(ignore),
         target_(window),
         screen_loc_(screen_loc),
-        is_top_most_(false) {
+        is_top_most_(false),
+        tmp_region_(CreateRectRgn(0, 0, 0, 0)) {
     EnumWindows(WindowCallbackProc, reinterpret_cast<LPARAM>(this));
   }
 
@@ -189,6 +206,8 @@ class TopMostFinder : public BaseWindowFinder {
   // Is target_ the top most window? This is initially false but set to true
   // in ShouldStopIterating if target_ is passed in.
   bool is_top_most_;
+
+  ScopedHRGN tmp_region_;
 
   DISALLOW_COPY_AND_ASSIGN(TopMostFinder);
 };
