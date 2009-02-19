@@ -5,6 +5,7 @@
 #ifndef WEBKIT_GLUE_WEBPLUGIN_DELEGATE_H_
 #define WEBKIT_GLUE_WEBPLUGIN_DELEGATE_H_
 
+#include <string>
 #include <vector>
 
 #include "base/gfx/native_widget_types.h"
