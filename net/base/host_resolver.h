@@ -41,10 +41,9 @@ class HostResolver {
   //
   // When callback is null, the operation completes synchronously.
   //
-  // When callback is non-null, ERR_IO_PENDING is returned if the operation
-  // could not be completed synchronously, in which case the result code will
-  // be passed to the callback when available.
-  //
+  // When callback is non-null, the operation will be performed asynchronously.
+  // ERR_IO_PENDING is returned if it has been scheduled successfully. Real
+  // result code will be passed to the completion callback.
   int Resolve(const std::string& hostname, int port,
               AddressList* addresses, CompletionCallback* callback);
 

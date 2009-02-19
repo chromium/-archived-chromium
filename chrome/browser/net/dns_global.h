@@ -19,9 +19,16 @@ class PrefService;
 
 namespace chrome_browser_net {
 
-// Functions to initialize our global state so that PrefetchDns() can be called.
+// Initialize dns prefetching subsystem. Must be called before any other
+// functions.
 void InitDnsPrefetch(PrefService* user_prefs);
+
+// Cancel pending lookup requests and don't make new ones.
 void ShutdownDnsPrefetch();
+
+// Free all resources allocated by InitDnsPrefetch. After that you must not call
+// any function from this file.
+void FreeDnsPrefetchResources();
 
 //------------------------------------------------------------------------------
 // Global APIs relating to Prefetching in browser
@@ -53,7 +60,10 @@ class DnsPrefetcherInit {
   explicit DnsPrefetcherInit(PrefService* user_prefs) {
     InitDnsPrefetch(user_prefs);
   }
-  ~DnsPrefetcherInit() {ShutdownDnsPrefetch();}
+
+  ~DnsPrefetcherInit() {
+    FreeDnsPrefetchResources();
+  }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DnsPrefetcherInit);

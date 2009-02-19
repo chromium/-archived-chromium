@@ -164,7 +164,7 @@ void OpenFirstRunDialog(Profile* profile) { NOTIMPLEMENTED(); }
 
 GURL NewTabUIURL() {
   NOTIMPLEMENTED();
-  // TODO(port): returning a blank URL here confuses the page IDs so make sure 
+  // TODO(port): returning a blank URL here confuses the page IDs so make sure
   // we load something
   return GURL("http://dev.chromium.org");
 }
@@ -277,7 +277,7 @@ const std::wstring& TabContents::GetTitle() const {
   NavigationEntry* entry = controller_->GetTransientEntry();
   if (entry)
     return entry->GetTitleForDisplay();
-  
+
   entry = controller_->GetLastCommittedEntry();
   if (entry)
     return entry->GetTitleForDisplay();
@@ -326,7 +326,7 @@ void TabContents::UpdateMaxPageID(int32 page_id) {
   // testing.
   if (GetSiteInstance())
     GetSiteInstance()->UpdateMaxPageID(page_id);
-  
+
   if (AsWebContents())
     AsWebContents()->process()->UpdateMaxPageID(page_id);
   else
@@ -355,26 +355,6 @@ bool IsPluginProcess() {
   NOTIMPLEMENTED();
   return false;
 }
-
-//--------------------------------------------------------------------------
-
-namespace chrome_browser_net {
-
-void EnableDnsPrefetch(bool) { NOTIMPLEMENTED(); }
-
-void DnsPrefetchGetHtmlInfo(std::string* output) { NOTIMPLEMENTED(); }
-
-void DnsPrefetchList(const std::vector<std::string>& hostnames) {
-  NOTIMPLEMENTED();
-}
-
-void SaveHostNamesForNextStartup(PrefService* local_state) { NOTIMPLEMENTED(); }
-
-void TrimSubresourceReferrers()  { NOTIMPLEMENTED(); }
-
-void SaveSubresourceReferrers(PrefService* local_state) { NOTIMPLEMENTED(); }
-
-}  // namespace chrome_browser_net
 
 //--------------------------------------------------------------------------
 

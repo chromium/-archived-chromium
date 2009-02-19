@@ -14,6 +14,7 @@
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/metrics/metrics_service.h"
+#include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
@@ -173,6 +174,11 @@ BrowserProcessImpl::~BrowserProcessImpl() {
     // Cancel pending requests and prevent new requests.
     resource_dispatcher_host()->Shutdown();
   }
+
+  // Shutdown DNS prefetching now to ensure that network stack objects
+  // living on the IO thread get destroyed before the IO thread goes away.
+  io_thread_->message_loop()->PostTask(FROM_HERE,
+      NewRunnableFunction(chrome_browser_net::ShutdownDnsPrefetch));
 
   // Need to stop io_thread_ before resource_dispatcher_host_, since
   // io_thread_ may still deref ResourceDispatcherHost and handle resource

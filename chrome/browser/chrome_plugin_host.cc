@@ -20,7 +20,6 @@
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/gears_integration.h"
-#include "chrome/browser/net/dns_master.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"

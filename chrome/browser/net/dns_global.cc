@@ -382,7 +382,7 @@ void InitDnsPrefetch(PrefService* user_prefs) {
   const TimeDelta kAllowableShutdownTime(TimeDelta::FromSeconds(10));
   DCHECK(NULL == dns_master);
   if (!dns_master) {
-    dns_master = new DnsMaster(kAllowableShutdownTime);
+    dns_master = new DnsMaster();
     // We did the initialization, so we should prime the pump, and set up
     // the DNS resolution system to run.
     off_the_record_observer.Register();
@@ -401,14 +401,13 @@ void InitDnsPrefetch(PrefService* user_prefs) {
 
 void ShutdownDnsPrefetch() {
   DCHECK(NULL != dns_master);
-  DnsMaster* master = dns_master;
+  dns_master->Shutdown();
+}
+
+void FreeDnsPrefetchResources() {
+  DCHECK(NULL != dns_master);
+  delete dns_master;
   dns_master = NULL;
-  if (master->ShutdownSlaves()) {
-    delete master;
-  } else {
-    // Leak instance if shutdown problem.
-    DCHECK(0);
-  }
 }
 
 static void DiscardAllPrefetchState() {

@@ -1594,14 +1594,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\net\dns_slave.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\net\dns_slave.h"
-				>
-			</File>
-			<File
 				RelativePath=".\net\referrer.cc"
 				>
 			</File>
