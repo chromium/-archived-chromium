@@ -35,6 +35,8 @@ class BackForwardMenuModel {
   // specific constructors directly.
   static BackForwardMenuModel* Create(Browser* browser, ModelType model_type);
 
+  virtual ~BackForwardMenuModel() { }
+
   // Returns how many history items the menu should show. For example, if the
   // navigation controller of the current tab has a current entry index of 5 and
   // forward_direction_ is false (we are the back button delegate) then this
