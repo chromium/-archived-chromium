@@ -7,7 +7,6 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "base/win_util.h"
 #include "chrome/browser/download/save_file.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/download/save_package.h"
@@ -18,15 +17,15 @@ SaveItem::SaveItem(const GURL& url,
                    SavePackage* package,
                    SaveFileCreateInfo::SaveFileSource save_source)
   : save_id_(-1),
-    save_source_(save_source),
     url_(url),
     referrer_(referrer),
     total_bytes_(0),
     received_bytes_(0),
     state_(WAIT_START),
-    package_(package),
     has_final_name_(false),
-    is_success_(false) {
+    is_success_(false),
+    save_source_(save_source),
+    package_(package) {
   DCHECK(package);
 }
 

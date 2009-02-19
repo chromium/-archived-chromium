@@ -12,6 +12,7 @@
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/download/save_package.h"
 #include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -25,7 +26,6 @@
 // Remove when we've finished porting the supporting classes.
 #include "chrome/common/temp_scaffolding_stubs.h"
 #elif defined(OS_WIN)
-#include "chrome/browser/download/save_package.h"
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

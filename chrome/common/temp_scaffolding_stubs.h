@@ -251,6 +251,11 @@ struct DownloadBuffer {
 
 class DownloadItem {
 public:
+  void Remove(bool delete_file) { NOTIMPLEMENTED(); }
+  void Update(int64 bytes_so_far) { NOTIMPLEMENTED(); }
+  void Cancel(bool update_history) { NOTIMPLEMENTED(); }
+  void Finished(int64 size) { NOTIMPLEMENTED(); }
+  void set_total_bytes(int64 total_bytes) { NOTIMPLEMENTED(); }
   enum DownloadState {
     IN_PROGRESS,
     COMPLETE,
@@ -295,32 +300,6 @@ class DownloadRequestManager
                              int render_view_id,
                              Callback* callback) {
     NOTIMPLEMENTED();
-  }
-};
-
-class SaveFileManager : public base::RefCountedThreadSafe<SaveFileManager> {
- public:
-  SaveFileManager(MessageLoop* ui_loop,
-                  MessageLoop* io_loop,
-                  ResourceDispatcherHost* rdh) {
-    NOTIMPLEMENTED();
-  }
-  void Shutdown() { NOTIMPLEMENTED(); }
-  void StartSave(SaveFileCreateInfo* info) { NOTIMPLEMENTED(); }
-  void UpdateSaveProgress(int save_id, net::IOBuffer* data, int size) {
-    NOTIMPLEMENTED();
-  }
-  void SaveFinished(int save_id, const GURL& save_url,
-                    int render_process_id, int is_success) {
-    NOTIMPLEMENTED();
-  }
-  int GetNextId() {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  MessageLoop* GetSaveLoop() {
-    NOTIMPLEMENTED();
-    return NULL;
   }
 };
 
@@ -370,54 +349,6 @@ class StatusBubble {
   void SetStatus(const std::wstring&) { NOTIMPLEMENTED(); }
   void Hide() { NOTIMPLEMENTED(); }
   void SetURL(const GURL&, const std::wstring&) { NOTIMPLEMENTED(); }
-};
-
-class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
-                    public RenderViewHostDelegate::Save {
- public:
-  enum SavePackageType {
-    SAVE_AS_ONLY_HTML = 0,
-    SAVE_AS_COMPLETE_HTML = 1
-  };
-  struct SavePackageParam {
-    SavePackageParam(const std::string&) { }
-    const std::string current_tab_mime_type;
-    PrefService* prefs;
-    SavePackageType save_type;
-    FilePath saved_main_file_path;
-    FilePath dir;
-  };
-  static bool IsSavableContents(const std::string&) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static bool IsSavableURL(const GURL& url) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  static FilePath GetSuggestNameForSaveAs(PrefService*,
-                                          const FilePath&) {
-    NOTIMPLEMENTED();
-    return FilePath();
-  }
-  static bool GetSaveInfo(const FilePath&, void*,
-                          SavePackageParam*, DownloadManager*) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  SavePackage(WebContents*, SavePackageType, const FilePath&,
-              const FilePath&) { NOTIMPLEMENTED(); }
-  bool Init() {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  virtual void OnReceivedSavableResourceLinksForCurrentPage(
-      const std::vector<GURL>& resources_list,
-      const std::vector<GURL>& referrers_list,
-      const std::vector<GURL>& frames_list) { NOTIMPLEMENTED(); }
-  virtual void OnReceivedSerializedHtmlData(const GURL& frame_url,
-                                            const std::string& data,
-                                            int32 status) { NOTIMPLEMENTED(); }
 };
 
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {

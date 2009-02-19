@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
 #define CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
 
-#include <hash_map>
 #include <queue>
 #include <string>
 #include <utility>
@@ -13,6 +12,7 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
@@ -164,7 +164,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
         : current_tab_mime_type(mime_type) { }
   };
   static bool GetSaveInfo(const FilePath& suggest_name,
-                          HWND container_hwnd,
+                          gfx::NativeView container_window,
                           SavePackageParam* param,
                           DownloadManager* download_manager);
 
@@ -285,9 +285,9 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   SavePackageType save_type_;
 
   // Number of all need to be saved resources.
-  int all_save_items_count_;
+  size_t all_save_items_count_;
 
-  typedef base::hash_set<std::wstring> FileNameSet;
+  typedef base::hash_set<FilePath::StringType> FileNameSet;
   // This set is used to eliminate duplicated file names in saving directory.
   FileNameSet file_name_set_;
 

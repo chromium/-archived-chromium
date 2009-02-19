@@ -15,7 +15,6 @@
 #include "chrome/browser/download/save_file.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
@@ -27,6 +26,13 @@
 
 #if defined(OS_WIN)
 #include "chrome/common/win_util.h"
+#endif
+
+#if defined(OS_WIN)
+// TODO(port): port these headers to posix.
+#include "chrome/browser/tab_contents/tab_contents.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 SaveFileManager::SaveFileManager(MessageLoop* ui_loop,
