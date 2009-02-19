@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_CONTEXT_NODE_TYPES_H__
 #define WEBKIT_GLUE_CONTEXT_NODE_TYPES_H__
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "googleurl/src/gurl.h"
 

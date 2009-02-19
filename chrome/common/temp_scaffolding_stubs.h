@@ -341,6 +341,12 @@ class TableModel {
 
 }  // namespace views
 
+class Menu {
+ public:
+  class Delegate {
+  };
+};
+
 //---------------------------------------------------------------------------
 // These stubs are for Browser
 
@@ -566,6 +572,7 @@ class Encryptor {
 class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
  public:
   typedef std::wstring Language;
+  typedef std::vector<Language> Languages;
   SpellChecker(const std::wstring& dict_dir,
                const Language& language,
                URLRequestContext* request_context,
@@ -578,6 +585,12 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
                     std::vector<std::wstring>* optional_suggestions) {
     NOTIMPLEMENTED();
     return true;
+  }
+  static int GetSpellCheckLanguagesToDisplayInContextMenu(
+      Profile* profile,
+      Languages* display_languages) {
+    NOTIMPLEMENTED();
+    return 0;
   }
 };
 
@@ -745,6 +758,29 @@ class RepostFormWarningDialog {
  public:
   static void RunRepostFormWarningDialog(NavigationController*) { }
   virtual ~RepostFormWarningDialog() { }
+};
+
+class PageInfoWindow {
+ public:
+  enum TabID {
+    GENERAL = 0,
+    SECURITY,
+  };
+  static void CreatePageInfo(Profile* profile, NavigationEntry* nav_entry,
+                             gfx::NativeView parent_hwnd, TabID tab) {
+    NOTIMPLEMENTED();
+  }
+  static void CreateFrameInfo(Profile* profile, const GURL& url,
+                              const NavigationEntry::SSLStatus& ssl,
+                              gfx::NativeView parent_hwnd, TabID tab) {
+    NOTIMPLEMENTED();
+  }
+};
+
+class FontsLanguagesWindowView {
+ public:
+  explicit FontsLanguagesWindowView(Profile* profile) { NOTIMPLEMENTED(); }
+  void SelectLanguagesTab() { NOTIMPLEMENTED(); }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include "chrome/browser/tab_contents/render_view_context_menu_controller.h"
 
 #include "base/command_line.h"
@@ -9,27 +11,31 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/spellchecker.h"
-#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/views/page_info_window.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/win_util.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request.h"
+
+#if defined(OS_WIN)
+// TODO(port): port these files.
+#include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/spellchecker.h"
+#include "chrome/browser/views/options/fonts_languages_window_view.h"
+#include "chrome/browser/views/page_info_window.h"
+#include "chrome/common/clipboard_service.h"
+#include "chrome/common/win_util.h"
+#endif
 
 #include "generated_resources.h"
 
@@ -374,13 +380,23 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
+#if defined(OS_WIN)
       win_util::MessageBox(NULL, L"Context Menu Action", L"Save Frame As",
                            MB_OK);
+#else
+      // TODO(port): message box equivalent
+      NOTIMPLEMENTED() << "IDS_CONTENT_CONTEXT_SAVEFRAMEAS";
+#endif
       break;
 
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
+#if defined(OS_WIN)
       win_util::MessageBox(NULL, L"Context Menu Action", L"Print Frame",
                            MB_OK);
+#else
+      // TODO(port): message box equivalent
+      NOTIMPLEMENTED() << "IDS_CONTENT_CONTEXT_PRINTFRAME";
+#endif
       break;
 
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
@@ -469,12 +485,17 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS: {
+#if defined(OS_WIN)
       FontsLanguagesWindowView* window_ = new FontsLanguagesWindowView(
           source_web_contents_->profile());
       views::Window::CreateChromeWindow(
           source_web_contents_->GetContentNativeView(),
           gfx::Rect(), window_)->Show();
       window_->SelectLanguagesTab();
+#else
+      // TODO(port): need views::Window
+      NOTIMPLEMENTED() << "IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS";
+#endif
       break;
     }
 
@@ -523,4 +544,3 @@ bool RenderViewContextMenuController::IsDevCommandEnabled(int id) const {
 
   return true;
 }
-

@@ -5,11 +5,20 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_CONTROLLER_H_
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_CONTROLLER_H_
 
+#include "build/build_config.h"
+
 #include "chrome/common/pref_member.h"
 #include "chrome/common/page_transition_types.h"
-#include "chrome/views/menu.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/window_open_disposition.h"
+
+#if defined(OS_WIN)
+// TODO(port): port this file.
+#include "chrome/views/menu.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#include "chrome/views/accelerator.h"
+#endif
 
 class WebContents;
 
@@ -55,4 +64,3 @@ class RenderViewContextMenuController : public Menu::Delegate {
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_CONTROLLER_H_
-
