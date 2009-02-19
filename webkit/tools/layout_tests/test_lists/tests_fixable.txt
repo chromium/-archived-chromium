@@ -759,8 +759,9 @@ DEFER LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 DEFER WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
-// Linux pixeltest failure: likely just needs a rebaseline.
-LINUX : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
+// This is failing occasionally because we're dumping the tree/image
+// before the redirect completes.
+LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 
 // GURL/KURL difference in handling of "http:".  http://crbug.com/7386.
 // New test. We should fix it, but it doesn't need to block the current release
