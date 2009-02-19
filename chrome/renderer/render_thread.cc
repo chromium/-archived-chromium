@@ -86,12 +86,7 @@ void RenderThread::RemoveFilter(IPC::ChannelProxy::MessageFilter* filter) {
 }
 
 void RenderThread::Resolve(const char* name, size_t length) {
-// TODO(port)
-#if defined(OS_WIN)
   return render_dns_master_->Resolve(name, length);
-#else
-  NOTIMPLEMENTED();
-#endif
 }
 
 void RenderThread::AddRoute(int32 routing_id,
