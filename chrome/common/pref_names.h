@@ -163,6 +163,9 @@ extern const wchar_t kNumBookmarksInOtherBookmarkFolder[];
 extern const wchar_t kNumFoldersInOtherBookmarkFolder[];
 
 extern const wchar_t kNumKeywords[];
+
+extern const wchar_t kEnableExtensions[];
+extern const wchar_t kEnableUserScripts[];
 }
 
 #endif  // CHROME_COMMON_PREF_NAMES_H_

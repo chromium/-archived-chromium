@@ -464,4 +464,8 @@ const wchar_t kNumFoldersInOtherBookmarkFolder[] =
 // Number of keywords.
 const wchar_t kNumKeywords[] = L"user_experience_metrics.num_keywords";
 
+// Whether Extensions or User Scripts are enabled.
+const wchar_t kEnableExtensions[] = L"extensions.enabled";
+const wchar_t kEnableUserScripts[] = L"extensions.user_scripts_enabled";
+
 }  // namespace prefs

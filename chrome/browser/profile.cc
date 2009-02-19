@@ -72,6 +72,8 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
       IDS_SPELLCHECK_DICTIONARY);
 #endif
   prefs->RegisterBooleanPref(prefs::kEnableSpellCheck, true);
+  prefs->RegisterBooleanPref(prefs::kEnableUserScripts, false);
+  prefs->RegisterBooleanPref(prefs::kEnableExtensions, false);
 }
 
 // static
@@ -352,10 +354,13 @@ void ProfileImpl::InitExtensions() {
     return;  // Already initialized.
 
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  PrefService* prefs = GetPrefs();
   bool user_scripts_enabled =
-      command_line->HasSwitch(switches::kEnableUserScripts);
+      command_line->HasSwitch(switches::kEnableUserScripts) || 
+      prefs->GetBoolean(prefs::kEnableUserScripts);
   bool extensions_enabled =
-      command_line->HasSwitch(switches::kEnableExtensions);
+      command_line->HasSwitch(switches::kEnableExtensions) || 
+      prefs->GetBoolean(prefs::kEnableExtensions);
 
   FilePath script_dir;
   if (user_scripts_enabled) {
