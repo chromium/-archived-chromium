@@ -25,7 +25,7 @@ class BackForwardMenuModel {
  public:
   // These are IDs used to identify individual UI elements within the
   // browser window using View::GetViewByID.
-  typedef enum ModelType {
+  enum ModelType {
     FORWARD_MENU_DELEGATE = 1,
     BACKWARD_MENU_DELEGATE = 2
   };
