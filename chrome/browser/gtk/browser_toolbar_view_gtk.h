@@ -24,7 +24,8 @@ class ToolbarModel;
 // View class that displays the GTK version of the toolbar and routes gtk
 // events back to the Browser.
 class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
-                          public MenuGtk::Delegate {
+                          public MenuGtk::Delegate,
+                          public NotificationObserver {
  public:
   // Height of the toolbar, in pixels.
   static const int kToolbarHeight;
@@ -45,6 +46,11 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   virtual bool IsCommandEnabled(int command_id) const;
   virtual bool IsItemChecked(int id) const;
   virtual void ExecuteCommand(int command_id);
+
+  // NotificationObserver implementation.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
 
   void SetProfile(Profile* profile);
 
@@ -78,6 +84,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // Displays the app menu.
   void RunAppMenu(GdkEvent* button_press_event);
 
+  // Construct the Home button.
+  CustomDrawButton* MakeHomeButton();
+
   // Gtk widgets. The toolbar is an hbox with each of the other pieces of the
   // toolbar placed side by side.
   GtkWidget* toolbar_;
@@ -90,7 +99,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   // All the buttons in the toolbar.
   scoped_ptr<CustomDrawButton> back_, forward_;
-  scoped_ptr<CustomDrawButton> reload_, home_;
+  scoped_ptr<CustomDrawButton> reload_;
+  scoped_ptr<CustomDrawButton> home_;  // May be NULL.
   scoped_ptr<CustomDrawButton> star_, go_;
   scoped_ptr<CustomDrawButton> page_menu_button_, app_menu_button_;
 

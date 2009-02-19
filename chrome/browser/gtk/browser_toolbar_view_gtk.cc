@@ -47,6 +47,8 @@ BrowserToolbarGtk::~BrowserToolbarGtk() {
 }
 
 void BrowserToolbarGtk::Init(Profile* profile) {
+  show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
+
   toolbar_ = gtk_hbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(toolbar_), 4);
   // TODO(evanm): this setting of the x-size to 0 makes it so the window
@@ -67,8 +69,11 @@ void BrowserToolbarGtk::Init(Profile* profile) {
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
       l10n_util::GetString(IDS_TOOLTIP_RELOAD), false));
-  home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
-      l10n_util::GetString(IDS_TOOLTIP_HOME), false));
+
+  // TODO(port): we need to dynamically react to changes in show_home_button_
+  // and hide/show home appropriately.  But we don't have a UI for it yet.
+  if (*show_home_button_)
+    home_.reset(MakeHomeButton());
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new("  "), FALSE, FALSE, 0);
 
@@ -92,9 +97,6 @@ void BrowserToolbarGtk::Init(Profile* profile) {
   app_menu_button_.reset(BuildToolbarButton(IDR_MENU_CHROME, 0, 0, 0,
       l10n_util::GetString(IDS_APPMENU_TOOLTIP), true));
 
-  // TODO(erg): wchar_t mismatch on linux. Fix later.
-  //  show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
-
   SetProfile(profile);
 }
 
@@ -115,7 +117,8 @@ void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {
       widget = reload_->widget();
       break;
     case IDC_HOME:
-      widget = home_->widget();
+      if (home_.get())
+        widget = home_->widget();
       break;
     case IDC_STAR:
       widget = star_->widget();
@@ -140,6 +143,18 @@ bool BrowserToolbarGtk::IsItemChecked(int id) const {
 
 void BrowserToolbarGtk::ExecuteCommand(int id) {
   browser_->ExecuteCommand(id);
+}
+
+void BrowserToolbarGtk::Observe(NotificationType type,
+                                const NotificationSource& source,
+                                const NotificationDetails& details) {
+  if (type == NotificationType::PREF_CHANGED) {
+    std::wstring* pref_name = Details<std::wstring>(details).ptr();
+    if (*pref_name == prefs::kShowHomeButton) {
+      // TODO(port): add/remove home button.
+      NOTIMPLEMENTED();
+    }
+  }
 }
 
 void BrowserToolbarGtk::SetProfile(Profile* profile) {
@@ -202,7 +217,7 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
     tag = IDC_FORWARD;
   else if (button == toolbar->reload_->widget())
     tag = IDC_RELOAD;
-  else if (button == toolbar->home_->widget())
+  else if (toolbar->home_.get() && button == toolbar->home_->widget())
     tag = IDC_HOME;
   else if (button == toolbar->star_->widget())
     tag = IDC_STAR;
@@ -300,4 +315,9 @@ void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
   }
 
   app_menu_->Popup(app_menu_button_->widget(), button_press_event);
+}
+
+CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
+  return BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
+                            l10n_util::GetString(IDS_TOOLTIP_HOME), false);
 }
