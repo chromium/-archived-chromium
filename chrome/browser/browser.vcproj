@@ -1522,6 +1522,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dom_ui\downloads_ui.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\downloads_ui.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\fileicon_source.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\fileicon_source.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dom_ui\history_ui.cc"
 				>
 			</File>

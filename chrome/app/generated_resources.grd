@@ -1230,6 +1230,12 @@ each locale. -->
       <message name="IDS_DOWNLOAD_SEARCH_BUTTON" desc="Title of the button in the download page that triggers a search">
         Search downloads
       </message>
+      <message name="IDS_DOWNLOAD_NO_RESULTS" desc="Descriptive text when no results are found.">
+        No results
+      </message>
+      <message name="IDS_DOWNLOAD_SEARCHRESULTSFOR" desc="Format string for search results">
+        Search results for '<ph name="SEARCH_STRING">%s</ph>'
+      </message>
       <message name="IDS_DOWNLOAD_LINK_RESUME"
                desc="In the download view, 'Resume' link text">
         Resume
@@ -3405,6 +3411,10 @@ each locale. -->
       </message>
       <message name="IDS_BOOKMARK_MANAGER_SEARCH_TITLE" desc="Text shown before the search text field.">
         Search:
+      </message>
+
+      <message name="IDS_DEFAULT_FILENAME" desc="Default name for saved files when we have no idea what they could be.">
+        unknown
       </message>
 
     </messages>

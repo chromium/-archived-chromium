@@ -35,6 +35,7 @@ class DOMUI {
   // of the call, and should be thought of more like sending a message to
   // the page.
   // There are two function variants for one-arg and two-arg calls.
+  void CallJavascriptFunction(const std::wstring& function_name);
   void CallJavascriptFunction(const std::wstring& function_name,
                               const Value& arg);
   void CallJavascriptFunction(const std::wstring& function_name,
@@ -76,6 +77,12 @@ class DOMMessageHandler {
   static void SetURLAndTitle(DictionaryValue* dictionary, 
                              std::wstring title,
                              const GURL& gurl);
+
+  // Extract an integer value from a Value.
+  bool ExtractIntegerValue(const Value* value, int* out_int);
+
+  // Extract a string value from a Value.
+  std::wstring ExtractStringValue(const Value* value);
 
   DOMUI* const dom_ui_;
 

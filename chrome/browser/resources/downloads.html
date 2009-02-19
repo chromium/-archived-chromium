@@ -1,0 +1,551 @@
+<!DOCTYPE HTML>
+<html id="t">
+<head>
+<meta charset="utf-8">
+<title jscontent="title"></title>
+<style type="text/css">
+body {
+  font-family:arial;
+  background-color:white;
+  color:black;
+  font-size:84%;
+  margin:10px;
+}
+.header {
+  overflow:auto;
+  clear:both;
+}
+.header .logo {
+  float:left;
+}
+.header .form {
+  float:left;
+  margin-top:22px;
+  margin-left:12px;
+}
+#downloads-summary {
+  margin-top:12px;
+  border-top:1px solid #9cc2ef;
+  background-color:#ebeff9;
+  font-weight:bold;
+  padding:3px;
+  margin-bottom:6px;
+}
+#downloads-display {
+  max-width:740px;
+}
+.download {
+  position:relative;
+  padding-left:45px;
+  margin-bottom:16px;
+}
+.download .icon {
+  position:absolute;
+  top:2px;
+  left:2px;
+  width:32px;
+  height:32px;
+}
+.name {
+  display:none;
+  padding-right:16px;
+  max-width:450px;
+  text-overflow:ellipsis;
+}
+.download .status {
+  display:inline;
+  color:#999;
+}
+.download .url {
+  color:#080;
+  width:500px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.controls a {
+  color:#777;
+}
+#downloads-pagination {
+  padding-top:24px;
+  margin-left:18px;
+}
+.page-navigation {
+  padding:8px;
+  background-color:#ebeff9;
+  margin-right:4px;
+}
+.footer {
+  height:24px;
+}
+</style>
+<script type="text/javascript">
+///////////////////////////////////////////////////////////////////////////////
+// localStrings:
+/**
+ * We get strings into the page by using JSTemplate to populate some elements
+ * with localized content, then reading the content of those elements into
+ * this global strings object.
+ * @param {Node} node The DOM node containing all our strings.
+ */
+function LocalStrings(node) {
+  this.strings_ = {};
+
+  var children = node.childNodes;
+  for (var i = 0, child; child = children[i]; i++) {
+    var id = child.id;
+    if (id) {
+      this.strings_[id] = child.innerHTML;
+    }
+  }
+}
+
+/**
+ * Gets a localized string by its id.
+ * @param {string} s The id of the string we want
+ * @return {string} The localized string
+ */
+LocalStrings.prototype.getString = function(s) {
+  return (s in this.strings_) ? this.strings_[s] : '';
+}
+
+/**
+ * Returns a formatted localized string (where all %s contents are replaced
+ * by the second argument).
+ * @param {string} s The id of the string we want
+ * @param {string} d The string to include in the formatted string
+ * @return {string} The formatted string.
+ */
+LocalStrings.prototype.formatString = function(s, d) {
+  return (s in this.strings_) ? this.strings_[s].replace(/\%s/, d) : '';
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Helper functions
+function $(o) {return document.getElementById(o);}
+
+function bind(fn, selfObj, var_args) {
+  var boundArgs = Array.prototype.slice.call(arguments, 2);
+  return function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift.apply(args, boundArgs);
+    return fn.apply(selfObj, args);
+  }
+}
+
+/**
+ * Sets the display style of a node.
+ */
+function showInline(node, isShow) {
+  node.style.display = isShow ? 'inline' : 'none';
+}
+
+/**
+ * Creates an element of a specified type with a specified class name.
+ * @param {String} type The node type.
+ * @param {String} className The class name to use.
+ */
+function createElementWithClassName(type, className) {
+  var elm = document.createElement(type);
+  elm.className = className;
+  return elm;
+}
+
+/**
+ * Creates a link with a specified onclick handler and content
+ * @param {String} onclick The onclick handler
+ * @param {String} value The link text
+ */
+function createLink(onclick, value) {
+  var link = document.createElement("a");
+  link.onclick = onclick;
+  link.href = '#';
+  link.innerHTML = value;
+  return link;
+}
+
+/**
+ * Creates a button with a specified onclick handler and content
+ * @param {String} onclick The onclick handler
+ * @param {String} value The button text
+ */
+function createButton(onclick, value) {
+  var button = document.createElement("input");
+  button.type = 'button';
+  button.value = value;
+  button.onclick = onclick;
+  return button;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Downloads
+/**
+ * Class to hold all the information about the visible downloads.
+ */
+function Downloads() {
+  this.downloads_ = {};
+  this.node_ = $('downloads-display');
+  this.summary_ = $('downloads-summary');
+  this.searchText_ = "";
+}
+
+/**
+ * Called when a download has been updated or added.
+ * @param {Object} download A backend download object (see downloads_ui.cc)
+ */
+Downloads.prototype.updated = function(download) {
+  var id = download.id;
+  if (!!this.downloads_[id]) {
+    this.downloads_[id].update(download);
+  } else {
+    this.downloads_[id] = new Download(download);
+    // We get downloads in display order, so we don't have to worry about
+    // maintaining correct order for now.
+    this.node_.insertBefore(this.downloads_[id].node,
+                            this.node_.firstChild);
+  }
+}
+
+/**
+ * Set our display search text.
+ * @param {String} searchText The string we're searching for.
+ */
+Downloads.prototype.setSearchText = function(searchText) {
+  this.searchText_ = searchText;
+}
+
+/**
+ * Update the summary block above the results
+ */
+Downloads.prototype.updateSummary = function() {
+  if (this.searchText_) {
+    this.summary_.innerHTML = localStrings.formatString(
+        'searchresultsfor', this.searchText_);
+  } else {
+    this.summary_.innerHTML = localStrings.getString('downloads');
+  }
+
+  var hasDownloads = false;
+  for (var i in this.downloads_) {
+    hasDownloads = true;
+    break;
+  }
+
+  if (!hasDownloads) {
+    this.node_.innerHTML = localStrings.getString('noresults');
+  }
+}
+
+/**
+ * Remove a download.
+ * @param {Number} id The id of the download to remove.
+ */
+Downloads.prototype.remove = function(id) {
+  this.node_.removeChild(this.downloads_[id].node);
+  delete this.downloads_[id];
+}
+
+/**
+ * Clear all downloads and reset us back to a null state.
+ */
+Downloads.prototype.clear = function() {
+  for (var id in this.downloads_) {
+    this.downloads_[id].clear();
+    this.remove(id);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Download
+/**
+ * A download and the DOM representation for that download.
+ * @param {Object} download A backend download object (see downloads_ui.cc)
+ */
+function Download(download) {
+  // Create DOM
+  this.node = createElementWithClassName('div', 'download');
+
+  // Container for all 'safe download' UI.
+  this.safe_ = document.createElement("div");
+  this.safe_.ondragstart = bind(this.drag_, this);
+  this.node.appendChild(this.safe_);
+
+  this.nodeImg_ = createElementWithClassName('img', 'icon');
+  this.safe_.appendChild(this.nodeImg_);
+
+  // FileLink is used for completed downloads, otherwise we show FileName.
+  this.nodeTitleArea_ = createElementWithClassName('div', 'title-area');
+  this.safe_.appendChild(this.nodeTitleArea_);
+
+  this.nodeFileLink_ = createLink(bind(this.openFile_, this), '');
+  this.nodeFileLink_.className = 'name';
+  this.nodeFileLink_.style.display = 'none';
+  this.nodeTitleArea_.appendChild(this.nodeFileLink_);
+
+  this.nodeFileName_ = createElementWithClassName('span', 'name');
+  this.nodeFileName_.style.display = 'none';
+  this.nodeTitleArea_.appendChild(this.nodeFileName_);
+
+  this.nodeStatus_ = createElementWithClassName('span', 'status');
+  this.nodeTitleArea_.appendChild(this.nodeStatus_);
+
+  this.nodeURL_ = createElementWithClassName('div', 'url');
+  this.safe_.appendChild(this.nodeURL_);
+
+  // Controls.
+  this.nodeControls_ = createElementWithClassName('div', 'controls');
+  this.safe_.appendChild(this.nodeControls_);
+
+  this.controlShow_ = createLink(bind(this.show_, this),
+      localStrings.getString('control_showinfolder'));
+  this.nodeControls_.appendChild(this.controlShow_);
+
+  this.controlPause_ = createLink(bind(this.pause_, this),
+      localStrings.getString('control_pause'));
+  this.nodeControls_.appendChild(this.controlPause_);
+
+  this.controlCancel_ = createLink(bind(this.cancel_, this),
+      localStrings.getString('control_cancel'));
+  this.nodeControls_.appendChild(this.controlCancel_);
+
+  // Container for 'unsafe download' UI.
+  this.danger_ = createElementWithClassName('div', 'show-dangerous');
+  this.node.appendChild(this.danger_);
+
+  this.dangerDesc_ = document.createElement("div");
+  this.danger_.appendChild(this.dangerDesc_);
+
+  this.dangerSave_ = createButton(bind(this.saveDangerous_, this),
+      localStrings.getString("danger_save"));
+  this.danger_.appendChild(this.dangerSave_);
+
+  this.dangerDiscard_ = createButton(bind(this.discardDangerous_, this),
+      localStrings.getString("danger_discard"));
+  this.danger_.appendChild(this.dangerDiscard_);
+
+  // Update member vars.
+  this.update(download);
+}
+
+/**
+ * The states a download can be in. These correspond to states defined in
+ * DownloadsDOMHandler::CreateDownloadItemValue
+ */
+Download.States = {
+  IN_PROGRESS : "IN_PROGRESS",
+  CANCELLED : "CANCELLED",
+  COMPLETE : "COMPLETE",
+  PAUSED : "PAUSED",
+  DANGEROUS : "DANGEROUS",
+}
+
+/**
+ * Updates the download to reflect new data.
+ * @param {Object} download A backend download object (see downloads_ui.cc)
+ */
+Download.prototype.update = function(download) {
+  this.id_ = download.id;
+  this.filePath_ = download.file_path;
+  this.fileName_ = download.file_name;
+  this.url_ = download.url;
+  this.state_ = download.state;
+  this.percent_ = download.percent;
+  this.speed_ = download.speed;
+  this.received_ = download.received;
+
+  if (this.state_ == Download.States.DANGEROUS) {
+    this.dangerDesc_.innerHTML = localStrings.formatString('danger_desc',
+                                                           this.fileName_);
+    this.danger_.style.display = 'block';
+    this.safe_.style.display = 'none';
+  } else {
+    this.nodeImg_.src = 'chrome-ui://fileicon/' + this.filePath_;
+
+    if (this.state_ == Download.States.COMPLETE) {
+      this.nodeFileLink_.innerHTML = this.fileName_;
+      this.nodeFileLink_.href = this.filePath_;
+    } else {
+      this.nodeFileName_.innerHTML = this.fileName_;
+    }
+
+    showInline(this.nodeFileLink_, this.state_ == Download.States.COMPLETE);
+    showInline(this.nodeFileName_, this.state_ != Download.States.COMPLETE);
+
+    showInline(this.controlShow_, this.state_ == Download.States.COMPLETE);
+    showInline(this.controlPause_, this.state_ == Download.States.IN_PROGRESS);
+    showInline(this.controlCancel_, this.state_ == Download.States.IN_PROGRESS);
+
+    this.nodeURL_.innerHTML = this.url_;
+    this.nodeStatus_.innerHTML = this.getStatusText_();
+
+    this.danger_.style.display = 'none';
+    this.safe_.style.display = 'block';
+  }
+}
+
+/**
+ * Removes applicable bits from the DOM in preparation for deletion.
+ */
+Download.prototype.clear = function() {
+  this.safe_.ondragstart = null;
+  this.nodeFileLink_.onclick = null;
+  this.controlShow_.onclick = null;
+  this.controlCancel_.onclick = null;
+  this.controlPause_.onclick = null;
+  this.dangerDiscard_.onclick = null;
+
+  this.node.innerHTML = '';
+}
+
+/**
+ * @return {String} User-visible status update text.
+ */
+Download.prototype.getStatusText_ = function() {
+  switch (this.state_) {
+    case Download.States.IN_PROGRESS:
+      // TODO(glen): Make pretty, localize, etc.
+      return this.percent_ + '% at ' + this.speed_;
+    case Download.States.CANCELLED:
+      return localStrings.getString('status_cancelled');
+    case Download.States.PAUSED:
+      return localStrings.getString('status_paused');
+    case Download.States.DANGEROUS:
+      return localStrings.getString('danger_desc');
+    case Download.States.COMPLETE:
+      return "";
+  }
+}
+
+/**
+ * Tells the backend to initiate a drag, allowing users to drag
+ * files from the download page and have them appear as native file
+ * drags.
+ */
+Download.prototype.drag_ = function() {
+  chrome.send("drag", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend to open this file.
+ */
+Download.prototype.openFile_ = function() {
+  chrome.send("openFile", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend that the user chose to save a dangerous file.
+ */
+Download.prototype.saveDangerous_ = function() {
+  chrome.send("saveDangerous", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend that the user chose to discard a dangerous file.
+ */
+Download.prototype.discardDangerous_ = function() {
+  chrome.send("discardDangerous", [this.id_.toString()]);
+  downloads.remove(this.id_);
+  return false;
+}
+
+/**
+ * Tells the backend to show the file in explorer.
+ */
+Download.prototype.show_ = function() {
+  chrome.send("show", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend to pause this download.
+ */
+Download.prototype.pause_ = function() {
+  chrome.send("pause", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend to cancel this download.
+ */
+Download.prototype.cancel_ = function() {
+  chrome.send("cancel", [this.id_.toString()]);
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Page:
+var downloads, localStrings;
+
+function load() {
+  localStrings = new LocalStrings($('l10n'));
+  downloads = new Downloads();
+  setSearch("");
+}
+
+function setSearch(searchText) {
+  downloads.clear();
+  downloads.setSearchText(searchText);
+  chrome.send("getDownloads", [searchText.toString()]);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Chrome callbacks:
+/**
+ * Our history system calls this function with results from searches or when
+ * downloads are added or removed.
+ */
+function downloadsList(results) {
+  downloadUpdated(results);
+  downloads.updateSummary();
+}
+
+/**
+ * When a download is updated (progress, state change), this is called.
+ */
+function downloadUpdated(results) {
+  for (var i = 0, thisResult; thisResult = results[i]; i++) {
+    downloads.updated(thisResult);
+  }
+}
+</script>
+</head>
+<body onload="load();">
+<div class="header">
+  <a href="" onclick="setSearch(''); return false;">
+    <img src="../../app/theme/downloads_section.png"
+         width="67" height="67" class="logo" border="0" /></a>
+  <form method="post" action=""
+      onsubmit="setSearch(this.term.value); return false;"
+      class="form">
+    <input type="text" name="term" id="term" />
+    <input type="submit" name="submit" jsvalues="value:searchbutton" />
+  </form>
+</div>
+<div class="main">
+  <div id="downloads-summary"></div>
+  <div id="downloads-display"></div>
+</div>
+<div class="footer">
+</div>
+<div id="l10n" style="display:none;">
+  <span id="searchresultsfor" jscontent="searchresultsfor">Search results for '%s'</span>
+  <span id="no_results" jscontent="no_results">No results found.</span>
+  <span id="downloads" jscontent="downloads">Downloads</span>
+
+  <span id="status_cancelled" jscontent="status_cancelled">Cancelled</span>
+  <span id="status_paused" jscontent="status_paused">Paused</span>
+
+  <span id="danger_desc" jscontent="danger_desc">This is a dangerous file</span>
+  <span id="danger_save" jscontent="danger_save">Save</span>
+  <span id="danger_discard" jscontent="danger_discard">Discard</span>
+
+  <span id="control_pause" jscontent="control_pause">Pause</span>
+  <span id="control_showinfolder" jscontent="control_showinfolder">Show in folder</span>
+  <span id="control_cancel" jscontent="control_cancel">Cancel</span>
+  <span id="control_resume" jscontent="control_resume">Resume</span>
+</div>
+</body>
+</html>

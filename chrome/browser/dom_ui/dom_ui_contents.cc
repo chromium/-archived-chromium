@@ -6,6 +6,7 @@
 
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
+#include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/resource_bundle.h"
@@ -192,7 +193,9 @@ bool DOMUIContents::NavigateToPendingEntry(bool reload) {
 DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
   if (url.host() == HistoryUI::GetBaseURL().host())
     return new HistoryUI(this);
-  
+  else if (url.host() == DownloadsUI::GetBaseURL().host())
+    return new DownloadsUI(this);
+
   return NULL;
 }
 
