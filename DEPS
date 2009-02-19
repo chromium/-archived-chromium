@@ -30,8 +30,8 @@ deps = {
   "src/webkit/data/layout_tests/LayoutTests":
     Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),
 
-  "src/third_party/WebKit/WebKit":
-    Var("webkit_trunk") + "/WebKit@" + Var("webkit_revision"),
+  "src/third_party/WebKit/WebKit/mac":
+    Var("webkit_trunk") + "/WebKit/mac@" + Var("webkit_revision"),
 
   "src/third_party/WebKit/WebKitLibraries":
     Var("webkit_trunk") + "/WebKitLibraries@" + Var("webkit_revision"),
