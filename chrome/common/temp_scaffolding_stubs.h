@@ -243,31 +243,6 @@ class PrintJobManager {
 
 }  // namespace printing
 
-class SafeBrowsingProtocolManager {
- public:
-  SafeBrowsingProtocolManager(SafeBrowsingService* service,
-                              MessageLoop* notify_loop,
-                              const std::string& client_key,
-                              const std::string& wrapped_key) {
-    NOTIMPLEMENTED();
-  }
-
-  ~SafeBrowsingProtocolManager() { NOTIMPLEMENTED(); }
-  void OnChunkInserted() { NOTIMPLEMENTED(); }
-  void OnGetChunksComplete(const std::vector<SBListChunkRanges>& list,
-                           bool database_error) {
-    NOTIMPLEMENTED();
-  }
-  void Initialize() { NOTIMPLEMENTED(); }
-  base::Time last_update() const { return last_update_; }
-  void GetFullHash(SafeBrowsingService::SafeBrowsingCheck* check,
-                   const std::vector<SBPrefix>& prefixes) {
-    NOTIMPLEMENTED();
-  }
- private:
-  base::Time last_update_;
-};
-
 struct DownloadBuffer {
   Lock lock;
   typedef std::pair<net::IOBuffer*, int> Contents;

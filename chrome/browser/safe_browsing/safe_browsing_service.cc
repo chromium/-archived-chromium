@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/profile_manager.h"
+#include "chrome/browser/safe_browsing/protocol_manager.h"
 #include "chrome/browser/safe_browsing/safe_browsing_blocking_page.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
 #include "chrome/browser/tab_contents/tab_util.h"
@@ -23,13 +24,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/registry_controlled_domain.h"
-
-#if defined(OS_WIN)
-// TODO(port): Place this header above once we've ported protocol_manager.*
-#include "chrome/browser/safe_browsing/protocol_manager.h"
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 using base::Time;
 using base::TimeDelta;
