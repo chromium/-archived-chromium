@@ -99,10 +99,16 @@ bool BrowserWindowCocoa::IsFullscreen() const {
   return false;
 }
 
+@interface NSWindow(OSInternals)
+- (NSRect)_growBoxRect;
+@end
+
 gfx::Rect BrowserWindowCocoa::GetRootWindowResizerRect() const {
-  // TODO(pinkerton): fill this in so scrollbars go in the correct places
-  NOTIMPLEMENTED();
-  return gfx::Rect();
+  NSRect windowRect = [window_ _growBoxRect];
+  // convert from window coordinates to the coordinates of the currently
+  // selected tab. |tabRect| will already be flipped into WebKit coordinates.
+  NSRect tabRect = [controller_ selectedTabGrowBoxFromWindowGrowBox:windowRect];
+  return gfx::Rect(NSRectToCGRect(tabRect));
 }
 
 LocationBar* BrowserWindowCocoa::GetLocationBar() const {

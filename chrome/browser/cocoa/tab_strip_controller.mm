@@ -334,6 +334,24 @@ class TabStripBridge : public TabStripModelObserver {
   [selectedController setStarredState:isStarred];
 }
 
+// Return the rect, in WebKit coordinates (flipped), of the window's grow box
+// in the coordinate system of the content area of the currently selected tab.
+// |windowGrowBox| needs to be in the window's coordinate system.
+- (NSRect)selectedTabGrowBoxFromWindowGrowBox:(NSRect)windowGrowBox {
+  TabContents* selectedContents = model_->GetSelectedTabContents();
+  if (!selectedContents) {
+    // When the window is initially being constructed, there may be no currently
+    // selected tab, so pick the first one. If there aren't any, just bail with
+    // an empty rect.
+    selectedContents = model_->GetTabContentsAt(0);
+    if (!selectedContents)
+      return NSMakeRect(0, 0, 0, 0);
+  }
+  TabContentsController* selectedController =
+      [self controllerWithContents:selectedContents];
+  return [selectedController growBoxFromWindowGrowBox:windowGrowBox];
+}
+
 @end
 
 //--------------------------------------------------------------------------

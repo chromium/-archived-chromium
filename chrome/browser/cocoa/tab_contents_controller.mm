@@ -202,6 +202,28 @@ class LocationBarBridge : public LocationBar {
   [starButton_ setImage:[NSImage imageNamed:starImageName]];
 }
 
+// Return the rect, in WebKit coordinates (flipped), of the window's grow box
+// in the coordinate system of the content area of this tab.
+// |windowGrowBox| needs to be in the window's coordinate system.
+- (NSRect)growBoxFromWindowGrowBox:(NSRect)windowGrowBox {
+  NSRect localGrowBox = NSMakeRect(0, 0, 0, 0);
+  NSView* contentView = contents_->GetNativeView();
+  if (contentView) {
+    localGrowBox = windowGrowBox;
+    // The scrollbar assumes that the resizer goes all the way down to the
+    // bottom corner, so we ignore any y offset to the rect itself and use the
+    // entire bottom corner.
+    localGrowBox.origin.y = 0;
+    // Convert to view coordinates from window coordinates.
+    localGrowBox = [contentView convertRect:localGrowBox fromView:nil];
+    // Flip the rect in view coordinates
+    localGrowBox.origin.y = 
+        [contentView frame].size.height - localGrowBox.origin.y - 
+            localGrowBox.size.height;
+  }
+  return localGrowBox;
+}
+
 @end
 
 //--------------------------------------------------------------------------

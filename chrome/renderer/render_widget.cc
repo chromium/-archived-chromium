@@ -703,7 +703,12 @@ void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget,
   // This is disabled to verify if WebKit is responsible for the slow down
   // that was witnessed in the page cycler tests when the resize corner 
   // code was commited...
+#if defined(OS_MACOSX)
+  // ...we need it enabled on Mac so scrollbars are usable.
+  *rect = resizer_rect_;
+#elif defined(OS_WIN) || defined(OS_LINUX)
   *rect = gfx::Rect();  // resizer_rect_;
+#endif
 }
 
 void RenderWidget::OnImeSetInputMode(bool is_active) {

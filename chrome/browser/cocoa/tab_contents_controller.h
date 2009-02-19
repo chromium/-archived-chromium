@@ -68,6 +68,11 @@ class TabStripModel;
 // Sets whether or not the current page in the frontmost tab is bookmarked.
 - (void)setStarredState:(BOOL)isStarred;
 
+// Return the rect, in WebKit coordinates (flipped), of the window's grow box
+// in the coordinate system of the content area of this tab.
+// |windowGrowBox| needs to be in the window's coordinate system.
+- (NSRect)growBoxFromWindowGrowBox:(NSRect)windowGrowBox;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_COTNENTS_CONTROLLER_H_

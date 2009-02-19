@@ -145,4 +145,12 @@
   [tabStripController_ setStarredState:isStarred];
 }
 
+// Return the rect, in WebKit coordinates (flipped), of the window's grow box
+// in the coordinate system of the content area of the currently selected tab.
+// |windowGrowBox| needs to be in the window's coordinate system.
+- (NSRect)selectedTabGrowBoxFromWindowGrowBox:(NSRect)windowGrowBox {
+  return [tabStripController_ 
+              selectedTabGrowBoxFromWindowGrowBox:windowGrowBox];
+}
+
 @end
