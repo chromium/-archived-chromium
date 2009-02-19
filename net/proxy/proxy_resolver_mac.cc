@@ -59,17 +59,20 @@ bool GetBoolFromDictionary(CFDictionaryRef dict,
     return default_value;
 }
 
-// Utility function to pull out a host/port pair from a dictionary and format
-// them into a "<host>[:<port>]" style string. Pass in a dictionary that has a
-// value for the host key and optionally a value for the port key. Returns a
-// formatted string. In the error condition where the host value is especially
-// malformed, returns an empty string. (You may still want to check for that
-// result anyway.)
-std::string GetHostPortFromDictionary(CFDictionaryRef dict,
-                                      CFStringRef host_key,
-                                      CFStringRef port_key) {
-  std::string result;
-  
+// Utility function to pull out a host/port pair from a dictionary and return it
+// as a ProxyServer object. Pass in a dictionary that has a  value for the host
+// key and optionally a value for the port key. In the error condition where
+// the host value is especially malformed, returns an invalid ProxyServer.
+net::ProxyServer GetProxyServerFromDictionary(net::ProxyServer::Scheme scheme,
+                                              CFDictionaryRef dict,
+                                              CFStringRef host_key,
+                                              CFStringRef port_key) {
+  if (scheme == net::ProxyServer::SCHEME_INVALID ||
+      scheme == net::ProxyServer::SCHEME_DIRECT) {
+    // No hostname port to extract; we are done.
+    return net::ProxyServer(scheme, std::string(), -1);
+  }
+
   CFStringRef host_ref =
       (CFStringRef)GetValueFromDictionary(dict, host_key,
                                           CFStringGetTypeID());
@@ -77,21 +80,36 @@ std::string GetHostPortFromDictionary(CFDictionaryRef dict,
     LOG(WARNING) << "Could not find expected key "
                  << base::SysCFStringRefToUTF8(host_key)
                  << " in the proxy dictionary";
-    return result;
+    return net::ProxyServer();  // Invalid.
   }
-  result = base::SysCFStringRefToUTF8(host_ref);
+  std::string host = base::SysCFStringRefToUTF8(host_ref);
   
   CFNumberRef port_ref =
       (CFNumberRef)GetValueFromDictionary(dict, port_key,
                                           CFNumberGetTypeID());
+  int port;
   if (port_ref) {
-    int port;
     CFNumberGetValue(port_ref, kCFNumberIntType, &port);
-    result += ":";
-    result += IntToString(port);
+  } else {
+    port = net::ProxyServer::GetDefaultPortForScheme(scheme);
   }
   
-  return result;
+  return net::ProxyServer(scheme, host, port);
+}
+
+// Utility function to map a CFProxyType to a ProxyServer::Scheme.
+// If the type is unknown, returns ProxyServer::SCHEME_INVALID.
+net::ProxyServer::Scheme GetProxyServerScheme(CFStringRef proxy_type) {
+  if (CFEqual(proxy_type, kCFProxyTypeNone))
+    return net::ProxyServer::SCHEME_DIRECT;
+  if (CFEqual(proxy_type, kCFProxyTypeHTTP))
+    return net::ProxyServer::SCHEME_HTTP;
+  if (CFEqual(proxy_type, kCFProxyTypeSOCKS)) {
+    // We can't tell whether this was v4 or v5. We will assume it is
+    // v5 since that is the only version OS X supports.
+    return net::ProxyServer::SCHEME_SOCKS5;
+  }
+  return net::ProxyServer::SCHEME_INVALID;
 }
 
 // Callback for CFNetworkExecuteProxyAutoConfigurationURL. |client| is a pointer
@@ -149,41 +167,44 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
   if (GetBoolFromDictionary(config_dict.get(),
                             kSCPropNetProxiesFTPEnable,
                             false)) {
-    std::string host_port =
-        GetHostPortFromDictionary(config_dict.get(),
-                                  kSCPropNetProxiesFTPProxy,
-                                  kSCPropNetProxiesFTPPort);
-    if (!host_port.empty()) {
+    ProxyServer proxy_server =
+        GetProxyServerFromDictionary(ProxyServer::SCHEME_HTTP,
+                                     config_dict.get(),
+                                     kSCPropNetProxiesFTPProxy,
+                                     kSCPropNetProxiesFTPPort);
+    if (proxy_server.is_valid()) {
       config->proxy_rules += "ftp=";
-      config->proxy_rules += host_port;
+      config->proxy_rules += proxy_server.ToURI();
     }
   }
   if (GetBoolFromDictionary(config_dict.get(),
                             kSCPropNetProxiesHTTPEnable,
                             false)) {
-    std::string host_port =
-        GetHostPortFromDictionary(config_dict.get(),
-                                  kSCPropNetProxiesHTTPProxy,
-                                  kSCPropNetProxiesHTTPPort);
-    if (!host_port.empty()) {
+    ProxyServer proxy_server =
+        GetProxyServerFromDictionary(ProxyServer::SCHEME_HTTP,
+                                     config_dict.get(),
+                                     kSCPropNetProxiesHTTPProxy,
+                                     kSCPropNetProxiesHTTPPort);
+    if (proxy_server.is_valid()) {
       if (!config->proxy_rules.empty())
         config->proxy_rules += ";";
       config->proxy_rules += "http=";
-      config->proxy_rules += host_port;
+      config->proxy_rules += proxy_server.ToURI();
     }
   }
   if (GetBoolFromDictionary(config_dict.get(),
                             kSCPropNetProxiesHTTPSEnable,
                             false)) {
-    std::string host_port =
-        GetHostPortFromDictionary(config_dict.get(),
-                                  kSCPropNetProxiesHTTPSProxy,
-                                  kSCPropNetProxiesHTTPSPort);
-    if (!host_port.empty()) {
+    ProxyServer proxy_server =
+        GetProxyServerFromDictionary(ProxyServer::SCHEME_HTTP,
+                                     config_dict.get(),
+                                     kSCPropNetProxiesHTTPSProxy,
+                                     kSCPropNetProxiesHTTPSPort);
+    if (proxy_server.is_valid()) {
       if (!config->proxy_rules.empty())
         config->proxy_rules += ";";
       config->proxy_rules += "https=";
-      config->proxy_rules += host_port;
+      config->proxy_rules += proxy_server.ToURI();
     }
   }
   
@@ -280,13 +301,11 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
   DCHECK(CFGetTypeID(result) == CFArrayGetTypeID());
   scoped_cftyperef<CFArrayRef> proxy_array_ref((CFArrayRef)result);
   
-  // Proxy information. If we're allowed to contact the site directly, we set
-  // allow_direct to true. If we've found proxies to use, apart from
-  // accumulating them in proxy_list, we set found_proxy to true. These
-  // bool results are orthogonal.
-  bool allow_direct = false;
-  std::string proxy_list;
-  bool found_proxy = false;
+  // This string will be an ordered list of <proxy-uri> entries, separated by
+  // semi-colons. It is the format that ProxyInfo::UseNamedProxy() expects.
+  //    proxy-uri = [<proxy-scheme>"://"]<proxy-host>":"<proxy-port>
+  // (This also includes entries for direct connection, as "direct://").
+  std::string proxy_uri_list;
   
   CFIndex proxy_array_count = CFArrayGetCount(proxy_array_ref.get());
   for (CFIndex i = 0; i < proxy_array_count; ++i) {
@@ -295,9 +314,7 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
     DCHECK(CFGetTypeID(proxy_dictionary) == CFDictionaryGetTypeID());
     
     // The dictionary may have the following keys:
-    // - kCFProxyTypeKey : The type of the proxy. We're assuming that it's of
-    //                     the type we asked for (e.g. kCFProxyTypeHTTP for
-    //                     http://... ) if it's not kCFProxyTypeNone.
+    // - kCFProxyTypeKey : The type of the proxy
     // - kCFProxyHostNameKey
     // - kCFProxyPortNumberKey : The meat we're after.
     // - kCFProxyUsernameKey
@@ -314,30 +331,22 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
         (CFStringRef)GetValueFromDictionary(proxy_dictionary,
                                             kCFProxyTypeKey,
                                             CFStringGetTypeID());
-    if (CFEqual(proxy_type, kCFProxyTypeNone))
-      allow_direct = true;
-    if (CFEqual(proxy_type, kCFProxyTypeNone) ||
-        // TODO(eroman): Include the SOCKS proxies in the result list.
-        // While chromium does not yet support SOCKS, it is safe to
-        // include it in the list.
-        CFEqual(proxy_type, kCFProxyTypeSOCKS) ||
-        CFEqual(proxy_type, kCFProxyTypeAutoConfigurationURL))
+    ProxyServer proxy_server =
+        GetProxyServerFromDictionary(GetProxyServerScheme(proxy_type),
+                                     proxy_dictionary,
+                                     kCFProxyHostNameKey,
+                                     kCFProxyPortNumberKey);
+    if (!proxy_server.is_valid())
       continue;
-    
-    if (found_proxy)
-      proxy_list += ";";
-    else
-      found_proxy = true;
-    
-    proxy_list += GetHostPortFromDictionary(proxy_dictionary,
-                                            kCFProxyHostNameKey,
-                                            kCFProxyPortNumberKey);
+
+    if (!proxy_uri_list.empty())
+      proxy_uri_list += ";";
+    proxy_uri_list += proxy_server.ToURI();
   }
   
-  if (found_proxy)
-    results->UseNamedProxy(proxy_list);
-  if (allow_direct)
-    results->UseDirect();
+  if (!proxy_uri_list.empty())
+    results->UseNamedProxy(proxy_uri_list);
+  // Else do nothing (results is already guaranteed to be in the default state).
   
   return OK;
 }

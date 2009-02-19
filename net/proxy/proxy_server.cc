@@ -15,20 +15,6 @@ namespace net {
 
 namespace {
 
-// Returns the default port number for proxy server with the
-// specified scheme. Returns -1 if unknown.
-int GetDefaultPortForScheme(ProxyServer::Scheme scheme) {
-  switch (scheme) {
-    case ProxyServer::SCHEME_HTTP:
-      return 80;
-    case ProxyServer::SCHEME_SOCKS4:
-    case ProxyServer::SCHEME_SOCKS5:
-      return 1080;
-    default:
-      return -1;
-  }
-}
-
 // Parse the proxy type from a PAC string, to a ProxyServer::Scheme.
 // This mapping is case-insensitive. If no type could be matched
 // returns SCHEME_INVALID.
@@ -184,6 +170,19 @@ std::string ProxyServer::ToPacString() const {
   }
 }
 
+// static
+int ProxyServer::GetDefaultPortForScheme(Scheme scheme) {
+  switch (scheme) {
+    case SCHEME_HTTP:
+      return 80;
+    case SCHEME_SOCKS4:
+    case SCHEME_SOCKS5:
+      return 1080;
+    default:
+      return -1;
+  }
+}
+  
 // static
 ProxyServer ProxyServer::FromSchemeHostAndPort(
     Scheme scheme,
