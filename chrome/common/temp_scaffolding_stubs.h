@@ -537,6 +537,10 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager> {
     NOTIMPLEMENTED();
     return 0;
   }
+  void GenerateSafeFilename(const std::string& mime_type,
+                            FilePath* file_name) {
+    NOTIMPLEMENTED();
+  }
 };
 
 class TemplateURLFetcher {
