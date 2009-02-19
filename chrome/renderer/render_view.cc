@@ -1017,6 +1017,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
       static_cast<RenderViewExtraRequestData*>(request.GetExtraData());
 
   ViewHostMsg_FrameNavigate_Params params;
+  params.http_status_code = response.GetHttpStatusCode();
   params.is_post = false;
   params.page_id = page_id_;
   params.is_content_filtered = response.IsContentFiltered();

@@ -9,6 +9,7 @@
 #include <atlapp.h>
 #include <atlcrack.h>
 #include <atlmisc.h>
+#include <string>
 
 #include "base/basictypes.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
@@ -80,16 +81,18 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
   virtual void ForwardMessageToExternalHost(const std::string& receiver,
                                             const std::string& message);
-  virtual bool IsExternalTabContainer() const { return true; };
+  virtual bool IsExternalTabContainer() const {
+    return true;
+  };
 
   // Notification service callback.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  ////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
   // views::Widget
-  ////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
   virtual void MoveToFront(bool should_activate);
   virtual HWND GetHWND() const;
@@ -115,7 +118,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   // message it did not process
   void ProcessUnhandledAccelerator(const MSG& msg);
 
-  // See TabContents::SetInitialFocus	
+  // See TabContents::SetInitialFocus
   void SetInitialFocus(bool reverse);
 
   // A helper method that tests whether the given window is an
@@ -146,6 +149,12 @@ class ExternalTabContainer : public TabContentsDelegate,
   // A view to handle focus cycling
   TabContentsContainerView* tab_contents_container_;
  private:
+  // A failed navigation like a 404 is followed in chrome with a success
+  // navigation for the 404 page. We need to ignore the next navigation
+  // to avoid confusing the clients of the external tab. This member variable
+  // is set when we need to ignore the next load notification.
+  bool ignore_next_load_notification_;
+
   DISALLOW_COPY_AND_ASSIGN(ExternalTabContainer);
 };
 

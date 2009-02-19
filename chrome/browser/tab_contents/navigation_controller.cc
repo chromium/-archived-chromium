@@ -614,6 +614,7 @@ bool NavigationController::RendererDidNavigate(
   details->is_main_frame = PageTransition::IsMainFrame(params.transition);
   details->serialized_security_info = params.security_info;
   details->is_content_filtered = params.is_content_filtered;
+  details->http_status_code = params.http_status_code;
   NotifyNavigationEntryCommitted(details);
 
   // It is now a safe time to schedule collection for any tab contents of a

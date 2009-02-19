@@ -275,10 +275,12 @@ class WebContents : public TabContents,
                                           const GURL& target_url);
   virtual void DidLoadResourceFromMemoryCache(const GURL& url,
                                               const std::string& security_info);
-  virtual void DidFailProvisionalLoadWithError(RenderViewHost* render_view_host,
-                                               bool is_main_frame,
-                                               int error_code,
-                                               const GURL& url);
+  virtual void DidFailProvisionalLoadWithError(
+      RenderViewHost* render_view_host,
+      bool is_main_frame,
+      int error_code,
+      const GURL& url,
+      bool showing_repost_interstitial);
   virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
                                 int32 page_id, const GURL& icon_url);
   virtual void DidDownloadImage(RenderViewHost* render_view_host,

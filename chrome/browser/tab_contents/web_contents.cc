@@ -866,7 +866,8 @@ void WebContents::DidFailProvisionalLoadWithError(
     RenderViewHost* render_view_host,
     bool is_main_frame,
     int error_code,
-    const GURL& url) {
+    const GURL& url,
+    bool showing_repost_interstitial) {
   if (!controller())
     return;
 

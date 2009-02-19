@@ -256,6 +256,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   //  @discussion This method is called after the provisional data source has
   //  failed to load.  The frame will continue to display the contents of the
   //  committed data source if there is one.
+  //  This notification is only received for errors like network errors.
   virtual void DidFailProvisionalLoadWithError(WebView* webview,
                                                const WebError& error,
                                                WebFrame* frame) {

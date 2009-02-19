@@ -107,6 +107,9 @@ class NavigationController {
     bool is_user_initiated_main_frame_load() const {
       return !is_auto && !is_in_page && is_main_frame;
     }
+
+    // The HTTP status code for this entry..
+    int http_status_code;
   };
 
   // Details sent for NOTIFY_NAV_LIST_PRUNED.

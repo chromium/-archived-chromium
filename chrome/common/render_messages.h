@@ -123,6 +123,9 @@ struct ViewHostMsg_FrameNavigate_Params {
   // Whether the content of the frame was replaced with some alternate content
   // (this can happen if the resource was insecure).
   bool is_content_filtered;
+
+  // The status code of the HTTP request.
+  int http_status_code;
 };
 
 // Values that may be OR'd together to form the 'flags' parameter of a
@@ -746,6 +749,7 @@ struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
     WriteParam(m, p.contents_mime_type);
     WriteParam(m, p.is_post);
     WriteParam(m, p.is_content_filtered);
+    WriteParam(m, p.http_status_code);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
@@ -763,7 +767,8 @@ struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
       ReadParam(m, iter, &p->gesture) &&
       ReadParam(m, iter, &p->contents_mime_type) &&
       ReadParam(m, iter, &p->is_post) &&
-      ReadParam(m, iter, &p->is_content_filtered);
+      ReadParam(m, iter, &p->is_content_filtered) &&
+      ReadParam(m, iter, &p->http_status_code);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -796,6 +801,8 @@ struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
     LogParam(p.is_post, l);
     l->append(L", ");
     LogParam(p.is_content_filtered, l);
+    l->append(L", ");
+    LogParam(p.http_status_code, l);
     l->append(L")");
   }
 };

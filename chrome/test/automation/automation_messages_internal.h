@@ -575,6 +575,15 @@ IPC_BEGIN_MESSAGES(Automation)
   //   None expected
   IPC_MESSAGE_ROUTED2(AutomationMsg_DidNavigate, int, int)
 
+  // This message is an outgoing message from Chrome to an external host.
+  // It is a notification that a navigation failed
+  // Request:
+  //   -int : The status code.
+  //   -GURL:  The URL we failed to navigate to.
+  // Response:
+  //   None expected
+  IPC_MESSAGE_ROUTED2(AutomationMsg_NavigationFailed, int, GURL)
+
   // This message requests the different security states of the page displayed
   // in the specified tab.
   // Request:
