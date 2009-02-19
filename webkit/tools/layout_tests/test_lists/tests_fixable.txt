@@ -716,7 +716,9 @@ DEFER : LayoutTests/editing/selection/move-left-right.html = FAIL
 // and then baselined if necessary.
 // ----------------------------------------------------------------------------
 
-LayoutTests/accessibility = FAIL
+// Accessibility is off in the browser, and accessibility is not a priority
+// for the current release.
+DEFER : LayoutTests/accessibility = FAIL
 // Linux pixeltest failure: Image scaling is terrible
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
