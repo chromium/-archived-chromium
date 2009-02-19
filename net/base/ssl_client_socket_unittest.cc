@@ -166,6 +166,11 @@ TEST_F(SSLClientSocketTest, MAYBE_ConnectMismatched) {
   EXPECT_TRUE(sock->IsConnected());
 }
 
+// TODO(wtc): Add unit tests for IsConnectedAndIdle:
+//   - Server closes an SSL connection (with a close_notify alert message).
+//   - Server closes the underlying TCP connection directly.
+//   - Server sends data unexpectedly.
+
 TEST_F(SSLClientSocketTest, MAYBE_Read) {
   StartOKServer();
 

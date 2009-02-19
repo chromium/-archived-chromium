@@ -47,6 +47,11 @@ class ClientSocket : public Socket {
   // connection wasn't established or the connection is dead.
   virtual bool IsConnected() const = 0;
 
+  // Called to test if the connection is still alive and idle.  Returns false
+  // if a connection wasn't established, the connection is dead, or some data
+  // have been received.
+  virtual bool IsConnectedAndIdle() const = 0;
+
 #if defined(OS_LINUX)
   // Identical to posix system call getpeername().
   // Needed by ssl_client_socket_nss.

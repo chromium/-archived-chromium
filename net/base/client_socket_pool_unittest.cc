@@ -35,6 +35,9 @@ class MockClientSocket : public net::ClientSocket {
   virtual bool IsConnected() const {
     return connected_;
   }
+  virtual bool IsConnectedAndIdle() const {
+    return connected_;
+  }
 
   // Socket methods:
   virtual int Read(char* buf, int buf_len,
@@ -56,7 +59,7 @@ int MockClientSocket::allocation_count = 0;
 
 class TestSocketRequest : public CallbackRunner< Tuple1<int> > {
  public:
-  TestSocketRequest(net::ClientSocketPool* pool) : handle(pool) {}
+  explicit TestSocketRequest(net::ClientSocketPool* pool) : handle(pool) {}
 
   net::ClientSocketHandle handle;
 

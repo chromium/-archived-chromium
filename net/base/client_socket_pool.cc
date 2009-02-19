@@ -13,11 +13,12 @@ using base::TimeDelta;
 
 namespace {
 
-// The timeout value, in seconds, used to clean up disconnected idle sockets.
+// The timeout value, in seconds, used to clean up idle sockets that can't be
+// reused.
 const int kCleanupInterval = 10;
 
 // The maximum duration, in seconds, to keep idle persistent sockets alive.
-const int kIdleTimeout = 300; // 5 minutes.
+const int kIdleTimeout = 300;  // 5 minutes.
 
 }  // namespace
 
@@ -54,12 +55,12 @@ int ClientSocketPool::RequestSocket(ClientSocketHandle* handle,
   group.active_socket_count++;
 
   // Use idle sockets in LIFO order because they're more likely to be
-  // still connected.
+  // still reusable.
   while (!group.idle_sockets.empty()) {
     IdleSocket idle_socket = group.idle_sockets.back();
     group.idle_sockets.pop_back();
     DecrementIdleCount();
-    if ((*idle_socket.ptr)->IsConnected()) {
+    if ((*idle_socket.ptr)->IsConnectedAndIdle()) {
       // We found one we can reuse!
       handle->socket_ = idle_socket.ptr;
       return OK;
@@ -103,9 +104,9 @@ void ClientSocketPool::CloseIdleSockets() {
 }
 
 bool ClientSocketPool::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
-  bool timed_out = (now - start_time) >= 
+  bool timed_out = (now - start_time) >=
       base::TimeDelta::FromSeconds(kIdleTimeout);
-  return timed_out || !(*ptr)->IsConnected();
+  return timed_out || !(*ptr)->IsConnectedAndIdle();
 }
 
 void ClientSocketPool::CleanupIdleSockets(bool force) {
@@ -162,7 +163,7 @@ void ClientSocketPool::DoReleaseSocket(const std::string& group_name,
   DCHECK(group.active_socket_count > 0);
   group.active_socket_count--;
 
-  bool can_reuse = ptr->get() && (*ptr)->IsConnected();
+  bool can_reuse = ptr->get() && (*ptr)->IsConnectedAndIdle();
   if (can_reuse) {
     IdleSocket idle_socket;
     idle_socket.ptr = ptr;

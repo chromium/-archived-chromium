@@ -77,7 +77,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   ~ClientSocketPool();
 
   // Closes all idle sockets if |force| is true.  Else, only closes idle
-  // sockets that are disconnected or timed out.
+  // sockets that timed out or can't be reused.
   void CleanupIdleSockets(bool force);
 
   // Called when the number of idle sockets changes.
@@ -88,7 +88,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   void DoReleaseSocket(const std::string& group_name, ClientSocketPtr* ptr);
 
   // Called when timer_ fires.  This method scans the idle sockets removing
-  // sockets that are disconnected or timed out.
+  // sockets that timed out or can't be reused.
   void OnCleanupTimerFired() {
     CleanupIdleSockets(false);
   }
@@ -105,8 +105,13 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
     ClientSocketPtr* ptr;
     base::TimeTicks start_time;
 
-    // An idle socket should be removed if it is disconnected, or has been idle
+    // An idle socket should be removed if it can't be reused, or has been idle
     // for too long. |now| is the current time value (TimeTicks::Now()).
+    //
+    // An idle socket can't be reused if it is disconnected or has received
+    // data unexpectedly (hence no longer idle).  The unread data would be
+    // mistaken for the beginning of the next response if we were to reuse the
+    // socket for a new request.
     bool ShouldCleanup(base::TimeTicks now) const;
   };
 
@@ -122,8 +127,8 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   typedef std::map<std::string, Group> GroupMap;
   GroupMap group_map_;
 
-  // Timer used to periodically prune idle sockets that are disconnected or
-  // timed out.
+  // Timer used to periodically prune idle sockets that timed out or can't be
+  // reused.
   base::RepeatingTimer<ClientSocketPool> timer_;
 
   // The total number of idle sockets in the system.
@@ -131,7 +136,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
 
   // The maximum number of sockets kept per group.
   int max_sockets_per_group_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(ClientSocketPool);
 };
 

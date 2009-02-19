@@ -37,6 +37,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   virtual int ReconnectIgnoringLastError(CompletionCallback* callback);
   virtual void Disconnect();
   virtual bool IsConnected() const;
+  virtual bool IsConnectedAndIdle() const;
 
   // Socket methods:
   virtual int Read(char* buf, int buf_len, CompletionCallback* callback);

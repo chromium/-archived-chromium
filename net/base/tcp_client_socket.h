@@ -50,6 +50,7 @@ class TCPClientSocket : public ClientSocket,
   virtual int ReconnectIgnoringLastError(CompletionCallback* callback);
   virtual void Disconnect();
   virtual bool IsConnected() const;
+  virtual bool IsConnectedAndIdle() const;
 
   // Socket methods:
   // Multiple outstanding requests are not supported.

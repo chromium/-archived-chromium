@@ -109,6 +109,9 @@ class MockTCPClientSocket : public net::ClientSocket {
   virtual bool IsConnected() const {
     return connected_;
   }
+  virtual bool IsConnectedAndIdle() const {
+    return connected_;
+  }
   // Socket methods:
   virtual int Read(char* buf, int buf_len, net::CompletionCallback* callback) {
     DCHECK(!callback_);

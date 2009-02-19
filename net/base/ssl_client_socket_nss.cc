@@ -165,8 +165,28 @@ void SSLClientSocketNSS::Disconnect() {
 }
 
 bool SSLClientSocketNSS::IsConnected() const {
+  // Ideally, we should also check if we have received the close_notify alert
+  // message from the server, and return false in that case.  We're not doing
+  // that, so this function may return a false positive.  Since the upper
+  // layer (HttpNetworkTransaction) needs to handle a persistent connection
+  // closed by the server when we send a request anyway, a false positive in
+  // exchange for simpler code is a good trade-off.
   EnterFunction("");
   bool ret = completed_handshake_ && transport_->IsConnected();
+  LeaveFunction("");
+  return ret;
+}
+
+bool SSLClientSocketNSS::IsConnectedAndIdle() const {
+  // Unlike IsConnected, this method doesn't return a false positive.
+  //
+  // Strictly speaking, we should check if we have received the close_notify
+  // alert message from the server, and return false in that case.  Although
+  // the close_notify alert message means EOF in the SSL layer, it is just
+  // bytes to the transport layer below, so transport_->IsConnectedAndIdle()
+  // returns the desired false when we receive close_notify.
+  EnterFunction("");
+  bool ret = completed_handshake_ && transport_->IsConnectedAndIdle();
   LeaveFunction("");
   return ret;
 }

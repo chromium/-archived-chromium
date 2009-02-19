@@ -89,6 +89,10 @@ TEST_F(TCPClientSocketTest, Connect) {
   EXPECT_FALSE(sock.IsConnected());
 }
 
+// TODO(wtc): Add unit tests for IsConnectedAndIdle:
+//   - Server closes a connection.
+//   - Server sends data unexpectedly.
+
 TEST_F(TCPClientSocketTest, Read) {
   net::AddressList addr;
   net::HostResolver resolver;

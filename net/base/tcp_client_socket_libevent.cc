@@ -161,6 +161,22 @@ bool TCPClientSocket::IsConnected() const {
   return true;
 }
 
+bool TCPClientSocket::IsConnectedAndIdle() const {
+  if (socket_ == kInvalidSocket || waiting_connect_)
+    return false;
+
+  // Check if connection is alive and we haven't received any data
+  // unexpectedly.
+  char c;
+  int rv = recv(socket_, &c, 1, MSG_PEEK);
+  if (rv >= 0)
+    return false;
+  if (errno != EAGAIN && errno != EWOULDBLOCK)
+    return false;
+
+  return true;
+}
+
 int TCPClientSocket::Read(char* buf,
                           int buf_len,
                           CompletionCallback* callback) {

@@ -307,6 +307,17 @@ bool SSLClientSocketMac::IsConnected() const {
   return completed_handshake_ && transport_->IsConnected();
 }
 
+bool SSLClientSocketMac::IsConnectedAndIdle() const {
+  // Unlike IsConnected, this method doesn't return a false positive.
+  //
+  // Strictly speaking, we should check if we have received the close_notify
+  // alert message from the server, and return false in that case.  Although
+  // the close_notify alert message means EOF in the SSL layer, it is just
+  // bytes to the transport layer below, so transport_->IsConnectedAndIdle()
+  // returns the desired false when we receive close_notify.
+  return completed_handshake_ && transport_->IsConnectedAndIdle();
+}
+
 int SSLClientSocketMac::Read(char* buf, int buf_len,
                              CompletionCallback* callback) {
   DCHECK(completed_handshake_);
