@@ -242,15 +242,15 @@ TEST(ResolveProxyMsgHelperTest, Sequential) {
 
   EXPECT_EQ(msg1.get(), result1->reply_msg);
   EXPECT_EQ(net::OK, result1->error_code);
-  EXPECT_EQ("PROXY www.google1.com", result1->proxy_list);
+  EXPECT_EQ("PROXY www.google1.com:80", result1->proxy_list);
 
   EXPECT_EQ(msg2.get(), result2->reply_msg);
   EXPECT_EQ(net::OK, result2->error_code);
-  EXPECT_EQ("PROXY www.google2.com", result2->proxy_list);
+  EXPECT_EQ("PROXY www.google2.com:80", result2->proxy_list);
 
   EXPECT_EQ(msg3.get(), result3->reply_msg);
   EXPECT_EQ(net::OK, result3->error_code);
-  EXPECT_EQ("PROXY www.google3.com", result3->proxy_list);
+  EXPECT_EQ("PROXY www.google3.com:80", result3->proxy_list);
 }
 
 // Issue a request while one is already in progress -- should be queued.
