@@ -7,6 +7,10 @@
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 
+// NOTE: this code is probably the wrong approach for the status bubble.
+// Talk to evanm before you attempt to fix bugs in it -- we're probably
+// better off restructuring it.
+
 StatusBubbleGtk::StatusBubbleGtk(GtkWindow* parent)
     : parent_(parent), window_(NULL) {
 }
@@ -64,10 +68,13 @@ void StatusBubbleGtk::Create() {
 }
 
 void StatusBubbleGtk::Reposition() {
-  int x, y, width, height, parent_height;
-  gtk_window_get_position(parent_, &x, &y);
+  int x, y, width, parent_height;
+  gdk_window_get_position(GTK_WIDGET(parent_)->window, &x, &y);
   gtk_window_get_size(parent_, &width, &parent_height);
-  gtk_window_get_size(GTK_WINDOW(window_), &width, &height);
+  GtkRequisition requisition;
+  gtk_widget_size_request(window_, &requisition);
   // TODO(port): RTL positioning.
-  gtk_window_move(GTK_WINDOW(window_), x, y + parent_height - height);
+  gtk_window_move(GTK_WINDOW(window_), x,
+                  y + parent_height - requisition.height);
 }
+
