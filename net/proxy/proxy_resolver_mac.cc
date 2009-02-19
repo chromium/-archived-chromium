@@ -154,8 +154,8 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
                                   kSCPropNetProxiesFTPProxy,
                                   kSCPropNetProxiesFTPPort);
     if (!host_port.empty()) {
-      config->proxy_server += "ftp=";
-      config->proxy_server += host_port;
+      config->proxy_rules += "ftp=";
+      config->proxy_rules += host_port;
     }
   }
   if (GetBoolFromDictionary(config_dict.get(),
@@ -166,10 +166,10 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
                                   kSCPropNetProxiesHTTPProxy,
                                   kSCPropNetProxiesHTTPPort);
     if (!host_port.empty()) {
-      if (!config->proxy_server.empty())
-        config->proxy_server += ";";
-      config->proxy_server += "http=";
-      config->proxy_server += host_port;
+      if (!config->proxy_rules.empty())
+        config->proxy_rules += ";";
+      config->proxy_rules += "http=";
+      config->proxy_rules += host_port;
     }
   }
   if (GetBoolFromDictionary(config_dict.get(),
@@ -180,10 +180,10 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
                                   kSCPropNetProxiesHTTPSProxy,
                                   kSCPropNetProxiesHTTPSPort);
     if (!host_port.empty()) {
-      if (!config->proxy_server.empty())
-        config->proxy_server += ";";
-      config->proxy_server += "https=";
-      config->proxy_server += host_port;
+      if (!config->proxy_rules.empty())
+        config->proxy_rules += ";";
+      config->proxy_rules += "https=";
+      config->proxy_rules += host_port;
     }
   }
   
@@ -317,6 +317,9 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
     if (CFEqual(proxy_type, kCFProxyTypeNone))
       allow_direct = true;
     if (CFEqual(proxy_type, kCFProxyTypeNone) ||
+        // TODO(eroman): Include the SOCKS proxies in the result list.
+        // While chromium does not yet support SOCKS, it is safe to
+        // include it in the list.
         CFEqual(proxy_type, kCFProxyTypeSOCKS) ||
         CFEqual(proxy_type, kCFProxyTypeAutoConfigurationURL))
       continue;

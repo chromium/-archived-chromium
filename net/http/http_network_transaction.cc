@@ -444,6 +444,12 @@ int HttpNetworkTransaction::DoResolveProxy() {
 int HttpNetworkTransaction::DoResolveProxyComplete(int result) {
   next_state_ = STATE_INIT_CONNECTION;
 
+  // Since we only support HTTP proxies or DIRECT connections, remove
+  // any other type of proxy from the list (i.e. SOCKS).
+  // Supporting SOCKS is issue http://crbug.com/469.
+  proxy_info_.RemoveProxiesWithoutScheme(
+      ProxyServer::SCHEME_DIRECT | ProxyServer::SCHEME_HTTP);
+
   pac_request_ = NULL;
 
   if (result != OK) {
@@ -465,7 +471,7 @@ int HttpNetworkTransaction::DoInitConnection() {
   // Build the string used to uniquely identify connections of this type.
   std::string connection_group;
   if (using_proxy_ || using_tunnel_)
-    connection_group = "proxy/" + proxy_info_.proxy_server() + "/";
+    connection_group = "proxy/" + proxy_info_.proxy_server().ToURI() + "/";
   if (!using_proxy_)
     connection_group.append(request_->url.GetOrigin().spec());
 
@@ -499,14 +505,9 @@ int HttpNetworkTransaction::DoResolveHost() {
 
   // Determine the host and port to connect to.
   if (using_proxy_ || using_tunnel_) {
-    const std::string& proxy = proxy_info_.proxy_server();
-    StringTokenizer t(proxy, ":");
-    // TODO(darin): Handle errors here.  Perhaps HttpProxyInfo should do this
-    // before claiming a proxy server configuration.
-    t.GetNext();
-    host = t.token();
-    t.GetNext();
-    port = StringToInt(t.token());
+    ProxyServer proxy_server = proxy_info_.proxy_server();
+    host = proxy_server.host();
+    port = proxy_server.port();
   } else {
     // Direct connection
     host = request_->url.host();
@@ -1192,7 +1193,7 @@ void HttpNetworkTransaction::ApplyAuth() {
 
 GURL HttpNetworkTransaction::AuthOrigin(HttpAuth::Target target) const {
   return target == HttpAuth::AUTH_PROXY ?
-      GURL("http://" + proxy_info_.proxy_server()) :
+      GURL("http://" + proxy_info_.proxy_server().host_and_port()) :
       request_->url.GetOrigin();
 }
 
@@ -1363,7 +1364,7 @@ void HttpNetworkTransaction::PopulateAuthChallenge(HttpAuth::Target target) {
   // TODO(eroman): decode realm according to RFC 2047.
   auth_info->realm = ASCIIToWide(auth_handler_[target]->realm());
   if (target == HttpAuth::AUTH_PROXY) {
-    auth_info->host = ASCIIToWide(proxy_info_.proxy_server());
+    auth_info->host = ASCIIToWide(proxy_info_.proxy_server().host_and_port());
   } else {
     DCHECK(target == HttpAuth::AUTH_SERVER);
     auth_info->host = ASCIIToWide(request_->url.host());

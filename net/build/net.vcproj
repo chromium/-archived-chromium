@@ -1025,6 +1025,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\proxy\proxy_server.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_server.h"
+				>
+			</File>
+			<File
 				RelativePath="..\proxy\proxy_service.cc"
 				>
 			</File>

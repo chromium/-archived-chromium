@@ -241,6 +241,8 @@ input_files = ChromeFileList([
     'proxy/proxy_resolver_winhttp.h',
     'proxy/proxy_script_fetcher.cc',
     'proxy/proxy_script_fetcher.h',
+    'proxy/proxy_server.cc',
+    'proxy/proxy_server.h',
     'proxy/proxy_service.cc',
     'proxy/proxy_service.h',
   ]),

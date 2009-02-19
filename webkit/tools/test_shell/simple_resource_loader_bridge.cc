@@ -540,7 +540,7 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
   net::ProxyInfo proxy_info;
   int rv = sync_proxy_service->ResolveProxy(url, &proxy_info);
   if (rv == net::OK) {
-    *proxy_list = proxy_info.GetAnnotatedProxyList();
+    *proxy_list = proxy_info.ToPacString();
   }
 
   return rv == net::OK;

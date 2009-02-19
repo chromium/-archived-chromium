@@ -40,6 +40,19 @@ bool FileURLToFilePath(const GURL& url, FilePath* file_path);
 // Deprecated temporary compatibility function.
 bool FileURLToFilePath(const GURL& url, std::wstring* file_path);
 
+// Split an input of the form <host>[":"<port>] into its consitituent parts.
+// Saves the result into |*host| and |*port|. If the input did not have
+// the optional port, sets |*port| to -1.
+// Returns true if the parsing was successful, false otherwise.
+// TODO(eroman): support IPv6 literals.
+bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
+                    std::string::const_iterator host_and_port_end,
+                    std::string* host,
+                    int* port);
+bool GetHostAndPort(const std::string& host_and_port,
+                    std::string* host,
+                    int* port);
+
 // Return the value of the HTTP response header with name 'name'.  'headers'
 // should be in the format that URLRequest::GetResponseHeaders() returns.
 // Returns the empty string if the header is not found.

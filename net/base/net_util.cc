@@ -958,4 +958,50 @@ bool FileURLToFilePath(const GURL& gurl, std::wstring* file_path) {
   return rv;
 }
 
+bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
+                    std::string::const_iterator host_and_port_end,
+                    std::string* host,
+                    int* port) {
+  if (host_and_port_begin >= host_and_port_end)
+    return false;
+
+  // TODO(eroman): support IPv6 literals.
+  std::string::const_iterator colon =
+      std::find(host_and_port_begin, host_and_port_end, ':');
+
+  if (colon == host_and_port_end) {
+    // No colon.
+    host->assign(host_and_port_begin, host_and_port_end);
+    *port = -1;
+    return true;
+  }
+
+  if (colon == host_and_port_begin)
+    return false;  // No host.
+
+  if (colon == host_and_port_end - 1)
+    return false;  // There is nothing past the colon.
+
+  // Parse the port number to an integer.
+  std::string port_string(colon + 1, host_and_port_end);
+  int parsed_port_number = url_parse::ParsePort(port_string.data(),
+      url_parse::Component(0, port_string.size()));
+
+  // If parsing failed, port_number will be either PORT_INVALID or
+  // PORT_UNSPECIFIED, both of which are negative.
+  if (parsed_port_number < 0)
+    return false;  // Failed parsing the port number.
+  
+  // Else successfully parsed port number.
+  *port = parsed_port_number;
+  host->assign(host_and_port_begin, colon);
+  return true;
+}
+
+bool GetHostAndPort(const std::string& host_and_port,
+                    std::string* host,
+                    int* port) {
+  return GetHostAndPort(host_and_port.begin(), host_and_port.end(), host, port);
+}
+
 }  // namespace net

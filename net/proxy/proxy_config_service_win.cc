@@ -34,7 +34,7 @@ int ProxyConfigServiceWin::GetProxyConfig(ProxyConfig* config) {
   if (ie_config.fAutoDetect)
     config->auto_detect = true;
   if (ie_config.lpszProxy)
-    config->proxy_server = WideToASCII(ie_config.lpszProxy);
+    config->proxy_rules = WideToASCII(ie_config.lpszProxy);
   if (ie_config.lpszProxyBypass) {
     std::string proxy_bypass = WideToASCII(ie_config.lpszProxyBypass);
     

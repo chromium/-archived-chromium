@@ -6,6 +6,7 @@
 #define NET_PROXY_PROXY_SERVICE_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "base/ref_counted.h"
@@ -16,6 +17,7 @@
 #include "base/waitable_event.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/completion_callback.h"
+#include "net/proxy/proxy_server.h"
 
 class GURL;
 
@@ -45,10 +47,22 @@ class ProxyConfig {
   // If non-empty, indicates the URL of the proxy auto-config file to use.
   GURL pac_url;
 
-  // If non-empty, indicates the proxy server to use (of the form host:port).
-  // If proxies depend on the scheme, a string of the format
-  // "scheme1=url[:port];scheme2=url[:port]" may be provided here.
-  std::string proxy_server;
+  // If non-empty, indicates the proxy server to use, given by:
+  //
+  //   proxy-uri = [<proxy-scheme>://]<proxy-host>[:"<proxy-port>]
+  //
+  // If the proxy to use depends on the scheme of the URL, can instead specify
+  // a semicolon separated list of:
+  //
+  //   <url-scheme>"="<proxy-uri>
+  //
+  // For example:
+  //   "http=foopy:80;ftp=foopy2"  -- use HTTP proxy "foopy:80" for http URLs,
+  //                                  and HTTP proxy "foopy2:80" for ftp URLs.
+  //   "foopy:80"                  -- use HTTP proxy "foopy:80" for all URLs.
+  //   "socks4://foopy"            -- use SOCKS v4 proxy "foopy:1080" for all
+  //                                  URLs.
+  std::string proxy_rules;
 
   // Indicates a list of hosts that should bypass any proxy configuration.  For
   // these hosts, a direct connection should always be used.
@@ -76,6 +90,7 @@ struct ProxyRetryInfo {
 };
 
 // Map of proxy servers with the associated RetryInfo structures.
+// The key is a proxy URI string [<scheme>"://"]<host>":"<port>.
 typedef std::map<std::string, ProxyRetryInfo> ProxyRetryInfoMap;
 
 // This class can be used to resolve the proxy server to use when loading a
@@ -192,29 +207,32 @@ class ProxyService {
 // This class is used to hold a list of proxies returned by GetProxyForUrl or
 // manually configured. It handles proxy fallback if multiple servers are
 // specified.
-// TODO(eroman): The proxy list should work for multiple proxy types.
-// See http://crbug.com/469.
 class ProxyList {
  public:
   // Initializes the proxy list to a string containing one or more proxy servers
   // delimited by a semicolon.
-  void Set(const std::string& proxy_list);
-
-  // Initializes the proxy list to a vector containing one or more proxy
-  // servers.
-  void SetVector(const std::vector<std::string>& proxy_list);
+  void Set(const std::string& proxy_uri_list);
 
   // Remove all proxies known to be bad from the proxy list.
   void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info);
 
+  // Delete any entry which doesn't have one of the specified proxy schemes.
+  // |scheme_bit_field| is a bunch of ProxyServer::Scheme bitwise ORed together.
+  void RemoveProxiesWithoutScheme(int scheme_bit_field);
+
   // Returns the first valid proxy server in the list.
-  std::string Get() const;
+  ProxyServer Get() const;
+
+  // Set the list by parsing the pac result |pac_string|.
+  // Some examples for |pac_string|:
+  //   "DIRECT"
+  //   "PROXY foopy1"
+  //   "PROXY foopy1; SOCKS4 foopy2:1188"
+  void SetFromPacString(const std::string& pac_string);
 
   // Returns a PAC-style semicolon-separated list of valid proxy servers.
   // For example: "PROXY xxx.xxx.xxx.xxx:xx; SOCKS yyy.yyy.yyy:yy".
-  // Since ProxyList is currently just used for HTTP, this will return only
-  // entries of type "PROXY" or "DIRECT".
-  std::string GetAnnotatedList() const;
+  std::string ToPacString() const;
 
   // Marks the current proxy server as bad and deletes it from the list.  The
   // list of known bad proxies is given by proxy_retry_info.  Returns true if
@@ -223,7 +241,7 @@ class ProxyList {
 
  private:
   // List of proxies.
-  std::vector<std::string> proxies_;
+  std::vector<ProxyServer> proxies_;
 };
 
 // This object holds proxy information returned by ResolveProxy.
@@ -238,18 +256,25 @@ class ProxyInfo {
   // Use a direct connection.
   void UseDirect();
 
-  // Use a specific proxy server, of the form:  <hostname> [":" <port>]
-  // This may optionally be a semi-colon delimited list of proxy servers.
-  void UseNamedProxy(const std::string& proxy_server);
+  // Use a specific proxy server, of the form:
+  //   proxy-uri = [<scheme> "://"] <hostname> [":" <port>]
+  // This may optionally be a semi-colon delimited list of <proxy-uri>.
+  // It is OK to have LWS between entries.
+  void UseNamedProxy(const std::string& proxy_uri_list);
+
+  // Parse from the given PAC result.
+  void UsePacString(const std::string& pac_string) {
+    proxy_list_.SetFromPacString(pac_string);
+  }
 
   // Returns true if this proxy info specifies a direct connection.
-  bool is_direct() const { return proxy_list_.Get().empty(); }
+  bool is_direct() const { return proxy_list_.Get().is_direct(); }
 
   // Returns the first valid proxy server.
-  std::string proxy_server() const { return proxy_list_.Get(); }
+  ProxyServer proxy_server() const { return proxy_list_.Get(); }
 
-  // See description in ProxyList::GetAnnotatedList().
-  std::string GetAnnotatedProxyList();
+  // See description in ProxyList::ToPacString().
+  std::string ToPacString();
 
   // Marks the current proxy as bad. Returns true if there is another proxy
   // available to try in proxy list_.
@@ -260,6 +285,11 @@ class ProxyInfo {
   // Remove all proxies known to be bad from the proxy list.
   void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
     proxy_list_.RemoveBadProxies(proxy_retry_info);
+  }
+
+  // Delete any entry which doesn't have one of the specified proxy schemes.
+  void RemoveProxiesWithoutScheme(int scheme_bit_field) {
+    proxy_list_.RemoveProxiesWithoutScheme(scheme_bit_field);
   }
 
  private:

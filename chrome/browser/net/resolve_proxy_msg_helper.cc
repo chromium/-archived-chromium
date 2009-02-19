@@ -34,7 +34,7 @@ void ResolveProxyMsgHelper::OnResolveProxyCompleted(int result) {
   const PendingRequest& completed_req = pending_requests_.front();
   delegate_->OnResolveProxyCompleted(completed_req.reply_msg,
                                      result,
-                                     proxy_info_.GetAnnotatedProxyList());
+                                     proxy_info_.ToPacString());
 
   // Clear the current (completed) request.
   pending_requests_.pop_front();

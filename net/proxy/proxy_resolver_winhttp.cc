@@ -106,6 +106,20 @@ int ProxyResolverWinHttp::GetProxyForURL(const GURL& query_url,
       results->UseDirect();
       break;
     case WINHTTP_ACCESS_TYPE_NAMED_PROXY:
+      // According to MSDN:
+      //
+      // The proxy server list contains one or more of the following strings
+      // separated by semicolons or whitespace.
+      //
+      // ([<scheme>=][<scheme>"://"]<server>[":"<port>])
+      //
+      // Based on this description, ProxyInfo::UseNamedProxy() isn't
+      // going to handle all the variations (in particular <scheme>=).
+      //
+      // However in practice, it seems that WinHTTP is simply returning
+      // things like "foopy1:80;foopy2:80". It strips out the non-HTTP
+      // proxy types, and stops the list when PAC encounters a "DIRECT".
+      // So UseNamedProxy() should work OK.
       results->UseNamedProxy(WideToASCII(info.lpszProxy));
       break;
     default:

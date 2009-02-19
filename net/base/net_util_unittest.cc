@@ -735,4 +735,45 @@ TEST(NetUtilTest, GetDirectoryListingEntry) {
     EXPECT_EQ(test_cases[i].expected, results);
   }
 }
+
+TEST(NetUtilTest, GetHostAndPort) {
+  const struct {
+    const char* input;
+    bool success;
+    const char* expected_host;
+    int expected_port;
+  } tests[] = {
+    // Valid inputs:
+    {"foo:10", true, "foo", 10},
+    {"foo", true, "foo", -1},
+    {
+      // TODO(eroman): support IPv6 literals.
+      "[1080:0:0:0:8:800:200C:4171]:11",
+      false,
+      "",
+      -1,
+    },
+    // Invalid inputs:
+    {"foo:bar", false, "", -1},
+    {"foo:", false, "", -1},
+    {":", false, "", -1},
+    {":80", false, "", -1},
+    {"", false, "", -1},
+    {"porttoolong:300000", false, "", -1},
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    std::string host;
+    int port;
+    bool ok = net::GetHostAndPort(tests[i].input, &host, &port);
+
+    EXPECT_EQ(tests[i].success, ok);
+
+    if (tests[i].success) {
+      EXPECT_EQ(tests[i].expected_host, host);
+      EXPECT_EQ(tests[i].expected_port, port);
+    }
+  }
+}
+
 #endif

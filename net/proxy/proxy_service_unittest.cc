@@ -82,18 +82,70 @@ class SyncProxyService {
 
 }  // namespace
 
-// GetAnnotatedList() is used to generate a string for mozilla's GetProxyForUrl
-// NPAPI extension. Check that it adheres to the expected format.
-TEST(ProxyListTest, GetAnnotatedList) {
-  net::ProxyList proxy_list;
+// Test parsing from a PAC string.
+TEST(ProxyListTest, SetFromPacString) {
+  const struct {
+    const char* pac_input;
+    const char* pac_output;
+  } tests[] = {
+    // Valid inputs:
+    {  "PROXY foopy:10",
+       "PROXY foopy:10",
+    },
+    {  " DIRECT",  // leading space.
+       "DIRECT",
+    },
+    {  "PROXY foopy1 ; proxy foopy2;\t DIRECT",
+       "PROXY foopy1:80;PROXY foopy2:80;DIRECT",
+    },
+    {  "proxy foopy1 ; SOCKS foopy2",
+       "PROXY foopy1:80;SOCKS foopy2:1080",
+    },
 
-  std::vector<std::string> proxies;
-  proxies.push_back("www.first.com:80");
-  proxies.push_back("www.second.com:80");
-  proxy_list.SetVector(proxies);
+    // Invalid inputs (parts which aren't understood get
+    // silently discarded):
+    {  "PROXY-foopy:10",
+       "DIRECT",
+    },
+    {  "PROXY",
+       "DIRECT",
+    },
+    {  "PROXY foopy1 ; JUNK ; JUNK ; SOCKS5 foopy2 ; ;",
+       "PROXY foopy1:80;SOCKS5 foopy2:1080",
+    },
+  };
 
-  EXPECT_EQ(std::string("PROXY www.first.com:80;PROXY www.second.com:80"),
-            proxy_list.GetAnnotatedList());
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    net::ProxyList list;
+    list.SetFromPacString(tests[i].pac_input);
+    EXPECT_EQ(tests[i].pac_output, list.ToPacString());
+  }
+}
+
+TEST(ProxyListTest, RemoveProxiesWithoutScheme) {
+  const struct {
+    const char* pac_input;
+    int filter;
+    const char* filtered_pac_output;
+  } tests[] = {
+    {  "PROXY foopy:10 ; SOCKS5 foopy2 ; SOCKS foopy11 ; PROXY foopy3 ; DIRECT",
+       // Remove anything that isn't HTTP or DIRECT.
+       net::ProxyServer::SCHEME_DIRECT | net::ProxyServer::SCHEME_HTTP,
+       "PROXY foopy:10;PROXY foopy3:80;DIRECT",
+    },
+    {  "PROXY foopy:10 | SOCKS5 foopy2",
+       // Remove anything that isn't HTTP or SOCKS5.
+       net::ProxyServer::SCHEME_DIRECT | net::ProxyServer::SCHEME_SOCKS4,
+       "DIRECT",
+    },
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    net::ProxyList list;
+    list.SetFromPacString(tests[i].pac_input);
+    list.RemoveProxiesWithoutScheme(tests[i].filter);
+    EXPECT_EQ(tests[i].filtered_pac_output, list.ToPacString());
+  }
 }
 
 TEST(ProxyServiceTest, Direct) {
@@ -124,7 +176,7 @@ TEST(ProxyServiceTest, PAC) {
   int rv = service.ResolveProxy(url, &info);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
-  EXPECT_EQ(info.proxy_server(), "foopy");
+  EXPECT_EQ("foopy:80", info.proxy_server().ToURI());
 }
 
 TEST(ProxyServiceTest, PAC_FailoverToDirect) {
@@ -143,7 +195,7 @@ TEST(ProxyServiceTest, PAC_FailoverToDirect) {
   int rv = service.ResolveProxy(url, &info);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
-  EXPECT_EQ(info.proxy_server(), "foopy:8080");
+  EXPECT_EQ("foopy:8080", info.proxy_server().ToURI());
 
   // Now, imagine that connecting to foopy:8080 fails.
   rv = service.ReconsiderProxyAfterError(url, &info);
@@ -184,7 +236,7 @@ TEST(ProxyServiceTest, PAC_FailsToDownload) {
   rv = service.ReconsiderProxyAfterError(url, &info);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
-  EXPECT_EQ(info.proxy_server(), "foopy_valid:8080");
+  EXPECT_EQ("foopy_valid:8080", info.proxy_server().ToURI());
 }
 
 TEST(ProxyServiceTest, ProxyFallback) {
@@ -210,14 +262,14 @@ TEST(ProxyServiceTest, ProxyFallback) {
   EXPECT_FALSE(info.is_direct());
 
   // The first item is valid.
-  EXPECT_EQ(info.proxy_server(), "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info.proxy_server().ToURI());
 
   // Fake an error on the proxy.
   rv = service.ReconsiderProxyAfterError(url, &info);
   EXPECT_EQ(rv, net::OK);
 
   // The second proxy should be specified.
-  EXPECT_EQ(info.proxy_server(), "foopy2:9090");
+  EXPECT_EQ("foopy2:9090", info.proxy_server().ToURI());
 
   // Create a new resolver that returns 3 proxies. The second one is already
   // known to be bad.
@@ -229,12 +281,12 @@ TEST(ProxyServiceTest, ProxyFallback) {
   rv = service.ResolveProxy(url, &info);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info.is_direct());
-  EXPECT_EQ(info.proxy_server(), "foopy3:7070");
+  EXPECT_EQ("foopy3:7070", info.proxy_server().ToURI());
 
   // We fake another error. It should now try the third one.
   rv = service.ReconsiderProxyAfterError(url, &info);
   EXPECT_EQ(rv, net::OK);
-  EXPECT_EQ(info.proxy_server(), "foopy2:9090");
+  EXPECT_EQ("foopy2:9090", info.proxy_server().ToURI());
 
   // Fake another error, the last proxy is gone, the list should now be empty.
   rv = service.ReconsiderProxyAfterError(url, &info);
@@ -270,7 +322,7 @@ TEST(ProxyServiceTest, ProxyFallback_NewSettings) {
   EXPECT_FALSE(info.is_direct());
 
   // The first item is valid.
-  EXPECT_EQ(info.proxy_server(), "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info.proxy_server().ToURI());
 
   // Fake an error on the proxy, and also a new configuration on the proxy.
   config_service->config = net::ProxyConfig();
@@ -280,12 +332,12 @@ TEST(ProxyServiceTest, ProxyFallback_NewSettings) {
   EXPECT_EQ(rv, net::OK);
 
   // The first proxy is still there since the configuration changed.
-  EXPECT_EQ(info.proxy_server(), "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info.proxy_server().ToURI());
 
   // We fake another error. It should now ignore the first one.
   rv = service.ReconsiderProxyAfterError(url, &info);
   EXPECT_EQ(rv, net::OK);
-  EXPECT_EQ(info.proxy_server(), "foopy2:9090");
+  EXPECT_EQ("foopy2:9090", info.proxy_server().ToURI());
 
   // We simulate a new configuration.
   config_service->config = net::ProxyConfig();
@@ -294,7 +346,7 @@ TEST(ProxyServiceTest, ProxyFallback_NewSettings) {
   // We fake anothe error. It should go back to the first proxy.
   rv = service.ReconsiderProxyAfterError(url, &info);
   EXPECT_EQ(rv, net::OK);
-  EXPECT_EQ(info.proxy_server(), "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info.proxy_server().ToURI());
 }
 
 TEST(ProxyServiceTest, ProxyFallback_BadConfig) {
@@ -319,7 +371,7 @@ TEST(ProxyServiceTest, ProxyFallback_BadConfig) {
   EXPECT_FALSE(info.is_direct());
 
   // The first item is valid.
-  EXPECT_EQ(info.proxy_server(), "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info.proxy_server().ToURI());
 
   // Fake a proxy error.
   rv = service.ReconsiderProxyAfterError(url, &info);
@@ -327,7 +379,7 @@ TEST(ProxyServiceTest, ProxyFallback_BadConfig) {
 
   // The first proxy is ignored, and the second one is selected.
   EXPECT_FALSE(info.is_direct());
-  EXPECT_EQ(info.proxy_server(), "foopy2:9090");
+  EXPECT_EQ("foopy2:9090", info.proxy_server().ToURI());
 
   // Fake a PAC failure.
   net::ProxyInfo info2;
@@ -357,14 +409,14 @@ TEST(ProxyServiceTest, ProxyFallback_BadConfig) {
 
   // The first proxy is still there since the list of bad proxies got cleared.
   EXPECT_FALSE(info3.is_direct());
-  EXPECT_EQ(info3.proxy_server(), "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info3.proxy_server().ToURI());
 }
 
 TEST(ProxyServiceTest, ProxyBypassList) {
   // Test what happens when a proxy bypass list is specified.
 
   net::ProxyConfig config;
-  config.proxy_server = "foopy1:8080;foopy2:9090";
+  config.proxy_rules = "foopy1:8080;foopy2:9090";
   config.auto_detect = false;
   config.proxy_bypass_local_names = true;
   
@@ -444,7 +496,7 @@ TEST(ProxyServiceTest, ProxyBypassList) {
 
 TEST(ProxyServiceTest, PerProtocolProxyTests) {
   net::ProxyConfig config;
-  config.proxy_server = "http=foopy1:8080;https=foopy2:8080";
+  config.proxy_rules = "http=foopy1:8080;https=foopy2:8080";
   config.auto_detect = false;
 
   SyncProxyService service1(new MockProxyConfigService(config),
@@ -454,7 +506,7 @@ TEST(ProxyServiceTest, PerProtocolProxyTests) {
   int rv = service1.ResolveProxy(test_url1, &info1);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info1.is_direct());
-  EXPECT_TRUE(info1.proxy_server() == "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info1.proxy_server().ToURI());
 
   SyncProxyService service2(new MockProxyConfigService(config),
                             new MockProxyResolver);
@@ -463,7 +515,7 @@ TEST(ProxyServiceTest, PerProtocolProxyTests) {
   rv = service2.ResolveProxy(test_url2, &info2);
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info2.is_direct());
-  EXPECT_TRUE(info2.proxy_server() == "");
+  EXPECT_EQ("direct://", info2.proxy_server().ToURI());
 
   SyncProxyService service3(new MockProxyConfigService(config),
                             new MockProxyResolver);
@@ -472,9 +524,9 @@ TEST(ProxyServiceTest, PerProtocolProxyTests) {
   rv = service3.ResolveProxy(test_url3, &info3);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info3.is_direct());
-  EXPECT_TRUE(info3.proxy_server() == "foopy2:8080");
+  EXPECT_EQ("foopy2:8080", info3.proxy_server().ToURI());
 
-  config.proxy_server = "foopy1:8080";
+  config.proxy_rules = "foopy1:8080";
   SyncProxyService service4(new MockProxyConfigService(config),
                             new MockProxyResolver);
   GURL test_url4("www.microsoft.com");
@@ -482,6 +534,6 @@ TEST(ProxyServiceTest, PerProtocolProxyTests) {
   rv = service4.ResolveProxy(test_url4, &info4);
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info4.is_direct());
-  EXPECT_TRUE(info4.proxy_server() == "foopy1:8080");
+  EXPECT_EQ("foopy1:8080", info4.proxy_server().ToURI());
 }
 

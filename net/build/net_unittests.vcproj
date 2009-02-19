@@ -415,6 +415,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\proxy\proxy_server_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\proxy\proxy_service_unittest.cc"
 					>
 				</File>

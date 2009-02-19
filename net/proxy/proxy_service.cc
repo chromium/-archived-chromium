@@ -15,7 +15,6 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_tokenizer.h"
-#include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
 #include "net/proxy/proxy_config_service_fixed.h"
@@ -56,35 +55,31 @@ bool ProxyConfig::Equals(const ProxyConfig& other) const {
   // have the same settings.
   return auto_detect == other.auto_detect &&
          pac_url == other.pac_url &&
-         proxy_server == other.proxy_server &&
+         proxy_rules == other.proxy_rules &&
          proxy_bypass == other.proxy_bypass &&
          proxy_bypass_local_names == other.proxy_bypass_local_names;
 }
 
 // ProxyList ------------------------------------------------------------------
-void ProxyList::SetVector(const std::vector<std::string>& proxies) {
+
+void ProxyList::Set(const std::string& proxy_uri_list) {
   proxies_.clear();
-  std::vector<std::string>::const_iterator iter = proxies.begin();
-  for (; iter != proxies.end(); ++iter) {
-    std::string proxy_sever;
-    TrimWhitespace(*iter, TRIM_ALL, &proxy_sever);
-    proxies_.push_back(proxy_sever);
+  StringTokenizer str_tok(proxy_uri_list, ";");
+  while (str_tok.GetNext()) {
+    ProxyServer uri = ProxyServer::FromURI(
+        str_tok.token_begin(), str_tok.token_end());
+    // Silently discard malformed inputs.
+    if (uri.is_valid())
+      proxies_.push_back(uri);
   }
 }
 
-void ProxyList::Set(const std::string& proxy_list) {
-  // Extract the different proxies from the list.
-  std::vector<std::string> proxies;
-  SplitString(proxy_list, L';', &proxies);
-  SetVector(proxies);
-}
-
 void ProxyList::RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
-  std::vector<std::string> new_proxy_list;
-  std::vector<std::string>::const_iterator iter = proxies_.begin();
+  std::vector<ProxyServer> new_proxy_list;
+  std::vector<ProxyServer>::const_iterator iter = proxies_.begin();
   for (; iter != proxies_.end(); ++iter) {
     ProxyRetryInfoMap::const_iterator bad_proxy =
-        proxy_retry_info.find(*iter);
+        proxy_retry_info.find(iter->ToURI());
     if (bad_proxy != proxy_retry_info.end()) {
       // This proxy is bad. Check if it's time to retry.
       if (bad_proxy->second.bad_until >= TimeTicks::Now()) {
@@ -98,25 +93,44 @@ void ProxyList::RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
   proxies_ = new_proxy_list;
 }
 
-std::string ProxyList::Get() const {
-  if (!proxies_.empty())
-    return proxies_[0];
-
-  return std::string();
+void ProxyList::RemoveProxiesWithoutScheme(int scheme_bit_field) {
+  for (std::vector<ProxyServer>::iterator it = proxies_.begin();
+       it != proxies_.end(); ) {
+    if (!(scheme_bit_field & it->scheme())) {
+      it = proxies_.erase(it);
+      continue;
+    }
+    ++it;
+  }
 }
 
-std::string ProxyList::GetAnnotatedList() const {
+ProxyServer ProxyList::Get() const {
+  if (!proxies_.empty())
+    return proxies_[0];
+  return ProxyServer(ProxyServer::SCHEME_DIRECT, std::string(), -1);
+}
+
+std::string ProxyList::ToPacString() const {
   std::string proxy_list;
-  std::vector<std::string>::const_iterator iter = proxies_.begin();
+  std::vector<ProxyServer>::const_iterator iter = proxies_.begin();
   for (; iter != proxies_.end(); ++iter) {
     if (!proxy_list.empty())
       proxy_list += ";";
-    // Assume every proxy is an HTTP proxy, as that is all we currently support.
-    proxy_list += "PROXY ";
-    proxy_list += *iter;
+    proxy_list += iter->ToPacString();
   }
+  return proxy_list.empty() ? "DIRECT" : proxy_list;
+}
 
-  return proxy_list;
+void ProxyList::SetFromPacString(const std::string& pac_string) {
+  StringTokenizer entry_tok(pac_string, ";");
+  proxies_.clear();
+  while (entry_tok.GetNext()) {
+    ProxyServer uri = ProxyServer::FromPacString(
+        entry_tok.token_begin(), entry_tok.token_end());
+    // Silently discard malformed inputs.
+    if (uri.is_valid())
+      proxies_.push_back(uri);
+  }
 }
 
 bool ProxyList::Fallback(ProxyRetryInfoMap* proxy_retry_info) {
@@ -128,8 +142,10 @@ bool ProxyList::Fallback(ProxyRetryInfoMap* proxy_retry_info) {
     return false;
   }
 
+  std::string key = proxies_[0].ToURI();
+
   // Mark this proxy as bad.
-  ProxyRetryInfoMap::iterator iter = proxy_retry_info->find(proxies_[0]);
+  ProxyRetryInfoMap::iterator iter = proxy_retry_info->find(key);
   if (iter != proxy_retry_info->end()) {
     // TODO(nsylvain): This is not the first time we get this. We should
     // double the retry time. Bug 997660.
@@ -138,7 +154,7 @@ bool ProxyList::Fallback(ProxyRetryInfoMap* proxy_retry_info) {
     ProxyRetryInfo retry_info;
     retry_info.current_delay = kProxyRetryDelay;
     retry_info.bad_until = TimeTicks().Now() + retry_info.current_delay;
-    (*proxy_retry_info)[proxies_[0]] = retry_info;
+    (*proxy_retry_info)[key] = retry_info;
   }
 
   // Remove this proxy from our list.
@@ -162,12 +178,12 @@ void ProxyInfo::UseDirect() {
   proxy_list_.Set(std::string());
 }
 
-void ProxyInfo::UseNamedProxy(const std::string& proxy_server) {
-  proxy_list_.Set(proxy_server);
+void ProxyInfo::UseNamedProxy(const std::string& proxy_uri_list) {
+  proxy_list_.Set(proxy_uri_list);
 }
 
-std::string ProxyInfo::GetAnnotatedProxyList() {
-  return is_direct() ? "DIRECT" : proxy_list_.GetAnnotatedList();
+std::string ProxyInfo::ToPacString() {
+  return proxy_list_.ToPacString();
 }
 
 // ProxyService::PacRequest ---------------------------------------------------
@@ -312,7 +328,7 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
     // Remember that we are trying to use the current proxy configuration.
     result->config_was_tried_ = true;
 
-    if (!config_.proxy_server.empty()) {
+    if (!config_.proxy_rules.empty()) {
       if (ShouldBypassProxyForURL(url)) {
         result->UseDirect();
       } else {
@@ -321,7 +337,7 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
         // "scheme1=url:port;scheme2=url:port", etc.
         std::string url_scheme = url.scheme();
 
-        StringTokenizer proxy_server_list(config_.proxy_server, ";");
+        StringTokenizer proxy_server_list(config_.proxy_rules, ";");
         while (proxy_server_list.GetNext()) {
           StringTokenizer proxy_server_for_scheme(
               proxy_server_list.token_begin(), proxy_server_list.token_end(),
@@ -357,7 +373,7 @@ int ProxyService::ResolveProxy(const GURL& url, ProxyInfo* result,
         pac_thread_.reset(new base::Thread("pac-thread"));
         pac_thread_->Start();
       }
-   
+
       scoped_refptr<PacRequest> req =
           new PacRequest(this, config_.pac_url, callback);
 
@@ -422,7 +438,7 @@ int ProxyService::ReconsiderProxyAfterError(const GURL& url,
   if (!was_direct && result->Fallback(&proxy_retry_info_))
     return OK;
 
-  if (!config_.auto_detect && !config_.proxy_server.empty()) {
+  if (!config_.auto_detect && !config_.proxy_rules.empty()) {
     // If auto detect is on, then we should try a DIRECT connection
     // as the attempt to reach the proxy failed.
     return ERR_FAILED;
