@@ -949,8 +949,9 @@ DEFER LINUX WIN : LayoutTests/editing/spelling/inline_spelling_markers.html = FA
 DEFER : LayoutTests/fast/js/arguments.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/fast/js/primitive-method-this.html = FAIL
-// New test. We should fix it, but it doesn't need to block the current release
-LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
+// See bug http://code.google.com/p/chromium/issues/detail?id=7868,
+// not urgent for current release.
+DEFER : LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL
 // These two depend on which webkit features are enabled.  For instance, it checks
 // if the Audio constructor is available which is only the case if AUDIO is enabled.
 DEFER : LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
