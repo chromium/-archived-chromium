@@ -111,7 +111,7 @@ TEST_F(BrowserTest, ThirtyFourTabs) {
   if (base::SysInfo::AmountOfPhysicalMemoryMB() >= 2048) {
     EXPECT_GE(process_count, 24);
   } else {
-    EXPECT_LE(process_count, 22);
+    EXPECT_LE(process_count, 23);
   }
 }
 
