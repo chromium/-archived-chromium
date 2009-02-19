@@ -572,11 +572,11 @@ LRESULT WidgetWin::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 void WidgetWin::OnNCLButtonDblClk(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_LBUTTON, true, true));
+  SetMsgHandled(ProcessMousePressed(point, MK_LBUTTON, true, true));
 }
 
 void WidgetWin::OnNCLButtonDown(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_LBUTTON, false, true));
+  SetMsgHandled(ProcessMousePressed(point, MK_LBUTTON, false, true));
 }
 
 void WidgetWin::OnNCLButtonUp(UINT flags, const CPoint& point) {
@@ -584,11 +584,11 @@ void WidgetWin::OnNCLButtonUp(UINT flags, const CPoint& point) {
 }
 
 void WidgetWin::OnNCMButtonDblClk(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_MBUTTON, true, true));
+  SetMsgHandled(ProcessMousePressed(point, MK_MBUTTON, true, true));
 }
 
 void WidgetWin::OnNCMButtonDown(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_MBUTTON, false, true));
+  SetMsgHandled(ProcessMousePressed(point, MK_MBUTTON, false, true));
 }
 
 void WidgetWin::OnNCMButtonUp(UINT flags, const CPoint& point) {
@@ -613,11 +613,11 @@ LRESULT WidgetWin::OnNCMouseMove(UINT flags, const CPoint& point) {
 }
 
 void WidgetWin::OnNCRButtonDblClk(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_RBUTTON, true, true));
+  SetMsgHandled(ProcessMousePressed(point, MK_RBUTTON, true, true));
 }
 
 void WidgetWin::OnNCRButtonDown(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_RBUTTON, false, true));
+  SetMsgHandled(ProcessMousePressed(point, MK_RBUTTON, false, true));
 }
 
 void WidgetWin::OnNCRButtonUp(UINT flags, const CPoint& point) {
