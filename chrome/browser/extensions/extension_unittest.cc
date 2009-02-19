@@ -93,24 +93,24 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
   // Test invalid user scripts list
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->SetInteger(Extension::kUserScriptsKey, 42);
+  input_value->SetInteger(Extension::kContentScriptsKey, 42);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_EQ(Extension::kInvalidUserScriptsListError, error);
+  EXPECT_EQ(Extension::kInvalidContentScriptsListError, error);
 
   // Test invalid user script item
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  ListValue* user_scripts = NULL;
-  input_value->GetList(Extension::kUserScriptsKey, &user_scripts);
-  ASSERT_FALSE(NULL == user_scripts);
-  user_scripts->Set(0, Value::CreateIntegerValue(42));
+  ListValue* content_scripts = NULL;
+  input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
+  ASSERT_FALSE(NULL == content_scripts);
+  content_scripts->Set(0, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidUserScriptError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidContentScriptError));
 
   // Test missing and invalid matches array
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->GetList(Extension::kUserScriptsKey, &user_scripts);
+  input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
   DictionaryValue* user_script = NULL;
-  user_scripts->GetDictionary(0, &user_script);
+  content_scripts->GetDictionary(0, &user_script);
   user_script->Remove(Extension::kMatchesKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchesError));
@@ -131,31 +131,31 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
   // Test missing and invalid files array
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->GetList(Extension::kUserScriptsKey, &user_scripts);
-  user_scripts->GetDictionary(0, &user_script);
-  user_script->Remove(Extension::kFilesKey, NULL);
+  input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
+  content_scripts->GetDictionary(0, &user_script);
+  user_script->Remove(Extension::kJsKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidFilesError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsListError));
 
-  user_script->Set(Extension::kFilesKey, Value::CreateIntegerValue(42));
+  user_script->Set(Extension::kJsKey, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidFilesError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsListError));
 
   ListValue* files = new ListValue;
-  user_script->Set(Extension::kFilesKey, files);
+  user_script->Set(Extension::kJsKey, files);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidFileCountError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsCountError));
 
   // Test invalid file element
   files->Set(0, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidFileError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsError));
 
   // Test too many file elements (more than one not yet supported)
   files->Set(0, Value::CreateStringValue("foo.js"));
   files->Set(1, Value::CreateStringValue("bar.js"));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidFileCountError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsCountError));
 }
 
 TEST(ExtensionTest, InitFromValueValid) {

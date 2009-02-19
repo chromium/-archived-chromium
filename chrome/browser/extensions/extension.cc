@@ -15,13 +15,13 @@ const char kUserScriptURLScheme[] = "chrome-user-script";
 
 const char Extension::kManifestFilename[] = "manifest.json";
 
+const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
 const wchar_t* Extension::kDescriptionKey = L"description";
-const wchar_t* Extension::kFilesKey = L"files";
 const wchar_t* Extension::kFormatVersionKey = L"format_version";
 const wchar_t* Extension::kIdKey = L"id";
+const wchar_t* Extension::kJsKey = L"js";
 const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
-const wchar_t* Extension::kUserScriptsKey = L"user_scripts";
 const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kVersionKey = L"version";
 const wchar_t* Extension::kZipHashKey = L"zip_hash";
@@ -33,36 +33,36 @@ const char* Extension::kRunAtDocumentEndValue = "document_end";
 // '*' is replaced at runtime with a specific value. This is used instead of
 // printf because we want to unit test them and scanf is hard to make
 // cross-platform.
+const char* Extension::kInvalidContentScriptError =
+    "Invalid value for 'content_scripts[*]'.";
+const char* Extension::kInvalidContentScriptsListError =
+    "Invalid value for 'content_scripts'.";
 const char* Extension::kInvalidDescriptionError =
     "Invalid value for 'description'.";
-const char* Extension::kInvalidFileCountError =
-    "Invalid value for 'user_scripts[*].files. Only one file is currently "
-    "supported per-user script.";
-const char* Extension::kInvalidFileError =
-    "Invalid value for 'user_scripts[*].files[*]'.";
-const char* Extension::kInvalidFilesError =
-    "Required value 'user_scripts[*].files is missing or invalid.";
 const char* Extension::kInvalidFormatVersionError =
     "Required value 'format_version' is missing or invalid.";
 const char* Extension::kInvalidIdError =
     "Required value 'id' is missing or invalid.";
+const char* Extension::kInvalidJsCountError =
+    "Invalid value for 'content_scripts[*].js. Only one js file is currently "
+    "supported per-user script.";
+const char* Extension::kInvalidJsError =
+    "Invalid value for 'content_scripts[*].js[*]'.";
+const char* Extension::kInvalidJsListError =
+    "Required value 'content_scripts[*].js is missing or invalid.";
 const char* Extension::kInvalidManifestError =
     "Manifest is missing or invalid.";
 const char* Extension::kInvalidMatchCountError =
-    "Invalid value for 'user_scripts[*].matches. There must be at least one "
+    "Invalid value for 'content_scripts[*].matches. There must be at least one "
     "match specified.";
 const char* Extension::kInvalidMatchError =
-    "Invalid value for 'user_scripts[*].matches[*]'.";
+    "Invalid value for 'content_scripts[*].matches[*]'.";
 const char* Extension::kInvalidMatchesError =
-    "Required value 'user_scripts[*].matches' is missing or invalid.";
+    "Required value 'content_scripts[*].matches' is missing or invalid.";
 const char* Extension::kInvalidNameError =
     "Required value 'name' is missing or invalid.";
 const char* Extension::kInvalidRunAtError =
-    "Invalid value for 'user_scripts[*].run_at'.";
-const char* Extension::kInvalidUserScriptError =
-    "Invalid value for 'user_scripts[*]'.";
-const char* Extension::kInvalidUserScriptsListError =
-    "Invalid value for 'user_scripts'.";
+    "Invalid value for 'content_scripts[*].run_at'.";
 const char* Extension::kInvalidVersionError =
     "Required value 'version' is missing or invalid.";
 const char* Extension::kInvalidZipHashError =
@@ -231,30 +231,30 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   }
 
   // Initialize user scripts (optional).
-  if (source.HasKey(kUserScriptsKey)) {
+  if (source.HasKey(kContentScriptsKey)) {
     ListValue* list_value;
-    if (!source.GetList(kUserScriptsKey, &list_value)) {
-      *error = kInvalidUserScriptsListError;
+    if (!source.GetList(kContentScriptsKey, &list_value)) {
+      *error = kInvalidContentScriptsListError;
       return false;
     }
 
     for (size_t i = 0; i < list_value->GetSize(); ++i) {
-      DictionaryValue* user_script;
-      if (!list_value->GetDictionary(i, &user_script)) {
-        *error = FormatErrorMessage(kInvalidUserScriptError, IntToString(i));
+      DictionaryValue* content_script;
+      if (!list_value->GetDictionary(i, &content_script)) {
+        *error = FormatErrorMessage(kInvalidContentScriptError, IntToString(i));
         return false;
       }
 
       ListValue* matches;
-      ListValue* files;
+      ListValue* js;
 
-      if (!user_script->GetList(kMatchesKey, &matches)) {
+      if (!content_script->GetList(kMatchesKey, &matches)) {
         *error = FormatErrorMessage(kInvalidMatchesError, IntToString(i));
         return false;
       }
 
-      if (!user_script->GetList(kFilesKey, &files)) {
-        *error = FormatErrorMessage(kInvalidFilesError, IntToString(i));
+      if (!content_script->GetList(kJsKey, &js)) {
+        *error = FormatErrorMessage(kInvalidJsListError, IntToString(i));
         return false;
       }
 
@@ -264,15 +264,15 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       }
 
       // NOTE: Only one file is supported right now.
-      if (files->GetSize() != 1) {
-        *error = FormatErrorMessage(kInvalidFileCountError, IntToString(i));
+      if (js->GetSize() != 1) {
+        *error = FormatErrorMessage(kInvalidJsCountError, IntToString(i));
         return false;
       }
 
       UserScript script;
-      if (user_script->HasKey(kRunAtKey)) {
+      if (content_script->HasKey(kRunAtKey)) {
         std::string run_location;
-        if (!user_script->GetString(kRunAtKey, &run_location)) {
+        if (!content_script->GetString(kRunAtKey, &run_location)) {
           *error = FormatErrorMessage(kInvalidRunAtError, IntToString(i));
           return false;
         }
@@ -307,15 +307,15 @@ bool Extension::InitFromValue(const DictionaryValue& source,
 
       // TODO(aa): Support multiple files.
       std::string file;
-      if (!files->GetString(0, &file)) {
-        *error = FormatErrorMessage(kInvalidFileError, IntToString(i),
+      if (!js->GetString(0, &file)) {
+        *error = FormatErrorMessage(kInvalidJsError, IntToString(i),
                                     IntToString(0));
         return false;
       }
       script.set_path(Extension::GetResourcePath(path(), file));
       script.set_url(Extension::GetResourceURL(url(), file));
 
-      user_scripts_.push_back(script);
+      content_scripts_.push_back(script);
     }
   }
 

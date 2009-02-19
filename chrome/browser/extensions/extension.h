@@ -37,13 +37,13 @@ class Extension {
   static const char kManifestFilename[];
 
   // Keys used in JSON representation of extensions.
+  static const wchar_t* kContentScriptsKey;
   static const wchar_t* kDescriptionKey;
-  static const wchar_t* kFilesKey;
   static const wchar_t* kFormatVersionKey;
   static const wchar_t* kIdKey;
+  static const wchar_t* kJsKey;
   static const wchar_t* kMatchesKey;
   static const wchar_t* kNameKey;
-  static const wchar_t* kUserScriptsKey;
   static const wchar_t* kRunAtKey;
   static const wchar_t* kVersionKey;
   static const wchar_t* kZipHashKey;
@@ -53,20 +53,20 @@ class Extension {
   static const char* kRunAtDocumentEndValue;
 
   // Error messages returned from InitFromValue().
+  static const char* kInvalidContentScriptError;
+  static const char* kInvalidContentScriptsListError;
   static const char* kInvalidDescriptionError;
-  static const char* kInvalidFileCountError;
-  static const char* kInvalidFileError;
-  static const char* kInvalidFilesError;
   static const char* kInvalidFormatVersionError;
   static const char* kInvalidIdError;
+  static const char* kInvalidJsCountError;
+  static const char* kInvalidJsError;
+  static const char* kInvalidJsListError;
   static const char* kInvalidManifestError;
   static const char* kInvalidMatchCountError;
   static const char* kInvalidMatchError;
   static const char* kInvalidMatchesError;
   static const char* kInvalidNameError;
   static const char* kInvalidRunAtError;
-  static const char* kInvalidUserScriptError;
-  static const char* kInvalidUserScriptsListError;
   static const char* kInvalidVersionError;
   static const char* kInvalidZipHashError;
 
@@ -113,8 +113,8 @@ class Extension {
   const std::string& description() const { return description_; }
 
   // Paths to the content scripts that the extension contains.
-  const UserScriptList& user_scripts() const {
-    return user_scripts_;
+  const UserScriptList& content_scripts() const {
+    return content_scripts_;
   }
 
   // Initialize the extension from a parsed manifest.
@@ -140,7 +140,7 @@ class Extension {
   std::string description_;
 
   // Paths to the content scripts the extension contains.
-  UserScriptList user_scripts_;
+  UserScriptList content_scripts_;
 
   // A SHA1 hash of the contents of the zip file.  Note that this key is only
   // present in the manifest that's prepended to the zip.  The inner manifest

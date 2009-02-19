@@ -104,7 +104,7 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
   // Tell UserScriptMaster about any scripts in the loaded extensions.
   for (ExtensionList::iterator extension = extensions_.begin();
        extension != extensions_.end(); ++extension) {
-    const UserScriptList& scripts = (*extension)->user_scripts();
+    const UserScriptList& scripts = (*extension)->content_scripts();
     for (UserScriptList::const_iterator script = scripts.begin();
          script != scripts.end(); ++script) {
       user_script_master_->AddLoneScript(*script);

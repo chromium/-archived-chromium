@@ -150,7 +150,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(0)->description());
 
   Extension* extension = frontend->extensions()->at(0);
-  const UserScriptList& scripts = extension->user_scripts();
+  const UserScriptList& scripts = extension->content_scripts();
   ASSERT_EQ(2u, scripts.size());
   EXPECT_EQ(2u, scripts[0].url_patterns().size());
   EXPECT_EQ("http://*.google.com/*",
@@ -170,7 +170,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(1)->name());
   EXPECT_EQ(std::string(""),
             frontend->extensions()->at(1)->description());
-  ASSERT_EQ(0u, frontend->extensions()->at(1)->user_scripts().size());
+  ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
 
   EXPECT_EQ(std::string("com.google.myextension3"),
             frontend->extensions()->at(2)->id());
@@ -178,7 +178,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(2)->name());
   EXPECT_EQ(std::string(""),
             frontend->extensions()->at(2)->description());
-  ASSERT_EQ(0u, frontend->extensions()->at(2)->user_scripts().size());
+  ASSERT_EQ(0u, frontend->extensions()->at(2)->content_scripts().size());
 };
 
 // Test loading bad extensions from the profile directory.
