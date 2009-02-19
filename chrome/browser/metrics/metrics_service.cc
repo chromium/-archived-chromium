@@ -639,6 +639,9 @@ std::string MetricsService::GenerateClientID() {
   return WideToUTF8(guid_string.substr(1, guid_string.length() - 2));
 #else
   // TODO(port): Implement for Mac and linux.
+  // Rather than actually implementing a random source, might this be a good
+  // time to implement http://code.google.com/p/chromium/issues/detail?id=2278
+  // ?  I think so!
   NOTIMPLEMENTED();
   return std::string();
 #endif
