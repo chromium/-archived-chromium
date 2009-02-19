@@ -728,9 +728,8 @@ DEFER LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
-// Linux pixeltest failure: Failing to render shadows
-// New test. We should fix it, but it doesn't need to block the current release
-DEFER LINUX WIN : LayoutTests/fast/transforms/shadows.html = FAIL
+// Needs to be rebaselined. It's a new test, so shouldn't hold up release.
+DEFER LINUX : LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
