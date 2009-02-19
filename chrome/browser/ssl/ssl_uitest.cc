@@ -23,6 +23,7 @@ class SSLUITest : public UITest {
  protected:
   SSLUITest() {
     dom_automation_enabled_ = true;
+    EXPECT_TRUE(util_.CheckCATrusted());
   }
 
   TabProxy* GetActiveTabProxy() {
@@ -46,14 +47,18 @@ class SSLUITest : public UITest {
   }
 
   HTTPSTestServer* GoodCertServer() {
-    return HTTPSTestServer::CreateGoodServer(kDocRoot);
+    return HTTPSTestServer::CreateServer(util_.kHostName, util_.kOKHTTPSPort,
+        kDocRoot, util_.GetOKCertPath().ToWStringHack());
   }
 
   HTTPSTestServer* BadCertServer() {
-    return HTTPSTestServer::CreateExpiredServer(kDocRoot);
+    return HTTPSTestServer::CreateServer(util_.kHostName, util_.kBadHTTPSPort,
+        kDocRoot, util_.GetExpiredCertPath().ToWStringHack());
   }
 
  protected:
+  SSLTestUtil util_;
+
   DISALLOW_COPY_AND_ASSIGN(SSLUITest);
 };
 
@@ -419,7 +424,8 @@ TEST_F(SSLUITest, TestCachedMixedContents) {
 TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
   const std::string kLocalHost = "localhost";
   scoped_refptr<HTTPSTestServer> https_server =
-      HTTPSTestServer::CreateMismatchedServer(kDocRoot);
+      HTTPSTestServer::CreateServer(kLocalHost, util_.kOKHTTPSPort,
+      kDocRoot, util_.GetOKCertPath().ToWStringHack());
   ASSERT_TRUE(NULL != https_server.get());
 
   // First we hit the server with hostname, this generates an invalid policy
@@ -456,7 +462,7 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
   ASSERT_TRUE(hostname_index != std::string::npos);  // Test sanity check.
   std::string new_url;
   new_url.append(url.spec().substr(0, hostname_index));
-  new_url.append(net::TestServerLauncher::kHostName);
+  new_url.append(util_.kHostName);
   new_url.append(url.spec().substr(hostname_index + kLocalHost.size()));
 
   NavigateTab(tab.get(), GURL(new_url));

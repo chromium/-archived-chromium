@@ -5,13 +5,15 @@
 #ifndef NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
 #define NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
 
-#include <nspr.h>
-#include <nss.h>
+#include "build/build_config.h"
+
+#include <prio.h>
+#include "net/base/nss_memio.h"
+
 #include <string>
 
 #include "base/scoped_ptr.h"
 #include "net/base/completion_callback.h"
-#include "net/base/nss_memio.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
 
@@ -58,9 +60,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
   void BufferSendComplete(int result);
   void BufferRecvComplete(int result);
 
-  // nss calls this on error.  We pass 'this' as the first argument.
-  static SECStatus OwnBadCertHandler(void* arg, PRFileDesc* socket);
-
   CompletionCallbackImpl<SSLClientSocketNSS> buffer_send_callback_;
   CompletionCallbackImpl<SSLClientSocketNSS> buffer_recv_callback_;
   bool transport_send_busy_;
@@ -77,8 +76,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   char* user_buf_;
   int user_buf_len_;
 
-  // Set when handshake finishes.  Value is net error code, see net_errors.h
-  int server_cert_error_;
+  int server_cert_status_;
 
   bool completed_handshake_;
 
@@ -93,10 +91,10 @@ class SSLClientSocketNSS : public SSLClientSocket {
   };
   State next_state_;
 
-  // The NSS SSL state machine
+  /* The NSS SSL state machine */
   PRFileDesc* nss_fd_;
 
-  // Buffers for the network end of the SSL state machine
+  /* Buffers for the network end of the SSL state machine */
   memio_Private* nss_bufs_;
 
   static bool nss_options_initialized_;

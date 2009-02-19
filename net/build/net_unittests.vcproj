@@ -367,10 +367,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\base\tcp_pinger_unittest.cc"
-					>
-				</File>
-				<File
 					RelativePath="..\base\tcp_client_socket_unittest.cc"
 					>
 				</File>

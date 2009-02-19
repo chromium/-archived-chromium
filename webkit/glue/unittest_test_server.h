@@ -22,10 +22,7 @@ class UnittestTestServer : public HTTPTestServer {
  public:
   static UnittestTestServer* CreateServer() {
     UnittestTestServer* test_server = new UnittestTestServer();
-    FilePath no_cert;
-    FilePath docroot = FilePath::FromWStringHack(L"webkit/data");
-    if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
-        "localhost", 1337, docroot, no_cert)) {
+    if (!test_server->Init("localhost", 1337, L"webkit/data")) {
       delete test_server;
       return NULL;
     }
