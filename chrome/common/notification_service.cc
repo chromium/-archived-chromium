@@ -35,6 +35,13 @@ void NotificationService::AddObserver(NotificationObserver* observer,
                                       const NotificationSource& source) {
   DCHECK(type.value < NotificationType::NOTIFICATION_TYPE_COUNT);
 
+  // We have gotten some crashes where the observer pointer is NULL. The problem
+  // is that this happens when we actually execute a notification, so have no
+  // way of knowing who the bad observer was. We want to know when this happens
+  // in release mode so we know what code to blame the crash on (since this is
+  // guaranteed to crash later).
+  CHECK(observer);
+
   NotificationObserverList* observer_list;
   if (HasKey(observers_[type.value], source)) {
     observer_list = observers_[type.value][source.map_key()];
