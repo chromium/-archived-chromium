@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="using_ffmpeg"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(SolutionDir)..\third_party\ffmpeg\include"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="$(OutDir)\lib\avcodec-52.lib $(OutDir)\lib\avformat-52.lib $(OutDir)\lib\avutil-49.lib"
+		DelayLoadDLLs="avcodec-52.dll;avformat-52.dll;avutil-49.dll"
+	/>
+</VisualStudioPropertySheet>

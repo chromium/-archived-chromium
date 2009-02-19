@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="Generate FFmpeg import libraries"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Generate FFmpeg import libraries"
+			CommandLine="generate_libs.bat $(OutDir)"
+			Outputs="$(OutDir)\lib\avcodec-52.lib"
+			FileExtensions="*.def"
+			ExecutionDescription="Generating FFmpeg import libraries..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

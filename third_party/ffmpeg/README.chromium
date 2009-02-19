@@ -1,0 +1,20 @@
+This contains FFmpeg's public header files from the output of a "make install"
+command.  The header files are from FFmpeg revision 16647.
+
+Steps to reproduce:
+  1) If on Windows, refer to http://ffmpeg.arrozcru.org for environment setup
+  2) Check out FFmpeg from their repository
+  3) ./configure --prefix=/path/to/chrome/src/third_party/ffmpeg
+  4) make && make install
+  5) Remove bin and lib folders, leaving the include folder behind
+
+The project contains some hand-written DEF files used to generate import
+libraries to permit dynamically loading FFmpeg.  The libaries are linked in
+using /DELAYLOAD to avoid having the DLLs present at run-time.
+
+We don't use the import libraries generated from building FFmpeg because they
+export every method by ordinal, which makes binary compatability with different
+builds of FFmpeg difficult if not impossible.  Furthermore, it is much easier
+to update a DEF file instead of rebuilding FFmpeg to generate new import
+libraries.
+

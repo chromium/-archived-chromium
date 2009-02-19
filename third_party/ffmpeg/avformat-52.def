@@ -1,0 +1,7 @@
+LIBRARY avformat-52
+EXPORTS
+  av_find_stream_info
+  av_open_input_file
+  av_read_frame
+  av_register_all
+  register_protocol
