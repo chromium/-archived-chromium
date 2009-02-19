@@ -33,10 +33,19 @@ void SdchDictionaryFetcher::StartFetching() {
   DCHECK(task_is_pending_);
   task_is_pending_ = false;
 
+  URLRequestContext* context = Profile::GetDefaultRequestContext();
+  if (!context) {
+    // Shutdown in progress.
+    // Simulate handling of all dictionary requests by clearing queue.
+    while (!fetch_queue_.empty())
+      fetch_queue_.pop();
+    return;
+  }
+
   current_fetch_.reset(new URLFetcher(fetch_queue_.front(), URLFetcher::GET,
                                       this));
   fetch_queue_.pop();
-  current_fetch_->set_request_context(Profile::GetDefaultRequestContext());
+  current_fetch_->set_request_context(context);
   current_fetch_->Start();
 }
 
