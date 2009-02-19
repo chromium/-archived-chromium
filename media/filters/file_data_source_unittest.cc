@@ -28,9 +28,18 @@ using media::MediaFormat;
 using media::MockDemuxer;
 using media::MockAudioDecoder;
 using media::MockAudioRenderer;
+using media::MockFilterConfig;
 using media::MockFilterHost;
 using media::PipelineImpl;
 
+namespace {
+
+// Returns a path to the test file which contains the string "0123456789"
+// without the quotes or any trailing space or null termination.  The file lives
+// under the media/test/data directory.  Under Windows, strings for the
+// FilePath class are unicode, and the pipeline wants char strings.  Convert
+// the string to UTF8 under Windows.  For Mac and Linux, file paths are already
+// chars so just return the string from the FilePath.
 std::string TestFileURL() {
   FilePath data_dir;
   EXPECT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &data_dir));
@@ -45,14 +54,18 @@ std::string TestFileURL() {
 #endif
 }
 
+}  // namespace
+
 // Use the "real" pipeline to open the file.
 TEST(FileDataSourceTest, OpenFile) {
   PipelineImpl pipeline;
+  MockFilterConfig config;
+  config.has_video = false;
   scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
   c->AddFactory(FileDataSource::CreateFactory());
-  c->AddFactory(MockDemuxer::CreateFactory());
-  c->AddFactory(MockAudioDecoder::CreateFactory());
-  c->AddFactory(MockAudioRenderer::CreateFactory());
+  c->AddFactory(MockDemuxer::CreateFactory(&config));
+  c->AddFactory(MockAudioDecoder::CreateFactory(&config));
+  c->AddFactory(MockAudioRenderer::CreateFactory(&config));
   InitializationHelper h;
   h.Start(&pipeline, c, TestFileURL());
   h.Wait();

@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include "base/waitable_event.h"
+#include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filter_host.h"
 #include "media/base/filters.h"
@@ -17,20 +19,53 @@
 namespace media {
 
 // Behaviors for MockDataSource filter.
-enum MockBehavior {
-  MOCK_FILTER_NORMAL_INIT,
-  MOCK_FILTER_NEVER_INIT,
-  MOCK_FILTER_TASK_INIT,
-  MOCK_FILTER_ERROR_IN_INIT,
-  MOCK_FILTER_INIT_RETURN_FALSE,
-  MOCK_FILTER_TASK_ERROR_PRE_INIT,
-  MOCK_FILTER_TASK_ERROR_POST_INIT
+enum MockDataSourceBehavior {
+  MOCK_DATA_SOURCE_NORMAL_INIT,
+  MOCK_DATA_SOURCE_NEVER_INIT,
+  MOCK_DATA_SOURCE_TASK_INIT,
+  MOCK_DATA_SOURCE_ERROR_IN_INIT,
+  MOCK_DATA_SOURCE_INIT_RETURN_FALSE,
+  MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT,
+  MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT
 };
+
+
+// This class is used by all of the mock filters to change the configuration
+// of the desired pipeline.  The test using this must ensure that the lifetime
+// of the object is at least as long as the lifetime of the filters, as this
+// is typically allocated on the stack.
+struct MockFilterConfig {
+  MockFilterConfig()
+      : data_source_behavior(MOCK_DATA_SOURCE_NORMAL_INIT),
+        has_video(true),
+        video_width(1280u),
+        video_height(720u),
+        video_surface_format(VideoSurface::YV12),
+        compressed_audio_mime_type(mime_type::kAACAudio),
+        uncompressed_audio_mime_type(mime_type::kUncompressedAudio),
+        compressed_video_mime_type(mime_type::kH264AnnexB),
+        uncompressed_video_mime_type(mime_type::kUncompressedVideo),
+        frame_duration(base::TimeDelta::FromMicroseconds(33333)) {
+  }
+
+  MockDataSourceBehavior data_source_behavior;
+  bool has_video;
+  size_t video_width;
+  size_t video_height;
+  VideoSurface::Format video_surface_format;
+  std::string compressed_audio_mime_type;
+  std::string uncompressed_audio_mime_type;
+  std::string compressed_video_mime_type;
+  std::string uncompressed_video_mime_type;
+  base::TimeDelta frame_duration;
+};
+
 
 class MockDataSource : public media::DataSource {
  public:
-  static FilterFactory* CreateFactory(MockBehavior behavior) {
-     return new FilterFactoryImpl1<MockDataSource, MockBehavior>(behavior);
+  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
+     return new FilterFactoryImpl1<MockDataSource,
+                                   const MockFilterConfig*>(config);
   }
 
   // Implementation of MediaFilter.
@@ -42,22 +77,22 @@ class MockDataSource : public media::DataSource {
                               mime_type::kApplicationOctetStream);
     media_format_.SetAsString(MediaFormat::kURL, url);
     switch (behavior_) {
-      case MOCK_FILTER_NORMAL_INIT:
+      case MOCK_DATA_SOURCE_NORMAL_INIT:
         host_->InitializationComplete();
         return true;
-      case MOCK_FILTER_NEVER_INIT:
+      case MOCK_DATA_SOURCE_NEVER_INIT:
         return true;
-      case MOCK_FILTER_TASK_ERROR_POST_INIT:
+      case MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT:
         host_->InitializationComplete();
         // Yes, we want to fall through to schedule the task...
-      case MOCK_FILTER_TASK_ERROR_PRE_INIT:
-      case MOCK_FILTER_TASK_INIT:
+      case MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT:
+      case MOCK_DATA_SOURCE_TASK_INIT:
         host_->PostTask(NewRunnableMethod(this, &MockDataSource::TaskBehavior));
         return true;
-      case MOCK_FILTER_ERROR_IN_INIT:
+      case MOCK_DATA_SOURCE_ERROR_IN_INIT:
         host_->Error(PIPELINE_ERROR_NETWORK);
         return false;
-      case MOCK_FILTER_INIT_RETURN_FALSE:
+      case MOCK_DATA_SOURCE_INIT_RETURN_FALSE:
         return false;
       default:
         NOTREACHED();
@@ -88,19 +123,22 @@ class MockDataSource : public media::DataSource {
   }
 
  private:
-  friend class media::FilterFactoryImpl1<MockDataSource, MockBehavior>;
+  friend class media::FilterFactoryImpl1<MockDataSource,
+                                         const MockFilterConfig*>;
 
-  explicit MockDataSource(MockBehavior behavior) : behavior_(behavior) {}
+  explicit MockDataSource(const MockFilterConfig* config)
+      : behavior_(config->data_source_behavior) {
+  }
 
   virtual ~MockDataSource() {}
 
   void TaskBehavior() {
     switch (behavior_) {
-      case MOCK_FILTER_TASK_ERROR_POST_INIT:
-      case MOCK_FILTER_TASK_ERROR_PRE_INIT:
+      case MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT:
+      case MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT:
         host_->Error(PIPELINE_ERROR_NETWORK);
         break;
-      case MOCK_FILTER_TASK_INIT:
+      case MOCK_DATA_SOURCE_TASK_INIT:
         host_->InitializationComplete();
         break;
       default:
@@ -108,7 +146,7 @@ class MockDataSource : public media::DataSource {
     }
   }
 
-  MockBehavior behavior_;
+  MockDataSourceBehavior behavior_;
   MediaFormat media_format_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDataSource);
@@ -118,8 +156,9 @@ class MockDataSource : public media::DataSource {
 
 class MockDemuxer : public Demuxer {
  public:
-  static FilterFactory* CreateFactory() {
-    return new FilterFactoryImpl0<MockDemuxer>();
+  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
+     return new FilterFactoryImpl1<MockDemuxer,
+                                   const MockFilterConfig*>(config);
   }
 
   // Implementation of MediaFilter.
@@ -132,27 +171,43 @@ class MockDemuxer : public Demuxer {
   }
 
   virtual size_t GetNumberOfStreams() {
+    if (config_->has_video) {
+      return 2;
+    }
     return 1;
   }
 
   virtual media::DemuxerStream* GetStream(int stream_id) {
-    EXPECT_EQ(stream_id, 0);
-    return &mock_demuxer_stream_;
+    switch (stream_id) {
+      case 0:
+        return &mock_audio_stream_;
+      case 1:
+        if (config_->has_video) {
+          return &mock_video_stream_;
+        }
+        // Fall-through is correct if no video.
+      default:
+        ADD_FAILURE();
+        return NULL;
+    }
   }
 
  private:
-  friend class media::FilterFactoryImpl0<MockDemuxer>;
+  friend class media::FilterFactoryImpl1<MockDemuxer, const MockFilterConfig*>;
 
-  MockDemuxer() {}
+  explicit MockDemuxer(const MockFilterConfig* config)
+      : config_(config),
+        mock_audio_stream_(config->compressed_audio_mime_type),
+        mock_video_stream_(config->compressed_video_mime_type) {
+  }
 
   virtual ~MockDemuxer() {}
 
   // Internal class implements DemuxerStream interface.
   class MockDemuxerStream : public DemuxerStream {
    public:
-    MockDemuxerStream() {
-      media_format_.SetAsString(MediaFormat::kMimeType,
-                                media::mime_type::kUncompressedAudio);
+    explicit MockDemuxerStream(const std::string& mime_type) {
+      media_format_.SetAsString(MediaFormat::kMimeType, mime_type);
     }
 
     virtual ~MockDemuxerStream() {}
@@ -172,7 +227,9 @@ class MockDemuxer : public Demuxer {
     DISALLOW_COPY_AND_ASSIGN(MockDemuxerStream);
   };
 
-  MockDemuxerStream mock_demuxer_stream_;
+  const MockFilterConfig* config_;
+  MockDemuxerStream mock_audio_stream_;
+  MockDemuxerStream mock_video_stream_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDemuxer);
 };
@@ -181,8 +238,9 @@ class MockDemuxer : public Demuxer {
 
 class MockAudioDecoder : public AudioDecoder {
  public:
-  static FilterFactory* CreateFactory() {
-    return new FilterFactoryImpl0<MockAudioDecoder>();
+  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
+    return new FilterFactoryImpl1<MockAudioDecoder,
+                                  const MockFilterConfig*>(config);
   }
 
   static bool IsMediaFormatSupported(const MediaFormat* media_format) {
@@ -208,11 +266,12 @@ class MockAudioDecoder : public AudioDecoder {
   }
 
  private:
-  friend class media::FilterFactoryImpl0<MockAudioDecoder>;
+  friend class media::FilterFactoryImpl1<MockAudioDecoder,
+                                         const MockFilterConfig*>;
 
-  MockAudioDecoder() {
+  explicit MockAudioDecoder(const MockFilterConfig* config) {
     media_format_.SetAsString(MediaFormat::kMimeType,
-                              media::mime_type::kUncompressedAudio);
+                              config->uncompressed_audio_mime_type);
   }
 
   virtual ~MockAudioDecoder() {}
@@ -226,8 +285,9 @@ class MockAudioDecoder : public AudioDecoder {
 
 class MockAudioRenderer : public AudioRenderer {
  public:
-  static FilterFactory* CreateFactory() {
-    return new FilterFactoryImpl0<MockAudioRenderer>();
+  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
+    return new FilterFactoryImpl1<MockAudioRenderer,
+                                  const MockFilterConfig*>(config);
   }
 
   static bool IsMediaFormatSupported(const MediaFormat* media_format) {
@@ -246,14 +306,174 @@ class MockAudioRenderer : public AudioRenderer {
   virtual void SetVolume(float volume) {}
 
  private:
-  friend class media::FilterFactoryImpl0<MockAudioRenderer>;
+  friend class media::FilterFactoryImpl1<MockAudioRenderer,
+                                         const MockFilterConfig*>;
 
-  MockAudioRenderer() {}
+  explicit MockAudioRenderer(const MockFilterConfig* config) {}
 
   virtual ~MockAudioRenderer() {}
 
   DISALLOW_COPY_AND_ASSIGN(MockAudioRenderer);
 };
+
+//------------------------------------------------------------------------------
+
+class MockVideoFrame : public VideoFrame {
+ public:
+  explicit MockVideoFrame(const MockFilterConfig* config,
+                          base::TimeDelta timestamp)
+      : config_(config),
+        surface_locked_(false),
+        timestamp_(timestamp),
+        duration_(config->frame_duration) {
+  }
+
+  virtual ~MockVideoFrame() {}
+
+  virtual base::TimeDelta GetTimestamp() const {
+    return timestamp_;
+  }
+
+  virtual base::TimeDelta GetDuration() const {
+    return duration_;
+  }
+
+  virtual void SetTimestamp(const base::TimeDelta& timestamp) {
+    timestamp_ = timestamp;
+  }
+
+  virtual void SetDuration(const base::TimeDelta& duration) {
+    duration_ = duration;
+  }
+
+  virtual bool Lock(VideoSurface* surface) {
+    EXPECT_FALSE(surface_locked_);
+    surface_locked_ = true;
+    surface->format = config_->video_surface_format;
+    surface->width = config_->video_width;
+    surface->height = config_->video_height;
+    // TODO(ralphl): mock the data for video surfaces too.
+    surface->planes = 3;
+    surface->data[0] = NULL;
+    surface->data[1] = NULL;
+    surface->data[2] = NULL;
+    surface->strides[0] = 0;
+    surface->strides[1] = 0;
+    surface->strides[2] = 0;
+    return false;
+  }
+
+  virtual void Unlock() {
+    EXPECT_TRUE(surface_locked_);
+    surface_locked_ = false;
+  }
+
+ private:
+  const MockFilterConfig* config_;
+  bool surface_locked_;
+  base::TimeDelta timestamp_;
+  base::TimeDelta duration_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockVideoFrame);
+};
+
+class MockVideoDecoder : public VideoDecoder {
+ public:
+  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
+    return new FilterFactoryImpl1<MockVideoDecoder,
+                                  const MockFilterConfig*>(config);
+  }
+
+  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+    return true;  // TODO(ralphl): check for a supported format.
+  }
+
+  // Implementation of MediaFilter.
+  virtual void Stop() {}
+
+  // Implementation of VideoDecoder.
+  virtual bool Initialize(DemuxerStream* stream) {
+    host_->InitializationComplete();
+    return true;
+  }
+
+  virtual const MediaFormat* GetMediaFormat() {
+    return &media_format_;
+  }
+
+  virtual void Read(Assignable<VideoFrame>* buffer) {
+    buffer->AddRef();
+    host_->PostTask(NewRunnableMethod(this, &MockVideoDecoder::DoRead, buffer));
+  }
+
+ private:
+  friend class media::FilterFactoryImpl1<MockVideoDecoder,
+                                        const MockFilterConfig*>;
+
+  explicit MockVideoDecoder(const MockFilterConfig* config)
+      : config_(config) {
+    media_format_.SetAsString(MediaFormat::kMimeType,
+                              config->uncompressed_video_mime_type);
+    media_format_.SetAsInteger(MediaFormat::kWidth, config->video_width);
+    media_format_.SetAsInteger(MediaFormat::kHeight, config->video_height);
+  }
+
+  void DoRead(Assignable<VideoFrame>* buffer) {
+    VideoFrame* frame = new MockVideoFrame(config_, mock_frame_time_);
+    mock_frame_time_ += config_->frame_duration;
+    buffer->SetBuffer(frame);
+    buffer->OnAssignment();
+    buffer->Release();
+  }
+
+  virtual ~MockVideoDecoder() {}
+
+  MediaFormat media_format_;
+  base::TimeDelta mock_frame_time_;
+  const MockFilterConfig* config_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockVideoDecoder);
+};
+
+//------------------------------------------------------------------------------
+
+class MockVideoRenderer : public VideoRenderer {
+ public:
+  static FilterFactory* CreateFactory(const MockFilterConfig* config) {
+    return new FilterFactoryImpl1<MockVideoRenderer,
+                                  const MockFilterConfig*>(config);
+  }
+
+  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+    return true;  // TODO(ralphl): check for a supported format
+  }
+
+  // Implementation of MediaFilter.
+  virtual void Stop() {}
+
+  // Implementation of VideoRenderer.
+  virtual bool Initialize(VideoDecoder* decoder) {
+    host_->SetVideoSize(config_->video_width, config_->video_height);
+    host_->InitializationComplete();
+    return true;
+  }
+
+ private:
+  friend class media::FilterFactoryImpl1<MockVideoRenderer,
+                                         const MockFilterConfig*>;
+
+  explicit MockVideoRenderer(const MockFilterConfig* config)
+      : config_(config) {
+  }
+
+  virtual ~MockVideoRenderer() {}
+
+  const MockFilterConfig* config_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockVideoRenderer);
+};
+
+
 
 //------------------------------------------------------------------------------
 // Simple class that derives from the WaitableEvent class.  The event remains

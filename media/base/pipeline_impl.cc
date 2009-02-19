@@ -208,8 +208,8 @@ void PipelineImpl::SetBufferedBytes(int64 buffered_bytes) {
 
 void PipelineImpl::SetVideoSize(size_t width, size_t height) {
   AutoLock auto_lock(lock_);
-  width = width;
-  height = height;
+  video_width_ = width;
+  video_height_ = height;
 }
 
 //-----------------------------------------------------------------------------
