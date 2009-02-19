@@ -357,11 +357,8 @@ std::wstring WebContents::GetStatusText() const {
     case net::LOAD_STATE_SENDING_REQUEST:
       return l10n_util::GetString(IDS_LOAD_STATE_SENDING_REQUEST);
     case net::LOAD_STATE_WAITING_FOR_RESPONSE:
-#if defined(OS_WIN)
-      // TODO(port): GetStringF() is currently disabled for non-win platforms.
       return l10n_util::GetStringF(IDS_LOAD_STATE_WAITING_FOR_RESPONSE,
                                    load_state_host_);
-#endif
     // Ignore net::LOAD_STATE_READING_RESPONSE and net::LOAD_STATE_IDLE
     case net::LOAD_STATE_IDLE:
     case net::LOAD_STATE_READING_RESPONSE:

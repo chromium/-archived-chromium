@@ -10,6 +10,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/browser_toolbar_view_gtk.h"
+#include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
@@ -145,6 +146,8 @@ void BrowserWindowGtk::Init() {
   // TODO(port): make this a pref.
   SetCustomFrame(false);
 
+  status_bubble_.reset(new StatusBubbleGtk(window_));
+
   gtk_container_add(GTK_CONTAINER(window_), vbox_);
 }
 
@@ -198,8 +201,7 @@ BrowserWindowTesting* BrowserWindowGtk::GetBrowserWindowTesting() {
 }
 
 StatusBubble* BrowserWindowGtk::GetStatusBubble() {
-  NOTIMPLEMENTED();
-  return NULL;
+  return status_bubble_.get();
 }
 
 void BrowserWindowGtk::SelectedTabToolbarSizeChanged(bool is_animating) {

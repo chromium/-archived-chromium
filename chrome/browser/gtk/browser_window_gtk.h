@@ -13,6 +13,7 @@
 
 class BrowserToolbarGtk;
 class NineBox;
+class StatusBubbleGtk;
 
 // An implementation of BrowserWindow for GTK.
 // Cross-platform code will interact with this object when
@@ -96,6 +97,9 @@ class BrowserWindowGtk : public BrowserWindow {
   bool custom_frame_;
 
   scoped_ptr<BrowserToolbarGtk> toolbar_;
+
+  // The status bubble manager.  Always non-NULL.
+  scoped_ptr<StatusBubbleGtk> status_bubble_;
 };
 
 #endif  // CHROME_BROWSER_WINDOW_GTK_H_

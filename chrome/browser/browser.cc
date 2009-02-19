@@ -42,6 +42,10 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/window_open_disposition.h"
 
+#if defined(OS_WIN) || defined(OS_LINUX)
+#include "chrome/browser/status_bubble.h"
+#endif
+
 #if defined(OS_WIN)
 
 #include <windows.h>
@@ -60,7 +64,6 @@
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
-#include "chrome/browser/status_bubble.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/user_data_manager.h"
