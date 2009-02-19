@@ -16,6 +16,7 @@
 
 class BackForwardMenuModelGtk;
 class Browser;
+class CustomDrawButton;
 class Profile;
 class TabContents;
 class ToolbarModel;
@@ -51,8 +52,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   void UpdateTabContents(TabContents* contents, bool should_restore_state);
 
  private:
-  class CustomDrawButton;  // Defined in the .cc file.
-
   // Builds a toolbar button with all the properties set.
   CustomDrawButton* BuildToolbarButton(int normal_id,
                                        int active_id,

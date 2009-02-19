@@ -9,8 +9,8 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
-#include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
@@ -23,114 +23,6 @@ const int BrowserToolbarGtk::kToolbarHeight = 38;
 // For the back/forward dropdown menus, the time in milliseconds between
 // when the user clicks and the popup menu appears.
 static const int kMenuTimerDelay = 500;
-
-// CustomDrawButton manages the lifetimes of some resources used to make a
-// custom-drawn Gtk button.  We use them on the toolbar.
-class BrowserToolbarGtk::CustomDrawButton {
- public:
-  // The constructor takes 4 resource ids.  If a resource doesn't exist for a
-  // button, pass in 0.
-  CustomDrawButton(int normal_id,
-                   int active_id,
-                   int highlight_id,
-                   int depressed_id);
-  explicit CustomDrawButton(const std::string& filename);
-  ~CustomDrawButton();
-
-  GtkWidget* widget() const { return widget_; }
-
- private:
-  // Load an image given a resource id.
-  GdkPixbuf* LoadImage(int resource_id);
-
-  // Callback for expose, used to draw the custom graphics.
-  static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
-                           CustomDrawButton* obj);
-
-  // The actual button widget.
-  GtkWidget* widget_;
-
-  // We store one GdkPixbuf* for each possible state of the button;
-  // INSENSITIVE is the last available state;
-  GdkPixbuf* pixbufs_[GTK_STATE_INSENSITIVE + 1];
-};
-
-BrowserToolbarGtk::CustomDrawButton::CustomDrawButton(int normal_id,
-    int active_id, int highlight_id, int depressed_id) {
-  widget_ = gtk_button_new();
-
-  // Load the button images from the theme resources .pak file.
-  pixbufs_[GTK_STATE_NORMAL] = LoadImage(normal_id);
-  pixbufs_[GTK_STATE_ACTIVE] = LoadImage(active_id);
-  pixbufs_[GTK_STATE_PRELIGHT] = LoadImage(highlight_id);
-  pixbufs_[GTK_STATE_SELECTED] = NULL;
-  pixbufs_[GTK_STATE_INSENSITIVE] = LoadImage(depressed_id);
-
-  gtk_widget_set_size_request(widget_,
-                              gdk_pixbuf_get_width(pixbufs_[0]),
-                              gdk_pixbuf_get_height(pixbufs_[0]));
-
-  gtk_widget_set_app_paintable(widget_, TRUE);
-  g_signal_connect(G_OBJECT(widget_), "expose-event",
-                   G_CALLBACK(OnExpose), this);
-}
-
-BrowserToolbarGtk::CustomDrawButton::~CustomDrawButton() {
-  for (size_t i = 0; i < arraysize(pixbufs_); ++i) {
-    if (pixbufs_[i])
-      gdk_pixbuf_unref(pixbufs_[i]);
-  }
-}
-
-GdkPixbuf* BrowserToolbarGtk::CustomDrawButton::LoadImage(int resource_id) {
-  if (0 == resource_id)
-    return NULL;
-
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  std::vector<unsigned char> data;
-  rb.LoadImageResourceBytes(resource_id, &data);
-
-  GdkPixbufLoader* loader = gdk_pixbuf_loader_new();
-  bool ok = gdk_pixbuf_loader_write(loader, static_cast<guint8*>(data.data()),
-      data.size(), NULL);
-  DCHECK(ok) << "failed to write " << resource_id;
-  // Calling gdk_pixbuf_loader_close forces the data to be parsed by the
-  // loader.  We must do this before calling gdk_pixbuf_loader_get_pixbuf.
-  ok = gdk_pixbuf_loader_close(loader, NULL);
-  DCHECK(ok) << "close failed " << resource_id;
-  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
-  DCHECK(pixbuf) << "failed to load " << resource_id << " " << data.size();
-
-  // The pixbuf is owned by the loader, so add a ref so when we delete the
-  // loader, the pixbuf still exists.
-  g_object_ref(pixbuf);
-  g_object_unref(loader);
-
-  return pixbuf;
-}
-
-// static
-gboolean BrowserToolbarGtk::CustomDrawButton::OnExpose(
-    GtkWidget* widget,
-    GdkEventExpose* e,
-    CustomDrawButton* button) {
-  GdkPixbuf* pixbuf = button->pixbufs_[GTK_WIDGET_STATE(widget)];
-
-  // Fall back to the default image if we don't have one for this state.
-  if (!pixbuf)
-    pixbuf = button->pixbufs_[GTK_STATE_NORMAL];
-
-  if (!pixbuf)
-    return FALSE;
-
-  gdk_draw_pixbuf(widget->window,
-                  widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-                  pixbuf,
-                  0, 0,
-                  widget->allocation.x, widget->allocation.y, -1, -1,
-                  GDK_RGB_DITHER_NONE, 0, 0);
-  return TRUE;
-}
 
 BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
     : toolbar_(NULL),
@@ -267,8 +159,7 @@ void BrowserToolbarGtk::UpdateTabContents(TabContents* contents,
                      contents->GetURL().possibly_invalid_spec().c_str());
 }
 
-// TODO(port): This needs to deal with our styled pixmaps.
-BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
+CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
     const std::wstring& localized_tooltip, bool menu_button) {
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
@@ -344,7 +235,7 @@ gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
   return FALSE;
 }
 
-BrowserToolbarGtk::CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
+CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
     int normal_id,
     int active_id,
     int highlight_id,
