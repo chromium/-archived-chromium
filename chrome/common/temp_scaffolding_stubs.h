@@ -243,16 +243,6 @@ class PrintJobManager {
 
 }  // namespace printing
 
-
-class SafeBrowsingBlockingPage {
-  public:
-  static void ShowBlockingPage(
-      SafeBrowsingService* service,
-      const SafeBrowsingService::UnsafeResource& resource) {
-    NOTIMPLEMENTED();
-  }
-};
-
 class SafeBrowsingProtocolManager {
  public:
   SafeBrowsingProtocolManager(SafeBrowsingService* service,
@@ -476,7 +466,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };
   TabContents(TabContentsType type) 
-      : type_(type), is_active_(true), is_loading_(false), controller_(), 
+      : type_(type), is_active_(true), is_loading_(false),
+        is_being_destroyed_(false), controller_(),
         delegate_(), max_page_id_(-1) { }
   virtual ~TabContents() { }
   NavigationController* controller() const { return controller_; }
@@ -526,6 +517,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   bool is_active() const { return is_active_; }
   void set_is_active(bool active) { is_active_ = active; }
   bool is_loading() const { return is_loading_; }
+  bool is_being_destroyed() const { return is_being_destroyed_; }
   void SetNotWaitingForResponse() { NOTIMPLEMENTED(); }
   void NotifyNavigationStateChanged(unsigned int);
   TabContentsDelegate* delegate() const { return delegate_; }
@@ -560,6 +552,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   TabContentsType type_;
   bool is_active_;
   bool is_loading_;
+  bool is_being_destroyed_;
   GURL url_;
   std::wstring title_;
   NavigationController* controller_;

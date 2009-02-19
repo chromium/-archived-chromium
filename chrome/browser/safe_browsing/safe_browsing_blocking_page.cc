@@ -55,8 +55,8 @@ SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
                        IsMainPage(unsafe_resources),
                        unsafe_resources[0].url),
       sb_service_(sb_service),
-      unsafe_resources_(unsafe_resources),
-      is_main_frame_(IsMainPage(unsafe_resources)) {
+      is_main_frame_(IsMainPage(unsafe_resources)),
+      unsafe_resources_(unsafe_resources) {
   if (!is_main_frame_) {
     navigation_entry_index_to_remove_ =
         tab()->controller()->GetLastCommittedEntryIndex();
@@ -265,10 +265,10 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& cmd) {
     // User pressed "Learn more".
     GURL url;
     if (unsafe_resources_[0].threat_type == SafeBrowsingService::URL_MALWARE) {
-      url = GURL(l10n_util::GetString(IDS_LEARN_MORE_MALWARE_URL));
+      url = GURL(WideToUTF8(l10n_util::GetString(IDS_LEARN_MORE_MALWARE_URL)));
     } else if (unsafe_resources_[0].threat_type ==
                SafeBrowsingService::URL_PHISHING) {
-      url = GURL(l10n_util::GetString(IDS_LEARN_MORE_PHISHING_URL));
+      url = GURL(WideToUTF8(l10n_util::GetString(IDS_LEARN_MORE_PHISHING_URL)));
     } else {
       NOTREACHED();
     }

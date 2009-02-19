@@ -243,6 +243,8 @@ void TabContents::Destroy() {
   // TODO(pinkerton): this isn't the real version of Destroy(), just enough to
   // get the scaffolding working.
 
+  is_being_destroyed_ = true;
+
   // Notify any observer that have a reference on this tab contents.
   NotificationService::current()->Notify(
       NotificationType::TAB_CONTENTS_DESTROYED,

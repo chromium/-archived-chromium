@@ -738,7 +738,6 @@ if not env.Bit('windows'):
       'printing/printer_query.cc',
       'printing/win_printing_context.cc',
       'rlz/rlz.cc',
-      'safe_browsing/safe_browsing_blocking_page.cc',
       'sandbox_policy.cc',
       'search_engines/template_url_fetcher.cc',
       'shell_integration.cc',

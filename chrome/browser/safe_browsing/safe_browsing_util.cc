@@ -191,8 +191,6 @@ void FreeChunks(std::deque<SBChunk>* chunks) {
   }
 }
 
-#if defined(OS_WIN)
-// TODO(port): remove conditional #ifs when google_util is ported
 GURL GeneratePhishingReportUrl(const std::string& report_page,
                                const std::string& url_to_report) {
   Locale locale = Locale::getDefault();
@@ -208,7 +206,6 @@ GURL GeneratePhishingReportUrl(const std::string& report_page,
                                current_esc.c_str()));
   return google_util::AppendGoogleLocaleParam(report_url);
 }
-#endif
 
 }  // namespace safe_browsing_util
 

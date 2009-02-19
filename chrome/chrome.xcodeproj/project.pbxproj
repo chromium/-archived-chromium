@@ -75,6 +75,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		0D71821EDDA2629232DE3AD9 /* safe_browsing_blocking_page.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADB0E9D49DE009A6919 /* safe_browsing_blocking_page.cc */; };
 		0EE123B79B750A2FCEFB4569 /* history_backend_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9F00E9D48F7009A6919 /* history_backend_unittest.cc */; };
 		1C284EB767D0E3D302AC675C /* tab_restore_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = B020A11D500D7519E54F2957 /* tab_restore_service.cc */; };
 		2760C4346D6AB3AD94E9CF05 /* url_fixer_upper.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EF40F2145C600861FAC /* url_fixer_upper.cc */; };
@@ -5461,6 +5462,7 @@
 				BADB8B710F3A35AC00989B26 /* resource_dispatcher_host.cc in Sources */,
 				A7A214A00F3B91B100F62B4D /* resource_message_filter.cc in Sources */,
 				824FC1560F44C59C000299E5 /* sad_tab_view.mm in Sources */,
+				0D71821EDDA2629232DE3AD9 /* safe_browsing_blocking_page.cc in Sources */,
 				4D7BFAF30E9D49EF009A6919 /* safe_browsing_database.cc in Sources */,
 				E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */,
 				E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */,
