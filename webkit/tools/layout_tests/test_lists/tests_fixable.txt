@@ -221,9 +221,6 @@ DEFER : LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
 // Bug 1204878
 DEFER : LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 
-// Bug 1135948: Fails because we cannot call plugins as functions.
-DEFER : LayoutTests/plugins/bindings-test.html = FAIL
-
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
 // controls are rare on the web, defer this fix.
@@ -292,13 +289,6 @@ DEFER LINUX : LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 // r8532 and now fails.
 DEFER : LayoutTests/fast/dom/Window/window-property-shadowing-name.html = FAIL TIMEOUT
 DEFER : LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
-
-// This test expects weird behavior of __defineGetter__ on the
-// window object.  It expects variables introduced with 'var x = value'
-// to behave differently from variables introduced with 'y = value'.
-// This just seems wrong and should have very low priority.
-// Agreed, not required for Beta, we can debate this with WebKit post Beta, (eseidel, 4/25)
-DEFER : LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
 
 // Bug: 1042838
 // User stylesheets not currently supported by chrome.
@@ -635,6 +625,7 @@ MAC : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
 DEFER MAC LINUX : chrome/fast/dom/java-applet-calls.html = FAIL
+DEFER MAC LINUX : LayoutTests/plugins/bindings-test.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
@@ -655,11 +646,6 @@ LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 // not access allowed".  See bug # 2306
 LINUX MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
 
-// V8 doesn't stable sort. This is not required and may never be fixed. It is
-// tracked by: http://code.google.com/p/v8/issues/detail?id=90
-DEFER : LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
-DEFER : LayoutTests/fast/js/sort-stability.html = FAIL
-
 // These require application cache to be enabled.  Skip the tests because
 // they're all timing out.  TODO(tc): Upstream changes to the test so they
 // fail quickly if window.applicationCache is undefined (then we don't have to
@@ -670,13 +656,6 @@ DEFER SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 // V8 failures as a result of the WebKit merge.
 // http://code.google.com/p/v8/issues/detail?id=92
 
-// Failing because looking up a method on an object fails when the stack is
-// full because of recursion.
-// Partially fixed in bleeding_edge: Now gives a StackOverflowException,
-// which isn't unreasonable when calling a method on a full stack.
-LINUX WIN : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL PASS
-// This passes on Mac release
-MAC DEBUG : LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 // http://b/issue?id=1344252
 DEFER : LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 
@@ -778,7 +757,6 @@ SKIP DEBUG : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRA
 // happen when all the dynamic-updates tests are run together.
 DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH PASS
 DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-height-attr.html = CRASH PASS
-DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
 WIN : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL PASS
@@ -938,7 +916,6 @@ MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL TIMEOUT
 // priority, so I'm DEFERing.
 DEFER LINUX WIN : LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
 LayoutTests/fast/js/arguments.html = FAIL
-LayoutTests/fast/js/function-dot-arguments.html = FAIL
 LayoutTests/fast/js/primitive-method-this.html = FAIL
 LayoutTests/http/tests/plugins/local-geturl-from-remote.html = CRASH FAIL
 // These two depend on which webkit features are enabled.  For instance, it checks
@@ -972,10 +949,6 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.htm
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // NEW FOR MERGE 37604:38097
-// This is a Safari specific test used to document the set of global
-// constructors they expose and the exact way they are printed.  Not
-// important - we might even want to ignore it.
-LayoutTests/fast/js/global-constructors.html = FAIL
 LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 
@@ -1439,7 +1412,6 @@ MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH
 LayoutTests/fast/dom/dom-constructors.html = FAIL
 
 // WebKit Merge 39050:39100 failures:
-LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
@@ -1491,10 +1463,6 @@ WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
 
 // Passes when run by itself.  Fails on the buildbot.
 LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
-
-// The V8 regular expression engine does not match JSCRE on this one.
-// See V8 bug 182.
-LayoutTests/fast/js/regexp-no-extensions.html = FAIL
 
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
 // we don't support.  Needs more investigation.
@@ -1601,9 +1569,6 @@ LINUX WIN : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
 // Passes locally but Text diff fails on the buildbots
 LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
-
-// Merge 39972:40057 -- new tests
-LayoutTests/fast/regex/malformed-escapes.html = FAIL
 
 // Merge 40059:40086 -- regressions
 LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT

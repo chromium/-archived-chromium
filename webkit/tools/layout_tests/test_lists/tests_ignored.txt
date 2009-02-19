@@ -196,6 +196,35 @@ LayoutTests/http/tests/history/redirect-js-location-replace-2-seconds.html = FAI
 LayoutTests/http/tests/history/redirect-js-location-replace-before-load.html = FAIL
 LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
 LayoutTests/http/tests/history/redirect-js-form-submit-before-load.html = FAIL
+
+// This test expects weird behavior of __defineGetter__ on the
+// window object.  It expects variables introduced with 'var x = value'
+// to behave differently from variables introduced with 'y = value'.
+// This just seems wrong and should have very low priority.
+// Agreed, not required for Beta, we can debate this with WebKit post Beta, (eseidel, 4/25)
+// Ignore this until we see evidence that we need to support it.
+LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
+
+// V8 doesn't stable sort and we currently have no intention of
+// changing this. It is tracked by:
+// http://code.google.com/p/v8/issues/detail?id=90
+LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
+LayoutTests/fast/js/sort-stability.html = FAIL
+
+// We have no indication that anyone misses this and have currently no
+// intention of implementing it.
+LayoutTests/fast/js/function-dot-arguments.html = FAIL
+
+// This is a Safari specific test used to document the set of global
+// constructors they expose and the exact way they are printed.  Not
+// important.
+LayoutTests/fast/js/global-constructors.html = FAIL
+
+// This test is not reliable.  The behavior depends on exactly how the
+// stack limit is reached.  We're happy with our behavior on this test
+// as long as we don't crash.
+LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL PASS
+
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS
 // -----------------------------------------------------------------

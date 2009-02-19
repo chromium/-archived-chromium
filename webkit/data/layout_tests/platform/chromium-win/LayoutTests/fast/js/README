@@ -139,3 +139,8 @@ function-dot-arguments-and-caller
 The only difference is that V8 defines the caller of a custom toString function
 as the function that calls toString() on the object. This treatment is
 consistent with Firefox.  
+
+regexp-no-extensions
+--------------------------
+The outcome of this test depends on a bug in Safari's implementation
+of regexp octal escapes.
