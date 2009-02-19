@@ -15,6 +15,7 @@
 
 #include "base/file_util.h"
 #include "base/icu_util.h"
+#include "base/logging.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/third_party/hunspell/google/bdict_reader.h"
@@ -63,7 +64,8 @@ bool VerifyWords(const convert_dict::DicReader::WordList& org_words,
 
 int PrintHelp() {
   printf("Usage: convert_dict <dicfile base name>\n\n");
-  printf("Example:\n  convert_dict en-US\nwill read en-US.dic / en-US.aff and\n");
+  printf("Example:\n");
+  printf("  convert_dict en-US\nwill read en-US.dic / en-US.aff and\n");
   printf("generate en-US.bdic\n\n");
   return 1;
 }
@@ -119,7 +121,8 @@ int main(int argc, char* argv[]) {
     printf("ERROR writing file\n");
     return 1;
   }
-  fwrite(&serialized[0], 1, serialized.size(), out_file);
+  size_t written = fwrite(&serialized[0], 1, serialized.size(), out_file);
+  CHECK(written == serialized.size());
   file_util::CloseFile(out_file);
 
   return 0;

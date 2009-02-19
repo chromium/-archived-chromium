@@ -62,7 +62,7 @@ void FirefoxProfileLock::Init() {
 void FirefoxProfileLock::Lock() {
   if (HasAcquired())
     return;
-  lock_fd_ = open(lock_file_.value().c_str(), O_CREAT | O_EXCL);
+  lock_fd_ = open(lock_file_.value().c_str(), O_CREAT | O_EXCL, 0644);
 }
 
 void FirefoxProfileLock::Unlock() {
