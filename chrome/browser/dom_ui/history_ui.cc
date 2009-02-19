@@ -25,6 +25,7 @@
 #include "generated_resources.h"
 
 using base::Time;
+using base::TimeDelta;
 
 // HistoryUI is accessible from chrome-ui://history.
 static const char kHistoryHost[] = "history";
@@ -68,8 +69,10 @@ void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_HISTORY_NO_RESULTS));
   localized_strings.SetString(L"noitems",
       l10n_util::GetString(IDS_HISTORY_NO_ITEMS));
-  localized_strings.SetString(L"delete",
-      l10n_util::GetString(IDS_HISTORY_DELETE));
+  localized_strings.SetString(L"deleteday",
+      l10n_util::GetString(IDS_HISTORY_DELETE_PRIOR_VISITS_LINK));
+  localized_strings.SetString(L"deletedaywarning",
+      l10n_util::GetString(IDS_HISTORY_DELETE_PRIOR_VISITS_WARNING));
 
   static const StringPiece history_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -91,9 +94,14 @@ void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
 ////////////////////////////////////////////////////////////////////////////////
 BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
     : DOMMessageHandler(dom_ui),
+      remover_(NULL),
       search_text_() {
   dom_ui_->RegisterMessageCallback("getHistory",
       NewCallback(this, &BrowsingHistoryHandler::HandleGetHistory));
+  dom_ui_->RegisterMessageCallback("searchHistory",
+    NewCallback(this, &BrowsingHistoryHandler::HandleSearchHistory));
+  dom_ui_->RegisterMessageCallback("deleteDay",
+    NewCallback(this, &BrowsingHistoryHandler::HandleDeleteDay));
 
   // Create our favicon data source.
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
@@ -111,6 +119,9 @@ BrowsingHistoryHandler::~BrowsingHistoryHandler() {
   NotificationService* service = NotificationService::current();
   service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
                           Source<Profile>(dom_ui_->get_profile()));
+
+  if (remover_)
+    remover_->RemoveObserver(this);
 }
 
 void BrowsingHistoryHandler::HandleGetHistory(const Value* value) {
@@ -118,21 +129,80 @@ void BrowsingHistoryHandler::HandleGetHistory(const Value* value) {
   cancelable_consumer_.CancelAllRequests();
 
   // Get arguments (if any).
-  int month;
-  std::wstring query;
-  ExtractGetHistoryArguments(value, &month, &query);
+  int day = 0;
+  ExtractIntegerValue(value, &day);
 
   // Set our query options.
-  history::QueryOptions options = CreateQueryOptions(month, query);
+  history::QueryOptions options;
+  options.begin_time = Time::Now().LocalMidnight();
+  options.begin_time -= TimeDelta::FromDays(day);
+  options.end_time = Time::Now().LocalMidnight();
+  options.end_time -= TimeDelta::FromDays(day - 1);
 
   // Need to remember the query string for our results.
-  search_text_ = query;
+  search_text_ = std::wstring();
+
   HistoryService* hs =
-    dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
+      dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QueryHistory(search_text_,
       options,
       &cancelable_consumer_, 
       NewCallback(this, &BrowsingHistoryHandler::QueryComplete));
+}
+
+void BrowsingHistoryHandler::HandleSearchHistory(const Value* value) {
+  // Anything in-flight is invalid.
+  cancelable_consumer_.CancelAllRequests();
+
+  // Get arguments (if any).
+  int month = 0;
+  std::wstring query;
+  ExtractSearchHistoryArguments(value, &month, &query);
+
+  // Set the query ranges for the given month.
+  history::QueryOptions options = CreateMonthQueryOptions(month);
+
+  // When searching, limit the number of results returned and only show the
+  // most recent matches.
+  options.max_count = kMaxSearchResults;
+  options.most_recent_visit_only = true;
+
+  // Need to remember the query string for our results.
+  search_text_ = query;
+  HistoryService* hs =
+      dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
+  hs->QueryHistory(search_text_,
+      options,
+      &cancelable_consumer_, 
+      NewCallback(this, &BrowsingHistoryHandler::QueryComplete));
+}
+
+void BrowsingHistoryHandler::HandleDeleteDay(const Value* value) {
+  // Anything in-flight is invalid.
+  cancelable_consumer_.CancelAllRequests();
+
+  // Get time.
+  Time time;
+  bool success = Time::FromString(ExtractStringValue(value).c_str(), &time);
+  DCHECK(success);
+
+  Time begin_time = time.LocalMidnight();
+  Time end_time = begin_time + TimeDelta::FromDays(1);
+
+  if (!remover_) {
+    remover_ = new BrowsingDataRemover(dom_ui_->get_profile(),
+                                       begin_time,
+                                       end_time);
+    remover_->AddObserver(this);
+  }
+
+  remover_->Remove(BrowsingDataRemover::REMOVE_HISTORY |
+                   BrowsingDataRemover::REMOVE_COOKIES |
+                   BrowsingDataRemover::REMOVE_CACHE);
+}
+
+void BrowsingHistoryHandler::OnBrowsingDataRemoverDone() {
+  dom_ui_->CallJavascriptFunction(L"deleteComplete");
 }
 
 void BrowsingHistoryHandler::QueryComplete(
@@ -184,7 +254,7 @@ void BrowsingHistoryHandler::QueryComplete(
       StringValue(search_text_), results_value);
 }
 
-void BrowsingHistoryHandler::ExtractGetHistoryArguments(const Value* value, 
+void BrowsingHistoryHandler::ExtractSearchHistoryArguments(const Value* value, 
     int* month, std::wstring* query) {
   *month = 0;
 
@@ -212,8 +282,8 @@ void BrowsingHistoryHandler::ExtractGetHistoryArguments(const Value* value,
   }
 }
 
-history::QueryOptions BrowsingHistoryHandler::CreateQueryOptions(int month, 
-    const std::wstring& query) {
+history::QueryOptions BrowsingHistoryHandler::CreateMonthQueryOptions(
+    int month) {
   history::QueryOptions options;
 
   // Configure the begin point of the search to the start of the
@@ -250,13 +320,6 @@ history::QueryOptions BrowsingHistoryHandler::CreateQueryOptions(int month,
       exploded.year--;
     }
     options.begin_time = Time::FromLocalExploded(exploded);
-  }
-
-  // If searching, only show the most recent entry and limit the number of
-  // results returned.
-  if (!query.empty()) {
-    options.max_count = kMaxSearchResults;
-    options.most_recent_visit_only = true;
   }
 
   return options;

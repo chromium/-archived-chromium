@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_DOM_UI_HISTORY_UI_H__
 #define CHROME_BROWSER_DOM_UI_HISTORY_UI_H__
 
+#include "chrome/browser/browsing_data_remover.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
@@ -28,7 +29,8 @@ class HistoryUIHTMLSource : public ChromeURLDataManager::DataSource {
 
 // The handler for Javascript messages related to the "history" view.
 class BrowsingHistoryHandler : public DOMMessageHandler,
-                               public NotificationObserver {
+                               public NotificationObserver,
+                               public BrowsingDataRemover::Observer {
  public:
   explicit BrowsingHistoryHandler(DOMUI* dom_ui_);
   virtual ~BrowsingHistoryHandler();
@@ -36,27 +38,38 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
   // Callback for the "getHistory" message.
   void HandleGetHistory(const Value* value);
 
+  // Callback for the "searchHistory" message.
+  void HandleSearchHistory(const Value* value);
+
+  // Callback for the "deleteDay" message.
+  void HandleDeleteDay(const Value* value);
+
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // BrowsingDataRemover observer implementation.
+  void OnBrowsingDataRemoverDone();
+
  private:
-  // Callback from the history system when the most visited list is available.
+  // Callback from the history system when the history list is available.
   void QueryComplete(HistoryService::Handle request_handle,
                      history::QueryResults* results);
 
-  // Extract the arguments from the call to HandleGetHistory.
-  void ExtractGetHistoryArguments(const Value* value, 
-                                  int* month, 
-                                  std::wstring* query);
+  // Extract the arguments from the call to HandleSearchHistory.
+  void ExtractSearchHistoryArguments(const Value* value, 
+                                     int* month, 
+                                     std::wstring* query);
 
-  // Get the query options for a given month and query.
-  history::QueryOptions CreateQueryOptions(int month, 
-                                           const std::wstring& query);
+  // Figure out the query options for a month-wide query.
+  history::QueryOptions CreateMonthQueryOptions(int month);
 
   // Current search text.
   std::wstring search_text_;
+
+  // Browsing history remover
+  BrowsingDataRemover* remover_;
 
   // Our consumer for the history service.
   CancelableRequestConsumerT<PageUsageData*, NULL> cancelable_consumer_;

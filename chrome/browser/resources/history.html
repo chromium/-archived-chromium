@@ -6,8 +6,8 @@
 <script type="text/javascript">
 ///////////////////////////////////////////////////////////////////////////////
 // Globals:
-var RESULTS_PER_PAGE = 60;
-var MAX_SEARCH_DEPTH = 18;
+var RESULTS_PER_PAGE = 150;
+var MAX_SEARCH_DEPTH_MONTHS = 18;
 
 // Amount of time between pageviews that we consider a 'break' in browsing, 
 // measured in milliseconds.
@@ -218,6 +218,18 @@ HistoryModel.prototype.setSearchText = function(searchText, opt_page) {
 }
 
 /**
+ * Reload our model with the current parameters.
+ */
+HistoryModel.prototype.reload = function() {
+  var search = this.searchText_;
+  var page = this.requestedPage_;
+  this.clearModel_();
+  this.searchText_ = search;
+  this.requestedPage_ = page;
+  this.getSearchResults_();
+}
+
+/**
  * @return {String} The current search text.
  */
 HistoryModel.prototype.getSearchText = function() {
@@ -308,7 +320,7 @@ HistoryModel.prototype.getNumberedRange = function(start, end) {
 HistoryModel.prototype.clearModel_ = function() {
   this.inFlight_ = false; // Whether a query is inflight.
   this.searchText_ = '';
-  this.searchMonth_ = 0;
+  this.searchDepth_ = 0;
   this.pages_ = []; // Date-sorted list of pages.
 
   // The page that the view wants to see - we only fetch slightly past this
@@ -325,7 +337,7 @@ HistoryModel.prototype.clearModel_ = function() {
  * we're ready to show something.
  */
 HistoryModel.prototype.updateSearch_ = function() {
-  if (this.searchMonth_ >= MAX_SEARCH_DEPTH) {
+  if (this.searchText_ && this.searchDepth_ >= MAX_SEARCH_DEPTH_MONTHS) {
     // We have maxed out. There will be no more data.
     this.complete_ = true;
     this.view_.onModelReady();
@@ -333,7 +345,7 @@ HistoryModel.prototype.updateSearch_ = function() {
     // If we can't fill the requested page, ask for more data unless a request
     // is still in-flight.
     if (!this.canFillPage_(this.requestedPage_) && !this.inFlight_) {
-      this.getSearchResults_(this.searchMonth_ + 1);
+      this.getSearchResults_(this.searchDepth_ + 1);
     }
 
     // If we have any data for the requested page, show it.
@@ -344,16 +356,26 @@ HistoryModel.prototype.updateSearch_ = function() {
 }
 
 /**
- * Get search results for a selected month. Our history system is optimized
- * for queries that don't cross month boundaries.
+ * Get search results for a selected depth. Our history system is optimized
+ * for queries that don't cross month boundaries, but an entire month's
+ * worth of data is huge. When we're in browse mode (searchText is empty)
+ * we request the data a day at a time. When we're searching, a month is
+ * used.
  *
  * TODO: Fix this for when the user's clock goes across month boundaries.
- * @param {number} opt_month How many months back to do the search.
+ * @param {number} opt_day How many days back to do the search.
  */
-HistoryModel.prototype.getSearchResults_ = function(opt_month) {
-  this.searchMonth_ = opt_month || 0;
-  chrome.send('getHistory',
-      [this.searchText_, String(this.searchMonth_)]);
+HistoryModel.prototype.getSearchResults_ = function(depth) {
+  this.searchDepth_ = depth || 0;
+  
+  if (this.searchText_ == "") {
+    chrome.send('getHistory',
+        [String(this.searchDepth_)]);
+  } else {
+    chrome.send('searchHistory',
+        [this.searchText_, String(this.searchDepth_)]);  
+  }
+  
   this.inFlight_ = true;
 }
 
@@ -409,6 +431,13 @@ HistoryView.prototype.setSearch = function(term, opt_page) {
 }
 
 /**
+ * Reload the current view.
+ */
+HistoryView.prototype.reload = function() {
+  this.model_.reload();
+}
+
+/**
  * Switch to a specified page.
  * @param {string} term The string to search for.
  * @param {number} opt_page The page we wish to view.
@@ -457,14 +486,21 @@ HistoryView.prototype.displayResults_ = function() {
     for (var i = 0, page; page = results[i]; i++) {
       // Break across day boundaries and insert gaps for browsing pauses.
       var thisTime = page.time.getTime();
-      if (page.continued && i == 0) {
-        output.push('<div class="day">' + page.dateRelativeDay + ' ' +
-                     localStrings.getString('cont') + '</div>');
-      } else if (!page.continued) {
-        output.push('<div class="day">' + page.dateRelativeDay + '</div>');
+      
+      if ((i == 0 && page.continued) || !page.continued) {
+        output.push('<div class="day">' + page.dateRelativeDay);
+        
+        if (i == 0 && page.continued)
+          output.push(' ' + localStrings.getString('cont'));
+          
+        output.push('<a href="#" class="delete-day" ' +
+                    'onclick="return deleteDay(\'' + 
+                    page.time.toString() + '\');">' +
+                    localStrings.getString("deleteday") + '</a>');
+        output.push('</div>');
       } else if (lastTime - thisTime > BROWSING_GAP_TIME) {
         output.push('<div class="gap"></div>');
-      }
+      } 
       lastTime = thisTime;
 
       // Draw entry.
@@ -472,7 +508,6 @@ HistoryView.prototype.displayResults_ = function() {
     }
   }
   this.resultDiv_.innerHTML = output.join("");
-
   this.displaySummaryBar_();
   this.displayNavBar_();
 }
@@ -655,6 +690,16 @@ function setPage(page) {
   }
 }
 
+/**
+ * Delete a day from history.
+ * @param {number} time A time from the day we wish to delete.
+ */
+function deleteDay(time) {
+  if (confirm(localStrings.getString("deletedaywarning")))
+    chrome.send("deleteDay", [time.toString()]);
+  return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Chrome callbacks:
 /**
@@ -662,6 +707,13 @@ function setPage(page) {
  */
 function historyResult(term, results) {
   historyModel.addResults(term, results);
+}
+
+/**
+ * Our history system calls this function when a deletion has finished.
+ */
+function deleteComplete() {
+  historyView.reload();
 }
 </script>
 <style type="text/css">
@@ -698,6 +750,11 @@ body {
 .day {
   margin-top:18px;
   margin-left:3px;
+  width:750px;
+}
+.delete-day {
+  width:200px;
+  float:right;
 }
 .gap {
   margin-left:18px;
@@ -783,7 +840,8 @@ html[dir='rtl'] .entry .title a {
   <span id="cont" jscontent="cont">(cont.)</span>
   <span id="noresults" jscontent="noresults">No results</span>
   <span id="noitems" jscontent="noitems">No items</span>
-  <span id="delete" jscontent="delete">delete</span>
+  <span id="deleteday" jscontent="deleteday">Delete history for this day</span>
+  <span id="deletedaywarning" jscontent="deletedaywarning">Are you sure you want to delete this day?</span>
 </div>
 </body>
 </html>
