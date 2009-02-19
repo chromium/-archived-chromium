@@ -743,6 +743,7 @@ function renderRecentlyClosedTabs(entries) {
               src:'url("chrome-ui://favicon/' + tab.url + '")', 
               width:16, 
               height:16});
+          tabImg.onmousedown = function() { return false; }
           linkSpan.appendChild(tabImg);
         }
         linkSpan.appendChild(document.createTextNode(")"));
