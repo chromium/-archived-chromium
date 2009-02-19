@@ -10,6 +10,7 @@
 #include "net/base/net_errors.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
+#include "net/base/ssl_test_util.h"
 #include "net/base/tcp_client_socket.h"
 #include "net/base/test_completion_callback.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -22,41 +23,74 @@ const net::SSLConfig kDefaultSSLConfig;
 class SSLClientSocketTest : public PlatformTest {
  public:
   SSLClientSocketTest()
-      : host_mapper_(new net::RuleBasedHostMapper()),
-        scoped_host_mapper_(host_mapper_.get()),
-        socket_factory_(net::ClientSocketFactory::GetDefaultFactory()) {
-    // TODO(darin): kill this exception once we have a way to test out the
-    // TCPClientSocket class using loopback connections.
-    host_mapper_->AddRule("bugs.webkit.org", "bugs.webkit.org");
+      : socket_factory_(net::ClientSocketFactory::GetDefaultFactory()) {
+  }
+
+  void StartOKServer() {
+    bool success = server_.Start(net::TestServerLauncher::ProtoHTTP,
+        server_.kHostName, server_.kOKHTTPSPort,
+        FilePath(), server_.GetOKCertPath());
+    ASSERT_TRUE(success);
+  }
+
+  void StartMismatchedServer() {
+    bool success = server_.Start(net::TestServerLauncher::ProtoHTTP,
+        server_.kMismatchedHostName, server_.kOKHTTPSPort,
+        FilePath(), server_.GetOKCertPath());
+    ASSERT_TRUE(success);
+  }
+
+  void StartExpiredServer() {
+    bool success = server_.Start(net::TestServerLauncher::ProtoHTTP,
+        server_.kHostName, server_.kBadHTTPSPort,
+        FilePath(), server_.GetExpiredCertPath());
+    ASSERT_TRUE(success);
   }
 
  protected:
-  scoped_refptr<net::RuleBasedHostMapper> host_mapper_;
-  net::ScopedHostMapper scoped_host_mapper_;
   net::ClientSocketFactory* socket_factory_;
+  net::TestServerLauncher server_;
 };
 
 //-----------------------------------------------------------------------------
 
-// bug 1354783
-TEST_F(SSLClientSocketTest, DISABLED_Connect) {
+#if defined(OS_MACOSX)
+#define MAYBE_Connect DISABLED_Connect
+#define MAYBE_ConnectExpired DISABLED_ConnectExpired
+#define MAYBE_ConnectMismatched DISABLED_ConnectMismatched
+#define MAYBE_Read DISABLED_Read
+#define MAYBE_Read_SmallChunks DISABLED_Read_SmallChunks
+#define MAYBE_Read_Interrupted DISABLED_Read_Interrupted
+#else
+#define MAYBE_Connect Connect
+#define MAYBE_ConnectExpired ConnectExpired
+#define MAYBE_ConnectMismatched ConnectMismatched
+#define MAYBE_Read Read
+#define MAYBE_Read_SmallChunks Read_SmallChunks
+#define MAYBE_Read_Interrupted Read_Interrupted
+#endif
+
+TEST_F(SSLClientSocketTest, MAYBE_Connect) {
+  StartOKServer();
+
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  std::string hostname = "bugs.webkit.org";
-  int rv = resolver.Resolve(hostname, 443, &addr, NULL);
+  int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
+                            &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
-                                             hostname, kDefaultSSLConfig));
+          server_.kHostName, kDefaultSSLConfig));
 
   EXPECT_FALSE(sock->IsConnected());
 
   rv = sock->Connect(&callback);
   if (rv != net::OK) {
     ASSERT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_FALSE(sock->IsConnected());
 
     rv = callback.WaitForResult();
     EXPECT_EQ(net::OK, rv);
@@ -68,14 +102,79 @@ TEST_F(SSLClientSocketTest, DISABLED_Connect) {
   EXPECT_FALSE(sock->IsConnected());
 }
 
-// bug 1354783
-TEST_F(SSLClientSocketTest, DISABLED_Read) {
+TEST_F(SSLClientSocketTest, MAYBE_ConnectExpired) {
+  StartExpiredServer();
+
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  std::string hostname = "bugs.webkit.org";
-  int rv = resolver.Resolve(hostname, 443, &addr, &callback);
+  int rv = resolver.Resolve(server_.kHostName, server_.kBadHTTPSPort,
+                            &addr, NULL);
+  EXPECT_EQ(net::OK, rv);
+
+  scoped_ptr<net::SSLClientSocket> sock(
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
+          server_.kHostName, kDefaultSSLConfig));
+
+  EXPECT_FALSE(sock->IsConnected());
+
+  rv = sock->Connect(&callback);
+  if (rv != net::OK) {
+    ASSERT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_FALSE(sock->IsConnected());
+
+    rv = callback.WaitForResult();
+    EXPECT_EQ(net::ERR_CERT_DATE_INVALID, rv);
+  }
+
+  EXPECT_TRUE(sock->IsConnected());
+}
+
+TEST_F(SSLClientSocketTest, MAYBE_ConnectMismatched) {
+  StartMismatchedServer();
+
+  net::AddressList addr;
+  net::HostResolver resolver;
+  TestCompletionCallback callback;
+
+  int rv = resolver.Resolve(server_.kMismatchedHostName, server_.kOKHTTPSPort,
+                            &addr, NULL);
+  EXPECT_EQ(net::OK, rv);
+
+  scoped_ptr<net::SSLClientSocket> sock(
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
+          server_.kMismatchedHostName, kDefaultSSLConfig));
+
+  EXPECT_FALSE(sock->IsConnected());
+
+  rv = sock->Connect(&callback);
+  if (rv != net::ERR_CERT_COMMON_NAME_INVALID) {
+    ASSERT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_FALSE(sock->IsConnected());
+
+    rv = callback.WaitForResult();
+    EXPECT_EQ(net::ERR_CERT_COMMON_NAME_INVALID, rv);
+  }
+
+  // The Windows code happens to keep the connection
+  // open now in spite of an error.  The designers of
+  // this API intended to also allow the connection
+  // to be closed on error, in which case the caller
+  // should call ReconnectIgnoringLastError, but
+  // that's currently unimplemented.
+  EXPECT_TRUE(sock->IsConnected());
+}
+
+TEST_F(SSLClientSocketTest, MAYBE_Read) {
+  StartOKServer();
+
+  net::AddressList addr;
+  net::HostResolver resolver;
+  TestCompletionCallback callback;
+
+  int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
+                            &addr, &callback);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
@@ -83,7 +182,8 @@ TEST_F(SSLClientSocketTest, DISABLED_Read) {
 
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
-                                             hostname, kDefaultSSLConfig));
+                                             server_.kHostName,
+                                             kDefaultSSLConfig));
 
   rv = sock->Connect(&callback);
   if (rv != net::OK) {
@@ -117,19 +217,20 @@ TEST_F(SSLClientSocketTest, DISABLED_Read) {
   }
 }
 
-// bug 1354783
-TEST_F(SSLClientSocketTest, DISABLED_Read_SmallChunks) {
+TEST_F(SSLClientSocketTest, MAYBE_Read_SmallChunks) {
+  StartOKServer();
+
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  std::string hostname = "bugs.webkit.org";
-  int rv = resolver.Resolve(hostname, 443, &addr, NULL);
+  int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
+                            &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
-                                             hostname, kDefaultSSLConfig));
+          server_.kHostName, kDefaultSSLConfig));
 
   rv = sock->Connect(&callback);
   if (rv != net::OK) {
@@ -162,19 +263,20 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_SmallChunks) {
   }
 }
 
-// bug 1354783
-TEST_F(SSLClientSocketTest, DISABLED_Read_Interrupted) {
+TEST_F(SSLClientSocketTest, MAYBE_Read_Interrupted) {
+  StartOKServer();
+
   net::AddressList addr;
   net::HostResolver resolver;
   TestCompletionCallback callback;
 
-  std::string hostname = "bugs.webkit.org";
-  int rv = resolver.Resolve(hostname, 443, &addr, NULL);
+  int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
+                            &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
-                                             hostname, kDefaultSSLConfig));
+          server_.kHostName, kDefaultSSLConfig));
 
   rv = sock->Connect(&callback);
   if (rv != net::OK) {

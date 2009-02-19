@@ -23,6 +23,7 @@
 #include "net/base/cookie_monster.h"
 #include "net/base/net_module.h"
 #include "net/http/http_cache.h"
+#include "net/base/ssl_test_util.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -128,6 +129,10 @@ int main(int argc, char* argv[]) {
 
   // Config the network module so it has access to a limited set of resources.
   net::NetModule::SetResourceProvider(TestShell::NetResourceProvider);
+
+  // On Linux, load the test root certificate.
+  net::TestServerLauncher ssl_util;
+  ssl_util.LoadTestRootCert();
 
   platform.InitializeGUI();
 
