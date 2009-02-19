@@ -243,7 +243,7 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
                                         size_t max_dead_capacity,
                                         size_t capacity) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::SetCapacities(min_dead_capacity, max_dead_capacity, capacity);
 #else
   // TODO(port)
@@ -252,7 +252,7 @@ void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
 }
 
 void RenderThread::OnGetCacheResourceStats() {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::ResourceTypeStats stats;
   CacheManager::GetResourceTypeStats(&stats);
   Send(new ViewHostMsg_ResourceTypeStats(stats));
@@ -263,7 +263,7 @@ void RenderThread::OnGetCacheResourceStats() {
 }
 
 void RenderThread::InformHostOfCacheStats() {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::UsageStats stats;
   CacheManager::GetUsageStats(&stats);
   Send(new ViewHostMsg_UpdatedCacheStats(stats));
