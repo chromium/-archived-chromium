@@ -1166,7 +1166,7 @@ GURL WebContents::GetAlternateErrorPageURL() const {
 WebPreferences WebContents::GetWebkitPrefs() {
   // Initialize web_preferences_ to chrome defaults.
   WebPreferences web_prefs;
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   PrefService* prefs = profile()->GetPrefs();
 
   web_prefs.fixed_font_family =
