@@ -2,24 +2,27 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_WINDOW_GTK_H_
-#define CHROME_BROWSER_WINDOW_GTK_H_
+#ifndef CHROME_BROWSER_GTK_BROWSER_WINDOW_GTK_H_
+#define CHROME_BROWSER_GTK_BROWSER_WINDOW_GTK_H_
 
 #include <gtk/gtk.h>
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/tabs/tab_strip_model.h"
 
 class BrowserToolbarGtk;
 class NineBox;
 class StatusBubbleGtk;
+class TabContentsContainerGtk;
 
 // An implementation of BrowserWindow for GTK.
 // Cross-platform code will interact with this object when
 // it needs to manipulate the window.
 
-class BrowserWindowGtk : public BrowserWindow {
+class BrowserWindowGtk : public BrowserWindow,
+                         public TabStripModelObserver {
  public:
   explicit BrowserWindowGtk(Browser* browser);
   virtual ~BrowserWindowGtk();
@@ -64,6 +67,14 @@ class BrowserWindowGtk : public BrowserWindow {
   virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
 
+  // Overridden from TabStripModelObserver:
+  virtual void TabDetachedAt(TabContents* contents, int index);
+  virtual void TabSelectedAt(TabContents* old_contents,
+                             TabContents* new_contents,
+                             int index,
+                             bool user_gesture);
+  virtual void TabStripEmpty();
+
   void OnBoundsChanged(const gfx::Rect& bounds);
   void OnStateChanged(GdkWindowState state);
 
@@ -71,7 +82,6 @@ class BrowserWindowGtk : public BrowserWindow {
   virtual void DestroyBrowser();
   GtkWindow* window_;
   GtkWidget* vbox_;
-  GtkWidget* content_area_;
 
   scoped_ptr<Browser> browser_;
 
@@ -96,11 +106,17 @@ class BrowserWindowGtk : public BrowserWindow {
   // Whether we're drawing the custom Chrome frame (including title bar).
   bool custom_frame_;
 
+  // The object that manages all of the widgets in the toolbar.
   scoped_ptr<BrowserToolbarGtk> toolbar_;
 
   // The status bubble manager.  Always non-NULL.
   scoped_ptr<StatusBubbleGtk> status_bubble_;
+
+  // A container that manages the GtkWidget*s that are the webpage display
+  // (along with associated infobars, shelves, and other things that are part
+  // of the content area).
+  scoped_ptr<TabContentsContainerGtk> contents_container_;
 };
 
-#endif  // CHROME_BROWSER_WINDOW_GTK_H_
+#endif  // CHROME_BROWSER_GTK_BROWSER_WINDOW_GTK_H_
 

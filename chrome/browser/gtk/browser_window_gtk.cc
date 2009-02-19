@@ -11,6 +11,7 @@
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/browser_toolbar_view_gtk.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
+#include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
@@ -57,14 +58,16 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
 }  // namespace
 
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
-    :  content_area_(NULL),
-       browser_(browser),
-       custom_frame_(false)  // TODO(port): make this a pref.
-{
+    :  browser_(browser),
+       // TODO(port): make this a pref.
+       custom_frame_(false) {
   Init();
+  browser_->tabstrip_model()->AddObserver(this);
 }
 
 BrowserWindowGtk::~BrowserWindowGtk() {
+  browser_->tabstrip_model()->RemoveObserver(this);
+
   Close();
 }
 
@@ -81,8 +84,8 @@ gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
   const int kFramePixels = 2;
 
   GdkPixbuf* pixbuf =
-      gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, // alpha
-                     8, // bit depth
+      gdk_pixbuf_new(GDK_COLORSPACE_RGB, true,  // alpha
+                     8,  // bit depth
                      widget->allocation.width,
                      BrowserToolbarGtk::kToolbarHeight + kFramePixels);
 
@@ -141,6 +144,9 @@ void BrowserWindowGtk::Init() {
   toolbar_->Init(browser_->profile());
   toolbar_->AddToolbarToBox(vbox_);
 
+  contents_container_.reset(new TabContentsContainerGtk());
+  contents_container_->AddContainerToBox(vbox_);
+
   // Note that calling this the first time is necessary to get the
   // proper control layout.
   // TODO(port): make this a pref.
@@ -152,15 +158,6 @@ void BrowserWindowGtk::Init() {
 }
 
 void BrowserWindowGtk::Show() {
-  // TODO(estade): fix this block. As it stands, it is a temporary hack to get
-  // the browser displaying something.
-  if (content_area_ == NULL) {
-    WebContents* contents = (WebContents*)(browser_->GetTabContentsAt(0));
-    content_area_ = ((RenderWidgetHostViewGtk*)contents->
-        render_view_host()->view())->native_view();
-    gtk_box_pack_start(GTK_BOX(vbox_), content_area_, TRUE, TRUE, 0);
-  }
-
   gtk_widget_show_all(GTK_WIDGET(window_));
 }
 
@@ -316,6 +313,40 @@ void BrowserWindowGtk::ShowNewProfileDialog() {
 void BrowserWindowGtk::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                                       void* parent_window) {
   NOTIMPLEMENTED();
+}
+
+void BrowserWindowGtk::TabDetachedAt(TabContents* contents, int index) {
+  // We use index here rather than comparing |contents| because by this time
+  // the model has already removed |contents| from its list, so
+  // browser_->GetSelectedTabContents() will return NULL or something else.
+  if (index == browser_->tabstrip_model()->selected_index()) {
+    // TODO(port): Uncoment this line when we get infobars.
+    // infobar_container_->ChangeTabContents(NULL);
+    contents_container_->SetTabContents(NULL);
+  }
+}
+
+void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
+                                     TabContents* new_contents,
+                                     int index,
+                                     bool user_gesture) {
+  DCHECK(old_contents != new_contents);
+
+  // Update various elements that are interested in knowing the current
+  // TabContents.
+  // TOOD(port): Un-comment this line when we get infobars.
+  // infobar_container_->ChangeTabContents(new_contents);
+  contents_container_->SetTabContents(new_contents);
+
+  new_contents->DidBecomeSelected();
+
+  // Update all the UI bits.
+  UpdateTitleBar();
+  toolbar_->SetProfile(new_contents->profile());
+  UpdateToolbar(new_contents, true);
+}
+
+void BrowserWindowGtk::TabStripEmpty() {
 }
 
 void BrowserWindowGtk::DestroyBrowser() {

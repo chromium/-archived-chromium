@@ -289,6 +289,8 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
       damage_rect.height()
     };
     GdkWindow* window = view_->window;
+    DCHECK(window) << "Trying to impossibly paint object " << view_;
+
     gdk_window_begin_paint_rect(window, &grect);
 
     skia::PlatformDeviceLinux &platdev =
@@ -299,7 +301,6 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
     cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
     cairo_paint(cairo_drawable);
     cairo_destroy(cairo_drawable);
-
     gdk_window_end_paint(window);
   } else {
     NOTIMPLEMENTED();

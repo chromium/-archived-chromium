@@ -400,6 +400,8 @@ class WebContents : public TabContents,
   friend class WebContentsViewWin;
 #elif defined(OS_MACOSX)
   friend class WebContentsViewMac;
+#elif defined(OS_LINUX)
+  friend class WebContentsViewGtk;
 #endif
 
   // So InterstitialPage can access SetIsLoading.

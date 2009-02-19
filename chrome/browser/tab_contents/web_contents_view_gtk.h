@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_WIN_H_
-#define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_WIN_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
+#define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
 
 #include "chrome/browser/tab_contents/web_contents_view.h"
 
@@ -61,8 +61,10 @@ class WebContentsViewGtk : public WebContentsView {
  private:
   WebContents* web_contents_;
 
+  GtkWidget* vbox_;
+
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewGtk);
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_WIN_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
 
