@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "base/values.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_constants.h"
@@ -83,6 +84,35 @@ TEST_F(BrowserTest, Title) {
   const std::wstring test_title(L"Title Of Awesomeness");
   EXPECT_EQ(WindowCaptionFromPageTitle(test_title), GetWindowTitle());
   EXPECT_EQ(test_title, GetActiveTabTitle());
+}
+
+// Create 34 tabs and verify that a lot of processes have been created. The
+// exact number of processes depends on the amount of memory. Previously we
+// had a hard limit of 31 processes and this test is mainly directed at
+// verifying that we don't crash when we pass this limit.
+TEST_F(BrowserTest, ThirtyFourTabs) {
+  std::wstring test_file = test_data_directory_;
+  file_util::AppendToPath(&test_file, L"title2.html");
+  GURL url(net::FilePathToFileURL(test_file));
+  scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
+  // There is one initial tab.
+  for (int ix = 0; ix != 33; ++ix) {
+    EXPECT_TRUE(window->AppendTab(url));
+  }
+  int tab_count = 0;
+  EXPECT_TRUE(window->GetTabCount(&tab_count));
+  EXPECT_EQ(34, tab_count);
+  // Do not test the rest in single process mode.
+  if (in_process_renderer())
+    return;
+  // See browser\renderer_host\render_process_host.cc for the algorithm to
+  // decide how many processes to create.
+  int process_count = GetBrowserProcessCount();
+  if (base::SysInfo::AmountOfPhysicalMemoryMB() >= 2048) {
+    EXPECT_GE(process_count, 24);
+  } else {
+    EXPECT_LE(process_count, 22);
+  }
 }
 
 // The browser should quit quickly if it receives a WM_ENDSESSION message.

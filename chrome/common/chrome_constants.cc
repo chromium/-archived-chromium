@@ -46,8 +46,8 @@ const FilePath::CharType kHistoryBookmarksFileName[] =
     FPL("Bookmarks From History");
 const wchar_t kCustomDictionaryFileName[] = L"Custom Dictionary.txt";
 
-// Note, this shouldn't go above 64.  See bug 535234.
-const unsigned int kMaxRendererProcessCount = 20;
+// This number used to be limited to 32 in the past (see b/535234).
+const unsigned int kMaxRendererProcessCount = 42;
 const int kStatsMaxThreads = 32;
 const int kStatsMaxCounters = 300;
 

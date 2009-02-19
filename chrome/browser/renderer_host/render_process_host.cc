@@ -16,12 +16,27 @@ unsigned int GetMaxRendererProcessCount() {
   // amount of installed memory as reported by the OS. The table
   // values are calculated by assuming that you want the renderers to
   // use half of the installed ram and assuming that each tab uses
-  // ~25MB.
+  // ~40MB, however the curve is not linear but piecewise linear with
+  // interleaved slopes of 3 and 2.
+  // If you modify this table you need to adjust browser\browser_uitest.cc
+  // to match the expected number of processes.
+
   static const int kMaxRenderersByRamTier[] = {
-    4,                                  // less than 256MB
-    8,                                  // 256MB
-    12,                                 // 512MB
-    16,                                 // 768MB
+    3,                        // less than 256MB
+    6,                        //  256MB
+    9,                        //  512MB
+    12,                       //  768MB
+    14,                       // 1024MB
+    18,                       // 1280MB
+    20,                       // 1536MB
+    22,                       // 1792MB
+    24,                       // 2048MB
+    26,                       // 2304MB
+    29,                       // 2560MB
+    32,                       // 2816MB
+    35,                       // 3072MB
+    38,                       // 3328MB
+    40                        // 3584MB
   };
 
   static unsigned int max_count = 0;
