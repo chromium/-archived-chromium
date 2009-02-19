@@ -17,7 +17,9 @@
 #include "chrome/browser/safe_browsing/protocol_manager.h"
 #include "chrome/browser/safe_browsing/safe_browsing_blocking_page.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_util.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -284,8 +286,11 @@ void SafeBrowsingService::DisplayBlockingPage(const GURL& url,
 void SafeBrowsingService::DoDisplayBlockingPage(
     const UnsafeResource& resource) {
   // The tab might have been closed.
-  if (!tab_util::GetWebContentsByID(resource.render_process_host_id,
-                                    resource.render_view_id)) {
+  WebContents* wc =
+      tab_util::GetWebContentsByID(resource.render_process_host_id,
+                                   resource.render_view_id);
+
+  if (!wc) {
     // The tab is gone and we did not have a chance at showing the interstitial.
     // Just act as "Don't Proceed" was chosen.
     base::Thread* io_thread = g_browser_process->io_thread();
@@ -297,6 +302,30 @@ void SafeBrowsingService::DoDisplayBlockingPage(
         this, &SafeBrowsingService::OnBlockingPageDone, resources, false));
     return;
   }
+
+  // Report the malware sub-resource to the SafeBrowsing servers if we have a
+  // malware sub-resource on a safe page and only if the user has opted in to
+  // reporting statistics.
+  PrefService* prefs = g_browser_process->local_state();
+  DCHECK(prefs);
+  if (prefs && prefs->GetBoolean(prefs::kMetricsReportingEnabled) &&
+      resource.resource_type != ResourceType::MAIN_FRAME &&
+      resource.threat_type == SafeBrowsingService::URL_MALWARE) {
+    GURL page_url = wc->GetURL();
+    GURL referrer_url;
+    if (wc->controller()) {
+      NavigationEntry* entry = wc->controller()->GetActiveEntry();
+      if (entry)
+        referrer_url = entry->referrer();
+    }
+    io_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(this,
+                          &SafeBrowsingService::ReportMalware,
+                          resource.url,
+                          page_url,
+                          referrer_url));
+  }
+
   SafeBrowsingBlockingPage::ShowBlockingPage(this, resource);
 }
 
@@ -728,3 +757,24 @@ void SafeBrowsingService::RunQueuedClients() {
   }
 }
 
+void SafeBrowsingService::ReportMalware(const GURL& malware_url,
+                                        const GURL& page_url,
+                                        const GURL& referrer_url) {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  // We need to access the database cache on the io_loop_ which is only allowed
+  // in the new SafeBrowsing database system.
+  if (!new_safe_browsing_ || !enabled_ || !database_)
+    return;
+
+  // Check if 'page_url' is already blacklisted (exists in our cache). Only
+  // report if it's not there.
+  std::string list;
+  std::vector<SBPrefix> prefix_hits;
+  std::vector<SBFullHashResult> full_hits;
+  database_->ContainsUrl(page_url, &list, &prefix_hits, &full_hits,
+                         protocol_manager_->last_update());
+
+  if (full_hits.empty())
+    protocol_manager_->ReportMalware(malware_url, page_url, referrer_url);
+}

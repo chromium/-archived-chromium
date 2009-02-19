@@ -180,6 +180,12 @@ class SafeBrowsingService
 
   bool new_safe_browsing() const { return new_safe_browsing_; }
 
+  // Report any pages that contain malware sub-resources to the SafeBrowsing
+  // service.
+  void ReportMalware(const GURL& malware_url,
+                     const GURL& page_url,
+                     const GURL& referrer_url);
+
  private:
   // Should only be called on db thread as SafeBrowsingDatabase is not
   // threadsafe.

@@ -19,6 +19,7 @@
 #include "chrome/common/env_vars.h"
 #include "chrome/common/stl_util-inl.h"
 #include "net/base/base64.h"
+#include "net/base/escape.h"
 #include "net/base/load_flags.h"
 
 using base::Time;
@@ -38,6 +39,10 @@ static const char* const kSbGetHashUrl =
 // New MAC client key requests URL.
 static const char* const kSbNewKeyUrl =
     "https://sb-ssl.google.com/safebrowsing/newkey?client=%s&appver=%s&pver=2.2";
+
+// URL for reporting malware pages.
+static const char* const kSbMalwareReportUrl =
+    "http://safebrowsing.clients.google.com/safebrowsing/report?evts=malblhit&evtd=%s&evtr=%s&evhr=%s&client=%s&appver=%s";
 
 #if defined(GOOGLE_CHROME_BUILD)
 static const char* const kSbClientName = "googlechrome";
@@ -89,6 +94,10 @@ SafeBrowsingProtocolManager::~SafeBrowsingProtocolManager() {
   STLDeleteContainerPairFirstPointers(hash_requests_.begin(),
                                       hash_requests_.end());
   hash_requests_.clear();
+
+  // Delete in-progress malware reports.
+  STLDeleteContainerPointers(malware_reports_.begin(), malware_reports_.end());
+  malware_reports_.clear();
 }
 
 // Public API used by the SafeBrowsingService ----------------------------------
@@ -164,6 +173,16 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
   scoped_ptr<const URLFetcher> fetcher;
   bool parsed_ok = true;
   bool must_back_off = false;  // Reduce SafeBrowsing service query frequency.
+
+  // See if this is a malware report fetcher. We don't take any action for
+  // the response to those.
+  std::set<const URLFetcher*>::iterator mit = malware_reports_.find(source);
+  if (mit != malware_reports_.end()) {
+    const URLFetcher* report = *mit;
+    malware_reports_.erase(mit);
+    delete report;
+    return;
+  }
 
   HashRequests::iterator it = hash_requests_.find(source);
   if (it != hash_requests_.end()) {
@@ -553,6 +572,24 @@ void SafeBrowsingProtocolManager::OnChunkInserted() {
   } else {
     IssueChunkRequest();
   }
+}
+
+void SafeBrowsingProtocolManager::ReportMalware(const GURL& malware_url,
+                                                const GURL& page_url,
+                                                const GURL& referrer_url) {
+  std::string report_str = StringPrintf(
+      kSbMalwareReportUrl,
+      EscapeQueryParamValue(malware_url.spec()).c_str(),
+      EscapeQueryParamValue(page_url.spec()).c_str(),
+      EscapeQueryParamValue(referrer_url.spec()).c_str(),
+      kSbClientName,
+      version_.c_str());
+  GURL report_url(report_str);
+  URLFetcher* report = new URLFetcher(report_url, URLFetcher::GET, this);
+  report->set_load_flags(net::LOAD_DISABLE_CACHE);
+  report->set_request_context(Profile::GetDefaultRequestContext());
+  report->Start();
+  malware_reports_.insert(report);
 }
 
 // static
