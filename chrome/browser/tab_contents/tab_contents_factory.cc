@@ -6,17 +6,23 @@
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
-#include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/debugger/debugger_contents.h"
-#include "chrome/browser/tab_contents/native_ui_contents.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/browser/tab_contents/view_source_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "net/base/net_util.h"
+
+#if defined(OS_WIN)
+// TODO(port): port these headers to posix.
+#include "chrome/browser/dom_ui/html_dialog_contents.h"
+#include "chrome/browser/tab_contents/native_ui_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 typedef std::map<TabContentsType, TabContentsFactory*> TabContentsFactoryMap;
 static TabContentsFactoryMap* g_extra_types;  // Only allocated if needed.
@@ -33,16 +39,19 @@ TabContentsType TabContentsFactory::NextUnusedType() {
   return static_cast<TabContentsType>(type + 1);
 }
 
-/*static*/
+// static
 TabContents* TabContents::CreateWithType(TabContentsType type,
                                          Profile* profile,
                                          SiteInstance* instance) {
-  TabContents* contents;
+  TabContents* contents = NULL;
 
   switch (type) {
     case TAB_CONTENTS_WEB:
       contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
       break;
+// TODO(port): remove this platform define, either by porting the tab contents
+// types or removing them completely.
+#if defined(OS_WIN)
     case TAB_CONTENTS_NEW_TAB_UI:
       contents = new NewTabUIContents(profile, instance, NULL);
       break;
@@ -64,6 +73,7 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_DOM_UI:
       contents = new DOMUIContents(profile, instance, NULL);
       break;
+#endif  // defined(OS_WIN)
     default:
       if (g_extra_types) {
         TabContentsFactoryMap::const_iterator it = g_extra_types->find(type);
@@ -82,7 +92,7 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
   return contents;
 }
 
-/*static*/
+// static
 TabContentsType TabContents::TypeForURL(GURL* url) {
   DCHECK(url);
   if (g_extra_types) {
@@ -93,6 +103,8 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
     }
   }
 
+// TODO(port): port the rest of this function.
+#if defined(OS_WIN)
   // Try to handle as a browser URL. If successful, |url| will end up
   // containing the real url being loaded (browser url's are just an alias).
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
@@ -116,12 +128,15 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
     *url = GURL(url->path());
     return TAB_CONTENTS_VIEW_SOURCE;
   }
+#elif defined(OS_POSIX)
+  NOTIMPLEMENTED();
+#endif
 
   // NOTE: Even the empty string can be loaded by a WebContents.
   return TAB_CONTENTS_WEB;
 }
 
-/*static*/
+// static
 TabContentsFactory* TabContents::RegisterFactory(TabContentsType type,
                                                  TabContentsFactory* factory) {
   if (!g_extra_types)

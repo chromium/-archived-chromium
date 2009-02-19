@@ -344,6 +344,7 @@
 		B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F60F05843C00FB1A4F /* property_bag.cc */; };
 		B562E2FC0F05845100FB1A4F /* property_bag_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B562E2F40F05843C00FB1A4F /* property_bag_unittest.cc */; };
 		B56E281B0F057F2800447108 /* message_router.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBD10E9D4C9F009A6919 /* message_router.cc */; };
+		B57F3A38042C46748C19E75B /* tab_contents_factory.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9E70F1EC32700106F0D /* tab_contents_factory.cc */; };
 		B58331850F40FE4E00FABC29 /* ipc_send_fds_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B58331690F40FC1F00FABC29 /* ipc_send_fds_test.cc */; };
 		B5D030F00F3A3C43001238AB /* renderer_main_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */; };
 		B5D031270F3A4009001238AB /* ipc_sync_channel_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBB80E9D4C9F009A6919 /* ipc_sync_channel_unittest.cc */; };
@@ -5503,6 +5504,7 @@
 				E45075EE0F150ABA003BE099 /* sync_resource_handler.cc in Sources */,
 				E455DDBA0F3227A600DD4383 /* tab_cell.mm in Sources */,
 				E455DCF10F320CFE00DD4383 /* tab_contents_controller.mm in Sources */,
+				B57F3A38042C46748C19E75B /* tab_contents_factory.cc in Sources */,
 				1C284EB767D0E3D302AC675C /* tab_restore_service.cc in Sources */,
 				E455DCF00F320CF700DD4383 /* tab_strip_controller.mm in Sources */,
 				E46C53A40F2F660900B393B8 /* tab_strip_model.cc in Sources */,

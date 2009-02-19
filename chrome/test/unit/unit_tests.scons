@@ -384,7 +384,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/autocomplete/history_contents_provider_unittest.cc',
       '$CHROME_DIR/browser/autocomplete/history_url_provider_unittest.cc',
       '$CHROME_DIR/browser/autocomplete/keyword_provider_unittest.cc',
-      '$CHROME_DIR/browser/back_forward_menu_model_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_context_menu_test.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_drag_data_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_folder_tree_model_unittest.cc',

@@ -202,27 +202,6 @@ void UninstallJankometer() {
 
 //--------------------------------------------------------------------------
 
-TabContents* TabContents::CreateWithType(TabContentsType type,
-                                         Profile* profile,
-                                         SiteInstance* instance) {
-  TabContents* contents;
-
-  switch (type) {
-    case TAB_CONTENTS_WEB:
-      contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE,
-                                 NULL);
-      break;
-    default:
-      NOTREACHED() << "Don't know how to create tab contents of type " << type;
-      contents = NULL;
-  }
-
-  if (contents)
-    contents->CreateView();
-
-  return contents;
-}
-
 void TabContents::SetupController(Profile* profile) {
   DCHECK(!controller_);
   controller_ = new NavigationController(this, profile);

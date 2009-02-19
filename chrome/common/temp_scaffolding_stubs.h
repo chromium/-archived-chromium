@@ -77,6 +77,7 @@ class SiteInstance;
 class SpellChecker;
 class TabContents;
 class TabContentsDelegate;
+class TabContentsFactory;
 class TabNavigation;
 struct ThumbnailScore;
 class Task;
@@ -408,10 +409,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
     return false;
   }
   virtual void RestoreFocus() { NOTIMPLEMENTED(); }
-  static TabContentsType TypeForURL(GURL* url) {
-    NOTIMPLEMENTED();
-    return TAB_CONTENTS_WEB;
-  }
+  static TabContentsType TypeForURL(GURL* url);
   static TabContents* CreateWithType(TabContentsType type,
                                      Profile* profile,
                                      SiteInstance* instance);
@@ -459,6 +457,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
   }
   virtual void CreateView() {}
   virtual gfx::NativeView GetNativeView() const { return NULL; }
+  static TabContentsFactory* RegisterFactory(TabContentsType type,
+                                             TabContentsFactory* factory);
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
