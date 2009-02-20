@@ -72,7 +72,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
                                  int target_end,
                                  const std::wstring& ime_string);
   virtual bool ImeUpdateStatus(bool* enable_ime,
-                               const void** node,
                                gfx::Rect* caret_rect);
   virtual void StopLoading();
   virtual void SetBackForwardListSize(int size);

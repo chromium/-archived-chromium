@@ -197,7 +197,6 @@ bool WebWidgetImpl::ImeSetComposition(int string_type,
 }
 
 bool WebWidgetImpl::ImeUpdateStatus(bool* enable_ime,
-                                    const void** node,
                                     gfx::Rect* caret_rect) {
   return false;
 }

@@ -63,8 +63,7 @@ class WebWidget {
                                  const std::wstring& ime_string) = 0;
 
   // Retrieve the status of this widget required by IME APIs.
-  virtual bool ImeUpdateStatus(bool* enable_ime, const void** node,
-                               gfx::Rect* caret_rect) = 0;
+  virtual bool ImeUpdateStatus(bool* enable_ime, gfx::Rect* caret_rect) = 0;
 
  protected:
   virtual ~WebWidget() {}

@@ -48,7 +48,6 @@ class WebWidgetImpl : public WebWidget,
                                  int target_end,
                                  const std::wstring& ime_string);
   virtual bool ImeUpdateStatus(bool* enable_ime,
-                               const void** node,
                                gfx::Rect* caret_rect);
 
   // WebWidgetImpl

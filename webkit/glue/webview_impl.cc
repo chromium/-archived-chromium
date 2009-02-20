@@ -1177,7 +1177,6 @@ bool WebViewImpl::ImeSetComposition(int string_type,
 }
 
 bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
-                                  const void** new_node,
                                   gfx::Rect* caret_rect) {
   // Store whether the selected node needs IME and the caret rectangle.
   // This process consists of the following four steps:

@@ -738,10 +738,9 @@ void RenderWidget::UpdateIME() {
   // Retrieve the caret position from the focused widget and verify we should
   // enabled IMEs attached to the browser process.
   bool enable_ime = false;
-  const void* node = NULL;
   gfx::Rect caret_rect;
   if (!webwidget_ ||
-      !webwidget_->ImeUpdateStatus(&enable_ime, &node, &caret_rect)) {
+      !webwidget_->ImeUpdateStatus(&enable_ime, &caret_rect)) {
     // There are not any editable widgets attached to this process.
     // We should disable the IME to prevent it from sending CJK strings to
     // non-editable widgets.
