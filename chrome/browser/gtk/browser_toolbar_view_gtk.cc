@@ -68,7 +68,7 @@ void BrowserToolbarGtk::Init(Profile* profile) {
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
-      l10n_util::GetString(IDS_TOOLTIP_RELOAD), false));
+      l10n_util::GetString(IDS_TOOLTIP_RELOAD)));
 
   // TODO(port): we need to dynamically react to changes in show_home_button_
   // and hide/show home appropriately.  But we don't have a UI for it yet.
@@ -78,7 +78,7 @@ void BrowserToolbarGtk::Init(Profile* profile) {
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new("  "), FALSE, FALSE, 0);
 
   star_.reset(BuildToolbarButton(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D,
-      l10n_util::GetString(IDS_TOOLTIP_STAR), false));
+      l10n_util::GetString(IDS_TOOLTIP_STAR)));
 
   entry_ = gtk_entry_new();
   gtk_widget_set_size_request(entry_, 0, 27);
@@ -86,16 +86,15 @@ void BrowserToolbarGtk::Init(Profile* profile) {
                    G_CALLBACK(OnEntryActivate), this);
   gtk_box_pack_start(GTK_BOX(toolbar_), entry_, TRUE, TRUE, 0);
 
-  go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L"", false));
+  go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L""));
 
-  // TODO(port): these buttons need even stranger drawing than the others.
-  page_menu_button_.reset(BuildToolbarButton(IDR_MENU_PAGE, 0, 0, 0,
-      l10n_util::GetString(IDS_PAGEMENU_TOOLTIP), true));
+  gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
-  // TODO(port): Need to get l10n_util::GetStringF working under linux to get
-  // the correct string here.
-  app_menu_button_.reset(BuildToolbarButton(IDR_MENU_CHROME, 0, 0, 0,
-      l10n_util::GetString(IDS_APPMENU_TOOLTIP), true));
+  page_menu_button_.reset(BuildToolbarMenuButton(IDR_MENU_PAGE,
+      l10n_util::GetString(IDS_PAGEMENU_TOOLTIP)));
+  app_menu_button_.reset(BuildToolbarMenuButton(IDR_MENU_CHROME,
+      l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
+                            l10n_util::GetString(IDS_PRODUCT_NAME))));
 
   SetProfile(profile);
 }
@@ -176,7 +175,7 @@ void BrowserToolbarGtk::UpdateTabContents(TabContents* contents,
 
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
-    const std::wstring& localized_tooltip, bool menu_button) {
+    const std::wstring& localized_tooltip) {
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
       highlight_id, depressed_id);
 
@@ -184,15 +183,32 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
                        GTK_WIDGET(button->widget()),
                        WideToUTF8(localized_tooltip).c_str(),
                        WideToUTF8(localized_tooltip).c_str());
-  if (menu_button) {
-    g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
-                     G_CALLBACK(OnMenuButtonPressEvent), this);
-  } else {
-    g_signal_connect(G_OBJECT(button->widget()), "clicked",
-                     G_CALLBACK(OnButtonClick), this);
-  }
+  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+                   G_CALLBACK(OnButtonClick), this);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
+  return button;
+}
+
+CustomContainerButton* BrowserToolbarGtk::BuildToolbarMenuButton(
+    int icon_id,
+    const std::wstring& localized_tooltip) {
+  CustomContainerButton* button = new CustomContainerButton;
+
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  gtk_container_set_border_width(GTK_CONTAINER(button->widget()), 2);
+  gtk_container_add(GTK_CONTAINER(button->widget()),
+                    gtk_image_new_from_pixbuf(rb.LoadPixbuf(icon_id)));
+
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
+                       GTK_WIDGET(button->widget()),
+                       WideToUTF8(localized_tooltip).c_str(),
+                       WideToUTF8(localized_tooltip).c_str());
+  g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
+                   G_CALLBACK(OnMenuButtonPressEvent), this);
+
+  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
+
   return button;
 }
 
@@ -233,6 +249,10 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
 gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
                                                    GdkEvent* event,
                                                    BrowserToolbarGtk* toolbar) {
+  // TODO(port): this never puts the button into the "active" state,
+  // which means we never display the button-pressed-down graphics.  I
+  // suspect a better way to do it is just to use a real GtkMenuShell
+  // with our custom drawing.
   if (event->type == GDK_BUTTON_PRESS) {
     GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
     if (event_button->button == 1) {
@@ -319,5 +339,5 @@ void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
 
 CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
   return BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
-                            l10n_util::GetString(IDS_TOOLTIP_HOME), false);
+                            l10n_util::GetString(IDS_TOOLTIP_HOME));
 }

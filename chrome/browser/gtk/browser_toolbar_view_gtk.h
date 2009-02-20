@@ -16,6 +16,7 @@
 
 class BackForwardMenuModelGtk;
 class Browser;
+class CustomContainerButton;
 class CustomDrawButton;
 class Profile;
 class TabContents;
@@ -63,8 +64,11 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                                        int active_id,
                                        int highlight_id,
                                        int depressed_id,
-                                       const std::wstring& localized_tooltip,
-                                       bool menu_button);
+                                       const std::wstring& localized_tooltip);
+
+  CustomContainerButton* BuildToolbarMenuButton(
+      int icon_id,
+      const std::wstring& localized_tooltip);
 
   // Gtk callback for the "activate" signal on the |entry_| widget. Responds to
   // enter.
@@ -102,7 +106,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   scoped_ptr<CustomDrawButton> reload_;
   scoped_ptr<CustomDrawButton> home_;  // May be NULL.
   scoped_ptr<CustomDrawButton> star_, go_;
-  scoped_ptr<CustomDrawButton> page_menu_button_, app_menu_button_;
+  scoped_ptr<CustomContainerButton> page_menu_button_, app_menu_button_;
 
   // The model that contains the security level, text, icon to display...
   ToolbarModel* model_;

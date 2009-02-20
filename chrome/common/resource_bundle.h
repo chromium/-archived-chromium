@@ -23,6 +23,7 @@
 namespace base {
   class DataPack;
 };
+typedef struct _GdkPixbuf GdkPixbuf;
 #endif
 class ChromeFont;
 class SkBitmap;
@@ -108,7 +109,10 @@ class ResourceBundle {
 
   // Loads and returns a cursor from the app module.
   HCURSOR LoadCursor(int cursor_id);
-#endif  // OS_WIN
+#elif defined(OS_LINUX)
+  // Load a theme image as a GdkPixbuf.
+  GdkPixbuf* LoadPixbuf(int resource_id);
+#endif
 
  private:
   // We define a DataHandle typedef to abstract across how data is stored
