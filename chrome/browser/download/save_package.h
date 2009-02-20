@@ -204,8 +204,8 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 
  private:
   // For testing only.
-  SavePackage(const FilePath::CharType* file_full_path,
-              const FilePath::CharType* directory_full_path);
+  SavePackage(const FilePath& file_full_path,
+              const FilePath& directory_full_path);
 
   void Stop();
   void CheckFinish();

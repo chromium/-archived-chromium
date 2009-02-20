@@ -394,7 +394,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/browser_commands_unittest.cc',
       '$CHROME_DIR/browser/download/download_manager_unittest.cc',
       '$CHROME_DIR/browser/download/download_request_manager_unittest.cc',
-      '$CHROME_DIR/browser/download/save_package_unittest.cc',
       '$CHROME_DIR/browser/extensions/user_script_master_unittest.cc',
       '$CHROME_DIR/browser/importer/firefox_importer_unittest.cc',
       '$CHROME_DIR/browser/importer/importer_unittest.cc',

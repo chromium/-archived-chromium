@@ -52,9 +52,6 @@ using base::Time;
 
 namespace {
 
-const FilePath::CharType kLeftParen = FILE_PATH_LITERAL('(');
-const FilePath::CharType kRightParen = FILE_PATH_LITERAL(')');
-
 // Default name which will be used when we can not get proper name from
 // resource URL.
 const wchar_t kDefaultSaveName[] = L"saved_resource";
@@ -180,8 +177,8 @@ SavePackage::SavePackage(WebContents* web_content,
 
 // This is for testing use. Set |finished_| as true because we don't want
 // method Cancel to be be called in destructor in test mode.
-SavePackage::SavePackage(const FilePath::CharType* file_full_path,
-                         const FilePath::CharType* directory_full_path)
+SavePackage::SavePackage(const FilePath& file_full_path,
+                         const FilePath& directory_full_path)
     : download_(NULL),
       saved_main_file_path_(file_full_path),
       saved_main_directory_path_(directory_full_path),
