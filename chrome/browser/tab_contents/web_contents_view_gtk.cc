@@ -77,6 +77,15 @@ void WebContentsViewGtk::SizeContents(const gfx::Size& size) {
   NOTIMPLEMENTED();
 }
 
+void WebContentsViewGtk::OpenDeveloperTools() {
+  NOTIMPLEMENTED();
+}
+
+void WebContentsViewGtk::ForwardMessageToToolsClient(int tools_message_type,
+                                                     const std::wstring& body) {
+  NOTIMPLEMENTED();
+}
+
 void WebContentsViewGtk::FindInPage(const Browser& browser,
                                     bool find_next, bool forward_direction) {
   NOTIMPLEMENTED();

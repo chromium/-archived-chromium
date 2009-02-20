@@ -30,6 +30,9 @@ class WebContentsViewGtk : public WebContentsView {
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
+  virtual void OpenDeveloperTools();
+  virtual void ForwardMessageToToolsClient(int tools_message_type,
+                                           const std::wstring& body);
   virtual void FindInPage(const Browser& browser,
                           bool find_next, bool forward_direction);
   virtual void HideFindBar(bool end_session);

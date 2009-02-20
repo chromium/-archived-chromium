@@ -26,6 +26,7 @@ class NavigationEntry;
 class RenderViewHostDelegate;
 class SiteInstance;
 class SkBitmap;
+class ToolsWindow;
 class ViewMsg_Navigate;
 struct ContextMenuParams;
 struct ViewHostMsg_DidPrintPage_Params;
@@ -320,6 +321,11 @@ class RenderViewHost : public RenderWidgetHost {
   // Must be called before CreateRenderView().
   void AllowDOMUIBindings();
 
+  // Tell the render view to connect as a tools client to the specified
+  // renderer. Must be called when RenderView is created but before any
+  // navigation.
+  void SetupToolsClient(int inspected_process_id, int inspected_view_id);
+
   // Sets a property with the given name and value on the DOM UI binding object.
   // Must call AllowDOMUIBindings() on this renderer first.
   void SetDOMUIProperty(const std::string& name, const std::string& value);
@@ -506,6 +512,8 @@ class RenderViewHost : public RenderWidgetHost {
                              const std::wstring& source_id);
   void OnDebuggerOutput(const std::wstring& output);
   void DidDebugAttach();
+  void OnToolsAgentMsg(int tools_message_type, const std::wstring& body);
+  void OnToolsClientMsg(int tools_message_type, const std::wstring& body);
   void OnUserMetricsRecordAction(const std::wstring& action);
   void OnMissingPluginStatus(int status);
   void OnMessageReceived(IPC::Message* msg) { }
@@ -561,7 +569,7 @@ class RenderViewHost : public RenderWidgetHost {
   // information.
   bool waiting_for_drag_context_response_;
 
-  // is the debugger attached to us or not
+  // If the debugger attached to us or not.
   bool debugger_attached_;
 
   // True if we've been told to set up the the Javascript bindings for
@@ -609,6 +617,10 @@ class RenderViewHost : public RenderWidgetHost {
   bool is_waiting_for_unload_ack_;
 
   bool are_javascript_messages_suppressed_;
+
+  int inspected_process_id_;
+
+  int inspected_view_id_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };
