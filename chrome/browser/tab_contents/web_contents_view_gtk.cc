@@ -23,6 +23,7 @@ WebContentsViewGtk::WebContentsViewGtk(WebContents* web_contents)
 }
 
 WebContentsViewGtk::~WebContentsViewGtk() {
+  gtk_widget_destroy(vbox_);
 }
 
 WebContents* WebContentsViewGtk::GetWebContents() {
@@ -38,7 +39,7 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   DCHECK(!render_widget_host->view());
   RenderWidgetHostViewGtk* view =
       new RenderWidgetHostViewGtk(render_widget_host);
-  // TODO(port): do we need to do any extra setup?
+  gtk_widget_show(view->native_view());
   gtk_box_pack_start(GTK_BOX(vbox_), view->native_view(), TRUE, TRUE, 0);
   return view;
 }

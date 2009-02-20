@@ -98,9 +98,9 @@ void TabContentsContainerGtk::RemoveObservers() {
 
 void TabContentsContainerGtk::RenderViewHostChanged(RenderViewHost* old_host,
                                                     RenderViewHost* new_host) {
-  // If you find a crash right after this NOTIMPLEMENTED(), we'll need to
-  // switch out some widgets like in SetTabContents().
-  NOTIMPLEMENTED();
+  // TODO(port): Remove this method and the logic where we subscribe to the
+  // RENDER_VIEW_HOST_CHANGED notification. This was used on Windows for focus
+  // issues, and I'm not entirely convinced that this isn't necessary.
 }
 
 void TabContentsContainerGtk::TabContentsDestroyed(TabContents* contents) {

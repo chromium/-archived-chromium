@@ -266,7 +266,11 @@ void RenderWidgetHostViewGtk::RendererGone() {
 }
 
 void RenderWidgetHostViewGtk::Destroy() {
+  // We need to disconnect ourselves from our parent widget at this time; this
+  // does the right thing, automatically removing ourselves from our parent
+  // container.
   gtk_widget_destroy(view_);
+  view_ = NULL;
 }
 
 void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
