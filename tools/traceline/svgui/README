@@ -6,7 +6,7 @@ The name of the JSON file should be supplied behind a # in the URL.  Multiple
 JSON files can be listed (comma separated), allowing you to compare multiple
 sets of data.  Examples:
 
-http://blah/traceline.xml#startup-off2.json
+http://blah/traceline.xml#startup-release.json
 http://blah/traceline.xml#mydata1.json,mydata2.json
 
 Dean McNamee <deanm@chromium.org>
