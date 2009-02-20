@@ -9,6 +9,8 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/ipc_test_sink.h"
 
+class TransportDIB;
+
 // A mock render process host that has no corresponding renderer process. The
 // process() refers to the current process, and all IPC messages are sent into
 // the message sink for inspection by tests.
@@ -47,6 +49,7 @@ class MockRenderProcessHost : public RenderProcessHost {
  private:
   // Stores IPC messages that would have been sent to the renderer.
   IPC::TestSink sink_;
+  TransportDIB* transport_dib_;
 
   DISALLOW_COPY_AND_ASSIGN(MockRenderProcessHost);
 };

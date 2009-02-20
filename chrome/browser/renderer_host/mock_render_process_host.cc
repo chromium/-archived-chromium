@@ -5,10 +5,12 @@
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
 
 MockRenderProcessHost::MockRenderProcessHost(Profile* profile)
-    : RenderProcessHost(profile) {
+    : RenderProcessHost(profile),
+      transport_dib_(NULL) {
 }
 
 MockRenderProcessHost::~MockRenderProcessHost() {
+  delete transport_dib_;
 }
 
 bool MockRenderProcessHost::Init() {
@@ -58,15 +60,19 @@ bool MockRenderProcessHost::Send(IPC::Message* msg) {
 }
 
 TransportDIB* MockRenderProcessHost::GetTransportDIB(TransportDIB::Id dib_id) {
+  delete transport_dib_;
+
 #if defined(OS_WIN)
-  return TransportDIB::Map(dib_id.handle);
+  transport_dib_ = TransportDIB::Map(dib_id.handle);
 #elif defined(OS_MACOSX)
   // On Mac, TransportDIBs are always created in the browser, so we cannot map
   // one from a dib_id.
-  return TransportDIB::Create(100 * 100 * 4, 0);
+  transport_dib_ = TransportDIB::Create(100 * 100 * 4, 0);
 #elif defined(OS_LINUX)
-  return TransportDIB::Map(dib_id);
+  transport_dib_ = TransportDIB::Map(dib_id);
 #endif
+
+  return transport_dib_;
 }
 
 void MockRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
