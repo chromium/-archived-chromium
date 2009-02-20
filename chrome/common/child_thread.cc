@@ -5,6 +5,7 @@
 #include "chrome/common/child_thread.h"
 
 #include "base/command_line.h"
+#include "base/string_util.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/ipc_logging.h"
