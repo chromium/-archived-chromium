@@ -72,6 +72,8 @@ static const struct {
   {L"lv", L"lv-LV"},
   // {L"uk", L"uk-UA"}, // Not to be included in Spellchecker as per B=1277824
   {L"hi", L"hi-IN"},
+  {L"et", L"et-EE"},
+  {L"tr", L"tr-TR"},
 };
 
 }
@@ -361,7 +363,9 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& input_language,
     {"sv-SE", "-1-1"},
     {"he-IL", "-1-1"},
     {"el-GR", "-1-1"},
-    {"hi-IN", "-1-1"}
+    {"hi-IN", "-1-1"},
+    {"tr-TR", "-1-1"},
+    {"et-EE", "-1-1"}
   };
 
   // Generate the bdict file name using default version string or special
