@@ -10,8 +10,9 @@
 #include "base/basictypes.h"
 #include "base/string_util.h"
 
+#include "third_party/icu38/public/common/unicode/normlzr.h"
+#include "third_party/icu38/public/common/unicode/schriter.h"
 #include "third_party/icu38/public/common/unicode/uchar.h"
-#include "third_party/icu38/public/common/unicode/unorm.h"
 #include "third_party/icu38/public/common/unicode/uscript.h"
 #include "third_party/icu38/public/common/unicode/uset.h"
 #include "third_party/icu38/public/i18n/unicode/ulocdata.h"
@@ -79,6 +80,26 @@ void SpellcheckCharAttribute::SetDefaultLanguage(const std::wstring& language) {
     for (int i = 0; i < length; ++i) {
       UChar32 character = uset_charAt(exemplar_set, i);
       SetWordScript(GetScriptCode(character), true);
+    }
+
+    // Many languages use combining characters to input their characters from
+    // keyboards. On the other hand, this exemplar set does not always include
+    // combining characters for such languages.
+    // To treat such combining characters as word characters, we decompose
+    // this exemplar set and treat the decomposed characters as word characters.
+    UnicodeString composed;
+    for (int i = 0; i < length; ++i)
+      composed.append(uset_charAt(exemplar_set, i));
+
+    UnicodeString decomposed;
+    Normalizer::decompose(composed, FALSE, 0, decomposed, status);
+    if (U_SUCCESS(status)) {
+      StringCharacterIterator iterator(decomposed);
+      UChar32 character = iterator.first32();
+      while (character != CharacterIterator::DONE) {
+        SetWordScript(GetScriptCode(character), true);
+        character = iterator.next32();
+      }
     }
   }
   uset_close(exemplar_set);
@@ -246,25 +267,12 @@ bool SpellcheckWordIterator::Normalize(int input_start,
   // does not only write NFKD and NFKC can compose ligatures into their ASCII
   // alternatives, but also write NFKC keeps accents of characters.
   // Therefore, NFKC seems to be the best option for hunspell.
-  // To use NKFC for normalization, the length of the output string is mostly
-  // equal to the one of the input string. (One exception is ligatures.)
-  // To avoid the unorm_normalize() function from being called always twice,
-  // we temporarily allocate |input_length| + 1 characters to the output string
-  // and call the function with it. We re-allocate the output string
-  // only if it cannot store the normalized string, i.e. the output string is
-  // longer than the input one.
-  const char16* input_string = &word_[input_start];
-  UErrorCode error_code = U_ZERO_ERROR;
-  int output_length = input_length + 1;
-  char16* output_buffer = WriteInto(output_string, output_length);
-  output_length = unorm_normalize(input_string, input_length, UNORM_NFKC, 0,
-                                  output_buffer, output_length, &error_code);
-  if (error_code == U_BUFFER_OVERFLOW_ERROR) {
-    error_code = U_ZERO_ERROR;
-    output_buffer = WriteInto(output_string, ++output_length);
-    output_length = unorm_normalize(input_string, input_length, UNORM_NFKC, 0,
-                                    output_buffer, output_length, &error_code);
-  }
-  return (error_code == U_ZERO_ERROR);
+  UnicodeString input(FALSE, &word_[input_start], input_length);
+  UErrorCode status = U_ZERO_ERROR;
+  UnicodeString output;
+  Normalizer::normalize(input, UNORM_NFKC, 0, output, status);
+  if (U_SUCCESS(status))
+    output_string->assign(output.getTerminatedBuffer());
+  return (status == U_ZERO_ERROR);
 }
 
