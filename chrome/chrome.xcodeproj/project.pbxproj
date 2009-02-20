@@ -323,6 +323,9 @@
 		A7C613C10F30D7E4008CEE5D /* mock_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C613BF0F30D7E4008CEE5D /* mock_render_process_host.cc */; };
 		A7C6146F0F30DA1D008CEE5D /* ipc_test_sink.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C6146D0F30DA1D008CEE5D /* ipc_test_sink.cc */; };
 		A7CBAD390F322A7E00360BF5 /* shell_dialogs_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */; };
+		AB8963000F4E0901009CFFAC /* audio_renderer_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8962FA0F4E087E009CFFAC /* audio_renderer_impl.cc */; };
+		AB8963010F4E0907009CFFAC /* data_source_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8962FC0F4E087E009CFFAC /* data_source_impl.cc */; };
+		AB8963020F4E090D009CFFAC /* video_renderer_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8962FE0F4E087E009CFFAC /* video_renderer_impl.cc */; };
 		ABFA33770F424E47008FCF5D /* audio_renderer_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABFA33740F424E06008FCF5D /* audio_renderer_host.cc */; };
 		ABFA34C50F4255CC008FCF5D /* libmedia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFA33880F424EC5008FCF5D /* libmedia.a */; };
 		ABFA34C70F425637008FCF5D /* libmedia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFA33880F424EC5008FCF5D /* libmedia.a */; };
@@ -2499,6 +2502,12 @@
 		A7C6146E0F30DA1D008CEE5D /* ipc_test_sink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_test_sink.h; sourceTree = "<group>"; };
 		A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = shell_dialogs_mac.mm; path = cocoa/shell_dialogs_mac.mm; sourceTree = "<group>"; };
 		A9C335E39D39A7DE087850FC /* url_pattern_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url_pattern_unittest.cc; path = extensions/url_pattern_unittest.cc; sourceTree = "<group>"; };
+		AB8962FA0F4E087E009CFFAC /* audio_renderer_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audio_renderer_impl.cc; path = media/audio_renderer_impl.cc; sourceTree = "<group>"; };
+		AB8962FB0F4E087E009CFFAC /* audio_renderer_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_renderer_impl.h; path = media/audio_renderer_impl.h; sourceTree = "<group>"; };
+		AB8962FC0F4E087E009CFFAC /* data_source_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_source_impl.cc; path = media/data_source_impl.cc; sourceTree = "<group>"; };
+		AB8962FD0F4E087E009CFFAC /* data_source_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = data_source_impl.h; path = media/data_source_impl.h; sourceTree = "<group>"; };
+		AB8962FE0F4E087E009CFFAC /* video_renderer_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = video_renderer_impl.cc; path = media/video_renderer_impl.cc; sourceTree = "<group>"; };
+		AB8962FF0F4E087E009CFFAC /* video_renderer_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = video_renderer_impl.h; path = media/video_renderer_impl.h; sourceTree = "<group>"; };
 		ABFA33740F424E06008FCF5D /* audio_renderer_host.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audio_renderer_host.cc; path = renderer_host/audio_renderer_host.cc; sourceTree = "<group>"; };
 		ABFA33750F424E06008FCF5D /* audio_renderer_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_renderer_host.h; path = renderer_host/audio_renderer_host.h; sourceTree = "<group>"; };
 		ABFA33760F424E06008FCF5D /* audio_renderer_host_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audio_renderer_host_unittest.cc; path = renderer_host/audio_renderer_host_unittest.cc; sourceTree = "<group>"; };
@@ -3027,6 +3036,7 @@
 			children = (
 				E45076D40F1538D2003BE099 /* automation */,
 				F4143BEC0F4B003D008C8F73 /* extensions */,
+				AB8962F70F4E082A009CFFAC /* media */,
 				4D640CE00EAE868E00EBCFC0 /* net */,
 				4D640CBD0EAE868600EBCFC0 /* about_handler.cc */,
 				4D640CBE0EAE868600EBCFC0 /* about_handler.h */,
@@ -4015,6 +4025,19 @@
 				844EA0830F3E0C1000B0EF26 /* debugger_wrapper.h */,
 			);
 			name = debugger;
+			sourceTree = "<group>";
+		};
+		AB8962F70F4E082A009CFFAC /* media */ = {
+			isa = PBXGroup;
+			children = (
+				AB8962FA0F4E087E009CFFAC /* audio_renderer_impl.cc */,
+				AB8962FB0F4E087E009CFFAC /* audio_renderer_impl.h */,
+				AB8962FC0F4E087E009CFFAC /* data_source_impl.cc */,
+				AB8962FD0F4E087E009CFFAC /* data_source_impl.h */,
+				AB8962FE0F4E087E009CFFAC /* video_renderer_impl.cc */,
+				AB8962FF0F4E087E009CFFAC /* video_renderer_impl.h */,
+			);
+			name = media;
 			sourceTree = "<group>";
 		};
 		ABFA337A0F424EC5008FCF5D /* Products */ = {
@@ -5339,8 +5362,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D640CF30EAE86E300EBCFC0 /* about_handler.cc in Sources */,
+				AB8963000F4E0901009CFFAC /* audio_renderer_impl.cc in Sources */,
 				3380A69B0F2E91AE004EF74F /* child_process.cc in Sources */,
 				3380A69F0F2E91E5004EF74F /* chrome_plugin_lib.cc in Sources */,
+				AB8963010F4E0907009CFFAC /* data_source_impl.cc in Sources */,
 				E45076D90F1538E4003BE099 /* dom_automation_controller.cc in Sources */,
 				E45076C90F1537F5003BE099 /* dom_ui_bindings.cc in Sources */,
 				E45076CB0F15380C003BE099 /* external_host_bindings.cc in Sources */,
@@ -5355,6 +5380,7 @@
 				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
 				B51F6D2E0F37D04200152D66 /* renderer_main.cc in Sources */,
 				B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm in Sources */,
+				AB8963020F4E090D009CFFAC /* video_renderer_impl.cc in Sources */,
 				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
