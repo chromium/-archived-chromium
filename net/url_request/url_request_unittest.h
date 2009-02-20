@@ -309,8 +309,8 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
     bool success_;
     DISALLOW_COPY_AND_ASSIGN(SyncTestDelegate);
   };
-  net::TestServerLauncher launcher_;
 
+  net::TestServerLauncher launcher_;
   std::string base_address_;
 };
 
@@ -324,15 +324,16 @@ class HTTPTestServer : public BaseTestServer {
  public:
   // Creates and returns a new HTTPTestServer. If |loop| is non-null, requests
   // are serviced on it, otherwise a new thread and message loop are created.
-  static HTTPTestServer* CreateServer(const std::wstring& document_root,
-                                      MessageLoop* loop) {
-    HTTPTestServer* test_server = new HTTPTestServer();
+  static scoped_refptr<HTTPTestServer> CreateServer(
+      const std::wstring& document_root,
+      MessageLoop* loop) {
+    scoped_refptr<HTTPTestServer> test_server = new HTTPTestServer();
     test_server->loop_ = loop;
     FilePath no_cert;
     FilePath docroot = FilePath::FromWStringHack(document_root);
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
-        kDefaultHostName, kHTTPDefaultPort, docroot, no_cert)) {
-      test_server->Release();
+                            kDefaultHostName, kHTTPDefaultPort,
+                            docroot, no_cert)) {
       return NULL;
     }
     return test_server;
