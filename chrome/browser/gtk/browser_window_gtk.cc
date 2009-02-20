@@ -15,16 +15,37 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
+#include "chrome/common/resource_bundle.h"
+#include "grit/theme_resources.h"
+
 namespace {
 
-static GdkPixbuf* LoadThemeImage(const std::string& filename) {
-  FilePath path;
-  bool ok = PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  DCHECK(ok);
-  path = path.Append("chrome/app/theme").Append(filename);
-  // We intentionally ignore errors here, as some buttons don't have images
-  // for all states.  This will all be removed once ResourceBundle works.
-  return gdk_pixbuf_new_from_file(path.value().c_str(), NULL);
+static GdkPixbuf* LoadThemeImage(int resource_id) {
+  // TODO(mmoss) refactor -- stolen from custom_button.cc
+  if (0 == resource_id)
+    return NULL;
+
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  std::vector<unsigned char> data;
+  rb.LoadImageResourceBytes(resource_id, &data);
+
+  GdkPixbufLoader* loader = gdk_pixbuf_loader_new();
+  bool ok = gdk_pixbuf_loader_write(loader, static_cast<guint8*>(data.data()),
+      data.size(), NULL);
+  DCHECK(ok) << "failed to write " << resource_id;
+  // Calling gdk_pixbuf_loader_close forces the data to be parsed by the
+  // loader.  We must do this before calling gdk_pixbuf_loader_get_pixbuf.
+  ok = gdk_pixbuf_loader_close(loader, NULL);
+  DCHECK(ok) << "close failed " << resource_id;
+  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+  DCHECK(pixbuf) << "failed to load " << resource_id << " " << data.size();
+
+  // The pixbuf is owned by the loader, so add a ref so when we delete the
+  // loader, the pixbuf still exists.
+  g_object_ref(pixbuf);
+  g_object_unref(loader);
+
+  return pixbuf;
 }
 
 gboolean MainWindowDestroyed(GtkWindow* window, BrowserWindowGtk* browser_win) {
@@ -120,15 +141,15 @@ void BrowserWindowGtk::Init() {
   bounds_ = GetInitialWindowBounds(window_);
 
   GdkPixbuf* images[9] = {
-    LoadThemeImage("content_top_left_corner.png"),
-    LoadThemeImage("content_top_center.png"),
-    LoadThemeImage("content_top_right_corner.png"),
-    LoadThemeImage("content_left_side.png"),
+    LoadThemeImage(IDR_CONTENT_TOP_LEFT_CORNER),
+    LoadThemeImage(IDR_CONTENT_TOP_CENTER),
+    LoadThemeImage(IDR_CONTENT_TOP_RIGHT_CORNER),
+    LoadThemeImage(IDR_CONTENT_LEFT_SIDE),
     NULL,
-    LoadThemeImage("content_right_side.png"),
-    LoadThemeImage("content_bottom_left_corner.png"),
-    LoadThemeImage("content_bottom_center.png"),
-    LoadThemeImage("content_bottom_right_corner.png")
+    LoadThemeImage(IDR_CONTENT_RIGHT_SIDE),
+    LoadThemeImage(IDR_CONTENT_BOTTOM_LEFT_CORNER),
+    LoadThemeImage(IDR_CONTENT_BOTTOM_CENTER),
+    LoadThemeImage(IDR_CONTENT_BOTTOM_RIGHT_CORNER)
   };
   content_area_ninebox_.reset(new NineBox(images));
 
