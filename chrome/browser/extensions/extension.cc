@@ -45,7 +45,7 @@ const char* Extension::kInvalidIdError =
     "Required value 'id' is missing or invalid.";
 const char* Extension::kInvalidJsCountError =
     "Invalid value for 'content_scripts[*].js. Only one js file is currently "
-    "supported per-user script.";
+    "supported per-content script.";
 const char* Extension::kInvalidJsError =
     "Invalid value for 'content_scripts[*].js[*]'.";
 const char* Extension::kInvalidJsListError =
@@ -230,7 +230,7 @@ bool Extension::InitFromValue(const DictionaryValue& source,
     }
   }
 
-  // Initialize user scripts (optional).
+  // Initialize content scripts (optional).
   if (source.HasKey(kContentScriptsKey)) {
     ListValue* list_value;
     if (!source.GetList(kContentScriptsKey, &list_value)) {

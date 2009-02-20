@@ -7,6 +7,7 @@
 
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/json_reader.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -73,6 +74,11 @@ class ExtensionsServiceTestFrontend
   }
 
   virtual void OnExtensionLoadError(const std::string& message) {
+    // In the development environment, we get errors when trying to load
+    // extensions out of the .svn directories.
+    if (message.find(".svn") != std::string::npos)
+      return;
+
     errors_.push_back(message);
   }
 
@@ -197,10 +203,23 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
   frontend->GetMessageLoop()->RunAllPending();
 
-  // Note: There can be more errors if there are extra directories, like .svn
-  // directories.
-  EXPECT_TRUE(frontend->errors()->size() >= 3u);
-  ASSERT_EQ(0u, frontend->extensions()->size());
+  EXPECT_EQ(4u, frontend->errors()->size());
+  EXPECT_EQ(0u, frontend->extensions()->size());
+
+  EXPECT_TRUE(MatchPattern(frontend->errors()->at(0),
+      std::string("Could not load extension from '*'. * ") +
+      JSONReader::kBadRootElementType));
+
+  EXPECT_TRUE(MatchPattern(frontend->errors()->at(1),
+      std::string("Could not load extension from '*'. ") +
+      Extension::kInvalidJsListError));
+
+  EXPECT_TRUE(MatchPattern(frontend->errors()->at(2),
+      std::string("Could not load extension from '*'. ") +
+      Extension::kInvalidManifestError));
+
+  EXPECT_TRUE(MatchPattern(frontend->errors()->at(3),
+      "Could not load extension from '*'. Could not read '*' file."));
 };
 
 // Test installing extensions.

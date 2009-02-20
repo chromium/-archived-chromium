@@ -239,6 +239,19 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     ReportExtensionLoadError(frontend.get(), path, error);
     return NULL;
   }
+
+  // Validate that claimed resources actually exist.
+  for (UserScriptList::const_iterator iter =
+       extension->content_scripts().begin();
+       iter != extension->content_scripts().end(); ++iter) {
+    if (!file_util::PathExists(iter->path())) {
+      ReportExtensionLoadError(frontend.get(), path, StringPrintf(
+          "Could not load content script '%s'.",
+          WideToUTF8(iter->path().ToWStringHack()).c_str()));
+      return NULL;
+    }
+  }
+
   return extension.release();
 }
 
