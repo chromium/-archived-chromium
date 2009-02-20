@@ -545,6 +545,8 @@
 		E48FB97A0EC4EA4A0052B72B /* url_request_mock_net_error_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9720EC4EA270052B72B /* url_request_mock_net_error_job.cc */; };
 		E48FB97C0EC4EA540052B72B /* url_request_slow_download_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9740EC4EA270052B72B /* url_request_slow_download_job.cc */; };
 		E48FB9870EC4EBA10052B72B /* safe_browsing_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE40E9D49DE009A6919 /* safe_browsing_database_unittest.cc */; };
+		E4A3EB130F4EFCF400596CC2 /* grow_box_view.m in Sources */ = {isa = PBXBuildFile; fileRef = E4A3EB120F4EFCF400596CC2 /* grow_box_view.m */; };
+		E4A3EB390F4EFF4D00596CC2 /* grow_box.png in Resources */ = {isa = PBXBuildFile; fileRef = E4A3EB380F4EFF4D00596CC2 /* grow_box.png */; };
 		E4DCDB9D0F4091C00084059A /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
 		E4DCDC8F0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */; };
 		E4DCDC900F40929C0084059A /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
@@ -2782,6 +2784,9 @@
 		E48FB9730EC4EA270052B72B /* url_request_mock_net_error_job.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_request_mock_net_error_job.h; sourceTree = "<group>"; };
 		E48FB9740EC4EA270052B72B /* url_request_slow_download_job.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_request_slow_download_job.cc; sourceTree = "<group>"; };
 		E48FB9750EC4EA270052B72B /* url_request_slow_download_job.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_request_slow_download_job.h; sourceTree = "<group>"; };
+		E4A3EB110F4EFCF400596CC2 /* grow_box_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grow_box_view.h; path = cocoa/grow_box_view.h; sourceTree = "<group>"; };
+		E4A3EB120F4EFCF400596CC2 /* grow_box_view.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = grow_box_view.m; path = cocoa/grow_box_view.m; sourceTree = "<group>"; };
+		E4A3EB380F4EFF4D00596CC2 /* grow_box.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = grow_box.png; path = theme/grow_box.png; sourceTree = "<group>"; };
 		E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
 		E4F324400EE5CE94002533CE /* extension.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extension.cc; sourceTree = "<group>"; };
@@ -4402,6 +4407,7 @@
 				E46C50510F291C0E00B393B8 /* back.pdf */,
 				E46C50530F291C1E00B393B8 /* forward.pdf */,
 				E46C51230F2A14A300B393B8 /* go.pdf */,
+				E4A3EB380F4EFF4D00596CC2 /* grow_box.png */,
 				E46C50570F291C3B00B393B8 /* newtab.pdf */,
 				E46C50540F291C1E00B393B8 /* reload.pdf */,
 				824FC14E0F44C56A000299E5 /* sadtab.png */,
@@ -4416,6 +4422,8 @@
 			children = (
 				82BB33080F44B57C00761F43 /* base_view.h */,
 				82BB33090F44B57C00761F43 /* base_view.mm */,
+				E4A3EB110F4EFCF400596CC2 /* grow_box_view.h */,
+				E4A3EB120F4EFCF400596CC2 /* grow_box_view.m */,
 				824FC1550F44C59C000299E5 /* sad_tab_view.h */,
 				824FC1540F44C59C000299E5 /* sad_tab_view.mm */,
 				A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */,
@@ -5192,6 +5200,7 @@
 				E43A79FA0F1D192000ABD5D1 /* eastWestResizeCursor.png in Resources */,
 				E46C50550F291C1E00B393B8 /* forward.pdf in Resources */,
 				E46C51240F2A14A300B393B8 /* go.pdf in Resources */,
+				E4A3EB390F4EFF4D00596CC2 /* grow_box.png in Resources */,
 				E43A79FB0F1D192000ABD5D1 /* helpCursor.png in Resources */,
 				E43A79FC0F1D192000ABD5D1 /* linkCursor.png in Resources */,
 				4DCE9E2D0EF0B8C000682526 /* MainMenu.xib in Resources */,
@@ -5741,6 +5750,7 @@
 				E45060F20EE87D41003BE099 /* chrome_exe_main.mm in Sources */,
 				331B91820F3BCF1A008B1C46 /* debug_message_handler.cc in Sources */,
 				331B93920F3BF237008B1C46 /* external_js_object.cc in Sources */,
+				E4A3EB130F4EFCF400596CC2 /* grow_box_view.m in Sources */,
 				331B92820F3BE2B4008B1C46 /* renderer_glue.cc in Sources */,
 				E42155D80F3240AF00A4A951 /* tab_strip_view.mm in Sources */,
 				E46C519A0F2A20CC00B393B8 /* toolbar_button_cell.mm in Sources */,

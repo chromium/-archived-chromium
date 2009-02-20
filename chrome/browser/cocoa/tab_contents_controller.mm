@@ -204,18 +204,21 @@ class LocationBarBridge : public LocationBar {
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of this tab.
-// |windowGrowBox| needs to be in the window's coordinate system.
-- (NSRect)growBoxFromWindowGrowBox:(NSRect)windowGrowBox {
+- (NSRect)growBoxRect {
   NSRect localGrowBox = NSMakeRect(0, 0, 0, 0);
   NSView* contentView = contents_->GetNativeView();
   if (contentView) {
-    localGrowBox = windowGrowBox;
+    // For the rect, we start with the grow box view which is a sibling of
+    // the content view's containing box. It's in the coordinate system of
+    // the controller view.
+    localGrowBox = [growBox_ frame];
     // The scrollbar assumes that the resizer goes all the way down to the
     // bottom corner, so we ignore any y offset to the rect itself and use the
     // entire bottom corner.
     localGrowBox.origin.y = 0;
-    // Convert to view coordinates from window coordinates.
-    localGrowBox = [contentView convertRect:localGrowBox fromView:nil];
+    // Convert to the content view's coordinates.
+    localGrowBox = [contentView convertRect:localGrowBox 
+                                   fromView:[self view]];
     // Flip the rect in view coordinates
     localGrowBox.origin.y = 
         [contentView frame].size.height - localGrowBox.origin.y - 
@@ -264,5 +267,3 @@ std::wstring LocationBarBridge::GetInputString() const {
 void LocationBarBridge::FocusLocation() {
   [controller_ focusLocationBar];
 }
-
-

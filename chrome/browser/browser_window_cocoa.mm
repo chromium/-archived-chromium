@@ -99,15 +99,8 @@ bool BrowserWindowCocoa::IsFullscreen() const {
   return false;
 }
 
-@interface NSWindow(OSInternals)
-- (NSRect)_growBoxRect;
-@end
-
 gfx::Rect BrowserWindowCocoa::GetRootWindowResizerRect() const {
-  NSRect windowRect = [window_ _growBoxRect];
-  // convert from window coordinates to the coordinates of the currently
-  // selected tab. |tabRect| will already be flipped into WebKit coordinates.
-  NSRect tabRect = [controller_ selectedTabGrowBoxFromWindowGrowBox:windowRect];
+  NSRect tabRect = [controller_ selectedTabGrowBoxRect];
   return gfx::Rect(NSRectToCGRect(tabRect));
 }
 
