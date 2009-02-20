@@ -110,8 +110,6 @@ input_files = ChromeFileList([
     'child_process_host.h',
     'child_process_info.cc',
     'child_process_info.h',
-    'child_thread.cc',
-    'child_thread.h',
     'chrome_constants.cc',
     'chrome_constants.h',
     'chrome_counters.cc',

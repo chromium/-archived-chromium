@@ -13,6 +13,20 @@
 #include "chrome/common/render_messages.h"
 #include "webkit/glue/webkit_glue.h"
 
+// Custom factory to allow us to pass additional ctor arguments.
+class PluginProcessFactory : public ChildProcessFactoryInterface {
+ public:
+  explicit PluginProcessFactory(const FilePath& plugin_path)
+      : plugin_path_(plugin_path) {
+  }
+
+  virtual ChildProcess* Create(const std::wstring& channel_name) {
+    return new PluginProcess(channel_name, plugin_path_);
+  }
+
+  const FilePath& plugin_path_;
+};
+
 // How long to wait after there are no more plugin instances before killing the
 // process.
 static const int kProcessShutdownDelayMs = 10 * 1000;
@@ -25,12 +39,22 @@ template <> struct RunnableMethodTraits<PluginProcess> {
   static void ReleaseCallee(PluginProcess*) {}
 };
 
-PluginProcess::PluginProcess()
-    : ChildProcess(new PluginThread()) {
+PluginProcess::PluginProcess(const std::wstring& channel_name,
+                             const FilePath& plugin_path) :
+    plugin_path_(plugin_path),
+#pragma warning(suppress: 4355)  // Okay to pass "this" here.
+    plugin_thread_(this, channel_name) {
 }
 
 PluginProcess::~PluginProcess() {
 }
+
+bool PluginProcess::GlobalInit(const std::wstring &channel_name,
+                               const FilePath &plugin_path) {
+  PluginProcessFactory factory(plugin_path);
+  return ChildProcess::GlobalInit(channel_name, &factory);
+}
+
 
 // Note: may be called on any thread
 void PluginProcess::OnFinalRelease() {
@@ -38,8 +62,8 @@ void PluginProcess::OnFinalRelease() {
   // better accomdate back/forth navigation. This avoids shutting down and
   // immediately starting a new plugin process. If a new channel is
   // opened in the interim, the current process will not be shutdown.
-  child_thread()->owner_loop()->PostDelayedTask(FROM_HERE, NewRunnableMethod(
-      this, &PluginProcess::OnProcessShutdownTimeout),
+  main_thread_loop_->PostDelayedTask(FROM_HERE, NewRunnableMethod(
+          this, &PluginProcess::OnProcessShutdownTimeout),
       kProcessShutdownDelayMs);
 }
 
@@ -50,10 +74,25 @@ void PluginProcess::OnProcessShutdownTimeout() {
     // process host instance in the browser to verify if it is ok to shutdown
     // the plugin process. The browser then sends back a response indicating
     // whether it is ok to shutdown.
-    child_thread()->Send(new PluginProcessHostMsg_ShutdownRequest);
+    plugin_thread_.Send(new PluginProcessHostMsg_ShutdownRequest);
   }
+}
+
+// static
+void PluginProcess::ShutdownProcessResponse(bool ok_to_shutdown) {
+  if (ok_to_shutdown) {
+    PluginProcess* plugin_process =
+        static_cast<PluginProcess*>(child_process_);
+    DCHECK(plugin_process);
+    plugin_process->Shutdown();
+  }
+}
+
+void PluginProcess::BrowserShutdown() {
+  ShutdownProcessResponse(true);
 }
 
 void PluginProcess::Shutdown() {
   ChildProcess::OnFinalRelease();
 }
+

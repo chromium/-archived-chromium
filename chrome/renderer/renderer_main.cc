@@ -90,8 +90,9 @@ int RendererMain(const MainFunctionParams& parameters) {
 
   HandleRendererErrorTestParameters(parsed_command_line);
 
-  {
-    RenderProcess render_process;
+  std::wstring channel_name =
+    parsed_command_line.GetSwitchValue(switches::kProcessChannelID);
+  if (RenderProcess::GlobalInit(channel_name)) {
     bool run_loop = true;
     if (!no_sandbox) {
       run_loop = platform.EnableSandbox();
@@ -107,6 +108,8 @@ int RendererMain(const MainFunctionParams& parameters) {
       if (pool) pool->Recycle();
       MessageLoop::current()->Run();
     }
+
+    RenderProcess::GlobalCleanup();
   }
   platform.PlatformUninitialize();
   return 0;

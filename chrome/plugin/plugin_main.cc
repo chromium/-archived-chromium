@@ -53,8 +53,12 @@ int PluginMain(const MainFunctionParams& parameters) {
                          MB_OK | MB_SETFOREGROUND);
   }
 
-  {
-    PluginProcess plugin_process;
+  std::wstring channel_name =
+      parsed_command_line.GetSwitchValue(switches::kProcessChannelID);
+  FilePath plugin_path =
+      FilePath::FromWStringHack(
+      parsed_command_line.GetSwitchValue(switches::kPluginPath));
+  if (PluginProcess::GlobalInit(channel_name, plugin_path)) {
     if (!no_sandbox && target_services) {
       target_services->LowerToken();
     }
@@ -79,6 +83,7 @@ int PluginMain(const MainFunctionParams& parameters) {
     // message loop to use it when translating messages.
     MessageLoop::current()->Run();
   }
+  PluginProcess::GlobalCleanup();
 
   CoUninitialize();
   return 0;

@@ -60,7 +60,7 @@ class RenderViewTest : public testing::Test {
 
   // testing::Test
   virtual void SetUp() {
-    mock_process_.reset(new MockProcess());
+    MockProcess::GlobalInit();
 
     render_thread_.set_routing_id(kRouteId);
 
@@ -77,12 +77,15 @@ class RenderViewTest : public testing::Test {
 
     view_ = NULL;
 
-    mock_process_.reset();
+    // There is a delayed task that the child process posts to terminate the
+    // message loop so we need to spin the message loop to delete the task.
+    MockProcess::GlobalCleanup();
+    msg_loop_.Run();
   }
 
   MessageLoop msg_loop_;
   MockRenderThread render_thread_;
-  scoped_ptr<MockProcess> mock_process_;
+
   scoped_refptr<RenderView> view_;
 };
 

@@ -21,12 +21,11 @@ class TransportDIB;
 // each renderer.
 class RenderProcess : public ChildProcess {
  public:
-  // This constructor grabs the channel name from the command line arguments.
-  RenderProcess();
-  // This constructor uses the given channel name.
-  RenderProcess(const std::wstring& channel_name);
+  static bool GlobalInit(const std::wstring& channel_name);
+  static void GlobalCleanup();
 
-  ~RenderProcess();
+  // Returns true if plugins should be loaded in-process.
+  static bool ShouldLoadPluginsInProcess();
 
   // Get a canvas suitable for drawing and transporting to the browser
   //   memory: (output) the transport DIB memory
@@ -35,31 +34,25 @@ class RenderProcess : public ChildProcess {
   //
   // When no longer needed, you should pass the TransportDIB to
   // ReleaseTransportDIB so that it can be recycled.
-  skia::PlatformCanvas* GetDrawingCanvas(
+  static skia::PlatformCanvas* GetDrawingCanvas(
       TransportDIB** memory, const gfx::Rect& rect);
 
   // Frees shared memory allocated by AllocSharedMemory.  You should only use
   // this function to free the SharedMemory object.
-  void ReleaseTransportDIB(TransportDIB* memory);
-
-  // Returns true if plugins should be loaded in-process.
-  bool in_process_plugins() const { return in_process_plugins_; }
-
-  // Returns true if Gears should be loaded in-process.
-  bool in_process_gears() const { return in_process_gears_; }
-
-  // Returns a pointer to the RenderProcess singleton instance.
-  static RenderProcess* current() {
-    return static_cast<RenderProcess*>(ChildProcess::current());
-  }
-
- protected:
-  friend class RenderThread;
-  // Just like in_process_plugins(), but called before RenderProcess is created.
-  static bool InProcessPlugins();
+  static void ReleaseTransportDIB(TransportDIB* memory);
 
  private:
-  void Init();
+  friend class ChildProcessFactory<RenderProcess>;
+  explicit RenderProcess(const std::wstring& channel_name);
+  ~RenderProcess();
+
+  // Returns a pointer to the RenderProcess singleton instance.  This is
+  // guaranteed to be non-NULL between calls to GlobalInit and GlobalCleanup.
+  static RenderProcess* self() {
+    return static_cast<RenderProcess*>(child_process_);
+  }
+
+  static ChildProcess* ClassFactory(const std::wstring& channel_name);
 
   // Look in the shared memory cache for a suitable object to reuse.
   //   result: (output) the memory found
@@ -84,6 +77,12 @@ class RenderProcess : public ChildProcess {
   TransportDIB* CreateTransportDIB(size_t size);
   void FreeTransportDIB(TransportDIB*);
 
+  // ChildProcess implementation
+  virtual void Cleanup();
+
+  // The one render thread (to be replaced with a set of render threads).
+  RenderThread render_thread_;
+
   // A very simplistic and small cache.  If an entry in this array is non-null,
   // then it points to a SharedMemory object that is available for reuse.
   TransportDIB* shared_mem_cache_[2];
@@ -94,8 +93,7 @@ class RenderProcess : public ChildProcess {
   // TransportDIB sequence number
   uint32 sequence_number_;
 
-  bool in_process_plugins_;
-  bool in_process_gears_;
+  static bool load_plugins_in_process_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderProcess);
 };

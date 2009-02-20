@@ -58,7 +58,7 @@ WebPluginProxy::~WebPluginProxy() {
     GetContextMap().erase(cp_browsing_context_);
 
   if (parent_window_) {
-    PluginThread::current()->Send(
+    PluginThread::GetPluginThread()->Send(
         new PluginProcessHostMsg_DestroyWindow(parent_window_));
   }
 }
@@ -90,7 +90,7 @@ void WebPluginProxy::SetWindow(HWND window, HANDLE pump_messages_event) {
     // the browser paints or sends any other (synchronous) WM_ message to the
     // plugin window.
     msg->EnableMessagePumping();
-    PluginThread::current()->Send(msg);
+    PluginThread::GetPluginThread()->Send(msg);
 
     SetParent(window, parent_window_);
 

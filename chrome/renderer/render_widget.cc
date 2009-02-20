@@ -98,21 +98,21 @@ RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
       ime_control_updated_(false),
       ime_control_busy_(false),
       activatable_(activatable) {
-  RenderProcess::current()->AddRefProcess();
+  RenderProcess::AddRefProcess();
   DCHECK(render_thread_);
 }
 
 RenderWidget::~RenderWidget() {
   DCHECK(!webwidget_) << "Leaking our WebWidget!";
   if (current_paint_buf_) {
-    RenderProcess::current()->ReleaseTransportDIB(current_paint_buf_);
+    RenderProcess::ReleaseTransportDIB(current_paint_buf_);
     current_paint_buf_ = NULL;
   }
   if (current_scroll_buf_) {
-    RenderProcess::current()->ReleaseTransportDIB(current_scroll_buf_);
+    RenderProcess::ReleaseTransportDIB(current_scroll_buf_);
     current_scroll_buf_ = NULL;
   }
-  RenderProcess::current()->ReleaseProcess();
+  RenderProcess::ReleaseProcess();
 }
 
 /*static*/
@@ -298,7 +298,7 @@ void RenderWidget::OnPaintRectAck() {
   // If we sent a PaintRect message with a zero-sized bitmap, then
   // we should have no current paint buf.
   if (current_paint_buf_) {
-    RenderProcess::current()->ReleaseTransportDIB(current_paint_buf_);
+    RenderProcess::ReleaseTransportDIB(current_paint_buf_);
     current_paint_buf_ = NULL;
   }
 
@@ -310,7 +310,7 @@ void RenderWidget::OnScrollRectAck() {
   DCHECK(scroll_reply_pending());
 
   if (current_scroll_buf_) {
-    RenderProcess::current()->ReleaseTransportDIB(current_scroll_buf_);
+    RenderProcess::ReleaseTransportDIB(current_scroll_buf_);
     current_scroll_buf_ = NULL;
   }
 
@@ -403,7 +403,7 @@ void RenderWidget::DoDeferredPaint() {
 
   // Compute a buffer for painting and cache it.
   skia::PlatformCanvas* canvas =
-      RenderProcess::current()->GetDrawingCanvas(&current_paint_buf_, damaged_rect);
+      RenderProcess::GetDrawingCanvas(&current_paint_buf_, damaged_rect);
   if (!canvas) {
     NOTREACHED();
     return;
@@ -480,7 +480,7 @@ void RenderWidget::DoDeferredScroll() {
   damaged_rect = scroll_rect_.Intersect(damaged_rect);
 
   skia::PlatformCanvas* canvas =
-      RenderProcess::current()->GetDrawingCanvas(&current_scroll_buf_, damaged_rect);
+      RenderProcess::GetDrawingCanvas(&current_scroll_buf_, damaged_rect);
   if (!canvas) {
     NOTREACHED();
     return;

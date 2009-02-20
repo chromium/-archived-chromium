@@ -76,9 +76,9 @@ void PluginChannelBase::CleanupChannels() {
 
 bool PluginChannelBase::Init(MessageLoop* ipc_message_loop,
                              bool create_pipe_now) {
-  channel_.reset(new IPC::SyncChannel(
-      channel_name_, mode_, this, NULL, ipc_message_loop, create_pipe_now,
-      PluginProcess::current()->GetShutDownEvent()));
+  channel_.reset(new IPC::SyncChannel(channel_name_, mode_, this, NULL,
+                                      ipc_message_loop, create_pipe_now,
+                                      PluginProcess::GetShutDownEvent()));
   channel_valid_ = true;
   return true;
 }

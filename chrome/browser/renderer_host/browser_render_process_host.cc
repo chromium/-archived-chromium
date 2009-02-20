@@ -18,7 +18,6 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/rand_util.h"
-#include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
@@ -84,7 +83,8 @@ class RendererMainThread : public base::Thread {
     CoInitialize(NULL);
 #endif
 
-    render_process_.reset(new RenderProcess(channel_id_));
+    bool rv = RenderProcess::GlobalInit(channel_id_);
+    DCHECK(rv);
     // It's a little lame to manually set this flag.  But the single process
     // RendererThread will receive the WM_QUIT.  We don't need to assert on
     // this thread, so just force the flag manually.
@@ -94,7 +94,7 @@ class RendererMainThread : public base::Thread {
   }
 
   virtual void CleanUp() {
-    render_process_.reset();
+    RenderProcess::GlobalCleanup();
 
 #if defined(OS_WIN)
     CoUninitialize();
@@ -103,7 +103,6 @@ class RendererMainThread : public base::Thread {
 
  private:
   std::wstring channel_id_;
-  scoped_ptr<RenderProcess> render_process_;
 };
 
 // Used for a View_ID where the renderer has not been attached yet

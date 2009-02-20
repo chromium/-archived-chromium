@@ -7,26 +7,45 @@
 
 #include <string>
 #include <vector>
-#include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
 #include "base/message_loop.h"
-#include "base/scoped_ptr.h"
-#include "base/waitable_event.h"
 
-class ChildThread;
+namespace base {
+  class WaitableEvent;
+};
 
+class ChildProcess;
+
+class ChildProcessFactoryInterface {
+ public:
+  virtual ChildProcess* Create(const std::wstring& channel_name) = 0;
+};
+
+template<class T>
+class ChildProcessFactory : public ChildProcessFactoryInterface {
+  virtual ChildProcess* Create(const std::wstring& channel_name) {
+    return new T(channel_name);
+  }
+};
 
 // Base class for child processes of the browser process (i.e. renderer and
 // plugin host). This is a singleton object for each child process.
 class ChildProcess {
  public:
-  // Child processes should have an object that derives from this class.  The
-  // constructor will return once ChildThread has started.
-  ChildProcess(ChildThread* child_thread);
-  virtual ~ChildProcess();
 
-  // Getter for this process' main thread.
-  ChildThread* child_thread() { return child_thread_.get(); }
+  // initializes/cleansup the global variables, services, and libraries
+  // Derived classes need to implement a static GlobalInit, that calls
+  // into ChildProcess::GlobalInit with a class factory
+//static bool GlobalInit(const std::wstring& channel_name);
+  static void GlobalCleanup();
+
+  // These are used for ref-counting the child process.  The process shuts
+  // itself down when the ref count reaches 0.  These functions may be called
+  // on any thread.
+  // For example, in the renderer process, generally each tab managed by this
+  // process will hold a reference to the process, and release when closed.
+  static void AddRefProcess();
+  static void ReleaseProcess();
 
   // A global event object that is signalled when the main thread's message
   // loop exits.  This gives background threads a way to observe the main
@@ -37,24 +56,22 @@ class ChildProcess {
   // up waiting.
   // For example, see the renderer code used to implement
   // webkit_glue::GetCookies.
-  base::WaitableEvent* GetShutDownEvent();
+  static base::WaitableEvent* GetShutDownEvent();
 
-  // These are used for ref-counting the child process.  The process shuts
-  // itself down when the ref count reaches 0.  These functions may be called
-  // on any thread.
-  // For example, in the renderer process, generally each tab managed by this
-  // process will hold a reference to the process, and release when closed.
-  void AddRefProcess();
-  void ReleaseProcess();
+  // You must call Init after creating this object before it will be valid
+  ChildProcess();
+  virtual ~ChildProcess();
 
  protected:
-  friend class ChildThread;
+  static bool GlobalInit(const std::wstring& channel_name,
+                         ChildProcessFactoryInterface* factory);
 
-  // Getter for the one ChildProcess object for this process.
-  static ChildProcess* current() { return child_process_; }
+  static bool ProcessRefCountIsZero();
 
- protected:
-  bool ProcessRefCountIsZero();
+  // The singleton instance for this process.
+  static ChildProcess* child_process_;
+
+  static MessageLoop* main_thread_loop_;
 
   // Derived classes can override this to alter the behavior when the ref count
   // reaches 0. The default implementation calls Quit on the main message loop
@@ -63,15 +80,10 @@ class ChildProcess {
   virtual void OnFinalRelease();
 
  private:
-  // The singleton instance for this process.
-  static ChildProcess* child_process_;
-
-  // An event that will be signalled when we shutdown.
-  base::WaitableEvent shutdown_event_;
-
-  base::AtomicRefCount ref_count_;
-
-  scoped_ptr<ChildThread> child_thread_;
+  // Derived classes can override this to handle any cleanup, called by
+  // GlobalCleanup.
+  virtual void Cleanup() {}
+  static base::WaitableEvent* shutdown_event_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ChildProcess);
 };

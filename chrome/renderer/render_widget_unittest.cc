@@ -28,17 +28,20 @@ class RenderWidgetTest : public testing::Test {
  private:
   // testing::Test
   virtual void SetUp() {
-    mock_process_.reset(new MockProcess());
+    MockProcess::GlobalInit();
+
     render_thread_.set_routing_id(kRouteId);
     widget_ = RenderWidget::Create(kOpenerId, &render_thread_, true);
     ASSERT_TRUE(widget_);
   }
   virtual void TearDown() {
     widget_ = NULL;
-    mock_process_.reset();
-  }
 
-  scoped_ptr<MockProcess> mock_process_;
+    // There is a delayed task that the child process posts to terminate the
+    // message loop so we need to spin the message loop to delete the task.
+    MockProcess::GlobalCleanup();
+    msg_loop_.Run();
+  }
 };
 
 }  // namespace

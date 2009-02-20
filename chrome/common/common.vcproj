@@ -358,14 +358,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\child_thread.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\child_thread.h"
-			>
-		</File>
-		<File
 			RelativePath=".\chrome_constants.cc"
 			>
 		</File>

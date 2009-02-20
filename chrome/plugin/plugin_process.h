@@ -14,23 +14,37 @@
 // each plugin.
 class PluginProcess : public ChildProcess {
  public:
-  PluginProcess();
-  virtual ~PluginProcess();
+  static bool GlobalInit(const std::wstring& channel_name,
+                         const FilePath& plugin_path);
+
+  // Invoked with the response from the browser indicating whether it is
+  // ok to shutdown the plugin process.
+  static void ShutdownProcessResponse(bool ok_to_shutdown);
 
   // Invoked when the browser is shutdown. This ensures that the plugin
   // process does not hang around waiting for future invocations
   // from the browser.
-  void Shutdown();
+  static void BrowserShutdown();
 
-  // Returns a pointer to the PluginProcess singleton instance.
-  static PluginProcess* current() {
-    return static_cast<PluginProcess*>(ChildProcess::current());
-  }
+  // File path of the plugin this process hosts.
+  const FilePath& plugin_path() { return plugin_path_; }
 
  private:
+  friend class PluginProcessFactory;
+  PluginProcess(const std::wstring& channel_name,
+                const FilePath& plugin_path);
+  virtual ~PluginProcess();
 
   virtual void OnFinalRelease();
+  void Shutdown();
   void OnProcessShutdownTimeout();
+
+  const FilePath plugin_path_;
+
+  // The thread where plugin instances live.  Since NPAPI plugins weren't
+  // created with multi-threading in mind, running multiple instances on
+  // different threads would be asking for trouble.
+  PluginThread plugin_thread_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginProcess);
 };

@@ -14,6 +14,7 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
+#include "chrome/common/child_process.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/stl_util-inl.h"
@@ -28,6 +29,17 @@ using base::WaitableEvent;
 
 namespace {
 
+// SyncChannel should only be used in child processes as we don't want to hang
+// the browser.  So in the unit test we need to have a ChildProcess object.
+class TestProcess : public ChildProcess {
+ public:
+  explicit TestProcess(const std::wstring& channel_name) {}
+  static void GlobalInit() {
+    ChildProcessFactory<TestProcess> factory;
+    ChildProcess::GlobalInit(L"blah", &factory);
+  }
+};
+
 // Base class for a "process" with listener and IPC threads.
 class Worker : public Channel::Listener, public Message::Sender {
  public:
@@ -38,8 +50,7 @@ class Worker : public Channel::Listener, public Message::Sender {
         mode_(mode),
         ipc_thread_((thread_name + "_ipc").c_str()),
         listener_thread_((thread_name + "_listener").c_str()),
-        overrided_thread_(NULL),
-        shutdown_event_(true, false) { }
+        overrided_thread_(NULL) { }
 
   // Will create a named channel and use this name for the threads' name.
   Worker(const std::wstring& channel_name, Channel::Mode mode)
@@ -49,8 +60,7 @@ class Worker : public Channel::Listener, public Message::Sender {
         mode_(mode),
         ipc_thread_((WideToUTF8(channel_name) + "_ipc").c_str()),
         listener_thread_((WideToUTF8(channel_name) + "_listener").c_str()),
-        overrided_thread_(NULL),
-        shutdown_event_(true, false) { }
+        overrided_thread_(NULL) { }
 
   // The IPC thread needs to outlive SyncChannel, so force the correct order of
   // destruction.
@@ -143,7 +153,7 @@ class Worker : public Channel::Listener, public Message::Sender {
     StartThread(&ipc_thread_, MessageLoop::TYPE_IO);
     channel_.reset(new SyncChannel(
         channel_name_, mode_, this, NULL, ipc_thread_.message_loop(), true,
-        &shutdown_event_));
+        TestProcess::GetShutDownEvent()));
     channel_created_->Signal();
     Run();
   }
@@ -185,8 +195,6 @@ class Worker : public Channel::Listener, public Message::Sender {
   base::Thread listener_thread_;
   base::Thread* overrided_thread_;
 
-  base::WaitableEvent shutdown_event_;
-
   DISALLOW_EVIL_CONSTRUCTORS(Worker);
 };
 
@@ -194,6 +202,8 @@ class Worker : public Channel::Listener, public Message::Sender {
 // Starts the test with the given workers.  This function deletes the workers
 // when it's done.
 void RunTest(std::vector<Worker*> workers) {
+  TestProcess::GlobalInit();
+
   // First we create the workers that are channel servers, or else the other
   // workers' channel initialization might fail because the pipe isn't created..
   for (size_t i = 0; i < workers.size(); ++i) {
@@ -214,6 +224,8 @@ void RunTest(std::vector<Worker*> workers) {
     workers[i]->done_event()->Wait();
 
   STLDeleteContainerPointers(workers.begin(), workers.end());
+
+  TestProcess::GlobalCleanup();
 }
 
 }  // namespace

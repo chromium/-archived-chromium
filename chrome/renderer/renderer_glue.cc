@@ -134,14 +134,14 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 
 #if defined(OS_WIN)
   if (shared_buf_) {
-    RenderThread::current()->Send(
+    g_render_thread->Send(
         new ViewHostMsg_ClipboardWriteObjectsSync(objects_));
     delete shared_buf_;
     return;
   }
 #endif
 
-  RenderThread::current()->Send(
+  g_render_thread->Send(
       new ViewHostMsg_ClipboardWriteObjectsAsync(objects_));
 }
 
@@ -183,7 +183,7 @@ bool GetMimeTypeFromExtension(const FilePath::StringType &ext,
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
   DCHECK(mime_type->empty());
-  RenderThread::current()->Send(
+  g_render_thread->Send(
       new ViewHostMsg_GetMimeTypeFromExtension(ext, mime_type));
   return !mime_type->empty();
 }
@@ -196,7 +196,7 @@ bool GetMimeTypeFromFile(const FilePath &file_path,
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
   DCHECK(mime_type->empty());
-  RenderThread::current()->Send(
+  g_render_thread->Send(
       new ViewHostMsg_GetMimeTypeFromFile(file_path, mime_type));
   return !mime_type->empty();
 }
@@ -209,7 +209,7 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
   // The sandbox restricts our access to the registry, so we need to proxy
   // these calls over to the browser process.
   DCHECK(ext->empty());
-  RenderThread::current()->Send(
+  g_render_thread->Send(
       new ViewHostMsg_GetPreferredExtensionForMimeType(mime_type, ext));
   return !ext->empty();
 }
@@ -246,21 +246,21 @@ bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
 
 bool ClipboardIsFormatAvailable(unsigned int format) {
   bool result;
-  RenderThread::current()->Send(
+  g_render_thread->Send(
       new ViewHostMsg_ClipboardIsFormatAvailable(format, &result));
   return result;
 }
 
 void ClipboardReadText(std::wstring* result) {
-  RenderThread::current()->Send(new ViewHostMsg_ClipboardReadText(result));
+  g_render_thread->Send(new ViewHostMsg_ClipboardReadText(result));
 }
 
 void ClipboardReadAsciiText(std::string* result) {
-  RenderThread::current()->Send(new ViewHostMsg_ClipboardReadAsciiText(result));
+  g_render_thread->Send(new ViewHostMsg_ClipboardReadAsciiText(result));
 }
 
 void ClipboardReadHTML(std::wstring* markup, GURL* url) {
-  RenderThread::current()->Send(new ViewHostMsg_ClipboardReadHTML(markup, url));
+  g_render_thread->Send(new ViewHostMsg_ClipboardReadHTML(markup, url));
 }
 
 GURL GetInspectorURL() {
@@ -271,8 +271,9 @@ std::string GetUIResourceProtocol() {
   return "chrome";
 }
 
-bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  return RenderThread::current()->Send(
+bool GetPlugins(bool refresh,
+                             std::vector<WebPluginInfo>* plugins) {
+  return g_render_thread->Send(
       new ViewHostMsg_GetPlugins(refresh, plugins));
 }
 
@@ -280,24 +281,33 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
 bool EnsureFontLoaded(HFONT font) {
   LOGFONT logfont;
   GetObject(font, sizeof(LOGFONT), &logfont);
-  return RenderThread::current()->Send(new ViewHostMsg_LoadFont(logfont));
+  return g_render_thread->Send(new ViewHostMsg_LoadFont(logfont));
 }
 #endif
 
 webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
   webkit_glue::ScreenInfo results;
-  RenderThread::current()->Send(
+  g_render_thread->Send(
       new ViewHostMsg_GetScreenInfo(window, &results));
   return results;
 }
 
 uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
-  return RenderThread::current()->visited_link_slave()->ComputeURLFingerprint(
+  return g_render_thread->visited_link_slave()->ComputeURLFingerprint(
       canonical_url, length);
 }
 
 bool IsLinkVisited(uint64 link_hash) {
-  return RenderThread::current()->visited_link_slave()->IsVisited(link_hash);
+  return g_render_thread->visited_link_slave()->IsVisited(link_hash);
+}
+
+int ResolveProxyFromRenderThread(const GURL& url, std::string* proxy_result) {
+  // Send a synchronous IPC from renderer process to the browser process to
+  // resolve the proxy. (includes --single-process case).
+  int net_error;
+  bool ipc_ok = g_render_thread->Send(
+      new ViewHostMsg_ResolveProxy(url, &net_error, proxy_result));
+  return ipc_ok ? net_error : net::ERR_UNEXPECTED;
 }
 
 #ifndef USING_SIMPLE_RESOURCE_LOADER_BRIDGE
@@ -344,12 +354,12 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
 
 void SetCookie(const GURL& url, const GURL& policy_url,
                const std::string& cookie) {
-  RenderThread::current()->Send(new ViewHostMsg_SetCookie(url, policy_url, cookie));
+  g_render_thread->Send(new ViewHostMsg_SetCookie(url, policy_url, cookie));
 }
 
 std::string GetCookies(const GURL& url, const GURL& policy_url) {
   std::string cookies;
-  RenderThread::current()->Send(new ViewHostMsg_GetCookies(url, policy_url, &cookies));
+  g_render_thread->Send(new ViewHostMsg_GetCookies(url, policy_url, &cookies));
   return cookies;
 }
 
@@ -357,8 +367,8 @@ void NotifyCacheStats() {
   // Update the browser about our cache
   // NOTE: Since this can be called from the plugin process, we might not have
   // a RenderThread.  Do nothing in that case.
-  if (!IsPluginProcess())
-    RenderThread::current()->InformHostOfCacheStatsLater();
+  if (g_render_thread)
+    g_render_thread->InformHostOfCacheStatsLater();
 }
 
 #endif  // !USING_SIMPLE_RESOURCE_LOADER_BRIDGE

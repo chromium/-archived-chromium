@@ -138,7 +138,7 @@ class PluginRequestHandlerProxy
 
   CPError Start() {
     bridge_.reset(
-        PluginThread::current()->resource_dispatcher()->CreateBridge(
+        PluginThread::GetPluginThread()->resource_dispatcher()->CreateBridge(
             cprequest_->method,
             GURL(cprequest_->url),
             GURL(cprequest_->url),  // TODO(jackson): policy url?
@@ -252,9 +252,9 @@ void STDCALL CPB_SetKeepProcessAlive(CPID id, CPBool keep_alive) {
   if (desired_value != g_keep_process_alive) {
     g_keep_process_alive = desired_value;
     if (g_keep_process_alive)
-      PluginProcess::current()->AddRefProcess();
+      PluginProcess::AddRefProcess();
     else
-      PluginProcess::current()->ReleaseProcess();
+      PluginProcess::ReleaseProcess();
   }
 }
 
@@ -276,7 +276,7 @@ CPError STDCALL CPB_GetCookies(CPID id, CPBrowsingContext context,
   if (webplugin) {
     cookies_str = webplugin->GetCookies(GURL(url), GURL(url));
   } else {
-    PluginThread::current()->Send(
+    PluginThread::GetPluginThread()->Send(
         new PluginProcessHostMsg_GetCookies(context, GURL(url), &cookies_str));
   }
 
@@ -507,9 +507,10 @@ CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
   CHECK(ChromePluginLib::IsPluginThread());
   const uint8* data_ptr = static_cast<const uint8*>(data);
   std::vector<uint8> v(data_ptr, data_ptr + data_len);
-  if (!PluginThread::current()->Send(new PluginProcessHostMsg_PluginMessage(v)))
+  if (!PluginThread::GetPluginThread()->Send(
+          new PluginProcessHostMsg_PluginMessage(v))) {
     return CPERR_FAILURE;
-
+  }
   return CPERR_SUCCESS;
 }
 
@@ -519,7 +520,7 @@ CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
   const uint8* data_ptr = static_cast<const uint8*>(data);
   std::vector<uint8> v(data_ptr, data_ptr + data_len);
   std::vector<uint8> r;
-  if (!PluginThread::current()->Send(
+  if (!PluginThread::GetPluginThread()->Send(
           new PluginProcessHostMsg_PluginSyncMessage(v, &r))) {
     return CPERR_FAILURE;
   }
@@ -539,7 +540,7 @@ CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
 CPError STDCALL CPB_PluginThreadAsyncCall(CPID id,
                                           void (*func)(void *),
                                           void *user_data) {
-  MessageLoop *message_loop = PluginThread::current()->message_loop();
+  MessageLoop *message_loop = PluginThread::GetPluginThread()->message_loop();
   if (!message_loop) {
     return CPERR_FAILURE;
   }
