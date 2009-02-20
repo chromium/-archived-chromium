@@ -86,9 +86,10 @@ class ExtensionsServiceTestFrontend
     extensions_.insert(extensions_.end(), new_extensions->begin(),
                        new_extensions->end());
     delete new_extensions;
-    // In the tests we rely on extensions being in particular order,
+    // In the tests we rely on extensions and errors being in particular order,
     // which is not always the case (and is not guaranteed by used APIs).
     std::stable_sort(extensions_.begin(), extensions_.end(), ExtensionsOrder());
+    std::stable_sort(errors_.begin(), errors_.end());
   }
 
   virtual void OnExtensionInstallError(const std::string& message) {
