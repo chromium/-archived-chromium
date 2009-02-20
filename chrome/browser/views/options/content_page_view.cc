@@ -52,7 +52,7 @@ class FileDisplayArea : public views::View {
   FileDisplayArea();
   virtual ~FileDisplayArea();
 
-  void SetFile(const std::wstring& file_path);
+  void SetFile(const FilePath& file_path);
 
   // views::View overrides:
   virtual void Paint(ChromeCanvas* canvas);
@@ -94,8 +94,15 @@ FileDisplayArea::FileDisplayArea()
 FileDisplayArea::~FileDisplayArea() {
 }
 
-void FileDisplayArea::SetFile(const std::wstring& file_path) {
-  text_field_->SetText(file_path);
+void FileDisplayArea::SetFile(const FilePath& file_path) {
+  // Force file path to have LTR directionality.
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+    string16 localized_file_path;
+    l10n_util::WrapPathWithLTRFormatting(file_path, &localized_file_path);
+    text_field_->SetText(UTF16ToWide(localized_file_path));
+  } else {
+    text_field_->SetText(file_path.ToWStringHack());
+  }
 }
 
 void FileDisplayArea::Paint(ChromeCanvas* canvas) {
@@ -105,7 +112,9 @@ void FileDisplayArea::Paint(ChromeCanvas* canvas) {
       dc, EP_EDITTEXT, ETS_READONLY, 0, &rect,
       skia::SkColorToCOLORREF(text_field_background_color_), true, true);
   canvas->endPlatformPaint();
-  canvas->DrawBitmapInt(default_folder_icon_, icon_bounds_.x(),
+  // Mirror left point for icon_bounds_ to draw icon in RTL locales correctly.
+  canvas->DrawBitmapInt(default_folder_icon_,
+                        MirroredLeftPointForRect(icon_bounds_),
                         icon_bounds_.y());
 }
 
@@ -144,11 +153,18 @@ void FileDisplayArea::Init() {
   text_field_->SetBackgroundColor(text_field_background_color_);
 }
 
+// static
 void FileDisplayArea::InitClass() {
   static bool initialized = false;
   if (!initialized) {
+    // We'd prefer to use UILayoutIsRightToLeft() to perform the RTL
+    // environment check, but it's nonstatic, so, instead, we check whether the
+    // locale is RTL.
+    bool ui_is_rtl = l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT;
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    default_folder_icon_ = *rb.GetBitmapNamed(IDR_FOLDER_CLOSED);
+    default_folder_icon_ = *rb.GetBitmapNamed(ui_is_rtl ?
+                                              IDR_FOLDER_CLOSED_RTL :
+                                              IDR_FOLDER_CLOSED);
     initialized = true;
   }
 }
@@ -501,6 +517,6 @@ void ContentPageView::InitFontsLangGroup() {
 
 void ContentPageView::UpdateDownloadDirectoryDisplay() {
   download_default_download_location_display_->SetFile(
-      default_download_location_.GetValue());
+      FilePath::FromWStringHack(default_download_location_.GetValue()));
 }
 

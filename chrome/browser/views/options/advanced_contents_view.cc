@@ -691,8 +691,11 @@ void WebContentSection::InitControlLayout() {
   } else {
     // Add an RTL mark so that
     // ":" in "Google Gears:" in Hebrew Chrome is displayed left-most.
-    gears_label_ = new views::Label(l10n_util::GetString(
-        IDS_OPTIONS_GEARSSETTINGS_GROUP_NAME) + l10n_util::kRightToLeftMark);
+    std::wstring gearssetting_group_name =
+        l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_GROUP_NAME);
+    gearssetting_group_name.push_back(
+        static_cast<wchar_t>(l10n_util::kRightToLeftMark));
+    gears_label_ = new views::Label(gearssetting_group_name);
   }
   gears_settings_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_CONFIGUREGEARS_BUTTON));

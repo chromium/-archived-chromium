@@ -4,6 +4,7 @@
 
 #include "build/build_config.h"
 
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -159,5 +160,83 @@ TEST_F(L10nUtilTest, GetAppLocale) {
   Locale::setDefault(locale, error_code);
 }
 
+typedef struct {
+  std::wstring path;
+  std::wstring wrapped_path;
+} PathAndWrappedPath;
+
+TEST_F(L10nUtilTest, WrapPathWithLTRFormatting) {
+  std::wstring kSeparator;
+  kSeparator.push_back(static_cast<wchar_t>(FilePath::kSeparators[0]));
+  const PathAndWrappedPath test_data[] = {
+    // Test common path, such as "c:\foo\bar".
+    { L"c:" + kSeparator + L"foo" + kSeparator + L"bar",
+      L"\x202a"L"c:" + kSeparator + L"\x200e"L"foo" + kSeparator +
+      L"\x200e"L"bar\x202c"
+    },
+    // Test path with file name, such as "c:\foo\bar\test.jpg".
+    { L"c:" + kSeparator + L"foo" + kSeparator + L"bar" + kSeparator +
+      L"test.jpg",
+      L"\x202a"L"c:" + kSeparator + L"\x200e"L"foo" + kSeparator +
+      L"\x200e"L"bar" + kSeparator + L"\x200e"L"test.jpg\x202c"
+    },
+    // Test path ending with punctuation, such as "c:\(foo)\bar.".
+    { L"c:" + kSeparator + L"(foo)" + kSeparator + L"bar.",
+      L"\x202a"L"c:" + kSeparator + L"\x200e"L"(foo)" + kSeparator +
+      L"\x200e"L"bar.\x202c"
+    },
+    // Test path ending with separator, such as "c:\foo\bar\".
+    { L"c:" + kSeparator + L"foo" + kSeparator + L"bar" + kSeparator,
+      L"\x202a"L"c:" + kSeparator + L"\x200e"L"foo" + kSeparator +
+      L"\x200e"L"bar" + kSeparator + L"\x200e\x202c"
+    },
+    // Test path with RTL character.
+    { L"c:" + kSeparator + L"\x05d0",
+      L"\x202a"L"c:" + kSeparator + L"\x200e\x05d0\x202c",
+    },
+    // Test path with 2 level RTL directory names.
+    { L"c:" + kSeparator + L"\x05d0" + kSeparator + L"\x0622",
+      L"\x202a"L"c:" + kSeparator + L"\x200e\x05d0" + kSeparator +
+      L"\x200e\x0622\x202c",
+    },
+    // Test path with mixed RTL/LTR directory names and ending with punctuation.
+    { L"c:" + kSeparator + L"\x05d0" + kSeparator + L"\x0622" + kSeparator +
+      L"(foo)" + kSeparator + L"b.a.r.",
+      L"\x202a"L"c:" + kSeparator + L"\x200e\x05d0" + kSeparator +
+      L"\x200e\x0622" + kSeparator + L"\x200e"L"(foo)" + kSeparator +
+      L"\x200e"L"b.a.r.\x202c",
+    },
+    // Test path without driver name, such as "/foo/bar/test/jpg".
+    { kSeparator + L"foo" + kSeparator + L"bar" + kSeparator + L"test.jpg",
+      L"\x202a" + kSeparator + L"foo" + kSeparator + L"\x200e" + L"bar" +
+      kSeparator + L"\x200e" + L"test.jpg" + L"\x202c"
+    },
+    // Test path start with current directory, such as "./foo".
+    { L"." + kSeparator + L"foo",
+      L"\x202a"L"." + kSeparator + L"\x200e" + L"foo" + L"\x202c"
+    },
+    // Test path start with parent directory, such as "../foo/bar.jpg".
+    { L".." + kSeparator + L"foo" + kSeparator + L"bar.jpg",
+      L"\x202a"L".." + kSeparator + L"\x200e" + L"foo" + kSeparator +
+      L"\x200e" + L"bar.jpg" + L"\x202c"
+    },
+    // Test absolute path, such as "//foo/bar.jpg".
+    { kSeparator + kSeparator + L"foo" + kSeparator + L"bar.jpg",
+      L"\x202a" + kSeparator + kSeparator + L"\x200e"L"foo" + kSeparator +
+      L"\x200e"L"bar.jpg" + L"\x202c"
+    },
+    // Test empty path.
+    { L"",
+      L"\x202a\x202c"
+    }
+  };
+  for (unsigned int i = 0; i < arraysize(test_data); ++i) {
+    string16 localized_file_path_string;
+    FilePath path = FilePath::FromWStringHack(test_data[i].path);
+    l10n_util::WrapPathWithLTRFormatting(path, &localized_file_path_string);
+    std::wstring wrapped_path = UTF16ToWide(localized_file_path_string);
+    EXPECT_EQ(wrapped_path, test_data[i].wrapped_path);
+  }
+}
 }
 

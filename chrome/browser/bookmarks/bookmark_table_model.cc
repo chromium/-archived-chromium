@@ -363,7 +363,7 @@ void BookmarkTableModel::BuildPath(BookmarkNode* node, std::wstring* path) {
   // (in which, "CBA" and "FED" stand for folder names in Hebrew, and "FED" is
   // a subfolder of "CBA") will be displayed as "FED/CBA".
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    path->append(l10n_util::kLeftToRightMark);
+    path->push_back(static_cast<wchar_t>(l10n_util::kLeftToRightMark));
   }
   path->append(node->GetTitle());
 }

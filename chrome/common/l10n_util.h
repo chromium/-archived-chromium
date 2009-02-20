@@ -21,17 +21,22 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
+#include "base/string16.h"
 #include "base/string_util.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 #include "unicode/coll.h"
 #include "unicode/locid.h"
 
+class FilePath;
 class PrefService;
 
 namespace l10n_util {
 
-const wchar_t kRightToLeftMark[] = L"\x200f";
-const wchar_t kLeftToRightMark[] = L"\x200e";
+const char16 kRightToLeftMark = 0x200f;
+const char16 kLeftToRightMark = 0x200e;
+const char16 kLeftToRightEmbeddingMark = 0x202A;
+const char16 kRightToLeftEmbeddingMark = 0x202B;
+const char16 kPopDirectionalFormatting = 0x202C;
 
 // This method is responsible for determining the locale as defined below. In
 // nearly all cases you shouldn't call this, rather use GetApplicationLocale
@@ -150,6 +155,12 @@ void WrapStringWithLTRFormatting(std::wstring* text);
 // Right-To-Left string. Doing this is useful in order to make sure RTL
 // strings are rendered properly in an LTR context.
 void WrapStringWithRTLFormatting(std::wstring* text);
+
+// Wraps individual file path components to get them to display correctly in an
+// RTL UI. All filepaths should be passed through this function before display
+// in UI for RTL locales.
+void WrapPathWithLTRFormatting(const FilePath& path,
+                               string16* rtl_safe_path);
 
 // Returns the locale-dependent extended window styles.
 // This function is used for adding locale-dependent extended window styles
