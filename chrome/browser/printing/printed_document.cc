@@ -12,13 +12,13 @@
 #include "chrome/browser/printing/page_overlays.h"
 #include "chrome/browser/printing/printed_pages_source.h"
 #include "chrome/browser/printing/printed_page.h"
-#include "chrome/browser/printing/units.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
+#include "printing/units.h"
 #include "skia/ext/platform_device.h"
 
 using base::Time;

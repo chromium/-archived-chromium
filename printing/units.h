@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_UNITS_H__
-#define CHROME_BROWSER_PRINTING_UNITS_H__
+#ifndef PRINTING_UNITS_H_
+#define PRINTING_UNITS_H_
 
 namespace printing {
 
@@ -24,5 +24,4 @@ int ConvertHundredThousanthMeterToMilliInch(int cmm);
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_UNITS_H__
-
+#endif  // PRINTING_UNITS_H_

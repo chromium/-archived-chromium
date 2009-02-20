@@ -369,8 +369,6 @@ input_files = ChromeFileList([
     'printing/printed_pages_source.h',
     'printing/printer_query.cc',
     'printing/printer_query.h',
-    'printing/units.cc',
-    'printing/units.h',
     'printing/win_printing_context.cc',
     'printing/win_printing_context.h',
   ]),

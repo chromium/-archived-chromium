@@ -695,10 +695,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\printing\units_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\history\url_database_unittest.cc"
 				>
 			</File>

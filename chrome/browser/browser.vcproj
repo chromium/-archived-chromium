@@ -410,14 +410,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\process_singleton_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\process_singleton.h"
-				>
-			</File>
-			<File
 				RelativePath=".\meta_table_helper.cc"
 				>
 			</File>
@@ -463,6 +455,14 @@
 			</File>
 			<File
 				RelativePath="..\tools\build\win\precompiled_wtl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\process_singleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\process_singleton_win.cc"
 				>
 			</File>
 			<File
@@ -1403,14 +1403,6 @@
 			</File>
 			<File
 				RelativePath=".\printing\printer_query.h"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\units.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\printing\units.h"
 				>
 			</File>
 			<File

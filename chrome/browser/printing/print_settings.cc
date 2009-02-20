@@ -6,8 +6,8 @@
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
-#include "chrome/browser/printing/units.h"
 #include "chrome/common/render_messages.h"
+#include "printing/units.h"
 
 namespace printing {
 
@@ -65,7 +65,8 @@ void PrintSettings::Init(HDC hdc,
                                   GetDeviceCaps(hdc, HORZRES),
                                   GetDeviceCaps(hdc, VERTRES));
   // Hard-code text_height = 0.5cm = ~1/5 of inch
-  page_setup_pixels_.Init(physical_size_pixels, printable_area_pixels,
+  page_setup_pixels_.Init(physical_size_pixels,
+                          printable_area_pixels,
                           ConvertUnit(500, kHundrethsMMPerInch, dpi_));
 
   // Initialize page_setup_cmm_.
@@ -104,16 +105,21 @@ void PrintSettings::UpdateMarginsMetric(const PageMargins& new_margins) {
 
   // Converts the margins in dpi unit and apply those too.
   PageMargins pixels_margins;
-  pixels_margins.header = ConvertUnit(new_margins.header, kHundrethsMMPerInch,
+  pixels_margins.header = ConvertUnit(new_margins.header,
+                                      kHundrethsMMPerInch,
                                       dpi_);
-  pixels_margins.footer = ConvertUnit(new_margins.footer, kHundrethsMMPerInch,
+  pixels_margins.footer = ConvertUnit(new_margins.footer,
+                                      kHundrethsMMPerInch,
                                       dpi_);
-  pixels_margins.left = ConvertUnit(new_margins.left, kHundrethsMMPerInch,
+  pixels_margins.left = ConvertUnit(new_margins.left,
+                                    kHundrethsMMPerInch,
                                     dpi_);
   pixels_margins.top = ConvertUnit(new_margins.top, kHundrethsMMPerInch, dpi_);
-  pixels_margins.right = ConvertUnit(new_margins.right, kHundrethsMMPerInch,
+  pixels_margins.right = ConvertUnit(new_margins.right,
+                                     kHundrethsMMPerInch,
                                      dpi_);
-  pixels_margins.bottom = ConvertUnit(new_margins.bottom, kHundrethsMMPerInch,
+  pixels_margins.bottom = ConvertUnit(new_margins.bottom,
+                                      kHundrethsMMPerInch,
                                       dpi_);
   page_setup_pixels_.SetRequestedMargins(pixels_margins);
 }
