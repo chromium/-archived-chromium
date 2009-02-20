@@ -316,7 +316,6 @@ bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
 
 // This depends on porting all the plugin IPC messages.
 bool IsPluginProcess() {
-  NOTIMPLEMENTED();
   return false;
 }
 

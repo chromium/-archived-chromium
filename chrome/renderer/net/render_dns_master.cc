@@ -19,7 +19,7 @@
 // This API is used in the render process by renderer_glue.cc.
 // IF you are in the render process, you MUST be on the renderer thread to call.
 void DnsPrefetchCString(const char* hostname, size_t length) {
-  g_render_thread->Resolve(hostname, length);
+  RenderThread::current()->Resolve(hostname, length);
 }
 
 // The number of hostnames submitted to Browser DNS resolver per call to
@@ -55,7 +55,7 @@ void RenderDnsMaster::Resolve(const char* name, size_t length) {
       if (0 != old_size)
         return;  // Overkill safety net: Don't send too many InvokeLater's.
       render_dns_factory_.RevokeAll();
-      g_render_thread->message_loop()->PostDelayedTask(FROM_HERE,
+      RenderThread::current()->message_loop()->PostDelayedTask(FROM_HERE,
           render_dns_factory_.NewRunnableMethod(
               &RenderDnsMaster::SubmitHostnames), 10);
     }
@@ -89,7 +89,7 @@ void RenderDnsMaster::SubmitHostnames() {
   DnsPrefetchNames(kMAX_SUBMISSION_PER_TASK);
   if (new_name_count_ > 0 || 0 < c_string_queue_.Size()) {
     render_dns_factory_.RevokeAll();
-    g_render_thread->message_loop()->PostDelayedTask(FROM_HERE,
+    RenderThread::current()->message_loop()->PostDelayedTask(FROM_HERE,
         render_dns_factory_.NewRunnableMethod(
             &RenderDnsMaster::SubmitHostnames), 10);
   } else {
@@ -145,7 +145,7 @@ void RenderDnsMaster::DnsPrefetchNames(size_t max_count) {
   new_name_count_ -= names.size();
   DCHECK(new_name_count_ >= 0);
 
-  g_render_thread->Send(new ViewHostMsg_DnsPrefetch(names));
+  RenderThread::current()->Send(new ViewHostMsg_DnsPrefetch(names));
 }
 
 // is_numeric_ip() checks to see if all characters in name are either numeric,

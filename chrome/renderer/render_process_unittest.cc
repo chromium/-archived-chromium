@@ -13,15 +13,16 @@ namespace {
 class RenderProcessTest : public testing::Test {
  public:
   virtual void SetUp() {
-    RenderProcess::GlobalInit(L"render_process_unittest");
+    render_process_.reset(new RenderProcess(L"render_process_unittest"));
   }
 
   virtual void TearDown() {
-    RenderProcess::GlobalCleanup();
+    render_process_.reset();
   }
 
   private:
    MessageLoopForIO message_loop_;
+   scoped_ptr<RenderProcess> render_process_;
 };
 
 
@@ -30,10 +31,10 @@ TEST_F(RenderProcessTest, TestTransportDIBAllocation) {
 #if !defined(OS_MACOSX)
   const gfx::Rect rect(0, 0, 100, 100);
   TransportDIB* dib;
-  skia::PlatformCanvas* canvas = RenderProcess::GetDrawingCanvas(&dib, rect);
+  skia::PlatformCanvas* canvas = RenderProcess::current()->GetDrawingCanvas(&dib, rect);
   ASSERT_TRUE(dib);
   ASSERT_TRUE(canvas);
-  RenderProcess::ReleaseTransportDIB(dib);
+  RenderProcess::current()->ReleaseTransportDIB(dib);
   delete canvas;
 #endif
 }

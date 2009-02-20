@@ -29,6 +29,8 @@ class Thread : PlatformThread::Delegate {
     size_t stack_size;
 
     Options() : message_loop_type(MessageLoop::TYPE_DEFAULT), stack_size(0) {}
+    Options(MessageLoop::Type type, size_t size)
+        : message_loop_type(type), stack_size(size) {}
   };
 
   // Constructor.

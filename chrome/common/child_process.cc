@@ -4,109 +4,63 @@
 
 #include "chrome/common/child_process.h"
 
-#include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
-#include "base/command_line.h"
 #include "base/string_util.h"
-#include "base/waitable_event.h"
-#include "chrome/common/chrome_switches.h"
-#include "webkit/glue/webkit_glue.h"
+#include "chrome/common/child_thread.h"
 
 ChildProcess* ChildProcess::child_process_;
-MessageLoop* ChildProcess::main_thread_loop_;
-static base::AtomicRefCount ref_count;
-base::WaitableEvent* ChildProcess::shutdown_event_;
 
-
-ChildProcess::ChildProcess() {
+ChildProcess::ChildProcess(ChildThread* child_thread)
+    : shutdown_event_(true, false),
+      ref_count_(0),
+      child_thread_(child_thread) {
   DCHECK(!child_process_);
+  child_process_ = this;
+  if (child_thread_.get())  // null in unittests.
+    child_thread_->Run();
 }
 
 ChildProcess::~ChildProcess() {
   DCHECK(child_process_ == this);
+
+  // Signal this event before destroying the child process.  That way all
+  // background threads can cleanup.
+  // For example, in the renderer the RenderThread instances will be able to
+  // notice shutdown before the render process begins waiting for them to exit.
+  shutdown_event_.Signal();
+
+  if (child_thread_.get())
+    child_thread_->Stop();
+
+  child_process_ = NULL;
 }
 
 // Called on any thread
 void ChildProcess::AddRefProcess() {
-  base::AtomicRefCountInc(&ref_count);
+  base::AtomicRefCountInc(&ref_count_);
 }
 
 // Called on any thread
 void ChildProcess::ReleaseProcess() {
-  DCHECK(!base::AtomicRefCountIsZero(&ref_count));
+  DCHECK(!base::AtomicRefCountIsZero(&ref_count_));
   DCHECK(child_process_);
-  if (!base::AtomicRefCountDec(&ref_count))
+  if (!base::AtomicRefCountDec(&ref_count_))
     child_process_->OnFinalRelease();
 }
 
+base::WaitableEvent* ChildProcess::GetShutDownEvent() {
+  DCHECK(child_process_);
+  return &child_process_->shutdown_event_;
+}
+
 // Called on any thread
-// static
 bool ChildProcess::ProcessRefCountIsZero() {
-  return base::AtomicRefCountIsZero(&ref_count);
+  return base::AtomicRefCountIsZero(&ref_count_);
 }
 
 void ChildProcess::OnFinalRelease() {
-  DCHECK(main_thread_loop_);
-  main_thread_loop_->PostTask(FROM_HERE, new MessageLoop::QuitTask());
-}
-
-base::WaitableEvent* ChildProcess::GetShutDownEvent() {
-  return shutdown_event_;
-}
-
-// On error, it is OK to leave the global pointers, as long as the only
-// non-NULL pointers are valid. GlobalCleanup will always get called, which
-// will delete any non-NULL services.
-bool ChildProcess::GlobalInit(const std::wstring &channel_name,
-                              ChildProcessFactoryInterface *factory) {
-  // OK to be called multiple times.
-  if (main_thread_loop_)
-    return true;
-
-  if (channel_name.empty()) {
-    NOTREACHED() << "Unable to get the channel name";
-    return false;
+  if (child_thread_.get()) {
+    child_thread_->owner_loop()->PostTask(
+        FROM_HERE, new MessageLoop::QuitTask());
   }
-
-  // Remember the current message loop, so we can communicate with this thread
-  // again when we need to shutdown (see ReleaseProcess).
-  main_thread_loop_ = MessageLoop::current();
-
-  // An event that will be signalled when we shutdown.
-  shutdown_event_ = new base::WaitableEvent(true, false);
-
-  child_process_ = factory->Create(channel_name);
-
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kUserAgent)) {
-#if defined(OS_WIN)
-    // TODO(port): calling this connects an, otherwise disconnected, subgraph
-    // of symbols, causing huge numbers of linker errors.
-    webkit_glue::SetUserAgent(WideToUTF8(
-        command_line.GetSwitchValue(switches::kUserAgent)));
-#endif
-  }
-
-  return true;
 }
-
-void ChildProcess::GlobalCleanup() {
-  // Signal this event before destroying the child process.  That way all
-  // background threads.
-  // For example, in the renderer the RenderThread instances will be able to
-  // notice shutdown before the render process begins waiting for them to exit.
-  shutdown_event_->Signal();
-
-  // Destroy the child process first to force all background threads to
-  // terminate before we bring down other resources.  (We null pointers
-  // just in case.)
-  child_process_->Cleanup();
-  delete child_process_;
-  child_process_ = NULL;
-
-  main_thread_loop_ = NULL;
-
-  delete shutdown_event_;
-  shutdown_event_ = NULL;
-}
-

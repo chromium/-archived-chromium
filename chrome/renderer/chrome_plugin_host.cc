@@ -320,7 +320,7 @@ int STDCALL CPB_GetBrowsingContextInfo(
       return sizeof(char*);
 
     std::wstring wretval;
-    if (!g_render_thread->Send(new ViewHostMsg_GetDataDir(&wretval)))
+    if (!RenderThread::current()->Send(new ViewHostMsg_GetDataDir(&wretval)))
       return CPERR_FAILURE;
     file_util::AppendToPath(&wretval, chrome::kChromePluginDataDirname);
     *static_cast<char**>(buf) = CPB_StringDup(CPB_Alloc, WideToUTF8(wretval));
@@ -491,8 +491,8 @@ CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
 
   const uint8* data_ptr = static_cast<const uint8*>(data);
   std::vector<uint8> v(data_ptr, data_ptr + data_len);
-  if (!g_render_thread->Send(new ViewHostMsg_PluginMessage(plugin->filename(),
-                                                           v))) {
+  if (!RenderThread::current()->Send(
+        new ViewHostMsg_PluginMessage(plugin->filename(), v))) {
     return CPERR_FAILURE;
   }
   return CPERR_SUCCESS;
@@ -507,7 +507,7 @@ CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
   const uint8* data_ptr = static_cast<const uint8*>(data);
   std::vector<uint8> v(data_ptr, data_ptr + data_len);
   std::vector<uint8> r;
-  if (!g_render_thread->Send(new ViewHostMsg_PluginSyncMessage(
+  if (!RenderThread::current()->Send(new ViewHostMsg_PluginSyncMessage(
         plugin->filename(), v, &r))) {
     return CPERR_FAILURE;
   }
