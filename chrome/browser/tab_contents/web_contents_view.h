@@ -108,14 +108,6 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // RenderWidgetHost is deleted. Removes |host| from internal maps.
   void RenderWidgetHostDestroyed(RenderWidgetHost* host);
 
-  // Opens developer tools window for the page.
-  virtual void OpenDeveloperTools() = 0;
-
-  // Forwards message to ToolsClient in developer tools window open for this
-  // page.
-  virtual void ForwardMessageToToolsClient(int tools_message_type,
-                                           const std::wstring& body) = 0;
-
   // Find in page --------------------------------------------------------------
 
   // Opens the find in page window if it isn't already open. It will advance to

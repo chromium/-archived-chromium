@@ -119,11 +119,6 @@ class RenderViewHostDelegate {
                              const gfx::Rect& selection_rect,
                              int active_match_ordinal,
                              bool final_update) = 0;
-
-    // Forwards message to ToolsClient in developer tools window open for this
-    // page.
-    virtual void ForwardMessageToToolsClient(int tools_message_type,
-                                             const std::wstring& body) = 0;
   };
 
   // Interface for saving web pages.

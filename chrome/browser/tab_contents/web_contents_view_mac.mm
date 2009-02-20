@@ -99,15 +99,6 @@ void WebContentsViewMac::SizeContents(const gfx::Size& size) {
   NOTIMPLEMENTED();  // Leaving the hack unimplemented.
 }
 
-void WebContentsViewMac::OpenDeveloperTools() {
-  NOTIMPLEMENTED();
-}
-
-void WebContentsViewMac::ForwardMessageToToolsClient(int tools_message_type,
-                                                     const std::wstring& body) {
-  NOTIMPLEMENTED();
-}
- 
 void WebContentsViewMac::FindInPage(const Browser& browser,
                                     bool find_next, bool forward_direction) {
   if (!find_bar_.get()) {

@@ -96,9 +96,7 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       run_modal_reply_msg_(NULL),
       has_unload_listener_(false),
       is_waiting_for_unload_ack_(false),
-      are_javascript_messages_suppressed_(false),
-      inspected_process_id_(0),
-      inspected_view_id_(0) {
+      are_javascript_messages_suppressed_(false) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -584,16 +582,6 @@ void RenderViewHost::AllowDOMUIBindings() {
       process()->host_id());
 }
 
-void RenderViewHost::SetupToolsClient(int inspected_process_id,
-                                      int inspected_view_id) {
-  RendererSecurityPolicy::GetInstance()->GrantDOMUIBindings(
-      process()->host_id());
-  Send(new ViewMsg_SetUpToolsClient(routing_id()));
-
-  inspected_process_id_ = inspected_process_id;
-  inspected_view_id_ = inspected_view_id;
-}
-
 void RenderViewHost::AllowExternalHostBindings() {
   enable_external_host_bindings_ = true;
 }
@@ -744,8 +732,6 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_AddMessageToConsole, OnAddMessageToConsole)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DebuggerOutput, OnDebuggerOutput);
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidDebugAttach, DidDebugAttach);
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ToolsAgentMsg, OnToolsAgentMsg);
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ToolsClientMsg, OnToolsClientMsg);
     IPC_MESSAGE_HANDLER(ViewHostMsg_UserMetricsRecordAction,
                         OnUserMetricsRecordAction)
     IPC_MESSAGE_HANDLER(ViewHostMsg_MissingPluginStatus, OnMissingPluginStatus);
@@ -1183,23 +1169,6 @@ void RenderViewHost::DidDebugAttach() {
     debugger_attached_ = true;
     g_browser_process->debugger_wrapper()->OnDebugAttach();
   }
-}
-
-void RenderViewHost::OnToolsAgentMsg(int tools_message_type,
-                                     const std::wstring& body) {
-  RenderViewHost* host = RenderViewHost::FromID(inspected_process_id_,
-                                                inspected_view_id_);
-  if (host) {
-    host->Send(new ViewMsg_ToolsAgentMsg(
-        inspected_view_id_, tools_message_type, body));
-  }
-}
-
-void RenderViewHost::OnToolsClientMsg(int tools_message_type,
-                                      const std::wstring& body) {
-  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
-  if (view)
-    view->ForwardMessageToToolsClient(tools_message_type, body);
 }
 
 void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {

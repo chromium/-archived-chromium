@@ -213,30 +213,6 @@
 			RelativePath=".\debugger_wrapper.h"
 			>
 		</File>
-		<File
-			RelativePath=".\tools_contents.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_contents.h"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_view.h"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_window.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tools_window.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

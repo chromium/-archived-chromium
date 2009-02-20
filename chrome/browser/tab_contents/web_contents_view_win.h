@@ -12,7 +12,6 @@
 
 class FindBarWin;
 class SadTabView;
-class ToolsWindow;
 struct WebDropData;
 class WebDropTarget;
 
@@ -41,9 +40,6 @@ class WebContentsViewWin : public WebContentsView,
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
-  virtual void OpenDeveloperTools();
-  virtual void ForwardMessageToToolsClient(int tools_message_type,
-                                           const std::wstring& body);
   virtual void FindInPage(const Browser& browser,
                           bool find_next, bool forward_direction);
   virtual void HideFindBar(bool end_session);
@@ -111,9 +107,6 @@ class WebContentsViewWin : public WebContentsView,
   // ---------------------------------------------------------------------------
 
   WebContents* web_contents_;
-
-  // Allows to show exactly one developer tools window for this page.
-  scoped_ptr<ToolsWindow> tools_window_;
 
   // For find in page. This may be NULL if there is no find bar, and if it is
   // non-NULL, it may or may not be visible.
