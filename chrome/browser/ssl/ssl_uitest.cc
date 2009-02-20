@@ -41,15 +41,15 @@ class SSLUITest : public UITest {
     EXPECT_TRUE(browser_proxy->AppendTab(url));
   }
 
-  HTTPTestServer* PlainServer() {
+  scoped_refptr<HTTPTestServer> PlainServer() {
     return HTTPTestServer::CreateServer(kDocRoot, NULL);
   }
 
-  HTTPSTestServer* GoodCertServer() {
+  scoped_refptr<HTTPSTestServer> GoodCertServer() {
     return HTTPSTestServer::CreateGoodServer(kDocRoot);
   }
 
-  HTTPSTestServer* BadCertServer() {
+  scoped_refptr<HTTPSTestServer> BadCertServer() {
     return HTTPSTestServer::CreateExpiredServer(kDocRoot);
   }
 

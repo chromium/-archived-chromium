@@ -419,15 +419,14 @@ class HTTPSTestServer : public HTTPTestServer {
   // Create a server with a valid certificate
   // TODO(dkegel): HTTPSTestServer should not require an instance to specify
   // stock test certificates
-  static HTTPSTestServer* CreateGoodServer(const std::wstring& document_root) {
-    HTTPSTestServer* test_server = new HTTPSTestServer();
+  static scoped_refptr<HTTPSTestServer> CreateGoodServer(const std::wstring& document_root) {
+    scoped_refptr<HTTPSTestServer> test_server = new HTTPSTestServer();
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath certpath = test_server->launcher_.GetOKCertPath();
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
         net::TestServerLauncher::kHostName,
         net::TestServerLauncher::kOKHTTPSPort,
         docroot, certpath)) {
-      test_server->Release();
       return NULL;
     }
     return test_server;
@@ -435,23 +434,22 @@ class HTTPSTestServer : public HTTPTestServer {
 
   // Create a server with an up to date certificate for the wrong hostname
   // for this host
-  static HTTPSTestServer* CreateMismatchedServer(
+  static scoped_refptr<HTTPSTestServer> CreateMismatchedServer(
       const std::wstring& document_root) {
-    HTTPSTestServer* test_server = new HTTPSTestServer();
+    scoped_refptr<HTTPSTestServer> test_server = new HTTPSTestServer();
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath certpath = test_server->launcher_.GetOKCertPath();
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
         net::TestServerLauncher::kMismatchedHostName,
         net::TestServerLauncher::kOKHTTPSPort,
         docroot, certpath)) {
-      test_server->Release();
       return NULL;
-     }
+    }
     return test_server;
   }
 
   // Create a server with an expired certificate
-  static HTTPSTestServer* CreateExpiredServer(
+  static scoped_refptr<HTTPSTestServer> CreateExpiredServer(
       const std::wstring& document_root) {
     HTTPSTestServer* test_server = new HTTPSTestServer();
     FilePath docroot = FilePath::FromWStringHack(document_root);
@@ -460,22 +458,21 @@ class HTTPSTestServer : public HTTPTestServer {
         net::TestServerLauncher::kHostName,
         net::TestServerLauncher::kBadHTTPSPort,
         docroot, certpath)) {
-      test_server->Release();
       return NULL;
     }
     return test_server;
   }
 
   // Create a server with an arbitrary certificate
-  static HTTPSTestServer* CreateServer(const std::string& host_name, int port,
-                                       const std::wstring& document_root,
-                                       const std::wstring& cert_path) {
-    HTTPSTestServer* test_server = new HTTPSTestServer();
+  static scoped_refptr<HTTPSTestServer> CreateServer(
+      const std::string& host_name, int port,
+      const std::wstring& document_root,
+      const std::wstring& cert_path) {
+    scoped_refptr<HTTPSTestServer> test_server = new HTTPSTestServer();
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath certpath = FilePath::FromWStringHack(cert_path);
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
         host_name, port, docroot, certpath)) {
-      test_server->Release();
       return NULL;
     }
     return test_server;
@@ -494,21 +491,22 @@ class FTPTestServer : public BaseTestServer {
   FTPTestServer() {
   }
 
-  static FTPTestServer* CreateServer(const std::wstring& document_root) {
+  static scoped_refptr<FTPTestServer> CreateServer(
+      const std::wstring& document_root) {
     std::string blank;
     return CreateServer(document_root, blank, blank);
   }
 
-  static FTPTestServer* CreateServer(const std::wstring& document_root,
-                                     const std::string& url_user,
-                                     const std::string& url_password) {
-    FTPTestServer* test_server = new FTPTestServer();
+  static scoped_refptr<FTPTestServer> CreateServer(
+      const std::wstring& document_root,
+      const std::string& url_user,
+      const std::string& url_password) {
+    scoped_refptr<FTPTestServer> test_server = new FTPTestServer();
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath no_cert;
     if (!test_server->Start(net::TestServerLauncher::ProtoFTP,
         kDefaultHostName, kFTPDefaultPort, docroot, no_cert,
         url_user, url_password)) {
-      test_server->Release();
       return NULL;
     }
     return test_server;
