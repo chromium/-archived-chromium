@@ -14,6 +14,7 @@
 #include <windows.h>
 #endif
 #include <algorithm>
+#include <functional>
 #include <string>
 #include <vector>
 
