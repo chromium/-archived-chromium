@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 #include "chrome/browser/cert_store.h"
-#include "chrome/browser/views/download_shelf_view.h"
-#include "chrome/browser/views/download_started_animation.h"
-#include "chrome/browser/views/blocked_popup_container.h"
-#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -16,14 +16,24 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+
+#if defined(OS_WIN)
+// TODO(port): some of these headers should be ported.
+#include "chrome/browser/tab_contents/infobar_delegate.h"
+#include "chrome/browser/views/download_shelf_view.h"
+#include "chrome/browser/views/download_started_animation.h"
+#include "chrome/browser/views/blocked_popup_container.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/view_storage.h"
 #include "chrome/views/widget.h"
+#endif
 
 #include "generated_resources.h"
 
+// TODO(port): port the rest of this file.
+#if defined(OS_WIN)
 namespace {
 
 BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
@@ -181,6 +191,7 @@ void TabContents::UpdateMaxPageID(int32 page_id) {
 const std::wstring TabContents::GetDefaultTitle() const {
   return l10n_util::GetString(IDS_DEFAULT_TAB_TITLE);
 }
+#endif  // defined(OS_WIN)
 
 SkBitmap TabContents::GetFavIcon() const {
   // Like GetTitle(), we also want to use the favicon for the last committed
@@ -197,6 +208,7 @@ SkBitmap TabContents::GetFavIcon() const {
   return SkBitmap();
 }
 
+#if defined(OS_WIN)
 SecurityStyle TabContents::GetSecurityStyle() const {
   // We may not have a navigation entry yet.
   NavigationEntry* entry = controller_->GetActiveEntry();
@@ -623,3 +635,4 @@ void TabContents::ExpireInfoBars(
       RemoveInfoBar(delegate);
   }
 }
+#endif  // defined(OS_WIN)

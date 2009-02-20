@@ -598,6 +598,7 @@
 		E765478D55A73228BAD044E3 /* cert_store.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8570E9D4839009A6919 /* cert_store.cc */; };
 		E9104FE91402AE1783A22D93 /* alternate_nav_url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8240E9D4839009A6919 /* alternate_nav_url_fetcher.cc */; };
 		EA8058FD371756B46906B157 /* password_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EB40F21445600861FAC /* password_manager.cc */; };
+		EEA5B4CB2EB282403BDE41D7 /* tab_contents.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9E40F1EC32700106F0D /* tab_contents.cc */; };
 		F081CEE97F8C75FEAF3D0FD2 /* jstemplate_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC70E9D4C9F009A6919 /* jstemplate_builder.cc */; };
 		F4143C8C0F4B1D43008C8F73 /* renderer.sb in Resources */ = {isa = PBXBuildFile; fileRef = F4143C8B0F4B1D07008C8F73 /* renderer.sb */; };
 		F47CA1280F44AE0E00FFFAFB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B004E0E9D5464009A6919 /* libnet.a */; };
@@ -5539,6 +5540,7 @@
 				E4F3245D0EE5CFDF002533CE /* starred_url_database.cc in Sources */,
 				E45075EE0F150ABA003BE099 /* sync_resource_handler.cc in Sources */,
 				E455DDBA0F3227A600DD4383 /* tab_cell.mm in Sources */,
+				EEA5B4CB2EB282403BDE41D7 /* tab_contents.cc in Sources */,
 				E455DCF10F320CFE00DD4383 /* tab_contents_controller.mm in Sources */,
 				B57F3A38042C46748C19E75B /* tab_contents_factory.cc in Sources */,
 				1C284EB767D0E3D302AC675C /* tab_restore_service.cc in Sources */,

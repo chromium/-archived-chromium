@@ -731,7 +731,6 @@ if not env.Bit('windows'):
       'shell_integration.cc',
       'tab_contents/native_ui_contents.cc',
       'tab_contents/render_view_context_menu.cc',
-      'tab_contents/tab_contents.cc',
       'tab_contents/view_source_contents.cc',
       'tab_contents/web_drag_source.cc',
       'tab_contents/web_drop_target.cc',

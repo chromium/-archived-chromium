@@ -382,10 +382,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   WebContents* AsWebContents() const {
     return const_cast<TabContents*>(this)->AsWebContents();
   }
-  virtual SkBitmap GetFavIcon() const {
-    NOTIMPLEMENTED();
-    return SkBitmap();
-  }
+  virtual SkBitmap GetFavIcon() const;
   const GURL& GetURL() const;
   virtual const std::wstring& GetTitle() const;
   TabContentsType type() const { return type_; }

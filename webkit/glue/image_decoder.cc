@@ -49,7 +49,7 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) const {
 #endif
   WTF::RefPtr<WebCore::SharedBuffer> buffer(WebCore::SharedBuffer::create(
       data, static_cast<int>(size)));
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   source.setData(buffer.get(), true,
                  WebCore::IntSize(desired_icon_size_.width(),
                                   desired_icon_size_.height()));
