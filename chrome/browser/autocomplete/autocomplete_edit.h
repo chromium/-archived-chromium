@@ -71,14 +71,16 @@ class AutocompleteEditController {
 class AutocompleteEditModel {
  public:
   enum KeywordUIState {
-    NORMAL,      // The user is typing normally.
-    NO_KEYWORD,  // The user is editing in the middle of the input string.  Even
-                 // if the input looks like a keyword, don't display the keyword
-                 // UI, so as not to interfere with the user's editing.
-    KEYWORD,     // The user has triggered the keyword UI.  Until it disappears,
-                 // bias autocomplete results so that input strings of the
-                 // keyword alone default to the keyword provider, not a normal
-                 // navigation or search.
+    // The user is typing normally.
+    NORMAL,
+    // The user is editing in the middle of the input string.  Even if the
+    // input looks like a keyword, don't display the keyword UI, as to not
+    // interfere with the user's editing.
+    NO_KEYWORD,
+    // The user has triggered the keyword UI.  Until it disappears, bias
+    // autocomplete results so that input strings of the keyword alone default
+    // to the keyword provider, not a normal navigation or search.
+    KEYWORD,
   };
 
   struct State {
