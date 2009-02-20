@@ -1401,6 +1401,7 @@ MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-85-t.svg = FAIL PASS
 // This next one seems to be timing related (passes some times)
 MAC DEBUG : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL PASS
+MAC DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 
 // These may be similar timing issue as above.
 MAC : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
@@ -1766,8 +1767,8 @@ WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
 // Shading differences.
 WIN LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
-LayoutTests/fast/loader/frame-creation-removal.html = CRASH
-chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
+WIN LINUX : LayoutTests/fast/loader/frame-creation-removal.html = CRASH
+WIN LINUX : chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 
 // Sharted showing up the mac build bots on 02/16/09 (sometimes passes in
 // debug, but haven't seen it pass in release)
