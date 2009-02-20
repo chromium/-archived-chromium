@@ -224,7 +224,7 @@ void RunTest_DelayTimer_Reset(MessageLoop::Type message_loop_type) {
   // If Delay is never called, the timer shouldn't go off.
   DelayTimerTarget target;
   base::DelayTimer<DelayTimerTarget> timer(
-      TimeDelta::FromMilliseconds(1), &target, &DelayTimerTarget::Signal);
+      TimeDelta::FromMilliseconds(50), &target, &DelayTimerTarget::Signal);
   timer.Reset();
 
   ResetHelper reset_helper(&timer, &target);
