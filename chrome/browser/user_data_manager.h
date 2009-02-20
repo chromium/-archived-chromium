@@ -14,6 +14,7 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 
+class CommandLine;
 class MessageLoop;
 
 // Provides an abstraction of profiles on top of the user data directory
@@ -79,9 +80,6 @@ class UserDataManager {
   // Returns the path of the user data folder for the given profile.
   std::wstring GetUserDataFolderForProfile(
       const std::wstring& profile_name) const;
-
-  // Returns the command to start the app in the given profile.
-  std::wstring GetCommandForProfile(const std::wstring& profile_name) const;
 
   // Shared instance.
   static UserDataManager* instance_;

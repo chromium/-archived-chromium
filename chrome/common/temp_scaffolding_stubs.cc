@@ -95,21 +95,6 @@ void AutocompleteMatch::ClassifyLocationInString(
 
 //--------------------------------------------------------------------------
 
-UserDataManager* UserDataManager::instance_ = NULL;
-
-UserDataManager* UserDataManager::Create() {
-  DCHECK(!instance_);
-  std::wstring user_data;
-  PathService::Get(chrome::DIR_USER_DATA, &user_data);
-  instance_ = new UserDataManager(user_data);
-  return instance_;
-}
-
-UserDataManager* UserDataManager::Get() {
-  DCHECK(instance_);
-  return instance_;
-}
-
 bool ShellIntegration::SetAsDefaultBrowser() {
   NOTIMPLEMENTED();
   return true;

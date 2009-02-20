@@ -169,17 +169,6 @@ class AutomationProviderList {
   }
 };
 
-class UserDataManager {
- public:
-  static UserDataManager* Create();
-  static UserDataManager* Get();
-
-  explicit UserDataManager(const std::wstring& user_data_root) { }
- private:
-  // Shared instance.
-  static UserDataManager* instance_;
-};
-
 namespace browser {
 void RegisterAllPrefs(PrefService*, PrefService*);
 }

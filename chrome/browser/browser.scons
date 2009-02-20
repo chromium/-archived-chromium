@@ -741,7 +741,6 @@ if not env.Bit('windows'):
       'task_manager.cc',
       'task_manager_resource_providers.cc',
       'toolbar_model.cc',
-      'user_data_manager.cc',
       'views/download_tab_view.cc',
       'window_sizer.cc',
   )

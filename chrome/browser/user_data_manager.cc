@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include "chrome/browser/user_data_manager.h"
 
-#include <windows.h>
 #include <string>
 
-#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -20,7 +20,11 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/installer/util/browser_distribution.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
 #include "chrome/installer/util/shell_util.h"
+#endif
 
 #include "chromium_strings.h"
 
@@ -57,12 +61,10 @@ class LaunchChromeForProfileIndexHelper : GetProfilesHelper::Delegate {
 LaunchChromeForProfileIndexHelper::LaunchChromeForProfileIndexHelper(
     const UserDataManager* manager,
     int index)
-    : manager_(manager),
-      index_(index),
-// Don't complain about using "this" in initializer list.
-MSVC_PUSH_DISABLE_WARNING(4355)
-      profiles_helper_(new GetProfilesHelper(this)) {
-MSVC_POP_WARNING()
+    : index_(index),
+      manager_(manager),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          profiles_helper_(new GetProfilesHelper(this))) {
   DCHECK(manager);
 }
 
@@ -175,7 +177,7 @@ std::wstring UserDataManager::GetUserDataFolderForProfile(
   return folder_path;
 }
 
-std::wstring UserDataManager::GetCommandForProfile(
+void UserDataManager::LaunchChromeForProfile(
     const std::wstring& profile_name) const {
   std::wstring user_data_dir = GetUserDataFolderForProfile(profile_name);
   std::wstring command;
@@ -187,13 +189,7 @@ std::wstring UserDataManager::GetCommandForProfile(
   PathService::Get(chrome::FILE_LOCAL_STATE, &local_state_path);
   command_line.AppendSwitchWithValue(switches::kParentProfile,
                                      local_state_path);
-  return command_line.command_line_string();
-}
-
-void UserDataManager::LaunchChromeForProfile(
-    const std::wstring& profile_name) const {
-  std::wstring command = GetCommandForProfile(profile_name);
-  base::LaunchApp(command, false, false, NULL);
+  base::LaunchApp(command_line, false, false, NULL);
 }
 
 void UserDataManager::LaunchChromeForProfile(int index) const {
@@ -221,6 +217,7 @@ void UserDataManager::GetProfiles(std::vector<std::wstring>* profiles) const {
 
 bool UserDataManager::CreateDesktopShortcutForProfile(
     const std::wstring& profile_name) const {
+#if defined(OS_WIN)
   std::wstring exe_path;
   std::wstring shortcut_path;
   if (!PathService::Get(base::FILE_EXE, &exe_path) ||
@@ -253,6 +250,11 @@ bool UserDataManager::CreateDesktopShortcutForProfile(
                                        NULL,
                                        exe_path.c_str(),
                                        0);
+#else
+  // TODO(port): should probably use freedesktop.org standard for desktop files.
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 GetProfilesHelper::GetProfilesHelper(Delegate* delegate)
