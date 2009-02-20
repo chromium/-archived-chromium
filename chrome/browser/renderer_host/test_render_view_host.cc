@@ -56,6 +56,7 @@ void TestRenderViewHost::SendNavigate(int page_id, const GURL& url) {
   params.contents_mime_type = std::string();
   params.is_post = false;
   params.is_content_filtered = false;
+  params.http_status_code = 0;
 
   ViewHostMsg_FrameNavigate msg(1, params);
   OnMsgNavigate(msg);
