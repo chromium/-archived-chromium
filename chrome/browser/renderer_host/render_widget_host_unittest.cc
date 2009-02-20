@@ -31,6 +31,8 @@ class RenderWidgetHostProcess : public MockRenderProcessHost {
     // We don't want to actually delete the channel, since it's not a real
     // pointer.
     channel_.release();
+    if (current_paint_buf_)
+      delete current_paint_buf_;
   }
 
   void set_paint_msg_should_reply(bool reply) {
