@@ -101,7 +101,7 @@ class PluginService {
   void Shutdown();
 
  private:
-  friend DefaultSingletonTraits<PluginService>;
+  friend struct DefaultSingletonTraits<PluginService>;
 
   // Creates the PluginService object, but doesn't actually build the plugin
   // list yet.  It's generated lazily.

@@ -9,6 +9,7 @@
 // during the porting effort. It is not meant to be permanent, and classes will
 // be removed from here as they are fleshed out more completely.
 
+#include <list>
 #include <string>
 
 #include "base/basictypes.h"
@@ -39,6 +40,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/common/child_process_info.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
@@ -48,6 +50,7 @@
 #include "net/base/load_states.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/password_form.h"
+#include "webkit/glue/webplugin.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class Browser;
@@ -89,7 +92,6 @@ class UserScriptMaster;
 class VisitedLinkMaster;
 class WebContents;
 class WebContentsView;
-struct WebPluginInfo;
 struct WebPluginGeometry;
 class WebPreferences;
 
@@ -633,44 +635,56 @@ class PluginInstaller {
   PluginInstaller(WebContents*) { }
 };
 
-class PluginService {
+class ChildProcessHost : public ChildProcessInfo {
  public:
-  static PluginService* GetInstance();
-  PluginService();
-  ~PluginService();
-  void LoadChromePlugins(ResourceDispatcherHost* rdh) {
-    NOTIMPLEMENTED();
-  }
-  bool HavePluginFor(const std::string& mime_type, bool allow_wildcard) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  void SetChromePluginDataDir(const FilePath& data_dir);
-  FilePath GetChromePluginDataDir() { return chrome_plugin_data_dir_; }
-  void GetPlugins(bool reload, std::vector<WebPluginInfo>* plugins) {}
-  FilePath GetPluginPath(const GURL& url,
-                         const std::string& mime_type,
-                         const std::string& clsid,
-                         std::string* actual_mime_type) {
-    NOTIMPLEMENTED();
-    return FilePath();
-  }
-  void OpenChannelToPlugin(ResourceMessageFilter* renderer_msg_filter,
-                           const GURL& url,
-                           const std::string& mime_type,
-                           const std::string& clsid,
-                           const std::wstring& locale,
-                           IPC::Message* reply_msg) { NOTIMPLEMENTED(); }
-  void Shutdown() { NOTIMPLEMENTED(); }
- private:
-  MessageLoop* main_message_loop_;
-  ResourceDispatcherHost* resource_dispatcher_host_;
-  FilePath chrome_plugin_data_dir_;
-  std::wstring ui_locale_;
-  Lock lock_;
-  class ShutdownHandler : public base::RefCountedThreadSafe<ShutdownHandler> {
+  class Iterator {
+   public:
+    explicit Iterator(ProcessType type) { NOTIMPLEMENTED(); }
+    ChildProcessInfo* operator->() { return *iterator_; }
+    ChildProcessInfo* operator*() { return *iterator_; }
+    ChildProcessInfo* operator++() { return NULL; }
+    bool Done() {
+      NOTIMPLEMENTED();
+      return true;
+    }
+   private:
+    std::list<ChildProcessInfo*>::iterator iterator_;
   };
-  scoped_refptr<ShutdownHandler> plugin_shutdown_handler_;
+ protected:
+  ChildProcessHost(ProcessType type, MessageLoop* main_message_loop)
+      : ChildProcessInfo(type) {
+    NOTIMPLEMENTED();
+  }
+};
+
+class PluginProcessHost : public ChildProcessHost {
+ public:
+  explicit PluginProcessHost(MessageLoop* main_message_loop)
+      : ChildProcessHost(PLUGIN_PROCESS, main_message_loop) {
+    NOTIMPLEMENTED();
+  }
+  bool Init(const WebPluginInfo& info,
+            const std::string& activex_clsid,
+            const std::wstring& locale) {
+    NOTIMPLEMENTED();
+    return false;
+  }
+  void OpenChannelToPlugin(ResourceMessageFilter* renderer_message_filter,
+                           const std::string& mime_type,
+                           IPC::Message* reply_msg) {
+    NOTIMPLEMENTED();
+  }
+  static void ReplyToRenderer(ResourceMessageFilter* renderer_message_filter,
+                              const std::wstring& channel,
+                              const FilePath& plugin_path,
+                              IPC::Message* reply_msg) {
+    NOTIMPLEMENTED();
+  }
+  void Shutdown() { NOTIMPLEMENTED(); }
+  const WebPluginInfo& info() const { return info_; }
+ private:
+  WebPluginInfo info_;
+  DISALLOW_EVIL_CONSTRUCTORS(PluginProcessHost);
 };
 
 class HungRendererWarning {

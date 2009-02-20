@@ -156,27 +156,6 @@ GURL NewTabUIURL() {
 
 //--------------------------------------------------------------------------
 
-PluginService* PluginService::GetInstance() {
-  return Singleton<PluginService>::get();
-}
-
-PluginService::PluginService()
-    : main_message_loop_(MessageLoop::current()),
-      resource_dispatcher_host_(NULL),
-      ui_locale_(g_browser_process->GetApplicationLocale()),
-      plugin_shutdown_handler_(NULL) {
-}
-
-PluginService::~PluginService() {
-}
-
-void PluginService::SetChromePluginDataDir(const FilePath& data_dir) {
-  AutoLock lock(lock_);
-  chrome_plugin_data_dir_ = data_dir;
-}
-
-//--------------------------------------------------------------------------
-
 void InstallJankometer(const CommandLine&) {
   NOTIMPLEMENTED();
 }
@@ -529,3 +508,9 @@ bool NewTabUIHandleURL(GURL* url,
   NOTIMPLEMENTED();
   return false;
 }
+
+CPBrowserFuncs* GetCPBrowserFuncsForBrowser() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+

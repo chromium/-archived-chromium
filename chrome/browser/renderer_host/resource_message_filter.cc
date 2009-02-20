@@ -12,6 +12,7 @@
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/net/dns_global.h"
+#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
@@ -29,7 +30,6 @@
 #include "webkit/glue/webplugin.h"
 
 #if defined(OS_WIN)
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/spellchecker.h"

@@ -75,6 +75,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		0A124E6F8B659427ABF96220 /* plugin_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8E00E9D4839009A6919 /* plugin_service.cc */; };
 		0D71821EDDA2629232DE3AD9 /* safe_browsing_blocking_page.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADB0E9D49DE009A6919 /* safe_browsing_blocking_page.cc */; };
 		0ED14155E711F5BD0E6069ED /* user_data_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 622534301BD3F4A908D426D0 /* user_data_manager.cc */; };
 		0EE123B79B750A2FCEFB4569 /* history_backend_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9F00E9D48F7009A6919 /* history_backend_unittest.cc */; };
@@ -5495,6 +5496,7 @@
 				4D7BFA280E9D490C009A6919 /* page_usage_data.cc in Sources */,
 				E48B6C2C0F27840B002E47EC /* password_form_manager.cc in Sources */,
 				EA8058FD371756B46906B157 /* password_manager.cc in Sources */,
+				0A124E6F8B659427ABF96220 /* plugin_service.cc in Sources */,
 				826847800F2F69D1009F6555 /* profile.cc in Sources */,
 				8268477F0F2F69D1009F6555 /* profile_manager.cc in Sources */,
 				BAA609ED0F3BCAA800783510 /* protocol_manager.cc in Sources */,

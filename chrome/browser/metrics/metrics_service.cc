@@ -173,6 +173,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/memory_details.h"
+#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url.h"
@@ -192,7 +193,6 @@
 // TODO(port): Move these headers above as they are ported.
 #include "chrome/common/temp_scaffolding_stubs.h"
 #else
-#include "chrome/browser/plugin_service.h"
 #include "chrome/installer/util/google_update_settings.h"
 #endif
 

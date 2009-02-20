@@ -27,6 +27,7 @@
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
@@ -44,7 +45,6 @@
 #include "chrome/renderer/render_process.h"
 
 #if defined(OS_WIN)
-#include "chrome/browser/plugin_service.h"
 
 // TODO(port): see comment by the only usage of RenderViewHost in this file.
 #include "chrome/browser/renderer_host/render_view_host.h"

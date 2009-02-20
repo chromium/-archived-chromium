@@ -718,7 +718,6 @@ if not env.Bit('windows'):
       'password_manager/encryptor.cc',
       'plugin_installer.cc',
       'plugin_process_host.cc',
-      'plugin_service.cc',
       'printing/page_overlays.cc',
       'printing/print_job.cc',
       'printing/print_job_manager.cc',
