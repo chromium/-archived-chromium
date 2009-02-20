@@ -155,7 +155,6 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
 }
 
 RenderWidgetHostViewGtk::~RenderWidgetHostViewGtk() {
-  gtk_widget_destroy(view_);
 }
 
 void RenderWidgetHostViewGtk::DidBecomeSelected() {
@@ -267,7 +266,7 @@ void RenderWidgetHostViewGtk::RendererGone() {
 }
 
 void RenderWidgetHostViewGtk::Destroy() {
-  NOTIMPLEMENTED();
+  gtk_widget_destroy(view_);
 }
 
 void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
