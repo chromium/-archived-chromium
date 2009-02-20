@@ -72,6 +72,8 @@
 #define EXPORT_C
 #endif
 
+#define WTF_CHANGES 1
+
 #ifdef __cplusplus
 
 // These undefs match up with defines in WebCorePrefix.h for Mac OS X.
