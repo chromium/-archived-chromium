@@ -16,7 +16,7 @@ BEGIN
   IDS_MINIMUM_FONT_SIZE         "1"
   IDS_MINIMUM_LOGICAL_FONT_SIZE "6"
   IDS_USES_UNIVERSAL_DETECTOR   "false"
-  IDS_SPELLCHECK_DICTIONARY     "nb-NO"
+  IDS_SPELLCHECK_DICTIONARY     "nb"
   IDS_LEARN_MORE_MALWARE_URL    "http://www.google.com/support/bin/answer.py?answer=45449&topic=360&hl=en&sa=X&oi=malwarewarninglink&resnum=1&ct=help"
   IDS_LEARN_MORE_PHISHING_URL   "http://www.google.com/support/bin/answer.py?answer=106318&hl=nb"
   IDS_OPTIONS_DIALOG_WIDTH_CHARS "98"
