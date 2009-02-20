@@ -66,7 +66,14 @@ static std::wstring GetKeywordDescription(Profile* profile,
   // to track changes to the model, this should become a DCHECK.
   const TemplateURL* template_url =
       profile->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword);
-  return template_url ? template_url->short_name() : std::wstring();
+  if (template_url) {
+    std::wstring keyword_description;
+    if (l10n_util::AdjustStringForLocaleDirection(template_url->short_name(),
+                                                  &keyword_description))
+      return keyword_description;
+    return template_url->short_name();
+  }
+  return std::wstring();
 }
 
 LocationBarView::LocationBarView(Profile* profile,
@@ -642,11 +649,15 @@ std::wstring LocationBarView::SelectedKeywordView::CalculateMinString(
   const size_t dot_index = description.find(L'.');
   const size_t ws_index = description.find_first_of(kWhitespaceWide);
   size_t chop_index = std::min(dot_index, ws_index);
+  std::wstring min_string;
   if (chop_index == std::wstring::npos) {
     // No dot or whitespace, truncate to at most 3 chars.
-    return l10n_util::TruncateString(description, 3);
+    min_string = l10n_util::TruncateString(description, 3);
+  } else {
+    min_string = description.substr(0, chop_index);
   }
-  return description.substr(0, chop_index);
+  l10n_util::AdjustStringForLocaleDirection(min_string, &min_string);
+  return min_string;
 }
 
 // KeywordHintView -------------------------------------------------------------
