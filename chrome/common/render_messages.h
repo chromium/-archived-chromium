@@ -1707,6 +1707,41 @@ struct ParamTraits<gfx::NativeView> {
 
 #endif  // defined(OS_POSIX)
 
+template <>
+struct ParamTraits<AudioOutputStream::State> {
+  typedef AudioOutputStream::State param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteInt(p);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    int type;
+    if (!m->ReadInt(iter, &type))
+      return false;
+    *p = static_cast<AudioOutputStream::State>(type);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    std::wstring state;
+    switch (p) {
+     case AudioOutputStream::STATE_PAUSED:
+      state = L"AUDIO_STREAM_PAUSED";
+      break;
+     case AudioOutputStream::STATE_STARTED:
+      state = L"AUDIO_STREAM_STARTED";
+      break;
+     case AudioOutputStream::STATE_ERROR:
+      state = L"AUDIO_STREAM_ERROR";
+      break;
+     default:
+      state = L"UNKNOWN";
+      break;
+    }
+
+    LogParam(state, l);
+  }
+};
+
+
 }  // namespace IPC
 
 

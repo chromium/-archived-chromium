@@ -11,6 +11,8 @@
 #include "base/basictypes.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
+#include "base/id_map.h"
+#include "base/shared_memory.h"
 #include "base/timer.h"
 #include "base/values.h"
 #include "build/build_config.h"
@@ -23,6 +25,7 @@
 #include "chrome/renderer/external_host_bindings.h"
 #include "chrome/renderer/external_js_object.h"
 #include "chrome/renderer/render_widget.h"
+#include "media/audio/audio_output.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/dom_serializer_delegate.h"
@@ -38,6 +41,7 @@
 #pragma warning(disable: 4250)
 #endif
 
+class AudioRendererImpl;
 class DictionaryValue;
 class DebugMessageHandler;
 class FilePath;
@@ -342,6 +346,19 @@ class RenderView : public RenderWidget,
   // the renderer, which processes all IPC, to any I/O should be non-blocking.
   MessageLoop* GetMessageLoopForIO();
 
+  // Register the audio renderer and try to create an audio output stream in the
+  // browser process. Always return a stream id. Audio renderer will then
+  // receive state change notification messages.
+  int32 CreateAudioStream(AudioRendererImpl* renderer,
+                          AudioManager::Format format, int channels,
+                          int sample_rate, int bits_per_sample,
+                          size_t packet_size);
+  void StartAudioStream(int stream_id);
+  void CloseAudioStream(int stream_id);
+  void NotifyAudioPacketReady(int stream_id);
+  void GetAudioVolume(int stream_id);
+  void SetAudioVolume(int stream_id, double left, double right);
+
  private:
   FRIEND_TEST(RenderViewTest, OnLoadAlternateHTMLText);
   FRIEND_TEST(RenderViewTest, OnNavStateChanged);
@@ -523,6 +540,21 @@ class RenderView : public RenderWidget,
   // Message that we should no longer be part of the current popup window
   // grouping, and should form our own grouping.
   void OnDisassociateFromPopupCount();
+
+  // Received when browser process wants more audio packet.
+  void OnRequestAudioPacket(int stream_id);
+
+  // Received when browser process has created an audio output stream for us.
+  void OnAudioStreamCreated(int stream_id, base::SharedMemoryHandle handle,
+                            int length);
+
+  // Received when internal state of browser process' audio output device has
+  // changed.
+  void OnAudioStreamStateChanged(int stream_id, AudioOutputStream::State state,
+                                 int info);
+
+  // Notification of volume property of an audio output stream.
+  void OnAudioStreamVolume(int stream_id, double left, double right);
 
   // Switches the frame's CSS media type to "print" and calculate the number of
   // printed pages that are to be expected. |frame| will be used to calculate
@@ -751,6 +783,9 @@ class RenderView : public RenderWidget,
   // browser process with every little thing that changes. This normally doesn't
   // change but is overridden by tests.
   int delay_seconds_for_form_state_sync_;
+
+  // A set of audio renderers registered to use IPC for audio output.
+  IDMap<AudioRendererImpl> audio_renderers_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };

@@ -498,6 +498,31 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_ROUTED1(ViewMsg_PopupNotificationVisiblityChanged,
                       bool /* Whether it is visible */)
 
+  // Sent by AudioRendererHost to renderer to request an audio packet.
+  IPC_MESSAGE_ROUTED1(ViewMsg_RequestAudioPacket,
+                      int /* stream id */)
+
+  // Tell the renderer process that the audio stream has been created, renderer
+  // process would be given a ShareMemoryHandle that it should write to from
+  // then on.
+  IPC_MESSAGE_ROUTED3(ViewMsg_NotifyAudioStreamCreated,
+                      int /* stream id */,
+                      base::SharedMemoryHandle /* handle */,
+                      int /* length */)
+
+  // Notification message sent from AudioRendererHost to renderer for state
+  // update after the renderer has requested a Create/Start/Close.
+  IPC_MESSAGE_ROUTED3(ViewMsg_NotifyAudioStreamStateChanged,
+                      int /* stream id */,
+                      AudioOutputStream::State /* new state */,
+                      int /* additional information (e.g. platform specific
+                             error code*/)
+
+  IPC_MESSAGE_ROUTED3(ViewMsg_NotifyAudioStreamVolume,
+                      int /* stream id */,
+                      double /* left channel */,
+                      double /* right channel */)
+
 IPC_END_MESSAGES(View)
 
 

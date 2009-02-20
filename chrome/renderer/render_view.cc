@@ -26,6 +26,7 @@
 #include "chrome/renderer/about_handler.h"
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/localized_error.h"
+#include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
@@ -408,6 +409,11 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
                         OnReceivedAutofillSuggestions)
     IPC_MESSAGE_HANDLER(ViewMsg_PopupNotificationVisiblityChanged,
                         OnPopupNotificationVisiblityChanged)
+    IPC_MESSAGE_HANDLER(ViewMsg_RequestAudioPacket, OnRequestAudioPacket)
+    IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamCreated, OnAudioStreamCreated)
+    IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamStateChanged,
+                        OnAudioStreamStateChanged)
+    IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamVolume, OnAudioStreamVolume)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -2863,4 +2869,95 @@ MessageLoop* RenderView::GetMessageLoopForIO() {
   if (g_render_thread)
     return g_render_thread->owner_loop();
   return NULL;
+}
+
+void RenderView::OnRequestAudioPacket(int stream_id) {
+  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
+  if (!audio_renderer){
+    NOTREACHED();
+    return;
+  }
+  audio_renderer->OnRequestPacket();
+}
+
+void RenderView::OnAudioStreamCreated(
+    int stream_id, base::SharedMemoryHandle handle, int length) {
+  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
+  if (!audio_renderer){
+    NOTREACHED();
+    return;
+  }
+  audio_renderer->OnCreated(handle, length);
+}
+
+void RenderView::OnAudioStreamStateChanged(
+    int stream_id, AudioOutputStream::State state, int info) {
+  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
+  if (!audio_renderer){
+    NOTREACHED();
+    return;
+  }
+  audio_renderer->OnStateChanged(state, info);
+}
+
+void RenderView::OnAudioStreamVolume(int stream_id, double left, double right) {
+  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
+  if (!audio_renderer){
+    NOTREACHED();
+    return;
+  }
+  audio_renderer->OnVolume(left, right);
+}
+
+int32 RenderView::CreateAudioStream(AudioRendererImpl* audio_renderer,
+                                    AudioManager::Format format, int channels,
+                                    int sample_rate, int bits_per_sample,
+                                    size_t packet_size) {
+  // TODO(hclam): make sure this method is called on render thread.
+  // Loop through the map and make sure there's no renderer already in the map.
+  for (IDMap<AudioRendererImpl>::const_iterator iter = audio_renderers_.begin();
+       iter != audio_renderers_.end(); ++iter) {
+    DCHECK(iter->second != audio_renderer);
+  }
+
+  // Add to map and send the IPC to browser process.
+  int32 stream_id = audio_renderers_.Add(audio_renderer);
+  ViewHostMsg_Audio_CreateStream params;
+  params.format = format;
+  params.channels = channels;
+  params.sample_rate = sample_rate;
+  params.bits_per_sample = bits_per_sample;
+  params.packet_size = packet_size;
+  Send(new ViewHostMsg_CreateAudioStream(routing_id_, stream_id, params));
+  return stream_id;
+}
+
+void RenderView::StartAudioStream(int stream_id) {
+  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
+  Send(new ViewHostMsg_StartAudioStream(routing_id_, stream_id));
+}
+
+void RenderView::CloseAudioStream(int stream_id) {
+  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
+  Send(new ViewHostMsg_CloseAudioStream(routing_id_, stream_id));
+}
+
+void RenderView::NotifyAudioPacketReady(int stream_id) {
+  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
+  Send(new ViewHostMsg_NotifyAudioPacketReady(routing_id_, stream_id));
+}
+
+void RenderView::GetAudioVolume(int stream_id) {
+  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
+  Send(new ViewHostMsg_GetAudioVolume(routing_id_, stream_id));
+}
+
+void RenderView::SetAudioVolume(int stream_id, double left, double right) {
+  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
+  Send(new ViewHostMsg_SetAudioVolume(routing_id_, stream_id, left, right));
 }

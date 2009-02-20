@@ -32,3 +32,21 @@ bool AudioRendererImpl::IsMediaFormatSupported(
   // TODO(hclam): check the format correct.
   return true;
 }
+
+void AudioRendererImpl::OnRequestPacket() {
+  // TODO(hclam): implement this.
+}
+
+void AudioRendererImpl::OnCreated(base::SharedMemoryHandle handle,
+                                  size_t length) {
+  // TODO(hclam): implement this.
+}
+
+void AudioRendererImpl::OnStateChanged(AudioOutputStream::State state,
+                                       int info) {
+  // TODO(hclam): implement this.
+}
+
+void AudioRendererImpl::OnVolume(double left, double right) {
+  // TODO(hclam): implement this.
+}
