@@ -47,12 +47,6 @@ class TabStrip : public views::View,
   // typical height of its constituent tabs.
   int GetPreferredHeight();
 
-  // Returns true if the associated TabStrip's delegate supports tab moving or
-  // detaching. Used by the Frame to determine if dragging on the Tab
-  // itself should move the window in cases where there's only one
-  // non drag-able Tab.
-  bool HasAvailableDragActions() const;
-
   // Returns true if the TabStrip can accept input events. This returns false
   // when the TabStrip is animating to a new state and as such the user should
   // not be allowed to interact with the TabStrip.
@@ -142,7 +136,7 @@ class TabStrip : public views::View,
   virtual void MaybeStartDrag(Tab* tab, const views::MouseEvent& event);
   virtual void ContinueDrag(const views::MouseEvent& event);
   virtual bool EndDrag(bool canceled);
-  virtual bool ContainsExactlyOneTab() const;
+  virtual bool HasAvailableDragActions() const;
 
   // views::Button::ButtonListener implementation:
   virtual void ButtonPressed(views::BaseButton* sender);

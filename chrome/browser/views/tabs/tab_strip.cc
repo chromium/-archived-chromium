@@ -513,10 +513,6 @@ int TabStrip::GetPreferredHeight() {
   return GetPreferredSize().height();
 }
 
-bool TabStrip::HasAvailableDragActions() const {
-  return model_->delegate()->GetDragActions() != 0;
-}
-
 bool TabStrip::CanProcessInputEvents() const {
   return IsAnimating() == NULL;
 }
@@ -1022,8 +1018,8 @@ bool TabStrip::EndDrag(bool canceled) {
   return drag_controller_.get() ? drag_controller_->EndDrag(canceled) : false;
 }
 
-bool TabStrip::ContainsExactlyOneTab() const {
-  return GetTabCount() == 1;
+bool TabStrip::HasAvailableDragActions() const {
+  return model_->delegate()->GetDragActions() != 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

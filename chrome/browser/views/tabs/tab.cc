@@ -163,7 +163,7 @@ bool Tab::OnMousePressed(const views::MouseEvent& event) {
     // it dragged the whole window. This is done by sending a non-client
     // message which is handled by the default window procedure and causes
     // the window get the default drag-on-caption behavior.
-    if (delegate_->ContainsExactlyOneTab()) {
+    if (!delegate_->HasAvailableDragActions()) {
       SendMessage(GetWidget()->GetHWND(), WM_NCLBUTTONDOWN,
                   HTCAPTION, MAKELPARAM(event.x(), event.y()));
       return false;
