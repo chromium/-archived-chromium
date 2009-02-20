@@ -13,6 +13,8 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
+#include "base/timer.h"
+#include "chrome/common/transport_dib.h"
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/notification_observer.h"
@@ -62,6 +64,7 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   virtual void WidgetHidden();
   virtual void AddWord(const std::wstring& word);
   virtual bool FastShutdownIfPossible();
+  virtual TransportDIB* GetTransportDIB(TransportDIB::Id dib_id);
 
   // IPC::Channel::Sender via RenderProcessHost.
   virtual bool Send(IPC::Message* msg);
@@ -99,6 +102,7 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   void OnClipboardReadText(std::wstring* result);
   void OnClipboardReadAsciiText(std::string* result);
   void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
+
   void OnUpdatedCacheStats(const CacheManager::UsageStats& stats);
 
   // Initialize support for visited links. Send the renderer process its initial
@@ -139,6 +143,20 @@ class BrowserRenderProcessHost : public RenderProcessHost,
 
   // The host of audio renderers in the renderer process.
   scoped_refptr<AudioRendererHost> audio_renderer_host_;
+
+  // A map of transport DIB ids to cached TransportDIBs
+  std::map<TransportDIB::Id, TransportDIB*> cached_dibs_;
+  enum {
+    // This is the maximum size of |cached_dibs_|
+    MAX_MAPPED_TRANSPORT_DIBS = 3,
+  };
+
+  // Map a transport DIB from its Id and return it. Returns NULL on error.
+  TransportDIB* MapTransportDIB(TransportDIB::Id dib_id);
+
+  void ClearTransportDIBCache();
+  // This is used to clear our cache five seconds after the last use.
+  base::DelayTimer<BrowserRenderProcessHost> cached_dibs_cleaner_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserRenderProcessHost);
 };

@@ -6,7 +6,7 @@
 
 #include "base/gfx/gdi_util.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
-#include "chrome/common/win_util.h"
+#include "chrome/common/transport_dib.h"
 
 // BackingStore (Windows) ------------------------------------------------------
 
@@ -31,14 +31,8 @@ BackingStore::~BackingStore() {
 }
 
 bool BackingStore::PaintRect(base::ProcessHandle process,
-                             BitmapWireData bitmap_section,
+                             TransportDIB* bitmap,
                              const gfx::Rect& bitmap_rect) {
-  // The bitmap received is valid only in the renderer process.
-  HANDLE valid_bitmap =
-      win_util::GetSectionFromProcess(bitmap_section, process, false);
-  if (!valid_bitmap)
-    return false;
-
   if (!backing_store_dib_) {
     backing_store_dib_ = CreateDIB(hdc_, size_.width(), size_.height(), true,
                                    NULL);
@@ -48,8 +42,7 @@ bool BackingStore::PaintRect(base::ProcessHandle process,
 
   // TODO(darin): protect against integer overflow
   DWORD size = 4 * bitmap_rect.width() * bitmap_rect.height();
-  void* backing_store_data = MapViewOfFile(valid_bitmap, FILE_MAP_READ, 0, 0,
-                                           size);
+
   // These values are shared with gfx::PlatformDevice
   BITMAPINFOHEADER hdr;
   gfx::CreateBitmapHeader(bitmap_rect.width(), bitmap_rect.height(), &hdr);
@@ -65,18 +58,16 @@ bool BackingStore::PaintRect(base::ProcessHandle process,
                 0, 0,  // source x,y
                 paint_rect.width(),
                 paint_rect.height(),
-                backing_store_data,
+                bitmap->memory(),
                 reinterpret_cast<BITMAPINFO*>(&hdr),
                 DIB_RGB_COLORS,
                 SRCCOPY);
 
-  UnmapViewOfFile(backing_store_data);
-  CloseHandle(valid_bitmap);
   return true;
 }
 
 void BackingStore::ScrollRect(base::ProcessHandle process,
-                              BitmapWireData bitmap,
+                              TransportDIB* bitmap,
                               const gfx::Rect& bitmap_rect,
                               int dx, int dy,
                               const gfx::Rect& clip_rect,

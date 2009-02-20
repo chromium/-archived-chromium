@@ -15,11 +15,11 @@
 #include "base/shared_memory.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/common/accessibility.h"
-#include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_transition_types.h"
+#include "chrome/common/transport_dib.h"
 #include "googleurl/src/gurl.h"
 #include "media/audio/audio_output.h"
 #include "net/base/upload_data.h"
@@ -150,7 +150,7 @@ struct ViewHostMsg_PaintRect_Flags {
 
 struct ViewHostMsg_PaintRect_Params {
   // The bitmap to be painted into the rect given by bitmap_rect.
-  BitmapWireData bitmap;
+  TransportDIB::Id bitmap;
 
   // The position and size of the bitmap.
   gfx::Rect bitmap_rect;
@@ -183,7 +183,7 @@ struct ViewHostMsg_PaintRect_Params {
 // parameters to be reasonably put in a predefined IPC message.
 struct ViewHostMsg_ScrollRect_Params {
   // The bitmap to be painted into the rect exposed by scrolling.
-  BitmapWireData bitmap;
+  TransportDIB::Id bitmap;
 
   // The position and size of the bitmap.
   gfx::Rect bitmap_rect;

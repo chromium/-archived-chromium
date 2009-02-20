@@ -25,6 +25,7 @@
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/transport_dib.h"
 #include "chrome/renderer/render_view.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -36,7 +37,10 @@ bool RenderProcess::load_plugins_in_process_ = false;
 
 RenderProcess::RenderProcess(const std::wstring& channel_name)
     : render_thread_(channel_name),
-      ALLOW_THIS_IN_INITIALIZER_LIST(clearer_factory_(this)) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(shared_mem_cache_cleaner_(
+          base::TimeDelta::FromSeconds(5),
+          this, &RenderProcess::ClearTransportDIBCache)),
+      sequence_number_(0) {
   for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i)
     shared_mem_cache_[i] = NULL;
 }
@@ -48,7 +52,7 @@ RenderProcess::~RenderProcess() {
   // This race condition causes a crash when the renderer process is shutting
   // down.
   render_thread_.Stop();
-  ClearSharedMemCache();
+  ClearTransportDIBCache();
 }
 
 // static
@@ -124,95 +128,142 @@ bool RenderProcess::ShouldLoadPluginsInProcess() {
   return load_plugins_in_process_;
 }
 
+// -----------------------------------------------------------------------------
+// Platform specific code for dealing with bitmap transport...
+
+// -----------------------------------------------------------------------------
+// Create a platform canvas object which renders into the given transport
+// memory.
+// -----------------------------------------------------------------------------
+static skia::PlatformCanvas* CanvasFromTransportDIB(
+    TransportDIB* dib, const gfx::Rect& rect) {
+#if defined(OS_WIN)
+  return new skia::PlatformCanvas(rect.width(), rect.height(), true,
+                                  dib->handle());
+#elif defined(OS_LINUX) || defined(OS_MACOSX)
+  return new skia::PlatformCanvas(rect.width(), rect.height(), true,
+                                  reinterpret_cast<uint8_t*>(dib->memory()));
+#endif
+}
+
+TransportDIB* RenderProcess::CreateTransportDIB(size_t size) {
+#if defined(OS_WIN) || defined(OS_LINUX)
+  // Windows and Linux create transport DIBs inside the renderer
+  return TransportDIB::Create(size, sequence_number_++);
+#elif defined(OS_MACOSX)  // defined(OS_WIN) || defined(OS_LINUX)
+  // Mac creates transport DIBs in the browser, so we need to do a sync IPC to
+  // get one.
+  IPC::Maybe<TransportDIB::Handle> mhandle;
+  IPC::Message* msg = new ViewHostMsg_AllocTransportDIB(size, &mhandle);
+  if (!render_thread_.Send(msg))
+    return NULL;
+  if (!mhandle.valid)
+    return NULL;
+  return TransportDIB::Map(mhandle.value);
+#endif  // defined(OS_MACOSX)
+}
+
+void RenderProcess::FreeTransportDIB(TransportDIB* dib) {
+  if (!dib)
+    return;
+
+#if defined(OS_MACOSX)
+  // On Mac we need to tell the browser that it can drop a reference to the
+  // shared memory.
+  IPC::Message* msg = new ViewHostMsg_FreeTransportDIB(dib->id());
+  render_thread_.Send(msg);
+#endif
+
+  delete dib;
+}
+
+// -----------------------------------------------------------------------------
+
+
 // static
-base::SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
-  self()->clearer_factory_.RevokeAll();
+skia::PlatformCanvas* RenderProcess::GetDrawingCanvas(
+    TransportDIB** memory, const gfx::Rect& rect) {
+  const size_t stride = skia::PlatformCanvas::StrideForWidth(rect.width());
+  const size_t size = stride * rect.height();
 
-  base::SharedMemory* mem = self()->GetSharedMemFromCache(size);
-  if (mem)
-    return mem;
-
-  // Round-up size to allocation granularity
-  size_t allocation_granularity = base::SysInfo::VMAllocationGranularity();
-  size = size / allocation_granularity + 1;
-  size = size * allocation_granularity;
-
-  mem = new base::SharedMemory();
-  if (!mem)
-    return NULL;
-  if (!mem->Create(L"", false, true, size)) {
-    delete mem;
-    return NULL;
+  if (!self()->GetTransportDIBFromCache(memory, size)) {
+    *memory = self()->CreateTransportDIB(size);
+    if (!*memory)
+      return false;
   }
 
-  return mem;
+  return CanvasFromTransportDIB(*memory, rect);
 }
 
 // static
-void RenderProcess::FreeSharedMemory(base::SharedMemory* mem) {
+void RenderProcess::ReleaseTransportDIB(TransportDIB* mem) {
   if (self()->PutSharedMemInCache(mem)) {
-    self()->ScheduleCacheClearer();
+    self()->shared_mem_cache_cleaner_.Reset();
     return;
   }
-  DeleteSharedMem(mem);
+
+  self()->FreeTransportDIB(mem);
 }
 
-// static
-void RenderProcess::DeleteSharedMem(base::SharedMemory* mem) {
-  delete mem;
-}
-
-base::SharedMemory* RenderProcess::GetSharedMemFromCache(size_t size) {
+bool RenderProcess::GetTransportDIBFromCache(TransportDIB** mem,
+                                             size_t size) {
   // look for a cached object that is suitable for the requested size.
   for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
-    base::SharedMemory* mem = shared_mem_cache_[i];
-    if (mem && mem->max_size() >= size) {
+    if (shared_mem_cache_[i] &&
+        size <= shared_mem_cache_[i]->size()) {
+      *mem = shared_mem_cache_[i];
       shared_mem_cache_[i] = NULL;
-      return mem;
+      return true;
     }
   }
-  return NULL;
-}
 
-bool RenderProcess::PutSharedMemInCache(base::SharedMemory* mem) {
-  // simple algorithm:
-  //  - look for an empty slot to store mem, or
-  //  - if full, then replace any existing cache entry that is smaller than the
-  //    given shared memory object.
-  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
-    if (!shared_mem_cache_[i]) {
-      shared_mem_cache_[i] = mem;
-      return true;
-    }
-  }
-  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
-    base::SharedMemory* cached_mem = shared_mem_cache_[i];
-    if (cached_mem->max_size() < mem->max_size()) {
-      shared_mem_cache_[i] = mem;
-      DeleteSharedMem(cached_mem);
-      return true;
-    }
-  }
   return false;
 }
 
-void RenderProcess::ClearSharedMemCache() {
+int RenderProcess::FindFreeCacheSlot(size_t size) {
+  // simple algorithm:
+  //  - look for an empty slot to store mem, or
+  //  - if full, then replace smallest entry which is smaller than |size|
+  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
+    if (shared_mem_cache_[i] == NULL)
+      return i;
+  }
+
+  size_t smallest_size = size;
+  int smallest_index = -1;
+
+  for (size_t i = 1; i < arraysize(shared_mem_cache_); ++i) {
+    const size_t entry_size = shared_mem_cache_[i]->size();
+    if (entry_size < smallest_size) {
+      smallest_size = entry_size;
+      smallest_index = i;
+    }
+  }
+
+  if (smallest_index != -1) {
+    FreeTransportDIB(shared_mem_cache_[smallest_index]);
+    shared_mem_cache_[smallest_index] = NULL;
+  }
+
+  return smallest_index;
+}
+
+bool RenderProcess::PutSharedMemInCache(TransportDIB* mem) {
+  const int slot = FindFreeCacheSlot(mem->size());
+  if (slot == -1)
+    return false;
+
+  shared_mem_cache_[slot] = mem;
+  return true;
+}
+
+void RenderProcess::ClearTransportDIBCache() {
   for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i) {
     if (shared_mem_cache_[i]) {
-      DeleteSharedMem(shared_mem_cache_[i]);
+      FreeTransportDIB(shared_mem_cache_[i]);
       shared_mem_cache_[i] = NULL;
     }
   }
-}
-
-void RenderProcess::ScheduleCacheClearer() {
-  // If we already have a deferred clearer, then revoke it so we effectively
-  // delay cache clearing until idle for our desired interval.
-  clearer_factory_.RevokeAll();
-
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      clearer_factory_.NewRunnableMethod(&RenderProcess::ClearSharedMemCache),
-      5000 /* 5 seconds */);
 }
 
 void RenderProcess::Cleanup() {

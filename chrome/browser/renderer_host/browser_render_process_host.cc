@@ -128,7 +128,10 @@ void BrowserRenderProcessHost::RegisterPrefs(PrefService* prefs) {
 BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
     : RenderProcessHost(profile),
       visible_widgets_(0),
-      backgrounded_(true) {
+      backgrounded_(true),
+      ALLOW_THIS_IN_INITIALIZER_LIST(cached_dibs_cleaner_(
+            base::TimeDelta::FromSeconds(5),
+            this, &BrowserRenderProcessHost::ClearTransportDIBCache)) {
   DCHECK(host_id() >= 0);  // We use a negative host_id_ in destruction.
   widget_helper_ = new RenderWidgetHelper(host_id());
 
@@ -170,6 +173,8 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
 
   NotificationService::current()->RemoveObserver(this,
       NotificationType::USER_SCRIPTS_LOADED, NotificationService::AllSources());
+
+  ClearTransportDIBCache();
 }
 
 // When we're started with the --start-renderers-manually flag, we pop up a
@@ -603,6 +608,65 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
   process_.Terminate(ResultCodes::NORMAL_EXIT);
   process_.Close();
   return true;
+}
+
+// This is a platform specific function for mapping a transport DIB given its id
+TransportDIB* BrowserRenderProcessHost::MapTransportDIB(
+    TransportDIB::Id dib_id) {
+#if defined(OS_WIN)
+  // On Windows we need to duplicate the handle from the remote process
+  HANDLE section = win_util::GetSectionFromProcess(
+      dib_id.handle, GetRendererProcessHandle(), false /* read write */);
+  return TransportDIB::Map(section);
+#elif defined(OS_MACOSX)
+  // On OSX, the browser allocates all DIBs and keeps a file descriptor around
+  // for each.
+  return widget_helper_->MapTransportDIB(dib_id);
+#elif defined(OS_LINUX)
+  return TransportDIB::Map(dib_id);
+#endif  // defined(OS_LINUX)
+}
+
+TransportDIB* BrowserRenderProcessHost::GetTransportDIB(
+    TransportDIB::Id dib_id) {
+  const std::map<TransportDIB::Id, TransportDIB*>::iterator
+      i = cached_dibs_.find(dib_id);
+  if (i != cached_dibs_.end()) {
+    cached_dibs_cleaner_.Reset();
+    return i->second;
+  }
+
+  TransportDIB* dib = MapTransportDIB(dib_id);
+  if (!dib)
+    return NULL;
+
+  if (cached_dibs_.size() >= MAX_MAPPED_TRANSPORT_DIBS) {
+    // Clean a single entry from the cache
+    std::map<TransportDIB::Id, TransportDIB*>::iterator smallest_iterator;
+    size_t smallest_size = std::numeric_limits<size_t>::max();
+
+    for (std::map<TransportDIB::Id, TransportDIB*>::iterator
+         i = cached_dibs_.begin(); i != cached_dibs_.end(); ++i) {
+      if (i->second->size() <= smallest_size)
+        smallest_iterator = i;
+    }
+
+    delete smallest_iterator->second;
+    cached_dibs_.erase(smallest_iterator);
+  }
+
+  cached_dibs_[dib_id] = dib;
+  cached_dibs_cleaner_.Reset();
+  return dib;
+}
+
+void BrowserRenderProcessHost::ClearTransportDIBCache() {
+  for (std::map<TransportDIB::Id, TransportDIB*>::iterator
+       i = cached_dibs_.begin(); i != cached_dibs_.end(); ++i) {
+    delete i->second;
+  }
+
+  cached_dibs_.clear();
 }
 
 bool BrowserRenderProcessHost::Send(IPC::Message* msg) {

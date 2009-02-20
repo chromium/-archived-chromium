@@ -1,4 +1,3 @@
-
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -12,7 +11,9 @@
 #include "base/ref_counted.h"
 #include "base/lock.h"
 #include "base/waitable_event.h"
+#include "chrome/common/ipc_maybe.h"
 #include "chrome/common/modal_dialog_event.h"
+#include "chrome/common/transport_dib.h"
 
 namespace IPC {
 class Message;
@@ -74,6 +75,15 @@ class ResourceDispatcherHost;
 //   GetBackingStore method is called, it will call WaitForPaintMsg if it has
 //   no backingstore.
 //
+// TRANSPORT DIB CREATION
+//
+//   On some platforms (currently the Mac) the renderer cannot create transport
+//   DIBs because of sandbox limitations. Thus, it has to make synchronous IPCs
+//   to the browser for them. Since these requests are synchronous, they cannot
+//   terminate on the UI thread. Thus, in this case, this object performs the
+//   allocation and maintains the set of allocated transport DIBs which the
+//   renderers can refer to.
+//
 class RenderWidgetHelper :
     public base::RefCountedThreadSafe<RenderWidgetHelper> {
  public:
@@ -99,6 +109,11 @@ class RenderWidgetHelper :
                        const base::TimeDelta& max_delay,
                        IPC::Message* msg);
 
+#if defined(OS_MACOSX)
+  // Given the id of a transport DIB, return a mapping to it or NULL on error.
+  TransportDIB* MapTransportDIB(TransportDIB::Id dib_id);
+#endif
+
 
   // IO THREAD ONLY -----------------------------------------------------------
 
@@ -113,6 +128,14 @@ class RenderWidgetHelper :
                        int* route_id,
                        ModalDialogEvent* modal_dialog_event);
   void CreateNewWidget(int opener_id, bool activatable, int* route_id);
+
+#if defined(OS_MACOSX)
+  // Called on the IO thread to handle the allocation of a transport DIB
+  void AllocTransportDIB(size_t size, IPC::Maybe<TransportDIB::Handle>* result);
+
+  // Called on the IO thread to handle the freeing of a transport DIB
+  void FreeTransportDIB(TransportDIB::Id dib_id);
+#endif
 
  private:
   // A class used to proxy a paint message.  PaintMsgProxy objects are created
@@ -140,6 +163,16 @@ class RenderWidgetHelper :
   void OnCrossSiteClosePageACK(ResourceDispatcherHost* dispatcher,
                                int new_render_process_host_id,
                                int new_request_id);
+
+#if defined(OS_MACOSX)
+  // Called on destruction to release all allocated transport DIBs
+  void ClearAllocatedDIBs();
+
+  // On OSX we keep file descriptors to all the allocated DIBs around until
+  // the renderer frees them.
+  Lock allocated_dibs_lock_;
+  std::map<TransportDIB::Id, int> allocated_dibs_;
+#endif
 
   // A map of live paint messages.  Must hold pending_paints_lock_ to access.
   // The PaintMsgProxy objects are not owned by this map.  (See PaintMsgProxy

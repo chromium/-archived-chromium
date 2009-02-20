@@ -537,7 +537,7 @@
 			RelativePath=".\notification_details.h"
 			>
 		</File>
-                <File
+		<File
 			RelativePath=".\notification_observer.h"
 			>
 		</File>
@@ -739,6 +739,14 @@
 		</File>
 		<File
 			RelativePath=".\time_format.h"
+			>
+		</File>
+		<File
+			RelativePath=".\transport_dib.h"
+			>
+		</File>
+		<File
+			RelativePath=".\transport_dib_win.cc"
 			>
 		</File>
 		<File

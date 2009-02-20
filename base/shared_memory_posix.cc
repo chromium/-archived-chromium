@@ -7,6 +7,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -23,6 +25,7 @@ const char kSemaphoreSuffix[] = "-sem";
 
 SharedMemory::SharedMemory()
     : mapped_file_(-1),
+      inode_(0),
       memory_(NULL),
       read_only_(false),
       max_size_(0) {
@@ -30,9 +33,16 @@ SharedMemory::SharedMemory()
 
 SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only)
     : mapped_file_(handle.fd),
+      inode_(0),
       memory_(NULL),
       read_only_(read_only),
       max_size_(0) {
+  struct stat st;
+  if (fstat(handle.fd, &st) == 0) {
+    // If fstat fails, then the file descriptor is invalid and we'll learn this
+    // fact when Map() fails.
+    inode_ = st.st_ino;
+  }
 }
 
 SharedMemory::SharedMemory(SharedMemoryHandle handle, bool read_only,
@@ -206,6 +216,12 @@ bool SharedMemory::CreateOrOpen(const std::wstring &name,
 
   mapped_file_ = dup(fileno(fp));
   DCHECK(mapped_file_ >= 0);
+
+  struct stat st;
+  if (fstat(mapped_file_, &st))
+    NOTREACHED();
+  inode_ = st.st_ino;
+
   return true;
 }
 

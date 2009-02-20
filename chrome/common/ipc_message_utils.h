@@ -15,8 +15,10 @@
 #if defined(OS_POSIX)
 #include "chrome/common/file_descriptor_set_posix.h"
 #endif
+#include "chrome/common/ipc_maybe.h"
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
+#include "chrome/common/transport_dib.h"
 #include "webkit/glue/cache_manager.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/find_in_page_request.h"
@@ -1042,6 +1044,55 @@ struct ParamTraits< Tuple6<A, B, C, D, E, F> > {
     LogParam(p.e, l);
     l->append(L", ");
     LogParam(p.f, l);
+  }
+};
+
+#if defined(OS_WIN)
+template<>
+struct ParamTraits<TransportDIB::Id> {
+  typedef TransportDIB::Id param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.handle);
+    WriteParam(m, p.sequence_num);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    return (ReadParam(m, iter, &r->handle) &&
+            ReadParam(m, iter, &r->sequence_num));
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"TransportDIB(");
+    LogParam(p.handle, l);
+    l->append(L", ");
+    LogParam(p.sequence_num, l);
+    l->append(L")");
+  }
+};
+#endif
+
+template<typename A>
+struct ParamTraits<Maybe<A> > {
+  typedef struct Maybe<A> param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.valid);
+    if (p.valid)
+      WriteParam(m, p.value);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    if (!ReadParam(m, iter, &r->valid))
+      return false;
+
+    if (r->valid)
+      return ReadParam(m, iter, &r->value);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    if (p.valid) {
+      l->append(L"Just ");
+      ParamTraits<A>::Log(p.value, l);
+    } else {
+      l->append(L"Nothing");
+    }
+
   }
 };
 

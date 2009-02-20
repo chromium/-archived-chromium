@@ -275,6 +275,21 @@ if not env.Bit('posix'):
       'ipc_channel_posix.cc',
   )
 
+if env.Bit('windows'):
+  input_files.Append(
+      'transport_dib_win.cc'
+  )
+
+if env.Bit('linux'):
+  input_files.Append(
+      'transport_dib_linux.cc'
+  )
+
+if env.Bit('mac'):
+  input_files.Append(
+      'transport_dib_mac.cc'
+  )
+
 if not env.Bit('mac'):
   # TODO(port): This should be enabled for all platforms.
   env.ChromeLibrary('common', input_files)

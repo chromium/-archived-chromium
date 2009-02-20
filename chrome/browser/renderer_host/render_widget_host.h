@@ -9,7 +9,6 @@
 
 #include "base/gfx/size.h"
 #include "base/timer.h"
-#include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/ipc_channel.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -21,6 +20,7 @@ class BackingStore;
 class PaintObserver;
 class RenderProcessHost;
 class RenderWidgetHostView;
+class TransportDIB;
 class WebInputEvent;
 class WebKeyboardEvent;
 class WebMouseEvent;
@@ -262,14 +262,14 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void OnMsgImeUpdateStatus(int control, const gfx::Rect& caret_rect);
 
   // Paints the given bitmap to the current backing store at the given location.
-  void PaintBackingStoreRect(BitmapWireData bitmap,
+  void PaintBackingStoreRect(TransportDIB* dib,
                              const gfx::Rect& bitmap_rect,
                              const gfx::Size& view_size);
 
   // Scrolls the given |clip_rect| in the backing by the given dx/dy amount. The
-  // |bitmap| and its corresponding location |bitmap_rect| in the backing store
+  // |dib| and its corresponding location |bitmap_rect| in the backing store
   // is the newly painted pixels by the renderer.
-  void ScrollBackingStoreRect(BitmapWireData bitmap,
+  void ScrollBackingStoreRect(TransportDIB* dib,
                               const gfx::Rect& bitmap_rect,
                               int dx, int dy,
                               const gfx::Rect& clip_rect,

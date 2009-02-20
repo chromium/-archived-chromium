@@ -89,7 +89,7 @@ class BaseTimer_Helper {
 
   // Used to orphan delayed_task_ so that when it runs it does nothing.
   void OrphanDelayedTask();
-  
+
   // Used to initiated a new delayed task.  This has the side-effect of
   // orphaning delayed_task_ if it is non-null.
   void InitiateDelayedTask(TimerTask* timer_task);
@@ -128,7 +128,7 @@ class BaseTimer : public BaseTimer_Helper {
 
  private:
   typedef BaseTimer<Receiver, kIsRepeating> SelfType;
-  
+
   class TimerTask : public BaseTimer_Helper::TimerTask {
    public:
     TimerTask(TimeDelta delay, Receiver* receiver, ReceiverMethod method)
@@ -197,6 +197,65 @@ class OneShotTimer : public BaseTimer<Receiver, false> {};
 // A simple, repeating timer.  See usage notes at the top of the file.
 template <class Receiver>
 class RepeatingTimer : public BaseTimer<Receiver, true> {};
+
+//-----------------------------------------------------------------------------
+// A Delay timer is like The Button from Lost. Once started, you have to keep
+// calling Reset otherwise it will call the given method in the MessageLoop
+// thread.
+//
+// Once created, it is inactive until Reset is called. Once |delay| seconds have
+// passed since the last call to Reset, the callback is made. Once the callback
+// has been made, it's inactive until Reset is called again.
+template <class Receiver>
+class DelayTimer {
+ public:
+  typedef void (Receiver::*ReceiverMethod)();
+
+  DelayTimer(TimeDelta delay, Receiver* receiver, ReceiverMethod method)
+      : receiver_(receiver),
+        method_(method),
+        delay_(delay) {
+  }
+
+  void Reset() {
+    DelayFor(delay_);
+  }
+
+ private:
+  void DelayFor(TimeDelta delay) {
+    trigger_time_ = Time::Now() + delay;
+
+    // If we already have a timer that will expire at or before the given delay,
+    // then we have nothing more to do now.
+    if (timer_.IsRunning() && timer_.GetCurrentDelay() <= delay)
+      return;
+
+    // The timer isn't running, or will expire too late, so restart it.
+    timer_.Stop();
+    timer_.Start(delay, this, &DelayTimer<Receiver>::Check);
+  }
+
+  void Check() {
+    if (trigger_time_.is_null())
+      return;
+
+    // If we have not waited long enough, then wait some more.
+    const Time now = Time::Now();
+    if (now < trigger_time_) {
+      DelayFor(trigger_time_ - now);
+      return;
+    }
+
+    (receiver_->*method_)();
+  }
+
+  Receiver *const receiver_;
+  const ReceiverMethod method_;
+  const TimeDelta delay_;
+
+  OneShotTimer<DelayTimer<Receiver> > timer_;
+  Time trigger_time_;
+};
 
 }  // namespace base
 

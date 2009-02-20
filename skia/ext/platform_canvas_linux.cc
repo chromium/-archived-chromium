@@ -21,11 +21,30 @@ PlatformCanvasLinux::PlatformCanvasLinux(int width, int height, bool is_opaque)
     SK_CRASH();
 }
 
+PlatformCanvasLinux::PlatformCanvasLinux(int width, int height, bool is_opaque,
+                                         uint8_t* data)
+    : SkCanvas() {
+  if (!initialize(width, height, is_opaque, data))
+    SK_CRASH();
+}
+
 PlatformCanvasLinux::~PlatformCanvasLinux() {
 }
 
 bool PlatformCanvasLinux::initialize(int width, int height, bool is_opaque) {
   SkDevice* device = createPlatformDevice(width, height, is_opaque);
+  if (!device)
+    return false;
+
+  setDevice(device);
+  device->unref(); // was created with refcount 1, and setDevice also refs
+  return true;
+}
+
+bool PlatformCanvasLinux::initialize(int width, int height, bool is_opaque,
+                                     uint8_t* data) {
+  SkDevice* device =
+    BitmapPlatformDeviceLinux::Create(width, height, is_opaque, data);
   if (!device)
     return false;
 

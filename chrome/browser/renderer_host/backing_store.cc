@@ -60,7 +60,7 @@ BackingStore* BackingStoreManager::PrepareBackingStore(
     RenderWidgetHost* host,
     const gfx::Rect& backing_store_rect,
     base::ProcessHandle process_handle,
-    BitmapWireData bitmap_section,
+    TransportDIB* bitmap,
     const gfx::Rect& bitmap_rect,
     bool* needs_full_paint) {
   BackingStore* backing_store = GetBackingStore(host,
@@ -76,7 +76,7 @@ BackingStore* BackingStoreManager::PrepareBackingStore(
   }
 
   DCHECK(backing_store != NULL);
-  backing_store->PaintRect(process_handle, bitmap_section, bitmap_rect);
+  backing_store->PaintRect(process_handle, bitmap, bitmap_rect);
   return backing_store;
 }
 

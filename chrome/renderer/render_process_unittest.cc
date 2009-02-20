@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/gfx/rect.h"
 #include "base/sys_info.h"
 #include "base/string_util.h"
 #include "chrome/renderer/render_process.h"
@@ -24,11 +25,14 @@ class RenderProcessTest : public testing::Test {
 };
 
 
-TEST_F(RenderProcessTest, TestSharedMemoryAllocOne) {
-  size_t size = base::SysInfo::VMAllocationGranularity();
-  base::SharedMemory* mem = RenderProcess::AllocSharedMemory(size);
-  ASSERT_TRUE(mem);
-  RenderProcess::FreeSharedMemory(mem);
+TEST_F(RenderProcessTest, TestTransportDIBAllocation) {
+  const gfx::Rect rect(0, 0, 100, 100);
+  TransportDIB* dib;
+  skia::PlatformCanvas* canvas = RenderProcess::GetDrawingCanvas(&dib, rect);
+  ASSERT_TRUE(dib);
+  ASSERT_TRUE(canvas);
+  RenderProcess::ReleaseTransportDIB(dib);
+  delete canvas;
 }
 
 }  // namespace

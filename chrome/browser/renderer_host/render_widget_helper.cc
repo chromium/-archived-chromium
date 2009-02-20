@@ -56,6 +56,10 @@ RenderWidgetHelper::~RenderWidgetHelper() {
   // The elements of pending_paints_ each hold an owning reference back to this
   // object, so we should not be destroyed unless pending_paints_ is empty!
   DCHECK(pending_paints_.empty());
+
+#if defined(OS_MACOSX)
+  ClearAllocatedDIBs();
+#endif
 }
 
 int RenderWidgetHelper::GetNextRoutingID() {
@@ -244,3 +248,58 @@ void RenderWidgetHelper::OnSimulateReceivedMessage(
   if (host)
     host->OnMessageReceived(message);
 }
+
+#if defined(OS_MACOSX)
+TransportDIB* RenderWidgetHelper::MapTransportDIB(TransportDIB::Id dib_id) {
+  AutoLock locked(allocated_dibs_lock_);
+
+  const std::map<TransportDIB::Id, int>::iterator
+      i = allocated_dibs_.find(dib_id);
+  if (i == allocated_dibs_.end())
+    return NULL;
+
+  base::FileDescriptor fd(dup(i->second), true);
+  return TransportDIB::Map(fd);
+}
+
+void RenderWidgetHelper::AllocTransportDIB(
+    size_t size, IPC::Maybe<TransportDIB::Handle>* result) {
+  base::SharedMemory* shared_memory = new base::SharedMemory();
+  if (!shared_memory->Create(L"", false /* read write */,
+                             false /* do not open existing */, size)) {
+    result->valid = false;
+    delete shared_memory;
+    return;
+  }
+
+  result->valid = true;
+  shared_memory->GiveToProcess(0 /* pid, not needed */, &result->value);
+
+  // Keep a copy of the file descriptor around
+  AutoLock locked(allocated_dibs_lock_);
+  allocated_dibs_[shared_memory->id()] = dup(result->value.fd);
+}
+
+void RenderWidgetHelper::FreeTransportDIB(TransportDIB::Id dib_id) {
+  AutoLock locked(allocated_dibs_lock_);
+
+  const std::map<TransportDIB::Id, int>::iterator
+    i = allocated_dibs_.find(dib_id);
+
+  if (i != allocated_dibs_.end()) {
+    close(i->second);
+    allocated_dibs_.erase(i);
+  } else {
+    DLOG(WARNING) << "Renderer asked us to free unknown transport DIB";
+  }
+}
+
+void RenderWidgetHelper::ClearAllocatedDIBs() {
+  for (std::map<TransportDIB::Id, int>::iterator
+       i = allocated_dibs_.begin(); i != allocated_dibs_.end(); ++i) {
+    close(i->second);
+  }
+
+  allocated_dibs_.clear();
+}
+#endif

@@ -14,10 +14,12 @@ namespace {
 
 class OneShotTimerTester {
  public:
-  OneShotTimerTester(bool* did_run) : did_run_(did_run) {
+  OneShotTimerTester(bool* did_run, unsigned milliseconds = 10)
+      : did_run_(did_run),
+        delay_ms_(milliseconds) {
   }
   void Start() {
-    timer_.Start(TimeDelta::FromMilliseconds(10), this,
+    timer_.Start(TimeDelta::FromMilliseconds(delay_ms_), this,
                  &OneShotTimerTester::Run);
   }
  private:
@@ -27,6 +29,7 @@ class OneShotTimerTester {
   }
   bool* did_run_;
   base::OneShotTimer<OneShotTimerTester> timer_;
+  const unsigned delay_ms_;
 };
 
 class OneShotSelfDeletingTimerTester {
@@ -138,7 +141,7 @@ void RunTest_RepeatingTimer_Cancel(MessageLoop::Type message_loop_type) {
 
   // Now start the timer.
   a->Start();
- 
+
   bool did_run_b = false;
   RepeatingTimerTester b(&did_run_b);
   b.Start();
@@ -147,6 +150,97 @@ void RunTest_RepeatingTimer_Cancel(MessageLoop::Type message_loop_type) {
 
   EXPECT_FALSE(did_run_a);
   EXPECT_TRUE(did_run_b);
+}
+
+class DelayTimerTarget {
+ public:
+  DelayTimerTarget()
+      : signaled_(false) {
+  }
+
+  bool signaled() const { return signaled_; }
+
+  void Signal() {
+    ASSERT_FALSE(signaled_);
+    signaled_ = true;
+  }
+
+ private:
+  bool signaled_;
+};
+
+void RunTest_DelayTimer_NoCall(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // If Delay is never called, the timer shouldn't go off.
+  DelayTimerTarget target;
+  base::DelayTimer<DelayTimerTarget> timer(
+      TimeDelta::FromMilliseconds(1), &target, &DelayTimerTarget::Signal);
+
+  bool did_run = false;
+  OneShotTimerTester tester(&did_run);
+  tester.Start();
+  MessageLoop::current()->Run();
+
+  ASSERT_FALSE(target.signaled());
+}
+
+void RunTest_DelayTimer_OneCall(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  DelayTimerTarget target;
+  base::DelayTimer<DelayTimerTarget> timer(
+      TimeDelta::FromMilliseconds(1), &target, &DelayTimerTarget::Signal);
+  timer.Reset();
+
+  bool did_run = false;
+  OneShotTimerTester tester(&did_run, 100 /* milliseconds */);
+  tester.Start();
+  MessageLoop::current()->Run();
+
+  ASSERT_TRUE(target.signaled());
+}
+
+struct ResetHelper {
+  ResetHelper(base::DelayTimer<DelayTimerTarget>* timer,
+              DelayTimerTarget* target)
+      : timer_(timer),
+        target_(target) {
+  }
+
+  void Reset() {
+    ASSERT_FALSE(target_->signaled());
+    timer_->Reset();
+  }
+
+ private:
+  base::DelayTimer<DelayTimerTarget> *const timer_;
+  DelayTimerTarget *const target_;
+};
+
+void RunTest_DelayTimer_Reset(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  // If Delay is never called, the timer shouldn't go off.
+  DelayTimerTarget target;
+  base::DelayTimer<DelayTimerTarget> timer(
+      TimeDelta::FromMilliseconds(1), &target, &DelayTimerTarget::Signal);
+  timer.Reset();
+
+  ResetHelper reset_helper(&timer, &target);
+
+  base::OneShotTimer<ResetHelper> timers[20];
+  for (size_t i = 0; i < arraysize(timers); ++i) {
+    timers[i].Start(TimeDelta::FromMilliseconds(i * 10), &reset_helper,
+                    &ResetHelper::Reset);
+  }
+
+  bool did_run = false;
+  OneShotTimerTester tester(&did_run, 300);
+  tester.Start();
+  MessageLoop::current()->Run();
+
+  ASSERT_TRUE(target.signaled());
 }
 
 }  // namespace
@@ -185,6 +279,24 @@ TEST(TimerTest, RepeatingTimer_Cancel) {
   RunTest_RepeatingTimer_Cancel(MessageLoop::TYPE_DEFAULT);
   RunTest_RepeatingTimer_Cancel(MessageLoop::TYPE_UI);
   RunTest_RepeatingTimer_Cancel(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, DelayTimer_NoCall) {
+  RunTest_DelayTimer_NoCall(MessageLoop::TYPE_DEFAULT);
+  RunTest_DelayTimer_NoCall(MessageLoop::TYPE_UI);
+  RunTest_DelayTimer_NoCall(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, DelayTimer_OneCall) {
+  RunTest_DelayTimer_OneCall(MessageLoop::TYPE_DEFAULT);
+  RunTest_DelayTimer_OneCall(MessageLoop::TYPE_UI);
+  RunTest_DelayTimer_OneCall(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, DelayTimer_Reset) {
+  RunTest_DelayTimer_Reset(MessageLoop::TYPE_DEFAULT);
+  RunTest_DelayTimer_Reset(MessageLoop::TYPE_UI);
+  RunTest_DelayTimer_Reset(MessageLoop::TYPE_IO);
 }
 
 TEST(TimerTest, MessageLoopShutdown) {

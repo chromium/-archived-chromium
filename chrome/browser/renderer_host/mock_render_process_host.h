@@ -35,6 +35,7 @@ class MockRenderProcessHost : public RenderProcessHost {
   virtual void WidgetHidden();
   virtual void AddWord(const std::wstring& word);
   virtual bool FastShutdownIfPossible();
+  virtual TransportDIB* GetTransportDIB(TransportDIB::Id dib_id);
 
   // IPC::Channel::Sender via RenderProcessHost.
   virtual bool Send(IPC::Message* msg);

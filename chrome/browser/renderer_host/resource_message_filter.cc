@@ -234,6 +234,12 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                         OnNotifyAudioPacketReady)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetAudioVolume, OnGetAudioVolume)
     IPC_MESSAGE_HANDLER(ViewHostMsg_SetAudioVolume, OnSetAudioVolume)
+#if defined(OS_MACOSX)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_AllocTransportDIB,
+                        OnAllocTransportDIB)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_FreeTransportDIB,
+                        OnFreeTransportDIB)
+#endif
     IPC_MESSAGE_UNHANDLED(
         handled = false)
   IPC_END_MESSAGE_MAP_EX()
@@ -794,3 +800,15 @@ void ResourceMessageFilter::OnSetAudioVolume(
     double left_channel, double right_channel) {
   // TODO(hclam): delegate to AudioRendererHost and handle this message.
 }
+
+#if defined(OS_MACOSX)
+void ResourceMessageFilter::OnAllocTransportDIB(
+    size_t size, IPC::Maybe<TransportDIB::Handle>* handle) {
+  render_widget_helper_->AllocTransportDIB(size, handle);
+}
+
+void ResourceMessageFilter::OnFreeTransportDIB(
+    TransportDIB::Id dib_id) {
+  render_widget_helper_->FreeTransportDIB(dib_id);
+}
+#endif

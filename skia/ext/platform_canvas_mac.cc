@@ -25,6 +25,14 @@ PlatformCanvasMac::PlatformCanvasMac(int width,
   initialize(width, height, is_opaque);
 }
 
+PlatformCanvasMac::PlatformCanvasMac(int width,
+                                     int height,
+                                     bool is_opaque,
+                                     uint8_t* data)
+    : SkCanvas() {
+  initialize(width, height, is_opaque, data);
+}
+
 PlatformCanvasMac::~PlatformCanvasMac() {
 }
 
@@ -32,6 +40,33 @@ bool PlatformCanvasMac::initialize(int width,
                                    int height,
                                    bool is_opaque) {
   SkDevice* device = createPlatformDevice(width, height, is_opaque, NULL);
+  if (!device)
+    return false;
+
+  setDevice(device);
+  device->unref();  // was created with refcount 1, and setDevice also refs
+  return true;
+}
+
+bool PlatformCanvasMac::initialize(int width,
+                                   int height,
+                                   bool is_opaque,
+                                   uint8_t* data) {
+  CGContextRef context = NULL;
+  CGColorSpaceRef colorSpace;
+
+  colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+  context = CGBitmapContextCreate(
+      data, width, height, 8 /* bits per plane */, 4 * width /* stride */,
+      colorSpace, kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
+  CGColorSpaceRelease(colorSpace);
+  if (!context)
+    return false;
+  // Change the coordinate system to match WebCore's
+  CGContextTranslateCTM(context, 0, height);
+  CGContextScaleCTM(context, 1.0, -1.0);
+
+  SkDevice* device = createPlatformDevice(width, height, is_opaque, context);
   if (!device)
     return false;
 

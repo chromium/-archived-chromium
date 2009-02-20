@@ -10,7 +10,6 @@
 #include "base/gfx/size.h"
 #include "base/process.h"
 #include "build/build_config.h"
-#include "chrome/common/bitmap_wire_data.h"
 #include "chrome/common/mru_cache.h"
 
 #if defined(OS_WIN)
@@ -20,6 +19,7 @@
 #endif
 
 class RenderWidgetHost;
+class TransportDIB;
 
 // BackingStore ----------------------------------------------------------------
 
@@ -39,14 +39,14 @@ class BackingStore {
 
   // Paints the bitmap from the renderer onto the backing store.
   bool PaintRect(base::ProcessHandle process,
-                 BitmapWireData bitmap_section,
+                 TransportDIB* bitmap,
                  const gfx::Rect& bitmap_rect);
 
   // Scrolls the given rect in the backing store, replacing the given region
   // identified by |bitmap_rect| by the bitmap in the file identified by the
   // given file handle.
   void ScrollRect(base::ProcessHandle process,
-                  BitmapWireData bitmap, const gfx::Rect& bitmap_rect,
+                  TransportDIB* bitmap, const gfx::Rect& bitmap_rect,
                   int dx, int dy,
                   const gfx::Rect& clip_rect,
                   const gfx::Size& view_size);
@@ -113,7 +113,7 @@ class BackingStoreManager {
   static BackingStore* PrepareBackingStore(RenderWidgetHost* host,
                                            const gfx::Rect& backing_store_rect,
                                            base::ProcessHandle process_handle,
-                                           BitmapWireData bitmap_section,
+                                           TransportDIB* bitmap,
                                            const gfx::Rect& bitmap_rect,
                                            bool* needs_full_paint);
 

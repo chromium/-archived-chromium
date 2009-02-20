@@ -424,10 +424,20 @@ void RenderWidgetHost::OnMsgPaintRect(
   DCHECK(!params.bitmap_rect.IsEmpty());
   DCHECK(!params.view_size.IsEmpty());
 
-  // Paint the backing store. This will update it with the renderer-supplied
-  // bits. The view will read out of the backing store later to actually draw
-  // to the screen.
-  PaintBackingStoreRect(params.bitmap, params.bitmap_rect, params.view_size);
+  const size_t size = params.bitmap_rect.height() *
+                      params.bitmap_rect.width() * 4;
+  TransportDIB* dib = process_->GetTransportDIB(params.bitmap);
+  if (dib) {
+    if (dib->size() < size) {
+      DLOG(WARNING) << "Transport DIB too small for given rectangle";
+      process()->ReceivedBadMessage(ViewHostMsg_PaintRect__ID);
+    } else {
+      // Paint the backing store. This will update it with the renderer-supplied
+      // bits. The view will read out of the backing store later to actually draw
+      // to the screen.
+      PaintBackingStoreRect(dib, params.bitmap_rect, params.view_size);
+    }
+  }
 
   // ACK early so we can prefetch the next PaintRect if there is a next one.
   // This must be done AFTER we're done painting with the bitmap supplied by the
@@ -474,10 +484,20 @@ void RenderWidgetHost::OnMsgScrollRect(
 
   DCHECK(!params.view_size.IsEmpty());
 
-  // Scroll the backing store.
-  ScrollBackingStoreRect(params.bitmap, params.bitmap_rect,
-                         params.dx, params.dy,
-                         params.clip_rect, params.view_size);
+  const size_t size = params.bitmap_rect.height() *
+                      params.bitmap_rect.width() * 4;
+  TransportDIB* dib = process_->GetTransportDIB(params.bitmap);
+  if (dib) {
+    if (dib->size() < size) {
+      LOG(WARNING) << "Transport DIB too small for given rectangle";
+      process()->ReceivedBadMessage(ViewHostMsg_PaintRect__ID);
+    } else {
+      // Scroll the backing store.
+      ScrollBackingStoreRect(dib, params.bitmap_rect,
+                             params.dx, params.dy,
+                             params.clip_rect, params.view_size);
+    }
+  }
 
   // ACK early so we can prefetch the next ScrollRect if there is a next one.
   // This must be done AFTER we're done painting with the bitmap supplied by the
@@ -561,7 +581,7 @@ void RenderWidgetHost::OnMsgImeUpdateStatus(int control,
   }
 }
 
-void RenderWidgetHost::PaintBackingStoreRect(BitmapWireData bitmap,
+void RenderWidgetHost::PaintBackingStoreRect(TransportDIB* bitmap,
                                              const gfx::Rect& bitmap_rect,
                                              const gfx::Size& view_size) {
   if (is_hidden_) {
@@ -590,7 +610,7 @@ void RenderWidgetHost::PaintBackingStoreRect(BitmapWireData bitmap,
   }
 }
 
-void RenderWidgetHost::ScrollBackingStoreRect(BitmapWireData bitmap,
+void RenderWidgetHost::ScrollBackingStoreRect(TransportDIB* bitmap,
                                               const gfx::Rect& bitmap_rect,
                                               int dx, int dy,
                                               const gfx::Rect& clip_rect,

@@ -59,9 +59,9 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   class BitmapPlatformDeviceLinuxData;
 
  public:
-  /// Static constructor. I don't understand this, it's just a copy of the mac
   static BitmapPlatformDeviceLinux* Create(int width, int height,
                                            bool is_opaque);
+  // This doesn't take ownership of |data|
   static BitmapPlatformDeviceLinux* Create(int width, int height,
                                            bool is_opaque, uint8_t* data);
   static BitmapPlatformDeviceLinux* Create(int width, int height,

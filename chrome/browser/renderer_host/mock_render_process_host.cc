@@ -57,6 +57,18 @@ bool MockRenderProcessHost::Send(IPC::Message* msg) {
   return true;
 }
 
+TransportDIB* MockRenderProcessHost::GetTransportDIB(TransportDIB::Id dib_id) {
+#if defined(OS_WIN)
+  return TransportDIB::Map(dib_id.handle);
+#elif defined(OS_MACOSX)
+  // On Mac, TransportDIBs are always created in the browser, so we cannot map
+  // one from a dib_id.
+  return TransportDIB::Create(100 * 100 * 4, 0);
+#elif defined(OS_LINUX)
+  return TransportDIB::Map(dib_id);
+#endif
+}
+
 void MockRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
 }
 

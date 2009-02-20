@@ -5,6 +5,7 @@
 #include "chrome/browser/renderer_host/backing_store.h"
 
 #include "base/logging.h"
+#include "chrome/common/transport_dib.h"
 #include "skia/ext/platform_canvas.h"
 #include "skia/include/SkBitmap.h"
 #include "skia/include/SkCanvas.h"
@@ -19,20 +20,20 @@ BackingStore::~BackingStore() {
 }
 
 bool BackingStore::PaintRect(base::ProcessHandle process,
-                             BitmapWireData bitmap,
+                             TransportDIB* bitmap,
                              const gfx::Rect& bitmap_rect) {
-  if (bitmap.width() != bitmap_rect.width() ||
-      bitmap.height() != bitmap_rect.height() ||
-      bitmap.config() != SkBitmap::kARGB_8888_Config) {
-    return false;
-  }
+  SkBitmap skbitmap;
+  skbitmap.setConfig(SkBitmap::kARGB_8888_Config, bitmap_rect.width(),
+                     bitmap_rect.height(), 4 * bitmap_rect.width());
 
-  canvas_.drawBitmap(bitmap, bitmap_rect.x(), bitmap_rect.y());
+  skbitmap.setPixels(bitmap->memory());
+
+  canvas_.drawBitmap(skbitmap, bitmap_rect.x(), bitmap_rect.y());
   return true;
 }
 
 void BackingStore::ScrollRect(base::ProcessHandle process,
-                              BitmapWireData bitmap,
+                              TransportDIB* bitmap,
                               const gfx::Rect& bitmap_rect,
                               int dx, int dy,
                               const gfx::Rect& clip_rect,
@@ -58,12 +59,6 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
   // We assume |clip_rect| is contained within the backing store.
   DCHECK(clip_rect.bottom() <= canvas_.getDevice()->height());
   DCHECK(clip_rect.right() <= canvas_.getDevice()->width());
-
-  if (bitmap.width() != bitmap_rect.width() ||
-      bitmap.height() != bitmap_rect.height() ||
-      bitmap.config() != SkBitmap::kARGB_8888_Config) {
-    return;
-  }
 
   const SkBitmap &backing_bitmap = canvas_.getDevice()->accessBitmap(true);
   const int stride = backing_bitmap.rowBytes();
@@ -123,6 +118,6 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
   }
 
   // Now paint the new bitmap data.
-  canvas_.drawBitmap(bitmap, bitmap_rect.x(), bitmap_rect.y());
+  PaintRect(process, bitmap, bitmap_rect);
   return;
 }

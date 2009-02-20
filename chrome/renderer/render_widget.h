@@ -14,6 +14,7 @@
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_channel.h"
+#include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
 
 #include "webkit/glue/webwidget_delegate.h"
@@ -85,10 +86,6 @@ class RenderWidget : public IPC::Channel::Listener,
 
   // Close the underlying WebWidget.
   void Close();
-
-  // Get the size of the paint buffer for the given rectangle, rounding up to
-  // the allocation granularity of the system.
-  static size_t GetPaintBufSize(const gfx::Rect& rect);
 
  protected:
   // Friend RefCounted so that the dtor can be non-public. Using this class
@@ -192,10 +189,10 @@ class RenderWidget : public IPC::Channel::Listener,
   // The size of the RenderWidget.
   gfx::Size size_;
 
-  // Shared memory handles that are currently in use to transfer an image to
-  // the browser.
-  base::SharedMemory* current_paint_buf_;
-  base::SharedMemory* current_scroll_buf_;
+  // Transport DIBs that are currently in use to transfer an image to the
+  // browser.
+  TransportDIB* current_paint_buf_;
+  TransportDIB* current_scroll_buf_;
 
   // The smallest bounding rectangle that needs to be re-painted.  This is non-
   // empty if a paint event is pending.

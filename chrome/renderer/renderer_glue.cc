@@ -95,7 +95,9 @@ void ScopedClipboardWriterGlue::WriteBitmap(const SkBitmap& bitmap) {
   gfx::Size size(bitmap.width(), bitmap.height());
 
   // Allocate a shared memory buffer to hold the bitmap bits
-  shared_buf_ = RenderProcess::AllocSharedMemory(buf_size);
+  shared_buf_ = new base::SharedMemory;
+  shared_buf_->Create(L"", false /* read write */, true /* open existing */,
+                      buf_size);
   if (!shared_buf_ || !shared_buf_->Map(buf_size)) {
     NOTREACHED();
     return;
@@ -134,7 +136,7 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
   if (shared_buf_) {
     g_render_thread->Send(
         new ViewHostMsg_ClipboardWriteObjectsSync(objects_));
-    RenderProcess::FreeSharedMemory(shared_buf_);
+    delete shared_buf_;
     return;
   }
 #endif

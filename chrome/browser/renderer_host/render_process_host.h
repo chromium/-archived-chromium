@@ -11,6 +11,7 @@
 #include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "chrome/common/ipc_sync_channel.h"
+#include "chrome/common/transport_dib.h"
 
 class Profile;
 
@@ -123,6 +124,15 @@ class RenderProcessHost : public IPC::Channel::Sender,
   // function does nothing.  The current implementation uses TerminateProcess.
   // Returns True if it was able to do fast shutdown.
   virtual bool FastShutdownIfPossible() = 0;
+
+  // Transport DIB functions ---------------------------------------------------
+
+  // Return the TransportDIB for the given id. On Linux, this can involve
+  // mapping shared memory. On Mac, the shared memory is created in the browser
+  // process and the cached metadata is returned. On Windows, this involves
+  // duplicating the handle from the remote process.  The RenderProcessHost
+  // still owns the returned DIB.
+  virtual TransportDIB* GetTransportDIB(TransportDIB::Id dib_id) = 0;
 
   // Static management functions -----------------------------------------------
 

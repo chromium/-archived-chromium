@@ -168,24 +168,26 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
 #endif
   }
 
-  CGColorSpaceRef color_space =
-    CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-  // allocate a bitmap context with 4 components per pixel (BGRA). Apple
-  // recommends these flags for improved CG performance.
-  CGContextRef bitmap_context =
-    CGBitmapContextCreate(data, width, height, 8, width*4,
-                          color_space,
-                          kCGImageAlphaPremultipliedFirst |
-                              kCGBitmapByteOrder32Host);
+  if (!context) {
+    CGColorSpaceRef color_space =
+      CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    // allocate a bitmap context with 4 components per pixel (BGRA). Apple
+    // recommends these flags for improved CG performance.
+    context =
+      CGBitmapContextCreate(data, width, height, 8, width*4,
+                            color_space,
+                            kCGImageAlphaPremultipliedFirst |
+                                kCGBitmapByteOrder32Host);
 
-  // Change the coordinate system to match WebCore's
-  CGContextTranslateCTM(bitmap_context, 0, height);
-  CGContextScaleCTM(bitmap_context, 1.0, -1.0);
-  CGColorSpaceRelease(color_space);
+    // Change the coordinate system to match WebCore's
+    CGContextTranslateCTM(context, 0, height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    CGColorSpaceRelease(color_space);
+  }
 
   // The device object will take ownership of the graphics context.
   return new BitmapPlatformDeviceMac(
-      new BitmapPlatformDeviceMacData(bitmap_context), bitmap);
+      new BitmapPlatformDeviceMacData(context), bitmap);
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel
