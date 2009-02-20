@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 
 #include "chrome/browser/net/url_fetcher.h"
@@ -9,7 +11,10 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/search_engines/template_url_parser.h"
+
+#if defined(OS_WIN)
 #include "chrome/browser/views/edit_keyword_controller.h"
+#endif
 
 // RequestDelegate ------------------------------------------------------------
 class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
@@ -20,14 +25,14 @@ class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
                   const GURL& favicon_url,
                   gfx::NativeView parent_window,
                   bool autodetected)
-#pragma warning(disable:4355)
-      : url_fetcher_(osdd_url, URLFetcher::GET, this),
+      : ALLOW_THIS_IN_INITIALIZER_LIST(url_fetcher_(osdd_url,
+                                                    URLFetcher::GET, this)),
         fetcher_(fetcher),
         keyword_(keyword),
         osdd_url_(osdd_url),
         favicon_url_(favicon_url),
-        parent_window_(parent_window),
-        autodetected_(autodetected) {
+        autodetected_(autodetected),
+        parent_window_(parent_window) {
     url_fetcher_.set_request_context(fetcher->profile()->GetRequestContext());
     url_fetcher_.Start();
   }
@@ -117,6 +122,7 @@ void TemplateURLFetcher::RequestDelegate::OnURLFetchComplete(
       template_url->set_safe_for_autoreplace(true);
       model->Add(template_url.release());
     } else {
+#if defined(OS_WIN)
       // Confirm addition and allow user to edit default choices. It's ironic
       // that only *non*-autodetected additions get confirmed, but the user
       // expects feedback that his action did something.
@@ -128,6 +134,10 @@ void TemplateURLFetcher::RequestDelegate::OnURLFetchComplete(
                                     NULL,  // no KeywordEditorView
                                     fetcher_->profile());
       controller->Show();
+#else
+      // TODO(port): port EditKeywordController.
+      NOTIMPLEMENTED() << "EditKeywordController.";
+#endif
     }
   }
   fetcher_->RequestCompleted(this);
@@ -146,7 +156,7 @@ TemplateURLFetcher::~TemplateURLFetcher() {
 void TemplateURLFetcher::ScheduleDownload(const std::wstring& keyword,
                                           const GURL& osdd_url,
                                           const GURL& favicon_url,
-                                          const HWND parent_window,
+                                          const gfx::NativeView parent_window,
                                           bool autodetected) {
   DCHECK(!keyword.empty() && osdd_url.is_valid());
   // Make sure we aren't already downloading this request.
