@@ -12,6 +12,7 @@
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_paths.h"
@@ -420,21 +421,22 @@ bool AutomatedUITest::BackButton() {
 
 bool AutomatedUITest::ChangeEncoding() {
   // Get the encoding list that is used to populate the UI (encoding menu)
-  const std::vector<int>* encoding_ids =
+  std::wstring cur_locale = g_browser_process->GetApplicationLocale();
+  const std::vector<CharacterEncoding::EncodingInfo>* encodings =
       CharacterEncoding::GetCurrentDisplayEncodings(
-          L"ISO-8859-1,windows-1252", L"");
-  DCHECK(encoding_ids);
-  DCHECK(!encoding_ids->empty());
-  unsigned len = static_cast<unsigned>(encoding_ids->size());
+          cur_locale, L"ISO-8859-1,windows-1252", L"");
+  DCHECK(encodings);
+  DCHECK(!encodings->empty());
+  unsigned len = static_cast<unsigned>(encodings->size());
 
   // The vector will contain mostly IDC values for encoding commands plus a few
   // menu separators (0 values). If we hit a separator we just retry.
   int index = base::RandInt(0, len);
-  while ((*encoding_ids)[index] == 0) {
+  while ((*encodings)[index].encoding_id == 0) {
     index = base::RandInt(0, len);
   }
 
-  return RunCommand((*encoding_ids)[index]);
+  return RunCommand((*encodings)[index].encoding_id);
 }
 
 bool AutomatedUITest::CloseActiveTab() {

@@ -33,6 +33,7 @@ using base::TimeTicks;
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
 namespace {
+
 static const struct {
   // The language.
   const wchar_t* language;
@@ -120,8 +121,8 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   }
 
   // Look for a match by comparing only language parts. All the 'en-RR'
-  // except for 'en-GB' exactly matched in the above loop, will match 
-  // 'en-US'. This is not ideal because 'en-AU', 'en-ZA', 'en-NZ' had 
+  // except for 'en-GB' exactly matched in the above loop, will match
+  // 'en-US'. This is not ideal because 'en-AU', 'en-ZA', 'en-NZ' had
   // better be matched with 'en-GB'. This does not handle cases like
   // 'az-Latn-AZ' vs 'az-Arab-AZ', either, but we don't use 3-part
   // locale ids with a script code in the middle, yet.
@@ -134,7 +135,7 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
     if (spellcheck_language.substr(0, spellcheck_language.find(L'-')) ==
         language_part)
       return spellcheck_language;
-  } 
+  }
 
   // No match found - return blank.
   return Language();
@@ -343,7 +344,7 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& input_language,
   // Use this struct to insert version strings for dictionary files which have
   // special version strings, other than the default version string. For eight
   // languages (included below in the struct), the version is kept at 1-1. The
-  // others (19 of them) have been updated to new default version 1-2 which 
+  // others (19 of them) have been updated to new default version 1-2 which
   // contains many new words.
   // TODO (sidchat): Work on these 8 languages to bring them upto version 1-2.
   static const struct {
@@ -363,7 +364,7 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& input_language,
     {"hi-IN", "-1-1"}
   };
 
-  // Generate the bdict file name using default version string or special 
+  // Generate the bdict file name using default version string or special
   // version string, depending on the language.
   std::wstring language = GetSpellCheckLanguageRegion(input_language);
   std::wstring versioned_bdict_file_name(language + kDefaultVersionString +
@@ -371,7 +372,7 @@ std::wstring SpellChecker::GetVersionedFileName(const Language& input_language,
   std::string language_string(WideToUTF8(language));
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(special_version_string); ++i) {
     if (language_string == special_version_string[i].language) {
-      versioned_bdict_file_name = 
+      versioned_bdict_file_name =
           language + UTF8ToWide(special_version_string[i].version) + L".bdic";
       break;
     }

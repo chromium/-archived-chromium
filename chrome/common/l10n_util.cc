@@ -4,16 +4,11 @@
 
 #include "build/build_config.h"
 
-#include <algorithm>
-
 #include "chrome/common/l10n_util.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/path_service.h"
-#include "base/scoped_ptr.h"
-#include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -24,8 +19,6 @@
 #if defined(OS_WIN)
 #include "chrome/views/view.h"
 #endif  // defined(OS_WIN)
-#include "unicode/coll.h"
-#include "unicode/locid.h"
 #include "unicode/rbbi.h"
 #include "unicode/uchar.h"
 
@@ -98,45 +91,6 @@ UBool SetICUDefaultLocale(const std::wstring& locale_string) {
   // it does not hurt to have it as a sanity check.
   return U_SUCCESS(error_code);
 }
-
-// Compares two wstrings and returns true if the first arg is less than the
-// second arg.  This uses the locale specified in the constructor.
-class StringComparator : public std::binary_function<const std::wstring&,
-                                                     const std::wstring&,
-                                                     bool> {
- public:
-  explicit StringComparator(Collator* collator)
-      : collator_(collator) { }
-
-  // Returns true if lhs preceeds rhs.
-  bool operator() (const std::wstring& lhs, const std::wstring& rhs) {
-    UErrorCode error = U_ZERO_ERROR;
-#if defined(WCHAR_T_IS_UTF32)
-    // Need to convert to UTF-16 to be compatible with UnicodeString's
-    // constructor.
-    string16 lhs_utf16 = WideToUTF16(lhs);
-    string16 rhs_utf16 = WideToUTF16(rhs);
-
-    UCollationResult result = collator_->compare(
-        static_cast<const UChar*>(lhs_utf16.c_str()),
-        static_cast<int>(lhs_utf16.length()),
-        static_cast<const UChar*>(rhs_utf16.c_str()),
-        static_cast<int>(rhs_utf16.length()),
-        error);
-#else
-    UCollationResult result = collator_->compare(
-        static_cast<const UChar*>(lhs.c_str()), static_cast<int>(lhs.length()),
-        static_cast<const UChar*>(rhs.c_str()), static_cast<int>(rhs.length()),
-        error);
-#endif
-    DCHECK(U_SUCCESS(error));
-
-    return result == UCOL_LESS;
-  }
-
- private:
-  Collator* collator_;
-};
 
 // Returns true if |locale_name| has an alias in the ICU data file.
 bool IsDuplicateName(const std::string& locale_name) {
@@ -248,6 +202,35 @@ std::wstring GetSystemLocale() {
     ret.append(region);
   }
   return ASCIIToWide(ret);
+}
+
+// Compares the character data stored in two different strings by specified
+// Collator instance.
+UCollationResult CompareStringWithCollator(const Collator* collator,
+                                           const std::wstring& lhs,
+                                           const std::wstring& rhs) {
+  DCHECK(collator);
+  UErrorCode error = U_ZERO_ERROR;
+#if defined(WCHAR_T_IS_UTF32)
+  // Need to convert to UTF-16 to be compatible with UnicodeString's
+  // constructor.
+  string16 lhs_utf16 = WideToUTF16(lhs);
+  string16 rhs_utf16 = WideToUTF16(rhs);
+
+  UCollationResult result = collator->compare(
+      static_cast<const UChar*>(lhs_utf16.c_str()),
+      static_cast<int>(lhs_utf16.length()),
+      static_cast<const UChar*>(rhs_utf16.c_str()),
+      static_cast<int>(rhs_utf16.length()),
+      error);
+#else
+  UCollationResult result = collator->compare(
+      static_cast<const UChar*>(lhs.c_str()), static_cast<int>(lhs.length()),
+      static_cast<const UChar*>(rhs.c_str()), static_cast<int>(rhs.length()),
+      error);
+#endif
+  DCHECK(U_SUCCESS(error));
+  return result;
 }
 
 }  // namespace
@@ -601,18 +584,20 @@ void HWNDSetRTLLayout(HWND hwnd) {
 }
 #endif  // defined(OS_WIN)
 
+// Specialization of operator() method for std::wstring version.
+template <>
+bool StringComparator<std::wstring>::operator()(const std::wstring& lhs,
+                                                const std::wstring& rhs) {
+  // If we can not get collator instance for specified locale, just do simple
+  // string compare.
+  if (!collator_)
+    return lhs < rhs;
+  return CompareStringWithCollator(collator_, lhs, rhs) == UCOL_LESS;
+};
+
 void SortStrings(const std::wstring& locale,
                  std::vector<std::wstring>* strings) {
-  UErrorCode error = U_ZERO_ERROR;
-  Locale loc(WideToUTF8(locale).c_str());
-  scoped_ptr<Collator> collator(Collator::createInstance(loc, error));
-  if (U_FAILURE(error)) {
-    // Just do an string sort.
-    sort(strings->begin(), strings->end());
-    return;
-  }
-  StringComparator c(collator.get());
-  sort(strings->begin(), strings->end(), c);
+  SortVectorWithStringKey(locale, strings, false);
 }
 
 const std::vector<std::wstring>& GetAvailableLocales() {

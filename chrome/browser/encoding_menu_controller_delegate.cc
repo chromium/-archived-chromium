@@ -108,30 +108,30 @@ void EncodingMenuControllerDelegate::BuildEncodingMenu(
   encoding_menu->AppendSeparator();
   // Create current display encoding list.
   std::wstring cur_locale = g_browser_process->GetApplicationLocale();
-  const std::vector<int>* encoding_ids;
+  const std::vector<CharacterEncoding::EncodingInfo>* encodings;
   // Build the list of encoding ids : It is made of the
   // locale-dependent short list, the cache of recently selected
   // encodings and other encodings.
-  encoding_ids = CharacterEncoding::GetCurrentDisplayEncodings(
+  encodings = CharacterEncoding::GetCurrentDisplayEncodings(
+      cur_locale,
       profile->GetPrefs()->GetString(prefs::kStaticEncodings),
       profile->GetPrefs()->GetString(prefs::kRecentlySelectedEncoding));
-  DCHECK(encoding_ids);
-  DCHECK(!encoding_ids->empty());
-  unsigned len = static_cast<unsigned>(encoding_ids->size());
+  DCHECK(encodings);
+  DCHECK(!encodings->empty());
+  unsigned len = static_cast<unsigned>(encodings->size());
   // Add encoding menus.
-  std::vector<int>::const_iterator it;
-  for (it = encoding_ids->begin(); it != encoding_ids->end(); ++it) {
-    if (*it) {
-      std::wstring encoding =
-        CharacterEncoding::GetCanonicalEncodingDisplayNameByCommandId(*it);
+  std::vector<CharacterEncoding::EncodingInfo>::const_iterator it;
+  for (it = encodings->begin(); it != encodings->end(); ++it) {
+    if (it->encoding_id) {
+      std::wstring encoding = it->encoding_display_name;
       std::wstring bidi_safe_encoding;
       if (l10n_util::AdjustStringForLocaleDirection(encoding,
                                                     &bidi_safe_encoding))
         encoding.swap(bidi_safe_encoding);
-      encoding_menu->AppendMenuItem(*it, encoding, Menu::RADIO);
-    }
-    else
+      encoding_menu->AppendMenuItem(it->encoding_id, encoding, Menu::RADIO);
+    } else {
       encoding_menu->AppendSeparator();
+    }
   }
 }
 

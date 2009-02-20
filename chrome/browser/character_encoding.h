@@ -17,6 +17,23 @@ class CharacterEncoding {
   // currently support. This is defined outside of Browser
   // to avoid cyclical dependencies.
 
+  // Structure to save encoding information.
+  struct EncodingInfo {
+    explicit EncodingInfo(int id);
+    // Gets string key of EncodingInfo. With this method, we can use
+    // l10n_util::SortVectorWithStringKey to sort the encoding menu items
+    // by current locale character sequence. We need to keep the order within
+    // encoding category name, that's why we use category name as key.
+    const std::wstring& GetStringKey() const { return encoding_category_name; }
+
+    // Encoding command id.
+    int encoding_id;
+    // Encoding display name.
+    std::wstring encoding_display_name;
+    // Encoding category name.
+    std::wstring encoding_category_name;
+  };
+
   // Return canonical encoding name according to the command ID.
   // THIS FUNCTION IS NOT THREADSAFE. You must run this function
   // only in UI thread.
@@ -46,18 +63,20 @@ class CharacterEncoding {
   static std::wstring GetCanonicalEncodingNameByAliasName(
       const std::wstring& alias_name);
 
-  // Returns the pointer of a vector of command ids corresponding to
-  // encodings to display in the encoding menu. The list begins with
-  // the locale-dependent static encodings and recently selected
-  // encodings is followed by the rest of encodings belonging to neither.
+  // Returns the pointer of a vector of EncodingInfos corresponding to
+  // encodings to display in the encoding menu. The locale-dependent static
+  // encodings come at the top of the list and recently selected encodings
+  // come next. Finally, the rest of encodings are listed.
   // The vector will be created and destroyed by CharacterEncoding.
   // The returned std::vector is maintained by this class. The parameter
+  // |locale| points to the current application (UI) locale. The parameter
   // |locale_encodings| is string of static encodings list which is from the
   // corresponding string resource that is stored in the resource bundle.
   // The parameter |recently_select_encodings| is string of encoding list which
   // is from user recently selected. THIS FUNCTION IS NOT THREADSAFE. You must
   // run this function only in UI thread.
-  static const std::vector<int>* GetCurrentDisplayEncodings(
+  static const std::vector<EncodingInfo>* GetCurrentDisplayEncodings(
+      const std::wstring& locale,
       const std::wstring& locale_encodings,
       const std::wstring& recently_select_encodings);
 
