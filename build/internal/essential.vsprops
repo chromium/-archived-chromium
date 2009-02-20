@@ -6,6 +6,7 @@
 	OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 	IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
 	CharacterSet="1"
+	InheritedPropertySheets=".\debug_info$(FAST_BUILD_TYPE).vsprops"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -18,7 +19,6 @@
 		RuntimeTypeInfo="false"
 		WarningLevel="3"
 		WarnAsError="true"
-		DebugInformationFormat="3"
 		DisableSpecificWarnings="4503; 4819"
 	/>
 	<Tool
@@ -33,7 +33,6 @@
 		AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib"
 		AdditionalLibraryDirectories="$(SDKLibs)"
 		DelayLoadDLLs="dwmapi.dll,uxtheme.dll"
-		GenerateDebugInformation="true"
 		MapFileName="$(OutDir)\$(TargetName).map"
 		ImportLibrary="$(OutDir)\lib\$(TargetName).lib"
 		TargetMachine="1"
