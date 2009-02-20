@@ -14,7 +14,6 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 
-class CommandLine;
 class MessageLoop;
 
 // Provides an abstraction of profiles on top of the user data directory
