@@ -12,6 +12,7 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/standard_menus.h"
+#include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 
@@ -215,7 +216,8 @@ CustomContainerButton* BrowserToolbarGtk::BuildToolbarMenuButton(
 // static
 void BrowserToolbarGtk::OnEntryActivate(GtkEntry *entry,
                                         BrowserToolbarGtk* toolbar) {
-  GURL dest(std::string(gtk_entry_get_text(entry)));
+  GURL dest(URLFixerUpper::FixupURL(std::string(gtk_entry_get_text(entry)),
+                                    std::string()));
   toolbar->browser_->OpenURLFromTab(NULL, dest, GURL(),
                                     CURRENT_TAB,
                                     PageTransition::TYPED);
