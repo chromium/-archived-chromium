@@ -648,8 +648,10 @@ TransportDIB* BrowserRenderProcessHost::GetTransportDIB(
 
     for (std::map<TransportDIB::Id, TransportDIB*>::iterator
          i = cached_dibs_.begin(); i != cached_dibs_.end(); ++i) {
-      if (i->second->size() <= smallest_size)
+      if (i->second->size() <= smallest_size) {
         smallest_iterator = i;
+        smallest_size = i->second->size();
+      }
     }
 
     delete smallest_iterator->second;
