@@ -149,10 +149,12 @@ bool TestServerLauncher::Start(Protocol protocol,
                                const std::string& host_name, int port,
                                const FilePath& document_root,
                                const FilePath& cert_path) {
-  if (!LoadTestRootCert())
-    return false;
-  if (!CheckCATrusted())
-    return false;
+  if (!cert_path.value().empty()) {
+    if (!LoadTestRootCert())
+      return false;
+    if (!CheckCATrusted())
+      return false;
+  }
 
   std::string port_str = IntToString(port);
 
