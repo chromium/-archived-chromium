@@ -55,7 +55,7 @@ void* TransportDIB::memory() const {
 }
 
 TransportDIB::Id TransportDIB::id() const {
-  return false;
+  return shared_memory_.id();
 }
 
 TransportDIB::Handle TransportDIB::handle() const {
