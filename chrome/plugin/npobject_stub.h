@@ -13,6 +13,10 @@
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 
+namespace base {
+class WaitableEvent;
+}
+
 class PluginChannelBase;
 class WebPluginDelegateProxy;
 struct NPIdentifier_Param;
@@ -25,7 +29,10 @@ struct NPVariant_Param;
 class NPObjectStub : public IPC::Channel::Listener,
                      public IPC::Message::Sender {
  public:
-  NPObjectStub(NPObject* npobject, PluginChannelBase* channel, int route_id);
+  NPObjectStub(NPObject* npobject,
+               PluginChannelBase* channel,
+               int route_id,
+               base::WaitableEvent* modal_dialog_event);
   ~NPObjectStub();
 
   // IPC::Message::Sender implementation:
@@ -73,6 +80,8 @@ class NPObjectStub : public IPC::Channel::Listener,
   NPObject* npobject_;
   int route_id_;
   scoped_refptr<PluginChannelBase> channel_;
+
+  base::WaitableEvent* modal_dialog_event_;
 
   // These variables are used to ensure that the window script object is not
   // called after the plugin widget has gone away, as the frame manually

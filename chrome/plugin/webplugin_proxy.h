@@ -97,6 +97,10 @@ class WebPluginProxy : public WebPlugin {
                                 bool notify_needed,
                                 HANDLE notify_data);
 
+  base::WaitableEvent* modal_dialog_event() {
+    return modal_dialog_event_.get();
+  }
+
  private:
   bool Send(IPC::Message* msg);
 

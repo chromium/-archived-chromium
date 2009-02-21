@@ -12,12 +12,16 @@
 #include "third_party/npapi/bindings/npruntime.h"
 
 NPObjectStub::NPObjectStub(
-    NPObject* npobject, PluginChannelBase* channel, int route_id)
+    NPObject* npobject,
+    PluginChannelBase* channel,
+    int route_id,
+    base::WaitableEvent* modal_dialog_event)
     : channel_(channel),
       npobject_(npobject),
       route_id_(route_id),
       valid_(true),
-      web_plugin_delegate_proxy_(NULL) {
+      web_plugin_delegate_proxy_(NULL),
+      modal_dialog_event_(modal_dialog_event) {
   channel_->AddRoute(route_id, this, true);
 
   // We retain the object just as PluginHost does if everything was in-process.
@@ -110,8 +114,10 @@ void NPObjectStub::OnInvoke(bool is_default,
 
   int arg_count = static_cast<int>(args.size());
   NPVariant* args_var = new NPVariant[arg_count];
-  for (int i = 0; i < arg_count; ++i)
-    CreateNPVariant(args[i], local_channel, &(args_var[i]), NULL);
+  for (int i = 0; i < arg_count; ++i) {
+    CreateNPVariant(
+        args[i], local_channel, &(args_var[i]), modal_dialog_event_);
+  }
 
   if (is_default) {
     if (IsPluginProcess()) {
@@ -145,7 +151,8 @@ void NPObjectStub::OnInvoke(bool is_default,
 
   delete[] args_var;
 
-  CreateNPVariantParam(result_var, local_channel, &result_param, true);
+  CreateNPVariantParam(
+      result_var, local_channel, &result_param, true, modal_dialog_event_);
   NPObjectMsg_Invoke::WriteReplyParams(reply_msg, result_param, return_value);
   local_channel->Send(reply_msg);
 }
@@ -181,7 +188,8 @@ void NPObjectStub::OnGetProperty(const NPIdentifier_Param& name,
     *result = NPN_GetProperty(0, npobject_, id, &result_var);
   }
 
-  CreateNPVariantParam(result_var, channel_, property, true);
+  CreateNPVariantParam(
+      result_var, channel_, property, true, modal_dialog_event_);
 }
 
 void NPObjectStub::OnSetProperty(const NPIdentifier_Param& name,
@@ -191,7 +199,7 @@ void NPObjectStub::OnSetProperty(const NPIdentifier_Param& name,
   VOID_TO_NPVARIANT(result_var);
   NPIdentifier id = CreateNPIdentifier(name);
   NPVariant property_var;
-  CreateNPVariant(property, channel_, &property_var, NULL);
+  CreateNPVariant(property, channel_, &property_var, modal_dialog_event_);
 
   if (IsPluginProcess()) {
     if (npobject_->_class->setProperty) {
@@ -282,7 +290,8 @@ void NPObjectStub::OnEvaluate(const std::string& script,
                                          &script_string, &result_var);
 
   NPVariant_Param result_param;
-  CreateNPVariantParam(result_var, local_channel, &result_param, true);
+  CreateNPVariantParam(
+      result_var, local_channel, &result_param, true, modal_dialog_event_);
   NPObjectMsg_Evaluate::WriteReplyParams(reply_msg, result_param, return_value);
   local_channel->Send(reply_msg);
 }

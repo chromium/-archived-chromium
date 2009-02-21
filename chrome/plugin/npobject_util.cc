@@ -139,7 +139,8 @@ NPIdentifier CreateNPIdentifier(const NPIdentifier_Param& param) {
 void CreateNPVariantParam(const NPVariant& variant,
                           PluginChannelBase* channel,
                           NPVariant_Param* param,
-                          bool release) {
+                          bool release,
+                          base::WaitableEvent* modal_dialog_event) {
   switch (variant.type) {
     case NPVariantType_Void:
       param->type = NPVARIANT_PARAM_VOID;
@@ -184,7 +185,7 @@ void CreateNPVariantParam(const NPVariant& variant,
           param->type = NPVARIANT_PARAM_OBJECT_ROUTING_ID;
           int route_id = channel->GenerateRouteID();
           NPObjectStub* object_stub = new NPObjectStub(
-              variant.value.objectValue, channel, route_id);
+              variant.value.objectValue, channel, route_id, modal_dialog_event);
           param->npobject_routing_id = route_id;
           param->npobject_pointer = variant.value.objectValue;
         } else {

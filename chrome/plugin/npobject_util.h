@@ -48,7 +48,8 @@ NPIdentifier CreateNPIdentifier(const  NPIdentifier_Param& param);
 void CreateNPVariantParam(const NPVariant& variant,
                           PluginChannelBase* channel,
                           NPVariant_Param* param,
-                          bool release);
+                          bool release,
+                          base::WaitableEvent* modal_dialog_event);
 
 #if defined(OS_WIN)
 // Creates an NPVariant from the marshalled object.

@@ -163,7 +163,8 @@ bool NPObjectProxy::NPInvokePrivate(NPP npp,
   std::vector<NPVariant_Param> args_param;
   for (unsigned int i = 0; i < arg_count; ++i) {
     NPVariant_Param param;
-    CreateNPVariantParam(args[i], channel_copy, &param, false);
+    CreateNPVariantParam(
+        args[i], channel_copy, &param, false, proxy->modal_dialog_event_);
     args_param.push_back(param);
   }
 
@@ -266,7 +267,9 @@ bool NPObjectProxy::NPSetProperty(NPObject *obj,
   CreateNPIdentifierParam(name, &name_param);
 
   NPVariant_Param value_param;
-  CreateNPVariantParam(*value, proxy->channel(), &value_param, false);
+  CreateNPVariantParam(
+      *value, proxy->channel(), &value_param, false,
+      proxy->modal_dialog_event_);
 
   proxy->Send(new NPObjectMsg_SetProperty(
       proxy->route_id(), name_param, value_param, &result));

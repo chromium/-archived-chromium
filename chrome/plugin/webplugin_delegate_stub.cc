@@ -257,7 +257,8 @@ void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,
   *npobject_ptr = object;
   // The stub will delete itself when the proxy tells it that it's released, or
   // otherwise when the channel is closed.
-  NPObjectStub* stub = new NPObjectStub(object, channel_.get(), *route_id);
+  NPObjectStub* stub = new NPObjectStub(
+      object, channel_.get(), *route_id, webplugin_->modal_dialog_event());
 
   // Release ref added by GetPluginScriptableObject (our stub holds its own).
   NPN_ReleaseObject(object);
