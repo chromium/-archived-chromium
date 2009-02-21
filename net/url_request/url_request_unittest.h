@@ -419,7 +419,8 @@ class HTTPSTestServer : public HTTPTestServer {
   // Create a server with a valid certificate
   // TODO(dkegel): HTTPSTestServer should not require an instance to specify
   // stock test certificates
-  static scoped_refptr<HTTPSTestServer> CreateGoodServer(const std::wstring& document_root) {
+  static scoped_refptr<HTTPSTestServer> CreateGoodServer(
+      const std::wstring& document_root) {
     scoped_refptr<HTTPSTestServer> test_server = new HTTPSTestServer();
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath certpath = test_server->launcher_.GetOKCertPath();
