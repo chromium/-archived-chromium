@@ -162,6 +162,11 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
     const FilePath& path_in,
     scoped_refptr<ExtensionsServiceFrontendInterface> frontend) {
   FilePath path = path_in;
+
+  // Create the <Profile>/Extensions directory if it doesn't exist.
+  if (!file_util::DirectoryExists(path))
+    file_util::CreateDirectory(path);
+
   if (!file_util::AbsolutePath(&path))
     NOTREACHED();
 

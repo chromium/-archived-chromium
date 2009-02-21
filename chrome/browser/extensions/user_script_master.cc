@@ -147,6 +147,10 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
 
   // Find all the scripts in |script_dir|.
   if (!script_dir.value().empty()) {
+    // Create the "<Profile>/User Scripts" directory if it doesn't exist
+    if (!file_util::DirectoryExists(script_dir))
+      file_util::CreateDirectory(script_dir);
+
     file_util::FileEnumerator enumerator(script_dir, false,
                                          file_util::FileEnumerator::FILES,
                                          FILE_PATH_LITERAL("*.user.js"));
