@@ -25,6 +25,7 @@ const wchar_t* Extension::kNameKey = L"name";
 const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kVersionKey = L"version";
 const wchar_t* Extension::kZipHashKey = L"zip_hash";
+const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
@@ -67,6 +68,8 @@ const char* Extension::kInvalidVersionError =
     "Required value 'version' is missing or invalid.";
 const char* Extension::kInvalidZipHashError =
     "Required key 'zip_hash' is missing or invalid.";
+const char* Extension::kInvalidPluginsDirError =
+    "Invalid value for 'plugins_dir'.";
 
 const std::string Extension::VersionString() const {
   return version_->GetString();
@@ -228,6 +231,16 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       *error = kInvalidZipHashError;
       return false;
     }
+  }
+
+  // Initialize plugins dir (optional).
+  if (source.HasKey(kPluginsDirKey)) {
+    std::string plugins_dir;
+    if (!source.GetString(kPluginsDirKey, &plugins_dir)) {
+      *error = kInvalidPluginsDirError;
+      return false;
+    }
+    plugins_dir_ = path_.AppendASCII(plugins_dir);
   }
 
   // Initialize content scripts (optional).

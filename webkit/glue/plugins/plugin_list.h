@@ -75,10 +75,17 @@ class PluginList {
   // the first time.
   static PluginList* Singleton();
 
+  // Clear the plugins_loaded_ bit to force a refresh next time we retrieve
+  // plugins.
+  static void ResetPluginsLoaded();
+
   // Add an extra plugin to load when we actually do the loading.  This is
   // static because we want to be able to add to it without searching the disk
   // for plugins.  Must be called before the plugins have been loaded.
   static void AddExtraPluginPath(const FilePath& plugin_path);
+
+  // Same as above, but specifies a directory in which to search for plugins.
+  static void AddExtraPluginDir(const FilePath& plugin_dir);
 
   // Register an internal plugin with the specified plugin information and
   // function pointers.  An internal plugin must be registered before it can
@@ -203,6 +210,9 @@ class PluginList {
 
   // Extra plugin paths that we want to search when loading.
   std::vector<FilePath> extra_plugin_paths_;
+
+  // Extra plugin directories that we want to search when loading.
+  std::vector<FilePath> extra_plugin_dirs_;
 
   // Holds information about internal plugins.
   std::vector<PluginVersionInfo> internal_plugins_;

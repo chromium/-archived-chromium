@@ -36,17 +36,25 @@ PluginList* PluginList::Singleton() {
 }
 
 // static
-void PluginList::AddExtraPluginPath(const FilePath& plugin_path) {
+void PluginList::ResetPluginsLoaded() {
   // We access the singleton directly, and not through Singleton(), since
   // we don't want LoadPlugins() to be called.
-  DCHECK(!g_singleton.Pointer()->plugins_loaded_);
+  g_singleton.Pointer()->plugins_loaded_ = false;
+}
 
+// static
+void PluginList::AddExtraPluginPath(const FilePath& plugin_path) {
+  DCHECK(!g_singleton.Pointer()->plugins_loaded_);
   g_singleton.Pointer()->extra_plugin_paths_.push_back(plugin_path);
 }
 
+// static
+void PluginList::AddExtraPluginDir(const FilePath& plugin_dir) {
+  DCHECK(!g_singleton.Pointer()->plugins_loaded_);
+  g_singleton.Pointer()->extra_plugin_dirs_.push_back(plugin_dir);
+}
+
 void PluginList::RegisterInternalPlugin(const PluginVersionInfo& info) {
-  // We access the singleton directly, and not through Singleton(), since
-  // we don't want LoadPlugins() to be called.
   DCHECK(!g_singleton.Pointer()->plugins_loaded_);
   g_singleton.Pointer()->internal_plugins_.push_back(info);
 }
@@ -155,6 +163,10 @@ void PluginList::LoadPlugins(bool refresh) {
 
   for (size_t i = 0; i < directories_to_scan.size(); ++i) {
     LoadPluginsFromDir(directories_to_scan[i]);
+  }
+
+  for (size_t i = 0; i < extra_plugin_dirs_.size(); ++i) {
+    LoadPluginsFromDir(extra_plugin_dirs_[i]);
   }
 
   for (size_t i = 0; i < extra_plugin_paths_.size(); ++i)

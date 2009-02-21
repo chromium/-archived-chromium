@@ -177,6 +177,8 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(1)->name());
   EXPECT_EQ(std::string(""),
             frontend->extensions()->at(1)->description());
+  EXPECT_EQ(frontend->extensions()->at(1)->path().AppendASCII("npapi").value(),
+            frontend->extensions()->at(1)->plugins_dir().value());
   ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
 
   EXPECT_EQ(std::string("com.google.myextension3"),

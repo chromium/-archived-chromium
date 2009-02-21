@@ -15,6 +15,7 @@
 #include "net/base/file_stream.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/browser/plugin_service.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
@@ -101,9 +102,23 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
   extensions_.insert(extensions_.end(), new_extensions->begin(),
                      new_extensions->end());
 
-  // Tell UserScriptMaster about any scripts in the loaded extensions.
+  bool found_plugin = false;
+
+  // TODO: Fix race here.  A page could need a user script on startup, before
+  // the user script is loaded.  We need to freeze the renderer in that case.
+  // TODO(mpcomplete): We also need to force a renderer to refresh its cache of
+  // the plugin list when we inject user scripts, since it could have a stale
+  // version by the time extensions are loaded.
+
   for (ExtensionList::iterator extension = extensions_.begin();
        extension != extensions_.end(); ++extension) {
+    // Tell NPAPI about any plugins in the loaded extensions.
+    if (!(*extension)->plugins_dir().empty()) {
+      PluginService::GetInstance()->AddExtraPluginDir(
+          (*extension)->plugins_dir());
+    }
+
+    // Tell UserScriptMaster about any scripts in the loaded extensions.
     const UserScriptList& scripts = (*extension)->content_scripts();
     for (UserScriptList::const_iterator script = scripts.begin();
          script != scripts.end(); ++script) {

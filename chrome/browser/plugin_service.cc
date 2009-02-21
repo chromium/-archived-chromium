@@ -69,6 +69,12 @@ const FilePath& PluginService::GetChromePluginDataDir() {
   return chrome_plugin_data_dir_;
 }
 
+void PluginService::AddExtraPluginDir(const FilePath& plugin_dir) {
+  AutoLock lock(lock_);
+  NPAPI::PluginList::ResetPluginsLoaded();
+  NPAPI::PluginList::AddExtraPluginDir(plugin_dir);
+}
+
 const std::wstring& PluginService::GetUILocale() {
   return ui_locale_;
 }

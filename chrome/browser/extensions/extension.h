@@ -47,6 +47,7 @@ class Extension {
   static const wchar_t* kRunAtKey;
   static const wchar_t* kVersionKey;
   static const wchar_t* kZipHashKey;
+  static const wchar_t* kPluginsDirKey;
 
   // Some values expected in manifests.
   static const char* kRunAtDocumentStartValue;
@@ -69,6 +70,7 @@ class Extension {
   static const char* kInvalidRunAtError;
   static const char* kInvalidVersionError;
   static const char* kInvalidZipHashError;
+  static const char* kInvalidPluginsDirError;
 
   // Creates an absolute url to a resource inside an extension. The
   // |extension_url| argument should be the url() from an Extension object. The
@@ -117,6 +119,11 @@ class Extension {
     return content_scripts_;
   }
 
+  // Path to the directory of NPAPI plugins that the extension contains.
+  const FilePath& plugins_dir() const {
+    return plugins_dir_;
+  }
+
   // Initialize the extension from a parsed manifest.
   bool InitFromValue(const DictionaryValue& value, std::string* error);
 
@@ -141,6 +148,9 @@ class Extension {
 
   // Paths to the content scripts the extension contains.
   UserScriptList content_scripts_;
+
+  // Path to the directory of NPAPI plugins that the extension contains.
+  FilePath plugins_dir_;
 
   // A SHA1 hash of the contents of the zip file.  Note that this key is only
   // present in the manifest that's prepended to the zip.  The inner manifest
