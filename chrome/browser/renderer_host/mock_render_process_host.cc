@@ -60,10 +60,13 @@ bool MockRenderProcessHost::Send(IPC::Message* msg) {
 }
 
 TransportDIB* MockRenderProcessHost::GetTransportDIB(TransportDIB::Id dib_id) {
-  delete transport_dib_;
-
+  if (transport_dib_)
+    return transport_dib_;
 #if defined(OS_WIN)
-  transport_dib_ = TransportDIB::Map(dib_id.handle);
+  HANDLE duped;
+  DuplicateHandle(GetCurrentProcess(), dib_id.handle, GetCurrentProcess(),
+                  &duped, 0, TRUE, DUPLICATE_SAME_ACCESS);
+  transport_dib_ = TransportDIB::Map(duped);
 #elif defined(OS_MACOSX)
   // On Mac, TransportDIBs are always created in the browser, so we cannot map
   // one from a dib_id.

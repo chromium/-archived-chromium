@@ -69,7 +69,8 @@ void RenderWidgetHostProcess::InitPaintRectParams(
   const int w = 100, h = 100;
   const size_t pixel_size = w * h * 4;
 
-  current_paint_buf_ = TransportDIB::Create(pixel_size, 0);
+  if (!current_paint_buf_)
+    current_paint_buf_ = TransportDIB::Create(pixel_size, 0);
   params->bitmap = current_paint_buf_->id();
   params->bitmap_rect = gfx::Rect(0, 0, w, h);
   params->view_size = gfx::Size(w, h);
