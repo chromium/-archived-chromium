@@ -1,0 +1,108 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building the printing_unittests{,.exe} executable.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$BASE_DIR/using_base.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$PRINTING_DIR/using_printing.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+)
+
+if env.Bit('windows'):
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/WX',
+      ],
+      CPPDEFINES = [
+          '_WIN32_WINNT=0x0600',
+          'WINVER=0x0600',
+          '_HAS_EXCEPTIONS=0',
+      ],
+      LINKFLAGS = [
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/MACHINE:X86',
+          '/FIXED:No',
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+  )
+
+input_files = ChromeFileList([
+  # TODO(sgk):  violate standard indentation so we don't have to
+  # reindent too much when we remove the explicit MSVSFilter() calls
+  # in favor of generating the hierarchy to reflect the file system.
+  MSVSFilter('support', [
+    'run_all_unittests.cc',
+    '../base/test_suite.h',
+  ]),
+  MSVSFilter('tests', [
+      'units_unittest.cc',
+  ]),
+])
+
+env.ChromeTestProgram('printing_unittests', input_files)
+
+p = env.ChromeMSVSProject('build/printing_unittests.vcproj',
+                          dest=('$CHROME_SRC_DIR/printing/' +
+                                    'printing_unittests.vcproj'),
+                          guid='{8B2EE5D9-41BC-4AA2-A401-2DC143A05D2E}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              MSVSTool('VCCLCompilerTool',
+                                        PreprocessorDefinitions='UNIT_TEST'),
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLinkerTool',
+                              'VCALinkTool',
+                              'VCManifestTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCAppVerifierTool',
+                              'VCWebDeploymentTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='1')
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/debug.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+                'printing.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/release.vsprops',
+                '$(SolutionDir)../testing/using_gtest.vsprops',
+                'printing.vsprops',
+            ])

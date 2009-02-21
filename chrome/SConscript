@@ -101,6 +101,7 @@ env_dll.Append(
         #'breakpad_handler',
         'googleurl',
         'media',
+        'printing',
         'net',
         'skia',
         'bzip2',
