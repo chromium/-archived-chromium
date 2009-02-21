@@ -102,8 +102,6 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
   extensions_.insert(extensions_.end(), new_extensions->begin(),
                      new_extensions->end());
 
-  bool found_plugin = false;
-
   // TODO: Fix race here.  A page could need a user script on startup, before
   // the user script is loaded.  We need to freeze the renderer in that case.
   // TODO(mpcomplete): We also need to force a renderer to refresh its cache of
