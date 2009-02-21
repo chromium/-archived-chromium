@@ -9,4 +9,4 @@ SafeBrowsingProtocolParsingTest.TestSubChunk
 IPCSyncChannelTest.SendWithTimeoutMixedOKAndTimeout
 
 # issue 7891
-FindInPageControllerTest.FindInPageFrames
+#FindInPageControllerTest.FindInPageFrames
