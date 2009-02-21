@@ -32,7 +32,7 @@ class RenderWidget : public IPC::Channel::Listener,
  public:
   // Creates a new RenderWidget.  The opener_id is the routing ID of the
   // RenderView that this widget lives inside. The render_thread is any
-  // RenderThreadBase implementation, mostly commonly g_render_thread.
+  // RenderThreadBase implementation, mostly commonly RenderThread::current().
   static RenderWidget* Create(int32 opener_id,
                               RenderThreadBase* render_thread,
                               bool activatable);

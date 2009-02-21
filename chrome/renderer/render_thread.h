@@ -10,10 +10,8 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
 #include "base/task.h"
-#include "base/thread.h"
 #include "build/build_config.h"
-#include "chrome/common/ipc_sync_channel.h"
-#include "chrome/common/message_router.h"
+#include "chrome/common/child_thread.h"
 
 class FilePath;
 class NotificationService;
@@ -27,9 +25,11 @@ struct WebPreferences;
 // The RenderThreadBase is the minimal interface that a RenderView/Widget
 // expects from a render thread. The interface basically abstracts a way to send
 // and receive messages.
-class RenderThreadBase : public IPC::Message::Sender {
+class RenderThreadBase {
  public:
   virtual ~RenderThreadBase() {}
+
+  virtual bool Send(IPC::Message* msg) = 0;
 
   // True if currently sending a message.
   virtual bool InSend() const = 0;
@@ -52,21 +52,35 @@ class RenderThreadBase : public IPC::Message::Sender {
 // Most of the communication occurs in the form of IPC messages.  They are
 // routed to the RenderThread according to the routing IDs of the messages.
 // The routing IDs correspond to RenderView instances.
-class RenderThread : public IPC::Channel::Listener,
-                     public RenderThreadBase,
-                     public base::Thread {
+class RenderThread : public RenderThreadBase,
+                     public ChildThread {
  public:
-  explicit RenderThread(const std::wstring& channel_name);
+  // Grabs the IPC channel name from the command line.
+  RenderThread();
+  // Constructor that's used when running in single process mode.
+  RenderThread(const std::wstring& channel_name);
   virtual ~RenderThread();
 
-  // IPC::Channel::Listener implementation:
-  virtual void OnMessageReceived(const IPC::Message& msg);
-  virtual void OnChannelError();
-
-  // IPC::Message::Sender implementation:
-  virtual bool Send(IPC::Message* msg);
+  // Returns the one render thread for this process.  Note that this should only
+  // be accessed when running on the render thread itself
+  static RenderThread* current();
 
   // Overridded from RenderThreadBase.
+  virtual bool Send(IPC::Message* msg) {
+    return ChildThread::Send(msg);
+  }
+
+  virtual bool InSend() const {
+    return ChildThread::InSend();
+  }
+
+  virtual void AddRoute(int32 routing_id, IPC::Channel::Listener* listener) {
+    return ChildThread::AddRoute(routing_id, listener);
+  }
+  virtual void RemoveRoute(int32 routing_id) {
+    return ChildThread::RemoveRoute(routing_id);
+  }
+
   virtual void AddFilter(IPC::ChannelProxy::MessageFilter* filter);
   virtual void RemoveFilter(IPC::ChannelProxy::MessageFilter* filter);
 
@@ -79,25 +93,17 @@ class RenderThread : public IPC::Channel::Listener,
   // Do DNS prefetch resolution of a hostname.
   void Resolve(const char* name, size_t length);
 
-  // See documentation on MessageRouter for AddRoute and RemoveRoute
-  virtual void AddRoute(int32 routing_id, IPC::Channel::Listener* listener);
-  virtual void RemoveRoute(int32 routing_id);
-
   // Invokes InformHostOfCacheStats after a short delay.  Used to move this
   // bookkeeping operation off the critical latency path.
   void InformHostOfCacheStatsLater();
 
-  MessageLoop* owner_loop() { return owner_loop_; }
+ private:
+  virtual void OnControlMessageReceived(const IPC::Message& msg);
 
-  // Indicates if RenderThread::Send() is on the call stack.
-  virtual bool InSend() const { return in_send_ != 0; }
-
- protected:
   // Called by the thread base class
   virtual void Init();
   virtual void CleanUp();
 
- private:
   void OnUpdateVisitedLinks(base::SharedMemoryHandle table);
   void OnUpdateUserScripts(base::SharedMemoryHandle table);
 
@@ -119,16 +125,6 @@ class RenderThread : public IPC::Channel::Listener,
   // decisions about how to allocation resources using current information.
   void InformHostOfCacheStats();
 
-  // The message loop used to run tasks on the thread that started this thread.
-  MessageLoop* owner_loop_;
-
-  // Used only on the background render thread to implement message routing
-  // functionality to the consumers of the RenderThread.
-  MessageRouter router_;
-
-  std::wstring channel_name_;
-  scoped_ptr<IPC::SyncChannel> channel_;
-
   // These objects live solely on the render thread.
   VisitedLinkSlave* visited_link_slave_;
   UserScriptSlave* user_script_slave_;
@@ -139,13 +135,7 @@ class RenderThread : public IPC::Channel::Listener,
 
   scoped_ptr<NotificationService> notification_service_;
 
-  int in_send_;
-
   DISALLOW_COPY_AND_ASSIGN(RenderThread);
 };
-
-// The global RenderThread object for this process. Note that this should only
-// be accessed when running on the render thread itself.
-extern RenderThread* g_render_thread;
 
 #endif  // CHROME_RENDERER_RENDER_THREAD_H_

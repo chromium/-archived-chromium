@@ -247,6 +247,7 @@
 		534E66C40F311BEC0006B2B2 /* temp_scaffolding_stubs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 534E66C30F311BEC0006B2B2 /* temp_scaffolding_stubs.cc */; };
 		544FBC49CB83E458B6B7069D /* test_web_contents.cc in Sources */ = {isa = PBXBuildFile; fileRef = 56E1D7DF17D327BFCB0B895D /* test_web_contents.cc */; };
 		623E5BE905E098E8280304DA /* dns_master_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA6F0E9D4981009A6919 /* dns_master_unittest.cc */; };
+		5DD7664089E8660524ED1CBC /* child_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = E81681ADC802675FE949BC63 /* child_thread.cc */; };
 		65930533A98EF22451EEA01D /* history_publisher_none.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7849CCC221723C1BC14D6384 /* history_publisher_none.cc */; };
 		6685F5375CC4ECE98C4C2213 /* browser_about_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8320E9D4839009A6919 /* browser_about_handler.cc */; };
 		671555F7DF06E224B646E5D2 /* backing_store_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = B94B5B0CBF4D7FAC48BB1AE2 /* backing_store_posix.cc */; };
@@ -2439,6 +2440,7 @@
 		826850600F2FCC27009F6555 /* libxslt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxslt.xcodeproj; path = third_party/libxslt/libxslt.xcodeproj; sourceTree = "<group>"; };
 		826858F80F326FA3009F6555 /* testing_profile.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testing_profile.cc; sourceTree = "<group>"; };
 		826858F90F326FA3009F6555 /* testing_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testing_profile.h; sourceTree = "<group>"; };
+		829FBA2DED615C19FB7E7522 /* child_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = child_thread.h; sourceTree = "<group>"; };
 		82BB33080F44B57C00761F43 /* base_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base_view.h; path = cocoa/base_view.h; sourceTree = "<group>"; };
 		82BB33090F44B57C00761F43 /* base_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = base_view.mm; path = cocoa/base_view.mm; sourceTree = "<group>"; };
 		82FA32740F3A537C00271C5A /* web_contents_view_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_contents_view_mac.h; path = tab_contents/web_contents_view_mac.h; sourceTree = "<group>"; };
@@ -2791,6 +2793,7 @@
 		E4F324420EE5CE94002533CE /* extension_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extension_unittest.cc; sourceTree = "<group>"; };
 		E4F324780EE5D17E002533CE /* referrer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = referrer.h; sourceTree = "<group>"; };
 		E4F324790EE5D17E002533CE /* referrer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = referrer.cc; sourceTree = "<group>"; };
+		E81681ADC802675FE949BC63 /* child_thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = child_thread.cc; sourceTree = "<group>"; };
 		EA72C084DB3FC0FC595E525E /* template_url_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = template_url_model.cc; sourceTree = "<group>"; };
 		EA72CF50C0AB4492A644C703 /* url_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_fetcher.h; sourceTree = "<group>"; };
 		F174BA4A5FF6B3DFC64105AD /* transport_dib_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = transport_dib_mac.cc; sourceTree = "<group>"; };
@@ -3651,6 +3654,8 @@
 				4D7BFB8A0E9D4C9F009A6919 /* child_process.h */,
 				BA9BC2620F44DCBE00588450 /* child_process_info.cc */,
 				BA9BC2630F44DCC400588450 /* child_process_info.h */,
+				E81681ADC802675FE949BC63 /* child_thread.cc */,
+				829FBA2DED615C19FB7E7522 /* child_thread.h */,
 				4D7BFB8B0E9D4C9F009A6919 /* chrome_constants.cc */,
 				4D7BFB8C0E9D4C9F009A6919 /* chrome_constants.h */,
 				4D7BFB8D0E9D4C9F009A6919 /* chrome_counters.cc */,
@@ -5659,6 +5664,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D7BFC260E9D4CE8009A6919 /* animation.cc in Sources */,
+				5DD7664089E8660524ED1CBC /* child_thread.cc in Sources */,
 				7988AD180F4E5C710003C5CF /* child_process_info.cc in Sources */,
 				B562E2D50F05834500FB1A4F /* chrome_canvas.cc in Sources */,
 				4D7BFC280E9D4CEB009A6919 /* chrome_constants.cc in Sources */,

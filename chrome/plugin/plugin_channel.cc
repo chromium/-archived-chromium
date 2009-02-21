@@ -8,8 +8,8 @@
 
 #include "chrome/common/plugin_messages.h"
 #include "base/string_util.h"
-#include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/plugin_process.h"
+#include "chrome/plugin/plugin_thread.h"
 
 PluginChannel* PluginChannel::GetPluginChannel(
     int process_id, HANDLE renderer_handle, MessageLoop* ipc_message_loop) {
@@ -33,11 +33,11 @@ PluginChannel* PluginChannel::GetPluginChannel(
 
 PluginChannel::PluginChannel() : in_send_(0) {
   SendUnblockingOnlyDuringDispatch();
-  PluginProcess::AddRefProcess();
+  PluginProcess::current()->AddRefProcess();
 }
 
 PluginChannel::~PluginChannel() {
-  PluginProcess::ReleaseProcess();
+  PluginProcess::current()->ReleaseProcess();
 }
 
 bool PluginChannel::Send(IPC::Message* msg) {
@@ -84,7 +84,7 @@ void PluginChannel::OnGenerateRouteID(int* route_id) {
 }
 
 int PluginChannel::GenerateRouteID() {
-  static LONG last_id = 0;			
+  static LONG last_id = 0;
   return InterlockedIncrement(&last_id);
 }
 

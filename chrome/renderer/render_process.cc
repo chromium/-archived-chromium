@@ -29,34 +29,50 @@
 #include "chrome/renderer/render_view.h"
 #include "webkit/glue/webkit_glue.h"
 
-//-----------------------------------------------------------------------------
 
-bool RenderProcess::load_plugins_in_process_ = false;
-
-//-----------------------------------------------------------------------------
-
-RenderProcess::RenderProcess(const std::wstring& channel_name)
-    : render_thread_(channel_name),
+RenderProcess::RenderProcess()
+    : ChildProcess(new RenderThread()),
       ALLOW_THIS_IN_INITIALIZER_LIST(shared_mem_cache_cleaner_(
           base::TimeDelta::FromSeconds(5),
           this, &RenderProcess::ClearTransportDIBCache)),
       sequence_number_(0) {
-  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i)
-    shared_mem_cache_[i] = NULL;
+  Init();
+}
+
+RenderProcess::RenderProcess(const std::wstring& channel_name)
+    : ChildProcess(new RenderThread(channel_name)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(shared_mem_cache_cleaner_(
+          base::TimeDelta::FromSeconds(5),
+          this, &RenderProcess::ClearTransportDIBCache)),
+      sequence_number_(0) {
+  Init();
 }
 
 RenderProcess::~RenderProcess() {
+  // TODO(port)
+  // Try and limit what we pull in for our non-Win unit test bundle
+#ifndef NDEBUG
+  // log important leaked objects
+  webkit_glue::CheckForLeaks();
+#endif
+
+  GetShutDownEvent()->Signal();
+
   // We need to stop the RenderThread as the clearer_factory_
   // member could be in use while the object itself is destroyed,
   // as a result of the containing RenderProcess object being destroyed.
   // This race condition causes a crash when the renderer process is shutting
   // down.
-  render_thread_.Stop();
+  child_thread()->Stop();
   ClearTransportDIBCache();
 }
 
-// static
-bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
+void RenderProcess::Init() {
+  in_process_plugins_ = InProcessPlugins();
+  in_process_gears_ = false;
+  for (size_t i = 0; i < arraysize(shared_mem_cache_); ++i)
+    shared_mem_cache_[i] = NULL;
+
 #if defined(OS_WIN)
   // HACK:  See http://b/issue?id=1024307 for rationale.
   if (GetModuleHandle(L"LPK.DLL") == NULL) {
@@ -84,10 +100,6 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
       webkit_glue::SetRecordPlaybackMode(true);
   }
 
-  if (command_line.HasSwitch(switches::kInProcessPlugins) ||
-      command_line.HasSwitch(switches::kSingleProcess))
-    load_plugins_in_process_ = true;
-
   if (command_line.HasSwitch(switches::kEnableWatchdog)) {
     // TODO(JAR): Need to implement renderer IO msgloop watchdog.
   }
@@ -98,6 +110,7 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
 
   if (command_line.HasSwitch(switches::kGearsInRenderer)) {
 #if defined(OS_WIN)
+    in_process_gears_ = true;
     // Load gears.dll on startup so we can access it before the sandbox
     // blocks us.
     std::wstring path;
@@ -113,19 +126,12 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
     // TODO(scherkus): check for any DLL dependencies.
     webkit_glue::SetMediaPlayerAvailable(true);
   }
-
-  ChildProcessFactory<RenderProcess> factory;
-  return ChildProcess::GlobalInit(channel_name, &factory);
 }
 
-// static
-void RenderProcess::GlobalCleanup() {
-  ChildProcess::GlobalCleanup();
-}
-
-// static
-bool RenderProcess::ShouldLoadPluginsInProcess() {
-  return load_plugins_in_process_;
+bool RenderProcess::InProcessPlugins() {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  return command_line.HasSwitch(switches::kInProcessPlugins) ||
+         command_line.HasSwitch(switches::kSingleProcess);
 }
 
 // -----------------------------------------------------------------------------
@@ -155,7 +161,7 @@ TransportDIB* RenderProcess::CreateTransportDIB(size_t size) {
   // get one.
   IPC::Maybe<TransportDIB::Handle> mhandle;
   IPC::Message* msg = new ViewHostMsg_AllocTransportDIB(size, &mhandle);
-  if (!render_thread_.Send(msg))
+  if (!child_thread()->Send(msg))
     return NULL;
   if (!mhandle.valid)
     return NULL;
@@ -171,7 +177,7 @@ void RenderProcess::FreeTransportDIB(TransportDIB* dib) {
   // On Mac we need to tell the browser that it can drop a reference to the
   // shared memory.
   IPC::Message* msg = new ViewHostMsg_FreeTransportDIB(dib->id());
-  render_thread_.Send(msg);
+  child_thread()->Send(msg);
 #endif
 
   delete dib;
@@ -180,14 +186,13 @@ void RenderProcess::FreeTransportDIB(TransportDIB* dib) {
 // -----------------------------------------------------------------------------
 
 
-// static
 skia::PlatformCanvas* RenderProcess::GetDrawingCanvas(
     TransportDIB** memory, const gfx::Rect& rect) {
   const size_t stride = skia::PlatformCanvas::StrideForWidth(rect.width());
   const size_t size = stride * rect.height();
 
-  if (!self()->GetTransportDIBFromCache(memory, size)) {
-    *memory = self()->CreateTransportDIB(size);
+  if (!GetTransportDIBFromCache(memory, size)) {
+    *memory = CreateTransportDIB(size);
     if (!*memory)
       return false;
   }
@@ -195,14 +200,13 @@ skia::PlatformCanvas* RenderProcess::GetDrawingCanvas(
   return CanvasFromTransportDIB(*memory, rect);
 }
 
-// static
 void RenderProcess::ReleaseTransportDIB(TransportDIB* mem) {
-  if (self()->PutSharedMemInCache(mem)) {
-    self()->shared_mem_cache_cleaner_.Reset();
+  if (PutSharedMemInCache(mem)) {
+    shared_mem_cache_cleaner_.Reset();
     return;
   }
 
-  self()->FreeTransportDIB(mem);
+  FreeTransportDIB(mem);
 }
 
 bool RenderProcess::GetTransportDIBFromCache(TransportDIB** mem,
@@ -266,11 +270,3 @@ void RenderProcess::ClearTransportDIBCache() {
   }
 }
 
-void RenderProcess::Cleanup() {
-  // TODO(port)
-  // Try and limit what we pull in for our non-Win unit test bundle
-#ifndef NDEBUG
-  // log important leaked objects
-  webkit_glue::CheckForLeaks();
-#endif
-}

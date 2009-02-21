@@ -1461,8 +1461,8 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
   // Check whether we have new encoding name.
   UpdateEncoding(frame, webview->GetMainFrameEncodingName());
 
-  if (g_render_thread)  // Will be NULL during unit tests.
-    g_render_thread->user_script_slave()->InjectScripts(
+  if (RenderThread::current())  // Will be NULL during unit tests.
+    RenderThread::current()->user_script_slave()->InjectScripts(
         frame, UserScript::DOCUMENT_END);
 }
 
@@ -1532,8 +1532,8 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
 }
 
 void RenderView::DocumentElementAvailable(WebFrame* frame) {
-  if (g_render_thread)  // Will be NULL during unit tests.
-    g_render_thread->user_script_slave()->InjectScripts(
+  if (RenderThread::current())  // Will be NULL during unit tests.
+    RenderThread::current()->user_script_slave()->InjectScripts(
         frame, UserScript::DOCUMENT_START);
 }
 
@@ -1863,13 +1863,12 @@ WebWidget* RenderView::CreatePopupWidget(WebView* webview,
 
 static bool ShouldLoadPluginInProcess(const std::string& mime_type,
                                       bool* is_gears) {
-  if (RenderProcess::ShouldLoadPluginsInProcess())
+  if (RenderProcess::current()->in_process_plugins())
     return true;
 
   if (mime_type == "application/x-googlegears") {
     *is_gears = true;
-    return CommandLine::ForCurrentProcess()->HasSwitch(
-        switches::kGearsInRenderer);
+    return RenderProcess::current()->in_process_gears();
   }
 
   return false;
@@ -2866,8 +2865,8 @@ std::string RenderView::GetAltHTMLForTemplate(
 MessageLoop* RenderView::GetMessageLoopForIO() {
   // Assume that we have only one RenderThread in the process and the owner loop
   // of RenderThread is an IO message loop.
-  if (g_render_thread)
-    return g_render_thread->owner_loop();
+  if (RenderThread::current())
+    return RenderThread::current()->owner_loop();
   return NULL;
 }
 
