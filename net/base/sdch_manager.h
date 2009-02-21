@@ -60,6 +60,10 @@ class SdchManager {
     ADDED_CONTENT_ENCODING = 1,
     FIXED_CONTENT_ENCODING = 2,
     FIXED_CONTENT_ENCODINGS = 3,
+    // Content encoding correction when we're not even tagged as HTML!?!
+    BINARY_ADDED_CONTENT_ENCODING = 4,
+    BINARY_FIXED_CONTENT_ENCODING = 5,
+    BINARY_FIXED_CONTENT_ENCODINGS = 6,
 
     // Content decoding errors.
     DECODE_HEADER_ERROR = 4,

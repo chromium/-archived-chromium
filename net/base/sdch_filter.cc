@@ -47,8 +47,7 @@ SdchFilter::~SdchFilter() {
 
   if (!was_cached()
       && base::Time() != connect_time()
-      && read_times_.size() > 0
-      && base::Time() != read_times_.back()) {
+      && read_times_.size() > 0) {
     base::TimeDelta duration = read_times_.back() - connect_time();
     // We clip our logging at 10 minutes to prevent anamolous data from being
     // considered (per suggestion from Jake Brutlag).

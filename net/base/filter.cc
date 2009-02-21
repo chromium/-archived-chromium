@@ -136,26 +136,40 @@ void Filter::FixupEncodingTypes(
   // tries to *send* a gzipped file (not gzip encode content), and then we could
   // do a gzip decode :-(.  Since current server support does not ever see such
   // a transfer, we are safe (for now).
-  if (LowerCaseEqualsASCII(mime_type, kTextHtml)) {
-    // Suspicious case: Advertised dictionary, but server didn't use sdch, even
-    // though it is text_html content.
-    if (encoding_types->empty())
+  if (StartsWithASCII(mime_type, kTextHtml, false)) {
+    // Suspicious case: Advertised dictionary, but server didn't use sdch, and
+    // we're HTML tagged.
+    if (encoding_types->empty()) {
       SdchManager::SdchErrorRecovery(SdchManager::ADDED_CONTENT_ENCODING);
-    else if (1 == encoding_types->size())
+    } else if (1 == encoding_types->size()) {
       SdchManager::SdchErrorRecovery(SdchManager::FIXED_CONTENT_ENCODING);
-    else
+    } else {
       SdchManager::SdchErrorRecovery(SdchManager::FIXED_CONTENT_ENCODINGS);
-    encoding_types->clear();
-    encoding_types->push_back(FILTER_TYPE_SDCH_POSSIBLE);
-    encoding_types->push_back(FILTER_TYPE_GZIP_HELPING_SDCH);
-    return;
+    }
+  } else {
+    // Remarkable case!?!  We advertised an SDCH dictionary, content-encoding
+    // was not marked for SDCH processing: Why did the server suggest an SDCH
+    // dictionary in the first place??.  Also, the content isn't
+    // tagged as HTML, despite the fact that SDCH encoding is mostly likely for
+    // HTML: Did some anti-virus system strip this tag (sometimes they strip
+    // accept-encoding headers on the request)??  Does the content encoding not
+    // start with "text/html" for some other reason??  We'll report this as a
+    // fixup to a binary file, but it probably really is text/html (some how).
+    if (encoding_types->empty()) {
+      SdchManager::SdchErrorRecovery(
+          SdchManager::BINARY_ADDED_CONTENT_ENCODING);
+    } else if (1 == encoding_types->size()) {
+      SdchManager::SdchErrorRecovery(
+          SdchManager::BINARY_FIXED_CONTENT_ENCODING);
+    } else {
+      SdchManager::SdchErrorRecovery(
+          SdchManager::BINARY_FIXED_CONTENT_ENCODINGS);
+    }
   }
 
-  // It didn't have SDCH encoding... but it wasn't HTML... so maybe it really
-  // wasn't SDCH encoded.  It would be nice if we knew this, and didn't bother
-  // to propose a dictionary etc., but current SDCH spec does not provide a nice
-  // way for us to conclude that.  Perhaps in the future, this case will be much
-  // more rare.
+  encoding_types->clear();
+  encoding_types->push_back(FILTER_TYPE_SDCH_POSSIBLE);
+  encoding_types->push_back(FILTER_TYPE_GZIP_HELPING_SDCH);
   return;
 }
 

@@ -126,8 +126,22 @@ TEST(FilterTest, MissingSdchEncoding) {
   EXPECT_EQ(Filter::FILTER_TYPE_SDCH_POSSIBLE, encoding_types[0]);
   EXPECT_EQ(Filter::FILTER_TYPE_GZIP_HELPING_SDCH, encoding_types[1]);
 
+  // Loss of encoding, but it was an SDCH response with a prefix that says it
+  // was an html type.  Note that it *should* be the case that a precise match
+  // with "text/html" we be collected by GetMimeType() and passed in, but we
+  // coded the fixup defensively (scanning for a prexif of "text/html", so this
+  // is an example which could survive such confusion in the caller.
+  encoding_types.clear();
+  Filter::FixupEncodingTypes(is_sdch_response, "text/html; charset=UTF-8",
+                             &encoding_types);
+  EXPECT_EQ(2U, encoding_types.size());
+  EXPECT_EQ(Filter::FILTER_TYPE_SDCH_POSSIBLE, encoding_types[0]);
+  EXPECT_EQ(Filter::FILTER_TYPE_GZIP_HELPING_SDCH, encoding_types[1]);
+
   // No encoding, but it was an SDCH response with non-html type.
   encoding_types.clear();
   Filter::FixupEncodingTypes(is_sdch_response, "other/mime", &encoding_types);
-  EXPECT_TRUE(encoding_types.empty());
+  EXPECT_EQ(2U, encoding_types.size());
+  EXPECT_EQ(Filter::FILTER_TYPE_SDCH_POSSIBLE, encoding_types[0]);
+  EXPECT_EQ(Filter::FILTER_TYPE_GZIP_HELPING_SDCH, encoding_types[1]);
 }
