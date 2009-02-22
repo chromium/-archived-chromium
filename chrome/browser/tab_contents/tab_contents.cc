@@ -16,6 +16,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "grit/generated_resources.h"
 
 #if defined(OS_WIN)
 // TODO(port): some of these headers should be ported.
@@ -29,8 +30,6 @@
 #include "chrome/views/view_storage.h"
 #include "chrome/views/widget.h"
 #endif
-
-#include "generated_resources.h"
 
 // TODO(port): port the rest of this file.
 #if defined(OS_WIN)

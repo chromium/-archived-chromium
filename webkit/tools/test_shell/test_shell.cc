@@ -25,6 +25,7 @@
 #include "base/string_util.h"
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
+#include "grit/webkit_strings.h"
 #include "net/base/mime_util.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_filter.h"
@@ -40,7 +41,6 @@
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
-#include "webkit_strings.h"
 
 #include "SkBitmap.h"
 

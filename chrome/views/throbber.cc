@@ -5,10 +5,10 @@
 #include "chrome/views/throbber.h"
 
 #include "base/time.h"
-#include "grit/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/resource_bundle.h"
+#include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 
 using base::Time;

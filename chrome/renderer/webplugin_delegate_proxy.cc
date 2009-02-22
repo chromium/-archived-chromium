@@ -6,14 +6,11 @@
 
 #include <atlbase.h>
 
-#include "generated_resources.h"
-
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/gfx/size.h"
 #include "base/gfx/native_widget_types.h"
-
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/emf.h"
@@ -27,6 +24,7 @@
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
 #include "googleurl/src/gurl.h"
+#include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe.h"

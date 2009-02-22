@@ -20,7 +20,7 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 class ShellDialogThread : public base::Thread {
  public:

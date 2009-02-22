@@ -11,7 +11,7 @@ mkdir -p "${GRIT_DIR}"
 
 # compare generated_resources.grd to generated_resources.h. If the .h is
 # older or doesn't exist, rebuild it.
-if [ "${GRIT_DIR}/generated_resources.h" -ot \
+if [ "${GRIT_DIR}/grit/generated_resources.h" -ot \
      "${PROJECT_DIR}/app/generated_resources.grd" ]
 then
   python "${PROJECT_DIR}/../tools/grit/grit.py" \
@@ -21,7 +21,7 @@ fi
 
 # compare chromium_strings.grd to chromium_strings.h. If the .h is
 # older or doesn't exist, rebuild it
-if [ "${GRIT_DIR}/chromium_strings.h" -ot \
+if [ "${GRIT_DIR}/grit/chromium_strings.h" -ot \
      "${PROJECT_DIR}/app/chromium_strings.grd" ]
 then
   python "${PROJECT_DIR}/../tools/grit/grit.py" \
@@ -31,7 +31,7 @@ fi
 
 # compare browser_resources.grd to browser_resources.h. If the .h is
 # older or doesn't exist, rebuild it
-if [ "${GRIT_DIR}/browser_resources.h" -ot \
+if [ "${GRIT_DIR}/grit/browser_resources.h" -ot \
      "${PROJECT_DIR}/browser/browser_resources.grd" ]
 then
   python "${PROJECT_DIR}/../tools/grit/grit.py" \

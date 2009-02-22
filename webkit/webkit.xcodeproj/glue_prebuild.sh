@@ -11,7 +11,7 @@ mkdir -p "${GRIT_DIR}"
 
 # compare webkit_strings.grd to webkit_strings.h. If the .h is
 # older or doesn't exist, rebuild it.
-if [ "${GRIT_DIR}/webkit_strings.h" -ot \
+if [ "${GRIT_DIR}/grit/webkit_strings.h" -ot \
      "${PROJECT_DIR}/glue/webkit_strings.grd" ]
 then
   python "${PROJECT_DIR}/../tools/grit/grit.py" \
@@ -19,7 +19,7 @@ then
       -o "${GRIT_DIR}"
 fi
 
-if [ "${GRIT_DIR}/webkit_resources.h" -ot \
+if [ "${GRIT_DIR}/grit/webkit_resources.h" -ot \
      "${PROJECT_DIR}/glue/webkit_resources.grd" ]
 then
   python "${PROJECT_DIR}/../tools/grit/grit.py" \

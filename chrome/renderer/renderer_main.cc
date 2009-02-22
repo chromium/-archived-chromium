@@ -18,13 +18,12 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 #include "chrome/renderer/render_process.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 #if defined(OS_LINUX)
 #include <gtk/gtk.h>
 #endif
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 // This function provides some ways to test crash and assertion handling
 // behavior of the renderer.

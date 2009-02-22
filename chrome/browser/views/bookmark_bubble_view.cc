@@ -5,7 +5,6 @@
 #include "chrome/browser/views/bookmark_bubble_view.h"
 
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -21,7 +20,8 @@
 #include "chrome/views/checkbox.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 using views::ComboBox;
 using views::ColumnSet;

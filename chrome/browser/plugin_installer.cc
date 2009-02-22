@@ -5,13 +5,12 @@
 #include "chrome/browser/plugin_installer.h"
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
-
-#include "generated_resources.h"
 
 PluginInstaller::PluginInstaller(WebContents* web_contents)
     : ConfirmInfoBarDelegate(web_contents),

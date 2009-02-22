@@ -44,7 +44,7 @@
 #include "unicode/datefmt.h"
 
 #if !defined(OS_MACOSX)
-#include "net_resources.h"
+#include "grit/net_resources.h"
 #endif
 
 using base::Time;

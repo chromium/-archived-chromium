@@ -9,6 +9,7 @@ skip_child_includes = [
 include_rules = [
   # For bridge/c/c_utility.h in npruntime_util.cc
   "+bridge",
+  "+grit",  # For generated headers
 
   # TODO(brettw) - review these; move up if it's ok, or remove the dependency
   "+net/base",

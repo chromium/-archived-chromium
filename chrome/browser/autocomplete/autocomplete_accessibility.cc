@@ -7,8 +7,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/accessibility/accessible_wrapper.h"
 #include "chrome/views/view.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 HRESULT AutocompleteAccessibility::Initialize(
     const AutocompleteEditView* edit_box) {

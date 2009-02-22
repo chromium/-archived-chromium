@@ -13,7 +13,6 @@
 #include <math.h>
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -25,8 +24,8 @@
 #include "chrome/views/background.h"
 #include "chrome/views/button.h"
 #include "chrome/views/menu_button.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 namespace {
 // Menu item ID for the "Notify me when a popup is blocked" checkbox. (All

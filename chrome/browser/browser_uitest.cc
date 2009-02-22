@@ -16,9 +16,8 @@
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_unittest.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 namespace {
 

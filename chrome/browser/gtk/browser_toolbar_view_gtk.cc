@@ -15,9 +15,8 @@
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
 const int BrowserToolbarGtk::kToolbarHeight = 38;

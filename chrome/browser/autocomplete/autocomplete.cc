@@ -23,10 +23,9 @@
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon_ip.h"
+#include "grit/generated_resources.h"
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
-
-#include "generated_resources.h"
 
 using base::TimeDelta;
 

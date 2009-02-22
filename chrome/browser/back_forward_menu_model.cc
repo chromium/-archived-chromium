@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
 #include "net/base/registry_controlled_domain.h"
 
 #if defined(OS_WIN)
@@ -20,8 +21,6 @@
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
-
-#include "generated_resources.h"
 
 const int BackForwardMenuModel::kMaxHistoryItems = 12;
 const int BackForwardMenuModel::kMaxChapterStops = 5;

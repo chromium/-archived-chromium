@@ -24,10 +24,10 @@
 #include "chrome/common/win_util.h"
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
 #include "chrome/views/widget_win.h"
+#include "grit/webkit_resources.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webcursor.h"
-#include "webkit_resources.h"
 
 
 using base::TimeDelta;

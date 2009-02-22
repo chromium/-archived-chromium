@@ -17,8 +17,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 void RunJavascriptMessageBox(WebContents* web_contents,
                              int dialog_flags,

@@ -13,9 +13,8 @@
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
 #include "unicode/ucnv.h"
-
-#include "generated_resources.h"
 
 namespace {
 

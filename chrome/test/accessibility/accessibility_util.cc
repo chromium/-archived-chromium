@@ -8,9 +8,8 @@
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/test/accessibility/constants.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 VARIANT id_self = {VT_I4, CHILDID_SELF};
 

@@ -5,16 +5,15 @@
 #include "chrome/browser/history_tab_ui.h"
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/history_model.h"
 #include "chrome/browser/history_view.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/checkbox.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "net/base/escape.h"
-
-#include "generated_resources.h"
 
 // State key used to identify search text.
 static const wchar_t kSearchTextKey[] = L"st";

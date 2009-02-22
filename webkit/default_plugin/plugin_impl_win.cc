@@ -11,6 +11,7 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
+#include "grit/webkit_strings.h"
 #include "unicode/locid.h"
 #include "webkit/default_plugin/activex_installer.h"
 #include "webkit/activex_shim/activex_shared.h"
@@ -18,11 +19,6 @@
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/default_plugin/plugin_main.h"
 #include "webkit/glue/webkit_glue.h"
-// This file is generated when the webkit_strings.grd file is compiled.
-// The path is the chrome/webkit/<debug\release>/obj/localized_strings
-// folder. This path is added to the include path in the associated vsprops
-// file.
-#include "webkit_strings.h"
 
 static const int TOOLTIP_MAX_WIDTH = 500;
 

@@ -11,10 +11,9 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"
-
-#include "generated_resources.h"
 
 // static
 std::wstring KeywordProvider::SplitReplacementStringFromInput(

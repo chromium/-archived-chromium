@@ -5,7 +5,6 @@
 #include "chrome/browser/views/info_bubble.h"
 
 #include "base/win_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -14,6 +13,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/window.h"
+#include "grit/theme_resources.h"
 
 using views::View;
 

@@ -19,9 +19,8 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/event.h"
 #include "chrome/views/tree_node_iterator.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 namespace {
 

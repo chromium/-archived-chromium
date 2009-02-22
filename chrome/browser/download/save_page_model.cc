@@ -8,8 +8,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/common/l10n_util.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 SavePageModel::SavePageModel(SavePackage* save, DownloadItem* download)
     : save_(save),

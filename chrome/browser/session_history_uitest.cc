@@ -8,10 +8,9 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/ui/ui_test.h"
+#include "grit/generated_resources.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_unittest.h"
-
-#include "generated_resources.h"
 
 using std::wstring;
 

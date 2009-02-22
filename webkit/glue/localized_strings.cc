@@ -34,11 +34,10 @@
 #include "base/file_util.h"
 #include "base/string16.h"
 #include "base/string_util.h"
-#include "build/build_config.h"
+#include "grit/webkit_strings.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 
-#include "webkit_strings.h"
 
 using namespace WebCore;
 

@@ -13,8 +13,7 @@
 #include "chrome/views/label.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/text_field.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 namespace views {
 

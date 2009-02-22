@@ -17,7 +17,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/window.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 namespace views {
 

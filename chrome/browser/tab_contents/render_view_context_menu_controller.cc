@@ -24,6 +24,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request.h"
@@ -36,8 +37,6 @@
 #include "chrome/common/clipboard_service.h"
 #include "chrome/common/win_util.h"
 #endif
-
-#include "generated_resources.h"
 
 RenderViewContextMenuController::RenderViewContextMenuController(
     WebContents* source_web_contents, const ContextMenuParams& params)

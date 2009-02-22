@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "grit/theme_resources.h"
+#include "base/logging.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
@@ -16,13 +16,12 @@
 #include "chrome/browser/views/download_tab_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
-#include "base/logging.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/button.h"
 #include "chrome/views/image_view.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 // Max number of download views we'll contain. Any time a view is added and
 // we already have this many download views, one is removed.

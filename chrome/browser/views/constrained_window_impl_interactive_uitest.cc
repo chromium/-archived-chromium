@@ -15,9 +15,8 @@
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/views/event.h"
+#include "grit/generated_resources.h"
 #include "net/base/net_util.h"
-
-#include "generated_resources.h"
 
 class InteractiveConstrainedWindowTest : public UITest {
  protected:

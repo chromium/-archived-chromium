@@ -15,7 +15,7 @@
 #include "chrome/browser/search_engines/template_url_parser.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 #include "net/base/data_url.h"
 
 using base::Time;

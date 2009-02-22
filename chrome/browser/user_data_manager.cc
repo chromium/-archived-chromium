@@ -20,13 +20,12 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/installer/util/browser_distribution.h"
+#include "grit/chromium_strings.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
 #include "chrome/installer/util/shell_util.h"
 #endif
-
-#include "chromium_strings.h"
 
 namespace {
 

@@ -6,9 +6,8 @@
 #include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_table_model.h"
 #include "chrome/test/testing_profile.h"
+#include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#include "generated_resources.h"
 
 using base::Time;
 using base::TimeDelta;

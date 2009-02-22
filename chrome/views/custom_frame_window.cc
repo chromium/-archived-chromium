@@ -7,7 +7,6 @@
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "base/win_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -21,7 +20,8 @@
 #include "chrome/views/root_view.h"
 #include "chrome/views/window_delegate.h"
 #include "chrome/views/window_resources.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 namespace views {
 

@@ -12,7 +12,6 @@
 #include "base/string_util.h"
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/spellchecker.h"
@@ -34,11 +33,11 @@
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/widget.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 #include "unicode/uloc.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 static const wchar_t* const accept_language_list[] = {
   L"af",     // Afrikaans

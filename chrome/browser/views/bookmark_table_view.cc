@@ -17,8 +17,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/view_constants.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 namespace {
 

@@ -18,8 +18,7 @@
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/window_delegate.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 namespace views {
 

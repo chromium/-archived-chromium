@@ -9,7 +9,6 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
@@ -46,10 +45,10 @@
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/tooltip_manager.h"
 #include "chrome/views/widget.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "net/base/net_util.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 static const int kControlHorizOffset = 4;
 static const int kControlVertOffset = 6;

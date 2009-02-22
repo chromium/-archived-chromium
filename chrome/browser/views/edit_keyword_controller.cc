@@ -5,7 +5,6 @@
 #include "chrome/browser/views/edit_keyword_controller.h"
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
@@ -21,8 +20,8 @@
 #include "chrome/views/table_view.h"
 #include "chrome/views/window.h"
 #include "googleurl/src/gurl.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 using views::GridLayout;
 using views::ImageView;

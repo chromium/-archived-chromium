@@ -8,7 +8,6 @@
 
 #include "base/file_util.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_util.h"
 #include "chrome/browser/views/download_shelf_view.h"
@@ -20,8 +19,8 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/widget.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 using base::TimeDelta;
 

@@ -5,7 +5,6 @@
 #include "chrome/browser/password_manager/password_manager.h"
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
@@ -15,9 +14,9 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 // After a successful *new* login attempt, we take the PasswordFormManager in
 // provisional_save_manager_ and move it to a SavePasswordInfoBarDelegate while

@@ -4,7 +4,6 @@
 
 #include "chrome/views/text_button.h"
 
-#include "grit/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/throb_animation.h"
@@ -12,8 +11,8 @@
 #include "chrome/views/button.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view_menu_delegate.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 namespace views {
 

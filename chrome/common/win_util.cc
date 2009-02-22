@@ -20,8 +20,8 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
-#include "generated_resources.h"
 
 // Ensure that we pick up this link library.
 #pragma comment(lib, "dwmapi.lib")

@@ -22,8 +22,7 @@
 #include "chrome/views/scroll_view.h"
 #include "chrome/views/throbber.h"
 #include "chrome/views/widget_win.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 using views::ColumnSet;
 using views::GridLayout;

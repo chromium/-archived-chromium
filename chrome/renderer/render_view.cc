@@ -32,6 +32,8 @@
 #include "chrome/renderer/visitedlink_slave.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "chrome/renderer/webplugin_delegate_proxy.h"
+#include "grit/generated_resources.h"
+#include "grit/renderer_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
@@ -55,9 +57,6 @@
 #include "webkit/glue/webresponse.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
-
-#include "generated_resources.h"
-#include "grit/renderer_resources.h"
 
 #if defined(OS_WIN)
 // TODO(port): these files are currently Windows only because they concern:

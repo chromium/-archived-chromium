@@ -12,12 +12,12 @@
 #include "base/pickle.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
-#include "net/base/net_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "net/base/net_util.h"
 
 // Creates a new STGMEDIUM object to hold the specified text. The caller
 // owns the resulting object. The "Bytes" version does not NULL terminate, the

@@ -24,8 +24,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/link.h"
 #include "chrome/views/widget.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 using base::Time;
 using base::TimeDelta;

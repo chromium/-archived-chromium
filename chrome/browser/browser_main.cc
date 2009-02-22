@@ -44,9 +44,8 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 #if defined(OS_POSIX)
 // TODO(port): get rid of this include. It's used just to provide declarations
@@ -98,7 +97,7 @@
 #endif  // defined(OS_WIN)
 
 #if !defined(OS_MACOSX)
-#include "net_resources.h"
+#include "grit/net_resources.h"
 #include "chrome/browser/process_singleton.h"
 #endif
 

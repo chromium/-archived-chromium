@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/l10n_util.h"
@@ -15,9 +14,9 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/label.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "skia/include/SkGradientShader.h"
-
-#include "generated_resources.h"
 
 // The amount of whitespace to have before the find button.
 static const int kWhiteSpaceAfterMatchCountLabel = 3;

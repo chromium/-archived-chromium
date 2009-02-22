@@ -35,9 +35,8 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/url_util.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
-
-#include "generated_resources.h"
 
 #pragma comment(lib, "oleacc.lib")  // Needed for accessibility support.
 

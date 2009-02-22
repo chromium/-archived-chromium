@@ -8,7 +8,6 @@
 #include "base/path_service.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/first_run.h"
@@ -28,9 +27,9 @@
 #include "chrome/views/throbber.h"
 #include "chrome/views/separator.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 FirstRunViewBase::FirstRunViewBase(Profile* profile)
     : preferred_width_(0),

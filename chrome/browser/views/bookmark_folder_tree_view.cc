@@ -12,8 +12,7 @@
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/view_constants.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 void BookmarkFolderTreeView::DropInfo::Scrolled() {
   view_->UpdateDropInfo();

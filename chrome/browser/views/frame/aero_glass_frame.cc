@@ -6,12 +6,12 @@
 
 #include <dwmapi.h>
 
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/window_delegate.h"
+#include "grit/theme_resources.h"
 
 // static
 

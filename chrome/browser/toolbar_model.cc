@@ -13,9 +13,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "grit/generated_resources.h"
 #include "net/base/net_util.h"
-
-#include "generated_resources.h"
 
 ToolbarModel::ToolbarModel() : input_in_progress_(false) {
 }

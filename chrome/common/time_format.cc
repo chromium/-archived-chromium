@@ -14,7 +14,7 @@
 #include "base/time_format.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/stl_util-inl.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 #include "unicode/datefmt.h"
 #include "unicode/locid.h"
 #include "unicode/plurfmt.h"

@@ -44,6 +44,7 @@
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/render_process.h"
+#include "grit/generated_resources.h"
 
 #if defined(OS_WIN)
 
@@ -65,7 +66,6 @@
 
 #include "skia/include/SkBitmap.h"
 
-#include "generated_resources.h"
 
 namespace {
 

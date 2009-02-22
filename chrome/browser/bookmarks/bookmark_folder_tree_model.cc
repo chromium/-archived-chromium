@@ -4,11 +4,10 @@
 
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 
-#include "grit/theme_resources.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 BookmarkFolderTreeModel::BookmarkFolderTreeModel(BookmarkModel* model)
     : views::TreeNodeModel<FolderNode>(new FolderNode(NULL)),

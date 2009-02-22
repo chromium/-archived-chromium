@@ -9,8 +9,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/common/l10n_util.h"
 #include "googleurl/src/gurl.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 using base::Time;
 

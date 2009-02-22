@@ -13,7 +13,7 @@
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 DebuggerWindow::DebuggerWindow() : window_(NULL),
                              view_(NULL),

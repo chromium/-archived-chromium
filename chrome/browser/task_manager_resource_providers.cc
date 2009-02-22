@@ -9,7 +9,6 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -21,8 +20,8 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/gfx/icon_util.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // TaskManagerWebContentsResource class

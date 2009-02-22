@@ -9,7 +9,6 @@
 #include "base/file_version_info.h"
 #include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
@@ -52,10 +51,10 @@
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
-#include "webkit_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
+#include "grit/webkit_resources.h"
 
 
 using base::TimeDelta;

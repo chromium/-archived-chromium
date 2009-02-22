@@ -20,8 +20,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/window.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 namespace {
 

@@ -44,9 +44,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/thumbnail_score.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 using base::Time;
 using history::HistoryBackend;

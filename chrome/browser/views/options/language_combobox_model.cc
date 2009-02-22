@@ -9,9 +9,8 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_service.h"
+#include "grit/generated_resources.h"
 #include "unicode/uloc.h"
-
-#include "generated_resources.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // LanguageComboboxModel used to populate a combobox with native names

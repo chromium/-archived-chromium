@@ -11,8 +11,7 @@
 #include "base/rand_util.h"
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 std::wstring ChildProcessInfo::GetTypeNameInEnglish(
     ChildProcessInfo::ProcessType type) {

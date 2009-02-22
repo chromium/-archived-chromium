@@ -21,9 +21,8 @@
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/shell_util.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 // Displays a warning message if the user is running chrome on windows 2000.
 // Returns true if the OS is win2000, false otherwise.

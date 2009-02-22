@@ -11,7 +11,6 @@
 
 #include "base/file_util.h"
 #include "base/gfx/native_theme.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
@@ -30,7 +29,8 @@
 #include "chrome/views/radio_button.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/widget.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkBitmap.h"
 

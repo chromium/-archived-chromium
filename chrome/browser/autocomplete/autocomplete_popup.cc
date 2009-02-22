@@ -8,7 +8,6 @@
 
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/net/dns_global.h"
@@ -20,6 +19,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
+#include "grit/theme_resources.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 
 namespace {

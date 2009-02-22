@@ -10,8 +10,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 // Implementation of function declared in
 // browser/tab_contents/repost_form_warning.h

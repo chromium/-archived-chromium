@@ -19,9 +19,8 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/scroll_view.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 namespace {
 

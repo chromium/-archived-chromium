@@ -16,11 +16,10 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/url_util.h"
+#include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request_status.h"
-
-#include "generated_resources.h"
 
 using base::Time;
 using base::TimeDelta;

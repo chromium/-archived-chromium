@@ -16,8 +16,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 using base::TimeDelta;
 

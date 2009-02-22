@@ -8,7 +8,6 @@
 
 #include "base/string_util.h"
 #include "base/base_drag_source.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
@@ -43,7 +42,8 @@
 #include "chrome/views/view_constants.h"
 #include "chrome/views/widget.h"
 #include "chrome/views/window.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "skia/ext/skia_utils.h"
 
 using views::BaseButton;

@@ -8,8 +8,7 @@
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/l10n_util.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 GoButton::GoButton(LocationBarView* location_bar,
                    CommandUpdater* command_updater) : ToggleButton(),

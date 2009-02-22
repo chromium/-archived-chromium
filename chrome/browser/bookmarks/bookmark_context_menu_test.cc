@@ -11,9 +11,8 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/test/testing_profile.h"
+#include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-#include "generated_resources.h"
 
 namespace {
 

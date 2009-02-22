@@ -6,8 +6,7 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/metrics/user_metrics.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 // static
 BackForwardMenuModel* BackForwardMenuModel::Create(Browser* browser,

@@ -8,7 +8,6 @@
 
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/text_elider.h"
@@ -18,12 +17,12 @@
 #include "chrome/views/root_view.h"
 #include "chrome/views/widget_win.h"
 #include "googleurl/src/gurl.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "net/base/net_util.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRect.h"
-
-#include "generated_resources.h"
 
 // The color of the background bubble.
 static const SkColor kBubbleColor = SkColorSetRGB(222, 234, 248);

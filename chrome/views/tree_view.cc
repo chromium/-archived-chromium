@@ -7,7 +7,6 @@
 #include <shellapi.h>
 
 #include "base/win_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/l10n_util.h"
@@ -15,6 +14,7 @@
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/widget.h"
+#include "grit/theme_resources.h"
 
 namespace views {
 

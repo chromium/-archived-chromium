@@ -5,7 +5,6 @@
 #include "chrome/browser/views/hung_renderer_view.h"
 
 #include "chrome/app/result_codes.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -24,9 +23,9 @@
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // HungPagesTableModel

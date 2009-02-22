@@ -17,9 +17,8 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/win_util.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 namespace {
 

@@ -13,10 +13,9 @@
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 #include "net/base/net_util.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 namespace {
 

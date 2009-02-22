@@ -12,7 +12,6 @@
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -21,6 +20,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/text_button.h"
 #include "googleurl/src/gurl.h"
+#include "grit/theme_resources.h"
 
 namespace drag_utils {
 

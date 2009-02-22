@@ -12,9 +12,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/throb_animation.h"
 #include "chrome/views/event.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/image_operations.h"
-
-#include "generated_resources.h"
 
 namespace views {
 

@@ -9,12 +9,11 @@
 #include "base/values.h"
 #include "chrome/common/l10n_util.h"
 #include "googleurl/src/gurl.h"
+#include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "webkit/glue/weberror.h"
 #include "webkit/glue/webkit_glue.h"
-
-#include "generated_resources.h"
 
 namespace {
 

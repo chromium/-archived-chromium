@@ -5,7 +5,6 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 
 #include "base/gfx/size.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -26,8 +25,8 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/painter.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 #undef min
 #undef max

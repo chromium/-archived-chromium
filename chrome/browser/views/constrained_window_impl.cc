@@ -6,7 +6,6 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -32,10 +31,10 @@
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/window_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "net/base/net_util.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 using base::TimeDelta;
 

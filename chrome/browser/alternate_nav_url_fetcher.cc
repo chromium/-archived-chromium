@@ -10,8 +10,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 AlternateNavURLFetcher::AlternateNavURLFetcher(
     const GURL& alternate_nav_url)

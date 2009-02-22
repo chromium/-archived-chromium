@@ -27,6 +27,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
+#include "grit/generated_resources.h"
 #include "net/base/io_buffer.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"
@@ -45,8 +46,6 @@
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
-
-#include "generated_resources.h"
 
 using base::Time;
 

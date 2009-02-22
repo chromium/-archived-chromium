@@ -14,7 +14,6 @@
 #include "base/task.h"
 #include "base/time_format.h"
 #include "base/timer.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -28,7 +27,8 @@
 #include "chrome/common/time_format.h"
 #include "chrome/views/background.h"
 #include "googleurl/src/gurl.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 using base::Time;
 using base::TimeDelta;

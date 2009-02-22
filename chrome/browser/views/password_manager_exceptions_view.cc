@@ -12,8 +12,7 @@
 #include "chrome/views/background.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/native_button.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 using views::ColumnSet;
 using views::GridLayout;

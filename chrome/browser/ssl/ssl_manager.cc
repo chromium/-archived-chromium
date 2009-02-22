@@ -6,7 +6,6 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -24,11 +23,12 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_type.h"
-#include "generated_resources.h"
 
 #if defined(OS_WIN)
 // TODO(port): Port these files.

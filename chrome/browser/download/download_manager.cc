@@ -31,6 +31,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
+#include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
@@ -42,8 +43,6 @@
 #include "chrome/browser/download/download_util.h"
 #include "chrome/common/win_util.h"
 #endif
-
-#include "generated_resources.h"
 
 // Periodically update our observers.
 class DownloadItemUpdateTask : public Task {

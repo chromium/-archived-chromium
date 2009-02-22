@@ -17,8 +17,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/message_box_view.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 namespace {
 

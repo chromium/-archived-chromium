@@ -8,7 +8,6 @@
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -25,11 +24,11 @@
 #include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/window.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 // The task manager window default size.
 static const int kDefaultWidth = 460;

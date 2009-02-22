@@ -33,10 +33,9 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/window.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/image_operations.h"
 #include "webkit/glue/image_decoder.h"
-
-#include "generated_resources.h"
 
 // ProfileWriter.
 

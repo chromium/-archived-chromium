@@ -24,8 +24,7 @@
 #include "chrome/common/time_format.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 using base::Time;
 

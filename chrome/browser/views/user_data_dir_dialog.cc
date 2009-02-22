@@ -7,9 +7,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/window.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 // static
 std::wstring UserDataDirDialog::RunUserDataDirDialog(

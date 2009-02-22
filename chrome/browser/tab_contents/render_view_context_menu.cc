@@ -11,7 +11,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/common/l10n_util.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 RenderViewContextMenu::RenderViewContextMenu(
     Menu::Delegate* delegate,

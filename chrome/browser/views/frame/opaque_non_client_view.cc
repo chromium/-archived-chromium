@@ -4,7 +4,6 @@
 
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 
-#include "grit/theme_resources.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -14,8 +13,9 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/window_resources.h"
-#include "chromium_strings.h"
-#include "generated_resources.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 // An enumeration of bitmap resources used by this window.
 enum {

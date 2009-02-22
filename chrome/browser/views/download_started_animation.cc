@@ -4,11 +4,11 @@
 
 #include "chrome/browser/views/download_started_animation.h"
 
-#include "grit/theme_resources.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/widget_win.h"
+#include "grit/theme_resources.h"
 
 // How long to spend moving downwards and fading out after waiting.
 static const int kMoveTimeMs = 600;

@@ -24,9 +24,8 @@
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/widget.h"
+#include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
-
-#include "generated_resources.h"
 
 using gfx::NativeTheme;
 

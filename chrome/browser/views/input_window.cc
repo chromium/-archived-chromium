@@ -10,7 +10,7 @@
 #include "chrome/views/label.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/window.h"
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 // Width to make the text field, in pixels.
 static const int kTextFieldWidth = 200;

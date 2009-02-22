@@ -9,13 +9,13 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "grit/theme_resources.h"
+#include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/app/chrome_dll_resource.h"
+#include "grit/theme_resources.h"
 
 static bool g_initialized = false;
 static SkBitmap* g_default_fav_icon = NULL;

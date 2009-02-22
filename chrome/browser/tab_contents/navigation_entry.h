@@ -8,12 +8,12 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/tab_contents/security_style.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
+#include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 
 ////////////////////////////////////////////////////////////////////////////////

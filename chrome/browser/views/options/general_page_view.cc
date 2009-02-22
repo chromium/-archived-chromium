@@ -8,7 +8,6 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "grit/theme_resources.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -34,10 +33,10 @@
 #include "chrome/views/radio_button.h"
 #include "chrome/views/table_view.h"
 #include "chrome/views/text_field.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
-
-#include "chromium_strings.h"
-#include "generated_resources.h"
 
 static const int kStartupRadioGroup = 1;
 static const int kHomePageRadioGroup = 2;
