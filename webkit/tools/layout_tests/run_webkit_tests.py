@@ -101,8 +101,11 @@ class TestRunner:
       self._PrepareListsAndPrintOutput()
 
   def __del__(self):
+    logging.info("flushing stdout")
     sys.stdout.flush()
+    logging.info("flushing stderr")
     sys.stderr.flush()
+    logging.info("stopping http server")
     # Stop the http server.
     self._http_server.Stop()
 

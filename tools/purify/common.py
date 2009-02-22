@@ -83,6 +83,8 @@ def RunSubprocess(proc, timeout=0, detach=False):
     # TODO(erikkay): should we buffer stderr and stdout separately?
     p = subprocess.Popen(proc, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+  logging.info("started subprocess")
+
   # How long to wait (in seconds) before printing progress log messages.
   progress_delay = 300
   progress_delay_time = time.time() + progress_delay
@@ -111,6 +113,11 @@ def RunSubprocess(proc, timeout=0, detach=False):
       did_timeout = time.time() > wait_until
 
   if did_timeout:
+    logging.info("process timed out")
+  else:
+    logging.info("process ended, did not time out")
+
+  if did_timeout:
     subprocess.call(["taskkill", "/T", "/F", "/PID", str(p.pid)])
     logging.error("KILLED %d" % p.pid)
     # Give the process a chance to actually die before continuing
@@ -121,8 +128,10 @@ def RunSubprocess(proc, timeout=0, detach=False):
   elif not detach:
     for line in p.stdout.readlines():
       _print_line(line, False)
+    logging.info("flushing stdout")
     p.stdout.flush()
 
+  logging.info("collecting result code")
   result = p.poll()
   if result:
     logging.error("%s exited with non-zero result code %d" % (proc[0], result))
