@@ -11,7 +11,6 @@
 #include "base/task.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
@@ -90,6 +89,7 @@ void DownloadFile::Cancel() {
 
 // The UI has provided us with our finalized name.
 bool DownloadFile::Rename(const FilePath& new_path) {
+#if defined(OS_WIN)
   Close();
 
   // We cannot rename because rename will keep the same security descriptor
@@ -111,6 +111,11 @@ bool DownloadFile::Rename(const FilePath& new_path) {
   if (!Open("a+b"))
     return false;
   return true;
+#elif defined(OS_POSIX)
+  // TODO(port): Port this function to posix (we need file_util::Rename()).
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 void DownloadFile::Close() {

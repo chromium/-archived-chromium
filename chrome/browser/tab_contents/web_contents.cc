@@ -13,6 +13,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/js_before_unload_handler.h"
@@ -25,6 +26,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_switches.h"
@@ -43,14 +45,12 @@
 // TODO(port): fill these in as we flesh out the implementation of this class
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/character_encoding.h"
-#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/modal_html_dialog_delegate.h"
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
-#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
 #include "chrome/common/resource_bundle.h"
 #endif

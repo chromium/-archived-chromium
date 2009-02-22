@@ -77,7 +77,14 @@ struct hash<const std::string> {
   size_t operator()(const std::string& s) const {
     return std::tr1::hash<std::string>()(s);
   }
-};  
+};
+
+template<>
+struct hash<long long> {
+  size_t operator()(long long i) const {
+    return std::tr1::hash<long>()((long) i);
+  }
+};
 
 }
 

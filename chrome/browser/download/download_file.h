@@ -51,6 +51,7 @@
 #include "base/ref_counted.h"
 #include "base/thread.h"
 #include "base/timer.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/history/download_types.h"
 
 namespace net {
@@ -263,7 +264,7 @@ class DownloadFileManager
   // RequestMap maps a DownloadManager to all in-progress download IDs.
   // Called only on the UI thread.
   typedef base::hash_set<int> DownloadRequests;
-  typedef base::hash_map<DownloadManager*, DownloadRequests> RequestMap;
+  typedef std::map<DownloadManager*, DownloadRequests> RequestMap;
   RequestMap requests_;
 
   // Used for progress updates on the UI thread, mapping download->id() to bytes

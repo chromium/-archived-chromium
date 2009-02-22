@@ -58,6 +58,7 @@ class CommandLine;
 class ConstrainedWindow;
 class CPCommandInterface;
 class DOMUIHost;
+class DownloadItem;
 class DownloadManager;
 class HistoryService;
 class LoginHandler;
@@ -235,48 +236,6 @@ class PrintJobManager {
 
 }  // namespace printing
 
-struct DownloadBuffer {
-  Lock lock;
-  typedef std::pair<net::IOBuffer*, int> Contents;
-  std::vector<Contents> contents;
-};
-
-class DownloadItem {
-public:
-  void Remove(bool delete_file) { NOTIMPLEMENTED(); }
-  void Update(int64 bytes_so_far) { NOTIMPLEMENTED(); }
-  void Cancel(bool update_history) { NOTIMPLEMENTED(); }
-  void Finished(int64 size) { NOTIMPLEMENTED(); }
-  void set_total_bytes(int64 total_bytes) { NOTIMPLEMENTED(); }
-  enum DownloadState {
-    IN_PROGRESS,
-    COMPLETE,
-    CANCELLED,
-    REMOVING
-  };
-};
-
-class DownloadFileManager
-    : public base::RefCountedThreadSafe<DownloadFileManager> {
- public:
-  DownloadFileManager(MessageLoop* ui_loop, ResourceDispatcherHost* rdh) {
-    NOTIMPLEMENTED();
-  }
-  void Initialize() { NOTIMPLEMENTED(); }
-  void Shutdown() { NOTIMPLEMENTED(); }
-  MessageLoop* file_loop() const {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-  int GetNextId() {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  void StartDownload(DownloadCreateInfo* info) { NOTIMPLEMENTED(); }
-  void UpdateDownload(int id, DownloadBuffer* buffer) { NOTIMPLEMENTED(); }
-  void DownloadFinished(int id, DownloadBuffer* buffer) { NOTIMPLEMENTED(); }
-};
-
 class DownloadRequestManager
     : public base::RefCountedThreadSafe<DownloadRequestManager> {
  public:
@@ -447,6 +406,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   virtual gfx::NativeView GetNativeView() const { return NULL; }
   static TabContentsFactory* RegisterFactory(TabContentsType type,
                                              TabContentsFactory* factory);
+  void OnStartDownload(DownloadItem* download) { NOTIMPLEMENTED(); }
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
@@ -506,30 +466,6 @@ class WindowSizer {
 
 //---------------------------------------------------------------------------
 // These stubs are for Profile
-
-class DownloadManager : public base::RefCountedThreadSafe<DownloadManager> {
- public:
-  bool Init(Profile* profile) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  void DownloadUrl(const GURL& url, const GURL& referrer,
-                   WebContents* web_contents) { NOTIMPLEMENTED(); }
-  int RemoveDownloadsBetween(const base::Time remove_begin,
-                             const base::Time remove_end) {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  void ClearLastDownloadPath() { NOTIMPLEMENTED(); }
-  int in_progress_count() {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-  void GenerateSafeFilename(const std::string& mime_type,
-                            FilePath* file_name) {
-    NOTIMPLEMENTED();
-  }
-};
 
 class TemplateURLFetcher {
  public:

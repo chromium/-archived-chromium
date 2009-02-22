@@ -8,6 +8,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/password_manager/password_manager.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
-#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/spellchecker.h"
@@ -58,10 +58,10 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   Browser::RegisterUserPrefs(user_prefs);
   PasswordManager::RegisterUserPrefs(user_prefs);
   chrome_browser_net::RegisterUserPrefs(user_prefs);
+  DownloadManager::RegisterUserPrefs(user_prefs);
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
   BookmarkBarView::RegisterUserPrefs(user_prefs);
   BookmarkTableView::RegisterUserPrefs(user_prefs);
-  DownloadManager::RegisterUserPrefs(user_prefs);
   SSLManager::RegisterUserPrefs(user_prefs);
 #endif
   AutofillManager::RegisterUserPrefs(user_prefs);

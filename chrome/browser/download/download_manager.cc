@@ -8,17 +8,14 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
-#include "base/registry.h"
 #include "base/string_util.h"
 #include "base/task.h"
 #include "base/thread.h"
 #include "base/timer.h"
 #include "base/rand_util.h"
-#include "base/win_util.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_file.h"
-#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -33,11 +30,18 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
-#include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
+
+#if defined(OS_WIN)
+// TODO(port): some of these need porting.
+#include "base/registry.h"
+#include "base/win_util.h"
+#include "chrome/browser/download/download_util.h"
+#include "chrome/common/win_util.h"
+#endif
 
 #include "generated_resources.h"
 
@@ -88,6 +92,7 @@ static int GetUniquePathNumber(const FilePath& path) {
   return -1;
 }
 
+#if defined(OS_WIN)
 static bool DownloadPathIsDangerous(const FilePath& download_path) {
   FilePath desktop_dir;
   if (!PathService::Get(chrome::DIR_USER_DESKTOP, &desktop_dir)) {
@@ -96,6 +101,7 @@ static bool DownloadPathIsDangerous(const FilePath& download_path) {
   }
   return (download_path == desktop_dir);
 }
+#endif
 
 // DownloadItem implementation -------------------------------------------------
 
@@ -103,18 +109,18 @@ static bool DownloadPathIsDangerous(const FilePath& download_path) {
 DownloadItem::DownloadItem(const DownloadCreateInfo& info)
     : id_(-1),
       full_path_(info.path),
-      original_name_(info.original_name),
       url_(info.url),
       total_bytes_(info.total_bytes),
       received_bytes_(info.received_bytes),
-      start_tick_(0),
+      start_tick_(base::TimeTicks()),
       state_(static_cast<DownloadState>(info.state)),
       start_time_(info.start_time),
       db_handle_(info.db_handle),
       manager_(NULL),
-      safety_state_(SAFE),
       is_paused_(false),
       open_when_complete_(false),
+      safety_state_(SAFE),
+      original_name_(info.original_name),
       render_process_id_(-1),
       request_id_(-1) {
   if (state_ == IN_PROGRESS)
@@ -137,17 +143,17 @@ DownloadItem::DownloadItem(int32 download_id,
       full_path_(path),
       path_uniquifier_(path_uniquifier),
       url_(url),
-      original_name_(original_name),
       total_bytes_(download_size),
       received_bytes_(0),
-      start_tick_(GetTickCount()),
+      start_tick_(base::TimeTicks::Now()),
       state_(IN_PROGRESS),
       start_time_(start_time),
       db_handle_(kUninitializedHandle),
       manager_(NULL),
-      safety_state_(is_dangerous ? DANGEROUS : SAFE),
       is_paused_(false),
       open_when_complete_(false),
+      safety_state_(is_dangerous ? DANGEROUS : SAFE),
+      original_name_(original_name),
       render_process_id_(render_process_id),
       request_id_(request_id) {
   Init(true /* start progress timer */);
@@ -248,8 +254,9 @@ bool DownloadItem::TimeRemaining(base::TimeDelta* remaining) const {
 }
 
 int64 DownloadItem::CurrentSpeed() const {
-  uintptr_t diff = GetTickCount() - start_tick_;
-  return diff == 0 ? 0 : received_bytes_ * 1000 / diff;
+  base::TimeDelta diff = base::TimeTicks::Now() - start_tick_;
+  int64 diff_ms = diff.InMilliseconds();
+  return diff_ms == 0 ? 0 : received_bytes_ * 1000 / diff_ms;
 }
 
 int DownloadItem::PercentComplete() const {
@@ -291,6 +298,8 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kDownloadExtensionsToOpen, L"");
   prefs->RegisterBooleanPref(prefs::kDownloadDirUpgraded, false);
 
+// TODO(port): port the necessary bits of chrome_paths.
+#if defined(OS_WIN)
   // The default download path is userprofile\download.
   FilePath default_download_path;
   if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
@@ -313,6 +322,7 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
     }
     prefs->SetBoolean(prefs::kDownloadDirUpgraded, true);
   }
+#endif
 }
 
 DownloadManager::DownloadManager()
@@ -475,6 +485,8 @@ bool DownloadManager::Init(Profile* profile) {
   DCHECK(prefs);
   prompt_for_download_.Init(prefs::kPromptForDownload, prefs, NULL);
 
+// TODO(port): enable this after implementing chrome_paths for posix.
+#if defined(OS_WIN)
   download_path_.Init(prefs::kDownloadDefaultDirectory, prefs, NULL);
 
   // This variable is needed to resolve which CreateDirectory we want to point
@@ -489,14 +501,18 @@ bool DownloadManager::Init(Profile* profile) {
   // We store any file extension that should be opened automatically at
   // download completion in this pref.
   download_util::InitializeExeTypes(&exe_types_);
+#elif defined(OS_POSIX)
+  NOTIMPLEMENTED();
+#endif
 
   std::wstring extensions_to_open =
       prefs->GetString(prefs::kDownloadExtensionsToOpen);
   std::vector<std::wstring> extensions;
   SplitString(extensions_to_open, L':', &extensions);
   for (size_t i = 0; i < extensions.size(); ++i) {
-    if (!extensions[i].empty() && !IsExecutable(extensions[i]))
-      auto_open_.insert(extensions[i]);
+    if (!extensions[i].empty() && !IsExecutable(
+        FilePath::FromWStringHack(extensions[i]).value()))
+      auto_open_.insert(FilePath::FromWStringHack(extensions[i]).value());
   }
 
   return true;
@@ -609,6 +625,7 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
 }
 
 void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
+#if defined(OS_WIN)
   DCHECK(MessageLoop::current() == ui_loop_);
   DCHECK(info);
 
@@ -632,6 +649,10 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     // No prompting for download, just continue with the suggested name.
     ContinueStartDownload(info, info->suggested_path);
   }
+#elif defined(OS_POSIX)
+  // TODO(port): port this file -- need dialogs.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void DownloadManager::ContinueStartDownload(DownloadCreateInfo* info,
@@ -802,8 +823,7 @@ void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
   download->UpdateObservers();
 
   // Open the download if the user or user prefs indicate it should be.
-  const std::wstring extension =
-      file_util::GetFileExtensionFromPath(download->full_path());
+  const FilePath::StringType extension = download->full_path().Extension();
   if (download->open_when_complete() || ShouldOpenFileExtension(extension))
     OpenDownloadInShell(download, NULL);
 }
@@ -940,7 +960,7 @@ void DownloadManager::OnPauseDownloadRequest(ResourceDispatcherHost* rdh,
 
 bool DownloadManager::IsDangerous(const FilePath& file_name) {
   // TODO(jcampan): Improve me.
-  return IsExecutable(file_util::GetFileExtensionFromPath(file_name));
+  return IsExecutable(file_name.Extension());
 }
 
 void DownloadManager::RenameDownload(DownloadItem* download,
@@ -994,7 +1014,7 @@ int DownloadManager::RemoveDownloadsBetween(const base::Time remove_begin,
         (state == DownloadItem::COMPLETE ||
          state == DownloadItem::CANCELLED)) {
       // Remove from the map and move to the next in the list.
-      it = downloads_.erase(it);
+      downloads_.erase(it++);
 
       // Also remove it from any completed dangerous downloads.
       DownloadMap::iterator dit = dangerous_finished_.find(download->id());
@@ -1075,9 +1095,11 @@ void DownloadManager::GenerateExtension(
   FilePath::StringType extension(
       file_util::GetFileExtensionFromPath(file_name));
 
+#if defined(OS_WIN)
   // Rename shell-integrated extensions.
   if (win_util::IsShellIntegratedExtension(extension))
     extension.assign(default_extension);
+#endif
 
   std::string mime_type_from_extension;
   net::GetMimeTypeFromFile(file_name,
@@ -1233,7 +1255,17 @@ void DownloadManager::SaveAutoOpens() {
     }
     if (!extensions.empty())
       extensions.erase(extensions.size() - 1);
-    prefs->SetString(prefs::kDownloadExtensionsToOpen, extensions);
+
+    std::wstring extensions_w;
+#if defined(OS_WIN)
+    extensions_w = extensions;
+#elif defined(OS_POSIX)
+    // TODO(port): this is not correct since FilePath::StringType is not
+    // necessarily UTF8.
+    extensions_w = UTF8ToWide(extensions);
+#endif
+
+    prefs->SetString(prefs::kDownloadExtensionsToOpen, extensions_w);
   }
 }
 
@@ -1288,6 +1320,7 @@ void DownloadManager::GenerateSafeFilename(const std::string& mime_type,
   // Prepend "_" to the file name if it's a reserved name
   FilePath::StringType leaf_name = file_name->BaseName().value();
   DCHECK(!leaf_name.empty());
+#if defined(OS_WIN)
   if (win_util::IsReservedName(leaf_name)) {
     leaf_name = FilePath::StringType(FILE_PATH_LITERAL("_")) + leaf_name;
     *file_name = file_name->DirName();
@@ -1297,6 +1330,9 @@ void DownloadManager::GenerateSafeFilename(const std::string& mime_type,
       *file_name = file_name->Append(leaf_name);
     }
   }
+#elif defined(OS_POSIX)
+  NOTIMPLEMENTED();
+#endif
 }
 
 // Operations posted to us from the history service ----------------------------

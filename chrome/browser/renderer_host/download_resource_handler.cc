@@ -4,14 +4,8 @@
 
 #include "chrome/browser/renderer_host/download_resource_handler.h"
 
-#if defined(OS_POSIX)
-// TODO(port): Remove the temporary scaffolding after porting the headers below.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#elif defined(OS_WIN)
 #include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/download_manager.h"
-#endif
-
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "net/base/io_buffer.h"
 

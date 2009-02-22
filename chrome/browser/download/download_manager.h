@@ -51,8 +51,14 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/browser/shell_dialogs.h"
 #include "chrome/common/pref_member.h"
+
+#if defined(OS_WIN)
+// TODO(port): port this header.
+#include "chrome/browser/shell_dialogs.h"
+#elif defined(OS_POSIX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class DownloadFileManager;
 class DownloadItemView;
@@ -231,7 +237,7 @@ class DownloadItem {
   int64 received_bytes_;
 
   // Start time for calculating remaining time
-  uintptr_t start_tick_;
+  base::TimeTicks start_tick_;
 
   // The current state of this download
   DownloadState state_;

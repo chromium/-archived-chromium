@@ -4,8 +4,8 @@
 //
 // Download creation struct used for querying the history service.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_TYPES_H__
-#define CHROME_BROWSER_DOWNLOAD_TYPES_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_TYPES_H_
+#define CHROME_BROWSER_DOWNLOAD_TYPES_H_
 
 #include <string>
 #include <vector>
@@ -70,5 +70,5 @@ struct DownloadCreateInfo {
   FilePath original_name;
 };
 
-#endif  // CHROME_BROWSER_DOWNLOAD_TYPES_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_TYPES_H_
 

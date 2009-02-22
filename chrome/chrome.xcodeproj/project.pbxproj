@@ -305,8 +305,10 @@
 		8CB218DCFAC761AC876C6531 /* ssl_blocking_page.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16ECB0F21451600861FAC /* ssl_blocking_page.cc */; };
 		8F51B73AAAF1772ECF9BD180 /* url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 778D7927798B7E3FAA498D3D /* url_fetcher.cc */; };
 		9084D27A4F8690E6FD31083B /* session_backend.cc in Sources */ = {isa = PBXBuildFile; fileRef = 35AC9D9A03545594C102C5C1 /* session_backend.cc */; };
+		928300674E414B42615BA4F0 /* download_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9CE0E9D48CE009A6919 /* download_manager.cc */; };
 		94542322A5E5A8F4FDDAB7F0 /* render_view_host_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E42AD0F28EDB5009A7E88 /* render_view_host_manager.cc */; };
 		96DF109FEE9B09B11690F1FA /* infobar_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9CF0F1EC32700106F0D /* infobar_delegate.cc */; };
+		970EF19CD8A79CF3D0DF4B61 /* download_file.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9CA0E9D48CE009A6919 /* download_file.cc */; };
 		97DD178B77011735FE4399E9 /* file_descriptor_set_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = D74DA6A9031CAE292790BD5E /* file_descriptor_set_unittest.cc */; };
 		9E85B39CA40439D93CE52E60 /* fav_icon_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8760E9D4839009A6919 /* fav_icon_helper.cc */; };
 		A0BC9272AD709E86D492DAEC /* bookmark_storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = D941DBEFD8B8B537DE8A4DAE /* bookmark_storage.cc */; };
@@ -5454,6 +5456,8 @@
 				4D7BFA7C0E9D4994009A6919 /* dns_host_info.cc in Sources */,
 				28283DBE4B6DB2B0F9893676 /* dns_master.cc in Sources */,
 				E4F324550EE5CFB1002533CE /* download_database.cc in Sources */,
+				970EF19CD8A79CF3D0DF4B61 /* download_file.cc in Sources */,
+				928300674E414B42615BA4F0 /* download_manager.cc in Sources */,
 				E43A77170F16616E00ABD5D1 /* download_resource_handler.cc in Sources */,
 				E45075E30F150A6F003BE099 /* download_throttling_resource_handler.cc in Sources */,
 				E4F324470EE5CF1F002533CE /* expire_history_backend.cc in Sources */,

@@ -11,6 +11,7 @@
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
+#include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/metrics/metrics_service.h"
@@ -29,7 +30,6 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/automation/automation_provider_list.h"
-#include "chrome/browser/download/download_file.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/common/clipboard_service.h"
