@@ -55,7 +55,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // Initialize the crash reporter.
   InitCrashReporter(client.GetDLLPath());
 
-  bool exit_now = false;
+  bool exit_now = true;
   if (ShowRestartDialogIfCrashed(&exit_now)) {
     // We have restarted because of a previous crash. The user might
     // decide that he does not want to continue.
@@ -87,6 +87,14 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 
   // Initialize the crash reporter.
   InitCrashReporter(client_util::GetDLLPath(dll_name, dll_path));
+
+  bool exit_now = true;
+  if (ShowRestartDialogIfCrashed(&exit_now)) {
+    // We have restarted because of a previous crash. The user might
+    // decide that he does not want to continue.
+    if (exit_now)
+      return ResultCodes::NORMAL_EXIT;
+  }
 
   if (NULL != dll_handle) {
     client_util::DLL_MAIN entry = reinterpret_cast<client_util::DLL_MAIN>(

@@ -129,9 +129,11 @@ long WINAPI ChromeExceptionFilter(EXCEPTION_POINTERS* info) {
 bool ShowRestartDialogIfCrashed(bool* exit_now) {
   if (!::GetEnvironmentVariableW(env_vars::kShowRestart, NULL, 0))
     return false;
+
   DWORD len = ::GetEnvironmentVariableW(env_vars::kRestartInfo, NULL, 0);
   if (!len)
-    return false;
+    return true;
+
   wchar_t* restart_data = new wchar_t[len + 1];
   ::GetEnvironmentVariableW(env_vars::kRestartInfo, restart_data, len);
   restart_data[len] = 0;
@@ -141,7 +143,7 @@ bool ShowRestartDialogIfCrashed(bool* exit_now) {
   SplitString(restart_data, L'|', &dlg_strings);
   delete[] restart_data;
   if (dlg_strings.size() < 3)
-    return false;
+    return true;
 
   // If the UI layout is right-to-left, we need to pass the appropriate MB_XXX
   // flags so that an RTL message box is displayed.
