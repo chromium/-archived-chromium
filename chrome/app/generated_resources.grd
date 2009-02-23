@@ -559,8 +559,8 @@ each locale. -->
       <message name="IDS_SHOW_BOOKMARK_BAR" desc="The toggle to show the bookmark bar">
         &amp;Always show bookmarks bar
       </message>
-      <message name="IDS_CLEAR_BROWSING_DATA" desc="The text label for the menu item for clearing of browing data">
-        Clear browsing &amp;data...
+      <message name="IDS_CLEAR_BROWSING_DATA" desc="The text label for the menu item for clearing of browsing data">
+        &amp;Clear browsing data...
       </message>
       <message name="IDS_SHOW_DOWNLOADS" desc="The show downloads menu in the app menu">
         &amp;Downloads
@@ -569,7 +569,7 @@ each locale. -->
         &amp;Options
       </message>
       <message name="IDS_HELP_PAGE" desc="The text label of the Help menu item">
-        Help
+        H&amp;elp
       </message>
       <message name="IDS_ABOUT" desc="The text label of the About Chrome menu item">
         About &amp;<ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph>
