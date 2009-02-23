@@ -1,0 +1,23 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.Append(
+    CPPDEFINES = [
+        'WEBKIT_IMPLEMENTATION'
+    ],
+    CPPPATH = [
+        '$WEBKIT_DIR/build/WebCore',
+        '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/public',
+    ]
+)
+
+input_files = [
+  '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebString.cpp',
+]
+
+env.ChromeLibrary('WebKit', input_files)

@@ -229,6 +229,7 @@ sconscript_dirs = env.ChromiumLoadComponentSConscripts(
   bindings = 'build/port/SConscript',
   V8Bindings = 'build/V8Bindings/SConscript',
   WebCore = 'build/WebCore/SConscript',
+  WebKit = 'build/WebKit/SConscript',
   default_plugin = 'default_plugin/SConscript',
   glue = 'glue/SConscript',
   npapi_test_plugin = 'glue/plugins/test/SConscript',
