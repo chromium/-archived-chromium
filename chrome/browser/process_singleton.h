@@ -23,7 +23,7 @@
 //
 // Implementation notes:
 // - the Windows implementation uses an invisible global message window;
-// - the Linux implementation uses a Unix domain socket in ~/.chromium.
+// - the Linux implementation uses a Unix domain socket in the user data dir.
 
 class ProcessSingleton {
  public:

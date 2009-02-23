@@ -10,21 +10,27 @@
 
 namespace chrome {
 
-// Use ~/.chromium/ for Chromium and ~/.google/chrome for official builds.  We
-// use ~/.google/chrome because ~/.google/ is already used by other Google
-// Linux apps.
+// See http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+// for a spec on where config files go.  The net effect for most
+// systems is we use ~/.config/chromium/ for Chromium and
+// ~/.config/google-chrome/ for official builds.
+// (This also helps us sidestep issues with other apps grabbing ~/.chromium .)
 bool GetDefaultUserDataDirectory(FilePath* result) {
-  // The glib documentation says that g_get_home_dir doesn't honor HOME so we
-  // should try that first.
-  const char* home_dir = g_getenv("HOME");
-  if (!home_dir)
-    home_dir = g_get_home_dir();
-  *result = FilePath(home_dir);
+  FilePath config_dir;
+  const char* config_home = g_getenv("XDG_CONFIG_HOME");
+  if (config_home && config_home[0]) {
+    config_dir = FilePath(config_home);
+  } else {
+    const char* home_dir = g_getenv("HOME");
+    if (!home_dir)
+      home_dir = g_get_home_dir();
+    config_dir = FilePath(home_dir).Append(".config");
+  }
+
 #if defined(GOOGLE_CHROME_BUILD)
-  *result = result->Append(".google");
-  *result = result->Append("chrome");
+  *result = config_dir.Append("google-chrome");
 #else
-  *result = result->Append(".chromium");
+  *result = config_dir.Append("chromium");
 #endif
   return true;
 }
