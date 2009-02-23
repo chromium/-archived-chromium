@@ -44,7 +44,7 @@ bool FileURLToFilePath(const GURL& url, std::wstring* file_path);
 // Saves the result into |*host| and |*port|. If the input did not have
 // the optional port, sets |*port| to -1.
 // Returns true if the parsing was successful, false otherwise.
-// TODO(eroman): support IPv6 literals.
+// The returned host is NOT canonicalized, and may be invalid.
 bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
                     std::string::const_iterator host_and_port_end,
                     std::string* host,

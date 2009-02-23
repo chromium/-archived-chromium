@@ -747,11 +747,10 @@ TEST(NetUtilTest, GetHostAndPort) {
     {"foo:10", true, "foo", 10},
     {"foo", true, "foo", -1},
     {
-      // TODO(eroman): support IPv6 literals.
       "[1080:0:0:0:8:800:200C:4171]:11",
-      false,
-      "",
-      -1,
+      true,
+      "[1080:0:0:0:8:800:200C:4171]",
+      11,
     },
     // Invalid inputs:
     {"foo:bar", false, "", -1},
@@ -760,6 +759,12 @@ TEST(NetUtilTest, GetHostAndPort) {
     {":80", false, "", -1},
     {"", false, "", -1},
     {"porttoolong:300000", false, "", -1},
+    {"usrname@host", false, "", -1},
+    {"usrname:password@host", false, "", -1},
+    {":password@host", false, "", -1},
+    {":password@host:80", false, "", -1},
+    {":password@host", false, "", -1},
+    {"@host", false, "", -1},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
