@@ -554,14 +554,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\fullscreen_exit_bubble.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\fullscreen_exit_bubble.h"
-			>
-		</File>
-		<File
 			RelativePath=".\go_button.cc"
 			>
 		</File>

@@ -44,9 +44,6 @@ std::wstring Accelerator::GetShortcutText() const {
   case VK_F1:
     string_id = IDS_F1_KEY;
     break;
-  case VK_F11:
-    string_id = IDS_F11_KEY;
-    break;
   }
 
   std::wstring shortcut;
