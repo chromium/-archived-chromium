@@ -57,7 +57,7 @@ DownloadStartedAnimation::DownloadStartedAnimation(TabContents* tab_contents)
   popup_->Init(tab_contents_->GetNativeView(), rc, false);
   popup_->SetContentsView(this);
   Reposition();
-  popup_->ShowWindow(SW_SHOWNOACTIVATE);
+  popup_->Show();
 
   Start();
 }

@@ -478,7 +478,7 @@ void StatusBubbleViews::Init() {
     popup_->Init(frame_->GetHWND(), rc, false);
     popup_->SetContentsView(view_);
     Reposition();
-    popup_->ShowWindow(SW_SHOWNOACTIVATE);
+    popup_->Show();
   }
 }
 

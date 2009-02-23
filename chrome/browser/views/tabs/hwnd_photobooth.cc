@@ -151,7 +151,7 @@ void HWNDPhotobooth::CreateCaptureWindow(HWND initial_hwnd) {
   capture_window_->Init(NULL, capture_bounds, false);
   // If the capture window isn't visible, blitting from the TabContents'
   // HWND's DC to the capture bitmap produces blankness.
-  capture_window_->ShowWindow(SW_SHOWNOACTIVATE);
+  capture_window_->Show();
   SetLayeredWindowAttributes(
       capture_window_->GetHWND(), RGB(0xFF, 0xFF, 0xFF), 0xFF, LWA_ALPHA);
 

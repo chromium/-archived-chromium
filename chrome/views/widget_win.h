@@ -152,6 +152,9 @@ class WidgetWin : public Widget,
   // Hides the window. This does NOT delete the window, it just hides it.
   virtual void Hide();
 
+  // Shows the window without changing size/position/activation state.
+  virtual void Show();
+
   // Closes the window synchronously.  Note that this should not be called from
   // an ATL message callback as it deletes the WidgetWin and ATL will
   // dereference it after the callback is processed.
