@@ -26,6 +26,22 @@ class Label : public View {
                    ALIGN_CENTER,
                    ALIGN_RIGHT };
 
+  // The following enum is used to indicate whether using the Chrome UI's
+  // alignment as the label's alignment, or autodetecting the label's
+  // alignment.
+  //
+  // If the label text originates from the Chrome UI, we should use the Chrome
+  // UI's alignment as the label's alignment.
+  //
+  // If the text originates from a web page, the text's alignment is determined
+  // based on the first character with strong directionality, disregarding what
+  // directionality the Chrome UI is. And its alignment will not be flipped
+  // around in RTL locales.
+  enum RTLAlignmentMode {
+    USE_UI_ALIGNMENT = 0,
+    AUTO_DETECT_ALIGNMENT
+  };
+
   // The view class name.
   static const char kViewClassName[];
 
@@ -81,9 +97,28 @@ class Label : public View {
   // Return a reference to the currently used color
   virtual const SkColor GetColor() const;
 
-  // Alignment
+  // Set horizontal alignment. If the locale is RTL, and the RTL alignment
+  // setting is set as USE_UI_ALIGNMENT, the alignment is flipped around.
+  //
+  // Caveat: for labels originating from a web page, the RTL alignment mode
+  // should be reset to AUTO_DETECT_ALIGNMENT before the horizontal alignment
+  // is set. Otherwise, the label's alignment specified as a parameter will be
+  // flipped in RTL locales. Please see the comments in SetRTLAlignmentMode for
+  // more information.
   void SetHorizontalAlignment(Alignment a);
+
   Alignment GetHorizontalAlignment() const;
+
+  // Set the RTL alignment mode. The RTL alignment mode is initialized to
+  // USE_UI_ALIGNMENT when the label is constructed. USE_UI_ALIGNMENT applies
+  // to every label that originates from the Chrome UI. However, if the label
+  // originates from a web page, its alignment should not be flipped around for
+  // RTL locales. For such labels, we need to set the RTL alignment mode to
+  // AUTO_DETECT_ALIGNMENT so that subsequent SetHorizontalAlignment() calls
+  // will not flip the label's alignment around.
+  void SetRTLAlignmentMode(RTLAlignmentMode mode);
+
+  RTLAlignmentMode GetRTLAlignmentMode() const;
 
   // Set whether the label text can wrap on multiple lines.
   // Default is false
@@ -192,6 +227,10 @@ class Label : public View {
   scoped_ptr<Background> mouse_over_background_;
   // Whether to collapse the label when it's not visible.
   bool collapse_when_hidden_;
+  // The following member variable is used to control whether the alignment
+  // needs to be flipped around for RTL locales. Please refer to the definition
+  // of RTLAlignmentMode for more information.
+  RTLAlignmentMode rtl_alignment_mode_;
 
   DISALLOW_COPY_AND_ASSIGN(Label);
 };

@@ -43,8 +43,9 @@ JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
         reply_msg_(reply_msg),
         dialog_flags_(dialog_flags),
         dialog_(NULL),
-        message_box_view_(new MessageBoxView(dialog_flags, message_text,
-                                             default_prompt_text)) {
+        message_box_view_(new MessageBoxView(
+            dialog_flags | MessageBoxView::kAutoDetectAlignment,
+            message_text, default_prompt_text)) {
   DCHECK(message_box_view_);
   DCHECK(reply_msg_);
 

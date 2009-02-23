@@ -94,7 +94,24 @@ void MessageBoxView::ViewHierarchyChanged(bool is_add,
 void MessageBoxView::Init(int dialog_flags,
                           const std::wstring& default_prompt) {
   message_label_->SetMultiLine(true);
-  message_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+  if (dialog_flags & kAutoDetectAlignment) {
+    // Determine the alignment and directionality based on the first character
+    // with strong directionality.
+    l10n_util::TextDirection direction =
+        l10n_util::GetFirstStrongCharacterDirection(message_label_->GetText());
+    views::Label::Alignment alignment;
+    if (direction == l10n_util::RIGHT_TO_LEFT)
+      alignment = views::Label::ALIGN_RIGHT;
+    else
+      alignment = views::Label::ALIGN_LEFT;
+    // In addition, we should set the RTL alignment mode as
+    // AUTO_DETECT_ALIGNMENT so that the alignment will not be flipped around
+    // in RTL locales.
+    message_label_->SetRTLAlignmentMode(views::Label::AUTO_DETECT_ALIGNMENT);
+    message_label_->SetHorizontalAlignment(alignment);
+  } else {
+    message_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+  }
 
   if (dialog_flags & kFlagHasPromptField) {
     prompt_field_ = new views::TextField;

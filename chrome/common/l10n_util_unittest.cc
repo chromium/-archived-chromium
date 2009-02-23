@@ -160,6 +160,102 @@ TEST_F(L10nUtilTest, GetAppLocale) {
   Locale::setDefault(locale, error_code);
 }
 
+TEST_F(L10nUtilTest, GetFirstStrongCharacterDirection) {
+  // Test pure LTR string.
+  std::wstring string(L"foo bar");
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string in which the first character with strong directionality
+  // is a character with type L.
+  string.assign(L"foo \x05d0 bar");
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string in which the first character with strong directionality
+  // is a character with type R.
+  string.assign(L"\x05d0 foo bar");
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string which starts with a character with weak directionality
+  // and in which the first character with strong directionality is a character
+  // with type L.
+  string.assign(L"!foo \x05d0 bar");
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string which starts with a character with weak directionality
+  // and in which the first character with strong directionality is a character
+  // with type R.
+  string.assign(L",\x05d0 foo bar");
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string in which the first character with strong directionality
+  // is a character with type LRE.
+  string.assign(L"\x202a \x05d0 foo  bar");
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string in which the first character with strong directionality
+  // is a character with type LRO.
+  string.assign(L"\x202d \x05d0 foo  bar");
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string in which the first character with strong directionality
+  // is a character with type RLE.
+  string.assign(L"\x202b foo \x05d0 bar");
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string in which the first character with strong directionality
+  // is a character with type RLO.
+  string.assign(L"\x202e foo \x05d0 bar");
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test bidi string in which the first character with strong directionality
+  // is a character with type AL.
+  string.assign(L"\x0622 foo \x05d0 bar");
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test a string without strong directionality characters.
+  string.assign(L",!.{}");
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test empty string.
+  string.assign(L"");
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+  // Test characters in non-BMP (e.g. Phoenician letters. Please refer to
+  // http://demo.icu-project.org/icu-bin/ubrowse?scr=151&b=10910 for more
+  // information).
+#if defined(WCHAR_T_IS_UTF32)
+  string.assign(L" ! \x10910" L"abc 123");
+#elif defined(WCHAR_T_IS_UTF16)
+  string.assign(L" ! \xd802\xdd10" L"abc 123");
+#else
+#error wchar_t should be either UTF-16 or UTF-32
+#endif
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+
+#if defined(WCHAR_T_IS_UTF32)
+  string.assign(L" ! \x10401" L"abc 123");
+#elif defined(WCHAR_T_IS_UTF16)
+  string.assign(L" ! \xd801\xdc01" L"abc 123");
+#else
+#error wchar_t should be either UTF-16 or UTF-32
+#endif
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT,
+            l10n_util::GetFirstStrongCharacterDirection(string));
+}
+
 typedef struct {
   std::wstring path;
   std::wstring wrapped_path;

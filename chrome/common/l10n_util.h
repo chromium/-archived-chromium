@@ -116,6 +116,14 @@ enum TextDirection {
 //  * UNKNOWN_DIRECTION: unknown (or error).
 TextDirection GetTextDirection();
 
+// Given the string in |text|, returns the directionality of the first
+// character with strong directionality in the string. If no character in the
+// text has strong directionality, LEFT_TO_RIGHT is returned. The Bidi
+// character types L, LRE, LRO, R, AL, RLE, and RLO are considered as strong
+// directionality characters. Please refer to http://unicode.org/reports/tr9/
+// for more information.
+TextDirection GetFirstStrongCharacterDirection(const std::wstring& text);
+
 // Given the string in |text|, this function creates a copy of the string with
 // the appropriate Unicode formatting marks that mark the string direction
 // (either left-to-right or right-to-left). The new string is returned in

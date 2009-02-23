@@ -45,6 +45,7 @@ void Label::Init(const std::wstring& text, const ChromeFont& font) {
   horiz_alignment_ = ALIGN_CENTER;
   is_multi_line_ = false;
   collapse_when_hidden_ = false;
+  rtl_alignment_mode_ = USE_UI_ALIGNMENT;
 }
 
 Label::~Label() {
@@ -238,17 +239,16 @@ const SkColor Label::GetColor() const {
 }
 
 void Label::SetHorizontalAlignment(Alignment a) {
+  // If the View's UI layout is right-to-left and rtl_alignment_mode_ is
+  // USE_UI_ALIGNMENT, we need to flip the alignment so that the alignment
+  // settings take into account the text directionality.
+  if (UILayoutIsRightToLeft() && rtl_alignment_mode_ == USE_UI_ALIGNMENT) {
+    if (a == ALIGN_LEFT)
+      a = ALIGN_RIGHT;
+    else if (a == ALIGN_RIGHT)
+      a = ALIGN_LEFT;
+  }
   if (horiz_alignment_ != a) {
-
-    // If the View's UI layout is right-to-left, we need to flip the alignment
-    // so that the alignment settings take into account the text
-    // directionality.
-    if (UILayoutIsRightToLeft()) {
-      if (a == ALIGN_LEFT)
-        a = ALIGN_RIGHT;
-      else if (a == ALIGN_RIGHT)
-        a = ALIGN_LEFT;
-    }
     horiz_alignment_ = a;
     SchedulePaint();
   }
@@ -256,6 +256,14 @@ void Label::SetHorizontalAlignment(Alignment a) {
 
 Label::Alignment Label::GetHorizontalAlignment() const {
   return horiz_alignment_;
+}
+
+void Label::SetRTLAlignmentMode(RTLAlignmentMode mode) {
+  rtl_alignment_mode_ = mode;
+}
+
+Label::RTLAlignmentMode Label::GetRTLAlignmentMode() const {
+  return rtl_alignment_mode_;
 }
 
 void Label::SetMultiLine(bool f) {

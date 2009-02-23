@@ -25,6 +25,22 @@ class MessageBoxView : public views::View {
   static const int kFlagHasPromptField = 0x4;
   static const int kFlagHasMessage = 0x8;
 
+  // The following flag is used to indicate whether the message's alignment
+  // should be autodetected or inherited from Chrome UI. Callers should pass
+  // the correct flag based on the origin of the message. If the message is
+  // from a web page (such as the JavaScript alert message), its alignment and
+  // directionality are based on the first character with strong directionality
+  // in the message. Chrome UI strings are localized string and therefore they
+  // should have the same alignment and directionality as those of the Chrome
+  // UI. For example, in RTL locales, even though some strings might begin with
+  // an English character, they should still be right aligned and be displayed
+  // Right-To-Left.
+  //
+  // TODO(xji): If the message is from a web page, then the message
+  // directionality should be determined based on the directionality of the web
+  // page. Please refer to http://crbug.com/7166 for more information.
+  static const int kAutoDetectAlignment = 0x10;
+
   static const int kIsConfirmMessageBox = kFlagHasMessage |
                                           kFlagHasOKButton |
                                           kFlagHasCancelButton;

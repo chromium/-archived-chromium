@@ -61,6 +61,27 @@ TEST(LabelTest, AlignmentProperty) {
       label.GetHorizontalAlignment());
   label.SetHorizontalAlignment(Label::ALIGN_CENTER);
   EXPECT_EQ(Label::ALIGN_CENTER, label.GetHorizontalAlignment());
+
+  // The label's alignment should not be flipped if the RTL alignment mode
+  // is AUTO_DETECT_ALIGNMENT.
+  label.SetRTLAlignmentMode(Label::AUTO_DETECT_ALIGNMENT);
+  label.SetHorizontalAlignment(Label::ALIGN_RIGHT);
+  EXPECT_EQ(Label::ALIGN_RIGHT, label.GetHorizontalAlignment());
+  label.SetHorizontalAlignment(Label::ALIGN_LEFT);
+  EXPECT_EQ(Label::ALIGN_LEFT, label.GetHorizontalAlignment());
+  label.SetHorizontalAlignment(Label::ALIGN_CENTER);
+  EXPECT_EQ(Label::ALIGN_CENTER, label.GetHorizontalAlignment());
+}
+
+TEST(LabelTest, RTLAlignmentModeProperty) {
+  Label label;
+  EXPECT_EQ(Label::USE_UI_ALIGNMENT, label.GetRTLAlignmentMode());
+
+  label.SetRTLAlignmentMode(Label::AUTO_DETECT_ALIGNMENT);
+  EXPECT_EQ(Label::AUTO_DETECT_ALIGNMENT, label.GetRTLAlignmentMode());
+
+  label.SetRTLAlignmentMode(Label::USE_UI_ALIGNMENT);
+  EXPECT_EQ(Label::USE_UI_ALIGNMENT, label.GetRTLAlignmentMode());
 }
 
 TEST(LabelTest, MultiLineProperty) {

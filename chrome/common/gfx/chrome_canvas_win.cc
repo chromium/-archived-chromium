@@ -21,9 +21,14 @@ void DoDrawText(HDC hdc, const std::wstring& text,
   std::wstring localized_text;
   const wchar_t* string_ptr = text.c_str();
   int string_size = static_cast<int>(text.length());
-  if (l10n_util::AdjustStringForLocaleDirection(text, &localized_text)) {
-    string_ptr = localized_text.c_str();
-    string_size = static_cast<int>(localized_text.length());
+  // Only adjust string directionality if both of the following are true:
+  // 1. The current locale is RTL.
+  // 2. The string itself has RTL directionality.
+  if (flags & DT_RTLREADING) {
+    if (l10n_util::AdjustStringForLocaleDirection(text, &localized_text)) {
+      string_ptr = localized_text.c_str();
+      string_size = static_cast<int>(localized_text.length());
+    }
   }
 
   DrawText(hdc, string_ptr, string_size, text_bounds, flags);
@@ -31,7 +36,7 @@ void DoDrawText(HDC hdc, const std::wstring& text,
 
 // Compute the windows flags necessary to implement the provided text
 // ChromeCanvas flags.
-int ComputeFormatFlags(int flags) {
+int ComputeFormatFlags(int flags, const std::wstring& text) {
   int f = 0;
 
   // Setting the text alignment explicitly in case it hasn't already been set.
@@ -82,9 +87,30 @@ int ComputeFormatFlags(int flags) {
   // English) this flag also makes sure that if there is not enough space to
   // display the entire string, the ellipsis is displayed on the left hand side
   // of the truncated string and not on the right hand side.
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
-    f |= DT_RTLREADING;
-
+  //
+  // We make a distinction between Chrome UI strings and text coming from a web
+  // page.
+  //
+  // For text coming from a web page we determine the alignment based on the
+  // first character with strong directionality. If the directionality of the
+  // first character with strong directionality in the text is LTR, the
+  // alignment is set to DT_LEFT, and the directionality should not be set as
+  // DT_RTLREADING.
+  //
+  // This heuristic doesn't work for Chrome UI strings since even in RTL
+  // locales, some of those might start with English text but we know they're
+  // localized so we always want them to be right aligned, and their
+  // directionality should be set as DT_RTLREADING.
+  //
+  // Caveat: If the string is purely LTR, don't set DTL_RTLREADING since when
+  // the flag is set, LRE-PDF don't have the desired effect of rendering
+  // multiline English-only text as LTR.
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT &&
+      (f & DT_RIGHT)) {
+    if (l10n_util::StringContainsStrongRTLChars(text)) {
+      f |= DT_RTLREADING;
+    }
+  }
   return f;
 }
 
@@ -115,7 +141,7 @@ void ChromeCanvas::SizeStringInt(const std::wstring& text,
     b.right = 1;
   }
   b.bottom = *height;
-  DoDrawText(dc, text, &b, ComputeFormatFlags(flags) | DT_CALCRECT);
+  DoDrawText(dc, text, &b, ComputeFormatFlags(flags, text) | DT_CALCRECT);
 
   // Restore the old font. This way we don't have to worry if the caller
   // deletes the font and the DC lives longer.
@@ -141,7 +167,7 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
                              SkColorGetB(color));
   SetTextColor(dc, brush_color);
 
-  int f = ComputeFormatFlags(flags);
+  int f = ComputeFormatFlags(flags, text);
   DoDrawText(dc, text, &text_bounds, f);
   endPlatformPaint();
 

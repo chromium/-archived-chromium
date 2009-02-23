@@ -502,6 +502,40 @@ TextDirection GetTextDirection() {
   return g_text_direction;
 }
 
+TextDirection GetFirstStrongCharacterDirection(const std::wstring& text) {
+#if defined(WCHAR_T_IS_UTF32)
+  string16 text_utf16 = WideToUTF16(text);
+  const UChar* string = text_utf16.c_str();
+#else
+  const UChar* string = text.c_str();
+#endif
+  size_t length = text.length();
+  size_t position = 0;
+  while (position < length) {
+    UChar32 character;
+    size_t next_position = position;
+    U16_NEXT(string, next_position, length, character);
+
+    // Now that we have the character, we use ICU in order to query for the
+    // appropriate Unicode BiDi character type.
+    int32_t property = u_getIntPropertyValue(character, UCHAR_BIDI_CLASS);
+    if ((property == U_RIGHT_TO_LEFT) ||
+        (property == U_RIGHT_TO_LEFT_ARABIC) ||
+        (property == U_RIGHT_TO_LEFT_EMBEDDING) ||
+        (property == U_RIGHT_TO_LEFT_OVERRIDE)) {
+      return RIGHT_TO_LEFT;
+    } else if ((property == U_LEFT_TO_RIGHT) ||
+               (property == U_LEFT_TO_RIGHT_EMBEDDING) ||
+               (property == U_LEFT_TO_RIGHT_OVERRIDE)) {
+      return LEFT_TO_RIGHT;
+    }
+
+    position = next_position;
+  }
+
+  return LEFT_TO_RIGHT;
+}
+
 bool AdjustStringForLocaleDirection(const std::wstring& text,
                                     std::wstring* localized_text) {
   if (GetTextDirection() == LEFT_TO_RIGHT || text.length() == 0)
