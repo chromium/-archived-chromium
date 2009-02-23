@@ -479,7 +479,7 @@ linux_env.Replace(
     # ideal world we would only make groups from those libraries which we knew
     # to be in cycles. However, that's tough with SCons, so we bodge it by
     # making all the archives a group by redefining the linking command here.
-    SHLINKCOM = ('$SHLINK -shared -o $TARGET $SHLINKFLAGS $SOURCES '
+    SHLINKCOM = ('$SHLINK -o $TARGET $SHLINKFLAGS $SOURCES '
                  '$_LIBDIRFLAGS '
                  '-Wl,--start-group $_LIBFLAGS -Wl,--end-group'),
     LINKCOM = ('$LINK -o $TARGET $LINKFLAGS $SOURCES '

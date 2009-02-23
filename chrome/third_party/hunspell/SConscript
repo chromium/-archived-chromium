@@ -106,12 +106,24 @@ input_files = ChromeFileList([
   MSVSFilter('google', [
     'google/bdict.h',
     'google/bdict_affentry.h',
-    'google/bdict_reader.cc',
     'google/bdict_reader.h',
-    'google/bdict_writer.cc',
     'google/bdict_writer.h',
   ]),
 ])
+
+if env.Bit('linux'):
+  bdict_reader_o = env.ChromeObject('google/bdict_reader.cc')
+  input_files.Append(bdict_reader_o)
+  bdict_writer_o = env.ChromeObject('google/bdict_writer.cc')
+  input_files.Append(bdict_writer_o)
+  Export('bdict_reader_o', 'bdict_writer_o')
+else:
+  input_files.Append(
+    MSVSFilter('google', [
+      'google/bdict_reader.cc',
+      'google/bdict_writer.cc',
+    ]),
+  )
 
 env.ChromeLibrary('hunspell', input_files)
 

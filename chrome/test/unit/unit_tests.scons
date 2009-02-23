@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 Import('env')
+Import('bdict_reader_o', 'bdict_writer_o')
 
 env = env.Clone()
 
@@ -238,9 +239,9 @@ input_files = ChromeFileList([
     '$CHROME_DIR/tools/convert_dict/aff_reader$OBJSUFFIX',
     '$CHROME_DIR/tools/convert_dict/aff_reader.h',
     '$CHROME_DIR/third_party/hunspell/google/bdict.h',
-    '$CHROME_DIR/third_party/hunspell/google/bdict_reader$OBJSUFFIX',
+    bdict_reader_o,
     '$CHROME_DIR/third_party/hunspell/google/bdict_reader.h',
-    '$CHROME_DIR/third_party/hunspell/google/bdict_writer$OBJSUFFIX',
+    bdict_writer_o,
     '$CHROME_DIR/third_party/hunspell/google/bdict_writer.h',
     '$CHROME_DIR/tools/convert_dict/dic_reader$OBJSUFFIX',
     '$CHROME_DIR/tools/convert_dict/dic_reader.h',

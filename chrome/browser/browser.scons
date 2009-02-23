@@ -21,6 +21,13 @@ env.SConscript([
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
 
+env.Append(
+    LIBS = [
+        'debugger',
+        'glue',
+    ],
+)
+
 env.Prepend(
     CPPPATH = [
         '$CHROME_DIR/app',

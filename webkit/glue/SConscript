@@ -9,7 +9,14 @@ env = env.Clone()
 env.Append(
     CPPPATH = [
         '$WEBKIT_DIR/build/WebCore',
-    ]
+    ],
+    LIBS = [
+        'port',
+        'renderer',
+        'V8Bindings',
+        'WebCore',
+        'WTF',
+    ],
 )
 
 if env.Bit('windows'):

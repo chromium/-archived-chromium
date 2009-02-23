@@ -33,7 +33,11 @@ if env.Bit('posix'):
 env.Append(
     CPPPATH = [
         '$THIRD_PARTY_DIR/sqlite/preprocessed'
-    ]
+    ],
+    LIBS = [
+        'V8Bindings',
+        'JavaScriptCore_pcre',
+    ],
 )
 
 input_files = [

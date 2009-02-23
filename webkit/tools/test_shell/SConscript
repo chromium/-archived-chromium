@@ -30,6 +30,7 @@ env.Append(
         'port',
         'base',
         'base_gfx',
+        'browser',
         'googleurl',
         'net',
         'sdch',

@@ -21,6 +21,12 @@ env.Prepend(
     ],
 )
 
+env.Append(
+    LIBS = [
+        'common',
+    ],
+)
+
 if env.Bit('windows'):
   env.Prepend(
       CPPPATH = [
