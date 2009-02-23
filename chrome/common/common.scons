@@ -238,8 +238,6 @@ if not env.Bit('windows'):
       'gfx/path.cc',
       'os_exchange_data.cc',
       'process_watcher.cc',
-      'child_process_host.cc',
-      'child_process_host.h',
   )
 
 if not env.Bit('windows'):

@@ -5,9 +5,12 @@
 #ifndef CHROME_BROWSER_PLUGIN_PROCESS_HOST_H_
 #define CHROME_BROWSER_PLUGIN_PROCESS_HOST_H_
 
+#include "build/build_config.h"
+
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
@@ -87,7 +90,7 @@ class PluginProcessHost : public ChildProcessHost,
   // Message handlers.
   void OnChannelCreated(int process_id, const std::wstring& channel_name);
   void OnDownloadUrl(const std::string& url, int source_pid,
-                     HWND caller_window);
+                     gfx::NativeWindow caller_window);
   void OnGetPluginFinderUrl(std::string* plugin_finder_url);
   void OnRequestResource(const IPC::Message& message,
                          int request_id,
@@ -103,14 +106,17 @@ class PluginProcessHost : public ChildProcessHost,
   void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);
   void OnPluginShutdownRequest();
   void OnPluginMessage(const std::vector<uint8>& data);
+
+#if defined(OS_WIN)
   void OnCreateWindow(HWND parent, IPC::Message* reply_msg);
   void OnDestroyWindow(HWND window);
+#endif
 
   struct ChannelRequest {
     ChannelRequest(ResourceMessageFilter* renderer_message_filter,
-                    const std::string& m, IPC::Message* r) :
-        renderer_message_filter_(renderer_message_filter), mime_type(m),
-        reply_msg(r) { }
+                   const std::string& m, IPC::Message* r) :
+        mime_type(m), reply_msg(r),
+        renderer_message_filter_(renderer_message_filter) { }
     std::string mime_type;
     IPC::Message* reply_msg;
     scoped_refptr<ResourceMessageFilter> renderer_message_filter_;

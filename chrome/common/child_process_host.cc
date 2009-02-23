@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/singleton.h"
+#include "base/waitable_event.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
@@ -40,9 +41,10 @@ class ChildNotificationTask : public Task {
 ChildProcessHost::ChildProcessHost(
     ProcessType type, MessageLoop* main_message_loop)
     : ChildProcessInfo(type),
+      ALLOW_THIS_IN_INITIALIZER_LIST(listener_(this)),
       main_message_loop_(main_message_loop),
       opening_channel_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(listener_(this)) {
+      process_event_(NULL) {
   Singleton<ChildProcessList>::get()->push_back(this);
 }
 
@@ -69,9 +71,13 @@ bool ChildProcessHost::CreateChannel() {
 }
 
 void ChildProcessHost::SetHandle(base::ProcessHandle process) {
-  DCHECK(handle() == NULL);
+#if defined(OS_WIN)
+  process_event_.reset(new base::WaitableEvent(process));
+
+  DCHECK(!handle());
   set_handle(process);
-  watcher_.StartWatching(process, this);
+  watcher_.StartWatching(process_event_.get(), this);
+#endif
 }
 
 void ChildProcessHost::InstanceCreated() {
@@ -91,7 +97,9 @@ void ChildProcessHost::Notify(NotificationType type) {
       FROM_HERE, new ChildNotificationTask(type, this));
 }
 
-void ChildProcessHost::OnObjectSignaled(HANDLE object) {
+void ChildProcessHost::OnWaitableEventSignaled(base::WaitableEvent *event) {
+#if defined(OS_WIN)
+  HANDLE object = event->handle();
   DCHECK(handle());
   DCHECK_EQ(object, handle());
 
@@ -102,11 +110,10 @@ void ChildProcessHost::OnObjectSignaled(HANDLE object) {
   }
   // Notify in the main loop of the disconnection.
   Notify(NotificationType::CHILD_PROCESS_HOST_DISCONNECTED);
+#endif
 
   delete this;
 }
-
-
 
 ChildProcessHost::ListenerHook::ListenerHook(ChildProcessHost* host)
     : host_(host) {

@@ -5,10 +5,13 @@
 #ifndef CHROME_COMMON_CHILD_PROCESS_HOST_H_
 #define CHROME_COMMON_CHILD_PROCESS_HOST_H_
 
+#include "build/build_config.h"
+
 #include <list>
 
 #include "base/basictypes.h"
-#include "base/object_watcher.h"
+#include "base/scoped_ptr.h"
+#include "base/waitable_event_watcher.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/ipc_channel.h"
 
@@ -18,7 +21,7 @@ class NotificationType;
 // Plugins/workers and other child processes that live on the IO thread should
 // derive from this class.
 class ChildProcessHost : public ChildProcessInfo,
-                         public base::ObjectWatcher::Delegate,
+                         public base::WaitableEventWatcher::Delegate,
                          public IPC::Channel::Listener,
                          public IPC::Message::Sender {
  public:
@@ -72,8 +75,8 @@ class ChildProcessHost : public ChildProcessInfo,
   // Sends the given notification to the notification service on the UI thread.
   void Notify(NotificationType type);
 
-  // ObjectWatcher::Delegate implementation:
-  virtual void OnObjectSignaled(HANDLE object);
+  // WaitableEventWatcher::Delegate implementation:
+  virtual void OnWaitableEventSignaled(base::WaitableEvent *event);
 
   // By using an internal class as the IPC::Channel::Listener, we can intercept
   // OnMessageReceived/OnChannelConnected and do our own processing before
@@ -102,7 +105,9 @@ class ChildProcessHost : public ChildProcessInfo,
   std::wstring channel_id_;
 
   // Used to watch the child process handle.
-  base::ObjectWatcher watcher_;
+  base::WaitableEventWatcher watcher_;
+
+  scoped_ptr<base::WaitableEvent> process_event_;
 };
 
 #endif  // CHROME_COMMON_CHILD_PROCESS_HOST_H_

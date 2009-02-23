@@ -11,19 +11,13 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/browser/chrome_thread.h"
+#include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "webkit/glue/plugins/plugin_list.h"
-
-#if defined(OS_WIN)
-// TODO(port): port this file and get rid of child_process_info.h include.
-#include "chrome/browser/plugin_process_host.h"
-#else
-#include "chrome/common/child_process_info.h"
-#endif
 
 // static
 PluginService* PluginService::GetInstance() {

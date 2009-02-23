@@ -713,7 +713,6 @@ if not env.Bit('windows'):
       'google_update.cc',
       'password_manager/encryptor.cc',
       'plugin_installer.cc',
-      'plugin_process_host.cc',
       'printing/page_overlays.cc',
       'printing/print_job.cc',
       'printing/print_job_manager.cc',

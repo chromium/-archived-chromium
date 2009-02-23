@@ -256,6 +256,21 @@ class DownloadRequestManager
 
 namespace sandbox {
 
+enum ResultCode {
+  SBOX_ALL_OK = 0,
+  SBOX_ERROR_GENERIC = 1,
+  SBOX_ERROR_BAD_PARAMS = 2,
+  SBOX_ERROR_UNSUPPORTED = 3,
+  SBOX_ERROR_NO_SPACE = 4,
+  SBOX_ERROR_INVALID_IPC = 5,
+  SBOX_ERROR_FAILED_IPC = 6,
+  SBOX_ERROR_NO_HANDLE = 7,
+  SBOX_ERROR_UNEXPECTED_CALL = 8,
+  SBOX_ERROR_WAIT_ALREADY_CALLED = 9,
+  SBOX_ERROR_CHANNEL_ERROR = 10,
+  SBOX_ERROR_LAST
+};
+
 class BrokerServices {
  public:
   void Init() { NOTIMPLEMENTED(); }
@@ -566,58 +581,6 @@ class PrintViewManager {
 class PluginInstaller {
  public:
   PluginInstaller(WebContents*) { }
-};
-
-class ChildProcessHost : public ChildProcessInfo {
- public:
-  class Iterator {
-   public:
-    explicit Iterator(ProcessType type) { NOTIMPLEMENTED(); }
-    ChildProcessInfo* operator->() { return *iterator_; }
-    ChildProcessInfo* operator*() { return *iterator_; }
-    ChildProcessInfo* operator++() { return NULL; }
-    bool Done() {
-      NOTIMPLEMENTED();
-      return true;
-    }
-   private:
-    std::list<ChildProcessInfo*>::iterator iterator_;
-  };
- protected:
-  ChildProcessHost(ProcessType type, MessageLoop* main_message_loop)
-      : ChildProcessInfo(type) {
-    NOTIMPLEMENTED();
-  }
-};
-
-class PluginProcessHost : public ChildProcessHost {
- public:
-  explicit PluginProcessHost(MessageLoop* main_message_loop)
-      : ChildProcessHost(PLUGIN_PROCESS, main_message_loop) {
-    NOTIMPLEMENTED();
-  }
-  bool Init(const WebPluginInfo& info,
-            const std::string& activex_clsid,
-            const std::wstring& locale) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void OpenChannelToPlugin(ResourceMessageFilter* renderer_message_filter,
-                           const std::string& mime_type,
-                           IPC::Message* reply_msg) {
-    NOTIMPLEMENTED();
-  }
-  static void ReplyToRenderer(ResourceMessageFilter* renderer_message_filter,
-                              const std::wstring& channel,
-                              const FilePath& plugin_path,
-                              IPC::Message* reply_msg) {
-    NOTIMPLEMENTED();
-  }
-  void Shutdown() { NOTIMPLEMENTED(); }
-  const WebPluginInfo& info() const { return info_; }
- private:
-  WebPluginInfo info_;
-  DISALLOW_EVIL_CONSTRUCTORS(PluginProcessHost);
 };
 
 class HungRendererWarning {
