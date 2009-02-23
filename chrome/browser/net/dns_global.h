@@ -23,8 +23,9 @@ namespace chrome_browser_net {
 // functions.
 void InitDnsPrefetch(PrefService* user_prefs);
 
-// Cancel pending lookup requests and don't make new ones.
-void ShutdownDnsPrefetch();
+// Cancel pending lookup requests and don't make new ones. Does nothing
+// if dns prefetching has not been initialized (to simplify its usage).
+void EnsureDnsPrefetchShutdown();
 
 // Free all resources allocated by InitDnsPrefetch. After that you must not call
 // any function from this file.

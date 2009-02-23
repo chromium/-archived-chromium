@@ -399,9 +399,9 @@ void InitDnsPrefetch(PrefService* user_prefs) {
   }
 }
 
-void ShutdownDnsPrefetch() {
-  DCHECK(NULL != dns_master);
-  dns_master->Shutdown();
+void EnsureDnsPrefetchShutdown() {
+  if (NULL != dns_master)
+    dns_master->Shutdown();
 }
 
 void FreeDnsPrefetchResources() {

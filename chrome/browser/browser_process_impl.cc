@@ -178,7 +178,7 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   // Shutdown DNS prefetching now to ensure that network stack objects
   // living on the IO thread get destroyed before the IO thread goes away.
   io_thread_->message_loop()->PostTask(FROM_HERE,
-      NewRunnableFunction(chrome_browser_net::ShutdownDnsPrefetch));
+      NewRunnableFunction(chrome_browser_net::EnsureDnsPrefetchShutdown));
 
   // Need to stop io_thread_ before resource_dispatcher_host_, since
   // io_thread_ may still deref ResourceDispatcherHost and handle resource
