@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #import "chrome/browser/browser.h"
-#import "chrome/browser/browser_window_cocoa.h"
-#import "chrome/browser/browser_window_controller.h"
+#import "chrome/browser/cocoa/browser_window_cocoa.h"
+#import "chrome/browser/cocoa/browser_window_controller.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 

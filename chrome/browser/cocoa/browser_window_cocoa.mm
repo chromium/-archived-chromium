@@ -4,8 +4,8 @@
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
-#include "chrome/browser/browser_window_cocoa.h"
-#include "chrome/browser/browser_window_controller.h"
+#include "chrome/browser/cocoa/browser_window_cocoa.h"
+#include "chrome/browser/cocoa/browser_window_controller.h"
 
 BrowserWindowCocoa::BrowserWindowCocoa(BrowserWindowController* controller, 
                                        NSWindow* window)
