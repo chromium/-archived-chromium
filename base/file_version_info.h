@@ -83,6 +83,8 @@ class FileVersionInfo {
   explicit FileVersionInfo(NSBundle *bundle);
   
   NSBundle *bundle_;
+#elif defined(OS_LINUX)
+  FileVersionInfo();
 #endif
 
   DISALLOW_EVIL_CONSTRUCTORS(FileVersionInfo);
