@@ -801,8 +801,6 @@ DEFER : LayoutTests/animations/big-rotation.html = FAIL PASS
 // We should be able to pass this -- not sure what's wrong.
 LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 
-// Red pixels -- probably font metrics?  Ugh.
-LINUX : LayoutTests/css2.1/t100801-c548-ln-ht-04-d-ag.html = FAIL
 // Text is different, likely just needs a rebaseline.
 LINUX : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
 
@@ -1810,3 +1808,7 @@ LayoutTests/fast/js/function-toString-semicolon-insertion.html = FAIL
 // Flaky since the merge.
 LINUX : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL PASS
 
+// It's not clear that the test isn't wrong here. It believes that middle 
+// aligning 15px Ahem should end up in a certain spot. But we have the  
+// x-height correct and we're still one px off. 
+LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
