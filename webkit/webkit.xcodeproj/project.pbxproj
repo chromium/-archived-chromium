@@ -82,6 +82,7 @@
 		53AAC3800F291F4400233688 /* ThreadableLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC37F0F291F4300233688 /* ThreadableLoader.cpp */; };
 		53AAC3940F291FCF00233688 /* HTTPHeaderMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53AAC3930F291FCF00233688 /* HTTPHeaderMap.cpp */; };
 		53E8BE100EC36A4E00B3F8B0 /* dom_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405050D92E3DA0006B936 /* dom_operations.cc */; };
+		566052DC068676E155832F81 /* ClipboardChromiumMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCDC4E96B39738447FC99B69 /* ClipboardChromiumMac.cpp */; };
 		58E986F9F1CA5FC0A89313B0 /* webview_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4A48A12D02638BF9107FD26D /* webview_delegate.cc */; };
 		6B873B9C0A9CB97EE5F350BC /* V8DOMWindowCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31C1FF1C3BB820B928CFE9BD /* V8DOMWindowCustom.cpp */; };
 		7B1438070E7874FC00901940 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
@@ -4408,6 +4409,7 @@
 		B85EBAF470DCB5F664CB69B1 /* RenderBoxModelObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderBoxModelObject.cpp; sourceTree = "<group>"; };
 		C1174C9D4E12AB30D653019A /* Playback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Playback.cpp; path = port/bindings/v8/extensions/Playback.cpp; sourceTree = SOURCE_ROOT; };
 		CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurrentTime.cpp; sourceTree = "<group>"; };
+		CCDC4E96B39738447FC99B69 /* ClipboardChromiumMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ClipboardChromiumMac.cpp; path = ../third_party/WebKit/WebCore/platform/chromium/ClipboardChromiumMac.cpp; sourceTree = SOURCE_ROOT; };
 		E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RefCountedLeakCounter.cpp; sourceTree = "<group>"; };
 		E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollatorICU.cpp; sourceTree = "<group>"; };
 		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Collator.h; sourceTree = "<group>"; };
@@ -4771,6 +4773,7 @@
 				4CDA86D8A0B62BD0EBF07D78 /* AnimationControllerPrivate.h */,
 				7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */,
 				31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */,
+				CCDC4E96B39738447FC99B69 /* ClipboardChromiumMac.cpp */,
 			);
 			sourceTree = "<group>";
 		};
@@ -8727,6 +8730,7 @@
 				AB7FC2380F44ED820083BB25 /* ClientRectList.cpp in Sources */,
 				9384444C0F16B0570075F4C5 /* Clipboard.cpp in Sources */,
 				9384444D0F16B0570075F4C5 /* ClipboardChromium.cpp in Sources */,
+				566052DC068676E155832F81 /* ClipboardChromiumMac.cpp in Sources */,
 				9384444E0F16B0570075F4C5 /* ClipboardEvent.cpp in Sources */,
 				9384444F0F16B0570075F4C5 /* ClipboardUtilitiesChromium.cpp in Sources */,
 				938444500F16B0570075F4C5 /* Color.cpp in Sources */,

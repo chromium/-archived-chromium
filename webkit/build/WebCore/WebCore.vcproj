@@ -2236,6 +2236,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\ClipboardChromiumWin.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\ClipboardChromium.h"
 					>
 				</File>
