@@ -227,9 +227,12 @@ NET_ERROR(RESPONSE_HEADERS_TOO_BIG, -325)
 // The PAC requested by HTTP did not have a valid status code (non-200).
 NET_ERROR(PAC_STATUS_NOT_OK, -326)
 
+// The evaluation of the PAC script failed.
+NET_ERROR(PAC_SCRIPT_FAILED, -327)
+
 // The response was 401 (Unauthorized), yet the request was a CONNECT request
 // to a proxy.
-NET_ERROR(UNEXPECTED_SERVER_AUTH, -327)
+NET_ERROR(UNEXPECTED_SERVER_AUTH, -328)
 
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
