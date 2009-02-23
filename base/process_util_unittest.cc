@@ -181,7 +181,8 @@ MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
 #endif  // defined(OS_LINUX)
   num_open_files -= expected_num_open_fds;
 
-  write(write_pipe, &num_open_files, sizeof(num_open_files));
+  ssize_t written = write(write_pipe, &num_open_files, sizeof(num_open_files));
+  DCHECK_EQ(written, sizeof(num_open_files));
   close(write_pipe);
 
   return 0;
@@ -190,7 +191,8 @@ MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
 TEST_F(ProcessUtilTest, FDRemapping) {
   // Open some files to check they don't get leaked to the child process.
   int fds[2];
-  pipe(fds);
+  if (pipe(fds) < 0)
+    NOTREACHED();
   int pipe_read_fd = fds[0];
   int pipe_write_fd = fds[1];
 
