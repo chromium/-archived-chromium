@@ -291,20 +291,25 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
       damage_rect.width(),
       damage_rect.height()
     };
+
+    // Only render the widget if it is attached to a window; there's a short
+    // period where this object isn't attached to a window but hasn't been
+    // Destroy()ed yet and it receives paint messages...
     GdkWindow* window = view_->window;
-    DCHECK(window) << "Trying to impossibly paint object " << view_;
+    if (window) {
+      gdk_window_begin_paint_rect(window, &grect);
 
-    gdk_window_begin_paint_rect(window, &grect);
+      skia::PlatformDeviceLinux &platdev =
+          backing_store->canvas()->getTopPlatformDevice();
+      skia::BitmapPlatformDeviceLinux* const bitdev =
+          static_cast<skia::BitmapPlatformDeviceLinux* >(&platdev);
+      cairo_t* cairo_drawable = gdk_cairo_create(window);
+      cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
+      cairo_paint(cairo_drawable);
+      cairo_destroy(cairo_drawable);
+      gdk_window_end_paint(window);
+    }
 
-    skia::PlatformDeviceLinux &platdev =
-        backing_store->canvas()->getTopPlatformDevice();
-    skia::BitmapPlatformDeviceLinux* const bitdev =
-        static_cast<skia::BitmapPlatformDeviceLinux* >(&platdev);
-    cairo_t* cairo_drawable = gdk_cairo_create(window);
-    cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
-    cairo_paint(cairo_drawable);
-    cairo_destroy(cairo_drawable);
-    gdk_window_end_paint(window);
   } else {
     NOTIMPLEMENTED();
   }

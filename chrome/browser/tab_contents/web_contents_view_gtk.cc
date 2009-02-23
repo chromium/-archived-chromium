@@ -12,6 +12,15 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
+namespace {
+
+// Callback used in WebContentsViewGtk::CreateViewForWidget().
+void RemoveWidget(GtkWidget* widget, void* container) {
+  gtk_container_remove(GTK_CONTAINER(container), widget);
+}
+
+}  // namespace
+
 // static
 WebContentsView* WebContentsView::Create(WebContents* web_contents) {
   return new WebContentsViewGtk(web_contents);
@@ -40,6 +49,7 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   RenderWidgetHostViewGtk* view =
       new RenderWidgetHostViewGtk(render_widget_host);
   gtk_widget_show(view->native_view());
+  gtk_container_foreach(GTK_CONTAINER(vbox_), RemoveWidget, vbox_);
   gtk_box_pack_start(GTK_BOX(vbox_), view->native_view(), TRUE, TRUE, 0);
   return view;
 }
