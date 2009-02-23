@@ -72,11 +72,11 @@ bool DownloadFile::Initialize() {
   return false;
 }
 
-// FIXME bug 595247: handle errors on file writes.
 bool DownloadFile::AppendDataToFile(const char* data, int data_len) {
   if (file_) {
-    fwrite(data, 1, data_len, file_);
-    bytes_so_far_ += data_len;
+    // FIXME bug 595247: handle errors on file writes.
+    size_t written = fwrite(data, 1, data_len, file_);
+    bytes_so_far_ += written;
     return true;
   }
   return false;

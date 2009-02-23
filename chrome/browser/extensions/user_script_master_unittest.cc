@@ -14,7 +14,10 @@
 #include "chrome/common/notification_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-// Test bringing up a master on a specific directory, putting a script in there, etc.
+namespace {
+
+// Test bringing up a master on a specific directory, putting a script
+// in there, etc.
 
 class UserScriptMasterTest : public testing::Test,
                              public NotificationObserver {
@@ -69,6 +72,8 @@ class UserScriptMasterTest : public testing::Test,
   base::SharedMemory* shared_memory_;
 };
 
+}  // namespace
+
 // Test that we *don't* get spurious notifications.
 TEST_F(UserScriptMasterTest, NoScripts) {
   // Set shared_memory_ to something non-NULL, so we can check it became NULL.
@@ -92,10 +97,9 @@ TEST_F(UserScriptMasterTest, NewScripts) {
 
   FilePath path = script_dir_.AppendASCII("script.user.js");
 
-  FILE* file = file_util::OpenFile(path, "w");
   const char content[] = "some content";
-  fwrite(content, 1, arraysize(content), file);
-  file_util::CloseFile(file);
+  int written = file_util::WriteFile(path, content, sizeof(content));
+  ASSERT_EQ(written, sizeof(content));
 
   message_loop_.Run();
 
@@ -106,10 +110,9 @@ TEST_F(UserScriptMasterTest, NewScripts) {
 TEST_F(UserScriptMasterTest, ExistingScripts) {
   FilePath path = script_dir_.AppendASCII("script.user.js");
 
-  FILE* file = file_util::OpenFile(path, "w");
   const char content[] = "some content";
-  fwrite(content, 1, arraysize(content), file);
-  file_util::CloseFile(file);
+  int written = file_util::WriteFile(path, content, sizeof(content));
+  ASSERT_EQ(written, sizeof(content));
 
   scoped_refptr<UserScriptMaster> master(
       new UserScriptMaster(MessageLoop::current(), script_dir_));
