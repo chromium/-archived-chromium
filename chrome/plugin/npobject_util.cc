@@ -2,12 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// TODO(port) Just compile an empty file on posix so we can generate the
+// libplugin target needed by other targets. This whole file does compile (see
+// r9934), but it doesn't link because of undefined refs to files which aren't
+// compiling yet (e.g. npobject_proxy stuff).
+#if defined(OS_WIN)
 #include "chrome/plugin/npobject_util.h"
 
-#if defined(OS_WIN)
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
-#endif
 
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/plugin_channel_base.h"
@@ -248,4 +251,5 @@ void CreateNPVariant(const NPVariant_Param& param,
       NOTREACHED();
   }
 }
+#endif
 #endif
