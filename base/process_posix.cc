@@ -29,7 +29,10 @@ bool Process::IsProcessBackgrounded() const {
 
 bool Process::SetProcessBackgrounded(bool value) {
   NOTIMPLEMENTED();
-  return false;
+  // Just say we did it to keep renderer happy at the moment.  Need to finish
+  // cleaning this up w/in higher layers since windows is probably the only
+  // one that can raise priorities w/o privileges.
+  return true;
 }
 
 bool Process::ReduceWorkingSet() {
