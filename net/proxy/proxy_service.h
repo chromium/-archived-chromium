@@ -5,6 +5,7 @@
 #ifndef NET_PROXY_PROXY_SERVICE_H_
 #define NET_PROXY_PROXY_SERVICE_H_
 
+#include <deque>
 #include <map>
 #include <string>
 #include <vector>
@@ -17,6 +18,7 @@
 #include "base/waitable_event.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/completion_callback.h"
+#include "net/proxy/proxy_script_fetcher.h"
 #include "net/proxy/proxy_server.h"
 
 class GURL;
@@ -102,6 +104,8 @@ class ProxyService {
   ProxyService(ProxyConfigService* config_service,
                ProxyResolver* resolver);
 
+  ~ProxyService();
+
   // Used internally to handle PAC queries.
   class PacRequest;
 
@@ -156,6 +160,13 @@ class ProxyService {
   // so it falls back to direct connect.
   static ProxyService* CreateNull();
 
+  // Set the ProxyScriptFetcher dependency. This is needed if the ProxyResolver
+  // is of type ProxyResolverWithoutFetch. ProxyService takes ownership of
+  // |proxy_script_fetcher|.
+  void SetProxyScriptFetcher(ProxyScriptFetcher* proxy_script_fetcher) {
+    proxy_script_fetcher_.reset(proxy_script_fetcher);
+  }
+
  private:
   friend class PacRequest;
 
@@ -168,6 +179,37 @@ class ProxyService {
   // Checks to see if the proxy configuration changed, and then updates config_
   // to reference the new configuration.
   void UpdateConfig();
+
+  // Tries to update the configuration if it hasn't been checked in a while.
+  void UpdateConfigIfOld();
+
+  // Returns true if this ProxyService is downloading a PAC script on behalf
+  // of ProxyResolverWithoutFetch. Resolve requests will be frozen until
+  // the fetch has completed.
+  bool IsFetchingPacScript() const {
+    return in_progress_fetch_config_id_ != ProxyConfig::INVALID_ID;
+  }
+
+  // Callback for when the PAC script has finished downloading.
+  void OnScriptFetchCompletion(int result);
+  
+  // Returns ERR_IO_PENDING if the request cannot be completed synchronously.
+  // Otherwise it fills |result| with the proxy information for |url|.
+  // Completing synchronously means we don't need to query ProxyResolver.
+  // (ProxyResolver runs on PAC thread.)
+  int TryToCompleteSynchronously(const GURL& url, ProxyInfo* result);
+
+  // Starts the PAC thread if it isn't already running.
+  void InitPacThread();
+
+  // Starts the next request from |pending_requests_| is possible.
+  // |recent_req| is the request that just got added, or NULL.
+  void ProcessPendingRequests(PacRequest* recent_req);
+
+  // Removes the front entry of the requests queue. |expected_req| is our
+  // expectation of what the front of the request queue is; it is only used by
+  // DCHECK for verification purposes.
+  void RemoveFrontOfRequestQueue(PacRequest* expected_req);
 
   // Called to indicate that a PacRequest completed.  The |config_id| parameter
   // indicates the proxy configuration that was queried.  |result_code| is OK
@@ -200,6 +242,32 @@ class ProxyService {
 
   // Map of the known bad proxies and the information about the retry time.
   ProxyRetryInfoMap proxy_retry_info_;
+
+  // FIFO queue of pending/inprogress requests.
+  typedef std::deque<scoped_refptr<PacRequest> > PendingRequestsQueue;
+  PendingRequestsQueue pending_requests_;
+
+  // The fetcher to use when downloading PAC scripts for the ProxyResolver.
+  // This dependency can be NULL if our ProxyResolver has no need for
+  // external PAC script fetching.
+  scoped_ptr<ProxyScriptFetcher> proxy_script_fetcher_;
+
+  // Callback for when |proxy_script_fetcher_| is done.
+  CompletionCallbackImpl<ProxyService> proxy_script_fetcher_callback_;
+
+  // The ID of the configuration for which we last downloaded a PAC script.
+  // If no PAC script has been fetched yet, will be ProxyConfig::INVALID_ID.
+  ProxyConfig::ID fetched_pac_config_id_;
+
+  // The error corresponding with |fetched_pac_config_id_|, or OK.
+  int fetched_pac_error_;
+
+  // The ID of the configuration for which we are currently downloading the
+  // PAC script. If no fetch is in progress, will be ProxyConfig::INVALID_ID.
+  ProxyConfig::ID in_progress_fetch_config_id_;
+
+  // The results of the current in progress fetch, or empty string.
+  std::string in_progress_fetch_bytes_;
 
   DISALLOW_COPY_AND_ASSIGN(ProxyService);
 };
@@ -324,6 +392,13 @@ class ProxyConfigService {
 // PAC Thread.
 class ProxyResolver {
  public:
+
+  // If a subclass sets |does_fetch| to false, then the owning ProxyResolver
+  // will download PAC scripts on our behalf, and notify changes with
+  // SetPacScript(). Otherwise the subclass is expected to fetch the
+  // PAC script internally, and SetPacScript() will go unused.
+  ProxyResolver(bool does_fetch) : does_fetch_(does_fetch) {}
+
   virtual ~ProxyResolver() {}
 
   // Query the proxy auto-config file (specified by |pac_url|) for the proxy to
@@ -332,6 +407,18 @@ class ProxyResolver {
   virtual int GetProxyForURL(const GURL& query_url,
                              const GURL& pac_url,
                              ProxyInfo* results) = 0;
+
+  // Called whenever the PAC script has changed, with the contents of the
+  // PAC script. |bytes| may be empty string if there was a fetch error.
+  virtual void SetPacScript(const std::string& bytes) {
+    // Must override SetPacScript() if |does_fetch_ = true|.
+    NOTREACHED();
+  }
+
+  bool does_fetch() const { return does_fetch_; }
+
+ protected:
+  bool does_fetch_;
 };
 
 // Wrapper for invoking methods on a ProxyService synchronously.

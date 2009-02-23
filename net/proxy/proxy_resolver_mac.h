@@ -13,6 +13,8 @@ namespace net {
 // proxies.
 class ProxyResolverMac : public ProxyResolver {
  public:
+  ProxyResolverMac() : ProxyResolver(true) {}
+
   // ProxyResolver methods:
   virtual int GetProxyForURL(const GURL& query_url,
                              const GURL& pac_url,

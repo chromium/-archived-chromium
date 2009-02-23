@@ -42,7 +42,7 @@ static void FreeInfo(WINHTTP_PROXY_INFO* info) {
 }
 
 ProxyResolverWinHttp::ProxyResolverWinHttp()
-    : session_handle_(NULL) {
+    : ProxyResolver(true), session_handle_(NULL) {
 }
 
 ProxyResolverWinHttp::~ProxyResolverWinHttp() {

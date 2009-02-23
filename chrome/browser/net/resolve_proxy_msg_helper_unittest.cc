@@ -22,7 +22,8 @@ class MockProxyConfigService: public net::ProxyConfigService {
 // Unblock() is called.
 class MockProxyResolver : public net::ProxyResolver {
  public:
-  explicit MockProxyResolver() : event_(false, false), is_blocked_(false) {
+  MockProxyResolver() : ProxyResolver(true), event_(false, false),
+                        is_blocked_(false) {
   }
 
   virtual int GetProxyForURL(const GURL& query_url,
