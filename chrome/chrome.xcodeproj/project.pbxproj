@@ -603,6 +603,7 @@
 		E765478D55A73228BAD044E3 /* cert_store.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8570E9D4839009A6919 /* cert_store.cc */; };
 		E9104FE91402AE1783A22D93 /* alternate_nav_url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8240E9D4839009A6919 /* alternate_nav_url_fetcher.cc */; };
 		EA8058FD371756B46906B157 /* password_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EB40F21445600861FAC /* password_manager.cc */; };
+		EAB0A6CABCE0435985DA8A70 /* plugin_installer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8DB0E9D4839009A6919 /* plugin_installer.cc */; };
 		EEA5B4CB2EB282403BDE41D7 /* tab_contents.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9E40F1EC32700106F0D /* tab_contents.cc */; };
 		F081CEE97F8C75FEAF3D0FD2 /* jstemplate_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC70E9D4C9F009A6919 /* jstemplate_builder.cc */; };
 		F4143C8C0F4B1D43008C8F73 /* renderer.sb in Resources */ = {isa = PBXBuildFile; fileRef = F4143C8B0F4B1D07008C8F73 /* renderer.sb */; };
@@ -5503,6 +5504,7 @@
 				4D7BFA280E9D490C009A6919 /* page_usage_data.cc in Sources */,
 				E48B6C2C0F27840B002E47EC /* password_form_manager.cc in Sources */,
 				EA8058FD371756B46906B157 /* password_manager.cc in Sources */,
+				EAB0A6CABCE0435985DA8A70 /* plugin_installer.cc in Sources */,
 				1FFE452BCABBD0158B029D4D /* plugin_process_host.cc in Sources */,
 				0A124E6F8B659427ABF96220 /* plugin_service.cc in Sources */,
 				826847800F2F69D1009F6555 /* profile.cc in Sources */,

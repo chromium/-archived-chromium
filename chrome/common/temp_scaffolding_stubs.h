@@ -79,7 +79,6 @@ class SessionCommand;
 class SessionID;
 class SiteInstance;
 class SpellChecker;
-class TabContents;
 class TabContentsDelegate;
 class TabContentsFactory;
 class TabNavigation;
@@ -422,6 +421,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   static TabContentsFactory* RegisterFactory(TabContentsType type,
                                              TabContentsFactory* factory);
   void OnStartDownload(DownloadItem* download) { NOTIMPLEMENTED(); }
+  void RemoveInfoBar(InfoBarDelegate* delegate) { NOTIMPLEMENTED(); }
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
@@ -577,11 +577,6 @@ class PrintViewManager {
   }
 };
 }
-
-class PluginInstaller {
- public:
-  PluginInstaller(WebContents*) { }
-};
 
 class HungRendererWarning {
  public:

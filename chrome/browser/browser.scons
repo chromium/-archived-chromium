@@ -712,7 +712,6 @@ if not env.Bit('windows'):
       'modal_html_dialog_delegate.cc',
       'google_update.cc',
       'password_manager/encryptor.cc',
-      'plugin_installer.cc',
       'printing/page_overlays.cc',
       'printing/print_job.cc',
       'printing/print_job_manager.cc',
