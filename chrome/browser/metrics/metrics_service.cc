@@ -306,6 +306,7 @@ void MetricsService::RegisterPrefs(PrefService* local_state) {
   local_state->RegisterStringPref(prefs::kStabilityLaunchTimeSec, L"0");
   local_state->RegisterStringPref(prefs::kStabilityLastTimestampSec, L"0");
   local_state->RegisterStringPref(prefs::kStabilityUptimeSec, L"0");
+  local_state->RegisterStringPref(prefs::kStabilityStatsVersion, L"");
   local_state->RegisterBooleanPref(prefs::kStabilityExitedCleanly, true);
   local_state->RegisterBooleanPref(prefs::kStabilitySessionEndCompleted, true);
   local_state->RegisterIntegerPref(prefs::kMetricsSessionID, -1);
@@ -334,6 +335,31 @@ void MetricsService::RegisterPrefs(PrefService* local_state) {
   local_state->RegisterIntegerPref(prefs::kNumKeywords, 0);
   local_state->RegisterListPref(prefs::kMetricsInitialLogs);
   local_state->RegisterListPref(prefs::kMetricsOngoingLogs);
+}
+
+// static
+void MetricsService::DiscardOldStabilityStats(PrefService* local_state) {
+  local_state->SetBoolean(prefs::kStabilityExitedCleanly, true);
+
+  local_state->SetInteger(prefs::kStabilityIncompleteSessionEndCount, 0);
+  local_state->SetInteger(prefs::kStabilityBreakpadRegistrationSuccess, 0);
+  local_state->SetInteger(prefs::kStabilityBreakpadRegistrationFail, 0);
+  local_state->SetInteger(prefs::kStabilityDebuggerPresent, 0);
+  local_state->SetInteger(prefs::kStabilityDebuggerNotPresent, 0);
+
+  local_state->SetInteger(prefs::kStabilityLaunchCount, 0);
+  local_state->SetInteger(prefs::kStabilityCrashCount, 0);
+
+  local_state->SetInteger(prefs::kStabilityPageLoadCount, 0);
+  local_state->SetInteger(prefs::kStabilityRendererCrashCount, 0);
+  local_state->SetInteger(prefs::kStabilityRendererHangCount, 0);
+
+  local_state->SetInteger(prefs::kSecurityRendererOnSboxDesktop, 0);
+  local_state->SetInteger(prefs::kSecurityRendererOnDefaultDesktop, 0);
+
+  local_state->SetString(prefs::kStabilityUptimeSec, L"0");
+
+  local_state->ClearPref(prefs::kStabilityPluginStats);
 }
 
 MetricsService::MetricsService()
@@ -549,6 +575,15 @@ void MetricsService::RecordBreakpadHasDebugger(bool has_debugger) {
 void MetricsService::InitializeMetricsState() {
   PrefService* pref = g_browser_process->local_state();
   DCHECK(pref);
+
+  if (WideToUTF8(pref->GetString(prefs::kStabilityStatsVersion)) !=
+      MetricsLog::GetVersionString()) {
+    // This is a new version, so we don't want to confuse the stats about the
+    // old version with info that we upload.
+    DiscardOldStabilityStats(pref);
+    pref->SetString(prefs::kStabilityStatsVersion,
+                    UTF8ToWide(MetricsLog::GetVersionString()));
+  }
 
   client_id_ = WideToUTF8(pref->GetString(prefs::kMetricsClientID));
   if (client_id_.empty()) {
@@ -779,7 +814,7 @@ void MetricsService::PushPendingLogsToUnsentLists() {
       state_ = SEND_OLD_INITIAL_LOGS;
     } else {
       // TODO(jar): Verify correctness in other states, including sending unsent
-      // iniitial logs.
+      // initial logs.
       PushPendingLogTextToUnsentOngoingLogs();
     }
     DiscardPendingLog();

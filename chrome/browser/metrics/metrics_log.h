@@ -103,6 +103,9 @@ class MetricsLog {
   // Return a base64-encoded MD5 hash of the given string.
   static std::string CreateBase64Hash(const std::string& string);
 
+  // Get the current version of the application as a string.
+  static std::string GetVersionString();
+
  protected:
   // Returns a string containing the current time.
   // Virtual so that it can be overridden for testing.
@@ -145,9 +148,6 @@ class MetricsLog {
 
   // Write the attributes that are common to every metrics event type.
   void WriteCommonEventAttributes();
-
-  // Get the current version of the application as a string.
-  std::string GetVersionString() const;
 
   // Returns the date at which the current metrics client ID was created as
   // a string containing milliseconds since the epoch, or "0" if none was found.

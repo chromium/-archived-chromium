@@ -280,7 +280,8 @@ void MetricsLog::EndElement() {
   DCHECK_GE(result, 0);
 }
 
-std::string MetricsLog::GetVersionString() const {
+// static
+std::string MetricsLog::GetVersionString() {
   scoped_ptr<FileVersionInfo> version_info(
       FileVersionInfo::CreateFileVersionInfoForCurrentModule());
   if (version_info.get()) {

@@ -97,6 +97,7 @@ extern const wchar_t kProfileMetrics[];
 extern const wchar_t kProfilePrefix[];
 
 extern const wchar_t kStabilityExitedCleanly[];
+extern const wchar_t kStabilityStatsVersion[];
 extern const wchar_t kStabilitySessionEndCompleted[];
 extern const wchar_t kStabilityLaunchCount[];
 extern const wchar_t kStabilityCrashCount[];

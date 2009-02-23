@@ -283,6 +283,11 @@ const wchar_t kProfilePrefix[] = L"profile-";
 const wchar_t kStabilityExitedCleanly[] =
     L"user_experience_metrics.stability.exited_cleanly";
 
+// Version string of previous run, which is used to assure that stability
+// metrics reported under current version reflect stability of the same version.
+const wchar_t kStabilityStatsVersion[] =
+    L"user_experience_metrics.stability.stats_version";
+
 // False if we received a session end and either we crashed during processing
 // the session end or ran out of time and windows terminated us.
 const wchar_t kStabilitySessionEndCompleted[] =

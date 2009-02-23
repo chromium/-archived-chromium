@@ -122,6 +122,14 @@ class MetricsService : public NotificationObserver,
   class GetPluginListTask;
   class GetPluginListTaskComplete;
 
+  // When we start a new version of Chromium (different from our last run), we
+  // need to discard the old crash stats so that we don't attribute crashes etc.
+  // in the old version to the current version (via current logs).
+  // Without this, a common reason to finally start a new version is to crash
+  // the old version (after an autoupdate has arrived), and so we'd bias
+  // initial results towards showing crashes :-(.
+  static void DiscardOldStabilityStats(PrefService* local_state);
+
   // Sets and gets whether metrics recording is active.
   // SetRecording(false) also forces a persistent save of logging state (if
   // anything has been recorded, or transmitted).
