@@ -937,7 +937,6 @@ if env.Bit('windows'):
 if env.Bit('linux'):
   # Linux specific implementations.
   input_files.extend([
-    '$WEBCORE_DIR/platform/chromium/ClipboardChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/chromium/gtk2drawing.c',
     '$WEBCORE_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
