@@ -323,6 +323,7 @@ LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 LINUX : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 // For these two fast/frames tests it looks like the win baseline had some weird
 // artifacts on the scrollbars on one of the frames, which has now been removed.
 // This artifact does not exist on the mac baseline.
@@ -1749,9 +1750,6 @@ DEFER : LayoutTests/fast/dom/getClientRects.html = FAIL
 DEFER : LayoutTests/fast/dom/navigator-detached-no-crash.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
-// Prior to the merge, the two wagon wheels were exactly the same.
-// Now the left one is slightly different.
-WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 // Upstream dumprendertree changes caused the expected to change.
 // Now our baseline is out of date, and we differ from Mac expected on the
