@@ -822,7 +822,10 @@ void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
   download->UpdateObservers();
 
   // Open the download if the user or user prefs indicate it should be.
-  const FilePath::StringType extension = download->full_path().Extension();
+  FilePath::StringType extension = download->full_path().Extension();
+  // Drop the leading period.
+  if (extension.size() > 0)
+    extension = extension.substr(1);
   if (download->open_when_complete() || ShouldOpenFileExtension(extension))
     OpenDownloadInShell(download, NULL);
 }
@@ -959,7 +962,11 @@ void DownloadManager::OnPauseDownloadRequest(ResourceDispatcherHost* rdh,
 
 bool DownloadManager::IsDangerous(const FilePath& file_name) {
   // TODO(jcampan): Improve me.
-  return IsExecutable(file_name.Extension());
+  FilePath::StringType extension = file_name.Extension();
+  // Drop the leading period.
+  if (extension.size() > 0)
+    extension = extension.substr(1);
+  return IsExecutable(extension);
 }
 
 void DownloadManager::RenameDownload(DownloadItem* download,
@@ -1259,9 +1266,7 @@ void DownloadManager::SaveAutoOpens() {
 #if defined(OS_WIN)
     extensions_w = extensions;
 #elif defined(OS_POSIX)
-    // TODO(port): this is not correct since FilePath::StringType is not
-    // necessarily UTF8.
-    extensions_w = UTF8ToWide(extensions);
+    extensions_w = SysNativeMBToWide(extensions);
 #endif
 
     prefs->SetString(prefs::kDownloadExtensionsToOpen, extensions_w);
