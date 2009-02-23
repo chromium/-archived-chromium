@@ -563,6 +563,8 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_BAR,
                                l10n_util::GetString(IDS_SHOW_BOOKMARK_BAR));
+  menu.AppendMenuItemWithLabel(IDC_FULLSCREEN,
+                               l10n_util::GetString(IDS_FULLSCREEN));
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_SHOW_HISTORY,
                                l10n_util::GetString(IDS_SHOW_HISTORY));

@@ -24,6 +24,7 @@ class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
+class FullscreenExitBubble;
 class InfoBarContainer;
 class Menu;
 class StatusBubbleViews;
@@ -388,6 +389,8 @@ class BrowserView : public BrowserWindow,
 
   // Saved window information from before entering fullscreen mode.
   SavedWindowInfo saved_window_info_;
+
+  scoped_ptr<FullscreenExitBubble> fullscreen_bubble_;
 
   // Lazily created representation of the system menu.
   scoped_ptr<Menu> system_menu_;

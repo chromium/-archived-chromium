@@ -22,6 +22,7 @@
 #include "chrome/browser/views/clear_browsing_data.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/frame/browser_frame.h"
+#include "chrome/browser/views/fullscreen_exit_bubble.h"
 #include "chrome/browser/views/html_dialog_view.h"
 #include "chrome/browser/views/importer_view.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
@@ -577,7 +578,9 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   if (bookmark_bar_view_.get())
     bookmark_bar_view_->OnFullscreenToggled(fullscreen_);
 
-  HWND hwnd = GetWidget()->GetHWND();
+  // Size/position/style window appropriately.
+  views::Widget* widget = GetWidget();
+  HWND hwnd = widget->GetHWND();
   gfx::Rect new_rect;
   if (fullscreen_) {
     // Save current window information.
@@ -605,6 +608,10 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   // This will cause the window to re-layout.
   SetWindowPos(hwnd, NULL, new_rect.x(), new_rect.y(), new_rect.width(),
       new_rect.height(), SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+  // Turn fullscreen bubble on or off.
+  fullscreen_bubble_.reset(fullscreen_ ?
+      new FullscreenExitBubble(widget, browser_.get()) : NULL);
 }
 
 bool BrowserView::IsFullscreen() const {

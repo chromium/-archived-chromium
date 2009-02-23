@@ -559,6 +559,9 @@ each locale. -->
       <message name="IDS_SHOW_BOOKMARK_BAR" desc="The toggle to show the bookmark bar">
         &amp;Always show bookmarks bar
       </message>
+      <message name="IDS_FULLSCREEN" desc="Switches into fullscreen mode">
+        &amp;Full screen
+      </message>
       <message name="IDS_CLEAR_BROWSING_DATA" desc="The text label for the menu item for clearing of browsing data">
         &amp;Clear browsing data...
       </message>
@@ -1485,6 +1488,12 @@ each locale. -->
       </message>
       <message name="IDS_FIND_IN_PAGE_CLOSE_TOOLTIP" desc="The tooltip for the close button">
         Close find bar
+      </message>
+
+      
+      <!-- Fullscreen mode -->
+      <message name="IDS_EXIT_FULLSCREEN_MODE" desc="Clickable message displayed on entering fullscreen mode to tell users how to return to normal mode">
+        Exit full screen (<ph name="ACCELERATOR">$1<ex>F11</ex></ph>)
       </message>
 
 
@@ -3188,6 +3197,9 @@ each locale. -->
       </message>
       <message name="IDS_F1_KEY" desc="F1 key">
         F1
+      </message>
+      <message name="IDS_F11_KEY" desc="F11 key">
+        F11
       </message>
 
       <!-- Strings used in local directory listings -->
