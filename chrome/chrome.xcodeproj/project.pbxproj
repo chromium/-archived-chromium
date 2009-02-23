@@ -2432,8 +2432,8 @@
 		7849CCC221723C1BC14D6384 /* history_publisher_none.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = history_publisher_none.cc; sourceTree = "<group>"; };
 		8104B4AFD95DCA06B2F37551 /* chrome_paths_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chrome_paths_internal.h; sourceTree = "<group>"; };
 		824FC14E0F44C56A000299E5 /* sadtab.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sadtab.png; path = theme/sadtab.png; sourceTree = "<group>"; };
-		824FC1540F44C59C000299E5 /* sad_tab_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = sad_tab_view.mm; path = cocoa/sad_tab_view.mm; sourceTree = "<group>"; };
-		824FC1550F44C59C000299E5 /* sad_tab_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sad_tab_view.h; path = cocoa/sad_tab_view.h; sourceTree = "<group>"; };
+		824FC1540F44C59C000299E5 /* sad_tab_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sad_tab_view.mm; sourceTree = "<group>"; };
+		824FC1550F44C59C000299E5 /* sad_tab_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sad_tab_view.h; sourceTree = "<group>"; };
 		82684C5F0F2FAE68009F6555 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		82684CCF0F2FAEC2009F6555 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		82684D050F2FB101009F6555 /* sdch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sdch.xcodeproj; path = sdch/sdch.xcodeproj; sourceTree = "<group>"; };
@@ -2443,8 +2443,8 @@
 		826858F80F326FA3009F6555 /* testing_profile.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testing_profile.cc; sourceTree = "<group>"; };
 		826858F90F326FA3009F6555 /* testing_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testing_profile.h; sourceTree = "<group>"; };
 		829FBA2DED615C19FB7E7522 /* child_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = child_thread.h; sourceTree = "<group>"; };
-		82BB33080F44B57C00761F43 /* base_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base_view.h; path = cocoa/base_view.h; sourceTree = "<group>"; };
-		82BB33090F44B57C00761F43 /* base_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = base_view.mm; path = cocoa/base_view.mm; sourceTree = "<group>"; };
+		82BB33080F44B57C00761F43 /* base_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_view.h; sourceTree = "<group>"; };
+		82BB33090F44B57C00761F43 /* base_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_view.mm; sourceTree = "<group>"; };
 		82FA32740F3A537C00271C5A /* web_contents_view_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = web_contents_view_mac.h; path = tab_contents/web_contents_view_mac.h; sourceTree = "<group>"; };
 		82FA32750F3A537C00271C5A /* web_contents_view_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = web_contents_view_mac.mm; path = tab_contents/web_contents_view_mac.mm; sourceTree = "<group>"; };
 		82FA33440F3A7F6900271C5A /* render_widget_host_view_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = render_widget_host_view_mac.h; path = renderer_host/render_widget_host_view_mac.h; sourceTree = "<group>"; };
@@ -2503,7 +2503,7 @@
 		A7C613DD0F30D886008CEE5D /* cross_site_resource_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cross_site_resource_handler.h; path = renderer_host/cross_site_resource_handler.h; sourceTree = "<group>"; };
 		A7C6146D0F30DA1D008CEE5D /* ipc_test_sink.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ipc_test_sink.cc; sourceTree = "<group>"; };
 		A7C6146E0F30DA1D008CEE5D /* ipc_test_sink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_test_sink.h; sourceTree = "<group>"; };
-		A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = shell_dialogs_mac.mm; path = cocoa/shell_dialogs_mac.mm; sourceTree = "<group>"; };
+		A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = shell_dialogs_mac.mm; sourceTree = "<group>"; };
 		A9C335E39D39A7DE087850FC /* url_pattern_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url_pattern_unittest.cc; path = extensions/url_pattern_unittest.cc; sourceTree = "<group>"; };
 		AB8962FA0F4E087E009CFFAC /* audio_renderer_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audio_renderer_impl.cc; path = media/audio_renderer_impl.cc; sourceTree = "<group>"; };
 		AB8962FB0F4E087E009CFFAC /* audio_renderer_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_renderer_impl.h; path = media/audio_renderer_impl.h; sourceTree = "<group>"; };
@@ -2633,8 +2633,8 @@
 		E40CC5F50F2E351A00708647 /* bookmark_table_model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bookmark_table_model.h; path = bookmarks/bookmark_table_model.h; sourceTree = "<group>"; };
 		E40CC5F60F2E351A00708647 /* bookmark_table_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_table_model.cc; path = bookmarks/bookmark_table_model.cc; sourceTree = "<group>"; };
 		E40CC5F80F2E351F00708647 /* bookmark_table_model_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_table_model_unittest.cc; path = bookmarks/bookmark_table_model_unittest.cc; sourceTree = "<group>"; };
-		E433E65D0F323E2100CAC3AC /* tab_strip_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_strip_view.h; path = cocoa/tab_strip_view.h; sourceTree = "<group>"; };
-		E433E65E0F323E2100CAC3AC /* tab_strip_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_strip_view.mm; path = cocoa/tab_strip_view.mm; sourceTree = "<group>"; };
+		E433E65D0F323E2100CAC3AC /* tab_strip_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tab_strip_view.h; sourceTree = "<group>"; };
+		E433E65E0F323E2100CAC3AC /* tab_strip_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = tab_strip_view.mm; sourceTree = "<group>"; };
 		E434BE230F38DF4300B665C7 /* mock_render_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mock_render_thread.h; sourceTree = "<group>"; };
 		E434BE240F38DF4300B665C7 /* mock_render_thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mock_render_thread.cc; sourceTree = "<group>"; };
 		E434C4690F3A5C6000B665C7 /* session_types.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = session_types.cc; path = sessions/session_types.cc; sourceTree = "<group>"; };
@@ -2736,29 +2736,29 @@
 		E46C50530F291C1E00B393B8 /* forward.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = forward.pdf; path = theme/forward.pdf; sourceTree = "<group>"; };
 		E46C50540F291C1E00B393B8 /* reload.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = reload.pdf; path = theme/reload.pdf; sourceTree = "<group>"; };
 		E46C50570F291C3B00B393B8 /* newtab.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = newtab.pdf; path = theme/newtab.pdf; sourceTree = "<group>"; };
-		E46C50D70F292EAA00B393B8 /* tab_cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_cell.h; path = cocoa/tab_cell.h; sourceTree = "<group>"; };
-		E46C50D80F292EAA00B393B8 /* tab_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_cell.mm; path = cocoa/tab_cell.mm; sourceTree = "<group>"; };
-		E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_contents_controller.h; path = cocoa/tab_contents_controller.h; sourceTree = "<group>"; };
-		E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_contents_controller.mm; path = cocoa/tab_contents_controller.mm; sourceTree = "<group>"; };
+		E46C50D70F292EAA00B393B8 /* tab_cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tab_cell.h; sourceTree = "<group>"; };
+		E46C50D80F292EAA00B393B8 /* tab_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = tab_cell.mm; sourceTree = "<group>"; };
+		E46C50E80F2A11FC00B393B8 /* tab_contents_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tab_contents_controller.h; sourceTree = "<group>"; };
+		E46C50E90F2A11FC00B393B8 /* tab_contents_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = tab_contents_controller.mm; sourceTree = "<group>"; };
 		E46C50EE0F2A12DC00B393B8 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/TabContents.xib; sourceTree = "<group>"; };
 		E46C51230F2A14A300B393B8 /* go.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = go.pdf; path = theme/go.pdf; sourceTree = "<group>"; };
-		E46C51620F2A1DAB00B393B8 /* toolbar_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = toolbar_view.h; path = cocoa/toolbar_view.h; sourceTree = "<group>"; };
-		E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = toolbar_view.mm; path = cocoa/toolbar_view.mm; sourceTree = "<group>"; };
-		E46C51980F2A20CC00B393B8 /* toolbar_button_cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = toolbar_button_cell.h; path = cocoa/toolbar_button_cell.h; sourceTree = "<group>"; };
-		E46C51990F2A20CC00B393B8 /* toolbar_button_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = toolbar_button_cell.mm; path = cocoa/toolbar_button_cell.mm; sourceTree = "<group>"; };
+		E46C51620F2A1DAB00B393B8 /* toolbar_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = toolbar_view.h; sourceTree = "<group>"; };
+		E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = toolbar_view.mm; sourceTree = "<group>"; };
+		E46C51980F2A20CC00B393B8 /* toolbar_button_cell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = toolbar_button_cell.h; sourceTree = "<group>"; };
+		E46C51990F2A20CC00B393B8 /* toolbar_button_cell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = toolbar_button_cell.mm; sourceTree = "<group>"; };
 		E46C53A20F2F660900B393B8 /* tab_strip_model.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tab_strip_model.cc; path = tabs/tab_strip_model.cc; sourceTree = "<group>"; };
 		E46C53A30F2F660900B393B8 /* tab_strip_model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_strip_model.h; path = tabs/tab_strip_model.h; sourceTree = "<group>"; };
 		E46C53A80F2F662F00B393B8 /* tab_strip_model_order_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_strip_model_order_controller.h; path = tabs/tab_strip_model_order_controller.h; sourceTree = "<group>"; };
 		E46C53A90F2F662F00B393B8 /* tab_strip_model_order_controller.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tab_strip_model_order_controller.cc; path = tabs/tab_strip_model_order_controller.cc; sourceTree = "<group>"; };
 		E46C53E70F2F69AD00B393B8 /* tab_strip_model_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tab_strip_model_unittest.cc; path = tabs/tab_strip_model_unittest.cc; sourceTree = "<group>"; };
-		E46C55ED0F30EFF500B393B8 /* tab_strip_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tab_strip_controller.h; path = cocoa/tab_strip_controller.h; sourceTree = "<group>"; };
-		E46C55EE0F30EFF500B393B8 /* tab_strip_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = tab_strip_controller.mm; path = cocoa/tab_strip_controller.mm; sourceTree = "<group>"; };
+		E46C55ED0F30EFF500B393B8 /* tab_strip_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tab_strip_controller.h; sourceTree = "<group>"; };
+		E46C55EE0F30EFF500B393B8 /* tab_strip_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = tab_strip_controller.mm; sourceTree = "<group>"; };
 		E477F6D80F409D930044ABEB /* navigation_entry_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = navigation_entry_unittest.cc; sourceTree = "<group>"; };
 		E48B684C0F2630D3002E47EC /* browser_window_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_factory.mm; sourceTree = "<group>"; };
-		E48B68550F26330C002E47EC /* browser_window_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = browser_window_controller.h; path = cocoa/browser_window_controller.h; sourceTree = "<group>"; };
-		E48B68560F26330C002E47EC /* browser_window_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = browser_window_controller.mm; path = cocoa/browser_window_controller.mm; sourceTree = "<group>"; };
-		E48B68620F2637B6002E47EC /* browser_window_cocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = browser_window_cocoa.h; path = cocoa/browser_window_cocoa.h; sourceTree = "<group>"; };
-		E48B68630F2637B6002E47EC /* browser_window_cocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = browser_window_cocoa.mm; path = cocoa/browser_window_cocoa.mm; sourceTree = "<group>"; };
+		E48B68550F26330C002E47EC /* browser_window_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = browser_window_controller.h; sourceTree = "<group>"; };
+		E48B68560F26330C002E47EC /* browser_window_controller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_controller.mm; sourceTree = "<group>"; };
+		E48B68620F2637B6002E47EC /* browser_window_cocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = browser_window_cocoa.h; sourceTree = "<group>"; };
+		E48B68630F2637B6002E47EC /* browser_window_cocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = browser_window_cocoa.mm; sourceTree = "<group>"; };
 		E48B689A0F263DF5002E47EC /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/BrowserWindow.xib; sourceTree = "<group>"; };
 		E48B6C260F2783E9002E47EC /* extension_protocols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extension_protocols.h; sourceTree = "<group>"; };
 		E48B6C270F2783E9002E47EC /* extension_protocols.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extension_protocols.cc; sourceTree = "<group>"; };
@@ -2785,8 +2785,8 @@
 		E48FB9730EC4EA270052B72B /* url_request_mock_net_error_job.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_request_mock_net_error_job.h; sourceTree = "<group>"; };
 		E48FB9740EC4EA270052B72B /* url_request_slow_download_job.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_request_slow_download_job.cc; sourceTree = "<group>"; };
 		E48FB9750EC4EA270052B72B /* url_request_slow_download_job.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_request_slow_download_job.h; sourceTree = "<group>"; };
-		E4A3EB110F4EFCF400596CC2 /* grow_box_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = grow_box_view.h; path = cocoa/grow_box_view.h; sourceTree = "<group>"; };
-		E4A3EB120F4EFCF400596CC2 /* grow_box_view.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = grow_box_view.m; path = cocoa/grow_box_view.m; sourceTree = "<group>"; };
+		E4A3EB110F4EFCF400596CC2 /* grow_box_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grow_box_view.h; sourceTree = "<group>"; };
+		E4A3EB120F4EFCF400596CC2 /* grow_box_view.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = grow_box_view.m; sourceTree = "<group>"; };
 		E4A3EB380F4EFF4D00596CC2 /* grow_box.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = grow_box.png; path = theme/grow_box.png; sourceTree = "<group>"; };
 		E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
@@ -4441,7 +4441,7 @@
 				E46C51620F2A1DAB00B393B8 /* toolbar_view.h */,
 				E46C51630F2A1DAB00B393B8 /* toolbar_view.mm */,
 			);
-			name = cocoa;
+			path = cocoa;
 			sourceTree = "<group>";
 		};
 		E46C538C0F2F65CA00B393B8 /* tabs */ = {
