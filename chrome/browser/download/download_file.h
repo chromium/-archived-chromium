@@ -51,7 +51,6 @@
 #include "base/ref_counted.h"
 #include "base/thread.h"
 #include "base/timer.h"
-#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/history/download_types.h"
 
 namespace net {

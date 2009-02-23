@@ -13,9 +13,10 @@
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/browser/drag_utils.h"
+#include "chrome/common/clipboard_service.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
@@ -147,7 +148,7 @@ void BaseContextMenu::ExecuteCommand(int id) {
 DownloadShelfContextMenu::DownloadShelfContextMenu(
     DownloadItem* download,
     HWND window,
-    DownloadItemView::BaseDownloadItemModel* model,
+    BaseDownloadItemModel* model,
     const CPoint& point)
     : BaseContextMenu(download),
       model_(model) {

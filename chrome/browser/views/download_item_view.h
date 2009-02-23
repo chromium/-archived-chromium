@@ -32,6 +32,7 @@
 namespace views {
 class Label;
 }
+class BaseDownloadItemModel;
 class DownloadShelfView;
 class SkBitmap;
 
@@ -40,17 +41,6 @@ class DownloadItemView : public views::NativeButton::Listener,
                          public DownloadItem::Observer,
                          public AnimationDelegate {
  public:
-  // This class provides functions which have different behaviors between
-  // download and saving page.
-  class BaseDownloadItemModel {
-   public:
-    // Cancel the task corresponding to the item.
-    virtual void CancelTask() = 0;
-
-    // Get the status text to display.
-    virtual std::wstring GetStatusText() = 0;
-  };
-
   DownloadItemView(DownloadItem* download,
                    DownloadShelfView* parent,
                    BaseDownloadItemModel* model);
@@ -228,7 +218,7 @@ class DownloadItemView : public views::NativeButton::Listener,
   // The size of the buttons.  Cached so animation works when hidden.
   gfx::Size cached_button_size_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadItemView);
+  DISALLOW_COPY_AND_ASSIGN(DownloadItemView);
 };
 
 #endif  // CHROME_BROWSER_VIEWS_DOWNLOAD_ITEM_VIEW_H__

@@ -12,6 +12,7 @@
 #include "base/task.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/save_file.h"
 #include "chrome/browser/download/save_file_manager.h"
@@ -41,7 +42,7 @@
 
 #if defined(OS_WIN)
 // TODO(port): port these headers.
-#include "chrome/browser/download/save_page_model.h"
+#include "chrome/browser/views/download_item_view.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"

@@ -4,18 +4,21 @@
 //
 // Download utilities.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H__
-#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H_
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H_
 
 #include <objidl.h>
 
+#include <set>
+#include <string>
+
 #include "base/basictypes.h"
 #include "base/task.h"
-#include "chrome/browser/views/download_item_view.h"
 #include "chrome/views/event.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
 
+class BaseDownloadItemModel;
 class DownloadItem;
 class SkBitmap;
 
@@ -55,7 +58,7 @@ class BaseContextMenu : public Menu::Delegate {
   DownloadItem* download_;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(BaseContextMenu);
+  DISALLOW_COPY_AND_ASSIGN(BaseContextMenu);
 };
 
 // Menu for the download shelf.
@@ -63,7 +66,7 @@ class DownloadShelfContextMenu : public BaseContextMenu {
  public:
   DownloadShelfContextMenu(DownloadItem* download,
                            HWND window,
-                           DownloadItemView::BaseDownloadItemModel* model,
+                           BaseDownloadItemModel* model,
                            const CPoint& point);
   virtual ~DownloadShelfContextMenu();
 
@@ -72,9 +75,9 @@ class DownloadShelfContextMenu : public BaseContextMenu {
 
  private:
   // A model to control the cancel behavior.
-  DownloadItemView::BaseDownloadItemModel* model_;
+  BaseDownloadItemModel* model_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadShelfContextMenu);
+  DISALLOW_COPY_AND_ASSIGN(DownloadShelfContextMenu);
 };
 
 // Menu for the download destination view.
@@ -86,7 +89,7 @@ class DownloadDestinationContextMenu : public BaseContextMenu {
   virtual ~DownloadDestinationContextMenu();
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadDestinationContextMenu);
+  DISALLOW_COPY_AND_ASSIGN(DownloadDestinationContextMenu);
 };
 
 // DownloadProgressTask --------------------------------------------------------
@@ -103,7 +106,7 @@ class DownloadProgressTask : public Task {
   }
  private:
   DownloadView* view_;
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadProgressTask);
+  DISALLOW_COPY_AND_ASSIGN(DownloadProgressTask);
 };
 
 // Download opening ------------------------------------------------------------
@@ -191,5 +194,5 @@ void InitializeExeTypes(std::set<std::wstring>* exe_extensions);
 }  // namespace download_util
 
 
-#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H__
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H_
 

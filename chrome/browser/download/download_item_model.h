@@ -2,17 +2,31 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H__
-#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H__
+#ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H_
+#define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H_
 
-#include "chrome/browser/views/download_item_view.h"
+#include <string>
+
+#include "base/basictypes.h"
 
 class DownloadItem;
+class SavePackage;
+
+// This class provides an interface for functions which have different behaviors
+// depending on the type of download.
+class BaseDownloadItemModel {
+ public:
+  // Cancel the task corresponding to the item.
+  virtual void CancelTask() = 0;
+
+  // Get the status text to display.
+  virtual std::wstring GetStatusText() = 0;
+};
 
 // This class is a model class for DownloadItemView. It provides functionality
 // for canceling the downloading, and also the text for displaying downloading
 // status.
-class DownloadItemModel : public DownloadItemView::BaseDownloadItemModel {
+class DownloadItemModel : public BaseDownloadItemModel {
  public:
   DownloadItemModel(DownloadItem* download);
   virtual ~DownloadItemModel() { }
@@ -27,8 +41,32 @@ class DownloadItemModel : public DownloadItemView::BaseDownloadItemModel {
   // We query this item for status information.
   DownloadItem* download_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DownloadItemModel);
+  DISALLOW_COPY_AND_ASSIGN(DownloadItemModel);
 };
 
-#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H__
+// This class is a model class for DownloadItemView. It provides cancel
+// functionality for saving page, and also the text for displaying saving
+// status.
+class SavePageModel : public BaseDownloadItemModel {
+ public:
+  SavePageModel(SavePackage* save, DownloadItem* download);
+  virtual ~SavePageModel() { }
+
+  // Cancel the page saving.
+  virtual void CancelTask();
+
+  // Get page saving status text.
+  virtual std::wstring GetStatusText();
+
+ private:
+  // Saving page management.
+  SavePackage* save_;
+
+  // A fake download item for saving page use.
+  DownloadItem* download_;
+
+  DISALLOW_COPY_AND_ASSIGN(SavePageModel);
+};
+
+#endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H_
 

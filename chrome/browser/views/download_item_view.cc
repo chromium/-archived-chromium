@@ -9,6 +9,7 @@
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_util.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -59,7 +60,7 @@ static const int kCompleteAnimationDurationMs = 2500;
 
 DownloadItemView::DownloadItemView(DownloadItem* download,
     DownloadShelfView* parent,
-    DownloadItemView::BaseDownloadItemModel* model)
+    BaseDownloadItemModel* model)
   : download_(download),
     parent_(parent),
     model_(model),

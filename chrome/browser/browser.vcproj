@@ -1850,14 +1850,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\download\save_page_model.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\download\save_page_model.h"
-				>
-			</File>
-			<File
 				RelativePath=".\download\save_types.h"
 				>
 			</File>

@@ -11,6 +11,7 @@
 #include "base/task.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
@@ -28,7 +29,7 @@
 #endif
 
 // Throttle updates to the UI thread so that a fast moving download doesn't
-// cause it to become unresponsive (ins milliseconds).
+// cause it to become unresponsive (in milliseconds).
 static const int kUpdatePeriodMs = 500;
 
 // Timer task for posting UI updates. This task is created and maintained by
