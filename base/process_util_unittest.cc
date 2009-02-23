@@ -181,7 +181,7 @@ MULTIPROCESS_TEST_MAIN(ProcessUtilsLeakFDChildProcess) {
 #endif  // defined(OS_LINUX)
   num_open_files -= expected_num_open_fds;
 
-  ssize_t written = write(write_pipe, &num_open_files, sizeof(num_open_files));
+  int written = write(write_pipe, &num_open_files, sizeof(num_open_files));
   DCHECK_EQ(written, sizeof(num_open_files));
   close(write_pipe);
 
