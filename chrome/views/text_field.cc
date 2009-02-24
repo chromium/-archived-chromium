@@ -19,6 +19,7 @@
 #include "chrome/common/clipboard_service.h"
 #include "chrome/common/gfx/insets.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_view.h"

@@ -6,6 +6,7 @@
 
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/root_view.h"
 #include "grit/generated_resources.h"

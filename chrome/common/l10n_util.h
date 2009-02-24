@@ -10,9 +10,6 @@
 
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
-#include <windows.h>
-#endif
 #include <algorithm>
 #include <functional>
 #include <string>
@@ -172,17 +169,6 @@ void WrapStringWithRTLFormatting(std::wstring* text);
 void WrapPathWithLTRFormatting(const FilePath& path,
                                string16* rtl_safe_path);
 
-// Returns the locale-dependent extended window styles.
-// This function is used for adding locale-dependent extended window styles
-// (e.g. WS_EX_LAYOUTRTL, WS_EX_RTLREADING, etc.) when creating a window.
-// Callers should OR this value into their extended style value when creating
-// a window.
-int GetExtendedStyles();
-
-// TODO(xji):
-// This is a temporary name, it will eventually replace GetExtendedStyles
-int GetExtendedTooltipStyles();
-
 // Returns the default text alignment to be used when drawing text on a
 // ChromeCanvas based on the directionality of the system locale language. This
 // function is used by ChromeCanvas::DrawStringInt when the text alignment is
@@ -191,14 +177,6 @@ int GetExtendedTooltipStyles();
 // This function returns either ChromeCanvas::TEXT_ALIGN_LEFT or
 // ChromeCanvas::TEXT_ALIGN_RIGHT.
 int DefaultCanvasTextAlignment();
-
-#if defined(OS_WIN)
-// Give an HWND, this function sets the WS_EX_LAYOUTRTL extended style for the
-// underlying window. When this style is set, the UI for the window is going to
-// be mirrored. This is generally done for the UI of right-to-left languages
-// such as Hebrew.
-void HWNDSetRTLLayout(HWND hwnd);
-#endif
 
 // Compares the two strings using the specified collator.
 UCollationResult CompareStringWithCollator(const Collator* collator,

@@ -31,6 +31,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/utils.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"
