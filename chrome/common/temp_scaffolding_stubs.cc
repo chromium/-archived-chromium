@@ -16,7 +16,6 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
-#include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -354,17 +353,6 @@ void DebuggerShell::ProcessCommand(const std::wstring& data) {
   NOTIMPLEMENTED();
 }
 #endif  // !CHROME_DEBUGGER_DISABLED
-
-bool BookmarkDragData::IsFromProfile(Profile* profile) const {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-std::vector<BookmarkNode*> BookmarkDragData::GetNodes(Profile* profile) const {
-  std::vector<BookmarkNode*> nodes;
-  NOTIMPLEMENTED();
-  return nodes;
-}
 
 ScopableCPRequest::~ScopableCPRequest() {
   NOTIMPLEMENTED();

@@ -688,4 +688,10 @@ class HistoryTabUI {
   }
 };
 
+class OSExchangeData {
+ public:
+  void SetString(const std::wstring& data) { NOTIMPLEMENTED(); }
+  void SetURL(const GURL& url, const std::wstring& title) { NOTIMPLEMENTED(); }
+};
+
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

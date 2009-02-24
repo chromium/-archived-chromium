@@ -4,19 +4,30 @@
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 
+#include "base/basictypes.h"
 #include "base/pickle.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
-#include "chrome/common/os_exchange_data.h"
 
+// TODO(port): Port this file.
+#if defined(OS_WIN)
+#include "chrome/common/os_exchange_data.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
+#if defined(OS_WIN)
 static CLIPFORMAT clipboard_format = 0;
+#endif
 
 static void RegisterFormat() {
+#if defined(OS_WIN)
   if (clipboard_format == 0) {
     clipboard_format = RegisterClipboardFormat(L"chrome/x-bookmark-entries");
     DCHECK(clipboard_format);
   }
+#endif
 }
 
 BookmarkDragData::Element::Element(BookmarkNode* node)
@@ -99,7 +110,12 @@ void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
   for (size_t i = 0; i < elements.size(); ++i)
     elements[i].WriteToPickle(&data_pickle);
 
+#if defined(OS_WIN)
   data->SetPickledData(clipboard_format, data_pickle);
+#else
+  // TODO(port): Clipboard integration.
+  NOTIMPLEMENTED();
+#endif
 }
 
 bool BookmarkDragData::Read(const OSExchangeData& data) {
@@ -109,6 +125,7 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
 
   profile_path_.clear();
 
+#if defined(OS_WIN)
   if (data.HasFormat(clipboard_format)) {
     Pickle drag_data_pickle;
     if (data.GetPickledData(clipboard_format, &drag_data_pickle)) {
@@ -136,6 +153,11 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
       elements.push_back(element);
     }
   }
+#else
+  // TODO(port): Clipboard integration.
+  NOTIMPLEMENTED();
+#endif
+
   return is_valid();
 }
 
