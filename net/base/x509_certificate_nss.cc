@@ -14,6 +14,7 @@
 #undef Lock
 
 #include "base/logging.h"
+#include "base/pickle.h"
 #include "base/time.h"
 #include "base/nss_init.h"
 #include "net/base/net_errors.h"
@@ -26,7 +27,7 @@ namespace {
 base::Time PRTimeToBaseTime(PRTime prtime) {
   PRExplodedTime prxtime;
   PR_ExplodeTime(prtime, PR_GMTParameters, &prxtime);
-  
+
   base::Time::Exploded exploded;
   exploded.year         = prxtime.tm_year;
   exploded.month        = prxtime.tm_month + 1;
@@ -36,7 +37,7 @@ base::Time PRTimeToBaseTime(PRTime prtime) {
   exploded.minute       = prxtime.tm_min;
   exploded.second       = prxtime.tm_sec;
   exploded.millisecond  = prxtime.tm_usec / 1000;
-  
+
   return base::Time::FromUTCExploded(exploded);
 }
 
@@ -64,7 +65,7 @@ void ParsePrincipal(SECItem* der_name,
       country_names;
 
   // TODO(jcampan): add business_category and serial_number.
-  static const SECOidTag kOIDs[] = { 
+  static const SECOidTag kOIDs[] = {
       SEC_OID_AVA_COMMON_NAME,
       SEC_OID_AVA_LOCALITY,
       SEC_OID_AVA_STATE_OR_PROVINCE,
@@ -93,7 +94,7 @@ void ParsePrincipal(SECItem* der_name,
           SECItem* decode_item = CERT_DecodeAVAValue(&avas[pair]->value);
           if (!decode_item)
             break;
-          std::string value(reinterpret_cast<char*>(decode_item->data), 
+          std::string value(reinterpret_cast<char*>(decode_item->data),
                             decode_item->len);
           values[oid]->push_back(value);
           SECITEM_FreeItem(decode_item, PR_TRUE);
@@ -128,7 +129,7 @@ void GetCertSubjectAltNamesOfType(X509Certificate::OSCertHandle cert_handle,
                                   CERTGeneralNameType name_type,
                                   std::vector<std::string>* result) {
 
-  SECItem alt_name; 
+  SECItem alt_name;
   SECStatus rv = CERT_FindCertExtension(cert_handle,
       SEC_OID_X509_SUBJECT_ALT_NAME, &alt_name);
   if (rv != SECSuccess)
@@ -168,7 +169,7 @@ void X509Certificate::Initialize() {
 
   ParseDate(&cert_handle_->validity.notBefore, &valid_start_);
   ParseDate(&cert_handle_->validity.notAfter, &valid_expiry_);
-  
+
   fingerprint_ = CalculateFingerprint(cert_handle_);
 
   // Store the certificate in the cache in case we need it later.
@@ -178,15 +179,17 @@ void X509Certificate::Initialize() {
 // static
 X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
                                                    void** pickle_iter) {
-  NOTIMPLEMENTED();
-  return NULL;
+  const char* data;
+  int length;
+  if (!pickle.ReadData(pickle_iter, &data, &length))
+    return NULL;
+
+  return CreateFromBytes(data, length);
 }
 
 void X509Certificate::Persist(Pickle* pickle) {
-  // TODO(port): implement.
-
-  // Calling NOTIMPLEMENTED here breaks webkit tests.
-  //NOTIMPLEMENTED();
+  pickle->WriteData(reinterpret_cast<const char*>(cert_handle_->derCert.data),
+                    cert_handle_->derCert.len);
 }
 
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
@@ -194,7 +197,7 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
 
   // Compare with CERT_VerifyCertName().
   GetCertSubjectAltNamesOfType(cert_handle_, certDNSName, dns_names);
-  
+
   // TODO(port): suppress nss's support of the obsolete extension
   //  SEC_OID_NS_CERT_EXT_SSL_SERVER_NAME
   // by providing our own authCertificate callback.
@@ -247,6 +250,6 @@ X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
 
   return sha1;
 }
-  
+
 }  // namespace net
 

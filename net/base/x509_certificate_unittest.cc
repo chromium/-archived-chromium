@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/port.h"
+#include "base/pickle.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/x509_certificate.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -538,6 +538,20 @@ TEST(X509CertificateTest, Cache) {
       google_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
 
   EXPECT_EQ(cert3, cert5);
+}
+
+TEST(X509CertificateTest, Pickle) {
+  scoped_refptr<X509Certificate> cert1 = X509Certificate::CreateFromBytes(
+      reinterpret_cast<const char*>(google_der), sizeof(google_der));
+
+  Pickle pickle;
+  cert1->Persist(&pickle);
+
+  void* iter = NULL;
+  scoped_refptr<X509Certificate> cert2 =
+      X509Certificate::CreateFromPickle(pickle, &iter);
+
+  EXPECT_EQ(cert1, cert2);
 }
 
 }  // namespace net
