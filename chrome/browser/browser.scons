@@ -673,7 +673,6 @@ if not env.Bit('windows'):
       'bookmarks/bookmark_context_menu.cc',
       'bookmarks/bookmark_drag_data.cc',
       'bookmarks/bookmark_drop_info.cc',
-      'bookmarks/bookmark_utils.cc',
       'browser_accessibility.cc',
       'browser_accessibility_manager.cc',
       'chrome_plugin_host.cc',

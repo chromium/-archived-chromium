@@ -16,7 +16,7 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
-#include "chrome/browser/bookmarks/bookmark_utils.h"
+#include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -355,44 +355,15 @@ void DebuggerShell::ProcessCommand(const std::wstring& data) {
 }
 #endif  // !CHROME_DEBUGGER_DISABLED
 
-namespace bookmark_utils {
-
-bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text) {
+bool BookmarkDragData::IsFromProfile(Profile* profile) const {
   NOTIMPLEMENTED();
   return false;
 }
 
-void GetMostRecentlyAddedEntries(BookmarkModel* model,
-                                 size_t count,
-                                 std::vector<BookmarkNode*>* nodes) {
+std::vector<BookmarkNode*> BookmarkDragData::GetNodes(Profile* profile) const {
+  std::vector<BookmarkNode*> nodes;
   NOTIMPLEMENTED();
-}
-
-std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(BookmarkModel* model,
-                                                         size_t max_count) {
-  NOTIMPLEMENTED();
-  return std::vector<BookmarkNode*>();
-}
-
-void GetBookmarksContainingText(BookmarkModel* model,
-                                const std::wstring& text,
-                                size_t max_count,
-                                std::vector<BookmarkNode*>* nodes) {
-  NOTIMPLEMENTED();
-}
-
-void GetBookmarksMatchingText(BookmarkModel* model,
-                              const std::wstring& text,
-                              size_t max_count,
-                              std::vector<TitleMatch>* matches) {
-  NOTIMPLEMENTED();
-}
-
-bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
+  return nodes;
 }
 
 ScopableCPRequest::~ScopableCPRequest() {

@@ -4,6 +4,8 @@
 
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 
+#include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
@@ -13,14 +15,20 @@
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/os_exchange_data.h"
 #include "chrome/views/event.h"
 #include "chrome/views/tree_node_iterator.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+
+// TODO(port): Port these files.
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/os_exchange_data.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 namespace {
 
@@ -127,7 +135,7 @@ void OpenAllImpl(BookmarkNode* node,
   }
 }
 
-bool ShouldOpenAll(HWND parent, const std::vector<BookmarkNode*>& nodes) {
+bool ShouldOpenAll(gfx::NativeWindow parent, const std::vector<BookmarkNode*>& nodes) {
   int descendant_count = 0;
   for (size_t i = 0; i < nodes.size(); ++i)
     descendant_count += DescendantURLCount(nodes[i]);
@@ -137,9 +145,15 @@ bool ShouldOpenAll(HWND parent, const std::vector<BookmarkNode*>& nodes) {
   std::wstring message =
       l10n_util::GetStringF(IDS_BOOKMARK_BAR_SHOULD_OPEN_ALL,
                             IntToWString(descendant_count));
+#if defined(OS_WIN)
   return MessageBox(parent, message.c_str(),
                     l10n_util::GetString(IDS_PRODUCT_NAME).c_str(),
                     MB_YESNO | MB_ICONWARNING | MB_TOPMOST) == IDYES;
+#else
+  // TODO(port): Display a dialog prompt.
+  NOTIMPLEMENTED();
+  return true;
+#endif
 }
 
 // Comparison function that compares based on date modified of the two nodes.
@@ -231,7 +245,7 @@ void CloneDragData(BookmarkModel* model,
     CloneDragDataImpl(model, elements[i], parent, index_to_add_at + i);
 }
 
-void OpenAll(HWND parent,
+void OpenAll(gfx::NativeWindow parent,
              Profile* profile,
              PageNavigator* navigator,
              const std::vector<BookmarkNode*>& nodes,
@@ -256,7 +270,7 @@ void OpenAll(HWND parent,
     OpenAllImpl(nodes[i], initial_disposition, &navigator, &opened_url);
 }
 
-void OpenAll(HWND parent,
+void OpenAll(gfx::NativeWindow parent,
              Profile* profile,
              PageNavigator* navigator,
              BookmarkNode* node,
@@ -272,10 +286,16 @@ void CopyToClipboard(BookmarkModel* model,
   if (nodes.empty())
     return;
 
+#if defined(OS_WIN)
   OSExchangeData* data = new OSExchangeData();
   BookmarkDragData(nodes).Write(NULL, data);
   OleSetClipboard(data);
   // OLE takes ownership of OSExchangeData.
+#else
+  // TODO(port): Clipboard integration.  Don't we have clipboard
+  // implemented somewhere else?
+  NOTIMPLEMENTED();
+#endif
 
   if (remove_nodes) {
     for (size_t i = 0; i < nodes.size(); ++i) {
@@ -291,6 +311,7 @@ void PasteFromClipboard(BookmarkModel* model,
   if (!parent)
     return;
 
+#if defined(OS_WIN)
   IDataObject* data;
   if (OleGetClipboard(&data) != S_OK)
     return;
@@ -303,12 +324,17 @@ void PasteFromClipboard(BookmarkModel* model,
   if (index == -1)
     index = parent->GetChildCount();
   bookmark_utils::CloneDragData(model, bookmark_data.elements, parent, index);
+#else
+  // TODO(port): Clipboard integration.
+  NOTIMPLEMENTED();
+#endif
 }
 
 bool CanPasteFromClipboard(BookmarkNode* node) {
   if (!node)
     return false;
 
+#if defined(OS_WIN)
   IDataObject* data;
   if (OleGetClipboard(&data) != S_OK)
     return false;
@@ -316,6 +342,11 @@ bool CanPasteFromClipboard(BookmarkNode* node) {
   OSExchangeData data_wrapper(data);
   BookmarkDragData bookmark_data;
   return bookmark_data.Read(data_wrapper);
+#else
+  // TODO(port): Clipboard integration.
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(

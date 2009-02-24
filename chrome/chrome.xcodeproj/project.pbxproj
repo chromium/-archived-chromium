@@ -250,6 +250,7 @@
 		534E66C40F311BEC0006B2B2 /* temp_scaffolding_stubs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 534E66C30F311BEC0006B2B2 /* temp_scaffolding_stubs.cc */; };
 		544FBC49CB83E458B6B7069D /* test_web_contents.cc in Sources */ = {isa = PBXBuildFile; fileRef = 56E1D7DF17D327BFCB0B895D /* test_web_contents.cc */; };
 		5DD7664089E8660524ED1CBC /* child_thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = E81681ADC802675FE949BC63 /* child_thread.cc */; };
+		5F7E489192999F405D65D2E5 /* bookmark_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = A2FC5EE73E0DE8BF6C1C4C0F /* bookmark_utils.cc */; };
 		623E5BE905E098E8280304DA /* dns_master_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA6F0E9D4981009A6919 /* dns_master_unittest.cc */; };
 		651621527E9FCD7FB5AF2E14 /* child_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5EE47CAC5E11F4B35E564CCE /* child_process_host.cc */; };
 		65930533A98EF22451EEA01D /* history_publisher_none.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7849CCC221723C1BC14D6384 /* history_publisher_none.cc */; };
@@ -2482,6 +2483,7 @@
 		844EA0810F3E0C1000B0EF26 /* debugger_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugger_window.h; path = debugger/debugger_window.h; sourceTree = "<group>"; };
 		844EA0820F3E0C1000B0EF26 /* debugger_wrapper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = debugger_wrapper.cc; path = debugger/debugger_wrapper.cc; sourceTree = "<group>"; };
 		844EA0830F3E0C1000B0EF26 /* debugger_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugger_wrapper.h; path = debugger/debugger_wrapper.h; sourceTree = "<group>"; };
+		A2FC5EE73E0DE8BF6C1C4C0F /* bookmark_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_utils.cc; path = browser/bookmarks/bookmark_utils.cc; sourceTree = SOURCE_ROOT; };
 		A54612D90EE9957000A8EE5D /* extensions_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extensions_service.cc; sourceTree = "<group>"; };
 		A54612DA0EE9957000A8EE5D /* extensions_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extensions_service.h; sourceTree = "<group>"; };
 		A54612DB0EE9958600A8EE5D /* extensions_service_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extensions_service_unittest.cc; sourceTree = "<group>"; };
@@ -3176,6 +3178,7 @@
 				D3C3DAA911D390A33D06B0B0 /* history_url_provider.cc */,
 				4F3E216FC08B4749FC8C2ED5 /* autocomplete.cc */,
 				0114EE7E1097BDFBF94057E6 /* search_provider.cc */,
+				A2FC5EE73E0DE8BF6C1C4C0F /* bookmark_utils.cc */,
 			);
 			sourceTree = "<group>";
 		};
@@ -5458,6 +5461,7 @@
 				81E4783DE6F497B9BCC5B9F6 /* bookmark_model.cc in Sources */,
 				A0BC9272AD709E86D492DAEC /* bookmark_storage.cc in Sources */,
 				E40CC5F70F2E351A00708647 /* bookmark_table_model.cc in Sources */,
+				5F7E489192999F405D65D2E5 /* bookmark_utils.cc in Sources */,
 				E46C4C2E0F212CAF00B393B8 /* browser.cc in Sources */,
 				6685F5375CC4ECE98C4C2213 /* browser_about_handler.cc in Sources */,
 				B61C4C1F0F3284A700489E0F /* browser_init.cc in Sources */,
