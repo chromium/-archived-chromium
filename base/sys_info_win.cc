@@ -109,9 +109,9 @@ size_t SysInfo::VMAllocationGranularity() {
 }
 
 // static
-void OperatingSystemVersionNumbers(int32 *major_version,
-                                   int32 *minor_version,
-                                   int32 *bugfix_version) {
+void SysInfo::OperatingSystemVersionNumbers(int32 *major_version,
+                                            int32 *minor_version,
+                                            int32 *bugfix_version) {
   OSVERSIONINFO info = {0};
   info.dwOSVersionInfoSize = sizeof(info);
   GetVersionEx(&info);
