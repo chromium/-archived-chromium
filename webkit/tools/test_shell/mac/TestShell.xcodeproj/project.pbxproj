@@ -706,6 +706,13 @@
 			remoteGlobalIDString = 8970F2EF0E719FB2006AE7B5;
 			remoteInfo = v8;
 		};
+		937DE8830F5347B400D0D638 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 937A16010F53326C003E8D2D;
+			remoteInfo = webkit;
+		};
 		E4506A370EF020EE003BE099 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -1171,6 +1178,7 @@
 				7B8205B00E770291008F45CF /* libport.a */,
 				7B8205B20E770291008F45CF /* libwebcore.a */,
 				4DB7FE760E9BF6CB00C66CE0 /* libwebcoresysteminterface.a */,
+				937DE8840F5347B400D0D638 /* libwebkit.a */,
 				7B8205B40E770291008F45CF /* libwtf.a */,
 			);
 			name = Products;
@@ -1795,6 +1803,13 @@
 			fileType = archive.ar;
 			path = libmodp_b64.a;
 			remoteRef = 82F39D030E7EF95A00785E15 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		937DE8840F5347B400D0D638 /* libwebkit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebkit.a;
+			remoteRef = 937DE8830F5347B400D0D638 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

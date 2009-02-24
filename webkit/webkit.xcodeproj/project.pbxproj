@@ -111,6 +111,7 @@
 		89F4A2090F2106EF000A326A /* V8CanvasPixelArrayCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */; };
 		8EFD7D527676BF3B3C92361E /* ThreadTimers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6A9898388068C93C5A7C011C /* ThreadTimers.cpp */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
+		937A16090F5332AB003E8D2D /* WebString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 937A15B50F53325D003E8D2D /* WebString.cpp */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
 		938444080F16B0570075F4C5 /* AccessibilityImageMapLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F1E80E9BAE2900C66CE0 /* AccessibilityImageMapLink.cpp */; };
 		938444090F16B0570075F4C5 /* AccessibilityList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD24EC0EB7C3C800BEC658 /* AccessibilityList.cpp */; };
@@ -1436,6 +1437,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7B58F7A60DAFC59B006F0EB5;
 			remoteInfo = jsconfig;
+		};
+		937A15B80F53326C003E8D2D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B58F7A60DAFC59B006F0EB5;
+			remoteInfo = jsconfig;
+		};
+		937A15BA0F53326C003E8D2D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45620380E268E87005E4685;
+			remoteInfo = webcore;
 		};
 		E43CE13E0E68665900D8C5B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -4084,6 +4099,10 @@
 		934CC3580EDCCEFE00A658F2 /* ScriptValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptValue.h; sourceTree = "<group>"; };
 		934CC5030EDE183200A658F2 /* LinkHash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkHash.cpp; sourceTree = "<group>"; };
 		934CC5040EDE183200A658F2 /* LinkHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinkHash.h; sourceTree = "<group>"; };
+		937A15B30F533232003E8D2D /* WebString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebString.h; path = ../third_party/WebKit/WebKit/chromium/public/WebString.h; sourceTree = SOURCE_ROOT; };
+		937A15B40F533249003E8D2D /* WebCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebCommon.h; path = ../third_party/WebKit/WebKit/chromium/public/WebCommon.h; sourceTree = SOURCE_ROOT; };
+		937A15B50F53325D003E8D2D /* WebString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebString.cpp; path = ../third_party/WebKit/WebKit/chromium/src/WebString.cpp; sourceTree = SOURCE_ROOT; };
+		937A16010F53326C003E8D2D /* libwebkit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebkit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		938180470EF3392100993F02 /* BackForwardList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackForwardList.h; sourceTree = "<group>"; };
 		9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = back_forward_list_client_impl.cc; sourceTree = "<group>"; };
 		9381804F0EF3394A00993F02 /* back_forward_list_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = back_forward_list_client_impl.h; sourceTree = "<group>"; };
@@ -4457,6 +4476,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		937A15FD0F53326C003E8D2D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E45626910E268E87005E4685 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -4764,6 +4790,7 @@
 				7BF891DD0E73118C000BAF8A /* pcre */,
 				7B5E87820D7F394A001ECF42 /* webcore */,
 				4DB7FE680E9BF67000C66CE0 /* webcoresysteminterface */,
+				937A15920F5331E2003E8D2D /* webkit */,
 				7B5E85B30D7F28F5001ECF42 /* wtf */,
 				7B964AAB0E7EE4A0006D1A11 /* Projects */,
 				7B5E776F0D7F2350001ECF42 /* Products */,
@@ -4786,6 +4813,7 @@
 				E45626950E268E87005E4685 /* libwebcore.a */,
 				7B5E85AE0D7F28CD001ECF42 /* libwtf.a */,
 				4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */,
+				937A16010F53326C003E8D2D /* libwebkit.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -7774,6 +7802,40 @@
 			path = plugins;
 			sourceTree = "<group>";
 		};
+		937A15920F5331E2003E8D2D /* webkit */ = {
+			isa = PBXGroup;
+			children = (
+				937A15B00F5331F1003E8D2D /* chromium */,
+			);
+			name = webkit;
+			sourceTree = "<group>";
+		};
+		937A15B00F5331F1003E8D2D /* chromium */ = {
+			isa = PBXGroup;
+			children = (
+				937A15B10F5331F7003E8D2D /* public */,
+				937A15B20F5331FB003E8D2D /* src */,
+			);
+			name = chromium;
+			sourceTree = "<group>";
+		};
+		937A15B10F5331F7003E8D2D /* public */ = {
+			isa = PBXGroup;
+			children = (
+				937A15B40F533249003E8D2D /* WebCommon.h */,
+				937A15B30F533232003E8D2D /* WebString.h */,
+			);
+			name = public;
+			sourceTree = "<group>";
+		};
+		937A15B20F5331FB003E8D2D /* src */ = {
+			isa = PBXGroup;
+			children = (
+				937A15B50F53325D003E8D2D /* WebString.cpp */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
 		938181420EF6D26400993F02 /* chromium */ = {
 			isa = PBXGroup;
 			children = (
@@ -8073,6 +8135,24 @@
 			productReference = 7BFD8E660DAFE7630084BC4B /* libjsbindings.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		937A15B60F53326C003E8D2D /* webkit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 937A15FE0F53326C003E8D2D /* Build configuration list for PBXNativeTarget "webkit" */;
+			buildPhases = (
+				937A15BC0F53326C003E8D2D /* Sources */,
+				937A15FD0F53326C003E8D2D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				937A15B70F53326C003E8D2D /* PBXTargetDependency */,
+				937A15B90F53326C003E8D2D /* PBXTargetDependency */,
+			);
+			name = webkit;
+			productName = webkit;
+			productReference = 937A16010F53326C003E8D2D /* libwebkit.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		E45620380E268E87005E4685 /* webcore */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E45626920E268E87005E4685 /* Build configuration list for PBXNativeTarget "webcore" */;
@@ -8155,6 +8235,7 @@
 				E45627CF0E2694B8005E4685 /* port */,
 				E45620380E268E87005E4685 /* webcore */,
 				4DB7FE6E0E9BF6AC00C66CE0 /* webcoresysteminterface */,
+				937A15B60F53326C003E8D2D /* webkit */,
 				7B5E85AD0D7F28CD001ECF42 /* wtf */,
 			);
 		};
@@ -8649,6 +8730,14 @@
 				938448AF0F16B06E0075F4C5 /* XLinkNames.cpp in Sources */,
 				938448B00F16B06E0075F4C5 /* XMLNames.cpp in Sources */,
 				938448B10F16B06E0075F4C5 /* XPathGrammar.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		937A15BC0F53326C003E8D2D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				937A16090F5332AB003E8D2D /* WebString.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9693,6 +9782,16 @@
 			target = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
 			targetProxy = 7BFD8E6C0DAFE79A0084BC4B /* PBXContainerItemProxy */;
 		};
+		937A15B70F53326C003E8D2D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
+			targetProxy = 937A15B80F53326C003E8D2D /* PBXContainerItemProxy */;
+		};
+		937A15B90F53326C003E8D2D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45620380E268E87005E4685 /* webcore */;
+			targetProxy = 937A15BA0F53326C003E8D2D /* PBXContainerItemProxy */;
+		};
 		E43CE13F0E68665900D8C5B9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
@@ -9929,6 +10028,7 @@
 					"$(DIR_WEBCORE)/xml",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf/unicode",
+					"$(DIR_WEBKIT)/WebKit/chromium/public",
 					"$(DIR_V8)/include",
 					"$(DIR_SKIA)/include",
 					"$(DIR_SKIA)/include/corecg",
@@ -10063,6 +10163,7 @@
 					"$(DIR_WEBCORE)/xml",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf/unicode",
+					"$(DIR_WEBKIT)/WebKit/chromium/public",
 					"$(DIR_V8)/include",
 					"$(DIR_SKIA)/include",
 					"$(DIR_SKIA)/include/corecg",
@@ -10148,6 +10249,48 @@
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/svg",
 				);
 				PRODUCT_NAME = jsbindings;
+			};
+			name = Release;
+		};
+		937A15FF0F53326C003E8D2D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
+			buildSettings = {
+				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					WEBKIT_IMPLEMENTATION,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
+					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
+					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
+					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
+				);
+				PRODUCT_NAME = webkit;
+			};
+			name = Debug;
+		};
+		937A16000F53326C003E8D2D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
+			buildSettings = {
+				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					WEBKIT_IMPLEMENTATION,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
+					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
+					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
+					"$(CONFIGURATION_TEMP_DIR)/generated/grit",
+					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
+				);
+				PRODUCT_NAME = webkit;
 			};
 			name = Release;
 		};
@@ -10336,6 +10479,15 @@
 			buildConfigurations = (
 				7BFD8E670DAFE7640084BC4B /* Debug */,
 				7BFD8E680DAFE7640084BC4B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		937A15FE0F53326C003E8D2D /* Build configuration list for PBXNativeTarget "webkit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				937A15FF0F53326C003E8D2D /* Debug */,
+				937A16000F53326C003E8D2D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
