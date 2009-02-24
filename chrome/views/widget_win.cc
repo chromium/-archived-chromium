@@ -723,9 +723,14 @@ bool WidgetWin::ProcessMousePressed(const CPoint& point,
                                     bool dbl_click,
                                     bool non_client) {
   last_mouse_event_was_move_ = false;
+  // Windows gives screen coordinates for nonclient events, while the RootView
+  // expects window coordinates; convert if necessary.
+  gfx::Point converted_point(point);
+  if (non_client)
+    View::ConvertPointToView(NULL, root_view_.get(), &converted_point);
   MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
-                           point.x,
-                           point.y,
+                           converted_point.x(),
+                           converted_point.y(),
                            (dbl_click ? MouseEvent::EF_IS_DOUBLE_CLICK : 0) |
                            (non_client ? MouseEvent::EF_IS_NON_CLIENT : 0) |
                            Event::ConvertWindowsFlags(flags));
