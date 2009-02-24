@@ -14,8 +14,6 @@ namespace base {
 class SysInfo {
  public:
   // Return the number of logical processors/cores on the current machine.
-  // WARNING: On POSIX, this method uses static variables and is not threadsafe
-  // until it's been initialized by being called once without a race.
   static int NumberOfProcessors();
 
   // Return the number of bytes of physical memory on the current machine.
@@ -44,15 +42,6 @@ class SysInfo {
 
   // Returns the version of the host operating system.
   static std::string OperatingSystemVersion();
-
-  // Retrieves detailed numeric values for the OS version.
-  // WARNING: On OS X, this method uses static variables and is not threadsafe
-  // until it's been initialized by being called once without a race.
-  // TODO(port): Implement a Linux version of this method and enable the
-  // corresponding unit test.
-  static void OperatingSystemVersionNumbers(int32 *major_version,
-                                            int32 *minor_version,
-                                            int32 *bugfix_version);
 
   // Returns the CPU architecture of the system. Exact return value may differ
   // across platforms.

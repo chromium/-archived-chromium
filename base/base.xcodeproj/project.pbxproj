@@ -180,7 +180,6 @@
 		B52C916C0E9428F500208D01 /* clipboard_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B52C916B0E9428F500208D01 /* clipboard_unittest.cc */; };
 		B53C85280E9C298C000F70AB /* idle_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4EB0E3A60FE009668FC /* idle_timer.cc */; };
 		B5637CB20EF2D79A004EF692 /* process_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8F4A00E65AA2400034DE9 /* process_util_unittest.cc */; };
-		B57008B60F5426B900932CCC /* sys_info_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B57008B50F5426B900932CCC /* sys_info_mac.cc */; };
 		B57E4D780E9C26340090055D /* idletimer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B57E4D770E9C26340090055D /* idletimer_unittest.cc */; };
 		B5A8618E0EC1257900B332C2 /* clipboard.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5A8618D0EC1257900B332C2 /* clipboard.cc */; };
 		B5C4B9C90F44C2AD003F59F9 /* debug_util_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5C4B9C80F44C2AD003F59F9 /* debug_util_mac.cc */; };
@@ -659,7 +658,6 @@
 		AE11B49026857EAED66B50E5 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		B290BFCBD30E45A63758BFC7 /* waitable_event_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = waitable_event_posix.cc; sourceTree = "<group>"; };
 		B52C916B0E9428F500208D01 /* clipboard_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clipboard_unittest.cc; sourceTree = "<group>"; };
-		B57008B50F5426B900932CCC /* sys_info_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sys_info_mac.cc; sourceTree = "<group>"; };
 		B57D788E0F26983200685566 /* scoped_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_file.h; sourceTree = "<group>"; };
 		B57E4D770E9C26340090055D /* idletimer_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idletimer_unittest.cc; sourceTree = "<group>"; };
 		B5A8618D0EC1257900B332C2 /* clipboard.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clipboard.cc; sourceTree = "<group>"; };
@@ -1067,7 +1065,6 @@
 				7BAF50A90E50BACB00CA8A07 /* string_util_posix.h */,
 				7BAF50B10E50BAE700CA8A07 /* string_util_unittest.cc */,
 				7B6AF6310E80211700F9F9CF /* sys_info.h */,
-				B57008B50F5426B900932CCC /* sys_info_mac.cc */,
 				7B6AF6320E80211700F9F9CF /* sys_info_posix.cc */,
 				7B6AF6330E80211700F9F9CF /* sys_info_unittest.cc */,
 				7B4C5F470E4B6BF900679E8F /* sys_string_conversions.h */,
@@ -1491,7 +1488,6 @@
 				820EB4F70E3A613F009668FC /* string_piece.cc in Sources */,
 				829E36460DC0F6AC00819EBF /* string_util.cc in Sources */,
 				820EB4FA0E3A6178009668FC /* string_util_icu.cc in Sources */,
-				B57008B60F5426B900932CCC /* sys_info_mac.cc in Sources */,
 				7B6AF6340E80211C00F9F9CF /* sys_info_posix.cc in Sources */,
 				7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.mm in Sources */,
 				E4CE9D7A0E8C1FD400D5378C /* system_monitor.cc in Sources */,

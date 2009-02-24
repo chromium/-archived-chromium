@@ -108,16 +108,4 @@ size_t SysInfo::VMAllocationGranularity() {
   return sysinfo.dwAllocationGranularity;
 }
 
-// static
-void SysInfo::OperatingSystemVersionNumbers(int32 *major_version,
-                                            int32 *minor_version,
-                                            int32 *bugfix_version) {
-  OSVERSIONINFO info = {0};
-  info.dwOSVersionInfoSize = sizeof(info);
-  GetVersionEx(&info);
-  *major_version = info.dwMajorVersion;
-  *minor_version = info.dwMinorVersion;
-  *bugfix_version = 0;
-}
-
 }  // namespace base
