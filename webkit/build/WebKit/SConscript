@@ -17,7 +17,9 @@ env.Append(
 )
 
 input_files = [
+  '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebCString.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebString.cpp',
+  '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebURL.cpp',
 ]
 
 env.ChromeLibrary('WebKit', input_files)
