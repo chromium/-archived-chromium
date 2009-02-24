@@ -320,6 +320,7 @@ LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 LINUX : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
+LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 // For these two fast/frames tests it looks like the win baseline had some weird
 // artifacts on the scrollbars on one of the frames, which has now been removed.
 // This artifact does not exist on the mac baseline.
@@ -1747,8 +1748,6 @@ WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 // Now our baseline is out of date, and we differ from Mac expected on the
 // caret position in the last line of the text output.
 WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
-// Shading differences.
-WIN LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
 WIN : LayoutTests/fast/loader/frame-creation-removal.html = CRASH
 WIN : chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 
