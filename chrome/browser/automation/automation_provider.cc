@@ -45,8 +45,8 @@ using base::Time;
 class InitialLoadObserver : public NotificationObserver {
  public:
   InitialLoadObserver(size_t tab_count, AutomationProvider* automation)
-      : outstanding_tab_count_(tab_count),
-        automation_(automation) {
+      : automation_(automation),
+        outstanding_tab_count_(tab_count) {
     if (outstanding_tab_count_ > 0) {
       NotificationService* service = NotificationService::current();
       registrar_.Add(this, NotificationType::LOAD_START,
@@ -318,8 +318,8 @@ class TabStripNotificationObserver : public NotificationObserver {
   TabStripNotificationObserver(Browser* parent, NotificationType notification,
     AutomationProvider* automation, int32 routing_id)
     : automation_(automation),
-      notification_(notification),
       parent_(parent),
+      notification_(notification),
       routing_id_(routing_id) {
     NotificationService::current()->
         AddObserver(this, notification_, NotificationService::AllSources());

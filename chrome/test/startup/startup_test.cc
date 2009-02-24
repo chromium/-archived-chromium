@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/common/chrome_paths.h"
@@ -15,7 +16,7 @@ using base::TimeTicks;
 
 namespace {
 
-// Wrapper around CopyFile to retry 10 times if there is an error. 
+// Wrapper around CopyFile to retry 10 times if there is an error.
 // For some reasons on buildbot it happens quite often that
 // the test fails because the dll is still in use.
 bool CopyFileWrapper(const std::wstring &src, const std::wstring &dest) {
@@ -65,7 +66,7 @@ class StartupTest : public UITest {
       timings[i] = end_time - browser_launch_time_;
       // TODO(beng): Can't shut down so quickly. Figure out why, and fix. If we
       // do, we crash.
-      Sleep(50);
+      PlatformThread::Sleep(50);
       UITest::TearDown();
 
       if (i == 0) {

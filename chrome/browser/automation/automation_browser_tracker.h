@@ -13,7 +13,7 @@
 class AutomationBrowserTracker : public AutomationResourceTracker<Browser*> {
 public:
   AutomationBrowserTracker(IPC::Message::Sender* automation)
-      : AutomationResourceTracker(automation) { }
+      : AutomationResourceTracker<Browser*>(automation) { }
 
   virtual ~AutomationBrowserTracker() {
     ClearAllMappings();

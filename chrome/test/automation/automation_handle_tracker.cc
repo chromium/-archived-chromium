@@ -10,9 +10,9 @@
 AutomationResourceProxy::AutomationResourceProxy(
     AutomationHandleTracker* tracker, AutomationMessageSender* sender,
     AutomationHandle handle)
-    : tracker_(tracker),
+    : handle_(handle),
+      tracker_(tracker),
       sender_(sender),
-      handle_(handle),
       is_valid_(true) {
       tracker_->Add(this);
 }

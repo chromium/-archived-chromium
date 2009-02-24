@@ -7,6 +7,8 @@
 #include "chrome/test/automation/automation_proxy.h"
 
 #include "base/logging.h"
+#include "base/platform_thread.h"
+#include "base/process_util.h"
 #include "base/ref_counted.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_messages.h"
@@ -192,7 +194,7 @@ void AutomationProxy::InitializeChannelID() {
   static int channel_counter = 0;
 
   std::wostringstream buf;
-  buf << L"ChromeTestingInterface:" << GetCurrentProcessId() <<
+  buf << L"ChromeTestingInterface:" << base::GetCurrentProcId() <<
          L"." << ++channel_counter;
   channel_id_ = buf.str();
 }
@@ -291,7 +293,7 @@ bool AutomationProxy::WaitForWindowCountToChange(int count, int* new_count,
     bool succeeded = GetBrowserWindowCount(new_count);
     if (!succeeded) return false;
     if (count != *new_count) return true;
-    Sleep(automation::kSleepTime);
+    PlatformThread::Sleep(automation::kSleepTime);
   }
   // Window count never changed.
   return false;
@@ -310,7 +312,7 @@ bool AutomationProxy::WaitForWindowCountToBecome(int count,
     } else if (count == new_count) {
       return true;
     }
-    Sleep(automation::kSleepTime);
+    PlatformThread::Sleep(automation::kSleepTime);
   }
   // Window count never reached the value we sought.
   return false;
@@ -471,7 +473,7 @@ TabProxy* AutomationProxy::CreateExternalTab(HWND parent,
   IPC::Message* response = NULL;
   int handle = 0;
 
-  bool succeeded = 
+  bool succeeded =
       Send(new AutomationMsg_CreateExternalTab(0, parent, dimensions, style,
                                                external_tab_container,
                                                &handle));
