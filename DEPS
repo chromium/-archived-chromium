@@ -22,7 +22,11 @@ deps = {
     "/trunk/deps/third_party/WebKit@10283",
 
   "src/third_party/icu38":
-    "/trunk/deps/third_party/icu38@9252",
+    "/trunk/deps/third_party/icu38@10304",
+
+  # TODO(mark): Remove once this has moved into depot_tools.
+  "src/tools/gyp":
+    "http://gyp.googlecode.com/svn/trunk",
 
   "src/v8":
     "http://v8.googlecode.com/svn/trunk@1266",
