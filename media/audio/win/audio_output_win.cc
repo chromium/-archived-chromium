@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "media/audio/audio_output.h"
 #include "media/audio/win/audio_manager_win.h"
@@ -80,6 +81,7 @@ class AudioOutputStreamMockWin : public AudioOutputStream {
 
 namespace {
 AudioOutputStreamMockWin* g_last_mock_stream = NULL;
+AudioManagerWin* g_audio_manager = NULL;
 
 void ReplaceLastMockStream(AudioOutputStreamMockWin* newer) {
   if (g_last_mock_stream)
@@ -135,11 +137,16 @@ AudioManagerWin::~AudioManagerWin() {
   ReplaceLastMockStream(NULL);
 }
 
-// TODO(cpu): Decide how to manage the lifetime of the AudioManager singleton.
-// Right now we are leaking it.
-AudioManager* AudioManager::GetAudioManager() {
-  static AudioManagerWin* audio_manager = NULL;
-  if (!audio_manager)
-    audio_manager = new AudioManagerWin();
-  return audio_manager;
+void DestroyAudioManagerWin(void* param) {
+  delete g_audio_manager;
+  g_audio_manager = NULL;
 }
+
+AudioManager* AudioManager::GetAudioManager() {
+  if (!g_audio_manager) {
+    g_audio_manager = new AudioManagerWin();
+    base::AtExitManager::RegisterCallback(&DestroyAudioManagerWin, NULL);
+  }
+  return g_audio_manager;
+}
+

@@ -34,6 +34,7 @@ class AudioManagerWin : public AudioManager {
   void ReleaseStream(AudioOutputStreamMockWin* stream);
 
  private:
+  friend void DestroyAudioManagerWin(void *);
   virtual ~AudioManagerWin();
   DISALLOW_COPY_AND_ASSIGN(AudioManagerWin);
 };
