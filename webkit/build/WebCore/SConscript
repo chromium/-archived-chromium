@@ -923,6 +923,7 @@ if env.Bit('windows'):
     '$WEBCORE_DIR/platform/chromium/SoundChromiumWin.cpp',
     '$WEBCORE_DIR/platform/chromium/WindowsVersion.cpp',
 
+    '$WEBCORE_DIR/platform/chromium/ClipboardChromiumWin.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/FontCacheChromiumWin.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/FontPlatformDataChromiumWin.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/FontUtilsChromiumWin.cpp',
@@ -948,6 +949,7 @@ if env.Bit('linux'):
     '$WEBCORE_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/chromium/SoundChromiumPosix.cpp',
 
+    '$WEBCORE_DIR/platform/chromium/ClipboardChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/FontLinux.cpp',
     '$WEBCORE_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',

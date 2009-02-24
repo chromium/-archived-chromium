@@ -60,7 +60,7 @@ RenderLayerIterator::Context::Context(WebCore::RenderLayer* layer)
       next_pos_(0) {
   ASSERT(layer_);
   layer_->updateZOrderLists();
-  layer_->updateOverflowList();
+  layer_->updateNormalFlowList();
 }
 
 bool RenderLayerIterator::Context::HasMoreNeg() {
@@ -84,14 +84,14 @@ WebCore::RenderLayer* RenderLayerIterator::Context::NextSelf() {
 }
 
 bool RenderLayerIterator::Context::HasMoreOverflow() {
-  return layer_->overflowList() &&
+  return layer_->normalFlowList() &&
     next_overflow_ >= 0 &&
-    next_overflow_ < layer_->overflowList()->size();
+    next_overflow_ < layer_->normalFlowList()->size();
 }
 
 RenderLayerIterator::Context RenderLayerIterator::Context::NextOverflow() {
   ASSERT(HasMoreOverflow());
-  return Context(layer_->overflowList()->at(next_overflow_++));
+  return Context(layer_->normalFlowList()->at(next_overflow_++));
 }
 
 bool RenderLayerIterator::Context::HasMorePos() {

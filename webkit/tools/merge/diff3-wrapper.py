@@ -80,6 +80,8 @@ def main(args):
            '/outputtitle', 'merged']
   elif diff_tool == "--use-kdiff3":
     exe = GetPathToBinary("c:/Progra~1/KDiff3/kdiff3.exe")
+    if not os.path.exists(exe):
+      exe = GetPathToBinary("c:/Progra~2/KDiff3/kdiff3.exe")
     cmd = [exe,
            older,
            mine,
