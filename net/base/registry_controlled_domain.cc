@@ -47,21 +47,7 @@
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
 
-#if !defined(OS_MACOSX)
-#include "net_resources.h"
-#endif
-
 namespace net {
-
-// This list of rules is used by unit tests and any other time that the main
-// resource file is not available.  It should be kept exceedingly short to
-// avoid impacting unit test performance.
-static const char kDefaultDomainData[] = "com\n"
-                                         "edu\n"
-                                         "gov\n"
-                                         "net\n"
-                                         "org\n"
-                                         "co.uk\n";
 
 // static
 std::string RegistryControlledDomainService::GetDomainAndRegistry(
@@ -287,14 +273,7 @@ void RegistryControlledDomainService::UseDomainData(const std::string& data) {
 }
 
 void RegistryControlledDomainService::Init() {
-#if defined(OS_MACOSX)
-  ParseDomainData(kDefaultDomainData);
-#else
-  // The resource file isn't present for some unit tests, for example.  Fall
-  // back to a tiny, basic list of rules in that case.
-  StringPiece res_data = NetModule::GetResource(IDR_EFFECTIVE_TLD_NAMES);
-  ParseDomainData(!res_data.empty() ? res_data : kDefaultDomainData);
-#endif
+  ParseDomainData(kDomainData);
 }
 
 void RegistryControlledDomainService::ParseDomainData(const StringPiece& data) {

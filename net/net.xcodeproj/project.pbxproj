@@ -174,6 +174,7 @@
 		B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A30E5A198600A747DB /* url_request_job_manager.cc */; };
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
 		C630F8F3C128BCFD5B403D7F /* ftp_auth_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 15C6370BF6FE62308A559648 /* ftp_auth_cache_unittest.cc */; };
+		CBD597DCEF8626BFC880D741 /* effective_tld_names.cc in Sources */ = {isa = PBXBuildFile; fileRef = F725F0A5A2AA9A87079FA35C /* effective_tld_names.cc */; };
 		CC4B3509420B9663AAD7D16A /* ftp_auth_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0E81748E2B2E8B814DBB78EC /* ftp_auth_cache.cc */; };
 		DFC96EFA0EF9BC5D003C335B /* eviction.cc in Sources */ = {isa = PBXBuildFile; fileRef = DFC96EF80EF9BC5D003C335B /* eviction.cc */; };
 		DFEE18270E882E3600666107 /* stats_histogram.cc in Sources */ = {isa = PBXBuildFile; fileRef = DFEE18250E882E3600666107 /* stats_histogram.cc */; };
@@ -191,8 +192,8 @@
 		E4CE9C260E8C027900D5378C /* http_network_layer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED335C0E5A194700A747DB /* http_network_layer_unittest.cc */; };
 		E4CE9C2E0E8C02ED00D5378C /* http_transaction_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED334A0E5A194700A747DB /* http_transaction_unittest.cc */; };
 		E4CE9C380E8C035C00D5378C /* http_network_transaction_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33590E5A194700A747DB /* http_network_transaction_unittest.cc */; };
-		FEF52DBABC719A22288B2DBE /* proxy_server.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCAE08104262ECEE01726162 /* proxy_server.cc */; };
 		E51639B07E0FC884891C5135 /* http_response_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = AD46F9C0118A7D723526A361 /* http_response_info.cc */; };
+		FEF52DBABC719A22288B2DBE /* proxy_server.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCAE08104262ECEE01726162 /* proxy_server.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -451,8 +452,8 @@
 		07FE37F00F424D9F00049AB8 /* tcp_pinger_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_pinger_unittest.cc; sourceTree = "<group>"; };
 		0E81748E2B2E8B814DBB78EC /* ftp_auth_cache.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftp_auth_cache.cc; path = ftp/ftp_auth_cache.cc; sourceTree = SOURCE_ROOT; };
 		15C6370BF6FE62308A559648 /* ftp_auth_cache_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftp_auth_cache_unittest.cc; path = ftp/ftp_auth_cache_unittest.cc; sourceTree = SOURCE_ROOT; };
-		3C5876D639CF4CE40AF8F45B /* proxy_server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_server.h; path = proxy/proxy_server.h; sourceTree = SOURCE_ROOT; };
 		2C481A2E21097E841607B968 /* client_socket.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client_socket.cc; sourceTree = "<group>"; };
+		3C5876D639CF4CE40AF8F45B /* proxy_server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_server.h; path = proxy/proxy_server.h; sourceTree = SOURCE_ROOT; };
 		4D4C5C050EF1B8C5002CA805 /* filter_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_unittest.cc; sourceTree = "<group>"; };
 		533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_util_posix.cc; sourceTree = "<group>"; };
 		58586B4C2F020D851B930BF2 /* cert_verify_result.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cert_verify_result.h; sourceTree = "<group>"; };
@@ -722,6 +723,7 @@
 		E4AFA6450E5241D300201347 /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = base/base.xcodeproj; sourceTree = "<group>"; };
 		E4BA04540E25613300BE02C6 /* libnet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnet.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F17062083BCE6F0A42F4C479 /* connection_type_histograms.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = connection_type_histograms.cc; sourceTree = "<group>"; };
+		F725F0A5A2AA9A87079FA35C /* effective_tld_names.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effective_tld_names.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -930,6 +932,7 @@
 				7BED326C0E5A181C00A747DB /* client_socket_pool.cc */,
 				7BED326B0E5A181C00A747DB /* client_socket_pool.h */,
 				7BED326A0E5A181C00A747DB /* client_socket_pool_unittest.cc */,
+				F725F0A5A2AA9A87079FA35C /* effective_tld_names.cc */,
 				07FE37F00F424D9F00049AB8 /* tcp_pinger_unittest.cc */,
 				7BED32680E5A181C00A747DB /* completion_callback.h */,
 				F17062083BCE6F0A42F4C479 /* connection_type_histograms.cc */,
@@ -1511,6 +1514,7 @@
 				7B85040D0E5B2DD800730B43 /* data_url.cc in Sources */,
 				042A4AB90ED4F0540001DBED /* directory_lister.cc in Sources */,
 				4DB04D3F0EB24EDF00A5633C /* dns_resolution_observer.cc in Sources */,
+				CBD597DCEF8626BFC880D741 /* effective_tld_names.cc in Sources */,
 				7B8504100E5B2DF000730B43 /* entry_impl.cc in Sources */,
 				7B8504120E5B2DF000730B43 /* escape.cc in Sources */,
 				825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */,

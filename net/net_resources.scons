@@ -12,62 +12,6 @@ Import('env')
 
 env = env.Clone()
 
-input_files = [
-    'base/effective_tld_names.dat',
-    'tools/tld_cleanup/tld_cleanup$PROGSUFFIX',
-]
-
-# This dat file needed by net_resources is generated.
-tld_names_clean = env.Command(
-    '$TARGET_ROOT/grit_derived_sources/effective_tld_names_clean.dat',
-    input_files,
-    '${SOURCES[1]} ${SOURCES[0]} $TARGET')
-
 # This dummy target is used to tell the emitter where to put the target files.
 generated = env.GRIT('$TARGET_ROOT/grit_derived_sources/dummy_net_res',
-                     ['base/net_resources.grd'] + tld_names_clean)
-
-
-if env.Bit('windows'):
-  env.Prepend(
-      RCFLAGS = [
-          '/l 0x409',
-      ],
-  )
-
-  net_resources = []
-  for g in [g for g in generated if str(g).endswith('.rc')]:
-    net_res = env.RES(g)
-    net_resources.extend(net_res)
-    env.Depends(net_res, tld_names_clean)
-
-  input_files = ChromeFileList([
-      'base/net_resources.grd',
-      Derived(env.File('$TARGET_ROOT/grit_derived_sources/net_resources.h')),
-  ])
-
-  p = env.ChromeMSVSProject('build/net_resources.vcproj',
-                            dest=('$CHROME_SRC_DIR/net/'
-                                  + 'build/net_resources.vcproj'),
-                            guid='{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}',
-                            keyword='Win32Proj',
-                            #buildtargets=net_resources,
-                            files=input_files,
-                            relative_path_substitutions = [
-                              ('../../..', '$(OutDir)'),
-                            ],
-                            ConfigurationType='10')
-
-  p.AddToolFile('../tools/grit/build/grit_resources.rules')
-
-  p.AddConfig('Debug|Win32',
-              InheritedPropertySheets=[
-                  '$(SolutionDir)../build/common.vsprops',
-                  '$(SolutionDir)../build/debug.vsprops',
-              ])
-
-  p.AddConfig('Release|Win32',
-              InheritedPropertySheets=[
-                  '$(SolutionDir)../build/common.vsprops',
-                  '$(SolutionDir)../build/release.vsprops',
-              ])
+                     'base/net_resources.grd')

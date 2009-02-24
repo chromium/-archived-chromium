@@ -55,7 +55,7 @@ input_files = ChromeFileList([
     'base/directory_lister.h',
     'base/dns_resolution_observer.cc',
     'base/dns_resolution_observer.h',
-    'base/effective_tld_names.dat',
+    'base/effective_tld_names.cc',
     'base/escape.cc',
     'base/escape.h',
     'base/ev_root_ca_metadata.cc',

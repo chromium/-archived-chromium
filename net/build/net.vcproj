@@ -12,11 +12,6 @@
 			Name="Win32"
 		/>
 	</Platforms>
-	<ToolFiles>
-		<ToolFile
-			RelativePath=".\convert_tld_data.rules"
-		/>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -28,9 +23,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="Convert TLD Data File"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -85,9 +77,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="Convert TLD Data File"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -269,7 +258,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\effective_tld_names.dat"
+				RelativePath="..\base\effective_tld_names.cc"
 				>
 			</File>
 			<File

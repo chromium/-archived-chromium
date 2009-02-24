@@ -293,6 +293,9 @@ class RegistryControlledDomainService {
   // UseDomainData() then we copy that data here and reference it.
   std::string copied_domain_data_;
 
+  // The actual domain data that we parse on startup.
+  static const char kDomainData[];
+
   DISALLOW_COPY_AND_ASSIGN(RegistryControlledDomainService);
 };
 
