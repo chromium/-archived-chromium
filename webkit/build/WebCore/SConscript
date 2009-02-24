@@ -432,6 +432,7 @@ input_files = [
     '$WEBCORE_DIR/page/chromium/FrameChromium.cpp',
 
     '$WEBCORE_DIR/platform/Arena.cpp',
+    '$WEBCORE_DIR/platform/ContentType.cpp',
     '$WEBCORE_DIR/platform/ContextMenu.cpp',
     '$WEBCORE_DIR/platform/DeprecatedPtrListImpl.cpp',
     '$WEBCORE_DIR/platform/DragData.cpp',

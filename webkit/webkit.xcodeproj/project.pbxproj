@@ -39,6 +39,7 @@
 
 /* Begin PBXBuildFile section */
 		07390253EA4F1C8D86C78CCD /* PNGImageEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */; };
+		1C289F9B0516188EB348C3E6 /* ContentType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 516F2CC999D8F5AAC74B5341 /* ContentType.cpp */; };
 		25B9F25199984DFE5E4A59AE /* V8WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */; };
 		31BF82F52CDAED9621AC244E /* CrossThreadCopier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E9CDA0420F5FBB839D45544 /* CrossThreadCopier.cpp */; };
 		3C9197C6A7DABB989CBDBF81 /* Playback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1174C9D4E12AB30D653019A /* Playback.cpp */; };
@@ -1885,6 +1886,7 @@
 		4DDC62B30EAD142D00FB5EBE /* Plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plugin.h; sourceTree = "<group>"; };
 		4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginArray.cpp; sourceTree = "<group>"; };
 		4DDC62B50EAD142D00FB5EBE /* PluginArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginArray.h; sourceTree = "<group>"; };
+		516F2CC999D8F5AAC74B5341 /* ContentType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ContentType.cpp; sourceTree = "<group>"; };
 		535EE0BE0EC4D10E00939D54 /* clipboard_conversion.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clipboard_conversion.cc; sourceTree = "<group>"; };
 		535EE0BF0EC4D10E00939D54 /* clipboard_conversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clipboard_conversion.h; sourceTree = "<group>"; };
 		5379C0C70F2A840D0092C7DF /* WorkerThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkerThread.h; sourceTree = "<group>"; };
@@ -5805,6 +5807,7 @@
 				7B5E8F810D7F3CC1001ECF42 /* AutodrainedPool.h */,
 				7B5E8F820D7F3CC1001ECF42 /* cf */,
 				93AF52620F002ED00073C62D /* chromium */,
+				516F2CC999D8F5AAC74B5341 /* ContentType.cpp */,
 				7B5E8F860D7F3CC1001ECF42 /* ContextMenu.cpp */,
 				7B5E8F870D7F3CC1001ECF42 /* ContextMenu.h */,
 				7B5E8F880D7F3CC1001ECF42 /* ContextMenuItem.h */,
@@ -8739,6 +8742,7 @@
 				938444570F16B0570075F4C5 /* Console.cpp in Sources */,
 				938444580F16B0570075F4C5 /* ContainerNode.cpp in Sources */,
 				938444590F16B0570075F4C5 /* ContentData.cpp in Sources */,
+				1C289F9B0516188EB348C3E6 /* ContentType.cpp in Sources */,
 				9384445A0F16B0570075F4C5 /* ContextMenu.cpp in Sources */,
 				9384445B0F16B0570075F4C5 /* ContextMenuChromium.cpp in Sources */,
 				9384445C0F16B0570075F4C5 /* ContextMenuController.cpp in Sources */,

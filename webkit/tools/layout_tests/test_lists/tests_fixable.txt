@@ -142,10 +142,6 @@ DEFER : LayoutTests/fast/html/keygen.html = FAIL
 // Other
 // -----------------------------------------------------------------
 
-// Bug 5248
-MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-
 // Pixeltest failure: Form control metrics incorrect
 LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL PASS
 
@@ -362,8 +358,6 @@ DEFER LINUX : LayoutTests/svg/hixie/perf/007.xml = FAIL
 DEFER LINUX : LayoutTests/svg/hixie/text/003a.xml = FAIL
 DEFER LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL
 DEFER LINUX : LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL
-DEFER LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
@@ -655,7 +649,7 @@ LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
 // HTTPS tests fail on the open source buildbot with error "cross-site
 // not access allowed".  See bug # 2306
-LINUX MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
+LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
 
 // These require application cache to be enabled.  Skip the tests because
 // they're all timing out.  TODO(tc): Upstream changes to the test so they
@@ -849,7 +843,6 @@ LINUX MAC : LayoutTests/fast/loader/file-URL-with-port-number.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-kerning-and-ligatures.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-partial-selection.html = FAIL
 LINUX : LayoutTests/fast/text/atsui-small-caps-punctuation-size.html = FAIL
-LINUX : LayoutTests/fast/text/atsui-spacing-features.html = FAIL
 LINUX : LayoutTests/fast/text/cg-vs-atsui.html = FAIL
 LINUX : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
 LINUX : LayoutTests/fast/text/large-text-composed-char.html = FAIL
@@ -991,7 +984,7 @@ pending/security/block-test.html = CRASH FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
 
-MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
+LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38389:38450
 // WebKit regression: https://bugs.webkit.org/show_bug.cgi?id=20342
@@ -1705,7 +1698,6 @@ MAC : LayoutTests/animations/change-keyframes.html = FAIL PASS
 // TODO(dsh): These started to fail after r9202.
 LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
-LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 
 // Regressions from WebKit merge 40539:40668
@@ -1810,3 +1802,31 @@ LINUX : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL PASS
 // aligning 15px Ahem should end up in a certain spot. But we have the  
 // x-height correct and we're still one px off. 
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
+
+// New failures from Merge 41078:41149
+LayoutTests/fast/dom/SelectorAPI/dumpNodeList-almost-strict.html = FAIL
+LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
+LayoutTests/fast/dom/anchor-backslash.html = FAIL
+LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
+LayoutTests/fast/dom/onload-open.html = FAIL
+LayoutTests/fast/loader/location-port.html = FAIL
+LayoutTests/fast/reflections/reflection-direction.html = FAIL
+LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
+LayoutTests/fast/text/international/001.html = FAIL
+LayoutTests/fast/text/international/002.html = FAIL
+LayoutTests/fast/text/international/003.html = FAIL
+LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
+LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
+LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
+LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
+LayoutTests/fast/borders/border-image-rotate-transform.html = CRASH
+LayoutTests/fast/text/atsui-spacing-features.html = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
+LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+
+// Always fails for mac bug 5248, new failure with merge for eseidel
+LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+
