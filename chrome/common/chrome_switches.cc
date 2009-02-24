@@ -199,7 +199,9 @@ const wchar_t kOmniBoxPopupCount[]             = L"omnibox-popup-count";
 const wchar_t kAutomationClientChannelID[]     = L"automation-channel";
 
 // Indicates the last session should be restored on startup. This overrides
-// the preferences value and is primarily intended for testing.
+// the preferences value and is primarily intended for testing. The value of
+// this switch is the number of tabs to wait until loaded before
+// 'load completed' is sent to the ui_test.
 const wchar_t kRestoreLastSession[]            = L"restore-last-session";
 
 // Chrome supports a playback and record mode.  Record mode saves *everything*

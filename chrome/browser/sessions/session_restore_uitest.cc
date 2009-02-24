@@ -5,6 +5,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -33,12 +34,13 @@ class SessionRestoreUITest : public UITest {
         path_prefix.AppendASCII("bot3.html"));
   }
 
-  virtual void QuitBrowserAndRestore() {
+  virtual void QuitBrowserAndRestore(int expected_tab_count) {
     UITest::TearDown();
 
     clear_profile_ = false;
 
-    launch_arguments_.AppendSwitch(switches::kRestoreLastSession);
+    launch_arguments_.AppendSwitchWithValue(switches::kRestoreLastSession,
+                                            IntToWString(expected_tab_count));
     UITest::SetUp();
   }
 
@@ -96,7 +98,7 @@ TEST_F(SessionRestoreUITest, Basic) {
   NavigateToURL(url1);
   NavigateToURL(url2);
 
-  QuitBrowserAndRestore();
+  QuitBrowserAndRestore(1);
 
   // NOTE: Don't use GetActiveWindow here, when run with the screen locked
   // active windows returns NULL.
@@ -120,7 +122,7 @@ TEST_F(SessionRestoreUITest, RestoresForwardAndBackwardNavs) {
   scoped_ptr<TabProxy> active_tab(GetActiveTab());
   ASSERT_TRUE(active_tab->GoBack());
 
-  QuitBrowserAndRestore();
+  QuitBrowserAndRestore(1);
 
   // NOTE: Don't use GetActiveWindow here, when run with the screen locked
   // active windows returns NULL.
@@ -158,7 +160,7 @@ TEST_F(SessionRestoreUITest, RestoresCrossSiteForwardAndBackwardNavs) {
   scoped_ptr<TabProxy> active_tab(GetActiveTab());
   ASSERT_TRUE(active_tab->GoBack());
 
-  QuitBrowserAndRestore();
+  QuitBrowserAndRestore(1);
 
   // NOTE: Don't use GetActiveWindow here, when run with the screen locked
   // active windows returns NULL.
@@ -201,7 +203,7 @@ TEST_F(SessionRestoreUITest, TwoTabsSecondSelected) {
 
   ASSERT_TRUE(browser_proxy->AppendTab(url2));
 
-  QuitBrowserAndRestore();
+  QuitBrowserAndRestore(2);
   browser_proxy.reset();
 
   ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count) &&
@@ -246,7 +248,7 @@ TEST_F(SessionRestoreUITest, ClosedTabStaysClosed) {
   scoped_ptr<TabProxy> active_tab(browser_proxy->GetActiveTab());
   active_tab->Close(true);
 
-  QuitBrowserAndRestore();
+  QuitBrowserAndRestore(1);
   browser_proxy.reset();
   tab_proxy.reset();
 
@@ -328,7 +330,7 @@ TEST_F(SessionRestoreUITest, DISABLED_TwoWindowsCloseOneRestoreOnlyOne) {
 
   // Restart and make sure we have only one window with one tab and the url
   // is url1.
-  QuitBrowserAndRestore();
+  QuitBrowserAndRestore(1);
 
   AssertOneWindowWithOneTab();
 
@@ -412,7 +414,7 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   // Restart.
   browser_proxy.reset();
   last_tab.reset();
-  QuitBrowserAndRestore();
+  QuitBrowserAndRestore(3);
 
   // Wait for each tab to finish being restored, then make sure the process
   // count matches.

@@ -450,11 +450,18 @@ bool BrowserInit::ProcessCommandLine(
       // compatibility with the old testing code
       // If there are any loose parameters, we expect each one to generate a
       // new tab; if there are none then we get one homepage tab.
+      int expected_tab_count = 1;
+      if (command_line.HasSwitch(switches::kRestoreLastSession)) {
+        StringToInt(command_line.GetSwitchValue(switches::kRestoreLastSession),
+                    &expected_tab_count);
+      } else {
+        expected_tab_count =
+            std::max(1, static_cast<int>(command_line.GetLooseValues().size()));
+      }
       CreateAutomationProvider<TestingAutomationProvider>(
           testing_channel_id,
           profile,
-          std::max(static_cast<int>(command_line.GetLooseValues().size()),
-                   1));
+          static_cast<size_t>(expected_tab_count));
     }
 #endif
   }
