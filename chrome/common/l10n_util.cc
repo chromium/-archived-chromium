@@ -25,8 +25,6 @@
 #if defined(OS_WIN)
 #include "chrome/views/view.h"
 #endif  // defined(OS_WIN)
-#include "unicode/rbbi.h"
-#include "unicode/uchar.h"
 
 // TODO(playmobil): remove this undef once SkPostConfig.h is fixed.
 // skia/include/corecg/SkPostConfig.h #defines strcasecmp() so we can't use
@@ -208,35 +206,6 @@ std::wstring GetSystemLocale() {
     ret.append(region);
   }
   return ASCIIToWide(ret);
-}
-
-// Compares the character data stored in two different strings by specified
-// Collator instance.
-UCollationResult CompareStringWithCollator(const Collator* collator,
-                                           const std::wstring& lhs,
-                                           const std::wstring& rhs) {
-  DCHECK(collator);
-  UErrorCode error = U_ZERO_ERROR;
-#if defined(WCHAR_T_IS_UTF32)
-  // Need to convert to UTF-16 to be compatible with UnicodeString's
-  // constructor.
-  string16 lhs_utf16 = WideToUTF16(lhs);
-  string16 rhs_utf16 = WideToUTF16(rhs);
-
-  UCollationResult result = collator->compare(
-      static_cast<const UChar*>(lhs_utf16.c_str()),
-      static_cast<int>(lhs_utf16.length()),
-      static_cast<const UChar*>(rhs_utf16.c_str()),
-      static_cast<int>(rhs_utf16.length()),
-      error);
-#else
-  UCollationResult result = collator->compare(
-      static_cast<const UChar*>(lhs.c_str()), static_cast<int>(lhs.length()),
-      static_cast<const UChar*>(rhs.c_str()), static_cast<int>(rhs.length()),
-      error);
-#endif
-  DCHECK(U_SUCCESS(error));
-  return result;
 }
 
 }  // namespace
@@ -670,6 +639,35 @@ void HWNDSetRTLLayout(HWND hwnd) {
   }
 }
 #endif  // defined(OS_WIN)
+
+// Compares the character data stored in two different strings by specified
+// Collator instance.
+UCollationResult CompareStringWithCollator(const Collator* collator,
+                                           const std::wstring& lhs,
+                                           const std::wstring& rhs) {
+  DCHECK(collator);
+  UErrorCode error = U_ZERO_ERROR;
+#if defined(WCHAR_T_IS_UTF32)
+  // Need to convert to UTF-16 to be compatible with UnicodeString's
+  // constructor.
+  string16 lhs_utf16 = WideToUTF16(lhs);
+  string16 rhs_utf16 = WideToUTF16(rhs);
+
+  UCollationResult result = collator->compare(
+      static_cast<const UChar*>(lhs_utf16.c_str()),
+      static_cast<int>(lhs_utf16.length()),
+      static_cast<const UChar*>(rhs_utf16.c_str()),
+      static_cast<int>(rhs_utf16.length()),
+      error);
+#else
+  UCollationResult result = collator->compare(
+      static_cast<const UChar*>(lhs.c_str()), static_cast<int>(lhs.length()),
+      static_cast<const UChar*>(rhs.c_str()), static_cast<int>(rhs.length()),
+      error);
+#endif
+  DCHECK(U_SUCCESS(error));
+  return result;
+}
 
 // Specialization of operator() method for std::wstring version.
 template <>

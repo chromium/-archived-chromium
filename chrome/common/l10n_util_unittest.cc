@@ -10,6 +10,7 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/stl_util-inl.h"
 #if !defined(OS_MACOSX)
 #include "chrome/test/data/resource.h"
 #endif
@@ -19,7 +20,20 @@
 
 namespace {
 
-class L10nUtilTest: public PlatformTest {
+class StringWrapper {
+ public:
+  explicit StringWrapper(const std::wstring& string) : string_(string) {}
+  const std::wstring& string() const { return string_; }
+
+ private:
+  std::wstring string_;
+
+  DISALLOW_COPY_AND_ASSIGN(StringWrapper);
+};
+
+}  // namespace
+
+class L10nUtilTest : public PlatformTest {
 };
 
 #if defined(OS_WIN)
@@ -158,6 +172,20 @@ TEST_F(L10nUtilTest, GetAppLocale) {
   file_util::Delete(new_locale_dir, true);
   UErrorCode error_code = U_ZERO_ERROR;
   Locale::setDefault(locale, error_code);
+}
+
+TEST_F(L10nUtilTest, SortStringsUsingFunction) {
+  std::vector<StringWrapper*> strings;
+  strings.push_back(new StringWrapper(L"C"));
+  strings.push_back(new StringWrapper(L"d"));
+  strings.push_back(new StringWrapper(L"b"));
+  strings.push_back(new StringWrapper(L"a"));
+  l10n_util::SortStringsUsingMethod(L"en-US", &strings, &StringWrapper::string);
+  ASSERT_TRUE(L"a" == strings[0]->string());
+  ASSERT_TRUE(L"b" == strings[1]->string());
+  ASSERT_TRUE(L"C" == strings[2]->string());
+  ASSERT_TRUE(L"d" == strings[3]->string());
+  STLDeleteElements(&strings);
 }
 
 TEST_F(L10nUtilTest, GetFirstStrongCharacterDirection) {
@@ -334,5 +362,3 @@ TEST_F(L10nUtilTest, WrapPathWithLTRFormatting) {
     EXPECT_EQ(wrapped_path, test_data[i].wrapped_path);
   }
 }
-}
-

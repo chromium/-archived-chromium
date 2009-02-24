@@ -23,9 +23,11 @@
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "base/string_util.h"
-#include "third_party/icu38/public/common/unicode/ubidi.h"
 #include "unicode/coll.h"
 #include "unicode/locid.h"
+#include "unicode/rbbi.h"
+#include "unicode/ubidi.h"
+#include "unicode/uchar.h"
 
 class FilePath;
 class PrefService;
@@ -197,6 +199,72 @@ int DefaultCanvasTextAlignment();
 // such as Hebrew.
 void HWNDSetRTLLayout(HWND hwnd);
 #endif
+
+// Compares the two strings using the specified collator.
+UCollationResult CompareStringWithCollator(const Collator* collator,
+                                           const std::wstring& lhs,
+                                           const std::wstring& rhs);
+
+// Used by SortStringsUsingMethod. Invokes a method on the objects passed to
+// operator (), comparing the string results using a collator.
+template <class T, class Method>
+class StringMethodComparatorWithCollator :
+    public std::binary_function<const std::wstring&,
+                                const std::wstring&,
+                                bool> {
+ public:
+  StringMethodComparatorWithCollator(Collator* collator, Method method)
+      : collator_(collator),
+        method_(method) { }
+
+  // Returns true if lhs preceeds rhs.
+  bool operator() (T* lhs_t, T* rhs_t) {
+    return CompareStringWithCollator(collator_, (lhs_t->*method_)(),
+                                     (rhs_t->*method_)()) == UCOL_LESS;
+  }
+
+ private:
+  Collator* collator_;
+  Method method_;
+};
+
+// Used by SortStringsUsingMethod. Invokes a method on the objects passed to
+// operator (), comparing the string results using <.
+template <class T, class Method>
+class StringMethodComparator : public std::binary_function<const std::wstring&,
+                                                           const std::wstring&,
+                                                           bool> {
+ public:
+  explicit StringMethodComparator(Method method) : method_(method) { }
+
+  // Returns true if lhs preceeds rhs.
+  bool operator() (T* lhs_t, T* rhs_t) {
+    return (lhs_t->*method_)() < (rhs_t->*method_)();
+  }
+
+ private:
+  Method method_;
+};
+
+// Sorts the objects in |elements| using the method |method|, which must return
+// a string. Sorting is done using a collator, unless a collator can not be
+// found in which case the strings are sorted using the operator <.
+template <class T, class Method>
+void SortStringsUsingMethod(const std::wstring& locale,
+                            std::vector<T*>* elements,
+                            Method method) {
+  UErrorCode error = U_ZERO_ERROR;
+  Locale loc(WideToUTF8(locale).c_str());
+  scoped_ptr<Collator> collator(Collator::createInstance(loc, error));
+  if (U_FAILURE(error)) {
+    sort(elements->begin(), elements->end(),
+         StringMethodComparator<T,Method>(method));
+    return;
+  }
+  
+  std::sort(elements->begin(), elements->end(),
+      StringMethodComparatorWithCollator<T,Method>(collator.get(), method));
+}
 
 // Compares two elements' string keys and returns true if the first element's
 // string key is less than the second element's string key. The Element must
