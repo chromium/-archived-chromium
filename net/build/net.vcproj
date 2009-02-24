@@ -998,18 +998,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\proxy\proxy_resolver_v8.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\proxy\proxy_resolver_v8.h"
-				>
-			</File>
-			<File
-				RelativePath="..\proxy\proxy_resolver_script.h"
-				>
-			</File>
-			<File
 				RelativePath="..\proxy\proxy_resolver_winhttp.cc"
 				>
 			</File>

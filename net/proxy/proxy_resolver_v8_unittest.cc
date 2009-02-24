@@ -230,4 +230,3 @@ TEST(ProxyResolverV8Test, NoSetPacScript) {
   result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
   EXPECT_EQ(net::OK, result);
 }
-
