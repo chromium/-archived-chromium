@@ -132,27 +132,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebCString.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebPoint.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebRect.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebSize.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebString.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebURL.h"
 					>
 				</File>
 			</Filter>
@@ -160,15 +140,7 @@
 				Name="src"
 				>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebCString.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebString.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebURL.cpp"
 					>
 				</File>
 			</Filter>
