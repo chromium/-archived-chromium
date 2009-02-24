@@ -37,7 +37,7 @@ class HistoryContentsProvider : public AutocompleteProvider {
 
   // The maximum match count we'll report. If the db_match_count is greater
   // than this, it will be clamped to this result.
-  static const int kMaxMatchCount = 50;
+  static const size_t kMaxMatchCount = 50;
 
  private:
   void QueryComplete(HistoryService::Handle handle,

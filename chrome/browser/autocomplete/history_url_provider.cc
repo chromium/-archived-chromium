@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include "chrome/browser/autocomplete/history_url_provider.h"
 
 #include <algorithm>
@@ -225,8 +227,8 @@ void HistoryURLProvider::SuggestExactInput(const AutocompleteInput& input,
   // suggestion, since it can't be navigated to.  We also need this so other
   // history suggestions don't duplicate the same effective URL as this.
   // TODO(brettw) make autocomplete use GURL!
-  GURL canonicalized_url(URLFixerUpper::FixupURL(input.text(),
-                                                 input.desired_tld()));
+  GURL canonicalized_url(URLFixerUpper::FixupURL(WideToUTF8(input.text()),
+      WideToUTF8(input.desired_tld())));
   if (!canonicalized_url.is_valid() ||
       (canonicalized_url.IsStandard() &&
        !canonicalized_url.SchemeIsFile() && canonicalized_url.host().empty()))
@@ -288,8 +290,9 @@ bool HistoryURLProvider::FixupExactSuggestion(history::URLDatabase* db,
     // This code should match what SuggestExactInput() would do with no
     // desired_tld().
     // TODO(brettw) make autocomplete use GURL!
-    GURL destination_url(URLFixerUpper::FixupURL(params->input.text(),
-                                                 std::wstring()));
+    GURL destination_url(
+        URLFixerUpper::FixupURL(WideToUTF8(params->input.text()),
+        std::string()));
     if (!db->GetRowForURL(destination_url, &info))
       return false;
   } else {
@@ -333,7 +336,8 @@ bool HistoryURLProvider::PromoteMatchForInlineAutocomplete(
 // static
 std::wstring HistoryURLProvider::FixupUserInput(const std::wstring& input) {
   // Fixup and canonicalize user input.
-  const GURL canonical_gurl(URLFixerUpper::FixupURL(input, std::wstring()));
+  const GURL canonical_gurl(URLFixerUpper::FixupURL(WideToUTF8(input),
+      std::string()));
   std::wstring output(UTF8ToWide(canonical_gurl.possibly_invalid_spec()));
   if (output.empty())
     return input;  // This probably won't happen, but there are no guarantees.
@@ -342,7 +346,7 @@ std::wstring HistoryURLProvider::FixupUserInput(const std::wstring& input) {
   // upper only prepends the "http" scheme, that's all we need to check for.
   url_parse::Component scheme;
   if (canonical_gurl.SchemeIs("http") &&
-      !url_util::FindAndCompareScheme(input, "http", &scheme))
+      !url_util::FindAndCompareScheme(WideToUTF8(input), "http", &scheme))
     TrimHttpPrefix(&output);
 
   // Make the number of trailing slashes on the output exactly match the input.
@@ -377,7 +381,7 @@ std::wstring HistoryURLProvider::FixupUserInput(const std::wstring& input) {
 // static
 size_t HistoryURLProvider::TrimHttpPrefix(std::wstring* url) {
   url_parse::Component scheme;
-  if (!url_util::FindAndCompareScheme(*url, "http", &scheme))
+  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), "http", &scheme))
     return 0;  // Not "http".
 
   // Erase scheme plus up to two slashes.
@@ -589,8 +593,8 @@ void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
 
   // Create a match for exactly what the user typed.  This will always be one
   // of the top two results we return.
-  const bool trim_http = !url_util::FindAndCompareScheme(input.text(),
-                                                         "http", NULL);
+  const bool trim_http = !url_util::FindAndCompareScheme(
+      WideToUTF8(input.text()), "http", NULL);
   SuggestExactInput(input, trim_http);
 
   // We'll need the history service to run both passes, so try to obtain it.
@@ -798,8 +802,13 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
       CalculateRelevance(params->input.type(), match_type, match_number),
       !!info.visit_count(), AutocompleteMatch::HISTORY_URL);
   match.destination_url = info.url();
+#if !defined(OS_MACOSX)
   match.fill_into_edit = gfx::ElideUrl(info.url(), ChromeFont(), 0,
       match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages);
+#else
+  // TODO(port): ChromeFont() and gfx::ElideUrl not implemented on mac.
+  NOTIMPLEMENTED();
+#endif
   if (!params->input.prevent_inline_autocomplete()) {
     match.inline_autocomplete_offset =
         history_match.input_location + params->input.text().length();

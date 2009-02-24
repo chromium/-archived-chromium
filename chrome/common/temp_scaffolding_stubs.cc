@@ -15,7 +15,6 @@
 #include "base/string_piece.h"
 #include "base/singleton.h"
 #include "base/task.h"
-#include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
@@ -46,54 +45,6 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
-
-//--------------------------------------------------------------------------
-
-// static
-size_t AutocompleteProvider::max_matches_;
-
-AutocompleteProvider::~AutocompleteProvider() {
-  // Though nothing needs this function yet, we want to get the C++ metadata
-  // for this class grounded in this file.
-  NOTIMPLEMENTED();
-}
-
-std::wstring AutocompleteProvider::StringForURLDisplay(const GURL& url,
-                                                       bool check_accept_lang) {
-  NOTIMPLEMENTED();
-  return L"";
-}
-
-// static
-size_t AutocompleteResult::max_matches_;
-
-AutocompleteMatch::AutocompleteMatch(AutocompleteProvider* provider,
-                                     int relevance,
-                                     bool deletable,
-                                     Type type) {
-  NOTIMPLEMENTED();
-}
-
-//static
-std::string AutocompleteInput::TypeToString(AutocompleteInput::Type type) {
-  NOTIMPLEMENTED();
-  return "";
-}
-
-//static
-std::string AutocompleteMatch::TypeToString(AutocompleteMatch::Type type) {
-  NOTIMPLEMENTED();
-  return "";
-}
-
-void AutocompleteMatch::ClassifyLocationInString(
-    size_t match_location,
-    size_t match_length,
-    size_t overall_length,
-    int style,
-    ACMatchClassifications* classification) {
-  NOTIMPLEMENTED();
-}
 
 //--------------------------------------------------------------------------
 
@@ -402,12 +353,6 @@ void DebuggerShell::ProcessCommand(const std::wstring& data) {
   NOTIMPLEMENTED();
 }
 #endif  // !CHROME_DEBUGGER_DISABLED
-
-void HistoryURLProvider::ExecuteWithDB(history::HistoryBackend*,
-                                       history::URLDatabase*,
-                                       HistoryURLProviderParams*) {
-  NOTIMPLEMENTED();
-}
 
 namespace bookmark_utils {
 

@@ -628,6 +628,15 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
 
 class ExternalProtocolHandler {
  public:
+  enum BlockState {
+    DONT_BLOCK,
+    BLOCK,
+    UNKNOWN,
+  };
+  static BlockState GetBlockState(const std::wstring& scheme) {
+    NOTIMPLEMENTED();
+    return UNKNOWN;
+  }
   static void LaunchUrl(const GURL& url, int render_process_host_id,
                         int tab_contents_id) {
     NOTIMPLEMENTED();
@@ -661,6 +670,14 @@ class FontsLanguagesWindowView {
  public:
   explicit FontsLanguagesWindowView(Profile* profile) { NOTIMPLEMENTED(); }
   void SelectLanguagesTab() { NOTIMPLEMENTED(); }
+};
+
+class HistoryTabUI {
+ public:
+  static const GURL GetHistoryURLWithSearchText(const std::wstring& text) {
+    NOTIMPLEMENTED();
+    return GURL();
+  }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

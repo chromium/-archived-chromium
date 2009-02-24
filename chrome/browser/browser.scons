@@ -663,13 +663,10 @@ if not env.Bit('windows'):
   # TODO: Port these.
   input_files.Remove(
       'app_modal_dialog_queue.cc',
-      'autocomplete/autocomplete.cc',
       'autocomplete/autocomplete_accessibility.cc',
       'autocomplete/autocomplete_edit.cc',
       'autocomplete/autocomplete_popup.cc',
       'autocomplete/edit_drop_target.cc',
-      'autocomplete/history_url_provider.cc',
-      'autocomplete/search_provider.cc',
       'automation/automation_provider.cc',
       'automation/automation_provider_list.cc',
       'automation/ui_controls.cc',
