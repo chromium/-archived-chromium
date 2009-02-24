@@ -37,6 +37,7 @@ MSVC_POP_WARNING();
 #include "base/file_version_info.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
@@ -336,20 +337,9 @@ void BuildUserAgent(bool mimic_safari, std::string* result) {
   int32 os_major_version = 0;
   int32 os_minor_version = 0;
   int32 os_bugfix_version = 0;
-#if defined(OS_WIN)
-  OSVERSIONINFO info = {0};
-  info.dwOSVersionInfoSize = sizeof(info);
-  GetVersionEx(&info);
-  os_major_version = info.dwMajorVersion;
-  os_minor_version = info.dwMinorVersion;
-#elif defined(OS_MACOSX)
-  Gestalt(gestaltSystemVersionMajor, 
-      reinterpret_cast<SInt32*>(&os_major_version));
-  Gestalt(gestaltSystemVersionMinor, 
-      reinterpret_cast<SInt32*>(&os_minor_version));
-  Gestalt(gestaltSystemVersionBugFix, 
-      reinterpret_cast<SInt32*>(&os_bugfix_version));
-#endif
+  base::SysInfo::OperatingSystemVersionNumbers(&os_major_version,
+                                               &os_minor_version,
+                                               &os_bugfix_version);
 
   // Get the product name and version, and replace Safari's Version/X string
   // with it.  This is done to expose our product name in a manner that is
