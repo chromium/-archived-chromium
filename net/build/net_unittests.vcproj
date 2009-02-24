@@ -419,6 +419,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\proxy\proxy_resolver_v8_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\proxy\proxy_server_unittest.cc"
 					>
 				</File>
