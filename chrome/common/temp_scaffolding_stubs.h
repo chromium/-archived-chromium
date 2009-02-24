@@ -235,24 +235,6 @@ class PrintJobManager {
 
 }  // namespace printing
 
-class DownloadRequestManager
-    : public base::RefCountedThreadSafe<DownloadRequestManager> {
- public:
-  DownloadRequestManager(MessageLoop* io_loop, MessageLoop* ui_loop) {
-    NOTIMPLEMENTED();
-  }
-  class Callback {
-   public:
-    virtual void ContinueDownload() = 0;
-    virtual void CancelDownload() = 0;
-  };
-  void CanDownloadOnIOThread(int render_process_host_id,
-                             int render_view_id,
-                             Callback* callback) {
-    NOTIMPLEMENTED();
-  }
-};
-
 namespace sandbox {
 
 enum ResultCode {

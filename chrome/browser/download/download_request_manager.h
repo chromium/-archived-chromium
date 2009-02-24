@@ -6,10 +6,14 @@
 #define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_REQUEST_MANAGER_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "base/ref_counted.h"
+#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
+class DownloadRequestDialogDelegate;
 class MessageLoop;
 class NavigationController;
 class TabContents;
@@ -40,8 +44,6 @@ class TabContents;
 class DownloadRequestManager :
     public base::RefCountedThreadSafe<DownloadRequestManager> {
  public:
-  class TabDownloadState;
-
   // Download status for a particular page. See class description for details.
   enum DownloadStatus {
     ALLOW_ONE_DOWNLOAD,
@@ -50,15 +52,96 @@ class DownloadRequestManager :
     DOWNLOADS_NOT_ALLOWED
   };
 
-  DownloadRequestManager(MessageLoop* io_loop, MessageLoop* ui_loop);
-  ~DownloadRequestManager();
-
   // The callback from CanDownloadOnIOThread. This is invoked on the io thread.
   class Callback {
    public:
     virtual void ContinueDownload() = 0;
     virtual void CancelDownload() = 0;
   };
+
+  // TabDownloadState maintains the download state for a particular tab.
+  // TabDownloadState installs observers to update the download status
+  // appropriately. Additionally TabDownloadState prompts the user as necessary.
+  // TabDownloadState deletes itself (by invoking
+  // DownloadRequestManager::Remove) as necessary.
+  class TabDownloadState : public NotificationObserver {
+   public:
+    // Creates a new TabDownloadState. |controller| is the controller the
+    // TabDownloadState tracks the state of and is the host for any dialogs that
+    // are displayed. |originating_controller| is used to determine the host of
+    // the initial download. If |originating_controller| is null, |controller|
+    // is used. |originating_controller| is typically null, but differs from
+    // |controller| in the case of a constrained popup requesting the download.
+    TabDownloadState(DownloadRequestManager* host,
+                     NavigationController* controller,
+                     NavigationController* originating_controller);
+    ~TabDownloadState();
+
+    // Status of the download.
+    void set_download_status(DownloadRequestManager::DownloadStatus status) {
+      status_ = status;
+    }
+    DownloadRequestManager::DownloadStatus download_status() const {
+      return status_;
+    }
+
+    // Invoked when a user gesture occurs (mouse click, enter or space). This
+    // may result in invoking Remove on DownloadRequestManager.
+    void OnUserGesture();
+
+    // Asks the user if they really want to allow the download.
+    // See description above CanDownloadOnIOThread for details on lifetime of
+    // callback.
+    void PromptUserForDownload(TabContents* tab,
+                               DownloadRequestManager::Callback* callback);
+
+    // Are we showing a prompt to the user?
+    bool is_showing_prompt() const { return (dialog_delegate_ != NULL); }
+
+    // NavigationController we're tracking.
+    NavigationController* controller() const { return controller_; }
+
+    // Invoked from DownloadRequestDialogDelegate. Notifies the delegates and
+    // changes the status appropriately.
+    void Cancel();
+    void Accept();
+
+   private:
+    // NotificationObserver method.
+    void Observe(NotificationType type,
+                 const NotificationSource& source,
+                 const NotificationDetails& details);
+
+    // Notifies the callbacks as to whether the download is allowed or not.
+    // Updates status_ appropriately.
+    void NotifyCallbacks(bool allow);
+
+    DownloadRequestManager* host_;
+
+    NavigationController* controller_;
+
+    // Host of the first page the download started on. This may be empty.
+    std::string initial_page_host_;
+
+    DownloadRequestManager::DownloadStatus status_;
+
+    // Callbacks we need to notify. This is only non-empty if we're showing a
+    // dialog.
+    // See description above CanDownloadOnIOThread for details on lifetime of
+    // callbacks.
+    std::vector<DownloadRequestManager::Callback*> callbacks_;
+
+    // Used to remove observers installed on NavigationController.
+    NotificationRegistrar registrar_;
+
+    // Handles showing the dialog to the user, may be null.
+    DownloadRequestDialogDelegate* dialog_delegate_;
+
+    DISALLOW_COPY_AND_ASSIGN(TabDownloadState);
+  };
+
+  DownloadRequestManager(MessageLoop* io_loop, MessageLoop* ui_loop);
+  ~DownloadRequestManager();
 
   // Returns the download status for a page. This does not change the state in
   // anyway.

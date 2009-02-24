@@ -7,15 +7,9 @@
 
 #include <string>
 
+#include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "googleurl/src/gurl.h"
-
-#if defined(OS_WIN)
-// TODO(port): Remove ifdef when downloads are ported.
-#include "chrome/browser/download/download_request_manager.h"
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 class DownloadResourceHandler;
 class ResourceDispatcherHost;

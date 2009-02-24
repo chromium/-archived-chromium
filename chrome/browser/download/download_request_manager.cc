@@ -6,150 +6,15 @@
 
 #include "base/message_loop.h"
 #include "base/thread.h"
-#include "chrome/browser/tab_contents/constrained_window.h"
+#include "chrome/browser/download/download_request_dialog_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/dialog_delegate.h"
-#include "chrome/views/message_box_view.h"
-#include "grit/generated_resources.h"
-
-namespace {
-
-// DialogDelegateImpl ----------------------------------------------------------
-
-// DialogDelegateImpl is the DialogDelegate implementation used to prompt the
-// the user as to whether they want to allow multiple downloads.
-// DialogDelegateImpl delegates the allow/cancel methods to the
-// TabDownloadState.
-//
-// TabDownloadState does not directly implement DialogDelegate, rather it is
-// split into DialogDelegateImpl as TabDownloadState may be deleted before
-// the dialog.
-
-class DialogDelegateImpl : public views::DialogDelegate {
- public:
-  DialogDelegateImpl(TabContents* tab,
-                     DownloadRequestManager::TabDownloadState* host);
-
-  void set_host(DownloadRequestManager::TabDownloadState* host) {
-    host_ = host;
-  }
-
-  // Closes the prompt.
-  void CloseWindow();
-
- private:
-  // DialogDelegate methods;
-  virtual bool Cancel();
-  virtual bool Accept();
-  virtual views::View* GetContentsView() { return message_view_; }
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
-  virtual int GetDefaultDialogButton() const {
-    return DIALOGBUTTON_CANCEL;
-  }
-  virtual void WindowClosing();
-
-  // The TabDownloadState we're displaying the dialog for. May be null.
-  DownloadRequestManager::TabDownloadState* host_;
-
-  MessageBoxView* message_view_;
-
-  ConstrainedWindow* window_;
-
-  DISALLOW_COPY_AND_ASSIGN(DialogDelegateImpl);
-};
-
-}  // namespace
 
 // TabDownloadState ------------------------------------------------------------
-
-// TabDownloadState maintains the download state for a particular tab.
-// TabDownloadState installs observers to update the download status
-// appropriately. Additionally TabDownloadState prompts the user as necessary.
-// TabDownloadState deletes itself (by invoking DownloadRequestManager::Remove)
-// as necessary.
-
-class DownloadRequestManager::TabDownloadState : public NotificationObserver {
- public:
-  // Creates a new TabDownloadState. |controller| is the controller the
-  // TabDownloadState tracks the state of and is the host for any dialogs that
-  // are displayed. |originating_controller| is used to determine the host of
-  // the initial download. If |originating_controller| is null, |controller| is
-  // used. |originating_controller| is typically null, but differs from
-  // |controller| in the case of a constrained popup requesting the download.
-  TabDownloadState(DownloadRequestManager* host,
-                   NavigationController* controller,
-                   NavigationController* originating_controller);
-  ~TabDownloadState();
-
-  // Status of the download.
-  void set_download_status(DownloadRequestManager::DownloadStatus status) {
-    status_ = status;
-  }
-  DownloadRequestManager::DownloadStatus download_status() const {
-    return status_;
-  }
-
-  // Invoked when a user gesture occurs (mouse click, enter or space). This
-  // may result in invoking Remove on DownloadRequestManager.
-  void OnUserGesture();
-
-  // Asks the user if they really want to allow the download.
-  // See description above CanDownloadOnIOThread for details on lifetime of
-  // callback.
-  void PromptUserForDownload(TabContents* tab,
-                             DownloadRequestManager::Callback* callback);
-
-  // Are we showing a prompt to the user?
-  bool is_showing_prompt() const { return (dialog_delegate_ != NULL); }
-
-  // NavigationController we're tracking.
-  NavigationController* controller() const { return controller_; }
-
-  // Invoked from DialogDelegateImpl. Notifies the delegates and changes the
-  // status appropriately.
-  void Cancel();
-  void Accept();
-
- private:
-  // NotificationObserver method.
-  void Observe(NotificationType type,
-               const NotificationSource& source,
-               const NotificationDetails& details);
-
-  // Notifies the callbacks as to whether the download is allowed or not.
-  // Updates status_ appropriately.
-  void NotifyCallbacks(bool allow);
-
-  DownloadRequestManager* host_;
-
-  NavigationController* controller_;
-
-  // Host of the first page the download started on. This may be empty.
-  std::string initial_page_host_;
-
-  DownloadRequestManager::DownloadStatus status_;
-
-  // Callbacks we need to notify. This is only non-empty if we're showing a
-  // dialog.
-  // See description above CanDownloadOnIOThread for details on lifetime of
-  // callbacks.
-  std::vector<DownloadRequestManager::Callback*> callbacks_;
-
-  // Used to remove observers installed on NavigationController.
-  NotificationRegistrar registrar_;
-
-  // Handles showing the dialog to the user, may be null.
-  DialogDelegateImpl* dialog_delegate_;
-
-  DISALLOW_COPY_AND_ASSIGN(TabDownloadState);
-};
 
 DownloadRequestManager::TabDownloadState::TabDownloadState(
     DownloadRequestManager* host,
@@ -204,7 +69,7 @@ void DownloadRequestManager::TabDownloadState::PromptUserForDownload(
   if (DownloadRequestManager::delegate_)
     NotifyCallbacks(DownloadRequestManager::delegate_->ShouldAllowDownload());
   else
-    dialog_delegate_ = new DialogDelegateImpl(tab, this);
+    dialog_delegate_ = DownloadRequestDialogDelegate::Create(tab, this);
 }
 
 void DownloadRequestManager::TabDownloadState::Cancel() {
@@ -293,47 +158,6 @@ void DownloadRequestManager::TabDownloadState::NotifyCallbacks(bool allow) {
 namespace {
 
 // DialogDelegateImpl ----------------------------------------------------------
-
-DialogDelegateImpl::DialogDelegateImpl(
-    TabContents* tab,
-    DownloadRequestManager::TabDownloadState* host)
-    : host_(host) {
-  message_view_ = new MessageBoxView(
-      MessageBoxView::kIsConfirmMessageBox,
-      l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING),
-      std::wstring());
-  window_ = tab->CreateConstrainedDialog(this, message_view_);
-}
-
-void DialogDelegateImpl::CloseWindow() {
-  window_->CloseConstrainedWindow();
-}
-
-bool DialogDelegateImpl::Cancel() {
-  if (host_)
-    host_->Cancel();
-  return true;
-}
-
-bool DialogDelegateImpl::Accept() {
-  if (host_)
-    host_->Accept();
-  return true;
-}
-
-std::wstring DialogDelegateImpl::GetDialogButtonLabel(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK)
-    return l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING_ALLOW);
-  if (button == DIALOGBUTTON_CANCEL)
-    return l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING_DENY);
-  return std::wstring();
-}
-
-void DialogDelegateImpl::WindowClosing() {
-  DCHECK(!host_);
-  delete this;
-}
 
 }  // namespace
 

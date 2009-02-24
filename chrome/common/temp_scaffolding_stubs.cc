@@ -22,6 +22,8 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/debugger/debugger_shell.h"
+#include "chrome/browser/download/download_request_dialog_delegate.h"
+#include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/memory_details.h"
@@ -509,6 +511,13 @@ bool NewTabUIHandleURL(GURL* url,
 }
 
 CPBrowserFuncs* GetCPBrowserFuncsForBrowser() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
+    TabContents* tab,
+    DownloadRequestManager::TabDownloadState* host) {
   NOTIMPLEMENTED();
   return NULL;
 }

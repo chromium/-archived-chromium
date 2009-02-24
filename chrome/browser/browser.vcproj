@@ -1798,6 +1798,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\download\download_request_dialog_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\download\download_request_dialog_delegate_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\download_request_dialog_delegate_win.h"
+				>
+			</File>
+			<File
 				RelativePath=".\download\download_request_manager.cc"
 				>
 			</File>
