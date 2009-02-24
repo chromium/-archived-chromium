@@ -4,7 +4,8 @@ include_rules = [
   "+chrome/plugin",
   "+grit",  # For generated headers
   "+media/audio",
-  "+media/base",   # For HTML5 media rendering.
+  "+media/base",
+  "+media/filters",
   "+sandbox/src",
   "+skia/ext",
   "+skia/include",
