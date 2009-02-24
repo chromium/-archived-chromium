@@ -317,9 +317,9 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
-LINUX MAC : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
-LINUX MAC : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
-LINUX MAC : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
+LINUX : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
+LINUX : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
+LINUX : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
 LINUX : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
@@ -1498,10 +1498,6 @@ WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 
-// 2008/12/13 - Turning off some Friday night test regressions until
-// they can be looked at.
-WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH
-
 // Passes when run by itself.  Fails on the buildbot.
 LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
 
@@ -1739,11 +1735,7 @@ LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
 // Regressions from WebKit merge to 40864
 WIN LINUX : LayoutTests/fast/block/positioning/001.html = FAIL PASS
 // New test. We should fix it, but it doesn't need to block the current release
-DEFER WIN : LayoutTests/fast/dom/getBoundingClientRect.html = FAIL
-// New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/fast/dom/getClientRects.html = FAIL
-// New test. We should fix it, but it doesn't need to block the current release
-DEFER : LayoutTests/fast/dom/navigator-detached-no-crash.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
 WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
@@ -1751,8 +1743,6 @@ WIN : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 // Now our baseline is out of date, and we differ from Mac expected on the
 // caret position in the last line of the text output.
 WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
-WIN : LayoutTests/fast/loader/frame-creation-removal.html = CRASH
-WIN : chrome/fast/events/iframe-onload-remove-self-no-crash.html = CRASH
 
 // Sharted showing up the mac build bots on 02/16/09 (sometimes passes in
 // debug, but haven't seen it pass in release)
@@ -1773,8 +1763,6 @@ WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL PASS
 LINUX : LayoutTests/fast/clip/017.html = CRASH PASS
 
 // Unknown reason.
-// New test. We should fix it, but it doesn't need to block the current release
-DEFER WIN : LayoutTests/transitions/transition-shorthand-delay.html = FAIL
 LINUX : LayoutTests/fast/clip/009.html = CRASH PASS
 LINUX : LayoutTests/fast/clip/013.html = CRASH PASS
 LINUX : LayoutTests/fast/clip/015.html = CRASH PASS
@@ -1812,16 +1800,14 @@ WIN : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 WIN : LayoutTests/fast/dom/SelectorAPI/undefined-null-stringify.html = FAIL
 LayoutTests/fast/dom/anchor-backslash.html = FAIL
 LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
-LayoutTests/fast/dom/onload-open.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
 LayoutTests/fast/reflections/reflection-direction.html = FAIL
 LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
 LayoutTests/fast/borders/border-image-rotate-transform.html = CRASH
-LayoutTests/fast/text/atsui-spacing-features.html = FAIL
-LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
-LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
-LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+LINUX WIN : LayoutTests/fast/text/atsui-spacing-features.html = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 
 // Always fails for mac bug 5248, new failure with merge for eseidel
 LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
