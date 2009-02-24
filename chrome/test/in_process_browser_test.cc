@@ -12,7 +12,6 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
-#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -44,10 +43,7 @@ bool DieFileDie(const std::wstring& file, bool recurse) {
 
 }  // namespace
 
-InProcessBrowserTest::InProcessBrowserTest()
-    : browser_(NULL),
-      show_window_(false),
-      dom_automation_enabled_(false) {
+InProcessBrowserTest::InProcessBrowserTest() : browser_(NULL) {
 }
 
 void InProcessBrowserTest::SetUp() {
@@ -72,22 +68,14 @@ void InProcessBrowserTest::SetUp() {
   CommandLine* command_line = CommandLine::ForCurrentProcessMutable();
 
   // Hide windows on show.
-  if (!command_line->HasSwitch(kUnitTestShowWindows) && !show_window_)
+  if (!command_line->HasSwitch(kUnitTestShowWindows))
     BrowserView::SetShowState(SW_HIDE);
-
-  if (dom_automation_enabled_)
-    command_line->AppendSwitch(switches::kDomAutomationController);
 
   command_line->AppendSwitchWithValue(switches::kUserDataDir, user_data_dir);
 
   // For some reason the sandbox wasn't happy running in test mode. These
   // tests aren't intended to test the sandbox, so we turn it off.
   command_line->AppendSwitch(switches::kNoSandbox);
-
-  // Single-process mode is not set in BrowserMain so it needs to be processed
-  // explicitlty.
-  if (command_line->HasSwitch(switches::kSingleProcess))
-    RenderProcessHost::set_run_renderer_in_process(true);
 
   // Explicitly set the path of the exe used for the renderer, otherwise it'll
   // try to use unit_test.exe.
