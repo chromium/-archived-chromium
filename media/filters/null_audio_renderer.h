@@ -24,11 +24,13 @@
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
+#include "media/filters/audio_renderer_base.h"
 
 namespace media {
 
-class NullAudioRenderer : public AudioRenderer, PlatformThread::Delegate {
+class NullAudioRenderer : public AudioRendererBase, PlatformThread::Delegate {
  public:
+  // FilterFactory provider.
   static FilterFactory* CreateFilterFactory() {
     return new FilterFactoryImpl0<NullAudioRenderer>();
   }
@@ -37,44 +39,41 @@ class NullAudioRenderer : public AudioRenderer, PlatformThread::Delegate {
   static bool IsMediaFormatSupported(const MediaFormat* media_format);
 
   // MediaFilter implementation.
-  virtual void Stop();
   virtual void SetPlaybackRate(float playback_rate);
 
   // AudioRenderer implementation.
-  virtual bool Initialize(AudioDecoder* decoder);
   virtual void SetVolume(float volume);
-
-  // AssignableBuffer<NullAudioRenderer, BufferInterface> implementation.
-  void OnAssignment(Buffer* buffer_in);
 
   // PlatformThread::Delegate implementation.
   virtual void ThreadMain();
 
- private:
+ protected:
+  // Only allow a factory to create this class.
   friend class FilterFactoryImpl0<NullAudioRenderer>;
   NullAudioRenderer();
   virtual ~NullAudioRenderer();
 
-  // Posts a task on the pipeline thread to read a sample from the decoder.
-  // Safe to call on any thread.
-  void ScheduleRead();
+  // AudioRendererBase implementation.
+  virtual bool OnInitialize(const MediaFormat* media_format);
+  virtual void OnStop();
 
-  // Audio decoder.
-  AudioDecoder* decoder_;
-
+ private:
   // Current playback rate.
   float playback_rate_;
 
-  // Queued audio data.
-  typedef std::deque<Buffer*> BufferQueue;
-  BufferQueue input_queue_;
-  Lock input_lock_;
+  // A number to convert bytes written in FillBuffer to milliseconds based on
+  // the audio format.  Calculated in OnInitialize by looking at the decoder's
+  // MediaFormat.
+  size_t bytes_per_millisecond_;
 
-  // Seperate thread used to throw away data.
+  // A buffer passed to FillBuffer to advance playback.
+  scoped_ptr<uint8> buffer_;
+  size_t buffer_size_;
+
+  // Separate thread used to throw away data.
   PlatformThreadHandle thread_;
 
-  // Various state flags.
-  bool initialized_;
+  // Shutdown flag.
   bool shutdown_;
 
   DISALLOW_COPY_AND_ASSIGN(NullAudioRenderer);

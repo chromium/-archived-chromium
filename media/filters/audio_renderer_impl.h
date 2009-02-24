@@ -17,12 +17,14 @@
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
+#include "media/filters/audio_renderer_base.h"
 
 namespace media {
 
-class AudioRendererImpl : public AudioRenderer,
+class AudioRendererImpl : public AudioRendererBase,
                           public AudioOutputStream::AudioSourceCallback {
  public:
+  // FilterFactory provider.
   static FilterFactory* CreateFilterFactory() {
     return new FilterFactoryImpl0<AudioRendererImpl>();
   }
@@ -30,52 +32,29 @@ class AudioRendererImpl : public AudioRenderer,
   static bool IsMediaFormatSupported(const MediaFormat* media_format);
 
   // MediaFilter implementation.
-  virtual void Stop();
   virtual void SetPlaybackRate(float playback_rate);
 
   // AudioRenderer implementation.
-  virtual bool Initialize(AudioDecoder* decoder);
   virtual void SetVolume(float volume);
-
-  // AssignableBuffer<AudioRendererImpl, BufferInterface> implementation.
-  void OnAssignment(Buffer* buffer_in);
 
   // AudioSourceCallback implementation.
   virtual size_t OnMoreData(AudioOutputStream* stream, void* dest, size_t len);
   virtual void OnClose(AudioOutputStream* stream);
   virtual void OnError(AudioOutputStream* stream, int code);
 
- private:
+ protected:
+  // Only allow a factory to create this class.
   friend class FilterFactoryImpl0<AudioRendererImpl>;
   AudioRendererImpl();
   virtual ~AudioRendererImpl();
 
-  // Helper to parse a media format and return whether we were successful
-  // retrieving all the information we care about.
-  static bool ParseMediaFormat(const MediaFormat* media_format,
-                               int* channels_out, int* sample_rate_out,
-                               int* sample_bits_out);
+  // AudioRendererBase implementation.
+  virtual bool OnInitialize(const MediaFormat* media_format);
+  virtual void OnStop();
 
-  // Posts a task on the pipeline thread to read a sample from the decoder.
-  // Safe to call on any thread.
-  void ScheduleRead();
-
-  // Audio decoder.
-  AudioDecoder* decoder_;
-
+ private:
   // Audio output stream device.
   AudioOutputStream* stream_;
-
-  // Whether or not we have initialized.
-  bool initialized_;
-
-  // Queued audio data.
-  typedef std::deque<Buffer*> BufferQueue;
-  BufferQueue input_queue_;
-  Lock input_lock_;
-
-  // Holds any remaining audio data that couldn't fit into the callback buffer.
-  size_t data_offset_;
 
   DISALLOW_COPY_AND_ASSIGN(AudioRendererImpl);
 };

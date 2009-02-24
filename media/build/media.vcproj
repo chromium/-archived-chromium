@@ -189,6 +189,14 @@
 			Name="filters"
 			>
 			<File
+				RelativePath="..\filters\audio_renderer_base.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\audio_renderer_base.h"
+				>
+			</File>
+			<File
 				RelativePath="..\filters\audio_renderer_impl.cc"
 				>
 			</File>
