@@ -8,11 +8,12 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/task.h"
 #include "base/thread.h"
 #include "base/timer.h"
-#include "base/rand_util.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_file.h"
@@ -1266,7 +1267,7 @@ void DownloadManager::SaveAutoOpens() {
 #if defined(OS_WIN)
     extensions_w = extensions;
 #elif defined(OS_POSIX)
-    extensions_w = SysNativeMBToWide(extensions);
+    extensions_w = base::SysNativeMBToWide(extensions);
 #endif
 
     prefs->SetString(prefs::kDownloadExtensionsToOpen, extensions_w);
