@@ -44,7 +44,9 @@ enum MasterPrefResult {
   // Run installer in verbose mode.
   MASTER_PROFILE_VERBOSE_LOGGING      = 0x1 << 10,
   // Show the EULA and do not install if not accepted.
-  MASTER_PROFILE_REQUIRE_EULA         = 0x1 << 11
+  MASTER_PROFILE_REQUIRE_EULA         = 0x1 << 11,
+  // Use an alternate description text for some shortcuts.
+  MASTER_PROFILE_ALT_SHORTCUT_TXT     = 0x1 << 12
 };
 
 // The master preferences is a JSON file with the same entries as the
@@ -64,7 +66,8 @@ enum MasterPrefResult {
 //      "make_chrome_default": false,
 //      "system_level": false,
 //      "verbose_logging": true,
-//      "require_eula": true
+//      "require_eula": true,
+//      "alternate_shortcut_text": false
 //   },
 //   "browser": {
 //      "show_home_button": true

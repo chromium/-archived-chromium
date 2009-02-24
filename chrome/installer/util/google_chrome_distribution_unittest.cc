@@ -55,7 +55,7 @@ class GoogleChromeDistributionTest : public testing::Test {
     RegKey key;
     std::wstring ap_key_value;
     std::wstring reg_key = GetApKeyPath();
-    if (key.Open(HKEY_CURRENT_USER, reg_key.c_str(), KEY_ALL_ACCESS) && 
+    if (key.Open(HKEY_CURRENT_USER, reg_key.c_str(), KEY_ALL_ACCESS) &&
         key.ReadValue(google_update::kRegApField, &ap_key_value)) {
       return ap_key_value;
     }
@@ -199,7 +199,8 @@ TEST(MasterPreferences, ParseDistroParams) {
     "     \"make_chrome_default\": true,\n"
     "     \"system_level\": true,\n"
     "     \"verbose_logging\": true,\n"
-    "     \"require_eula\": true\n"
+    "     \"require_eula\": true,\n"
+    "     \"alternate_shortcut_text\": true\n"
     "},\n"
     "  \"blah\": {\n"
     "     \"import_history\": false\n"
@@ -220,6 +221,7 @@ TEST(MasterPreferences, ParseDistroParams) {
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_SYSTEM_LEVEL);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_VERBOSE_LOGGING);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_REQUIRE_EULA);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_ALT_SHORTCUT_TXT);
   EXPECT_TRUE(file_util::Delete(prefs, false));
 }
 
