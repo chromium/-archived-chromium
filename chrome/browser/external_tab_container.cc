@@ -44,6 +44,7 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
     NOTREACHED();
     return false;
   }
+
   // First create the container window
   if (!Create(NULL, dimensions.ToRECT())) {
     NOTREACHED();
@@ -59,6 +60,7 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
   // instance when this window goes away.
   views::FocusManager* focus_manager =
       views::FocusManager::CreateFocusManager(m_hWnd, GetRootView());
+
   DCHECK(focus_manager);
   focus_manager->AddKeystrokeListener(this);
   tab_contents_ = TabContents::CreateWithType(TAB_CONTENTS_WEB, profile, NULL);
@@ -67,6 +69,7 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
     DestroyWindow();
     return false;
   }
+
   tab_contents_->SetupController(profile);
   tab_contents_->set_delegate(this);
 
@@ -104,16 +107,20 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
       Source<NavigationController>(controller),
       NotificationService::NoDetails());
 
+  // We need WS_POPUP to be on the window during initialization, but
+  // once initialized we apply the requested style which may or may not
+  // include the popup bit.
+  // Note that it's important to do this before we call SetParent since
+  // during the SetParent call we will otherwise get a WA_ACTIVATE call
+  // that causes us to steal the current focus.
+  ModifyStyle(WS_POPUP, style, 0);
+
   // Now apply the parenting and style
   if (parent)
     SetParent(parent);
 
-  // We need WS_POPUP to be on the window during initialization, but
-  // once initialized and parent-ed, we apply the requested style which
-  // may or may not include the popup bit.
-  ModifyStyle(WS_POPUP, style, 0);
+  ::ShowWindow(tab_contents_->GetNativeView(), SW_SHOWNA);
 
-  ::ShowWindow(tab_contents_->GetNativeView(), SW_SHOW);
   return true;
 }
 
