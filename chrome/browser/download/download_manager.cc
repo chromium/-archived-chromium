@@ -1240,7 +1240,19 @@ bool DownloadManager::IsExecutableMimeType(const std::string& mime_type) {
 }
 
 bool DownloadManager::IsExecutable(const FilePath::StringType& extension) {
-  return exe_types_.find(extension) != exe_types_.end();
+#if defined(OS_WIN)
+  if (!IsStringASCII(extension))
+    return false;
+  std::string ascii_extension = WideToASCII(extension);
+  StringToLowerASCII(&ascii_extension);
+
+  return exe_types_.find(ascii_extension) != exe_types_.end();
+#elif defined(OS_POSIX)
+  // TODO(port): we misght not want to call this function on other platforms.
+  // Figure it out.
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 void DownloadManager::ResetAutoOpenFiles() {

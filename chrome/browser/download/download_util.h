@@ -189,7 +189,7 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon);
 // Executable file support -----------------------------------------------------
 
 // Copy all executable file extensions.
-void InitializeExeTypes(std::set<std::wstring>* exe_extensions);
+void InitializeExeTypes(std::set<std::string>* exe_extensions);
 
 }  // namespace download_util
 

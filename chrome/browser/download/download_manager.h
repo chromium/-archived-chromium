@@ -561,7 +561,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   std::set<FilePath::StringType> auto_open_;
 
   // Set of file extensions that are executables and shouldn't be auto opened.
-  std::set<FilePath::StringType> exe_types_;
+  std::set<std::string> exe_types_;
 
   // Keep track of downloads that are completed before the user selects the
   // destination, so that observers are appropriately notified of completion
