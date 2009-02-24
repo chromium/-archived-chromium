@@ -494,6 +494,11 @@ class Encryptor {
   }
 };
 
+
+// spellchecker.h works on Linux, but it depends on hunspell which isn't
+// built on Mac.  Getting it to build on the Mac is apparently hard, so I'll
+// punt this to the Mac team for now.
+#if defined(OS_MACOSX)
 class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
  public:
   typedef std::wstring Language;
@@ -518,6 +523,9 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
     return 0;
   }
 };
+#else
+#include "chrome/browser/spellchecker.h"
+#endif
 
 class WebAppLauncher {
  public:

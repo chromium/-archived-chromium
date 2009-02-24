@@ -21,6 +21,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/debugger/debugger_shell.h"
+#include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/download/download_request_dialog_delegate.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/first_run.h"
@@ -467,3 +468,6 @@ DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
   return NULL;
 }
 
+DOMMessageHandler::~DOMMessageHandler() {
+  NOTIMPLEMENTED();
+}

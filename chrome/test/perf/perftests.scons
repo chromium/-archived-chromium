@@ -29,6 +29,10 @@ env.ApplySConscript([
     '$SDCH_DIR/using_sdch.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
+
+    # TODO(port): we should have a using_browser.scons that pulls in hunspell
+    # for itself.
+    '$CHROME_DIR/third_party/hunspell/using_hunspell.scons',
 ])
 
 env.Prepend(
