@@ -23,6 +23,7 @@ static const int kFilterBufSize = 32 * 1024;
 URLRequestJob::URLRequestJob(URLRequest* request)
     : request_(request),
       done_(false),
+      filter_needs_more_output_space_(false),
       read_buffer_(NULL),
       read_buffer_len_(0),
       has_handled_response_(false),
@@ -167,14 +168,13 @@ bool URLRequestJob::ReadFilteredData(int *bytes_read) {
   if (is_done())
     return true;
 
-  if (!filter_->stream_data_len()) {
+  if (!filter_needs_more_output_space_ && !filter_->stream_data_len()) {
     // We don't have any raw data to work with, so
     // read from the socket.
-
     int filtered_data_read;
     if (ReadRawDataForFilter(&filtered_data_read)) {
       if (filtered_data_read > 0) {
-        filter_->FlushStreamBuffer(filtered_data_read);
+        filter_->FlushStreamBuffer(filtered_data_read);  // Give data to filter.
       } else {
         return true;  // EOF
       }
@@ -183,18 +183,32 @@ bool URLRequestJob::ReadFilteredData(int *bytes_read) {
     }
   }
 
-  if (filter_->stream_data_len() && !is_done()) {
-    // Get filtered data
+  if ((filter_->stream_data_len() || filter_needs_more_output_space_)
+      && !is_done()) {
+    // Get filtered data.
     int filtered_data_len = read_buffer_len_;
     Filter::FilterStatus status;
+    int output_buffer_size = filtered_data_len;
     status = filter_->ReadData(read_buffer_->data(), &filtered_data_len);
+
+    if (filter_needs_more_output_space_ && 0 == filtered_data_len) {
+      // filter_needs_more_output_space_ was mistaken... there are no more bytes
+      // and we should have at least tried to fill up the filter's input buffer.
+      // Correct the state, and try again.
+      filter_needs_more_output_space_ = false;
+      return ReadFilteredData(bytes_read);
+    }
+
     switch (status) {
       case Filter::FILTER_DONE: {
+        filter_needs_more_output_space_ = false;
         *bytes_read = filtered_data_len;
         rv = true;
         break;
       }
       case Filter::FILTER_NEED_MORE_DATA: {
+        filter_needs_more_output_space_ =
+            (filtered_data_len == output_buffer_size);
         // We have finished filtering all data currently in the buffer.
         // There might be some space left in the output buffer. One can
         // consider reading more data from the stream to feed the filter
@@ -212,11 +226,14 @@ bool URLRequestJob::ReadFilteredData(int *bytes_read) {
         break;
       }
       case Filter::FILTER_OK: {
+        filter_needs_more_output_space_ =
+            (filtered_data_len == output_buffer_size);
         *bytes_read = filtered_data_len;
         rv = true;
         break;
       }
       case Filter::FILTER_ERROR: {
+        filter_needs_more_output_space_ = false;
         // TODO: Figure out a better error code.
         NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, net::ERR_FAILED));
         rv = false;
@@ -224,6 +241,7 @@ bool URLRequestJob::ReadFilteredData(int *bytes_read) {
       }
       default: {
         NOTREACHED();
+        filter_needs_more_output_space_ = false;
         rv = false;
         break;
       }
