@@ -4,6 +4,10 @@
 
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 #include "base/clipboard.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/histogram.h"
@@ -206,7 +210,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                         OnClipboardReadAsciiText)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
                         OnClipboardReadHTML)
-#if defined(OS_WIN)
+#if defined(OS_WIN)|| defined(OS_LINUX)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
 #endif
@@ -556,7 +560,38 @@ void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
   *rect = window_rect;
 }
 
-#endif  // OS_WIN
+#elif defined(OS_LINUX)
+
+// Returns the rectangle of the WebWidget in screen coordinates.
+void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
+                                            gfx::Rect* rect) {
+  // Ideally this would be gtk_widget_get_window but that's only
+  // from gtk 2.14 onwards. :(
+  GdkWindow* window = gfx::NativeViewFromId(window_id)->window;
+  DCHECK(window);
+  gint x, y, width, height;
+  // This is the "position of a window in root window coordinates".
+  gdk_window_get_origin(window, &x, &y);
+  gdk_window_get_size(window, &width, &height);
+  *rect = gfx::Rect(x, y, width, height);
+}
+
+// Returns the rectangle of the window in which this WebWidget is embedded.
+void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
+                                                gfx::Rect* rect) {
+  // Windows uses GetAncestor(window, GA_ROOT) here which probably means
+  // we want the top level window.
+  GdkWindow* window =
+      gdk_window_get_toplevel(gfx::NativeViewFromId(window_id)->window);
+  DCHECK(window);
+  gint x, y, width, height;
+  // This is the "position of a window in root window coordinates".
+  gdk_window_get_origin(window, &x, &y);
+  gdk_window_get_size(window, &width, &height);
+  *rect = gfx::Rect(x, y, width, height);
+}
+
+#endif  // OS_LINUX
 
 void ResourceMessageFilter::OnGetMimeTypeFromExtension(
     const FilePath::StringType& ext, std::string* mime_type) {
