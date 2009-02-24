@@ -49,8 +49,6 @@
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
-#include "webkit/glue/webview_impl.h"
-#include "webkit/glue/webview_delegate.h"
 
 #if defined(OS_WIN)
 #include <windows.h>

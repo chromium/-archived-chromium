@@ -5,7 +5,6 @@
 #ifndef WEBKIT_GLUE_WEBFRAME_H_
 #define WEBKIT_GLUE_WEBFRAME_H_
 
-#include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"

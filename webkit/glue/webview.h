@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/ref_counted.h"
 #include "webkit/glue/webwidget.h"
 
 struct WebDropData;

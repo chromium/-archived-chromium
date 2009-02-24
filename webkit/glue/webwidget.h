@@ -5,7 +5,6 @@
 #ifndef WEBKIT_GLUE_WEBWIDGET_H__
 #define WEBKIT_GLUE_WEBWIDGET_H__
 
-#include "base/ref_counted.h"
 #include "skia/ext/platform_canvas.h"
 
 namespace gfx {
