@@ -36,3 +36,19 @@ TEST_F(SysInfoTest, HasEnvVar) {
   // Every setup should have PATH...
   EXPECT_TRUE(base::SysInfo::HasEnvVar(L"PATH"));
 }
+
+// TODO(port): If and when there's a LINUX version of this method, enable this
+// unit test.
+#if defined(OS_WIN) || defined(OS_MACOSX)
+TEST_F(SysInfoTest, OperatingSystemVersionNumbers) {
+  int32 os_major_version = -1;
+  int32 os_minor_version = -1;
+  int32 os_bugfix_version = -1;
+  base::SysInfo::OperatingSystemVersionNumbers(&os_major_version,
+                                               &os_minor_version,
+                                               &os_bugfix_version);
+  EXPECT_GT(os_major_version, 0);
+  EXPECT_GT(os_minor_version, 0);
+  EXPECT_GT(os_bugfix_version, 0);
+}
+#endif  // OS_WIN || OS_MACOSX

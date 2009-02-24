@@ -134,14 +134,4 @@ size_t SysInfo::VMAllocationGranularity() {
   return getpagesize();
 }
 
-#if defined(OS_MACOSX)
-// static
-void SysInfo::CacheSysInfo() {
-  // Due to startup time concerns [premature optimization?] we only cache values
-  // from functions we know to be called in the renderer & fail when the sandbox
-  // is enabled.
-  NumberOfProcessors();
-}
-#endif
-
 }  // namespace base
