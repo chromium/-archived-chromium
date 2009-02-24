@@ -180,6 +180,9 @@ const wchar_t kDisableLogging[]                = L"disable-logging";
 // INFO = 0, WARNING = 1, LOG_ERROR = 2, LOG_FATAL = 3.
 const wchar_t kLoggingLevel[]                  = L"log-level";
 
+// Make plugin processes log their sent and received messages to LOG(INFO).
+const wchar_t kLogPluginMessages[]             = L"log-plugin-messages";
+
 // Dump any accumualted histograms to the log when browser terminates (requires
 // logging to be enabled to really do anything).  Used by developers and test
 // scripts.

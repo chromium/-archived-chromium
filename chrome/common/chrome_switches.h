@@ -56,6 +56,7 @@ extern const wchar_t kWaitForDebuggerChildren[];
 extern const wchar_t kLogFilterPrefix[];
 extern const wchar_t kEnableLogging[];
 extern const wchar_t kLoggingLevel[];
+extern const wchar_t kLogPluginMessages[];
 
 extern const wchar_t kDumpHistogramsOnExit[];
 extern const wchar_t kDisableLogging[];

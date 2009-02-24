@@ -183,6 +183,8 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
   if (!file_util::AbsolutePath(&path))
     NOTREACHED();
 
+  LOG(INFO) << "Loading installed extensions...";
+
   // Find all child directories in the install directory and load their
   // manifests. Post errors and results to the frontend.
   scoped_ptr<ExtensionList> extensions(new ExtensionList);
@@ -199,11 +201,16 @@ bool ExtensionsServiceBackend::LoadExtensionsFromDirectory(
       continue;
     }
 
+    LOG(INFO) << "  " << WideToASCII(child_path.BaseName().ToWStringHack()) <<
+       " version: " << version_str;
+
     child_path = child_path.AppendASCII(version_str);
     Extension* extension = LoadExtension(child_path, frontend);
     if (extension)
       extensions->push_back(extension);
   }
+
+  LOG(INFO) << "Done.";
 
   ReportExtensionsLoaded(frontend.get(), extensions.release());
   return true;
@@ -215,6 +222,10 @@ bool ExtensionsServiceBackend::LoadSingleExtension(
   FilePath path = path_in;
   if (!file_util::AbsolutePath(&path))
     NOTREACHED();
+
+  LOG(INFO) << "Loading single extension from " <<
+      WideToASCII(path.BaseName().ToWStringHack());
+
   Extension* extension = LoadExtension(path, frontend);
   if (extension) {
     ExtensionList* extensions = new ExtensionList;

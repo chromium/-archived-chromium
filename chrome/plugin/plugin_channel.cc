@@ -7,7 +7,9 @@
 #include "chrome/plugin/plugin_channel.h"
 
 #include "chrome/common/plugin_messages.h"
+#include "base/command_line.h"
 #include "base/string_util.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/plugin/plugin_process.h"
 #include "chrome/plugin/plugin_thread.h"
 
@@ -34,6 +36,8 @@ PluginChannel* PluginChannel::GetPluginChannel(
 PluginChannel::PluginChannel() : in_send_(0) {
   SendUnblockingOnlyDuringDispatch();
   PluginProcess::current()->AddRefProcess();
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  log_messages_ = command_line->HasSwitch(switches::kLogPluginMessages);
 }
 
 PluginChannel::~PluginChannel() {
@@ -42,9 +46,21 @@ PluginChannel::~PluginChannel() {
 
 bool PluginChannel::Send(IPC::Message* msg) {
   in_send_++;
+  if (log_messages_) {
+    LOG(INFO) << "sending message @" << msg << " on channel @" << this
+              << " with type " << msg->type();
+  }
   bool result = PluginChannelBase::Send(msg);
   in_send_--;
   return result;
+}
+
+void PluginChannel::OnMessageReceived(const IPC::Message& msg) {
+  if (log_messages_) {
+    LOG(INFO) << "received message @" << &msg << " on channel @" << this
+              << " with type " << msg.type();
+  }
+  PluginChannelBase::OnMessageReceived(msg);
 }
 
 void PluginChannel::OnControlMessageReceived(const IPC::Message& msg) {

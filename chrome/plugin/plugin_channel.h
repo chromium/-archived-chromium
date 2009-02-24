@@ -22,6 +22,7 @@ class PluginChannel : public PluginChannelBase {
   ~PluginChannel();
 
   virtual bool Send(IPC::Message* msg);
+  virtual void OnMessageReceived(const IPC::Message& message);
 
   HANDLE renderer_handle() { return renderer_handle_.Get(); }
   int GenerateRouteID();
@@ -52,6 +53,7 @@ class PluginChannel : public PluginChannelBase {
   ScopedHandle renderer_handle_;
 
   int in_send_;  // Tracks if we're in a Send call.
+  bool log_messages_;  // True if we should log sent and received messages.
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginChannel);
 };
