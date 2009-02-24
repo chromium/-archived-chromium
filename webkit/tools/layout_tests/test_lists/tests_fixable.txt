@@ -66,7 +66,7 @@ DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
 // Bug: 628529: complex text effects
 // This is a real bug, but not one we're fixing for Beta.
-DEFER LINUX WIN : LayoutTests/fast/text/stroking-decorations.html = FAIL
+DEFER LINUX : LayoutTests/fast/text/stroking-decorations.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/text/stroking.html = FAIL
 
 // Bug: 1124522
@@ -317,6 +317,9 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
+LINUX MAC : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
+LINUX MAC : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
+LINUX MAC : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
 LINUX : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
@@ -1813,13 +1816,6 @@ LayoutTests/fast/dom/onload-open.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
 LayoutTests/fast/reflections/reflection-direction.html = FAIL
 LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
-LayoutTests/fast/text/international/001.html = FAIL
-LayoutTests/fast/text/international/002.html = FAIL
-LayoutTests/fast/text/international/003.html = FAIL
-LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
-LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
-LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
-LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 LayoutTests/fast/borders/border-image-rotate-transform.html = CRASH
 LayoutTests/fast/text/atsui-spacing-features.html = FAIL
 LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
