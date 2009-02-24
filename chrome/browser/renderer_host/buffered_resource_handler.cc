@@ -264,11 +264,15 @@ bool BufferedResourceHandler::CompleteResponseStarted(int request_id,
       CHECK((buf_len >= bytes_read_) && (bytes_read_ >= 0));
       memcpy(buf->data(), read_buffer_->data(), bytes_read_);
     }
-    // Update the renderer with the response headers which will cause it to
-    // cancel the request.
-    // TODO(paulg): Send the renderer a response that indicates that the request
-    //              will be handled by an external source (the browser).
+
+    // Send the renderer a response that indicates that the request will be
+    // handled by an external source (the browser's DownloadManager).
     real_handler_->OnResponseStarted(info->request_id, response_);
+    URLRequestStatus status(URLRequestStatus::HANDLED_EXTERNALLY, 0);
+    real_handler_->OnResponseCompleted(info->request_id, status);
+
+    // Ditch the old async handler that talks to the renderer for the new
+    // download handler that talks to the DownloadManager.
     real_handler_ = download_handler;
   }
   return real_handler_->OnResponseStarted(request_id, response_);
