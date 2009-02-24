@@ -6,7 +6,7 @@ Chrome supports. -->
 <grit base_dir="." latest_public_release="0" current_release="1"
       source_lang_id="en" enc_check="möl">
   <outputs>
-    <output filename="google_chrome_strings.h" type="rc_header">
+    <output filename="grit/google_chrome_strings.h" type="rc_header">
       <emit emit_type='prepend'></emit>
     </output>
     <output filename="google_chrome_strings_ar.rc" type="rc_all" lang="ar" />

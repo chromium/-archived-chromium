@@ -42,7 +42,7 @@ below:
     (http://wiki/Main/GritUsersGuide) for more details.
     Note that all output references are relative to the output directory
     which is specified at build time. -->
-    <output filename="webkit_strings.h" type="rc_header">
+    <output filename="grit/webkit_strings.h" type="rc_header">
       <emit emit_type='prepend'></emit>
     </output>
     <output filename="webkit_strings_ar.rc" type="rc_all" lang="ar" />

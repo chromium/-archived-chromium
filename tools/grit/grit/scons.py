@@ -84,9 +84,6 @@ def _Emitter(target, source, env):
 
   target = []
   lang_folders = {}
-  # TODO(tc): new_header_output is a hack while we migrate to
-  # grit_derived_sources/grit/ as the new output dir for headers.
-  new_header_output = None
   # Add all explicitly-specified output files
   for output in grd.GetOutputFiles():
     path = os.path.join(base_dir, output.GetFilename())
@@ -94,7 +91,6 @@ def _Emitter(target, source, env):
 
     if path.endswith('.h'):
       path, filename = os.path.split(path)
-      new_header_output = os.path.join(path, 'grit', filename)
     if _IsDebugEnabled():
       print "GRIT: Added target %s" % path
     if output.attrs['lang'] != '':
@@ -114,9 +110,6 @@ def _Emitter(target, source, env):
             target.append(path)
             if _IsDebugEnabled():
               print "GRIT: Added target %s" % path
-
-  if new_header_output:
-    target.append(new_header_output)
 
   # GRIT is not thread safe so we should only build one grit target at a time. 
   # We tell scons about this by making a fake side effect target.
