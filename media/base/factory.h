@@ -156,6 +156,48 @@ class FilterFactoryImpl1 : public FilterFactory {
   DISALLOW_COPY_AND_ASSIGN(FilterFactoryImpl1);
 };
 
+
+//------------------------------------------------------------------------------
+
+// This specialized factory is typically used by test programs that create
+// a filter instance, and want to return that specific instance of the test
+// filter to the pipeline.  It takes an already created filter in the
+// constructor, and then hands that instance out when the Create method is
+// called.  The factory makes sure to only return a single copy of the
+// filter.  The normal patern of use for this factory is:
+//   scoped_refptr<MyTestFilter> my_test_filter = new MyTestFilter();
+//   filter_factory_collection->AddFactory(
+//       new InstanceFilterFactory<MyTestFilter>(my_test_filter));
+template <class Filter>
+class InstanceFilterFactory : public FilterFactory {
+ public:
+  explicit InstanceFilterFactory(Filter* filter)
+      : filter_(filter),
+        create_called_(false) {
+  }
+
+ protected:
+  virtual MediaFilter* Create(FilterType filter_type,
+                              const MediaFormat* media_format) {
+    if (Filter::filter_type() == filter_type &&
+        Filter::IsMediaFormatSupported(media_format)) {
+      if (!create_called_) {
+        create_called_ = true;
+        return filter_;
+      } else {
+        NOTREACHED();
+      }
+    }
+    return NULL;
+  }
+
+ private:
+  scoped_refptr<Filter> filter_;
+  bool create_called_;
+
+  DISALLOW_COPY_AND_ASSIGN(InstanceFilterFactory);
+};
+
 }  // namespace media
 
 #endif  // MEDIA_BASE_FACTORY_H_

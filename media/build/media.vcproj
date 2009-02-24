@@ -205,6 +205,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\filters\video_renderer_base.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\video_renderer_base.h"
+				>
+			</File>
+
+			<File
 				RelativePath="..\filters\null_audio_renderer.cc"
 				>
 			</File>

@@ -191,6 +191,14 @@
 					RelativePath="..\filters\file_data_source_unittest.cc"
 					>
 				</File>
+				<File
+					RelativePath="..\filters\test_video_renderer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\filters\video_renderer_unittest.cc"
+					>
+				</File>
 			</Filter>
 		</Filter>
 	</Files>

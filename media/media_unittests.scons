@@ -60,6 +60,8 @@ input_files = ChromeFileList([
     ]),
     MSVSFilter('filters', [
       'filters/file_data_source_unittest.cc',
+      'filters/test_video_renderer.h',
+      'filters/video_renderer_unittest.cc',
     ]),
     MSVSFilter('audio', [
       'audio/win/audio_output_win_unittest.cc',
