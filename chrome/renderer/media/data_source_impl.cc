@@ -18,7 +18,8 @@ DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
       total_bytes_(0),
       total_bytes_known_(false),
       read_event_(false, false),
-      read_callback_(this, &DataSourceImpl::OnDidFileStreamRead),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          read_callback_(this, &DataSourceImpl::OnDidFileStreamRead)),
       stream_(NULL),
       last_read_size_(0),
       position_(0),
