@@ -1806,6 +1806,8 @@ LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 // New failures from Merge 41078:41149
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList-almost-strict.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
+WIN : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
+WIN : LayoutTests/fast/dom/SelectorAPI/undefined-null-stringify.html = FAIL
 LayoutTests/fast/dom/anchor-backslash.html = FAIL
 LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
 LayoutTests/fast/dom/onload-open.html = FAIL
