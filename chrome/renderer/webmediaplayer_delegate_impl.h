@@ -62,7 +62,7 @@ typedef void (webkit_glue::WebMediaPlayer::*WebMediaPlayerMethod)();
 class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
                                    public MessageLoop::DestructionObserver {
  public:
-  explicit WebMediaPlayerDelegateImpl(RenderView* render_view);
+  explicit WebMediaPlayerDelegateImpl(RenderView* view);
   virtual ~WebMediaPlayerDelegateImpl();
 
   // Implementations of WebMediaPlayerDelegate, theses following methods are
@@ -130,9 +130,6 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   // Callbacks.
   void DidInitializePipeline(bool successful);
 
-  // Inline getters.
-  webkit_glue::WebMediaPlayer* web_media_player() { return web_media_player_; }
-
   // Called from tasks posted to main_loop_ from this object to remove
   // reference of them.
   void DidTask(CancelableTask* task);
@@ -142,6 +139,10 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
 
   // Called from VideoRenderer to fire a repaint task to main_loop_.
   void PostRepaintTask();
+
+  // Inline getters.
+  webkit_glue::WebMediaPlayer* web_media_player() { return web_media_player_; }
+  RenderView* view() { return view_; }
 
  private:
   // Methods for posting tasks and cancelling tasks. This method may lives in 
@@ -179,7 +180,7 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   VideoRendererImpl* video_renderer_;
 
   webkit_glue::WebMediaPlayer* web_media_player_;
-  RenderView* render_view_;
+  RenderView* view_;
 
   // List of tasks for holding pointers to all tasks currently in the
   // |main_loop_|. |tasks_| can be access from main thread or the media threads

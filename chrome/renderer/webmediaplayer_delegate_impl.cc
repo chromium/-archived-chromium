@@ -38,13 +38,13 @@ class NotifyWebMediaPlayerTask : public CancelableTask {
 /////////////////////////////////////////////////////////////////////////////
 // WebMediaPlayerDelegateImpl implementation
 
-WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* render_view)
+WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
     : network_state_(webkit_glue::WebMediaPlayer::EMPTY),
       ready_state_(webkit_glue::WebMediaPlayer::DATA_UNAVAILABLE),
       main_loop_(NULL),
       filter_factory_(new media::FilterFactoryCollection()),
       web_media_player_(NULL),
-      render_view_(render_view),
+      view_(view),
       tasks_(kLastTaskIndex) {
   // TODO(hclam): Add filter factory for demuxer and decoders.
   filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(this));
