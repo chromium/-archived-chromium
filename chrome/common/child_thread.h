@@ -44,9 +44,6 @@ class ChildThread : public IPC::Channel::Listener,
 
   IPC::SyncChannel* channel() { return channel_.get(); }
 
-  // Indicates if ChildThread::Send() is on the call stack.
-  virtual bool InSend() const { return in_send_ != 0; }
-
   // Thread implementation.
   virtual void Init();
   virtual void CleanUp();
@@ -65,8 +62,6 @@ class ChildThread : public IPC::Channel::Listener,
   // Used only on the background render thread to implement message routing
   // functionality to the consumers of the ChildThread.
   MessageRouter router_;
-
-  int in_send_;
 
   Thread::Options options_;
 

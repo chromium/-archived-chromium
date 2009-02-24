@@ -22,11 +22,6 @@ class MockRenderThread : public RenderThreadBase {
   // Provides access to the messages that have been received by this thread.
   IPC::TestSink& sink() { return sink_; }
 
-  // Called by the Widget. Not used in the test.
-  virtual bool InSend() const {
-    return false;
-  }
-
   // Called by the Widget. The routing_id must match the routing id assigned
   // to the Widget in reply to ViewHostMsg_CreateWidget message.
   virtual void AddRoute(int32 routing_id, IPC::Channel::Listener* listener);

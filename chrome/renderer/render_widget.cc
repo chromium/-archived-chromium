@@ -23,58 +23,6 @@
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget.h"
 
-///////////////////////////////////////////////////////////////////////////////
-
-namespace {
-
-// This class is used to defer calling RenderWidget::Close() while the current
-// thread is inside RenderThread::Send(), which in some cases can result in a
-// nested MessageLoop being run.
-class DeferredCloses : public Task {
- public:
-  // Called to queue a deferred close for the given widget.
-  static void Push(RenderWidget* widget) {
-    if (!current_)
-      current_ = new DeferredCloses();
-    current_->queue_.push(widget);
-  }
-
-  // Called to trigger any deferred closes to be run.
-  static void Post() {
-    if (current_) {
-      MessageLoop::current()->PostTask(FROM_HERE, current_);
-      current_ = NULL;
-    }
-  }
-
- private:
-  virtual void Run() {
-    // Maybe we are being run from within another RenderWidget::Send call.  If
-    // that is true, then we need to re-queue the widgets to be closed and try
-    // again later.
-    while (!queue_.empty()) {
-      if (queue_.front()->InSend()) {
-        Push(queue_.front());
-      } else {
-        queue_.front()->Close();
-      }
-      queue_.pop();
-    }
-  }
-
-  // The current DeferredCloses object.
-  static DeferredCloses* current_;
-
-  typedef std::queue< scoped_refptr<RenderWidget> > WidgetQueue;
-  WidgetQueue queue_;
-};
-
-DeferredCloses* DeferredCloses::current_ = NULL;
-
-}  // namespace
-
-///////////////////////////////////////////////////////////////////////////////
-
 RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
     : routing_id_(MSG_ROUTING_NONE),
       webwidget_(NULL),
@@ -185,19 +133,7 @@ bool RenderWidget::Send(IPC::Message* message) {
   if (message->routing_id() == MSG_ROUTING_NONE)
     message->set_routing_id(routing_id_);
 
-  bool rv = render_thread_->Send(message);
-
-  // If there aren't any more RenderThread::Send calls on the stack, then we
-  // can go ahead and schedule Close to be called on any RenderWidget objects
-  // that received a ViewMsg_Close while we were inside Send.
-  if (!render_thread_->InSend())
-    DeferredCloses::Post();
-
-  return rv;
-}
-
-bool RenderWidget::InSend() const {
-  return render_thread_->InSend();
+  return render_thread_->Send(message);
 }
 
 // Got a response from the browser after the renderer decided to create a new
@@ -217,17 +153,14 @@ void RenderWidget::OnClose() {
   if (routing_id_ != MSG_ROUTING_NONE)
     render_thread_->RemoveRoute(routing_id_);
 
-  // Balances the AddRef taken when we called AddRoute.  This release happens
-  // via the MessageLoop since it may cause our destruction.
-  MessageLoop::current()->ReleaseSoon(FROM_HERE, this);
-
   // If there is a Send call on the stack, then it could be dangerous to close
-  // now.  Instead, we wait until we get out of Send.
-  if (render_thread_->InSend()) {
-    DeferredCloses::Push(this);
-  } else {
-    Close();
-  }
+  // now.  Post a task that only gets invoked when there are no nested message
+  // loops.
+  MessageLoop::current()->PostNonNestableTask(FROM_HERE,
+      NewRunnableMethod(this, &RenderWidget::Close));
+
+  // Balances the AddRef taken when we called AddRoute.
+  Release();
 }
 
 void RenderWidget::OnResize(const gfx::Size& new_size,

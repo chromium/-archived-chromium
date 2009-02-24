@@ -32,10 +32,6 @@ ChildProcess::~ChildProcess() {
   if (child_thread_.get())
     child_thread_->Stop();
 
-  // Make sure the child thread goes away first before setting child_process_ to
-  // NULL since it can use it.
-  child_thread_.reset();
-
   child_process_ = NULL;
 }
 

@@ -31,9 +31,6 @@ class RenderThreadBase {
 
   virtual bool Send(IPC::Message* msg) = 0;
 
-  // True if currently sending a message.
-  virtual bool InSend() const = 0;
-
   // Called to add or remove a listener for a particular message routing ID.
   // These methods normally get delegated to a MessageRouter.
   virtual void AddRoute(int32 routing_id, IPC::Channel::Listener* listener) = 0;
@@ -68,10 +65,6 @@ class RenderThread : public RenderThreadBase,
   // Overridded from RenderThreadBase.
   virtual bool Send(IPC::Message* msg) {
     return ChildThread::Send(msg);
-  }
-
-  virtual bool InSend() const {
-    return ChildThread::InSend();
   }
 
   virtual void AddRoute(int32 routing_id, IPC::Channel::Listener* listener) {
