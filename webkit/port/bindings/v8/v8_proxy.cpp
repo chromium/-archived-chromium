@@ -3474,7 +3474,11 @@ int V8Proxy::GetSourceLineNumber() {
     if (frame_source_line.IsEmpty()) {
         return 0;
     }
-    return v8::Debug::Call(frame_source_line)->Int32Value();
+    v8::Handle<v8::Value> result = v8::Debug::Call(frame_source_line);
+    if (result.IsEmpty()) {
+        return 0;
+    }
+    return result->Int32Value();
 }
 
 
