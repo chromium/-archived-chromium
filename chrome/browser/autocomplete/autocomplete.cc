@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "build/build_config.h"
-
 #include "chrome/browser/autocomplete/autocomplete.h"
 
 #include <algorithm>
 
+#include "base/basictypes.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/autocomplete/history_contents_provider.h"
@@ -435,7 +434,7 @@ std::wstring AutocompleteProvider::StringForURLDisplay(
 #else
   // TODO(port): need gfx::ElideUrl and ChromeFont
   NOTIMPLEMENTED();
-  return std::wstring();
+  return UTF8ToWide(url.spec());
 #endif
 }
 

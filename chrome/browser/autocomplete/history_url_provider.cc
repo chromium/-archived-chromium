@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "build/build_config.h"
-
 #include "chrome/browser/autocomplete/history_url_provider.h"
 
 #include <algorithm>
 
+#include "base/basictypes.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
