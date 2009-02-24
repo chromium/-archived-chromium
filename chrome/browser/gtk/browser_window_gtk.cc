@@ -290,6 +290,10 @@ void BrowserWindowGtk::ToggleBookmarkBar() {
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowGtk::ShowFindBar() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowGtk::ShowAboutChromeDialog() {
   NOTIMPLEMENTED();
 }

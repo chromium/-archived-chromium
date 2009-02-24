@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "base/string_util.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/l10n_util.h"
@@ -22,8 +23,8 @@
 static const int kWhiteSpaceAfterMatchCountLabel = 3;
 
 // The margins around the search field and the close button.
-static const int kMarginLeftOfCloseButton = 5;
-static const int kMarginRightOfCloseButton = 5;
+static const int kMarginLeftOfCloseButton = 3;
+static const int kMarginRightOfCloseButton = 7;
 static const int kMarginLeftOfFindTextField = 12;
 
 // The margins around the match count label (We add extra space so that the
@@ -87,10 +88,9 @@ FindBarView::FindBarView(FindBarWin* container)
       find_next_button_(NULL),
       close_button_(NULL),
       animation_offset_(0),
-      toolbar_blend_(true),
-      match_count_(-1),
-      active_match_ordinal_(-1) {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+      last_reported_matchcount_(0),
+      toolbar_blend_(true) {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
   find_text_ = new views::TextField();
   find_text_->SetID(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD);
@@ -170,70 +170,70 @@ FindBarView::FindBarView(FindBarWin* container)
 FindBarView::~FindBarView() {
 }
 
-void FindBarView::ResetMatchCount() {
-  match_count_text_->SetText(std::wstring());
-  ResetMatchCountBackground();
+void FindBarView::SetFindText(const std::wstring& find_text) {
+  find_text_->SetText(find_text);
 }
 
-void FindBarView::ResetMatchCountBackground() {
-  match_count_text_->set_background(
-      views::Background::CreateSolidBackground(kBackgroundColorMatch));
-  match_count_text_->SetColor(kTextColorMatchCount);
-}
+void FindBarView::UpdateForResult(const FindNotificationDetails& result,
+                                  const std::wstring& find_text) {
+  bool have_valid_range =
+      result.number_of_matches() != -1 && result.active_match_ordinal() != -1;
 
-void FindBarView::UpdateMatchCount(int number_of_matches,
-                                   bool final_update) {
-  if (number_of_matches < 0)  // We ignore -1 sent during FindNext operations.
-    return;
+  // Avoid bug 894389: When a new search starts (and finds something) it reports
+  // an interim match count result of 1 before the scoping effort starts. This
+  // is to provide feedback as early as possible that we will find something.
+  // As you add letters to the search term, this creates a flashing effect when
+  // we briefly show "1 of 1" matches because there is a slight delay until
+  // the scoping effort starts updating the match count. We avoid this flash by
+  // ignoring interim results of 1 if we already have a positive number.
+  if (result.number_of_matches() > -1) {
+    if (last_reported_matchcount_ > 0 &&
+        result.number_of_matches() == 1 &&
+        !result.final_update())
+      return;  // Don't let interim result override match count.
+    last_reported_matchcount_ = result.number_of_matches();
+  }
 
-  // If we have previously recorded a match-count number we don't want to
-  // overwrite it with a preliminary number of 1 (which the renderer sends when
-  // it found one match and is about to start scoping to find more). This way
-  // updates are smoother (as we don't flash '1' briefly after typing each
-  // letter of a query).
-  if (match_count_ > 0 && number_of_matches == 1 && !final_update)
-    return;
+  // If we don't have any results and something was passed in, then that means
+  // someone pressed F3 while the Find box was closed. In that case we need to
+  // repopulate the Find box with what was passed in.
+  if (find_text_->GetText().empty() && !find_text.empty()) {
+    find_text_->SetText(find_text);
+    find_text_->SelectAll();
+  }
 
-  if (number_of_matches == 0)
-    active_match_ordinal_ = 0;
-
-  match_count_ = number_of_matches;
-
-  if (find_text_->GetText().empty() || number_of_matches > 0) {
-    ResetMatchCountBackground();
+  std::wstring search_string = find_text_->GetText();
+  if (search_string.length() > 0 && have_valid_range) {
+    match_count_text_->SetText(
+        l10n_util::GetStringF(IDS_FIND_IN_PAGE_COUNT,
+                              IntToWString(result.active_match_ordinal()),
+                              IntToWString(result.number_of_matches())));
   } else {
+    // If there was no text entered, we don't show anything in the result count
+    // area.
+    match_count_text_->SetText(std::wstring());
+  }
+
+  if (search_string.empty() || result.number_of_matches() > 0) {
+    // If there was no text entered or there were results, the match_count label
+    // should have a normal background color.
+    ResetMatchCountBackground();
+  } else if (result.final_update()) {
+    // Otherwise we show an error background behind the match_count label.
     match_count_text_->set_background(
-      views::Background::CreateSolidBackground(kBackgroundColorNoMatch));
+        views::Background::CreateSolidBackground(kBackgroundColorNoMatch));
     match_count_text_->SetColor(kTextColorNoMatch);
     MessageBeep(MB_OK);
   }
-}
-
-void FindBarView::UpdateActiveMatchOrdinal(int ordinal) {
-  if (ordinal >= 0)
-    active_match_ordinal_ = ordinal;
-}
-
-void FindBarView::UpdateResultLabel() {
-  std::wstring search_string = find_text_->GetText();
-
-  if (search_string.length() > 0) {
-    match_count_text_->SetText(
-        l10n_util::GetStringF(IDS_FIND_IN_PAGE_COUNT,
-                              IntToWString(active_match_ordinal_),
-                              IntToWString(match_count_)));
-  } else {
-    ResetMatchCount();
-  }
 
   // Make sure Find Next and Find Previous are enabled if we found any matches.
-  find_previous_button_->SetEnabled(match_count_ > 0);
-  find_next_button_->SetEnabled(match_count_ > 0);
+  find_previous_button_->SetEnabled(result.number_of_matches() > 0);
+  find_next_button_->SetEnabled(result.number_of_matches() > 0);
 
   Layout();  // The match_count label may have increased/decreased in size.
 }
 
-void FindBarView::OnShow() {
+void FindBarView::SetFocusAndSelection() {
   find_text_->RequestFocus();
   find_text_->SelectAll();
 }
@@ -259,11 +259,7 @@ void FindBarView::Paint(ChromeCanvas* canvas) {
   const SkBitmap *bg_right =
       toolbar_blend_ ? kDlgBackground_right : kDlgBackground_bb_right;
 
-  canvas->TileImageInt(*bg_left,
-                        0,
-                        0,
-                        bg_left->width(),
-                        bg_left->height());
+  canvas->DrawBitmapInt(*bg_left, 0, 0);
 
   // Stretch the middle background to cover all of the area between the two
   // other images.
@@ -275,11 +271,7 @@ void FindBarView::Paint(ChromeCanvas* canvas) {
                             bg_right->width(),
                         bg_middle->height());
 
-  canvas->TileImageInt(*bg_right,
-                        lb.right() - bg_right->width(),
-                        0,
-                        bg_right->width(),
-                        bg_right->height());
+  canvas->DrawBitmapInt(*bg_right, lb.right() - bg_right->width(), 0);
 
   // Then we draw the background image for the Find TextField. We start by
   // calculating the position of background images for the Find text box.
@@ -386,7 +378,6 @@ void FindBarView::Layout() {
                         sz.width(),
                         sz.height());
   find_text_->SetController(this);
-  find_text_->RequestFocus();
 
   // The focus forwarder view is a hidden view that should cover the area
   // between the find text box and the find button so that when the user clicks
@@ -430,8 +421,9 @@ void FindBarView::ButtonPressed(views::BaseButton* sender) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
       if (find_text_->GetText().length() > 0) {
-        container_->set_find_string(find_text_->GetText());
-        container_->StartFinding(sender->GetTag() == FIND_NEXT_TAG);
+        container_->web_contents()->StartFinding(
+            find_text_->GetText(),
+            sender->GetTag() == FIND_NEXT_TAG);
       }
       break;
     case CLOSE_TAG:
@@ -452,14 +444,13 @@ void FindBarView::ContentsChanged(views::TextField* sender,
   // if the textbox contains something we set it as the new search string and
   // initiate search (even though old searches might be in progress).
   if (new_contents.length() > 0) {
-    container_->set_find_string(new_contents);
-    container_->StartFinding(true);
+    container_->web_contents()->StartFinding(new_contents, true);
   } else {
     // The textbox is empty so we reset.
-    UpdateMatchCount(0, true);       // true = final update.
-    UpdateResultLabel();
-    container_->StopFinding(true);  // true = clear selection on page.
-    container_->set_find_string(std::wstring());
+    container_->web_contents()->StopFinding(true);  // true = clear selection on
+                                                    // page.
+    UpdateForResult(container_->web_contents()->find_result(),
+                    std::wstring());
   }
 }
 
@@ -474,13 +465,20 @@ void FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
       // Pressing Return/Enter starts the search (unless text box is empty).
       std::wstring find_string = find_text_->GetText();
       if (find_string.length() > 0) {
-        container_->set_find_string(find_string);
         // Search forwards for enter, backwards for shift-enter.
-        container_->StartFinding(GetKeyState(VK_SHIFT) >= 0);
+        container_->web_contents()->StartFinding(
+            find_string,
+            GetKeyState(VK_SHIFT) >= 0);
       }
       break;
     }
   }
+}
+
+void FindBarView::ResetMatchCountBackground() {
+  match_count_text_->set_background(
+      views::Background::CreateSolidBackground(kBackgroundColorMatch));
+  match_count_text_->SetColor(kTextColorMatchCount);
 }
 
 bool FindBarView::FocusForwarderView::OnMousePressed(
@@ -491,4 +489,3 @@ bool FindBarView::FocusForwarderView::OnMousePressed(
   }
   return true;
 }
-

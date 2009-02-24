@@ -57,7 +57,7 @@ class RestoreFocusTask : public Task {
   // The target view.
   View* view_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RestoreFocusTask);
+  DISALLOW_COPY_AND_ASSIGN(RestoreFocusTask);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ View::View()
       group_(-1),
       enabled_(true),
       focusable_(false),
-      bounds_(0,0,0,0),
+      bounds_(0, 0, 0, 0),
       parent_(NULL),
       should_restore_focus_(false),
       is_visible_(true),
@@ -117,7 +117,7 @@ gfx::Rect View::GetBounds(PositionMirroringSettings settings) const {
   // rectangle appropriately.
   if (settings == APPLY_MIRRORING_TRANSFORMATION)
     bounds.set_x(MirroredX());
-  
+
   return bounds;
 }
 
@@ -206,6 +206,7 @@ void View::Layout() {
   if (layout_manager_.get()) {
     layout_manager_->Layout(this);
     SchedulePaint();
+    return;
   }
 
   // Lay out contents of child Views
@@ -441,7 +442,7 @@ void View::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
   if (!context_menu_controller_)
     return;
 
-  context_menu_controller_->ShowContextMenu(this, x, y, is_mouse_gesture); 
+  context_menu_controller_->ShowContextMenu(this, x, y, is_mouse_gesture);
 }
 
 /////////////////////////////////////////////////////////////////////////////

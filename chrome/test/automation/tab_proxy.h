@@ -159,18 +159,6 @@ class TabProxy : public AutomationResourceProxy {
   // unchanged.
   bool IsShelfVisible(bool* is_visible);
 
-  // Opens the FindInPage box. Note: If you just want to search within a tab
-  // you don't need to call this function, just use FindInPage(...) directly.
-  bool OpenFindInPage();
-
-  // Returns whether the Find window is fully visible If animating, |is_visible|
-  // will be false. Returns false on failure.
-  bool IsFindWindowFullyVisible(bool* is_visible);
-
-  // Get the x, y coordinates for the Find window. If animating, |x| and |y|
-  // will be -1, -1. Returns false on failure.
-  bool GetFindWindowLocation(int* x, int* y);
-
   // Starts a search within the current tab. The parameter |search_string|
   // specifies what string to search for, |forward| specifies whether to search
   // in forward direction, and |match_case| specifies case sensitivity

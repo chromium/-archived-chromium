@@ -182,6 +182,9 @@ class WebContents::GearsCreateShortcutCallbackFunctor {
   WebContents* contents_;
 };
 
+// static
+int WebContents::find_request_id_counter_ = -1;
+
 WebContents::WebContents(Profile* profile,
                          SiteInstance* site_instance,
                          RenderViewHostFactory* render_view_factory,
@@ -201,8 +204,10 @@ WebContents::WebContents(Profile* profile,
 #endif
       ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(this)),
       suppress_javascript_messages_(false),
-      load_state_(net::LOAD_STATE_IDLE) {
-
+      load_state_(net::LOAD_STATE_IDLE),
+      find_ui_active_(false),
+      find_op_aborted_(false),
+      current_find_request_id_(find_request_id_counter_++) {
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
 
@@ -532,6 +537,43 @@ void WebContents::CreateShortcut() {
   render_view_host()->GetApplicationInfo(pending_install_.page_id);
 }
 
+void WebContents::StartFinding(const std::wstring& find_text,
+                               bool forward_direction) {
+  // If find_text is empty, it means FindNext was pressed with a keyboard
+  // shortcut so unless we have something to search for we return early.
+  if (find_text.empty() && find_text_.empty())
+    return;
+
+  // This is a FindNext operation if we are searching for the same text again,
+  // or if the passed in search text is empty (FindNext keyboard shortcut). The
+  // exception to this is if the Find was aborted (then we don't want FindNext
+  // because the highlighting has been cleared and we need it to reappear). We
+  // therefore treat FindNext after an aborted Find operation as a full fledged
+  // Find.
+  bool find_next = (find_text_ == find_text || find_text.empty()) &&
+                   !find_op_aborted_;
+  if (!find_next)
+    current_find_request_id_ = find_request_id_counter_++;
+
+  if (!find_text.empty())
+    find_text_ = find_text;
+
+  find_op_aborted_ = false;
+
+  render_view_host()->StartFinding(current_find_request_id_,
+                                   find_text_,
+                                   forward_direction,
+                                   false,  // case sensitive
+                                   find_next);
+}
+
+void WebContents::StopFinding(bool clear_selection) {
+  find_ui_active_ = false;
+  find_op_aborted_ = true;
+  find_result_ = FindNotificationDetails();
+  render_view_host()->StopFinding(clear_selection);
+}
+
 void WebContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                                bool success,
                                                const std::wstring& prompt) {
@@ -590,9 +632,6 @@ bool WebContents::PrintNow() {
   // We can't print interstitial page for now.
   if (showing_interstitial_page())
     return false;
-
-  // If we have a find bar it needs to hide as well.
-  view_->HideFindBar(false);
 
   return render_view_host()->PrintPages();
 }
@@ -1356,6 +1395,33 @@ void WebContents::OnEnterOrSpace() {
 #endif
 }
 
+void WebContents::OnFindReply(int request_id,
+                              int number_of_matches,
+                              const gfx::Rect& selection_rect,
+                              int active_match_ordinal,
+                              bool final_update) {
+  // Ignore responses for requests other than the one we have most recently
+  // issued. That way we won't act on stale results when the user has
+  // already typed in another query.
+  if (request_id != current_find_request_id_)
+    return;
+
+  if (number_of_matches == -1)
+    number_of_matches = find_result_.number_of_matches();
+  if (active_match_ordinal == -1)
+    active_match_ordinal = find_result_.active_match_ordinal();
+
+  // Notify the UI, automation and any other observers that a find result was
+  // found.
+  find_result_ = FindNotificationDetails(request_id, number_of_matches,
+                                         selection_rect, active_match_ordinal,
+                                         final_update);
+  NotificationService::current()->Notify(
+      NotificationType::FIND_RESULT_AVAILABLE,
+      Source<TabContents>(this),
+      Details<FindNotificationDetails>(&find_result_));
+}
+
 bool WebContents::CanTerminate() const {
   if (!delegate())
     return true;
@@ -1497,12 +1563,6 @@ void WebContents::DidNavigateMainFramePostCommit(
 
   // Close constrained popups if necessary.
   MaybeCloseChildWindows(details.previous_url, details.entry->url());
-
-  // We hide the FindInPage window when the user navigates away, except on
-  // reload.
-  if (PageTransition::StripQualifier(params.transition) !=
-      PageTransition::RELOAD)
-    view_->HideFindBar(true);
 
   // Update the starred state.
   UpdateStarredStateForCurrentURL();

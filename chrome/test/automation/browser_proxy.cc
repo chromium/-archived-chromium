@@ -251,6 +251,35 @@ bool BrowserProxy::WaitForTabToBecomeActive(int tab,
   return false;
 }
 
+bool BrowserProxy::OpenFindInPage() {
+  if (!is_valid())
+    return false;
+
+  return sender_->Send(new AutomationMsg_OpenFindInPage(0, handle_));
+  // This message expects no response.
+}
+
+bool BrowserProxy::GetFindWindowLocation(int* x, int* y) {
+  if (!is_valid() || !x || !y)
+    return false;
+
+  return sender_->Send(
+      new AutomationMsg_FindWindowLocation(0, handle_, x, y));
+}
+
+bool BrowserProxy::IsFindWindowFullyVisible(bool* is_visible) {
+  if (!is_valid())
+    return false;
+
+  if (!is_visible) {
+    NOTREACHED();
+    return false;
+  }
+
+  return sender_->Send(
+      new AutomationMsg_FindWindowVisibility(0, handle_, is_visible));
+}
+
 bool BrowserProxy::GetHWND(HWND* handle) const {
   if (!is_valid())
     return false;
@@ -319,7 +348,7 @@ bool BrowserProxy::GetBooleanPreference(const std::wstring& name,
     return false;
 
   bool result = false;
-  
+
   sender_->Send(new AutomationMsg_GetBooleanPreference(0, handle_, name, value,
                                                        &result));
   return result;

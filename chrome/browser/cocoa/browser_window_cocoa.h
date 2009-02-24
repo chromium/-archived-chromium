@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_WINDOW_COCOA_H_
-#define CHROME_BROWSER_WINDOW_COCOA_H_
+#ifndef CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_
+#define CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_
 
 #include "chrome/browser/browser_window.h"
 
@@ -18,7 +18,7 @@ class BrowserWindowCocoa : public BrowserWindow {
  public:
   BrowserWindowCocoa(BrowserWindowController* controller, NSWindow* window);
   virtual ~BrowserWindowCocoa();
-  
+
   // Overridden from BrowserWindow
   virtual void Init();
   virtual void Show();
@@ -46,6 +46,7 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual bool IsBookmarkBarVisible() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ToggleBookmarkBar();
+  virtual void ShowFindBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
@@ -58,13 +59,12 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void ShowNewProfileDialog();
   virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
-                              
  protected:
   virtual void DestroyBrowser();
-  
+
  private:
   BrowserWindowController* controller_;  // weak, owns us
   NSWindow* window_;  // weak, owned by |controller_|
 };
 
-#endif  // CHROME_BROWSER_WINDOW_COCOA_H_
+#endif  // CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_

@@ -868,22 +868,21 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
         if (active_match_index_ + 1 == 0)
           active_match_index_ = last_match_count_ - 1;
       }
-    }
-
 #if defined(OS_WIN)
-    // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
-    if (selection_rect) {
-      gfx::Rect rect = webkit_glue::FromIntRect(
-          frame()->view()->convertToContainingWindow(curr_selection_rect));
-      rect.Offset(-frameview()->scrollOffset().width(),
-                  -frameview()->scrollOffset().height());
-      *selection_rect = rect;
+      // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
+      if (selection_rect) {
+        gfx::Rect rect = webkit_glue::FromIntRect(
+            frame()->view()->convertToContainingWindow(curr_selection_rect));
+        rect.Offset(-frameview()->scrollOffset().width(),
+                    -frameview()->scrollOffset().height());
+        *selection_rect = rect;
 
-      ReportFindInPageSelection(rect,
-                                active_match_index_ + 1,
-                                request.request_id);
-    }
+        ReportFindInPageSelection(rect,
+                                  active_match_index_ + 1,
+                                  request.request_id);
+      }
 #endif
+    }
   } else {
     // Nothing was found in this frame.
     active_match_ = NULL;

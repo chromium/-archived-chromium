@@ -135,6 +135,10 @@ void BrowserWindowCocoa::ToggleBookmarkBar() {
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowCocoa::ShowFindBar() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowCocoa::ShowAboutChromeDialog() {
   NOTIMPLEMENTED();
 }

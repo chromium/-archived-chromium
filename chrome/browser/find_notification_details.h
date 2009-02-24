@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FIND_NOTIFICATION_DETAILS_H__
-#define CHROME_BROWSER_FIND_NOTIFICATION_DETAILS_H__
+#ifndef CHROME_BROWSER_FIND_NOTIFICATION_DETAILS_H_
+#define CHROME_BROWSER_FIND_NOTIFICATION_DETAILS_H_
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
@@ -20,6 +20,12 @@ class FindNotificationDetails {
       selection_rect_(selection_rect),
       active_match_ordinal_(active_match_ordinal),
       final_update_(final_update) {}
+
+  FindNotificationDetails()
+    : request_id_(0),
+      number_of_matches_(-1),
+      active_match_ordinal_(-1),
+      final_update_(false) {}
 
   ~FindNotificationDetails() {}
 
@@ -39,11 +45,6 @@ class FindNotificationDetails {
   gfx::Rect selection_rect_;  // Where selection occurred (screen coordinate).
   int active_match_ordinal_;  // The ordinal of the currently selected match.
   bool final_update_;  // Whether this is the last Find Result update.
-
-  FindNotificationDetails() {}
-
-  DISALLOW_EVIL_CONSTRUCTORS(FindNotificationDetails);
 };
 
-#endif  // CHROME_BROWSER_FIND_NOTIFICATION_DETAILS_H__
-
+#endif  // CHROME_BROWSER_FIND_NOTIFICATION_DETAILS_H_

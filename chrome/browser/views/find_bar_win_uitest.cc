@@ -41,23 +41,20 @@ TEST_F(FindInPageControllerTest, FindInPageOrdinal) {
   int ordinal = 0;
   EXPECT_EQ(3, tab->FindInPage(L"o", FWD, IGNORE_CASE, false, &ordinal));
   EXPECT_EQ(1, ordinal);
-  // FindNext returns -1 for match count because it doesn't bother with
-  // recounting the number of matches. We don't care about the match count
-  // anyway in this case, we just want to check the ordinal.
-  EXPECT_EQ(-1, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(3, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(2, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(3, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(3, ordinal);
   // Go back one match.
-  EXPECT_EQ(-1, tab->FindInPage(L"o", BACK, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(3, tab->FindInPage(L"o", BACK, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(2, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(3, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(3, ordinal);
   // This should wrap to the top.
-  EXPECT_EQ(-1, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(3, tab->FindInPage(L"o", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(1, ordinal);
   // This should go back to the end.
-  EXPECT_EQ(-1, tab->FindInPage(L"o", BACK, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(3, tab->FindInPage(L"o", BACK, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(3, ordinal);
 }
 
@@ -79,31 +76,28 @@ TEST_F(FindInPageControllerTest, FindInPageMultiFramesOrdinal) {
   int ordinal = 0;
   EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, false, &ordinal));
   EXPECT_EQ(1, ordinal);
-  // FindNext returns -1 for match count because it doesn't bother with
-  // recounting the number of matches. We don't care about the match count
-  // anyway in this case, we just want to check the ordinal.
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(2, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(3, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(4, ordinal);
   // Go back one, which should go back one frame.
-  EXPECT_EQ(-1, tab->FindInPage(L"a", BACK, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", BACK, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(3, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(4, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(5, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(6, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(7, ordinal);
   // Now we should wrap back to frame 1.
-  EXPECT_EQ(-1, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(1, ordinal);
   // Now we should wrap back to frame last frame.
-  EXPECT_EQ(-1, tab->FindInPage(L"a", BACK, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(7, tab->FindInPage(L"a", BACK, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(7, ordinal);
 }
 
@@ -124,16 +118,13 @@ TEST_F(FindInPageControllerTest, FindInPage_Issue5132) {
   int ordinal = 0;
   EXPECT_EQ(6, tab->FindInPage(L"goa", FWD, IGNORE_CASE, false, &ordinal));
   EXPECT_EQ(1, ordinal);
-  // FindNext returns -1 for match count because it doesn't bother with
-  // recounting the number of matches. We don't care about the match count
-  // anyway in this case, we just want to check the ordinal.
-  EXPECT_EQ(-1, tab->FindInPage(L"goa", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(6, tab->FindInPage(L"goa", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(2, ordinal);
-  EXPECT_EQ(-1, tab->FindInPage(L"goa", FWD, IGNORE_CASE, true, &ordinal));
+  EXPECT_EQ(6, tab->FindInPage(L"goa", FWD, IGNORE_CASE, true, &ordinal));
   EXPECT_EQ(3, ordinal);
   // Add space to search (should result in no matches).
   EXPECT_EQ(0, tab->FindInPage(L"goa ", FWD, IGNORE_CASE, false, &ordinal));
-  EXPECT_EQ(-1, ordinal);
+  EXPECT_EQ(0, ordinal);
   // Remove the space, should be back to '3 out of 6')
   EXPECT_EQ(6, tab->FindInPage(L"goa", FWD, IGNORE_CASE, false, &ordinal));
   EXPECT_EQ(3, ordinal);
@@ -170,10 +161,7 @@ TEST_F(FindInPageControllerTest, FindCrash_Issue1341577) {
   // against the frame, otherwise an active frame pointer is set and it wont
   // produce the crash.
   EXPECT_EQ(1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, false, NULL));
-  // FindNext returns -1 for match count because it doesn't bother with
-  // recounting the number of matches. We don't care about the match count
-  // anyway in this case, we just want to make sure it doesn't crash.
-  EXPECT_EQ(-1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, true, NULL));
+  EXPECT_EQ(1, tab->FindInPage(L"\u0D4C", FWD, IGNORE_CASE, true, NULL));
 
   // This should work fine.
   EXPECT_EQ(1, tab->FindInPage(L"\u0D24\u0D46", FWD, IGNORE_CASE, false, NULL));
@@ -223,12 +211,12 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), true));
 
   // Open the Find window and wait for it to animate.
-  EXPECT_TRUE(tabA->OpenFindInPage());
-  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tabA.get(), true));
+  EXPECT_TRUE(browser->OpenFindInPage());
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), true));
 
   // Find its location.
   int x = -1, y = -1;
-  EXPECT_TRUE(tabA->GetFindWindowLocation(&x, &y));
+  EXPECT_TRUE(browser->GetFindWindowLocation(&x, &y));
 
   // Open another tab (tab B).
   EXPECT_TRUE(browser->AppendTab(url));
@@ -239,7 +227,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 
   // See if the Find window has moved.
   int new_x = -1, new_y = -1;
-  EXPECT_TRUE(tabA->GetFindWindowLocation(&new_x, &new_y));
+  EXPECT_TRUE(browser->GetFindWindowLocation(&new_x, &new_y));
 
   EXPECT_EQ(x, new_x);
   EXPECT_EQ(y, new_y);
@@ -249,7 +237,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), false));
 
   // Bookmark bar has moved, reset our coordinates.
-  EXPECT_TRUE(tabA->GetFindWindowLocation(&x, &y));
+  EXPECT_TRUE(browser->GetFindWindowLocation(&x, &y));
 
   // Open another tab (tab C).
   EXPECT_TRUE(browser->AppendTab(url));
@@ -259,7 +247,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   EXPECT_TRUE(tabC->Close(true));
 
   // See if the Find window has moved.
-  EXPECT_TRUE(tabA->GetFindWindowLocation(&new_x, &new_y));
+  EXPECT_TRUE(browser->GetFindWindowLocation(&new_x, &new_y));
 
   EXPECT_EQ(x, new_x);
   EXPECT_EQ(y, new_y);
@@ -272,6 +260,7 @@ TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
   ASSERT_TRUE(NULL != server.get());
 
   GURL url = server->TestServerPageW(kUserSelectPage);
+  GURL url2 = server->TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -280,14 +269,14 @@ TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
   ASSERT_TRUE(browser.get() != NULL);
 
   // Open the Find window and wait for it to animate.
-  EXPECT_TRUE(tab->OpenFindInPage());
-  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tab.get(), true));
+  EXPECT_TRUE(browser->OpenFindInPage());
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), true));
 
   // Reload the tab and make sure Find box doesn't go away.
   EXPECT_TRUE(tab->Reload());
-  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tab.get(), true));
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), true));
 
   // Navigate and make sure the Find box goes away.
-  EXPECT_TRUE(tab->NavigateToURL(url));
-  EXPECT_TRUE(WaitForFindWindowVisibilityChange(tab.get(), false));
+  EXPECT_TRUE(tab->NavigateToURL(url2));
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), false));
 }

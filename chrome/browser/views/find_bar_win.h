@@ -6,14 +6,16 @@
 #define CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_
 
 #include "base/gfx/rect.h"
+#include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/animation.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/views/widget_win.h"
 
+class BrowserView;
 class FindBarView;
 class RenderViewHost;
 class SlideAnimation;
-class WebContentsView;
 
 namespace views {
 class ExternalFocusTracker;
@@ -26,19 +28,24 @@ class View;
 // functionality. It uses the FindBarWin implementation to draw its content and
 // is responsible for showing, hiding, closing, and moving the window if needed,
 // for example if the window is obscuring the selection results. It also
-// communicates with the parent_tab to instruct it to start searching for what
-// the user selected and receives notifications about the search results and
-// communicates that to the view.
+// receives notifications about the search results and communicates that to the
+// view.
 //
-// We create one container per tab and remember each search query per tab.
+// There is one FindBarWin per BrowserView, and its state is updated whenever
+// the selected Tab is changed. The FindBarWin is created when the BrowserView
+// is attached to the frame's Widget for the first time.
 //
 ////////////////////////////////////////////////////////////////////////////////
 class FindBarWin : public views::FocusChangeListener,
                    public views::WidgetWin,
-                   public AnimationDelegate {
+                   public AnimationDelegate,
+                   public NotificationObserver {
  public:
-  FindBarWin(WebContentsView* parent_tab, HWND parent_hwnd);
+  explicit FindBarWin(BrowserView* browser_view);
   virtual ~FindBarWin();
+
+  // Accessor for the attached WebContents.
+  WebContents* web_contents() const { return web_contents_; }
 
   // Shows the find bar. Any previous search string will again be visible.
   void Show();
@@ -46,51 +53,24 @@ class FindBarWin : public views::FocusChangeListener,
   // Ends the current session.
   void EndFindSession();
 
-  // Closes the find bar window (calls Close on the Window Container).
-  void Close();
-
-  // This is triggered when the parent tab of the Find dialog becomes
-  // unselected, at which point the find bar should become hidden. Otherwise,
-  // we leave artifacts on the chrome when other tabs are visible. However, we
-  // need to show the Find dialog again when the parent tab becomes selected
-  // again, so we set a flag for that and show the window if we get a
-  // DidBecomeSelected call.
-  void DidBecomeUnselected();
-
-  // If |show_on_tab_selection_| is true, then we show the dialog and clear the
-  // flag, otherwise we do nothing.
-  void DidBecomeSelected();
-
-  // Starts the Find operation by calling StartFinding on the Tab. This function
-  // can be called from the outside as a result of hot-keys, so it uses the
-  // last remembered search string as specified with set_find_string(). This
-  // function does not block while a search is in progress. The controller will
-  // receive the results through the notification mechanism. See Observe(...)
-  // for details.
-  void StartFinding(bool forward_direction);
-
-  // Stops the current Find operation. If |clear_selection| is true, it will
-  // also clear the selection on the focused frame.
-  void StopFinding(bool clear_selection);
+  // Changes the WebContents that this FindBar is attached to. This occurs when
+  // the user switches tabs in the Browser window. |contents| can be NULL.
+  void ChangeWebContents(WebContents* contents);
 
   // If the find bar obscures the search results we need to move the window. To
   // do that we need to know what is selected on the page. We simply calculate
   // where it would be if we place it on the left of the selection and if it
   // doesn't fit on the screen we try the right side. The parameter
   // |selection_rect| is expected to have coordinates relative to the top of
-  // the web page area.
-  void MoveWindowIfNecessary(const gfx::Rect& selection_rect);
+  // the web page area. If |no_redraw| is true, the window will be moved without
+  // redrawing siblings.
+  void MoveWindowIfNecessary(const gfx::Rect& selection_rect, bool no_redraw);
 
   // Moves the window according to the new window size.
   void RespondToResize(const gfx::Size& new_size);
 
   // Whether we are animating the position of the Find window.
   bool IsAnimating();
-
-  // Changes the parent window for the find bar. If |new_parent| is already
-  // the parent of this window then no action is taken.
-  // |new_parent| can not be NULL.
-  void SetParent(HWND new_parent);
 
   // We need to monitor focus changes so that we can register a handler for
   // Escape when we get focus and unregister it when we looses focus. This
@@ -99,19 +79,10 @@ class FindBarWin : public views::FocusChangeListener,
   // new |parent_hwnd|.
   void SetFocusChangeListener(HWND parent_hwnd);
 
-  // Accessors for specifying and retrieving the current search string.
-  std::wstring find_string() { return find_string_; }
-  void set_find_string(const std::wstring& find_string) {
-    find_string_ = find_string;
-  }
-
-  // Updates the find bar with the latest results. This is called when the
-  // renderer (through the RenderViewHostDelegate::View) finds more stuff. 
-  void OnFindReply(int request_id,
-                   int number_of_matches,
-                   const gfx::Rect& selection_rect,
-                   int active_match_ordinal,
-                   bool final_update);
+  // Overridden from NotificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
   // Overridden from views::WidgetWin:
   virtual void OnFinalMessage(HWND window);
@@ -128,9 +99,6 @@ class FindBarWin : public views::FocusChangeListener,
   virtual void AnimationEnded(const Animation* animation);
 
  private:
-  // Returns the RenderViewHost associated with the current tab.
-  RenderViewHost* GetRenderViewHost() const;
-
   // Retrieves the boundaries that the find bar has to work with within the
   // Chrome frame window. The resulting rectangle will be a rectangle that
   // overlaps the bottom of the Chrome toolbar by one pixel (so we can create
@@ -159,8 +127,9 @@ class FindBarWin : public views::FocusChangeListener,
   // Moves the dialog window to the provided location, moves it to top in the
   // z-order (HWND_TOP, not HWND_TOPMOST) and shows the window (if hidden).
   // It then calls UpdateWindowEdges to make sure we don't overwrite the Chrome
-  // window border.
-  void SetDialogPosition(const gfx::Rect& new_pos);
+  // window border. If |no_redraw| is set, the window is getting moved but not
+  // sized, and should not be redrawn to reduce update flicker.
+  void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
 
   // The dialog needs rounded edges, so we create a polygon that corresponds to
   // the background images for this window (and make the polygon only contain
@@ -182,45 +151,25 @@ class FindBarWin : public views::FocusChangeListener,
   // also: SetFocusChangeListener().
   void UnregisterEscAccelerator();
 
-  // The tab we are associated with.
-  WebContentsView* parent_tab_;
+  // Updates the FindBarView with the find result details contained within the
+  // specified |result|.
+  void UpdateUIForFindResult(const FindNotificationDetails& result,
+                             const std::wstring& find_text);
 
-  // The window handle of our parent window (the main Chrome window).
-  HWND parent_hwnd_;
+  // The WebContents we are currently associated with.
+  WebContents* web_contents_;
+
+  // The BrowserView that created us.
+  BrowserView* browser_view_;
 
   // Our view, which is responsible for drawing the UI.
   FindBarView* view_;
-
-  // Each time a search request comes in we assign it an id before passing it
-  // over the IPC so that when the results come in we can evaluate whether we
-  // still care about the results of the search (in some cases we don't because
-  // the user has issued a new search).
-  static int request_id_counter_;
-
-  // This variable keeps track of what the most recent request id is.
-  int current_request_id_;
-
-  // The current string we are searching for.
-  std::wstring find_string_;
-
-  // The last string we searched for. This is used to figure out if this is a
-  // Find or a FindNext operation (FindNext should not increase the request id).
-  std::wstring last_find_string_;
-
-  // The current window position (relative to parent).
-  gfx::Rect curr_pos_relative_;
-
-  // The current window size.
-  gfx::Size window_size_;
 
   // The y position pixel offset of the window while animating the Find dialog.
   int find_dialog_animation_offset_;
 
   // The animation class to use when opening the Find window.
   scoped_ptr<SlideAnimation> animation_;
-
-  // Whether to show the Find dialog when its tab becomes selected again.
-  bool show_on_tab_selection_;
 
   // The focus manager we register with to keep track of focus changes.
   views::FocusManager* focus_manager_;

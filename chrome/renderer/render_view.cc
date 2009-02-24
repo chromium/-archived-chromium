@@ -146,7 +146,7 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
  private:
   int32 pending_page_id_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderViewExtraRequestData);
+  DISALLOW_COPY_AND_ASSIGN(RenderViewExtraRequestData);
 };
 
 }  // namespace
@@ -2191,28 +2191,27 @@ void RenderView::OnFind(const FindInPageRequest& request) {
   //                fix for 792423.
   webview()->SetFocusedFrame(NULL);
 
-  // We send back word that we found some matches, because we don't want to lag
-  // when notifying the user that we found something. At this point we only know
-  // that we found 1 match, but the scoping effort will tell us more. However,
-  // if this is a FindNext request, the scoping effort is already under way, or
-  // done already, so we have partial results. In that case we set it to -1 so
-  // that it gets ignored by the FindInPageController.
-  int match_count = result ? 1 : 0;  // 1 here means possibly more coming.
-  if (request.find_next)
-    match_count = -1;
+  if (request.find_next) {
+    // Force the main_frame to report the actual count.
+    main_frame->IncreaseMatchCount(0, request.request_id);
+  } else {
+    // If nothing is found, set result to "0 of 0", otherwise, set it to
+    // "-1 of 1" to indicate that we found at least one item, but we don't know
+    // yet what is active.
+    int ordinal = result ? -1 : 0;  // -1 here means, we might know more later.
+    int match_count = result ? 1 : 0;  // 1 here means possibly more coming.
 
-  // If we find no matches (or if this is Find Next) then this will be our last
-  // status update. Otherwise the scoping effort will send more results.
-  bool final_status_update = !result || request.find_next;
+    // If we find no matches then this will be our last status update.
+    // Otherwise the scoping effort will send more results.
+    bool final_status_update = !result;
 
-  // Send the search result over to the browser process.
-  Send(new ViewHostMsg_Find_Reply(routing_id_, request.request_id,
-                                  match_count,
-                                  selection_rect,
-                                  -1,  // Don't update active match ordinal.
-                                  final_status_update));
+    // Send the search result over to the browser process.
+    Send(new ViewHostMsg_Find_Reply(routing_id_, request.request_id,
+                                    match_count,
+                                    selection_rect,
+                                    ordinal,
+                                    final_status_update));
 
-  if (!request.find_next) {
     // Scoping effort begins, starting with the mainframe.
     search_frame = main_frame;
 
@@ -2871,7 +2870,7 @@ MessageLoop* RenderView::GetMessageLoopForIO() {
 
 void RenderView::OnRequestAudioPacket(int stream_id) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer){
+  if (!audio_renderer) {
     NOTREACHED();
     return;
   }
@@ -2881,7 +2880,7 @@ void RenderView::OnRequestAudioPacket(int stream_id) {
 void RenderView::OnAudioStreamCreated(
     int stream_id, base::SharedMemoryHandle handle, int length) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer){
+  if (!audio_renderer) {
     NOTREACHED();
     return;
   }
@@ -2891,7 +2890,7 @@ void RenderView::OnAudioStreamCreated(
 void RenderView::OnAudioStreamStateChanged(
     int stream_id, AudioOutputStream::State state, int info) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer){
+  if (!audio_renderer) {
     NOTREACHED();
     return;
   }
@@ -2900,7 +2899,7 @@ void RenderView::OnAudioStreamStateChanged(
 
 void RenderView::OnAudioStreamVolume(int stream_id, double left, double right) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer){
+  if (!audio_renderer) {
     NOTREACHED();
     return;
   }

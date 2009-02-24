@@ -7,7 +7,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/thread.h"
-#include "chrome/app/chrome_dll_resource.h" 
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/ui_controls.h"
@@ -268,8 +268,8 @@ class NavigationNotificationObserver : public NotificationObserver {
     // afer the load has started (but not after the entry was committed, as
     // WaitForNavigation compares times of the last navigation).
     // - when this is used with a page requiring authentication, we will not get
-    // a NotificationType::NAV_ENTRY_COMMITTED until after we authenticate, so we need the
-    // NotificationType::LOAD_START.
+    // a NotificationType::NAV_ENTRY_COMMITTED until after we authenticate, so
+    // we need the NotificationType::LOAD_START.
     if (type == NotificationType::NAV_ENTRY_COMMITTED ||
         type == NotificationType::LOAD_START) {
       navigation_started_ = true;
@@ -360,7 +360,7 @@ class TabStripNotificationObserver : public NotificationObserver {
 class TabAppendedNotificationObserver : public TabStripNotificationObserver {
  public:
   TabAppendedNotificationObserver(Browser* parent,
-      AutomationProvider* automation, int32 routing_id, 
+      AutomationProvider* automation, int32 routing_id,
       IPC::Message* reply_message)
       : TabStripNotificationObserver(parent, NotificationType::TAB_PARENTED,
                                      automation, routing_id),
@@ -657,7 +657,7 @@ class AutomationInterstitialPage : public InterstitialPage {
 
  private:
   std::string contents_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(AutomationInterstitialPage);
 };
 
@@ -1604,7 +1604,7 @@ void AutomationProvider::OnRedirectQueryComplete(
     reply_message_->WriteInt(-1);  // Negative count indicates failure.
   }
 
-  IPC::ParamTraits<std::vector<GURL>>::Write(reply_message_, redirects_gurl);
+  IPC::ParamTraits<std::vector<GURL> >::Write(reply_message_, redirects_gurl);
 
   Send(reply_message_);
   redirect_query_ = NULL;
@@ -1806,14 +1806,10 @@ void AutomationProvider::HandleFindRequest(int handle,
                                      reply_message->routing_id(),
                                      reply_message));
 
-  // The find in page dialog must be up for us to get the notification that the
-  // find was complete.
   WebContents* web_contents = tab_contents->AsWebContents();
   if (web_contents) {
-    NavigationController* tab = tab_tracker_->GetResource(handle);
-    Browser* browser = Browser::GetBrowserForController(tab, NULL);
-    web_contents->view()->FindInPage(*browser, true, request.forward);
-
+    web_contents->set_current_find_request_id(
+        FindInPageNotificationObserver::kFindInPageRequestId);
     web_contents->render_view_host()->StartFinding(
         FindInPageNotificationObserver::kFindInPageRequestId,
         request.search_string, request.forward, request.match_case,
@@ -1823,29 +1819,33 @@ void AutomationProvider::HandleFindRequest(int handle,
 
 void AutomationProvider::HandleOpenFindInPageRequest(
     const IPC::Message& message, int handle) {
-  NavigationController* tab = NULL;
-  WebContents* web_contents = GetWebContentsForHandle(handle, &tab);
-  if (web_contents) {
-    Browser* browser = Browser::GetBrowserForController(tab, NULL);
-    web_contents->view()->FindInPage(*browser, false, false);
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    browser->FindInPage(false, false);
   }
 }
 
 void AutomationProvider::GetFindWindowVisibility(int handle, bool* visible) {
   gfx::Point position;
   *visible = false;
-  WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
-  if (web_contents)
-    web_contents->view()->GetFindBarWindowInfo(&position, visible);
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    BrowserWindowTesting* testing =
+        browser->window()->GetBrowserWindowTesting();
+    testing->GetFindBarWindowInfo(&position, visible);
+  }
 }
 
 void AutomationProvider::HandleFindWindowLocationRequest(int handle, int* x,
                                                          int* y) {
   gfx::Point position(0, 0);
   bool visible = false;
-  WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
-  if (web_contents)
-    web_contents->view()->GetFindBarWindowInfo(&position, &visible);
+  if (browser_tracker_->ContainsHandle(handle)) {
+     Browser* browser = browser_tracker_->GetResource(handle);
+     BrowserWindowTesting* testing =
+         browser->window()->GetBrowserWindowTesting();
+     testing->GetFindBarWindowInfo(&position, &visible);
+  }
 
   *x = position.x();
   *y = position.y();
@@ -1926,8 +1926,8 @@ void AutomationProvider::SetFilteredInet(const IPC::Message& message,
       new SetFilteredInetTask(enabled));
 }
 
-void AutomationProvider::GetDownloadDirectory(int handle,
-                                              std::wstring* download_directory) {
+void AutomationProvider::GetDownloadDirectory(
+    int handle, std::wstring* download_directory) {
   DLOG(INFO) << "Handling download directory request";
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
@@ -2427,7 +2427,8 @@ void TestingAutomationProvider::OnBrowserRemoving(const Browser* browser) {
   // want the automation provider (and hence the process) to go away when the
   // last browser goes away.
   if (BrowserList::size() == 1) {
-    // If you change this, update Observer for NotificationType::SESSION_END below.
+    // If you change this, update Observer for NotificationType::SESSION_END
+    // below.
     MessageLoop::current()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &TestingAutomationProvider::OnRemoveProvider));
   }
@@ -2478,7 +2479,7 @@ void AutomationProvider::ClickSSLInfoBarLink(int handle,
         success = true;
       }
     }
-   }
+  }
   if (!wait_for_navigation || !success)
     AutomationMsg_ClickSSLInfoBarLink::WriteReplyParams(reply_message,
                                                         success);
@@ -2501,7 +2502,7 @@ void AutomationProvider::WaitForNavigation(int handle,
   if (time.ToInternalValue() > last_navigation_time || !controller) {
     AutomationMsg_WaitForNavigation::WriteReplyParams(reply_message,
                                                       controller != NULL);
-    return;                                                       
+    return;
   }
 
   AddNavigationStatusListener<bool>(controller, reply_message, true, true,

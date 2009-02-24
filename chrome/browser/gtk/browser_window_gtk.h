@@ -54,6 +54,7 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual bool IsBookmarkBarVisible() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ToggleBookmarkBar();
+  virtual void ShowFindBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);

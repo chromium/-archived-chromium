@@ -21,6 +21,7 @@
 #include "chrome/browser/views/bug_report_view.h"
 #include "chrome/browser/views/clear_browsing_data.h"
 #include "chrome/browser/views/download_shelf_view.h"
+#include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/fullscreen_exit_bubble.h"
 #include "chrome/browser/views/html_dialog_view.h"
@@ -86,6 +87,8 @@ static const int kDefaultHungPluginDetectFrequency = 2000;
 static const int kDefaultPluginMessageResponseTimeout = 30000;
 // The number of milliseconds between loading animation frames.
 static const int kLoadingAnimationFrameTimeMs = 30;
+// The amount of space we expect the window border to take up.
+static const int kWindowBorderWidth = 5;
 
 // If not -1, windows are shown with this state.
 static int explicit_show_state = -1;
@@ -180,6 +183,8 @@ BrowserView::BrowserView(Browser* browser)
       active_bookmark_bar_(NULL),
       active_download_shelf_(NULL),
       toolbar_(NULL),
+      infobar_container_(NULL),
+      find_bar_y_(0),
       contents_container_(NULL),
       initialized_(false),
       fullscreen_(false),
@@ -251,6 +256,44 @@ gfx::Rect BrowserView::GetClientAreaBounds() const {
   ConvertPointToView(this, GetParent(), &container_origin);
   container_bounds.set_origin(container_origin);
   return container_bounds;
+}
+
+bool BrowserView::ShouldFindBarBlendWithBookmarksBar() const {
+  if (bookmark_bar_view_.get())
+    return bookmark_bar_view_->IsAlwaysShown();
+  return false;
+}
+
+gfx::Rect BrowserView::GetFindBarBoundingBox() const {
+  // This function returns the area the Find Bar can be laid out within. This
+  // basically implies the "user-perceived content area" of the browser window
+  // excluding the vertical scrollbar. This is not quite so straightforward as
+  // positioning based on the TabContentsContainerView since the BookmarkBarView
+  // may be visible but not persistent (in the New Tab case) and we position
+  // the Find Bar over the top of it in that case since the BookmarkBarView is
+  // not _visually_ connected to the Toolbar.
+
+  // First determine the bounding box of the content area in Widget coordinates.
+  gfx::Rect bounding_box(contents_container_->bounds());
+
+  gfx::Point topleft;
+  views::View::ConvertPointToWidget(contents_container_, &topleft);
+  bounding_box.set_origin(topleft);
+
+  // Adjust the position and size of the bounding box by the find bar offset
+  // calculated during the last Layout.
+  int height_delta = find_bar_y_ - bounding_box.y();
+  bounding_box.set_y(find_bar_y_);
+  bounding_box.set_height(std::max(0, bounding_box.height() + height_delta));
+
+  // Finally decrease the width of the bounding box by the width of the vertical
+  // scroll bar.
+  int scrollbar_width = views::NativeScrollBar::GetVerticalScrollBarWidth();
+  bounding_box.set_width(std::max(0, bounding_box.width() - scrollbar_width));
+  if (UILayoutIsRightToLeft())
+    bounding_box.set_x(bounding_box.x() + scrollbar_width);
+
+  return bounding_box;
 }
 
 int BrowserView::GetTabStripHeight() const {
@@ -420,6 +463,8 @@ void BrowserView::Init() {
 
   infobar_container_ = new InfoBarContainer(this);
   AddChildView(infobar_container_);
+
+  find_bar_.reset(new FindBarWin(this));
 
   contents_container_ = new TabContentsContainerView;
   set_contents_view(contents_container_);
@@ -694,6 +739,10 @@ void BrowserView::ToggleBookmarkBar() {
   BookmarkBarView::ToggleWhenVisible(browser_->profile());
 }
 
+void BrowserView::ShowFindBar() {
+  find_bar_->Show();
+}
+
 void BrowserView::ShowAboutChromeDialog() {
   views::Window::CreateChromeWindow(
       GetWidget()->GetHWND(), gfx::Rect(),
@@ -800,6 +849,22 @@ LocationBarView* BrowserView::GetLocationBarView() const {
   return toolbar_->GetLocationBarView();
 }
 
+bool BrowserView::GetFindBarWindowInfo(gfx::Point* position,
+                                       bool* fully_visible) const {
+  CRect window_rect;
+  if (!find_bar_.get() ||
+      !::IsWindow(find_bar_->GetHWND()) ||
+      !::GetWindowRect(find_bar_->GetHWND(), &window_rect)) {
+    *position = gfx::Point(0, 0);
+    *fully_visible = false;
+    return false;
+  }
+
+  *position = gfx::Point(window_rect.TopLeft().x, window_rect.TopLeft().y);
+  *fully_visible = find_bar_->IsVisible() && !find_bar_->IsAnimating();
+  return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, NotificationObserver implementation:
 
@@ -828,6 +893,10 @@ void BrowserView::TabDetachedAt(TabContents* contents, int index) {
     // on the selected TabContents when it is removed.
     infobar_container_->ChangeTabContents(NULL);
     contents_container_->SetTabContents(NULL);
+    // When dragging the last TabContents out of a window there is no selection
+    // notification that causes the find bar for that window to be un-registered
+    // for notifications from this TabContents.
+    find_bar_->ChangeWebContents(NULL);
   }
 }
 
@@ -862,6 +931,9 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   toolbar_->SetProfile(new_contents->profile());
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
+
+  if (find_bar_.get() && new_contents->AsWebContents())
+    find_bar_->ChangeWebContents(new_contents->AsWebContents());
 }
 
 void BrowserView::TabStripEmpty() {
@@ -1114,6 +1186,11 @@ void BrowserView::Layout() {
   top = LayoutBookmarkAndInfoBars(top);
   int bottom = LayoutDownloadShelf();
   LayoutTabContents(top, bottom);
+  // This must be done _after_ we lay out the TabContents since this code calls
+  // back into us to find the bounding box the find bar must be laid out within,
+  // and that code depends on the TabContentsContainer's bounds being up to
+  // date.
+  find_bar_->MoveWindowIfNecessary(gfx::Rect(), true);
   LayoutStatusBubble(bottom);
 #ifdef CHROME_PERSONALIZATION
   if (IsPersonalizationEnabled()) {
@@ -1121,8 +1198,6 @@ void BrowserView::Layout() {
                                                    toolbar_, 0);
   }
 #endif
-
-
   SchedulePaint();
 }
 
@@ -1267,16 +1342,17 @@ int BrowserView::LayoutToolbar(int top) {
 }
 
 int BrowserView::LayoutBookmarkAndInfoBars(int top) {
+  find_bar_y_ = top + y() - 1;
   if (bookmark_bar_view_.get()) {
     // If we're showing the Bookmark bar in detached style, then we need to show
     // any Info bar _above_ the Bookmark bar, since the Bookmark bar is styled
     // to look like it's part of the page.
     if (bookmark_bar_view_->IsDetachedStyle())
       return LayoutBookmarkBar(LayoutInfoBar(top));
-
     // Otherwise, Bookmark bar first, Info bar second.
     top = LayoutBookmarkBar(top);
   }
+  find_bar_y_ = top + y() - 1;
   return LayoutInfoBar(top);
 }
 

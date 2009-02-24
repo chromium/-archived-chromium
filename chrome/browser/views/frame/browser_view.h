@@ -24,6 +24,7 @@ class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
+class FindBarWin;
 class FullscreenExitBubble;
 class InfoBarContainer;
 class Menu;
@@ -72,6 +73,19 @@ class BrowserView : public BrowserWindow,
   // Returns the bounds of the content area, in the coordinates of the
   // BrowserView's parent.
   gfx::Rect GetClientAreaBounds() const;
+
+  // Returns true if the Find Bar should be rendered such that it appears to
+  // blend with the Bookmarks Bar. False if it should appear to blend with the
+  // main Toolbar. The return value will vary depending on whether or not the
+  // Bookmark Bar is always shown.
+  bool ShouldFindBarBlendWithBookmarksBar() const;
+
+  // Returns the constraining bounding box that should be used to lay out the
+  // FindBar within. This is _not_ the size of the find bar, just the bounding
+  // box it should be laid out within. The coordinate system of the returned
+  // rect is in the coordinate system of the frame, since the FindBar is a child
+  // window.
+  gfx::Rect GetFindBarBoundingBox() const;
 
   // Returns the preferred height of the TabStrip. Used to position the OTR
   // avatar icon.
@@ -181,6 +195,7 @@ class BrowserView : public BrowserWindow,
   virtual bool IsBookmarkBarVisible() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ToggleBookmarkBar();
+  virtual void ShowFindBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
@@ -193,6 +208,8 @@ class BrowserView : public BrowserWindow,
   virtual void ShowNewProfileDialog();
   virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
+  virtual bool GetFindBarWindowInfo(gfx::Point* position,
+                                    bool* fully_visible) const;
 
   // Overridden from BrowserWindowTesting:
   virtual BookmarkBarView* GetBookmarkBarView() const;
@@ -372,6 +389,13 @@ class BrowserView : public BrowserWindow,
   // The InfoBarContainer that contains InfoBars for the current tab.
   InfoBarContainer* infobar_container_;
 
+  // The Find Bar. This may be NULL if there is no Find Bar, and if it is
+  // non-NULL, it may or may not be visible.
+  scoped_ptr<FindBarWin> find_bar_;
+
+  // The distance the FindBar is from the top of the window, in pixels.
+  int find_bar_y_;
+
   // The view that contains the selected TabContents.
   TabContentsContainerView* contents_container_;
 
@@ -437,7 +461,7 @@ class BrowserView : public BrowserWindow,
   bool personalization_enabled_;
 #endif
 
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserView);
+  DISALLOW_COPY_AND_ASSIGN(BrowserView);
 };
 
 #endif  // CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_

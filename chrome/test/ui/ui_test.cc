@@ -399,7 +399,6 @@ void UITest::QuitBrowser() {
       browsers.push_back(browser_proxy);
     }
 
-    //for (HandleVector::iterator iter = handles.begin(); iter != handles.end();
     for (BrowserVector::iterator iter = browsers.begin();
       iter != browsers.end(); ++iter) {
       // Use ApplyAccelerator since it doesn't wait
@@ -518,12 +517,12 @@ bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
   return false;
 }
 
-bool UITest::WaitForFindWindowVisibilityChange(TabProxy* tab,
+bool UITest::WaitForFindWindowVisibilityChange(BrowserProxy* browser,
                                                bool wait_for_open) {
   const int kCycles = 20;
   for (int i = 0; i < kCycles; i++) {
     bool visible = false;
-    if (!tab->IsFindWindowFullyVisible(&visible))
+    if (!browser->IsFindWindowFullyVisible(&visible))
       return false;  // Some error.
     if (visible == wait_for_open)
       return true;  // Find window visibility change complete.
@@ -775,7 +774,7 @@ void UITest::WaitForFinish(const std::string &name,
   // The webpage being tested has javascript which sets a cookie
   // which signals completion of the test.  The cookie name is
   // a concatenation of the test name and the test id.  This allows
-  // us to run multiple tests within a single webpage and test 
+  // us to run multiple tests within a single webpage and test
   // that they all c
   std::string cookie_name = name;
   cookie_name.append(".");
@@ -785,7 +784,7 @@ void UITest::WaitForFinish(const std::string &name,
 
   scoped_ptr<TabProxy> tab(GetActiveTab());
 
-  bool test_result = WaitUntilCookieValue(tab.get(), url, 
+  bool test_result = WaitUntilCookieValue(tab.get(), url,
                                           cookie_name.c_str(),
                                           kIntervalMilliSeconds, wait_time,
                                           expected_cookie_value.c_str());

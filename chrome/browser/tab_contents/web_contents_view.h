@@ -108,47 +108,6 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // RenderWidgetHost is deleted. Removes |host| from internal maps.
   void RenderWidgetHostDestroyed(RenderWidgetHost* host);
 
-  // Find in page --------------------------------------------------------------
-
-  // Opens the find in page window if it isn't already open. It will advance to
-  // the next match if |find_next| is set and there is a search string,
-  // otherwise, the find window will merely be opened. |forward_direction|
-  // indicates the direction to search when find_next is set, otherwise it is
-  // ignored.
-  virtual void FindInPage(const Browser& browser,
-                          bool find_next, bool forward_direction) = 0;
-
-  // Hides the find bar if there is one shown. Does nothing otherwise. The find
-  // bar will not be deleted, merely hidden. This ensures that any search terms
-  // are preserved if the user subsequently opens the find bar.
-  //
-  // If |end_session| is true, then the find session will be ended, which
-  // indicates the user requested they no longer be in find mode for that tab.
-  // The find bar will not be restored when we switch back to the tab.
-  // Otherwise, we assume that the find bar is being hidden because the tab is
-  // being hidden, and all state like visibility and tickmarks will be restored
-  // when the tab comes back.
-  virtual void HideFindBar(bool end_session) = 0;
-
-#if defined(OS_WIN)
-  // Called when the tab is reparented to a new browser window. On MS Windows,
-  // we have to change the parent of our find bar to go with the new window.
-  //
-  // TODO(brettw) this seems like it could be improved. Possibly all doohickies
-  // around the tab like this, the download bar etc. should be managed by the
-  // BrowserView2 object.
-  virtual void ReparentFindWindow(Browser* new_browser) const = 0;
-#endif
-
-  // Computes the location of the find bar and whether it is fully visible in
-  // its parent window. The return value indicates if the window is visible at
-  // all. Both out arguments are required.
-  //
-  // This is used for UI tests of the find bar. If the find bar is not currently
-  // shown (return value of false), the out params will be {(0, 0), false}.
-  virtual bool GetFindBarWindowInfo(gfx::Point* position,
-                                    bool* fully_visible) const = 0;
-
  protected:
   WebContentsView() {}  // Abstract interface.
 

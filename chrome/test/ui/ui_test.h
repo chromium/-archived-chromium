@@ -145,7 +145,7 @@ class UITest : public testing::Test {
   // Waits until the Find window has become fully visible (if |wait_for_open| is
   // true) or fully hidden (if |wait_for_open| is false). This function can time
   // out (return false) if the window doesn't appear within a specific time.
-  bool WaitForFindWindowVisibilityChange(TabProxy* tab,
+  bool WaitForFindWindowVisibilityChange(BrowserProxy* browser,
                                          bool wait_for_open);
 
   // Waits until the Bookmark bar has stopped animating and become fully visible
@@ -334,7 +334,7 @@ class UITest : public testing::Test {
   DictionaryValue* GetDefaultProfilePreferences();
 
   // Generate the URL for testing a particular test.
-  // HTML for the tests is all located in 
+  // HTML for the tests is all located in
   // test_root_directory\test_directory\<testcase>
   static GURL GetTestUrl(const std::wstring& test_directory,
                          const std::wstring &test_case);

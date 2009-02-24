@@ -66,13 +66,13 @@ TEST_F(FindInPageTest, CrashEscHandlers) {
   scoped_ptr<TabProxy> tabA(GetActiveTab());
   EXPECT_NE(AUTOMATION_MSG_NAVIGATION_ERROR, tabA->NavigateToURL(url));
 
-  EXPECT_TRUE(tabA->OpenFindInPage());
+  EXPECT_TRUE(browser->OpenFindInPage());
 
   // Open another tab (tab B).
   EXPECT_TRUE(browser->AppendTab(url));
   scoped_ptr<TabProxy> tabB(GetActiveTab());
 
-  EXPECT_TRUE(tabB->OpenFindInPage());
+  EXPECT_TRUE(browser->OpenFindInPage());
 
   // Select tab A.
   EXPECT_TRUE(ActivateTabByClick(automation(), window.get(), 0));

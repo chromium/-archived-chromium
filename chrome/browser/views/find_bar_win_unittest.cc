@@ -22,7 +22,7 @@ const std::wstring kTooFewMatchesPage = L"files/find_in_page/bug_1155639.html";
 
 class FindInPageNotificationObserver : public NotificationObserver {
  public:
-  FindInPageNotificationObserver(TabContents* parent_tab)
+  explicit FindInPageNotificationObserver(TabContents* parent_tab)
       : parent_tab_(parent_tab),
         active_match_ordinal_(-1),
         number_of_matches_(0) {
@@ -89,10 +89,12 @@ class FindInPageControllerTest : public InProcessBrowserTest {
     WebContents* web_contents =
         browser()->GetSelectedTabContents()->AsWebContents();
     if (web_contents) {
-      web_contents->view()->FindInPage(*browser(), true, forward == FWD);
+      web_contents->set_current_find_request_id(
+          FindInPageNotificationObserver::kFindInPageRequestId);
       web_contents->render_view_host()->StartFinding(
           FindInPageNotificationObserver::kFindInPageRequestId,
-          search_string, forward == FWD, match_case == CASE_SENSITIVE, find_next);
+          search_string, forward == FWD, match_case == CASE_SENSITIVE,
+          find_next);
       return FindInPageNotificationObserver(web_contents).number_of_matches();
     }
     return 0;

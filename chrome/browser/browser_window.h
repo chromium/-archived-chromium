@@ -16,6 +16,7 @@ class StatusBubble;
 class TabContents;
 
 namespace gfx {
+class Point;
 class Rect;
 }
 
@@ -123,6 +124,9 @@ class BrowserWindow {
   // Shows or hides the bookmark bar depending on its current visibility.
   virtual void ToggleBookmarkBar() = 0;
 
+  // Shows the Find Bar.
+  virtual void ShowFindBar() = 0;
+
   // Shows the About Chrome dialog box.
   virtual void ShowAboutChromeDialog() = 0;
 
@@ -182,7 +186,16 @@ class BrowserWindowTesting {
 
   // Returns the LocationBarView.
   virtual LocationBarView* GetLocationBarView() const = 0;
+
+  // Computes the location of the find bar and whether it is fully visible in
+  // its parent window. The return value indicates if the window is visible at
+  // all. Both out arguments are required.
+  //
+  // This is used for UI tests of the find bar. If the find bar is not currently
+  // shown (return value of false), the out params will be {(0, 0), false}.
+  virtual bool GetFindBarWindowInfo(gfx::Point* position,
+                                    bool* fully_visible) const = 0;
 #endif
 };
 
-#endif  // CHROME_BROWSER_BROWSER_WINDOW_H__
+#endif  // CHROME_BROWSER_BROWSER_WINDOW_H_

@@ -144,6 +144,18 @@ class BrowserProxy : public AutomationResourceProxy {
   // Returns false if the tab does not become active.
   bool WaitForTabToBecomeActive(int tab, int wait_timeout);
 
+  // Opens the FindInPage box. Note: If you just want to search within a tab
+  // you don't need to call this function, just use FindInPage(...) directly.
+  bool OpenFindInPage();
+
+  // Get the x, y coordinates for the Find window. If animating, |x| and |y|
+  // will be -1, -1. Returns false on failure.
+  bool GetFindWindowLocation(int* x, int* y);
+
+  // Returns whether the Find window is fully visible If animating, |is_visible|
+  // will be false. Returns false on failure.
+  bool IsFindWindowFullyVisible(bool* is_visible);
+
   // Gets the outermost HWND that corresponds to the given browser.
   // Returns true if the call was successful.
   // Note that ideally this should go and the version of WindowProxy should be

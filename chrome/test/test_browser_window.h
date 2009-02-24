@@ -48,6 +48,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual bool IsBookmarkBarVisible() const { return false; }
   virtual gfx::Rect GetRootWindowResizerRect() const { return gfx::Rect(); }
   virtual void ToggleBookmarkBar() {}
+  virtual void ShowFindBar() {}
   virtual void ShowAboutChromeDialog() {}
   virtual void ShowBookmarkManager() {}
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {}
@@ -60,7 +61,8 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ShowNewProfileDialog() {}
   virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window) {}
-
+  virtual bool GetFindBarWindowInfo(gfx::Point* position,
+                                    bool* fully_visible) const { return false; }
  protected:
   virtual void DestroyBrowser() {}
 

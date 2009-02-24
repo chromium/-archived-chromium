@@ -845,18 +845,17 @@ void Browser::Paste() {
 
 void Browser::Find() {
   UserMetrics::RecordAction(L"Find", profile_);
-  GetSelectedTabContents()->AsWebContents()->view()->FindInPage(*this, false,
-                                                                false);
+  FindInPage(false, false);
 }
 
 void Browser::FindNext() {
   UserMetrics::RecordAction(L"FindNext", profile_);
-  AdvanceFindSelection(true);
+  FindInPage(true, true);
 }
 
 void Browser::FindPrevious() {
   UserMetrics::RecordAction(L"FindPrevious", profile_);
-  AdvanceFindSelection(false);
+  FindInPage(true, false);
 }
 
 void Browser::ZoomIn() {
@@ -1238,20 +1237,6 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   // won't start if the page is loading.
   browser->LoadingStateChanged(detached_contents);
   browser->window()->Show();
-
-#if defined(OS_WIN)
-  // When we detach a tab we need to make sure any associated Find window moves
-  // along with it to its new home (basically we just make new_window the
-  // parent of the Find window).
-  // TODO(brettw) this could probably be improved, see
-  // WebContentsView::ReparentFindWindow for more.
-  WebContents* web_contents = detached_contents->AsWebContents();
-  if (web_contents)
-    web_contents->view()->ReparentFindWindow(browser);
-#else
-  // TODO(port): remove the view dependency from this.
-  NOTIMPLEMENTED() << "need to reparent find window";
-#endif
 }
 
 int Browser::GetDragActions() const {
@@ -1397,18 +1382,6 @@ void Browser::TabInsertedAt(TabContents* contents,
   contents->controller()->SetWindowID(session_id());
 
   SyncHistoryWithTabs(tabstrip_model_.GetIndexOfTabContents(contents));
-
-#if defined(OS_WIN)
-  // When a tab is dropped into a tab strip we need to make sure that the
-  // associated Find window is moved along with it. We therefore change the
-  // parent of the Find window (if the parent is already correctly set this
-  // does nothing).
-  // TODO(brettw) this could probably be improved, see
-  // WebContentsView::ReparentFindWindow for more.
-  WebContents* web_contents = contents->AsWebContents();
-  if (web_contents)
-    web_contents->view()->ReparentFindWindow(this);
-#endif
 
   // Make sure the loading state is updated correctly, otherwise the throbber
   // won't start if the page is loading.
@@ -2407,11 +2380,14 @@ GURL Browser::GetHomePage() {
 }
 
 #if defined(OS_WIN)
-void Browser::AdvanceFindSelection(bool forward_direction) {
-  GetSelectedTabContents()->AsWebContents()->view()->FindInPage(
-      *this, true, forward_direction);
+void Browser::FindInPage(bool find_next, bool forward_direction) {
+  window_->ShowFindBar();
+  if (find_next) {
+    GetSelectedTabContents()->AsWebContents()->StartFinding(
+        std::wstring(),
+        forward_direction);
+  }
 }
-
 #endif  // OS_WIN
 
 void Browser::CloseFrame() {

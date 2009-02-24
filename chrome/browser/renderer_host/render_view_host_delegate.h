@@ -112,13 +112,6 @@ class RenderViewHostDelegate {
     // specified events. This gives an opportunity to the browser to process the
     // event (used for keyboard shortcuts).
     virtual void HandleKeyboardEvent(const WebKeyboardEvent& event) = 0;
-
-    // A find operation in the current page completed.
-    virtual void OnFindReply(int request_id,
-                             int number_of_matches,
-                             const gfx::Rect& selection_rect,
-                             int active_match_ordinal,
-                             bool final_update) = 0;
   };
 
   // Interface for saving web pages.
@@ -401,7 +394,13 @@ class RenderViewHostDelegate {
 
   // If this view can be terminated without any side effects
   virtual bool CanTerminate() const { return true; }
+
+  // A find operation in the current page completed.
+  virtual void OnFindReply(int request_id,
+                           int number_of_matches,
+                           const gfx::Rect& selection_rect,
+                           int active_match_ordinal,
+                           bool final_update) { }
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_DELEGATE_H_
-
