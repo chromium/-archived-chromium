@@ -6,6 +6,7 @@
 
 #include "base/message_loop.h"
 #include "base/string_piece.h"
+#include "base/string_util.h"
 #include "base/thread.h"
 #include "base/time.h"
 #include "base/time_format.h"
@@ -92,8 +93,8 @@ void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
 ////////////////////////////////////////////////////////////////////////////////
 BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
     : DOMMessageHandler(dom_ui),
-      remover_(NULL),
-      search_text_() {
+      search_text_(),
+      remover_(NULL) {
   dom_ui_->RegisterMessageCallback("getHistory",
       NewCallback(this, &BrowsingHistoryHandler::HandleGetHistory));
   dom_ui_->RegisterMessageCallback("searchHistory",
@@ -248,8 +249,8 @@ void BrowsingHistoryHandler::QueryComplete(
     results_value.Append(page_value);
   }
 
-  dom_ui_->CallJavascriptFunction(L"historyResult", 
-      StringValue(search_text_), results_value);
+  StringValue temp(search_text_);
+  dom_ui_->CallJavascriptFunction(L"historyResult", temp, results_value);
 }
 
 void BrowsingHistoryHandler::ExtractSearchHistoryArguments(const Value* value, 
@@ -275,7 +276,7 @@ void BrowsingHistoryHandler::ExtractSearchHistoryArguments(const Value* value,
         static_cast<const StringValue*>(list_member);
       std::wstring wstring_value;
       string_value->GetAsString(&wstring_value);
-      *month = _wtoi(wstring_value.c_str());
+      *month = StringToInt(wstring_value);
     }
   }
 }
