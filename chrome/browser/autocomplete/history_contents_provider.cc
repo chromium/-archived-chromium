@@ -278,7 +278,7 @@ void HistoryContentsProvider::QueryBookmarks(const AutocompleteInput& input) {
                                            kMaxMatchCount, &matches);
   for (size_t i = 0; i < matches.size(); ++i)
     AddBookmarkTitleMatchToResults(matches[i]);
-  UMA_HISTOGRAM_TIMES(L"Omnibox.QueryBookmarksTime",
+  UMA_HISTOGRAM_TIMES("Omnibox.QueryBookmarksTime",
                       TimeTicks::Now() - start_time);
 }
 

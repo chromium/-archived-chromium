@@ -230,7 +230,7 @@ void FocusManager::InstallFocusSubclass(HWND window, View* view) {
       !win_util::IsSubclassed(window, &FocusWindowCallback)) {
     NOTREACHED() << "window sub-classed by someone other than the FocusManager";
     // Track in UMA so we know if this case happens.
-    UMA_HISTOGRAM_COUNTS(L"FocusManager.MultipleSubclass", 1);
+    UMA_HISTOGRAM_COUNTS("FocusManager.MultipleSubclass", 1);
   } else {
     win_util::Subclass(window, &FocusWindowCallback);
     SetProp(window, kFocusSubclassInstalled, reinterpret_cast<HANDLE>(true));
@@ -842,4 +842,3 @@ void FocusManager::RemoveFocusChangeListener(FocusChangeListener* listener) {
 }
 
 }  // namespace views
-

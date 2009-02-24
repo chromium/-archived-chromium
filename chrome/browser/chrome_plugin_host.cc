@@ -124,11 +124,11 @@ class PluginRequestInterceptor
   }
 
   void LogInterceptHitTime(const TimeDelta& time) {
-    UMA_HISTOGRAM_TIMES(L"Gears.InterceptHit", time);
+    UMA_HISTOGRAM_TIMES("Gears.InterceptHit", time);
   }
 
   void LogInterceptMissTime(const TimeDelta& time) {
-    UMA_HISTOGRAM_TIMES(L"Gears.InterceptMiss", time);
+    UMA_HISTOGRAM_TIMES("Gears.InterceptMiss", time);
   }
 
   typedef std::set<std::string> HandledProtocolList;

@@ -23,10 +23,10 @@ typedef Histogram::Count Count;
 // static
 const int Histogram::kHexRangePrintingFlag = 0x8000;
 
-Histogram::Histogram(const wchar_t* name, Sample minimum,
+Histogram::Histogram(const char* name, Sample minimum,
                      Sample maximum, size_t bucket_count)
-  : StatsRate(WideToASCII(name).c_str()),
-    histogram_name_(WideToASCII(name)),
+  : StatsRate(name),
+    histogram_name_(name),
     declared_min_(minimum),
     declared_max_(maximum),
     bucket_count_(bucket_count),
@@ -37,10 +37,10 @@ Histogram::Histogram(const wchar_t* name, Sample minimum,
   Initialize();
 }
 
-Histogram::Histogram(const wchar_t* name, TimeDelta minimum,
+Histogram::Histogram(const char* name, TimeDelta minimum,
                      TimeDelta maximum, size_t bucket_count)
-  : StatsRate(WideToASCII(name).c_str()),
-    histogram_name_(WideToASCII(name)),
+  : StatsRate(name),
+    histogram_name_(name),
     declared_min_(static_cast<int> (minimum.InMilliseconds())),
     declared_max_(static_cast<int> (maximum.InMilliseconds())),
     bucket_count_(bucket_count),
@@ -415,14 +415,14 @@ void Histogram::SampleSet::Subtract(const SampleSet& other) {
 // buckets.
 //------------------------------------------------------------------------------
 
-LinearHistogram::LinearHistogram(const wchar_t* name,
+LinearHistogram::LinearHistogram(const char* name,
     Sample minimum, Sample maximum, size_t bucket_count)
     : Histogram(name, minimum >= 1 ? minimum : 1, maximum, bucket_count) {
   InitializeBucketRange();
   DCHECK(ValidateBucketRanges());
 }
 
-LinearHistogram::LinearHistogram(const wchar_t* name,
+LinearHistogram::LinearHistogram(const char* name,
     TimeDelta minimum, TimeDelta maximum, size_t bucket_count)
     : Histogram(name, minimum >= TimeDelta::FromMilliseconds(1) ?
                                  minimum : TimeDelta::FromMilliseconds(1),
@@ -487,7 +487,7 @@ double LinearHistogram::GetBucketSize(Count current, size_t i) const {
 // This section provides implementation for ThreadSafeHistogram.
 //------------------------------------------------------------------------------
 
-ThreadSafeHistogram::ThreadSafeHistogram(const wchar_t* name, Sample minimum,
+ThreadSafeHistogram::ThreadSafeHistogram(const char* name, Sample minimum,
                                          Sample maximum, size_t bucket_count)
     : Histogram(name, minimum, maximum, bucket_count),
       lock_() {
@@ -650,4 +650,3 @@ StatisticsRecorder::HistogramMap* StatisticsRecorder::histograms_ = NULL;
 Lock* StatisticsRecorder::lock_ = NULL;
 // static
 bool StatisticsRecorder::dump_on_exit_ = false;
-

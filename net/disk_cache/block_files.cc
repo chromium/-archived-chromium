@@ -66,7 +66,7 @@ bool CreateMapBlock(int target, int size, disk_cache::BlockFileHeader* header,
       if (target != size) {
         header->empty[target - size - 1]++;
       }
-      HISTOGRAM_TIMES(L"DiskCache.CreateBlock", Time::Now() - start);
+      HISTOGRAM_TIMES("DiskCache.CreateBlock", Time::Now() - start);
       return true;
     }
   }
@@ -114,7 +114,7 @@ void DeleteMapBlock(int index, int size, disk_cache::BlockFileHeader* header) {
   }
   header->num_entries--;
   DCHECK(header->num_entries >= 0);
-  HISTOGRAM_TIMES(L"DiskCache.DeleteBlock", Time::Now() - start);
+  HISTOGRAM_TIMES("DiskCache.DeleteBlock", Time::Now() - start);
 }
 
 // Restores the "empty counters" and allocation hints.
@@ -323,7 +323,7 @@ MappedFile* BlockFiles::FileForNewBlock(FileType block_type, int block_count) {
       return NULL;
     break;
   }
-  HISTOGRAM_TIMES(L"DiskCache.GetFileForNewBlock", Time::Now() - start);
+  HISTOGRAM_TIMES("DiskCache.GetFileForNewBlock", Time::Now() - start);
   return file;
 }
 

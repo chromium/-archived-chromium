@@ -475,7 +475,7 @@ bool SpellChecker::Initialize() {
     hunspell_.reset(new Hunspell(bdict_file_->data(), bdict_file_->length()));
     AddCustomWordsToHunspell();
   }
-  DHISTOGRAM_TIMES(L"Spellcheck.InitTime", TimeTicks::Now() - begin_time);
+  DHISTOGRAM_TIMES("Spellcheck.InitTime", TimeTicks::Now() - begin_time);
 
   tried_to_init_ = true;
   return false;
@@ -561,7 +561,7 @@ bool SpellChecker::SpellCheckWord(
     {
       TimeTicks begin_time = TimeTicks::Now();
       bool word_ok = !!hunspell_->spell(encoded_word.c_str());
-      DHISTOGRAM_TIMES(L"Spellcheck.CheckTime", TimeTicks::Now() - begin_time);
+      DHISTOGRAM_TIMES("Spellcheck.CheckTime", TimeTicks::Now() - begin_time);
       if (word_ok)
         continue;
     }
@@ -580,7 +580,7 @@ bool SpellChecker::SpellCheckWord(
       TimeTicks begin_time = TimeTicks::Now();
       int number_of_suggestions = hunspell_->suggest(&suggestions,
                                                      encoded_word.c_str());
-      DHISTOGRAM_TIMES(L"Spellcheck.SuggestTime",
+      DHISTOGRAM_TIMES("Spellcheck.SuggestTime",
                        TimeTicks::Now() - begin_time);
 
       // Populate the vector of WideStrings.

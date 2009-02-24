@@ -190,19 +190,19 @@ void ReadLastShutdownInfo() {
   prefs->SetInteger(prefs::kShutdownNumProcessesSlow, 0);
 
   if (type > NOT_VALID && shutdown_ms > 0 && num_procs > 0) {
-    const wchar_t *time_fmt = L"Shutdown.%ls.time";
-    const wchar_t *time_per_fmt = L"Shutdown.%ls.time_per_process";
-    std::wstring time;
-    std::wstring time_per;
+    const char *time_fmt = "Shutdown.%s.time";
+    const char *time_per_fmt = "Shutdown.%s.time_per_process";
+    std::string time;
+    std::string time_per;
     if (type == WINDOW_CLOSE) {
-      time = StringPrintf(time_fmt, L"window_close");
-      time_per = StringPrintf(time_per_fmt, L"window_close");
+      time = StringPrintf(time_fmt, "window_close");
+      time_per = StringPrintf(time_per_fmt, "window_close");
     } else if (type == BROWSER_EXIT) {
-      time = StringPrintf(time_fmt, L"browser_exit");
-      time_per = StringPrintf(time_per_fmt, L"browser_exit");
+      time = StringPrintf(time_fmt, "browser_exit");
+      time_per = StringPrintf(time_per_fmt, "browser_exit");
     } else if (type == END_SESSION) {
-      time = StringPrintf(time_fmt, L"end_session");
-      time_per = StringPrintf(time_per_fmt, L"end_session");
+      time = StringPrintf(time_fmt, "end_session");
+      time_per = StringPrintf(time_per_fmt, "end_session");
     } else {
       NOTREACHED();
     }
@@ -212,8 +212,8 @@ void ReadLastShutdownInfo() {
                           TimeDelta::FromMilliseconds(shutdown_ms));
       UMA_HISTOGRAM_TIMES(time_per.c_str(),
                           TimeDelta::FromMilliseconds(shutdown_ms / num_procs));
-      UMA_HISTOGRAM_COUNTS_100(L"Shutdown.renderers.total", num_procs);
-      UMA_HISTOGRAM_COUNTS_100(L"Shutdown.renderers.slow", num_procs_slow);
+      UMA_HISTOGRAM_COUNTS_100("Shutdown.renderers.total", num_procs);
+      UMA_HISTOGRAM_COUNTS_100("Shutdown.renderers.slow", num_procs_slow);
     }
   }
 }

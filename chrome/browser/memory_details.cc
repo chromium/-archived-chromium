@@ -251,27 +251,27 @@ void MemoryDetails::UpdateHistograms() {
     aggregate_memory += sample;
     switch (browser.processes[index].type) {
      case ChildProcessInfo::BROWSER_PROCESS:
-       UMA_HISTOGRAM_MEMORY_KB(L"Memory.Browser", sample);
+       UMA_HISTOGRAM_MEMORY_KB("Memory.Browser", sample);
        break;
      case ChildProcessInfo::RENDER_PROCESS:
-       UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer", sample);
+       UMA_HISTOGRAM_MEMORY_KB("Memory.Renderer", sample);
        break;
      case ChildProcessInfo::PLUGIN_PROCESS:
-       UMA_HISTOGRAM_MEMORY_KB(L"Memory.Plugin", sample);
+       UMA_HISTOGRAM_MEMORY_KB("Memory.Plugin", sample);
        plugin_count++;
        break;
      case ChildProcessInfo::WORKER_PROCESS:
-       UMA_HISTOGRAM_MEMORY_KB(L"Memory.Worker", sample);
+       UMA_HISTOGRAM_MEMORY_KB("Memory.Worker", sample);
        worker_count++;
        break;
     }
   }
 
-  UMA_HISTOGRAM_COUNTS_100(L"Memory.ProcessCount",
+  UMA_HISTOGRAM_COUNTS_100("Memory.ProcessCount",
       static_cast<int>(browser.processes.size()));
-  UMA_HISTOGRAM_COUNTS_100(L"Memory.PluginProcessCount", plugin_count);
-  UMA_HISTOGRAM_COUNTS_100(L"Memory.WorkerProcessCount", worker_count);
+  UMA_HISTOGRAM_COUNTS_100("Memory.PluginProcessCount", plugin_count);
+  UMA_HISTOGRAM_COUNTS_100("Memory.WorkerProcessCount", worker_count);
 
   int total_sample = static_cast<int>(aggregate_memory / 1000);
-  UMA_HISTOGRAM_MEMORY_MB(L"Memory.Total", total_sample);
+  UMA_HISTOGRAM_MEMORY_MB("Memory.Total", total_sample);
 }

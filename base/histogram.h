@@ -218,9 +218,9 @@ class Histogram : public StatsRate {
   };
   //----------------------------------------------------------------------------
 
-  Histogram(const wchar_t* name, Sample minimum,
+  Histogram(const char* name, Sample minimum,
             Sample maximum, size_t bucket_count);
-  Histogram(const wchar_t* name, base::TimeDelta minimum,
+  Histogram(const char* name, base::TimeDelta minimum,
             base::TimeDelta maximum, size_t bucket_count);
   virtual ~Histogram();
 
@@ -357,9 +357,9 @@ class LinearHistogram : public Histogram {
     Sample sample;
     const char* description;  // Null means end of a list of pairs.
   };
-  LinearHistogram(const wchar_t* name, Sample minimum,
+  LinearHistogram(const char* name, Sample minimum,
             Sample maximum, size_t bucket_count);
-  LinearHistogram(const wchar_t* name, base::TimeDelta minimum,
+  LinearHistogram(const char* name, base::TimeDelta minimum,
             base::TimeDelta maximum, size_t bucket_count);
   ~LinearHistogram() {}
 
@@ -397,7 +397,7 @@ class LinearHistogram : public Histogram {
 // BooleanHistogram is a histogram for booleans.
 class BooleanHistogram : public LinearHistogram {
  public:
-  explicit BooleanHistogram(const wchar_t* name)
+  explicit BooleanHistogram(const char* name)
     : LinearHistogram(name, 0, 2, 3) {
   }
 
@@ -413,7 +413,7 @@ class BooleanHistogram : public LinearHistogram {
 
 class ThreadSafeHistogram : public Histogram {
  public:
-  ThreadSafeHistogram(const wchar_t* name, Sample minimum,
+  ThreadSafeHistogram(const char* name, Sample minimum,
                       Sample maximum, size_t bucket_count);
 
   // Provide the analog to Add()
@@ -485,4 +485,3 @@ class StatisticsRecorder {
 };
 
 #endif  // BASE_HISTOGRAM_H__
-

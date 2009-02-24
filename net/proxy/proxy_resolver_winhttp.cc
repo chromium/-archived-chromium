@@ -27,9 +27,9 @@ static BOOL CallWinHttpGetProxyForUrl(HINTERNET session, LPCWSTR url,
   // Record separately success and failure times since they will have very
   // different characteristics.
   if (rv) {
-    UMA_HISTOGRAM_LONG_TIMES(L"Net.GetProxyForUrl_OK", time_delta);
+    UMA_HISTOGRAM_LONG_TIMES("Net.GetProxyForUrl_OK", time_delta);
   } else {
-    UMA_HISTOGRAM_LONG_TIMES(L"Net.GetProxyForUrl_FAIL", time_delta);
+    UMA_HISTOGRAM_LONG_TIMES("Net.GetProxyForUrl_FAIL", time_delta);
   }
   return rv;
 }
@@ -159,4 +159,3 @@ void ProxyResolverWinHttp::CloseWinHttpSession() {
 }
 
 }  // namespace net
-

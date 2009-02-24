@@ -893,10 +893,10 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
   base::TimeDelta duration = base::Time::Now() - response_.request_time;
   if (60 < duration.InMinutes())
     return;
-  UMA_HISTOGRAM_LONG_TIMES(L"Net.Transaction_Latency", duration);
+  UMA_HISTOGRAM_LONG_TIMES("Net.Transaction_Latency", duration);
   if (!duration.InMilliseconds())
     return;
-  UMA_HISTOGRAM_COUNTS(L"Net.Transaction_Bandwidth",
+  UMA_HISTOGRAM_COUNTS("Net.Transaction_Bandwidth",
       static_cast<int> (content_read_ / duration.InMilliseconds()));
 }
 

@@ -103,7 +103,7 @@ namespace {
 
 class SnifferHistogram : public LinearHistogram {
  public:
-  SnifferHistogram(const wchar_t* name, int array_size)
+  SnifferHistogram(const char* name, int array_size)
       : LinearHistogram(name, 0, array_size - 1, array_size) {
     SetFlags(kUmaTargetedHistogramFlag);
   }
@@ -273,7 +273,7 @@ static bool SniffForHTML(const char* content, size_t size,
     if (!IsAsciiWhitespace(*pos))
       break;
   }
-  static SnifferHistogram counter(L"mime_sniffer.kSniffableTags2",
+  static SnifferHistogram counter("mime_sniffer.kSniffableTags2",
                                   arraysize(kSniffableTags));
   // |pos| now points to first non-whitespace character (or at end).
   return CheckForMagicNumbers(pos, end - pos,
@@ -284,7 +284,7 @@ static bool SniffForHTML(const char* content, size_t size,
 static bool SniffForMagicNumbers(const char* content, size_t size,
                                  std::string* result) {
   // Check our big table of Magic Numbers
-  static SnifferHistogram counter(L"mime_sniffer.kMagicNumbers2",
+  static SnifferHistogram counter("mime_sniffer.kMagicNumbers2",
                                   arraysize(kMagicNumbers));
   return CheckForMagicNumbers(content, size,
                               kMagicNumbers, arraysize(kMagicNumbers),
@@ -320,7 +320,7 @@ static bool SniffXML(const char* content, size_t size, std::string* result) {
   // We want to skip XML processing instructions (of the form "<?xml ...")
   // and stop at the first "plain" tag, then make a decision on the mime-type
   // based on the name (or possibly attributes) of that tag.
-  static SnifferHistogram counter(L"mime_sniffer.kMagicXML2",
+  static SnifferHistogram counter("mime_sniffer.kMagicXML2",
                                   arraysize(kMagicXML));
   const int kMaxTagIterations = 5;
   for (int i = 0; i < kMaxTagIterations && pos < end; ++i) {
@@ -387,7 +387,7 @@ static char kByteLooksBinary[] = {
 
 static bool LooksBinary(const char* content, size_t size) {
   // First, we look for a BOM.
-  static SnifferHistogram counter(L"mime_sniffer.kByteOrderMark2",
+  static SnifferHistogram counter("mime_sniffer.kByteOrderMark2",
                                   arraysize(kByteOrderMark));
   std::string unused;
   if (CheckForMagicNumbers(content, size,
@@ -421,7 +421,7 @@ static bool IsUnknownMimeType(const std::string& mime_type) {
     // Firefox rejects a mime type if it is exactly */*
     "*/*",
   };
-  static SnifferHistogram counter(L"mime_sniffer.kUnknownMimeTypes2",
+  static SnifferHistogram counter("mime_sniffer.kUnknownMimeTypes2",
                                   arraysize(kUnknownMimeTypes) + 1);
   for (size_t i = 0; i < arraysize(kUnknownMimeTypes); ++i) {
     if (mime_type == kUnknownMimeTypes[i]) {
@@ -439,7 +439,7 @@ static bool IsUnknownMimeType(const std::string& mime_type) {
 
 bool ShouldSniffMimeType(const GURL& url, const std::string& mime_type) {
   static SnifferHistogram should_sniff_counter(
-      L"mime_sniffer.ShouldSniffMimeType2", 3);
+      "mime_sniffer.ShouldSniffMimeType2", 3);
   // We are willing to sniff the mime type for HTTP, HTTPS, and FTP
   bool sniffable_scheme = url.is_empty() ||
                           url.SchemeIs("http") ||
@@ -463,7 +463,7 @@ bool ShouldSniffMimeType(const GURL& url, const std::string& mime_type) {
     "text/xml",
     "application/xml",
   };
-  static SnifferHistogram counter(L"mime_sniffer.kSniffableTypes2",
+  static SnifferHistogram counter("mime_sniffer.kSniffableTypes2",
                                   arraysize(kSniffableTypes) + 1);
   for (size_t i = 0; i < arraysize(kSniffableTypes); ++i) {
     if (mime_type == kSniffableTypes[i]) {
@@ -555,4 +555,3 @@ bool SniffMimeType(const char* content, size_t content_size,
 }
 
 }  // namespace net
-

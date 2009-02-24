@@ -158,7 +158,7 @@ void MessagePumpForUI::PumpOutPendingPaintMessages() {
       break;
   }
   // Histogram what was really being used, to help to adjust kMaxPeekCount.
-  DHISTOGRAM_COUNTS(L"Loop.PumpOutPendingPaintMessages Peeks", peek_count);
+  DHISTOGRAM_COUNTS("Loop.PumpOutPendingPaintMessages Peeks", peek_count);
 }
 
 //-----------------------------------------------------------------------------

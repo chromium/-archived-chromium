@@ -131,7 +131,7 @@ void ChromePluginLib::RegisterPluginsWithNPAPI() {
 }
 
 static void LogPluginLoadTime(const TimeDelta &time) {
-  UMA_HISTOGRAM_TIMES(L"Gears.LoadTime", time);
+  UMA_HISTOGRAM_TIMES("Gears.LoadTime", time);
 }
 
 // static

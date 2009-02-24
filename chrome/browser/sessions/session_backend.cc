@@ -97,10 +97,10 @@ bool SessionFileReader::Read(BaseSessionService::SessionType type,
   if (!errored_)
     read_commands->swap(*commands);
   if (type == BaseSessionService::TAB_RESTORE) {
-    UMA_HISTOGRAM_TIMES(L"TabRestore.read_session_file_time",
+    UMA_HISTOGRAM_TIMES("TabRestore.read_session_file_time",
                         TimeTicks::Now() - start_time);
   } else {
-    UMA_HISTOGRAM_TIMES(L"SessionRestore.read_session_file_time",
+    UMA_HISTOGRAM_TIMES("SessionRestore.read_session_file_time",
                         TimeTicks::Now() - start_time);
   }
   return !errored_;
@@ -259,10 +259,10 @@ void SessionBackend::MoveCurrentSessionToLastSession() {
     int64 file_size;
     if (file_util::GetFileSize(current_session_path, &file_size)) {
       if (type_ == BaseSessionService::TAB_RESTORE) {
-        UMA_HISTOGRAM_COUNTS(L"TabRestore.last_session_file_size",
+        UMA_HISTOGRAM_COUNTS("TabRestore.last_session_file_size",
                              static_cast<int>(file_size / 1024));
       } else {
-        UMA_HISTOGRAM_COUNTS(L"SessionRestore.last_session_file_size",
+        UMA_HISTOGRAM_COUNTS("SessionRestore.last_session_file_size",
                              static_cast<int>(file_size / 1024));
       }
     }
@@ -285,9 +285,9 @@ bool SessionBackend::AppendCommandsToFile(net::FileStream* file,
     const size_type content_size = static_cast<size_type>((*i)->size());
     const size_type total_size =  content_size + sizeof(id_type);
     if (type_ == BaseSessionService::TAB_RESTORE)
-      UMA_HISTOGRAM_COUNTS(L"TabRestore.command_size", total_size);
+      UMA_HISTOGRAM_COUNTS("TabRestore.command_size", total_size);
     else
-      UMA_HISTOGRAM_COUNTS(L"SessionRestore.command_size", total_size);
+      UMA_HISTOGRAM_COUNTS("SessionRestore.command_size", total_size);
     wrote = file->Write(reinterpret_cast<const char*>(&total_size),
                         sizeof(total_size), NULL);
     if (wrote != sizeof(total_size)) {

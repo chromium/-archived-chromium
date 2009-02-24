@@ -329,7 +329,7 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
 
       // New chunks to download.
       if (!chunk_urls.empty()) {
-        UMA_HISTOGRAM_COUNTS(L"SB2.UpdateUrls", chunk_urls.size());
+        UMA_HISTOGRAM_COUNTS("SB2.UpdateUrls", chunk_urls.size());
         for (size_t i = 0; i < chunk_urls.size(); ++i)
           chunk_request_urls_.push_back(chunk_urls[i]);
       }
@@ -352,13 +352,13 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
     }
     case CHUNK_REQUEST: {
       if (sb_service_->new_safe_browsing())
-        UMA_HISTOGRAM_TIMES(L"SB2.ChunkRequest",
+        UMA_HISTOGRAM_TIMES("SB2.ChunkRequest",
                             base::Time::Now() - chunk_request_start_);
 
       const ChunkUrl chunk_url = chunk_request_urls_.front();
       bool re_key = false;
       std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
-      UMA_HISTOGRAM_COUNTS(L"SB2.ChunkSize", length);
+      UMA_HISTOGRAM_COUNTS("SB2.ChunkSize", length);
       update_size_ += length;
       if (!parser.ParseChunk(data, length,
                              client_key_, chunk_url.mac,
@@ -565,9 +565,9 @@ void SafeBrowsingProtocolManager::OnChunkInserted() {
   if (chunk_request_urls_.empty()) {
     // Don't pollute old implementation histograms with new implemetation data.
     if (sb_service_->new_safe_browsing())
-      UMA_HISTOGRAM_LONG_TIMES(L"SB2.Update", Time::Now() - last_update_);
+      UMA_HISTOGRAM_LONG_TIMES("SB2.Update", Time::Now() - last_update_);
     else
-      UMA_HISTOGRAM_LONG_TIMES(L"SB.Update", Time::Now() - last_update_);
+      UMA_HISTOGRAM_LONG_TIMES("SB.Update", Time::Now() - last_update_);
     UpdateFinished(true);
   } else {
     IssueChunkRequest();
@@ -627,7 +627,7 @@ void SafeBrowsingProtocolManager::HandleGetHashError() {
 }
 
 void SafeBrowsingProtocolManager::UpdateFinished(bool success) {
-  UMA_HISTOGRAM_COUNTS(L"SB2.UpdateSize", update_size_);
+  UMA_HISTOGRAM_COUNTS("SB2.UpdateSize", update_size_);
   update_size_ = 0;
   sb_service_->UpdateFinished(success);
 }

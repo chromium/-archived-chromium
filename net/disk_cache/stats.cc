@@ -123,7 +123,7 @@ bool Stats::Init(BackendImpl* backend, uint32* storage_addr) {
   if (!size_histogram_.get()) {
     // Stats may be reused when the cache is re-created, but we want only one
     // histogram at any given time.
-    size_histogram_.reset(new StatsHistogram(L"DiskCache.SizeStats"));
+    size_histogram_.reset(new StatsHistogram("DiskCache.SizeStats"));
     size_histogram_->Init(this);
   }
 
@@ -267,4 +267,3 @@ void Stats::GetItems(StatsItems* items) {
 }
 
 }  // namespace disk_cache
-

@@ -104,7 +104,7 @@ bool DnsMaster::AccruePrefetchBenefits(const GURL& referrer,
   if (it == results_.end()) {
     // Remain under lock to assure static HISTOGRAM constructor is safely run.
     // Use UMA histogram to quantify potential future gains here.
-    UMA_HISTOGRAM_LONG_TIMES(L"DNS.UnexpectedResolutionL",
+    UMA_HISTOGRAM_LONG_TIMES("DNS.UnexpectedResolutionL",
                              navigation_info->resolve_duration());
     navigation_info->DLogResultsStats("DNS UnexpectedResolution");
 

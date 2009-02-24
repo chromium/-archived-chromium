@@ -184,7 +184,7 @@ bool SafeBrowsingService::CheckUrl(const GURL& url, Client* client) {
   if (!resetting_) {
     Time start_time = Time::Now();
     bool need_check = database_->NeedToCheckUrl(url);
-    UMA_HISTOGRAM_TIMES(L"SB.BloomFilter", Time::Now() - start_time);
+    UMA_HISTOGRAM_TIMES("SB.BloomFilter", Time::Now() - start_time);
     if (!need_check)
       return true;  // The url is definitely safe.
   }
@@ -223,7 +223,7 @@ bool SafeBrowsingService::CheckUrlNew(const GURL& url, Client* client) {
                                              &full_hits,
                                              protocol_manager_->last_update());
   
-  UMA_HISTOGRAM_TIMES(L"SB2.FilterCheck", base::Time::Now() - check_start);
+  UMA_HISTOGRAM_TIMES("SB2.FilterCheck", base::Time::Now() - check_start);
 
   if (!prefix_match)
     return true;  // URL is okay.
@@ -383,7 +383,7 @@ void SafeBrowsingService::OnCheckDone(SafeBrowsingCheck* check) {
   if (!enabled_ || checks_.find(check) == checks_.end())
     return;
 
-  UMA_HISTOGRAM_TIMES(L"SB.Database", Time::Now() - check->start);
+  UMA_HISTOGRAM_TIMES("SB.Database", Time::Now() - check->start);
   if (check->client && check->need_get_hash) {
     // We have a partial match so we need to query Google for the full hash.
     // Clean up will happen in HandleGetHashResults.
@@ -464,9 +464,9 @@ void SafeBrowsingService::HandleGetHashResults(
   DCHECK(enabled_);
 
   if (new_safe_browsing_)
-    UMA_HISTOGRAM_LONG_TIMES(L"SB2.Network", Time::Now() - check->start);
+    UMA_HISTOGRAM_LONG_TIMES("SB2.Network", Time::Now() - check->start);
   else
-    UMA_HISTOGRAM_LONG_TIMES(L"SB.Network", Time::Now() - check->start);
+    UMA_HISTOGRAM_LONG_TIMES("SB.Network", Time::Now() - check->start);
 
   std::vector<SBPrefix> prefixes = check->prefix_hits;
   OnHandleGetHashResults(check, full_hashes);  // 'check' is deleted here.
@@ -711,9 +711,9 @@ SafeBrowsingService::UrlCheckResult SafeBrowsingService::GetResultFromListname(
 
 void SafeBrowsingService::LogPauseDelay(TimeDelta time) {
   if (new_safe_browsing_)
-    UMA_HISTOGRAM_LONG_TIMES(L"SB2.Delay", time);
+    UMA_HISTOGRAM_LONG_TIMES("SB2.Delay", time);
   else
-    UMA_HISTOGRAM_LONG_TIMES(L"SB.Delay", time);
+    UMA_HISTOGRAM_LONG_TIMES("SB.Delay", time);
 }
 
 void SafeBrowsingService::CacheHashResults(
@@ -748,10 +748,10 @@ void SafeBrowsingService::HandleResume() {
 
 void SafeBrowsingService::RunQueuedClients() {
   DCHECK(MessageLoop::current() == io_loop_);
-  HISTOGRAM_COUNTS(L"SB.QueueDepth", queued_checks_.size());
+  HISTOGRAM_COUNTS("SB.QueueDepth", queued_checks_.size());
   while (!queued_checks_.empty()) {
     QueuedCheck check = queued_checks_.front();
-    HISTOGRAM_TIMES(L"SB.QueueDelay", Time::Now() - check.start);
+    HISTOGRAM_TIMES("SB.QueueDelay", Time::Now() - check.start);
     CheckUrl(check.url, check.client);
     queued_checks_.pop_front();
   }

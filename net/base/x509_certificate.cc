@@ -139,7 +139,7 @@ X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle,
       // We've found a certificate with the same fingerprint in our cache.  We
       // own the |cert_handle|, which makes it our job to free it.
       FreeOSCertHandle(cert_handle);
-      DHISTOGRAM_COUNTS(L"X509CertificateReuseCount", 1);
+      DHISTOGRAM_COUNTS("X509CertificateReuseCount", 1);
       return cached_cert;
     }
     // Kick out the old certificate from our cache.  The new one is better.
@@ -193,4 +193,3 @@ bool X509Certificate::IsEV(int status) const {
 #endif
 
 }  // namespace net
-

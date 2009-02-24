@@ -23,7 +23,7 @@ class StatsHistogram : public Histogram {
     }
   };
 
-  explicit StatsHistogram(const wchar_t* name)
+  explicit StatsHistogram(const char* name)
       : Histogram(name, 1, 1, 2), init_(false) {}
   ~StatsHistogram();
 
@@ -43,4 +43,3 @@ class StatsHistogram : public Histogram {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_STATS_HISTOGRAM_H_
-

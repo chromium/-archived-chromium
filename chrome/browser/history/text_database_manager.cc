@@ -309,7 +309,7 @@ bool TextDatabaseManager::AddPageData(const GURL& url,
                                  ConvertStringForIndexer(title),
                                  ConvertStringForIndexer(body));
 
-  HISTOGRAM_TIMES(L"History.AddFTSData",
+  HISTOGRAM_TIMES("History.AddFTSData",
                   TimeTicks::Now() - beginning_time);
 
   if (history_publisher_)
@@ -546,4 +546,3 @@ void TextDatabaseManager::FlushOldChangesForTime(TimeTicks now) {
 }
 
 }  // namespace history
-

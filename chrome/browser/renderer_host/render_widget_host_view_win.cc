@@ -524,13 +524,13 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
           FieldTrialList::Find(BrowserTrial::kMemoryModelFieldTrial));
       if (trial.get()) {
         if (trial->boolean_value())
-          UMA_HISTOGRAM_TIMES(L"MPArch.RWHH_WhiteoutDuration_trial_high_memory",
+          UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration_trial_high_memory",
                               whiteout_duration);
         else
-          UMA_HISTOGRAM_TIMES(L"MPArch.RWHH_WhiteoutDuration_trial_med_memory",
+          UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration_trial_med_memory",
                               whiteout_duration);
       } else {
-        UMA_HISTOGRAM_TIMES(L"MPArch.RWHH_WhiteoutDuration", whiteout_duration);
+        UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration", whiteout_duration);
       }
 
       // Reset the start time to 0 so that we start recording again the next

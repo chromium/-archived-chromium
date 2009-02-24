@@ -504,11 +504,11 @@ void MessageLoop::StartHistogrammer() {
   if (enable_histogrammer_ && !message_histogram_.get()
       && StatisticsRecorder::WasStarted()) {
     DCHECK(!thread_name_.empty());
-    message_histogram_.reset(new LinearHistogram(
-        ASCIIToWide("MsgLoop:" + thread_name_).c_str(),
-                    kLeastNonZeroMessageId,
-                    kMaxMessageId,
-                    kNumberOfDistinctMessagesDisplayed));
+    message_histogram_.reset(
+        new LinearHistogram(("MsgLoop:" + thread_name_).c_str(),
+                            kLeastNonZeroMessageId,
+                            kMaxMessageId,
+                            kNumberOfDistinctMessagesDisplayed));
     message_histogram_->SetFlags(message_histogram_->kHexRangePrintingFlag);
     message_histogram_->SetRangeDescriptions(event_descriptions_);
   }

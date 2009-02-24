@@ -80,7 +80,7 @@ void Eviction::TrimCache(bool empty) {
     }
   }
 
-  UMA_HISTOGRAM_TIMES(L"DiskCache.TotalTrimTime", Time::Now() - start);
+  UMA_HISTOGRAM_TIMES("DiskCache.TotalTrimTime", Time::Now() - start);
   Trace("*** Trim Cache end ***");
   return;
 }
@@ -107,8 +107,8 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
   static bool first_time = true;
   if (first_time) {
     first_time = false;
-    std::wstring name(StringPrintf(L"DiskCache.TrimAge_%d",
-                                   header_->experiment));
+    std::string name(StringPrintf("DiskCache.TrimAge_%d",
+                                  header_->experiment));
     static Histogram counter(name.c_str(), 1, 10000, 50);
     counter.SetFlags(kUmaTargetedHistogramFlag);
     counter.Add((Time::Now() - entry->GetLastUsed()).InHours());

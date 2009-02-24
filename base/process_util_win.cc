@@ -216,14 +216,14 @@ bool DidProcessCrash(ProcessHandle handle) {
   const int kLeastValue = 0;
   const int kMaxValue = 0xFFF;
   const int kBucketCount = kMaxValue - kLeastValue + 1;
-  static LinearHistogram least_significant_histogram(L"ExitCodes.LSNibbles",
+  static LinearHistogram least_significant_histogram("ExitCodes.LSNibbles",
       kLeastValue + 1, kMaxValue, kBucketCount);
   least_significant_histogram.SetFlags(kUmaTargetedHistogramFlag |
                                        LinearHistogram::kHexRangePrintingFlag);
   least_significant_histogram.Add(exitcode & 0xFFF);
 
   // Histogram the high order 3 nibbles
-  static LinearHistogram most_significant_histogram(L"ExitCodes.MSNibbles",
+  static LinearHistogram most_significant_histogram("ExitCodes.MSNibbles",
       kLeastValue + 1, kMaxValue, kBucketCount);
   most_significant_histogram.SetFlags(kUmaTargetedHistogramFlag |
                                       LinearHistogram::kHexRangePrintingFlag);
@@ -231,7 +231,7 @@ bool DidProcessCrash(ProcessHandle handle) {
   most_significant_histogram.Add((exitcode >> 20) & 0xFFF);
 
   // Histogram the middle order 2 nibbles
-  static LinearHistogram mid_significant_histogram(L"ExitCodes.MidNibbles",
+  static LinearHistogram mid_significant_histogram("ExitCodes.MidNibbles",
       1, 0xFF, 0x100);
   mid_significant_histogram.SetFlags(kUmaTargetedHistogramFlag |
                                       LinearHistogram::kHexRangePrintingFlag);

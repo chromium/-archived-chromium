@@ -418,7 +418,7 @@ void RenderWidgetHost::OnMsgPaintRect(
   if (is_repaint_ack) {
     repaint_ack_pending_ = false;
     TimeDelta delta = TimeTicks::Now() - repaint_start_time_;
-    UMA_HISTOGRAM_TIMES(L"MPArch.RWH_RepaintDelta", delta);
+    UMA_HISTOGRAM_TIMES("MPArch.RWH_RepaintDelta", delta);
   }
 
   DCHECK(!params.bitmap_rect.IsEmpty());
@@ -475,7 +475,7 @@ void RenderWidgetHost::OnMsgPaintRect(
 
   // Log the time delta for processing a paint message.
   TimeDelta delta = TimeTicks::Now() - paint_start;
-  UMA_HISTOGRAM_TIMES(L"MPArch.RWH_OnMsgPaintRect", delta);
+  UMA_HISTOGRAM_TIMES("MPArch.RWH_OnMsgPaintRect", delta);
 }
 
 void RenderWidgetHost::OnMsgScrollRect(
@@ -521,13 +521,13 @@ void RenderWidgetHost::OnMsgScrollRect(
 
   // Log the time delta for processing a scroll message.
   TimeDelta delta = TimeTicks::Now() - scroll_start;
-  UMA_HISTOGRAM_TIMES(L"MPArch.RWH_OnMsgScrollRect", delta);
+  UMA_HISTOGRAM_TIMES("MPArch.RWH_OnMsgScrollRect", delta);
 }
 
 void RenderWidgetHost::OnMsgInputEventAck(const IPC::Message& message) {
   // Log the time delta for processing an input event.
   TimeDelta delta = TimeTicks::Now() - input_event_start_time_;
-  UMA_HISTOGRAM_TIMES(L"MPArch.RWH_InputEventDelta", delta);
+  UMA_HISTOGRAM_TIMES("MPArch.RWH_InputEventDelta", delta);
 
   // Cancel pending hung renderer checks since the renderer is responsive.
   StopHangMonitorTimeout();

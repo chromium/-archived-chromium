@@ -89,7 +89,7 @@ void DnsHostInfo::SetAssignedState() {
   state_ = ASSIGNED;
   queue_duration_ = GetDuration();
   DLogResultsStats("DNS Prefetch assigned");
-  UMA_HISTOGRAM_TIMES(L"DNS.PrefetchQueue", queue_duration_);
+  UMA_HISTOGRAM_TIMES("DNS.PrefetchQueue", queue_duration_);
 }
 
 void DnsHostInfo::SetPendingDeleteState() {
@@ -102,7 +102,7 @@ void DnsHostInfo::SetFoundState() {
   state_ = FOUND;
   resolve_duration_ = GetDuration();
   if (kMaxNonNetworkDnsLookupDuration <= resolve_duration_) {
-    UMA_HISTOGRAM_LONG_TIMES(L"DNS.PrefetchFoundNameL", resolve_duration_);
+    UMA_HISTOGRAM_LONG_TIMES("DNS.PrefetchFoundNameL", resolve_duration_);
     // Record potential beneficial time, and maybe we'll get a cache hit.
     // We keep the maximum, as the warming we did earlier may still be
     // helping with a cache upstream in DNS resolution.
@@ -117,7 +117,7 @@ void DnsHostInfo::SetNoSuchNameState() {
   state_ = NO_SUCH_NAME;
   resolve_duration_ = GetDuration();
   if (kMaxNonNetworkDnsLookupDuration <= resolve_duration_) {
-    DHISTOGRAM_TIMES(L"DNS.PrefetchNotFoundName", resolve_duration_);
+    DHISTOGRAM_TIMES("DNS.PrefetchNotFoundName", resolve_duration_);
     // Record potential beneficial time, and maybe we'll get a cache hit.
     benefits_remaining_ = std::max(resolve_duration_, benefits_remaining_);
   }
@@ -176,10 +176,10 @@ DnsBenefit DnsHostInfo::AccruePrefetchBenefits(DnsHostInfo* navigation_info) {
   if ((0 == benefits_remaining_.InMilliseconds()) ||
       (FOUND != state_ && NO_SUCH_NAME != state_)) {
     if (FINISHED == navigation_info->state_)
-      UMA_HISTOGRAM_LONG_TIMES(L"DNS.IndependentNavigation",
+      UMA_HISTOGRAM_LONG_TIMES("DNS.IndependentNavigation",
                                navigation_info->resolve_duration_);
     else
-      UMA_HISTOGRAM_LONG_TIMES(L"DNS.IndependentFailedNavigation",
+      UMA_HISTOGRAM_LONG_TIMES("DNS.IndependentFailedNavigation",
                                navigation_info->resolve_duration_);
     return PREFETCH_NO_BENEFIT;
   }
@@ -195,13 +195,13 @@ DnsBenefit DnsHostInfo::AccruePrefetchBenefits(DnsHostInfo* navigation_info) {
 
   if (navigation_info->resolve_duration_ > kMaxNonNetworkDnsLookupDuration) {
     // Our precache effort didn't help since HTTP stack hit the network.
-    UMA_HISTOGRAM_LONG_TIMES(L"DNS.PrefetchCacheEvictionL", resolve_duration_);
+    UMA_HISTOGRAM_LONG_TIMES("DNS.PrefetchCacheEvictionL", resolve_duration_);
     DLogResultsStats("DNS PrefetchCacheEviction");
     return PREFETCH_CACHE_EVICTION;
   }
 
   if (NO_SUCH_NAME == state_) {
-    UMA_HISTOGRAM_LONG_TIMES(L"DNS.PrefetchNegativeHitL", benefit);
+    UMA_HISTOGRAM_LONG_TIMES("DNS.PrefetchNegativeHitL", benefit);
     DLogResultsStats("DNS PrefetchNegativeHit");
     return PREFETCH_NAME_NONEXISTANT;
   }
@@ -209,10 +209,10 @@ DnsBenefit DnsHostInfo::AccruePrefetchBenefits(DnsHostInfo* navigation_info) {
   DCHECK_EQ(FOUND, state_);
   if (LEARNED_REFERAL_MOTIVATED == motivation_ ||
       STATIC_REFERAL_MOTIVATED == motivation_) {
-    UMA_HISTOGRAM_TIMES(L"DNS.PrefetchReferredPositiveHit", benefit);
+    UMA_HISTOGRAM_TIMES("DNS.PrefetchReferredPositiveHit", benefit);
     DLogResultsStats("DNS PrefetchReferredPositiveHit");
   } else {
-    UMA_HISTOGRAM_LONG_TIMES(L"DNS.PrefetchPositiveHitL", benefit);
+    UMA_HISTOGRAM_LONG_TIMES("DNS.PrefetchPositiveHitL", benefit);
     DLogResultsStats("DNS PrefetchPositiveHit");
   }
   return PREFETCH_NAME_FOUND;
@@ -408,4 +408,3 @@ std::string DnsHostInfo::GetAsciiMotivation() const {
 }
 
 }  // namespace chrome_browser_net
-

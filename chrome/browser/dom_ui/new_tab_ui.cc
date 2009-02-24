@@ -90,7 +90,7 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
           NotificationType::INITIAL_NEW_TAB_UI_LOAD,
           NotificationService::AllSources(),
           Details<int>(&load_time_ms));
-      UMA_HISTOGRAM_TIMES(L"NewTabUI load", load_time);
+      UMA_HISTOGRAM_TIMES("NewTabUI load", load_time);
     } else {
       // Not enough quiet time has elapsed.
       // Some more paints must've occurred since we set the timeout.
@@ -480,7 +480,7 @@ void TemplateURLHandler::OnTemplateURLModelChanged() {
 
     urls_value.Append(entry_value);
   }
-  UMA_HISTOGRAM_COUNTS(L"NewTabPage.SearchURLs.Total", urls_value.GetSize());
+  UMA_HISTOGRAM_COUNTS("NewTabPage.SearchURLs.Total", urls_value.GetSize());
   dom_ui_host_->CallJavascriptFunction(L"searchURLs", urls_value);
 }
 

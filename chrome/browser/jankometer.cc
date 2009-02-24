@@ -85,10 +85,10 @@ class JankObserver : public base::RefCountedThreadSafe<JankObserver>,
       : MaxMessageDelay_(excessive_duration),
         slow_processing_counter_(std::string("Chrome.SlowMsg") + thread_name),
         queueing_delay_counter_(std::string("Chrome.DelayMsg") + thread_name),
-        process_times_((std::wstring(L"Chrome.ProcMsgL ")
-                        + ASCIIToWide(thread_name)).c_str(), 1, 3600000, 50),
-        total_times_((std::wstring(L"Chrome.TotalMsgL ")
-                      + ASCIIToWide(thread_name)).c_str(), 1, 3600000, 50),
+        process_times_((std::string("Chrome.ProcMsgL ") +
+                        thread_name).c_str(), 1, 3600000, 50),
+        total_times_((std::string("Chrome.TotalMsgL ") +
+                      thread_name).c_str(), 1, 3600000, 50),
         total_time_watchdog_(excessive_duration, thread_name, watchdog_enable) {
     process_times_.SetFlags(kUmaTargetedHistogramFlag);
     total_times_.SetFlags(kUmaTargetedHistogramFlag);
@@ -227,4 +227,3 @@ void UninstallJankometer() {
     io_observer = NULL;
   }
 }
-

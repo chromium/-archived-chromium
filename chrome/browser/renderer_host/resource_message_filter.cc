@@ -430,7 +430,7 @@ void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
   static HDC hdcs[kFontCacheSize] = {0};
   static size_t font_index = 0;
 
-  UMA_HISTOGRAM_COUNTS_100(L"Memory.CachedFontAndDC",
+  UMA_HISTOGRAM_COUNTS_100("Memory.CachedFontAndDC",
       fonts[kFontCacheSize-1] ? kFontCacheSize : static_cast<int>(font_index));
 
   HDC hdc = GetDC(NULL);
@@ -626,15 +626,15 @@ void ResourceMessageFilter::OnDuplicateSection(
 
 void ResourceMessageFilter::OnResourceTypeStats(
     const CacheManager::ResourceTypeStats& stats) {
-  HISTOGRAM_COUNTS(L"WebCoreCache.ImagesSizeKB",
+  HISTOGRAM_COUNTS("WebCoreCache.ImagesSizeKB",
                    static_cast<int>(stats.images.size / 1024));
-  HISTOGRAM_COUNTS(L"WebCoreCache.CSSStylesheetsSizeKB",
+  HISTOGRAM_COUNTS("WebCoreCache.CSSStylesheetsSizeKB",
                    static_cast<int>(stats.css_stylesheets.size / 1024));
-  HISTOGRAM_COUNTS(L"WebCoreCache.ScriptsSizeKB",
+  HISTOGRAM_COUNTS("WebCoreCache.ScriptsSizeKB",
                    static_cast<int>(stats.scripts.size / 1024));
-  HISTOGRAM_COUNTS(L"WebCoreCache.XSLStylesheetsSizeKB",
+  HISTOGRAM_COUNTS("WebCoreCache.XSLStylesheetsSizeKB",
                    static_cast<int>(stats.xsl_stylesheets.size / 1024));
-  HISTOGRAM_COUNTS(L"WebCoreCache.FontsSizeKB",
+  HISTOGRAM_COUNTS("WebCoreCache.FontsSizeKB",
                    static_cast<int>(stats.fonts.size / 1024));
 }
 

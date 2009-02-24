@@ -20,16 +20,16 @@ const int kMaxBytesToSniff = 512;
 void RecordSnifferMetrics(bool sniffing_blocked,
                           bool we_would_like_to_sniff,
                           const std::string& mime_type) {
-  static BooleanHistogram nosniff_usage(L"nosniff.usage");
+  static BooleanHistogram nosniff_usage("nosniff.usage");
   nosniff_usage.SetFlags(kUmaTargetedHistogramFlag);
   nosniff_usage.AddBoolean(sniffing_blocked);
 
   if (sniffing_blocked) {
-    static BooleanHistogram nosniff_otherwise(L"nosniff.otherwise");
+    static BooleanHistogram nosniff_otherwise("nosniff.otherwise");
     nosniff_otherwise.SetFlags(kUmaTargetedHistogramFlag);
     nosniff_otherwise.AddBoolean(we_would_like_to_sniff);
 
-    static BooleanHistogram nosniff_empty_mime_type(L"nosniff.empty_mime_type");
+    static BooleanHistogram nosniff_empty_mime_type("nosniff.empty_mime_type");
     nosniff_empty_mime_type.SetFlags(kUmaTargetedHistogramFlag);
     nosniff_empty_mime_type.AddBoolean(mime_type.empty());
   }

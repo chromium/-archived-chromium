@@ -22,10 +22,10 @@ namespace net {
 // expansion.
 void UpdateConnectionTypeHistograms(ConnectionType type) {
   static bool had_connection_type[NUM_OF_CONNECTION_TYPES];
-  static LinearHistogram counter1(L"Net.HadConnectionType",
+  static LinearHistogram counter1("Net.HadConnectionType",
                                   1, NUM_OF_CONNECTION_TYPES,
                                   NUM_OF_CONNECTION_TYPES + 1);
-  static LinearHistogram counter2(L"Net.ConnectionTypeCount",
+  static LinearHistogram counter2("Net.ConnectionTypeCount",
                                   1, NUM_OF_CONNECTION_TYPES,
                                   NUM_OF_CONNECTION_TYPES + 1);
 

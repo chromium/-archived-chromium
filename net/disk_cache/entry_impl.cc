@@ -90,8 +90,8 @@ EntryImpl::EntryImpl(BackendImpl* backend, Addr address)
 // written before).
 EntryImpl::~EntryImpl() {
   if (doomed_) {
-    UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteHeader", GetDataSize(0));
-    UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteData", GetDataSize(1));
+    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteHeader", GetDataSize(0));
+    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteData", GetDataSize(1));
     for (int index = 0; index < NUM_STREAMS; index++) {
       Addr address(entry_.Data()->data_addr[index]);
       if (address.is_initialized()) {
@@ -211,7 +211,7 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
     return net::ERR_INVALID_ARGUMENT;
 
   Time start = Time::Now();
-  static Histogram stats(L"DiskCache.ReadTime", TimeDelta::FromMilliseconds(1),
+  static Histogram stats("DiskCache.ReadTime", TimeDelta::FromMilliseconds(1),
                          TimeDelta::FromSeconds(10), 50);
   stats.SetFlags(kUmaTargetedHistogramFlag);
 
@@ -285,7 +285,7 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
   }
 
   Time start = Time::Now();
-  static Histogram stats(L"DiskCache.WriteTime", TimeDelta::FromMilliseconds(1),
+  static Histogram stats("DiskCache.WriteTime", TimeDelta::FromMilliseconds(1),
                          TimeDelta::FromSeconds(10), 50);
   stats.SetFlags(kUmaTargetedHistogramFlag);
 
@@ -557,7 +557,7 @@ void EntryImpl::DeleteData(Addr address, int index) {
       files_[index] = NULL;  // Releases the object.
 
     if (!DeleteCacheFile(backend_->GetFileName(address))) {
-      UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteFailed", 1);
+      UMA_HISTOGRAM_COUNTS("DiskCache.DeleteFailed", 1);
       LOG(ERROR) << "Failed to delete " << backend_->GetFileName(address) <<
                     " from the cache.";
     }
@@ -785,4 +785,3 @@ void EntryImpl::Log(const char* msg) {
 }
 
 }  // namespace disk_cache
-

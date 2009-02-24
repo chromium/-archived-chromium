@@ -91,7 +91,7 @@ void SafeBrowsingDatabaseBloom::LoadBloomFilter() {
 
   if (!file_util::GetFileSize(bloom_filter_filename_, &size_64) ||
       size_64 == 0) {
-    UMA_HISTOGRAM_COUNTS(L"SB2.FilterMissing", 1);
+    UMA_HISTOGRAM_COUNTS("SB2.FilterMissing", 1);
     return;
   }
 
@@ -403,7 +403,7 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
     chunks->pop_front();
   }
 
-  UMA_HISTOGRAM_TIMES(L"SB2.ChunkInsert", base::Time::Now() - insert_start);
+  UMA_HISTOGRAM_TIMES("SB2.ChunkInsert", base::Time::Now() - insert_start);
 
   delete chunks;
 
@@ -1316,7 +1316,7 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   int rv = insert_transaction_->Commit();
   if (rv != SQLITE_OK) {
     NOTREACHED() << "SafeBrowsing update transaction failed to commit.";
-    UMA_HISTOGRAM_COUNTS(L"SB2.FailedUpdate", 1);
+    UMA_HISTOGRAM_COUNTS("SB2.FailedUpdate", 1);
     return;
   }
 
@@ -1337,28 +1337,28 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   // Gather statistics.
 #if defined(OS_WIN)
   metric->GetIOCounters(&io_after);
-  UMA_HISTOGRAM_COUNTS(L"SB2.BuildReadBytes",
+  UMA_HISTOGRAM_COUNTS("SB2.BuildReadBytes",
                        static_cast<int>(io_after.ReadTransferCount -
                                         io_before.ReadTransferCount));
-  UMA_HISTOGRAM_COUNTS(L"SB2.BuildWriteBytes",
+  UMA_HISTOGRAM_COUNTS("SB2.BuildWriteBytes",
                        static_cast<int>(io_after.WriteTransferCount -
                                         io_before.WriteTransferCount));
-  UMA_HISTOGRAM_COUNTS(L"SB2.BuildReadOperations",
+  UMA_HISTOGRAM_COUNTS("SB2.BuildReadOperations",
                        static_cast<int>(io_after.ReadOperationCount -
                                         io_before.ReadOperationCount));
-  UMA_HISTOGRAM_COUNTS(L"SB2.BuildWriteOperations",
+  UMA_HISTOGRAM_COUNTS("SB2.BuildWriteOperations",
                        static_cast<int>(io_after.WriteOperationCount -
                                         io_before.WriteOperationCount));
 #endif
   SB_DLOG(INFO) << "SafeBrowsingDatabaseImpl built bloom filter in "
                 << bloom_gen.InMilliseconds()
                 << " ms total.  prefix count: "<< add_count_;
-  UMA_HISTOGRAM_LONG_TIMES(L"SB2.BuildFilter", bloom_gen);
-  UMA_HISTOGRAM_COUNTS(L"SB2.AddPrefixes", add_count_);
-  UMA_HISTOGRAM_COUNTS(L"SB2.SubPrefixes", subs);
+  UMA_HISTOGRAM_LONG_TIMES("SB2.BuildFilter", bloom_gen);
+  UMA_HISTOGRAM_COUNTS("SB2.AddPrefixes", add_count_);
+  UMA_HISTOGRAM_COUNTS("SB2.SubPrefixes", subs);
   int64 size_64;
   if (file_util::GetFileSize(filename_, &size_64))
-    UMA_HISTOGRAM_COUNTS(L"SB2.DatabaseBytes", static_cast<int>(size_64));
+    UMA_HISTOGRAM_COUNTS("SB2.DatabaseBytes", static_cast<int>(size_64));
 }
 
 void SafeBrowsingDatabaseBloom::GetCachedFullHashes(

@@ -234,7 +234,7 @@ bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
   EntryImpl* cache_entry =
       reinterpret_cast<EntryImpl*>(rankings->Data()->pointer);
   rankings->SetData(cache_entry->rankings()->Data());
-  UMA_HISTOGRAM_TIMES(L"DiskCache.GetRankings", Time::Now() - start);
+  UMA_HISTOGRAM_TIMES("DiskCache.GetRankings", Time::Now() - start);
   return true;
 }
 
@@ -389,7 +389,7 @@ void Rankings::UpdateRank(CacheRankingsBlock* node, bool modified, List list) {
   Time start = Time::Now();
   Remove(node, list);
   Insert(node, modified, list);
-  UMA_HISTOGRAM_TIMES(L"DiskCache.UpdateRank", Time::Now() - start);
+  UMA_HISTOGRAM_TIMES("DiskCache.UpdateRank", Time::Now() - start);
 }
 
 void Rankings::CompleteTransaction() {

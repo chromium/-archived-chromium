@@ -736,7 +736,7 @@ void MetricsService::StopRecording(MetricsLog** log) {
   // TODO(jar): Integrate bounds on log recording more consistently, so that we
   // can stop recording logs that are too big much sooner.
   if (current_log_->num_events() > log_event_limit_) {
-    UMA_HISTOGRAM_COUNTS(L"UMA.Discarded Log Events",
+    UMA_HISTOGRAM_COUNTS("UMA.Discarded Log Events",
                          current_log_->num_events());
     current_log_->CloseLog();
     delete current_log_;
@@ -833,7 +833,7 @@ void MetricsService::PushPendingLogTextToUnsentOngoingLogs() {
 
   if (pending_log_text_.length() >
       static_cast<size_t>(kUploadLogAvoidRetransmitSize)) {
-    UMA_HISTOGRAM_COUNTS(L"UMA.Large Accumulated Log Not Persisted",
+    UMA_HISTOGRAM_COUNTS("UMA.Large Accumulated Log Not Persisted",
                          static_cast<int>(pending_log_text_.length()));
     return;
   }
@@ -1226,12 +1226,12 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
   if (response_code != 200 &&
       pending_log_text_.length() >
       static_cast<size_t>(kUploadLogAvoidRetransmitSize)) {
-    UMA_HISTOGRAM_COUNTS(L"UMA.Large Rejected Log was Discarded",
+    UMA_HISTOGRAM_COUNTS("UMA.Large Rejected Log was Discarded",
                          static_cast<int>(pending_log_text_.length()));
     discard_log = true;
   } else if (response_code == 400) {
     // Bad syntax.  Retransmission won't work.
-    UMA_HISTOGRAM_COUNTS(L"UMA.Unacceptable_Log_Discarded", state_);
+    UMA_HISTOGRAM_COUNTS("UMA.Unacceptable_Log_Discarded", state_);
     discard_log = true;
   }
 
@@ -1542,7 +1542,7 @@ void MetricsService::LogLoadComplete(NotificationType type,
 
   // TODO(jar): There is a bug causing this to be called too many times, and
   // the log overflows.  For now, we won't record these events.
-  UMA_HISTOGRAM_COUNTS(L"UMA.LogLoadComplete called", 1);
+  UMA_HISTOGRAM_COUNTS("UMA.LogLoadComplete called", 1);
   return;
 
   const Details<LoadNotificationDetails> load_details(details);

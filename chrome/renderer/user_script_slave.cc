@@ -112,11 +112,11 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
   }
 
   if (location == UserScript::DOCUMENT_START) {
-    HISTOGRAM_COUNTS_100(L"UserScripts:DocStart:Count", num_matched);
-    HISTOGRAM_TIMES(L"UserScripts:DocStart:Time", timer.Elapsed());
+    HISTOGRAM_COUNTS_100("UserScripts:DocStart:Count", num_matched);
+    HISTOGRAM_TIMES("UserScripts:DocStart:Time", timer.Elapsed());
   } else {
-    HISTOGRAM_COUNTS_100(L"UserScripts:DocEnd:Count", num_matched);
-    HISTOGRAM_TIMES(L"UserScripts:DocEnd:Time", timer.Elapsed());
+    HISTOGRAM_COUNTS_100("UserScripts:DocEnd:Count", num_matched);
+    HISTOGRAM_TIMES("UserScripts:DocEnd:Time", timer.Elapsed());
   }
 
   return true;

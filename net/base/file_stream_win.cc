@@ -78,7 +78,7 @@ FileStream::AsyncContext::~AsyncContext() {
   }
   if (waited) {
     // We want to see if we block the message loop for too long.
-    UMA_HISTOGRAM_TIMES(L"AsyncIO.FileStreamClose", base::Time::Now() - start);
+    UMA_HISTOGRAM_TIMES("AsyncIO.FileStreamClose", base::Time::Now() - start);
   }
 }
 
@@ -288,4 +288,3 @@ int FileStream::Write(
 }
 
 }  // namespace net
-

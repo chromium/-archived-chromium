@@ -276,7 +276,7 @@ bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
   DCHECK(entry);
   *entry = cache_entry;
 
-  UMA_HISTOGRAM_TIMES(L"DiskCache.OpenTime", Time::Now() - start);
+  UMA_HISTOGRAM_TIMES("DiskCache.OpenTime", Time::Now() - start);
   stats_.OnEvent(Stats::OPEN_HIT);
   return true;
 }
@@ -349,7 +349,7 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
   *entry = NULL;
   cache_entry.swap(reinterpret_cast<EntryImpl**>(entry));
 
-  UMA_HISTOGRAM_TIMES(L"DiskCache.CreateTime", Time::Now() - start);
+  UMA_HISTOGRAM_TIMES("DiskCache.CreateTime", Time::Now() - start);
   stats_.OnEvent(Stats::CREATE_HIT);
   Trace("create entry hit ");
   return true;
@@ -651,7 +651,7 @@ void BackendImpl::CriticalError(int error) {
 }
 
 void BackendImpl::ReportError(int error) {
-  static LinearHistogram counter(L"DiskCache.Error", 0, 49, 50);
+  static LinearHistogram counter("DiskCache.Error", 0, 49, 50);
   counter.SetFlags(kUmaTargetedHistogramFlag);
 
   // We transmit positive numbers, instead of direct error codes.
@@ -679,9 +679,9 @@ void BackendImpl::OnStatsTimer() {
   if (first_time) {
     first_time = false;
     int experiment = data_->header.experiment;
-    std::wstring entries(StringPrintf(L"DiskCache.Entries_%d", experiment));
-    std::wstring size(StringPrintf(L"DiskCache.Size_%d", experiment));
-    std::wstring max_size(StringPrintf(L"DiskCache.MaxSize_%d", experiment));
+    std::string entries(StringPrintf("DiskCache.Entries_%d", experiment));
+    std::string size(StringPrintf("DiskCache.Size_%d", experiment));
+    std::string max_size(StringPrintf("DiskCache.MaxSize_%d", experiment));
     UMA_HISTOGRAM_COUNTS(entries.c_str(), data_->header.num_entries);
     UMA_HISTOGRAM_COUNTS(size.c_str(), data_->header.num_bytes / (1024 * 1024));
     UMA_HISTOGRAM_COUNTS(max_size.c_str(), max_size_ / (1024 * 1024));

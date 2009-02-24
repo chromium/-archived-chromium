@@ -117,7 +117,7 @@ void HistoryURLProvider::ExecuteWithDB(history::HistoryBackend* backend,
 
     DoAutocomplete(backend, db, params);
 
-    HISTOGRAM_TIMES(L"Autocomplete.HistoryAsyncQueryTime",
+    HISTOGRAM_TIMES("Autocomplete.HistoryAsyncQueryTime",
                     TimeTicks::Now() - beginning_time);
   }
 
@@ -827,4 +827,3 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
 
   return match;
 }
-

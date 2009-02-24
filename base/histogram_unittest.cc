@@ -20,20 +20,20 @@ class HistogramTest : public testing::Test {
 // Check for basic syntax and use.
 TEST(HistogramTest, StartupShutdownTest) {
   // Try basic construction
-  Histogram histogram(L"TestHistogram", 1, 1000, 10);
-  Histogram histogram1(L"Test1Histogram", 1, 1000, 10);
+  Histogram histogram("TestHistogram", 1, 1000, 10);
+  Histogram histogram1("Test1Histogram", 1, 1000, 10);
 
-  LinearHistogram linear_histogram(L"TestLinearHistogram", 1, 1000, 10);
-  LinearHistogram linear_histogram1(L"Test1LinearHistogram", 1, 1000, 10);
+  LinearHistogram linear_histogram("TestLinearHistogram", 1, 1000, 10);
+  LinearHistogram linear_histogram1("Test1LinearHistogram", 1, 1000, 10);
 
   // Use standard macros (but with fixed samples)
-  HISTOGRAM_TIMES(L"Test2Histogram", TimeDelta::FromDays(1));
-  HISTOGRAM_COUNTS(L"Test3Histogram", 30);
+  HISTOGRAM_TIMES("Test2Histogram", TimeDelta::FromDays(1));
+  HISTOGRAM_COUNTS("Test3Histogram", 30);
 
-  DHISTOGRAM_TIMES(L"Test4Histogram", TimeDelta::FromDays(1));
-  DHISTOGRAM_COUNTS(L"Test5Histogram", 30);
+  DHISTOGRAM_TIMES("Test4Histogram", TimeDelta::FromDays(1));
+  DHISTOGRAM_COUNTS("Test5Histogram", 30);
 
-  ASSET_HISTOGRAM_COUNTS(L"Test6Histogram", 129);
+  ASSET_HISTOGRAM_COUNTS("Test6Histogram", 129);
 
   // Try to construct samples.
   Histogram::SampleSet sample1;
@@ -58,35 +58,35 @@ TEST(HistogramTest, RecordedStartupTest) {
   EXPECT_EQ(0U, histograms.size());
 
   // Try basic construction
-  Histogram histogram(L"TestHistogram", 1, 1000, 10);
+  Histogram histogram("TestHistogram", 1, 1000, 10);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
   EXPECT_EQ(1U, histograms.size());
-  Histogram histogram1(L"Test1Histogram", 1, 1000, 10);
+  Histogram histogram1("Test1Histogram", 1, 1000, 10);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
   EXPECT_EQ(2U, histograms.size());
 
-  LinearHistogram linear_histogram(L"TestLinearHistogram", 1, 1000, 10);
-  LinearHistogram linear_histogram1(L"Test1LinearHistogram", 1, 1000, 10);
+  LinearHistogram linear_histogram("TestLinearHistogram", 1, 1000, 10);
+  LinearHistogram linear_histogram1("Test1LinearHistogram", 1, 1000, 10);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
   EXPECT_EQ(4U, histograms.size());
 
   // Use standard macros (but with fixed samples)
-  HISTOGRAM_TIMES(L"Test2Histogram", TimeDelta::FromDays(1));
-  HISTOGRAM_COUNTS(L"Test3Histogram", 30);
+  HISTOGRAM_TIMES("Test2Histogram", TimeDelta::FromDays(1));
+  HISTOGRAM_COUNTS("Test3Histogram", 30);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
   EXPECT_EQ(6U, histograms.size());
 
-  ASSET_HISTOGRAM_COUNTS(L"TestAssetHistogram", 1000);
+  ASSET_HISTOGRAM_COUNTS("TestAssetHistogram", 1000);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
   EXPECT_EQ(7U, histograms.size());
 
-  DHISTOGRAM_TIMES(L"Test4Histogram", TimeDelta::FromDays(1));
-  DHISTOGRAM_COUNTS(L"Test5Histogram", 30);
+  DHISTOGRAM_TIMES("Test4Histogram", TimeDelta::FromDays(1));
+  DHISTOGRAM_COUNTS("Test5Histogram", 30);
   histograms.clear();
   StatisticsRecorder::GetHistograms(&histograms);  // Load up lists
 #ifndef NDEBUG
@@ -103,7 +103,7 @@ TEST(HistogramTest, RangeTest) {
   recorder.GetHistograms(&histograms);
   EXPECT_EQ(0U, histograms.size());
 
-  Histogram histogram(L"Histogram", 1, 64, 8);  // As mentioned in header file.
+  Histogram histogram("Histogram", 1, 64, 8);  // As mentioned in header file.
   // Check that we got a nice exponential when there was enough rooom.
   EXPECT_EQ(0, histogram.ranges(0));
   int power_of_2 = 1;
@@ -113,26 +113,26 @@ TEST(HistogramTest, RangeTest) {
   }
   EXPECT_EQ(INT_MAX, histogram.ranges(8));
 
-  Histogram short_histogram(L"Histogram Shortened", 1, 7, 8);
+  Histogram short_histogram("Histogram Shortened", 1, 7, 8);
   // Check that when the number of buckets is short, we get a linear histogram
   // for lack of space to do otherwise.
   for (int i = 0; i < 8; i++)
     EXPECT_EQ(i, short_histogram.ranges(i));
   EXPECT_EQ(INT_MAX, short_histogram.ranges(8));
 
-  LinearHistogram linear_histogram(L"Linear", 1, 7, 8);
+  LinearHistogram linear_histogram("Linear", 1, 7, 8);
   // We also get a nice linear set of bucket ranges when we ask for it
   for (int i = 0; i < 8; i++)
     EXPECT_EQ(i, linear_histogram.ranges(i));
   EXPECT_EQ(INT_MAX, linear_histogram.ranges(8));
 
-  LinearHistogram linear_broad_histogram(L"Linear widened", 2, 14, 8);
+  LinearHistogram linear_broad_histogram("Linear widened", 2, 14, 8);
   // ...but when the list has more space, then the ranges naturally spread out.
   for (int i = 0; i < 8; i++)
     EXPECT_EQ(2 * i, linear_broad_histogram.ranges(i));
   EXPECT_EQ(INT_MAX, linear_broad_histogram.ranges(8));
 
-  ThreadSafeHistogram threadsafe_histogram(L"ThreadSafe", 1, 32, 15);
+  ThreadSafeHistogram threadsafe_histogram("ThreadSafe", 1, 32, 15);
   // When space is a little tight, we transition from linear to exponential.
   // This is what happens in both the basic histogram, and the threadsafe
   // variant (which is derived).
@@ -160,7 +160,7 @@ TEST(HistogramTest, RangeTest) {
 // Make sure histogram handles out-of-bounds data gracefully.
 TEST(HistogramTest, BoundsTest) {
   const size_t kBucketCount = 50;
-  Histogram histogram(L"Bounded", 10, 100, kBucketCount);
+  Histogram histogram("Bounded", 10, 100, kBucketCount);
 
   // Put two samples "out of bounds" above and below.
   histogram.Add(5);
@@ -182,7 +182,7 @@ TEST(HistogramTest, BoundsTest) {
 
 // Check to be sure samples land as expected is "correct" buckets.
 TEST(HistogramTest, BucketPlacementTest) {
-  Histogram histogram(L"Histogram", 1, 64, 8);  // As mentioned in header file.
+  Histogram histogram("Histogram", 1, 64, 8);  // As mentioned in header file.
 
   // Check that we got a nice exponential since there was enough rooom.
   EXPECT_EQ(0, histogram.ranges(0));
@@ -211,8 +211,8 @@ TEST(HistogramTest, BucketPlacementTest) {
     EXPECT_EQ(i + 1, sample.counts(i));
 }
 
-static const wchar_t* kAssetTestHistogramName = L"AssetCountTest";
-static const wchar_t* kAssetTestDebugHistogramName = L"DAssetCountTest";
+static const char kAssetTestHistogramName[] = "AssetCountTest";
+static const char kAssetTestDebugHistogramName[] = "DAssetCountTest";
 void AssetCountFunction(int sample) {
   ASSET_HISTOGRAM_COUNTS(kAssetTestHistogramName, sample);
   DASSET_HISTOGRAM_COUNTS(kAssetTestDebugHistogramName, sample);
@@ -229,16 +229,14 @@ TEST(HistogramTest, AssetCountTest) {
   StatisticsRecorder::Histograms histogram_list;
   StatisticsRecorder::GetHistograms(&histogram_list);
   ASSERT_NE(0U, histogram_list.size());
-  std::string ascii_name = WideToASCII(kAssetTestHistogramName);
-  std::string debug_ascii_name = WideToASCII(kAssetTestDebugHistogramName);
   const Histogram* our_histogram = NULL;
   const Histogram* our_debug_histogram = NULL;
   for (StatisticsRecorder::Histograms::iterator it = histogram_list.begin();
        it != histogram_list.end();
        ++it) {
-    if (!(*it)->histogram_name().compare(ascii_name))
+    if (!(*it)->histogram_name().compare(kAssetTestHistogramName))
       our_histogram = *it;
-    else if (!(*it)->histogram_name().compare(debug_ascii_name)) {
+    else if (!(*it)->histogram_name().compare(kAssetTestDebugHistogramName)) {
       our_debug_histogram = *it;
     }
   }
@@ -294,4 +292,3 @@ TEST(HistogramTest, AssetCountTest) {
 }
 
 }  // namespace
-

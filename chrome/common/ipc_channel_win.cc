@@ -71,7 +71,7 @@ void Channel::ChannelImpl::Close() {
   }
   if (waited) {
     // We want to see if we block the message loop for too long.
-    UMA_HISTOGRAM_TIMES(L"AsyncIO.IPCChannelClose", base::Time::Now() - start);
+    UMA_HISTOGRAM_TIMES("AsyncIO.IPCChannelClose", base::Time::Now() - start);
   }
 
   while (!output_queue_.empty()) {
