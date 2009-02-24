@@ -43,6 +43,12 @@ const wchar_t kPluginFlashThrottle[] = L"FlashThrottle";
 // this seems to work well enough.
 const int kFlashWMUSERMessageThrottleDelayMs = 5;
 
+// Flash displays popups in response to user clicks by posting a WM_USER
+// message to the plugin window. The handler for this message displays
+// the popup. To ensure that the popups allowed state is sent correctly
+// to the renderer we reset the popups allowed state in a timer.
+const int kWindowedPluginPopupTimerMs = 50;
+
 // The current instance of the plugin which entered the modal loop.
 WebPluginDelegateImpl* g_current_plugin_instance = NULL;
 
@@ -884,9 +890,10 @@ LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
 
     delegate->instance()->PushPopupsEnabledState(true);
 
-    MessageLoop::current()->PostTask(FROM_HERE,
+    MessageLoop::current()->PostDelayedTask(FROM_HERE,
         delegate->user_gesture_msg_factory_.NewRunnableMethod(
-            &WebPluginDelegateImpl::OnUserGestureEnd));
+            &WebPluginDelegateImpl::OnUserGestureEnd),
+        kWindowedPluginPopupTimerMs);
   }
 
   LRESULT result = CallWindowProc(delegate->plugin_wnd_proc_, hwnd, message,
