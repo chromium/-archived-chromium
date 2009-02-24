@@ -36,6 +36,7 @@
 				4D7B02560E9D5823009A6919 /* PBXTargetDependency */,
 				7BF895DC0E75D5FB000BAF8A /* PBXTargetDependency */,
 				7BF896580E75D75F000BAF8A /* PBXTargetDependency */,
+				4D93692F0F54864C001FD834 /* PBXTargetDependency */,
 				7BF896460E75D705000BAF8A /* PBXTargetDependency */,
 				7B2630020E82F19B001CE27F /* PBXTargetDependency */,
 				7BF8964A0E75D705000BAF8A /* PBXTargetDependency */,
@@ -152,6 +153,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4D93630B0F547FD2001FD834;
 			remoteInfo = run_printing_unittests;
+		};
+		4D93692C0F54863D001FD834 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D93691D0F54862C001FD834 /* hunspell.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4D9367AF0F54823A001FD834;
+			remoteInfo = hunspell;
+		};
+		4D93692E0F54864C001FD834 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D93691D0F54862C001FD834 /* hunspell.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D9367AE0F54823A001FD834;
+			remoteInfo = hunspell;
 		};
 		4DB042C30EB1536A00A5633C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -691,6 +706,7 @@
 		4D7B021C0E9D57D9009A6919 /* sqlite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sqlite.xcodeproj; path = sqlite/sqlite.xcodeproj; sourceTree = "<group>"; };
 		4D7B02380E9D5816009A6919 /* chrome.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = chrome.xcodeproj; path = chrome/chrome.xcodeproj; sourceTree = "<group>"; };
 		4D9366AA0F5481A3001FD834 /* printing.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = printing.xcodeproj; path = printing/printing.xcodeproj; sourceTree = "<group>"; };
+		4D93691D0F54862C001FD834 /* hunspell.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = hunspell.xcodeproj; path = ../chrome/third_party/hunspell/hunspell.xcodeproj; sourceTree = "<group>"; };
 		4DB686590EAFE60400AB2128 /* libxslt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxslt.xcodeproj; path = libxslt/libxslt.xcodeproj; sourceTree = "<group>"; };
 		4DCEA00F0EF0BB2F00682526 /* npapi_layout_test_plugin.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = npapi_layout_test_plugin.xcodeproj; path = webkit/tools/npapi_layout_test_plugin/npapi_layout_test_plugin.xcodeproj; sourceTree = "<group>"; };
 		7B262FE50E82F18D001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = libevent/libevent.xcodeproj; sourceTree = "<group>"; };
@@ -748,6 +764,14 @@
 			children = (
 				4D9366B80F5481A3001FD834 /* libprinting.a */,
 				4D9366BA0F5481A3001FD834 /* printing_unittests */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D9369290F54863D001FD834 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4D93692D0F54863D001FD834 /* libhunspell.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -910,6 +934,7 @@
 			isa = PBXGroup;
 			children = (
 				7BF895E90E75D666000BAF8A /* bzip2.xcodeproj */,
+				4D93691D0F54862C001FD834 /* hunspell.xcodeproj */,
 				7BF895EF0E75D673000BAF8A /* icu.xcodeproj */,
 				7B262FE50E82F18D001CE27F /* libevent.xcodeproj */,
 				7BF896080E75D68B000BAF8A /* libjpeg.xcodeproj */,
@@ -1035,6 +1060,10 @@
 				{
 					ProductGroup = 7BF896520E75D753000BAF8A /* Products */;
 					ProjectRef = 7BF896510E75D753000BAF8A /* gtest.xcodeproj */;
+				},
+				{
+					ProductGroup = 4D9369290F54863D001FD834 /* Products */;
+					ProjectRef = 4D93691D0F54862C001FD834 /* hunspell.xcodeproj */;
 				},
 				{
 					ProductGroup = 7BF895F00E75D673000BAF8A /* Products */;
@@ -1176,6 +1205,13 @@
 			fileType = "compiled.mach-o.executable";
 			path = printing_unittests;
 			remoteRef = 4D9366B90F5481A3001FD834 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4D93692D0F54863D001FD834 /* libhunspell.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libhunspell.a;
+			remoteRef = 4D93692C0F54863D001FD834 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		4DB6807F0EAF88B000AB2128 /* librenderer.a */ = {
@@ -1548,6 +1584,11 @@
 			isa = PBXTargetDependency;
 			name = run_printing_unittests;
 			targetProxy = 4D9366BD0F5481BA001FD834 /* PBXContainerItemProxy */;
+		};
+		4D93692F0F54864C001FD834 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = hunspell;
+			targetProxy = 4D93692E0F54864C001FD834 /* PBXContainerItemProxy */;
 		};
 		4DB042C40EB1536A00A5633C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

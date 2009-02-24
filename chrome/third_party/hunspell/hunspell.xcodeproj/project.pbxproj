@@ -1,0 +1,307 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4D9368010F5482A0001FD834 /* affentry.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9367ED0F5482A0001FD834 /* affentry.cxx */; };
+		4D9368020F5482A0001FD834 /* affixmgr.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9367EF0F5482A0001FD834 /* affixmgr.cxx */; };
+		4D9368030F5482A0001FD834 /* csutil.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9367F30F5482A0001FD834 /* csutil.cxx */; };
+		4D9368040F5482A0001FD834 /* dictmgr.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9367F50F5482A0001FD834 /* dictmgr.cxx */; };
+		4D9368050F5482A0001FD834 /* hashmgr.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9367F70F5482A0001FD834 /* hashmgr.cxx */; };
+		4D9368060F5482A0001FD834 /* hunspell.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9367FA0F5482A0001FD834 /* hunspell.cxx */; };
+		4D9368070F5482A0001FD834 /* suggestmgr.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9367FE0F5482A0001FD834 /* suggestmgr.cxx */; };
+		4D93680A0F5482AE001FD834 /* textparser.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4D9368080F5482AE001FD834 /* textparser.cxx */; };
+		4D9368260F548358001FD834 /* bdict_reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D93681A0F54834C001FD834 /* bdict_reader.cc */; };
+		4D9368270F548358001FD834 /* bdict_writer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D93681C0F54834C001FD834 /* bdict_writer.cc */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4D9362D20F547F0E001FD834 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
+		4D9362D30F547F0E001FD834 /* debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = debug.xcconfig; sourceTree = "<group>"; };
+		4D9362D40F547F0E001FD834 /* dynamiclib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = dynamiclib.xcconfig; sourceTree = "<group>"; };
+		4D9362D50F547F0E001FD834 /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
+		4D9362D60F547F0E001FD834 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
+		4D9362D70F547F0E001FD834 /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
+		4D9367AF0F54823A001FD834 /* libhunspell.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhunspell.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D9367ED0F5482A0001FD834 /* affentry.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = affentry.cxx; sourceTree = "<group>"; };
+		4D9367EE0F5482A0001FD834 /* affentry.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = affentry.hxx; sourceTree = "<group>"; };
+		4D9367EF0F5482A0001FD834 /* affixmgr.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = affixmgr.cxx; sourceTree = "<group>"; };
+		4D9367F00F5482A0001FD834 /* affixmgr.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = affixmgr.hxx; sourceTree = "<group>"; };
+		4D9367F10F5482A0001FD834 /* atypes.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = atypes.hxx; sourceTree = "<group>"; };
+		4D9367F20F5482A0001FD834 /* baseaffix.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = baseaffix.hxx; sourceTree = "<group>"; };
+		4D9367F30F5482A0001FD834 /* csutil.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csutil.cxx; sourceTree = "<group>"; };
+		4D9367F40F5482A0001FD834 /* csutil.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = csutil.hxx; sourceTree = "<group>"; };
+		4D9367F50F5482A0001FD834 /* dictmgr.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dictmgr.cxx; sourceTree = "<group>"; };
+		4D9367F60F5482A0001FD834 /* dictmgr.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = dictmgr.hxx; sourceTree = "<group>"; };
+		4D9367F70F5482A0001FD834 /* hashmgr.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hashmgr.cxx; sourceTree = "<group>"; };
+		4D9367F80F5482A0001FD834 /* hashmgr.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hashmgr.hxx; sourceTree = "<group>"; };
+		4D9367F90F5482A0001FD834 /* htypes.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = htypes.hxx; sourceTree = "<group>"; };
+		4D9367FA0F5482A0001FD834 /* hunspell.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hunspell.cxx; sourceTree = "<group>"; };
+		4D9367FB0F5482A0001FD834 /* hunspell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hunspell.h; sourceTree = "<group>"; };
+		4D9367FC0F5482A0001FD834 /* hunspell.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = hunspell.hxx; sourceTree = "<group>"; };
+		4D9367FD0F5482A0001FD834 /* langnum.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = langnum.hxx; sourceTree = "<group>"; };
+		4D9367FE0F5482A0001FD834 /* suggestmgr.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = suggestmgr.cxx; sourceTree = "<group>"; };
+		4D9367FF0F5482A0001FD834 /* suggestmgr.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = suggestmgr.hxx; sourceTree = "<group>"; };
+		4D9368000F5482A0001FD834 /* utf_info.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = utf_info.hxx; sourceTree = "<group>"; };
+		4D9368080F5482AE001FD834 /* textparser.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = textparser.cxx; sourceTree = "<group>"; };
+		4D9368090F5482AE001FD834 /* textparser.hxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = textparser.hxx; sourceTree = "<group>"; };
+		4D9368190F54834C001FD834 /* bdict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bdict.h; sourceTree = "<group>"; };
+		4D93681A0F54834C001FD834 /* bdict_reader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bdict_reader.cc; sourceTree = "<group>"; };
+		4D93681B0F54834C001FD834 /* bdict_reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bdict_reader.h; sourceTree = "<group>"; };
+		4D93681C0F54834C001FD834 /* bdict_writer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bdict_writer.cc; sourceTree = "<group>"; };
+		4D93681D0F54834C001FD834 /* bdict_writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bdict_writer.h; sourceTree = "<group>"; };
+		4D93681E0F54834C001FD834 /* hunspell_tests.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hunspell_tests.cc; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4D9367AD0F54823A001FD834 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4D9362BE0F547ED0001FD834 = {
+			isa = PBXGroup;
+			children = (
+				4D9362D10F547EE8001FD834 /* Configuration */,
+				4D9362D80F547F2D001FD834 /* Source */,
+				4D9367B00F54823A001FD834 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4D9362D10F547EE8001FD834 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				4D9362D20F547F0E001FD834 /* common.xcconfig */,
+				4D9362D30F547F0E001FD834 /* debug.xcconfig */,
+				4D9362D40F547F0E001FD834 /* dynamiclib.xcconfig */,
+				4D9362D50F547F0E001FD834 /* executable.xcconfig */,
+				4D9362D60F547F0E001FD834 /* release.xcconfig */,
+				4D9362D70F547F0E001FD834 /* staticlib.xcconfig */,
+			);
+			name = Configuration;
+			path = ../../../build;
+			sourceTree = "<group>";
+		};
+		4D9362D80F547F2D001FD834 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				4D9368170F548301001FD834 /* google */,
+				4D9368180F54830B001FD834 /* src */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		4D9367B00F54823A001FD834 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4D9367AF0F54823A001FD834 /* libhunspell.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D9367EB0F548279001FD834 /* parsers */ = {
+			isa = PBXGroup;
+			children = (
+				4D9368080F5482AE001FD834 /* textparser.cxx */,
+				4D9368090F5482AE001FD834 /* textparser.hxx */,
+			);
+			path = parsers;
+			sourceTree = "<group>";
+		};
+		4D9367EC0F54827E001FD834 /* hunspell */ = {
+			isa = PBXGroup;
+			children = (
+				4D9367ED0F5482A0001FD834 /* affentry.cxx */,
+				4D9367EE0F5482A0001FD834 /* affentry.hxx */,
+				4D9367EF0F5482A0001FD834 /* affixmgr.cxx */,
+				4D9367F00F5482A0001FD834 /* affixmgr.hxx */,
+				4D9367F10F5482A0001FD834 /* atypes.hxx */,
+				4D9367F20F5482A0001FD834 /* baseaffix.hxx */,
+				4D9367F30F5482A0001FD834 /* csutil.cxx */,
+				4D9367F40F5482A0001FD834 /* csutil.hxx */,
+				4D9367F50F5482A0001FD834 /* dictmgr.cxx */,
+				4D9367F60F5482A0001FD834 /* dictmgr.hxx */,
+				4D9367F70F5482A0001FD834 /* hashmgr.cxx */,
+				4D9367F80F5482A0001FD834 /* hashmgr.hxx */,
+				4D9367F90F5482A0001FD834 /* htypes.hxx */,
+				4D9367FA0F5482A0001FD834 /* hunspell.cxx */,
+				4D9367FB0F5482A0001FD834 /* hunspell.h */,
+				4D9367FC0F5482A0001FD834 /* hunspell.hxx */,
+				4D9367FD0F5482A0001FD834 /* langnum.hxx */,
+				4D9367FE0F5482A0001FD834 /* suggestmgr.cxx */,
+				4D9367FF0F5482A0001FD834 /* suggestmgr.hxx */,
+				4D9368000F5482A0001FD834 /* utf_info.hxx */,
+			);
+			path = hunspell;
+			sourceTree = "<group>";
+		};
+		4D9368170F548301001FD834 /* google */ = {
+			isa = PBXGroup;
+			children = (
+				4D9368190F54834C001FD834 /* bdict.h */,
+				4D93681A0F54834C001FD834 /* bdict_reader.cc */,
+				4D93681B0F54834C001FD834 /* bdict_reader.h */,
+				4D93681C0F54834C001FD834 /* bdict_writer.cc */,
+				4D93681D0F54834C001FD834 /* bdict_writer.h */,
+				4D93681E0F54834C001FD834 /* hunspell_tests.cc */,
+			);
+			path = google;
+			sourceTree = "<group>";
+		};
+		4D9368180F54830B001FD834 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4D9367EC0F54827E001FD834 /* hunspell */,
+				4D9367EB0F548279001FD834 /* parsers */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4D9367AE0F54823A001FD834 /* hunspell */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4D9367B30F54823B001FD834 /* Build configuration list for PBXNativeTarget "hunspell" */;
+			buildPhases = (
+				4D9367AC0F54823A001FD834 /* Sources */,
+				4D9367AD0F54823A001FD834 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = hunspell;
+			productName = hunspell;
+			productReference = 4D9367AF0F54823A001FD834 /* libhunspell.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4D9362C00F547ED0001FD834 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 4D9362C30F547ED0001FD834 /* Build configuration list for PBXProject "hunspell" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 0;
+			mainGroup = 4D9362BE0F547ED0001FD834;
+			productRefGroup = 4D9367B00F54823A001FD834 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4D9367AE0F54823A001FD834 /* hunspell */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4D9367AC0F54823A001FD834 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4D9368010F5482A0001FD834 /* affentry.cxx in Sources */,
+				4D9368020F5482A0001FD834 /* affixmgr.cxx in Sources */,
+				4D9368260F548358001FD834 /* bdict_reader.cc in Sources */,
+				4D9368270F548358001FD834 /* bdict_writer.cc in Sources */,
+				4D9368030F5482A0001FD834 /* csutil.cxx in Sources */,
+				4D9368040F5482A0001FD834 /* dictmgr.cxx in Sources */,
+				4D9368050F5482A0001FD834 /* hashmgr.cxx in Sources */,
+				4D9368060F5482A0001FD834 /* hunspell.cxx in Sources */,
+				4D9368070F5482A0001FD834 /* suggestmgr.cxx in Sources */,
+				4D93680A0F5482AE001FD834 /* textparser.cxx in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4D9362C10F547ED0001FD834 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D9362D30F547F0E001FD834 /* debug.xcconfig */;
+			buildSettings = {
+				XCODEPROJ_DEPTH = ../../..;
+			};
+			name = Debug;
+		};
+		4D9362C20F547ED0001FD834 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D9362D60F547F0E001FD834 /* release.xcconfig */;
+			buildSettings = {
+				XCODEPROJ_DEPTH = ../../..;
+			};
+			name = Release;
+		};
+		4D9367B10F54823B001FD834 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D9362D70F547F0E001FD834 /* staticlib.xcconfig */;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					OPENOFFICEORG,
+					CHROME_SPELL,
+					HUNSPELL_CHROME_CLIENT,
+				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					../../..,
+					../../../third_party/icu38/public/common,
+				);
+				PRODUCT_NAME = hunspell;
+			};
+			name = Debug;
+		};
+		4D9367B20F54823B001FD834 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D9362D70F547F0E001FD834 /* staticlib.xcconfig */;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS)",
+					OPENOFFICEORG,
+					CHROME_SPELL,
+					HUNSPELL_CHROME_CLIENT,
+				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					../../..,
+					../../../third_party/icu38/public/common,
+				);
+				PRODUCT_NAME = hunspell;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4D9362C30F547ED0001FD834 /* Build configuration list for PBXProject "hunspell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D9362C10F547ED0001FD834 /* Debug */,
+				4D9362C20F547ED0001FD834 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4D9367B30F54823B001FD834 /* Build configuration list for PBXNativeTarget "hunspell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D9367B10F54823B001FD834 /* Debug */,
+				4D9367B20F54823B001FD834 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4D9362C00F547ED0001FD834 /* Project object */;
+}
