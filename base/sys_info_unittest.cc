@@ -49,6 +49,7 @@ TEST_F(SysInfoTest, OperatingSystemVersionNumbers) {
                                                &os_bugfix_version);
   EXPECT_GT(os_major_version, 0);
   EXPECT_GT(os_minor_version, 0);
-  EXPECT_GT(os_bugfix_version, 0);
+  // On Windows, the bug fix version is set to 0.
+  EXPECT_GT(os_bugfix_version, -1);
 }
 #endif  // OS_WIN || OS_MACOSX
