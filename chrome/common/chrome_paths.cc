@@ -72,9 +72,10 @@ bool PathProvider(int key, FilePath* result) {
       if (!PathService::Get(chrome::DIR_USER_DOCUMENTS, &cur))
         return false;
       cur = cur.Append(FILE_PATH_LITERAL("Downloads"));
-      // TODO(port): This will fail on other platforms unless we 
-      // implement DIR_USER_DOCUMENTS or use xdg-user-dirs to 
-      // get the download directory independently of DIR_USER_DOCUMENTS.
+      // TODO(port): this may not be what we want on other platforms. But it
+      // is not clear what we would prefer: $XDG_DOWNLOAD_DIR appears to point
+      // to ~/Downloads for many users, which is something we want to avoid.
+      // We probably need to add a GetUserDownloadsDirectory().
       break;
     case chrome::DIR_CRASH_DUMPS:
       // The crash reports are always stored relative to the default user data

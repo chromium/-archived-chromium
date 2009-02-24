@@ -92,7 +92,8 @@ static int GetUniquePathNumber(const FilePath& path) {
   return -1;
 }
 
-#if defined(OS_WIN)
+// TODO(port): enable this for mac later. For now, it gives a not used warning.
+#if defined(OS_WIN) || defined(OS_LINUX)
 static bool DownloadPathIsDangerous(const FilePath& download_path) {
   FilePath desktop_dir;
   if (!PathService::Get(chrome::DIR_USER_DESKTOP, &desktop_dir)) {
@@ -298,8 +299,8 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kDownloadExtensionsToOpen, L"");
   prefs->RegisterBooleanPref(prefs::kDownloadDirUpgraded, false);
 
-// TODO(port): port the necessary bits of chrome_paths.
-#if defined(OS_WIN)
+// TODO(port): port the necessary bits of chrome_paths_mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
   // The default download path is userprofile\download.
   FilePath default_download_path;
   if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
@@ -322,7 +323,7 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
     }
     prefs->SetBoolean(prefs::kDownloadDirUpgraded, true);
   }
-#endif
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 }
 
 DownloadManager::DownloadManager()
@@ -485,8 +486,8 @@ bool DownloadManager::Init(Profile* profile) {
   DCHECK(prefs);
   prompt_for_download_.Init(prefs::kPromptForDownload, prefs, NULL);
 
-// TODO(port): enable this after implementing chrome_paths for posix.
-#if defined(OS_WIN)
+// TODO(port): enable this after implementing chrome_paths for mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
   download_path_.Init(prefs::kDownloadDefaultDirectory, prefs, NULL);
 
   // This variable is needed to resolve which CreateDirectory we want to point
@@ -497,14 +498,17 @@ bool DownloadManager::Init(Profile* profile) {
   // Ensure that the download directory specified in the preferences exists.
   file_loop_->PostTask(FROM_HERE, NewRunnableFunction(
       CreateDirectoryPtr, download_path()));
-
-  // We store any file extension that should be opened automatically at
-  // download completion in this pref.
-  download_util::InitializeExeTypes(&exe_types_);
-#elif defined(OS_POSIX)
+#elif defined(OS_MACOSX)
   NOTIMPLEMENTED();
 #endif
 
+#if defined(OS_WIN)
+  // We use this on windows to determine possibly dangerous downloads.
+  download_util::InitializeExeTypes(&exe_types_);
+#endif
+
+  // We store any file extension that should be opened automatically at
+  // download completion in this pref.
   std::wstring extensions_to_open =
       prefs->GetString(prefs::kDownloadExtensionsToOpen);
   std::vector<std::wstring> extensions;
@@ -1334,10 +1338,10 @@ void DownloadManager::GenerateSafeFilename(const std::string& mime_type,
   GenerateExtension(*file_name, mime_type, &extension);
   file_util::ReplaceExtension(file_name, extension);
 
+#if defined(OS_WIN)
   // Prepend "_" to the file name if it's a reserved name
   FilePath::StringType leaf_name = file_name->BaseName().value();
   DCHECK(!leaf_name.empty());
-#if defined(OS_WIN)
   if (win_util::IsReservedName(leaf_name)) {
     leaf_name = FilePath::StringType(FILE_PATH_LITERAL("_")) + leaf_name;
     *file_name = file_name->DirName();
