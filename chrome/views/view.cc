@@ -206,7 +206,10 @@ void View::Layout() {
   if (layout_manager_.get()) {
     layout_manager_->Layout(this);
     SchedulePaint();
-    return;
+    // TODO(beng): We believe the right thing to do here is return since the
+    //             layout manager should be handling things, but it causes
+    //             regressions (missing options from Options dialog and a hang
+    //             in interactive_ui_tests).
   }
 
   // Lay out contents of child Views
