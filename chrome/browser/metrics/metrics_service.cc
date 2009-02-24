@@ -748,9 +748,7 @@ void MetricsService::StopRecording(MetricsLog** log) {
   // end of all log transmissions (initial log handles this separately).
   // Don't bother if we're going to discard current_log_.
   if (log) {
-    // TODO(jar): when initial logs and ongoing logs have equal survivability,
-    // uncomment the following line to expedite stability data uploads.
-    // current_log_->RecordIncrementalStabilityElements();
+    current_log_->RecordIncrementalStabilityElements();
     RecordCurrentHistograms();
   }
 
