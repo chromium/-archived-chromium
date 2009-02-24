@@ -42,11 +42,11 @@ bool HtmlDialogView::CanResize() const {
 }
 
 bool HtmlDialogView::IsModal() const {
-  return delegate_->IsModal();
+  return delegate_->IsDialogModal();
 }
 
 std::wstring HtmlDialogView::GetWindowTitle() const {
-  return delegate_->GetWindowTitle();
+  return delegate_->GetDialogTitle();
 }
 
 void HtmlDialogView::WindowClosing() {
@@ -67,6 +67,14 @@ views::View* HtmlDialogView::GetInitiallyFocusedView() {
 
 ////////////////////////////////////////////////////////////////////////////////
 // HtmlDialogContentsDelegate implementation:
+
+bool HtmlDialogView::IsDialogModal() const {
+  return IsModal();
+}
+
+std::wstring HtmlDialogView::GetDialogTitle() const {
+  return GetWindowTitle();
+}
 
 GURL HtmlDialogView::GetDialogContentURL() const {
   return delegate_->GetDialogContentURL();

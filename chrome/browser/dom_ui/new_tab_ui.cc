@@ -19,7 +19,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/user_data_manager.h"
-#include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"

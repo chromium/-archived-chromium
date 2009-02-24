@@ -304,11 +304,9 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
 
   // The following public methods are called from the UI thread.
 
-  // views::WindowDelegate implementation:
-  virtual bool IsModal() const { return false; }
-  virtual std::wstring GetWindowTitle() const { return L"Google Gears"; }
-
   // HtmlDialogContentsDelegate implementation:
+  virtual bool IsDialogModal() const { return false; }
+  virtual std::wstring GetDialogTitle() const { return L"Google Gears"; }
   virtual GURL GetDialogContentURL() const { return params_.url; }
   virtual void GetDialogSize(CSize* size) const {
     size->cx = params_.width;

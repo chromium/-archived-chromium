@@ -6,11 +6,14 @@
 #define CHROME_BROWSER_DOM_UI_HTML_DIALOG_CONTENTS_H__
 
 #include "chrome/browser/dom_ui/dom_ui_host.h"
-#include "chrome/views/window_delegate.h"
 
 // Implement this class to receive notifications.
-class HtmlDialogContentsDelegate : public views::WindowDelegate {
+class HtmlDialogContentsDelegate {
  public:
+   // Returns true if the contents needs to be run in a modal dialog.
+   virtual bool IsDialogModal() const = 0;
+   // Returns the title of the dialog.
+   virtual std::wstring GetDialogTitle() const = 0;
    // Get the HTML file path for the content to load in the dialog.
    virtual GURL GetDialogContentURL() const = 0;
    // Get the size of the dialog.

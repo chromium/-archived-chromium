@@ -37,7 +37,7 @@ void ModalHtmlDialogDelegate::Observe(NotificationType type,
   RemoveObserver();
 }
 
-bool ModalHtmlDialogDelegate::IsModal() const {
+bool ModalHtmlDialogDelegate::IsDialogModal() const {
   return true;
 }
 

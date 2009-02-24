@@ -27,11 +27,9 @@ class ModalHtmlDialogDelegate
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // views::WindowDelegate implementation:
-  virtual bool IsModal() const;
-  virtual std::wstring GetWindowTitle() const { return L"Google Gears"; }
-
-  // ModalHtmlDialogContents::ModalHTMLDialogContentsDelegate implementation:
+  // HTMLDialogContentsDelegate implementation:
+  virtual bool IsDialogModal() const;
+  virtual std::wstring GetDialogTitle() const { return L"Google Gears"; }
   virtual GURL GetDialogContentURL() const;
   virtual void GetDialogSize(CSize* size) const;
   virtual std::string GetDialogArgs() const;
