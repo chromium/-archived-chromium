@@ -29,6 +29,42 @@
 #include "chrome/renderer/render_view.h"
 #include "webkit/glue/webkit_glue.h"
 
+// Attempts to load FFmpeg before engaging the sandbox.  Returns true if all
+// libraries were loaded successfully, false otherwise.
+static bool LoadFFmpeg() {
+#if defined(OS_WIN)
+  int path_keys[] = {
+    chrome::FILE_LIBAVCODEC,
+    chrome::FILE_LIBAVFORMAT,
+    chrome::FILE_LIBAVUTIL
+  };
+  HMODULE libs[arraysize(path_keys)] = {NULL};
+  for (size_t i = 0; i < arraysize(path_keys); ++i) {
+    std::wstring path;
+    if (!PathService::Get(path_keys[i], &path))
+      break;
+    libs[i] = LoadLibrary(path.c_str());
+    if (!libs[i])
+      break;
+  }
+
+  // Check that we loaded all libraries successfully.
+  if (libs[arraysize(libs)-1])
+    return true;
+
+  // Free any loaded libraries if we weren't successful.
+  for (size_t i = 0; i < arraysize(libs) && libs[i] != NULL; ++i) {
+    FreeLibrary(libs[i]);
+  }
+  return false;
+#else
+  // TODO(port): Need to handle loading FFmpeg on non-Windows platforms.
+  NOTIMPLEMENTED();
+  return false;
+#endif
+}
+
+//-----------------------------------------------------------------------------
 
 RenderProcess::RenderProcess()
     : ChildProcess(new RenderThread()),
@@ -122,8 +158,7 @@ void RenderProcess::Init() {
 #endif
   }
 
-  if (command_line.HasSwitch(switches::kEnableVideo)) {
-    // TODO(scherkus): check for any DLL dependencies.
+  if (command_line.HasSwitch(switches::kEnableVideo) && LoadFFmpeg()) {
     webkit_glue::SetMediaPlayerAvailable(true);
   }
 }
@@ -269,4 +304,3 @@ void RenderProcess::ClearTransportDIBCache() {
     }
   }
 }
-

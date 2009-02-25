@@ -31,6 +31,17 @@ bool GetGearsPluginPathFromCommandLine(FilePath* path) {
 #endif
 }
 
+// Attempts to find the given FFmpeg library and stores the result in |path|.
+// Returns true if the library was found and exists, false otherwise.
+static bool GetFFmpegLibraryPath(FilePath* path,
+                                 const FilePath::StringType& library) {
+  // Assume FFmpeg DLLs are kept alongside chrome.dll.
+  if (!PathService::Get(base::DIR_MODULE, path))
+    return false;
+  *path = path->Append(library);
+  return file_util::PathExists(*path);
+}
+
 bool PathProvider(int key, FilePath* result) {
   // Some keys are just aliases...
   switch (key) {
@@ -148,6 +159,18 @@ bool PathProvider(int key, FilePath* result) {
           cur = cur.Append(FILE_PATH_LITERAL("gears.dll"));
         }
       }
+      break;
+    case chrome::FILE_LIBAVCODEC:
+      if (!GetFFmpegLibraryPath(&cur, FILE_PATH_LITERAL("avcodec-52.dll")))
+        return false;
+      break;
+    case chrome::FILE_LIBAVFORMAT:
+      if (!GetFFmpegLibraryPath(&cur, FILE_PATH_LITERAL("avformat-52.dll")))
+        return false;
+      break;
+    case chrome::FILE_LIBAVUTIL:
+      if (!GetFFmpegLibraryPath(&cur, FILE_PATH_LITERAL("avutil-49.dll")))
+        return false;
       break;
     // The following are only valid in the development environment, and
     // will fail if executed from an installed executable (because the
