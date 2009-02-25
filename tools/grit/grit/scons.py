@@ -39,6 +39,14 @@ def _SourceToFile(source):
 
 
 def _Builder(target, source, env):
+  # We fork GRIT into a separate process so we can use more processes between
+  # scons and GRIT. This already runs as separate threads, but because of the
+  # python GIL, all these threads have to share the same process.  By using
+  # fork, we can use multiple processes and processors.
+  pid = os.fork()
+  if pid != 0:
+    os.waitpid(pid, 0)
+    return
   from grit import grit_runner
   from grit.tool import build
   options = grit_runner.Options()
@@ -64,6 +72,9 @@ def _Builder(target, source, env):
   # our .grd input file with the targets.
   builder.scons_targets = [str(t) for t in target]
   builder.Run(options, [])
+
+  # Exit the child process.
+  os._exit(0)
 
 
 def _Emitter(target, source, env):
@@ -110,10 +121,6 @@ def _Emitter(target, source, env):
             target.append(path)
             if _IsDebugEnabled():
               print "GRIT: Added target %s" % path
-
-  # GRIT is not thread safe so we should only build one grit target at a time. 
-  # We tell scons about this by making a fake side effect target.
-  env.SideEffect('grit_lock', target)
 
   # return target and source lists
   return (target, source)
