@@ -4,7 +4,7 @@
 
 #include "chrome/browser/renderer_host/backing_store.h"
 
-class RenderWidgetHost;
+#include "chrome/browser/renderer_host/render_widget_host.h"
 
 namespace {
 
@@ -22,10 +22,10 @@ static int GetBackingStoreCacheSize() {
 // Creates the backing store for the host based on the dimensions passed in.
 // Removes the existing backing store if there is one.
 BackingStore* CreateBackingStore(RenderWidgetHost* host,
-                                 const gfx::Rect& backing_store_rect) {
+                                 const gfx::Size& backing_store_size) {
   BackingStoreManager::RemoveBackingStore(host);
 
-  BackingStore* backing_store = new BackingStore(backing_store_rect.size());
+  BackingStore* backing_store = host->AllocBackingStore(backing_store_size);
   int backing_store_cache_size = GetBackingStoreCacheSize();
   if (backing_store_cache_size > 0) {
     if (!cache)
@@ -58,21 +58,21 @@ BackingStore* BackingStoreManager::GetBackingStore(
 // static
 BackingStore* BackingStoreManager::PrepareBackingStore(
     RenderWidgetHost* host,
-    const gfx::Rect& backing_store_rect,
+    const gfx::Size& backing_store_size,
     base::ProcessHandle process_handle,
     TransportDIB* bitmap,
     const gfx::Rect& bitmap_rect,
     bool* needs_full_paint) {
-  BackingStore* backing_store = GetBackingStore(host,
-                                                backing_store_rect.size());
+  BackingStore* backing_store = GetBackingStore(host, backing_store_size);
   if (!backing_store) {
     // We need to get Webkit to generate a new paint here, as we
     // don't have a previous snapshot.
-    if (bitmap_rect != backing_store_rect) {
+    if (bitmap_rect.size() != backing_store_size ||
+        bitmap_rect.x() != 0 || bitmap_rect.y() != 0) {
       DCHECK(needs_full_paint != NULL);
       *needs_full_paint = true;
     }
-    backing_store = CreateBackingStore(host, backing_store_rect);
+    backing_store = CreateBackingStore(host, backing_store_size);
   }
 
   DCHECK(backing_store != NULL);

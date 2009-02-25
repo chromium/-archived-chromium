@@ -10,6 +10,7 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/common/x11_util.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "skia/ext/bitmap_platform_device_linux.h"
@@ -24,6 +25,7 @@ class RenderWidgetHostViewGtkWidget {
  public:
   static GtkWidget* CreateNewWidget(RenderWidgetHostViewGtk* host_view) {
     GtkWidget* widget = gtk_drawing_area_new();
+    gtk_widget_set_double_buffered(widget, FALSE);
 
     gtk_widget_add_events(widget, GDK_EXPOSURE_MASK |
                                   GDK_POINTER_MOTION_MASK |
@@ -281,34 +283,28 @@ void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
   }
 }
 
+BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
+    const gfx::Size& size) {
+  Display* display = x11_util::GetXDisplay();
+  void* visual = x11_util::GetVisualFromGtkWidget(view_);
+  XID parent_window = x11_util::GetX11WindowFromGtkWidget(view_);
+  bool use_shared_memory = x11_util::QuerySharedMemorySupport(display);
+  int depth = gtk_widget_get_visual(view_)->depth;
+
+  return new BackingStore(size, display, depth, visual, parent_window,
+                          use_shared_memory);
+}
+
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
   BackingStore* backing_store = host_->GetBackingStore();
 
   if (backing_store) {
-    GdkRectangle grect = {
-      damage_rect.x(),
-      damage_rect.y(),
-      damage_rect.width(),
-      damage_rect.height()
-    };
-
     // Only render the widget if it is attached to a window; there's a short
     // period where this object isn't attached to a window but hasn't been
     // Destroy()ed yet and it receives paint messages...
     GdkWindow* window = view_->window;
-    if (window) {
-      gdk_window_begin_paint_rect(window, &grect);
-
-      skia::PlatformDeviceLinux &platdev =
-          backing_store->canvas()->getTopPlatformDevice();
-      skia::BitmapPlatformDeviceLinux* const bitdev =
-          static_cast<skia::BitmapPlatformDeviceLinux* >(&platdev);
-      cairo_t* cairo_drawable = gdk_cairo_create(window);
-      cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
-      cairo_paint(cairo_drawable);
-      cairo_destroy(cairo_drawable);
-      gdk_window_end_paint(window);
-    }
+    if (window)
+      backing_store->ShowRect(damage_rect);
 
   } else {
     NOTIMPLEMENTED();

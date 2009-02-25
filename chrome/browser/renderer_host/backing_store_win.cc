@@ -30,7 +30,7 @@ BackingStore::~BackingStore() {
   }
 }
 
-bool BackingStore::PaintRect(base::ProcessHandle process,
+void BackingStore::PaintRect(base::ProcessHandle process,
                              TransportDIB* bitmap,
                              const gfx::Rect& bitmap_rect) {
   if (!backing_store_dib_) {
@@ -62,8 +62,6 @@ bool BackingStore::PaintRect(base::ProcessHandle process,
                 reinterpret_cast<BITMAPINFO*>(&hdr),
                 DIB_RGB_COLORS,
                 SRCCOPY);
-
-  return true;
 }
 
 void BackingStore::ScrollRect(base::ProcessHandle process,

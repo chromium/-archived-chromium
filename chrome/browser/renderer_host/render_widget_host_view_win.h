@@ -22,6 +22,8 @@ class Rect;
 namespace IPC {
 class Message;
 }
+
+class BackingStore;
 class RenderWidgetHost;
 class WebMouseEvent;
 
@@ -137,6 +139,7 @@ class RenderWidgetHostViewWin :
   virtual void RenderViewGone();
   virtual void Destroy();
   virtual void SetTooltipText(const std::wstring& tooltip_text);
+  virtual BackingStore* AllocBackingStore(const gfx::Size& size);
 
  protected:
   // Windows Message Handlers

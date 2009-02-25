@@ -129,6 +129,10 @@ env_dll.Append(
         'sdch',
         'sqlite',
         'v8_snapshot',
+
+        'X11',
+        'Xrender',
+        'Xext',
     ],
 )
 

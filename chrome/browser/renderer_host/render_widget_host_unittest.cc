@@ -6,6 +6,7 @@
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "build/build_config.h"
+#include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -107,6 +108,10 @@ class TestView : public TestRenderWidgetHostView {
   // RenderWidgetHostView override.
   virtual gfx::Rect GetViewBounds() const {
     return bounds_;
+  }
+
+  BackingStore* AllocBackingStore(const gfx::Size& size) {
+    return new BackingStore(size);
   }
 
  protected:

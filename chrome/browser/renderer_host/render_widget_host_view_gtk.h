@@ -47,6 +47,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void RenderViewGone();
   void Destroy();
   void SetTooltipText(const std::wstring& tooltip_text);
+  BackingStore* AllocBackingStore(const gfx::Size& size);
   // ---------------------------------------------------------------------------
 
   gfx::NativeView native_view() const { return view_; }

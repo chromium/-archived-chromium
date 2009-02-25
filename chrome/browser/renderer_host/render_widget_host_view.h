@@ -17,6 +17,7 @@ namespace IPC {
 class Message;
 }
 
+class BackingStore;
 class RenderProcessHost;
 class RenderWidgetHost;
 class WebCursor;
@@ -108,6 +109,9 @@ class RenderWidgetHostView {
   // Tells the View that the tooltip text for the current mouse position over
   // the page has changed.
   virtual void SetTooltipText(const std::wstring& tooltip_text) = 0;
+
+  // Allocate a backing store for this view
+  virtual BackingStore* AllocBackingStore(const gfx::Size& size) = 0;
 
  protected:
   // Interface class only, do not construct.

@@ -208,6 +208,11 @@ void RenderWidgetHostViewMac::SetTooltipText(const std::wstring& tooltip_text) {
   }
 }
 
+BackingStore* RenderWidgetHostViewMac::AllocBackingStore(
+    const gfx::Size& size) {
+  return new BackingStore(size);
+}
+
 void RenderWidgetHostViewMac::ShutdownHost() {
   render_widget_host_->Shutdown();
   // Do not touch any members at this point, |this| has been deleted.

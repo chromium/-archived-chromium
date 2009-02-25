@@ -13,7 +13,13 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+#elif defined(OS_LINUX)
+#include "chrome/common/x11_util.h"
 #endif
+
+namespace gfx {
+class Size;
+}
 
 // -----------------------------------------------------------------------------
 // A TransportDIB is a block of memory that is used to transport pixels
@@ -94,6 +100,12 @@ class TransportDIB {
   // wire to give this transport DIB to another process.
   Handle handle() const;
 
+#if defined(OS_LINUX)
+  // Map the shared memory into the X server and return an id for the shared
+  // segment.
+  XID MapToX(Display* connection);
+#endif
+
  private:
   TransportDIB();
 #if defined(OS_WIN) || defined(OS_MACOSX)
@@ -103,6 +115,8 @@ class TransportDIB {
 #elif defined(OS_LINUX)
   int key_;  // SysV shared memory id
   void* address_;  // mapped address
+  XID x_shm_;  // X id for the shared segment
+  Display* display_;  // connection to the X server
 #endif
   size_t size_;  // length, in bytes
 };

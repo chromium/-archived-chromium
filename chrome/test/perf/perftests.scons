@@ -52,6 +52,10 @@ env.Prepend(
         'glue',
         'port',
         'renderer',
+
+        'X11',
+        'Xrender',
+        'Xext',
     ],
 )
 

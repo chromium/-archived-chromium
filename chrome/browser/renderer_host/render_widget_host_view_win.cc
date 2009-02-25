@@ -444,6 +444,11 @@ void RenderWidgetHostViewWin::SetTooltipText(const std::wstring& tooltip_text) {
   }
 }
 
+BackingStore* RenderWidgetHostViewWin::AllocBackingStore(
+    const gfx::Size& size) {
+  return new BackingStore(size);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewWin, private:
 

@@ -78,6 +78,7 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   virtual void RenderViewGone();
   virtual void Destroy();
   virtual void SetTooltipText(const std::wstring& tooltip_text);
+  virtual BackingStore* AllocBackingStore(const gfx::Size& size);
 
  private:
   // Shuts down the render_widget_host_.  This is a separate function so we can

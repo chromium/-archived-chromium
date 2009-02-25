@@ -230,6 +230,13 @@ BackingStore* RenderWidgetHost::GetBackingStore() {
   return backing_store;
 }
 
+BackingStore* RenderWidgetHost::AllocBackingStore(const gfx::Size& size) {
+  if (!view_)
+    return NULL;
+
+  return view_->AllocBackingStore(size);
+}
+
 void RenderWidgetHost::StartHangMonitorTimeout(TimeDelta delay) {
   time_when_considered_hung_ = Time::Now() + delay;
 
@@ -592,13 +599,9 @@ void RenderWidgetHost::PaintBackingStoreRect(TransportDIB* bitmap,
     return;
   }
 
-  // We use the view size according to the render view, which may not be
-  // quite the same as the size of our window.
-  gfx::Rect view_rect(0, 0, view_size.width(), view_size.height());
-
   bool needs_full_paint = false;
   BackingStore* backing_store =
-      BackingStoreManager::PrepareBackingStore(this, view_rect,
+      BackingStoreManager::PrepareBackingStore(this, view_size,
                                                process_->process().handle(),
                                                bitmap, bitmap_rect,
                                                &needs_full_paint);

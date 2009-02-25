@@ -7,8 +7,10 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+#include "base/gfx/size.h"
 #include "base/logging.h"
 #include "chrome/common/transport_dib.h"
+#include "chrome/common/x11_util.h"
 
 // The shmat system call uses this as it's invalid return address
 static void *const kInvalidAddress = (void*) -1;
@@ -16,6 +18,8 @@ static void *const kInvalidAddress = (void*) -1;
 TransportDIB::TransportDIB()
     : key_(-1),
       address_(kInvalidAddress),
+      x_shm_(0),
+      display_(NULL),
       size_(0) {
 }
 
@@ -23,6 +27,11 @@ TransportDIB::~TransportDIB() {
   if (address_ != kInvalidAddress) {
     shmdt(address_);
     address_ = kInvalidAddress;
+  }
+
+  if (x_shm_) {
+    DCHECK(display_);
+    x11_util::DetachSharedMemory(display_, x_shm_);
   }
 }
 
@@ -59,7 +68,7 @@ TransportDIB* TransportDIB::Map(Handle shmkey) {
   if (shmctl(shmkey, IPC_STAT, &shmst) == -1)
     return NULL;
 
-  void* address = shmat(shmkey, NULL /* desired address */, 0 /* flags */);
+  void* address = shmat(shmkey, NULL /* desired address */, SHM_RDONLY);
   if (address == kInvalidAddress)
     return NULL;
 
@@ -82,4 +91,13 @@ TransportDIB::Id TransportDIB::id() const {
 
 TransportDIB::Handle TransportDIB::handle() const {
   return key_;
+}
+
+XID TransportDIB::MapToX(Display* display) {
+  if (!x_shm_) {
+    x_shm_ = x11_util::AttachSharedMemory(display, key_);
+    display_ = display;
+  }
+
+  return x_shm_;
 }

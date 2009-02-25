@@ -19,7 +19,7 @@ BackingStore::BackingStore(const gfx::Size& size)
 BackingStore::~BackingStore() {
 }
 
-bool BackingStore::PaintRect(base::ProcessHandle process,
+void BackingStore::PaintRect(base::ProcessHandle process,
                              TransportDIB* bitmap,
                              const gfx::Rect& bitmap_rect) {
   SkBitmap skbitmap;
@@ -29,7 +29,6 @@ bool BackingStore::PaintRect(base::ProcessHandle process,
   skbitmap.setPixels(bitmap->memory());
 
   canvas_.drawBitmap(skbitmap, bitmap_rect.x(), bitmap_rect.y());
-  return true;
 }
 
 void BackingStore::ScrollRect(base::ProcessHandle process,

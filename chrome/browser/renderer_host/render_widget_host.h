@@ -174,6 +174,10 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // not be created.
   BackingStore* GetBackingStore();
 
+  // Allocate a new backing store of the given size. Returns NULL on failure
+  // (for example, if we don't currently have a RenderWidgetHostView.)
+  BackingStore* AllocBackingStore(const gfx::Size& size);
+
   // Checks to see if we can give up focus to this widget through a JS call.
   virtual bool CanBlur() const { return true; }
 

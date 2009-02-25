@@ -53,6 +53,10 @@ env.Prepend(
         'JavaScriptCore_pcre',
         'port',
         'WebCore',
+
+        'X11',
+        'Xrender',
+        'Xext',
     ],
 )
 
@@ -155,6 +159,7 @@ input_files = ChromeFileList([
     '$CHROME_DIR/browser/history/query_parser_unittest.cc',
     '$CHROME_DIR/browser/renderer_host/renderer_security_policy_unittest.cc',
     '$CHROME_DIR/browser/renderer_host/resource_dispatcher_host_unittest.cc',
+    '$CHROME_DIR/browser/renderer_host/test_render_view_host.cc',
     '$CHROME_DIR/browser/rlz/rlz_unittest.cc',
     '$CHROME_DIR/browser/safe_browsing/safe_browsing_database_unittest.cc',
     '$CHROME_DIR/browser/safe_browsing/safe_browsing_util_unittest.cc',

@@ -284,7 +284,8 @@ if env.Bit('windows'):
 
 if env.Bit('linux'):
   input_files.Append(
-      'transport_dib_linux.cc'
+      'transport_dib_linux.cc',
+      'x11_util.cc'
   )
 
 if env.Bit('mac'):
