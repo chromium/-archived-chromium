@@ -250,7 +250,6 @@ class SpellChecker::DictionaryDownloadController
         url_request_context_(url_request_context),
         ui_loop_(ui_loop) {
     // Determine dictionary file path and name.
-    fetcher_.reset(NULL);
     dic_zip_file_path_ = dic_file_path.DirName();
     file_name_ = dic_file_path.BaseName();
   }
@@ -286,7 +285,6 @@ class SpellChecker::DictionaryDownloadController
                                   const ResponseCookies& cookies,
                                   const std::string& data) {
     DCHECK(source);
-    fetcher_.reset(NULL);
     bool save_success = false;
     if ((response_code / 100) == 2 ||
         response_code == 401 ||
@@ -297,6 +295,7 @@ class SpellChecker::DictionaryDownloadController
     // Set Flag that dictionary is not downloading anymore.
     ui_loop_->PostTask(FROM_HERE,
                        new UIProxyForIOTask(spellchecker_flag_set_task_));
+    fetcher_.reset(NULL);
   }
 
   // factory object to invokelater back to spellchecker in io thread on
@@ -339,7 +338,7 @@ FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
   // languages (included below in the struct), the version is kept at 1-1. The
   // others (19 of them) have been updated to new default version 1-2 which
   // contains many new words.
-  // TODO (sidchat): Work on these 8 languages to bring them upto version 1-2.
+  // TODO(sidchat): Work on these 8 languages to bring them upto version 1-2.
   static const struct {
     // The language input.
     const char* language;
@@ -476,7 +475,7 @@ void SpellChecker::AddCustomWordsToHunspell() {
   // Add custom words to Hunspell.
   // This should be done in File Loop, but since Hunspell is in this IO Loop,
   // this too has to be initialized here.
-  // TODO (sidchat): Work out a way to initialize Hunspell in the File Loop.
+  // TODO(sidchat): Work out a way to initialize Hunspell in the File Loop.
   std::string contents;
   file_util::ReadFileToString(custom_dictionary_file_name_, &contents);
   std::vector<std::string> list_of_words;
