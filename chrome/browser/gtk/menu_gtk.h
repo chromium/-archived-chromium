@@ -38,8 +38,7 @@ class MenuGtk {
 
   // Builds a MenuGtk that uses |delegate| to perform actions and |menu_data|
   // to create the menu.
-  MenuGtk(MenuGtk::Delegate* delegate, const MenuCreateMaterial* menu_data,
-          GtkAccelGroup* accel_group);
+  MenuGtk(MenuGtk::Delegate* delegate, const MenuCreateMaterial* menu_data);
   // Builds a MenuGtk that uses |delegate| to create the menu as well as perform
   // actions.
   explicit MenuGtk(MenuGtk::Delegate* delegate);
@@ -84,12 +83,6 @@ class MenuGtk {
 
   // Queries this object about the menu state.
   MenuGtk::Delegate* delegate_;
-
-  // Accelerator group to add keyboard accelerators to.
-  GtkAccelGroup* accel_group_;
-
-  // The window this menu is attached to.
-  GtkWindow* window_;
 
   // gtk_menu_popup() does not appear to take ownership of popup menus, so
   // MenuGtk explicitly manages the lifetime of the menu.

@@ -148,9 +148,7 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
   }
 }
 
-WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event)
-    : gdk_keyval(event->keyval),
-      gdk_modifier(event->state) {
+WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {
   modifiers = GdkStateToWebEventModifiers(event->state);
 
   // GDK only exposes key press and release events.  By contrast,

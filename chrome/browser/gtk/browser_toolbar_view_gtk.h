@@ -35,7 +35,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   virtual ~BrowserToolbarGtk();
 
   // Create the contents of the toolbar
-  void Init(Profile* profile, GtkAccelGroup* accel_group);
+  void Init(Profile* profile);
 
   // Adds this GTK toolbar into a sizing box.
   void AddToolbarToBox(GtkWidget* box);
@@ -70,13 +70,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
       int icon_id,
       const std::wstring& localized_tooltip);
 
-  // Adds a keyboard accelerator which trigers a button. (i.e., Ctrl+R is now
-  // equivalent to a reload click).
-  void AddAcceleratorToButton(
-      const scoped_ptr<CustomDrawButton>& button,
-      unsigned int accelerator,
-      unsigned int accelerator_mod);
-
   // Gtk callback for the "activate" signal on the |entry_| widget. Responds to
   // enter.
   static void OnEntryActivate(GtkEntry *entry, BrowserToolbarGtk* toolbar);
@@ -107,9 +100,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   // Our temporary URL bar (until we get the omnibox up).
   GtkWidget* entry_;
-
-  // A pointer to our window's accelerator list.
-  GtkAccelGroup* accel_group_;
 
   // All the buttons in the toolbar.
   scoped_ptr<CustomDrawButton> back_, forward_;

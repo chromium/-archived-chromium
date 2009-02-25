@@ -19,7 +19,6 @@ class NSEvent;
 class NSView;
 #endif  // __OBJC__
 #elif defined(OS_LINUX)
-#include <glib.h>
 typedef struct _GdkEventButton GdkEventButton;
 typedef struct _GdkEventMotion GdkEventMotion;
 typedef struct _GdkEventScroll GdkEventScroll;
@@ -149,12 +148,6 @@ class WebKeyboardEvent : public WebInputEvent {
   // to stuff everything into key_code, or make this field shared by all
   // implementations, but this will have to do for now.
   wchar_t text;
-
-  // Stores the GDK keyval and modifier state of the GdkEventKey; this is used
-  // to transport these values across IPC so they can be used in the front end
-  // code.
-  guint gdk_keyval;
-  guint gdk_modifier;
 #endif
 
   WebKeyboardEvent() 
