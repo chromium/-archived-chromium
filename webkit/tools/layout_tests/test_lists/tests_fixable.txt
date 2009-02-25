@@ -561,10 +561,6 @@ LINUX : LayoutTests/svg/carto.net/combobox.svg = FAIL
 LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL PASS
 LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
 
-// http://crbug.com/4618
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH PASS
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH PASS
-
 // These have been failing for as long as we've had SVG support and were
 // incorrectly removed during a merge.
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
@@ -574,9 +570,6 @@ LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = 
 
 // WebKit Merge 38950:39000 failures:
 LINUX WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
-
-// http://crbug.com/5294 and http://crbug.com/4618
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-ry-attr.html = CRASH PASS
 
 // Linux pixeltest failure: slightly different shade of composited
 // alpha in bottom group.
@@ -771,19 +764,6 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
 // This test seems to fail on the builders but not locally.
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
-
-// This test causes a freed memory read which leads to a crash in debug mode.
-// Bug has been filed upstream:
-//     https://bugs.webkit.org/show_bug.cgi?id=23180
-//
-// This test also produces an unending stream of blank lines on stderr,
-// which makes it hang the test harness.
-SKIP DEBUG : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH
-
-// One of these svg tests sometimes crash in debug mode.  It seems to only
-// happen when all the dynamic-updates tests are run together.
-DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH PASS
-DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-height-attr.html = CRASH PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
 // New test. We should fix it, but it doesn't need to block the current release
