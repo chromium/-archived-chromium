@@ -581,11 +581,9 @@ void BrowserView::SetStarredState(bool is_starred) {
 }
 
 gfx::Rect BrowserView::GetNormalBounds() const {
-  // If we're in fullscreen mode, we've changed the rect associated with the
-  // current window style to the monitor rect.  If we weren't maximized, that
-  // means it's the rcNormalPosition which has been changed, so we need to
-  // return the saved rect here instead of the current one.
-  if (fullscreen_ && !IsMaximized())
+  // If we're in fullscreen mode, we've changed the normal bounds to the monitor
+  // rect, so return the saved bounds instead.
+  if (fullscreen_)
     return gfx::Rect(saved_window_info_.window_rect);
 
   WINDOWPLACEMENT wp;
@@ -623,9 +621,13 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   // Size/position/style window appropriately.
   views::Widget* widget = GetWidget();
   HWND hwnd = widget->GetHWND();
-  gfx::Rect new_rect;
   if (fullscreen_) {
-    // Save current window information.
+    // Save current window information.  We force the window into restored mode
+    // before going fuillscreen because Windows doesn't seem to hide the
+    // taskbar if the window is in the maximized state.
+    saved_window_info_.maximized = IsMaximized();
+    if (saved_window_info_.maximized)
+      frame_->GetWindow()->ExecuteSystemMenuCommand(SC_RESTORE);
     saved_window_info_.style = GetWindowLong(hwnd, GWL_STYLE);
     saved_window_info_.ex_style = GetWindowLong(hwnd, GWL_EXSTYLE);
     GetWindowRect(hwnd, &saved_window_info_.window_rect);
@@ -640,16 +642,23 @@ void BrowserView::SetFullscreen(bool fullscreen) {
     monitor_info.cbSize = sizeof(monitor_info);
     GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY),
                    &monitor_info);
-    new_rect = monitor_info.rcMonitor;
+    gfx::Rect new_rect(monitor_info.rcMonitor);
+    SetWindowPos(hwnd, NULL, new_rect.x(), new_rect.y(), new_rect.width(),
+                 new_rect.height(),
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
   } else {
-    // Reset original window style and size.
+    // Reset original window style and size.  The multiple window size/moves
+    // here are ugly, but if SetWindowPos() doesn't redraw, the taskbar won't be
+    // repainted.  Better-looking methods welcome.
+    gfx::Rect new_rect(saved_window_info_.window_rect);
     SetWindowLong(hwnd, GWL_STYLE, saved_window_info_.style);
     SetWindowLong(hwnd, GWL_EXSTYLE, saved_window_info_.ex_style);
-    new_rect = saved_window_info_.window_rect;
+    SetWindowPos(hwnd, NULL, new_rect.x(), new_rect.y(), new_rect.width(),
+                 new_rect.height(),
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    if (saved_window_info_.maximized)
+      frame_->GetWindow()->ExecuteSystemMenuCommand(SC_MAXIMIZE);
   }
-  // This will cause the window to re-layout.
-  SetWindowPos(hwnd, NULL, new_rect.x(), new_rect.y(), new_rect.width(),
-      new_rect.height(), SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 
   // Turn fullscreen bubble on or off.
   fullscreen_bubble_.reset(fullscreen_ ?
