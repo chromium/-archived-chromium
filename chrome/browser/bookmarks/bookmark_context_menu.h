@@ -7,8 +7,16 @@
 
 #include <vector>
 
+#include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+
+// TODO(port): Port this file.
+#if defined(OS_WIN)
 #include "chrome/views/chrome_menu.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class Browser;
 class PageNavigator;
@@ -40,7 +48,7 @@ class BookmarkContextMenu : public views::MenuDelegate,
   // |parent| is the parent for newly created nodes if |selection| is empty.
   // |selection| is the nodes the context menu operates on and may be empty.
   // |configuration| determines which items to show.
-  BookmarkContextMenu(HWND hwnd,
+  BookmarkContextMenu(gfx::NativeWindow hwnd,
                       Profile* profile,
                       Browser* browser,
                       PageNavigator* navigator,
@@ -96,7 +104,7 @@ class BookmarkContextMenu : public views::MenuDelegate,
   // parent_ is returned.
   BookmarkNode* GetParentForNewNodes() const;
 
-  HWND hwnd_;
+  gfx::NativeWindow wnd_;
   Profile* profile_;
   Browser* browser_;
   PageNavigator* navigator_;

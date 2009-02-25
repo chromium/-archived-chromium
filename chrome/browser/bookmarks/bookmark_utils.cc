@@ -5,7 +5,6 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 
 #include "base/basictypes.h"
-#include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"

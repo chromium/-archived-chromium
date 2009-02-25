@@ -4,15 +4,20 @@
 
 #include "chrome/browser/bookmarks/bookmark_drop_info.h"
 
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
+
+#include "base/basictypes.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view_constants.h"
 
-BookmarkDropInfo::BookmarkDropInfo(HWND hwnd, int top_margin)
+BookmarkDropInfo::BookmarkDropInfo(gfx::NativeWindow wnd, int top_margin)
     : source_operations_(0),
       is_control_down_(false),
       last_y_(0),
       drop_operation_(0),
-      hwnd_(hwnd),
+      wnd_(wnd),
       top_margin_(top_margin),
       scroll_up_(false) {
 }
@@ -22,10 +27,16 @@ void BookmarkDropInfo::Update(const views::DropTargetEvent& event) {
   is_control_down_ = event.IsControlDown();
   last_y_ = event.y();
 
+#if defined(OS_WIN)
   RECT client_rect;
-  GetClientRect(hwnd_, &client_rect);
-  scroll_up_ = (last_y_ <= top_margin_ + views::kAutoscrollSize);
+  GetClientRect(wnd_, &client_rect);
   bool scroll_down = (last_y_ >= client_rect.bottom - views::kAutoscrollSize);
+#else
+  // TODO(port): Get the dimensions of the appropriate view/widget.
+  NOTIMPLEMENTED();
+  bool scroll_down = false;
+#endif
+  scroll_up_ = (last_y_ <= top_margin_ + views::kAutoscrollSize);
   if (scroll_up_ || scroll_down) {
     if (!scroll_timer_.IsRunning()) {
       scroll_timer_.Start(
@@ -39,6 +50,11 @@ void BookmarkDropInfo::Update(const views::DropTargetEvent& event) {
 }
 
 void BookmarkDropInfo::Scroll() {
-  SendMessage(hwnd_, WM_VSCROLL, scroll_up_ ? SB_LINEUP : SB_LINEDOWN, NULL);
+#if defined(OS_WIN)
+  SendMessage(wnd_, WM_VSCROLL, scroll_up_ ? SB_LINEUP : SB_LINEDOWN, NULL);
   Scrolled();
+#else
+  // TODO(port): Scroll the appropriate view/widget.
+  NOTIMPLEMENTED();
+#endif
 }

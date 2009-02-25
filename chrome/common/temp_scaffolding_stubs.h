@@ -20,6 +20,7 @@
 #include "base/ref_counted.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/cancelable_request.h"
@@ -53,6 +54,7 @@
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/window_open_disposition.h"
 
+class BookmarkContextMenu;
 class Browser;
 class CommandLine;
 class ConstrainedWindow;
@@ -286,12 +288,89 @@ class TableModel {
   virtual int RowCount() = 0;
 };
 
+class MenuItemView {
+ public:
+  enum Type {
+    NORMAL,
+    SUBMENU,
+    CHECKBOX,
+    RADIO,
+    SEPARATOR
+  };
+  enum AnchorPosition {
+    TOPLEFT,
+    TOPRIGHT
+  };
+  MenuItemView(BookmarkContextMenu*) { NOTIMPLEMENTED(); }
+  void RunMenuAt(gfx::NativeWindow parent, const gfx::Rect& bounds,
+                 AnchorPosition anchor, bool has_mnemonics) {
+    NOTIMPLEMENTED();
+  }
+  void Cancel() { NOTIMPLEMENTED(); }
+  void AppendMenuItem(int item_id, const std::wstring& label, Type type) {
+    NOTIMPLEMENTED();
+  }
+  void AppendMenuItemWithLabel(int item_id, const std::wstring& label) {
+    NOTIMPLEMENTED();
+  }
+  void AppendSeparator() { NOTIMPLEMENTED(); }
+};
+
+class MenuDelegate {
+};
+
+class Window {
+ public:
+  void Show() { NOTIMPLEMENTED(); }
+  virtual void Close() { NOTIMPLEMENTED(); }
+};
+
 }  // namespace views
+
+class InputWindowDelegate {
+};
 
 class Menu {
  public:
   class Delegate {
   };
+};
+
+views::Window* CreateInputWindow(gfx::NativeWindow parent_hwnd,
+                                 InputWindowDelegate* delegate);
+
+class BookmarkManagerView {
+ public:
+   static BookmarkManagerView* current() {
+     NOTIMPLEMENTED();
+     return NULL;
+   }
+   static void Show(Profile* profile) { NOTIMPLEMENTED(); }
+   void SelectInTree(BookmarkNode* node) { NOTIMPLEMENTED(); }
+   Profile* profile() const {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+};
+
+class BookmarkEditorView {
+ public:
+  class Handler {
+  };
+  enum Configuration {
+    SHOW_TREE,
+    NO_TREE
+  };
+  static void Show(gfx::NativeWindow parent_window, Profile* profile,
+                   BookmarkNode* parent, BookmarkNode* node,
+                   Configuration configuration, Handler* handler) {
+    NOTIMPLEMENTED();
+  }
+};
+
+class BookmarkBarView {
+ public:
+  static void ToggleWhenVisible(Profile* profile) { NOTIMPLEMENTED(); }
 };
 
 //---------------------------------------------------------------------------

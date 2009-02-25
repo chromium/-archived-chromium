@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/history/snippet.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -42,27 +43,23 @@ void CloneDragData(BookmarkModel* model,
                    BookmarkNode* parent,
                    int index_to_add_at);
 
-#if defined(OS_WIN)
-// TODO(port): Make OpenAll portable (remove HWND).
-
 // Recursively opens all bookmarks. |initial_disposition| dictates how the
 // first URL is opened, all subsequent URLs are opened as background tabs.
 // |navigator| is used to open the URLs. If |navigator| is NULL the last
 // tabbed browser with the profile |profile| is used. If there is no browser
 // with the specified profile a new one is created.
-void OpenAll(HWND parent,
+void OpenAll(gfx::NativeWindow parent,
              Profile* profile,
              PageNavigator* navigator,
              const std::vector<BookmarkNode*>& nodes,
              WindowOpenDisposition initial_disposition);
 
 // Convenience for opening a single BookmarkNode.
-void OpenAll(HWND parent,
+void OpenAll(gfx::NativeWindow parent,
              Profile* profile,
              PageNavigator* navigator,
              BookmarkNode* node,
              WindowOpenDisposition initial_disposition);
-#endif  // defined(OS_WIN)
 
 // Copies nodes onto the clipboard. If |remove_nodes| is true the nodes are
 // removed after copied to the clipboard. The nodes are copied in such a way

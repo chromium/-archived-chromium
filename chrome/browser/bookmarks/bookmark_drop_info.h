@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_DROP_INFO_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_DROP_INFO_H_
 
-#include <windows.h>
-
+#include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/timer.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 
@@ -20,7 +20,7 @@ class DropTargetEvent;
 // BookmarksFolderTreeView.
 class BookmarkDropInfo {
  public:
-  BookmarkDropInfo(HWND hwnd, int top_margin);
+  BookmarkDropInfo(gfx::NativeWindow hwnd, int top_margin);
   virtual ~BookmarkDropInfo() {}
 
   // Invoke this from OnDragUpdated. It resets source_operations,
@@ -67,7 +67,7 @@ class BookmarkDropInfo {
 
   int drop_operation_;
 
-  HWND hwnd_;
+  gfx::NativeWindow wnd_;
 
   // Margin in addition to views::kAutoscrollSize that the mouse is allowed to
   // be over before we autoscroll.

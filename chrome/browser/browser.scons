@@ -670,8 +670,6 @@ if not env.Bit('windows'):
       'automation/automation_provider.cc',
       'automation/automation_provider_list.cc',
       'automation/ui_controls.cc',
-      'bookmarks/bookmark_context_menu.cc',
-      'bookmarks/bookmark_drop_info.cc',
       'browser_accessibility.cc',
       'browser_accessibility_manager.cc',
       'chrome_plugin_host.cc',

@@ -416,3 +416,9 @@ DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
 DOMMessageHandler::~DOMMessageHandler() {
   NOTIMPLEMENTED();
 }
+
+views::Window* CreateInputWindow(gfx::NativeWindow parent_hwnd,
+                                 InputWindowDelegate* delegate) {
+  NOTIMPLEMENTED();
+  return new views::Window();
+}

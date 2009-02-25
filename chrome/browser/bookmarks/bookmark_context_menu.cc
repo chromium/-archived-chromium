@@ -11,16 +11,20 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
+#include "grit/generated_resources.h"
+
+// TODO(port): Port these files.
+#if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/input_window.h"
-#include "chrome/common/l10n_util.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/views/window.h"
-#include "grit/generated_resources.h"
+#endif
 
 namespace {
 
@@ -52,19 +56,19 @@ class EditFolderController : public InputWindowDelegate,
   }
 
   static void Show(Profile* profile,
-                   HWND hwnd,
+                   gfx::NativeWindow wnd,
                    BookmarkNode* node,
                    bool is_new,
                    bool show_in_manager) {
     // EditFolderController deletes itself when done.
     EditFolderController* controller =
-        new EditFolderController(profile, hwnd, node, is_new, show_in_manager);
+        new EditFolderController(profile, wnd, node, is_new, show_in_manager);
     controller->Show();
   }
 
  private:
   EditFolderController(Profile* profile,
-                       HWND hwnd,
+                       gfx::NativeWindow wnd,
                        BookmarkNode* node,
                        bool is_new,
                        bool show_in_manager)
@@ -74,7 +78,7 @@ class EditFolderController : public InputWindowDelegate,
         is_new_(is_new),
         show_in_manager_(show_in_manager) {
     DCHECK(is_new_ || node);
-    window_ = CreateInputWindow(hwnd, this);
+    window_ = CreateInputWindow(wnd, this);
     model_->AddObserver(this);
   }
 
@@ -209,14 +213,14 @@ class SelectOnCreationHandler : public BookmarkEditorView::Handler {
 // BookmarkContextMenu -------------------------------------------
 
 BookmarkContextMenu::BookmarkContextMenu(
-    HWND hwnd,
+    gfx::NativeWindow wnd,
     Profile* profile,
     Browser* browser,
     PageNavigator* navigator,
     BookmarkNode* parent,
     const std::vector<BookmarkNode*>& selection,
     ConfigurationType configuration)
-    : hwnd_(hwnd),
+    : wnd_(wnd),
       profile_(profile),
       browser_(browser),
       navigator_(navigator),
@@ -320,7 +324,7 @@ void BookmarkContextMenu::RunMenuAt(int x, int y) {
   views::MenuItemView::AnchorPosition anchor =
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
       views::MenuItemView::TOPRIGHT : views::MenuItemView::TOPLEFT;
-  menu_->RunMenuAt(hwnd_, gfx::Rect(x, y, 0, 0), anchor, true);
+  menu_->RunMenuAt(wnd_, gfx::Rect(x, y, 0, 0), anchor, true);
 }
 
 void BookmarkContextMenu::ExecuteCommand(int id) {
@@ -345,7 +349,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
             L"BookmarkBar_ContextMenu_OpenAllIncognito", profile_);
       }
 
-      bookmark_utils::OpenAll(hwnd_, profile_, navigator, selection_,
+      bookmark_utils::OpenAll(wnd_, profile_, navigator, selection_,
                               initial_disposition);
       break;
     }
@@ -365,10 +369,10 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
           editor_config = BookmarkEditorView::SHOW_TREE;
         else
           editor_config = BookmarkEditorView::NO_TREE;
-        BookmarkEditorView::Show(hwnd_, profile_, NULL, selection_[0],
+        BookmarkEditorView::Show(wnd_, profile_, NULL, selection_[0],
                                  editor_config, NULL);
       } else {
-        EditFolderController::Show(profile_, hwnd_, selection_[0], false,
+        EditFolderController::Show(profile_, wnd_, selection_[0], false,
                                    false);
       }
       break;
@@ -397,7 +401,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         // This is owned by the BookmarkEditorView.
         handler = new SelectOnCreationHandler(profile_);
       }
-      BookmarkEditorView::Show(hwnd_, profile_, GetParentForNewNodes(), NULL,
+      BookmarkEditorView::Show(wnd_, profile_, GetParentForNewNodes(), NULL,
                                editor_config, handler);
       break;
     }
@@ -406,7 +410,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_NewFolder",
                                 profile_);
 
-      EditFolderController::Show(profile_, hwnd_, GetParentForNewNodes(),
+      EditFolderController::Show(profile_, wnd_, GetParentForNewNodes(),
                                  true, (configuration_ != BOOKMARK_BAR));
       break;
     }
