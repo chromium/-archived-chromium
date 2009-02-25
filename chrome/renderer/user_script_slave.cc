@@ -119,10 +119,8 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
     HISTOGRAM_TIMES("UserScripts:DocEnd:Time", timer.Elapsed());
   }
 
-  if (num_matched > 0) {
-    LOG(INFO) << "Injected " << num_matched << " scripts into " <<
-        frame->GetURL().spec();
-  }
+  LOG(INFO) << "Injected " << num_matched << " scripts into " <<
+      frame->GetURL().spec();
 
   return true;
 }
