@@ -837,43 +837,36 @@ bool RootView::IsViewFocusableCandidate(View* v, int skip_group_id) {
        v->GetGroup() != skip_group_id);
 }
 
-void RootView::ProcessKeyEvent(const KeyEvent& event) {
-  View* v;
+bool RootView::ProcessKeyEvent(const KeyEvent& event) {
   bool consumed = false;
 
-  if (GetFocusedView()) {
+  View* v = GetFocusedView();
 #if defined(OS_WIN)
-    // Special case to handle right-click context menus triggered by the
-    // keyboard.
-    if ((event.GetCharacter() == VK_APPS) ||
-        (event.GetCharacter() == VK_F10 && event.IsShiftDown())) {
-      v = GetFocusedView();
-      if (v->IsEnabled()) {
-        gfx::Point screen_loc = v->GetKeyboardContextMenuLocation();
-        v->ShowContextMenu(screen_loc.x(), screen_loc.y(), false);
-        return;
-      }
-    }
+  // Special case to handle right-click context menus triggered by the
+  // keyboard.
+  if (v && v->IsEnabled() && ((event.GetCharacter() == VK_APPS) ||
+      (event.GetCharacter() == VK_F10 && event.IsShiftDown()))) {
+    gfx::Point screen_loc = v->GetKeyboardContextMenuLocation();
+    v->ShowContextMenu(screen_loc.x(), screen_loc.y(), false);
+    return true;
+  }
 #else
-    // TODO(port): The above block needs the VK_* refactored out.
-    NOTIMPLEMENTED();
+  // TODO(port): The above block needs the VK_* refactored out.
+  NOTIMPLEMENTED();
 #endif
 
-    for (v = GetFocusedView();
-         v && v != this && !consumed; v = v->GetParent()) {
-      if (event.GetType() == Event::ET_KEY_PRESSED)
-        consumed = v->OnKeyPressed(event);
-      else
-        consumed = v->OnKeyReleased(event);
-    }
+  for (; v && v != this && !consumed; v = v->GetParent()) {
+    consumed = (event.GetType() == Event::ET_KEY_PRESSED) ?
+        v->OnKeyPressed(event) : v->OnKeyReleased(event);
   }
 
   if (!consumed && default_keyboard_hander_) {
-    if (event.GetType() == Event::ET_KEY_PRESSED)
-      default_keyboard_hander_->OnKeyPressed(event);
-    else
-      default_keyboard_hander_->OnKeyReleased(event);
+    consumed = (event.GetType() == Event::ET_KEY_PRESSED) ?
+        default_keyboard_hander_->OnKeyPressed(event) :
+        default_keyboard_hander_->OnKeyReleased(event);
   }
+
+  return consumed;
 }
 
 bool RootView::ProcessMouseWheelEvent(const MouseWheelEvent& e) {

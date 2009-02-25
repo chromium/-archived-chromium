@@ -518,12 +518,12 @@ LRESULT WidgetWin::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param) {
 
 void WidgetWin::OnKeyDown(TCHAR c, UINT rep_cnt, UINT flags) {
   KeyEvent event(Event::ET_KEY_PRESSED, c, rep_cnt, flags);
-  root_view_->ProcessKeyEvent(event);
+  SetMsgHandled(root_view_->ProcessKeyEvent(event));
 }
 
 void WidgetWin::OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags) {
   KeyEvent event(Event::ET_KEY_RELEASED, c, rep_cnt, flags);
-  root_view_->ProcessKeyEvent(event);
+  SetMsgHandled(root_view_->ProcessKeyEvent(event));
 }
 
 void WidgetWin::OnLButtonDown(UINT flags, const CPoint& point) {

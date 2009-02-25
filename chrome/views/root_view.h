@@ -118,9 +118,10 @@ class RootView : public View,
   // no View currently has the focus.
   View* GetFocusedView();
 
-  // Process a key event. Send the event to the focused view and up
-  // the focus path until the event is consumed.
-  virtual void ProcessKeyEvent(const KeyEvent& event);
+  // Process a key event. Send the event to the focused view and up the focus
+  // path, and finally to the default keyboard handler, until someone consumes
+  // it.  Returns whether anyone consumed the event.
+  bool ProcessKeyEvent(const KeyEvent& event);
 
   // Set the default keyboard handler. The default keyboard handler is
   // a view that will get an opportunity to process key events when all
