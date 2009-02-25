@@ -8,8 +8,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/time_format.h"
-
-#include "generated_resources.h"
+#include "grit/generated_resources.h"
 
 // The path used in internal URLs to file icon data.
 static const char kFileIconPath[] = "fileicon";
