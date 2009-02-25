@@ -114,9 +114,9 @@ XRenderPictFormat* GetRenderARGB32Format(Display* dpy) {
   XRenderPictFormat templ;
   templ.depth = 32;
   templ.type = PictTypeDirect;
-  templ.direct.red = 0;
+  templ.direct.red = 16;
   templ.direct.green = 8;
-  templ.direct.blue = 16;
+  templ.direct.blue = 0;
   templ.direct.redMask = 0xff;
   templ.direct.greenMask = 0xff;
   templ.direct.blueMask = 0xff;
