@@ -131,13 +131,11 @@ class PluginTest : public UITest {
   }
 };
 
-// Disabling all tests to make buildbot green. See -
-// http://code.google.com/p/chromium/issues/detail?id=7983
-TEST_F(PluginTest, DISABLED_Quicktime) {
+TEST_F(PluginTest, Quicktime) {
   TestPlugin(L"quicktime.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, DISABLED_MediaPlayerNew) {
+TEST_F(PluginTest, MediaPlayerNew) {
   TestPlugin(L"wmp_new.html", kShortWaitTimeout);
 }
 
@@ -146,27 +144,27 @@ TEST_F(PluginTest, DISABLED_MediaPlayerOld) {
   TestPlugin(L"wmp_old.html", kLongWaitTimeout);
 }
 
-TEST_F(PluginTest, DISABLED_Real) {
+TEST_F(PluginTest, Real) {
   TestPlugin(L"real.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, DISABLED_Flash) {
+TEST_F(PluginTest, Flash) {
   TestPlugin(L"flash.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, DISABLED_FlashOctetStream) {
+TEST_F(PluginTest, FlashOctetStream) {
   TestPlugin(L"flash-octet-stream.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, DISABLED_FlashSecurity) {
+TEST_F(PluginTest, FlashSecurity) {
   TestPlugin(L"flash.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, DISABLED_Java) {
+TEST_F(PluginTest, Java) {
   TestPlugin(L"Java.html", kShortWaitTimeout);
 }
 
-TEST_F(PluginTest, DISABLED_Silverlight) {
+TEST_F(PluginTest, Silverlight) {
   TestPlugin(L"silverlight.html", kShortWaitTimeout);
 }
 
@@ -211,15 +209,15 @@ class ActiveXTest : public PluginTest {
   bool dll_registered;
 };
 
-TEST_F(ActiveXTest, DISABLED_EmbeddedWMP) {
+TEST_F(ActiveXTest, EmbeddedWMP) {
   TestActiveX(L"activex_embedded_wmp.html", kLongWaitTimeout, false);
 }
 
-TEST_F(ActiveXTest, DISABLED_WMP) {
+TEST_F(ActiveXTest, WMP) {
   TestActiveX(L"activex_wmp.html", kLongWaitTimeout, false);
 }
 
-TEST_F(ActiveXTest, DISABLED_CustomScripting) {
+TEST_F(ActiveXTest, CustomScripting) {
   TestActiveX(L"activex_custom_scripting.html", kShortWaitTimeout, true);
 }
 
