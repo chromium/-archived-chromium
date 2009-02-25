@@ -719,7 +719,6 @@ if not env.Bit('windows'):
       'tab_contents/web_drop_target.cc',
       'task_manager.cc',
       'task_manager_resource_providers.cc',
-      'toolbar_model.cc',
       'views/download_tab_view.cc',
       'window_sizer.cc',
   )

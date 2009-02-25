@@ -568,6 +568,10 @@
 		E4A3EB130F4EFCF400596CC2 /* grow_box_view.m in Sources */ = {isa = PBXBuildFile; fileRef = E4A3EB120F4EFCF400596CC2 /* grow_box_view.m */; };
 		E4A3EB390F4EFF4D00596CC2 /* grow_box.png in Resources */ = {isa = PBXBuildFile; fileRef = E4A3EB380F4EFF4D00596CC2 /* grow_box.png */; };
 		E4BD52C30F548EBD00591DFA /* new_tab_ui.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4BD520E0F53596600591DFA /* new_tab_ui.cc */; };
+		E4BD54D00F55A72100591DFA /* toolbar_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF94F0E9D4839009A6919 /* toolbar_model.cc */; };
+		E4BD55140F55AB3700591DFA /* text_elider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4BD55120F55AB3700591DFA /* text_elider.cc */; };
+		E4BD55490F55AE6900591DFA /* chrome_font_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4BD55480F55AE6900591DFA /* chrome_font_mac.mm */; };
+		E4BD55C90F55BBC500591DFA /* chrome_font_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4BD55C80F55BBC500591DFA /* chrome_font_unittest.cc */; };
 		E4DCDB9D0F4091C00084059A /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
 		E4DCDC8F0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */; };
 		E4DCDC900F40929C0084059A /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
@@ -2836,6 +2840,11 @@
 		E4A3EB380F4EFF4D00596CC2 /* grow_box.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = grow_box.png; path = theme/grow_box.png; sourceTree = "<group>"; };
 		E4BD520E0F53596600591DFA /* new_tab_ui.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = new_tab_ui.cc; path = dom_ui/new_tab_ui.cc; sourceTree = "<group>"; };
 		E4BD520F0F53596600591DFA /* new_tab_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = new_tab_ui.h; path = dom_ui/new_tab_ui.h; sourceTree = "<group>"; };
+		E4BD55120F55AB3700591DFA /* text_elider.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text_elider.cc; sourceTree = "<group>"; };
+		E4BD55130F55AB3700591DFA /* text_elider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text_elider.h; sourceTree = "<group>"; };
+		E4BD55480F55AE6900591DFA /* chrome_font_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = chrome_font_mac.mm; sourceTree = "<group>"; };
+		E4BD55C80F55BBC500591DFA /* chrome_font_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_font_unittest.cc; sourceTree = "<group>"; };
+		E4BD56570F55C96B00591DFA /* text_elider_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text_elider_unittest.cc; sourceTree = "<group>"; };
 		E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
 		E4F324400EE5CE94002533CE /* extension.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extension.cc; sourceTree = "<group>"; };
@@ -3882,6 +3891,8 @@
 			children = (
 				4D7BFCA90E9D4D5D009A6919 /* chrome_canvas.cc */,
 				4D7BFCAA0E9D4D5D009A6919 /* chrome_canvas.h */,
+				E4BD55480F55AE6900591DFA /* chrome_font_mac.mm */,
+				E4BD55C80F55BBC500591DFA /* chrome_font_unittest.cc */,
 				4D7BFCAC0E9D4D5D009A6919 /* chrome_font.h */,
 				4D7BFCAD0E9D4D5D009A6919 /* color_utils.cc */,
 				4D7BFCAE0E9D4D5D009A6919 /* color_utils.h */,
@@ -3895,6 +3906,9 @@
 				4D7BFCB60E9D4D5D009A6919 /* insets.h */,
 				4D7BFCB70E9D4D5D009A6919 /* path.cc */,
 				4D7BFCB80E9D4D5D009A6919 /* path.h */,
+				E4BD56570F55C96B00591DFA /* text_elider_unittest.cc */,
+				E4BD55120F55AB3700591DFA /* text_elider.cc */,
+				E4BD55130F55AB3700591DFA /* text_elider.h */,
 				4D7BFCBC0E9D4D5D009A6919 /* utils.h */,
 			);
 			path = gfx;
@@ -5662,6 +5676,7 @@
 				4D7BFA320E9D4912009A6919 /* text_database.cc in Sources */,
 				4D7BFA370E9D4915009A6919 /* text_database_manager.cc in Sources */,
 				4D7BFA390E9D4918009A6919 /* thumbnail_database.cc in Sources */,
+				E4BD54D00F55A72100591DFA /* toolbar_model.cc in Sources */,
 				E4F324600EE5D011002533CE /* url_database.cc in Sources */,
 				8F51B73AAAF1772ECF9BD180 /* url_fetcher.cc in Sources */,
 				3AEA44DB19C9D93B63D7A2E4 /* url_fetcher_protect.cc in Sources */,
@@ -5693,6 +5708,7 @@
 				4D7BFB6D0E9D4C51009A6919 /* bloom_filter_unittest.cc in Sources */,
 				4D7BFCE10E9D4DC8009A6919 /* bzip2_unittest.cc in Sources */,
 				826853320F30ADF5009F6555 /* child_process.cc in Sources */,
+				E4BD55C90F55BBC500591DFA /* chrome_font_unittest.cc in Sources */,
 				826853380F30AE0C009F6555 /* chrome_plugin_lib.cc in Sources */,
 				4D7BFB350E9D4C18009A6919 /* chrome_thread_unittest.cc in Sources */,
 				4D7BFB710E9D4C55009A6919 /* chunk_range_unittest.cc in Sources */,
@@ -5771,6 +5787,7 @@
 				B562E2D50F05834500FB1A4F /* chrome_canvas.cc in Sources */,
 				4D7BFC280E9D4CEB009A6919 /* chrome_constants.cc in Sources */,
 				4D7BFC2A0E9D4CED009A6919 /* chrome_counters.cc in Sources */,
+				E4BD55490F55AE6900591DFA /* chrome_font_mac.mm in Sources */,
 				E4F3256E0EE82C83002533CE /* chrome_paths.cc in Sources */,
 				4D175916B2FC058793051209 /* chrome_paths_mac.cc in Sources */,
 				4D7BFC2C0E9D4CF1009A6919 /* chrome_switches.cc in Sources */,
@@ -5808,6 +5825,7 @@
 				4D7BFC8B0E9D4D35009A6919 /* sqlite_utils.cc in Sources */,
 				4D7BFC920E9D4D3A009A6919 /* task_queue.cc in Sources */,
 				534E66C40F311BEC0006B2B2 /* temp_scaffolding_stubs.cc in Sources */,
+				E4BD55140F55AB3700591DFA /* text_elider.cc in Sources */,
 				4D7BFC970E9D4D3E009A6919 /* throb_animation.cc in Sources */,
 				4D7BFC9C0E9D4D46009A6919 /* thumbnail_score.cc in Sources */,
 				E45076AB0F153629003BE099 /* time_format.cc in Sources */,

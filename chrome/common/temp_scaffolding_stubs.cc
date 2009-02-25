@@ -356,18 +356,6 @@ ScopableCPRequest::~ScopableCPRequest() {
   NOTIMPLEMENTED();
 }
 
-#if defined(OS_MACOSX)
-namespace gfx {
-std::wstring GetCleanStringFromUrl(const GURL& url,
-                                   const std::wstring& languages,
-                                   url_parse::Parsed* new_parsed,
-                                   size_t* prefix_end) {
-  NOTIMPLEMENTED();
-  return L"";
-}
-}
-#endif
-
 MemoryDetails::MemoryDetails() {
   NOTIMPLEMENTED();
 }

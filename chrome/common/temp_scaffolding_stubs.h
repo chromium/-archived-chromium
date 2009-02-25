@@ -520,10 +520,6 @@ class DockInfo {
   void AdjustOtherWindowBounds() const { NOTIMPLEMENTED(); }
 };
 
-class ToolbarModel {
- public:
-};
-
 class WindowSizer {
  public:
   static void GetBrowserWindowBounds(const std::wstring& app_name,

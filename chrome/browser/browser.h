@@ -21,6 +21,7 @@
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
+#include "chrome/browser/toolbar_model.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/pref_member.h"
 #include "base/gfx/rect.h"
@@ -30,7 +31,6 @@
 #if defined(OS_WIN)
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/toolbar_model.h"
 #endif
 
 class BrowserIdleTimer;

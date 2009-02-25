@@ -20,7 +20,12 @@ class SkTypeface;
 #if defined(OS_WIN)
 typedef struct HFONT__* NativeFont;
 #elif defined(OS_MACOSX)
-typedef void* NativeFont;  // TODO(port): set the correct type here
+#ifdef __OBJC__
+@class NSFont;
+#else
+class NSFont;
+#endif
+typedef NSFont* NativeFont;
 #elif defined(OS_LINUX)
 class SkTypeface;
 typedef SkTypeface* NativeFont;
@@ -200,6 +205,20 @@ class ChromeFont {
   SkTypeface *typeface_;
 
   // Additional information about the face
+  std::wstring font_name_;
+  int font_size_;
+  int style_;
+
+  // Cached metrics, generated at construction
+  int height_;
+  int ascent_;
+  int avg_width_;
+#elif defined(OS_MACOSX)
+  explicit ChromeFont(const std::wstring& font_name, int font_size, int style);
+  
+  // Calculate and cache the font metrics.
+  void calculateMetrics();
+
   std::wstring font_name_;
   int font_size_;
   int style_;
