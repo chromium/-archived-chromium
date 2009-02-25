@@ -68,6 +68,10 @@ class BrowserView : public BrowserWindow,
   // any dependent popup windows should be repositioned.
   void WindowMoved();
 
+  // Called by the frame to notify the BrowserView that a move or resize was
+  // initiated.
+  void WindowMoveOrResizeStarted();
+
   // Returns the bounds of the toolbar, in BrowserView coordinates.
   gfx::Rect GetToolbarBounds() const;
 

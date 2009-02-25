@@ -89,6 +89,10 @@ void OpaqueFrame::OnEndSession(BOOL ending, UINT logoff) {
   BrowserList::WindowsSessionEnding();
 }
 
+void OpaqueFrame::OnEnterSizeMove() {
+  browser_view_->WindowMoveOrResizeStarted();
+}
+
 void OpaqueFrame::OnInitMenuPopup(HMENU menu, UINT position,
                                   BOOL is_system_menu) {
   browser_view_->PrepareToRunSystemMenu(menu);

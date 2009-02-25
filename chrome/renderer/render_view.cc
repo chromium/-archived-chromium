@@ -414,6 +414,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamStateChanged,
                         OnAudioStreamStateChanged)
     IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamVolume, OnAudioStreamVolume)
+    IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -2907,6 +2908,11 @@ void RenderView::OnAudioStreamVolume(int stream_id, double left, double right) {
   audio_renderer->OnVolume(left, right);
 }
 
+void RenderView::OnMoveOrResizeStarted() {
+  if (webview())
+    webview()->HideAutofillPopup();
+}
+
 int32 RenderView::CreateAudioStream(AudioRendererImpl* audio_renderer,
                                     AudioManager::Format format, int channels,
                                     int sample_rate, int bits_per_sample,
@@ -2958,4 +2964,11 @@ void RenderView::SetAudioVolume(int stream_id, double left, double right) {
   // TODO(hclam): make sure this method is called on render thread.
   DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
   Send(new ViewHostMsg_SetAudioVolume(routing_id_, stream_id, left, right));
+}
+
+void RenderView::OnResize(const gfx::Size& new_size,
+                          const gfx::Rect& resizer_rect) {
+  if (webview())
+    webview()->HideAutofillPopup();
+  RenderWidget::OnResize(new_size, resizer_rect);
 }

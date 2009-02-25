@@ -265,6 +265,10 @@ class WebContents : public TabContents,
     render_manager_.CrossSiteNavigationCanceled();
   }
 
+  void WindowMoveOrResizeStarted() {
+    render_view_host()->WindowMoveOrResizeStarted();
+  }
+
  protected:
   // Should be deleted via CloseContents.
   virtual ~WebContents();

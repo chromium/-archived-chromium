@@ -192,6 +192,9 @@ class WebView : public WebWidget {
       const std::vector<std::wstring>& suggestions,
       int default_suggestion_index) = 0;
 
+  // Hides the autofill popup if any are showing.
+  virtual void HideAutofillPopup() = 0;
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebView);
 };

@@ -1266,6 +1266,10 @@ void RenderViewHost::AutofillSuggestionsReturned(
   // Default index -1 means no default suggestion.
 }
 
+void RenderViewHost::WindowMoveOrResizeStarted() {
+  Send(new ViewMsg_MoveOrResizeStarted(routing_id()));
+}
+
 void RenderViewHost::NotifyRendererUnresponsive() {
   // If the debugger is attached, we're going to be unresponsive anytime it's
   // stopped at a breakpoint.

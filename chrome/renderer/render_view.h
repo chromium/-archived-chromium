@@ -359,6 +359,11 @@ class RenderView : public RenderWidget,
   void GetAudioVolume(int stream_id);
   void SetAudioVolume(int stream_id, double left, double right);
 
+ protected:
+  // RenderWidget override.
+  virtual void OnResize(const gfx::Size& new_size,
+                        const gfx::Rect& resizer_rect);
+
  private:
   FRIEND_TEST(RenderViewTest, OnLoadAlternateHTMLText);
   FRIEND_TEST(RenderViewTest, OnNavStateChanged);
@@ -507,6 +512,8 @@ class RenderView : public RenderWidget,
   void OnGetAccessibilityInfo(const AccessibilityInParams& in_params,
                               AccessibilityOutParams* out_params);
   void OnClearAccessibilityInfo(int iaccessible_id, bool clear_all);
+
+  void OnMoveOrResizeStarted();
 
   // Checks if the RenderView should close, runs the beforeunload handler and
   // sends ViewMsg_ShouldClose to the browser.

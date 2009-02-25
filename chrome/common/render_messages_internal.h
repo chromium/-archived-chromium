@@ -526,6 +526,9 @@ IPC_BEGIN_MESSAGES(View)
                       double /* left channel */,
                       double /* right channel */)
 
+  // Notification that a move or resize renderer's containing window has
+  // started.
+  IPC_MESSAGE_ROUTED0(ViewMsg_MoveOrResizeStarted)
 IPC_END_MESSAGES(View)
 
 

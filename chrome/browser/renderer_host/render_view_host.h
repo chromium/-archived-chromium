@@ -404,6 +404,10 @@ class RenderViewHost : public RenderWidgetHost {
                                    int request_id,
                                    int default_suggestion_index);
 
+  // Notifies the Renderer that a move or resize of its containing window has
+  // started (this is used to hide the autocomplete popups if any).
+  void WindowMoveOrResizeStarted();
+
   // RenderWidgetHost public overrides.
   virtual void Init();
   virtual void Shutdown();

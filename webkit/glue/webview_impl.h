@@ -104,6 +104,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
       int64 node_id,
       const std::vector<std::wstring>& suggestions,
       int default_suggestion_index);
+  virtual void HideAutofillPopup();
 
   // WebViewImpl
 

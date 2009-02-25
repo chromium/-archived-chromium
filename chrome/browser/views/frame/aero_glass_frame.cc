@@ -105,6 +105,10 @@ void AeroGlassFrame::OnInitMenuPopup(HMENU menu, UINT position,
   browser_view_->PrepareToRunSystemMenu(menu);
 }
 
+void AeroGlassFrame::OnEnterSizeMove() {
+  browser_view_->WindowMoveOrResizeStarted();
+}
+
 void AeroGlassFrame::OnEndSession(BOOL ending, UINT logoff) {
   BrowserList::WindowsSessionEnding();
 }

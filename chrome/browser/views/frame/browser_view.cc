@@ -247,6 +247,12 @@ void BrowserView::WindowMoved() {
     toolbar_->GetLocationBarView()->location_entry()->ClosePopup();
 }
 
+void BrowserView::WindowMoveOrResizeStarted() {
+  TabContents* tab_contents = GetSelectedTabContents();
+  if (tab_contents && tab_contents->AsWebContents())
+    tab_contents->AsWebContents()->WindowMoveOrResizeStarted();
+}
+
 gfx::Rect BrowserView::GetToolbarBounds() const {
   return toolbar_->bounds();
 }

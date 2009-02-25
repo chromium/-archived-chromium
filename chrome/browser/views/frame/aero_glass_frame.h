@@ -44,6 +44,7 @@ class AeroGlassFrame : public BrowserFrame,
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
+  virtual void OnEnterSizeMove();
   virtual void OnEndSession(BOOL ending, UINT logoff);
   virtual LRESULT OnMouseActivate(HWND window,
                                   UINT hittest_code,

@@ -1586,7 +1586,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
             web_widget, webkit_glue::FromIntRect(new_bounds));
       }
     } else {
-      autocomplete_popup_->show(focused_node->getRect(), 
+      autocomplete_popup_->show(focused_node->getRect(),
                                 page_->mainFrame()->view(), 0);
       autocomplete_popup_showing_ = true;
     }
@@ -1687,6 +1687,10 @@ void WebViewImpl::HideAutoCompletePopup() {
     autocomplete_popup_->hidePopup();
     autocomplete_popup_showing_ = false;
   }
+}
+
+void WebViewImpl::HideAutofillPopup() {
+  HideAutoCompletePopup();
 }
 
 Node* WebViewImpl::GetFocusedNode() {

@@ -49,6 +49,7 @@ class OpaqueFrame : public BrowserFrame,
   // Overridden from views::WidgetWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
+  virtual void OnEnterSizeMove();
   virtual void OnEndSession(BOOL ending, UINT logoff);
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual LRESULT OnMouseActivate(HWND window,
