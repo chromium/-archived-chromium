@@ -46,14 +46,14 @@ static bool JavascriptSingleEscapeChar(const CHAR c, std::string* dst) {
   return true;
 }
 
-void JavascriptDoubleQuote(const std::wstring& str,
+void JavascriptDoubleQuote(const string16& str,
                            bool put_in_quotes,
                            std::string* dst) {
   if (put_in_quotes)
     dst->push_back('"');
 
-  for (std::wstring::const_iterator it = str.begin(); it != str.end(); ++it) {
-    wchar_t c = *it;
+  for (string16::const_iterator it = str.begin(); it != str.end(); ++it) {
+    char16 c = *it;
     if (!JavascriptSingleEscapeChar(c, dst)) {
       if (c > 255) {
         // Non-ascii values need to be unicode dst->
@@ -96,4 +96,3 @@ void JavascriptDoubleQuote(const std::string& str,
 }
 
 }  // namespace string_escape
-

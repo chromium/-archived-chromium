@@ -848,14 +848,15 @@ std::string GetDirectoryListingEntry(const std::string& name,
   }
 
   string_escape::JavascriptDoubleQuote(
-      FormatBytes(size, GetByteDisplayUnits(size), true), true, &result);
+      WideToUTF16Hack(FormatBytes(size, GetByteDisplayUnits(size), true)), true,
+      &result);
 
   result.append(",");
 
-  std::wstring modified_str;
+  string16 modified_str;
   // |modified| can be NULL in FTP listings.
   if (!modified.is_null()) {
-    modified_str = base::TimeFormatShortDateAndTime(modified);
+    modified_str = WideToUTF16Hack(base::TimeFormatShortDateAndTime(modified));
   }
   string_escape::JavascriptDoubleQuote(modified_str, true, &result);
 

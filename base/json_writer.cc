@@ -156,7 +156,8 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
 }
 
 void JSONWriter::AppendQuotedString(const std::wstring& str) {
-  string_escape::JavascriptDoubleQuote(str, true, json_string_);
+  string_escape::JavascriptDoubleQuote(WideToUTF16Hack(str), true,
+                                       json_string_);
 }
 
 void JSONWriter::IndentLine(int depth) {
@@ -164,4 +165,3 @@ void JSONWriter::IndentLine(int depth) {
   // reallocating.
   json_string_->append(std::string(depth * 3, ' '));
 }
-

@@ -4,6 +4,7 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/string_escape.h"
+#include "base/string_util.h"
 
 TEST(StringEscapeTest, JavascriptDoubleQuote) {
   static const char* kToEscape          = "\b\001aZ\"\\wee";
@@ -17,21 +18,21 @@ TEST(StringEscapeTest, JavascriptDoubleQuote) {
 
   // Test wide unicode escaping
   out = "testy: ";
-  string_escape::JavascriptDoubleQuote(std::wstring(kUToEscape), false, &out);
+  string_escape::JavascriptDoubleQuote(WideToUTF16(kUToEscape), false, &out);
   ASSERT_EQ(std::string("testy: ") + kUEscaped, out);
 
   out = "testy: ";
-  string_escape::JavascriptDoubleQuote(std::wstring(kUToEscape), true, &out);
+  string_escape::JavascriptDoubleQuote(WideToUTF16(kUToEscape), true, &out);
   ASSERT_EQ(std::string("testy: ") + kUEscapedQuoted, out);
 
   // Test null and high bit / negative unicode values
-  std::wstring wstr(L"TeSt");
-  wstr.push_back(0);
-  wstr.push_back(0xffb1);
-  wstr.push_back(0x00ff);
+  string16 str16 = UTF8ToUTF16("TeSt");
+  str16.push_back(0);
+  str16.push_back(0xffb1);
+  str16.push_back(0x00ff);
 
   out = "testy: ";
-  string_escape::JavascriptDoubleQuote(wstr, false, &out);
+  string_escape::JavascriptDoubleQuote(str16, false, &out);
   ASSERT_EQ("testy: TeSt\\x00\\uFFB1\\xFF", out);
 
   // Test escaping of 7bit ascii
@@ -61,4 +62,3 @@ TEST(StringEscapeTest, JavascriptDoubleQuote) {
   string_escape::JavascriptDoubleQuote("a\b\f\n\r\t\v\1\\.\"z", false, &out);
   ASSERT_EQ("testy: a\\b\\f\\n\\r\\t\\v\\x01\\\\.\\\"z", out);
 }
-

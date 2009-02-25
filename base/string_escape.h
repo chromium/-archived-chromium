@@ -7,7 +7,7 @@
 #ifndef BASE_STRING_ESCAPE_H__
 #define BASE_STRING_ESCAPE_H__
 
-#include <string>
+#include "base/string16.h"
 
 namespace string_escape {
 
@@ -17,7 +17,7 @@ namespace string_escape {
 // If |put_in_quotes| is true, the result will be surrounded in double quotes.
 // The outputted literal, when interpreted by the browser, should result in a
 // javascript string that is identical and the same length as the input |str|.
-void JavascriptDoubleQuote(const std::wstring& str,
+void JavascriptDoubleQuote(const string16& str,
                            bool put_in_quotes,
                            std::string* dst);
 
@@ -33,4 +33,3 @@ void JavascriptDoubleQuote(const std::string& str,
 }  // namespace string_escape
 
 #endif  // BASE_STRING_ESCAPE_H__
-
