@@ -495,9 +495,6 @@ struct ParamTraits<WebInputEvent::Type> {
      case WebInputEvent::MOUSE_WHEEL:
       type = L"MOUSE_WHEEL";
       break;
-     case WebInputEvent::RAW_KEY_DOWN:
-      type = L"RAW_KEY_DOWN";
-      break;
      case WebInputEvent::KEY_DOWN:
       type = L"KEY_DOWN";
       break;
