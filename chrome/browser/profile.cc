@@ -758,14 +758,14 @@ void ProfileImpl::InitializeSpellChecker(bool need_to_broadcast) {
   bool enable_spellcheck = prefs->GetBoolean(prefs::kEnableSpellCheck);
 
   if (enable_spellcheck) {
-    std::wstring dict_dir;
+    FilePath dict_dir;
     PathService::Get(chrome::DIR_APP_DICTIONARIES, &dict_dir);
     // Note that, as the object pointed to by previously by spellchecker_
     // is being deleted in the io thread, the spellchecker_ can be made to point
     // to a new object (RE-initialized) in parallel in this UI thread.
     spellchecker_ = new SpellChecker(dict_dir,
         prefs->GetString(prefs::kSpellCheckDictionary), GetRequestContext(),
-        std::wstring());
+        FilePath());
     spellchecker_->AddRef();  // Manual refcounting.
   } else {
     spellchecker_ = NULL;

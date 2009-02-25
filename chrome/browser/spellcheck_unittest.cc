@@ -17,7 +17,8 @@ class SpellCheckTest : public testing::Test {
   MessageLoop message_loop_;
 };
 
-const std::wstring kTempCustomDictionaryFile(L"temp_custom_dictionary.txt");
+const FilePath::CharType kTempCustomDictionaryFile[] =
+    FILE_PATH_LITERAL("temp_custom_dictionary.txt");
 
 }  // namespace
 
@@ -249,12 +250,12 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
     {L"ifmmp:ifmmp", false, 0, 11},
   };
 
-  std::wstring hunspell_directory;
+  FilePath hunspell_directory;
   ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, std::wstring()));
+      hunspell_directory, L"en-US", NULL, FilePath()));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     size_t input_length = 0;
@@ -268,9 +269,9 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
                                                 &misspelling_start,
                                                 &misspelling_length, NULL);
 
-    EXPECT_EQ(result, kTestCases[i].expected_result);
-    EXPECT_EQ(misspelling_start, kTestCases[i].misspelling_start);
-    EXPECT_EQ(misspelling_length, kTestCases[i].misspelling_length);
+    EXPECT_EQ(kTestCases[i].expected_result, result);
+    EXPECT_EQ(kTestCases[i].misspelling_start, misspelling_start);
+    EXPECT_EQ(kTestCases[i].misspelling_length, misspelling_length);
   }
 }
 
@@ -303,12 +304,12 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
     // TODO (Sidchat): add many more examples.
   };
 
-  std::wstring hunspell_directory;
+  FilePath hunspell_directory;
   ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, std::wstring()));
+      hunspell_directory, L"en-US", NULL, FilePath()));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     std::vector<std::wstring> suggestions;
@@ -325,7 +326,7 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
                                                 &suggestions);
 
     // Check for spelling.
-    EXPECT_EQ(result, kTestCases[i].expected_result);
+    EXPECT_EQ(kTestCases[i].expected_result, result);
 
     // Check if the suggested words occur.
     bool suggested_word_is_present = false;
@@ -351,12 +352,13 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
     {L"Googler"},
   };
 
-  std::wstring hunspell_directory;
+  FilePath hunspell_directory;
+  FilePath custom_dictionary_file(kTempCustomDictionaryFile);
   ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
+      hunspell_directory, L"en-US", NULL, custom_dictionary_file));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Add the word to spellchecker.
@@ -382,7 +384,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
 
   // Now initialize another spellchecker to see that AddToWord is permanent.
   scoped_refptr<SpellChecker> spell_checker_new(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
+      hunspell_directory, L"en-US", NULL, custom_dictionary_file));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Now check whether it is added to Spellchecker.
@@ -405,7 +407,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
   }
 
   // Remove the temp custom dictionary file.
-  file_util::Delete(kTempCustomDictionaryFile, false);
+  file_util::Delete(custom_dictionary_file, false);
 }
 
 // SpellChecker should suggest custome words for misspelled words.
@@ -419,19 +421,20 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
     {L"Googler"},
   };
 
-  std::wstring hunspell_directory;
+  FilePath hunspell_directory;
+  FilePath custom_dictionary_file(kTempCustomDictionaryFile);
   ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
                                &hunspell_directory));
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, kTempCustomDictionaryFile));
+      hunspell_directory, L"en-US", NULL, custom_dictionary_file));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Add the word to spellchecker.
     spell_checker->AddWord(std::wstring(kTestCases[i].word_to_add));
   }
 
-  // Now check to see whether the custom words are suggested for 
+  // Now check to see whether the custom words are suggested for
   // misspelled but similar words.
   static const struct {
     // A string to be tested.
@@ -483,5 +486,5 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
   }
 
   // Remove the temp custom dictionary file.
-  file_util::Delete(kTempCustomDictionaryFile, false);
+  file_util::Delete(custom_dictionary_file, false);
 }

@@ -570,10 +570,10 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
  public:
   typedef std::wstring Language;
   typedef std::vector<Language> Languages;
-  SpellChecker(const std::wstring& dict_dir,
+  SpellChecker(const FilePath& dict_dir,
                const Language& language,
                URLRequestContext* request_context,
-               const std::wstring& custom_dictionary_file_name) {}
+               const FilePath& custom_dictionary_file_name) {}
 
   bool SpellCheckWord(const wchar_t* in_word,
                      int in_word_len,
