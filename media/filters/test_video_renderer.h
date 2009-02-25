@@ -31,6 +31,9 @@ class TestVideoRenderer : public VideoRendererBase {
     scoped_refptr<VideoFrame> frame;
     GetCurrentFrame(&frame);
     if (frame.get()) {
+      VideoSurface video_surface;
+      EXPECT_TRUE(frame->Lock(&video_surface));
+      frame->Unlock();
       if (frame != last_frame_) {
         ++unique_frames_;
         last_frame_ = frame;

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -36,20 +36,61 @@ namespace media {
 class StreamSample : public base::RefCountedThreadSafe<StreamSample> {
  public:
   // Returns the timestamp of this buffer in microseconds.
-  virtual base::TimeDelta GetTimestamp() const = 0;
+  base::TimeDelta GetTimestamp() const {
+    return timestamp_;
+  }
 
   // Returns the duration of this buffer in microseconds.
-  virtual base::TimeDelta GetDuration() const = 0;
+  base::TimeDelta GetDuration() const {
+    return duration_;
+  }
+
+  // Indicates that the sample is the last one in the stream.
+  bool IsEndOfStream() const {
+    return end_of_stream_;
+  }
+
+  // Indicates that this sample is discontinuous from the previous one, for
+  // example, following a seek.
+  bool IsDiscontinuous() const {
+    return discontinuous_;
+  }
 
   // Sets the timestamp of this buffer in microseconds.
-  virtual void SetTimestamp(const base::TimeDelta& timestamp) = 0;
+  void SetTimestamp(const base::TimeDelta& timestamp) {
+    timestamp_ = timestamp;
+  }
 
   // Sets the duration of this buffer in microseconds.
-  virtual void SetDuration(const base::TimeDelta& duration) = 0;
+  void SetDuration(const base::TimeDelta& duration) {
+    duration_ = duration;
+  }
+
+  // Sets the value returned by IsEndOfStream().
+  void SetEndOfStream(bool end_of_stream) {
+    end_of_stream_ = end_of_stream;
+  }
+
+  // Sets the value returned by IsDiscontinuous().
+  void SetDiscontinuous(bool discontinuous) {
+    discontinuous_ = discontinuous;
+  }
 
  protected:
   friend class base::RefCountedThreadSafe<StreamSample>;
+  StreamSample()
+      : end_of_stream_(false),
+        discontinuous_(false) {
+  }
   virtual ~StreamSample() {}
+
+  base::TimeDelta timestamp_;
+  base::TimeDelta duration_;
+  bool end_of_stream_;
+  bool discontinuous_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(StreamSample);
 };
 
 
@@ -134,8 +175,8 @@ class VideoFrame : public StreamSample {
 //
 // TODO(scherkus): rethink the Assignable interface -- it's a bit kludgy.
 template <class BufferType>
-class Assignable :
-    public base::RefCountedThreadSafe< Assignable<BufferType> > {
+class Assignable
+    : public base::RefCountedThreadSafe< Assignable<BufferType> > {
  public:
   // Assigns a buffer to the owner.
   virtual void SetBuffer(BufferType* buffer) = 0;
@@ -146,7 +187,7 @@ class Assignable :
   // TODO(scherkus): figure out a solution to friending a template.
   // See http://www.comeaucomputing.com/techtalk/templates/#friendclassT for
   // an explanation.
-  //protected:
+  // protected:
   // friend class base::RefCountedThreadSafe< Assignable<class T> >;
   virtual ~Assignable() {}
 };

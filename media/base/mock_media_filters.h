@@ -45,7 +45,8 @@ struct MockFilterConfig {
         uncompressed_audio_mime_type(mime_type::kUncompressedAudio),
         compressed_video_mime_type(mime_type::kH264AnnexB),
         uncompressed_video_mime_type(mime_type::kUncompressedVideo),
-        frame_duration(base::TimeDelta::FromMicroseconds(33333)) {
+        frame_duration(base::TimeDelta::FromMicroseconds(33333)),
+        media_duration(base::TimeDelta::FromSeconds(5)) {
   }
 
   MockDataSourceBehavior data_source_behavior;
@@ -58,10 +59,11 @@ struct MockFilterConfig {
   std::string compressed_video_mime_type;
   std::string uncompressed_video_mime_type;
   base::TimeDelta frame_duration;
+  base::TimeDelta media_duration;
 };
 
 
-class MockDataSource : public media::DataSource {
+class MockDataSource : public DataSource {
  public:
   static FilterFactory* CreateFactory(const MockFilterConfig* config) {
      return new FilterFactoryImpl1<MockDataSource,
@@ -123,8 +125,8 @@ class MockDataSource : public media::DataSource {
   }
 
  private:
-  friend class media::FilterFactoryImpl1<MockDataSource,
-                                         const MockFilterConfig*>;
+  friend class FilterFactoryImpl1<MockDataSource,
+                                  const MockFilterConfig*>;
 
   explicit MockDataSource(const MockFilterConfig* config)
       : behavior_(config->data_source_behavior) {
@@ -165,7 +167,7 @@ class MockDemuxer : public Demuxer {
   virtual void Stop() {}
 
   // Implementation of Demuxer.
-  virtual bool Initialize(media::DataSource* data_source) {
+  virtual bool Initialize(DataSource* data_source) {
     host_->InitializationComplete();
     return true;
   }
@@ -177,7 +179,7 @@ class MockDemuxer : public Demuxer {
     return 1;
   }
 
-  virtual media::DemuxerStream* GetStream(int stream_id) {
+  virtual DemuxerStream* GetStream(int stream_id) {
     switch (stream_id) {
       case 0:
         return &mock_audio_stream_;
@@ -193,7 +195,7 @@ class MockDemuxer : public Demuxer {
   }
 
  private:
-  friend class media::FilterFactoryImpl1<MockDemuxer, const MockFilterConfig*>;
+  friend class FilterFactoryImpl1<MockDemuxer, const MockFilterConfig*>;
 
   explicit MockDemuxer(const MockFilterConfig* config)
       : config_(config),
@@ -214,7 +216,7 @@ class MockDemuxer : public Demuxer {
 
     // Implementation of DemuxerStream.
     virtual const MediaFormat* GetMediaFormat() {
-      return &media_format_;  // TODO(ralphl): implement
+      return &media_format_;
     }
 
     virtual void Read(Assignable<Buffer>* buffer) {
@@ -266,8 +268,7 @@ class MockAudioDecoder : public AudioDecoder {
   }
 
  private:
-  friend class media::FilterFactoryImpl1<MockAudioDecoder,
-                                         const MockFilterConfig*>;
+  friend class FilterFactoryImpl1<MockAudioDecoder, const MockFilterConfig*>;
 
   explicit MockAudioDecoder(const MockFilterConfig* config) {
     media_format_.SetAsString(MediaFormat::kMimeType,
@@ -306,8 +307,7 @@ class MockAudioRenderer : public AudioRenderer {
   virtual void SetVolume(float volume) {}
 
  private:
-  friend class media::FilterFactoryImpl1<MockAudioRenderer,
-                                         const MockFilterConfig*>;
+  friend class FilterFactoryImpl1<MockAudioRenderer, const MockFilterConfig*>;
 
   explicit MockAudioRenderer(const MockFilterConfig* config) {}
 
@@ -323,44 +323,54 @@ class MockVideoFrame : public VideoFrame {
   explicit MockVideoFrame(const MockFilterConfig* config,
                           base::TimeDelta timestamp)
       : config_(config),
-        surface_locked_(false),
-        timestamp_(timestamp),
-        duration_(config->frame_duration) {
+        surface_locked_(false) {
+    SetTimestamp(timestamp);
+    SetDuration(config->frame_duration);
+    size_t y_byte_count = config_->video_width * config_->video_height;
+    size_t uv_byte_count = y_byte_count / 4;
+    surface_.format = config_->video_surface_format;
+    surface_.width = config_->video_width;
+    surface_.height = config_->video_height;
+    surface_.planes = 3;
+    surface_.data[0] = new char[y_byte_count];
+    surface_.data[1] = new char[uv_byte_count];
+    surface_.data[2] = new char[uv_byte_count];
+    surface_.strides[0] = config_->video_width;
+    surface_.strides[1] = config_->video_width / 2;
+    surface_.strides[2] = config_->video_width / 2;
+    memset(surface_.data[0], 0, y_byte_count);
+    memset(surface_.data[1], 0x80, uv_byte_count);
+    memset(surface_.data[2], 0x80, uv_byte_count);
+    int64 num_white_pixels = y_byte_count *
+                             timestamp.InMicroseconds() /
+                             config_->media_duration.InMicroseconds();
+    if (num_white_pixels > y_byte_count) {
+      ADD_FAILURE();
+      num_white_pixels = y_byte_count;
+    }
+    if (num_white_pixels < 0) {
+      ADD_FAILURE();
+      num_white_pixels = 0;
+    }
+    memset(surface_.data[0], 0xFF, static_cast<size_t>(num_white_pixels));
   }
 
-  virtual ~MockVideoFrame() {}
-
-  virtual base::TimeDelta GetTimestamp() const {
-    return timestamp_;
-  }
-
-  virtual base::TimeDelta GetDuration() const {
-    return duration_;
-  }
-
-  virtual void SetTimestamp(const base::TimeDelta& timestamp) {
-    timestamp_ = timestamp;
-  }
-
-  virtual void SetDuration(const base::TimeDelta& duration) {
-    duration_ = duration;
+  virtual ~MockVideoFrame() {
+    delete[] surface_.data[0];
+    delete[] surface_.data[1];
+    delete[] surface_.data[2];
   }
 
   virtual bool Lock(VideoSurface* surface) {
     EXPECT_FALSE(surface_locked_);
+    if (surface_locked_) {
+      memset(surface, 0, sizeof(*surface));
+      return false;
+    }
     surface_locked_ = true;
-    surface->format = config_->video_surface_format;
-    surface->width = config_->video_width;
-    surface->height = config_->video_height;
-    // TODO(ralphl): mock the data for video surfaces too.
-    surface->planes = 3;
-    surface->data[0] = NULL;
-    surface->data[1] = NULL;
-    surface->data[2] = NULL;
-    surface->strides[0] = 0;
-    surface->strides[1] = 0;
-    surface->strides[2] = 0;
-    return false;
+    DCHECK(sizeof(*surface) == sizeof(surface_));
+    memcpy(surface, &surface_, sizeof(*surface));
+    return true;
   }
 
   virtual void Unlock() {
@@ -371,8 +381,7 @@ class MockVideoFrame : public VideoFrame {
  private:
   const MockFilterConfig* config_;
   bool surface_locked_;
-  base::TimeDelta timestamp_;
-  base::TimeDelta duration_;
+  VideoSurface surface_;
 
   DISALLOW_COPY_AND_ASSIGN(MockVideoFrame);
 };
@@ -407,8 +416,7 @@ class MockVideoDecoder : public VideoDecoder {
   }
 
  private:
-  friend class media::FilterFactoryImpl1<MockVideoDecoder,
-                                        const MockFilterConfig*>;
+  friend class FilterFactoryImpl1<MockVideoDecoder, const MockFilterConfig*>;
 
   explicit MockVideoDecoder(const MockFilterConfig* config)
       : config_(config) {
@@ -419,10 +427,15 @@ class MockVideoDecoder : public VideoDecoder {
   }
 
   void DoRead(Assignable<VideoFrame>* buffer) {
-    VideoFrame* frame = new MockVideoFrame(config_, mock_frame_time_);
-    mock_frame_time_ += config_->frame_duration;
-    buffer->SetBuffer(frame);
-    buffer->OnAssignment();
+    if (mock_frame_time_ < config_->media_duration) {
+      VideoFrame* frame = new MockVideoFrame(config_, mock_frame_time_);
+      mock_frame_time_ += config_->frame_duration;
+      if (mock_frame_time_ >= config_->media_duration) {
+        frame->SetEndOfStream(true);
+      }
+      buffer->SetBuffer(frame);
+      buffer->OnAssignment();
+    }
     buffer->Release();
   }
 
@@ -459,8 +472,7 @@ class MockVideoRenderer : public VideoRenderer {
   }
 
  private:
-  friend class media::FilterFactoryImpl1<MockVideoRenderer,
-                                         const MockFilterConfig*>;
+  friend class FilterFactoryImpl1<MockVideoRenderer, const MockFilterConfig*>;
 
   explicit MockVideoRenderer(const MockFilterConfig* config)
       : config_(config) {
@@ -472,7 +484,6 @@ class MockVideoRenderer : public VideoRenderer {
 
   DISALLOW_COPY_AND_ASSIGN(MockVideoRenderer);
 };
-
 
 
 //------------------------------------------------------------------------------

@@ -178,24 +178,18 @@ void VideoRendererBase::OnAssignment(VideoFrame* video_frame) {
   {
     AutoLock auto_lock(lock_);
     if (IsRunning()) {
-      // TODO(ralphl): if (!preroll_complete_ && EndOfStream) call_init = true
-      // and preroll_complete_ = true.
-      // TODO(ralphl): If(Seek()) then discard but we don't have SeekFrame().
-      if (false) {
-        // TODO(ralphl): this is the seek() logic.
+      if (video_frame->IsDiscontinuous()) {
         DiscardAllFrames();
-        ++number_of_reads_needed_;
-        PostSubmitReadsTask();
-      } else {
-        if (UpdateQueue(host_->GetPipelineStatus()->GetInterpolatedTime(),
-                        video_frame)) {
-          request_repaint = preroll_complete_;
-        }
-        if (!preroll_complete_ && queue_.size() == number_of_frames_) {
-          preroll_complete_ = true;
-          call_initialized = true;
-          request_repaint = true;
-        }
+      }
+      if (UpdateQueue(host_->GetPipelineStatus()->GetInterpolatedTime(),
+                      video_frame)) {
+        request_repaint = preroll_complete_;
+      }
+      if (!preroll_complete_ && (queue_.size() == number_of_frames_ ||
+                                 video_frame->IsEndOfStream())) {
+        preroll_complete_ = true;
+        call_initialized = true;
+        request_repaint = true;
       }
     }
   }

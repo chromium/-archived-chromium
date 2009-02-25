@@ -52,3 +52,27 @@ TEST(VideoRenderer, CreateTestRenderer) {
   EXPECT_LT(test_renderer->unique_frames(), num_expected_frames + 3);
 }
 
+TEST(VideoRenderer, SingleVideoFrame) {
+  base::TimeDelta test_time = base::TimeDelta::FromMilliseconds(100);
+  std::string url("");
+  PipelineImpl p;
+  scoped_refptr<TestVideoRenderer> test_renderer = new TestVideoRenderer();
+  MockFilterConfig config;
+  config.media_duration = config.frame_duration;
+  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
+  c->AddFactory(MockDataSource::CreateFactory(&config));
+  c->AddFactory(MockDemuxer::CreateFactory(&config));
+  c->AddFactory(MockAudioDecoder::CreateFactory(&config));
+  c->AddFactory(MockAudioRenderer::CreateFactory(&config));
+  c->AddFactory(MockVideoDecoder::CreateFactory(&config));
+  c->AddFactory(new InstanceFilterFactory<TestVideoRenderer>(test_renderer));
+  media::InitializationHelper h;
+  h.Start(&p, c, url);
+  h.TimedWait(base::TimeDelta::FromSeconds(1));
+  EXPECT_TRUE(p.IsInitialized());
+  p.SetPlaybackRate(1.0f);
+  PlatformThread::Sleep(static_cast<int>(test_time.InMilliseconds()));
+  p.Stop();
+  EXPECT_EQ(test_renderer->unique_frames(), 1u);
+  EXPECT_EQ(test_renderer->paint_called(), 1u);
+}

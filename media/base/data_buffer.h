@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,12 +19,6 @@ class DataBuffer : public WritableBuffer {
   DataBuffer(char* data, size_t buffer_size, size_t data_size,
              const base::TimeDelta& timestamp, const base::TimeDelta& duration);
 
-  // StreamSample implementation.
-  virtual base::TimeDelta GetTimestamp() const;
-  virtual void SetTimestamp(const base::TimeDelta& timestamp);
-  virtual base::TimeDelta GetDuration() const;
-  virtual void SetDuration(const base::TimeDelta& duration);
-
   // Buffer implementation.
   virtual const char* GetData() const;
   virtual size_t GetDataSize() const;
@@ -41,8 +35,6 @@ class DataBuffer : public WritableBuffer {
   char* data_;
   size_t buffer_size_;
   size_t data_size_;
-  base::TimeDelta timestamp_;
-  base::TimeDelta duration_;
 };
 
 }  // namespace media

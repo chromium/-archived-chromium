@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -34,6 +34,8 @@ TEST(DataBufferTest, Basic) {
   // Test StreamSample implementation.
   EXPECT_TRUE(kTimestampA == buffer->GetTimestamp());
   EXPECT_TRUE(kDurationA == buffer->GetDuration());
+  EXPECT_FALSE(buffer->IsEndOfStream());
+  EXPECT_FALSE(buffer->IsDiscontinuous());
   buffer->SetTimestamp(kTimestampB);
   buffer->SetDuration(kDurationB);
   EXPECT_TRUE(kTimestampB == buffer->GetTimestamp());
@@ -51,4 +53,13 @@ TEST(DataBufferTest, Basic) {
   EXPECT_EQ(kNewDataSize, copied + 1);
   buffer->SetDataSize(kNewDataSize);
   EXPECT_EQ(kNewDataSize, buffer->GetDataSize());
+
+  buffer->SetEndOfStream(true);
+  EXPECT_TRUE(buffer->IsEndOfStream());
+  buffer->SetEndOfStream(false);
+  EXPECT_FALSE(buffer->IsEndOfStream());
+  buffer->SetDiscontinuous(true);
+  EXPECT_TRUE(buffer->IsDiscontinuous());
+  buffer->SetDiscontinuous(false);
+  EXPECT_FALSE(buffer->IsDiscontinuous());
 }
