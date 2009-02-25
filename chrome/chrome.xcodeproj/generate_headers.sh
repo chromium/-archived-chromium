@@ -75,7 +75,7 @@ if [ "${GRIT_DIR}/grit/debugger_resources.h" -ot \
      "${PROJECT_DIR}/browser/debugger/resources/debugger_resources.grd" ]
 then
   python "${PROJECT_DIR}/../tools/grit/grit.py" \
-      -i "${PROJECT_DIR}/browser/debugger/debugger/debugger_resources.grd" build \
+      -i "${PROJECT_DIR}/browser/debugger/resources/debugger_resources.grd" build \
       -o "${GRIT_DIR}"
 fi
 
