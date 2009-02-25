@@ -1587,7 +1587,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
       }
     } else {
       autocomplete_popup_->show(focused_node->getRect(),
-                                page_->mainFrame()->view(), 0);
+                                focused_node->ownerDocument()->view(), 0);
       autocomplete_popup_showing_ = true;
     }
   }
