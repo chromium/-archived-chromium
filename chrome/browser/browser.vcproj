@@ -626,10 +626,6 @@
 			Name="Browser Window"
 			>
 			<File
-				RelativePath=".\app_modal_dialog_delegate.h"
-				>
-			</File>
-			<File
 				RelativePath=".\app_modal_dialog_queue.cc"
 				>
 			</File>

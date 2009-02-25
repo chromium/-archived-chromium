@@ -66,45 +66,6 @@ JavascriptMessageBoxHandler::~JavascriptMessageBoxHandler() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// JavascriptMessageBoxHandler, views::AppModalDialogDelegate
-//    implementation:
-
-void JavascriptMessageBoxHandler::ShowModalDialog() {
-  // If the WebContents that created this dialog navigated away before this
-  // dialog became visible, simply show the next dialog if any.
-  if (!web_contents_) {
-    AppModalDialogQueue::ShowNextDialog();
-    delete this;
-    return;
-  }
-
-  web_contents_->Activate();
-  HWND root_hwnd = GetAncestor(web_contents_->GetNativeView(), GA_ROOT);
-  dialog_ = views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this);
-  dialog_->Show();
-}
-
-void JavascriptMessageBoxHandler::ActivateModalDialog() {
-  // Ensure that the dialog is visible and at the top of the z-order. These
-  // conditions may not be true if the dialog was opened on a different virtual
-  // desktop to the one the browser window is on.
-  dialog_->Show();
-  dialog_->Activate();
-}
-
-AppModalDialogDelegateTesting*
-JavascriptMessageBoxHandler::GetTestingInterface() {
-  return this;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// JavascriptMessageBoxHandler, AppModalDialogDelegateTesting implementation:
-
-views::DialogDelegate* JavascriptMessageBoxHandler::GetDialogDelegate() {
-  return this;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // JavascriptMessageBoxHandler, views::DialogDelegate implementation:
 
 int JavascriptMessageBoxHandler::GetDialogButtons() const {
@@ -180,6 +141,33 @@ bool JavascriptMessageBoxHandler::Accept() {
   return true;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// JavascriptMessageBoxHandler, views::AppModalDialogDelegate
+// implementation:
+
+void JavascriptMessageBoxHandler::ShowModalDialog() {
+  // If the WebContents that created this dialog navigated away before this
+  // dialog became visible, simply show the next dialog if any.
+  if (!web_contents_) {
+    AppModalDialogQueue::ShowNextDialog();
+    delete this;
+    return;
+  }
+
+  web_contents_->Activate();
+  HWND root_hwnd = GetAncestor(web_contents_->GetNativeView(), GA_ROOT);
+  dialog_ = views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this);
+  dialog_->Show();
+}
+
+void JavascriptMessageBoxHandler::ActivateModalDialog() {
+  // Ensure that the dialog is visible and at the top of the z-order. These
+  // conditions may not be true if the dialog was opened on a different virtual
+  // desktop to the one the browser window is on.
+  dialog_->Show();
+  dialog_->Activate();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // JavascriptMessageBoxHandler, views::WindowDelegate implementation:
 
@@ -190,7 +178,7 @@ views::View* JavascriptMessageBoxHandler::GetContentsView() {
 views::View* JavascriptMessageBoxHandler::GetInitiallyFocusedView() {
   if (message_box_view_->text_box())
     return message_box_view_->text_box();
-  return views::DialogDelegate::GetInitiallyFocusedView();
+  return views::AppModalDialogDelegate::GetInitiallyFocusedView();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

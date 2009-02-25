@@ -8,7 +8,6 @@
 #include "base/path_service.h"
 #include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/app_modal_dialog_delegate.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/ui_controls.h"
@@ -34,7 +33,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/app_modal_dialog_delegate.h"
 #include "chrome/views/window.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "net/base/cookie_monster.h"
@@ -1163,26 +1162,22 @@ void AutomationProvider::GetBrowserWindowCount(int* window_count) {
 
 void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
                                                   int* dialog_button) {
-  *showing_dialog = AppModalDialogQueue::HasActiveDialog();
-  *dialog_button = views::DialogDelegate::DIALOGBUTTON_NONE;
-  if (!*showing_dialog)
-    return;
-
-  views::DialogDelegate* dialog_delegate =
-      AppModalDialogQueue::active_dialog()->GetTestingInterface()->
-          GetDialogDelegate();
-  *dialog_button = dialog_delegate->GetDialogButtons();
+  views::AppModalDialogDelegate* dialog_delegate =
+      AppModalDialogQueue::active_dialog();
+  *showing_dialog = (dialog_delegate != NULL);
+  if (*showing_dialog)
+    *dialog_button = dialog_delegate->GetDialogButtons();
+  else
+    *dialog_button = views::DialogDelegate::DIALOGBUTTON_NONE;
 }
 
 void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
   *success = false;
-  if (!AppModalDialogQueue::HasActiveDialog())
-    return;
 
-  views::DialogDelegate* dialog_delegate =
-      AppModalDialogQueue::active_dialog()->GetTestingInterface()->
-          GetDialogDelegate();
-  if ((dialog_delegate->GetDialogButtons() & button) == button) {
+  views::AppModalDialogDelegate* dialog_delegate =
+      AppModalDialogQueue::active_dialog();
+  if (dialog_delegate &&
+      (dialog_delegate->GetDialogButtons() & button) == button) {
     views::DialogClientView* client_view =
         dialog_delegate->window()->client_view()->AsDialogClientView();
     if ((button & views::DialogDelegate::DIALOGBUTTON_OK) ==

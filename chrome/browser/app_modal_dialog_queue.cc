@@ -7,14 +7,15 @@
 #include "chrome/browser/browser_list.h"
 
 // static
-std::queue<AppModalDialogDelegate*>*
+std::queue<views::AppModalDialogDelegate*>*
     AppModalDialogQueue::app_modal_dialog_queue_ = NULL;
-AppModalDialogDelegate* AppModalDialogQueue::active_dialog_ = NULL;
+views::AppModalDialogDelegate* AppModalDialogQueue::active_dialog_ = NULL;
 
 // static
-void AppModalDialogQueue::AddDialog(AppModalDialogDelegate* dialog) {
+void AppModalDialogQueue::AddDialog(views::AppModalDialogDelegate* dialog) {
+  DCHECK(dialog->IsModal());
   if (!app_modal_dialog_queue_) {
-    app_modal_dialog_queue_ = new std::queue<AppModalDialogDelegate*>;
+    app_modal_dialog_queue_ = new std::queue<views::AppModalDialogDelegate*>;
     ShowModalDialog(dialog);
   }
 
@@ -40,7 +41,8 @@ void AppModalDialogQueue::ActivateModalDialog() {
 }
 
 // static
-void AppModalDialogQueue::ShowModalDialog(AppModalDialogDelegate* dialog) {
+void AppModalDialogQueue::ShowModalDialog(
+    views::AppModalDialogDelegate* dialog) {
   dialog->ShowModalDialog();
   active_dialog_ = dialog;
 }

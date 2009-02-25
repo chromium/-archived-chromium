@@ -5,12 +5,11 @@
 #ifndef CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_WIN_H_
 #define CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_WIN_H_
 
-#include "chrome/browser/app_modal_dialog_delegate.h"
 #include "chrome/browser/jsmessage_box_handler.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/app_modal_dialog_delegate.h"
 
 class MessageBoxView;
 class WebContents;
@@ -19,10 +18,8 @@ class Window;
 }
 
 class JavascriptMessageBoxHandler
-    : public AppModalDialogDelegate,
-      public AppModalDialogDelegateTesting,
-      public NotificationObserver,
-      public views::DialogDelegate {
+    : public views::AppModalDialogDelegate,
+      public NotificationObserver {
  public:
   // Cross-platform code should use RunJavaScriptMessageBox.
   JavascriptMessageBoxHandler(WebContents* web_contents,
@@ -33,20 +30,16 @@ class JavascriptMessageBoxHandler
                               IPC::Message* reply_msg);
   virtual ~JavascriptMessageBoxHandler();
 
-  // AppModalDialogDelegate Methods:
-  virtual void ShowModalDialog();
-  virtual void ActivateModalDialog();
-  virtual AppModalDialogDelegateTesting* GetTestingInterface();
-
-  // AppModalDialogDelegateTesting Methods:
-  virtual views::DialogDelegate* GetDialogDelegate();
-
   // views::DialogDelegate Methods:
   virtual int GetDialogButtons() const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool Cancel();
   virtual bool Accept();
+
+  // views::AppModalDialogDelegate
+  virtual void ShowModalDialog();
+  virtual void ActivateModalDialog();
 
   // views::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
