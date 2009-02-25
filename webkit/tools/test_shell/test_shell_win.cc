@@ -231,13 +231,6 @@ bool TestShell::RunFileTest(const TestParams& params) {
   HWND hwnd = *(TestShell::windowList()->begin());
   TestShell* shell =
       static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));
-  shell->ResetTestController();
-
-  // ResetTestController may have closed the window we were holding on to.
-  // Grab the first window again.
-  hwnd = *(TestShell::windowList()->begin());
-  shell = static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));
-  DCHECK(shell);
 
   // Clear focus between tests.
   shell->m_focusedWidgetHost = NULL;
@@ -245,6 +238,17 @@ bool TestShell::RunFileTest(const TestParams& params) {
   // Make sure the previous load is stopped.
   shell->webView()->StopLoading();
   shell->navigation_controller()->Reset();
+
+  // StopLoading may update state maintained in the test controller (for
+  // example, whether the WorkQueue is frozen) as such, we need to reset it
+  // after we invoke StopLoading.
+  shell->ResetTestController();
+
+  // ResetTestController may have closed the window we were holding on to.	
+  // Grab the first window again.
+  hwnd = *(TestShell::windowList()->begin());
+  shell = static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));
+  DCHECK(shell);
 
   // Clean up state between test runs.
   webkit_glue::ResetBeforeTestRun(shell->webView());

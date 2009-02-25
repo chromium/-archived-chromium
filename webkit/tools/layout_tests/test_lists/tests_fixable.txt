@@ -758,9 +758,8 @@ DEFER LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 DEFER WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
-// This is failing occasionally because we're dumping the tree/image
-// before the redirect completes.
-LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
+// See recent changes to test_shell_win.
+LINUX MAC : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 
 // GURL/KURL difference in handling of "http:".  http://crbug.com/7386.
 // New test. We should fix it, but it doesn't need to block the current release
@@ -1752,9 +1751,7 @@ MAC RELEASE : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
 // Regressions from WebKit merge 40847-40875
 LINUX WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
 MAC LINUX WIN : LayoutTests/fast/forms/textarea-scrolled-endline-caret.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
 WIN : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL PASS
