@@ -789,7 +789,7 @@ void BrowserRenderProcessHost::OnChannelError() {
   IDMap<IPC::Channel::Listener> local_listeners(listeners_);
   for (listeners_iterator i = local_listeners.begin();
        i != local_listeners.end(); ++i) {
-    i->second->OnMessageReceived(ViewHostMsg_RendererGone(i->first));
+    i->second->OnMessageReceived(ViewHostMsg_RenderViewGone(i->first));
   }
   // at this point, this object should be deleted
 }

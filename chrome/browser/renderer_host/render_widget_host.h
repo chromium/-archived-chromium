@@ -247,8 +247,8 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void RendererIsResponsive();
 
   // IPC message handlers
-  void OnMsgRendererReady();
-  void OnMsgRendererGone();
+  void OnMsgRenderViewReady();
+  void OnMsgRenderViewGone();
   void OnMsgClose();
   void OnMsgRequestMove(const gfx::Rect& pos);
   void OnMsgPaintRect(const ViewHostMsg_PaintRect_Params& params);

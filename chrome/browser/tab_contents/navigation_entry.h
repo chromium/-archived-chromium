@@ -309,6 +309,16 @@ class NavigationEntry {
     return ssl_;
   }
 
+  // Page-related helpers ------------------------------------------------------
+
+  // Returns the title to be displayed on the tab. This could be the title of
+  // the page if it is available or the URL.
+  const std::wstring& GetTitleForDisplay();
+
+  // Returns true if the current tab is in view source mode. This will be false
+  // if there is no navigation.
+  bool IsViewSourceMode() const;
+
   // Tracking stuff ------------------------------------------------------------
 
   // The transition type indicates what the user did to move to this page from
@@ -358,10 +368,6 @@ class NavigationEntry {
   bool restored() const {
     return restored_;
   }
-
-  // Returns the title to be displayed on the tab. This could be the title of
-  // the page if it is available or the URL.
-  const std::wstring& GetTitleForDisplay();
 
  private:
   // WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING

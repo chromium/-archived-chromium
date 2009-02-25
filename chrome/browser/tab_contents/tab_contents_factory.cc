@@ -11,7 +11,6 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
-#include "chrome/browser/tab_contents/view_source_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "net/base/net_util.h"
 
@@ -57,9 +56,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       break;
     case TAB_CONTENTS_NATIVE_UI:
       contents = new NativeUIContents(profile);
-      break;
-    case TAB_CONTENTS_VIEW_SOURCE:
-      contents = new ViewSourceContents(profile, instance);
       break;
     case TAB_CONTENTS_ABOUT_UI:
       contents = new BrowserAboutHandler(profile, instance, NULL);
@@ -119,11 +115,6 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
   if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))
     return TAB_CONTENTS_DOM_UI;
 
-  if (url->SchemeIs("view-source")) {
-    // Load the inner URL instead, but render it using a ViewSourceContents.
-    *url = GURL(url->path());
-    return TAB_CONTENTS_VIEW_SOURCE;
-  }
 #elif defined(OS_POSIX)
   NOTIMPLEMENTED();
 #endif

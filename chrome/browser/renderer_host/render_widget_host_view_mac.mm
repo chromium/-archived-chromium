@@ -181,7 +181,7 @@ void RenderWidgetHostViewMac::DidScrollRect(
   [cocoa_view_ setNeedsDisplayInRect:[cocoa_view_ RectToNSRect:dirty_rect]];
 }
 
-void RenderWidgetHostViewMac::RendererGone() {
+void RenderWidgetHostViewMac::RenderViewGone() {
   // TODO(darin): keep this around, and draw sad-tab into it.
   UpdateCursorIfOverSelf();
   Destroy();

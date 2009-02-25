@@ -102,7 +102,7 @@ void RenderWidget::CompleteInit(gfx::NativeViewId parent_hwnd) {
 
   host_window_ = parent_hwnd;
 
-  Send(new ViewHostMsg_RendererReady(routing_id_));
+  Send(new ViewHostMsg_RenderViewReady(routing_id_));
 }
 
 IPC_DEFINE_MESSAGE_MAP(RenderWidget)

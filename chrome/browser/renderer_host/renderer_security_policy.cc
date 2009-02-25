@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/common/url_constants.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -85,9 +86,9 @@ RendererSecurityPolicy::RendererSecurityPolicy() {
   RegisterWebSafeScheme("chrome-extension");
 
   // We know about the following psuedo schemes and treat them specially.
-  RegisterPseudoScheme("about");
-  RegisterPseudoScheme("javascript");
-  RegisterPseudoScheme("view-source");
+  RegisterPseudoScheme(chrome::kAboutScheme);
+  RegisterPseudoScheme(chrome::kJavaScriptScheme);
+  RegisterPseudoScheme(chrome::kViewSourceScheme);
 }
 
 // static

@@ -9,6 +9,7 @@
 #define FPL FILE_PATH_LITERAL
 
 namespace chrome {
+
 // The following should not be used for UI strings; they are meant
 // for system strings only. UI changes should be made in the GRD.
 const wchar_t kBrowserProcessExecutableName[] = L"chrome.exe";
@@ -60,5 +61,5 @@ const bool kRecordModeEnabled = true;
 #else
 const bool kRecordModeEnabled = false;
 #endif
-}
 
+}  // namespace chrome

@@ -428,8 +428,8 @@ class RenderViewHost : public RenderWidgetHost {
                      bool user_gesture);
   void OnMsgShowWidget(int route_id, const gfx::Rect& initial_pos);
   void OnMsgRunModal(IPC::Message* reply_msg);
-  void OnMsgRendererReady();
-  void OnMsgRendererGone();
+  void OnMsgRenderViewReady();
+  void OnMsgRenderViewGone();
   void OnMsgNavigate(const IPC::Message& msg);
   void OnMsgUpdateState(int32 page_id,
                         const std::string& state);

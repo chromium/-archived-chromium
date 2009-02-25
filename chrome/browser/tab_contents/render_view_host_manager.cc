@@ -267,6 +267,21 @@ bool RenderViewHostManager::ShouldTransitionCrossSite() {
   return !CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab);
 }
 
+bool RenderViewHostManager::ShouldSwapRenderViewsForNavigation(
+    const NavigationEntry* cur_entry,
+    const NavigationEntry* new_entry) const {
+  if (!cur_entry || !new_entry)
+    return false;
+
+  // We can't switch a RenderView between view source and non-view source mode
+  // without screwing up the session history sometimes (when navigating between
+  // "view-source:http://foo.com/" and "http://foo.com/", WebKit doesn't treat
+  // it as a new navigation). So require a view switch.
+  if (cur_entry->IsViewSourceMode() != new_entry->IsViewSourceMode())
+    return true;
+  return false;
+}
+
 SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
     const NavigationEntry& entry,
     SiteInstance* curr_instance) {
@@ -413,12 +428,12 @@ void RenderViewHostManager::SwapToRenderView(
   (*new_render_view_host) = NULL;
 
   // If the view is gone, then this RenderViewHost died while it was hidden.
-  // We ignored the RendererGone call at the time, so we should send it now
+  // We ignored the RenderViewGone call at the time, so we should send it now
   // to make sure the sad tab shows up, etc.
   if (render_view_host_->view())
     render_view_host_->view()->Show();
   else
-    delegate_->RendererGoneFromRenderManager(render_view_host_);
+    delegate_->RenderViewGoneFromRenderManager(render_view_host_);
 
   // Make sure the size is up to date.  (Fix for bug 1079768.)
   delegate_->UpdateRenderViewSizeForRenderManager();
@@ -463,7 +478,9 @@ RenderViewHost* RenderViewHostManager::UpdateRendererStateNavigate(
   if (ShouldTransitionCrossSite())
     new_instance = GetSiteInstanceForEntry(entry, curr_instance);
 
-  if (new_instance != curr_instance) {
+  if (new_instance != curr_instance || ShouldSwapRenderViewsForNavigation(
+          delegate_->GetLastCommittedNavigationEntryForRenderManager(),
+          &entry)) {
     // New SiteInstance.
     DCHECK(!cross_navigation_pending_);
 

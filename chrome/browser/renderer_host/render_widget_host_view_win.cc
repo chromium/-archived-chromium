@@ -400,7 +400,7 @@ void RenderWidgetHostViewWin::DidScrollRect(
   Redraw(gfx::Rect(invalid_rect));
 }
 
-void RenderWidgetHostViewWin::RendererGone() {
+void RenderWidgetHostViewWin::RenderViewGone() {
   // TODO(darin): keep this around, and draw sad-tab into it.
   UpdateCursorIfOverSelf();
   DestroyWindow();

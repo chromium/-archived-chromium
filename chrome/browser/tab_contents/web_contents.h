@@ -107,6 +107,8 @@ class WebContents : public TabContents,
     return view_.get();
   }
 
+  // Page state getters & setters ----------------------------------------------
+
   bool is_starred() const { return is_starred_; }
 
   const std::wstring& encoding() const { return encoding_; }
@@ -282,8 +284,9 @@ class WebContents : public TabContents,
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual Profile* GetProfile() const;
   virtual WebContents* GetAsWebContents() { return this; }
-  virtual void RendererReady(RenderViewHost* render_view_host);
-  virtual void RendererGone(RenderViewHost* render_view_host);
+  virtual void RenderViewCreated(RenderViewHost* render_view_host);
+  virtual void RenderViewReady(RenderViewHost* render_view_host);
+  virtual void RenderViewGone(RenderViewHost* render_view_host);
   virtual void DidNavigate(RenderViewHost* render_view_host,
                            const ViewHostMsg_FrameNavigate_Params& params);
   virtual void UpdateState(RenderViewHost* render_view_host,
@@ -405,8 +408,9 @@ class WebContents : public TabContents,
       RenderViewHost* render_view_host, int32 page_id) {
     DidStartLoading(render_view_host, page_id);
   }
-  virtual void RendererGoneFromRenderManager(RenderViewHost* render_view_host) {
-    RendererGone(render_view_host);
+  virtual void RenderViewGoneFromRenderManager(
+      RenderViewHost* render_view_host) {
+    RenderViewGone(render_view_host);
   }
   virtual void UpdateRenderViewSizeForRenderManager();
   virtual void NotifySwappedFromRenderManager() {
@@ -415,6 +419,7 @@ class WebContents : public TabContents,
   virtual NavigationController* GetControllerForRenderManager() {
     return controller();
   }
+  virtual NavigationEntry* GetLastCommittedNavigationEntryForRenderManager();
 
   // Initializes the given renderer if necessary and creates the view ID
   // corresponding to this view host. If this method is not called and the

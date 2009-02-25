@@ -261,7 +261,7 @@ void RenderWidgetHostViewGtk::DidScrollRect(const gfx::Rect& rect, int dx,
   Paint(rect);
 }
 
-void RenderWidgetHostViewGtk::RendererGone() {
+void RenderWidgetHostViewGtk::RenderViewGone() {
   NOTIMPLEMENTED();
 }
 

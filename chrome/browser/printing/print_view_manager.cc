@@ -40,7 +40,7 @@ void PrintViewManager::Stop() {
   TerminatePrintJob(true);
 }
 
-bool PrintViewManager::OnRendererGone(RenderViewHost* render_view_host) {
+bool PrintViewManager::OnRenderViewGone(RenderViewHost* render_view_host) {
   if (!print_job_.get())
     return true;
 

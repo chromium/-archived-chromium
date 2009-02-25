@@ -36,7 +36,7 @@ class PrintViewManager : public NotificationObserver,
 
   // Terminates or cancels the print job if one was pending, depending on the
   // current state. Returns false if the renderer was not valuable.
-  bool OnRendererGone(RenderViewHost* render_view_host);
+  bool OnRenderViewGone(RenderViewHost* render_view_host);
 
   // Received a notification from the renderer that the number of printed page
   // has just been calculated..

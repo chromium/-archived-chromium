@@ -42,11 +42,16 @@ class RenderViewHostManager : public NotificationObserver {
         bool proceed, bool* proceed_to_fire_unload) = 0;
     virtual void DidStartLoadingFromRenderManager(
         RenderViewHost* render_view_host, int32 page_id) = 0;
-    virtual void RendererGoneFromRenderManager(
+    virtual void RenderViewGoneFromRenderManager(
         RenderViewHost* render_view_host) = 0;
     virtual void UpdateRenderViewSizeForRenderManager() = 0;
     virtual void NotifySwappedFromRenderManager() = 0;
     virtual NavigationController* GetControllerForRenderManager() = 0;
+
+    // Returns the navigation entry of the current navigation, or NULL if there
+    // is none.
+    virtual NavigationEntry*
+        GetLastCommittedNavigationEntryForRenderManager() = 0;
   };
 
   // The factory is optional. It is used by unit tests to supply custom render
@@ -167,6 +172,13 @@ class RenderViewHostManager : public NotificationObserver {
   // switch.  Can be overridden in unit tests.
   bool ShouldTransitionCrossSite();
 
+  // Returns true if the two navigation entries are incompatible in some way
+  // other than site instances. This will cause us to swap RenderViewHosts even
+  // if the site instances are the same. Either of the entries may be NULL.
+  bool ShouldSwapRenderViewsForNavigation(
+      const NavigationEntry* cur_entry,
+      const NavigationEntry* new_entry) const;
+
   // Returns an appropriate SiteInstance object for the given NavigationEntry,
   // possibly reusing the current SiteInstance.
   // Never called if --process-per-tab is used.
@@ -200,7 +212,9 @@ class RenderViewHostManager : public NotificationObserver {
   // Our delegate, not owned by us. Guaranteed non-NULL.
   Delegate* delegate_;
 
-  // Whether a cross-site request is pending (in the new process model).
+  // Whether a navigation requiring different RenderView's is pending. This is
+  // either cross-site request is (in the new process model), or when required
+  // for the view type (like view source versus not).
   bool cross_navigation_pending_;
 
   // Allows tests to create their own render view host types.

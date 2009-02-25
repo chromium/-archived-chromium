@@ -252,9 +252,9 @@ IPC_BEGIN_MESSAGES(View)
                       int, /* tools msg type */
                       std::wstring  /* body */)
 
-  // RenderViewHostDelegate::RendererCreated method sends this message to a new
-  // renderer to notify it that it will host developer tools UI and should set
-  // up all neccessary bindings and create ToolsClient instance that will
+  // RenderViewHostDelegate::RendererViewCreated method sends this message to a
+  // new renderer to notify it that it will host developer tools UI and should
+  // set up all neccessary bindings and create ToolsClient instance that will
   // handle communication with inspected page ToolsAgent.
   IPC_MESSAGE_ROUTED0(ViewMsg_SetUpToolsClient)
 
@@ -588,11 +588,11 @@ IPC_BEGIN_MESSAGES(ViewHost)
 
   // Indicates the renderer is ready in response to a ViewMsg_New or
   // a ViewMsg_CreatingNew_ACK.
-  IPC_MESSAGE_ROUTED0(ViewHostMsg_RendererReady)
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_RenderViewReady)
 
   // Indicates the renderer process is gone.  This actually is sent by the
   // browser process to itself, but keeps the interface cleaner.
-  IPC_MESSAGE_ROUTED0(ViewHostMsg_RendererGone)
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_RenderViewGone)
 
   // Sent by the renderer process to request that the browser close the view.
   // This corresponds to the window.close() API, and the browser may ignore

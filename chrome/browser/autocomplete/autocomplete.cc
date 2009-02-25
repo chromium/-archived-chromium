@@ -20,6 +20,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon_ip.h"
 #include "grit/generated_resources.h"
@@ -118,8 +119,9 @@ AutocompleteInput::Type AutocompleteInput::Parse(const std::wstring& text,
     // reach the renderer or else the renderer handles internally without
     // reaching the URLRequest logic.  We thus won't catch these above, but we
     // should still claim to handle them.
-    if ((parsed_scheme == L"view-source") || (parsed_scheme == L"javascript") ||
-        (parsed_scheme == L"data"))
+    if (LowerCaseEqualsASCII(parsed_scheme, chrome::kViewSourceScheme) ||
+        LowerCaseEqualsASCII(parsed_scheme, chrome::kJavaScriptScheme) ||
+        LowerCaseEqualsASCII(parsed_scheme, chrome::kDataScheme))
       return URL;
 
     // Finally, check and see if the user has explicitly opened this scheme as

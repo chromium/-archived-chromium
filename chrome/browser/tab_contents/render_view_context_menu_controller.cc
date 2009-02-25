@@ -24,6 +24,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"
@@ -519,17 +520,17 @@ bool RenderViewContextMenuController::IsDevCommandEnabled(int id) const {
     return false;
 
   // Don't inspect view source.
-  if (source_web_contents_->type() == TAB_CONTENTS_VIEW_SOURCE)
+  if (active_entry->IsViewSourceMode())
     return false;
 
   // Don't inspect inspector, new tab UI, etc.
-  if (active_entry->url().SchemeIs("chrome"))
+  if (active_entry->url().SchemeIs(chrome::kChromeUIScheme))
     return false;
 
   // Don't inspect about:network, about:memory, etc.
   // However, we do want to inspect about:blank, which is often
   // used by ordinary web pages.
-  if (active_entry->display_url().SchemeIs("about") &&
+  if (active_entry->display_url().SchemeIs(chrome::kAboutScheme) &&
       !LowerCaseEqualsASCII(active_entry->display_url().path(), "blank"))
     return false;
 

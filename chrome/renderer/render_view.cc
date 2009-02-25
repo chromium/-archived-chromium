@@ -23,6 +23,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/thumbnail_score.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/localized_error.h"
@@ -1551,7 +1552,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
   // to, for example, opening a new window).
   // But we sometimes navigate to about:blank to clear a tab, and we want to
   // still allow that.
-  if (disposition == CURRENT_TAB && !(url.SchemeIs("about"))) {
+  if (disposition == CURRENT_TAB && !(url.SchemeIs(chrome::kAboutScheme))) {
     // GetExtraData is NULL when we did not issue the request ourselves (see
     // OnNavigate), and so such a request may correspond to a link-click,
     // script, or drag-n-drop initiated navigation.
@@ -1560,7 +1561,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
       // punt them up to the browser to handle.
       if (enable_dom_ui_bindings_ ||
           frame->GetInViewSourceMode() ||
-          url.SchemeIs("view-source")) {
+          url.SchemeIs(chrome::kViewSourceScheme)) {
         OpenURL(webview, url, GURL(), disposition);
         return IGNORE_ACTION;  // Suppress the load here.
       } else if (url.SchemeIs(kBackForwardNavigationScheme)) {
@@ -2069,7 +2070,7 @@ void RenderView::OnGetApplicationInfo(int page_id) {
   // to decode arbitrary data URLs in the browser process.  See
   // http://b/issue?id=1162972
   for (size_t i = 0; i < app_info.icons.size(); ++i) {
-    if (app_info.icons[i].url.SchemeIs("data")) {
+    if (app_info.icons[i].url.SchemeIs(chrome::kDataScheme)) {
       app_info.icons.erase(app_info.icons.begin() + i);
       --i;
     }

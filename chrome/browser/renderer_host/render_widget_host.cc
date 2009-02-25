@@ -91,8 +91,8 @@ void RenderWidgetHost::Shutdown() {
 }
 
 IPC_DEFINE_MESSAGE_MAP(RenderWidgetHost)
-  IPC_MESSAGE_HANDLER(ViewHostMsg_RendererReady, OnMsgRendererReady)
-  IPC_MESSAGE_HANDLER(ViewHostMsg_RendererGone, OnMsgRendererGone)
+  IPC_MESSAGE_HANDLER(ViewHostMsg_RenderViewReady, OnMsgRenderViewReady)
+  IPC_MESSAGE_HANDLER(ViewHostMsg_RenderViewGone, OnMsgRenderViewGone)
   IPC_MESSAGE_HANDLER(ViewHostMsg_Close, OnMsgClose)
   IPC_MESSAGE_HANDLER(ViewHostMsg_RequestMove, OnMsgRequestMove)
   IPC_MESSAGE_HANDLER(ViewHostMsg_PaintRect, OnMsgPaintRect)
@@ -321,8 +321,8 @@ void RenderWidgetHost::RendererExited() {
   is_hidden_ = false;
 
   if (view_) {
-    view_->RendererGone();
-    view_ = NULL;  // The View should be deleted by RendererGone.
+    view_->RenderViewGone();
+    view_ = NULL;  // The View should be deleted by RenderViewGone.
   }
 
   BackingStoreManager::RemoveBackingStore(this);
@@ -376,11 +376,11 @@ void RenderWidgetHost::RendererIsResponsive() {
   }
 }
 
-void RenderWidgetHost::OnMsgRendererReady() {
+void RenderWidgetHost::OnMsgRenderViewReady() {
   WasResized();
 }
 
-void RenderWidgetHost::OnMsgRendererGone() {
+void RenderWidgetHost::OnMsgRenderViewGone() {
   // TODO(evanm): This synchronously ends up calling "delete this".
   // Is that really what we want in response to this message?  I'm matching
   // previous behavior of the code here.

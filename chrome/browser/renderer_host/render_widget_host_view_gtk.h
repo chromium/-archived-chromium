@@ -44,7 +44,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void DidPaintRect(const gfx::Rect& rect);
   void DidScrollRect(
       const gfx::Rect& rect, int dx, int dy);
-  void RendererGone();
+  void RenderViewGone();
   void Destroy();
   void SetTooltipText(const std::wstring& tooltip_text);
   // ---------------------------------------------------------------------------

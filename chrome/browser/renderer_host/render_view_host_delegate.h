@@ -150,13 +150,13 @@ class RenderViewHostDelegate {
   // The RenderView is being constructed (message sent to the renderer process
   // to construct a RenderView).  Now is a good time to send other setup events
   // to the RenderView.  This precedes any other commands to the RenderView.
-  virtual void RendererCreated(RenderViewHost* render_view_host) { }
+  virtual void RenderViewCreated(RenderViewHost* render_view_host) { }
 
   // The RenderView has been constructed.
-  virtual void RendererReady(RenderViewHost* render_view_host) { }
+  virtual void RenderViewReady(RenderViewHost* render_view_host) { }
 
   // The RenderView died somehow (crashed or was killed by the user).
-  virtual void RendererGone(RenderViewHost* render_view_host) { }
+  virtual void RenderViewGone(RenderViewHost* render_view_host) { }
 
   // The RenderView was navigated to a different page.
   virtual void DidNavigate(RenderViewHost* render_view_host,

@@ -2032,6 +2032,9 @@ void Browser::UpdateCommandsForTabState() {
     WebContents* web_contents = current_tab->AsWebContents();
     bool is_web_contents = web_contents != NULL;
 
+    // Current navigation entry, may be NULL.
+    NavigationEntry* active_entry = current_tab->controller()->GetActiveEntry();
+
     // Page-related commands
     // Only allow bookmarking for web content in normal windows.
     command_updater_.UpdateCommandEnabled(IDC_STAR,
@@ -2039,8 +2042,7 @@ void Browser::UpdateCommandsForTabState() {
     window_->SetStarredState(is_web_contents && web_contents->is_starred());
     // View-source should not be enabled if already in view-source mode.
     command_updater_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
-        is_web_contents && (current_tab->type() != TAB_CONTENTS_VIEW_SOURCE) &&
-        current_tab->controller()->GetActiveEntry());
+        is_web_contents && active_entry && !active_entry->IsViewSourceMode());
     command_updater_.UpdateCommandEnabled(IDC_PRINT, is_web_contents);
     command_updater_.UpdateCommandEnabled(IDC_SAVE_PAGE,
         is_web_contents && SavePackage::IsSavableURL(current_tab->GetURL()));

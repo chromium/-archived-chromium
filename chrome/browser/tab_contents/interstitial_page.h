@@ -86,7 +86,7 @@ class InterstitialPage : public NotificationObserver,
   }
   virtual void DidNavigate(RenderViewHost* render_view_host,
                            const ViewHostMsg_FrameNavigate_Params& params);
-  virtual void RendererGone(RenderViewHost* render_view_host);
+  virtual void RenderViewGone(RenderViewHost* render_view_host);
   virtual void DomOperationResponse(const std::string& json_string,
                                     int automation_id);
   virtual void UpdateTitle(RenderViewHost* render_view_host,

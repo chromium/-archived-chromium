@@ -4,6 +4,7 @@
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
+#include "chrome/common/url_constants.h"
 #include "chrome/common/resource_bundle.h"
 
 // Use this to get a new unique ID for a NavigationEntry during construction.
@@ -61,4 +62,8 @@ const std::wstring& NavigationEntry::GetTitleForDisplay() {
   if (title_.empty())
     return display_url_as_string_;
   return title_;
+}
+
+bool NavigationEntry::IsViewSourceMode() const {
+  return display_url_.SchemeIs(chrome::kViewSourceScheme);
 }

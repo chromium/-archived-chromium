@@ -36,6 +36,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 #include "grit/locale_settings.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
@@ -391,7 +392,7 @@ bool WebContents::NavigateToPendingEntry(bool reload) {
     // do not generate content.  What we really need is a message from the
     // renderer telling us that a new page was not created.  The same message
     // could be used for mailto: URLs and the like.
-    if (entry->url().SchemeIs("javascript"))
+    if (entry->url().SchemeIs(chrome::kJavaScriptScheme))
       return false;
   }
 
@@ -672,7 +673,21 @@ Profile* WebContents::GetProfile() const {
   return profile();
 }
 
-void WebContents::RendererReady(RenderViewHost* rvh) {
+void WebContents::RenderViewCreated(RenderViewHost* render_view_host) {
+  if (!controller())
+    return;
+  NavigationEntry* entry = controller()->GetActiveEntry();
+  if (!entry)
+    return;
+
+  if (entry->IsViewSourceMode()) {
+    // Put the renderer in view source mode.
+    render_view_host->Send(
+        new ViewMsg_EnableViewSourceMode(render_view_host->routing_id()));
+  }
+}
+
+void WebContents::RenderViewReady(RenderViewHost* rvh) {
   if (rvh != render_view_host()) {
     // Don't notify the world, since this came from a renderer in the
     // background.
@@ -683,9 +698,9 @@ void WebContents::RendererReady(RenderViewHost* rvh) {
   SetIsCrashed(false);
 }
 
-void WebContents::RendererGone(RenderViewHost* rvh) {
+void WebContents::RenderViewGone(RenderViewHost* rvh) {
   // Ask the print preview if this renderer was valuable.
-  if (!printing_.OnRendererGone(rvh))
+  if (!printing_.OnRenderViewGone(rvh))
     return;
   if (rvh != render_view_host()) {
     // The pending page's RenderViewHost is gone.
@@ -1456,6 +1471,13 @@ void WebContents::UpdateRenderViewSizeForRenderManager() {
   view_->SizeContents(view_->GetContainerSize());
 }
 
+NavigationEntry*
+WebContents::GetLastCommittedNavigationEntryForRenderManager() {
+  if (!controller())
+    return NULL;
+  return controller()->GetLastCommittedEntry();
+}
+  
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
   RenderWidgetHostView* rwh_view = view_->CreateViewForWidget(render_view_host);

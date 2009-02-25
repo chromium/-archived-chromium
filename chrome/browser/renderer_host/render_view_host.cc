@@ -179,7 +179,7 @@ bool RenderViewHost::CreateRenderView() {
       routing_id(), enable_dom_ui_bindings_, enable_external_host_bindings_));
 
   // Let our delegate know that we created a RenderView.
-  delegate_->RendererCreated(this);
+  delegate_->RenderViewCreated(this);
 
   return true;
 }
@@ -671,8 +671,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_ShowView, OnMsgShowView)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ShowWidget, OnMsgShowWidget)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_RunModal, OnMsgRunModal)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_RendererReady, OnMsgRendererReady)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_RendererGone, OnMsgRendererGone)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_RenderViewReady, OnMsgRenderViewReady)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_RenderViewGone, OnMsgRenderViewGone)
     IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_FrameNavigate, OnMsgNavigate(msg))
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateState, OnMsgUpdateState)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateTitle, OnMsgUpdateTitle)
@@ -818,12 +818,12 @@ void RenderViewHost::OnMsgRunModal(IPC::Message* reply_msg) {
   // an app-modal fashion.
 }
 
-void RenderViewHost::OnMsgRendererReady() {
+void RenderViewHost::OnMsgRenderViewReady() {
   WasResized();
-  delegate_->RendererReady(this);
+  delegate_->RenderViewReady(this);
 }
 
-void RenderViewHost::OnMsgRendererGone() {
+void RenderViewHost::OnMsgRenderViewGone() {
   // Our base class RenderWidgetHouse needs to reset some stuff.
   RendererExited();
 
@@ -831,7 +831,7 @@ void RenderViewHost::OnMsgRendererGone() {
   // from a crashed renderer.
   renderer_initialized_ = false;
 
-  delegate_->RendererGone(this);
+  delegate_->RenderViewGone(this);
   OnDebugDisconnect();
 }
 

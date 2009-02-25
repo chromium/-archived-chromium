@@ -371,7 +371,7 @@ void InterstitialPage::DidNavigate(
 #endif
 }
 
-void InterstitialPage::RendererGone(RenderViewHost* render_view_host) {
+void InterstitialPage::RenderViewGone(RenderViewHost* render_view_host) {
   // Our renderer died. This should not happen in normal cases.
   // Just dismiss the interstitial.
   DontProceed();

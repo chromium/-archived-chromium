@@ -125,8 +125,8 @@ class TestInterstitialPage : public InterstitialPage {
     DidNavigate(render_view_host(), params);
   }
 
-  void TestRendererGone() {
-    RendererGone(render_view_host());
+  void TestRenderViewGone() {
+    RenderViewGone(render_view_host());
   }
 
   bool is_showing() const {
@@ -1032,7 +1032,7 @@ TEST_F(WebContentsTest, InterstitialCrasher) {
   TestInterstitialPageStateGuard state_guard(interstitial);
   interstitial->Show();
   // Simulate a renderer crash before the interstitial is shown.
-  interstitial->TestRendererGone();
+  interstitial->TestRenderViewGone();
   // The interstitial should have been dismissed.
   EXPECT_TRUE(deleted);
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);
@@ -1043,7 +1043,7 @@ TEST_F(WebContentsTest, InterstitialCrasher) {
   interstitial->Show();
   interstitial->TestDidNavigate(1, url);
   // Simulate a renderer crash.
-  interstitial->TestRendererGone();
+  interstitial->TestRenderViewGone();
   // The interstitial should have been dismissed.
   EXPECT_TRUE(deleted);
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);

@@ -100,7 +100,7 @@ class RenderWidgetHostView {
       const gfx::Rect& rect, int dx, int dy) = 0;
 
   // Notifies the View that the renderer has ceased to exist.
-  virtual void RendererGone() = 0;
+  virtual void RenderViewGone() = 0;
 
   // Tells the View to destroy itself.
   virtual void Destroy() = 0;

@@ -160,7 +160,6 @@ class NavigationController {
   //
   // If you are trying to get the current state of the NavigationController,
   // this is the method you will typically want to call.
-  //
   NavigationEntry* GetActiveEntry() const;
 
   // Returns the index from which we would go back/forward or reload.  This is

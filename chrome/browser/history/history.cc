@@ -44,6 +44,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/thumbnail_score.h"
+#include "chrome/common/url_constants.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
@@ -571,12 +572,12 @@ bool HistoryService::CanAddURL(const GURL& url) const {
   if (!url.is_valid())
     return false;
 
-  if (url.SchemeIs("javascript") ||
-      url.SchemeIs("chrome") ||
-      url.SchemeIs("view-source"))
+  if (url.SchemeIs(chrome::kJavaScriptScheme) ||
+      url.SchemeIs(chrome::kChromeUIScheme) ||
+      url.SchemeIs(chrome::kViewSourceScheme))
     return false;
 
-  if (url.SchemeIs("about")) {
+  if (url.SchemeIs(chrome::kAboutScheme)) {
     std::string path = url.path();
     if (path.empty() || LowerCaseEqualsASCII(path, "blank"))
       return false;

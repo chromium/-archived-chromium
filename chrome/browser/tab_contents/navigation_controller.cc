@@ -17,6 +17,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/url_constants.h"
 #include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)
@@ -55,7 +56,7 @@ void SetContentStateIfEmpty(NavigationEntry* entry) {
        entry->tab_type() == TAB_CONTENTS_NEW_TAB_UI ||
        entry->tab_type() == TAB_CONTENTS_ABOUT_UI ||
        entry->tab_type() == TAB_CONTENTS_HTML_DIALOG ||
-       entry->tab_type() == TAB_CONTENTS_VIEW_SOURCE)) {
+       entry->IsViewSourceMode())) {
     entry->set_content_state(
         webkit_glue::CreateHistoryStateForURL(entry->url()));
   }
@@ -466,6 +467,11 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
     type = active->type();
   else
     type = TabContents::TypeForURL(&real_url);
+
+  if (url.SchemeIs(chrome::kViewSourceScheme)) {
+    // Load the inner URL instead, setting the original URL as the "display".
+    real_url = GURL(url.path());
+  }
 
   NavigationEntry* entry = new NavigationEntry(type, NULL, -1, real_url,
                                                referrer,
