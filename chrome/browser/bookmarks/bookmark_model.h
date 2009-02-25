@@ -169,6 +169,12 @@ class BookmarkModelObserver {
   // Invoked when a favicon has finished loading.
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) = 0;
+
+  // Invoked when the children (just direct children, not descendants) of
+  // |node| have been reordered in some way, such as sorted.
+  // TODO(sky): make this pure virtual when all observers have been updated.
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {}
 };
 
 // BookmarkModel --------------------------------------------------------------
@@ -269,6 +275,10 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
                                        const std::wstring& title,
                                        const GURL& url,
                                        const base::Time& creation_time);
+
+  // Sorts the children of |parent|, notifying observers by way of the
+  // BookmarkNodeChildrenReordered method.
+  void SortChildren(BookmarkNode* parent);
 
   // This is the convenience that makes sure the url is starred or not starred.
   // If is_starred is false, all bookmarks for URL are removed. If is_starred is

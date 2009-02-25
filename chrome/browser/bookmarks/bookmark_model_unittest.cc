@@ -90,6 +90,11 @@ class BookmarkModelTest : public testing::Test, public BookmarkModelObserver {
     observer_details.Set(node, NULL, -1, -1);
   }
 
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {
+    reordered_count_++;
+  }
+
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {
     // We never attempt to load favicons, so that this method never
@@ -97,17 +102,20 @@ class BookmarkModelTest : public testing::Test, public BookmarkModelObserver {
   }
 
   void ClearCounts() {
-    moved_count = added_count = removed_count = changed_count = 0;
+    reordered_count_ = moved_count = added_count = removed_count =
+        changed_count = 0;
   }
 
   void AssertObserverCount(int added_count,
                            int moved_count,
                            int removed_count,
-                           int changed_count) {
+                           int changed_count,
+                           int reordered_count) {
     ASSERT_EQ(added_count, this->added_count);
     ASSERT_EQ(moved_count, this->moved_count);
     ASSERT_EQ(removed_count, this->removed_count);
     ASSERT_EQ(changed_count, this->changed_count);
+    ASSERT_EQ(reordered_count, reordered_count_);
   }
 
   void AssertNodesEqual(BookmarkNode* expected, BookmarkNode* actual) {
@@ -145,6 +153,8 @@ class BookmarkModelTest : public testing::Test, public BookmarkModelObserver {
 
   int changed_count;
 
+  int reordered_count_;
+
   ObserverDetails observer_details;
 };
 
@@ -168,7 +178,7 @@ TEST_F(BookmarkModelTest, AddURL) {
   const GURL url("http://foo.com");
 
   BookmarkNode* new_node = model.AddURL(root, 0, title, url);
-  AssertObserverCount(1, 0, 0, 0);
+  AssertObserverCount(1, 0, 0, 0, 0);
   observer_details.AssertEquals(root, NULL, 0, -1);
 
   ASSERT_EQ(1, root->GetChildCount());
@@ -186,7 +196,7 @@ TEST_F(BookmarkModelTest, AddGroup) {
   const std::wstring title(L"foo");
 
   BookmarkNode* new_node = model.AddGroup(root, 0, title);
-  AssertObserverCount(1, 0, 0, 0);
+  AssertObserverCount(1, 0, 0, 0, 0);
   observer_details.AssertEquals(root, NULL, 0, -1);
 
   ASSERT_EQ(1, root->GetChildCount());
@@ -199,7 +209,7 @@ TEST_F(BookmarkModelTest, AddGroup) {
   // Add another group, just to make sure group_ids are incremented correctly.
   ClearCounts();
   BookmarkNode* new_node2 = model.AddGroup(root, 0, title);
-  AssertObserverCount(1, 0, 0, 0);
+  AssertObserverCount(1, 0, 0, 0, 0);
   observer_details.AssertEquals(root, NULL, 0, -1);
 }
 
@@ -212,7 +222,7 @@ TEST_F(BookmarkModelTest, RemoveURL) {
 
   model.Remove(root, 0);
   ASSERT_EQ(0, root->GetChildCount());
-  AssertObserverCount(0, 0, 1, 0);
+  AssertObserverCount(0, 0, 1, 0, 0);
   observer_details.AssertEquals(root, NULL, 0, -1);
 
   // Make sure there is no mapping for the URL.
@@ -235,7 +245,7 @@ TEST_F(BookmarkModelTest, RemoveGroup) {
   // Now remove the group.
   model.Remove(root, 0);
   ASSERT_EQ(0, root->GetChildCount());
-  AssertObserverCount(0, 0, 1, 0);
+  AssertObserverCount(0, 0, 1, 0, 0);
   observer_details.AssertEquals(root, NULL, 0, -1);
 
   // Make sure there is no mapping for the URL.
@@ -252,7 +262,7 @@ TEST_F(BookmarkModelTest, SetTitle) {
 
   title = L"foo2";
   model.SetTitle(node, title);
-  AssertObserverCount(0, 0, 0, 1);
+  AssertObserverCount(0, 0, 0, 1, 0);
   observer_details.AssertEquals(node, NULL, -1, -1);
   EXPECT_EQ(title, node->GetTitle());
 }
@@ -267,7 +277,7 @@ TEST_F(BookmarkModelTest, Move) {
 
   model.Move(node, group1, 0);
 
-  AssertObserverCount(0, 1, 0, 0);
+  AssertObserverCount(0, 1, 0, 0, 0);
   observer_details.AssertEquals(root, group1, 1, 0);
   EXPECT_TRUE(group1 == node->GetParent());
   EXPECT_EQ(1, root->GetChildCount());
@@ -278,7 +288,7 @@ TEST_F(BookmarkModelTest, Move) {
   // And remove the group.
   ClearCounts();
   model.Remove(root, 0);
-  AssertObserverCount(0, 0, 1, 0);
+  AssertObserverCount(0, 0, 1, 0, 0);
   observer_details.AssertEquals(root, NULL, 0, -1);
   EXPECT_TRUE(model.GetMostRecentlyAddedNodeForURL(url) == NULL);
   EXPECT_EQ(0, root->GetChildCount());
@@ -826,4 +836,26 @@ TEST_F(BookmarkModelTestWithProfile2, RemoveNotification) {
   // This won't actually delete the URL, rather it'll empty out the visits.
   // This triggers blocking on the BookmarkModel.
   profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->DeleteURL(url);
+}
+
+TEST_F(BookmarkModelTest, Sort) {
+  // Populate the bookmark bar node with nodes for 'B', 'a', 'd' and 'C'.
+  TestNode bbn;
+  PopulateNodeFromString(L"B a d C", &bbn);
+  BookmarkNode* parent = model.GetBookmarkBarNode();
+  PopulateBookmarkNode(&bbn, &model, parent);
+
+  ClearCounts();
+
+  // Sort the children of the bookmark bar node.
+  model.SortChildren(parent);
+
+  // Make sure we were notified.
+  AssertObserverCount(0, 0, 0, 0, 1);
+
+  // Make sure the order matches.
+  EXPECT_TRUE(parent->GetChild(0)->GetTitle() == L"a");
+  EXPECT_TRUE(parent->GetChild(1)->GetTitle() == L"B");
+  EXPECT_TRUE(parent->GetChild(2)->GetTitle() == L"C");
+  EXPECT_TRUE(parent->GetChild(3)->GetTitle() == L"d");
 }

@@ -8,6 +8,7 @@
 #include "build/build_config.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -296,6 +297,20 @@ BookmarkNode* BookmarkModel::AddURLWithCreationTime(
   }
 
   return AddNode(parent, index, new_node, was_bookmarked);
+}
+
+void BookmarkModel::SortChildren(BookmarkNode* parent) {
+  if (!parent || !parent->is_folder() || parent == root_node() ||
+      parent->GetChildCount() <= 1) {
+    return;
+  }
+
+  l10n_util::SortStringsUsingMethod(g_browser_process->GetApplicationLocale(),
+                                    &(parent->children()),
+                                    &BookmarkNode::GetTitle);
+
+  FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
+                    BookmarkNodeChildrenReordered(this, parent));
 }
 
 void BookmarkModel::SetURLStarred(const GURL& url,

@@ -92,11 +92,6 @@ class TreeNode : public TreeModelNode {
     return node;
   }
 
-  // Returns the children.
-  std::vector<NodeType*> GetChildren() {
-    return children_->v;
-  }
-
   // Returns the number of children.
   int GetChildCount() {
     return static_cast<int>(children_->size());
@@ -145,6 +140,9 @@ class TreeNode : public TreeModelNode {
       return false;
     return parent_ ? parent_->HasAncestor(ancestor) : false;
   }
+
+ protected:
+  std::vector<NodeType*>& children() { return children_.get(); }
 
  private:
   // Title displayed in the tree.
@@ -274,4 +272,3 @@ class TreeNodeModel : public TreeModel {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_TREE_NODE_MODEL_H__
-
