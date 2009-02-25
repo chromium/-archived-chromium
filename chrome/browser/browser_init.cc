@@ -502,7 +502,10 @@ bool BrowserInit::ProcessCommandLine(
         command_line.GetSwitchValue(switches::kInstallExtension);
     FilePath path = FilePath::FromWStringHack(path_string);
     profile->GetExtensionsService()->InstallExtension(path);
-    silent_launch = true;
+
+    // If the chrome process was already running, install the extension without
+    // popping up another browser window.
+    silent_launch = !process_startup;
   }
 
   // If we don't want to launch a new browser window or tab (in the case
