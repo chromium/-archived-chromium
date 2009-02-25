@@ -827,12 +827,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::string  /* args (as a JSON string) */)
 
   // A message for an external host.
-  // |receiver| can be a receiving script and |message| is any
-  // arbitrary string that makes sense to the receiver. For
-  // example, a user of automation can use it to execute a script
-  // in the form of javascript:receiver("message");
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_ForwardMessageToExternalHost,
-                      std::string  /* receiver */,
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_ForwardMessageToExternalHost,
                       std::string  /* message */)
 
 #ifdef CHROME_PERSONALIZATION

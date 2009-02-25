@@ -14,19 +14,17 @@ void ExternalHostBindings::BindMethods() {
 
 void ExternalHostBindings::ForwardMessageToExternalHost(
     const CppArgumentList& args, CppVariant* result) {
-  // We expect at least a string message identifier, and optionally take
-  // an object parameter.  If we get anything else we bail.
-  if (args.size() < 2)
+  // We only accept a string message identifier.
+  if (args.size() != 1)
     return;
 
   // Args should be strings.
-  if (!args[0].isString() && !args[1].isString())
+  if (!args[0].isString())
     return;
 
-  const std::string& receiver = args[0].ToString();
-  const std::string& message = args[1].ToString();
+  const std::string& message = args[0].ToString();
 
   sender()->Send(new ViewHostMsg_ForwardMessageToExternalHost(
-      routing_id(), receiver, message));
+      routing_id(), message));
 }
 

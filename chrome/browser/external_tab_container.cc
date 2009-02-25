@@ -252,10 +252,10 @@ void ExternalTabContainer::ToolbarSizeChanged(TabContents* source,
 }
 
 void ExternalTabContainer::ForwardMessageToExternalHost(
-    const std::string& receiver, const std::string& message) {
+    const std::string& message) {
   if(automation_) {
     automation_->Send(
-        new AutomationMsg_ForwardMessageToExternalHost(0, receiver, message));
+        new AutomationMsg_ForwardMessageToExternalHost(0, message));
   }
 }
 

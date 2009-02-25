@@ -729,10 +729,7 @@ IPC_BEGIN_MESSAGES(Automation)
                       std::string /* message */ )
 
   // A message for an external host.
-  // |receiver| can be a receiving script and |message| is any
-  // arbitrary string that makes sense to the receiver.
-  IPC_MESSAGE_ROUTED2(AutomationMsg_ForwardMessageToExternalHost,
-                      std::string /* receiver*/,
+  IPC_MESSAGE_ROUTED1(AutomationMsg_ForwardMessageToExternalHost,
                       std::string /* message*/)
 
   // This message starts a find within a tab corresponding to the supplied

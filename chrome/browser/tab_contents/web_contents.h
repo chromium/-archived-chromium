@@ -334,8 +334,7 @@ class WebContents : public TabContents,
                               WindowOpenDisposition disposition);
   virtual void DomOperationResponse(const std::string& json_string,
                                     int automation_id);
-  virtual void ProcessExternalHostMessage(const std::string& receiver,
-                                          const std::string& message);
+  virtual void ProcessExternalHostMessage(const std::string& message);
   virtual void GoToEntryAtOffset(int offset);
   virtual void GetHistoryListCount(int* back_list_count,
                                    int* forward_list_count);

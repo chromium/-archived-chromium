@@ -252,8 +252,7 @@ class RenderViewHostDelegate {
   // A message for external host. By default we ignore such messages.
   // |receiver| can be a receiving script and |message| is any
   // arbitrary string that makes sense to the receiver.
-  virtual void ProcessExternalHostMessage(const std::string& receiver,
-                                          const std::string& message) { }
+  virtual void ProcessExternalHostMessage(const std::string& message) { }
 
   // Navigate to the history entry for the given offset from the current
   // position within the NavigationController.  Makes no change if offset is

@@ -1036,9 +1036,8 @@ void RenderViewHost::OnMsgDOMUISend(
 }
 
 void RenderViewHost::OnMsgForwardMessageToExternalHost(
-    const std::string& receiver,
     const std::string& message) {
-  delegate_->ProcessExternalHostMessage(receiver, message);
+  delegate_->ProcessExternalHostMessage(message);
 }
 
 #ifdef CHROME_PERSONALIZATION
