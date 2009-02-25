@@ -446,6 +446,12 @@ class TabContents : public PageNavigator,
   // Called when a ConstrainedWindow we own is moved or resized.
   void DidMoveOrResize(ConstrainedWindow* window);
 
+  // Sets focus to the tab contents window, but doesn't actually set focus to
+  // a particular element in it (see also SetInitialFocus(bool) which does
+  // that in different circumstances).
+  // FIXME(brettw) having two SetInitialFocus that do different things is silly.
+  virtual void SetInitialFocus();
+
  protected:
   // NotificationObserver implementation:
   virtual void Observe(NotificationType type,
@@ -469,12 +475,6 @@ class TabContents : public PageNavigator,
   // For those purposes, instead see Destroy().
   // Protected so that others don't try to delete this directly.
   virtual ~TabContents();
-
-  // Sets focus to the tab contents window, but doesn't actuall set focus to
-  // a particular element in it (see also SetInitialFocus(bool) which does
-  // that in different circumstances).
-  // FIXME(brettw) having two SetInitialFocus that do different things is silly.
-  virtual void SetInitialFocus();
 
   // Changes the IsLoading state and notifies delegate as needed
   // |details| is used to provide details on the load that just finished
