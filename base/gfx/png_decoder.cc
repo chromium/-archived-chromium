@@ -8,7 +8,7 @@
 #include "skia/include/SkBitmap.h"
 
 extern "C" {
-#include "png.h"
+#include "third_party/libpng/png.h"
 }
 
 namespace {

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_GFX_PNG_ENCODER_H__
-#define BASE_GFX_PNG_ENCODER_H__
+#ifndef BASE_GFX_PNG_ENCODER_H_
+#define BASE_GFX_PNG_ENCODER_H_
 
 #include <vector>
 
@@ -62,8 +62,8 @@ class PNGEncoder {
                                  std::vector<unsigned char>* output);
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(PNGEncoder);
+  DISALLOW_COPY_AND_ASSIGN(PNGEncoder);
 };
 
-#endif  // BASE_GFX_PNG_ENCODER_H__
+#endif  // BASE_GFX_PNG_ENCODER_H_
 
