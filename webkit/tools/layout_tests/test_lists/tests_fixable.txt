@@ -971,7 +971,8 @@ LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
 
 // MERGE 38389:38450
 // WebKit regression: https://bugs.webkit.org/show_bug.cgi?id=20342
-LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
+// Fails upstream, deferring for now.
+DEFER : LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 
 // Started failing with r5743 (darin)
 // http://crbug.com/4617
