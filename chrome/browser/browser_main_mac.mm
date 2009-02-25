@@ -34,9 +34,15 @@ void WillInitializeMainMessageLoop(const CommandLine & command_line) {
   // Subprocesses (such as the renderer) need an NSApplication for
   // Cocoa happiness However, for the browser itself, we DO want it in
   // the dock.  These 3 lines make it happen.
+  //
+  // Real fix tracked by http://code.google.com/p/chromium/issues/detail?id=8044
   ProcessSerialNumber psn;
   GetCurrentProcess(&psn);
-  TransformProcessType(&psn,  kProcessTransformToForegroundApplication);
+  TransformProcessType(&psn, kProcessTransformToForegroundApplication);
+  // Fix the menubar.  Ugly.  To be removed along with the rest of the
+  // LSUIElement stuff.
+  [NSApp deactivate];
+  [NSApp activateIgnoringOtherApps:YES];
 }
 
 // Perform platform-specific work that needs to be done after the main event
