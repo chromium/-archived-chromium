@@ -19,7 +19,7 @@ using base::TimeDelta;
 using base::TimeTicks;
 
 bool BrowserProxy::ActivateTab(int tab_index) {
-  return ActivateTabWithTimeout(tab_index, INFINITE, NULL);
+  return ActivateTabWithTimeout(tab_index, base::kNoTimeout, NULL);
 }
 
 bool BrowserProxy::ActivateTabWithTimeout(int tab_index, uint32 timeout_ms,
@@ -39,7 +39,7 @@ bool BrowserProxy::ActivateTabWithTimeout(int tab_index, uint32 timeout_ms,
 }
 
 bool BrowserProxy::BringToFront() {
-  return BringToFrontWithTimeout(INFINITE, NULL);
+  return BringToFrontWithTimeout(base::kNoTimeout, NULL);
 }
 
 bool BrowserProxy::BringToFrontWithTimeout(uint32 timeout_ms,
@@ -81,7 +81,7 @@ bool BrowserProxy::AppendTab(const GURL& tab_url) {
 }
 
 bool BrowserProxy::GetActiveTabIndex(int* active_tab_index) const {
-  return GetActiveTabIndexWithTimeout(active_tab_index, INFINITE, NULL);
+  return GetActiveTabIndexWithTimeout(active_tab_index, base::kNoTimeout, NULL);
 }
 
 bool BrowserProxy::GetActiveTabIndexWithTimeout(int* active_tab_index,
@@ -124,7 +124,7 @@ TabProxy* BrowserProxy::GetTab(int tab_index) const {
 }
 
 TabProxy* BrowserProxy::GetActiveTab() const {
-  return GetActiveTabWithTimeout(INFINITE, NULL);
+  return GetActiveTabWithTimeout(base::kNoTimeout, NULL);
 }
 
 TabProxy* BrowserProxy::GetActiveTabWithTimeout(uint32 timeout_ms,
@@ -136,7 +136,7 @@ TabProxy* BrowserProxy::GetActiveTabWithTimeout(uint32 timeout_ms,
 }
 
 bool BrowserProxy::GetTabCount(int* num_tabs) const {
-  return GetTabCountWithTimeout(num_tabs, INFINITE, NULL);
+  return GetTabCountWithTimeout(num_tabs, base::kNoTimeout, NULL);
 }
 
 bool BrowserProxy::GetTabCountWithTimeout(int* num_tabs, uint32 timeout_ms,
@@ -175,7 +175,7 @@ bool BrowserProxy::SimulateDrag(const POINT& start,
                                 const POINT& end,
                                 int flags,
                                 bool press_escape_en_route) {
-  return SimulateDragWithTimeout(start, end, flags, INFINITE, NULL,
+  return SimulateDragWithTimeout(start, end, flags, base::kNoTimeout, NULL,
                                  press_escape_en_route);
 }
 

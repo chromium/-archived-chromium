@@ -5,8 +5,14 @@
 #ifndef CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_
 #define CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
+
 #include <string>
+
 #include "chrome/test/automation/automation_handle_tracker.h"
 
 class GURL;
@@ -116,6 +122,9 @@ class BrowserProxy : public AutomationResourceProxy {
   // desktop.
   bool ApplyAccelerator(int id);
 
+#if defined(OS_WIN)
+  // TODO(port): Use portable replacement for POINT.
+
   // Performs a drag operation between the start and end points (both defined
   // in window coordinates).  |flags| specifies which buttons are pressed for
   // the drag, as defined in chrome/views/event.h.
@@ -128,6 +137,7 @@ class BrowserProxy : public AutomationResourceProxy {
                                        int flags, uint32 timeout_ms,
                                        bool* is_timeout,
                                        bool press_escape_en_route);
+#endif  // defined(OS_WIN)
 
   // Block the thread until the tab count changes.
   // |count| is the original tab count.
@@ -156,12 +166,16 @@ class BrowserProxy : public AutomationResourceProxy {
   // will be false. Returns false on failure.
   bool IsFindWindowFullyVisible(bool* is_visible);
 
+#if defined(OS_WIN)
+  // TODO(port): Use portable equivalent of HWND.
+
   // Gets the outermost HWND that corresponds to the given browser.
   // Returns true if the call was successful.
   // Note that ideally this should go and the version of WindowProxy should be
   // used instead.  We have to keep it for start_up_tests that test against a
   // reference build.
   bool GetHWND(HWND* handle) const;
+#endif  // defined(OS_WIN)
 
   // Run the specified command in the browser (see browser_commands.cc for the
   // list of supported commands).  Returns true if the command was successfully

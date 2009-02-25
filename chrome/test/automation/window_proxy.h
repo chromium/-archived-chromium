@@ -5,9 +5,13 @@
 #ifndef CHROME_TEST_AUTOMATION_WINDOW_PROXY_H__
 #define CHROME_TEST_AUTOMATION_WINDOW_PROXY_H__
 
-#include <string>
+#include "build/build_config.h"
 
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
+
+#include <string>
 
 #include "base/thread.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
@@ -31,6 +35,9 @@ class WindowProxy : public AutomationResourceProxy {
     : AutomationResourceProxy(tracker, sender, handle) {}
   virtual ~WindowProxy() {}
 
+#if defined(OS_WIN)
+  // TODO(port): Use portable replacements for windowsisms.
+
   // Gets the outermost HWND that corresponds to the given window.
   // Returns true if the call was successful.
   bool GetHWND(HWND* handle) const;
@@ -41,6 +48,7 @@ class WindowProxy : public AutomationResourceProxy {
   // the mouse and pressing the button.  So if there is a window on top of this
   // window, the top window is clicked.
   bool SimulateOSClick(const POINT& click, int flags);
+#endif  // defined(OS_WIN)
 
   // Simulates a key press at the OS level. |key| is the key pressed  and
   // |flags| specifies which modifiers keys are also pressed (as defined in

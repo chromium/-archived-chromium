@@ -8,6 +8,7 @@ env = env.Clone()
 
 env.ApplySConscript([
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$CHROME_SRC_DIR/tools/grit/build/using_generated_resources.scons',
     '$SKIA_DIR/using_skia.scons',
 ])
 
@@ -37,9 +38,17 @@ input_files = ChromeFileList([
     'window_proxy.h',
 ])
 
-# TODO(port):
-if env.Bit('windows'):
-  env.ChromeLibrary('automation', input_files)
+if not env.Bit('windows'):
+  # TODO(port): port.
+  input_files.Remove(
+      'autocomplete_edit_proxy.cc',
+      'browser_proxy.cc',
+      'constrained_window_proxy.cc',
+      'tab_proxy.cc',
+      'window_proxy.cc',
+  )
+
+env.ChromeLibrary('automation', input_files)
 
 p = env.ChromeMSVSProject('automation.vcproj',
                           dest=('$CHROME_SRC_DIR/chrome/'

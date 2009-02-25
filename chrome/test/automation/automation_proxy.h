@@ -9,13 +9,19 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "base/thread.h"
+#include "base/waitable_event.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 #include "chrome/test/automation/automation_messages.h"
+
+#if defined(OS_WIN)
+// TODO(port): Enable this or equivalent.
 #include "chrome/views/dialog_delegate.h"
+#endif
 
 class AutomationRequest;
 class BrowserProxy;
@@ -28,6 +34,9 @@ class AutomationMessageSender : public IPC::Message::Sender {
  public:
   // Sends a message synchronously; it doesn't return until a response has been
   // received or a timeout has expired.
+  //
+  // Use base::kNoTimeout for no timeout.
+  //
   // The function returns true if a response is received, and returns false if
   // there is a failure or timeout (in milliseconds). If return after timeout,
   // is_timeout is set to true.
@@ -93,6 +102,9 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Returns true on success.
   bool WaitForWindowCountToBecome(int target_count, int wait_timeout);
 
+#if defined(OS_WIN)
+  // TODO(port): Enable when we have portable DialogDelegate.
+
   // Returns whether an app modal dialog window is showing right now (i.e., a
   // javascript alert), and what buttons it contains.
   bool GetShowingAppModalDialog(bool* showing_app_modal_dialog,
@@ -100,6 +112,7 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   // Simulates a click on a dialog button.
   bool ClickAppModalDialogButton(views::DialogDelegate::DialogButton button);
+#endif  // defined(OS_WIN)
 
   // Block the thread until a modal dialog is displayed. Returns true on
   // success.
@@ -161,18 +174,21 @@ class AutomationProxy : public IPC::Channel::Listener,
   // the tracker.
   void InvalidateHandle(const IPC::Message& message);
 
+#if defined(OS_WIN)
+  // TODO(port): Enable when we can replace HWND.
+
   // Creates a tab that can hosted in an external process. The function
   // returns a TabProxy representing the tab as well as a window handle
   // that can be reparented in another process.
   TabProxy* CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
                               unsigned int style, HWND* external_tab_container);
+#endif  // defined(OS_WIN)
 
   int command_execution_timeout_ms() const {
-    return command_execution_timeout_ms_;
+    return static_cast<int>(command_execution_timeout_.InMilliseconds());
   }
 
  private:
-  void InitializeEvents();
   void InitializeChannelID();
   void InitializeThread();
   void InitializeChannel();
@@ -183,9 +199,9 @@ class AutomationProxy : public IPC::Channel::Listener,
   scoped_ptr<IPC::SyncChannel> channel_;
   scoped_ptr<AutomationHandleTracker> tracker_;
 
-  HANDLE app_launched_;
-  HANDLE initial_loads_complete_;
-  HANDLE new_tab_ui_load_complete_;
+  base::WaitableEvent app_launched_;
+  base::WaitableEvent initial_loads_complete_;
+  base::WaitableEvent new_tab_ui_load_complete_;
   int new_tab_ui_load_time_;
 
   // An event that notifies when we are shutting-down.
@@ -194,7 +210,7 @@ class AutomationProxy : public IPC::Channel::Listener,
   AutomationRequest* current_request_;
 
   // Delay to let the browser execute the command.
-  int command_execution_timeout_ms_;
+  base::TimeDelta command_execution_timeout_;
 
   DISALLOW_COPY_AND_ASSIGN(AutomationProxy);
 };

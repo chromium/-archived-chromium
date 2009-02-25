@@ -72,7 +72,7 @@ int TabProxy::FindInPage(const std::wstring& search_string,
 }
 
 AutomationMsg_NavigationResponseValues TabProxy::NavigateToURL(const GURL& url) {
-  return NavigateToURLWithTimeout(url, INFINITE, NULL);
+  return NavigateToURLWithTimeout(url, base::kNoTimeout, NULL);
 }
 
 AutomationMsg_NavigationResponseValues TabProxy::NavigateToURLWithTimeout(

@@ -69,7 +69,7 @@ bool WindowProxy::Activate() {
 bool WindowProxy::GetViewBounds(int view_id, gfx::Rect* bounds,
                                 bool screen_coordinates) {
   return GetViewBoundsWithTimeout(view_id, bounds, screen_coordinates,
-                                  INFINITE, NULL);
+                                  base::kNoTimeout, NULL);
 }
 
 bool WindowProxy::GetViewBoundsWithTimeout(int view_id, gfx::Rect* bounds,
@@ -106,7 +106,7 @@ bool WindowProxy::GetFocusedViewID(int* view_id) {
 }
 
 BrowserProxy* WindowProxy::GetBrowser() {
-  return GetBrowserWithTimeout(INFINITE, NULL);
+  return GetBrowserWithTimeout(base::kNoTimeout, NULL);
 }
 
 BrowserProxy* WindowProxy::GetBrowserWithTimeout(uint32 timeout_ms,
