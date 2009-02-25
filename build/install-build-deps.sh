@@ -5,7 +5,7 @@
 set -ex
 
 # Root can't access files on all filesystems, but /tmp should always be ok
-# (unless it's full).  
+# (unless it's full).
 DIR=`mktemp -d`
 cd $DIR
 touch .created
@@ -64,9 +64,9 @@ install_hardy_64() {
   sudo rsync -v -a usr/lib/* /usr/lib32/
   sudo ldconfig
 
-  # Make missing symlinks as described by 
+  # Make missing symlinks as described by
   # https://bugs.launchpad.net/ubuntu/+source/ia32-libs/+bug/277772
-  # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=492453 
+  # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=492453
   # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=497087
   cd /usr/lib32
   for lib in gio-2.0 gdk-x11-2.0 atk-1.0 gdk_pixbuf-2.0 \
@@ -95,6 +95,10 @@ install_hardy_64() {
   do
     sudo ln -s -f /usr/lib32/lib$lib.so.1d /usr/lib32/lib$lib.so
   done
+
+  sudo ln -s -f /usr/lib32/libX11.so.6 /usr/lib32/libX11.so
+  sudo ln -s -f /usr/lib32/libXrender.so.1 /usr/lib32/libXrender.so
+  sudo ln -s -f /usr/lib32/libXext.so.6 /usr/lib32/libXext.so
 }
 
 if egrep -q "Ubuntu 8.04|Ubuntu 8.10" /etc/issue && test `uname -m` = i686
