@@ -20,12 +20,8 @@ ChildThread::ChildThread(Thread::Options options)
       switches::kProcessChannelID);
 
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kUserAgent)) {
-#if defined(OS_WIN)
-    // TODO(port): calling this connects an, otherwise disconnected, subgraph
-    // of symbols, causing huge numbers of linker errors.
     webkit_glue::SetUserAgent(WideToUTF8(
         CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kUserAgent)));
-#endif
   }
 }
 

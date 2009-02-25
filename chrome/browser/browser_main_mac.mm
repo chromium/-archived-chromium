@@ -12,7 +12,7 @@
 namespace Platform {
 
 // Perform and platform-specific work that needs to be done before the main
-// message loop is created and initialized. 
+// message loop is created and initialized.
 //
 // For Mac, this involves telling Cooca to finish its initalization, which we
 // want to do manually instead of calling NSApplicationMain(). The primary
@@ -24,13 +24,26 @@ namespace Platform {
 void WillInitializeMainMessageLoop(const CommandLine & command_line) {
   [NSApplication sharedApplication];
   [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
+
+  // TODO(port): Use of LSUIElement=1 is a temporary fix.  The right
+  // answer is to fix the renderer to not use Cocoa.
+  //
+  // Chromium.app currently as LSUIElement=1 in it's Info.plist.  This
+  // allows subprocesses (created with a relaunch of our binary) to
+  // create an NSApplication without showing up in the dock.
+  // Subprocesses (such as the renderer) need an NSApplication for
+  // Cocoa happiness However, for the browser itself, we DO want it in
+  // the dock.  These 3 lines make it happen.
+  ProcessSerialNumber psn;
+  GetCurrentProcess(&psn);
+  TransformProcessType(&psn,  kProcessTransformToForegroundApplication);
 }
 
 // Perform platform-specific work that needs to be done after the main event
 // loop has ended. We need to send the notifications that Cooca normally would
 // telling everyone the app is about to end.
 void WillTerminate() {
-  [[NSNotificationCenter defaultCenter] 
+  [[NSNotificationCenter defaultCenter]
       postNotificationName:NSApplicationWillTerminateNotification
                     object:NSApp];
 }
