@@ -743,6 +743,11 @@ void Browser::BookmarkCurrentPage() {
   window_->ShowBookmarkBubble(url, model->IsBookmarked(url));
 }
 
+void Browser::SavePage() {
+  UserMetrics::RecordAction(L"SavePage", profile_);
+  GetSelectedTabContents()->AsWebContents()->OnSavePage();
+}
+
 void Browser::ViewSource() {
   UserMetrics::RecordAction(L"ViewSource", profile_);
 
@@ -764,11 +769,6 @@ void Browser::ClosePopups() {
 void Browser::Print() {
   UserMetrics::RecordAction(L"PrintPreview", profile_);
   GetSelectedTabContents()->AsWebContents()->PrintPreview();
-}
-
-void Browser::SavePage() {
-  UserMetrics::RecordAction(L"SavePage", profile_);
-  GetSelectedTabContents()->AsWebContents()->OnSavePage();
 }
 
 void Browser::ToggleEncodingAutoDetect() {
@@ -1113,12 +1113,12 @@ void Browser::ExecuteCommand(int id) {
     case IDC_EXIT:                  Exit();                        break;
 
     // Page-related commands
+    case IDC_SAVE_PAGE:             SavePage();                    break;
     case IDC_STAR:                  BookmarkCurrentPage();         break;
     case IDC_VIEW_SOURCE:           ViewSource();                  break;
 #if defined(OS_WIN)
     case IDC_CLOSE_POPUPS:          ClosePopups();                 break;
     case IDC_PRINT:                 Print();                       break;
-    case IDC_SAVE_PAGE:             SavePage();                    break;
     case IDC_ENCODING_AUTO_DETECT:  ToggleEncodingAutoDetect();    break;
     case IDC_ENCODING_UTF8:
     case IDC_ENCODING_UTF16LE:

@@ -380,8 +380,11 @@ void DomSerializer::OpenTagToString(const WebCore::Element* element,
             LinkLocalPathMap::const_iterator it = local_links_.find(value);
             if (it != local_links_.end()) {
               // Replace the link when we have local files.
-              result += FilePathStringToString(param->directory_name.value());
-              result += FilePathStringToString(it->second.value());
+              FilePath::StringType path(FilePath::kCurrentDirectory);
+              if (!param->directory_name.empty())
+                path += FILE_PATH_LITERAL("/") + param->directory_name.value();
+              path += FILE_PATH_LITERAL("/") + it->second.value();
+              result += FilePathStringToString(path);
             } else {
               // If not found local path, replace it with absolute link.
               result += str_value;
@@ -577,7 +580,7 @@ bool DomSerializer::SerializeDom() {
           current_doc,
           current_frame_gurl == main_page_gurl ?
                                 local_directory_name_ :
-                                FilePath(FilePath::kCurrentDirectory));
+                                FilePath());
 
       // Process current document.
       WebCore::Element* root_element = current_doc->documentElement();

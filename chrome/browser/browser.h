@@ -248,11 +248,11 @@ class Browser : public TabStripModelDelegate,
 
   // Page-related commands
   void BookmarkCurrentPage();
+  void SavePage();
   void ViewSource();
 #if defined(OS_WIN)
   void ClosePopups();
   void Print();
-  void SavePage();
   void ToggleEncodingAutoDetect();
   void OverrideEncoding(int encoding_id);
 

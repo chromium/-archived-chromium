@@ -267,12 +267,12 @@ bool SavePackage::Init() {
   }
 
   // Create the fake DownloadItem and display the view.
-#if defined(OS_WIN)
-  // TODO(port): We need to do something like this on posix, but avoid
-  // using DownloadShelfView, which probably should not be ported directly.
   download_ = new DownloadItem(1, saved_main_file_path_, 0, page_url_,
       FilePath(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(web_contents_->profile()->GetDownloadManager());
+#if defined(OS_WIN)
+  // TODO(port): We need to do something like this on posix, but avoid
+  // using DownloadShelfView, which probably should not be ported directly.
   DownloadShelfView* shelf = web_contents_->GetDownloadShelfView();
   shelf->AddDownloadView(new DownloadItemView(
       download_, shelf, new SavePageModel(this, download_)));
@@ -561,7 +561,6 @@ void SavePackage::Stop() {
   wait_state_ = FAILED;
 
   // Inform the DownloadItem we have canceled whole save page job.
-  DCHECK(download_);
   download_->Cancel(false);
 }
 
@@ -612,7 +611,6 @@ void SavePackage::Finish() {
                         &SaveFileManager::RemoveSavedFileFromFileMap,
                         save_ids));
 
-  DCHECK(download_);
   download_->Finished(all_save_items_count_);
 }
 
@@ -632,7 +630,6 @@ void SavePackage::SaveFinished(int32 save_id, int64 size, bool is_success) {
   PutInProgressItemToSavedMap(save_item);
 
   // Inform the DownloadItem to update UI.
-  DCHECK(download_);
   // We use the received bytes as number of saved files.
   download_->Update(completed_count());
 
@@ -674,7 +671,6 @@ void SavePackage::SaveFailed(const GURL& save_url) {
   PutInProgressItemToSavedMap(save_item);
 
   // Inform the DownloadItem to update UI.
-  DCHECK(download_);
   // We use the received bytes as number of saved files.
   download_->Update(completed_count());
 
@@ -992,6 +988,7 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
   // TODO(port): we need a version of ReplaceIllegalCharacters() that takes
   // FilePaths.
   file_util::ReplaceIllegalCharacters(&file_name, L' ');
+  TrimWhitespace(file_name, TRIM_ALL, &file_name);
   FilePath suggest_name = FilePath::FromWStringHack(save_file_path.GetValue());
   suggest_name = suggest_name.Append(FilePath::FromWStringHack(file_name));
 
@@ -1041,7 +1038,6 @@ bool SavePackage::GetSaveInfo(const FilePath& suggest_name,
     index = 1;
   }
 
-  DCHECK(download_manager);
   // Ensure the filename is safe.
   download_manager->GenerateSafeFilename(param->current_tab_mime_type,
                                          &param->saved_main_file_path);
