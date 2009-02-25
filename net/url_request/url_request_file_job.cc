@@ -73,8 +73,9 @@ URLRequestJob* URLRequestFileJob::Factory(
     URLRequest* request, const std::string& scheme) {
   FilePath file_path;
   if (net::FileURLToFilePath(request->url(), &file_path) &&
-      file_util::EnsureEndsWithSeparator(&file_path))
-      return new URLRequestFileDirJob(request, file_path);
+      file_util::EnsureEndsWithSeparator(&file_path) &&
+      file_path.IsAbsolute())
+    return new URLRequestFileDirJob(request, file_path);
 
   // Use a regular file request job for all non-directories (including invalid
   // file names).
@@ -165,10 +166,14 @@ void URLRequestFileJob::DidResolve(
     return;
 
   int rv = net::OK;
-  if (!exists) {
+  // We use URLRequestFileJob to handle valid and invalid files as well as
+  // invalid directories. For a directory to be invalid, it must either not
+  // exist, or be "\" on Windows. (Windows resolves "\" to "C:\", thus
+  // reporting it as existent.) On POSIX, we don't count any existent
+  // directory as invalid.
+  if (!exists || file_info.is_directory) {
     rv = net::ERR_FILE_NOT_FOUND;
   } else {
-    DCHECK(!file_info.is_directory);
     int flags = base::PLATFORM_FILE_OPEN |
                 base::PLATFORM_FILE_READ |
                 base::PLATFORM_FILE_ASYNC;
