@@ -995,6 +995,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\browser\browser_focus_uitest.cc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

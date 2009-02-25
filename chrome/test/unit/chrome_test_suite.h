@@ -12,6 +12,7 @@
 #include "base/path_service.h"
 #include "base/scoped_nsautorelease_pool.h"
 #include "base/test_suite.h"
+#include "chrome/app/scoped_ole_initializer.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -78,11 +79,12 @@ protected:
     // Tear down shared StatsTable; prevents unit_tests from leaking it.
     StatsTable::set_current(NULL);
     delete stats_table_;
-    
+
     TestSuite::Shutdown();
   }
 
   StatsTable* stats_table_;
+  ScopedOleInitializer ole_initializer_;
 };
 
 #endif // CHROME_TEST_UNIT_CHROME_TEST_SUITE_H_
