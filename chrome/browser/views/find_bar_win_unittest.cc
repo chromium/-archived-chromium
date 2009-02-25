@@ -144,6 +144,3 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageFrames) {
   EXPECT_EQ(1, FindInPage(L"Hreggvi\u00F0ur", FWD, CASE_SENSITIVE, false));
   EXPECT_EQ(0, FindInPage(L"hreggvi\u00F0ur", FWD, CASE_SENSITIVE, false));
 }
-
-IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, OtherTest) {
-}

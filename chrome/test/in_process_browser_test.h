@@ -5,6 +5,7 @@
 #ifndef CHROME_TEST_IN_PROCESS_BROWSER_TEST_H_
 #define CHROME_TEST_IN_PROCESS_BROWSER_TEST_H_
 
+#include "chrome/app/scoped_ole_initializer.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_observer.h"
 #include "net/url_request/url_request_unittest.h"
@@ -73,11 +74,6 @@ class InProcessBrowserTest : public testing::Test, public NotificationObserver {
   // This is invoked from Setup.
   virtual Browser* CreateBrowser(Profile* profile);
 
-  // Sets some test states (see below for comments).  Call this in your test
-  // constructor.
-  void set_show_window(bool show) { show_window_ = show; }
-  void EnableDOMAutomation() { dom_automation_enabled_ = true; }
-
  private:
   // Invokes CreateBrowser to create a browser, then RunTestOnMainThread, and
   // destroys the browser.
@@ -92,13 +88,7 @@ class InProcessBrowserTest : public testing::Test, public NotificationObserver {
   // HTTPServer, created when StartHTTPServer is invoked.
   scoped_refptr<HTTPTestServer> http_server_;
 
-  // Whether this test requires the browser windows to be shown (interactive
-  // tests for example need the windows shown).
-  bool show_window_;
-
-  // Whether the JavaScript can access the DOMAutomationController (a JS object
-  // that can send messages back to the browser).
-  bool dom_automation_enabled_;
+  ScopedOleInitializer ole_initializer_;
 
   DISALLOW_COPY_AND_ASSIGN(InProcessBrowserTest);
 };

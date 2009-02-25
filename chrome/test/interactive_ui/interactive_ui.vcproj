@@ -12,25 +12,18 @@
 		/>
 	</Platforms>
 	<ToolFiles>
-		<ToolFile
-			RelativePath="..\..\tools\build\win\version.rules"
-		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\..\tools\build\win\precompiled_wtl.vsprops;..\..\tools\build\win\unit_test.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\third_party\hunspell\using_hunspell.vsprops;..\..\installer\util\using_util.vsprops;..\..\..\third_party\npapi\using_npapi.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\..\tools\build\win\precompiled_wtl.vsprops;..\..\tools\build\win\unit_test.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;..\..\..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\third_party\hunspell\using_hunspell.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="Version"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -49,14 +42,12 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(SolutionDir)..;&quot;$(IntDir)&quot;;&quot;$(IntDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(IntDir)\..\&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -86,16 +77,13 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\tools\build\win\unit_test.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\third_party\hunspell\using_hunspell.vsprops;..\..\installer\util\using_util.vsprops;..\..\..\third_party\npapi\using_npapi.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\tools\build\win\unit_test.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;..\..\..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\third_party\hunspell\using_hunspell.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="Version"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -114,7 +102,6 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="$(SolutionDir)..;&quot;$(IntDir)&quot;;&quot;$(IntDir)&quot;;&quot;$(SolutionDir)&quot;;&quot;$(IntDir)\..\&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -155,14 +142,6 @@
 		<Filter
 			Name="Common"
 			>
-			<File
-				RelativePath="..\in_process_browser_test.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\in_process_browser_test.h"
-				>
-			</File>
 			<File
 				RelativePath="..\ui\npapi_test_helper.cc"
 				>
@@ -212,99 +191,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ui_test_utils.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\ui_test_utils.h"
-				>
-			</File>
-			<File
 				RelativePath=".\view_event_test_base.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\view_event_test_base.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="resources"
-			>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\aliasb.cur"
-				>
-			</File>
-			<File
-				RelativePath="$(OutDir)\grit_derived_sources\browser_resources.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\cell.cur"
-				>
-			</File>
-			<File
-				RelativePath="..\..\app\chrome_dll.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\app\chrome_dll_resource.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\app\chrome_dll_version.rc.version"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\col_resize.cur"
-				>
-			</File>
-			<File
-				RelativePath="$(OutDir)\grit_derived_sources\common_resources.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\copy.cur"
-				>
-			</File>
-			<File
-				RelativePath="$(OutDir)\grit_derived_sources\debugger_resources.rc"
-				>
-			</File>
-			<File
-				RelativePath="$(OutDir)\grit_derived_sources\net_resources.rc"
-				>
-			</File>
-			<File
-				RelativePath="$(OutDir)\grit_derived_sources\renderer_resources.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\data\resource.h"
-				>
-			</File>
-			<File
-				RelativePath="..\data\resource.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\row_resize.cur"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\vertical_text.cur"
-				>
-			</File>
-			<File
-				RelativePath="$(OutDir)\grit_derived_sources\webkit_resources.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\zoom_in.cur"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\webkit\glue\resources\zoom_out.cur"
 				>
 			</File>
 		</Filter>

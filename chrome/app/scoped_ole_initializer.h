@@ -6,7 +6,6 @@
 #define CHROME_APP_SCOPED_OLE_INITIALIZER_H_
 
 #include "base/logging.h"
-#include "base/message_loop.h"
 #include "build/build_config.h"
 
 // Wraps OLE initialization in a cross-platform class meant to be used on the
@@ -20,16 +19,12 @@
 class ScopedOleInitializer {
  public:
   ScopedOleInitializer() {
-    msg_loop_ = MessageLoop::current();
     int ole_result = OleInitialize(NULL);
     DCHECK(ole_result == S_OK);
   }
   ~ScopedOleInitializer() {
-    DCHECK(msg_loop_ == MessageLoop::current());
     OleUninitialize();
   }
-  
-  MessageLoop* msg_loop_;
 };
 
 #else
