@@ -519,20 +519,7 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
     }
     if (!whiteout_start_time_.is_null()) {
       TimeDelta whiteout_duration = TimeTicks::Now() - whiteout_start_time_;
-
-      // If field trial is active, report results in special histogram.
-      static scoped_refptr<FieldTrial> trial(
-          FieldTrialList::Find(BrowserTrial::kMemoryModelFieldTrial));
-      if (trial.get()) {
-        if (trial->boolean_value())
-          UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration_trial_high_memory",
-                              whiteout_duration);
-        else
-          UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration_trial_med_memory",
-                              whiteout_duration);
-      } else {
-        UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration", whiteout_duration);
-      }
+      UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration", whiteout_duration);
 
       // Reset the start time to 0 so that we start recording again the next
       // time the backing store is NULL...

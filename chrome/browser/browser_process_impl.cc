@@ -127,18 +127,7 @@ BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
       else if (model == L"medium")
         memory_model_ = MEDIUM_MEMORY_MODEL;
     }
-  } else {
-    // Randomly choose what memory model to use.
-    const double probability = 0.5;
-    FieldTrial* trial(new FieldTrial(BrowserTrial::kMemoryModelFieldTrial,
-                                     probability));
-    DCHECK(FieldTrialList::Find(BrowserTrial::kMemoryModelFieldTrial) == trial);
-    if (trial->boolean_value())
-      memory_model_ = HIGH_MEMORY_MODEL;
-    else
-      memory_model_ = MEDIUM_MEMORY_MODEL;
   }
-
   shutdown_event_.reset(new base::WaitableEvent(true, false));
 }
 

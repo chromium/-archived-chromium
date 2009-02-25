@@ -14,7 +14,10 @@
 // define current and past trials.
 class BrowserTrial {
  public:
-  static const wchar_t* kMemoryModelFieldTrial;
+
+  // The following is a sample line for what should be listed in this file.
+  // static const wchar_t* kMemoryModelFieldTrial;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(BrowserTrial);
 };
