@@ -873,7 +873,7 @@ void BookmarkBarView::ViewHierarchyChanged(bool is_add,
                                            View* child) {
   // See http://code.google.com/p/chromium/issues/detail?id=7857 . It seems
   // as though the bookmark bar is getting unintentionally removed.
-  DCHECK(child != this || !is_add ||
+  DCHECK(testing_ || child != this || is_add ||
          static_cast<BrowserView*>(parent)->is_removing_bookmark_bar());
 
   if (is_add && child == this && height() > 0) {

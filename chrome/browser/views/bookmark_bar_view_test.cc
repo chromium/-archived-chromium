@@ -114,9 +114,9 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
   }
 
   virtual void TearDown() {
-    BookmarkBarView::testing_ = false;
     views::MenuItemView::allow_task_nesting_during_run_ = false;
     ViewEventTestBase::TearDown();
+    BookmarkBarView::testing_ = false;
   }
 
  protected:
