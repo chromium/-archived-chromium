@@ -665,8 +665,6 @@ if not env.Bit('windows'):
       'autocomplete/autocomplete_edit.cc',
       'autocomplete/autocomplete_popup.cc',
       'autocomplete/edit_drop_target.cc',
-      'automation/automation_provider.cc',
-      'automation/automation_provider_list.cc',
       'automation/ui_controls.cc',
       'browser_accessibility.cc',
       'browser_accessibility_manager.cc',

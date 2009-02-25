@@ -16,7 +16,7 @@ class AutomationTabTracker
   : public AutomationResourceTracker<NavigationController*> {
 public:
   AutomationTabTracker(IPC::Message::Sender* automation)
-      : AutomationResourceTracker(automation) {}
+      : AutomationResourceTracker<NavigationController*>(automation) {}
 
   virtual ~AutomationTabTracker() {
     ClearAllMappings();
@@ -54,14 +54,19 @@ public:
         return;
       case NotificationType::EXTERNAL_TAB_CLOSED:
       case NotificationType::TAB_CLOSING:
-        std::map<NavigationController*, base::Time>::iterator iter =
-            last_navigation_times_.find(
-            Source<NavigationController>(source).ptr());
-        if (iter != last_navigation_times_.end())
-          last_navigation_times_.erase(iter);
+        {
+          std::map<NavigationController*, base::Time>::iterator iter =
+              last_navigation_times_.find(
+              Source<NavigationController>(source).ptr());
+          if (iter != last_navigation_times_.end())
+            last_navigation_times_.erase(iter);
+        }
         break;
+      default:
+        NOTREACHED();
     }
-    AutomationResourceTracker::Observe(type, source, details);
+    AutomationResourceTracker<NavigationController*>::Observe(type, source,
+                                                              details);
   }
 
   base::Time GetLastNavigationTime(int handle) {

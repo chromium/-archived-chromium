@@ -15,11 +15,9 @@
 #include <string>
 #include <vector>
 
+#include "base/basictypes.h"
 #include "chrome/browser/automation/automation_browser_tracker.h"
-#include "chrome/browser/automation/automation_constrained_window_tracker.h"
 #include "chrome/browser/automation/automation_tab_tracker.h"
-#include "chrome/browser/automation/automation_window_tracker.h"
-#include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -29,10 +27,17 @@
 #include "chrome/views/event.h"
 #include "webkit/glue/find_in_page_request.h"
 
+#if defined(OS_WIN)
+// TODO(port): enable these.
+#include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
+#include "chrome/browser/automation/automation_constrained_window_tracker.h"
+#include "chrome/browser/automation/automation_window_tracker.h"
+enum AutomationMsg_NavigationResponseValues;
+#endif
+
 class LoginHandler;
 class NavigationControllerRestoredObserver;
 class ExternalTabContainer;
-enum AutomationMsg_NavigationResponseValues;
 struct AutocompleteMatchData;
 
 class AutomationProvider : public base::RefCounted<AutomationProvider>,
@@ -64,7 +69,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // to the IPC message.
   template<class NavigationCodeType>
   NotificationObserver* AddNavigationStatusListener(
-      NavigationController* tab, IPC::Message* reply_message, 
+      NavigationController* tab, IPC::Message* reply_message,
       NavigationCodeType success_code,
       NavigationCodeType auth_needed_code,
       NavigationCodeType failed_code);
@@ -105,7 +110,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void ReceivedInspectElementResponse(int num_resources);
 
   IPC::Message* reply_message_release() {
-    IPC::Message* reply_message = reply_message_; 
+    IPC::Message* reply_message = reply_message_;
     reply_message_ = NULL;
     return reply_message;
   }
@@ -132,10 +137,15 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void GetBrowserWindow(int index, int* handle);
   void GetLastActiveBrowserWindow(int* handle);
   void GetActiveWindow(int* handle);
+#if defined(OS_WIN)
+  // TODO(port): Replace HWND.
   void GetWindowHWND(int handle, HWND* win32_handle);
+#endif  // defined(OS_WIN)
   void ExecuteBrowserCommand(int handle, int command, bool* success);
   void WindowGetViewBounds(int handle, int view_id, bool screen_coordinates,
                            bool* success, gfx::Rect* bounds);
+#if defined(OS_WIN)
+  // TODO(port): Replace POINT.
   void WindowSimulateDrag(int handle,
                           std::vector<POINT> drag_path,
                           int flags,
@@ -145,6 +155,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                           int handle,
                           POINT click,
                           int flags);
+#endif  // defined(OS_WIN)
   void WindowSimulateKeyPress(const IPC::Message& message,
                               int handle,
                               wchar_t key,
@@ -155,7 +166,10 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   void GetTabCount(int handle, int* tab_count);
   void GetTab(int win_handle, int tab_index, int* tab_handle);
+#if defined(OS_WIN)
+  // TODO(port): Replace HWND.
   void GetTabHWND(int handle, HWND* tab_hwnd);
+#endif  // defined(OS_WIN)
   void GetTabProcessID(int handle, int* process_id);
   void GetTabTitle(int handle, int* title_string_size, std::wstring* title);
   void GetTabURL(int handle, bool* success, GURL* url);
@@ -179,10 +193,13 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void GetShelfVisibility(int handle, bool* visible);
   void SetFilteredInet(const IPC::Message& message, bool enabled);
 
+#if defined(OS_WIN)
+  // TODO(port): Replace POINT.
   void ScheduleMouseEvent(views::View* view,
                           views::Event::EventType type,
                           POINT point,
                           int flags);
+#endif  // defined(OS_WIN)
   void GetFocusedViewID(int handle, int* view_id);
 
   // Helper function to find the browser window that contains a given
@@ -254,6 +271,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                             IPC::Message* reply_message);
   void HideInterstitialPage(int tab_handle, bool* success);
 
+#if defined(OS_WIN)
+  // TODO(port): Re-enable.
   void CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
                          unsigned int style, HWND* tab_container_window,
                          int* tab_handle);
@@ -276,6 +295,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Chrome.
   void SetAcceleratorsForTab(int handle, HACCEL accel_table,
                              int accel_entry_count, bool* status);
+#endif  // defined(OS_WIN)
 
   // Gets the security state for the tab associated to the specified |handle|.
   void GetSecurityState(int handle, bool* success,
@@ -412,11 +432,14 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   scoped_ptr<NotificationObserver> find_in_page_observer_;
   scoped_ptr<NotificationObserver> dom_operation_observer_;
   scoped_ptr<NotificationObserver> dom_inspector_observer_;
+  scoped_ptr<AutomationBrowserTracker> browser_tracker_;
   scoped_ptr<AutomationTabTracker> tab_tracker_;
+#if defined(OS_WIN)
+  // TODO(port): Enable as trackers get ported.
   scoped_ptr<AutomationConstrainedWindowTracker> cwindow_tracker_;
   scoped_ptr<AutomationWindowTracker> window_tracker_;
-  scoped_ptr<AutomationBrowserTracker> browser_tracker_;
   scoped_ptr<AutomationAutocompleteEditTracker> autocomplete_edit_tracker_;
+#endif
   scoped_ptr<NavigationControllerRestoredObserver> restore_tracker_;
   LoginHandlerMap login_handler_map_;
   NotificationObserverList notification_observer_list_;

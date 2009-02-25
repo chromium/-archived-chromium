@@ -8,37 +8,42 @@
 #include "base/path_service.h"
 #include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_provider_list.h"
-#include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/browser/automation/url_request_slow_download_job.h"
 #include "chrome/browser/browser_window.h"
-#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/download/save_package.h"
-#include "chrome/browser/external_tab_container.h"
 #include "chrome/browser/find_notification_details.h"
-#include "chrome/browser/login_prompt.h"
-#include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/ssl/ssl_blocking_page.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
-#include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/app_modal_dialog_delegate.h"
-#include "chrome/views/window.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "net/base/cookie_monster.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_filter.h"
+
+#if defined(OS_WIN)
+// TODO(port): Port these headers.
+#include "chrome/browser/app_modal_dialog_queue.h"
+#include "chrome/browser/automation/ui_controls.h"
+#include "chrome/browser/character_encoding.h"
+#include "chrome/browser/download/save_package.h"
+#include "chrome/browser/external_tab_container.h"
+#include "chrome/browser/login_prompt.h"
+#include "chrome/browser/printing/print_job.h"
+#include "chrome/browser/views/bookmark_bar_view.h"
+#include "chrome/browser/views/location_bar_view.h"
+#include "chrome/views/app_modal_dialog_delegate.h"
+#include "chrome/views/window.h"
+#endif  // defined(OS_WIN)
 
 using base::Time;
 
@@ -48,7 +53,6 @@ class InitialLoadObserver : public NotificationObserver {
       : automation_(automation),
         outstanding_tab_count_(tab_count) {
     if (outstanding_tab_count_ > 0) {
-      NotificationService* service = NotificationService::current();
       registrar_.Add(this, NotificationType::LOAD_START,
                      NotificationService::AllSources());
       registrar_.Add(this, NotificationType::LOAD_STOP,
@@ -286,6 +290,7 @@ class NavigationNotificationObserver : public NotificationObserver {
       // occur while authentication is ongoing.
       navigation_started_ = true;
     } else if (type == NotificationType::AUTH_NEEDED) {
+#if defined(OS_WIN)
       if (navigation_started_) {
         // Remember the login handler that wants authentication.
         LoginHandler* handler =
@@ -298,6 +303,10 @@ class NavigationNotificationObserver : public NotificationObserver {
       } else {
         NOTREACHED();
       }
+#else
+      // TODO(port): Enable when we have LoginNotificationDetails etc.
+      NOTIMPLEMENTED();
+#endif
     } else {
       NOTREACHED();
     }
@@ -577,6 +586,8 @@ class DomInspectorNotificationObserver : public NotificationObserver {
   AutomationProvider* automation_;
 };
 
+#if defined(OS_WIN)
+// TODO(port): Enable when printing is ported.
 class DocumentPrintedNotificationObserver : public NotificationObserver {
  public:
   DocumentPrintedNotificationObserver(AutomationProvider* automation,
@@ -643,6 +654,7 @@ class DocumentPrintedNotificationObserver : public NotificationObserver {
   bool success_;
   IPC::Message* reply_message_;
 };
+#endif  // defined(OS_WIN)
 
 class AutomationInterstitialPage : public InterstitialPage {
  public:
@@ -666,12 +678,15 @@ AutomationProvider::AutomationProvider(Profile* profile)
       profile_(profile),
       reply_message_(NULL) {
   browser_tracker_.reset(new AutomationBrowserTracker(this));
-  window_tracker_.reset(new AutomationWindowTracker(this));
   tab_tracker_.reset(new AutomationTabTracker(this));
+#if defined(OS_WIN)
+  // TODO(port): Enable as the trackers get ported.
+  window_tracker_.reset(new AutomationWindowTracker(this));
   autocomplete_edit_tracker_.reset(
       new AutomationAutocompleteEditTracker(this));
   cwindow_tracker_.reset(new AutomationConstrainedWindowTracker(this));
   new_tab_ui_load_observer_.reset(new NewTabUILoadObserver(this));
+#endif  // defined(OS_WIN)
   dom_operation_observer_.reset(new DomOperationNotificationObserver(this));
   dom_inspector_observer_.reset(new DomInspectorNotificationObserver(this));
 }
@@ -782,13 +797,16 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_ActiveWindow, GetActiveWindow)
     IPC_MESSAGE_HANDLER(AutomationMsg_IsWindowActive, IsWindowActive)
     IPC_MESSAGE_HANDLER(AutomationMsg_ActivateWindow, ActivateWindow);
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowHWND, GetWindowHWND)
+#endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowExecuteCommand,
                         ExecuteBrowserCommand)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBounds,
                         WindowGetViewBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowVisible,
                         SetWindowVisible)
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowClick, WindowSimulateClick)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowKeyPress,
                         WindowSimulateKeyPress)
@@ -797,6 +815,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_TabCount, GetTabCount)
     IPC_MESSAGE_HANDLER(AutomationMsg_Tab, GetTab)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabHWND, GetTabHWND)
+#endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabProcessID, GetTabProcessID)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabTitle, GetTabTitle)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabURL, GetTabURL)
@@ -831,6 +850,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         GetAutocompleteEditForBrowser);
     IPC_MESSAGE_HANDLER(AutomationMsg_BrowserForWindow,
                         GetBrowserForWindow);
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_CreateExternalTab, CreateExternalTab)
     IPC_MESSAGE_HANDLER(AutomationMsg_NavigateInExternalTab,
                         NavigateInExternalTab)
@@ -846,6 +866,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                                     WaitForTabToBeRestored)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetInitialFocus,
                         SetInitialFocus)
+#endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetSecurityState,
                         GetSecurityState)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetPageType,
@@ -951,9 +972,6 @@ void AutomationProvider::AppendTab(int handle, const GURL& url,
 
 void AutomationProvider::NavigateToURL(int handle, const GURL& url,
                                        IPC::Message* reply_message) {
-  AutomationMsg_NavigationResponseValues status =
-      AUTOMATION_MSG_NAVIGATION_ERROR;
-
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
 
@@ -1075,6 +1093,7 @@ void AutomationProvider::SetAuth(int tab_handle,
       status = 0;
     }
   }
+
   if (status < 0) {
     AutomationMsg_SetAuth::WriteReplyParams(reply_message, status);
     Send(reply_message);
@@ -1097,6 +1116,7 @@ void AutomationProvider::CancelAuth(int tab_handle,
       status = 0;
     }
   }
+
   if (status < 0) {
     AutomationMsg_CancelAuth::WriteReplyParams(reply_message, status);
     Send(reply_message);
@@ -1160,6 +1180,8 @@ void AutomationProvider::GetBrowserWindowCount(int* window_count) {
   *window_count = static_cast<int>(BrowserList::size());
 }
 
+#if defined(OS_WIN)
+// TODO(port): Enable when dialog delegate is ported.
 void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
                                                   int* dialog_button) {
   views::AppModalDialogDelegate* dialog_delegate =
@@ -1193,6 +1215,7 @@ void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
     }
   }
 }
+#endif
 
 void AutomationProvider::GetBrowserWindow(int index, int* handle) {
   *handle = 0;
@@ -1213,6 +1236,8 @@ void AutomationProvider::GetLastActiveBrowserWindow(int* handle) {
     *handle = browser_tracker_->Add(browser);
 }
 
+#if defined(OS_WIN)
+// TODO(port): Remove windowsisms.
 BOOL CALLBACK EnumThreadWndProc(HWND hwnd, LPARAM l_param) {
   if (hwnd == reinterpret_cast<HWND>(l_param)) {
     return FALSE;
@@ -1239,6 +1264,7 @@ void AutomationProvider::GetActiveWindow(int* handle) {
 void AutomationProvider::GetWindowHWND(int handle, HWND* win32_handle) {
   *win32_handle = window_tracker_->GetResource(handle);
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::ExecuteBrowserCommand(int handle, int command,
                                                bool* success) {
@@ -1259,6 +1285,7 @@ void AutomationProvider::WindowGetViewBounds(int handle, int view_id,
                                              gfx::Rect* bounds) {
   *success = false;
 
+#if defined(OS_WIN)
   void* iter = NULL;
   if (window_tracker_->ContainsHandle(handle)) {
     HWND hwnd = window_tracker_->GetResource(handle);
@@ -1277,7 +1304,14 @@ void AutomationProvider::WindowGetViewBounds(int handle, int view_id,
       }
     }
   }
+#else
+  // TODO(port): Enable when window_tracker is ported.
+  NOTIMPLEMENTED();
+#endif
 }
+
+#if defined(OS_WIN)
+// TODO(port): Use portable replacement for POINT.
 
 // This task enqueues a mouse event on the event loop, so that the view
 // that it's being sent to can do the requisite post-processing.
@@ -1335,6 +1369,7 @@ void AutomationProvider::ScheduleMouseEvent(views::View* view,
   MessageLoop::current()->PostTask(FROM_HERE,
       new MouseEventTask(view, type, point, flags));
 }
+#endif  // defined(OS_WIN)
 
 // This task just adds another task to the event queue.  This is useful if
 // you want to ensure that any tasks added to the event queue after this one
@@ -1353,6 +1388,9 @@ class InvokeTaskLaterTask : public Task {
 
   DISALLOW_COPY_AND_ASSIGN(InvokeTaskLaterTask);
 };
+
+#if defined(OS_WIN)
+// TODO(port): Replace POINT and other windowsisms.
 
 // This task sends a WindowDragResponse message with the appropriate
 // routing ID to the automation proxy.  This is implemented as a task so that
@@ -1541,6 +1579,7 @@ void AutomationProvider::ActivateWindow(int handle) {
     ::SetActiveWindow(window_tracker_->GetResource(handle));
   }
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::GetTabCount(int handle, int* tab_count) {
   *tab_count = -1;  // -1 is the error code
@@ -1553,7 +1592,6 @@ void AutomationProvider::GetTabCount(int handle, int* tab_count) {
 
 void AutomationProvider::GetTab(int win_handle, int tab_index,
                                 int* tab_handle) {
-  void* iter = NULL;
   *tab_handle = 0;
   if (browser_tracker_->ContainsHandle(win_handle) && (tab_index >= 0)) {
     Browser* browser = browser_tracker_->GetResource(win_handle);
@@ -1576,9 +1614,14 @@ void AutomationProvider::GetTabTitle(int handle, int* title_string_size,
 }
 
 void AutomationProvider::HandleUnused(const IPC::Message& message, int handle) {
+#if defined(OS_WIN)
   if (window_tracker_->ContainsHandle(handle)) {
     window_tracker_->Remove(window_tracker_->GetResource(handle));
   }
+#else
+  // TODO(port): Enable when window_tracker is ported.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void AutomationProvider::OnChannelError() {
@@ -1662,6 +1705,7 @@ void AutomationProvider::GetTabURL(int handle, bool* success, GURL* url) {
   }
 }
 
+#if defined(OS_WIN)
 void AutomationProvider::GetTabHWND(int handle, HWND* tab_hwnd) {
   *tab_hwnd = NULL;
 
@@ -1670,6 +1714,7 @@ void AutomationProvider::GetTabHWND(int handle, HWND* tab_hwnd) {
     *tab_hwnd = tab->active_contents()->GetNativeView();
   }
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::GetTabProcessID(int handle, int* process_id) {
   *process_id = -1;
@@ -1727,9 +1772,14 @@ void AutomationProvider::ExecuteJavascript(int handle,
 void AutomationProvider::GetShelfVisibility(int handle, bool* visible) {
   *visible = false;
 
+#if defined(OS_WIN)
   WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
   if (web_contents)
     *visible = web_contents->IsDownloadShelfVisible();
+#else
+  // TODO(port): Enable when web_contents->IsDownloadShelfVisible is ported.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void AutomationProvider::GetConstrainedWindowCount(int handle, int* count) {
@@ -1751,8 +1801,13 @@ void AutomationProvider::GetConstrainedWindow(int handle, int index,
         tab_tracker_->GetResource(handle);
     TabContents* tab = nav_controller->active_contents();
     if (tab && index < static_cast<int>(tab->child_windows_.size())) {
+#if defined(OS_WIN)
       ConstrainedWindow* window = tab->child_windows_[index];
       *cwindow_handle = cwindow_tracker_->Add(window);
+#else
+      // TODO(port): Enable when cwindow_tracker is ported.
+      NOTIMPLEMENTED();
+#endif
     }
   }
 }
@@ -1761,16 +1816,22 @@ void AutomationProvider::GetConstrainedTitle(int handle,
                                              int* title_string_size,
                                              std::wstring* title) {
   *title_string_size = -1;  // -1 is the error code
+#if defined(OS_WIN)
   if (cwindow_tracker_->ContainsHandle(handle)) {
     ConstrainedWindow* window = cwindow_tracker_->GetResource(handle);
     *title = window->GetWindowTitle();
     *title_string_size = static_cast<int>(title->size());
   }
+#else
+  // TODO(port): Enable when cwindow_tracker is ported.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void AutomationProvider::GetConstrainedWindowBounds(int handle, bool* exists,
                                                     gfx::Rect* rect) {
   *rect = gfx::Rect(0, 0, 0, 0);
+#if defined(OS_WIN)
   if (cwindow_tracker_->ContainsHandle(handle)) {
     ConstrainedWindow* window = cwindow_tracker_->GetResource(handle);
     if (window) {
@@ -1778,6 +1839,10 @@ void AutomationProvider::GetConstrainedWindowBounds(int handle, bool* exists,
       *rect = window->GetCurrentBounds();
     }
   }
+#else
+  // TODO(port): Enable when cwindow_tracker is ported.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void AutomationProvider::HandleFindInPageRequest(
@@ -1820,8 +1885,13 @@ void AutomationProvider::HandleFindRequest(int handle,
 void AutomationProvider::HandleOpenFindInPageRequest(
     const IPC::Message& message, int handle) {
   if (browser_tracker_->ContainsHandle(handle)) {
+#if defined(OS_WIN)
     Browser* browser = browser_tracker_->GetResource(handle);
     browser->FindInPage(false, false);
+#else
+    // TODO(port): Enable when Browser::FindInPage is ported.
+    NOTIMPLEMENTED();
+#endif
   }
 }
 
@@ -1829,16 +1899,22 @@ void AutomationProvider::GetFindWindowVisibility(int handle, bool* visible) {
   gfx::Point position;
   *visible = false;
   if (browser_tracker_->ContainsHandle(handle)) {
+#if defined(OS_WIN)
     Browser* browser = browser_tracker_->GetResource(handle);
     BrowserWindowTesting* testing =
         browser->window()->GetBrowserWindowTesting();
     testing->GetFindBarWindowInfo(&position, visible);
+#else
+    // TODO(port): Depends on BrowserWindowTesting::GetFindBarWindowInfo.
+    NOTIMPLEMENTED();
+#endif
   }
 }
 
 void AutomationProvider::HandleFindWindowLocationRequest(int handle, int* x,
                                                          int* y) {
   gfx::Point position(0, 0);
+#if defined(OS_WIN)
   bool visible = false;
   if (browser_tracker_->ContainsHandle(handle)) {
      Browser* browser = browser_tracker_->GetResource(handle);
@@ -1846,6 +1922,10 @@ void AutomationProvider::HandleFindWindowLocationRequest(int handle, int* x,
          browser->window()->GetBrowserWindowTesting();
      testing->GetFindBarWindowInfo(&position, &visible);
   }
+#else
+  // TODO(port): Depends on BrowserWindowTesting::GetFindBarWindowInfo.
+  NOTIMPLEMENTED();
+#endif
 
   *x = position.x();
   *y = position.y();
@@ -1856,7 +1936,7 @@ void AutomationProvider::GetBookmarkBarVisibility(int handle, bool* visible,
   *visible = false;
   *animating = false;
 
-  void* iter = NULL;
+#if defined(OS_WIN)
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
     if (browser) {
@@ -1869,6 +1949,10 @@ void AutomationProvider::GetBookmarkBarVisibility(int handle, bool* visible,
       }
     }
   }
+#else
+  // TODO(port): Enable when bookmarks ui is ported.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void AutomationProvider::HandleInspectElementRequest(
@@ -1937,6 +2021,8 @@ void AutomationProvider::GetDownloadDirectory(
   }
 }
 
+#if defined(OS_WIN)
+// TODO(port): Remove windowsisms.
 void AutomationProvider::OpenNewBrowserWindow(int show_command) {
   // We may have no current browser windows open so don't rely on
   // asking an existing browser to execute the IDC_NEWWINDOW command
@@ -2004,6 +2090,7 @@ void AutomationProvider::GetBrowserForWindow(int window_handle,
     }
   }
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::ShowInterstitialPage(int tab_handle,
                                               const std::string& html_text,
@@ -2046,14 +2133,14 @@ void AutomationProvider::CloseTab(int tab_handle,
     int index;
     Browser* browser = Browser::GetBrowserForController(controller, &index);
     DCHECK(browser);
-    TabClosedNotificationObserver* observer =
-        new TabClosedNotificationObserver(browser, this,
-                                          reply_message->routing_id(),
-                                          wait_until_closed, reply_message);
+    new TabClosedNotificationObserver(browser, this,
+                                      reply_message->routing_id(),
+                                      wait_until_closed, reply_message);
     browser->CloseContents(controller->active_contents());
-  } else {
-    AutomationMsg_CloseTab::WriteReplyParams(reply_message, false);
+    return;
   }
+
+  AutomationMsg_CloseTab::WriteReplyParams(reply_message, false);
 }
 
 void AutomationProvider::CloseBrowser(int browser_handle,
@@ -2078,6 +2165,8 @@ void AutomationProvider::CloseBrowserAsync(int browser_handle) {
   }
 }
 
+#if defined(OS_WIN)
+// TODO(port): Remove windowsisms.
 void AutomationProvider::CreateExternalTab(HWND parent,
                                            const gfx::Rect& dimensions,
                                            unsigned int style,
@@ -2218,6 +2307,7 @@ void AutomationProvider::ActionOnSSLBlockingPage(int handle, bool proceed,
                                                           false);
   Send(reply_message);
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::BringBrowserToFront(int browser_handle,
                                              bool* success) {
@@ -2242,6 +2332,8 @@ void AutomationProvider::IsPageMenuCommandEnabled(int browser_handle,
   }
 }
 
+#if defined(OS_WIN)
+// TODO(port): Enable these.
 void AutomationProvider::PrintNow(int tab_handle,
                                   IPC::Message* reply_message) {
   NavigationController* tab = NULL;
@@ -2399,6 +2491,7 @@ ExternalTabContainer* AutomationProvider::GetExternalTabForHandle(int handle) {
 
   return NULL;
 }
+#endif  // defined(OS_WIN)
 
 TestingAutomationProvider::TestingAutomationProvider(Profile* profile)
     : AutomationProvider(profile) {
@@ -2450,11 +2543,16 @@ void TestingAutomationProvider::OnRemoveProvider() {
 
 void AutomationProvider::GetSSLInfoBarCount(int handle, int* count) {
   *count = -1;  // -1 means error.
+#if defined(OS_WIN)
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     if (nav_controller)
       *count = nav_controller->active_contents()->infobar_delegate_count();
   }
+#else
+  // TODO(port): Enable when TabContents infobar related stuff is ported.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void AutomationProvider::ClickSSLInfoBarLink(int handle,
@@ -2462,6 +2560,7 @@ void AutomationProvider::ClickSSLInfoBarLink(int handle,
                                              bool wait_for_navigation,
                                              IPC::Message* reply_message) {
   bool success = false;
+#if defined(OS_WIN)
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     if (nav_controller) {
@@ -2480,6 +2579,10 @@ void AutomationProvider::ClickSSLInfoBarLink(int handle,
       }
     }
   }
+#else
+  // TODO(port): Enable when TabContents infobar related stuff is ported.
+  NOTIMPLEMENTED();
+#endif
   if (!wait_for_navigation || !success)
     AutomationMsg_ClickSSLInfoBarLink::WriteReplyParams(reply_message,
                                                         success);
@@ -2579,6 +2682,7 @@ void AutomationProvider::OverrideEncoding(int tab_handle,
                                           const std::wstring& encoding_name,
                                           bool* success) {
   *success = false;
+#if defined(OS_WIN)
   if (tab_tracker_->ContainsHandle(tab_handle)) {
     NavigationController* nav = tab_tracker_->GetResource(tab_handle);
     Browser* browser = FindAndActivateTab(nav);
@@ -2595,6 +2699,10 @@ void AutomationProvider::OverrideEncoding(int tab_handle,
       }
     }
   }
+#else
+  // TODO(port): Enable when encoding-related parts of Browser are ported.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void AutomationProvider::SavePackageShouldPromptUser(bool should_prompt) {

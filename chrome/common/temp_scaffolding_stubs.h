@@ -165,14 +165,6 @@ class GoogleUpdateSettings {
   DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
 };
 
-class AutomationProviderList {
- public:
-  static AutomationProviderList* GetInstance() {
-    NOTIMPLEMENTED();
-    return NULL;
-  }
-};
-
 namespace browser {
 void RegisterAllPrefs(PrefService*, PrefService*);
 }
@@ -485,6 +477,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
  private:
+  friend class AutomationProvider;
+
   TabContentsType type_;
   bool is_active_;
   bool is_loading_;
