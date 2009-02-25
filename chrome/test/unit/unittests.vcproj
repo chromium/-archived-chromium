@@ -375,6 +375,10 @@
 			Name="browser"
 			>
 			<File
+				RelativePath="..\..\browser\app_modal_dialog_queue_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\renderer_host\audio_renderer_host_unittest.cc"
 				>
 			</File>
