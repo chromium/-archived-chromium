@@ -634,7 +634,7 @@ class PrintViewManager {
   PrintViewManager(WebContents&) { }
   void Stop() { NOTIMPLEMENTED(); }
   void Destroy() { NOTIMPLEMENTED(); }
-  bool OnRendererGone(RenderViewHost*) {
+  bool OnRenderViewGone(RenderViewHost*) {
     NOTIMPLEMENTED();
     return true;  // Assume for now that all renderer crashes are important.
   }

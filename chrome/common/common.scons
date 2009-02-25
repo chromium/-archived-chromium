@@ -211,6 +211,8 @@ input_files = ChromeFileList([
     'time_format.h',
     'unzip.cc',
     'unzip.h',
+    'url_constants.cc',
+    'url_constants.h',
     'visitedlink_common.cc',
     'visitedlink_common.h',
     'win_safe_util.cc',

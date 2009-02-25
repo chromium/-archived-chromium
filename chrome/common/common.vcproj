@@ -774,6 +774,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\url_constants.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\url_constants.h"
+			>
+		</File>
+		<File
 			RelativePath=".\visitedlink_common.cc"
 			>
 		</File>
