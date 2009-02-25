@@ -83,6 +83,8 @@ input_files = ChromeFileList([
     'render_widget.cc',
     'render_widget.h',
     'renderer_glue.cc',
+    'renderer_histogram_snapshots.cc',
+    'renderer_histogram_snapshots.h',
     'renderer_main.cc',
     'renderer_resources.h',
     'user_script_slave.cc',

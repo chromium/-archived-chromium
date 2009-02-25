@@ -9,6 +9,7 @@
 
 #include "base/file_version_info.h"
 #include "base/histogram.h"
+#include "base/platform_thread.h"
 #include "base/stats_table.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
@@ -21,11 +22,13 @@
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/renderer/about_handler.h"
 #include "googleurl/src/gurl.h"
@@ -292,7 +295,7 @@ std::string BrowserAboutHandler::AboutVersion() {
 
 // static
 std::string BrowserAboutHandler::AboutCredits() {
-  static const std::string credits_html = 
+  static const std::string credits_html =
       ResourceBundle::GetSharedInstance().GetDataResource(
           IDR_CREDITS_HTML);
 
@@ -301,7 +304,7 @@ std::string BrowserAboutHandler::AboutCredits() {
 
 // static
 std::string BrowserAboutHandler::AboutTerms() {
-  static const std::string terms_html = 
+  static const std::string terms_html =
       ResourceBundle::GetSharedInstance().GetDataResource(
           IDR_TERMS_HTML);
 
@@ -344,6 +347,15 @@ std::string BrowserAboutHandler::AboutPlugins() {
 // static
 std::string BrowserAboutHandler::AboutHistograms(const std::string& query) {
   std::string data;
+  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
+       it != RenderProcessHost::end(); ++it) {
+    it->second->Send(new ViewMsg_GetRendererHistograms());
+  }
+
+  // TODO(raman): Delay page layout until we get respnoses
+  // back from renderers, and not have to use a fixed size delay.
+  PlatformThread::Sleep(1000);
+
   StatisticsRecorder::WriteHTMLGraph(query, &data);
   return data;
 }

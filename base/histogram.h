@@ -36,6 +36,7 @@
 #include <vector>
 
 #include "base/lock.h"
+#include "base/pickle.h"
 #include "base/scoped_ptr.h"
 #include "base/stats_counters.h"
 
@@ -118,6 +119,11 @@
 
 static const int kUmaTargetedHistogramFlag = 0x1;
 
+// This indicates the histogram is shadow copy of renderer histrogram
+// constructed by unpick method and updated regularly from renderer upload
+// of histograms.
+static const int kRendererHistogramFlag = 1 << 4;
+
 #define UMA_HISTOGRAM_TIMES(name, sample) do { \
     static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
                              base::TimeDelta::FromSeconds(10), 50); \
@@ -183,6 +189,11 @@ class Histogram : public StatsRate {
 
   static const int kHexRangePrintingFlag;
 
+  enum BucketLayout {
+    EXPONENTIAL,
+    LINEAR
+  };
+
   //----------------------------------------------------------------------------
   // Statistic values, developed over the life of the histogram.
 
@@ -206,6 +217,9 @@ class Histogram : public StatsRate {
     void Add(const SampleSet& other);
     void Subtract(const SampleSet& other);
 
+    bool Serialize(Pickle* pickle) const;
+    bool Deserialize(void** iter, const Pickle& pickle);
+
    protected:
     // Actual histogram data is stored in buckets, showing the count of values
     // that fit into each bucket.
@@ -228,6 +242,8 @@ class Histogram : public StatsRate {
   // input the stats counter sees.
   virtual void Add(int value);
 
+  void AddSampleSet(const SampleSet& sample);
+
   // The following methods provide graphical histogram displays.
   void WriteHTMLGraph(std::string* output) const;
   void WriteAscii(bool graph_it, const std::string& newline,
@@ -239,6 +255,26 @@ class Histogram : public StatsRate {
   void SetFlags(int flags) { flags_ |= flags; }
   void ClearFlags(int flags) { flags_ &= ~flags; }
   int flags() const { return flags_; }
+
+  virtual BucketLayout histogram_type() const { return EXPONENTIAL; }
+
+  // Convenience methods for serializing/deserializing the histograms.
+  // Histograms from Renderer process are serialized and sent to the browser.
+  // Browser process reconstructs the histogram from the pickled version
+  // accumulates the browser-side shadow copy of histograms (that mirror
+  // histograms created in the renderer).
+
+  // Serialize the given snapshot of a Histogram into a String. Uses
+  // Pickle class to flatten the object.
+  static std::string SerializeHistogramInfo(const Histogram& histogram,
+                                            const SampleSet& snapshot);
+  // The following method accepts a list of pickled histograms and
+  // builds a histogram and updates shadow copy of histogram data in the
+  // browser process.
+  static void DeserializeHistogramList(
+      const std::vector<std::string>& histograms);
+  static bool DeserializeHistogramInfo(const std::string& state);
+
 
   //----------------------------------------------------------------------------
   // Accessors for serialization and testing.
@@ -344,7 +380,7 @@ class Histogram : public StatsRate {
   // Indicate if successfully registered.
   bool registered_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Histogram);
+  DISALLOW_COPY_AND_ASSIGN(Histogram);
 };
 
 //------------------------------------------------------------------------------
@@ -358,14 +394,17 @@ class LinearHistogram : public Histogram {
     const char* description;  // Null means end of a list of pairs.
   };
   LinearHistogram(const char* name, Sample minimum,
-            Sample maximum, size_t bucket_count);
+                  Sample maximum, size_t bucket_count);
+
   LinearHistogram(const char* name, base::TimeDelta minimum,
-            base::TimeDelta maximum, size_t bucket_count);
+                  base::TimeDelta maximum, size_t bucket_count);
   ~LinearHistogram() {}
 
   // Store a list of number/text values for use in rendering the histogram.
   // The last element in the array has a null in its "description" slot.
   void SetRangeDescriptions(const DescriptionPair descriptions[]);
+
+  virtual BucketLayout histogram_type() const { return LINEAR; }
 
  protected:
   // Initialize ranges_ mapping.
@@ -389,7 +428,7 @@ class LinearHistogram : public Histogram {
   typedef std::map<Sample, std::string> BucketDescriptionMap;
   BucketDescriptionMap bucket_description_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(LinearHistogram);
+  DISALLOW_COPY_AND_ASSIGN(LinearHistogram);
 };
 
 //------------------------------------------------------------------------------
@@ -404,7 +443,7 @@ class BooleanHistogram : public LinearHistogram {
   virtual void AddBoolean(bool value) { Add(value ? 1 : 0); }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(BooleanHistogram);
+  DISALLOW_COPY_AND_ASSIGN(BooleanHistogram);
 };
 
 //------------------------------------------------------------------------------
@@ -428,7 +467,7 @@ class ThreadSafeHistogram : public Histogram {
  private:
   Lock lock_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ThreadSafeHistogram);
+  DISALLOW_COPY_AND_ASSIGN(ThreadSafeHistogram);
 };
 
 //------------------------------------------------------------------------------
@@ -438,7 +477,7 @@ class ThreadSafeHistogram : public Histogram {
 
 class StatisticsRecorder {
  public:
-  typedef std::vector<const Histogram*> Histograms;
+  typedef std::vector<Histogram*> Histograms;
 
   StatisticsRecorder();
 
@@ -449,9 +488,9 @@ class StatisticsRecorder {
 
   // Register, or add a new histogram to the collection of statistics.
   // Return true if registered.
-  static bool Register(const Histogram& histogram);
+  static bool Register(Histogram* histogram);
   // Unregister, or remove, a histogram from the collection of statistics.
-  static void UnRegister(const Histogram& histogram);
+  static void UnRegister(Histogram* histogram);
 
   // Methods for printing histograms.  Only histograms which have query as
   // a substring are written to output (an empty string will process all
@@ -462,11 +501,9 @@ class StatisticsRecorder {
   // Method for extracting histograms which were marked for use by UMA.
   static void GetHistograms(Histograms* output);
 
-  static void set_dump_on_exit(bool enable) { dump_on_exit_ = enable; }
+  static Histogram* GetHistogram(const std::string& query);
 
- private:
-  typedef std::map<std::string, const Histogram*> HistogramMap;
-  // We keep all registered histograms in a map, from name to histogram.
+  static void set_dump_on_exit(bool enable) { dump_on_exit_ = enable; }
 
   // GetSnapshot copies some of the pointers to registered histograms into the
   // caller supplied vector (Histograms).  Only histograms with names matching
@@ -474,14 +511,20 @@ class StatisticsRecorder {
   // pointer to be copied.
   static void GetSnapshot(const std::string& query, Histograms* snapshot);
 
+
+ private:
+  // We keep all registered histograms in a map, from name to histogram.
+  typedef std::map<std::string, Histogram*> HistogramMap;
+
   static HistogramMap* histograms_;
+
   // lock protects access to the above map.
   static Lock* lock_;
 
   // Dump all known histograms to log.
   static bool dump_on_exit_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(StatisticsRecorder);
+  DISALLOW_COPY_AND_ASSIGN(StatisticsRecorder);
 };
 
 #endif  // BASE_HISTOGRAM_H__

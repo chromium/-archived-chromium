@@ -139,7 +139,7 @@ ResourceMessageFilter::~ResourceMessageFilter() {
 void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
   channel_ = channel;
 
-  // Add the observers to intercept 
+  // Add the observers to intercept.
   NotificationService::current()->AddObserver(
       this,
       NotificationType::SPELLCHECKER_REINITIALIZED,
@@ -197,6 +197,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                                     OnOpenChannelToPlugin)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SpellCheck, OnSpellCheck)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DnsPrefetch, OnDnsPrefetch)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_RendererHistograms,
+                        OnRendererHistograms)
     IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_PaintRect,
         render_widget_helper_->DidReceivePaintMsg(message))
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsAsync,
@@ -412,7 +414,7 @@ void ResourceMessageFilter::OnPluginSyncMessage(const FilePath& plugin_path,
   }
 }
 
-#if defined(OS_WIN)  // This hack is Windows-specific. 
+#if defined(OS_WIN)  // This hack is Windows-specific.
 void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
   // If renderer is running in a sandbox, GetTextMetrics
   // can sometimes fail. If a font has not been loaded
@@ -500,7 +502,7 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
   // on the UI thread. We'll copy the relevant data and get a handle to any
   // shared memory so it doesn't go away when we resume the renderer, and post
   // a task to perform the write on the UI thread.
-  Clipboard::ObjectMap* long_living_objects = new Clipboard::ObjectMap(objects); 
+  Clipboard::ObjectMap* long_living_objects = new Clipboard::ObjectMap(objects);
 
   // We pass the render_handle_ to assist the clipboard with using shared
   // memory objects. render_handle_ is a handle to the process that would
@@ -639,7 +641,7 @@ void ResourceMessageFilter::OnResourceTypeStats(
 }
 
 void ResourceMessageFilter::OnResolveProxy(const GURL& url,
-                                           IPC::Message* reply_msg) { 
+                                           IPC::Message* reply_msg) {
   resolve_proxy_msg_helper_.Start(url, reply_msg);
 }
 
@@ -764,7 +766,7 @@ ClipboardService* ResourceMessageFilter::GetClipboardService() {
 // the spellcheck dictionaries into the browser process, and all renderers ask
 // the browsers to do SpellChecking.
 //
-// This filter should not try to initialize the spellchecker. It is up to the 
+// This filter should not try to initialize the spellchecker. It is up to the
 // profile to initialize it when required, and send it here. If |spellchecker_|
 // is made NULL, it corresponds to spellchecker turned off - i.e., all
 // spellings are correct.
@@ -787,7 +789,7 @@ void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
   return;
 }
 
-void ResourceMessageFilter::Observe(NotificationType type, 
+void ResourceMessageFilter::Observe(NotificationType type,
                                     const NotificationSource &source,
                                     const NotificationDetails &details) {
   if (type == NotificationType::SPELLCHECKER_REINITIALIZED) {
@@ -801,9 +803,14 @@ void ResourceMessageFilter::OnDnsPrefetch(
   chrome_browser_net::DnsPrefetchList(hostnames);
 }
 
+void ResourceMessageFilter::OnRendererHistograms(
+    const std::vector<std::string>& histograms) {
+  Histogram::DeserializeHistogramList(histograms);
+}
+
 void ResourceMessageFilter::OnCreateAudioStream(
-   const IPC::Message& msg, int stream_id,
-   const ViewHostMsg_Audio_CreateStream& params) {
+  const IPC::Message& msg, int stream_id,
+  const ViewHostMsg_Audio_CreateStream& params) {
   // TODO(hclam): call to AudioRendererHost::CreateStream and send a message to
   // renderer to notify the result.
 }

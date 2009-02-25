@@ -59,7 +59,8 @@ RenderThread::RenderThread(const std::wstring& channel_name)
               MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kStackSize)),
       visited_link_slave_(NULL),
       user_script_slave_(NULL),
-      render_dns_master_(NULL) {
+      render_dns_master_(NULL),
+      renderer_histogram_snapshots_(NULL) {
   SetChannelName(channel_name);
 }
 
@@ -83,6 +84,10 @@ void RenderThread::Resolve(const char* name, size_t length) {
   return render_dns_master_->Resolve(name, length);
 }
 
+void RenderThread::SendHistograms() {
+  return renderer_histogram_snapshots_->SendHistograms();
+}
+
 void RenderThread::Init() {
   ChildThread::Init();
   notification_service_.reset(new NotificationService);
@@ -97,6 +102,7 @@ void RenderThread::Init() {
   visited_link_slave_ = new VisitedLinkSlave();
   user_script_slave_ = new UserScriptSlave();
   render_dns_master_.reset(new RenderDnsMaster());
+  renderer_histogram_snapshots_.reset(new RendererHistogramSnapshots());
 }
 
 void RenderThread::CleanUp() {
@@ -140,6 +146,8 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
     // is there a new non-windows message I should add here?
     IPC_MESSAGE_HANDLER(ViewMsg_New, OnCreateNewView)
     IPC_MESSAGE_HANDLER(ViewMsg_SetCacheCapacities, OnSetCacheCapacities)
+    IPC_MESSAGE_HANDLER(ViewMsg_GetRendererHistograms,
+                          OnGetRendererHistograms)
     IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                         OnGetCacheResourceStats)
     IPC_MESSAGE_HANDLER(ViewMsg_PluginMessage, OnPluginMessage)
@@ -210,6 +218,10 @@ void RenderThread::OnGetCacheResourceStats() {
   // TODO(port)
   NOTIMPLEMENTED();
 #endif
+}
+
+void RenderThread::OnGetRendererHistograms() {
+  SendHistograms();
 }
 
 void RenderThread::InformHostOfCacheStats() {

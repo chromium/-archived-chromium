@@ -12,10 +12,12 @@
 #include "base/task.h"
 #include "build/build_config.h"
 #include "chrome/common/child_thread.h"
+#include "chrome/renderer/renderer_histogram_snapshots.h"
 
 class FilePath;
 class NotificationService;
 class RenderDnsMaster;
+class RendererHistogram;
 class SkBitmap;
 class UserScriptSlave;
 class VisitedLinkSlave;
@@ -86,6 +88,9 @@ class RenderThread : public RenderThreadBase,
   // Do DNS prefetch resolution of a hostname.
   void Resolve(const char* name, size_t length);
 
+  // Send all the Histogram data to browser.
+  void SendHistograms();
+
   // Invokes InformHostOfCacheStats after a short delay.  Used to move this
   // bookkeeping operation off the critical latency path.
   void InformHostOfCacheStatsLater();
@@ -113,6 +118,9 @@ class RenderThread : public RenderThreadBase,
                             size_t capacity);
   void OnGetCacheResourceStats();
 
+  // Send all histograms to browser.
+  void OnGetRendererHistograms();
+
   // Gather usage statistics from the in-memory cache and inform our host.
   // These functions should be call periodically so that the host can make
   // decisions about how to allocation resources using current information.
@@ -123,6 +131,8 @@ class RenderThread : public RenderThreadBase,
   UserScriptSlave* user_script_slave_;
 
   scoped_ptr<RenderDnsMaster> render_dns_master_;
+
+  scoped_ptr<RendererHistogramSnapshots> renderer_histogram_snapshots_;
 
   scoped_ptr<ScopedRunnableMethodFactory<RenderThread> > cache_stats_factory_;
 

@@ -1755,8 +1755,20 @@ void MetricsService::RecordCurrentState(PrefService* pref) {
   RecordPluginChanges(pref);
 }
 
+void MetricsService::CollectRendererHistograms() {
+  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
+       it != RenderProcessHost::end(); ++it) {
+    it->second->Send(new ViewMsg_GetRendererHistograms());
+  }
+}
+
 void MetricsService::RecordCurrentHistograms() {
   DCHECK(current_log_);
+
+  CollectRendererHistograms();
+
+  // TODO(raman): Delay the metrics collection activities until we get all the
+  // updates from the renderers, or we time out (1 second?  3 seconds?).
 
   StatisticsRecorder::Histograms histograms;
   StatisticsRecorder::GetHistograms(&histograms);

@@ -298,6 +298,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\renderer_histogram_snapshots.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\renderer_histogram_snapshots.h"
+			>
+		</File>
+		<File
 			RelativePath=".\renderer_main.cc"
 			>
 		</File>

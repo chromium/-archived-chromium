@@ -330,6 +330,7 @@
 		A7C613C10F30D7E4008CEE5D /* mock_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C613BF0F30D7E4008CEE5D /* mock_render_process_host.cc */; };
 		A7C6146F0F30DA1D008CEE5D /* ipc_test_sink.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7C6146D0F30DA1D008CEE5D /* ipc_test_sink.cc */; };
 		A7CBAD390F322A7E00360BF5 /* shell_dialogs_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */; };
+		AB3B4B2B0F549D9E0009E2BF /* renderer_histogram_snapshots.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB3B4B290F549D9E0009E2BF /* renderer_histogram_snapshots.cc */; };
 		AB8963000F4E0901009CFFAC /* audio_renderer_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8962FA0F4E087E009CFFAC /* audio_renderer_impl.cc */; };
 		AB8963010F4E0907009CFFAC /* data_source_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8962FC0F4E087E009CFFAC /* data_source_impl.cc */; };
 		AB8963020F4E090D009CFFAC /* video_renderer_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB8962FE0F4E087E009CFFAC /* video_renderer_impl.cc */; };
@@ -2523,6 +2524,8 @@
 		A7C6146E0F30DA1D008CEE5D /* ipc_test_sink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipc_test_sink.h; sourceTree = "<group>"; };
 		A7CBAD370F322A7E00360BF5 /* shell_dialogs_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = shell_dialogs_mac.mm; sourceTree = "<group>"; };
 		A9C335E39D39A7DE087850FC /* url_pattern_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url_pattern_unittest.cc; path = extensions/url_pattern_unittest.cc; sourceTree = "<group>"; };
+		AB3B4B290F549D9E0009E2BF /* renderer_histogram_snapshots.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_histogram_snapshots.cc; sourceTree = "<group>"; };
+		AB3B4B2A0F549D9E0009E2BF /* renderer_histogram_snapshots.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_histogram_snapshots.h; sourceTree = "<group>"; };
 		AB8962FA0F4E087E009CFFAC /* audio_renderer_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = audio_renderer_impl.cc; path = media/audio_renderer_impl.cc; sourceTree = "<group>"; };
 		AB8962FB0F4E087E009CFFAC /* audio_renderer_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_renderer_impl.h; path = media/audio_renderer_impl.h; sourceTree = "<group>"; };
 		AB8962FC0F4E087E009CFFAC /* data_source_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_source_impl.cc; path = media/data_source_impl.cc; sourceTree = "<group>"; };
@@ -3107,6 +3110,8 @@
 				4D640CD60EAE868600EBCFC0 /* render_widget.h */,
 				4D640CD70EAE868600EBCFC0 /* render_widget_unittest.cc */,
 				4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */,
+				AB3B4B290F549D9E0009E2BF /* renderer_histogram_snapshots.cc */,
+				AB3B4B2A0F549D9E0009E2BF /* renderer_histogram_snapshots.h */,
 				4D640CD90EAE868600EBCFC0 /* renderer_main.cc */,
 				B51F6D110F37C4DC00152D66 /* renderer_main_platform_delegate.h */,
 				B51F6D130F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm */,
@@ -5433,9 +5438,10 @@
 				3380A6A10F2E91F9004EF74F /* render_process.cc in Sources */,
 				3380A69D0F2E91D4004EF74F /* render_thread.cc in Sources */,
 				A7A20E650F3A1E1C00F62B4D /* render_view.cc in Sources */,
-				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
+				AB3B4B2B0F549D9E0009E2BF /* renderer_histogram_snapshots.cc in Sources */,
 				B51F6D2E0F37D04200152D66 /* renderer_main.cc in Sources */,
 				B51F6D150F37C4DC00152D66 /* renderer_main_platform_delegate_mac.mm in Sources */,
+				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
 				AB8963020F4E090D009CFFAC /* video_renderer_impl.cc in Sources */,
 				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
 			);

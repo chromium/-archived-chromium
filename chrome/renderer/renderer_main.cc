@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
+#include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
@@ -88,6 +89,13 @@ int RendererMain(const MainFunctionParams& parameters) {
   platform.InitSandboxTests(no_sandbox);
 
   HandleRendererErrorTestParameters(parsed_command_line);
+
+  // Initialize histogram statistics gathering system.
+  // Don't create StatisticsRecorde in the single process mode.
+  scoped_ptr<StatisticsRecorder> statistics;
+  if (!StatisticsRecorder::WasStarted()) {
+    statistics.reset(new StatisticsRecorder());
+  }
 
   {
     RenderProcess render_process;

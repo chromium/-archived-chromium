@@ -342,9 +342,14 @@ class MetricsService : public NotificationObserver,
   // buffered plugin stability statistics.
   void RecordCurrentState(PrefService* pref);
 
+  // Requests all renderers to send their histograms back for
+  // collecting stats from renderers.
+  void CollectRendererHistograms();
+
   // Record complete list of histograms into the current log.
   // Called when we close a log.
   void RecordCurrentHistograms();
+
   // Record a specific histogram .
   void RecordHistogram(const Histogram& histogram);
 
