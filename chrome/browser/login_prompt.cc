@@ -340,9 +340,12 @@ class LoginDialogTask : public Task {
       return;
     }
 
-    wstring explanation = l10n_util::GetStringF(IDS_LOGIN_DIALOG_DESCRIPTION,
-                                                auth_info_->host,
-                                                auth_info_->realm);
+    wstring explanation = auth_info_->realm.empty() ?
+        l10n_util::GetStringF(IDS_LOGIN_DIALOG_DESCRIPTION_NO_REALM,
+                              auth_info_->host) :
+        l10n_util::GetStringF(IDS_LOGIN_DIALOG_DESCRIPTION,
+                              auth_info_->host,
+                              auth_info_->realm);
     LoginView* view = new LoginView(explanation);
     // Tell the password manager to look for saved passwords. There is only
     // a password manager when dealing with a WebContents type.

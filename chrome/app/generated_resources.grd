@@ -1460,7 +1460,10 @@ each locale. -->
         Authentication Required
       </message>
       <message name="IDS_LOGIN_DIALOG_DESCRIPTION" desc="String to be displayed in the login prompt dialog to explain what the user needs to do">
-        The server <ph name="DOMAIN">$1<ex>google.com</ex></ph> at <ph name="TITLE">$2<ex>site name</ex></ph> requires a username and password.
+        The server <ph name="DOMAIN">$1<ex>google.com</ex></ph> at <ph name="REALM">$2<ex>site name</ex></ph> requires a username and password.
+      </message>
+      <message name="IDS_LOGIN_DIALOG_DESCRIPTION_NO_REALM" desc="String to be displayed in the login prompt dialog to explain what the user needs to do">
+        The server <ph name="DOMAIN">$1<ex>google.com</ex></ph> requires a username and password.
       </message>
       <message name="IDS_LOGIN_DIALOG_USERNAME_FIELD" desc="The label of the username field in the login prompt dialog">
         User Name:
