@@ -137,7 +137,7 @@
           # TODO(bradnelson): npapi.h, npruntime.h, npruntime_priv.h, and
           # stdint.h shouldn't be in the SHARED_INTERMEDIATE_DIR, it's very
           # global.
-          'action': ['python', 'build/action_jsconfig.py', 'v8', '<(SHARED_INTERMEDIATE_DIR)/webkit', '<(SHARED_INTERMEDIATE_DIR)/webkit', '<@(_inputs)'],
+          'action': ['python', 'build/action_jsconfig.py', 'v8', '<(SHARED_INTERMEDIATE_DIR)/webkit', '<@(_inputs)'],
 
           'conditions': [
             ['OS=="win"', {
