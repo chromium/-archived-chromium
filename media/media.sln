@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{9D67D7CC-B03F-11DD-86F7-FD7F55D89593}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "media", "build\media.vcproj", "{6AE76406-B03B-11DD-94B1-80B556D89593}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D7A94F58-576A-45D9-A45F-EB87C63ABBB0} = {D7A94F58-576A-45D9-A45F-EB87C63ABBB0}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "media_player", "build\media_player.vcproj", "{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -34,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icu", "..\third_party\icu38
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icudt", "..\third_party\icu38\build\icudt.vcproj", "{A0D94973-D355-47A5-A1E2-3456F321F010}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ffmpeg", "..\third_party\ffmpeg\ffmpeg.vcproj", "{D7A94F58-576A-45D9-A45F-EB87C63ABBB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +78,10 @@ Global
 		{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}.Debug|Win32.Build.0 = Debug|Win32
 		{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}.Release|Win32.ActiveCfg = Release|Win32
 		{D4EB0EDC-DC4D-11DD-AE66-DC4F55D89593}.Release|Win32.Build.0 = Release|Win32
+		{D7A94F58-576A-45D9-A45F-EB87C63ABBB0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D7A94F58-576A-45D9-A45F-EB87C63ABBB0}.Debug|Win32.Build.0 = Debug|Win32
+		{D7A94F58-576A-45D9-A45F-EB87C63ABBB0}.Release|Win32.ActiveCfg = Release|Win32
+		{D7A94F58-576A-45D9-A45F-EB87C63ABBB0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,5 +92,6 @@ Global
 		{8C27D792-2648-4F5E-9ED0-374276327308} = {9D67D7CC-B03F-11DD-86F7-FD7F55D89593}
 		{A0D94973-D355-47A5-A1E2-3456F321F010} = {9D67D7CC-B03F-11DD-86F7-FD7F55D89593}
 		{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B} = {9D67D7CC-B03F-11DD-86F7-FD7F55D89593}
+		{D7A94F58-576A-45D9-A45F-EB87C63ABBB0} = {9D67D7CC-B03F-11DD-86F7-FD7F55D89593}
 	EndGlobalSection
 EndGlobal
