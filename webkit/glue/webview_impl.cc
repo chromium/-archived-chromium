@@ -478,7 +478,8 @@ void WebViewImpl::MouseWheel(const WebMouseWheelEvent& event) {
 }
 
 bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
-  DCHECK((event.type == WebInputEvent::KEY_DOWN) ||
+  DCHECK((event.type == WebInputEvent::RAW_KEY_DOWN) ||
+         (event.type == WebInputEvent::KEY_DOWN) ||
          (event.type == WebInputEvent::KEY_UP));
 
   // Please refer to the comments explaining the suppress_next_keypress_event_
@@ -503,9 +504,9 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 
 #if defined(OS_WIN)
   // TODO(pinkerton): figure out these keycodes on non-windows
-  if (((event.modifiers == 0) && (event.key_code == VK_APPS)) ||
+  if (((event.modifiers == 0) && (event.windows_key_code == VK_APPS)) ||
       ((event.modifiers == WebInputEvent::SHIFT_KEY) &&
-       (event.key_code == VK_F10))) {
+       (event.windows_key_code == VK_F10))) {
     SendContextMenuEvent(event);
     return true;
   }
@@ -513,10 +514,8 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 
   MakePlatformKeyboardEvent evt(event);
 
-#if !defined(OS_MACOSX)
-  if (WebInputEvent::KEY_DOWN == event.type) {
+  if (WebInputEvent::RAW_KEY_DOWN == event.type) {
     MakePlatformKeyboardEvent evt_rawkeydown = evt;
-    evt_rawkeydown.SetKeyType(WebCore::PlatformKeyboardEvent::RawKeyDown);
     if (handler->keyEvent(evt_rawkeydown) && !evt_rawkeydown.isSystemKey()) {
       suppress_next_keypress_event_ = true;
       return true;
@@ -526,19 +525,6 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
       return true;
     }
   }
-#else
-  // Windows and Cocoa handle events in rather different ways. On Windows,
-  // you get two events: WM_KEYDOWN/WM_KEYUP and WM_CHAR. In
-  // PlatformKeyboardEvent, RawKeyDown represents the raw messages. When
-  // processing them, we don't process text editing events, since we'll be
-  // getting the data soon enough. In Cocoa, we get one event with both the
-  // raw and processed data. Therefore we need to keep the type as KeyDown, so
-  // that we'll know that this is the only time we'll have the event and that
-  // we need to do our thing.
-  if (handler->keyEvent(evt)) {
-    return true;
-  }
-#endif
 
   return KeyEventDefault(event);
 }
@@ -546,18 +532,19 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
   if (!autocomplete_popup_showing_ ||
       // Home and End should be left to the text field to process.
-      event.key_code == base::VKEY_HOME || event.key_code == base::VKEY_END) {
+      event.windows_key_code == base::VKEY_HOME ||
+      event.windows_key_code == base::VKEY_END) {
     return false;
   }
 
-  if (!autocomplete_popup_->isInterestedInEventForKey(event.key_code))
+  if (!autocomplete_popup_->isInterestedInEventForKey(event.windows_key_code))
     return false;
 
   if (autocomplete_popup_->handleKeyEvent(MakePlatformKeyboardEvent(event))) {
 #if defined(OS_WIN)
       // We need to ignore the next CHAR event after this otherwise pressing
       // enter when selecting an item in the menu will go to the page.
-      if (WebInputEvent::KEY_DOWN == event.type)
+      if (WebInputEvent::RAW_KEY_DOWN == event.type)
         suppress_next_keypress_event_ = true;
 #endif
       return true;
@@ -691,7 +678,7 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
     case WebInputEvent::CHAR: {
 #if defined(OS_WIN)
       // TODO(pinkerton): hook this up for non-win32
-      if (event.key_code == VK_SPACE) {
+      if (event.windows_key_code == VK_SPACE) {
         int key_code = ((event.modifiers & WebInputEvent::SHIFT_KEY) ?
                          VK_PRIOR : VK_NEXT);
         return ScrollViewWithKeyboard(key_code);
@@ -700,9 +687,9 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
       break;
     }
 
-    case WebInputEvent::KEY_DOWN: {
+    case WebInputEvent::RAW_KEY_DOWN: {
       if (event.modifiers == WebInputEvent::CTRL_KEY) {
-        switch (event.key_code) {
+        switch (event.windows_key_code) {
           case 'A':
             GetFocusedFrame()->SelectAll();
             return true;
@@ -727,7 +714,7 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
       }
 #if defined(OS_WIN)
       if (!event.system_key) {
-        return ScrollViewWithKeyboard(event.key_code);
+        return ScrollViewWithKeyboard(event.windows_key_code);
       }
 #endif
       break;
@@ -972,6 +959,7 @@ bool WebViewImpl::HandleInputEvent(const WebInputEvent* input_event) {
       MouseUp(*static_cast<const WebMouseEvent*>(input_event));
       break;
 
+    case WebInputEvent::RAW_KEY_DOWN:
     case WebInputEvent::KEY_DOWN:
     case WebInputEvent::KEY_UP:
       handled = KeyEvent(*static_cast<const WebKeyboardEvent*>(input_event));
@@ -1232,15 +1220,14 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
 
     // Since we don't have a keyboard event, we'll create one.
     WebKeyboardEvent keyboard_event;
-    keyboard_event.type = WebInputEvent::KEY_DOWN;
+    keyboard_event.type = WebInputEvent::RAW_KEY_DOWN;
     if (reverse)
       keyboard_event.modifiers = WebInputEvent::SHIFT_KEY;
     // VK_TAB which is only defined on Windows.
-    keyboard_event.key_code = 0x09;
+    keyboard_event.windows_key_code = 0x09;
     MakePlatformKeyboardEvent platform_event(keyboard_event);
     // We have to set the key type explicitly to avoid an assert in the
     // KeyboardEvent constructor.
-    platform_event.SetKeyType(PlatformKeyboardEvent::RawKeyDown);
     RefPtr<KeyboardEvent> webkit_event = KeyboardEvent::create(platform_event,
                                                                NULL);
     page()->focusController()->setInitialFocus(

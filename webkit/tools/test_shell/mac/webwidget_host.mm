@@ -221,15 +221,7 @@ void WebWidgetHost::MouseEvent(NSEvent *event) {
     case WebInputEvent::MOUSE_LEAVE:
       TrackMouseLeave(false);
       break;
-    case WebInputEvent::MOUSE_DOWN:
-      break;
-    case WebInputEvent::MOUSE_UP:
-      break;
-    case WebInputEvent::MOUSE_DOUBLE_CLICK:
-    case WebInputEvent::MOUSE_WHEEL:
-    case WebInputEvent::KEY_DOWN:
-    case WebInputEvent::KEY_UP:
-    case WebInputEvent::CHAR:
+    default:
       break;
   }
   webwidget_->HandleInputEvent(&web_event);
