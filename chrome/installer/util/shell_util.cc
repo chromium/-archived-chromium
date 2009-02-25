@@ -407,7 +407,7 @@ ShellUtil::RegisterStatus ShellUtil::AddChromeToSetAccessDefaults(
   if (IsChromeRegistered(chrome_exe))
     return ShellUtil::SUCCESS;
 
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA)
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA)
     return RegisterOnVista(chrome_exe, skip_if_not_admin);
 
   // Try adding these entries to HKLM first and if that fails try adding
@@ -470,7 +470,7 @@ bool ShellUtil::GetQuickLaunchPath(bool system_level, std::wstring* path) {
     if ((p == NULL) || ((p)(qlaunch, &size) != TRUE))
       return false;
     *path = qlaunch;
-    if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+    if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
       file_util::AppendToPath(path, L"AppData\\Roaming");
     } else {
       file_util::AppendToPath(path, L"Application Data");
@@ -559,7 +559,7 @@ bool ShellUtil::MakeChromeDefault(int shell_change,
   bool ret = true;
   // First use the new "recommended" way on Vista to make Chrome default
   // browser.
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
     LOG(INFO) << "Registering Chrome as default browser on Vista.";
     IApplicationAssociationRegistration* pAAR;
     HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration,

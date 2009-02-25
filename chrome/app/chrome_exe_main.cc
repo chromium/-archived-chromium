@@ -27,8 +27,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   base::AtExitManager exit_manager;
 
   win_util::WinVersion win_version = win_util::GetWinVersion();
-  if (win_version == win_util::WINVERSION_XP ||
-      win_version == win_util::WINVERSION_SERVER_2003) {
+  if (win_version < win_util::WINVERSION_VISTA) {
     // On Vista, this is unnecessary since it is controlled through the
     // /NXCOMPAT linker flag.
     // Enforces strong DEP support.

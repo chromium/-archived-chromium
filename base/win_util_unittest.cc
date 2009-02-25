@@ -47,7 +47,7 @@ class BaseWinUtilTest: public testing::Test {
 // The test is somewhat silly, because the Vista bots some have UAC enabled
 // and some have it disabled. At least we check that it does not crash.
 TEST_F(BaseWinUtilTest, TestIsUACEnabled) {
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
     win_util::UserAccountControlIsEnabled();
   } else {
     EXPECT_TRUE(win_util::UserAccountControlIsEnabled());

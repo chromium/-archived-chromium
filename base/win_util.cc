@@ -26,7 +26,7 @@ void GetNonClientMetrics(NONCLIENTMETRICS* metrics) {
   DCHECK(metrics);
 
   static const UINT SIZEOF_NONCLIENTMETRICS =
-      (GetWinVersion() == WINVERSION_VISTA) ?
+      (GetWinVersion() >= WINVERSION_VISTA) ?
       sizeof(NONCLIENTMETRICS) : NONCLIENTMETRICS_SIZE_PRE_VISTA;
   metrics->cbSize = SIZEOF_NONCLIENTMETRICS;
   const bool success = !!SystemParametersInfo(SPI_GETNONCLIENTMETRICS,

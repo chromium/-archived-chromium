@@ -69,7 +69,7 @@ bool ShellIntegration::IsDefaultBrowser() {
   // to show up in Add/Remove programs for us.
   const std::wstring kChromeProtocols[] = {L"http", L"https"};
 
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
     IApplicationAssociationRegistration* pAAR;
     HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration,
         NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration),
@@ -130,7 +130,7 @@ bool ShellIntegration::IsDefaultBrowser() {
 // is false.
 bool ShellIntegration::IsFirefoxDefaultBrowser() {
   bool ff_default = false;
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
     std::wstring app_cmd;
     RegKey key(HKEY_CURRENT_USER, ShellUtil::kRegVistaUrlPrefs, KEY_READ);
     if (key.Valid() && key.ReadValue(L"Progid", &app_cmd) &&

@@ -113,9 +113,10 @@ void PrepareRestartOnCrashEnviroment(const CommandLine &parsed_command_line) {
 int HandleIconsCommands(const CommandLine &parsed_command_line) {
   if (parsed_command_line.HasSwitch(switches::kHideIcons)) {
     std::wstring cp_applet;
-    if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+    win_util::WinVersion version = win_util::GetWinVersion();
+    if (version >= win_util::WINVERSION_VISTA) {
       cp_applet.assign(L"Programs and Features");  // Windows Vista and later.
-    } else if (win_util::GetWinVersion() == win_util::WINVERSION_XP) {
+    } else if (version >= win_util::WINVERSION_XP) {
       cp_applet.assign(L"Add/Remove Programs");  // Windows XP.
     } else {
       return ResultCodes::UNSUPPORTED_PARAM;  // Not supported

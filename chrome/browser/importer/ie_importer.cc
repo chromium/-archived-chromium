@@ -451,7 +451,7 @@ bool IEImporter::GetFavoritesInfo(IEImporter::FavoritesInfo *info) {
   // is not recording in Vista's registry. So in Vista, we assume the Links
   // folder is under Favorites folder since it looks like there is not name
   // different in every language version of Windows Vista.
-  if (win_util::GetWinVersion() != win_util::WINVERSION_VISTA) {
+  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     // The Link folder name is stored in the registry.
     DWORD buffer_length = sizeof(buffer);
     if (!ReadFromRegistry(HKEY_CURRENT_USER,

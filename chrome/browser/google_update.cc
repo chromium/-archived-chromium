@@ -57,7 +57,7 @@ HRESULT CoCreateInstanceAsAdmin(REFCLSID class_id, REFIID interface_id,
 
   // For Vista we need to instantiate the COM server via the elevation
   // moniker. This ensures that the UAC dialog shows up.
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
     wchar_t class_id_as_string[MAX_PATH] = {0};
     StringFromGUID2(class_id, class_id_as_string,
                     arraysize(class_id_as_string));

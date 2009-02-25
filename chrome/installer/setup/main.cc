@@ -524,7 +524,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   }
 
   if (system_install && !IsUserAnAdmin()) {
-    if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA &&
+    if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA &&
         !parsed_command_line.HasSwitch(installer_util::switches::kRunAsAdmin)) {
       std::wstring exe = parsed_command_line.program();
       std::wstring params(command_line);
