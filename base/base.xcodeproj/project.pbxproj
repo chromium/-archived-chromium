@@ -202,6 +202,8 @@
 		E4A133440E37A3C400110AA2 /* string_escape.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133420E37A3C400110AA2 /* string_escape.cc */; };
 		E4CE9D7A0E8C1FD400D5378C /* system_monitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4CE9D780E8C1FCA00D5378C /* system_monitor.cc */; };
 		F330B11E050A9158CB16C98E /* version_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A65E63ED95E431D2E73DF510 /* version_unittest.cc */; };
+		F414444A0F55BB09008C8F73 /* data_pack.cc in Sources */ = {isa = PBXBuildFile; fileRef = F41444450F55BAC1008C8F73 /* data_pack.cc */; };
+		F414444B0F55BB10008C8F73 /* data_pack_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = F41444490F55BAF6008C8F73 /* data_pack_unittest.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -713,6 +715,9 @@
 		E4CE9D760E8C1FCA00D5378C /* system_monitor_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = system_monitor_unittest.cc; sourceTree = "<group>"; };
 		E4CE9D770E8C1FCA00D5378C /* system_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = system_monitor.h; sourceTree = "<group>"; };
 		E4CE9D780E8C1FCA00D5378C /* system_monitor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = system_monitor.cc; sourceTree = "<group>"; };
+		F41444450F55BAC1008C8F73 /* data_pack.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data_pack.cc; sourceTree = "<group>"; };
+		F41444460F55BAC1008C8F73 /* data_pack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = data_pack.h; sourceTree = "<group>"; };
+		F41444490F55BAF6008C8F73 /* data_pack_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data_pack_unittest.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -895,6 +900,9 @@
 				825402EB0D92D1940006B936 /* condition_variable.h */,
 				824653670DC12CEC007C2BAA /* condition_variable_posix.cc */,
 				BA73AA320E5F614B00A20026 /* condition_variable_unittest.cc */,
+				F41444450F55BAC1008C8F73 /* data_pack.cc */,
+				F41444460F55BAC1008C8F73 /* data_pack.h */,
+				F41444490F55BAF6008C8F73 /* data_pack_unittest.cc */,
 				825402F40D92D1AC0006B936 /* debug_on_start.cc */,
 				825402F30D92D1AC0006B936 /* debug_on_start.h */,
 				825402F20D92D1AC0006B936 /* debug_util.cc */,
@@ -1435,6 +1443,7 @@
 				ABF4B99E0DC2BB6000A6E319 /* clipboard_mac.mm in Sources */,
 				E48A05F70E3F61B300172919 /* command_line.cc in Sources */,
 				824653680DC12CEC007C2BAA /* condition_variable_posix.cc in Sources */,
+				F414444A0F55BB09008C8F73 /* data_pack.cc in Sources */,
 				7B78CE250E5314A000609465 /* debug_util.cc in Sources */,
 				B5C4B9C90F44C2AD003F59F9 /* debug_util_mac.cc in Sources */,
 				7B78CE120E53131800609465 /* debug_util_posix.cc in Sources */,
@@ -1540,6 +1549,7 @@
 				B52C916C0E9428F500208D01 /* clipboard_unittest.cc in Sources */,
 				7B78D38F0E54FE0100609465 /* command_line_unittest.cc in Sources */,
 				BA73AA330E5F614B00A20026 /* condition_variable_unittest.cc in Sources */,
+				F414444B0F55BB10008C8F73 /* data_pack_unittest.cc in Sources */,
 				ABF68B2B0EB0F93E00E72835 /* field_trial_unittest.cc in Sources */,
 				4D11B89F0E929F0700EF7617 /* file_path_unittest.cc in Sources */,
 				A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */,

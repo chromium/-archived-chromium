@@ -91,8 +91,14 @@ bool DataPack::Load(const FilePath& path) {
 bool DataPack::Get(uint32_t resource_id, StringPiece* data) {
   // It won't be hard to make this endian-agnostic, but it's not worth
   // bothering to do right now.
+#if defined(__BYTE_ORDER)
+  // Linux check
   COMPILE_ASSERT(__BYTE_ORDER == __LITTLE_ENDIAN,
                  datapack_assumes_little_endian);
+#elif defined(__BIG_ENDIAN__)
+  // Mac check
+  #error DataPack assumes little endian
+#endif
 
   DataPackEntry* target = reinterpret_cast<DataPackEntry*>(
       bsearch(&resource_id, mmap_->data() + kHeaderLength, resource_count_,
