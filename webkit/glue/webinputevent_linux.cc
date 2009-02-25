@@ -115,8 +115,17 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
 
   type = MOUSE_WHEEL;
 
-  // TODO(tc): Figure out what the right value for this is.
-  static const int kWheelDelta = 1;
+  // How much should we scroll per mouse wheel event?
+  // - Windows uses 3 lines by default and obeys a system setting.
+  // - Mozilla has a pref that lets you either use the "system" number of lines
+  //   to scroll, or lets the user override it.
+  //   For the "system" number of lines, it appears they've hardcoded 3.
+  //   See case NS_MOUSE_SCROLL in content/events/src/nsEventStateManager.cpp
+  //   and InitMouseScrollEvent in widget/src/gtk2/nsCommonWidget.cpp .
+  // - Gtk makes the scroll amount a function of the size of the scroll bar,
+  //   which is not available to us here.
+  // Instead, we pick a number that empirically matches Firefox's behavior.
+  static const int kWheelDelta = 4;
 
   delta_x = 0;
   delta_y = 0;
