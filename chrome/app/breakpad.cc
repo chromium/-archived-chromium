@@ -239,7 +239,7 @@ void InitDefaultCrashCallback() {
   previous_filter = SetUnhandledExceptionFilter(ChromeExceptionFilter);
 }
 
-void InitCrashReporter(std::wstring dll_path) {
+void InitCrashReporter(const std::wstring& dll_path) {
   const CommandLine& command = *CommandLine::ForCurrentProcess();
   if (!command.HasSwitch(switches::kDisableBreakpad)) {
     // Disable the message box for assertions.
