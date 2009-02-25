@@ -2,16 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// DOMUIHost is a special type of TabContents that can display Chrome-specific
-// content using HTML.
-// It provides methods to send data to and from the page Javascript.
-
-// TODO(evanm): Add more limitations on what the contents of this view
-//              can do (especially regarding network requests).
+// THIS FILE IS DEPRECATED, USE DOM_UI INSTEAD.
 
 #ifndef CHROME_BROWSER_DOM_UI_DOM_UI_HOST_H__
 #define CHROME_BROWSER_DOM_UI_DOM_UI_HOST_H__
 
+#include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "webkit/glue/webpreferences.h"
 
@@ -19,14 +15,6 @@ class DOMMessageDispatcher;
 class RenderProcessHost;
 class RenderViewHost;
 class Value;
-
-// Messages sent from the DOM are forwarded via the DOMUIHost to handler
-// classes.  These objects are owned by DOMUIHost and destroyed when the
-// host is destroyed.
-class DOMMessageHandler {
- public:
-  virtual ~DOMMessageHandler() {}
-};
 
 // See the comments at the top of this file.
 class DOMUIHost : public WebContents {

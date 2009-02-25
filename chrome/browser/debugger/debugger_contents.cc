@@ -19,6 +19,9 @@
 
 #include "grit/debugger_resources.h"
 
+// DebuggerUI is accessible from chrome-ui://inspector.
+static const char kDebuggerHost[] = "inspector";
+
 class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
  public:
   // Creates our datasource and sets our user message to a specific message
@@ -86,8 +89,8 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
 
 class DebuggerHandler : public DOMMessageHandler {
  public:
-  explicit DebuggerHandler(DOMUIHost* host) {
-    host->RegisterMessageCallback("DebuggerHostMessage",
+  explicit DebuggerHandler(DOMUI* dom_ui) : DOMMessageHandler(dom_ui) {
+    dom_ui->RegisterMessageCallback("DebuggerHostMessage",
         NewCallback(this, &DebuggerHandler::HandleDebuggerHostMessage));
   }
 
@@ -118,12 +121,11 @@ class DebuggerHandler : public DOMMessageHandler {
 };
 
 
-DebuggerContents::DebuggerContents(Profile* profile, SiteInstance* instance)
-    : DOMUIHost(profile, instance, NULL) {
-  set_type(TAB_CONTENTS_DEBUGGER);
+DebuggerContents::DebuggerContents(DOMUIContents* contents)
+    : DOMUI(contents) {
 }
 
-void DebuggerContents::AttachMessageHandlers() {
+void DebuggerContents::Init() {
   AddMessageHandler(new DebuggerHandler(this));
 
   DebuggerHTMLSource* html_source = new DebuggerHTMLSource();
@@ -135,6 +137,14 @@ void DebuggerContents::AttachMessageHandlers() {
 
 // static
 bool DebuggerContents::IsDebuggerUrl(const GURL& url) {
-  return (url.SchemeIs("chrome-ui") && url.host() == "inspector");
+  return (url.SchemeIs(DOMUIContents::GetScheme().c_str()) && 
+          url.host() == kDebuggerHost);
 }
 
+// static
+GURL DebuggerContents::GetBaseURL() {
+  std::string url = DOMUIContents::GetScheme();
+  url += "://";
+  url += kDebuggerHost;
+  return GURL(url);
+}

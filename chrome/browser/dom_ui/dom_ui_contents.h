@@ -101,6 +101,17 @@ class DOMUIContents : public WebContents {
   // Override this method so we can ensure that javascript and image loading
   // are always on even for DOMUIHost tabs.
   virtual WebPreferences GetWebkitPrefs();
+  // We don't want a favicon on the new tab page.
+  virtual bool ShouldDisplayFavIcon();
+  // The bookmark bar is always visible on the new tab.
+  virtual bool IsBookmarkBarAlwaysVisible();
+  // When NTP gets the initial focus, focus the URL bar.
+  virtual void SetInitialFocus();
+  // Whether we want to display the page's URL.
+  virtual bool ShouldDisplayURL();
+  // We may wish to control what happens when a URL is opened.
+  virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
+      WindowOpenDisposition disposition);
 
   //
   // TabContents overrides

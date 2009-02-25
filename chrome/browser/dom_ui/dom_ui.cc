@@ -79,6 +79,12 @@ void DOMUI::RegisterMessageCallback(const std::string &message,
   message_callbacks_.insert(std::make_pair(message, callback));
 }
 
+void DOMUI::RequestOpenURL(const GURL& url,
+                           const GURL& /* referer */,
+                           WindowOpenDisposition disposition) {
+  get_contents()->OpenURL(url, GURL(), disposition, PageTransition::LINK);
+}
+
 // DOMUI, protected: ----------------------------------------------------------
 
 void DOMUI::AddMessageHandler(DOMMessageHandler* handler) {

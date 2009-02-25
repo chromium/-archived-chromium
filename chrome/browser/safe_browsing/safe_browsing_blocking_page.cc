@@ -377,7 +377,7 @@ void SafeBrowsingBlockingPage::DontProceed() {
   // for the tab has by then already been destroyed.
   if (navigation_entry_index_to_remove_ != -1 && !tab()->is_being_destroyed()) {
     tab()->controller()->RemoveEntryAtIndex(navigation_entry_index_to_remove_,
-                                            NewTabUIURL());
+                                            NewTabUI::GetBaseURL());
     navigation_entry_index_to_remove_ = -1;
   }
   InterstitialPage::DontProceed();

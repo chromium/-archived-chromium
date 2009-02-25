@@ -265,7 +265,7 @@ void DownloadShelfView::LinkActivated(views::Link* source, int event_flags) {
   NavigationController* controller = tab_contents_->controller();
   Browser* browser = Browser::GetBrowserForController(controller, &index);
   DCHECK(browser);
-  browser->ShowNativeUITab(DownloadTabUI::GetURL());
+  browser->ShowDownloadsTab();
 }
 
 void DownloadShelfView::ButtonPressed(views::BaseButton* button) {

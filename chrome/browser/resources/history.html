@@ -9,7 +9,7 @@
 var RESULTS_PER_PAGE = 150;
 var MAX_SEARCH_DEPTH_MONTHS = 18;
 
-// Amount of time between pageviews that we consider a 'break' in browsing, 
+// Amount of time between pageviews that we consider a 'break' in browsing,
 // measured in milliseconds.
 var BROWSING_GAP_TIME = 15 * 60 * 1000;
 
@@ -32,7 +32,7 @@ var pageState;
  */
 function LocalStrings(node) {
   this.strings_ = {};
-  
+
   var children = node.childNodes;
   for (var i = 0, child; child = children[i]; i++) {
     var id = child.id;
@@ -52,7 +52,7 @@ LocalStrings.prototype.getString = function(s) {
 }
 
 /**
- * Returns a formatted localized string (where all %s contents are replaced 
+ * Returns a formatted localized string (where all %s contents are replaced
  * by the second argument).
  * @param {string} s The id of the string we want
  * @param {string} d The string to include in the formatted string
@@ -75,10 +75,12 @@ function Page(result, continued, model) {
   this.title_ = result.title;
   this.url_ = result.url;
   this.snippet_ = result.snippet || "";
-  
+
+  this.changed = false;
+
   // All the date information is public so that owners can compare properties of
   // two items easily.
-  
+
   // We get the time in seconds, but we want it in milliseconds.
   this.time = new Date(result.time * 1000);
 
@@ -272,7 +274,7 @@ HistoryModel.prototype.addResults = function(term, results) {
     for (var i = 0, thisResult; thisResult = results[i]; i++) {
       var thisURL = thisResult.url;
       var thisDay = thisResult.dateRelativeDay;
-      
+
       // Remove adjacent duplicates.
       if (!lastURL || lastURL != thisURL) {
         // Figure out if this page is in the same day as the previous page,
@@ -283,6 +285,8 @@ HistoryModel.prototype.addResults = function(term, results) {
       }
     }
   }
+  if (results.length)
+    this.changed = true;
 
   this.updateSearch_();
 }
@@ -341,6 +345,7 @@ HistoryModel.prototype.updateSearch_ = function() {
     // We have maxed out. There will be no more data.
     this.complete_ = true;
     this.view_.onModelReady();
+    this.changed = false;
   } else {
     // If we can't fill the requested page, ask for more data unless a request
     // is still in-flight.
@@ -349,8 +354,9 @@ HistoryModel.prototype.updateSearch_ = function() {
     }
 
     // If we have any data for the requested page, show it.
-    if (this.haveDataForPage_(this.requestedPage_)) {
+    if (this.changed && this.haveDataForPage_(this.requestedPage_)) {
       this.view_.onModelReady();
+      this.changed = false;
     }
   }
 }
@@ -367,15 +373,15 @@ HistoryModel.prototype.updateSearch_ = function() {
  */
 HistoryModel.prototype.getSearchResults_ = function(depth) {
   this.searchDepth_ = depth || 0;
-  
+
   if (this.searchText_ == "") {
     chrome.send('getHistory',
         [String(this.searchDepth_)]);
   } else {
     chrome.send('searchHistory',
-        [this.searchText_, String(this.searchDepth_)]);  
+        [this.searchText_, String(this.searchDepth_)]);
   }
-  
+
   this.inFlight_ = true;
 }
 
@@ -412,7 +418,8 @@ function HistoryView(model) {
   this.pageDiv_ = $('results-pagination');
   this.model_ = model
   this.pageIndex_ = 0;
-  
+  this.lastDisplayed_ = [];
+
   this.model_.setView(this);
 }
 
@@ -486,21 +493,21 @@ HistoryView.prototype.displayResults_ = function() {
     for (var i = 0, page; page = results[i]; i++) {
       // Break across day boundaries and insert gaps for browsing pauses.
       var thisTime = page.time.getTime();
-      
+
       if ((i == 0 && page.continued) || !page.continued) {
         output.push('<div class="day">' + page.dateRelativeDay);
-        
+
         if (i == 0 && page.continued)
           output.push(' ' + localStrings.getString('cont'));
-          
+
         output.push('<a href="#" class="delete-day" ' +
-                    'onclick="return deleteDay(\'' + 
+                    'onclick="return deleteDay(\'' +
                     page.time.toString() + '\');">' +
                     localStrings.getString("deleteday") + '</a>');
         output.push('</div>');
       } else if (lastTime - thisTime > BROWSING_GAP_TIME) {
         output.push('<div class="gap"></div>');
-      } 
+      }
       lastTime = thisTime;
 
       // Draw entry.
@@ -532,11 +539,11 @@ HistoryView.prototype.displayNavBar_ = function() {
   var navOutput = '';
   if (this.pageIndex_ > 0) {
     navOutput += this.createPageNavHTML_(0, localStrings.getString('newest'));
-    navOutput += this.createPageNavHTML_(this.pageIndex_ - 1, 
+    navOutput += this.createPageNavHTML_(this.pageIndex_ - 1,
                                          localStrings.getString('newer'));
   }
   if (this.model_.getSize() > (this.pageIndex_ + 1) * RESULTS_PER_PAGE) {
-    navOutput += this.createPageNavHTML_(this.pageIndex_ + 1, 
+    navOutput += this.createPageNavHTML_(this.pageIndex_ + 1,
                                          localStrings.getString('older'));
   }
   this.pageDiv_.innerHTML = navOutput;
@@ -570,10 +577,10 @@ function PageState(model, view) {
   if (PageState.instance) {
     return PageState.instance;
   }
-  
+
   this.model = model;
   this.view = view;
-  
+
   if (typeof this.checker_ != 'undefined' && this.checker_) {
     clearInterval(this.checker_);
   }
@@ -582,7 +589,7 @@ function PageState(model, view) {
   //     public model and view.
   this.checker_ = setInterval((function(state_obj) {
     var hashData = state_obj.getHashData();
-    
+
     if (hashData.q != state_obj.model.getSearchText(term)) {
       state_obj.view.setSearch(hashData.q, parseInt(hashData.p, 10));
     } else if (parseInt(hashData.p, 10) != state_obj.view.getPage()) {
@@ -656,13 +663,13 @@ PageState.getHashString = function(term, page) {
 // Document Functions:
 /**
  * Window onload handler, sets up the page.
- */ 
+ */
  function load() {
   localStrings = new LocalStrings($('l10n'));
   historyModel = new HistoryModel();
   historyView = new HistoryView(historyModel);
   pageState = new PageState(historyModel, historyView);
-  
+
   // Create default view.
   var hashData = pageState.getHashData();
   historyView.setSearch(hashData.q, hashData.p);

@@ -14,7 +14,7 @@
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
 #if defined(OS_WIN)
 // TODO(port): include this once history is converted to HTML
-#include "chrome/browser/history_tab_ui.h"
+#include "chrome/browser/dom_ui/history_ui.h"
 #endif
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -38,8 +38,8 @@
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 
-// The URL scheme used for the new tab.
-static const char kNewTabUIScheme[] = "chrome-internal";
+// NewTabUI is accessible from chrome-ui://newtab.
+static const char kNewTabHost[] = "newtab";
 
 // The number of most visited pages we show.
 const int kMostVisitedPages = 9;
@@ -177,7 +177,7 @@ void SetURLTitleAndDirection(DictionaryValue* dictionary,
 // NewTabHTMLSource
 
 NewTabHTMLSource::NewTabHTMLSource()
-    : DataSource("new-tab", MessageLoop::current()) {
+    : DataSource(kNewTabHost, MessageLoop::current()) {
 }
 
 void NewTabHTMLSource::StartDataRequest(const std::string& path,
@@ -289,11 +289,12 @@ void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
 ///////////////////////////////////////////////////////////////////////////////
 // MostVisitedHandler
 
-MostVisitedHandler::MostVisitedHandler(DOMUIHost* dom_ui_host)
-    : dom_ui_host_(dom_ui_host) {
+MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui) {
   // Register ourselves as the handler for the "mostvisited" message from
   // Javascript.
-  dom_ui_host_->RegisterMessageCallback("getMostVisited",
+  dom_ui_->RegisterMessageCallback("getMostVisited",
       NewCallback(this, &MostVisitedHandler::HandleGetMostVisited));
 
   // Set up our sources for thumbnail and favicon data.
@@ -301,27 +302,27 @@ MostVisitedHandler::MostVisitedHandler(DOMUIHost* dom_ui_host)
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(&chrome_url_data_manager,
                         &ChromeURLDataManager::AddDataSource,
-                        new ThumbnailSource(dom_ui_host->profile())));
+                        new ThumbnailSource(dom_ui->get_profile())));
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(&chrome_url_data_manager,
                         &ChromeURLDataManager::AddDataSource,
-                        new FavIconSource(dom_ui_host->profile())));
+                        new FavIconSource(dom_ui->get_profile())));
 
   // Get notifications when history is cleared.
   NotificationService* service = NotificationService::current();
   service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                       Source<Profile>(dom_ui_host_->profile()));
+                       Source<Profile>(dom_ui_->get_profile()));
 }
 
 MostVisitedHandler::~MostVisitedHandler() {
   NotificationService* service = NotificationService::current();
   service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                          Source<Profile>(dom_ui_host_->profile()));
+                          Source<Profile>(dom_ui_->get_profile()));
 }
 
 void MostVisitedHandler::HandleGetMostVisited(const Value* value) {
   HistoryService* hs =
-      dom_ui_host_->profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
+      dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QuerySegmentUsageSince(
       &cancelable_consumer_,
       base::Time::Now() - base::TimeDelta::FromDays(kMostVisitedScope),
@@ -342,7 +343,7 @@ void MostVisitedHandler::OnSegmentUsageAvailable(
     pages_value.Append(page_value);
     most_visited_urls_.push_back(page.GetURL());
   }
-  dom_ui_host_->CallJavascriptFunction(L"mostVisitedPages", pages_value);
+  dom_ui_->CallJavascriptFunction(L"mostVisitedPages", pages_value);
 }
 
 void MostVisitedHandler::Observe(NotificationType type,
@@ -360,11 +361,13 @@ void MostVisitedHandler::Observe(NotificationType type,
 ///////////////////////////////////////////////////////////////////////////////
 // TemplateURLHandler
 
-TemplateURLHandler::TemplateURLHandler(DOMUIHost* dom_ui_host)
-    : dom_ui_host_(dom_ui_host), template_url_model_(NULL) {
-  dom_ui_host->RegisterMessageCallback("getMostSearched",
+TemplateURLHandler::TemplateURLHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui),
+      template_url_model_(NULL) {
+  dom_ui->RegisterMessageCallback("getMostSearched",
       NewCallback(this, &TemplateURLHandler::HandleGetMostSearched));
-  dom_ui_host->RegisterMessageCallback("doSearch",
+  dom_ui->RegisterMessageCallback("doSearch",
       NewCallback(this, &TemplateURLHandler::HandleDoSearch));
 }
 
@@ -377,7 +380,7 @@ void TemplateURLHandler::HandleGetMostSearched(const Value* content) {
   // The page Javascript has requested the list of keyword searches.
   // Start loading them from the template URL backend.
   if (!template_url_model_) {
-    template_url_model_ = dom_ui_host_->profile()->GetTemplateURLModel();
+    template_url_model_ = dom_ui_->get_profile()->GetTemplateURLModel();
     template_url_model_->AddObserver(this);
   }
   if (template_url_model_->loaded()) {
@@ -434,7 +437,8 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
 
   if (url.is_valid()) {
     // Load the URL.
-    dom_ui_host_->OpenURL(url, GURL(), CURRENT_TAB, PageTransition::LINK);
+    dom_ui_->get_contents()->OpenURL(url, GURL(), CURRENT_TAB,
+                                     PageTransition::LINK);
 
     // Record the user action
     std::vector<const TemplateURL*> urls =
@@ -454,7 +458,7 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
       if (urls[i] == template_url) {
         UserMetrics::RecordComputedAction(
             StringPrintf(L"NTP_SearchURL%d", item_number),
-            dom_ui_host_->profile());
+            dom_ui_->get_profile());
         break;
       }
 
@@ -486,16 +490,17 @@ void TemplateURLHandler::OnTemplateURLModelChanged() {
     urls_value.Append(entry_value);
   }
   UMA_HISTOGRAM_COUNTS("NewTabPage.SearchURLs.Total", urls_value.GetSize());
-  dom_ui_host_->CallJavascriptFunction(L"searchURLs", urls_value);
+  dom_ui_->CallJavascriptFunction(L"searchURLs", urls_value);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // RecentlyBookmarkedHandler
 
-RecentlyBookmarkedHandler::RecentlyBookmarkedHandler(DOMUIHost* dom_ui_host)
-    : dom_ui_host_(dom_ui_host),
+RecentlyBookmarkedHandler::RecentlyBookmarkedHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui),
       model_(NULL) {
-  dom_ui_host->RegisterMessageCallback("getRecentlyBookmarked",
+  dom_ui->RegisterMessageCallback("getRecentlyBookmarked",
       NewCallback(this,
                   &RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked));
 }
@@ -507,7 +512,7 @@ RecentlyBookmarkedHandler::~RecentlyBookmarkedHandler() {
 
 void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
   if (!model_) {
-    model_ = dom_ui_host_->profile()->GetBookmarkModel();
+    model_ = dom_ui_->get_profile()->GetBookmarkModel();
     model_->AddObserver(this);
   }
   // If the model is loaded, synchronously send the bookmarks down. Otherwise
@@ -527,7 +532,7 @@ void RecentlyBookmarkedHandler::SendBookmarksToPage() {
     SetURLTitleAndDirection(entry_value, node->GetTitle(), node->GetURL());
     list_value.Append(entry_value);
   }
-  dom_ui_host_->CallJavascriptFunction(L"recentlyBookmarked", list_value);
+  dom_ui_->CallJavascriptFunction(L"recentlyBookmarked", list_value);
 }
 
 void RecentlyBookmarkedHandler::Loaded(BookmarkModel* model) {
@@ -554,13 +559,14 @@ void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkModel* model,
 ///////////////////////////////////////////////////////////////////////////////
 // RecentlyClosedTabsHandler
 
-RecentlyClosedTabsHandler::RecentlyClosedTabsHandler(DOMUIHost* dom_ui_host)
-    : dom_ui_host_(dom_ui_host),
+RecentlyClosedTabsHandler::RecentlyClosedTabsHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui),
       tab_restore_service_(NULL) {
-  dom_ui_host->RegisterMessageCallback("getRecentlyClosedTabs",
+  dom_ui->RegisterMessageCallback("getRecentlyClosedTabs",
       NewCallback(this,
                   &RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs));
-  dom_ui_host->RegisterMessageCallback("reopenTab",
+  dom_ui->RegisterMessageCallback("reopenTab",
       NewCallback(this, &RecentlyClosedTabsHandler::HandleReopenTab));
 }
 
@@ -570,7 +576,7 @@ RecentlyClosedTabsHandler::~RecentlyClosedTabsHandler() {
 }
 
 void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
-  NavigationController* controller = dom_ui_host_->controller();
+  NavigationController* controller = dom_ui_->get_contents()->controller();
   Browser* browser = Browser::GetBrowserForController(
       controller, NULL);
   if (!browser)
@@ -603,7 +609,7 @@ void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
 void RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs(
     const Value* content) {
   if (!tab_restore_service_) {
-    tab_restore_service_ = dom_ui_host_->profile()->GetTabRestoreService();
+    tab_restore_service_ = dom_ui_->get_profile()->GetTabRestoreService();
 
     // GetTabRestoreService() can return NULL (i.e., when in Off the
     // Record mode)
@@ -645,7 +651,7 @@ void RecentlyClosedTabsHandler::TabRestoreServiceChanged(
       delete value;
     }
   }
-  dom_ui_host_->CallJavascriptFunction(L"recentlyClosedTabs", list_value);
+  dom_ui_->CallJavascriptFunction(L"recentlyClosedTabs", list_value);
 }
 
 void RecentlyClosedTabsHandler::TabRestoreServiceDestroyed(
@@ -661,7 +667,7 @@ bool RecentlyClosedTabsHandler::TabToValue(
 
   const TabNavigation& current_navigation =
       tab.navigations.at(tab.current_navigation_index);
-  if (current_navigation.url() == NewTabUIURL())
+  if (current_navigation.url() == NewTabUI::GetBaseURL())
     return false;
 
   SetURLTitleAndDirection(dictionary, current_navigation.title(),
@@ -699,22 +705,23 @@ bool RecentlyClosedTabsHandler::WindowToValue(
 ///////////////////////////////////////////////////////////////////////////////
 // HistoryHandler
 
-HistoryHandler::HistoryHandler(DOMUIHost* dom_ui_host)
-    : dom_ui_host_(dom_ui_host) {
-  dom_ui_host->RegisterMessageCallback("showHistoryPage",
+HistoryHandler::HistoryHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui) {
+  dom_ui->RegisterMessageCallback("showHistoryPage",
       NewCallback(this, &HistoryHandler::HandleShowHistoryPage));
-  dom_ui_host->RegisterMessageCallback("searchHistoryPage",
+  dom_ui->RegisterMessageCallback("searchHistoryPage",
       NewCallback(this, &HistoryHandler::HandleSearchHistoryPage));
 }
 
 void HistoryHandler::HandleShowHistoryPage(const Value*) {
-  NavigationController* controller = dom_ui_host_->controller();
+  NavigationController* controller = dom_ui_->get_contents()->controller();
   if (controller) {
 #if defined(OS_WIN)
 // TODO(port): include this once history is converted to HTML
-    controller->LoadURL(HistoryTabUI::GetURL(), GURL(), PageTransition::LINK);
+    controller->LoadURL(HistoryUI::GetBaseURL(), GURL(), PageTransition::LINK);
     UserMetrics::RecordAction(L"NTP_ShowHistory",
-        dom_ui_host_->profile());
+        dom_ui_->get_profile());
 #else
     NOTIMPLEMENTED();
 #endif
@@ -732,13 +739,14 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
       std::wstring wstring_value;
       if (string_value->GetAsString(&wstring_value)) {
         UserMetrics::RecordAction(L"NTP_SearchHistory",
-            dom_ui_host_->profile());
+            dom_ui_->get_profile());
 
 #if defined(OS_WIN)
 // TODO(port): include this once history is converted to HTML
-        NavigationController* controller = dom_ui_host_->controller();
+        NavigationController* controller =
+            dom_ui_->get_contents()->controller();
         controller->LoadURL(
-            HistoryTabUI::GetHistoryURLWithSearchText(wstring_value),
+            HistoryUI::GetHistoryURLWithSearchText(wstring_value),
             GURL(),
             PageTransition::LINK);
 #else
@@ -752,9 +760,10 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
 ///////////////////////////////////////////////////////////////////////////////
 // MetricsHandler
 
-MetricsHandler::MetricsHandler(DOMUIHost* dom_ui_host)
-    : dom_ui_host_(dom_ui_host) {
-  dom_ui_host->RegisterMessageCallback("metrics",
+MetricsHandler::MetricsHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui) {
+  dom_ui->RegisterMessageCallback("metrics",
       NewCallback(this, &MetricsHandler::HandleMetrics));
 }
 
@@ -769,7 +778,7 @@ void MetricsHandler::HandleMetrics(const Value* content) {
       std::wstring wstring_value;
       if (string_value->GetAsString(&wstring_value)) {
         UserMetrics::RecordComputedAction(wstring_value,
-            dom_ui_host_->profile());
+            dom_ui_->get_profile());
       }
     }
   }
@@ -778,33 +787,11 @@ void MetricsHandler::HandleMetrics(const Value* content) {
 ///////////////////////////////////////////////////////////////////////////////
 // NewTabUIContents
 
-// This is the top-level URL handler for chrome-internal: URLs, and exposed in
-// our header file.
-bool NewTabUIHandleURL(GURL* url,
-                       TabContentsType* result_type) {
-  if (!url->SchemeIs(kNewTabUIScheme))
-    return false;
-
-  *result_type = TAB_CONTENTS_NEW_TAB_UI;
-  *url = GURL(DOMUIContents::GetScheme() + "://new-tab/");
-
-  return true;
-}
-
-GURL NewTabUIURL() {
-  std::string url(kNewTabUIScheme);
-  url += ":";
-  return GURL(url);
-}
-
-NewTabUIContents::NewTabUIContents(Profile* profile,
-    SiteInstance* instance, RenderViewHostFactory* render_view_factory) :
-    DOMUIHost(profile, instance, render_view_factory),
+NewTabUI::NewTabUI(DOMUIContents* contents) :
+    DOMUI(contents),
     motd_message_id_(0),
     incognito_(false),
     most_visited_handler_(NULL) {
-  set_type(TAB_CONTENTS_NEW_TAB_UI);
-
   // Show profile name in the title if the current profile is not the default.
   std::wstring title;
   if (UserDataManager::Get()->is_current_profile_default()) {
@@ -816,20 +803,20 @@ NewTabUIContents::NewTabUIContents(Profile* profile,
   }
   set_forced_title(title);
 
-  if (profile->IsOffTheRecord())
+  if (get_profile()->IsOffTheRecord())
     incognito_ = true;
 
   if (NewTabHTMLSource::first_view() &&
-      (profile->GetPrefs()->GetInteger(prefs::kRestoreOnStartup) != 0 ||
-       !profile->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
+      (get_profile()->GetPrefs()->GetInteger(prefs::kRestoreOnStartup) != 0 ||
+       !get_profile()->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
      ) {
     NewTabHTMLSource::set_first_view(false);
   }
 
-  render_view_host()->set_paint_observer(new PaintTimer);
+  contents->render_view_host()->set_paint_observer(new PaintTimer);
 }
 
-void NewTabUIContents::AttachMessageHandlers() {
+void NewTabUI::Init() {
   // Regretfully, DataSources are global, instead of
   // per-TabContents. Because of the motd_message_id_ member, each
   // NewTabUIContents instance could theoretically have a different
@@ -871,36 +858,27 @@ void NewTabUIContents::AttachMessageHandlers() {
   }
 }
 
-bool NewTabUIContents::NavigateToPendingEntry(bool reload) {
-  const bool result = WebContents::NavigateToPendingEntry(reload);
-  controller()->GetPendingEntry()->set_title(forced_title_);
-  return result;
+// static
+GURL NewTabUI::GetBaseURL() {
+  std::string url = DOMUIContents::GetScheme();
+  url += "://";
+  url += kNewTabHost;
+  return GURL(url);
 }
 
-const std::wstring& NewTabUIContents::GetTitle() const {
-  if (!forced_title_.empty())
-    return forced_title_;
-  return WebContents::GetTitle();
+void NewTabUI::SetInitialFocus() {
+  if (get_contents()->delegate())
+    get_contents()->delegate()->SetFocusToLocationBar();
 }
 
-void NewTabUIContents::SetInitialFocus() {
-  if (delegate())
-    delegate()->SetFocusToLocationBar();
-}
-
-bool NewTabUIContents::SupportsURL(GURL* url) {
-  if (url->SchemeIs("javascript"))
-    return true;
-  return DOMUIHost::SupportsURL(url);
-}
-
-void NewTabUIContents::RequestOpenURL(const GURL& url,
-                                      const GURL& /*referrer*/,
-                                      WindowOpenDisposition disposition) {
+void NewTabUI::RequestOpenURL(const GURL& url,
+                              const GURL&,
+                              WindowOpenDisposition disposition) {
   // The user opened a URL on the page (including "open in new window").
   // We count all such clicks as AUTO_BOOKMARK, which increments the site's
   // visit count (which is used for ranking the most visited entries).
-  // Note this means we're including clicks on not only most visited thumbnails,
-  // but also clicks on recently bookmarked.
-  OpenURL(url, GURL(), disposition, PageTransition::AUTO_BOOKMARK);
+  // Note this means we're including clicks on not only most visited
+  // thumbnails, but also clicks on recently bookmarked.
+  get_contents()->OpenURL(url, GURL(), disposition,
+                          PageTransition::AUTO_BOOKMARK);
 }

@@ -7,23 +7,28 @@
 #ifndef CHROME_BROWSER_SHELL_DEBUGGER_CONTENTS_H__
 #define CHROME_BROWSER_SHELL_DEBUGGER_CONTENTS_H__
 
-#include "chrome/browser/dom_ui/dom_ui_host.h"
+#include "chrome/browser/dom_ui/dom_ui.h"
 
-class DebuggerContents : public DOMUIHost {
+class DebuggerContents : public DOMUI {
  public:
-  DebuggerContents(Profile* profile, SiteInstance* instance);
+  DebuggerContents(DOMUIContents* contents);
+
+  // DOMUI Implementation
+  virtual void Init();
+
+  // Return the URL for the front page of this UI.
+  static GURL GetBaseURL();
 
   static bool IsDebuggerUrl(const GURL& url);
 
  protected:
+  DOMUIContents* contents_;
+
   // WebContents overrides:
   // We override updating history with a no-op so these pages
   // are not saved to history.
   virtual void UpdateHistoryForNavigation(const GURL& url,
       const ViewHostMsg_FrameNavigate_Params& params) { }
-
-  // DOMUIHost implementation.
-  virtual void AttachMessageHandlers();
 
   DISALLOW_EVIL_CONSTRUCTORS(DebuggerContents);
 };

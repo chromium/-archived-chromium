@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
 
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/browser/dom_ui/dom_ui_host.h"
+#include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -17,14 +17,6 @@ class GURL;
 class Profile;
 class Value;
 enum TabContentsType;
-
-// Return the URL for the new tab page.
-GURL NewTabUIURL();
-
-// If a |url| is a chrome-internal: URL, this method sets up |url|, and 
-// |result_type| to the appropriate values for displaying the new tab page 
-// and returns true. Exposed for use by BrowserURLHandler.
-bool NewTabUIHandleURL(GURL* url, TabContentsType* result_type);
 
 // The following classes aren't used outside of new_tab_ui.cc but are
 // put here for clarity.
@@ -74,7 +66,7 @@ class IncognitoTabHTMLSource : public ChromeURLDataManager::DataSource {
 class MostVisitedHandler : public DOMMessageHandler,
                            public NotificationObserver {
  public:
-  explicit MostVisitedHandler(DOMUIHost* dom_ui_host);
+  explicit MostVisitedHandler(DOMUI* dom_ui);
   virtual ~MostVisitedHandler();
 
   // Callback for the "getMostVisited" message.
@@ -94,7 +86,7 @@ class MostVisitedHandler : public DOMMessageHandler,
   void OnSegmentUsageAvailable(CancelableRequestProvider::Handle handle,
                                std::vector<PageUsageData*>* data);
 
-  DOMUIHost* dom_ui_host_;
+  DOMUI* dom_ui_;
 
   // Our consumer for the history service.
   CancelableRequestConsumerTSimple<PageUsageData*> cancelable_consumer_;
@@ -111,7 +103,7 @@ class MostVisitedHandler : public DOMMessageHandler,
 class TemplateURLHandler : public DOMMessageHandler,
                            public TemplateURLModelObserver {
  public:
-  explicit TemplateURLHandler(DOMUIHost* dom_ui_host);
+  explicit TemplateURLHandler(DOMUI* dom_ui);
   virtual ~TemplateURLHandler();
 
   // Callback for the "getMostSearched" message, sent when the page requests
@@ -126,7 +118,7 @@ class TemplateURLHandler : public DOMMessageHandler,
   virtual void OnTemplateURLModelChanged();
 
  private:
-  DOMUIHost* dom_ui_host_;
+  DOMUI* dom_ui_;
   TemplateURLModel* template_url_model_;  // Owned by profile.
 
   DISALLOW_EVIL_CONSTRUCTORS(TemplateURLHandler);
@@ -135,7 +127,7 @@ class TemplateURLHandler : public DOMMessageHandler,
 class RecentlyBookmarkedHandler : public DOMMessageHandler,
                                   public BookmarkModelObserver {
  public:
-  explicit RecentlyBookmarkedHandler(DOMUIHost* dom_ui_host);
+  explicit RecentlyBookmarkedHandler(DOMUI* dom_ui);
   ~RecentlyBookmarkedHandler();
 
   // Callback which navigates to the bookmarks page.
@@ -168,7 +160,7 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler,
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 
-  DOMUIHost* dom_ui_host_;
+  DOMUI* dom_ui_;
   // The model we're getting bookmarks from. The model is owned by the Profile.
   BookmarkModel* model_;
 
@@ -178,7 +170,7 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler,
 class RecentlyClosedTabsHandler : public DOMMessageHandler,
                                   public TabRestoreService::Observer {
  public:
-  explicit RecentlyClosedTabsHandler(DOMUIHost* dom_ui_host);
+  explicit RecentlyClosedTabsHandler(DOMUI* dom_ui);
   virtual ~RecentlyClosedTabsHandler();
 
   // Callback for the "reopenTab" message. Rewrites the history of the
@@ -209,7 +201,7 @@ class RecentlyClosedTabsHandler : public DOMMessageHandler,
   bool WindowToValue(const TabRestoreService::Window& window,
                      DictionaryValue* dictionary);
 
-  DOMUIHost* dom_ui_host_;
+  DOMUI* dom_ui_;
 
   /// TabRestoreService that we are observing.
   TabRestoreService* tab_restore_service_;
@@ -219,7 +211,7 @@ class RecentlyClosedTabsHandler : public DOMMessageHandler,
 
 class HistoryHandler : public DOMMessageHandler {
  public:
-  explicit HistoryHandler(DOMUIHost* dom_ui_host);
+  explicit HistoryHandler(DOMUI* dom_ui);
 
   // Callback which navigates to the history page.
   void HandleShowHistoryPage(const Value*);
@@ -228,7 +220,7 @@ class HistoryHandler : public DOMMessageHandler {
   void HandleSearchHistoryPage(const Value* content);
 
  private:
-  DOMUIHost* dom_ui_host_;
+  DOMUI* dom_ui_;
   DISALLOW_EVIL_CONSTRUCTORS(HistoryHandler);
 };
 
@@ -240,22 +232,26 @@ class HistoryHandler : public DOMMessageHandler {
 // information (treat it as RecordComputedMetrics)
 class MetricsHandler : public DOMMessageHandler {
  public:
-  explicit MetricsHandler(DOMUIHost* dom_ui_host);
+  explicit MetricsHandler(DOMUI* dom_ui);
 
   // Callback which records a user action.
   void HandleMetrics(const Value* content);
 
  private:
-  DOMUIHost* dom_ui_host_;
+  DOMUI* dom_ui_;
   DISALLOW_EVIL_CONSTRUCTORS(MetricsHandler);
 };
 
 // The TabContents used for the New Tab page.
-class NewTabUIContents : public DOMUIHost {
+class NewTabUI : public DOMUI {
  public:
-  NewTabUIContents(Profile* profile,
-                   SiteInstance* instance,
-                   RenderViewHostFactory* render_view_factory);
+  explicit NewTabUI(DOMUIContents* contents);
+
+  // Return the URL for the front page of this UI.
+  static GURL GetBaseURL();
+
+  // DOMUI Implementation
+  virtual void Init();
 
   // Set the title that overrides any other title provided for the tab.
   // This lets you set the title that's displayed before the content loads,
@@ -264,27 +260,22 @@ class NewTabUIContents : public DOMUIHost {
     forced_title_ = title;
   }
 
-  // DOMUIHost implementation.
-  virtual void AttachMessageHandlers();
-
-  // WebContents overrides.
-  // Overriden to force the title of the page to forced_title_.
-  virtual bool NavigateToPendingEntry(bool reload);
-  // We don't want a favicon on the new tab page.
+  // Overridden from DOMUI.
+  // Favicon should not be displayed.
   virtual bool ShouldDisplayFavIcon() { return false; }
-  // The bookmark bar is always visible on the new tab.
+  // Bookmark bar should always be visible.
   virtual bool IsBookmarkBarAlwaysVisible() { return true; }
-  // Return forced_title_ if it's available.
-  virtual const std::wstring& GetTitle() const;
-  // When we get the initial focus, focus the URL bar.
+  // When NTP gets the initial focus, focus the URL bar.
   virtual void SetInitialFocus();
-  // The URL bar should not display the current page's URL.
+  // Should not display our URL.
   virtual bool ShouldDisplayURL() { return false; }
-  virtual bool SupportsURL(GURL* url);
-  // Clicking a URL on the page should count as an autobookmark click.
+  // Control what happens when a link is clicked.
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
-                              WindowOpenDisposition disposition);
+      WindowOpenDisposition disposition);
+
  private:
+  DOMUIContents* contents_;
+
   // The message id that should be displayed in this NewTabUIContents
   // instance's motd area.
   int motd_message_id_;
@@ -301,7 +292,7 @@ class NewTabUIContents : public DOMUIHost {
   // Owned by the DOMUIHost.
   MostVisitedHandler* most_visited_handler_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(NewTabUIContents);
+  DISALLOW_EVIL_CONSTRUCTORS(NewTabUI);
 };
 
 #endif  // CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__

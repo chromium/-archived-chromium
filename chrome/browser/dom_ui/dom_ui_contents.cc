@@ -4,9 +4,11 @@
 
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
 
+#include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
-#include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
+#include "chrome/browser/dom_ui/history_ui.h"
+#include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/resource_bundle.h"
@@ -74,7 +76,7 @@ void FavIconSource::OnFavIconDataAvailable(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ThumbnailSource 
+// ThumbnailSource
 
 ThumbnailSource::ThumbnailSource(Profile* profile)
     : DataSource(kThumbnailPath, MessageLoop::current()), profile_(profile) {}
@@ -123,12 +125,8 @@ void ThumbnailSource::OnThumbnailDataAvailable(
 // at the same host/path.
 bool DOMUIContentsCanHandleURL(GURL* url,
                                TabContentsType* result_type) {
-  if (!url->SchemeIs(kURLScheme))
-    return false;
-
-  // TODO: remove once the debugger is using DOMContentsUI
-  if (url->host().compare("inspector") == 0 && 
-      url->path().compare("/debugger.html") == 0)
+  // chrome-internal is a scheme we used to use for the new tab page.
+  if (!url->SchemeIs(kURLScheme) && !url->SchemeIs("chrome-internal"))
     return false;
 
   *result_type = TAB_CONTENTS_DOM_UI;
@@ -171,6 +169,35 @@ WebPreferences DOMUIContents::GetWebkitPrefs() {
   return web_prefs;
 }
 
+bool DOMUIContents::ShouldDisplayFavIcon() {
+  if (current_ui_)
+    return current_ui_->ShouldDisplayFavIcon();
+  return true;
+}
+
+bool DOMUIContents::IsBookmarkBarAlwaysVisible() {
+  if (current_ui_)
+    return current_ui_->IsBookmarkBarAlwaysVisible();
+  return false;
+}
+
+void DOMUIContents::SetInitialFocus() {
+  if (current_ui_)
+    current_ui_->SetInitialFocus();
+}
+
+bool DOMUIContents::ShouldDisplayURL() {
+  if (current_ui_)
+    return current_ui_->ShouldDisplayURL();
+  return true;
+}
+
+void DOMUIContents::RequestOpenURL(const GURL& url, const GURL& referrer,
+                                   WindowOpenDisposition disposition) {
+  if (current_ui_)
+    current_ui_->RequestOpenURL(url, referrer, disposition);
+}
+
 bool DOMUIContents::NavigateToPendingEntry(bool reload) {
   if (current_ui_) {
     // Shut down our existing DOMUI.
@@ -190,20 +217,6 @@ bool DOMUIContents::NavigateToPendingEntry(bool reload) {
   return WebContents::NavigateToPendingEntry(reload);
 }
 
-DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
-#if defined(OS_WIN)
-// TODO(port): Include when history and downloads are HTML UI.
-  if (url.host() == HistoryUI::GetBaseURL().host())
-    return new HistoryUI(this);
-  else if (url.host() == DownloadsUI::GetBaseURL().host())
-    return new DownloadsUI(this);
-#else
-  NOTIMPLEMENTED();
-#endif
-
-  return NULL;
-}
-
 void DOMUIContents::ProcessDOMUIMessage(const std::string& message,
                                         const std::string& content) {
   DCHECK(current_ui_);
@@ -215,3 +228,21 @@ const std::string DOMUIContents::GetScheme() {
   return kURLScheme;
 }
 
+DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
+#if defined(OS_WIN)
+// TODO(port): include this once these are converted to HTML
+  if (url.host() == NewTabUI::GetBaseURL().host() ||
+    url.SchemeIs("chrome-internal")) {
+    return new NewTabUI(this);
+  } else if (url.host() == HistoryUI::GetBaseURL().host()) {
+    return new HistoryUI(this);
+  } else if (url.host() == DownloadsUI::GetBaseURL().host()) {
+    return new DownloadsUI(this);
+  } else if (url.host() == DebuggerContents::GetBaseURL().host()) {
+    return new DebuggerContents(this);
+  }
+#else
+  NOTIMPLEMENTED();
+#endif
+  return NULL;
+}

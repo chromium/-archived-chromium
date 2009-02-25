@@ -19,6 +19,8 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/time_format.h"
+#include "net/base/escape.h"
+
 #include "grit/browser_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -29,7 +31,7 @@ using base::TimeDelta;
 // HistoryUI is accessible from chrome-ui://history.
 static const char kHistoryHost[] = "history";
 
-// Maximum number of search results to return in a given search. We should 
+// Maximum number of search results to return in a given search. We should
 // eventually remove this.
 static const int kMaxSearchResults = 100;
 
@@ -145,7 +147,7 @@ void BrowsingHistoryHandler::HandleGetHistory(const Value* value) {
       dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QueryHistory(search_text_,
       options,
-      &cancelable_consumer_, 
+      &cancelable_consumer_,
       NewCallback(this, &BrowsingHistoryHandler::QueryComplete));
 }
 
@@ -172,7 +174,7 @@ void BrowsingHistoryHandler::HandleSearchHistory(const Value* value) {
       dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QueryHistory(search_text_,
       options,
-      &cancelable_consumer_, 
+      &cancelable_consumer_,
       NewCallback(this, &BrowsingHistoryHandler::QueryComplete));
 }
 
@@ -217,11 +219,11 @@ void BrowsingHistoryHandler::QueryComplete(
     SetURLAndTitle(page_value, page.title(), page.url());
 
     // Need to pass the time in epoch time (fastest JS conversion).
-    page_value->SetInteger(L"time", 
+    page_value->SetInteger(L"time",
         static_cast<int>(page.visit_time().ToTimeT()));
 
     // Until we get some JS i18n infrastructure, we also need to
-    // pass the dates in as strings. This could use some 
+    // pass the dates in as strings. This could use some
     // optimization.
 
     // Only pass in the strings we need (search results need a shortdate
@@ -238,10 +240,10 @@ void BrowsingHistoryHandler::QueryComplete(
             date_str, base::TimeFormatFriendlyDate(page.visit_time()));
       }
       page_value->SetString(L"dateRelativeDay", date_str);
-      page_value->SetString(L"dateTimeOfDay", 
+      page_value->SetString(L"dateTimeOfDay",
           base::TimeFormatTimeOfDay(page.visit_time()));
     } else {
-      page_value->SetString(L"dateShort", 
+      page_value->SetString(L"dateShort",
           base::TimeFormatShortDate(page.visit_time()));
       page_value->SetString(L"snippet", page.snippet().text());
     }
@@ -253,7 +255,7 @@ void BrowsingHistoryHandler::QueryComplete(
   dom_ui_->CallJavascriptFunction(L"historyResult", temp, results_value);
 }
 
-void BrowsingHistoryHandler::ExtractSearchHistoryArguments(const Value* value, 
+void BrowsingHistoryHandler::ExtractSearchHistoryArguments(const Value* value,
     int* month, std::wstring* query) {
   *month = 0;
 
@@ -363,4 +365,11 @@ GURL HistoryUI::GetBaseURL() {
   url += "://";
   url += kHistoryHost;
   return GURL(url);
+}
+
+// static
+const GURL HistoryUI::GetHistoryURLWithSearchText(
+  const std::wstring& text) {
+    return GURL(GetBaseURL().spec() + "/?q=" +
+      EscapeQueryParamValue(WideToUTF8(text)));
 }

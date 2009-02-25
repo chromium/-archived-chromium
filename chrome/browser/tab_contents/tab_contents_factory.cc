@@ -52,9 +52,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
 // TODO(port): remove this platform define, either by porting the tab contents
 // types or removing them completely.
 #if defined(OS_WIN)
-    case TAB_CONTENTS_NEW_TAB_UI:
-      contents = new NewTabUIContents(profile, instance, NULL);
-      break;
     case TAB_CONTENTS_HTML_DIALOG:
       contents = new HtmlDialogContents(profile, instance, NULL);
       break;
@@ -68,8 +65,7 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       contents = new BrowserAboutHandler(profile, instance, NULL);
       break;
     case TAB_CONTENTS_DEBUGGER:
-      contents = new DebuggerContents(profile, instance);
-      break;
+    case TAB_CONTENTS_NEW_TAB_UI:
     case TAB_CONTENTS_DOM_UI:
       contents = new DOMUIContents(profile, instance, NULL);
       break;

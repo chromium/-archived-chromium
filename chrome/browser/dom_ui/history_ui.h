@@ -85,6 +85,9 @@ class HistoryUI : public DOMUI {
   // Return the URL for the front page of this UI.
   static GURL GetBaseURL();
 
+  // Return the URL for a given search term.
+  static const GURL GetHistoryURLWithSearchText(const std::wstring& text);
+
   // DOMUI Implementation
   virtual void Init();
 

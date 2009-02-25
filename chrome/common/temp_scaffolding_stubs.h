@@ -181,8 +181,6 @@ void OpenFirstRunDialog(Profile* profile);
 
 void InstallJankometer(const CommandLine&);
 
-GURL NewTabUIURL();
-
 //---------------------------------------------------------------------------
 // These stubs are for BrowserProcessImpl
 
@@ -405,7 +403,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
     INVALIDATE_LOAD = 8,
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };
-  TabContents(TabContentsType type) 
+  TabContents(TabContentsType type)
       : type_(type), is_active_(true), is_loading_(false),
         is_being_destroyed_(false), controller_(),
         delegate_(), max_page_id_(-1) { }

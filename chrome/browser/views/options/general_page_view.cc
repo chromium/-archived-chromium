@@ -22,6 +22,7 @@
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
 #include "chrome/browser/views/standard_layout.h"
+#include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
@@ -45,7 +46,7 @@ static const SkColor kNotDefaultBrowserLabelColor = SkColorSetRGB(135, 0, 0);
 
 namespace {
 std::wstring GetNewTabUIURLString() {
-  return UTF8ToWide(NewTabUIURL().spec());
+  return UTF8ToWide(NewTabUI::GetBaseURL().spec());
 }
 }
 

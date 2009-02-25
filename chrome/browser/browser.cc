@@ -12,6 +12,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -47,7 +48,6 @@
 #endif
 
 #if defined(OS_WIN)
-
 #include <windows.h>
 #include <shellapi.h>
 
@@ -59,9 +59,9 @@
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/dock_info.h"
-#include "chrome/browser/dom_ui/new_tab_ui.h"
+#include "chrome/browser/dom_ui/downloads_ui.h"
+#include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/download/save_package.h"
-#include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
@@ -958,7 +958,9 @@ void Browser::ToggleBookmarkBar() {
 
 void Browser::ShowHistoryTab() {
   UserMetrics::RecordAction(L"ShowHistory", profile_);
-  ShowNativeUITab(HistoryTabUI::GetURL());
+  GURL downloads_url = HistoryUI::GetBaseURL();
+  AddTabWithURL(downloads_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
+                NULL);
 }
 
 void Browser::OpenBookmarkManager() {
@@ -968,7 +970,9 @@ void Browser::OpenBookmarkManager() {
 
 void Browser::ShowDownloadsTab() {
   UserMetrics::RecordAction(L"ShowDownloads", profile_);
-  ShowNativeUITab(DownloadTabUI::GetURL());
+  GURL downloads_url = DownloadsUI::GetBaseURL();
+  AddTabWithURL(downloads_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
+                NULL);
 }
 
 void Browser::OpenClearBrowsingDataDialog() {
@@ -1214,7 +1218,7 @@ void Browser::ExecuteCommand(int id) {
 // Browser, TabStripModelDelegate implementation:
 
 GURL Browser::GetBlankTabURL() const {
-  return NewTabUIURL();
+  return NewTabUI::GetBaseURL();
 }
 
 void Browser::CreateNewStripWithContents(TabContents* detached_contents,
@@ -2372,12 +2376,12 @@ void Browser::BuildPopupWindow(TabContents* source,
 
 GURL Browser::GetHomePage() {
   if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
-    return NewTabUIURL();
+    return NewTabUI::GetBaseURL();
   GURL home_page = GURL(URLFixerUpper::FixupURL(
       WideToUTF8(profile_->GetPrefs()->GetString(prefs::kHomePage)),
       std::string()));
   if (!home_page.is_valid())
-    return NewTabUIURL();
+    return NewTabUI::GetBaseURL();
   return home_page;
 }
 

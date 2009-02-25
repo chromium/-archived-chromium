@@ -30,7 +30,7 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   virtual ~TabStripDummyDelegate() {}
 
   // Overridden from TabStripModelDelegate:
-  virtual GURL GetBlankTabURL() const { return NewTabUIURL(); }
+  virtual GURL GetBlankTabURL() const { return NewTabUI::GetBaseURL(); }
   virtual void CreateNewStripWithContents(TabContents* contents,
                                           const gfx::Rect& window_bounds,
                                           const DockInfo& dock_info) {}
@@ -42,7 +42,7 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
       PageTransition::Type transition,
       bool defer_load,
       SiteInstance* instance) const {
-    if (url == NewTabUIURL())
+    if (url == NewTabUI::GetBaseURL())
       return dummy_contents_;
     return NULL;
   }
