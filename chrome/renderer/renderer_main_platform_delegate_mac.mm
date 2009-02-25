@@ -43,6 +43,10 @@ void RendererMainPlatformDelegate::PlatformInitialize() {
   CGColorSpaceRelease(rgb_colorspace);
   CGContextRelease(tmp);
 
+  // Warm up NSColor conversion which also accesses the FS on it's first call.
+  NSColor *color = [NSColor controlTextColor];
+  [color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+
 #if 0
 
   // Note: by default, Cocoa is NOT thread safe.  Use of NSThreads
