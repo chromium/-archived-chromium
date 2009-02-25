@@ -481,8 +481,7 @@ gfx::Point OpaqueNonClientView::GetSystemMenuPoint() const {
   int tabstrip_height = browser_view_->IsTabStripVisible() ?
       browser_view_->GetTabStripHeight() : 0;
   gfx::Point system_menu_point(FrameBorderThickness(),
-      NonClientTopBorderHeight() + tabstrip_height -
-      BottomEdgeThicknessWithinNonClientHeight());
+      NonClientTopBorderHeight() + tabstrip_height - kClientEdgeThickness);
   ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }

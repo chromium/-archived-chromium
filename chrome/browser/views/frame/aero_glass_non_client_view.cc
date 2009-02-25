@@ -151,9 +151,14 @@ gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
 gfx::Point AeroGlassNonClientView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point;
   if (browser_view_->IsTabStripVisible()) {
-    system_menu_point.SetPoint(
-        NonClientBorderThickness() - kClientEdgeThickness,
-        NonClientTopBorderHeight() + browser_view_->GetTabStripHeight());
+    // The maximized mode bit here is because in maximized mode the frame edge
+    // and the client edge are both offscreen, whereas in the opaque frame
+    // (where we don't do this trick) maximized windows have no client edge and
+    // only the frame edge is offscreen.
+    system_menu_point.SetPoint(NonClientBorderThickness() -
+        (frame_->IsMaximized() ? 0 : kClientEdgeThickness),
+        NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
+        kClientEdgeThickness);
   } else {
     system_menu_point.SetPoint(0, -kFrameShadowThickness);
   }
