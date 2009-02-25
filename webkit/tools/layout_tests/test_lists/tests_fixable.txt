@@ -1789,7 +1789,7 @@ LayoutTests/fast/forms/search-click-in-placeholder.html = FAIL
 MAC : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL
 MAC : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 LayoutTests/svg/custom/pointer-events-path.svg = FAIL
-MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
+WIN MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // New tests from merge 41181:41217
 LayoutTests/fast/replaced/embed-display-none.html = FAIL
@@ -1803,3 +1803,10 @@ LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.h
 // Regressions from merge 41181:41217
 // New baseline upstream
 LayoutTests/fast/events/offsetX-offsetY.html = FAIL
+LayoutTests/editing/selection/select-all-iframe.html = FAIL
+WIN : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
+LayoutTests/editing/selection/select-missing-image.html = FAIL
+WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
+LayoutTests/fast/overflow/004.html = FAIL
+LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
+LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
