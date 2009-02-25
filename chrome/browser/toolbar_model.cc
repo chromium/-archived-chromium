@@ -41,7 +41,7 @@ std::wstring ToolbarModel::GetText() {
       url = entry->display_url();
     }
   }
-  return gfx::ElideUrl(url, ChromeFont(), 0, languages);
+  return gfx::GetCleanStringFromUrl(url, languages, NULL, NULL);
 }
 
 ToolbarModel::SecurityLevel ToolbarModel::GetSecurityLevel() {
