@@ -8,13 +8,19 @@
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 #include "net/base/net_util.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/tab_contents.h"
+#elif defined(OS_POSIX)
+// TODO(port): remove when tab_contents is ported
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 ToolbarModel::ToolbarModel() : input_in_progress_(false) {
 }

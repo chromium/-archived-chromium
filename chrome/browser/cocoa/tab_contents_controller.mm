@@ -8,6 +8,7 @@
 #import "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/command_updater.h"
 #import "chrome/browser/location_bar.h"
+#import "chrome/browser/toolbar_model.h"
 
 // For now, tab_contents lives here. TODO(port):fix
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -73,13 +74,15 @@ class LocationBarBridge : public LocationBar {
 - (id)initWithNibName:(NSString*)name 
                bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
-             commands:(CommandUpdater*)commands {
+             commands:(CommandUpdater*)commands
+         toolbarModel:(ToolbarModel*)toolbarModel {
   if ((self = [super initWithNibName:name bundle:bundle])) {
     commands_ = commands;
     if (commands_)
       observer_ = new TabContentsCommandObserver(self, commands);
     locationBarBridge_ = new LocationBarBridge(self);
     contents_ = contents;
+    toolbarModel_ = toolbarModel;
   }
   return self;
 }
@@ -184,15 +187,9 @@ class LocationBarBridge : public LocationBar {
   // that we'll want to duplicate. For now, just handle setting the text.
   
   // TODO(pinkerton): update the security lock icon and background color
-  
-  if (tab) {
-    NSString* urlString =
-        [NSString stringWithUTF8String:tab->GetURL().spec().c_str()];
-    [locationBar_ setStringValue:urlString];
-  } else {
-    // TODO(pinkerton): just reset the state of the url bar. We're currently
-    // not saving any state as that drags in too much Omnibar code.
-  }
+
+  NSString* urlString = base::SysWideToNSString(toolbarModel_->GetText());
+  [locationBar_ setStringValue:urlString];
 }
 
 - (void)setStarredState:(BOOL)isStarred {

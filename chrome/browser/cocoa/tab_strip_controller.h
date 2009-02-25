@@ -13,6 +13,7 @@ class LocationBar;
 class TabStripBridge;
 class TabStripModel;
 class TabContents;
+class ToolbarModel;
 
 // A class that handles managing the tab strip in a browser window. It uses
 // a supporting C++ bridge object to register for notifications from the
@@ -30,7 +31,8 @@ class TabContents;
   TabStripView* tabView_;  // weak
   NSButton* newTabButton_;
   TabStripBridge* bridge_;
-  TabStripModel* model_;  // weak
+  TabStripModel* tabModel_;  // weak
+  ToolbarModel* toolbarModel_;  // weak, one per browser
   CommandUpdater* commands_;  // weak, may be nil
   // maps TabContents to a TabContentsController (which owns the parent view
   // for the toolbar and associated tab contents)
@@ -41,7 +43,8 @@ class TabContents;
 // tracking what's enabled and disabled. |commands| may be nil if no updating
 // is desired.
 - (id)initWithView:(TabStripView*)view 
-             model:(TabStripModel*)model
+          tabModel:(TabStripModel*)tabModel
+      toolbarModel:(ToolbarModel*)toolbarModel
           commands:(CommandUpdater*)commands;
 
 // Get the C++ bridge object representing the location bar for the current tab.

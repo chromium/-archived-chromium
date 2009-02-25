@@ -2,12 +2,13 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.03">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">9G55</string>
+		<string key="IBDocument.SystemVersion">9F33</string>
 		<string key="IBDocument.InterfaceBuilderVersion">677</string>
-		<string key="IBDocument.AppKitVersion">949.43</string>
-		<string key="IBDocument.HIToolboxVersion">353.00</string>
+		<string key="IBDocument.AppKitVersion">949.34</string>
+		<string key="IBDocument.HIToolboxVersion">352.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="94"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -64,12 +65,10 @@
 									<int key="NSvFlags">256</int>
 									<string key="NSFrameSize">{480, 322}</string>
 									<reference key="NSSuperview" ref="753762894"/>
-									<reference key="NSWindow"/>
 								</object>
 							</object>
 							<string key="NSFrameSize">{480, 322}</string>
 							<reference key="NSSuperview" ref="675542922"/>
-							<reference key="NSWindow"/>
 							<string key="NSOffsets">{0, 0}</string>
 							<object class="NSTextFieldCell" key="NSTitleCell">
 								<int key="NSCellFlags">67239424</int>
@@ -111,7 +110,6 @@
 									<int key="NSvFlags">265</int>
 									<string key="NSFrame">{{411, 5}, {24, 27}}</string>
 									<reference key="NSSuperview" ref="588745489"/>
-									<reference key="NSWindow"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="145095454">
 										<int key="NSCellFlags">67239424</int>
@@ -144,12 +142,11 @@
 									<int key="NSvFlags">266</int>
 									<string key="NSFrame">{{131, 5}, {308, 27}}</string>
 									<reference key="NSSuperview" ref="588745489"/>
-									<reference key="NSWindow"/>
 									<int key="NSTag">33004</int>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="971876011">
-										<int key="NSCellFlags">-1805517311</int>
-										<int key="NSCellFlags2">1073774592</int>
+										<int key="NSCellFlags">-1804468671</int>
+										<int key="NSCellFlags2">1073775616</int>
 										<object class="NSAttributedString" key="NSContents">
 											<string key="NSString">chromium.org</string>
 											<object class="NSDictionary" key="NSAttributes">
@@ -196,7 +193,6 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{102, 4}, {29, 29}}</string>
 									<reference key="NSSuperview" ref="588745489"/>
-									<reference key="NSWindow"/>
 									<int key="NSTag">35000</int>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="279099892">
@@ -223,7 +219,6 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{67, 4}, {31, 29}}</string>
 									<reference key="NSSuperview" ref="588745489"/>
-									<reference key="NSWindow"/>
 									<int key="NSTag">33002</int>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="352237189">
@@ -249,7 +244,6 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{34, 4}, {28, 29}}</string>
 									<reference key="NSSuperview" ref="588745489"/>
-									<reference key="NSWindow"/>
 									<int key="NSTag">33001</int>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="616960232">
@@ -276,7 +270,6 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{6, 4}, {29, 29}}</string>
 									<reference key="NSSuperview" ref="588745489"/>
-									<reference key="NSWindow"/>
 									<int key="NSTag">33000</int>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="599914932">
@@ -303,7 +296,6 @@
 									<int key="NSvFlags">265</int>
 									<string key="NSFrame">{{439, 4}, {29, 29}}</string>
 									<reference key="NSSuperview" ref="588745489"/>
-									<reference key="NSWindow"/>
 									<int key="NSTag">33005</int>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="932073098">
@@ -328,7 +320,6 @@
 							</object>
 							<string key="NSFrame">{{0, 322}, {480, 38}}</string>
 							<reference key="NSSuperview" ref="675542922"/>
-							<reference key="NSWindow"/>
 							<string key="NSClassName">ToolbarView</string>
 						</object>
 						<object class="NSCustomView" id="995989345">
@@ -336,13 +327,11 @@
 							<int key="NSvFlags">289</int>
 							<string key="NSFrame">{{465, 0}, {15, 15}}</string>
 							<reference key="NSSuperview" ref="675542922"/>
-							<reference key="NSWindow"/>
 							<string key="NSClassName">GrowBoxView</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{480, 360}</string>
 					<reference key="NSSuperview"/>
-					<reference key="NSWindow"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMinSize">{480, 382}</string>

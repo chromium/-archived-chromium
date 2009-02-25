@@ -43,7 +43,8 @@
   tabStripController_ = 
       [[TabStripController alloc]
           initWithView:tabStripView_ 
-                 model:browser_->tabstrip_model()
+              tabModel:browser_->tabstrip_model()
+          toolbarModel:browser_->toolbar_model()
               commands:browser_->command_updater()];
 
   // Place the tab bar above the content box and add it to the view hierarchy

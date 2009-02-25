@@ -13,6 +13,7 @@ class LocationBar;
 class TabContents;
 class TabContentsCommandObserver;
 class TabStripModel;
+class ToolbarModel;
 
 // A class that controls the contents of a tab, including the toolbar and
 // web area.
@@ -31,6 +32,7 @@ class TabStripModel;
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
   LocationBar* locationBarBridge_;
   TabContents* contents_;  // weak
+  ToolbarModel* toolbarModel_;  // weak, one per window
   IBOutlet NSButton* backButton_;
   IBOutlet NSButton* forwardButton_;
   IBOutlet NSButton* reloadStopButton_;
@@ -46,7 +48,8 @@ class TabStripModel;
 - (id)initWithNibName:(NSString*)name 
                bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
-             commands:(CommandUpdater*)commands;
+             commands:(CommandUpdater*)commands
+         toolbarModel:(ToolbarModel*)toolbarModel;
 
 // Take this view (toolbar and web contents) full screen
 - (IBAction)fullScreen:(id)sender;

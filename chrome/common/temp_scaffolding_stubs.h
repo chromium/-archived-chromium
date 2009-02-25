@@ -473,6 +473,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
                                              TabContentsFactory* factory);
   void OnStartDownload(DownloadItem* download) { NOTIMPLEMENTED(); }
   void RemoveInfoBar(InfoBarDelegate* delegate) { NOTIMPLEMENTED(); }
+  virtual bool ShouldDisplayURL() { return true; }
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;

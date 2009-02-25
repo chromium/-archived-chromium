@@ -61,14 +61,16 @@ class TabStripBridge : public TabStripModelObserver {
 @implementation TabStripController
 
 - (id)initWithView:(TabStripView*)view 
-             model:(TabStripModel*)model
+          tabModel:(TabStripModel*)tabModel
+      toolbarModel:(ToolbarModel*)toolbarModel
           commands:(CommandUpdater*)commands {
-  DCHECK(view && model);
+  DCHECK(view && tabModel && toolbarModel);
   if ((self = [super init])) {
     tabView_ = view;
-    model_ = model;
+    tabModel_ = tabModel;
+    toolbarModel_ = toolbarModel;
     commands_ = commands;
-    bridge_ = new TabStripBridge(model, self);
+    bridge_ = new TabStripBridge(tabModel, self);
     tabContentsToController_ = [[NSMutableDictionary alloc] init];
     
     // Create the new tab button separate from the nib so we can make sure
@@ -165,8 +167,8 @@ class TabStripBridge : public TabStripModelObserver {
 // which feeds back into us via a notification.
 - (void)selectTab:(id)sender {
   int index = [self indexForTabView:sender];  // for testing...
-  if (index >= 0 && model_->ContainsIndex(index))
-    model_->SelectTabContentsAt(index, true);
+  if (index >= 0 && tabModel_->ContainsIndex(index))
+    tabModel_->SelectTabContentsAt(index, true);
 }
 
 // Return the frame for a new tab that will go to the immediate right of the 
@@ -202,7 +204,7 @@ class TabStripBridge : public TabStripModelObserver {
                       atIndex:(NSInteger)index
                  inForeground:(bool)inForeground {
   DCHECK(contents);
-  DCHECK(index == TabStripModel::kNoTab || model_->ContainsIndex(index));
+  DCHECK(index == TabStripModel::kNoTab || tabModel_->ContainsIndex(index));
   
   // TODO(pinkerton): handle tab dragging in here
 
@@ -212,7 +214,9 @@ class TabStripBridge : public TabStripModelObserver {
       [[[TabContentsController alloc] initWithNibName:@"TabContents" 
                                                bundle:nil
                                              contents:contents
-                                             commands:commands_] autorelease];
+                                             commands:commands_
+                                         toolbarModel:toolbarModel_]
+          autorelease];
   NSValue* key = [NSValue valueWithPointer:contents];
   [tabContentsToController_ setObject:contentsController forKey:key];
   
@@ -308,7 +312,7 @@ class TabStripBridge : public TabStripModelObserver {
 }
 
 - (LocationBar*)locationBar {
-  TabContents* selectedContents = model_->GetSelectedTabContents();
+  TabContents* selectedContents = tabModel_->GetSelectedTabContents();
   TabContentsController* selectedController =
       [self controllerWithContents:selectedContents];
   return [selectedController locationBar];
@@ -328,7 +332,7 @@ class TabStripBridge : public TabStripModelObserver {
 }
 
 - (void)setStarredState:(BOOL)isStarred {
-  TabContents* selectedContents = model_->GetSelectedTabContents();
+  TabContents* selectedContents = tabModel_->GetSelectedTabContents();
   TabContentsController* selectedController =
       [self controllerWithContents:selectedContents];
   [selectedController setStarredState:isStarred];
@@ -337,12 +341,12 @@ class TabStripBridge : public TabStripModelObserver {
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of the currently selected tab.
 - (NSRect)selectedTabGrowBoxRect {
-  TabContents* selectedContents = model_->GetSelectedTabContents();
+  TabContents* selectedContents = tabModel_->GetSelectedTabContents();
   if (!selectedContents) {
     // When the window is initially being constructed, there may be no currently
     // selected tab, so pick the first one. If there aren't any, just bail with
     // an empty rect.
-    selectedContents = model_->GetTabContentsAt(0);
+    selectedContents = tabModel_->GetTabContentsAt(0);
     if (!selectedContents)
       return NSMakeRect(0, 0, 0, 0);
   }
