@@ -1996,6 +1996,13 @@ void Browser::InitCommandState() {
     command_updater_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, normal_window);
     command_updater_.UpdateCommandEnabled(IDC_RESTORE_TAB,
         normal_window && !profile_->IsOffTheRecord());
+
+    // Show various bits of UI
+#if defined(OS_WIN)
+    command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
+        // The debugger doesn't work in single process mode.
+        normal_window && !RenderProcessHost::run_renderer_in_process());
+#endif
   }
 
   // Initialize other commands whose state changes based on fullscreen mode.
@@ -2074,11 +2081,6 @@ void Browser::UpdateCommandsForFullscreenMode(bool is_fullscreen) {
 
   // Show various bits of UI
   command_updater_.UpdateCommandEnabled(IDC_DEVELOPER_MENU, show_main_ui);
-#if defined(OS_WIN)
-  command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
-      // The debugger doesn't work in single process mode.
-      show_main_ui && !RenderProcessHost::run_renderer_in_process());
-#endif
   command_updater_.UpdateCommandEnabled(IDC_NEW_PROFILE, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_REPORT_BUG, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, show_main_ui);
