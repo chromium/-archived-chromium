@@ -52,6 +52,13 @@ class CommandLine {
   // line, but it still must be called to set up the command line.
   static void Init(int argc, const char* const* argv);
 
+  // Destroys the current process CommandLine singleton. This is necessary if
+  // you want to reset the base library to its initial state (for example in an
+  // outer library that needs to be able to terminate, and be re-initialized).
+  // If Init is called only once, e.g. in main(), calling Terminate() is not
+  // necessary.
+  static void Terminate();
+
   // Get the singleton CommandLine representing the current process's
   // command line.
   static const CommandLine* ForCurrentProcess() {

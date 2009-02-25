@@ -178,6 +178,12 @@ void CommandLine::Init(int argc, const char* const* argv) {
 #endif
 }
 
+void CommandLine::Terminate() {
+  DCHECK(current_process_commandline_ != NULL);
+  delete current_process_commandline_;
+  current_process_commandline_ = NULL;
+}
+
 bool CommandLine::HasSwitch(const std::wstring& switch_string) const {
   std::wstring lowercased_switch(switch_string);
 #if defined(OS_WIN)
@@ -345,4 +351,3 @@ void CommandLine::PrependWrapper(const std::wstring& wrapper_wide) {
 }
 
 #endif
-
