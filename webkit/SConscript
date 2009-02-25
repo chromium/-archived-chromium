@@ -169,6 +169,7 @@ env.Prepend(
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/svg',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/svg/animation',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/svg/graphics',
+        '$CHROME_SRC_DIR/third_party/WebKit/WebCore/workers',
         '$CHROME_SRC_DIR/third_party/WebKit/WebCore/xml',
 
         '$CHROME_SRC_DIR',

@@ -223,9 +223,6 @@ idl_files = [
     'dom/WebKitAnimationEvent.idl',
     'dom/WebKitTransitionEvent.idl',
     'dom/WheelEvent.idl',
-    'dom/Worker.idl',
-    'dom/WorkerContext.idl',
-    'dom/WorkerLocation.idl',
 
     'html/CanvasGradient.idl',
     'html/CanvasPattern.idl',
@@ -470,6 +467,10 @@ idl_files = [
     'svg/SVGViewSpec.idl',
     'svg/SVGZoomAndPan.idl',
     'svg/SVGZoomEvent.idl',
+
+    'workers/Worker.idl',
+    'workers/WorkerContext.idl',
+    'workers/WorkerLocation.idl',
 
     'xml/DOMParser.idl',
     'xml/DOMParser.idl',

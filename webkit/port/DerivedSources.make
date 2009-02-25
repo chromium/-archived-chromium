@@ -39,6 +39,7 @@ VPATH = \
     $(WebCore)/plugins \
     $(WebCore)/storage \
     $(WebCore)/xml \
+    $(WebCore)/workers \
     $(WebCore)/svg \
 #
 

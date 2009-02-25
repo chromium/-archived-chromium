@@ -969,6 +969,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\CrossThreadCopier.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\CrossThreadCopier.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\DeprecatedPtrList.h"
 				>
 			</File>
@@ -3792,6 +3800,14 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\TextControlInnerElements.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\TransformState.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\TransformState.h"
+				>
+			</File>
 			<Filter
 				Name="style"
 				>
@@ -4369,14 +4385,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CrossThreadCopier.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CrossThreadCopier.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CSSMappedAttributeDeclaration.cpp"
 				>
 			</File>
@@ -4882,62 +4890,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WheelEvent.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Worker.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Worker.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerContext.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerContextProxy.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerLocation.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerLocation.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerMessagingProxy.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerMessagingProxy.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerObjectProxy.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerRunLoop.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerRunLoop.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\WorkerThread.h"
 				>
 			</File>
 			<File
@@ -7450,6 +7402,66 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\storage\SQLTransactionErrorCallback.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="workers"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\Worker.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\Worker.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerContext.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerContextProxy.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerLocation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerLocation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerMessagingProxy.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerMessagingProxy.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerObjectProxy.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerRunLoop.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerRunLoop.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerThread.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerThread.h"
 				>
 			</File>
 		</Filter>

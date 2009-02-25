@@ -1784,3 +1784,22 @@ LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
+// Ojan's editing layout test regressions
+LayoutTests/fast/forms/search-click-in-placeholder.html = FAIL
+MAC : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL
+MAC : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
+LayoutTests/svg/custom/pointer-events-path.svg = FAIL
+MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
+
+// New tests from merge 41181:41217
+LayoutTests/fast/replaced/embed-display-none.html = FAIL
+LayoutTests/fast/replaced/applet-display-none.html = FAIL
+LayoutTests/fast/replaced/object-display-none.html = FAIL
+LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
+LayoutTests/fast/overflow/overflow-stacking.html = FAIL
+LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
+LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
+
+// Regressions from merge 41181:41217
+// New baseline upstream
+LayoutTests/fast/events/offsetX-offsetY.html = FAIL
