@@ -159,10 +159,6 @@ class BrowserView : public BrowserWindow,
     FEATURE_DOWNLOADSHELF = 64
   };
 
-  // Returns true if the Browser object associated with this BrowserView
-  // supports the specified feature.
-  bool SupportsWindowFeature(WindowFeature feature) const;
-
   // Register preferences specific to this view.
   static void RegisterBrowserViewPrefs(PrefService* prefs);
 
@@ -289,6 +285,10 @@ class BrowserView : public BrowserWindow,
 
   // Creates the system menu.
   void InitSystemMenu();
+
+  // Returns true if the Browser object associated with this BrowserView
+  // supports the specified feature.
+  bool SupportsWindowFeature(WindowFeature feature) const;
 
   // Returns true if the event should be forwarded to the TabStrip. This
   // returns true if y coordinate is less than the bottom of the tab strip, and

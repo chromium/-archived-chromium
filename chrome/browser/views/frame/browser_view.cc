@@ -406,22 +406,6 @@ void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
   }
 }
 
-bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
-  const Browser::Type type = browser_->type();
-  unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
-  if (type == Browser::TYPE_NORMAL)
-     features |= FEATURE_BOOKMARKBAR;
-  if (!fullscreen_) {
-    if (type == Browser::TYPE_NORMAL)
-      features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
-    else
-      features |= FEATURE_TITLEBAR;
-    if (type != Browser::TYPE_APP)
-      features |= FEATURE_LOCATIONBAR;
-  }
-  return !!(features & feature);
-}
-
 // static
 void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
   prefs->RegisterIntegerPref(prefs::kPluginMessageResponseTimeout,
@@ -623,7 +607,7 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   HWND hwnd = widget->GetHWND();
   if (fullscreen_) {
     // Save current window information.  We force the window into restored mode
-    // before going fuillscreen because Windows doesn't seem to hide the
+    // before going fullscreen because Windows doesn't seem to hide the
     // taskbar if the window is in the maximized state.
     saved_window_info_.maximized = IsMaximized();
     if (saved_window_info_.maximized)
@@ -1026,8 +1010,7 @@ bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
     // - the size of the content area (inner size).
     // We need to use these values to determine the appropriate size and
     // position of the resulting window.
-    if (SupportsWindowFeature(FEATURE_TOOLBAR) ||
-        SupportsWindowFeature(FEATURE_LOCATIONBAR)) {
+    if (IsToolbarVisible()) {
       // If we're showing the toolbar, we need to adjust |*bounds| to include
       // its desired height, since the toolbar is considered part of the
       // window's client area as far as GetWindowBoundsForClientBounds is
@@ -1287,6 +1270,22 @@ void BrowserView::InitSystemMenu() {
   } else {
     BuildMenuForTabStriplessWindow(system_menu_.get(), insertion_index);
   }
+}
+
+bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
+  const Browser::Type type = browser_->type();
+  unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
+  if (type == Browser::TYPE_NORMAL)
+     features |= FEATURE_BOOKMARKBAR;
+  if (!fullscreen_) {
+    if (type == Browser::TYPE_NORMAL)
+      features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
+    else
+      features |= FEATURE_TITLEBAR;
+    if (type != Browser::TYPE_APP)
+      features |= FEATURE_LOCATIONBAR;
+  }
+  return !!(features & feature);
 }
 
 bool BrowserView::ShouldForwardToTabStrip(
@@ -1609,8 +1608,12 @@ int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
 }
 
 void BrowserView::LoadingAnimationCallback() {
-  if (SupportsWindowFeature(FEATURE_TABSTRIP)) {
-    // Loading animations are shown in the tab for tabbed windows.
+  if (browser_->type() == Browser::TYPE_NORMAL) {
+    // Loading animations are shown in the tab for tabbed windows.  We check the
+    // browser type instead of calling IsTabStripVisible() because the latter
+    // will return false for fullscreen windows, but we still need to update
+    // their animations (so that when they come out of fullscreen mode they'll
+    // be correct).
     tabstrip_->UpdateLoadingAnimations();
   } else if (ShouldShowWindowIcon()) {
     // ... or in the window icon area for popups and app windows.
