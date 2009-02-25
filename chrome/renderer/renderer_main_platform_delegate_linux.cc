@@ -23,15 +23,18 @@ void RendererMainPlatformDelegate::PlatformUninitialize() {
 }
 
 bool RendererMainPlatformDelegate::InitSandboxTests(bool no_sandbox) {
-  NOTIMPLEMENTED();
+  // We have no sandbox.
+  // http://code.google.com/p/chromium/issues/detail?id=8081
   return true;
 }
 
 bool RendererMainPlatformDelegate::EnableSandbox() {
-  NOTIMPLEMENTED();
+  // We have no sandbox.
+  // http://code.google.com/p/chromium/issues/detail?id=8081
   return true;
 }
 
 void RendererMainPlatformDelegate::RunSandboxTests() {
-  NOTIMPLEMENTED();
+  // We have no sandbox.
+  // http://code.google.com/p/chromium/issues/detail?id=8081
 }
