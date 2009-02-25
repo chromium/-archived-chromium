@@ -30,6 +30,7 @@ bool ProcessSingleton::NotifyOtherProcess() {
   }
 
   // TODO(port): pass in info to the other process.
+  // http://code.google.com/p/chromium/issues/detail?id=8073
   NOTIMPLEMENTED() << " don't know how to notify other process about us.";
 
   return true;  // We did our best, so we die here.
@@ -51,13 +52,13 @@ void ProcessSingleton::Create() {
 
   // TODO(port): register this socket as something we care about getting
   // input on, process messages, etc.
-  NOTIMPLEMENTED() << " need to listen on the singleton socket.";
+  // http://code.google.com/p/chromium/issues/detail?id=8073
 }
 
 void ProcessSingleton::HuntForZombieChromeProcesses() {
   // On Windows, this examines all the chrome.exe processes to see if one
   // is hung.  TODO(port): should we do anything here?
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8073
 }
 
 void ProcessSingleton::SetupSocket(int* sock, struct sockaddr_un* addr) {
