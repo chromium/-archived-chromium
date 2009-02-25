@@ -92,6 +92,7 @@ class InterstitialPage : public NotificationObserver,
   virtual void UpdateTitle(RenderViewHost* render_view_host,
                            int32 page_id,
                            const std::wstring& title);
+  virtual View* GetViewDelegate() const;
 
   // Invoked when the page sent a command through DOMAutomation.
   virtual void CommandReceived(const std::string& command) { }
@@ -115,6 +116,8 @@ class InterstitialPage : public NotificationObserver,
   // AutomationProvider needs access to Proceed and DontProceed to simulate
   // user actions.
   friend class AutomationProvider;
+
+  class InterstitialPageRVHViewDelegate;
 
   // Initializes tab_to_interstitial_page_ in a thread-safe manner.
   // Should be called before accessing tab_to_interstitial_page_.
@@ -169,6 +172,9 @@ class InterstitialPage : public NotificationObserver,
   std::wstring original_tab_title_;
 
   MessageLoop* ui_loop_;
+
+  // Our RenderViewHostViewDelegate, necessary for accelerators to work.
+  scoped_ptr<InterstitialPageRVHViewDelegate> rvh_view_delegate_;
 
   // We keep a map of the various blocking pages shown as the UI tests need to
   // be able to retrieve them.

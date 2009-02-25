@@ -178,6 +178,10 @@ bool TabContentsContainerView::GetAccessibleRole(VARIANT* role) {
 
 bool TabContentsContainerView::ShouldLookupAccelerators(
     const views::KeyEvent& e) {
+  // Don't look-up accelerators if we are showing a non-crashed WebContents.
+  // We'll first give the page a chance to process the key events.  If it does
+  // not process them, they'll be returned to us and we'll treat them as
+  // accelerators then.
   if (tab_contents_ && !tab_contents_->is_crashed() &&
       tab_contents_->AsWebContents())
     return false;
