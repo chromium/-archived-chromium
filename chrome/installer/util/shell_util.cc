@@ -54,8 +54,6 @@ class RegistryEntry {
 
     entries.push_front(new RegistryEntry(L"Software\\Classes\\ChromeHTML",
                                          ShellUtil::kChromeHTMLProgIdDesc));
-    entries.push_front(new RegistryEntry(L"Software\\Classes\\ChromeHTML",
-                                         ShellUtil::kRegUrlProtocol, L""));
     entries.push_front(new RegistryEntry(
         L"Software\\Classes\\ChromeHTML\\DefaultIcon", icon_path));
     entries.push_front(new RegistryEntry(
@@ -216,7 +214,7 @@ bool IsChromeRegistered(const std::wstring& chrome_exe) {
       registered = false;
     delete (*itr);
   }
-  LOG(INFO) << "Check for Chrome registeration returned " << registered;
+  LOG(INFO) << "Check for Chrome registration returned " << registered;
   return registered;
 }
 
@@ -366,6 +364,13 @@ ShellUtil::RegisterStatus RegisterOnVista(const std::wstring& chrome_exe,
   return ShellUtil::FAILURE;
 }
 
+// Remove unnecessary "URL Protocol" entry from shell registration.  This value
+// was written by older installers so ignoring error conditions.
+void RemoveUrlProtocol(HKEY root) {
+  RegKey key(root, L"Software\\Classes\\ChromeHTML", KEY_ALL_ACCESS);
+  key.DeleteValue(ShellUtil::kRegUrlProtocol);
+}
+
 }  // namespace
 
 
@@ -396,6 +401,9 @@ const wchar_t* ShellUtil::kChromeExtProgIdDesc = L"Chrome Extension Installer";
 
 ShellUtil::RegisterStatus ShellUtil::AddChromeToSetAccessDefaults(
     const std::wstring& chrome_exe, bool skip_if_not_admin) {
+  RemoveUrlProtocol(HKEY_LOCAL_MACHINE);
+  RemoveUrlProtocol(HKEY_CURRENT_USER);
+
   if (IsChromeRegistered(chrome_exe))
     return ShellUtil::SUCCESS;
 
