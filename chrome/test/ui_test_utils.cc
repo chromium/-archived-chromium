@@ -10,6 +10,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/views/accelerator_handler.h"
 #include "googleurl/src/gurl.h"
 
 namespace ui_test_utils {
@@ -59,7 +60,8 @@ void RunMessageLoop() {
   MessageLoopForUI* loop = MessageLoopForUI::current();
   bool did_allow_task_nesting = loop->NestableTasksAllowed();
   loop->SetNestableTasksAllowed(true);
-  loop->Run(NULL);
+  views::AcceleratorHandler handler;
+  loop->Run(&handler);
   loop->SetNestableTasksAllowed(did_allow_task_nesting);
 }
 

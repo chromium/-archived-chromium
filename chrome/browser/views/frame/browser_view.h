@@ -53,6 +53,7 @@ class BrowserView : public BrowserWindow,
   virtual ~BrowserView();
 
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
+  BrowserFrame* frame() const { return frame_; }
 
   // Returns a pointer to the BrowserView* interface implementation (an
   // instance of this object, typically) for a given HWND, or NULL if there is
