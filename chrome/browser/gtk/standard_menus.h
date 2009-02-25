@@ -33,6 +33,12 @@ struct MenuCreateMaterial {
 
   // If non-NULL, a pointer to the struct we're supposed to use
   MenuCreateMaterial* submenu;
+
+  // A gdk keysym that is used to activate this item from outside the menu.
+  unsigned int accel_key;
+
+  // GDK modifiers for the menu items (i.e., shift, ctrl, etc).
+  unsigned int accel_modifiers;
 };
 
 // Returns the menu construction data structure for the page menu.
