@@ -4,6 +4,8 @@
 
 #include "chrome/views/accelerator.h"
 
+#include <windows.h>
+
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
