@@ -263,6 +263,8 @@ class BrowserView : public BrowserWindow,
   }
 #endif
 
+  bool is_removing_bookmark_bar() const { return is_removing_bookmark_bar_; }
+
  protected:
   // Overridden from views::View:
   virtual void Layout();
@@ -460,6 +462,9 @@ class BrowserView : public BrowserWindow,
   FramePersonalization personalization_;
   bool personalization_enabled_;
 #endif
+
+  // For debugging 7857.
+  bool is_removing_bookmark_bar_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserView);
 };

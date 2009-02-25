@@ -195,7 +195,8 @@ BrowserView::BrowserView(Browser* browser)
       personalization_enabled_(false),
       personalization_(NULL),
 #endif
-      forwarding_to_tab_strip_(false) {
+      forwarding_to_tab_strip_(false),
+      is_removing_bookmark_bar_(false) {
   InitClass();
   browser_->tabstrip_model()->AddObserver(this);
 }
@@ -1423,8 +1424,11 @@ bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
     bookmark_bar_view_->SetPageNavigator(contents);
     new_bookmark_bar_view = bookmark_bar_view_.get();
   }
-  return UpdateChildViewAndLayout(new_bookmark_bar_view,
-                                  &old_bookmark_bar_view);
+  is_removing_bookmark_bar_ = true;
+  bool result = UpdateChildViewAndLayout(new_bookmark_bar_view,
+                                         &old_bookmark_bar_view);
+  is_removing_bookmark_bar_ = false;
+  return result;
 }
 
 bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
