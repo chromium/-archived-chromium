@@ -513,9 +513,9 @@ class AutocompleteProvider
   // The name of this provider.  Used for logging.
   const char* name_;
 
-  // A convenience function to call gfx::ElideUrl() with the current set of
-  // "Accept Languages" when check_accept_lang is true. Otherwise, it's called
-  // with an empty list.
+  // A convenience function to call gfx::GetCleanStringFromUrl() with the
+  // current set of "Accept Languages" when check_accept_lang is true.
+  // Otherwise, it's called with an empty list.
   std::wstring StringForURLDisplay(const GURL& url, bool check_accept_lang);
 
  private:

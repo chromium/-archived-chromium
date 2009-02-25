@@ -112,7 +112,7 @@ struct HistoryURLProviderParams {
   // to matches_ on the main thread in QueryComplete().
   ACMatches matches;
 
-  // Languages we should pass to gfx::ElideUrl.
+  // Languages we should pass to gfx::GetCleanStringFromUrl.
   std::wstring languages;
 
  private:

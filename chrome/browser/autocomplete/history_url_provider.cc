@@ -802,10 +802,11 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
       !!info.visit_count(), AutocompleteMatch::HISTORY_URL);
   match.destination_url = info.url();
 #if !defined(OS_MACOSX)
-  match.fill_into_edit = gfx::ElideUrl(info.url(), ChromeFont(), 0,
-      match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages);
+  match.fill_into_edit = gfx::GetCleanStringFromUrl(info.url(),
+      match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages,
+      NULL, NULL);
 #else
-  // TODO(port): ChromeFont() and gfx::ElideUrl not implemented on mac.
+  // TODO(port): GetCleanStringFromUrl() not implemented on mac.
   NOTIMPLEMENTED();
 #endif
   if (!params->input.prevent_inline_autocomplete()) {

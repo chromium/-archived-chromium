@@ -430,11 +430,11 @@ std::wstring AutocompleteProvider::StringForURLDisplay(
     const GURL& url,
     bool check_accept_lang) {
 #if !defined(OS_MACOSX)
-  return gfx::ElideUrl(url, ChromeFont(), 0, check_accept_lang && profile_ ?
+  return gfx::GetCleanStringFromUrl(url, check_accept_lang && profile_ ?
       profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) :
-      std::wstring());
+      std::wstring(), NULL, NULL);
 #else
-  // TODO(port): need gfx::ElideUrl and ChromeFont
+  // TODO(port): need gfx::GetCleanStringFromUrl
   NOTIMPLEMENTED();
   return UTF8ToWide(url.spec());
 #endif
