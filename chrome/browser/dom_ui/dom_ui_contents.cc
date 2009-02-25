@@ -191,10 +191,15 @@ bool DOMUIContents::NavigateToPendingEntry(bool reload) {
 }
 
 DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
+#if defined(OS_WIN)
+// TODO(port): Include when history and downloads are HTML UI.
   if (url.host() == HistoryUI::GetBaseURL().host())
     return new HistoryUI(this);
   else if (url.host() == DownloadsUI::GetBaseURL().host())
     return new DownloadsUI(this);
+#else
+  NOTIMPLEMENTED();
+#endif
 
   return NULL;
 }

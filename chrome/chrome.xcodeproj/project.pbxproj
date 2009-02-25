@@ -562,6 +562,7 @@
 		E48FB9870EC4EBA10052B72B /* safe_browsing_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE40E9D49DE009A6919 /* safe_browsing_database_unittest.cc */; };
 		E4A3EB130F4EFCF400596CC2 /* grow_box_view.m in Sources */ = {isa = PBXBuildFile; fileRef = E4A3EB120F4EFCF400596CC2 /* grow_box_view.m */; };
 		E4A3EB390F4EFF4D00596CC2 /* grow_box.png in Resources */ = {isa = PBXBuildFile; fileRef = E4A3EB380F4EFF4D00596CC2 /* grow_box.png */; };
+		E4BD52C30F548EBD00591DFA /* new_tab_ui.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4BD520E0F53596600591DFA /* new_tab_ui.cc */; };
 		E4DCDB9D0F4091C00084059A /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
 		E4DCDC8F0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */; };
 		E4DCDC900F40929C0084059A /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
@@ -1851,6 +1852,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7B262E830E82E5D7001CE27F;
 			remoteInfo = libevent;
+		};
+		E4BD53D80F54AB4300591DFA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 826850040F2FC82D009F6555 /* webkit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 937A16010F53326C003E8D2D;
+			remoteInfo = webkit;
 		};
 		E4F3259A0EE837DD002533CE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -4020,6 +4028,7 @@
 				8268501E0F2FC82E009F6555 /* libport.a */,
 				826850200F2FC82E009F6555 /* libwebcore.a */,
 				826850220F2FC82E009F6555 /* libwebcoresysteminterface.a */,
+				E4BD53D90F54AB4300591DFA /* libwebkit.a */,
 				826850240F2FC82E009F6555 /* libwtf.a */,
 			);
 			name = Products;
@@ -5233,6 +5242,13 @@
 			remoteRef = ABFA33890F424EC5008FCF5D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		E4BD53D90F54AB4300591DFA /* libwebkit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebkit.a;
+			remoteRef = E4BD53D80F54AB4300591DFA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -5554,6 +5570,7 @@
 				E45075CD0F150741003BE099 /* mork_reader.cc in Sources */,
 				E434C3740F3A464400B665C7 /* navigation_controller.cc in Sources */,
 				E434BBAA0F37D4EA00B665C7 /* navigation_entry.cc in Sources */,
+				E4BD52C30F548EBD00591DFA /* new_tab_ui.cc in Sources */,
 				4D7BFABB0E9D49C1009A6919 /* page_number.cc in Sources */,
 				4D7BFAC60E9D49CB009A6919 /* page_range.cc in Sources */,
 				4D7BFAC40E9D49C6009A6919 /* page_setup.cc in Sources */,

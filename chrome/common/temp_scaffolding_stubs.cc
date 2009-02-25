@@ -100,13 +100,6 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
 
 void OpenFirstRunDialog(Profile* profile) { NOTIMPLEMENTED(); }
 
-GURL NewTabUIURL() {
-  NOTIMPLEMENTED();
-  // TODO(port): returning a blank URL here confuses the page IDs so make sure
-  // we load something
-  return GURL("http://dev.chromium.org");
-}
-
 //--------------------------------------------------------------------------
 
 void InstallJankometer(const CommandLine&) {
@@ -308,6 +301,11 @@ void ResourceBundle::CleanupSharedInstance() {
   NOTIMPLEMENTED();
 }
 
+bool ResourceBundle::LoadImageResourceBytes(int resource_id,
+                                            std::vector<unsigned char>* bytes) {
+  NOTIMPLEMENTED();
+  return false;
+}
 #endif
 
 LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
@@ -399,18 +397,6 @@ void CPHandleCommand(int command, CPCommandInterface* data,
 }
 
 bool CanImportURL(const GURL& url) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool DOMUIContentsCanHandleURL(GURL* url,
-                               TabContentsType* result_type) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-bool NewTabUIHandleURL(GURL* url,
-                       TabContentsType* result_type) {
   NOTIMPLEMENTED();
   return false;
 }

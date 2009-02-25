@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 
 #include "base/histogram.h"
@@ -10,7 +12,10 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
+#if defined(OS_WIN)
+// TODO(port): include this once history is converted to HTML
 #include "chrome/browser/history_tab_ui.h"
+#endif
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -585,7 +590,7 @@ void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
           static_cast<const StringValue*>(list_member);
       std::wstring wstring_value;
       if (string_value->GetAsString(&wstring_value)) {
-        int session_to_restore = _wtoi(wstring_value.c_str());
+        int session_to_restore = StringToInt(wstring_value);
         tab_restore_service_->RestoreEntryById(browser, session_to_restore,
                                                true);
         // The current tab has been nuked at this point; don't touch any member
@@ -705,9 +710,14 @@ HistoryHandler::HistoryHandler(DOMUIHost* dom_ui_host)
 void HistoryHandler::HandleShowHistoryPage(const Value*) {
   NavigationController* controller = dom_ui_host_->controller();
   if (controller) {
+#if defined(OS_WIN)
+// TODO(port): include this once history is converted to HTML
     controller->LoadURL(HistoryTabUI::GetURL(), GURL(), PageTransition::LINK);
     UserMetrics::RecordAction(L"NTP_ShowHistory",
         dom_ui_host_->profile());
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 }
 
@@ -724,11 +734,16 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
         UserMetrics::RecordAction(L"NTP_SearchHistory",
             dom_ui_host_->profile());
 
+#if defined(OS_WIN)
+// TODO(port): include this once history is converted to HTML
         NavigationController* controller = dom_ui_host_->controller();
         controller->LoadURL(
             HistoryTabUI::GetHistoryURLWithSearchText(wstring_value),
             GURL(),
             PageTransition::LINK);
+#else
+        NOTIMPLEMENTED();
+#endif
       }
     }
   }

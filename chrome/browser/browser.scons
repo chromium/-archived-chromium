@@ -677,7 +677,6 @@ if not env.Bit('windows'):
       'chrome_plugin_host.cc',
       'dock_info.cc',
       'dom_ui/html_dialog_contents.cc',
-      'dom_ui/new_tab_ui.cc',
       'download/download_exe.cc',
       'download/download_util.cc',
       'drag_utils.cc',
