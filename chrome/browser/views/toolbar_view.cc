@@ -61,6 +61,12 @@ static const int kMenuButtonOffset = 3;
 // Padding to the right of the location bar
 static const int kPaddingRight = 2;
 
+static const int kPopupTopSpacingNonGlass = 3;
+static const int kPopupBottomSpacingNonGlass = 2;
+static const int kPopupBottomSpacingGlass = 1;
+
+static SkBitmap* kPopupBackgroundEdge = NULL;
+
 BrowserToolbarView::BrowserToolbarView(Browser* browser)
     : EncodingMenuControllerDelegate(browser),
       model_(browser->toolbar_model()),
@@ -90,6 +96,11 @@ BrowserToolbarView::BrowserToolbarView(Browser* browser)
     display_mode_ = DISPLAYMODE_NORMAL;
   else
     display_mode_ = DISPLAYMODE_LOCATION;
+
+  if (!kPopupBackgroundEdge) {
+    kPopupBackgroundEdge = ResourceBundle::GetSharedInstance().GetBitmapNamed(
+        IDR_LOCATIONBG_POPUPMODE_EDGE);
+  }
 }
 
 BrowserToolbarView::~BrowserToolbarView() {
@@ -259,8 +270,10 @@ void BrowserToolbarView::Layout() {
     return;
 
   if (!IsDisplayModeNormal()) {
-    location_bar_->SetBounds(0, 0, width(),
-                             location_bar_->GetPreferredSize().height());
+    int edge_width = (browser_->window() && browser_->window()->IsMaximized()) ?
+        0 : kPopupBackgroundEdge->width();  // See Paint().
+    location_bar_->SetBounds(edge_width, PopupTopSpacing(),
+        width() - (edge_width * 2), location_bar_->GetPreferredSize().height());
     return;
   }
 
@@ -318,6 +331,28 @@ void BrowserToolbarView::Layout() {
 
   app_menu_->SetBounds(page_menu_->x() + page_menu_->width(), child_y,
                        app_menu_width, child_height);
+}
+
+void BrowserToolbarView::Paint(ChromeCanvas* canvas) {
+  View::Paint(canvas);
+
+  if (IsDisplayModeNormal())
+    return;
+
+  // In maximized mode, we don't draw the endcaps on the location bar, because
+  // when they're flush against the edge of the screen they just look glitchy.
+  if (!browser_->window() || !browser_->window()->IsMaximized()) {
+    int top_spacing = PopupTopSpacing();
+    canvas->DrawBitmapInt(*kPopupBackgroundEdge, 0, top_spacing);
+    canvas->DrawBitmapInt(*kPopupBackgroundEdge,
+                          width() - kPopupBackgroundEdge->width(), top_spacing);
+  }
+
+  // For glass, we need to draw a black line below the location bar to separate
+  // it from the content area.  For non-glass, the NonClientView draws the
+  // toolbar background below the location bar for us.
+  if (win_util::ShouldUseVistaFrame())
+    canvas->FillRectInt(SK_ColorBLACK, 0, height() - 1, width(), 1);
 }
 
 void BrowserToolbarView::DidGainFocus() {
@@ -459,19 +494,10 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
     return gfx::Size(0, normal_background.height());
   }
 
-  // With the non-Vista frame, we'll draw a client edge below the toolbar for
-  // non-maximized popups.
-  // Note: We make sure to return the same value in the "no browser window" case
-  // as the "not maximized" case, so that when a popup is opened at a particular
-  // requested size, we'll report the same preferred size during the initial
-  // window size calculation (when there isn't yet a browser window) as when
-  // we're actually laying things out after setting up the browser window.  This
-  // prevents the content area from being off by |kClientEdgeThickness| px.
-  int client_edge_height = win_util::ShouldUseVistaFrame() ||
-      (browser_->window() && browser_->window()->IsMaximized()) ?
-      0 : views::NonClientView::kClientEdgeThickness;
-  return gfx::Size(0,
-      location_bar_->GetPreferredSize().height() + client_edge_height);
+  int vertical_spacing = PopupTopSpacing() + (win_util::ShouldUseVistaFrame() ?
+      kPopupBottomSpacingGlass : kPopupBottomSpacingNonGlass);
+  return gfx::Size(0, location_bar_->GetPreferredSize().height() +
+      vertical_spacing);
 }
 
 void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {
@@ -770,6 +796,11 @@ void BrowserToolbarView::EnabledStateChangedForCommand(int id, bool enabled) {
 
 void BrowserToolbarView::ButtonPressed(views::BaseButton* sender) {
   browser_->ExecuteCommand(sender->GetTag());
+}
+
+// static
+int BrowserToolbarView::PopupTopSpacing() {
+  return win_util::ShouldUseVistaFrame() ? 0 : kPopupTopSpacingNonGlass;
 }
 
 void BrowserToolbarView::Observe(NotificationType type,

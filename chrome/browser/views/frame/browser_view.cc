@@ -310,10 +310,6 @@ bool BrowserView::IsTabStripVisible() const {
   return SupportsWindowFeature(FEATURE_TABSTRIP);
 }
 
-bool BrowserView::IsToolbarDisplayModeNormal() const {
-  return toolbar_->IsDisplayModeNormal();
-}
-
 bool BrowserView::IsOffTheRecord() const {
   return browser_->profile()->IsOffTheRecord();
 }

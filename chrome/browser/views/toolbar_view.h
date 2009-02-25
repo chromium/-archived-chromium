@@ -52,6 +52,7 @@ class BrowserToolbarView : public views::View,
 
   // views::View
   virtual void Layout();
+  virtual void Paint(ChromeCanvas* canvas);
   virtual void DidGainFocus();
   virtual void WillLoseFocus();
   virtual bool OnKeyPressed(const views::KeyEvent& e);
@@ -79,10 +80,6 @@ class BrowserToolbarView : public views::View,
   GoButton* GetGoButton() { return go_; }
 
   LocationBarView* GetLocationBarView() const { return location_bar_; }
-
-  bool IsDisplayModeNormal() const {
-    return display_mode_ == DISPLAYMODE_NORMAL;
-  }
 
   // Updates the toolbar (and transitively the location bar) with the states of
   // the specified |tab|.  If |should_restore_state| is true, we're switching
@@ -135,6 +132,9 @@ class BrowserToolbarView : public views::View,
     DISPLAYMODE_LOCATION
   };
 
+  // Returns the number of pixels above the location bar in non-normal display.
+  static int PopupTopSpacing();
+
   // NotificationObserver
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -167,6 +167,10 @@ class BrowserToolbarView : public views::View,
   // context menu on to the toolbar child view that currently has the
   // accessibility focus.
   virtual void ShowContextMenu(int x, int y, bool is_mouse_gesture);
+
+  bool IsDisplayModeNormal() const {
+    return display_mode_ == DISPLAYMODE_NORMAL;
+  }
 
   scoped_ptr<BackForwardMenuModelWin> back_menu_model_;
   scoped_ptr<BackForwardMenuModelWin> forward_menu_model_;

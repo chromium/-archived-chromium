@@ -265,9 +265,8 @@
       <include name="IDR_UPDATE_AVAILABLE" file="update_available.png" type="BINDATA" />
       <include name="IDR_MENU_PAGE" file="menu_page.png" type="BINDATA" />
       <include name="IDR_MENU_CHROME" file="menu_chrome.png" type="BINDATA" />
-      <include name="IDR_LOCATIONBG_POPUPMODE_LEFT" file="locationbg_readonly_left.png" type="BINDATA" />
       <include name="IDR_LOCATIONBG_POPUPMODE_CENTER" file="locationbg_readonly_center.png" type="BINDATA" />
-      <include name="IDR_LOCATIONBG_POPUPMODE_RIGHT" file="locationbg_readonly_right.png" type="BINDATA" />
+      <include name="IDR_LOCATIONBG_POPUPMODE_EDGE" file="locationbg_readonly_edge.png" type="BINDATA" />
       <include name="IDR_CLOSE_SA" file="close_sa.png" type="BINDATA" />
       <include name="IDR_CLOSE_SA_H" file="close_sa_h.png" type="BINDATA" />
       <include name="IDR_CLOSE_SA_P" file="close_sa_p.png" type="BINDATA" />

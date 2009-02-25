@@ -99,9 +99,6 @@ class BrowserView : public BrowserWindow,
   bool IsToolbarVisible() const;
   bool IsTabStripVisible() const;
 
-  // Returns true if the toolbar is displaying its normal set of controls.
-  bool IsToolbarDisplayModeNormal() const;
-
   // Returns true if the profile associated with this Browser window is
   // off the record.
   bool IsOffTheRecord() const;

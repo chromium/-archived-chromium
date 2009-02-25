@@ -200,8 +200,7 @@ void LocationBarView::SetProfile(Profile* profile) {
 
 gfx::Size LocationBarView::GetPreferredSize() {
   return gfx::Size(0,
-      (popup_window_mode_ ? kPopupBackground : kBackground)->height() -
-      TopOffset());
+      (popup_window_mode_ ? kPopupBackground : kBackground)->height());
 }
 
 void LocationBarView::Layout() {
@@ -218,8 +217,7 @@ void LocationBarView::Paint(ChromeCanvas* canvas) {
 
   const SkBitmap* background =
       popup_window_mode_ ? kPopupBackground : kBackground;
-  int top_offset = std::min(TopOffset(), height());
-  canvas->TileImageInt(*background, 0, top_offset, 0, 0, width(), height());
+  canvas->TileImageInt(*background, 0, 0, 0, 0, width(), height());
   int top_margin = TopMargin();
   canvas->FillRectInt(bg, 0, top_margin, width(),
                       std::max(height() - top_margin - kVertMargin, 0));
@@ -398,12 +396,8 @@ void LocationBarView::DoLayout(const bool force_layout) {
   }
 }
 
-int LocationBarView::TopOffset() const {
-  return (popup_window_mode_ && win_util::ShouldUseVistaFrame()) ? 1 : 0;
-}
-
 int LocationBarView::TopMargin() const {
-  return std::min(kVertMargin - TopOffset(), height());
+  return std::min(kVertMargin, height());
 }
 
 int LocationBarView::TextDisplayWidth() {

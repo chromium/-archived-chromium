@@ -276,21 +276,13 @@ void AeroGlassNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
 }
 
 void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
+  // The client edges start below the toolbar upper corner images regardless
+  // of how tall the toolbar itself is.
   int client_area_top =
-      frame_->client_view()->y() + browser_view_->GetToolbarBounds().bottom();
-  gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
-  // The toolbar draws a client edge along its own bottom edge when it's visible
-  // and in normal mode.  However, it only draws this for the width of the
-  // actual client area, leaving a gap at the left and right edges:
-  //
-  // |             Toolbar             | <-- part of toolbar
-  //  ----- (toolbar client edge) -----  <-- gap
-  // |           Client area           | <-- right client edge
-  //
-  // To address this, we extend the left and right client edges up to fill the
-  // gap, by pretending the toolbar is shorter than it really is.
-  client_area_top -= kClientEdgeThickness;
+      frame_->client_view()->y() + browser_view_->GetToolbarBounds().y() +
+      resources_->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT)->height();
 
+  gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
   int client_area_bottom =
       std::max(client_area_top, height() - NonClientBorderThickness());
   int client_area_height = client_area_bottom - client_area_top;

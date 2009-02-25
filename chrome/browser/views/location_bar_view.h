@@ -283,14 +283,7 @@ class LocationBarView : public LocationBar,
   // to necessitate a layout, layout occurs as well.
   void DoLayout(bool force_layout);
 
-  // Returns the number of pixels to clip off the top edge of the background
-  // graphics.  With the Vista frame, the DWM draws a dark border around the
-  // content, so we clip the single dark pixel on the popup background image,
-  // which otherwise looks redundant.
-  int TopOffset() const;
-
-  // Returns the height in pixels of the margin at the top of the bar, after
-  // TopOffset() pixels have been clipped off.
+  // Returns the height in pixels of the margin at the top of the bar.
   int TopMargin() const;
 
   // Returns the width in pixels of the contents of the edit.
