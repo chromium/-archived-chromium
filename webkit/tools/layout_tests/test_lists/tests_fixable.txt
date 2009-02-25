@@ -925,13 +925,13 @@ DEFER : LayoutTests/fast/dom/constructors-cached.html = FAIL
 
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
 LayoutTests/fast/forms/form-element-geometry.html = FAIL
-// The list box selection is wrong, the focus ring is wrong, and the thumb in
-// the scrollbar looks too narrow.
-LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
-// Thumb is the wrong size and this test doesn't work on Windows due to font
-// sizes.
-LINUX WIN : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
+// These tests are wrong for two reasons:
+// https://bugs.webkit.org/show_bug.cgi?id=24171 and
+// https://bugs.webkit.org/show_bug.cgi?id=24161. Neither of which are
+// important for current release.
+DEFER LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
 // The pixel diff looks ok, but the render trees are pretty different.
 LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
