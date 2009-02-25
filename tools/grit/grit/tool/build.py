@@ -176,7 +176,7 @@ are exported to translation interchange files (e.g. XMB files), etc.
       # Make the output directory if it doesn't exist.
       outdir = os.path.split(output.GetOutputFilename())[0]
       if not os.path.exists(outdir):
-        os.path.makedirs(outdir)
+        os.makedirs(outdir)
       outfile = self.fo_create(output.GetOutputFilename(), 'wb')
 
       if output.GetType() != 'data_package':
