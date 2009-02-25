@@ -86,6 +86,7 @@
 		198C49FE557624088F83497A /* bookmark_context_menu.cc in Sources */ = {isa = PBXBuildFile; fileRef = 90BF0D1189BB7158BD7F1600 /* bookmark_context_menu.cc */; };
 		1C284EB767D0E3D302AC675C /* tab_restore_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = B020A11D500D7519E54F2957 /* tab_restore_service.cc */; };
 		1FFE452BCABBD0158B029D4D /* plugin_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8DD0E9D4839009A6919 /* plugin_process_host.cc */; };
+		261AA15DB2FF0FA9B0E63ACF /* automation_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9640EC4EA270052B72B /* automation_provider.cc */; };
 		2760C4346D6AB3AD94E9CF05 /* url_fixer_upper.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EF40F2145C600861FAC /* url_fixer_upper.cc */; };
 		28283DBE4B6DB2B0F9893676 /* dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA6D0E9D4981009A6919 /* dns_master.cc */; };
 		2DF2A9EB8AF96926EE9B6B02 /* ipc_logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAE0E9D4C9F009A6919 /* ipc_logging.cc */; };
@@ -628,6 +629,7 @@
 		F47CA12A0F44AE3500FFFAFB /* libwtf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850240F2FC82E009F6555 /* libwtf.a */; };
 		F58A0570E84AA76543E0C5CA /* bookmark_drag_data.cc in Sources */ = {isa = PBXBuildFile; fileRef = E7FDE61828F151056D975855 /* bookmark_drag_data.cc */; };
 		F775995035B63E51251B0922 /* ssl_error_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = 26D97CE692D919FEB1521E43 /* ssl_error_info.cc */; };
+		F8C26A3BB7CC2029E53889AB /* automation_provider_list.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9660EC4EA270052B72B /* automation_provider_list.cc */; };
 		F958714A0B14B028646CF087 /* save_package.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9DA0E9D48CE009A6919 /* save_package.cc */; };
 /* End PBXBuildFile section */
 
@@ -5481,6 +5483,8 @@
 				ABFA33770F424E47008FCF5D /* audio_renderer_host.cc in Sources */,
 				CE32446438BB391ACC07C3B7 /* autocomplete.cc in Sources */,
 				6D62D71064BA3204EF0A964A /* autofill_manager.cc in Sources */,
+				261AA15DB2FF0FA9B0E63ACF /* automation_provider.cc in Sources */,
+				F8C26A3BB7CC2029E53889AB /* automation_provider_list.cc in Sources */,
 				E43A770B0F1660EA00ABD5D1 /* automation_resource_tracker.cc in Sources */,
 				E434BFD90F3A074300B665C7 /* backing_store.cc in Sources */,
 				671555F7DF06E224B646E5D2 /* backing_store_posix.cc in Sources */,
