@@ -25,6 +25,7 @@
 #include <string>
 
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
 
@@ -60,10 +61,6 @@ class SdchManager {
     ADDED_CONTENT_ENCODING = 1,
     FIXED_CONTENT_ENCODING = 2,
     FIXED_CONTENT_ENCODINGS = 3,
-    // Content encoding correction when we're not even tagged as HTML!?!
-    BINARY_ADDED_CONTENT_ENCODING = 4,
-    BINARY_FIXED_CONTENT_ENCODING = 5,
-    BINARY_FIXED_CONTENT_ENCODINGS = 6,
 
     // Content decoding errors.
     DECODE_HEADER_ERROR = 4,
@@ -71,6 +68,11 @@ class SdchManager {
 
     // More content-encoding correction problems.
     OPTIONAL_GUNZIP_ENCODING_ADDED = 6,
+
+    // Content encoding correction when we're not even tagged as HTML!?!
+    BINARY_ADDED_CONTENT_ENCODING = 7,
+    BINARY_FIXED_CONTENT_ENCODING = 8,
+    BINARY_FIXED_CONTENT_ENCODINGS = 9,
 
     // Dictionary selection for use problems.
     DICTIONARY_FOUND_HAS_WRONG_DOMAIN = 10,
