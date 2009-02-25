@@ -562,39 +562,6 @@ class Encryptor {
   }
 };
 
-
-// spellchecker.h works on Linux, but it depends on hunspell which isn't
-// built on Mac.  Getting it to build on the Mac is apparently hard, so I'll
-// punt this to the Mac team for now.
-#if defined(OS_MACOSX)
-class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
- public:
-  typedef std::wstring Language;
-  typedef std::vector<Language> Languages;
-  SpellChecker(const FilePath& dict_dir,
-               const Language& language,
-               URLRequestContext* request_context,
-               const FilePath& custom_dictionary_file_name) {}
-
-  bool SpellCheckWord(const wchar_t* in_word,
-                     int in_word_len,
-                     int* misspelling_start,
-                     int* misspelling_len,
-                    std::vector<std::wstring>* optional_suggestions) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  static int GetSpellCheckLanguagesToDisplayInContextMenu(
-      Profile* profile,
-      Languages* display_languages) {
-    NOTIMPLEMENTED();
-    return 0;
-  }
-};
-#else
-#include "chrome/browser/spellchecker.h"
-#endif
-
 class WebAppLauncher {
  public:
   static void Launch(Profile* profile, const GURL& url) {

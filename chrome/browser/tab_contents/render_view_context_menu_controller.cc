@@ -16,6 +16,7 @@
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/spellchecker.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -32,7 +33,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): port these files.
-#include "chrome/browser/spellchecker.h"
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/page_info_window.h"
 #include "chrome/common/clipboard_service.h"

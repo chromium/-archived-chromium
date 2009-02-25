@@ -396,6 +396,10 @@
 		CA81330E0F423C4D0096C1DC /* query_parser_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA020E9D48F7009A6919 /* query_parser_unittest.cc */; };
 		CA8133120F423C710096C1DC /* url_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA150E9D48F7009A6919 /* url_database_unittest.cc */; };
 		CA81331D0F423DB40096C1DC /* pref_member_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBE70E9D4C9F009A6919 /* pref_member_unittest.cc */; };
+		CAA0BC370F54A8B4004DEE42 /* spellchecker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9240E9D4839009A6919 /* spellchecker.cc */; };
+		CAA0BFBC0F54B632004DEE42 /* libhunspell.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CAA0BF9C0F54B3F5004DEE42 /* libhunspell.a */; };
+		CAA0C0650F54B919004DEE42 /* libhunspell.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CAA0BF9C0F54B3F5004DEE42 /* libhunspell.a */; };
+		CAA0C06A0F54B98F004DEE42 /* libhunspell.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CAA0BF9C0F54B3F5004DEE42 /* libhunspell.a */; };
 		CABE9938BF2DF78D9862DC8B /* template_url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EDB0F21455600861FAC /* template_url_fetcher.cc */; };
 		CC5A49EE23E4F332B06C99C8 /* search_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0114EE7E1097BDFBF94057E6 /* search_provider.cc */; };
 		CE32446438BB391ACC07C3B7 /* autocomplete.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F3E216FC08B4749FC8C2ED5 /* autocomplete.cc */; };
@@ -1744,6 +1748,34 @@
 			remoteGlobalIDString = 4D7BFC190E9D4CB9009A6919;
 			remoteInfo = common;
 		};
+		CAA0BF9B0F54B3F5004DEE42 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4D9367AF0F54823A001FD834;
+			remoteInfo = hunspell;
+		};
+		CAA0BFBF0F54B66E004DEE42 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D9367AE0F54823A001FD834;
+			remoteInfo = hunspell;
+		};
+		CAA0C06B0F54B9AF004DEE42 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D9367AE0F54823A001FD834;
+			remoteInfo = hunspell;
+		};
+		CAA0C3A40F54C793004DEE42 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D9367AE0F54823A001FD834;
+			remoteInfo = hunspell;
+		};
 		E450625D0EE88D54003BE099 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
@@ -2663,6 +2695,7 @@
 		C18F2A0A6FB6BEF75406511D /* chrome_paths_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chrome_paths_mac.cc; sourceTree = "<group>"; };
 		C3F9577C67188A5A4E3A6E41 /* session_restore.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = session_restore.cc; path = sessions/session_restore.cc; sourceTree = "<group>"; };
 		C8D26D9EC81E03E91E270463 /* session_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = session_service.cc; path = sessions/session_service.cc; sourceTree = "<group>"; };
+		CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = hunspell.xcodeproj; path = chrome/third_party/hunspell/hunspell.xcodeproj; sourceTree = "<group>"; };
 		D3C3DAA911D390A33D06B0B0 /* history_url_provider.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = history_url_provider.cc; path = browser/autocomplete/history_url_provider.cc; sourceTree = SOURCE_ROOT; };
 		D74DA6A9031CAE292790BD5E /* file_descriptor_set_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_descriptor_set_unittest.cc; sourceTree = "<group>"; };
 		D941DBEFD8B8B537DE8A4DAE /* bookmark_storage.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_storage.cc; path = bookmarks/bookmark_storage.cc; sourceTree = "<group>"; };
@@ -2909,6 +2942,7 @@
 				E477F6B60F4095660044ABEB /* libglue.a in Frameworks */,
 				4D7BFF730E9D5425009A6919 /* libgoogleurl.a in Frameworks */,
 				4D7BFF440E9D53A0009A6919 /* libgtest.a in Frameworks */,
+				CAA0C0650F54B919004DEE42 /* libhunspell.a in Frameworks */,
 				4D7B01480E9D56F2009A6919 /* libicudata.a in Frameworks */,
 				4D7BFE800E9D5317009A6919 /* libicui18n.a in Frameworks */,
 				4D7BFE760E9D52E4009A6919 /* libicuuc.a in Frameworks */,
@@ -2963,6 +2997,7 @@
 				E4DCDC9E0F40938D0084059A /* libglue.a in Frameworks */,
 				3312183F0F3C01F8006CB2B0 /* libgoogleurl.a in Frameworks */,
 				4D7FA7540F13CC31004F1B19 /* libgtest.a in Frameworks */,
+				CAA0BFBC0F54B632004DEE42 /* libhunspell.a in Frameworks */,
 				4D7FA65E0F13CBDD004F1B19 /* libicudata.a in Frameworks */,
 				4D7FA7490F13CC0D004F1B19 /* libicui18n.a in Frameworks */,
 				4D7FA6600F13CBDD004F1B19 /* libicuuc.a in Frameworks */,
@@ -3031,6 +3066,7 @@
 				E450631C0EE990FA003BE099 /* libevent.a in Frameworks */,
 				E4DCDC900F40929C0084059A /* libglue.a in Frameworks */,
 				E48B67320F2625B8002E47EC /* libgoogleurl.a in Frameworks */,
+				CAA0C06A0F54B98F004DEE42 /* libhunspell.a in Frameworks */,
 				E45062A90EE89154003BE099 /* libicudata.a in Frameworks */,
 				E45062A70EE89146003BE099 /* libicui18n.a in Frameworks */,
 				E45062AC0EE89154003BE099 /* libicuuc.a in Frameworks */,
@@ -3675,6 +3711,7 @@
 				4D7BFF4C0E9D53C1009A6919 /* bzip2.xcodeproj */,
 				4D7BFF5F0E9D540F009A6919 /* googleurl.xcodeproj */,
 				4D7BFF3C0E9D538D009A6919 /* gtest.xcodeproj */,
+				CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */,
 				4D7BFE5B0E9D52DC009A6919 /* icu.xcodeproj */,
 				4D7BFF460E9D53B4009A6919 /* libevent.xcodeproj */,
 				4D7BFF2F0E9D5362009A6919 /* libjpeg.xcodeproj */,
@@ -4254,6 +4291,14 @@
 			name = tab_contents;
 			sourceTree = "<group>";
 		};
+		CAA0BC4C0F54A8F7004DEE42 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CAA0BF9C0F54B3F5004DEE42 /* libhunspell.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		E43A77190F16618C00ABD5D1 /* dom_ui */ = {
 			isa = PBXGroup;
 			children = (
@@ -4684,6 +4729,7 @@
 				4D7BFF560E9D53D2009A6919 /* PBXTargetDependency */,
 				4D7BFF720E9D5416009A6919 /* PBXTargetDependency */,
 				4D7BFF430E9D5394009A6919 /* PBXTargetDependency */,
+				CAA0BFC00F54B66E004DEE42 /* PBXTargetDependency */,
 				4D7B01470E9D56DF009A6919 /* PBXTargetDependency */,
 				4D7BFE7F0E9D5310009A6919 /* PBXTargetDependency */,
 				4D7BFE780E9D52EB009A6919 /* PBXTargetDependency */,
@@ -4754,6 +4800,7 @@
 				4D7FA7510F13CC1F004F1B19 /* PBXTargetDependency */,
 				33121EF90F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121EFB0F3CF47F006CB2B0 /* PBXTargetDependency */,
+				CAA0C06C0F54B9AF004DEE42 /* PBXTargetDependency */,
 				33121EFD0F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121EFF0F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121F010F3CF47F006CB2B0 /* PBXTargetDependency */,
@@ -4833,6 +4880,7 @@
 				E45062A00EE8912D003BE099 /* PBXTargetDependency */,
 				E45062A40EE8912D003BE099 /* PBXTargetDependency */,
 				E46C4EB10F278A3000B393B8 /* PBXTargetDependency */,
+				CAA0C3A50F54C793004DEE42 /* PBXTargetDependency */,
 				ABFA33DB0F4252CD008FCF5D /* PBXTargetDependency */,
 				E46C4EB50F278A4800B393B8 /* PBXTargetDependency */,
 				E46C4EB90F278A7100B393B8 /* PBXTargetDependency */,
@@ -4890,6 +4938,10 @@
 				{
 					ProductGroup = 4D7BFF3D0E9D538D009A6919 /* Products */;
 					ProjectRef = 4D7BFF3C0E9D538D009A6919 /* gtest.xcodeproj */;
+				},
+				{
+					ProductGroup = CAA0BC4C0F54A8F7004DEE42 /* Products */;
+					ProjectRef = CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */;
 				},
 				{
 					ProductGroup = 4D7BFE5C0E9D52DC009A6919 /* Products */;
@@ -5264,6 +5316,13 @@
 			fileType = "compiled.mach-o.executable";
 			path = media_unittests;
 			remoteRef = ABFA33890F424EC5008FCF5D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CAA0BF9C0F54B3F5004DEE42 /* libhunspell.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libhunspell.a;
+			remoteRef = CAA0BF9B0F54B3F5004DEE42 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		E4BD53D90F54AB4300591DFA /* libwebkit.a */ = {
@@ -5651,6 +5710,7 @@
 				A7CBAD390F322A7E00360BF5 /* shell_dialogs_mac.mm in Sources */,
 				E434BBB00F37D55800B665C7 /* site_instance.cc in Sources */,
 				4D7BFA2D0E9D4910009A6919 /* snippet.cc in Sources */,
+				CAA0BC370F54A8B4004DEE42 /* spellchecker.cc in Sources */,
 				E45075FA0F150C28003BE099 /* spellcheck_worditerator.cc in Sources */,
 				8CB218DCFAC761AC876C6531 /* ssl_blocking_page.cc in Sources */,
 				F775995035B63E51251B0922 /* ssl_error_info.cc in Sources */,
@@ -6462,6 +6522,21 @@
 			target = 4D7BFC190E9D4CB9009A6919 /* common */;
 			targetProxy = B5FDBFB30EE4625B00BEC6E6 /* PBXContainerItemProxy */;
 		};
+		CAA0BFC00F54B66E004DEE42 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = hunspell;
+			targetProxy = CAA0BFBF0F54B66E004DEE42 /* PBXContainerItemProxy */;
+		};
+		CAA0C06C0F54B9AF004DEE42 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = hunspell;
+			targetProxy = CAA0C06B0F54B9AF004DEE42 /* PBXContainerItemProxy */;
+		};
+		CAA0C3A50F54C793004DEE42 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = hunspell;
+			targetProxy = CAA0C3A40F54C793004DEE42 /* PBXContainerItemProxy */;
+		};
 		E450625E0EE88D54003BE099 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E45060E30EE87B86003BE099 /* app */;
@@ -6640,7 +6715,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4D7BF2FC0E9D46E6009A6919 /* debug.xcconfig */;
 			buildSettings = {
-				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1\nENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1\nENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1 HUNSPELL_CHROME_CLIENT=1";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 					"$(FEATURE_DEFINES)",
@@ -6666,7 +6741,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4D7BF2FE0E9D46E6009A6919 /* release.xcconfig */;
 			buildSettings = {
-				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1\nENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1\nENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 XP_MACOSX=1 HUNSPELL_CHROME_CLIENT=1";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(GCC_PREPROCESSOR_DEFINITIONS)",
 					"$(FEATURE_DEFINES)",

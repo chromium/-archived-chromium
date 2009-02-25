@@ -21,6 +21,7 @@
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
+#include "chrome/browser/spellchecker.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/notification_service.h"
@@ -36,7 +37,6 @@
 #if defined(OS_WIN)
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/printer_query.h"
-#include "chrome/browser/spellchecker.h"
 #include "chrome/common/clipboard_service.h"
 #elif defined(OS_MACOSX) || defined(OS_LINUX)
 // TODO(port) remove this.
