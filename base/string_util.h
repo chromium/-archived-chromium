@@ -156,9 +156,11 @@ TrimPositions TrimWhitespace(const std::string& input,
 std::wstring CollapseWhitespace(const std::wstring& text,
                                 bool trim_sequences_with_line_breaks);
 
-// These convert between ASCII (7-bit) and UTF16 strings.
+// These convert between ASCII (7-bit) and Wide/UTF16 strings.
 std::string WideToASCII(const std::wstring& wide);
 std::wstring ASCIIToWide(const std::string& ascii);
+std::string UTF16ToASCII(const string16& utf16);
+string16 ASCIIToUTF16(const std::string& ascii);
 
 // These convert between UTF-8, -16, and -32 strings. They are potentially slow,
 // so avoid unnecessary conversions. The low-level versions return a boolean
@@ -235,6 +237,7 @@ bool IsStringUTF8(const std::string& str);
 bool IsStringWideUTF8(const std::wstring& str);
 bool IsStringASCII(const std::wstring& str);
 bool IsStringASCII(const std::string& str);
+bool IsStringASCII(const string16& str);
 
 // ASCII-specific tolower.  The standard library's tolower is locale sensitive,
 // so we don't want to use it here.
