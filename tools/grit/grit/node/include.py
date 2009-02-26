@@ -57,10 +57,9 @@ class IncludeNode(base.Node):
     id_map = rc_header.Item.tids_
     id = id_map[self.GetTextualIds()[0]]
     filename = self.FilenameToOpen()
-    if not os.path.exists(filename):
-      # Try to open the file relative to the output dir if it's not relative to
-      # the grd file.
-      filename = os.path.join(output_dir, self.attrs['file'])
+    if self.attrs['flattenhtml'] == 'true':
+      # If the file was flattened, the flattened file is in the output dir.
+      filename = os.path.join(output_dir, os.path.split(filename)[1])
 
     file = open(filename, 'rb')
     data = file.read()
