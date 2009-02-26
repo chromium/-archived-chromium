@@ -27,9 +27,8 @@ void TabContentsContainerGtk::AddContainerToBox(GtkWidget* box) {
 void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
   if (tab_contents_) {
     gfx::NativeView widget = tab_contents_->GetNativeView();
-    if (widget) {
+    if (widget)
       gtk_container_remove(GTK_CONTAINER(vbox_), widget);
-    }
 
     tab_contents_->WasHidden();
 
@@ -46,6 +45,7 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
     gfx::NativeView widget = tab_contents_->GetNativeView();
     if (widget) {
       gtk_box_pack_start(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
+      gtk_widget_show_all(widget);
     }
   }
 }

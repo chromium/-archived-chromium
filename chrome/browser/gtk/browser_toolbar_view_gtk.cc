@@ -217,9 +217,6 @@ void BrowserToolbarGtk::OnEntryActivate(GtkEntry *entry,
                                         BrowserToolbarGtk* toolbar) {
   GURL dest(URLFixerUpper::FixupURL(std::string(gtk_entry_get_text(entry)),
                                     std::string()));
-  toolbar->browser_->OpenURLFromTab(NULL, dest, GURL(),
-                                    CURRENT_TAB,
-                                    PageTransition::TYPED);
   toolbar->browser_->GetSelectedTabContents()->
       OpenURL(dest, GURL(), CURRENT_TAB, PageTransition::TYPED);
 }

@@ -416,9 +416,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
   Profile* profile() const;
   virtual void CloseContents();
   virtual void SetupController(Profile* profile);
-  bool WasHidden() {
+  virtual void WasHidden() {
     NOTIMPLEMENTED();
-    return false;
   }
   virtual void RestoreFocus() { NOTIMPLEMENTED(); }
   static TabContentsType TypeForURL(GURL* url);
