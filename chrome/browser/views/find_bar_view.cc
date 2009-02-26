@@ -168,6 +168,10 @@ FindBarView::FindBarView(FindBarWin* container)
 }
 
 FindBarView::~FindBarView() {
+  // We are going away so we don't want to be notified about further updates
+  // to the text field. Otherwise, it can lead to crashes, as exposed by
+  // automation testing in issue 8048.
+  find_text_->SetController(NULL);
 }
 
 void FindBarView::SetFindText(const std::wstring& find_text) {
