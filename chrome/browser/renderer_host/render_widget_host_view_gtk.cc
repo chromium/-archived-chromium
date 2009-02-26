@@ -288,11 +288,12 @@ BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
   Display* display = x11_util::GetXDisplay();
   void* visual = x11_util::GetVisualFromGtkWidget(view_);
   XID root_window = x11_util::GetX11RootWindow();
+  bool use_render = x11_util::QueryRenderSupport(display);
   bool use_shared_memory = x11_util::QuerySharedMemorySupport(display);
   int depth = gtk_widget_get_visual(view_)->depth;
 
   return new BackingStore(size, display, depth, visual, root_window,
-                          use_shared_memory);
+                          use_render, use_shared_memory);
 }
 
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {

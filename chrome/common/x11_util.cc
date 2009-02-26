@@ -82,6 +82,22 @@ bool QuerySharedMemorySupport(Display* dpy) {
   return shared_memory_support;
 }
 
+bool QueryRenderSupport(Display* dpy) {
+  static bool render_supported = false;
+  static bool render_supported_cached = false;
+
+  if (render_supported_cached)
+    return render_supported;
+
+  // We don't care about the version of Xrender since all the features which
+  // we use are included in every version.
+  int dummy;
+  render_supported = XRenderQueryExtension(dpy, &dummy, &dummy);
+  render_supported_cached = true;
+
+  return render_supported;
+}
+
 XID GetX11RootWindow() {
   return GDK_WINDOW_XID(gdk_get_default_root_window());
 }
@@ -94,14 +110,30 @@ void* GetVisualFromGtkWidget(GtkWidget* widget) {
   return GDK_VISUAL_XVISUAL(gtk_widget_get_visual(widget));
 }
 
+int BitsPerPixelForPixmapDepth(Display* dpy, int depth) {
+  int count;
+  XPixmapFormatValues* formats = XListPixmapFormats(dpy, &count);
+  if (!formats)
+    return -1;
+
+  int bits_per_pixel = -1;
+  for (int i = 0; i < count; ++i) {
+    if (formats[i].depth == depth) {
+      bits_per_pixel = formats[i].bits_per_pixel;
+      break;
+    }
+  }
+
+  XFree(formats);
+  return bits_per_pixel;
+}
+
 XRenderPictFormat* GetRenderVisualFormat(Display* dpy, Visual* visual) {
   static XRenderPictFormat* pictformat = NULL;
   if (pictformat)
     return pictformat;
 
-  int dummy;
-  if (!XRenderQueryExtension(dpy, &dummy, &dummy))
-    CHECK(false) << "XRENDER not supported on display";
+  DCHECK(QueryRenderSupport(dpy));
 
   pictformat = XRenderFindVisualFormat(dpy, visual);
   CHECK(pictformat) << "XRENDER does not support default visual";

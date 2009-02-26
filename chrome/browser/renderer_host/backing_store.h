@@ -37,9 +37,11 @@ class BackingStore {
   //   depth: the depth of the X window which will be drawn into
   //   visual: An Xlib Visual describing the format of the target window
   //   root_window: The X id of the root window
+  //   use_render: if true, the X server supports Xrender
   //   use_shared_memory: if true, the X server is local
   BackingStore(const gfx::Size& size, Display* x_connection, int depth,
-               void* visual, XID root_window, bool use_shared_memory);
+               void* visual, XID root_window, bool use_render,
+               bool use_shared_memory);
   // This is for unittesting only. An object constructed using this constructor
   // will silently ignore all paints
   explicit BackingStore(const gfx::Size& size);
@@ -98,11 +100,22 @@ class BackingStore {
 #elif defined(OS_MACOSX)
   skia::PlatformCanvas canvas_;
 #elif defined(OS_LINUX)
+  // Paints the bitmap from the renderer onto the backing store without
+  // using Xrender to composite the pixmaps.
+  void PaintRectWithoutXrender(TransportDIB* bitmap,
+                               const gfx::Rect& bitmap_rect);
+
   // This is the connection to the X server where this backing store will be
   // displayed.
   Display *const display_;
   // If this is true, then |connection_| is good for MIT-SHM (X shared memory).
   const bool use_shared_memory_;
+  // If this is true, then we can use Xrender to composite our pixmaps.
+  const bool use_render_;
+  // If |use_render_| is false, this is the number of bits-per-pixel for |depth|
+  int pixmap_bpp_;
+  // This is the depth of the target window.
+  const int visual_depth_;
   // The parent window (probably a GtkDrawingArea) for this backing store.
   const XID root_window_;
   // This is a handle to the server side pixmap which is our backing store.

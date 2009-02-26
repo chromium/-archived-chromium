@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "chrome/common/transport_dib.h"
 #include "chrome/common/x11_util.h"
@@ -27,19 +28,31 @@ BackingStore::BackingStore(const gfx::Size& size,
                            int depth,
                            void* visual,
                            Drawable root_window,
+                           bool use_render,
                            bool use_shared_memory)
     : size_(size),
       display_(display),
       use_shared_memory_(use_shared_memory),
+      use_render_(use_render),
+      visual_depth_(depth),
       root_window_(root_window) {
   const int width = size.width();
   const int height = size.height();
 
+  COMPILE_ASSERT(__BYTE_ORDER == __LITTLE_ENDIAN, assumes_little_endian);
+
   pixmap_ = XCreatePixmap(display_, root_window, width, height, depth);
-  picture_ = XRenderCreatePicture(
-      display_, pixmap_,
-      x11_util::GetRenderVisualFormat(display_, static_cast<Visual*>(visual)),
-      0, NULL);
+
+  if (use_render_) {
+    picture_ = XRenderCreatePicture(
+        display_, pixmap_,
+        x11_util::GetRenderVisualFormat(display_, static_cast<Visual*>(visual)),
+        0, NULL);
+  } else {
+    picture_ = 0;
+    pixmap_bpp_ = x11_util::BitsPerPixelForPixmapDepth(display, depth);
+  }
+
   pixmap_gc_ = XCreateGC(display_, pixmap_, 0, NULL);
 }
 
@@ -47,6 +60,8 @@ BackingStore::BackingStore(const gfx::Size& size)
     : size_(size),
       display_(NULL),
       use_shared_memory_(false),
+      use_render_(false),
+      visual_depth_(-1),
       root_window_(0) {
 }
 
@@ -60,11 +75,88 @@ BackingStore::~BackingStore() {
   XFreeGC(display_, static_cast<GC>(pixmap_gc_));
 }
 
+void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
+                                           const gfx::Rect &bitmap_rect) {
+  const int width = bitmap_rect.width();
+  const int height = bitmap_rect.height();
+  Pixmap pixmap = XCreatePixmap(display_, root_window_, width, height,
+                                visual_depth_);
+
+  XImage image;
+  memset(&image, 0, sizeof(image));
+
+  image.width = width;
+  image.height = height;
+  image.format = ZPixmap;
+  image.byte_order = LSBFirst;
+  image.bitmap_unit = 8;
+  image.bitmap_bit_order = LSBFirst;
+  image.red_mask = 0xff;
+  image.green_mask = 0xff00;
+  image.blue_mask = 0xff0000;
+
+  if (pixmap_bpp_ == 32) {
+    // If the X server depth is already 32-bits, then our job is easy.
+    image.depth = visual_depth_;
+    image.bits_per_pixel = 32;
+    image.bytes_per_line = width * 4;
+    image.data = static_cast<char*>(bitmap->memory());
+
+    XPutImage(display_, pixmap, static_cast<GC>(pixmap_gc_), &image,
+              0, 0 /* source x, y */, 0, 0 /* dest x, y */,
+              width, height);
+  } else if (pixmap_bpp_ == 24) {
+    // In this case we just need to strip the alpha channel out of each
+    // pixel. This is the case which covers VNC servers since they don't
+    // support Xrender but typically have 24-bit visuals.
+    //
+    // It's possible to use some fancy SSE tricks here, but since this is the
+    // slow path anyway, we do it slowly.
+
+    uint8_t* bitmap24 = static_cast<uint8_t*>(malloc(3 * width * height));
+    const uint32_t* bitmap_in = static_cast<const uint32_t*>(bitmap->memory());
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        const uint32_t pixel = *(bitmap_in++);
+        bitmap24[0] = (pixel >> 16) & 0xff;
+        bitmap24[1] = (pixel >> 8) & 0xff;
+        bitmap24[2] = pixel & 0xff;
+        bitmap24 += 3;
+      }
+    }
+
+    image.depth = visual_depth_;
+    image.bits_per_pixel = 24;
+    image.bytes_per_line = width * 3;
+    image.data = reinterpret_cast<char*>(bitmap24);
+
+    XPutImage(display_, pixmap, static_cast<GC>(pixmap_gc_), &image,
+              0, 0 /* source x, y */, 0, 0 /* dest x, y */,
+              width, height);
+
+    free(bitmap24);
+  } else {
+    CHECK(false) << "Sorry, we don't support your visual depth without "
+                    "Xrender support (depth:" << visual_depth_
+                 << " bpp:" << pixmap_bpp_ << ")";
+  }
+
+  XCopyArea(display_, pixmap /* source */, pixmap_ /* target */,
+            static_cast<GC>(pixmap_gc_),
+            0, 0 /* source x, y */, bitmap_rect.width(), bitmap_rect.height(),
+            bitmap_rect.x(), bitmap_rect.y() /* dest x, y */);
+
+  XFreePixmap(display_, pixmap);
+}
+
 void BackingStore::PaintRect(base::ProcessHandle process,
                              TransportDIB* bitmap,
                              const gfx::Rect& bitmap_rect) {
   if (!display_)
     return;
+
+  if (!use_render_)
+    return PaintRectWithoutXrender(bitmap, bitmap_rect);
 
   const int width = bitmap_rect.width();
   const int height = bitmap_rect.height();

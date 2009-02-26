@@ -27,6 +27,8 @@ namespace x11_util {
   Display* GetXDisplay();
   // Return true iff the connection supports X shared memory
   bool QuerySharedMemorySupport(Display* dpy);
+  // Return true iff the display supports Xrender
+  bool QueryRenderSupport(Display* dpy);
 
   // These functions do not cache their results
 
@@ -37,6 +39,8 @@ namespace x11_util {
   // Get a Visual from the given widget. Since we don't include the Xlib
   // headers, this is returned as a void*.
   void* GetVisualFromGtkWidget(GtkWidget*);
+  // Return the number of bits-per-pixel for a pixmap of the given depth
+  int BitsPerPixelForPixmapDepth(Display*, int depth);
 
   // Return a handle to a server side pixmap. |shared_memory_key| is a SysV
   // IPC key. The shared memory region must contain 32-bit pixels.
