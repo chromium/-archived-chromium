@@ -134,8 +134,13 @@ XRenderPictFormat* GetRenderARGB32Format(Display* dpy) {
     PictFormatAlphaMask;
 
   pictformat = XRenderFindFormat(dpy, kMask, &templ, 0 /* first result */);
-  CHECK(pictformat) << "XRENDER doesn't not support a Skia compatable format";
-  // TODO(agl): fallback to a picture format with an alpha channel
+
+  if (!pictformat) {
+    // Not all X servers support xRGB32 formats. However, the XRENDER spec says
+    // that they must support an ARGB32 format, so we can always return that.
+    pictformat = XRenderFindStandardFormat(dpy, PictStandardARGB32);
+    CHECK(pictformat) << "XRENDER ARGB32 not supported.";
+  }
 
   return pictformat;
 }
