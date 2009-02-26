@@ -103,7 +103,6 @@ void WebInspectorClient::showWindow() {
 
 void WebInspectorClient::closeWindow() {
   inspector_web_view_ = NULL;
-  WebFrameImpl* frame = inspected_web_view_->main_frame();
 
   if (inspected_node_)
     hideHighlight();
