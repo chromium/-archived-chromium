@@ -445,6 +445,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   virtual void WasHidden() {
     NOTIMPLEMENTED();
   }
+  virtual void SetInitialFocus() { NOTIMPLEMENTED(); }
   virtual void RestoreFocus() { NOTIMPLEMENTED(); }
   static TabContentsType TypeForURL(GURL* url);
   static TabContents* CreateWithType(TabContentsType type,
