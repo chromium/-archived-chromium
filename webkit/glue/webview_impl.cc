@@ -1639,15 +1639,6 @@ void WebViewImpl::StartDragging(const WebDropData& drop_data) {
   }
 }
 
-const WebCore::Node* WebViewImpl::getInspectedNode(WebCore::Frame* frame) {
-  DCHECK(frame);
-  WebFrameImpl* webframe_impl = WebFrameImpl::FromFrame(frame);
-  if (!webframe_impl)
-    return NULL;
-
-  return webframe_impl->inspected_node();
-}
-
 void WebViewImpl::ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
                                             bool errored,
                                             const SkBitmap& image) {

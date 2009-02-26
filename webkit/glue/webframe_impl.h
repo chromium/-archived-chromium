@@ -222,10 +222,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   WebDataSourceImpl* GetDataSourceImpl() const;
   WebDataSourceImpl* GetProvisionalDataSourceImpl() const;
 
-  const WebCore::Node* inspected_node() const {
-    return inspected_node_;
-  }
-
   void selectNodeFromInspector(WebCore::Node* node);
 
   // Returns which frame has an active match. This function should only be
@@ -321,9 +317,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   // Handling requests from TextInputController on this frame.
   scoped_ptr<WebTextInputImpl> webtextinput_impl_;
-
-  // The node selected in the web inspector. Used for highlighting it on the page.
-  WebCore::Node* inspected_node_;
 
   // A way for the main frame to keep track of which frame has an active
   // match. Should be NULL for all other frames.

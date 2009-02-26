@@ -183,8 +183,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // Start a system drag and drop operation.
   void StartDragging(const WebDropData& drop_data);
 
-  virtual const WebCore::Node* getInspectedNode(WebCore::Frame* frame);
-
   // ImageResourceFetcher callback.
   void ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
                                  bool errored,

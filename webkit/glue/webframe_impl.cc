@@ -94,6 +94,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "HTMLHeadElement.h"
 #include "HTMLLinkElement.h"
 #include "HistoryItem.h"
+#include "InspectorController.h"
 #include "markup.h"
 #include "Page.h"
 #include "PlatformContextSkia.h"
@@ -289,7 +290,6 @@ MSVC_PUSH_DISABLE_WARNING(4355)
 MSVC_POP_WARNING()
     currently_loading_request_(NULL),
     plugin_delegate_(NULL),
-    inspected_node_(NULL),
     active_match_frame_(NULL),
     active_match_index_(-1),
     locating_active_rect_(false),
@@ -954,10 +954,6 @@ void WebFrameImpl::InvalidateIfNecessary() {
   }
 }
 
-void WebFrameImpl::selectNodeFromInspector(WebCore::Node* node) {
-  inspected_node_ = node;
-}
-
 void WebFrameImpl::AddMarker(WebCore::Range* range) {
   // Use a TextIterator to visit the potentially multiple nodes the range
   // covers.
@@ -1457,6 +1453,7 @@ void WebFrameImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
 #endif
     if (frame_->document() && frameview()) {
       frameview()->paint(&gc, dirty_rect);
+      frame_->page()->inspectorController()->drawNodeHighlight(gc);
     } else {
       gc.fillRect(dirty_rect, Color::white);
     }

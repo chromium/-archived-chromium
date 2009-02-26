@@ -105,7 +105,7 @@ void WebInspectorClient::closeWindow() {
   inspector_web_view_ = NULL;
   WebFrameImpl* frame = inspected_web_view_->main_frame();
 
-  if (frame && frame->inspected_node())
+  if (inspected_node_)
     hideHighlight();
 
   if (inspected_web_view_->page())
@@ -145,20 +145,16 @@ static void invalidateNodeBoundingRect(WebViewImpl* web_view) {
 }
 
 void WebInspectorClient::highlight(Node* node) {
-  WebFrameImpl* frame = inspected_web_view_->main_frame();
-
-  if (frame->inspected_node())
+  if (inspected_node_)
     hideHighlight();
 
+  inspected_node_ = node;
   invalidateNodeBoundingRect(inspected_web_view_);
-  frame->selectNodeFromInspector(node);
 }
 
 void WebInspectorClient::hideHighlight() {
-  WebFrameImpl* frame = static_cast<WebFrameImpl*>(inspected_web_view_->GetMainFrame());
-
+  inspected_node_ = 0;
   invalidateNodeBoundingRect(inspected_web_view_);
-  frame->selectNodeFromInspector(NULL);
 }
 
 void WebInspectorClient::inspectedURLChanged(const String& newURL) {
