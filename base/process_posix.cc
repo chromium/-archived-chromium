@@ -24,11 +24,12 @@ void Process::Terminate(int result_code) {
 }
 
 bool Process::IsProcessBackgrounded() const {
+  // http://code.google.com/p/chromium/issues/detail?id=8083
   return false;
 }
 
 bool Process::SetProcessBackgrounded(bool value) {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8083
   // Just say we did it to keep renderer happy at the moment.  Need to finish
   // cleaning this up w/in higher layers since windows is probably the only
   // one that can raise priorities w/o privileges.
@@ -36,17 +37,17 @@ bool Process::SetProcessBackgrounded(bool value) {
 }
 
 bool Process::ReduceWorkingSet() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8083
   return false;
 }
 
 bool Process::UnReduceWorkingSet() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8083
   return false;
 }
 
 bool Process::EmptyWorkingSet() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8083
   return false;
 }
 
