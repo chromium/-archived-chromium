@@ -90,7 +90,7 @@ TEST_F(BrowserTest, Title) {
 // had a hard limit of 31 processes and this test is mainly directed at
 // verifying that we don't crash when we pass this limit.
 // Disabling this test http://code.google.com/p/chromium/issues/detail?id=8119
-TEST_F(BrowserTest, DISABLED_ThirtyFourTabs) {
+TEST_F(BrowserTest, ThirtyFourTabs) {
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title2.html");
   GURL url(net::FilePathToFileURL(test_file));

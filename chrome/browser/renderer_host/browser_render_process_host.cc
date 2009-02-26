@@ -71,11 +71,14 @@ namespace {
 
 // ----------------------------------------------------------------------------
 
+// This class creates the IO thread for the renderer when running in
+// single-process mode.  It's not used in multi-process mode.
 class RendererMainThread : public base::Thread {
  public:
   explicit RendererMainThread(const std::wstring& channel_id)
       : base::Thread("Chrome_InProcRendererThread"),
-        channel_id_(channel_id) {
+        channel_id_(channel_id),
+        render_process_(NULL) {
   }
 
  protected:
@@ -84,7 +87,7 @@ class RendererMainThread : public base::Thread {
     CoInitialize(NULL);
 #endif
 
-    render_process_.reset(new RenderProcess(channel_id_));
+    render_process_ = new RenderProcess(channel_id_);
     // It's a little lame to manually set this flag.  But the single process
     // RendererThread will receive the WM_QUIT.  We don't need to assert on
     // this thread, so just force the flag manually.
@@ -94,7 +97,7 @@ class RendererMainThread : public base::Thread {
   }
 
   virtual void CleanUp() {
-    render_process_.reset();
+    delete render_process_;
 
 #if defined(OS_WIN)
     CoUninitialize();
@@ -103,7 +106,8 @@ class RendererMainThread : public base::Thread {
 
  private:
   std::wstring channel_id_;
-  scoped_ptr<RenderProcess> render_process_;
+  // Deleted in CleanUp() on the renderer thread, so don't use a smart pointer.
+  RenderProcess* render_process_;
 };
 
 // Used for a View_ID where the renderer has not been attached yet
