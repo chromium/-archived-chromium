@@ -450,16 +450,6 @@ std::wstring ASCIIToWide(const std::string& ascii) {
   return std::wstring(ascii.begin(), ascii.end());
 }
 
-std::string UTF16ToASCII(const string16& utf16) {
-  DCHECK(IsStringASCII(utf16));
-  return std::string(utf16.begin(), utf16.end());
-}
-
-string16 ASCIIToUTF16(const std::string& ascii) {
-  DCHECK(IsStringASCII(ascii));
-  return string16(ascii.begin(), ascii.end());
-}
-
 // Latin1 is just the low range of Unicode, so we can copy directly to convert.
 bool WideToLatin1(const std::wstring& wide, std::string* latin1) {
   std::string output;
@@ -482,28 +472,20 @@ bool IsString8Bit(const std::wstring& str) {
   return true;
 }
 
-template<class STR>
-static bool DoIsStringASCII(const STR& str) {
+bool IsStringASCII(const std::wstring& str) {
   for (size_t i = 0; i < str.length(); i++) {
-    typename ToUnsigned<typename STR::value_type>::Unsigned c = str[i];
-    if (c > 0x7F)
+    if (str[i] > 0x7F)
       return false;
   }
   return true;
 }
 
-bool IsStringASCII(const std::wstring& str) {
-  return DoIsStringASCII(str);
-}
-
-#if !defined(WCHAR_T_IS_UTF16)
-bool IsStringASCII(const string16& str) {
-  return DoIsStringASCII(str);
-}
-#endif
-
 bool IsStringASCII(const std::string& str) {
-  return DoIsStringASCII(str);
+  for (size_t i = 0; i < str.length(); i++) {
+    if (static_cast<unsigned char>(str[i]) > 0x7F)
+      return false;
+  }
+  return true;
 }
 
 // Helper functions that determine whether the given character begins a
