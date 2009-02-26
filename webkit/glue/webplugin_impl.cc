@@ -1042,9 +1042,11 @@ void WebPluginImpl::didReceiveData(WebCore::ResourceHandle* handle,
                                    int length, int) {
   WebPluginResourceClient* client = GetClientFromHandle(handle);
   if (client) {
-    MultipartResponseDelegate* multi_part_handler =
-      multi_part_response_map_[client];
-    if (multi_part_handler) {
+    MultiPartResponseHandlerMap::iterator index =
+        multi_part_response_map_.find(client);
+    if (index != multi_part_response_map_.end()) {
+      MultipartResponseDelegate* multi_part_handler = (*index).second;
+      DCHECK(multi_part_handler != NULL);
       multi_part_handler->OnReceivedData(buffer, length);
     } else {
       client->DidReceiveData(buffer, length, 0);
