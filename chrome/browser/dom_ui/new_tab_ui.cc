@@ -846,7 +846,7 @@ void NewTabUI::Init() {
     AddMessageHandler(new HistoryHandler(this));
     AddMessageHandler(new MetricsHandler(this));
 #ifdef CHROME_PERSONALIZATION
-    Personalization::AttachNewTabHandler(this);
+    AddMessageHandler(Personalization::CreateNewTabPageHandler(this));
 #endif
 
     NewTabHTMLSource* html_source = new NewTabHTMLSource();
