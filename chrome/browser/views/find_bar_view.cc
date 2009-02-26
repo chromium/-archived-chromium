@@ -168,10 +168,6 @@ FindBarView::FindBarView(FindBarWin* container)
 }
 
 FindBarView::~FindBarView() {
-  // We are going away so we don't want to be notified about further updates
-  // to the text field. Otherwise, it can lead to crashes, as exposed by
-  // automation testing in issue 8048.
-  find_text_->SetController(NULL);
 }
 
 void FindBarView::SetFindText(const std::wstring& find_text) {
@@ -444,6 +440,12 @@ void FindBarView::ButtonPressed(views::BaseButton* sender) {
 
 void FindBarView::ContentsChanged(views::TextField* sender,
                                   const std::wstring& new_contents) {
+  // We must guard against a NULL web_contents, which can happen if the text
+  // in the Find box is changed right after the tab is destroyed. Otherwise, it
+  // can lead to crashes, as exposed by automation testing in issue 8048.
+  if (!container_->web_contents())
+    return;
+
   // When the user changes something in the text box we check the contents and
   // if the textbox contains something we set it as the new search string and
   // initiate search (even though old searches might be in progress).
