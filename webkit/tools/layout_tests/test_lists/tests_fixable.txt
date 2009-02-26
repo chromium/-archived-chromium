@@ -60,7 +60,6 @@ DEFER LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
-// Can defer this test once the crash is fixed.
 DEFER : LayoutTests/fast/forms/input-text-maxlength.html = FAIL
 DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
@@ -317,6 +316,14 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
+LINUX : LayoutTests/editing/selection/select-missing-image.html = FAIL
+LINUX : LayoutTests/fast/events/offsetX-offsetY.html = FAIL
+LINUX : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
+LINUX : LayoutTests/fast/overflow/overflow-stacking.html = FAIL
+LINUX : LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
+LINUX : LayoutTests/fast/replaced/embed-display-none.html = FAIL
+LINUX : LayoutTests/fast/replaced/applet-display-none.html = FAIL
+LINUX : LayoutTests/fast/replaced/object-display-none.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
@@ -1791,20 +1798,11 @@ LayoutTests/svg/custom/pointer-events-path.svg = FAIL
 WIN MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // New tests from merge 41181:41217
-LINUX WIN : LayoutTests/fast/replaced/embed-display-none.html = FAIL
-LINUX WIN : LayoutTests/fast/replaced/applet-display-none.html = FAIL
-LINUX WIN : LayoutTests/fast/replaced/object-display-none.html = FAIL
-LINUX WIN : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
-LINUX WIN : LayoutTests/fast/overflow/overflow-stacking.html = FAIL
-LINUX WIN : LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
 LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
 
 // Regressions from merge 41181:41217
 // New baseline upstream
-LINUX WIN : LayoutTests/fast/events/offsetX-offsetY.html = FAIL
 LINUX WIN : LayoutTests/editing/selection/select-all-iframe.html = FAIL
-WIN : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
-LINUX WIN : LayoutTests/editing/selection/select-missing-image.html = FAIL
 WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
