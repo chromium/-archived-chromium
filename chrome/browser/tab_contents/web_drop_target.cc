@@ -100,7 +100,7 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
 
   // TODO(tc): PopulateWebDropData can be slow depending on what is in the
   // IDataObject.  Maybe we can do this in a background thread.
-  WebDropData drop_data;
+  WebDropData drop_data(GetDragIdentity());
   WebDropData::PopulateWebDropData(data_object, &drop_data);
 
   if (drop_data.url.is_empty())
@@ -135,6 +135,12 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
   web_contents_->render_view_host()->DragTargetDragOver(
       gfx::Point(client_pt.x, client_pt.y),
       gfx::Point(cursor_position.x, cursor_position.y));
+
+  // Again we don't wait on the renderer to respond, but this can lead to
+  // a race condition.  If the renderer does not want the drop data, then
+  // we won't know until the response from the renderer arrives.  So if a
+  // drop happens before the response arrives, we drop on a renderer that
+  // doesn't want the data.  TODO(noel): fix this.
 
   if (!is_drop_target_)
     return DROPEFFECT_NONE;

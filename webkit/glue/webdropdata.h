@@ -16,7 +16,15 @@
 struct IDataObject;
 
 struct WebDropData {
-  // User is dropping a link on the webview.
+  // Construct with a given drag identity.  Note: identity is an int32 because
+  // it is passed over the renderer NPAPI interface to gears.
+  explicit WebDropData(int32 drag_identity) : identity(drag_identity) {}
+  int32 identity;
+
+  // For default constructions, use drag |identity| 0.
+  WebDropData() : identity(0) {}
+
+  // User is dragging a link into the webview.
   GURL url;
   std::wstring url_title;  // The title associated with |url|.
 

@@ -334,6 +334,8 @@ WebViewImpl::WebViewImpl()
       suppress_next_keypress_event_(false),
       window_open_disposition_(IGNORE_ACTION),
       ime_accept_events_(true),
+      drag_target_dispatch_(false),
+      drag_identity_(0),
       autocomplete_popup_showing_(false) {
   // WebKit/win/WebView.cpp does the same thing, except they call the
   // KJS specific wrapper around this method. We need to have threading
@@ -1472,37 +1474,61 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
   DCHECK(!current_drop_data_.get());
 
   current_drop_data_ = webkit_glue::WebDropDataToChromiumDataObject(drop_data);
+  drag_identity_ = drop_data.identity;
 
   DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
       IntPoint(screen_x, screen_y), kDropTargetOperation);
+  drag_target_dispatch_ = true;
   DragOperation effect = page_->dragController()->dragEntered(&drag_data);
+  drag_target_dispatch_ = false;
+
   return effect != DragOperationNone;
 }
 
 bool WebViewImpl::DragTargetDragOver(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
+
   DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
       IntPoint(screen_x, screen_y), kDropTargetOperation);
+  drag_target_dispatch_ = true;
   DragOperation effect = page_->dragController()->dragUpdated(&drag_data);
+  drag_target_dispatch_ = false;
+
   return effect != DragOperationNone;
 }
 
 void WebViewImpl::DragTargetDragLeave() {
   DCHECK(current_drop_data_.get());
+
   DragData drag_data(current_drop_data_.get(), IntPoint(), IntPoint(),
                      DragOperationNone);
+  drag_target_dispatch_ = true;
   page_->dragController()->dragExited(&drag_data);
+  drag_target_dispatch_ = false;
+
   current_drop_data_ = NULL;
+  drag_identity_ = 0;
 }
 
 void WebViewImpl::DragTargetDrop(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
+
   DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
       IntPoint(screen_x, screen_y), kDropTargetOperation);
+  drag_target_dispatch_ = true;
   page_->dragController()->performDrag(&drag_data);
+  drag_target_dispatch_ = false;
+
   current_drop_data_ = NULL;
+  drag_identity_ = 0;
+}
+
+int32 WebViewImpl::GetDragIdentity() {
+  if (drag_target_dispatch_)
+    return drag_identity_;
+  return 0;
 }
 
 SearchableFormData* WebViewImpl::CreateSearchableFormDataForFocusedNode() {

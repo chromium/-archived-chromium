@@ -1539,6 +1539,7 @@ template <>
 struct ParamTraits<WebDropData> {
   typedef WebDropData param_type;
   static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.identity);
     WriteParam(m, p.url);
     WriteParam(m, p.url_title);
     WriteParam(m, p.file_extension);
@@ -1551,6 +1552,7 @@ struct ParamTraits<WebDropData> {
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
+      ReadParam(m, iter, &p->identity) &&
       ReadParam(m, iter, &p->url) &&
       ReadParam(m, iter, &p->url_title) &&
       ReadParam(m, iter, &p->file_extension) &&

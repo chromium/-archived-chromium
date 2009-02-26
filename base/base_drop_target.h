@@ -85,6 +85,9 @@ class BaseDropTarget : public IDropTarget {
                        POINT cursor_position,
                        DWORD effect);
 
+  // Return the drag identity.
+  static int32 GetDragIdentity() { return drag_identity_; }
+
  private:
   // Returns the cached drop helper, creating one if necessary. The returned
   // object is not addrefed. May return NULL if the object couldn't be created.
@@ -102,6 +105,14 @@ class BaseDropTarget : public IDropTarget {
   // since often, DnD will never be used. Instead, we force this penalty to the
   // first time it is actually used.
   static IDropTargetHelper* cached_drop_target_helper_;
+
+  // The drag identity (id). An up-counter that increases when the cursor first
+  // moves over the HWND in a DnD session (OnDragEnter). 0 is reserved to mean
+  // the "no/unknown" identity, and is used for initialization. The identity is
+  // sent to the renderer in drag enter notifications. Note: the identity value
+  // is passed over the renderer NPAPI interface to gears, so use int32 instead
+  // of int here.
+  static int32 drag_identity_;
 
   // The HWND of the source. This HWND is used to determine coordinates for
   // mouse events that are sent to the renderer notifying various drag states.
