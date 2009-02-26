@@ -321,6 +321,9 @@ void Browser::OpenApplicationWindow(Profile* profile, const GURL& url) {
   Browser* browser = Browser::CreateForApp(app_name, profile);
   browser->AddTabWithURL(url, GURL(), PageTransition::START_PAGE, true, NULL);
   browser->window()->Show();
+  // TODO(jcampan): http://crbug.com/8123 we should not need to set the initial
+  //                focus explicitly.
+  browser->GetSelectedTabContents()->SetInitialFocus();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

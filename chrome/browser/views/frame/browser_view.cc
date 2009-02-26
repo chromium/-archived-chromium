@@ -1350,6 +1350,7 @@ int BrowserView::LayoutToolbar(int top) {
     Personalization::AdjustBrowserView(personalization_, &browser_view_width);
 #endif
   bool visible = IsToolbarVisible();
+  toolbar_->GetLocationBarView()->SetFocusable(visible);
   int y = top -
       ((visible && IsTabStripVisible()) ? kToolbarTabStripVerticalOverlap : 0);
   int height = visible ? toolbar_->GetPreferredSize().height() : 0;
