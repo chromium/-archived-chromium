@@ -115,6 +115,7 @@ env_dll.Append(
         'WTF',
         'V8Bindings',
         'WebCore',
+        'WebKit',
         'default_plugin',
         'glue',
         'JavaScriptCore_pcre',
