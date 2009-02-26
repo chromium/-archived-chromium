@@ -103,11 +103,11 @@ void OpenFirstRunDialog(Profile* profile) { NOTIMPLEMENTED(); }
 //--------------------------------------------------------------------------
 
 void InstallJankometer(const CommandLine&) {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8077
 }
 
 void UninstallJankometer() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8077
 }
 
 //--------------------------------------------------------------------------
