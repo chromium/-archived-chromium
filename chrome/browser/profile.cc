@@ -346,6 +346,10 @@ ProfileImpl::ProfileImpl(const FilePath& path)
   PrefService* prefs = GetPrefs();
   prefs->AddPrefObserver(prefs::kSpellCheckDictionary, this);
   prefs->AddPrefObserver(prefs::kEnableSpellCheck, this);
+#ifdef CHROME_PERSONALIZATION
+  personalization_.reset(
+      Personalization::CreateProfilePersonalization(this));
+#endif
 }
 
 void ProfileImpl::InitExtensions() {
@@ -830,9 +834,7 @@ void ProfileImpl::StopCreateSessionServiceTimer() {
 
 #ifdef CHROME_PERSONALIZATION
 ProfilePersonalization* ProfileImpl::GetProfilePersonalization() {
-  if (!personalization_.get())
-    personalization_.reset(
-        Personalization::CreateProfilePersonalization(this));
+  DCHECK(personalization_.get());
   return personalization_.get();
 }
 #endif
