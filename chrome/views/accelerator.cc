@@ -53,8 +53,17 @@ std::wstring Accelerator::GetShortcutText() const {
 
   std::wstring shortcut;
   if (!string_id) {
-    // Our fallback is to try translate the key code to a regular char.
-    wchar_t key = LOWORD(::MapVirtualKeyW(key_code_, MAPVK_VK_TO_CHAR));
+    // Our fallback is to try translate the key code to a regular character 
+    // unless it is one of digits (VK_0 to VK_9). Some keyboard
+    // layouts have characters other than digits assigned in
+    // an unshifted mode (e.g. French AZERY layout has 'a with grave
+    // accent' for '0'). For display in the menu (e.g. Ctrl-0 for the 
+    // default zoom level), we leave VK_[0-9] alone without translation.
+    wchar_t key;
+    if (key_code_ >= '0' && key_code_ <= '9')
+      key = key_code_;
+    else 
+      key = LOWORD(::MapVirtualKeyW(key_code_, MAPVK_VK_TO_CHAR));
     shortcut += key;
   } else {
     shortcut = l10n_util::GetString(string_id);
