@@ -73,7 +73,8 @@ class ExtensionsServiceTestFrontend
   virtual void LoadExtension(const FilePath& extension_path) {
   }
 
-  virtual void OnExtensionLoadError(const std::string& message) {
+  virtual void OnExtensionLoadError(bool alert_on_error,
+                                    const std::string& message) {
     // In the development environment, we get errors when trying to load
     // extensions out of the .svn directories.
     if (message.find(".svn") != std::string::npos)
@@ -92,11 +93,12 @@ class ExtensionsServiceTestFrontend
     std::stable_sort(errors_.begin(), errors_.end());
   }
 
-  virtual void OnExtensionInstallError(const std::string& message) {
+  virtual void OnExtensionInstallError(bool alert_on_error,
+                                       const std::string& message) {
     errors_.push_back(message);
   }
 
-  virtual void OnExtensionInstalled(FilePath path) {
+  virtual void OnExtensionInstalled(FilePath path, bool is_update) {
     installed_.push_back(path);
   }
 
@@ -104,13 +106,12 @@ class ExtensionsServiceTestFrontend
                             ExtensionsServiceBackend* backend,
                             bool should_succeed) {
     ASSERT_TRUE(file_util::PathExists(path));
-    EXPECT_EQ(should_succeed,
-              backend->InstallExtension(path, install_dir_,
-                  scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
+    backend->InstallExtension(path, install_dir_, false,
+        scoped_refptr<ExtensionsServiceFrontendInterface>(this));
     message_loop_.RunAllPending();
     if (should_succeed) {
       EXPECT_EQ(1u, installed_.size());
-      EXPECT_EQ(0u, errors_.size());
+      EXPECT_EQ(0u, errors_.size()) << path.value();
     } else {
       EXPECT_EQ(0u, installed_.size());
       EXPECT_EQ(1u, errors_.size());
@@ -143,8 +144,8 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
       new ExtensionsServiceTestFrontend);
 
   std::vector<Extension*> extensions;
-  EXPECT_TRUE(backend->LoadExtensionsFromDirectory(extensions_path,
-      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
+  backend->LoadExtensionsFromDirectory(extensions_path,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
 
   ASSERT_EQ(3u, frontend->extensions()->size());
@@ -202,8 +203,8 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
       new ExtensionsServiceTestFrontend);
 
   std::vector<Extension*> extensions;
-  EXPECT_TRUE(backend->LoadExtensionsFromDirectory(extensions_path,
-      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
+  backend->LoadExtensionsFromDirectory(extensions_path,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
 
   EXPECT_EQ(4u, frontend->errors()->size());
@@ -275,16 +276,16 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
 
   FilePath ext1 = extensions_path.AppendASCII("good").AppendASCII("extension1")
       .AppendASCII("1");
-  EXPECT_TRUE(backend->LoadSingleExtension(ext1,
-      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
+  backend->LoadSingleExtension(ext1,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
   EXPECT_EQ(0u, frontend->errors()->size());
   ASSERT_EQ(1u, frontend->extensions()->size());
 
   FilePath no_manifest = extensions_path.AppendASCII("bad")
       .AppendASCII("no_manifest").AppendASCII("1");
-  EXPECT_FALSE(backend->LoadSingleExtension(no_manifest,
-      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get())));
+  backend->LoadSingleExtension(no_manifest,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
   EXPECT_EQ(1u, frontend->errors()->size());
   ASSERT_EQ(1u, frontend->extensions()->size());
