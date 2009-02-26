@@ -42,7 +42,7 @@ void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
   FilePath locale_path;
   PathService::Get(chrome::DIR_LOCALES, &locale_path);
   // TODO(tc): Handle other locales properly.
-  NOTIMPLEMENTED() << " loading en-US strings only";
+  // http://code.google.com/p/chromium/issues/detail?id=8125
   locale_path = locale_path.Append(FILE_PATH_LITERAL("en-US.pak"));
   DCHECK(locale_resources_data_ == NULL) << "locale data already loaded!";
   locale_resources_data_ = new base::DataPack;
