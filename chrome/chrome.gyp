@@ -1170,7 +1170,6 @@
             'browser/importer/firefox3_importer.cc',
             'browser/importer/firefox_importer_utils.cc',
             'browser/importer/ie_importer.cc',
-            'browser/importer/importer.cc',
             'browser/tab_contents/native_ui_contents.cc',
             'browser/tab_contents/render_view_context_menu_controller.cc',
             'browser/tab_contents/web_drag_source.cc',

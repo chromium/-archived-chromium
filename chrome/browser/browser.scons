@@ -692,7 +692,6 @@ if not env.Bit('windows'):
       'importer/firefox3_importer.cc',
       'importer/firefox_importer_utils.cc',
       'importer/ie_importer.cc',
-      'importer/importer.cc',
       'importer/toolbar_importer.cc',
       'jankometer.cc',
       'login_prompt.cc',

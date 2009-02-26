@@ -20,22 +20,28 @@
 #include "chrome/browser/importer/firefox3_importer.h"
 #include "chrome/browser/importer/firefox_importer_utils.h"
 #include "chrome/browser/importer/firefox_profile_lock.h"
+#if defined(OS_WIN)
 #include "chrome/browser/importer/ie_importer.h"
+#endif
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/views/importer_lock_view.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/win_util.h"
-#include "chrome/views/window.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/image_operations.h"
 #include "webkit/glue/image_decoder.h"
+
+// TODO(port): Port these files.
+#if defined(OS_WIN)
+#include "chrome/browser/views/importer_lock_view.h"
+#include "chrome/common/win_util.h"
+#include "chrome/views/window.h"
+#endif
 
 // ProfileWriter.
 
@@ -64,9 +70,11 @@ void ProfileWriter::AddPasswordForm(const PasswordForm& form) {
   profile_->GetWebDataService(Profile::EXPLICIT_ACCESS)->AddLogin(form);
 }
 
+#if defined(OS_WIN)
 void ProfileWriter::AddIE7PasswordInfo(const IE7PasswordInfo& info) {
   profile_->GetWebDataService(Profile::EXPLICIT_ACCESS)->AddIE7Login(info);
 }
+#endif
 
 void ProfileWriter::AddHistoryPage(const std::vector<history::URLRow>& page) {
   profile_->GetHistoryService(Profile::EXPLICIT_ACCESS)->
@@ -270,7 +278,7 @@ void ProfileWriter::AddKeywords(const std::vector<TemplateURL*>& template_urls,
     }
     if (t_url->url() && t_url->url()->IsValid()) {
       model->Add(t_url);
-      if (default_keyword && t_url->url() && 
+      if (default_keyword && t_url->url() &&
           t_url->url()->SupportsReplacement())
         model->SetDefaultSearchProvider(t_url);
     } else {
@@ -330,7 +338,7 @@ bool ProfileWriter::DoesBookmarkExist(
   model->GetNodesByURL(entry.url, &nodes_with_same_url);
   if (nodes_with_same_url.empty())
     return false;
-  
+
   for (size_t i = 0; i < nodes_with_same_url.size(); ++i) {
     BookmarkNode* node = nodes_with_same_url[i];
     if (entry.title != node->GetTitle())
@@ -448,8 +456,13 @@ void ImporterHost::ShowWarningDialog() {
   if (headless_) {
     OnLockViewEnd(false);
   } else {
+#if defined(OS_WIN)
     views::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
                                       new ImporterLockView(this))->Show();
+#else
+    // TODO(port): Need CreateChromeWindow.
+    NOTIMPLEMENTED();
+#endif
   }
 }
 
@@ -562,8 +575,10 @@ void ImporterHost::ImportEnded() {
 
 Importer* ImporterHost::CreateImporterByType(ProfileType type) {
   switch (type) {
+#if defined(OS_WIN)
     case MS_IE:
       return new IEImporter();
+#endif
     case BOOKMARKS_HTML:
     case FIREFOX2:
       return new Firefox2Importer();
@@ -589,6 +604,7 @@ const ProfileInfo& ImporterHost::GetSourceProfileInfoAt(int index) const {
 }
 
 void ImporterHost::DetectSourceProfiles() {
+#if defined(OS_WIN)
   // The order in which detect is called determines the order
   // in which the options appear in the dropdown combo-box
   if (ShellIntegration::IsFirefoxDefaultBrowser()) {
@@ -598,8 +614,13 @@ void ImporterHost::DetectSourceProfiles() {
     DetectIEProfiles();
     DetectFirefoxProfiles();
   }
+#else
+  DetectFirefoxProfiles();
+#endif
 }
 
+
+#if defined(OS_WIN)
 void ImporterHost::DetectIEProfiles() {
   // IE always exists and don't have multiple profiles.
   ProfileInfo* ie = new ProfileInfo();
@@ -611,6 +632,7 @@ void ImporterHost::DetectIEProfiles() {
       SEARCH_ENGINES;
   source_profiles_.push_back(ie);
 }
+#endif
 
 void ImporterHost::DetectFirefoxProfiles() {
   // Detects which version of Firefox is installed.

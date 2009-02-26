@@ -358,6 +358,7 @@
 		96DF109FEE9B09B11690F1FA /* infobar_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9CF0F1EC32700106F0D /* infobar_delegate.cc */; };
 		970EF19CD8A79CF3D0DF4B61 /* download_file.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9CA0E9D48CE009A6919 /* download_file.cc */; };
 		97DD178B77011735FE4399E9 /* file_descriptor_set_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = D74DA6A9031CAE292790BD5E /* file_descriptor_set_unittest.cc */; };
+		9B309D9E7FD33D1D31444ED9 /* importer.cc in Sources */ = {isa = PBXBuildFile; fileRef = D224399513442348FF231FCB /* importer.cc */; };
 		9E85B39CA40439D93CE52E60 /* fav_icon_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8760E9D4839009A6919 /* fav_icon_helper.cc */; };
 		A0BC9272AD709E86D492DAEC /* bookmark_storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = D941DBEFD8B8B537DE8A4DAE /* bookmark_storage.cc */; };
 		A0EB956531B9DB1E40DAE980 /* user_script_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 37521A11B07C479E93A39D52 /* user_script_unittest.cc */; };
@@ -2752,6 +2753,7 @@
 		C3F9577C67188A5A4E3A6E41 /* session_restore.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = session_restore.cc; path = sessions/session_restore.cc; sourceTree = "<group>"; };
 		C8D26D9EC81E03E91E270463 /* session_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = session_service.cc; path = sessions/session_service.cc; sourceTree = "<group>"; };
 		CAA0BC4B0F54A8F7004DEE42 /* hunspell.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = hunspell.xcodeproj; path = chrome/third_party/hunspell/hunspell.xcodeproj; sourceTree = "<group>"; };
+		D224399513442348FF231FCB /* importer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = importer.cc; path = browser/importer/importer.cc; sourceTree = SOURCE_ROOT; };
 		D3C3DAA911D390A33D06B0B0 /* history_url_provider.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = history_url_provider.cc; path = browser/autocomplete/history_url_provider.cc; sourceTree = SOURCE_ROOT; };
 		D74DA6A9031CAE292790BD5E /* file_descriptor_set_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_descriptor_set_unittest.cc; sourceTree = "<group>"; };
 		D792830F807C366EAB752D69 /* dev_tools_agent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dev_tools_agent.cc; sourceTree = "<group>"; };
@@ -3350,6 +3352,7 @@
 				E7FDE61828F151056D975855 /* bookmark_drag_data.cc */,
 				12F137DA942221A44BFA0967 /* bookmark_drop_info.cc */,
 				90BF0D1189BB7158BD7F1600 /* bookmark_context_menu.cc */,
+				D224399513442348FF231FCB /* importer.cc */,
 			);
 			sourceTree = "<group>";
 		};
@@ -5780,6 +5783,7 @@
 				4D7BFA1F0E9D4901009A6919 /* history_types.cc in Sources */,
 				E477FF4F0F5338600044ABEB /* history_ui.cc in Sources */,
 				12E687ED55D418FEE894F824 /* history_url_provider.cc in Sources */,
+				9B309D9E7FD33D1D31444ED9 /* importer.cc in Sources */,
 				4D7BFA240E9D4905009A6919 /* in_memory_database.cc in Sources */,
 				4D7BFA260E9D4908009A6919 /* in_memory_history_backend.cc in Sources */,
 				96DF109FEE9B09B11690F1FA /* infobar_delegate.cc in Sources */,

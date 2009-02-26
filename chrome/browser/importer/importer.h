@@ -27,7 +27,9 @@
 // An enumeration of the type of browsers that we support to import
 // settings and data from them.
 enum ProfileType {
-  MS_IE = 0,
+#if defined(OS_WIN)
+  MS_IE,
+#endif
   FIREFOX2,
   FIREFOX3,
   // Identifies a 'bookmarks.html' file.
@@ -276,7 +278,9 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   void DetectSourceProfiles();
 
   // Helper methods for detecting available profiles.
+#if defined(OS_WIN)
   void DetectIEProfiles();
+#endif
   void DetectFirefoxProfiles();
 
   // The list of profiles with the default one first.
