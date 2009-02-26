@@ -5,8 +5,16 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_DRAG_SOURCE_H_
 #define CHROME_BROWSER_TAB_CONTENTS_WEB_DRAG_SOURCE_H_
 
-#include "base/base_drag_source.h"
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
+#include "base/gfx/point.h"
+
+// TODO(port): Port this file.
+#if defined(OS_WIN)
+#include "base/base_drag_source.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class RenderViewHost;
 
@@ -22,7 +30,7 @@ class RenderViewHost;
 class WebDragSource : public BaseDragSource {
  public:
   // Create a new DragSource for a given HWND and RenderViewHost.
-  WebDragSource(HWND source_hwnd, RenderViewHost* render_view_host);
+  WebDragSource(gfx::NativeWindow source_wnd, RenderViewHost* render_view_host);
   virtual ~WebDragSource() { }
 
  protected:
@@ -34,8 +42,8 @@ class WebDragSource : public BaseDragSource {
   // Cannot construct thusly.
   WebDragSource();
 
-  // Keep a reference to the HWND so we can translate the cursor position.
-  HWND source_hwnd_;
+  // Keep a reference to the window so we can translate the cursor position.
+  gfx::NativeWindow source_wnd_;
 
   // We use this as a channel to the renderer to tell it about various drag
   // drop events that it needs to know about (such as when a drag operation it

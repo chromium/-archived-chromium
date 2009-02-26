@@ -738,4 +738,7 @@ class OSExchangeData {
   void SetURL(const GURL& url, const std::wstring& title) { NOTIMPLEMENTED(); }
 };
 
+class BaseDragSource {
+};
+
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#if defined(OS_WIN)
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlmisc.h>
+#endif
 
 #include "chrome/browser/tab_contents/web_drag_source.h"
 
@@ -12,34 +14,44 @@
 
 namespace {
 
-static void GetCursorPositions(HWND hwnd, CPoint* client, CPoint* screen) {
-  GetCursorPos(screen);
-  *client = *screen;
-  ScreenToClient(hwnd, client);
+static void GetCursorPositions(gfx::NativeWindow wnd, gfx::Point* client,
+                               gfx::Point* screen) {
+#if defined(OS_WIN)
+  POINT cursor_pos;
+  GetCursorPos(&cursor_pos);
+  screen->SetPoint(cursor_pos.x, cursor_pos.y);
+  ScreenToClient(wnd, &cursor_pos);
+  client->SetPoint(cursor_pos.x, cursor_pos.y);
+#else
+  // TODO(port): Get the cursor positions.
+  NOTIMPLEMENTED();
+#endif
 }
 
 }  // namespace
 ///////////////////////////////////////////////////////////////////////////////
 // WebDragSource, public:
 
-WebDragSource::WebDragSource(HWND source_hwnd,
+WebDragSource::WebDragSource(gfx::NativeWindow source_wnd,
                              RenderViewHost* render_view_host)
     : BaseDragSource(),
-      source_hwnd_(source_hwnd),
+      source_wnd_(source_wnd),
       render_view_host_(render_view_host) {
 }
 
 void WebDragSource::OnDragSourceDrop() {
-  CPoint client;
-  CPoint screen;
-  GetCursorPositions(source_hwnd_, &client, &screen);
-  render_view_host_->DragSourceEndedAt(client.x, client.y, screen.x, screen.y);
+  gfx::Point client;
+  gfx::Point screen;
+  GetCursorPositions(source_wnd_, &client, &screen);
+  render_view_host_->DragSourceEndedAt(client.x(), client.y(),
+                                       screen.x(), screen.y());
 }
 
 void WebDragSource::OnDragSourceMove() {
-  CPoint client;
-  CPoint screen;
-  GetCursorPositions(source_hwnd_, &client, &screen);
-  render_view_host_->DragSourceMovedTo(client.x, client.y, screen.x, screen.y);
+  gfx::Point client;
+  gfx::Point screen;
+  GetCursorPositions(source_wnd_, &client, &screen);
+  render_view_host_->DragSourceMovedTo(client.x(), client.y(),
+                                       screen.x(), screen.y());
 }
 

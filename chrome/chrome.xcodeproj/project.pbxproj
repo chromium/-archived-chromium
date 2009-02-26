@@ -363,6 +363,7 @@
 		A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612DB0EE9958600A8EE5D /* extensions_service_unittest.cc */; };
 		A54612E20EE995F600A8EE5D /* extensions_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = A54612D90EE9957000A8EE5D /* extensions_service.cc */; };
 		A572828F0F31156100384E1B /* unzip_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45076E80F153B06003BE099 /* unzip_unittest.cc */; };
+		A6F9C682F0F4934CED7A446C /* web_drag_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9F60F1EC32700106F0D /* web_drag_source.cc */; };
 		A76E43A40F29039C009A7E88 /* browser_render_process_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E43A30F29039C009A7E88 /* browser_render_process_host.cc */; };
 		A7A20BF20F3A16DC00F62B4D /* render_widget.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD50EAE868600EBCFC0 /* render_widget.cc */; };
 		A7A20E650F3A1E1C00F62B4D /* render_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640CD30EAE868600EBCFC0 /* render_view.cc */; };
@@ -5840,6 +5841,7 @@
 				82FA32760F3A537C00271C5A /* web_contents_view_mac.mm in Sources */,
 				E48B6C3C0F27844F002E47EC /* web_data_service.cc in Sources */,
 				E45076200F150E0C003BE099 /* web_database.cc in Sources */,
+				A6F9C682F0F4934CED7A446C /* web_drag_source.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
