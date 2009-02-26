@@ -314,6 +314,7 @@
         '../third_party/icu38/icu38.gyp:icuuc',
         '../third_party/libxml/libxml.gyp:libxml',
         '../third_party/npapi/npapi.gyp:npapi',
+        'third_party/hunspell/hunspell.gyp:hunspell',
       ],
       'include_dirs': [
         '..',
@@ -1195,7 +1196,6 @@
             'browser/modal_html_dialog_delegate.cc',
             'browser/sandbox_policy.cc',
             'browser/shell_integration.cc',
-            'browser/spellchecker.cc',
             'browser/task_manager.cc',
             'browser/task_manager_resource_providers.cc',
             'browser/window_sizer.cc',
