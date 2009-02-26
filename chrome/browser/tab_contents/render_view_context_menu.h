@@ -2,11 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_H_
-#define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_H_
+#define CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_H_
 
-#include "chrome/views/menu.h"
+#include <vector>
+
+#include "base/gfx/native_widget_types.h"
 #include "webkit/glue/context_menu.h"
+
+// TODO(port): Port this file.
+#if defined(OS_WIN)
+#include "chrome/views/menu.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class Profile;
 
@@ -14,7 +23,7 @@ class RenderViewContextMenu : public Menu {
  public:
   RenderViewContextMenu(
       Menu::Delegate* delegate,
-      HWND owner,
+      gfx::NativeWindow owner,
       ContextNode node,
       const std::wstring& misspelled_word,
       const std::vector<std::wstring>& misspelled_word_suggestions,
@@ -41,5 +50,5 @@ class RenderViewContextMenu : public Menu {
   DISALLOW_COPY_AND_ASSIGN(RenderViewContextMenu);
 };
 
-#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_CONTEXT_MENU_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_H_
 

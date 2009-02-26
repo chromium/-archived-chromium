@@ -1172,7 +1172,6 @@
             'browser/importer/ie_importer.cc',
             'browser/importer/importer.cc',
             'browser/tab_contents/native_ui_contents.cc',
-            'browser/tab_contents/render_view_context_menu.cc',
             'browser/tab_contents/render_view_context_menu_controller.cc',
             'browser/tab_contents/web_drag_source.cc',
             'browser/tab_contents/web_drop_target.cc',

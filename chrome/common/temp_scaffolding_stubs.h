@@ -322,8 +322,34 @@ class InputWindowDelegate {
 
 class Menu {
  public:
+  enum AnchorPoint {
+    TOPLEFT,
+    TOPRIGHT
+  };
+  enum MenuItemType {
+    NORMAL,
+    CHECKBOX,
+    RADIO,
+    SEPARATOR
+  };
   class Delegate {
   };
+  Menu(Delegate* delegate, AnchorPoint anchor, gfx::NativeWindow owner) {
+    NOTIMPLEMENTED();
+  }
+  void AppendMenuItem(int item_id, const std::wstring& label,
+                      MenuItemType type) {
+    NOTIMPLEMENTED();
+  }
+  void AppendMenuItemWithLabel(int item_id, const std::wstring& label) {
+    NOTIMPLEMENTED();
+  }
+  Menu* AppendSubMenu(int item_id, const std::wstring& label) {
+    NOTIMPLEMENTED();
+    return NULL;
+  }
+  void AppendSeparator() { NOTIMPLEMENTED(); }
+  void AppendDelegateMenuItem(int item_id) { NOTIMPLEMENTED(); }
 };
 
 views::Window* CreateInputWindow(gfx::NativeWindow parent_hwnd,
