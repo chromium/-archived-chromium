@@ -267,8 +267,6 @@ class BrowserView : public BrowserWindow,
   }
 #endif
 
-  bool is_removing_bookmark_bar() const { return is_removing_bookmark_bar_; }
-
  protected:
   // Overridden from views::View:
   virtual void Layout();
@@ -385,6 +383,8 @@ class BrowserView : public BrowserWindow,
   scoped_ptr<Browser> browser_;
 
   // Tool/Info bars that we are currently showing. Used for layout.
+  // active_bookmark_bar_ is either NULL, if the bookmark bar isn't showing,
+  // or is bookmark_bar_view_ if the bookmark bar is showing.
   views::View* active_bookmark_bar_;
   views::View* active_download_shelf_;
 
@@ -471,9 +471,6 @@ class BrowserView : public BrowserWindow,
   FramePersonalization personalization_;
   bool personalization_enabled_;
 #endif
-
-  // For debugging 7857.
-  bool is_removing_bookmark_bar_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserView);
 };

@@ -204,8 +204,7 @@ BrowserView::BrowserView(Browser* browser)
       personalization_enabled_(false),
       personalization_(NULL),
 #endif
-      forwarding_to_tab_strip_(false),
-      is_removing_bookmark_bar_(false) {
+      forwarding_to_tab_strip_(false) {
   InitClass();
   browser_->tabstrip_model()->AddObserver(this);
 }
@@ -708,8 +707,8 @@ void BrowserView::DestroyBrowser() {
 
 bool BrowserView::IsBookmarkBarVisible() const {
   return SupportsWindowFeature(FEATURE_BOOKMARKBAR) &&
-      bookmark_bar_view_.get() &&
-      (bookmark_bar_view_->GetPreferredSize().height() != 0);
+      active_bookmark_bar_ &&
+      (active_bookmark_bar_->GetPreferredSize().height() != 0);
 }
 
 gfx::Rect BrowserView::GetRootWindowResizerRect() const {
@@ -1361,7 +1360,7 @@ int BrowserView::LayoutToolbar(int top) {
 
 int BrowserView::LayoutBookmarkAndInfoBars(int top) {
   find_bar_y_ = top + y() - 1;
-  if (bookmark_bar_view_.get()) {
+  if (active_bookmark_bar_) {
     // If we're showing the Bookmark bar in detached style, then we need to show
     // any Info bar _above_ the Bookmark bar, since the Bookmark bar is styled
     // to look like it's part of the page.
@@ -1375,7 +1374,7 @@ int BrowserView::LayoutBookmarkAndInfoBars(int top) {
 }
 
 int BrowserView::LayoutBookmarkBar(int top) {
-  DCHECK(bookmark_bar_view_.get());
+  DCHECK(active_bookmark_bar_);
   bool visible = IsBookmarkBarVisible();
   int height, y = top;
   if (visible) {
@@ -1429,9 +1428,8 @@ void BrowserView::LayoutStatusBubble(int top) {
 
 bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
   views::View* new_bookmark_bar_view = NULL;
-  views::View* old_bookmark_bar_view = bookmark_bar_view_.get();
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
-    if (!old_bookmark_bar_view) {
+    if (!bookmark_bar_view_.get()) {
       bookmark_bar_view_.reset(new BookmarkBarView(contents->profile(),
                                                    browser_.get()));
       bookmark_bar_view_->SetParentOwned(false);
@@ -1441,11 +1439,7 @@ bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
     bookmark_bar_view_->SetPageNavigator(contents);
     new_bookmark_bar_view = bookmark_bar_view_.get();
   }
-  is_removing_bookmark_bar_ = true;
-  bool result = UpdateChildViewAndLayout(new_bookmark_bar_view,
-                                         &old_bookmark_bar_view);
-  is_removing_bookmark_bar_ = false;
-  return result;
+  return UpdateChildViewAndLayout(new_bookmark_bar_view, &active_bookmark_bar_);
 }
 
 bool BrowserView::MaybeShowInfoBar(TabContents* contents) {

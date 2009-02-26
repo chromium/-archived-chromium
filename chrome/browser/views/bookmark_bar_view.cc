@@ -871,11 +871,6 @@ void BookmarkBarView::DidChangeBounds(const gfx::Rect& previous,
 void BookmarkBarView::ViewHierarchyChanged(bool is_add,
                                            View* parent,
                                            View* child) {
-  // See http://code.google.com/p/chromium/issues/detail?id=7857 . It seems
-  // as though the bookmark bar is getting unintentionally removed.
-  DCHECK(testing_ || child != this || is_add ||
-         static_cast<BrowserView*>(parent)->is_removing_bookmark_bar());
-
   if (is_add && child == this && height() > 0) {
     // We only layout while parented. When we become parented, if our bounds
     // haven't changed, DidChangeBounds won't get invoked and we won't layout.
