@@ -243,6 +243,31 @@ void RunTest_DelayTimer_Reset(MessageLoop::Type message_loop_type) {
   ASSERT_TRUE(target.signaled());
 }
 
+class DelayTimerFatalTarget {
+ public:
+  void Signal() {
+    ASSERT_TRUE(false);
+  }
+};
+
+
+void RunTest_DelayTimer_Deleted(MessageLoop::Type message_loop_type) {
+  MessageLoop loop(message_loop_type);
+
+  DelayTimerFatalTarget target;
+
+  {
+    base::DelayTimer<DelayTimerFatalTarget> timer(
+        TimeDelta::FromMilliseconds(50), &target,
+        &DelayTimerFatalTarget::Signal);
+    timer.Reset();
+  }
+
+  // When the timer is deleted, the DelayTimerFatalTarget should never be
+  // called.
+  PlatformThread::Sleep(100);
+}
+
 }  // namespace
 
 //-----------------------------------------------------------------------------
@@ -297,6 +322,12 @@ TEST(TimerTest, DelayTimer_Reset) {
   RunTest_DelayTimer_Reset(MessageLoop::TYPE_DEFAULT);
   RunTest_DelayTimer_Reset(MessageLoop::TYPE_UI);
   RunTest_DelayTimer_Reset(MessageLoop::TYPE_IO);
+}
+
+TEST(TimerTest, DelayTimer_Deleted) {
+  RunTest_DelayTimer_Deleted(MessageLoop::TYPE_DEFAULT);
+  RunTest_DelayTimer_Deleted(MessageLoop::TYPE_UI);
+  RunTest_DelayTimer_Deleted(MessageLoop::TYPE_IO);
 }
 
 TEST(TimerTest, MessageLoopShutdown) {

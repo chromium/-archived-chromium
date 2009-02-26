@@ -206,6 +206,9 @@ class RepeatingTimer : public BaseTimer<Receiver, true> {};
 // Once created, it is inactive until Reset is called. Once |delay| seconds have
 // passed since the last call to Reset, the callback is made. Once the callback
 // has been made, it's inactive until Reset is called again.
+//
+// If destroyed, the timeout is canceled and will not occur even if already
+// inflight.
 template <class Receiver>
 class DelayTimer {
  public:
