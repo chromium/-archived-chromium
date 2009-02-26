@@ -42,6 +42,7 @@ env.Append(
         'gtest',
         'V8Bindings',
         'WebCore',
+        'WebKit',
         'WTF',
         env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
