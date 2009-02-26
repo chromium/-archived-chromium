@@ -19,9 +19,6 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
-#if defined(OS_WIN)
-#include "chrome/views/view.h"
-#endif  // defined(OS_WIN)
 
 // TODO(playmobil): remove this undef once SkPostConfig.h is fixed.
 // skia/include/corecg/SkPostConfig.h #defines strcasecmp() so we can't use
