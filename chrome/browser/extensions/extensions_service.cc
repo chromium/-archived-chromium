@@ -717,7 +717,17 @@ void ExtensionsServiceBackend::ReportExtensionInstalled(
 
   // After it's installed, load it right away with the same settings.
   extension_path_ = path;
-  LoadExtensionCurrentVersion();
+  LOG(INFO) << "Loading extension " << path.value();
+  Extension* extension = LoadExtensionCurrentVersion();
+  if (extension) {
+    // Only one extension, but ReportExtensionsLoaded can handle multiple,
+    // so we need to construct a list.
+    scoped_ptr<ExtensionList> extensions(new ExtensionList);
+    extensions->push_back(extension);
+    LOG(INFO) << "Done.";
+    // Hand off ownership of the loaded extensions to the frontend.
+    ReportExtensionsLoaded(extensions.release());
+  }
 }
 
 // Some extensions will autoupdate themselves externally from Chrome.  These
