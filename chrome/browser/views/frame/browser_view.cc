@@ -937,7 +937,7 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
 
-  if (find_bar_.get() && new_contents->AsWebContents())
+  if (find_bar_.get())
     find_bar_->ChangeWebContents(new_contents->AsWebContents());
 }
 

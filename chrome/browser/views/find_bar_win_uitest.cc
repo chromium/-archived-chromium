@@ -17,6 +17,7 @@ class FindInPageControllerTest : public UITest {
   }
 };
 
+const std::wstring kSimplePage = L"404_is_enough_for_us.html";
 const std::wstring kFramePage = L"files/find_in_page/frames.html";
 const std::wstring kFrameData = L"files/find_in_page/framedata_general.html";
 const std::wstring kUserSelectPage = L"files/find_in_page/user-select.html";
@@ -198,7 +199,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
       HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  GURL url = server->TestServerPageW(kFramePage);
+  GURL url = server->TestServerPageW(kSimplePage);
   scoped_ptr<TabProxy> tabA(GetActiveTab());
   ASSERT_TRUE(tabA->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -259,7 +260,7 @@ TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
       HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  GURL url = server->TestServerPageW(kUserSelectPage);
+  GURL url = server->TestServerPageW(kSimplePage);
   GURL url2 = server->TestServerPageW(kFramePage);
   scoped_ptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
@@ -278,5 +279,44 @@ TEST_F(FindInPageControllerTest, FindDisappearOnNavigate) {
 
   // Navigate and make sure the Find box goes away.
   EXPECT_TRUE(tab->NavigateToURL(url2));
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), false));
+}
+
+// Make sure Find box disappears when History/Downloads page is opened, and
+// when a New Tab is opened.
+TEST_F(FindInPageControllerTest, FindDisappearOnNewTabAndHistory) {
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"chrome/test/data", NULL);
+  ASSERT_TRUE(NULL != server.get());
+
+  GURL url = server->TestServerPageW(kSimplePage);
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab->NavigateToURL(url));
+  WaitUntilTabCount(1);
+
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get() != NULL);
+
+  // Open the Find window and wait for it to animate.
+  EXPECT_TRUE(browser->OpenFindInPage());
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), true));
+
+  // Open another tab (tab B).
+  EXPECT_TRUE(browser->AppendTab(url));
+  scoped_ptr<TabProxy> tabB(GetActiveTab());
+
+  // Wait for the Find box to disappear.
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), false));
+
+  // Close tab B.
+  EXPECT_TRUE(tabB->Close(true));
+
+  // Wait for the Find box to appear again.
+  EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), true));
+
+  // Open History page.
+  EXPECT_TRUE(browser->RunCommand(IDC_SHOW_HISTORY));
+
+  // Wait for the Find box to disappear.
   EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), false));
 }

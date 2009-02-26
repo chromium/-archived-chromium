@@ -225,10 +225,12 @@ void FindBarWin::ChangeWebContents(WebContents* contents) {
 
   web_contents_ = contents;
 
-  if (web_contents_) {
-    if (IsVisible() && web_contents_ && !web_contents_->find_ui_active())
-      ShowWindow(SW_HIDE);
+  // Hide any visible find window from the previous tab if NULL |web_contents|
+  // is passed in or if the find UI is not active in the new tab.
+  if (IsVisible() && (!web_contents_ || !web_contents_->find_ui_active()))
+    ShowWindow(SW_HIDE);
 
+  if (web_contents_) {
     NotificationService::current()->AddObserver(
         this, NotificationType::FIND_RESULT_AVAILABLE,
         Source<TabContents>(web_contents_));
