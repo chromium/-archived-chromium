@@ -470,10 +470,9 @@ gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
 }
 
 gfx::Point OpaqueNonClientView::GetSystemMenuPoint() const {
-  int tabstrip_height = browser_view_->IsTabStripVisible() ?
-      browser_view_->GetTabStripHeight() : 0;
   gfx::Point system_menu_point(FrameBorderThickness(),
-      NonClientTopBorderHeight() + tabstrip_height - kClientEdgeThickness);
+      NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
+      kClientEdgeThickness);
   ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }
@@ -1028,10 +1027,15 @@ void OpaqueNonClientView::LayoutTitleBar() {
 void OpaqueNonClientView::LayoutOTRAvatar() {
   SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
   int top_height = NonClientTopBorderHeight();
-  int tabstrip_height = browser_view_->GetTabStripHeight() - kOTRBottomSpacing;
-  int otr_height = frame_->IsMaximized() ?
-      (tabstrip_height - kOTRMaximizedTopSpacing) :
-      otr_avatar_icon.height();
+  int tabstrip_height, otr_height;
+  if (browser_view_->IsTabStripVisible()) {
+    tabstrip_height = browser_view_->GetTabStripHeight() - kOTRBottomSpacing;
+    otr_height = frame_->IsMaximized() ?
+        (tabstrip_height - kOTRMaximizedTopSpacing) :
+        otr_avatar_icon.height();
+  } else {
+    tabstrip_height = otr_height = 0;
+  }
   otr_avatar_bounds_.SetRect(NonClientBorderThickness() + kOTRSideSpacing,
                              top_height + tabstrip_height - otr_height,
                              otr_avatar_icon.width(), otr_height);

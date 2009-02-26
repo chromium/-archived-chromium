@@ -304,7 +304,7 @@ gfx::Rect BrowserView::GetFindBarBoundingBox() const {
 }
 
 int BrowserView::GetTabStripHeight() const {
-  return tabstrip_->GetPreferredHeight();
+  return tabstrip_->height();
 }
 
 bool BrowserView::IsToolbarVisible() const {
@@ -321,7 +321,7 @@ bool BrowserView::IsOffTheRecord() const {
 }
 
 bool BrowserView::ShouldShowOffTheRecordAvatar() const {
-  return IsOffTheRecord() && browser_->type() == Browser::TYPE_NORMAL;
+  return IsOffTheRecord() && IsBrowserTypeNormal();
 }
 
 bool BrowserView::AcceleratorPressed(const views::Accelerator& accelerator) {
@@ -1267,7 +1267,7 @@ void BrowserView::InitSystemMenu() {
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
   // to change.
-  if (browser_->type() == Browser::TYPE_NORMAL) {
+  if (IsBrowserTypeNormal()) {
     system_menu_->AddSeparator(insertion_index);
     system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASK_MANAGER,
                                        l10n_util::GetString(IDS_TASK_MANAGER));
@@ -1279,16 +1279,15 @@ void BrowserView::InitSystemMenu() {
 }
 
 bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
-  const Browser::Type type = browser_->type();
   unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
-  if (type == Browser::TYPE_NORMAL)
+  if (IsBrowserTypeNormal())
      features |= FEATURE_BOOKMARKBAR;
   if (!fullscreen_) {
-    if (type == Browser::TYPE_NORMAL)
+    if (IsBrowserTypeNormal())
       features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
     else
       features |= FEATURE_TITLEBAR;
-    if (type != Browser::TYPE_APP)
+    if (browser_->type() != Browser::TYPE_APP)
       features |= FEATURE_LOCATIONBAR;
   }
   return !!(features & feature);

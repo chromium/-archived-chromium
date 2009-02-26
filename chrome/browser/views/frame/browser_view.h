@@ -163,6 +163,12 @@ class BrowserView : public BrowserWindow,
     FEATURE_DOWNLOADSHELF = 64
   };
 
+  // Returns true if the Browser object associated with this BrowserView is a
+  // normal-type window (i.e. a browser window, not an app or popup).
+  bool IsBrowserTypeNormal() const {
+    return browser_->type() == Browser::TYPE_NORMAL;
+  }
+
   // Register preferences specific to this view.
   static void RegisterBrowserViewPrefs(PrefService* prefs);
 

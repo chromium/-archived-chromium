@@ -132,7 +132,7 @@ LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
     return TRUE;
 
   if (!frame_initialized_) {
-    if (browser_view_->IsTabStripVisible()) {
+    if (browser_view_->IsBrowserTypeNormal()) {
       ::SetWindowPos(GetHWND(), NULL, 0, 0, 0, 0,
                      SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED);
       UpdateDWMFrame();
@@ -145,16 +145,19 @@ LRESULT AeroGlassFrame::OnNCActivate(BOOL active) {
 }
 
 LRESULT AeroGlassFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
-  if (!browser_view_->IsTabStripVisible() || !mode) {
+  if (!browser_view_->IsBrowserTypeNormal() || !mode) {
     SetMsgHandled(FALSE);
     return 0;
   }
 
-  NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
-  int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
-  params->rgrc[0].left += (border_thickness - kClientEdgeThickness);
-  params->rgrc[0].right -= (border_thickness - kClientEdgeThickness);
-  params->rgrc[0].bottom -= (border_thickness - kClientEdgeThickness);
+  // In fullscreen mode, we make the whole window client area.
+  if (!browser_view_->IsFullscreen()) {
+    NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
+    int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
+    params->rgrc[0].left += (border_thickness - kClientEdgeThickness);
+    params->rgrc[0].right -= (border_thickness - kClientEdgeThickness);
+    params->rgrc[0].bottom -= (border_thickness - kClientEdgeThickness);
+  }
 
   UpdateDWMFrame();
 
@@ -186,13 +189,17 @@ void AeroGlassFrame::UpdateDWMFrame() {
   if (!client_view())
     return;
 
-  MARGINS margins = { kClientEdgeThickness + 1,
-                      kClientEdgeThickness + 1,
-                      GetBoundsForTabStrip(browser_view_->tabstrip()).bottom(),
-                      kClientEdgeThickness + 1 };
-  // Note: we don't use DwmEnableBlurBehindWindow because any region not
-  // included in the glass region is composited source over. This means
-  // that anything drawn directly with GDI appears fully transparent.
+  // In fullscreen mode, we don't extend glass into the client area at all,
+  // because the GDI-drawn text in the web content composited over it will
+  // become semi-transparent over any glass area.
+  MARGINS margins = { 0 };
+  if (!browser_view_->IsFullscreen()) {
+    margins.cxLeftWidth = kClientEdgeThickness + 1;
+    margins.cxRightWidth = kClientEdgeThickness + 1;
+    margins.cyTopHeight =
+        GetBoundsForTabStrip(browser_view_->tabstrip()).bottom();
+    margins.cyBottomHeight = kClientEdgeThickness + 1;
+  }
   DwmExtendFrameIntoClientArea(GetHWND(), &margins);
 }
 
