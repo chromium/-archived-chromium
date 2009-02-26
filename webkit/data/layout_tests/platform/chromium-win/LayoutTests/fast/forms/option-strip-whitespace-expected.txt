@@ -9,13 +9,13 @@ layer at (0,0) size 800x600
       RenderBlock (anonymous) at (0,36) size 784x278
         RenderText {#text} at (0,47) size 67x19
           text run at (0,47) width 67: "Five Tabs: "
-        RenderListBox {SELECT} at (67,0) size 72x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
-        RenderBR {BR} at (139,62) size 0x0
+        RenderListBox {SELECT} at (67,0) size 76x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
+        RenderBR {BR} at (143,62) size 0x0
         RenderBR {BR} at (0,69) size 0x19
         RenderText {#text} at (0,136) size 81x19
           text run at (0,136) width 81: "Five Spaces: "
-        RenderListBox {SELECT} at (81,89) size 72x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
-        RenderBR {BR} at (153,151) size 0x0
+        RenderListBox {SELECT} at (81,89) size 76x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
+        RenderBR {BR} at (157,151) size 0x0
         RenderBR {BR} at (0,158) size 0x19
         RenderText {#text} at (0,178) size 280x19
           text run at (0,178) width 280: "Five Spaces (with leading/trailing whitespace): "

@@ -6,25 +6,25 @@ layer at (0,0) size 800x600
       RenderText {#text} at (0,0) size 86x19
         text run at (0,0) width 86: "initial selected:"
       RenderBR {BR} at (86,15) size 0x0
-      RenderListBox {SELECT} at (0,20) size 151x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
-      RenderText {#text} at (151,67) size 4x19
-        text run at (151,67) width 4: " "
-      RenderBR {BR} at (155,82) size 0x0
+      RenderListBox {SELECT} at (0,20) size 155x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
+      RenderText {#text} at (155,67) size 4x19
+        text run at (155,67) width 4: " "
+      RenderBR {BR} at (159,82) size 0x0
       RenderText {#text} at (0,89) size 152x19
         text run at (0,89) width 152: "dynamic selected change:"
       RenderBR {BR} at (152,104) size 0x0
-      RenderListBox {SELECT} at (0,109) size 151x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
-      RenderText {#text} at (151,156) size 4x19
-        text run at (151,156) width 4: " "
+      RenderListBox {SELECT} at (0,109) size 155x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
+      RenderText {#text} at (155,156) size 4x19
+        text run at (155,156) width 4: " "
       RenderText {#text} at (0,0) size 0x0
       RenderBR {BR} at (0,0) size 0x0
       RenderText {#text} at (0,178) size 200x19
         text run at (0,178) width 200: "dynamic insert of selected option:"
       RenderBR {BR} at (200,193) size 0x0
-      RenderListBox {SELECT} at (0,198) size 151x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
-      RenderText {#text} at (151,245) size 4x19
-        text run at (151,245) width 4: " "
-      RenderBR {BR} at (155,260) size 0x0
+      RenderListBox {SELECT} at (0,198) size 155x69 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
+      RenderText {#text} at (155,245) size 4x19
+        text run at (155,245) width 4: " "
+      RenderBR {BR} at (159,260) size 0x0
       RenderText {#text} at (0,267) size 86x19
         text run at (0,267) width 86: "initial selected:"
       RenderBR {BR} at (86,282) size 0x0
