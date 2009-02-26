@@ -105,6 +105,8 @@ class TreeView : public NativeControl, TreeModelObserver {
                                 TreeModelNode* parent,
                                 int start,
                                 int count);
+  virtual void TreeNodeChildrenReordered(TreeModel* model,
+                                         TreeModelNode* parent);
   virtual void TreeNodeChanged(TreeModel* model, TreeModelNode* node);
 
   // Sets the controller, which may be null. TreeView does not take ownership
@@ -233,6 +235,11 @@ class TreeView : public NativeControl, TreeModelObserver {
 
   // Creates the image list to use for the tree.
   HIMAGELIST CreateImageList();
+
+  // Returns the HTREEITEM for |node|. This is intended to be called when a
+  // model mutation event occur with |node| as the parent. This returns null
+  // if the user has never expanded |node| or all of its parents.
+  HTREEITEM GetTreeItemForNodeDuringMutation(TreeModelNode* node);
 
   // The window function installed on the treeview.
   static LRESULT CALLBACK TreeWndProc(HWND window,

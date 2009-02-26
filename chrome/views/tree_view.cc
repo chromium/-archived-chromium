@@ -239,22 +239,10 @@ void TreeView::TreeNodesRemoved(TreeModel* model,
                                 int start,
                                 int count) {
   DCHECK(parent && start >= 0 && count > 0);
-  if (node_to_details_map_.find(parent) == node_to_details_map_.end()) {
-    // User hasn't navigated to this entry yet. Ignore the change.
+  HTREEITEM parent_tree_item = GetTreeItemForNodeDuringMutation(parent);
+  if (!parent_tree_item)
     return;
-  }
-  HTREEITEM parent_tree_item = NULL;
-  if (!root_shown_ || parent != model_->GetRoot()) {
-    const NodeDetails* details = GetNodeDetails(parent);
-    if (!details->loaded_children) {
-      // Ignore the change, we haven't actually created entries in the tree
-      // for the children.
-      return;
-    }
-    parent_tree_item = details->tree_item;
-  } else {
-    parent_tree_item = TreeView_GetRoot(tree_view_);
-  }
+
   // Find the last item. Windows doesn't offer a convenient way to get the
   // TREEITEM at a particular index, so we iterate.
   HTREEITEM tree_item = TreeView_GetChild(tree_view_, parent_tree_item);
@@ -269,6 +257,44 @@ void TreeView::TreeNodesRemoved(TreeModel* model,
     RecursivelyDelete(GetNodeDetailsByTreeItem(tree_item));
     tree_item = previous;
   }
+}
+
+namespace {
+
+// Callback function used to compare two items. The first two args are the
+// LPARAMs of the HTREEITEMs being compared. The last arg maps from LPARAM
+// to order. This is invoked from TreeNodeChildrenReordered.
+int CALLBACK CompareTreeItems(LPARAM item1_lparam,
+                              LPARAM item2_lparam,
+                              LPARAM map_as_lparam) {
+  std::map<int, int>& mapping =
+      *reinterpret_cast<std::map<int, int>*>(map_as_lparam);
+  return mapping[static_cast<int>(item1_lparam)] -
+         mapping[static_cast<int>(item2_lparam)];
+}
+
+}  // namespace
+
+void TreeView::TreeNodeChildrenReordered(TreeModel* model,
+                                         TreeModelNode* parent) {
+  DCHECK(parent);
+  if (model_->GetChildCount(parent) <= 1)
+    return;
+
+  TVSORTCB sort_details;
+  sort_details.hParent = GetTreeItemForNodeDuringMutation(parent);
+  if (!sort_details.hParent)
+    return;
+
+  std::map<int, int> lparam_to_order_map;
+  for (int i = 0; i < model_->GetChildCount(parent); ++i) {
+    TreeModelNode* node = model_->GetChild(parent, i);
+    lparam_to_order_map[GetNodeDetails(node)->id] = i;
+  }
+
+  sort_details.lpfnCompare = &CompareTreeItems;
+  sort_details.lParam = reinterpret_cast<LPARAM>(&lparam_to_order_map);
+  TreeView_SortChildrenCB(tree_view_, &sort_details, 0);
 }
 
 void TreeView::TreeNodeChanged(TreeModel* model, TreeModelNode* node) {
@@ -620,6 +646,20 @@ HIMAGELIST TreeView::CreateImageList() {
     }
   }
   return image_list;
+}
+
+HTREEITEM TreeView::GetTreeItemForNodeDuringMutation(TreeModelNode* node) {
+  if (node_to_details_map_.find(node) == node_to_details_map_.end()) {
+    // User hasn't navigated to this entry yet. Ignore the change.
+    return NULL;
+  }
+  if (!root_shown_ || node != model_->GetRoot()) {
+    const NodeDetails* details = GetNodeDetails(node);
+    if (!details->loaded_children)
+      return NULL;
+    return details->tree_item;
+  }
+  return TreeView_GetRoot(tree_view_);
 }
 
 LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
