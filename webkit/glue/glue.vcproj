@@ -617,10 +617,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webinputevent_utils.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\webkit_glue.cc"
 				>
 			</File>
