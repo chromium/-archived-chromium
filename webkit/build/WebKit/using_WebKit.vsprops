@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="using_WebKit"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(SolutionDir)..\third_party\WebKit\WebKit\chromium\public"
+		PreprocessorDefinitions="WEBKIT_USING_SKIA=1"
+		WarnAsError="true"
+	/>
+</VisualStudioPropertySheet>
