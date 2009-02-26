@@ -960,7 +960,7 @@ pending/security/block-test.html = CRASH FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
 
-LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
+MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
 // MERGE 38389:38450
 // WebKit regression: https://bugs.webkit.org/show_bug.cgi?id=20342
@@ -1773,18 +1773,17 @@ LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
 LINUX WIN : LayoutTests/fast/reflections/reflection-direction.html = FAIL
 LINUX WIN : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
-LINUX WIN : LayoutTests/fast/borders/border-image-rotate-transform.html = CRASH
 LINUX WIN : LayoutTests/fast/text/atsui-spacing-features.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 
 // Always fails for mac bug 5248, new failure with merge for eseidel
-LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Ojan's editing layout test regressions
-LINUX WIN : LayoutTests/fast/forms/search-click-in-placeholder.html = FAIL
+WIN : LayoutTests/fast/forms/search-click-in-placeholder.html = FAIL
 MAC DEBUG : LayoutTests/fast/forms/search-click-in-placeholder.html = CRASH
 MAC : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL
 MAC : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
@@ -1810,3 +1809,4 @@ WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
+LINUX : LayoutTests/fast/canvas/set-colors = CRASH
