@@ -1809,4 +1809,4 @@ WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
-LINUX : LayoutTests/fast/canvas/set-colors = CRASH
+LINUX : LayoutTests/fast/canvas/set-colors.html = CRASH
