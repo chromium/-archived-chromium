@@ -465,6 +465,20 @@
 			remoteGlobalIDString = E4AFA6220E523E2900201347;
 			remoteInfo = net_unittests;
 		};
+		F4A0D0230F56DB9900F75F8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 044605C00F5350B00058B8B1 /* v8.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 897FF1BE0E719CB600D62E90 /* jscre */;
+			remoteInfo = jscre;
+		};
+		F4A0D0250F56DB9900F75F8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 044605C00F5350B00058B8B1 /* v8.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8970F2EF0E719FB2006AE7B5 /* v8 */;
+			remoteInfo = v8;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -1296,6 +1310,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				F4A0D0240F56DB9900F75F8A /* PBXTargetDependency */,
+				F4A0D0260F56DB9900F75F8A /* PBXTargetDependency */,
 			);
 			name = net;
 			productName = zlib;
@@ -1823,6 +1839,16 @@
 			isa = PBXTargetDependency;
 			target = E4AFA6220E523E2900201347 /* net_unittests */;
 			targetProxy = E4AFA65B0E52424400201347 /* PBXContainerItemProxy */;
+		};
+		F4A0D0240F56DB9900F75F8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = jscre;
+			targetProxy = F4A0D0230F56DB9900F75F8A /* PBXContainerItemProxy */;
+		};
+		F4A0D0260F56DB9900F75F8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = v8;
+			targetProxy = F4A0D0250F56DB9900F75F8A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
