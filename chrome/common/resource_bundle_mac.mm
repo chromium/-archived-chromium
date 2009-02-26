@@ -11,12 +11,14 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/mac_util.h"
 #include "base/path_service.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
+
 
 ResourceBundle::~ResourceBundle() {
   FreeImages();
@@ -34,8 +36,33 @@ namespace {
 base::DataPack *LoadResourceDataPack(NSString *name) {
   base::DataPack *resource_pack = NULL;
   
+  NSString *const pakExt = @"pak";
+  
+  // TODO(thomasvl): THIS SUCKS!  We need to remove this gate.  It's here
+  // because of the unittests, but we have no other way to find our resources.
+  if (!mac_util::AmIBundled()) {
+    FilePath path;
+    PathService::Get(base::DIR_EXE, &path);
+    path = path.AppendASCII("Chromium.app");
+    path = path.AppendASCII("Contents");
+    path = path.AppendASCII("Resources");
+    if ([name isEqual:@"locale"]) {
+      path = path.AppendASCII("English.lproj");
+    }
+    NSString *pakName = [name stringByAppendingPathExtension:pakExt];
+    path = path.Append([pakName fileSystemRepresentation]);
+    resource_pack = new base::DataPack;
+    bool success = resource_pack->Load(path);
+    DCHECK(success) << "failed to load chrome.pak";
+    if (!success) {
+      delete resource_pack;
+      resource_pack = NULL;
+    }
+    return resource_pack;
+  }
+
   NSString *resource_path = [[NSBundle mainBundle] pathForResource:name
-                                                            ofType:@"pak"];
+                                                            ofType:pakExt];
   if (resource_path) {
     FilePath resources_pak_path([resource_path fileSystemRepresentation]);
     resource_pack = new base::DataPack;
@@ -53,8 +80,8 @@ base::DataPack *LoadResourceDataPack(NSString *name) {
 }  // namespace
 
 void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
-  DCHECK(pref_locale.size() == 0)
-      << "ignoring requested locale in favore of NSBundle's selection";
+  DLOG_IF(WARNING, pref_locale.size() != 0)
+      << "ignoring requested locale in favor of NSBundle's selection";
   
   DCHECK(resources_data_ == NULL) << "resource data already loaded!";
   resources_data_ = LoadResourceDataPack(@"chrome");
