@@ -337,6 +337,8 @@ const char kWhitespaceASCII[] = {
   0x0C,
   0x0D,
   0x20,    // Space
+  '\x85',  // <control-0085>
+  '\xa0',  // No-Break Space
   0
 };
 const char* const kCodepageUTF8 = "UTF-8";
@@ -391,32 +393,10 @@ TrimPositions TrimWhitespace(const std::wstring& input,
   return TrimStringT(input, kWhitespaceWide, positions, output);
 }
 
-TrimPositions TrimWhitespaceASCII(const std::string& input,
-                                  TrimPositions positions,
-                                  std::string* output) {
-  return TrimStringT(input, kWhitespaceASCII, positions, output);
-}
-
-TrimPositions TrimWhitespaceUTF8(const std::string& input,
-                                 TrimPositions positions,
-                                 std::string* output) {
-  // This implementation is not so fast since it converts the text encoding
-  // twice. Please feel free to file a bug if this function hurts the
-  // performance of Chrome.
-  DCHECK(IsStringUTF8(input));
-  std::wstring input_wide = UTF8ToWide(input);
-  std::wstring output_wide;
-  TrimPositions result = TrimWhitespace(input_wide, positions, &output_wide);
-  *output = WideToUTF8(output_wide);
-  return result;
-}
-
-// This function is only for backward-compatibility.
-// To be removed when all callers are updated.
 TrimPositions TrimWhitespace(const std::string& input,
                              TrimPositions positions,
                              std::string* output) {
-  return TrimWhitespaceASCII(input, positions, output);
+  return TrimStringT(input, kWhitespaceASCII, positions, output);
 }
 
 std::wstring CollapseWhitespace(const std::wstring& text,

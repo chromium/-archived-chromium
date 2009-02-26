@@ -128,13 +128,9 @@ bool TrimString(const std::string& input,
                 std::string* output);
 
 // Trims any whitespace from either end of the input string.  Returns where
-// whitespace was found.
-// The non-wide version has two functions:
-// * TrimWhitespaceASCII()
-//   This function is for ASCII strings and only looks for ASCII whitespace;
-// * TrimWhitespaceUTF8()
-//   This function is for UTF-8 strings and looks for Unicode whitespace.
-// Please choose the best one according to your usage.
+// whitespace was found.  The non-wide version of this function only looks for
+// ASCII whitespace; UTF-8 code-points are not searched for (use the wide
+// version instead).
 // NOTE: Safe to use the same variable for both input and output.
 enum TrimPositions {
   TRIM_NONE     = 0,
@@ -145,15 +141,6 @@ enum TrimPositions {
 TrimPositions TrimWhitespace(const std::wstring& input,
                              TrimPositions positions,
                              std::wstring* output);
-TrimPositions TrimWhitespaceASCII(const std::string& input,
-                                  TrimPositions positions,
-                                  std::string* output);
-TrimPositions TrimWhitespaceUTF8(const std::string& input,
-                                 TrimPositions positions,
-                                 std::string* output);
-
-// Deprecated. This function is only for backward compatibility and calls
-// TrimWhitespaceASCII().
 TrimPositions TrimWhitespace(const std::string& input,
                              TrimPositions positions,
                              std::string* output);

@@ -360,7 +360,7 @@ string URLFixerUpper::SegmentURL(const string& text,
 string URLFixerUpper::FixupURL(const string& text,
                                const string& desired_tld) {
   string trimmed;
-  TrimWhitespaceUTF8(text, TRIM_ALL, &trimmed);
+  TrimWhitespace(text, TRIM_ALL, &trimmed);
   if (trimmed.empty())
     return string();  // Nothing here.
 
