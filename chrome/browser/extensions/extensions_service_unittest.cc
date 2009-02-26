@@ -110,11 +110,15 @@ class ExtensionsServiceTestFrontend
         scoped_refptr<ExtensionsServiceFrontendInterface>(this));
     message_loop_.RunAllPending();
     if (should_succeed) {
-      EXPECT_EQ(1u, installed_.size());
+      EXPECT_EQ(1u, installed_.size()) << path.value();
       EXPECT_EQ(0u, errors_.size()) << path.value();
+      for (std::vector<std::string>::iterator err = errors_.begin();
+        err != errors_.end(); ++err) {
+        LOG(ERROR) << *err;
+      }
     } else {
-      EXPECT_EQ(0u, installed_.size());
-      EXPECT_EQ(1u, errors_.size());
+      EXPECT_EQ(0u, installed_.size()) << path.value();
+      EXPECT_EQ(1u, errors_.size()) << path.value();
     }
     installed_.clear();
     errors_.clear();
@@ -148,9 +152,14 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
 
+  std::vector<std::string>* errors = frontend->errors();
+  for (std::vector<std::string>::iterator err = errors->begin();
+    err != errors->end(); ++err) {
+    LOG(ERROR) << *err;
+  }
   ASSERT_EQ(3u, frontend->extensions()->size());
 
-  EXPECT_EQ(std::string("com.google.myextension1"),
+  EXPECT_EQ(std::string("00123456789ABCDEF0123456789ABCDEF0123456"),
             frontend->extensions()->at(0)->id());
   EXPECT_EQ(std::string("My extension 1"),
             frontend->extensions()->at(0)->name());
@@ -172,7 +181,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
             scripts[1].path().value());
 
-  EXPECT_EQ(std::string("com.google.myextension2"),
+  EXPECT_EQ(std::string("10123456789ABCDEF0123456789ABCDEF0123456"),
             frontend->extensions()->at(1)->id());
   EXPECT_EQ(std::string("My extension 2"),
             frontend->extensions()->at(1)->name());
@@ -182,7 +191,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(1)->plugins_dir().value());
   ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
 
-  EXPECT_EQ(std::string("com.google.myextension3"),
+  EXPECT_EQ(std::string("20123456789ABCDEF0123456789ABCDEF0123456"),
             frontend->extensions()->at(2)->id());
   EXPECT_EQ(std::string("My extension 3"),
             frontend->extensions()->at(2)->name());
@@ -212,18 +221,19 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
 
   EXPECT_TRUE(MatchPattern(frontend->errors()->at(0),
       std::string("Could not load extension from '*'. * ") +
-      JSONReader::kBadRootElementType));
+      JSONReader::kBadRootElementType)) << frontend->errors()->at(0);
 
   EXPECT_TRUE(MatchPattern(frontend->errors()->at(1),
       std::string("Could not load extension from '*'. ") +
-      Extension::kInvalidJsListError));
+      Extension::kInvalidJsListError)) << frontend->errors()->at(1);
 
   EXPECT_TRUE(MatchPattern(frontend->errors()->at(2),
       std::string("Could not load extension from '*'. ") +
-      Extension::kInvalidManifestError));
+      Extension::kInvalidManifestError)) << frontend->errors()->at(2);
 
   EXPECT_TRUE(MatchPattern(frontend->errors()->at(3),
-      "Could not load extension from '*'. Could not read '*' file."));
+      "Could not load extension from '*'. Could not read '*' file.")) <<
+      frontend->errors()->at(3);
 };
 
 // Test installing extensions.

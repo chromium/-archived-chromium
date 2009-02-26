@@ -64,6 +64,9 @@ class Extension {
   static const char* kInvalidZipHashError;
   static const char* kInvalidPluginsDirError;
 
+  // The number of bytes in a legal id.
+  static const int kIdSize;
+
   // Creates an absolute url to a resource inside an extension. The
   // |extension_url| argument should be the url() from an Extension object. The
   // |relative_path| can be untrusted user input. The returned URL will either
