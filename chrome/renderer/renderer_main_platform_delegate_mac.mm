@@ -47,6 +47,10 @@ void RendererMainPlatformDelegate::PlatformInitialize() {
   NSColor *color = [NSColor controlTextColor];
   [color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
 
+  // Warm up localtime().
+  time_t tv = {0};
+  localtime(&tv);
+
 #if 0
 
   // Note: by default, Cocoa is NOT thread safe.  Use of NSThreads
