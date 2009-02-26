@@ -80,13 +80,19 @@ class IATPatchFunction {
   // during Unpatch
   //
   // Arguments:
-  // module_handle          Module to be intercepted
+  // module                 Module to be intercepted
   // imported_from_module   Module that exports the 'function_name'
   // function_name          Name of the API to be intercepted
   //
   // Returns: Windows error code (winerror.h). NO_ERROR if successful
   //
-  DWORD Patch(HMODULE module_handle,
+  // Note: Patching a function will make the IAT patch take some "ownership" on
+  // |module|.  It will LoadLibrary(module) to keep the DLL alive until a call
+  // to Unpatch(), which will call FreeLibrary() and allow the module to be
+  // unloaded.  The idea is to help prevent the DLL from going away while a
+  // patch is still active.
+  //
+  DWORD Patch(const wchar_t* module,
               const char* imported_from_module,
               const char* function_name,
               void* new_function);
@@ -103,6 +109,7 @@ class IATPatchFunction {
   }
 
  private:
+  HMODULE module_handle_;
   void* intercept_function_;
   void* original_function_;
   IMAGE_THUNK_DATA* iat_thunk_;

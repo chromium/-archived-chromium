@@ -155,8 +155,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       handle_event_depth_(0),
       user_gesture_message_posted_(false),
 #pragma warning(suppress: 4355)  // can use this
-      user_gesture_msg_factory_(this),
-      plugin_module_handle_(NULL) {
+      user_gesture_msg_factory_(this) {
   memset(&window_, 0, sizeof(window_));
 
   const WebPluginInfo& plugin_info = instance_->plugin_lib()->plugin_info();
@@ -201,8 +200,6 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     quirks_ |= PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU;
     quirks_ |= PLUGIN_QUIRK_PATCH_SETCURSOR;
   }
-
-  plugin_module_handle_ = ::GetModuleHandle(plugin_info.path.value().c_str());
 }
 
 WebPluginDelegateImpl::~WebPluginDelegateImpl() {
@@ -283,7 +280,7 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
   if (windowless_ && !g_iat_patch_track_popup_menu.Pointer()->is_patched() &&
       (quirks_ & PLUGIN_QUIRK_PATCH_TRACKPOPUP_MENU)) {
     g_iat_patch_track_popup_menu.Pointer()->Patch(
-        plugin_module_handle_, "user32.dll", "TrackPopupMenu",
+        GetPluginPath().value().c_str(), "user32.dll", "TrackPopupMenu",
         WebPluginDelegateImpl::TrackPopupMenuPatch);
   }
 
@@ -296,7 +293,7 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
   if (windowless_ && !g_iat_patch_set_cursor.Pointer()->is_patched() &&
       (quirks_ & PLUGIN_QUIRK_PATCH_SETCURSOR)) {
     g_iat_patch_set_cursor.Pointer()->Patch(
-        plugin_module_handle_, "user32.dll", "SetCursor",
+        GetPluginPath().value().c_str(), "user32.dll", "SetCursor",
         WebPluginDelegateImpl::SetCursorPatch);
   }
   return true;

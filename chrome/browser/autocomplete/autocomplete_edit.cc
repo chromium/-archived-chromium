@@ -7,8 +7,10 @@
 #include <locale>
 
 #include "base/base_drag_source.h"
+#include "base/basictypes.h"
 #include "base/clipboard.h"
 #include "base/iat_patch.h"
+#include "base/lazy_instance.h"
 #include "base/ref_counted.h"
 #include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
@@ -633,25 +635,80 @@ AutocompleteEditView::ScopedSuspendUndo::~ScopedSuspendUndo() {
 // TODO (jcampan): these colors should be derived from the system colors to
 // ensure they show properly. Bug #948807.
 // Colors used to emphasize the scheme in the URL.
-static const COLORREF kSecureSchemeColor = RGB(0, 150, 20);
-static const COLORREF kInsecureSchemeColor = RGB(200, 0, 0);
+
+namespace {
+
+const COLORREF kSecureSchemeColor = RGB(0, 150, 20);
+const COLORREF kInsecureSchemeColor = RGB(200, 0, 0);
 
 // Colors used to strike-out the scheme when it is insecure.
-static const SkColor kSchemeStrikeoutColor = SkColorSetRGB(210, 0, 0);
-static const SkColor kSchemeSelectedStrikeoutColor =
+const SkColor kSchemeStrikeoutColor = SkColorSetRGB(210, 0, 0);
+const SkColor kSchemeSelectedStrikeoutColor =
     SkColorSetRGB(255, 255, 255);
 
 // These are used to hook the CRichEditCtrl's calls to BeginPaint() and
 // EndPaint() and provide a memory DC instead.  See OnPaint().
-static HWND edit_hwnd = NULL;
-static PAINTSTRUCT paint_struct;
+HWND edit_hwnd = NULL;
+PAINTSTRUCT paint_struct;
+
+HDC BeginPaintIntercept(HWND hWnd, LPPAINTSTRUCT lpPaint) {
+  if (!edit_hwnd || (hWnd != edit_hwnd))
+    return ::BeginPaint(hWnd, lpPaint);
+
+  *lpPaint = paint_struct;
+  return paint_struct.hdc;
+}
+
+BOOL EndPaintIntercept(HWND hWnd, const PAINTSTRUCT* lpPaint) {
+  return (edit_hwnd && (hWnd == edit_hwnd)) ?
+      true : ::EndPaint(hWnd, lpPaint);
+}
 
 // Returns a lazily initialized property bag accessor for saving our state in a
 // TabContents.
-static PropertyAccessor<AutocompleteEditState>* GetStateAccessor() {
+PropertyAccessor<AutocompleteEditState>* GetStateAccessor() {
   static PropertyAccessor<AutocompleteEditState> state;
   return &state;
 }
+
+class PaintPatcher {
+ public:
+  PaintPatcher() : refcount_(0) { }
+  ~PaintPatcher() { DCHECK(refcount_ == 0); }
+
+  void RefPatch() {
+    if (refcount_ == 0) {
+      DCHECK(!begin_paint_.is_patched());
+      DCHECK(!end_paint_.is_patched());
+      begin_paint_.Patch(L"riched20.dll", "user32.dll", "BeginPaint",
+                         &BeginPaintIntercept);
+      end_paint_.Patch(L"riched20.dll", "user32.dll", "EndPaint",
+                       &EndPaintIntercept);
+    }
+    ++refcount_;
+  }
+
+  void DerefPatch() {
+    DCHECK(begin_paint_.is_patched());
+    DCHECK(end_paint_.is_patched());
+    --refcount_;
+    if (refcount_ == 0) {
+      begin_paint_.Unpatch();
+      end_paint_.Unpatch();
+    }
+  }
+
+ private:
+  size_t refcount_;
+  iat_patch::IATPatchFunction begin_paint_;
+  iat_patch::IATPatchFunction end_paint_;
+
+  DISALLOW_COPY_AND_ASSIGN(PaintPatcher);
+};
+
+base::LazyInstance<PaintPatcher> g_paint_patcher(base::LINKER_INITIALIZED);
+
+}  // namespace
 
 AutocompleteEditView::AutocompleteEditView(
     const ChromeFont& font,
@@ -685,22 +742,7 @@ AutocompleteEditView::AutocompleteEditView(
 
   saved_selection_for_focus_change_.cpMin = -1;
 
-  // Statics used for global patching of riched20.dll.
-  static HMODULE richedit_module = NULL;
-  static iat_patch::IATPatchFunction patch_begin_paint;
-  static iat_patch::IATPatchFunction patch_end_paint;
-
-  if (!richedit_module) {
-    richedit_module = LoadLibrary(L"riched20.dll");
-    if (richedit_module) {
-      DCHECK(!patch_begin_paint.is_patched());
-      patch_begin_paint.Patch(richedit_module, "user32.dll", "BeginPaint",
-                              &BeginPaintIntercept);
-      DCHECK(!patch_end_paint.is_patched());
-      patch_end_paint.Patch(richedit_module, "user32.dll", "EndPaint",
-                            &EndPaintIntercept);
-    }
-  }
+  g_paint_patcher.Pointer()->RefPatch();
 
   Create(hwnd, 0, 0, 0, l10n_util::GetExtendedStyles());
   SetReadOnly(popup_window_mode_);
@@ -787,6 +829,11 @@ AutocompleteEditView::~AutocompleteEditView() {
       NotificationType::AUTOCOMPLETE_EDIT_DESTROYED,
       Source<AutocompleteEditView>(this),
       NotificationService::NoDetails());
+
+  // We balance our reference count and unpatch when the last instance has
+  // been destroyed.  This prevents us from relying on the AtExit or static
+  // destructor sequence to do our unpatching, which is generally fragile.
+  g_paint_patcher.Pointer()->DerefPatch();
 }
 
 void AutocompleteEditView::SaveStateToTab(TabContents* tab) {
@@ -1372,23 +1419,6 @@ bool AutocompleteEditView::SchemeEnd(LPTSTR edit_text,
          (edit_text[current_pos] == ':') &&
          (edit_text[current_pos + 1] == '/') &&
          (edit_text[current_pos + 2] == '/');
-}
-
-// static
-HDC AutocompleteEditView::BeginPaintIntercept(HWND hWnd,
-                                              LPPAINTSTRUCT lpPaint) {
-  if (!edit_hwnd || (hWnd != edit_hwnd))
-    return ::BeginPaint(hWnd, lpPaint);
-
-  *lpPaint = paint_struct;
-  return paint_struct.hdc;
-}
-
-// static
-BOOL AutocompleteEditView::EndPaintIntercept(HWND hWnd,
-                                             const PAINTSTRUCT* lpPaint) {
-  return (edit_hwnd && (hWnd == edit_hwnd)) ?
-      true : ::EndPaint(hWnd, lpPaint);
 }
 
 void AutocompleteEditView::OnChar(TCHAR ch, UINT repeat_count, UINT flags) {

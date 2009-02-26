@@ -247,9 +247,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
 #endif
 
 #if defined(OS_WIN)
-  // The plugin module handle.
-  HMODULE plugin_module_handle_;
-
   // TrackPopupMenu interceptor. Parameters are the same as the Win32 function
   // TrackPopupMenu.
   static BOOL WINAPI TrackPopupMenuPatch(HMENU menu, unsigned int flags, int x,

@@ -669,10 +669,6 @@ class AutocompleteEditView
   // Returns true if |edit_text| starting at |current_pos| is "://".
   static bool SchemeEnd(LPTSTR edit_text, int current_pos, int length);
 
-  // Intercepts.  See OnPaint().
-  static HDC WINAPI BeginPaintIntercept(HWND hWnd, LPPAINTSTRUCT lpPaint);
-  static BOOL WINAPI EndPaintIntercept(HWND hWnd, CONST PAINTSTRUCT* lpPaint);
-
   // Message handlers
   void OnChar(TCHAR ch, UINT repeat_count, UINT flags);
   void OnContextMenu(HWND window, const CPoint& point);
