@@ -18,6 +18,7 @@
         '../chrome/chrome.gyp:*',
         '../media/media.gyp:*',
         '../net/net.gyp:*',
+        '../printing/printing.gyp:*',
         '../sdch/sdch.gyp:*',
         '../skia/skia.gyp:*',
         '../testing/gtest.gyp:*',
