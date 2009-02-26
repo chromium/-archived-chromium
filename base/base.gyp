@@ -316,7 +316,6 @@
           {  # else: OS != "linux"
             'sources!': [
               'atomicops_internals_x86_gcc.cc',
-              'data_pack.cc',
               'hmac_nss.cc',
               'idle_timer_none.cc',
               'message_pump_glib.cc',
@@ -344,6 +343,7 @@
             'sources/': [ ['exclude', '_(linux|mac|posix)\\.cc$'],
                           ['exclude', '\\.mm?$' ] ],
             'sources!': [
+              'data_pack.cc',
               'event_recorder_stubs.cc',
               'message_pump_libevent.cc',
               'string16.cc',
