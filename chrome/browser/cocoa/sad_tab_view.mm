@@ -4,6 +4,10 @@
 
 #include "chrome/browser/cocoa/sad_tab_view.h"
 
+#include "base/sys_string_conversions.h"
+#include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
+
 static const int kSadTabOffset = -64;
 static const int kIconTitleSpacing = 20;
 static const int kTitleMessageSpacing = 15;
@@ -12,9 +16,10 @@ static const int kTitleMessageSpacing = 15;
 
 - (void)drawRect:(NSRect)dirtyRect {
   NSImage* sadTabImage = [NSImage imageNamed:@"sadtab"];
-  NSString* title = @"Aw, Snap!";  // TODO(avi):localize
-  NSString* message = @"Something went wrong while displaying this webpage. "
-      "To continue, press Reload or go to another page.";
+  NSString* title =
+      base::SysWideToNSString(l10n_util::GetString(IDS_SAD_TAB_TITLE));
+  NSString* message =
+      base::SysWideToNSString(l10n_util::GetString(IDS_SAD_TAB_MESSAGE));
   
   NSColor* textColor = [NSColor whiteColor];
   NSColor* backgroundColor = [NSColor colorWithCalibratedRed:(35.0f/255.0f)
