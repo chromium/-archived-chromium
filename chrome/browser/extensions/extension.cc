@@ -69,7 +69,7 @@ const char* Extension::kInvalidZipHashError =
 const char* Extension::kInvalidPluginsDirError =
     "Invalid value for 'plugins_dir'.";
 
-const int Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
+const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
 const std::string Extension::VersionString() const {
   return version_->GetString();
