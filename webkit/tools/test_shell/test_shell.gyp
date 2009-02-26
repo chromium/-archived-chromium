@@ -16,10 +16,12 @@
       'dependencies': [
         '../../../base/base.gyp:base',
         '../../../base/base.gyp:base_gfx',
-        '../../../testing/gtest.gyp:gtest',
+        '../../../net/net.gyp:net',
         '../../../skia/skia.gyp:skia',
+        '../../../testing/gtest.gyp:gtest',
         '../../../third_party/npapi/npapi.gyp:npapi',
         '../../webkit.gyp:glue',
+        '../../webkit.gyp:webkit',
       ],
       'sources': [
         'mac/DumpRenderTreePasteboard.h',
@@ -71,6 +73,12 @@
         'webwidget_host_gtk.cc',
         'webwidget_host_win.cc',
       ],
+      'export_dependent_settings': [
+        '../../../base/base.gyp:base',
+        '../../../net/net.gyp:net',
+        '../../webkit.gyp:glue',
+        '../../webkit.gyp:webkit',
+      ],
       'conditions': [
         ['OS!="linux"', {'sources/': [['exclude', '_gtk\\.cc$']]}],
         ['OS!="mac"', {
@@ -100,10 +108,6 @@
       'type': 'application',
       'dependencies': [
         'test_shell_common',
-        '../../../base/base.gyp:base',
-        '../../../net/net.gyp:net',
-        '../../webkit.gyp:glue',
-        '../../webkit.gyp:webkit',
       ],
       'sources': [
         'test_shell_main.cc',
@@ -134,11 +138,8 @@
       'type': 'executable',
       'dependencies': [
         'test_shell_common',
-        '../../../base/base.gyp:base',
-        '../../../net/net.gyp:net',
         '../../../skia/skia.gyp:skia',
         '../../../testing/gtest.gyp:gtest',
-        '../../webkit.gyp:glue',
       ],
       'sources': [
         '../../../skia/ext/convolver_unittest.cc',
