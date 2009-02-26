@@ -141,7 +141,7 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
 // that. As a result we have to use NSString here exclusively and thus tweak
 // the code so it's not re-usable as-is. One possiblity would be to make the
 // upstream code only use NSString, but I'm not certain how far that change
-// would propagate.
+// would propageage
 
 namespace WebCore {
 
@@ -923,8 +923,18 @@ static NSString* keyIdentifierForKeyEvent(NSEvent* event)
 // End Apple code.
 // ---------------------------------------------------------------------
 
+// Helper that copies the unichar characters of a NSString into a suitably
+// resized vector. The vector will be null terminated and thus even if the
+// string is empty or nil, it array will have a NUL.
+static void FillVectorFromNSString(std::vector<unsigned short>* v, 
+                                   NSString* str) {
+  const unsigned int length = [str length];
+  v->reserve(length + 1);
+  [str getCharacters:&(*v)[0]];
+  (*v)[length] = '\0';
+}
+
 WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
-  system_key = false;
   type = WebCore::isKeyUpEvent(event) ? KEY_UP : KEY_DOWN;
 
   if ([event modifierFlags] & NSControlKeyMask)
@@ -942,50 +952,12 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
   if (([event type] != NSFlagsChanged) && [event isARepeat])
     modifiers |= IS_AUTO_REPEAT;
 
-  windows_key_code = WebCore::windowsKeyCodeForKeyEvent(event);
-  native_key_code = [event keyCode];
-
   NSString* textString = WebCore::textFromEvent(event);
   NSString* unmodifiedStr = WebCore::unmodifiedTextFromEvent(event);
   NSString* identStr = WebCore::keyIdentifierForKeyEvent(event);
-  
-  // Begin Apple code, copied from KeyEventMac.mm
-  
-  // Always use 13 for Enter/Return -- we don't want to use AppKit's 
-  // different character for Enter.
-  if (windows_key_code == '\r') {
-    textString = @"\r";
-    unmodifiedStr = @"\r";
-  }
-  
-  // The adjustments below are only needed in backward compatibility mode, 
-  // but we cannot tell what mode we are in from here.
-  
-  // Turn 0x7F into 8, because backspace needs to always be 8.
-  if ([textString isEqualToString:@"\x7F"])
-    textString = @"\x8";
-  if ([unmodifiedStr isEqualToString:@"\x7F"])
-    unmodifiedStr = @"\x8";
-  // Always use 9 for tab -- we don't want to use AppKit's different character for shift-tab.
-  if (windows_key_code == 9) {
-    textString = @"\x9";
-    unmodifiedStr = @"\x9";
-  }
-  
-  // End Apple code.
-  
-  memset(&text, 0, sizeof(text));
-  memset(&unmodified_text, 0, sizeof(unmodified_text));
-  memset(&key_identifier, 0, sizeof(key_identifier));
-  
-  if ([textString length] < kTextLengthCap &&
-      [unmodifiedStr length] < kTextLengthCap) {
-    [textString getCharacters:&text[0]];
-    [unmodifiedStr getCharacters:&unmodified_text[0]];
-  } else {
-    LOG(ERROR) << "Event had text too long; dropped";
-  }
-  [identStr getCString:&key_identifier[0]
-             maxLength:kIdentifierLengthCap
-              encoding:NSASCIIStringEncoding];
+  FillVectorFromNSString(&text, textString);
+  FillVectorFromNSString(&unmodified_text, unmodifiedStr);
+  FillVectorFromNSString(&key_identifier, identStr);
+
+  key_code = WebCore::windowsKeyCodeForKeyEvent(event);
 }

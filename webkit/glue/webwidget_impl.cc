@@ -172,7 +172,6 @@ bool WebWidgetImpl::HandleInputEvent(const WebInputEvent* input_event) {
       MouseUp(*static_cast<const WebMouseEvent*>(input_event));
       return true;
 
-    case WebInputEvent::RAW_KEY_DOWN:
     case WebInputEvent::KEY_DOWN:
     case WebInputEvent::KEY_UP:
       return KeyEvent(*static_cast<const WebKeyboardEvent*>(input_event));

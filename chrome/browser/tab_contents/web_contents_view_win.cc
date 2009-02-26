@@ -259,13 +259,13 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
 
   // The renderer returned a keyboard event it did not process. This may be
   // a keyboard shortcut that we have to process.
-  if (event.type == WebInputEvent::RAW_KEY_DOWN) {
+  if (event.type == WebInputEvent::KEY_DOWN) {
     views::FocusManager* focus_manager =
         views::FocusManager::GetFocusManager(GetHWND());
     // We may not have a focus_manager at this point (if the tab has been
     // switched by the time this message returned).
     if (focus_manager) {
-      views::Accelerator accelerator(event.windows_key_code,
+      views::Accelerator accelerator(event.key_code,
           (event.modifiers & WebInputEvent::SHIFT_KEY) ==
               WebInputEvent::SHIFT_KEY,
           (event.modifiers & WebInputEvent::CTRL_KEY) ==

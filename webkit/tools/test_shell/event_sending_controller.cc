@@ -382,20 +382,16 @@ void EventSendingController::keyDown(
     // WebKit/WebKitTools/DumpRenderTree/win. We may also need
     // to generate a keyChar event in certain cases.
     WebKeyboardEvent event_down, event_up;
-#if defined(OS_WIN)
-    event_down.type = WebInputEvent::RAW_KEY_DOWN;
-#else
     event_down.type = WebInputEvent::KEY_DOWN;
-#endif
     event_down.modifiers = 0;
-    event_down.windows_key_code = code;
-#if defined(OS_MAC) || defined(OS_LINUX)
+    event_down.key_code = code;
+#if defined(OS_LINUX)
     // TODO(deanm): This code is a confusing mix of different platform key
     // codes.  Since we're not working with a GDK event, we can't use our
     // GDK -> WebKit converter, which means the Linux specific extra |text|
     // field goes uninitialized.  I don't know how to correctly calculate this
     // field, but for now we will at least initialize it, even if it's wrong.
-    event_down.text[0] = code;
+    event_down.text = code;
 #endif
 
     if (args.size() >= 2 && (args[1].isObject() || args[1].isString()))

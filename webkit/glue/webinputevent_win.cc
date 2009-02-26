@@ -6,9 +6,10 @@
 
 #include "webkit/glue/webinputevent.h"
 
+#include "webkit/glue/event_conversion.h"
+
+#undef LOG
 #include "base/logging.h"
-#include "base/string_util.h"
-#include "webkit/glue/webinputevent_utils.h"
 
 static const unsigned long kDefaultScrollLinesPerWheelDelta = 3;
 
@@ -176,9 +177,9 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
     //    message == WM_HSCROLL, wparam == SB_LINELEFT (== SB_LINEUP).
     //  * Scrolling right
     //    message == WM_HSCROLL, wparam == SB_LINERIGHT (== SB_LINEDOWN).
-    if (WM_HSCROLL == message) {
-      key_state |= MK_SHIFT;
-      wheel_delta = -wheel_delta;
+    if (WM_HSCROLL == message) {	
+      key_state |= MK_SHIFT;	
+      wheel_delta = -wheel_delta;	
     }
 
     // Use GetAsyncKeyState for key state since we are synthesizing 
@@ -309,13 +310,13 @@ WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
   actual_message.wParam = wparam;
   actual_message.lParam = lparam;
 
-  windows_key_code = native_key_code = static_cast<int>(wparam);
+  key_code = static_cast<int>(wparam);
 
   switch (message) {
     case WM_SYSKEYDOWN:
       system_key = true;
     case WM_KEYDOWN:
-      type = RAW_KEY_DOWN;
+      type = KEY_DOWN;
       break;
     case WM_SYSKEYUP:
       system_key = true;
@@ -333,20 +334,6 @@ WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
       break;
     default:
       NOTREACHED() << "unexpected native message: " << message;
-  }
-
-  memset(&text, 0, sizeof(text));
-  memset(&unmodified_text, 0, sizeof(unmodified_text));
-  memset(&key_identifier, 0, sizeof(key_identifier));
-
-  if (type == CHAR || type == RAW_KEY_DOWN)
-    text[0] = windows_key_code;
-    unmodified_text[0] = windows_key_code;
-  if (type != CHAR) {
-    std::string key_identifier_str =
-        GetKeyIdentifierForWindowsKeyCode(windows_key_code);
-    base::strlcpy(key_identifier, key_identifier_str.c_str(),
-                  kIdentifierLengthCap);
   }
 
   if (GetKeyState(VK_SHIFT) & 0x8000)

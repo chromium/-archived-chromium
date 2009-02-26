@@ -79,6 +79,13 @@ class RenderWidgetHostViewGtkWidget {
                                        RenderWidgetHostViewGtk* host_view) {
     WebKeyboardEvent wke(event);
     host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+
+    // See note in webwidget_host_gtk.cc::HandleKeyPress().
+    if (event->type == GDK_KEY_PRESS) {
+      wke.type = WebKeyboardEvent::CHAR;
+      host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+    }
+
     return FALSE;
   }
 
