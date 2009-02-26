@@ -45,3 +45,9 @@ TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
   installer.InstallMiniInstaller();
 }
 
+TEST(InstallUtilTests, MiniInstallTestValidWindowsVersion) {
+  // We run the tests on all supported OSes.
+  // Make sure the code agrees.
+  EXPECT_TRUE(InstallUtil::IsOSSupported());
+}
+
