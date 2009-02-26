@@ -120,6 +120,10 @@ const wchar_t kPluginDataDir[]                 = L"plugin-data-dir";
 // UserDatadir.
 const wchar_t kDiskCacheDir[]                  = L"disk-cache-dir";
 
+// Whether the multiple profiles feature based on the user-data-dir flag is
+// enabled or not.
+const wchar_t kEnableUserDataDirProfiles[]     = L"enable-udd-profiles";
+
 // Specifies the path to the user data folder for the parent profile.
 const wchar_t kParentProfile[]                 = L"parent-profile";
 

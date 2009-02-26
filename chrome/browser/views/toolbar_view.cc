@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -27,6 +28,7 @@
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -582,9 +584,12 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
   // Enumerate profiles asynchronously and then create the parent menu item.
   // We will create the child menu items for this once the asynchronous call is
   // done.  See OnGetProfilesDone().
-  profiles_helper_->GetProfiles(NULL);
-  profiles_menu_ = menu.AppendSubMenu(IDC_PROFILE_MENU,
-                                      l10n_util::GetString(IDS_PROFILE_MENU));
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kEnableUserDataDirProfiles)) {
+    profiles_helper_->GetProfiles(NULL);
+    profiles_menu_ = menu.AppendSubMenu(IDC_PROFILE_MENU,
+                                        l10n_util::GetString(IDS_PROFILE_MENU));
+  }
 
   menu.AppendSeparator();
   menu.AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_BAR,

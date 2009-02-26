@@ -637,6 +637,9 @@ void Browser::NewIncognitoWindow() {
 
 void Browser::NewProfileWindowByIndex(int index) {
 #if defined(OS_WIN)
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (!command_line.HasSwitch(switches::kEnableUserDataDirProfiles))
+    return;
   UserMetrics::RecordAction(L"NewProfileWindowByIndex", profile_);
   UserDataManager::Get()->LaunchChromeForProfile(index);
 #endif
@@ -942,6 +945,9 @@ void Browser::OpenSelectProfileDialog() {
 }
 
 void Browser::OpenNewProfileDialog() {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (!command_line.HasSwitch(switches::kEnableUserDataDirProfiles))
+    return;
   UserMetrics::RecordAction(L"CreateProfile", profile_);
   window_->ShowNewProfileDialog();
 }

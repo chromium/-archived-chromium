@@ -182,6 +182,7 @@ void UserDataManager::LaunchChromeForProfile(
   std::wstring command;
   PathService::Get(base::FILE_EXE, &command);
   CommandLine command_line(command);
+  command_line.AppendSwitch(switches::kEnableUserDataDirProfiles);
   command_line.AppendSwitchWithValue(switches::kUserDataDir,
                                      user_data_dir);
   std::wstring local_state_path;
