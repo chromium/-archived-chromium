@@ -1607,7 +1607,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
   // JavaScript.
   bool is_fork =
       // Must start from a tab showing about:blank, which is later redirected.
-      frame->GetURL() == GURL(chrome::kAboutBlankURL) &&
+      frame->GetURL() == GURL("about:blank") &&
       // Must be the first real navigation of the tab.
       GetHistoryBackListCount() < 1 &&
       GetHistoryForwardListCount() < 1 &&

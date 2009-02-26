@@ -5,7 +5,6 @@
 #include "chrome/renderer/about_handler.h"
 
 #include "base/platform_thread.h"
-#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 
 struct AboutHandlerUrl {
@@ -14,14 +13,14 @@ struct AboutHandlerUrl {
 };
 
 static AboutHandlerUrl about_urls[] = {
-  { chrome::kAboutCrashURL, AboutHandler::AboutCrash },
-  { chrome::kAboutHangURL, AboutHandler::AboutHang },
-  { chrome::kAboutShortHangURL, AboutHandler::AboutShortHang },
+  { "about:crash", AboutHandler::AboutCrash },
+  { "about:hang", AboutHandler::AboutHang },
+  { "about:shorthang", AboutHandler::AboutShortHang },
   { NULL, NULL }
 };
 
 bool AboutHandler::WillHandle(const GURL& url) {
-  if (url.SchemeIs(chrome::kAboutScheme))
+  if (url.scheme() != "about")
     return false;
 
   struct AboutHandlerUrl* url_handler = about_urls;
@@ -35,7 +34,7 @@ bool AboutHandler::WillHandle(const GURL& url) {
 
 // static
 bool AboutHandler::MaybeHandle(const GURL& url) {
-  if (!url.SchemeIs(chrome::kAboutScheme))
+  if (url.scheme() != "about")
     return false;
 
   struct AboutHandlerUrl* url_handler = about_urls;
