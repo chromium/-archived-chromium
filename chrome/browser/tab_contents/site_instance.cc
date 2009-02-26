@@ -131,12 +131,12 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
 
   // We treat about:crash, about:hang, and about:shorthang as the same site as
   // any URL, since they are used as demos for crashing/hanging a process.
-  if (url1.spec() == chrome::kAboutCrashURL ||
-      url2.spec() == chrome::kAboutCrashURL ||
-      url1.spec() == chrome::kAboutHangURL ||
-      url2.spec() == chrome::kAboutHangURL ||
-      url1.spec() == chrome::kAboutShortHangURL ||
-      url2.spec() == chrome::kAboutShortHangURL)
+  GURL about_crash = GURL("about:crash");
+  GURL about_hang = GURL("about:hang");
+  GURL about_shorthang = GURL("about:shorthang");
+  if (url1 == about_crash || url2 == about_crash ||
+	  url1 == about_hang || url2 == about_hang ||
+	  url1 == about_shorthang || url2 == about_shorthang)
     return true;
 
   // If either URL is invalid, they aren't part of the same site.

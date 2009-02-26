@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
-#include "chrome/common/url_constants.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
@@ -31,7 +30,7 @@ TEST_F(CrashRecoveryUITest, Reload) {
 
   // Cause the renderer to crash.
   expected_crashes_ = 1;
-  tab->NavigateToURLAsync(GURL(chrome::kAboutCrashURL));
+  tab->NavigateToURLAsync(GURL("about:crash"));
 
   Sleep(1000);  // Wait for the browser to notice the renderer crash.
 
@@ -64,7 +63,7 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
 
   // Cause the renderer to crash.
   expected_crashes_ = 1;
-  tab->NavigateToURLAsync(GURL(chrome::kAboutCrashURL));
+  tab->NavigateToURLAsync(GURL("about:crash"));
 
   Sleep(1000);  // Wait for the browser to notice the renderer crash.
 

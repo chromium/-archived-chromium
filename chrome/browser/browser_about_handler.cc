@@ -169,7 +169,7 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
   // about:blank is special.  Frames are allowed to access about:blank,
   // but they are not allowed to access other types of about pages.
   // Just ignore the about:blank and let the TAB_CONTENTS_WEB handle it.
-  if (LowerCaseEqualsASCII(url->spec(), chrome::kAboutBlankURL)) {
+  if (StringToLowerASCII(url->path()) == "blank") {
     return false;
   }
 
@@ -192,7 +192,7 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
     // Navigate the renderer to about:blank. This is kind of stupid but is the
     // easiest thing to do in this situation without adding a lot of complexity
     // for this developer-only feature.
-    *url = GURL(chrome::kAboutBlankURL);
+    *url = GURL("about:blank");
     return false;
   }
 
@@ -205,7 +205,7 @@ bool BrowserAboutHandler::MaybeHandle(GURL* url,
     NOTIMPLEMENTED();
     // TODO(port) Implement this.
 #endif
-    *url = GURL(chrome::kAboutBlankURL);
+    *url = GURL("about:blank");
     return false;
   }
 #endif

@@ -578,7 +578,8 @@ bool HistoryService::CanAddURL(const GURL& url) const {
     return false;
 
   if (url.SchemeIs(chrome::kAboutScheme)) {
-    if (LowerCaseEqualsASCII(url.spec(), chrome::kAboutBlankURL))
+    std::string path = url.path();
+    if (path.empty() || LowerCaseEqualsASCII(path, "blank"))
       return false;
     // We allow all other about URLs since the user may like to see things
     // like "about:memory" or "about:histograms" in their history and

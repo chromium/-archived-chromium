@@ -12,7 +12,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "net/base/net_util.h"
 
@@ -31,7 +30,8 @@ ToolbarModel::~ToolbarModel() {
 
 // ToolbarModel Implementation.
 std::wstring ToolbarModel::GetText() {
-  GURL url(chrome::kAboutBlankURL);
+  static const GURL kAboutBlankURL("about:blank");
+  GURL url(kAboutBlankURL);
   std::wstring languages;  // Empty if we don't have a |navigation_controller|.
 
   NavigationController* navigation_controller = GetNavigationController();

@@ -12,7 +12,6 @@
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/url_constants.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
@@ -190,7 +189,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
 
   // Cause the renderer to crash.
   expected_crashes_ = 1;
-  tab->NavigateToURLAsync(GURL(chrome::kAboutCrashURL));
+  tab->NavigateToURLAsync(GURL("about:crash"));
   Sleep(sleep_timeout_ms());  // Wait for browser to notice the renderer crash.
 
   // Navigate to a new cross-site page.  The browser should not wait around for

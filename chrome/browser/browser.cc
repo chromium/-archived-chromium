@@ -34,7 +34,6 @@
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/url_constants.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -2285,7 +2284,7 @@ NavigationController* Browser::BuildRestoredNavigationController(
   } else {
     // No navigations. Create a tab with about:blank.
     TabContents* contents =
-        CreateTabContentsForURL(GURL(chrome::kAboutBlankURL), GURL(), profile_,
+        CreateTabContentsForURL(GURL("about:blank"), GURL(), profile_,
                                 PageTransition::START_PAGE, false, NULL);
     return new NavigationController(contents, profile_);
   }

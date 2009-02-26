@@ -88,26 +88,26 @@ TEST_F(RendererSecurityPolicyTest, AboutTest) {
   EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("aBouT:BlAnK")));
   EXPECT_TRUE(p->CanRequestURL(kRendererID, GURL("aBouT:blank")));
 
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutMemoryURL)));
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutCrashURL)));
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutCacheURL)));
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutHangURL)));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:memory")));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:crash")));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:cache")));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:hang")));
 
   EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("aBoUt:memory")));
   EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:CrASh")));
   EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("abOuT:cAChe")));
 
-  p->GrantRequestURL(kRendererID, GURL(chrome::kAboutMemoryURL));
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutMemoryURL)));
+  p->GrantRequestURL(kRendererID, GURL("about:memory"));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:memory")));
 
-  p->GrantRequestURL(kRendererID, GURL(chrome::kAboutCrashURL));
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutCrashURL)));
+  p->GrantRequestURL(kRendererID, GURL("about:crash"));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:crash")));
 
-  p->GrantRequestURL(kRendererID, GURL(chrome::kAboutCacheURL));
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutCacheURL)));
+  p->GrantRequestURL(kRendererID, GURL("about:cache"));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:cache")));
 
-  p->GrantRequestURL(kRendererID, GURL(chrome::kAboutHangURL));
-  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL(chrome::kAboutHangURL)));
+  p->GrantRequestURL(kRendererID, GURL("about:hang"));
+  EXPECT_FALSE(p->CanRequestURL(kRendererID, GURL("about:hang")));
 
   p->Remove(kRendererID);
 }
