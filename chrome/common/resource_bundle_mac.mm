@@ -4,7 +4,7 @@
 
 #include "chrome/common/resource_bundle.h"
 
-#include <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 #include "base/base_paths.h"
 #include "base/data_pack.h"
