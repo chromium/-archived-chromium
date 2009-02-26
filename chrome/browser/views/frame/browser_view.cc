@@ -236,9 +236,7 @@ int BrowserView::GetShowState() const {
   si.cb = sizeof(si);
   si.dwFlags = STARTF_USESHOWWINDOW;
   GetStartupInfo(&si);
-  // When launched from bash, for some reason si.wShowWindow is set to SW_HIDE,
-  // so we need to correct that condition.
-  return si.wShowWindow == SW_HIDE ? SW_SHOWNORMAL : si.wShowWindow;
+  return si.wShowWindow;
 }
 
 void BrowserView::WindowMoved() {

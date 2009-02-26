@@ -83,7 +83,6 @@ gfx::Size Window::CalculateMaximumSize() const {
 
 void Window::Show() {
   int show_state = GetShowState();
-  bool maximized = false;
   if (saved_maximized_state_)
     show_state = SW_SHOWMAXIMIZED;
   Show(show_state);
@@ -91,6 +90,14 @@ void Window::Show() {
 
 void Window::Show(int show_state) {
   ShowWindow(show_state);
+  // When launched from certain programs like bash and Windows Live Messenger,
+  // show_state is set to SW_HIDE, so we need to correct that condition. We
+  // don't just change show_state to SW_SHOWNORMAL because MSDN says we must
+  // always first call ShowWindow with the specified value from STARTUPINFO,
+  // otherwise all future ShowWindow calls will be ignored (!!#@@#!). Instead,
+  // we call ShowWindow again in this case.
+  if (show_state == SW_HIDE)
+    ShowWindow(SW_SHOWNORMAL);
   SetInitialFocus();
 }
 
