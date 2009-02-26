@@ -13,6 +13,14 @@
     {
       'target_name': 'test_shell_common',
       'type': 'static_library',
+      'dependencies': [
+        '../../../base/base.gyp:base',
+        '../../../base/base.gyp:base_gfx',
+        '../../../testing/gtest.gyp:gtest',
+        '../../../skia/skia.gyp:skia',
+        '../../../third_party/npapi/npapi.gyp:npapi',
+        '../../webkit.gyp:glue',
+      ],
       'sources': [
         'mac/DumpRenderTreePasteboard.h',
         'mac/DumpRenderTreePasteboard.m',
@@ -63,14 +71,6 @@
         'webwidget_host_gtk.cc',
         'webwidget_host_win.cc',
       ],
-      'dependencies': [
-        '../../../base/base.gyp:base',
-        '../../../base/base.gyp:base_gfx',
-        '../../../testing/gtest.gyp:gtest',
-        '../../../skia/skia.gyp:skia',
-        '../../../third_party/npapi/npapi.gyp:npapi',
-        '../../webkit.gyp:glue',
-      ],
       'conditions': [
         ['OS!="linux"', {'sources/': [['exclude', '_gtk\\.cc$']]}],
         ['OS!="mac"', {
@@ -98,6 +98,13 @@
     {
       'target_name': 'test_shell',
       'type': 'application',
+      'dependencies': [
+        'test_shell_common',
+        '../../../base/base.gyp:base',
+        '../../../net/net.gyp:net',
+        '../../webkit.gyp:glue',
+        '../../webkit.gyp:webkit',
+      ],
       'sources': [
         'test_shell_main.cc',
       ],
@@ -115,12 +122,6 @@
         # the file to a source group.
         'mac/Info.plist',
       ],
-      'dependencies': [
-        'test_shell_common',
-        '../../../base/base.gyp:base',
-        '../../../net/net.gyp:net',
-        '../../webkit.gyp:glue',
-      ],
       'xcode_settings': {
         'INFOPLIST_FILE': 'mac/Info.plist',
       },
@@ -131,6 +132,14 @@
     {
       'target_name': 'test_shell_tests',
       'type': 'executable',
+      'dependencies': [
+        'test_shell_common',
+        '../../../base/base.gyp:base',
+        '../../../net/net.gyp:net',
+        '../../../skia/skia.gyp:skia',
+        '../../../testing/gtest.gyp:gtest',
+        '../../webkit.gyp:glue',
+      ],
       'sources': [
         '../../../skia/ext/convolver_unittest.cc',
         '../../../skia/ext/platform_canvas_unittest.cc',
@@ -166,14 +175,6 @@
         'test_shell_test.cc',
         'test_shell_test.h',
         'text_input_controller_unittest.cc',
-      ],
-      'dependencies': [
-        'test_shell_common',
-        '../../../base/base.gyp:base',
-        '../../../net/net.gyp:net',
-        '../../../skia/skia.gyp:skia',
-        '../../../testing/gtest.gyp:gtest',
-        '../../webkit.gyp:glue',
       ],
       'conditions': [
         ['OS=="win"', {

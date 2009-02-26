@@ -1216,6 +1216,7 @@
         '../third_party/icu38/icu38.gyp:icuuc',
         '../third_party/npapi/npapi.gyp:npapi',
         '../webkit/webkit.gyp:glue',
+        '../webkit/webkit.gyp:webkit',
       ],
       'include_dirs': [
         '..',

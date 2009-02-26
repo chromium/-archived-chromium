@@ -3193,6 +3193,8 @@
         '../third_party/WebKit/WebCore/rendering/TableLayout.h',
         '../third_party/WebKit/WebCore/rendering/TextControlInnerElements.cpp',
         '../third_party/WebKit/WebCore/rendering/TextControlInnerElements.h',
+        '../third_party/WebKit/WebCore/rendering/TransformState.cpp',
+        '../third_party/WebKit/WebCore/rendering/TransformState.h',
         '../third_party/WebKit/WebCore/rendering/bidi.cpp',
         '../third_party/WebKit/WebCore/rendering/bidi.h',
         '../third_party/WebKit/WebCore/rendering/break_lines.cpp',
@@ -4019,10 +4021,65 @@
       ],
     },
     {
+      'target_name': 'webkit',
+      'type': 'static_library',
+      'dependencies': [
+        'webcore',
+      ],
+      'include_dirs': [
+        '../third_party/WebKit/WebKit/chromium/public',
+      ],
+      'defines': [
+        'WEBKIT_IMPLEMENTATION',
+      ],
+      'sources': [
+        '../third_party/WebKit/WebKit/chromium/public/WebCString.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebClipboard.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebCommon.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebImage.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebKit.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebKitClient.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebPoint.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebRect.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebSize.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebString.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebURL.h',
+        '../third_party/WebKit/WebKit/chromium/src/ChromiumBridge.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/WebCString.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/WebImageSkia.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/WebKit.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/WebKitPrivate.h',
+        '../third_party/WebKit/WebKit/chromium/src/WebString.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/WebURL.cpp',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../third_party/WebKit/WebKit/chromium/public',
+        ],
+      },
+      'conditions': [
+        ['OS=="mac"', {
+          'sources!': [
+            '../third_party/WebKit/WebKit/chromium/src/WebImageSkia.cpp',
+          ],
+        }, {  # else: OS!="mac"
+          'defines': [
+            'WEBKIT_USING_SKIA',
+          ],
+          'direct_dependent_settings': {
+            'defines': [
+              'WEBKIT_USING_SKIA',
+            ],
+          },
+        }],
+      ],
+    },
+    {
       'target_name': 'glue',
       'type': 'static_library',
       'dependencies': [
         'webcore',
+        'webkit',
         '../net/net.gyp:net',
       ],
       'actions': [
@@ -4179,6 +4236,8 @@
         'glue/stacking_order_iterator.cc',
         'glue/stacking_order_iterator.h',
         'glue/tools_proxy.h',
+        'glue/webclipboard_impl.cc',
+        'glue/webclipboard_impl.h',
         'glue/webcursor.cc',
         'glue/webcursor.h',
         'glue/webcursor_gtk.cc',
@@ -4207,6 +4266,8 @@
         'glue/webinputevent_linux.cc',
         'glue/webinputevent_mac.mm',
         'glue/webinputevent_win.cc',
+        'glue/webkit_client_impl.cc',
+        'glue/webkit_client_impl.h',
         'glue/webkit_glue.cc',
         'glue/webkit_glue.h',
         'glue/webkit_glue_gtk.cc',
