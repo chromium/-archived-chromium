@@ -137,7 +137,7 @@ bool DownloadFile::Open(const char* open_mode) {
   // Sets the Zone to tell Windows that this file comes from the internet.
   // We ignore the return value because a failure is not fatal.
   win_util::SetInternetZoneIdentifier(full_path_);
-#elif defined(OS_MAC)
+#elif defined(OS_MACOSX)
   // TODO(port) there should be an equivalent on Mac (there isn't on Linux).
   NOTREACHED();
 #endif
