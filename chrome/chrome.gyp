@@ -1348,6 +1348,77 @@
       'conditions': [
         ['OS=="mac"', {'product_name': 'Chromium'}],
         ['OS!="win"', {
+          'variables': {
+            'repack_path': '../tools/data_pack/repack.py',
+          },
+          'actions': [
+            {
+              'action_name': 'repack_chrome',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/repack/chrome.pak',
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+              'process_outputs_as_mac_bundle_resources': 1,
+            },
+            {
+              'action_name': 'repack_theme',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/theme_resources.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/repack/theme.pak',
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+              'process_outputs_as_mac_bundle_resources': 1,
+            },
+            {
+              # TODO(mark): Make this work with more languages than the
+              # hardcoded en-US.
+              'action_name': 'repack_locale',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_en-US.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_en-US.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_en-US.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'conditions': [
+                ['OS=="mac"', {
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/English.lproj/locale.pak',
+                  ],
+                }, {  # else: OS!="mac"
+                  'outputs': [
+                    '<(INTERMEDIATE_DIR)/repack/locale_en-US.pak',
+                  ],
+                }],
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+              'process_outputs_as_mac_bundle_resources': 1,
+            },
+          ],
           'sources!': [
             'app/breakpad.cc',
             'app/chrome_exe_main.cc',

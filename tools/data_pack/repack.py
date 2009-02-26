@@ -30,9 +30,9 @@ def RePack(output_file, input_files):
   data_pack.WriteDataPack(resources, output_file)
 
 def main(argv):
-  if len(argv) < 4:
-    print ("Usage:\n  %s <output_filename> <input_file1> <input_file2> "
-        "[input_file3] ..." % argv[0])
+  if len(argv) < 3:
+    print ("Usage:\n  %s <output_filename> <input_file1> [input_file2] ... " %
+           argv[0])
     sys.exit(-1)
   RePack(argv[1], argv[2:])
 
