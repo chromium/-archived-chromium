@@ -60,6 +60,7 @@
 		7BA019240E5A2BD700044150 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA019210E5A2BCB00044150 /* libgtest.a */; };
 		7BA019640E5A2C2B00044150 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA019440E5A2BFC00044150 /* libbase.a */; };
 		7BA019700E5A2C4700044150 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA0195F0E5A2C1200044150 /* libicuuc.a */; };
+		793B6B0D0F4D140000C68483 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA0195B0E5A2C1200044150 /* libicui18n.a */; };
 		7BA019740E5A2C5C00044150 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA019570E5A2C1200044150 /* libicudata.a */; };
 /* End PBXBuildFile section */
 
@@ -264,6 +265,7 @@
 				7BA018EF0E5A2B3300044150 /* libgoogleurl.a in Frameworks */,
 				7BA019240E5A2BD700044150 /* libgtest.a in Frameworks */,
 				7BA019740E5A2C5C00044150 /* libicudata.a in Frameworks */,
+				793B6B0D0F4D140000C68483 /* libicui18n.a in Frameworks */,
 				7BA019700E5A2C4700044150 /* libicuuc.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
