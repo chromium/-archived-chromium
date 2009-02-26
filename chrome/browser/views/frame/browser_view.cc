@@ -126,8 +126,14 @@ static const struct {
 
 class ResizeCorner : public views::View {
  public:
-  ResizeCorner() {}
+  ResizeCorner(const BrowserWindow* parent)
+      : parent_(parent) {
+  }
+
   virtual void Paint(ChromeCanvas* canvas) {
+    if (parent_ && (parent_->IsMaximized() || parent_->IsFullscreen()))
+      return;
+
     SkBitmap * bitmap = ResourceBundle::GetSharedInstance().GetBitmapNamed(
         IDR_TEXTAREA_RESIZER);
     bitmap->buildMipMap(false);
@@ -149,6 +155,8 @@ class ResizeCorner : public views::View {
   }
 
   virtual gfx::Size GetPreferredSize() {
+    if (parent_ && (parent_->IsMaximized() || parent_->IsFullscreen()))
+      return gfx::Size();
     return GetSize();
   }
 
@@ -164,6 +172,7 @@ class ResizeCorner : public views::View {
   }
 
  private:
+  const BrowserWindow* parent_;
   DISALLOW_COPY_AND_ASSIGN(ResizeCorner);
 };
 
@@ -706,8 +715,8 @@ bool BrowserView::IsBookmarkBarVisible() const {
 }
 
 gfx::Rect BrowserView::GetRootWindowResizerRect() const {
-  // There is no resize corner when we are maximized
-  if (IsMaximized())
+  // There is no resize corner when we are maximized or full screen
+  if (IsMaximized() || IsFullscreen())
     return gfx::Rect();
 
   // We don't specify a resize corner size if we have a bottom shelf either.
@@ -1100,7 +1109,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // hit-tests of the titlebar.
 
   // There is not resize corner when we are maximised
-  if (!IsMaximized()) {
+  if (!IsMaximized() && !IsFullscreen()) {
     CRect client_rect;
     ::GetClientRect(frame_->GetWindow()->GetHWND(), &client_rect);
     gfx::Size resize_corner_size = ResizeCorner::GetSize();
@@ -1452,7 +1461,7 @@ bool BrowserView::MaybeShowDownloadShelf(TabContents* contents) {
   if (contents && contents->IsDownloadShelfVisible()) {
     new_shelf = contents->GetDownloadShelfView();
     if (new_shelf != active_download_shelf_)
-      new_shelf->AddChildView(new ResizeCorner());
+      new_shelf->AddChildView(new ResizeCorner(this));
   }
   return UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
 }
