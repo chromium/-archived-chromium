@@ -41,7 +41,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
-#include "chrome/common/resource_bundle.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
@@ -265,43 +264,6 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
 
 void RunRepostFormWarningDialog(NavigationController*) {
 }
-
-#if defined(OS_MACOSX)
-ResourceBundle* ResourceBundle::g_shared_instance_ = NULL;
-
-// GetBitmapNamed() will leak, but there's no way around it for stubs.
-SkBitmap* ResourceBundle::GetBitmapNamed(int) {
-  NOTIMPLEMENTED();
-  return new SkBitmap();
-}
-ResourceBundle::ResourceBundle() { }
-ResourceBundle& ResourceBundle::GetSharedInstance() {
-  NOTIMPLEMENTED();
-  if (!g_shared_instance_)
-    g_shared_instance_ = new ResourceBundle;
-  return *g_shared_instance_;
-}
-
-StringPiece ResourceBundle::GetRawDataResource(int resource_id) {
-  NOTIMPLEMENTED();
-  return StringPiece();
-}
-
-std::string ResourceBundle::GetDataResource(int resource_id) {
-  NOTIMPLEMENTED();
-  return "";
-}
-
-void ResourceBundle::CleanupSharedInstance() {
-  NOTIMPLEMENTED();
-}
-
-bool ResourceBundle::LoadImageResourceBytes(int resource_id,
-                                            std::vector<unsigned char>* bytes) {
-  NOTIMPLEMENTED();
-  return false;
-}
-#endif
 
 LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,

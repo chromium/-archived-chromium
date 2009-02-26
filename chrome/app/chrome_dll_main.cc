@@ -169,13 +169,10 @@ void EnableHeapProfiler(const CommandLine& parsed_command_line) {
 }
 
 void CommonSubprocessInit() {
-#if defined(OS_WIN) || defined(OS_LINUX)
   // Initialize ResourceBundle which handles files loaded from external
   // sources.  The language should have been passed in to us from the
   // browser process as a command line flag.
-  // TODO(port-mac): enable when we figure out resource bundle issues
   ResourceBundle::InitSharedInstance(std::wstring());
-#endif
 
 #if defined(OS_WIN)
   // HACK: Let Windows know that we have started.  This is needed to suppress
@@ -330,10 +327,7 @@ int ChromeMain(int argc, const char** argv) {
   }
 
   if (!process_type.empty()) {
-#if defined(OS_WIN) || defined(OS_LINUX)
-    // TODO(port-mac): enable when we figure out resource bundle issues
     ResourceBundle::CleanupSharedInstance();
-#endif
   }
 
 #if defined(OS_WIN)

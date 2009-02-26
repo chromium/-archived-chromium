@@ -306,7 +306,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
         parent_local_state.GetString(prefs::kApplicationLocale));
   }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   // If we're running tests (ui_task is non-null), then the ResourceBundle
   // has already been initialized.
   if (!parameters.ui_task) {
@@ -315,7 +314,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
     // We only load the theme dll in the browser process.
     ResourceBundle::GetSharedInstance().LoadThemeResources();
   }
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
   if (!parsed_command_line.HasSwitch(switches::kNoErrorDialogs)) {
     // Display a warning if the user is running windows 2000.

@@ -19,10 +19,12 @@
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
 
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) || defined(OS_MACOSX)
 namespace base {
   class DataPack;
 };
+#endif
+#if defined(OS_LINUX)
 typedef struct _GdkPixbuf GdkPixbuf;
 #endif
 class ChromeFont;
@@ -48,6 +50,8 @@ class ResourceBundle {
   };
 
   // Initialize the ResourceBundle for this process.
+  // NOTE: Mac ignores this and always loads up resources for the language
+  // defined by the Cocoa UI (ie-NSBundle does the langange work).
   static void InitSharedInstance(const std::wstring& pref_locale);
 
   // Delete the ResourceBundle for this process if it exists.
@@ -120,12 +124,9 @@ class ResourceBundle {
 #if defined(OS_WIN)
   // Windows stores resources in DLLs, which are managed by HINSTANCE.
   typedef HINSTANCE DataHandle;
-#elif defined(OS_LINUX)
+#elif defined(OS_LINUX) || defined(OS_MACOSX)
   // Linux uses base::DataPack.
   typedef base::DataPack* DataHandle;
-#elif defined(OS_MACOSX)
-  // TODO(port): Implement resource loading on OS X.
-  typedef void* DataHandle;
 #endif
 
   // Ctor/dtor are private, since we're a singleton.

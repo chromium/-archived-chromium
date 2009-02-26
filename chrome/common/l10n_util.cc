@@ -18,10 +18,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#if defined(OS_WIN) || defined(OS_LINUX)
-// TODO(port): re-enable.
 #include "chrome/common/resource_bundle.h"
-#endif
 #if defined(OS_WIN)
 #include "chrome/views/view.h"
 #endif  // defined(OS_WIN)
@@ -285,14 +282,8 @@ std::wstring GetLocalName(const std::wstring& locale_code_wstr,
 }
 
 std::wstring GetString(int message_id) {
-#if defined(OS_WIN) || defined(OS_LINUX)
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
   return rb.GetLocalizedString(message_id);
-#else
-  NOTIMPLEMENTED();  // TODO(port): Real implementation of GetString.
-  // Return something non-empty so callers don't freak out.
-  return L"true";
-#endif
 }
 
 static std::wstring GetStringF(int message_id,
@@ -301,16 +292,10 @@ static std::wstring GetStringF(int message_id,
                                const std::wstring& c,
                                const std::wstring& d,
                                std::vector<size_t>* offsets) {
-#if defined(OS_WIN) || defined(OS_LINUX)
-// TODO(port): re-enable.
   const std::wstring& format_string = GetString(message_id);
   std::wstring formatted = ReplaceStringPlaceholders(format_string, a, b, c,
                                                      d, offsets);
   return formatted;
-#else
-  NOTIMPLEMENTED();
-  return L"GetStringF NOTIMPLEMENTED";
-#endif  // defined(OS_WIN)
 }
 
 std::wstring GetStringF(int message_id,

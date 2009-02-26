@@ -673,6 +673,8 @@
 		EEA5B4CB2EB282403BDE41D7 /* tab_contents.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9E40F1EC32700106F0D /* tab_contents.cc */; };
 		F081CEE97F8C75FEAF3D0FD2 /* jstemplate_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC70E9D4C9F009A6919 /* jstemplate_builder.cc */; };
 		F4143C8C0F4B1D43008C8F73 /* renderer.sb in Resources */ = {isa = PBXBuildFile; fileRef = F4143C8B0F4B1D07008C8F73 /* renderer.sb */; };
+		F41444200F55A81C008C8F73 /* resource_bundle.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBF40E9D4C9F009A6919 /* resource_bundle.cc */; };
+		F414442D0F55AABD008C8F73 /* resource_bundle_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = F41444270F55AA97008C8F73 /* resource_bundle_mac.mm */; };
 		F47CA1280F44AE0E00FFFAFB /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7B004E0E9D5464009A6919 /* libnet.a */; };
 		F47CA1290F44AE2800FFFAFB /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
 		F47CA12A0F44AE3500FFFAFB /* libwtf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850240F2FC82E009F6555 /* libwtf.a */; };
@@ -2945,6 +2947,7 @@
 		EA72CF50C0AB4492A644C703 /* url_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_fetcher.h; sourceTree = "<group>"; };
 		F174BA4A5FF6B3DFC64105AD /* transport_dib_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = transport_dib_mac.cc; sourceTree = "<group>"; };
 		F4143C8B0F4B1D07008C8F73 /* renderer.sb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = renderer.sb; sourceTree = "<group>"; };
+		F41444270F55AA97008C8F73 /* resource_bundle_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = resource_bundle_mac.mm; sourceTree = "<group>"; };
 		F60D7722C1302E1EC789B67A /* ssl_host_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ssl_host_state.cc; path = ssl/ssl_host_state.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3973,6 +3976,7 @@
 				4D7BFBF30E9D4C9F009A6919 /* render_messages_internal.h */,
 				4D7BFBF40E9D4C9F009A6919 /* resource_bundle.cc */,
 				4D7BFBF50E9D4C9F009A6919 /* resource_bundle.h */,
+				F41444270F55AA97008C8F73 /* resource_bundle_mac.mm */,
 				4D7BFBF60E9D4C9F009A6919 /* resource_dispatcher.cc */,
 				4D7BFBF70E9D4C9F009A6919 /* resource_dispatcher.h */,
 				4D7BFBF80E9D4C9F009A6919 /* resource_dispatcher_unittest.cc */,
@@ -4961,6 +4965,8 @@
 			buildConfigurationList = E45060E90EE87B86003BE099 /* Build configuration list for PBXNativeTarget "app" */;
 			buildPhases = (
 				E45060E00EE87B86003BE099 /* Resources */,
+				F414470B0F562CC8008C8F73 /* Repack GRIT Resources */,
+				F41447180F56345B008C8F73 /* Copy GRIT Resources */,
 				E45060E10EE87B86003BE099 /* Sources */,
 				E45060E20EE87B86003BE099 /* Frameworks */,
 				4DCEA14B0EF0BC0E00682526 /* Strip If Needed */,
@@ -5603,6 +5609,34 @@
 			shellScript = "set -ex\nRUNNABLE_PRODUCT=$(echo \"${PRODUCT_NAME}\" | sed -e s/^run_//)\nexec \"${BUILT_PRODUCTS_DIR}/${RUNNABLE_PRODUCT}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		F414470B0F562CC8008C8F73 /* Repack GRIT Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Repack GRIT Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/../tools/mac_repack_grit_resources.sh\" \"${@}\"";
+		};
+		F41447180F56345B008C8F73 /* Copy GRIT Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy GRIT Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/../tools/mac_copy_grit_resources.sh\" \"${@}\"";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -5980,6 +6014,8 @@
 				E45076850F1530CD003BE099 /* pref_service.cc in Sources */,
 				B562E2F80F05843C00FB1A4F /* property_bag.cc in Sources */,
 				E45076A90F153619003BE099 /* resource_dispatcher.cc in Sources */,
+				F41444200F55A81C008C8F73 /* resource_bundle.cc in Sources */,
+				F414442D0F55AABD008C8F73 /* resource_bundle_mac.mm in Sources */,
 				E43A78750F17A95400ABD5D1 /* sandbox_init_wrapper.cc in Sources */,
 				E40CC5FE0F2E35A800708647 /* security_filter_peer.cc in Sources */,
 				4D7BFC7F0E9D4D2E009A6919 /* slide_animation.cc in Sources */,
