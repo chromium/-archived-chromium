@@ -316,6 +316,7 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
+LINUX : LayoutTests/editing/selection/select-all-iframe.html = FAIL
 LINUX : LayoutTests/editing/selection/select-missing-image.html = FAIL
 LINUX : LayoutTests/fast/events/offsetX-offsetY.html = FAIL
 LINUX : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
@@ -1798,11 +1799,9 @@ LayoutTests/svg/custom/pointer-events-path.svg = FAIL
 WIN MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // New tests from merge 41181:41217
-LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
+DEFER : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
 
 // Regressions from merge 41181:41217
-// New baseline upstream
-LINUX WIN : LayoutTests/editing/selection/select-all-iframe.html = FAIL
 WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL

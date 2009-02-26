@@ -182,7 +182,7 @@ class TestTypeBase(object):
       cmd = [executable,
              '--start-delete=##WDIFF_DEL##', '--end-delete=##WDIFF_END##',
              '--start-insert=##WDIFF_ADD##', '--end-insert=##WDIFF_END##',
-             actual_filename, expected_filename]
+             expected_filename, actual_filename]
       filename = self.OutputFilename(filename,
                       test_type + self.FILENAME_SUFFIX_WDIFF)
 
