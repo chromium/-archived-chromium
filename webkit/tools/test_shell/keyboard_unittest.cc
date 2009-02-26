@@ -46,15 +46,10 @@ class KeyboardTest : public testing::Test {
   void SetupKeyDownEvent(WebKeyboardEvent* keyboard_event,
                          char key_code,
                          int modifiers) {
-    keyboard_event->key_code = key_code;
+    keyboard_event->windows_key_code = key_code;
     keyboard_event->modifiers = modifiers;
     keyboard_event->type = WebInputEvent::KEY_DOWN;
-#if defined(OS_LINUX)
-    keyboard_event->text = key_code;
-#elif defined(OS_MACOSX)
-    keyboard_event->text.clear();
-    keyboard_event->text.push_back(key_code);
-#endif
+    keyboard_event->text[0] = key_code;
   }
 
   // Like InterpretKeyEvent, but with pressing down OSModifier+|key_code|.
