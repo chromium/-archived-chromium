@@ -196,15 +196,19 @@ void FindBarWin::EndFindSession() {
   animation_->Reset(1.0);
   animation_->Hide();
 
-  // When we hide the window, we need to notify the renderer that we are done
-  // for now, so that we can abort the scoping effort and clear all the
-  // tickmarks and highlighting.
-  web_contents_->StopFinding(false);  // false = don't clear selection on
-                                      // page.
-  view_->UpdateForResult(web_contents_->find_result(), std::wstring());
+  // |web_contents_| can be NULL for a number of reasons, for example when the
+  // tab is closing. We must guard against that case. See issue 8030.
+  if (web_contents_) {
+    // When we hide the window, we need to notify the renderer that we are done
+    // for now, so that we can abort the scoping effort and clear all the
+    // tickmarks and highlighting.
+    web_contents_->StopFinding(false);  // false = don't clear selection on
+                                        // page.
+    view_->UpdateForResult(web_contents_->find_result(), std::wstring());
 
-  // When we get dismissed we restore the focus to where it belongs.
-  RestoreSavedFocus();
+    // When we get dismissed we restore the focus to where it belongs.
+    RestoreSavedFocus();
+  }
 }
 
 void FindBarWin::ChangeWebContents(WebContents* contents) {
@@ -280,8 +284,8 @@ void FindBarWin::Observe(NotificationType type,
                          const NotificationSource& source,
                          const NotificationDetails& details) {
   if (type == NotificationType::FIND_RESULT_AVAILABLE) {
-    // Don't update for notifications from TabContentses other than the one we are
-    // actively tracking.
+    // Don't update for notifications from TabContentses other than the one we
+    // are actively tracking.
     if (Source<TabContents>(source).ptr() == web_contents_) {
       UpdateUIForFindResult(web_contents_->find_result(),
                             web_contents_->find_text());
