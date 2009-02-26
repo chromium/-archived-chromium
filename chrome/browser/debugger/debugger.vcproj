@@ -213,6 +213,22 @@
 			RelativePath=".\debugger_wrapper.h"
 			>
 		</File>
+		<File
+			RelativePath=".\dev_tools_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_view.h"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_window.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_window.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

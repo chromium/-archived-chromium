@@ -12,7 +12,7 @@
 #include "webkit/glue/webpreferences.h"
 
 class DOMUI;
-class render_view_host;
+class RenderViewHost;
 
 // FavIconSource is the gateway between network-level chrome:
 // requests for favicons and the history backend that serves these.
@@ -113,6 +113,8 @@ class DOMUIContents : public WebContents {
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
       WindowOpenDisposition disposition);
 
+  virtual void RenderViewCreated(RenderViewHost* render_view_host);
+
   //
   // TabContents overrides
   // 
@@ -120,7 +122,7 @@ class DOMUIContents : public WebContents {
       const ViewHostMsg_FrameNavigate_Params& params) { }
   virtual bool NavigateToPendingEntry(bool reload);
 
-  // Return the scheme used. We currently use chrome:
+  // Return the scheme used. We currently use chrome-ui:
   static const std::string GetScheme();
 
  private:

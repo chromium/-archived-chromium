@@ -1490,6 +1490,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dom_ui\dev_tools_ui.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dev_tools_ui.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dom_ui\dom_ui.cc"
 				>
 			</File>

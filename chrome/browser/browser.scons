@@ -400,6 +400,8 @@ input_files = ChromeFileList([
   MSVSFilter('DOM UI', [
     'dom_ui/chrome_url_data_manager.cc',
     'dom_ui/chrome_url_data_manager.h',
+    'dom_ui/dev_tools_ui.cc',
+    'dom_ui/dev_tools_ui.h',
     'dom_ui/dom_ui.cc',
     'dom_ui/dom_ui.h',
     'dom_ui/dom_ui_contents.cc',

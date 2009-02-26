@@ -97,7 +97,9 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       run_modal_reply_msg_(NULL),
       has_unload_listener_(false),
       is_waiting_for_unload_ack_(false),
-      are_javascript_messages_suppressed_(false) {
+      are_javascript_messages_suppressed_(false),
+      inspected_process_id_(-1),
+      inspected_view_id_(-1) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -733,6 +735,10 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_AddMessageToConsole, OnAddMessageToConsole)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DebuggerOutput, OnDebuggerOutput);
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidDebugAttach, DidDebugAttach);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToDevToolsAgent,
+                        OnForwardToDevToolsAgent);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToDevToolsClient,
+                        OnForwardToDevToolsClient);
     IPC_MESSAGE_HANDLER(ViewHostMsg_UserMetricsRecordAction,
                         OnUserMetricsRecordAction)
     IPC_MESSAGE_HANDLER(ViewHostMsg_MissingPluginStatus, OnMissingPluginStatus);
@@ -1166,6 +1172,28 @@ void RenderViewHost::DidDebugAttach() {
     debugger_attached_ = true;
     g_browser_process->debugger_wrapper()->OnDebugAttach();
   }
+}
+
+void RenderViewHost::SetInspectedView(int inspected_process_id,
+                                      int inspected_view_id) {
+  inspected_process_id_ = inspected_process_id;
+  inspected_view_id_ = inspected_view_id;
+}
+
+void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
+  RenderViewHost* host = RenderViewHost::FromID(inspected_process_id_,
+                                                inspected_view_id_);
+  if (!host)
+    return;
+  IPC::Message* m = new IPC::Message(message);
+  m->set_routing_id(inspected_view_id_);
+  host->Send(m);
+}
+
+void RenderViewHost::OnForwardToDevToolsClient(const IPC::Message& message) {
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->ForwardMessageToDevToolsClient(message);
 }
 
 void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {

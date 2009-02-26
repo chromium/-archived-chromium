@@ -10,9 +10,11 @@
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/views/widget_win.h"
 
+class DevToolsWindow;
 class SadTabView;
 struct WebDropData;
 class WebDropTarget;
+
 
 // Windows-specific implementation of the WebContentsView. It is a HWND that
 // contains all of the contents of the tab and associated child views.
@@ -39,6 +41,8 @@ class WebContentsViewWin : public WebContentsView,
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
+  virtual void OpenDeveloperTools();
+  virtual void ForwardMessageToDevToolsClient(const IPC::Message& message);
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual WebContents* CreateNewWindowInternal(
@@ -95,6 +99,9 @@ class WebContentsViewWin : public WebContentsView,
   // ---------------------------------------------------------------------------
 
   WebContents* web_contents_;
+
+  // Allows to show exactly one developer tools window for this page.
+  scoped_ptr<DevToolsWindow> dev_tools_window_;
 
   // A drop target object that handles drags over this WebContents.
   scoped_refptr<WebDropTarget> drop_target_;

@@ -10,6 +10,7 @@
 
 class DictionaryValue;
 class DOMMessageHandler;
+class RenderViewHost;
 class Value;
 
 // A DOMUI sets up the datasources and message handlers for a given HTML-based
@@ -20,6 +21,8 @@ class DOMUI {
 
   virtual ~DOMUI();
   virtual void Init() = 0;
+
+  virtual void RenderViewCreated(RenderViewHost* render_view_host) {}
 
   // Called from DOMUIContents.
   void ProcessDOMUIMessage(const std::string& message,

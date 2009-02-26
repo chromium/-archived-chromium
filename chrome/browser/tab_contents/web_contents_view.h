@@ -108,6 +108,13 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // RenderWidgetHost is deleted. Removes |host| from internal maps.
   void RenderWidgetHostDestroyed(RenderWidgetHost* host);
 
+  // Opens developer tools window for the page.
+  virtual void OpenDeveloperTools() = 0;
+
+  // Forwards message to DevToolsClient in developer tools window open for this
+  // page.
+  virtual void ForwardMessageToDevToolsClient(const IPC::Message& message) = 0;
+
  protected:
   WebContentsView() {}  // Abstract interface.
 

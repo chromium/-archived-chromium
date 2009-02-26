@@ -54,6 +54,8 @@ enum IPCMessageStart {
   PluginHostMsgStart,
   NPObjectMsgStart,
   TestMsgStart,
+  DevToolsAgentMsgStart,
+  DevToolsClientMsgStart,
   // NOTE: When you add a new message class, also update
   // IPCStatusView::IPCStatusView to ensure logging works.
   // NOTE: this enum is used by IPC_MESSAGE_MACRO to generate a unique message
@@ -888,6 +890,27 @@ struct ParamTraits<LogData> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     // Doesn't make sense to implement this!
+  }
+};
+
+template <>
+struct ParamTraits<Message> {
+  static void Write(Message* m, const Message& p) {
+    m->WriteInt(p.size());
+    m->WriteData(reinterpret_cast<const char*>(p.data()), p.size());
+  }
+  static bool Read(const Message* m, void** iter, Message* r) {
+    int size;
+    if (!m->ReadInt(iter, &size))
+      return false;
+    const char* data;
+    if (!m->ReadData(iter, &data, &size))
+      return false;
+    *r = Message(data, size);
+    return true;
+  }
+  static void Log(const Message& p, std::wstring* l) {
+    l->append(L"<IPC::Message>");
   }
 };
 

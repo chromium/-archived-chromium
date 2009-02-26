@@ -5,6 +5,7 @@
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
 
 #include "chrome/browser/debugger/debugger_contents.h"
+#include "chrome/browser/dom_ui/dev_tools_ui.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
@@ -167,6 +168,11 @@ WebPreferences DOMUIContents::GetWebkitPrefs() {
   return web_prefs;
 }
 
+void DOMUIContents::RenderViewCreated(RenderViewHost* render_view_host) {
+  DCHECK(current_ui_);
+  current_ui_->RenderViewCreated(render_view_host);
+}
+
 bool DOMUIContents::ShouldDisplayFavIcon() {
   if (current_ui_)
     return current_ui_->ShouldDisplayFavIcon();
@@ -238,6 +244,8 @@ DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
     return new DownloadsUI(this);
   } else if (url.host() == DebuggerContents::GetBaseURL().host()) {
     return new DebuggerContents(this);
+  } else if (url.host() == DevToolsUI::GetBaseURL().host()) {
+    return new DevToolsUI(this);
   }
 #else
   NOTIMPLEMENTED();
