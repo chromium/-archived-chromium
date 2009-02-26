@@ -147,11 +147,8 @@ def _Scanner(file_node, env, path):
          node.parent.name == 'translations')):
       files.append(os.path.abspath(node.GetFilePath()))
     elif node.name == 'include':
-      # We depend on all resources specified in the grd file.  However, some
-      # files are only used by official builds and aren't in the public
-      # repository (e.g., the Google Chrome logo).  If the file doesn't exist,
-      # just don't add it to the file dependencies.
-      if os.path.exists(node.FilenameToOpen()):
+      # Only include files that we actually plan on using.
+      if node.SatisfiesOutputCondition():
         files.append(node.FilenameToOpen())
 
   # Add in the grit source files.  If one of these change, we want to re-run
