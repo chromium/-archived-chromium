@@ -1738,7 +1738,6 @@ LINUX : LayoutTests/fast/clip/009.html = CRASH PASS
 LINUX : LayoutTests/fast/clip/013.html = CRASH PASS
 LINUX : LayoutTests/fast/clip/015.html = CRASH PASS
 LINUX : LayoutTests/fast/canvas/unclosed-canvas-4.html = CRASH PASS
-MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL
 LINUX WIN : LayoutTests/http/tests/navigation/redirect302-frames.html = PASS FAIL
 
 // Regression from r9839.
@@ -1772,9 +1771,9 @@ WIN : LayoutTests/fast/dom/SelectorAPI/undefined-null-stringify.html = FAIL
 LayoutTests/fast/dom/anchor-backslash.html = FAIL
 LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
-LayoutTests/fast/reflections/reflection-direction.html = FAIL
-LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
-LayoutTests/fast/borders/border-image-rotate-transform.html = CRASH
+LINUX WIN : LayoutTests/fast/reflections/reflection-direction.html = FAIL
+LINUX WIN : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
+LINUX WIN : LayoutTests/fast/borders/border-image-rotate-transform.html = CRASH
 LINUX WIN : LayoutTests/fast/text/atsui-spacing-features.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
@@ -1785,28 +1784,29 @@ LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html
 LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Ojan's editing layout test regressions
-LayoutTests/fast/forms/search-click-in-placeholder.html = FAIL
+LINUX WIN : LayoutTests/fast/forms/search-click-in-placeholder.html = FAIL
+MAC DEBUG : LayoutTests/fast/forms/search-click-in-placeholder.html = CRASH
 MAC : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL
 MAC : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 LayoutTests/svg/custom/pointer-events-path.svg = FAIL
 WIN MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // New tests from merge 41181:41217
-LayoutTests/fast/replaced/embed-display-none.html = FAIL
-LayoutTests/fast/replaced/applet-display-none.html = FAIL
-LayoutTests/fast/replaced/object-display-none.html = FAIL
-LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
-LayoutTests/fast/overflow/overflow-stacking.html = FAIL
-LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
+LINUX WIN : LayoutTests/fast/replaced/embed-display-none.html = FAIL
+LINUX WIN : LayoutTests/fast/replaced/applet-display-none.html = FAIL
+LINUX WIN : LayoutTests/fast/replaced/object-display-none.html = FAIL
+LINUX WIN : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
+LINUX WIN : LayoutTests/fast/overflow/overflow-stacking.html = FAIL
+LINUX WIN : LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
 LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
 
 // Regressions from merge 41181:41217
 // New baseline upstream
-LayoutTests/fast/events/offsetX-offsetY.html = FAIL
-LayoutTests/editing/selection/select-all-iframe.html = FAIL
+LINUX WIN : LayoutTests/fast/events/offsetX-offsetY.html = FAIL
+LINUX WIN : LayoutTests/editing/selection/select-all-iframe.html = FAIL
 WIN : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
-LayoutTests/editing/selection/select-missing-image.html = FAIL
+LINUX WIN : LayoutTests/editing/selection/select-missing-image.html = FAIL
 WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
-LayoutTests/fast/overflow/004.html = FAIL
-LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
-LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
+LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
+LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
+LINUX WIN : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
