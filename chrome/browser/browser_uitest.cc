@@ -89,7 +89,8 @@ TEST_F(BrowserTest, Title) {
 // exact number of processes depends on the amount of memory. Previously we
 // had a hard limit of 31 processes and this test is mainly directed at
 // verifying that we don't crash when we pass this limit.
-TEST_F(BrowserTest, ThirtyFourTabs) {
+// Disabling this test http://code.google.com/p/chromium/issues/detail?id=8119
+TEST_F(BrowserTest, DISABLED_ThirtyFourTabs) {
   std::wstring test_file = test_data_directory_;
   file_util::AppendToPath(&test_file, L"title2.html");
   GURL url(net::FilePathToFileURL(test_file));
@@ -281,4 +282,3 @@ TEST_F(VisibleBrowserTest, WindowOpenClose) {
   if (i == 10)
     FAIL() << "failed to get error page title";
 }
-
