@@ -121,6 +121,7 @@ class PasswordManagerView : public views::View,
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
                                     views::View* child);
+  virtual void SetRemoveAllEnabled(bool enabled);
 
   // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();

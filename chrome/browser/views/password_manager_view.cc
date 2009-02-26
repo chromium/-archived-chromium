@@ -135,6 +135,7 @@ void PasswordManagerTableModel::OnWebDataServiceRequestDone(
     saved_signons_[i] = new PasswordRow(
         gfx::SortedDisplayURL(rows[i]->origin, languages), rows[i]);
   }
+  instance_->SetRemoveAllEnabled(RowCount() != 0);
   if (observer_)
     observer_->OnModelChanged();
 }
@@ -159,6 +160,7 @@ void PasswordManagerTableModel::ForgetAndRemoveSignon(int row) {
   web_data_service()->RemoveLogin(*(password_row->form.get()));
   delete password_row;
   saved_signons_.erase(target_iter);
+  instance_->SetRemoveAllEnabled(RowCount() != 0);
   if (observer_)
     observer_->OnItemsRemoved(row, 1);
 }
@@ -172,6 +174,7 @@ void PasswordManagerTableModel::ForgetAndRemoveAllSignons() {
     delete row;
     iter = saved_signons_.erase(iter);
   }
+  instance_->SetRemoveAllEnabled(false);
   if (observer_)
     observer_->OnModelChanged();
 }
@@ -353,6 +356,10 @@ bool PasswordManagerView::HasAlwaysOnTopMenu() const {
 
 std::wstring PasswordManagerView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PASSWORD_MANAGER_VIEW_TITLE);
+}
+
+void PasswordManagerView::SetRemoveAllEnabled(bool enabled) {
+  instance_->remove_all_button_.SetEnabled(enabled);
 }
 
 void PasswordManagerView::ButtonPressed(views::NativeButton* sender) {
