@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/url_constants.h"
 
 // TODO(port): Port this file.
 #if defined(OS_WIN)
@@ -95,7 +96,7 @@ void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
   // If there is only one element and it is a URL, write the URL to the
   // clipboard.
   if (elements.size() == 1 && elements[0].is_url) {
-    if (elements[0].url.SchemeIs("javascript")) {
+    if (elements[0].url.SchemeIs(chrome::kJavaScriptScheme)) {
       data->SetString(ASCIIToWide(elements[0].url.spec()));
     } else {
       data->SetURL(elements[0].url, elements[0].title);

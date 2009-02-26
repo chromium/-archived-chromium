@@ -7,9 +7,21 @@
 namespace chrome {
 
 const char kAboutScheme[] = "about";
+const char kChromeInternalScheme[] = "chrome-internal";
 const char kChromeUIScheme[] = "chrome-ui";
 const char kDataScheme[] = "data";
+const char kExtensionScheme[] = "chrome-extension";
+const char kFileScheme[] = "file";
+const char kFtpScheme[] = "ftp";
+const char kHttpScheme[] = "http";
+const char kHttpsScheme[] = "https";
 const char kJavaScriptScheme[] = "javascript";
+const char kMailToScheme[] = "mailto";
+const char kUserScriptScheme[] = "chrome-user-script";
 const char kViewSourceScheme[] = "view-source";
+
+const char kStandardSchemeSeparator[] = "://";
+
+const char kAboutBlankURL[] = "about:blank";
 
 }  // namespace chrome

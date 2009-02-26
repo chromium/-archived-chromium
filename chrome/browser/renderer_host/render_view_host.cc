@@ -28,6 +28,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/common/thumbnail_score.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
@@ -41,10 +42,10 @@ void FilterURL(RendererSecurityPolicy* policy, int renderer_id, GURL* url) {
   if (!url->is_valid())
     return;  // We don't need to block invalid URLs.
 
-  if (url->SchemeIs("about")) {
+  if (url->SchemeIs(chrome::kAboutScheme)) {
     // The renderer treats all URLs in the about: scheme as being about:blank.
     // Canonicalize about: URLs to about:blank.
-    *url = GURL("about:blank");
+    *url = GURL(chrome::kAboutBlankURL);
   }
 
   if (!policy->CanRequestURL(renderer_id, *url)) {

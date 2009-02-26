@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
+#include "chrome/common/url_constants.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 #if defined(OS_WIN)
@@ -55,7 +56,7 @@ class BackFwdMenuModelTestTabContentsFactory : public TabContentsFactory {
   }
 
   virtual bool CanHandleURL(const GURL& url) {
-    return url.scheme() == "http";
+    return url.SchemeIs(chrome::kHttpScheme);
   }
 };
 

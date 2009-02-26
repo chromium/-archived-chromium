@@ -11,6 +11,7 @@
 
 #include "chrome/browser/history/url_database.h"
 #include "chrome/common/page_transition_types.h"
+#include "chrome/common/url_constants.h"
 
 using base::Time;
 
@@ -326,7 +327,7 @@ bool VisitDatabase::GetRedirectFromVisit(VisitID from_visit,
 bool VisitDatabase::GetVisitCountToHost(const GURL& url,
                                         int* count,
                                         Time* first_visit) {
-  if (!url.SchemeIs("http") && !url.SchemeIs("https"))
+  if (!url.SchemeIs(chrome::kHttpScheme) && !url.SchemeIs(chrome::kHttpsScheme))
     return false;
 
   // We need to search for URLs with a matching host/port. One way to query for

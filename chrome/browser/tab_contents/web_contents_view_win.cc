@@ -23,6 +23,7 @@
 #include "chrome/browser/views/sad_tab_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webdropdata.h"
@@ -123,7 +124,7 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
   if (!drop_data.text_html.empty())
     data->SetHtml(drop_data.text_html, drop_data.html_base_url);
   if (drop_data.url.is_valid()) {
-    if (drop_data.url.SchemeIs("javascript")) {
+    if (drop_data.url.SchemeIs(chrome::kJavaScriptScheme)) {
       // We don't want to allow javascript URLs to be dragged to the desktop,
       // but we do want to allow them to be added to the bookmarks bar
       // (bookmarklets).

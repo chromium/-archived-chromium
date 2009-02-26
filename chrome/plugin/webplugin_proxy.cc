@@ -11,6 +11,7 @@
 #include "base/waitable_event.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/plugin_messages.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/common/win_util.h"
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/npobject_util.h"
@@ -272,8 +273,9 @@ void WebPluginProxy::HandleURLRequest(const char *method,
     if (delegate_->GetQuirks() &
         WebPluginDelegate::PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS) {
       GURL request_url(url);
-      if (!request_url.SchemeIs("http") && !request_url.SchemeIs("https") &&
-          !request_url.SchemeIs("ftp")) {
+      if (!request_url.SchemeIs(chrome::kHttpScheme) &&
+          !request_url.SchemeIs(chrome::kHttpsScheme) &&
+          !request_url.SchemeIs(chrome::kFtpScheme)) {
         return;
       }
     }

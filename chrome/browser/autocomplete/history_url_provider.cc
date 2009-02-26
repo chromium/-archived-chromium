@@ -19,6 +19,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/sqlite_utils.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
 #include "googleurl/src/url_util.h"
@@ -344,8 +345,9 @@ std::wstring HistoryURLProvider::FixupUserInput(const std::wstring& input) {
   // Don't prepend a scheme when the user didn't have one.  Since the fixer
   // upper only prepends the "http" scheme, that's all we need to check for.
   url_parse::Component scheme;
-  if (canonical_gurl.SchemeIs("http") &&
-      !url_util::FindAndCompareScheme(WideToUTF8(input), "http", &scheme))
+  if (canonical_gurl.SchemeIs(chrome::kHttpScheme) &&
+      !url_util::FindAndCompareScheme(WideToUTF8(input), chrome::kHttpScheme,
+                                      &scheme))
     TrimHttpPrefix(&output);
 
   // Make the number of trailing slashes on the output exactly match the input.
@@ -380,7 +382,8 @@ std::wstring HistoryURLProvider::FixupUserInput(const std::wstring& input) {
 // static
 size_t HistoryURLProvider::TrimHttpPrefix(std::wstring* url) {
   url_parse::Component scheme;
-  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), "http", &scheme))
+  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), chrome::kHttpScheme,
+                                      &scheme))
     return 0;  // Not "http".
 
   // Erase scheme plus up to two slashes.
@@ -593,7 +596,7 @@ void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
   // Create a match for exactly what the user typed.  This will always be one
   // of the top two results we return.
   const bool trim_http = !url_util::FindAndCompareScheme(
-      WideToUTF8(input.text()), "http", NULL);
+      WideToUTF8(input.text()), chrome::kHttpScheme, NULL);
   SuggestExactInput(input, trim_http);
 
   // We'll need the history service to run both passes, so try to obtain it.

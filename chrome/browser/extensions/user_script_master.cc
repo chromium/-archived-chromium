@@ -14,11 +14,8 @@
 #include "base/string_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/stl_util-inl.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
-
-// Defined in extension.h.
-extern const char kExtensionURLScheme[];
-extern const char kUserScriptURLScheme[];
 
 // static
 bool GetDeclarationValue(const StringPiece& line, const StringPiece& prefix,
@@ -158,7 +155,7 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
          file = enumerator.Next()) {
       all_scripts.push_back(UserScript());
       UserScript& info = all_scripts.back();
-      info.set_url(GURL(std::string(kUserScriptURLScheme) + ":/" + 
+      info.set_url(GURL(std::string(chrome::kUserScriptScheme) + ":/" + 
           net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName()));
       info.set_path(file);
     }

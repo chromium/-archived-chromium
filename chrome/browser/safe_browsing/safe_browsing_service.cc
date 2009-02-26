@@ -25,6 +25,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/registry_controlled_domain.h"
 
 using base::Time;
@@ -170,7 +171,8 @@ void SafeBrowsingService::OnEnable(bool enabled) {
 }
 
 bool SafeBrowsingService::CanCheckUrl(const GURL& url) const {
-  return url.SchemeIs("http") || url.SchemeIs("https");
+  return url.SchemeIs(chrome::kHttpScheme) ||
+         url.SchemeIs(chrome::kHttpsScheme);
 }
 
 bool SafeBrowsingService::CheckUrl(const GURL& url, Client* client) {

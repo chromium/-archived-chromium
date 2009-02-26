@@ -78,10 +78,10 @@ class RendererSecurityPolicy::SecurityState {
 
 RendererSecurityPolicy::RendererSecurityPolicy() {
   // We know about these schemes and believe them to be safe.
-  RegisterWebSafeScheme("http");
-  RegisterWebSafeScheme("https");
-  RegisterWebSafeScheme("ftp");
-  RegisterWebSafeScheme("data");
+  RegisterWebSafeScheme(chrome::kHttpScheme);
+  RegisterWebSafeScheme(chrome::kHttpsScheme);
+  RegisterWebSafeScheme(chrome::kFtpScheme);
+  RegisterWebSafeScheme(chrome::kDataScheme);
   RegisterWebSafeScheme("feed");
   RegisterWebSafeScheme("chrome-extension");
 
@@ -156,7 +156,7 @@ void RendererSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
   if (IsPseudoScheme(url.scheme())) {
     // The view-source scheme is a special case of a pseudo URL that eventually
     // results in requesting its embedded URL.
-    if (url.SchemeIs("view-source")) {
+    if (url.SchemeIs(chrome::kViewSourceScheme)) {
       // URLs with the view-source scheme typically look like:
       //   view-source:http://www.google.com/a
       // In order to request these URLs, the renderer needs to be able to request
@@ -199,7 +199,7 @@ void RendererSecurityPolicy::GrantInspectElement(int renderer_id) {
 
   // The inspector is served from a chrome-ui: URL.  In order to run the
   // inspector, the renderer needs to be able to load chrome-ui URLs.
-  state->second->GrantScheme("chrome-ui");
+  state->second->GrantScheme(chrome::kChromeUIScheme);
 }
 
 void RendererSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
@@ -212,10 +212,10 @@ void RendererSecurityPolicy::GrantDOMUIBindings(int renderer_id) {
   state->second->GrantDOMUIBindings();
 
   // DOM UI bindings need the ability to request chrome-ui URLs.
-  state->second->GrantScheme("chrome-ui");
+  state->second->GrantScheme(chrome::kChromeUIScheme);
 
   // DOM UI pages can contain links to file:// URLs.
-  state->second->GrantScheme("file");
+  state->second->GrantScheme(chrome::kFileScheme);
 }
 
 bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
@@ -228,13 +228,13 @@ bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
   if (IsPseudoScheme(url.scheme())) {
     // There are a number of special cases for pseudo schemes.
 
-    if (url.SchemeIs("view-source")) {
+    if (url.SchemeIs(chrome::kViewSourceScheme)) {
       // A view-source URL is allowed if the renderer is permitted to request
       // the embedded URL.
       return CanRequestURL(renderer_id, GURL(url.path()));
     }
 
-    if (LowerCaseEqualsASCII(url.spec(), "about:blank"))
+    if (LowerCaseEqualsASCII(url.spec(), chrome::kAboutBlankURL))
       return true;  // Every renderer can request <about:blank>.
 
     // URLs like <about:memory> and <about:crash> shouldn't be requestable by

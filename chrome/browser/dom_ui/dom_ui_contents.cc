@@ -12,10 +12,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/resource_bundle.h"
-
-// The scheme used for DOMUIContentses
-// TODO(glen): Merge this with the scheme in chrome_url_data_manager
-static const char kURLScheme[] = "chrome-ui";
+#include "chrome/common/url_constants.h"
 
 // The path used in internal URLs to thumbnail data.
 static const char kThumbnailPath[] = "thumb";
@@ -126,7 +123,8 @@ void ThumbnailSource::OnThumbnailDataAvailable(
 bool DOMUIContentsCanHandleURL(GURL* url,
                                TabContentsType* result_type) {
   // chrome-internal is a scheme we used to use for the new tab page.
-  if (!url->SchemeIs(kURLScheme) && !url->SchemeIs("chrome-internal"))
+  if (!url->SchemeIs(chrome::kChromeUIScheme) &&
+      !url->SchemeIs(chrome::kChromeInternalScheme))
     return false;
 
   *result_type = TAB_CONTENTS_DOM_UI;
@@ -225,14 +223,14 @@ void DOMUIContents::ProcessDOMUIMessage(const std::string& message,
 
 // static
 const std::string DOMUIContents::GetScheme() {
-  return kURLScheme;
+  return chrome::kChromeUIScheme;
 }
 
 DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
 #if defined(OS_WIN)
 // TODO(port): include this once these are converted to HTML
   if (url.host() == NewTabUI::GetBaseURL().host() ||
-    url.SchemeIs("chrome-internal")) {
+      url.SchemeIs(chrome::kChromeInternalScheme)) {
     return new NewTabUI(this);
   } else if (url.host() == HistoryUI::GetBaseURL().host()) {
     return new HistoryUI(this);

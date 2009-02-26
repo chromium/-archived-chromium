@@ -22,6 +22,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/common/win_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
@@ -194,8 +195,8 @@ void IEImporter::ImportPasswordsIE6() {
       continue;
 
     GURL url(ac_list[i].key.c_str());
-    if (!(LowerCaseEqualsASCII(url.scheme(), "http") ||
-        LowerCaseEqualsASCII(url.scheme(), "https"))) {
+    if (!(LowerCaseEqualsASCII(url.scheme(), chrome::kHttpScheme) ||
+        LowerCaseEqualsASCII(url.scheme(), chrome::kHttpsScheme))) {
       continue;
     }
 
@@ -272,7 +273,10 @@ void IEImporter::ImportPasswordsIE7() {
 
 // Reads history information from COM interface.
 void IEImporter::ImportHistory() {
-  const std::string kSchemes[] = {"http", "https", "ftp", "file"};
+  const std::string kSchemes[] = {chrome::kHttpScheme,
+                                  chrome::kHttpsScheme,
+                                  chrome::kFtpScheme,
+                                  chrome::kFileScheme};
   int total_schemes = arraysize(kSchemes);
 
   CComPtr<IUrlHistoryStg2> url_history_stg2;

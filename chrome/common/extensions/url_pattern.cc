@@ -2,21 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/common/extensions/url_pattern.h"
+
 #include "base/string_piece.h"
 #include "base/string_util.h"
-#include "chrome/common/extensions/url_pattern.h"
+#include "chrome/common/url_constants.h"
 
 // TODO(aa): Consider adding chrome-extension? What about more obscure ones
 // like data: and javascript: ?
 static const char* kValidSchemes[] = {
-  "http",
-  "https",
-  "file",
-  "ftp",
-  "chrome-ui"
+  chrome::kHttpScheme,
+  chrome::kHttpsScheme,
+  chrome::kFileScheme,
+  chrome::kFtpScheme,
+  chrome::kChromeUIScheme,
 };
 
-static const char kSchemeSeparator[] = "://";
 static const char kPathSeparator[] = "/";
 
 static bool IsValidScheme(const std::string& scheme) {
@@ -29,7 +30,7 @@ static bool IsValidScheme(const std::string& scheme) {
 }
 
 bool URLPattern::Parse(const std::string& pattern) {
-  size_t scheme_end_pos = pattern.find(kSchemeSeparator);
+  size_t scheme_end_pos = pattern.find(chrome::kStandardSchemeSeparator);
   if (scheme_end_pos == std::string::npos)
     return false;
 
@@ -37,7 +38,8 @@ bool URLPattern::Parse(const std::string& pattern) {
   if (!IsValidScheme(scheme_))
     return false;
 
-  size_t host_start_pos = scheme_end_pos + strlen(kSchemeSeparator);
+  size_t host_start_pos = scheme_end_pos +
+      strlen(chrome::kStandardSchemeSeparator);
   if (host_start_pos >= pattern.length())
     return false;
 
@@ -128,7 +130,7 @@ bool URLPattern::MatchesPath(const GURL& test) {
 }
 
 std::string URLPattern::GetAsString() const {
-  std::string spec = scheme_ + kSchemeSeparator;
+  std::string spec = scheme_ + chrome::kStandardSchemeSeparator;
 
   if (match_subdomains_) {
     spec += "*";

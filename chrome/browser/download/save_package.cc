@@ -28,6 +28,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
+#include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "net/base/io_buffer.h"
 #include "net/base/mime_util.h"
@@ -1068,8 +1069,10 @@ bool SavePackage::GetSaveInfo(const FilePath& suggest_name,
 
 // Static
 bool SavePackage::IsSavableURL(const GURL& url) {
-  return url.SchemeIs("http") || url.SchemeIs("https") ||
-         url.SchemeIs("file") || url.SchemeIs("ftp");
+  return url.SchemeIs(chrome::kHttpScheme) ||
+         url.SchemeIs(chrome::kHttpsScheme) ||
+         url.SchemeIs(chrome::kFileScheme) ||
+         url.SchemeIs(chrome::kFtpScheme);
 }
 
 // Static

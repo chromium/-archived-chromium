@@ -15,6 +15,7 @@
 #include "chrome/browser/search_engines/template_url_parser.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/time_format.h"
+#include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "net/base/data_url.h"
 
@@ -527,7 +528,7 @@ void Firefox2Importer::DataURLToFaviconUsage(
     const GURL& favicon_data,
     std::vector<history::ImportedFavIconUsage>* favicons) {
   if (!link_url.is_valid() || !favicon_data.is_valid() ||
-      !favicon_data.SchemeIs("data"))
+      !favicon_data.SchemeIs(chrome::kDataScheme))
     return;
 
   // Parse the data URL.

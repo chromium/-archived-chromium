@@ -7,13 +7,10 @@
 #include "base/string_util.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/net/chrome_url_request_context.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_file_job.h"
-
-// Defined in extension.h.
-extern const char kExtensionURLScheme[];
-extern const char kUserScriptURLScheme[];
 
 // Factory registered with URLRequest to create URLRequestJobs for extension://
 // URLs.
@@ -51,10 +48,10 @@ static URLRequestJob* CreateUserScriptURLRequestJob(URLRequest* request,
 void RegisterExtensionProtocols() {
   // Being a standard scheme allows us to resolve relative paths. This is used
   // by extensions, but not by standalone user scripts.
-  url_util::AddStandardScheme(kExtensionURLScheme);
+  url_util::AddStandardScheme(chrome::kExtensionScheme);
 
-  URLRequest::RegisterProtocolFactory(kExtensionURLScheme,
+  URLRequest::RegisterProtocolFactory(chrome::kExtensionScheme,
                                       &CreateExtensionURLRequestJob);
-  URLRequest::RegisterProtocolFactory(kUserScriptURLScheme,
+  URLRequest::RegisterProtocolFactory(chrome::kUserScriptScheme,
                                       &CreateUserScriptURLRequestJob);
 }

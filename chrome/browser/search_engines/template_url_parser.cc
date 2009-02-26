@@ -11,6 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/browser/search_engines/template_url.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "libxml/parser.h"
 #include "libxml/xmlwriter.h"
@@ -482,7 +483,7 @@ void EndElementImpl(void *ctx, const xmlChar *name) {
       break;
     case ParsingContext::IMAGE: {
       GURL image_url(WideToUTF8(context->GetString()));
-      if (image_url.SchemeIs("data")) {
+      if (image_url.SchemeIs(chrome::kDataScheme)) {
         // TODO (jcampan): bug 1169256: when dealing with data URL, we need to
         // decode the data URL in the renderer. For now, we'll just point to the
         // fav icon from the URL.
@@ -523,7 +524,8 @@ bool IsHTTPRef(const TemplateURLRef* ref) {
   if (ref == NULL)
     return true;
   GURL url(WideToUTF8(ref->url()));
-  return (url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
+  return (url.is_valid() && (url.SchemeIs(chrome::kHttpScheme) ||
+                             url.SchemeIs(chrome::kHttpsScheme)));
 }
 
 // Returns true if the TemplateURL is legal. A legal TemplateURL is one
@@ -536,7 +538,8 @@ bool IsLegal(TemplateURL* url) {
   for (size_t i = 0; i < image_refs.size(); i++) {
     GURL image_url(image_refs[i].url);
     if (!image_url.is_valid() ||
-        !(image_url.SchemeIs("http") || image_url.SchemeIs("https"))) {
+        !(image_url.SchemeIs(chrome::kHttpScheme) ||
+          image_url.SchemeIs(chrome::kHttpsScheme))) {
       return false;
     }
   }

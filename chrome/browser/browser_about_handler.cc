@@ -30,6 +30,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
 #include "googleurl/src/gurl.h"
 #include "grit/browser_resources.h"
@@ -235,7 +236,7 @@ BrowserAboutHandler::BrowserAboutHandler(Profile* profile,
 
 bool BrowserAboutHandler::SupportsURL(GURL* url) {
   // Enable this tab contents to access javascript urls.
-  if (url->SchemeIs("javascript"))
+  if (url->SchemeIs(chrome::kJavaScriptScheme))
     return true;
   return WebContents::SupportsURL(url);
 }

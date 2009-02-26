@@ -22,6 +22,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/sqlite_utils.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/registry_controlled_domain.h"
 
@@ -368,7 +369,7 @@ void HistoryBackend::AddPage(scoped_refptr<HistoryAddPageArgs> request) {
 
     PageTransition::Type redirect_info = PageTransition::CHAIN_START;
 
-    if (request->redirects[0].SchemeIs("about")) {
+    if (request->redirects[0].SchemeIs(chrome::kAboutScheme)) {
       // When the redirect source + referrer is "about" we skip it. This
       // happens when a page opens a new frame/window to about:blank and then
       // script sets the URL to somewhere else (used to hide the referrer). It

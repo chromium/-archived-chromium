@@ -9,6 +9,7 @@
 #include "net/base/mime_sniffer.h"
 #include "chrome/browser/renderer_host/download_throttling_resource_handler.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/mime_sniffer.h"
 #include "net/base/io_buffer.h"
 #include "net/http/http_response_headers.h"
@@ -164,8 +165,8 @@ bool BufferedResourceHandler::ShouldBuffer(const GURL& url,
                                            const std::string& mime_type) {
   // We are willing to buffer for HTTP and HTTPS.
   bool sniffable_scheme = url.is_empty() ||
-                          url.SchemeIs("http") ||
-                          url.SchemeIs("https");
+                          url.SchemeIs(chrome::kHttpScheme) ||
+                          url.SchemeIs(chrome::kHttpsScheme);
   if (!sniffable_scheme)
     return false;
 

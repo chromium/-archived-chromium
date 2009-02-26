@@ -9,9 +9,7 @@
 #include "base/string_util.h"
 #include "net/base/net_util.h"
 #include "chrome/common/extensions/user_script.h"
-
-const char kExtensionURLScheme[] = "chrome-extension";
-const char kUserScriptURLScheme[] = "chrome-user-script";
+#include "chrome/common/url_constants.h"
 
 const char Extension::kManifestFilename[] = "manifest.json";
 
@@ -75,13 +73,10 @@ const std::string Extension::VersionString() const {
   return version_->GetString();
 }
 
-// Defined in extension_protocols.h.
-extern const char kExtensionURLScheme[];
-
 // static
 GURL Extension::GetResourceURL(const GURL& extension_url,
                                const std::string& relative_path) {
-  DCHECK(extension_url.SchemeIs(kExtensionURLScheme));
+  DCHECK(extension_url.SchemeIs(chrome::kExtensionScheme));
   DCHECK(extension_url.path() == "/");
 
   GURL ret_val = GURL(extension_url.spec() + relative_path);
@@ -195,7 +190,8 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   }
 
   // Initialize URL.
-  extension_url_ = GURL(std::string(kExtensionURLScheme) + "://" + id_ + "/");
+  extension_url_ = GURL(std::string(chrome::kExtensionScheme) +
+                        chrome::kStandardSchemeSeparator + id_ + "/");
 
   // Initialize version.
   std::string version_str;

@@ -20,6 +20,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/time_format.h"
+#include "chrome/common/url_constants.h"
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
 #include "net/base/cert_status_flags.h"
@@ -376,8 +377,9 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
                                  ResourceType::Type resource_type,
                                  int ssl_cert_id, int ssl_cert_status) {
   // These schemes never leave the browser and don't require a warning.
-  if (url.SchemeIs("data") || url.SchemeIs("javascript") ||
-      url.SchemeIs("about"))
+  if (url.SchemeIs(chrome::kDataScheme) ||
+      url.SchemeIs(chrome::kJavaScriptScheme) ||
+      url.SchemeIs(chrome::kAboutScheme))
     return;
 
   NavigationEntry* entry = manager->controller()->GetActiveEntry();

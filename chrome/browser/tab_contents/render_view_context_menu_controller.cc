@@ -78,7 +78,7 @@ void RenderViewContextMenuController::WriteTextToClipboard(
 }
 
 void RenderViewContextMenuController::WriteURLToClipboard(const GURL& url) {
-  if (url.SchemeIs("mailto"))
+  if (url.SchemeIs(chrome::kMailToScheme))
     WriteTextToClipboard(UTF8ToWide(url.path()));
   else
     WriteTextToClipboard(UTF8ToWide(url.spec()));
@@ -99,7 +99,7 @@ std::wstring RenderViewContextMenuController::GetLabel(int id) const {
     }
 
     case IDS_CONTENT_CONTEXT_COPYLINKLOCATION:
-      if (params_.link_url.SchemeIs("mailto"))
+      if (params_.link_url.SchemeIs(chrome::kMailToScheme))
         return l10n_util::GetString(IDS_CONTENT_CONTEXT_COPYEMAILADDRESS);
 
     default:

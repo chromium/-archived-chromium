@@ -15,6 +15,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/url_util.h"
 #include "grit/generated_resources.h"
 #include "net/base/escape.h"
@@ -606,7 +607,8 @@ AutocompleteMatch SearchProvider::NavigationToMatch(
 // static
 size_t SearchProvider::TrimHttpPrefix(std::wstring* url) {
   url_parse::Component scheme;
-  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), "http", &scheme))
+  if (!url_util::FindAndCompareScheme(WideToUTF8(*url), chrome::kHttpScheme,
+                                      &scheme))
     return 0;  // Not "http".
 
   // Erase scheme plus up to two slashes.

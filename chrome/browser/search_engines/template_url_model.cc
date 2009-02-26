@@ -20,6 +20,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_parse.h"
 #include "grit/locale_settings.h"
@@ -159,7 +160,7 @@ std::wstring TemplateURLModel::GenerateKeyword(const GURL& url,
   // elements and update AutocompletePopup to look for keywords using the path.
   // See http://b/issue?id=863583.
   if (!url.is_valid() ||
-      (autodetected && (url.has_query() || (url.scheme() != "http") ||
+      (autodetected && (url.has_query() || !url.SchemeIs(chrome::kHttpScheme) ||
                         ((url.path() != "") && (url.path() != "/")))))
     return std::wstring();
 

@@ -10,6 +10,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/text_elider.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_file.h"
@@ -303,14 +304,16 @@ string URLFixerUpper::SegmentURL(const string& text,
   // When we couldn't find a scheme in the input, we need to pick one.  Normally
   // we choose http, but if the URL starts with "ftp.", we match other browsers
   // and choose ftp.
-  if (!parts->scheme.is_valid())
-    scheme.assign(StartsWithASCII(text, "ftp.", false) ? "ftp" : "http");
+  if (!parts->scheme.is_valid()) {
+    scheme.assign(StartsWithASCII(text, "ftp.", false) ?
+        chrome::kFtpScheme : chrome::kHttpScheme);
+  }
 
   // Cannonicalize the scheme.
   StringToLowerASCII(&scheme);
 
   // Not segmenting file schemes or nonstandard schemes.
-  if ((scheme == "file") ||
+  if ((scheme == chrome::kFileScheme) ||
       !url_util::IsStandard(scheme.c_str(), static_cast<int>(scheme.length()),
       url_parse::Component(0, static_cast<int>(scheme.length()))))
     return scheme;

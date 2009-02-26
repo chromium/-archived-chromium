@@ -16,6 +16,7 @@
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/stl_util-inl.h"
+#include "chrome/common/url_constants.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 const TabContentsType kHTTPTabContentsType =
@@ -82,7 +83,7 @@ class TabStripModelTestTabContentsFactory : public TabContentsFactory {
   }
 
   virtual bool CanHandleURL(const GURL& url) {
-    return url.scheme() == "http";
+    return url.SchemeIs(chrome::kHttpScheme);
   }
 };
 

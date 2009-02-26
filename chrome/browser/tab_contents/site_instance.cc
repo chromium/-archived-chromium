@@ -5,6 +5,7 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/registry_controlled_domain.h"
 
 SiteInstance::~SiteInstance() {
@@ -124,7 +125,8 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
 
   // We must treat javascript: URLs as part of the same site, regardless of
   // the site.
-  if (url1.SchemeIs("javascript") || url2.SchemeIs("javascript"))
+  if (url1.SchemeIs(chrome::kJavaScriptScheme) ||
+      url2.SchemeIs(chrome::kJavaScriptScheme))
     return true;
 
   // We treat about:crash, about:hang, and about:shorthang as the same site as
