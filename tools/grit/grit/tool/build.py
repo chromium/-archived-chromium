@@ -157,10 +157,11 @@ are exported to translation interchange files (e.g. XMB files), etc.
     for output in self.res.GetOutputFiles():
       self.VerboseOut('Creating %s...' % output.GetFilename())
 
-      # Don't build data package files on mac/windows because it's not used and
+      # Don't build data package files on windows because it's not used and
       # there are project dependency issues.  We still need to create the file
       # to satisfy build dependencies.
-      if output.GetType() == 'data_package' and sys.platform != 'linux2':
+      linux_or_mac = (sys.platform == 'linux2' or sys.platform == 'darwin')
+      if output.GetType() == 'data_package' and not linux_or_mac:
         f = open(output.GetOutputFilename(), 'wb')
         f.close()
         continue
