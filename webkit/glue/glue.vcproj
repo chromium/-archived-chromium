@@ -193,6 +193,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webinputevent_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\webmediaplayer.h"
 				>
 			</File>
