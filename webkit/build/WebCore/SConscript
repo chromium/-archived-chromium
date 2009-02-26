@@ -35,6 +35,7 @@ env.Append(
         '$THIRD_PARTY_DIR/sqlite/preprocessed'
     ],
     LIBS = [
+        'WebKit',
         'V8Bindings',
         'JavaScriptCore_pcre',
     ],
