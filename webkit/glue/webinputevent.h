@@ -179,12 +179,6 @@ class WebKeyboardEvent : public WebInputEvent {
   // References to the original event.
 #if defined(OS_WIN)
   MSG actual_message;  // Set to the current keyboard message. TODO(avi): remove
-
-  // Stores the GDK keyval and modifier state of the GdkEventKey; this is used
-  // to transport these values across IPC so they can be used in the front end
-  // code.
-  guint gdk_keyval;
-  guint gdk_modifier;
 #endif
 
   WebKeyboardEvent() : windows_key_code(0),
