@@ -44,6 +44,9 @@ NET_ERROR(NOT_IMPLEMENTED, -11)
 // There were not enough resources to complete the operation.
 NET_ERROR(INSUFFICIENT_RESOURCES, -12)
 
+// Memory allocation failed.
+NET_ERROR(OUT_OF_MEMORY, -13)
+
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 
@@ -223,7 +226,7 @@ NET_ERROR(EMPTY_RESPONSE, -324)
 
 // The headers section of the response is too large.
 NET_ERROR(RESPONSE_HEADERS_TOO_BIG, -325)
-    
+
 // The PAC requested by HTTP did not have a valid status code (non-200).
 NET_ERROR(PAC_STATUS_NOT_OK, -326)
 
