@@ -400,8 +400,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (process_singleton.NotifyOtherProcess())
     return ResultCodes::NORMAL_EXIT;
 
-  process_singleton.HuntForZombieChromeProcesses();
-
   // Do the tasks if chrome has been upgraded while it was last running.
   if (!already_running && DoUpgradeTasks(parsed_command_line)) {
     return ResultCodes::NORMAL_EXIT;
