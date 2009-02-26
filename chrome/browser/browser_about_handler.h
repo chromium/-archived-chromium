@@ -71,6 +71,9 @@ class BrowserAboutHandler : public WebContents {
   // information about current state.
   static void AboutMemory(AboutSource*, int request_id);
 
+  // This displays the Linux splash screen for development releases.
+  static std::string AboutLinuxSplash();
+
  private:
   ChromeURLDataManager::DataSource* about_source_;
   DISALLOW_COPY_AND_ASSIGN(BrowserAboutHandler);

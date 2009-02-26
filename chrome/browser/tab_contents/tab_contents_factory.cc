@@ -48,6 +48,9 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_WEB:
       contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
       break;
+    case TAB_CONTENTS_ABOUT_UI:
+      contents = new BrowserAboutHandler(profile, instance, NULL);
+      break;
 // TODO(port): remove this platform define, either by porting the tab contents
 // types or removing them completely.
 #if defined(OS_WIN)
@@ -56,9 +59,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       break;
     case TAB_CONTENTS_NATIVE_UI:
       contents = new NativeUIContents(profile);
-      break;
-    case TAB_CONTENTS_ABOUT_UI:
-      contents = new BrowserAboutHandler(profile, instance, NULL);
       break;
     case TAB_CONTENTS_DEBUGGER:
     case TAB_CONTENTS_NEW_TAB_UI:
@@ -116,6 +116,11 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
     return TAB_CONTENTS_DOM_UI;
 
 #elif defined(OS_POSIX)
+  TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
+  if (BrowserURLHandler::HandleBrowserURL(url, &type) &&
+      type == TAB_CONTENTS_ABOUT_UI) {
+    return type;
+  }
   NOTIMPLEMENTED();
 #endif
 

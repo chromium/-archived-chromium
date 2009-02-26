@@ -61,6 +61,7 @@ static const char kStatsPath[] = "stats";
 static const char kVersionPath[] = "version";
 static const char kCreditsPath[] = "credits";
 static const char kTermsPath[] = "terms";
+static const char kLinuxSplash[] = "linux-splash";
 
 class AboutSource : public ChromeURLDataManager::DataSource {
  public:
@@ -141,6 +142,12 @@ void AboutSource::StartDataRequest(const std::string& path_raw,
   } else if (path == kTermsPath) {
     response = BrowserAboutHandler::AboutTerms();
   }
+#if defined(OS_LINUX)
+  else if (path == kLinuxSplash) {
+    response = BrowserAboutHandler::AboutLinuxSplash();
+  }
+#endif
+
   FinishDataRequest(response, request_id);
 }
 
@@ -301,6 +308,15 @@ std::string BrowserAboutHandler::AboutCredits() {
           IDR_CREDITS_HTML);
 
   return credits_html;
+}
+
+// static
+std::string BrowserAboutHandler::AboutLinuxSplash() {
+  static const std::string linux_splash_html =
+      ResourceBundle::GetSharedInstance().GetDataResource(
+          IDR_LINUX_SPLASH_HTML);
+
+  return linux_splash_html;
 }
 
 // static

@@ -2387,6 +2387,9 @@ void Browser::BuildPopupWindow(TabContents* source,
 }
 
 GURL Browser::GetHomePage() {
+#if defined(OS_LINUX)
+  return GURL("about:linux-splash");
+#endif
   if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
     return NewTabUI::GetBaseURL();
   GURL home_page = GURL(URLFixerUpper::FixupURL(
