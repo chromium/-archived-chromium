@@ -96,10 +96,11 @@ Logging::Logging()
     enabled_ = true;
   SetLoggerFunctions(g_log_function_mapping);
 #endif
+
+  MessageLoop::current()->AddDestructionObserver(this);
 }
 
 Logging::~Logging() {
-  watcher_.StopWatching();
 }
 
 Logging* Logging::current() {
@@ -115,6 +116,10 @@ void Logging::RegisterWaitForEvent(bool enabled) {
 void Logging::OnWaitableEventSignaled(base::WaitableEvent* event) {
   enabled_ = event == logging_event_on_.get();
   RegisterWaitForEvent(!enabled_);
+}
+
+void Logging::WillDestroyCurrentMessageLoop() {
+  watcher_.StopWatching();
 }
 
 void Logging::SetLoggerFunctions(LogFunction *functions) {

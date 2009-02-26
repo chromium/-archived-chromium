@@ -10,6 +10,7 @@
 #ifdef IPC_MESSAGE_LOG_ENABLED
 
 #include "base/lock.h"
+#include "base/message_loop.h"
 #include "base/singleton.h"
 #include "base/waitable_event_watcher.h"
 #include "chrome/common/ipc_message_utils.h"
@@ -23,7 +24,8 @@ class Message;
 // One instance per process.  Needs to be created on the main thread (the UI
 // thread in the browser) but OnPreDispatchMessage/OnPostDispatchMessage
 // can be called on other threads.
-class Logging : public base::WaitableEventWatcher::Delegate {
+class Logging : public base::WaitableEventWatcher::Delegate,
+                public MessageLoop::DestructionObserver {
  public:
   // Implemented by consumers of log messages.
   class Consumer {
@@ -66,6 +68,9 @@ class Logging : public base::WaitableEventWatcher::Delegate {
 
   // WaitableEventWatcher::Delegate implementation
   void OnWaitableEventSignaled(base::WaitableEvent* event);
+
+  // MessageLoop::DestructionObserver implementation
+  void WillDestroyCurrentMessageLoop();
 
   typedef void (*LogFunction)(uint16 type,
                              std::wstring* name,
