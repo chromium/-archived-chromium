@@ -53,6 +53,7 @@ env.Prepend(
         'JavaScriptCore_pcre',
         'port',
         'WebCore',
+        'WebKit',
 
         'X11',
         'Xrender',

@@ -48,6 +48,7 @@ env.Prepend(
         'V8Bindings',
         'WTF',
         'WebCore',
+        'WebKit',
         'debugger',
         'glue',
         'port',
