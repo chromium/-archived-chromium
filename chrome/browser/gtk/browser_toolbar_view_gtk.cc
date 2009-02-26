@@ -115,6 +115,9 @@ void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {
     case IDC_RELOAD:
       widget = reload_->widget();
       break;
+    case IDC_GO:
+      widget = go_->widget();
+      break;
     case IDC_HOME:
       if (home_.get())
         widget = home_->widget();
@@ -231,6 +234,8 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
     tag = IDC_FORWARD;
   else if (button == toolbar->reload_->widget())
     tag = IDC_RELOAD;
+  else if (button == toolbar->go_->widget())
+    tag = IDC_GO;
   else if (toolbar->home_.get() && button == toolbar->home_->widget())
     tag = IDC_HOME;
   else if (button == toolbar->star_->widget())
