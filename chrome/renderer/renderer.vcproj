@@ -206,6 +206,30 @@
 			>
 		</File>
 		<File
+			RelativePath=".\dev_tools_agent.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_agent.h"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_client.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_client.h"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_messages.h"
+			>
+		</File>
+		<File
+			RelativePath=".\dev_tools_messages_internal.h"
+			>
+		</File>
+		<File
 			RelativePath=".\dom_ui_bindings.cc"
 			>
 		</File>

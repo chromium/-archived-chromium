@@ -26,6 +26,8 @@
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
 #include "chrome/renderer/debug_message_handler.h"
+#include "chrome/renderer/dev_tools_agent.h"
+#include "chrome/renderer/dev_tools_client.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/render_process.h"
@@ -169,6 +171,8 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       method_factory_(this),
       first_default_plugin_(NULL),
       printed_document_width_(0),
+      dev_tools_agent_(NULL),
+      dev_tools_client_(NULL),
       history_back_list_count_(0),
       history_forward_list_count_(0),
       disable_popup_blocking_(false),
@@ -197,6 +201,7 @@ RenderView::~RenderView() {
   }
 
   render_thread_->RemoveFilter(debug_message_handler_);
+  render_thread_->RemoveFilter(dev_tools_agent_);
 
 #ifdef CHROME_PERSONALIZATION
   Personalization::CleanupRendererPersonalization(personalization_);
@@ -314,6 +319,9 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
+
+  dev_tools_agent_ = new DevToolsAgent(this, MessageLoop::current());
+  render_thread_->AddFilter(dev_tools_agent_);
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -331,6 +339,10 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
 
   // Let the resource dispatcher intercept resource messages first.
   if (resource_dispatcher_->OnMessageReceived(message))
+    return;
+
+  // If this is developer tools renderer intercept tools messages first.
+  if (dev_tools_client_.get() && dev_tools_client_->OnMessageReceived(message))
     return;
 
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)
@@ -356,6 +368,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_SetPageEncoding, OnSetPageEncoding)
     IPC_MESSAGE_HANDLER(ViewMsg_InspectElement, OnInspectElement)
     IPC_MESSAGE_HANDLER(ViewMsg_ShowJavaScriptConsole, OnShowJavaScriptConsole)
+    IPC_MESSAGE_HANDLER(ViewMsg_SetupDevToolsClient, OnSetupDevToolsClient)
     IPC_MESSAGE_HANDLER(ViewMsg_DownloadImage, OnDownloadImage)
     IPC_MESSAGE_HANDLER(ViewMsg_ScriptEvalRequest, OnScriptEvalRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_AddMessageToConsole, OnAddMessageToConsole)
@@ -902,6 +915,11 @@ void RenderView::OnInspectElement(int x, int y) {
 
 void RenderView::OnShowJavaScriptConsole() {
   webview()->ShowJavaScriptConsole();
+}
+
+void RenderView::OnSetupDevToolsClient() {
+  DCHECK(!dev_tools_client_.get());
+  dev_tools_client_.reset(new DevToolsClient(this));
 }
 
 void RenderView::OnStopFinding(bool clear_selection) {
