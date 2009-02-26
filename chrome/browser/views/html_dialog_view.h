@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/gfx/size.h"
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/views/dom_view.h"
@@ -55,7 +56,7 @@ class HtmlDialogView
   virtual bool IsDialogModal() const;
   virtual std::wstring GetDialogTitle() const;
   virtual GURL GetDialogContentURL() const;
-  virtual void GetDialogSize(CSize* size) const;
+  virtual void GetDialogSize(gfx::Size* size) const;
   virtual std::string GetDialogArgs() const;
   virtual void OnDialogClosed(const std::string& json_retval);
 

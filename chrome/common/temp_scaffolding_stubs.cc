@@ -246,11 +246,6 @@ bool IsPluginProcess() {
 
 //--------------------------------------------------------------------------
 
-// This is from chrome_plugin_util.cc.
-void CPB_Free(void* memory) { NOTIMPLEMENTED(); }
-
-//--------------------------------------------------------------------------
-
 void RunJavascriptMessageBox(WebContents* web_contents,
                              int dialog_flags,
                              const std::wstring& message_text,
@@ -352,10 +347,6 @@ void DebuggerShell::ProcessCommand(const std::wstring& data) {
 }
 #endif  // !CHROME_DEBUGGER_DISABLED
 
-ScopableCPRequest::~ScopableCPRequest() {
-  NOTIMPLEMENTED();
-}
-
 MemoryDetails::MemoryDetails() {
   NOTIMPLEMENTED();
 }
@@ -379,19 +370,9 @@ InfoBar* LinkInfoBarDelegate::CreateInfoBar() {
   return NULL;
 }
 
-void CPHandleCommand(int command, CPCommandInterface* data,
-                     CPBrowsingContext context) {
-  NOTIMPLEMENTED();
-}
-
 bool CanImportURL(const GURL& url) {
   NOTIMPLEMENTED();
   return false;
-}
-
-CPBrowserFuncs* GetCPBrowserFuncsForBrowser() {
-  NOTIMPLEMENTED();
-  return NULL;
 }
 
 DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(

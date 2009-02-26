@@ -29,9 +29,9 @@ HtmlDialogView::~HtmlDialogView() {
 // HtmlDialogView, views::View implementation:
 
 gfx::Size HtmlDialogView::GetPreferredSize() {
-  CSize out;
+  gfx::Size out;
   delegate_->GetDialogSize(&out);
-  return gfx::Size(out.cx, out.cy);
+  return out;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,8 +80,8 @@ GURL HtmlDialogView::GetDialogContentURL() const {
   return delegate_->GetDialogContentURL();
 }
 
-void HtmlDialogView::GetDialogSize(CSize* size) const {
-  return delegate_->GetDialogSize(size);
+void HtmlDialogView::GetDialogSize(gfx::Size* size) const {
+  delegate_->GetDialogSize(size);
 }
 
 std::string HtmlDialogView::GetDialogArgs() const {

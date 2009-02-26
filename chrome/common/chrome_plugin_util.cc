@@ -22,8 +22,13 @@ ScopableCPRequest::ScopableCPRequest(const char* u, const char* m,
                                      CPBrowsingContext c) {
   pdata = NULL;
   data = NULL;
+#if defined(OS_WIN)
   url = _strdup(u);
   method = _strdup(m);
+#else
+  url = strdup(u);
+  method = strdup(m);
+#endif
   context = c;
 }
 
@@ -94,7 +99,7 @@ uint32 PluginResponseUtils::CPLoadFlagsToNetFlags(uint32 flags) {
 
 int PluginResponseUtils::GetResponseInfo(
     const net::HttpResponseHeaders* response_headers,
-    CPResponseInfoType type, void* buf, uint32 buf_size) {
+    CPResponseInfoType type, void* buf, size_t buf_size) {
   if (!response_headers)
     return CPERR_FAILURE;
 
@@ -129,11 +134,10 @@ CPError CPB_GetCommandLineArgumentsCommon(const char* url,
   std::wstring user_data_dir = cmd.GetSwitchValue(switches::kUserDataDir);
   if (!user_data_dir.empty()) {
     // Make sure user_data_dir is an absolute path.
-    wchar_t user_data_dir_full[MAX_PATH];
-    if (_wfullpath(user_data_dir_full, user_data_dir.c_str(), MAX_PATH) &&
-        file_util::PathExists(user_data_dir_full)) {
+    if (file_util::AbsolutePath(&user_data_dir) &&
+        file_util::PathExists(user_data_dir)) {
       arguments_w += std::wstring(L"--") + switches::kUserDataDir +
-                     L'=' + user_data_dir_full;
+                     L'=' + user_data_dir;
     }
   }
 

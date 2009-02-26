@@ -45,9 +45,9 @@ GURL ModalHtmlDialogDelegate::GetDialogContentURL() const {
   return params_.url;
 }
 
-void ModalHtmlDialogDelegate::GetDialogSize(CSize* size) const {
-  size->cx = params_.width;
-  size->cy = params_.height;
+void ModalHtmlDialogDelegate::GetDialogSize(gfx::Size* size) const {
+  size->set_width(params_.width);
+  size->set_height(params_.height);
 }
 
 std::string ModalHtmlDialogDelegate::GetDialogArgs() const {

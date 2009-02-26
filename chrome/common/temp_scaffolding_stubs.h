@@ -629,6 +629,16 @@ class ModalHtmlDialogDelegate : public HtmlDialogContentsDelegate {
                           IPC::Message*, WebContents*) { }
 };
 
+class HtmlDialogContents {
+ public:
+  struct HtmlDialogParams {
+    GURL url;
+    int width;
+    int height;
+    std::string json_input;
+  };
+};
+
 class CharacterEncoding {
  public:
   static std::wstring GetCanonicalEncodingNameByAliasName(

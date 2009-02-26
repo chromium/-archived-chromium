@@ -6,6 +6,7 @@
 
 #include <set>
 
+#include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/gfx/png_encoder.h"
@@ -18,7 +19,6 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
@@ -33,13 +33,20 @@
 #include "chrome/common/gears_api.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/net/url_request_intercept_job.h"
-#include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "net/base/base64.h"
 #include "net/base/cookie_monster.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_error_job.h"
 #include "skia/include/SkBitmap.h"
+
+// TODO(port): Port these files.
+#if defined(OS_WIN)
+#include "chrome/browser/dom_ui/html_dialog_contents.h"
+#include "chrome/common/plugin_messages.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 using base::TimeDelta;
 
@@ -283,12 +290,12 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
                              void* plugin_context,
                              ChromePluginLib* plugin,
                              MessageLoop* main_message_loop,
-                             HWND parent_hwnd)
-      : plugin_(plugin),
-        plugin_context_(plugin_context),
-        main_message_loop_(main_message_loop),
+                             gfx::NativeWindow parent_wnd)
+      : main_message_loop_(main_message_loop),
         io_message_loop_(MessageLoop::current()),
-        parent_hwnd_(parent_hwnd) {
+        plugin_(plugin),
+        plugin_context_(plugin_context),
+        parent_wnd_(parent_wnd) {
     DCHECK(ChromePluginLib::IsPluginThread());
     params_.url = url;
     params_.height = height;
@@ -308,9 +315,9 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
   virtual bool IsDialogModal() const { return false; }
   virtual std::wstring GetDialogTitle() const { return L"Google Gears"; }
   virtual GURL GetDialogContentURL() const { return params_.url; }
-  virtual void GetDialogSize(CSize* size) const {
-    size->cx = params_.width;
-    size->cy = params_.height;
+  virtual void GetDialogSize(gfx::Size* size) const {
+    size->set_width(params_.width);
+    size->set_height(params_.height);
   }
   virtual std::string GetDialogArgs() const { return params_.json_input; }
   virtual void OnDialogClosed(const std::string& json_retval) {
@@ -323,7 +330,7 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
   void Show() {
     DCHECK(MessageLoop::current() == main_message_loop_);
     Browser* browser = BrowserList::GetLastActive();
-    browser->ShowHtmlDialog(this, parent_hwnd_);
+    browser->ShowHtmlDialog(this, parent_wnd_);
   }
 
   // Gives the JSON result string back to the plugin.
@@ -352,16 +359,18 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
 
   // The window this dialog box should be parented to, or NULL for the last
   // active browser window.
-  HWND parent_hwnd_;
+  gfx::NativeWindow parent_wnd_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ModelessHtmlDialogDelegate);
 };
 
 // Allows InvokeLater without adding refcounting.  The object is only deleted
 // when its last InvokeLater is run anyway.
+template<>
 void RunnableMethodTraits<ModelessHtmlDialogDelegate>::RetainCallee(
     ModelessHtmlDialogDelegate* remover) {
 }
+template<>
 void RunnableMethodTraits<ModelessHtmlDialogDelegate>::ReleaseCallee(
     ModelessHtmlDialogDelegate* remover) {
 }
@@ -576,6 +585,7 @@ CPError STDCALL CPB_CreateRequest(CPID id, CPBrowsingContext context,
 
   ScopableCPRequest* cprequest = new ScopableCPRequest(url, method, context);
   PluginRequestHandler* handler = new PluginRequestHandler(plugin, cprequest);
+  CHECK(handler);
 
   *request = cprequest;
   return CPERR_SUCCESS;
@@ -700,8 +710,13 @@ CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
 
     const unsigned char* data_ptr = static_cast<const unsigned char*>(data);
     std::vector<uint8> v(data_ptr, data_ptr + data_len);
+#if defined(OS_WIN)
     if (!host->Send(new PluginProcessMsg_PluginMessage(v)))
       return CPERR_FAILURE;
+#else
+    // TODO(port): Implement PluginProcessMsg.
+    NOTIMPLEMENTED();
+#endif
 
     return CPERR_SUCCESS;
   }

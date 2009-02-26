@@ -64,7 +64,7 @@ public:
   // Common implementation of a CPR_GetResponseInfo call.
   static int GetResponseInfo(
       const net::HttpResponseHeaders* response_headers,
-      CPResponseInfoType type, void* buf, uint32 buf_size);
+      CPResponseInfoType type, void* buf, size_t buf_size);
 };
 
 // Helper to allocate a string using the given CPB_Alloc function.

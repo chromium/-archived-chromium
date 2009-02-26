@@ -75,6 +75,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		00DB1C89F45A2D08B3CB5806 /* chrome_plugin_host.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF85D0E9D4839009A6919 /* chrome_plugin_host.cc */; };
 		0A124E6F8B659427ABF96220 /* plugin_service.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8E00E9D4839009A6919 /* plugin_service.cc */; };
 		0A32377E82932F703AA3120A /* download_request_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D640D1F0EAE881300EBCFC0 /* download_request_manager.cc */; };
 		0D71821EDDA2629232DE3AD9 /* safe_browsing_blocking_page.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADB0E9D49DE009A6919 /* safe_browsing_blocking_page.cc */; };
@@ -89,6 +90,7 @@
 		261AA15DB2FF0FA9B0E63ACF /* automation_provider.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9640EC4EA270052B72B /* automation_provider.cc */; };
 		2760C4346D6AB3AD94E9CF05 /* url_fixer_upper.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16EF40F2145C600861FAC /* url_fixer_upper.cc */; };
 		28283DBE4B6DB2B0F9893676 /* dns_master.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA6D0E9D4981009A6919 /* dns_master.cc */; };
+		2D70E0E2053C6C759EC97929 /* chrome_plugin_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFB950E9D4C9F009A6919 /* chrome_plugin_util.cc */; };
 		2DF2A9EB8AF96926EE9B6B02 /* ipc_logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBAE0E9D4C9F009A6919 /* ipc_logging.cc */; };
 		3257B6150A16A88F55E5AE34 /* bookmark_drop_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = 12F137DA942221A44BFA0967 /* bookmark_drop_info.cc */; };
 		331218220F3BFF32006CB2B0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
@@ -5680,6 +5682,7 @@
 				6A3646C882BD4CC722624544 /* character_encoding.cc in Sources */,
 				651621527E9FCD7FB5AF2E14 /* child_process_host.cc in Sources */,
 				E43A770D0F16610300ABD5D1 /* chrome_plugin_browsing_context.cc in Sources */,
+				00DB1C89F45A2D08B3CB5806 /* chrome_plugin_host.cc in Sources */,
 				4D7BF9920E9D485F009A6919 /* chrome_thread.cc in Sources */,
 				E43A771C0F1661AF00ABD5D1 /* chrome_url_data_manager.cc in Sources */,
 				E43A77110F16613700ABD5D1 /* chrome_url_request_context.cc in Sources */,
@@ -5930,6 +5933,7 @@
 				E4BD55490F55AE6900591DFA /* chrome_font_mac.mm in Sources */,
 				E4F3256E0EE82C83002533CE /* chrome_paths.cc in Sources */,
 				4D175916B2FC058793051209 /* chrome_paths_mac.cc in Sources */,
+				2D70E0E2053C6C759EC97929 /* chrome_plugin_util.cc in Sources */,
 				4D7BFC2C0E9D4CF1009A6919 /* chrome_switches.cc in Sources */,
 				4D7BFCC90E9D4D72009A6919 /* color_utils.cc in Sources */,
 				B562E2C70F0582F800FB1A4F /* common_glue.cc in Sources */,

@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_DOM_UI_HTML_DIALOG_CONTENTS_H__
 #define CHROME_BROWSER_DOM_UI_HTML_DIALOG_CONTENTS_H__
 
+#include "base/gfx/size.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 
 // Implement this class to receive notifications.
@@ -17,7 +18,7 @@ class HtmlDialogContentsDelegate {
    // Get the HTML file path for the content to load in the dialog.
    virtual GURL GetDialogContentURL() const = 0;
    // Get the size of the dialog.
-   virtual void GetDialogSize(CSize* size) const = 0;
+   virtual void GetDialogSize(gfx::Size* size) const = 0;
    // Gets the JSON string input to use when showing the dialog.
    virtual std::string GetDialogArgs() const = 0;
    // A callback to notify the delegate that the dialog closed.
