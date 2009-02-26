@@ -12,8 +12,8 @@
 
 #include "base/string_util.h"
 #include "base/message_loop.h"
+#include "net/base/mime_util.h"
 #include "webkit/glue/plugins/plugin_instance.h"
-#include "webkit/glue/webkit_glue.h"
 #include "googleurl/src/gurl.h"
 
 namespace NPAPI {
@@ -57,7 +57,7 @@ bool PluginStream::Open(const std::string &mime_type,
 #elif defined(OS_POSIX)
     FilePath path(gurl.path());
 #endif
-    if (webkit_glue::GetMimeTypeFromFile(path, &temp_mime_type))
+    if (net::GetMimeTypeFromFile(path, &temp_mime_type))
       char_mime_type = temp_mime_type.c_str();
   }
 

@@ -318,6 +318,7 @@
 		8F51B73AAAF1772ECF9BD180 /* url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 778D7927798B7E3FAA498D3D /* url_fetcher.cc */; };
 		9084D27A4F8690E6FD31083B /* session_backend.cc in Sources */ = {isa = PBXBuildFile; fileRef = 35AC9D9A03545594C102C5C1 /* session_backend.cc */; };
 		928300674E414B42615BA4F0 /* download_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9CE0E9D48CE009A6919 /* download_manager.cc */; };
+		938D10370F57401C009F1128 /* renderer_webkitclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 938D10350F57401C009F1128 /* renderer_webkitclient_impl.cc */; };
 		93FB3ECE0F55E38400AA1185 /* libwebkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BD53D90F54AB4300591DFA /* libwebkit.a */; };
 		93FB3ED10F55E38900AA1185 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DD0EEEC6FF003BE099 /* AppKit.framework */; };
 		93FB3ED20F55E38900AA1185 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
@@ -2594,6 +2595,8 @@
 		844EA0820F3E0C1000B0EF26 /* debugger_wrapper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = debugger_wrapper.cc; path = debugger/debugger_wrapper.cc; sourceTree = "<group>"; };
 		844EA0830F3E0C1000B0EF26 /* debugger_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugger_wrapper.h; path = debugger/debugger_wrapper.h; sourceTree = "<group>"; };
 		90BF0D1189BB7158BD7F1600 /* bookmark_context_menu.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_context_menu.cc; path = browser/bookmarks/bookmark_context_menu.cc; sourceTree = SOURCE_ROOT; };
+		938D10350F57401C009F1128 /* renderer_webkitclient_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_webkitclient_impl.cc; sourceTree = "<group>"; };
+		938D10360F57401C009F1128 /* renderer_webkitclient_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_webkitclient_impl.h; sourceTree = "<group>"; };
 		A2FC5EE73E0DE8BF6C1C4C0F /* bookmark_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bookmark_utils.cc; path = browser/bookmarks/bookmark_utils.cc; sourceTree = SOURCE_ROOT; };
 		A54612D90EE9957000A8EE5D /* extensions_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extensions_service.cc; sourceTree = "<group>"; };
 		A54612DA0EE9957000A8EE5D /* extensions_service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extensions_service.h; sourceTree = "<group>"; };
@@ -3262,7 +3265,6 @@
 				4D640CCF0EAE868600EBCFC0 /* render_process.cc */,
 				4D640CD00EAE868600EBCFC0 /* render_process.h */,
 				3380A9BF0F2FC61E004EF74F /* render_process_unittest.cc */,
-				F4143C8B0F4B1D07008C8F73 /* renderer.sb */,
 				4D640CD10EAE868600EBCFC0 /* render_thread.cc */,
 				4D640CD20EAE868600EBCFC0 /* render_thread.h */,
 				3380A6B50F2E9252004EF74F /* render_thread_unittest.cc */,
@@ -3272,6 +3274,7 @@
 				4D640CD50EAE868600EBCFC0 /* render_widget.cc */,
 				4D640CD60EAE868600EBCFC0 /* render_widget.h */,
 				4D640CD70EAE868600EBCFC0 /* render_widget_unittest.cc */,
+				F4143C8B0F4B1D07008C8F73 /* renderer.sb */,
 				4D640CD80EAE868600EBCFC0 /* renderer_glue.cc */,
 				AB3B4B290F549D9E0009E2BF /* renderer_histogram_snapshots.cc */,
 				AB3B4B2A0F549D9E0009E2BF /* renderer_histogram_snapshots.h */,
@@ -3281,6 +3284,8 @@
 				B51F6D120F37C4DC00152D66 /* renderer_main_platform_delegate_win.cc */,
 				B5D030EF0F3A3C43001238AB /* renderer_main_unittest.cc */,
 				4D640CDA0EAE868600EBCFC0 /* renderer_resources.h */,
+				938D10350F57401C009F1128 /* renderer_webkitclient_impl.cc */,
+				938D10360F57401C009F1128 /* renderer_webkitclient_impl.h */,
 				4D640CC90EAE868600EBCFC0 /* user_script_slave.cc */,
 				4D640CCA0EAE868600EBCFC0 /* user_script_slave.h */,
 				4D640CDC0EAE868600EBCFC0 /* visitedlink_slave.cc */,
@@ -5680,6 +5685,7 @@
 				B503E0F00F0175FD00547DC6 /* user_script_slave.cc in Sources */,
 				AB8963020F4E090D009CFFAC /* video_renderer_impl.cc in Sources */,
 				4D640CF50EAE86EF00EBCFC0 /* visitedlink_slave.cc in Sources */,
+				938D10370F57401C009F1128 /* renderer_webkitclient_impl.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

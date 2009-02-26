@@ -23,6 +23,7 @@
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_platform_delegate.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
+#include "webkit/tools/test_shell/test_shell_webkit_init.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 const char* TestShellTest::kJavascriptDelayExitScript = 
@@ -61,7 +62,8 @@ int main(int argc, char* argv[]) {
   // request than automatically quit.
   TestShell::InitializeTestShell(true);
 
-  webkit_glue::InitializeForTesting();
+  // Initialize WebKit for this scope.
+  TestShellWebKitInit test_shell_webkit_init(true);
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.

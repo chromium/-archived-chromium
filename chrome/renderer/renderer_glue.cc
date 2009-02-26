@@ -24,8 +24,6 @@
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "googleurl/src/url_util.h"
-#include "net/base/mime_util.h"
-#include "net/base/net_errors.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
@@ -172,45 +170,6 @@ void PrecacheUrl(const wchar_t* url, int url_length) {
 
 void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
-}
-
-bool GetMimeTypeFromExtension(const FilePath::StringType &ext,
-                              std::string *mime_type) {
-  if (IsPluginProcess())
-    return net::GetMimeTypeFromExtension(ext, mime_type);
-
-  // The sandbox restricts our access to the registry, so we need to proxy
-  // these calls over to the browser process.
-  DCHECK(mime_type->empty());
-  RenderThread::current()->Send(
-      new ViewHostMsg_GetMimeTypeFromExtension(ext, mime_type));
-  return !mime_type->empty();
-}
-
-bool GetMimeTypeFromFile(const FilePath &file_path,
-                         std::string *mime_type) {
-  if (IsPluginProcess())
-    return net::GetMimeTypeFromFile(file_path, mime_type);
-
-  // The sandbox restricts our access to the registry, so we need to proxy
-  // these calls over to the browser process.
-  DCHECK(mime_type->empty());
-  RenderThread::current()->Send(
-      new ViewHostMsg_GetMimeTypeFromFile(file_path, mime_type));
-  return !mime_type->empty();
-}
-
-bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      FilePath::StringType* ext) {
-  if (IsPluginProcess())
-    return net::GetPreferredExtensionForMimeType(mime_type, ext);
-
-  // The sandbox restricts our access to the registry, so we need to proxy
-  // these calls over to the browser process.
-  DCHECK(ext->empty());
-  RenderThread::current()->Send(
-      new ViewHostMsg_GetPreferredExtensionForMimeType(mime_type, ext));
-  return !ext->empty();
 }
 
 std::string GetDataResource(int resource_id) {

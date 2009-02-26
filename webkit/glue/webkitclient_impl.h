@@ -16,9 +16,10 @@ class WebKitClientImpl : public WebKit::WebKitClient {
  public:
   // WebKitClient methods:
   virtual WebKit::WebClipboard* clipboard();
+  virtual WebKit::WebMimeRegistry* mimeRegistry() = 0;
 
  private:
-  scoped_ptr<WebClipboardImpl> clipboard_;
+  WebClipboardImpl clipboard_;
 };
 
 }  // namespace webkit_glue

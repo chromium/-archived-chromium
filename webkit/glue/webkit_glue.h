@@ -162,21 +162,6 @@ void PrecacheUrl(const char16* url, int url_length);
 // This function is called to add a line to the application's log file.
 void AppendToLog(const char* filename, int line, const char* message);
 
-// Get the mime type (if any) that is associated with the given file extension.
-// Returns true if a corresponding mime type exists.
-bool GetMimeTypeFromExtension(const FilePath::StringType& ext,
-                              std::string* mime_type);
-
-// Get the mime type (if any) that is associated with the given file.
-// Returns true if a corresponding mime type exists.
-bool GetMimeTypeFromFile(const FilePath& file_path, std::string* mime_type);
-
-// Get the preferred extension (if any) associated with the given mime type.
-// Returns true if a corresponding file extension exists.  The extension does
-// not include a prefixed dot, ex "html".
-bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      FilePath::StringType* ext);
-
 // Sets a cookie string for the given URL.  The policy_url argument indicates
 // the URL of the topmost frame, which may be useful for determining whether or
 // not to allow this cookie setting.  NOTE: the cookie string is a standard

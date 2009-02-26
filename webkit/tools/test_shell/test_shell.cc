@@ -559,21 +559,6 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-bool GetMimeTypeFromExtension(const FilePath::StringType& ext,
-                              std::string *mime_type) {
-  return net::GetMimeTypeFromExtension(ext, mime_type);
-}
-
-bool GetMimeTypeFromFile(const FilePath& file_path,
-                         std::string *mime_type) {
-  return net::GetMimeTypeFromFile(file_path, mime_type);
-}
-
-bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      FilePath::StringType* ext) {
-  return net::GetPreferredExtensionForMimeType(mime_type, ext);
-}
-
 #if defined(OS_MACOSX)
 SkBitmap*
 #else

@@ -294,6 +294,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\test_shell_webkit_init.h"
+			>
+		</File>
+		<File
 			RelativePath=".\test_shell_win.cc"
 			>
 		</File>

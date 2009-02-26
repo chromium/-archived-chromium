@@ -18,15 +18,12 @@ class FilePath;
 class NotificationService;
 class RenderDnsMaster;
 class RendererHistogram;
+class RendererWebKitClientImpl;
 class SkBitmap;
 class UserScriptSlave;
 class VisitedLinkSlave;
 struct ModalDialogEvent;
 struct WebPreferences;
-
-namespace webkit_glue {
-class WebKitClientImpl;
-}
 
 // The RenderThreadBase is the minimal interface that a RenderView/Widget
 // expects from a render thread. The interface basically abstracts a way to send
@@ -83,11 +80,13 @@ class RenderThread : public RenderThreadBase,
   virtual void AddFilter(IPC::ChannelProxy::MessageFilter* filter);
   virtual void RemoveFilter(IPC::ChannelProxy::MessageFilter* filter);
 
-  // Gets the VisitedLinkSlave instance for this thread
-  VisitedLinkSlave* visited_link_slave() const { return visited_link_slave_; }
+  VisitedLinkSlave* visited_link_slave() const {
+    return visited_link_slave_.get();
+  }
 
-  // Gets the UserScriptSlave instance for this thread
-  UserScriptSlave* user_script_slave() const { return user_script_slave_; }
+  UserScriptSlave* user_script_slave() const {
+    return user_script_slave_.get();
+  }
 
   // Do DNS prefetch resolution of a hostname.
   void Resolve(const char* name, size_t length);
@@ -131,18 +130,19 @@ class RenderThread : public RenderThreadBase,
   void InformHostOfCacheStats();
 
   // These objects live solely on the render thread.
-  VisitedLinkSlave* visited_link_slave_;
-  UserScriptSlave* user_script_slave_;
+  scoped_ptr<VisitedLinkSlave> visited_link_slave_;
 
-  scoped_ptr<RenderDnsMaster> render_dns_master_;
+  scoped_ptr<UserScriptSlave> user_script_slave_;
 
-  scoped_ptr<RendererHistogramSnapshots> renderer_histogram_snapshots_;
+  scoped_ptr<RenderDnsMaster> dns_master_;
+
+  scoped_ptr<RendererHistogramSnapshots> histogram_snapshots_;
 
   scoped_ptr<ScopedRunnableMethodFactory<RenderThread> > cache_stats_factory_;
 
   scoped_ptr<NotificationService> notification_service_;
 
-  scoped_ptr<webkit_glue::WebKitClientImpl> webkit_client_impl_;
+  scoped_ptr<RendererWebKitClientImpl> webkit_client_impl_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderThread);
 };

@@ -34,7 +34,6 @@
 #include "base/trace_event.h"
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
-#include "net/base/mime_util.h"
 #include "skia/ext/skia_utils_win.h"
 #if USE(V8)
 #include <v8.h>
@@ -140,56 +139,6 @@ String ChromiumBridge::computedDefaultLanguage() {
 
 bool ChromiumBridge::layoutTestMode() {
   return webkit_glue::IsLayoutTestMode();
-}
-
-// MimeType -------------------------------------------------------------------
-
-bool ChromiumBridge::isSupportedImageMIMEType(const char* mime_type) {
-  return net::IsSupportedImageMimeType(mime_type);
-}
-
-bool ChromiumBridge::isSupportedJavascriptMIMEType(const char* mime_type) {
-  return net::IsSupportedJavascriptMimeType(mime_type);
-}
-
-bool ChromiumBridge::isSupportedNonImageMIMEType(const char* mime_type) {
-  return net::IsSupportedNonImageMimeType(mime_type);
-}
-
-bool ChromiumBridge::matchesMIMEType(const String& pattern,
-                                     const String& type) {
-  return net::MatchesMimeType(webkit_glue::StringToStdString(pattern),
-                              webkit_glue::StringToStdString(type));
-}
-
-String ChromiumBridge::mimeTypeForExtension(const String& ext) {
-  if (ext.isEmpty())
-    return String();
-
-  std::string type;
-  webkit_glue::GetMimeTypeFromExtension(
-      webkit_glue::StringToFilePathString(ext), &type);
-  return webkit_glue::StdStringToString(type);
-}
-
-String ChromiumBridge::mimeTypeFromFile(const String& file_path) {
-  if (file_path.isEmpty())
-    return String();
-
-  std::string type;
-  webkit_glue::GetMimeTypeFromFile(
-      FilePath(webkit_glue::StringToFilePathString(file_path)), &type);
-  return webkit_glue::StdStringToString(type);
-}
-
-String ChromiumBridge::preferredExtensionForMIMEType(const String& mime_type) {
-  if (mime_type.isEmpty())
-    return String();
-
-  FilePath::StringType stdext;
-  webkit_glue::GetPreferredExtensionForMimeType(
-      webkit_glue::StringToStdString(mime_type), &stdext);
-  return webkit_glue::FilePathStringToString(stdext);
 }
 
 // Plugin ---------------------------------------------------------------------

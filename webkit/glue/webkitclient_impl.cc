@@ -6,14 +6,12 @@
 // Mac build requires it.
 #include "config.h"
 
-#include "webkit/glue/webkit_client_impl.h"
+#include "webkit/glue/webkitclient_impl.h"
 
 namespace webkit_glue {
 
 WebKit::WebClipboard* WebKitClientImpl::clipboard() {
-  if (!clipboard_.get())
-    clipboard_.reset(new WebClipboardImpl());
-  return clipboard_.get();
+  return &clipboard_;
 }
 
 }  // namespace webkit_glue

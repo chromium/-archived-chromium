@@ -342,6 +342,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\renderer_webkitclient_impl.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\renderer_webkitclient_impl.h"
+			>
+		</File>
+		<File
 			RelativePath=".\user_script_slave.cc"
 			>
 		</File>

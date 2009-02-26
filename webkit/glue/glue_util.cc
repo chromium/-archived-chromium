@@ -16,8 +16,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "KURL.h"
 MSVC_POP_WARNING();
 
-#undef LOG
+#include "WebString.h"
 
+#undef LOG
 #include "base/compiler_specific.h"
 #include "base/gfx/rect.h"
 #include "base/string_piece.h"
@@ -95,6 +96,22 @@ WebCore::String FilePathStringToString(const FilePath::StringType& str) {
   return StdWStringToString(str);
 #elif defined(OS_POSIX)
   return StdWStringToString(base::SysNativeMBToWide(str));
+#endif
+}
+
+FilePath::StringType WebStringToFilePathString(const WebKit::WebString& str) {
+#if defined(OS_POSIX)
+  return base::SysWideToNativeMB(UTF16ToWide(str));
+#elif defined(OS_WIN)
+  return UTF16ToWide(str);
+#endif
+}
+
+WebKit::WebString FilePathStringToWebString(const FilePath::StringType& str) {
+#if defined(OS_POSIX)
+  return WideToUTF16(base::SysNativeMBToWide(str));
+#elif defined(OS_WIN)
+  return WideToUTF16(str);
 #endif
 }
 

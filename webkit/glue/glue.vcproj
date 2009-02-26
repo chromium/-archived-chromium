@@ -525,6 +525,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\simple_webmimeregistry_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\simple_webmimeregistry_impl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stacking_order_iterator.cc"
 				>
 			</File>
@@ -609,15 +617,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webinputevent_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\webkit_client_impl.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\webkit_client_impl.h"
+				RelativePath=".\webinputevent_utils.cc"
 				>
 			</File>
 			<File
@@ -630,6 +630,14 @@
 			</File>
 			<File
 				RelativePath=".\webkit_glue_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webkitclient_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webkitclient_impl.h"
 				>
 			</File>
 			<File

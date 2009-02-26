@@ -715,6 +715,13 @@
 			remoteGlobalIDString = 937A16010F53326C003E8D2D;
 			remoteInfo = webkit;
 		};
+		938D0FF30F573E28009F1128 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 937A15B60F53326C003E8D2D /* webkit */;
+			remoteInfo = webkit;
+		};
 		E4506A370EF020EE003BE099 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -796,6 +803,7 @@
 		82F39A1C0E7EF85C00785E15 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		82F39CFF0E7EF95A00785E15 /* modp_b64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = modp_b64.xcodeproj; path = third_party/modp_b64/modp_b64.xcodeproj; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		938D0FAF0F5737AC009F1128 /* test_shell_webkit_init.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_webkit_init.h; sourceTree = "<group>"; };
 		93AF4F300EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BMPImageDecoder_unittest.cpp; path = ../../webcore_unit_tests/BMPImageDecoder_unittest.cpp; sourceTree = SOURCE_ROOT; };
 		93AF4F310EFAFE2C0073C62D /* GKURL_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GKURL_unittest.cpp; path = ../../webcore_unit_tests/GKURL_unittest.cpp; sourceTree = SOURCE_ROOT; };
 		93AF4F320EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICOImageDecoder_unittest.cpp; path = ../../webcore_unit_tests/ICOImageDecoder_unittest.cpp; sourceTree = SOURCE_ROOT; };
@@ -1313,6 +1321,7 @@
 				ABCF253B0DB8436B00099567 /* test_shell_switches.h */,
 				AB8A786E0DC5544D005C27B8 /* test_shell_test.h */,
 				AB8A78560DC553C7005C27B8 /* test_shell_test.cc */,
+				938D0FAF0F5737AC009F1128 /* test_shell_webkit_init.h */,
 				F479F6560F2F8319000C19D4 /* test_shell_win.cc */,
 				E44662060ECCD652000B9316 /* test_webview_delegate.cc */,
 				AB8A78590DC553D7005C27B8 /* test_webview_delegate.h */,
@@ -1426,6 +1435,7 @@
 				82F39D4C0E7EFDB500785E15 /* PBXTargetDependency */,
 				82F39D4E0E7EFDB500785E15 /* PBXTargetDependency */,
 				82F39CF70E7EF91900785E15 /* PBXTargetDependency */,
+				938D0FF40F573E28009F1128 /* PBXTargetDependency */,
 			);
 			name = TestShell;
 			productInstallPath = "$(HOME)/Applications";
@@ -2153,6 +2163,11 @@
 			isa = PBXTargetDependency;
 			name = v8;
 			targetProxy = 82F39D4D0E7EFDB500785E15 /* PBXContainerItemProxy */;
+		};
+		938D0FF40F573E28009F1128 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = webkit;
+			targetProxy = 938D0FF30F573E28009F1128 /* PBXContainerItemProxy */;
 		};
 		E4506A380EF020EE003BE099 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
