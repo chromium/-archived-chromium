@@ -16,8 +16,12 @@ env.SConscript([
 ], {'env':env})
 
 env.Prepend(
+    CPPDEFINES = [
+        'WEBKIT_USING_SKIA'
+    ],
     CPPPATH = [
         '$CHROME_SRC_DIR',
+        '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/public',
     ],
 )
 

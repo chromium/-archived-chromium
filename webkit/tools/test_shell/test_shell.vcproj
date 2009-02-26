@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;.\test_shell.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;.\test_shell.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -79,7 +79,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;.\test_shell.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;.\test_shell.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

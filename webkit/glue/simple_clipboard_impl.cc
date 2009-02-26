@@ -15,14 +15,10 @@
 
 // Clipboard glue
 
-#if defined(OS_WIN)
-// The call is being made within the current process.
-void ScopedClipboardWriterGlue::WriteBitmap(const SkBitmap& bitmap) {
-  SkAutoLockPixels bitmap_lock(bitmap);
-  WriteBitmapFromPixels(bitmap.getPixels(), gfx::Size(bitmap.width(),
-                        bitmap.height()));
+void ScopedClipboardWriterGlue::WriteBitmapFromPixels(
+    const void* pixels, const gfx::Size& size) {
+  ScopedClipboardWriter::WriteBitmapFromPixels(pixels, size);
 }
-#endif  // defined(OS_WIN)
 
 ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 }

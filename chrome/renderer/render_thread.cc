@@ -32,7 +32,9 @@
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "webkit/glue/cache_manager.h"
+#include "webkit/glue/webkit_client_impl.h"
 
+#include "WebKit.h"
 
 static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 
@@ -98,6 +100,9 @@ void RenderThread::Init() {
   // The renderer thread should wind-up COM.
   CoInitialize(0);
 #endif
+
+  webkit_client_impl_.reset(new webkit_glue::WebKitClientImpl);
+  WebKit::initialize(webkit_client_impl_.get());
 
   visited_link_slave_ = new VisitedLinkSlave();
   user_script_slave_ = new UserScriptSlave();

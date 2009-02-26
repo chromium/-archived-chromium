@@ -84,15 +84,15 @@ class ResizableStackArray {
 };
 
 #if defined(OS_WIN)
-// This definition of WriteBitmap uses shared memory to communicate across
-// processes.
-void ScopedClipboardWriterGlue::WriteBitmap(const SkBitmap& bitmap) {
-  // do not try to write a bitmap more than once
+// This definition of WriteBitmapFromPixels uses shared memory to communicate
+// across processes.
+void ScopedClipboardWriterGlue::WriteBitmapFromPixels(const void* pixels,
+                                                      const gfx::Size& size) {
+  // Do not try to write a bitmap more than once
   if (shared_buf_)
     return;
 
-  size_t buf_size = bitmap.getSize();
-  gfx::Size size(bitmap.width(), bitmap.height());
+  size_t buf_size = 4 * size.width() * size.height();
 
   // Allocate a shared memory buffer to hold the bitmap bits
   shared_buf_ = new base::SharedMemory;
@@ -104,8 +104,7 @@ void ScopedClipboardWriterGlue::WriteBitmap(const SkBitmap& bitmap) {
   }
 
   // Copy the bits into shared memory
-  SkAutoLockPixels bitmap_lock(bitmap);
-  memcpy(shared_buf_->memory(), bitmap.getPixels(), buf_size);
+  memcpy(shared_buf_->memory(), pixels, buf_size);
   shared_buf_->Unmap();
 
   Clipboard::ObjectMapParam param1, param2;

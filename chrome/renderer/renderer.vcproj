@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\renderer.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled_wtl.vsprops"
+			InheritedPropertySheets=".\renderer.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled_wtl.vsprops;..\..\webkit\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\renderer.vsprops;$(SolutionDir)..\build\release.vsprops"
+			InheritedPropertySheets=".\renderer.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\webkit\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

@@ -1314,6 +1314,12 @@
 		938448C10F16B06E0075F4C5 /* V8WorkerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0093830DAFEFE500F72082 /* V8WorkerContext.cpp */; };
 		938448C20F16B06E0075F4C5 /* V8WorkerLocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0093850DAFEFE500F72082 /* V8WorkerLocation.cpp */; };
 		938448C30F16B06E0075F4C5 /* V8WorkerNavigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0093870DAFEFE500F72082 /* V8WorkerNavigator.cpp */; };
+		9389E82F0F55C4550035E7D0 /* ChromiumBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9389E82A0F55C4550035E7D0 /* ChromiumBridge.cpp */; };
+		9389E8300F55C4550035E7D0 /* WebCString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9389E82B0F55C4550035E7D0 /* WebCString.cpp */; };
+		9389E8310F55C4550035E7D0 /* WebKit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9389E82C0F55C4550035E7D0 /* WebKit.cpp */; };
+		9389E8320F55C4550035E7D0 /* WebURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9389E82E0F55C4550035E7D0 /* WebURL.cpp */; };
+		9389E8370F55C4810035E7D0 /* webclipboard_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9389E8330F55C4810035E7D0 /* webclipboard_impl.cc */; };
+		9389E8380F55C4810035E7D0 /* webkit_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9389E8350F55C4810035E7D0 /* webkit_client_impl.cc */; };
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
 		93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */; };
 		A5779DD6BC0DA17AB7DE63D4 /* GCController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 715E874BCC05E0A3DD5E5D8F /* GCController.cpp */; };
@@ -3976,7 +3982,6 @@
 		825404F30D92E3DA0006B936 /* context_menu_client_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = context_menu_client_impl.cc; sourceTree = "<group>"; };
 		825404F40D92E3DA0006B936 /* context_menu_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = context_menu_client_impl.h; sourceTree = "<group>"; };
 		825404F50D92E3DA0006B936 /* context_menu_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = context_menu_unittest.cc; sourceTree = "<group>"; };
-		825404F60D92E3DA0006B936 /* context_node_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = context_node_types.h; sourceTree = "<group>"; };
 		825404F70D92E3DA0006B936 /* cpp_binding_example.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpp_binding_example.cc; sourceTree = "<group>"; };
 		825404F80D92E3DA0006B936 /* cpp_binding_example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpp_binding_example.h; sourceTree = "<group>"; };
 		825404F90D92E3DA0006B936 /* cpp_bound_class_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpp_bound_class_unittest.cc; sourceTree = "<group>"; };
@@ -4048,8 +4053,6 @@
 		825405450D92E3DA0006B936 /* webinputevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webinputevent.h; sourceTree = "<group>"; };
 		825405460D92E3DA0006B936 /* webkit_glue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webkit_glue.cc; sourceTree = "<group>"; };
 		825405470D92E3DB0006B936 /* webkit_glue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webkit_glue.h; sourceTree = "<group>"; };
-		825405480D92E3DB0006B936 /* webkit_resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webkit_resources.h; sourceTree = "<group>"; };
-		825405490D92E3DB0006B936 /* webkit_resources.rc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = webkit_resources.rc; sourceTree = "<group>"; };
 		8254054A0D92E3DB0006B936 /* webkit_strings.grd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = webkit_strings.grd; sourceTree = "<group>"; };
 		8254054B0D92E3DB0006B936 /* webplugin_delegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webplugin_delegate.h; sourceTree = "<group>"; };
 		8254054C0D92E3DB0006B936 /* webplugin_impl_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webplugin_impl_unittest.cc; sourceTree = "<group>"; };
@@ -4119,6 +4122,24 @@
 		938443F50F16AFEF0075F4C5 /* V8DOMStringList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8DOMStringList.h; sourceTree = "<group>"; };
 		938444010F16B03C0075F4C5 /* DOMStringList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DOMStringList.cpp; sourceTree = "<group>"; };
 		938444020F16B03C0075F4C5 /* DOMStringList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DOMStringList.h; sourceTree = "<group>"; };
+		9389E81F0F55C4110035E7D0 /* WebClipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebClipboard.h; path = ../third_party/WebKit/WebKit/chromium/public/WebClipboard.h; sourceTree = SOURCE_ROOT; };
+		9389E8200F55C4110035E7D0 /* WebCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebCString.h; path = ../third_party/WebKit/WebKit/chromium/public/WebCString.h; sourceTree = SOURCE_ROOT; };
+		9389E8210F55C4110035E7D0 /* WebImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebImage.h; path = ../third_party/WebKit/WebKit/chromium/public/WebImage.h; sourceTree = SOURCE_ROOT; };
+		9389E8220F55C4110035E7D0 /* WebKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebKit.h; path = ../third_party/WebKit/WebKit/chromium/public/WebKit.h; sourceTree = SOURCE_ROOT; };
+		9389E8230F55C4110035E7D0 /* WebKitClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebKitClient.h; path = ../third_party/WebKit/WebKit/chromium/public/WebKitClient.h; sourceTree = SOURCE_ROOT; };
+		9389E8240F55C4110035E7D0 /* WebPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebPoint.h; path = ../third_party/WebKit/WebKit/chromium/public/WebPoint.h; sourceTree = SOURCE_ROOT; };
+		9389E8250F55C4110035E7D0 /* WebRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebRect.h; path = ../third_party/WebKit/WebKit/chromium/public/WebRect.h; sourceTree = SOURCE_ROOT; };
+		9389E8260F55C4110035E7D0 /* WebSize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebSize.h; path = ../third_party/WebKit/WebKit/chromium/public/WebSize.h; sourceTree = SOURCE_ROOT; };
+		9389E8270F55C4110035E7D0 /* WebURL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebURL.h; path = ../third_party/WebKit/WebKit/chromium/public/WebURL.h; sourceTree = SOURCE_ROOT; };
+		9389E82A0F55C4550035E7D0 /* ChromiumBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChromiumBridge.cpp; path = ../third_party/WebKit/WebKit/chromium/src/ChromiumBridge.cpp; sourceTree = SOURCE_ROOT; };
+		9389E82B0F55C4550035E7D0 /* WebCString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebCString.cpp; path = ../third_party/WebKit/WebKit/chromium/src/WebCString.cpp; sourceTree = SOURCE_ROOT; };
+		9389E82C0F55C4550035E7D0 /* WebKit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebKit.cpp; path = ../third_party/WebKit/WebKit/chromium/src/WebKit.cpp; sourceTree = SOURCE_ROOT; };
+		9389E82D0F55C4550035E7D0 /* WebKitPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebKitPrivate.h; path = ../third_party/WebKit/WebKit/chromium/src/WebKitPrivate.h; sourceTree = SOURCE_ROOT; };
+		9389E82E0F55C4550035E7D0 /* WebURL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebURL.cpp; path = ../third_party/WebKit/WebKit/chromium/src/WebURL.cpp; sourceTree = SOURCE_ROOT; };
+		9389E8330F55C4810035E7D0 /* webclipboard_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webclipboard_impl.cc; sourceTree = "<group>"; };
+		9389E8340F55C4810035E7D0 /* webclipboard_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webclipboard_impl.h; sourceTree = "<group>"; };
+		9389E8350F55C4810035E7D0 /* webkit_client_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webkit_client_impl.cc; sourceTree = "<group>"; };
+		9389E8360F55C4810035E7D0 /* webkit_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webkit_client_impl.h; sourceTree = "<group>"; };
 		93AF4D040EFAF0090073C62D /* ScrollView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScrollView.cpp; sourceTree = "<group>"; };
 		93AF52480F001CAB0073C62D /* media_player_private_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = media_player_private_impl.cc; sourceTree = "<group>"; };
 		93AF525D0F002E930073C62D /* KURLGoogle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KURLGoogle.cpp; sourceTree = "<group>"; };
@@ -7671,7 +7692,6 @@
 				825404F30D92E3DA0006B936 /* context_menu_client_impl.cc */,
 				825404F40D92E3DA0006B936 /* context_menu_client_impl.h */,
 				825404F50D92E3DA0006B936 /* context_menu_unittest.cc */,
-				825404F60D92E3DA0006B936 /* context_node_types.h */,
 				825404F70D92E3DA0006B936 /* cpp_binding_example.cc */,
 				825404F80D92E3DA0006B936 /* cpp_binding_example.h */,
 				825404FA0D92E3DA0006B936 /* cpp_bound_class.cc */,
@@ -7734,6 +7754,8 @@
 				8254052E0D92E3DA0006B936 /* simple_clipboard_impl.cc */,
 				AB9552AD0F37AC0B0015C8FB /* stacking_order_iterator.cc */,
 				8254052F0D92E3DA0006B936 /* unittest_test_server.h */,
+				9389E8330F55C4810035E7D0 /* webclipboard_impl.cc */,
+				9389E8340F55C4810035E7D0 /* webclipboard_impl.h */,
 				825405300D92E3DA0006B936 /* webcursor.cc */,
 				825405310D92E3DA0006B936 /* webcursor.h */,
 				82F14D600ED230E700B36428 /* webcursor_mac.mm */,
@@ -7757,11 +7779,11 @@
 				825405420D92E3DA0006B936 /* webhistoryitem_impl.h */,
 				825405450D92E3DA0006B936 /* webinputevent.h */,
 				825405440D92E3DA0006B936 /* webinputevent_mac.mm */,
+				9389E8350F55C4810035E7D0 /* webkit_client_impl.cc */,
+				9389E8360F55C4810035E7D0 /* webkit_client_impl.h */,
 				825405470D92E3DB0006B936 /* webkit_glue.h */,
 				825405460D92E3DA0006B936 /* webkit_glue.cc */,
 				93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */,
-				825405480D92E3DB0006B936 /* webkit_resources.h */,
-				825405490D92E3DB0006B936 /* webkit_resources.rc */,
 				8254054A0D92E3DB0006B936 /* webkit_strings.grd */,
 				8254054F0D92E3DB0006B936 /* webplugin.h */,
 				1459AC310DEBF6A597167F45 /* webplugin_delegate.cc */,
@@ -7841,8 +7863,17 @@
 		937A15B10F5331F7003E8D2D /* public */ = {
 			isa = PBXGroup;
 			children = (
+				9389E81F0F55C4110035E7D0 /* WebClipboard.h */,
 				937A15B40F533249003E8D2D /* WebCommon.h */,
+				9389E8200F55C4110035E7D0 /* WebCString.h */,
+				9389E8210F55C4110035E7D0 /* WebImage.h */,
+				9389E8220F55C4110035E7D0 /* WebKit.h */,
+				9389E8230F55C4110035E7D0 /* WebKitClient.h */,
+				9389E8240F55C4110035E7D0 /* WebPoint.h */,
+				9389E8250F55C4110035E7D0 /* WebRect.h */,
+				9389E8260F55C4110035E7D0 /* WebSize.h */,
 				937A15B30F533232003E8D2D /* WebString.h */,
+				9389E8270F55C4110035E7D0 /* WebURL.h */,
 			);
 			name = public;
 			sourceTree = "<group>";
@@ -7850,7 +7881,12 @@
 		937A15B20F5331FB003E8D2D /* src */ = {
 			isa = PBXGroup;
 			children = (
+				9389E82A0F55C4550035E7D0 /* ChromiumBridge.cpp */,
+				9389E82B0F55C4550035E7D0 /* WebCString.cpp */,
+				9389E82C0F55C4550035E7D0 /* WebKit.cpp */,
+				9389E82D0F55C4550035E7D0 /* WebKitPrivate.h */,
 				937A15B50F53325D003E8D2D /* WebString.cpp */,
+				9389E82E0F55C4550035E7D0 /* WebURL.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -8758,6 +8794,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				937A16090F5332AB003E8D2D /* WebString.cpp in Sources */,
+				9389E82F0F55C4550035E7D0 /* ChromiumBridge.cpp in Sources */,
+				9389E8300F55C4550035E7D0 /* WebCString.cpp in Sources */,
+				9389E8310F55C4550035E7D0 /* WebKit.cpp in Sources */,
+				9389E8320F55C4550035E7D0 /* WebURL.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9750,6 +9790,8 @@
 				E45626F40E268F03005E4685 /* webview_impl.cc in Sources */,
 				E45626F30E268F03005E4685 /* webwidget_impl.cc in Sources */,
 				ABF923090F3A388C009B64EC /* webplugin_delegate_impl_mac.cc in Sources */,
+				9389E8370F55C4810035E7D0 /* webclipboard_impl.cc in Sources */,
+				9389E8380F55C4810035E7D0 /* webkit_client_impl.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

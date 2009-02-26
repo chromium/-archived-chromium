@@ -314,6 +314,42 @@
 		8F51B73AAAF1772ECF9BD180 /* url_fetcher.cc in Sources */ = {isa = PBXBuildFile; fileRef = 778D7927798B7E3FAA498D3D /* url_fetcher.cc */; };
 		9084D27A4F8690E6FD31083B /* session_backend.cc in Sources */ = {isa = PBXBuildFile; fileRef = 35AC9D9A03545594C102C5C1 /* session_backend.cc */; };
 		928300674E414B42615BA4F0 /* download_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9CE0E9D48CE009A6919 /* download_manager.cc */; };
+		93FB3ECE0F55E38400AA1185 /* libwebkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BD53D90F54AB4300591DFA /* libwebkit.a */; };
+		93FB3ED10F55E38900AA1185 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DD0EEEC6FF003BE099 /* AppKit.framework */; };
+		93FB3ED20F55E38900AA1185 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
+		93FB3ED30F55E38900AA1185 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
+		93FB3ED40F55E38900AA1185 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DF0EEEC709003BE099 /* Foundation.framework */; };
+		93FB3ED50F55E38900AA1185 /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BF3060E9D477E009A6919 /* libbrowser.a */; };
+		93FB3ED60F55E38900AA1185 /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFC1A0E9D4CB9009A6919 /* libcommon.a */; };
+		93FB3ED70F55E38900AA1185 /* librenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */; };
+		93FB3ED80F55E38900AA1185 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */; };
+		93FB3ED90F55E38900AA1185 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
+		93FB3EDA0F55E38900AA1185 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684C5F0F2FAE68009F6555 /* Security.framework */; };
+		93FB3EDB0F55E38900AA1185 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684CCF0F2FAEC2009F6555 /* SystemConfiguration.framework */; };
+		93FB42060F55E39F00AA1185 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DD0EEEC6FF003BE099 /* AppKit.framework */; };
+		93FB42070F55E39F00AA1185 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DD0EEEC6FF003BE099 /* AppKit.framework */; };
+		93FB42080F55E39F00AA1185 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
+		93FB42090F55E39F00AA1185 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
+		93FB420A0F55E39F00AA1185 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
+		93FB420B0F55E39F00AA1185 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93AB0F3BF2DA008B1C46 /* Carbon.framework */; };
+		93FB420C0F55E39F00AA1185 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DF0EEEC709003BE099 /* Foundation.framework */; };
+		93FB420D0F55E39F00AA1185 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DF0EEEC709003BE099 /* Foundation.framework */; };
+		93FB420E0F55E39F00AA1185 /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BF3060E9D477E009A6919 /* libbrowser.a */; };
+		93FB420F0F55E39F00AA1185 /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BF3060E9D477E009A6919 /* libbrowser.a */; };
+		93FB42100F55E39F00AA1185 /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFC1A0E9D4CB9009A6919 /* libcommon.a */; };
+		93FB42110F55E39F00AA1185 /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFC1A0E9D4CB9009A6919 /* libcommon.a */; };
+		93FB42120F55E39F00AA1185 /* librenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */; };
+		93FB42130F55E39F00AA1185 /* librenderer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D640CEB0EAE86BD00EBCFC0 /* librenderer.a */; };
+		93FB42140F55E39F00AA1185 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */; };
+		93FB42150F55E39F00AA1185 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDC8E0F4091F30084059A /* libWebKitSystemInterfaceLeopard.a */; };
+		93FB42160F55E39F00AA1185 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
+		93FB42170F55E39F00AA1185 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 331B93A90F3BF2B9008B1C46 /* QuartzCore.framework */; };
+		93FB42180F55E39F00AA1185 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684C5F0F2FAE68009F6555 /* Security.framework */; };
+		93FB42190F55E39F00AA1185 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684C5F0F2FAE68009F6555 /* Security.framework */; };
+		93FB421A0F55E39F00AA1185 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684CCF0F2FAEC2009F6555 /* SystemConfiguration.framework */; };
+		93FB421B0F55E39F00AA1185 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82684CCF0F2FAEC2009F6555 /* SystemConfiguration.framework */; };
+		93FB423B0F55E84600AA1185 /* libwebkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BD53D90F54AB4300591DFA /* libwebkit.a */; };
+		93FB42450F55E88500AA1185 /* libwebkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4BD53D90F54AB4300591DFA /* libwebkit.a */; };
 		94542322A5E5A8F4FDDAB7F0 /* render_view_host_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = A76E42AD0F28EDB5009A7E88 /* render_view_host_manager.cc */; };
 		96DF109FEE9B09B11690F1FA /* infobar_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6CCB9CF0F1EC32700106F0D /* infobar_delegate.cc */; };
 		970EF19CD8A79CF3D0DF4B61 /* download_file.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9CA0E9D48CE009A6919 /* download_file.cc */; };
@@ -1657,6 +1693,13 @@
 			remoteGlobalIDString = 7BA361A60E8C36E50023C8B9;
 			remoteInfo = sdch;
 		};
+		93FB3ECC0F55E34700AA1185 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 826850040F2FC82D009F6555 /* webkit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 937A15B60F53326C003E8D2D;
+			remoteInfo = webkit;
+		};
 		ABFA33870F424EC5008FCF5D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABFA33790F424EC5008FCF5D /* media.xcodeproj */;
@@ -2929,6 +2972,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93FB42450F55E88500AA1185 /* libwebkit.a in Frameworks */,
 				E45066CE0EEF1AA7003BE099 /* AppKit.framework in Frameworks */,
 				E477F6B50F4095660044ABEB /* ApplicationServices.framework in Frameworks */,
 				331218230F3BFF36006CB2B0 /* Carbon.framework in Frameworks */,
@@ -2984,6 +3028,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93FB423B0F55E84600AA1185 /* libwebkit.a in Frameworks */,
 				4D7FA6940F13CC01004F1B19 /* AppKit.framework in Frameworks */,
 				E4DCDC9C0F40938D0084059A /* ApplicationServices.framework in Frameworks */,
 				33121A390F3C0339006CB2B0 /* Carbon.framework in Frameworks */,
@@ -3054,6 +3099,40 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93FB42060F55E39F00AA1185 /* AppKit.framework in Frameworks */,
+				93FB42070F55E39F00AA1185 /* AppKit.framework in Frameworks */,
+				93FB42080F55E39F00AA1185 /* ApplicationServices.framework in Frameworks */,
+				93FB42090F55E39F00AA1185 /* ApplicationServices.framework in Frameworks */,
+				93FB420A0F55E39F00AA1185 /* Carbon.framework in Frameworks */,
+				93FB420B0F55E39F00AA1185 /* Carbon.framework in Frameworks */,
+				93FB420C0F55E39F00AA1185 /* Foundation.framework in Frameworks */,
+				93FB420D0F55E39F00AA1185 /* Foundation.framework in Frameworks */,
+				93FB420E0F55E39F00AA1185 /* libbrowser.a in Frameworks */,
+				93FB420F0F55E39F00AA1185 /* libbrowser.a in Frameworks */,
+				93FB42100F55E39F00AA1185 /* libcommon.a in Frameworks */,
+				93FB42110F55E39F00AA1185 /* libcommon.a in Frameworks */,
+				93FB42120F55E39F00AA1185 /* librenderer.a in Frameworks */,
+				93FB42130F55E39F00AA1185 /* librenderer.a in Frameworks */,
+				93FB42140F55E39F00AA1185 /* libWebKitSystemInterfaceLeopard.a in Frameworks */,
+				93FB42150F55E39F00AA1185 /* libWebKitSystemInterfaceLeopard.a in Frameworks */,
+				93FB42160F55E39F00AA1185 /* QuartzCore.framework in Frameworks */,
+				93FB42170F55E39F00AA1185 /* QuartzCore.framework in Frameworks */,
+				93FB42180F55E39F00AA1185 /* Security.framework in Frameworks */,
+				93FB42190F55E39F00AA1185 /* Security.framework in Frameworks */,
+				93FB421A0F55E39F00AA1185 /* SystemConfiguration.framework in Frameworks */,
+				93FB421B0F55E39F00AA1185 /* SystemConfiguration.framework in Frameworks */,
+				93FB3ED10F55E38900AA1185 /* AppKit.framework in Frameworks */,
+				93FB3ED20F55E38900AA1185 /* ApplicationServices.framework in Frameworks */,
+				93FB3ED30F55E38900AA1185 /* Carbon.framework in Frameworks */,
+				93FB3ED40F55E38900AA1185 /* Foundation.framework in Frameworks */,
+				93FB3ED50F55E38900AA1185 /* libbrowser.a in Frameworks */,
+				93FB3ED60F55E38900AA1185 /* libcommon.a in Frameworks */,
+				93FB3ED70F55E38900AA1185 /* librenderer.a in Frameworks */,
+				93FB3ED80F55E38900AA1185 /* libWebKitSystemInterfaceLeopard.a in Frameworks */,
+				93FB3ED90F55E38900AA1185 /* QuartzCore.framework in Frameworks */,
+				93FB3EDA0F55E38900AA1185 /* Security.framework in Frameworks */,
+				93FB3EDB0F55E38900AA1185 /* SystemConfiguration.framework in Frameworks */,
+				93FB3ECE0F55E38400AA1185 /* libwebkit.a in Frameworks */,
 				E45065DE0EEEC6FF003BE099 /* AppKit.framework in Frameworks */,
 				E4DCDB9D0F4091C00084059A /* ApplicationServices.framework in Frameworks */,
 				331B93AC0F3BF2DA008B1C46 /* Carbon.framework in Frameworks */,
@@ -4905,6 +4984,7 @@
 				33121EF30F3CF45B006CB2B0 /* PBXTargetDependency */,
 				33121EF50F3CF45B006CB2B0 /* PBXTargetDependency */,
 				33121EF70F3CF45B006CB2B0 /* PBXTargetDependency */,
+				93FB3ECD0F55E34700AA1185 /* PBXTargetDependency */,
 			);
 			name = app;
 			productName = app;
@@ -6467,6 +6547,11 @@
 			name = sdch;
 			targetProxy = 8268521A0F2FD197009F6555 /* PBXContainerItemProxy */;
 		};
+		93FB3ECD0F55E34700AA1185 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = webkit;
+			targetProxy = 93FB3ECC0F55E34700AA1185 /* PBXContainerItemProxy */;
+		};
 		ABFA338E0F424F39008FCF5D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = media;
@@ -6731,6 +6816,7 @@
 					../third_party/libjpeg,
 					../third_party/libxml/include,
 					../third_party/npapi,
+					../third_party/WebKit/WebKit/chromium/public,
 					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
 				);
 				XCODEPROJ_DEPTH = ..;
@@ -6758,6 +6844,7 @@
 					../third_party/libjpeg,
 					../third_party/libxml/include,
 					../third_party/npapi,
+					../third_party/WebKit/WebKit/chromium/public,
 					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
 				);
 				XCODEPROJ_DEPTH = ..;

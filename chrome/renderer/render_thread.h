@@ -24,6 +24,10 @@ class VisitedLinkSlave;
 struct ModalDialogEvent;
 struct WebPreferences;
 
+namespace webkit_glue {
+class WebKitClientImpl;
+}
+
 // The RenderThreadBase is the minimal interface that a RenderView/Widget
 // expects from a render thread. The interface basically abstracts a way to send
 // and receive messages.
@@ -137,6 +141,8 @@ class RenderThread : public RenderThreadBase,
   scoped_ptr<ScopedRunnableMethodFactory<RenderThread> > cache_stats_factory_;
 
   scoped_ptr<NotificationService> notification_service_;
+
+  scoped_ptr<webkit_glue::WebKitClientImpl> webkit_client_impl_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderThread);
 };

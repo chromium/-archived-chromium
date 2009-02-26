@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;.\glue.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;.\glue.vsprops;..\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;.\glue.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;.\glue.vsprops;..\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -533,6 +533,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webclipboard_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webclipboard_impl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webcursor.cc"
 				>
 			</File>
@@ -602,6 +610,14 @@
 			</File>
 			<File
 				RelativePath=".\webinputevent_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webkit_client_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webkit_client_impl.h"
 				>
 			</File>
 			<File

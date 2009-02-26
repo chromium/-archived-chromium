@@ -82,10 +82,12 @@
 		82F39D400E7EFD9300785E15 /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82056C0E770291008F45CF /* libxml.a */; };
 		82F39D490E7EFDAA00785E15 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059A0E770291008F45CF /* libjscre.a */; };
 		82F39D4A0E7EFDAA00785E15 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059C0E770291008F45CF /* libv8.a */; };
+		93336F0B0F55FBE50062E3BA /* libwebkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 937DE8840F5347B400D0D638 /* libwebkit.a */; };
 		93AF4F340EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F300EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp */; };
 		93AF4F350EFAFE2C0073C62D /* GKURL_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F310EFAFE2C0073C62D /* GKURL_unittest.cpp */; };
 		93AF4F360EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F320EFAFE2C0073C62D /* ICOImageDecoder_unittest.cpp */; };
 		93AF4F370EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F330EFAFE2C0073C62D /* XBMImageDecoder_unittest.cpp */; };
+		93FB428B0F55E8DD00AA1185 /* libwebkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 937DE8840F5347B400D0D638 /* libwebkit.a */; };
 		AB19AC150F1BBBD000673E20 /* test_shell_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB19AC140F1BBBD000673E20 /* test_shell_main.cc */; };
 		AB19AC290F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = AB19AC280F1BD6C900673E20 /* test_shell_platform_delegate_mac.mm */; };
 		AB19AD380F1D0AF200673E20 /* test_shell_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = ABA9CAE90DBC521D00CB1EFB /* test_shell_mac.mm */; };
@@ -874,6 +876,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93336F0B0F55FBE50062E3BA /* libwebkit.a in Frameworks */,
 				E45069C40EF016C6003BE099 /* AppKit.framework in Frameworks */,
 				E45069C50EF016C6003BE099 /* ApplicationServices.framework in Frameworks */,
 				E45069C60EF016C6003BE099 /* Carbon.framework in Frameworks */,
@@ -916,6 +919,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93FB428B0F55E8DD00AA1185 /* libwebkit.a in Frameworks */,
 				E45629300E26B4FE005E4685 /* AppKit.framework in Frameworks */,
 				E45629270E26B4FE005E4685 /* ApplicationServices.framework in Frameworks */,
 				E456292C0E26B4FE005E4685 /* Carbon.framework in Frameworks */,
@@ -2285,6 +2289,7 @@
 					../../../../third_party/WebKit/WebCore/rendering,
 					../../../../third_party/WebKit/WebCore/rendering/style,
 					../../../../third_party/WebKit/WebCore/svg,
+					../../../../third_party/WebKit/WebKit/chromium/public,
 					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					../../../../v8/include,
 					../../../../webkit/port/platform,
@@ -2351,6 +2356,7 @@
 					../../../../third_party/WebKit/WebCore/rendering,
 					../../../../third_party/WebKit/WebCore/rendering/style,
 					../../../../third_party/WebKit/WebCore/svg,
+					../../../../third_party/WebKit/WebKit/chromium/public,
 					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					../../../../v8/include,
 					../../../../webkit/port/platform,
@@ -2412,6 +2418,7 @@
 					../../../../third_party/WebKit/WebCore/dom,
 					../../../../third_party/WebKit/WebCore/page,
 					../../../../third_party/WebKit/WebCore,
+					../../../../third_party/WebKit/WebKit/chromium/public,
 					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/WebCore/v8",
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/grit",
@@ -2455,6 +2462,7 @@
 					../../../../third_party/WebKit/WebCore/dom,
 					../../../../third_party/WebKit/WebCore/page,
 					../../../../third_party/WebKit/WebCore,
+					../../../../third_party/WebKit/WebKit/chromium/public,
 					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/WebCore/v8",
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/grit",
