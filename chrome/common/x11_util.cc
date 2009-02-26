@@ -82,6 +82,10 @@ bool QuerySharedMemorySupport(Display* dpy) {
   return shared_memory_support;
 }
 
+XID GetX11RootWindow() {
+  return GDK_WINDOW_XID(gdk_get_default_root_window());
+}
+
 XID GetX11WindowFromGtkWidget(GtkWidget* widget) {
   return GDK_WINDOW_XID(widget->window);
 }

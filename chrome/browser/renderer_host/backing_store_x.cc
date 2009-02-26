@@ -26,16 +26,16 @@ BackingStore::BackingStore(const gfx::Size& size,
                            Display* display,
                            int depth,
                            void* visual,
-                           Drawable parent_window,
+                           Drawable root_window,
                            bool use_shared_memory)
     : size_(size),
       display_(display),
       use_shared_memory_(use_shared_memory),
-      parent_window_(parent_window) {
+      root_window_(root_window) {
   const int width = size.width();
   const int height = size.height();
 
-  pixmap_ = XCreatePixmap(display_, parent_window, width, height, depth);
+  pixmap_ = XCreatePixmap(display_, root_window, width, height, depth);
   picture_ = XRenderCreatePicture(
       display_, pixmap_,
       x11_util::GetRenderVisualFormat(display_, static_cast<Visual*>(visual)),
@@ -47,7 +47,7 @@ BackingStore::BackingStore(const gfx::Size& size)
     : size_(size),
       display_(NULL),
       use_shared_memory_(false),
-      parent_window_(0) {
+      root_window_(0) {
 }
 
 BackingStore::~BackingStore() {
@@ -85,7 +85,7 @@ void BackingStore::PaintRect(base::ProcessHandle process,
     // difference between the |data| pointer and the address of the mapping in
     // |shminfo|. Since both are NULL, the offset will be calculated to be 0,
     // which is correct for us.
-    pixmap = XShmCreatePixmap(display_, parent_window_, NULL, &shminfo, width,
+    pixmap = XShmCreatePixmap(display_, root_window_, NULL, &shminfo, width,
                               height, 32);
   } else {
     // No shared memory support, we have to copy the bitmap contents to the X
@@ -109,7 +109,7 @@ void BackingStore::PaintRect(base::ProcessHandle process,
     image.blue_mask = 0xff0000;
     image.data = static_cast<char*>(bitmap->memory());
 
-    pixmap = XCreatePixmap(display_, parent_window_, width, height, 32);
+    pixmap = XCreatePixmap(display_, root_window_, width, height, 32);
     GC gc = XCreateGC(display_, pixmap, 0, NULL);
     XPutImage(display_, pixmap, gc, &image,
               0, 0 /* source x, y */, 0, 0 /* dest x, y */,
@@ -162,8 +162,8 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
   PaintRect(process, bitmap, bitmap_rect);
 }
 
-void BackingStore::ShowRect(const gfx::Rect& rect) {
-  XCopyArea(display_, pixmap_, parent_window_, static_cast<GC>(pixmap_gc_),
+void BackingStore::ShowRect(const gfx::Rect& rect, XID target) {
+  XCopyArea(display_, pixmap_, target, static_cast<GC>(pixmap_gc_),
             rect.x(), rect.y(), rect.width(), rect.height(),
             rect.x(), rect.y());
 }

@@ -36,10 +36,10 @@ class BackingStore {
   //   x_connection: the display to target
   //   depth: the depth of the X window which will be drawn into
   //   visual: An Xlib Visual describing the format of the target window
-  //   parent_window: The X id of the target window
+  //   root_window: The X id of the root window
   //   use_shared_memory: if true, the X server is local
   BackingStore(const gfx::Size& size, Display* x_connection, int depth,
-               void* visual, XID parent_window, bool use_shared_memory);
+               void* visual, XID root_window, bool use_shared_memory);
   // This is for unittesting only. An object constructed using this constructor
   // will silently ignore all paints
   explicit BackingStore(const gfx::Size& size);
@@ -57,7 +57,7 @@ class BackingStore {
   //   display: the display of the backing store and target window
   //   damage: the area to copy
   //   target: the X id of the target window
-  void ShowRect(const gfx::Rect& damage);
+  void ShowRect(const gfx::Rect& damage, XID target);
 #endif
 
   // Paints the bitmap from the renderer onto the backing store.
@@ -104,7 +104,7 @@ class BackingStore {
   // If this is true, then |connection_| is good for MIT-SHM (X shared memory).
   const bool use_shared_memory_;
   // The parent window (probably a GtkDrawingArea) for this backing store.
-  const XID parent_window_;
+  const XID root_window_;
   // This is a handle to the server side pixmap which is our backing store.
   XID pixmap_;
   // This is the RENDER picture pointing at |pixmap_|.

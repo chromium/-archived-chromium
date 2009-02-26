@@ -30,6 +30,8 @@ namespace x11_util {
 
   // These functions do not cache their results
 
+  // Get the X window id for the default root window
+  XID GetX11RootWindow();
   // Get the X window id for the given GTK widget.
   XID GetX11WindowFromGtkWidget(GtkWidget*);
   // Get a Visual from the given widget. Since we don't include the Xlib

@@ -287,11 +287,11 @@ BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
     const gfx::Size& size) {
   Display* display = x11_util::GetXDisplay();
   void* visual = x11_util::GetVisualFromGtkWidget(view_);
-  XID parent_window = x11_util::GetX11WindowFromGtkWidget(view_);
+  XID root_window = x11_util::GetX11RootWindow();
   bool use_shared_memory = x11_util::QuerySharedMemorySupport(display);
   int depth = gtk_widget_get_visual(view_)->depth;
 
-  return new BackingStore(size, display, depth, visual, parent_window,
+  return new BackingStore(size, display, depth, visual, root_window,
                           use_shared_memory);
 }
 
@@ -303,9 +303,10 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
     // period where this object isn't attached to a window but hasn't been
     // Destroy()ed yet and it receives paint messages...
     GdkWindow* window = view_->window;
-    if (window)
-      backing_store->ShowRect(damage_rect);
-
+    if (window) {
+      backing_store->ShowRect(
+          damage_rect, x11_util::GetX11WindowFromGtkWidget(view_));
+    }
   } else {
     NOTIMPLEMENTED();
   }
