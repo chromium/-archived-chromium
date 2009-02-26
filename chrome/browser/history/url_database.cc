@@ -10,6 +10,7 @@
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/sqlite_utils.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
 
 using base::Time;
@@ -408,7 +409,7 @@ void URLDatabase::GetMostRecentKeywordSearchTerms(
 
 bool URLDatabase::MigrateFromVersion11ToVersion12() {
   URLRow about_row;
-  if (GetRowForURL(GURL("about:blank"), &about_row)) {
+  if (GetRowForURL(GURL(chrome::kAboutBlankURL), &about_row)) {
     about_row.set_favicon_id(0);
     return UpdateURLRow(about_row.id(), about_row);
   }

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/url_constants.h"
 
 namespace {
 
@@ -15,7 +16,7 @@ class RenderViewHostTest : public RenderViewHostTestHarness {
 // All about URLs reported by the renderer should get rewritten to about:blank.
 // See RenderViewHost::OnMsgNavigate for a discussion.
 TEST_F(RenderViewHostTest, FilterAbout) {
-  rvh()->SendNavigate(1, GURL("about:cache"));
+  rvh()->SendNavigate(1, GURL(chrome::kAboutCacheURL));
   ASSERT_TRUE(controller_->GetActiveEntry());
-  EXPECT_EQ(GURL("about:blank"), controller_->GetActiveEntry()->url());
+  EXPECT_EQ(GURL(chrome::kAboutBlankURL), controller_->GetActiveEntry()->url());
 }

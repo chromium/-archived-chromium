@@ -386,7 +386,8 @@ void NavigationController::RemoveEntryAtIndex(int index,
       NavigateToPendingEntry(false);
     } else {
       // If there is nothing to show, show a default page.
-      LoadURL(default_url.is_empty() ? GURL("about:blank") : default_url,
+      LoadURL(default_url.is_empty() ? GURL(chrome::kAboutBlankURL) :
+                  default_url,
               GURL(), PageTransition::START_PAGE);
     }
   } else if (last_committed_entry_index_ > index) {

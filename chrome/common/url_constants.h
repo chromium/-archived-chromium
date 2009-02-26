@@ -29,6 +29,11 @@ extern const char kStandardSchemeSeparator[];
 
 // About URLs (including schmes).
 extern const char kAboutBlankURL[];
+extern const char kAboutCacheURL[];
+extern const char kAboutCrashURL[];
+extern const char kAboutHangURL[];
+extern const char kAboutMemoryURL[];
+extern const char kAboutShortHangURL[];
 
 }  // namespace chrome
 

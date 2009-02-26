@@ -18,6 +18,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/views/accelerator.h"
 #include "chrome/views/background.h"
 #include "chrome/views/link.h"
@@ -919,7 +920,7 @@ void TaskManagerContents::LinkActivated(views::Link* source,
   DCHECK(source == about_memory_link_);
   Browser* browser = BrowserList::GetLastActive();
   DCHECK(browser);
-  browser->OpenURL(GURL("about:memory"), GURL(), NEW_FOREGROUND_TAB,
+  browser->OpenURL(GURL(chrome::kAboutMemoryURL), GURL(), NEW_FOREGROUND_TAB,
                    PageTransition::LINK);
 }
 

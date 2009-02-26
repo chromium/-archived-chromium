@@ -18,6 +18,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/env_vars.h"
 #include "chrome/common/libxml_utils.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/common/win_util.h"
 #include "chrome/test/automated_ui_tests/automated_ui_tests.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -738,7 +739,7 @@ bool AutomatedUITest::ForceCrash() {
     return false;
   }
   scoped_ptr<TabProxy> tab(browser->GetActiveTab());
-  GURL test_url("about:crash");
+  GURL test_url(chrome::kAboutCrashURL);
   bool did_timeout;
   tab->NavigateToURLWithTimeout(test_url, kDebuggingTimeoutMsec, &did_timeout);
   if (!did_timeout) {

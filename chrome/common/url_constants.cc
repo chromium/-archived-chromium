@@ -23,5 +23,10 @@ const char kViewSourceScheme[] = "view-source";
 const char kStandardSchemeSeparator[] = "://";
 
 const char kAboutBlankURL[] = "about:blank";
+const char kAboutCacheURL[] = "about:cache";
+const char kAboutCrashURL[] = "about:crash";
+const char kAboutHangURL[] = "about:hang";
+const char kAboutMemoryURL[] = "about:memory";
+const char kAboutShortHangURL[] = "about:shorthang";
 
 }  // namespace chrome
