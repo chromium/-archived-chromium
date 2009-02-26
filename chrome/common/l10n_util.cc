@@ -27,6 +27,12 @@
 
 namespace {
 
+#if defined(OS_WIN)
+static const FilePath::CharType kLocaleFileExtension[] = L".dll";
+#elif defined(OS_POSIX)
+static const FilePath::CharType kLocaleFileExtension[] = ".pak";
+#endif
+
 // Added to the end of strings that are too big in TrucateString.
 static const wchar_t* const kElideString = L"\x2026";
 
@@ -44,7 +50,7 @@ void GetLanguageAndRegionFromOS(std::string* lang, std::string* region) {
   *region = country;
 }
 
-// Convert Chrome locale name (DLL name) to ICU locale name
+// Convert Chrome locale name to ICU locale name
 std::string ICULocaleName(const std::wstring& locale_string) {
   // If not Spanish, just return it.
   if (locale_string.substr(0, 2) != L"es")
@@ -116,13 +122,14 @@ bool IsLocaleAvailable(const std::wstring& locale,
                        const std::wstring& locale_path) {
   std::wstring test_locale = locale;
   // If locale has any illegal characters in it, we don't want to try to
-  // load it because it may be pointing outside the locale dll directory.
+  // load it because it may be pointing outside the locale data file directory.
   file_util::ReplaceIllegalCharacters(&test_locale, ' ');
   if (test_locale != locale)
     return false;
 
-  std::wstring test_path = locale_path;
-  file_util::AppendToPath(&test_path, locale + L".dll");
+  FilePath test_path = FilePath::FromWStringHack(locale_path)
+      .Append(FilePath::FromWStringHack(locale))
+      .ReplaceExtension(kLocaleFileExtension);
   return file_util::PathExists(test_path) && SetICUDefaultLocale(locale);
 }
 
@@ -239,13 +246,8 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
   if (IsLocaleAvailable(fallback_locale, locale_path))
     return fallback_locale;
 
-#if defined(OS_WIN)
-  // No DLL, we shouldn't get here.
+  // No locale data file was found; we shouldn't get here.
   NOTREACHED();
-#else
-  // We need a locale data file.
-  NOTIMPLEMENTED();
-#endif
 
   return std::wstring();
 }
@@ -651,7 +653,7 @@ const std::vector<std::wstring>& GetAvailableLocales() {
       // Filter out the names that have aliases.
       if (IsDuplicateName(locale_name))
         continue;
-      // Normalize underscores to hyphens because that's what our locale dlls
+      // Normalize underscores to hyphens because that's what our locale files
       // use.
       std::replace(locale_name.begin(), locale_name.end(), '_', '-');
 
