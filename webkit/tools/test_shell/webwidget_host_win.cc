@@ -142,7 +142,11 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
-  DCHECK(dx || dy);
+  if (dx != 0 && dy != 0) {
+    // We only support uni-directional scroll
+    DidScrollRect(0, dy, clip_rect);
+    dy = 0;
+  }
 
   // If we already have a pending scroll operation or if this scroll operation
   // intersects the existing paint region, then just failover to invalidating.

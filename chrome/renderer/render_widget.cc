@@ -480,8 +480,11 @@ void RenderWidget::DidInvalidateRect(WebWidget* webwidget,
 
 void RenderWidget::DidScrollRect(WebWidget* webwidget, int dx, int dy,
                                  const gfx::Rect& clip_rect) {
-  // We only support scrolling along one axis at a time.
-  DCHECK((dx && !dy) || (!dx && dy));
+  if (dx != 0 && dy != 0) {
+    // We only support scrolling along one axis at a time.
+    DidScrollRect(webwidget, 0, dy, clip_rect);
+    dy = 0;
+  }
 
   bool intersects_with_painting = paint_rect_.Intersects(clip_rect);
 
@@ -597,15 +600,7 @@ void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
 
 void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget,
                                             gfx::Rect* rect) {
-  // This is disabled to verify if WebKit is responsible for the slow down
-  // that was witnessed in the page cycler tests when the resize corner 
-  // code was commited...
-#if defined(OS_MACOSX)
-  // ...we need it enabled on Mac so scrollbars are usable.
   *rect = resizer_rect_;
-#elif defined(OS_WIN) || defined(OS_LINUX)
-  *rect = gfx::Rect();  // resizer_rect_;
-#endif
 }
 
 void RenderWidget::OnImeSetInputMode(bool is_active) {
