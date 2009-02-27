@@ -66,7 +66,9 @@ class TabStripModelObserver {
   virtual void TabMoved(TabContents* contents,
                         int from_index,
                         int to_index) { }
-  // The specified TabContents at |index| changed in some way.
+  // The specified TabContents at |index| changed in some way. |contents| may
+  // be an entirely different object and the old value is no longer available
+  // by the time this message is delivered.
   virtual void TabChangedAt(TabContents* contents, int index) { }
   // The TabStripModel now no longer has any "significant" (user created or
   // user manipulated) tabs. The implementer may use this as a trigger to try

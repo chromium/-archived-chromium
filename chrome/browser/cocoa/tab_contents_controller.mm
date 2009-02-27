@@ -169,9 +169,9 @@ class LocationBarBridge : public LocationBar {
   [self updateToolbarCommandStatus];
 }
 
-- (void)tabDidChange {
-  // TODO(pinkerton): what specificaly do we need to update here?
-  NOTIMPLEMENTED();
+- (void)tabDidChange:(TabContents*)updatedContents {
+  contents_ = updatedContents;
+  [contentsBox_ setContentView:contents_->GetNativeView()];
 }
 
 - (NSString*)locationBarString {

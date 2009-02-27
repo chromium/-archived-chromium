@@ -71,7 +71,7 @@ class TabStripBridge : public TabStripModelObserver {
     toolbarModel_ = toolbarModel;
     commands_ = commands;
     bridge_ = new TabStripBridge(tabModel, self);
-    tabContentsToController_ = [[NSMutableDictionary alloc] init];
+    tabControllerArray_ = [[NSMutableArray alloc] init];
     
     // Create the new tab button separate from the nib so we can make sure
     // it's always at the end of the subview list.
@@ -91,24 +91,15 @@ class TabStripBridge : public TabStripModelObserver {
 
 - (void)dealloc {
   delete bridge_;
-  [tabContentsToController_ release];
+  [tabControllerArray_ release];
   [newTabButton_ release];
   [super dealloc];
 }
 
-// Look up the controller associated with |contents| in the map, using its
-// pointer as the key into our dictionary.
-- (TabContentsController*)controllerWithContents:(TabContents*)contents {
-  NSValue* key = [NSValue valueWithPointer:contents];
-  return [tabContentsToController_ objectForKey:key];
-}
-
-// Finds the associated TabContentsController for |contents| using the
-// internal dictionary and swaps out the sole child of the contentArea to
-// display its contents.
-- (void)swapInTabContents:(TabContents*)contents {
-  // Look up the associated controller
-  TabContentsController* controller = [self controllerWithContents:contents];
+// Finds the associated TabContentsController at the given |index| and swaps
+// out the sole child of the contentArea to display its contents.
+- (void)swapInTabAtIndex:(NSInteger)index {
+  TabContentsController* controller = [tabControllerArray_ objectAtIndex:index];
   
   // Resize the new view to fit the window
   NSView* contentView = [[tabView_ window] contentView];
@@ -217,8 +208,7 @@ class TabStripBridge : public TabStripModelObserver {
                                              commands:commands_
                                          toolbarModel:toolbarModel_]
           autorelease];
-  NSValue* key = [NSValue valueWithPointer:contents];
-  [tabContentsToController_ setObject:contentsController forKey:key];
+  [tabControllerArray_ insertObject:contentsController atIndex:index];
   
   // Remove the new tab button so the only views present are the tabs,
   // we'll add it back when we're done
@@ -245,7 +235,7 @@ class TabStripBridge : public TabStripModelObserver {
   
   // Select the newly created tab if in the foreground
   if (inForeground)
-    [self swapInTabContents:contents];
+    [self swapInTabAtIndex:index];
 }
 
 // Called when a notification is received from the model to select a particular
@@ -264,11 +254,11 @@ class TabStripBridge : public TabStripModelObserver {
   // Tell the new tab contents it is about to become the selected tab. Here it
   // can do things like make sure the toolbar is up to date.
   TabContentsController* newController =
-      [self controllerWithContents:newContents];
+      [tabControllerArray_ objectAtIndex:index];
   [newController willBecomeSelectedTab];
 
   // Swap in the contents for the new tab
-  [self swapInTabContents:newContents];
+  [self swapInTabAtIndex:index];
 }
 
 // Called when a notification is received from the model that the given tab
@@ -280,8 +270,7 @@ class TabStripBridge : public TabStripModelObserver {
   // will remove all the tab content Cocoa views from the hierarchy. A
   // subsequent "select tab" notification will follow from the model. To
   // tell us what to swap in in its absence.
-  NSValue* key = [NSValue valueWithPointer:contents];
-  [tabContentsToController_ removeObjectForKey:key];
+  [tabControllerArray_ removeObjectAtIndex:index];
 
   // Remove the |index|th view from the tab strip
   NSView* tab = [[tabView_ subviews] objectAtIndex:index];
@@ -307,14 +296,13 @@ class TabStripBridge : public TabStripModelObserver {
   [self setTabTitle:tab withContents:contents];
   
   TabContentsController* updatedController =
-      [self controllerWithContents:contents];
-  [updatedController tabDidChange];
+      [tabControllerArray_ objectAtIndex:index];
+  [updatedController tabDidChange:contents];
 }
 
 - (LocationBar*)locationBar {
-  TabContents* selectedContents = tabModel_->GetSelectedTabContents();
   TabContentsController* selectedController =
-      [self controllerWithContents:selectedContents];
+      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
   return [selectedController locationBar];
 }
 
@@ -327,31 +315,31 @@ class TabStripBridge : public TabStripModelObserver {
   // tell the appropriate controller to update its state. |shouldRestore| being
   // YES means we're going back to this tab and should put back any state
   // associated with it.
-  TabContentsController* controller = [self controllerWithContents:tab];
+  TabContentsController* controller = 
+      [tabControllerArray_ objectAtIndex:tabModel_->GetIndexOfTabContents(tab)];
   [controller updateToolbarWithContents:shouldRestore ? tab : nil];
 }
 
 - (void)setStarredState:(BOOL)isStarred {
-  TabContents* selectedContents = tabModel_->GetSelectedTabContents();
   TabContentsController* selectedController =
-      [self controllerWithContents:selectedContents];
+      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
   [selectedController setStarredState:isStarred];
 }
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of the currently selected tab.
 - (NSRect)selectedTabGrowBoxRect {
-  TabContents* selectedContents = tabModel_->GetSelectedTabContents();
-  if (!selectedContents) {
+  int selectedIndex = tabModel_->selected_index();
+  if (selectedIndex == TabStripModel::kNoTab) {
     // When the window is initially being constructed, there may be no currently
     // selected tab, so pick the first one. If there aren't any, just bail with
     // an empty rect.
-    selectedContents = tabModel_->GetTabContentsAt(0);
-    if (!selectedContents)
-      return NSMakeRect(0, 0, 0, 0);
+    selectedIndex = 0;
   }
   TabContentsController* selectedController =
-      [self controllerWithContents:selectedContents];
+      [tabControllerArray_ objectAtIndex:selectedIndex];
+  if (!selectedController)
+    return NSZeroRect;
   return [selectedController growBoxRect];
 }
 
