@@ -354,11 +354,11 @@ ProxyService* ProxyService::Create(const ProxyInfo* pi) {
   return new ProxyService(new ProxyConfigServiceMac(),
                           new ProxyResolverMac());
 #else
-  // This used to be a NOTIMPLEMENTED(), but that logs as an error,
-  // screwing up layout tests.
-  LOG(WARNING) << "Proxies are not implemented; remove me once that's fixed.";
-  // http://code.google.com/p/chromium/issues/detail?id=4523 is the bug
-  // to implement this.
+  // TODO(port): implement ProxyConfigServiceLinux as well as make use of
+  // ProxyResolverV8 once it's implemented.
+  // See:
+  // - http://code.google.com/p/chromium/issues/detail?id=8143
+  // - http://code.google.com/p/chromium/issues/detail?id=2764
   return CreateNull();
 #endif
 }
