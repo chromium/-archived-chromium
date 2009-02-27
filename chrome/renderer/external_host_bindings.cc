@@ -7,7 +7,7 @@
 #include "base/values.h"
 #include "chrome/common/render_messages.h"
 
-void ExternalHostBindings::BindMethods() {
+ExternalHostBindings::ExternalHostBindings() {
   BindMethod("ForwardMessageToExternalHost",
              &ExternalHostBindings::ForwardMessageToExternalHost);
 }

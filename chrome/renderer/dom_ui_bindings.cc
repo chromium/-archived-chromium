@@ -9,12 +9,12 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/stl_util-inl.h"
 
-void DOMUIBindings::BindMethods() {
-  BindMethod("send", &DOMUIBindings::send);
-}
-
 DOMBoundBrowserObject::~DOMBoundBrowserObject() {
   STLDeleteContainerPointers(properties_.begin(), properties_.end());
+}
+
+DOMUIBindings::DOMUIBindings() {
+  BindMethod("send", &DOMUIBindings::send);
 }
 
 void DOMUIBindings::send(const CppArgumentList& args, CppVariant* result) {

@@ -256,11 +256,11 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
   view->set_parent_hwnd(tab_->GetContentNativeView());
   WebContentsViewWin* web_contents_view =
       static_cast<WebContentsViewWin*>(tab_->view());
+  render_view_host->AllowDomAutomationBindings();
   render_view_host->CreateRenderView();
   // SetSize must be called after CreateRenderView or the HWND won't show.
   view->SetSize(web_contents_view->GetContainerSize());
 
-  render_view_host->AllowDomAutomationBindings();
   return render_view_host;
 #else
   // TODO(port): RenderWidgetHost* is implemented, but Create and

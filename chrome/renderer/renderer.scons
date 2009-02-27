@@ -60,6 +60,10 @@ input_files = ChromeFileList([
     'net/render_dns_queue.cc',
     'net/render_dns_queue.h',
   ]),
+  MSVSFilter('extensions', [
+    'extensions/extension_bindings.cc',
+    'extensions/extension_bindings.h',
+  ]),
     'about_handler.cc',
     'about_handler.h',
     'chrome_plugin_host.cc',

@@ -16,7 +16,9 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/plugin_service.h"
+#include "chrome/browser/profile.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
@@ -63,12 +65,12 @@ const wchar_t kRegistryExtensionVersion[] = L"version";
 const char kExternalInstallFile[] = "EXTERNAL_INSTALL";
 }
 
-
-ExtensionsService::ExtensionsService(const FilePath& profile_directory,
+ExtensionsService::ExtensionsService(Profile* profile,
                                      UserScriptMaster* user_script_master)
     : message_loop_(MessageLoop::current()),
       backend_(new ExtensionsServiceBackend),
-      install_directory_(profile_directory.AppendASCII(kInstallDirectoryName)),
+      install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
+      profile_(profile),
       user_script_master_(user_script_master) {
 }
 
@@ -102,6 +104,13 @@ bool ExtensionsService::Init() {
           scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 
   return true;
+}
+
+void ExtensionsService::LaunchExtensionProcess(Extension* extension) {
+  // TODO(mpcomplete): Do something useful here.
+  GURL url = Extension::GetResourceURL(extension->url(), "index.html");
+  ExtensionView* view = new ExtensionView(url, profile_);
+  view->InitHidden();
 }
 
 MessageLoop* ExtensionsService::GetMessageLoop() {

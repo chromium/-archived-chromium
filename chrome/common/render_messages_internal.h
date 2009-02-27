@@ -302,19 +302,11 @@ IPC_BEGIN_MESSAGES(View)
   // Notifies the renderer that the system DoDragDrop call has ended.
   IPC_MESSAGE_ROUTED0(ViewMsg_DragSourceSystemDragEnded)
 
-  // Used to tell a render view whether it should expose DOM Automation bindings
-  // that allow JS content in the DOM to send a JSON-encoded value to the
-  // browser process.  (By default this isn't allowed unless the app has
-  // been started up with the --dom-automation switch.)
-  IPC_MESSAGE_ROUTED1(ViewMsg_AllowDomAutomationBindings,
-                      bool /* binding_allowed */)
-
-  // Used to tell a render view whether it should expose DOM UI bindings
-  // that allow JS content in the DOM to send a JSON-encoded value to the
-  // browser process.  This is for HTML-based UI.
-  IPC_MESSAGE_ROUTED2(ViewMsg_AllowBindings,
-                      bool /* enable_dom_ui_bindings */,
-                      bool /* enable_external_host_bindings */)
+  // Used to tell a render view whether it should expose various bindings
+  // that allow JS content extended privileges.  See BindingsPolicy for valid
+  // flag values.
+  IPC_MESSAGE_ROUTED1(ViewMsg_AllowBindings,
+                      int /* enabled_bindings_flags */)
 
   // Tell the renderer to add a property to the DOMUI binding object.  This
   // only works if we allowed DOMUI bindings.

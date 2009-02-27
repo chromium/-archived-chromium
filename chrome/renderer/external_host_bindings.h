@@ -6,7 +6,7 @@
 #define CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H_
 
 #include "chrome/common/ipc_message.h"
-#include "dom_ui_bindings.h"
+#include "chrome/renderer/dom_ui_bindings.h"
 
 // ExternalHostBindings is the class backing the "externalHost" object
 // accessible from Javascript
@@ -15,11 +15,8 @@
 //  ForwardMessageToExternalHost(String receiver, String message);
 class ExternalHostBindings : public DOMBoundBrowserObject {
  public:
-  ExternalHostBindings() { BindMethods(); }
+  ExternalHostBindings();
   virtual ~ExternalHostBindings() {};
-
-  // DOMBoundBrowserObject implementation.
-  virtual void BindMethods();
 
   // The ForwardMessageToExternalHost() function provided to Javascript.
   void ForwardMessageToExternalHost(const CppArgumentList& args,

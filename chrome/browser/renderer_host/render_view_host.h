@@ -308,10 +308,12 @@ class RenderViewHost : public RenderWidgetHost {
   // Tell the render view to expose DOM automation bindings so that the js
   // content can send JSON-encoded data back to automation in the parent
   // process.
+  // Must be called before CreateRenderView().
   void AllowDomAutomationBindings();
 
   // Tell the render view to allow the javascript access to
   // the external host via automation.
+  // Must be called before CreateRenderView().
   void AllowExternalHostBindings();
 
   // Tell the render view to expose DOM bindings so that the JS content
@@ -319,6 +321,10 @@ class RenderViewHost : public RenderWidgetHost {
   // This is used for HTML-based UI.
   // Must be called before CreateRenderView().
   void AllowDOMUIBindings();
+
+  // Tell the render view to expose privileged bindings for use by extensions.
+  // Must be called before CreateRenderView().
+  void AllowExtensionBindings();
 
   // Tells the renderer which render view should be inspected by developer
   // tools loaded in it. This method should be called before renderer is
@@ -574,9 +580,9 @@ class RenderViewHost : public RenderWidgetHost {
   // is the debugger attached to us or not
   bool debugger_attached_;
 
-  // True if we've been told to set up the the Javascript bindings for
-  // sending messages back to the browser.
-  bool enable_dom_ui_bindings_;
+  // A bitwise OR of bindings types that have been enabled for this RenderView.
+  // See BindingsPolicy for details.
+  int enabled_bindings_;
 
   // The request_id for the pending cross-site request. Set to -1 if
   // there is a pending request, but we have not yet started the unload
@@ -584,10 +590,6 @@ class RenderViewHost : public RenderWidgetHost {
   // request once we have gotten the some data for the pending page
   // and thus started the unload process.
   int pending_request_id_;
-
-  // True if javascript access to the external host (through
-  // automation) is allowed.
-  bool enable_external_host_bindings_;
 
   // Handle to an event that's set when the page is showing a modal dialog box
   // (or equivalent constrained window).  The renderer and plugin processes

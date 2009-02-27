@@ -104,6 +104,7 @@ input_files = ChromeFileList([
     'accessibility.h',
     'animation.cc',
     'animation.h',
+    'bindings_policy.h',
     'child_process.cc',
     'child_process.h',
     'child_process_host.cc',

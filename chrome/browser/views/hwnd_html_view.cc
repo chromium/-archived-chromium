@@ -9,6 +9,7 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/views/widget.h"
+#include "chrome/views/widget_win.h"
 
 HWNDHtmlView::~HWNDHtmlView() {
   if (render_view_host_) {
@@ -16,6 +17,13 @@ HWNDHtmlView::~HWNDHtmlView() {
     render_view_host_->Shutdown();
     render_view_host_ = NULL;
   }
+}
+
+void HWNDHtmlView::InitHidden() {
+  // TODO(mpcomplete): make it possible to create a RenderView without an HWND.
+  views::WidgetWin* win = new views::WidgetWin;
+  win->Init(NULL, gfx::Rect(), true);
+  win->SetContentsView(this);
 }
 
 void HWNDHtmlView::Init(HWND parent_hwnd) {
@@ -40,6 +48,7 @@ void HWNDHtmlView::Init(HWND parent_hwnd) {
   // Start up the renderer.
   if (allow_dom_ui_bindings_)
     rvh->AllowDOMUIBindings();
+  CreatingRenderer();
   rvh->CreateRenderView();
   rvh->NavigateToURL(content_url_);
   initialized_ = true;

@@ -334,6 +334,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\bindings_policy.h"
+			>
+		</File>
+		<File
 			RelativePath=".\child_process.cc"
 			>
 		</File>

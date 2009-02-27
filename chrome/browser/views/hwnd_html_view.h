@@ -28,14 +28,22 @@ class HWNDHtmlView : public views::HWNDView {
 
   RenderViewHost* render_view_host() { return render_view_host_; }
 
+  // Initialize the view without a parent window.  Used for extensions that
+  // don't display UI.
+  void InitHidden();
+
  protected:
-   // View overrides.
-   virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
+  // View overrides.
+  virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
+
+  // Called just before we create the RenderView, to give subclasses an
+  // opportunity to do some setup.
+  virtual void CreatingRenderer() {}
 
  private:
   // Initialize the view, parented to |parent|, and show it.
   void Init(HWND parent);
-  
+
   // The URL of the HTML content to render and show in this view.
   GURL content_url_;
 

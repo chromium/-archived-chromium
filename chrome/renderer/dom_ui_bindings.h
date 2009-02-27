@@ -15,10 +15,6 @@ class DOMBoundBrowserObject : public CppBoundClass {
  public:
   DOMBoundBrowserObject() : routing_id_(0) { }
   virtual ~DOMBoundBrowserObject();
-
-  // Different for each subclass; associates the javascript object with any
-  // number of methods.
-  virtual void BindMethods() = 0;
   
   // Set the message channel back to the browser.
   void set_message_sender(IPC::Message::Sender* sender) {
@@ -59,11 +55,8 @@ class DOMBoundBrowserObject : public CppBoundClass {
 // delegate.
 class DOMUIBindings : public DOMBoundBrowserObject {
  public:
-  DOMUIBindings() { BindMethods(); }
+  DOMUIBindings();
   virtual ~DOMUIBindings() {}
-
-  // DOMBoundBrowserObject implementation.
-  virtual void BindMethods();
 
   // The send() function provided to Javascript.
   void send(const CppArgumentList& args, CppVariant* result);

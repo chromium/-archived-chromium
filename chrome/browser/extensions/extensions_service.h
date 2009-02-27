@@ -16,6 +16,7 @@
 
 typedef std::vector<Extension*> ExtensionList;
 class ExtensionsServiceBackend;
+class Profile;
 class UserScriptMaster;
 
 // Interface for the frontend to implement. Typically, this will be
@@ -51,8 +52,7 @@ class ExtensionsServiceFrontendInterface
 // Manages installed and running Chromium extensions.
 class ExtensionsService : public ExtensionsServiceFrontendInterface {
  public:
-  ExtensionsService(const FilePath& profile_directory,
-                    UserScriptMaster* user_script_master);
+  ExtensionsService(Profile* profile, UserScriptMaster* user_script_master);
   ~ExtensionsService();
 
   // Gets the list of currently installed extensions.
@@ -62,6 +62,10 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 
   // Initialize and start all installed extensions.
   bool Init();
+
+  // Start the extension process for this extension.  TODO(mpcomplete): not sure
+  // how this should actually work yet.
+  void LaunchExtensionProcess(Extension* extension);
 
   // ExtensionsServiceFrontendInterface
   virtual MessageLoop* GetMessageLoop();
@@ -89,6 +93,9 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 
   // The full path to the directory where extensions are installed.
   FilePath install_directory_;
+
+  // The profile associated with this set of extensions.
+  Profile* profile_;
 
   // The user script master for this profile.
   scoped_refptr<UserScriptMaster> user_script_master_;

@@ -75,6 +75,7 @@ class ProfileManager;
 class Profile;
 class RenderProcessHost;
 class RenderWidgetHelper;
+class RenderViewHostDelegate;
 class ResourceMessageFilter;
 class SessionBackend;
 class SessionCommand;
@@ -768,6 +769,21 @@ class OSExchangeData {
 };
 
 class BaseDragSource {
+};
+
+//---------------------------------------------------------------------------
+// These stubs are for extensions
+
+class HWNDHtmlView {
+ public:
+  HWNDHtmlView(const GURL& content_url, RenderViewHostDelegate* delegate,
+               bool allow_dom_ui_bindings) {
+    NOTIMPLEMENTED();
+  }
+  virtual ~HWNDHtmlView() {}
+
+  RenderViewHost* render_view_host() { NOTIMPLEMENTED(); return NULL; }
+  void InitHidden() { NOTIMPLEMENTED(); }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_
