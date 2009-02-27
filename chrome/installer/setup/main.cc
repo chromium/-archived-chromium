@@ -304,8 +304,50 @@ void UpdateChromeOpenCmd(bool system_install) {
     ReplaceRegistryValue(reg_key[i], old_open_cmd, new_open_cmd);
 }
 
+bool CheckPreInstallConditions(const installer::Version* installed_version,
+                               int options,
+                               installer_util::InstallStatus& status) {
+  bool system_install = (options & installer_util::SYSTEM_LEVEL) != 0;
+
+  // Check to avoid simultaneous per-user and per-machine installs.
+  scoped_ptr<installer::Version>
+      chrome_version(InstallUtil::GetChromeVersion(!system_install));
+  if (chrome_version.get()) {
+    LOG(ERROR) << "Already installed version " << chrome_version->GetString()
+               << " conflicts with the current install mode.";
+    status = system_install ? installer_util::USER_LEVEL_INSTALL_EXISTS :
+                              installer_util::SYSTEM_LEVEL_INSTALL_EXISTS;
+    int str_id = system_install ? IDS_INSTALL_USER_LEVEL_EXISTS_BASE :
+                                  IDS_INSTALL_SYSTEM_LEVEL_EXISTS_BASE;
+    InstallUtil::WriteInstallerResult(system_install, status, str_id, NULL);
+    return false;
+  }
+
+  // If no previous installation of Chrome, make sure installation directory
+  // either does not exist or can be deleted (i.e. is not locked by some other
+  // process).
+  if (installed_version) {
+    std::wstring install_path(installer::GetChromeInstallPath(system_install));
+    if (file_util::PathExists(install_path) &&
+        !file_util::Delete(install_path, true)) {
+      LOG(ERROR) << "Installation directory " << install_path
+                 << " exists and can not be deleted.";
+      status = installer_util::INSTALL_DIR_IN_USE;
+      int str_id = IDS_INSTALL_DIR_IN_USE_BASE;
+      InstallUtil::WriteInstallerResult(system_install, status, str_id, NULL);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
     const installer::Version* installed_version, int options) {
+  installer_util::InstallStatus install_status = installer_util::UNKNOWN_STATUS;
+  if (!CheckPreInstallConditions(installed_version, options, install_status))
+    return install_status;
+
   bool system_install = (options & installer_util::SYSTEM_LEVEL) != 0;
   // For install the default location for chrome.packed.7z is in current
   // folder, so get that value first.
@@ -337,7 +379,6 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
   file_util::AppendToPath(&unpack_path,
                           std::wstring(installer::kInstallSourceDir));
   bool incremental_install = false;
-  installer_util::InstallStatus install_status = installer_util::UNKNOWN_STATUS;
   if (UnPackArchive(archive, system_install, installed_version,
                     temp_path, unpack_path, incremental_install)) {
     install_status = installer_util::UNCOMPRESSION_FAILED;
@@ -560,21 +601,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                                      system_install);
   // If --uninstall option is not specified, we assume it is install case.
   } else {
-    // Check to avoid simultaneous per-user and per-machine installs.
-    scoped_ptr<installer::Version>
-        chrome_version(InstallUtil::GetChromeVersion(!system_install));
-    if (chrome_version.get()) {
-      LOG(ERROR) << "Already installed version " << chrome_version->GetString()
-                 << " conflicts with the current install mode.";
-      installer_util::InstallStatus status = system_install ?
-          installer_util::USER_LEVEL_INSTALL_EXISTS :
-          installer_util::SYSTEM_LEVEL_INSTALL_EXISTS;
-      int str_id = system_install ? IDS_INSTALL_USER_LEVEL_EXISTS_BASE :
-                                    IDS_INSTALL_SYSTEM_LEVEL_EXISTS_BASE;
-      InstallUtil::WriteInstallerResult(system_install, status, str_id, NULL);
-      return status;
-    }
-
     install_status = InstallChrome(parsed_command_line,
                                    installed_version.get(),
                                    options);

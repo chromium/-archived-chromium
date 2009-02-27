@@ -50,6 +50,7 @@ kStringIds = [
   'IDS_INSTALL_INVALID_ARCHIVE',
   'IDS_INSTALL_INSUFFICIENT_RIGHTS',
   'IDS_UNINSTALL_FAILED',
+  'IDS_INSTALL_DIR_IN_USE',
 ]
 
 # The ID of the first resource string.

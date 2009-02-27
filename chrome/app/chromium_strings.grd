@@ -257,6 +257,9 @@ be available for now. -->
       <message name="IDS_UNINSTALL_FAILED" desc="Error during uninstall if we can not find the installation directory from registry.">
         Chromium is not installed or it failed to find installation directory. Please download Chromium again.
       </message>
+      <message name="IDS_INSTALL_DIR_IN_USE" desc="Error during install if Chromium version is missing from registry but the installation directory exists and can not be deleted.">
+        Chromium installation directory seems to be in use. Please reboot your computer and try again.
+      </message>
       <!-- Options Dialog -->
       <message name="IDS_OPTIONS_DISABLE_SERVICES" desc="The text in the options panel that describes how we use web services to improve browsing experience.">
         Chromium may use web services to improve your browsing experience - you may optionally disable these services.
