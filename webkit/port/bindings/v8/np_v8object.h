@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NP_V8OBJECT_H__
-#define NP_V8OBJECT_H__
+#ifndef np_v8object_h
+#define np_v8object_h
 
 #include "third_party/npapi/bindings/npruntime.h"
 #include <v8.h>
@@ -19,8 +19,8 @@ extern NPClass* NPScriptObjectClass;
 // and FreeV8NPObject() methods.
 struct V8NPObject {
     NPObject object;
-    v8::Persistent<v8::Object> v8_object;
-    WebCore::DOMWindow* root_object;
+    v8::Persistent<v8::Object> v8Object;
+    WebCore::DOMWindow* rootObject;
 };
 
 struct PrivateIdentifier {
@@ -31,9 +31,8 @@ struct PrivateIdentifier {
     bool isString;
 };
 
-NPObject* NPN_CreateScriptObject(NPP npp, v8::Handle<v8::Object>,
-                                 WebCore::DOMWindow*);
-NPObject* NPN_CreateNoScriptObject(void);
+NPObject* NPN_CreateScriptObject(NPP npp, v8::Handle<v8::Object>, WebCore::DOMWindow*);
+NPObject* NPN_CreateNoScriptObject();
 
-#endif  // NP_V8OBJECT_H__
+#endif // np_v8object_h
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef V8_NPOBJECT_H__
-#define V8_NPOBJECT_H__
+#ifndef v8_npobject_h
+#define v8_npobject_h
 
 #include <v8.h>
 #include "third_party/npapi/bindings/npruntime.h"
@@ -40,8 +40,7 @@ v8::Handle<v8::Value> NPObjectInvokeDefaultHandler(const v8::Arguments& args);
 // If the object is not wrapped, wrap it, and give V8 a weak
 // reference to the wrapper which will cleanup when there are
 // no more JS references to the object.
-v8::Local<v8::Object> CreateV8ObjectForNPObject(NPObject* object,
-                                                NPObject *root);
+v8::Local<v8::Object> CreateV8ObjectForNPObject(NPObject* object, NPObject *root);
 
 // Tell V8 to forcibly remove an object.
 // This is used at plugin teardown so that the caller can
@@ -51,5 +50,4 @@ v8::Local<v8::Object> CreateV8ObjectForNPObject(NPObject* object,
 // it cannot be referred to.
 void ForgetV8ObjectForNPObject(NPObject*object);
 
-#endif  // V8_NPOBJECT_H__
-
+#endif // v8_npobject_h

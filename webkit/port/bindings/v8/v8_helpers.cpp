@@ -40,17 +40,20 @@
 
 using WebCore::V8Custom;
 
-void WrapNPObject(v8::Handle<v8::Object> obj, NPObject* npobj) {
+void WrapNPObject(v8::Handle<v8::Object> obj, NPObject* npobj)
+{
   WebCore::V8Proxy::SetDOMWrapper(obj, WebCore::V8ClassIndex::NPOBJECT, npobj);
 }
 
-v8::Local<v8::Context> GetV8Context(NPP npp, NPObject* npobj) {
-  V8NPObject* object = reinterpret_cast<V8NPObject*>(npobj);
-  return WebCore::V8Proxy::GetContext(object->root_object->frame());
+v8::Local<v8::Context> GetV8Context(NPP npp, NPObject* npobj)
+{
+    V8NPObject* object = reinterpret_cast<V8NPObject*>(npobj);
+    return WebCore::V8Proxy::GetContext(object->rootObject->frame());
 }
 
-WebCore::V8Proxy* GetV8Proxy(NPObject* npobj) {
-  V8NPObject* object = reinterpret_cast<V8NPObject*>(npobj);
-  WebCore::Frame* frame = object->root_object->frame();
-  return WebCore::V8Proxy::retrieve(frame);
+WebCore::V8Proxy* GetV8Proxy(NPObject* npobj)
+{
+    V8NPObject* object = reinterpret_cast<V8NPObject*>(npobj);
+    WebCore::Frame* frame = object->rootObject->frame();
+    return WebCore::V8Proxy::retrieve(frame);
 }
