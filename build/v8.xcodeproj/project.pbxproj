@@ -13,7 +13,6 @@
 			buildPhases = (
 			);
 			dependencies = (
-				7BF8919B0E7309AD000BAF8A /* PBXTargetDependency */,
 				7BF891970E73099F000BAF8A /* PBXTargetDependency */,
 				7BF891990E73099F000BAF8A /* PBXTargetDependency */,
 			);
@@ -32,13 +31,7 @@
 		89495E490E79FC23001F68C3 /* compilation-cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = 89495E460E79FC23001F68C3 /* compilation-cache.cc */; };
 		896FD03A0E78D717003DFB6A /* libv8-arm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 89F23C870E78D5B2006B2466 /* libv8-arm.a */; };
 		897F767F0E71B690007ACF34 /* shell.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1B50E719C0900D62E90 /* shell.cc */; };
-		897F76840E71B6B1007ACF34 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 897FF1BF0E719CB600D62E90 /* libjscre.a */; };
 		897F76850E71B6B1007ACF34 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8970F2F00E719FB2006AE7B5 /* libv8.a */; };
-		897FF1C40E719D6B00D62E90 /* pcre_compile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 897FF0EA0E719B3500D62E90 /* pcre_compile.cpp */; };
-		897FF1C50E719D6E00D62E90 /* pcre_exec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 897FF0EB0E719B3500D62E90 /* pcre_exec.cpp */; };
-		897FF1C60E719D7100D62E90 /* pcre_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 897FF0ED0E719B3500D62E90 /* pcre_tables.cpp */; };
-		897FF1C70E719D7300D62E90 /* pcre_ucp_searchfuncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 897FF0EE0E719B3500D62E90 /* pcre_ucp_searchfuncs.cpp */; };
-		897FF1C80E719D7600D62E90 /* pcre_xclass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 897FF0EF0E719B3500D62E90 /* pcre_xclass.cpp */; };
 		8980D6BD0EE7C4BB00C07135 /* interpreter-irregexp.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8980D6B60EE7C44E00C07135 /* interpreter-irregexp.cc */; };
 		8980D6BE0EE7C4C200C07135 /* regexp-macro-assembler-ia32.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8980D6A00EE7C3C500C07135 /* regexp-macro-assembler-ia32.cc */; };
 		8980D6BF0EE7C4C600C07135 /* regexp-macro-assembler-irregexp.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8980D6A30EE7C3C500C07135 /* regexp-macro-assembler-irregexp.cc */; };
@@ -170,7 +163,6 @@
 		89F23C810E78D5B2006B2466 /* variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF19F0E719B8F00D62E90 /* variables.cc */; };
 		89F23C820E78D5B2006B2466 /* zone.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1A20E719B8F00D62E90 /* zone.cc */; };
 		89F23C8E0E78D5B6006B2466 /* shell.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1B50E719C0900D62E90 /* shell.cc */; };
-		89F23C900E78D5B6006B2466 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 897FF1BF0E719CB600D62E90 /* libjscre.a */; };
 		89F23C970E78D5E3006B2466 /* assembler-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF0FE0E719B8F00D62E90 /* assembler-arm.cc */; };
 		89F23C980E78D5E7006B2466 /* builtins-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1090E719B8F00D62E90 /* builtins-arm.cc */; };
 		89F23C990E78D5E9006B2466 /* codegen-arm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 897FF1140E719B8F00D62E90 /* codegen-arm.cc */; };
@@ -198,13 +190,6 @@
 			remoteGlobalIDString = 897F76790E71B4CC007ACF34;
 			remoteInfo = v8_shell;
 		};
-		7BF8919A0E7309AD000BAF8A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8915B8680E719336009C4E19 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
-			remoteInfo = jscre;
-		};
 		896FD03B0E78D71F003DFB6A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8915B8680E719336009C4E19 /* Project object */;
@@ -212,26 +197,12 @@
 			remoteGlobalIDString = 89F23C3C0E78D5B2006B2466;
 			remoteInfo = "v8-arm";
 		};
-		897F76800E71B6AC007ACF34 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8915B8680E719336009C4E19 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
-			remoteInfo = jscre;
-		};
 		897F76820E71B6AC007ACF34 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8915B8680E719336009C4E19 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 8970F2EF0E719FB2006AE7B5;
 			remoteInfo = v8;
-		};
-		89F23C8A0E78D5B6006B2466 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8915B8680E719336009C4E19 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
-			remoteInfo = jscre;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -461,7 +432,6 @@
 		897FF1B50E719C0900D62E90 /* shell.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shell.cc; sourceTree = "<group>"; };
 		897FF1B60E719C2300D62E90 /* js2c.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = js2c.py; sourceTree = "<group>"; };
 		897FF1B70E719C2E00D62E90 /* macros.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = macros.py; path = ../src/macros.py; sourceTree = "<group>"; };
-		897FF1BF0E719CB600D62E90 /* libjscre.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjscre.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8980D69B0EE7C32B00C07135 /* flag-definitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "flag-definitions.h"; sourceTree = "<group>"; };
 		8980D69E0EE7C3C500C07135 /* regexp-macro-assembler-arm.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "regexp-macro-assembler-arm.cc"; sourceTree = "<group>"; };
 		8980D69F0EE7C3C500C07135 /* regexp-macro-assembler-arm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "regexp-macro-assembler-arm.h"; sourceTree = "<group>"; };
@@ -498,15 +468,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				897F76840E71B6B1007ACF34 /* libjscre.a in Frameworks */,
 				897F76850E71B6B1007ACF34 /* libv8.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		897FF1BD0E719CB600D62E90 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,7 +483,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89F23C900E78D5B6006B2466 /* libjscre.a in Frameworks */,
 				896FD03A0E78D717003DFB6A /* libv8-arm.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -871,7 +832,6 @@
 		897FF1C00E719CB600D62E90 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				897FF1BF0E719CB600D62E90 /* libjscre.a */,
 				8970F2F00E719FB2006AE7B5 /* libv8.a */,
 				897F767A0E71B4CC007ACF34 /* v8_shell */,
 				89F23C870E78D5B2006B2466 /* libv8-arm.a */,
@@ -919,29 +879,12 @@
 			buildRules = (
 			);
 			dependencies = (
-				897F76810E71B6AC007ACF34 /* PBXTargetDependency */,
 				897F76830E71B6AC007ACF34 /* PBXTargetDependency */,
 			);
 			name = v8_shell;
 			productName = v8_shell;
 			productReference = 897F767A0E71B4CC007ACF34 /* v8_shell */;
 			productType = "com.apple.product-type.tool";
-		};
-		897FF1BE0E719CB600D62E90 /* jscre */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 897FF1C30E719CB600D62E90 /* Build configuration list for PBXNativeTarget "jscre" */;
-			buildPhases = (
-				897FF1BC0E719CB600D62E90 /* Sources */,
-				897FF1BD0E719CB600D62E90 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = jscre;
-			productName = jscre;
-			productReference = 897FF1BF0E719CB600D62E90 /* libjscre.a */;
-			productType = "com.apple.product-type.library.static";
 		};
 		89F23C3C0E78D5B2006B2466 /* v8-arm */ = {
 			isa = PBXNativeTarget;
@@ -971,7 +914,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				89F23C890E78D5B6006B2466 /* PBXTargetDependency */,
 				896FD03C0E78D71F003DFB6A /* PBXTargetDependency */,
 			);
 			name = "v8_shell-arm";
@@ -993,7 +935,6 @@
 			projectRoot = "";
 			targets = (
 				7BF891930E73098D000BAF8A /* All */,
-				897FF1BE0E719CB600D62E90 /* jscre */,
 				8970F2EF0E719FB2006AE7B5 /* v8 */,
 				897F76790E71B4CC007ACF34 /* v8_shell */,
 				89F23C3C0E78D5B2006B2466 /* v8-arm */,
@@ -1156,18 +1097,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		897FF1BC0E719CB600D62E90 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				897FF1C40E719D6B00D62E90 /* pcre_compile.cpp in Sources */,
-				897FF1C50E719D6E00D62E90 /* pcre_exec.cpp in Sources */,
-				897FF1C60E719D7100D62E90 /* pcre_tables.cpp in Sources */,
-				897FF1C70E719D7300D62E90 /* pcre_ucp_searchfuncs.cpp in Sources */,
-				897FF1C80E719D7600D62E90 /* pcre_xclass.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		89F23C3E0E78D5B2006B2466 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1267,30 +1196,15 @@
 			target = 897F76790E71B4CC007ACF34 /* v8_shell */;
 			targetProxy = 7BF891980E73099F000BAF8A /* PBXContainerItemProxy */;
 		};
-		7BF8919B0E7309AD000BAF8A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 897FF1BE0E719CB600D62E90 /* jscre */;
-			targetProxy = 7BF8919A0E7309AD000BAF8A /* PBXContainerItemProxy */;
-		};
 		896FD03C0E78D71F003DFB6A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 89F23C3C0E78D5B2006B2466 /* v8-arm */;
 			targetProxy = 896FD03B0E78D71F003DFB6A /* PBXContainerItemProxy */;
 		};
-		897F76810E71B6AC007ACF34 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 897FF1BE0E719CB600D62E90 /* jscre */;
-			targetProxy = 897F76800E71B6AC007ACF34 /* PBXContainerItemProxy */;
-		};
 		897F76830E71B6AC007ACF34 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8970F2EF0E719FB2006AE7B5 /* v8 */;
 			targetProxy = 897F76820E71B6AC007ACF34 /* PBXContainerItemProxy */;
-		};
-		89F23C890E78D5B6006B2466 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 897FF1BE0E719CB600D62E90 /* jscre */;
-			targetProxy = 89F23C8A0E78D5B6006B2466 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1366,34 +1280,6 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = ../v8/src;
 				PRODUCT_NAME = v8_shell;
-			};
-			name = Release;
-		};
-		897FF1C10E719CB600D62E90 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7BF891920E73084F000BAF8A /* staticlib.xcconfig */;
-			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
-					SUPPORT_UTF8,
-					SUPPORT_UCP,
-					NO_RECURSE,
-				);
-				PRODUCT_NAME = jscre;
-			};
-			name = Debug;
-		};
-		897FF1C20E719CB600D62E90 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7BF891920E73084F000BAF8A /* staticlib.xcconfig */;
-			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(GCC_PREPROCESSOR_DEFINITIONS)",
-					SUPPORT_UTF8,
-					SUPPORT_UCP,
-					NO_RECURSE,
-				);
-				PRODUCT_NAME = jscre;
 			};
 			name = Release;
 		};
@@ -1478,15 +1364,6 @@
 			buildConfigurations = (
 				897F767C0E71B4CC007ACF34 /* Debug */,
 				897F767D0E71B4CC007ACF34 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		897FF1C30E719CB600D62E90 /* Build configuration list for PBXNativeTarget "jscre" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				897FF1C10E719CB600D62E90 /* Debug */,
-				897FF1C20E719CB600D62E90 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

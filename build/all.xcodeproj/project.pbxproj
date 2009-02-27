@@ -385,13 +385,6 @@
 			remoteGlobalIDString = 7BA018E20E5A2AFF00044150;
 			remoteInfo = googleurl_unittests;
 		};
-		7BF895B50E75D5DA000BAF8A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7BF895A30E75D5DA000BAF8A /* v8.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 897FF1BF0E719CB600D62E90;
-			remoteInfo = jscre;
-		};
 		7BF895B70E75D5DA000BAF8A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BF895A30E75D5DA000BAF8A /* v8.xcodeproj */;
@@ -898,7 +891,6 @@
 		7BF895A40E75D5DA000BAF8A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7BF895B60E75D5DA000BAF8A /* libjscre.a */,
 				7BF895B80E75D5DA000BAF8A /* libv8.a */,
 				7BF895BA0E75D5DA000BAF8A /* v8_shell */,
 				7B262E3A0E82E508001CE27F /* libv8-arm.a */,
@@ -1345,13 +1337,6 @@
 			fileType = "compiled.mach-o.executable";
 			path = googleurl_unittests;
 			remoteRef = 7BF895AC0E75D5DA000BAF8A /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		7BF895B60E75D5DA000BAF8A /* libjscre.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libjscre.a;
-			remoteRef = 7BF895B50E75D5DA000BAF8A /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		7BF895B80E75D5DA000BAF8A /* libv8.a */ = {
