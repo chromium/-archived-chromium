@@ -84,6 +84,9 @@ class WindowSizer {
                                      gfx::Rect* window_bounds,
                                      bool* maximized);
 
+  // Returns the default origin for popups of the given size.
+  static gfx::Point GetDefaultPopupOrigin(const gfx::Size& size);
+
   // Determines the position, size and maximized state for a window as it is
   // created. This function uses several strategies to figure out optimal size
   // and placement, first looking for an existing active window, then falling
@@ -98,6 +101,7 @@ class WindowSizer {
   void DetermineWindowBounds(const gfx::Rect& specified_bounds,
                              gfx::Rect* bounds,
                              bool* maximized) const;
+
  private:
   explicit WindowSizer(const std::wstring& app_name);
 

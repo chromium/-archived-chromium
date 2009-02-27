@@ -39,6 +39,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
@@ -80,8 +81,6 @@ static const int kSeparationLineHeight = 1;
 // The name of a key to store on the window handle so that other code can
 // locate this object using just the handle.
 static const wchar_t* kBrowserViewKey = L"__BROWSER_VIEW__";
-// The distance between tiled windows.
-static const int kWindowTilePixels = 10;
 // How frequently we check for hung plugin windows.
 static const int kDefaultHungPluginDetectFrequency = 2000;
 // How long do we wait before we consider a window hung (in ms).
@@ -1049,8 +1048,8 @@ bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
     // When we are given x/y coordinates of 0 on a created popup window,
     // assume none were given by the window.open() command.
     if (window_rect.x() == 0 && window_rect.y() == 0) {
-      window_rect.set_origin(GetNormalBounds().origin());
-      window_rect.Offset(kWindowTilePixels, kWindowTilePixels);
+      gfx::Size size = window_rect.size();
+      window_rect.set_origin(WindowSizer::GetDefaultPopupOrigin(size));
     }
 
     *bounds = window_rect;
