@@ -937,8 +937,10 @@ LayoutTests/fast/forms/form-element-geometry.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
-// The pixel diff looks ok, but the render trees are pretty different.
-LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
+// The pixel diff is ok, but the render tree is different because of
+// our forked modifications to RenderTextControlMultiLine.cpp, specifically
+// the calls to set the overflow in createInnerTextStyle.
+DEFER : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
