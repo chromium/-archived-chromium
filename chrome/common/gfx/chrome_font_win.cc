@@ -43,7 +43,7 @@ int ChromeFont::ave_char_width() const {
 }
 
 int ChromeFont::GetExpectedTextWidth(int length) const {
-  return length * font_ref_->dlu_base_x();
+  return length * std::min(font_ref_->dlu_base_x(), ave_char_width());
 }
 
 int ChromeFont::style() const {
@@ -75,7 +75,7 @@ ChromeFont ChromeFont::CreateFont(const std::wstring& font_name,
 // static
 ChromeFont::HFontRef* ChromeFont::GetBaseFontRef() {
   if (base_font_ref_ == NULL) {
-		NONCLIENTMETRICS metrics;
+    NONCLIENTMETRICS metrics;
     win_util::GetNonClientMetrics(&metrics);
 
     // See comment in ChromeFont::DeriveFont() about font size.
