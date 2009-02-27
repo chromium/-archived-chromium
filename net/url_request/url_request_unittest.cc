@@ -103,9 +103,8 @@ TEST_F(URLRequestTest, ProxyTunnelRedirectTest) {
 
     MessageLoop::current()->Run();
 
-    EXPECT_EQ(URLRequestStatus::SUCCESS, r.status().status());
-    // We should have rewritten the 302 response code as 500.
-    EXPECT_EQ(500, r.GetResponseCode());
+    EXPECT_EQ(URLRequestStatus::FAILED, r.status().status());
+    EXPECT_EQ(net::ERR_TUNNEL_CONNECTION_FAILED, r.status().os_error());
     EXPECT_EQ(1, d.response_started_count());
     // We should not have followed the redirect.
     EXPECT_EQ(0, d.received_redirect_count());
@@ -132,7 +131,7 @@ TEST_F(URLRequestTest, UnexpectedServerAuthTest) {
     MessageLoop::current()->Run();
 
     EXPECT_EQ(URLRequestStatus::FAILED, r.status().status());
-    EXPECT_EQ(net::ERR_UNEXPECTED_SERVER_AUTH, r.status().os_error());
+    EXPECT_EQ(net::ERR_TUNNEL_CONNECTION_FAILED, r.status().os_error());
   }
 }
 

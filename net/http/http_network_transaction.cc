@@ -783,6 +783,8 @@ int HttpNetworkTransaction::DoReadBody() {
 
 int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   // We are done with the Read call.
+  DCHECK(!establishing_tunnel_) <<
+      "We should never read a response body of a tunnel.";
 
   bool unfiltered_eof = (result == 0);
 
@@ -809,10 +811,9 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
       done = true;
       keep_alive = response_.headers->IsKeepAlive();
       // We can't reuse the connection if we read more than the advertised
-      // content length, or if the tunnel was not established successfully.
+      // content length.
       if (unfiltered_eof ||
-          (content_length_ != -1 && content_read_ > content_length_) ||
-          establishing_tunnel_)
+          (content_length_ != -1 && content_read_ > content_length_))
         keep_alive = false;
     }
   }
@@ -925,24 +926,44 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   }
 
   if (establishing_tunnel_) {
-    if (headers->response_code() == 200) {
-      if (header_buf_body_offset_ != header_buf_len_) {
-        // The proxy sent extraneous data after the headers.
+    switch (headers->response_code()) {
+      case 200:  // OK
+        if (header_buf_body_offset_ != header_buf_len_) {
+          // The proxy sent extraneous data after the headers.
+          return ERR_TUNNEL_CONNECTION_FAILED;
+        }
+        next_state_ = STATE_SSL_CONNECT_OVER_TUNNEL;
+        // Reset for the real request and response headers.
+        request_headers_.clear();
+        request_headers_bytes_sent_ = 0;
+        header_buf_len_ = 0;
+        header_buf_body_offset_ = 0;
+        establishing_tunnel_ = false;
+        return OK;
+
+      // We aren't able to CONNECT to the remote host through the proxy.  We
+      // need to be very suspicious about the response because an active network
+      // attacker can force us into this state by masquerading as the proxy.
+      // The only safe thing to do here is to fail the connection because our
+      // client is expecting an SSL protected response.
+      // See http://crbug.com/7338.
+      case 407:  // Proxy Authentication Required
+        // We need this status code to allow proxy authentication.  Our
+        // authentication code is smart enough to avoid being tricked by an
+        // active network attacker.
+        break;
+      default:
+        // For all other status codes, we conservatively fail the CONNECT
+        // request.
+        // We lose something by doing this.  We have seen proxy 403, 404, and
+        // 501 response bodies that contain a useful error message.  For
+        // example, Squid uses a 404 response to report the DNS error: "The
+        // domain name does not exist."
+        LOG(WARNING) <<
+            "Blocked proxy response to CONNECT request with status " <<
+            headers->response_code() << ".";
         return ERR_TUNNEL_CONNECTION_FAILED;
-      }
-      next_state_ = STATE_SSL_CONNECT_OVER_TUNNEL;
-      // Reset for the real request and response headers.
-      request_headers_.clear();
-      request_headers_bytes_sent_ = 0;
-      header_buf_len_ = 0;
-      header_buf_body_offset_ = 0;
-      establishing_tunnel_ = false;
-      return OK;
     }
-    // Sanitize any illegal response code for CONNECT to prevent us from
-    // handling it by mistake.  See http://crbug.com/7338.
-    if (headers->response_code() < 400 || headers->response_code() > 599)
-      headers->set_response_code(500);  // Masquerade as a 500.
   }
 
   // Check for an intermediate 100 Continue response.  An origin server is
@@ -1317,9 +1338,6 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
   if (target == HttpAuth::AUTH_PROXY && proxy_info_.is_direct())
     return ERR_UNEXPECTED_PROXY_AUTH;
 
-  if (target == HttpAuth::AUTH_SERVER && establishing_tunnel_)
-    return ERR_UNEXPECTED_SERVER_AUTH;
-
   // The auth we tried just failed, hence it can't be valid. Remove it from
   // the cache so it won't be used again.
   if (HaveAuth(target))
@@ -1332,10 +1350,17 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
                                 target,
                                 &auth_handler_[target]);
 
-  // We found no supported challenge -- let the transaction continue
-  // so we end up displaying the error page.
-  if (!auth_handler_[target])
+  if (!auth_handler_[target]) {
+    if (establishing_tunnel_) {
+      // We are establishing a tunnel, we can't show the error page because an
+      // active network attacker could control its contents.  Instead, we just
+      // fail to establish the tunnel.
+      return ERR_PROXY_AUTH_REQUESTED;
+    }
+    // We found no supported challenge -- let the transaction continue
+    // so we end up displaying the error page.
     return OK;
+  }
 
   // Pick a new auth identity to try, by looking to the URL and auth cache.
   // If an identity to try is found, it is saved to auth_identity_[target].
