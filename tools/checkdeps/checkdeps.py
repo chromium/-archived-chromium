@@ -406,7 +406,7 @@ def main(options, args):
   global BASE_DIRECTORY
   if not options.base_directory:
     BASE_DIRECTORY = os.path.abspath(
-        os.path.join(os.path.abspath(sys.argv[0]), "..\..\.."))
+        os.path.join(os.path.abspath(sys.argv[0]), "../../.."))
   else:
     BASE_DIRECTORY = os.path.abspath(sys.argv[2])
 
@@ -453,5 +453,3 @@ if '__main__' == __name__:
                            default=False, help="Print debug logging")
   options, args = option_parser.parse_args()
   main(options, args)
-
-
