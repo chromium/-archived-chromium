@@ -2,10 +2,6 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-// TODO(darin): This include should not be necessary, but for some reason the
-// Mac build requires it.
-#include "config.h"
-
 #include "webkit/glue/webkitclient_impl.h"
 
 namespace webkit_glue {
