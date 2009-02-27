@@ -1285,7 +1285,7 @@ int HttpCache::AddTransactionToEntry(ActiveEntry* entry, Transaction* trans) {
   // We do this before calling EntryAvailable to force any further calls to
   // AddTransactionToEntry to add their transaction to the pending queue, which
   // ensures FIFO ordering.
-  if (!entry->pending_queue.empty())
+  if (!entry->writer && !entry->pending_queue.empty())
     ProcessPendingQueue(entry);
 
   return trans->EntryAvailable(entry);
@@ -1390,8 +1390,8 @@ void HttpCache::ProcessPendingQueue(ActiveEntry* entry) {
 void HttpCache::OnProcessPendingQueue(ActiveEntry* entry) {
   entry->will_process_pending_queue = false;
 
-  if (entry->writer)
-    return;
+  // TODO(rvargas): Convert this to a DCHECK.
+  CHECK(!entry->writer);
 
   // If no one is interested in this entry, then we can de-activate it.
   if (entry->pending_queue.empty()) {

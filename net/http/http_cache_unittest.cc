@@ -275,6 +275,44 @@ void RunTransactionTest(net::HttpCache* cache,
   ReadAndVerifyTransaction(trans.get(), trans_info);
 }
 
+// This class provides a handler for kFastNoStoreGET_Transaction so that the
+// no-store header can be included on demand.
+class FastTransactionServer {
+ public:
+  FastTransactionServer() {
+    no_store = false;
+  }
+  ~FastTransactionServer() {}
+
+  void set_no_store(bool value) { no_store = value; }
+
+  static void FastNoStoreHandler(const net::HttpRequestInfo* request,
+                                 std::string* response_status,
+                                 std::string* response_headers,
+                                 std::string* response_data) {
+    if (no_store)
+      *response_headers = "Cache-Control: no-store\n";
+  }
+
+ private:
+  static bool no_store;
+  DISALLOW_COPY_AND_ASSIGN(FastTransactionServer);
+};
+bool FastTransactionServer::no_store;
+
+const MockTransaction kFastNoStoreGET_Transaction = {
+  "http://www.google.com/nostore",
+  "GET",
+  "",
+  net::LOAD_VALIDATE_CACHE,
+  "HTTP/1.1 200 OK",
+  "Cache-Control: max-age=10000\n",
+  "<html><body>Google Blah Blah</body></html>",
+  TEST_MODE_SYNC_NET_START,
+  &FastTransactionServer::FastNoStoreHandler,
+  0
+};
+
 }  // namespace
 
 
@@ -604,6 +642,55 @@ TEST(HttpCache, SimpleGET_RacingReaders) {
     Context* c = context_list[i];
     delete c;
   }
+}
+
+// This is a test for http://code.google.com/p/chromium/issues/detail?id=4731.
+// We may attempt to delete an entry synchronously with the act of adding a new
+// transaction to said entry.
+TEST(HttpCache, FastNoStoreGET_DoneWithPending) {
+  MockHttpCache cache;
+
+  // The headers will be served right from the call to Start() the request.
+  MockHttpRequest request(kFastNoStoreGET_Transaction);
+  FastTransactionServer request_handler;
+  AddMockTransaction(&kFastNoStoreGET_Transaction);
+
+  std::vector<Context*> context_list;
+  const int kNumTransactions = 3;
+
+  for (int i = 0; i < kNumTransactions; ++i) {
+    context_list.push_back(
+        new Context(cache.http_cache()->CreateTransaction()));
+
+    Context* c = context_list[i];
+    int rv = c->trans->Start(&request, &c->callback);
+    if (rv != net::ERR_IO_PENDING)
+      c->result = rv;
+  }
+
+  // The first request should be a writer at this point, and the subsequent
+  // requests should be pending.
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Now, make sure that the second request asks for the entry not to be stored.
+  request_handler.set_no_store(true);
+
+  for (int i = 0; i < kNumTransactions; ++i) {
+    Context* c = context_list[i];
+    if (c->result == net::ERR_IO_PENDING)
+      c->result = c->callback.WaitForResult();
+    ReadAndVerifyTransaction(c->trans.get(), kFastNoStoreGET_Transaction);
+    delete c;
+  }
+
+  EXPECT_EQ(3, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(2, cache.disk_cache()->create_count());
+
+  RemoveMockTransaction(&kFastNoStoreGET_Transaction);
 }
 
 TEST(HttpCache, SimpleGET_ManyWriters_CancelFirst) {
@@ -1094,6 +1181,6 @@ TEST(HttpCache, OutlivedTransactions) {
   MockHttpCache* cache = new MockHttpCache;
 
   net::HttpTransaction* trans = cache->http_cache()->CreateTransaction();
-  delete cache; 
+  delete cache;
   delete trans;
 }
