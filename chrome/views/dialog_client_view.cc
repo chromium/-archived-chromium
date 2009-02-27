@@ -67,7 +67,7 @@ class DialogButton : public NativeButton {
   Window* owner_;
   const DialogDelegate::DialogButton type_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DialogButton);
+  DISALLOW_COPY_AND_ASSIGN(DialogButton);
 };
 
 }  // namespace
@@ -114,7 +114,7 @@ void DialogClientView::ShowDialogButtons() {
     ok_button_->SetGroup(kButtonGroup);
     if (is_default_button)
       default_button_ = ok_button_;
-    if (!cancel_button_)
+    if (!(buttons & DialogDelegate::DIALOGBUTTON_CANCEL))
       ok_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
     AddChildView(ok_button_);
   }
@@ -273,7 +273,7 @@ void DialogClientView::ViewHierarchyChanged(bool is_add, View* parent,
     // Listen for focus change events so we can update the default button.
     DCHECK(focus_manager);  // bug #1291225: crash reports seem to indicate it
                             // can be NULL.
-    if (focus_manager)   
+    if (focus_manager)
       focus_manager->AddFocusChangeListener(this);
 
     // The "extra view" must be created and installed after the contents view
