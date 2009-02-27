@@ -43,12 +43,12 @@ class WindowDelegate {
 
   virtual DialogDelegate* AsDialogDelegate() { return NULL; }
 
-  // Returns true if the window can be resized.
+  // Returns true if the window can ever be resized.
   virtual bool CanResize() const {
     return false;
   }
 
-  // Returns true if the window can be maximized.
+  // Returns true if the window can ever be maximized.
   virtual bool CanMaximize() const {
     return false;
   }

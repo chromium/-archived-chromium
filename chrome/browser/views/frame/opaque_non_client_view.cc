@@ -669,10 +669,9 @@ int OpaqueNonClientView::TopResizeHeight() const {
 }
 
 int OpaqueNonClientView::NonClientBorderThickness() const {
-  // In maximized mode, we don't show a client edge.
+  // When we fill the screen, we don't show a client edge.
   return FrameBorderThickness() +
-      ((frame_->IsMaximized() || browser_view_->IsFullscreen()) ?
-      0 : kClientEdgeThickness);
+      (browser_view_->CanCurrentlyResize() ? kClientEdgeThickness : 0);
 }
 
 int OpaqueNonClientView::NonClientTopBorderHeight() const {
@@ -681,9 +680,8 @@ int OpaqueNonClientView::NonClientTopBorderHeight() const {
     return TitleCoordinates(&title_top_spacing, &title_thickness);
   }
 
-  return FrameBorderThickness() +
-      ((frame_->IsMaximized() || browser_view_->IsFullscreen()) ?
-      0 : kNonClientRestoredExtraThickness);
+  return FrameBorderThickness() + (browser_view_->CanCurrentlyResize() ?
+      kNonClientRestoredExtraThickness : 0);
 }
 
 int OpaqueNonClientView::UnavailablePixelsAtBottomOfNonClientHeight() const {

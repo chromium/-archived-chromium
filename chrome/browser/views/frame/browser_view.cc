@@ -126,15 +126,15 @@ static const struct {
 
 class ResizeCorner : public views::View {
  public:
-  ResizeCorner(const BrowserWindow* parent)
+  explicit ResizeCorner(const BrowserView* parent)
       : parent_(parent) {
   }
 
   virtual void Paint(ChromeCanvas* canvas) {
-    if (parent_ && (parent_->IsMaximized() || parent_->IsFullscreen()))
+    if (parent_ && !parent_->CanCurrentlyResize())
       return;
 
-    SkBitmap * bitmap = ResourceBundle::GetSharedInstance().GetBitmapNamed(
+    SkBitmap* bitmap = ResourceBundle::GetSharedInstance().GetBitmapNamed(
         IDR_TEXTAREA_RESIZER);
     bitmap->buildMipMap(false);
     bool rtl_dir = (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT);
@@ -144,20 +144,19 @@ class ResizeCorner : public views::View {
       canvas->save();
     }
     canvas->DrawBitmapInt(*bitmap, width() - bitmap->width(),
-        height() - bitmap->height());
+                          height() - bitmap->height());
     if (rtl_dir)
       canvas->restore();
   }
 
   static gfx::Size GetSize() {
     return gfx::Size(views::NativeScrollBar::GetVerticalScrollBarWidth(),
-        views::NativeScrollBar::GetHorizontalScrollBarHeight());
+                     views::NativeScrollBar::GetHorizontalScrollBarHeight());
   }
 
   virtual gfx::Size GetPreferredSize() {
-    if (parent_ && (parent_->IsMaximized() || parent_->IsFullscreen()))
-      return gfx::Size();
-    return GetSize();
+    return (parent_ && !parent_->CanCurrentlyResize()) ?
+        gfx::Size() : GetSize();
   }
 
   virtual void Layout() {
@@ -167,12 +166,12 @@ class ResizeCorner : public views::View {
       // No need to handle Right to left text direction here,
       // our parent must take care of it for us...
       SetBounds(parent_view->width() - ps.width(),
-          parent_view->height() - ps.height(), ps.width(), ps.height());
+                parent_view->height() - ps.height(), ps.width(), ps.height());
     }
   }
 
  private:
-  const BrowserWindow* parent_;
+  const BrowserView* parent_;
   DISALLOW_COPY_AND_ASSIGN(ResizeCorner);
 };
 
@@ -257,6 +256,10 @@ void BrowserView::WindowMoveOrResizeStarted() {
   TabContents* tab_contents = GetSelectedTabContents();
   if (tab_contents && tab_contents->AsWebContents())
     tab_contents->AsWebContents()->WindowMoveOrResizeStarted();
+}
+
+bool BrowserView::CanCurrentlyResize() const {
+  return !IsMaximized() && !IsFullscreen();
 }
 
 gfx::Rect BrowserView::GetToolbarBounds() const {
@@ -715,8 +718,7 @@ bool BrowserView::IsBookmarkBarVisible() const {
 }
 
 gfx::Rect BrowserView::GetRootWindowResizerRect() const {
-  // There is no resize corner when we are maximized or full screen
-  if (IsMaximized() || IsFullscreen())
+  if (!CanCurrentlyResize())
     return gfx::Rect();
 
   // We don't specify a resize corner size if we have a bottom shelf either.
@@ -1108,8 +1110,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // area of the window. So we need to treat hit-tests in these regions as
   // hit-tests of the titlebar.
 
-  // There is not resize corner when we are maximised
-  if (!IsMaximized() && !IsFullscreen()) {
+  if (CanCurrentlyResize()) {
     CRect client_rect;
     ::GetClientRect(frame_->GetWindow()->GetHWND(), &client_rect);
     gfx::Size resize_corner_size = ResizeCorner::GetSize();

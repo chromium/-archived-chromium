@@ -630,7 +630,7 @@ DWORD Window::CalculateWindowStyle() {
   DWORD window_styles = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_SYSMENU;
   bool can_resize = window_delegate_->CanResize();
   bool can_maximize = window_delegate_->CanMaximize();
-  if ((can_resize && can_maximize) || can_maximize) {
+  if (can_maximize) {
     window_styles |= WS_OVERLAPPEDWINDOW;
   } else if (can_resize) {
     window_styles |= WS_OVERLAPPED | WS_THICKFRAME;

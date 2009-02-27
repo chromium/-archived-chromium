@@ -72,6 +72,11 @@ class BrowserView : public BrowserWindow,
   // initiated.
   void WindowMoveOrResizeStarted();
 
+  // Returns whether the browser can be resized _now_.  This differs from
+  // CanResize() below, which returns whether the window is ever resizable in
+  // principle.
+  bool CanCurrentlyResize() const;
+
   // Returns the bounds of the toolbar, in BrowserView coordinates.
   gfx::Rect GetToolbarBounds() const;
 
