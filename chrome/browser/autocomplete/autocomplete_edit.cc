@@ -16,7 +16,7 @@
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/autocomplete/autocomplete_accessibility.h"
-#include "chrome/browser/autocomplete/autocomplete_popup.h"
+#include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/edit_drop_target.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/browser_process.h"
@@ -280,7 +280,7 @@ void AutocompleteEditModel::SendOpenNotification(size_t selected_line,
                                                  const std::wstring& keyword) {
   // We only care about cases where there is a selection (i.e. the popup is
   // open).
-  if (popup_->is_open()) {
+  if (popup_->IsOpen()) {
     scoped_ptr<AutocompleteLog> log(popup_->GetAutocompleteLog());
     if (selected_line != AutocompletePopupModel::kNoMatch)
       log->selected_index = selected_line;
@@ -391,7 +391,7 @@ void AutocompleteEditModel::OnControlKeyChanged(bool pressed) {
   // Don't change anything unless the key state is actually toggling.
   if (pressed == (control_key_state_ == UP)) {
     control_key_state_ = pressed ? DOWN_WITHOUT_CHANGE : UP;
-    if (popup_->is_open()) {
+    if (popup_->IsOpen()) {
       // Autocomplete history provider results may change, so refresh the
       // popup.  This will force user_input_in_progress_ to true, but if the
       // popup is open, that should have already been the case.
@@ -403,7 +403,7 @@ void AutocompleteEditModel::OnControlKeyChanged(bool pressed) {
 void AutocompleteEditModel::OnUpOrDownKeyPressed(int count) {
   // NOTE: This purposefully don't trigger any code that resets paste_state_.
 
-  if (!popup_->is_open()) {
+  if (!popup_->IsOpen()) {
     if (popup_->autocomplete_controller()->done()) {
       // The popup is neither open nor working on a query already.  So, start an
       // autocomplete query for the current text.  This also sets
@@ -508,7 +508,7 @@ bool AutocompleteEditModel::OnAfterPossibleChange(const std::wstring& new_text,
   if ((text_differs || selection_differs) &&
       (control_key_state_ == DOWN_WITHOUT_CHANGE)) {
     control_key_state_ = DOWN_WITH_CHANGE;
-    if (!text_differs && !popup_->is_open())
+    if (!text_differs && !popup_->IsOpen())
       return false;  // Don't open the popup for no reason.
   } else if (!text_differs &&
              (inline_autocomplete_text_.empty() || !selection_differs)) {
@@ -571,7 +571,7 @@ GURL AutocompleteEditModel::GetURLForCurrentText(
     PageTransition::Type* transition,
     bool* is_history_what_you_typed_match,
     GURL* alternate_nav_url) {
-  return (popup_->is_open() || !popup_->autocomplete_controller()->done()) ?
+  return (popup_->IsOpen() || !popup_->autocomplete_controller()->done()) ?
       popup_->URLsForCurrentSelection(transition,
                                       is_history_what_you_typed_match,
                                       alternate_nav_url) :
@@ -1954,7 +1954,7 @@ bool AutocompleteEditView::OnKeyDownOnlyWritable(TCHAR key,
           OnBeforePossibleChange();
           Cut();
           OnAfterPossibleChange();
-        } else if (popup_model_->is_open()) {
+        } else if (popup_model_->IsOpen()) {
           // This is a bit overloaded, but we hijack Shift-Delete in this
           // case to delete the current item from the pop-up.  We prefer cutting
           // to this when possible since that's the behavior more people expect

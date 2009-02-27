@@ -158,11 +158,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\autocomplete\autocomplete_popup.cc"
+				RelativePath=".\autocomplete\autocomplete_popup_model.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\autocomplete\autocomplete_popup.h"
+				RelativePath=".\autocomplete\autocomplete_popup_model.h"
+				>
+			</File>
+			<File
+				RelativePath=".\autocomplete\autocomplete_popup_view_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\autocomplete\autocomplete_popup_view.h"
 				>
 			</File>
 			<File
