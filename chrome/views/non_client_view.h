@@ -43,6 +43,10 @@ class NonClientView : public View {
   // Called by the containing Window when it is closed.
   void WindowClosing();
 
+  // Returns true if the native window frame should be used, false if the
+  // NonClientView provides its own frame implementation.
+  bool UseNativeFrame() const;
+
   // Calculates the bounds of the client area of the window assuming the
   // window is sized to |width| and |height|.
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;

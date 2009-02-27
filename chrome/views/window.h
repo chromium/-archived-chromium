@@ -40,11 +40,6 @@ class Window : public WidgetWin,
                                     const gfx::Rect& bounds,
                                     WindowDelegate* window_delegate);
 
-  // Return the size of window (including non-client area) required to contain
-  // a window of the specified client size.
-  virtual gfx::Size CalculateWindowSizeForClientSize(
-      const gfx::Size& client_size) const;
-
   // Return the maximum size possible size the window should be have if it is
   // to be positioned within the bounds of the current "work area" (screen or
   // parent window).
@@ -153,11 +148,19 @@ class Window : public WidgetWin,
                                int keystate);
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
   virtual void OnDestroy();
+  virtual void OnInitMenu(HMENU menu);
+  virtual void OnMouseLeave();
   virtual LRESULT OnNCActivate(BOOL active);
+  virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
   virtual LRESULT OnNCHitTest(const CPoint& point);
+  virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
+  virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
+  virtual void OnNCPaint(HRGN rgn);
   virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
   virtual void OnNCRButtonDown(UINT ht_component, const CPoint& point);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
+  virtual LRESULT OnSetIcon(UINT size_type, HICON new_icon);
+  virtual LRESULT OnSetText(const wchar_t* text);
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
 
@@ -214,9 +217,28 @@ class Window : public WidgetWin,
   // Asks the delegate if any to save the window's location and size.
   void SaveWindowPosition();
 
+  // Lock or unlock the window from being able to redraw itself in response to
+  // updates to its invalid region.
+  class ScopedRedrawLock;
+  void LockUpdates();
+  void UnlockUpdates();
+
+  // Resets the window region for the current window bounds if necessary.
+  void ResetWindowRegion();
+
+  // Converts a non-client mouse down message to a regular ChromeViews event
+  // and handle it. |point| is the mouse position of the message in screen
+  // coords. |flags| are flags that would be passed with a WM_L/M/RBUTTON*
+  // message and relate to things like which button was pressed. These are
+  // combined with flags relating to the current key state.
+  void ProcessNCMousePress(const CPoint& point, int flags);
+
   // Static resource initialization.
   static void InitClass();
-  static HCURSOR nwse_cursor_;
+  enum ResizeCursor {
+    RC_NORMAL = 0, RC_VERTICAL, RC_HORIZONTAL, RC_NESW, RC_NWSE
+  };
+  static HCURSOR resize_cursors_[6];  
 
   // Our window delegate (see Init method for documentation).
   WindowDelegate* window_delegate_;
@@ -253,6 +275,15 @@ class Window : public WidgetWin,
   // True when the window should be rendered as active, regardless of whether
   // or not it actually is.
   bool disable_inactive_rendering_;
+
+  // True if this window is the active top level window.
+  bool is_active_;
+
+  // True if updates to this window are currently locked.
+  bool lock_updates_;
+
+  // The window styles of the window before updates were locked.
+  DWORD saved_window_style_;
 
   // The saved maximized state for this window. See note in SetInitialBounds
   // that explains why we save this.

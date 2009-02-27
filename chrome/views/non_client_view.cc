@@ -27,6 +27,10 @@ void NonClientView::WindowClosing() {
   client_view_->WindowClosing();
 }
 
+bool NonClientView::UseNativeFrame() const {
+  return true;
+}
+
 gfx::Rect NonClientView::CalculateClientAreaBounds(int width,
                                                    int height) const {
   return gfx::Rect();

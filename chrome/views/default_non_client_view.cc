@@ -379,6 +379,12 @@ void DefaultNonClientView::Layout() {
   LayoutClientView();
 }
 
+gfx::Size DefaultNonClientView::GetPreferredSize() {
+  gfx::Size pref = client_view_->GetPreferredSize();
+  DCHECK(pref.width() > 0 && pref.height() > 0);
+  return CalculateWindowSizeForClientSize(pref.width(), pref.height());
+}
+
 void DefaultNonClientView::ViewHierarchyChanged(bool is_add,
                                                 View* parent,
                                                 View* child) {

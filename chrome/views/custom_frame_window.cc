@@ -96,12 +96,6 @@ void CustomFrameWindow::Init(HWND parent, const gfx::Rect& bounds) {
   ResetWindowRegion();
 }
 
-gfx::Size CustomFrameWindow::CalculateWindowSizeForClientSize(
-    const gfx::Size& client_size) const {
-  return non_client_view_->CalculateWindowSizeForClientSize(
-      client_size.width(), client_size.height());
-}
-
 void CustomFrameWindow::UpdateWindowTitle() {
   // Layout winds up causing the title to be re-validated during
   // string measurement.

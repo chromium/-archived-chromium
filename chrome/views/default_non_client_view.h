@@ -48,6 +48,7 @@ class DefaultNonClientView : public NonClientView,
   // View overrides:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
+  virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
   // BaseButton::ButtonListener implementation:
