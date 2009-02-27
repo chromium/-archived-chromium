@@ -2440,6 +2440,7 @@
 					../../../port/bindings/v8,
 					../../../../v8/include,
 					../../../../third_party/WebKit/WebCore/platform/chromium,
+					../../../../third_party/WebKit/WebCore/platform/graphics,
 					../../../../third_party/WebKit/WebCore/platform/text,
 					../../../../third_party/WebKit/WebCore/platform,
 					../../../../third_party/WebKit/JavaScriptCore/wtf,
