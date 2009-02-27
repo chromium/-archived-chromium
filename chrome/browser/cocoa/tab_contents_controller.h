@@ -35,8 +35,9 @@ class ToolbarModel;
   ToolbarModel* toolbarModel_;  // weak, one per window
   IBOutlet NSButton* backButton_;
   IBOutlet NSButton* forwardButton_;
-  IBOutlet NSButton* reloadStopButton_;
+  IBOutlet NSButton* reloadButton_;
   IBOutlet NSButton* starButton_;
+  IBOutlet NSButton* goButton_;
   IBOutlet NSTextField* locationBar_;
   IBOutlet NSBox* contentsBox_;
   IBOutlet GrowBoxView* growBox_;
@@ -77,6 +78,10 @@ class ToolbarModel;
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of this tab.
 - (NSRect)growBoxRect;
+
+// Called to update the loading state. Handles updating the go/stop button
+// state.
+- (void)setIsLoading:(BOOL)isLoading;
 
 @end
 

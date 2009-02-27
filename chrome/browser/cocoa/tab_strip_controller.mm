@@ -343,6 +343,16 @@ class TabStripBridge : public TabStripModelObserver {
   return [selectedController growBoxRect];
 }
 
+// Called to tell the selected tab to update its loading state.
+- (void)setIsLoading:(BOOL)isLoading {
+  // TODO(pinkerton): update the favicon on the selected tab view to/from
+  // a spinner?
+
+  TabContentsController* selectedController =
+      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
+  [selectedController setIsLoading:isLoading];
+}
+
 @end
 
 //--------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">352.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="94"/>
+			<integer value="164"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -431,14 +431,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">reloadStopButton_</string>
-						<reference key="source" ref="326691890"/>
-						<reference key="destination" ref="1046981093"/>
-					</object>
-					<int key="connectionID">167</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">starButton_</string>
 						<reference key="source" ref="326691890"/>
 						<reference key="destination" ref="574811940"/>
@@ -460,6 +452,22 @@
 						<reference key="destination" ref="995989345"/>
 					</object>
 					<int key="connectionID">176</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">reloadButton_</string>
+						<reference key="source" ref="326691890"/>
+						<reference key="destination" ref="1046981093"/>
+					</object>
+					<int key="connectionID">177</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">goButton_</string>
+						<reference key="source" ref="326691890"/>
+						<reference key="destination" ref="742185090"/>
+					</object>
+					<int key="connectionID">178</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -735,7 +743,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">176</int>
+			<int key="maxID">178</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -774,15 +782,17 @@
 							<string>backButton_</string>
 							<string>contentsBox_</string>
 							<string>forwardButton_</string>
+							<string>goButton_</string>
 							<string>growBox_</string>
 							<string>locationBar_</string>
-							<string>reloadStopButton_</string>
+							<string>reloadButton_</string>
 							<string>starButton_</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSButton</string>
 							<string>NSBox</string>
+							<string>NSButton</string>
 							<string>NSButton</string>
 							<string>GrowBoxView</string>
 							<string>NSTextField</string>

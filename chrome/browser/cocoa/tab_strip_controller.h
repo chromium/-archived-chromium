@@ -66,6 +66,9 @@ class ToolbarModel;
 // in the coordinate system of the content area of the currently selected tab.
 - (NSRect)selectedTabGrowBoxRect;
 
+// Called to tell the selected tab to update its loading state.
+- (void)setIsLoading:(BOOL)isLoading;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_STRIP_CONTROLLER_H_

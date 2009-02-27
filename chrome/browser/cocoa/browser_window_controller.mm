@@ -154,4 +154,8 @@
               selectedTabGrowBoxRect];
 }
 
+- (void)setIsLoading:(BOOL)isLoading {
+  [tabStripController_ setIsLoading:isLoading];
+}
+
 @end

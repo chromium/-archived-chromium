@@ -160,7 +160,7 @@ class LocationBarBridge : public LocationBar {
   [backButton_ setEnabled:commands_->IsCommandEnabled(IDC_BACK) ? YES : NO];
   [forwardButton_
       setEnabled:commands_->IsCommandEnabled(IDC_FORWARD) ? YES : NO];
-  [reloadStopButton_
+  [reloadButton_
       setEnabled:commands_->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
   [starButton_ setEnabled:commands_->IsCommandEnabled(IDC_STAR) ? YES : NO];
 }
@@ -214,7 +214,7 @@ class LocationBarBridge : public LocationBar {
     // entire bottom corner.
     localGrowBox.origin.y = 0;
     // Convert to the content view's coordinates.
-    localGrowBox = [contentView convertRect:localGrowBox 
+    localGrowBox = [contentView convertRect:localGrowBox
                                    fromView:[self view]];
     // Flip the rect in view coordinates
     localGrowBox.origin.y = 
@@ -222,6 +222,13 @@ class LocationBarBridge : public LocationBar {
             localGrowBox.size.height;
   }
   return localGrowBox;
+}
+
+- (void)setIsLoading:(BOOL)isLoading {
+  NSString* imageName = @"go";
+  if (isLoading)
+    imageName = @"stop";
+  [goButton_ setImage:[NSImage imageNamed:imageName]];
 }
 
 @end

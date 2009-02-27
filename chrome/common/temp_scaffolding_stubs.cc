@@ -318,8 +318,27 @@ void TabContents::OpenURL(const GURL& url, const GURL& referrer,
 
 void TabContents::SetIsLoading(bool is_loading,
                                LoadNotificationDetails* details) {
-  // TODO(port): this is a subset of SetIsLoading() as a stub
+  if (is_loading == is_loading_)
+    return;
+
   is_loading_ = is_loading;
+  waiting_for_response_ = is_loading;
+
+  // Suppress notifications for this TabContents if we are not active.
+  if (!is_active_)
+    return;
+
+  if (delegate_)
+    delegate_->LoadingStateChanged(this);
+
+  NotificationType type = is_loading ? NotificationType::LOAD_START :
+      NotificationType::LOAD_STOP;
+  NotificationDetails det = NotificationService::NoDetails();;
+  if (details)
+      det = Details<LoadNotificationDetails>(details);
+  NotificationService::current()->Notify(type, 
+      Source<NavigationController>(this->controller()),
+      det);
 }
 
 bool TabContents::SupportsURL(GURL* url) {

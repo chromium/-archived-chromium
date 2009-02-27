@@ -114,7 +114,7 @@ void BrowserWindowCocoa::SetFocusToLocationBar() {
 }
 
 void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {
-  NOTIMPLEMENTED();
+  [controller_ setIsLoading:is_loading ? YES : NO];
 }
 
 void BrowserWindowCocoa::UpdateToolbar(TabContents* contents,

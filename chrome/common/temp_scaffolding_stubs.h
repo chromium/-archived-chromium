@@ -424,7 +424,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   };
   TabContents(TabContentsType type)
       : type_(type), is_crashed_(false), is_active_(true), is_loading_(false),
-        is_being_destroyed_(false), controller_(),
+        is_being_destroyed_(false), waiting_for_response_(false), controller_(),
         delegate_(), max_page_id_(-1) { }
   virtual ~TabContents() { }
   NavigationController* controller() const { return controller_; }
@@ -470,6 +470,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   void set_is_active(bool active) { is_active_ = active; }
   bool is_loading() const { return is_loading_; }
   bool is_being_destroyed() const { return is_being_destroyed_; }
+  bool waiting_for_response() const { return waiting_for_response_; }
   void SetNotWaitingForResponse() { NOTIMPLEMENTED(); }
   void NotifyNavigationStateChanged(unsigned int);
   TabContentsDelegate* delegate() const { return delegate_; }
@@ -513,6 +514,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   bool is_active_;
   bool is_loading_;
   bool is_being_destroyed_;
+  bool waiting_for_response_;
   GURL url_;
   std::wstring title_;
   NavigationController* controller_;

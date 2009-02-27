@@ -1355,6 +1355,7 @@
         'app/theme/sadtab.png',
         'app/theme/star.pdf',
         'app/theme/starred.pdf',
+        'app/theme/stop.pdf',
         'app/app-Info.plist',
       ],
       # TODO(mark): Come up with a fancier way to do this.  It should only
