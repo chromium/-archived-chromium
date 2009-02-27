@@ -295,6 +295,13 @@ std::wstring CharacterEncoding::GetCanonicalEncodingDisplayNameByIndex(
 }
 
 // Static.
+int CharacterEncoding::GetEncodingCommandIdByIndex(int index) {
+  if (index < canonical_encoding_names_length)
+    return canonical_encoding_names[index].resource_id;
+  return 0;
+}
+
+// Static.
 std::wstring CharacterEncoding::GetCanonicalEncodingNameByAliasName(
     const std::wstring& alias_name) {
   // If the input alias_name is already canonical encoding name, just return it.

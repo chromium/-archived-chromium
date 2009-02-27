@@ -58,6 +58,10 @@ class CharacterEncoding {
   // only in UI thread.
   static std::wstring GetCanonicalEncodingDisplayNameByIndex(int index);
 
+  // Return encoding command id according to the index, which starts from
+  // zero to GetSupportCanonicalEncodingCount() - 1. Otherwise returns 0.
+  static int GetEncodingCommandIdByIndex(int index);
+
   // Return canonical encoding name according to the encoding alias name. THIS
   // FUNCTION IS NOT THREADSAFE. You must run this function only in UI thread.
   static std::wstring GetCanonicalEncodingNameByAliasName(

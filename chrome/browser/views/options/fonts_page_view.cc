@@ -6,6 +6,8 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
+#include <vector>
+
 #include "chrome/browser/views/options/fonts_page_view.h"
 
 #include "base/file_util.h"
@@ -33,11 +35,27 @@
 #include "grit/locale_settings.h"
 #include "skia/include/SkBitmap.h"
 
+namespace {
+
+static std::vector<CharacterEncoding::EncodingInfo> sorted_encoding_list;
+
+}  // namespace
+
 class DefaultEncodingComboboxModel : public views::ComboBox::Model {
  public:
   DefaultEncodingComboboxModel() {
     canonical_encoding_names_length_ =
         CharacterEncoding::GetSupportCanonicalEncodingCount();
+    // Initialize the vector of all sorted encodings according to current
+    // UI locale.
+    if (!sorted_encoding_list.size()) {
+      std::wstring locale = g_browser_process->GetApplicationLocale();
+      for (int i = 0; i < canonical_encoding_names_length_; i++) {
+        sorted_encoding_list.push_back(CharacterEncoding::EncodingInfo(
+            CharacterEncoding::GetEncodingCommandIdByIndex(i)));
+      }
+      l10n_util::SortVectorWithStringKey(locale, &sorted_encoding_list, true);
+    }
   }
 
   virtual ~DefaultEncodingComboboxModel() {}
@@ -49,12 +67,13 @@ class DefaultEncodingComboboxModel : public views::ComboBox::Model {
 
   virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
     DCHECK(index >= 0 && canonical_encoding_names_length_ > index);
-    return CharacterEncoding::GetCanonicalEncodingDisplayNameByIndex(index);
+    return sorted_encoding_list[index].encoding_display_name;
   }
 
   std::wstring GetEncodingCharsetByIndex(int index) {
     DCHECK(index >= 0 && canonical_encoding_names_length_ > index);
-    return CharacterEncoding::GetCanonicalEncodingNameByIndex(index);
+    int encoding_id = sorted_encoding_list[index].encoding_id;
+    return CharacterEncoding::GetCanonicalEncodingNameByCommandId(encoding_id);
   }
 
   int GetSelectedEncodingIndex(Profile* profile) {
@@ -64,8 +83,7 @@ class DefaultEncodingComboboxModel : public views::ComboBox::Model {
                                  NULL);
     const std::wstring current_encoding = current_encoding_string.GetValue();
     for (int i = 0; i < canonical_encoding_names_length_; i++) {
-      if (CharacterEncoding::GetCanonicalEncodingNameByIndex(i) ==
-          current_encoding)
+      if (GetEncodingCharsetByIndex(i) == current_encoding)
         return i;
     }
 
