@@ -351,6 +351,15 @@ void TabContents::UpdateMaxPageID(int32 page_id) {
     max_page_id_ = std::max(max_page_id_, page_id);
 }
 
+void TabContents::SetIsCrashed(bool state) {
+  if (state == is_crashed_)
+    return;
+
+  is_crashed_ = state;
+  if (delegate_)
+    delegate_->ContentsStateChanged(this);
+}
+
 //--------------------------------------------------------------------------
 
 void RLZTracker::CleanupRlz() {

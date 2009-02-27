@@ -422,7 +422,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };
   TabContents(TabContentsType type)
-      : type_(type), is_active_(true), is_loading_(false),
+      : type_(type), is_crashed_(false), is_active_(true), is_loading_(false),
         is_being_destroyed_(false), controller_(),
         delegate_(), max_page_id_(-1) { }
   virtual ~TabContents() { }
@@ -458,7 +458,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
   virtual void SetDownloadShelfVisible(bool) { NOTIMPLEMENTED(); }
   virtual void Destroy();
   virtual void SetIsLoading(bool, LoadNotificationDetails*);
-  virtual void SetIsCrashed(bool) { NOTIMPLEMENTED(); }
+  bool is_crashed() const { return is_crashed_; }
+  virtual void SetIsCrashed(bool);
   bool capturing_contents() const {
     NOTIMPLEMENTED();
     return false;
@@ -507,6 +508,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   friend class AutomationProvider;
 
   TabContentsType type_;
+  bool is_crashed_;
   bool is_active_;
   bool is_loading_;
   bool is_being_destroyed_;

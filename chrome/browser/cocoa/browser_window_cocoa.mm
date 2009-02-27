@@ -65,7 +65,8 @@ void BrowserWindowCocoa::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserWindowCocoa::UpdateTitleBar() {
-  NOTIMPLEMENTED();
+  // This is used on windows to update the favicon and title in the window
+  // icon, which we don't use on the mac.
 }
 
 void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
