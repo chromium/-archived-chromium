@@ -43,7 +43,6 @@
 		0435A48F0E8DD74B00E4DF08 /* http_auth_handler_digest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */; };
 		044605E80F5350FD0058B8B1 /* proxy_resolver_v8.cc in Sources */ = {isa = PBXBuildFile; fileRef = 044605E70F5350FD0058B8B1 /* proxy_resolver_v8.cc */; };
 		044605EB0F53510A0058B8B1 /* proxy_resolver_v8_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 044605EA0F53510A0058B8B1 /* proxy_resolver_v8_unittest.cc */; };
-		044605FE0F5351DD0058B8B1 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 044605CA0F5350B00058B8B1 /* libjscre.a */; };
 		044605FF0F5351DD0058B8B1 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 044605CC0F5350B00058B8B1 /* libv8.a */; };
 		048133550ED27FEF005C5BBC /* url_request_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33AB0E5A198600A747DB /* url_request_unittest.cc */; };
 		048268070E5B3B1000A30786 /* mime_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AA0E5A181C00A747DB /* mime_util.cc */; };
@@ -199,13 +198,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		044605C90F5350B00058B8B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 044605C00F5350B00058B8B1 /* v8.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 897FF1BF0E719CB600D62E90;
-			remoteInfo = jscre;
-		};
 		044605CB0F5350B00058B8B1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 044605C00F5350B00058B8B1 /* v8.xcodeproj */;
@@ -465,18 +457,11 @@
 			remoteGlobalIDString = E4AFA6220E523E2900201347;
 			remoteInfo = net_unittests;
 		};
-		F4A0D0230F56DB9900F75F8A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 044605C00F5350B00058B8B1 /* v8.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90 /* jscre */;
-			remoteInfo = jscre;
-		};
 		F4A0D0250F56DB9900F75F8A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 044605C00F5350B00058B8B1 /* v8.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 8970F2EF0E719FB2006AE7B5 /* v8 */;
+			remoteGlobalIDString = 8970F2EF0E719FB2006AE7B5;
 			remoteInfo = v8;
 		};
 /* End PBXContainerItemProxy section */
@@ -786,7 +771,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				044605FE0F5351DD0058B8B1 /* libjscre.a in Frameworks */,
 				044605FF0F5351DD0058B8B1 /* libv8.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -821,7 +805,6 @@
 		044605C10F5350B00058B8B1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				044605CA0F5350B00058B8B1 /* libjscre.a */,
 				044605CC0F5350B00058B8B1 /* libv8.a */,
 				044605CE0F5350B00058B8B1 /* v8_shell */,
 				044605D00F5350B00058B8B1 /* libv8-arm.a */,
@@ -1310,7 +1293,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				F4A0D0240F56DB9900F75F8A /* PBXTargetDependency */,
 				F4A0D0260F56DB9900F75F8A /* PBXTargetDependency */,
 			);
 			name = net;
@@ -1410,13 +1392,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		044605CA0F5350B00058B8B1 /* libjscre.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libjscre.a;
-			remoteRef = 044605C90F5350B00058B8B1 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		044605CC0F5350B00058B8B1 /* libv8.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1839,11 +1814,6 @@
 			isa = PBXTargetDependency;
 			target = E4AFA6220E523E2900201347 /* net_unittests */;
 			targetProxy = E4AFA65B0E52424400201347 /* PBXContainerItemProxy */;
-		};
-		F4A0D0240F56DB9900F75F8A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = jscre;
-			targetProxy = F4A0D0230F56DB9900F75F8A /* PBXContainerItemProxy */;
 		};
 		F4A0D0260F56DB9900F75F8A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

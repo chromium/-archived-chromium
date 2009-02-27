@@ -80,7 +80,6 @@
 		82F39D130E7EFA5D00785E15 /* libjsbindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205AC0E770291008F45CF /* libjsbindings.a */; };
 		82F39D2B0E7EFC2600785E15 /* libskia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82058F0E770291008F45CF /* libskia.a */; };
 		82F39D400E7EFD9300785E15 /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82056C0E770291008F45CF /* libxml.a */; };
-		82F39D490E7EFDAA00785E15 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059A0E770291008F45CF /* libjscre.a */; };
 		82F39D4A0E7EFDAA00785E15 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059C0E770291008F45CF /* libv8.a */; };
 		93336F0B0F55FBE50062E3BA /* libwebkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 937DE8840F5347B400D0D638 /* libwebkit.a */; };
 		93AF4F340EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93AF4F300EFAFE2C0073C62D /* BMPImageDecoder_unittest.cpp */; };
@@ -124,7 +123,6 @@
 		E45069D00EF016C6003BE099 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82054B0E770291008F45CF /* libicui18n.a */; };
 		E45069D10EF016C6003BE099 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82054F0E770291008F45CF /* libicuuc.a */; };
 		E45069D20EF016C6003BE099 /* libjsbindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205AC0E770291008F45CF /* libjsbindings.a */; };
-		E45069D30EF016C6003BE099 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059A0E770291008F45CF /* libjscre.a */; };
 		E45069D40EF016C6003BE099 /* libmodp_b64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F39D040E7EF95A00785E15 /* libmodp_b64.a */; };
 		E45069D50EF016C6003BE099 /* libnet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205850E770291008F45CF /* libnet.a */; };
 		E45069D60EF016C6003BE099 /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205AE0E770291008F45CF /* libpcre.a */; };
@@ -456,13 +454,6 @@
 			remoteGlobalIDString = E48EE4CF0E34E855009DE966;
 			remoteInfo = skia;
 		};
-		7B8205990E770291008F45CF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 897FF1BF0E719CB600D62E90;
-			remoteInfo = jscre;
-		};
 		7B82059B0E770291008F45CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */;
@@ -694,13 +685,6 @@
 			remoteGlobalIDString = 7B12F2AB0D8EE24200CB6E8F;
 			remoteInfo = xml;
 		};
-		82F39D4B0E7EFDB500785E15 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
-			remoteInfo = jscre;
-		};
 		82F39D4D0E7EFDB500785E15 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */;
@@ -719,7 +703,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 829E2E250DBE7DE200819EBF /* webkit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 937A15B60F53326C003E8D2D /* webkit */;
+			remoteGlobalIDString = 937A15B60F53326C003E8D2D;
 			remoteInfo = webkit;
 		};
 		E4506A370EF020EE003BE099 /* PBXContainerItemProxy */ = {
@@ -900,7 +884,6 @@
 				E45069D00EF016C6003BE099 /* libicui18n.a in Frameworks */,
 				E45069D10EF016C6003BE099 /* libicuuc.a in Frameworks */,
 				E45069D20EF016C6003BE099 /* libjsbindings.a in Frameworks */,
-				E45069D30EF016C6003BE099 /* libjscre.a in Frameworks */,
 				E45069D40EF016C6003BE099 /* libmodp_b64.a in Frameworks */,
 				E45069D50EF016C6003BE099 /* libnet.a in Frameworks */,
 				E45069D60EF016C6003BE099 /* libpcre.a in Frameworks */,
@@ -943,7 +926,6 @@
 				82F39A010E7EF7F000785E15 /* libicui18n.a in Frameworks */,
 				82F39A020E7EF7F000785E15 /* libicuuc.a in Frameworks */,
 				82F39D130E7EFA5D00785E15 /* libjsbindings.a in Frameworks */,
-				82F39D490E7EFDAA00785E15 /* libjscre.a in Frameworks */,
 				82F39D050E7EF95D00785E15 /* libmodp_b64.a in Frameworks */,
 				82F39A180E7EF82400785E15 /* libnet.a in Frameworks */,
 				82F39D120E7EFA5D00785E15 /* libpcre.a in Frameworks */,
@@ -1172,7 +1154,6 @@
 		7B8205930E770291008F45CF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7B82059A0E770291008F45CF /* libjscre.a */,
 				7B82059C0E770291008F45CF /* libv8.a */,
 				7B82059E0E770291008F45CF /* v8_shell */,
 				7B779D3C0E82FF2200C2971E /* libv8-arm.a */,
@@ -1432,7 +1413,6 @@
 				82F39D1D0E7EFA6800785E15 /* PBXTargetDependency */,
 				4DB7FEA30E9BF90A00C66CE0 /* PBXTargetDependency */,
 				82F39D1F0E7EFA6800785E15 /* PBXTargetDependency */,
-				82F39D4C0E7EFDB500785E15 /* PBXTargetDependency */,
 				82F39D4E0E7EFDB500785E15 /* PBXTargetDependency */,
 				82F39CF70E7EF91900785E15 /* PBXTargetDependency */,
 				938D0FF40F573E28009F1128 /* PBXTargetDependency */,
@@ -1726,13 +1706,6 @@
 			fileType = archive.ar;
 			path = libskia.a;
 			remoteRef = 7B82058E0E770291008F45CF /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		7B82059A0E770291008F45CF /* libjscre.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libjscre.a;
-			remoteRef = 7B8205990E770291008F45CF /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		7B82059C0E770291008F45CF /* libv8.a */ = {
@@ -2154,11 +2127,6 @@
 			name = xml;
 			targetProxy = 82F39D410E7EFD9C00785E15 /* PBXContainerItemProxy */;
 		};
-		82F39D4C0E7EFDB500785E15 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = jscre;
-			targetProxy = 82F39D4B0E7EFDB500785E15 /* PBXContainerItemProxy */;
-		};
 		82F39D4E0E7EFDB500785E15 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = v8;
@@ -2427,6 +2395,7 @@
 					../../../port/bindings/v8,
 					../../../../v8/include,
 					../../../../third_party/WebKit/WebCore/platform/chromium,
+					../../../../third_party/WebKit/WebCore/platform/graphics,
 					../../../../third_party/WebKit/WebCore/platform/text,
 					../../../../third_party/WebKit/WebCore/platform,
 					../../../../third_party/WebKit/JavaScriptCore/wtf,

@@ -580,7 +580,6 @@
 		E477F6B50F4095660044ABEB /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4DCDB9C0F4091BF0084059A /* ApplicationServices.framework */; };
 		E477F6B60F4095660044ABEB /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
 		E477F6B70F4095660044ABEB /* libjsbindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268501A0F2FC82E009F6555 /* libjsbindings.a */; };
-		E477F6B80F4095660044ABEB /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268504B0F2FCB56009F6555 /* libjscre.a */; };
 		E477F6B90F4095660044ABEB /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268501C0F2FC82E009F6555 /* libpcre.a */; };
 		E477F6BA0F4095660044ABEB /* libport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268501E0F2FC82E009F6555 /* libport.a */; };
 		E477F6BB0F4095660044ABEB /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268504D0F2FCB56009F6555 /* libv8.a */; };
@@ -630,7 +629,6 @@
 		E4DCDC940F40929C0084059A /* libwebcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850200F2FC82E009F6555 /* libwebcore.a */; };
 		E4DCDC950F40929C0084059A /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850220F2FC82E009F6555 /* libwebcoresysteminterface.a */; };
 		E4DCDC960F40929C0084059A /* libwtf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850240F2FC82E009F6555 /* libwtf.a */; };
-		E4DCDC970F4092C10084059A /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268504B0F2FCB56009F6555 /* libjscre.a */; };
 		E4DCDC980F4092C10084059A /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268504D0F2FCB56009F6555 /* libv8.a */; };
 		E4DCDC990F4092EF0084059A /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFB230E9D4BBF009A6919 /* libxml.a */; };
 		E4DCDC9A0F4092F90084059A /* libxslt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268506A0F2FCC27009F6555 /* libxslt.a */; };
@@ -638,7 +636,6 @@
 		E4DCDC9D0F40938D0084059A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45065DF0EEEC709003BE099 /* Foundation.framework */; };
 		E4DCDC9E0F40938D0084059A /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 826850180F2FC82E009F6555 /* libglue.a */; };
 		E4DCDC9F0F40938D0084059A /* libjsbindings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268501A0F2FC82E009F6555 /* libjsbindings.a */; };
-		E4DCDCA00F40938D0084059A /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268504B0F2FCB56009F6555 /* libjscre.a */; };
 		E4DCDCA10F40938D0084059A /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268501C0F2FC82E009F6555 /* libpcre.a */; };
 		E4DCDCA20F40938D0084059A /* libport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268501E0F2FC82E009F6555 /* libport.a */; };
 		E4DCDCA30F40938D0084059A /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8268504D0F2FCB56009F6555 /* libv8.a */; };
@@ -695,13 +692,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7BD540250D6F727B003CD41E;
 			remoteInfo = icutu;
-		};
-		33121EE00F3CF45B006CB2B0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8268503E0F2FCB56009F6555 /* v8.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
-			remoteInfo = jscre;
 		};
 		33121EE20F3CF45B006CB2B0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -814,13 +804,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = net;
-		};
-		33121F020F3CF47F006CB2B0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8268503E0F2FCB56009F6555 /* v8.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
-			remoteInfo = jscre;
 		};
 		33121F040F3CF47F006CB2B0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -954,13 +937,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7BD540250D6F727B003CD41E;
 			remoteInfo = icutu;
-		};
-		33121F2A0F3CF49C006CB2B0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8268503E0F2FCB56009F6555 /* v8.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 897FF1BE0E719CB600D62E90;
-			remoteInfo = jscre;
 		};
 		33121F2C0F3CF49C006CB2B0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1647,13 +1623,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 7B5E85AE0D7F28CD001ECF42;
 			remoteInfo = wtf;
-		};
-		8268504A0F2FCB56009F6555 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8268503E0F2FCB56009F6555 /* v8.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 897FF1BF0E719CB600D62E90;
-			remoteInfo = jscre;
 		};
 		8268504C0F2FCB56009F6555 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3014,7 +2983,6 @@
 				4D7BFE760E9D52E4009A6919 /* libicuuc.a in Frameworks */,
 				4D7BFF3A0E9D5378009A6919 /* libjpeg.a in Frameworks */,
 				E477F6B70F4095660044ABEB /* libjsbindings.a in Frameworks */,
-				E477F6B80F4095660044ABEB /* libjscre.a in Frameworks */,
 				ABFA34C80F425677008FCF5D /* libmedia.a in Frameworks */,
 				4D7B005E0E9D54BB009A6919 /* libmodp_b64.a in Frameworks */,
 				4D7B00510E9D5473009A6919 /* libnet.a in Frameworks */,
@@ -3070,7 +3038,6 @@
 				4D7FA6600F13CBDD004F1B19 /* libicuuc.a in Frameworks */,
 				331218460F3C024A006CB2B0 /* libjpeg.a in Frameworks */,
 				E4DCDC9F0F40938D0084059A /* libjsbindings.a in Frameworks */,
-				E4DCDCA00F40938D0084059A /* libjscre.a in Frameworks */,
 				ABFA34C70F425637008FCF5D /* libmedia.a in Frameworks */,
 				33121A470F3C037E006CB2B0 /* libmodp_b64.a in Frameworks */,
 				331218410F3C0208006CB2B0 /* libnet.a in Frameworks */,
@@ -3173,7 +3140,6 @@
 				E45062AC0EE89154003BE099 /* libicuuc.a in Frameworks */,
 				E43D07310F433A8D003F39CA /* libjpeg.a in Frameworks */,
 				E4DCDC910F40929C0084059A /* libjsbindings.a in Frameworks */,
-				E4DCDC970F4092C10084059A /* libjscre.a in Frameworks */,
 				ABFA34C50F4255CC008FCF5D /* libmedia.a in Frameworks */,
 				E48B67CB0F262607002E47EC /* libmodp_b64.a in Frameworks */,
 				E48B66A80F26257E002E47EC /* libnet.a in Frameworks */,
@@ -4212,7 +4178,6 @@
 		8268503F0F2FCB56009F6555 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8268504B0F2FCB56009F6555 /* libjscre.a */,
 				8268504D0F2FCB56009F6555 /* libv8.a */,
 				8268504F0F2FCB56009F6555 /* v8_shell */,
 				826850510F2FCB56009F6555 /* libv8-arm.a */,
@@ -4858,7 +4823,6 @@
 				826852150F2FD152009F6555 /* PBXTargetDependency */,
 				8268521B0F2FD197009F6555 /* PBXTargetDependency */,
 				33121F290F3CF49C006CB2B0 /* PBXTargetDependency */,
-				33121F2B0F3CF49C006CB2B0 /* PBXTargetDependency */,
 				33121F2D0F3CF49C006CB2B0 /* PBXTargetDependency */,
 				33121F2F0F3CF49C006CB2B0 /* PBXTargetDependency */,
 				33121F310F3CF49C006CB2B0 /* PBXTargetDependency */,
@@ -4916,7 +4880,6 @@
 				33121EFD0F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121EFF0F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121F010F3CF47F006CB2B0 /* PBXTargetDependency */,
-				33121F030F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121F050F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121F070F3CF47F006CB2B0 /* PBXTargetDependency */,
 				33121F090F3CF47F006CB2B0 /* PBXTargetDependency */,
@@ -5007,7 +4970,6 @@
 				82684CE50F2FAEF4009F6555 /* PBXTargetDependency */,
 				82684D0D0F2FB10F009F6555 /* PBXTargetDependency */,
 				33121EDF0F3CF45B006CB2B0 /* PBXTargetDependency */,
-				33121EE10F3CF45B006CB2B0 /* PBXTargetDependency */,
 				33121EE30F3CF45B006CB2B0 /* PBXTargetDependency */,
 				33121EE50F3CF45B006CB2B0 /* PBXTargetDependency */,
 				33121EE70F3CF45B006CB2B0 /* PBXTargetDependency */,
@@ -5375,13 +5337,6 @@
 			fileType = archive.ar;
 			path = libwtf.a;
 			remoteRef = 826850230F2FC82E009F6555 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		8268504B0F2FCB56009F6555 /* libjscre.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libjscre.a;
-			remoteRef = 8268504A0F2FCB56009F6555 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		8268504D0F2FCB56009F6555 /* libv8.a */ = {
@@ -6101,11 +6056,6 @@
 			name = icutu;
 			targetProxy = 33121EDE0F3CF45B006CB2B0 /* PBXContainerItemProxy */;
 		};
-		33121EE10F3CF45B006CB2B0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = jscre;
-			targetProxy = 33121EE00F3CF45B006CB2B0 /* PBXContainerItemProxy */;
-		};
 		33121EE30F3CF45B006CB2B0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = v8;
@@ -6185,11 +6135,6 @@
 			isa = PBXTargetDependency;
 			name = net;
 			targetProxy = 33121F000F3CF47F006CB2B0 /* PBXContainerItemProxy */;
-		};
-		33121F030F3CF47F006CB2B0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = jscre;
-			targetProxy = 33121F020F3CF47F006CB2B0 /* PBXContainerItemProxy */;
 		};
 		33121F050F3CF47F006CB2B0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6285,11 +6230,6 @@
 			isa = PBXTargetDependency;
 			name = icutu;
 			targetProxy = 33121F280F3CF49C006CB2B0 /* PBXContainerItemProxy */;
-		};
-		33121F2B0F3CF49C006CB2B0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = jscre;
-			targetProxy = 33121F2A0F3CF49C006CB2B0 /* PBXContainerItemProxy */;
 		};
 		33121F2D0F3CF49C006CB2B0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

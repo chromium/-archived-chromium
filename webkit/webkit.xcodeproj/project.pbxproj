@@ -38,6 +38,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		181A25BD0F57EFCE00939C89 /* V8WebKitPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 181A25BB0F57EFCE00939C89 /* V8WebKitPoint.cpp */; };
 		25B9F25199984DFE5E4A59AE /* V8WebKitCSSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 688FFA9B9CEFE9B1B66F8671 /* V8WebKitCSSMatrix.cpp */; };
 		3C9197C6A7DABB989CBDBF81 /* Playback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1174C9D4E12AB30D653019A /* Playback.cpp */; };
 		3CF1E7470F09B352009BC1A7 /* Threading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1E7460F09B352009BC1A7 /* Threading.cpp */; };
@@ -1322,7 +1323,6 @@
 		938D0F760F573770009F1128 /* webkitclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 938D0F730F573770009F1128 /* webkitclient_impl.cc */; };
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
 		93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */; };
-		97EE9A8C2D6020F99D3D200E /* V8WebKitPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2904951B751F48ED9C632DD6 /* V8WebKitPoint.cpp */; };
 		A5779DD6BC0DA17AB7DE63D4 /* GCController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 715E874BCC05E0A3DD5E5D8F /* GCController.cpp */; };
 		A743B3FB0F45E9CB0035EFA9 /* HTMLElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A743B3F80F45E9CB0035EFA9 /* HTMLElementFactory.cpp */; };
 		A7CBB2A60F327C8D00360BF5 /* debugger_bridge.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7CBB2A40F327C8D00360BF5 /* debugger_bridge.cc */; };
@@ -1537,10 +1537,10 @@
 		04C3AFC70EF1E4650046D578 /* WorkerNavigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorkerNavigator.h; sourceTree = "<group>"; };
 		0F9CD02EE3AE2D8974EDFE58 /* RenderBoxModelObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderBoxModelObject.h; sourceTree = "<group>"; };
 		1459AC310DEBF6A597167F45 /* webplugin_delegate.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webplugin_delegate.cc; sourceTree = "<group>"; };
+		181A25BB0F57EFCE00939C89 /* V8WebKitPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitPoint.cpp; sourceTree = "<group>"; };
+		181A25BC0F57EFCE00939C89 /* V8WebKitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitPoint.h; sourceTree = "<group>"; };
 		1DF458E80DD265C670E05B03 /* RenderSelectionInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderSelectionInfo.h; sourceTree = "<group>"; };
 		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
-		2904951B751F48ED9C632DD6 /* V8WebKitPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = V8WebKitPoint.cpp; path = ../chrome/Debug/obj/V8Bindings/DerivedSources/V8WebKitPoint.cpp; sourceTree = SOURCE_ROOT; };
-		2BCE85178EC4DBF2E1135560 /* V8WebKitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = V8WebKitPoint.h; path = ../chrome/Debug/obj/V8Bindings/DerivedSources/V8WebKitPoint.h; sourceTree = SOURCE_ROOT; };
 		31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNGImageEncoder.cpp; path = "../third_party/WebKit/WebCore/platform/image-encoders/skia/PNGImageEncoder.cpp"; sourceTree = SOURCE_ROOT; };
 		31C1FF1C3BB820B928CFE9BD /* V8DOMWindowCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8DOMWindowCustom.cpp; sourceTree = "<group>"; };
 		35DEC96C125DC674B5C9FA27 /* Interval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Interval.cpp; path = port/bindings/v8/extensions/Interval.cpp; sourceTree = SOURCE_ROOT; };
@@ -4858,8 +4858,6 @@
 				4CDA86D8A0B62BD0EBF07D78 /* AnimationControllerPrivate.h */,
 				7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */,
 				31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */,
-				2BCE85178EC4DBF2E1135560 /* V8WebKitPoint.h */,
-				2904951B751F48ED9C632DD6 /* V8WebKitPoint.cpp */,
 			);
 			sourceTree = "<group>";
 		};
@@ -7014,6 +7012,8 @@
 		7BF88A0E0E71D012000BAF8A /* bindings */ = {
 			isa = PBXGroup;
 			children = (
+				181A25BB0F57EFCE00939C89 /* V8WebKitPoint.cpp */,
+				181A25BC0F57EFCE00939C89 /* V8WebKitPoint.h */,
 				7B14AAA80DE3340400F4E646 /* CharsetData.cpp */,
 				7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */,
 				7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */,
@@ -8778,7 +8778,6 @@
 				9384489F0F16B06E0075F4C5 /* V8WebKitCSSKeyframesRule.cpp in Sources */,
 				25B9F25199984DFE5E4A59AE /* V8WebKitCSSMatrix.cpp in Sources */,
 				938448A00F16B06E0075F4C5 /* V8WebKitCSSTransformValue.cpp in Sources */,
-				97EE9A8C2D6020F99D3D200E /* V8WebKitPoint.cpp in Sources */,
 				938448A10F16B06E0075F4C5 /* V8WebKitTransitionEvent.cpp in Sources */,
 				938448A20F16B06E0075F4C5 /* V8WheelEvent.cpp in Sources */,
 				938448A30F16B06E0075F4C5 /* V8XMLHttpRequest.cpp in Sources */,
@@ -8799,6 +8798,7 @@
 				938448AF0F16B06E0075F4C5 /* XLinkNames.cpp in Sources */,
 				938448B00F16B06E0075F4C5 /* XMLNames.cpp in Sources */,
 				938448B10F16B06E0075F4C5 /* XPathGrammar.cpp in Sources */,
+				181A25BD0F57EFCE00939C89 /* V8WebKitPoint.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
