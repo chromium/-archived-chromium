@@ -32,7 +32,7 @@ ResourceFetcher::ResourceFetcher(const GURL& url, WebCore::Frame* frame,
 }
 
 ResourceFetcher::~ResourceFetcher() {
-  if (!completed_)
+  if (!completed_ && loader_.get())
     loader_->cancel();
   loader_ = NULL;
 }
