@@ -1172,7 +1172,10 @@ void View::RestoreFloatingViewFocus() {
   restore_focus_view_task_ = NULL;
   should_restore_focus_ = false;
 
-  GetFocusManager()->RestoreFocusedView();
+  FocusManager* focus_manager = GetFocusManager();
+  DCHECK(focus_manager);
+  if (focus_manager)
+    focus_manager->RestoreFocusedView();
 }
 
 // static
