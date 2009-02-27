@@ -241,7 +241,13 @@ void WidgetWin::MoveToFront(bool should_activate) {
   if (!should_activate) {
     flags |= SWP_NOACTIVATE;
   }
-  SetWindowPos(HWND_NOTOPMOST, 0, 0, 0, 0, flags);
+
+  // Keep the window topmost if it was already topmost.
+  WINDOWINFO wi;
+  wi.cbSize = sizeof WINDOWINFO;
+  GetWindowInfo(GetHWND(), &wi);
+  SetWindowPos((wi.dwExStyle & WS_EX_TOPMOST) ? HWND_TOPMOST : HWND_NOTOPMOST,
+               0, 0, 0, 0, flags);
 }
 
 HWND WidgetWin::GetHWND() const {
