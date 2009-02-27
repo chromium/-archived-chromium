@@ -85,7 +85,7 @@ class ExtensionLoadedObserver : public NotificationObserver {
 class ExtensionViewTest : public InProcessBrowserTest {
 };
 
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, TestMe) {
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_TestMe) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
