@@ -185,6 +185,26 @@ if env.Bit('linux'):
     "root_view_gtk.cc",
     "view_gtk.cc"
   ]
+  # TODO(port?): Incomplete and undecided Views stuff. These compile but aren't
+  # currently needed, and they break the shared build due to missing symbols
+  # (from files that aren't yet ported).
+  input_files.Remove(
+      'background.cc',
+      'border.cc',
+      'external_focus_tracker.cc',
+      'grid_layout.cc',
+      'image_view.cc',
+      'label.cc',
+      'layout_manager.cc',
+      'painter.cc',
+      'repeat_controller.cc',
+      'root_view.cc',
+      'scroll_bar.cc',
+      'scroll_view.cc',
+      'throbber.cc',
+      'view.cc',
+      'view_storage.cc',
+  )
 
   # TODO(port): Port to Linux.
   input_files.Remove(
