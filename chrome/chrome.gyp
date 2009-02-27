@@ -1166,8 +1166,6 @@
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_view.cc',
             'browser/debugger/debugger_window.cc',
-            'browser/importer/firefox2_importer.cc',
-            'browser/importer/firefox3_importer.cc',
             'browser/importer/ie_importer.cc',
             'browser/tab_contents/native_ui_contents.cc',
             'browser/tab_contents/render_view_context_menu_controller.cc',

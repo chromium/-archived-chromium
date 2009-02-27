@@ -337,8 +337,6 @@ input_files = ChromeFileList([
     'importer/importer.h',
     'importer/mork_reader.cc',
     'importer/mork_reader.h',
-    'importer/toolbar_importer.cc',
-    'importer/toolbar_importer.h',
   ]),
   MSVSFilter('Drag & Drop', [
     'drag_utils.cc',
@@ -687,12 +685,6 @@ if not env.Bit('windows'):
       'icon_loader.cc',
       'icon_manager.cc',
       'ime_input.cc',
-      # Hold off on firefox[23]_importer.cc until importer.cc has been ported.
-      # Otherwise shared link builds won't work on Linux.
-      'importer/firefox2_importer.cc',
-      'importer/firefox3_importer.cc',
-      'importer/ie_importer.cc',
-      'importer/toolbar_importer.cc',
       'jankometer.cc',
       'login_prompt.cc',
       'memory_details.cc',
@@ -726,6 +718,7 @@ if not env.Bit('windows'):
       'browser_main_win.cc',
       'history/history_publisher_win.cc',
       'importer/firefox_profile_lock_win.cc',
+      'importer/ie_importer.cc',
       'js_before_unload_handler_win.cc',
       'jsmessage_box_handler_win.cc',
       'password_manager/ie7_password.cc',
