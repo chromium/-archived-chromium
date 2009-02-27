@@ -997,7 +997,10 @@ LRESULT CustomFrameWindow::OnNCActivate(BOOL active) {
     PaintNow(root_view_->GetScheduledPaintRect());
   }
 
-  return TRUE;
+  // Defering to our parent as it is important that the NCActivate message gets
+  // DefProc'ed or the task bar won't show our process as active.
+  // See bug http://crbug.com/4513.
+  return Window::OnNCActivate(active);
 }
 
 LRESULT CustomFrameWindow::OnNCCalcSize(BOOL mode, LPARAM l_param) {
