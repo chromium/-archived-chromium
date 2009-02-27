@@ -250,6 +250,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   amount = OutputBufferExcess(dest_buffer, available_space);
   *dest_len += amount;
   dest_buffer += amount;
+  available_space -= amount;
   if (0 == available_space && !dest_buffer_excess_.empty())
       return FILTER_OK;
   return FILTER_NEED_MORE_DATA;
