@@ -32,9 +32,9 @@
 #include "base/string_util.h"
 #if defined(OS_WIN)
 #include "base/win_util.h"
-#include "chrome/browser/renderer_host/render_process_host.h"
 #endif
 #include "chrome/app/scoped_ole_initializer.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_paths.h"
@@ -46,6 +46,9 @@
 #if defined(OS_WIN)
 #include "sandbox/src/sandbox.h"
 #include "tools/memory_watcher/memory_watcher.h"
+#endif
+#if defined(OS_MACOSX)
+#include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 #endif
 
 extern int BrowserMain(const MainFunctionParams&);
@@ -275,13 +278,18 @@ int ChromeMain(int argc, const char** argv) {
   if (!user_data_dir.empty())
     PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
-#if defined(OS_WIN)
-  // TODO(port): pull in when render_process_host.h compiles on posix. There's
-  // nothing win-specific about these lines.
   bool single_process =
     parsed_command_line.HasSwitch(switches::kSingleProcess);
   if (single_process)
     RenderProcessHost::set_run_renderer_in_process(true);
+#if defined(OS_MACOSX)
+  // TODO(port-mac): This is from renderer_main_platform_delegate.cc.
+  // shess tried to refactor things appropriately, but it sprawled out
+  // of control because different platforms needed different styles of
+  // initialization.  Try again once we understand the process
+  // architecture needed and where it should live.
+  if (single_process)
+    InitWebCoreSystemInterface();
 #endif
 
   bool icu_result = icu_util::Initialize();
