@@ -16,7 +16,7 @@ AlternateNavURLFetcher::AlternateNavURLFetcher(
     const GURL& alternate_nav_url)
     : LinkInfoBarDelegate(NULL),
       alternate_nav_url_(alternate_nav_url),
-      controller_(NULL), 
+      controller_(NULL),
       state_(NOT_STARTED),
       navigated_to_entry_(false),
       infobar_contents_(NULL) {
@@ -44,7 +44,8 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
       state_ = IN_PROGRESS;
       fetcher_.reset(new URLFetcher(GURL(alternate_nav_url_), URLFetcher::HEAD,
                                     this));
-      fetcher_->set_request_context(controller_->profile()->GetRequestContext());
+      fetcher_->set_request_context(
+          controller_->profile()->GetRequestContext());
       fetcher_->Start();
       break;
 

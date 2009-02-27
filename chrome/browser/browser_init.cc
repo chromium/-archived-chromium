@@ -143,7 +143,7 @@ enum LaunchMode {
   LM_SHORTCUT_QUICKLAUNCH,    // Launched from the quick launch bar.
   LM_SHORTCUT_DESKTOP,        // Launched from a desktop shortcut.
   LM_SHORTCUT_STARTMENU,      // Launched from start menu.
-  LM_LINUX_MAC_BEOS           // Other OS buckets start here. 
+  LM_LINUX_MAC_BEOS           // Other OS buckets start here.
 };
 
 #if defined(OS_WIN)

@@ -31,22 +31,22 @@ std::wstring WindowCaptionFromPageTitle(std::wstring page_title) {
 
 class BrowserTest : public UITest {
  protected:
-   HWND GetMainWindow() {
-     scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-     scoped_ptr<WindowProxy> window(browser->GetWindow());
+  HWND GetMainWindow() {
+    scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+    scoped_ptr<WindowProxy> window(browser->GetWindow());
 
-     HWND window_handle;
-     EXPECT_TRUE(window->GetHWND(&window_handle));
-     return window_handle;
-   }
+    HWND window_handle;
+    EXPECT_TRUE(window->GetHWND(&window_handle));
+    return window_handle;
+  }
 
-   std::wstring GetWindowTitle() {
-     HWND window_handle = GetMainWindow();
-     std::wstring result;
-     int length = ::GetWindowTextLength(window_handle) + 1;
-     ::GetWindowText(window_handle, WriteInto(&result, length), length);
-     return result;
-   }
+  std::wstring GetWindowTitle() {
+    HWND window_handle = GetMainWindow();
+    std::wstring result;
+    int length = ::GetWindowTextLength(window_handle) + 1;
+    ::GetWindowText(window_handle, WriteInto(&result, length), length);
+    return result;
+  }
 };
 
 class VisibleBrowserTest : public UITest {
@@ -196,7 +196,7 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
   int orig_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&orig_tab_count));
   int orig_process_count = GetBrowserProcessCount();
-  ASSERT_TRUE(orig_process_count >= 1);
+  ASSERT_GE(orig_process_count, 1);
 
   // Use JavaScript URL to "fork" a new tab, just like Gmail.  (Open tab to a
   // blank page, set its opener to null, and redirect it cross-site.)
@@ -236,7 +236,7 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
   int orig_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&orig_tab_count));
   int orig_process_count = GetBrowserProcessCount();
-  ASSERT_TRUE(orig_process_count >= 1);
+  ASSERT_GE(orig_process_count, 1);
 
   // Use JavaScript URL to almost fork a new tab, but not quite.  (Leave the
   // opener non-null.)  Should not fork a process.

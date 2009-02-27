@@ -16,11 +16,11 @@ void AutofillManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kFormAutofillEnabled, true);
 }
 
-AutofillManager::AutofillManager(WebContents* web_contents) :
-    web_contents_(web_contents),
-    pending_query_handle_(0),
-    node_id_(0),
-    request_id_(0) {
+AutofillManager::AutofillManager(WebContents* web_contents)
+    : web_contents_(web_contents),
+      pending_query_handle_(0),
+      node_id_(0),
+      request_id_(0) {
   form_autofill_enabled_.Init(prefs::kFormAutofillEnabled,
       profile()->GetPrefs(), NULL);
 }

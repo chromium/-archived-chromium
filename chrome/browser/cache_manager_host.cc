@@ -41,7 +41,7 @@ int GetDefaultCacheSize() {
   return default_cache_size;
 }
 
-}
+}  // anonymous namespace
 
 // static
 void CacheManagerHost::RegisterPrefs(PrefService* prefs) {
@@ -373,4 +373,3 @@ void CacheManagerHost::FindInactiveRenderers() {
     ++iter;
   }
 }
-
