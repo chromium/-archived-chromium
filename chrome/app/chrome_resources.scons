@@ -28,6 +28,7 @@ if env.Bit('linux'):
        '$TARGET_ROOT/grit_derived_sources/debugger_resources.pak',
        '$TARGET_ROOT/grit_derived_sources/common_resources.pak',
        '$TARGET_ROOT/grit_derived_sources/renderer_resources.pak',
+       '$TARGET_ROOT/grit_derived_sources/webkit_resources.pak',
       ]
   )
   i = env.Install('$DESTINATION_ROOT', chrome_pak)

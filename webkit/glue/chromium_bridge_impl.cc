@@ -222,6 +222,14 @@ PassRefPtr<Image> ChromiumBridge::loadPlatformImageResource(const char* name) {
     resource_id = IDR_TICKMARK_DASH;
   } else if (!strcmp(name, "panIcon")) {
     resource_id = IDR_PAN_SCROLL_ICON;
+  } else if (!strcmp(name, "linuxCheckboxOff")) {
+    resource_id = IDR_LINUX_CHECKBOX_OFF;
+  } else if (!strcmp(name, "linuxCheckboxOn")) {
+    resource_id = IDR_LINUX_CHECKBOX_ON;
+  } else if (!strcmp(name, "linuxRadioOff")) {
+    resource_id = IDR_LINUX_RADIO_OFF;
+  } else if (!strcmp(name, "linuxRadioOn")) {
+    resource_id = IDR_LINUX_RADIO_ON;
   } else if (!strcmp(name, "deleteButton")) {
     if (webkit_glue::IsLayoutTestMode()) {
       RefPtr<Image> image = BitmapImage::create();
