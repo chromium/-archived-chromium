@@ -246,7 +246,7 @@ Channel::ChannelImpl::ChannelImpl(const std::wstring& channel_id, Mode mode,
       is_blocked_on_write_(false),
       message_send_bytes_written_(0),
       uses_fifo_(CommandLine::ForCurrentProcess()->HasSwitch(
-                     switches::kTestingChannelID)),
+                     switches::kIPCUseFIFO)),
       server_listen_pipe_(-1),
       pipe_(-1),
       client_pipe_(-1),
