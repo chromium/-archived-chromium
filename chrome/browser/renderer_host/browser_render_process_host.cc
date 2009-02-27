@@ -833,9 +833,17 @@ void BrowserRenderProcessHost::OnUpdatedCacheStats(
 void BrowserRenderProcessHost::SetBackgrounded(bool backgrounded) {
   // If the process_ is NULL, the process hasn't been created yet.
   if (process_.handle()) {
-    bool rv = process_.SetProcessBackgrounded(backgrounded);
-    if (!rv) {
-      return;
+    // The cbstext.dll loads as a global GetMessage hook in the browser process
+    // and intercepts/unintercepts the kernel32 API SetPriorityClass in a
+    // background thread. If the UI thread invokes this API just when it is
+    // intercepted the stack is messed up on return from the interceptor
+    // which causes random crashes in the browser process. Our hack for now
+    // is to not invoke the SetPriorityClass API if the dll is loaded.
+    if (!GetModuleHandle(L"cbstext.dll")) {
+      bool rv = process_.SetProcessBackgrounded(backgrounded);
+      if (!rv) {
+        return;
+      }
     }
 
     // Now tune the memory footprint of the renderer.
