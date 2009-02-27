@@ -26,6 +26,8 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #define max max
 #define min min
 #include <v8.h>
@@ -82,7 +84,7 @@ static v8::Local<v8::String> NPIdentifierToV8Identifier(NPIdentifier name)
         return v8::String::New(static_cast<const char *>(identifier->value.string));
 
     char buf[32];
-    snprintf(buf, 32, "%d", identifier->value.number);
+    sprintf(buf, "%d", identifier->value.number);
     return v8::String::New(buf);
 }
 
