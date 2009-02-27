@@ -5,53 +5,31 @@
 #include "chrome/common/chrome_paths_internal.h"
 
 #include <glib.h>
-#include <stdlib.h>
-
 #include "base/file_path.h"
 #include "base/logging.h"
-#include "base/path_service.h"
-#include "chrome/third_party/xdg_user_dirs/xdg_user_dir_lookup.h"
 
 namespace {
-
-FilePath GetHomeDir() {
-  const char *home_dir = getenv("HOME");
-
-  if (home_dir && home_dir[0])
-    return FilePath(home_dir);
-
-  home_dir = g_get_home_dir();
-  if (home_dir && home_dir[0])
-    return FilePath(home_dir);
-
-  FilePath rv;
-  if (PathService::Get(base::DIR_TEMP, &rv))
-    return rv;
-
-  /* last resort */
-  return FilePath("/tmp/");
-}
-
-// Wrapper around xdg_user_dir_lookup() from
-// src/chrome/third_party/xdg-user-dirs
-FilePath GetXDGUserDirectory(const char* env_name, const char* fallback_dir) {
-  char* xdg_dir = xdg_user_dir_lookup(env_name);
-  if (xdg_dir) {
-    FilePath rv(xdg_dir);
-    free(xdg_dir);
-    return rv;
-  }
-  return GetHomeDir().Append(fallback_dir);
-}
 
 // |env_name| is the name of an environment variable that we want to use to get
 // a directory path. |fallback_dir| is the directory relative to $HOME that we
 // use if |env_name| cannot be found or is empty. |fallback_dir| may be NULL.
-FilePath GetXDGDirectory(const char* env_name, const char* fallback_dir) {
-  const char* env_value = getenv(env_name);
-  if (env_value && env_value[0])
-    return FilePath(env_value);
-  return GetHomeDir().Append(fallback_dir);
+// TODO(thestig): Don't use g_getenv() here because most of the time XDG
+// environment variables won't actually be loaded.
+FilePath GetStandardDirectory(const char* env_name, const char* fallback_dir) {
+  FilePath rv;
+  const char* env_value = g_getenv(env_name);
+  if (env_value && env_value[0]) {
+    rv = FilePath(env_value);
+  } else {
+    const char* home_dir = g_getenv("HOME");
+    if (!home_dir)
+      home_dir = g_get_home_dir();
+    rv = FilePath(home_dir);
+    if (fallback_dir)
+      rv = rv.Append(fallback_dir);
+  }
+
+  return rv;
 }
 
 }  // namespace
@@ -64,7 +42,7 @@ namespace chrome {
 // ~/.config/google-chrome/ for official builds.
 // (This also helps us sidestep issues with other apps grabbing ~/.chromium .)
 bool GetDefaultUserDataDirectory(FilePath* result) {
-  FilePath config_dir(GetXDGDirectory("XDG_CONFIG_HOME", ".config"));
+  FilePath config_dir = GetStandardDirectory("XDG_CONFIG_HOME", ".config");
 #if defined(GOOGLE_CHROME_BUILD)
   *result = config_dir.Append("google-chrome");
 #else
@@ -74,12 +52,12 @@ bool GetDefaultUserDataDirectory(FilePath* result) {
 }
 
 bool GetUserDocumentsDirectory(FilePath* result) {
-  *result = GetXDGUserDirectory("DOCUMENTS", "Documents");
+  *result = GetStandardDirectory("XDG_DOCUMENTS_DIR", "Documents");
   return true;
 }
 
 bool GetUserDesktop(FilePath* result) {
-  *result = GetXDGUserDirectory("DESKTOP", "Desktop");
+  *result = GetStandardDirectory("XDG_DESKTOP_DIR", "Desktop");
   return true;
 }
 
