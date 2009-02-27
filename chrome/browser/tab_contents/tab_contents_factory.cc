@@ -60,12 +60,12 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_NATIVE_UI:
       contents = new NativeUIContents(profile);
       break;
+#endif  // defined(OS_WIN)
     case TAB_CONTENTS_DEBUGGER:
     case TAB_CONTENTS_NEW_TAB_UI:
     case TAB_CONTENTS_DOM_UI:
       contents = new DOMUIContents(profile, instance, NULL);
       break;
-#endif  // defined(OS_WIN)
     default:
       if (g_extra_types) {
         TabContentsFactoryMap::const_iterator it = g_extra_types->find(type);
@@ -114,13 +114,14 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
 
   if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))
     return TAB_CONTENTS_DOM_UI;
-
 #elif defined(OS_POSIX)
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
   if (BrowserURLHandler::HandleBrowserURL(url, &type) &&
       type == TAB_CONTENTS_ABOUT_UI) {
     return type;
   }
+  if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))
+    return TAB_CONTENTS_DOM_UI;
   NOTIMPLEMENTED();
 #endif
 

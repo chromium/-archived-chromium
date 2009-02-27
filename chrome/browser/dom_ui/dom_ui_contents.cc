@@ -233,12 +233,13 @@ const std::string DOMUIContents::GetScheme() {
 }
 
 DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
-#if defined(OS_WIN)
-// TODO(port): include this once these are converted to HTML
   if (url.host() == NewTabUI::GetBaseURL().host() ||
       url.SchemeIs(chrome::kChromeInternalScheme)) {
     return new NewTabUI(this);
-  } else if (url.host() == HistoryUI::GetBaseURL().host()) {
+  }
+#if defined(OS_WIN)
+// TODO(port): include this once these are converted to HTML
+  if (url.host() == HistoryUI::GetBaseURL().host()) {
     return new HistoryUI(this);
   } else if (url.host() == DownloadsUI::GetBaseURL().host()) {
     return new DownloadsUI(this);

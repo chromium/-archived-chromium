@@ -485,7 +485,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   int32 GetMaxPageID();
   void UpdateMaxPageID(int32);
   virtual bool NavigateToPendingEntry(bool) { NOTIMPLEMENTED(); return true; }
-  virtual DOMUIHost* AsDOMUIHost() { NOTIMPLEMENTED(); return NULL; }
+  virtual DOMUIHost* AsDOMUIHost() { return NULL; }
   virtual std::wstring GetStatusText() const { return std::wstring(); }
   static void RegisterUserPrefs(PrefService* prefs) {
     prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
