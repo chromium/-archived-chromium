@@ -2096,6 +2096,8 @@
         '../third_party/WebKit/WebCore/platform/graphics/chromium/SimpleFontDataLinux.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/ThemeHelperChromiumWin.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/ThemeHelperChromiumWin.h',
+        '../third_party/WebKit/WebCore/platform/graphics/chromium/TransparencyWin.cpp',
+        '../third_party/WebKit/WebCore/platform/graphics/chromium/TransparencyWin.h',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/UniscribeHelper.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/UniscribeHelper.h',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/UniscribeHelperTextRun.cpp',
