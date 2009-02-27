@@ -16,6 +16,7 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "chrome/browser/autocomplete/history_url_provider.h"
+#include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -44,6 +45,135 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
+
+//--------------------------------------------------------------------------
+
+WebContents* AutomationProvider::GetWebContentsForHandle(
+    int handle, NavigationController** tab) {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+void AutomationProvider::GetActiveWindow(int* handle) { NOTIMPLEMENTED(); }
+
+void AutomationProvider::IsWindowActive(int handle, bool* success,
+                                        bool* is_active) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::ActivateWindow(int handle) { NOTIMPLEMENTED(); }
+
+void AutomationProvider::SetWindowVisible(int handle, bool visible,
+                                          bool* result) { NOTIMPLEMENTED(); }
+
+void AutomationProvider::GetFocusedViewID(int handle, int* view_id) {
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::OpenNewBrowserWindow(int show_command) {
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::GetWindowForBrowser(int browser_handle,
+                                             bool* success,
+                                             int* handle) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::GetAutocompleteEditForBrowser(
+    int browser_handle,
+    bool* success,
+    int* autocomplete_edit_handle) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::GetBrowserForWindow(int window_handle,
+                                             bool* success,
+                                             int* browser_handle) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::GetSecurityState(int handle, bool* success,
+                                          SecurityStyle* security_style,
+                                          int* ssl_cert_status,
+                                          int* mixed_content_status) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::GetPageType(int handle, bool* success,
+                                     NavigationEntry::PageType* page_type) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::ActionOnSSLBlockingPage(int handle, bool proceed,
+                                                 IPC::Message* reply_message) {
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::PrintNow(int tab_handle,
+                                  IPC::Message* reply_message) {
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::SavePage(int tab_handle,
+                                  const std::wstring& file_name,
+                                  const std::wstring& dir_path,
+                                  int type,
+                                  bool* success) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::GetAutocompleteEditText(int autocomplete_edit_handle,
+                                                 bool* success,
+                                                 std::wstring* text) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::SetAutocompleteEditText(int autocomplete_edit_handle,
+                                                 const std::wstring& text,
+                                                 bool* success) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::AutocompleteEditGetMatches(
+    int autocomplete_edit_handle,
+    bool* success,
+    std::vector<AutocompleteMatchData>* matches) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::AutocompleteEditIsQueryInProgress(
+    int autocomplete_edit_handle,
+    bool* success,
+    bool* query_in_progress) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::OnMessageFromExternalHost(
+    int handle, const std::string& target, const std::string& message) {
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
+                                                  int* dialog_button) {
+  NOTIMPLEMENTED();
+}
+
+void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
+  *success = false;
+  NOTIMPLEMENTED();
+}
 
 //--------------------------------------------------------------------------
 
