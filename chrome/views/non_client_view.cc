@@ -3,11 +3,82 @@
 // found in the LICENSE file.
 
 #include "chrome/views/non_client_view.h"
+#include "chrome/views/widget.h"
 
 namespace views {
 
 const int NonClientView::kFrameShadowThickness = 1;
 const int NonClientView::kClientEdgeThickness = 1;
+
+////////////////////////////////////////////////////////////////////////////////
+// NonClientView, public:
+
+NonClientView::NonClientView() : paint_as_active_(false) {
+}
+
+NonClientView::~NonClientView() {
+}
+
+bool NonClientView::CanClose() const {
+  return client_view_->CanClose();
+}
+
+void NonClientView::WindowClosing() {
+  client_view_->WindowClosing();
+}
+
+gfx::Rect NonClientView::CalculateClientAreaBounds(int width,
+                                                   int height) const {
+  return gfx::Rect();
+}
+
+gfx::Size NonClientView::CalculateWindowSizeForClientSize(int width,
+                                                          int height) const {
+  return gfx::Size();
+}
+
+gfx::Point NonClientView::GetSystemMenuPoint() const {
+  CPoint temp(0, -kFrameShadowThickness);
+  MapWindowPoints(GetWidget()->GetHWND(), HWND_DESKTOP, &temp, 1);
+  return gfx::Point(temp);
+}
+
+int NonClientView::NonClientHitTest(const gfx::Point& point) {
+  return client_view_->NonClientHitTest(point);
+}
+
+void NonClientView::GetWindowMask(const gfx::Size& size,
+                                  gfx::Path* window_mask) {
+}
+
+void NonClientView::EnableClose(bool enable) {
+}
+
+void NonClientView::ResetWindowControls() {
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// NonClientView, View overrides:
+
+gfx::Size NonClientView::GetPreferredSize() {
+  return client_view_->GetPreferredSize();
+}
+
+void NonClientView::Layout() {
+  client_view_->SetBounds(0, 0, width(), height());
+}
+
+void NonClientView::ViewHierarchyChanged(bool is_add, View* parent,
+                                         View* child) {
+  // Add our Client View as we are added to the Widget so that if we are
+  // subsequently resized all the parent-child relationships are established.
+  if (is_add && GetWidget() && child == this)
+    AddChildView(client_view_);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// NonClientView, protected:
 
 int NonClientView::GetHTComponentForFrame(const gfx::Point& point,
                                           int top_resize_border_height,

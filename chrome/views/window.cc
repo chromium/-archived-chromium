@@ -130,7 +130,7 @@ void Window::Close() {
     return;
   }
 
-  if (client_view_->CanClose()) {
+  if (non_client_view_->CanClose()) {
     SaveWindowPosition();
     RestoreEnabledIfNecessary();
     WidgetWin::Close();
@@ -251,8 +251,7 @@ Window::Window(WindowDelegate* window_delegate)
     : WidgetWin(),
       focus_on_creation_(true),
       window_delegate_(window_delegate),
-      non_client_view_(NULL),
-      client_view_(NULL),
+      non_client_view_(new NonClientView),
       owning_hwnd_(NULL),
       minimum_size_(100, 100),
       is_modal_(false),
@@ -307,24 +306,8 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
   }
 }
 
-void Window::SetClientView(ClientView* client_view) {
-  DCHECK(client_view && !client_view_ && GetHWND());
-  client_view_ = client_view;
-  if (non_client_view_) {
-    // This will trigger the ClientView to be added by the non-client view.
-    WidgetWin::SetContentsView(non_client_view_);
-  } else {
-    WidgetWin::SetContentsView(client_view_);
-  }
-}
-
 void Window::SizeWindowToDefault() {
-  gfx::Size pref;
-  if (non_client_view_) {
-    pref = non_client_view_->GetPreferredSize();
-  } else {
-    pref = client_view_->GetPreferredSize();
-  }
+  gfx::Size pref = non_client_view_->GetPreferredSize();
   DCHECK(pref.width() > 0 && pref.height() > 0);
   // CenterAndSizeWindow adjusts the window size to accommodate the non-client
   // area.
@@ -374,10 +357,8 @@ void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
 }
 
 void Window::OnDestroy() {
-  if (client_view_) {
-    client_view_->WindowClosing();
-    window_delegate_ = NULL;
-  }
+  non_client_view_->WindowClosing();
+  window_delegate_ = NULL;
   RestoreEnabledIfNecessary();
   WidgetWin::OnDestroy();
 }
@@ -396,12 +377,7 @@ LRESULT Window::OnNCHitTest(const CPoint& point) {
   // of the non-client area.
   CPoint temp = point;
   MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
-  int component = HTNOWHERE;
-  if (non_client_view_) {
-    component = non_client_view_->NonClientHitTest(gfx::Point(temp));
-  } else {
-    component = client_view_->NonClientHitTest(gfx::Point(temp));
-  }
+  int component = non_client_view_->NonClientHitTest(gfx::Point(temp));
   if (component != HTNOWHERE)
     return component;
 
@@ -412,19 +388,10 @@ LRESULT Window::OnNCHitTest(const CPoint& point) {
 }
 
 void Window::OnNCLButtonDown(UINT ht_component, const CPoint& point) {
-  if (ht_component == HTSYSMENU) {
-    gfx::Point system_menu_point;
-    if (non_client_view_) {
-      system_menu_point = non_client_view_->GetSystemMenuPoint();
-    } else {
-      CPoint temp(0, -NonClientView::kFrameShadowThickness);
-      MapWindowPoints(GetHWND(), HWND_DESKTOP, &temp, 1);
-      system_menu_point = gfx::Point(temp);
-    }
-    RunSystemMenu(system_menu_point);
-  } else {
+  if (ht_component == HTSYSMENU)
+    RunSystemMenu(non_client_view_->GetSystemMenuPoint());
+  else
     WidgetWin::OnNCLButtonDown(ht_component, point);
-  }
 }
 
 void Window::OnNCRButtonDown(UINT ht_component, const CPoint& point) {
@@ -479,8 +446,7 @@ void Window::OnSysCommand(UINT notification_code, CPoint click) {
 
     // Now change the actual window's behavior.
     AlwaysOnTopChanged();
-  } else if ((notification_code == SC_KEYMENU) && (click.x == VK_SPACE) &&
-             non_client_view_) {
+  } else if ((notification_code == SC_KEYMENU) && (click.x == VK_SPACE)) {
     // Run the system menu at the NonClientView's desired location.
     RunSystemMenu(non_client_view_->GetSystemMenuPoint());
   } else {
@@ -492,6 +458,13 @@ void Window::OnSysCommand(UINT notification_code, CPoint click) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Window, private:
+
+void Window::SetClientView(ClientView* client_view) {
+  DCHECK(client_view && GetHWND());
+  non_client_view_->set_client_view(client_view);
+  // This will trigger the ClientView to be added by the non-client view.
+  WidgetWin::SetContentsView(non_client_view_);
+}
 
 void Window::BecomeModal() {
   // We implement modality by crawling up the hierarchy of windows starting

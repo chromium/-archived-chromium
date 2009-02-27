@@ -96,15 +96,6 @@ void CustomFrameWindow::Init(HWND parent, const gfx::Rect& bounds) {
   ResetWindowRegion();
 }
 
-void CustomFrameWindow::SetClientView(ClientView* cv) {
-  DCHECK(cv && !client_view() && GetHWND());
-  set_client_view(cv);
-  // For a CustomFrameWindow, the non-client view is the root.
-  WidgetWin::SetContentsView(non_client_view_);
-  // When the non client view is added to the view hierarchy, it will cause the
-  // client view to be added as well.
-}
-
 gfx::Size CustomFrameWindow::CalculateWindowSizeForClientSize(
     const gfx::Size& client_size) const {
   return non_client_view_->CalculateWindowSizeForClientSize(

@@ -35,7 +35,6 @@ class CustomFrameWindow : public Window {
 
   // Overridden from Window:
   virtual void Init(HWND parent, const gfx::Rect& bounds);
-  virtual void SetClientView(ClientView* client_view);
   virtual gfx::Size CalculateWindowSizeForClientSize(
       const gfx::Size& client_size) const;
   virtual void UpdateWindowTitle();

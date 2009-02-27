@@ -6,6 +6,8 @@
 #define CHROME_VIEWS_WINDOW_H__
 
 #include "chrome/common/notification_registrar.h"
+#include "chrome/views/client_view.h"
+#include "chrome/views/non_client_view.h"
 #include "chrome/views/widget_win.h"
 
 namespace gfx {
@@ -15,7 +17,6 @@ class Size;
 
 namespace views {
 
-class ClientView;
 class Client;
 class NonClientView;
 class WindowDelegate;
@@ -91,9 +92,6 @@ class Window : public WidgetWin,
 
   WindowDelegate* window_delegate() const { return window_delegate_; }
 
-  // Returns the ClientView object used by this Window.
-  ClientView* client_view() const { return client_view_; }
-
   void set_focus_on_creation(bool focus_on_creation) {
     focus_on_creation_ = focus_on_creation;
   }
@@ -109,6 +107,9 @@ class Window : public WidgetWin,
 
   // The parent of this window.
   HWND owning_window() const { return owning_hwnd_; }
+
+  // Shortcut to access the ClientView associated with this window.
+  ClientView* client_view() const { return non_client_view_->client_view(); }
 
   // Returns the preferred size of the contents view of this window based on
   // its localized size data. The width in cols is held in a localized string
@@ -135,15 +136,6 @@ class Window : public WidgetWin,
   // centered on screen.
   virtual void Init(HWND parent, const gfx::Rect& bounds);
 
-  // Sets the specified view as the ClientView of this Window. The ClientView
-  // is responsible for laying out the Window's contents view, as well as
-  // performing basic hit-testing, and perhaps other responsibilities depending
-  // on the implementation. The Window's view hierarchy takes ownership of the
-  // ClientView unless the ClientView specifies otherwise. This must be called
-  // only once, and after the native window has been created.
-  // This is called by Init. |client_view| cannot be NULL.
-  virtual void SetClientView(ClientView* client_view);
-
   // Sizes the window to the default size specified by its ClientView.
   virtual void SizeWindowToDefault();
 
@@ -151,8 +143,6 @@ class Window : public WidgetWin,
   // window which when it is the last of its type closed causes the application
   // to exit.
   virtual bool IsAppWindow() const { return false; }
-
-  void set_client_view(ClientView* client_view) { client_view_ = client_view; }
 
   // Shows the system menu at the specified screen point.
   void RunSystemMenu(const gfx::Point& point);
@@ -183,6 +173,15 @@ class Window : public WidgetWin,
   }
 
  private:
+  // Sets the specified view as the ClientView of this Window. The ClientView
+  // is responsible for laying out the Window's contents view, as well as
+  // performing basic hit-testing, and perhaps other responsibilities depending
+  // on the implementation. The Window's view hierarchy takes ownership of the
+  // ClientView unless the ClientView specifies otherwise. This must be called
+  // only once, and after the native window has been created.
+  // This is called by Init. |client_view| cannot be NULL.
+  void SetClientView(ClientView* client_view);
+
   // Set the window as modal (by disabling all the other windows).
   void BecomeModal();
 
@@ -218,11 +217,6 @@ class Window : public WidgetWin,
   // Static resource initialization.
   static void InitClass();
   static HCURSOR nwse_cursor_;
-
-  // A ClientView object or subclass, responsible for sizing the contents view
-  // of the window, hit testing and perhaps other tasks depending on the
-  // implementation.
-  ClientView* client_view_;
 
   // Our window delegate (see Init method for documentation).
   WindowDelegate* window_delegate_;
