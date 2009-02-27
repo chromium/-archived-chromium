@@ -224,17 +224,17 @@ void TabContents::UpdateMaxPageID(int32 page_id) {
 //--------------------------------------------------------------------------
 
 void RLZTracker::CleanupRlz() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8152
 }
 
 bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8152
   return false;
 }
 
 bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
                                     Event event) {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=8152
   return false;
 }
 
