@@ -647,9 +647,14 @@ void ImporterHost::DetectFirefoxProfiles() {
     return;
   }
 
-  std::wstring ini_file = GetProfilesINI();
   DictionaryValue root;
+#if defined(OS_WIN)
+  std::wstring ini_file = GetProfilesINI();
   ParseProfileINI(ini_file, &root);
+#else
+  // TODO(port): Do we need to concern ourselves with profiles on posix?
+  NOTIMPLEMENTED();
+#endif
 
   std::wstring source_path;
   for (int i = 0; ; ++i) {
@@ -664,6 +669,7 @@ void ImporterHost::DetectFirefoxProfiles() {
         root.GetString(current_profile + L".Path", &path)) {
       ReplaceSubstringsAfterOffset(&path, 0, L"/", L"\\");
 
+#if defined(OS_WIN)
       // IsRelative=1 means the folder path would be relative to the
       // path of profiles.ini. IsRelative=0 refers to a custom profile
       // location.
@@ -673,6 +679,7 @@ void ImporterHost::DetectFirefoxProfiles() {
       } else {
         profile_path = path;
       }
+#endif
 
       // We only import the default profile when multiple profiles exist,
       // since the other profiles are used mostly by developers for testing.
