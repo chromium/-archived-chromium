@@ -494,17 +494,24 @@ bool WebPluginDelegateProxy::BackgroundChanged(
     return true;
   }
 
-  int row_byte_size = rect.width() * (bitmap.bmBitsPixel / 8);
-  for (int y = rect.y(); y < rect.bottom(); y++) {
+  // The damaged rect that we're given can be larger than the bitmap, so
+  // intersect their rects first.
+  gfx::Rect bitmap_rect(static_cast<int>(-xf.eDx), static_cast<int>(-xf.eDy),
+                        bitmap.bmWidth, bitmap.bmHeight);
+  gfx::Rect check_rect(rect);
+  check_rect.Intersect(bitmap_rect);
+
+  int row_byte_size = check_rect.width() * (bitmap.bmBitsPixel / 8);
+  for (int y = check_rect.y(); y < check_rect.bottom(); y++) {
     char* hdc_row_start = static_cast<char*>(bitmap.bmBits) +
         (y + static_cast<int>(xf.eDy)) * bitmap.bmWidthBytes +
-        (rect.x() + static_cast<int>(xf.eDx)) * (bitmap.bmBitsPixel / 8);
+        (check_rect.x() + static_cast<int>(xf.eDx)) * (bitmap.bmBitsPixel / 8);
 
     // getAddr32 doesn't use the translation units, so we have to subtract
     // the plugin origin from the coordinates.
     uint32_t* canvas_row_start =
         background_store_canvas_->getDevice()->accessBitmap(true).getAddr32(
-            rect.x() - plugin_rect_.x(), y - plugin_rect_.y());
+            check_rect.x() - plugin_rect_.x(), y - plugin_rect_.y());
     if (memcmp(hdc_row_start, canvas_row_start, row_byte_size) != 0)
       return true;
   }
