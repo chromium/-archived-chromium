@@ -12,9 +12,14 @@ import optparse
 import os
 import re
 import shutil
-import simplejson as json
 import sys
 import zipfile
+
+if sys.version_info < (2, 6):
+  import simplejson as json
+else:
+  import json
+
 
 ignore_dirs = [".svn", "CVS"]
 ignore_files = [re.compile(".*~")]
