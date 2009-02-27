@@ -91,7 +91,7 @@ gfx::NativeView RenderWidgetHostViewMac::GetPluginNativeView() {
 void RenderWidgetHostViewMac::MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {
   // All plugin stuff is TBD. TODO(avi,awalker): fill in
-  NOTIMPLEMENTED();
+  // http://crbug.com/8192
 }
 
 void RenderWidgetHostViewMac::Focus() {
