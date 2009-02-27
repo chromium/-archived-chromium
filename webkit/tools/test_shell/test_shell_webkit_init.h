@@ -16,6 +16,8 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
   TestShellWebKitInit(bool layout_test_mode) {
     WebKit::initialize(this);
 
+    webkit_glue::InitializeForTesting();
+
     // TODO(darin): This should eventually be a property of WebKitClientImpl.
     webkit_glue::SetLayoutTestMode(layout_test_mode);
   }
