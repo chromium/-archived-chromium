@@ -882,7 +882,6 @@ input_files = [
     '$WEBCORE_DIR/svg/graphics/SVGResourceMasker.cpp',
 
     '$WEBCORE_DIR/svg/graphics/skia/SVGResourceFilterSkia.cpp',
-    '$WEBCORE_DIR/svg/graphics/skia/SVGResourceMaskerSkia.cpp',
 
     '$WEBCORE_DIR/workers/Worker.cpp',
     '$WEBCORE_DIR/workers/WorkerContext.cpp',
