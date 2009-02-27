@@ -170,16 +170,17 @@ TEST(ExtensionTest, InitFromValueValid) {
 
   // Test minimal extension
   input_value.SetInteger(Extension::kFormatVersionKey, 1);
-  input_value.SetString(Extension::kIdKey, "com.google.myextension");
+  input_value.SetString(Extension::kIdKey,
+      "00123456789ABCDEF0123456789ABCDEF0123456");
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
 
   EXPECT_TRUE(extension.InitFromValue(input_value, &error));
   EXPECT_EQ("", error);
-  EXPECT_EQ("com.google.myextension", extension.id());
+  EXPECT_EQ("00123456789ABCDEF0123456789ABCDEF0123456", extension.id());
   EXPECT_EQ("1.0.0.0", extension.VersionString());
   EXPECT_EQ("my extension", extension.name());
-  EXPECT_EQ("chrome-extension://com.google.myextension/",
+  EXPECT_EQ("chrome-extension://00123456789abcdef0123456789abcdef0123456/",
             extension.url().spec());
   EXPECT_EQ(path.value(), extension.path().value());
 }
@@ -193,7 +194,8 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
   Extension extension(path);
   DictionaryValue input_value;
   input_value.SetInteger(Extension::kFormatVersionKey, 1);
-  input_value.SetString(Extension::kIdKey, "com.google.myextension");
+  input_value.SetString(Extension::kIdKey,
+      "00123456789ABCDEF0123456789ABCDEF0123456");
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
   EXPECT_TRUE(extension.InitFromValue(input_value, NULL));
