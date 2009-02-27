@@ -37,17 +37,9 @@ class ExtensionsServiceFrontendInterface
   // Load the extension from the directory |extension_path|.
   virtual void LoadExtension(const FilePath& extension_path) = 0;
 
-  // Called when loading an extension fails.
-  virtual void OnExtensionLoadError(bool alert_on_error,
-                                    const std::string& message) = 0;
-
   // Called with results from LoadExtensionsFromDirectory(). The frontend
   // takes ownership of the list.
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions) = 0;
-
-  // Called when installing an extension fails.
-  virtual void OnExtensionInstallError(bool alert_on_error,
-                                       const std::string& message) = 0;
 
   // Called with results from InstallExtension().
   // |is_update| is true if the installation was an update to an existing
@@ -75,11 +67,7 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual MessageLoop* GetMessageLoop();
   virtual void InstallExtension(const FilePath& extension_path);
   virtual void LoadExtension(const FilePath& extension_path);
-  virtual void OnExtensionLoadError(bool alert_on_error,
-                                    const std::string& message);
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions);
-  virtual void OnExtensionInstallError(bool alert_on_error,
-                                       const std::string& message);
   virtual void OnExtensionInstalled(FilePath path, bool is_update);
 
   // The name of the file that the current active version number is stored in.
@@ -118,7 +106,7 @@ class ExtensionsServiceBackend
 
   // Loads extensions from a directory. The extensions are assumed to be
   // unpacked in directories that are direct children of the specified path.
-  // Errors are reported through OnExtensionLoadError(). On completion,
+  // Errors are reported through ExtensionErrorReporter. On completion,
   // OnExtensionsLoadedFromDirectory() is called with any successfully loaded
   // extensions.
   void LoadExtensionsFromDirectory(
@@ -127,7 +115,7 @@ class ExtensionsServiceBackend
 
   // Loads a single extension from |path| where |path| is the top directory of
   // a specific extension where its manifest file lives.
-  // Errors are reported through OnExtensionLoadError(). On completion,
+  // Errors are reported through ExtensionErrorReporter. On completion,
   // OnExtensionsLoadedFromDirectory() is called with any successfully loaded
   // extensions.
   // TODO(erikkay): It might be useful to be able to load a packed extension

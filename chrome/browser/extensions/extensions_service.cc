@@ -14,6 +14,7 @@
 #include "base/values.h"
 #include "net/base/file_stream.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/common/json_value_serializer.h"
@@ -22,7 +23,6 @@
 
 #if defined(OS_WIN)
 #include "base/registry.h"
-#include "chrome/common/win_util.h"
 #endif
 
 // ExtensionsService
@@ -170,31 +170,6 @@ void ExtensionsService::OnExtensionsLoadedFromDirectory(
   delete new_extensions;
 }
 
-void ExtensionsService::OnExtensionLoadError(bool alert_on_error,
-                                             const std::string& error) {
-  // TODO(aa): Print the error message out somewhere better. I think we are
-  // going to need some sort of 'extension inspector'.
-  LOG(WARNING) << error;
-  if (alert_on_error) {
-#if defined(OS_WIN)
-    win_util::MessageBox(NULL, UTF8ToWide(error),
-        L"Extension load error", MB_OK | MB_SETFOREGROUND);
-#endif
-  }
-}
-
-void ExtensionsService::OnExtensionInstallError(bool alert_on_error,
-                                                const std::string& error) {
-  // TODO(erikkay): Print the error message out somewhere better.
-  LOG(WARNING) << error;
-  if (alert_on_error) {
-#if defined(OS_WIN)
-    win_util::MessageBox(NULL, UTF8ToWide(error),
-        L"Extension load error", MB_OK | MB_SETFOREGROUND);
-#endif
-  }
-}
-
 void ExtensionsService::OnExtensionInstalled(FilePath path, bool update) {
   NotificationService::current()->Notify(
       NotificationType::EXTENSION_INSTALLED,
@@ -339,14 +314,11 @@ Extension* ExtensionsServiceBackend::LoadExtension() {
 
 void ExtensionsServiceBackend::ReportExtensionLoadError(
     const std::string &error) {
-
   // TODO(port): note that this isn't guaranteed to work properly on Linux.
   std::string path_str = WideToASCII(extension_path_.ToWStringHack());
   std::string message = StringPrintf("Could not load extension from '%s'. %s",
                                      path_str.c_str(), error.c_str());
-  frontend_->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
-      frontend_, &ExtensionsServiceFrontendInterface::OnExtensionLoadError,
-      alert_on_error_, message));
+  ExtensionErrorReporter::GetInstance()->ReportError(message, alert_on_error_);
 }
 
 void ExtensionsServiceBackend::ReportExtensionsLoaded(
@@ -702,9 +674,7 @@ void ExtensionsServiceBackend::ReportExtensionInstallError(
   std::string message =
       StringPrintf("Could not install extension from '%s'. %s",
                    path_str.c_str(), error.c_str());
-  frontend_->GetMessageLoop()->PostTask(FROM_HERE, NewRunnableMethod(
-      frontend_, &ExtensionsServiceFrontendInterface::OnExtensionInstallError,
-      alert_on_error_, message));
+  ExtensionErrorReporter::GetInstance()->ReportError(message, alert_on_error_);
 }
 
 void ExtensionsServiceBackend::ReportExtensionInstalled(

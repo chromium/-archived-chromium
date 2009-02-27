@@ -506,6 +506,8 @@ input_files = ChromeFileList([
   MSVSFilter('Extensions', [
     'extensions/extension.cc',
     'extensions/extension.h',
+    'extensions/extension_error_reporter.cc',
+    'extensions/extension_error_reporter.h',
     'extensions/extension_protocols.h',
     'extensions/extensions_service.cc',
     'extensions/extensions_service.h',

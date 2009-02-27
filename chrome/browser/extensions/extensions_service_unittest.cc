@@ -12,6 +12,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/browser/extensions/extension.h"
+#include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/json_value_serializer.h"
@@ -25,6 +26,25 @@ struct ExtensionsOrder {
     return a->name() < b->name();
   }
 };
+
+static std::vector<std::string> GetErrors() {
+  const std::vector<std::string>* errors =
+      ExtensionErrorReporter::GetInstance()->GetErrors();
+  std::vector<std::string> ret_val;
+
+  for (std::vector<std::string>::const_iterator iter = errors->begin();
+       iter != errors->end(); ++iter) {
+    if (iter->find(".svn") == std::string::npos) {
+      ret_val.push_back(*iter);
+    }
+  }
+
+  // The tests rely on the errors being in a certain order, which can vary
+  // depending on how filesystem iteration works.
+  std::stable_sort(ret_val.begin(), ret_val.end());
+
+  return ret_val;
+}
 
 }  // namespace
 
@@ -44,10 +64,6 @@ class ExtensionsServiceTestFrontend
          iter != extensions_.end(); ++iter) {
       delete *iter;
     }
-  }
-
-  std::vector<std::string>* errors() {
-    return &errors_;
   }
 
   ExtensionList* extensions() {
@@ -73,29 +89,13 @@ class ExtensionsServiceTestFrontend
   virtual void LoadExtension(const FilePath& extension_path) {
   }
 
-  virtual void OnExtensionLoadError(bool alert_on_error,
-                                    const std::string& message) {
-    // In the development environment, we get errors when trying to load
-    // extensions out of the .svn directories.
-    if (message.find(".svn") != std::string::npos)
-      return;
-
-    errors_.push_back(message);
-  }
-
   virtual void OnExtensionsLoadedFromDirectory(ExtensionList* new_extensions) {
     extensions_.insert(extensions_.end(), new_extensions->begin(),
                        new_extensions->end());
     delete new_extensions;
-    // In the tests we rely on extensions and errors being in particular order,
-    // which is not always the case (and is not guaranteed by used APIs).
+    // In the tests we rely on extensions being in particular order, which is
+    // not always the case (and is not guaranteed by used APIs).
     std::stable_sort(extensions_.begin(), extensions_.end(), ExtensionsOrder());
-    std::stable_sort(errors_.begin(), errors_.end());
-  }
-
-  virtual void OnExtensionInstallError(bool alert_on_error,
-                                       const std::string& message) {
-    errors_.push_back(message);
   }
 
   virtual void OnExtensionInstalled(FilePath path, bool is_update) {
@@ -109,32 +109,42 @@ class ExtensionsServiceTestFrontend
     backend->InstallExtension(path, install_dir_, false,
         scoped_refptr<ExtensionsServiceFrontendInterface>(this));
     message_loop_.RunAllPending();
+    std::vector<std::string> errors = GetErrors();
     if (should_succeed) {
       EXPECT_EQ(1u, installed_.size()) << path.value();
-      EXPECT_EQ(0u, errors_.size()) << path.value();
-      for (std::vector<std::string>::iterator err = errors_.begin();
-        err != errors_.end(); ++err) {
+      EXPECT_EQ(0u, errors.size()) << path.value();
+      for (std::vector<std::string>::iterator err = errors.begin();
+        err != errors.end(); ++err) {
         LOG(ERROR) << *err;
       }
     } else {
       EXPECT_EQ(0u, installed_.size()) << path.value();
-      EXPECT_EQ(1u, errors_.size()) << path.value();
+      EXPECT_EQ(1u, errors.size()) << path.value();
     }
+
     installed_.clear();
-    errors_.clear();
+    ExtensionErrorReporter::GetInstance()->ClearErrors();
   }
 
 
  private:
   MessageLoop message_loop_;
   ExtensionList extensions_;
-  std::vector<std::string> errors_;
   std::vector<FilePath> installed_;
   FilePath install_dir_;
 };
 
 // make the test a PlatformTest to setup autorelease pools properly on mac
-typedef PlatformTest ExtensionsServiceTest;
+class ExtensionsServiceTest : public testing::Test {
+ public:
+  static void SetUpTestCase() {
+    ExtensionErrorReporter::Init(false);  // no noisy errors
+  }
+
+  virtual void SetUp() {
+    ExtensionErrorReporter::GetInstance()->ClearErrors();
+  }
+};
 
 // Test loading good extensions from the profile directory.
 TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
@@ -152,9 +162,9 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
 
-  std::vector<std::string>* errors = frontend->errors();
-  for (std::vector<std::string>::iterator err = errors->begin();
-    err != errors->end(); ++err) {
+  std::vector<std::string> errors = GetErrors();
+  for (std::vector<std::string>::iterator err = errors.begin();
+    err != errors.end(); ++err) {
     LOG(ERROR) << *err;
   }
   ASSERT_EQ(3u, frontend->extensions()->size());
@@ -216,24 +226,24 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
 
-  EXPECT_EQ(4u, frontend->errors()->size());
+  EXPECT_EQ(4u, GetErrors().size());
   EXPECT_EQ(0u, frontend->extensions()->size());
 
-  EXPECT_TRUE(MatchPattern(frontend->errors()->at(0),
+  EXPECT_TRUE(MatchPattern(GetErrors()[0],
       std::string("Could not load extension from '*'. * ") +
-      JSONReader::kBadRootElementType)) << frontend->errors()->at(0);
+      JSONReader::kBadRootElementType)) << GetErrors()[0];
 
-  EXPECT_TRUE(MatchPattern(frontend->errors()->at(1),
+  EXPECT_TRUE(MatchPattern(GetErrors()[1],
       std::string("Could not load extension from '*'. ") +
-      Extension::kInvalidJsListError)) << frontend->errors()->at(1);
+      Extension::kInvalidJsListError)) << GetErrors()[1];
 
-  EXPECT_TRUE(MatchPattern(frontend->errors()->at(2),
+  EXPECT_TRUE(MatchPattern(GetErrors()[2],
       std::string("Could not load extension from '*'. ") +
-      Extension::kInvalidManifestError)) << frontend->errors()->at(2);
+      Extension::kInvalidManifestError)) << GetErrors()[2];
 
-  EXPECT_TRUE(MatchPattern(frontend->errors()->at(3),
+  EXPECT_TRUE(MatchPattern(GetErrors()[3],
       "Could not load extension from '*'. Could not read '*' file.")) <<
-      frontend->errors()->at(3);
+      GetErrors()[3];
 };
 
 // Test installing extensions.
@@ -289,7 +299,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   backend->LoadSingleExtension(ext1,
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
-  EXPECT_EQ(0u, frontend->errors()->size());
+  EXPECT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, frontend->extensions()->size());
 
   FilePath no_manifest = extensions_path.AppendASCII("bad")
@@ -297,7 +307,6 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   backend->LoadSingleExtension(no_manifest,
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
-  EXPECT_EQ(1u, frontend->errors()->size());
+  EXPECT_EQ(1u, GetErrors().size());
   ASSERT_EQ(1u, frontend->extensions()->size());
 }
-

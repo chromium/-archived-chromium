@@ -387,6 +387,7 @@
 		ABFA34C50F4255CC008FCF5D /* libmedia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFA33880F424EC5008FCF5D /* libmedia.a */; };
 		ABFA34C70F425637008FCF5D /* libmedia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFA33880F424EC5008FCF5D /* libmedia.a */; };
 		ABFA34C80F425677008FCF5D /* libmedia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFA33880F424EC5008FCF5D /* libmedia.a */; };
+		AC021BD1578D51C5FC94AA16 /* extension_error_reporter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 68948A0302AADFF9A8419E28 /* extension_error_reporter.cc */; };
 		B0AC9501DED2809AC208AEEA /* resolve_proxy_msg_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F9429998AC2703984BAB828 /* resolve_proxy_msg_helper.cc */; };
 		B502DA280F098056005BE90C /* visit_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA180E9D48F7009A6919 /* visit_database_unittest.cc */; };
 		B502DA520F098888005BE90C /* l10n_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFBC90E9D4C9F009A6919 /* l10n_util.cc */; };
@@ -436,6 +437,7 @@
 		BDBF78593E5B3E355CCF3FF8 /* download_item_model.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9CC0E9D48CE009A6919 /* download_item_model.cc */; };
 		C53EBF7E1E204C3780FD4A7D /* ssl_policy.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D16ED10F21451600861FAC /* ssl_policy.cc */; };
 		C6C256C56BA114D53849523F /* greasemonkey_api_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F43A7C85092C58AAF011F78 /* greasemonkey_api_unittest.cc */; };
+		C81B41FCBD9DDB0BF97B3780 /* extension_error_reporter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 68948A0302AADFF9A8419E28 /* extension_error_reporter.cc */; };
 		C8F5EB819EA38CE9D50AF5B5 /* history.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF9EC0E9D48F7009A6919 /* history.cc */; };
 		CA81330E0F423C4D0096C1DC /* query_parser_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA020E9D48F7009A6919 /* query_parser_unittest.cc */; };
 		CA8133120F423C710096C1DC /* url_database_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFA150E9D48F7009A6919 /* url_database_unittest.cc */; };
@@ -2521,6 +2523,7 @@
 		622534301BD3F4A908D426D0 /* user_data_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = user_data_manager.cc; sourceTree = "<group>"; };
 		629BF493DEA096E2DD844F2B /* autofill_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = autofill_manager.cc; sourceTree = "<group>"; };
 		6447F24FADC63E58A44DB762 /* url_pattern.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = url_pattern.cc; path = extensions/url_pattern.cc; sourceTree = "<group>"; };
+		68948A0302AADFF9A8419E28 /* extension_error_reporter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extension_error_reporter.cc; sourceTree = "<group>"; };
 		699499C4FBA07FB2D7B298A2 /* user_script.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = user_script.cc; path = extensions/user_script.cc; sourceTree = "<group>"; };
 		759B3A1B81E261598122B03B /* v8_unit_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = v8_unit_test.cc; sourceTree = "<group>"; };
 		778D7927798B7E3FAA498D3D /* url_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_fetcher.cc; sourceTree = "<group>"; };
@@ -4695,6 +4698,7 @@
 			children = (
 				E4F324400EE5CE94002533CE /* extension.cc */,
 				E4F324410EE5CE94002533CE /* extension.h */,
+				68948A0302AADFF9A8419E28 /* extension_error_reporter.cc */,
 				E48B6C270F2783E9002E47EC /* extension_protocols.cc */,
 				E48B6C260F2783E9002E47EC /* extension_protocols.h */,
 				E4F324420EE5CE94002533CE /* extension_unittest.cc */,
@@ -5728,6 +5732,7 @@
 				E45075E30F150A6F003BE099 /* download_throttling_resource_handler.cc in Sources */,
 				E4F324470EE5CF1F002533CE /* expire_history_backend.cc in Sources */,
 				E4F324430EE5CE94002533CE /* extension.cc in Sources */,
+				AC021BD1578D51C5FC94AA16 /* extension_error_reporter.cc in Sources */,
 				E48B6C280F2783E9002E47EC /* extension_protocols.cc in Sources */,
 				A54612E20EE995F600A8EE5D /* extensions_service.cc in Sources */,
 				9E85B39CA40439D93CE52E60 /* fav_icon_helper.cc in Sources */,
@@ -5882,6 +5887,7 @@
 				331218330F3C0123006CB2B0 /* debug_message_handler.cc in Sources */,
 				4D7BFB510E9D4C3E009A6919 /* dns_host_info_unittest.cc in Sources */,
 				623E5BE905E098E8280304DA /* dns_master_unittest.cc in Sources */,
+				C81B41FCBD9DDB0BF97B3780 /* extension_error_reporter.cc in Sources */,
 				E4F324950EE5D758002533CE /* extension_unittest.cc in Sources */,
 				A54612DC0EE9958600A8EE5D /* extensions_service_unittest.cc in Sources */,
 				331218300F3C010A006CB2B0 /* external_js_object.cc in Sources */,

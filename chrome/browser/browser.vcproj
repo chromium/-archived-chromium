@@ -1906,6 +1906,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_error_reporter.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_error_reporter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_protocols.cc"
 				>
 			</File>

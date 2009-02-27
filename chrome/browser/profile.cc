@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
@@ -367,6 +368,7 @@ void ProfileImpl::InitExtensions() {
     script_dir = script_dir.Append(chrome::kUserScriptsDirname);
   }
 
+  ExtensionErrorReporter::Init(true);  // allow noisy errors.
   user_script_master_ = new UserScriptMaster(
       g_browser_process->file_thread()->message_loop(), script_dir);
   extensions_service_ = new ExtensionsService(
