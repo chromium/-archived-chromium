@@ -572,6 +572,32 @@ TEST(StringUtilTest, ConvertASCII) {
   EXPECT_EQ(0, string_with_nul.compare(narrow_with_nul));
 }
 
+TEST(StringUtilTest, ToUpperASCII) {
+  EXPECT_EQ('C', ToUpperASCII('C'));
+  EXPECT_EQ('C', ToUpperASCII('c'));
+  EXPECT_EQ('2', ToUpperASCII('2'));
+
+  EXPECT_EQ(L'C', ToUpperASCII(L'C'));
+  EXPECT_EQ(L'C', ToUpperASCII(L'c'));
+  EXPECT_EQ(L'2', ToUpperASCII(L'2'));
+
+  std::string in_place_a("Cc2");
+  StringToUpperASCII(&in_place_a);
+  EXPECT_EQ("CC2", in_place_a);
+
+  std::wstring in_place_w(L"Cc2");
+  StringToUpperASCII(&in_place_w);
+  EXPECT_EQ(L"CC2", in_place_w);
+
+  std::string original_a("Cc2");
+  std::string upper_a = StringToUpperASCII(original_a);
+  EXPECT_EQ("CC2", upper_a);
+
+  std::wstring original_w(L"Cc2");
+  std::wstring upper_w = StringToUpperASCII(original_w);
+  EXPECT_EQ(L"CC2", upper_w);
+}
+
 static const struct {
   const wchar_t* src_w;
   const char*    src_a;

@@ -7,9 +7,10 @@
 #ifndef BASE_STRING_UTIL_H_
 #define BASE_STRING_UTIL_H_
 
+#include <stdarg.h>   // va_list
+
 #include <string>
 #include <vector>
-#include <stdarg.h>   // va_list
 
 #include "base/basictypes.h"
 #include "base/string16.h"
@@ -176,7 +177,7 @@ std::wstring UTF8ToWide(const std::string& utf8);
 bool WideToUTF16(const wchar_t* src, size_t src_len, string16* output);
 string16 WideToUTF16(const std::wstring& wide);
 bool UTF16ToWide(const char16* src, size_t src_len, std::wstring* output);
-std::wstring UTF16ToWide(const string16& utf8);
+std::wstring UTF16ToWide(const string16& utf16);
 
 bool UTF8ToUTF16(const char* src, size_t src_len, string16* output);
 string16 UTF8ToUTF16(const std::string& utf8);
@@ -256,6 +257,26 @@ template <class str> inline str StringToLowerASCII(const str& s) {
   // for std::string and std::wstring
   str output(s);
   StringToLowerASCII(&output);
+  return output;
+}
+
+// ASCII-specific toupper.  The standard library's toupper is locale sensitive,
+// so we don't want to use it here.
+template <class Char> inline Char ToUpperASCII(Char c) {
+  return (c >= 'a' && c <= 'z') ? (c + ('A' - 'a')) : c;
+}
+
+// Converts the elements of the given string.  This version uses a pointer to
+// clearly differentiate it from the non-pointer variant.
+template <class str> inline void StringToUpperASCII(str* s) {
+  for (typename str::iterator i = s->begin(); i != s->end(); ++i)
+    *i = ToUpperASCII(*i);
+}
+
+template <class str> inline str StringToUpperASCII(const str& s) {
+  // for std::string and std::wstring
+  str output(s);
+  StringToUpperASCII(&output);
   return output;
 }
 
