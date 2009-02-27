@@ -331,8 +331,8 @@
         'browser/autocomplete/autocomplete_edit.h',
         'browser/autocomplete/autocomplete_popup_model.cc',
         'browser/autocomplete/autocomplete_popup_model.h',
-        'browser/autocomplete/autocomplete_popup_view_win.cc',
         'browser/autocomplete/autocomplete_popup_view.h',
+        'browser/autocomplete/autocomplete_popup_view_win.cc',
         'browser/autocomplete/edit_drop_target.cc',
         'browser/autocomplete/edit_drop_target.h',
         'browser/autocomplete/history_contents_provider.cc',
@@ -1163,7 +1163,6 @@
             'browser/autocomplete/autocomplete_accessibility.cc',
             'browser/autocomplete/autocomplete_edit.cc',
             'browser/autocomplete/autocomplete_popup_model.cc',
-            'browser/autocomplete/autocomplete_popup_view_win.cc',
             'browser/autocomplete/edit_drop_target.cc',
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
@@ -1304,7 +1303,25 @@
         'browser',
         'renderer',
       ],
+      'variables': {
+        'conditions': [
+          ['OS=="mac"', {
+            'mac_xib_files': [
+              # Use .xib files only, because .nibs are bundles and these files
+              # need to be used as an input to rules.  Rule dependency checking
+              # only works on files, not directories as .nib bundles are.
+              'app/nibs/English.lproj/BrowserWindow.xib',
+              'app/nibs/English.lproj/MainMenu.xib',
+              'app/nibs/English.lproj/TabContents.xib',
+            ],
+          }, {  # else: OS!="mac"
+            'mac_xib_files': [],
+          }],
+        ],
+      },
       'sources': [
+        '<@(mac_xib_files)',
+
         # All .cc, .h, and .mm files under app except for tests.
         'app/breakpad.cc',
         'app/breakpad.h',
@@ -1322,9 +1339,7 @@
         'app/scoped_ole_initializer.h',
       ],
       'mac_bundle_resources': [
-        'app/nibs/English.lproj/BrowserWindow.xib',
-        'app/nibs/English.lproj/MainMenu.xib',
-        'app/nibs/English.lproj/TabContents.xib',
+        '<@(mac_xib_files)',
         'app/theme/chromium/chromium.icns',
         'app/theme/back.pdf',
         'app/theme/forward.pdf',
@@ -1347,7 +1362,23 @@
         'INFOPLIST_FILE': 'app/app-Info.plist',
       },
       'conditions': [
-        ['OS=="mac"', {'product_name': 'Chromium'}],
+        ['OS=="mac"', {
+          'product_name': 'Chromium',
+          'rules': [
+            {
+              'rule_name': 'ib_classes',
+              'extension': 'xib',
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/ib_classes/<(RULE_INPUT_ROOT)IBClasses.mm',
+              ],
+              'inputs': [
+                '../build/mac/make_ib_classes.py',
+              ],
+              'action': ['python', '<@(_inputs)', '<@(_outputs)', '<(RULE_INPUT_PATH)'],
+              'process_outputs_as_sources': 1,
+            },
+          ],
+        }],
         ['OS!="win"', {
           'variables': {
             'repack_path': '../tools/data_pack/repack.py',

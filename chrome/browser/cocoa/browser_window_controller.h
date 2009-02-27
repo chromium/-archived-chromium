@@ -12,6 +12,8 @@
 
 class Browser;
 class BrowserWindow;
+class LocationBar;
+class TabContents;
 @class TabStripView;
 @class TabContentsController;
 @class TabStripController;
