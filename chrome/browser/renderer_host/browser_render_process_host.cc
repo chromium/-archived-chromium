@@ -795,7 +795,11 @@ void BrowserRenderProcessHost::OnChannelError() {
        i != local_listeners.end(); ++i) {
     i->second->OnMessageReceived(ViewHostMsg_RenderViewGone(i->first));
   }
-  // at this point, this object should be deleted
+
+  ClearTransportDIBCache();
+
+  // this object is not deleted at this point and may be reused later.
+  // TODO(darin): clean this up
 }
 
 void BrowserRenderProcessHost::Unregister() {
