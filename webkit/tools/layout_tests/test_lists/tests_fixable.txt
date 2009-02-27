@@ -644,7 +644,7 @@ LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
 // HTTPS tests fail on the open source buildbot with error "cross-site
 // not access allowed".  See bug # 2306
-LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
+MAC : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL PASS
 
 // These require application cache to be enabled.  Skip the tests because
 // they're all timing out.  TODO(tc): Upstream changes to the test so they
@@ -952,7 +952,6 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-da
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
-LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL TIMEOUT PASS
 // NEW FOR MERGE 37604:38097
 // This is a Safari specific test used to document the set of global
 // constructors they expose and the exact way they are printed.  Not
@@ -1773,8 +1772,6 @@ LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 // New failures from Merge 41078:41149
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList-almost-strict.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
-WIN : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
-WIN : LayoutTests/fast/dom/SelectorAPI/undefined-null-stringify.html = FAIL
 LayoutTests/fast/dom/anchor-backslash.html = FAIL
 LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
@@ -1790,7 +1787,6 @@ MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domai
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Ojan's editing layout test regressions
-WIN : LayoutTests/fast/forms/search-click-in-placeholder.html = FAIL
 MAC DEBUG : LayoutTests/fast/forms/search-click-in-placeholder.html = CRASH
 MAC : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL
 MAC : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
@@ -1820,14 +1816,14 @@ DEFER : LayoutTests/fast/gradients/background-clipped.html = FAIL
 
 // Regressions from merge 41217:41268
 // Other failures
-LayoutTests/css1/text_properties/vertical_align.html = FAIL
+LINUX WIN : LayoutTests/css1/text_properties/vertical_align.html = FAIL
 LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
 // SVG Mask-related tests. Most likely result of http://trac.webkit.org/changeset/41266.
-LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
-LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
-LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
-LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
-LayoutTests/svg/custom/mask-changes.svg = FAIL
-LayoutTests/svg/custom/mask-child-changes.svg = FAIL
-LayoutTests/svg/custom/mask-inside-defs.svg = FAIL
-LayoutTests/svg/custom/visibility-override-mask.svg = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/mask-changes.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/mask-child-changes.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/mask-inside-defs.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/visibility-override-mask.svg = FAIL
