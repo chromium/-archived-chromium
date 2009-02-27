@@ -60,6 +60,7 @@
         'test_shell_switches.cc',
         'test_shell_switches.h',
         'test_shell_win.cc',
+        'test_shell_webkit_init.h',
         'test_webview_delegate.cc',
         'test_webview_delegate.h',
         'test_webview_delegate_gtk.cc',

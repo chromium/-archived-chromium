@@ -1270,6 +1270,8 @@
         'renderer/renderer_main_platform_delegate_linux.cc',
         'renderer/renderer_main_platform_delegate_mac.mm',
         'renderer/renderer_main_platform_delegate_win.cc',
+        'renderer/renderer_webkitclient_impl.cc',
+        'renderer/renderer_webkitclient_impl.h',
         'renderer/user_script_slave.cc',
         'renderer/user_script_slave.h',
         'renderer/visitedlink_slave.cc',
