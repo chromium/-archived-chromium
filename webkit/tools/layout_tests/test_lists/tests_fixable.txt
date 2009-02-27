@@ -949,6 +949,8 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-da
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
+LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+
 // NEW FOR MERGE 37604:38097
 // This is a Safari specific test used to document the set of global
 // constructors they expose and the exact way they are printed.  Not
@@ -1602,7 +1604,6 @@ DEFER :LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TI
 LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
-WIN LINUX : LayoutTests/editing/selection/move-by-line-001.html = PASS FAIL
 MAC : LayoutTests/fast/forms/002.html = FAIL
 
 // Flakey tests
