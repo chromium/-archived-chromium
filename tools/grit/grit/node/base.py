@@ -7,6 +7,7 @@
 '''
 
 import os
+import sys
 import types
 from xml.sax import saxutils
 
@@ -459,6 +460,7 @@ class Node(grit.format.interface.ItemFormatter):
     The expression is given a few local variables:
       - 'lang' is the language currently being output
       - 'defs' is a map of C preprocessor-style define names to their values
+      - 'os' is the current platform (likely 'linux2', 'win32' or 'darwin').
       - 'pp_ifdef(define)' which behaves just like the C preprocessors #ifdef,
         i.e. it is shorthand for "define in defs"
       - 'pp_if(define)' which behaves just like the C preprocessor's #if, i.e.
@@ -478,6 +480,7 @@ class Node(grit.format.interface.ItemFormatter):
     return eval(expr, {},
                 {'lang' : lang,
                  'defs' : defs,
+                 'os': sys.platform,
                  'pp_ifdef' : pp_ifdef,
                  'pp_if' : pp_if})
   
