@@ -53,7 +53,8 @@ class Browser : public TabStripModelDelegate,
   enum Type {
     TYPE_NORMAL = 0,
     TYPE_POPUP = 1,
-    TYPE_APP = 2
+    TYPE_APP = 2,
+    TYPE_APP_POPUP = TYPE_APP | TYPE_POPUP,
   };
 
   // Constructors, Creation, Showing //////////////////////////////////////////
@@ -72,8 +73,9 @@ class Browser : public TabStripModelDelegate,
   static Browser* CreateForPopup(Profile* profile);
 
   // Like Create, but creates a tabstrip-less and toolbar-less "app" window for
-  // the specified app.
-  static Browser* CreateForApp(const std::wstring& app_name, Profile* profile);
+  // the specified app. Passing popup=true will create a TYPE_APP_POPUP browser
+  static Browser* CreateForApp(const std::wstring& app_name, Profile* profile,
+                               bool is_popup);
 
   // Set overrides for the initial window bounds and maximized state.
   void set_override_bounds(const gfx::Rect& bounds) {

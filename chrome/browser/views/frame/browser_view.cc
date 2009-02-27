@@ -984,7 +984,7 @@ bool BrowserView::ShouldShowWindowTitle() const {
 }
 
 SkBitmap BrowserView::GetWindowIcon() {
-  if (browser_->type() == Browser::TYPE_APP)
+  if (browser_->type() & Browser::TYPE_APP)
     return browser_->GetCurrentPageIcon();
   return SkBitmap();
 }
@@ -1026,7 +1026,7 @@ void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
 
 bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
   *bounds = browser_->GetSavedWindowBounds();
-  if (browser_->type() == Browser::TYPE_POPUP) {
+  if (browser_->type() & Browser::TYPE_POPUP) {
     // We are a popup window. The value passed in |bounds| represents two
     // pieces of information:
     // - the position of the window, in screen coordinates (outer position).
@@ -1303,7 +1303,7 @@ bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
       features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
     else
       features |= FEATURE_TITLEBAR;
-    if (browser_->type() != Browser::TYPE_APP)
+    if ((browser_->type() & Browser::TYPE_APP) == 0)
       features |= FEATURE_LOCATIONBAR;
   }
   return !!(features & feature);

@@ -266,8 +266,8 @@ Browser* Browser::CreateForPopup(Profile* profile) {
 
 // static
 Browser* Browser::CreateForApp(const std::wstring& app_name,
-                               Profile* profile) {
-  Browser* browser = new Browser(TYPE_APP, profile);
+                               Profile* profile, bool is_popup) {
+  Browser* browser = new Browser(is_popup? TYPE_APP_POPUP : TYPE_APP, profile);
   browser->app_name_ = app_name;
   browser->CreateBrowserWindow();
   return browser;
@@ -317,7 +317,7 @@ void Browser::OpenApplicationWindow(Profile* profile, const GURL& url) {
   std::wstring app_name = ComputeApplicationNameFromURL(url);
   RegisterAppPrefs(app_name);
 
-  Browser* browser = Browser::CreateForApp(app_name, profile);
+  Browser* browser = Browser::CreateForApp(app_name, profile, false);
   browser->AddTabWithURL(url, GURL(), PageTransition::START_PAGE, true, NULL);
   browser->window()->Show();
   // TODO(jcampan): http://crbug.com/8123 we should not need to set the initial
@@ -339,7 +339,7 @@ std::wstring Browser::GetWindowPlacementKey() const {
 
 bool Browser::ShouldSaveWindowPlacement() const {
   // We don't save window position for popups.
-  return type() != TYPE_POPUP;
+  return (type() & TYPE_POPUP) == 0;
 }
 
 void Browser::SaveWindowPlacement(const gfx::Rect& bounds, bool maximized) {
@@ -479,7 +479,7 @@ void Browser::OnWindowClosing() {
 TabContents* Browser::AddTabWithURL(
     const GURL& url, const GURL& referrer, PageTransition::Type transition,
     bool foreground, SiteInstance* instance) {
-  if (type_ == TYPE_APP && tabstrip_model_.count() == 1) {
+  if ((type_ & TYPE_APP) != 0 && tabstrip_model_.count() == 1) {
     NOTREACHED() << "Cannot add a tab in a mono tab application.";
     return NULL;
   }
@@ -1310,8 +1310,8 @@ void Browser::DuplicateContentsAt(int index) {
                                    PageTransition::LINK, true);
   } else {
     Browser* browser = NULL;
-    if (type_ == TYPE_APP) {
-      browser = Browser::CreateForApp(app_name_, profile_);
+    if (type_ & TYPE_APP) {
+      browser = Browser::CreateForApp(app_name_, profile_, type_ & TYPE_POPUP);
     } else if (type_ == TYPE_POPUP) {
       browser = Browser::CreateForPopup(profile_);
     }
@@ -1541,7 +1541,7 @@ void Browser::OpenURLFromTab(TabContents* source,
 
   // If this is an application we can only have one tab so a new tab always
   // goes into a tabbed browser window.
-  if (disposition != NEW_WINDOW && type_ == TYPE_APP) {
+  if (disposition != NEW_WINDOW && type_ & TYPE_APP) {
     // If the disposition is OFF_THE_RECORD we don't want to create a new
     // browser that will itself create another OTR browser. This will result in
     // a browser leak (and crash below because no tab is created or selected).
@@ -1666,7 +1666,7 @@ void Browser::AddNewContents(TabContents* source,
     // This means we need to open the tab with the START PAGE transition.
     // AddNewContents doesn't support this but the TabStripModel's
     // AddTabContents method does.
-    if (type_ == TYPE_APP)
+    if (type_ & TYPE_APP)
       transition = PageTransition::START_PAGE;
     b->tabstrip_model()->AddTabContents(new_contents, -1, transition, true);
     b->window()->Show();
@@ -1724,7 +1724,7 @@ void Browser::CloseContents(TabContents* source) {
 }
 
 void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
-  if (type() != TYPE_POPUP) {
+  if ((type() & TYPE_POPUP) == 0) {
     NOTREACHED() << "moving invalid browser type";
     return;
   }
@@ -1733,7 +1733,7 @@ void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
 
 bool Browser::IsPopup(TabContents* source) {
   // A non-tabbed BROWSER is an unconstrained popup.
-  return (type() == TYPE_POPUP);
+  return (type() & TYPE_POPUP);
 }
 
 void Browser::ToolbarSizeChanged(TabContents* source, bool is_animating) {
@@ -1779,7 +1779,7 @@ void Browser::ContentsZoomChange(bool zoom_in) {
 }
 
 bool Browser::IsApplication() const {
-  return type_ == TYPE_APP;
+  return (type_ & TYPE_APP) != 0;
 }
 
 void Browser::ConvertContentsToApplication(TabContents* contents) {
@@ -1792,7 +1792,7 @@ void Browser::ConvertContentsToApplication(TabContents* contents) {
   RegisterAppPrefs(app_name);
 
   tabstrip_model_.DetachTabContentsAt(index);
-  Browser* browser = Browser::CreateForApp(app_name, profile_);
+  Browser* browser = Browser::CreateForApp(app_name, profile_, false);
   browser->tabstrip_model()->AppendTabContents(contents, true);
   browser->window()->Show();
 }
@@ -2091,7 +2091,7 @@ void Browser::UpdateCommandsForFullscreenMode(bool is_fullscreen) {
   // Window management commands
   command_updater_.UpdateCommandEnabled(IDC_PROFILE_MENU, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_AS_TAB,
-      (type() == TYPE_POPUP) && !is_fullscreen);
+      (type() & TYPE_POPUP) && !is_fullscreen);
 
   // Focus various bits of UI
   command_updater_.UpdateCommandEnabled(IDC_FOCUS_TOOLBAR, show_main_ui);
@@ -2376,7 +2376,7 @@ void Browser::BuildPopupWindow(TabContents* source,
                                TabContents* new_contents,
                                const gfx::Rect& initial_pos) {
   Browser* browser =
-      new Browser((type_ == TYPE_APP) ? TYPE_APP : TYPE_POPUP, profile_);
+      new Browser((type_ & TYPE_APP) ? TYPE_APP_POPUP : TYPE_POPUP, profile_);
   browser->set_override_bounds(initial_pos);
   browser->CreateBrowserWindow();
   // We need to Show before AddNewContents, otherwise AddNewContents will focus
