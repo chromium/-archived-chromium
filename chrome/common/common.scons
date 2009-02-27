@@ -283,6 +283,7 @@ if env.Bit('windows'):
 
 if env.Bit('linux'):
   input_files.Append(
+      '$CHROME_DIR/third_party/xdg_user_dirs/xdg_user_dir_lookup.cc',
       'transport_dib_linux.cc',
       'x11_util.cc'
   )
