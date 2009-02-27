@@ -423,7 +423,7 @@ class RenderViewHost : public RenderWidgetHost {
 
  protected:
   // RenderWidgetHost protected overrides.
-  virtual void UnhandledInputEvent(const WebInputEvent& event);
+  virtual void UnhandledKeyboardEvent(const WebKeyboardEvent& event);
   virtual void OnEnterOrSpace();
   virtual void NotifyRendererUnresponsive();
   virtual void NotifyRendererResponsive();

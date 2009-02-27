@@ -267,10 +267,8 @@ void RenderWidget::OnHandleInputEvent(const IPC::Message& message) {
 
   IPC::Message* response = new ViewHostMsg_HandleInputEvent_ACK(routing_id_);
   response->WriteInt(input_event->type);
-  if (!processed) {
-    // If the event was not processed we send it back.
-    response->WriteData(data, data_length);
-  }
+  response->WriteBool(processed);
+
   Send(response);
 }
 

@@ -1200,7 +1200,7 @@ void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {
   UserMetrics::RecordComputedAction(action.c_str(), process()->profile());
 }
 
-void RenderViewHost::UnhandledInputEvent(const WebInputEvent& event) {
+void RenderViewHost::UnhandledKeyboardEvent(const WebKeyboardEvent& event) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (view) {
     // TODO(brettw) why do we have to filter these types of events here. Can't
@@ -1208,8 +1208,7 @@ void RenderViewHost::UnhandledInputEvent(const WebInputEvent& event) {
     // should be able to decide which ones it wants or not?
     if ((event.type == WebInputEvent::KEY_DOWN) ||
         (event.type == WebInputEvent::CHAR)) {
-      view->HandleKeyboardEvent(
-          static_cast<const WebKeyboardEvent&>(event));
+      view->HandleKeyboardEvent(event);
     }
   }
 }

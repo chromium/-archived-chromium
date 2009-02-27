@@ -69,6 +69,11 @@ class WebInputEvent {
 
   Type type;
   int modifiers;
+
+  // Returns true if the WebInputEvent |type| is a keyboard event.
+  static bool IsKeyboardEventType(int type) {
+    return type == KEY_DOWN || type == KEY_UP || type == CHAR;
+  }
 };
 
 // WebMouseEvent --------------------------------------------------------------
