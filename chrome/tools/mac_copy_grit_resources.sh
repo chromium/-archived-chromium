@@ -31,7 +31,7 @@ fi
 if [ "${APP_RESOURCES_ROOT_DIR}/locale.pak" -ot \
      "${REPACKED_DIR}/locale_en-US.pak" ]
 then
-  mkdir -p "${APP_RESOURCES_ROOT_DIR}/English.lproj"
+  mkdir -p "${APP_RESOURCES_ROOT_DIR}/en.lproj"
   cp -f "${REPACKED_DIR}/locale_en-US.pak" \
-      "${APP_RESOURCES_ROOT_DIR}/English.lproj/locale.pak"
+      "${APP_RESOURCES_ROOT_DIR}/en.lproj/locale.pak"
 fi

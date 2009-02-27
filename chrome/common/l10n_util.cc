@@ -217,6 +217,14 @@ namespace l10n_util {
 static TextDirection g_text_direction = UNKNOWN_DIRECTION;
 
 std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
+#if defined(OS_MACOSX)
+  // On the mac, we don't want to test preferences or ICU for the language,
+  // we want to use whatever Cocoa is using when it loaded the main nib file.
+  // It handles all the mapping and fallbacks for us, we just need to ask
+  // Cocoa.
+  // TODO(pinkerton): break this out into a .mm and ask Cocoa.
+  return L"en";
+#else
   std::wstring locale_path;
   PathService::Get(chrome::DIR_LOCALES, &locale_path);
   std::wstring resolved_locale;
@@ -250,6 +258,7 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
   NOTREACHED();
 
   return std::wstring();
+#endif
 }
 
 std::wstring GetLocalName(const std::wstring& locale_code_wstr,

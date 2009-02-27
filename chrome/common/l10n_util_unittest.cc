@@ -83,6 +83,12 @@ void SetICUDefaultLocale(const std::wstring& locale_string) {
   EXPECT_TRUE(U_SUCCESS(error_code));
 }
 
+#if defined(OS_WIN) || defined(OS_LINUX)
+// We are disabling this test on MacOS because GetApplicationLocale() as an
+// API isn't something that we'll easily be able to unit test in this manner.
+// The meaning of that API, on the Mac, is "the locale used by Cocoa's main
+// nib file", which clearly can't be stubbed by a test app that doesn't use
+// Cocoa.
 TEST_F(L10nUtilTest, GetAppLocale) {
   // Use a temporary locale dir so we don't have to actually build the locale
   // dlls for this test.
@@ -180,6 +186,7 @@ TEST_F(L10nUtilTest, GetAppLocale) {
   UErrorCode error_code = U_ZERO_ERROR;
   Locale::setDefault(locale, error_code);
 }
+#endif
 
 TEST_F(L10nUtilTest, SortStringsUsingFunction) {
   std::vector<StringWrapper*> strings;

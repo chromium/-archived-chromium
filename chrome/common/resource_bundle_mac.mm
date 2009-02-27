@@ -47,7 +47,7 @@ base::DataPack *LoadResourceDataPack(NSString *name) {
     path = path.AppendASCII("Contents");
     path = path.AppendASCII("Resources");
     if ([name isEqual:@"locale"]) {
-      path = path.AppendASCII("English.lproj");
+      path = path.AppendASCII("en.lproj");
     }
     NSString *pakName = [name stringByAppendingPathExtension:pakExt];
     path = path.Append([pakName fileSystemRepresentation]);
