@@ -87,28 +87,26 @@ class BrowserToolbarView : public views::View,
   // (such as user editing) as well.
   void Update(TabContents* tab, bool should_restore_state);
 
-  void OnInputInProgress(bool in_progress);
+  virtual void OnInputInProgress(bool in_progress);
+
+  // Returns a brief, identifying string, containing a unique, readable name.
+  virtual bool GetAccessibleName(std::wstring* name);
 
   // Returns the MSAA role of the current view. The role is what assistive
   // technologies (ATs) use to determine what behavior to expect from a given
   // control.
-  bool GetAccessibleRole(VARIANT* role);
-
-  // Returns a brief, identifying string, containing a unique, readable name.
-  bool GetAccessibleName(std::wstring* name);
+  virtual bool GetAccessibleRole(VARIANT* role);
 
   // Assigns an accessible string name.
-  void SetAccessibleName(const std::wstring& name);
+  virtual void SetAccessibleName(const std::wstring& name);
+
+  virtual View* GetAccFocusedChildView() { return acc_focused_view_; }
 
   // Returns the index of the next view of the toolbar, starting from the given
   // view index (skipping the location bar), in the given navigation direction
   // (nav_left true means navigation right to left, and vice versa). -1 finds
   // first accessible child, based on the above policy.
   int GetNextAccessibleViewIndex(int view_index, bool nav_left);
-
-  views::View* acc_focused_view() {
-    return acc_focused_view_;
-  }
 
   void set_acc_focused_view(views::View* acc_focused_view) {
     acc_focused_view_ = acc_focused_view;

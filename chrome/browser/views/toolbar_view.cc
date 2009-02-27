@@ -360,10 +360,10 @@ void BrowserToolbarView::Paint(ChromeCanvas* canvas) {
 void BrowserToolbarView::DidGainFocus() {
   // Check to see if MSAA focus should be restored to previously focused button,
   // and if button is an enabled, visibled child of toolbar.
-  if (!acc_focused_view() ||
-      (acc_focused_view()->GetParent()->GetID() != VIEW_ID_TOOLBAR) ||
-      !acc_focused_view()->IsEnabled() ||
-      !acc_focused_view()->IsVisible()) {
+  if (!acc_focused_view_ ||
+      (acc_focused_view_->GetParent()->GetID() != VIEW_ID_TOOLBAR) ||
+      !acc_focused_view_->IsEnabled() ||
+      !acc_focused_view_->IsVisible()) {
     // Find first accessible child (-1 to start search at parent).
     int first_acc_child = GetNextAccessibleViewIndex(-1, false);
 
@@ -378,15 +378,15 @@ void BrowserToolbarView::DidGainFocus() {
   int view_index = VIEW_ID_TOOLBAR;
 
   // Set hot-tracking for child, and update focused_view for MSAA focus event.
-  if (acc_focused_view()) {
-    acc_focused_view()->SetHotTracked(true);
+  if (acc_focused_view_) {
+    acc_focused_view_->SetHotTracked(true);
 
     // Show the tooltip for the view that got the focus.
     if (GetWidget()->GetTooltipManager())
       GetWidget()->GetTooltipManager()->ShowKeyboardTooltip(acc_focused_view_);
 
     // Update focused_view with MSAA-adjusted child id.
-    view_index = acc_focused_view()->GetID();
+    view_index = acc_focused_view_->GetID();
   }
 
   HWND hwnd = GetWidget()->GetHWND();
@@ -397,9 +397,9 @@ void BrowserToolbarView::DidGainFocus() {
 }
 
 void BrowserToolbarView::WillLoseFocus() {
-  if (acc_focused_view()) {
+  if (acc_focused_view_) {
     // Resetting focus state.
-    acc_focused_view()->SetHotTracked(false);
+    acc_focused_view_->SetHotTracked(false);
   }
   // Any tooltips that are active should be hidden when toolbar loses focus.
   if (GetWidget() && GetWidget()->GetTooltipManager())
@@ -680,20 +680,20 @@ void BrowserToolbarView::OnGetProfilesDone(
       l10n_util::GetString(IDS_SELECT_PROFILE_DIALOG_NEW_PROFILE_ENTRY));
 }
 
-bool BrowserToolbarView::GetAccessibleRole(VARIANT* role) {
-  DCHECK(role);
-
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_TOOLBAR;
-  return true;
-}
-
 bool BrowserToolbarView::GetAccessibleName(std::wstring* name) {
   if (!accessible_name_.empty()) {
     (*name).assign(accessible_name_);
     return true;
   }
   return false;
+}
+
+bool BrowserToolbarView::GetAccessibleRole(VARIANT* role) {
+  DCHECK(role);
+
+  role->vt = VT_I4;
+  role->lVal = ROLE_SYSTEM_TOOLBAR;
+  return true;
 }
 
 void BrowserToolbarView::SetAccessibleName(const std::wstring& name) {
@@ -729,8 +729,8 @@ int BrowserToolbarView::GetNextAccessibleViewIndex(int view_index,
 }
 
 void BrowserToolbarView::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
-  if (GetAccFocusedChildView())
-    GetAccFocusedChildView()->ShowContextMenu(x, y, is_mouse_gesture);
+  if (acc_focused_view_)
+    acc_focused_view_->ShowContextMenu(x, y, is_mouse_gesture);
 }
 
 int BrowserToolbarView::GetDragOperations(views::View* sender, int x, int y) {

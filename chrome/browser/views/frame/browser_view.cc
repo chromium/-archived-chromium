@@ -51,6 +51,7 @@
 #include "chrome/views/hwnd_notification_source.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/non_client_view.h"
+#include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 #include "grit/chromium_strings.h"
@@ -700,7 +701,10 @@ void BrowserView::FocusToolbar() {
   // Do not restore the button that previously had accessibility focus, if
   // focus is set by using the toolbar focus keyboard shortcut.
   toolbar_->set_acc_focused_view(NULL);
-  toolbar_->RequestFocus();
+  // HACK: Do not use RequestFocus() here, as the toolbar is not marked as
+  // "focusable".  Instead bypass the sanity check in RequestFocus() and just
+  // force it to focus, which will do the right thing.
+  GetRootView()->FocusView(toolbar_);
 }
 
 void BrowserView::DestroyBrowser() {
