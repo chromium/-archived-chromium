@@ -270,6 +270,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\default_non_client_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\default_non_client_view.h"
+			>
+		</File>
+		<File
 			RelativePath=".\dialog_client_view.cc"
 			>
 		</File>
