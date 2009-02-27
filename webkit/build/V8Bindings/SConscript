@@ -360,6 +360,7 @@ inputs = [
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLPlugInElementCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLSelectElementCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLSelectElementCustom.h',
+    '$WEBCORE_DIR/bindings/v8/custom/V8LocationCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8NamedNodesCollection.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8NamedNodesCollection.h',
     '$WEBCORE_DIR/bindings/v8/custom/V8SVGElementInstanceCustom.cpp',

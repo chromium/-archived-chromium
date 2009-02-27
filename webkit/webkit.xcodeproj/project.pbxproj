@@ -1373,6 +1373,7 @@
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
 		E7CC722700DA5F7E55527582 /* resource_loader_bridge.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5D2A55FF5C399F9800256956 /* resource_loader_bridge.cc */; };
+		E8AC24D9A18D0246326D9842 /* V8LocationCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F7F1694059937550AA36C00F /* V8LocationCustom.cpp */; };
 		FBBBF2E4099C8EA9BDAF80F9 /* CurrentTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBDDEF91A55ACE86471036E /* CurrentTime.cpp */; };
 /* End PBXBuildFile section */
 
@@ -4477,6 +4478,7 @@
 		E48A06D90E3F840F00172919 /* image_resource_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_resource_fetcher.h; sourceTree = "<group>"; };
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
+		F7F1694059937550AA36C00F /* V8LocationCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8LocationCustom.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4625,6 +4627,7 @@
 				41DE7B6B0F40EA5F0049BC24 /* V8HTMLOptionsCollectionCustom.cpp */,
 				41DE7CA40F424BEE0049BC24 /* V8HTMLSelectElementCustom.h */,
 				41DE7C9F0F424AE80049BC24 /* V8HTMLSelectElementCustom.cpp */,
+				F7F1694059937550AA36C00F /* V8LocationCustom.cpp */,
 				41DE7CA20F424B020049BC24 /* V8NamedNodesCollection.cpp */,
 				41DE7CA10F424B020049BC24 /* V8NamedNodesCollection.h */,
 				41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */,
@@ -9812,6 +9815,7 @@
 				453FFDF935221CD484A3AFED /* Interval.cpp in Sources */,
 				3C9197C6A7DABB989CBDBF81 /* Playback.cpp in Sources */,
 				E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */,
+				E8AC24D9A18D0246326D9842 /* V8LocationCustom.cpp in Sources */,
 				4DB7F55D0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

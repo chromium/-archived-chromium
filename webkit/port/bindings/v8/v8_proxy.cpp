@@ -1760,6 +1760,33 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     }
     case V8ClassIndex::LOCATION: {
+      // For security reasons, these functions are on the instance
+      // instead of on the prototype object to insure that they cannot
+      // be overwritten.
+      v8::Local<v8::ObjectTemplate> instance = desc->InstanceTemplate();
+      instance->SetAccessor(
+        v8::String::New("reload"),
+        V8Custom::v8LocationReloadAccessorGetter,
+        0,
+        v8::Handle<v8::Value>(),
+        v8::ALL_CAN_READ,
+        static_cast<v8::PropertyAttribute>(v8::DontDelete|v8::ReadOnly));
+
+      instance->SetAccessor(
+        v8::String::New("replace"),
+        V8Custom::v8LocationReplaceAccessorGetter,
+        0,
+        v8::Handle<v8::Value>(),
+        v8::ALL_CAN_READ,
+        static_cast<v8::PropertyAttribute>(v8::DontDelete|v8::ReadOnly));
+
+      instance->SetAccessor(
+        v8::String::New("assign"),
+        V8Custom::v8LocationAssignAccessorGetter,
+        0,
+        v8::Handle<v8::Value>(),
+        v8::ALL_CAN_READ,
+        static_cast<v8::PropertyAttribute>(v8::DontDelete|v8::ReadOnly));
       break;
     }
     case V8ClassIndex::HISTORY: {

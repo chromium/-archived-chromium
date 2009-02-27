@@ -1639,16 +1639,7 @@ CALLBACK_FUNC_DECL(ElementSetAttributeNodeNS) {
   return V8Proxy::NodeToV8Object(result.get());
 }
 
-// Location --------------------------------------------------------------------
 
-CALLBACK_FUNC_DECL(LocationValueOf) {
-  // Just return the this object the way the normal valueOf function
-  // on the Object prototype would.  The valueOf function is only
-  // added to make sure that it cannot be overwritten on location
-  // objects, since that would provide a hook to change the string
-  // conversion behavior of location objects.
-  return args.This();
-}
 
 // Attr ------------------------------------------------------------------------
 
@@ -2387,23 +2378,6 @@ NAMED_ACCESS_CHECK(History) {
   return V8Proxy::CanAccessFrame(imp->frame(), false);
 }
 
-
-INDEXED_ACCESS_CHECK(Location) {
-  ASSERT(V8ClassIndex::FromInt(data->Int32Value()) == V8ClassIndex::LOCATION);
-  // Only allow same origin access
-  Location* imp =
-      V8Proxy::ToNativeObject<Location>(V8ClassIndex::LOCATION, host);
-  return V8Proxy::CanAccessFrame(imp->frame(), false);
-}
-
-
-NAMED_ACCESS_CHECK(Location) {
-  ASSERT(V8ClassIndex::FromInt(data->Int32Value()) == V8ClassIndex::LOCATION);
-  // Only allow same origin access
-  Location* imp =
-      V8Proxy::ToNativeObject<Location>(V8ClassIndex::LOCATION, host);
-  return V8Proxy::CanAccessFrame(imp->frame(), false);
-}
 
 
 #undef INDEXED_ACCESS_CHECK
