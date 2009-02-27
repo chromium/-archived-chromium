@@ -316,6 +316,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(WEBKITCSSKEYFRAMERULE, WebKitCSSKeyframeRule)                       \
   V(WEBKITCSSKEYFRAMESRULE, WebKitCSSKeyframesRule)                     \
   V(WEBKITCSSMATRIX, WebKitCSSMatrix)                                   \
+  V(WEBKITPOINT, WebKitPoint)                                           \
   V(WEBKITCSSTRANSFORMVALUE, WebKitCSSTransformValue)                   \
   V(WEBKITTRANSITIONEVENT, WebKitTransitionEvent)                       \
   V(WHEELEVENT, WheelEvent)                                             \

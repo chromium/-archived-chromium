@@ -162,6 +162,7 @@
 #include "V8WebKitCSSKeyframesRule.h"
 #include "V8WebKitCSSMatrix.h"
 #include "V8WebKitCSSTransformValue.h"
+#include "V8WebKitPoint.h"
 #include "V8WebKitTransitionEvent.h"
 #include "V8WheelEvent.h"
 #include "V8UIEvent.h"

@@ -481,6 +481,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\WebKitPoint.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\WindowFeatures.cpp"
 				>
 			</File>
@@ -7240,10 +7244,6 @@
 					>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGResourceFilterSkia.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\graphics\skia\SVGResourceMaskerSkia.cpp"
 						>
 					</File>
 				</Filter>

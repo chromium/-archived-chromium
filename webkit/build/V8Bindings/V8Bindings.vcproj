@@ -2340,6 +2340,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitPoint.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitPoint.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8WebKitTransitionEvent.cpp"
 				>
 			</File>

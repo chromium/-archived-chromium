@@ -900,6 +900,7 @@ all : \
     V8WebKitCSSKeyframesRule.h \
     V8WebKitCSSMatrix.h \
     V8WebKitCSSTransformValue.h \
+    V8WebKitPoint.h \
     V8WebKitTransitionEvent.h \
     V8WheelEvent.h \
     V8Worker.h \

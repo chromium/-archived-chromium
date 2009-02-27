@@ -311,6 +311,7 @@ idl_files = [
     'page/Location.idl',
     'page/Navigator.idl',
     'page/Screen.idl',
+    'page/WebKitPoint.idl',
     'page/WorkerNavigator.idl',
 
     'inspector/InspectorController.idl',

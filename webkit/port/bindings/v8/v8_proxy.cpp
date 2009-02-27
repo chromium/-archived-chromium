@@ -150,6 +150,7 @@
 #include "WebKitCSSKeyframesRule.h"
 #include "WebKitCSSMatrix.h"
 #include "WebKitCSSTransformValue.h"
+#include "WebKitPoint.h"
 #include "WebKitTransitionEvent.h"
 #include "WheelEvent.h"
 #include "XMLHttpRequestProgressEvent.h"
@@ -1842,6 +1843,9 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::WEBKITCSSMATRIX:
       desc->SetCallHandler(USE_CALLBACK(WebKitCSSMatrixConstructor));
+      break;
+    case V8ClassIndex::WEBKITPOINT:
+      desc->SetCallHandler(USE_CALLBACK(WebKitPointConstructor));
       break;
     case V8ClassIndex::XMLSERIALIZER:
       desc->SetCallHandler(USE_CALLBACK(XMLSerializerConstructor));

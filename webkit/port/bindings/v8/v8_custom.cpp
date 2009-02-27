@@ -103,6 +103,7 @@
 #include "StyleSheetList.h"
 #include "TreeWalker.h"
 #include "WebKitCSSMatrix.h"
+#include "WebKitPoint.h"
 #include "XMLSerializer.h"
 #include "XPathEvaluator.h"
 #include "XPathResult.h"
@@ -288,6 +289,11 @@ CALLBACK_FUNC_DECL(WebKitCSSMatrixConstructor) {
   return args.Holder();
 }
 
+CALLBACK_FUNC_DECL(WebKitPointConstructor) {
+  INC_STATS("DOM.WebKitPoint.Constructor");
+  return V8Proxy::ConstructDOMObject<V8ClassIndex::WEBKITPOINT,
+                                     WebKitPoint>(args);
+}
 
 CALLBACK_FUNC_DECL(XMLSerializerConstructor) {
   INC_STATS("DOM.XMLSerializer.Constructor");

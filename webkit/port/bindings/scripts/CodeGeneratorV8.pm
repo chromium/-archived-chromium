@@ -1619,6 +1619,7 @@ sub IsRefPtrType
     return 1 if $type eq "TimeRanges";
     return 1 if $type eq "TreeWalker";
     return 1 if $type eq "WebKitCSSMatrix";
+    return 1 if $type eq "WebKitPoint";
     return 1 if $type eq "XPathExpression";
     return 1 if $type eq "XPathNSResolver";
     return 1 if $type eq "XPathResult";
@@ -1726,6 +1727,7 @@ my %typeCanFailConversion = (
     "SVGTransform" => 0,
     "VoidCallback" => 1,
     "WebKitCSSMatrix" => 0,
+    "WebKitPoint" => 0,
     "XPathEvaluator" => 0,
     "XPathNSResolver" => 0,
     "XPathResult" => 0,

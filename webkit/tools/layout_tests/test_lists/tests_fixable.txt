@@ -60,6 +60,7 @@ DEFER LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
+// Can defer this test once the crash is fixed.
 DEFER : LayoutTests/fast/forms/input-text-maxlength.html = FAIL
 DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
@@ -316,13 +317,6 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
-LINUX : LayoutTests/editing/selection/select-all-iframe.html = FAIL
-LINUX : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
-LINUX : LayoutTests/fast/overflow/overflow-stacking.html = FAIL
-LINUX : LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
-LINUX : LayoutTests/fast/replaced/embed-display-none.html = FAIL
-LINUX : LayoutTests/fast/replaced/applet-display-none.html = FAIL
-LINUX : LayoutTests/fast/replaced/object-display-none.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
@@ -375,6 +369,7 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
+WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
 DEFER LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
@@ -937,10 +932,8 @@ LayoutTests/fast/forms/form-element-geometry.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
-// The pixel diff is ok, but the render tree is different because of
-// our forked modifications to RenderTextControlMultiLine.cpp, specifically
-// the calls to set the overflow in createInnerTextStyle.
-DEFER : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
+// The pixel diff looks ok, but the render trees are pretty different.
+LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
@@ -1798,14 +1791,44 @@ LayoutTests/svg/custom/pointer-events-path.svg = FAIL
 WIN MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // New tests from merge 41181:41217
-DEFER : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
+LINUX WIN : LayoutTests/fast/replaced/embed-display-none.html = FAIL
+LINUX WIN : LayoutTests/fast/replaced/applet-display-none.html = FAIL
+LINUX WIN : LayoutTests/fast/replaced/object-display-none.html = FAIL
+LINUX WIN : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
+LINUX WIN : LayoutTests/fast/overflow/overflow-stacking.html = FAIL
+LINUX WIN : LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
+LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
 
 // Regressions from merge 41181:41217
+// New baseline upstream
+LINUX WIN : LayoutTests/fast/events/offsetX-offsetY.html = FAIL
+LINUX WIN : LayoutTests/editing/selection/select-all-iframe.html = FAIL
+WIN : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
+LINUX WIN : LayoutTests/editing/selection/select-missing-image.html = FAIL
 WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 LINUX : LayoutTests/fast/canvas/set-colors.html = CRASH
 
-// mbelshe to fix.  Temporarily disable while tree red.
-chrome/fast/dom/extensions/interval.html = FAIL
+// Regressions from merge 41217:41268
+// New tests
+DEFER : LayoutTests/fast/dom/Window/customized-property-survives-gc.html = FAIL
+DEFER : LayoutTests/fast/inline/inline-continuation-borders.html = FAIL
+DEFER : LayoutTests/fast/inline/vertical-align-text-bottom.html = FAIL
+DEFER : LayoutTests/fast/dom/Window/webkitConvertPoint.html = FAIL
+DEFER : LayoutTests/fast/gradients/background-clipped.html = FAIL
+
+// Regressions from merge 41217:41268
+// Other failures
+LayoutTests/css1/text_properties/vertical_align.html = FAIL
+LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
+// SVG Mask-related tests. Most likely result of http://trac.webkit.org/changeset/41266.
+LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
+LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
+LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
+LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
+LayoutTests/svg/custom/mask-changes.svg = FAIL
+LayoutTests/svg/custom/mask-child-changes.svg = FAIL
+LayoutTests/svg/custom/mask-inside-defs.svg = FAIL
+LayoutTests/svg/custom/visibility-override-mask.svg = FAIL

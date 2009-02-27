@@ -832,7 +832,6 @@
 		5320C95A0F548814005A25AA /* SVGResourceFilterPlatformDataMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E973D0D7F3EDA001ECF42 /* SVGResourceFilterPlatformDataMac.mm */; };
 		5320C95B0F548814005A25AA /* SVGResourceMarker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E975F0D7F3EDA001ECF42 /* SVGResourceMarker.cpp */; };
 		5320C95C0F548814005A25AA /* SVGResourceMasker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97610D7F3EDA001ECF42 /* SVGResourceMasker.cpp */; };
-		5320C95D0F548814005A25AA /* SVGResourceMaskerCg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D90D7F3EDA001ECF42 /* SVGResourceMaskerCg.mm */; };
 		5320C95E0F548814005A25AA /* SVGRootInlineBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180AC0E958F3D006EAF87 /* SVGRootInlineBox.cpp */; };
 		5320C95F0F548814005A25AA /* SVGScriptElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E98A50D7F3EDC001ECF42 /* SVGScriptElement.cpp */; };
 		5320C9600F548814005A25AA /* SVGSetElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E98A80D7F3EDC001ECF42 /* SVGSetElement.cpp */; };
@@ -1323,6 +1322,7 @@
 		938D0F760F573770009F1128 /* webkitclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 938D0F730F573770009F1128 /* webkitclient_impl.cc */; };
 		93AF52490F001CAB0073C62D /* media_player_private_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93AF52480F001CAB0073C62D /* media_player_private_impl.cc */; };
 		93AF57990F0198CD0073C62D /* webkit_glue_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 93AF57980F0198CD0073C62D /* webkit_glue_mac.mm */; };
+		97EE9A8C2D6020F99D3D200E /* V8WebKitPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2904951B751F48ED9C632DD6 /* V8WebKitPoint.cpp */; };
 		A5779DD6BC0DA17AB7DE63D4 /* GCController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 715E874BCC05E0A3DD5E5D8F /* GCController.cpp */; };
 		A743B3FB0F45E9CB0035EFA9 /* HTMLElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A743B3F80F45E9CB0035EFA9 /* HTMLElementFactory.cpp */; };
 		A7CBB2A60F327C8D00360BF5 /* debugger_bridge.cc in Sources */ = {isa = PBXBuildFile; fileRef = A7CBB2A40F327C8D00360BF5 /* debugger_bridge.cc */; };
@@ -1539,6 +1539,8 @@
 		1459AC310DEBF6A597167F45 /* webplugin_delegate.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webplugin_delegate.cc; sourceTree = "<group>"; };
 		1DF458E80DD265C670E05B03 /* RenderSelectionInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderSelectionInfo.h; sourceTree = "<group>"; };
 		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
+		2904951B751F48ED9C632DD6 /* V8WebKitPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = V8WebKitPoint.cpp; path = ../chrome/Debug/obj/V8Bindings/DerivedSources/V8WebKitPoint.cpp; sourceTree = SOURCE_ROOT; };
+		2BCE85178EC4DBF2E1135560 /* V8WebKitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = V8WebKitPoint.h; path = ../chrome/Debug/obj/V8Bindings/DerivedSources/V8WebKitPoint.h; sourceTree = SOURCE_ROOT; };
 		31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNGImageEncoder.cpp; path = "../third_party/WebKit/WebCore/platform/image-encoders/skia/PNGImageEncoder.cpp"; sourceTree = SOURCE_ROOT; };
 		31C1FF1C3BB820B928CFE9BD /* V8DOMWindowCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8DOMWindowCustom.cpp; sourceTree = "<group>"; };
 		35DEC96C125DC674B5C9FA27 /* Interval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Interval.cpp; path = port/bindings/v8/extensions/Interval.cpp; sourceTree = SOURCE_ROOT; };
@@ -3549,8 +3551,6 @@
 		7B5E96C20D7F3EDA001ECF42 /* GradientAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GradientAttributes.h; path = ../GradientAttributes.h; sourceTree = "<group>"; };
 		7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceFilterCg.cpp; sourceTree = "<group>"; };
 		7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGResourceFilterCg.mm; sourceTree = "<group>"; };
-		7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceMaskerCg.cpp; sourceTree = "<group>"; };
-		7B5E96D90D7F3EDA001ECF42 /* SVGResourceMaskerCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGResourceMaskerCg.mm; sourceTree = "<group>"; };
 		7B5E96E40D7F3EDA001ECF42 /* SVGFEHelpersCg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGFEHelpersCg.h; sourceTree = "<group>"; };
 		7B5E96E50D7F3EDA001ECF42 /* SVGFEHelpersCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGFEHelpersCg.mm; sourceTree = "<group>"; };
 		7B5E96EB0D7F3EDA001ECF42 /* SVGFilterEffectCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGFilterEffectCg.mm; sourceTree = "<group>"; };
@@ -4101,6 +4101,7 @@
 		82761F810E3FAC700030D324 /* AccessibilityObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObject.cpp; sourceTree = "<group>"; };
 		82761F820E3FAC700030D324 /* AccessibilityObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObject.h; sourceTree = "<group>"; };
 		82F14D600ED230E700B36428 /* webcursor_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webcursor_mac.mm; sourceTree = "<group>"; };
+		880D17272205116600E1E049 /* WebKitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitPoint.h; sourceTree = "<group>"; };
 		89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArray.cpp; sourceTree = "<group>"; };
 		89F4A0D40F200D59000A326A /* V8CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CanvasPixelArray.h; sourceTree = "<group>"; };
 		89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArrayCustom.cpp; sourceTree = "<group>"; };
@@ -4592,6 +4593,7 @@
 				41A3624C0F003B3000778012 /* EventHandlerChromium.cpp */,
 				41A3624D0F003B3000778012 /* FrameChromium.cpp */,
 				41A3624E0F003B3000778012 /* FrameChromium.h */,
+				880D17272205116600E1E049 /* WebKitPoint.h */,
 			);
 			name = chromium;
 			sourceTree = "<group>";
@@ -4856,6 +4858,8 @@
 				4CDA86D8A0B62BD0EBF07D78 /* AnimationControllerPrivate.h */,
 				7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */,
 				31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */,
+				2BCE85178EC4DBF2E1135560 /* V8WebKitPoint.h */,
+				2904951B751F48ED9C632DD6 /* V8WebKitPoint.cpp */,
 			);
 			sourceTree = "<group>";
 		};
@@ -6806,8 +6810,6 @@
 			children = (
 				7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */,
 				7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */,
-				7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */,
-				7B5E96D90D7F3EDA001ECF42 /* SVGResourceMaskerCg.mm */,
 			);
 			path = cg;
 			sourceTree = "<group>";
@@ -8776,6 +8778,7 @@
 				9384489F0F16B06E0075F4C5 /* V8WebKitCSSKeyframesRule.cpp in Sources */,
 				25B9F25199984DFE5E4A59AE /* V8WebKitCSSMatrix.cpp in Sources */,
 				938448A00F16B06E0075F4C5 /* V8WebKitCSSTransformValue.cpp in Sources */,
+				97EE9A8C2D6020F99D3D200E /* V8WebKitPoint.cpp in Sources */,
 				938448A10F16B06E0075F4C5 /* V8WebKitTransitionEvent.cpp in Sources */,
 				938448A20F16B06E0075F4C5 /* V8WheelEvent.cpp in Sources */,
 				938448A30F16B06E0075F4C5 /* V8XMLHttpRequest.cpp in Sources */,
@@ -9585,7 +9588,6 @@
 				5320C95A0F548814005A25AA /* SVGResourceFilterPlatformDataMac.mm in Sources */,
 				5320C95B0F548814005A25AA /* SVGResourceMarker.cpp in Sources */,
 				5320C95C0F548814005A25AA /* SVGResourceMasker.cpp in Sources */,
-				5320C95D0F548814005A25AA /* SVGResourceMaskerCg.mm in Sources */,
 				5320C95E0F548814005A25AA /* SVGRootInlineBox.cpp in Sources */,
 				5320C95F0F548814005A25AA /* SVGScriptElement.cpp in Sources */,
 				5320C9600F548814005A25AA /* SVGSetElement.cpp in Sources */,
