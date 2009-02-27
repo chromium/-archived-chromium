@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_
 #define CHROME_BROWSER_IMPORTER_FIREFOX_IMPORTER_UTILS_H_
 
-#include "base/basictypes.h"
 #include "base/values.h"
 #include "build/build_config.h"
 #include "webkit/glue/password_form.h"
@@ -19,11 +18,14 @@ class TemplateURL;
 // biased to return the biggest version.
 int GetCurrentFirefoxMajorVersion();
 
-#if defined(OS_WIN)
 // Gets the full path of the profiles.ini file. This file records
 // the profiles that can be used by Firefox.  Returns an empty
 // string if failed.
 std::wstring GetProfilesINI();
+
+// Detects where Firefox lives.  Returns a empty string if Firefox
+// is not installed.
+std::wstring GetFirefoxInstallPath();
 
 // Parses the profile.ini file, and stores its information in |root|.
 // This file is a plain-text file. Key/value pairs are stored one per
@@ -38,11 +40,6 @@ std::wstring GetProfilesINI();
 // We set "[value]" in path "<Section>.<Key>". For example, the path
 // "Genenral.StartWithLastProfile" has the value "1".
 void ParseProfileINI(std::wstring file, DictionaryValue* root);
-#endif
-
-// Detects where Firefox lives.  Returns a empty string if Firefox
-// is not installed.
-std::wstring GetFirefoxInstallPath();
 
 // Returns true if we want to add the URL to the history. We filter
 // out the URL with a unsupported scheme.
