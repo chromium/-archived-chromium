@@ -14,11 +14,15 @@ class IntervalExtensionWrapper : public v8::Extension {
 public:
     IntervalExtensionWrapper() : 
         v8::Extension(kIntervalExtensionName,
-          "native function HiResTime();"
-          "function Interval() {"
+          "var chromium;"
+          "if (!chromium)"
+          "  chromium = {};"
+          "chromium.Interval = function() {"
           "  var start_ = 0;"
           "  var stop_ = 0;"
+          "  native function HiResTime();"
           "  this.start = function() {"
+          "    stop_ = 0;"
           "    start_ = HiResTime();"
           "  };"
           "  this.stop = function() {"
@@ -27,9 +31,10 @@ public:
           "      stop_ = 0;"
           "  };"
           "  this.microseconds = function() {"
-          "    if (stop_ == 0)"
-          "      stop();"
-          "    return Math.ceil((stop_ - start_) * 1000000);"
+          "    var stop = stop_;"
+          "    if (stop == 0 && start_ != 0)"
+          "      stop = HiResTime();"
+          "    return Math.ceil((stop - start_) * 1000000);"
           "  };"
           "}") {};
 
