@@ -263,5 +263,3 @@ STDMETHODIMP AutocompleteAccessibility::put_accValue(VARIANT var_id,
   // Deprecated.
   return DISP_E_MEMBERNOTFOUND;
 }
-
-

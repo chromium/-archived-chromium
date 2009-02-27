@@ -25,20 +25,17 @@
 using base::Time;
 using base::TimeDelta;
 
-const int SearchProvider::kQueryDelayMs = 200;
-
 void SearchProvider::Start(const AutocompleteInput& input,
                            bool minimal_changes) {
   matches_.clear();
 
-  // Can't return search/suggest results for bogus input or if there is no
-  // profile.
+  // Can't return search/suggest results for bogus input or without a profile.
   if (!profile_ || (input.type() == AutocompleteInput::INVALID)) {
     Stop();
     return;
   }
 
-  // Can't search with no default provider.
+  // Can't search without a default provider.
   const TemplateURL* const current_default_provider =
       profile_->GetTemplateURLModel()->GetDefaultSearchProvider();
   // TODO(pkasting): http://b/1155786  Eventually we should not need all these
@@ -118,9 +115,9 @@ void SearchProvider::OnURLFetchComplete(const URLFetcher* source,
   const net::HttpResponseHeaders* const response_headers =
       source->response_headers();
   std::string json_data(data);
-  // JSON is supposed to be in UTF-8, but some suggest service
-  // providers send JSON files in non-UTF-8 encodings, but they're 
-  // usually correctly specified in Content-Type header field.
+  // JSON is supposed to be UTF-8, but some suggest service providers send JSON
+  // files in non-UTF-8 encodings.  The actual encoding is usually specified in
+  // the Content-Type header field.
   if (response_headers) {
     std::string charset;
     if (response_headers->GetCharset(&charset)) {
@@ -170,6 +167,11 @@ void SearchProvider::StartOrStopHistoryQuery(bool minimal_changes) {
 }
 
 void SearchProvider::StartOrStopSuggestQuery(bool minimal_changes) {
+  // Don't send any queries to the server until some time has elapsed after
+  // the last keypress, to avoid flooding the server with requests we are
+  // likely to end up throwing away anyway.
+  static const int kQueryDelayMs = 200;
+
   if (!IsQuerySuitableForSuggest()) {
     StopSuggest();
     return;
@@ -391,13 +393,12 @@ void SearchProvider::ConvertResultsToAutocompleteMatches() {
 
   UpdateStarredStateOfMatches();
 
-  // We're done when both asynchronous subcomponents have finished.
-  // We can't use CancelableRequestConsumer.HasPendingRequests() for
-  // history requests here.  A pending request is not cleared until after the
-  // completion callback has returned, but we've reached here from inside that
-  // callback.  HasPendingRequests() would therefore return true, and if this is
-  // the last thing left to calculate for this query, we'll never mark the query
-  // "done".
+  // We're done when both asynchronous subcomponents have finished.  We can't
+  // use CancelableRequestConsumer.HasPendingRequests() for history requests
+  // here.  A pending request is not cleared until after the completion
+  // callback has returned, but we've reached here from inside that callback.
+  // HasPendingRequests() would therefore return true, and if this is the last
+  // thing left to calculate for this query, we'll never mark the query "done".
   done_ = !history_request_pending_ &&
           !suggest_results_pending_;
 }
@@ -433,8 +434,8 @@ int SearchProvider::CalculateRelevanceForHistory(const Time& time) const {
   const double elapsed_time = std::max((Time::Now() - time).InSecondsF(), 0.);
   const int score_discount = static_cast<int>(6.5 * pow(elapsed_time, 0.3));
 
-  // Don't let scores go below 0.  Negative relevance scores are meaningful in a
-  // different way.
+  // Don't let scores go below 0.  Negative relevance scores are meaningful in
+  // a different way.
   int base_score;
   switch (input_.type()) {
     case AutocompleteInput::UNKNOWN:

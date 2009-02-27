@@ -5,6 +5,7 @@
 #include "chrome/browser/autocomplete/keyword_provider.h"
 
 #include <algorithm>
+#include <vector>
 
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
@@ -40,7 +41,10 @@ KeywordProvider::KeywordProvider(ACProviderListener* listener,
 }
 
 
-class KeywordProvider::CompareQuality {
+namespace {
+
+// Helper functor for Start(), for sorting keyword matches by quality.
+class CompareQuality {
  public:
   // A keyword is of higher quality when a greater fraction of it has been
   // typed, that is, when it is shorter.
@@ -54,6 +58,8 @@ class KeywordProvider::CompareQuality {
     return keyword1.length() < keyword2.length();
   }
 };
+
+}  // namespace
 
 void KeywordProvider::Start(const AutocompleteInput& input,
                             bool minimal_changes) {
@@ -276,4 +282,3 @@ AutocompleteMatch KeywordProvider::CreateAutocompleteMatch(
 
   return result;
 }
-

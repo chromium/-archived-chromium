@@ -10,7 +10,7 @@
 #include <atlcrack.h>
 #include <atlctrls.h>
 #include <atlmisc.h>
-#include <tom.h> // For ITextDocument, a COM interface to CRichEditCtrl
+#include <tom.h>  // For ITextDocument, a COM interface to CRichEditCtrl.
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
@@ -920,4 +920,3 @@ struct AutocompleteEditState {
 };
 
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_EDIT_H_
-

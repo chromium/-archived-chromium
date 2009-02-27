@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H__
-#define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H__
+#ifndef CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H_
+#define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H_
 
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
@@ -93,4 +93,4 @@ class HistoryContentsProvider : public AutocompleteProvider {
   DISALLOW_EVIL_CONSTRUCTORS(HistoryContentsProvider);
 };
 
-#endif  // CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H__
+#endif  // CHROME_BROWSER_AUTOCOMPLETE_HISTORY_CONTENTS_PROVIDER_H_

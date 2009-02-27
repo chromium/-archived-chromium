@@ -273,4 +273,3 @@ TEST(AutocompleteMatch, MoreRelevant) {
               AutocompleteMatch::MoreRelevant(m1, m2));
   }
 }
-

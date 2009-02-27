@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H__
-#define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H__
+#ifndef CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H_
+#define CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H_
 
 #include <map>
 #include <vector>
@@ -390,5 +390,4 @@ class HistoryURLProvider : public AutocompleteProvider {
   HistoryURLProviderParams* params_;
 };
 
-#endif  // CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H__
-
+#endif  // CHROME_BROWSER_AUTOCOMPLETE_HISTORY_URL_PROVIDER_H_

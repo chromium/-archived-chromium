@@ -192,4 +192,3 @@ TEST_F(KeywordProviderTest, RemoveKeyword) {
   model_->Remove(model_->GetTemplateURLForKeyword(L"aaaa"));
   ASSERT_TRUE(model_->GetTemplateURLForKeyword(L"aaaa") == NULL);
 }
-

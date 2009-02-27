@@ -12,8 +12,12 @@
 // the autocomplete controller and autocomplete providers work, see
 // chrome/browser/autocomplete.h.
 
-#ifndef CHROME_BROWSER_AUTOCOMPLETE_SEARCH_PROVIDER_H__
-#define CHROME_BROWSER_AUTOCOMPLETE_SEARCH_PROVIDER_H__
+#ifndef CHROME_BROWSER_AUTOCOMPLETE_SEARCH_PROVIDER_H_
+#define CHROME_BROWSER_AUTOCOMPLETE_SEARCH_PROVIDER_H_
+
+#include <map>
+#include <string>
+#include <vector>
 
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/history/history.h"
@@ -140,21 +144,15 @@ class SearchProvider : public AutocompleteProvider,
   // TODO(kochi): this is duplicate from history_autocomplete
   static size_t TrimHttpPrefix(std::wstring* url);
 
-  // Don't send any queries to the server until some time has elapsed after
-  // the last keypress, to avoid flooding the server with requests we are
-  // likely to end up throwing away anyway.
-  static const int kQueryDelayMs;
-
   // The user's input.
   AutocompleteInput input_;
 
-  TemplateURL default_provider_;  // Cached across the life of a query so we
-                                  // behave consistently even if the user
-                                  // changes their default while the query is
-                                  // running.
+  // Cached across the life of a query so we behave consistently even if the
+  // user changes their default while the query is running.
+  TemplateURL default_provider_;
+
+  // TODO(pkasting): http://b/1162970  We shouldn't need this.
   const TemplateURL* last_default_provider_;
-                                  // TODO(pkasting): http://b/1162970  We
-                                  // shouldn't need this.
 
   // An object we can use to cancel history requests.
   CancelableRequestConsumer history_request_consumer_;
@@ -192,4 +190,4 @@ class SearchProvider : public AutocompleteProvider,
   DISALLOW_EVIL_CONSTRUCTORS(SearchProvider);
 };
 
-#endif  // CHROME_BROWSER_AUTOCOMPLETE_SEARCH_PROVIDER_H__
+#endif  // CHROME_BROWSER_AUTOCOMPLETE_SEARCH_PROVIDER_H_

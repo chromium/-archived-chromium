@@ -56,4 +56,3 @@ class EditDropTarget : public BaseDropTarget {
 };
 
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_EDIT_DROP_TARGET_H_
-

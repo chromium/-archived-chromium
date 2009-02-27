@@ -110,5 +110,3 @@ class ATL_NO_VTABLE AutocompleteAccessibility
   DISALLOW_EVIL_CONSTRUCTORS(AutocompleteAccessibility);
 };
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_ACCESSIBILITY_H_
-
-

@@ -361,4 +361,3 @@ class AutocompletePopupModel : public NotificationObserver {
 };
 
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_H_
-

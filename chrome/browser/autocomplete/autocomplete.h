@@ -5,9 +5,9 @@
 #ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H_
 #define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_H_
 
-#include <map>
 #include <string>
 #include <vector>
+
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/timer.h"
@@ -140,13 +140,13 @@ typedef std::vector<AutocompleteProvider*> ACProviders;
 class AutocompleteInput {
  public:
   enum Type {
-    INVALID,       // Empty input
-    UNKNOWN,       // Valid input whose type cannot be determined
-    REQUESTED_URL, // Input autodetected as UNKNOWN, which the user wants to
-                   // treat as an URL by specifying a desired_tld
-    URL,           // Input autodetected as a URL
-    QUERY,         // Input autodetected as a query
-    FORCED_QUERY,  // Input forced to be a query by an initial '?'
+    INVALID,        // Empty input
+    UNKNOWN,        // Valid input whose type cannot be determined
+    REQUESTED_URL,  // Input autodetected as UNKNOWN, which the user wants to
+                    // treat as an URL by specifying a desired_tld
+    URL,            // Input autodetected as a URL
+    QUERY,          // Input autodetected as a query
+    FORCED_QUERY,   // Input forced to be a query by an initial '?'
   };
 
   AutocompleteInput()
@@ -155,7 +155,7 @@ class AutocompleteInput {
         prefer_keyword_(false),
         synchronous_only_(false) {
   }
-  
+
   AutocompleteInput(const std::wstring& text,
                     const std::wstring& desired_tld,
                     bool prevent_inline_autocomplete,
@@ -733,7 +733,6 @@ class AutocompleteController : public ACProviderListener {
 
   // Copies |latest_result_| to |result_| and notifies observers of updates.
   void CommitResult();
-
   // Returns the matches from |provider| whose destination urls are not in
   // |latest_result_|.
   ACMatches GetMatchesNotInLatestResult(
