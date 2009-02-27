@@ -619,6 +619,9 @@ bool EditorClientImpl::handleEditingKeyboardEvent(
       return false;
   }
 
+  if (!frame->editor()->canEdit())
+    return false;
+
   return frame->editor()->insertText(evt->keyEvent()->text(), evt);
 }
 
