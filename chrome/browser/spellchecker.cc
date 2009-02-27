@@ -229,9 +229,6 @@ class UIProxyForIOTask : public Task {
 // made to initialize hunspell_. If it fails even then (dictionary could not
 // download), no more attempts are made to initialize it.
 
-// TODO(sidchat): Implement options to download dictionary as zip files or
-// mini installer
-
 // ############################################################################
 
 // This object downloads the dictionary files asynchronously by first
@@ -330,15 +327,13 @@ void SpellChecker::set_file_is_downloading(bool value) {
 
 FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
                                             const FilePath& dict_dir) {
-  // The default version string currently in use.
+  // The default dictionary version is 1-2. These versions have been augmented
+  // with additional words found by the translation team.
   static const wchar_t kDefaultVersionString[] = L"-1-2";
 
-  // Use this struct to insert version strings for dictionary files which have
-  // special version strings, other than the default version string. For eight
-  // languages (included below in the struct), the version is kept at 1-1. The
-  // others (19 of them) have been updated to new default version 1-2 which
-  // contains many new words.
-  // TODO(sidchat): Work on these 8 languages to bring them upto version 1-2.
+  // The following dictionaries have either not been augmented with additional
+  // words (version 1-1) or have new words, as well as an upgraded dictionary
+  // as of Feb 2009 (version 1-3).
   static const struct {
     // The language input.
     const char* language;
@@ -355,7 +350,9 @@ FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
     {"el-GR", "-1-1"},
     {"hi-IN", "-1-1"},
     {"tr-TR", "-1-1"},
-    {"et-EE", "-1-1"}
+    {"et-EE", "-1-1"},
+    {"fr-FR", "-1-3"},
+    {"pl-PL", "-1-3"}
   };
 
   // Generate the bdict file name using default version string or special
