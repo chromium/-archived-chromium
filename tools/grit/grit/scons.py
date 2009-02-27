@@ -12,6 +12,8 @@
 import os
 import types
 
+import SCons.Errors
+
 def _IsDebugEnabled():
   return 'GRIT_DEBUG' in os.environ and os.environ['GRIT_DEBUG'] == '1'
 
@@ -45,36 +47,42 @@ def _Builder(target, source, env):
   # fork, we can use multiple processes and processors.
   pid = os.fork()
   if pid != 0:
-    os.waitpid(pid, 0)
+    pid, exit_code = os.waitpid(pid, 0)
+    if exit_code != 0:
+      raise SCons.Errors.BuildError(errstr="see grit error")
     return
-  from grit import grit_runner
-  from grit.tool import build
-  options = grit_runner.Options()
-  # This sets options to default values.
-  options.ReadOptions(['-v'])
-  options.input = _SourceToFile(source)
+  try:
+    child_exit_code = 0
+    from grit import grit_runner
+    from grit.tool import build
+    options = grit_runner.Options()
+    # This sets options to default values.
+    options.ReadOptions(['-v'])
+    options.input = _SourceToFile(source)
 
-  # TODO(joi) Check if we can get the 'verbose' option from the environment.
+    # TODO(joi) Check if we can get the 'verbose' option from the environment.
 
-  builder = build.RcBuilder()
+    builder = build.RcBuilder()
 
-  # Get the CPP defines from the environment.
-  for flag in env.get('RCFLAGS', []):
-    if flag.startswith('/D'):
-      flag = flag[2:]
-    name, val = build.ParseDefine(flag)
-    # Only apply to first instance of a given define
-    if name not in builder.defines:
-      builder.defines[name] = val
+    # Get the CPP defines from the environment.
+    for flag in env.get('RCFLAGS', []):
+      if flag.startswith('/D'):
+        flag = flag[2:]
+      name, val = build.ParseDefine(flag)
+      # Only apply to first instance of a given define
+      if name not in builder.defines:
+        builder.defines[name] = val
 
-  # To ensure that our output files match what we promised SCons, we
-  # use the list of targets provided by SCons and update the file paths in
-  # our .grd input file with the targets.
-  builder.scons_targets = [str(t) for t in target]
-  builder.Run(options, [])
-
-  # Exit the child process.
-  os._exit(0)
+    # To ensure that our output files match what we promised SCons, we
+    # use the list of targets provided by SCons and update the file paths in
+    # our .grd input file with the targets.
+    builder.scons_targets = [str(t) for t in target]
+    builder.Run(options, [])
+  except:
+    child_exit_code = -1
+  finally:
+    # Exit the child process.
+    os._exit(child_exit_code)
 
 
 def _Emitter(target, source, env):
