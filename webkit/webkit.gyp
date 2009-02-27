@@ -949,6 +949,7 @@
         # V8 bindings not generated from .idl source.
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CSSStyleDeclarationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomBinding.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomSQLStatementCallback.cpp',
@@ -965,6 +966,7 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMStringListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMWindowCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DatabaseCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8DocumentCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8EventCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLCollectionCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLDocumentCustom.cpp',
@@ -980,6 +982,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodeMapCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodesCollection.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodesCollection.h',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8NavigatorCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeFilterCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeIteratorCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeListCustom.cpp',
@@ -994,6 +998,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XMLSerializerConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XPathEvaluatorConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XSLTProcessorCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/ScheduledAction.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/ScheduledAction.h',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptCachedFrameData.h',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptCallFrame.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptCallFrame.h',
@@ -2582,6 +2588,8 @@
         '../third_party/WebKit/WebCore/platform/network/soup/ResourceHandleSoup.cpp',
         '../third_party/WebKit/WebCore/platform/network/soup/ResourceRequest.h',
         '../third_party/WebKit/WebCore/platform/network/soup/ResourceResponse.h',
+        '../third_party/WebKit/WebCore/platform/network/soup/webkit-soup-auth-dialog.c',
+        'third_party/WebKit/WebCore/platform/network/soup/webkit-soup-auth-dialog.h',
         '../third_party/WebKit/WebCore/platform/network/win/CookieJarCFNetWin.cpp',
         '../third_party/WebKit/WebCore/platform/network/win/CookieJarWin.cpp',
         '../third_party/WebKit/WebCore/platform/network/win/CookieStorageWin.cpp',
@@ -3804,6 +3812,8 @@
 
         # Not ready to build yet.
         # TODO(mark): Remove when ready.
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8DocumentCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLDocumentCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeIteratorCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8TreeWalkerCustom.cpp',
