@@ -6,13 +6,14 @@ include_rules = [
   "+sandbox/src",
   "+skia/include",
   "+webkit/glue",
-  
+
   # Other libraries.
+  "+chrome/third_party/xdg_user_dirs",
   "+third_party/bzip2",
   "+third_party/npapi",
   "+third_party/sqlite",
   "+third_party/zlib",
-  
+
   # FIXME - refactor code and remove these dependencies
   "+chrome/app",
   "+chrome/browser",
