@@ -94,20 +94,27 @@ TEST_F(L10nUtilTest, GetAppLocale) {
   PathService::Override(chrome::DIR_LOCALES, new_locale_dir);
   // Make fake locale files.
   const wchar_t* filenames[] = {
-    L"en-US.dll",
-    L"en-GB.dll",
-    L"fr.dll",
-    L"es-419.dll",
-    L"es.dll",
-    L"zh-TW.dll",
-    L"zh-CN.dll",
-    L"he.dll",
-    L"fil.dll",
-    L"nb.dll",
+    L"en-US",
+    L"en-GB",
+    L"fr",
+    L"es-419",
+    L"es",
+    L"zh-TW",
+    L"zh-CN",
+    L"he",
+    L"fil",
+    L"nb",
   };
+
+#if defined(OS_WIN)
+  static const wchar_t kLocaleFileExtension[] = L".dll";
+#elif defined(OS_POSIX)
+  static const wchar_t kLocaleFileExtension[] = L".pak";
+#endif
   for (size_t i = 0; i < arraysize(filenames); ++i) {
     std::wstring filename = new_locale_dir;
     file_util::AppendToPath(&filename, filenames[i]);
+    filename += kLocaleFileExtension;
     file_util::WriteFile(filename, "", 0);
   }
 
