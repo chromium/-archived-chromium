@@ -1168,7 +1168,6 @@
             'browser/debugger/debugger_window.cc',
             'browser/importer/firefox2_importer.cc',
             'browser/importer/firefox3_importer.cc',
-            'browser/importer/firefox_importer_utils.cc',
             'browser/importer/ie_importer.cc',
             'browser/tab_contents/native_ui_contents.cc',
             'browser/tab_contents/render_view_context_menu_controller.cc',
