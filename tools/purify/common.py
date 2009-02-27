@@ -128,8 +128,9 @@ def RunSubprocess(proc, timeout=0, detach=False):
   elif not detach:
     for line in p.stdout.readlines():
       _print_line(line, False)
-    logging.info("flushing stdout")
-    p.stdout.flush()
+    if sys.platform != 'darwin':   # stdout flush fails on Mac
+      logging.info("flushing stdout")
+      p.stdout.flush()
 
   logging.info("collecting result code")
   result = p.poll()
@@ -331,6 +332,3 @@ class Rational(object):
             except:
               logging.warning("unable to delete file %s: %s" % (file, 
                               sys.exc_info()[0]))
-
-
-

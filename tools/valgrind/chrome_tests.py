@@ -75,7 +75,7 @@ class ChromeTests:
     # an absolute Windows-style path
     self._source_dir = utility.GetAbsolutePath(self._source_dir)
     valgrind_test = os.path.join(script_dir, "valgrind_test.py")
-    self._command_preamble = ["python", valgrind_test, "--echo_to_stdout",
+    self._command_preamble = ["python", valgrind_test,
                               "--source_dir=%s" % (self._source_dir)]
 
   def _DefaultCommand(self, module, exe=None):
@@ -354,4 +354,3 @@ def _main(argv):
 if __name__ == "__main__":
   ret = _main(sys.argv)
   sys.exit(ret)
-

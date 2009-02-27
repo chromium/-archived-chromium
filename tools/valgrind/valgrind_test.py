@@ -14,12 +14,8 @@ import glob
 import logging
 import optparse
 import os
-import re
 import shutil
 import sys
-import time
-
-import google.path_utils
 
 import common
 
@@ -27,18 +23,26 @@ import valgrind_analyze
 
 rmtree = shutil.rmtree
 
-class Valgrind():
+class Valgrind(object):
+
+  """Abstract class for running Valgrind.
+
+  Always subclass this and implement ValgrindCommand() with platform specific
+  stuff.
+  """
+
   TMP_DIR = "valgrind.tmp"
 
   def __init__(self):
     self._suppressions_files = []
+    # If we have a valgrind.tmp directory, we failed to cleanup last time.
+    if os.path.exists(self.TMP_DIR):
+      shutil.rmtree(self.TMP_DIR)
+    os.mkdir(self.TMP_DIR)
 
   def CreateOptionParser(self):
     self._parser = optparse.OptionParser("usage: %prog [options] <program to "
                                          "test>")
-    self._parser.add_option("-e", "--echo_to_stdout",
-                      dest="echo_to_stdout", action="store_true", default=False,
-                      help="echo purify output to standard output")
     self._parser.add_option("-t", "--timeout",
                       dest="timeout", metavar="TIMEOUT", default=10000,
                       help="timeout in seconds for the run (default 10000)")
@@ -65,37 +69,17 @@ class Valgrind():
   def Setup(self):
     return self.ParseArgv()
 
+  def ValgrindCommand(self):
+    """Get the valgrind command to run."""
+    raise RuntimeError, "Never use Valgrind directly. Always subclass and " \
+                        "implement ValgrindCommand() at least"
+
   def Execute(self):
     ''' Execute the app to be tested after successful instrumentation.
     Full execution command-line provided by subclassers via proc.'''
     logging.info("starting execution...")
-    # note that self._args begins with the exe to be run
-    # TODO(erg): We probably want to get a version of valgrind that supports
-    # the "--track-origins" option...
-    proc = ["valgrind", "--smc-check=all", "--leak-check=full",
-            "--num-callers=30"]
 
-    # Either generate suppressions or load them.
-    if self._generate_suppressions:
-      proc += ["--gen-suppressions=all"]
-    else:
-      proc += ["--xml=yes"]
-
-    suppression_count = 0
-    for suppression_file in self._suppressions:
-      if os.path.exists(suppression_file):
-        suppression_count += 1
-        proc += ["--suppressions=%s" % suppression_file]
-
-    if not suppression_count:
-      logging.warning("WARNING: NOT USING SUPPRESSIONS!")
-
-    proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"] + self._args
-
-    # If we have a valgrind.tmp directory, we failed to cleanup last time.
-    if os.path.exists(self.TMP_DIR):
-      shutil.rmtree(self.TMP_DIR)
-    os.mkdir(self.TMP_DIR)
+    proc = self.ValgrindCommand()
     common.RunSubprocess(proc, self._timeout)
 
     # Always return true, even if running the subprocess failed. We depend on
@@ -151,10 +135,71 @@ class Valgrind():
     return retcode
 
 
+class ValgrindLinux(Valgrind):
+
+  """Valgrind on Linux."""
+
+  def __init__(self):
+    Valgrind.__init__(self)
+
+  def ValgrindCommand(self):
+    """Get the valgrind command to run."""
+    # note that self._args begins with the exe to be run
+    # TODO(erg): We probably want to get a version of valgrind that supports
+    # the "--track-origins" option...
+    proc = ["valgrind", "--smc-check=all", "--leak-check=full",
+            "--num-callers=30"]
+
+    # Either generate suppressions or load them.
+    if self._generate_suppressions:
+      proc += ["--gen-suppressions=all"]
+    else:
+      proc += ["--xml=yes"]
+
+    suppression_count = 0
+    for suppression_file in self._suppressions:
+      if os.path.exists(suppression_file):
+        suppression_count += 1
+        proc += ["--suppressions=%s" % suppression_file]
+
+    if not suppression_count:
+      logging.warning("WARNING: NOT USING SUPPRESSIONS!")
+
+    proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"] + self._args
+    return proc
+
+
+class ValgrindMac(Valgrind):
+
+  """Valgrind on Mac OS X.
+
+  Valgrind on OS X does not support suppressions (yet).
+  """
+
+  def __init__(self):
+    Valgrind.__init__(self)
+
+  def ValgrindCommand(self):
+    """Get the valgrind command to run."""
+    proc = ["valgrind", "--leak-check=full"]
+    proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"] + self._args
+    return proc
+
+  def Analyze(self):
+    # TODO(nirnimesh): Implement analysis later. Valgrind on Mac is new so
+    # analysis might not be useful until we have stable output from valgring
+    return 0
+
 
 if __name__ == "__main__":
-  valgrind = Valgrind()
-  retcode = valgrind.Main()
-  sys.exit(retcode)
-
-
+  if sys.platform == 'darwin': # Mac
+    valgrind = ValgrindMac()
+    retcode = valgrind.Main()
+    sys.exit(retcode)
+  elif sys.platform == 'linux2': # Linux
+    valgrind = ValgrindLinux()
+    retcode = valgrind.Main()
+    sys.exit(retcode)
+  else:
+    logging.error("Unknown platform: %s" % sys.platform)
+    sys.exit(1)
