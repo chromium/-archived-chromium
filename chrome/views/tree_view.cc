@@ -525,10 +525,9 @@ void TreeView::DeleteRootItems() {
     if (root_shown_) {
       RecursivelyDelete(GetNodeDetailsByTreeItem(root));
     } else {
-      HTREEITEM node;
-      while ((node = TreeView_GetChild(tree_view_, root))) {
-        RecursivelyDelete(GetNodeDetailsByTreeItem(node));
-      }
+      do {
+        RecursivelyDelete(GetNodeDetailsByTreeItem(root));
+      } while ((root = TreeView_GetRoot(tree_view_)));
     }
   }
 }
