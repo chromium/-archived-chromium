@@ -129,8 +129,8 @@ TEST(FilterTest, MissingSdchEncoding) {
   // Loss of encoding, but it was an SDCH response with a prefix that says it
   // was an html type.  Note that it *should* be the case that a precise match
   // with "text/html" we be collected by GetMimeType() and passed in, but we
-  // coded the fixup defensively (scanning for a prexif of "text/html", so this
-  // is an example which could survive such confusion in the caller.
+  // coded the fixup defensively (scanning for a prefix of "text/html", so this
+  // is an example which could survive such confusion in the caller).
   encoding_types.clear();
   Filter::FixupEncodingTypes(is_sdch_response, "text/html; charset=UTF-8",
                              &encoding_types);

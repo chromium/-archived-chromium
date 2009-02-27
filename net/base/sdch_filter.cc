@@ -45,9 +45,21 @@ SdchFilter::~SdchFilter() {
     }
   }
 
-  if (!was_cached()
-      && base::Time() != connect_time()
-      && read_times_.size() > 0) {
+  if (!dest_buffer_excess_.empty()) {
+    // Filter chaining error, or premature teardown.
+    SdchManager::SdchErrorRecovery(SdchManager::UNFLUSHED_CONTENT);
+  }
+
+  if (was_cached()) {
+    // Not a real error, but it is useful to have this tally.
+    // TODO(jar): Remove this stat after SDCH stability is validated.
+    SdchManager::SdchErrorRecovery(SdchManager::CACHE_DECODED);
+  } else if (base::Time() == connect_time()
+      || read_times_.empty()) {
+    // Not a real error, but it is useful to have this tally.
+    // TODO(jar): Remove this stat after SDCH stability is validated.
+    SdchManager::SdchErrorRecovery(SdchManager::MISSING_TIME_STATS);
+  } else {
     base::TimeDelta duration = read_times_.back() - connect_time();
     // We clip our logging at 10 minutes to prevent anamolous data from being
     // considered (per suggestion from Jake Brutlag).

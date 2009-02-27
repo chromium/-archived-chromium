@@ -126,6 +126,14 @@ class SdchManager {
     META_REFRESH_CACHED_RECOVERY = 80,  // Probably startup tab loading.
     DISCARD_TENTATIVE_SDCH = 81,        // Server decided not to use sdch.
 
+    // Non SDCH problems, only accounted for to make stat counting complete
+    // (i.e., be able to be sure all dictionary advertisements are accounted
+    // for).
+
+    UNFLUSHED_CONTENT = 90,  // Possible error in filter chaining.
+    MISSING_TIME_STATS = 91,  // Should never happen.
+    CACHE_DECODED = 92,  // Hence there are no timing stats recorded.
+
     MAX_PROBLEM_CODE  // Used to bound histogram.
   };
 
