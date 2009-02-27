@@ -270,6 +270,9 @@ class BookmarkBarView : public views::View,
   // appropriately.
   void BookmarkNodeChangedImpl(BookmarkModel* model, BookmarkNode* node);
 
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node);
+
   // Invoked when the favicon is available. If the node is a child of the
   // root node, the appropriate button is updated. If a menu is showing, the
   // call is forwarded to the menu to allow for it to update the icon.

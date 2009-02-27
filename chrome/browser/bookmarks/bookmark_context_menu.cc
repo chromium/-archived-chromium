@@ -165,6 +165,11 @@ class EditFolderController : public InputWindowDelegate,
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {
+    ModelChanged();
+  }
+
   void ModelChanged() {
     window_->Close();
   }
@@ -288,6 +293,13 @@ BookmarkContextMenu::BookmarkContextMenu(
         IDS_COPY, l10n_util::GetString(IDS_COPY));
     menu_->AppendMenuItemWithLabel(
         IDS_PASTE, l10n_util::GetString(IDS_PASTE));
+  }
+
+  if (configuration == BOOKMARK_MANAGER_ORGANIZE_MENU) {
+    menu_->AppendSeparator();
+    menu_->AppendMenuItemWithLabel(
+        IDS_BOOKMARK_MANAGER_SORT,
+        l10n_util::GetString(IDS_BOOKMARK_MANAGER_SORT));
   }
 
   menu_->AppendSeparator();
@@ -437,6 +449,11 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       BookmarkManagerView::Show(profile_);
       break;
 
+    case IDS_BOOKMARK_MANAGER_SORT:
+      UserMetrics::RecordAction(L"BookmarkManager_Sort", profile_);
+      model_->SortChildren(parent_);
+      break;
+
     case IDS_COPY:
     case IDS_CUT:
       bookmark_utils::CopyToClipboard(profile_->GetBookmarkModel(),
@@ -494,6 +511,9 @@ bool BookmarkContextMenu::IsCommandEnabled(int id) const {
               configuration_ == BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER) &&
              selection_.size() == 1;
 
+    case IDS_BOOKMARK_MANAGER_SORT:
+      return parent_ && parent_ != model_->root_node();
+
     case IDS_BOOMARK_BAR_NEW_FOLDER:
     case IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK:
       return GetParentForNewNodes() != NULL;
@@ -536,6 +556,11 @@ void BookmarkContextMenu::BookmarkNodeRemoved(BookmarkModel* model,
 
 void BookmarkContextMenu::BookmarkNodeChanged(BookmarkModel* model,
                                               BookmarkNode* node) {
+  ModelChanged();
+}
+
+void BookmarkContextMenu::BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                                        BookmarkNode* node) {
   ModelChanged();
 }
 

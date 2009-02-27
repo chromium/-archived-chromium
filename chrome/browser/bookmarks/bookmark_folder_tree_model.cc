@@ -130,6 +130,40 @@ void BookmarkFolderTreeModel::BookmarkNodeChanged(BookmarkModel* model,
     GetObserver()->TreeNodeChanged(this, folder_node);
 }
 
+void BookmarkFolderTreeModel::BookmarkNodeChildrenReordered(
+    BookmarkModel* model,
+    BookmarkNode* node) {
+  FolderNode* folder_node = GetFolderNodeForBookmarkNode(node);
+  DCHECK(folder_node);
+  if (folder_node->GetChildCount() <= 1)
+    return;  // Order won't have changed if 1 or fewer nodes.
+
+  // Build a map between folder node and bookmark node.
+  std::map<BookmarkNode*, FolderNode*> bn_to_folder;
+  for (int i = 0; i < folder_node->GetChildCount(); ++i)
+    bn_to_folder[folder_node->GetChild(i)->value] = folder_node->GetChild(i);
+
+  // Remove all the folder nodes.
+  int original_count = folder_node->GetChildCount();
+  folder_node->RemoveAll();
+
+  // And add them back in the new order.
+  for (int i = 0; i < node->GetChildCount(); ++i) {
+    BookmarkNode* child = node->GetChild(i);
+    if (child->is_folder()) {
+      DCHECK(bn_to_folder.find(child) != bn_to_folder.end());
+      folder_node->Add(folder_node->GetChildCount(), bn_to_folder[child]);
+    }
+  }
+  // The new count better match the original count, otherwise we're leaking and
+  // treeview is likely to get way out of sync.
+  DCHECK(original_count == folder_node->GetChildCount());
+
+  // Finally, notify observers.
+  if (GetObserver())
+    GetObserver()->TreeNodeChildrenReordered(this, folder_node);
+}
+
 void BookmarkFolderTreeModel::GetIcons(std::vector<SkBitmap>* icons) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   icons->push_back(*rb.GetBitmapNamed(IDR_BOOKMARK_MANAGER_RECENT_ICON));

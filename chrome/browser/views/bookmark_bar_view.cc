@@ -1290,6 +1290,10 @@ void BookmarkBarView::BookmarkNodeRemoved(BookmarkModel* model,
 void BookmarkBarView::BookmarkNodeRemovedImpl(BookmarkModel* model,
                                               BookmarkNode* parent,
                                               int index) {
+  StopThrobbing(true);
+  // No need to start throbbing again as the bookmark bubble can't be up at
+  // the same time as the user reorders.
+
   NotifyModelChanged();
   if (parent != model_->GetBookmarkBarNode()) {
     // We only care about nodes on the bookmark bar.
@@ -1327,6 +1331,27 @@ void BookmarkBarView::BookmarkNodeChangedImpl(BookmarkModel* model,
   } else if (button->IsVisible()) {
     button->SchedulePaint();
   }
+}
+
+void BookmarkBarView::BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                                    BookmarkNode* node) {
+  NotifyModelChanged();
+  if (node != model_->GetBookmarkBarNode())
+    return;  // We only care about reordering of the bookmark bar node.
+
+  // Remove the existing buttons.
+  while (GetBookmarkButtonCount()) {
+    views::View* button = GetChildViewAt(0);
+    RemoveChildView(button);
+    MessageLoop::current()->DeleteSoon(FROM_HERE, button);
+  }
+
+  // Create the new buttons.
+  for (int i = 0; i < node->GetChildCount(); ++i)
+    AddChildView(i, CreateBookmarkButton(node->GetChild(i)));
+
+  Layout();
+  SchedulePaint();
 }
 
 void BookmarkBarView::BookmarkNodeFavIconLoaded(BookmarkModel* model,

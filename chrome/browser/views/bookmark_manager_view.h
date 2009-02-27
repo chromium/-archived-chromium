@@ -126,6 +126,8 @@ class BookmarkManagerView : public views::View,
                                    BookmarkNode* node) {}
   virtual void BookmarkNodeChanged(BookmarkModel* model,
                                    BookmarkNode* node) {}
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {}
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 

@@ -151,12 +151,14 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler,
   virtual void BookmarkNodeChanged(BookmarkModel* model,
                                    BookmarkNode* node);
 
-  // These two won't effect what is shown, so they do nothing.
+  // These won't effect what is shown, so they do nothing.
   virtual void BookmarkNodeMoved(BookmarkModel* model,
                                  BookmarkNode* old_parent,
                                  int old_index,
                                  BookmarkNode* new_parent,
                                  int new_index) {}
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {}
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 

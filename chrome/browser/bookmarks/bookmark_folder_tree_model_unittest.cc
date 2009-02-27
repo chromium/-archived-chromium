@@ -20,6 +20,8 @@
 //   url2
 //   f2
 //   url3
+//   a1
+//   g1
 class BookmarkFolderTreeModelTest : public testing::Test,
                                     public views::TreeModelObserver {
  public:
@@ -29,7 +31,8 @@ class BookmarkFolderTreeModelTest : public testing::Test,
         url3_("http://3"),
         added_count_(0),
         removed_count_(0),
-        changed_count_(0) {
+        changed_count_(0),
+        reordered_count_(0) {
    }
 
   virtual void SetUp() {
@@ -78,16 +81,24 @@ class BookmarkFolderTreeModelTest : public testing::Test,
     changed_count_++;
   }
 
-  void VerifyAndClearObserverCounts(int changed_count, int added_count,
-                                      int removed_count) {
+  virtual void TreeNodeChildrenReordered(views::TreeModel* model,
+                                         views::TreeModelNode* parent) {
+    reordered_count_++;
+  }
+
+  void VerifyAndClearObserverCounts(int changed_count,
+                                    int added_count,
+                                    int removed_count,
+                                    int reordered_count) {
     EXPECT_EQ(changed_count, changed_count_);
     EXPECT_EQ(added_count, added_count_);
     EXPECT_EQ(removed_count, removed_count_);
+    EXPECT_EQ(reordered_count, reordered_count_);
     ResetCounts();
   }
 
   void ResetCounts() {
-    changed_count_ = removed_count_ = added_count_ = 0;
+    changed_count_ = removed_count_ = added_count_ = reordered_count_ = 0;
   }
 
   scoped_ptr<BookmarkFolderTreeModel> model_;
@@ -100,6 +111,7 @@ class BookmarkFolderTreeModelTest : public testing::Test,
   int changed_count_;
   int added_count_;
   int removed_count_;
+  int reordered_count_;
   scoped_ptr<TestingProfile> profile_;
 };
 
@@ -138,27 +150,27 @@ TEST_F(BookmarkFolderTreeModelTest, InitialState) {
 // Removes a URL node and makes sure we don't get any notification.
 TEST_F(BookmarkFolderTreeModelTest, RemoveURL) {
   bookmark_model()->Remove(bookmark_model()->GetBookmarkBarNode(), 0);
-  VerifyAndClearObserverCounts(0, 0, 0);
+  VerifyAndClearObserverCounts(0, 0, 0, 0);
 }
 
 // Changes the title of a URL and makes sure we don't get any notification.
 TEST_F(BookmarkFolderTreeModelTest, ChangeURL) {
   bookmark_model()->SetTitle(
       bookmark_model()->GetBookmarkBarNode()->GetChild(0), L"BLAH");
-  VerifyAndClearObserverCounts(0, 0, 0);
+  VerifyAndClearObserverCounts(0, 0, 0, 0);
 }
 
 // Adds a URL and make sure we don't get notification.
 TEST_F(BookmarkFolderTreeModelTest, AddURL) {
   bookmark_model()->AddURL(
       bookmark_model()->other_node(), 0, L"url1", url1_);
-  VerifyAndClearObserverCounts(0, 0, 0);
+  VerifyAndClearObserverCounts(0, 0, 0, 0);
 }
 
 // Removes a folder and makes sure we get the right notification.
 TEST_F(BookmarkFolderTreeModelTest, RemoveFolder) {
   bookmark_model()->Remove(bookmark_model()->GetBookmarkBarNode(), 1);
-  VerifyAndClearObserverCounts(0, 0, 1);
+  VerifyAndClearObserverCounts(0, 0, 1, 0);
   // Make sure the node was removed.
   EXPECT_EQ(0, model_->GetRoot()->GetChild(0)->GetChildCount());
 }
@@ -168,7 +180,7 @@ TEST_F(BookmarkFolderTreeModelTest, AddFolder) {
   BookmarkNode* new_group =
       bookmark_model()->AddGroup(
           bookmark_model()->GetBookmarkBarNode(), 0, L"fa");
-  VerifyAndClearObserverCounts(0, 1, 0);
+  VerifyAndClearObserverCounts(0, 1, 0, 0);
   // Make sure the node was added at the right place.
   // Make sure the node was removed.
   ASSERT_EQ(2, model_->GetRoot()->GetChild(0)->GetChildCount());
@@ -181,5 +193,27 @@ TEST_F(BookmarkFolderTreeModelTest, ChangeFolder) {
   bookmark_model()->SetTitle(
       bookmark_model()->GetBookmarkBarNode()->GetChild(1)->GetChild(0),
       L"BLAH");
-  VerifyAndClearObserverCounts(1, 0, 0);
+  VerifyAndClearObserverCounts(1, 0, 0, 0);
+}
+
+// Sorts the other folder, making sure the resulting order is correct and the
+// appropriate notification is sent.
+TEST_F(BookmarkFolderTreeModelTest, Sort) {
+  BookmarkNode* other = bookmark_model()->other_node();
+  bookmark_model()->AddGroup(other, 3, L"a1");
+  bookmark_model()->AddGroup(other, 4, L"g1");
+  ResetCounts();
+
+  bookmark_model()->SortChildren(other);
+
+  // Make sure we got notification.
+  VerifyAndClearObserverCounts(0, 0, 0, 1);
+
+  // Make sure the resulting order matches.
+  FolderNode* other_folder_node =
+      model_->GetFolderNodeForBookmarkNode(bookmark_model()->other_node());
+  ASSERT_EQ(3, other_folder_node->GetChildCount());
+  EXPECT_TRUE(other_folder_node->GetChild(0)->GetTitle() == L"a1");
+  EXPECT_TRUE(other_folder_node->GetChild(1)->GetTitle() == L"f2");
+  EXPECT_TRUE(other_folder_node->GetChild(2)->GetTitle() == L"g1");
 }

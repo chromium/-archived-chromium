@@ -46,6 +46,9 @@ class BookmarkTableModel : public views::TableModel,
   // BookmarkModelObserver methods.
   virtual void Loaded(BookmarkModel* model) {}
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {}
+
 
   // Returns the index of the specified node, or -1 if the node isn't in the
   // model.

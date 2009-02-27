@@ -64,6 +64,8 @@ class BookmarkFolderTreeModel : public views::TreeNodeModel<FolderNode>,
                                    BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
                                    BookmarkNode* node);
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node);
   // Folders don't have favicons, so we ignore this.
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}

@@ -41,9 +41,8 @@ class TreeModelObserver {
 
   // Notification the children of |parent| have been reordered. Note, only
   // the direct children of |parent| have been reordered, not descendants.
-  // TODO(sky): make this pure virtual after all sites have been updated.
   virtual void TreeNodeChildrenReordered(TreeModel* model,
-                                         TreeModelNode* parent) {}
+                                         TreeModelNode* parent) = 0;
 
   // Notification that the contents of a node has changed.
   virtual void TreeNodeChanged(TreeModel* model, TreeModelNode* node) = 0;

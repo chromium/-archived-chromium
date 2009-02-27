@@ -172,9 +172,8 @@ class BookmarkModelObserver {
 
   // Invoked when the children (just direct children, not descendants) of
   // |node| have been reordered in some way, such as sorted.
-  // TODO(sky): make this pure virtual when all observers have been updated.
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {}
+                                             BookmarkNode* node) = 0;
 };
 
 // BookmarkModel --------------------------------------------------------------

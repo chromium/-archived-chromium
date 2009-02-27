@@ -85,8 +85,7 @@ class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
   FolderBookmarkTableModel(BookmarkModel* model, BookmarkNode* root_node)
       : VectorBackedBookmarkTableModel(model),
         root_node_(root_node) {
-    for (int i = 0; i < root_node->GetChildCount(); ++i)
-      nodes().push_back(root_node->GetChild(i));
+    PopulateNodesFromRoot();
   }
 
   virtual void BookmarkNodeMoved(BookmarkModel* model,
@@ -146,10 +145,27 @@ class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
     NotifyChanged(node);
   }
 
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {
+    if (node != root_node_)
+      return;
+
+    nodes().clear();
+    PopulateNodesFromRoot();
+
+    if (observer())
+      observer()->OnModelChanged();
+  }
+
  private:
   void NotifyChanged(BookmarkNode* node) {
     if (node->GetParent() == root_node_ && observer())
       observer()->OnItemsChanged(node->GetParent()->IndexOfChild(node), 1);
+  }
+
+  void PopulateNodesFromRoot() {
+    for (int i = 0; i < root_node_->GetChildCount(); ++i)
+      nodes().push_back(root_node_->GetChild(i));
   }
 
   // The node we're showing the children of. This is set to NULL if the node

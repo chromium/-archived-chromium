@@ -335,6 +335,11 @@ void BookmarkEditorView::BookmarkNodeRemoved(BookmarkModel* model,
   }
 }
 
+void BookmarkEditorView::BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                                       BookmarkNode* node) {
+  Reset();
+}
+
 void BookmarkEditorView::Reset() {
   if (!show_tree_) {
     if (GetParent())

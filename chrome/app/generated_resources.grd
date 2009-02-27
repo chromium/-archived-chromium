@@ -3406,6 +3406,9 @@ each locale. -->
       <message name="IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER" desc="The label of the menu item in the bookmark manager context menu that changes the selection in the tree to match the folder of the selected item in the table.">
         Show in folder
       </message>
+      <message name="IDS_BOOKMARK_MANAGER_SORT" desc="The label of the menu item in the bookmark manager organize menu that alphabetizes the bookmarks/folders by title.">
+        Reorder by title
+      </message>
       <message name="IDS_BOOKMARK_MANAGER_ORGANIZE_MENU" desc="Title of the organize menu in the bookmark manager.">
         Organize
       </message>

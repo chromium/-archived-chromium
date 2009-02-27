@@ -92,6 +92,13 @@ class TreeNode : public TreeModelNode {
     return node;
   }
 
+  // Removes all the children from this node. This does NOT delete the nodes.
+  void RemoveAll() {
+    for (size_t i = 0; i < children_->size(); ++i)
+      children_[i]->parent_ = NULL;
+    children_->clear();
+  }
+
   // Returns the number of children.
   int GetChildCount() {
     return static_cast<int>(children_->size());

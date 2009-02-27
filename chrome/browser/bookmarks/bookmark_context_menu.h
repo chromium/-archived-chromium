@@ -89,6 +89,8 @@ class BookmarkContextMenu : public views::MenuDelegate,
                                    BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node);
 
   // Invoked from the various bookmark model observer methods. Closes the menu.
   void ModelChanged();

@@ -143,6 +143,23 @@ TEST_F(BookmarkTableModelTest, AddToFolder) {
   VerifyAndClearOberserverCounts(0, 0, 0, 0);
 }
 
+// Verifies sort sends out notification and results in a sort.
+TEST_F(BookmarkTableModelTest, SortFolder) {
+  BookmarkNode* other = bookmark_model()->other_node();
+  SetModel(BookmarkTableModel::CreateBookmarkTableModelForFolder(
+           bookmark_model(), other));
+  ASSERT_EQ(3, model_->RowCount());
+  bookmark_model()->SortChildren(other);
+
+  // Sorting should trigger change notification.
+  VerifyAndClearOberserverCounts(1, 0, 0, 0);
+
+  // Make sure things reordered.
+  EXPECT_TRUE(other->GetChild(0) == model_->GetNodeForRow(0));
+  EXPECT_TRUE(other->GetChild(1) == model_->GetNodeForRow(1));
+  EXPECT_TRUE(other->GetChild(2) == model_->GetNodeForRow(2));
+}
+
 // Verifies removing an item from folder model generates the correct event.
 TEST_F(BookmarkTableModelTest, RemoveFromFolder) {
   BookmarkNode* other = bookmark_model()->other_node();

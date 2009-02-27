@@ -190,6 +190,8 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
                                    int index) {}
   virtual void BookmarkNodeChanged(BookmarkModel* model,
                                    BookmarkNode* node) {}
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             BookmarkNode* node) {}
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 
