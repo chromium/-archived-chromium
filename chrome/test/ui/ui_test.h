@@ -292,6 +292,11 @@ class UITest : public testing::Test {
     js_flags_ = value;
   }
 
+  static std::wstring log_level() { return log_level_; }
+  static void set_log_level(const std::wstring& value) {
+    log_level_ = value;
+  }
+
   // Called by some tests that wish to have a base profile to start from. This
   // "user data directory" (containing one or more profiles) will be recursively
   // copied into the user data directory for the test and the files will be
@@ -440,6 +445,7 @@ class UITest : public testing::Test {
   static int timeout_ms_;               // Timeout in milliseconds to wait
                                         // for an test to finish.
   static std::wstring js_flags_;        // Flags passed to the JS engine.
+  static std::wstring log_level_;       // Logging level.
 #if defined(OS_WIN)
   // TODO(port): restore me after AutomationProxy works.
   scoped_ptr<AutomationProxy> server_;

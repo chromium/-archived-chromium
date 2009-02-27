@@ -49,6 +49,11 @@ class UITestSuite : public ChromeTestSuite {
     if (!js_flags.empty()) {
       UITest::set_js_flags(js_flags);
     }
+    std::wstring log_level =
+      parsed_command_line.GetSwitchValue(switches::kLoggingLevel);
+    if (!log_level.empty()) {
+      UITest::set_log_level(log_level);
+    }
   }
 
   virtual void SuppressErrorDialogs() {

@@ -60,6 +60,7 @@ bool UITest::silent_dump_on_dcheck_ = false;
 bool UITest::disable_breakpad_ = false;
 int UITest::timeout_ms_ = 20 * 60 * 1000;
 std::wstring UITest::js_flags_ = L"";
+std::wstring UITest::log_level_ = L"";
 
 
 // Specify the time (in milliseconds) that the ui_tests should wait before
@@ -315,6 +316,8 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   if (!js_flags_.empty())
     command_line.AppendSwitchWithValue(switches::kJavaScriptFlags,
                                        js_flags_);
+  if (!log_level_.empty())
+    command_line.AppendSwitchWithValue(switches::kLoggingLevel, log_level_);
 
   command_line.AppendSwitch(switches::kMetricsRecordingOnly);
 
