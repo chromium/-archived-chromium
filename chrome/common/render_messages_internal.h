@@ -1159,8 +1159,9 @@ IPC_BEGIN_MESSAGES(ViewHost)
 
   // Tell the browser the audio buffer prepared for stream
   // (render_view_id, stream_id) is filled and is ready to be consumed.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_NotifyAudioPacketReady,
-                      int /* stream_id */)
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_NotifyAudioPacketReady,
+                      int /* stream_id */,
+                      size_t /* packet size */)
 
   // Start playing the audio stream specified by (render_view_id, stream_id).
   IPC_MESSAGE_ROUTED1(ViewHostMsg_StartAudioStream,

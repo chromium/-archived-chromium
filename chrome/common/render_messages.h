@@ -1726,14 +1726,14 @@ struct ParamTraits<AudioOutputStream::State> {
     std::wstring state;
     switch (p) {
      case AudioOutputStream::STATE_PAUSED:
-      state = L"AUDIO_STREAM_PAUSED";
+      state = L"AudioOutputStream::STATE_PAUSED";
       break;
      case AudioOutputStream::STATE_STARTED:
-      state = L"AUDIO_STREAM_STARTED";
+      state = L"AudioOutputStream::STATE_STARTED";
       break;
      case AudioOutputStream::STATE_ERROR:
-      state = L"AUDIO_STREAM_ERROR";
-      break;
+       state = L"AudioOutputStream::STATE_ERROR";
+       break;
      default:
       state = L"UNKNOWN";
       break;

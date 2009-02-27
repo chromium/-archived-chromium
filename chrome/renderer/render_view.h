@@ -358,7 +358,7 @@ class RenderView : public RenderWidget,
                           size_t packet_size);
   void StartAudioStream(int stream_id);
   void CloseAudioStream(int stream_id);
-  void NotifyAudioPacketReady(int stream_id);
+  void NotifyAudioPacketReady(int stream_id, size_t size);
   void GetAudioVolume(int stream_id);
   void SetAudioVolume(int stream_id, double left, double right);
 

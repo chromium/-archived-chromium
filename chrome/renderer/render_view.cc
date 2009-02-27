@@ -2962,10 +2962,10 @@ void RenderView::CloseAudioStream(int stream_id) {
   Send(new ViewHostMsg_CloseAudioStream(routing_id_, stream_id));
 }
 
-void RenderView::NotifyAudioPacketReady(int stream_id) {
+void RenderView::NotifyAudioPacketReady(int stream_id, size_t size) {
   // TODO(hclam): make sure this method is called on render thread.
   DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
-  Send(new ViewHostMsg_NotifyAudioPacketReady(routing_id_, stream_id));
+  Send(new ViewHostMsg_NotifyAudioPacketReady(routing_id_, stream_id, size));
 }
 
 void RenderView::GetAudioVolume(int stream_id) {

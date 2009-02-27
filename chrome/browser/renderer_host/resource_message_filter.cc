@@ -117,9 +117,9 @@ ResourceMessageFilter::ResourceMessageFilter(
       profile_(profile),
       render_widget_helper_(render_widget_helper),
       audio_renderer_host_(audio_renderer_host) {
-
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());
+  DCHECK(audio_renderer_host_.get());
 }
 
 ResourceMessageFilter::~ResourceMessageFilter() {
@@ -151,6 +151,9 @@ void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   DCHECK(!render_handle_);
   render_handle_ = base::OpenProcessHandle(peer_pid);
   DCHECK(render_handle_);
+  // Hook AudioRendererHost to this object after channel is connected so it can
+  // this object for sending messages.
+  audio_renderer_host_->IPCChannelConnected(this);
 }
 
 // Called on the IPC thread:
@@ -160,6 +163,9 @@ void ResourceMessageFilter::OnChannelClosing() {
   // Unhook us from all pending network requests so they don't get sent to a
   // deleted object.
   resource_dispatcher_host_->CancelRequestsForProcess(render_process_host_id_);
+
+  // Unhook AudioRendererHost.
+  audio_renderer_host_->IPCChannelClosing();
 }
 
 // Called on the IPC thread:
@@ -809,38 +815,40 @@ void ResourceMessageFilter::OnRendererHistograms(
 }
 
 void ResourceMessageFilter::OnCreateAudioStream(
-  const IPC::Message& msg, int stream_id,
-  const ViewHostMsg_Audio_CreateStream& params) {
-  // TODO(hclam): call to AudioRendererHost::CreateStream and send a message to
-  // renderer to notify the result.
+    const IPC::Message& msg, int stream_id,
+    const ViewHostMsg_Audio_CreateStream& params) {
+  audio_renderer_host_->CreateStream(
+      render_handle_, msg.routing_id(), stream_id, params.format,
+      params.channels, params.sample_rate, params.bits_per_sample,
+      params.packet_size);
 }
 
 void ResourceMessageFilter::OnNotifyAudioPacketReady(
-    const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
+    const IPC::Message& msg, int stream_id, size_t packet_size) {
+  audio_renderer_host_->NotifyPacketReady(msg.routing_id(),
+                                          stream_id, packet_size);
 }
 
 void ResourceMessageFilter::OnStartAudioStream(
     const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
+  audio_renderer_host_->Start(msg.routing_id(), stream_id);
 }
-
 
 void ResourceMessageFilter::OnCloseAudioStream(
     const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
+  audio_renderer_host_->Close(msg.routing_id(), stream_id);
 }
 
 void ResourceMessageFilter::OnGetAudioVolume(
     const IPC::Message& msg, int stream_id) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message. Send
-  // a message about the volume.
+  audio_renderer_host_->GetVolume(msg.routing_id(), stream_id);
 }
 
 void ResourceMessageFilter::OnSetAudioVolume(
     const IPC::Message& msg, int stream_id,
     double left_channel, double right_channel) {
-  // TODO(hclam): delegate to AudioRendererHost and handle this message.
+  audio_renderer_host_->SetVolume(
+      msg.routing_id(), stream_id, left_channel, right_channel);
 }
 
 #if defined(OS_MACOSX)

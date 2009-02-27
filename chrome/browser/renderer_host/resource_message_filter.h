@@ -202,7 +202,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // Audio related IPC message handlers.
   void OnCreateAudioStream(const IPC::Message& msg, int stream_id,
                            const ViewHostMsg_Audio_CreateStream& params);
-  void OnNotifyAudioPacketReady(const IPC::Message& msg, int stream_id);
+  void OnNotifyAudioPacketReady(const IPC::Message& msg, int stream_id,
+                                size_t packet_size);
   void OnStartAudioStream(const IPC::Message& msg, int stream_id);
   void OnCloseAudioStream(const IPC::Message& msg, int stream_id);
   void OnGetAudioVolume(const IPC::Message& msg, int stream_id);
