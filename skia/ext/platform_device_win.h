@@ -36,28 +36,8 @@ class PlatformDeviceWin : public SkDevice {
   // source device will be copied.
   virtual void drawToHDC(HDC dc, int x, int y, const RECT* src_rect) = 0;
 
-  // Invoke before using GDI functions. See description in platform_device.cc
-  // for specifics.
-  // NOTE: x,y,width and height are relative to the current transform.
-  virtual void prepareForGDI(int x, int y, int width, int height) { }
-
-  // Invoke after using GDI functions. See description in platform_device.cc
-  // for specifics.
-  // NOTE: x,y,width and height are relative to the current transform.
-  virtual void postProcessGDI(int x, int y, int width, int height) { }
-
   // Sets the opacity of each pixel in the specified region to be opaque.
   virtual void makeOpaque(int x, int y, int width, int height) { }
-
-  // Call this function to fix the alpha channels before compositing this layer
-  // onto another. Internally, the device uses a special alpha method to work
-  // around problems with Windows. This call will put the values into what
-  // Skia expects, so it can be composited onto other layers.
-  //
-  // After this call, no more drawing can be done because the
-  // alpha channels will be "correct", which, if this function is called again
-  // will make them wrong. See the implementation for more discussion.
-  virtual void fixupAlphaBeforeCompositing() { }
 
   // Returns if the preferred rendering engine is vectorial or bitmap based.
   virtual bool IsVectorial() = 0;

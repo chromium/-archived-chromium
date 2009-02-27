@@ -1490,10 +1490,6 @@ bool WebFrameImpl::CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
   skia::BitmapPlatformDevice& device =
       static_cast<skia::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
 
-#if defined(OS_WIN)
-  device.fixupAlphaBeforeCompositing();
-#endif
-
   image->reset(new skia::BitmapPlatformDevice(device));
   return true;
 }

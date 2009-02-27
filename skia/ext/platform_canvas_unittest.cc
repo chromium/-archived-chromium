@@ -116,9 +116,6 @@ class LayerSaver {
   }
 
   ~LayerSaver() {
-#if defined(OS_WIN)
-    canvas_.getTopPlatformDevice().fixupAlphaBeforeCompositing();
-#endif
     canvas_.restore();
   }
 
@@ -177,9 +174,6 @@ TEST(PlatformCanvas, ClipRegion) {
   // with a black rectangle.
   // Note: Don't use LayerSaver, since internally it sets a clip region.
   DrawNativeRect(canvas, 0, 0, 16, 16);
-#if defined(OS_WIN)
-  canvas.getTopPlatformDevice().fixupAlphaBeforeCompositing();
-#endif
   EXPECT_TRUE(VerifyCanvasColor(canvas, SK_ColorBLACK));
 
   // Test that intersecting disjoint clip rectangles sets an empty clip region

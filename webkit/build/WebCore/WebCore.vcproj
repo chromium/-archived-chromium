@@ -1667,11 +1667,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\ThemeHelperChromiumWin.cpp"
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\TransparencyWin.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\ThemeHelperChromiumWin.h"
+						RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\chromium\TransparencyWin.h"
 						>
 					</File>
 					<File

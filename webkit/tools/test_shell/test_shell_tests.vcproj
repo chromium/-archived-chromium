@@ -403,6 +403,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\webcore_unit_tests\TransparencyWin_unittest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\webcore_unit_tests\UniscribeHelper_unittest.cpp"
 				>
 			</File>

@@ -248,12 +248,18 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
   std::vector<unsigned char> png;
   SkAutoLockPixels src_bmp_lock(src_bmp);
   PNGEncoder::ColorFormat color_format = PNGEncoder::FORMAT_BGRA;
-#if defined(OS_WIN) || defined(OS_LINUX)
+
+  // Fix the alpha. The expected PNGs on Mac have an alpha channel, so we want
+  // to keep it. On Windows, the alpha channel is wrong since text/form control
+  // drawing may have erased it in a few places. So on Windows we force it to
+  // opaque and also don't write the alpha channel for the reference. Linux
+  // doesn't have the wrong alpha like Windows, but we ignore it anyway.
+#if defined(OS_WIN)
+  bool discard_transparency = true;
+  device->makeOpaque(0, 0, src_bmp.width(), src_bmp.height());
+#elif defined(OS_LINUX)
   bool discard_transparency = true;
 #elif defined(OS_MACOSX)
-  // the expected PNGs in webkit have an alpha channel. We shouldn't discard
-  // the transparency for reference purposes, though the hashes will still
-  // match.
   bool discard_transparency = false;
 #endif
   PNGEncoder::Encode(

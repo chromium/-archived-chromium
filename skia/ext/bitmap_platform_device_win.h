@@ -61,10 +61,7 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   virtual void setMatrixClip(const SkMatrix& transform, const SkRegion& region);
 
   virtual void drawToHDC(HDC dc, int x, int y, const RECT* src_rect);
-  virtual void prepareForGDI(int x, int y, int width, int height);
-  virtual void postProcessGDI(int x, int y, int width, int height);
   virtual void makeOpaque(int x, int y, int width, int height);
-  virtual void fixupAlphaBeforeCompositing();
   virtual bool IsVectorial() { return false; }
 
   // Returns the color value at the specified location. This does not
@@ -78,10 +75,6 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   virtual void onAccessBitmap(SkBitmap* bitmap);
 
  private:
-  // Function pointer used by the processPixels method for setting the alpha
-  // value of a particular pixel.
-  typedef void (*adjustAlpha)(uint32_t* pixel);
-
   // Reference counted data that can be shared between multiple devices. This
   // allows copy constructors and operator= for devices to work properly. The
   // bitmaps used by the base device class are already refcounted and copyable.
@@ -90,15 +83,6 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   // Private constructor. The data should already be ref'ed for us.
   BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data,
                           const SkBitmap& bitmap);
-
-  // Loops through each of the pixels in the specified range, invoking
-  // adjustor for the alpha value of each pixel. If |width| or |height| are -1,
-  // the available width/height is used.
-  template<adjustAlpha adjustor>
-  void processPixels(int x,
-                     int y,
-                     int width,
-                     int height);
 
   // Data associated with this device, guaranteed non-null. We hold a reference
   // to this object.

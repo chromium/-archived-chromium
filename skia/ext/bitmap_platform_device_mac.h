@@ -61,7 +61,6 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
   virtual void DrawToContext(CGContextRef context, int x, int y,
                              const CGRect* src_rect);
   virtual bool IsVectorial() { return false; }
-  virtual void fixupAlphaBeforeCompositing() { };
 
   // Returns the color value at the specified location. This does not
   // consider any transforms that may be set on the device.

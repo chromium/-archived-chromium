@@ -158,7 +158,6 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
   if (!IntersectsClipRectInt(x, y, w, h))
     return;
 
-  getTopPlatformDevice().prepareForGDI(x, y, w, h);
   RECT text_bounds = { x, y, x + w, y + h };
   HDC dc = beginPlatformPaint();
   SetBkMode(dc, TRANSPARENT);
@@ -174,7 +173,11 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
   // Restore the old font. This way we don't have to worry if the caller
   // deletes the font and the DC lives longer.
   SelectObject(dc, old_font);
-  getTopPlatformDevice().postProcessGDI(x, y, w, h);
+
+  // Windows will have cleared the alpha channel of the text we drew. Assume
+  // we're drawing to an opaque surface, or at least the text rect area is
+  // opaque.
+  getTopPlatformDevice().makeOpaque(x, y, w, h);
 }
 
 void ChromeCanvas::DrawStringInt(const std::wstring& text,

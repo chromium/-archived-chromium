@@ -33,19 +33,10 @@ bool constrain(int available_size, int* position, int *size) {
   return false;
 }
 
-// Sets the opacity of the specified value to 0xFF.
-void makeOpaqueAlphaAdjuster(uint32_t* pixel) {
-  *pixel |= 0xFF000000;
-}
-
 } // namespace
 
 PlatformDeviceMac::PlatformDeviceMac(const SkBitmap& bitmap)
     : SkDevice(bitmap) {
-}
-
-void PlatformDeviceMac::makeOpaque(int x, int y, int width, int height) {
-  processPixels(x, y, width, height, makeOpaqueAlphaAdjuster);
 }
 
 // Set up the CGContextRef for peaceful coexistence with Skia

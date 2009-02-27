@@ -11,33 +11,6 @@
 
 namespace skia {
 
-// When Windows draws text, is sets the fourth byte (which Skia uses for alpha)
-// to zero. This means that if we try compositing with text that Windows has
-// drawn, we get invalid color values (if the alpha is 0, the other channels
-// should be 0 since Skia uses premultiplied colors) and strange results.
-//
-// HTML rendering only requires one bit of transparency. When you ask for a
-// semitransparent div, the div itself is drawn in another layer as completely
-// opaque, and then composited onto the lower layer with a transfer function.
-// The only place an alpha channel is needed is to track what has been drawn
-// and what has not been drawn.
-//
-// Therefore, when we allocate a new device, we fill it with this special
-// color. Because Skia uses premultiplied colors, any color where the alpha
-// channel is smaller than any component is impossible, so we know that no
-// legitimate drawing will produce this color. We use 1 as the alpha value
-// because 0 is produced when Windows draws text (even though it should be
-// opaque).
-//
-// When a layer is done and we want to render it to a lower layer, we use
-// fixupAlphaBeforeCompositing. This replaces all 0 alpha channels with
-// opaque (to fix the text problem), and replaces this magic color value
-// with transparency. The result is something that can be correctly
-// composited. However, once this has been done, no more can be drawn to
-// the layer because fixing the alphas *again* will result in incorrect
-// values.
-static const uint32_t kMagicTransparencyColor = 0x01FFFEFD;
-
 namespace {
 
 // Constrains position and size to fit within available_size. If |size| is -1,
@@ -65,36 +38,6 @@ bool Constrain(int available_size, int* position, int *size) {
     *size = available_size - *position;
   }
   return true;
-}
-
-// If the pixel value is 0, it gets set to kMagicTransparencyColor.
-void PrepareAlphaForGDI(uint32_t* pixel) {
-  if (*pixel == 0) {
-    *pixel = kMagicTransparencyColor;
-  }
-}
-
-// If the pixel value is kMagicTransparencyColor, it gets set to 0. Otherwise
-// if the alpha is 0, the alpha is set to 255.
-void PostProcessAlphaForGDI(uint32_t* pixel) {
-  if (*pixel == kMagicTransparencyColor) {
-    *pixel = 0;
-  } else if ((*pixel & 0xFF000000) == 0) {
-    *pixel |= 0xFF000000;
-  }
-}
-
-// Sets the opacity of the specified value to 0xFF.
-void MakeOpaqueAlphaAdjuster(uint32_t* pixel) {
-  *pixel |= 0xFF000000;
-}
-
-// See the declaration of kMagicTransparencyColor at the top of the file.
-void FixupAlphaBeforeCompositing(uint32_t* pixel) {
-  if (*pixel == kMagicTransparencyColor)
-    *pixel = 0;
-  else
-    *pixel |= 0xFF000000;
 }
 
 }  // namespace
@@ -280,10 +223,7 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(
     bitmap.eraseARGB(255, 0, 255, 128);  // bright bluish green
 #endif
   } else {
-    // A transparent layer is requested: fill with our magic "transparent"
-    // color, see the declaration of kMagicTransparencyColor above
-    sk_memset32(static_cast<uint32_t*>(data), kMagicTransparencyColor,
-                width * height);
+    bitmap.eraseARGB(0, 0, 0, 0);
   }
 
   // The device object will take ownership of the HBITMAP. The initial refcount
@@ -387,31 +327,31 @@ void BitmapPlatformDeviceWin::drawToHDC(HDC dc, int x, int y,
     data_->ReleaseBitmapDC();
 }
 
-void BitmapPlatformDeviceWin::prepareForGDI(int x, int y, int width,
-                                            int height) {
-  processPixels<PrepareAlphaForGDI>(x, y, width, height);
-}
-
-void BitmapPlatformDeviceWin::postProcessGDI(int x, int y, int width,
-                                             int height) {
-  processPixels<PostProcessAlphaForGDI>(x, y, width, height);
-}
-
 void BitmapPlatformDeviceWin::makeOpaque(int x, int y, int width, int height) {
-  processPixels<MakeOpaqueAlphaAdjuster>(x, y, width, height);
-}
-
-void BitmapPlatformDeviceWin::fixupAlphaBeforeCompositing() {
   const SkBitmap& bitmap = accessBitmap(true);
-  SkAutoLockPixels lock(bitmap);
-  uint32_t* data = bitmap.getAddr32(0, 0);
+  SkASSERT(bitmap.config() == SkBitmap::kARGB_8888_Config);
 
-  size_t words = bitmap.rowBytes() / sizeof(uint32_t) * bitmap.height();
-  for (size_t i = 0; i < words; i++) {
-    if (data[i] == kMagicTransparencyColor)
-      data[i] = 0;
-    else
-      data[i] |= 0xFF000000;
+  // FIXME(brettw): This is kind of lame, we shouldn't be dealing with
+  // transforms at this level. Probably there should be a PlatformCanvas
+  // function that does the transform (using the actual transform not just the
+  // translation) and calls us with the transformed rect.
+  const SkMatrix& matrix = data_->transform();
+  int bitmap_start_x = SkScalarRound(matrix.getTranslateX()) + x;
+  int bitmap_start_y = SkScalarRound(matrix.getTranslateY()) + y;
+
+  if (Constrain(bitmap.width(), &bitmap_start_x, &width) &&
+      Constrain(bitmap.height(), &bitmap_start_y, &height)) {
+    SkAutoLockPixels lock(bitmap);
+    SkASSERT(bitmap.rowBytes() % sizeof(uint32_t) == 0u);
+    size_t row_words = bitmap.rowBytes() / sizeof(uint32_t);
+    // Set data to the first pixel to be modified.
+    uint32_t* data = bitmap.getAddr32(0, 0) + (bitmap_start_y * row_words) +
+                     bitmap_start_x;
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++)
+        data[j] |= (0xFF << SK_A32_SHIFT);
+      data += row_words;
+    }
   }
 }
 
@@ -428,34 +368,6 @@ void BitmapPlatformDeviceWin::onAccessBitmap(SkBitmap* bitmap) {
   // operation has occurred on our DC.
   if (data_->IsBitmapDCCreated())
     GdiFlush();
-}
-
-template<BitmapPlatformDeviceWin::adjustAlpha adjustor>
-void BitmapPlatformDeviceWin::processPixels(int x,
-                                            int y,
-                                            int width,
-                                            int height) {
-  const SkBitmap& bitmap = accessBitmap(true);
-  SkASSERT(bitmap.config() == SkBitmap::kARGB_8888_Config);
-  const SkMatrix& matrix = data_->transform();
-  int bitmap_start_x = SkScalarRound(matrix.getTranslateX()) + x;
-  int bitmap_start_y = SkScalarRound(matrix.getTranslateY()) + y;
-
-  if (Constrain(bitmap.width(), &bitmap_start_x, &width) &&
-      Constrain(bitmap.height(), &bitmap_start_y, &height)) {
-    SkAutoLockPixels lock(bitmap);
-    SkASSERT(bitmap.rowBytes() % sizeof(uint32_t) == 0u);
-    size_t row_words = bitmap.rowBytes() / sizeof(uint32_t);
-    // Set data to the first pixel to be modified.
-    uint32_t* data = bitmap.getAddr32(0, 0) + (bitmap_start_y * row_words) +
-                     bitmap_start_x;
-    for (int i = 0; i < height; i++) {
-      for (int j = 0; j < width; j++) {
-        adjustor(data + j);
-      }
-      data += row_words;
-    }
-  }
 }
 
 }  // namespace skia
