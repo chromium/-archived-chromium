@@ -37,8 +37,6 @@ namespace {
 // Padding between text and the star indicator, in pixels.
 const int kStarPadding = 4;
 
-}  // namespace
-
 // This class implements a utility used for mirroring x-coordinates when the
 // application language is a right-to-left one.
 class MirroringContext {
@@ -84,11 +82,287 @@ int MirroringContext::GetLeft(int x1, int x2) const {
       (center_x_ + (center_x_ - std::max(x1, x2))) : std::min(x1, x2);
 }
 
-const wchar_t AutocompletePopupView::DrawLineInfo::ellipsis_str[] = L"\x2026";
+// Caches GDI objects and information for drawing.
+struct DrawLineInfo {
+  enum LineStatus {
+    NORMAL = 0,
+    HOVERED,
+    SELECTED,
+    MAX_STATUS_ENTRIES
+  };
 
-AutocompletePopupView::AutocompletePopupView(AutocompletePopupModel* model,
-                                             const ChromeFont& font,
-                                             AutocompleteEditView* edit_view)
+  explicit DrawLineInfo(const ChromeFont& font);
+  ~DrawLineInfo();
+
+  static COLORREF AlphaBlend(COLORREF foreground,
+                             COLORREF background,
+                             BYTE alpha);
+
+  static const wchar_t ellipsis_str[];
+
+  ChromeFont regular_font;  // Fonts used for rendering AutocompleteMatches.
+  ChromeFont bold_font;
+  int font_height;          // Height (in pixels) of a line of text w/o
+                            // padding.
+  int line_height;          // Height (in pixels) of a line of text w/padding.
+  int ave_char_width;       // Width (in pixels) of an average character of
+                            // the regular font.
+  int ellipsis_width;       // Width (in pixels) of the ellipsis_str.
+
+  // colors
+  COLORREF background_colors[MAX_STATUS_ENTRIES];
+  COLORREF text_colors[MAX_STATUS_ENTRIES];
+  COLORREF url_colors[MAX_STATUS_ENTRIES];
+
+  // brushes
+  HBRUSH brushes[MAX_STATUS_ENTRIES];
+
+ private:
+  static double LuminosityContrast(COLORREF color1, COLORREF color2);
+  static double Luminosity(COLORREF color);
+};
+
+const wchar_t DrawLineInfo::ellipsis_str[] = L"\x2026";
+
+DrawLineInfo::DrawLineInfo(const ChromeFont& font) {
+  // Create regular and bold fonts.
+  regular_font = font.DeriveFont(-1);
+  bold_font = regular_font.DeriveFont(0, ChromeFont::BOLD);
+
+  // The total padding added to each line (bottom padding is what is
+  // left over after DrawEntry() specifies its top offset).
+  static const int kTotalLinePadding = 5;
+  font_height = std::max(regular_font.height(), bold_font.height());
+  line_height = font_height + kTotalLinePadding;
+  ave_char_width = regular_font.GetExpectedTextWidth(1);
+  ellipsis_width = std::max(regular_font.GetStringWidth(ellipsis_str),
+                            bold_font.GetStringWidth(ellipsis_str));
+
+  // Create background colors.
+  background_colors[NORMAL] = GetSysColor(COLOR_WINDOW);
+  background_colors[SELECTED] = GetSysColor(COLOR_HIGHLIGHT);
+  background_colors[HOVERED] =
+      AlphaBlend(background_colors[SELECTED], background_colors[NORMAL], 0x40);
+
+  // Create text colors.
+  text_colors[NORMAL] = GetSysColor(COLOR_WINDOWTEXT);
+  text_colors[HOVERED] = text_colors[NORMAL];
+  text_colors[SELECTED] = GetSysColor(COLOR_HIGHLIGHTTEXT);
+
+  // Create brushes and url colors.
+  const COLORREF dark_url(0x008000);
+  const COLORREF light_url(0xd0ffd0);
+  for (int i = 0; i < MAX_STATUS_ENTRIES; ++i) {
+    // Pick whichever URL color contrasts better.
+    const double dark_contrast =
+        LuminosityContrast(dark_url, background_colors[i]);
+    const double light_contrast =
+        LuminosityContrast(light_url, background_colors[i]);
+    url_colors[i] = (dark_contrast > light_contrast) ? dark_url : light_url;
+
+    brushes[i] = CreateSolidBrush(background_colors[i]);
+  }
+}
+
+DrawLineInfo::~DrawLineInfo() {
+  for (int i = 0; i < MAX_STATUS_ENTRIES; ++i)
+    DeleteObject(brushes[i]);
+}
+
+// static
+double DrawLineInfo::LuminosityContrast(
+    COLORREF color1,
+    COLORREF color2) {
+  // This algorithm was adapted from the following text at
+  // http://juicystudio.com/article/luminositycontrastratioalgorithm.php :
+  //
+  // "[Luminosity contrast can be calculated as] (L1+.05) / (L2+.05) where L is
+  // luminosity and is defined as .2126*R + .7152*G + .0722B using linearised
+  // R, G, and B values. Linearised R (for example) = (R/FS)^2.2 where FS is
+  // full scale value (255 for 8 bit color channels). L1 is the higher value
+  // (of text or background) and L2 is the lower value.
+  //
+  // The Gamma correction and RGB constants are derived from the Standard
+  // Default Color Space for the Internet (sRGB), and the 0.05 offset is
+  // included to compensate for contrast ratios that occur when a value is at
+  // or near zero, and for ambient light effects.
+  const double l1 = Luminosity(color1);
+  const double l2 = Luminosity(color2);
+  return (l1 > l2) ? ((l1 + 0.05) / (l2 + 0.05)) : ((l2 + 0.05) / (l1 + 0.05));
+}
+
+// static
+double DrawLineInfo::Luminosity(COLORREF color) {
+  // See comments in LuminosityContrast().
+  const double linearised_r =
+      pow(static_cast<double>(GetRValue(color)) / 255.0, 2.2);
+  const double linearised_g =
+      pow(static_cast<double>(GetGValue(color)) / 255.0, 2.2);
+  const double linearised_b =
+      pow(static_cast<double>(GetBValue(color)) / 255.0, 2.2);
+  return (0.2126 * linearised_r) + (0.7152 * linearised_g) +
+      (0.0722 * linearised_b);
+}
+
+COLORREF DrawLineInfo::AlphaBlend(COLORREF foreground,
+                                                         COLORREF background,
+                                                         BYTE alpha) {
+  if (alpha == 0)
+    return background;
+  else if (alpha == 0xff)
+    return foreground;
+
+  return RGB(
+    ((GetRValue(foreground) * alpha) +
+     (GetRValue(background) * (0xff - alpha))) / 0xff,
+    ((GetGValue(foreground) * alpha) +
+     (GetGValue(background) * (0xff - alpha))) / 0xff,
+    ((GetBValue(foreground) * alpha) +
+     (GetBValue(background) * (0xff - alpha))) / 0xff);
+}
+
+#define AUTOCOMPLETEPOPUPVIEW_CLASSNAME L"Chrome_AutocompletePopupView"
+
+// This class implements a popup window used to display autocomplete results.
+class AutocompletePopupViewWin
+    : public CWindowImpl<AutocompletePopupViewWin, CWindow, CControlWinTraits>,
+      public AutocompletePopupView {
+ public:
+  DECLARE_WND_CLASS_EX(AUTOCOMPLETEPOPUPVIEW_CLASSNAME,
+                       ((win_util::GetWinVersion() < win_util::WINVERSION_XP) ?
+                           0 : CS_DROPSHADOW), COLOR_WINDOW)
+
+  BEGIN_MSG_MAP(AutocompletePopupViewWin)
+    MSG_WM_ERASEBKGND(OnEraseBkgnd)
+    MSG_WM_LBUTTONDOWN(OnLButtonDown)
+    MSG_WM_MBUTTONDOWN(OnMButtonDown)
+    MSG_WM_LBUTTONUP(OnLButtonUp)
+    MSG_WM_MBUTTONUP(OnMButtonUp)
+    MSG_WM_MOUSEACTIVATE(OnMouseActivate)
+    MSG_WM_MOUSELEAVE(OnMouseLeave)
+    MSG_WM_MOUSEMOVE(OnMouseMove)
+    MSG_WM_PAINT(OnPaint)
+  END_MSG_MAP()
+
+  AutocompletePopupViewWin(AutocompletePopupModel* model,
+                        const ChromeFont& font,
+                        AutocompleteEditView* edit_view);
+
+  // Returns true if the popup is currently open.
+  virtual bool IsOpen() const { return m_hWnd != NULL; }
+
+  // Invalidates one line of the autocomplete popup.
+  virtual void InvalidateLine(size_t line);
+
+  // Redraws the popup window to match any changes in the result set; this may
+  // mean opening or closing the window.
+  virtual void UpdatePopupAppearance();
+
+  // Called by the model when hover is enabled or disabled.
+  virtual void OnHoverEnabledOrDisabled(bool disabled);
+
+  virtual void PaintUpdatesNow() { UpdateWindow(); }
+
+ private:
+
+  // message handlers
+  LRESULT OnEraseBkgnd(HDC hdc) {
+    // We do all needed erasing ourselves in OnPaint, so the only thing that
+    // WM_ERASEBKGND will do is cause flicker.  Disable it by just returning
+    // nonzero here ("erase completed") without doing anything.
+    return 1;
+  }
+  void OnLButtonDown(UINT keys, const CPoint& point);
+  void OnMButtonDown(UINT keys, const CPoint& point);
+  void OnLButtonUp(UINT keys, const CPoint& point);
+  void OnMButtonUp(UINT keys, const CPoint& point);
+  LRESULT OnMouseActivate(HWND window, UINT hit_test, UINT mouse_message);
+  void OnMouseLeave();
+  void OnMouseMove(UINT keys, const CPoint& point);
+  void OnPaint(HDC hdc);
+
+  // Called by On*ButtonUp() to do the actual work of handling a button
+  // release.  Opens the item at the given coordinate, using the supplied
+  // disposition.
+  void OnButtonUp(const CPoint& point, WindowOpenDisposition disposition);
+
+  // Gives the topmost y coordinate within |line|, which should be within the
+  // range of valid lines.
+  int LineTopPixel(size_t line) const;
+
+  // Converts the given y-coordinate to a line.  Due to drawing slop (window
+  // borders, etc.), |y| might be within the window but outside the range of
+  // pixels which correspond to lines; in this case the result will be clamped,
+  // i.e., the top and bottom lines will be treated as extending to the top and
+  // bottom edges of the window, respectively.
+  size_t PixelToLine(int y) const;
+
+  // Draws a light border around the inside of the window with the given client
+  // rectangle and DC.
+  void DrawBorder(const RECT& rc, HDC dc);
+
+  // Draws a single run of text with a particular style.  Handles both LTR and
+  // RTL text as well as eliding.  Returns the width, in pixels, of the string
+  // as it was actually displayed.
+  int DrawString(HDC dc,
+                 int x,
+                 int y,
+                 int max_x,
+                 const wchar_t* text,
+                 int length,
+                 int style,
+                 const DrawLineInfo::LineStatus status,
+                 const MirroringContext* context,
+                 bool text_direction_is_rtl) const;
+
+  // Draws a string from the autocomplete controller which can have specially
+  // marked "match" portions.
+  void DrawMatchFragments(HDC dc,
+                          const std::wstring& text,
+                          const ACMatchClassifications& classifications,
+                          int x,
+                          int y,
+                          int max_x,
+                          DrawLineInfo::LineStatus status) const;
+
+  // Draws one line of the text in the box.
+  void DrawEntry(HDC dc,
+                 const RECT& client_rect,
+                 size_t line,
+                 DrawLineInfo::LineStatus status,
+                 bool all_descriptions_empty,
+                 bool starred) const;
+
+  // Draws the star at the specified location
+  void DrawStar(HDC dc, int x, int y) const;
+
+  AutocompletePopupModel* model_;
+
+  AutocompleteEditView* edit_view_;
+
+  // Cached GDI information for drawing.
+  DrawLineInfo line_info_;
+
+  // Bitmap for the star.  This is owned by the ResourceBundle.
+  SkBitmap* star_;
+
+  // A context used for mirroring regions.
+  scoped_ptr<MirroringContext> mirroring_context_;
+
+  // When hovered_line_ is kNoMatch, this holds the screen coordinates of the
+  // mouse position when hover tracking was turned off.  If the mouse moves to a
+  // point over the popup that has different coordinates, hover tracking will be
+  // re-enabled.  When hovered_line_ is a valid line, the value here is
+  // out-of-date and should be ignored.
+  CPoint last_hover_coordinates_;
+
+  DISALLOW_COPY_AND_ASSIGN(AutocompletePopupViewWin);
+};
+
+AutocompletePopupViewWin::AutocompletePopupViewWin(
+    AutocompletePopupModel* model,
+    const ChromeFont& font,
+    AutocompleteEditView* edit_view)
     : model_(model),
       edit_view_(edit_view),
       line_info_(font),
@@ -97,7 +371,7 @@ AutocompletePopupView::AutocompletePopupView(AutocompletePopupModel* model,
           IDR_CONTENT_STAR_ON)) {
 }
 
-void AutocompletePopupView::InvalidateLine(size_t line) {
+void AutocompletePopupViewWin::InvalidateLine(size_t line) {
   RECT rc;
   GetClientRect(&rc);
   rc.top = LineTopPixel(line);
@@ -105,7 +379,7 @@ void AutocompletePopupView::InvalidateLine(size_t line) {
   InvalidateRect(&rc, false);
 }
 
-void AutocompletePopupView::UpdatePopupAppearance() {
+void AutocompletePopupViewWin::UpdatePopupAppearance() {
   const AutocompleteResult& result = model_->result();
   if (result.empty()) {
     // No matches, close any existing popup.
@@ -173,7 +447,7 @@ void AutocompletePopupView::UpdatePopupAppearance() {
   // though...
 }
 
-void AutocompletePopupView::OnHoverEnabledOrDisabled(bool disabled) {
+void AutocompletePopupViewWin::OnHoverEnabledOrDisabled(bool disabled) {
   TRACKMOUSEEVENT tme;
   tme.cbSize = sizeof(TRACKMOUSEEVENT);
   if (disabled) {
@@ -191,36 +465,36 @@ void AutocompletePopupView::OnHoverEnabledOrDisabled(bool disabled) {
   TrackMouseEvent(&tme);
 }
 
-void AutocompletePopupView::OnLButtonDown(UINT keys, const CPoint& point) {
+void AutocompletePopupViewWin::OnLButtonDown(UINT keys, const CPoint& point) {
   const size_t new_hovered_line = PixelToLine(point.y);
   model_->SetHoveredLine(new_hovered_line);
   model_->SetSelectedLine(new_hovered_line, false);
 }
 
-void AutocompletePopupView::OnMButtonDown(UINT keys, const CPoint& point) {
+void AutocompletePopupViewWin::OnMButtonDown(UINT keys, const CPoint& point) {
   model_->SetHoveredLine(PixelToLine(point.y));
 }
 
-void AutocompletePopupView::OnLButtonUp(UINT keys, const CPoint& point) {
+void AutocompletePopupViewWin::OnLButtonUp(UINT keys, const CPoint& point) {
   OnButtonUp(point, CURRENT_TAB);
 }
 
-void AutocompletePopupView::OnMButtonUp(UINT keys, const CPoint& point) {
+void AutocompletePopupViewWin::OnMButtonUp(UINT keys, const CPoint& point) {
   OnButtonUp(point, NEW_BACKGROUND_TAB);
 }
 
-LRESULT AutocompletePopupView::OnMouseActivate(HWND window,
+LRESULT AutocompletePopupViewWin::OnMouseActivate(HWND window,
                                                UINT hit_test,
                                                UINT mouse_message) {
   return MA_NOACTIVATE;
 }
 
-void AutocompletePopupView::OnMouseLeave() {
+void AutocompletePopupViewWin::OnMouseLeave() {
   // The mouse has left the window, so no line is hovered.
   model_->SetHoveredLine(AutocompletePopupModel::kNoMatch);
 }
 
-void AutocompletePopupView::OnMouseMove(UINT keys, const CPoint& point) {
+void AutocompletePopupViewWin::OnMouseMove(UINT keys, const CPoint& point) {
   // Track hover when
   // (a) The left or middle button is down (the user is interacting via the
   //     mouse)
@@ -245,7 +519,7 @@ void AutocompletePopupView::OnMouseMove(UINT keys, const CPoint& point) {
   }
 }
 
-void AutocompletePopupView::OnPaint(HDC other_dc) {
+void AutocompletePopupViewWin::OnPaint(HDC other_dc) {
   const AutocompleteResult& result = model_->result();
   DCHECK(!result.empty());  // Shouldn't be drawing an empty popup.
 
@@ -283,8 +557,8 @@ void AutocompletePopupView::OnPaint(HDC other_dc) {
   }
 }
 
-void AutocompletePopupView::OnButtonUp(const CPoint& point,
-                                       WindowOpenDisposition disposition) {
+void AutocompletePopupViewWin::OnButtonUp(const CPoint& point,
+                                          WindowOpenDisposition disposition) {
   const size_t line = PixelToLine(point.y);
   const AutocompleteMatch& match = model_->result().match_at(line);
   // OpenURL() may close the popup, which will clear the result set and, by
@@ -297,19 +571,19 @@ void AutocompletePopupView::OnButtonUp(const CPoint& point,
                       is_keyword_hint ? std::wstring() : keyword);
 }
 
-int AutocompletePopupView::LineTopPixel(size_t line) const {
+int AutocompletePopupViewWin::LineTopPixel(size_t line) const {
   // The popup has a 1 px top border.
   return line_info_.line_height * static_cast<int>(line) + 1;
 }
 
-size_t AutocompletePopupView::PixelToLine(int y) const {
+size_t AutocompletePopupViewWin::PixelToLine(int y) const {
   const size_t line = std::max(y - 1, 0) / line_info_.line_height;
   return std::min(line, model_->result().size() - 1);
 }
 
 // Draws a light border around the inside of the window with the given client
 // rectangle and DC.
-void AutocompletePopupView::DrawBorder(const RECT& rc, HDC dc) {
+void AutocompletePopupViewWin::DrawBorder(const RECT& rc, HDC dc) {
   HPEN hpen = CreatePen(PS_SOLID, 1, RGB(199, 202, 206));
   HGDIOBJ old_pen = SelectObject(dc, hpen);
 
@@ -326,16 +600,16 @@ void AutocompletePopupView::DrawBorder(const RECT& rc, HDC dc) {
   DeleteObject(hpen);
 }
 
-int AutocompletePopupView::DrawString(HDC dc,
-                                      int x,
-                                      int y,
-                                      int max_x,
-                                      const wchar_t* text,
-                                      int length,
-                                      int style,
-                                      const DrawLineInfo::LineStatus status,
-                                      const MirroringContext* context,
-                                      bool text_direction_is_rtl) const {
+int AutocompletePopupViewWin::DrawString(HDC dc,
+                                         int x,
+                                         int y,
+                                         int max_x,
+                                         const wchar_t* text,
+                                         int length,
+                                         int style,
+                                         const DrawLineInfo::LineStatus status,
+                                         const MirroringContext* context,
+                                         bool text_direction_is_rtl) const {
   if (length <= 0)
     return 0;
 
@@ -391,7 +665,7 @@ int AutocompletePopupView::DrawString(HDC dc,
   return text_x - x;
 }
 
-void AutocompletePopupView::DrawMatchFragments(
+void AutocompletePopupViewWin::DrawMatchFragments(
     HDC dc,
     const std::wstring& text,
     const ACMatchClassifications& classifications,
@@ -496,12 +770,12 @@ void AutocompletePopupView::DrawMatchFragments(
   }
 }
 
-void AutocompletePopupView::DrawEntry(HDC dc,
-                                      const RECT& client_rect,
-                                      size_t line,
-                                      DrawLineInfo::LineStatus status,
-                                      bool all_descriptions_empty,
-                                      bool starred) const {
+void AutocompletePopupViewWin::DrawEntry(HDC dc,
+                                         const RECT& client_rect,
+                                         size_t line,
+                                         DrawLineInfo::LineStatus status,
+                                         bool all_descriptions_empty,
+                                         bool starred) const {
   // Calculate outer bounds of entry, and fill background.
   const int top_pixel = LineTopPixel(line);
   const RECT rc = {1, top_pixel, client_rect.right - client_rect.left - 1,
@@ -557,7 +831,7 @@ void AutocompletePopupView::DrawEntry(HDC dc,
              (line_info_.line_height - star_->height()) / 2 + top_pixel);
 }
 
-void AutocompletePopupView::DrawStar(HDC dc, int x, int y) const {
+void AutocompletePopupViewWin::DrawStar(HDC dc, int x, int y) const {
   ChromeCanvas canvas(star_->width(), star_->height(), false);
   // Make the background completely transparent.
   canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
@@ -566,99 +840,14 @@ void AutocompletePopupView::DrawStar(HDC dc, int x, int y) const {
       dc, mirroring_context_->GetLeft(x, x + star_->width()), y, NULL);
 }
 
-AutocompletePopupView::DrawLineInfo::DrawLineInfo(const ChromeFont& font) {
-  // Create regular and bold fonts.
-  regular_font = font.DeriveFont(-1);
-  bold_font = regular_font.DeriveFont(0, ChromeFont::BOLD);
-
-  // The total padding added to each line (bottom padding is what is
-  // left over after DrawEntry() specifies its top offset).
-  static const int kTotalLinePadding = 5;
-  font_height = std::max(regular_font.height(), bold_font.height());
-  line_height = font_height + kTotalLinePadding;
-  ave_char_width = regular_font.GetExpectedTextWidth(1);
-  ellipsis_width = std::max(regular_font.GetStringWidth(ellipsis_str),
-                            bold_font.GetStringWidth(ellipsis_str));
-
-  // Create background colors.
-  background_colors[NORMAL] = GetSysColor(COLOR_WINDOW);
-  background_colors[SELECTED] = GetSysColor(COLOR_HIGHLIGHT);
-  background_colors[HOVERED] =
-      AlphaBlend(background_colors[SELECTED], background_colors[NORMAL], 0x40);
-
-  // Create text colors.
-  text_colors[NORMAL] = GetSysColor(COLOR_WINDOWTEXT);
-  text_colors[HOVERED] = text_colors[NORMAL];
-  text_colors[SELECTED] = GetSysColor(COLOR_HIGHLIGHTTEXT);
-
-  // Create brushes and url colors.
-  const COLORREF dark_url(0x008000);
-  const COLORREF light_url(0xd0ffd0);
-  for (int i = 0; i < MAX_STATUS_ENTRIES; ++i) {
-    // Pick whichever URL color contrasts better.
-    const double dark_contrast =
-        LuminosityContrast(dark_url, background_colors[i]);
-    const double light_contrast =
-        LuminosityContrast(light_url, background_colors[i]);
-    url_colors[i] = (dark_contrast > light_contrast) ? dark_url : light_url;
-
-    brushes[i] = CreateSolidBrush(background_colors[i]);
-  }
-}
-
-AutocompletePopupView::DrawLineInfo::~DrawLineInfo() {
-  for (int i = 0; i < MAX_STATUS_ENTRIES; ++i)
-    DeleteObject(brushes[i]);
-}
+}  // namespace
 
 // static
-double AutocompletePopupView::DrawLineInfo::LuminosityContrast(
-    COLORREF color1,
-    COLORREF color2) {
-  // This algorithm was adapted from the following text at
-  // http://juicystudio.com/article/luminositycontrastratioalgorithm.php :
-  //
-  // "[Luminosity contrast can be calculated as] (L1+.05) / (L2+.05) where L is
-  // luminosity and is defined as .2126*R + .7152*G + .0722B using linearised
-  // R, G, and B values. Linearised R (for example) = (R/FS)^2.2 where FS is
-  // full scale value (255 for 8 bit color channels). L1 is the higher value
-  // (of text or background) and L2 is the lower value.
-  //
-  // The Gamma correction and RGB constants are derived from the Standard
-  // Default Color Space for the Internet (sRGB), and the 0.05 offset is
-  // included to compensate for contrast ratios that occur when a value is at
-  // or near zero, and for ambient light effects.
-  const double l1 = Luminosity(color1);
-  const double l2 = Luminosity(color2);
-  return (l1 > l2) ? ((l1 + 0.05) / (l2 + 0.05)) : ((l2 + 0.05) / (l1 + 0.05));
-}
-
-// static
-double AutocompletePopupView::DrawLineInfo::Luminosity(COLORREF color) {
-  // See comments in LuminosityContrast().
-  const double linearised_r =
-      pow(static_cast<double>(GetRValue(color)) / 255.0, 2.2);
-  const double linearised_g =
-      pow(static_cast<double>(GetGValue(color)) / 255.0, 2.2);
-  const double linearised_b =
-      pow(static_cast<double>(GetBValue(color)) / 255.0, 2.2);
-  return (0.2126 * linearised_r) + (0.7152 * linearised_g) +
-      (0.0722 * linearised_b);
-}
-
-COLORREF AutocompletePopupView::DrawLineInfo::AlphaBlend(COLORREF foreground,
-                                                         COLORREF background,
-                                                         BYTE alpha) {
-  if (alpha == 0)
-    return background;
-  else if (alpha == 0xff)
-    return foreground;
-
-  return RGB(
-    ((GetRValue(foreground) * alpha) +
-     (GetRValue(background) * (0xff - alpha))) / 0xff,
-    ((GetGValue(foreground) * alpha) +
-     (GetGValue(background) * (0xff - alpha))) / 0xff,
-    ((GetBValue(foreground) * alpha) +
-     (GetBValue(background) * (0xff - alpha))) / 0xff);
+// NOTE: The annoying name CreatePopupView is because otherwise multiple
+// inheritance conflicts with another Create method.
+AutocompletePopupView* AutocompletePopupView::CreatePopupView(
+    AutocompletePopupModel* model,
+    const ChromeFont& font,
+    AutocompleteEditView* edit_view) {
+  return new AutocompletePopupViewWin(model, font, edit_view);
 }

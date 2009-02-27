@@ -29,7 +29,7 @@ AutocompletePopupModel::AutocompletePopupModel(
     AutocompleteEditView* edit_view,
     AutocompleteEditModel* edit_model,
     Profile* profile)
-    : view_(new AutocompletePopupView(this, font, edit_view)),
+    : view_(AutocompletePopupView::CreatePopupView(this, font, edit_view)),
       edit_model_(edit_model),
       controller_(new AutocompleteController(profile)),
       profile_(profile),
@@ -143,7 +143,7 @@ void AutocompletePopupModel::SetSelectedLine(size_t line,
   view_->InvalidateLine(selected_line_);
   selected_line_ = line;
   view_->InvalidateLine(selected_line_);
-  view_->UpdateWindow();
+  view_->PaintUpdatesNow();
 }
 
 void AutocompletePopupModel::ResetToDefaultMatch() {
