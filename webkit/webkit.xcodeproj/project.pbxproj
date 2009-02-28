@@ -1333,6 +1333,7 @@
 		ABF923090F3A388C009B64EC /* webplugin_delegate_impl_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405ED0D92E3FF0006B936 /* webplugin_delegate_impl_mac.cc */; };
 		B26072924B6C110181ECF928 /* webplugin_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1459AC310DEBF6A597167F45 /* webplugin_delegate.cc */; };
 		B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */; };
+		CC188E0A792C13D2A53C8FD6 /* Gears.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20EE9F2D403A8BC28297DD27 /* Gears.cpp */; };
 		E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */; };
 		E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */; };
 		E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40060DA0EA69E0B0055B38E /* ScriptController.cpp */; };
@@ -1540,6 +1541,7 @@
 		181A25BB0F57EFCE00939C89 /* V8WebKitPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitPoint.cpp; sourceTree = "<group>"; };
 		181A25BC0F57EFCE00939C89 /* V8WebKitPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitPoint.h; sourceTree = "<group>"; };
 		1DF458E80DD265C670E05B03 /* RenderSelectionInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderSelectionInfo.h; sourceTree = "<group>"; };
+		20EE9F2D403A8BC28297DD27 /* Gears.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Gears.cpp; path = port/bindings/v8/extensions/Gears.cpp; sourceTree = SOURCE_ROOT; };
 		20EF92D9CD4E55999674A63E /* CurrentTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurrentTime.h; sourceTree = "<group>"; };
 		31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PNGImageEncoder.cpp; path = "../third_party/WebKit/WebCore/platform/image-encoders/skia/PNGImageEncoder.cpp"; sourceTree = SOURCE_ROOT; };
 		31C1FF1C3BB820B928CFE9BD /* V8DOMWindowCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8DOMWindowCustom.cpp; sourceTree = "<group>"; };
@@ -4105,6 +4107,7 @@
 		89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArray.cpp; sourceTree = "<group>"; };
 		89F4A0D40F200D59000A326A /* V8CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CanvasPixelArray.h; sourceTree = "<group>"; };
 		89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArrayCustom.cpp; sourceTree = "<group>"; };
+		8CF41B1A2D4E8F64A2C5C3F6 /* Gears.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Gears.h; path = port/bindings/v8/extensions/Gears.h; sourceTree = SOURCE_ROOT; };
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		934CC2270EDCC37600A658F2 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
 		934CC2290EDCC38400A658F2 /* RGBColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGBColor.h; sourceTree = "<group>"; };
@@ -4858,6 +4861,8 @@
 				4CDA86D8A0B62BD0EBF07D78 /* AnimationControllerPrivate.h */,
 				7FF1567A8464BD6DC36B47CD /* MainThreadChromium.cpp */,
 				31493A4FA536C112F8C2FB03 /* PNGImageEncoder.cpp */,
+				20EE9F2D403A8BC28297DD27 /* Gears.cpp */,
+				8CF41B1A2D4E8F64A2C5C3F6 /* Gears.h */,
 			);
 			sourceTree = "<group>";
 		};
@@ -9813,6 +9818,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5779DD6BC0DA17AB7DE63D4 /* GCController.cpp in Sources */,
+				CC188E0A792C13D2A53C8FD6 /* Gears.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				453FFDF935221CD484A3AFED /* Interval.cpp in Sources */,
 				3C9197C6A7DABB989CBDBF81 /* Playback.cpp in Sources */,

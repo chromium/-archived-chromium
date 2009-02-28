@@ -350,6 +350,7 @@ inputs = [
     '$PORT_DIR/bindings/v8/WorkerContextExecutionProxy.cpp',
     '$PORT_DIR/bindings/v8/WorkerScriptController.cpp',
     '$PORT_DIR/bindings/v8/extensions/GCController.cpp',
+    '$PORT_DIR/bindings/v8/extensions/Gears.cpp',
     '$PORT_DIR/bindings/v8/extensions/Interval.cpp',
     '$PORT_DIR/bindings/v8/extensions/Playback.cpp',
 

@@ -1016,6 +1016,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/V8Proxy.h',
         'port/bindings/v8/extensions/GCController.cpp',
         'port/bindings/v8/extensions/GCController.h',
+        'port/bindings/v8/extensions/Gears.cpp',
+        'port/bindings/v8/extensions/Gears.h',
         'port/bindings/v8/extensions/Interval.cpp',
         'port/bindings/v8/extensions/Interval.h',
         'port/bindings/v8/extensions/Playback.cpp',
