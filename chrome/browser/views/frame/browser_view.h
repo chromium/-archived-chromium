@@ -183,6 +183,7 @@ class BrowserView : public BrowserWindow,
   virtual void SetBounds(const gfx::Rect& bounds);
   virtual void Close();
   virtual void Activate();
+  virtual bool IsActive() const;
   virtual void FlashFrame();
   virtual void* GetNativeHandle();
   virtual BrowserWindowTesting* GetBrowserWindowTesting();

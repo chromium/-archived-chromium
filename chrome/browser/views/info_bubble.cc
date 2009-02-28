@@ -73,12 +73,18 @@ InfoBubble* InfoBubble::Show(HWND parent_hwnd,
   InfoBubble* window = new InfoBubble();
   DLOG(WARNING) << "new bubble=" << window;
   window->Init(parent_hwnd, position_relative_to, content);
-  window->ShowWindow(SW_SHOW);
+  // Set the delegate before we show, on the off chance the delegate is needed
+  // during showing.
   window->delegate_ = delegate;
+  window->ShowWindow(SW_SHOW);
   return window;
 }
 
-InfoBubble::InfoBubble() : content_view_(NULL), closed_(false) {
+InfoBubble::InfoBubble()
+    : delegate_(NULL),
+      parent_(NULL),
+      content_view_(NULL),
+      closed_(false) {
 }
 
 InfoBubble::~InfoBubble() {

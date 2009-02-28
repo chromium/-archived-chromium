@@ -41,7 +41,7 @@ class InfoBubble : public views::WidgetWin,
   // Shows the InfoBubble. The InfoBubble is parented to parent_hwnd, contains
   // the View content and positioned relative to the screen position
   // position_relative_to. Show takes ownership of content and deletes the
-  // create InfoBubble when another window is activated. You can explicitly
+  // created InfoBubble when another window is activated. You can explicitly
   // close the bubble by invoking Close.  A delegate may optionally be provided
   // to be notified when the InfoBubble is closed and to prevent the InfoBubble
   // from being closed when the Escape key is pressed (which is the default

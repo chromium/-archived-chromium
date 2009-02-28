@@ -49,6 +49,9 @@ class BrowserWindow {
   // state if necessary.
   virtual void Activate() = 0;
 
+  // Returns true if the window is currently the active/focused window.
+  virtual bool IsActive() const = 0;
+
   // Flashes the taskbar item associated with this frame.
   virtual void FlashFrame() = 0;
 

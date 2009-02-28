@@ -525,6 +525,10 @@ void BrowserView::Activate() {
   frame_->GetWindow()->Activate();
 }
 
+bool BrowserView::IsActive() const {
+  return frame_->GetWindow()->IsActive();
+}
+
 void BrowserView::FlashFrame() {
   FLASHWINFO fwi;
   fwi.cbSize = sizeof(fwi);

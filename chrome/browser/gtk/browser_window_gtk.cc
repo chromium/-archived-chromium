@@ -204,6 +204,11 @@ void BrowserWindowGtk::Activate() {
   gtk_window_present(window_);
 }
 
+bool BrowserWindowGtk::IsActive() const {
+  NOTIMPLEMENTED();
+  return true;
+}
+
 void BrowserWindowGtk::FlashFrame() {
   // May not be respected by all window managers.
   gtk_window_set_urgency_hint(window_, TRUE);

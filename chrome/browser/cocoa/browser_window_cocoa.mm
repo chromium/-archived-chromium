@@ -48,6 +48,10 @@ void BrowserWindowCocoa::FlashFrame() {
       requestUserAttention:NSInformationalRequest];
 }
 
+bool BrowserWindowCocoa::IsActive() const {
+  return [window_ isKeyWindow];
+}
+
 void* BrowserWindowCocoa::GetNativeHandle() {
   return [controller_ window];
 }

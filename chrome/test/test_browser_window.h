@@ -25,6 +25,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void SetBounds(const gfx::Rect& bounds) {}
   virtual void Close() {}
   virtual void Activate() {}
+  virtual bool IsActive() const { return false; }
   virtual void FlashFrame() {}
   virtual void* GetNativeHandle() { return NULL; }
   virtual BrowserWindowTesting* GetBrowserWindowTesting() { return NULL; }
