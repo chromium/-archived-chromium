@@ -143,6 +143,9 @@ gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int width,
 gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
     int width,
     int height) const {
+  if (!browser_view_->IsTabStripVisible())
+    return gfx::Size(width, height);
+
   int border_thickness = NonClientBorderThickness();
   return gfx::Size(width + (2 * border_thickness),
                    height + NonClientTopBorderHeight() + border_thickness);
@@ -151,14 +154,14 @@ gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
 gfx::Point AeroGlassNonClientView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point;
   if (browser_view_->IsBrowserTypeNormal()) {
-    // The maximized mode bit here is because in maximized mode the frame edge
+    // The X coordinate conditional is because in maximized mode the frame edge
     // and the client edge are both offscreen, whereas in the opaque frame
     // (where we don't do this trick) maximized windows have no client edge and
     // only the frame edge is offscreen.
     system_menu_point.SetPoint(NonClientBorderThickness() -
-        (frame_->IsMaximized() ? 0 : kClientEdgeThickness),
+        (browser_view_->CanCurrentlyResize() ? kClientEdgeThickness : 0),
         NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-        kClientEdgeThickness);
+        (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
   } else {
     system_menu_point.SetPoint(0, -kFrameShadowThickness);
   }
@@ -220,16 +223,16 @@ void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
 // AeroGlassNonClientView, private:
 
 int AeroGlassNonClientView::FrameBorderThickness() const {
-  return GetSystemMetrics(SM_CXSIZEFRAME);
+  return browser_view_->IsFullscreen() ? 0 : GetSystemMetrics(SM_CXSIZEFRAME);
 }
 
 int AeroGlassNonClientView::NonClientBorderThickness() const {
-  return kNonClientBorderThickness;
+  return browser_view_->IsFullscreen() ? 0 : kNonClientBorderThickness;
 }
 
 int AeroGlassNonClientView::NonClientTopBorderHeight() const {
-  return FrameBorderThickness() +
-      (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
+  return FrameBorderThickness() + (browser_view_->CanCurrentlyResize() ?
+      kNonClientRestoredExtraThickness : 0);
 }
 
 void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {

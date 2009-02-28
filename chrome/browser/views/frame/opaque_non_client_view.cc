@@ -472,7 +472,7 @@ gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
 gfx::Point OpaqueNonClientView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point(FrameBorderThickness(),
       NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-      kClientEdgeThickness);
+      (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
   ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }
