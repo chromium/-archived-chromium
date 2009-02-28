@@ -148,8 +148,11 @@ bool FirstRun::CreateChromeDesktopShortcut() {
   std::wstring chrome_exe;
   if (!PathService::Get(base::FILE_EXE, &chrome_exe))
     return false;
+  BrowserDistribution *dist = BrowserDistribution::GetDistribution();
+  if (!dist)
+    return false;
   return ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
-    ShellUtil::CURRENT_USER, // create only for current user
+    dist->GetAppDescription(), ShellUtil::CURRENT_USER,
     true); // create if doesnt exist
 }
 

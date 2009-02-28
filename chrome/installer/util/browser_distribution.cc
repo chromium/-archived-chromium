@@ -38,6 +38,10 @@ std::wstring BrowserDistribution::GetPublisherName() {
   return L"Chromium";
 }
 
+std::wstring BrowserDistribution::GetAppDescription() {
+  return L"Browse the web";
+}
+
 int BrowserDistribution::GetInstallReturnCode(
     installer_util::InstallStatus install_status) {
   return install_status;

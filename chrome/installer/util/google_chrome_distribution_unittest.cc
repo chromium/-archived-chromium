@@ -225,3 +225,10 @@ TEST(MasterPreferences, ParseDistroParams) {
   EXPECT_TRUE(file_util::Delete(prefs, false));
 }
 
+TEST(BrowserDistribution, StringsTest) {
+  BrowserDistribution *dist = BrowserDistribution::GetDistribution();
+  ASSERT_TRUE(dist != NULL);
+  std::wstring name = dist->GetApplicationName();
+  std::wstring desc = dist->GetAppDescription();
+  // TODO(cpu) finish the test when the translated strings arrive.
+}

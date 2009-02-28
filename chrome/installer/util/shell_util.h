@@ -112,6 +112,7 @@ class ShellUtil {
   // create_new: If false, will only update the shortcut. If true, the function
   //             will create a new shortcut if it doesn't exist already.
   static bool CreateChromeDesktopShortcut(const std::wstring& chrome_exe,
+                                          const std::wstring& description,
                                           int shell_change,
                                           bool create_new);
 
@@ -192,6 +193,7 @@ class ShellUtil {
   // if doesn't exist.
   static bool UpdateChromeShortcut(const std::wstring& chrome_exe,
                                    const std::wstring& shortcut,
+                                   const std::wstring& description,
                                    bool create_new);
 
  private:

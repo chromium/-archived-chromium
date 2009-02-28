@@ -112,6 +112,11 @@ std::wstring GoogleChromeDistribution::GetPublisherName() {
   return publisher_name;
 }
 
+std::wstring GoogleChromeDistribution::GetAppDescription() {
+  // TODO(cpu): Wire the actual localized strings when they arrive.
+  return L"";
+}
+
 int GoogleChromeDistribution::GetInstallReturnCode(
     installer_util::InstallStatus status) {
   switch (status) {

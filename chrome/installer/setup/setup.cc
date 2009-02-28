@@ -100,6 +100,7 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   // The location of Start->Programs->Google Chrome folder
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   const std::wstring& product_name = dist->GetApplicationName();
+  const std::wstring& product_desc = dist->GetAppDescription();
   file_util::AppendToPath(&shortcut_path, product_name);
 
   // Create/update Chrome link (points to chrome.exe) & Uninstall Chrome link
@@ -121,13 +122,13 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
       file_util::CreateDirectoryW(shortcut_path);
 
     LOG(INFO) << "Creating shortcut to " << chrome_exe << " at " << chrome_link;
-    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link, true);
+    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link,
+                                                 product_desc, true);
   } else if (file_util::PathExists(chrome_link)) {
     LOG(INFO) << "Updating shortcut at " << chrome_link
               << " to point to " << chrome_exe;
-    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe,
-                                                 chrome_link,
-                                                 false); // do not create new
+    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link,
+                                                 product_desc, false);
   }
 
   // Create/update uninstall link
@@ -165,12 +166,12 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   bool create = (options & installer_util::CREATE_ALL_SHORTCUTS) != 0;
   if (system_install) {
     ret = ret && ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
-        ShellUtil::SYSTEM_LEVEL, create);
+        product_desc, ShellUtil::SYSTEM_LEVEL, create);
     ret = ret && ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
         ShellUtil::CURRENT_USER | ShellUtil::SYSTEM_LEVEL, create);
   } else {
     ret = ret && ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
-        ShellUtil::CURRENT_USER, create);
+        product_desc, ShellUtil::CURRENT_USER, create);
     ret = ret && ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
         ShellUtil::CURRENT_USER, create);
   }
