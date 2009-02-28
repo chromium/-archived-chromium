@@ -1694,7 +1694,6 @@ DEFER : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
 //
 // These ones look to just need fresh pixel baselines (likely caused by
 // transformation matrices now using doubles instead of floats):
-LINUX : LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
 LINUX : LayoutTests/fast/transforms/matrix-02.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = PASS FAIL
 LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
@@ -1859,4 +1858,3 @@ LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
 LayoutTests/svg/text/text-text-07-t.svg = FAIL
 LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
 LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
-DEFER : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT
