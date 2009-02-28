@@ -5,8 +5,9 @@
 #ifndef WEBKIT_TOOLS_TEST_SHELL_SIMPLE_RESOURCE_LOADER_BRIDGE_H__
 #define WEBKIT_TOOLS_TEST_SHELL_SIMPLE_RESOURCE_LOADER_BRIDGE_H__
 
-#include "base/ref_counted.h"
+#include <string>
 
+class GURL;
 class URLRequestContext;
 
 class SimpleResourceLoaderBridge {
@@ -25,6 +26,12 @@ class SimpleResourceLoaderBridge {
 
   // Call this function to shutdown the simple resource loader bridge.
   static void Shutdown();
+
+  // May only be called after Init.
+  static void SetCookie(
+      const GURL& url, const GURL& policy_url, const std::string& cookie);
+  static std::string GetCookies(
+      const GURL& url, const GURL& policy_url);
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_SIMPLE_RESOURCE_LOADER_BRIDGE_H__

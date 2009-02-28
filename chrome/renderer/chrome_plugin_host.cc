@@ -262,7 +262,11 @@ void STDCALL CPB_SetKeepProcessAlive(CPID id, CPBool keep_alive) {
 CPError STDCALL CPB_GetCookies(CPID id, CPBrowsingContext context,
                                const char* url, char** cookies) {
   CHECK(ChromePluginLib::IsPluginThread());
-  std::string cookies_str = webkit_glue::GetCookies(GURL(url), GURL(url));
+
+  std::string cookies_str;
+  RenderThread::current()->Send(
+      new ViewHostMsg_GetCookies(GURL(url), GURL(url), &cookies_str));
+
   *cookies = CPB_StringDup(CPB_Alloc, cookies_str);
   return CPERR_SUCCESS;
 }

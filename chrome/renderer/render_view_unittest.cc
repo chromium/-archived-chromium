@@ -7,10 +7,13 @@
 #include "chrome/renderer/mock_render_process.h"
 #include "chrome/renderer/mock_render_thread.h"
 #include "chrome/renderer/render_view.h"
+#include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
+
+#include "WebKit.h"
 
 namespace {
 
@@ -60,6 +63,8 @@ class RenderViewTest : public testing::Test {
 
   // testing::Test
   virtual void SetUp() {
+    WebKit::initialize(&webkitclient_);
+
     mock_process_.reset(new MockProcess());
 
     render_thread_.set_routing_id(kRouteId);
@@ -78,6 +83,8 @@ class RenderViewTest : public testing::Test {
     view_ = NULL;
 
     mock_process_.reset();
+    WebKit::shutdown();
+
     msg_loop_.RunAllPending();
   }
 
@@ -85,6 +92,7 @@ class RenderViewTest : public testing::Test {
   MockRenderThread render_thread_;
   scoped_ptr<MockProcess> mock_process_;
   scoped_refptr<RenderView> view_;
+  RendererWebKitClientImpl webkitclient_;
 };
 
 

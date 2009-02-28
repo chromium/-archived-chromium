@@ -16,6 +16,7 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/plugin/npobject_util.h"
 // TODO(port)
 #if defined(OS_WIN)
@@ -35,6 +36,7 @@
 #include "webkit/glue/cache_manager.h"
 
 #include "WebKit.h"
+#include "WebString.h"
 
 static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 
@@ -95,9 +97,6 @@ void RenderThread::Init() {
   cache_stats_factory_.reset(
       new ScopedRunnableMethodFactory<RenderThread>(this));
 
-  webkit_client_impl_.reset(new RendererWebKitClientImpl);
-  WebKit::initialize(webkit_client_impl_.get());
-
   visited_link_slave_.reset(new VisitedLinkSlave());
   user_script_slave_.reset(new UserScriptSlave());
   dns_master_.reset(new RenderDnsMaster());
@@ -112,7 +111,10 @@ void RenderThread::CleanUp() {
   user_script_slave_.reset();
   visited_link_slave_.reset();
 
-  WebKit::shutdown();
+  if (webkit_client_.get()) {
+    WebKit::shutdown();
+    webkit_client_.reset();
+  }
 
   notification_service_.reset();
 
@@ -185,6 +187,8 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
                                    ModalDialogEvent modal_dialog_event,
                                    const WebPreferences& webkit_prefs,
                                    int32 view_id) {
+  EnsureWebKitInitialized();
+
   // When bringing in render_view, also bring in webkit's glue and jsbindings.
   base::WaitableEvent* waitable_event = new base::WaitableEvent(
 #if defined(OS_WIN)
@@ -203,6 +207,7 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
                                         size_t max_dead_capacity,
                                         size_t capacity) {
+  EnsureWebKitInitialized();
 #if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::SetCapacities(min_dead_capacity, max_dead_capacity, capacity);
 #else
@@ -212,6 +217,7 @@ void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
 }
 
 void RenderThread::OnGetCacheResourceStats() {
+  EnsureWebKitInitialized();
 #if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::ResourceTypeStats stats;
   CacheManager::GetResourceTypeStats(&stats);
@@ -227,6 +233,7 @@ void RenderThread::OnGetRendererHistograms() {
 }
 
 void RenderThread::InformHostOfCacheStats() {
+  EnsureWebKitInitialized();
 #if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::UsageStats stats;
   CacheManager::GetUsageStats(&stats);
@@ -246,4 +253,12 @@ void RenderThread::InformHostOfCacheStatsLater() {
       cache_stats_factory_->NewRunnableMethod(
           &RenderThread::InformHostOfCacheStats),
       kCacheStatsDelayMS);
+}
+
+void RenderThread::EnsureWebKitInitialized() {
+  if (webkit_client_.get())
+    return;
+  webkit_client_.reset(new RendererWebKitClientImpl);
+  WebKit::initialize(webkit_client_.get());
+  WebKit::registerURLSchemeAsLocal(ASCIIToUTF16(chrome::kChromeUIScheme));
 }

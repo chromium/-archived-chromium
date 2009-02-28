@@ -41,6 +41,12 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ScrollView.h"
 #include "Widget.h"
 MSVC_POP_WARNING();
+
+#include "WebKit.h"
+#include "WebKitClient.h"
+#include "WebString.h"
+#include "WebURL.h"
+
 #undef LOG
 
 #include "base/gfx/rect.h"
@@ -541,11 +547,11 @@ NPObject* WebPluginImpl::GetPluginElement() {
 void WebPluginImpl::SetCookie(const GURL& url,
                               const GURL& policy_url,
                               const std::string& cookie) {
-  webkit_glue::SetCookie(url, policy_url, cookie);
+  WebKit::webKitClient()->setCookies(url, policy_url, UTF8ToUTF16(cookie));
 }
 
 std::string WebPluginImpl::GetCookies(const GURL& url, const GURL& policy_url) {
-  return webkit_glue::GetCookies(url, policy_url);
+  return UTF16ToUTF8(WebKit::webKitClient()->cookies(url, policy_url));
 }
 
 void WebPluginImpl::ShowModalHTMLDialog(const GURL& url, int width, int height,

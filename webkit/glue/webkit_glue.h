@@ -76,13 +76,6 @@ void SetShouldExposeGCController(bool enable);
 //-----------------------------------------------------------------------------
 // Functions implemented by WebKit, called by the embedder:
 
-// Turns on "layout test" mode, which tries to mimic the font and widget sizing
-// of the Mac DumpRenderTree.
-void SetLayoutTestMode(bool enable);
-bool IsLayoutTestMode();
-
-void InitializeForTesting();
-
 // Turn on the logging for notImplemented() calls from WebCore.
 void EnableWebCoreNotImplementedLogging();
 
@@ -150,10 +143,6 @@ void SetMediaPlayerAvailable(bool value);
 // Returns true if media player is available and can be created.
 bool IsMediaPlayerAvailable();
 
-// This function is called to request a prefetch of the DNS resolution for the
-// provided hostname.
-void PrefetchDns(const std::string& hostname);
-
 // This function is called to request a prefetch of the entire URL, loading it
 // into our cache for (expected) future needs.  The given URL may NOT be in
 // canonical form and it will NOT be null-terminated; use the length instead.
@@ -161,18 +150,6 @@ void PrecacheUrl(const char16* url, int url_length);
 
 // This function is called to add a line to the application's log file.
 void AppendToLog(const char* filename, int line, const char* message);
-
-// Sets a cookie string for the given URL.  The policy_url argument indicates
-// the URL of the topmost frame, which may be useful for determining whether or
-// not to allow this cookie setting.  NOTE: the cookie string is a standard
-// cookie string of the form "name=value; option1=x; option2=y"
-void SetCookie(const GURL& url, const GURL& policy_url,
-               const std::string& cookie);
-
-// Returns all cookies in the form "a=1; b=2; c=3" for the given URL.  NOTE:
-// this string should not include any options that may have been specified when
-// the cookie was set.  Semicolons delimit individual cookies in this context.
-std::string GetCookies(const GURL& url, const GURL& policy_url);
 
 // Gather usage statistics from the in-memory cache and inform our host, if
 // applicable.

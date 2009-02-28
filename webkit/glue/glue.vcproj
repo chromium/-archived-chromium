@@ -309,10 +309,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\chromium_threading.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\clipboard_conversion.cc"
 				>
 			</File>

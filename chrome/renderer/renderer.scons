@@ -13,15 +13,12 @@ env.SConscript([
     '$MEDIA_DIR/using_media.scons',
     '$NPAPI_DIR/using_npapi.scons',
     '$SKIA_DIR/using_skia.scons',
+    '$WEBKIT_DIR/build/WebKit/using_webkit.scons',
 ], {'env':env})
 
 env.Prepend(
-    CPPDEFINES = [
-        'WEBKIT_USING_SKIA'
-    ],
     CPPPATH = [
         '$CHROME_SRC_DIR',
-        '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/public',
     ],
 )
 

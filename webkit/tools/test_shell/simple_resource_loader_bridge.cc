@@ -498,36 +498,6 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
                                       headers, load_flags);
 }
 
-void SetCookie(const GURL& url, const GURL& policy_url,
-               const std::string& cookie) {
-  // Proxy to IO thread to synchronize w/ network loading.
-
-  if (!EnsureIOThread()) {
-    NOTREACHED();
-    return;
-  }
-
-  scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
-  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      cookie_setter.get(), &CookieSetter::Set, url, cookie));
-}
-
-std::string GetCookies(const GURL& url, const GURL& policy_url) {
-  // Proxy to IO thread to synchronize w/ network loading
-
-  if (!EnsureIOThread()) {
-    NOTREACHED();
-    return std::string();
-  }
-
-  scoped_refptr<CookieGetter> getter = new CookieGetter();
-
-  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      getter.get(), &CookieGetter::Get, url));
-
-  return getter->GetResult();
-}
-
 // Issue the proxy resolve request on the io thread, and wait 
 // for the result.
 bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
@@ -574,3 +544,33 @@ void SimpleResourceLoaderBridge::Shutdown() {
   }
 }
 
+void SimpleResourceLoaderBridge::SetCookie(
+    const GURL& url, const GURL& policy_url, const std::string& cookie) {
+  // Proxy to IO thread to synchronize w/ network loading.
+
+  if (!EnsureIOThread()) {
+    NOTREACHED();
+    return;
+  }
+
+  scoped_refptr<CookieSetter> cookie_setter = new CookieSetter();
+  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      cookie_setter.get(), &CookieSetter::Set, url, cookie));
+}
+
+std::string SimpleResourceLoaderBridge::GetCookies(
+    const GURL& url, const GURL& policy_url) {
+  // Proxy to IO thread to synchronize w/ network loading
+
+  if (!EnsureIOThread()) {
+    NOTREACHED();
+    return std::string();
+  }
+
+  scoped_refptr<CookieGetter> getter = new CookieGetter();
+
+  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      getter.get(), &CookieGetter::Get, url));
+
+  return getter->GetResult();
+}

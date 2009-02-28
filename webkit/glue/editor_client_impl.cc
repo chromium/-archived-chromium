@@ -25,6 +25,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformString.h"
 MSVC_POP_WARNING();
 
+#include "WebKit.h"
+
 #undef LOG
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -92,7 +94,7 @@ bool EditorClientImpl::shouldShowDeleteInterface(WebCore::HTMLElement* elem) {
   // Normally, we don't care to show WebCore's deletion UI, so we only enable
   // it if in testing mode and the test specifically requests it by using this
   // magic class name.
-  return webkit_glue::IsLayoutTestMode() &&
+  return WebKit::layoutTestMode() &&
          elem->className() == "needsDeletionUI";
 }
 
@@ -493,9 +495,9 @@ static const KeyDownEntry keyDownEntries[] = {
   { WebCore::VKEY_RETURN, AltKey,             "InsertNewline"                 },
   { WebCore::VKEY_RETURN, AltKey | ShiftKey,  "InsertNewline"                 },
   { WebCore::VKEY_RETURN, ShiftKey,           "InsertLineBreak"               },
-  { WebCore::VKEY_INSERT, CtrlKey,            "Copy"                          },	
-  { WebCore::VKEY_INSERT, ShiftKey,           "Paste"                         },	
-  { WebCore::VKEY_DELETE, ShiftKey,           "Cut"                           },	
+  { WebCore::VKEY_INSERT, CtrlKey,            "Copy"                          },
+  { WebCore::VKEY_INSERT, ShiftKey,           "Paste"                         },
+  { WebCore::VKEY_DELETE, ShiftKey,           "Cut"                           },
 #if defined(OS_MACOSX)
   { 'C',                  CommandKey,         "Copy"                          },
   { 'V',                  CommandKey,         "Paste"                         },

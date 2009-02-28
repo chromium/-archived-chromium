@@ -73,21 +73,6 @@ void SetShouldExposeGCController(bool enable) {
 #endif
 }
 
-static bool layout_test_mode_ = false;
-
-void SetLayoutTestMode(bool enable) {
-  layout_test_mode_ = enable;
-}
-
-bool IsLayoutTestMode() {
-  return layout_test_mode_;
-}
-
-void InitializeForTesting() {
-  WTF::initializeThreading();
-  WebCore::AtomicString::init();
-}
-
 void EnableWebCoreNotImplementedLogging() {
   WebCore::LogNotYetImplemented.state = WTFLogChannelOn;
 }

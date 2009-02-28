@@ -16,6 +16,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Widget.h"
 MSVC_POP_WARNING();
 
+#include "WebKit.h"
+
 #undef LOG
 #include "base/gfx/point.h"
 #include "base/logging.h"
@@ -109,7 +111,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
       NOTREACHED() << "unexpected mouse event type";
   }
 
-  if (webkit_glue::IsLayoutTestMode()) {
+  if (WebKit::layoutTestMode()) {
     m_clickCount = e.layout_test_click_count;
   }
 }

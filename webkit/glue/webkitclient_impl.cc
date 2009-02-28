@@ -4,10 +4,43 @@
 
 #include "webkit/glue/webkitclient_impl.h"
 
+#include "base/message_loop.h"
+
 namespace webkit_glue {
+
+WebKitClientImpl::WebKitClientImpl()
+    : main_loop_(MessageLoop::current()),
+      shared_timer_func_(NULL) {
+}
 
 WebKit::WebClipboard* WebKitClientImpl::clipboard() {
   return &clipboard_;
+}
+
+double WebKitClientImpl::currentTime() {
+  return base::Time::Now().ToDoubleT();
+}
+
+void WebKitClientImpl::setSharedTimerFiredFunction(void (*func)()) {
+  shared_timer_func_ = func;
+}
+
+void WebKitClientImpl::setSharedTimerFireTime(double fire_time) {
+  int interval = static_cast<int>((fire_time - currentTime()) * 1000);
+  if (interval < 0)
+    interval = 0;
+
+  shared_timer_.Stop();
+  shared_timer_.Start(base::TimeDelta::FromMilliseconds(interval), this,
+                      &WebKitClientImpl::DoTimeout);
+}
+
+void WebKitClientImpl::stopSharedTimer() {
+  shared_timer_.Stop();
+}
+
+void WebKitClientImpl::callOnMainThread(void (*func)()) {
+  main_loop_->PostTask(FROM_HERE, NewRunnableFunction(func));
 }
 
 }  // namespace webkit_glue

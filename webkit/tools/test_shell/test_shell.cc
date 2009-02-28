@@ -557,8 +557,6 @@ bool IsMediaPlayerAvailable() {
   return g_media_player_available;
 }
 
-void PrefetchDns(const std::string& hostname) {}
-
 void PrecacheUrl(const char16* url, int url_length) {}
 
 void AppendToLog(const char* file, int line, const char* msg) {

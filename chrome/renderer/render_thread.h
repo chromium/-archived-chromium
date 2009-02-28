@@ -129,6 +129,9 @@ class RenderThread : public RenderThreadBase,
   // decisions about how to allocation resources using current information.
   void InformHostOfCacheStats();
 
+  // We initialize WebKit as late as possible.
+  void EnsureWebKitInitialized();
+
   // These objects live solely on the render thread.
   scoped_ptr<VisitedLinkSlave> visited_link_slave_;
 
@@ -142,7 +145,7 @@ class RenderThread : public RenderThreadBase,
 
   scoped_ptr<NotificationService> notification_service_;
 
-  scoped_ptr<RendererWebKitClientImpl> webkit_client_impl_;
+  scoped_ptr<RendererWebKitClientImpl> webkit_client_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderThread);
 };

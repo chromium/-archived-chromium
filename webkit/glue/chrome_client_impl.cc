@@ -21,6 +21,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "v8_proxy.h"
 #endif
 MSVC_POP_WARNING();
+
+#include "WebKit.h"
+
 #undef LOG
 
 #include "webkit/glue/chrome_client_impl.h"
@@ -149,7 +152,7 @@ void ChromeClientImpl::unfocus() {
 bool ChromeClientImpl::canTakeFocus(WebCore::FocusDirection) {
   // For now the browser can always take focus if we're not running layout
   // tests.
-  return !webkit_glue::IsLayoutTestMode();
+  return !WebKit::layoutTestMode();
 }
 
 void ChromeClientImpl::takeFocus(WebCore::FocusDirection direction) {
@@ -376,7 +379,7 @@ bool ChromeClientImpl::tabsToLinks() const {
   // a preference system in place.
   // For now Chrome will allow link to take focus if we're not running layout
   // tests.
-  return !webkit_glue::IsLayoutTestMode();
+  return !WebKit::layoutTestMode();
 }
 
 WebCore::IntRect ChromeClientImpl::windowResizerRect() const {

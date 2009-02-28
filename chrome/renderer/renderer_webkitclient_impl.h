@@ -14,6 +14,13 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebMimeRegistry* mimeRegistry() {
     return &mime_registry_;
   }
+  virtual void setCookies(
+      const WebKit::WebURL& url, const WebKit::WebURL& policy_url,
+      const WebKit::WebString&);
+  virtual WebKit::WebString cookies(
+      const WebKit::WebURL& url, const WebKit::WebURL& policy_url);
+  virtual void prefetchHostName(const WebKit::WebString&);
+  virtual WebKit::WebString defaultLocale();
 
  private:
   class MimeRegistry : public webkit_glue::SimpleWebMimeRegistryImpl {

@@ -46,7 +46,6 @@
 		41807C570F268375007BB4CC /* ByteArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41807C550F268375007BB4CC /* ByteArray.cpp */; };
 		41D0113F0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41D0113E0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp */; };
 		41DE6EBC0F3A328C0049BC24 /* MainThreadChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE6EBB0F3A328C0049BC24 /* MainThreadChromium.cpp */; };
-		41DE6EBF0F3A32EE0049BC24 /* chromium_threading.cc in Sources */ = {isa = PBXBuildFile; fileRef = 41DE6EBE0F3A32EE0049BC24 /* chromium_threading.cc */; };
 		41DE748C0F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */; };
 		41DE748D0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE748A0F3CDBCB0049BC24 /* V8SVGLengthCustom.cpp */; };
 		41DE748E0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41DE748B0F3CDBCB0049BC24 /* V8SVGMatrixCustom.cpp */; };
@@ -1005,6 +1004,8 @@
 		82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 82F14D600ED230E700B36428 /* webcursor_mac.mm */; };
 		89F4A0D50F200D5B000A326A /* V8CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */; };
 		89F4A2090F2106EF000A326A /* V8CanvasPixelArrayCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */; };
+		9310E2290F58C54B007D8D07 /* ChromiumCurrentTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9310E2270F58C54B007D8D07 /* ChromiumCurrentTime.cpp */; };
+		9310E22A0F58C54B007D8D07 /* ChromiumThreading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9310E2280F58C54B007D8D07 /* ChromiumThreading.cpp */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		937A16090F5332AB003E8D2D /* WebString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 937A15B50F53325D003E8D2D /* WebString.cpp */; };
 		938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9381804E0EF3394A00993F02 /* back_forward_list_client_impl.cc */; };
@@ -1608,7 +1609,6 @@
 		41D0113E0F438DA3004A662F /* V8HTMLPlugInElementCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLPlugInElementCustom.cpp; sourceTree = "<group>"; };
 		41DE6EBB0F3A328C0049BC24 /* MainThreadChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainThreadChromium.cpp; sourceTree = "<group>"; };
 		41DE6EBD0F3A329F0049BC24 /* ChromiumThreading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromiumThreading.h; sourceTree = "<group>"; };
-		41DE6EBE0F3A32EE0049BC24 /* chromium_threading.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_threading.cc; sourceTree = "<group>"; };
 		41DE74870F3CDBCB0049BC24 /* V8CustomBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CustomBinding.h; sourceTree = "<group>"; };
 		41DE74880F3CDBCB0049BC24 /* V8CustomEventListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CustomEventListener.h; sourceTree = "<group>"; };
 		41DE74890F3CDBCB0049BC24 /* V8SVGElementInstanceCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGElementInstanceCustom.cpp; sourceTree = "<group>"; };
@@ -4107,6 +4107,8 @@
 		89F4A0D30F200D59000A326A /* V8CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArray.cpp; sourceTree = "<group>"; };
 		89F4A0D40F200D59000A326A /* V8CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CanvasPixelArray.h; sourceTree = "<group>"; };
 		89F4A1FC0F2101F8000A326A /* V8CanvasPixelArrayCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArrayCustom.cpp; sourceTree = "<group>"; };
+		9310E2270F58C54B007D8D07 /* ChromiumCurrentTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChromiumCurrentTime.cpp; path = ../third_party/WebKit/WebKit/chromium/src/ChromiumCurrentTime.cpp; sourceTree = SOURCE_ROOT; };
+		9310E2280F58C54B007D8D07 /* ChromiumThreading.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChromiumThreading.cpp; path = ../third_party/WebKit/WebKit/chromium/src/ChromiumThreading.cpp; sourceTree = SOURCE_ROOT; };
 		8CF41B1A2D4E8F64A2C5C3F6 /* Gears.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Gears.h; path = port/bindings/v8/extensions/Gears.h; sourceTree = SOURCE_ROOT; };
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		934CC2270EDCC37600A658F2 /* RGBColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RGBColor.cpp; sourceTree = "<group>"; };
@@ -4140,7 +4142,6 @@
 		9389E82A0F55C4550035E7D0 /* ChromiumBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChromiumBridge.cpp; path = ../third_party/WebKit/WebKit/chromium/src/ChromiumBridge.cpp; sourceTree = SOURCE_ROOT; };
 		9389E82B0F55C4550035E7D0 /* WebCString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebCString.cpp; path = ../third_party/WebKit/WebKit/chromium/src/WebCString.cpp; sourceTree = SOURCE_ROOT; };
 		9389E82C0F55C4550035E7D0 /* WebKit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebKit.cpp; path = ../third_party/WebKit/WebKit/chromium/src/WebKit.cpp; sourceTree = SOURCE_ROOT; };
-		9389E82D0F55C4550035E7D0 /* WebKitPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebKitPrivate.h; path = ../third_party/WebKit/WebKit/chromium/src/WebKitPrivate.h; sourceTree = SOURCE_ROOT; };
 		9389E82E0F55C4550035E7D0 /* WebURL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebURL.cpp; path = ../third_party/WebKit/WebKit/chromium/src/WebURL.cpp; sourceTree = SOURCE_ROOT; };
 		9389E8330F55C4810035E7D0 /* webclipboard_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webclipboard_impl.cc; sourceTree = "<group>"; };
 		9389E8340F55C4810035E7D0 /* webclipboard_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webclipboard_impl.h; sourceTree = "<group>"; };
@@ -7700,7 +7701,6 @@
 				825404F10D92E3DA0006B936 /* chrome_client_impl.cc */,
 				825404F20D92E3DA0006B936 /* chrome_client_impl.h */,
 				934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */,
-				41DE6EBE0F3A32EE0049BC24 /* chromium_threading.cc */,
 				535EE0BE0EC4D10E00939D54 /* clipboard_conversion.cc */,
 				535EE0BF0EC4D10E00939D54 /* clipboard_conversion.h */,
 				825404F30D92E3DA0006B936 /* context_menu_client_impl.cc */,
@@ -7898,10 +7898,11 @@
 		937A15B20F5331FB003E8D2D /* src */ = {
 			isa = PBXGroup;
 			children = (
+				9310E2270F58C54B007D8D07 /* ChromiumCurrentTime.cpp */,
+				9310E2280F58C54B007D8D07 /* ChromiumThreading.cpp */,
 				9389E82A0F55C4550035E7D0 /* ChromiumBridge.cpp */,
 				9389E82B0F55C4550035E7D0 /* WebCString.cpp */,
 				9389E82C0F55C4550035E7D0 /* WebKit.cpp */,
-				9389E82D0F55C4550035E7D0 /* WebKitPrivate.h */,
 				937A15B50F53325D003E8D2D /* WebString.cpp */,
 				9389E82E0F55C4550035E7D0 /* WebURL.cpp */,
 			);
@@ -8816,6 +8817,8 @@
 				9389E8300F55C4550035E7D0 /* WebCString.cpp in Sources */,
 				9389E8310F55C4550035E7D0 /* WebKit.cpp in Sources */,
 				9389E8320F55C4550035E7D0 /* WebURL.cpp in Sources */,
+				9310E2290F58C54B007D8D07 /* ChromiumCurrentTime.cpp in Sources */,
+				9310E22A0F58C54B007D8D07 /* ChromiumThreading.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9749,7 +9752,6 @@
 				938180500EF3394A00993F02 /* back_forward_list_client_impl.cc in Sources */,
 				E456270D0E268F03005E4685 /* chrome_client_impl.cc in Sources */,
 				934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */,
-				41DE6EBF0F3A32EE0049BC24 /* chromium_threading.cc in Sources */,
 				535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */,
 				E45626FD0E268F03005E4685 /* context_menu_client_impl.cc in Sources */,
 				E4506C170EF03AB5003BE099 /* cpp_binding_example.cc in Sources */,

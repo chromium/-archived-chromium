@@ -8,6 +8,8 @@
 
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
+#include "WebKit.h"
+
 #include "base/file_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/native_widget_types.h"
@@ -444,7 +446,7 @@ bool TestWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
 
 void TestWebViewDelegate::SetStatusbarText(WebView* webview,
                                            const std::wstring& message) {
-  if (webkit_glue::IsLayoutTestMode() &&
+  if (WebKit::layoutTestMode() &&
       shell_->layout_test_controller()->ShouldDumpStatusCallbacks()) {
     // When running tests, write to stdout.
     printf("UI DELEGATE STATUS CALLBACK: setStatusText:%S\n", message.c_str());
@@ -453,7 +455,7 @@ void TestWebViewDelegate::SetStatusbarText(WebView* webview,
 
 void TestWebViewDelegate::StartDragging(WebView* webview,
                                         const WebDropData& drop_data) {
-  if (webkit_glue::IsLayoutTestMode()) {
+  if (WebKit::layoutTestMode()) {
     WebDropData mutable_drop_data = drop_data;
     if (shell_->layout_test_controller()->ShouldAddFileToPasteboard()) {
       // Add a file called DRTFakeFile to the drag&drop clipboard.

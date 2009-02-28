@@ -28,6 +28,7 @@ env.SConscript([
     '$NPAPI_DIR/using_npapi.scons',
     '$SDCH_DIR/using_sdch.scons',
     '$SKIA_DIR/using_skia.scons',
+    '$WEBKIT_DIR/build/WebKit/using_webkit.scons',
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
 
@@ -53,7 +54,6 @@ env.Prepend(
         'JavaScriptCore_pcre',
         'port',
         'WebCore',
-        'WebKit',
 
         'X11',
         'Xrender',
