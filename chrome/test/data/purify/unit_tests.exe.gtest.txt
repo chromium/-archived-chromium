@@ -10,3 +10,6 @@ IPCSyncChannelTest.SendWithTimeoutMixedOKAndTimeout
 
 # issue 7891
 FindInPageControllerTest.FindInPageFrames
+
+# Takes 10 minutes to run.
+IPCSyncChannelTest.ChattyServer
