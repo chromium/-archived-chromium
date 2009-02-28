@@ -1173,7 +1173,7 @@ MAC : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
 WIN MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
-MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL TIMEOUT
 MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 LINUX WIN MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
@@ -1607,7 +1607,7 @@ MAC : LayoutTests/fast/forms/002.html = FAIL
 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
 
 // intermittent failures on the buildbot
-LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
+MAC LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
 
 // The 7th column should not be top aligned.
 // New test. We should fix it, but it doesn't need to block the current release
@@ -1855,3 +1855,35 @@ LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
 WIN MAC : LayoutTests/svg/text/text-text-07-t.svg = FAIL
 LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
 LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
+LINUX : LayoutTests/fast/borders/border-image-rotate-transform.html = FAIL
+LINUX : LayoutTests/fast/css/resize-corner-tracking-transformed.html = FAIL
+LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
+LINUX : LayoutTests/fast/replaced/001.html = FAIL
+LINUX : LayoutTests/fast/replaced/002.html = FAIL
+LINUX : LayoutTests/fast/replaced/003.html = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-blend-01-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
+LINUX : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug1296.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug137388-2.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug1430.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug4093.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug4427.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug4523.html = FAIL
+LINUX : LayoutTests/tables/mozilla/bugs/bug625.html = FAIL
+LINUX : LayoutTests/tables/mozilla/core/bloomberg.html = FAIL
+LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug1647.html = FAIL
+MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
+// See above comment about this test on linux/win.
+MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
+MAC : LayoutTests/fast/events/key-events-in-input-button.html = FAIL
+MAC : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT
+WIN MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH PASS
+MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
+MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
+WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL
+// This is marked as flaky on mac.
+WIN : LayoutTests/svg/batik/text/textFeatures.svg = FAIL
+WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
+
