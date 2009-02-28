@@ -493,7 +493,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   static void RegisterUserPrefs(PrefService* prefs) {
     prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
   }
-  static void MigrateShelfView(TabContents* from, TabContents* to) {
+  static void MigrateShelf(TabContents* from, TabContents* to) {
     NOTIMPLEMENTED();
   }
   virtual void CreateView() {}

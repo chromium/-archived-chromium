@@ -932,7 +932,7 @@ void NavigationController::DiscardNonCommittedEntries() {
     // If we are transitioning from two types of WebContents, we need to migrate
     // the download shelf if it is visible. The download shelf may have been
     // created before the error that caused us to discard the entry.
-    TabContents::MigrateShelfView(from_contents, active_contents_);
+    TabContents::MigrateShelf(from_contents, active_contents_);
 
     if (from_contents->delegate()) {
       from_contents->delegate()->ReplaceContents(from_contents,

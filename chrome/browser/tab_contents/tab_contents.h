@@ -37,7 +37,7 @@ class WindowDelegate;
 class BlockedPopupContainer;
 class DOMUIHost;
 class DownloadItem;
-class DownloadShelfView;
+class DownloadShelf;
 class InfoBarView;
 class LoadNotificationDetails;
 class Profile;
@@ -427,18 +427,18 @@ class TabContents : public PageNavigator,
   // Displays the download shelf and animation when a download occurs.
   void OnStartDownload(DownloadItem* download);
 
-  // Returns the DownloadShelfView, creating it if necessary.
-  DownloadShelfView* GetDownloadShelfView();
+  // Returns the DownloadShelf, creating it if necessary.
+  DownloadShelf* GetDownloadShelf();
 
   // Transfer the shelf view from |tab_contents| to the receiving TabContents.
   // |tab_contents| no longer owns the shelf after this call. The shelf is owned
   // by the receiving TabContents.
-  void MigrateShelfViewFrom(TabContents* tab_contents);
+  void MigrateShelfFrom(TabContents* tab_contents);
 
   // Migrate the shelf view between 2 TabContents. This helper function is
   // currently called by NavigationController::DiscardPendingEntry. We may
   // want to generalize this if we need to migrate some other state.
-  static void MigrateShelfView(TabContents* from, TabContents* to);
+  static void MigrateShelf(TabContents* from, TabContents* to);
 
   // Called when a ConstrainedWindow we own is about to be closed.
   void WillClose(ConstrainedWindow* window);
@@ -486,10 +486,10 @@ class TabContents : public PageNavigator,
   // if necessary.
   void RepositionSupressedPopupsToFit(const gfx::Size& new_size);
 
-  // Releases the download shelf. This method is used by MigrateShelfViewFrom.
+  // Releases the download shelf. This method is used by MigrateShelfFrom.
   // Sub-classes should clear any pointer they might keep to the shelf view and
-  // invoke TabContents::ReleaseDownloadShelfView().
-  virtual void ReleaseDownloadShelfView();
+  // invoke TabContents::ReleaseDownloadShelf().
+  virtual void ReleaseDownloadShelf();
 
   // Called by derived classes to indicate that we're no longer waiting for a
   // response. This won't actually update the throbber, but it will get picked
@@ -534,7 +534,7 @@ class TabContents : public PageNavigator,
   bool waiting_for_response_;
 
   // The download shelf view (view at the bottom of the page).
-  scoped_ptr<DownloadShelfView> download_shelf_view_;
+  scoped_ptr<DownloadShelf> download_shelf_;
 
   // Whether the shelf view is visible.
   bool shelf_visible_;

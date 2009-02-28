@@ -17,7 +17,7 @@ using base::TimeDelta;
 // DownloadItemModel
 
 DownloadItemModel::DownloadItemModel(DownloadItem* download)
-    : download_(download) {
+    : BaseDownloadItemModel(download) {
 }
 
 void DownloadItemModel::CancelTask() {
@@ -96,8 +96,8 @@ std::wstring DownloadItemModel::GetStatusText() {
 // SavePageModel
 
 SavePageModel::SavePageModel(SavePackage* save, DownloadItem* download)
-    : save_(save),
-      download_(download) {
+    : BaseDownloadItemModel(download),
+      save_(save) {
 }
 
 void SavePageModel::CancelTask() {

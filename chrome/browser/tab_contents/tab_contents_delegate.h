@@ -17,8 +17,9 @@ class HtmlDialogContentsDelegate;
 // TabContents and to provide necessary functionality.
 class TabContentsDelegate : public PageNavigator {
  public:
-  // Opens a new URL inside the passed in TabContents, if source is 0 open
-  // in the current front-most tab.
+  // Opens a new URL inside the passed in TabContents (if source is 0 open
+  // in the current front-most tab), unless |disposition| indicates the url
+  // should be opened in a new tab or window.
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition,

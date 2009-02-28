@@ -252,7 +252,13 @@ class Browser : public TabStripModelDelegate,
   void BookmarkCurrentPage();
   void SavePage();
   void ViewSource();
+
+  // Show various bits of UI.
+  void ShowDownloadsTab();
+
+// TODO(port): port these, and re-merge the two function declaration lists.
 #if defined(OS_WIN)
+  // Page-related commands.
   void ClosePopups();
   void Print();
   void ToggleEncodingAutoDetect();
@@ -291,7 +297,6 @@ class Browser : public TabStripModelDelegate,
   void ToggleBookmarkBar();
   void ShowHistoryTab();
   void OpenBookmarkManager();
-  void ShowDownloadsTab();
   void OpenClearBrowsingDataDialog();
   void OpenImportSettingsDialog();
   void OpenOptionsDialog();

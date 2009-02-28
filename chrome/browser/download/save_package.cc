@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/download/save_file.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/profile.h"
@@ -39,14 +40,6 @@
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #include "chrome/common/win_util.h"
-#endif
-
-#if defined(OS_WIN)
-// TODO(port): port these headers.
-#include "chrome/browser/views/download_item_view.h"
-#include "chrome/browser/views/download_shelf_view.h"
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 using base::Time;
@@ -272,13 +265,11 @@ bool SavePackage::Init() {
       FilePath(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(web_contents_->profile()->GetDownloadManager());
 #if defined(OS_WIN)
-  // TODO(port): We need to do something like this on posix, but avoid
-  // using DownloadShelfView, which probably should not be ported directly.
-  DownloadShelfView* shelf = web_contents_->GetDownloadShelfView();
-  shelf->AddDownloadView(new DownloadItemView(
-      download_, shelf, new SavePageModel(this, download_)));
+  DownloadShelf* shelf = web_contents_->GetDownloadShelf();
+  shelf->AddDownload(new SavePageModel(this, download_));
   web_contents_->SetDownloadShelfVisible(true);
 #elif defined(OS_POSIX)
+  // TODO(port): Create a download shelf for linux and mac.
   NOTIMPLEMENTED();
 #endif
 

@@ -16,11 +16,19 @@ class SavePackage;
 // depending on the type of download.
 class BaseDownloadItemModel {
  public:
+  BaseDownloadItemModel(DownloadItem* download) : download_(download) { }
+  virtual ~BaseDownloadItemModel() { }
+
   // Cancel the task corresponding to the item.
   virtual void CancelTask() = 0;
 
   // Get the status text to display.
   virtual std::wstring GetStatusText() = 0;
+
+  DownloadItem* download() { return download_; }
+
+ protected:
+  DownloadItem* download_;
 };
 
 // This class is a model class for DownloadItemView. It provides functionality
@@ -38,9 +46,6 @@ class DownloadItemModel : public BaseDownloadItemModel {
   virtual std::wstring GetStatusText();
 
  private:
-  // We query this item for status information.
-  DownloadItem* download_;
-
   DISALLOW_COPY_AND_ASSIGN(DownloadItemModel);
 };
 
@@ -61,9 +66,6 @@ class SavePageModel : public BaseDownloadItemModel {
  private:
   // Saving page management.
   SavePackage* save_;
-
-  // A fake download item for saving page use.
-  DownloadItem* download_;
 
   DISALLOW_COPY_AND_ASSIGN(SavePageModel);
 };

@@ -9,6 +9,8 @@
 #endif
 
 #include "chrome/browser/cert_store.h"
+#include "chrome/browser/download/download_item_model.h"
+#include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -21,7 +23,6 @@
 #if defined(OS_WIN)
 // TODO(port): some of these headers should be ported.
 #include "chrome/browser/tab_contents/infobar_delegate.h"
-#include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/download_started_animation.h"
 #include "chrome/browser/views/blocked_popup_container.h"
 #include "chrome/views/native_scroll_bar.h"
@@ -467,8 +468,8 @@ void TabContents::RemoveInfoBar(InfoBarDelegate* delegate) {
 void TabContents::SetDownloadShelfVisible(bool visible) {
   if (shelf_visible_ != visible) {
     if (visible) {
-      // Invoke GetDownloadShelfView to force the shelf to be created.
-      GetDownloadShelfView();
+      // Invoke GetDownloadShelf to force the shelf to be created.
+      GetDownloadShelf();
     }
     shelf_visible_ = visible;
 
@@ -497,8 +498,9 @@ void TabContents::OnStartDownload(DownloadItem* download) {
   if (constraining_tab)
     tab_contents = constraining_tab;
 
-  // GetDownloadShelfView creates the download shelf if it was not yet created.
-  tab_contents->GetDownloadShelfView()->AddDownload(download);
+  // GetDownloadShelf creates the download shelf if it was not yet created.
+  tab_contents->GetDownloadShelf()->AddDownload(
+      new DownloadItemModel(download));
   tab_contents->SetDownloadShelfVisible(true);
 
   // This animation will delete itself when it finishes, or if we become hidden
@@ -509,19 +511,16 @@ void TabContents::OnStartDownload(DownloadItem* download) {
   }
 }
 
-DownloadShelfView* TabContents::GetDownloadShelfView() {
-  if (!download_shelf_view_.get()) {
-    download_shelf_view_.reset(new DownloadShelfView(this));
-    // The TabContents owns the download-shelf.
-    download_shelf_view_->SetParentOwned(false);
-  }
-  return download_shelf_view_.get();
+DownloadShelf* TabContents::GetDownloadShelf() {
+  if (!download_shelf_.get())
+    download_shelf_.reset(DownloadShelf::Create(this));
+  return download_shelf_.get();
 }
 
-void TabContents::MigrateShelfViewFrom(TabContents* tab_contents) {
-  download_shelf_view_.reset(tab_contents->GetDownloadShelfView());
-  download_shelf_view_->ChangeTabContents(tab_contents, this);
-  tab_contents->ReleaseDownloadShelfView();
+void TabContents::MigrateShelfFrom(TabContents* tab_contents) {
+  download_shelf_.reset(tab_contents->GetDownloadShelf());
+  download_shelf_->ChangeTabContents(tab_contents, this);
+  tab_contents->ReleaseDownloadShelf();
 }
 
 void TabContents::WillClose(ConstrainedWindow* window) {
@@ -557,10 +556,10 @@ void TabContents::Observe(NotificationType type,
 }
 
 // static
-void TabContents::MigrateShelfView(TabContents* from, TabContents* to) {
+void TabContents::MigrateShelf(TabContents* from, TabContents* to) {
   bool was_shelf_visible = from->IsDownloadShelfVisible();
   if (was_shelf_visible)
-    to->MigrateShelfViewFrom(from);
+    to->MigrateShelfFrom(from);
   to->SetDownloadShelfVisible(was_shelf_visible);
 }
 
@@ -605,8 +604,8 @@ void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
     blocked_popups_->RepositionConstrainedWindowTo(anchor_position);
 }
 
-void TabContents::ReleaseDownloadShelfView() {
-  download_shelf_view_.release();
+void TabContents::ReleaseDownloadShelf() {
+  download_shelf_.release();
 }
 
 bool TabContents::ShowingBlockedPopupNotification() const {

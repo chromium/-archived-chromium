@@ -734,7 +734,7 @@ gfx::Rect BrowserView::GetRootWindowResizerRect() const {
   // Other tests should be added here if we add more bottom shelves.
   TabContents* current_tab = browser_->GetSelectedTabContents();
   if (current_tab && current_tab->IsDownloadShelfVisible()) {
-    DownloadShelfView* download_shelf = current_tab->GetDownloadShelfView();
+    DownloadShelf* download_shelf = current_tab->GetDownloadShelf();
     if (download_shelf && download_shelf->IsShowing())
       return gfx::Rect();
   }
@@ -1462,7 +1462,7 @@ bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
 bool BrowserView::MaybeShowDownloadShelf(TabContents* contents) {
   views::View* new_shelf = NULL;
   if (contents && contents->IsDownloadShelfVisible()) {
-    new_shelf = contents->GetDownloadShelfView();
+    new_shelf = static_cast<DownloadShelfView*>(contents->GetDownloadShelf());
     if (new_shelf != active_download_shelf_)
       new_shelf->AddChildView(new ResizeCorner(this));
   }

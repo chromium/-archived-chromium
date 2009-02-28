@@ -1834,6 +1834,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\download\download_shelf.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\download_shelf.h"
+				>
+			</File>
+			<File
 				RelativePath=".\download\download_util.cc"
 				>
 			</File>
