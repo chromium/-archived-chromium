@@ -44,9 +44,9 @@ TEST(HttpAuthTest, ChooseBestChallenge) {
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     // Make a HttpResponseHeaders object.
-    std::string headers_with_status_line("HTTP/1.1 401 OK\n");
+    std::string headers_with_status_line("HTTP/1.1 401 Unauthorized\n");
     headers_with_status_line += tests[i].headers;
-    scoped_refptr<net::HttpResponseHeaders> headers( 
+    scoped_refptr<net::HttpResponseHeaders> headers(
        new net::HttpResponseHeaders(
             net::HttpUtil::AssembleRawHeaders(
                 headers_with_status_line.c_str(),
@@ -62,6 +62,60 @@ TEST(HttpAuthTest, ChooseBestChallenge) {
     } else {
       EXPECT_STREQ("", tests[i].challenge_realm);
     }
+  }
+}
+
+TEST(HttpAuthTest, ChooseBestChallengeConnectionBased) {
+  static const struct {
+    const char* headers;
+    const char* challenge_realm;
+  } tests[] = {
+    {
+      "WWW-Authenticate: Negotiate\r\n"
+      "WWW-Authenticate: NTLM\r\n",
+
+      // We don't support Negotiate, so pick NTLM.  Either way, realm is
+      // empty.
+      "",
+    },
+    {
+      "WWW-Authenticate: NTLM "
+      "TlRMTVNTUAACAAAADAAMADgAAAAFgokCTroKF1e/DRcAAAAAAAAAALo"
+      "AugBEAAAABQEoCgAAAA9HAE8ATwBHAEwARQACAAwARwBPAE8ARwBMAE"
+      "UAAQAaAEEASwBFAEUAUwBBAFIAQQAtAEMATwBSAFAABAAeAGMAbwByA"
+      "HAALgBnAG8AbwBnAGwAZQAuAGMAbwBtAAMAQABhAGsAZQBlAHMAYQBy"
+      "AGEALQBjAG8AcgBwAC4AYQBkAC4AYwBvAHIAcAAuAGcAbwBvAGcAbAB"
+      "lAC4AYwBvAG0ABQAeAGMAbwByAHAALgBnAG8AbwBnAGwAZQAuAGMAbw"
+      "BtAAAAAAA=\r\n",
+
+      // Realm is empty.
+      "",
+    }
+  };
+
+  scoped_refptr<HttpAuthHandler> handler;
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    // Make a HttpResponseHeaders object.
+    std::string headers_with_status_line("HTTP/1.1 401 Unauthorized\n");
+    headers_with_status_line += tests[i].headers;
+    scoped_refptr<net::HttpResponseHeaders> headers(
+       new net::HttpResponseHeaders(
+            net::HttpUtil::AssembleRawHeaders(
+                headers_with_status_line.c_str(),
+                headers_with_status_line.length())));
+
+    scoped_refptr<HttpAuthHandler> old_handler = handler;
+    HttpAuth::ChooseBestChallenge(headers.get(),
+                                  HttpAuth::AUTH_SERVER,
+                                  &handler);
+
+    EXPECT_TRUE(handler != NULL);
+    // Since NTLM is connection-based, we should continue to use the existing
+    // handler rather than creating a new one.
+    if (i != 0)
+      EXPECT_EQ(old_handler, handler);
+
+    EXPECT_STREQ(tests[i].challenge_realm, handler->realm().c_str());
   }
 }
 
@@ -137,6 +191,16 @@ TEST(HttpAuthTest, ChallengeTokenizerMultiple) {
   EXPECT_FALSE(challenge.GetNext());
 }
 
+// Use a challenge which has no property.
+TEST(HttpAuthTest, ChallengeTokenizerNoProperty) {
+  std::string challenge_str = "NTLM";
+  HttpAuth::ChallengeTokenizer challenge(
+      challenge_str.begin(), challenge_str.end());
+  EXPECT_TRUE(challenge.valid());
+  EXPECT_EQ(std::string("NTLM"), challenge.scheme());
+  EXPECT_FALSE(challenge.GetNext());
+}
+
 TEST(HttpAuthTest, GetChallengeHeaderName) {
   std::string name;
 
@@ -167,6 +231,8 @@ TEST(HttpAuthTest, CreateAuthHandler) {
     EXPECT_STREQ("basic", handler->scheme().c_str());
     EXPECT_STREQ("FooBar", handler->realm().c_str());
     EXPECT_EQ(HttpAuth::AUTH_SERVER, handler->target());
+    EXPECT_FALSE(handler->encrypts_identity());
+    EXPECT_FALSE(handler->is_connection_based());
   }
   {
     scoped_refptr<HttpAuthHandler> handler;
@@ -184,7 +250,21 @@ TEST(HttpAuthTest, CreateAuthHandler) {
     EXPECT_STREQ("digest", handler->scheme().c_str());
     EXPECT_STREQ("FooBar", handler->realm().c_str());
     EXPECT_EQ(HttpAuth::AUTH_PROXY, handler->target());
+    EXPECT_TRUE(handler->encrypts_identity());
+    EXPECT_FALSE(handler->is_connection_based());
+  }
+  {
+    scoped_refptr<HttpAuthHandler> handler;
+    HttpAuth::CreateAuthHandler("NTLM",
+                                HttpAuth::AUTH_SERVER,
+                                &handler);
+    EXPECT_FALSE(handler.get() == NULL);
+    EXPECT_STREQ("ntlm", handler->scheme().c_str());
+    EXPECT_STREQ("", handler->realm().c_str());
+    EXPECT_EQ(HttpAuth::AUTH_SERVER, handler->target());
+    EXPECT_TRUE(handler->encrypts_identity());
+    EXPECT_TRUE(handler->is_connection_based());
   }
 }
 
-} // namespace net
+}  // namespace net

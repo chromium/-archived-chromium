@@ -12,15 +12,17 @@ bool HttpAuthHandler::InitFromChallenge(std::string::const_iterator begin,
                                         HttpAuth::Target target) {
   target_ = target;
   score_ = -1;
+  properties_ = -1;
 
   bool ok = Init(begin, end);
 
-  // Init() is expected to set the scheme, realm, and score.
+  // Init() is expected to set the scheme, realm, score, and properties.  The
+  // realm may be empty.
   DCHECK(!ok || !scheme().empty());
-  DCHECK(!ok || !realm().empty());
   DCHECK(!ok || score_ != -1);
-  
+  DCHECK(!ok || properties_ != -1);
+
   return ok;
 }
 
-} // namespace net
+}  // namespace net

@@ -123,9 +123,15 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
   // the identity is valid yet, but if it is valid we want other transactions
   // to know about it. If an entry for (origin, handler->realm()) already
   // exists, we update it.
-  session_->auth_cache()->Add(AuthOrigin(target), auth_handler_[target],
-      auth_identity_[target].username, auth_identity_[target].password,
-      AuthPath(target));
+  //
+  // If auth_identity_[target].source is HttpAuth::IDENT_SRC_NONE,
+  // auth_identity_[target] contains no identity because identity is not
+  // required yet.
+  if (auth_identity_[target].source != HttpAuth::IDENT_SRC_NONE) {
+    session_->auth_cache()->Add(AuthOrigin(target), auth_handler_[target],
+        auth_identity_[target].username, auth_identity_[target].password,
+        AuthPath(target));
+  }
 
   bool keep_alive = false;
   if (response_.headers->IsKeepAlive()) {
@@ -1262,7 +1268,10 @@ bool HttpNetworkTransaction::SelectPreemptiveAuth(HttpAuth::Target target) {
   HttpAuthCache::Entry* entry = session_->auth_cache()->LookupByPath(
       AuthOrigin(target), AuthPath(target));
 
-  if (entry) {
+  // We don't support preemptive authentication for connection-based
+  // authentication schemes because they can't reuse entry->handler().
+  // Hopefully we can remove this limitation in the future.
+  if (entry && !entry->handler()->is_connection_based()) {
     auth_identity_[target].source = HttpAuth::IDENT_SRC_PATH_LOOKUP;
     auth_identity_[target].invalid = false;
     auth_identity_[target].username = entry->username();
@@ -1339,8 +1348,9 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
     return ERR_UNEXPECTED_PROXY_AUTH;
 
   // The auth we tried just failed, hence it can't be valid. Remove it from
-  // the cache so it won't be used again.
-  if (HaveAuth(target))
+  // the cache so it won't be used again, unless it's a null identity.
+  if (HaveAuth(target) &&
+      auth_identity_[target].source != HttpAuth::IDENT_SRC_NONE)
     InvalidateRejectedAuthFromCache(target);
 
   auth_identity_[target].invalid = true;
@@ -1362,9 +1372,22 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
     return OK;
   }
 
-  // Pick a new auth identity to try, by looking to the URL and auth cache.
-  // If an identity to try is found, it is saved to auth_identity_[target].
-  bool has_identity_to_try = SelectNextAuthIdentityToTry(target);
+  bool has_identity_to_try;
+  if (auth_handler_[target]->NeedsIdentity()) {
+    // Pick a new auth identity to try, by looking to the URL and auth cache.
+    // If an identity to try is found, it is saved to auth_identity_[target].
+    has_identity_to_try = SelectNextAuthIdentityToTry(target);
+  } else {
+    // Proceed with a null identity.
+    //
+    // TODO(wtc): Add a safeguard against infinite transaction restarts, if
+    // the server keeps returning "NTLM".
+    auth_identity_[target].source = HttpAuth::IDENT_SRC_NONE;
+    auth_identity_[target].invalid = false;
+    auth_identity_[target].username.clear();
+    auth_identity_[target].password.clear();
+    has_identity_to_try = true;
+  }
   DCHECK(has_identity_to_try == !auth_identity_[target].invalid);
 
   if (has_identity_to_try) {

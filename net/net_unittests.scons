@@ -58,6 +58,7 @@ input_files = ChromeFileList([
     'disk_cache/storage_block_unittest.cc',
     ]),
    MSVSFilter('http', [
+    'http/des_unittest.cc',
     'http/http_auth_cache_unittest.cc',
     'http/http_auth_handler_basic_unittest.cc',
     'http/http_auth_handler_digest_unittest.cc',

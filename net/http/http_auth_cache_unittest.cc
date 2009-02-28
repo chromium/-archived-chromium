@@ -20,9 +20,10 @@ class MockAuthHandler : public HttpAuthHandler {
     realm_ = realm;
     score_ = 1;
     target_ = target;
+    properties_ = 0;
   }
-  
-  virtual std::string GenerateCredentials(const std::wstring&,
+
+ virtual std::string GenerateCredentials(const std::wstring&,
                                           const std::wstring&,
                                           const HttpRequestInfo*,
                                           const ProxyInfo*) {
@@ -35,14 +36,14 @@ class MockAuthHandler : public HttpAuthHandler {
   }
 };
 
-} // namespace
+}  // namespace
 
 // Test adding and looking-up cache entries (both by realm and by path).
 TEST(HttpAuthCacheTest, Basic) {
   GURL origin("http://www.google.com");
   HttpAuthCache cache;
   HttpAuthCache::Entry* entry;
-  
+
   // Add cache entries for 3 realms: "Realm1", "Realm2", "Realm3"
 
   scoped_refptr<HttpAuthHandler> realm1_handler =
@@ -80,7 +81,7 @@ TEST(HttpAuthCacheTest, Basic) {
   EXPECT_TRUE(entry->handler() == realm2_handler.get());
   EXPECT_EQ(L"realm2-user", entry->username());
   EXPECT_EQ(L"realm2-password", entry->password());
-  
+
   // Check that subpaths are recognized.
   HttpAuthCache::Entry* realm2Entry = cache.LookupByRealm(origin, "Realm2");
   EXPECT_FALSE(NULL == realm2Entry);
@@ -161,7 +162,7 @@ TEST(HttpAuthCacheTest, AddToExistingEntry) {
   EXPECT_TRUE(entry == orig_entry);
   EXPECT_EQ(L"user3", entry->username());
   EXPECT_EQ(L"password3", entry->password());
-  
+
   EXPECT_EQ(2U, entry->paths_.size());
   EXPECT_EQ("/z/", entry->paths_.front());
   EXPECT_EQ("/x/y/z/", entry->paths_.back());
@@ -183,7 +184,7 @@ TEST(HttpAuthCacheTest, Remove) {
   cache.Add(origin, realm1_handler, L"alice", L"123", "/");
   cache.Add(origin, realm2_handler, L"bob", L"princess", "/");
   cache.Add(origin, realm3_handler, L"admin", L"password", "/");
-  
+
   // Fails, because there is no realm "Realm4".
   EXPECT_FALSE(cache.Remove(origin, "Realm4", L"alice", L"123"));
 
@@ -270,7 +271,7 @@ TEST_F(HttpAuthCacheEvictionTest, RealmEntryEviction) {
 
   for (int i = 0; i < 3; ++i)
     AddRealm(i + kMaxRealms);
-  
+
   for (int i = 0; i < 3; ++i)
     CheckRealmExistence(i, false);
 
@@ -301,4 +302,4 @@ TEST_F(HttpAuthCacheEvictionTest, RealmPathEviction) {
     CheckRealmExistence(i, true);
 }
 
-} // namespace net
+}  // namespace net

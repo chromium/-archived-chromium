@@ -17,7 +17,7 @@ class ProxyInfo;
 
 // HttpAuthHandler is the interface for the authentication schemes
 // (basic, digest, ...)
-// The registry mapping auth-schemes to implementations is hardcoded in 
+// The registry mapping auth-schemes to implementations is hardcoded in
 // HttpAuth::CreateAuthHandler().
 class HttpAuthHandler : public base::RefCounted<HttpAuthHandler> {
  public:
@@ -47,7 +47,27 @@ class HttpAuthHandler : public base::RefCounted<HttpAuthHandler> {
   HttpAuth::Target target() const {
     return target_;
   }
- 
+
+  // Returns true if the authentication scheme does not send the username and
+  // password in the clear.
+  bool encrypts_identity() const {
+    return (properties_ & ENCRYPTS_IDENTITY) != 0;
+  }
+
+  // Returns true if the authentication scheme is connection-based, for
+  // example, NTLM.  A connection-based authentication scheme does not support
+  // preemptive authentication, and must use the same handler object
+  // throughout the life of an HTTP transaction.
+  bool is_connection_based() const {
+    return (properties_ & IS_CONNECTION_BASED) != 0;
+  }
+
+  // Returns true if the response to the current authentication challenge
+  // requires an identity.
+  // TODO(wtc): Find a better way to handle a multi-round challenge-response
+  // sequence used by a connection-based authentication scheme.
+  virtual bool NeedsIdentity() { return true; }
+
   // Generate the Authorization header value.
   virtual std::string GenerateCredentials(const std::wstring& username,
                                           const std::wstring& password,
@@ -55,9 +75,14 @@ class HttpAuthHandler : public base::RefCounted<HttpAuthHandler> {
                                           const ProxyInfo* proxy) = 0;
 
  protected:
-   // Initialize the handler by parsing a challenge string.
-   // Implementations are expcted to initialize the following members:
-   // score_, realm_, scheme_
+  enum Property {
+    ENCRYPTS_IDENTITY = 1 << 0,
+    IS_CONNECTION_BASED = 1 << 1,
+  };
+
+  // Initialize the handler by parsing a challenge string.
+  // Implementations are expcted to initialize the following members:
+  // scheme_, realm_, score_, properties_
   virtual bool Init(std::string::const_iterator challenge_begin,
                     std::string::const_iterator challenge_end) = 0;
 
@@ -73,6 +98,9 @@ class HttpAuthHandler : public base::RefCounted<HttpAuthHandler> {
   // Whether this authentication request is for a proxy server, or an
   // origin server.
   HttpAuth::Target target_;
+
+  // A bitmask of the properties of the authentication scheme.
+  int properties_;
 };
 
 }  // namespace net

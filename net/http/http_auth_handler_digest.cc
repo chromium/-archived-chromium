@@ -200,6 +200,7 @@ bool HttpAuthHandlerDigest::ParseChallenge(
     std::string::const_iterator challenge_end) {
   scheme_ = "digest";
   score_ = 2;
+  properties_ = ENCRYPTS_IDENTITY;
 
   // Initialize to defaults.
   stale_ = false;

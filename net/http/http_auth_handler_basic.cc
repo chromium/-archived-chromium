@@ -14,6 +14,7 @@ bool HttpAuthHandlerBasic::Init(std::string::const_iterator challenge_begin,
                                 std::string::const_iterator challenge_end) {
   scheme_ = "basic";
   score_ = 1;
+  properties_ = 0;
 
   // Verify the challenge's auth-scheme.
   HttpAuth::ChallengeTokenizer challenge_tok(challenge_begin, challenge_end);

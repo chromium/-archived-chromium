@@ -163,6 +163,8 @@ input_files = ChromeFileList([
     'url_request/url_request_view_cache_job.h',
   ]),
   MSVSFilter('http', [
+    'http/des.cc',
+    'http/des.h',
     'http/http_atom_list.h',
     'http/http_auth.cc',
     'http/http_auth.h',
@@ -174,6 +176,8 @@ input_files = ChromeFileList([
     'http/http_auth_handler_basic.h',
     'http/http_auth_handler_digest.cc',
     'http/http_auth_handler_digest.h',
+    'http/http_auth_handler_ntlm.cc',
+    'http/http_auth_handler_ntlm.h',
     'http/http_cache.cc',
     'http/http_cache.h',
     'http/http_chunked_decoder.cc',
@@ -194,6 +198,8 @@ input_files = ChromeFileList([
     'http/http_util.h',
     'http/http_vary_data.cc',
     'http/http_vary_data.h',
+    'http/md4.cc',
+    'http/md4.h',
   ]),
   MSVSFilter('disk_cache', [
     'disk_cache/addr.cc',

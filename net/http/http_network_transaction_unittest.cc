@@ -1412,6 +1412,131 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   EXPECT_EQ(100, response->headers->GetContentLength());
 }
 
+// Test NTLM authentication.
+// TODO(wtc): This test doesn't work because we need to control the 8 random
+// bytes and the "workstation name" for a deterministic expected result.
+TEST_F(HttpNetworkTransactionTest, DISABLED_NTLMAuth) {
+  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://172.22.68.17/kids/login.aspx");
+  request.load_flags = 0;
+
+  MockWrite data_writes1[] = {
+    MockWrite("GET /kids/login.aspx HTTP/1.1\r\n"
+              "Host: 172.22.68.17\r\n"
+              "Connection: keep-alive\r\n\r\n"),
+  };
+
+  MockRead data_reads1[] = {
+    MockRead("HTTP/1.1 401 Access Denied\r\n"),
+    // Negotiate and NTLM are often requested together.  We only support NTLM.
+    MockRead("WWW-Authenticate: Negotiate\r\n"),
+    MockRead("WWW-Authenticate: NTLM\r\n"),
+    MockRead("Connection: close\r\n"),
+    MockRead("Content-Length: 42\r\n"),
+    MockRead("Content-Type: text/html\r\n"),
+    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    // Missing content -- won't matter, as connection will be reset.
+    MockRead(false, net::ERR_UNEXPECTED),
+  };
+
+  MockWrite data_writes2[] = {
+    // After automatically restarting with a null identity, this is the
+    // request we should be issuing -- the final header line contains a Type
+    // 1 message.
+    MockWrite("GET /kids/login.aspx HTTP/1.1\r\n"
+              "Host: 172.22.68.17\r\n"
+              "Connection: keep-alive\r\n"
+              "Authorization: NTLM "
+              "TlRMTVNTUAABAAAAB4IIAAAAAAAAAAAAAAAAAAAAAAA=\r\n\r\n"),
+
+    // After calling trans->RestartWithAuth(), we should send a Type 3 message
+    // (the credentials for the origin server).  The second request continues
+    // on the same connection.
+    MockWrite("GET /kids/login.aspx HTTP/1.1\r\n"
+              "Host: 172.22.68.17\r\n"
+              "Connection: keep-alive\r\n"
+              "Authorization: NTLM TlRMTVNTUAADAAAAGAAYAHAAAAAYABgAiA"
+              "AAAAAAAABAAAAAGAAYAEAAAAAYABgAWAAAAAAAAAAAAAAABYIIAHQA"
+              "ZQBzAHQAaQBuAGcALQBuAHQAbABtAHcAdABjAGgAYQBuAGcALQBjAG"
+              "8AcgBwAMertjYHfqUhAAAAAAAAAAAAAAAAAAAAAEP3kddZKtMDMssm"
+              "KYA6SCllVGUeyoQppQ==\r\n\r\n"),
+  };
+
+  MockRead data_reads2[] = {
+    // The origin server responds with a Type 2 message.
+    MockRead("HTTP/1.1 401 Access Denied\r\n"),
+    MockRead("WWW-Authenticate: NTLM "
+             "TlRMTVNTUAACAAAADAAMADgAAAAFgokCTroKF1e/DRcAAAAAAAAAALo"
+             "AugBEAAAABQEoCgAAAA9HAE8ATwBHAEwARQACAAwARwBPAE8ARwBMAE"
+             "UAAQAaAEEASwBFAEUAUwBBAFIAQQAtAEMATwBSAFAABAAeAGMAbwByA"
+             "HAALgBnAG8AbwBnAGwAZQAuAGMAbwBtAAMAQABhAGsAZQBlAHMAYQBy"
+             "AGEALQBjAG8AcgBwAC4AYQBkAC4AYwBvAHIAcAAuAGcAbwBvAGcAbAB"
+             "lAC4AYwBvAG0ABQAeAGMAbwByAHAALgBnAG8AbwBnAGwAZQAuAGMAbw"
+             "BtAAAAAAA=\r\n"),
+    MockRead("Content-Length: 42\r\n"),
+    MockRead("Content-Type: text/html\r\n"),
+    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    MockRead("You are not authorized to view this page\r\n"),
+
+    // Lastly we get the desired content.
+    MockRead("HTTP/1.1 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=utf-8\r\n"),
+    MockRead("Content-Length: 13\r\n\r\n"),
+    MockRead("Please Login\r\n"),
+    MockRead(false, net::OK),
+  };
+
+  MockSocket data1;
+  data1.reads = data_reads1;
+  data1.writes = data_writes1;
+  MockSocket data2;
+  data2.reads = data_reads2;
+  data2.writes = data_writes2;
+  mock_sockets[0] = &data1;
+  mock_sockets[1] = &data2;
+  mock_sockets[2] = NULL;
+
+  TestCompletionCallback callback1;
+
+  int rv = trans->Start(&request, &callback1);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback1.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+
+  // The password prompt info should have been set in response->auth_challenge.
+  EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+  // TODO(eroman): this should really include the effective port (80)
+  EXPECT_EQ(L"172.22.68.17", response->auth_challenge->host);
+  EXPECT_EQ(L"", response->auth_challenge->realm);
+  EXPECT_EQ(L"ntlm", response->auth_challenge->scheme);
+
+  // Pass a null identity to the first RestartWithAuth.
+  // TODO(wtc): In the future we may pass the actual identity to the first
+  // RestartWithAuth.
+
+  TestCompletionCallback callback2;
+
+  rv = trans->RestartWithAuth(L"testing-ntlm", L"testing-ntlm", &callback2);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback2.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  response = trans->GetResponseInfo();
+  EXPECT_TRUE(response->auth_challenge.get() == NULL);
+  EXPECT_EQ(13, response->headers->GetContentLength());
+}
+
 // Test reading a server response which has only headers, and no body.
 // After some maximum number of bytes is consumed, the transaction should
 // fail with ERR_RESPONSE_HEADERS_TOO_BIG.

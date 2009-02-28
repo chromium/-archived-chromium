@@ -227,6 +227,10 @@
 				Name="http"
 				>
 				<File
+					RelativePath="..\http\des_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\http\http_auth_cache_unittest.cc"
 					>
 				</File>
@@ -367,11 +371,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\base\tcp_pinger_unittest.cc"
+					RelativePath="..\base\tcp_client_socket_unittest.cc"
 					>
 				</File>
 				<File
-					RelativePath="..\base\tcp_client_socket_unittest.cc"
+					RelativePath="..\base\tcp_pinger_unittest.cc"
 					>
 				</File>
 				<File

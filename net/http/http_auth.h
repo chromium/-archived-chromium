@@ -53,6 +53,7 @@ class HttpAuth {
 
      IdentitySource source;
      bool invalid;
+     // TODO(wtc): |username| and |password| should be string16.
      std::wstring username;
      std::wstring password;
    };
@@ -74,8 +75,14 @@ class HttpAuth {
 
   // Iterate through the challenge headers, and pick the best one that
   // we support. Obtains the implementation class for handling the challenge,
-  // and passes it back in |*handler|. If no supported challenge was found
-  // |*handler| is set to NULL.
+  // and passes it back in |*handler|. If the existing handler in |*handler|
+  // should continue to be used (such as for the NTLM authentication scheme),
+  // |*handler| is unchanged. If no supported challenge was found, |*handler|
+  // is set to NULL.
+  //
+  // TODO(wtc): Continuing to use the existing handler in |*handler| (for
+  // NTLM) is new behavior.  Rename ChooseBestChallenge to fully encompass
+  // what it does now.
   static void ChooseBestChallenge(const HttpResponseHeaders* headers,
                                   Target target,
                                   scoped_refptr<HttpAuthHandler>* handler);

@@ -10,6 +10,7 @@
 #include "base/string_util.h"
 #include "net/http/http_auth_handler_basic.h"
 #include "net/http/http_auth_handler_digest.h"
+#include "net/http/http_auth_handler_ntlm.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 
@@ -19,6 +20,21 @@ namespace net {
 void HttpAuth::ChooseBestChallenge(const HttpResponseHeaders* headers,
                                    Target target,
                                    scoped_refptr<HttpAuthHandler>* handler) {
+  // A connection-based authentication scheme must continue to use the
+  // existing handler object in |*handler|.
+  if (*handler && (*handler)->is_connection_based()) {
+    const std::string header_name = GetChallengeHeaderName(target);
+    std::string challenge;
+    void* iter = NULL;
+    while (headers->EnumerateHeader(&iter, header_name, &challenge)) {
+      ChallengeTokenizer props(challenge.begin(), challenge.end());
+      if (LowerCaseEqualsASCII(props.scheme(), (*handler)->scheme().c_str()) &&
+          (*handler)->InitFromChallenge(challenge.begin(), challenge.end(),
+                                        target))
+        return;
+    }
+  }
+
   // Choose the challenge whose authentication handler gives the maximum score.
   scoped_refptr<HttpAuthHandler> best;
   const std::string header_name = GetChallengeHeaderName(target);
@@ -45,6 +61,8 @@ void HttpAuth::CreateAuthHandler(const std::string& challenge,
     tmp_handler = new HttpAuthHandlerBasic();
   } else if (LowerCaseEqualsASCII(props.scheme(), "digest")) {
     tmp_handler = new HttpAuthHandlerDigest();
+  } else if (LowerCaseEqualsASCII(props.scheme(), "ntlm")) {
+    tmp_handler = new HttpAuthHandlerNTLM();
   }
   if (tmp_handler) {
     if (!tmp_handler->InitFromChallenge(challenge.begin(), challenge.end(),
@@ -72,8 +90,7 @@ void HttpAuth::ChallengeTokenizer::Init(std::string::const_iterator begin,
   scheme_end_ = tok.token_end();
 
   // Everything past scheme_end_ is a (comma separated) value list.
-  if (scheme_end_ != end)
-    props_ = HttpUtil::ValuesIterator(scheme_end_ + 1, end, ',');
+  props_ = HttpUtil::ValuesIterator(scheme_end_, end, ',');
 }
 
 // We expect properties to be formatted as one of:
@@ -92,22 +109,22 @@ bool HttpAuth::ChallengeTokenizer::GetNext() {
   // Scan for the equals sign.
   std::string::const_iterator equals = std::find(value_begin_, value_end_, '=');
   if (equals == value_end_ || equals == value_begin_)
-    return valid_ = false; // Malformed
+    return valid_ = false;  // Malformed
 
   // Verify that the equals sign we found wasn't inside of quote marks.
   for (std::string::const_iterator it = value_begin_; it != equals; ++it) {
     if (HttpUtil::IsQuote(*it))
-      return valid_ = false; // Malformed
+      return valid_ = false;  // Malformed
   }
 
   name_begin_ = value_begin_;
   name_end_ = equals;
   value_begin_ = equals + 1;
-  
+
   if (value_begin_ != value_end_ && HttpUtil::IsQuote(*value_begin_)) {
     // Trim surrounding quotemarks off the value
     if (*value_begin_ != *(value_end_ - 1))
-      return valid_ = false; // Malformed -- mismatching quotes.
+      return valid_ = false;  // Malformed -- mismatching quotes.
     value_is_quoted_ = true;
   } else {
     value_is_quoted_ = false;
@@ -122,7 +139,7 @@ std::string HttpAuth::ChallengeTokenizer::unquoted_value() const {
 
 // static
 std::string HttpAuth::GetChallengeHeaderName(Target target) {
-  switch(target) {
+  switch (target) {
     case AUTH_PROXY:
       return "Proxy-Authenticate";
     case AUTH_SERVER:
@@ -135,7 +152,7 @@ std::string HttpAuth::GetChallengeHeaderName(Target target) {
 
 // static
 std::string HttpAuth::GetAuthorizationHeaderName(Target target) {
-  switch(target) {
+  switch (target) {
     case AUTH_PROXY:
       return "Proxy-Authorization";
     case AUTH_SERVER:
