@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_TOOLS_TEST_SHELL_MAC_KEYSTONE_GLUE_H_
-#define WEBKIT_TOOLS_TEST_SHELL_MAC_KEYSTONE_GLUE_H_
+#ifndef CHROME_APP_KEYSTONE_GLUE_H_
+#define CHROME_APP_KEYSTONE_GLUE_H_
 
 #import <Foundation/Foundation.h>
 
@@ -30,4 +30,4 @@
 
 @end
 
-#endif  // WEBKIT_TOOLS_TEST_SHELL_MAC_KEYSTONE_GLUE_H_
+#endif  // CHROME_APP_KEYSTONE_GLUE_H_
