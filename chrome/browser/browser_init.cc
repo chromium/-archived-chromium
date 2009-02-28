@@ -150,7 +150,7 @@ enum LaunchMode {
 // Undocumented flag in the startup info structure tells us what shortcut was
 // used to launch the browser. See http://www.catch22.net/tuts/undoc01 for
 // more information. Confirmed to work on XP, Vista and Win7.
-LaunchMode GetLaunchSortcutKind() {
+LaunchMode GetLaunchShortcutKind() {
   STARTUPINFOW si = { sizeof(si) };
   GetStartupInfoW(&si);
   if (si.dwFlags & 0x800) {
@@ -170,7 +170,7 @@ LaunchMode GetLaunchSortcutKind() {
 }
 #else
 // TODO(cpu): Port to other platforms.
-LaunchMode GetLaunchSortcutKind() {
+LaunchMode GetLaunchShortcutKind() {
   return LM_LINUX_MAC_BEOS;
 }
 #endif
@@ -178,7 +178,7 @@ LaunchMode GetLaunchSortcutKind() {
 // Log in a histogram the frequency of launching by the different methods. See
 // LaunchMode enum for the actual values of the buckets.
 void RecordLaunchModeHistogram(LaunchMode mode) {
-  int bucket = (mode == LM_TO_BE_DECIDED) ? GetLaunchSortcutKind() : mode;
+  int bucket = (mode == LM_TO_BE_DECIDED) ? GetLaunchShortcutKind() : mode;
   UMA_HISTOGRAM_COUNTS_100("Launch.Modes", bucket);
 }
 
