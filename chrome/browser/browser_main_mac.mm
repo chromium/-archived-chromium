@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <crt_externs.h>
 #include <Cocoa/Cocoa.h>
 #include "base/command_line.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/browser/app_controller_mac.h"
 #include "chrome/browser/browser_main_win.h"
-#include <crt_externs.h>
+#include "chrome/app/keystone_glue.h"
 
 namespace Platform {
 
@@ -24,6 +25,10 @@ namespace Platform {
 void WillInitializeMainMessageLoop(const CommandLine & command_line) {
   [NSApplication sharedApplication];
   [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
+
+  // Doesn't need to be in a GOOGLE_CHROME_BUILD since this references
+  // a framework only distributed with Google Chrome.
+  [KeystoneGlue registerWithKeystone];
 
   // TODO(port): Use of LSUIElement=1 is a temporary fix.  The right
   // answer is to fix the renderer to not use Cocoa.
