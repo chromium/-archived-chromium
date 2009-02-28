@@ -978,9 +978,6 @@ DEFER : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 // MERGE 38625:38653: Expectations changed upstream
 MAC : LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
 
-// MERGE 38625:38653: Regressions
-LayoutTests/fast/events/key-events-in-input-button.html = FAIL
-
 // MERGE 38625:38653: New tests
 MAC : LayoutTests/fast/css/computed-style.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
@@ -1742,9 +1739,9 @@ LayoutTests/fast/js/function-toString-semicolon-insertion.html = FAIL
 // Flaky since the merge.
 LINUX : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL PASS
 
-// It's not clear that the test isn't wrong here. It believes that middle 
-// aligning 15px Ahem should end up in a certain spot. But we have the  
-// x-height correct and we're still one px off. 
+// It's not clear that the test isn't wrong here. It believes that middle
+// aligning 15px Ahem should end up in a certain spot. But we have the
+// x-height correct and we're still one px off.
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 
 // New failures from Merge 41078:41149
