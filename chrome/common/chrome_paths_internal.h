@@ -13,9 +13,11 @@ namespace chrome {
 // DIR_USER_DATA has been overridden by a command-line option.
 bool GetDefaultUserDataDirectory(FilePath* result);
 
-// Get the path to the user's documents directory.  We use this to construct
-// the default download directory.
+// Get the path to the user's documents directory.
 bool GetUserDocumentsDirectory(FilePath* result);
+
+// Get the path to the user's downloads directory.
+bool GetUserDownloadsDirectory(FilePath* result);
 
 // The path to the user's desktop.
 bool GetUserDesktop(FilePath* result);

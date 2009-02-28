@@ -165,7 +165,7 @@ bool PathService::Get(int key, FilePath* result) {
 
   if (GetFromCache(key, result))
     return true;
-  
+
   FilePath path;
 
   // search providers for the requested path
@@ -175,15 +175,15 @@ bool PathService::Get(int key, FilePath* result) {
   while (provider) {
     if (provider->func(key, &path))
       break;
-    DCHECK(path.value().empty()) << "provider should not have modified path";
+    DCHECK(path.empty()) << "provider should not have modified path";
     provider = provider->next;
   }
 
-  if (path.value().empty())
+  if (path.empty())
     return false;
 
   AddToCache(key, path);
-  
+
   *result = path;
   return true;
 }

@@ -23,6 +23,12 @@ bool GetUserDocumentsDirectory(FilePath* result) {
   return false;
 }
 
+bool GetUserDownloadsDirectory(FilePath* result) {
+  // TODO(port)
+  NOTIMPLEMENTED();
+  return false;
+}
+
 bool GetUserDesktop(FilePath* result) {
   // TODO(port)
   NOTIMPLEMENTED();

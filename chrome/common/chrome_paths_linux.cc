@@ -78,6 +78,26 @@ bool GetUserDocumentsDirectory(FilePath* result) {
   return true;
 }
 
+// We respect the user's preferred download location, unless it is
+// ~ or their desktop directory, in which case we default to ~/Downloads.
+bool GetUserDownloadsDirectory(FilePath* result) {
+  *result = GetXDGUserDirectory("DOWNLOAD", "Downloads");
+
+  FilePath home = GetHomeDir();
+  if (*result == home) {
+    *result = home.Append("Downloads");
+    return true;
+  }
+
+  FilePath desktop;
+  GetUserDesktop(&desktop);
+  if (*result == desktop) {
+    *result = home.Append("Downloads");
+  }
+
+  return true;
+}
+
 bool GetUserDesktop(FilePath* result) {
   *result = GetXDGUserDirectory("DESKTOP", "Desktop");
   return true;

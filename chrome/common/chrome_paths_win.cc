@@ -34,6 +34,20 @@ bool GetUserDocumentsDirectory(FilePath* result) {
   return true;
 }
 
+// On Vista, we can get the download path using a Win API
+// (http://msdn.microsoft.com/en-us/library/bb762584(VS.85).aspx),
+// but it can be set to Desktop, which is dangerous. Instead,
+// we just use 'Downloads' under DIR_USER_DOCUMENTS. Localizing
+// 'downloads' is not a good idea because Chrome's UI language
+// can be changed. 
+bool GetUserDownloadsDirectory(FilePath* result) {
+  if (!GetUserDocumentsDirectory(result))
+    return false;
+
+  *result = result->Append(L"Downloads");
+  return true;
+}
+
 bool GetUserDesktop(FilePath* result) {
   // We need to go compute the value. It would be nice to support paths
   // with names longer than MAX_PATH, but the system functions don't seem
