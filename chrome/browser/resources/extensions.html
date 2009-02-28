@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html id="root">
+<head>
+<meta charset="utf-8">
+<title jscontent="title"></title>
+<script type="text/javascript">
+
+// TODO(rafaelw): Remove. This is stub data. The idea is that the C++ will 
+// populate a similar json structure and hand it to this page with real data 
+// from the extensions system
+var testExtensionData = [
+  {
+    "name": "Dummy Extension",
+    "description": "Does some extremely cool stuff that I won't ever bother " +
+                   "explaining, because it's just that cool.",
+    "version": "1.0.231",
+    "content_scripts": [
+      {
+        "js": ["file1.js", "file2.js"],
+        "matches": ["http://*/*", "http://other.com/*"]
+      },
+      {
+        "js": ["file1.js", "file2.js"],
+        "matches": ["http://*/*", "http://other.com/*"]
+      },
+      {
+        "js": ["file1.js", "file2.js"],
+        "matches": ["http://*/*", "http://other.com/*"]
+      },	
+    ],
+  },	
+  {
+    "name": "PlaceHolder Extension",
+    "description": "",
+    "version": "1.0.231",
+    "content_scripts": [],
+  }
+];
+
+/**
+ * Takes the |extensionsData| input argument which represents data about the 
+ * currently installed/running extensions and populates the html jstemplate with
+ * that data
+ * @param {Object} extensionsData Detailed info about installed extensions
+ */
+function showExtensionsData(extensionsData) {
+  // This is the javascript code that processes the template:
+  var input = new JsExprContext(extensionsData);
+  var output = document.getElementById('extensionTemplate');
+  jstProcess(input, output);
+}
+</script>
+<style type="text/css">
+h1 {
+  text-align: center;
+}
+.extension{
+  padding: 8px;
+}
+.scriptMatches {
+  padding: 4px;
+  font-size: 12px;
+}
+</style>
+</head>
+<body onload="showExtensionsData(testExtensionData);">
+  <h1>Installed Extensions</h1>
+  <div id="extensionTemplate">
+    <div class="extension" jsselect="$this">
+      <div jscontent="name">Extension Name</div>
+      <div jscontent="description">Extension Description</div>
+      <div>Version: <span jscontent="version">x.x.x.x</span></div>
+      <div class="scriptMatches" jsselect="content_scripts"> 
+        <div>
+          <span jsselect="js" 
+              jscontent="(($index > 0) ? ' ' : '') + $this">
+          </span>
+        </div>
+        <div>
+          <span jsselect="matches" 
+              jscontent="(($index > 0) ? ' ' : '') + $this">
+          </span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

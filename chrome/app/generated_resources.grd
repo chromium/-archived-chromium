@@ -173,6 +173,9 @@ each locale. -->
       <message name="IDS_DOWNLOAD_TITLE" desc="Title for the downloads tab.">
         Downloads
       </message>
+      <message name="IDS_EXTENSIONS_TITLE" desc="Title for the extensions tab.">
+        Extensions
+      </message>
       <message name="IDS_SESSIONS_TITLE" desc="Title for the sessions tab.">
         Sessions
       </message>

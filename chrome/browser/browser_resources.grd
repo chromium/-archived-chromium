@@ -23,6 +23,7 @@
       <include name="IDR_CREDITS_HTML" file="resources\about_credits.html" flattenhtml="true" type="BINDATA" />
       <include name="IDR_HISTORY_HTML" file="resources\history.html" flattenhtml="true" type="BINDATA" />
       <include name="IDR_DOWNLOADS_HTML" file="resources\downloads.html" flattenhtml="true" type="BINDATA" />
+      <include name="IDR_EXTENSIONS_HTML" file="resources\extensions.html" flattenhtml="true" type="BINDATA" />
       <if expr="os == 'linux2'">
         <include name="IDR_LINUX_SPLASH_HTML" file="resources\linux-splash.html" flattenhtml="true" type="BINDATA" />
       </if>

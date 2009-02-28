@@ -513,6 +513,8 @@ input_files = ChromeFileList([
     'extensions/extension_protocols.h',
     'extensions/extensions_service.cc',
     'extensions/extensions_service.h',
+    'extensions/extensions_ui.cc',
+    'extensions/extensions_ui.h',
     'extensions/user_script_master.cc',
     'extensions/user_script_master.h',
   ]),

@@ -10,6 +10,7 @@
 #include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
+#include "chrome/browser/extensions/extensions_ui.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/resource_bundle.h"
@@ -243,6 +244,8 @@ DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
     return new HistoryUI(this);
   } else if (url.host() == DownloadsUI::GetBaseURL().host()) {
     return new DownloadsUI(this);
+  } else if (url.host() == ExtensionsUI::GetBaseURL().host()) {
+    return new ExtensionsUI(this);
   } else if (url.host() == DebuggerContents::GetBaseURL().host()) {
     return new DebuggerContents(this);
   } else if (url.host() == DevToolsUI::GetBaseURL().host()) {

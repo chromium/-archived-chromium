@@ -1946,6 +1946,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extensions_ui.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extensions_ui.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\user_script_master.cc"
 				>
 			</File>
