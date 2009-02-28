@@ -339,6 +339,10 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
       AddCrashedInfoBarIfNecessary(tab);
   }
   browser->window()->Show();
+  // TODO(jcampan): http://crbug.com/8123 we should not need to set the initial
+  //                focus explicitly.
+  browser->GetSelectedTabContents()->SetInitialFocus();
+
   return browser;
 }
 
