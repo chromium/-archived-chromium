@@ -453,6 +453,8 @@
         'browser/download/download_request_dialog_delegate_win.h',
         'browser/download/download_request_manager.cc',
         'browser/download/download_request_manager.h',
+        'browser/download/download_shelf.cc',
+        'browser/download/download_shelf.h',
         'browser/download/download_util.cc',
         'browser/download/download_util.h',
         'browser/download/save_file.cc',
@@ -1143,7 +1145,7 @@
 
             # Exclude most of download.
             ['exclude', '^browser/download/'],
-            ['include', '^browser/download/download_(file|manager)\\.cc$'],
+            ['include', '^browser/download/download_(file|manager|shelf)\\.cc$'],
             ['include', '^browser/download/download_request_manager\\.cc$'],
             ['include', '^browser/download/save_(file(_manager)?|item|package)\\.cc$'],
 
@@ -1311,7 +1313,7 @@
         'renderer',
       ],
       'sources': [
-        # All .cc, .h, and .mm files under app except for tests.
+        # All .cc, .h, .m, and .mm files under app except for tests.
         'app/breakpad.cc',
         'app/breakpad.h',
         'app/chrome_dll_main.cc',
@@ -1324,6 +1326,8 @@
         'app/client_util.h',
         'app/google_update_client.cc',
         'app/google_update_client.h',
+        'app/keystone_glue.h',
+        'app/keystone_glue.m',
         'app/result_codes.h',
         'app/scoped_ole_initializer.h',
       ],
