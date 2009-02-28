@@ -478,6 +478,8 @@
         'browser/extensions/extension_protocols.h',
         'browser/extensions/extensions_service.cc',
         'browser/extensions/extensions_service.h',
+        'browser/extensions/extensions_ui.cc',
+        'browser/extensions/extensions_ui.h',
         'browser/extensions/user_script_master.cc',
         'browser/extensions/user_script_master.h',
         'browser/gtk/back_forward_menu_model_gtk.cc',
