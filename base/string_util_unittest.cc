@@ -828,8 +828,9 @@ TEST(StringUtilTest, StringToInt) {
     EXPECT_EQ(cases[i].output, output);
 
     std::wstring wide_input = ASCIIToWide(cases[i].input);
-    EXPECT_EQ(cases[i].output, StringToInt(wide_input));
-    EXPECT_EQ(cases[i].success, StringToInt(wide_input, &output));
+    EXPECT_EQ(cases[i].output, StringToInt(WideToUTF16Hack(wide_input)));
+    EXPECT_EQ(cases[i].success, StringToInt(WideToUTF16Hack(wide_input),
+                                            &output));
     EXPECT_EQ(cases[i].output, output);
   }
 
@@ -843,7 +844,7 @@ TEST(StringUtilTest, StringToInt) {
   EXPECT_EQ(6, output);
 
   std::wstring wide_input = ASCIIToWide(input_string);
-  EXPECT_FALSE(StringToInt(wide_input, &output));
+  EXPECT_FALSE(StringToInt(WideToUTF16Hack(wide_input), &output));
   EXPECT_EQ(6, output);
 }
 
@@ -892,8 +893,9 @@ TEST(StringUtilTest, StringToInt64) {
     EXPECT_EQ(cases[i].output, output);
 
     std::wstring wide_input = ASCIIToWide(cases[i].input);
-    EXPECT_EQ(cases[i].output, StringToInt64(wide_input));
-    EXPECT_EQ(cases[i].success, StringToInt64(wide_input, &output));
+    EXPECT_EQ(cases[i].output, StringToInt64(WideToUTF16Hack(wide_input)));
+    EXPECT_EQ(cases[i].success, StringToInt64(WideToUTF16Hack(wide_input),
+                                              &output));
     EXPECT_EQ(cases[i].output, output);
   }
 
@@ -907,7 +909,7 @@ TEST(StringUtilTest, StringToInt64) {
   EXPECT_EQ(6, output);
 
   std::wstring wide_input = ASCIIToWide(input_string);
-  EXPECT_FALSE(StringToInt64(wide_input, &output));
+  EXPECT_FALSE(StringToInt64(WideToUTF16Hack(wide_input), &output));
   EXPECT_EQ(6, output);
 }
 
@@ -953,8 +955,9 @@ TEST(StringUtilTest, HexStringToInt) {
     EXPECT_EQ(cases[i].output, output);
 
     std::wstring wide_input = ASCIIToWide(cases[i].input);
-    EXPECT_EQ(cases[i].output, HexStringToInt(wide_input));
-    EXPECT_EQ(cases[i].success, HexStringToInt(wide_input, &output));
+    EXPECT_EQ(cases[i].output, HexStringToInt(WideToUTF16Hack(wide_input)));
+    EXPECT_EQ(cases[i].success, HexStringToInt(WideToUTF16Hack(wide_input),
+                                               &output));
     EXPECT_EQ(cases[i].output, output);
   }
   // One additional test to verify that conversion of numbers in strings with
@@ -967,7 +970,7 @@ TEST(StringUtilTest, HexStringToInt) {
   EXPECT_EQ(0xc0ffee, output);
 
   std::wstring wide_input = ASCIIToWide(input_string);
-  EXPECT_FALSE(HexStringToInt(wide_input, &output));
+  EXPECT_FALSE(HexStringToInt(WideToUTF16Hack(wide_input), &output));
   EXPECT_EQ(0xc0ffee, output);
 }
 
@@ -1013,7 +1016,8 @@ TEST(StringUtilTest, HexStringToBytes) {
     compare.clear();
 
     std::wstring wide_input = ASCIIToWide(cases[i].input);
-    EXPECT_EQ(cases[i].success, HexStringToBytes(wide_input, &output)) <<
+    EXPECT_EQ(cases[i].success,
+              HexStringToBytes(WideToUTF16Hack(wide_input), &output)) <<
         i << ": " << cases[i].input;
     for (size_t j = 0; j < cases[i].output_len; ++j)
       compare.push_back(static_cast<uint8>(cases[i].output[j]));
@@ -1065,8 +1069,10 @@ TEST(StringUtilTest, StringToDouble) {
     EXPECT_DOUBLE_EQ(cases[i].output, output);
 
     std::wstring wide_input = ASCIIToWide(cases[i].input);
-    EXPECT_DOUBLE_EQ(cases[i].output, StringToDouble(wide_input));
-    EXPECT_EQ(cases[i].success, StringToDouble(wide_input, &output));
+    EXPECT_DOUBLE_EQ(cases[i].output,
+                     StringToDouble(WideToUTF16Hack(wide_input)));
+    EXPECT_EQ(cases[i].success, StringToDouble(WideToUTF16Hack(wide_input),
+                                               &output));
     EXPECT_DOUBLE_EQ(cases[i].output, output);
   }
 
@@ -1080,7 +1086,7 @@ TEST(StringUtilTest, StringToDouble) {
   EXPECT_DOUBLE_EQ(3.14, output);
 
   std::wstring wide_input = ASCIIToWide(input_string);
-  EXPECT_FALSE(StringToDouble(wide_input, &output));
+  EXPECT_FALSE(StringToDouble(WideToUTF16Hack(wide_input), &output));
   EXPECT_DOUBLE_EQ(3.14, output);
 }
 

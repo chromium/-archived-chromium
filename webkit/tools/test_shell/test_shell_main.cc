@@ -151,7 +151,8 @@ int main(int argc, char* argv[]) {
   if (parsed_command_line.HasSwitch(test_shell::kTestShellTimeOut)) {
     const std::wstring timeout_str = parsed_command_line.GetSwitchValue(
         test_shell::kTestShellTimeOut);
-    int timeout_ms = static_cast<int>(StringToInt64(timeout_str.c_str()));
+    int timeout_ms =
+        static_cast<int>(StringToInt64(WideToUTF16Hack(timeout_str.c_str())));
     if (timeout_ms > 0)
       TestShell::SetFileTestTimeout(timeout_ms);
   }

@@ -408,18 +408,18 @@ std::wstring DoubleToWString(double value);
 //    |*output| will be set to 0.
 //  - Empty string.  |*output| will be set to 0.
 bool StringToInt(const std::string& input, int* output);
-bool StringToInt(const std::wstring& input, int* output);
+bool StringToInt(const string16& input, int* output);
 bool StringToInt64(const std::string& input, int64* output);
-bool StringToInt64(const std::wstring& input, int64* output);
+bool StringToInt64(const string16& input, int64* output);
 bool HexStringToInt(const std::string& input, int* output);
-bool HexStringToInt(const std::wstring& input, int* output);
+bool HexStringToInt(const string16& input, int* output);
 
 // Similar to the previous functions, except that output is a vector of bytes.
 // |*output| will contain as many bytes as were successfully parsed prior to the
 // error.  There is no overflow, but input.size() must be evenly divisible by 2.
 // Leading 0x or +/- are not allowed.
 bool HexStringToBytes(const std::string& input, std::vector<uint8>* output);
-bool HexStringToBytes(const std::wstring& input, std::vector<uint8>* output);
+bool HexStringToBytes(const string16& input, std::vector<uint8>* output);
 
 // For floating-point conversions, only conversions of input strings in decimal
 // form are defined to work.  Behavior with strings representing floating-point
@@ -428,19 +428,19 @@ bool HexStringToBytes(const std::wstring& input, std::vector<uint8>* output);
 // variants.  This expects the input string to NOT be specific to the locale.
 // If your input is locale specific, use ICU to read the number.
 bool StringToDouble(const std::string& input, double* output);
-bool StringToDouble(const std::wstring& input, double* output);
+bool StringToDouble(const string16& input, double* output);
 
 // Convenience forms of the above, when the caller is uninterested in the
 // boolean return value.  These return only the |*output| value from the
 // above conversions: a best-effort conversion when possible, otherwise, 0.
 int StringToInt(const std::string& value);
-int StringToInt(const std::wstring& value);
+int StringToInt(const string16& value);
 int64 StringToInt64(const std::string& value);
-int64 StringToInt64(const std::wstring& value);
+int64 StringToInt64(const string16& value);
 int HexStringToInt(const std::string& value);
-int HexStringToInt(const std::wstring& value);
+int HexStringToInt(const string16& value);
 double StringToDouble(const std::string& value);
-double StringToDouble(const std::wstring& value);
+double StringToDouble(const string16& value);
 
 // Return a C++ string given printf-like input.
 std::string StringPrintf(const char* format, ...);

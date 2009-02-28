@@ -616,12 +616,12 @@ void MetricsService::InitializeMetricsState() {
   // This is marked false when we get a WM_ENDSESSION.
   pref->SetBoolean(prefs::kStabilitySessionEndCompleted, true);
 
-  int64 last_start_time =
-      StringToInt64(pref->GetString(prefs::kStabilityLaunchTimeSec));
-  int64 last_end_time =
-      StringToInt64(pref->GetString(prefs::kStabilityLastTimestampSec));
-  int64 uptime =
-      StringToInt64(pref->GetString(prefs::kStabilityUptimeSec));
+  int64 last_start_time = StringToInt64(
+      WideToUTF16Hack(pref->GetString(prefs::kStabilityLaunchTimeSec)));
+  int64 last_end_time = StringToInt64(
+      WideToUTF16Hack(pref->GetString(prefs::kStabilityLastTimestampSec)));
+  int64 uptime = StringToInt64(
+      WideToUTF16Hack(pref->GetString(prefs::kStabilityUptimeSec)));
 
   if (last_start_time && last_end_time) {
     // TODO(JAR): Exclude sleep time.  ... which must be gathered in UI loop.

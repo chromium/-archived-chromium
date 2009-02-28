@@ -82,7 +82,7 @@ void PageState::SetInt64Property(const std::wstring& key, int64 value) {
 bool PageState::GetInt64Property(const std::wstring& key, int64* value) const {
   std::wstring v;
   if (GetProperty(key, &v)) {
-    return StringToInt64(v, value);
+    return StringToInt64(WideToUTF16Hack(v), value);
   }
   return false;
 }
@@ -94,7 +94,7 @@ void PageState::SetIntProperty(const std::wstring& key, int value) {
 bool PageState::GetIntProperty(const std::wstring& key, int* value) const {
   std::wstring v;
   if (GetProperty(key, &v)) {
-    return StringToInt(v, value);
+    return StringToInt(WideToUTF16Hack(v), value);
   }
   return false;
 }
@@ -105,4 +105,3 @@ PageState* PageState::Copy() const {
     copy->state_.reset(static_cast<DictionaryValue*>(state_->DeepCopy()));
   return copy;
 }
-

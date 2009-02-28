@@ -217,7 +217,7 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     if (!RenderProcessHost::run_renderer_in_process()) {
       std::wstring port_str =
           command_line_.GetSwitchValue(switches::kRemoteShellPort);
-      int64 port = StringToInt64(port_str);
+      int64 port = StringToInt64(WideToUTF16Hack(port_str));
       if (port > 0 && port < 65535) {
         g_browser_process->InitDebuggerWrapper(static_cast<int>(port));
       } else {
@@ -425,7 +425,7 @@ bool BrowserInit::ProcessCommandLine(
         command_line.GetSwitchValue(switches::kOmniBoxPopupCount);
     if (!popup_count_string.empty()) {
       int count = 0;
-      if (StringToInt(popup_count_string, &count)) {
+      if (StringToInt(WideToUTF16Hack(popup_count_string), &count)) {
         const int popup_count = std::max(0, count);
         AutocompleteResult::set_max_matches(popup_count);
         AutocompleteProvider::set_max_matches(popup_count / 2);
@@ -439,7 +439,7 @@ bool BrowserInit::ProcessCommandLine(
         command_line.GetSwitchValue(switches::kTabCountToLoadOnSessionRestore);
     if (!tab_count_string.empty()) {
       int count = 0;
-      if (StringToInt(tab_count_string, &count)) {
+      if (StringToInt(WideToUTF16Hack(tab_count_string), &count)) {
         const int tab_count = std::max(0, count);
         SessionRestore::num_tabs_to_load_ = static_cast<size_t>(tab_count);
       }

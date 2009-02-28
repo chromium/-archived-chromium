@@ -193,8 +193,8 @@ class Writer : public Task {
   // Converts a time string written to the JSON codec into a time_t string
   // (used by bookmarks.html) and writes it.
   bool WriteTime(const std::wstring& time_string) {
-    base::Time time =
-        base::Time::FromInternalValue(StringToInt64(time_string));
+    base::Time time = base::Time::FromInternalValue(
+        StringToInt64(WideToUTF16Hack(time_string)));
     return Write(Int64ToString(time.ToTimeT()));
   }
 

@@ -127,8 +127,8 @@ TextDatabase::DBIdent TextDatabase::FileNameToID(const std::wstring& file_path){
     return 0;
   }
 
-  int year = StringToInt(suffix.substr(0, 4));
-  int month = StringToInt(suffix.substr(5, 2));
+  int year = StringToInt(WideToUTF16Hack(suffix.substr(0, 4)));
+  int month = StringToInt(WideToUTF16Hack(suffix.substr(5, 2)));
 
   return year * 100 + month;
 }
@@ -392,4 +392,3 @@ void TextDatabase::GetTextMatches(const std::string& query,
 }
 
 }  // namespace history
-

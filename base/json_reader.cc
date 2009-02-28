@@ -357,11 +357,12 @@ Value* JSONReader::DecodeNumber(const Token& token) {
   const std::wstring num_string(token.begin, token.length);
 
   int num_int;
-  if (StringToInt(num_string, &num_int))
+  if (StringToInt(WideToUTF16Hack(num_string), &num_int))
     return Value::CreateIntegerValue(num_int);
 
   double num_double;
-  if (StringToDouble(num_string, &num_double) && base::IsFinite(num_double))
+  if (StringToDouble(WideToUTF16Hack(num_string), &num_double) &&
+      base::IsFinite(num_double))
     return Value::CreateRealValue(num_double);
 
   return NULL;

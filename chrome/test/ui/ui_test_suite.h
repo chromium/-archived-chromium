@@ -42,7 +42,7 @@ class UITestSuite : public ChromeTestSuite {
     std::wstring test_timeout =
         parsed_command_line.GetSwitchValue(UITestSuite::kTestTimeout);
     if (!test_timeout.empty()) {
-      UITest::set_test_timeout_ms(StringToInt(test_timeout));
+      UITest::set_test_timeout_ms(StringToInt(WideToUTF16Hack(test_timeout)));
     }
     std::wstring js_flags =
       parsed_command_line.GetSwitchValue(switches::kJavaScriptFlags);
@@ -69,4 +69,3 @@ class UITestSuite : public ChromeTestSuite {
 };
 
 #endif  // CHROME_TEST_UI_UI_TEST_SUITE_H_
-

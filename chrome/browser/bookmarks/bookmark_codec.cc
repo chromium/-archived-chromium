@@ -175,8 +175,8 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
     if (!node)
       node = new BookmarkNode(model, GURL());
     node->type_ = history::StarredEntry::USER_GROUP;
-    node->date_group_modified_ =
-        Time::FromInternalValue(StringToInt64(last_modified_date));
+    node->date_group_modified_ = Time::FromInternalValue(
+        StringToInt64(WideToUTF16Hack(last_modified_date)));
 
     if (parent)
       parent->Add(parent->GetChildCount(), node);
@@ -186,7 +186,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
   }
   
   node->SetTitle(title);
-  node->date_added_ =
-      Time::FromInternalValue(StringToInt64(date_added_string));
+  node->date_added_ = Time::FromInternalValue(
+      StringToInt64(WideToUTF16Hack(date_added_string)));
   return true;
 }

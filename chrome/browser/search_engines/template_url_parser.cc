@@ -311,9 +311,11 @@ void ParseURL(const xmlChar** atts, ParsingContext* context) {
     } else if (name == kURLTemplateAttribute) {
       template_url = XMLCharToWide(value);
     } else if (name == kURLIndexOffsetAttribute) {
-      index_offset = std::max(1, StringToInt(XMLCharToWide(value)));
+      index_offset =
+          std::max(1, StringToInt(WideToUTF16Hack(XMLCharToWide(value))));
     } else if (name == kURLPageOffsetAttribute) {
-      page_offset = std::max(1, StringToInt(XMLCharToWide(value)));
+      page_offset =
+          std::max(1, StringToInt(WideToUTF16Hack(XMLCharToWide(value))));
     } else if (name == kParamMethodAttribute) {
       is_post = LowerCaseEqualsASCII(XMLCharToString(value), "post");
     }
@@ -346,9 +348,9 @@ void ParseImage(const xmlChar** atts, ParsingContext* context) {
     if (name == kImageTypeAttribute) {
       type = XMLCharToWide(value);
     } else if (name == kImageWidthAttribute) {
-      width = StringToInt(XMLCharToWide(value));
+      width = StringToInt(WideToUTF16Hack(XMLCharToWide(value)));
     } else if (name == kImageHeightAttribute) {
-      height = StringToInt(XMLCharToWide(value));
+      height = StringToInt(WideToUTF16Hack(XMLCharToWide(value)));
     }
     attributes += 2;
   }
@@ -585,5 +587,3 @@ bool TemplateURLParser::Parse(const unsigned char* data, size_t length,
   }
   return false;
 }
-
-

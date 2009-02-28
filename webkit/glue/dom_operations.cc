@@ -685,7 +685,7 @@ static int ParseSingleIconSize(const std::wstring& text) {
       return 0;
   }
   int output;
-  if (!StringToInt(text, &output))
+  if (!StringToInt(WideToUTF16Hack(text), &output))
     return 0;
   return output;
 }

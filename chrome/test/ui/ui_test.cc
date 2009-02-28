@@ -186,27 +186,27 @@ void UITest::InitializeTimeouts() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(kUiTestTimeout)) {
     std::wstring timeout_str = command_line.GetSwitchValue(kUiTestTimeout);
-    int timeout = StringToInt(timeout_str);
+    int timeout = StringToInt(WideToUTF16Hack(timeout_str));
     command_execution_timeout_ms_ = std::max(kMaxTestExecutionTime, timeout);
   }
 
   if (command_line.HasSwitch(kUiTestActionTimeout)) {
     std::wstring act_str = command_line.GetSwitchValue(kUiTestActionTimeout);
-    int act_timeout = StringToInt(act_str);
+    int act_timeout = StringToInt(WideToUTF16Hack(act_str));
     action_timeout_ms_ = std::max(kWaitForActionMsec, act_timeout);
   }
 
   if (command_line.HasSwitch(kUiTestActionMaxTimeout)) {
     std::wstring action_max_str =
         command_line.GetSwitchValue(kUiTestActionMaxTimeout);
-    int max_timeout = StringToInt(action_max_str);
+    int max_timeout = StringToInt(WideToUTF16Hack(action_max_str));
     action_max_timeout_ms_ = std::max(kWaitForActionMaxMsec, max_timeout);
   }
 
   if (CommandLine::ForCurrentProcess()->HasSwitch(kUiTestSleepTimeout)) {
     std::wstring sleep_timeout_str =
         CommandLine::ForCurrentProcess()->GetSwitchValue(kUiTestSleepTimeout);
-    int sleep_timeout = StringToInt(sleep_timeout_str);
+    int sleep_timeout = StringToInt(WideToUTF16Hack(sleep_timeout_str));
     sleep_timeout_ms_ = std::max(kWaitForActionMsec, sleep_timeout);
   }
 }

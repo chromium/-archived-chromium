@@ -72,12 +72,14 @@ Value* CreateLocaleDefaultValue(Value::ValueType type, int message_id) {
     }
 
     case Value::TYPE_INTEGER: {
-      return Value::CreateIntegerValue(StringToInt(resource_string));
+      return Value::CreateIntegerValue(
+          StringToInt(WideToUTF16Hack(resource_string)));
       break;
     }
 
     case Value::TYPE_REAL: {
-      return Value::CreateRealValue(StringToDouble(resource_string));
+      return Value::CreateRealValue(
+          StringToDouble(WideToUTF16Hack(resource_string)));
       break;
     }
 
@@ -683,4 +685,3 @@ bool PrefService::Preference::IsDefaultValue() const {
   DCHECK(default_value_.get());
   return default_value_->Equals(GetValue());
 }
-

@@ -278,7 +278,7 @@ void BrowsingHistoryHandler::ExtractSearchHistoryArguments(const Value* value,
         static_cast<const StringValue*>(list_member);
       std::wstring wstring_value;
       string_value->GetAsString(&wstring_value);
-      *month = StringToInt(wstring_value);
+      *month = StringToInt(WideToUTF16Hack(wstring_value));
     }
   }
 }

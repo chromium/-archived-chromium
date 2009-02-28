@@ -596,7 +596,7 @@ void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
           static_cast<const StringValue*>(list_member);
       std::wstring wstring_value;
       if (string_value->GetAsString(&wstring_value)) {
-        int session_to_restore = StringToInt(wstring_value);
+        int session_to_restore = StringToInt(WideToUTF16Hack(wstring_value));
         tab_restore_service_->RestoreEntryById(browser, session_to_restore,
                                                true);
         // The current tab has been nuked at this point; don't touch any member

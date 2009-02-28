@@ -828,7 +828,7 @@ bool TemplateURLModel::LoadDefaultSearchProviderFromPrefs(
   (*default_provider)->SetURL(search_url, 0, 0);
   (*default_provider)->SetSuggestionsURL(suggest_url, 0, 0);
   if (!id_string.empty())
-    (*default_provider)->set_id(StringToInt64(id_string));
+    (*default_provider)->set_id(StringToInt64(WideToUTF16Hack(id_string)));
   return true;
 }
 

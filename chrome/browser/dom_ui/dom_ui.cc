@@ -148,7 +148,7 @@ bool DOMMessageHandler::ExtractIntegerValue(const Value* value, int* out_int) {
           static_cast<const StringValue*>(list_member);
       std::wstring wstring_value;
       string_value->GetAsString(&wstring_value);
-      *out_int = StringToInt(wstring_value);
+      *out_int = StringToInt(WideToUTF16Hack(wstring_value));
       return true;
     }
   }
@@ -173,4 +173,3 @@ std::wstring DOMMessageHandler::ExtractStringValue(const Value* value) {
   }
   return std::wstring();
 }
-

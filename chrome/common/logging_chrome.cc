@@ -125,7 +125,7 @@ void InitChromeLogging(const CommandLine& command_line,
   // default to LOG_WARNING.
   std::wstring log_level = command_line.GetSwitchValue(switches::kLoggingLevel);
   int level = 0;
-  if (StringToInt(log_level, &level)) {
+  if (StringToInt(WideToUTF16Hack(log_level), &level)) {
     if ((level >= 0) && (level < LOG_NUM_SEVERITIES))
       logging::SetMinLogLevel(level);
   } else {
@@ -200,4 +200,3 @@ size_t GetFatalAssertions(AssertionList* assertions) {
 }
 
 } // namespace logging
-
