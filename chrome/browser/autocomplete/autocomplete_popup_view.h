@@ -11,8 +11,6 @@
 #ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_H_
 #define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_H_
 
-#include "base/basictypes.h"
-
 class AutocompleteEditView;
 class AutocompletePopupModel;
 class ChromeFont;
@@ -39,10 +37,8 @@ class AutocompletePopupView {
   // Called by the model when hover is enabled or disabled.
   virtual void OnHoverEnabledOrDisabled(bool disabled) = 0;
 
-#if defined(OS_WIN)
-  // Cause a WM_PAINT immediately (see msdn on UpdateWindow()).
+  // Paint any pending updates.
   virtual void PaintUpdatesNow() = 0;
-#endif
 };
 
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_H_
