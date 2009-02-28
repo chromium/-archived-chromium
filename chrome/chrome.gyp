@@ -1310,25 +1310,7 @@
         'browser',
         'renderer',
       ],
-      'variables': {
-        'conditions': [
-          ['OS=="mac"', {
-            'mac_xib_files': [
-              # Use .xib files only, because .nibs are bundles and these files
-              # need to be used as an input to rules.  Rule dependency checking
-              # only works on files, not directories as .nib bundles are.
-              'app/nibs/English.lproj/BrowserWindow.xib',
-              'app/nibs/English.lproj/MainMenu.xib',
-              'app/nibs/English.lproj/TabContents.xib',
-            ],
-          }, {  # else: OS!="mac"
-            'mac_xib_files': [],
-          }],
-        ],
-      },
       'sources': [
-        '<@(mac_xib_files)',
-
         # All .cc, .h, and .mm files under app except for tests.
         'app/breakpad.cc',
         'app/breakpad.h',
@@ -1346,7 +1328,9 @@
         'app/scoped_ole_initializer.h',
       ],
       'mac_bundle_resources': [
-        '<@(mac_xib_files)',
+        'app/nibs/English.lproj/BrowserWindow.xib',
+        'app/nibs/English.lproj/MainMenu.xib',
+        'app/nibs/English.lproj/TabContents.xib',
         'app/theme/chromium/chromium.icns',
         'app/theme/back.pdf',
         'app/theme/forward.pdf',
@@ -1372,20 +1356,6 @@
       'conditions': [
         ['OS=="mac"', {
           'product_name': 'Chromium',
-          'rules': [
-            {
-              'rule_name': 'ib_classes',
-              'extension': 'xib',
-              'outputs': [
-                '<(INTERMEDIATE_DIR)/ib_classes/<(RULE_INPUT_ROOT)IBClasses.mm',
-              ],
-              'inputs': [
-                '../build/mac/make_ib_classes.py',
-              ],
-              'action': ['python', '<@(_inputs)', '<@(_outputs)', '<(RULE_INPUT_PATH)'],
-              'process_outputs_as_sources': 1,
-            },
-          ],
         }],
         ['OS!="win"', {
           'variables': {

@@ -90,6 +90,9 @@
           ['_type!="static_library"', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-search_paths_first']},
           }],
+          ['_type=="application"', {
+            'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
+          }],
           ['_type=="application" or _type=="executable"', {
             'postbuilds': [
               {
