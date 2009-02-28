@@ -246,11 +246,6 @@ TEST_F(UnloadTest, BrowserCloseBeforeUnloadCancel) {
 // Tests closing the browser with a beforeunload handler that takes
 // two seconds to run.
 TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnload) {
-  // TODO(jabdelmalek): BUG(7933)  this started hanging now, should it be
-  // disabled in single process mode like the other tests?
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
-    return;
-
   LoadUrlAndQuitBrowser(TWO_SECOND_BEFORE_UNLOAD_HTML,
                         L"twosecondbeforeunload");
 }
@@ -258,43 +253,23 @@ TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnload) {
 // Tests closing the browser on a page with an unload listener registered where
 // the unload handler has an infinite loop.
 TEST_F(UnloadTest, BrowserCloseInfiniteUnload) {
-  // TODO(jabdelmalek): BUG(7933)  this started hanging now, should it be
-  // disabled in single process mode like the other tests?
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
-    return;
-
   LoadUrlAndQuitBrowser(INFINITE_UNLOAD_HTML, L"infiniteunload");
 }
 
 // Tests closing the browser with a beforeunload handler that hangs.
 TEST_F(UnloadTest, BrowserCloseInfiniteBeforeUnload) {
-  // TODO(jabdelmalek): BUG(7933)  this started hanging now, should it be
-  // disabled in single process mode like the other tests?
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
-    return;
-
   LoadUrlAndQuitBrowser(INFINITE_BEFORE_UNLOAD_HTML, L"infinitebeforeunload");
 }
 
 // Tests closing the browser on a page with an unload listener registered where
 // the unload handler has an infinite loop followed by an alert.
 TEST_F(UnloadTest, BrowserCloseInfiniteUnloadAlert) {
-  // TODO(jabdelmalek): BUG(7933)  this started hanging now, should it be
-  // disabled in single process mode like the other tests?
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
-    return;
-
   LoadUrlAndQuitBrowser(INFINITE_UNLOAD_ALERT_HTML, L"infiniteunloadalert");
 }
 
 // Tests closing the browser with a beforeunload handler that hangs then
 // pops up an alert.
 TEST_F(UnloadTest, BrowserCloseInfiniteBeforeUnloadAlert) {
-  // TODO(jabdelmalek): BUG(7933)  this started hanging now, should it be
-  // disabled in single process mode like the other tests?
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
-    return;
-
   LoadUrlAndQuitBrowser(INFINITE_BEFORE_UNLOAD_ALERT_HTML,
                         L"infinitebeforeunloadalert");
 }
@@ -302,22 +277,12 @@ TEST_F(UnloadTest, BrowserCloseInfiniteBeforeUnloadAlert) {
 // Tests closing the browser on a page with an unload listener registered where
 // the unload handler has an 2 second long loop followed by an alert.
 TEST_F(UnloadTest, BrowserCloseTwoSecondUnloadAlert) {
-  // TODO(jabdelmalek): BUG(7933)  this started hanging now, should it be
-  // disabled in single process mode like the other tests?
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
-    return;
-
   LoadUrlAndQuitBrowser(TWO_SECOND_UNLOAD_ALERT_HTML, L"twosecondunloadalert");
 }
 
 // Tests closing the browser with a beforeunload handler that takes
 // two seconds to run then pops up an alert.
 TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnloadAlert) {
-  // TODO(jabdelmalek): BUG(7933)  this started hanging now, should it be
-  // disabled in single process mode like the other tests?
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
-    return;
-
   LoadUrlAndQuitBrowser(TWO_SECOND_BEFORE_UNLOAD_ALERT_HTML,
                         L"twosecondbeforeunloadalert");
 }
