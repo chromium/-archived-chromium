@@ -10,6 +10,7 @@
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
+#include <algorithm>
 #include <atlbase.h>
 #include <atlapp.h>
 #include <malloc.h>
@@ -119,6 +120,38 @@ void ChromeAssert(const std::string& str) {
 
 #pragma optimize("", on)
 
+// Early versions of Chrome incorrectly registered a chromehtml: URL handler.
+// Later versions fixed the registration but in some cases (e.g. Vista and non-
+// admin installs) the fix could not be applied.  This prevents Chrome to be
+// launched with the incorrect format.
+// CORRECT: <broser.exe> -- "chromehtml:<url>"
+// INVALID: <broser.exe> "chromehtml:<url>"
+bool IncorrectChromeHtmlArguments(const std::wstring& command_line) {
+  const wchar_t kChromeHtml[] = L"-- \"chromehtml:";
+  const wchar_t kOffset = 5;  // Where chromehtml: starts in above
+  std::wstring command_line_lower = command_line;
+
+  // We are only searching for ASCII characters so this is OK.
+  StringToLowerASCII(&command_line_lower);
+
+  std::wstring::size_type pos = command_line_lower.find(
+      kChromeHtml + kOffset);
+
+  if (pos == std::wstring::npos)
+    return false;
+
+  // The browser is being launched with chromehtml: somewhere on the command
+  // line.  We will not launch unless it's preceded by the -- switch terminator.
+  if (pos >= kOffset) {
+    if (equal(kChromeHtml, kChromeHtml + arraysize(kChromeHtml) - 1, 
+        command_line_lower.begin() + pos - kOffset)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 #endif  // OS_WIN
 
 // Register the invalid param handler and pure call handler to be able to
@@ -226,6 +259,12 @@ int ChromeMain(int argc, const char** argv) {
   CommandLine::Init(argc, argv);
 #endif
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
+
+#if defined(OS_WIN)
+   // Must do this before any other usage of command line!
+  if (::IncorrectChromeHtmlArguments(parsed_command_line.command_line_string()))
+    return 1;
+#endif
 
   SetupCRT(parsed_command_line);
 
