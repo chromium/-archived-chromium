@@ -13,27 +13,16 @@ namespace {
 class RenderProcessTest : public testing::Test {
  public:
   virtual void SetUp() {
-    // Need a MODE_SERVER to make MODE_CLIENTs (like a RenderThread) happy.
-    channel_ = new IPC::Channel(L"render_process_unittest", IPC::Channel::MODE_SERVER, NULL);
     render_process_.reset(new RenderProcess(L"render_process_unittest"));
   }
 
   virtual void TearDown() {
-    message_loop_.RunAllPending();
     render_process_.reset();
-    // Need to fully destruct IPC::SyncChannel before the message loop goes
-    // away.
-    message_loop_.RunAllPending();
-    // Delete the server channel after the RenderThread so that
-    // IPC::SyncChannel's OnChannelError doesn't fire on the context and attempt
-    // to use the listener thread which is now gone.
-    delete channel_;
-  }
+    }
 
   private:
    MessageLoopForIO message_loop_;
    scoped_ptr<RenderProcess> render_process_;
-   IPC::Channel *channel_;
 };
 
 

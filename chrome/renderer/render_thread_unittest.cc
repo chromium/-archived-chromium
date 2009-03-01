@@ -24,13 +24,13 @@ class RenderThreadTest : public testing::Test {
   virtual void TearDown() {
     message_loop_.RunAllPending();
     mock_process_.reset();
-    // Need to fully destruct IPC::SyncChannel before the message loop goes
-    // away.
-    message_loop_.RunAllPending();
     // Delete the server channel after the RenderThread so that
     // IPC::SyncChannel's OnChannelError doesn't fire on the context and attempt
     // to use the listener thread which is now gone.
     delete channel_;
+    // Need to fully destruct IPC::SyncChannel before the message loop goes
+    // away.
+    message_loop_.RunAllPending();
   }
 
  protected:
