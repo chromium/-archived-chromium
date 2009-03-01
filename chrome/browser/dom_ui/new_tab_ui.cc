@@ -719,9 +719,10 @@ void HistoryHandler::HandleShowHistoryPage(const Value*) {
   if (controller) {
 #if defined(OS_WIN)
 // TODO(port): include this once history is converted to HTML
-    controller->LoadURL(HistoryUI::GetBaseURL(), GURL(), PageTransition::LINK);
     UserMetrics::RecordAction(L"NTP_ShowHistory",
         dom_ui_->get_profile());
+    controller->LoadURL(HistoryUI::GetBaseURL(), GURL(), PageTransition::LINK);
+    // We are deleted by LoadURL, so do not call anything else.
 #else
     NOTIMPLEMENTED();
 #endif
@@ -749,6 +750,7 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
             HistoryUI::GetHistoryURLWithSearchText(wstring_value),
             GURL(),
             PageTransition::LINK);
+        // We are deleted by LoadURL, so do not call anything else.
 #else
         NOTIMPLEMENTED();
 #endif
