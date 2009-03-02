@@ -118,7 +118,7 @@ std::string JoinStrings(const std::string& separator,
     return std::string();
   std::vector<std::string>::const_iterator i(strings.begin());
   std::string result(*i);
-  while(++i != strings.end())
+  while (++i != strings.end())
     result += separator + *i;
   return result;
 }
@@ -641,7 +641,8 @@ bool WebDatabase::AddLogin(const PasswordForm& form) {
   s.bind_wstring(2, form.username_element);
   s.bind_wstring(3, form.username_value);
   s.bind_wstring(4, form.password_element);
-  Encryptor::EncryptWideString(form.password_value, &encrypted_password);
+  Encryptor::EncryptString16(WideToUTF16Hack(form.password_value),
+                             &encrypted_password);
   s.bind_blob(5, encrypted_password.data(),
               static_cast<int>(encrypted_password.length()));
   s.bind_wstring(6, form.submit_element);
@@ -676,7 +677,8 @@ bool WebDatabase::UpdateLogin(const PasswordForm& form) {
   }
 
   s.bind_string(0, form.action.spec());
-  Encryptor::EncryptWideString(form.password_value, &encrypted_password);
+  Encryptor::EncryptString16(WideToUTF16Hack(form.password_value),
+                             &encrypted_password);
   s.bind_blob(1, encrypted_password.data(),
               static_cast<int>(encrypted_password.length()));
   s.bind_int(2, form.ssl_valid);
@@ -757,6 +759,7 @@ static void InitPasswordFormFromStatement(PasswordForm* form,
                                           SQLStatement* s) {
   std::string encrypted_password;
   std::string tmp;
+  string16 decrypted_password;
   s->column_string(0, &tmp);
   form->origin = GURL(tmp);
   s->column_string(1, &tmp);
@@ -765,7 +768,8 @@ static void InitPasswordFormFromStatement(PasswordForm* form,
   s->column_wstring(3, &form->username_value);
   s->column_wstring(4, &form->password_element);
   s->column_blob_as_string(5, &encrypted_password);
-  Encryptor::DecryptWideString(encrypted_password, &form->password_value);
+  Encryptor::DecryptString16(encrypted_password, &decrypted_password);
+  form->password_value = UTF16ToWideHack(decrypted_password);
   s->column_wstring(6, &form->submit_element);
   s->column_string(7, &tmp);
   form->signon_realm = tmp;
@@ -863,10 +867,10 @@ bool WebDatabase::ClearAutofillEmptyValueElements() {
   bool success = true;
   for (std::set<int64>::const_iterator iter = ids.begin(); iter != ids.end();
        ++iter) {
-    if (!RemoveFormElement(*iter)) 
+    if (!RemoveFormElement(*iter))
       success = false;
   }
-  
+
   return success;
 }
 
@@ -1059,7 +1063,7 @@ bool WebDatabase::RemoveFormElementsAddedBetween(const Time delete_begin,
     return false;
   }
   s.bind_int64(0, delete_begin.ToTimeT());
-  s.bind_int64(1, 
+  s.bind_int64(1,
                delete_end.is_null() ?
                    std::numeric_limits<int64>::max() :
                    delete_end.ToTimeT());
@@ -1113,7 +1117,7 @@ bool WebDatabase::RemoveFormElementForTimeRange(int64 pair_id,
 }
 
 bool WebDatabase::AddToCountOfFormElement(int64 pair_id, int delta) {
-  int count=0;
+  int count = 0;
 
   if (!GetCountOfFormElement(pair_id, &count))
     return false;
@@ -1145,7 +1149,7 @@ bool WebDatabase::RemoveFormElement(int64 pair_id) {
 void WebDatabase::MigrateOldVersionsAsNeeded() {
   // Migrate if necessary.
   int current_version = meta_table_.GetVersionNumber();
-  switch(current_version) {
+  switch (current_version) {
     // Versions 1 - 19 are unhandled.  Version numbers greater than
     // kCurrentVersionNumber should have already been weeded out by the caller.
     default:

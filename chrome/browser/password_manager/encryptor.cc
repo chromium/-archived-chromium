@@ -10,18 +10,18 @@
 
 #pragma comment(lib, "crypt32.lib")
 
-bool Encryptor::EncryptWideString(const std::wstring& plaintext,
-                                  std::string* ciphertext) {
-  return EncryptString(WideToUTF8(plaintext), ciphertext);
+bool Encryptor::EncryptString16(const string16& plaintext,
+                                std::string* ciphertext) {
+  return EncryptString(UTF16ToUTF8(plaintext), ciphertext);
 }
 
-bool Encryptor::DecryptWideString(const std::string& ciphertext,
-                                  std::wstring* plaintext){
+bool Encryptor::DecryptString16(const std::string& ciphertext,
+                                string16* plaintext) {
   std::string utf8;
   if (!DecryptString(ciphertext, &utf8))
     return false;
 
-  *plaintext = UTF8ToWide(utf8);
+  *plaintext = UTF8ToUTF16(utf8);
   return true;
 }
 
@@ -47,7 +47,7 @@ bool Encryptor::EncryptString(const std::string& plaintext,
 }
 
 bool Encryptor::DecryptString(const std::string& ciphertext,
-                              std::string* plaintext){
+                              std::string* plaintext) {
   DATA_BLOB input;
   input.pbData = const_cast<BYTE*>(
     reinterpret_cast<const BYTE*>(ciphertext.data()));
@@ -56,7 +56,7 @@ bool Encryptor::DecryptString(const std::string& ciphertext,
   DATA_BLOB output;
   BOOL result = CryptUnprotectData(&input, NULL, NULL, NULL, NULL,
                                    0, &output);
-  if(!result)
+  if (!result)
     return false;
 
   plaintext->assign(reinterpret_cast<char*>(output.pbData), output.cbData);

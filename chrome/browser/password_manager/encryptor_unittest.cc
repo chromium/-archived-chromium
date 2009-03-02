@@ -11,45 +11,45 @@
 
 namespace {
 
-TEST(EncryptorTest, WideEncryptionDecryption) {
-  std::wstring plaintext;
-  std::wstring result;
+TEST(EncryptorTest, String16EncryptionDecryption) {
+  string16 plaintext;
+  string16 result;
   std::string utf8_plaintext;
   std::string utf8_result;
   std::string ciphertext;
 
   // test borderline cases (empty strings)
-  EXPECT_TRUE(Encryptor::EncryptWideString(plaintext, &ciphertext));
-  EXPECT_TRUE(Encryptor::DecryptWideString(ciphertext, &result));
+  EXPECT_TRUE(Encryptor::EncryptString16(plaintext, &ciphertext));
+  EXPECT_TRUE(Encryptor::DecryptString16(ciphertext, &result));
   EXPECT_EQ(plaintext, result);
 
   // test a simple string
-  plaintext = L"hello";
-  EXPECT_TRUE(Encryptor::EncryptWideString(plaintext, &ciphertext));
-  EXPECT_TRUE(Encryptor::DecryptWideString(ciphertext, &result));
+  plaintext = ASCIIToUTF16("hello");
+  EXPECT_TRUE(Encryptor::EncryptString16(plaintext, &ciphertext));
+  EXPECT_TRUE(Encryptor::DecryptString16(ciphertext, &result));
   EXPECT_EQ(plaintext, result);
 
   // test unicode
-  std::wstring::value_type wchars[] = { 0xdbeb,0xdf1b,0x4e03,0x6708,0x8849,
-                                        0x661f,0x671f,0x56db,0x597c,0x4e03,
-                                        0x6708,0x56db,0x6708,0xe407,0xdbaf,
-                                        0xdeb5,0x4ec5,0x544b,0x661f,0x671f,
-                                        0x65e5,0x661f,0x671f,0x4e94,0xd8b1,
-                                        0xdce1,0x7052,0x5095,0x7c0b,0xe586, 0};
+  char16 wchars[] = { 0xdbeb, 0xdf1b, 0x4e03, 0x6708, 0x8849,
+                      0x661f, 0x671f, 0x56db, 0x597c, 0x4e03,
+                      0x6708, 0x56db, 0x6708, 0xe407, 0xdbaf,
+                      0xdeb5, 0x4ec5, 0x544b, 0x661f, 0x671f,
+                      0x65e5, 0x661f, 0x671f, 0x4e94, 0xd8b1,
+                      0xdce1, 0x7052, 0x5095, 0x7c0b, 0xe586, 0};
   plaintext = wchars;
-  utf8_plaintext = WideToUTF8(plaintext);
-  EXPECT_EQ(plaintext, UTF8ToWide(utf8_plaintext));
-  EXPECT_TRUE(Encryptor::EncryptWideString(plaintext, &ciphertext));
-  EXPECT_TRUE(Encryptor::DecryptWideString(ciphertext, &result));
+  utf8_plaintext = UTF16ToUTF8(plaintext);
+  EXPECT_EQ(plaintext, UTF8ToUTF16(utf8_plaintext));
+  EXPECT_TRUE(Encryptor::EncryptString16(plaintext, &ciphertext));
+  EXPECT_TRUE(Encryptor::DecryptString16(ciphertext, &result));
   EXPECT_EQ(plaintext, result);
   EXPECT_TRUE(Encryptor::DecryptString(ciphertext, &utf8_result));
-  EXPECT_EQ(utf8_plaintext, WideToUTF8(result));
+  EXPECT_EQ(utf8_plaintext, UTF16ToUTF8(result));
 
   EXPECT_TRUE(Encryptor::EncryptString(utf8_plaintext, &ciphertext));
-  EXPECT_TRUE(Encryptor::DecryptWideString(ciphertext, &result));
+  EXPECT_TRUE(Encryptor::DecryptString16(ciphertext, &result));
   EXPECT_EQ(plaintext, result);
   EXPECT_TRUE(Encryptor::DecryptString(ciphertext, &utf8_result));
-  EXPECT_EQ(utf8_plaintext, WideToUTF8(result));
+  EXPECT_EQ(utf8_plaintext, UTF16ToUTF8(result));
 }
 
 TEST(EncryptorTest, EncryptionDecryption) {

@@ -18,6 +18,7 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
+#include "base/string16.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -581,14 +582,14 @@ class SharedMemory;
 
 class Encryptor {
  public:
-  static bool EncryptWideString(const std::wstring& plaintext,
-                                std::string* ciphertext) {
+  static bool EncryptString16(const string16& plaintext,
+                              std::string* ciphertext) {
     NOTIMPLEMENTED();
     return false;
   }
 
-  static bool DecryptWideString(const std::string& ciphertext,
-                                std::wstring* plaintext) {
+  static bool DecryptString16(const std::string& ciphertext,
+                              string16* plaintext) {
     NOTIMPLEMENTED();
     return false;
   }

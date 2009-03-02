@@ -13,6 +13,8 @@
 
 #elif defined(WCHAR_T_IS_UTF32)
 
+#include "base/string_util.h"
+
 namespace base {
 
 int c16memcmp(const char16* s1, const char16* s2, size_t n) {
@@ -64,5 +66,9 @@ char16* c16memset(char16* s, char16 c, size_t n) {
 }
 
 }  // namespace base
+
+std::ostream& operator<<(std::ostream& out, const string16& str) {
+  return out << UTF16ToUTF8(str);
+}
 
 #endif  // WCHAR_T_IS_UTF32
