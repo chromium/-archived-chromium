@@ -947,9 +947,9 @@
         'port/bindings/v8/UndetectableHTMLCollection.idl',
 
         # V8 bindings not generated from .idl source.
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8CSSStyleDeclarationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8CSSStyleDeclarationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomBinding.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomSQLStatementCallback.cpp',
@@ -1028,21 +1028,6 @@
         'port/bindings/v8/JSXPathNSResolver.h',
         'port/bindings/v8/RGBColor.cpp',
         'port/bindings/v8/RGBColor.h',
-        'port/bindings/v8/ScheduledAction.h',
-        'port/bindings/v8/ScriptCachedFrameData.h',
-        'port/bindings/v8/ScriptCallFrame.cpp',
-        'port/bindings/v8/ScriptCallFrame.h',
-        'port/bindings/v8/ScriptCallStack.cpp',
-        'port/bindings/v8/ScriptCallStack.h',
-        'port/bindings/v8/ScriptController.cpp',
-        'port/bindings/v8/ScriptController.h',
-        'port/bindings/v8/ScriptInstance.cpp',
-        'port/bindings/v8/ScriptInstance.h',
-        'port/bindings/v8/ScriptSourceCode.h',
-        'port/bindings/v8/ScriptState.h',
-        'port/bindings/v8/ScriptString.h',
-        'port/bindings/v8/ScriptValue.cpp',
-        'port/bindings/v8/ScriptValue.h',
         'port/bindings/v8/V8CanvasPixelArrayCustom.cpp',
         'port/bindings/v8/V8MessagePortCustom.cpp',
         'port/bindings/v8/V8SVGPODTypeWrapper.h',
@@ -3732,9 +3717,6 @@
         '../third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.m',
       ],
       'sources/': [
-        # dglazkov says these aren't ready to build yet.
-        # TODO(mark): Remove this when they are ready.
-        ['exclude', '/third_party/WebKit/WebCore/bindings/v8/Script[^/]*\\.cpp$'],
 
         # Don't build bindings for storage/database.
         ['exclude', '/third_party/WebKit/WebCore/storage/[^/]*\\.idl$'],
@@ -3811,15 +3793,6 @@
         # TODO(mark): I don't know why these are excluded, either.
         # Someone (me?) should figure it out and add appropriate comments.
         '../third_party/WebKit/WebCore/css/CSSUnknownRule.idl',
-
-        # Not ready to build yet.
-        # TODO(mark): Remove when ready.
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8DocumentCustom.cpp',
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLDocumentCustom.cpp',
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeIteratorCustom.cpp',
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8TreeWalkerCustom.cpp',
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8XSLTProcessorCustom.cpp',
 
         # Don't build custom bindings for VoidCallback.
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomVoidCallback.cpp',
