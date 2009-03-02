@@ -141,7 +141,7 @@ std::wstring ElideUrl(const GURL& url,
   std::wstring url_query;
   const int pixel_width_dots_trailer = font.GetStringWidth(kEllipsis);
   if (parsed.query.is_nonempty()) {
-    url_query = L"?" + url_string.substr(parsed.query.begin);
+    url_query = std::wstring(L"?") + url_string.substr(parsed.query.begin);
     if (available_pixel_width >= (pixel_width_url_subdomain +
         pixel_width_url_domain + pixel_width_url_path -
         font.GetStringWidth(url_query))) {
@@ -163,7 +163,7 @@ std::wstring ElideUrl(const GURL& url,
     url_filename = *(url_path_elements.end()-1);
   } else if (url_path_number_of_elements > 1) {  // Path ends with a '/'.
     url_filename = url_path_elements.at(url_path_number_of_elements - 2) +
-        L"/";
+        L'/';
     url_path_number_of_elements--;
   }
 
@@ -178,12 +178,12 @@ std::wstring ElideUrl(const GURL& url,
 
   // Start eliding the path and replacing elements by "../".
   std::wstring an_ellipsis_and_a_slash(kEllipsis);
-  an_ellipsis_and_a_slash += '/';
+  an_ellipsis_and_a_slash += L'/';
   int pixel_width_url_filename = font.GetStringWidth(url_filename);
   int pixel_width_dot_dot_slash = font.GetStringWidth(an_ellipsis_and_a_slash);
   int pixel_width_slash = font.GetStringWidth(L"/");
   int pixel_width_url_path_elements[kMaxNumberOfUrlPathElementsAllowed];
-  for (int i = 0; i < url_path_number_of_elements; i++) {
+  for (int i = 0; i < url_path_number_of_elements; ++i) {
     pixel_width_url_path_elements[i] =
        font.GetStringWidth(url_path_elements.at(i));
   }
@@ -191,12 +191,12 @@ std::wstring ElideUrl(const GURL& url,
   // Check with both subdomain and domain.
   std::wstring elided_path;
   int pixel_width_elided_path;
-  for (int i = url_path_number_of_elements - 1; i >= 1; i--) {
+  for (int i = url_path_number_of_elements - 1; i >= 1; --i) {
     // Add the initial elements of the path.
     elided_path.clear();
     pixel_width_elided_path = 0;
-    for (int j = 0; j < i; j++) {
-      elided_path += url_path_elements.at(j) + L"/";
+    for (int j = 0; j < i; ++j) {
+      elided_path += url_path_elements.at(j) + L'/';
       pixel_width_elided_path += pixel_width_url_path_elements[j] +
           pixel_width_slash;
     }
@@ -234,12 +234,12 @@ std::wstring ElideUrl(const GURL& url,
       url_elided_domain = url_domain;
     }
 
-    for (int i = url_path_number_of_elements - 1; i >= 1; i--) {
+    for (int i = url_path_number_of_elements - 1; i >= 1; --i) {
       // Add the initial elements of the path.
       elided_path.clear();
       pixel_width_elided_path = 0;
-      for (int j = 0; j < i; j++) {
-        elided_path += url_path_elements.at(j) + L"/";
+      for (int j = 0; j < i; ++j) {
+        elided_path += url_path_elements.at(j) + L'/';
         pixel_width_elided_path += pixel_width_url_path_elements[j] +
             pixel_width_slash;
       }
@@ -278,12 +278,12 @@ std::wstring ElideFilename(const std::wstring& filename,
                            const ChromeFont& font,
                            int available_pixel_width) {
   int full_width = font.GetStringWidth(filename);
-  if (full_width <= available_pixel_width) 
+  if (full_width <= available_pixel_width)
     return filename;
 
-  std::wstring extension = 
+  std::wstring extension =
       file_util::GetFileExtensionFromPath(filename);
-  std::wstring rootname = 
+  std::wstring rootname =
       file_util::GetFilenameWithoutExtensionFromPath(filename);
 
   if (rootname.empty() || extension.empty())
@@ -299,7 +299,7 @@ std::wstring ElideFilename(const std::wstring& filename,
     return rootname + extension;
 
   int available_root_width = available_pixel_width - ext_width;
-  return gfx::ElideText(rootname, font, available_root_width) + extension;
+  return ElideText(rootname, font, available_root_width) + extension;
 }
 
 // This function adds an ellipsis at the end of the text if the text
@@ -415,7 +415,7 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
   // separators), minus the username start we computed above. These are ASCII.
   int pre_end = parsed.CountCharactersBefore(
       url_parse::Parsed::USERNAME, true);
-  for (int i = 0; i < pre_end; i++)
+  for (int i = 0; i < pre_end; ++i)
     url_string.push_back(spec[i]);
   if (prefix_end)
     *prefix_end = static_cast<size_t>(pre_end);
@@ -428,7 +428,7 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
   // Port.
   if (parsed.port.is_nonempty()) {
     url_string.push_back(':');
-    for (int i = parsed.port.begin; i < parsed.port.end(); i++)
+    for (int i = parsed.port.begin; i < parsed.port.end(); ++i)
       url_string.push_back(spec[i]);
   }
 
@@ -449,14 +449,15 @@ std::wstring GetCleanStringFromUrl(const GURL& url,
   return url_string;
 }
 
-// TODO(port): SortedDisplayURL should be ported to posix.
-#if defined(OS_WIN)
 SortedDisplayURL::SortedDisplayURL(const GURL& url,
                                    const std::wstring& languages) {
-  AppendFormattedHost(url, languages, &sort_host_, NULL);
-  std::wstring host_minus_www = net::StripWWW(sort_host_);
+  std::wstring host;
+  AppendFormattedHost(url, languages, &host, NULL);
+  sort_host_ = WideToUTF16Hack(host);
+  string16 host_minus_www = WideToUTF16Hack(net::StripWWW(host));
   url_parse::Parsed parsed;
-  display_url_ = GetCleanStringFromUrl(url, languages, &parsed, &prefix_end_);
+  display_url_ = WideToUTF16Hack(GetCleanStringFromUrl(url, languages,
+      &parsed, &prefix_end_));
   if (sort_host_.length() > host_minus_www.length()) {
     prefix_end_ += sort_host_.length() - host_minus_www.length();
     sort_host_.swap(host_minus_www);
@@ -478,8 +479,8 @@ int SortedDisplayURL::Compare(const SortedDisplayURL& other,
     return host_compare_result;
 
   // Hosts match, compare on the portion of the url after the host.
-  std::wstring path = this->AfterHost();
-  std::wstring o_path = other.AfterHost();
+  string16 path = this->AfterHost();
+  string16 o_path = other.AfterHost();
   compare_status = U_ZERO_ERROR;
   UCollationResult path_compare_result = collator->compare(
       static_cast<const UChar*>(path.c_str()),
@@ -504,14 +505,13 @@ int SortedDisplayURL::Compare(const SortedDisplayURL& other,
   return display_url_compare_result;
 }
 
-std::wstring SortedDisplayURL::AfterHost() const {
+string16 SortedDisplayURL::AfterHost() const {
   size_t slash_index = display_url_.find(sort_host_, prefix_end_);
-  if (slash_index == std::wstring::npos) {
+  if (slash_index == string16::npos) {
     NOTREACHED();
-    return std::wstring();
+    return string16();
   }
   return display_url_.substr(slash_index + sort_host_.length());
 }
-#endif  // defined(OS_WIN)
 
 } // namespace gfx.

@@ -1738,7 +1738,6 @@
             'browser/window_sizer_unittest.cc',
             'common/gfx/emf_unittest.cc',
             'common/gfx/icon_util_unittest.cc',
-            'common/gfx/text_elider_unittest.cc',
             'common/net/url_util_unittest.cc',
             'common/chrome_plugin_unittest.cc',
             'common/os_exchange_data_unittest.cc',

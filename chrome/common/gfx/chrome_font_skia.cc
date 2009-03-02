@@ -131,7 +131,14 @@ int ChromeFont::GetStringWidth(const std::wstring& text) const {
   paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
   SkScalar width = paint.measureText(utf8.data(), utf8.size());
 
-  return static_cast<int>(ceilf(SkScalarToFloat(width)));
+  int breadth = static_cast<int>(ceilf(SkScalarToFloat(width)));
+  // Check for overflow. We should probably be returning an unsigned
+  // int, but in practice we'll never have a screen massive enough
+  // to show that much text anyway.
+  if (breadth < 0)
+    return INT_MAX;
+
+  return breadth;
 }
 
 int ChromeFont::GetExpectedTextWidth(int length) const {

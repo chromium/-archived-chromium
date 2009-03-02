@@ -9,6 +9,7 @@
 #include <unicode/uchar.h>
 
 #include "base/basictypes.h"
+#include "base/string16.h"
 #include "chrome/common/gfx/chrome_font.h"
 
 class GURL;
@@ -17,6 +18,7 @@ namespace url_parse {
 struct Parsed;
 }
 
+// TODO(port): this file should deal in string16s rather than wstrings.
 namespace gfx {
 
 // A function to get URL string from a GURL that will be suitable for display
@@ -75,20 +77,20 @@ class SortedDisplayURL {
   int Compare(const SortedDisplayURL& other, Collator* collator) const;
 
   // Returns the display string for the URL.
-  const std::wstring& display_url() const { return display_url_; }
+  const string16& display_url() const { return display_url_; }
 
  private:
   // Returns everything after the host. This is used by Compare if the hosts
   // match.
-  std::wstring AfterHost() const;
+  string16 AfterHost() const;
 
   // Host name minus 'www.'. Used by Compare.
-  std::wstring sort_host_;
+  string16 sort_host_;
 
   // End of the prefix (spec and separator) in display_url_.
   size_t prefix_end_;
 
-  std::wstring display_url_;
+  string16 display_url_;
 };
 
 } // namespace gfx.

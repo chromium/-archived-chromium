@@ -21,7 +21,8 @@ ChromeFont::ChromeFont() {
     gint size = pango_font_description_get_size(desc);
     const char* name = pango_font_description_get_family(desc);
 
-    default_font_ = new ChromeFont(CreateFont(UTF8ToWide(name), size));
+    default_font_ = new ChromeFont(CreateFont(UTF8ToWide(name),
+                                   size / PANGO_SCALE));
 
     gtk_widget_destroy(widget);
 
