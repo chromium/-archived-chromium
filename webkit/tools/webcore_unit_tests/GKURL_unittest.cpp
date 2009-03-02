@@ -83,9 +83,9 @@ TEST(GKURL, SameGetters) {
     const char* ref;
     bool has_ref;
   } cases[] = {
-    {"http://www.google.com/foo/blah?bar=baz#ref", "http", "www.google.com", 0, "", NULL, "blah", "?bar=baz", "ref", true},
+    {"http://www.google.com/foo/blah?bar=baz#ref", "http", "www.google.com", 0, "", NULL, "blah", "bar=baz", "ref", true},
     {"http://foo.com:1234/foo/bar/", "http", "foo.com", 1234, "", NULL, "bar", "", NULL, false},
-    {"http://www.google.com?#", "http", "www.google.com", 0, "", NULL, NULL, "?", "", true},
+    {"http://www.google.com?#", "http", "www.google.com", 0, "", NULL, NULL, "", "", true},
     {"https://me:pass@google.com:23#foo", "https", "google.com", 23, "me", "pass", NULL, "", "foo", true},
     {"javascript:hello!//world", "javascript", "", 0, "", NULL, "world", "", NULL, false},
   };
@@ -141,7 +141,7 @@ TEST(GKURL, DifferentGetters) {
     {"http://\xe4\xbd\xa0\xe5\xa5\xbd\xe4\xbd\xa0\xe5\xa5\xbd/", "http", "xn--6qqa088eba", 0, "", NULL, "/",   NULL,     "",       NULL},
 
     // WebKit %-escapes non-ASCII characters in reference, but we don't.
-    {"http://www.google.com/foo/blah?bar=baz#\xce\xb1\xce\xb2", "http", "www.google.com", 0, "", NULL, "/foo/blah/", "blah", "?bar=baz", "\xce\xb1\xce\xb2"}
+    {"http://www.google.com/foo/blah?bar=baz#\xce\xb1\xce\xb2", "http", "www.google.com", 0, "", NULL, "/foo/blah/", "blah", "bar=baz", "\xce\xb1\xce\xb2"}
   };
 
   for (size_t i = 0; i < arraysize(cases); i++) {
