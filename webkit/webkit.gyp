@@ -1026,6 +1026,8 @@
         'port/bindings/v8/JSDOMBinding.h',
         'port/bindings/v8/JSXPathNSResolver.cpp',
         'port/bindings/v8/JSXPathNSResolver.h',
+        'port/bindings/v8/ScriptController.cpp',
+        'port/bindings/v8/ScriptController.h',
         'port/bindings/v8/RGBColor.cpp',
         'port/bindings/v8/RGBColor.h',
         'port/bindings/v8/V8CanvasPixelArrayCustom.cpp',
