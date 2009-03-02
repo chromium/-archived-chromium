@@ -12,9 +12,6 @@
 // TabContents typed created by TestTabContentsFactory.
 class TestTabContents : public TabContents {
  public:
-  BEGIN_MSG_MAP(TestTabContents)
-  END_MSG_MAP()
-
   explicit TestTabContents(TabContentsType type);
 
   // Sets the site instance used by *ALL* TestTabContents.
