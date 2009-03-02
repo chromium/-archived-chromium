@@ -419,6 +419,10 @@
 				Name="proxy"
 				>
 				<File
+					RelativePath="..\proxy\proxy_list_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\proxy\proxy_script_fetcher_unittest.cc"
 					>
 				</File>

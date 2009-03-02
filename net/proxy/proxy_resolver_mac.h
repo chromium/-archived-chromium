@@ -5,7 +5,8 @@
 #ifndef NET_PROXY_PROXY_RESOLVER_MAC_H_
 #define NET_PROXY_PROXY_RESOLVER_MAC_H_
 
-#include "net/proxy/proxy_service.h"
+#include "net/proxy/proxy_config_service.h"
+#include "net/proxy/proxy_resolver.h"
 
 namespace net {
 

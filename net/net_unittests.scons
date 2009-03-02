@@ -110,6 +110,7 @@ input_files = ChromeFileList([
     'url_request/url_request_unittest.h',
     ]),
    MSVSFilter('proxy', [
+    'proxy/proxy_list_unittest.cc',
     'proxy/proxy_script_fetcher_unittest.cc',
     'proxy/proxy_server_unittest.cc',
     'proxy/proxy_service_unittest.cc',

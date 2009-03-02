@@ -5,7 +5,7 @@
 #ifndef NET_PROXY_PROXY_CONFIG_SERVICE_WIN_H_
 #define NET_PROXY_PROXY_CONFIG_SERVICE_WIN_H_
 
-#include "net/proxy/proxy_service.h"
+#include "net/proxy/proxy_config_service.h"
 
 namespace net {
 

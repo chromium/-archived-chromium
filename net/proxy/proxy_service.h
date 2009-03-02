@@ -6,94 +6,23 @@
 #define NET_PROXY_PROXY_SERVICE_H_
 
 #include <deque>
-#include <map>
 #include <string>
-#include <vector>
 
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "base/string_util.h"
 #include "base/thread.h"
-#include "base/time.h"
 #include "base/waitable_event.h"
-#include "googleurl/src/gurl.h"
 #include "net/base/completion_callback.h"
-#include "net/proxy/proxy_script_fetcher.h"
 #include "net/proxy/proxy_server.h"
+#include "net/proxy/proxy_info.h"
 
 class GURL;
 
 namespace net {
 
+class ProxyScriptFetcher;
 class ProxyConfigService;
-class ProxyInfo;
 class ProxyResolver;
-
-// Proxy configuration used to by the ProxyService.
-class ProxyConfig {
- public:
-  typedef int ID;
-
-  // Indicates an invalid proxy config.
-  enum { INVALID_ID = 0 };
-
-  ProxyConfig();
-  // Default copy-constructor and assignment operator are OK!
-
-  // Used to numerically identify this configuration.
-  ID id() const { return id_; }
-
-  // True if the proxy configuration should be auto-detected.
-  bool auto_detect;
-
-  // If non-empty, indicates the URL of the proxy auto-config file to use.
-  GURL pac_url;
-
-  // If non-empty, indicates the proxy server to use, given by:
-  //
-  //   proxy-uri = [<proxy-scheme>://]<proxy-host>[:"<proxy-port>]
-  //
-  // If the proxy to use depends on the scheme of the URL, can instead specify
-  // a semicolon separated list of:
-  //
-  //   <url-scheme>"="<proxy-uri>
-  //
-  // For example:
-  //   "http=foopy:80;ftp=foopy2"  -- use HTTP proxy "foopy:80" for http URLs,
-  //                                  and HTTP proxy "foopy2:80" for ftp URLs.
-  //   "foopy:80"                  -- use HTTP proxy "foopy:80" for all URLs.
-  //   "socks4://foopy"            -- use SOCKS v4 proxy "foopy:1080" for all
-  //                                  URLs.
-  std::string proxy_rules;
-
-  // Indicates a list of hosts that should bypass any proxy configuration.  For
-  // these hosts, a direct connection should always be used.
-  std::vector<std::string> proxy_bypass;
-
-  // Indicates whether local names (no dots) bypass proxies.
-  bool proxy_bypass_local_names;
-
-  // Returns true if the given config is equivalent to this config.
-  bool Equals(const ProxyConfig& other) const;
-
- private:
-  static int last_id_;
-  int id_;
-};
-
-// Contains the information about when to retry a proxy server.
-struct ProxyRetryInfo {
-  // We should not retry until this time.
-  base::TimeTicks bad_until;
-
-  // This is the current delay. If the proxy is still bad, we need to increase
-  // this delay.
-  base::TimeDelta current_delay;
-};
-
-// Map of proxy servers with the associated RetryInfo structures.
-// The key is a proxy URI string [<scheme>"://"]<host>":"<port>.
-typedef std::map<std::string, ProxyRetryInfo> ProxyRetryInfoMap;
 
 // This class can be used to resolve the proxy server to use when loading a
 // HTTP(S) URL.  It uses the given ProxyResolver to handle the actual proxy
@@ -151,6 +80,11 @@ class ProxyService {
   // Call this method with a non-null |pac_request| to cancel the PAC request.
   void CancelPacRequest(PacRequest* pac_request);
 
+  // Set the ProxyScriptFetcher dependency. This is needed if the ProxyResolver
+  // is of type ProxyResolverWithoutFetch. ProxyService takes ownership of
+  // |proxy_script_fetcher|.
+  void SetProxyScriptFetcher(ProxyScriptFetcher* proxy_script_fetcher);
+
   // Create a proxy service using the specified settings. If |pi| is NULL then
   // the system's default proxy settings will be used (on Windows this will
   // use IE's settings).
@@ -159,13 +93,6 @@ class ProxyService {
   // Create a proxy service that always fails to fetch the proxy configuration,
   // so it falls back to direct connect.
   static ProxyService* CreateNull();
-
-  // Set the ProxyScriptFetcher dependency. This is needed if the ProxyResolver
-  // is of type ProxyResolverWithoutFetch. ProxyService takes ownership of
-  // |proxy_script_fetcher|.
-  void SetProxyScriptFetcher(ProxyScriptFetcher* proxy_script_fetcher) {
-    proxy_script_fetcher_.reset(proxy_script_fetcher);
-  }
 
  private:
   friend class PacRequest;
@@ -270,155 +197,6 @@ class ProxyService {
   std::string in_progress_fetch_bytes_;
 
   DISALLOW_COPY_AND_ASSIGN(ProxyService);
-};
-
-// This class is used to hold a list of proxies returned by GetProxyForUrl or
-// manually configured. It handles proxy fallback if multiple servers are
-// specified.
-class ProxyList {
- public:
-  // Initializes the proxy list to a string containing one or more proxy servers
-  // delimited by a semicolon.
-  void Set(const std::string& proxy_uri_list);
-
-  // Remove all proxies known to be bad from the proxy list.
-  void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info);
-
-  // Delete any entry which doesn't have one of the specified proxy schemes.
-  // |scheme_bit_field| is a bunch of ProxyServer::Scheme bitwise ORed together.
-  void RemoveProxiesWithoutScheme(int scheme_bit_field);
-
-  // Returns the first valid proxy server in the list.
-  ProxyServer Get() const;
-
-  // Set the list by parsing the pac result |pac_string|.
-  // Some examples for |pac_string|:
-  //   "DIRECT"
-  //   "PROXY foopy1"
-  //   "PROXY foopy1; SOCKS4 foopy2:1188"
-  void SetFromPacString(const std::string& pac_string);
-
-  // Returns a PAC-style semicolon-separated list of valid proxy servers.
-  // For example: "PROXY xxx.xxx.xxx.xxx:xx; SOCKS yyy.yyy.yyy:yy".
-  std::string ToPacString() const;
-
-  // Marks the current proxy server as bad and deletes it from the list.  The
-  // list of known bad proxies is given by proxy_retry_info.  Returns true if
-  // there is another server available in the list.
-  bool Fallback(ProxyRetryInfoMap* proxy_retry_info);
-
- private:
-  // List of proxies.
-  std::vector<ProxyServer> proxies_;
-};
-
-// This object holds proxy information returned by ResolveProxy.
-class ProxyInfo {
- public:
-  ProxyInfo();
-  // Default copy-constructor and assignment operator are OK!
-
-  // Use the same proxy server as the given |proxy_info|.
-  void Use(const ProxyInfo& proxy_info);
-
-  // Use a direct connection.
-  void UseDirect();
-
-  // Use a specific proxy server, of the form:
-  //   proxy-uri = [<scheme> "://"] <hostname> [":" <port>]
-  // This may optionally be a semi-colon delimited list of <proxy-uri>.
-  // It is OK to have LWS between entries.
-  void UseNamedProxy(const std::string& proxy_uri_list);
-
-  // Parse from the given PAC result.
-  void UsePacString(const std::string& pac_string) {
-    proxy_list_.SetFromPacString(pac_string);
-  }
-
-  // Returns true if this proxy info specifies a direct connection.
-  bool is_direct() const { return proxy_list_.Get().is_direct(); }
-
-  // Returns the first valid proxy server.
-  ProxyServer proxy_server() const { return proxy_list_.Get(); }
-
-  // See description in ProxyList::ToPacString().
-  std::string ToPacString();
-
-  // Marks the current proxy as bad. Returns true if there is another proxy
-  // available to try in proxy list_.
-  bool Fallback(ProxyRetryInfoMap* proxy_retry_info) {
-    return proxy_list_.Fallback(proxy_retry_info);
-  }
-
-  // Remove all proxies known to be bad from the proxy list.
-  void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
-    proxy_list_.RemoveBadProxies(proxy_retry_info);
-  }
-
-  // Delete any entry which doesn't have one of the specified proxy schemes.
-  void RemoveProxiesWithoutScheme(int scheme_bit_field) {
-    proxy_list_.RemoveProxiesWithoutScheme(scheme_bit_field);
-  }
-
- private:
-  friend class ProxyService;
-
-  // If proxy_list_ is set to empty, then a "direct" connection is indicated.
-  ProxyList proxy_list_;
-
-  // This value identifies the proxy config used to initialize this object.
-  ProxyConfig::ID config_id_;
-
-  // This flag is false when the proxy configuration was known to be bad when
-  // this proxy info was initialized.  In such cases, we know that if this
-  // proxy info does not yield a connection that we might want to reconsider
-  // the proxy config given by config_id_.
-  bool config_was_tried_;
-};
-
-// Synchronously fetch the system's proxy configuration settings. Called on
-// the IO Thread.
-class ProxyConfigService {
- public:
-  virtual ~ProxyConfigService() {}
-
-  // Get the proxy configuration.  Returns OK if successful or an error code if
-  // otherwise.  |config| should be in its initial state when this method is
-  // called.
-  virtual int GetProxyConfig(ProxyConfig* config) = 0;
-};
-
-// Synchronously resolve the proxy for a URL, using a PAC script. Called on the
-// PAC Thread.
-class ProxyResolver {
- public:
-
-  // If a subclass sets |does_fetch| to false, then the owning ProxyResolver
-  // will download PAC scripts on our behalf, and notify changes with
-  // SetPacScript(). Otherwise the subclass is expected to fetch the
-  // PAC script internally, and SetPacScript() will go unused.
-  ProxyResolver(bool does_fetch) : does_fetch_(does_fetch) {}
-
-  virtual ~ProxyResolver() {}
-
-  // Query the proxy auto-config file (specified by |pac_url|) for the proxy to
-  // use to load the given |query_url|.  Returns OK if successful or an error
-  // code otherwise.
-  virtual int GetProxyForURL(const GURL& query_url,
-                             const GURL& pac_url,
-                             ProxyInfo* results) = 0;
-
-  // Called whenever the PAC script has changed, with the contents of the
-  // PAC script. |bytes| may be empty string if there was a fetch error.
-  virtual void SetPacScript(const std::string& bytes) {
-    // Must override SetPacScript() if |does_fetch_ = true|.
-    NOTREACHED();
-  }
-
-  bool does_fetch() const { return does_fetch_; }
-
- protected:
-  bool does_fetch_;
 };
 
 // Wrapper for invoking methods on a ProxyService synchronously.

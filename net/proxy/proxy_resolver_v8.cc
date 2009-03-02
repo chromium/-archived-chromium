@@ -5,10 +5,13 @@
 #include "net/proxy/proxy_resolver_v8.h"
 
 #include "base/logging.h"
+#include "base/string_util.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/address_list.h"
 #include "net/base/host_resolver.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
+#include "net/proxy/proxy_info.h"
 #include "net/proxy/proxy_resolver_script.h"
 #include "v8/include/v8.h"
 

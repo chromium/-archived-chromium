@@ -1010,6 +1010,18 @@
 			Name="proxy"
 			>
 			<File
+				RelativePath="..\proxy\proxy_config.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_config_service.h"
+				>
+			</File>
+			<File
 				RelativePath="..\proxy\proxy_config_service_fixed.h"
 				>
 			</File>
@@ -1019,6 +1031,26 @@
 			</File>
 			<File
 				RelativePath="..\proxy\proxy_config_service_win.h"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_info.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_info.h"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_list.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_list.h"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_resolver.h"
 				>
 			</File>
 			<File
@@ -1039,6 +1071,10 @@
 			</File>
 			<File
 				RelativePath="..\proxy\proxy_resolver_winhttp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\proxy\proxy_retry_info.h"
 				>
 			</File>
 			<File

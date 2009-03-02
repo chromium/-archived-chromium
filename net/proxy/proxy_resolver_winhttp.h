@@ -5,9 +5,9 @@
 #ifndef NET_PROXY_PROXY_RESOLVER_WINHTTP_H_
 #define NET_PROXY_PROXY_RESOLVER_WINHTTP_H_
 
-#include "net/proxy/proxy_service.h"
+#include "net/proxy/proxy_resolver.h"
 
-typedef LPVOID HINTERNET;  // From winhttp.h
+typedef void* HINTERNET;  // From winhttp.h
 
 namespace net {
 

@@ -7,8 +7,11 @@
 #include <windows.h>
 #include <winhttp.h>
 
+#include "base/logging.h"
 #include "base/string_tokenizer.h"
+#include "base/string_util.h"
 #include "net/base/net_errors.h"
+#include "net/proxy/proxy_config.h"
 
 #pragma comment(lib, "winhttp.lib")
 

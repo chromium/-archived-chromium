@@ -12,6 +12,9 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "net/base/net_errors.h"
+#include "net/proxy/proxy_config.h"
+#include "net/proxy/proxy_info.h"
+#include "net/proxy/proxy_server.h"
 
 namespace {
 

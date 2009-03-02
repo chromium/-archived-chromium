@@ -3,11 +3,12 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
-#include "base/logging.h"
+#include "base/string_util.h"
 #include "base/path_service.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
-#include "net/base/net_util.h"
 #include "net/proxy/proxy_resolver_v8.h"
+#include "net/proxy/proxy_info.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

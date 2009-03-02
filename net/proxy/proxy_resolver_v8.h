@@ -8,7 +8,7 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
-#include "net/proxy/proxy_service.h"
+#include "net/proxy/proxy_resolver.h"
 
 namespace net {
 
