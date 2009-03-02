@@ -10,6 +10,12 @@
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#if defined(OS_WIN)
+#include <ws2tcpip.h>
+#else
+#include <netdb.h>
+#endif
+
 namespace {
 
 class NetUtilTest : public testing::Test {
@@ -56,6 +62,52 @@ struct SuggestedFilenameCase {
   const wchar_t* default_filename;
   const wchar_t* expected_filename;
 };
+
+// Returns an addrinfo for the given 32-bit address (IPv4.)
+// The result lives in static storage, so don't delete it.
+const struct addrinfo* GetIPv4Address(const uint8 bytes[4]) {
+  static struct addrinfo static_ai;
+  static struct sockaddr_in static_addr4;
+
+  struct addrinfo* ai = &static_ai;
+  ai->ai_socktype = SOCK_STREAM;
+  memset(ai, 0, sizeof(static_ai));
+
+  ai->ai_family = AF_INET;
+  ai->ai_addrlen = sizeof(static_addr4);
+
+  struct sockaddr_in* addr4 = &static_addr4;
+  memset(addr4, 0, sizeof(static_addr4));
+  addr4->sin_port = htons(80);
+  addr4->sin_family = ai->ai_family;
+  memcpy(&addr4->sin_addr, bytes, sizeof(bytes));
+
+  ai->ai_addr = (sockaddr*)addr4;
+  return ai;
+}
+
+// Returns a addrinfo for the given 128-bit address (IPv6.)
+// The result lives in static storage, so don't delete it.
+const struct addrinfo* GetIPv6Address(const uint8 bytes[16]) {
+  static struct addrinfo static_ai;
+  static struct sockaddr_in6 static_addr6;
+
+  struct addrinfo* ai = &static_ai;
+  ai->ai_socktype = SOCK_STREAM;
+  memset(ai, 0, sizeof(static_ai));
+
+  ai->ai_family = AF_INET6;
+  ai->ai_addrlen = sizeof(static_addr6);
+
+  struct sockaddr_in6* addr6 = &static_addr6;
+  memset(addr6, 0, sizeof(static_addr6));
+  addr6->sin6_port = htons(80);
+  addr6->sin6_family = ai->ai_family;
+  memcpy(&addr6->sin6_addr, bytes, sizeof(bytes));
+
+  ai->ai_addr = (sockaddr*)addr6;
+  return ai;
+}
 
 }  // anonymous namespace
 
@@ -736,6 +788,8 @@ TEST(NetUtilTest, GetDirectoryListingEntry) {
   }
 }
 
+#endif
+
 TEST(NetUtilTest, GetHostAndPort) {
   const struct {
     const char* input;
@@ -781,4 +835,37 @@ TEST(NetUtilTest, GetHostAndPort) {
   }
 }
 
-#endif
+TEST(NetUtilTest, NetAddressToString_IPv4) {
+  const struct {
+    uint8 addr[4];
+    const char* result;
+  } tests[] = {
+    {{0, 0, 0, 0}, "0.0.0.0"},
+    {{127, 0, 0, 1}, "127.0.0.1"},
+    {{192, 168, 0, 1}, "192.168.0.1"},
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    const addrinfo* ai = GetIPv4Address(tests[i].addr);
+    std::string result = net::NetAddressToString(ai);
+    EXPECT_EQ(std::string(tests[i].result), result);
+  }
+}
+
+// TODO(eroman): On windows this is failing with WSAEINVAL (10022).
+TEST(NetUtilTest, DISABLED_NetAddressToString_IPv6) {
+  const struct {
+    uint8 addr[16];
+    const char* result;
+  } tests[] = {
+    {{0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10, 0xFE, 0xDC, 0xBA,
+      0x98, 0x76, 0x54, 0x32, 0x10},
+     "fedc:ba98:7654:3210:fedc:ba98:7654:3210"},
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    const addrinfo* ai = GetIPv6Address(tests[i].addr);
+    std::string result = net::NetAddressToString(ai);
+    EXPECT_EQ(std::string(tests[i].result), result);
+  }
+}

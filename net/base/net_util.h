@@ -17,6 +17,7 @@
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_parse.h"
 
+struct addrinfo;
 class FilePath;
 class GURL;
 
@@ -52,6 +53,10 @@ bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
 bool GetHostAndPort(const std::string& host_and_port,
                     std::string* host,
                     int* port);
+
+// Returns the string representation of an address, like "192.168.0.1".
+// Returns empty string on failure.
+std::string NetAddressToString(const struct addrinfo* net_address);
 
 // Return the value of the HTTP response header with name 'name'.  'headers'
 // should be in the format that URLRequest::GetResponseHeaders() returns.

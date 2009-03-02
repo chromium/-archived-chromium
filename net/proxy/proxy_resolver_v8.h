@@ -32,7 +32,26 @@ namespace net {
 // and does not use locking since it expects to be alone.
 class ProxyResolverV8 : public ProxyResolver {
  public:
+  // Constructs a ProxyResolverV8 with default javascript bindings.
+  //
+  // The default javascript bindings will:
+  //   - Send script error messages to LOG(INFO)
+  //   - Send script alert()s to LOG(INFO)
+  //   - Use the default host mapper to service dnsResolve(), synchronously
+  //     on the V8 thread.
+  //
+  // For clients that need more control (for example, sending the script output
+  // to a UI widget), use the ProxyResolverV8(JSBindings*) and specify your
+  // own bindings.
   ProxyResolverV8();
+
+  class JSBindings;
+
+  // Constructs a ProxyResolverV8 with custom bindings. ProxyResolverV8 takes
+  // ownership of |custom_js_bindings| and deletes it when ProxyResolverV8
+  // is destroyed.
+  explicit ProxyResolverV8(JSBindings* custom_js_bindings);
+
   ~ProxyResolverV8();
 
   // ProxyResolver implementation:
@@ -41,6 +60,8 @@ class ProxyResolverV8 : public ProxyResolver {
                              ProxyInfo* results);
   virtual void SetPacScript(const std::string& bytes);
 
+  JSBindings* js_bindings() const { return js_bindings_.get(); }
+
  private:
   // Context holds the Javascript state for the most recently loaded PAC
   // script. It corresponds with the data from the last call to
@@ -48,7 +69,28 @@ class ProxyResolverV8 : public ProxyResolver {
   class Context;
   scoped_ptr<Context> context_;
 
+  scoped_ptr<JSBindings> js_bindings_;
+
   DISALLOW_COPY_AND_ASSIGN(ProxyResolverV8);
+};
+
+// Interface for the javascript bindings.
+class ProxyResolverV8::JSBindings {
+ public:
+  virtual ~JSBindings() {}
+
+  // Handler for "alert(message)"
+  virtual void Alert(const std::string& message) = 0;
+
+  // Handler for "myIpAddress()". Returns empty string on failure. 
+  virtual std::string MyIpAddress() = 0;      
+
+  // Handler for "dnsResolve(host)". Returns empty string on failure.
+  virtual std::string DnsResolve(const std::string& host) = 0;
+
+  // Handler for when an error is encountered. |line_number| may be -1
+  // if a line number is not applicable to this error.
+  virtual void OnError(int line_number, const std::string& error) = 0;
 };
 
 }  // namespace net

@@ -15,7 +15,10 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #include <winsock2.h>
+#include <ws2tcpip.h>
+#include <wspiapi.h>  // Needed for Win2k compat.
 #elif defined(OS_POSIX)
+#include <netdb.h>
 #include <sys/socket.h>
 #include <fcntl.h>
 #endif
@@ -40,6 +43,9 @@
 #include "googleurl/src/url_parse.h"
 #include "net/base/escape.h"
 #include "net/base/net_module.h"
+#if defined(OS_WIN)
+#include "net/base/winsock_init.h"
+#endif
 #include "net/base/base64.h"
 #include "unicode/datefmt.h"
 
@@ -1010,6 +1016,25 @@ bool GetHostAndPort(const std::string& host_and_port,
                     std::string* host,
                     int* port) {
   return GetHostAndPort(host_and_port.begin(), host_and_port.end(), host, port);
+}
+
+std::string NetAddressToString(const struct addrinfo* net_address) {
+#if defined(OS_WIN)
+  EnsureWinsockInit();
+#endif
+
+  // This buffer is large enough to fit the biggest IPv6 string.
+  char buffer[INET6_ADDRSTRLEN];
+
+  int result = getnameinfo(net_address->ai_addr,
+      net_address->ai_addrlen, buffer, sizeof(buffer), NULL, 0, NI_NUMERICHOST);
+
+  if (result != 0) {
+    DLOG(INFO) << "getnameinfo() failed with " << result;
+    return std::string();
+  }
+
+  return std::string(buffer);
 }
 
 }  // namespace net

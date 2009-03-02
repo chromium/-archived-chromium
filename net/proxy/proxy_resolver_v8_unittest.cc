@@ -12,27 +12,80 @@
 
 namespace {
 
-// Initialize |resolver| with the PAC script data at |filename|.
-void InitWithScriptFromDisk(net::ProxyResolver* resolver,
-                            const char* filename) {
-  FilePath path;
-  PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  path = path.AppendASCII("net");
-  path = path.AppendASCII("data");
-  path = path.AppendASCII("proxy_resolver_v8_unittest");
-  path = path.AppendASCII(filename);
+// Javascript bindings for ProxyResolverV8, which returns mock values.
+// Each time one of the bindings is called into, we push the input into a
+// list, for later verification.
+class MockJSBindings : public net::ProxyResolverV8::JSBindings {
+ public:
+  MockJSBindings() : my_ip_address_count(0) {}
 
-  // Try to read the file from disk.
-  std::string file_contents;
-  bool ok = file_util::ReadFileToString(path, &file_contents);
+  virtual void Alert(const std::string& message) {
+    LOG(INFO) << "PAC-alert: " << message;  // Helpful when debugging.
+    alerts.push_back(message);
+  }
 
-  // If we can't load the file from disk, something is misconfigured.
-  LOG_IF(ERROR, !ok) << "Failed to read file: " << path.value();
-  ASSERT_TRUE(ok);
+  virtual std::string MyIpAddress() {
+    my_ip_address_count++;
+    return my_ip_address_result;
+  }
 
-  // Load the PAC script into the ProxyResolver.
-  resolver->SetPacScript(file_contents);
-}
+  virtual std::string DnsResolve(const std::string& host) {
+    dns_resolves.push_back(host);
+    return dns_resolve_result;
+  }
+
+  virtual void OnError(int line_number, const std::string& message) {
+    // Helpful when debugging.
+    LOG(INFO) << "PAC-error: [" << line_number << "] " << message;
+
+    errors.push_back(message);
+    errors_line_number.push_back(line_number);
+  }
+
+  // Mock values to return.
+  std::string my_ip_address_result;
+  std::string dns_resolve_result;
+
+  // Inputs we got called with.
+  std::vector<std::string> alerts;
+  std::vector<std::string> errors;
+  std::vector<int> errors_line_number;
+  std::vector<std::string> dns_resolves;
+  int my_ip_address_count;
+};
+
+// This is the same as ProxyResolverV8, but it uses mock bindings in place of
+// the default bindings, and has a helper function to load PAC scripts from
+// disk.
+class ProxyResolverV8WithMockBindings : public net::ProxyResolverV8 {
+ public:
+  ProxyResolverV8WithMockBindings() : ProxyResolverV8(new MockJSBindings()) {}
+
+  MockJSBindings* mock_js_bindings() const {
+    return reinterpret_cast<MockJSBindings*>(js_bindings());
+  }
+
+  // Initialize with the PAC script data at |filename|.
+  void SetPacScriptFromDisk(const char* filename) {
+    FilePath path;
+    PathService::Get(base::DIR_SOURCE_ROOT, &path);
+    path = path.AppendASCII("net");
+    path = path.AppendASCII("data");
+    path = path.AppendASCII("proxy_resolver_v8_unittest");
+    path = path.AppendASCII(filename);
+
+    // Try to read the file from disk.
+    std::string file_contents;
+    bool ok = file_util::ReadFileToString(path, &file_contents);
+
+    // If we can't load the file from disk, something is misconfigured.
+    LOG_IF(ERROR, !ok) << "Failed to read file: " << path.value();
+    ASSERT_TRUE(ok);
+
+    // Load the PAC script into the ProxyResolver.
+    SetPacScript(file_contents);
+  }
+};
 
 // Doesn't really matter what these values are for many of the tests.
 const GURL kQueryUrl("http://www.google.com");
@@ -41,30 +94,36 @@ const GURL kPacUrl;
 }
 
 TEST(ProxyResolverV8Test, Direct) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "direct.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("direct.js");
 
   net::ProxyInfo proxy_info;
   int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
 
   EXPECT_EQ(net::OK, result);
   EXPECT_TRUE(proxy_info.is_direct());
+
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->alerts.size());
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->errors.size());
 }
 
 TEST(ProxyResolverV8Test, ReturnEmptyString) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "return_empty_string.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("return_empty_string.js");
 
   net::ProxyInfo proxy_info;
   int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
 
   EXPECT_EQ(net::OK, result);
   EXPECT_TRUE(proxy_info.is_direct());
+
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->alerts.size());
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->errors.size());
 }
 
 TEST(ProxyResolverV8Test, Basic) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "passthrough.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("passthrough.js");
 
   // The "FindProxyForURL" of this PAC script simply concatenates all of the
   // arguments into a pseudo-host. The purpose of this test is to verify that
@@ -86,6 +145,9 @@ TEST(ProxyResolverV8Test, Basic) {
     // the port number.
     EXPECT_EQ("ftp.query.com.90.path.query.com:80",
               proxy_info.proxy_server().ToURI());
+
+    EXPECT_EQ(0U, resolver.mock_js_bindings()->alerts.size());
+    EXPECT_EQ(0U, resolver.mock_js_bindings()->errors.size());
   }
 }
 
@@ -103,42 +165,69 @@ TEST(ProxyResolverV8Test, BadReturnType) {
   };
 
   for (size_t i = 0; i < arraysize(filenames); ++i) {
-    net::ProxyResolverV8 resolver;
-    InitWithScriptFromDisk(&resolver, filenames[i]);
+    ProxyResolverV8WithMockBindings resolver;
+    resolver.SetPacScriptFromDisk(filenames[i]);
 
     net::ProxyInfo proxy_info;
     int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
 
     EXPECT_EQ(net::ERR_PAC_SCRIPT_FAILED, result);
+
+    MockJSBindings* bindings = resolver.mock_js_bindings();
+    EXPECT_EQ(0U, bindings->alerts.size());
+    ASSERT_EQ(1U, bindings->errors.size());
+    EXPECT_EQ("FindProxyForURL() did not return a string.",
+              bindings->errors[0]);
+    EXPECT_EQ(-1, bindings->errors_line_number[0]);
   }
 }
 
 // Try using a PAC script which defines no "FindProxyForURL" function.
 TEST(ProxyResolverV8Test, NoEntryPoint) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "no_entrypoint.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("no_entrypoint.js");
 
   net::ProxyInfo proxy_info;
   int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
 
   EXPECT_EQ(net::ERR_PAC_SCRIPT_FAILED, result);
+
+  MockJSBindings* bindings = resolver.mock_js_bindings();
+  EXPECT_EQ(0U, bindings->alerts.size());
+  ASSERT_EQ(1U, bindings->errors.size());
+  EXPECT_EQ("FindProxyForURL() is undefined.", bindings->errors[0]);
+  EXPECT_EQ(-1, bindings->errors_line_number[0]);
 }
 
 // Try loading a malformed PAC script.
 TEST(ProxyResolverV8Test, ParseError) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "missing_close_brace.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("missing_close_brace.js");
 
   net::ProxyInfo proxy_info;
   int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
 
   EXPECT_EQ(net::ERR_PAC_SCRIPT_FAILED, result);
+
+  MockJSBindings* bindings = resolver.mock_js_bindings();
+  EXPECT_EQ(0U, bindings->alerts.size());
+
+  // We get two errors -- one during compilation, and then later when
+  // trying to run FindProxyForURL().
+  ASSERT_EQ(2U, bindings->errors.size());
+
+  EXPECT_EQ("Uncaught SyntaxError: Unexpected end of input",
+            bindings->errors[0]);
+  EXPECT_EQ(-1, bindings->errors_line_number[0]);
+
+  EXPECT_EQ("FindProxyForURL() is undefined.", bindings->errors[1]);
+  EXPECT_EQ(-1, bindings->errors_line_number[1]);
 }
 
 // Run a PAC script several times, which has side-effects.
 TEST(ProxyResolverV8Test, SideEffects) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "side_effects.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("side_effects.js");
 
   // The PAC script increments a counter each time we invoke it.
   for (int i = 0; i < 3; ++i) {
@@ -151,7 +240,7 @@ TEST(ProxyResolverV8Test, SideEffects) {
 
   // Reload the script -- the javascript environment should be reset, hence
   // the counter starts over.
-  InitWithScriptFromDisk(&resolver, "side_effects.js");
+  resolver.SetPacScriptFromDisk("side_effects.js");
 
   for (int i = 0; i < 3; ++i) {
     net::ProxyInfo proxy_info;
@@ -164,20 +253,27 @@ TEST(ProxyResolverV8Test, SideEffects) {
 
 // Execute a PAC script which throws an exception in FindProxyForURL.
 TEST(ProxyResolverV8Test, UnhandledException) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "unhandled_exception.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("unhandled_exception.js");
 
   net::ProxyInfo proxy_info;
   int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
 
   EXPECT_EQ(net::ERR_PAC_SCRIPT_FAILED, result);
+
+  MockJSBindings* bindings = resolver.mock_js_bindings();
+  EXPECT_EQ(0U, bindings->alerts.size());
+  ASSERT_EQ(1U, bindings->errors.size());
+  EXPECT_EQ("Uncaught ReferenceError: undefined_variable is not defined",
+            bindings->errors[0]);
+  EXPECT_EQ(3, bindings->errors_line_number[0]);
 }
 
 // TODO(eroman): This test is disabed right now, since the parsing of
 // host/port doesn't check for non-ascii characters.
 TEST(ProxyResolverV8Test, DISABLED_ReturnUnicode) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "return_unicode.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("return_unicode.js");
 
   net::ProxyInfo proxy_info;
   int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
@@ -189,8 +285,8 @@ TEST(ProxyResolverV8Test, DISABLED_ReturnUnicode) {
 
 // Test the PAC library functions that we expose in the JS environmnet.
 TEST(ProxyResolverV8Test, JavascriptLibrary) {
-  net::ProxyResolverV8 resolver;
-  InitWithScriptFromDisk(&resolver, "pac_library_unittest.js");
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("pac_library_unittest.js");
 
   net::ProxyInfo proxy_info;
   int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
@@ -199,11 +295,14 @@ TEST(ProxyResolverV8Test, JavascriptLibrary) {
   // exception. Otherwise it will return "PROXY success:80".
   EXPECT_EQ(net::OK, result);
   EXPECT_EQ("success:80", proxy_info.proxy_server().ToURI());
+
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->alerts.size());
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->errors.size());
 }
 
 // Try resolving when SetPacScript() has not been called.
 TEST(ProxyResolverV8Test, NoSetPacScript) {
-  net::ProxyResolverV8 resolver;
+  ProxyResolverV8WithMockBindings resolver;
 
   net::ProxyInfo proxy_info;
 
@@ -212,7 +311,7 @@ TEST(ProxyResolverV8Test, NoSetPacScript) {
   EXPECT_EQ(net::ERR_FAILED, result);
 
   // Initialize it.
-  InitWithScriptFromDisk(&resolver, "direct.js");
+  resolver.SetPacScriptFromDisk("direct.js");
 
   // Resolve should now succeed.
   result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
@@ -226,8 +325,101 @@ TEST(ProxyResolverV8Test, NoSetPacScript) {
   EXPECT_EQ(net::ERR_FAILED, result);
 
   // Load a good script once more.
-  InitWithScriptFromDisk(&resolver, "direct.js");
+  resolver.SetPacScriptFromDisk("direct.js");
   result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
   EXPECT_EQ(net::OK, result);
+
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->alerts.size());
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->errors.size());
+}
+
+// Test marshalling/un-marshalling of values between C++/V8.
+TEST(ProxyResolverV8Test, V8Bindings) {
+  ProxyResolverV8WithMockBindings resolver;
+  resolver.SetPacScriptFromDisk("bindings.js");
+
+  net::ProxyInfo proxy_info;
+  int result = resolver.GetProxyForURL(kQueryUrl, kPacUrl, &proxy_info);
+
+  EXPECT_EQ(net::OK, result);
+  EXPECT_TRUE(proxy_info.is_direct());
+
+  MockJSBindings* bindings = resolver.mock_js_bindings();
+  EXPECT_EQ(0U, resolver.mock_js_bindings()->errors.size());
+
+  // Alert was called 5 times.
+  ASSERT_EQ(5U, bindings->alerts.size());
+  EXPECT_EQ("undefined", bindings->alerts[0]);
+  EXPECT_EQ("null", bindings->alerts[1]);
+  EXPECT_EQ("undefined", bindings->alerts[2]);
+  EXPECT_EQ("[object Object]", bindings->alerts[3]);
+  EXPECT_EQ("exception from calling toString()", bindings->alerts[4]);
+
+  // DnsResolve was called 8 times.
+  ASSERT_EQ(8U, bindings->dns_resolves.size());
+  EXPECT_EQ("undefined", bindings->dns_resolves[0]);
+  EXPECT_EQ("null", bindings->dns_resolves[1]);
+  EXPECT_EQ("undefined", bindings->dns_resolves[2]);
+  EXPECT_EQ("", bindings->dns_resolves[3]);
+  EXPECT_EQ("[object Object]", bindings->dns_resolves[4]);
+  EXPECT_EQ("function fn() {}", bindings->dns_resolves[5]);
+
+  // TODO(eroman): This isn't quite right... should probably stringize
+  // to something like "['3']".
+  EXPECT_EQ("3", bindings->dns_resolves[6]);
+
+  EXPECT_EQ("arg1", bindings->dns_resolves[7]);
+
+  // MyIpAddress was called two times.
+  EXPECT_EQ(2, bindings->my_ip_address_count);
+}
+
+TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
+  // Get a hold of a DefaultJSBindings* (it is a hidden impl class).
+  net::ProxyResolverV8 resolver;
+  net::ProxyResolverV8::JSBindings* bindings = resolver.js_bindings();
+  
+  const struct {
+    const char* input;
+    const char* expected;
+  } tests[] = {
+    {"www.google.com", "127.0.0.1"},
+    {"", ""},
+    {".", ""},
+    {"foo@google.com", ""},
+    {"@google.com", ""},
+    {"foo:pass@google.com", ""},
+    {"%", ""},
+    {"www.google.com:80", ""},
+    {"www.google.com:", ""},
+    {"www.google.com.", ""},
+    {"#", ""},
+    {"127.0.0.1", ""},
+    {"this has spaces", ""},
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    std::string actual = bindings->DnsResolve(tests[i].input);
+
+    // ########################################################################
+    // TODO(eroman)
+    // ########################################################################
+    // THIS TEST IS CURRENTLY FLAWED.
+    //
+    // Since we are running in unit-test mode, the HostResolve is using a
+    // mock HostMapper, which will always return 127.0.0.1, without going
+    // through the real codepaths.
+    //
+    // It is important that these tests be run with the real thing, since we
+    // need to verify that HostResolver doesn't blow up when you send it
+    // weird inputs. This is necessary since the data reach it is UNSANITIZED.
+    // It comes directly from the PAC javascript.
+    //
+    // For now we just check that it maps to 127.0.0.1.
+    std::string expected = tests[i].expected;
+    if (expected == "")
+      expected = "127.0.0.1";
+    EXPECT_EQ(expected, actual);
+  }
 }
 
