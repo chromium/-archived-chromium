@@ -98,7 +98,7 @@ class DownloadItemSorter : public std::binary_function<DownloadItem*,
                                                        bool> {
  public:
   bool operator()(const DownloadItem* lhs, const DownloadItem* rhs) {
-    return lhs->start_time() > rhs->start_time();
+    return lhs->start_time() < rhs->start_time();
   }
 };
 
