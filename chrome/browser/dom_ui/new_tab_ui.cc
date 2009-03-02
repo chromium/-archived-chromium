@@ -66,7 +66,8 @@ namespace {
 // messages and wait for the page to stop repainting.
 class PaintTimer : public RenderWidgetHost::PaintObserver {
  public:
-  PaintTimer() : method_factory_(this) {
+  PaintTimer()
+      : ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)) {
     Start();
   }
 

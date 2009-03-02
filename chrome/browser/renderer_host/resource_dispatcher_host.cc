@@ -133,15 +133,18 @@ bool ShouldServiceRequest(int render_process_host_id,
 ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
     : ui_loop_(MessageLoop::current()),
       io_loop_(io_loop),
-      download_file_manager_(new DownloadFileManager(ui_loop_, this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          download_file_manager_(new DownloadFileManager(ui_loop_, this))),
       download_request_manager_(new DownloadRequestManager(io_loop, ui_loop_)),
-      save_file_manager_(new SaveFileManager(ui_loop_, io_loop, this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          save_file_manager_(new SaveFileManager(ui_loop_, io_loop, this))),
       safe_browsing_(new SafeBrowsingService),
       request_id_(-1),
       plugin_service_(PluginService::GetInstance()),
-      method_runner_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(method_runner_(this)),
       is_shutdown_(false),
-      max_outstanding_requests_cost_per_process_(kMaxOutstandingRequestsCostPerProcess) {
+      max_outstanding_requests_cost_per_process_(
+          kMaxOutstandingRequestsCostPerProcess) {
 }
 
 ResourceDispatcherHost::~ResourceDispatcherHost() {

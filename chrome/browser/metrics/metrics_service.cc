@@ -155,11 +155,12 @@
 //
 //------------------------------------------------------------------------------
 
+#include "chrome/browser/metrics/metrics_service.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
+#include <objbase.h>
 #endif
-
-#include "chrome/browser/metrics/metrics_service.h"
 
 #include "base/file_path.h"
 #include "base/histogram.h"
@@ -374,8 +375,8 @@ MetricsService::MetricsService()
       current_log_(NULL),
       idle_since_last_transmission_(false),
       next_window_id_(0),
-      log_sender_factory_(this),
-      state_saver_factory_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(log_sender_factory_(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(state_saver_factory_(this)),
       logged_samples_(),
       interlog_duration_(TimeDelta::FromSeconds(kInitialInterlogDuration)),
       log_event_limit_(kInitialEventLimit),

@@ -45,7 +45,7 @@ void NotifyPrunedEntries(NavigationController* nav_controller,
 
 // Ensure the given NavigationEntry has a valid state, so that WebKit does not
 // get confused if we navigate back to it.
-// 
+//
 // An empty state is treated as a new navigation by WebKit, which would mean
 // losing the navigation entries and generating a new navigation entry after
 // this one. We don't want that. To avoid this we create a valid state which
@@ -157,7 +157,7 @@ NavigationController::NavigationController(TabContents* contents,
       transient_entry_index_(-1),
       active_contents_(contents),
       max_restored_page_id_(-1),
-      ssl_manager_(this, NULL),
+      ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this, NULL)),
       needs_reload_(false),
       load_pending_entry_when_active_(false) {
   if (contents)
@@ -176,7 +176,7 @@ NavigationController::NavigationController(
       transient_entry_index_(-1),
       active_contents_(NULL),
       max_restored_page_id_(-1),
-      ssl_manager_(this, NULL),
+      ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this, NULL)),
       needs_reload_(true),
       load_pending_entry_when_active_(false) {
   DCHECK(profile_);
@@ -770,7 +770,7 @@ void NavigationController::RendererDidNavigateToExistingPage(
   // actually change any other state, just kill the pointer.
   if (entry == pending_entry_)
     DiscardNonCommittedEntriesInternal();
-  
+
   last_committed_entry_index_ = entry_index;
 }
 
