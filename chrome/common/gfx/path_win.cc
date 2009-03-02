@@ -8,10 +8,6 @@
 
 namespace gfx {
 
-Path::Path() : SkPath() {
-  moveTo(0, 0);
-}
-
 HRGN Path::CreateHRGN() const {
   int point_count = getPoints(NULL, 0);
   scoped_array<SkPoint> points(new SkPoint[point_count]);
@@ -21,10 +17,8 @@ HRGN Path::CreateHRGN() const {
     windows_points[i].x = SkScalarRound(points[i].fX);
     windows_points[i].y = SkScalarRound(points[i].fY);
   }
-  HRGN region = ::CreatePolygonRgn(windows_points.get(), point_count, ALTERNATE);
 
-  return region;
+  return ::CreatePolygonRgn(windows_points.get(), point_count, ALTERNATE);
 }
 
-};
-
+}  // namespace gfx

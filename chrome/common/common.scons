@@ -73,7 +73,8 @@ input_files = ChromeFileList([
     'gfx/icon_util.cc',
     'gfx/icon_util.h',
     'gfx/insets.h',
-    'gfx/path.cc',
+    'gfx/path_gtk.cc',
+    'gfx/path_win.cc',
     'gfx/path.h',
     'gfx/text_elider.cc',
     'gfx/text_elider.h',
@@ -237,7 +238,6 @@ if not env.Bit('windows'):
       'drag_drop_types.cc',
       'gfx/emf.cc',
       'gfx/icon_util.cc',
-      'gfx/path.cc',
       'os_exchange_data.cc',
       'process_watcher.cc',
   )
@@ -249,6 +249,7 @@ if not env.Bit('windows'):
       'classfactory.cc',
       'gfx/chrome_canvas_win.cc',
       'gfx/chrome_font_win.cc',
+      'gfx/path_win.cc',
       'ipc_channel_win.cc',
       'resource_bundle_win.cc',
       'win_safe_util.cc',
@@ -264,6 +265,7 @@ if not env.Bit('linux'):
       'gfx/chrome_canvas_skia.cc',
       'gfx/chrome_font_gtk.cc',
       'gfx/chrome_font_skia.cc',
+      'gfx/path_gtk.cc',
   )
 
 if not env.Bit('mac'):

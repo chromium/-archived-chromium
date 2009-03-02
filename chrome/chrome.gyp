@@ -112,7 +112,8 @@
         'common/gfx/icon_util.cc',
         'common/gfx/icon_util.h',
         'common/gfx/insets.h',
-        'common/gfx/path.cc',
+        'common/gfx/path_gtk.cc',
+        'common/gfx/path_win.cc',
         'common/gfx/path.h',
         'common/gfx/text_elider.cc',
         'common/gfx/text_elider.h',
@@ -294,7 +295,6 @@
           'sources!': [
             'common/gfx/emf.cc',
             'common/gfx/icon_util.cc',
-            'common/gfx/path.cc',
             'common/chrome_process_filter.cc',
             'common/classfactory.cc',
             'common/drag_drop_types.cc',
