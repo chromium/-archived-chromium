@@ -204,11 +204,6 @@
     # files to appear (when present) in the UI as actual files and not red
     # red "missing file" proxies, the correct path to PROJECT_DERIVED_FILE_DIR,
     # and therefore SYMROOT, needs to be set at the project level.
-    #
-    # xcodebuild_gyp is a temporary name to avoid colliding with the xcodebuild
-    # directory used by the non-gyp Xcode build system.  When the gyp-based
-    # Xcode build system replaces the older system, this should be changed to
-    # simply "xcodebuild" or some other suitable name.
-    'SYMROOT': '<(DEPTH)/xcodebuild_gyp',
+    'SYMROOT': '<(DEPTH)/xcodebuild',
   },
 }

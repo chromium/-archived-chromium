@@ -19,10 +19,10 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@167",
 
   "src/third_party/WebKit":
-    "/trunk/deps/third_party/WebKit@10654",
+    "/trunk/deps/third_party/WebKit@10691",
 
   "src/third_party/icu38":
-    "/trunk/deps/third_party/icu38@10364",
+    "/trunk/deps/third_party/icu38@10692",
 
   # TODO(mark): Remove once this has moved into depot_tools.
   "src/tools/gyp":
@@ -87,4 +87,12 @@ skip_child_includes = [
    "testing",
    "third_party",
    "v8",
+]
+
+
+hooks = [
+  {
+    "pattern": "\\.gypi?$",
+    "action": ["python", "src/tools/gyp/gyp_dogfood", "src/build/all.gyp"],
+  },
 ]
