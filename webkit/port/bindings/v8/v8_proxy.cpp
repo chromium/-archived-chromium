@@ -1372,7 +1372,15 @@ v8::Local<v8::Value> V8Proxy::Evaluate(const String& fileName, int baseLine,
     // and false for <script>doSomething</script>. For some reason, fileName
     // gives us this information.
     ChromiumBridge::traceEventBegin("v8.run", n, "");
-    v8::Local<v8::Value> result = RunScript(script, fileName.isNull());
+    v8::Local<v8::Value> result;
+    {
+      // Isolate exceptions that occur when executing the code.  These
+      // exceptions should not interfere with javascript code we might
+      // evaluate from C++ when returning from here
+      v8::TryCatch try_catch;
+      try_catch.SetVerbose(true);
+      result = RunScript(script, fileName.isNull());
+    }
     ChromiumBridge::traceEventEnd("v8.run", n, "");
     return result;
 }
