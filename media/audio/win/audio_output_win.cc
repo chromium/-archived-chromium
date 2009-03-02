@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "media/audio/audio_output.h"
+
 #include <windows.h>
 #include <mmsystem.h>
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
-#include "media/audio/audio_output.h"
 #include "media/audio/win/audio_manager_win.h"
 #include "media/audio/win/waveout_output_win.h"
 
@@ -149,4 +150,3 @@ AudioManager* AudioManager::GetAudioManager() {
   }
   return g_audio_manager;
 }
-
