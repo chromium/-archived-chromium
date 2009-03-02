@@ -1,42 +1,39 @@
-/*
-* Portions are Copyright (C) 2007 Google Inc
-*
-* ***** BEGIN LICENSE BLOCK *****
-* Version: MPL 1.1/GPL 2.0/LGPL 2.1
-*
-* The contents of this file are subject to the Mozilla Public License Version
-* 1.1 (the "License"); you may not use this file except in compliance with
-* the License. You may obtain a copy of the License at
-* http://www.mozilla.org/MPL/
-*
-* Software distributed under the License is distributed on an "AS IS" basis,
-* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-* for the specific language governing rights and limitations under the
-* License.
-*
-* The Original Code is the Netscape Portable Runtime (NSPR).
-*
-* The Initial Developer of the Original Code is
-* Netscape Communications Corporation.
-* Portions created by the Initial Developer are Copyright (C) 1998-2000
-* the Initial Developer. All Rights Reserved.
-*
-* Contributor(s):
-*
-* Alternatively, the contents of this file may be used under the terms of
-* either the GNU General Public License Version 2 or later (the "GPL"), or
-* the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
-* in which case the provisions of the GPL or the LGPL are applicable instead
-* of those above. If you wish to allow use of your version of this file only
-* under the terms of either the GPL or the LGPL, and not to allow others to
-* use your version of this file under the terms of the MPL, indicate your
-* decision by deleting the provisions above and replace them with the notice
-* and other provisions required by the GPL or the LGPL. If you do not delete
-* the provisions above, a recipient may use your version of this file under
-* the terms of any one of the MPL, the GPL or the LGPL.
-*
-* ***** END LICENSE BLOCK *****
-*/
+/* Portions are Copyright (C) 2007 Google Inc */
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Netscape Portable Runtime (NSPR).
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998-2000
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 /*
  *---------------------------------------------------------------------------
@@ -44,7 +41,7 @@
  * prtime.h --
  *
  *     NSPR date and time functions
- * CVS revision 3.11
+ * CVS revision 3.10
  * This file contains definitions of NSPR's basic types required by
  * prtime.cc. These types have been copied over from the following NSPR
  * files prtime.h, prtypes.h(CVS revision 3.35), prlong.h(CVS revision 3.13)
@@ -143,8 +140,59 @@ typedef struct PRExplodedTime {
     PRTimeParameters tm_params;  /* time parameters used by conversion */
 } PRExplodedTime;
 
+/*
+ * PRTimeParamFn --
+ *
+ *     A function of PRTimeParamFn type returns the time zone and
+ *     daylight saving time corrections for some geographic location,
+ *     given the current time in GMT.  The input argument gmt should
+ *     point to a PRExplodedTime that is in GMT, i.e., whose
+ *     tm_params contains all 0's.
+ *
+ *     For any time zone other than GMT, the computation is intended to
+ *     consist of two steps:
+ *       - Figure out the time zone correction, tp_gmt_offset.  This number
+ *         usually depends on the geographic location only.  But it may
+ *         also depend on the current time.  For example, all of China
+ *         is one time zone right now.  But this situation may change
+ *         in the future.
+ *       - Figure out the daylight saving time correction, tp_dst_offset.
+ *         This number depends on both the geographic location and the
+ *         current time.  Most of the DST rules are expressed in local
+ *         current time.  If so, one should apply the time zone correction
+ *         to GMT before applying the DST rules.
+ */
+
+typedef PRTimeParameters (PR_CALLBACK *PRTimeParamFn)(const PRExplodedTime *gmt);
+
+/**********************************************************************/
+/****************************** FUNCTIONS *****************************/
+/**********************************************************************/
+
 NSPR_API(PRTime)
 PR_ImplodeTime(const PRExplodedTime *exploded);
+
+/*
+ * Adjust exploded time to normalize field overflows after manipulation.
+ * Note that the following fields of PRExplodedTime should not be
+ * manipulated:
+ *   - tm_month and tm_year: because the number of days in a month and
+ *     number of days in a year are not constant, it is ambiguous to
+ *     manipulate the month and year fields, although one may be tempted
+ *     to.  For example, what does "a month from January 31st" mean?
+ *   - tm_wday and tm_yday: these fields are calculated by NSPR.  Users
+ *     should treat them as "read-only".
+ */
+
+NSPR_API(void) PR_NormalizeTime(
+    PRExplodedTime *exploded, PRTimeParamFn params);
+
+/**********************************************************************/
+/*********************** TIME PARAMETER FUNCTIONS *********************/
+/**********************************************************************/
+
+/* Time parameters that represent Greenwich Mean Time */
+NSPR_API(PRTimeParameters) PR_GMTParameters(const PRExplodedTime *gmt);
 
 /*
  * This parses a time/date string into a PRTime

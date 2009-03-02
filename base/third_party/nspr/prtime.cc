@@ -1,43 +1,39 @@
-/*
-* Portions are Copyright (C) 2007 Google Inc
-*
-* ***** BEGIN LICENSE BLOCK *****
-* Version: MPL 1.1/GPL 2.0/LGPL 2.1
-*
-* The contents of this file are subject to the Mozilla Public License Version
-* 1.1 (the "License"); you may not use this file except in compliance with
-* the License. You may obtain a copy of the License at
-* http://www.mozilla.org/MPL/
-*
-* Software distributed under the License is distributed on an "AS IS" basis,
-* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-* for the specific language governing rights and limitations under the
-* License.
-*
-* The Original Code is the Netscape Portable Runtime (NSPR).
-*
-* The Initial Developer of the Original Code is
-* Netscape Communications Corporation.
-* Portions created by the Initial Developer are Copyright (C) 1998-2000
-* the Initial Developer. All Rights Reserved.
-*
-* Contributor(s):
-*
-* Alternatively, the contents of this file may be used under the terms of
-* either the GNU General Public License Version 2 or later (the "GPL"), or
-* the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
-* in which case the provisions of the GPL or the LGPL are applicable instead
-* of those above. If you wish to allow use of your version of this file only
-* under the terms of either the GPL or the LGPL, and not to allow others to
-* use your version of this file under the terms of the MPL, indicate your
-* decision by deleting the provisions above and replace them with the notice
-* and other provisions required by the GPL or the LGPL. If you do not delete
-* the provisions above, a recipient may use your version of this file under
-* the terms of any one of the MPL, the GPL or the LGPL.
-*
-* ***** END LICENSE BLOCK *****
-*
-*/
+/* Portions are Copyright (C) 2007 Google Inc */
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is the Netscape Portable Runtime (NSPR).
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998-2000
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 /*
  * prtime.cc --
@@ -45,22 +41,27 @@
  *
  *     NSPR date and time functions
  *
- * CVS revision 3.31
+ * CVS revision 3.36
  */
 
 /*
-* The following functions were copied from the NSPR prtime.c file.
-* PR_ParseTimeString
-* PR_ImplodeTime
-* This was modified to use the Win32 SYSTEMTIME/FILETIME structures
-* and the timezone offsets are applied to the FILETIME structure.
-* All types and defines have been defined in the base/third_party/prtime.h file
-* These have been copied from the following nspr files. We have only copied over
-* the types we need.
-* 1. prtime.h
-* 2. prtypes.h
-* 3. prlong.h
-*/
+ * The following functions were copied from the NSPR prtime.c file.
+ * PR_ParseTimeString
+ *   We inlined the new PR_ParseTimeStringToExplodedTime function to avoid
+ *   copying PR_ExplodeTime and PR_LocalTimeParameters.  (The PR_ExplodeTime
+ *   and PR_ImplodeTime calls cancel each other out.)
+ * PR_NormalizeTime
+ * PR_GMTParameters
+ * PR_ImplodeTime
+ *   This was modified to use the Win32 SYSTEMTIME/FILETIME structures
+ *   and the timezone offsets are applied to the FILETIME structure.
+ * All types and macros are defined in the base/third_party/prtime.h file.
+ * These have been copied from the following nspr files. We have only copied
+ * over the types we need.
+ * 1. prtime.h
+ * 2. prtypes.h
+ * 3. prlong.h
+ */
 
 #include "base/third_party/nspr/prtime.h"
 #include "build/build_config.h"
@@ -185,6 +186,264 @@ PR_ImplodeTime(const PRExplodedTime *exploded)
 #endif
 }
 
+/* 
+ * The COUNT_LEAPS macro counts the number of leap years passed by
+ * till the start of the given year Y.  At the start of the year 4
+ * A.D. the number of leap years passed by is 0, while at the start of
+ * the year 5 A.D. this count is 1. The number of years divisible by
+ * 100 but not divisible by 400 (the non-leap years) is deducted from
+ * the count to get the correct number of leap years.
+ *
+ * The COUNT_DAYS macro counts the number of days since 01/01/01 till the
+ * start of the given year Y. The number of days at the start of the year
+ * 1 is 0 while the number of days at the start of the year 2 is 365
+ * (which is ((2)-1) * 365) and so on. The reference point is 01/01/01
+ * midnight 00:00:00.
+ */
+
+#define COUNT_LEAPS(Y)   ( ((Y)-1)/4 - ((Y)-1)/100 + ((Y)-1)/400 )
+#define COUNT_DAYS(Y)  ( ((Y)-1)*365 + COUNT_LEAPS(Y) )
+#define DAYS_BETWEEN_YEARS(A, B)  (COUNT_DAYS(B) - COUNT_DAYS(A))
+
+/*
+ * Static variables used by functions in this file
+ */
+
+/*
+ * The following array contains the day of year for the last day of
+ * each month, where index 1 is January, and day 0 is January 1.
+ */
+
+static const int lastDayOfMonth[2][13] = {
+    {-1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364},
+    {-1, 30, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365}
+};
+
+/*
+ * The number of days in a month
+ */
+
+static const PRInt8 nDays[2][12] = {
+    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+};
+
+/*
+ *-------------------------------------------------------------------------
+ *
+ * IsLeapYear --
+ *
+ *     Returns 1 if the year is a leap year, 0 otherwise.
+ *
+ *-------------------------------------------------------------------------
+ */
+
+static int IsLeapYear(PRInt16 year)
+{
+    if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+        return 1;
+    else
+        return 0;
+}
+
+/*
+ * 'secOffset' should be less than 86400 (i.e., a day).
+ * 'time' should point to a normalized PRExplodedTime.
+ */
+
+static void
+ApplySecOffset(PRExplodedTime *time, PRInt32 secOffset)
+{
+    time->tm_sec += secOffset;
+
+    /* Note that in this implementation we do not count leap seconds */
+    if (time->tm_sec < 0 || time->tm_sec >= 60) {
+        time->tm_min += time->tm_sec / 60;
+        time->tm_sec %= 60;
+        if (time->tm_sec < 0) {
+            time->tm_sec += 60;
+            time->tm_min--;
+        }
+    }
+
+    if (time->tm_min < 0 || time->tm_min >= 60) {
+        time->tm_hour += time->tm_min / 60;
+        time->tm_min %= 60;
+        if (time->tm_min < 0) {
+            time->tm_min += 60;
+            time->tm_hour--;
+        }
+    }
+
+    if (time->tm_hour < 0) {
+        /* Decrement mday, yday, and wday */
+        time->tm_hour += 24;
+        time->tm_mday--;
+        time->tm_yday--;
+        if (time->tm_mday < 1) {
+            time->tm_month--;
+            if (time->tm_month < 0) {
+                time->tm_month = 11;
+                time->tm_year--;
+                if (IsLeapYear(time->tm_year))
+                    time->tm_yday = 365;
+                else
+                    time->tm_yday = 364;
+            }
+            time->tm_mday = nDays[IsLeapYear(time->tm_year)][time->tm_month];
+        }
+        time->tm_wday--;
+        if (time->tm_wday < 0)
+            time->tm_wday = 6;
+    } else if (time->tm_hour > 23) {
+        /* Increment mday, yday, and wday */
+        time->tm_hour -= 24;
+        time->tm_mday++;
+        time->tm_yday++;
+        if (time->tm_mday >
+                nDays[IsLeapYear(time->tm_year)][time->tm_month]) {
+            time->tm_mday = 1;
+            time->tm_month++;
+            if (time->tm_month > 11) {
+                time->tm_month = 0;
+                time->tm_year++;
+                time->tm_yday = 0;
+            }
+        }
+        time->tm_wday++;
+        if (time->tm_wday > 6)
+            time->tm_wday = 0;
+    }
+}
+
+void
+PR_NormalizeTime(PRExplodedTime *time, PRTimeParamFn params)
+{
+    int daysInMonth;
+    PRInt32 numDays;
+
+    /* Get back to GMT */
+    time->tm_sec -= time->tm_params.tp_gmt_offset
+            + time->tm_params.tp_dst_offset;
+    time->tm_params.tp_gmt_offset = 0;
+    time->tm_params.tp_dst_offset = 0;
+
+    /* Now normalize GMT */
+
+    if (time->tm_usec < 0 || time->tm_usec >= 1000000) {
+        time->tm_sec +=  time->tm_usec / 1000000;
+        time->tm_usec %= 1000000;
+        if (time->tm_usec < 0) {
+            time->tm_usec += 1000000;
+            time->tm_sec--;
+        }
+    }
+
+    /* Note that we do not count leap seconds in this implementation */
+    if (time->tm_sec < 0 || time->tm_sec >= 60) {
+        time->tm_min += time->tm_sec / 60;
+        time->tm_sec %= 60;
+        if (time->tm_sec < 0) {
+            time->tm_sec += 60;
+            time->tm_min--;
+        }
+    }
+
+    if (time->tm_min < 0 || time->tm_min >= 60) {
+        time->tm_hour += time->tm_min / 60;
+        time->tm_min %= 60;
+        if (time->tm_min < 0) {
+            time->tm_min += 60;
+            time->tm_hour--;
+        }
+    }
+
+    if (time->tm_hour < 0 || time->tm_hour >= 24) {
+        time->tm_mday += time->tm_hour / 24;
+        time->tm_hour %= 24;
+        if (time->tm_hour < 0) {
+            time->tm_hour += 24;
+            time->tm_mday--;
+        }
+    }
+
+    /* Normalize month and year before mday */
+    if (time->tm_month < 0 || time->tm_month >= 12) {
+        time->tm_year += time->tm_month / 12;
+        time->tm_month %= 12;
+        if (time->tm_month < 0) {
+            time->tm_month += 12;
+            time->tm_year--;
+        }
+    }
+
+    /* Now that month and year are in proper range, normalize mday */
+
+    if (time->tm_mday < 1) {
+        /* mday too small */
+        do {
+            /* the previous month */
+            time->tm_month--;
+            if (time->tm_month < 0) {
+                time->tm_month = 11;
+                time->tm_year--;
+            }
+            time->tm_mday += nDays[IsLeapYear(time->tm_year)][time->tm_month];
+        } while (time->tm_mday < 1);
+    } else {
+        daysInMonth = nDays[IsLeapYear(time->tm_year)][time->tm_month];
+        while (time->tm_mday > daysInMonth) {
+            /* mday too large */
+            time->tm_mday -= daysInMonth;
+            time->tm_month++;
+            if (time->tm_month > 11) {
+                time->tm_month = 0;
+                time->tm_year++;
+            }
+            daysInMonth = nDays[IsLeapYear(time->tm_year)][time->tm_month];
+        }
+    }
+
+    /* Recompute yday and wday */
+    time->tm_yday = time->tm_mday +
+            lastDayOfMonth[IsLeapYear(time->tm_year)][time->tm_month];
+	    
+    numDays = DAYS_BETWEEN_YEARS(1970, time->tm_year) + time->tm_yday;
+    time->tm_wday = (numDays + 4) % 7;
+    if (time->tm_wday < 0) {
+        time->tm_wday += 7;
+    }
+
+    /* Recompute time parameters */
+
+    time->tm_params = params(time);
+
+    ApplySecOffset(time, time->tm_params.tp_gmt_offset
+            + time->tm_params.tp_dst_offset);
+}
+
+/*
+ *------------------------------------------------------------------------
+ *
+ * PR_GMTParameters --
+ *
+ *     Returns the PRTimeParameters for Greenwich Mean Time.
+ *     Trivially, both the tp_gmt_offset and tp_dst_offset fields are 0.
+ *
+ *------------------------------------------------------------------------
+ */
+
+PRTimeParameters
+PR_GMTParameters(const PRExplodedTime *gmt)
+{
+#if defined(XP_MAC)
+#pragma unused (gmt)
+#endif
+
+    PRTimeParameters retVal = { 0, 0 };
+    return retVal;
+}
+
 /*
  * The following code implements PR_ParseTimeString().  It is based on
  * ns/lib/xp/xp_time.c, revision 1.25, by Jamie Zawinski <jwz@netscape.com>.
@@ -255,13 +514,15 @@ PRStatus
 PR_ParseTimeString(
         const char *string,
         PRBool default_to_gmt,
-        PRTime *result)
+        PRTime *result_imploded)
 {
   PRExplodedTime tm;
+  PRExplodedTime *result = &tm;
   TIME_TOKEN dotw = TT_UNKNOWN;
   TIME_TOKEN month = TT_UNKNOWN;
   TIME_TOKEN zone = TT_UNKNOWN;
   int zone_offset = -1;
+  int dst_offset = 0;
   int date = -1;
   PRInt32 year = -1;
   int hour = -1;
@@ -270,9 +531,7 @@ PR_ParseTimeString(
 
   const char *rest = string;
 
-#ifdef DEBUG
   int iterations = 0;
-#endif
 
   PR_ASSERT(string && result);
   if (!string || !result) return PR_FAILURE;
@@ -280,13 +539,10 @@ PR_ParseTimeString(
   while (*rest)
         {
 
-#ifdef DEBUG
           if (iterations++ > 1000)
                 {
-                  PR_ASSERT(0);
                   return PR_FAILURE;
                 }
-#endif
 
           switch (*rest)
                 {
@@ -296,7 +552,7 @@ PR_ParseTimeString(
                           (rest[2] == 'r' || rest[2] == 'R'))
                         month = TT_APR;
                   else if (zone == TT_UNKNOWN &&
-                                   (rest[1] == 's' || rest[1] == 's') &&
+                                   (rest[1] == 's' || rest[1] == 'S') &&
                                    (rest[2] == 't' || rest[2] == 'T'))
                         zone = TT_AST;
                   else if (month == TT_UNKNOWN &&
@@ -636,18 +892,20 @@ PR_ParseTimeString(
                                   break;
                                 s++;
 
-                                if (*s < '0' || *s > '9')                /* third 1, 2, or 4 digits */
+                                if (*s < '0' || *s > '9')                /* third 1, 2, 4, or 5 digits */
                                   break;
                                 n3 = (*s++ - '0');
                                 if (*s >= '0' && *s <= '9')
                                   n3 = n3*10 + (*s++ - '0');
 
-                                if (*s >= '0' && *s <= '9')                /* optional digits 3 and 4 */
+                                if (*s >= '0' && *s <= '9')            /* optional digits 3, 4, and 5 */
                                   {
                                         n3 = n3*10 + (*s++ - '0');
                                         if (*s < '0' || *s > '9')
                                           break;
                                         n3 = n3*10 + (*s++ - '0');
+                                        if (*s >= '0' && *s <= '9')
+                                          n3 = n3*10 + (*s++ - '0');
                                   }
 
                                 if ((*s >= '0' && *s <= '9') ||        /* followed by non-alphanum */
@@ -706,6 +964,14 @@ PR_ParseTimeString(
                                          (*end >= 'a' && *end <= 'z'))
                           /* Digits followed by non-punctuation - what's that? */
                           ;
+                        else if ((end - rest) == 5)                /* five digits is a year */
+                          year = (year < 0
+                                          ? ((rest[0]-'0')*10000L +
+                                                 (rest[1]-'0')*1000L +
+                                                 (rest[2]-'0')*100L +
+                                                 (rest[3]-'0')*10L +
+                                                 (rest[4]-'0'))
+                                          : year);
                         else if ((end - rest) == 4)                /* four digits is a year */
                           year = (year < 0
                                           ? ((rest[0]-'0')*1000L +
@@ -742,7 +1008,7 @@ PR_ParseTimeString(
                           }
                         else if ((end - rest) == 1)                /* one digit - date */
                           date = (date < 0 ? (rest[0]-'0') : date);
-                        /* else, three or more than four digits - what's that? */
+                        /* else, three or more than five digits - what's that? */
 
                         break;
                   }
@@ -769,7 +1035,7 @@ PR_ParseTimeString(
 
           /* "-" is ignored at the beginning of a token if we have not yet
                  parsed a year (e.g., the second "-" in "30-AUG-1966"), or if
-                 the character after the dash is not a digit. */
+                 the character after the dash is not a digit. */         
           if (*rest == '-' && ((rest > string && isalpha(rest[-1]) && year < 0)
               || rest[1] < '0' || rest[1] > '9'))
                 {
@@ -784,17 +1050,17 @@ PR_ParseTimeString(
           switch (zone)
                 {
                 case TT_PST: zone_offset = -8 * 60; break;
-                case TT_PDT: zone_offset = -7 * 60; break;
+                case TT_PDT: zone_offset = -8 * 60; dst_offset = 1 * 60; break;
                 case TT_MST: zone_offset = -7 * 60; break;
-                case TT_MDT: zone_offset = -6 * 60; break;
+                case TT_MDT: zone_offset = -7 * 60; dst_offset = 1 * 60; break;
                 case TT_CST: zone_offset = -6 * 60; break;
-                case TT_CDT: zone_offset = -5 * 60; break;
+                case TT_CDT: zone_offset = -6 * 60; dst_offset = 1 * 60; break;
                 case TT_EST: zone_offset = -5 * 60; break;
-                case TT_EDT: zone_offset = -4 * 60; break;
+                case TT_EDT: zone_offset = -5 * 60; dst_offset = 1 * 60; break;
                 case TT_AST: zone_offset = -4 * 60; break;
                 case TT_NST: zone_offset = -3 * 60 - 30; break;
                 case TT_GMT: zone_offset =  0 * 60; break;
-                case TT_BST: zone_offset =  1 * 60; break;
+                case TT_BST: zone_offset =  0 * 60; dst_offset = 1 * 60; break;
                 case TT_MET: zone_offset =  1 * 60; break;
                 case TT_EET: zone_offset =  2 * 60; break;
                 case TT_JST: zone_offset =  9 * 60; break;
@@ -808,24 +1074,24 @@ PR_ParseTimeString(
          possibly parse this, and in fact, mktime() will do something random
          (I'm seeing it return "Tue Feb  5 06:28:16 2036", which is no doubt
          a numerologically significant date... */
-  if (month == TT_UNKNOWN || date == -1 || year == -1)
+  if (month == TT_UNKNOWN || date == -1 || year == -1 || year > PR_INT16_MAX)
       return PR_FAILURE;
 
-  memset(&tm, 0, sizeof(tm));
+  memset(result, 0, sizeof(*result));
   if (sec != -1)
-        tm.tm_sec = sec;
+        result->tm_sec = sec;
   if (min != -1)
-  tm.tm_min = min;
+        result->tm_min = min;
   if (hour != -1)
-        tm.tm_hour = hour;
+        result->tm_hour = hour;
   if (date != -1)
-        tm.tm_mday = date;
+        result->tm_mday = date;
   if (month != TT_UNKNOWN)
-        tm.tm_month = (((int)month) - ((int)TT_JAN));
+        result->tm_month = (((int)month) - ((int)TT_JAN));
   if (year != -1)
-        tm.tm_year = year;
+        result->tm_year = year;
   if (dotw != TT_UNKNOWN)
-        tm.tm_wday = (((int)dotw) - ((int)TT_SUN));
+        result->tm_wday = (((int)dotw) - ((int)TT_SUN));
 
   if (zone == TT_UNKNOWN && default_to_gmt)
         {
@@ -841,35 +1107,35 @@ PR_ParseTimeString(
           struct tm localTime;
           time_t secs;
 
-          PR_ASSERT(tm.tm_month > -1
-                                   && tm.tm_mday > 0
-                                   && tm.tm_hour > -1
-                                   && tm.tm_min > -1
-                                   && tm.tm_sec > -1);
+          PR_ASSERT(result->tm_month > -1 &&
+                    result->tm_mday > 0 &&
+                    result->tm_hour > -1 &&
+                    result->tm_min > -1 &&
+                    result->tm_sec > -1);
 
             /*
              * To obtain time_t from a tm structure representing the local
              * time, we call mktime().  However, we need to see if we are
              * on 1-Jan-1970 or before.  If we are, we can't call mktime()
              * because mktime() will crash on win16. In that case, we
-             * calculate zone_offset based on the zone offset at
+             * calculate zone_offset based on the zone offset at 
              * 00:00:00, 2 Jan 1970 GMT, and subtract zone_offset from the
              * date we are parsing to transform the date to GMT.  We also
              * do so if mktime() returns (time_t) -1 (time out of range).
            */
 
           /* month, day, hours, mins and secs are always non-negative
-             so we dont need to worry about them. */
-            if(tm.tm_year >= 1970)
+             so we dont need to worry about them. */  
+          if(result->tm_year >= 1970)
                 {
                   PRInt64 usec_per_sec;
 
-                  localTime.tm_sec = tm.tm_sec;
-                  localTime.tm_min = tm.tm_min;
-                  localTime.tm_hour = tm.tm_hour;
-                  localTime.tm_mday = tm.tm_mday;
-                  localTime.tm_mon = tm.tm_month;
-                  localTime.tm_year = tm.tm_year - 1900;
+                  localTime.tm_sec = result->tm_sec;
+                  localTime.tm_min = result->tm_min;
+                  localTime.tm_hour = result->tm_hour;
+                  localTime.tm_mday = result->tm_mday;
+                  localTime.tm_mon = result->tm_month;
+                  localTime.tm_year = result->tm_year - 1900;
                   /* Set this to -1 to tell mktime "I don't care".  If you set
                      it to 0 or 1, you are making assertions about whether the
                      date you are handing it is in daylight savings mode or not;
@@ -878,23 +1144,15 @@ PR_ParseTimeString(
                   secs = mktime(&localTime);
                   if (secs != (time_t) -1)
                     {
-#if defined(XP_MAC) && (__MSL__ < 0x6000)
-                      /*
-                       * The mktime() routine in MetroWerks MSL C
-                       * Runtime library returns seconds since midnight,
-                       * 1 Jan. 1900, not 1970 - in versions of MSL (Metrowerks Standard
-                       * Library) prior to version 6.  Only for older versions of
-                       * MSL do we adjust the value of secs to the NSPR epoch
-                       */
-                      secs -= ((365 * 70UL) + 17) * 24 * 60 * 60;
-#endif
-                      LL_I2L(*result, secs);
+                      PRTime usecs64;
+                      LL_I2L(usecs64, secs);
                       LL_I2L(usec_per_sec, PR_USEC_PER_SEC);
-                      LL_MUL(*result, *result, usec_per_sec);
+                      LL_MUL(usecs64, usecs64, usec_per_sec);
+                      *result_imploded = usecs64;
                       return PR_SUCCESS;
                     }
                 }
-
+                
                 /* So mktime() can't handle this case.  We assume the
                    zone_offset for the date we are parsing is the same as
                    the zone offset on 00:00:00 2 Jan 1970 GMT. */
@@ -905,9 +1163,11 @@ PR_ParseTimeString(
                               + 1440 * (localTime.tm_mday - 2);
         }
 
-        tm.tm_params.tp_gmt_offset = zone_offset * 60;
+  /* mainly to compute wday and yday */
+  PR_NormalizeTime(result, PR_GMTParameters);
+  result->tm_params.tp_gmt_offset = zone_offset * 60;
+  result->tm_params.tp_dst_offset = dst_offset * 60;
 
-  *result = PR_ImplodeTime(&tm);
-
+  *result_imploded = PR_ImplodeTime(result);
   return PR_SUCCESS;
 }
