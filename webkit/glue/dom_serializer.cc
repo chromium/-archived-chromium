@@ -74,6 +74,7 @@ MSVC_POP_WARNING();
 
 #include "base/string_util.h"
 #include "webkit/glue/dom_operations.h"
+#include "webkit/glue/dom_operations_private.h"
 #include "webkit/glue/dom_serializer_delegate.h"
 #include "webkit/glue/entity_map.h"
 #include "webkit/glue/glue_util.h"

@@ -134,6 +134,7 @@ MSVC_POP_WARNING();
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/dom_operations.h"
+#include "webkit/glue/dom_operations_private.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdocumentloader_impl.h"

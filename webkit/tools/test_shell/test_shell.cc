@@ -31,6 +31,7 @@
 #include "net/url_request/url_request_filter.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"

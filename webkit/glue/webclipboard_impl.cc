@@ -75,7 +75,7 @@ WebString WebClipboardImpl::readPlainText() {
     std::wstring text;
     ClipboardReadText(&text);
     if (!text.empty())
-      return WideToUTF16(text);
+      return WideToUTF16Hack(text);
   }
 
   if (ClipboardIsFormatAvailable(Clipboard::GetPlainTextFormatType())) {
@@ -93,15 +93,15 @@ WebString WebClipboardImpl::readHTML(WebURL* source_url) {
   GURL gurl;
   ClipboardReadHTML(&html_stdstr, &gurl);
   *source_url = gurl;
-  return WideToUTF16(html_stdstr);
+  return WideToUTF16Hack(html_stdstr);
 }
 
 void WebClipboardImpl::writeHTML(
     const WebString& html_text, const WebURL& source_url,
     const WebString& plain_text, bool write_smart_paste) {
   ScopedClipboardWriterGlue scw(ClipboardGetClipboard());
-  scw.WriteHTML(UTF16ToWide(html_text), source_url.spec());
-  scw.WriteText(UTF16ToWide(plain_text));
+  scw.WriteHTML(UTF16ToWideHack(html_text), source_url.spec());
+  scw.WriteText(UTF16ToWideHack(plain_text));
 
   if (write_smart_paste)
     scw.WriteWebSmartPaste();
@@ -110,7 +110,7 @@ void WebClipboardImpl::writeHTML(
 void WebClipboardImpl::writeURL(const WebURL& url, const WebString& title) {
   ScopedClipboardWriterGlue scw(ClipboardGetClipboard());
 
-  scw.WriteBookmark(UTF16ToWide(title), url.spec());
+  scw.WriteBookmark(UTF16ToWideHack(title), url.spec());
   scw.WriteHTML(UTF8ToWide(URLToMarkup(url, title)), "");
   scw.WriteText(UTF8ToWide(url.spec()));
 }
@@ -125,7 +125,7 @@ void WebClipboardImpl::writeImage(
 #endif
 
   if (!url.isEmpty()) {
-    scw.WriteBookmark(UTF16ToWide(title), url.spec());
+    scw.WriteBookmark(UTF16ToWideHack(title), url.spec());
     scw.WriteHTML(UTF8ToWide(URLToImageMarkup(url, title)), "");
     scw.WriteText(UTF8ToWide(url.spec()));
   }

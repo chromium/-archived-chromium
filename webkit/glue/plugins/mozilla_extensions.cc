@@ -12,6 +12,7 @@
 #include "net/base/net_errors.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webplugin.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 
 #define QI_SUPPORTS_IID(iid, iface)                                           \

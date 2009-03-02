@@ -27,6 +27,10 @@ MSVC_POP_WARNING();
 #include "googleurl/src/gurl.h"
 
 
+// TODO(darin): This file will be deleted once we complete the move to
+// third_party/WebKit/WebKit/chromium
+
+
 namespace webkit_glue {
 
 // String conversions ----------------------------------------------------------
@@ -96,22 +100,6 @@ WebCore::String FilePathStringToString(const FilePath::StringType& str) {
   return StdWStringToString(str);
 #elif defined(OS_POSIX)
   return StdWStringToString(base::SysNativeMBToWide(str));
-#endif
-}
-
-FilePath::StringType WebStringToFilePathString(const WebKit::WebString& str) {
-#if defined(OS_POSIX)
-  return base::SysWideToNativeMB(UTF16ToWide(str));
-#elif defined(OS_WIN)
-  return UTF16ToWide(str);
-#endif
-}
-
-WebKit::WebString FilePathStringToWebString(const FilePath::StringType& str) {
-#if defined(OS_POSIX)
-  return WideToUTF16(base::SysNativeMBToWide(str));
-#elif defined(OS_WIN)
-  return WideToUTF16(str);
 #endif
 }
 

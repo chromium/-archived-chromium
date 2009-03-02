@@ -30,6 +30,7 @@ MSVC_POP_WARNING();
 #include "base/basictypes.h"
 #include "base/string_util.h"
 #include "webkit/glue/dom_operations.h"
+#include "webkit/glue/dom_operations_private.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webframe_impl.h"

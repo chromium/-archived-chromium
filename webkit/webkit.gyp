@@ -4184,6 +4184,7 @@
         'glue/debugger_bridge.h',
         'glue/dom_operations.cc',
         'glue/dom_operations.h',
+        'glue/dom_operations_private.h',
         'glue/dom_serializer.cc',
         'glue/dom_serializer.h',
         'glue/dom_serializer_delegate.h',

@@ -13,6 +13,7 @@
 #include "PlatformContextSkia.h"
 #undef LOG
 
+#include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe.h"

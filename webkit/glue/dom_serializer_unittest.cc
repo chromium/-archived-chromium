@@ -29,6 +29,7 @@ MSVC_POP_WARNING();
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/dom_operations.h"
+#include "webkit/glue/dom_operations_private.h"
 #include "webkit/glue/dom_serializer.h"
 #include "webkit/glue/dom_serializer_delegate.h"
 #include "webkit/glue/glue_util.h"

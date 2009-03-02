@@ -153,6 +153,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dom_operations.h"
+				>
+			</File>
+			<File
 				RelativePath=".\form_data.h"
 				>
 			</File>
@@ -349,7 +353,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dom_operations.h"
+				RelativePath=".\dom_operations_private.h"
 				>
 			</File>
 			<File

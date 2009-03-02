@@ -15,6 +15,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #undef LOG
+#include "base/gfx/rect.h"
 #include "webkit/glue/inspector_client_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/weburlrequest.h"

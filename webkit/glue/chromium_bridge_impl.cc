@@ -44,9 +44,11 @@
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/plugins/plugin_instance.h"
+#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
+#include "webkit/glue/webview.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -106,7 +108,18 @@ bool ChromiumBridge::ensureFontLoaded(HFONT font) {
 // JavaScript -----------------------------------------------------------------
 
 void ChromiumBridge::notifyJSOutOfMemory(Frame* frame) {
-  webkit_glue::NotifyJSOutOfMemory(frame);
+  if (!frame)
+    return;
+
+  // Dispatch to the delegate of the view that owns the frame.
+  WebFrame* webframe = WebFrameImpl::FromFrame(frame);
+  WebView* webview = webframe->GetView();
+  if (!webview)
+    return;
+  WebViewDelegate* delegate = webview->GetDelegate();
+  if (!delegate)
+    return;
+  delegate->JSOutOfMemory();
 }
 
 // Plugin ---------------------------------------------------------------------
