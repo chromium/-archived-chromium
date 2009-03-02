@@ -38,6 +38,7 @@ MSVC_POP_WARNING();
 
 #include "base/file_version_info.h"
 #include "base/singleton.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/sys_string_conversions.h"
