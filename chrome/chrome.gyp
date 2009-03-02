@@ -1334,9 +1334,9 @@
         'app/scoped_ole_initializer.h',
       ],
       'mac_bundle_resources': [
-        'app/nibs/English.lproj/BrowserWindow.xib',
-        'app/nibs/English.lproj/MainMenu.xib',
-        'app/nibs/English.lproj/TabContents.xib',
+        'app/nibs/en.lproj/BrowserWindow.xib',
+        'app/nibs/en.lproj/MainMenu.xib',
+        'app/nibs/en.lproj/TabContents.xib',
         'app/theme/chromium/chromium.icns',
         'app/theme/back.pdf',
         'app/theme/forward.pdf',
@@ -1423,7 +1423,7 @@
               'conditions': [
                 ['OS=="mac"', {
                   'outputs': [
-                    '<(INTERMEDIATE_DIR)/repack/English.lproj/locale.pak',
+                    '<(INTERMEDIATE_DIR)/repack/en.lproj/locale.pak',
                   ],
                 }, {  # else: OS!="mac"
                   'outputs': [
@@ -1705,7 +1705,6 @@
             'browser/download/download_request_manager_unittest.cc',
             'browser/extensions/user_script_master_unittest.cc',
             'browser/history/text_database_manager_unittest.cc',
-            'browser/history/text_database_unittest.cc',
             'browser/history/thumbnail_database_unittest.cc',
             'browser/importer/firefox_importer_unittest.cc',
             'browser/importer/importer_unittest.cc',
@@ -1737,7 +1736,6 @@
             'browser/visitedlink_unittest.cc',
             'browser/webdata/web_database_unittest.cc',
             'browser/window_sizer_unittest.cc',
-            'common/gfx/chrome_font_unittest.cc',
             'common/gfx/emf_unittest.cc',
             'common/gfx/icon_util_unittest.cc',
             'common/gfx/text_elider_unittest.cc',

@@ -461,6 +461,7 @@
         'scoped_bstr_win_unittest.cc',
         'scoped_comptr_win_unittest.cc',
         'scoped_ptr_unittest.cc',
+        'scoped_temp_dir_unittest.cc',
         'sha2_unittest.cc',
         'shared_memory_unittest.cc',
         'simple_thread_unittest.cc',
@@ -473,7 +474,6 @@
         'string_util_unittest.cc',
         'sys_info_unittest.cc',
         'sys_string_conversions_unittest.cc',
-        'sys_string_conversions_unittest.cc',
         'system_monitor_unittest.cc',
         'thread_collision_warner_unittest.cc',
         'thread_local_storage_unittest.cc',
@@ -485,7 +485,9 @@
         'tracked_objects_unittest.cc',
         'tuple_unittest.cc',
         'values_unittest.cc',
+        'version_unittest.cc',
         'waitable_event_unittest.cc',
+        'waitable_event_watcher_unittest.cc',
         'watchdog_unittest.cc',
         'win_util_unittest.cc',
         'wmi_util_unittest.cc',
@@ -504,54 +506,42 @@
         '../testing/gtest.gyp:gtest',
       ],
       'conditions': [
-        [ 'OS == "linux"', {
-            'sources!': [
-              'file_version_info_unittest.cc',
-              # Linux has an implementation of idle_timer, but it's unclear
-              # if we want it yet, so leave it 'unported' for now.
-              'idletimer_unittest.cc',
-            ],
-          },
-          { # OS != "linux"
-            'sources!': [
-              'data_pack_unittest.cc',
-            ],
-          },
-        ],
-        [ 'OS == "mac"', {
-            'sources!': [
-              'stats_table_unittest.cc',
-            ],
-          },
-          { # OS != "mac"
-            'sources!': [
-              'mac_util_unittest.cc',
-            ],
-          },
-        ],
+        ['OS == "linux"', {
+          'sources!': [
+            'file_version_info_unittest.cc',
+            # Linux has an implementation of idle_timer, but it's unclear
+            # if we want it yet, so leave it 'unported' for now.
+            'idletimer_unittest.cc',
+          ],
+        }],
+        ['OS != "mac"', {
+          'sources!': [
+            'mac_util_unittest.cc',
+          ],
+        }],
         # This is needed to trigger the dll copy step on windows.
         # TODO(mark): This should not be necessary.
-        [ 'OS == "win"', {
-            'dependencies': [
-              '../third_party/icu38/icu38.gyp:icudata',
-            ],
-          },
-          {  # OS != "win", {
-            'sources!': [
-              'gfx/native_theme_unittest.cc',
-              'directory_watcher_unittest.cc',
-              'object_watcher_unittest.cc',
-              'pe_image_unittest.cc',
-              'scoped_bstr_win_unittest.cc',
-              'scoped_comptr_win_unittest.cc',
-              'system_monitor_unittest.cc',
-              'sys_string_conversions_unittest.cc',
-              'time_win_unittest.cc',
-              'win_util_unittest.cc',
-              'wmi_util_unittest.cc',
-            ],
-          }
-        ],
+        ['OS == "win"', {
+          'dependencies': [
+            '../third_party/icu38/icu38.gyp:icudata',
+          ],
+          'sources!': [
+            'data_pack_unittest.cc',
+          ],
+        }, {  # OS != "win"
+          'sources!': [
+            'gfx/native_theme_unittest.cc',
+            'directory_watcher_unittest.cc',
+            'object_watcher_unittest.cc',
+            'pe_image_unittest.cc',
+            'scoped_bstr_win_unittest.cc',
+            'scoped_comptr_win_unittest.cc',
+            'system_monitor_unittest.cc',
+            'time_win_unittest.cc',
+            'win_util_unittest.cc',
+            'wmi_util_unittest.cc',
+          ],
+        }],
       ],
     },
   ],
