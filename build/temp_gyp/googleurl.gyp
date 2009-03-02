@@ -14,6 +14,12 @@
     {
       'target_name': 'googleurl',
       'type': 'static_library',
+      'dependencies': [
+        '../../base/base.gyp:base',
+        '../../third_party/icu38/icu38.gyp:icudata',
+        '../../third_party/icu38/icu38.gyp:icui18n',
+        '../../third_party/icu38/icu38.gyp:icuuc',
+      ],
       'sources': [
         '../../googleurl/src/gurl.cc',
         '../../googleurl/src/gurl.h',
@@ -43,17 +49,27 @@
         '../../googleurl/src/url_util.cc',
         '../../googleurl/src/url_util.h',
       ],
-      'dependencies': [
-        '../../base/base.gyp:base',
-        '../../third_party/icu38/icu38.gyp:icudata',
-        '../../third_party/icu38/icu38.gyp:icui18n',
-        '../../third_party/icu38/icu38.gyp:icuuc',
-      ],
       'direct_dependent_settings': {
         'include_dirs': [
           '../..',
         ],
       },
+    },
+    {
+      'target_name': 'googleurl_unittests',
+      'type': 'executable',
+      'dependencies': [
+        'googleurl',
+        '../../testing/gtest.gyp:gtest',
+        '../../third_party/icu38/icu38.gyp:icuuc',
+      ],
+      'sources': [
+        '../../googleurl/src/gurl_unittest.cc',
+        '../../googleurl/src/url_canon_unittest.cc',
+        '../../googleurl/src/url_parse_unittest.cc',
+        '../../googleurl/src/url_test_utils.h',
+        '../../googleurl/src/url_util_unittest.cc',
+      ],
     },
   ],
 }
