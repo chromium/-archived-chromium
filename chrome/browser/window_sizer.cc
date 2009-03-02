@@ -5,7 +5,8 @@
 #include "chrome/browser/window_sizer.h"
 
 #include <atlbase.h>
-#include <atltypes.h>
+#include <atlapp.h>
+#include <atlmisc.h>
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
