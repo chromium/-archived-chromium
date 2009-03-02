@@ -78,7 +78,7 @@
 
 class FieldTrial : public base::RefCounted<FieldTrial> {
  public:
-  static const int kNotParticipating = -1;
+  static const int kNotParticipating;
 
   typedef int Probability;  // Use scaled up probability.
 

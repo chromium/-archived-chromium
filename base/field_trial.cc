@@ -10,6 +10,9 @@
 
 using base::Time;
 
+// static
+const int FieldTrial::kNotParticipating = -1;
+
 //------------------------------------------------------------------------------
 // FieldTrial methods and members.
 
