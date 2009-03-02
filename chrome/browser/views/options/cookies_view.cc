@@ -10,6 +10,7 @@
 #include "base/time_format.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/standard_layout.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"

@@ -5,6 +5,7 @@
 #include "chrome/views/border.h"
 
 #include "base/logging.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 
 namespace views {
 

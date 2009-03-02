@@ -6,6 +6,7 @@
 
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/gfx/path.h"

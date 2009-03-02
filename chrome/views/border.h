@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_BORDER_H__
-#define CHROME_VIEWS_BORDER_H__
+#ifndef CHROME_VIEWS_BORDER_H_
+#define CHROME_VIEWS_BORDER_H_
 
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/insets.h"
 #include "chrome/views/view.h"
 #include "SkColor.h"
+
+class ChromeCanvas;
 
 namespace views {
 
@@ -50,10 +51,9 @@ class Border {
   virtual void GetInsets(gfx::Insets* insets) const = 0;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(Border);
+  DISALLOW_COPY_AND_ASSIGN(Border);
 };
 
 }  // namespace views
 
-#endif // CHROME_VIEWS_BORDER_H__
-
+#endif  // CHROME_VIEWS_BORDER_H_

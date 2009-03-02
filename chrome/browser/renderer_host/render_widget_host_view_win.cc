@@ -17,6 +17,7 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
 #include "chrome/common/plugin_messages.h"

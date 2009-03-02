@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/string_util.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/border.h"
 #include "chrome/views/label.h"

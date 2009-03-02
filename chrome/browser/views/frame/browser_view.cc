@@ -42,6 +42,7 @@
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/drag_drop_types.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/os_exchange_data.h"

@@ -11,6 +11,7 @@
 #include "chrome/views/button.h"
 
 class BrowserView;
+class ChromeFont;
 class OpaqueFrame;
 class TabContents;
 class TabStrip;

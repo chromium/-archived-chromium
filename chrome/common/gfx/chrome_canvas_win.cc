@@ -195,3 +195,78 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text,
                                  int x, int y, int w, int h, int flags) {
   DrawStringInt(text, font.hfont(), color, x, y, w, h, flags);
 }
+
+// Checks each pixel immediately adjacent to the given pixel in the bitmap. If
+// any of them are not the halo color, returns true. This defines the halo of
+// pixels that will appear around the text. Note that we have to check each
+// pixel against both the halo color and transparent since DrawStringWithHalo
+// will modify the bitmap as it goes, and clears pixels shouldn't count as
+// changed.
+static bool pixelShouldGetHalo(const SkBitmap& bitmap, int x, int y,
+                               SkColor halo_color) {
+  if (x > 0 &&
+      *bitmap.getAddr32(x - 1, y) != halo_color &&
+      *bitmap.getAddr32(x - 1, y) != 0)
+    return true;  // Touched pixel to the left.
+  if (x < bitmap.width() - 1 &&
+      *bitmap.getAddr32(x + 1, y) != halo_color &&
+      *bitmap.getAddr32(x + 1, y) != 0)
+    return true;  // Touched pixel to the right.
+  if (y > 0 &&
+      *bitmap.getAddr32(x, y - 1) != halo_color &&
+      *bitmap.getAddr32(x, y - 1) != 0)
+    return true;  // Touched pixel above.
+  if (y < bitmap.height() - 1 &&
+      *bitmap.getAddr32(x, y + 1) != halo_color &&
+      *bitmap.getAddr32(x, y + 1) != 0)
+    return true;  // Touched pixel below.
+  return false;
+}
+
+void ChromeCanvas::DrawStringWithHalo(const std::wstring& text,
+                                      const ChromeFont& font,
+                                      const SkColor& text_color,
+                                      const SkColor& halo_color_in,
+                                      int x, int y, int w, int h,
+                                      int flags) {
+  // Some callers will have semitransparent halo colors, which we don't handle
+  // (since the resulting image can have 1-bit transparency only).
+  SkColor halo_color = halo_color_in | 0xFF000000;
+
+  // Create a temporary buffer filled with the halo color. It must leave room
+  // for the 1-pixel border around the text.
+  ChromeCanvas text_canvas(w + 2, h + 2, true);
+  SkPaint bkgnd_paint;
+  bkgnd_paint.setColor(halo_color);
+  text_canvas.FillRectInt(0, 0, w + 2, h + 2, bkgnd_paint);
+
+  // Draw the text into the temporary buffer. This will have correct
+  // ClearType since the background color is the same as the halo color.
+  text_canvas.DrawStringInt(text, font, text_color, 1, 1, w, h, flags);
+
+  // Windows will have cleared the alpha channel for the pixels it drew. Make it
+  // opaque. We have to do this first since pixelShouldGetHalo will check for
+  // 0 to see if a pixel has been modified to transparent, and black text that
+  // Windows draw will look transparent to it!
+  text_canvas.getTopPlatformDevice().makeOpaque(0, 0, w + 2, h + 2);
+
+  uint32_t halo_premul = SkPreMultiplyColor(halo_color);
+  SkBitmap& text_bitmap = const_cast<SkBitmap&>(
+      text_canvas.getTopPlatformDevice().accessBitmap(true));
+  for (int cur_y = 0; cur_y < h + 2; cur_y++) {
+    uint32_t* text_row = text_bitmap.getAddr32(0, cur_y);
+    for (int cur_x = 0; cur_x < w + 2; cur_x++) {
+      if (text_row[cur_x] == halo_premul) {
+        // This pixel was not touched by the text routines. See if it borders
+        // a touched pixel in any of the 4 directions (not diagonally).
+        if (!pixelShouldGetHalo(text_bitmap, cur_x, cur_y, halo_premul))
+          text_row[cur_x] = 0;  // Make transparent.
+      } else {
+        text_row[cur_x] |= 0xff << SK_A32_SHIFT;  // Make opaque.
+      }
+    }
+  }
+
+  // Draw the halo bitmap with blur.
+  drawBitmap(text_bitmap, SkIntToScalar(x - 1), SkIntToScalar(y - 1));
+}

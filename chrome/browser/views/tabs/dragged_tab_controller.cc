@@ -17,6 +17,7 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/animation.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"

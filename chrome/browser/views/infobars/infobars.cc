@@ -7,6 +7,7 @@
 #include "base/message_loop.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/infobars/infobar_container.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/slide_animation.h"

@@ -6,6 +6,7 @@
 
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/window_resources.h"

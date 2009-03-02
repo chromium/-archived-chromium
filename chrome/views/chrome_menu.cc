@@ -1479,10 +1479,20 @@ void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
   ChromeFont& font = GetRootMenuItem()->font_;
   gfx::Rect text_bounds(label_start, top_margin, width, font.height());
   text_bounds.set_x(MirroredLeftPointForRect(text_bounds));
-  canvas->DrawStringInt(GetTitle(), font, fg_color,
-                        text_bounds.x(), text_bounds.y(), text_bounds.width(),
-                        text_bounds.height(),
-                        GetRootMenuItem()->GetDrawStringFlags());
+  if (for_drag) {
+    // With different themes, it's difficult to tell what the correct foreground
+    // and background colors are for the text to draw the correct halo. Instead,
+    // just draw black on white, which will look good in most cases.
+    canvas->DrawStringWithHalo(GetTitle(), font, 0x00000000, 0xFFFFFFFF,
+                               text_bounds.x(), text_bounds.y(),
+                               text_bounds.width(), text_bounds.height(),
+                               GetRootMenuItem()->GetDrawStringFlags());
+  } else {
+    canvas->DrawStringInt(GetTitle(), font, fg_color,
+                          text_bounds.x(), text_bounds.y(), text_bounds.width(),
+                          text_bounds.height(),
+                          GetRootMenuItem()->GetDrawStringFlags());
+  }
 
   if (icon_.width() > 0) {
     gfx::Rect icon_bounds(kItemLeftMargin,

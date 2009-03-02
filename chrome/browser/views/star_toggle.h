@@ -8,6 +8,8 @@
 #include "chrome/views/view.h"
 #include "chrome/views/event.h"
 
+class SkBitmap;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // A view subclass to implement the star button. The star button notifies its

@@ -5,6 +5,7 @@
 #include "chrome/views/text_button.h"
 
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/throb_animation.h"
 #include "chrome/common/win_util.h"
@@ -260,22 +261,31 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
     gfx::Rect text_bounds(text_x, text_y, text_width, text_size_.height());
     text_bounds.set_x(MirroredLeftPointForRect(text_bounds));
 
-    // Draw bevel highlight
-    canvas->DrawStringInt(text_,
-                          font_,
-                          kHighlightColor,
-                          text_bounds.x() + 1,
-                          text_bounds.y() + 1,
-                          text_bounds.width(),
-                          text_bounds.height());
+    if (for_drag) {
+      canvas->DrawStringWithHalo(text_, font_, color_, kHighlightColor,
+                                 text_bounds.x(),
+                                 text_bounds.y(),
+                                 text_bounds.width(),
+                                 text_bounds.height(),
+                                 l10n_util::DefaultCanvasTextAlignment());
+    } else {
+      // Draw bevel highlight
+      canvas->DrawStringInt(text_,
+                            font_,
+                            kHighlightColor,
+                            text_bounds.x() + 1,
+                            text_bounds.y() + 1,
+                            text_bounds.width(),
+                            text_bounds.height());
 
-    canvas->DrawStringInt(text_,
-                          font_,
-                          color_,
-                          text_bounds.x(),
-                          text_bounds.y(),
-                          text_bounds.width(),
-                          text_bounds.height());
+      canvas->DrawStringInt(text_,
+                            font_,
+                            color_,
+                            text_bounds.x(),
+                            text_bounds.y(),
+                            text_bounds.width(),
+                            text_bounds.height());
+    }
   }
 
   if (icon_.width() > 0) {

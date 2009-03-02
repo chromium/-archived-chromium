@@ -147,6 +147,16 @@ class ChromeCanvas : public skia::PlatformCanvas {
                      const SkColor& color, int x, int y, int w, int h,
                      int flags);
 
+#ifdef OS_WIN  // Only implemented on Windows for now.
+  // Draws text with a 1-pixel halo around it of the given color. It allows
+  // ClearType to be drawn to an otherwise transparenct bitmap for drag images.
+  // Drag images have only 1-bit of transparency, so we don't do any fancy
+  // blurring.
+  void DrawStringWithHalo(const std::wstring& text, const ChromeFont& font,
+                          const SkColor& text_color, const SkColor& halo_color,
+                          int x, int y, int w, int h, int flags);
+#endif
+
   // Draws a dotted gray rectangle used for focus purposes.
   void DrawFocusRect(int x, int y, int width, int height);
 

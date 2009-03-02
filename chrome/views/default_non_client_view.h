@@ -5,6 +5,7 @@
 #ifndef CHROME_VIEWS_DEFAULT_NON_CLIENT_VIEW_H_
 #define CHROME_VIEWS_DEFAULT_NON_CLIENT_VIEW_H_
 
+#include "base/basictypes.h"
 #include "chrome/views/button.h"
 #include "chrome/views/custom_frame_window.h"
 #include "chrome/views/non_client_view.h"
@@ -16,6 +17,7 @@ class Path;
 class Point;
 }
 class ChromeCanvas;
+class ChromeFont;
 
 namespace views {
 
@@ -118,9 +120,9 @@ class DefaultNonClientView : public NonClientView,
   static WindowResources* inactive_resources_;
   static ChromeFont title_font_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DefaultNonClientView);
+  DISALLOW_COPY_AND_ASSIGN(DefaultNonClientView);
 };
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_DEFAULT_NON_CLIENT_VIEW_H_
+#endif  // CHROME_VIEWS_DEFAULT_NON_CLIENT_VIEW_H_

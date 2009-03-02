@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_SAD_TAB_H__
-#define CHROME_BROWSER_VIEWS_SAD_TAB_H__
+#ifndef CHROME_BROWSER_VIEWS_SAD_TAB_H_
+#define CHROME_BROWSER_VIEWS_SAD_TAB_H_
 
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/view.h"
+
+class SkBitmap;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -52,5 +54,4 @@ class SadTabView : public views::View {
   DISALLOW_EVIL_CONSTRUCTORS(SadTabView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_SAD_TAB_H__
-
+#endif  // #ifndef CHROME_BROWSER_VIEWS_SAD_TAB_H_
