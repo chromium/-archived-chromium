@@ -326,7 +326,19 @@ LINUX : LayoutTests/fast/replaced/object-display-none.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
+LINUX : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 LINUX : LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL CRASH
+LINUX : LayoutTests/svg/custom/mask-changes.svg = FAIL
+LINUX : LayoutTests/svg/custom/mask-child-changes.svg = FAIL
+LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = FAIL
+LINUX : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
+LINUX : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
+LINUX : LayoutTests/svg/custom/visibility-override-mask.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
 LINUX : LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
@@ -510,7 +522,6 @@ LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
-LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 
@@ -1778,10 +1789,6 @@ LINUX : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
-// Ojan's editing layout test regressions
-LINUX WIN : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
-WIN : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
-
 // New tests from merge 41181:41217
 DEFER : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
 
@@ -1812,10 +1819,6 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/mask-changes.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/mask-child-changes.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/mask-inside-defs.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/visibility-override-mask.svg = FAIL
 
 // Regression from merge 41268:41286
 // dimich to do triage and find out which are just rebaseline.
@@ -1836,17 +1839,9 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
 WIN : LayoutTests/svg/carto.net/combobox.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-gradient-creation.svg = FAIL
 WIN : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-pattern-creation.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
-WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
 WIN : LayoutTests/svg/text/text-text-07-t.svg = FAIL
 LINUX WIN : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
 LINUX WIN : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL

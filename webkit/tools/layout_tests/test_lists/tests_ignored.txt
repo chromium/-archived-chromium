@@ -77,6 +77,7 @@ SKIP : LayoutTests/http/tests/xmlhttprequest/svg-created-by-xhr-disallowed-in-da
 LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
 LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
 LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
+LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 
 // Chrome uses different keyboard accelerators from those used by Safari, so
 // these tests will always fail.
