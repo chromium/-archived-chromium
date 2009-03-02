@@ -20,6 +20,7 @@
 #elif defined(OS_MACOSX)
 #include "net/proxy/proxy_resolver_mac.h"
 #endif
+#include "net/proxy/proxy_resolver.h"
 
 using base::TimeDelta;
 using base::TimeTicks;
