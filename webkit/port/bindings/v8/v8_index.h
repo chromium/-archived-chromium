@@ -27,12 +27,15 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
 #endif
 
 #if ENABLE(WORKERS)
+#define WORKER_ACTIVE_OBJECT_WRAPPER_TYPES(V)                           \
+  V(WORKER, Worker)
+
 #define WORKER_NONNODE_WRAPPER_TYPES(V)                                 \
-  V(WORKER, Worker)                                                     \
   V(WORKERCONTEXT, WorkerContext)                                       \
   V(WORKERLOCATION, WorkerLocation)                                     \
   V(WORKERNAVIGATOR, WorkerNavigator)
 #else
+#define WORKER_ACTIVE_OBJECT_WRAPPER_TYPES(V)
 #define WORKER_NONNODE_WRAPPER_TYPES(V)
 #endif
 
@@ -233,7 +236,8 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
 // during GC.
 #define ACTIVE_DOM_OBJECT_TYPES(V)                                      \
   V(MESSAGEPORT, MessagePort)                                           \
-  V(XMLHTTPREQUEST, XMLHttpRequest)
+  V(XMLHTTPREQUEST, XMLHttpRequest)                                     \
+  WORKER_ACTIVE_OBJECT_WRAPPER_TYPES(V)
 
 // NOTE: DOM_OBJECT_TYPES is split into two halves because 
 //       Visual Studio's Intellinonsense crashes when macros get 

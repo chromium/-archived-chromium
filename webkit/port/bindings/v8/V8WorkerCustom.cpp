@@ -88,7 +88,7 @@ CALLBACK_FUNC_DECL(WorkerConstructor) {
       wrapper_object, V8ClassIndex::WORKER, obj.get());
 
   obj->ref();
-  V8Proxy::SetJSWrapperForDOMObject(
+  V8Proxy::SetJSWrapperForActiveDOMObject(
       obj.get(), v8::Persistent<v8::Object>::New(wrapper_object));  
 
   return wrapper_object;
