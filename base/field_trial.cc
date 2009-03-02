@@ -6,8 +6,46 @@
 #include "base/field_trial.h"
 #include "base/logging.h"
 #include "base/rand_util.h"
+#include "base/string_util.h"
 
 using base::Time;
+
+//------------------------------------------------------------------------------
+// FieldTrial methods and members.
+
+FieldTrial::FieldTrial(const std::string& name,
+                       const Probability total_probability)
+  : name_(name),
+    divisor_(total_probability),
+    random_(static_cast<Probability>(divisor_ * base::RandDouble())),
+    accumulated_group_probability_(0),
+    next_group_number_(0),
+    group_(kNotParticipating) {
+  FieldTrialList::Register(this);
+}
+
+int FieldTrial::AppendGroup(const std::string& name,
+                            Probability group_probability) {
+  DCHECK(group_probability <= divisor_);
+  accumulated_group_probability_ += group_probability;
+  DCHECK(accumulated_group_probability_ <= divisor_);
+  if (group_ == kNotParticipating && accumulated_group_probability_ > random_) {
+    // This is the group that crossed the random line, so we do teh assignment.
+    group_ = next_group_number_;
+    if (name.empty())
+      StringAppendF(&group_name_, "_%d", group_);
+    else
+      group_name_ = name;
+  }
+  return next_group_number_++;
+}
+
+// static
+std::string FieldTrial::MakeName(const std::string& name_prefix,
+                                 const std::string& trial_name) {
+  std::string big_string(name_prefix);
+  return big_string.append(FieldTrialList::FindFullName(trial_name));
+}
 
 //------------------------------------------------------------------------------
 // FieldTrialList methods and members.
@@ -40,7 +78,23 @@ void FieldTrialList::Register(FieldTrial* trial) {
 }
 
 // static
-FieldTrial* FieldTrialList::Find(const std::wstring& name) {
+int FieldTrialList::FindValue(const std::string& name) {
+  FieldTrial* field_trial = Find(name);
+  if (field_trial)
+    return field_trial->group();
+  return FieldTrial::kNotParticipating;
+}
+
+// static
+std::string FieldTrialList::FindFullName(const std::string& name) {
+  FieldTrial* field_trial = Find(name);
+  if (field_trial)
+    return field_trial->group_name();
+  return "";
+}
+
+  // static
+FieldTrial* FieldTrialList::Find(const std::string& name) {
   DCHECK(global_->CalledOnValidThread());
   RegistrationList::iterator it = global_->registered_.find(name);
   if (global_->registered_.end() == it)
@@ -48,13 +102,3 @@ FieldTrial* FieldTrialList::Find(const std::wstring& name) {
   return it->second;
 }
 
-//------------------------------------------------------------------------------
-// FieldTrial methods and members.
-
-FieldTrial::FieldTrial(const std::wstring& name, double probability)
-  : name_(name) {
-  double rand = base::RandDouble();
-  DCHECK(rand >= 0.0  && rand < 1.0);
-  boolean_value_ = rand < probability;
-  FieldTrialList::Register(this);
-}
