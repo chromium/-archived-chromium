@@ -31,6 +31,7 @@ class View;
 class AutocompleteEditController;
 class AutocompleteEditModel;
 class AutocompleteEditView;
+class AutocompletePopupViewWin;
 struct AutocompleteEditState;
 
 // TODO(pkasting): http://b/1343512  The names and contents of the classes in
@@ -796,7 +797,7 @@ class AutocompleteEditView
 
   scoped_ptr<AutocompleteEditModel> model_;
 
-  scoped_ptr<AutocompletePopupModel> popup_model_;
+  scoped_ptr<AutocompletePopupViewWin> popup_view_;
 
   AutocompleteEditController* controller_;
 

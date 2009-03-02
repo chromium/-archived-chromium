@@ -17,6 +17,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/autocomplete/autocomplete_accessibility.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
+#include "chrome/browser/autocomplete/autocomplete_popup_view_win.h"
 #include "chrome/browser/autocomplete/edit_drop_target.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/browser_process.h"
@@ -720,8 +721,8 @@ AutocompleteEditView::AutocompleteEditView(
     CommandUpdater* command_updater,
     bool popup_window_mode)
     : model_(new AutocompleteEditModel(this, controller, profile)),
-      popup_model_(new AutocompletePopupModel(font, this, model_.get(),
-                                              profile)),
+      popup_view_(new AutocompletePopupViewWin(font, this, model_.get(),
+                                               profile)),
       controller_(controller),
       parent_view_(parent_view),
       toolbar_model_(toolbar_model),
@@ -738,7 +739,7 @@ AutocompleteEditView::AutocompleteEditView(
       drop_highlight_position_(-1),
       background_color_(0),
       scheme_security_level_(ToolbarModel::NORMAL) {
-  model_->set_popup_model(popup_model_.get());
+  model_->set_popup_model(popup_view_->model());
 
   saved_selection_for_focus_change_.cpMin = -1;
 
@@ -1038,7 +1039,7 @@ void AutocompleteEditView::UpdatePopup() {
 }
 
 void AutocompleteEditView::ClosePopup() {
-  popup_model_->StopAutocomplete();
+  popup_view_->model()->StopAutocomplete();
 }
 
 IAccessible* AutocompleteEditView::GetIAccessible() {
@@ -1954,12 +1955,12 @@ bool AutocompleteEditView::OnKeyDownOnlyWritable(TCHAR key,
           OnBeforePossibleChange();
           Cut();
           OnAfterPossibleChange();
-        } else if (popup_model_->IsOpen()) {
+        } else if (popup_view_->model()->IsOpen()) {
           // This is a bit overloaded, but we hijack Shift-Delete in this
           // case to delete the current item from the pop-up.  We prefer cutting
           // to this when possible since that's the behavior more people expect
           // from Shift-Delete, and it's more commonly useful.
-          popup_model_->TryDeletingCurrentItem();
+          popup_view_->model()->TryDeletingCurrentItem();
         }
       }
       return true;

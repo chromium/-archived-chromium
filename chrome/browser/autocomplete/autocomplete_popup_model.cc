@@ -10,7 +10,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
-#include "chrome/browser/autocomplete/autocomplete_popup_view.h"
+#include "chrome/browser/autocomplete/autocomplete_popup_view_win.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
@@ -25,11 +25,10 @@
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 
 AutocompletePopupModel::AutocompletePopupModel(
-    const ChromeFont& font,
-    AutocompleteEditView* edit_view,
+    AutocompletePopupView* popup_view,
     AutocompleteEditModel* edit_model,
     Profile* profile)
-    : view_(AutocompletePopupView::CreatePopupView(this, font, edit_view)),
+    : view_(popup_view),
       edit_model_(edit_model),
       controller_(new AutocompleteController(profile)),
       profile_(profile),

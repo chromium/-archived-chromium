@@ -334,6 +334,7 @@
         'browser/autocomplete/autocomplete_popup_model.h',
         'browser/autocomplete/autocomplete_popup_view.h',
         'browser/autocomplete/autocomplete_popup_view_win.cc',
+        'browser/autocomplete/autocomplete_popup_view_win.h',
         'browser/autocomplete/edit_drop_target.cc',
         'browser/autocomplete/edit_drop_target.h',
         'browser/autocomplete/history_contents_provider.cc',

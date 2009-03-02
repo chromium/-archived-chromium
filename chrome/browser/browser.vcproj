@@ -170,6 +170,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\autocomplete\autocomplete_popup_view_win.h"
+				>
+			</File>
+			<File
 				RelativePath=".\autocomplete\autocomplete_popup_view.h"
 				>
 			</File>

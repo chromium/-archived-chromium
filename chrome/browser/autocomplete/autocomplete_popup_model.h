@@ -10,15 +10,13 @@
 
 class AutocompleteEditModel;
 class AutocompleteEditView;
-class ChromeFont;
 class Profile;
 
 class AutocompletePopupView;
 
 class AutocompletePopupModel : public NotificationObserver {
  public:
-  AutocompletePopupModel(const ChromeFont& font,
-                         AutocompleteEditView* edit_view,
+  AutocompletePopupModel(AutocompletePopupView* popup_view,
                          AutocompleteEditModel* edit_model,
                          Profile* profile);
   ~AutocompletePopupModel();
@@ -145,7 +143,7 @@ class AutocompletePopupModel : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  scoped_ptr<AutocompletePopupView> view_;
+  AutocompletePopupView* view_;
 
   AutocompleteEditModel* edit_model_;
   scoped_ptr<AutocompleteController> controller_;

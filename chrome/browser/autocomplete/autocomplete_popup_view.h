@@ -17,11 +17,6 @@ class ChromeFont;
 
 class AutocompletePopupView {
  public:
-  static AutocompletePopupView* CreatePopupView(
-      AutocompletePopupModel* model,
-      const ChromeFont& font,
-      AutocompleteEditView* edit_view);
-
   virtual ~AutocompletePopupView() { }
 
   // Returns true if the popup is currently open.
