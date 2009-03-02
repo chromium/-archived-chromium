@@ -28,9 +28,19 @@ class ChromeURLRequestContext : public URLRequestContext,
       Profile* profile, const FilePath& cookie_store_path,
       const FilePath& disk_cache_path);
 
+  // Create an instance for an original profile for media. This is expected to
+  // get called on UI thread. This method takes a profile and reuses the
+  // 'original' URLRequestContext for common files.
+  static ChromeURLRequestContext* CreateOriginalForMedia(Profile *profile,
+      const FilePath& disk_cache_path);
+
   // Create an instance for use with an OTR profile. This is expected to get
   // called on the UI thread.
   static ChromeURLRequestContext* CreateOffTheRecord(Profile* profile);
+
+  // Create an instance of request context for OTR profile for media resources.
+  static ChromeURLRequestContext* CreateOffTheRecordForMedia(Profile* profile,
+      const FilePath& disk_cache_path);
 
   // Clean up UI thread resources. This is expected to get called on the UI
   // thread before the instance is deleted on the IO thread.

@@ -32,6 +32,8 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   virtual int WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
                         net::CompletionCallback* completion_callback,
                         bool truncate);
+  virtual base::PlatformFile UseExternalFile(int index);
+  virtual base::PlatformFile GetPlatformFile(int index);
 
   inline CacheEntryBlock* entry() {
     return &entry_;
@@ -45,8 +47,7 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
 
   // Performs the initialization of a EntryImpl that will be added to the
   // cache.
-  bool CreateEntry(Addr node_address, const std::string& key,
-                   uint32 hash);
+  bool CreateEntry(Addr node_address, const std::string& key, uint32 hash);
 
   // Returns true if this entry matches the lookup arguments.
   bool IsSameEntry(const std::string& key, uint32 hash);
@@ -140,7 +141,8 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
                                                 // data and key.
   int unreported_size_[NUM_STREAMS];  // Bytes not reported yet to the backend.
   bool doomed_;               // True if this entry was removed from the cache.
-
+  bool need_file_[NUM_STREAMS];  // True if stream is prepared as an external
+                                 // file.
   DISALLOW_EVIL_CONSTRUCTORS(EntryImpl);
 };
 

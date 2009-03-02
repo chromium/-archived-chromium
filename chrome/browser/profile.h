@@ -162,6 +162,10 @@ class Profile {
   // keep it alive longer than the profile) must Release() it on the I/O thread.
   virtual URLRequestContext* GetRequestContext() = 0;
 
+  // Returns the request context for media resources asociated with this
+  // profile.
+  virtual URLRequestContext* GetRequestContextForMedia() = 0;
+
   // Returns the session service for this profile. This may return NULL. If
   // this profile supports a session service (it isn't off the record), and
   // the session service hasn't yet been created, this forces creation of
@@ -277,6 +281,7 @@ class ProfileImpl : public Profile,
   virtual DownloadManager* GetDownloadManager();
   virtual bool HasCreatedDownloadManager() const;
   virtual URLRequestContext* GetRequestContext();
+  virtual URLRequestContext* GetRequestContextForMedia();
   virtual SessionService* GetSessionService();
   virtual void ShutdownSessionService();
   virtual bool HasSessionService() const;
@@ -341,6 +346,8 @@ class ProfileImpl : public Profile,
 #endif
 
   ChromeURLRequestContext* request_context_;
+
+  ChromeURLRequestContext* media_request_context_;
 
   scoped_refptr<DownloadManager> download_manager_;
   scoped_refptr<HistoryService> history_service_;

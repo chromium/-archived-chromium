@@ -21,11 +21,24 @@ HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
   return new HttpNetworkLayer(proxy_service);
 }
 
+// static
+HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
+    HttpNetworkSession* session) {
+  DCHECK(session);
+
+  return new HttpNetworkLayer(session);
+}
+
 //-----------------------------------------------------------------------------
 
 HttpNetworkLayer::HttpNetworkLayer(ProxyService* proxy_service)
-    : proxy_service_(proxy_service), suspended_(false) {
+    : proxy_service_(proxy_service), session_(NULL), suspended_(false) {
   DCHECK(proxy_service_);
+}
+
+HttpNetworkLayer::HttpNetworkLayer(HttpNetworkSession* session)
+    : proxy_service_(NULL), session_(session), suspended_(false) {
+  DCHECK(session_.get());
 }
 
 HttpNetworkLayer::~HttpNetworkLayer() {
@@ -35,11 +48,8 @@ HttpTransaction* HttpNetworkLayer::CreateTransaction() {
   if (suspended_)
     return NULL;
 
-  if (!session_)
-    session_ = new HttpNetworkSession(proxy_service_);
-
   return new HttpNetworkTransaction(
-      session_, ClientSocketFactory::GetDefaultFactory());
+      GetSession(), ClientSocketFactory::GetDefaultFactory());
 }
 
 HttpCache* HttpNetworkLayer::GetCache() {
@@ -51,6 +61,14 @@ void HttpNetworkLayer::Suspend(bool suspend) {
 
   if (suspend && session_)
     session_->connection_pool()->CloseIdleSockets();
+}
+
+HttpNetworkSession* HttpNetworkLayer::GetSession() {
+  if (!session_) {
+    DCHECK(proxy_service_);
+    session_ = new HttpNetworkSession(proxy_service_);
+  }
+  return session_;
 }
 
 }  // namespace net

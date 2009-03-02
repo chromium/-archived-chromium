@@ -16,6 +16,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "net/http/http_cache.h"
+#include "net/http/http_network_layer.h"
 #include "net/http/http_util.h"
 #include "net/proxy/proxy_service.h"
 #include "webkit/glue/webkit_glue.h"
@@ -76,6 +77,46 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
 }
 
 // static
+ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginalForMedia(
+    Profile* profile, const FilePath& disk_cache_path) {
+  DCHECK(!profile->IsOffTheRecord());
+  URLRequestContext* original_context =
+      profile->GetOriginalProfile()->GetRequestContext();
+  ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
+  // Share the same proxy service of the common profile.
+  context->proxy_service_ = original_context->proxy_service();
+  // Also share the cookie store of the common profile.
+  context->cookie_store_ = original_context->cookie_store();
+
+  // Create a media cache with maximum size of kint32max (2GB).
+  // TODO(hclam): make the maximum size of media cache configurable.
+  net::HttpCache* original_cache =
+      original_context->http_transaction_factory()->GetCache();
+  net::HttpCache* cache;
+  if (original_cache) {
+    // Try to reuse HttpNetworkSession in the original context, assuming that
+    // HttpTransactionFactory (network_layer()) of HttpCache is implemented
+    // by HttpNetworkLayer so we can reuse HttpNetworkSession within it. This
+    // assumption will be invalid if the original HttpCache is constructed with
+    // HttpCache(HttpTransactionFactory*, disk_cache::Backend*) constructor.
+    net::HttpNetworkLayer* original_network_layer =
+        static_cast<net::HttpNetworkLayer*>(original_cache->network_layer());
+    cache = new net::HttpCache(original_network_layer->GetSession(),
+        disk_cache_path.ToWStringHack(), kint32max);
+  } else {
+    // If original HttpCache doesn't exist, simply construct one with a whole
+    // new set of network stack.
+    cache = new net::HttpCache(original_context->proxy_service(),
+        disk_cache_path.ToWStringHack(), kint32max);
+  }
+  // Set the cache type to media.
+  cache->set_type(net::HttpCache::MEDIA);
+
+  context->http_transaction_factory_ = cache;
+  return context;
+}
+
+// static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecord(
     Profile* profile) {
   DCHECK(profile->IsOffTheRecord());
@@ -92,6 +133,15 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecord(
   context->cookie_store_ = new net::CookieMonster;
 
   return context;
+}
+
+// static
+ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecordForMedia(
+    Profile* profile, const FilePath& disk_cache_path) {
+  // TODO(hclam): since we don't have an implementation of disk cache backend
+  // for media files in OTR mode, we use the original context first. Change this
+  // to the proper backend later.
+  return CreateOriginalForMedia(profile, disk_cache_path);
 }
 
 ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)

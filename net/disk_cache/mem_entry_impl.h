@@ -29,6 +29,14 @@ class MemEntryImpl : public Entry {
   virtual int WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
                         net::CompletionCallback* completion_callback,
                         bool truncate);
+  virtual base::PlatformFile UseExternalFile(int index) {
+    // MemEntryImpl doesn't support caching to an external file.
+    return base::kInvalidPlatformFileValue;
+  }
+  virtual base::PlatformFile GetPlatformFile(int index) {
+    // MemEntryImpl doesn't support caching to an external file.
+    return base::kInvalidPlatformFileValue;
+  }
 
   // Performs the initialization of a EntryImpl that will be added to the
   // cache.

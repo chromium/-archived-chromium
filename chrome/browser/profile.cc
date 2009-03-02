@@ -207,6 +207,20 @@ class OffTheRecordProfileImpl : public Profile,
     return request_context_;
   }
 
+  virtual URLRequestContext* GetRequestContextForMedia() {
+    if (!media_request_context_) {
+      FilePath cache_path = GetPath();
+      cache_path.Append(chrome::kOffTheRecordMediaCacheDirname);
+      media_request_context_ =
+          ChromeURLRequestContext::CreateOffTheRecordForMedia(
+              this, cache_path);
+      media_request_context_->AddRef();
+
+      DCHECK(media_request_context_->cookie_store());
+    }
+    return media_request_context_;
+  }
+
   virtual SessionService* GetSessionService() {
     // Don't save any sessions when off the record.
     return NULL;
@@ -310,6 +324,9 @@ class OffTheRecordProfileImpl : public Profile,
 
   // The context to use for requests made from this OTR session.
   ChromeURLRequestContext* request_context_;
+
+  // The context for requests for media resources.
+  ChromeURLRequestContext* media_request_context_;
 
   // The download manager that only stores downloaded items in memory.
   scoped_refptr<DownloadManager> download_manager_;
@@ -584,6 +601,20 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
   }
 
   return request_context_;
+}
+
+URLRequestContext* ProfileImpl::GetRequestContextForMedia() {
+  if (!media_request_context_) {
+    FilePath cache_path = GetPath();
+    cache_path.Append(chrome::kMediaCacheDirname);
+    media_request_context_ = ChromeURLRequestContext::CreateOriginalForMedia(
+        this, cache_path);
+    media_request_context_->AddRef();
+
+    DCHECK(media_request_context_->cookie_store());
+  }
+
+  return media_request_context_;
 }
 
 HistoryService* ProfileImpl::GetHistoryService(ServiceAccessType sat) {

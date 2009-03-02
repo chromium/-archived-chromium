@@ -29,6 +29,7 @@ class Entry;
 
 namespace net {
 
+class HttpNetworkSession;
 class HttpRequestInfo;
 class HttpResponseInfo;
 class ProxyService;
@@ -48,11 +49,31 @@ class HttpCache : public HttpTransactionFactory {
     PLAYBACK
   };
 
-  // Initialize the cache from the directory where its data is stored.  The
+  // The type of an HttpCache object, essentially describe what an HttpCache
+  // object is for.
+  enum Type {
+    // An HttpCache object for common objects, e.g. html pages, images, fonts,
+    // css files, js files and other common web resources.
+    COMMON = 0,
+    // A cache system for media file, e.g. video and audio files. These files
+    // are huge and has special requirement for access.
+    MEDIA
+  };
+
+  // Initialize the cache from the directory where its data is stored. The
   // disk cache is initialized lazily (by CreateTransaction) in this case. If
   // |cache_size| is zero, a default value will be calculated automatically.
   HttpCache(ProxyService* proxy_service,
             const std::wstring& cache_dir,
+            int cache_size);
+
+  // Initialize the cache from the directory where its data is stored. The
+  // disk cache is initialized lazily (by CreateTransaction) in  this case. If
+  // |cache_size| is zero, a default value will be calculated automatically.
+  // Provide an existing HttpNetworkSession, the cache can construct a
+  // network layer with a shared HttpNetworkSession in order for multiple
+  // network layers to share information (e.g. authenication data).
+  HttpCache(HttpNetworkSession* session, const std::wstring& cache_dir,
             int cache_size);
 
   // Initialize using an in-memory cache. The cache is initialized lazily
@@ -90,6 +111,9 @@ class HttpCache : public HttpTransactionFactory {
   // Get/Set the cache's mode.
   void set_mode(Mode value) { mode_ = value; }
   Mode mode() { return mode_; }
+
+  void set_type(Type type) { type_ = type; }
+  Type type() { return type_; }
 
  private:
 
@@ -146,6 +170,7 @@ class HttpCache : public HttpTransactionFactory {
   std::wstring disk_cache_dir_;
 
   Mode mode_;
+  Type type_;
 
   scoped_ptr<HttpTransactionFactory> network_layer_;
   scoped_ptr<disk_cache::Backend> disk_cache_;

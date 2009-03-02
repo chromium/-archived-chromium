@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/platform_file.h"
 #include "base/time.h"
 #include "net/base/completion_callback.h"
 
@@ -152,6 +153,29 @@ class Entry {
   virtual int WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
                         net::CompletionCallback* completion_callback,
                         bool truncate) = 0;
+
+  // Prepares a target stream as an external file, returns a corresponding
+  // base::PlatformFile if successful, returns base::kInvalidPlatformFileValue
+  // if fails. If this call returns a valid base::PlatformFile value (i.e.
+  // not base::kInvalidPlatformFileValue), there is no guarantee that the file
+  // is truncated. Implementor can always return base::kInvalidPlatformFileValue
+  // if external file is not available in that particular implementation.
+  // Caller should never close the file handle returned by this method, since
+  // the handle should be managed by the implementor of this class. Caller
+  // should never save the handle for future use.
+  // With a stream prepared as an external file, the stream would always be
+  // kept in an external file since creation, even if the stream has 0 bytes.
+  // So we need to be cautious about using this option for preparing a stream or
+  // we will end up having a lot of empty cache files. Calling this method also
+  // means that all data written to the stream will always be written to file
+  // directly *without* buffering.
+  virtual base::PlatformFile UseExternalFile(int index) = 0;
+
+  // Returns a read file handle for the cache stream referenced by |index|.
+  // Caller should never close the handle returned by this method and should
+  // not save it for future use. The lifetime of the base::PlatformFile handle
+  // is managed by the implementor of this class.
+  virtual base::PlatformFile GetPlatformFile(int index) = 0;
 
  protected:
   virtual ~Entry() {}

@@ -32,6 +32,9 @@ const FilePath::CharType kExtensionFileExtension[] = FPL("crx");
 // filenames
 const wchar_t kArchivedHistoryFilename[] = L"Archived History";
 const FilePath::CharType kCacheDirname[] = FPL("Cache");
+const FilePath::CharType kMediaCacheDirname[] = FPL("Media Cache");
+const FilePath::CharType kOffTheRecordMediaCacheDirname[] =
+    FPL("Incognito Media Cache");
 const wchar_t kChromePluginDataDirname[] = L"Plugin Data";
 const FilePath::CharType kCookieFilename[] = FPL("Cookies");
 const FilePath::CharType kHistoryFilename[] = FPL("History");

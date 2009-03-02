@@ -286,6 +286,9 @@ class HttpCache::Transaction
   // Called to write response_ to the cache entry.
   void WriteResponseInfoToEntry();
 
+  // Called to truncate response content in the entry.
+  void TruncateResponseData();
+
   // Called to append response data to the cache entry.
   void AppendResponseDataToEntry(IOBuffer* data, int data_len);
 
@@ -790,6 +793,12 @@ int HttpCache::Transaction::ReadResponseInfoFromEntry() {
   if (!HttpCache::ReadResponseInfo(entry_->disk_entry, &response_))
     return ERR_FAILED;
 
+  // If the cache object is used for media file, we want the file handle of
+  // response data.
+  if (cache_->type() == HttpCache::MEDIA)
+    response_.response_data_file =
+        entry_->disk_entry->GetPlatformFile(kResponseContentIndex);
+
   return OK;
 }
 
@@ -844,6 +853,27 @@ void HttpCache::Transaction::AppendResponseDataToEntry(IOBuffer* data,
 
   int current_size = entry_->disk_entry->GetDataSize(kResponseContentIndex);
   WriteToEntry(kResponseContentIndex, current_size, data, data_len);
+}
+
+void HttpCache::Transaction::TruncateResponseData() {
+  if (!entry_)
+    return;
+
+  // If the cache is for media files, we try to prepare the response data
+  // file as an external file and truncate it afterwards.
+  // Recipient of ResponseInfo should judge from |response_.response_data_file|
+  // to tell whether an external file of response data is available for reading
+  // or not.
+  // TODO(hclam): we should prepare the target stream as extern file only
+  // if we get a valid response from server, i.e. 200. We don't want empty
+  // cache files for redirection or external files for erroneous requests.
+  response_.response_data_file = base::kInvalidPlatformFileValue;
+  if (cache_->type() == HttpCache::MEDIA)
+    response_.response_data_file =
+        entry_->disk_entry->UseExternalFile(kResponseContentIndex);
+
+  // Truncate the stream.
+  WriteToEntry(kResponseContentIndex, 0, NULL, 0);
 }
 
 void HttpCache::Transaction::DoneWritingToEntry(bool success) {
@@ -902,8 +932,8 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
         response_ = *new_response;
         WriteResponseInfoToEntry();
 
-        // Truncate the response data
-        WriteToEntry(kResponseContentIndex, 0, NULL, 0);
+        // Truncate response data
+        TruncateResponseData();
 
         // If this response is a redirect, then we can stop writing now.  (We
         // don't need to cache the response body of a redirect.)
@@ -958,7 +988,20 @@ HttpCache::HttpCache(ProxyService* proxy_service,
                      int cache_size)
     : disk_cache_dir_(cache_dir),
       mode_(NORMAL),
+      type_(COMMON),
       network_layer_(HttpNetworkLayer::CreateFactory(proxy_service)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
+      in_memory_cache_(false),
+      cache_size_(cache_size) {
+}
+
+HttpCache::HttpCache(HttpNetworkSession* session,
+                     const std::wstring& cache_dir,
+                     int cache_size)
+    : disk_cache_dir_(cache_dir),
+      mode_(NORMAL),
+      type_(COMMON),
+      network_layer_(HttpNetworkLayer::CreateFactory(session)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
       cache_size_(cache_size) {
@@ -966,6 +1009,7 @@ HttpCache::HttpCache(ProxyService* proxy_service,
 
 HttpCache::HttpCache(ProxyService* proxy_service, int cache_size)
     : mode_(NORMAL),
+      type_(COMMON),
       network_layer_(HttpNetworkLayer::CreateFactory(proxy_service)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(true),
@@ -975,6 +1019,7 @@ HttpCache::HttpCache(ProxyService* proxy_service, int cache_size)
 HttpCache::HttpCache(HttpTransactionFactory* network_layer,
                      disk_cache::Backend* disk_cache)
     : mode_(NORMAL),
+      type_(COMMON),
       network_layer_(network_layer),
       disk_cache_(disk_cache),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),

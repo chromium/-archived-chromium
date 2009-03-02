@@ -110,7 +110,7 @@ class ResourceLoaderBridge {
     virtual void OnReceivedData(const char* data, int len) = 0;
 
     // Called when the response is complete.  This method signals completion of
-    // the resource load.
+    // the resource load.ff
     virtual void OnCompletedRequest(const URLRequestStatus& status) = 0;
 
     // Returns the URL of the request, which allows us to display it in

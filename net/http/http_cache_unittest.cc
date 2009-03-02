@@ -6,6 +6,7 @@
 
 #include "base/hash_tables.h"
 #include "base/message_loop.h"
+#include "base/platform_file.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "net/base/load_flags.h"
@@ -26,10 +27,12 @@ namespace {
 class MockDiskEntry : public disk_cache::Entry,
                       public base::RefCounted<MockDiskEntry> {
  public:
-  MockDiskEntry() : test_mode_(0), doomed_(false) {
+  MockDiskEntry()
+      : test_mode_(0), doomed_(false), platform_file_(global_platform_file_) {
   }
 
-  MockDiskEntry(const std::string& key) : key_(key), doomed_(false) {
+  MockDiskEntry(const std::string& key)
+      : key_(key), doomed_(false), platform_file_(global_platform_file_) {
     const MockTransaction* t = FindMockTransaction(GURL(key));
     DCHECK(t);
     test_mode_ = t->test_mode;
@@ -98,6 +101,18 @@ class MockDiskEntry : public disk_cache::Entry,
     return buf_len;
   }
 
+  base::PlatformFile UseExternalFile(int index) {
+    return platform_file_;
+  }
+
+  base::PlatformFile GetPlatformFile(int index) {
+    return platform_file_;
+  }
+
+  static void set_global_platform_file(base::PlatformFile platform_file) {
+    global_platform_file_ = platform_file;
+  }
+
  private:
   // Unlike the callbacks for MockHttpTransaction, we want this one to run even
   // if the consumer called Close on the MockDiskEntry.  We achieve that by
@@ -114,7 +129,12 @@ class MockDiskEntry : public disk_cache::Entry,
   std::vector<char> data_[2];
   int test_mode_;
   bool doomed_;
+  base::PlatformFile platform_file_;
+  static base::PlatformFile global_platform_file_;
 };
+
+base::PlatformFile MockDiskEntry::global_platform_file_ =
+    base::kInvalidPlatformFileValue;
 
 class MockDiskCache : public disk_cache::Backend {
  public:
@@ -1183,4 +1203,79 @@ TEST(HttpCache, OutlivedTransactions) {
   net::HttpTransaction* trans = cache->http_cache()->CreateTransaction();
   delete cache;
   delete trans;
+}
+
+// Make sure Entry::UseExternalFile is called when a new entry is created in
+// a HttpCache with MEDIA type. Also make sure Entry::GetPlatformFile is called
+// when an entry is loaded from a HttpCache with MEDIA type. Also confirm we
+// will receive a file handle in ResponseInfo from a media cache.
+TEST(HttpCache, SimpleGET_MediaCache) {
+  // Initialize the HttpCache with MEDIA type.
+  MockHttpCache cache;
+  cache.http_cache()->set_type(net::HttpCache::MEDIA);
+
+  // Define some fake file handles for testing.
+  base::PlatformFile kFakePlatformFile1, kFakePlatformFile2;
+#if defined(OS_WIN)
+  kFakePlatformFile1 = reinterpret_cast<base::PlatformFile>(1);
+  kFakePlatformFile2 = reinterpret_cast<base::PlatformFile>(2);
+#else
+  kFakePlatformFile1 = 1;
+  kFakePlatformFile2 = 2;
+#endif
+
+  ScopedMockTransaction trans_info(kSimpleGET_Transaction);
+  TestCompletionCallback callback;
+
+  {
+    // Set the fake file handle to MockDiskEntry so cache is written with an
+    // entry created with our fake file handle.
+    MockDiskEntry::set_global_platform_file(kFakePlatformFile1);
+
+    scoped_ptr<net::HttpTransaction> trans(
+        cache.http_cache()->CreateTransaction());
+    ASSERT_TRUE(trans.get());
+
+    MockHttpRequest request(trans_info);
+
+    int rv = trans->Start(&request, &callback);
+    if (rv == net::ERR_IO_PENDING)
+      rv = callback.WaitForResult();
+    ASSERT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    ASSERT_TRUE(response);
+
+    ASSERT_EQ(kFakePlatformFile1, response->response_data_file);
+
+    ReadAndVerifyTransaction(trans.get(), trans_info);
+  }
+
+  // Load only from cache so we would get the same file handle.
+  trans_info.load_flags |= net::LOAD_ONLY_FROM_CACHE;
+
+  {
+    // Set a different file handle value to MockDiskEntry so any new entry
+    // created in the cache won't have the same file handle value.
+    MockDiskEntry::set_global_platform_file(kFakePlatformFile2);
+
+    scoped_ptr<net::HttpTransaction> trans(
+        cache.http_cache()->CreateTransaction());
+    ASSERT_TRUE(trans.get());
+
+    MockHttpRequest request(trans_info);
+
+    int rv = trans->Start(&request, &callback);
+    if (rv == net::ERR_IO_PENDING)
+      rv = callback.WaitForResult();
+    ASSERT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    ASSERT_TRUE(response);
+
+    // Make sure we get the same file handle as in the first request.
+    ASSERT_EQ(kFakePlatformFile1, response->response_data_file);
+
+    ReadAndVerifyTransaction(trans.get(), trans_info);
+  }
 }

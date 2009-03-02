@@ -26,6 +26,8 @@ extern const FilePath::CharType kExtensionFileExtension[];
 // filenames
 extern const wchar_t kArchivedHistoryFilename[];
 extern const FilePath::CharType kCacheDirname[];
+extern const FilePath::CharType kMediaCacheDirname[];
+extern const FilePath::CharType kOffTheRecordMediaCacheDirname[];
 extern const wchar_t kChromePluginDataDirname[];
 extern const FilePath::CharType kCookieFilename[];
 extern const FilePath::CharType kHistoryFilename[];

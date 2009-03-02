@@ -19,16 +19,28 @@ class HttpNetworkLayer : public HttpTransactionFactory {
  public:
   // |proxy_service| must remain valid for the lifetime of HttpNetworkLayer.
   explicit HttpNetworkLayer(ProxyService* proxy_service);
+  // Construct a HttpNetworkLayer with an existing HttpNetworkSession which
+  // contains a valid ProxyService.
+  explicit HttpNetworkLayer(HttpNetworkSession* session);
   ~HttpNetworkLayer();
 
   // This function hides the details of how a network layer gets instantiated
   // and allows other implementations to be substituted.
   static HttpTransactionFactory* CreateFactory(ProxyService* proxy_service);
+  // Create a transaction factory that instantiate a network layer over an
+  // existing network session. Network session contains some valuable
+  // information (e.g. authentication data) that we want to share across
+  // multiple network layers. This method exposes the implementation details
+  // of a network layer, use this method with an existing network layer only
+  // when network session is shared.
+  static HttpTransactionFactory* CreateFactory(HttpNetworkSession* session);
 
   // HttpTransactionFactory methods:
   virtual HttpTransaction* CreateTransaction();
   virtual HttpCache* GetCache();
   virtual void Suspend(bool suspend);
+
+  HttpNetworkSession* GetSession();
 
  private:
   // The proxy service being used for the session.

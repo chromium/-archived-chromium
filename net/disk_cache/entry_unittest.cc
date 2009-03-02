@@ -833,3 +833,101 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyDoomedEntry) {
   DoomEntry();
 }
 
+// Check that we can hint an entry to use external file and the return value
+// is a valid file handle.
+TEST_F(DiskCacheEntryTest, UseExternalFile) {
+  InitCache();
+
+  disk_cache::Entry* entry;
+  ASSERT_TRUE(cache_->CreateEntry("key", &entry));
+  base::PlatformFile cache_file = entry->UseExternalFile(0);
+
+  // We should have a valid file handle.
+  EXPECT_NE(base::kInvalidPlatformFileValue, cache_file);
+  scoped_refptr<disk_cache::File> file(new disk_cache::File(cache_file));
+
+  // 4KB.
+  size_t kDataSize = 0x1000;
+  scoped_refptr<net::IOBuffer> buffer = new net::IOBuffer(kDataSize);
+
+  CacheTestFillBuffer(buffer->data(), kDataSize, false);
+  ASSERT_EQ(0U, file->GetLength());
+  ASSERT_EQ(kDataSize, static_cast<size_t>(
+      entry->WriteData(0, 0, buffer, kDataSize, NULL, false)));
+  ASSERT_EQ(kDataSize, file->GetLength());
+  entry->Close();
+}
+
+// Make sure we can use Entry::GetPlatformFile on an entry stored in an external
+// file and get a valid file handle.
+TEST_F(DiskCacheEntryTest, GetPlatformFile) {
+  InitCache();
+
+  disk_cache::Entry* entry;
+  ASSERT_TRUE(cache_->CreateEntry("key", &entry));
+  EXPECT_NE(base::kInvalidPlatformFileValue, entry->UseExternalFile(0));
+
+  size_t kDataSize = 50;
+  scoped_refptr<net::IOBuffer> buffer = new net::IOBuffer(kDataSize);
+
+  // Fill the data buffer and write it to cache.
+  CacheTestFillBuffer(buffer->data(), kDataSize, false);
+  ASSERT_EQ(kDataSize,static_cast<size_t>(
+      entry->WriteData(0, 0, buffer, kDataSize, NULL, false)));
+
+  // Close the entry.
+  entry->Close();
+
+  // Open the entry again and get it's file handle.
+  ASSERT_TRUE(cache_->OpenEntry("key", &entry));
+  base::PlatformFile cache_file = entry->GetPlatformFile(0);
+
+  // Make sure it's a valid file handle and verify the size of the file.
+  scoped_refptr<disk_cache::File> file(new disk_cache::File(cache_file));
+  ASSERT_EQ(kDataSize, file->GetLength());
+
+  entry->Close();
+}
+
+// Test the behavior of EntryImpl that small entries are kept in block files
+// or buffer, and only entries above certain size would be stored in an
+// external file, make sure GetPlatformFile() works with both cases without
+// using UseExternalFile().
+TEST_F(DiskCacheEntryTest, GetPlatformFileVariableEntrySize) {
+  InitCache();
+
+  disk_cache::Entry* entry;
+
+  // Make the buffer just larger than disk_cache::kMaxBlockSize.
+  const size_t kLargeDataSize = disk_cache::kMaxBlockSize + 1;
+  const size_t kSmallDataSize = kLargeDataSize / 2;
+  scoped_refptr<net::IOBuffer> buffer = new net::IOBuffer(kLargeDataSize);
+
+  // 1. First test with small entry.
+  ASSERT_TRUE(cache_->CreateEntry("small_entry", &entry));
+
+  CacheTestFillBuffer(buffer->data(), kSmallDataSize, false);
+  ASSERT_EQ(kSmallDataSize, static_cast<size_t>(
+      entry->WriteData(0, 0, buffer, kSmallDataSize, NULL, false)));
+
+  // Make sure we don't get an external file.
+  ASSERT_EQ(base::kInvalidPlatformFileValue, entry->GetPlatformFile(0));
+
+  entry->Close();
+
+  // 2. Test with large entry.
+  ASSERT_TRUE(cache_->CreateEntry("large_entry", &entry));
+
+  CacheTestFillBuffer(buffer->data(), kLargeDataSize, false);
+  ASSERT_EQ(kLargeDataSize, static_cast<size_t>(
+      entry->WriteData(0, 0, buffer, kLargeDataSize, NULL, false)));
+
+  base::PlatformFile cache_file = entry->GetPlatformFile(0);
+  EXPECT_NE(base::kInvalidPlatformFileValue, cache_file);
+
+  // Make sure it's a valid file handle and verify the size of the file.
+  scoped_refptr<disk_cache::File> file(new disk_cache::File(cache_file));
+  ASSERT_EQ(kLargeDataSize, file->GetLength());
+
+  entry->Close();
+}

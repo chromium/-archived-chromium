@@ -5,6 +5,7 @@
 #ifndef NET_HTTP_HTTP_RESPONSE_INFO_H_
 #define NET_HTTP_HTTP_RESPONSE_INFO_H_
 
+#include "base/platform_file.h"
 #include "base/time.h"
 #include "net/base/auth.h"
 #include "net/base/ssl_info.h"
@@ -48,6 +49,10 @@ class HttpResponseInfo {
 
   // The "Vary" header data for this response.
   HttpVaryData vary_data;
+
+  // Platform specific file handle to the response data, if response data is
+  // not in a standalone file, its value is base::kInvalidPlatformFileValue.
+  base::PlatformFile response_data_file;
 };
 
 }  // namespace net
