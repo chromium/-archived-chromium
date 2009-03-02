@@ -33,20 +33,14 @@
 // // Note, FieldTrials are reference counted, and persist automagically until
 // // process teardown, courtesy of their automatic registration in
 // // FieldTrialList.
-// trial = new FieldTrial("MemoryExperiment", 1000);
-// group1 = trial->AppendGroup("_high_mem", 20);  // 2% this _high_mem group.
-// group2 = trial->AppendGroup("_low_mem", 20);   // 2% this _low_mem group.
+// scoped_refptr<FieldTrial> trial = new FieldTrial("MemoryExperiment", 1000);
+// int group1 = trial->AppendGroup("_high_mem", 20);  // 2% this _high_mem group.
+// int group2 = trial->AppendGroup("_low_mem", 20);   // 2% this _low_mem group.
 // // Take action depending of which group we randomly land in.
-// switch (trial->group()) {
-//   case group1:
-//          ... do something
-//          break;
-//   case group2:
-//          ....
-//          break;
-//   default:
-//          ...
-// }
+// if (trial->group() == group1)
+//   SetMemoryModel(HIGH);  // Sample setting of browser state.
+// else if (trial->group() == group2)
+//   SetMemoryModel(LOW);  // Sample alternate setting.
 
 // We then modify any histograms we wish to correlate with our experiment to
 // have slighly different names, depending on what group the trial instance
