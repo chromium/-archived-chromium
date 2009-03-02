@@ -6,6 +6,8 @@
 
 #include "base/waitable_event.h"
 #include "net/base/net_errors.h"
+#include "net/proxy/proxy_config_service.h"
+#include "net/proxy/proxy_resolver.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // This ProxyConfigService always returns "http://pac" as the PAC url to use.
