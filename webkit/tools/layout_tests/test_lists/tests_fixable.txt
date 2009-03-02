@@ -949,7 +949,11 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-da
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
-LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+// This is failing on the mac debug only, not sure why, but it's pretty repeatable on the bots, so we
+// go to the complexity to split out that one case to track any other changes for the other platforms.
+LINUX WIN : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+MAC RELEASE : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+MAC DEBUG : LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL
 
 // NEW FOR MERGE 37604:38097
 // This is a Safari specific test used to document the set of global
@@ -1308,11 +1312,6 @@ MAC : LayoutTests/fast/events/drag-in-frames.html = FAIL
 // These two have a different object type in the dom dump?
 MAC : LayoutTests/fast/images/embed-image.html = FAIL
 MAC : LayoutTests/fast/images/object-image.html = FAIL
-
-// We get a different result here than win from the JS expression evaluation.
-// Need to talk to someone on the V8 team about it. This used to work and
-// has regressed.
-MAC DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
 
 // Rebase for our network stack?
 MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
@@ -1781,11 +1780,8 @@ MAC : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domai
 MAC : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Ojan's editing layout test regressions
-MAC DEBUG : LayoutTests/fast/forms/search-click-in-placeholder.html = CRASH
-MAC : LayoutTests/fast/inline/dirtyLinesForInline.html = FAIL
-MAC : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
-LayoutTests/svg/custom/pointer-events-path.svg = FAIL
-WIN MAC : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
+WIN : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 
 // New tests from merge 41181:41217
 DEFER : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-viewport.html = FAIL
@@ -1798,15 +1794,15 @@ LINUX WIN : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 LINUX : LayoutTests/fast/canvas/set-colors.html = CRASH
 
 // mbelshe to fix.  Temporarily disable while tree red.
-chrome/fast/dom/extensions/interval.html = FAIL
+LINUX WIN : chrome/fast/dom/extensions/interval.html = FAIL
 
 // Regressions from merge 41217:41268
 // New tests
 DEFER : LayoutTests/fast/dom/Window/customized-property-survives-gc.html = FAIL
-DEFER : LayoutTests/fast/inline/inline-continuation-borders.html = FAIL
-DEFER : LayoutTests/fast/inline/vertical-align-text-bottom.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/inline/inline-continuation-borders.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/inline/vertical-align-text-bottom.html = FAIL
 DEFER : LayoutTests/fast/dom/Window/webkitConvertPoint.html = FAIL
-DEFER : LayoutTests/fast/gradients/background-clipped.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/gradients/background-clipped.html = FAIL
 
 // Regressions from merge 41217:41268
 // Other failures
@@ -1824,37 +1820,37 @@ LINUX WIN : LayoutTests/svg/custom/visibility-override-mask.svg = FAIL
 
 // Regression from merge 41268:41286
 // dimich to do triage and find out which are just rebaseline.
-LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
-LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
-LayoutTests/fast/dom/anchor-toString.html = FAIL
+LINUX WIN : LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
+LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
+LINUX WIN : LayoutTests/fast/dom/anchor-toString.html = FAIL
 LayoutTests/fast/js/switch-behaviour.html = FAIL
-LayoutTests/fast/layers/opacity-outline.html = FAIL
-LayoutTests/fast/table/overflowHidden.html = FAIL
-WIN MAC : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
-WIN MAC : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
-WIN MAC : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
-WIN MAC : LayoutTests/fast/text/stroking-decorations.html = FAIL
-WIN MAC : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
-LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
-LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
-LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
-LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
-LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
-WIN MAC : LayoutTests/svg/carto.net/combobox.svg = FAIL
-LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
-LayoutTests/svg/custom/js-late-gradient-creation.svg = FAIL
-WIN MAC : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
-LayoutTests/svg/custom/js-late-pattern-creation.svg = FAIL
-LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
-LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
-WIN MAC : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
-LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
-LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
-LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
-LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
-WIN MAC : LayoutTests/svg/text/text-text-07-t.svg = FAIL
-LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
-LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
+LINUX WIN : LayoutTests/fast/layers/opacity-outline.html = FAIL
+LINUX WIN : LayoutTests/fast/table/overflowHidden.html = FAIL
+WIN : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
+WIN : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
+WIN : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
+WIN : LayoutTests/fast/text/stroking-decorations.html = FAIL
+WIN : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
+LINUX WIN : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
+LINUX WIN : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
+LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
+LINUX WIN : LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
+WIN : LayoutTests/svg/carto.net/combobox.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/js-late-gradient-creation.svg = FAIL
+WIN : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/js-late-pattern-creation.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
+WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
+LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
+WIN : LayoutTests/svg/text/text-text-07-t.svg = FAIL
+LINUX WIN : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
+LINUX WIN : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
 LINUX : LayoutTests/fast/borders/border-image-rotate-transform.html = FAIL
 LINUX : LayoutTests/fast/css/resize-corner-tracking-transformed.html = FAIL
 LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
@@ -1878,7 +1874,8 @@ MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 // See above comment about this test on linux/win.
 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 MAC : LayoutTests/fast/events/key-events-in-input-button.html = FAIL
-MAC : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT
+MAC DEBUG : LayoutTests/http/tests/misc/slow-preload-cancel.html = CRASH
+MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT PASS
 WIN MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH PASS
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
