@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H__
 
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
+#include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/automation/automation_resource_tracker.h"
 
 class AutomationAutocompleteEditTracker:

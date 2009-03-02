@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_WIN_H_
+#define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_WIN_H_
+
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlcrack.h>
@@ -18,7 +21,7 @@
 
 class AutocompletePopupModel;
 class AutocompleteEditModel;
-class AutocompleteEditView;
+class AutocompleteEditViewWin;
 class Profile;
 class SkBitmap;
 
@@ -46,7 +49,7 @@ class AutocompletePopupViewWin
   END_MSG_MAP()
 
   AutocompletePopupViewWin(const ChromeFont& font,
-                           AutocompleteEditView* edit_view,
+                           AutocompleteEditViewWin* edit_view,
                            AutocompleteEditModel* edit_model,
                            Profile* profile);
 
@@ -183,7 +186,7 @@ class AutocompletePopupViewWin
 
   scoped_ptr<AutocompletePopupModel> model_;
 
-  AutocompleteEditView* edit_view_;
+  AutocompleteEditViewWin* edit_view_;
 
   // Cached GDI information for drawing.
   DrawLineInfo line_info_;
@@ -203,3 +206,5 @@ class AutocompletePopupViewWin
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupViewWin);
 };
+
+#endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_WIN_H_

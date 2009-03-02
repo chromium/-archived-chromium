@@ -158,15 +158,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\autocomplete\autocomplete_edit_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\autocomplete\autocomplete_edit_view_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\autocomplete\autocomplete_edit_view_win.h"
+				>
+			</File>
+			<File
 				RelativePath=".\autocomplete\autocomplete_popup_model.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\autocomplete\autocomplete_popup_model.h"
-				>
-			</File>
-			<File
-				RelativePath=".\autocomplete\autocomplete_popup_view_win.cc"
 				>
 			</File>
 			<File
@@ -178,11 +182,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\autocomplete\edit_drop_target.cc"
+				RelativePath=".\autocomplete\autocomplete_popup_model.h"
 				>
 			</File>
 			<File
-				RelativePath=".\autocomplete\edit_drop_target.h"
+				RelativePath=".\autocomplete\autocomplete_popup_view_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\autocomplete\autocomplete_popup_view.h"
 				>
 			</File>
 			<File

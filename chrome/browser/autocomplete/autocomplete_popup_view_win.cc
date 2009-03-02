@@ -185,7 +185,7 @@ COLORREF AutocompletePopupViewWin::DrawLineInfo::AlphaBlend(
 
 AutocompletePopupViewWin::AutocompletePopupViewWin(
     const ChromeFont& font,
-    AutocompleteEditView* edit_view,
+    AutocompleteEditViewWin* edit_view,
     AutocompleteEditModel* edit_model,
     Profile* profile)
     : model_(new AutocompletePopupModel(this, edit_model, profile)),

@@ -7,18 +7,19 @@
 
 #include <atlbase.h>
 #include <atlcom.h>
-
 #include <oleacc.h>
 
-#include "chrome/browser/autocomplete/autocomplete_edit.h"
+#include "base/basictypes.h"
+
+class AutocompleteEditViewWin;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // AutocompleteAccessibility
 //
 // Class implementing the MSAA IAccessible COM interface for
-// AutocompleteEditView, providing accessibility to be used by screen readers
-// and other assistive technology (AT).
+// AutocompleteEditViewWin, providing accessibility to be used by screen
+// readers and other assistive technology (AT).
 //
 ////////////////////////////////////////////////////////////////////////////////
 class ATL_NO_VTABLE AutocompleteAccessibility
@@ -33,7 +34,7 @@ class ATL_NO_VTABLE AutocompleteAccessibility
   AutocompleteAccessibility() {}
   ~AutocompleteAccessibility() {}
 
-  HRESULT Initialize(const AutocompleteEditView* edit_box);
+  HRESULT Initialize(const AutocompleteEditViewWin* edit_box);
 
   // Supported IAccessible methods.
 
@@ -105,8 +106,9 @@ class ATL_NO_VTABLE AutocompleteAccessibility
   CComPtr<IAccessible> default_accessibility_server_;
 
  private:
-  const AutocompleteEditView* edit_box_;
+  const AutocompleteEditViewWin* edit_box_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AutocompleteAccessibility);
+  DISALLOW_COPY_AND_ASSIGN(AutocompleteAccessibility);
 };
+
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_ACCESSIBILITY_H_

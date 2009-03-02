@@ -119,10 +119,10 @@ void LocationBarView::Init() {
 
   // URL edit field.
   views::Widget* widget = GetWidget();
-  location_entry_.reset(new AutocompleteEditView(font_, this, model_, this,
-                                                 widget->GetHWND(),
-                                                 profile_, command_updater_,
-                                                 popup_window_mode_));
+  location_entry_.reset(new AutocompleteEditViewWin(font_, this, model_, this,
+                                                    widget->GetHWND(),
+                                                    profile_, command_updater_,
+                                                    popup_window_mode_));
 
   // View container for URL edit field.
   location_entry_view_ = new views::HWNDView;
