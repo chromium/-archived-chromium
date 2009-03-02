@@ -196,7 +196,6 @@ TEST(PlatformCanvas, ClipRegion) {
 }
 
 // Test the layers get filled properly by native rendering.
-/* TODO(brettw) fix this test as a result of the transparency patch.
 TEST(PlatformCanvas, FillLayer) {
   // Create the canvas initialized to opaque white.
   PlatformCanvas canvas(16, 16, true);
@@ -228,7 +227,8 @@ TEST(PlatformCanvas, FillLayer) {
     canvas.save();
     AddClip(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
     DrawNativeRect(canvas, 0, 0, 100, 100);
-    canvas.getTopPlatformDevice().makeOpaque(0, 0, 100, 100);
+    canvas.getTopPlatformDevice().makeOpaque(
+        kInnerX, kInnerY, kInnerW, kInnerH);
     canvas.restore();
   }
   EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
@@ -245,10 +245,8 @@ TEST(PlatformCanvas, FillLayer) {
   canvas.restore();
   EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX, kInnerY, kInnerW, kInnerH));
 }
-*/
 
 // Test that translation + make layer works properly.
-/* TODO(brettw) fix this test as a result of the transparency patch.
 TEST(PlatformCanvas, TranslateLayer) {
   // Create the canvas initialized to opaque white.
   PlatformCanvas canvas(16, 16, true);
@@ -304,12 +302,12 @@ TEST(PlatformCanvas, TranslateLayer) {
     canvas.translate(1, 1);
     AddClip(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
     DrawNativeRect(canvas, 0, 0, 100, 100);
-    canvas.getTopPlatformDevice().makeOpaque(0, 0, 100, 100);
+    canvas.getTopPlatformDevice().makeOpaque(kInnerX, kInnerY,
+                                             kInnerW, kInnerH);
   }
   canvas.restore();
   EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX + 2, kInnerY + 2,
                               kInnerW, kInnerH));
 }
-*/
 
 }  // namespace skia
