@@ -447,6 +447,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
     NOTIMPLEMENTED();
   }
   virtual void SetInitialFocus() { NOTIMPLEMENTED(); }
+  virtual void SetInitialFocus(bool reverse) { NOTIMPLEMENTED(); }
   virtual void RestoreFocus() { NOTIMPLEMENTED(); }
   static TabContentsType TypeForURL(GURL* url);
   static TabContents* CreateWithType(TabContentsType type,

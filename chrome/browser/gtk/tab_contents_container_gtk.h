@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_GTK_TAB_CONTENTS_CONTAINER_GTK_H__
-#define CHROME_BROWSER_GTK_TAB_CONTENTS_CONTAINER_GTK_H__
+#ifndef CHROME_BROWSER_GTK_TAB_CONTENTS_CONTAINER_GTK_H_
+#define CHROME_BROWSER_GTK_TAB_CONTENTS_CONTAINER_GTK_H_
 
 #include <gtk/gtk.h>
 
@@ -53,7 +53,7 @@ class TabContentsContainerGtk : public NotificationObserver {
   // vbox_.
   GtkWidget* vbox_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TabContentsContainerGtk);
+  DISALLOW_COPY_AND_ASSIGN(TabContentsContainerGtk);
 };
 
-#endif  // CHROME_BROWSER_GTK_TAB_CONTENTS_CONTAINER_GTK_H__
+#endif  // CHROME_BROWSER_GTK_TAB_CONTENTS_CONTAINER_GTK_H_

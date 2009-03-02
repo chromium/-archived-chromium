@@ -84,6 +84,13 @@ void BrowserToolbarGtk::Init(Profile* profile) {
   gtk_widget_set_size_request(entry_, 0, 27);
   g_signal_connect(G_OBJECT(entry_), "activate",
                    G_CALLBACK(OnEntryActivate), this);
+  g_signal_connect(G_OBJECT(entry_), "focus",
+                   G_CALLBACK(OnEntryFocus), this);
+  g_signal_connect(G_OBJECT(entry_), "focus-in-event",
+                   G_CALLBACK(OnEntryFocusIn), this);
+  g_signal_connect(G_OBJECT(entry_), "focus-out-event",
+                   G_CALLBACK(OnEntryFocusOut), this);
+
   gtk_box_pack_start(GTK_BOX(toolbar_), entry_, TRUE, TRUE, 0);
 
   go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L""));
@@ -101,6 +108,10 @@ void BrowserToolbarGtk::Init(Profile* profile) {
 
 void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
   gtk_box_pack_start(GTK_BOX(box), toolbar_, FALSE, FALSE, 0);
+}
+
+void BrowserToolbarGtk::FocusLocationBar() {
+  gtk_widget_grab_focus(entry_);
 }
 
 void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {
@@ -188,6 +199,7 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
                        WideToUTF8(localized_tooltip).c_str());
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
+  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
@@ -209,6 +221,7 @@ CustomContainerButton* BrowserToolbarGtk::BuildToolbarMenuButton(
                        WideToUTF8(localized_tooltip).c_str());
   g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
                    G_CALLBACK(OnMenuButtonPressEvent), this);
+  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
 
@@ -224,7 +237,37 @@ void BrowserToolbarGtk::OnEntryActivate(GtkEntry *entry,
       OpenURL(dest, GURL(), CURRENT_TAB, PageTransition::TYPED);
 }
 
-/* static */
+// static
+gboolean BrowserToolbarGtk::OnEntryFocus(GtkWidget* widget,
+                                         GtkDirectionType direction,
+                                         BrowserToolbarGtk* host) {
+  if (!GTK_WIDGET_HAS_FOCUS(widget)) {
+    gtk_widget_grab_focus(widget);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+// static
+gboolean BrowserToolbarGtk::OnEntryFocusIn(GtkWidget* widget,
+                                           GdkEventFocus* focus,
+                                           BrowserToolbarGtk* host) {
+  // Set the caret at the end of the text.
+  gtk_editable_set_position(GTK_EDITABLE(widget), -1);
+  return FALSE;
+}
+
+// static
+gboolean BrowserToolbarGtk::OnEntryFocusOut(GtkWidget* widget,
+                                            GdkEventFocus* focus,
+                                            BrowserToolbarGtk* host) {
+  // Clear the selected text (if any).
+  gtk_editable_set_position(GTK_EDITABLE(widget), 0);
+  return FALSE;
+}
+
+// static
 void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
                                       BrowserToolbarGtk* toolbar) {
   int tag = -1;
@@ -291,6 +334,7 @@ CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
                    G_CALLBACK(OnBackForwardPressEvent), this);
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
+  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   // Popup the menu as left-aligned relative to this widget rather than the

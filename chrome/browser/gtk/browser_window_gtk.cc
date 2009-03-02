@@ -266,7 +266,7 @@ LocationBar* BrowserWindowGtk::GetLocationBar() const {
 }
 
 void BrowserWindowGtk::SetFocusToLocationBar() {
-  NOTIMPLEMENTED();
+  toolbar_->FocusLocationBar();
 }
 
 void BrowserWindowGtk::UpdateStopGoState(bool is_loading) {

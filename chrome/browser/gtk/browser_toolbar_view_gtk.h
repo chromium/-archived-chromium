@@ -40,6 +40,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // Adds this GTK toolbar into a sizing box.
   void AddToolbarToBox(GtkWidget* box);
 
+  // Set focus on the entry box.
+  void FocusLocationBar();
+
   // Overridden from CommandUpdater::CommandObserver:
   virtual void EnabledStateChangedForCommand(int id, bool enabled);
 
@@ -73,6 +76,21 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // Gtk callback for the "activate" signal on the |entry_| widget. Responds to
   // enter.
   static void OnEntryActivate(GtkEntry *entry, BrowserToolbarGtk* toolbar);
+
+  // Gtk callback for the "focus" signal on the |entry_| widget.
+  static gboolean OnEntryFocus(GtkWidget* widget,
+                               GtkDirectionType direction,
+                               BrowserToolbarGtk* host);
+
+  // Gtk callback for the "focus-in" signal on the |entry_| widget.
+  static gboolean OnEntryFocusIn(GtkWidget* widget,
+                                 GdkEventFocus* focus,
+                                 BrowserToolbarGtk* host);
+
+  // Gtk callback for the "focus-out" signal on the |entry_| widget.
+  static gboolean OnEntryFocusOut(GtkWidget* widget,
+                                  GdkEventFocus* focus,
+                                  BrowserToolbarGtk* host);
 
   // Gtk callback for the "clicked" signal.
   static void OnButtonClick(GtkWidget* button, BrowserToolbarGtk* toolbar);

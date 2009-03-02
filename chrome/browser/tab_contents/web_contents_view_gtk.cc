@@ -10,9 +10,26 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
 namespace {
+
+// Called when the content view gtk widget is tabbed to. We always return true
+// and grab focus if we don't have it. The call to SetInitialFocus() forwards
+// the tab to webkit. We leave focus via TakeFocus().
+// We cast the WebContents to a TabContents because SetInitialFocus is public
+// in TabContents and protected in WebContents.
+gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
+                 TabContents* tab_contents) {
+  if (GTK_WIDGET_HAS_FOCUS(widget))
+    return TRUE;
+
+  gtk_widget_grab_focus(widget);
+  bool reverse = focus == GTK_DIR_TAB_BACKWARD;
+  tab_contents->SetInitialFocus(reverse);
+  return TRUE;
+}
 
 // Callback used in WebContentsViewGtk::CreateViewForWidget().
 void RemoveWidget(GtkWidget* widget, void* container) {
@@ -50,6 +67,8 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   RenderWidgetHostViewGtk* view =
       new RenderWidgetHostViewGtk(render_widget_host);
   gtk_widget_show(view->native_view());
+  g_signal_connect(view->native_view(), "focus",
+                   G_CALLBACK(OnFocus), web_contents_);
   gtk_container_foreach(GTK_CONTAINER(vbox_), RemoveWidget, vbox_);
   gtk_box_pack_start(GTK_BOX(vbox_), view->native_view(), TRUE, TRUE, 0);
   return view;
@@ -121,8 +140,10 @@ void WebContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }
 
+// This is called when we the renderer asks us to take focus back (i.e., it has
+// iterated past the last focusable element on the page).
 void WebContentsViewGtk::TakeFocus(bool reverse) {
-  NOTIMPLEMENTED();
+  web_contents_->delegate()->SetFocusToLocationBar();
 }
 
 void WebContentsViewGtk::HandleKeyboardEvent(const WebKeyboardEvent& event) {
