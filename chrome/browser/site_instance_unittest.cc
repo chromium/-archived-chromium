@@ -10,12 +10,12 @@
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-
 class SiteInstanceTest : public testing::Test {
  private:
   MessageLoopForUI message_loop_;
 };
+
+namespace {
 
 class TestBrowsingInstance : public BrowsingInstance {
  public:
