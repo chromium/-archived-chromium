@@ -6,6 +6,8 @@
 
 #include <gtk/gtk.h>
 
+#include "webkit/glue/screen_info.h"
+
 namespace webkit_glue {
 
 ScreenInfo GetScreenInfoHelper(gfx::NativeView window) {

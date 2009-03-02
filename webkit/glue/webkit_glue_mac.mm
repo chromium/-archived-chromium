@@ -8,6 +8,8 @@
 
 #import <AppKit/AppKit.h>
 
+#include "webkit/glue/screen_info.h"
+
 namespace webkit_glue {
 
 static NSScreen *ScreenForWindow(NSWindow *window) {

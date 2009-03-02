@@ -40,6 +40,7 @@ MSVC_POP_WARNING();
 #include "base/singleton.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
+#include "base/sys_string_conversions.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
