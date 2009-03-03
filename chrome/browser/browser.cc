@@ -738,11 +738,12 @@ void Browser::BookmarkCurrentPage() {
   if (url.is_empty() || !url.is_valid())
     return;
 
+  bool was_bookmarked = model->IsBookmarked(url);
   model->SetURLStarred(url, entry->title(), true);
   if (window_->IsActive()) {
     // Only show the bubble if the window is active, otherwise we may get into
     // weird situations were the bubble is deleted as soon as it is shown.
-    window_->ShowBookmarkBubble(url, model->IsBookmarked(url));
+    window_->ShowBookmarkBubble(url, was_bookmarked);
   }
 }
 
