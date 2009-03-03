@@ -192,6 +192,11 @@
         'text_input_controller_unittest.cc',
       ],
       'conditions': [
+        ['OS=="mac"', {
+          # mac tests load the resources from the built test_shell beside the
+          # test
+          'dependencies': ['test_shell'],
+        }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [ 4800 ],
         }, {  # else: OS!=win
