@@ -117,6 +117,7 @@ PluginDownloadUrlHelper::PluginDownloadUrlHelper(
   // TODO(port): Some window verification for mac and linux.
 #endif
   memset(download_file_buffer_->data(), 0, kDownloadFileBufferSize);
+  download_file_.reset(new net::FileStream());
 }
 
 PluginDownloadUrlHelper::~PluginDownloadUrlHelper() {
@@ -157,9 +158,11 @@ void PluginDownloadUrlHelper::OnResponseStarted(URLRequest* request) {
 
     GURL request_url = request->url();
 #if defined(OS_WIN)
-    download_file_path_.Append(UTF8ToWide(request_url.ExtractFileName()));
+    download_file_path_ = download_file_path_.Append(
+        UTF8ToWide(request_url.ExtractFileName()));
 #else
-    download_file_path_.Append(request_url.ExtractFileName());
+    download_file_path_ = download_file_path_.Append(
+        request_url.ExtractFileName());
 #endif
 
     download_file_->Open(download_file_path_,
