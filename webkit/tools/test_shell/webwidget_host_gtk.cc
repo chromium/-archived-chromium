@@ -148,16 +148,6 @@ class WebWidgetHostGtkWidget {
     WebKeyboardEvent wke(event);
     host->webwidget()->HandleInputEvent(&wke);
 
-    // The WebKeyboardEvent model, when holding down a key, is:
-    //   KEY_DOWN, CHAR, (repeated CHAR as key repeats,) KEY_UP
-    // The GDK model for the same sequence is just:
-    //   KEY_PRESS, (repeated KEY_PRESS as key repeats,) KEY_RELEASE
-    // So we must simulate a CHAR event for every key press.
-    if (event->type == GDK_KEY_PRESS) {
-      wke.type = WebKeyboardEvent::CHAR;
-      host->webwidget()->HandleInputEvent(&wke);
-    }
-
     return FALSE;
   }
 

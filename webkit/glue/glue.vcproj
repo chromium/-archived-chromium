@@ -633,6 +633,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webinputevent_util.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webinputevent_util.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webkitclient_impl.cc"
 				>
 			</File>

@@ -334,7 +334,7 @@ TEST_F(RenderWidgetHostTest, HandleKeyEventsWeSent) {
   WebKeyboardEvent key_event;
   key_event.type = WebInputEvent::KEY_DOWN;
   key_event.modifiers = WebInputEvent::CTRL_KEY;
-  key_event.key_code = base::VKEY_L;  // non-null made up value.
+  key_event.windows_key_code = base::VKEY_L;  // non-null made up value.
 
   host_->ForwardKeyboardEvent(key_event);
 

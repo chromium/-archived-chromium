@@ -127,6 +127,7 @@ elif env.Bit('linux'):
       'plugins/webplugin_delegate_impl_gtk.cc',
       'webcursor_gtk.cc',
       'webinputevent_linux.cc',
+      'webinputevent_util.cc',
       'webkit_glue_gtk.cc',
   ])
 elif env.Bit('mac'):

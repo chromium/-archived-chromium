@@ -29,6 +29,7 @@
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "webkit/glue/webinputevent_util.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -377,22 +378,26 @@ void EventSendingController::keyDown(
       generate_char = true;
     }
 
-    // NOTE(jnd):For one keydown event, we need to generate
-    // keyDown/keyUp pair, refer EventSender.cpp in
-    // WebKit/WebKitTools/DumpRenderTree/win. We may also need
-    // to generate a keyChar event in certain cases.
+    // For one generated keyboard event, we need to generate a keyDown/keyUp
+    // pair; refer to EventSender.cpp in WebKit/WebKitTools/DumpRenderTree/win.
+    // On Windows, we might also need to generate a char event to mimic the
+    // Windows event flow; on other platforms we create a merged event and test
+    // the event flow that that platform provides.
     WebKeyboardEvent event_down, event_up;
+#if defined(OS_WIN)
+    event_down.type = WebInputEvent::RAW_KEY_DOWN;
+#else
     event_down.type = WebInputEvent::KEY_DOWN;
-    event_down.modifiers = 0;
-    event_down.key_code = code;
-#if defined(OS_LINUX)
-    // TODO(deanm): This code is a confusing mix of different platform key
-    // codes.  Since we're not working with a GDK event, we can't use our
-    // GDK -> WebKit converter, which means the Linux specific extra |text|
-    // field goes uninitialized.  I don't know how to correctly calculate this
-    // field, but for now we will at least initialize it, even if it's wrong.
-    event_down.text = code;
 #endif
+    event_down.modifiers = 0;
+    event_down.windows_key_code = code;
+    event_down.text[0] = code;
+    event_down.unmodified_text[0] = code;
+    std::string key_identifier_str =
+        webkit_glue::GetKeyIdentifierForWindowsKeyCode(code);
+
+    base::strlcpy(event_down.key_identifier, key_identifier_str.c_str(),
+                  kIdentifierLengthCap);
 
     if (args.size() >= 2 && (args[1].isObject() || args[1].isString()))
       ApplyKeyModifiers(&(args[1]), &event_down);
@@ -408,11 +413,14 @@ void EventSendingController::keyDown(
 
     webview()->HandleInputEvent(&event_down);
 
+#if defined(OS_WIN)
     if (generate_char) {
       WebKeyboardEvent event_char = event_down;
       event_char.type = WebInputEvent::CHAR;
+      event_char.key_identifier[0] = '\0';
       webview()->HandleInputEvent(&event_char);
     }
+#endif
 
     webview()->HandleInputEvent(&event_up);
   }

@@ -9,12 +9,9 @@
 #include "KeyboardCodes.h"
 #include "KeyCodeConversion.h"
 
-#include "webkit/glue/event_conversion.h"
-
-// This header is out of alphabetical order, but event_conversion.h pulls
-// in more webkit headers that redefine LOG so I need to undef afterwards.
-#undef LOG
 #include "base/logging.h"
+#include "base/string_util.h"
+#include "webkit/glue/webinputevent_util.h"
 
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
@@ -66,7 +63,7 @@ WebMouseEvent::WebMouseEvent(const GdkEventButton* event) {
       break;
 
     default:
-      ASSERT_NOT_REACHED();
+      NOTREACHED();
   };
 
   button = BUTTON_NONE;
@@ -92,7 +89,7 @@ WebMouseEvent::WebMouseEvent(const GdkEventMotion* event) {
       type = MOUSE_MOVE;
       break;
     default:
-      ASSERT_NOT_REACHED();
+      NOTREACHED();
   }
 
   button = BUTTON_NONE;
@@ -149,13 +146,9 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
 }
 
 WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {
+  system_key = false;
   modifiers = GdkStateToWebEventModifiers(event->state);
 
-  // GDK only exposes key press and release events.  By contrast,
-  // WebKeyboardEvent matches Windows and wants key down/up events along with a
-  // separate CHAR event.
-  // We require the caller to simulate the CHAR event manually.  See
-  // test_shell's webwidget_host for an example.
   switch (event->type) {
     case GDK_KEY_RELEASE:
       type = KEY_UP;
@@ -171,7 +164,12 @@ WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {
   // The key code tells us which physical key was pressed (for example, the
   // A key went down or up).  It does not determine whether A should be lower
   // or upper case.  This is what text does, which should be the keyval.
-  key_code = WebCore::windowsKeyCodeForKeyEvent(event->keyval);
+  windows_key_code = WebCore::windowsKeyCodeForKeyEvent(event->keyval);
+  native_key_code = event->hardware_keycode;
+
+  memset(&text, 0, sizeof(text));
+  memset(&unmodified_text, 0, sizeof(unmodified_text));
+  memset(&key_identifier, 0, sizeof(key_identifier));
 
   switch (event->keyval) {
     // We need to treat the enter key as a key press of character \r.  This
@@ -179,13 +177,20 @@ WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {
     case GDK_ISO_Enter:
     case GDK_KP_Enter:
     case GDK_Return:
-      text = '\r';
+      unmodified_text[0] = text[0] = static_cast<char16>('\r');
       break;
     default:
       // This should set text to 0 when it's not a real character.
-      text = gdk_keyval_to_unicode(event->keyval);
+      // TODO(avi): fix for non BMP chars
+      unmodified_text[0] = text[0] =
+          static_cast<char16>(gdk_keyval_to_unicode(event->keyval));
       break;
   }
+
+  std::string key_identifier_str =
+      webkit_glue::GetKeyIdentifierForWindowsKeyCode(windows_key_code);
+  base::strlcpy(key_identifier, key_identifier_str.c_str(),
+                kIdentifierLengthCap);
 
   // TODO(tc): Do we need to set IS_AUTO_REPEAT or IS_KEYPAD?
 }
