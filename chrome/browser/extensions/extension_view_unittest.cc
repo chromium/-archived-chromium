@@ -6,6 +6,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/chrome_paths.h"
@@ -19,15 +20,18 @@ namespace {
 // up.
 const int kAlertTimeoutMs = 10000;
 
+// How long to wait for the extension to load before giving up.
+const int kLoadTimeoutMs = 5000;
+
 // The extension we're using as our test case.
-const char* kExtensionId = "com.google.myextension1";
+const char* kExtensionId = "00123456789abcdef0123456789abcdef0123456";
 
 // This class starts up an extension process and waits until it tries to put
 // up a javascript alert.
 class MockExtensionView : public ExtensionView {
  public:
   MockExtensionView(const GURL& url, Profile* profile)
-     : ExtensionView(url, profile), got_message_(false) {
+      : ExtensionView(url, profile), got_message_(false) {
     InitHidden();
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         new MessageLoop::QuitTask, kAlertTimeoutMs);
@@ -52,13 +56,18 @@ class MockExtensionView : public ExtensionView {
 // This class waits for a specific extension to be loaded.
 class ExtensionLoadedObserver : public NotificationObserver {
  public:
-  explicit ExtensionLoadedObserver() : extension_(NULL) {
+  explicit ExtensionLoadedObserver() : extension_(NULL)  {
     registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
         NotificationService::AllSources());
-    ui_test_utils::RunMessageLoop();
   }
 
-  Extension* extension() { return extension_; }
+  Extension* WaitForExtension() {
+    MessageLoop::current()->PostDelayedTask(FROM_HERE,
+        new MessageLoop::QuitTask, kLoadTimeoutMs);
+    ui_test_utils::RunMessageLoop();
+    return extension_;
+  }
+
  private:
   virtual void Observe(NotificationType type, const NotificationSource& source,
                        const NotificationDetails& details) {
@@ -83,14 +92,29 @@ class ExtensionLoadedObserver : public NotificationObserver {
 }  // namespace
 
 class ExtensionViewTest : public InProcessBrowserTest {
+ public:
+  virtual void SetUp() {
+    // Initialize the error reporter here, otherwise BrowserMain will create it
+    // with the wrong MessageLoop.
+    ExtensionErrorReporter::Init(false);
+
+    InProcessBrowserTest::SetUp();
+  }
 };
 
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_TestMe) {
+// Tests that ExtensionView starts an extension process and runs the script
+// contained in the extension's "index.html" file.
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
+  // Create an observer first to be sure we have the notification registered
+  // before it's sent.
+  ExtensionLoadedObserver observer;
+
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
   path = path.AppendASCII("extensions").
       AppendASCII("good").AppendASCII("extension1").AppendASCII("1");
+  ASSERT_TRUE(file_util::DirectoryExists(path));  // sanity check
 
   // Load it.
   Profile* profile = browser()->profile();
@@ -98,7 +122,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_TestMe) {
   profile->GetExtensionsService()->LoadExtension(path);
 
   // Now wait for it to load, and grab a pointer to it.
-  Extension* extension = ExtensionLoadedObserver().extension();
+  Extension* extension = observer.WaitForExtension();
   ASSERT_TRUE(extension);
   GURL url = Extension::GetResourceURL(extension->url(), "index.html");
 

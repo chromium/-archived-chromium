@@ -175,6 +175,10 @@ bool Extension::InitFromValue(const DictionaryValue& source,
     return false;
   }
 
+  // Normalize the string to lowercase, so it can be used as an URL component
+  // (where GURL will lowercase it).
+  StringToLowerASCII(&id_);
+
   // Verify that the id is legal.  The id is a hex string of the SHA-1 hash of
   // the public key.
   std::vector<uint8> id_bytes;

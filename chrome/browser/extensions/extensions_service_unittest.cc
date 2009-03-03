@@ -169,7 +169,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   }
   ASSERT_EQ(3u, frontend->extensions()->size());
 
-  EXPECT_EQ(std::string("00123456789ABCDEF0123456789ABCDEF0123456"),
+  EXPECT_EQ(std::string("00123456789abcdef0123456789abcdef0123456"),
             frontend->extensions()->at(0)->id());
   EXPECT_EQ(std::string("My extension 1"),
             frontend->extensions()->at(0)->name());
@@ -191,7 +191,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
             scripts[1].path().value());
 
-  EXPECT_EQ(std::string("10123456789ABCDEF0123456789ABCDEF0123456"),
+  EXPECT_EQ(std::string("10123456789abcdef0123456789abcdef0123456"),
             frontend->extensions()->at(1)->id());
   EXPECT_EQ(std::string("My extension 2"),
             frontend->extensions()->at(1)->name());
@@ -201,7 +201,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(1)->plugins_dir().value());
   ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
 
-  EXPECT_EQ(std::string("20123456789ABCDEF0123456789ABCDEF0123456"),
+  EXPECT_EQ(std::string("20123456789abcdef0123456789abcdef0123456"),
             frontend->extensions()->at(2)->id());
   EXPECT_EQ(std::string("My extension 3"),
             frontend->extensions()->at(2)->name());

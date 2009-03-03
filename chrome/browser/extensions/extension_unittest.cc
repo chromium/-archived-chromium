@@ -177,7 +177,7 @@ TEST(ExtensionTest, InitFromValueValid) {
 
   EXPECT_TRUE(extension.InitFromValue(input_value, &error));
   EXPECT_EQ("", error);
-  EXPECT_EQ("00123456789ABCDEF0123456789ABCDEF0123456", extension.id());
+  EXPECT_EQ("00123456789abcdef0123456789abcdef0123456", extension.id());
   EXPECT_EQ("1.0.0.0", extension.VersionString());
   EXPECT_EQ("my extension", extension.name());
   EXPECT_EQ("chrome-extension://00123456789abcdef0123456789abcdef0123456/",
