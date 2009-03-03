@@ -5,8 +5,9 @@
 #ifndef BASE_JSON_WRITER_H_
 #define BASE_JSON_WRITER_H_
 
+#include <string>
+
 #include "base/basictypes.h"
-#include "base/string16.h"
 
 class Value;
 
@@ -30,7 +31,7 @@ class JSONWriter {
   void BuildJSONString(const Value* const node, int depth);
 
   // Appends a quoted, escaped, version of str to json_string_.
-  void AppendQuotedString(const string16& str);
+  void AppendQuotedString(const std::wstring& str);
 
   // Adds space to json_string_ for the indent level.
   void IndentLine(int depth);
@@ -44,3 +45,4 @@ class JSONWriter {
 };
 
 #endif  // BASE_JSON_WRITER_H_
+

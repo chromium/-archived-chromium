@@ -289,7 +289,7 @@ bool PrefService::GetBoolean(const wchar_t* path) const {
   DCHECK(CalledOnValidThread());
 
   bool result = false;
-  if (transient_->GetBoolean(WideToUTF16Hack(path), &result))
+  if (transient_->GetBoolean(path, &result))
     return result;
 
   const Preference* pref = FindPreference(path);
@@ -306,7 +306,7 @@ int PrefService::GetInteger(const wchar_t* path) const {
   DCHECK(CalledOnValidThread());
 
   int result = 0;
-  if (transient_->GetInteger(WideToUTF16Hack(path), &result))
+  if (transient_->GetInteger(path, &result))
     return result;
 
   const Preference* pref = FindPreference(path);
@@ -323,7 +323,7 @@ double PrefService::GetReal(const wchar_t* path) const {
   DCHECK(CalledOnValidThread());
 
   double result = 0.0;
-  if (transient_->GetReal(WideToUTF16Hack(path), &result))
+  if (transient_->GetReal(path, &result))
     return result;
 
   const Preference* pref = FindPreference(path);
@@ -339,11 +339,10 @@ double PrefService::GetReal(const wchar_t* path) const {
 std::wstring PrefService::GetString(const wchar_t* path) const {
   DCHECK(CalledOnValidThread());
 
-  string16 result16;
-  if (transient_->GetString(WideToUTF16Hack(path), &result16))
-    return UTF16ToWideHack(result16);
-
   std::wstring result;
+  if (transient_->GetString(path, &result))
+    return result;
+
   const Preference* pref = FindPreference(path);
   if (!pref) {
 #if defined(OS_WIN)
@@ -360,8 +359,7 @@ std::wstring PrefService::GetString(const wchar_t* path) const {
 
 bool PrefService::HasPrefPath(const wchar_t* path) const {
   Value* value = NULL;
-  string16 path16 = WideToUTF16Hack(path);
-  return (transient_->Get(path16, &value) || persistent_->Get(path16, &value));
+  return (transient_->Get(path, &value) || persistent_->Get(path, &value));
 }
 
 const PrefService::Preference* PrefService::FindPreference(
@@ -376,7 +374,7 @@ const DictionaryValue* PrefService::GetDictionary(const wchar_t* path) const {
   DCHECK(CalledOnValidThread());
 
   DictionaryValue* result = NULL;
-  if (transient_->GetDictionary(WideToUTF16Hack(path), &result))
+  if (transient_->GetDictionary(path, &result))
     return result;
 
   const Preference* pref = FindPreference(path);
@@ -394,7 +392,7 @@ const ListValue* PrefService::GetList(const wchar_t* path) const {
   DCHECK(CalledOnValidThread());
 
   ListValue* result = NULL;
-  if (transient_->GetList(WideToUTF16Hack(path), &result))
+  if (transient_->GetList(path, &result))
     return result;
 
   const Preference* pref = FindPreference(path);
@@ -475,11 +473,10 @@ void PrefService::ClearPref(const wchar_t* path) {
     return;
   }
 
-  string16 path16 = WideToUTF16Hack(path);
-  transient_->Remove(path16, NULL);
+  transient_->Remove(path, NULL);
   Value* value;
-  bool has_old_value = persistent_->Get(path16, &value);
-  persistent_->Remove(path16, NULL);
+  bool has_old_value = persistent_->Get(path, &value);
+  persistent_->Remove(path, NULL);
 
   if (has_old_value)
     FireObservers(path);
@@ -499,7 +496,7 @@ void PrefService::SetBoolean(const wchar_t* path, bool value) {
   }
 
   scoped_ptr<Value> old_value(GetPrefCopy(path));
-  bool rv = persistent_->SetBoolean(WideToUTF16Hack(path), value);
+  bool rv = persistent_->SetBoolean(path, value);
   DCHECK(rv);
 
   FireObserversIfChanged(path, old_value.get());
@@ -519,7 +516,7 @@ void PrefService::SetInteger(const wchar_t* path, int value) {
   }
 
   scoped_ptr<Value> old_value(GetPrefCopy(path));
-  bool rv = persistent_->SetInteger(WideToUTF16Hack(path), value);
+  bool rv = persistent_->SetInteger(path, value);
   DCHECK(rv);
 
   FireObserversIfChanged(path, old_value.get());
@@ -539,7 +536,7 @@ void PrefService::SetReal(const wchar_t* path, double value) {
   }
 
   scoped_ptr<Value> old_value(GetPrefCopy(path));
-  bool rv = persistent_->SetReal(WideToUTF16Hack(path), value);
+  bool rv = persistent_->SetReal(path, value);
   DCHECK(rv);
 
   FireObserversIfChanged(path, old_value.get());
@@ -559,8 +556,7 @@ void PrefService::SetString(const wchar_t* path, const std::wstring& value) {
   }
 
   scoped_ptr<Value> old_value(GetPrefCopy(path));
-  bool rv = persistent_->SetString(WideToUTF16Hack(path),
-                                   WideToUTF16Hack(value));
+  bool rv = persistent_->SetString(path, value);
   DCHECK(rv);
 
   FireObserversIfChanged(path, old_value.get());
@@ -580,11 +576,10 @@ DictionaryValue* PrefService::GetMutableDictionary(const wchar_t* path) {
   }
 
   DictionaryValue* dict = NULL;
-  string16 path16 = WideToUTF16Hack(path);
-  bool rv = persistent_->GetDictionary(path16, &dict);
+  bool rv = persistent_->GetDictionary(path, &dict);
   if (!rv) {
     dict = new DictionaryValue;
-    rv = persistent_->Set(path16, dict);
+    rv = persistent_->Set(path, dict);
     DCHECK(rv);
   }
   return dict;
@@ -604,11 +599,10 @@ ListValue* PrefService::GetMutableList(const wchar_t* path) {
   }
 
   ListValue* list = NULL;
-  string16 path16 = WideToUTF16Hack(path);
-  bool rv = persistent_->GetList(path16, &list);
+  bool rv = persistent_->GetList(path, &list);
   if (!rv) {
     list = new ListValue;
-    rv = persistent_->Set(path16, list);
+    rv = persistent_->Set(path, list);
     DCHECK(rv);
   }
   return list;
@@ -625,7 +619,7 @@ Value* PrefService::GetPrefCopy(const wchar_t* path) {
 void PrefService::FireObserversIfChanged(const wchar_t* path,
                                          const Value* old_value) {
   Value* new_value = NULL;
-  persistent_->Get(WideToUTF16Hack(path), &new_value);
+  persistent_->Get(path, &new_value);
   if (!old_value->Equals(new_value))
     FireObservers(path);
 }
@@ -678,7 +672,7 @@ const Value* PrefService::Preference::GetValue() const {
       "Must register pref before getting its value";
 
   Value* temp_value = NULL;
-  if (root_pref_->Get(WideToUTF16Hack(name_), &temp_value) &&
+  if (root_pref_->Get(name_.c_str(), &temp_value) &&
       temp_value->GetType() == type_) {
     return temp_value;
   }

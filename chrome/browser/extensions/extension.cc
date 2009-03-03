@@ -163,14 +163,14 @@ bool Extension::InitFromValue(const DictionaryValue& source,
                               std::string* error) {
   // Check format version.
   int format_version = 0;
-  if (!source.GetInteger(WideToUTF16Hack(kFormatVersionKey), &format_version) ||
+  if (!source.GetInteger(kFormatVersionKey, &format_version) ||
       static_cast<uint32>(format_version) != kExpectedFormatVersion) {
     *error = kInvalidFormatVersionError;
     return false;
   }
 
   // Initialize id.
-  if (!source.GetString(WideToUTF16Hack(kIdKey), &id_)) {
+  if (!source.GetString(kIdKey, &id_)) {
     *error = kInvalidIdError;
     return false;
   }
@@ -193,7 +193,7 @@ bool Extension::InitFromValue(const DictionaryValue& source,
 
   // Initialize version.
   std::string version_str;
-  if (!source.GetString(WideToUTF16Hack(kVersionKey), &version_str)) {
+  if (!source.GetString(kVersionKey, &version_str)) {
     *error = kInvalidVersionError;
     return false;
   }
@@ -204,14 +204,14 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   }
 
   // Initialize name.
-  if (!source.GetString(WideToUTF16Hack(kNameKey), &name_)) {
+  if (!source.GetString(kNameKey, &name_)) {
     *error = kInvalidNameError;
     return false;
   }
 
   // Initialize description (optional).
-  if (source.HasKey(WideToUTF16Hack(kDescriptionKey))) {
-    if (!source.GetString(WideToUTF16Hack(kDescriptionKey), &description_)) {
+  if (source.HasKey(kDescriptionKey)) {
+    if (!source.GetString(kDescriptionKey, &description_)) {
       *error = kInvalidDescriptionError;
       return false;
     }
@@ -220,17 +220,17 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   // Initialize zip hash (only present in zip)
   // There's no need to verify it at this point. If it's in a bogus format
   // it won't pass the hash verify step.
-  if (source.HasKey(WideToUTF16Hack(kZipHashKey))) {
-    if (!source.GetString(WideToUTF16Hack(kZipHashKey), &zip_hash_)) {
+  if (source.HasKey(kZipHashKey)) {
+    if (!source.GetString(kZipHashKey, &zip_hash_)) {
       *error = kInvalidZipHashError;
       return false;
     }
   }
 
   // Initialize plugins dir (optional).
-  if (source.HasKey(WideToUTF16Hack(kPluginsDirKey))) {
+  if (source.HasKey(kPluginsDirKey)) {
     std::string plugins_dir;
-    if (!source.GetString(WideToUTF16Hack(kPluginsDirKey), &plugins_dir)) {
+    if (!source.GetString(kPluginsDirKey, &plugins_dir)) {
       *error = kInvalidPluginsDirError;
       return false;
     }
@@ -238,9 +238,9 @@ bool Extension::InitFromValue(const DictionaryValue& source,
   }
 
   // Initialize content scripts (optional).
-  if (source.HasKey(WideToUTF16Hack(kContentScriptsKey))) {
+  if (source.HasKey(kContentScriptsKey)) {
     ListValue* list_value;
-    if (!source.GetList(WideToUTF16Hack(kContentScriptsKey), &list_value)) {
+    if (!source.GetList(kContentScriptsKey, &list_value)) {
       *error = kInvalidContentScriptsListError;
       return false;
     }
@@ -255,12 +255,12 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       ListValue* matches;
       ListValue* js;
 
-      if (!content_script->GetList(WideToUTF16Hack(kMatchesKey), &matches)) {
+      if (!content_script->GetList(kMatchesKey, &matches)) {
         *error = FormatErrorMessage(kInvalidMatchesError, IntToString(i));
         return false;
       }
 
-      if (!content_script->GetList(WideToUTF16Hack(kJsKey), &js)) {
+      if (!content_script->GetList(kJsKey, &js)) {
         *error = FormatErrorMessage(kInvalidJsListError, IntToString(i));
         return false;
       }
@@ -277,10 +277,9 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       }
 
       UserScript script;
-      if (content_script->HasKey(WideToUTF16Hack(kRunAtKey))) {
+      if (content_script->HasKey(kRunAtKey)) {
         std::string run_location;
-        if (!content_script->GetString(WideToUTF16Hack(kRunAtKey),
-                                       &run_location)) {
+        if (!content_script->GetString(kRunAtKey, &run_location)) {
           *error = FormatErrorMessage(kInvalidRunAtError, IntToString(i));
           return false;
         }
@@ -329,3 +328,4 @@ bool Extension::InitFromValue(const DictionaryValue& source,
 
   return true;
 }
+

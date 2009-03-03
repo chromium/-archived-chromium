@@ -1039,20 +1039,12 @@ std::string IntToString(int value) {
   return IntToStringT<std::string, int, unsigned int, true>::
       IntToString(value);
 }
-string16 IntToString16(int value) {
-  return IntToStringT<string16, int, unsigned int, true>::
-      IntToString(value);
-}
 std::wstring IntToWString(int value) {
   return IntToStringT<std::wstring, int, unsigned int, true>::
       IntToString(value);
 }
 std::string UintToString(unsigned int value) {
   return IntToStringT<std::string, unsigned int, unsigned int, false>::
-      IntToString(value);
-}
-string16 UintToString16(unsigned int value) {
-  return IntToStringT<string16, unsigned int, unsigned int, false>::
       IntToString(value);
 }
 std::wstring UintToWString(unsigned int value) {
@@ -1063,20 +1055,12 @@ std::string Int64ToString(int64 value) {
   return IntToStringT<std::string, int64, uint64, true>::
       IntToString(value);
 }
-string16 Int64ToString16(int64 value) {
-  return IntToStringT<string16, int64, uint64, true>::
-      IntToString(value);
-}
 std::wstring Int64ToWString(int64 value) {
   return IntToStringT<std::wstring, int64, uint64, true>::
       IntToString(value);
 }
 std::string Uint64ToString(uint64 value) {
   return IntToStringT<std::string, uint64, uint64, false>::
-      IntToString(value);
-}
-string16 Uint64ToString16(uint64 value) {
-  return IntToStringT<string16, uint64, uint64, false>::
       IntToString(value);
 }
 std::wstring Uint64ToWString(uint64 value) {
@@ -1089,10 +1073,6 @@ std::string DoubleToString(double value) {
   char buffer[32];
   dmg_fp::g_fmt(buffer, value);
   return std::string(buffer);
-}
-
-string16 DoubleToWString16(double value) {
-  return UTF8ToUTF16(DoubleToString(value));
 }
 
 std::wstring DoubleToWString(double value) {
@@ -1599,52 +1579,6 @@ double StringToDouble(const string16& value) {
   StringToDouble(value, &result);
   return result;
 }
-
-#if !defined(WCHAR_T_IS_UTF16)
-bool StringToInt(const string16& input, int* output) {
-  return StringToInt(UTF16ToWideHack(input), output);
-}
-
-bool StringToInt64(const string16& input, int64* output) {
-  return StringToInt64(UTF16ToWideHack(input), output);
-}
-
-bool HexStringToInt(const string16& input, int* output) {
-  return HexStringToInt(UTF16ToWideHack(input), output);
-}
-
-int StringToInt(const string16& value) {
-  int result;
-  StringToInt(value, &result);
-  return result;
-}
-
-int64 StringToInt64(const string16& value) {
-  int64 result;
-  StringToInt64(value, &result);
-  return result;
-}
-
-int HexStringToInt(const string16& value) {
-  int result;
-  HexStringToInt(value, &result);
-  return result;
-}
-
-bool StringToDouble(const string16& input, double* output) {
-  return StringToDouble(UTF16ToWideHack(input), output);
-}
-
-double StringToDouble(const string16& value) {
-  double result;
-  StringToDouble(value, &result);
-  return result;
-}
-
-bool HexStringToBytes(const string16& input, std::vector<uint8>* output) {
-  return HexStringToBytesT(input, output);
-}
-#endif  // !defined(WCHAR_T_IS_UTF16)
 
 // The following code is compatible with the OpenBSD lcpy interface.  See:
 //   http://www.gratisoft.us/todd/papers/strlcpy.html

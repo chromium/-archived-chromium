@@ -253,9 +253,8 @@ bool BrowserAboutHandler::SupportsURL(GURL* url) {
 std::string BrowserAboutHandler::AboutVersion() {
   // Strings used in the JsTemplate file.
   DictionaryValue localized_strings;
-  localized_strings.SetString(
-      LIT16("title"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_VERSION_TITLE)));
+  localized_strings.SetString(L"title",
+      l10n_util::GetString(IDS_ABOUT_VERSION_TITLE));
   scoped_ptr<FileVersionInfo> version_info(
       FileVersionInfo::CreateFileVersionInfoForCurrentModule());
   if (version_info == NULL) {
@@ -273,34 +272,26 @@ std::string BrowserAboutHandler::AboutVersion() {
   std::wstring js_engine = L"JavaScriptCore";
 #endif
 
-  localized_strings.SetString(
-      LIT16("name"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_PRODUCT_NAME)));
-  localized_strings.SetString(LIT16("version"),
-                              WideToUTF16Hack(version_info->file_version()));
-  localized_strings.SetString(LIT16("js_engine"), WideToUTF16Hack(js_engine));
-  localized_strings.SetString(LIT16("js_version"), WideToUTF16Hack(js_version));
-  localized_strings.SetString(LIT16("webkit_version"),
-                              WideToUTF16Hack(webkit_version));
-  localized_strings.SetString(
-      LIT16("company"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_VERSION_COMPANY_NAME)));
-  localized_strings.SetString(
-      LIT16("copyright"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT)));
-  localized_strings.SetString(LIT16("cl"),
-                              WideToUTF16Hack(version_info->last_change()));
+  localized_strings.SetString(L"name",
+      l10n_util::GetString(IDS_PRODUCT_NAME));
+  localized_strings.SetString(L"version", version_info->file_version());
+  localized_strings.SetString(L"js_engine", js_engine);
+  localized_strings.SetString(L"js_version", js_version);
+  localized_strings.SetString(L"webkit_version", webkit_version);
+  localized_strings.SetString(L"company",
+      l10n_util::GetString(IDS_ABOUT_VERSION_COMPANY_NAME));
+  localized_strings.SetString(L"copyright",
+      l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT));
+  localized_strings.SetString(L"cl", version_info->last_change());
   if (version_info->is_official_build()) {
-    localized_strings.SetString(
-        LIT16("official"),
-        WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_VERSION_OFFICIAL)));
+    localized_strings.SetString(L"official",
+      l10n_util::GetString(IDS_ABOUT_VERSION_OFFICIAL));
   } else {
-    localized_strings.SetString(
-        LIT16("official"),
-        WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_VERSION_UNOFFICIAL)));
+    localized_strings.SetString(L"official",
+      l10n_util::GetString(IDS_ABOUT_VERSION_UNOFFICIAL));
   }
-  localized_strings.SetString(LIT16("useragent"),
-      UTF8ToUTF16(webkit_glue::GetUserAgent(GURL())));
+  localized_strings.SetString(L"useragent",
+      UTF8ToWide(webkit_glue::GetUserAgent(GURL())));
 
   static const StringPiece version_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -341,36 +332,26 @@ std::string BrowserAboutHandler::AboutTerms() {
 std::string BrowserAboutHandler::AboutPlugins() {
   // Strings used in the JsTemplate file.
   DictionaryValue localized_strings;
-  localized_strings.SetString(
-      LIT16("title"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_TITLE)));
-  localized_strings.SetString(
-      LIT16("headingPlugs"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_HEADING_PLUGS)));
-  localized_strings.SetString(
-      LIT16("headingNoPlugs"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_HEADING_NOPLUGS)));
-  localized_strings.SetString(
-      LIT16("filename"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_FILENAME_LABEL)));
-  localized_strings.SetString(
-      LIT16("mimetype"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_MIMETYPE_LABEL)));
-  localized_strings.SetString(
-      LIT16("description"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_DESCRIPTION_LABEL)));
-  localized_strings.SetString(
-      LIT16("suffixes"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_SUFFIX_LABEL)));
-  localized_strings.SetString(
-      LIT16("enabled"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_ENABLED_LABEL)));
-  localized_strings.SetString(
-      LIT16("enabled_yes"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_ENABLED_YES)));
-  localized_strings.SetString(
-      LIT16("enabled_no"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ABOUT_PLUGINS_ENABLED_NO)));
+  localized_strings.SetString(L"title",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_TITLE));
+  localized_strings.SetString(L"headingPlugs",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_HEADING_PLUGS));
+  localized_strings.SetString(L"headingNoPlugs",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_HEADING_NOPLUGS));
+  localized_strings.SetString(L"filename",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_FILENAME_LABEL));
+  localized_strings.SetString(L"mimetype",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_MIMETYPE_LABEL));
+  localized_strings.SetString(L"description",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_DESCRIPTION_LABEL));
+  localized_strings.SetString(L"suffixes",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_SUFFIX_LABEL));
+  localized_strings.SetString(L"enabled",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_ENABLED_LABEL));
+  localized_strings.SetString(L"enabled_yes",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_ENABLED_YES));
+  localized_strings.SetString(L"enabled_no",
+      l10n_util::GetString(IDS_ABOUT_PLUGINS_ENABLED_NO));
 
   static const StringPiece plugins_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -423,15 +404,15 @@ std::string BrowserAboutHandler::AboutStats() {
   // We maintain two lists - one for counters and one for timers.
   // Timers actually get stored on both lists.
   ListValue* counters;
-  if (!root.GetList(LIT16("counters"), &counters)) {
+  if (!root.GetList(L"counters", &counters)) {
     counters = new ListValue();
-    root.Set(LIT16("counters"), counters);
+    root.Set(L"counters", counters);
   }
 
   ListValue* timers;
-  if (!root.GetList(LIT16("timers"), &timers)) {
+  if (!root.GetList(L"timers", &timers)) {
     timers = new ListValue();
-    root.Set(LIT16("timers"), timers);
+    root.Set(L"timers", timers);
   }
 
   // NOTE: Counters start at index 1.
@@ -455,9 +436,9 @@ std::string BrowserAboutHandler::AboutStats() {
          scan_index < counters->GetSize(); scan_index++) {
       DictionaryValue* dictionary;
       if (counters->GetDictionary(scan_index, &dictionary)) {
-        string16 scan_name;
-        if (dictionary->GetString(LIT16("name"), &scan_name) &&
-            UTF16ToUTF8(scan_name) == name) {
+        std::wstring scan_name;
+        if (dictionary->GetString(L"name", &scan_name) &&
+            WideToASCII(scan_name) == name) {
           counter = dictionary;
         }
       } else {
@@ -467,7 +448,7 @@ std::string BrowserAboutHandler::AboutStats() {
 
     if (counter == NULL) {
       counter = new DictionaryValue();
-      counter->SetString(LIT16("name"), UTF8ToUTF16(name));
+      counter->SetString(L"name", ASCIIToWide(name));
       counters->Append(counter);
     }
 
@@ -477,11 +458,11 @@ std::string BrowserAboutHandler::AboutStats() {
           int new_value = table->GetRowValue(index);
           int prior_value = 0;
           int delta = 0;
-          if (counter->GetInteger(LIT16("value"), &prior_value)) {
+          if (counter->GetInteger(L"value", &prior_value)) {
             delta = new_value - prior_value;
           }
-          counter->SetInteger(LIT16("value"), new_value);
-          counter->SetInteger(LIT16("delta"), delta);
+          counter->SetInteger(L"value", new_value);
+          counter->SetInteger(L"delta", delta);
         }
         break;
       case 'm':
@@ -492,7 +473,7 @@ std::string BrowserAboutHandler::AboutStats() {
       case 't':
         {
           int time = table->GetRowValue(index);
-          counter->SetInteger(LIT16("time"), time);
+          counter->SetInteger(L"time", time);
 
           // Store this on the timers list as well.
           timers->Append(counter);
@@ -538,16 +519,16 @@ void AboutMemoryHandler::BindProcessMetrics(DictionaryValue* data,
   DCHECK(data && info);
 
   // Bind metrics to dictionary.
-  data->SetInteger(LIT16("ws_priv"), static_cast<int>(info->working_set.priv));
-  data->SetInteger(LIT16("ws_shareable"),
+  data->SetInteger(L"ws_priv", static_cast<int>(info->working_set.priv));
+  data->SetInteger(L"ws_shareable",
     static_cast<int>(info->working_set.shareable));
-  data->SetInteger(LIT16("ws_shared"), static_cast<int>(info->working_set.shared));
-  data->SetInteger(LIT16("comm_priv"), static_cast<int>(info->committed.priv));
-  data->SetInteger(LIT16("comm_map"), static_cast<int>(info->committed.mapped));
-  data->SetInteger(LIT16("comm_image"), static_cast<int>(info->committed.image));
-  data->SetInteger(LIT16("pid"), info->pid);
-  data->SetString(LIT16("version"), WideToUTF16Hack(info->version));
-  data->SetInteger(LIT16("processes"), info->num_processes);
+  data->SetInteger(L"ws_shared", static_cast<int>(info->working_set.shared));
+  data->SetInteger(L"comm_priv", static_cast<int>(info->committed.priv));
+  data->SetInteger(L"comm_map", static_cast<int>(info->committed.mapped));
+  data->SetInteger(L"comm_image", static_cast<int>(info->committed.image));
+  data->SetInteger(L"pid", info->pid);
+  data->SetString(L"version", info->version);
+  data->SetInteger(L"processes", info->num_processes);
 }
 
 // Helper for AboutMemory to append memory usage information for all
@@ -564,9 +545,9 @@ void AboutMemoryHandler::AppendProcess(ListValue* child_data,
   std::wstring child_label(ChildProcessInfo::GetTypeNameInEnglish(info->type));
   if (info->is_diagnostics)
     child_label.append(L" (diagnostics)");
-  child->SetString(LIT16("child_name"), WideToUTF16Hack(child_label));
+  child->SetString(L"child_name", child_label);
   ListValue* titles = new ListValue();
-  child->Set(LIT16("titles"), titles);
+  child->Set(L"titles", titles);
   for (size_t i = 0; i < info->titles.size(); ++i)
     titles->Append(new StringValue(info->titles[i]));
 }
@@ -576,7 +557,7 @@ void AboutMemoryHandler::OnDetailsAvailable() {
   // the root of the JSON hierarchy for about:memory jstemplate
   DictionaryValue root;
   ListValue* browsers = new ListValue();
-  root.Set(LIT16("browsers"), browsers);
+  root.Set(L"browsers", browsers);
 
   ProcessData* browser_processes = processes();
 
@@ -607,8 +588,7 @@ void AboutMemoryHandler::OnDetailsAvailable() {
     }
     DictionaryValue* browser_data = new DictionaryValue();
     browsers->Append(browser_data);
-    browser_data->SetString(LIT16("name"),
-                            WideToUTF16Hack(browser_processes[index].name));
+    browser_data->SetString(L"name", browser_processes[index].name);
 
     BindProcessMetrics(browser_data, &aggregate);
 
@@ -628,9 +608,9 @@ void AboutMemoryHandler::OnDetailsAvailable() {
 
   // Set the browser & renderer detailed process data.
   DictionaryValue* browser_data = new DictionaryValue();
-  root.Set(LIT16("browzr_data"), browser_data);
+  root.Set(L"browzr_data", browser_data);
   ListValue* child_data = new ListValue();
-  root.Set(LIT16("child_data"), child_data);
+  root.Set(L"child_data", child_data);
 
   ProcessData process = browser_processes[0];  // Chrome is the first browser.
   for (size_t index = 0; index < process.processes.size(); index++) {

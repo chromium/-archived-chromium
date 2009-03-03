@@ -245,13 +245,13 @@ void DictionaryValue::Clear() {
   dictionary_.clear();
 }
 
-bool DictionaryValue::HasKey(const string16& key) const {
+bool DictionaryValue::HasKey(const std::wstring& key) const {
   ValueMap::const_iterator current_entry = dictionary_.find(key);
   DCHECK((current_entry == dictionary_.end()) || current_entry->second);
   return current_entry != dictionary_.end();
 }
 
-void DictionaryValue::SetInCurrentNode(const string16& key,
+void DictionaryValue::SetInCurrentNode(const std::wstring& key,
                                        Value* in_value) {
   // If there's an existing value here, we need to delete it, because
   // we own all our children.
@@ -263,12 +263,12 @@ void DictionaryValue::SetInCurrentNode(const string16& key,
   dictionary_[key] = in_value;
 }
 
-bool DictionaryValue::Set(const string16& path, Value* in_value) {
+bool DictionaryValue::Set(const std::wstring& path, Value* in_value) {
   DCHECK(in_value);
 
-  string16 key = path;
+  std::wstring key = path;
 
-  size_t delimiter_position = path.find_first_of('.', 0);
+  size_t delimiter_position = path.find_first_of(L".", 0);
   // If there isn't a dictionary delimiter in the path, we're done.
   if (delimiter_position == std::wstring::npos) {
     SetInCurrentNode(key, in_value);
@@ -286,37 +286,37 @@ bool DictionaryValue::Set(const string16& path, Value* in_value) {
     entry = static_cast<DictionaryValue*>(dictionary_[key]);
   }
 
-  string16 remaining_path = path.substr(delimiter_position + 1);
+  std::wstring remaining_path = path.substr(delimiter_position + 1);
   return entry->Set(remaining_path, in_value);
 }
 
-bool DictionaryValue::SetBoolean(const string16& path, bool in_value) {
+bool DictionaryValue::SetBoolean(const std::wstring& path, bool in_value) {
   return Set(path, CreateBooleanValue(in_value));
 }
 
-bool DictionaryValue::SetInteger(const string16& path, int in_value) {
+bool DictionaryValue::SetInteger(const std::wstring& path, int in_value) {
   return Set(path, CreateIntegerValue(in_value));
 }
 
-bool DictionaryValue::SetReal(const string16& path, double in_value) {
+bool DictionaryValue::SetReal(const std::wstring& path, double in_value) {
   return Set(path, CreateRealValue(in_value));
 }
 
-bool DictionaryValue::SetString(const string16& path,
+bool DictionaryValue::SetString(const std::wstring& path,
                                 const std::string& in_value) {
   return Set(path, CreateStringValue(in_value));
 }
 
-bool DictionaryValue::SetString(const string16& path,
-                                const string16& in_value) {
-  return Set(path, CreateStringValue(UTF16ToWideHack(in_value)));
+bool DictionaryValue::SetString(const std::wstring& path,
+                                const std::wstring& in_value) {
+  return Set(path, CreateStringValue(in_value));
 }
 
-bool DictionaryValue::Get(const string16& path, Value** out_value) const {
-  string16 key = path;
+bool DictionaryValue::Get(const std::wstring& path, Value** out_value) const {
+  std::wstring key = path;
 
-  size_t delimiter_position = path.find_first_of('.', 0);
-  if (delimiter_position != string16::npos) {
+  size_t delimiter_position = path.find_first_of(L".", 0);
+  if (delimiter_position != std::wstring::npos) {
     key = path.substr(0, delimiter_position);
   }
 
@@ -325,7 +325,7 @@ bool DictionaryValue::Get(const string16& path, Value** out_value) const {
     return false;
   Value* entry = entry_iterator->second;
 
-  if (delimiter_position == string16::npos) {
+  if (delimiter_position == std::wstring::npos) {
     if (out_value)
       *out_value = entry;
     return true;
@@ -339,7 +339,7 @@ bool DictionaryValue::Get(const string16& path, Value** out_value) const {
   return false;
 }
 
-bool DictionaryValue::GetBoolean(const string16& path,
+bool DictionaryValue::GetBoolean(const std::wstring& path,
                                  bool* bool_value) const {
   Value* value;
   if (!Get(path, &value))
@@ -348,7 +348,7 @@ bool DictionaryValue::GetBoolean(const string16& path,
   return value->GetAsBoolean(bool_value);
 }
 
-bool DictionaryValue::GetInteger(const string16& path,
+bool DictionaryValue::GetInteger(const std::wstring& path,
                                  int* out_value) const {
   Value* value;
   if (!Get(path, &value))
@@ -357,7 +357,7 @@ bool DictionaryValue::GetInteger(const string16& path,
   return value->GetAsInteger(out_value);
 }
 
-bool DictionaryValue::GetReal(const string16& path,
+bool DictionaryValue::GetReal(const std::wstring& path,
                               double* out_value) const {
   Value* value;
   if (!Get(path, &value))
@@ -366,7 +366,7 @@ bool DictionaryValue::GetReal(const string16& path,
   return value->GetAsReal(out_value);
 }
 
-bool DictionaryValue::GetString(const string16& path,
+bool DictionaryValue::GetString(const std::wstring& path,
                                 std::string* out_value) const {
   Value* value;
   if (!Get(path, &value))
@@ -375,19 +375,16 @@ bool DictionaryValue::GetString(const string16& path,
   return value->GetAsString(out_value);
 }
 
-bool DictionaryValue::GetString(const string16& path,
-                                string16* out_value) const {
+bool DictionaryValue::GetString(const std::wstring& path,
+                                std::wstring* out_value) const {
   Value* value;
   if (!Get(path, &value))
     return false;
 
-  std::wstring wout_value;
-  bool success = value->GetAsString(&wout_value);
-  out_value->assign(WideToUTF16Hack(wout_value));
-  return success;
+  return value->GetAsString(out_value);
 }
 
-bool DictionaryValue::GetBinary(const string16& path,
+bool DictionaryValue::GetBinary(const std::wstring& path,
                                 BinaryValue** out_value) const {
   Value* value;
   bool result = Get(path, &value);
@@ -400,7 +397,7 @@ bool DictionaryValue::GetBinary(const string16& path,
   return true;
 }
 
-bool DictionaryValue::GetDictionary(const string16& path,
+bool DictionaryValue::GetDictionary(const std::wstring& path,
                                     DictionaryValue** out_value) const {
   Value* value;
   bool result = Get(path, &value);
@@ -413,7 +410,7 @@ bool DictionaryValue::GetDictionary(const string16& path,
   return true;
 }
 
-bool DictionaryValue::GetList(const string16& path,
+bool DictionaryValue::GetList(const std::wstring& path,
                               ListValue** out_value) const {
   Value* value;
   bool result = Get(path, &value);
@@ -426,11 +423,11 @@ bool DictionaryValue::GetList(const string16& path,
   return true;
 }
 
-bool DictionaryValue::Remove(const string16& path, Value** out_value) {
-  string16 key = path;
+bool DictionaryValue::Remove(const std::wstring& path, Value** out_value) {
+  std::wstring key = path;
 
-  size_t delimiter_position = path.find_first_of('.', 0);
-  if (delimiter_position != string16::npos) {
+  size_t delimiter_position = path.find_first_of(L".", 0);
+  if (delimiter_position != std::wstring::npos) {
     key = path.substr(0, delimiter_position);
   }
 
@@ -439,7 +436,7 @@ bool DictionaryValue::Remove(const string16& path, Value** out_value) {
     return false;
   Value* entry = entry_iterator->second;
 
-  if (delimiter_position == string16::npos) {
+  if (delimiter_position == std::wstring::npos) {
     if (out_value)
       *out_value = entry;
     else
@@ -654,3 +651,4 @@ bool ListValue::Equals(const Value* other) const {
 
   return true;
 }
+

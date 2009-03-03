@@ -86,12 +86,10 @@ WebErrorNetErrorMap net_error_options[] = {
 void GetLocalizedErrorValues(const WebError& error,
                              DictionaryValue* error_strings) {
   // Grab strings that are applicable to all error pages
-  error_strings->SetString(
-      LIT16("detailsLink"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ERRORPAGES_DETAILS_LINK)));
-  error_strings->SetString(
-      LIT16("detailsHeading"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ERRORPAGES_DETAILS_HEADING)));
+  error_strings->SetString(L"detailsLink",
+    l10n_util::GetString(IDS_ERRORPAGES_DETAILS_LINK));
+  error_strings->SetString(L"detailsHeading",
+    l10n_util::GetString(IDS_ERRORPAGES_DETAILS_HEADING));
 
   // Grab the strings and settings that depend on the error type.  Init
   // options with default values.
@@ -116,49 +114,40 @@ void GetLocalizedErrorValues(const WebError& error,
     suggestions_heading =
         l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_HEADING);
   }
-  error_strings->SetString(LIT16("suggestionsHeading"),
-                           WideToUTF16Hack(suggestions_heading));
+  error_strings->SetString(L"suggestionsHeading", suggestions_heading);
 
   std::wstring failed_url(ASCIIToWide(error.GetFailedURL().spec()));
   // URLs are always LTR.
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     l10n_util::WrapStringWithLTRFormatting(&failed_url);
-  error_strings->SetString(
-      LIT16("title"),
-      WideToUTF16Hack(l10n_util::GetStringF(options.title_resource_id,
-                                            failed_url)));
-  error_strings->SetString(
-      LIT16("heading"),
-      WideToUTF16Hack(l10n_util::GetString(options.heading_resource_id)));
+  error_strings->SetString(L"title",
+                           l10n_util::GetStringF(options.title_resource_id,
+                                                 failed_url));
+  error_strings->SetString(L"heading",
+                           l10n_util::GetString(options.heading_resource_id));
 
   DictionaryValue* summary = new DictionaryValue;
-  summary->SetString(
-      LIT16("msg"),
-      WideToUTF16Hack(l10n_util::GetString(options.summary_resource_id)));
+  summary->SetString(L"msg",
+      l10n_util::GetString(options.summary_resource_id));
   // TODO(tc): we want the unicode url here since it's being displayed
-  summary->SetString(LIT16("failedUrl"), WideToUTF16Hack(failed_url));
-  error_strings->Set(LIT16("summary"), summary);
+  summary->SetString(L"failedUrl", failed_url);
+  error_strings->Set(L"summary", summary);
 
   // Error codes are expected to be negative
   DCHECK(error_code < 0);
   std::wstring details = l10n_util::GetString(options.details_resource_id);
-  error_strings->SetString(
-      LIT16("details"),
-      WideToUTF16Hack(l10n_util::GetStringF(
-                          IDS_ERRORPAGES_DETAILS_TEMPLATE,
-                          IntToWString(-error_code),
-                          ASCIIToWide(net::ErrorToString(error_code)),
-                          details)));
+  error_strings->SetString(L"details",
+      l10n_util::GetStringF(IDS_ERRORPAGES_DETAILS_TEMPLATE,
+                            IntToWString(-error_code),
+                            ASCIIToWide(net::ErrorToString(error_code)),
+                            details));
 
   if (options.suggestions & SUGGEST_RELOAD) {
     DictionaryValue* suggest_reload = new DictionaryValue;
-    suggest_reload->SetString(
-        LIT16("msg"),
-        WideToUTF16Hack(l10n_util::GetString(
-                            IDS_ERRORPAGES_SUGGESTION_RELOAD)));
-    suggest_reload->SetString(LIT16("reloadUrl"),
-                              WideToUTF16Hack(failed_url));
-    error_strings->Set(LIT16("suggestionsReload"), suggest_reload);
+    suggest_reload->SetString(L"msg",
+        l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_RELOAD));
+    suggest_reload->SetString(L"reloadUrl", failed_url);
+    error_strings->Set(L"suggestionsReload", suggest_reload);
   }
 
   if (options.suggestions & SUGGEST_HOSTNAME) {
@@ -166,20 +155,17 @@ void GetLocalizedErrorValues(const WebError& error,
     const GURL& failed_url = error.GetFailedURL();
     if (std::string() == failed_url.path()) {
       DictionaryValue* suggest_home_page = new DictionaryValue;
-      suggest_home_page->SetString(
-          LIT16("suggestionsHomepageMsg"),
-          WideToUTF16Hack(l10n_util::GetString(
-                              IDS_ERRORPAGES_SUGGESTION_HOMEPAGE)));
+      suggest_home_page->SetString(L"suggestionsHomepageMsg",
+          l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_HOMEPAGE));
       std::wstring homepage(ASCIIToWide(failed_url.GetWithEmptyPath().spec()));
       // URLs are always LTR.
       if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
         l10n_util::WrapStringWithLTRFormatting(&homepage);
-      suggest_home_page->SetString(LIT16("homePage"),
-                                   WideToUTF16Hack(homepage));
+      suggest_home_page->SetString(L"homePage", homepage);
       // TODO(tc): we actually want the unicode hostname
-      suggest_home_page->SetString(LIT16("hostName"),
-                                   UTF8ToUTF16(failed_url.host()));
-      error_strings->Set(LIT16("suggestionsHomepage"), suggest_home_page);
+      suggest_home_page->SetString(L"hostName",
+          ASCIIToWide(failed_url.host()));
+      error_strings->Set(L"suggestionsHomepage", suggest_home_page);
     }
   }
 
@@ -202,13 +188,11 @@ void GetLocalizedErrorValues(const WebError& error,
       learn_more_url = learn_more_url.ReplaceComponents(repl);
 
       DictionaryValue* suggest_learn_more = new DictionaryValue;
-      suggest_learn_more->SetString(
-          LIT16("msg"),
-          WideToUTF16Hack(l10n_util::GetString(
-                              IDS_ERRORPAGES_SUGGESTION_LEARNMORE)));
-      suggest_learn_more->SetString(LIT16("learnMoreUrl"),
-                                    UTF8ToUTF16(learn_more_url.spec()));
-      error_strings->Set(LIT16("suggestionsLearnMore"), suggest_learn_more);
+      suggest_learn_more->SetString(L"msg",
+          l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_LEARNMORE));
+      suggest_learn_more->SetString(L"learnMoreUrl",
+                                    ASCIIToWide(learn_more_url.spec()));
+      error_strings->Set(L"suggestionsLearnMore", suggest_learn_more);
     }
   }
 }
@@ -220,17 +204,13 @@ void GetFormRepostErrorValues(const GURL& display_url,
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     l10n_util::WrapStringWithLTRFormatting(&failed_url);
   error_strings->SetString(
-      LIT16("title"),
-      WideToUTF16Hack(l10n_util::GetStringF(
-                          IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
-                          failed_url.c_str())));
-  error_strings->SetString(
-      LIT16("heading"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_HTTP_POST_WARNING_TITLE)));
-  error_strings->SetString(LIT16("suggestionsHeading"), LIT16(""));
+      L"title", l10n_util::GetStringF(IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
+                                      failed_url.c_str()));
+  error_strings->SetString(L"heading",
+                           l10n_util::GetString(IDS_HTTP_POST_WARNING_TITLE));
+  error_strings->SetString(L"suggestionsHeading", L"");
   DictionaryValue* summary = new DictionaryValue;
-  summary->SetString(
-      LIT16("msg"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_ERRORPAGES_HTTP_POST_WARNING)));
-  error_strings->Set(LIT16("summary"), summary);
+  summary->SetString(L"msg",
+                     l10n_util::GetString(IDS_ERRORPAGES_HTTP_POST_WARNING));
+  error_strings->Set(L"summary", summary);
 }

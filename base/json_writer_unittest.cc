@@ -4,7 +4,6 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/json_writer.h"
-#include "base/string_util.h"
 #include "base/values.h"
 
 TEST(JSONWriterTest, Writing) {
@@ -37,10 +36,10 @@ TEST(JSONWriterTest, Writing) {
   // list list nesting, etc.
   DictionaryValue root_dict;
   ListValue* list = new ListValue;
-  root_dict.Set(LIT16("list"), list);
+  root_dict.Set(L"list", list);
   DictionaryValue* inner_dict = new DictionaryValue;
   list->Append(inner_dict);
-  inner_dict->SetInteger(LIT16("inner int"), 10);
+  inner_dict->SetInteger(L"inner int", 10);
   ListValue* inner_list = new ListValue;
   list->Append(inner_list);
   list->Append(Value::CreateBooleanValue(true));
@@ -55,3 +54,5 @@ TEST(JSONWriterTest, Writing) {
             "}\r\n",
             output_js);
 }
+
+

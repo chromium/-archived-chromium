@@ -144,21 +144,16 @@ void HandleErrorTestParameters(const CommandLine& command_line) {
 struct LazyDirectoryListerCacher {
   LazyDirectoryListerCacher() {
     DictionaryValue value;
-    value.SetString(
-        LIT16("header"),
-        WideToUTF16Hack(l10n_util::GetString(IDS_DIRECTORY_LISTING_HEADER)));
-    value.SetString(
-        LIT16("parentDirText"),
-        WideToUTF16Hack(l10n_util::GetString(IDS_DIRECTORY_LISTING_PARENT)));
-    value.SetString(
-        LIT16("headerName"),
-        WideToUTF16Hack(l10n_util::GetString(IDS_DIRECTORY_LISTING_NAME)));
-    value.SetString(
-        LIT16("headerSize"),
-        WideToUTF16Hack(l10n_util::GetString(IDS_DIRECTORY_LISTING_SIZE)));
-    value.SetString(
-        LIT16("headerDateModified"),
-        WideToUTF16Hack(l10n_util::GetString(IDS_DIRECTORY_LISTING_DATE_MODIFIED)));
+    value.SetString(L"header",
+                    l10n_util::GetString(IDS_DIRECTORY_LISTING_HEADER));
+    value.SetString(L"parentDirText",
+                    l10n_util::GetString(IDS_DIRECTORY_LISTING_PARENT));
+    value.SetString(L"headerName",
+                    l10n_util::GetString(IDS_DIRECTORY_LISTING_NAME));
+    value.SetString(L"headerSize",
+                    l10n_util::GetString(IDS_DIRECTORY_LISTING_SIZE));
+    value.SetString(L"headerDateModified",
+                    l10n_util::GetString(IDS_DIRECTORY_LISTING_DATE_MODIFIED));
     html_data = jstemplate_builder::GetTemplateHtml(
         ResourceBundle::GetSharedInstance().GetRawDataResource(
             IDR_DIR_HEADER_HTML),
@@ -513,8 +508,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {
     if (parsed_command_line.HasSwitch(switches::kMetricsRecordingOnly)) {
-      local_state->transient()->SetBoolean(
-          WideToUTF16Hack(prefs::kMetricsReportingEnabled), false);
+      local_state->transient()->SetBoolean(prefs::kMetricsReportingEnabled,
+                                           false);
     }
     metrics = browser_process->metrics_service();
     DCHECK(metrics);

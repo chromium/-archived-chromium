@@ -15,7 +15,6 @@
 #include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/non_thread_safe.h"
-#include "base/string_util.h"
 #include "base/system_monitor.h"
 #include "base/values.h"
 #include "chrome/browser/profile.h"
@@ -34,21 +33,20 @@ class AvailableProfile {
   // Decodes a DictionaryValue into an AvailableProfile
   static AvailableProfile* FromValue(DictionaryValue* value) {
     DCHECK(value);
-    string16 name, id;
+    std::wstring name, id;
     FilePath::StringType directory;
-    value->GetString(LIT16("name"), &name);
-    value->GetString(LIT16("id"), &id);
-    value->GetString(LIT16("directory"), &directory);
-    return new AvailableProfile(UTF16ToWideHack(name), UTF16ToWideHack(id),
-                                FilePath(directory));
+    value->GetString(L"name", &name);
+    value->GetString(L"id", &id);
+    value->GetString(L"directory", &directory);
+    return new AvailableProfile(name, id, FilePath(directory));
   }
 
   // Encodes this AvailableProfile into a new DictionaryValue
   DictionaryValue* ToValue() {
     DictionaryValue* value = new DictionaryValue;
-    value->SetString(LIT16("name"), WideToUTF16Hack(name_));
-    value->SetString(LIT16("id"), WideToUTF16Hack(id_));
-    value->SetString(LIT16("directory"), directory_.value());
+    value->SetString(L"name", name_);
+    value->SetString(L"id", id_);
+    value->SetString(L"directory", directory_.value());
     return value;
   }
 
@@ -185,3 +183,4 @@ class ProfileManager : public NonThreadSafe,
 };
 
 #endif  // CHROME_BROWSER_PROFILE_MANAGER_H__
+

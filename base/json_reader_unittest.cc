@@ -5,7 +5,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/json_reader.h"
 #include "base/scoped_ptr.h"
-#include "base/string_util.h"
 #include "base/values.h"
 #include "build/build_config.h"
 
@@ -298,14 +297,14 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));
   DictionaryValue* dict_val = static_cast<DictionaryValue*>(root.get());
   real_val = 0.0;
-  ASSERT_TRUE(dict_val->GetReal(LIT16("number"), &real_val));
+  ASSERT_TRUE(dict_val->GetReal(L"number", &real_val));
   ASSERT_DOUBLE_EQ(9.87654321, real_val);
   Value* null_val = NULL;
-  ASSERT_TRUE(dict_val->Get(LIT16("null"), &null_val));
+  ASSERT_TRUE(dict_val->Get(L"null", &null_val));
   ASSERT_TRUE(null_val->IsType(Value::TYPE_NULL));
-  string16 str16_val;
-  ASSERT_TRUE(dict_val->GetString(LIT16("S"), &str16_val));
-  ASSERT_EQ(LIT16("str"), str16_val);
+  str_val.clear();
+  ASSERT_TRUE(dict_val->GetString(L"S", &str_val));
+  ASSERT_EQ(L"str", str_val);
 
   root2.reset(JSONReader::Read(
     "{\"number\":9.87654321, \"null\":null , \"\\x53\" : \"str\", }", true));
@@ -318,15 +317,15 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_TRUE(root->IsType(Value::TYPE_DICTIONARY));
   dict_val = static_cast<DictionaryValue*>(root.get());
   DictionaryValue* inner_dict = NULL;
-  ASSERT_TRUE(dict_val->GetDictionary(LIT16("inner"), &inner_dict));
+  ASSERT_TRUE(dict_val->GetDictionary(L"inner", &inner_dict));
   ListValue* inner_array = NULL;
-  ASSERT_TRUE(inner_dict->GetList(LIT16("array"), &inner_array));
+  ASSERT_TRUE(inner_dict->GetList(L"array", &inner_array));
   ASSERT_EQ(1U, inner_array->GetSize());
   bool_value = true;
-  ASSERT_TRUE(dict_val->GetBoolean(LIT16("false"), &bool_value));
+  ASSERT_TRUE(dict_val->GetBoolean(L"false", &bool_value));
   ASSERT_FALSE(bool_value);
   inner_dict = NULL;
-  ASSERT_TRUE(dict_val->GetDictionary(LIT16("d"), &inner_dict));
+  ASSERT_TRUE(dict_val->GetDictionary(L"d", &inner_dict));
 
   root2.reset(JSONReader::Read(
     "{\"inner\": {\"array\":[true] , },\"false\":false,\"d\":{},}", true));
