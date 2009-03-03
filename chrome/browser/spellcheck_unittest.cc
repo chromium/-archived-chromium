@@ -12,15 +12,14 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+const FilePath::CharType kTempCustomDictionaryFile[] =
+    FILE_PATH_LITERAL("temp_custom_dictionary.txt");
+}  // namespace
+
 class SpellCheckTest : public testing::Test {
  private:
   MessageLoop message_loop_;
 };
-
-const FilePath::CharType kTempCustomDictionaryFile[] =
-    FILE_PATH_LITERAL("temp_custom_dictionary.txt");
-
-}  // namespace
 
 // Represents a special initialization function used only for the unit tests
 // in this file.

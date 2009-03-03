@@ -1732,7 +1732,6 @@
             'browser/browser_commands_unittest.cc',
             'browser/login_prompt_unittest.cc',
             'browser/navigation_controller_unittest.cc',
-            'browser/spellcheck_unittest.cc',
             'browser/visitedlink_unittest.cc',
             'browser/webdata/web_database_unittest.cc',
             'browser/window_sizer_unittest.cc',
