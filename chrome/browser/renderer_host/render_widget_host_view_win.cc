@@ -699,7 +699,7 @@ LRESULT RenderWidgetHostViewWin::OnImeComposition(
   ImeComposition composition;
   if (ime_input_.GetResult(m_hWnd, lparam, &composition)) {
     Send(new ViewMsg_ImeSetComposition(render_widget_host_->routing_id(),
-                                       composition.string_type,
+                                       1,
                                        composition.cursor_position,
                                        composition.target_start,
                                        composition.target_end,
@@ -714,7 +714,7 @@ LRESULT RenderWidgetHostViewWin::OnImeComposition(
   // composition and send it to a renderer process.
   if (ime_input_.GetComposition(m_hWnd, lparam, &composition)) {
     Send(new ViewMsg_ImeSetComposition(render_widget_host_->routing_id(),
-                                       composition.string_type,
+                                       0,
                                        composition.cursor_position,
                                        composition.target_start,
                                        composition.target_end,
@@ -735,7 +735,7 @@ LRESULT RenderWidgetHostViewWin::OnImeEndComposition(
     // of the renderer process.
     std::wstring empty_string;
     Send(new ViewMsg_ImeSetComposition(render_widget_host_->routing_id(),
-                                       0, -1, -1, -1, empty_string));
+                                       -1, -1, -1, -1, empty_string));
     ime_input_.ResetComposition(m_hWnd);
   }
   ime_input_.DestroyImeWindow(m_hWnd);

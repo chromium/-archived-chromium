@@ -371,6 +371,7 @@ class RenderView : public RenderWidget,
   FRIEND_TEST(RenderViewTest, OnLoadAlternateHTMLText);
   FRIEND_TEST(RenderViewTest, OnNavStateChanged);
   FRIEND_TEST(RenderViewTest, OnImeStateChanged);
+  FRIEND_TEST(RenderViewTest, ImeComposition);
 
   explicit RenderView(RenderThreadBase* render_thread);
 

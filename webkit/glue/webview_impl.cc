@@ -1125,7 +1125,7 @@ bool WebViewImpl::ImeSetComposition(int string_type,
       return false;
   }
 
-  if (string_type == 0) {
+  if (string_type == -1) {
     // A browser process sent an IPC message which does not contain a valid
     // string, which means an ongoing composition has been canceled.
     // If the ongoing composition has been canceled, replace the ongoing
@@ -1165,14 +1165,12 @@ bool WebViewImpl::ImeSetComposition(int string_type,
     // there are not any characters in the above region.
     editor->setComposition(composition_string, underlines,
                            cursor_position, cursor_position);
-#if defined(OS_WIN)
     // The given string is a result string, which means the ongoing
     // composition has been completed. I have to call the
     // Editor::confirmCompletion() and complete this composition.
-    if (string_type == GCS_RESULTSTR) {
+    if (string_type == 1) {
       editor->confirmComposition();
     }
-#endif
   }
 
   return editor->hasComposition();

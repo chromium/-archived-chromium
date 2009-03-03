@@ -331,12 +331,12 @@ IPC_BEGIN_MESSAGES(View)
   // This message sends a string being composed with IME.
   // Parameters
   // * string_type (int)
-  //   Represents the type of the string in the 'ime_string' parameter.
+  //   Represents the type of the 'ime_string' parameter.
   //   Its possible values and description are listed below:
   //     Value         Description
-  //     0             The parameter is not used.
-  //     GCS_RESULTSTR The parameter represents a result string.
-  //     GCS_COMPSTR   The parameter represents a composition string.
+  //     -1            The parameter is not used.
+  //     1             The parameter represents a result string.
+  //     0             The parameter represents a composition string.
   // * cursor_position (int)
   //   Represents the position of the cursor
   // * target_start (int)

@@ -191,3 +191,131 @@ TEST_F(RenderViewTest, OnImeStateChanged) {
   }
 }
 
+// Test that our IME backend can compose CJK words.
+// Our IME front-end sends many platform-independent messages to the IME backend
+// while it composes CJK words. This test sends the minimal messages captured
+// on my local environment directly to the IME backend to verify if the backend
+// can compose CJK words without any problems.
+// This test uses an array of command sets because an IME composotion does not
+// only depends on IME events, but also depends on window events, e.g. moving
+// the window focus while composing a CJK text. To handle such complicated
+// cases, this test should not only call IME-related functions in the
+// RenderWidget class, but also call some RenderWidget members, e.g.
+// ExecuteJavaScript(), RenderWidget::OnSetFocus(), etc.
+TEST_F(RenderViewTest, ImeComposition) {
+  enum ImeCommand {
+    IME_INITIALIZE,
+    IME_SETINPUTMODE,
+    IME_SETFOCUS,
+    IME_SETCOMPOSITION,
+  };
+  struct ImeMessage {
+    ImeCommand command;
+    bool enable;
+    int string_type;
+    int cursor_position;
+    int target_start;
+    int target_end;
+    const wchar_t* ime_string;
+    const wchar_t* result;
+  };
+  static const ImeMessage kImeMessages[] = {
+    // Scenario 1: input a Chinese word with Microsoft IME (on Vista).
+    {IME_INITIALIZE, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETINPUTMODE, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETFOCUS, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETCOMPOSITION, false, 0, 1, -1, -1, L"n", L"n"},
+    {IME_SETCOMPOSITION, false, 0, 2, -1, -1, L"ni", L"ni"},
+    {IME_SETCOMPOSITION, false, 0, 3, -1, -1, L"nih", L"nih"},
+    {IME_SETCOMPOSITION, false, 0, 4, -1, -1, L"niha", L"niha"},
+    {IME_SETCOMPOSITION, false, 0, 5, -1, -1, L"nihao", L"nihao"},
+    {IME_SETCOMPOSITION, false, 0, 2, -1, -1, L"\x4F60\x597D", L"\x4F60\x597D"},
+    {IME_SETCOMPOSITION, false, 1, -1, -1, -1, L"\x4F60\x597D",
+     L"\x4F60\x597D"},
+    {IME_SETCOMPOSITION, false, -1, -1, -1, -1, L"", L"\x4F60\x597D"},
+    // Scenario 2: input a Japanese word with Microsoft IME (on Vista).
+    {IME_INITIALIZE, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETINPUTMODE, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETFOCUS, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETCOMPOSITION, false, 0, 1, 0, 1, L"\xFF4B", L"\xFF4B"},
+    {IME_SETCOMPOSITION, false, 0, 1, 0, 1, L"\x304B", L"\x304B"},
+    {IME_SETCOMPOSITION, false, 0, 2, 0, 2, L"\x304B\xFF4E", L"\x304B\xFF4E"},
+    {IME_SETCOMPOSITION, false, 0, 3, 0, 3, L"\x304B\x3093\xFF4A",
+     L"\x304B\x3093\xFF4A"},
+    {IME_SETCOMPOSITION, false, 0, 3, 0, 3, L"\x304B\x3093\x3058",
+     L"\x304B\x3093\x3058"},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 2, L"\x611F\x3058", L"\x611F\x3058"},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 2, L"\x6F22\x5B57", L"\x6F22\x5B57"},
+    {IME_SETCOMPOSITION, false, 1, -1, -1, -1, L"\x6F22\x5B57",
+     L"\x6F22\x5B57"},
+    {IME_SETCOMPOSITION, false, -1, -1, -1, -1, L"", L"\x6F22\x5B57"},
+    // Scenario 3: input a Korean word with Microsot IME (on Vista).
+    {IME_INITIALIZE, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETINPUTMODE, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETFOCUS, true, 0, 0, 0, 0, NULL, NULL},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 1, L"\x3147", L"\x3147"},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 1, L"\xC544", L"\xC544"},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 1, L"\xC548", L"\xC548"},
+    {IME_SETCOMPOSITION, false, 1, -1, -1, -1, L"\xC548", L"\xC548"},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 1, L"\x3134", L"\xC548\x3134"},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 1, L"\xB140", L"\xC548\xB140"},
+    {IME_SETCOMPOSITION, false, 0, 0, 0, 1, L"\xB155", L"\xC548\xB155"},
+    {IME_SETCOMPOSITION, false, -1, -1, -1, -1, L"", L"\xC548"},
+    {IME_SETCOMPOSITION, false, 1, -1, -1, -1, L"\xB155", L"\xC548\xB155"},
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kImeMessages); i++) {
+    const ImeMessage* ime_message = &kImeMessages[i];
+    switch (ime_message->command) {
+      case IME_INITIALIZE:
+        // Load an HTML page consisting of a content-editable <div> element,
+        // and move the input focus to the <div> element, where we can use
+        // IMEs.
+        view_->OnImeSetInputMode(ime_message->enable);
+        view_->set_delay_seconds_for_form_state_sync(0);
+        LoadHTML("<html>"
+                "<head>"
+                "</head>"
+                "<body>"
+                "<div id=\"test1\" contenteditable=\"true\"></div>"
+                "</body>"
+                "</html>");
+        ExecuteJavaScript("document.getElementById('test1').focus();");
+        break;
+
+      case IME_SETINPUTMODE:
+        // Activate (or deactivate) our IME back-end.
+        view_->OnImeSetInputMode(ime_message->enable);
+        break;
+
+      case IME_SETFOCUS:
+        // Update the window focus.
+        view_->OnSetFocus(ime_message->enable);
+        break;
+
+      case IME_SETCOMPOSITION:
+        view_->OnImeSetComposition(ime_message->string_type,
+                                   ime_message->cursor_position,
+                                   ime_message->target_start,
+                                   ime_message->target_end,
+                                   ime_message->ime_string);
+        break;
+    }
+
+    // Update the status of our IME back-end.
+    // TODO(hbono): we should verify messages to be sent from the back-end.
+    view_->UpdateIME();
+    ProcessPendingMessages();
+    render_thread_.sink().ClearMessages();
+
+    if (ime_message->result) {
+      // Retrieve the content of this page and compare it with the expected
+      // result.
+      const int kMaxOutputCharacters = 128;
+      std::wstring output;
+      GetMainFrame()->GetContentAsPlainText(kMaxOutputCharacters, &output);
+      EXPECT_EQ(output, ime_message->result);
+    }
+  }
+}
+
