@@ -127,8 +127,18 @@ void Window::Show(int show_state) {
   // always first call ShowWindow with the specified value from STARTUPINFO,
   // otherwise all future ShowWindow calls will be ignored (!!#@@#!). Instead,
   // we call ShowWindow again in this case.
-  if (show_state == SW_HIDE)
-    ShowWindow(SW_SHOWNORMAL);
+  if (show_state == SW_HIDE) {
+    show_state = SW_SHOWNORMAL;
+    ShowWindow(show_state);
+  }
+
+  // We need to explicitly activate the window if we've been shown with a state
+  // that should activate, because if we're opened from a desktop shortcut while
+  // an existing window is already running it doesn't seem to be enough to use
+  // one of these flags to activate the window.
+  if (show_state == SW_SHOWNORMAL)
+    Activate();
+
   SetInitialFocus();
 }
 
