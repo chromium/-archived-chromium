@@ -2435,7 +2435,7 @@ void AutomationProvider::AutocompleteEditIsQueryInProgress(
 }
 
 void AutomationProvider::OnMessageFromExternalHost(
-    int handle, const std::string& target, const std::string& message) {
+    int handle, const std::string& message) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     if (!tab) {
@@ -2459,7 +2459,7 @@ void AutomationProvider::OnMessageFromExternalHost(
       return;
     }
 
-    view_host->ForwardMessageFromExternalHost(target, message);
+    view_host->ForwardMessageFromExternalHost(message);
   }
 }
 

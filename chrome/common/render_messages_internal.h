@@ -457,8 +457,7 @@ IPC_BEGIN_MESSAGES(View)
                       std::string /* event arguments */)
 #endif
   // Posts a message to the renderer.
-  IPC_MESSAGE_ROUTED2(ViewMsg_HandleMessageFromExternalHost,
-                      std::string /* The target for the message */,
+  IPC_MESSAGE_ROUTED1(ViewMsg_HandleMessageFromExternalHost,
                       std::string /* The message */)
 
   // Sent to the renderer when a popup window should no longer count against

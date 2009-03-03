@@ -21,7 +21,14 @@ class ExternalHostBindings : public DOMBoundBrowserObject {
   // The ForwardMessageToExternalHost() function provided to Javascript.
   void ForwardMessageToExternalHost(const CppArgumentList& args,
                                     CppVariant* result);
+
+  // Invokes the registered onmessage handler.
+  // Returns true on successful invocation.
+  bool ForwardMessageFromExternalHost(const std::string& message);
+
  private:
+  CppVariant on_message_handler_;
+
   DISALLOW_COPY_AND_ASSIGN(ExternalHostBindings);
 };
 

@@ -723,9 +723,8 @@ IPC_BEGIN_MESSAGES(Automation)
                       int /* tab_handle */)
 
   // Posts a message from external host to chrome renderer.
-  IPC_MESSAGE_ROUTED3(AutomationMsg_HandleMessageFromExternalHost,
+  IPC_MESSAGE_ROUTED2(AutomationMsg_HandleMessageFromExternalHost,
                       int /* automation handle */,
-                      std::string /* target */,
                       std::string /* message */ )
 
   // A message for an external host.

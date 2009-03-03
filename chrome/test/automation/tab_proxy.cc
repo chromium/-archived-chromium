@@ -531,14 +531,12 @@ bool TabProxy::SavePage(const std::wstring& file_name,
 }
 
 void TabProxy::HandleMessageFromExternalHost(AutomationHandle handle,
-                                             const std::string& target,
                                              const std::string& message) {
   if (!is_valid())
     return;
 
   bool succeeded =
       sender_->Send(new AutomationMsg_HandleMessageFromExternalHost(0, handle,
-                                                                    target,
                                                                     message));
   DCHECK(succeeded);
 }

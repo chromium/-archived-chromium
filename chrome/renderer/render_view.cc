@@ -2824,28 +2824,11 @@ void RenderView::DidAddHistoryItem() {
   history_forward_list_count_ = 0;
 }
 
-void RenderView::OnMessageFromExternalHost(
-    const std::string& target, const std::string& message) {
+void RenderView::OnMessageFromExternalHost(const std::string& message) {
   if (message.empty())
     return;
 
-  WebFrame* main_frame = webview()->GetMainFrame();
-  if (!main_frame)
-    return;
-
-  std::string script = "javascript:";
-  script += target;
-  script += "(";
-  script += "'";
-  script += message;
-  script += "'";
-  script += ");void(0);";
-
-  GURL script_url(script);
-  scoped_ptr<WebRequest> request(WebRequest::Create(script_url));
-  // TODO(iyengar)
-  // Need a mechanism to send results back.
-  main_frame->LoadRequest(request.get());
+  external_host_bindings_.ForwardMessageFromExternalHost(message);
 }
 
 void RenderView::OnDisassociateFromPopupCount() {

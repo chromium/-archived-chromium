@@ -398,8 +398,7 @@ class RenderViewHost : public RenderWidgetHost {
 #endif
 
   // Forward a message from external host to chrome renderer.
-  void ForwardMessageFromExternalHost(const std::string& target,
-                                      const std::string& message);
+  void ForwardMessageFromExternalHost(const std::string& message);
 
   // Message the renderer that we should be counted as a new document and not
   // as a popup.

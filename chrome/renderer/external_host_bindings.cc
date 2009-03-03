@@ -10,6 +10,7 @@
 ExternalHostBindings::ExternalHostBindings() {
   BindMethod("ForwardMessageToExternalHost",
              &ExternalHostBindings::ForwardMessageToExternalHost);
+  BindProperty("onmessage", &on_message_handler_);
 }
 
 void ExternalHostBindings::ForwardMessageToExternalHost(
@@ -28,3 +29,20 @@ void ExternalHostBindings::ForwardMessageToExternalHost(
       routing_id(), message));
 }
 
+bool ExternalHostBindings::ForwardMessageFromExternalHost(
+    const std::string& message) {
+  if (!on_message_handler_.isObject())
+    return false;
+
+  CppVariant result;
+
+  NPVariant arg;
+  arg.type = NPVariantType_String;
+  arg.value.stringValue.UTF8Characters = message.c_str();
+  arg.value.stringValue.UTF8Length = static_cast<int>(message.length());
+
+  bool status = NPN_InvokeDefault(NULL, on_message_handler_.value.objectValue,
+                                  &arg, 1, &result);
+  DCHECK(status);
+  return status;
+}

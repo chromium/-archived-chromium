@@ -1333,7 +1333,6 @@ void RenderViewHost::RaisePersonalizationEvent(std::string event_name,
 #endif
 
 void RenderViewHost::ForwardMessageFromExternalHost(
-    const std::string& target, const std::string& message) {
-  Send(new ViewMsg_HandleMessageFromExternalHost(routing_id(), target,
-                                                 message));
+    const std::string& message) {
+  Send(new ViewMsg_HandleMessageFromExternalHost(routing_id(), message));
 }

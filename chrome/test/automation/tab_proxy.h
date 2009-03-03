@@ -253,7 +253,6 @@ class TabProxy : public AutomationResourceProxy {
 
   // Posts a message to the external tab.
   void HandleMessageFromExternalHost(AutomationHandle handle,
-                                     const std::string& target,
                                      const std::string& message);
 
   // Retrieves the number of SSL related info-bars currently showing in |count|.
