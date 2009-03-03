@@ -1860,6 +1860,9 @@ void Browser::SetFocusToLocationBar() {
   window_->SetFocusToLocationBar();
 }
 
+void Browser::RenderWidgetShowing() {
+  window_->DisableInactiveFrame();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, SelectFileDialog::Listener implementation:

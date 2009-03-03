@@ -204,6 +204,7 @@ class BrowserView : public BrowserWindow,
   virtual void DestroyBrowser();
   virtual bool IsBookmarkBarVisible() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
+  virtual void DisableInactiveFrame();
   virtual void ToggleBookmarkBar();
   virtual void ShowFindBar();
   virtual void ShowAboutChromeDialog();

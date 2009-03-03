@@ -124,6 +124,12 @@ class BrowserWindow {
   // where we take care of it ourselves at the browser level).
   virtual gfx::Rect GetRootWindowResizerRect() const = 0;
 
+  // Tells the frame not to render as inactive until the next activation change.
+  // This is required on Windows when dropdown selects are shown to prevent the
+  // select from deactivating the browser frame. A stub implementation is
+  // provided here since the functionality is Windows-specific.
+  virtual void DisableInactiveFrame() {}
+
   // Shows or hides the bookmark bar depending on its current visibility.
   virtual void ToggleBookmarkBar() = 0;
 

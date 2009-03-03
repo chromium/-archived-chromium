@@ -736,6 +736,10 @@ gfx::Rect BrowserView::GetRootWindowResizerRect() const {
                    resize_corner_size.width(), resize_corner_size.height());
 }
 
+void BrowserView::DisableInactiveFrame() {
+  frame_->DisableInactiveRendering();
+}
+
 void BrowserView::ToggleBookmarkBar() {
   BookmarkBarView::ToggleWhenVisible(browser_->profile());
 }

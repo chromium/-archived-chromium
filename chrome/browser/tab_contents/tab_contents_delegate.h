@@ -147,6 +147,11 @@ class TabContentsDelegate : public PageNavigator {
   // This is called when the tab wants to encourage user input, like for the
   // new tab page.
   virtual void SetFocusToLocationBar() {}
+
+  // Called when a popup select is about to be displayed. The delegate can use
+  // this to disable inactive rendering for the frame in the window the select
+  // is opened within if necessary.
+  virtual void RenderWidgetShowing() {}
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_

@@ -398,6 +398,7 @@ class Browser : public TabStripModelDelegate,
   virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
                               void* parent_window);
   virtual void SetFocusToLocationBar();
+  virtual void RenderWidgetShowing();
 
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const std::wstring& path, void* params);

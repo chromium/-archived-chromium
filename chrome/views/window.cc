@@ -407,6 +407,9 @@ void Window::OnActivateApp(BOOL active, DWORD thread_id) {
     // disables inactive rendering now.
     disable_inactive_rendering_ = false;
     non_client_view_->DisableInactiveRendering(false);
+    // Update the native frame too, since it could be rendering the non-client
+    // area.
+    CallDefaultNCActivateHandler(FALSE);
   }
 }
 

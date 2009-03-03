@@ -402,6 +402,7 @@ void WebContentsViewWin::ShowCreatedWidgetInternal(
   widget_host_view_win->MoveWindow(initial_pos.x(), initial_pos.y(),
                                    initial_pos.width(), initial_pos.height(),
                                    TRUE);
+  web_contents_->delegate()->RenderWidgetShowing();
   widget_host_view_win->ShowWindow(widget_host_view_win->activatable() ?
                                    SW_SHOW : SW_SHOWNA);
   widget_host->Init();
