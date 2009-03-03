@@ -189,7 +189,7 @@ TEST_F(NPAPITester, DISABLED_SelfDeletePluginInvokeAlert) {
 // Tests if a plugin executing a self deleting script in the context of 
 // a synchronous paint event works correctly
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousPaint) {
-  if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
+  if (!UITest::in_process_renderer()) {
     show_window_ = true;
     std::wstring test_case = L"execute_script_delete_in_paint.html";
     GURL url = GetTestUrl(L"npapi", test_case);
@@ -201,7 +201,7 @@ TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousPaint) {
 }
 
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInNewStream) {
-  if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
+  if (!UITest::in_process_renderer()) {
     show_window_ = true;
     std::wstring test_case = L"self_delete_plugin_stream.html";
     GURL url = GetTestUrl(L"npapi", test_case);
@@ -223,7 +223,7 @@ TEST_F(NPAPIVisiblePluginTester, VerifyPluginWindowRect) {
 }
 
 TEST_F(NPAPIVisiblePluginTester, VerifyNPObjectLifetimeTest) {
-  if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
+  if (!UITest::in_process_renderer()) {
     show_window_ = true;
     std::wstring test_case = L"npobject_lifetime_test.html";
     GURL url = GetTestUrl(L"npapi", test_case);
@@ -243,7 +243,7 @@ TEST_F(NPAPIVisiblePluginTester, NewFails) {
 }
 
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInNPNEvaluate) {
- if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
+ if (!UITest::in_process_renderer()) {
     GURL url = GetTestUrl(L"npapi",
                           L"execute_script_delete_in_npn_evaluate.html");
     NavigateToURL(url);
