@@ -260,7 +260,9 @@ bool BrowserRenderProcessHost::Init() {
     switches::kRendererStartupDialog,
     switches::kNoSandbox,
     switches::kTestSandbox,
+#if !defined (GOOGLE_CHROME_BUILD)
     switches::kInProcessPlugins,
+#endif
     switches::kDomAutomationController,
     switches::kUserAgent,
     switches::kJavaScriptFlags,
@@ -297,10 +299,12 @@ bool BrowserRenderProcessHost::Init() {
   cmd_line.AppendSwitchWithValue(switches::kLang, locale);
 
   bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox);
+#if !defined (GOOGLE_CHROME_BUILD)
   if (browser_command_line.HasSwitch(switches::kInProcessPlugins)) {
     // In process plugins won't work if the sandbox is enabled.
     in_sandbox = false;
   }
+#endif
 
 #if defined(OS_WIN)
   bool child_needs_help =

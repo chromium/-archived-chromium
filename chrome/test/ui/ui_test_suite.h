@@ -21,8 +21,6 @@ class UITestSuite : public ChromeTestSuite {
     const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
     UITest::set_in_process_renderer(
         parsed_command_line.HasSwitch(switches::kSingleProcess));
-    UITest::set_in_process_plugins(
-        parsed_command_line.HasSwitch(switches::kInProcessPlugins));
     UITest::set_no_sandbox(
         parsed_command_line.HasSwitch(switches::kNoSandbox));
     UITest::set_full_memory_dump(

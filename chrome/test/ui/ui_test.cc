@@ -48,7 +48,6 @@ const wchar_t UITest::kFailedNoCrashService[] =
     L"running. Start it manually before running this test (see the build "
     L"output directory).";
 bool UITest::in_process_renderer_ = false;
-bool UITest::in_process_plugins_ = false;
 bool UITest::no_sandbox_ = false;
 bool UITest::full_memory_dump_ = false;
 bool UITest::safe_plugins_ = false;
@@ -292,8 +291,6 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   }
   if (in_process_renderer_)
     command_line.AppendSwitch(switches::kSingleProcess);
-  if (in_process_plugins_)
-    command_line.AppendSwitch(switches::kInProcessPlugins);
   if (no_sandbox_)
     command_line.AppendSwitch(switches::kNoSandbox);
   if (full_memory_dump_)

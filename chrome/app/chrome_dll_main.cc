@@ -318,7 +318,11 @@ int ChromeMain(int argc, const char** argv) {
     PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
   bool single_process =
+#if defined (GOOGLE_CHROME_BUILD)
+    false;
+#else
     parsed_command_line.HasSwitch(switches::kSingleProcess);
+#endif
   if (single_process)
     RenderProcessHost::set_run_renderer_in_process(true);
 #if defined(OS_MACOSX)
