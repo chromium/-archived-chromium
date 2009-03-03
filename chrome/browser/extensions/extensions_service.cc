@@ -402,15 +402,14 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest() {
   // again later, checking it here allows us to skip some potentially expensive
   // work.
   std::string id;
-  if (!manifest->GetString(WideToUTF16Hack(Extension::kIdKey), &id)) {
+  if (!manifest->GetString(Extension::kIdKey, &id)) {
     ReportExtensionInstallError("missing id key");
     return NULL;
   }
   FilePath dest_dir = install_directory_.AppendASCII(id.c_str());
   if (file_util::PathExists(dest_dir)) {
     std::string version;
-    if (!manifest->GetString(WideToUTF16Hack(Extension::kVersionKey),
-                             &version)) {
+    if (!manifest->GetString(Extension::kVersionKey, &version)) {
       ReportExtensionInstallError("missing version key");
       return NULL;
     }
@@ -422,8 +421,7 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest() {
   }
 
   std::string zip_hash;
-  if (!manifest->GetString(WideToUTF16Hack(Extension::kZipHashKey),
-                           &zip_hash)) {
+  if (!manifest->GetString(Extension::kZipHashKey, &zip_hash)) {
     ReportExtensionInstallError("missing zip_hash key");
     return NULL;
   }

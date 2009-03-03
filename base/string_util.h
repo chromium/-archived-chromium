@@ -189,7 +189,7 @@ std::string UTF16ToUTF8(const string16& utf16);
 // really should just be passing a string16 around, but we haven't finished
 // porting whatever module uses wstring and the conversion is being used as a
 // stopcock.  This makes it easy to grep for the ones that should be removed.
-#if defined(WCHAR_T_IS_UTF16)
+#if defined(OS_WIN)
 # define WideToUTF16Hack
 # define UTF16ToWideHack
 #else
@@ -385,21 +385,16 @@ void ReplaceSubstringsAfterOffset(std::string* str,
 
 // Specialized string-conversion functions.
 std::string IntToString(int value);
-string16 IntToString16(int value);
 std::wstring IntToWString(int value);
 std::string UintToString(unsigned int value);
-string16 UintToString16(unsigned int value);
 std::wstring UintToWString(unsigned int value);
 std::string Int64ToString(int64 value);
-string16 Int64ToString16(int64 value);
 std::wstring Int64ToWString(int64 value);
 std::string Uint64ToString(uint64 value);
-string16 Uint64ToString16(uint64 value);
 std::wstring Uint64ToWString(uint64 value);
 // The DoubleToString methods convert the double to a string format that
 // ignores the locale.  If you want to use locale specific formatting, use ICU.
 std::string DoubleToString(double value);
-string16 DoubleToString16(double value);
 std::wstring DoubleToWString(double value);
 
 // Perform a best-effort conversion of the input string to a numeric type,

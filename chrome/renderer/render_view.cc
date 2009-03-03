@@ -1380,10 +1380,9 @@ void RenderView::LoadNavigationErrorPage(WebFrame* frame,
       GetLocalizedErrorValues(error, &error_strings);
       resource_id = IDR_NET_ERROR_HTML;
     }
-    error_strings.SetString(
-        ASCIIToUTF16("textdirection"),
-        (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-        ASCIIToUTF16("rtl") : ASCIIToUTF16("ltr"));
+    error_strings.SetString(L"textdirection",
+      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+       L"rtl" : L"ltr");
 
     alt_html = GetAltHTMLForTemplate(error_strings, resource_id);
   } else {

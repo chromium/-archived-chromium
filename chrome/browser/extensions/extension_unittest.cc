@@ -43,65 +43,64 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
   // Test missing and invalid format versions
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->Remove(WideToUTF16Hack(Extension::kFormatVersionKey), NULL);
+  input_value->Remove(Extension::kFormatVersionKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidFormatVersionError, error);
 
-  input_value->SetString(WideToUTF16Hack(Extension::kFormatVersionKey), "foo");
+  input_value->SetString(Extension::kFormatVersionKey, "foo");
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidFormatVersionError, error);
 
-  input_value->SetInteger(WideToUTF16Hack(Extension::kFormatVersionKey), 2);
+  input_value->SetInteger(Extension::kFormatVersionKey, 2);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidFormatVersionError, error);
 
   // Test missing and invalid ids
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->Remove(WideToUTF16Hack(Extension::kIdKey), NULL);
+  input_value->Remove(Extension::kIdKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidIdError, error);
 
-  input_value->SetInteger(WideToUTF16Hack(Extension::kIdKey), 42);
+  input_value->SetInteger(Extension::kIdKey, 42);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidIdError, error);
 
   // Test missing and invalid versions
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->Remove(WideToUTF16Hack(Extension::kVersionKey), NULL);
+  input_value->Remove(Extension::kVersionKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidVersionError, error);
 
-  input_value->SetInteger(WideToUTF16Hack(Extension::kVersionKey), 42);
+  input_value->SetInteger(Extension::kVersionKey, 42);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidVersionError, error);
 
   // Test missing and invalid names
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->Remove(WideToUTF16Hack(Extension::kNameKey), NULL);
+  input_value->Remove(Extension::kNameKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidNameError, error);
 
-  input_value->SetInteger(WideToUTF16Hack(Extension::kNameKey), 42);
+  input_value->SetInteger(Extension::kNameKey, 42);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidNameError, error);
 
   // Test invalid description
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->SetInteger(WideToUTF16Hack(Extension::kDescriptionKey), 42);
+  input_value->SetInteger(Extension::kDescriptionKey, 42);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidDescriptionError, error);
 
   // Test invalid user scripts list
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->SetInteger(WideToUTF16Hack(Extension::kContentScriptsKey), 42);
+  input_value->SetInteger(Extension::kContentScriptsKey, 42);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidContentScriptsListError, error);
 
   // Test invalid user script item
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   ListValue* content_scripts = NULL;
-  input_value->GetList(WideToUTF16Hack(Extension::kContentScriptsKey),
-                       &content_scripts);
+  input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
   ASSERT_FALSE(NULL == content_scripts);
   content_scripts->Set(0, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
@@ -109,21 +108,19 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
   // Test missing and invalid matches array
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->GetList(WideToUTF16Hack(Extension::kContentScriptsKey),
-                       &content_scripts);
+  input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
   DictionaryValue* user_script = NULL;
   content_scripts->GetDictionary(0, &user_script);
-  user_script->Remove(WideToUTF16Hack(Extension::kMatchesKey), NULL);
+  user_script->Remove(Extension::kMatchesKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchesError));
 
-  user_script->Set(WideToUTF16Hack(Extension::kMatchesKey),
-                   Value::CreateIntegerValue(42));
+  user_script->Set(Extension::kMatchesKey, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchesError));
 
   ListValue* matches = new ListValue;
-  user_script->Set(WideToUTF16Hack(Extension::kMatchesKey), matches);
+  user_script->Set(Extension::kMatchesKey, matches);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchCountError));
 
@@ -134,20 +131,18 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
   // Test missing and invalid files array
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->GetList(WideToUTF16Hack(Extension::kContentScriptsKey),
-                       &content_scripts);
+  input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
   content_scripts->GetDictionary(0, &user_script);
-  user_script->Remove(WideToUTF16Hack(Extension::kJsKey), NULL);
+  user_script->Remove(Extension::kJsKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsListError));
 
-  user_script->Set(WideToUTF16Hack(Extension::kJsKey),
-                   Value::CreateIntegerValue(42));
+  user_script->Set(Extension::kJsKey, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsListError));
 
   ListValue* files = new ListValue;
-  user_script->Set(WideToUTF16Hack(Extension::kJsKey), files);
+  user_script->Set(Extension::kJsKey, files);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsCountError));
 
@@ -174,14 +169,11 @@ TEST(ExtensionTest, InitFromValueValid) {
   DictionaryValue input_value;
 
   // Test minimal extension
-  input_value.SetInteger(WideToUTF16Hack(Extension::kFormatVersionKey), 1);
-  input_value.SetString(
-      WideToUTF16Hack(Extension::kIdKey),
-      ASCIIToUTF16("00123456789ABCDEF0123456789ABCDEF0123456"));
-  input_value.SetString(WideToUTF16Hack(Extension::kVersionKey),
-                        ASCIIToUTF16("1.0.0.0"));
-  input_value.SetString(WideToUTF16Hack(Extension::kNameKey),
-                        ASCIIToUTF16("my extension"));
+  input_value.SetInteger(Extension::kFormatVersionKey, 1);
+  input_value.SetString(Extension::kIdKey,
+      "00123456789ABCDEF0123456789ABCDEF0123456");
+  input_value.SetString(Extension::kVersionKey, "1.0.0.0");
+  input_value.SetString(Extension::kNameKey, "my extension");
 
   EXPECT_TRUE(extension.InitFromValue(input_value, &error));
   EXPECT_EQ("", error);
@@ -201,14 +193,11 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
 #endif
   Extension extension(path);
   DictionaryValue input_value;
-  input_value.SetInteger(WideToUTF16Hack(Extension::kFormatVersionKey), 1);
-  input_value.SetString(
-      WideToUTF16Hack(Extension::kIdKey),
-      ASCIIToUTF16("00123456789ABCDEF0123456789ABCDEF0123456"));
-  input_value.SetString(WideToUTF16Hack(Extension::kVersionKey),
-                        ASCIIToUTF16("1.0.0.0"));
-  input_value.SetString(WideToUTF16Hack(Extension::kNameKey),
-                        ASCIIToUTF16("my extension"));
+  input_value.SetInteger(Extension::kFormatVersionKey, 1);
+  input_value.SetString(Extension::kIdKey,
+      "00123456789ABCDEF0123456789ABCDEF0123456");
+  input_value.SetString(Extension::kVersionKey, "1.0.0.0");
+  input_value.SetString(Extension::kNameKey, "my extension");
   EXPECT_TRUE(extension.InitFromValue(input_value, NULL));
 
   EXPECT_EQ(extension.url().spec() + "bar/baz.js",

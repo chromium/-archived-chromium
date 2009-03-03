@@ -302,8 +302,7 @@ bool SearchProvider::ParseSuggestResults(Value* root_val) {
       DictionaryValue* dict_val = static_cast<DictionaryValue*>(optional_val);
 
       // Parse Google Suggest specific type extension.
-      static const string16 kGoogleSuggestType(
-          ASCIIToUTF16("google:suggesttype"));
+      static const std::wstring kGoogleSuggestType(L"google:suggesttype");
       if (dict_val->HasKey(kGoogleSuggestType))
         dict_val->GetList(kGoogleSuggestType, &type_list);
     }

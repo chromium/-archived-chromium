@@ -44,30 +44,23 @@ std::string SSLBlockingPage::GetHTMLContents() {
   // Let's build the html error page.
   DictionaryValue strings;
   SSLErrorInfo error_info = delegate_->GetSSLErrorInfo(error_);
-  strings.SetString(
-      ASCIIToUTF16("title"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_TITLE)));
-  strings.SetString(ASCIIToUTF16("headLine"),
-                    WideToUTF16Hack(error_info.title()));
-  strings.SetString(ASCIIToUTF16("description"),
-                    WideToUTF16Hack(error_info.details()));
+  strings.SetString(L"title",
+                    l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_TITLE));
+  strings.SetString(L"headLine", error_info.title());
+  strings.SetString(L"description", error_info.details());
 
-  strings.SetString(
-      ASCIIToUTF16("moreInfoTitle"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE)));
+  strings.SetString(L"moreInfoTitle",
+                    l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE));
   SetExtraInfo(&strings, error_info.extra_information());
 
-  strings.SetString(
-      ASCIIToUTF16("proceed"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_PROCEED)));
-  strings.SetString(
-      ASCIIToUTF16("exit"),
-      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_EXIT)));
+  strings.SetString(L"proceed",
+                    l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_PROCEED));
+  strings.SetString(L"exit",
+                    l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_EXIT));
 
-  strings.SetString(
-      ASCIIToUTF16("textdirection"),
+  strings.SetString(L"textdirection",
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-      ASCIIToUTF16("rtl") : ASCIIToUTF16("ltr"));
+       L"rtl" : L"ltr");
 
   static const StringPiece html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -138,16 +131,15 @@ void SSLBlockingPage::SetExtraInfo(
     DictionaryValue* strings,
     const std::vector<std::wstring>& extra_info) {
   DCHECK(extra_info.size() < 5);  // We allow 5 paragraphs max.
-  const string16 keys[5] = {
-    ASCIIToUTF16("moreInfo1"), ASCIIToUTF16("moreInfo2"),
-    ASCIIToUTF16("moreInfo3"), ASCIIToUTF16("moreInfo4"),
-    ASCIIToUTF16("moreInfo5")
+  const std::wstring keys[5] = {
+      L"moreInfo1", L"moreInfo2", L"moreInfo3", L"moreInfo4", L"moreInfo5"
   };
   int i;
   for (i = 0; i < static_cast<int>(extra_info.size()); i++) {
-    strings->SetString(keys[i], WideToUTF16Hack(extra_info[i]));
+    strings->SetString(keys[i], extra_info[i]);
   }
   for (;i < 5; i++) {
-    strings->SetString(keys[i], ASCIIToUTF16(""));
+    strings->SetString(keys[i], L"");
   }
 }
+

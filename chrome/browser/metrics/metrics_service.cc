@@ -1675,46 +1675,38 @@ void MetricsService::RecordPluginChanges(PrefService* pref) {
     }
 
     DictionaryValue* plugin_dict = static_cast<DictionaryValue*>(*value_iter);
-    string16 plugin_name;
-    plugin_dict->GetString(WideToUTF16Hack(prefs::kStabilityPluginName),
-                           &plugin_name);
+    std::wstring plugin_name;
+    plugin_dict->GetString(prefs::kStabilityPluginName, &plugin_name);
     if (plugin_name.empty()) {
       NOTREACHED();
       continue;
     }
 
-    if (child_process_stats_buffer_.find(UTF16ToWideHack(plugin_name)) ==
+    if (child_process_stats_buffer_.find(plugin_name) ==
         child_process_stats_buffer_.end())
       continue;
 
-    ChildProcessStats stats =
-        child_process_stats_buffer_[UTF16ToWideHack(plugin_name)];
+    ChildProcessStats stats = child_process_stats_buffer_[plugin_name];
     if (stats.process_launches) {
       int launches = 0;
-      plugin_dict->GetInteger(WideToUTF16Hack(prefs::kStabilityPluginLaunches),
-                              &launches);
+      plugin_dict->GetInteger(prefs::kStabilityPluginLaunches, &launches);
       launches += stats.process_launches;
-      plugin_dict->SetInteger(WideToUTF16Hack(prefs::kStabilityPluginLaunches),
-                              launches);
+      plugin_dict->SetInteger(prefs::kStabilityPluginLaunches, launches);
     }
     if (stats.process_crashes) {
       int crashes = 0;
-      plugin_dict->GetInteger(WideToUTF16Hack(prefs::kStabilityPluginCrashes),
-                              &crashes);
+      plugin_dict->GetInteger(prefs::kStabilityPluginCrashes, &crashes);
       crashes += stats.process_crashes;
-      plugin_dict->SetInteger(WideToUTF16Hack(prefs::kStabilityPluginCrashes),
-                              crashes);
+      plugin_dict->SetInteger(prefs::kStabilityPluginCrashes, crashes);
     }
     if (stats.instances) {
       int instances = 0;
-      plugin_dict->GetInteger(WideToUTF16Hack(prefs::kStabilityPluginInstances),
-                              &instances);
+      plugin_dict->GetInteger(prefs::kStabilityPluginInstances, &instances);
       instances += stats.instances;
-      plugin_dict->SetInteger(WideToUTF16Hack(prefs::kStabilityPluginInstances),
-                              instances);
+      plugin_dict->SetInteger(prefs::kStabilityPluginInstances, instances);
     }
 
-    child_process_stats_buffer_.erase(UTF16ToWideHack(plugin_name));
+    child_process_stats_buffer_.erase(plugin_name);
   }
 
   // Now go through and add dictionaries for plugins that didn't already have
@@ -1726,13 +1718,12 @@ void MetricsService::RecordPluginChanges(PrefService* pref) {
     ChildProcessStats stats = cache_iter->second;
     DictionaryValue* plugin_dict = new DictionaryValue;
 
-    plugin_dict->SetString(WideToUTF16Hack(prefs::kStabilityPluginName),
-                           WideToUTF16Hack(plugin_name));
-    plugin_dict->SetInteger(WideToUTF16Hack(prefs::kStabilityPluginLaunches),
+    plugin_dict->SetString(prefs::kStabilityPluginName, plugin_name);
+    plugin_dict->SetInteger(prefs::kStabilityPluginLaunches,
                             stats.process_launches);
-    plugin_dict->SetInteger(WideToUTF16Hack(prefs::kStabilityPluginCrashes),
+    plugin_dict->SetInteger(prefs::kStabilityPluginCrashes,
                             stats.process_crashes);
-    plugin_dict->SetInteger(WideToUTF16Hack(prefs::kStabilityPluginInstances),
+    plugin_dict->SetInteger(prefs::kStabilityPluginInstances,
                             stats.instances);
     plugins->Append(plugin_dict);
   }
@@ -1844,7 +1835,7 @@ void MetricsService::AddProfileMetric(Profile* profile,
   DCHECK(prof_prefs);
   const std::wstring pref_key = std::wstring(prefs::kProfilePrefix) + id_hash +
       L"." + key;
-  prof_prefs->SetInteger(WideToUTF16Hack(pref_key), value);
+  prof_prefs->SetInteger(pref_key.c_str(), value);
 }
 
 static bool IsSingleThreaded() {

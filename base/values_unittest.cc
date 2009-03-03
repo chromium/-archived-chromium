@@ -6,7 +6,6 @@
 
 #include "base/values.h"
 #include "base/scoped_ptr.h"
-#include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class ValuesTest: public testing::Test {
@@ -15,51 +14,46 @@ class ValuesTest: public testing::Test {
 TEST(ValuesTest, Basic) {
   // Test basic dictionary getting/setting
   DictionaryValue settings;
-  string16 homepage = ASCIIToUTF16("http://google.com");
-  ASSERT_FALSE(settings.GetString(ASCIIToUTF16("global.homepage"), &homepage));
-  ASSERT_EQ(ASCIIToUTF16("http://google.com"), homepage);
+  std::wstring homepage = L"http://google.com";
+  ASSERT_FALSE(
+    settings.GetString(L"global.homepage", &homepage));
+  ASSERT_EQ(std::wstring(L"http://google.com"), homepage);
 
-  ASSERT_FALSE(settings.Get(ASCIIToUTF16("global"), NULL));
-  ASSERT_TRUE(settings.Set(ASCIIToUTF16("global"),
-                           Value::CreateBooleanValue(true)));
-  ASSERT_TRUE(settings.Get(ASCIIToUTF16("global"), NULL));
-  ASSERT_TRUE(settings.SetString(ASCIIToUTF16("global.homepage"),
-                                 ASCIIToUTF16("http://scurvy.com")));
-  ASSERT_TRUE(settings.Get(ASCIIToUTF16("global"), NULL));
-  homepage = ASCIIToUTF16("http://google.com");
-  ASSERT_TRUE(settings.GetString(ASCIIToUTF16("global.homepage"), &homepage));
-  ASSERT_EQ(ASCIIToUTF16("http://scurvy.com"), homepage);
+  ASSERT_FALSE(settings.Get(L"global", NULL));
+  ASSERT_TRUE(settings.Set(L"global", Value::CreateBooleanValue(true)));
+  ASSERT_TRUE(settings.Get(L"global", NULL));
+  ASSERT_TRUE(settings.SetString(L"global.homepage", L"http://scurvy.com"));
+  ASSERT_TRUE(settings.Get(L"global", NULL));
+  homepage = L"http://google.com";
+  ASSERT_TRUE(settings.GetString(L"global.homepage", &homepage));
+  ASSERT_EQ(std::wstring(L"http://scurvy.com"), homepage);
 
   // Test storing a dictionary in a list.
   ListValue* toolbar_bookmarks;
   ASSERT_FALSE(
-      settings.GetList(ASCIIToUTF16("global.toolbar.bookmarks"),
-                       &toolbar_bookmarks));
+    settings.GetList(L"global.toolbar.bookmarks", &toolbar_bookmarks));
 
   toolbar_bookmarks = new ListValue;
-  settings.Set(ASCIIToUTF16("global.toolbar.bookmarks"), toolbar_bookmarks);
+  settings.Set(L"global.toolbar.bookmarks", toolbar_bookmarks);
   ASSERT_TRUE(
-      settings.GetList(ASCIIToUTF16("global.toolbar.bookmarks"),
-                       &toolbar_bookmarks));
+    settings.GetList(L"global.toolbar.bookmarks", &toolbar_bookmarks));
 
   DictionaryValue* new_bookmark = new DictionaryValue;
-  new_bookmark->SetString(ASCIIToUTF16("name"), ASCIIToUTF16("Froogle"));
-  new_bookmark->SetString(ASCIIToUTF16("url"),
-                          ASCIIToUTF16("http://froogle.com"));
+  new_bookmark->SetString(L"name", L"Froogle");
+  new_bookmark->SetString(L"url", L"http://froogle.com");
   toolbar_bookmarks->Append(new_bookmark);
 
   ListValue* bookmark_list;
-  ASSERT_TRUE(settings.GetList(ASCIIToUTF16("global.toolbar.bookmarks"),
-                               &bookmark_list));
+  ASSERT_TRUE(settings.GetList(L"global.toolbar.bookmarks", &bookmark_list));
   DictionaryValue* bookmark;
   ASSERT_EQ(1U, bookmark_list->GetSize());
   ASSERT_TRUE(bookmark_list->GetDictionary(0, &bookmark));
-  string16 bookmark_name = ASCIIToUTF16("Unnamed");
-  ASSERT_TRUE(bookmark->GetString(ASCIIToUTF16("name"), &bookmark_name));
-  ASSERT_EQ(ASCIIToUTF16("Froogle"), bookmark_name);
-  string16 bookmark_url;
-  ASSERT_TRUE(bookmark->GetString(ASCIIToUTF16("url"), &bookmark_url));
-  ASSERT_EQ(ASCIIToUTF16("http://froogle.com"), bookmark_url);
+  std::wstring bookmark_name = L"Unnamed";
+  ASSERT_TRUE(bookmark->GetString(L"name", &bookmark_name));
+  ASSERT_EQ(std::wstring(L"Froogle"), bookmark_name);
+  std::wstring bookmark_url;
+  ASSERT_TRUE(bookmark->GetString(L"url", &bookmark_url));
+  ASSERT_EQ(std::wstring(L"http://froogle.com"), bookmark_url);
 }
 
 TEST(ValuesTest, List) {
@@ -240,7 +234,7 @@ TEST(ValuesTest, ListRemoval) {
 }
 
 TEST(ValuesTest, DictionaryDeletion) {
-  string16 key = ASCIIToUTF16("test");
+  std::wstring key = L"test";
   bool deletion_flag = true;
 
   {
@@ -268,7 +262,7 @@ TEST(ValuesTest, DictionaryDeletion) {
 }
 
 TEST(ValuesTest, DictionaryRemoval) {
-  string16 key = ASCIIToUTF16("test");
+  std::wstring key = L"test";
   bool deletion_flag = true;
   Value* removed_item = NULL;
 
@@ -277,7 +271,7 @@ TEST(ValuesTest, DictionaryRemoval) {
     dict.Set(key, new DeletionTestValue(&deletion_flag));
     EXPECT_FALSE(deletion_flag);
     EXPECT_TRUE(dict.HasKey(key));
-    EXPECT_FALSE(dict.Remove(ASCIIToUTF16("absent key"), &removed_item));
+    EXPECT_FALSE(dict.Remove(L"absent key", &removed_item));
     EXPECT_TRUE(dict.Remove(key, &removed_item));
     EXPECT_FALSE(dict.HasKey(key));
     ASSERT_TRUE(removed_item);
@@ -301,29 +295,29 @@ TEST(ValuesTest, DictionaryRemoval) {
 TEST(ValuesTest, DeepCopy) {
   DictionaryValue original_dict;
   Value* original_null = Value::CreateNullValue();
-  original_dict.Set(ASCIIToUTF16("null"), original_null);
+  original_dict.Set(L"null", original_null);
   Value* original_bool = Value::CreateBooleanValue(true);
-  original_dict.Set(ASCIIToUTF16("bool"), original_bool);
+  original_dict.Set(L"bool", original_bool);
   Value* original_int = Value::CreateIntegerValue(42);
-  original_dict.Set(ASCIIToUTF16("int"), original_int);
+  original_dict.Set(L"int", original_int);
   Value* original_real = Value::CreateRealValue(3.14);
-  original_dict.Set(ASCIIToUTF16("real"), original_real);
+  original_dict.Set(L"real", original_real);
   Value* original_string = Value::CreateStringValue("hello");
-  original_dict.Set(ASCIIToUTF16("string"), original_string);
+  original_dict.Set(L"string", original_string);
   Value* original_wstring = Value::CreateStringValue(L"peek-a-boo");
-  original_dict.Set(ASCIIToUTF16("wstring"), original_wstring);
+  original_dict.Set(L"wstring", original_wstring);
 
   char* original_buffer = new char[42];
   memset(original_buffer, '!', 42);
   BinaryValue* original_binary = Value::CreateBinaryValue(original_buffer, 42);
-  original_dict.Set(ASCIIToUTF16("binary"), original_binary);
+  original_dict.Set(L"binary", original_binary);
 
   ListValue* original_list = new ListValue();
   Value* original_list_element_0 = Value::CreateIntegerValue(0);
   original_list->Append(original_list_element_0);
   Value* original_list_element_1 = Value::CreateIntegerValue(1);
   original_list->Append(original_list_element_1);
-  original_dict.Set(ASCIIToUTF16("list"), original_list);
+  original_dict.Set(L"list", original_list);
 
   DictionaryValue* copy_dict =
     static_cast<DictionaryValue*>(original_dict.DeepCopy());
@@ -331,13 +325,13 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_NE(copy_dict, &original_dict);
 
   Value* copy_null = NULL;
-  ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("null"), &copy_null));
+  ASSERT_TRUE(copy_dict->Get(L"null", &copy_null));
   ASSERT_TRUE(copy_null);
   ASSERT_NE(copy_null, original_null);
   ASSERT_TRUE(copy_null->IsType(Value::TYPE_NULL));
 
   Value* copy_bool = NULL;
-  ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("bool"), &copy_bool));
+  ASSERT_TRUE(copy_dict->Get(L"bool", &copy_bool));
   ASSERT_TRUE(copy_bool);
   ASSERT_NE(copy_bool, original_bool);
   ASSERT_TRUE(copy_bool->IsType(Value::TYPE_BOOLEAN));
@@ -346,7 +340,7 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_TRUE(copy_bool_value);
 
   Value* copy_int = NULL;
-  ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("int"), &copy_int));
+  ASSERT_TRUE(copy_dict->Get(L"int", &copy_int));
   ASSERT_TRUE(copy_int);
   ASSERT_NE(copy_int, original_int);
   ASSERT_TRUE(copy_int->IsType(Value::TYPE_INTEGER));
@@ -355,7 +349,7 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_EQ(42, copy_int_value);
 
   Value* copy_real = NULL;
-  ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("real"), &copy_real));
+  ASSERT_TRUE(copy_dict->Get(L"real", &copy_real));
   ASSERT_TRUE(copy_real);
   ASSERT_NE(copy_real, original_real);
   ASSERT_TRUE(copy_real->IsType(Value::TYPE_REAL));
@@ -364,7 +358,7 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_EQ(3.14, copy_real_value);
 
   Value* copy_string = NULL;
-  ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("string"), &copy_string));
+  ASSERT_TRUE(copy_dict->Get(L"string", &copy_string));
   ASSERT_TRUE(copy_string);
   ASSERT_NE(copy_string, original_string);
   ASSERT_TRUE(copy_string->IsType(Value::TYPE_STRING));
@@ -376,7 +370,7 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_EQ(std::wstring(L"hello"), copy_wstring_value);
 
   Value* copy_wstring = NULL;
-  ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("wstring"), &copy_wstring));
+  ASSERT_TRUE(copy_dict->Get(L"wstring", &copy_wstring));
   ASSERT_TRUE(copy_wstring);
   ASSERT_NE(copy_wstring, original_wstring);
   ASSERT_TRUE(copy_wstring->IsType(Value::TYPE_STRING));
@@ -386,7 +380,7 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_EQ(std::wstring(L"peek-a-boo"), copy_wstring_value);
 
   Value* copy_binary = NULL;
-              ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("binary"), &copy_binary));
+  ASSERT_TRUE(copy_dict->Get(L"binary", &copy_binary));
   ASSERT_TRUE(copy_binary);
   ASSERT_NE(copy_binary, original_binary);
   ASSERT_TRUE(copy_binary->IsType(Value::TYPE_BINARY));
@@ -399,7 +393,7 @@ TEST(ValuesTest, DeepCopy) {
                original_binary->GetSize()));
 
   Value* copy_value = NULL;
-              ASSERT_TRUE(copy_dict->Get(ASCIIToUTF16("list"), &copy_value));
+  ASSERT_TRUE(copy_dict->Get(L"list", &copy_value));
   ASSERT_TRUE(copy_value);
   ASSERT_NE(copy_value, original_list);
   ASSERT_TRUE(copy_value->IsType(Value::TYPE_LIST));
@@ -438,12 +432,12 @@ TEST(ValuesTest, Equals) {
   delete boolean;
 
   DictionaryValue dv;
-  dv.SetBoolean(ASCIIToUTF16("a"), false);
-  dv.SetInteger(ASCIIToUTF16("b"), 2);
-  dv.SetReal(ASCIIToUTF16("c"), 2.5);
-  dv.SetString(ASCIIToUTF16("d1"), "string");
-  dv.SetString(ASCIIToUTF16("d2"), ASCIIToUTF16("string"));
-  dv.Set(ASCIIToUTF16("e"), Value::CreateNullValue());
+  dv.SetBoolean(L"a", false);
+  dv.SetInteger(L"b", 2);
+  dv.SetReal(L"c", 2.5);
+  dv.SetString(L"d1", "string");
+  dv.SetString(L"d2", L"string");
+  dv.Set(L"e", Value::CreateNullValue());
 
   DictionaryValue* copy = static_cast<DictionaryValue*>(dv.DeepCopy());
   EXPECT_TRUE(dv.Equals(copy));
@@ -451,13 +445,14 @@ TEST(ValuesTest, Equals) {
   ListValue* list = new ListValue;
   list->Append(Value::CreateNullValue());
   list->Append(new DictionaryValue);
-  dv.Set(ASCIIToUTF16("f"), list);
+  dv.Set(L"f", list);
 
   EXPECT_FALSE(dv.Equals(copy));
-  copy->Set(ASCIIToUTF16("f"), list->DeepCopy());
+  copy->Set(L"f", list->DeepCopy());
   EXPECT_TRUE(dv.Equals(copy));
 
   list->Append(Value::CreateBooleanValue(true));
   EXPECT_FALSE(dv.Equals(copy));
   delete copy;
 }
+

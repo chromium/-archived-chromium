@@ -1039,20 +1039,12 @@ std::string IntToString(int value) {
   return IntToStringT<std::string, int, unsigned int, true>::
       IntToString(value);
 }
-string16 IntToString16(int value) {
-  return IntToStringT<string16, int, unsigned int, true>::
-      IntToString(value);
-}
 std::wstring IntToWString(int value) {
   return IntToStringT<std::wstring, int, unsigned int, true>::
       IntToString(value);
 }
 std::string UintToString(unsigned int value) {
   return IntToStringT<std::string, unsigned int, unsigned int, false>::
-      IntToString(value);
-}
-string16 UintToString16(unsigned int value) {
-  return IntToStringT<string16, unsigned int, unsigned int, false>::
       IntToString(value);
 }
 std::wstring UintToWString(unsigned int value) {
@@ -1063,20 +1055,12 @@ std::string Int64ToString(int64 value) {
   return IntToStringT<std::string, int64, uint64, true>::
       IntToString(value);
 }
-string16 Int64ToString16(int64 value) {
-  return IntToStringT<string16, int64, uint64, true>::
-      IntToString(value);
-}
 std::wstring Int64ToWString(int64 value) {
   return IntToStringT<std::wstring, int64, uint64, true>::
       IntToString(value);
 }
 std::string Uint64ToString(uint64 value) {
   return IntToStringT<std::string, uint64, uint64, false>::
-      IntToString(value);
-}
-string16 Uint64ToString16(uint64 value) {
-  return IntToStringT<string16, uint64, uint64, false>::
       IntToString(value);
 }
 std::wstring Uint64ToWString(uint64 value) {
@@ -1089,10 +1073,6 @@ std::string DoubleToString(double value) {
   char buffer[32];
   dmg_fp::g_fmt(buffer, value);
   return std::string(buffer);
-}
-
-string16 DoubleToString16(double value) {
-  return ASCIIToUTF16(DoubleToString(value));
 }
 
 std::wstring DoubleToWString(double value) {
