@@ -1472,7 +1472,8 @@ WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 
 // Passes when run by itself.  Fails on the buildbot.
-LINUX : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
+// For Windows, see bug 8291.
+LINUX WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS
 
 // This test appears to pass on Linux, despite it referencing feed:// URLs which
 // we don't support.  Needs more investigation.
