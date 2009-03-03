@@ -65,7 +65,6 @@
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/child_process_host.h"
