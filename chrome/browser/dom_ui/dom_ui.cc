@@ -111,7 +111,7 @@ void DOMMessageHandler::SetURLAndTitle(DictionaryValue* dictionary,
                                        std::wstring title,
                                        const GURL& gurl) {
   std::wstring wstring_url = UTF8ToWide(gurl.spec());
-  dictionary->SetString(L"url", wstring_url);
+  dictionary->SetString(LIT16("url"), WideToUTF16Hack(wstring_url));
 
   bool using_url_as_the_title = false;
   if (title.empty()) {
@@ -133,7 +133,7 @@ void DOMMessageHandler::SetURLAndTitle(DictionaryValue* dictionary,
       DCHECK(success ? (title != title_to_set) : (title == title_to_set));
     }
   }
-  dictionary->SetString(L"title", title_to_set);
+  dictionary->SetString(LIT16("title"), WideToUTF16Hack(title_to_set));
 }
 
 bool DOMMessageHandler::ExtractIntegerValue(const Value* value, int* out_int) {

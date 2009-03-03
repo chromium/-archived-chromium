@@ -76,18 +76,25 @@ static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
 
   // Let's build the html error page.
   DictionaryValue strings;
-  strings.SetString(L"title", l10n_util::GetString(IDS_SSL_ERROR_PAGE_TITLE));
-  strings.SetString(L"headLine", error_info.title());
-  strings.SetString(L"description", error_info.details());
-  strings.SetString(L"moreInfoTitle",
-                    l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE));
+  strings.SetString(
+      LIT16("title"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_ERROR_PAGE_TITLE)));
+  strings.SetString(LIT16("headLine"), WideToUTF16Hack(error_info.title()));
+  strings.SetString(LIT16("description"),
+                    WideToUTF16Hack(error_info.details()));
+  strings.SetString(
+      LIT16("moreInfoTitle"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE)));
   SSLBlockingPage::SetExtraInfo(&strings, error_info.extra_information());
 
-  strings.SetString(L"back", l10n_util::GetString(IDS_SSL_ERROR_PAGE_BACK));
+  strings.SetString(
+      LIT16("back"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_ERROR_PAGE_BACK)));
 
-  strings.SetString(L"textdirection",
+  strings.SetString(
+      LIT16("textdirection"),
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-      L"rtl" : L"ltr");
+      LIT16("rtl") : LIT16("ltr"));
 
   static const StringPiece html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(

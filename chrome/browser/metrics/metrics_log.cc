@@ -383,24 +383,24 @@ void MetricsLog::WritePluginStabilityElements(PrefService* pref) {
       }
       DictionaryValue* plugin_dict = static_cast<DictionaryValue*>(*iter);
 
-      std::wstring plugin_name;
-      plugin_dict->GetString(prefs::kStabilityPluginName, &plugin_name);
+      string16 plugin_name;
+      plugin_dict->GetString(WideToUTF16Hack(prefs::kStabilityPluginName), &plugin_name);
 
       OPEN_ELEMENT_FOR_SCOPE("pluginstability");
       // Use "filename" instead of "name", otherwise we need to update the
       // UMA servers.
-      WriteAttribute("filename", CreateBase64Hash(WideToUTF8(plugin_name)));
+      WriteAttribute("filename", CreateBase64Hash(UTF16ToUTF8(plugin_name)));
 
       int launches = 0;
-      plugin_dict->GetInteger(prefs::kStabilityPluginLaunches, &launches);
+      plugin_dict->GetInteger(WideToUTF16Hack(prefs::kStabilityPluginLaunches), &launches);
       WriteIntAttribute("launchcount", launches);
 
       int instances = 0;
-      plugin_dict->GetInteger(prefs::kStabilityPluginInstances, &instances);
+      plugin_dict->GetInteger(WideToUTF16Hack(prefs::kStabilityPluginInstances), &instances);
       WriteIntAttribute("instancecount", instances);
 
       int crashes = 0;
-      plugin_dict->GetInteger(prefs::kStabilityPluginCrashes, &crashes);
+      plugin_dict->GetInteger(WideToUTF16Hack(prefs::kStabilityPluginCrashes), &crashes);
       WriteIntAttribute("crashcount", crashes);
     }
 
@@ -568,10 +568,11 @@ void MetricsLog::WriteAllProfilesMetrics(
   const std::wstring profile_prefix(prefs::kProfilePrefix);
   for (DictionaryValue::key_iterator i = all_profiles_metrics.begin_keys();
        i != all_profiles_metrics.end_keys(); ++i) {
-    const std::wstring& key_name = *i;
+    const string16 key_name16 = *i;
+    const std::wstring& key_name = UTF16ToWideHack(key_name16);
     if (key_name.compare(0, profile_prefix.size(), profile_prefix) == 0) {
       DictionaryValue* profile;
-      if (all_profiles_metrics.GetDictionary(key_name, &profile))
+      if (all_profiles_metrics.GetDictionary(key_name16, &profile))
         WriteProfileMetrics(key_name.substr(profile_prefix.size()), *profile);
     }
   }
@@ -585,13 +586,13 @@ void MetricsLog::WriteProfileMetrics(const std::wstring& profileidhash,
        i != profile_metrics.end_keys(); ++i) {
     Value* value;
     if (profile_metrics.Get(*i, &value)) {
-      DCHECK(*i != L"id");
+      DCHECK(*i != LIT16("id"));
       switch (value->GetType()) {
         case Value::TYPE_STRING: {
           std::string string_value;
           if (value->GetAsString(&string_value)) {
             OPEN_ELEMENT_FOR_SCOPE("profileparam");
-            WriteAttribute("name", WideToUTF8(*i));
+            WriteAttribute("name", UTF16ToUTF8(*i));
             WriteAttribute("value", string_value);
           }
           break;
@@ -601,7 +602,7 @@ void MetricsLog::WriteProfileMetrics(const std::wstring& profileidhash,
           bool bool_value;
           if (value->GetAsBoolean(&bool_value)) {
             OPEN_ELEMENT_FOR_SCOPE("profileparam");
-            WriteAttribute("name", WideToUTF8(*i));
+            WriteAttribute("name", UTF16ToUTF8(*i));
             WriteIntAttribute("value", bool_value ? 1 : 0);
           }
           break;
@@ -611,7 +612,7 @@ void MetricsLog::WriteProfileMetrics(const std::wstring& profileidhash,
           int int_value;
           if (value->GetAsInteger(&int_value)) {
             OPEN_ELEMENT_FOR_SCOPE("profileparam");
-            WriteAttribute("name", WideToUTF8(*i));
+            WriteAttribute("name", UTF16ToUTF8(*i));
             WriteIntAttribute("value", int_value);
           }
           break;

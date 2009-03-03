@@ -76,7 +76,7 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
         std::wstring value;
         bool result = node->GetAsString(&value);
         DCHECK(result);
-        AppendQuotedString(value);
+        AppendQuotedString(WideToUTF16Hack(value));
         break;
       }
 
@@ -155,8 +155,8 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
   }
 }
 
-void JSONWriter::AppendQuotedString(const std::wstring& str) {
-  string_escape::JavascriptDoubleQuote(WideToUTF16Hack(str), true,
+void JSONWriter::AppendQuotedString(const string16& str) {
+  string_escape::JavascriptDoubleQuote(str, true,
                                        json_string_);
 }
 

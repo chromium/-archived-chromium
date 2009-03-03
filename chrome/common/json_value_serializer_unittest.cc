@@ -24,20 +24,20 @@ TEST(JSONValueSerializerTest, Roundtrip) {
   DictionaryValue* root_dict = static_cast<DictionaryValue*>(root.get());
 
   Value* null_value = NULL;
-  ASSERT_TRUE(root_dict->Get(L"null", &null_value));
+  ASSERT_TRUE(root_dict->Get(LIT16("null"), &null_value));
   ASSERT_TRUE(null_value);
   ASSERT_TRUE(null_value->IsType(Value::TYPE_NULL));
 
   bool bool_value = false;
-  ASSERT_TRUE(root_dict->GetBoolean(L"bool", &bool_value));
+  ASSERT_TRUE(root_dict->GetBoolean(LIT16("bool"), &bool_value));
   ASSERT_TRUE(bool_value);
 
   int int_value = 0;
-  ASSERT_TRUE(root_dict->GetInteger(L"int", &int_value));
+  ASSERT_TRUE(root_dict->GetInteger(LIT16("int"), &int_value));
   ASSERT_EQ(42, int_value);
 
   double real_value = 0.0;
-  ASSERT_TRUE(root_dict->GetReal(L"real", &real_value));
+  ASSERT_TRUE(root_dict->GetReal(LIT16("real"), &real_value));
   ASSERT_DOUBLE_EQ(3.14, real_value);
 
   // We shouldn't be able to write using this serializer, since it was
@@ -92,7 +92,7 @@ TEST(JSONValueSerializerTest, StringEscape) {
   // Test JSONWriter interface
   std::string output_js;
   DictionaryValue valueRoot;
-  valueRoot.SetString(L"all_chars", all_chars);
+  valueRoot.SetString(LIT16("all_chars"), WideToUTF16Hack(all_chars));
   JSONWriter::Write(&valueRoot, false, &output_js);
   ASSERT_EQ(expected_output, output_js);
 
@@ -106,7 +106,7 @@ TEST(JSONValueSerializerTest, UnicodeStrings) {
   // unicode string json -> escaped ascii text
   DictionaryValue root;
   std::wstring test(L"\x7F51\x9875");
-  root.SetString(L"web", test);
+  root.SetString(LIT16("web"), WideToUTF16Hack(test));
 
   std::string expected = "{\"web\":\"\\u7F51\\u9875\"}";
 
@@ -121,16 +121,16 @@ TEST(JSONValueSerializerTest, UnicodeStrings) {
   ASSERT_TRUE(deserial_root.get());
   DictionaryValue* dict_root =
       static_cast<DictionaryValue*>(deserial_root.get());
-  std::wstring web_value;
-  ASSERT_TRUE(dict_root->GetString(L"web", &web_value));
-  ASSERT_EQ(test, web_value);
+  string16 web_value;
+  ASSERT_TRUE(dict_root->GetString(LIT16("web"), &web_value));
+  ASSERT_EQ(test, UTF16ToWideHack(web_value));
 }
 
 TEST(JSONValueSerializerTest, HexStrings) {
   // hex string json -> escaped ascii text
   DictionaryValue root;
   std::wstring test(L"\x01\x02");
-  root.SetString(L"test", test);
+  root.SetString(LIT16("test"), WideToUTF16Hack(test));
 
   std::string expected = "{\"test\":\"\\x01\\x02\"}";
 
@@ -145,9 +145,9 @@ TEST(JSONValueSerializerTest, HexStrings) {
   ASSERT_TRUE(deserial_root.get());
   DictionaryValue* dict_root =
       static_cast<DictionaryValue*>(deserial_root.get());
-  std::wstring test_value;
-  ASSERT_TRUE(dict_root->GetString(L"test", &test_value));
-  ASSERT_EQ(test, test_value);
+  string16 test_value;
+  ASSERT_TRUE(dict_root->GetString(LIT16("test"), &test_value));
+  ASSERT_EQ(test, UTF16ToWideHack(test_value));
 
   // Test converting escaped regular chars
   std::string escaped_chars = "{\"test\":\"\\x67\\x6f\"}";
@@ -155,8 +155,8 @@ TEST(JSONValueSerializerTest, HexStrings) {
   deserial_root.reset(deserializer2.Deserialize(NULL));
   ASSERT_TRUE(deserial_root.get());
   dict_root = static_cast<DictionaryValue*>(deserial_root.get());
-  ASSERT_TRUE(dict_root->GetString(L"test", &test_value));
-  ASSERT_EQ(std::wstring(L"go"), test_value);
+  ASSERT_TRUE(dict_root->GetString(LIT16("test"), &test_value));
+  ASSERT_EQ(L"go", UTF16ToWideHack(test_value));
 }
 
 TEST(JSONValueSerializerTest, AllowTrailingComma) {
@@ -260,21 +260,21 @@ TEST_F(JSONFileValueSerializerTest, Roundtrip) {
   DictionaryValue* root_dict = static_cast<DictionaryValue*>(root.get());
 
   Value* null_value = NULL;
-  ASSERT_TRUE(root_dict->Get(L"null", &null_value));
+  ASSERT_TRUE(root_dict->Get(LIT16("null"), &null_value));
   ASSERT_TRUE(null_value);
   ASSERT_TRUE(null_value->IsType(Value::TYPE_NULL));
 
   bool bool_value = false;
-  ASSERT_TRUE(root_dict->GetBoolean(L"bool", &bool_value));
+  ASSERT_TRUE(root_dict->GetBoolean(LIT16("bool"), &bool_value));
   ASSERT_TRUE(bool_value);
 
   int int_value = 0;
-  ASSERT_TRUE(root_dict->GetInteger(L"int", &int_value));
+  ASSERT_TRUE(root_dict->GetInteger(LIT16("int"), &int_value));
   ASSERT_EQ(42, int_value);
 
-  std::wstring string_value;
-  ASSERT_TRUE(root_dict->GetString(L"string", &string_value));
-  ASSERT_EQ(L"hello", string_value);
+  string16 string_value;
+  ASSERT_TRUE(root_dict->GetString(LIT16("string"), &string_value));
+  ASSERT_EQ(L"hello", UTF16ToWideHack(string_value));
 
   // Now try writing.
   std::wstring written_file_path = test_dir_;

@@ -103,11 +103,11 @@ void SafeBrowsingBlockingPage::PopulateStringDictionary(
     const std::wstring& description1,
     const std::wstring& description2,
     const std::wstring& description3) {
-  strings->SetString(L"title", title);
-  strings->SetString(L"headLine", headline);
-  strings->SetString(L"description1", description1);
-  strings->SetString(L"description2", description2);
-  strings->SetString(L"description3", description3);
+  strings->SetString(LIT16("title"), WideToUTF16Hack(title));
+  strings->SetString(LIT16("headLine"), WideToUTF16Hack(headline));
+  strings->SetString(LIT16("description1"), WideToUTF16Hack(description1));
+  strings->SetString(LIT16("description2"), WideToUTF16Hack(description2));
+  strings->SetString(LIT16("description3"), WideToUTF16Hack(description3));
 }
 
 void SafeBrowsingBlockingPage::PopulateMultipleThreatStringDictionary(
@@ -115,14 +115,17 @@ void SafeBrowsingBlockingPage::PopulateMultipleThreatStringDictionary(
   bool malware = false;
   bool phishing = false;
 
-  std::wstring phishing_label =
-      l10n_util::GetString(IDS_SAFE_BROWSING_PHISHING_LABEL);
-  std::wstring phishing_link =
-      l10n_util::GetString(IDS_SAFE_BROWSING_PHISHING_REPORT_ERROR);
-  std::wstring malware_label =
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_LABEL);
-  std::wstring malware_link =
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_DIAGNOSTIC_PAGE);
+  string16 phishing_label =
+      WideToUTF16Hack(l10n_util::GetString(IDS_SAFE_BROWSING_PHISHING_LABEL));
+  string16 phishing_link =
+      WideToUTF16Hack(
+          l10n_util::GetString(IDS_SAFE_BROWSING_PHISHING_REPORT_ERROR));
+  string16 malware_label =
+      WideToUTF16Hack(
+          l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_LABEL));
+  string16 malware_link =
+      WideToUTF16Hack(
+          l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_DIAGNOSTIC_PAGE));
 
   ListValue* error_strings = new ListValue;
   for (UnsafeResourceList::const_iterator iter = unsafe_resources_.begin();
@@ -131,20 +134,21 @@ void SafeBrowsingBlockingPage::PopulateMultipleThreatStringDictionary(
     DictionaryValue* current_error_strings = new DictionaryValue;
     if (resource.threat_type == SafeBrowsingService::URL_MALWARE) {
       malware = true;
-      current_error_strings->SetString(L"type", L"malware");
-      current_error_strings->SetString(L"typeLabel", malware_label);
-      current_error_strings->SetString(L"errorLink", malware_link);
+      current_error_strings->SetString(LIT16("type"), LIT16("malware"));
+      current_error_strings->SetString(LIT16("typeLabel"), malware_label);
+      current_error_strings->SetString(LIT16("errorLink"), malware_link);
     } else {
       DCHECK(resource.threat_type == SafeBrowsingService::URL_PHISHING);
       phishing = true;
-      current_error_strings->SetString(L"type", L"phishing");
-      current_error_strings->SetString(L"typeLabel", phishing_label);
-      current_error_strings->SetString(L"errorLink", phishing_link);
+      current_error_strings->SetString(LIT16("type"), LIT16("phishing"));
+      current_error_strings->SetString(LIT16("typeLabel"), phishing_label);
+      current_error_strings->SetString(LIT16("errorLink"), phishing_link);
     }
-    current_error_strings->SetString(L"url", UTF8ToWide(resource.url.spec()));
+    current_error_strings->SetString(LIT16("url"),
+                                     UTF8ToUTF16(resource.url.spec()));
     error_strings->Append(current_error_strings);
   }
-  strings->Set(L"errors", error_strings);
+  strings->Set(LIT16("errors"), error_strings);
   DCHECK(phishing || malware);
 
   if (malware && phishing) {
@@ -178,15 +182,18 @@ void SafeBrowsingBlockingPage::PopulateMultipleThreatStringDictionary(
         L"", L"");
   }
 
-  strings->SetString(L"confirm_text",
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_DESCRIPTION_AGREE));
-  strings->SetString(L"continue_button",
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_PROCEED_BUTTON));
-  strings->SetString(L"back_button",
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_BACK_BUTTON));
-  strings->SetString(L"textdirection",
+  strings->SetString(LIT16("confirm_text"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_MALWARE_DESCRIPTION_AGREE)));
+  strings->SetString(LIT16("continue_button"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_MALWARE_PROCEED_BUTTON)));
+  strings->SetString(LIT16("back_button"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_MALWARE_BACK_BUTTON)));
+  strings->SetString(LIT16("textdirection"),
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-      L"rtl" : L"ltr");
+      LIT16("rtl") : LIT16("ltr"));
 }
 
 void SafeBrowsingBlockingPage::PopulateMalwareStringDictionary(
@@ -194,7 +201,7 @@ void SafeBrowsingBlockingPage::PopulateMalwareStringDictionary(
   std::wstring link = StringPrintf(kSbDiagnosticHtml,
       l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_DIAGNOSTIC_PAGE).c_str());
 
-  strings->SetString(L"badURL", UTF8ToWide(url().host()));
+  strings->SetString(LIT16("badURL"), UTF8ToUTF16(url().host()));
   // Check to see if we're blocking the main page, or a sub-resource on the
   // main page.
   std::wstring description1, description2;
@@ -220,15 +227,18 @@ void SafeBrowsingBlockingPage::PopulateMalwareStringDictionary(
       description1, description2,
       l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_DESCRIPTION3));
 
-  strings->SetString(L"confirm_text",
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_DESCRIPTION_AGREE));
-  strings->SetString(L"continue_button",
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_PROCEED_BUTTON));
-  strings->SetString(L"back_button",
-      l10n_util::GetString(IDS_SAFE_BROWSING_MALWARE_BACK_BUTTON));
-  strings->SetString(L"textdirection",
+  strings->SetString(LIT16("confirm_text"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_MALWARE_DESCRIPTION_AGREE)));
+  strings->SetString(LIT16("continue_button"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_MALWARE_PROCEED_BUTTON)));
+  strings->SetString(LIT16("back_button"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_MALWARE_BACK_BUTTON)));
+  strings->SetString(LIT16("textdirection"),
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-      L"rtl" : L"ltr");
+      LIT16("rtl") : LIT16("ltr"));
 }
 
 void SafeBrowsingBlockingPage::PopulatePhishingStringDictionary(
@@ -243,15 +253,18 @@ void SafeBrowsingBlockingPage::PopulatePhishingStringDictionary(
                             UTF8ToWide(url().host())),
       L"");
 
-  strings->SetString(L"continue_button",
-      l10n_util::GetString(IDS_SAFE_BROWSING_PHISHING_PROCEED_BUTTON));
-  strings->SetString(L"back_button",
-      l10n_util::GetString(IDS_SAFE_BROWSING_PHISHING_BACK_BUTTON));
-  strings->SetString(L"report_error",
-      l10n_util::GetString(IDS_SAFE_BROWSING_PHISHING_REPORT_ERROR));
-  strings->SetString(L"textdirection",
+  strings->SetString(LIT16("continue_button"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_PHISHING_PROCEED_BUTTON)));
+  strings->SetString(LIT16("back_button"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_PHISHING_BACK_BUTTON)));
+  strings->SetString(LIT16("report_error"),
+      WideToUTF16Hack(l10n_util::GetString(
+                          IDS_SAFE_BROWSING_PHISHING_REPORT_ERROR)));
+  strings->SetString(LIT16("textdirection"),
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-      L"rtl" : L"ltr");
+      LIT16("rtl") : LIT16("ltr"));
 }
 
 void SafeBrowsingBlockingPage::CommandReceived(const std::string& cmd) {
@@ -435,4 +448,3 @@ bool SafeBrowsingBlockingPage::IsMainPage(
   return unsafe_resources.size() == 1 &&
          unsafe_resources[0].resource_type == ResourceType::MAIN_FRAME;
 }
-

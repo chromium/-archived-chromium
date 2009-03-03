@@ -36,12 +36,13 @@ Value* BookmarkCodec::Encode(BookmarkModel* model) {
 Value* BookmarkCodec::Encode(BookmarkNode* bookmark_bar_node,
                              BookmarkNode* other_folder_node) {
   DictionaryValue* roots = new DictionaryValue();
-  roots->Set(kRootFolderNameKey, EncodeNode(bookmark_bar_node));
-  roots->Set(kOtherBookmarFolderNameKey, EncodeNode(other_folder_node));
+  roots->Set(WideToUTF16Hack(kRootFolderNameKey), EncodeNode(bookmark_bar_node));
+  roots->Set(WideToUTF16Hack(kOtherBookmarFolderNameKey),
+             EncodeNode(other_folder_node));
 
   DictionaryValue* main = new DictionaryValue();
-  main->SetInteger(kVersionKey, kCurrentVersion);
-  main->Set(kRootsKey, roots);
+  main->SetInteger(WideToUTF16Hack(kVersionKey), kCurrentVersion);
+  main->Set(WideToUTF16Hack(kRootsKey), roots);
   return main;
 }
 
@@ -52,11 +53,12 @@ bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
   const DictionaryValue& d_value = static_cast<const DictionaryValue&>(value);
 
   int version;
-  if (!d_value.GetInteger(kVersionKey, &version) || version != kCurrentVersion)
+  if (!d_value.GetInteger(WideToUTF16Hack(kVersionKey), &version) ||
+      version != kCurrentVersion)
     return false;  // Unknown version.
 
   Value* roots;
-  if (!d_value.Get(kRootsKey, &roots))
+  if (!d_value.Get(WideToUTF16Hack(kRootsKey), &roots))
     return false;  // No roots.
 
   if (roots->GetType() != Value::TYPE_DICTIONARY)
@@ -65,11 +67,14 @@ bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
   DictionaryValue* roots_d_value = static_cast<DictionaryValue*>(roots);
   Value* root_folder_value;
   Value* other_folder_value;
-  if (!roots_d_value->Get(kRootFolderNameKey, &root_folder_value) ||
+  if (!roots_d_value->Get(WideToUTF16Hack(kRootFolderNameKey),
+                          &root_folder_value) ||
       root_folder_value->GetType() != Value::TYPE_DICTIONARY ||
-      !roots_d_value->Get(kOtherBookmarFolderNameKey, &other_folder_value) ||
-      other_folder_value->GetType() != Value::TYPE_DICTIONARY)
+      !roots_d_value->Get(WideToUTF16Hack(kOtherBookmarFolderNameKey),
+                          &other_folder_value) ||
+      other_folder_value->GetType() != Value::TYPE_DICTIONARY) {
     return false;  // Invalid type for root folder and/or other folder.
+  }
 
   DecodeNode(model, *static_cast<DictionaryValue*>(root_folder_value),
              NULL, model->GetBookmarkBarNode());
@@ -89,21 +94,22 @@ bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
 
 Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
   DictionaryValue* value = new DictionaryValue();
-  value->SetString(kNameKey, node->GetTitle());
-  value->SetString(kDateAddedKey,
-                   Int64ToWString(node->date_added().ToInternalValue()));
+  value->SetString(WideToUTF16Hack(kNameKey),
+                   WideToUTF16Hack(node->GetTitle()));
+  value->SetString(WideToUTF16Hack(kDateAddedKey),
+                   Int64ToString16(node->date_added().ToInternalValue()));
   if (node->GetType() == history::StarredEntry::URL) {
-    value->SetString(kTypeKey, kTypeURL);
-    value->SetString(kURLKey,
-                     UTF8ToWide(node->GetURL().possibly_invalid_spec()));
+    value->SetString(WideToUTF16Hack(kTypeKey), WideToUTF16Hack(kTypeURL));
+    value->SetString(WideToUTF16Hack(kURLKey),
+                     UTF8ToUTF16(node->GetURL().possibly_invalid_spec()));
   } else {
-    value->SetString(kTypeKey, kTypeFolder);
-    value->SetString(kDateModifiedKey,
-                     Int64ToWString(node->date_group_modified().
+    value->SetString(WideToUTF16Hack(kTypeKey), WideToUTF16Hack(kTypeFolder));
+    value->SetString(WideToUTF16Hack(kDateModifiedKey),
+                     Int64ToString16(node->date_group_modified().
                                     ToInternalValue()));
 
     ListValue* child_values = new ListValue();
-    value->Set(kChildrenKey, child_values);
+    value->Set(WideToUTF16Hack(kChildrenKey), child_values);
     for (int i = 0; i < node->GetChildCount(); ++i)
       child_values->Append(EncodeNode(node->GetChild(i)));
   }
@@ -133,40 +139,42 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
                                const DictionaryValue& value,
                                BookmarkNode* parent,
                                BookmarkNode* node) {
-  std::wstring title;
-  if (!value.GetString(kNameKey, &title))
+  string16 title;
+  if (!value.GetString(WideToUTF16Hack(kNameKey), &title))
     return false;
 
   // TODO(sky): this should be more flexible. Don't hoark if we can't parse it
   // all.
-  std::wstring date_added_string;
-  if (!value.GetString(kDateAddedKey, &date_added_string))
+  string16 date_added_string;
+  if (!value.GetString(WideToUTF16Hack(kDateAddedKey), &date_added_string))
     return false;
 
-  std::wstring type_string;
-  if (!value.GetString(kTypeKey, &type_string))
+  string16 type_string;
+  if (!value.GetString(WideToUTF16Hack(kTypeKey), &type_string))
     return false;
 
-  if (type_string != kTypeURL && type_string != kTypeFolder)
+  if (type_string != WideToUTF16Hack(kTypeURL) &&
+      type_string != WideToUTF16Hack(kTypeFolder))
     return false;  // Unknown type.
 
-  if (type_string == kTypeURL) {
-    std::wstring url_string;
-    if (!value.GetString(kURLKey, &url_string))
+  if (type_string == WideToUTF16Hack(kTypeURL)) {
+    string16 url_string;
+    if (!value.GetString(WideToUTF16Hack(kURLKey), &url_string))
       return false;
     // TODO(sky): this should ignore the node if not a valid URL.
     if (!node)
-      node = new BookmarkNode(model, GURL(WideToUTF8(url_string)));
+      node = new BookmarkNode(model, GURL(UTF16ToUTF8(url_string)));
     if (parent)
       parent->Add(parent->GetChildCount(), node);
     node->type_ = history::StarredEntry::URL;
   } else {
-    std::wstring last_modified_date;
-    if (!value.GetString(kDateModifiedKey, &last_modified_date))
+    string16 last_modified_date;
+    if (!value.GetString(WideToUTF16Hack(kDateModifiedKey),
+                         &last_modified_date))
       return false;
 
     Value* child_values;
-    if (!value.Get(kChildrenKey, &child_values))
+    if (!value.Get(WideToUTF16Hack(kChildrenKey), &child_values))
       return false;
 
     if (child_values->GetType() != Value::TYPE_LIST)
@@ -185,7 +193,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       return false;
   }
   
-  node->SetTitle(title);
+  node->SetTitle(UTF16ToWideHack(title));
   node->date_added_ = Time::FromInternalValue(
       StringToInt64(WideToUTF16Hack(date_added_string)));
   return true;

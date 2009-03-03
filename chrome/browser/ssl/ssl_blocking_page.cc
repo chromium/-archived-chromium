@@ -44,23 +44,29 @@ std::string SSLBlockingPage::GetHTMLContents() {
   // Let's build the html error page.
   DictionaryValue strings;
   SSLErrorInfo error_info = delegate_->GetSSLErrorInfo(error_);
-  strings.SetString(L"title",
-                    l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_TITLE));
-  strings.SetString(L"headLine", error_info.title());
-  strings.SetString(L"description", error_info.details());
+  strings.SetString(
+      LIT16("title"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_TITLE)));
+  strings.SetString(LIT16("headLine"), WideToUTF16Hack(error_info.title()));
+  strings.SetString(LIT16("description"),
+                    WideToUTF16Hack(error_info.details()));
 
-  strings.SetString(L"moreInfoTitle",
-                    l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE));
+  strings.SetString(
+      LIT16("moreInfoTitle"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_CERT_ERROR_EXTRA_INFO_TITLE)));
   SetExtraInfo(&strings, error_info.extra_information());
 
-  strings.SetString(L"proceed",
-                    l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_PROCEED));
-  strings.SetString(L"exit",
-                    l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_EXIT));
+  strings.SetString(
+      LIT16("proceed"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_PROCEED)));
+  strings.SetString(
+      LIT16("exit"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_SSL_BLOCKING_PAGE_EXIT)));
 
-  strings.SetString(L"textdirection",
+  strings.SetString(
+      LIT16("textdirection"),
       (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-       L"rtl" : L"ltr");
+      LIT16("rtl") : LIT16("ltr"));
 
   static const StringPiece html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -131,15 +137,15 @@ void SSLBlockingPage::SetExtraInfo(
     DictionaryValue* strings,
     const std::vector<std::wstring>& extra_info) {
   DCHECK(extra_info.size() < 5);  // We allow 5 paragraphs max.
-  const std::wstring keys[5] = {
-      L"moreInfo1", L"moreInfo2", L"moreInfo3", L"moreInfo4", L"moreInfo5"
+  const string16 keys[5] = {
+    LIT16("moreInfo1"), LIT16("moreInfo2"), LIT16("moreInfo3"),
+    LIT16("moreInfo4"), LIT16("moreInfo5")
   };
   int i;
   for (i = 0; i < static_cast<int>(extra_info.size()); i++) {
-    strings->SetString(keys[i], extra_info[i]);
+    strings->SetString(keys[i], WideToUTF16Hack(extra_info[i]));
   }
   for (;i < 5; i++) {
-    strings->SetString(keys[i], L"");
+    strings->SetString(keys[i], LIT16(""));
   }
 }
-

@@ -28,7 +28,7 @@ void PageState::InitWithURL(const GURL& url) {
       // We know that the query string is UTF-8 since it's an internal URL.
       std::wstring value = UTF8ToWide(
           UnescapeURLComponent(escaped, UnescapeRule::REPLACE_PLUS_WITH_SPACE));
-      state_->Set(UTF8ToWide(query_string.substr(keyComp.begin, keyComp.len)),
+      state_->Set(UTF8ToUTF16(query_string.substr(keyComp.begin, keyComp.len)),
                   new StringValue(value));
     }
   }
@@ -59,10 +59,11 @@ void PageState::GetByteRepresentation(std::string* out) const {
 
 void PageState::SetProperty(const std::wstring& key,
                                    const std::wstring& value) {
-  state_->Set(key, new StringValue(value));
+  state_->Set(WideToUTF16Hack(key), new StringValue(value));
 }
 
-bool PageState::GetProperty(const std::wstring& key, std::wstring* value) const {
+bool PageState::GetProperty(const std::wstring& wkey, std::wstring* value) const {
+  string16 key(WideToUTF16(wkey));
   if (state_->HasKey(key)) {
     Value* v;
     state_->Get(key, &v);

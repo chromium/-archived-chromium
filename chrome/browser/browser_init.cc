@@ -113,8 +113,10 @@ void SetOverrideHomePage(const CommandLine& command_line,
     std::wstring new_homepage = URLFixerUpper::FixupRelativeFile(
         browser_directory,
         command_line.GetSwitchValue(switches::kHomePage));
-    prefs->transient()->SetString(prefs::kHomePage, new_homepage);
-    prefs->transient()->SetBoolean(prefs::kHomePageIsNewTabPage, false);
+    prefs->transient()->SetString(WideToUTF16Hack(prefs::kHomePage),
+                                  WideToUTF16Hack(new_homepage));
+    prefs->transient()->SetBoolean(
+        WideToUTF16Hack(prefs::kHomePageIsNewTabPage), false);
   }
 }
 
@@ -474,7 +476,8 @@ bool BrowserInit::ProcessCommandLine(
   SetOverrideHomePage(command_line, profile->GetPrefs());
 
   if (command_line.HasSwitch(switches::kBrowserStartRenderersManually))
-    prefs->transient()->SetBoolean(prefs::kStartRenderersManually, true);
+    prefs->transient()->SetBoolean(
+        WideToUTF16Hack(prefs::kStartRenderersManually), true);
 
   bool silent_launch = false;
 #if defined(OS_WIN)

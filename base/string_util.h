@@ -15,6 +15,13 @@
 #include "base/basictypes.h"
 #include "base/string16.h"
 
+// Deal with string literals on different platforms
+#if defined(OS_WIN)
+# define LIT16(s) L##s
+#else
+# define LIT16(s) WideToUTF16(L##s)
+#endif
+
 // Safe standard library wrappers for all platforms.
 
 namespace base {
@@ -189,7 +196,7 @@ std::string UTF16ToUTF8(const string16& utf16);
 // really should just be passing a string16 around, but we haven't finished
 // porting whatever module uses wstring and the conversion is being used as a
 // stopcock.  This makes it easy to grep for the ones that should be removed.
-#if defined(OS_WIN)
+#if defined(WCHAR_T_IS_UTF16)
 # define WideToUTF16Hack
 # define UTF16ToWideHack
 #else
@@ -385,16 +392,21 @@ void ReplaceSubstringsAfterOffset(std::string* str,
 
 // Specialized string-conversion functions.
 std::string IntToString(int value);
+string16 IntToString16(int value);
 std::wstring IntToWString(int value);
 std::string UintToString(unsigned int value);
+string16 UintToString16(unsigned int value);
 std::wstring UintToWString(unsigned int value);
 std::string Int64ToString(int64 value);
+string16 Int64ToString16(int64 value);
 std::wstring Int64ToWString(int64 value);
 std::string Uint64ToString(uint64 value);
+string16 Uint64ToString16(uint64 value);
 std::wstring Uint64ToWString(uint64 value);
 // The DoubleToString methods convert the double to a string format that
 // ignores the locale.  If you want to use locale specific formatting, use ICU.
 std::string DoubleToString(double value);
+string16 DoubleToString16(double value);
 std::wstring DoubleToWString(double value);
 
 // Perform a best-effort conversion of the input string to a numeric type,
@@ -441,6 +453,18 @@ int HexStringToInt(const std::string& value);
 int HexStringToInt(const string16& value);
 double StringToDouble(const std::string& value);
 double StringToDouble(const string16& value);
+
+#if !defined(WCHAR_T_IS_UTF16)
+bool StringToInt(const string16& input, int* output);
+bool StringToInt64(const string16& input, int64* output);
+bool HexStringToInt(const string16& input, int* output);
+bool HexStringToBytes(const string16& input, std::vector<uint8>* output);
+bool StringToDouble(const string16& input, double* output);
+int StringToInt(const string16& value);
+int64 StringToInt64(const string16& value);
+int HexStringToInt(const string16& value);
+double StringToDouble(const string16& value);
+#endif
 
 // Return a C++ string given printf-like input.
 std::string StringPrintf(const char* format, ...);
