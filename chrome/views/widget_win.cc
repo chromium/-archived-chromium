@@ -566,7 +566,7 @@ void WidgetWin::OnMouseMove(UINT flags, const CPoint& point) {
   ProcessMouseMoved(point, flags, false);
 }
 
-LRESULT WidgetWin::OnMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param) {
+LRESULT WidgetWin::OnMouseLeave(UINT message, WPARAM w_param, LPARAM l_param) {
   tooltip_manager_->OnMouseLeave();
   ProcessMouseExited();
   return 0;

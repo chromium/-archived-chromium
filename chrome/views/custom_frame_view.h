@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_DEFAULT_NON_CLIENT_VIEW_H_
-#define CHROME_VIEWS_DEFAULT_NON_CLIENT_VIEW_H_
+#ifndef CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
+#define CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
 
-#include "base/basictypes.h"
 #include "chrome/views/button.h"
-#include "chrome/views/custom_frame_window.h"
 #include "chrome/views/non_client_view.h"
+#include "chrome/views/window.h"
 #include "chrome/views/window_resources.h"
 
 namespace gfx{
@@ -21,26 +20,24 @@ class ChromeFont;
 
 namespace views {
 
-class ClientView;
-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// DefaultNonClientView
+// CustomFrameView
 //
-//  A ChromeView that provides the "frame" for CustomFrameWindows. This means
+//  A ChromeView that provides the non client frame for Windows. This means
 //  rendering the non-standard window caption, border, and controls.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class DefaultNonClientView : public NonClientView,
-                             public BaseButton::ButtonListener {
+class CustomFrameView : public NonClientFrameView,
+                        public BaseButton::ButtonListener {
  public:
-  explicit DefaultNonClientView(CustomFrameWindow* container);
-  virtual ~DefaultNonClientView();
+  explicit CustomFrameView(Window* frame);
+  virtual ~CustomFrameView();
 
-  // Overridden from views::NonClientView:
-  virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
-  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const;
+  // Overridden from views::NonClientFrameView:
+  virtual gfx::Rect GetBoundsForClientView() const;
+  virtual gfx::Rect GetWindowBoundsForClientBounds(
+      const gfx::Rect& client_bounds) const;
   virtual gfx::Point GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
@@ -51,7 +48,6 @@ class DefaultNonClientView : public NonClientView,
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
   // BaseButton::ButtonListener implementation:
   virtual void ButtonPressed(BaseButton* sender);
@@ -91,14 +87,12 @@ class DefaultNonClientView : public NonClientView,
 
   // Returns the resource collection to be used when rendering the window.
   WindowResources* resources() const {
-    return container_->is_active() || paint_as_active() ? active_resources_
-                                                        : inactive_resources_;
+    return frame_->is_active() || paint_as_active() ? active_resources_
+                                                    : inactive_resources_;
   }
 
-  // The View that provides the background for the window, and optionally
-  // dialog buttons. Note: the non-client view does _not_ own this view, the
-  // container does.
-  ClientView* client_view_;
+  // The bounds of the client view, in this view's coordinates.
+  gfx::Rect client_view_bounds_;
 
   // The layout rect of the title, if visible.
   gfx::Rect title_bounds_;
@@ -112,7 +106,7 @@ class DefaultNonClientView : public NonClientView,
   bool should_show_minmax_buttons_;
 
   // The window that owns this view.
-  CustomFrameWindow* container_;
+  Window* frame_;
 
   // Initialize various static resources.
   static void InitClass();
@@ -120,9 +114,10 @@ class DefaultNonClientView : public NonClientView,
   static WindowResources* inactive_resources_;
   static ChromeFont title_font_;
 
-  DISALLOW_COPY_AND_ASSIGN(DefaultNonClientView);
+  DISALLOW_EVIL_CONSTRUCTORS(CustomFrameView);
 };
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_DEFAULT_NON_CLIENT_VIEW_H_
+#endif  // #ifndef CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
+

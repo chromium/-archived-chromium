@@ -995,6 +995,14 @@ class View : public AcceleratorTarget {
   // to find other radio buttons.
   int group_;
 
+  // Called when the UI theme has changed, overriding allows individual Views to
+  // do special cleanup and processing (such as dropping resource caches).
+  // Subclasses that override this method must call the base class
+  // implementation to ensure child views are processed.
+  // Can only be called by subclasses. To dispatch a theme changed notification,
+  // call this method on the RootView.
+  virtual void ThemeChanged();
+
 #ifndef NDEBUG
   // Returns true if the View is currently processing a paint.
   virtual bool IsProcessingPaint() const;

@@ -245,7 +245,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, BackgroundBrowserDontStealFocus) {
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
   BrowserView* browser_view = BrowserView::GetBrowserViewForHWND(hwnd);
   ASSERT_TRUE(browser_view);
-  EXPECT_TRUE(browser_view->frame()->GetWindow()->IsActive());
+  EXPECT_TRUE(browser_view->frame()->IsActive());
 
   // Close the 2nd browser to avoid a DCHECK().
   HWND hwnd2 = reinterpret_cast<HWND>(browser2->window()->GetNativeHandle());

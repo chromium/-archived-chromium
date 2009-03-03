@@ -254,11 +254,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\custom_frame_window.cc"
+			RelativePath=".\custom_frame_view.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\custom_frame_window.h"
+			RelativePath=".\custom_frame_view.h"
 			>
 		</File>
 		<File
@@ -267,14 +267,6 @@
 		</File>
 		<File
 			RelativePath=".\decision.h"
-			>
-		</File>
-		<File
-			RelativePath=".\default_non_client_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\default_non_client_view.h"
 			>
 		</File>
 		<File
@@ -415,6 +407,14 @@
 		</File>
 		<File
 			RelativePath=".\native_control.h"
+			>
+		</File>
+		<File
+			RelativePath=".\native_frame_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\native_frame_view.h"
 			>
 		</File>
 		<File

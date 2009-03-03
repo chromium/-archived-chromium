@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/frame/aero_glass_non_client_view.h"
+#include "chrome/browser/views/frame/glass_browser_frame_view.h"
 
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -27,12 +27,12 @@ enum {
   FRAME_PART_BITMAP_COUNT  // Must be last.
 };
 
-class AeroGlassWindowResources {
+class GlassBrowserWindowResources {
  public:
-  AeroGlassWindowResources() {
+  GlassBrowserWindowResources() {
     InitClass();
   }
-  virtual ~AeroGlassWindowResources() { }
+  virtual ~GlassBrowserWindowResources() { }
 
   virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
@@ -59,14 +59,15 @@ class AeroGlassWindowResources {
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
 
-  DISALLOW_EVIL_CONSTRUCTORS(AeroGlassWindowResources);
+  DISALLOW_EVIL_CONSTRUCTORS(GlassBrowserWindowResources);
 };
 
 // static
-SkBitmap* AeroGlassWindowResources::standard_frame_bitmaps_[];
+SkBitmap* GlassBrowserWindowResources::standard_frame_bitmaps_[];
 
-AeroGlassWindowResources* AeroGlassNonClientView::resources_ = NULL;
-SkBitmap* AeroGlassNonClientView::distributor_logo_ = NULL;
+GlassBrowserWindowResources* GlassBrowserFrameView::resources_ = NULL;
+SkBitmap* GlassBrowserFrameView::distributor_logo_ = NULL;
+HICON GlassBrowserFrameView::throbber_icons_[GlassBrowserFrameView::kThrobberIconCount];
 
 namespace {
 // There are 3 px of client edge drawn inside the outer frame borders.
@@ -103,19 +104,28 @@ const int kLogoCaptionSpacing = 7;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassNonClientView, public:
+// GlassBrowserFrameView, public:
 
-AeroGlassNonClientView::AeroGlassNonClientView(AeroGlassFrame* frame,
-                                               BrowserView* browser_view)
-    : frame_(frame),
-      browser_view_(browser_view) {
+GlassBrowserFrameView::GlassBrowserFrameView(BrowserFrame* frame,
+                                             BrowserView* browser_view)
+    : BrowserNonClientFrameView(),
+      frame_(frame),
+      browser_view_(browser_view),
+      throbber_running_(false),
+      throbber_frame_(0) {
   InitClass();
+  if (frame_->window_delegate()->ShouldShowWindowIcon())
+    InitThrobberIcons();
 }
 
-AeroGlassNonClientView::~AeroGlassNonClientView() {
+GlassBrowserFrameView::~GlassBrowserFrameView() {
 }
 
-gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
+///////////////////////////////////////////////////////////////////////////////
+// GlassBrowserFrameView, BrowserNonClientFrameView implementation:
+
+gfx::Rect GlassBrowserFrameView::GetBoundsForTabStrip(
+    TabStrip* tabstrip) const {
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
       (otr_avatar_bounds_.right() + kOTRSideSpacing) :
       NonClientBorderThickness();
@@ -126,43 +136,56 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
                    std::max(0, tabstrip_width), tabstrip->GetPreferredHeight());
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// AeroGlassNonClientView, views::NonClientView implementation:
+void GlassBrowserFrameView::UpdateThrobber(bool running) {
+  if (throbber_running_) {
+    if (running) {
+      DisplayNextThrobberFrame();
+    } else {
+      StopThrobber();
+    }
+  } else if (running) {
+    StartThrobber();
+  }
+}
 
-gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int width,
-                                                            int height) const {
-  if (!browser_view_->IsTabStripVisible())
-    return gfx::Rect(0, 0, this->width(), this->height());
+///////////////////////////////////////////////////////////////////////////////
+// GlassBrowserFrameView, views::NonClientFrameView implementation:
+
+gfx::Rect GlassBrowserFrameView::GetBoundsForClientView() const {
+  return client_view_bounds_;
+}
+
+gfx::Rect GlassBrowserFrameView::GetWindowBoundsForClientBounds(
+    const gfx::Rect& client_bounds) const {
+  if (!browser_view_->IsTabStripVisible()) {
+    // If we don't have a tabstrip, we're either a popup or an app window, in
+    // which case we have a standard size non-client area and can just use
+    // AdjustWindowRectEx to obtain it.
+    RECT rect = client_bounds.ToRECT();
+    AdjustWindowRectEx(&rect, frame_->window_style(), FALSE,
+                       frame_->window_ex_style());
+    return gfx::Rect(rect);    
+  }
 
   int top_height = NonClientTopBorderHeight();
   int border_thickness = NonClientBorderThickness();
-  return gfx::Rect(border_thickness, top_height,
-                   std::max(0, width - (2 * border_thickness)),
-                   std::max(0, height - top_height - border_thickness));
+  return gfx::Rect(std::max(0, client_bounds.x() - border_thickness),
+                   std::max(0, client_bounds.y() - top_height),
+                   client_bounds.width() + (2 * border_thickness),
+                   client_bounds.height() + top_height + border_thickness);
 }
 
-gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
-    int width,
-    int height) const {
-  if (!browser_view_->IsTabStripVisible())
-    return gfx::Size(width, height);
-
-  int border_thickness = NonClientBorderThickness();
-  return gfx::Size(width + (2 * border_thickness),
-                   height + NonClientTopBorderHeight() + border_thickness);
-}
-
-gfx::Point AeroGlassNonClientView::GetSystemMenuPoint() const {
+gfx::Point GlassBrowserFrameView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point;
   if (browser_view_->IsBrowserTypeNormal()) {
-    // The X coordinate conditional is because in maximized mode the frame edge
+    // The maximized mode bit here is because in maximized mode the frame edge
     // and the client edge are both offscreen, whereas in the opaque frame
     // (where we don't do this trick) maximized windows have no client edge and
     // only the frame edge is offscreen.
     system_menu_point.SetPoint(NonClientBorderThickness() -
-        (browser_view_->CanCurrentlyResize() ? kClientEdgeThickness : 0),
+        (frame_->IsMaximized() ? 0 : kClientEdgeThickness),
         NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-        (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
+        kClientEdgeThickness);
   } else {
     system_menu_point.SetPoint(0, -kFrameShadowThickness);
   }
@@ -170,7 +193,7 @@ gfx::Point AeroGlassNonClientView::GetSystemMenuPoint() const {
   return system_menu_point;
 }
 
-int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
+int GlassBrowserFrameView::NonClientHitTest(const gfx::Point& point) {
   // If the browser isn't in normal mode, we haven't customized the frame, so
   // Windows can figure this out.  If the point isn't within our bounds, then
   // it's in the native portion of the frame, so again Windows can figure it
@@ -192,9 +215,9 @@ int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassNonClientView, views::View overrides:
+// GlassBrowserFrameView, views::View overrides:
 
-void AeroGlassNonClientView::Paint(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::Paint(ChromeCanvas* canvas) {
   if (!browser_view_->IsTabStripVisible())
     return;  // Nothing is visible, so don't bother to paint.
 
@@ -204,39 +227,29 @@ void AeroGlassNonClientView::Paint(ChromeCanvas* canvas) {
   PaintClientEdge(canvas);
 }
 
-void AeroGlassNonClientView::Layout() {
+void GlassBrowserFrameView::Layout() {
   LayoutDistributorLogo();
   LayoutOTRAvatar();
   LayoutClientView();
 }
 
-void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
-                                                  views::View* parent,
-                                                  views::View* child) {
-  if (is_add && child == this) {
-    DCHECK(GetWidget());
-    DCHECK(frame_->client_view()->GetParent() != this);
-    AddChildView(frame_->client_view());
-  }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassNonClientView, private:
+// GlassBrowserFrameView, private:
 
-int AeroGlassNonClientView::FrameBorderThickness() const {
-  return browser_view_->IsFullscreen() ? 0 : GetSystemMetrics(SM_CXSIZEFRAME);
+int GlassBrowserFrameView::FrameBorderThickness() const {
+  return GetSystemMetrics(SM_CXSIZEFRAME);
 }
 
-int AeroGlassNonClientView::NonClientBorderThickness() const {
-  return browser_view_->IsFullscreen() ? 0 : kNonClientBorderThickness;
+int GlassBrowserFrameView::NonClientBorderThickness() const {
+  return kNonClientBorderThickness;
 }
 
-int AeroGlassNonClientView::NonClientTopBorderHeight() const {
-  return FrameBorderThickness() + (browser_view_->CanCurrentlyResize() ?
-      kNonClientRestoredExtraThickness : 0);
+int GlassBrowserFrameView::NonClientTopBorderHeight() const {
+  return FrameBorderThickness() +
+      (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
 }
 
-void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
   if (!frame_->IsMaximized() && distributor_logo_) {
@@ -248,7 +261,7 @@ void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   }
 }
 
-void AeroGlassNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
   gfx::Point toolbar_origin(toolbar_bounds.origin());
   View::ConvertPointToView(frame_->client_view(), this, &toolbar_origin);
@@ -269,7 +282,7 @@ void AeroGlassNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
       toolbar_bounds.right(), toolbar_bounds.y());
 }
 
-void AeroGlassNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
   if (!browser_view_->ShouldShowOffTheRecordAvatar())
     return;
 
@@ -281,7 +294,7 @@ void AeroGlassNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }
 
-void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintClientEdge(ChromeCanvas* canvas) {
   // The client edges start below the toolbar upper corner images regardless
   // of how tall the toolbar itself is.
   int client_area_top =
@@ -315,7 +328,7 @@ void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
       client_area_top, left->width(), client_area_height);
 }
 
-void AeroGlassNonClientView::LayoutDistributorLogo() {
+void GlassBrowserFrameView::LayoutDistributorLogo() {
   if (distributor_logo_) {
     logo_bounds_.SetRect(frame_->GetMinimizeButtonOffset() -
         distributor_logo_->width() - kLogoCaptionSpacing, kLogoTopSpacing,
@@ -326,7 +339,7 @@ void AeroGlassNonClientView::LayoutDistributorLogo() {
   }
 }
 
-void AeroGlassNonClientView::LayoutOTRAvatar() {
+void GlassBrowserFrameView::LayoutOTRAvatar() {
   SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
   int top_height = NonClientTopBorderHeight();
   int tabstrip_height, otr_height;
@@ -343,16 +356,61 @@ void AeroGlassNonClientView::LayoutOTRAvatar() {
                              otr_avatar_icon.width(), otr_height);
 }
 
-void AeroGlassNonClientView::LayoutClientView() {
-  frame_->client_view()->SetBounds(CalculateClientAreaBounds(width(),
-                                                             height()));
+void GlassBrowserFrameView::LayoutClientView() {
+  client_view_bounds_ = CalculateClientAreaBounds(width(), height());
+}
+
+gfx::Rect GlassBrowserFrameView::CalculateClientAreaBounds(int width,
+                                                           int height) const {
+  if (!browser_view_->IsTabStripVisible())
+    return gfx::Rect(0, 0, this->width(), this->height());
+
+  int top_height = NonClientTopBorderHeight();
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Rect(border_thickness, top_height,
+                   std::max(0, width - (2 * border_thickness)),
+                   std::max(0, height - top_height - border_thickness));
+}
+
+void GlassBrowserFrameView::StartThrobber() {
+  if (!throbber_running_) {
+    throbber_running_ = true;
+    throbber_frame_ = 0;
+    InitThrobberIcons();
+    SendMessage(frame_->GetHWND(), WM_SETICON, static_cast<WPARAM>(ICON_SMALL),
+                reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
+  }
+}
+
+void GlassBrowserFrameView::StopThrobber() {
+  if (throbber_running_)
+    throbber_running_ = false;
+}
+
+void GlassBrowserFrameView::DisplayNextThrobberFrame() {
+  throbber_frame_ = (throbber_frame_ + 1) % kThrobberIconCount;
+  SendMessage(frame_->GetHWND(), WM_SETICON, static_cast<WPARAM>(ICON_SMALL),
+              reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
 }
 
 // static
-void AeroGlassNonClientView::InitClass() {
+void GlassBrowserFrameView::InitThrobberIcons() {
   static bool initialized = false;
   if (!initialized) {
-    resources_ = new AeroGlassWindowResources;
+    ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+    for (int i = 0; i < kThrobberIconCount; ++i) {
+      throbber_icons_[i] = rb.LoadThemeIcon(IDR_THROBBER_01 + i);
+      DCHECK(throbber_icons_[i]);
+    }
+    initialized = true;
+  }
+}
+
+// static
+void GlassBrowserFrameView::InitClass() {
+  static bool initialized = false;
+  if (!initialized) {
+    resources_ = new GlassBrowserWindowResources;
 
 #if defined(GOOGLE_CHROME_BUILD)
     distributor_logo_ = ResourceBundle::GetSharedInstance().

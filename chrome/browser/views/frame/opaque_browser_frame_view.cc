@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/frame/opaque_non_client_view.h"
+#include "chrome/browser/views/frame/opaque_browser_frame_view.h"
 
+#include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -252,12 +253,12 @@ SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
 SkBitmap* OTRActiveWindowResources::standard_frame_bitmaps_[];
 SkBitmap* OTRInactiveWindowResources::standard_frame_bitmaps_[];
 
-views::WindowResources* OpaqueNonClientView::active_resources_ = NULL;
-views::WindowResources* OpaqueNonClientView::inactive_resources_ = NULL;
-views::WindowResources* OpaqueNonClientView::active_otr_resources_ = NULL;
-views::WindowResources* OpaqueNonClientView::inactive_otr_resources_ = NULL;
-SkBitmap* OpaqueNonClientView::distributor_logo_ = NULL;
-ChromeFont OpaqueNonClientView::title_font_;
+views::WindowResources* OpaqueBrowserFrameView::active_resources_ = NULL;
+views::WindowResources* OpaqueBrowserFrameView::inactive_resources_ = NULL;
+views::WindowResources* OpaqueBrowserFrameView::active_otr_resources_ = NULL;
+views::WindowResources* OpaqueBrowserFrameView::inactive_otr_resources_ = NULL;
+SkBitmap* OpaqueBrowserFrameView::distributor_logo_ = NULL;
+ChromeFont OpaqueBrowserFrameView::title_font_;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -326,11 +327,11 @@ const int kCaptionTopSpacing = 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, public:
+// OpaqueBrowserFrameView, public:
 
-OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
-                                         BrowserView* browser_view)
-    : NonClientView(),
+OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
+                                               BrowserView* browser_view)
+    : BrowserNonClientFrameView(),
       minimize_button_(new views::Button),
       maximize_button_(new views::Button),
       restore_button_(new views::Button),
@@ -421,20 +422,14 @@ OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
     InitAppWindowResources();
 }
 
-OpaqueNonClientView::~OpaqueNonClientView() {
+OpaqueBrowserFrameView::~OpaqueBrowserFrameView() {
 }
 
-gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
-    const gfx::Rect& client_bounds) {
-  int top_height = NonClientTopBorderHeight();
-  int border_thickness = NonClientBorderThickness();
-  return gfx::Rect(std::max(0, client_bounds.x() - border_thickness),
-                   std::max(0, client_bounds.y() - top_height),
-                   client_bounds.width() + (2 * border_thickness),
-                   client_bounds.height() + top_height + border_thickness);
-}
+///////////////////////////////////////////////////////////////////////////////
+// OpaqueBrowserFrameView, BrowserNonClientFrameView implementation:
 
-gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
+gfx::Rect OpaqueBrowserFrameView::GetBoundsForTabStrip(
+    TabStrip* tabstrip) const {
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
       (otr_avatar_bounds_.right() + kOTRSideSpacing) :
       NonClientBorderThickness();
@@ -445,40 +440,37 @@ gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
                    std::max(0, tabstrip_width), tabstrip->GetPreferredHeight());
 }
 
-void OpaqueNonClientView::UpdateWindowIcon() {
+void OpaqueBrowserFrameView::UpdateThrobber(bool running) {
   if (window_icon_)
     window_icon_->Update();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, views::NonClientView implementation:
+// OpaqueBrowserFrameView, views::NonClientFrameView implementation:
 
-gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
-                                                         int height) const {
+gfx::Rect OpaqueBrowserFrameView::GetBoundsForClientView() const {
+  return client_view_bounds_;
+}
+
+gfx::Rect OpaqueBrowserFrameView::GetWindowBoundsForClientBounds(
+    const gfx::Rect& client_bounds) const {
   int top_height = NonClientTopBorderHeight();
   int border_thickness = NonClientBorderThickness();
-  return gfx::Rect(border_thickness, top_height,
-                   std::max(0, width - (2 * border_thickness)),
-                   std::max(0, height - top_height - border_thickness));
+  return gfx::Rect(std::max(0, client_bounds.x() - border_thickness),
+                   std::max(0, client_bounds.y() - top_height),
+                   client_bounds.width() + (2 * border_thickness),
+                   client_bounds.height() + top_height + border_thickness);
 }
 
-gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(
-    int width,
-    int height) const {
-  int border_thickness = NonClientBorderThickness();
-  return gfx::Size(width + (2 * border_thickness),
-                   height + NonClientTopBorderHeight() + border_thickness);
-}
-
-gfx::Point OpaqueNonClientView::GetSystemMenuPoint() const {
+gfx::Point OpaqueBrowserFrameView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point(FrameBorderThickness(),
       NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-      (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
+      kClientEdgeThickness);
   ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }
 
-int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
+int OpaqueBrowserFrameView::NonClientHitTest(const gfx::Point& point) {
   if (!bounds().Contains(point))
     return HTNOWHERE;
 
@@ -509,8 +501,8 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
 
-void OpaqueNonClientView::GetWindowMask(const gfx::Size& size,
-                                        gfx::Path* window_mask) {
+void OpaqueBrowserFrameView::GetWindowMask(const gfx::Size& size,
+                                           gfx::Path* window_mask) {
   DCHECK(window_mask);
 
   if (browser_view_->IsFullscreen())
@@ -535,11 +527,11 @@ void OpaqueNonClientView::GetWindowMask(const gfx::Size& size,
   window_mask->close();
 }
 
-void OpaqueNonClientView::EnableClose(bool enable) {
+void OpaqueBrowserFrameView::EnableClose(bool enable) {
   close_button_->SetEnabled(enable);
 }
 
-void OpaqueNonClientView::ResetWindowControls() {
+void OpaqueBrowserFrameView::ResetWindowControls() {
   restore_button_->SetState(views::Button::BS_NORMAL);
   minimize_button_->SetState(views::Button::BS_NORMAL);
   maximize_button_->SetState(views::Button::BS_NORMAL);
@@ -547,9 +539,9 @@ void OpaqueNonClientView::ResetWindowControls() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, views::View overrides:
+// OpaqueBrowserFrameView, views::View overrides:
 
-void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::Paint(ChromeCanvas* canvas) {
   if (browser_view_->IsFullscreen())
     return;  // Nothing is visible, so don't bother to paint.
 
@@ -565,7 +557,7 @@ void OpaqueNonClientView::Paint(ChromeCanvas* canvas) {
     PaintRestoredClientEdge(canvas);
 }
 
-void OpaqueNonClientView::Layout() {
+void OpaqueBrowserFrameView::Layout() {
   LayoutWindowControls();
   LayoutDistributorLogo();
   LayoutTitleBar();
@@ -573,8 +565,8 @@ void OpaqueNonClientView::Layout() {
   LayoutClientView();
 }
 
-views::View* OpaqueNonClientView::GetViewForPoint(const gfx::Point& point,
-                                                  bool can_create_floating) {
+views::View* OpaqueBrowserFrameView::GetViewForPoint(const gfx::Point& point,
+                                                     bool can_create_floating) {
   // We override this function because the ClientView can overlap the non -
   // client view, making it impossible to click on the window controls. We need
   // to ensure the window controls are checked _first_.
@@ -590,14 +582,10 @@ views::View* OpaqueNonClientView::GetViewForPoint(const gfx::Point& point,
   return View::GetViewForPoint(point, can_create_floating);
 }
 
-void OpaqueNonClientView::ViewHierarchyChanged(bool is_add,
-                                               views::View* parent,
-                                               views::View* child) {
+void OpaqueBrowserFrameView::ViewHierarchyChanged(bool is_add,
+                                                  views::View* parent,
+                                                  views::View* child) {
   if (is_add && child == this) {
-    DCHECK(GetWidget());
-    DCHECK(frame_->client_view()->GetParent() != this);
-    AddChildView(frame_->client_view());
-
     // The Accessibility glue looks for the product name on these two views to
     // determine if this is in fact a Chrome window.
     GetRootView()->SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
@@ -605,7 +593,7 @@ void OpaqueNonClientView::ViewHierarchyChanged(bool is_add,
   }
 }
 
-bool OpaqueNonClientView::GetAccessibleRole(VARIANT* role) {
+bool OpaqueBrowserFrameView::GetAccessibleRole(VARIANT* role) {
   DCHECK(role);
   // We aren't actually the client area of the window, but we act like it as
   // far as MSAA and the UI tests are concerned.
@@ -614,7 +602,7 @@ bool OpaqueNonClientView::GetAccessibleRole(VARIANT* role) {
   return true;
 }
 
-bool OpaqueNonClientView::GetAccessibleName(std::wstring* name) {
+bool OpaqueBrowserFrameView::GetAccessibleName(std::wstring* name) {
   if (!accessible_name_.empty()) {
     *name = accessible_name_;
     return true;
@@ -622,14 +610,14 @@ bool OpaqueNonClientView::GetAccessibleName(std::wstring* name) {
   return false;
 }
 
-void OpaqueNonClientView::SetAccessibleName(const std::wstring& name) {
+void OpaqueBrowserFrameView::SetAccessibleName(const std::wstring& name) {
   accessible_name_ = name;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, views::BaseButton::ButtonListener implementation:
+// OpaqueBrowserFrameView, views::BaseButton::ButtonListener implementation:
 
-void OpaqueNonClientView::ButtonPressed(views::BaseButton* sender) {
+void OpaqueBrowserFrameView::ButtonPressed(views::BaseButton* sender) {
   if (sender == minimize_button_)
     frame_->ExecuteSystemMenuCommand(SC_MINIMIZE);
   else if (sender == maximize_button_)
@@ -641,9 +629,9 @@ void OpaqueNonClientView::ButtonPressed(views::BaseButton* sender) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, TabIconView::TabContentsProvider implementation:
+// OpaqueBrowserFrameView, TabIconView::TabContentsProvider implementation:
 
-bool OpaqueNonClientView::ShouldTabIconViewAnimate() const {
+bool OpaqueBrowserFrameView::ShouldTabIconViewAnimate() const {
   // This function is queried during the creation of the window as the
   // TabIconView we host is initialized, so we need to NULL check the selected
   // TabContents because in this condition there is not yet a selected tab.
@@ -651,31 +639,31 @@ bool OpaqueNonClientView::ShouldTabIconViewAnimate() const {
   return current_tab ? current_tab->is_loading() : false;
 }
 
-SkBitmap OpaqueNonClientView::GetFavIconForTabIconView() {
+SkBitmap OpaqueBrowserFrameView::GetFavIconForTabIconView() {
   return frame_->window_delegate()->GetWindowIcon();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueNonClientView, private:
+// OpaqueBrowserFrameView, private:
 
-int OpaqueNonClientView::FrameBorderThickness() const {
+int OpaqueBrowserFrameView::FrameBorderThickness() const {
   if (browser_view_->IsFullscreen())
     return 0;
   return frame_->IsMaximized() ?
       GetSystemMetrics(SM_CXSIZEFRAME) : kFrameBorderThickness;
 }
 
-int OpaqueNonClientView::TopResizeHeight() const {
+int OpaqueBrowserFrameView::TopResizeHeight() const {
   return FrameBorderThickness() - kTopResizeAdjust;
 }
 
-int OpaqueNonClientView::NonClientBorderThickness() const {
+int OpaqueBrowserFrameView::NonClientBorderThickness() const {
   // When we fill the screen, we don't show a client edge.
   return FrameBorderThickness() +
       (browser_view_->CanCurrentlyResize() ? kClientEdgeThickness : 0);
 }
 
-int OpaqueNonClientView::NonClientTopBorderHeight() const {
+int OpaqueBrowserFrameView::NonClientTopBorderHeight() const {
   if (frame_->window_delegate()->ShouldShowWindowTitle()) {
     int title_top_spacing, title_thickness;
     return TitleCoordinates(&title_top_spacing, &title_thickness);
@@ -685,7 +673,7 @@ int OpaqueNonClientView::NonClientTopBorderHeight() const {
       kNonClientRestoredExtraThickness : 0);
 }
 
-int OpaqueNonClientView::UnavailablePixelsAtBottomOfNonClientHeight() const {
+int OpaqueBrowserFrameView::UnavailablePixelsAtBottomOfNonClientHeight() const {
   // Tricky: When a toolbar is edging the titlebar, it not only draws its own
   // shadow and client edge, but an extra, light "shadow" pixel as well, which
   // is treated as available space.  Thus the nonclient area actually _fails_ to
@@ -697,8 +685,8 @@ int OpaqueNonClientView::UnavailablePixelsAtBottomOfNonClientHeight() const {
       (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
 }
 
-int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
-                                          int* title_thickness) const {
+int OpaqueBrowserFrameView::TitleCoordinates(int* title_top_spacing,
+                                             int* title_thickness) const {
   int frame_thickness = FrameBorderThickness();
   int min_titlebar_height = kTitlebarMinimumHeight + frame_thickness;
   *title_top_spacing = frame_thickness + kTitleTopSpacing;
@@ -724,7 +712,7 @@ int OpaqueNonClientView::TitleCoordinates(int* title_top_spacing,
       UnavailablePixelsAtBottomOfNonClientHeight();
 }
 
-void OpaqueNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_left_corner = resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
       resources()->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
@@ -772,7 +760,7 @@ void OpaqueNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
       height() - top_left_corner->height() - bottom_left_corner->height());
 }
 
-void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
   canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
                        top_edge->height());
@@ -789,7 +777,7 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
   }
 }
 
-void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
   if (!frame_->IsMaximized() && distributor_logo_) {
@@ -798,7 +786,7 @@ void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   }
 }
 
-void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintTitleBar(ChromeCanvas* canvas) {
   // The window icon is painted by the TabIconView.
   views::WindowDelegate* d = frame_->window_delegate();
   if (d->ShouldShowWindowTitle()) {
@@ -814,7 +802,7 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
   }
 }
 
-void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
   if (!browser_view_->IsToolbarVisible())
     return;
 
@@ -848,7 +836,7 @@ void OpaqueNonClientView::PaintToolbarBackground(ChromeCanvas* canvas) {
       toolbar_bounds.right(), toolbar_bounds.y());
 }
 
-void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
   if (!browser_view_->ShouldShowOffTheRecordAvatar())
     return;
 
@@ -860,7 +848,7 @@ void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }
 
-void OpaqueNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
+void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   int client_area_top = frame_->client_view()->y();
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
@@ -916,7 +904,7 @@ void OpaqueNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
       client_area_top, left->width(), client_area_height);
 }
 
-void OpaqueNonClientView::LayoutWindowControls() {
+void OpaqueBrowserFrameView::LayoutWindowControls() {
   close_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
                                    views::Button::ALIGN_BOTTOM);
   // Maximized buttons start at window top so that even if their images aren't
@@ -965,7 +953,7 @@ void OpaqueNonClientView::LayoutWindowControls() {
       minimize_button_size.height() + top_extra_height);
 }
 
-void OpaqueNonClientView::LayoutDistributorLogo() {
+void OpaqueBrowserFrameView::LayoutDistributorLogo() {
   // Always lay out the logo, even when it's not present, so we can lay out the
   // window title based on its position.
   if (distributor_logo_) {
@@ -977,7 +965,7 @@ void OpaqueNonClientView::LayoutDistributorLogo() {
   }
 }
 
-void OpaqueNonClientView::LayoutTitleBar() {
+void OpaqueBrowserFrameView::LayoutTitleBar() {
   // Always lay out the icon, even when it's not present, so we can lay out the
   // window title based on its position.
   int frame_thickness = FrameBorderThickness();
@@ -1023,7 +1011,7 @@ void OpaqueNonClientView::LayoutTitleBar() {
   }
 }
 
-void OpaqueNonClientView::LayoutOTRAvatar() {
+void OpaqueBrowserFrameView::LayoutOTRAvatar() {
   SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
   int top_height = NonClientTopBorderHeight();
   int tabstrip_height, otr_height;
@@ -1040,13 +1028,21 @@ void OpaqueNonClientView::LayoutOTRAvatar() {
                              otr_avatar_icon.width(), otr_height);
 }
 
-void OpaqueNonClientView::LayoutClientView() {
-  frame_->client_view()->SetBounds(CalculateClientAreaBounds(width(),
-                                                             height()));
+void OpaqueBrowserFrameView::LayoutClientView() {
+  client_view_bounds_ = CalculateClientAreaBounds(width(), height());
+}
+
+gfx::Rect OpaqueBrowserFrameView::CalculateClientAreaBounds(int width,
+                                                            int height) const {
+  int top_height = NonClientTopBorderHeight();
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Rect(border_thickness, top_height,
+                   std::max(0, width - (2 * border_thickness)),
+                   std::max(0, height - top_height - border_thickness));
 }
 
 // static
-void OpaqueNonClientView::InitClass() {
+void OpaqueBrowserFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     active_resources_ = new ActiveWindowResources;
@@ -1062,7 +1058,7 @@ void OpaqueNonClientView::InitClass() {
 }
 
 // static
-void OpaqueNonClientView::InitAppWindowResources() {
+void OpaqueBrowserFrameView::InitAppWindowResources() {
   static bool initialized = false;
   if (!initialized) {
     title_font_ = win_util::GetWindowTitleFont();

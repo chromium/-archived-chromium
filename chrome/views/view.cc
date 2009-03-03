@@ -626,6 +626,12 @@ void View::PropagateAddNotifications(View* parent, View* child) {
   ViewHierarchyChangedImpl(true, true, parent, child);
 }
 
+void View::ThemeChanged() {
+  int c = GetChildViewCount();
+  for (int i = c - 1; i >= 0; --i)
+    GetChildViewAt(i)->ThemeChanged();
+}
+
 #ifndef NDEBUG
 bool View::IsProcessingPaint() const {
   return GetParent() && GetParent()->IsProcessingPaint();

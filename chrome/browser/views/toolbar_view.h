@@ -131,7 +131,7 @@ class BrowserToolbarView : public views::View,
   };
 
   // Returns the number of pixels above the location bar in non-normal display.
-  static int PopupTopSpacing();
+  int PopupTopSpacing();
 
   // NotificationObserver
   virtual void Observe(NotificationType type,

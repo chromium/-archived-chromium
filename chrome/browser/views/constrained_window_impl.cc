@@ -184,22 +184,22 @@ SkBitmap* VistaWindowResources::bitmaps_[];
 SkBitmap* OTRWindowResources::bitmaps_[];
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowNonClientView
+// ConstrainedWindowFrameView
 
-class ConstrainedWindowNonClientView
-    : public views::NonClientView,
+class ConstrainedWindowFrameView
+    : public views::NonClientFrameView,
       public views::BaseButton::ButtonListener {
  public:
-  ConstrainedWindowNonClientView(ConstrainedWindowImpl* container,
-                                 TabContents* owner);
-  virtual ~ConstrainedWindowNonClientView();
+  explicit ConstrainedWindowFrameView(ConstrainedWindowImpl* container);
+  virtual ~ConstrainedWindowFrameView();
 
   void UpdateWindowTitle();
 
-  // Overridden from views::NonClientView:
-  virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
-  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const;
+  // Overridden from views::NonClientFrameView:
+  virtual gfx::Rect GetBoundsForClientView() const;
+  virtual bool AlwaysUseCustomFrame() const;
+  virtual gfx::Rect GetWindowBoundsForClientBounds(
+      const gfx::Rect& client_bounds) const;
   virtual gfx::Point GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
@@ -209,7 +209,7 @@ class ConstrainedWindowNonClientView
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
+  virtual void ThemeChanged();
 
   // Overridden from views::BaseButton::ButtonListener:
   virtual void ButtonPressed(views::BaseButton* sender);
@@ -242,10 +242,16 @@ class ConstrainedWindowNonClientView
   void LayoutTitleBar();
   void LayoutClientView();
 
+  // Returns the bounds of the client area for the specified view size.
+  gfx::Rect CalculateClientAreaBounds(int width, int height) const;
+
   SkColor GetTitleColor() const {
     return (container_->owner()->profile()->IsOffTheRecord() ||
         !win_util::ShouldUseVistaFrame()) ? SK_ColorWHITE : SK_ColorBLACK;
   }
+
+  // Loads the appropriate set of WindowResources for the frame view.
+  void InitWindowResources();
 
   ConstrainedWindowImpl* container_;
 
@@ -255,15 +261,18 @@ class ConstrainedWindowNonClientView
 
   views::Button* close_button_;
 
+  // The bounds of the ClientView.
+  gfx::Rect client_view_bounds_;
+
   static void InitClass();
 
   // The font to be used to render the titlebar text.
   static ChromeFont title_font_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ConstrainedWindowNonClientView);
+  DISALLOW_EVIL_CONSTRUCTORS(ConstrainedWindowFrameView);
 };
 
-ChromeFont ConstrainedWindowNonClientView::title_font_;
+ChromeFont ConstrainedWindowFrameView::title_font_;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -294,23 +303,15 @@ const SkColor kContentsBorderColor = SkColorSetRGB(219, 235, 255);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowNonClientView, public:
+// ConstrainedWindowFrameView, public:
 
-ConstrainedWindowNonClientView::ConstrainedWindowNonClientView(
-    ConstrainedWindowImpl* container, TabContents* owner)
-        : NonClientView(),
+ConstrainedWindowFrameView::ConstrainedWindowFrameView(
+    ConstrainedWindowImpl* container)
+        : NonClientFrameView(),
           container_(container),
           close_button_(new views::Button) {
   InitClass();
-  if (owner->profile()->IsOffTheRecord()) {
-    resources_.reset(new OTRWindowResources);
-  } else {
-    if (win_util::ShouldUseVistaFrame()) {
-      resources_.reset(new VistaWindowResources);
-    } else {
-      resources_.reset(new XPWindowResources);
-    }
-  }
+  InitWindowResources();
 
   close_button_->SetImage(views::Button::BS_NORMAL,
       resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON));
@@ -324,35 +325,37 @@ ConstrainedWindowNonClientView::ConstrainedWindowNonClientView(
   AddChildView(close_button_);
 }
 
-ConstrainedWindowNonClientView::~ConstrainedWindowNonClientView() {
+ConstrainedWindowFrameView::~ConstrainedWindowFrameView() {
 }
 
-void ConstrainedWindowNonClientView::UpdateWindowTitle() {
+void ConstrainedWindowFrameView::UpdateWindowTitle() {
   SchedulePaint(title_bounds_, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowNonClientView, views::NonClientView implementation:
+// ConstrainedWindowFrameView, views::NonClientFrameView implementation:
 
-gfx::Rect ConstrainedWindowNonClientView::CalculateClientAreaBounds(
-    int width,
-    int height) const {
+gfx::Rect ConstrainedWindowFrameView::GetBoundsForClientView() const {
+  return client_view_bounds_;
+}
+
+bool ConstrainedWindowFrameView::AlwaysUseCustomFrame() const {
+  // Constrained windows always use the custom frame - they just have a
+  // different set of bitmaps.
+  return true;
+}
+
+gfx::Rect ConstrainedWindowFrameView::GetWindowBoundsForClientBounds(
+    const gfx::Rect& client_bounds) const {
   int top_height = NonClientTopBorderHeight();
   int border_thickness = NonClientBorderThickness();
-  return gfx::Rect(border_thickness, top_height,
-                   std::max(0, width - (2 * border_thickness)),
-                   std::max(0, height - top_height - border_thickness));
+  return gfx::Rect(std::max(0, client_bounds.x() - border_thickness),
+                   std::max(0, client_bounds.y() - top_height),
+                   client_bounds.width() + (2 * border_thickness),
+                   client_bounds.height() + top_height + border_thickness);
 }
 
-gfx::Size ConstrainedWindowNonClientView::CalculateWindowSizeForClientSize(
-    int width,
-    int height) const {
-  int border_thickness = NonClientBorderThickness();
-  return gfx::Size(width + (2 * border_thickness),
-                   height + NonClientTopBorderHeight() + border_thickness);
-}
-
-gfx::Point ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
+gfx::Point ConstrainedWindowFrameView::GetSystemMenuPoint() const {
   // Doesn't really matter, since we never show system menus on constrained
   // windows...
   gfx::Point system_menu_point(FrameBorderThickness(),
@@ -361,7 +364,7 @@ gfx::Point ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
   return system_menu_point;
 }
 
-int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
+int ConstrainedWindowFrameView::NonClientHitTest(const gfx::Point& point) {
   if (!bounds().Contains(point))
     return HTNOWHERE;
 
@@ -380,8 +383,8 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
 
-void ConstrainedWindowNonClientView::GetWindowMask(const gfx::Size& size,
-                                                   gfx::Path* window_mask) {
+void ConstrainedWindowFrameView::GetWindowMask(const gfx::Size& size,
+                                               gfx::Path* window_mask) {
   DCHECK(window_mask);
 
   // Redefine the window visible region for the new size.
@@ -403,60 +406,55 @@ void ConstrainedWindowNonClientView::GetWindowMask(const gfx::Size& size,
   window_mask->close();
 }
 
-void ConstrainedWindowNonClientView::EnableClose(bool enable) {
+void ConstrainedWindowFrameView::EnableClose(bool enable) {
   close_button_->SetEnabled(enable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowNonClientView, views::View implementation:
+// ConstrainedWindowFrameView, views::View implementation:
 
-void ConstrainedWindowNonClientView::Paint(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::Paint(ChromeCanvas* canvas) {
   PaintFrameBorder(canvas);
   PaintTitleBar(canvas);
   PaintClientEdge(canvas);
 }
 
-void ConstrainedWindowNonClientView::Layout() {
+void ConstrainedWindowFrameView::Layout() {
   LayoutWindowControls();
   LayoutTitleBar();
   LayoutClientView();
 }
 
-void ConstrainedWindowNonClientView::ViewHierarchyChanged(bool is_add,
-                                                          View *parent,
-                                                          View *child) {
-  // Add our Client View as we are added to the Container so that if we are
-  // subsequently resized all the parent-child relationships are established.
-  if (is_add && GetWidget() && child == this)
-    AddChildView(container_->client_view());
+void ConstrainedWindowFrameView::ThemeChanged() {
+  InitWindowResources();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowNonClientView, views::BaseButton::Button
+// ConstrainedWindowFrameView, views::BaseButton::Button
 //     implementation:
 
-void ConstrainedWindowNonClientView::ButtonPressed(views::BaseButton* sender) {
+void ConstrainedWindowFrameView::ButtonPressed(views::BaseButton* sender) {
   if (sender == close_button_)
     container_->ExecuteSystemMenuCommand(SC_CLOSE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowNonClientView, private:
+// ConstrainedWindowFrameView, private:
 
-int ConstrainedWindowNonClientView::FrameBorderThickness() const {
+int ConstrainedWindowFrameView::FrameBorderThickness() const {
   return kFrameBorderThickness;
 }
 
-int ConstrainedWindowNonClientView::NonClientBorderThickness() const {
+int ConstrainedWindowFrameView::NonClientBorderThickness() const {
   return FrameBorderThickness() + kClientEdgeThickness;
 }
 
-int ConstrainedWindowNonClientView::NonClientTopBorderHeight() const {
+int ConstrainedWindowFrameView::NonClientTopBorderHeight() const {
   int title_top_spacing, title_thickness;
   return TitleCoordinates(&title_top_spacing, &title_thickness);
 }
 
-int ConstrainedWindowNonClientView::TitleCoordinates(
+int ConstrainedWindowFrameView::TitleCoordinates(
     int* title_top_spacing,
     int* title_thickness) const {
   int frame_thickness = FrameBorderThickness();
@@ -470,7 +468,7 @@ int ConstrainedWindowNonClientView::TitleCoordinates(
   return *title_top_spacing + *title_thickness + title_bottom_spacing;
 }
 
-void ConstrainedWindowNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_left_corner = resources_->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
       resources_->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
@@ -514,13 +512,13 @@ void ConstrainedWindowNonClientView::PaintFrameBorder(ChromeCanvas* canvas) {
       height() - top_left_corner->height() - bottom_left_corner->height());
 }
 
-void ConstrainedWindowNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::PaintTitleBar(ChromeCanvas* canvas) {
   canvas->DrawStringInt(container_->GetWindowTitle(), title_font_,
       GetTitleColor(), MirroredLeftPointForRect(title_bounds_),
       title_bounds_.y(), title_bounds_.width(), title_bounds_.height());
 }
 
-void ConstrainedWindowNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
+void ConstrainedWindowFrameView::PaintClientEdge(ChromeCanvas* canvas) {
   gfx::Rect client_edge_bounds(CalculateClientAreaBounds(width(), height()));
   client_edge_bounds.Inset(-kClientEdgeThickness, -kClientEdgeThickness);
   gfx::Rect frame_shadow_bounds(client_edge_bounds);
@@ -535,7 +533,7 @@ void ConstrainedWindowNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
                       client_edge_bounds.height());
 }
 
-void ConstrainedWindowNonClientView::LayoutWindowControls() {
+void ConstrainedWindowFrameView::LayoutWindowControls() {
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   close_button_->SetBounds(
       width() - close_button_size.width() - FrameBorderThickness(),
@@ -543,7 +541,7 @@ void ConstrainedWindowNonClientView::LayoutWindowControls() {
       close_button_size.height());
 }
 
-void ConstrainedWindowNonClientView::LayoutTitleBar() {
+void ConstrainedWindowFrameView::LayoutTitleBar() {
   // Size the title.
   int title_x = FrameBorderThickness() + kIconLeftSpacing;
   int title_top_spacing, title_thickness;
@@ -554,13 +552,34 @@ void ConstrainedWindowNonClientView::LayoutTitleBar() {
       title_font_.height());
 }
 
-void ConstrainedWindowNonClientView::LayoutClientView() {
-  container_->client_view()->SetBounds(CalculateClientAreaBounds(width(),
-                                                                 height()));
+void ConstrainedWindowFrameView::LayoutClientView() {
+  client_view_bounds_ = CalculateClientAreaBounds(width(), height());
+}
+
+gfx::Rect ConstrainedWindowFrameView::CalculateClientAreaBounds(
+    int width,
+    int height) const {
+  int top_height = NonClientTopBorderHeight();
+  int border_thickness = NonClientBorderThickness();
+  return gfx::Rect(border_thickness, top_height,
+                   std::max(0, width - (2 * border_thickness)),
+                   std::max(0, height - top_height - border_thickness));
+}
+
+void ConstrainedWindowFrameView::InitWindowResources() {
+  if (container_->owner()->profile()->IsOffTheRecord()) {
+    resources_.reset(new OTRWindowResources);
+  } else {
+    if (win_util::ShouldUseVistaFrame()) {
+      resources_.reset(new VistaWindowResources);
+    } else {
+      resources_.reset(new XPWindowResources);
+    }
+  }
 }
 
 // static
-void ConstrainedWindowNonClientView::InitClass() {
+void ConstrainedWindowFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     title_font_ = win_util::GetWindowTitleFont();
@@ -583,8 +602,8 @@ ConstrainedWindowImpl::~ConstrainedWindowImpl() {
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowImpl, ConstrainedWindow implementation:
 
-ConstrainedWindowNonClientView* ConstrainedWindowImpl::non_client_view() {
-  return static_cast<ConstrainedWindowNonClientView*>(non_client_view_);
+views::NonClientFrameView* ConstrainedWindowImpl::CreateFrameViewForWindow() {
+  return new ConstrainedWindowFrameView(this);
 }
 
 void ConstrainedWindowImpl::UpdateWindowTitle() {
@@ -652,13 +671,13 @@ const gfx::Rect& ConstrainedWindowImpl::GetCurrentBounds() const {
 ConstrainedWindowImpl::ConstrainedWindowImpl(
     TabContents* owner,
     views::WindowDelegate* window_delegate)
-    : CustomFrameWindow(window_delegate,
-                        new ConstrainedWindowNonClientView(this, owner)) {
-  Init(owner);
+    : Window(window_delegate),
+      owner_(owner) {
+  non_client_view_->SetFrameView(CreateFrameViewForWindow());
+  Init();
 }
 
-void ConstrainedWindowImpl::Init(TabContents* owner) {
-  owner_ = owner;
+void ConstrainedWindowImpl::Init() {
   focus_restoration_disabled_ = false;
   set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION |
                    WS_THICKFRAME | WS_SYSMENU);
@@ -666,13 +685,13 @@ void ConstrainedWindowImpl::Init(TabContents* owner) {
 }
 
 void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
-  CustomFrameWindow::Init(owner_->GetNativeView(), initial_bounds);
+  Window::Init(owner_->GetNativeView(), initial_bounds);
   ActivateConstrainedWindow();
 }
 
 void ConstrainedWindowImpl::UpdateUI(unsigned int changed_flags) {
   if (changed_flags & TabContents::INVALIDATE_TITLE)
-    non_client_view()->UpdateWindowTitle();
+    UpdateWindowTitle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

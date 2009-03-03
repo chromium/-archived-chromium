@@ -15,6 +15,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/window.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/ext/image_operations.h"
@@ -78,6 +79,31 @@ static int download_icon_height = 0;
 
 namespace {
 
+// Loads the images to be used for the tab background. Uses the images for
+// Vista if |use_vista_images| is true.
+void LoadTabImages(bool use_vista_images) {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  if (use_vista_images) {
+    tab_inactive_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_V);
+    tab_inactive_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_V);
+    tab_inactive_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_V);
+
+    // Our Vista frame doesn't change background color to show OTR,
+    // so we continue to use the existing background tabs.
+    tab_inactive_otr_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_V);
+    tab_inactive_otr_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_V);
+    tab_inactive_otr_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_V);
+  } else {
+    tab_inactive_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT);
+    tab_inactive_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER);
+    tab_inactive_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT);
+
+    tab_inactive_otr_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_OTR);
+    tab_inactive_otr_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_OTR);
+    tab_inactive_otr_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_OTR);
+  }
+}
+
 void InitResources() {
   static bool initialized = false;
   if (!initialized) {
@@ -97,25 +123,7 @@ void InitResources() {
     tab_active_l_width = tab_active_l->width();
     tab_active_r_width = tab_active_r->width();
 
-    if (win_util::ShouldUseVistaFrame()) {
-      tab_inactive_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_V);
-      tab_inactive_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_V);
-      tab_inactive_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_V);
-
-      // Our Vista frame doesn't change background color to show OTR,
-      // so we continue to use the existing background tabs.
-      tab_inactive_otr_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_V);
-      tab_inactive_otr_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_V);
-      tab_inactive_otr_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_V);
-    } else {
-      tab_inactive_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT);
-      tab_inactive_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER);
-      tab_inactive_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT);
-
-      tab_inactive_otr_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_OTR);
-      tab_inactive_otr_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_OTR);
-      tab_inactive_otr_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_OTR);
-    }
+    LoadTabImages(win_util::ShouldUseVistaFrame());
 
     tab_hover_l = rb.GetBitmapNamed(IDR_TAB_HOVER_LEFT);
     tab_hover_c = rb.GetBitmapNamed(IDR_TAB_HOVER_CENTER);
@@ -535,6 +543,12 @@ void TabRenderer::OnMouseExited(const views::MouseEvent& e) {
   hover_animation_->Hide();
 }
 
+void TabRenderer::ThemeChanged() {
+  if (GetWidget() && GetWidget()->AsWindow())
+    LoadTabImages(GetWidget()->AsWindow()->UseNativeFrame());
+  View::ThemeChanged();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabRenderer, AnimationDelegate implementation:
 
@@ -566,7 +580,7 @@ void TabRenderer::PaintTabBackground(ChromeCanvas* canvas) {
       animation = pulse_animation_.get();
     if (animation->GetCurrentValue() > 0) {
       PaintHoverTabBackground(canvas, animation->GetCurrentValue() *
-          (win_util::ShouldUseVistaFrame() ?
+          (GetWidget()->AsWindow()->UseNativeFrame() ?
           kHoverOpacityVista : kHoverOpacity));
     } else {
       PaintInactiveTabBackground(canvas);

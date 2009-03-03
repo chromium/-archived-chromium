@@ -176,6 +176,9 @@ class WidgetWin : public Widget,
     MESSAGE_HANDLER_EX(WM_NCUAHDRAWCAPTION, OnNCUAHDrawCaption)
     MESSAGE_HANDLER_EX(WM_NCUAHDRAWFRAME, OnNCUAHDrawFrame)
 
+    // Vista and newer
+    MESSAGE_HANDLER_EX(WM_DWMCOMPOSITIONCHANGED, OnDwmCompositionChanged)
+
     // Non-atlcrack.h handlers
     MESSAGE_HANDLER_EX(WM_GETOBJECT, OnGetObject)
     MESSAGE_HANDLER_EX(WM_NCMOUSELEAVE, OnNCMouseLeave)
@@ -183,6 +186,7 @@ class WidgetWin : public Widget,
 
     // This list is in _ALPHABETICAL_ order! OR I WILL HURT YOU.
     MSG_WM_ACTIVATE(OnActivate)
+    MSG_WM_ACTIVATEAPP(OnActivateApp)
     MSG_WM_APPCOMMAND(OnAppCommand)
     MSG_WM_CANCELMODE(OnCancelMode)
     MSG_WM_CAPTURECHANGED(OnCaptureChanged)
@@ -347,7 +351,12 @@ class WidgetWin : public Widget,
   //       handling to the appropriate Process* function. This is so that
   //       subclasses can easily override these methods to do different things
   //       and have a convenient function to call to get the default behavior.
-  virtual void OnActivate(UINT action, BOOL minimized, HWND window) { }
+  virtual void OnActivate(UINT action, BOOL minimized, HWND window) {
+    SetMsgHandled(FALSE);
+  }
+  virtual void OnActivateApp(BOOL active, DWORD thread_id) {
+    SetMsgHandled(FALSE);
+  }
   virtual LRESULT OnAppCommand(HWND window, short app_command, WORD device,
                                int keystate) {
     SetMsgHandled(FALSE);
@@ -362,6 +371,12 @@ class WidgetWin : public Widget,
   // WARNING: If you override this be sure and invoke super, otherwise we'll
   // leak a few things.
   virtual void OnDestroy();
+  virtual LRESULT OnDwmCompositionChanged(UINT msg,
+                                          WPARAM w_param,
+                                          LPARAM l_param) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
   virtual void OnEndSession(BOOL ending, UINT logoff) { SetMsgHandled(FALSE); }
   virtual void OnEnterSizeMove() { SetMsgHandled(FALSE); }
   virtual void OnExitMenuLoop(BOOL is_track_popup_menu) { SetMsgHandled(FALSE); }
@@ -384,7 +399,7 @@ class WidgetWin : public Widget,
   virtual void OnMButtonUp(UINT flags, const CPoint& point);
   virtual LRESULT OnMouseActivate(HWND window, UINT hittest_code, UINT message);
   virtual void OnMouseMove(UINT flags, const CPoint& point);
-  virtual LRESULT OnMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param);
+  virtual LRESULT OnMouseLeave(UINT message, WPARAM w_param, LPARAM l_param);
   virtual void OnMove(const CPoint& point) { SetMsgHandled(FALSE); }
   virtual void OnMoving(UINT param, const LPRECT new_bounds) { }
   virtual LRESULT OnMouseWheel(UINT flags, short distance, const CPoint& point);

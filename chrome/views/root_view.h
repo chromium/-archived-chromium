@@ -83,6 +83,10 @@ class RootView : public View,
   // Get the Widget that hosts this View.
   virtual Widget* GetWidget() const;
 
+  // Public API for broadcasting theme change notifications to this View
+  // hierarchy.
+  virtual void ThemeChanged();
+
   // The following event methods are overridden to propagate event to the
   // control tree
   virtual bool OnMousePressed(const MouseEvent& e);

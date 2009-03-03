@@ -2,48 +2,41 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_NON_CLIENT_VIEW_H_
-#define CHROME_BROWSER_VIEWS_FRAME_OPAQUE_NON_CLIENT_VIEW_H_
+#ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_BROWSER_FRAME_VIEW_H_
+#define CHROME_BROWSER_VIEWS_FRAME_OPAQUE_BROWSER_FRAME_VIEW_H_
 
-#include "chrome/browser/views/frame/opaque_frame.h"
+#include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/tab_icon_view.h"
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/button.h"
 
 class BrowserView;
 class ChromeFont;
-class OpaqueFrame;
 class TabContents;
 class TabStrip;
 namespace views {
 class WindowResources;
 }
 
-class OpaqueNonClientView : public views::NonClientView,
-                            public views::BaseButton::ButtonListener,
-                            public TabIconView::TabIconViewModel {
+class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
+                               public views::BaseButton::ButtonListener,
+                               public TabIconView::TabIconViewModel {
  public:
-  // Constructs a non-client view for an OpaqueFrame. |is_otr| specifies if the
+  // Constructs a non-client view for an BrowserFrame. |is_otr| specifies if the
   // frame was created "off-the-record" and as such different bitmaps should be
   // used to render the frame.
-  OpaqueNonClientView(OpaqueFrame* frame, BrowserView* browser_view);
-  virtual ~OpaqueNonClientView();
+  OpaqueBrowserFrameView(BrowserFrame* frame, BrowserView* browser_view);
+  virtual ~OpaqueBrowserFrameView();
 
-  // Retrieve the bounds of the window for the specified contents bounds.
-  gfx::Rect GetWindowBoundsForClientBounds(const gfx::Rect& client_bounds);
-
-  // Retrieve the bounds for the specified |tabstrip|, in the coordinate system
-  // of the non-client view (which whould be window coordinates).
-  gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
-
-  // Updates the window icon/throbber.
-  void UpdateWindowIcon();
+  // Overridden from BrowserNonClientFrameView:
+  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
+  virtual void UpdateThrobber(bool running);
 
  protected:
-  // Overridden from views::NonClientView:
-  virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
-  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const;
+  // Overridden from views::NonClientFrameView:
+  virtual gfx::Rect GetBoundsForClientView() const;
+  virtual gfx::Rect GetWindowBoundsForClientBounds(
+      const gfx::Rect& client_bounds) const;
   virtual gfx::Point GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
@@ -115,6 +108,9 @@ class OpaqueNonClientView : public views::NonClientView,
   void LayoutOTRAvatar();
   void LayoutClientView();
 
+  // Returns the bounds of the client area for the specified view size.
+  gfx::Rect CalculateClientAreaBounds(int width, int height) const;
+
   // Returns the set of resources to use to paint this view.
   views::WindowResources* resources() const {
     return frame_->is_active() || paint_as_active() ?
@@ -140,10 +136,13 @@ class OpaqueNonClientView : public views::NonClientView,
   TabIconView* window_icon_;
 
   // The frame that hosts this view.
-  OpaqueFrame* frame_;
+  BrowserFrame* frame_;
 
   // The BrowserView hosted within this View.
   BrowserView* browser_view_;
+
+  // The bounds of the ClientView.
+  gfx::Rect client_view_bounds_;
 
   // The resources currently used to paint this view.
   views::WindowResources* current_active_resources_;
@@ -161,8 +160,8 @@ class OpaqueNonClientView : public views::NonClientView,
   static views::WindowResources* inactive_otr_resources_;
   static ChromeFont title_font_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(OpaqueNonClientView);
+  DISALLOW_EVIL_CONSTRUCTORS(OpaqueBrowserFrameView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_NON_CLIENT_VIEW_H_
+#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_BROWSER_FRAME_VIEW_H_
 

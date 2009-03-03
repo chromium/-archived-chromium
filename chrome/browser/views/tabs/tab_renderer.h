@@ -76,6 +76,7 @@ class TabRenderer : public views::View,
   virtual void Layout();
   virtual void OnMouseEntered(const views::MouseEvent& event);
   virtual void OnMouseExited(const views::MouseEvent& event);
+  virtual void ThemeChanged();
 
   // Overridden from AnimationDelegate:
   virtual void AnimationProgressed(const Animation* animation);
@@ -165,6 +166,9 @@ class TabRenderer : public views::View,
   FavIconCrashAnimation* crash_animation_;
 
   bool should_display_crashed_favicon_;
+
+  static void InitClass();
+  static bool initialized_;
 
   DISALLOW_EVIL_CONSTRUCTORS(TabRenderer);
 };

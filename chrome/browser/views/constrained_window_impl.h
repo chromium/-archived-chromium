@@ -8,11 +8,11 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/views/custom_frame_window.h"
+#include "chrome/views/window.h"
 
 class ConstrainedTabContentsWindowDelegate;
 class ConstrainedWindowAnimation;
-class ConstrainedWindowNonClientView;
+class ConstrainedWindowFrameView;
 namespace views {
 class HWNDView;
 class WindowDelegate;
@@ -25,20 +25,15 @@ class WindowDelegate;
 //  a child HWND with a custom window frame.
 //
 class ConstrainedWindowImpl : public ConstrainedWindow,
-                              public views::CustomFrameWindow {
+                              public views::Window {
  public:
   virtual ~ConstrainedWindowImpl();
 
   // Returns the TabContents that constrains this Constrained Window.
   TabContents* owner() const { return owner_; }
 
-  // Returns the non-client view inside this Constrained Window.
-  // NOTE: Defining the function body here would require pulling in the
-  // declarations of ConstrainedWindowNonClientView, as well as all the classes
-  // it depends on, from the .cc file; the benefit isn't worth it.
-  ConstrainedWindowNonClientView* non_client_view();
-
-  // Overridden from views::CustomFrameWindow:
+  // Overridden from views::Window:
+  virtual views::NonClientFrameView* CreateFrameViewForWindow();
   virtual void UpdateWindowTitle();
 
   // Overridden from ConstrainedWindow:
@@ -64,7 +59,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // ConstrainedWindow.
   ConstrainedWindowImpl(TabContents* owner,
                         views::WindowDelegate* window_delegate);
-  void Init(TabContents* owner);
+  void Init();
 
   // Initialize the Constrained Window as a Constrained Dialog containing a
   // views::View client area.

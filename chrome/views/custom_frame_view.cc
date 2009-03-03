@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/default_non_client_view.h"
+#include "chrome/views/custom_frame_view.h"
 
 #include "base/win_util.h"
 #include "chrome/common/gfx/path.h"
@@ -11,6 +11,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/client_view.h"
+#include "chrome/views/window_delegate.h"
 #include "grit/theme_resources.h"
 
 namespace views {
@@ -165,9 +166,9 @@ SkBitmap* ActiveWindowResources::standard_frame_bitmaps_[];
 SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
 
 // static
-WindowResources* DefaultNonClientView::active_resources_ = NULL;
-WindowResources* DefaultNonClientView::inactive_resources_ = NULL;
-ChromeFont DefaultNonClientView::title_font_;
+WindowResources* CustomFrameView::active_resources_ = NULL;
+WindowResources* CustomFrameView::inactive_resources_ = NULL;
+ChromeFont CustomFrameView::title_font_;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -214,19 +215,17 @@ const int kCaptionTopSpacing = 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// DefaultNonClientView, public:
+// CustomFrameView, public:
 
-DefaultNonClientView::DefaultNonClientView(
-    CustomFrameWindow* container)
-    : NonClientView(),
-      client_view_(NULL),
+CustomFrameView::CustomFrameView(Window* frame)
+    : NonClientFrameView(),
       close_button_(new Button),
       restore_button_(new Button),
       maximize_button_(new Button),
       minimize_button_(new Button),
       system_menu_button_(new Button),
       should_show_minmax_buttons_(false),
-      container_(container) {
+      frame_(frame) {
   InitClass();
   WindowResources* resources = active_resources_;
 
@@ -261,49 +260,39 @@ DefaultNonClientView::DefaultNonClientView(
   minimize_button_->SetListener(this, -1);
   AddChildView(minimize_button_);
 
-  should_show_minmax_buttons_ = container->window_delegate()->CanMaximize();
+  should_show_minmax_buttons_ = frame_->window_delegate()->CanMaximize();
 
   AddChildView(system_menu_button_);
 }
 
-DefaultNonClientView::~DefaultNonClientView() {
+CustomFrameView::~CustomFrameView() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// DefaultNonClientView, CustomFrameWindow::NonClientView implementation:
+// CustomFrameView, NonClientFrameView implementation:
 
-gfx::Rect DefaultNonClientView::CalculateClientAreaBounds(int width,
-                                                          int height) const {
+gfx::Rect CustomFrameView::GetBoundsForClientView() const {
+  return client_view_bounds_;
+}
+
+gfx::Rect CustomFrameView::GetWindowBoundsForClientBounds(
+    const gfx::Rect& client_bounds) const {
   int top_height = NonClientTopBorderHeight();
   int border_thickness = NonClientBorderThickness();
-  return gfx::Rect(border_thickness, top_height,
-                   std::max(0, width - (2 * border_thickness)),
-                   std::max(0, height - top_height - border_thickness));
+  return gfx::Rect(std::max(0, client_bounds.x() - border_thickness),
+                   std::max(0, client_bounds.y() - top_height),
+                   client_bounds.width() + (2 * border_thickness),
+                   client_bounds.height() + top_height + border_thickness);
 }
 
-gfx::Size DefaultNonClientView::CalculateWindowSizeForClientSize(
-    int width,
-    int height) const {
-  int border_thickness = NonClientBorderThickness();
-  return gfx::Size(width + (2 * border_thickness),
-                   height + NonClientTopBorderHeight() + border_thickness);
-}
-
-gfx::Point DefaultNonClientView::GetSystemMenuPoint() const {
+gfx::Point CustomFrameView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point(FrameBorderThickness(),
       NonClientTopBorderHeight() - BottomEdgeThicknessWithinNonClientHeight());
   ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }
 
-int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
-  if (!bounds().Contains(point))
-    return HTNOWHERE;
-
-  int frame_component = container_->client_view()->NonClientHitTest(point);
-  if (frame_component != HTNOWHERE)
-    return frame_component;
-
+int CustomFrameView::NonClientHitTest(const gfx::Point& point) {
   // Then see if the point is within any of the window controls.
   if (close_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION).Contains(point))
     return HTCLOSE;
@@ -322,13 +311,13 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
 
   int window_component = GetHTComponentForFrame(point, FrameBorderThickness(),
       NonClientBorderThickness(), kResizeAreaCornerSize, kResizeAreaCornerSize,
-      container_->window_delegate()->CanResize());
+      frame_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
 
-void DefaultNonClientView::GetWindowMask(const gfx::Size& size,
-                                         gfx::Path* window_mask) {
+void CustomFrameView::GetWindowMask(const gfx::Size& size,
+                                    gfx::Path* window_mask) {
   DCHECK(window_mask);
 
   // Redefine the window visible region for the new size.
@@ -350,11 +339,11 @@ void DefaultNonClientView::GetWindowMask(const gfx::Size& size,
   window_mask->close();
 }
 
-void DefaultNonClientView::EnableClose(bool enable) {
+void CustomFrameView::EnableClose(bool enable) {
   close_button_->SetEnabled(enable);
 }
 
-void DefaultNonClientView::ResetWindowControls() {
+void CustomFrameView::ResetWindowControls() {
   restore_button_->SetState(Button::BS_NORMAL);
   minimize_button_->SetState(Button::BS_NORMAL);
   maximize_button_->SetState(Button::BS_NORMAL);
@@ -362,79 +351,71 @@ void DefaultNonClientView::ResetWindowControls() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// DefaultNonClientView, View overrides:
+// CustomFrameView, View overrides:
 
-void DefaultNonClientView::Paint(ChromeCanvas* canvas) {
-  if (container_->IsMaximized())
+void CustomFrameView::Paint(ChromeCanvas* canvas) {
+  if (frame_->IsMaximized())
     PaintMaximizedFrameBorder(canvas);
   else
     PaintRestoredFrameBorder(canvas);
   PaintTitleBar(canvas);
-  if (!container_->IsMaximized())
+  if (!frame_->IsMaximized())
     PaintRestoredClientEdge(canvas);
 }
 
-void DefaultNonClientView::Layout() {
+void CustomFrameView::Layout() {
   LayoutWindowControls();
   LayoutTitleBar();
   LayoutClientView();
 }
 
-gfx::Size DefaultNonClientView::GetPreferredSize() {
-  gfx::Size pref = client_view_->GetPreferredSize();
+gfx::Size CustomFrameView::GetPreferredSize() {
+  gfx::Size pref = frame_->client_view()->GetPreferredSize();
   DCHECK(pref.width() > 0 && pref.height() > 0);
-  return CalculateWindowSizeForClientSize(pref.width(), pref.height());
-}
-
-void DefaultNonClientView::ViewHierarchyChanged(bool is_add,
-                                                View* parent,
-                                                View* child) {
-  // Add our Client View as we are added to the Widget so that if we are
-  // subsequently resized all the parent-child relationships are established.
-  if (is_add && GetWidget() && child == this)
-    AddChildView(container_->client_view());
+  gfx::Rect bounds(0, 0, pref.width(), pref.height());
+  return frame_->GetWindowBoundsForClientBounds(bounds).size();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// DefaultNonClientView, BaseButton::ButtonListener implementation:
+// CustomFrameView, BaseButton::ButtonListener implementation:
 
-void DefaultNonClientView::ButtonPressed(BaseButton* sender) {
+void CustomFrameView::ButtonPressed(BaseButton* sender) {
   if (sender == close_button_)
-    container_->ExecuteSystemMenuCommand(SC_CLOSE);
+    frame_->ExecuteSystemMenuCommand(SC_CLOSE);
   else if (sender == minimize_button_)
-    container_->ExecuteSystemMenuCommand(SC_MINIMIZE);
+    frame_->ExecuteSystemMenuCommand(SC_MINIMIZE);
   else if (sender == maximize_button_)
-    container_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
+    frame_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
   else if (sender == restore_button_)
-    container_->ExecuteSystemMenuCommand(SC_RESTORE);
+    frame_->ExecuteSystemMenuCommand(SC_RESTORE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// DefaultNonClientView, private:
+// CustomFrameView, private:
 
-int DefaultNonClientView::FrameBorderThickness() const {
-  return container_->IsMaximized() ?
+int CustomFrameView::FrameBorderThickness() const {
+  return frame_->IsMaximized() ?
       GetSystemMetrics(SM_CXSIZEFRAME) : kFrameBorderThickness;
 }
 
-int DefaultNonClientView::NonClientBorderThickness() const {
+int CustomFrameView::NonClientBorderThickness() const {
   // In maximized mode, we don't show a client edge.
   return FrameBorderThickness() +
-      (container_->IsMaximized() ? 0 : kClientEdgeThickness);
+      (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
 }
 
-int DefaultNonClientView::NonClientTopBorderHeight() const {
+int CustomFrameView::NonClientTopBorderHeight() const {
   int title_top_spacing, title_thickness;
   return TitleCoordinates(&title_top_spacing, &title_thickness);
 }
 
-int DefaultNonClientView::BottomEdgeThicknessWithinNonClientHeight() const {
+int CustomFrameView::BottomEdgeThicknessWithinNonClientHeight() const {
   return kFrameShadowThickness +
-      (container_->IsMaximized() ? 0 : kClientEdgeThickness);
+      (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
 }
 
-int DefaultNonClientView::TitleCoordinates(int* title_top_spacing,
-                                          int* title_thickness) const {
+int CustomFrameView::TitleCoordinates(int* title_top_spacing,
+                                      int* title_thickness) const {
   int frame_thickness = FrameBorderThickness();
   int min_titlebar_height = kTitlebarMinimumHeight + frame_thickness;
   *title_top_spacing = frame_thickness + kTitleTopSpacing;
@@ -445,7 +426,7 @@ int DefaultNonClientView::TitleCoordinates(int* title_top_spacing,
   // since while it's part of the bottom spacing it will be added in at the end.
   int title_bottom_spacing =
       kFrameBorderThickness + kTitleTopSpacing - kFrameShadowThickness;
-  if (container_->IsMaximized()) {
+  if (frame_->IsMaximized()) {
     // When we maximize, the top border appears to be chopped off; shift the
     // title down to stay centered within the remaining space.
     int title_adjust = (kFrameBorderThickness / 2);
@@ -458,7 +439,7 @@ int DefaultNonClientView::TitleCoordinates(int* title_top_spacing,
       BottomEdgeThicknessWithinNonClientHeight();
 }
 
-void DefaultNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
+void CustomFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* top_left_corner = resources()->GetPartBitmap(FRAME_TOP_LEFT_CORNER);
   SkBitmap* top_right_corner =
       resources()->GetPartBitmap(FRAME_TOP_RIGHT_CORNER);
@@ -502,7 +483,7 @@ void DefaultNonClientView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
       height() - top_left_corner->height() - bottom_left_corner->height());
 }
 
-void DefaultNonClientView::PaintMaximizedFrameBorder(
+void CustomFrameView::PaintMaximizedFrameBorder(
     ChromeCanvas* canvas) {
   SkBitmap* top_edge = resources()->GetPartBitmap(FRAME_TOP_EDGE);
   canvas->TileImageInt(*top_edge, 0, FrameBorderThickness(), width(),
@@ -513,11 +494,11 @@ void DefaultNonClientView::PaintMaximizedFrameBorder(
   SkBitmap* titlebar_bottom = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
   int edge_height = titlebar_bottom->height() - kClientEdgeThickness;
   canvas->TileImageInt(*titlebar_bottom, 0,
-      container_->client_view()->y() - edge_height, width(), edge_height);
+      frame_->client_view()->y() - edge_height, width(), edge_height);
 }
 
-void DefaultNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
-  WindowDelegate* d = container_->window_delegate();
+void CustomFrameView::PaintTitleBar(ChromeCanvas* canvas) {
+  WindowDelegate* d = frame_->window_delegate();
 
   // It seems like in some conditions we can be asked to paint after the window
   // that contains us is WM_DESTROYed. At this point, our delegate is NULL. The
@@ -530,8 +511,8 @@ void DefaultNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
       title_bounds_.width(), title_bounds_.height());
 }
 
-void DefaultNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
-  gfx::Rect client_area_bounds = container_->client_view()->bounds();
+void CustomFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
+  gfx::Rect client_area_bounds = frame_->client_view()->bounds();
   int client_area_top = client_area_bounds.y();
 
   SkBitmap* top_left = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
@@ -577,11 +558,11 @@ void DefaultNonClientView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
       client_area_top, left->width(), client_area_height);
 }
 
-void DefaultNonClientView::LayoutWindowControls() {
+void CustomFrameView::LayoutWindowControls() {
   close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
   // Maximized buttons start at window top so that even if their images aren't
   // drawn flush with the screen edge, they still obey Fitts' Law.
-  bool is_maximized = container_->IsMaximized();
+  bool is_maximized = frame_->IsMaximized();
   int frame_thickness = FrameBorderThickness();
   int caption_y = is_maximized ? frame_thickness : kCaptionTopSpacing;
   int top_extra_height = is_maximized ? kCaptionTopSpacing : 0;
@@ -600,7 +581,7 @@ void DefaultNonClientView::LayoutWindowControls() {
 
   // When the window is restored, we show a maximized button; otherwise, we show
   // a restore button.
-  bool is_restored = !is_maximized && !container_->IsMinimized();
+  bool is_restored = !is_maximized && !frame_->IsMinimized();
   views::Button* invisible_button = is_restored ?
       restore_button_ : maximize_button_;
   invisible_button->SetVisible(false);
@@ -645,7 +626,7 @@ void DefaultNonClientView::LayoutWindowControls() {
                           active_resources_->GetPartBitmap(pushed_part));
 }
 
-void DefaultNonClientView::LayoutTitleBar() {
+void CustomFrameView::LayoutTitleBar() {
   // Always lay out the icon, even when it's not present, so we can lay out the
   // window title based on its position.
   int frame_thickness = FrameBorderThickness();
@@ -671,10 +652,10 @@ void DefaultNonClientView::LayoutTitleBar() {
   // the remaining space.  Because the apparent shape of our border is simpler,
   // using the same positioning makes things look slightly uncentered with
   // restored windows, so we come up to compensate.
-  if (!container_->IsMaximized())
+  if (!frame_->IsMaximized())
     icon_y -= kIconRestoredAdjust;
 
-  views::WindowDelegate* d = container_->window_delegate();
+  views::WindowDelegate* d = frame_->window_delegate();
   if (!d->ShouldShowWindowIcon())
     icon_size = 0;
   system_menu_button_->SetBounds(icon_x, icon_y, icon_size, icon_size);
@@ -690,13 +671,18 @@ void DefaultNonClientView::LayoutTitleBar() {
       std::max(0, title_right - title_x), title_font_.height());
 }
 
-void DefaultNonClientView::LayoutClientView() {
-  container_->client_view()->SetBounds(CalculateClientAreaBounds(width(),
-                                                                 height()));
+void CustomFrameView::LayoutClientView() {
+  int top_height = NonClientTopBorderHeight();
+  int border_thickness = NonClientBorderThickness();
+  client_view_bounds_.SetRect(
+      border_thickness,
+      top_height,
+      std::max(0, width() - (2 * border_thickness)),
+      std::max(0, height() - top_height - border_thickness));
 }
 
 // static
-void DefaultNonClientView::InitClass() {
+void CustomFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     active_resources_ = new ActiveWindowResources;
@@ -709,3 +695,4 @@ void DefaultNonClientView::InitClass() {
 }
 
 }  // namespace views
+

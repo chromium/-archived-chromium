@@ -2,43 +2,40 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_FRAME_AERO_GLASS_NON_CLIENT_VIEW_H_
-#define CHROME_BROWSER_VIEWS_FRAME_AERO_GLASS_NON_CLIENT_VIEW_H_
+#ifndef CHROME_BROWSER_VIEWS_FRAME_GLASS_BROWSER_FRAME_VIEW_H_
+#define CHROME_BROWSER_VIEWS_FRAME_GLASS_BROWSER_FRAME_VIEW_H_
 
-#include "chrome/browser/views/frame/aero_glass_frame.h"
+#include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/button.h"
 
 class BrowserView;
-class AeroGlassWindowResources;
+class GlassBrowserWindowResources;
 
-class AeroGlassNonClientView : public views::NonClientView {
+class GlassBrowserFrameView : public BrowserNonClientFrameView {
  public:
-  // Constructs a non-client view for an AeroGlassFrame.
-  AeroGlassNonClientView(AeroGlassFrame* frame, BrowserView* browser_view);
-  virtual ~AeroGlassNonClientView();
+  // Constructs a non-client view for an BrowserFrame.
+  GlassBrowserFrameView(BrowserFrame* frame, BrowserView* browser_view);
+  virtual ~GlassBrowserFrameView();
 
-  // Retrieve the bounds for the specified |tabstrip|, in the coordinate system
-  // of the non-client view (which whould be window coordinates).
-  gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
+  // Overridden from BrowserNonClientFrameView:
+  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
+  virtual void UpdateThrobber(bool running);
 
- protected:
-  // Overridden from views::NonClientView:
-  virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
-  virtual gfx::Size CalculateWindowSizeForClientSize(int width,
-                                                     int height) const;
+  // Overridden from views::NonClientFrameView:
+  virtual gfx::Rect GetBoundsForClientView() const;
+  virtual gfx::Rect GetWindowBoundsForClientBounds(
+      const gfx::Rect& client_bounds) const;
   virtual gfx::Point GetSystemMenuPoint() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask) { }
   virtual void EnableClose(bool enable) { }
   virtual void ResetWindowControls() { }
 
+ protected:
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void ViewHierarchyChanged(bool is_add,
-                                    views::View* parent,
-                                    views::View* child);
 
  private:
   // Returns the thickness of the border that makes up the window frame edges.
@@ -63,7 +60,17 @@ class AeroGlassNonClientView : public views::NonClientView {
   void LayoutDistributorLogo();
   void LayoutOTRAvatar();
   void LayoutClientView();
+
+  // Returns the bounds of the client area for the specified view size.
+  gfx::Rect CalculateClientAreaBounds(int width, int height) const;
  
+  // Starts/Stops the window throbber running.
+  void StartThrobber();
+  void StopThrobber();
+
+  // Displays the next throbber frame.
+  void DisplayNextThrobberFrame();
+
   // The layout rect of the distributor logo, if visible.
   gfx::Rect logo_bounds_;
 
@@ -71,17 +78,30 @@ class AeroGlassNonClientView : public views::NonClientView {
   gfx::Rect otr_avatar_bounds_;
 
   // The frame that hosts this view.
-  AeroGlassFrame* frame_;
+  BrowserFrame* frame_;
 
   // The BrowserView hosted within this View.
   BrowserView* browser_view_;
 
+  // The bounds of the ClientView.
+  gfx::Rect client_view_bounds_;
+
+  // Whether or not the window throbber is currently animating.
+  bool throbber_running_;
+
+  // The index of the current frame of the throbber animation.
+  int throbber_frame_;
+
   static void InitClass();
   static SkBitmap* distributor_logo_;
-  static AeroGlassWindowResources* resources_;
+  static GlassBrowserWindowResources* resources_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AeroGlassNonClientView);
+  static const int kThrobberIconCount = 24;
+  static HICON throbber_icons_[kThrobberIconCount];
+  static void InitThrobberIcons();
+
+  DISALLOW_EVIL_CONSTRUCTORS(GlassBrowserFrameView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_AERO_GLASS_NON_CLIENT_VIEW_H_
+#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_GLASS_BROWSER_FRAME_VIEW_H_
 

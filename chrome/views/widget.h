@@ -16,9 +16,10 @@ class Rect;
 
 namespace views {
 
+class Accelerator;
 class RootView;
 class TooltipManager;
-class Accelerator;
+class Window;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -77,6 +78,11 @@ class Widget {
   // no accelerator associated with a given id, which is a common condition.
   virtual bool GetAccelerator(int cmd_id,
                               Accelerator* accelerator) = 0;
+
+  // Returns the Widget as a Window, if such a conversion is possible, or NULL
+  // if it is not.
+  virtual Window* AsWindow() { return NULL; }
+  virtual const Window* AsWindow() const { return NULL; }
 };
 
 }  // namespace views

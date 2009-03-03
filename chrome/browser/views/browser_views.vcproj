@@ -125,19 +125,7 @@
 			Name="Frame"
 			>
 			<File
-				RelativePath=".\frame\aero_glass_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\frame\aero_glass_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\frame\aero_glass_non_client_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\frame\aero_glass_non_client_view.h"
+				RelativePath=".\frame\browser_frame.cc"
 				>
 			</File>
 			<File
@@ -153,23 +141,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\frame\browser_window_factory.cc"
+				RelativePath=".\frame\glass_browser_frame_view.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\frame\opaque_frame.cc"
+				RelativePath=".\frame\glass_browser_frame_view.h"
 				>
 			</File>
 			<File
-				RelativePath=".\frame\opaque_frame.h"
+				RelativePath=".\frame\opaque_browser_frame_view.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\frame\opaque_non_client_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\frame\opaque_non_client_view.h"
+				RelativePath=".\frame\opaque_browser_frame_view.h"
 				>
 			</File>
 		</Filter>

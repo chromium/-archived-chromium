@@ -220,6 +220,10 @@ Widget* RootView::GetWidget() const {
   return widget_;
 }
 
+void RootView::ThemeChanged() {
+  View::ThemeChanged();
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // RootView - event dispatch and propagation

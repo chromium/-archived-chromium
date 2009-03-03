@@ -68,7 +68,7 @@ class Window : public WidgetWin,
   void SetBounds(const gfx::Rect& bounds, HWND other_hwnd);
 
   // Closes the window, ultimately destroying it.
-  virtual void Close();
+  void Close();
 
   // Whether or not the window is maximized or minimized.
   bool IsMaximized() const;
@@ -76,35 +76,46 @@ class Window : public WidgetWin,
 
   // Toggles the enable state for the Close button (and the Close menu item in
   // the system menu).
-  virtual void EnableClose(bool enable);
+  void EnableClose(bool enable);
 
-  // Prevents the window from being rendered as deactivated when |disable| is
-  // true, until called with |disable| false. Used when a sub-window is to be
-  // shown that shouldn't visually de-activate the window.
-  // Subclasses can override this to perform additional actions when this value
-  // changes.
-  virtual void DisableInactiveRendering(bool disable);
-
-  WindowDelegate* window_delegate() const { return window_delegate_; }
-
-  void set_focus_on_creation(bool focus_on_creation) {
-    focus_on_creation_ = focus_on_creation;
-  }
+  // Prevents the window from being rendered as deactivated the next time it is.
+  // This state is reset automatically as soon as the window becomes actiated
+  // again. There is no ability to control the state through this API as this
+  // leads to sync problems.
+  void DisableInactiveRendering();
 
   // Tell the window to update its title from the delegate.
-  virtual void UpdateWindowTitle();
+  void UpdateWindowTitle();
 
   // Tell the window to update its icon from the delegate.
-  virtual void UpdateWindowIcon();
+  void UpdateWindowIcon();
 
   // Executes the specified SC_command.
   void ExecuteSystemMenuCommand(int command);
 
-  // The parent of this window.
-  HWND owning_window() const { return owning_hwnd_; }
+  // Shortcut to access the determination of whether or not we're using a
+  // native frame. This triggers different rendering modes in certain views and
+  // should be used in preference to calling win_util::ShouldUseVistaFrame.
+  bool UseNativeFrame() const { return non_client_view_->UseNativeFrame(); }
 
-  // Shortcut to access the ClientView associated with this window.
+  // Returns the bounds of the window required to display the content area
+  // at the specified bounds.
+  gfx::Rect GetWindowBoundsForClientBounds(const gfx::Rect& client_bounds);
+
+  // Creates an appropriate NonClientFrameView for this window.
+  virtual NonClientFrameView* CreateFrameViewForWindow();
+
+  // Updates the frame after an event caused it to be changed.
+  virtual void UpdateFrameAfterFrameChange();
+
+  // Accessors and setters for various properties.
+  WindowDelegate* window_delegate() const { return window_delegate_; }
+  HWND owning_window() const { return owning_hwnd_; }
   ClientView* client_view() const { return non_client_view_->client_view(); }
+  bool is_active() const { return is_active_; }
+  void set_focus_on_creation(bool focus_on_creation) {
+    focus_on_creation_ = focus_on_creation;
+  }
 
   // Returns the preferred size of the contents view of this window based on
   // its localized size data. The width in cols is held in a localized string
@@ -144,25 +155,30 @@ class Window : public WidgetWin,
 
   // Overridden from WidgetWin:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
+  virtual void OnActivateApp(BOOL active, DWORD thread_id);
   virtual LRESULT OnAppCommand(HWND window, short app_command, WORD device,
                                int keystate);
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
   virtual void OnDestroy();
+  virtual LRESULT OnDwmCompositionChanged(UINT msg, WPARAM w_param,
+                                          LPARAM l_param);
   virtual void OnInitMenu(HMENU menu);
   virtual void OnMouseLeave();
   virtual LRESULT OnNCActivate(BOOL active);
   virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
   virtual LRESULT OnNCHitTest(const CPoint& point);
-  virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
-  virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual void OnNCPaint(HRGN rgn);
   virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
   virtual void OnNCRButtonDown(UINT ht_component, const CPoint& point);
+  virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
+  virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual LRESULT OnSetIcon(UINT size_type, HICON new_icon);
   virtual LRESULT OnSetText(const wchar_t* text);
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
+  virtual Window* AsWindow() { return this; }
+  virtual const Window* AsWindow() const { return this; }
 
   // The View that provides the non-client area of the window (title bar,
   // window controls, sizing borders etc). To use an implementation other than
@@ -176,15 +192,6 @@ class Window : public WidgetWin,
   }
 
  private:
-  // Sets the specified view as the ClientView of this Window. The ClientView
-  // is responsible for laying out the Window's contents view, as well as
-  // performing basic hit-testing, and perhaps other responsibilities depending
-  // on the implementation. The Window's view hierarchy takes ownership of the
-  // ClientView unless the ClientView specifies otherwise. This must be called
-  // only once, and after the native window has been created.
-  // This is called by Init. |client_view| cannot be NULL.
-  void SetClientView(ClientView* client_view);
-
   // Set the window as modal (by disabling all the other windows).
   void BecomeModal();
 
@@ -224,7 +231,9 @@ class Window : public WidgetWin,
   void UnlockUpdates();
 
   // Resets the window region for the current window bounds if necessary.
-  void ResetWindowRegion();
+  // If |force| is true, the window region is reset to NULL even for native
+  // frame windows.
+  void ResetWindowRegion(bool force);
 
   // Converts a non-client mouse down message to a regular ChromeViews event
   // and handle it. |point| is the mouse position of the message in screen
@@ -232,6 +241,11 @@ class Window : public WidgetWin,
   // message and relate to things like which button was pressed. These are
   // combined with flags relating to the current key state.
   void ProcessNCMousePress(const CPoint& point, int flags);
+
+  // Calls the default WM_NCACTIVATE handler with the specified activation
+  // value, safely wrapping the call in a ScopedRedrawLock to prevent frame
+  // flicker.
+  LRESULT CallDefaultNCActivateHandler(BOOL active);
 
   // Static resource initialization.
   static void InitClass();

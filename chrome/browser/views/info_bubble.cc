@@ -100,7 +100,7 @@ void InfoBubble::Init(HWND parent_hwnd,
   DCHECK(BrowserView::GetBrowserViewForHWND(owning_frame_hwnd));
   parent_ = reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
       owning_frame_hwnd));
-  parent_->DisableInactiveRendering(true);
+  parent_->DisableInactiveRendering();
 
   if (kInfoBubbleCornerTopLeft == NULL) {
     kInfoBubbleCornerTopLeft = ResourceBundle::GetSharedInstance()
@@ -207,7 +207,6 @@ void InfoBubble::Close(bool closed_by_escape) {
   // We don't fade out because it looks terrible.
   if (delegate_)
     delegate_->InfoBubbleClosing(this, closed_by_escape);
-  parent_->DisableInactiveRendering(false);
   closed_ = true;
   WidgetWin::Close();
 }
