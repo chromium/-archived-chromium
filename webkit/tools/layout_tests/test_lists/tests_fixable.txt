@@ -1765,8 +1765,8 @@ LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 // New failures from Merge 41078:41149
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList-almost-strict.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
-LayoutTests/fast/dom/anchor-backslash.html = FAIL
-LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
+LINUX WIN : LayoutTests/fast/dom/anchor-backslash.html = FAIL
+LINUX WIN : LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
 LINUX WIN : LayoutTests/fast/reflections/reflection-direction.html = FAIL
 LINUX WIN : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
@@ -1859,10 +1859,10 @@ WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
 // Regressions from the 41286:41362 merge.
 LINUX WIN : LayoutTests/fast/forms/button-default-title.html = FAIL
-LayoutTests/fast/forms/control-clip.html = FAIL
-LayoutTests/fast/forms/select-baseline.html = FAIL
-LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
-LayoutTests/dom/html/level2/html/HTMLAppletElement01.html = TIMEOUT
+LINUX WIN : LayoutTests/fast/forms/control-clip.html = FAIL
+LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
+LINUX WIN : LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
+LINUX WIN : LayoutTests/dom/html/level2/html/HTMLAppletElement01.html = TIMEOUT
 WIN : LayoutTests/fast/dom/object-embed-plugin-scripting.html = TIMEOUT
 LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = PASS TIMEOUT
 
@@ -1870,5 +1870,5 @@ LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https
 // TODO(pamg): See which only need re-baselining.
 DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods-async.html = TIMEOUT
 DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods.html = TIMEOUT
-DEFER : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
-DEFER : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
+DEFER LINUX WIN : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
