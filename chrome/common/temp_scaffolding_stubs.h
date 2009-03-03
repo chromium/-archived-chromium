@@ -63,6 +63,7 @@ class CPCommandInterface;
 class DOMUIHost;
 class DownloadItem;
 class DownloadManager;
+class DownloadShelf;
 class HistoryService;
 class LoginHandler;
 class MetricsService;
@@ -416,8 +417,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
   };
   TabContents(TabContentsType type)
       : type_(type), is_crashed_(false), is_active_(true), is_loading_(false),
-        is_being_destroyed_(false), waiting_for_response_(false), controller_(),
-        delegate_(), max_page_id_(-1) { }
+        is_being_destroyed_(false), waiting_for_response_(false), 
+        shelf_visible_(false), controller_(), delegate_(), max_page_id_(-1) { }
   virtual ~TabContents() { }
   NavigationController* controller() const { return controller_; }
   void set_controller(NavigationController* c) { controller_ = c; }
@@ -449,7 +450,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details) { NOTIMPLEMENTED(); }
   virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
-  virtual void SetDownloadShelfVisible(bool) { NOTIMPLEMENTED(); }
+  virtual void SetDownloadShelfVisible(bool visible);
+  bool IsDownloadShelfVisible() { return shelf_visible_; }
   virtual void Destroy();
   virtual void SetIsLoading(bool, LoadNotificationDetails*);
   bool is_crashed() const { return is_crashed_; }
@@ -496,6 +498,8 @@ class TabContents : public PageNavigator, public NotificationObserver {
   void OnStartDownload(DownloadItem* download) { NOTIMPLEMENTED(); }
   void RemoveInfoBar(InfoBarDelegate* delegate) { NOTIMPLEMENTED(); }
   virtual bool ShouldDisplayURL() { return true; }
+  void ToolbarSizeChanged(bool is_animating);
+  DownloadShelf* GetDownloadShelf() { NOTIMPLEMENTED(); return NULL; }
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
@@ -508,6 +512,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   bool is_loading_;
   bool is_being_destroyed_;
   bool waiting_for_response_;
+  bool shelf_visible_;
   GURL url_;
   std::wstring title_;
   NavigationController* controller_;

@@ -379,6 +379,30 @@ void TabContents::SetIsCrashed(bool state) {
     delegate_->ContentsStateChanged(this);
 }
 
+void TabContents::SetDownloadShelfVisible(bool visible) {
+  if (shelf_visible_ != visible) {
+    if (visible) {
+      // Invoke GetDownloadShelf to force the shelf to be created.
+      GetDownloadShelf();
+    }
+    shelf_visible_ = visible;
+
+    if (delegate_)
+      delegate_->ContentsStateChanged(this);
+  }
+
+  // SetShelfVisible can force-close the shelf, so make sure we lay out
+  // everything correctly, as if the animation had finished. This doesn't
+  // matter for showing the shelf, as the show animation will do it.
+  ToolbarSizeChanged(false);
+}
+
+void TabContents::ToolbarSizeChanged(bool is_animating) {
+  TabContentsDelegate* d = delegate();
+  if (d)
+    d->ToolbarSizeChanged(this, is_animating);
+}
+
 //--------------------------------------------------------------------------
 
 void RLZTracker::CleanupRlz() {
