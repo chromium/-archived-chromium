@@ -1717,8 +1717,6 @@
             'browser/printing/page_number_unittest.cc',
             'browser/printing/page_overlays_unittest.cc',
             'browser/printing/print_job_unittest.cc',
-            'browser/renderer_host/render_view_host_unittest.cc',
-            'browser/renderer_host/render_widget_host_unittest.cc',
             'browser/rlz/rlz_unittest.cc',
             'browser/sessions/session_backend_unittest.cc',
             'browser/sessions/session_service_unittest.cc',

@@ -5,12 +5,8 @@
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
-namespace {
-
 class RenderViewHostTest : public RenderViewHostTestHarness {
 };
-
-}  // namespace
 
 // All about URLs reported by the renderer should get rewritten to about:blank.
 // See RenderViewHost::OnMsgNavigate for a discussion.

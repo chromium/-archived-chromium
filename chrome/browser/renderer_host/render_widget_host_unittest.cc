@@ -12,8 +12,6 @@
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-
 // RenderWidgetHostProcess -----------------------------------------------------
 
 class RenderWidgetHostProcess : public MockRenderProcessHost {
@@ -148,7 +146,7 @@ class MockRenderWidgetHost : public RenderWidgetHost {
 
 class RenderWidgetHostTest : public testing::Test {
  public:
-   RenderWidgetHostTest() : process_(NULL) {
+  RenderWidgetHostTest() : process_(NULL) {
   }
   ~RenderWidgetHostTest() {
   }
@@ -181,8 +179,6 @@ class RenderWidgetHostTest : public testing::Test {
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostTest);
 };
-
-}  // namespace
 
 // -----------------------------------------------------------------------------
 
