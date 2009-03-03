@@ -92,8 +92,6 @@ static int GetUniquePathNumber(const FilePath& path) {
   return -1;
 }
 
-// TODO(port): enable this for mac later. For now, it gives a not used warning.
-#if defined(OS_WIN) || defined(OS_LINUX)
 static bool DownloadPathIsDangerous(const FilePath& download_path) {
   FilePath desktop_dir;
   if (!PathService::Get(chrome::DIR_USER_DESKTOP, &desktop_dir)) {
@@ -102,7 +100,6 @@ static bool DownloadPathIsDangerous(const FilePath& download_path) {
   }
   return (download_path == desktop_dir);
 }
-#endif
 
 // DownloadItem implementation -------------------------------------------------
 
@@ -299,8 +296,6 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kDownloadExtensionsToOpen, L"");
   prefs->RegisterBooleanPref(prefs::kDownloadDirUpgraded, false);
 
-// TODO(port): port the necessary bits of chrome_paths_mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
   // The default download path is userprofile\download.
   FilePath default_download_path;
   if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
@@ -323,7 +318,6 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
     }
     prefs->SetBoolean(prefs::kDownloadDirUpgraded, true);
   }
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
 }
 
 DownloadManager::DownloadManager()
@@ -486,8 +480,6 @@ bool DownloadManager::Init(Profile* profile) {
   DCHECK(prefs);
   prompt_for_download_.Init(prefs::kPromptForDownload, prefs, NULL);
 
-// TODO(port): enable this after implementing chrome_paths for mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
   download_path_.Init(prefs::kDownloadDefaultDirectory, prefs, NULL);
 
   // This variable is needed to resolve which CreateDirectory we want to point
@@ -498,9 +490,6 @@ bool DownloadManager::Init(Profile* profile) {
   // Ensure that the download directory specified in the preferences exists.
   file_loop_->PostTask(FROM_HERE, NewRunnableFunction(
       CreateDirectoryPtr, download_path()));
-#elif defined(OS_MACOSX)
-  NOTIMPLEMENTED();
-#endif
 
 #if defined(OS_WIN)
   // We use this on windows to determine possibly dangerous downloads.

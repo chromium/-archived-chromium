@@ -143,7 +143,7 @@
         'common/chrome_paths.h',
         'common/chrome_paths_internal.h',
         'common/chrome_paths_linux.cc',
-        'common/chrome_paths_mac.cc',
+        'common/chrome_paths_mac.mm',
         'common/chrome_paths_win.cc',
         'common/chrome_plugin_api.h',
         'common/chrome_plugin_lib.cc',
