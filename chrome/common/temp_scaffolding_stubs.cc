@@ -161,7 +161,7 @@ void AutomationProvider::AutocompleteEditIsQueryInProgress(
 }
 
 void AutomationProvider::OnMessageFromExternalHost(
-    int handle, const std::string& target, const std::string& message) {
+    int handle, const std::string& message) {
   NOTIMPLEMENTED();
 }
 
