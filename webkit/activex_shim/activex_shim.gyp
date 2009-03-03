@@ -39,9 +39,11 @@
         'web_activex_site.cc',
         'web_activex_site.h',
       ],
-      'libraries': [
-        'urlmon.lib',
-      ],
+      'link_settings': {
+        'libraries': [
+          '-lurlmon.lib',
+        ],
+      },
     },
   ],
 }

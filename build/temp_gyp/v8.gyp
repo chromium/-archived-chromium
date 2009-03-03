@@ -331,8 +331,8 @@
           # dtoa-specific warnings by modifying dtoa as was done in Chromium
           # r9255.  Refer to that revision for details.
           'msvs_disabled_warnings': [4355, 4800, 4018, 4244],
-          'all_dependent_settings':  {
-            'msvs_system_libraries': [ 'winmm.lib' ],
+          'link_settings':  {
+            'libraries': [ '-lwinmm.lib' ],
           },
         }],
       ],

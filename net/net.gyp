@@ -353,21 +353,6 @@
             },
           },
         ],
-        [ 'OS == "win"', {
-          # This used to live in build_convert_tld_data.rules
-          #'msvs_tool_files': ['build/convert_tld_data.rules'],
-          'rules': [
-             {
-               'rule_name': 'tld_convert',
-               'extension': 'dat',
-               'inputs': [ '<(RULE_INPUT_PATH)' ],
-               'outputs':
-                 ['<(INTERMEDIATE_DIR)/../<(RULE_INPUT_ROOT)_clean.dat'],
-               'action':
-                 ['<(PRODUCT_DIR)/tld_cleanup', '<@(_inputs)', '<@(_outputs)'],
-              },
-            ],
-        },],
       ],
     },
     {

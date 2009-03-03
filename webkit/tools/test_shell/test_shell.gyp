@@ -89,10 +89,15 @@
           ]
         }],
         ['OS=="win"', {
-          'include_dirs': [
-            '../../../breakpad/src',
-          ],
           'msvs_disabled_warnings': [ 4800 ],
+          'link_settings': {
+            'libraries': [
+              '-lcomctl32.lib',
+            ],
+          },
+          'dependencies': [
+            '../../../breakpad/breakpad.gyp:breakpad_handler',
+          ],
         }, {  # OS!=win
           'sources/': [
             ['exclude', '_win\\.cc$']

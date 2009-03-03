@@ -110,6 +110,12 @@
           # Match Safari and Mozilla on Windows.
           'WEBCORE_NAVIGATOR_PLATFORM="Win32"',
         ],
+        'webcore_include_dirs': [
+          '../third_party/WebKit/WebCore/page/win',
+          '../third_party/WebKit/WebCore/platform/graphics/win',
+          '../third_party/WebKit/WebCore/platform/text/win',
+          '../third_party/WebKit/WebCore/platform/win',
+        ],
       }, {  # else: OS!="win"
         'feature_defines': [
           'ENABLE_VIDEO=0'
@@ -3999,7 +4005,15 @@
           },
         }],
         ['OS=="win"', {
-          'sources/': [['exclude', 'Posix\\.cpp$']],
+          'sources/': [
+            ['exclude', 'Posix\\.cpp$'],
+            ['include', '/opentype/'],
+            ['include', '/TransparencyWin\\.cpp$'],
+            ['include', '/SkiaFontWin\\.cpp$'],
+          ],
+          'sources!': [
+            '../third_party/WebKit/WebCore/platform/network/ResourceHandle.cpp',
+          ],
           'defines': [
             '__PRETTY_FUNCTION__=__FUNCTION__',
             'DISABLE_ACTIVEX_TYPE_CONVERSION_MPLAYER2',
@@ -4343,6 +4357,13 @@
           ],
         }, {  # else: OS=="win"
           'sources/': [['exclude', '_posix\\.cc$']],
+          'dependencies': [
+            'activex_shim/activex_shim.gyp:activex_shim',
+            'default_plugin/default_plugin.gyp:default_plugin',
+          ],
+          'sources!': [
+            'glue/plugins/plugin_stubs.cc',
+          ],
         }],
       ],
     },

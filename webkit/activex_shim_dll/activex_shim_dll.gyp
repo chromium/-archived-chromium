@@ -14,6 +14,7 @@
       'target_name': 'activex_shim_dll',
       'type': 'shared_library',
       'dependencies': [
+        '../../base/base.gyp:base',
         '../../third_party/npapi/npapi.gyp:npapi',
         '../activex_shim/activex_shim.gyp:activex_shim',
       ],
@@ -23,6 +24,11 @@
         'activex_shim_dll.rc',
         'resource.h',
       ],
+      'link_settings': {
+        'libraries': [
+          '-lurlmon.lib',
+        ],
+      },
     },
   ],
 }
