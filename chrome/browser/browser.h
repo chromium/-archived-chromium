@@ -57,6 +57,17 @@ class Browser : public TabStripModelDelegate,
     TYPE_APP_POPUP = TYPE_APP | TYPE_POPUP,
   };
 
+  // Possible elements of the Browser window.
+  enum WindowFeature {
+    FEATURE_TITLEBAR = 1,
+    FEATURE_TABSTRIP = 2,
+    FEATURE_TOOLBAR = 4,
+    FEATURE_LOCATIONBAR = 8,
+    FEATURE_BOOKMARKBAR = 16,
+    FEATURE_INFOBAR = 32,
+    FEATURE_DOWNLOADSHELF = 64
+  };
+
   // Constructors, Creation, Showing //////////////////////////////////////////
 
   // Creates a new browser of the given |type| and for the given |profile|. The
@@ -255,6 +266,9 @@ class Browser : public TabStripModelDelegate,
 
   // Show various bits of UI.
   void ShowDownloadsTab();
+
+  // Returns true if the Browser supports the specified feature.
+  bool SupportsWindowFeature(WindowFeature feature) const;
 
 // TODO(port): port these, and re-merge the two function declaration lists.
 #if defined(OS_WIN)
