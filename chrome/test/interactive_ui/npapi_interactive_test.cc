@@ -44,7 +44,7 @@ const int kShortWaitTimeout = 5 * 1000;
 // Tests if a plugin executing a self deleting script in the context of 
 // a synchronous mousemove works correctly
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousMouseMove) {
-  if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
+  if (!UITest::in_process_renderer()) {
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     HWND tab_window = NULL;
     tab_proxy->GetHWND(&tab_window);
