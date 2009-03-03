@@ -57,7 +57,7 @@ class Worker : public Channel::Listener, public Message::Sender {
   virtual ~Worker() {
     WaitableEvent listener_done(false, false), ipc_done(false, false);
     ListenerThread()->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &Worker::OnListenerThreadShutdown, &listener_done,
+        this, &Worker::OnListenerThreadShutdown1, &listener_done,
         &ipc_done));
     listener_done.Wait();
     ipc_done.Wait();
@@ -148,18 +148,29 @@ class Worker : public Channel::Listener, public Message::Sender {
     Run();
   }
 
-  void OnListenerThreadShutdown(WaitableEvent* listener_event,
-                                WaitableEvent* ipc_event) {
+  void OnListenerThreadShutdown1(WaitableEvent* listener_event,
+                                 WaitableEvent* ipc_event) {
     // SyncChannel needs to be destructed on the thread that it was created on.
     channel_.reset();
-    listener_event->Signal();
+
+    MessageLoop::current()->RunAllPending();
 
     ipc_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &Worker::OnIPCThreadShutdown, ipc_event));
+        this, &Worker::OnIPCThreadShutdown, listener_event, ipc_event));
   }
 
-  void OnIPCThreadShutdown(WaitableEvent* ipc_event) {
+  void OnIPCThreadShutdown(WaitableEvent* listener_event,
+                           WaitableEvent* ipc_event) {
+    MessageLoop::current()->RunAllPending();
     ipc_event->Signal();
+
+    listener_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &Worker::OnListenerThreadShutdown2, listener_event));
+  }
+
+  void OnListenerThreadShutdown2(WaitableEvent* listener_event) {
+    MessageLoop::current()->RunAllPending();
+    listener_event->Signal();
   }
 
   void OnMessageReceived(const Message& message) {
