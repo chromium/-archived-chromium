@@ -670,17 +670,11 @@ void WidgetWin::OnRButtonDblClk(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_RBUTTON, true, false);
 }
 
-LRESULT WidgetWin::OnSettingChange(UINT msg, WPARAM w_param, LPARAM l_param) {
-  if (toplevel_) {
-    SetMsgHandled(FALSE);
-    if (w_param != SPI_SETWORKAREA)
-      return 0;  // Return value is effectively ignored in atlwin.h.
-
+void WidgetWin::OnSettingChange(UINT flags, const wchar_t* section) {
+  if (toplevel_ && (flags == SPI_SETWORKAREA)) {
     AdjustWindowToFitScreenSize();
     SetMsgHandled(TRUE);
   }
-  // Don't care, overridden by interested subclasses
-  return 0;
 }
 
 void WidgetWin::OnSize(UINT param, const CSize& size) {

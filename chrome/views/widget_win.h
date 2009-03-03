@@ -167,7 +167,6 @@ class WidgetWin : public Widget,
     // Range handlers must go first!
     MESSAGE_RANGE_HANDLER_EX(WM_MOUSEFIRST, WM_MOUSELAST, OnMouseRange)
     MESSAGE_RANGE_HANDLER_EX(WM_NCMOUSEMOVE, WM_NCMOUSEMOVE, OnMouseRange)
-    MESSAGE_RANGE_HANDLER_EX(WM_SETTINGCHANGE, WM_SETTINGCHANGE, OnSettingChange)
 
     // Reflected message handler
     MESSAGE_HANDLER_EX(kReflectedMessage, OnReflectedMessage)
@@ -240,6 +239,7 @@ class WidgetWin : public Widget,
     MSG_WM_SETFOCUS(OnSetFocus)
     MSG_WM_SETICON(OnSetIcon)
     MSG_WM_SETTEXT(OnSetText)
+    MSG_WM_SETTINGCHANGE(OnSettingChange)
     MSG_WM_SIZE(OnSize)
     MSG_WM_SYSCOMMAND(OnSysCommand)
     MSG_WM_THEMECHANGED(OnThemeChanged)
@@ -365,8 +365,9 @@ class WidgetWin : public Widget,
   virtual void OnCancelMode() {}
   virtual void OnCaptureChanged(HWND hwnd);
   virtual void OnClose();
-  virtual void OnCommand(
-    UINT notification_code, int command_id, HWND window) { SetMsgHandled(FALSE); }
+  virtual void OnCommand(UINT notification_code, int command_id, HWND window) {
+    SetMsgHandled(FALSE);
+  }
   virtual LRESULT OnCreate(LPCREATESTRUCT create_struct) { return 0; }
   // WARNING: If you override this be sure and invoke super, otherwise we'll
   // leak a few things.
@@ -379,7 +380,9 @@ class WidgetWin : public Widget,
   }
   virtual void OnEndSession(BOOL ending, UINT logoff) { SetMsgHandled(FALSE); }
   virtual void OnEnterSizeMove() { SetMsgHandled(FALSE); }
-  virtual void OnExitMenuLoop(BOOL is_track_popup_menu) { SetMsgHandled(FALSE); }
+  virtual void OnExitMenuLoop(BOOL is_track_popup_menu) {
+    SetMsgHandled(FALSE);
+  }
   virtual LRESULT OnEraseBkgnd(HDC dc);
   virtual LRESULT OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param);
   virtual void OnHScroll(int scroll_type, short position, HWND scrollbar) {
@@ -460,7 +463,7 @@ class WidgetWin : public Widget,
     SetMsgHandled(FALSE);
     return 0;
   }
-  virtual LRESULT OnSettingChange(UINT msg, WPARAM w_param, LPARAM l_param);
+  virtual void OnSettingChange(UINT flags, const wchar_t* section);
   virtual void OnSize(UINT param, const CSize& size);
   virtual void OnSysCommand(UINT notification_code, CPoint click) { }
   virtual void OnThemeChanged();
