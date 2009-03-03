@@ -149,6 +149,7 @@ root_env = Environment(
 )
 
 root_env['req_system_libs'] = ARGUMENTS.get('SYSTEM_LIBS', '').split(',')
+root_env['_GYP'] = ARGUMENTS.get('GYP') and '_gyp' or ''
 
 def WantSystemLib(env, lib):
   """
@@ -188,8 +189,8 @@ components = []
 # Default is to load all SConscript files for a full-tree build.
 # The keyword arguments in the call below (base, breakpad, etc.) can be
 # specified in the LOAD= argument to cut down on the build.
-sconscripts = root_env.ChromiumLoadComponentSConscripts(
-    base = '$BASE_DIR/base.scons',
+sconscript_map = dict(
+    base = '$BASE_DIR/base_main${_GYP}.scons',
     breakpad = '$BREAKPAD_DIR/SConscript',
     chrome = '$CHROME_DIR/chrome.scons',
     gears = '$GEARS_DIR/SConscript',
@@ -207,24 +208,31 @@ sconscripts = root_env.ChromiumLoadComponentSConscripts(
         '$BSDIFF_DIR/bsdiff.scons',
         '$BSPATCH_DIR/bspatch.scons',
         '$BZIP2_DIR/bzip2.scons',
-        '$ICU38_DIR/icu38.scons',
-        '$LIBJPEG_DIR/libjpeg.scons',
-        '$LIBPNG_DIR/libpng.scons',
+        '$ICU38_DIR/icu38_main${_GYP}.scons',
+        '$LIBJPEG_DIR/libjpeg${_GYP}.scons',
+        '$LIBPNG_DIR/libpng${_GYP}.scons',
         '$LIBXML_DIR/libxml.scons',
         '$LIBXSLT_DIR/libxslt.scons',
         '$LZMA_SDK_DIR/lzma_sdk.scons',
         '$MODP_B64_DIR/modp_b64.scons',
-        '$ZLIB_DIR/zlib.scons',
+        '$ZLIB_DIR/zlib${_GYP}.scons',
     ],
     tools = '$GTK_CLIP_DUMP_DIR/gcd.scons',
     v8 = '$OBJ_ROOT/build/SConscript.v8',
     webkit = '$WEBKIT_DIR/webkit.scons',
 )
 
+if root_env.get('_GYP'):
+  Import('build_component')
+  sconscripts = [sconscript_map[build_component]]
+  components = [build_component]
+else:
+  sconscripts = root_env.ChromiumLoadComponentSConscripts(**sconscript_map)
+
 # Add the final list into the root environment to be build in BuildComponents.
 root_env.Append(BUILD_SCONSCRIPTS = sconscripts)
 
-if not root_env.WantSystemLib('sqlite'):
+if not root_env.WantSystemLib('sqlite') and not root_env.get('_GYP'):
   root_env.Append(BUILD_SCONSCRIPTS = ['$SQLITE_DIR/SConscript'])
 
 
@@ -453,10 +461,14 @@ excluded_warnings = [
   # (see unordered_map and base/hash_tables.h)
   '-Wno-deprecated',  # Needed for using ext/hash_map on GCC 4.3
 ]
-linux_env.Append(
+if not root_env.get('_GYP'):
+  linux_env.Append(
     BUILD_SCONSCRIPTS = [
-        '$LIBEVENT_DIR/libevent.scons',
+        '$LIBEVENT_DIR/libevent${_GYP}.scons',
     ],
+  )
+linux_env.Append(
+    ASFLAGS = ['-32'],
     CCFLAGS = ['-m32', '-pthread', '-march=i686', '-fno-exceptions'],
     # GCC will generate ident directives with the GCC version. Accumulate
     # these all up and you end up with ~80K repeated in a .comment section.
@@ -644,10 +656,10 @@ mac_env.FilterOut(
 # OS_MACOSX defined in a weird way.
 mac_env.FilterOut(CPPDEFINES = ['OS_MACOSX=OS_MACOSX'])
 
-if not root_env.WantSystemLib('libevent'):
+if not root_env.WantSystemLib('libevent') and not root_env.get('_GYP'):
   mac_env.Append(
     BUILD_SCONSCRIPTS = [
-        '$LIBEVENT_DIR/libevent.scons',
+        '$LIBEVENT_DIR/libevent${_GYP}.scons',
     ],
   )
 mac_env.Append(
@@ -747,6 +759,8 @@ Supported build variables:
   PROGRESS=type             Display a progress indicator:
                               name:  print each evaluated target name
                               spinner:  print a spinner every 5 targets
+  GYP=1                     Any non-null value uses GYP-generated files
+                              (*_gyp.scons).
 """
 
 if GetOption('help'):

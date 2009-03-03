@@ -688,6 +688,12 @@
             'ext/vector_device.cc',
           ],
         }],
+        [ 'OS == "linux"', {
+          'cflags': [
+            '-Wno-unused',
+            '-Wno-unused-function',
+          ],
+        }],
         [ 'OS == "mac"', {
           'defines': [
             'SK_BUILD_FOR_MAC',

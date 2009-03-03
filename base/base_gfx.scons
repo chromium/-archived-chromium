@@ -26,36 +26,36 @@ if env.Bit('windows'):
   )
 
 input_files = ChromeFileList([
-    'jpeg_codec.cc',
-    'jpeg_codec.h',
-    'png_decoder.cc',
-    'png_decoder.h',
-    'png_encoder.cc',
-    'png_encoder.h',
-    'point.cc',
-    'point.h',
-    'rect.cc',
-    'rect.h',
-    'size.cc',
-    'size.h',
+    'gfx/jpeg_codec.cc',
+    'gfx/jpeg_codec.h',
+    'gfx/png_decoder.cc',
+    'gfx/png_decoder.h',
+    'gfx/png_encoder.cc',
+    'gfx/png_encoder.h',
+    'gfx/point.cc',
+    'gfx/point.h',
+    'gfx/rect.cc',
+    'gfx/rect.h',
+    'gfx/size.cc',
+    'gfx/size.h',
 ])
 
 if env.Bit('windows'):
   input_files.Extend([
-      'native_theme.cc',
-      'native_theme.h',
-      'gdi_util.cc',
-      'gdi_util.h',
+      'gfx/native_theme.cc',
+      'gfx/native_theme.h',
+      'gfx/gdi_util.cc',
+      'gfx/gdi_util.h',
   ])
 elif env.Bit('linux'):
   input_files.Extend([
-      'gtk_util.cc',
-      'gtk_util.h',
+      'gfx/gtk_util.cc',
+      'gfx/gtk_util.h',
   ])
 
 env.ChromeLibrary('base_gfx', input_files)
 
-p = env.ChromeMSVSProject('../build/base_gfx.vcproj',
+p = env.ChromeMSVSProject('build/base_gfx.vcproj',
                           dest='$CHROME_SRC_DIR/base/build/base_gfx.vcproj',
                           guid='{A508ADD3-CECE-4E0F-8448-2F5E454DF551}',
                           keyword='Win32Proj',

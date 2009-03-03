@@ -1,0 +1,27 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building the entire base "solution", including all
+the specific targets in various *.scons files, and a base.sln file
+on Windows.
+"""
+
+Import('env')
+
+# Arrange for Hammer to add all programs to the 'base' Alias.
+env.Append(
+    COMPONENT_PROGRAM_GROUPS = ['base'],
+    COMPONENT_TEST_PROGRAM_GROUPS = ['base'],
+)
+
+sconscript_files = [
+    'base.scons',
+    'base_gfx.scons',
+    'base_sln.scons',
+    'base_unittests.scons',
+    'debug_message.scons',
+]
+
+env.SConscript(sconscript_files, exports=['env'])
