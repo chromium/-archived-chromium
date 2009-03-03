@@ -14,7 +14,7 @@
 
 #if defined(OS_WIN)
 class ClipboardTest : public PlatformTest {
- protected:  
+ protected:
   virtual void SetUp() {
     message_loop_.reset(new MessageLoopForUI());
   }

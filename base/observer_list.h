@@ -89,7 +89,7 @@ class ObserverList {
 
   // Remove an observer from the list.
   void RemoveObserver(ObserverType* obs) {
-    typename ListType::iterator it = 
+    typename ListType::iterator it =
       std::find(observers_.begin(), observers_.end(), obs);
     if (it != observers_.end()) {
       if (notify_depth_) {

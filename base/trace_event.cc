@@ -102,22 +102,22 @@ bool TraceLog::OpenLogFile() {
   return true;
 }
 
-void TraceLog::Trace(const std::string& name, 
+void TraceLog::Trace(const std::string& name,
                      EventType type,
                      const void* id,
                      const std::wstring& extra,
-                     const char* file, 
+                     const char* file,
                      int line) {
   if (!enabled_)
     return;
   Trace(name, type, id, WideToUTF8(extra), file, line);
 }
 
-void TraceLog::Trace(const std::string& name, 
+void TraceLog::Trace(const std::string& name,
                      EventType type,
                      const void* id,
                      const std::string& extra,
-                     const char* file, 
+                     const char* file,
                      int line) {
   if (!enabled_)
     return;
@@ -129,7 +129,7 @@ void TraceLog::Trace(const std::string& name,
 #endif
   TimeDelta delta = tick - trace_start_time_;
   int64 usec = delta.InMicroseconds();
-  std::string msg = 
+  std::string msg =
     StringPrintf("{'pid':'0x%lx', 'tid':'0x%lx', 'type':'%s', "
                  "'name':'%s', 'id':'0x%lx', 'extra':'%s', 'file':'%s', "
                  "'line_number':'%d', 'usec_begin': %I64d},\n",

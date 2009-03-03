@@ -62,7 +62,7 @@ class Clipboard {
   // CBF_BOOKMARK  html         char array
   //               url          char array
   // CBF_LINK      html         char array
-  //               url          char array 
+  //               url          char array
   // CBF_FILES     files        char array representing multiple files.
   //                            Filenames are separated by null characters and
   //                            the final filename is double null terminated.

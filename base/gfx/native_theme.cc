@@ -103,7 +103,7 @@ HRESULT NativeTheme::PaintButton(HDC hdc,
     if (handle && get_theme_content_rect_) {
       get_theme_content_rect_(handle, hdc, part_id, state_id, rect, rect);
     } else {
-      InflateRect(rect, -GetSystemMetrics(SM_CXEDGE), 
+      InflateRect(rect, -GetSystemMetrics(SM_CXEDGE),
                   -GetSystemMetrics(SM_CYEDGE));
     }
     DrawFocusRect(hdc, rect);
@@ -193,13 +193,14 @@ HRESULT NativeTheme::PaintScrollbarArrow(HDC hdc,
   return S_OK;
 }
 
-HRESULT NativeTheme::PaintScrollbarTrack(HDC hdc,
-                                         int part_id,
-                                         int state_id,
-                                         int classic_state,
-                                         RECT* target_rect,
-                                         RECT* align_rect,
-                                         skia::PlatformCanvasWin* canvas) const {
+HRESULT NativeTheme::PaintScrollbarTrack(
+    HDC hdc,
+    int part_id,
+    int state_id,
+    int classic_state,
+    RECT* target_rect,
+    RECT* align_rect,
+    skia::PlatformCanvasWin* canvas) const {
   HANDLE handle = GetThemeHandle(SCROLLBAR);
   if (handle && draw_theme_)
     return draw_theme_(handle, hdc, part_id, state_id, target_rect, NULL);

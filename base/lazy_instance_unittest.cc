@@ -75,7 +75,7 @@ TEST(LazyInstanceTest, Basic) {
     lazy_logger.Pointer();
     EXPECT_EQ(3, constructed_seq_.GetNext());
     EXPECT_EQ(2, destructed_seq_.GetNext());
-  }    
+  }
   EXPECT_EQ(4, constructed_seq_.GetNext());
   EXPECT_EQ(4, destructed_seq_.GetNext());
 }

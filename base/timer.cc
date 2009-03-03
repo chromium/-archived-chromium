@@ -8,9 +8,6 @@
 
 namespace base {
 
-//-----------------------------------------------------------------------------
-// BaseTimer_Helper 
-
 void BaseTimer_Helper::OrphanDelayedTask() {
   if (delayed_task_) {
     delayed_task_->timer_ = NULL;

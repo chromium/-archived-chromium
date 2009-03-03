@@ -35,22 +35,22 @@ bool OSIdleTimeSource(int32 *milliseconds_interval_since_last_event) {
     return false;
   }
   int32 last_input_time = lastInputInfo.dwTime;
-  
-  // Note: On Windows GetLastInputInfo returns a 32bit value which rolls over 
+
+  // Note: On Windows GetLastInputInfo returns a 32bit value which rolls over
   // ~49days.
   int32 current_time = GetTickCount();
   int32 delta = current_time - last_input_time;
   // delta will go negative if we've been idle for 2GB of ticks.
   if (delta < 0)
-    delta = -delta;    
+    delta = -delta;
   *milliseconds_interval_since_last_event = delta;
   return true;
 }
 #elif defined(OS_MACOSX)
 bool OSIdleTimeSource(int32 *milliseconds_interval_since_last_event) {
-  *milliseconds_interval_since_last_event = 
+  *milliseconds_interval_since_last_event =
       CGEventSourceSecondsSinceLastEventType(
-          kCGEventSourceStateCombinedSessionState, 
+          kCGEventSourceStateCombinedSessionState,
           kCGAnyInputEventType) * 1000.0;
   return true;
 }

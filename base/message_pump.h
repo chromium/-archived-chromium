@@ -40,7 +40,7 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
   };
 
   virtual ~MessagePump() {}
-  
+
   // The Run method is called to enter the message pump's run loop.
   //
   // Within the method, the message pump is responsible for processing native
@@ -98,7 +98,7 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
   // nested sub-loops that are "seemingly" outside the control of this message
   // pump.  DoWork in particular must never be starved for time slices unless
   // it returns false (meaning it has run out of things to do).
-  // 
+  //
   virtual void Run(Delegate* delegate) = 0;
 
   // Quit immediately from the most recently entered run loop.  This method may

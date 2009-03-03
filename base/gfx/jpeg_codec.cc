@@ -44,7 +44,9 @@ namespace {
 const static int initial_output_buffer_size = 8192;
 
 struct JpegEncoderState {
-  JpegEncoderState(std::vector<unsigned char>* o) : out(o), image_buffer_used(0) {
+  JpegEncoderState(std::vector<unsigned char>* o)
+      : out(o),
+        image_buffer_used(0) {
   }
 
   // Output buffer, of which 'image_buffer_used' bytes are actually used (this

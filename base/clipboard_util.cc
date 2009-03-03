@@ -232,7 +232,10 @@ bool ClipboardUtil::GetUrl(IDataObject* data_object,
                                         PathIsUNCA(data.get()))) {
       char file_url[INTERNET_MAX_URL_LENGTH];
       DWORD file_url_len = sizeof(file_url) / sizeof(file_url[0]);
-      if (SUCCEEDED(::UrlCreateFromPathA(data.get(), file_url, &file_url_len, 0))) {
+      if (SUCCEEDED(::UrlCreateFromPathA(data.get(),
+                                         file_url,
+                                         &file_url_len,
+                                         0))) {
         *url = UTF8ToWide(file_url);
         title->assign(*url);
         success = true;
@@ -396,7 +399,7 @@ bool ClipboardUtil::GetFileContents(IDataObject* data_object,
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 // Helper method for converting from text/html to MS CF_HTML.

@@ -9,7 +9,7 @@
 namespace base {
 
 // static
-void SysInfo::OperatingSystemVersionNumbers(int32 *major_version, 
+void SysInfo::OperatingSystemVersionNumbers(int32 *major_version,
                                             int32 *minor_version,
                                             int32 *bugfix_version) {
   static bool is_initialized = false;
@@ -19,11 +19,11 @@ void SysInfo::OperatingSystemVersionNumbers(int32 *major_version,
 
   if (!is_initialized) {
     // Gestalt can't be called in the sandbox, so we cache its return value.
-    Gestalt(gestaltSystemVersionMajor, 
+    Gestalt(gestaltSystemVersionMajor,
         reinterpret_cast<SInt32*>(&major_version_cached));
-    Gestalt(gestaltSystemVersionMinor, 
+    Gestalt(gestaltSystemVersionMinor,
         reinterpret_cast<SInt32*>(&minor_version_cached));
-    Gestalt(gestaltSystemVersionBugFix, 
+    Gestalt(gestaltSystemVersionBugFix,
         reinterpret_cast<SInt32*>(&bugfix_version_cached));
     is_initialized = true;
   }

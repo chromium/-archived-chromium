@@ -122,10 +122,9 @@ TEST(StringUtilTest, IsStringUTF8) {
   EXPECT_TRUE(IsStringUTF8("a\xc2\x81\xe1\x80\xbf\xf1\x80\xa0\xbf"));
   EXPECT_TRUE(IsStringUTF8("\xef\xbb\xbf" "abc")); // UTF-8 BOM
 
-
-  // surrogate code points 
+  // surrogate code points
   EXPECT_FALSE(IsStringUTF8("\xed\xa0\x80\xed\xbf\xbf"));
-  EXPECT_FALSE(IsStringUTF8("\xed\xa0\x8f")); 
+  EXPECT_FALSE(IsStringUTF8("\xed\xa0\x8f"));
   EXPECT_FALSE(IsStringUTF8("\xed\xbf\xbf"));
 
   // overlong sequences
@@ -166,14 +165,14 @@ TEST(StringUtilTest, IsStringUTF8) {
 
   // Strings in legacy encodings. We can certainly make up strings
   // in a legacy encoding that are valid in UTF-8, but in real data,
-  // most of them are invalid as UTF-8. 
+  // most of them are invalid as UTF-8.
   EXPECT_FALSE(IsStringUTF8("caf\xe9")); // cafe with U+00E9 in ISO-8859-1
   EXPECT_FALSE(IsStringUTF8("\xb0\xa1\xb0\xa2")); // U+AC00, U+AC001 in EUC-KR
   EXPECT_FALSE(IsStringUTF8("\xa7\x41\xa6\x6e")); // U+4F60 U+597D in Big5
   // "abc" with U+201[CD] in windows-125[0-8]
-  EXPECT_FALSE(IsStringUTF8("\x93" "abc\x94")); 
+  EXPECT_FALSE(IsStringUTF8("\x93" "abc\x94"));
   // U+0639 U+064E U+0644 U+064E in ISO-8859-6
-  EXPECT_FALSE(IsStringUTF8("\xd9\xee\xe4\xee")); 
+  EXPECT_FALSE(IsStringUTF8("\xd9\xee\xe4\xee"));
   // U+03B3 U+03B5 U+03B9 U+03AC in ISO-8859-7
   EXPECT_FALSE(IsStringUTF8("\xe3\xe5\xe9\xdC"));
 }

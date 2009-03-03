@@ -27,7 +27,7 @@
 //   static LazyInstance<MyClass> my_instance(base::LINKER_INITIALIZED);
 //   void SomeMethod() {
 //     my_instance.Get().SomeMethod();  // MyClass::SomeMethod()
-// 
+//
 //     MyClass* ptr = my_instance.Pointer();
 //     ptr->DoDoDo();  // MyClass::DoDoDo
 //   }

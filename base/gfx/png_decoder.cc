@@ -293,7 +293,10 @@ bool PNGDecoder::Decode(const unsigned char* input, size_t input_size,
 
   png_set_progressive_read_fn(png_ptr, &state, &DecodeInfoCallback,
                               &DecodeRowCallback, &DecodeEndCallback);
-  png_process_data(png_ptr, info_ptr, const_cast<unsigned char*>(input), input_size);
+  png_process_data(png_ptr,
+                   info_ptr,
+                   const_cast<unsigned char*>(input),
+                   input_size);
 
   if (!state.done) {
     // Fed it all the data but the library didn't think we got all the data, so

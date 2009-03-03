@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_STACK_CONTAINER_H__
-#define BASE_STACK_CONTAINER_H__
+#ifndef BASE_STACK_CONTAINER_H_
+#define BASE_STACK_CONTAINER_H_
 
 #include <string>
 #include <vector>
@@ -71,7 +71,7 @@ class StackAllocator : public std::allocator<T> {
   };
 
   // For the straight up copy c-tor, we can share storage.
-  StackAllocator(const StackAllocator<T, stack_capacity>& rhs) 
+  StackAllocator(const StackAllocator<T, stack_capacity>& rhs)
       : source_(rhs.source_) {
   }
 
@@ -80,9 +80,9 @@ class StackAllocator : public std::allocator<T> {
   // in the class _Container_base_aux_alloc_real (from <xutility>)
   // if the constructor does not exist.
   // For this constructor, we cannot share storage; there's
-  // no guarantee that the Source buffer of Ts is large enough 
+  // no guarantee that the Source buffer of Ts is large enough
   // for Us.
-  // TODO: If we were fancy pants, perhaps we could share storage 
+  // TODO: If we were fancy pants, perhaps we could share storage
   // iff sizeof(T) == sizeof(U).
   template<typename U, size_t other_capacity>
   StackAllocator(const StackAllocator<U, other_capacity>& other)
@@ -245,10 +245,9 @@ class StackVector : public StackContainer<
   // Vectors are commonly indexed, which isn't very convenient even with
   // operator-> (using "->at()" does exception stuff we don't want).
   T& operator[](size_t i) { return this->container().operator[](i); }
-  const T& operator[](size_t i) const { 
-    return this->container().operator[](i); 
+  const T& operator[](size_t i) const {
+    return this->container().operator[](i);
   }
 };
 
-#endif  // BASE_STACK_CONTAINER_H__
-
+#endif  // BASE_STACK_CONTAINER_H_

@@ -165,8 +165,10 @@ TEST(PNGCodec, StripAddAlpha) {
 
   // Encode RGBA data as RGB.
   std::vector<unsigned char> encoded;
-  EXPECT_TRUE(PNGEncoder::Encode(&original_rgba[0], PNGEncoder::FORMAT_RGBA, w, h,
-                               w * 4, true, &encoded));
+  EXPECT_TRUE(PNGEncoder::Encode(&original_rgba[0],
+                                 PNGEncoder::FORMAT_RGBA,
+                                 w, h,
+                                 w * 4, true, &encoded));
 
   // Decode the RGB to RGBA.
   std::vector<unsigned char> decoded;
@@ -182,8 +184,10 @@ TEST(PNGCodec, StripAddAlpha) {
   ASSERT_TRUE(original_rgba == decoded);
 
   // Encode RGBA to RGBA.
-  EXPECT_TRUE(PNGEncoder::Encode(&original_rgba[0], PNGEncoder::FORMAT_RGBA, w, h,
-                               w * 4, false, &encoded));
+  EXPECT_TRUE(PNGEncoder::Encode(&original_rgba[0],
+                                 PNGEncoder::FORMAT_RGBA,
+                                 w, h,
+                                 w * 4, false, &encoded));
 
   // Decode the RGBA to RGB.
   EXPECT_TRUE(PNGDecoder::Decode(&encoded[0], encoded.size(),

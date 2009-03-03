@@ -95,7 +95,7 @@ void RunTest_OneShotTimer_Cancel(MessageLoop::Type message_loop_type) {
 
   // Now start the timer.
   a->Start();
- 
+
   bool did_run_b = false;
   OneShotTimerTester b(&did_run_b);
   b.Start();

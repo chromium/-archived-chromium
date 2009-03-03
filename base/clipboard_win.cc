@@ -283,7 +283,8 @@ void Clipboard::WriteBitmapFromSharedMemory(const char* bitmap_data,
   BITMAPINFO bm_info = {0};
   bm_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
   bm_info.bmiHeader.biWidth = size->width();
-  bm_info.bmiHeader.biHeight = -size->height();  // Sets the vertical orientation
+  // Sets the vertical orientation.
+  bm_info.bmiHeader.biHeight = -size->height();
   bm_info.bmiHeader.biPlanes = 1;
   bm_info.bmiHeader.biBitCount = 32;
   bm_info.bmiHeader.biCompression = BI_RGB;

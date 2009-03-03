@@ -52,7 +52,7 @@ TEST(AtExitTest, Basic) {
   base::AtExitManager::RegisterCallback(&IncrementTestCounter1, NULL);
   base::AtExitManager::RegisterCallback(&IncrementTestCounter2, NULL);
   base::AtExitManager::RegisterCallback(&IncrementTestCounter1, NULL);
-  
+
   EXPECT_EQ(0, g_test_counter_1);
   EXPECT_EQ(0, g_test_counter_2);
   base::AtExitManager::ProcessCallbacksNow();
@@ -67,7 +67,7 @@ TEST(AtExitTest, LIFOOrder) {
   base::AtExitManager::RegisterCallback(&IncrementTestCounter1, NULL);
   base::AtExitManager::RegisterCallback(&ExpectCounter1IsZero, NULL);
   base::AtExitManager::RegisterCallback(&IncrementTestCounter2, NULL);
-  
+
   EXPECT_EQ(0, g_test_counter_1);
   EXPECT_EQ(0, g_test_counter_2);
   base::AtExitManager::ProcessCallbacksNow();

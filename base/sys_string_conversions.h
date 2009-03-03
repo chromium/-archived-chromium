@@ -50,9 +50,9 @@ std::string SysWideToMultiByte(const std::wstring& wide, uint32 code_page);
 #endif  // defined(OS_WIN)
 
 // Mac-specific ----------------------------------------------------------------
-  
+
 #if defined(OS_MACOSX)
-  
+
 // Converts between STL strings and CFStringRefs/NSStrings.
 
 // Creates a string, and returns it with a refcount of 1. You are responsible
@@ -77,7 +77,7 @@ string16 SysNSStringToUTF16(NSString* ref);
 std::wstring SysNSStringToWide(NSString* ref);
 
 #endif  // defined(OS_MACOSX)
-  
+
 }  // namespace base
 
 #endif  // BASE_SYS_STRING_CONVERSIONS_H_

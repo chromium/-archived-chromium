@@ -86,17 +86,17 @@ class TraceLog {
   static void StopTracing();
 
   // Log a trace event of (name, type, id) with the optional extra string.
-  void Trace(const std::string& name, 
+  void Trace(const std::string& name,
              EventType type,
              const void* id,
              const std::wstring& extra,
-             const char* file, 
+             const char* file,
              int line);
-  void Trace(const std::string& name, 
+  void Trace(const std::string& name,
              EventType type,
              const void* id,
              const std::string& extra,
-             const char* file, 
+             const char* file,
              int line);
 
  private:

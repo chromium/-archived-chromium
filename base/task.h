@@ -332,7 +332,9 @@ inline CancelableTask* NewRunnableMethod(T* object, Method method) {
 
 template <class T, class Method, class A>
 inline CancelableTask* NewRunnableMethod(T* object, Method method, const A& a) {
-  return new RunnableMethod<T, Method, Tuple1<A> >(object, method, MakeTuple(a));
+  return new RunnableMethod<T, Method, Tuple1<A> >(object,
+                                                   method,
+                                                   MakeTuple(a));
 }
 
 template <class T, class Method, class A, class B>
@@ -435,7 +437,8 @@ inline CancelableTask* NewRunnableFunction(Function function, const A& a) {
 template <class Function, class A, class B>
 inline CancelableTask* NewRunnableFunction(Function function,
                                            const A& a, const B& b) {
-  return new RunnableFunction<Function, Tuple2<A, B> >(function, MakeTuple(a, b));
+  return new RunnableFunction<Function, Tuple2<A, B> >(function,
+                                                       MakeTuple(a, b));
 }
 
 template <class Function, class A, class B, class C>
@@ -587,7 +590,8 @@ struct Callback1 {
 };
 
 template <class T, typename Arg1>
-typename Callback1<Arg1>::Type* NewCallback(T* object, void (T::*method)(Arg1)) {
+typename Callback1<Arg1>::Type* NewCallback(T* object,
+                                            void (T::*method)(Arg1)) {
   return new CallbackImpl<T, void (T::*)(Arg1), Tuple1<Arg1> >(object, method);
 }
 

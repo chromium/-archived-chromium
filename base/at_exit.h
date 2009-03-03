@@ -21,7 +21,7 @@ namespace base {
 // AtExitManager object on the stack:
 // int main(...) {
 //    base::AtExitManager exit_manager;
-//   
+//
 // }
 // When the exit_manager object goes out of scope, all the registered
 // callbacks and singleton destructors will be called.

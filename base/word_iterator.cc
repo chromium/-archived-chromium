@@ -54,7 +54,7 @@ bool WordIterator::Init() {
   int32_t destLength;
   u_strFromWCS(&chars_[0], chars_.size(), &destLength, string_.data(),
                string_.length(), &error);
-  
+
   iter_ = ubrk_open(break_type, NULL, &chars_[0], destLength, &status);
 #endif
   if (U_FAILURE(status)) {

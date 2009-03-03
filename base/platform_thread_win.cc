@@ -23,7 +23,7 @@ typedef struct tagTHREADNAME_INFO {
 DWORD __stdcall ThreadFunc(void* closure) {
   PlatformThread::Delegate* delegate =
       static_cast<PlatformThread::Delegate*>(closure);
-  delegate->ThreadMain(); 
+  delegate->ThreadMain();
   return NULL;
 }
 

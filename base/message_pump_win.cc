@@ -383,7 +383,7 @@ bool MessagePumpForUI::ProcessPumpReplacementMessage() {
   int old_have_work = InterlockedExchange(&have_work_, 0);
   DCHECK(old_have_work);
 
-  // We don't need a special time slice if we didn't have_message to process. 
+  // We don't need a special time slice if we didn't have_message to process.
   if (!have_message)
     return false;
 

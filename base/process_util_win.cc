@@ -198,7 +198,7 @@ bool DidProcessCrash(ProcessHandle handle) {
 
   // Warning, this is not generic code; it heavily depends on the way
   // the rest of the code kills a process.
-  
+
   if (exitcode == PROCESS_END_NORMAL_TERMINATON ||
       exitcode == PROCESS_END_KILLED_BY_USER ||
       exitcode == PROCESS_END_PROCESS_WAS_HUNG ||

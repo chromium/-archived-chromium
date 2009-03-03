@@ -347,7 +347,7 @@ void StatsTable::UnregisterThread(StatsTableTLSData* data) {
 }
 
 void StatsTable::SlotReturnFunction(void* data) {
-  // This is called by the TLS destructor, which on some platforms has 
+  // This is called by the TLS destructor, which on some platforms has
   // already cleared the TLS info, so use the tls_data argument
   // rather than trying to fetch it ourselves.
   StatsTableTLSData* tls_data = static_cast<StatsTableTLSData*>(data);
@@ -557,4 +557,3 @@ int* StatsTable::FindLocation(const char* name) {
   // Now we can find the location in the table.
   return table->GetLocation(counter, slot);
 }
-

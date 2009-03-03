@@ -4,8 +4,8 @@
 
 #include "base/time.h"
 
-#ifdef OS_MACOSX	
-#include <mach/mach_time.h>	
+#ifdef OS_MACOSX
+#include <mach/mach_time.h>
 #endif
 #include <sys/time.h>
 #include <time.h>
@@ -126,9 +126,9 @@ TimeTicks TimeTicks::Now() {
   uint64_t absolute_micro;
 
 #if defined(OS_MACOSX)
-  static mach_timebase_info_data_t timebase_info;	
-  if (timebase_info.denom == 0) {	
-    // Zero-initialization of statics guarantees that denom will be 0 before	
+  static mach_timebase_info_data_t timebase_info;
+  if (timebase_info.denom == 0) {
+    // Zero-initialization of statics guarantees that denom will be 0 before
     // calling mach_timebase_info.  mach_timebase_info will never set denom to	
     // 0 as that would be invalid, so the zero-check can be used to determine	
     // whether mach_timebase_info has already been called.  This is	

@@ -110,7 +110,8 @@ class AddRemoveThread : public PlatformThread::Delegate,
     loop_->PostTask(FROM_HERE,
       factory_->NewRunnableMethod(&AddRemoveThread::AddTask));
     loop_->Run();
-    //LOG(ERROR) << "Loop 0x" << std::hex << loop_ << " done. " << count_observes_ << ", " << count_addtask_;
+    //LOG(ERROR) << "Loop 0x" << std::hex << loop_ << " done. " <<
+    //    count_observes_ << ", " << count_addtask_;
     delete loop_;
     loop_ = reinterpret_cast<MessageLoop*>(0xdeadbeef);
     delete this;
@@ -231,7 +232,7 @@ TEST(ObserverListThreadSafeTest, BasicTest) {
 // from the observer list.  Optionally, if cross_thread_notifies is set
 // to true, the observer threads will also trigger notifications to
 // all observers.
-static void ThreadSafeObserverHarness(int num_threads, 
+static void ThreadSafeObserverHarness(int num_threads,
                                       bool cross_thread_notifies) {
   MessageLoop loop;
 

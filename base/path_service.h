@@ -43,7 +43,8 @@ class PathService {
   // path specifies a directory that does not exist, the directory will be
   // created by this method.  This method returns true if successful.
   //
-  // If the given path is relative, then it will be resolved against DIR_CURRENT.
+  // If the given path is relative, then it will be resolved against
+  // DIR_CURRENT.
   //
   // WARNING: Consumers of PathService::Get may expect paths to be constant
   // over the lifetime of the app, so this method should be used with caution.
@@ -73,7 +74,7 @@ class PathService {
  private:
   static bool GetFromCache(int key, FilePath* path);
   static void AddToCache(int key, const FilePath& path);
-  
+
 };
 
 #endif // BASE_PATH_SERVICE_H__

@@ -49,9 +49,9 @@ class NSSInitSingleton {
     // Explicitly enable exactly those ciphers with keys of at least 80 bits
     for (int i = 0; i < SSL_NumImplementedCiphers; i++) {
       SSLCipherSuiteInfo info;
-      if (SSL_GetCipherSuiteInfo(SSL_ImplementedCiphers[i], &info, 
+      if (SSL_GetCipherSuiteInfo(SSL_ImplementedCiphers[i], &info,
                                  sizeof(info)) == SECSuccess) {
-        SSL_CipherPrefSetDefault(SSL_ImplementedCiphers[i], 
+        SSL_CipherPrefSetDefault(SSL_ImplementedCiphers[i],
                                  (info.effectiveKeyBits >= 80));
       }
     }
@@ -59,7 +59,7 @@ class NSSInitSingleton {
     // Enable SSL
     SSL_OptionSetDefault(SSL_SECURITY, PR_TRUE);
 
-    // All other SSL options are set per-session by SSLClientSocket 
+    // All other SSL options are set per-session by SSLClientSocket.
   }
 
   ~NSSInitSingleton() {

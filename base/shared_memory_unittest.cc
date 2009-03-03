@@ -27,7 +27,7 @@ class MultipleThreadMain : public PlatformThread::Delegate {
 
   static void CleanUp() {
     SharedMemory memory;
-    memory.Delete(test_name_);
+    memory.Delete(s_test_name_);
   }
 
   // PlatformThread::Delegate interface.
@@ -35,7 +35,7 @@ class MultipleThreadMain : public PlatformThread::Delegate {
     ScopedNSAutoreleasePool pool;  // noop if not OSX
     const int kDataSize = 1024;
     SharedMemory memory;
-    bool rv = memory.Create(test_name_, false, true, kDataSize);
+    bool rv = memory.Create(s_test_name_, false, true, kDataSize);
     EXPECT_TRUE(rv);
     rv = memory.Map(kDataSize);
     EXPECT_TRUE(rv);
@@ -54,12 +54,13 @@ class MultipleThreadMain : public PlatformThread::Delegate {
  private:
   int16 id_;
 
-  static const std::wstring test_name_;
+  static const wchar_t* const s_test_name_;
 
   DISALLOW_COPY_AND_ASSIGN(MultipleThreadMain);
 };
 
-const std::wstring MultipleThreadMain::test_name_ = L"SharedMemoryOpenThreadTest";
+const wchar_t* const MultipleThreadMain::s_test_name_ =
+    L"SharedMemoryOpenThreadTest";
 
 // TODO(port):
 // This test requires the ability to pass file descriptors between processes.
@@ -281,7 +282,7 @@ class SharedMemoryProcessTest : public MultiProcessTest {
 
   static void CleanUp() {
     SharedMemory memory;
-    memory.Delete(test_name_);
+    memory.Delete(s_test_name_);
   }
 
   static int TaskTestMain() {
@@ -289,7 +290,7 @@ class SharedMemoryProcessTest : public MultiProcessTest {
     ScopedNSAutoreleasePool pool;  // noop if not OSX
     const int kDataSize = 1024;
     SharedMemory memory;
-    bool rv = memory.Create(test_name_, false, true, kDataSize);
+    bool rv = memory.Create(s_test_name_, false, true, kDataSize);
     EXPECT_TRUE(rv);
     if (rv != true)
       errors++;
@@ -314,10 +315,10 @@ class SharedMemoryProcessTest : public MultiProcessTest {
   }
 
  private:
-  static const std::wstring test_name_;
+  static const wchar_t* const s_test_name_;
 };
 
-const std::wstring SharedMemoryProcessTest::test_name_ = L"MPMem";
+const const wchar_t* const SharedMemoryProcessTest::s_test_name_ = L"MPMem";
 
 
 TEST_F(SharedMemoryProcessTest, Tasks) {

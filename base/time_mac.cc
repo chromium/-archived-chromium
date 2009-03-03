@@ -62,11 +62,11 @@ void Time::Explode(bool is_local, Exploded* exploded) const {
   CFAbsoluteTime seconds =
       (static_cast<double>(us_) / kMicrosecondsPerSecond) -
       kCFAbsoluteTimeIntervalSince1970;
-  
+
   scoped_cftyperef<CFTimeZoneRef>
       time_zone(is_local ? CFTimeZoneCopySystem() : NULL);
   CFGregorianDate date = CFAbsoluteTimeGetGregorianDate(seconds, time_zone);
-  
+
   exploded->year = date.year;
   exploded->month = date.month;
   exploded->day_of_month = date.day;

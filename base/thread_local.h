@@ -5,7 +5,7 @@
 // WARNING: Thread local storage is a bit tricky to get right.  Please make
 // sure that this is really the proper solution for what you're trying to
 // achieve.  Don't prematurely optimize, most likely you can just use a Lock.
-// 
+//
 // These classes implement a warpper around the platform's TLS storage
 // mechanism.  On construction, they will allocate a TLS slot, and free the
 // TLS slot on destruction.  No memory management (creation or destruction) is

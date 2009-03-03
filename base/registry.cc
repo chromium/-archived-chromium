@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 // All Rights Reserved.
 
+#include "base/registry.h"
+
 #include <assert.h>
 #include <shlwapi.h>
 #include <windows.h>
-
-#include "base/registry.h"
 
 #pragma comment(lib, "shlwapi.lib")  // for SHDeleteKey
 
@@ -19,7 +19,6 @@
 //
 // RegistryValueIterator
 //
-
 
 RegistryValueIterator::RegistryValueIterator(HKEY root_key,
                                              LPCTSTR folder_key) {
@@ -52,13 +51,11 @@ bool RegistryValueIterator::Valid() const {
   return key_ != NULL && index_ >= 0;
 }
 
-
 void RegistryValueIterator::operator ++ () {
   // advance to the next entry in the folder
   --index_;
   Read();
 }
-
 
 bool RegistryValueIterator::Read() {
   if (Valid()) {
@@ -76,11 +73,11 @@ bool RegistryValueIterator::Read() {
   return false;
 }
 
-
 DWORD RegistryValueIterator::ValueCount() const {
 
   DWORD count = 0;
-  HRESULT result = ::RegQueryInfoKey(key_, NULL, 0, NULL, NULL, NULL, NULL, &count, NULL, NULL, NULL, NULL);
+  HRESULT result = ::RegQueryInfoKey(key_, NULL, 0, NULL, NULL, NULL, NULL,
+                                     &count, NULL, NULL, NULL, NULL);
 
   if (result != ERROR_SUCCESS)
     return 0;
@@ -88,11 +85,9 @@ DWORD RegistryValueIterator::ValueCount() const {
   return count;
 }
 
-
 //
 // RegistryKeyIterator
 //
-
 
 RegistryKeyIterator::RegistryKeyIterator(HKEY root_key,
                                          LPCTSTR folder_key) {
@@ -125,13 +120,11 @@ bool RegistryKeyIterator::Valid() const {
   return key_ != NULL && index_ >= 0;
 }
 
-
 void RegistryKeyIterator::operator ++ () {
   // advance to the next entry in the folder
   --index_;
   Read();
 }
-
 
 bool RegistryKeyIterator::Read() {
   if (Valid()) {
@@ -147,7 +140,6 @@ bool RegistryKeyIterator::Read() {
   return false;
 }
 
-
 DWORD RegistryKeyIterator::SubkeyCount() const {
 
   DWORD count = 0;
@@ -160,12 +152,9 @@ DWORD RegistryKeyIterator::SubkeyCount() const {
   return count;
 }
 
-
 //
 // RegKey
 //
-
-
 
 RegKey::RegKey(HKEY rootkey, const tchar* subkey, REGSAM access)
   : key_(NULL), watch_event_(0) {
@@ -178,8 +167,6 @@ RegKey::RegKey(HKEY rootkey, const tchar* subkey, REGSAM access)
   else assert(!subkey);
 }
 
-
-
 void RegKey::Close() {
   StopWatching();
   if (key_) {
@@ -188,14 +175,10 @@ void RegKey::Close() {
   }
 }
 
-
-
 bool RegKey::Create(HKEY rootkey, const tchar* subkey, REGSAM access) {
   DWORD disposition_value;
   return CreateWithDisposition(rootkey, subkey, &disposition_value, access);
 }
-
-
 
 bool RegKey::CreateWithDisposition(HKEY rootkey, const tchar* subkey,
                                    DWORD* disposition, REGSAM access) {
@@ -218,8 +201,6 @@ bool RegKey::CreateWithDisposition(HKEY rootkey, const tchar* subkey,
   else return true;
 }
 
-
-
 bool RegKey::Open(HKEY rootkey, const tchar* subkey, REGSAM access) {
   assert(rootkey && subkey && access);
   this->Close();
@@ -232,8 +213,6 @@ bool RegKey::Open(HKEY rootkey, const tchar* subkey, REGSAM access) {
   }
   else return true;
 }
-
-
 
 bool RegKey::CreateKey(const tchar* name, REGSAM access) {
   assert(name && access);
@@ -248,8 +227,6 @@ bool RegKey::CreateKey(const tchar* name, REGSAM access) {
   return (result == ERROR_SUCCESS);
 }
 
-
-
 bool RegKey::OpenKey(const tchar* name, REGSAM access) {
   assert(name && access);
 
@@ -262,16 +239,12 @@ bool RegKey::OpenKey(const tchar* name, REGSAM access) {
   return (result == ERROR_SUCCESS);
 }
 
-
-
-
 DWORD RegKey::ValueCount() {
   DWORD count = 0;
   HRESULT const result = ::RegQueryInfoKey(key_, NULL, 0, NULL, NULL, NULL,
                                      NULL, &count, NULL, NULL, NULL, NULL);
   return (result != ERROR_SUCCESS) ? 0 : count;
 }
-
 
 bool RegKey::ReadName(int index, tstr* name) {
   tchar buf[256];
@@ -285,14 +258,11 @@ bool RegKey::ReadName(int index, tstr* name) {
   return true;
 }
 
-
 bool RegKey::ValueExists(const tchar* name) {
   if (!key_) return false;
   const HRESULT result = RegQueryValueEx(key_, name, 0, NULL, NULL, NULL);
   return (result == ERROR_SUCCESS);
 }
-
-
 
 bool RegKey::ReadValue(const tchar* name, void* data,
                        DWORD* dsize, DWORD* dtype) {
@@ -302,8 +272,6 @@ bool RegKey::ReadValue(const tchar* name, void* data,
                                          dsize);
   return (result == ERROR_SUCCESS);
 }
-
-
 
 bool RegKey::ReadValue(const tchar* name, tstr * value) {
   assert(value);
@@ -332,8 +300,6 @@ bool RegKey::ReadValue(const tchar* name, tstr * value) {
   else return false;
 }
 
-
-
 bool RegKey::ReadValueDW(const tchar* name, DWORD * value) {
   assert(value);
   DWORD type = REG_DWORD, size = sizeof(DWORD), result = 0;
@@ -346,32 +312,31 @@ bool RegKey::ReadValueDW(const tchar* name, DWORD * value) {
   else return false;
 }
 
-
-
-bool RegKey::WriteValue(const tchar* name, const void * data, DWORD dsize, DWORD dtype) {
+bool RegKey::WriteValue(const tchar* name,
+                        const void * data,
+                        DWORD dsize,
+                        DWORD dtype) {
   assert(data);
   if (!key_) return false;
-  HRESULT const result = RegSetValueEx(key_, name, 0,
-                                       dtype,
-                                       reinterpret_cast<LPBYTE>(const_cast<void*>(data)),
-                                       dsize);
+  HRESULT const result = RegSetValueEx(
+      key_,
+      name,
+      0,
+      dtype,
+      reinterpret_cast<LPBYTE>(const_cast<void*>(data)),
+      dsize);
   return (result == ERROR_SUCCESS);
 }
-
-
 
 bool RegKey::WriteValue(const tchar * name, const tchar * value) {
   return this->WriteValue(name, value,
     static_cast<DWORD>(sizeof(*value) * (_tcslen(value) + 1)), REG_SZ);
 }
 
-
 bool RegKey::WriteValue(const tchar * name, DWORD value) {
   return this->WriteValue(name, &value,
     static_cast<DWORD>(sizeof(value)), REG_DWORD);
 }
-
-
 
 bool RegKey::DeleteKey(const tchar * name) {
   if (!key_) return false;
@@ -428,9 +393,10 @@ bool RegKey::HasChanged() {
   return false;
 }
 
-
 // Register a COM object with the most usual properties.
-bool RegisterCOMServer(const tchar* guid, const tchar* name, const tchar* path) {
+bool RegisterCOMServer(const tchar* guid,
+                       const tchar* name,
+                       const tchar* path) {
   RegKey key(HKEY_CLASSES_ROOT, _T("CLSID"), KEY_WRITE);
   key.CreateKey(guid, KEY_WRITE);
   key.WriteValue(NULL, name);
@@ -438,7 +404,7 @@ bool RegisterCOMServer(const tchar* guid, const tchar* name, const tchar* path) 
   key.WriteValue(NULL, path);
   key.WriteValue(_T("ThreadingModel"), _T("Apartment"));
   return true;
-};
+}
 
 bool RegisterCOMServer(const tchar* guid, const tchar* name, HINSTANCE module) {
   tchar module_path[MAX_PATH];
@@ -452,6 +418,3 @@ bool UnregisterCOMServer(const tchar* guid) {
   key.DeleteKey(guid);
   return true;
 }
-
-//  LocalWords:  RegKey
-

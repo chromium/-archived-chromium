@@ -25,7 +25,7 @@ static Time mock_timer_started;
 
 bool MockIdleTimeSource(int32 *milliseconds_interval_since_last_event) {
   TimeDelta delta = Time::Now() - mock_timer_started;
-  *milliseconds_interval_since_last_event = 
+  *milliseconds_interval_since_last_event =
       static_cast<int32>(delta.InMilliseconds());
   return true;
 }
@@ -112,7 +112,7 @@ TEST_F(IdleTimerTest, NoRepeatFlipIdleOnce) {
   base::OneShotTimer<TestFinishedTask> t1;
   t1.Start(TimeDelta::FromMilliseconds(10 * kSafeTestIntervalMs), &finish_task,
            &TestFinishedTask::Run);
-  
+
   base::OneShotTimer<ResetIdleTask> t2;
   t2.Start(TimeDelta::FromMilliseconds(4 * kSafeTestIntervalMs), &reset_task,
            &ResetIdleTask::Run);
@@ -138,7 +138,7 @@ TEST_F(IdleTimerTest, NoRepeatNotIdle) {
   base::OneShotTimer<TestFinishedTask> t;
   t.Start(TimeDelta::FromMilliseconds(10 * kSafeTestIntervalMs), &finish_task,
           &TestFinishedTask::Run);
-  
+
   base::RepeatingTimer<ResetIdleTask> reset_timer;
   reset_timer.Start(TimeDelta::FromMilliseconds(50), &reset_task,
                     &ResetIdleTask::Run);
@@ -194,7 +194,7 @@ TEST_F(IdleTimerTest, RepeatIdleReset) {
   base::OneShotTimer<TestFinishedTask> t1;
   t1.Start(TimeDelta::FromMilliseconds(10 * kSafeTestIntervalMs), &finish_task,
            &TestFinishedTask::Run);
-  
+
   base::OneShotTimer<ResetIdleTask> t2;
   t2.Start(TimeDelta::FromMilliseconds(5 * kSafeTestIntervalMs), &reset_task,
            &ResetIdleTask::Run);
@@ -224,7 +224,7 @@ TEST_F(IdleTimerTest, RepeatNotIdle) {
   base::OneShotTimer<TestFinishedTask> t;
   t.Start(TimeDelta::FromMilliseconds(8 * kSafeTestIntervalMs), &finish_task,
           &TestFinishedTask::Run);
-  
+
   base::RepeatingTimer<ResetIdleTask> reset_timer;
   reset_timer.Start(TimeDelta::FromMilliseconds(50), &reset_task,
                     &ResetIdleTask::Run);

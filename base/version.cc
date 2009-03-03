@@ -62,7 +62,7 @@ const std::string Version::GetString() const {
 bool Version::InitFromString(const std::string& version_str) {
   std::vector<std::string> numbers;
   SplitString(version_str, '.', &numbers);
-  for (std::vector<std::string>::iterator i = numbers.begin(); 
+  for (std::vector<std::string>::iterator i = numbers.begin();
        i != numbers.end(); ++i) {
     int num;
     if (!StringToInt(*i, &num))

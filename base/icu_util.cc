@@ -20,18 +20,18 @@
 #include "unicode/putil.h"
 #include "unicode/udata.h"
 
-#define ICU_UTIL_DATA_FILE	0
-#define ICU_UTIL_DATA_SHARED	1
-#define ICU_UTIL_DATA_STATIC	2
+#define ICU_UTIL_DATA_FILE   0
+#define ICU_UTIL_DATA_SHARED 1
+#define ICU_UTIL_DATA_STATIC 2
 
 #ifndef ICU_UTIL_DATA_IMPL
 
 #if defined(OS_WIN)
-#define ICU_UTIL_DATA_IMPL	ICU_UTIL_DATA_SHARED
+#define ICU_UTIL_DATA_IMPL ICU_UTIL_DATA_SHARED
 #elif defined(OS_MACOSX)
-#define ICU_UTIL_DATA_IMPL	ICU_UTIL_DATA_STATIC
+#define ICU_UTIL_DATA_IMPL ICU_UTIL_DATA_STATIC
 #elif defined(OS_LINUX)
-#define ICU_UTIL_DATA_IMPL	ICU_UTIL_DATA_FILE
+#define ICU_UTIL_DATA_IMPL ICU_UTIL_DATA_FILE
 #endif
 
 #endif	// ICU_UTIL_DATA_IMPL

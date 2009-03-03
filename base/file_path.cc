@@ -291,7 +291,7 @@ std::wstring FilePath::ToWStringHack() const {
 FilePath FilePath::StripTrailingSeparators() const {
   FilePath new_path(path_);
   new_path.StripTrailingSeparatorsInternal();
-  
+
   return new_path;
 }
 

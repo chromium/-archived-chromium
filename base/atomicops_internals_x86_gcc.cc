@@ -70,7 +70,7 @@ static void AtomicOps_Internalx86CPUFeaturesInit() {
 
   // Opteron Rev E has a bug in which on very rare occasions a locked
   // instruction doesn't act as a read-acquire barrier if followed by a
-  // non-locked read-modify-write instruction.  Rev F has this bug in 
+  // non-locked read-modify-write instruction.  Rev F has this bug in
   // pre-release versions, but not in versions released to customers,
   // so we test only for Rev E, which is family 15, model 32..63 inclusive.
   if (strcmp(vendor, "AuthenticAMD") == 0 &&       // AMD

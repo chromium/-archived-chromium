@@ -23,8 +23,8 @@
 // applications on the system.  By default, precision is only 15.5ms.
 // Unfortunately, we don't want to call timeBeginPeriod because we don't
 // want to affect other applications.  Further, on mobile platforms, use of
-// faster multimedia timers can hurt battery life.  See the intel 
-// article about this here: 
+// faster multimedia timers can hurt battery life.  See the intel
+// article about this here:
 // http://softwarecommunity.intel.com/articles/eng/1086.htm
 //
 // To work around all this, we're going to generally use timeGetTime().  We
@@ -224,7 +224,7 @@ class NowSingleton : public base::SystemMonitor::PowerObserver {
  public:
   NowSingleton()
     : rollover_(TimeDelta::FromMilliseconds(0)),
-      last_seen_(0), 
+      last_seen_(0),
       hi_res_clock_enabled_(false) {
     base::SystemMonitor* system = base::SystemMonitor::Get();
     system->AddObserver(this);
@@ -307,9 +307,9 @@ class NowSingleton : public base::SystemMonitor::PowerObserver {
 // retrieve and more reliable.
 class HighResNowSingleton {
  public:
-  HighResNowSingleton() 
+  HighResNowSingleton()
     : ticks_per_microsecond_(0.0),
-      skew_(0) {  
+      skew_(0) {
     InitializeClock();
 
     // On Athlon X2 CPUs (e.g. model 15) QueryPerformanceCounter is

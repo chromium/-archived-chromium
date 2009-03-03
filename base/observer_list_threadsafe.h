@@ -20,9 +20,9 @@
 // OVERVIEW:
 //
 //   A thread-safe container for a list of observers.
-//   This is similar to the observer_list (see observer_list.h), but it 
+//   This is similar to the observer_list (see observer_list.h), but it
 //   is more robust for multi-threaded situations.
-//   
+//
 //   The following use cases are supported:
 //    * Observers can register for notifications from any thread.
 //      Callbacks to the observer will occur on the same thread where
@@ -42,14 +42,14 @@
 //
 //   IMPLEMENTATION NOTES
 //   The ObserverListThreadSafe maintains an ObserverList for each thread
-//   which uses the ThreadSafeObserver.  When Notifying the observers, 
+//   which uses the ThreadSafeObserver.  When Notifying the observers,
 //   we simply call PostTask to each registered thread, and then each thread
 //   will notify its regular ObserverList.
 //
 ///////////////////////////////////////////////////////////////////////////////
 template <class ObserverType>
-class ObserverListThreadSafe : 
-    public base::RefCountedThreadSafe<ObserverListThreadSafe<ObserverType> > {
+class ObserverListThreadSafe
+    : public base::RefCountedThreadSafe<ObserverListThreadSafe<ObserverType> > {
  public:
   ObserverListThreadSafe() {}
 
@@ -138,7 +138,7 @@ class ObserverListThreadSafe :
       MessageLoop* loop = (*it).first;
       ObserverList<ObserverType>* list = (*it).second;
       loop->PostTask(FROM_HERE,
-          NewRunnableMethod(this, 
+          NewRunnableMethod(this,
               &ObserverListThreadSafe<ObserverType>::
                  template NotifyWrapper<Method, Params>, list, method));
     }

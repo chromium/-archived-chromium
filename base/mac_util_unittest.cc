@@ -14,7 +14,7 @@ typedef PlatformTest MacUtilTest;
 TEST_F(MacUtilTest, TestFSRef) {
   FSRef ref;
   std::string path("/System/Library");
-  
+
   ASSERT_TRUE(mac_util::FSRefFromPath(path, &ref));
   EXPECT_EQ(path, mac_util::PathFromFSRef(ref));
 }

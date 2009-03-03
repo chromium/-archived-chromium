@@ -28,7 +28,7 @@ class SetThreadLocal : public ThreadLocalTesterBase {
   SetThreadLocal(TLPType* tlp, base::WaitableEvent* done)
       : ThreadLocalTesterBase(tlp, done), val_(NULL) { }
   ~SetThreadLocal() { }
-  
+
   void set_value(ThreadLocalTesterBase* val) { val_ = val; }
 
   virtual void Run() {
@@ -46,7 +46,7 @@ class GetThreadLocal : public ThreadLocalTesterBase {
   GetThreadLocal(TLPType* tlp, base::WaitableEvent* done)
       : ThreadLocalTesterBase(tlp, done), ptr_(NULL) { }
   ~GetThreadLocal() { }
-  
+
   void set_ptr(ThreadLocalTesterBase** ptr) { ptr_ = ptr; }
 
   virtual void Run() {
@@ -70,7 +70,7 @@ TEST(ThreadLocalTest, Pointer) {
   tp2.Start();
 
   base::ThreadLocalPointer<ThreadLocalTesterBase> tlp;
-  
+
   static ThreadLocalTesterBase* const kBogusPointer =
       reinterpret_cast<ThreadLocalTesterBase*>(0x1234);
 

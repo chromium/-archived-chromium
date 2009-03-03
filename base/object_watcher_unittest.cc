@@ -43,7 +43,7 @@ void RunTest_BasicSignal(MessageLoop::Type message_loop_type) {
   bool ok = watcher.StartWatching(event, &delegate);
   EXPECT_TRUE(ok);
   EXPECT_EQ(event, watcher.GetWatchedObject());
-  
+
   SetEvent(event);
 
   MessageLoop::current()->Run();
@@ -63,7 +63,7 @@ void RunTest_BasicCancel(MessageLoop::Type message_loop_type) {
   QuitDelegate delegate;
   bool ok = watcher.StartWatching(event, &delegate);
   EXPECT_TRUE(ok);
-  
+
   watcher.StopWatching();
 
   CloseHandle(event);
@@ -83,12 +83,12 @@ void RunTest_CancelAfterSet(MessageLoop::Type message_loop_type) {
 
   bool ok = watcher.StartWatching(event, &delegate);
   EXPECT_TRUE(ok);
-   
+
   SetEvent(event);
-    
+
   // Let the background thread do its business
   Sleep(30);
-    
+
   watcher.StopWatching();
   
   MessageLoop::current()->RunAllPending();

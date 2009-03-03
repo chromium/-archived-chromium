@@ -5,8 +5,8 @@
 #ifndef BASE_BASE_PATHS_WIN_H__
 #define BASE_BASE_PATHS_WIN_H__
 
-// This file declares windows-specific path keys for the base module.  
-// These can be used with the PathService to access various special 
+// This file declares windows-specific path keys for the base module.
+// These can be used with the PathService to access various special
 // directories and files.
 
 namespace base {

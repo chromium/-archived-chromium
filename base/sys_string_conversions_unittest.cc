@@ -26,7 +26,8 @@ TEST(SysStrings, SysWideToUTF8) {
   //
   // This is what XP does, but Vista has different behavior, so we don't bother
   // verifying it:
-  //EXPECT_EQ("\xE4\xBD\xA0\xED\xA0\x80zyxw", SysWideToUTF8(L"\x4f60\xd800zyxw"));
+  //EXPECT_EQ("\xE4\xBD\xA0\xED\xA0\x80zyxw",
+  //          SysWideToUTF8(L"\x4f60\xd800zyxw"));
 
   // Test embedded NULLs.
   std::wstring wide_null(L"a");

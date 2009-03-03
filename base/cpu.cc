@@ -26,7 +26,7 @@ void CPU::Initialize() {
   // __cpuid with an InfoType argument of 0 returns the number of
   // valid Ids in CPUInfo[0] and the CPU identification string in
   // the other three array elements. The CPU identification string is
-  // not in linear order. The code below arranges the information 
+  // not in linear order. The code below arranges the information
   // in a human readable form.
   //
   // More info can be found here:

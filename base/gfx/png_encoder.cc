@@ -177,7 +177,8 @@ bool PNGEncoder::Encode(const unsigned char* input, ColorFormat format,
   if (!converter) {
     // No conversion needed, give the data directly to libpng.
     for (int y = 0; y < h; y ++)
-      png_write_row(png_ptr, const_cast<unsigned char*>(&input[y * row_byte_width]));
+      png_write_row(png_ptr,
+                    const_cast<unsigned char*>(&input[y * row_byte_width]));
   } else {
     // Needs conversion using a separate buffer.
     unsigned char* row = new unsigned char[w * output_color_components];

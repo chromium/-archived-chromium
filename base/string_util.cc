@@ -1617,7 +1617,7 @@ bool ElideString(const std::wstring& input, int max_len, std::wstring* output) {
     output->assign(input);
     return false;
   }
-  
+
   switch (max_len) {
     case 0:
       output->clear();

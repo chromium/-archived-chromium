@@ -18,7 +18,7 @@ bool ThreadLocalStorage::Slot::Initialize(TLSDestructorFunc destructor) {
     NOTREACHED();
     return false;
   }
-  
+
   initialized_ = true;
   return true;
 }

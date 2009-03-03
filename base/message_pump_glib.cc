@@ -100,7 +100,7 @@ MessagePumpForUI::MessagePumpForUI()
   wakeup_pipe_write_ = fds[1];
   wakeup_gpollfd_.fd = wakeup_pipe_read_;
   wakeup_gpollfd_.events = G_IO_IN;
- 
+
   work_source_ = g_source_new(&WorkSourceFuncs, sizeof(WorkSource));
   static_cast<WorkSource*>(work_source_)->pump = this;
   g_source_add_poll(work_source_, &wakeup_gpollfd_);

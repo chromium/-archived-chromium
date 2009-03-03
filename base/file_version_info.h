@@ -81,7 +81,7 @@ class FileVersionInfo {
   VS_FIXEDFILEINFO* fixed_file_info_;
 #elif defined(OS_MACOSX)
   explicit FileVersionInfo(NSBundle *bundle);
-  
+
   NSBundle *bundle_;
 #elif defined(OS_LINUX)
   FileVersionInfo();

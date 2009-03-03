@@ -35,7 +35,7 @@
 //          are synchronized somehow, it calls a method to "protect" from
 //          a "protected" method
 //
-//          In this case the macro DFAKE_SCOPED_RECURSIVE_LOCK 
+//          In this case the macro DFAKE_SCOPED_RECURSIVE_LOCK
 //          has to be used, it checks that if a thread is inside the push/pop
 //          then noone else is still inside the pop/push
 //
@@ -223,7 +223,7 @@ class ThreadCollisionWarner {
   // call EnterSelf or Enter.
   void Leave();
 
-  // This stores the thread id that is inside the critical section, if the 
+  // This stores the thread id that is inside the critical section, if the
   // value is 0 then no thread is inside.
   volatile subtle::Atomic32 valid_thread_id_;
 

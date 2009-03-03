@@ -119,7 +119,7 @@ struct PathData {
     }
   }
 };
-  
+
 static PathData* GetPathData() {
   return Singleton<PathData>::get();
 }
@@ -131,7 +131,7 @@ static PathData* GetPathData() {
 bool PathService::GetFromCache(int key, FilePath* result) {
   PathData* path_data = GetPathData();
   AutoLock scoped_lock(path_data->lock);
-  
+
   // check for a cached version
   PathMap::const_iterator it = path_data->cache.find(key);
   if (it != path_data->cache.end()) {

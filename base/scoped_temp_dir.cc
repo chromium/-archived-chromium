@@ -28,7 +28,7 @@ bool ScopedTempDir::CreateUniqueTempDir() {
 
 bool ScopedTempDir::Set(const FilePath& path) {
   DCHECK(path_.empty());
-  if (!file_util::DirectoryExists(path) && 
+  if (!file_util::DirectoryExists(path) &&
       !file_util::CreateDirectory(path)) {
     return false;
   }

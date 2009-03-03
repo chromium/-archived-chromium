@@ -175,9 +175,9 @@ TEST(TimeTicks, TimerPerformance) {
   };
   // Cheating a bit here:  assumes sizeof(TimeTicks) == sizeof(Time)
   // in order to create a single test case list.
-  COMPILE_ASSERT(sizeof(TimeTicks) == sizeof(Time), 
+  COMPILE_ASSERT(sizeof(TimeTicks) == sizeof(Time),
                  test_only_works_with_same_sizes);
-  TestCase cases[] = { 
+  TestCase cases[] = {
     { reinterpret_cast<TestFunc>(Time::Now), "Time::Now" },
     { TimeTicks::Now, "TimeTicks::Now" },
     { TimeTicks::HighResNow, "TimeTicks::HighResNow" },
@@ -193,11 +193,11 @@ TEST(TimeTicks, TimerPerformance) {
     // Turning off the check for acceptible delays.  Without this check,
     // the test really doesn't do much other than measure.  But the
     // measurements are still useful for testing timers on various platforms.
-    // The reason to remove the check is because the tests run on many 
+    // The reason to remove the check is because the tests run on many
     // buildbots, some of which are VMs.  These machines can run horribly
     // slow, and there is really no value for checking against a max timer.
     //EXPECT_LT((stop - start).InMilliseconds(), kMaxTime);
-    printf("%s: %1.2fus per call\n", cases[test_case].description, 
+    printf("%s: %1.2fus per call\n", cases[test_case].description,
       (stop - start).InMillisecondsF() * 1000 / kLoops);
     test_case++;
   }

@@ -40,7 +40,7 @@ typedef pthread_mutex_t* MutexHandle;
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-  
+
 namespace logging {
 
 bool g_enable_dcheck = false;
@@ -406,7 +406,8 @@ void LogMessage::Init(const char* file, int line) {
   }
   if (log_tickcount)
     stream_ << TickCount() << ':';
-  stream_ << log_severity_names[severity_] << ":" << file << "(" << line << ")] ";
+  stream_ << log_severity_names[severity_] << ":" << file <<
+             "(" << line << ")] ";
 
   message_start_ = stream_.tellp();
 }
@@ -452,16 +453,16 @@ LogMessage::~LogMessage() {
     // problems with unit tests, especially on the buildbots.
     fprintf(stderr, "%s", str_newline.c_str());
   }
-  
+
   // write to log file
   if (logging_destination != LOG_NONE &&
       logging_destination != LOG_ONLY_TO_SYSTEM_DEBUG_LOG &&
       InitializeLogFileHandle()) {
-    // we can have multiple threads and/or processes, so try to prevent them from
-    // clobbering each other's writes
+    // We can have multiple threads and/or processes, so try to prevent them
+    // from clobbering each other's writes.
     if (lock_log_file == LOCK_LOG_FILE) {
       // Ensure that the mutex is initialized in case the client app did not
-      // call InitLogging. This is not thread safe. See below
+      // call InitLogging. This is not thread safe. See below.
       InitLogMutex();
 
 #if defined(OS_WIN)
@@ -486,7 +487,11 @@ LogMessage::~LogMessage() {
 #if defined(OS_WIN)
     SetFilePointer(log_file, 0, 0, SEEK_END);
     DWORD num_written;
-    WriteFile(log_file, (void*)str_newline.c_str(), (DWORD)str_newline.length(), &num_written, NULL);
+    WriteFile(log_file,
+              static_cast<void*>(str_newline.c_str()),
+              static_cast<DWORD>(str_newline.length()),
+              &num_written,
+              NULL);
 #else
     fprintf(log_file, "%s", str_newline.c_str());
 #endif

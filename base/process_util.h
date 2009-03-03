@@ -66,11 +66,11 @@ int GetCurrentProcId();
 
 // Returns the ProcessHandle of the current process.
 ProcessHandle GetCurrentProcessHandle();
-  
+
 // Converts a PID to a process handle. This handle must be closed by
 // CloseProcessHandle when you are done with it.
 ProcessHandle OpenProcessHandle(int pid);
-  
+
 // Closes the process handle opened by OpenProcessHandle.
 void CloseProcessHandle(ProcessHandle process);
 

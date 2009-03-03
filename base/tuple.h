@@ -394,7 +394,9 @@ inline void DispatchToMethod(ObjT* obj, Method method, const Tuple1<A>& arg) {
 }
 
 template<class ObjT, class Method, class A, class B>
-inline void DispatchToMethod(ObjT* obj, Method method, const Tuple2<A, B>& arg) {
+inline void DispatchToMethod(ObjT* obj,
+                             Method method,
+                             const Tuple2<A, B>& arg) {
   (obj->*method)(arg.a, arg.b);
 }
 
@@ -478,7 +480,9 @@ inline void DispatchToFunction(Function function,
 // Dispatchers with 0 out param (as a Tuple0).
 
 template <class ObjT, class Method>
-inline void DispatchToMethod(ObjT* obj, Method method, const Tuple0& arg, Tuple0*) {
+inline void DispatchToMethod(ObjT* obj,
+                             Method method,
+                             const Tuple0& arg, Tuple0*) {
   (obj->*method)();
 }
 
@@ -488,12 +492,16 @@ inline void DispatchToMethod(ObjT* obj, Method method, const A& arg, Tuple0*) {
 }
 
 template <class ObjT, class Method, class A>
-inline void DispatchToMethod(ObjT* obj, Method method, const Tuple1<A>& arg, Tuple0*) {
+inline void DispatchToMethod(ObjT* obj,
+                             Method method,
+                             const Tuple1<A>& arg, Tuple0*) {
   (obj->*method)(arg.a);
 }
 
 template<class ObjT, class Method, class A, class B>
-inline void DispatchToMethod(ObjT* obj, Method method, const Tuple2<A, B>& arg, Tuple0*) {
+inline void DispatchToMethod(ObjT* obj,
+                             Method method,
+                             const Tuple2<A, B>& arg, Tuple0*) {
   (obj->*method)(arg.a, arg.b);
 }
 

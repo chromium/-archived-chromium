@@ -93,7 +93,7 @@ bool LaunchApp(const CommandLine& cl,
 }
 
 NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
-                                           const ProcessFilter* filter) 
+                                           const ProcessFilter* filter)
   : executable_name_(executable_name),
     index_of_kinfo_proc_(0),
     filter_(filter) {
@@ -102,7 +102,7 @@ NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
   // impossible.
 
   int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_UID, geteuid() };
-  
+
   // Since more processes could start between when we get the size and when
   // we get the list, we do a loop to keep trying until we get it.
   bool done = false;
@@ -119,7 +119,7 @@ NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
       size_t num_of_kinfo_proc = len / sizeof(struct kinfo_proc);
       // Leave some spare room for process table growth (more could show up
       // between when we check and now)
-      num_of_kinfo_proc += 4; 
+      num_of_kinfo_proc += 4;
       kinfo_procs_.resize(num_of_kinfo_proc);
       len = num_of_kinfo_proc * sizeof(struct kinfo_proc);
       // Load the list of processes
@@ -139,7 +139,7 @@ NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
       }
     }
   } while (!done && (try_num++ < max_tries));
-  
+
   if (!done) {
     LOG(ERROR) << "failed to collect the process list in a few tries";
     kinfo_procs_.resize(0);
@@ -154,7 +154,7 @@ const ProcessEntry* NamedProcessIterator::NextProcessEntry() {
   do {
     result = CheckForNextProcess();
   } while (result && !IncludeEntry());
-  
+
   if (result) {
     return &entry_;
   }

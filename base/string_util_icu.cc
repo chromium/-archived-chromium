@@ -52,7 +52,7 @@ bool ReadUnicodeCharacter(const char16* src, int32 src_len,
       // Invalid surrogate pair.
       return false;
     }
-    
+
     // Valid surrogate pair.
     *code_point = U16_GET_SUPPLEMENTARY(src[*char_index],
                                         src[*char_index + 1]);

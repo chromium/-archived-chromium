@@ -63,7 +63,7 @@ TEST(ValuesTest, List) {
   mixed_list->Set(2, Value::CreateRealValue(88.8));
   mixed_list->Set(3, Value::CreateStringValue("foo"));
   ASSERT_EQ(4u, mixed_list->GetSize());
- 
+
   Value *value = NULL;
   bool bool_value = false;
   int int_value = 0;
@@ -373,7 +373,7 @@ TEST(ValuesTest, DeepCopy) {
   ASSERT_TRUE(copy_dict->Get(L"wstring", &copy_wstring));
   ASSERT_TRUE(copy_wstring);
   ASSERT_NE(copy_wstring, original_wstring);
-  ASSERT_TRUE(copy_wstring->IsType(Value::TYPE_STRING));  
+  ASSERT_TRUE(copy_wstring->IsType(Value::TYPE_STRING));
   ASSERT_TRUE(copy_wstring->GetAsString(&copy_string_value));
   ASSERT_TRUE(copy_wstring->GetAsString(&copy_wstring_value));
   ASSERT_EQ(std::string("peek-a-boo"), copy_string_value);

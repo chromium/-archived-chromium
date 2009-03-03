@@ -84,7 +84,8 @@ class ObjectWatcher : public MessageLoop::DestructionObserver {
   Watch* watch_;
 
   DISALLOW_COPY_AND_ASSIGN(ObjectWatcher);
-}; 
+};
+
 }  // namespace base
 
 #endif  // BASE_OBJECT_WATCHER_H_
