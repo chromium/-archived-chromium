@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_DOM_UI_HISTORY_UI_H__
 #define CHROME_BROWSER_DOM_UI_HISTORY_UI_H__
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/browsing_data_remover.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
@@ -70,7 +71,7 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
   std::wstring search_text_;
 
   // Browsing history remover
-  BrowsingDataRemover* remover_;
+  scoped_ptr<BrowsingDataRemover> remover_;
   
   // Our consumer for the history service.
   CancelableRequestConsumerTSimple<PageUsageData*> cancelable_consumer_;

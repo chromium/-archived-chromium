@@ -50,6 +50,8 @@ class BrowsingDataRemover : public NotificationObserver {
   // Called when history deletion is done.
   void OnHistoryDeletionDone();
 
+  static bool is_removing() { return removing_; }
+
  private:
   // NotificationObserver method. Callback when TemplateURLModel has finished
   // loading. Deletes the entries from the model, and if we're not waiting on
@@ -86,7 +88,7 @@ class BrowsingDataRemover : public NotificationObserver {
   const base::Time delete_end_;
 
   // True if Remove has been invoked.
-  bool removing_;
+  static bool removing_;
 
   // True if we're waiting for the TemplateURLModel to finish loading.
   bool waiting_for_keywords_;

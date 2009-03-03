@@ -15,12 +15,20 @@ var BROWSING_GAP_TIME = 15 * 60 * 1000;
 
 function $(o) {return document.getElementById(o);}
 
+function createElementWithClassName(type, className) {
+  var elm = document.createElement(type);
+  elm.className = className;
+  return elm;
+}
+
 // TODO(glen): Get rid of these global references, replace with a controller
 //     or just make the classes own more of the page.
 var historyModel;
 var historyView;
 var localStrings;
 var pageState;
+var deleteQueue = [];
+var deleteInFlight = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 // localStrings:
@@ -74,6 +82,7 @@ function Page(result, continued, model) {
   this.model_ = model;
   this.title_ = result.title;
   this.url_ = result.url;
+  this.starred_ = result.starred;
   this.snippet_ = result.snippet || "";
 
   this.changed = false;
@@ -96,65 +105,69 @@ function Page(result, continued, model) {
 
 // Page, Public: --------------------------------------------------------------
 /**
- * @return {string} Gets the HTML representation of the page
+ * @return {DOMObject} Gets the DOM representation of the page
  *     for use in browse results.
  */
-Page.prototype.getBrowseResultHTML = function() {
-  return '<div class="entry">' +
-           '<div class="time">' +
-             this.dateTimeOfDay +
-           '</div>' +
-           this.getTitleHTML_() +
-         '</div>';
+Page.prototype.getBrowseResultDOM = function() {
+  var node = createElementWithClassName('div', 'entry');
+  var time = createElementWithClassName('div', 'time');
+  time.appendChild(document.createTextNode(this.dateTimeOfDay));
+  node.appendChild(time);
+  node.appendChild(this.getTitleDOM_());
+  return node;
 }
 
 /**
- * @return {string} Gets the HTML representation of the page for
+ * @return {DOMObject} Gets the DOM representation of the page for
  *     use in search results.
  */
-Page.prototype.getSearchResultHTML = function() {
-  return '<tr class="entry"><td valign="top">' +
-           '<div class="time">' +
-             this.dateShort +
-           '</div>' +
-         '</td><td valign="top">' +
-           this.getTitleHTML_() +
-           '<div class="snippet">' +
-             this.getHighlightedSnippet_() +
-           '</div>' +
-         '</td></tr>';
+Page.prototype.getSearchResultDOM = function() {
+  var row = createElementWithClassName('tr', 'entry');
+  var datecell = createElementWithClassName('td', 'time');
+  datecell.appendChild(document.createTextNode(this.dateShort));
+  row.appendChild(datecell);
+
+  var titleCell = document.createElement('td');
+  titleCell.valign = 'top';
+  titleCell.appendChild(this.getTitleDOM_());
+  var snippet = createElementWithClassName('div', 'snippet');
+  snippet.appendChild(document.createTextNode(this.snippet_));
+  this.highlightNodeContent_(snippet);
+  titleCell.appendChild(snippet);
+  row.appendChild(titleCell);
+
+  return row;
 }
 
 // Page, private: -------------------------------------------------------------
 /**
- * @return {string} The page's snippet highlighted with the model's
- *     current search term.
+ * Highlights the content of a node with the current search text.
+ * @param {DOMObject} node to highlight
  */
-Page.prototype.getHighlightedSnippet_ = function() {
-  return Page.getHighlightedText_(this.snippet_, this.model_.getSearchText());
+Page.prototype.highlightNodeContent_ = function(node) {
+  node.innerHTML = Page.getHighlightedText_(node.innerHTML,
+                                            this.model_.getSearchText());
 }
 
 /**
- * @return {string} Gets the page's title highlighted with the
- *     model's current search term.
+ * @return {DOMObject} DOM representation for the title block.
  */
-Page.prototype.getHighlightedTitle_ = function() {
-  return Page.getHighlightedText_(this.title_, this.model_.getSearchText());
-}
+Page.prototype.getTitleDOM_ = function() {
+  var node = document.createElement('div');
+  node.className = 'title';
+  var link = document.createElement('a');
+  link.href = this.url_;
+  link.style.backgroundImage = 'url(chrome-ui://favicon/' + this.url_ + ')';
+  link.appendChild(document.createTextNode(this.title_));
+  this.highlightNodeContent_(link);
 
-/**
- * @return {string} HTML for the title block.
- */
-Page.prototype.getTitleHTML_ = function() {
-  return '<div class="title">' +
-           '<a ' +
-             'href="' + this.url_ + '" ' +
-             'style="background-image:url(chrome-ui://favicon/' +
-                 this.url_ + ')" ' +
-             '>' +
-             this.getHighlightedTitle_() +
-           '</a>' +
-         '</div>';
+  node.appendChild(link);
+
+  if (this.starred_) {
+    node.appendChild(createElementWithClassName('div', 'starred'));
+  }
+
+  return node;
 }
 
 // Page, private, static: -----------------------------------------------------
@@ -245,6 +258,7 @@ HistoryModel.prototype.getSearchText = function() {
  */
 HistoryModel.prototype.requestPage = function(page) {
   this.requestedPage_ = page;
+  this.changed = true;
   this.updateSearch_();
 }
 
@@ -476,18 +490,22 @@ HistoryView.prototype.onModelReady = function() {
  * Update the page with results.
  */
 HistoryView.prototype.displayResults_ = function() {
-  var output = [];
+  this.resultDiv_.innerHTML = '';
+
   var results = this.model_.getNumberedRange(
       this.pageIndex_ * RESULTS_PER_PAGE,
       this.pageIndex_ * RESULTS_PER_PAGE + RESULTS_PER_PAGE);
 
   if (this.model_.getSearchText()) {
-    output.push('<table class="results" cellspacing="0" ',
-                'cellpadding="0" border="0">');
+    var resultTable = createElementWithClassName('table', 'results');
+    resultTable.cellSpacing = 0;
+    resultTable.cellPadding = 0;
+    resultTable.border = 0;
+
     for (var i = 0, page; page = results[i]; i++) {
-      output.push(page.getSearchResultHTML());
+      resultTable.appendChild(page.getSearchResultDOM());
     }
-    output.push('</table>');
+    this.resultDiv_.appendChild(resultTable);
   } else {
     var lastTime = Math.infinity;
     for (var i = 0, page; page = results[i]; i++) {
@@ -495,26 +513,33 @@ HistoryView.prototype.displayResults_ = function() {
       var thisTime = page.time.getTime();
 
       if ((i == 0 && page.continued) || !page.continued) {
-        output.push('<div class="day">' + page.dateRelativeDay);
+        var day = createElementWithClassName('div', 'day');
+        day.appendChild(document.createTextNode(page.dateRelativeDay));
 
-        if (i == 0 && page.continued)
-          output.push(' ' + localStrings.getString('cont'));
+        if (i == 0 && page.continued) {
+          day.appendChild(document.createTextNode(' ' +
+              localStrings.getString('cont')));
+        }
 
-        output.push('<a href="#" class="delete-day" ' +
-                    'onclick="return deleteDay(\'' +
-                    page.time.toString() + '\');">' +
-                    localStrings.getString("deleteday") + '</a>');
-        output.push('</div>');
+        var link = createElementWithClassName('a', 'delete-day');
+        link.href = '#';
+        link.time = page.time.toString();
+        link.onclick = deleteDay;
+        link.appendChild(
+            document.createTextNode(localStrings.getString("deleteday")));
+
+        day.appendChild(link);
+        this.resultDiv_.appendChild(day);
       } else if (lastTime - thisTime > BROWSING_GAP_TIME) {
-        output.push('<div class="gap"></div>');
+        this.resultDiv_.appendChild(createElementWithClassName('div', 'gap'));
       }
       lastTime = thisTime;
 
-      // Draw entry.
-      output.push(page.getBrowseResultHTML());
+      // Add entry.
+      this.resultDiv_.appendChild(page.getBrowseResultDOM());
     }
   }
-  this.resultDiv_.innerHTML = output.join("");
+
   this.displaySummaryBar_();
   this.displayNavBar_();
 }
@@ -664,7 +689,9 @@ PageState.getHashString = function(term, page) {
 /**
  * Window onload handler, sets up the page.
  */
- function load() {
+function load() {
+  $('term').focus();
+
   localStrings = new LocalStrings($('l10n'));
   historyModel = new HistoryModel();
   historyView = new HistoryView(historyModel);
@@ -699,12 +726,34 @@ function setPage(page) {
 
 /**
  * Delete a day from history.
+ * TODO: Add UI to indicate that something is happening.
  * @param {number} time A time from the day we wish to delete.
  */
-function deleteDay(time) {
-  if (confirm(localStrings.getString("deletedaywarning")))
-    chrome.send("deleteDay", [time.toString()]);
+function deleteDay() {
+  var time = this.time;
+
+  // Check to see if item is already being deleted.
+  for (var i = 0, deleting; deleting = deleteQueue[i]; i++) {
+    if (deleting == time)
+      return false;
+  }
+
+  if (confirm(localStrings.getString("deletedaywarning"))) {
+    deleteQueue.push(time);
+    deleteNextInQueue();
+  }
+
   return false;
+}
+
+/**
+ * Delete the next item in our deletion queue.
+ */
+function deleteNextInQueue() {
+  if (!deleteInFlight && deleteQueue.length) {
+    deleteInFlight = true;
+    chrome.send("deleteDay", [deleteQueue[0]]);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -721,6 +770,21 @@ function historyResult(term, results) {
  */
 function deleteComplete() {
   historyView.reload();
+  deleteInFlight = false;
+  if (deleteQueue.length > 1) {
+    deleteQueue = deleteQueue.slice(1, deleteQueue.length);
+    deleteNextInQueue();
+  }
+}
+
+/**
+ * Our history system calls this function if a delete is not ready (e.g.
+ * another delete is in-progress).
+ */
+function deleteFailed() {
+  // The deletion failed - try again later.
+  deleteInFlight = false;
+  setTimeout(deleteNextInQueue, 500);
 }
 </script>
 <style type="text/css">
@@ -792,6 +856,14 @@ table.results {
 }
 .results .time, .results .title {
   margin-top:18px;
+}
+.starred {
+  background:url('../../app/theme/star_small.png');
+  background-repeat:no-repeat;
+  display:inline-block;
+  margin-left:12px;
+  width:11px;
+  height:11px;
 }
 .entry .title a {
   background-repeat:no-repeat;

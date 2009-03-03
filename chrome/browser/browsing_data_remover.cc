@@ -34,12 +34,13 @@ void RunnableMethodTraits<BrowsingDataRemover>::ReleaseCallee(
     BrowsingDataRemover* remover) {
 }
 
+bool BrowsingDataRemover::removing_ = false;
+
 BrowsingDataRemover::BrowsingDataRemover(Profile* profile, Time delete_begin,
                                          Time delete_end)
     : profile_(profile),
       delete_begin_(delete_begin),
       delete_end_(delete_end),
-      removing_(false),
       waiting_for_keywords_(false),
       waiting_for_clear_history_(false),
       waiting_for_clear_cache_(false) {
@@ -180,6 +181,7 @@ void BrowsingDataRemover::NotifyAndDeleteIfDone() {
   if (!all_done())
     return;
 
+  removing_ = false;
   FOR_EACH_OBSERVER(Observer, observer_list_, OnBrowsingDataRemoverDone());
 
   // History requests aren't happy if you delete yourself from the callback.

@@ -10,6 +10,7 @@
 #include "base/thread.h"
 #include "base/time.h"
 #include "base/time_format.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/history/history_types.h"
@@ -117,11 +118,13 @@ BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
 }
 
 BrowsingHistoryHandler::~BrowsingHistoryHandler() {
+  cancelable_consumer_.CancelAllRequests();
+
   NotificationService* service = NotificationService::current();
   service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
                           Source<Profile>(dom_ui_->get_profile()));
 
-  if (remover_)
+  if (remover_.get())
     remover_->RemoveObserver(this);
 }
 
@@ -179,6 +182,11 @@ void BrowsingHistoryHandler::HandleSearchHistory(const Value* value) {
 }
 
 void BrowsingHistoryHandler::HandleDeleteDay(const Value* value) {
+  if (BrowsingDataRemover::is_removing()) {
+    dom_ui_->CallJavascriptFunction(L"deleteFailed");
+    return;
+  }
+  
   // Anything in-flight is invalid.
   cancelable_consumer_.CancelAllRequests();
 
@@ -190,13 +198,10 @@ void BrowsingHistoryHandler::HandleDeleteDay(const Value* value) {
   Time begin_time = time.LocalMidnight();
   Time end_time = begin_time + TimeDelta::FromDays(1);
 
-  if (!remover_) {
-    remover_ = new BrowsingDataRemover(dom_ui_->get_profile(),
-                                       begin_time,
-                                       end_time);
-    remover_->AddObserver(this);
-  }
-
+  remover_.reset(new BrowsingDataRemover(dom_ui_->get_profile(),
+                                         begin_time,
+                                         end_time));
+  remover_->AddObserver(this);
   remover_->Remove(BrowsingDataRemover::REMOVE_HISTORY |
                    BrowsingDataRemover::REMOVE_COOKIES |
                    BrowsingDataRemover::REMOVE_CACHE);
@@ -204,6 +209,8 @@ void BrowsingHistoryHandler::HandleDeleteDay(const Value* value) {
 
 void BrowsingHistoryHandler::OnBrowsingDataRemoverDone() {
   dom_ui_->CallJavascriptFunction(L"deleteComplete");
+  remover_->RemoveObserver(this);
+  remover_.release();
 }
 
 void BrowsingHistoryHandler::QueryComplete(
@@ -247,7 +254,8 @@ void BrowsingHistoryHandler::QueryComplete(
           base::TimeFormatShortDate(page.visit_time()));
       page_value->SetString(L"snippet", page.snippet().text());
     }
-
+    page_value->SetBoolean(L"starred", 
+        dom_ui_->get_profile()->GetBookmarkModel()->IsBookmarked(page.url()));
     results_value.Append(page_value);
   }
 
@@ -370,6 +378,6 @@ GURL HistoryUI::GetBaseURL() {
 // static
 const GURL HistoryUI::GetHistoryURLWithSearchText(
   const std::wstring& text) {
-    return GURL(GetBaseURL().spec() + "/?q=" +
+    return GURL(GetBaseURL().spec() + "#q=" +
       EscapeQueryParamValue(WideToUTF8(text)));
 }
