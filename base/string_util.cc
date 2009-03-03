@@ -843,10 +843,10 @@ void DoReplaceSubstringsAfterOffset(StringType* str,
   }
 }
 
-void ReplaceFirstSubstringAfterOffset(std::wstring* str,
-                                      std::wstring::size_type start_offset,
-                                      const std::wstring& find_this,
-                                      const std::wstring& replace_with) {
+void ReplaceFirstSubstringAfterOffset(string16* str,
+                                      string16::size_type start_offset,
+                                      const string16& find_this,
+                                      const string16& replace_with) {
   DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
                                  false);  // replace first instance
 }
@@ -859,10 +859,10 @@ void ReplaceFirstSubstringAfterOffset(std::string* str,
                                  false);  // replace first instance
 }
 
-void ReplaceSubstringsAfterOffset(std::wstring* str,
-                                  std::wstring::size_type start_offset,
-                                  const std::wstring& find_this,
-                                  const std::wstring& replace_with) {
+void ReplaceSubstringsAfterOffset(string16* str,
+                                  string16::size_type start_offset,
+                                  const string16& find_this,
+                                  const string16& replace_with) {
   DoReplaceSubstringsAfterOffset(str, start_offset, find_this, replace_with,
                                  true);  // replace all instances
 }

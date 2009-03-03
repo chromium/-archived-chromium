@@ -24,7 +24,7 @@ static const wchar_t kOptional = '?';
 
 // Known parameters found in the URL.
 static const wchar_t kSearchTermsParameter[] = L"searchTerms";
-static const wchar_t kSearchTermsParameterFull[] = L"{searchTerms}";
+static const char kSearchTermsParameterFull[] = "{searchTerms}";
 static const wchar_t kCountParameter[] = L"count";
 static const wchar_t kStartIndexParameter[] = L"startIndex";
 static const wchar_t kStartPageParameter[] = L"startPage";
@@ -36,26 +36,26 @@ static const wchar_t kGoogleAcceptedSuggestionParameter[] =
     L"google:acceptedSuggestion";
 // Host/Domain Google searches are relative to.
 static const wchar_t kGoogleBaseURLParameter[] = L"google:baseURL";
-static const wchar_t kGoogleBaseURLParameterFull[] = L"{google:baseURL}";
+static const char kGoogleBaseURLParameterFull[] = "{google:baseURL}";
 // Like google:baseURL, but for the Search Suggest capability.
-static const wchar_t kGoogleBaseSuggestURLParameter[] =
-    L"google:baseSuggestURL";
-static const wchar_t kGoogleBaseSuggestURLParameterFull[] =
-    L"{google:baseSuggestURL}";
+static const char kGoogleBaseSuggestURLParameter[] =
+    "google:baseSuggestURL";
+static const char kGoogleBaseSuggestURLParameterFull[] =
+    "{google:baseSuggestURL}";
 static const wchar_t kGoogleOriginalQueryForSuggestionParameter[] =
     L"google:originalQueryForSuggestion";
 static const wchar_t kGoogleRLZParameter[] = L"google:RLZ";
 // Same as kSearchTermsParameter, with no escaping.
 static const wchar_t kGoogleUnescapedSearchTermsParameter[] =
     L"google:unescapedSearchTerms";
-static const wchar_t kGoogleUnescapedSearchTermsParameterFull[] =
-    L"{google:unescapedSearchTerms}";
+static const char kGoogleUnescapedSearchTermsParameterFull[] =
+    "{google:unescapedSearchTerms}";
 
 // Display value for kSearchTermsParameter.
-static const wchar_t kDisplaySearchTerms[] = L"%s";
+static const char kDisplaySearchTerms[] = "%s";
 
 // Display value for kGoogleUnescapedSearchTermsParameter.
-static const wchar_t kDisplayUnescapedSearchTerms[] = L"%S";
+static const char kDisplayUnescapedSearchTerms[] = "%S";
 
 // Used if the count parameter is not optional. Indicates we want 10 search
 // results.
@@ -121,7 +121,8 @@ bool TemplateURLRef::ParseParameter(size_t start,
   } else if (parameter == kGoogleBaseURLParameter) {
     replacements->push_back(Replacement(GOOGLE_BASE_URL,
                                         static_cast<int>(start)));
-  } else if (parameter == kGoogleBaseSuggestURLParameter) {
+  } else if (WideToUTF16Hack(parameter) ==
+             ASCIIToUTF16(kGoogleBaseSuggestURLParameter)) {
     replacements->push_back(Replacement(GOOGLE_BASE_SUGGEST_URL,
                                         static_cast<int>(start)));
   } else if (parameter == kGoogleOriginalQueryForSuggestionParameter) {
@@ -194,14 +195,15 @@ void TemplateURLRef::ParseIfNecessary() const {
 }
 
 void TemplateURLRef::ParseHostAndSearchTermKey() const {
-  std::wstring url_string = url_;
-  ReplaceSubstringsAfterOffset(&url_string, 0, kGoogleBaseURLParameterFull,
-                               GoogleBaseURLValue());
+  string16 url_string = WideToUTF16Hack(url_);
   ReplaceSubstringsAfterOffset(&url_string, 0,
-                               kGoogleBaseSuggestURLParameterFull,
-                               GoogleBaseSuggestURLValue());
+                               ASCIIToUTF16(kGoogleBaseURLParameterFull),
+                               WideToUTF16Hack(GoogleBaseURLValue()));
+  ReplaceSubstringsAfterOffset(&url_string, 0,
+                               ASCIIToUTF16(kGoogleBaseSuggestURLParameterFull),
+                               WideToUTF16Hack(GoogleBaseSuggestURLValue()));
 
-  GURL url(WideToUTF8(url_string));
+  GURL url(UTF16ToUTF8(url_string));
   if (!url.is_valid())
     return;
 
@@ -215,10 +217,9 @@ void TemplateURLRef::ParseHostAndSearchTermKey() const {
                                          &value)) {
     if (key.is_nonempty() && value.is_nonempty()) {
       std::string value_string = query_string.substr(value.begin, value.len);
-      if (value_string.find(WideToASCII(kSearchTermsParameterFull), 0) !=
+      if (value_string.find(kSearchTermsParameterFull, 0) !=
           std::string::npos ||
-          value_string.find(
-              WideToASCII(kGoogleUnescapedSearchTermsParameterFull), 0) !=
+          value_string.find(kGoogleUnescapedSearchTermsParameterFull, 0) !=
           std::string::npos) {
         search_term_key_ = query_string.substr(key.begin, key.len);
         host_ = url.host();
@@ -350,26 +351,30 @@ std::wstring TemplateURLRef::DisplayURL() const {
   if (replacements_.empty())
     return url_;  // Nothing to replace, return the url.
 
-  std::wstring result = url_;
-  ReplaceSubstringsAfterOffset(&result, 0, kSearchTermsParameterFull,
-                               kDisplaySearchTerms);
-
+  string16 result = WideToUTF16Hack(url_);
   ReplaceSubstringsAfterOffset(&result, 0,
-                               kGoogleUnescapedSearchTermsParameterFull,
-                               kDisplayUnescapedSearchTerms);
+                               ASCIIToUTF16(kSearchTermsParameterFull),
+                               ASCIIToUTF16(kDisplaySearchTerms));
 
-  return result;
+  ReplaceSubstringsAfterOffset(
+      &result, 0,
+      ASCIIToUTF16(kGoogleUnescapedSearchTermsParameterFull),
+      ASCIIToUTF16(kDisplayUnescapedSearchTerms));
+
+  return UTF16ToWideHack(result);
 }
 
 // static
 std::wstring TemplateURLRef::DisplayURLToURLRef(
     const std::wstring& display_url) {
-  std::wstring result = display_url;
-  ReplaceSubstringsAfterOffset(&result, 0, kDisplaySearchTerms,
-                               kSearchTermsParameterFull);
-  ReplaceSubstringsAfterOffset(&result, 0, kDisplayUnescapedSearchTerms,
-                               kGoogleUnescapedSearchTermsParameterFull);
-  return result;
+  string16 result = WideToUTF16Hack(display_url);
+  ReplaceSubstringsAfterOffset(&result, 0, ASCIIToUTF16(kDisplaySearchTerms),
+                               ASCIIToUTF16(kSearchTermsParameterFull));
+  ReplaceSubstringsAfterOffset(
+      &result, 0,
+      ASCIIToUTF16(kDisplayUnescapedSearchTerms),
+      ASCIIToUTF16(kGoogleUnescapedSearchTermsParameterFull));
+  return UTF16ToWideHack(result);
 }
 
 const std::string& TemplateURLRef::GetHost() const {
@@ -555,4 +560,3 @@ void TemplateURL::InvalidateCachedValues() const {
   if (autogenerate_keyword_)
     keyword_.clear();
 }
-

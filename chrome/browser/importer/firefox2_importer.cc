@@ -501,11 +501,18 @@ bool Firefox2Importer::GetAttribute(const std::string& attribute_list,
 
 // static
 void Firefox2Importer::HTMLUnescape(std::wstring *text) {
-  ReplaceSubstringsAfterOffset(text, 0, L"&lt;", L"<");
-  ReplaceSubstringsAfterOffset(text, 0, L"&gt;", L">");
-  ReplaceSubstringsAfterOffset(text, 0, L"&amp;", L"&");
-  ReplaceSubstringsAfterOffset(text, 0, L"&quot;", L"\"");
-  ReplaceSubstringsAfterOffset(text, 0, L"&#39;", L"\'");
+  string16 text16 = WideToUTF16Hack(*text);
+  ReplaceSubstringsAfterOffset(
+      &text16, 0, ASCIIToUTF16("&lt;"), ASCIIToUTF16("<"));
+  ReplaceSubstringsAfterOffset(
+      &text16, 0, ASCIIToUTF16("&gt;"), ASCIIToUTF16(">"));
+  ReplaceSubstringsAfterOffset(
+      &text16, 0, ASCIIToUTF16("&amp;"), ASCIIToUTF16("&"));
+  ReplaceSubstringsAfterOffset(
+      &text16, 0, ASCIIToUTF16("&quot;"), ASCIIToUTF16("\""));
+  ReplaceSubstringsAfterOffset(
+      &text16, 0, ASCIIToUTF16("&#39;"), ASCIIToUTF16("\'"));
+  text->assign(UTF16ToWideHack(text16));
 }
 
 // static

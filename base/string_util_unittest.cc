@@ -673,60 +673,62 @@ TEST(StringUtilTest, FormatBytes) {
 
 TEST(StringUtilTest, ReplaceSubstringsAfterOffset) {
   static const struct {
-    const wchar_t* str;
-    std::wstring::size_type start_offset;
-    const wchar_t* find_this;
-    const wchar_t* replace_with;
-    const wchar_t* expected;
+    const char* str;
+    string16::size_type start_offset;
+    const char* find_this;
+    const char* replace_with;
+    const char* expected;
   } cases[] = {
-    {L"aaa", 0, L"a", L"b", L"bbb"},
-    {L"abb", 0, L"ab", L"a", L"ab"},
-    {L"Removing some substrings inging", 0, L"ing", L"", L"Remov some substrs "},
-    {L"Not found", 0, L"x", L"0", L"Not found"},
-    {L"Not found again", 5, L"x", L"0", L"Not found again"},
-    {L" Making it much longer ", 0, L" ", L"Four score and seven years ago",
-     L"Four score and seven years agoMakingFour score and seven years agoit"
-     L"Four score and seven years agomuchFour score and seven years agolonger"
-     L"Four score and seven years ago"},
-    {L"Invalid offset", 9999, L"t", L"foobar", L"Invalid offset"},
-    {L"Replace me only me once", 9, L"me ", L"", L"Replace me only once"},
-    {L"abababab", 2, L"ab", L"c", L"abccc"},
+    {"aaa", 0, "a", "b", "bbb"},
+    {"abb", 0, "ab", "a", "ab"},
+    {"Removing some substrings inging", 0, "ing", "", "Remov some substrs "},
+    {"Not found", 0, "x", "0", "Not found"},
+    {"Not found again", 5, "x", "0", "Not found again"},
+    {" Making it much longer ", 0, " ", "Four score and seven years ago",
+     "Four score and seven years agoMakingFour score and seven years agoit"
+     "Four score and seven years agomuchFour score and seven years agolonger"
+     "Four score and seven years ago"},
+    {"Invalid offset", 9999, "t", "foobar", "Invalid offset"},
+    {"Replace me only me once", 9, "me ", "", "Replace me only once"},
+    {"abababab", 2, "ab", "c", "abccc"},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); i++) {
-    std::wstring str(cases[i].str);
+    string16 str = ASCIIToUTF16(cases[i].str);
     ReplaceSubstringsAfterOffset(&str, cases[i].start_offset,
-                                 cases[i].find_this, cases[i].replace_with);
-    EXPECT_EQ(cases[i].expected, str);
+                                 ASCIIToUTF16(cases[i].find_this),
+                                 ASCIIToUTF16(cases[i].replace_with));
+    EXPECT_EQ(ASCIIToUTF16(cases[i].expected), str);
   }
 }
 
 TEST(StringUtilTest, ReplaceFirstSubstringAfterOffset) {
   static const struct {
-    const wchar_t* str;
-    std::wstring::size_type start_offset;
-    const wchar_t* find_this;
-    const wchar_t* replace_with;
-    const wchar_t* expected;
+    const char* str;
+    string16::size_type start_offset;
+    const char* find_this;
+    const char* replace_with;
+    const char* expected;
   } cases[] = {
-    {L"aaa", 0, L"a", L"b", L"baa"},
-    {L"abb", 0, L"ab", L"a", L"ab"},
-    {L"Removing some substrings inging", 0, L"ing", L"",
-      L"Remov some substrings inging"},
-    {L"Not found", 0, L"x", L"0", L"Not found"},
-    {L"Not found again", 5, L"x", L"0", L"Not found again"},
-    {L" Making it much longer ", 0, L" ", L"Four score and seven years ago",
-     L"Four score and seven years agoMaking it much longer "},
-    {L"Invalid offset", 9999, L"t", L"foobar", L"Invalid offset"},
-    {L"Replace me only me once", 4, L"me ", L"", L"Replace only me once"},
-    {L"abababab", 2, L"ab", L"c", L"abcabab"},
+    {"aaa", 0, "a", "b", "baa"},
+    {"abb", 0, "ab", "a", "ab"},
+    {"Removing some substrings inging", 0, "ing", "",
+      "Remov some substrings inging"},
+    {"Not found", 0, "x", "0", "Not found"},
+    {"Not found again", 5, "x", "0", "Not found again"},
+    {" Making it much longer ", 0, " ", "Four score and seven years ago",
+     "Four score and seven years agoMaking it much longer "},
+    {"Invalid offset", 9999, "t", "foobar", "Invalid offset"},
+    {"Replace me only me once", 4, "me ", "", "Replace only me once"},
+    {"abababab", 2, "ab", "c", "abcabab"},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); i++) {
-    std::wstring str(cases[i].str);
+    string16 str = ASCIIToUTF16(cases[i].str);
     ReplaceFirstSubstringAfterOffset(&str, cases[i].start_offset,
-                                     cases[i].find_this, cases[i].replace_with);
-    EXPECT_EQ(cases[i].expected, str);
+                                     ASCIIToUTF16(cases[i].find_this),
+                                     ASCIIToUTF16(cases[i].replace_with));
+    EXPECT_EQ(ASCIIToUTF16(cases[i].expected), str);
   }
 }
 

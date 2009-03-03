@@ -359,10 +359,10 @@ std::wstring FormatNumber(int64 number);
 
 // Starting at |start_offset| (usually 0), replace the first instance of
 // |find_this| with |replace_with|.
-void ReplaceFirstSubstringAfterOffset(std::wstring* str,
-                                      std::wstring::size_type start_offset,
-                                      const std::wstring& find_this,
-                                      const std::wstring& replace_with);
+void ReplaceFirstSubstringAfterOffset(string16* str,
+                                      string16::size_type start_offset,
+                                      const string16& find_this,
+                                      const string16& replace_with);
 void ReplaceFirstSubstringAfterOffset(std::string* str,
                                       std::string::size_type start_offset,
                                       const std::string& find_this,
@@ -374,10 +374,10 @@ void ReplaceFirstSubstringAfterOffset(std::string* str,
 // This does entire substrings; use std::replace in <algorithm> for single
 // characters, for example:
 //   std::replace(str.begin(), str.end(), 'a', 'b');
-void ReplaceSubstringsAfterOffset(std::wstring* str,
-                                  std::wstring::size_type start_offset,
-                                  const std::wstring& find_this,
-                                  const std::wstring& replace_with);
+void ReplaceSubstringsAfterOffset(string16* str,
+                                  string16::size_type start_offset,
+                                  const string16& find_this,
+                                  const string16& replace_with);
 void ReplaceSubstringsAfterOffset(std::string* str,
                                   std::string::size_type start_offset,
                                   const std::string& find_this,
