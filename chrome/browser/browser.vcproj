@@ -174,15 +174,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\autocomplete\autocomplete_popup_view_win.h"
+				RelativePath=".\autocomplete\autocomplete_popup_model.h"
 				>
 			</File>
 			<File
 				RelativePath=".\autocomplete\autocomplete_popup_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\autocomplete\autocomplete_popup_model.h"
 				>
 			</File>
 			<File
@@ -190,7 +186,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\autocomplete\autocomplete_popup_view.h"
+				RelativePath=".\autocomplete\autocomplete_popup_view_win.h"
 				>
 			</File>
 			<File
@@ -783,42 +779,6 @@
 			</File>
 			<File
 				RelativePath=".\window_sizer.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Destination"
-			>
-			<File
-				RelativePath=".\base_history_model.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\base_history_model.h"
-				>
-			</File>
-			<File
-				RelativePath=".\views\download_tab_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\views\download_tab_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\history_model.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\history_model.h"
-				>
-			</File>
-			<File
-				RelativePath=".\history_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\history_view.h"
 				>
 			</File>
 		</Filter>
@@ -1583,18 +1543,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="NativeUI"
-			>
-			<File
-				RelativePath=".\history_tab_ui.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\history_tab_ui.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Net"
 			>
 			<File
@@ -2171,14 +2119,6 @@
 			</File>
 			<File
 				RelativePath=".\tab_contents\interstitial_page.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\native_ui_contents.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\native_ui_contents.h"
 				>
 			</File>
 			<File

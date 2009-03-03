@@ -17,7 +17,6 @@
 #if defined(OS_WIN)
 // TODO(port): port these headers to posix.
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
-#include "chrome/browser/tab_contents/native_ui_contents.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -56,9 +55,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
 #if defined(OS_WIN)
     case TAB_CONTENTS_HTML_DIALOG:
       contents = new HtmlDialogContents(profile, instance, NULL);
-      break;
-    case TAB_CONTENTS_NATIVE_UI:
-      contents = new NativeUIContents(profile);
       break;
 #endif  // defined(OS_WIN)
     case TAB_CONTENTS_DEBUGGER:
@@ -102,9 +98,6 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
   if (BrowserURLHandler::HandleBrowserURL(url, &type))
     return type;
-
-  if (url->SchemeIs(NativeUIContents::GetScheme().c_str()))
-    return TAB_CONTENTS_NATIVE_UI;
 
   if (HtmlDialogContents::IsHtmlDialogUrl(*url))
     return TAB_CONTENTS_HTML_DIALOG;

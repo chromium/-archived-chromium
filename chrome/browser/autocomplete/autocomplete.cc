@@ -13,6 +13,7 @@
 #include "chrome/browser/autocomplete/keyword_provider.h"
 #include "chrome/browser/autocomplete/search_provider.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gfx/text_elider.h"
@@ -31,7 +32,6 @@
 // TODO(port): Port this file.
 #if defined(OS_WIN)
 #include "chrome/browser/external_protocol_handler.h"
-#include "chrome/browser/history_tab_ui.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
@@ -832,7 +832,7 @@ void AutocompleteController::AddHistoryContentsShortcut() {
                               ACMatchClassification::NONE));
   }
   match.destination_url =
-      HistoryTabUI::GetHistoryURLWithSearchText(input_.text());
+      HistoryUI::GetHistoryURLWithSearchText(input_.text());
   match.transition = PageTransition::AUTO_BOOKMARK;
   match.provider = history_contents_provider_;
   latest_result_.AddMatch(match);

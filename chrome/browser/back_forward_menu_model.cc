@@ -17,7 +17,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): port these headers and remove the platform defines.
-#include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
