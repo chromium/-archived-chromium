@@ -146,7 +146,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\resources\locale_settings_en-US.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\locale_settings_en-US.rc"
 			>
 		</File>
 		<File
