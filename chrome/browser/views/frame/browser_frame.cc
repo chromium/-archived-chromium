@@ -172,7 +172,7 @@ void BrowserFrame::UpdateFrameAfterFrameChange() {
 
 void BrowserFrame::UpdateDWMFrame() {
   // Nothing to do yet.
-  if (!client_view())
+  if (!client_view() || !browser_view_->IsBrowserTypeNormal())
     return;
 
   // In fullscreen mode, we don't extend glass into the client area at all,
