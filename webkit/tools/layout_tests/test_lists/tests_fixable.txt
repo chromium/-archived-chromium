@@ -133,9 +133,10 @@ LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 DEFER SKIP : LayoutTests/fast/workers = TIMEOUT
 DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
-// This test relies on the keygen tag, which we haven't wired up.
+// These tests rely on the keygen tag, which we haven't wired up.
 // See bug 802185 for details.
 DEFER : LayoutTests/fast/html/keygen.html = FAIL
+DEFER : LayoutTests/fast/invalid/residual-style.html = FAIL
 
 // -----------------------------------------------------------------
 // Other
@@ -936,7 +937,6 @@ DEFER LINUX WIN : LayoutTests/fast/forms/select-item-background-clip.html = FAIL
 // our forked modifications to RenderTextControlMultiLine.cpp, specifically
 // the calls to set the overflow in createInnerTextStyle.
 DEFER : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
-LayoutTests/fast/invalid/residual-style.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
