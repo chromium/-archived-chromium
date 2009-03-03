@@ -81,7 +81,8 @@ class TestPrefObserver : public NotificationObserver {
 
 }  // anonymous namespace
 
-TEST_F(PrefServiceTest, Basic) {
+// This test is disabled. See issue 8339.
+TEST_F(PrefServiceTest, DISABLED_Basic) {
   PrefService prefs;
 
   // Test that it fails on nonexistent file.
