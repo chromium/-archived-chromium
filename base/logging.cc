@@ -488,7 +488,7 @@ LogMessage::~LogMessage() {
     SetFilePointer(log_file, 0, 0, SEEK_END);
     DWORD num_written;
     WriteFile(log_file,
-              static_cast<void*>(str_newline.c_str()),
+              static_cast<const void*>(str_newline.c_str()),
               static_cast<DWORD>(str_newline.length()),
               &num_written,
               NULL);
