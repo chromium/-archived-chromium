@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_STANDARD_MENUS_H_
-#define CHROME_VIEWS_STANDARD_MENUS_H_
+#ifndef CHROME_BROWSER_GTK_STANDARD_MENUS_H_
+#define CHROME_BROWSER_GTK_STANDARD_MENUS_H_
 
 class Menu;
 class Profile;
@@ -41,4 +41,4 @@ const MenuCreateMaterial* GetStandardPageMenu();
 // Returns the menu construction data structure for the app menu.
 const MenuCreateMaterial* GetStandardAppMenu();
 
-#endif  // CHROME_VIEWS_STANDARD_MENUS_H_
+#endif  // CHROME_BROWSER_GTK_STANDARD_MENUS_H_

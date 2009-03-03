@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_STATUS_BUBBLE_GTK_H_
-#define CHROME_BROWSER_STATUS_BUBBLE_GTK_H_
+#ifndef CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_
+#define CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_
 
 #include <string>
 
@@ -40,8 +40,8 @@ class StatusBubbleGtk : public StatusBubble {
   // NULL when we're not showing.
   GtkWidget* window_;
 
-  // The GtkLabel holding the text.
+  // The GtkLabel holding the text./
   GtkWidget* label_;
 };
 
-#endif  // #ifndef CHROME_BROWSER_STATUS_BUBBLE_GTK_H_
+#endif  // #ifndef CHROME_BROWSER_GTK_STATUS_BUBBLE_GTK_H_
