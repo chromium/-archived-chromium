@@ -85,7 +85,7 @@ class Writer : public Task {
     if (!Write(kHeader) ||
         bookmarks_->GetType() != Value::TYPE_DICTIONARY ||
         !static_cast<DictionaryValue*>(bookmarks_.get())->Get(
-            BookmarkCodec::kRootsKey, &roots) ||
+            WideToUTF16Hack(BookmarkCodec::kRootsKey), &roots) ||
         roots->GetType() != Value::TYPE_DICTIONARY) {
       NOTREACHED();
       return;
@@ -94,11 +94,12 @@ class Writer : public Task {
     DictionaryValue* roots_d_value = static_cast<DictionaryValue*>(roots);
     Value* root_folder_value;
     Value* other_folder_value;
-    if (!roots_d_value->Get(BookmarkCodec::kRootFolderNameKey,
+    if (!roots_d_value->Get(WideToUTF16Hack(BookmarkCodec::kRootFolderNameKey),
                             &root_folder_value) ||
         root_folder_value->GetType() != Value::TYPE_DICTIONARY ||
-        !roots_d_value->Get(BookmarkCodec::kOtherBookmarFolderNameKey,
-                            &other_folder_value) ||
+        !roots_d_value->Get(
+            WideToUTF16Hack(BookmarkCodec::kOtherBookmarFolderNameKey),
+            &other_folder_value) ||
         other_folder_value->GetType() != Value::TYPE_DICTIONARY) {
       NOTREACHED();
       return;  // Invalid type for root folder and/or other folder.
@@ -203,29 +204,32 @@ class Writer : public Task {
   // Writes the node and all its children, returning true on success.
   bool WriteNode(const DictionaryValue& value,
                  history::StarredEntry::Type folder_type) {
-    std::wstring title, date_added_string, type_string;
-    if (!value.GetString(BookmarkCodec::kNameKey, &title) ||
-        !value.GetString(BookmarkCodec::kDateAddedKey, &date_added_string) ||
-        !value.GetString(BookmarkCodec::kTypeKey, &type_string) ||
-        (type_string != BookmarkCodec::kTypeURL &&
-         type_string != BookmarkCodec::kTypeFolder))  {
+    string16 title, date_added_string, type_string;
+    if (!value.GetString(WideToUTF16Hack(BookmarkCodec::kNameKey), &title) ||
+        !value.GetString(WideToUTF16Hack(BookmarkCodec::kDateAddedKey),
+                         &date_added_string) ||
+        !value.GetString(WideToUTF16Hack(BookmarkCodec::kTypeKey),
+                         &type_string) ||
+        (type_string != WideToUTF16Hack(BookmarkCodec::kTypeURL) &&
+         type_string != WideToUTF16Hack(BookmarkCodec::kTypeFolder)))  {
       NOTREACHED();
       return false;
     }
 
-    if (type_string == BookmarkCodec::kTypeURL) {
-      std::wstring url_string;
-      if (!value.GetString(BookmarkCodec::kURLKey, &url_string)) {
+    if (type_string == WideToUTF16Hack(BookmarkCodec::kTypeURL)) {
+      string16 url_string;
+      if (!value.GetString(WideToUTF16Hack(BookmarkCodec::kURLKey),
+                           &url_string)) {
         NOTREACHED();
         return false;
       }
       if (!WriteIndent() ||
           !Write(kBookmarkStart) ||
-          !Write(url_string, ATTRIBUTE_VALUE) ||
+          !Write(UTF16ToWideHack(url_string), ATTRIBUTE_VALUE) ||
           !Write(kAddDate) ||
-          !WriteTime(date_added_string) ||
+          !WriteTime(UTF16ToWideHack(date_added_string)) ||
           !Write(kBookmarkAttributeEnd) ||
-          !Write(title, CONTENT) ||
+          !Write(UTF16ToWideHack(title), CONTENT) ||
           !Write(kBookmarkEnd) ||
           !Write(kNewline)) {
         return false;
@@ -234,11 +238,12 @@ class Writer : public Task {
     }
 
     // Folder.
-    std::wstring last_modified_date;
+    string16 last_modified_date;
     Value* child_values;
-    if (!value.GetString(BookmarkCodec::kDateModifiedKey,
+    if (!value.GetString(WideToUTF16Hack(BookmarkCodec::kDateModifiedKey),
                          &last_modified_date) ||
-        !value.Get(BookmarkCodec::kChildrenKey, &child_values) ||
+        !value.Get(WideToUTF16Hack(BookmarkCodec::kChildrenKey),
+                   &child_values) ||
         child_values->GetType() != Value::TYPE_LIST) {
       NOTREACHED();
       return false;
@@ -249,19 +254,19 @@ class Writer : public Task {
       // bar folder.
       if (!WriteIndent() ||
           !Write(kFolderStart) ||
-          !WriteTime(date_added_string) ||
+          !WriteTime(UTF16ToWideHack(date_added_string)) ||
           !Write(kLastModified) ||
-          !WriteTime(last_modified_date)) {
+          !WriteTime(UTF16ToWideHack(last_modified_date))) {
         return false;
       }
       if (folder_type == history::StarredEntry::BOOKMARK_BAR) {
         if (!Write(kBookmarkBar))
           return false;
-        title = L"Bookmark Bar";
+        title = ASCIIToUTF16("Bookmark Bar");
       } else if (!Write(kFolderAttributeEnd)) {
         return false;
       }
-      if (!Write(title, CONTENT) ||
+      if (!Write(UTF16ToWideHack(title), CONTENT) ||
           !Write(kFolderEnd) ||
           !Write(kNewline) ||
           !WriteIndent() ||

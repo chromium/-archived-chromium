@@ -23,10 +23,10 @@
 
 #include <iterator>
 #include <map>
-#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/string16.h"
 
 class Value;
 class FundamentalValue;
@@ -36,7 +36,7 @@ class DictionaryValue;
 class ListValue;
 
 typedef std::vector<Value*> ValueVector;
-typedef std::map<std::wstring, Value*> ValueMap;
+typedef std::map<string16, Value*> ValueMap;
 
 // The Value class is the base class for Values.  A Value can be
 // instantiated via the Create*Value() factory methods, or by directly
@@ -202,7 +202,7 @@ class DictionaryValue : public Value {
   virtual bool Equals(const Value* other) const;
 
   // Returns true if the current dictionary has a value for the given key.
-  bool HasKey(const std::wstring& key) const;
+  bool HasKey(const string16& key) const;
 
   // Clears any current contents of this dictionary.
   void Clear();
@@ -216,15 +216,15 @@ class DictionaryValue : public Value {
   // to the path in that location.
   // Note that the dictionary takes ownership of the value
   // referenced by in_value.
-  bool Set(const std::wstring& path, Value* in_value);
+  bool Set(const string16& path, Value* in_value);
 
   // Convenience forms of Set().  These methods will replace any existing
   // value at that path, even if it has a different type.
-  bool SetBoolean(const std::wstring& path, bool in_value);
-  bool SetInteger(const std::wstring& path, int in_value);
-  bool SetReal(const std::wstring& path, double in_value);
-  bool SetString(const std::wstring& path, const std::string& in_value);
-  bool SetString(const std::wstring& path, const std::wstring& in_value);
+  bool SetBoolean(const string16& path, bool in_value);
+  bool SetInteger(const string16& path, int in_value);
+  bool SetReal(const string16& path, double in_value);
+  bool SetString(const string16& path, const std::string& in_value);
+  bool SetString(const string16& path, const string16& in_value);
 
   // Gets the Value associated with the given path starting from this object.
   // A path has the form "<key>" or "<key>.<key>.[...]", where "." indexes
@@ -233,20 +233,20 @@ class DictionaryValue : public Value {
   // through the "value" parameter, and the function will return true.
   // Otherwise, it will return false and "value" will be untouched.
   // Note that the dictionary always owns the value that's returned.
-  bool Get(const std::wstring& path, Value** out_value) const;
+  bool Get(const string16& path, Value** out_value) const;
 
   // These are convenience forms of Get().  The value will be retrieved
   // and the return value will be true if the path is valid and the value at
   // the end of the path can be returned in the form specified.
-  bool GetBoolean(const std::wstring& path, bool* out_value) const;
-  bool GetInteger(const std::wstring& path, int* out_value) const;
-  bool GetReal(const std::wstring& path, double* out_value) const;
-  bool GetString(const std::wstring& path, std::string* out_value) const;
-  bool GetString(const std::wstring& path, std::wstring* out_value) const;
-  bool GetBinary(const std::wstring& path, BinaryValue** out_value) const;
-  bool GetDictionary(const std::wstring& path,
+  bool GetBoolean(const string16& path, bool* out_value) const;
+  bool GetInteger(const string16& path, int* out_value) const;
+  bool GetReal(const string16& path, double* out_value) const;
+  bool GetString(const string16& path, std::string* out_value) const;
+  bool GetString(const string16& path, string16* out_value) const;
+  bool GetBinary(const string16& path, BinaryValue** out_value) const;
+  bool GetDictionary(const string16& path,
                      DictionaryValue** out_value) const;
-  bool GetList(const std::wstring& path, ListValue** out_value) const;
+  bool GetList(const string16& path, ListValue** out_value) const;
 
   // Removes the Value with the specified path from this dictionary (or one
   // of its child dictionaries, if the path is more than just a local key).
@@ -254,16 +254,16 @@ class DictionaryValue : public Value {
   // passed out via out_value.  If |out_value| is NULL, the removed value will
   // be deleted.  This method returns true if |path| is a valid path; otherwise
   // it will return false and the DictionaryValue object will be unchanged.
-  bool Remove(const std::wstring& path, Value** out_value);
+  bool Remove(const string16& path, Value** out_value);
 
   // This class provides an iterator for the keys in the dictionary.
   // It can't be used to modify the dictionary.
   class key_iterator
-    : private std::iterator<std::input_iterator_tag, const std::wstring> {
+    : private std::iterator<std::input_iterator_tag, const string16> {
    public:
     key_iterator(ValueMap::const_iterator itr) { itr_ = itr; }
     key_iterator operator++() { ++itr_; return *this; }
-    const std::wstring& operator*() { return itr_->first; }
+    const string16& operator*() { return itr_->first; }
     bool operator!=(const key_iterator& other) { return itr_ != other.itr_; }
     bool operator==(const key_iterator& other) { return itr_ == other.itr_; }
 
@@ -280,7 +280,7 @@ class DictionaryValue : public Value {
   // Associates the value |in_value| with the |key|.  This method should be
   // used instead of "dictionary_[key] = foo" so that any previous value can
   // be properly deleted.
-  void SetInCurrentNode(const std::wstring& key, Value* in_value);
+  void SetInCurrentNode(const string16& key, Value* in_value);
 
   ValueMap dictionary_;
 };

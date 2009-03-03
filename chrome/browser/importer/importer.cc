@@ -658,25 +658,24 @@ void ImporterHost::DetectFirefoxProfiles() {
 
   std::wstring source_path;
   for (int i = 0; ; ++i) {
-    std::wstring current_profile = L"Profile" + IntToWString(i);
+    string16 current_profile = ASCIIToUTF16("Profile") + IntToString16(i);
     if (!root.HasKey(current_profile)) {
       // Profiles are continuously numbered. So we exit when we can't
       // find the i-th one.
       break;
     }
-    std::wstring is_relative, path, profile_path;
-    if (root.GetString(current_profile + L".IsRelative", &is_relative) &&
-        root.GetString(current_profile + L".Path", &path)) {
-      string16 path16 = WideToUTF16Hack(path);
+    string16 is_relative, path, profile_path;
+    if (root.GetString(current_profile + ASCIIToUTF16(".IsRelative"),
+                       &is_relative) &&
+        root.GetString(current_profile + ASCIIToUTF16(".Path"), &path)) {
       ReplaceSubstringsAfterOffset(
-          &path16, 0, ASCIIToUTF16("/"), ASCIIToUTF16("\\"));
-      path.assign(UTF16ToWideHack(path16));
+          &path, 0, ASCIIToUTF16("/"), ASCIIToUTF16("\\"));
 
 #if defined(OS_WIN)
       // IsRelative=1 means the folder path would be relative to the
       // path of profiles.ini. IsRelative=0 refers to a custom profile
       // location.
-      if (is_relative == L"1") {
+      if (is_relative == ASCIIToUTF16("1")) {
         profile_path = file_util::GetDirectoryFromPath(ini_file);
         file_util::AppendToPath(&profile_path, path);
       } else {
@@ -687,12 +686,13 @@ void ImporterHost::DetectFirefoxProfiles() {
       // We only import the default profile when multiple profiles exist,
       // since the other profiles are used mostly by developers for testing.
       // Otherwise, Profile0 will be imported.
-      std::wstring is_default;
-      if ((root.GetString(current_profile + L".Default", &is_default) &&
-           is_default == L"1") || i == 0) {
-        source_path = profile_path;
+      string16 is_default;
+      if ((root.GetString(current_profile + ASCIIToUTF16(".Default"),
+                          &is_default) &&
+           is_default == ASCIIToUTF16("1")) || i == 0) {
+        source_path = UTF16ToWideHack(profile_path);
         // We break out of the loop when we have found the default profile.
-        if (is_default == L"1")
+        if (is_default == ASCIIToUTF16("1"))
           break;
       }
     }

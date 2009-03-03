@@ -125,14 +125,14 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
 void SetURLTitleAndDirection(DictionaryValue* dictionary,
                              const std::wstring& title,
                              const GURL& gurl) {
-  std::wstring wstring_url = UTF8ToWide(gurl.spec());
-  dictionary->SetString(L"url", wstring_url);
+  string16 string_url = UTF8ToUTF16(gurl.spec());
+  dictionary->SetString(ASCIIToUTF16("url"), string_url);
 
   bool using_url_as_the_title = false;
   std::wstring title_to_set(title);
   if (title_to_set.empty()) {
     using_url_as_the_title = true;
-    title_to_set = wstring_url;
+    title_to_set = UTF16ToWideHack(string_url);
   }
 
   // We set the "dir" attribute of the title, so that in RTL locales, a LTR
@@ -168,8 +168,8 @@ void SetURLTitleAndDirection(DictionaryValue* dictionary,
       }
     }
   }
-  dictionary->SetString(L"title", title_to_set);
-  dictionary->SetString(L"direction", direction);
+  dictionary->SetString(ASCIIToUTF16("title"), WideToUTF16Hack(title_to_set));
+  dictionary->SetString(ASCIIToUTF16("direction"), WideToUTF16Hack(direction));
 }
 
 }  // end anonymous namespace
@@ -208,35 +208,43 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
         profile_name);
   }
   DictionaryValue localized_strings;
-  localized_strings.SetString(L"title", title);
-  localized_strings.SetString(L"mostvisited", most_visited);
-  localized_strings.SetString(L"searches",
-      l10n_util::GetString(IDS_NEW_TAB_SEARCHES));
-  localized_strings.SetString(L"bookmarks",
-      l10n_util::GetString(IDS_NEW_TAB_BOOKMARKS));
-  localized_strings.SetString(L"showhistory",
-      l10n_util::GetString(IDS_NEW_TAB_HISTORY_SHOW));
-  localized_strings.SetString(L"searchhistory",
-      l10n_util::GetString(IDS_NEW_TAB_HISTORY_SEARCH));
-  localized_strings.SetString(L"recentlyclosed",
-      l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED));
-  localized_strings.SetString(L"mostvisitedintro",
-      l10n_util::GetStringF(IDS_NEW_TAB_MOST_VISITED_INTRO,
-          l10n_util::GetString(IDS_WELCOME_PAGE_URL)));
-  localized_strings.SetString(L"closedwindow",
-      l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW));
+  localized_strings.SetString(ASCIIToUTF16("title"), WideToUTF16Hack(title));
+  localized_strings.SetString(ASCIIToUTF16("mostvisited"),
+                              WideToUTF16Hack(most_visited));
+  localized_strings.SetString(ASCIIToUTF16("searches"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_NEW_TAB_SEARCHES)));
+  localized_strings.SetString(ASCIIToUTF16("bookmarks"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_NEW_TAB_BOOKMARKS)));
+  localized_strings.SetString(ASCIIToUTF16("showhistory"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_NEW_TAB_HISTORY_SHOW)));
+  localized_strings.SetString(ASCIIToUTF16("searchhistory"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_NEW_TAB_HISTORY_SEARCH)));
+  localized_strings.SetString(ASCIIToUTF16("recentlyclosed"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED)));
+  localized_strings.SetString(
+      ASCIIToUTF16("mostvisitedintro"),
+      WideToUTF16Hack(l10n_util::GetStringF(
+                          IDS_NEW_TAB_MOST_VISITED_INTRO,
+                          l10n_util::GetString(IDS_WELCOME_PAGE_URL))));
+  localized_strings.SetString(
+      ASCIIToUTF16("closedwindow"),
+      WideToUTF16Hack(
+          l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW)));
 
-  localized_strings.SetString(L"textdirection",
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-       kRTLHtmlTextDirection : kDefaultHtmlTextDirection);
+  localized_strings.SetString(
+      ASCIIToUTF16("textdirection"),
+      WideToUTF16Hack(
+          (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+          kRTLHtmlTextDirection : kDefaultHtmlTextDirection));
 
   // Let the tab know whether it's the first tab being viewed.
-  localized_strings.SetString(L"firstview",
-                              first_view_ ? L"true" : std::wstring());
+  localized_strings.SetString(ASCIIToUTF16("firstview"),
+                              first_view_ ? ASCIIToUTF16("true") : string16());
   first_view_ = false;
 
 #ifdef CHROME_PERSONALIZATION
-  localized_strings.SetString(L"p13nsrc", Personalization::GetNewTabSource());
+  localized_strings.SetString(ASCIIToUTF16("p13nsrc"),
+                              Personalization::GetNewTabSource());
 #endif
 
   static const StringPiece new_tab_html(
@@ -263,15 +271,19 @@ IncognitoTabHTMLSource::IncognitoTabHTMLSource()
 void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
                                               int request_id) {
   DictionaryValue localized_strings;
-  localized_strings.SetString(L"title",
-      l10n_util::GetString(IDS_NEW_TAB_TITLE));
-  localized_strings.SetString(L"content",
-      l10n_util::GetStringF(IDS_NEW_TAB_OTR_MESSAGE,
-          l10n_util::GetString(IDS_LEARN_MORE_INCOGNITO_URL)));
+  localized_strings.SetString(ASCIIToUTF16("title"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_NEW_TAB_TITLE)));
+  localized_strings.SetString(
+      ASCIIToUTF16("content"),
+      WideToUTF16Hack(l10n_util::GetStringF(
+                          IDS_NEW_TAB_OTR_MESSAGE,
+                          l10n_util::GetString(IDS_LEARN_MORE_INCOGNITO_URL))));
 
-  localized_strings.SetString(L"textdirection",
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-       kRTLHtmlTextDirection : kDefaultHtmlTextDirection);
+  localized_strings.SetString(
+      ASCIIToUTF16("textdirection"),
+      WideToUTF16Hack(
+          (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+          kRTLHtmlTextDirection : kDefaultHtmlTextDirection));
 
   static const StringPiece incognito_tab_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -481,12 +493,15 @@ void TemplateURLHandler::OnTemplateURLModelChanged() {
     if (!urlref)
       continue;
     DictionaryValue* entry_value = new DictionaryValue;
-    entry_value->SetString(L"short_name", urls[i]->short_name());
-    entry_value->SetString(L"keyword", urls[i]->keyword());
+    entry_value->SetString(ASCIIToUTF16("short_name"),
+                           WideToUTF16Hack(urls[i]->short_name()));
+    entry_value->SetString(ASCIIToUTF16("keyword"),
+                           WideToUTF16Hack(urls[i]->keyword()));
 
     const GURL& url = urls[i]->GetFavIconURL();
     if (url.is_valid())
-     entry_value->SetString(L"favIconURL", UTF8ToWide(url.spec()));
+     entry_value->SetString(ASCIIToUTF16("favIconURL"),
+                            UTF8ToUTF16(url.spec()));
 
     urls_value.Append(entry_value);
   }
@@ -645,7 +660,7 @@ void RecentlyClosedTabsHandler::TabRestoreServiceChanged(
         (entry->type == TabRestoreService::WINDOW &&
          WindowToValue(*static_cast<TabRestoreService::Window*>(entry),
                        value))) {
-      value->SetInteger(L"sessionId", entry->id);
+      value->SetInteger(ASCIIToUTF16("sessionId"), entry->id);
       list_value.Append(value);
       added_count++;
     } else {
@@ -673,7 +688,7 @@ bool RecentlyClosedTabsHandler::TabToValue(
 
   SetURLTitleAndDirection(dictionary, current_navigation.title(),
                           current_navigation.url());
-  dictionary->SetString(L"type", L"tab");
+  dictionary->SetString(ASCIIToUTF16("type"), ASCIIToUTF16("tab"));
   return true;
 }
 
@@ -698,8 +713,8 @@ bool RecentlyClosedTabsHandler::WindowToValue(
     return false;
   }
 
-  dictionary->SetString(L"type", L"window");
-  dictionary->Set(L"tabs", tab_values);
+  dictionary->SetString(ASCIIToUTF16("type"), ASCIIToUTF16("window"));
+  dictionary->Set(ASCIIToUTF16("tabs"), tab_values);
   return true;
 }
 

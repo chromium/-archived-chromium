@@ -277,7 +277,8 @@ Value* JSONReader::BuildValue(bool is_root) {
           Value* dict_value = BuildValue(false);
           if (!dict_value)
             return NULL;
-          static_cast<DictionaryValue*>(node.get())->Set(dict_key, dict_value);
+          static_cast<DictionaryValue*>(node.get())->Set(
+              WideToUTF16Hack(dict_key), dict_value);
 
           // After a key/value pair, we expect a comma or the end of the
           // object.

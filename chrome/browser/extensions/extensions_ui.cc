@@ -30,8 +30,9 @@ ExtensionsUIHTMLSource::ExtensionsUIHTMLSource()
 void ExtensionsUIHTMLSource::StartDataRequest(const std::string& path,
                                               int request_id) {
   DictionaryValue localized_strings;
-  localized_strings.SetString(L"title",
-      l10n_util::GetString(IDS_EXTENSIONS_TITLE));
+  localized_strings.SetString(
+      ASCIIToUTF16("title"),
+      WideToUTF16Hack(l10n_util::GetString(IDS_EXTENSIONS_TITLE)));
 
   static const StringPiece extensions_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -87,4 +88,3 @@ GURL ExtensionsUI::GetBaseURL() {
   url += kExtensionsHost;
   return GURL(url);
 }
-
