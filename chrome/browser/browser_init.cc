@@ -11,7 +11,6 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
-#include "chrome/app/result_codes.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -31,6 +30,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/result_codes.h"
 #include "net/base/cookie_monster.h"
 #include "webkit/glue/webkit_glue.h"
 

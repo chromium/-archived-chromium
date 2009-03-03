@@ -10,7 +10,7 @@
 #include "base/path_service.h"
 #include "base/registry.h"
 #include "base/string_util.h"
-#include "chrome/app/result_codes.h"
+#include "chrome/common/result_codes.h"
 #include "chrome/installer/setup/setup.h"
 #include "chrome/installer/setup/setup_constants.h"
 #include "chrome/installer/util/browser_distribution.h"
@@ -279,4 +279,3 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   }
   return installer_util::UNINSTALL_SUCCESSFUL;
 }
-

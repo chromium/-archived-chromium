@@ -243,6 +243,7 @@
         'common/resource_bundle_win.cc',
         'common/resource_dispatcher.cc',
         'common/resource_dispatcher.h',
+        'common/result_codes.h',
         'common/sandbox_init_wrapper.cc',
         'common/sandbox_init_wrapper.h',
         'common/scoped_vector.h',
@@ -1331,7 +1332,6 @@
         'app/google_update_client.h',
         'app/keystone_glue.h',
         'app/keystone_glue.m',
-        'app/result_codes.h',
         'app/scoped_ole_initializer.h',
       ],
       'mac_bundle_resources': [

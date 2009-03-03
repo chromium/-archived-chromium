@@ -223,7 +223,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\result_codes.h"
+			RelativePath="..\common\result_codes.h"
 			>
 		</File>
 	</Files>

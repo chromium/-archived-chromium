@@ -5,10 +5,10 @@
 #include <crt_externs.h>
 #include <Cocoa/Cocoa.h>
 #include "base/command_line.h"
-#include "chrome/app/result_codes.h"
+#include "chrome/app/keystone_glue.h"
 #include "chrome/browser/app_controller_mac.h"
 #include "chrome/browser/browser_main_win.h"
-#include "chrome/app/keystone_glue.h"
+#include "chrome/common/result_codes.h"
 
 namespace Platform {
 

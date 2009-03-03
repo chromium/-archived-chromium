@@ -474,7 +474,7 @@ input_files = ChromeFileList([
     'common/env_vars.h',
     'app/google_update_client.cc',
     'app/google_update_client.h',
-    'app/result_codes.h',
+    'common/result_codes.h',
 ])
 
 # We only use a separate exe/dll on Windows.

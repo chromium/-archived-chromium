@@ -7,8 +7,8 @@
 #include "base/message_loop.h"
 #include "base/object_watcher.h"
 #include "base/sys_info.h"
-#include "chrome/app/result_codes.h"
 #include "chrome/common/env_vars.h"
+#include "chrome/common/result_codes.h"
 
 // Maximum amount of time (in milliseconds) to wait for the process to exit.
 static const int kWaitInterval = 2000;
@@ -91,4 +91,3 @@ void ProcessWatcher::EnsureProcessTerminated(base::ProcessHandle process) {
                                           new TimerExpiredTask(process),
                                           kWaitInterval);
 }
-

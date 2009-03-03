@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_APP_RESULT_CODES_H__
-#define CHROME_APP_RESULT_CODES_H__
+#ifndef CHROME_COMMON_RESULT_CODES_H_
+#define CHROME_COMMON_RESULT_CODES_H_
 
 #include "base/process_util.h"
 
@@ -44,5 +44,4 @@ class ResultCodes {
   };
 };
 
-#endif  // CHROME_APP_RESULT_CODES_H__
-
+#endif  // CHROME_COMMON_RESULT_CODES_H_

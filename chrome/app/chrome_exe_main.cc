@@ -14,8 +14,8 @@
 #include "chrome/app/breakpad.h"
 #include "chrome/app/client_util.h"
 #include "chrome/app/google_update_client.h"
-#include "chrome/app/result_codes.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/result_codes.h"
 #include "sandbox/src/sandbox_factory.h"
 #include "sandbox/src/dep.h"
 
@@ -105,4 +105,3 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 
   return ResultCodes::GOOGLE_UPDATE_LAUNCH_FAILED;
 }
-

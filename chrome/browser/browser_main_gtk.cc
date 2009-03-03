@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
-#include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_main_win.h"
+#include "chrome/common/result_codes.h"
 
 // From browser_main_win.h, stubs until we figure out the right thing...
 

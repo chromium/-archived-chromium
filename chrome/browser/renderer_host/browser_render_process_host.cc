@@ -23,7 +23,6 @@
 #include "base/singleton.h"
 #include "base/string_util.h"
 #include "base/thread.h"
-#include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/extensions/user_script_master.h"
@@ -43,6 +42,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/result_codes.h"
 #include "chrome/renderer/render_process.h"
 #include "grit/generated_resources.h"
 

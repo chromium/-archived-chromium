@@ -8,7 +8,7 @@
 #include <atlbase.h>
 
 #include "base/logging.h"
-#include "chrome/app/result_codes.h"
+#include "chrome/common/result_codes.h"
 
 // How long do we wait for the terminated thread or process to die (in ms)
 static const int kTerminateTimeout = 2000;
@@ -173,5 +173,3 @@ BOOL CALLBACK HungWindowDetector::ChildWndEnumProc(HWND child_window,
 
   return detector_instance->CheckChildWindow(child_window);
 }
-
-

@@ -4,7 +4,6 @@
 
 #include "chrome/browser/views/hung_renderer_view.h"
 
-#include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -15,6 +14,7 @@
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/result_codes.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/grid_layout.h"
@@ -449,4 +449,3 @@ void HungRendererWarning::HideForWebContents(WebContents* contents) {
   if (!logging::DialogsAreSuppressed() && instance_)
     instance_->EndForWebContents(contents);
 }
-
