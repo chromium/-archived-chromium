@@ -268,7 +268,8 @@ class LocationBarView : public LocationBar,
     // The currently shown info bubble if any.
     InfoBubble* info_bubble_;
 
-    // A task used to display the info bubble when the mouse hovers on the image.
+    // A task used to display the info bubble when the mouse hovers on the
+    // image.
     ShowInfoBubbleTask* show_info_bubble_task_;
 
     Profile* profile_;
