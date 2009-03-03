@@ -208,16 +208,6 @@ input_files = ChromeFileList([
     'window_sizer.cc',
     'window_sizer.h',
   ]),
-  MSVSFilter('Destination', [
-    'base_history_model.cc',
-    'base_history_model.h',
-    'views/download_tab_view.cc',
-    'views/download_tab_view.h',
-    'history_model.cc',
-    'history_model.h',
-    'history_view.cc',
-    'history_view.h',
-  ]),
   MSVSFilter('Automation', [
     'automation/automation_autocomplete_edit_tracker.h',
     'automation/automation_browser_tracker.h',
@@ -416,10 +406,6 @@ input_files = ChromeFileList([
     'dom_ui/new_tab_ui.cc',
     'dom_ui/new_tab_ui.h',
   ]),
-  MSVSFilter('NativeUI', [
-    'history_tab_ui.cc',
-    'history_tab_ui.h',
-  ]),
   MSVSFilter('Net', [
     'net/chrome_url_request_context.cc',
     'net/chrome_url_request_context.h',
@@ -569,8 +555,6 @@ input_files = ChromeFileList([
     'tab_contents/infobar_delegate.h',
     'tab_contents/interstitial_page.cc',
     'tab_contents/interstitial_page.h',
-    'tab_contents/native_ui_contents.cc',
-    'tab_contents/native_ui_contents.h',
     'tab_contents/navigation_controller.cc',
     'tab_contents/navigation_controller.h',
     'tab_contents/navigation_entry.cc',
@@ -687,8 +671,6 @@ if not env.Bit('windows'):
       'first_run.cc',
       'hang_monitor/hung_plugin_action.cc',
       'hang_monitor/hung_window_detector.cc',
-      'history_tab_ui.cc',
-      'history_view.cc',
       'icon_loader.cc',
       'icon_manager.cc',
       'ime_input.cc',
@@ -711,11 +693,9 @@ if not env.Bit('windows'):
       'rlz/rlz.cc',
       'sandbox_policy.cc',
       'shell_integration.cc',
-      'tab_contents/native_ui_contents.cc',
       'tab_contents/web_drop_target.cc',
       'task_manager.cc',
       'task_manager_resource_providers.cc',
-      'views/download_tab_view.cc',
       'window_sizer.cc',
   )
 
