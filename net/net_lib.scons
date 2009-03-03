@@ -13,6 +13,7 @@ env = env.Clone()
 env.ApplySConscript([
     '$BZIP2_DIR/using_bzip2.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$CHROME_SRC_DIR/build/using_v8.scons',
     '$GRIT_DIR/build/using_generated_resources.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
@@ -255,6 +256,8 @@ input_files = ChromeFileList([
     'proxy/proxy_list.cc',
     'proxy/proxy_list.h',
     'proxy/proxy_resolver.h',
+    'proxy/proxy_resolver_script.h',
+    'proxy/proxy_resolver_v8.cc',
     'proxy/proxy_resolver_winhttp.cc',
     'proxy/proxy_resolver_winhttp.h',
     'proxy/proxy_retry_info.h',
