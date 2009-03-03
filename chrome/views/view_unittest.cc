@@ -156,7 +156,7 @@ void TestView::DidChangeBounds(const gfx::Rect& previous,
   new_bounds_ = current;
 }
 
-TEST_F(ViewTest, DidChangeBounds) {
+TEST_F(ViewTest, DISABLED_DidChangeBounds) {
   TestView* v = new TestView();
 
   gfx::Rect prev_rect(0, 0, 200, 200);
@@ -189,7 +189,7 @@ void TestView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
   child_ = child;
 }
 
-TEST_F(ViewTest, AddRemoveNotifications) {
+TEST_F(ViewTest, DISABLED_AddRemoveNotifications) {
   TestView* v1 = new TestView();
   v1->SetBounds(0, 0, 300, 300);
 
@@ -279,7 +279,7 @@ void TestView::OnMouseReleased(const MouseEvent& event, bool canceled) {
   location_.y = event.y();
 }
 
-TEST_F(ViewTest, MouseEvent) {
+TEST_F(ViewTest, DISABLED_MouseEvent) {
   TestView* v1 = new TestView();
   v1->SetBounds(0, 0, 300, 300);
 
@@ -352,8 +352,8 @@ void CheckRect(const SkRect& check_rect, const SkRect& target_rect) {
   EXPECT_EQ(target_rect.fBottom, check_rect.fBottom);
 }
 
-/* This test is disabled because it is flakey on some systems.
-TEST_F(ViewTest, Painting) {
+// This test is disabled because it is flakey on some systems.
+TEST_F(ViewTest, DISABLED_Painting) {
   // Determine if InvalidateRect generates an empty paint rectangle.
   EmptyWindow paint_window(CRect(50, 50, 650, 650));
   paint_window.RedrawWindow(CRect(0, 0, 600, 600), NULL,
@@ -419,7 +419,7 @@ TEST_F(ViewTest, Painting) {
 
   window.DestroyWindow();
 }
-*/
+
 typedef std::vector<View*> ViewList;
 
 class RemoveViewObserver : public NotificationObserver {
@@ -441,7 +441,7 @@ public:
 
 };
 
-TEST_F(ViewTest, RemoveNotification) {
+TEST_F(ViewTest, DISABLED_RemoveNotification) {
   scoped_ptr<RemoveViewObserver> observer(new RemoveViewObserver);
 
   NotificationService::current()->AddObserver(
@@ -552,7 +552,7 @@ gfx::Point ConvertPointToView(views::View* view, const gfx::Point& p) {
 }
 }
 
-TEST_F(ViewTest, HitTestMasks) {
+TEST_F(ViewTest, DISABLED_HitTestMasks) {
   views::WidgetWin window;
   views::RootView* root_view = window.GetRootView();
   root_view->SetBounds(0, 0, 500, 500);
@@ -616,7 +616,7 @@ class TestDialogView : public views::View,
   views::NativeButton* checkbox_;
 };
 
-TEST_F(ViewTest, DialogDefaultButtonTest) {
+TEST_F(ViewTest, DISABLED_DialogDefaultButtonTest) {
   TestDialogView* dialog_view_ = new TestDialogView();
   views::Window* window =
       views::Window::CreateChromeWindow(NULL, gfx::Rect(0, 0, 100, 100),
