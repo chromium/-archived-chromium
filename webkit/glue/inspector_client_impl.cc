@@ -105,8 +105,7 @@ void WebInspectorClient::showWindow() {
 void WebInspectorClient::closeWindow() {
   inspector_web_view_ = NULL;
 
-  if (inspected_node_)
-    hideHighlight();
+  hideHighlight();
 
   if (inspected_web_view_->page())
     inspected_web_view_->page()->inspectorController()->setWindowVisible(false);
@@ -145,15 +144,14 @@ static void invalidateNodeBoundingRect(WebViewImpl* web_view) {
 }
 
 void WebInspectorClient::highlight(Node* node) {
-  if (inspected_node_)
-    hideHighlight();
-
-  inspected_node_ = node;
-  invalidateNodeBoundingRect(inspected_web_view_);
+  // InspectorController does the actually tracking of the highlighted node
+  // and the drawing of the highlight. Here we just make sure to invalidate
+  // the rects of the old and new nodes.
+  hideHighlight();
 }
 
 void WebInspectorClient::hideHighlight() {
-  inspected_node_ = 0;
+  // TODO: Should be able to invalidate a smaller rect.
   invalidateNodeBoundingRect(inspected_web_view_);
 }
 

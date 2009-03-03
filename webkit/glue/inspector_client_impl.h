@@ -47,10 +47,6 @@ private:
   // The WebViewImpl of the page being inspected; gets passed to the constructor
   scoped_refptr<WebViewImpl> inspected_web_view_;
 
-  // The node selected in the web inspector. Used for highlighting it on the
-  // page.
-  WebCore::Node* inspected_node_;
-
   // The WebView of the Inspector popup window
   WebViewImpl* inspector_web_view_;
 };

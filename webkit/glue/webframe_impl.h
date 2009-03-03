@@ -222,8 +222,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   WebDataSourceImpl* GetDataSourceImpl() const;
   WebDataSourceImpl* GetProvisionalDataSourceImpl() const;
 
-  void selectNodeFromInspector(WebCore::Node* node);
-
   // Returns which frame has an active match. This function should only be
   // called on the main frame, as it is the only frame keeping track. Returned
   // value can be NULL if no frame has an active match.
