@@ -21,6 +21,7 @@
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
+#include "chrome/browser/status_bubble.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -43,10 +44,6 @@
 #include "net/base/registry_controlled_domain.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/window_open_disposition.h"
-
-#if defined(OS_WIN) || defined(OS_LINUX)
-#include "chrome/browser/status_bubble.h"
-#endif
 
 #if defined(OS_WIN)
 #include <windows.h>

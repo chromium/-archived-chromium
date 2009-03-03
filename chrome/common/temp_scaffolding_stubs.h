@@ -394,15 +394,6 @@ class BookmarkBarView {
 //---------------------------------------------------------------------------
 // These stubs are for Browser
 
-#if defined(OS_MACOSX)
-class StatusBubble {
- public:
-  void SetStatus(const std::wstring&) { NOTIMPLEMENTED(); }
-  void Hide() { NOTIMPLEMENTED(); }
-  void SetURL(const GURL&, const std::wstring&) { NOTIMPLEMENTED(); }
-};
-#endif
-
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
  public:
 };
