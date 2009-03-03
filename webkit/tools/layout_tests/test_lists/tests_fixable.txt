@@ -573,7 +573,7 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
 LINUX : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = PASS CRASH
 
 // WebKit Merge 38950:39000 failures:
-LINUX WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
+LINUX : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
 
 // Linux pixeltest failure: slightly different shade of composited
 // alpha in bottom group.
@@ -1499,9 +1499,9 @@ DEFER SKIP : LayoutTests/webarchive/test-css-url-resources-inline-styles.html = 
 
 // Merge 39309:39335 Regressions, see bug 5737
 // (RenderButton::setupInnerStyle regression).
-LINUX WIN : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/001.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/input-first-letter.html = FAIL
+LINUX : LayoutTests/fast/box-sizing/percentage-height.html = FAIL
+LINUX : LayoutTests/fast/forms/001.html = FAIL
+LINUX : LayoutTests/fast/forms/input-first-letter.html = FAIL
 
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?). http://crbug.com/5701
@@ -1764,8 +1764,6 @@ LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 // New failures from Merge 41078:41149
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList-almost-strict.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
-LINUX WIN : LayoutTests/fast/dom/anchor-backslash.html = FAIL
-LINUX WIN : LayoutTests/fast/dom/empty-hash-and-search.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
 LINUX WIN : LayoutTests/fast/reflections/reflection-direction.html = FAIL
 LINUX WIN : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
@@ -1804,7 +1802,7 @@ DEFER LINUX WIN : LayoutTests/fast/gradients/background-clipped.html = FAIL
 LINUX WIN : LayoutTests/css1/text_properties/vertical_align.html = FAIL
 LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
 // SVG Mask-related tests. Most likely result of http://trac.webkit.org/changeset/41266.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
@@ -1818,11 +1816,7 @@ WIN : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
 WIN : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
-LINUX WIN : LayoutTests/svg/custom/js-late-gradient-creation.svg = FAIL
-WIN : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/js-late-pattern-creation.svg = FAIL
 LINUX WIN : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
-LINUX WIN : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
 LINUX : LayoutTests/fast/borders/border-image-rotate-transform.html = FAIL
 LINUX : LayoutTests/fast/css/resize-corner-tracking-transformed.html = FAIL
 LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
@@ -1851,9 +1845,6 @@ MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT PAS
 WIN MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH PASS
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
-WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL
-// This is marked as flaky on mac.
-WIN : LayoutTests/svg/batik/text/textFeatures.svg = FAIL
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
 // Regressions from the 41286:41362 merge.
@@ -1861,8 +1852,6 @@ LINUX WIN : LayoutTests/fast/forms/button-default-title.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/control-clip.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
-LINUX WIN : LayoutTests/dom/html/level2/html/HTMLAppletElement01.html = TIMEOUT
-WIN : LayoutTests/fast/dom/object-embed-plugin-scripting.html = TIMEOUT
 LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = PASS TIMEOUT
 
 // New tests added in the 41286:41362 merge.
