@@ -13,7 +13,7 @@
     <output filename="locale_settings_de.rc" type="rc_all" lang="de" />
     <output filename="locale_settings_el.rc" type="rc_all" lang="el" />
     <output filename="locale_settings_en-GB.rc" type="rc_all" lang="en-GB" />
-    <output filename="locale_settings_en-US.rc" type="rc_all" lang="en" />
+    <output filename="locale_settings_en-US.rc" type="rc_all" lang="en-US" />
     <output filename="locale_settings_es.rc" type="rc_all" lang="es" />
     <output filename="locale_settings_es-419.rc" type="rc_all" lang="es-419" />
     <output filename="locale_settings_et.rc" type="rc_all" lang="et" />
@@ -57,59 +57,8 @@
     <output filename="locale_settings_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="locale_settings_zh-TW.rc" type="rc_all" lang="zh-TW" />
 
-    <output filename="locale_settings_en-US.pak" type="data_package" lang="en" />
+    <output filename="locale_settings_en-US.pak" type="data_package" lang="en-US" />
   </outputs>
-  <translations>
-    <file path="locale_settings_ar.xtb" lang="ar" />
-    <file path="locale_settings_bg.xtb" lang="bg" />
-    <file path="locale_settings_bn.xtb" lang="bn" />
-    <file path="locale_settings_ca.xtb" lang="ca" />
-    <file path="locale_settings_cs.xtb" lang="cs" />
-    <file path="locale_settings_da.xtb" lang="da" />
-    <file path="locale_settings_de.xtb" lang="de" />
-    <file path="locale_settings_el.xtb" lang="el" />
-    <file path="locale_settings_en-GB.xtb" lang="en-GB" />
-    <file path="locale_settings_es.xtb" lang="es" />
-    <file path="locale_settings_es-419.xtb" lang="es-419" />
-    <file path="locale_settings_et.xtb" lang="et" />
-    <file path="locale_settings_fi.xtb" lang="fi" />
-    <file path="locale_settings_fil.xtb" lang="fil" />
-    <file path="locale_settings_fr.xtb" lang="fr" />
-    <file path="locale_settings_gu.xtb" lang="gu" />
-    <file path="locale_settings_he.xtb" lang="he" />
-    <file path="locale_settings_hi.xtb" lang="hi" />
-    <file path="locale_settings_hr.xtb" lang="hr" />
-    <file path="locale_settings_hu.xtb" lang="hu" />
-    <file path="locale_settings_id.xtb" lang="id" />
-    <file path="locale_settings_it.xtb" lang="it" />
-    <file path="locale_settings_ja.xtb" lang="ja" />
-    <file path="locale_settings_kn.xtb" lang="kn" />
-    <file path="locale_settings_ko.xtb" lang="ko" />
-    <file path="locale_settings_lt.xtb" lang="lt" />
-    <file path="locale_settings_lv.xtb" lang="lv" />
-    <file path="locale_settings_ml.xtb" lang="ml" />
-    <file path="locale_settings_mr.xtb" lang="mr" />
-    <file path="locale_settings_nl.xtb" lang="nl" />
-    <file path="locale_settings_nb.xtb" lang="no" />
-    <file path="locale_settings_or.xtb" lang="or" />
-    <file path="locale_settings_pl.xtb" lang="pl" />
-    <file path="locale_settings_pt-BR.xtb" lang="pt-BR" />
-    <file path="locale_settings_pt-PT.xtb" lang="pt-PT" />
-    <file path="locale_settings_ro.xtb" lang="ro" />
-    <file path="locale_settings_ru.xtb" lang="ru" />
-    <file path="locale_settings_sk.xtb" lang="sk" />
-    <file path="locale_settings_sl.xtb" lang="sl" />
-    <file path="locale_settings_sr.xtb" lang="sr" />
-    <file path="locale_settings_sv.xtb" lang="sv" />
-    <file path="locale_settings_ta.xtb" lang="ta" />
-    <file path="locale_settings_te.xtb" lang="te" />
-    <file path="locale_settings_th.xtb" lang="th" />
-    <file path="locale_settings_tr.xtb" lang="tr" />
-    <file path="locale_settings_uk.xtb" lang="uk" />
-    <file path="locale_settings_vi.xtb" lang="vi" />
-    <file path="locale_settings_zh-CN.xtb" lang="zh-CN" />
-    <file path="locale_settings_zh-TW.xtb" lang="zh-TW" />
-  </translations>
   <release seq="1" allow_pseudo="false">
     <includes>
       <!-- The HTML for the about:terms page -->
@@ -122,7 +71,7 @@
       <if expr="pp_ifdef('_google_chrome') and 'de' == lang">    <include name="IDR_TERMS_HTML" file="terms\terms_de.html" type="BINDATA" /></if>
       <if expr="pp_ifdef('_google_chrome') and 'el' == lang">    <include name="IDR_TERMS_HTML" file="terms\terms_el.html" type="BINDATA" /></if>
       <if expr="pp_ifdef('_google_chrome') and 'en-GB' == lang"> <include name="IDR_TERMS_HTML" file="terms\terms_en-GB.html" type="BINDATA" /></if>
-      <if expr="pp_ifdef('_google_chrome') and 'en' == lang"> <include name="IDR_TERMS_HTML" file="terms\terms_en.html" type="BINDATA" /></if>
+      <if expr="pp_ifdef('_google_chrome') and 'en-US' == lang"> <include name="IDR_TERMS_HTML" file="terms\terms_en.html" type="BINDATA" /></if>
       <if expr="pp_ifdef('_google_chrome') and 'es' == lang">    <include name="IDR_TERMS_HTML" file="terms\terms_es.html" type="BINDATA" /></if>
       <if expr="pp_ifdef('_google_chrome') and 'es-419' == lang"><include name="IDR_TERMS_HTML" file="terms\terms_es-419.html" type="BINDATA" /></if>
       <if expr="pp_ifdef('_google_chrome') and 'et' == lang">    <include name="IDR_TERMS_HTML" file="terms\terms_et.html" type="BINDATA" /></if>
@@ -168,308 +117,308 @@
         <include name="IDR_TERMS_HTML" file="terms\terms_chromium.html" type="BINDATA" />
       </if>
     </includes>
-    <messages>
+    <messages fallback_to_english="true">
 
       <!-- The font used in web-style native pages (e.g. History). -->
-      <message name="IDS_WEB_FONT_FAMILY" use_name_for_id="true">
+      <message name="IDS_WEB_FONT_FAMILY">
         Arial
       </message>
 
       <!-- The default value for HTTP Accept-Language header. -->
-      <message name="IDS_ACCEPT_LANGUAGES" use_name_for_id="true">
+      <message name="IDS_ACCEPT_LANGUAGES">
         en-US,en
       </message>
 
       <!-- The default value for |WebPreference::default_encoding|. -->
-      <message name="IDS_DEFAULT_ENCODING" use_name_for_id="true">
+      <message name="IDS_DEFAULT_ENCODING">
         ISO-8859-1
       </message>
 
       <!-- The default value to determine whether
            |WebPreference::standard_font_family| serif or sans-serif -->
-      <message name="IDS_STANDARD_FONT_IS_SERIF" use_name_for_id="true">
+      <message name="IDS_STANDARD_FONT_IS_SERIF">
         true
       </message>
 
       <!-- The default value for |WebPreference::fixed_font_family| -->
-      <message name="IDS_FIXED_FONT_FAMILY" use_name_for_id="true">
+      <message name="IDS_FIXED_FONT_FAMILY">
         Courier New
       </message>
 
       <!-- The default value for |WebPreference::serif_font_family| -->
-      <message name="IDS_SERIF_FONT_FAMILY" use_name_for_id="true">
+      <message name="IDS_SERIF_FONT_FAMILY">
         Times New Roman
       </message>
 
       <!-- The default value for |WebPreference::sans_serif_font_family| -->
-      <message name="IDS_SANS_SERIF_FONT_FAMILY" use_name_for_id="true">
+      <message name="IDS_SANS_SERIF_FONT_FAMILY">
         Arial
       </message>
 
       <!-- The default value for |WebPreference::cursive_font_family| -->
-      <message name="IDS_CURSIVE_FONT_FAMILY" use_name_for_id="true">
+      <message name="IDS_CURSIVE_FONT_FAMILY">
         Comic Sans MS
       </message>
 
       <!-- The default value for |WebPreference::fantasy_font_family| -->
-      <message name="IDS_FANTASY_FONT_FAMILY" use_name_for_id="true">
+      <message name="IDS_FANTASY_FONT_FAMILY">
         Impact
       </message>
 
       <!-- The default value for |WebPreference::default_font_size| -->
-      <message name="IDS_DEFAULT_FONT_SIZE" use_name_for_id="true">
+      <message name="IDS_DEFAULT_FONT_SIZE">
         16
       </message>
 
       <!-- The default value for |WebPreference::default_fixed_font_size| -->
-      <message name="IDS_DEFAULT_FIXED_FONT_SIZE" use_name_for_id="true">
+      <message name="IDS_DEFAULT_FIXED_FONT_SIZE">
         13
       </message>
 
       <!-- The default value for |WebPreference::minimum_font_size| -->
-      <message name="IDS_MINIMUM_FONT_SIZE" use_name_for_id="true">
+      <message name="IDS_MINIMUM_FONT_SIZE">
         1
       </message>
 
       <!-- The default value for |WebPreference::minimum_logical_font_size|. -->
-      <message name="IDS_MINIMUM_LOGICAL_FONT_SIZE" use_name_for_id="true">
+      <message name="IDS_MINIMUM_LOGICAL_FONT_SIZE">
         6
       </message>
 
       <!-- The default value for |WebPreference::uses_universal_detector|. -->
-      <message name="IDS_USES_UNIVERSAL_DETECTOR" use_name_for_id="true">
+      <message name="IDS_USES_UNIVERSAL_DETECTOR">
         false
       </message>
 
       <!-- The file name of the spellchecking dictionary without the extension (case-sensitive). -->
-      <message name="IDS_SPELLCHECK_DICTIONARY" use_name_for_id="true">
+      <message name="IDS_SPELLCHECK_DICTIONARY">
         en-US
       </message>
 
       <!-- URL for the "Learn more" link on the malware blocking page. -->
-      <message name="IDS_LEARN_MORE_MALWARE_URL" translateable="false">
-        http://www.google.com/support/bin/answer.py?answer=45449&amp;topic=360&amp;hl=[GRITLANGCODE]&amp;sa=X&amp;oi=malwarewarninglink&amp;resnum=1&amp;ct=help
+      <message name="IDS_LEARN_MORE_MALWARE_URL">
+        http://www.google.com/support/bin/answer.py?answer=45449&amp;topic=360&amp;hl=en&amp;sa=X&amp;oi=malwarewarninglink&amp;resnum=1&amp;ct=help
       </message>
 
       <!-- URL for the "Learn more" link on the phishing blocking page. -->
-      <message name="IDS_LEARN_MORE_PHISHING_URL" translateable="false">
+      <message name="IDS_LEARN_MORE_PHISHING_URL">
         http://www.google.com/support/bin/answer.py?answer=106318&amp;hl=[GRITLANGCODE]
       </message>
 
       <!-- The width of the Options dialog box, in characters (character width = -->
       <!-- average character width for default dialog box font) -->
-      <message name="IDS_OPTIONS_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_OPTIONS_DIALOG_WIDTH_CHARS">
         98
       </message>
 
       <!-- The height of the Options dialog box, in lines (line height = character -->
       <!-- height for default dialog box font) -->
-      <message name="IDS_OPTIONS_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_OPTIONS_DIALOG_HEIGHT_LINES">
         36
       </message>
 
       <!-- The width of the title column of the Options dialog box, in characters (see -->
       <!-- above for defn of character width) -->
-      <message name="IDS_OPTIONS_DIALOG_LEFT_COLUMN_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_OPTIONS_DIALOG_LEFT_COLUMN_WIDTH_CHARS">
         23
       </message>
 
       <!-- The width and height of the Bug Reporting dialog box in characters and lines -->
       <!-- (See above). -->
-      <message name="IDS_BUGREPORT_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_BUGREPORT_DIALOG_WIDTH_CHARS">
         85
       </message>
-      <message name="IDS_BUGREPORT_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_BUGREPORT_DIALOG_HEIGHT_LINES">
         17
       </message>
 
       <!-- The width and height of the Clear Browsing Data dialog box in characters and -->
       <!-- lines (See above). -->
-      <message name="IDS_CLEARDATA_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_CLEARDATA_DIALOG_WIDTH_CHARS">
         63
       </message>
-      <message name="IDS_CLEARDATA_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_CLEARDATA_DIALOG_HEIGHT_LINES">
         15.5
       </message>
 
       <!-- The width and height of the Import dialog box in characters and lines (See -->
       <!-- above). -->
-      <message name="IDS_IMPORT_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_IMPORT_DIALOG_WIDTH_CHARS">
         60
       </message>
-      <message name="IDS_IMPORT_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_IMPORT_DIALOG_HEIGHT_LINES">
         14
       </message>
 
       <!-- The width and height of the About dialog box in characters and lines (See -->
       <!-- above). -->
-      <message name="IDS_ABOUT_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_ABOUT_DIALOG_WIDTH_CHARS">
         70
       </message>
-      <message name="IDS_ABOUT_DIALOG_MINIMUM_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_ABOUT_DIALOG_MINIMUM_HEIGHT_LINES">
         4
       </message>
 
       <!-- The width and height of the Fonts and Languages dialog box in characters and -->
       <!-- lines (See above). -->
-      <message name="IDS_FONTSLANG_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_FONTSLANG_DIALOG_WIDTH_CHARS">
         96
       </message>
-      <message name="IDS_FONTSLANG_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_FONTSLANG_DIALOG_HEIGHT_LINES">
         26
       </message>
 
       <!-- The width of the font style column in the Fonts and Languages dialog box, -->
       <!-- in character widths. -->
-      <message name="IDS_FONTSLANG_LABEL_WIDTH" use_name_for_id="true">
+      <message name="IDS_FONTSLANG_LABEL_WIDTH">
         18
       </message>
 
       <!-- The width and height of the Page Info dialog box in characters and lines -->
       <!-- (See above). -->
-      <message name="IDS_PAGEINFO_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_PAGEINFO_DIALOG_WIDTH_CHARS">
         70
       </message>
-      <message name="IDS_PAGEINFO_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_PAGEINFO_DIALOG_HEIGHT_LINES">
         25
       </message>
 
       <!-- The width and height of the Search Engines dialog box in characters and -->
       <!-- lines (See above). -->
-      <message name="IDS_SEARCHENGINES_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_SEARCHENGINES_DIALOG_WIDTH_CHARS">
         95
       </message>
-      <message name="IDS_SEARCHENGINES_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_SEARCHENGINES_DIALOG_HEIGHT_LINES">
         25
       </message>
 
       <!-- The width and height of the Shelf Item dialog box in characters and -->
       <!-- lines (See above). -->
-      <message name="IDS_SHELFITEM_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_SHELFITEM_DIALOG_WIDTH_CHARS">
         80
       </message>
-      <message name="IDS_SHELFITEM_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_SHELFITEM_DIALOG_HEIGHT_LINES">
         30
       </message>
 
       <!-- The width and height of the Edit Bookmark dialog box in characters and lines -->
       <!-- (See above). -->
-      <message name="IDS_EDITBOOKMARK_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_EDITBOOKMARK_DIALOG_WIDTH_CHARS">
         70
       </message>
-      <message name="IDS_EDITBOOKMARK_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_EDITBOOKMARK_DIALOG_HEIGHT_LINES">
         25
       </message>
 
       <!-- The width and height of the First Run dialog box in characters and lines -->
       <!-- (See above). -->
-      <message name="IDS_FIRSTRUN_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_FIRSTRUN_DIALOG_WIDTH_CHARS">
         90
       </message>
-      <message name="IDS_FIRSTRUN_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_FIRSTRUN_DIALOG_HEIGHT_LINES">
         16
       </message>
 
       <!-- The width and height of the First Run Customize dialog box in characters and -->
       <!-- lines (See above). -->
-      <message name="IDS_FIRSTRUNCUSTOMIZE_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_FIRSTRUNCUSTOMIZE_DIALOG_WIDTH_CHARS">
         90
       </message>
-      <message name="IDS_FIRSTRUNCUSTOMIZE_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_FIRSTRUNCUSTOMIZE_DIALOG_HEIGHT_LINES">
         17
       </message>
 
       <!-- The width and height of the Cookies dialog box in characters and lines -->
       <!-- (See above). -->
-      <message name="IDS_COOKIES_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_COOKIES_DIALOG_WIDTH_CHARS">
         80
       </message>
-      <message name="IDS_COOKIES_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_COOKIES_DIALOG_HEIGHT_LINES">
         29
       </message>
 
       <!-- The width and height of the Import Progress dialog box in characters and -->
       <!-- lines (See above). -->
-      <message name="IDS_IMPORTPROGRESS_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_IMPORTPROGRESS_DIALOG_WIDTH_CHARS">
         75
       </message>
-      <message name="IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES">
         16
       </message>
 
       <!-- The width and height of the "Mozilla Firefox is locked" dialog box in -->
       <!-- characters and lines (See above). -->
-      <message name="IDS_IMPORTLOCK_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_IMPORTLOCK_DIALOG_WIDTH_CHARS">
         50
       </message>
-      <message name="IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES">
         8
       </message>
 
       <!-- The width and height of the First Run Search Information bubble in -->
       <!-- characters and lines (See above). -->
-      <message name="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">
         93
       </message>
-      <message name="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES">
         12
       </message>
 
       <!-- The URL to be loaded to display Help -->
-      <message name="IDS_HELP_CONTENT_URL" translateable="false">
+      <message name="IDS_HELP_CONTENT_URL">
         http://www.google.com/support/chrome/?hl=[GRITLANGCODE]
       </message>
 
       <!-- URL to post bug reports to -->
-      <message name="IDS_BUGREPORT_POST_URL" translateable="false">
+      <message name="IDS_BUGREPORT_POST_URL">
         http://web-bug.appspot.com/bugreport
       </message>
 
       <!-- Locale-dependent static encodings string -->
-      <message name="IDS_STATIC_ENCODING_LIST" use_name_for_id="true">
+      <message name="IDS_STATIC_ENCODING_LIST">
         ISO-8859-1,windows-1252
       </message>
 
       <!-- The URL for the the Welcome to Chrome page shown on first run. -->
-      <message name="IDS_WELCOME_PAGE_URL" translateable="false">
+      <message name="IDS_WELCOME_PAGE_URL">
         http://tools.google.com/chrome/intl/[GRITLANGCODE]/welcome.html
       </message>
 
       <!-- The URL for the the Learn More page shown on incognito new tab. -->
-      <message name="IDS_LEARN_MORE_INCOGNITO_URL" translateable="false">
+      <message name="IDS_LEARN_MORE_INCOGNITO_URL">
         http://www.google.com/support/chrome/bin/answer.py?answer=95464&amp;hl=[GRITLANGCODE]
       </message>
 
       <!-- The URL for the "Learn more" page for the Privacy section under Options. -->
-      <message name="IDS_LEARN_MORE_PRIVACY_URL" translateable="false">
+      <message name="IDS_LEARN_MORE_PRIVACY_URL">
         http://www.google.com/support/chrome/bin/answer.py?answer=114836&amp;hl=[GRITLANGCODE]
       </message>
 
       <!-- The width and height of the bookmark manager in characters and lines -->
       <!-- (See above). -->
-      <message name="IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS">
         150
       </message>
-      <message name="IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES">
         40
       </message>
 
       <!-- The language dependent download view size. -->
-      <message name="IDS_DOWNLOAD_BIG_PROGRESS_SIZE" use_name_for_id="true">
+      <message name="IDS_DOWNLOAD_BIG_PROGRESS_SIZE">
         52
       </message>
 
       <!-- The width and height of the Select Profile dialog in characters and lines -->
       <!-- (See above). -->
-      <message name="IDS_SELECT_PROFILE_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_SELECT_PROFILE_DIALOG_WIDTH_CHARS">
         60
       </message>
-      <message name="IDS_SELECT_PROFILE_DIALOG_HEIGHT_LINES" use_name_for_id="true">
+      <message name="IDS_SELECT_PROFILE_DIALOG_HEIGHT_LINES">
         5
       </message>
 
       <!-- The width of the New Profile dialog in characters (See above). -->
-      <message name="IDS_NEW_PROFILE_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+      <message name="IDS_NEW_PROFILE_DIALOG_WIDTH_CHARS">
         60
       </message>
     </messages>

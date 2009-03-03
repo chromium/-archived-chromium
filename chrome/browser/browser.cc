@@ -978,21 +978,6 @@ void Browser::ShowDownloadsTab() {
   ShowSingleDOMUITab(DownloadsUI::GetBaseURL());
 }
 
-bool Browser::SupportsWindowFeature(WindowFeature feature) const {
-  unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
-  if (type() == TYPE_NORMAL)
-     features |= FEATURE_BOOKMARKBAR;
-  if (!window_ || !window_->IsFullscreen()) {
-    if (type() == TYPE_NORMAL)
-      features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
-    else
-      features |= FEATURE_TITLEBAR;
-    if ((type() & Browser::TYPE_APP) == 0)
-      features |= FEATURE_LOCATIONBAR;
-  }
-  return !!(features & feature);
-}
-
 void Browser::OpenClearBrowsingDataDialog() {
   UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
   window_->ShowClearBrowsingDataDialog();
