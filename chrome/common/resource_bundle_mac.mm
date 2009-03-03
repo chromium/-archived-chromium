@@ -42,7 +42,6 @@ base::DataPack *LoadResourceDataPack(NSString *name) {
     FilePath resources_pak_path([resource_path fileSystemRepresentation]);
     resource_pack = new base::DataPack;
     bool success = resource_pack->Load(resources_pak_path);
-    DCHECK(success) << "failed to load chrome.pak";
     if (!success) {
       delete resource_pack;
       resource_pack = NULL;
