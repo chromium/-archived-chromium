@@ -148,6 +148,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8DocumentCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8DOMParserConstructor.cpp"
 			>
 		</File>
@@ -161,6 +165,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8EventCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8HTMLCanvasElementCustom.cpp"
 			>
 		</File>
 		<File
