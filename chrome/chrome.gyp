@@ -1133,6 +1133,7 @@
             ['include', '^browser/dom_ui/dom_ui\\.cc$'],
             ['include', '^browser/dom_ui/dom_ui_contents\\.cc$'],
             ['include', '^browser/dom_ui/dom_ui_host\\.cc$'],
+            ['include', '^browser/dom_ui/history_ui\\.cc$'],
             ['include', '^browser/dom_ui/new_tab_ui\\.cc$'],
 
             # Exclude most of download.
@@ -1515,6 +1516,10 @@
         'test/unit/run_all_unittests.cc',
       ],
       'conditions': [
+        ['OS=="mac"', {
+          # mac tests load the resources from the built app beside the test
+          'dependencies': ['app'],
+        }],
         # There are only real ui_tests on Windows.  On other platforms,
         # there's just a dummy stub that looks like a test.  Since it's not
         # a real ui_tests executable, it builds test/unit/run_all_unittests.cc
@@ -1675,6 +1680,10 @@
         'test/unit/run_all_unittests.cc',
       ],
       'conditions': [
+        ['OS=="mac"', {
+          # mac tests load the resources from the built app beside the test
+          'dependencies': ['app'],
+        }],
         ['OS!="win"', {
           'sources!': [
             'browser/autocomplete/autocomplete_unittest.cc',
