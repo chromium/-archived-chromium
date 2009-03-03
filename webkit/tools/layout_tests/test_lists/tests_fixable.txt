@@ -317,10 +317,15 @@ LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
+LINUX : LayoutTests/fast/inline/inline-continuation-borders.html = FAIL
+LINUX : LayoutTests/fast/inline/vertical-align-text-bottom.html = FAIL
 LINUX MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
 LINUX : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
 LINUX : LayoutTests/fast/overflow/overflow-stacking.html = FAIL
 LINUX : LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
+LINUX : LayoutTests/fast/reflections/reflection-direction.html = FAIL
+LINUX : LayoutTests/fast/reflections/reflection-masks.html = FAIL
+LINUX : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
 LINUX : LayoutTests/fast/replaced/embed-display-none.html = FAIL
 LINUX : LayoutTests/fast/replaced/applet-display-none.html = FAIL
 LINUX : LayoutTests/fast/replaced/object-display-none.html = FAIL
@@ -672,11 +677,6 @@ LINUX : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
 LINUX : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
 LINUX : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
 LINUX : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
-
-// We don't render reflection masks properly.
-// http://code.google.com/p/chromium/issues/detail?id=3229
-// New test. We should fix it, but it doesn't need to block the current release
-DEFER LINUX WIN : LayoutTests/fast/reflections/reflection-masks.html = FAIL
 
 // More tests that fail because of masks not working properly.
 // New tests. We should fix these, but they don't need to block the current release
@@ -1765,8 +1765,6 @@ LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList-almost-strict.html = FAIL
 LayoutTests/fast/dom/SelectorAPI/dumpNodeList.html = FAIL
 LayoutTests/fast/loader/location-port.html = FAIL
-LINUX WIN : LayoutTests/fast/reflections/reflection-direction.html = FAIL
-LINUX WIN : LayoutTests/fast/reflections/reflection-masks-opacity.html = FAIL
 LINUX WIN : LayoutTests/fast/text/atsui-spacing-features.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
@@ -1792,8 +1790,6 @@ LINUX WIN : chrome/fast/dom/extensions/interval.html = FAIL
 // Regressions from merge 41217:41268
 // New tests
 DEFER : LayoutTests/fast/dom/Window/customized-property-survives-gc.html = FAIL
-DEFER LINUX WIN : LayoutTests/fast/inline/inline-continuation-borders.html = FAIL
-DEFER LINUX WIN : LayoutTests/fast/inline/vertical-align-text-bottom.html = FAIL
 DEFER : LayoutTests/fast/dom/Window/webkitConvertPoint.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/gradients/background-clipped.html = FAIL
 
@@ -1842,7 +1838,7 @@ MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 MAC : LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 MAC DEBUG : LayoutTests/http/tests/misc/slow-preload-cancel.html = CRASH
 MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT PASS
-WIN MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH PASS
+MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
