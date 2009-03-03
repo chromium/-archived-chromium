@@ -213,10 +213,10 @@ class Browser : public TabStripModelDelegate,
       const std::vector<TabNavigation>& navigations,
       int selected_navigation);
 
-  // Show a native UI tab given a URL. If a tab with the same URL is already
+  // Show a DOMUI tab given a URL. If a tab with the same URL is already
   // visible in this browser, it becomes selected. Otherwise a new tab is
   // created.
-  void ShowNativeUITab(const GURL& url);
+  void ShowSingleDOMUITab(const GURL& url);
 
   // Assorted browser commands ////////////////////////////////////////////////
 

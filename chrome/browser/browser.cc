@@ -536,22 +536,18 @@ void Browser::ReplaceRestoredTab(
       restored_controller);
 }
 
-void Browser::ShowNativeUITab(const GURL& url) {
+void Browser::ShowSingleDOMUITab(const GURL& url) {
   int i, c;
   TabContents* tc;
   for (i = 0, c = tabstrip_model_.count(); i < c; ++i) {
     tc = tabstrip_model_.GetTabContentsAt(i);
-    if (tc->type() == TAB_CONTENTS_NATIVE_UI &&
+    if (tc->type() == TAB_CONTENTS_DOM_UI &&
         tc->GetURL() == url) {
       tabstrip_model_.SelectTabContentsAt(i, false);
       return;
     }
   }
-
-  TabContents* contents = CreateTabContentsForURL(url, GURL(), profile_,
-                                                  PageTransition::LINK, false,
-                                                  NULL);
-  AddNewContents(NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(), true);
+  AddTabWithURL(url, GURL(), PageTransition::AUTO_BOOKMARK, true, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -971,9 +967,7 @@ void Browser::ToggleBookmarkBar() {
 
 void Browser::ShowHistoryTab() {
   UserMetrics::RecordAction(L"ShowHistory", profile_);
-  GURL downloads_url = HistoryUI::GetBaseURL();
-  AddTabWithURL(downloads_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
-                NULL);
+  ShowSingleDOMUITab(HistoryUI::GetBaseURL());
 }
 
 void Browser::OpenBookmarkManager() {
@@ -983,9 +977,7 @@ void Browser::OpenBookmarkManager() {
 
 void Browser::ShowDownloadsTab() {
   UserMetrics::RecordAction(L"ShowDownloads", profile_);
-  GURL downloads_url = DownloadsUI::GetBaseURL();
-  AddTabWithURL(downloads_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
-                NULL);
+  ShowSingleDOMUITab(DownloadsUI::GetBaseURL());
 }
 
 void Browser::OpenClearBrowsingDataDialog() {
