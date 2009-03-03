@@ -46,6 +46,16 @@
 #error This file should only be included by X_messages.h, which needs to define MESSAGES_INTERNAL_FILE first.
 #endif
 
+// Trick scons and xcode into seeing the possible real dependencies since they
+// don't understand #include MESSAGES_INTERNAL_FILE. See http://crbug.com/7828
+#if 0
+#include "chrome/common/ipc_sync_message_unittest.h"
+#include "chrome/common/plugin_messages_internal.h"
+#include "chrome/common/render_messages_internal.h"
+#include "chrome/renderer/dev_tools_messages_internal.h"
+#include "chrome/test/automation/automation_messages_internal.h"
+#endif
+
 #ifndef IPC_MESSAGE_MACROS_INCLUDE_BLOCK
 #define IPC_MESSAGE_MACROS_INCLUDE_BLOCK
 
