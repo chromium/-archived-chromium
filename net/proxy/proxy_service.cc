@@ -21,6 +21,7 @@
 #include "net/proxy/proxy_resolver_mac.h"
 #endif
 #include "net/proxy/proxy_resolver.h"
+#include "net/proxy/proxy_resolver_v8.h"
 
 using base::TimeDelta;
 using base::TimeTicks;
@@ -211,6 +212,38 @@ ProxyService* ProxyService::Create(const ProxyInfo* pi) {
   // - http://code.google.com/p/chromium/issues/detail?id=2764
   return CreateNull();
 #endif
+}
+
+// static
+ProxyService* ProxyService::CreateUsingV8Resolver(
+    const ProxyInfo* pi, URLRequestContext* url_request_context) {
+  if (pi) {
+    // The ProxyResolver is set to NULL, since it should never be called
+    // (because the configuration will never require PAC).
+    return new ProxyService(new ProxyConfigServiceFixed(*pi), NULL);
+  }
+
+  // Choose the system configuration service appropriate for each platform.
+  ProxyConfigService* config_service;
+#if defined(OS_WIN)
+  config_service = new ProxyConfigServiceWin();
+#elif defined(OS_MACOSX)
+  config_service = new ProxyConfigServiceMac();
+#else
+  // TODO(port): implement ProxyConfigServiceLinux.
+  // See: http://code.google.com/p/chromium/issues/detail?id=8143
+  return CreateNull();
+#endif
+
+  // Create a ProxyService that uses V8 to evaluate PAC scripts.
+  ProxyService* proxy_service = new ProxyService(
+      config_service, new ProxyResolverV8());
+
+  // Configure PAC script downloads to be issued using |url_request_context|.
+  proxy_service->SetProxyScriptFetcher(
+      ProxyScriptFetcher::Create(url_request_context));
+
+  return proxy_service;
 }
 
 // static

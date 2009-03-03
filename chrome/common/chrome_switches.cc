@@ -235,6 +235,12 @@ const wchar_t kMakeDefaultBrowser[]            = L"make-default-browser";
 // affects HTTP and HTTPS requests.
 const wchar_t kProxyServer[]                   = L"proxy-server";
 
+// Enable alternate proxy autoconfig implementation, which downloads PAC
+// scripts internally and executes them using V8 (as opposed to fetching
+// and executing using WinHTTP). This cannot be used in conjunction with
+// --single-process.
+const wchar_t kV8ProxyResolver[]               = L"v8-proxy-resolver";
+
 // Chrome will support prefetching of DNS information.  Until this becomes
 // the default, we'll provide a command line switch.
 extern const wchar_t kDnsLogDetails[]          = L"dns-log-details";

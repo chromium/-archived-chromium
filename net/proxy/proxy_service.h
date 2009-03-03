@@ -17,6 +17,7 @@
 #include "net/proxy/proxy_info.h"
 
 class GURL;
+class URLRequestContext;
 
 namespace net {
 
@@ -80,17 +81,31 @@ class ProxyService {
   // Call this method with a non-null |pac_request| to cancel the PAC request.
   void CancelPacRequest(PacRequest* pac_request);
 
-  // Set the ProxyScriptFetcher dependency. This is needed if the ProxyResolver
+  // Sets the ProxyScriptFetcher dependency. This is needed if the ProxyResolver
   // is of type ProxyResolverWithoutFetch. ProxyService takes ownership of
   // |proxy_script_fetcher|.
   void SetProxyScriptFetcher(ProxyScriptFetcher* proxy_script_fetcher);
 
-  // Create a proxy service using the specified settings. If |pi| is NULL then
+  // Creates a proxy service using the specified settings. If |pi| is NULL then
   // the system's default proxy settings will be used (on Windows this will
   // use IE's settings).
   static ProxyService* Create(const ProxyInfo* pi);
 
-  // Create a proxy service that always fails to fetch the proxy configuration,
+  // Creates a proxy service using the specified settings. If |pi| is NULL then
+  // the system's default proxy settings will be used. This is basically the
+  // same as Create(const ProxyInfo*), however under the hood it uses a
+  // different implementation (V8). |url_request_context| is the URL request
+  // context that will be used if a PAC script needs to be fetched.
+  // ##########################################################################
+  // # See the warnings in net/proxy/proxy_resolver_v8.h describing the
+  // # multi-threading model. In order for this to be safe to use, *ALL* the
+  // # other V8's running in the process must use v8::Locker.
+  // ##########################################################################
+  static ProxyService* CreateUsingV8Resolver(
+      const ProxyInfo* pi,
+      URLRequestContext* url_request_context);
+
+  // Creates a proxy service that always fails to fetch the proxy configuration,
   // so it falls back to direct connect.
   static ProxyService* CreateNull();
 

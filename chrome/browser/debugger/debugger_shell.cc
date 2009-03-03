@@ -35,6 +35,7 @@ DebuggerShell::~DebuggerShell() {
   io_->Stop();
   io_ = NULL;
 
+  v8::Locker locked;
   v8::HandleScope scope;
   SubshellFunction("exit", 0, NULL);
   v8::V8::RemoveMessageListeners(&DelegateMessageListener);
@@ -46,6 +47,7 @@ DebuggerShell::~DebuggerShell() {
 void DebuggerShell::Start() {
   io_->Start(this);
 
+  v8::Locker locked;
   v8::HandleScope scope;
 
   v8_this_ = v8::Persistent<v8::External>::New(v8::External::New(this));
@@ -215,6 +217,7 @@ void DebuggerShell::MessageListener(v8::Handle<v8::Message> message) {
 }
 
 void DebuggerShell::Debug(TabContents* tab) {
+  v8::Locker locked;
   v8::HandleScope outer;
   v8::Context::Scope scope(v8_context_);
 
@@ -228,6 +231,7 @@ void DebuggerShell::Debug(TabContents* tab) {
 }
 
 void DebuggerShell::DebugMessage(const std::wstring& msg) {
+  v8::Locker locked;
   v8::HandleScope scope;
 
   if (msg.length()) {
@@ -247,11 +251,13 @@ void DebuggerShell::DebugMessage(const std::wstring& msg) {
 }
 
 void DebuggerShell::OnDebugAttach() {
+  v8::Locker locked;
   v8::HandleScope scope;
   SubshellFunction("on_attach", 0, NULL);
 }
 
 void DebuggerShell::OnDebugDisconnect() {
+  v8::Locker locked;
   v8::HandleScope scope;
   SubshellFunction("on_disconnect", 0, NULL);
 }
@@ -323,6 +329,7 @@ void DebuggerShell::PrintPrompt() {
   if (!shell_.IsEmpty()) {
     if (!debugger_ready_)
       return;
+    v8::Locker locked;
     v8::HandleScope outer;
     v8::Handle<v8::Value> result = CompileAndRun("shell_.prompt()");
     if (!result.IsEmpty() && !result->IsUndefined()) {
@@ -334,6 +341,7 @@ void DebuggerShell::PrintPrompt() {
 }
 
 void DebuggerShell::ProcessCommand(const std::wstring& data) {
+  v8::Locker locked;
   v8::HandleScope outer;
   v8::Context::Scope scope(v8_context_);
   if (!shell_.IsEmpty() && data.substr(0, 7) != L"source(") {
@@ -375,6 +383,7 @@ void DebuggerShell::LoadUserConfig() {
 }
 
 void DebuggerShell::DidConnect() {
+  v8::Locker locked;
   v8::HandleScope outer;
   v8::Context::Scope scope(v8_context_);
 
@@ -384,6 +393,7 @@ void DebuggerShell::DidConnect() {
 }
 
 void DebuggerShell::DidDisconnect() {
+  v8::Locker locked;
   v8::HandleScope outer;
   SubshellFunction("exit", 0, NULL);
 }
@@ -398,6 +408,7 @@ v8::Handle<v8::Value> DebuggerShell::CompileAndRun(
 v8::Handle<v8::Value> DebuggerShell::CompileAndRun(
     const std::wstring& wstr,
     const std::string& filename) {
+  v8::Locker locked;
   v8::Context::Scope scope(v8_context_);
   v8::Handle<v8::String> scriptname;
   if (filename.length() > 0) {

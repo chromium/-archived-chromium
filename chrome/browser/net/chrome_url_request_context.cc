@@ -21,12 +21,12 @@
 #include "net/proxy/proxy_service.h"
 #include "webkit/glue/webkit_glue.h"
 
-// Sets up proxy info if it was specified, otherwise returns NULL. The
-// returned pointer MUST be deleted by the caller if non-NULL.
-static net::ProxyInfo* CreateProxyInfo() {
+// Sets up proxy info if overrides were specified on the command line.
+// Otherwise returns NULL (meaning we should use the system defaults).
+// The caller is responsible for deleting returned pointer.
+static net::ProxyInfo* CreateProxyInfo(const CommandLine& command_line) {
   net::ProxyInfo* proxy_info = NULL;
 
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kProxyServer)) {
     proxy_info = new net::ProxyInfo();
     const std::wstring& proxy_server =
@@ -37,6 +37,24 @@ static net::ProxyInfo* CreateProxyInfo() {
   return proxy_info;
 }
 
+// Create a proxy service according to the options on command line.
+static net::ProxyService* CreateProxyService(URLRequestContext* context,
+                                             const CommandLine& command_line) {
+  scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
+
+  bool use_v8 = command_line.HasSwitch(switches::kV8ProxyResolver);
+  if (use_v8 && command_line.HasSwitch(switches::kSingleProcess)) {
+    // See the note about V8 multithreading in net/proxy/proxy_resolver_v8.h
+    // to understand why we have this limitation.
+    LOG(ERROR) << "Cannot use V8 Proxy resolver in single process mode.";
+    use_v8 = false;  // Fallback to non-v8 implementation.
+  }
+
+  return use_v8 ?
+    net::ProxyService::CreateUsingV8Resolver(proxy_info.get(), context) :
+    net::ProxyService::Create(proxy_info.get());
+}
+
 // static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
     Profile* profile, const FilePath& cookie_store_path,
@@ -44,8 +62,8 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
   DCHECK(!profile->IsOffTheRecord());
   ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
 
-  scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo());
-  context->proxy_service_ = net::ProxyService::Create(proxy_info.get());
+  context->proxy_service_ = CreateProxyService(
+      context, *CommandLine::ForCurrentProcess());
 
   net::HttpCache* cache =
       new net::HttpCache(context->proxy_service_,
