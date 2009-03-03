@@ -352,10 +352,13 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // operation to finish.
   base::TimeTicks repaint_start_time_;
 
+  // Queue of keyboard events that we need to track.
+  typedef std::queue<WebKeyboardEvent> KeyQueue;
+
   // A queue of keyboard events. We can't trust data from the renderer so we
   // stuff key events into a queue and pop them out on ACK, feeding our copy
   // back to whatever unhandled handler instead of the returned version.
-  std::queue<WebKeyboardEvent> key_queue_;
+  KeyQueue key_queue_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHost);
 };

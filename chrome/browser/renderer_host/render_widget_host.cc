@@ -575,11 +575,16 @@ void RenderWidgetHost::OnMsgInputEventAck(const IPC::Message& message) {
       r = message.ReadBool(&iter, &processed);
       DCHECK(r);
 
-      if (!processed) {
-        UnhandledKeyboardEvent(key_queue_.front());
-      }
-
+      KeyQueue::value_type front_item = key_queue_.front();
       key_queue_.pop();
+
+      if (!processed) {
+        UnhandledKeyboardEvent(front_item);
+
+        // WARNING: This RenderWidgetHost can be deallocated at this point
+        // (i.e.  in the case of Ctrl+W, where the call to
+        // UnhandledKeyboardEvent destroys this RenderWidgetHost).
+      }
     }
   }
 }
