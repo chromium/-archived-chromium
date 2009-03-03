@@ -15,6 +15,10 @@
 #include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/icu_util.h"
+#if defined(OS_MACOSX)
+#include "base/mac_util.h"
+#include "base/path_service.h"
+#endif
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "base/scoped_nsautorelease_pool.h"
@@ -41,6 +45,13 @@ int main(int argc, char* argv[]) {
   // Some unittests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;
+
+#if defined(OS_MACOSX)
+  FilePath path;
+  PathService::Get(base::DIR_EXE, &path);
+  path = path.AppendASCII("TestShell.app");
+  mac_util::SetOverrideAppBundlePath(path);
+#endif
 
   TestShellPlatformDelegate::PreflightArgs(&argc, &argv);
   CommandLine::Init(argc, argv);

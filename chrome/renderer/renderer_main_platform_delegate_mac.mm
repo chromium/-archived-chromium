@@ -14,6 +14,7 @@ extern "C" {
 }
 
 #include "base/sys_info.h"
+#include "base/mac_util.h"
 #include "chrome/common/chrome_switches.h"
 #include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
@@ -98,27 +99,20 @@ bool RendererMainPlatformDelegate::EnableSandbox() {
   base::SysInfo::CacheSysInfo();
 
   // For the renderer, we give it a custom sandbox to lock down as tight as
-  // possible, but still be able to draw.  If we're not a renderer process, it
-  // usually means we're a unittest, so we use a pure compute sandbox instead.
+  // possible, but still be able to draw.
 
-  const char *sandbox_profile = kSBXProfilePureComputation;
-  uint64_t sandbox_flags = SANDBOX_NAMED;
-
-  if (parameters_.sandbox_info_.ProcessType() == switches::kRendererProcess) {
-    NSString* sandbox_profile_path =
-        [[NSBundle mainBundle] pathForResource:@"renderer" ofType:@"sb"];
-    BOOL is_dir = NO;
-    if (![[NSFileManager defaultManager] fileExistsAtPath:sandbox_profile_path
-                                              isDirectory:&is_dir] || is_dir) {
-      LOG(ERROR) << "Failed to find the sandbox profile on disk";
-      return false;
-    }
-    sandbox_profile = [sandbox_profile_path fileSystemRepresentation];
-    sandbox_flags = SANDBOX_NAMED_EXTERNAL;
+  NSString* sandbox_profile_path =
+      [mac_util::MainAppBundle() pathForResource:@"renderer" ofType:@"sb"];
+  BOOL is_dir = NO;
+  if (![[NSFileManager defaultManager] fileExistsAtPath:sandbox_profile_path
+                                            isDirectory:&is_dir] || is_dir) {
+    LOG(ERROR) << "Failed to find the sandbox profile on disk";
+    return false;
   }
 
+  const char *sandbox_profile = [sandbox_profile_path fileSystemRepresentation];
   char* error_buff = NULL;
-  int error = sandbox_init(sandbox_profile, sandbox_flags,
+  int error = sandbox_init(sandbox_profile, SANDBOX_NAMED_EXTERNAL,
                            &error_buff);
   bool success = (error == 0 && error_buff == NULL);
   if (error == -1) {

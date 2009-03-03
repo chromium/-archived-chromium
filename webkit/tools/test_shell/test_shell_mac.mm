@@ -180,26 +180,9 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
 
   // Load the Ahem font, which is used by layout tests.
   const char* ahem_path_c;
-  FilePath ahem_path;  // Ensure ahem_path_c storage is not freed too soon.
-  if (mac_util::AmIBundled()) {
-    // When bundled (in TestShell.app), expect to find the font in
-    // Contents/Resources.
-    NSString* ahem_path = [[[NSBundle mainBundle] resourcePath]
-        stringByAppendingPathComponent:@"AHEM____.TTF"];
-    ahem_path_c = [ahem_path fileSystemRepresentation];
-  } else {
-    // When not bundled (in test_shell_tests), look in the source tree for
-    // the font.
-    PathService::Get(base::DIR_SOURCE_ROOT, &ahem_path);
-    ahem_path = ahem_path.Append("webkit");
-    ahem_path = ahem_path.Append("tools");
-    ahem_path = ahem_path.Append("test_shell");
-    ahem_path = ahem_path.Append("resources");
-    ahem_path = ahem_path.Append("AHEM____.TTF");
-
-    ahem_path_c = ahem_path.value().c_str();
-  }
-
+  NSString* ahem_path = [[mac_util::MainAppBundle() resourcePath]
+      stringByAppendingPathComponent:@"AHEM____.TTF"];
+  ahem_path_c = [ahem_path fileSystemRepresentation];
   FSRef ahem_fsref;
   if (!mac_util::FSRefFromPath(ahem_path_c, &ahem_fsref)) {
     DLOG(FATAL) << "FSRefFromPath " << ahem_path_c;

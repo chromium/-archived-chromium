@@ -9,6 +9,9 @@
 
 #include "base/stats_table.h"
 #include "base/file_util.h"
+#if defined(OS_MACOSX)
+#include "base/mac_util.h"
+#endif
 #include "base/path_service.h"
 #include "base/scoped_nsautorelease_pool.h"
 #include "base/test_suite.h"
@@ -47,6 +50,13 @@ protected:
     if (!user_data_dir.empty())
       PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
 
+#if defined(OS_MACOSX)
+    FilePath path;
+    PathService::Get(base::DIR_EXE, &path);
+    path = path.AppendASCII("Chromium.app");
+    mac_util::SetOverrideAppBundlePath(path);
+#endif
+
     // Force unittests to run using en-us so if we test against string
     // output, it'll pass regardless of the system language.
     ResourceBundle::InitSharedInstance(L"en-us");
@@ -63,6 +73,10 @@ protected:
   virtual void Shutdown() {
     // TODO(port): Remove the #ifdef when ResourceBundle is ported.
     ResourceBundle::CleanupSharedInstance();
+
+#if defined(OS_MACOSX)
+    mac_util::SetOverrideAppBundle(NULL);
+#endif
 
     delete g_browser_process;
     g_browser_process = NULL;

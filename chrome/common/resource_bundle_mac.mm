@@ -36,33 +36,8 @@ namespace {
 base::DataPack *LoadResourceDataPack(NSString *name) {
   base::DataPack *resource_pack = NULL;
   
-  NSString *const pakExt = @"pak";
-  
-  // TODO(thomasvl): THIS SUCKS!  We need to remove this gate.  It's here
-  // because of the unittests, but we have no other way to find our resources.
-  if (!mac_util::AmIBundled()) {
-    FilePath path;
-    PathService::Get(base::DIR_EXE, &path);
-    path = path.AppendASCII("Chromium.app");
-    path = path.AppendASCII("Contents");
-    path = path.AppendASCII("Resources");
-    if ([name isEqual:@"locale"]) {
-      path = path.AppendASCII("en.lproj");
-    }
-    NSString *pakName = [name stringByAppendingPathExtension:pakExt];
-    path = path.Append([pakName fileSystemRepresentation]);
-    resource_pack = new base::DataPack;
-    bool success = resource_pack->Load(path);
-    DCHECK(success) << "failed to load chrome.pak";
-    if (!success) {
-      delete resource_pack;
-      resource_pack = NULL;
-    }
-    return resource_pack;
-  }
-
-  NSString *resource_path = [[NSBundle mainBundle] pathForResource:name
-                                                            ofType:pakExt];
+  NSString *resource_path = [mac_util::MainAppBundle() pathForResource:name
+                                                                ofType:@"pak"];
   if (resource_path) {
     FilePath resources_pak_path([resource_path fileSystemRepresentation]);
     resource_pack = new base::DataPack;
