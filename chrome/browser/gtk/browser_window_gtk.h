@@ -13,6 +13,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 
 class BrowserToolbarGtk;
+class LocationBar;
 class NineBox;
 class StatusBubbleGtk;
 class TabContentsContainerGtk;

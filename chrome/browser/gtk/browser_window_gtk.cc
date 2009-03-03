@@ -261,8 +261,7 @@ bool BrowserWindowGtk::IsFullscreen() const {
 }
 
 LocationBar* BrowserWindowGtk::GetLocationBar() const {
-  NOTIMPLEMENTED();
-  return NULL;
+  return toolbar_->GetLocationBar();
 }
 
 void BrowserWindowGtk::SetFocusToLocationBar() {

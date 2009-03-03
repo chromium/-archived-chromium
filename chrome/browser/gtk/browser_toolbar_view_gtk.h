@@ -18,6 +18,7 @@ class BackForwardMenuModelGtk;
 class Browser;
 class CustomContainerButton;
 class CustomDrawButton;
+class LocationBar;
 class Profile;
 class TabContents;
 class ToolbarModel;
@@ -39,6 +40,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   // Adds this GTK toolbar into a sizing box.
   void AddToolbarToBox(GtkWidget* box);
+
+  virtual LocationBar* GetLocationBar() const;
 
   // Set focus on the entry box.
   void FocusLocationBar();

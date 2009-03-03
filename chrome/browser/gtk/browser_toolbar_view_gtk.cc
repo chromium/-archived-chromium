@@ -19,6 +19,9 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
+// TODO(deanm): Remove this when the LocationBarView is used.
+class LocationBar;
+
 const int BrowserToolbarGtk::kToolbarHeight = 38;
 // For the back/forward dropdown menus, the time in milliseconds between
 // when the user clicks and the popup menu appears.
@@ -108,6 +111,11 @@ void BrowserToolbarGtk::Init(Profile* profile) {
 
 void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
   gtk_box_pack_start(GTK_BOX(box), toolbar_, FALSE, FALSE, 0);
+}
+
+LocationBar* BrowserToolbarGtk::GetLocationBar() const {
+  NOTIMPLEMENTED();
+  return NULL;
 }
 
 void BrowserToolbarGtk::FocusLocationBar() {
