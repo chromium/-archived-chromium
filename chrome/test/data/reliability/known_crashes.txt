@@ -1,0 +1,76 @@
+# This file contains known patterns of crash signatures. One pattern per line.
+#
+# A crash signature is the concatenation of the top N functions, delimited by
+# '___', in chrome.dll on the crash stack. All characters are lower case.
+#
+# We use crash signature patterns as our list of known crashes. A crash
+# signature pattern is a string that can be used to identify a known crash. We
+# use the notion of patterns because crashes with the same root cause can often
+# differ somewhat in their crash stacks. A pattern is intended to be a
+# generalized, yet still identifying, form of a particular crash. Usually a
+# pattern will contain part of a crash signature, for example a prefix, but it
+# can be more sophisticated, such as a regular expression. See below for more
+# details.
+#
+# The format of known crashes in this file is as follows:
+#   TYPE : PATTERN
+#
+# PATTERN: A crash signature pattern is a potentially identifying string that
+#          can be used to match a crash signature.
+# TYPE: The type of the pattern, indicates how the pattern should be matched
+#       against crash signatures. Possible options are:
+#           PREFIX: Match any signature beginning with this pattern.
+#           SUBSTRING: Match any signature containing this pattern.
+#           REGEX: Use this pattern as a regex to match against signatures.
+#       If the type is not listed, it defaults to PREFIX.
+
+# Any crash due to out of memory is ignored.
+PREFIX : `anonymous namespace'::onnomemory____callnewh___malloc
+
+# Mysterious crashes. Leave them for now.
+PREFIX : browserrenderprocesshost::inituserscripts___browserrenderprocesshost::init___renderviewhost::createrenderview___webcontents::createrenderviewforrendermanager___renderviewhostmanager::navigate
+
+PREFIX : chromeurldatamanager::dataavailable___runnablemethod<chromeurldatamanager,void (__thiscall chromeurldatamanager::*)(int,scoped_refptr<refcountedvector<unsigned char> >),tuple2<int,scoped_refptr<refcountedvector<unsigned char> > > >::run___messageloop::runtask___messageloop::dowork___base::messagepumpforio::dorunloop
+
+# 4731, 6956
+SUBSTRING : net::httpcache::removependingtransaction
+SUBSTRING : net::httpcache::onprocesspendingqueue
+
+# 7701
+PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_patch::iatpatchfunction::unpatch
+
+# 7693
+PREFIX : messageloop::posttask___spellchecker::dictionarydownloadcontroller::onurlfetchcomplete___urlfetcher::core::oncompletedurlrequest
+
+# 6521
+PREFIX : moz_z_inflate_fast___moz_z_inflate___gzipfilter::doinflate
+
+# 8020
+PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
+
+# 7694
+PREFIX : webcore::containernode::willremove
+
+# 4801
+PREFIX : webcore::document::body___webcore::docloader::checkforpendingpreloads___webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading
+PREFIX : webcore::docloader::setloadinprogress___webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading___webcore::resourcehandleinternal::oncompletedrequest
+PREFIX : webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading___webcore::resourcehandleinternal::oncompletedrequest
+PREFIX : webcore::loader::host::servependingrequests___webcore::loader::host::servependingrequests___webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading___webcore::resourcehandleinternal::oncompletedrequest___resourcedispatcher::onrequestcomplete
+
+# 7570
+PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox::calcabsolutehorizontal___webcore::renderbox::calcwidth
+
+# 5715, slightly different stack than in the bug, but likely the same issue.
+PREFIX : webcore::renderobject::enclosinglayer___webcore::frameview::layout
+
+# 6319
+PREFIX : webcore::scrollview::visiblecontentrect___webcore::scrollview::contentstowindow___webcore::scrollview::repaintcontentrectangle___webcore::frameview::repaintcontentrectangle___webcore::renderview::repaintviewrectangle
+
+# 7367
+PREFIX : webcore::token::reset___webcore::htmltokenizer::processtoken___webcore::htmltokenizer::parsetag___webcore::htmltokenizer::write
+
+# 6317
+PREFIX : webplugindelegateproxy::backgroundchanged___webplugindelegateproxy::paint___webpluginimpl::paint___webcore::renderwidget::paint
+
+# 8033
+PREFIX : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
