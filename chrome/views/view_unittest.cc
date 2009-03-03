@@ -352,7 +352,7 @@ void CheckRect(const SkRect& check_rect, const SkRect& target_rect) {
   EXPECT_EQ(target_rect.fBottom, check_rect.fBottom);
 }
 
-// This test is disabled because it is flakey on some systems.
+/* This test is disabled because it is flakey on some systems.
 TEST_F(ViewTest, DISABLED_Painting) {
   // Determine if InvalidateRect generates an empty paint rectangle.
   EmptyWindow paint_window(CRect(50, 50, 650, 650));
@@ -419,7 +419,7 @@ TEST_F(ViewTest, DISABLED_Painting) {
 
   window.DestroyWindow();
 }
-
+*/
 typedef std::vector<View*> ViewList;
 
 class RemoveViewObserver : public NotificationObserver {
