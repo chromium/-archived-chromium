@@ -208,24 +208,14 @@ void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
                                         size_t max_dead_capacity,
                                         size_t capacity) {
   EnsureWebKitInitialized();
-#if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::SetCapacities(min_dead_capacity, max_dead_capacity, capacity);
-#else
-  // TODO(port)
-  NOTIMPLEMENTED();
-#endif
 }
 
 void RenderThread::OnGetCacheResourceStats() {
   EnsureWebKitInitialized();
-#if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::ResourceTypeStats stats;
   CacheManager::GetResourceTypeStats(&stats);
   Send(new ViewHostMsg_ResourceTypeStats(stats));
-#else
-  // TODO(port)
-  NOTIMPLEMENTED();
-#endif
 }
 
 void RenderThread::OnGetRendererHistograms() {
@@ -234,14 +224,9 @@ void RenderThread::OnGetRendererHistograms() {
 
 void RenderThread::InformHostOfCacheStats() {
   EnsureWebKitInitialized();
-#if defined(OS_WIN) || defined(OS_LINUX)
   CacheManager::UsageStats stats;
   CacheManager::GetUsageStats(&stats);
   Send(new ViewHostMsg_UpdatedCacheStats(stats));
-#else
-  // TODO(port)
-  NOTIMPLEMENTED();
-#endif
 }
 
 void RenderThread::InformHostOfCacheStatsLater() {
