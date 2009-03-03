@@ -3955,6 +3955,7 @@
             # Some of these are used instead of Chromium platform files, see
             # the specific exclusions in the "sources!" list below.
             ['include', '/third_party/WebKit/WebCore/loader/archive/cf/LegacyWebArchive\\.cpp$'],
+            ['include', '/third_party/WebKit/WebCore/platform/graphics/mac/ColorMac\\.mm$'],
             ['include', '/third_party/WebKit/WebCore/platform/graphics/mac/GlyphPageTreeNodeMac\\.cpp$'],
             ['include', '/third_party/WebKit/WebCore/platform/graphics/mac/GraphicsContextMac\\.mm$'],
             ['include', '/third_party/WebKit/WebCore/platform/mac/BlockExceptions\\.mm$'],

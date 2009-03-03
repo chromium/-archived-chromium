@@ -966,7 +966,7 @@ DEFER : LayoutTests/plugins/netscape-construct.html = FAIL
 // MERGE 37604:38097 REGRESSIONS
 pending/security/block-test.html = CRASH FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-DEFER : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL PASS
+DEFER : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL TIMEOUT PASS
 
 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL TIMEOUT
 
@@ -1857,3 +1857,18 @@ WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 WIN : LayoutTests/svg/batik/text/textFeatures.svg = FAIL
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
+// Regressions from the 41286:41362 merge.
+LINUX WIN : LayoutTests/fast/forms/button-default-title.html = FAIL
+LayoutTests/fast/forms/control-clip.html = FAIL
+LayoutTests/fast/forms/select-baseline.html = FAIL
+LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
+LayoutTests/dom/html/level2/html/HTMLAppletElement01.html = TIMEOUT
+WIN : LayoutTests/fast/dom/object-embed-plugin-scripting.html = TIMEOUT
+LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = PASS TIMEOUT
+
+// New tests added in the 41286:41362 merge.
+// TODO(pamg): See which only need re-baselining.
+DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods-async.html = TIMEOUT
+DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods.html = TIMEOUT
+DEFER : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
+DEFER : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
