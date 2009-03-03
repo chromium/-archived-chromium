@@ -318,7 +318,7 @@ class SharedMemoryProcessTest : public MultiProcessTest {
   static const wchar_t* const s_test_name_;
 };
 
-const const wchar_t* const SharedMemoryProcessTest::s_test_name_ = L"MPMem";
+const wchar_t* const SharedMemoryProcessTest::s_test_name_ = L"MPMem";
 
 
 TEST_F(SharedMemoryProcessTest, Tasks) {
