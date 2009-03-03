@@ -80,11 +80,18 @@ void RenderWidgetHostViewMac::SetSize(const gfx::Size& size) {
   if (is_hidden_)
     return;
 
-  NOTIMPLEMENTED();  // Who is trying to force a size? We're a Cocoa view.
+  // TODO(avi): the WebContents object uses this method to size the newly
+  // created widget to the correct size. At the time of this call, we're not yet
+  // in the view hierarchy so |size| ends up being 0x0. However, this works for
+  // us because we're using the Cocoa view struture and resizer flags to fix
+  // things up as soon as the view gets added to the hierarchy. Figure out if we
+  // want to keep this flow or switch back to the flow Windows uses which sets
+  // the size upon creation. http://crbug.com/8285.
 }
 
 gfx::NativeView RenderWidgetHostViewMac::GetPluginNativeView() {
-  NOTIMPLEMENTED();
+  // All plugin stuff is TBD. TODO(avi,awalker): fill in
+  // http://crbug.com/8192
   return nil;
 }
 

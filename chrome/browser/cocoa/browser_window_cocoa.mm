@@ -74,7 +74,7 @@ void BrowserWindowCocoa::UpdateTitleBar() {
 }
 
 void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
-  NOTIMPLEMENTED();
+  [controller_ updateLoadingAnimations:should_animate ? YES : NO];
 }
 
 void BrowserWindowCocoa::SetStarredState(bool is_starred) {
@@ -114,7 +114,7 @@ LocationBar* BrowserWindowCocoa::GetLocationBar() const {
 }
 
 void BrowserWindowCocoa::SetFocusToLocationBar() {
-  NOTIMPLEMENTED();
+  [controller_ focusLocationBar];
 }
 
 void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {

@@ -1160,8 +1160,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
     glue_accessibility_->ClearIAccessibleMap(-1, true);
   }
 #else
-  // TODO(port): accessibility not yet implemented
-  NOTIMPLEMENTED();
+  // TODO(port): accessibility not yet implemented. See http://crbug.com/8288.
 #endif
 }
 

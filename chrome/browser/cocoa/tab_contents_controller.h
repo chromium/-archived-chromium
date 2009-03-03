@@ -83,6 +83,9 @@ class ToolbarModel;
 // state.
 - (void)setIsLoading:(BOOL)isLoading;
 
+// Make the location bar the first responder, if possible.
+- (void)focusLocationBar;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_COTNENTS_CONTROLLER_H_

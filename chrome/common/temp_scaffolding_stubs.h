@@ -473,7 +473,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   bool is_loading() const { return is_loading_; }
   bool is_being_destroyed() const { return is_being_destroyed_; }
   bool waiting_for_response() const { return waiting_for_response_; }
-  void SetNotWaitingForResponse() { NOTIMPLEMENTED(); }
+  void SetNotWaitingForResponse() { waiting_for_response_ = false; }
   void NotifyNavigationStateChanged(unsigned int);
   TabContentsDelegate* delegate() const { return delegate_; }
   void set_delegate(TabContentsDelegate* d) { delegate_ = d; }

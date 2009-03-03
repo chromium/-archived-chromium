@@ -158,4 +158,21 @@
   [tabStripController_ setIsLoading:isLoading];
 }
 
+// Called to start/stop the loading animations.
+- (void)updateLoadingAnimations:(BOOL)animate {
+  if (animate) {
+    // TODO(pinkerton): determine what throbber animation is necessary and 
+    // start a timer to periodically update. Windows tells the tab strip to
+    // do this. It uses a single timer to coalesce the multiple things that
+    // could be updating. http://crbug.com/8281
+  } else {
+    // TODO(pinkerton): stop the timer.
+  }
+}
+
+// Make the location bar the first responder, if possible.
+- (void)focusLocationBar {
+  [tabStripController_ focusLocationBar];
+}
+
 @end

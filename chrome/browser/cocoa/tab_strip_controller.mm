@@ -353,6 +353,13 @@ class TabStripBridge : public TabStripModelObserver {
   [selectedController setIsLoading:isLoading];
 }
 
+// Make the location bar the first responder, if possible.
+- (void)focusLocationBar {
+  TabContentsController* selectedController =
+      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
+  [selectedController focusLocationBar];
+}
+
 @end
 
 //--------------------------------------------------------------------------

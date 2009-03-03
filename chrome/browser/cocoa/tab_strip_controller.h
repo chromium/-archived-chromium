@@ -69,6 +69,9 @@ class ToolbarModel;
 // Called to tell the selected tab to update its loading state.
 - (void)setIsLoading:(BOOL)isLoading;
 
+// Make the location bar the first responder, if possible.
+- (void)focusLocationBar;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_STRIP_CONTROLLER_H_
