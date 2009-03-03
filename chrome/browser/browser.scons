@@ -671,8 +671,6 @@ if not env.Bit('windows'):
   input_files.Remove(
       'app_modal_dialog_queue.cc',
       'autocomplete/autocomplete_accessibility.cc',
-      'autocomplete/autocomplete_edit.cc',
-      'autocomplete/autocomplete_popup_model.cc',
       'autocomplete/autocomplete_popup_view_win.cc',
       'autocomplete/edit_drop_target.cc',
       'automation/ui_controls.cc',

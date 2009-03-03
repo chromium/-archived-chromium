@@ -4,24 +4,14 @@
 
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 
-// TODO(deanm): Clean up these includes, not going to fight it now.
-#include <cmath>
-
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
-#include "chrome/browser/autocomplete/autocomplete_popup_view_win.h"
-#include "chrome/browser/browser_process.h"
+#include "chrome/browser/autocomplete/autocomplete_popup_view.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/views/location_bar_view.h"
-#include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/resource_bundle.h"
-#include "grit/theme_resources.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 
 AutocompletePopupModel::AutocompletePopupModel(

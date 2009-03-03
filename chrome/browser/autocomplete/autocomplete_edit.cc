@@ -4,34 +4,19 @@
 
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 
-#include <locale>
-
-// TODO(deanm): Cleanup these includes.
 #include "base/basictypes.h"
-#include "base/ref_counted.h"
-#include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
-#include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/autocomplete/autocomplete_accessibility.h"
+#include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
-#include "chrome/browser/autocomplete/autocomplete_popup_view_win.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
-#include "chrome/browser/browser_process.h"
-#include "chrome/browser/command_updater.h"
-#include "chrome/browser/drag_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/location_bar_view.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/common/os_exchange_data.h"
-#include "chrome/common/win_util.h"
+#include "googleurl/src/gurl.h"
 #include "googleurl/src/url_util.h"
-#include "grit/generated_resources.h"
 #include "skia/include/SkBitmap.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,7 +149,7 @@ bool AutocompleteEditModel::GetURLForText(const std::wstring& text,
   if (type != AutocompleteInput::URL)
     return false;
     
-  *url = GURL(URLFixerUpper::FixupURL(text, std::wstring()));
+  *url = GURL(URLFixerUpper::FixupURL(WideToUTF8(text), std::string()));
   return true;
 }
 
