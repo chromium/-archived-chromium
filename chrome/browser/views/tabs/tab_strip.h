@@ -267,6 +267,10 @@ class TabStrip : public views::View,
   // hit-test region of the specified Tab.
   bool IsPointInTab(Tab* tab, const gfx::Point& point_in_tabstrip_coords);
 
+  // Cleans up the Tab from the TabStrip at the specified |index|.  This is
+  // called from the tab animation code and is not a general-purpose method.
+  void RemoveTabAt(int index);
+
   // -- Member Variables ------------------------------------------------------
 
   // Our model.
