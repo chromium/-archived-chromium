@@ -393,7 +393,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/bookmarks/bookmark_drag_data_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_html_writer_unittest.cc',
-      '$CHROME_DIR/browser/bookmarks/bookmark_model_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_table_model_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_utils_unittest.cc',
       '$CHROME_DIR/browser/browser_commands_unittest.cc',
