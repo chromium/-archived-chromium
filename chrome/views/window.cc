@@ -373,11 +373,9 @@ void Window::UpdateFrameAfterFrameChange() {
 }
 
 void Window::SizeWindowToDefault() {
-  // CenterAndSizeWindow adjusts the window size to accommodate the non-client
-  // area if we're using a native frame.
   win_util::CenterAndSizeWindow(owning_window(), GetHWND(),
                                 non_client_view_->GetPreferredSize().ToSIZE(),
-                                non_client_view_->UseNativeFrame());
+                                false);
 }
 
 void Window::RunSystemMenu(const gfx::Point& point) {

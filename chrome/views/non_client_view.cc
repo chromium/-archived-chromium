@@ -135,7 +135,8 @@ void NonClientView::ResetWindowControls() {
 // NonClientView, View overrides:
 
 gfx::Size NonClientView::GetPreferredSize() {
-  return client_view_->GetPreferredSize();
+  gfx::Rect client_bounds(gfx::Point(), client_view_->GetPreferredSize());
+  return GetWindowBoundsForClientBounds(client_bounds).size();
 }
 
 void NonClientView::Layout() {
