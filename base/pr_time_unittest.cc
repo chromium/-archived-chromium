@@ -136,7 +136,7 @@ TEST_F(PRTimeTest, ParseTimeTest9) {
 // This tests the Time::FromString wrapper over PR_ParseTimeString
 TEST_F(PRTimeTest, ParseTimeTest10) {
   Time parsed_time;
-  bool result = Time::FromString(L"15/10/07 12:45",&parsed_time);
+  bool result = Time::FromString(L"15/10/07 12:45", &parsed_time);
   EXPECT_EQ(true, result);
 
   time_t computed_time = parsed_time.ToTimeT();
@@ -172,7 +172,7 @@ TEST_F(PRTimeTest, ParseTimeTestEpoch0) {
 
 TEST_F(PRTimeTest, ParseTimeTestEpoch1) {
   Time parsed_time;
-  
+
   // time_t == 1 second after epoch == 1
   EXPECT_EQ(true, Time::FromString(L"Thu Jan 01 01:00:01 +0100 1970",
                                    &parsed_time));
@@ -184,7 +184,7 @@ TEST_F(PRTimeTest, ParseTimeTestEpoch1) {
 
 TEST_F(PRTimeTest, ParseTimeTestEpoch2) {
   Time parsed_time;
-  
+
   // time_t == 2 seconds after epoch == 2
   EXPECT_EQ(true, Time::FromString(L"Thu Jan 01 01:00:02 +0100 1970",
                                    &parsed_time));
@@ -236,6 +236,35 @@ TEST_F(PRTimeTest, ParseTimeTestEpoch1960) {
 TEST_F(PRTimeTest, ParseTimeTestEmpty) {
   Time parsed_time;
   EXPECT_FALSE(Time::FromString(L"", &parsed_time));
+}
+
+// This test should not crash when compiled with Visual C++ 2005 (see
+// http://crbug.com/4387).
+TEST_F(PRTimeTest, ParseTimeTestOutOfRange) {
+  PRTime parsed_time = 0;
+  // Note the lack of timezone in the time string.  The year has to be 3001.
+  // The date has to be after 23:59:59, December 31, 3000, US Pacific Time, so
+  // we use January 2, 3001 to make sure it's after the magic maximum in any
+  // timezone.
+  PRStatus result = PR_ParseTimeString("Sun Jan  2 00:00:00 3001",
+                                       PR_FALSE, &parsed_time);
+  EXPECT_EQ(PR_SUCCESS, result);
+}
+
+TEST_F(PRTimeTest, ParseTimeTestNotNormalized1) {
+  PRTime parsed_time = 0;
+  PRStatus result = PR_ParseTimeString("Mon Oct 15 12:44:60 PDT 2007",
+                                       PR_FALSE, &parsed_time);
+  EXPECT_EQ(PR_SUCCESS, result);
+  EXPECT_EQ(comparison_time_pdt, parsed_time);
+}
+
+TEST_F(PRTimeTest, ParseTimeTestNotNormalized2) {
+  PRTime parsed_time = 0;
+  PRStatus result = PR_ParseTimeString("Sun Oct 14 36:45 PDT 2007",
+                                       PR_FALSE, &parsed_time);
+  EXPECT_EQ(PR_SUCCESS, result);
+  EXPECT_EQ(comparison_time_pdt, parsed_time);
 }
 
 }  // namespace
