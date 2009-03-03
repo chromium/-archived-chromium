@@ -60,13 +60,17 @@ class DefaultJSBindings : public ProxyResolverV8::JSBindings {
 
   // Handler for "myIpAddress()". Returns empty string on failure.
   virtual std::string MyIpAddress() {
-    // TODO(eroman):
-    NOTIMPLEMENTED();
-    return "127.0.0.1";
+    // DnsResolve("") returns "", so no need to check for failure.
+    return DnsResolve(GetMyHostName());
   }
 
   // Handler for "dnsResolve(host)". Returns empty string on failure.
   virtual std::string DnsResolve(const std::string& host) {
+    // TODO(eroman): Should this return our IP address, or fail, or
+    // simply be unspecified (works differently on windows and mac os x).
+    if (host.empty())
+      return std::string();
+
     // Try to resolve synchronously.
     net::AddressList address_list;
     const int kPort = 80;  // Doesn't matter what this is.
@@ -236,6 +240,8 @@ class ProxyResolverV8::Context {
     // We shouldn't be called with any arguments, but will not complain if
     // we are.
     std::string result = context->js_bindings_->MyIpAddress();
+    if (result.empty())
+      result = "127.0.0.1";
     return StdStringToV8String(result);
   }
 

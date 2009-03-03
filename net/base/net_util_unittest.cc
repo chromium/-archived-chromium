@@ -869,3 +869,11 @@ TEST(NetUtilTest, DISABLED_NetAddressToString_IPv6) {
     EXPECT_EQ(std::string(tests[i].result), result);
   }
 }
+
+TEST(NetUtilTest, GetMyHostName) {
+  // We can't check the result of GetMyHostName() directly, since the result
+  // will differ across machines. Our goal here is to simply exercise the
+  // code path, and check that things "look about right".
+  std::string my_hostname = net::GetMyHostName();
+  EXPECT_FALSE(my_hostname.empty());
+}

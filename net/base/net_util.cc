@@ -991,7 +991,7 @@ bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
 
   if (!hostname_component.is_nonempty())
     return false;  // Failed parsing.
-  
+
   int parsed_port_number = -1;
   if (port_component.is_nonempty()) {
     parsed_port_number = url_parse::ParsePort(auth_begin, port_component);
@@ -1008,7 +1008,7 @@ bool GetHostAndPort(std::string::const_iterator host_and_port_begin,
   // Pass results back to caller.
   host->assign(auth_begin + hostname_component.begin, hostname_component.len);
   *port = parsed_port_number;
-  
+
   return true;  // Success.
 }
 
@@ -1031,9 +1031,24 @@ std::string NetAddressToString(const struct addrinfo* net_address) {
 
   if (result != 0) {
     DLOG(INFO) << "getnameinfo() failed with " << result;
-    return std::string();
+    buffer[0] = '\0';
   }
+  return std::string(buffer);
+}
 
+std::string GetMyHostName() {
+#if defined(OS_WIN)
+  EnsureWinsockInit();
+#endif
+
+  // Maximum size of 256 is somewhat arbitrary. Mozilla uses a size of 100
+  // so this should cover the majority of cases.
+  char buffer[256];
+  int result = gethostname(buffer, sizeof(buffer));
+  if (result != 0) {
+    DLOG(INFO) << "gethostname() failed with " << result;
+    buffer[0] = '\0';
+  }
   return std::string(buffer);
 }
 

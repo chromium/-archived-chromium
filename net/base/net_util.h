@@ -58,6 +58,9 @@ bool GetHostAndPort(const std::string& host_and_port,
 // Returns empty string on failure.
 std::string NetAddressToString(const struct addrinfo* net_address);
 
+// Returns the hostname of the current system. Returns empty string on failure.
+std::string GetMyHostName();
+
 // Return the value of the HTTP response header with name 'name'.  'headers'
 // should be in the format that URLRequest::GetResponseHeaders() returns.
 // Returns the empty string if the header is not found.

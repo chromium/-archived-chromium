@@ -380,12 +380,14 @@ TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
   net::ProxyResolverV8 resolver;
   net::ProxyResolverV8::JSBindings* bindings = resolver.js_bindings();
   
+  // Considered an error.
+  EXPECT_EQ("", bindings->DnsResolve(""));
+
   const struct {
     const char* input;
     const char* expected;
   } tests[] = {
     {"www.google.com", "127.0.0.1"},
-    {"", ""},
     {".", ""},
     {"foo@google.com", ""},
     {"@google.com", ""},
@@ -424,3 +426,14 @@ TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
   }
 }
 
+TEST(ProxyResolverV8DefaultBindingsTest, MyIpAddress) {
+  // Get a hold of a DefaultJSBindings* (it is a hidden impl class).
+  net::ProxyResolverV8 resolver;
+  net::ProxyResolverV8::JSBindings* bindings = resolver.js_bindings();
+
+  // Our ip address is always going to be 127.0.0.1, since we are using a
+  // mock host mapper when running in unit-test mode.
+  std::string my_ip_address = bindings->MyIpAddress();
+
+  EXPECT_EQ("127.0.0.1", my_ip_address);
+}
