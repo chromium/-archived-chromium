@@ -926,9 +926,8 @@ DEFER : LayoutTests/fast/dom/constructors-cached.html = FAIL
 
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
 LayoutTests/fast/forms/form-element-geometry.html = FAIL
-// These tests are wrong for two reasons:
-// https://bugs.webkit.org/show_bug.cgi?id=24171 and
-// https://bugs.webkit.org/show_bug.cgi?id=24161. Neither of which are
+// These tests are wrong because of:
+// https://bugs.webkit.org/show_bug.cgi?id=24161. This is not
 // important for current release.
 DEFER LINUX WIN : LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/listbox-selection-2.html = FAIL
