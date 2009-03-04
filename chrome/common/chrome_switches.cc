@@ -74,8 +74,11 @@ const wchar_t kRendererProcess[]               = L"renderer";
 // Path to the exe to run for the renderer subprocess
 const wchar_t kRendererPath[]                  = L"renderer-path";
 
-// Causes the process to run as plugin host
+// Causes the process to run as a plugin subprocess.
 const wchar_t kPluginProcess[]                 = L"plugin";
+
+// Causes the process to run as a worker subprocess.
+const wchar_t kWorkerProcess[]                 = L"worker";
 
 // Runs the renderer and plugins in the same process as the browser
 const wchar_t kSingleProcess[]                 = L"single-process";

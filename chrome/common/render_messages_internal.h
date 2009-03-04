@@ -1196,4 +1196,16 @@ IPC_BEGIN_MESSAGES(ViewHost)
                        TransportDIB::Id /* DIB id */)
 #endif
 
+  // A renderer sends this to the browser process when it wants to create a
+  // worker.  The browser will create the worker process if necessary, and
+  // will return the route id on success.  On error returns MSG_ROUTING_NONE.
+  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_CreateDedicatedWorker,
+                              GURL /* url */,
+                              int /* route_id */)
+
+  // Wraps an IPC message that's destined to the worker on the renderer->browser
+  // hop.
+  IPC_MESSAGE_CONTROL1(ViewHostMsg_ForwardToWorker,
+                       IPC::Message /* message */)
+
 IPC_END_MESSAGES(ViewHost)

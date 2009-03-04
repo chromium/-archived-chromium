@@ -142,6 +142,7 @@ if env.Bit('windows'):
   env_dll.Append(
       LIBS = [
           'plugin',
+          'worker',
       ]
   )
 
@@ -293,6 +294,7 @@ p = env.ChromeMSVSProject('app/chrome_dll.vcproj',
                               '$BASE_DIR/build/base.vcproj',
                               '$WEBKIT_DIR/build/WebCore/WebCore.vcproj',
                               '$CHROME_DIR/plugin/plugin.vcproj',
+                              '$CHROME_DIR/worker/worker.vcproj',
                               '$LIBJPEG_DIR/libjpeg.vcproj',
                               '$BZIP2_DIR/bzip2.vcproj',
                               '$NET_DIR/build/net.vcproj',

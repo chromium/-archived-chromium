@@ -300,6 +300,14 @@
 				RelativePath=".\render_messages_internal.h"
 				>
 			</File>
+			<File
+				RelativePath=".\worker_messages.h"
+				>
+			</File>
+			<File
+				RelativePath=".\worker_messages_internal.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="extensions"

@@ -55,6 +55,7 @@
 extern int BrowserMain(const MainFunctionParams&);
 extern int RendererMain(const MainFunctionParams&);
 extern int PluginMain(const MainFunctionParams&);
+extern int WorkerMain(const MainFunctionParams&);
 
 #if defined(OS_WIN)
 // TODO(erikkay): isn't this already defined somewhere?
@@ -369,6 +370,10 @@ int ChromeMain(int argc, const char** argv) {
   } else if (process_type == switches::kPluginProcess) {
 #if defined(OS_WIN)
     rv = PluginMain(main_params);
+#endif
+  } else if (process_type == switches::kWorkerProcess) {
+#if defined(OS_WIN)
+    rv = WorkerMain(main_params);
 #endif
   } else if (process_type.empty()) {
     ScopedOleInitializer ole_initializer;

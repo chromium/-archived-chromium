@@ -249,6 +249,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webworker.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webworkerclient.h"
+				>
+			</File>
+			<File
 				RelativePath=".\window_open_disposition.h"
 				>
 			</File>
@@ -698,6 +706,22 @@
 			</File>
 			<File
 				RelativePath=".\webwidget_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webworker_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webworker_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webworkerclient_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webworkerclient_impl.h"
 				>
 			</File>
 		</Filter>

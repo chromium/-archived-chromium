@@ -143,6 +143,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                              const std::string& clsid,
                              const std::wstring& locale,
                              IPC::Message* reply_msg);
+  void OnCreateDedicatedWorker(const GURL& url, int* route_id);
+  void OnForwardToWorker(const IPC::Message& msg);
   void OnDownloadUrl(const IPC::Message& message,
                      const GURL& url,
                      const GURL& referrer);

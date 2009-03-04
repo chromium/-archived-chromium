@@ -108,6 +108,8 @@ input_files = ChromeFileList([
     'webmediaplayer_delegate_impl.h',
     'webplugin_delegate_proxy.cc',
     'webplugin_delegate_proxy.h',
+    'webworker_proxy.cc',
+    'webworker_proxy.h',
 ])
 
 if not env.Bit('windows'):

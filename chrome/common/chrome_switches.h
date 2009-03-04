@@ -30,6 +30,7 @@ extern const wchar_t kBrowserStartRenderersManually[];
 extern const wchar_t kRendererProcess[];
 extern const wchar_t kRendererPath[];
 extern const wchar_t kPluginProcess[];
+extern const wchar_t kWorkerProcess[];
 extern const wchar_t kSingleProcess[];
 extern const wchar_t kProcessPerTab[];
 extern const wchar_t kProcessPerSite[];

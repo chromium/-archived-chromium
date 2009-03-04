@@ -101,6 +101,8 @@ input_files = ChromeFileList([
     'plugin_messages_internal.h',
     'render_messages.h',
     'render_messages_internal.h',
+    'worker_messages.h',
+    'worker_messages_internal.h',
   ]),
     'accessibility.h',
     'animation.cc',

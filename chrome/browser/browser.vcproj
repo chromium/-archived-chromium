@@ -2386,6 +2386,26 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Worker Host"
+			>
+			<File
+				RelativePath=".\worker_host\worker_process_host.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\worker_host\worker_process_host.h"
+				>
+			</File>
+			<File
+				RelativePath=".\worker_host\worker_service.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\worker_host\worker_service.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\browser_trial.cc"
 			>

@@ -1,0 +1,102 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+#    '$NPAPI_DIR/using_npapi.scons',
+#    '$SKIA_DIR/using_skia.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+)
+
+if env.Bit('windows'):
+  env.Prepend(
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
+      ],
+  )
+
+input_files = ChromeFileList([
+    'webworkerclient_proxy.cc',
+    'webworkerclient_proxy.h',
+    'worker_main.cc',
+    'worker_process.cc',
+    'worker_process.h',
+    'worker_thread.cc',
+    'worker_thread.h',
+    '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
+    '$CHROME_DIR/tools/build/win/precompiled.h',
+])
+
+if not env.Bit('windows'):
+  input_files.Remove(
+      '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
+  )
+
+if env.Bit('posix'):
+  # TODO(port)
+  input_files.Remove(
+      'webworker.cc',
+      'worker_main.cc',
+      'worker_process.cc',
+      'worker_thread.cc',
+  )
+
+env.ChromeLibrary('worker', input_files)
+
+p = env.ChromeMSVSProject('worker.vcproj',
+                          dest='$CHROME_SRC_DIR/chrome/worker/worker.vcproj',
+                          guid='{C78D02D0-A366-4ec6-A248-AA8E64C4BA18}',
+                          keyword='Win32Proj',
+                          # TODO(sgk):  when we can intuit the hierarchy
+                          # from the built targets.
+                          #buildtargets=TODO,
+                          files=input_files,
+                          local_directory_prefix='./',
+                          tools=[
+                              'VCPreBuildEventTool',
+                              'VCCustomBuildTool',
+                              'VCXMLDataGeneratorTool',
+                              'VCWebServiceProxyGeneratorTool',
+                              'VCMIDLTool',
+                              'VCCLCompilerTool',
+                              'VCManagedResourceCompilerTool',
+                              'VCResourceCompilerTool',
+                              'VCPreLinkEventTool',
+                              'VCLibrarianTool',
+                              'VCALinkTool',
+                              'VCXDCMakeTool',
+                              'VCBscMakeTool',
+                              'VCFxCopTool',
+                              'VCPostBuildEventTool',
+                          ],
+                          ConfigurationType='4')
+
+
+p.AddConfig('Debug|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/debug.vsprops',
+                '../tools/build/win/precompiled.vsprops',
+            ])
+
+p.AddConfig('Release|Win32',
+            InheritedPropertySheets=[
+                '$(SolutionDir)../build/common.vsprops',
+                '$(SolutionDir)../build/release.vsprops',
+            ])
+
+p.AddFileConfig('../tools/build/win/precompiled.cc',
+                'Debug|Win32',
+                tools=[
+                    MSVSTool('VCCLCompilerTool',
+                             UsePrecompiledHeader='1'),
+                ])

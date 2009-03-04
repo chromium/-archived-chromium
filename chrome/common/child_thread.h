@@ -37,6 +37,9 @@ class ChildThread : public IPC::Channel::Listener,
   void SetChannelName(const std::wstring& name) { channel_name_ = name; }
 
  protected:
+  // The required stack size if V8 runs on a thread.
+  static const size_t kV8StackSize;
+
   virtual void OnControlMessageReceived(const IPC::Message& msg) { }
 
   // Returns the one child thread.

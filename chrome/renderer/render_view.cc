@@ -36,6 +36,7 @@
 #include "chrome/renderer/visitedlink_slave.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "chrome/renderer/webplugin_delegate_proxy.h"
+#include "chrome/renderer/webworker_proxy.h"
 #include "grit/generated_resources.h"
 #include "grit/renderer_resources.h"
 #include "net/base/escape.h"
@@ -1970,6 +1971,16 @@ void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,
 #else
   // TODO(port): plugins current not supported
   NOTIMPLEMENTED();
+#endif
+}
+
+WebWorker* RenderView::CreateWebWorker(WebWorkerClient* client) {
+#if defined(OS_WIN)
+  return new WebWorkerProxy(this, client);
+#else
+  // TODO(port): out of process workers
+  NOTIMPLEMENTED();
+  return NULL;
 #endif
 }
 

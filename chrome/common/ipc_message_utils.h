@@ -11,6 +11,7 @@
 
 #include "base/file_path.h"
 #include "base/string_util.h"
+#include "base/string16.h"
 #include "base/tuple.h"
 #if defined(OS_POSIX)
 #include "chrome/common/file_descriptor_set_posix.h"
@@ -56,6 +57,10 @@ enum IPCMessageStart {
   TestMsgStart,
   DevToolsAgentMsgStart,
   DevToolsClientMsgStart,
+  WorkerProcessMsgStart,
+  WorkerProcessHostMsgStart,
+  WorkerMsgStart,
+  WorkerHostMsgStart,
   // NOTE: When you add a new message class, also update
   // IPCStatusView::IPCStatusView to ensure logging works.
   // NOTE: this enum is used by IPC_MESSAGE_MACRO to generate a unique message
@@ -492,6 +497,7 @@ struct ParamTraits<std::map<K, V> > {
   }
 };
 
+
 template <>
 struct ParamTraits<std::wstring> {
   typedef std::wstring param_type;
@@ -505,6 +511,34 @@ struct ParamTraits<std::wstring> {
     l->append(p);
   }
 };
+
+
+// If WCHAR_T_IS_UTF16 is defined, then string16 is a std::wstring so we don't
+// need this trait.
+#if !defined(WCHAR_T_IS_UTF16)
+
+template <>
+struct ParamTraits<string16> {
+  typedef string16 param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteData(reinterpret_cast<const char*>(p.data()),
+                 static_cast<int>(p.size() * sizeof(char16)));
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    const char *data;
+    int data_size = 0;
+    if (!m->ReadData(iter, &data, &data_size))
+      return false;
+    r->assign(reinterpret_cast<const char16*>(data),
+              data_size / sizeof(char16));
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(UTF16ToWide(p));
+  }
+};
+
+#endif
 
 template <>
 struct ParamTraits<GURL> {
@@ -893,6 +927,66 @@ struct ParamTraits<LogData> {
   }
 };
 
+
+template <>
+struct ParamTraits<webkit_glue::WebApplicationInfo> {
+  typedef webkit_glue::WebApplicationInfo param_type;
+  static void Write(Message* m, const param_type& p);
+  static bool Read(const Message* m, void** iter, param_type* r);
+  static void Log(const param_type& p, std::wstring* l);
+};
+
+
+#if defined(OS_WIN)
+template<>
+struct ParamTraits<TransportDIB::Id> {
+  typedef TransportDIB::Id param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.handle);
+    WriteParam(m, p.sequence_num);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    return (ReadParam(m, iter, &r->handle) &&
+            ReadParam(m, iter, &r->sequence_num));
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"TransportDIB(");
+    LogParam(p.handle, l);
+    l->append(L", ");
+    LogParam(p.sequence_num, l);
+    l->append(L")");
+  }
+};
+#endif
+
+template<typename A>
+struct ParamTraits<Maybe<A> > {
+  typedef struct Maybe<A> param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.valid);
+    if (p.valid)
+      WriteParam(m, p.value);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    if (!ReadParam(m, iter, &r->valid))
+      return false;
+
+    if (r->valid)
+      return ReadParam(m, iter, &r->value);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    if (p.valid) {
+      l->append(L"Just ");
+      ParamTraits<A>::Log(p.value, l);
+    } else {
+      l->append(L"Nothing");
+    }
+
+  }
+};
+
+
 template <>
 struct ParamTraits<Message> {
   static void Write(Message* m, const Message& p) {
@@ -913,6 +1007,7 @@ struct ParamTraits<Message> {
     l->append(L"<IPC::Message>");
   }
 };
+
 
 template <>
 struct ParamTraits<Tuple0> {
@@ -1070,62 +1165,6 @@ struct ParamTraits< Tuple6<A, B, C, D, E, F> > {
   }
 };
 
-#if defined(OS_WIN)
-template<>
-struct ParamTraits<TransportDIB::Id> {
-  typedef TransportDIB::Id param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.handle);
-    WriteParam(m, p.sequence_num);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return (ReadParam(m, iter, &r->handle) &&
-            ReadParam(m, iter, &r->sequence_num));
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"TransportDIB(");
-    LogParam(p.handle, l);
-    l->append(L", ");
-    LogParam(p.sequence_num, l);
-    l->append(L")");
-  }
-};
-#endif
-
-template<typename A>
-struct ParamTraits<Maybe<A> > {
-  typedef struct Maybe<A> param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.valid);
-    if (p.valid)
-      WriteParam(m, p.value);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    if (!ReadParam(m, iter, &r->valid))
-      return false;
-
-    if (r->valid)
-      return ReadParam(m, iter, &r->value);
-    return true;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    if (p.valid) {
-      l->append(L"Just ");
-      ParamTraits<A>::Log(p.value, l);
-    } else {
-      l->append(L"Nothing");
-    }
-
-  }
-};
-
-template <>
-struct ParamTraits<webkit_glue::WebApplicationInfo> {
-  typedef webkit_glue::WebApplicationInfo param_type;
-  static void Write(Message* m, const param_type& p);
-  static bool Read(const Message* m, void** iter, param_type* r);
-  static void Log(const param_type& p, std::wstring* l);
-};
 
 
 //-----------------------------------------------------------------------------

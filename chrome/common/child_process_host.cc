@@ -154,18 +154,20 @@ void ChildProcessHost::ListenerHook::OnChannelError() {
 
 
 ChildProcessHost::Iterator::Iterator() : all_(true) {
-  iterator_ = Singleton<ChildProcessList>::get()->begin();
   DCHECK(MessageLoop::current() ==
       ChromeThread::GetMessageLoop(ChromeThread::IO)) <<
           "ChildProcessInfo::Iterator must be used on the IO thread.";
+  iterator_ = Singleton<ChildProcessList>::get()->begin();
 }
 
 ChildProcessHost::Iterator::Iterator(ProcessType type)
     : all_(false), type_(type) {
-  iterator_ = Singleton<ChildProcessList>::get()->begin();
   DCHECK(MessageLoop::current() ==
       ChromeThread::GetMessageLoop(ChromeThread::IO)) <<
           "ChildProcessInfo::Iterator must be used on the IO thread.";
+  iterator_ = Singleton<ChildProcessList>::get()->begin();
+  if (!Done() && (*iterator_)->type() != type_)
+    iterator_++;
 }
 
 ChildProcessInfo* ChildProcessHost::Iterator::operator++() {

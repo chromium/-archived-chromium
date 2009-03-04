@@ -22,6 +22,7 @@
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/spellchecker.h"
+#include "chrome/browser/worker_host/worker_service.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/notification_service.h"
@@ -123,6 +124,8 @@ ResourceMessageFilter::ResourceMessageFilter(
 }
 
 ResourceMessageFilter::~ResourceMessageFilter() {
+  WorkerService::GetInstance()->RendererShutdown(this);
+
   if (render_handle_)
     base::CloseProcessHandle(render_handle_);
 
@@ -201,6 +204,10 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
         OnReceiveContextMenuMsg(message))
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_OpenChannelToPlugin,
                                     OnOpenChannelToPlugin)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateDedicatedWorker,
+                        OnCreateDedicatedWorker)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToWorker,
+                        OnForwardToWorker)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SpellCheck, OnSpellCheck)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DnsPrefetch, OnDnsPrefetch)
     IPC_MESSAGE_HANDLER(ViewHostMsg_RendererHistograms,
@@ -490,6 +497,16 @@ void ResourceMessageFilter::OnOpenChannelToPlugin(const GURL& url,
                                                   IPC::Message* reply_msg) {
   plugin_service_->OpenChannelToPlugin(this, url, mime_type, clsid,
                                        locale, reply_msg);
+}
+
+void ResourceMessageFilter::OnCreateDedicatedWorker(const GURL& url,
+                                                    int* route_id) {
+  *route_id = render_widget_helper_->GetNextRoutingID();
+  WorkerService::GetInstance()->CreateDedicatedWorker(url, this, *route_id);
+}
+
+void ResourceMessageFilter::OnForwardToWorker(const IPC::Message& message) {
+  WorkerService::GetInstance()->ForwardMessage(message);
 }
 
 void ResourceMessageFilter::OnDownloadUrl(const IPC::Message& message,

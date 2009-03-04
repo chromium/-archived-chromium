@@ -393,6 +393,14 @@
 			RelativePath=".\webplugin_delegate_proxy.h"
 			>
 		</File>
+		<File
+			RelativePath=".\webworker_proxy.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\webworker_proxy.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -648,6 +648,10 @@ input_files = ChromeFileList([
     'plugin_installer.h',
     'toolbar_model.cc',
     'toolbar_model.h',
+    'worker_host/worker_process_host.cc',
+    'worker_host/worker_process_host.h',
+    'worker_host/worker_service.cc',
+    'worker_host/worker_service.h',
 ])
 
 if not env.Bit('windows'):

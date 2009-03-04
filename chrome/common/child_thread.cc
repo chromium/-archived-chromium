@@ -11,6 +11,9 @@
 #include "chrome/common/ipc_logging.h"
 #include "webkit/glue/webkit_glue.h"
 
+// V8 needs a 1MB stack size.
+const size_t ChildThread::kV8StackSize = 1024 * 1024;
+
 ChildThread::ChildThread(Thread::Options options)
     : Thread("Chrome_ChildThread"),
       owner_loop_(MessageLoop::current()),

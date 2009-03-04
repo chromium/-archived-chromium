@@ -54,6 +54,8 @@ class WebRequest;
 class WebResponse;
 class WebView;
 class WebWidget;
+class WebWorker;
+class WebWorkerClient;
 
 enum WebNavigationType {
   WebNavigationTypeLinkClicked,
@@ -124,6 +126,11 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
       const std::string& mime_type,
       const std::string& clsid,
       std::string* actual_mime_type) {
+    return NULL;
+  }
+
+  // This method is called when the renderer creates a worker object.
+  virtual WebWorker* CreateWebWorker(WebWorkerClient* client) {
     return NULL;
   }
 

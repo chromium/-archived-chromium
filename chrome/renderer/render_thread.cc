@@ -40,8 +40,6 @@
 
 static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 
-// V8 needs a 1MB stack size.
-static const size_t kStackSize = 1024 * 1024;
 
 //-----------------------------------------------------------------------------
 // Methods below are only called on the owner's thread:
@@ -51,13 +49,13 @@ static const size_t kStackSize = 1024 * 1024;
 RenderThread::RenderThread()
     : ChildThread(
           base::Thread::Options(RenderProcess::InProcessPlugins() ?
-              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kStackSize)) {
+              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kV8StackSize)) {
 }
 
 RenderThread::RenderThread(const std::wstring& channel_name)
     : ChildThread(
           base::Thread::Options(RenderProcess::InProcessPlugins() ?
-              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kStackSize)) {
+              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kV8StackSize)) {
   SetChannelName(channel_name);
 }
 
