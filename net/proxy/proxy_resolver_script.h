@@ -49,6 +49,7 @@
 //       sed -e 's/^\s*$/""/g' |
 //       sed -e 's/"\s*[+]\s*$/"/g' |
 //       sed -e 's/"$/" \\/g' |
+//       sed -e 's/\/(ipaddr);/\/.exec(ipaddr);/g' |
 //       grep -v '^var pacUtils =' 
 #define PROXY_RESOLVER_SCRIPT \
   "function dnsDomainIs(host, domain) {\n" \
@@ -70,7 +71,7 @@
   "}\n" \
   "" \
   "function isInNet(ipaddr, pattern, maskstr) {\n" \
-  "    var test = /^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$/(ipaddr);\n" \
+  "    var test = /^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$/.exec(ipaddr);\n" \
   "    if (test == null) {\n" \
   "        ipaddr = dnsResolve(ipaddr);\n" \
   "        if (ipaddr == null)\n" \
