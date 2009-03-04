@@ -25,6 +25,10 @@ using base::Time;
 // DownloadsUI is accessible from chrome-ui://downloads.
 static const char kDownloadsHost[] = "downloads";
 
+// Maximum number of downloads to show. TODO(glen): Remove this and instead
+// stuff the downloads down the pipe slowly.
+static const int kMaxDownloads = 150;
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // DownloadsHTMLSource
@@ -73,6 +77,10 @@ void DownloadsUIHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"control_resume",
       l10n_util::GetString(IDS_DOWNLOAD_LINK_RESUME));
 
+  localized_strings.SetString(L"textdirection",
+      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+       L"rtl" : L"ltr");
+
   static const StringPiece downloads_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           IDR_DOWNLOADS_HTML));
@@ -98,7 +106,7 @@ class DownloadItemSorter : public std::binary_function<DownloadItem*,
                                                        bool> {
  public:
   bool operator()(const DownloadItem* lhs, const DownloadItem* rhs) {
-    return lhs->start_time() < rhs->start_time();
+    return lhs->start_time() > rhs->start_time();
   }
 };
 
@@ -120,7 +128,9 @@ DownloadsDOMHandler::DownloadsDOMHandler(DOMUI* dom_ui, DownloadManager* dlm)
     NewCallback(this, &DownloadsDOMHandler::HandleDiscardDangerous));
   dom_ui_->RegisterMessageCallback("show",
     NewCallback(this, &DownloadsDOMHandler::HandleShow));
-  dom_ui_->RegisterMessageCallback("pause",
+  dom_ui_->RegisterMessageCallback("togglepause",
+    NewCallback(this, &DownloadsDOMHandler::HandlePause));
+  dom_ui_->RegisterMessageCallback("resume",
     NewCallback(this, &DownloadsDOMHandler::HandlePause));
   dom_ui_->RegisterMessageCallback("cancel",
     NewCallback(this, &DownloadsDOMHandler::HandleCancel));
@@ -179,6 +189,9 @@ void DownloadsDOMHandler::SetDownloads(
   // Scan for any in progress downloads and add ourself to them as an observer.
   for (OrderedDownloads::iterator it = download_items_.begin();
        it != download_items_.end(); ++it) {
+    if (static_cast<int>(it - download_items_.begin()) > kMaxDownloads)
+      break;
+
     DownloadItem* download = *it;
     if (download->state() == DownloadItem::IN_PROGRESS) {
       // We want to know what happens as the download progresses.
@@ -253,11 +266,12 @@ void DownloadsDOMHandler::HandleCancel(const Value* value) {
 
 void DownloadsDOMHandler::SendCurrentDownloads() {
   ListValue results_value;
-
   for (OrderedDownloads::iterator it = download_items_.begin();
-    it != download_items_.end(); ++it) {
-      results_value.Append(CreateDownloadItemValue(*it,
-        static_cast<int>(it - download_items_.begin())));
+      it != download_items_.end(); ++it) {
+    int index = static_cast<int>(it - download_items_.begin());
+    if (index > kMaxDownloads)
+      break;
+    results_value.Append(CreateDownloadItemValue(*it,index));
   }
 
   dom_ui_->CallJavascriptFunction(L"downloadsList", results_value);
@@ -267,7 +281,7 @@ DictionaryValue* DownloadsDOMHandler::CreateDownloadItemValue(
     DownloadItem* download, int id) {
   DictionaryValue* file_value = new DictionaryValue();
 
-  file_value->SetInteger(L"time",
+  file_value->SetInteger(L"started",
     static_cast<int>(download->start_time().ToTimeT()));
   file_value->SetInteger(L"id", id);
   file_value->SetString(L"file_path", download->full_path().ToWStringHack());

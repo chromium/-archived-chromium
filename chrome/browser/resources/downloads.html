@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html id="t">
+<html id="t" jsvalues="dir:textdirection;">
 <head>
 <meta charset="utf-8">
 <title jscontent="title"></title>
@@ -65,6 +65,7 @@ body {
 }
 .controls a {
   color:#777;
+  margin-right:16px;
 }
 #downloads-pagination {
   padding-top:24px;
@@ -187,6 +188,10 @@ function Downloads() {
   this.node_ = $('downloads-display');
   this.summary_ = $('downloads-summary');
   this.searchText_ = "";
+
+  // Keep track of the dates of the newest and oldest downloads so that we
+  // know where to insert them.
+  this.newestTime_ = -1;
 }
 
 /**
@@ -200,9 +205,15 @@ Downloads.prototype.updated = function(download) {
   } else {
     this.downloads_[id] = new Download(download);
     // We get downloads in display order, so we don't have to worry about
-    // maintaining correct order for now.
-    this.node_.insertBefore(this.downloads_[id].node,
-                            this.node_.firstChild);
+    // maintaining correct order - we can assume that any downloads not in
+    // display order are new ones and so we can add them to the top of the
+    // list.
+    if (download.started > this.newestTime_) {
+      this.node_.insertBefore(this.downloads_[id].node, this.node_.firstChild);
+      this.newestTime_ = download.started;
+    } else {
+      this.node_.appendChild(this.downloads_[id].node);
+    }
   }
 }
 
@@ -300,9 +311,14 @@ function Download(download) {
       localStrings.getString('control_showinfolder'));
   this.nodeControls_.appendChild(this.controlShow_);
 
-  this.controlPause_ = createLink(bind(this.pause_, this),
+  // Pause/Resume are a toggle.
+  this.controlPause_ = createLink(bind(this.togglePause_, this),
       localStrings.getString('control_pause'));
   this.nodeControls_.appendChild(this.controlPause_);
+
+  this.controlResume_ = createLink(bind(this.togglePause_, this),
+      localStrings.getString('control_resume'));
+  this.nodeControls_.appendChild(this.controlResume_);
 
   this.controlCancel_ = createLink(bind(this.cancel_, this),
       localStrings.getString('control_cancel'));
@@ -373,6 +389,7 @@ Download.prototype.update = function(download) {
 
     showInline(this.controlShow_, this.state_ == Download.States.COMPLETE);
     showInline(this.controlPause_, this.state_ == Download.States.IN_PROGRESS);
+    showInline(this.controlResume_, this.state_ == Download.States.PAUSED);
     showInline(this.controlCancel_, this.state_ == Download.States.IN_PROGRESS);
 
     this.nodeURL_.innerHTML = this.url_;
@@ -392,6 +409,7 @@ Download.prototype.clear = function() {
   this.controlShow_.onclick = null;
   this.controlCancel_.onclick = null;
   this.controlPause_.onclick = null;
+  this.controlResume_.onclick = null;
   this.dangerDiscard_.onclick = null;
 
   this.node.innerHTML = '';
@@ -462,8 +480,8 @@ Download.prototype.show_ = function() {
 /**
  * Tells the backend to pause this download.
  */
-Download.prototype.pause_ = function() {
-  chrome.send("pause", [this.id_.toString()]);
+Download.prototype.togglePause_ = function() {
+  chrome.send("togglepause", [this.id_.toString()]);
   return false;
 }
 
@@ -477,11 +495,12 @@ Download.prototype.cancel_ = function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Page:
-var downloads, localStrings;
+var downloads, localStrings, resultsTimeout;
 
 function load() {
   localStrings = new LocalStrings($('l10n'));
   downloads = new Downloads();
+  $('term').focus();
   setSearch("");
 }
 
@@ -498,16 +517,21 @@ function setSearch(searchText) {
  * downloads are added or removed.
  */
 function downloadsList(results) {
+  if (resultsTimeout)
+    clearTimeout(resultsTimeout);
   downloadUpdated(results);
-  downloads.updateSummary();
 }
 
 /**
  * When a download is updated (progress, state change), this is called.
  */
 function downloadUpdated(results) {
-  for (var i = 0, thisResult; thisResult = results[i]; i++) {
-    downloads.updated(thisResult);
+  if (results.length) {
+    downloads.updated(results[0]);
+    if (results.length > 1)
+      resultsTimeout = setTimeout(downloadUpdated, 5, results.slice(1));
+    else
+      downloads.updateSummary();
   }
 }
 </script>
