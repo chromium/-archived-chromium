@@ -970,8 +970,47 @@ CALLBACK_FUNC_DECL(HTMLDocumentOpen) {
   return args.Holder();
 }
 
+// Document --------------------------------------------------------------------
 
+CALLBACK_FUNC_DECL(DocumentEvaluate) {
+  INC_STATS("DOM.Document.evaluate()");
 
+  Document* imp = V8Proxy::DOMWrapperToNode<Document>(args.Holder());
+  ExceptionCode ec = 0;
+  String expression = ToWebCoreString(args[0]);
+  Node* contextNode = NULL;
+  if (V8Node::HasInstance(args[1])) {
+    contextNode = V8Proxy::DOMWrapperToNode<Node>(args[1]);
+  }
+  // Find the XPath
+  XPathNSResolver* resolver = NULL;
+  if (V8XPathNSResolver::HasInstance(args[2])) {
+    resolver = V8Proxy::ToNativeObject<XPathNSResolver>(
+        V8ClassIndex::XPATHNSRESOLVER, args[2]);
+  } else if (args[2]->IsObject()) {
+    v8::Handle<v8::Object> obj = args[2]->ToObject();
+    resolver = new JSXPathNSResolver(obj);
+  } else if (!args[2]->IsNull() && !args[2]->IsUndefined()) {
+    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
+    return v8::Handle<v8::Value>();
+  }
+  int type = ToInt32(args[3]);
+  XPathResult* inResult = NULL;
+  if (V8XPathResult::HasInstance(args[4])) {
+    inResult = V8Proxy::ToNativeObject<XPathResult>(
+        V8ClassIndex::XPATHRESULT, args[4]);
+  }
+
+  v8::TryCatch try_catch;
+  RefPtr<XPathResult> result =
+      imp->evaluate(expression, contextNode, resolver, type, inResult, ec);
+  if (try_catch.HasCaught() || ec != 0) {
+    if (!try_catch.HasCaught())
+      V8Proxy::SetDOMException(ec);
+    return v8::Handle<v8::Value>();
+  }
+  return V8Proxy::ToV8Object(V8ClassIndex::XPATHRESULT, result.get());
+}
 
 // DOMWindow -------------------------------------------------------------------
 
