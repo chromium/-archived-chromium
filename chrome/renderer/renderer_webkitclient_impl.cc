@@ -38,7 +38,8 @@ WebKit::WebString RendererWebKitClientImpl::cookies(
 void RendererWebKitClientImpl::prefetchHostName(
     const WebKit::WebString& hostname) {
   if (!hostname.isEmpty()) {
-    const std::string& hostname_utf8 = UTF16ToUTF8(hostname);
+    std::string hostname_utf8;
+    UTF16ToUTF8(hostname.characters(), hostname.length(), &hostname_utf8);
     DnsPrefetchCString(hostname_utf8.data(), hostname_utf8.length());
   }
 }
