@@ -185,6 +185,7 @@ class TabCloseButton : public views::Button {
   virtual ~TabCloseButton() {}
 
   virtual bool OnMousePressed(const views::MouseEvent& event) {
+    LOG(WARNING) << "MOUSE PRESSED";
     return !event.IsOnlyMiddleMouseButton();
   }
 

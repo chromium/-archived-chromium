@@ -533,7 +533,7 @@ void WidgetWin::OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags) {
 }
 
 void WidgetWin::OnLButtonDown(UINT flags, const CPoint& point) {
-  ProcessMousePressed(point, flags | MK_LBUTTON, false, false);
+  ProcessMousePressed(point, flags | MK_LBUTTON, false);
 }
 
 void WidgetWin::OnLButtonUp(UINT flags, const CPoint& point) {
@@ -541,11 +541,11 @@ void WidgetWin::OnLButtonUp(UINT flags, const CPoint& point) {
 }
 
 void WidgetWin::OnLButtonDblClk(UINT flags, const CPoint& point) {
-  ProcessMousePressed(point, flags | MK_LBUTTON, true, false);
+  ProcessMousePressed(point, flags | MK_LBUTTON, true);
 }
 
 void WidgetWin::OnMButtonDown(UINT flags, const CPoint& point) {
-  ProcessMousePressed(point, flags | MK_MBUTTON, false, false);
+  ProcessMousePressed(point, flags | MK_MBUTTON, false);
 }
 
 void WidgetWin::OnMButtonUp(UINT flags, const CPoint& point) {
@@ -553,7 +553,7 @@ void WidgetWin::OnMButtonUp(UINT flags, const CPoint& point) {
 }
 
 void WidgetWin::OnMButtonDblClk(UINT flags, const CPoint& point) {
-  ProcessMousePressed(point, flags | MK_MBUTTON, true, false);
+  ProcessMousePressed(point, flags | MK_MBUTTON, true);
 }
 
 LRESULT WidgetWin::OnMouseActivate(HWND window, UINT hittest_code,
@@ -588,11 +588,11 @@ LRESULT WidgetWin::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
 }
 
 void WidgetWin::OnNCLButtonDblClk(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_LBUTTON, true, true));
+  SetMsgHandled(FALSE);
 }
 
 void WidgetWin::OnNCLButtonDown(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_LBUTTON, false, true));
+  SetMsgHandled(FALSE);
 }
 
 void WidgetWin::OnNCLButtonUp(UINT flags, const CPoint& point) {
@@ -600,11 +600,11 @@ void WidgetWin::OnNCLButtonUp(UINT flags, const CPoint& point) {
 }
 
 void WidgetWin::OnNCMButtonDblClk(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_MBUTTON, true, true));
+  SetMsgHandled(FALSE);
 }
 
 void WidgetWin::OnNCMButtonDown(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_MBUTTON, false, true));
+  SetMsgHandled(FALSE);
 }
 
 void WidgetWin::OnNCMButtonUp(UINT flags, const CPoint& point) {
@@ -629,11 +629,11 @@ LRESULT WidgetWin::OnNCMouseMove(UINT flags, const CPoint& point) {
 }
 
 void WidgetWin::OnNCRButtonDblClk(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_RBUTTON, true, true));
+  SetMsgHandled(FALSE);
 }
 
 void WidgetWin::OnNCRButtonDown(UINT flags, const CPoint& point) {
-  SetMsgHandled(ProcessMousePressed(point, flags | MK_RBUTTON, false, true));
+  SetMsgHandled(FALSE);
 }
 
 void WidgetWin::OnNCRButtonUp(UINT flags, const CPoint& point) {
@@ -659,7 +659,7 @@ void WidgetWin::OnPaint(HDC dc) {
 }
 
 void WidgetWin::OnRButtonDown(UINT flags, const CPoint& point) {
-  ProcessMousePressed(point, flags | MK_RBUTTON, false, false);
+  ProcessMousePressed(point, flags | MK_RBUTTON, false);
 }
 
 void WidgetWin::OnRButtonUp(UINT flags, const CPoint& point) {
@@ -667,7 +667,7 @@ void WidgetWin::OnRButtonUp(UINT flags, const CPoint& point) {
 }
 
 void WidgetWin::OnRButtonDblClk(UINT flags, const CPoint& point) {
-  ProcessMousePressed(point, flags | MK_RBUTTON, true, false);
+  ProcessMousePressed(point, flags | MK_RBUTTON, true);
 }
 
 void WidgetWin::OnSettingChange(UINT flags, const wchar_t* section) {
@@ -718,21 +718,16 @@ void WidgetWin::TrackMouseEvents(DWORD mouse_tracking_flags) {
   }
 }
 
-bool WidgetWin::ProcessMousePressed(const CPoint& point,
-                                    UINT flags,
-                                    bool dbl_click,
-                                    bool non_client) {
+bool WidgetWin::ProcessMousePressed(const CPoint& point, UINT flags,
+                                    bool dbl_click) {
   last_mouse_event_was_move_ = false;
   // Windows gives screen coordinates for nonclient events, while the RootView
   // expects window coordinates; convert if necessary.
   gfx::Point converted_point(point);
-  if (non_client)
-    View::ConvertPointToView(NULL, root_view_.get(), &converted_point);
   MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
                            converted_point.x(),
                            converted_point.y(),
                            (dbl_click ? MouseEvent::EF_IS_DOUBLE_CLICK : 0) |
-                           (non_client ? MouseEvent::EF_IS_NON_CLIENT : 0) |
                            Event::ConvertWindowsFlags(flags));
   if (root_view_->OnMousePressed(mouse_pressed)) {
     is_mouse_down_ = true;

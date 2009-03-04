@@ -461,8 +461,7 @@ bool View::ProcessMousePressed(const MouseEvent& e, DragInfo* drag_info) {
     drag_operations = GetDragOperations(e.x(), e.y());
   else
     drag_operations = 0;
-  ContextMenuController* context_menu_controller =
-      e.IsRightMouseButton()? context_menu_controller_ : 0;
+  ContextMenuController* context_menu_controller = context_menu_controller_;
 
   const bool result = OnMousePressed(e);
   // WARNING: we may have been deleted, don't use any View variables;

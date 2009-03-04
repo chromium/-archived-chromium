@@ -1127,7 +1127,7 @@ void Window::ProcessNCMousePress(const CPoint& point, int flags) {
   if ((GetKeyState(VK_SHIFT) & 0x80) == 0x80)
     message_flags |= MK_SHIFT;
   message_flags |= flags;
-  ProcessMousePressed(temp, message_flags, false, false);
+  ProcessMousePressed(temp, message_flags, false);
 }
 
 LRESULT Window::CallDefaultNCActivateHandler(BOOL active) {
