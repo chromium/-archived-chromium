@@ -255,13 +255,6 @@ class NewTabUI : public DOMUI {
   // DOMUI Implementation
   virtual void Init();
 
-  // Set the title that overrides any other title provided for the tab.
-  // This lets you set the title that's displayed before the content loads,
-  // as well as override any "Loading..." text.
-  void set_forced_title(const std::wstring& title) {
-    forced_title_ = title;
-  }
-
   // Overridden from DOMUI.
   // Favicon should not be displayed.
   virtual bool ShouldDisplayFavIcon() { return false; }
@@ -285,10 +278,6 @@ class NewTabUI : public DOMUI {
   // Whether the user is in incognito mode or not, used to determine
   // what HTML to load.
   bool incognito_;
-
-  // A title for the page we force display of.
-  // This prevents intermediate titles (like "Loading...") from displaying.
-  std::wstring forced_title_;
 
   // A pointer to the handler for most visited.
   // Owned by the DOMUIHost.

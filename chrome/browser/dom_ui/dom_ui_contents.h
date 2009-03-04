@@ -106,9 +106,11 @@ class DOMUIContents : public WebContents {
   // The bookmark bar is always visible on the new tab.
   virtual bool IsBookmarkBarAlwaysVisible();
   // When NTP gets the initial focus, focus the URL bar.
-  virtual void SetInitialFocus();
+  virtual void SetInitialFocus(bool reverse);
   // Whether we want to display the page's URL.
   virtual bool ShouldDisplayURL();
+  // Get the title for this page.
+  virtual const std::wstring& GetTitle() const;
   // We may wish to control what happens when a URL is opened.
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
       WindowOpenDisposition disposition);
@@ -129,8 +131,14 @@ class DOMUIContents : public WebContents {
   // Return a DOM UI for the provided URL.
   DOMUI* GetDOMUIForURL(const GURL& url);
 
+  // Initialize our current UI.
+  bool InitCurrentUI(bool reload);
+
   // The DOMUI we own and show.
   DOMUI* current_ui_;
+
+  // URL that our current_ui_ is serving.
+  GURL current_url_;
 
   DISALLOW_COPY_AND_ASSIGN(DOMUIContents);
 };

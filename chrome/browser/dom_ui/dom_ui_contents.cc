@@ -13,8 +13,11 @@
 #include "chrome/browser/extensions/extensions_ui.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
+
+#include "grit/generated_resources.h"
 
 // The path used in internal URLs to thumbnail data.
 static const char kThumbnailPath[] = "thumb";
@@ -141,7 +144,8 @@ DOMUIContents::DOMUIContents(Profile* profile,
                   render_view_factory,
                   MSG_ROUTING_NONE,
                   NULL),
-      current_ui_(NULL) {
+      current_ui_(NULL),
+      current_url_(GURL()) {
   set_type(TAB_CONTENTS_DOM_UI);
 }
 
@@ -175,49 +179,54 @@ void DOMUIContents::RenderViewCreated(RenderViewHost* render_view_host) {
 }
 
 bool DOMUIContents::ShouldDisplayFavIcon() {
-  if (current_ui_)
+  if (InitCurrentUI(false))
     return current_ui_->ShouldDisplayFavIcon();
   return true;
 }
 
 bool DOMUIContents::IsBookmarkBarAlwaysVisible() {
-  if (current_ui_)
+  if (InitCurrentUI(false))
     return current_ui_->IsBookmarkBarAlwaysVisible();
   return false;
 }
 
-void DOMUIContents::SetInitialFocus() {
-  if (current_ui_)
-    current_ui_->SetInitialFocus();
+void DOMUIContents::SetInitialFocus(bool reverse) {
+  if (InitCurrentUI(false))
+    current_ui_->SetInitialFocus(reverse);
+  else
+    TabContents::SetInitialFocus(reverse);
+}
+
+const std::wstring& DOMUIContents::GetTitle() const {
+  // Workaround for new tab page - we may be asked for a title before
+  // the content is ready, and we don't even want to display a 'loading...'
+  // message, so we force it here.
+  if (controller()->GetActiveEntry() &&
+      controller()->GetActiveEntry()->url().host() ==
+      NewTabUI::GetBaseURL().host()) {
+    std::wstring* title = new std::wstring(
+        l10n_util::GetString(IDS_NEW_TAB_TITLE));
+    return *title;
+  }
+  return WebContents::GetTitle();
 }
 
 bool DOMUIContents::ShouldDisplayURL() {
-  if (current_ui_)
+  if (InitCurrentUI(false))
     return current_ui_->ShouldDisplayURL();
-  return true;
+  return TabContents::ShouldDisplayURL();
 }
 
 void DOMUIContents::RequestOpenURL(const GURL& url, const GURL& referrer,
                                    WindowOpenDisposition disposition) {
-  if (current_ui_)
+  if (InitCurrentUI(false))
     current_ui_->RequestOpenURL(url, referrer, disposition);
+  else
+    WebContents::RequestOpenURL(url, referrer, disposition);
 }
 
 bool DOMUIContents::NavigateToPendingEntry(bool reload) {
-  if (current_ui_) {
-    // Shut down our existing DOMUI.
-    delete current_ui_;
-    current_ui_ = NULL;
-  }
-
-  // Set up a new DOMUI.
-  NavigationEntry* pending_entry = controller()->GetPendingEntry();
-  current_ui_ = GetDOMUIForURL(pending_entry->url());
-  if (current_ui_)
-    current_ui_->Init();
-  else
-    return false;
-
+  InitCurrentUI(reload);
   // Let WebContents do whatever it's meant to do.
   return WebContents::NavigateToPendingEntry(reload);
 }
@@ -226,6 +235,28 @@ void DOMUIContents::ProcessDOMUIMessage(const std::string& message,
                                         const std::string& content) {
   DCHECK(current_ui_);
   current_ui_->ProcessDOMUIMessage(message, content);
+}
+
+bool DOMUIContents::InitCurrentUI(bool reload) {
+  GURL url = controller()->GetActiveEntry()->url();
+
+  if (reload || url != current_url_) {
+    // Shut down our existing DOMUI.
+    delete current_ui_;
+    current_ui_ = NULL;
+
+    // Set up a new DOMUI.
+    current_ui_ = GetDOMUIForURL(url);
+    if (current_ui_) {
+      current_ui_->Init();
+      current_url_ = url;
+      return true;
+    }
+  } else if (current_ui_) {
+    return true;
+  }
+
+  return false;
 }
 
 // static

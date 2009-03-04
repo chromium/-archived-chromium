@@ -257,7 +257,7 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
 // IncognitoTabHTMLSource
 
 IncognitoTabHTMLSource::IncognitoTabHTMLSource()
-    : DataSource("new-tab", MessageLoop::current()) {
+    : DataSource(kNewTabHost, MessageLoop::current()) {
 }
 
 void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
@@ -795,17 +795,6 @@ NewTabUI::NewTabUI(DOMUIContents* contents) :
     motd_message_id_(0),
     incognito_(false),
     most_visited_handler_(NULL) {
-  // Show profile name in the title if the current profile is not the default.
-  std::wstring title;
-  if (UserDataManager::Get()->is_current_profile_default()) {
-    title = l10n_util::GetString(IDS_NEW_TAB_TITLE);
-  } else {
-    title = l10n_util::GetStringF(
-        IDS_NEW_TAB_TITLE_WITH_PROFILE_NAME,
-        UserDataManager::Get()->current_profile_name());
-  }
-  set_forced_title(title);
-
   if (get_profile()->IsOffTheRecord())
     incognito_ = true;
 

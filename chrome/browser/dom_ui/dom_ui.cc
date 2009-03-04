@@ -79,6 +79,10 @@ void DOMUI::RegisterMessageCallback(const std::string &message,
   message_callbacks_.insert(std::make_pair(message, callback));
 }
 
+void DOMUI::SetInitialFocus(bool reverse) {
+  get_contents()->render_view_host()->SetInitialFocus(reverse);
+}
+
 void DOMUI::RequestOpenURL(const GURL& url,
                            const GURL& /* referer */,
                            WindowOpenDisposition disposition) {
