@@ -575,8 +575,12 @@ bool OpaqueBrowserFrameView::HitTest(const gfx::Point& l) const {
   if (l.y() > browser_view_->tabstrip()->bounds().bottom())
     return false;
 
+  // We convert from our parent's coordinates since we assume we fill its bounds
+  // completely. We need to do this since we're not a parent of the tabstrip,
+  // meaning ConvertPointToView would otherwise return something bogus.
   gfx::Point tabstrip_point(l);
-  View::ConvertPointToView(this, browser_view_->tabstrip(), &tabstrip_point);
+  View::ConvertPointToView(GetParent(), browser_view_->tabstrip(),
+                           &tabstrip_point);
   return browser_view_->tabstrip()->PointIsWithinWindowCaption(tabstrip_point);
 }
 
