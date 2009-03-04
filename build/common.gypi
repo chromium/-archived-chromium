@@ -5,11 +5,16 @@
 {
   'variables': {
     'chromium_code%': 0,
+    'branding%': 'Chromium',
   },
   'target_defaults': {
-    # TODO(bradnelson): This should really be able to be either:
-    #   CHROMIUM_BUILD or GOOGLE_CHROME_BUILD
-    'defines': ['CHROMIUM_BUILD'],
+    'conditions': [
+      ['branding=="Chrome"', {
+        'defines': ['GOOGLE_CHROME_BUILD'],
+      }, {  # else: branding!="Chrome"
+        'defines': ['CHROMIUM_BUILD'],
+      }],
+    ],
     'default_configuration': 'Debug',
     'configurations': {
       'Debug': {

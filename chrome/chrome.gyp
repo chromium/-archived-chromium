@@ -1328,7 +1328,6 @@
         'app/nibs/en.lproj/BrowserWindow.xib',
         'app/nibs/en.lproj/MainMenu.xib',
         'app/nibs/en.lproj/TabContents.xib',
-        'app/theme/chromium/chromium.icns',
         'app/theme/back.pdf',
         'app/theme/forward.pdf',
         'app/theme/go.pdf',
@@ -1352,7 +1351,16 @@
       },
       'conditions': [
         ['OS=="mac"', {
-          'product_name': 'Chromium',
+          # 'branding' is a variable defined in common.gypi
+          # (e.g. "Chromium", "Chrome")
+	  'product_name': '<(branding)',
+	  'conditions': [
+            ['branding=="Chrome"', {
+              'mac_bundle_resources': ['app/theme/google_chrome/chrome.icns'],
+            }, {  # else: branding!="Chrome"
+              'mac_bundle_resources': ['app/theme/chromium/chromium.icns'],
+            }],
+          ],
         }],
         ['OS!="win"', {
           'variables': {
@@ -1746,4 +1754,30 @@
       ],
     },
   ],
+  # On Mac only, add a project target called "package_app" that only
+  # runs a shell script (package_chrome.sh).
+  'conditions': [
+    ['OS=="mac"',
+      { 'targets': [
+        {
+          'target_name': 'package_app',
+          # do NOT place this in the 'all' list; most won't want it.
+          # In gyp, booleans are 0/1 not True/False.
+          'suppress_wildcard': 1,
+          'type': 'none',
+          'dependencies': [
+            'app',
+          ],
+          'actions': [
+            {
+              'inputs': [],
+              'outputs': [],
+              'action_name': 'package_chrome',
+              'action': ['tools/mac/package_chrome.sh' ],
+            },
+          ],  # 'actions'
+        },
+      ]},  # 'targets'
+    ],  # OS=="mac"
+  ],  # 'conditions'
 }
