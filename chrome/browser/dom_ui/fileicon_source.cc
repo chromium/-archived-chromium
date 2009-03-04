@@ -9,6 +9,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/time_format.h"
 #include "grit/generated_resources.h"
+#include "net/base/escape.h"
 
 // The path used in internal URLs to file icon data.
 static const char kFileIconPath[] = "fileicon";
@@ -24,8 +25,13 @@ void FileIconSource::StartDataRequest(const std::string& path,
                                       int request_id) {
   IconManager* im = g_browser_process->icon_manager();
 
+  // The path we receive has the wrong slashes and escaping for what we need;
+  // this only appears to matter for getting icons from .exe files.
+  std::string escaped_path = UnescapeURLComponent(path, UnescapeRule::SPACES);
+  std::replace(escaped_path.begin(), escaped_path.end(), '/', '\\');
+
   // Fast look up.
-  SkBitmap* icon = im->LookupIcon(UTF8ToWide(path), IconLoader::NORMAL);
+  SkBitmap* icon = im->LookupIcon(UTF8ToWide(escaped_path), IconLoader::NORMAL);
 
   if (icon) {
     std::vector<unsigned char> png_bytes;
@@ -35,7 +41,8 @@ void FileIconSource::StartDataRequest(const std::string& path,
     SendResponse(request_id, icon_data);
   } else {
     // Icon was not in cache, go fetch it slowly.
-    IconManager::Handle h = im->LoadIcon(UTF8ToWide(path), IconLoader::NORMAL,
+    IconManager::Handle h = im->LoadIcon(UTF8ToWide(escaped_path), 
+        IconLoader::NORMAL,
         &cancelable_consumer_,
         NewCallback(this, &FileIconSource::OnFileIconDataAvailable));
 
