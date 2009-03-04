@@ -25,6 +25,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/download/save_types.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/history/history.h"
@@ -63,7 +64,6 @@ class CPCommandInterface;
 class DOMUIHost;
 class DownloadItem;
 class DownloadManager;
-class DownloadShelf;
 class HistoryService;
 class LoginHandler;
 class MetricsService;
@@ -488,24 +488,25 @@ class TabContents : public PageNavigator, public NotificationObserver {
   static void RegisterUserPrefs(PrefService* prefs) {
     prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
   }
-  static void MigrateShelf(TabContents* from, TabContents* to) {
-    NOTIMPLEMENTED();
-  }
   virtual void CreateView() {}
   virtual gfx::NativeView GetNativeView() const { return NULL; }
   static TabContentsFactory* RegisterFactory(TabContentsType type,
                                              TabContentsFactory* factory);
-  void OnStartDownload(DownloadItem* download) { NOTIMPLEMENTED(); }
   void RemoveInfoBar(InfoBarDelegate* delegate) { NOTIMPLEMENTED(); }
   virtual bool ShouldDisplayURL() { return true; }
   void ToolbarSizeChanged(bool is_animating);
-  DownloadShelf* GetDownloadShelf() { NOTIMPLEMENTED(); return NULL; }
+  void OnStartDownload(DownloadItem* download);
+  DownloadShelf* GetDownloadShelf();
+  static void MigrateShelf(TabContents* from, TabContents* to);
+  void MigrateShelfFrom(TabContents* tab_contents);
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
  private:
+  virtual void ReleaseDownloadShelf();
   friend class AutomationProvider;
 
+  scoped_ptr<DownloadShelf> download_shelf_;
   TabContentsType type_;
   bool is_crashed_;
   bool is_active_;

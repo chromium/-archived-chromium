@@ -464,6 +464,13 @@ void TabContents::RemoveInfoBar(InfoBarDelegate* delegate) {
     }
   }
 }
+#endif  // defined(OS_WIN)
+
+void TabContents::ToolbarSizeChanged(bool is_animating) {
+  TabContentsDelegate* d = delegate();
+  if (d)
+    d->ToolbarSizeChanged(this, is_animating);
+}
 
 void TabContents::SetDownloadShelfVisible(bool visible) {
   if (shelf_visible_ != visible) {
@@ -483,32 +490,33 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
   ToolbarSizeChanged(false);
 }
 
-void TabContents::ToolbarSizeChanged(bool is_animating) {
-  TabContentsDelegate* d = delegate();
-  if (d)
-    d->ToolbarSizeChanged(this, is_animating);
-}
-
+#if defined(OS_WIN) || defined(OS_LINUX)
 void TabContents::OnStartDownload(DownloadItem* download) {
   DCHECK(download);
   TabContents* tab_contents = this;
 
+// TODO(port): port contraining contents.
+#if defined(OS_WIN)
   // Download in a constrained popup is shown in the tab that opened it.
   TabContents* constraining_tab = delegate()->GetConstrainingContents(this);
   if (constraining_tab)
     tab_contents = constraining_tab;
+#endif
 
   // GetDownloadShelf creates the download shelf if it was not yet created.
   tab_contents->GetDownloadShelf()->AddDownload(
       new DownloadItemModel(download));
   tab_contents->SetDownloadShelfVisible(true);
 
+// TODO(port): port animatinos.
+#if defined(OS_WIN)
   // This animation will delete itself when it finishes, or if we become hidden
   // or destroyed.
   if (IsWindowVisible(GetNativeView())) {  // For minimized windows, unit
                                            // tests, etc.
     new DownloadStartedAnimation(tab_contents);
   }
+#endif
 }
 
 DownloadShelf* TabContents::GetDownloadShelf() {
@@ -523,6 +531,20 @@ void TabContents::MigrateShelfFrom(TabContents* tab_contents) {
   tab_contents->ReleaseDownloadShelf();
 }
 
+void TabContents::ReleaseDownloadShelf() {
+  download_shelf_.release();
+}
+
+// static
+void TabContents::MigrateShelf(TabContents* from, TabContents* to) {
+  bool was_shelf_visible = from->IsDownloadShelfVisible();
+  if (was_shelf_visible)
+    to->MigrateShelfFrom(from);
+  to->SetDownloadShelfVisible(was_shelf_visible);
+}
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
+
+#if defined(OS_WIN)
 void TabContents::WillClose(ConstrainedWindow* window) {
   ConstrainedWindowList::iterator it =
       find(child_windows_.begin(), child_windows_.end(), window);
@@ -553,14 +575,6 @@ void TabContents::Observe(NotificationType type,
   NavigationController::LoadCommittedDetails& committed_details =
       *(Details<NavigationController::LoadCommittedDetails>(details).ptr());
   ExpireInfoBars(committed_details);
-}
-
-// static
-void TabContents::MigrateShelf(TabContents* from, TabContents* to) {
-  bool was_shelf_visible = from->IsDownloadShelfVisible();
-  if (was_shelf_visible)
-    to->MigrateShelfFrom(from);
-  to->SetDownloadShelfVisible(was_shelf_visible);
 }
 
 void TabContents::SetIsLoading(bool is_loading,
@@ -602,10 +616,6 @@ void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
 
   if (blocked_popups_)
     blocked_popups_->RepositionConstrainedWindowTo(anchor_position);
-}
-
-void TabContents::ReleaseDownloadShelf() {
-  download_shelf_.release();
 }
 
 bool TabContents::ShowingBlockedPopupNotification() const {

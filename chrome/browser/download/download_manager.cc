@@ -1360,7 +1360,6 @@ void DownloadManager::OnQueryDownloadEntriesComplete(
   FOR_EACH_OBSERVER(Observer, observers_, ModelChanged());
 }
 
-
 // Once the new DownloadItem's creation info has been committed to the history
 // service, we associate the DownloadItem with the db handle, update our
 // 'downloads_' map and inform observers.

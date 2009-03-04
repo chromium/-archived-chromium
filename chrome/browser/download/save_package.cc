@@ -264,12 +264,12 @@ bool SavePackage::Init() {
   download_ = new DownloadItem(1, saved_main_file_path_, 0, page_url_,
       FilePath(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(web_contents_->profile()->GetDownloadManager());
-#if defined(OS_WIN)
+#if !defined(OS_MACOSX)
   DownloadShelf* shelf = web_contents_->GetDownloadShelf();
   shelf->AddDownload(new SavePageModel(this, download_));
   web_contents_->SetDownloadShelfVisible(true);
-#elif defined(OS_POSIX)
-  // TODO(port): Create a download shelf for linux and mac.
+#else
+  // TODO(port): Create a download shelf for mac.
   NOTIMPLEMENTED();
 #endif
 

@@ -14,12 +14,17 @@
 #endif
 
 void DownloadShelf::ShowAllDownloads() {
+#if defined(OS_WIN)
   Profile* profile = tab_contents_->profile();
   if (profile)
     UserMetrics::RecordAction(L"ShowDownloads", profile);
   GURL url = DownloadsUI::GetBaseURL();
   tab_contents_->OpenURL(url, GURL(), NEW_FOREGROUND_TAB,
       PageTransition::AUTO_BOOKMARK);
+#else
+  // TODO(port): After we port DownloadsUI, enable this function.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void DownloadShelf::ChangeTabContents(TabContents* old_contents,
