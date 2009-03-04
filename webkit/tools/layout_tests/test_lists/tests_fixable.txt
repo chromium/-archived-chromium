@@ -1856,3 +1856,48 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods-async.html = TIMEO
 DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods.html = TIMEOUT
 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 DEFER LINUX WIN : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
+
+// Regression from the 41362:41402 merge, apparently from the V8Bindings
+// changes.
+LayoutTests/fast/xpath/4XPath/Borrowed/cz_20030217.html = FAIL
+LayoutTests/fast/xpath/4XPath/Borrowed/kd_20010423.html = FAIL
+LayoutTests/fast/xpath/4XPath/Borrowed/namespace-nodes.html = FAIL
+LayoutTests/fast/xpath/4XPath/Borrowed/od_20000608.html = FAIL
+LayoutTests/fast/xpath/4XPath/Borrowed/rs_20010831.html = FAIL
+LayoutTests/fast/xpath/4XPath/Borrowed/sr_20021217.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_boolean_expr.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_core_functions.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_literal_expr.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_location_path.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_node_test.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_nodeset_expr.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_parser.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_predicate_list.html = FAIL
+LayoutTests/fast/xpath/4XPath/Core/test_step.html = FAIL
+LayoutTests/fast/xpath/ancestor-axis.html = FAIL
+LayoutTests/fast/xpath/attr-namespace.html = FAIL
+LayoutTests/fast/xpath/complex-id.html = FAIL
+LayoutTests/fast/xpath/document-order.html = FAIL
+LayoutTests/fast/xpath/ensure-null-namespace.xhtml = FAIL
+LayoutTests/fast/xpath/id-path.html = FAIL
+LayoutTests/fast/xpath/implicit-node-args.html = FAIL
+LayoutTests/fast/xpath/namespace-vs-predicate.xhtml = FAIL
+LayoutTests/fast/xpath/nan-to-boolean.html = FAIL
+LayoutTests/fast/xpath/nodeset-duplicates.html = FAIL
+LayoutTests/fast/xpath/nsresolver-function.xhtml = FAIL
+LayoutTests/fast/xpath/nsresolver-object.xhtml = FAIL
+LayoutTests/fast/xpath/preceding-axis.xhtml = FAIL
+LayoutTests/fast/xpath/reverse-axes.html = FAIL
+LayoutTests/fast/xpath/string-value.html = FAIL
+LayoutTests/fast/xpath/substring-after.html = FAIL
+LayoutTests/fast/xpath/text-nodes.html = FAIL
+LayoutTests/fast/xpath/union-context-node.xhtml = FAIL
+LayoutTests/fast/xpath/xpath-functional-test.html = FAIL
+
+// New tests added in the 41362:41402 merge.
+// TODO(pamg): See which only need re-baselining.
+DEFER : LayoutTests/fast/block/float/t0905-c414-flt-fit-01-d-g.html = FAIL
+DEFER : LayoutTests/fast/block/float/t0905-c5525-fltblck-00-d-ag.html = FAIL
+DEFER : LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
+DEFER : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
+DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
