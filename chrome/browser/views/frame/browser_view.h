@@ -157,17 +157,6 @@ class BrowserView : public BrowserWindow,
   // to add or delete entries.
   void PrepareToRunSystemMenu(HMENU menu);
 
-  // Possible elements of the Browser window.
-  enum WindowFeature {
-    FEATURE_TITLEBAR = 1,
-    FEATURE_TABSTRIP = 2,
-    FEATURE_TOOLBAR = 4,
-    FEATURE_LOCATIONBAR = 8,
-    FEATURE_BOOKMARKBAR = 16,
-    FEATURE_INFOBAR = 32,
-    FEATURE_DOWNLOADSHELF = 64
-  };
-
   // Returns true if the Browser object associated with this BrowserView is a
   // normal-type window (i.e. a browser window, not an app or popup).
   bool IsBrowserTypeNormal() const {
@@ -300,10 +289,6 @@ class BrowserView : public BrowserWindow,
 
   // Creates the system menu.
   void InitSystemMenu();
-
-  // Returns true if the Browser object associated with this BrowserView
-  // supports the specified feature.
-  bool SupportsWindowFeature(WindowFeature feature) const;
 
   // Returns true if the event should be forwarded to the TabStrip. This
   // returns true if y coordinate is less than the bottom of the tab strip, and

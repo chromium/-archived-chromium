@@ -323,12 +323,12 @@ int BrowserView::GetTabStripHeight() const {
 }
 
 bool BrowserView::IsToolbarVisible() const {
-  return SupportsWindowFeature(FEATURE_TOOLBAR) ||
-         SupportsWindowFeature(FEATURE_LOCATIONBAR);
+  return browser_->SupportsWindowFeature(Browser::FEATURE_TOOLBAR) ||
+         browser_->SupportsWindowFeature(Browser::FEATURE_LOCATIONBAR);
 }
 
 bool BrowserView::IsTabStripVisible() const {
-  return SupportsWindowFeature(FEATURE_TABSTRIP);
+  return browser_->SupportsWindowFeature(Browser::FEATURE_TABSTRIP);
 }
 
 bool BrowserView::IsOffTheRecord() const {
@@ -706,7 +706,7 @@ void BrowserView::DestroyBrowser() {
 }
 
 bool BrowserView::IsBookmarkBarVisible() const {
-  return SupportsWindowFeature(FEATURE_BOOKMARKBAR) &&
+  return browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR) &&
       active_bookmark_bar_ &&
       (active_bookmark_bar_->GetPreferredSize().height() != 0);
 }
@@ -972,7 +972,7 @@ views::View* BrowserView::GetInitiallyFocusedView() {
 }
 
 bool BrowserView::ShouldShowWindowTitle() const {
-  return SupportsWindowFeature(FEATURE_TITLEBAR);
+  return browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR);
 }
 
 SkBitmap BrowserView::GetWindowIcon() {
@@ -982,7 +982,7 @@ SkBitmap BrowserView::GetWindowIcon() {
 }
 
 bool BrowserView::ShouldShowWindowIcon() const {
-  return SupportsWindowFeature(FEATURE_TITLEBAR);
+  return browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR);
 }
 
 bool BrowserView::ExecuteWindowsCommand(int command_id) {
@@ -1289,21 +1289,6 @@ void BrowserView::InitSystemMenu() {
   }
 }
 
-bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
-  unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
-  if (IsBrowserTypeNormal())
-     features |= FEATURE_BOOKMARKBAR;
-  if (!fullscreen_) {
-    if (IsBrowserTypeNormal())
-      features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
-    else
-      features |= FEATURE_TITLEBAR;
-    if ((browser_->type() & Browser::TYPE_APP) == 0)
-      features |= FEATURE_LOCATIONBAR;
-  }
-  return !!(features & feature);
-}
-
 bool BrowserView::ShouldForwardToTabStrip(
     const views::DropTargetEvent& event) {
   if (!tabstrip_->IsVisible())
@@ -1395,7 +1380,7 @@ int BrowserView::LayoutBookmarkBar(int top) {
 }
 
 int BrowserView::LayoutInfoBar(int top) {
-  bool visible = SupportsWindowFeature(FEATURE_INFOBAR);
+  bool visible = browser_->SupportsWindowFeature(Browser::FEATURE_INFOBAR);
   int height = visible ? infobar_container_->GetPreferredSize().height() : 0;
   infobar_container_->SetVisible(visible);
   infobar_container_->SetBounds(0, top, width(), height);
@@ -1409,7 +1394,8 @@ void BrowserView::LayoutTabContents(int top, int bottom) {
 int BrowserView::LayoutDownloadShelf() {
   int bottom = height();
   if (active_download_shelf_) {
-    bool visible = SupportsWindowFeature(FEATURE_DOWNLOADSHELF);
+    bool visible = browser_->SupportsWindowFeature(
+        Browser::FEATURE_DOWNLOADSHELF);
     int height =
         visible ? active_download_shelf_->GetPreferredSize().height() : 0;
     active_download_shelf_->SetVisible(visible);
@@ -1433,7 +1419,8 @@ void BrowserView::LayoutStatusBubble(int top) {
 
 bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
   views::View* new_bookmark_bar_view = NULL;
-  if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
+  if (browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR)
+      && contents) {
     if (!bookmark_bar_view_.get()) {
       bookmark_bar_view_.reset(new BookmarkBarView(contents->profile(),
                                                    browser_.get()));

@@ -14,6 +14,8 @@
 #include "chrome/views/window.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using namespace views;
+
 namespace {
 
 class ViewTest : public testing::Test {
@@ -91,9 +93,6 @@ class EmptyWindow : public CWindowImpl<EmptyWindow,
   DISALLOW_EVIL_CONSTRUCTORS(EmptyWindow);
 };
 */
-}
-
-using namespace views;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -102,7 +101,7 @@ using namespace views;
 ////////////////////////////////////////////////////////////////////////////////
 class TestView : public View {
  public:
-  TestView() {
+   TestView() : View(){
   }
 
   virtual ~TestView() {}
@@ -156,7 +155,7 @@ void TestView::DidChangeBounds(const gfx::Rect& previous,
   new_bounds_ = current;
 }
 
-TEST_F(ViewTest, DISABLED_DidChangeBounds) {
+TEST_F(ViewTest, DidChangeBounds) {
   TestView* v = new TestView();
 
   gfx::Rect prev_rect(0, 0, 200, 200);
@@ -189,7 +188,9 @@ void TestView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
   child_ = child;
 }
 
-TEST_F(ViewTest, DISABLED_AddRemoveNotifications) {
+}
+
+TEST_F(ViewTest, AddRemoveNotifications) {
   TestView* v1 = new TestView();
   v1->SetBounds(0, 0, 300, 300);
 
@@ -279,7 +280,7 @@ void TestView::OnMouseReleased(const MouseEvent& event, bool canceled) {
   location_.y = event.y();
 }
 
-TEST_F(ViewTest, DISABLED_MouseEvent) {
+TEST_F(ViewTest, MouseEvent) {
   TestView* v1 = new TestView();
   v1->SetBounds(0, 0, 300, 300);
 
@@ -441,7 +442,7 @@ public:
 
 };
 
-TEST_F(ViewTest, DISABLED_RemoveNotification) {
+TEST_F(ViewTest, RemoveNotification) {
   scoped_ptr<RemoveViewObserver> observer(new RemoveViewObserver);
 
   NotificationService::current()->AddObserver(
@@ -552,7 +553,7 @@ gfx::Point ConvertPointToView(views::View* view, const gfx::Point& p) {
 }
 }
 
-TEST_F(ViewTest, DISABLED_HitTestMasks) {
+TEST_F(ViewTest, HitTestMasks) {
   views::WidgetWin window;
   views::RootView* root_view = window.GetRootView();
   root_view->SetBounds(0, 0, 500, 500);
@@ -616,7 +617,7 @@ class TestDialogView : public views::View,
   views::NativeButton* checkbox_;
 };
 
-TEST_F(ViewTest, DISABLED_DialogDefaultButtonTest) {
+TEST_F(ViewTest, DialogDefaultButtonTest) {
   TestDialogView* dialog_view_ = new TestDialogView();
   views::Window* window =
       views::Window::CreateChromeWindow(NULL, gfx::Rect(0, 0, 100, 100),
