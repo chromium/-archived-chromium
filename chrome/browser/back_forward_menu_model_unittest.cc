@@ -7,6 +7,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/string_util.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -44,7 +45,7 @@ class BackFwdMenuModelTestTabContents : public TabContents {
   void UpdateState(const std::wstring& title) {
     NavigationEntry* entry =
       controller()->GetEntryWithPageID(type(), NULL, GetMaxPageID());
-    entry->set_title(title);
+    entry->set_title(WideToUTF16Hack(title));
   }
 };
 
