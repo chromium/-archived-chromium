@@ -15,12 +15,6 @@ class SkBitmap;
 
 namespace drag_utils {
 
-// Creates a dragging image to be displayed when the user drags an item with a
-// link. The drag image is set into the supplied data_object.
-void CreateDragImageForLink(const GURL& url,
-                            const std::wstring& title,
-                            IDataObject* data_object);
-
 // Sets url and title on data as well as setting a suitable image for dragging.
 // The image looks like that of the bookmark buttons.
 void SetURLAndDragImage(const GURL& url,
