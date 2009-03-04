@@ -204,9 +204,9 @@ const string16& DOMUIContents::GetTitle() const {
   if (controller()->GetActiveEntry() &&
       controller()->GetActiveEntry()->url().host() ==
       NewTabUI::GetBaseURL().host()) {
-    string16* title = new string16(WideToUTF16Hack(
+    static string16* newtab_title = new string16(WideToUTF16Hack(
         l10n_util::GetString(IDS_NEW_TAB_TITLE)));
-    return *title;
+    return *newtab_title;
   }
   return WebContents::GetTitle();
 }
@@ -238,7 +238,13 @@ void DOMUIContents::ProcessDOMUIMessage(const std::string& message,
 }
 
 bool DOMUIContents::InitCurrentUI(bool reload) {
+  if (!controller()->GetActiveEntry())
+    return false;
+
   GURL url = controller()->GetActiveEntry()->url();
+
+  if (url.is_empty() || !url.is_valid())
+    return false;
 
   if (reload || url != current_url_) {
     // Shut down our existing DOMUI.
