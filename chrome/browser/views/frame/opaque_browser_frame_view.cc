@@ -565,21 +565,19 @@ void OpaqueBrowserFrameView::Layout() {
   LayoutClientView();
 }
 
-views::View* OpaqueBrowserFrameView::GetViewForPoint(const gfx::Point& point,
-                                                     bool can_create_floating) {
-  // We override this function because the ClientView can overlap the non -
-  // client view, making it impossible to click on the window controls. We need
-  // to ensure the window controls are checked _first_.
-  views::View* views[] =
-      { close_button_, restore_button_, maximize_button_, minimize_button_ };
-  for (int i = 0; i < arraysize(views); ++i) {
-    if (!views[i]->IsVisible())
-      continue;
-    // Apply mirroring transformation on view bounds for RTL chrome.
-    if (views[i]->GetBounds(APPLY_MIRRORING_TRANSFORMATION).Contains(point))
-      return views[i];
-  }
-  return View::GetViewForPoint(point, can_create_floating);
+bool OpaqueBrowserFrameView::HitTest(const gfx::Point& l) const {
+  // If the point is outside the bounds of the client area, claim it.
+  bool in_nonclient = NonClientFrameView::HitTest(l);
+  if (in_nonclient)
+    return in_nonclient;
+
+  // Otherwise claim it only if it's in a non-tab portion of the tabstrip.
+  if (l.y() > browser_view_->tabstrip()->bounds().bottom())
+    return false;
+
+  gfx::Point tabstrip_point(l);
+  View::ConvertPointToView(this, browser_view_->tabstrip(), &tabstrip_point);
+  return browser_view_->tabstrip()->PointIsWithinWindowCaption(tabstrip_point);
 }
 
 void OpaqueBrowserFrameView::ViewHierarchyChanged(bool is_add,

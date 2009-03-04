@@ -22,7 +22,7 @@ namespace views {
 //  responds to events within the frame portions of the non-client area of a
 //  window. This view does _not_ contain the ClientView, but rather is a sibling
 //  of it.
-class NonClientFrameView : public views::View {
+class NonClientFrameView : public View {
  public:
   // Various edges of the frame border have a 1 px shadow along their edges; in
   // a few cases we shift elements based on this amount for visual appeal.
@@ -54,6 +54,9 @@ class NonClientFrameView : public views::View {
                              gfx::Path* window_mask) = 0;
   virtual void EnableClose(bool enable) = 0;
   virtual void ResetWindowControls() = 0;
+
+  // Overridden from View:
+  virtual bool HitTest(const gfx::Point& l) const;
 
  protected:
   NonClientFrameView() : paint_as_active_(false) {}
@@ -191,6 +194,9 @@ class NonClientView : public View {
  protected:
   // NonClientView, View overrides:
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
+  virtual views::View* GetViewForPoint(const gfx::Point& point);
+  virtual views::View* GetViewForPoint(const gfx::Point& point,
+                                       bool can_create_floating);
 
  private:
   // The frame that hosts this NonClientView.

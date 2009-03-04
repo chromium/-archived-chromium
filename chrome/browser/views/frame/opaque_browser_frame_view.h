@@ -46,8 +46,7 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual views::View* GetViewForPoint(const gfx::Point& point,
-                                       bool can_create_floating);
+  virtual bool HitTest(const gfx::Point& l) const;
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);

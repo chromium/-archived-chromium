@@ -159,6 +159,36 @@ void NonClientView::ViewHierarchyChanged(bool is_add, View* parent,
   }
 }
 
+views::View* NonClientView::GetViewForPoint(const gfx::Point& point) {
+  return GetViewForPoint(point, false);
+}
+
+views::View* NonClientView::GetViewForPoint(const gfx::Point& point,
+                                            bool can_create_floating) {
+  // Because of the z-ordering of our child views (the client view is positioned
+  // over the non-client frame view, if the client view ever overlaps the frame
+  // view visually (as it does for the browser window), then it will eat mouse
+  // events for the window controls. We override this method here so that we can
+  // detect this condition and re-route the events to the non-client frame view.
+  // The assumption is that the frame view's implementation of HitTest will only
+  // return true for area not occupied by the client view.
+  gfx::Point point_in_child_coords(point);
+  View::ConvertPointToView(this, frame_view_.get(), &point_in_child_coords);
+  if (frame_view_->HitTest(point_in_child_coords))
+    return frame_view_->GetViewForPoint(point);
+
+  return View::GetViewForPoint(point, can_create_floating);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// NonClientFrameView, View overrides:
+
+bool NonClientFrameView::HitTest(const gfx::Point& l) const {
+  // For the default case, we assume the non-client frame view never overlaps
+  // the client view.
+  return !GetWidget()->AsWindow()->client_view()->bounds().Contains(l);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NonClientFrameView, protected:
 
