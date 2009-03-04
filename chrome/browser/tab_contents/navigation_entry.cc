@@ -85,7 +85,7 @@ const string16& NavigationEntry::GetTitleForDisplay(
         display_url_, languages, NULL, NULL));
   } else if (!url_.is_empty()) {
     cached_display_title_ = WideToUTF16Hack(gfx::GetCleanStringFromUrl(
-        display_url_, languages, NULL, NULL));
+        url_, languages, NULL, NULL));
   }
   return cached_display_title_;
 }
