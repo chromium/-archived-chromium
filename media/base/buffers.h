@@ -150,7 +150,7 @@ struct VideoSurface {
   size_t strides[kMaxPlanes];
 
   // Array of data pointers to each plane.
-  char* data[kMaxPlanes];
+  uint8* data[kMaxPlanes];
 };
 
 

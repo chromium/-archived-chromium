@@ -102,7 +102,7 @@ class DataSourceImpl : public media::DataSource {
 
   // Methods called from demuxer thread ---------------------------------------
   // media::DataSource implementation.
-  virtual size_t Read(char* data, size_t size);
+  virtual size_t Read(uint8* data, size_t size);
   virtual bool GetPosition(int64* position_out);
   virtual bool SetPosition(int64 position);
   virtual bool GetSize(int64* size_out);
@@ -120,7 +120,7 @@ class DataSourceImpl : public media::DataSource {
   // Methods called from IO thread --------------------------------------------
   // Handlers for file reading.
   void OnCreateFileStream(base::PlatformFile file);
-  void OnReadFileStream(char* data, size_t size);
+  void OnReadFileStream(uint8* data, size_t size);
   void OnCloseFileStream();
   void OnSeekFileStream(net::Whence whence, int64 position);
   void OnDidFileStreamRead(int size);

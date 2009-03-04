@@ -80,7 +80,7 @@ TEST(FileDataSourceTest, ReadData) {
   MediaFormat url_format;
   int64 position;
   int64 size;
-  char ten_bytes[10];
+  uint8 ten_bytes[10];
   std::string url = TestFileURL();
   url_format.SetAsString(MediaFormat::kMimeType, media::mime_type::kURL);
   url_format.SetAsString(MediaFormat::kURL, url);

@@ -41,12 +41,14 @@ struct MockFilterConfig {
         video_width(1280u),
         video_height(720u),
         video_surface_format(VideoSurface::YV12),
+        has_audio(true),
         compressed_audio_mime_type(mime_type::kAACAudio),
         uncompressed_audio_mime_type(mime_type::kUncompressedAudio),
         compressed_video_mime_type(mime_type::kH264AnnexB),
         uncompressed_video_mime_type(mime_type::kUncompressedVideo),
         frame_duration(base::TimeDelta::FromMicroseconds(33333)),
-        media_duration(base::TimeDelta::FromSeconds(5)) {
+        media_duration(base::TimeDelta::FromSeconds(5)),
+        media_total_bytes(media_duration.InMilliseconds() * 250) {
   }
 
   MockDataSourceBehavior data_source_behavior;
@@ -54,12 +56,14 @@ struct MockFilterConfig {
   size_t video_width;
   size_t video_height;
   VideoSurface::Format video_surface_format;
+  bool has_audio;
   std::string compressed_audio_mime_type;
   std::string uncompressed_audio_mime_type;
   std::string compressed_video_mime_type;
   std::string uncompressed_video_mime_type;
   base::TimeDelta frame_duration;
   base::TimeDelta media_duration;
+  int64 media_total_bytes;
 };
 
 
@@ -78,7 +82,8 @@ class MockDataSource : public DataSource {
     media_format_.SetAsString(MediaFormat::kMimeType,
                               mime_type::kApplicationOctetStream);
     media_format_.SetAsString(MediaFormat::kURL, url);
-    switch (behavior_) {
+    host_->SetTotalBytes(config_->media_total_bytes);
+    switch (config_->data_source_behavior) {
       case MOCK_DATA_SOURCE_NORMAL_INIT:
         host_->InitializationComplete();
         return true;
@@ -106,21 +111,32 @@ class MockDataSource : public DataSource {
     return &media_format_;
   }
 
-  virtual size_t Read(char* data, size_t size) {
-    return 0;
+  virtual size_t Read(uint8* data, size_t size) {
+    size_t read = static_cast<size_t>(config_->media_total_bytes - position_);
+    if (size < read) {
+      read = size;
+    }
+    memset(data, 0, read);
+    return read;
   }
 
   virtual bool GetPosition(int64* position_out) {
-    *position_out = 0;
-    return false;
+    *position_out = position_;
+    return true;
   }
 
   virtual bool SetPosition(int64 position) {
+    EXPECT_GE(position, 0u);
+    EXPECT_LE(position, config_->media_total_bytes);
+    if (position < 0u || position > config_->media_total_bytes) {
+      return false;
+    }
+    position_ = position;
     return true;
   }
 
   virtual bool GetSize(int64* size_out) {
-    *size_out = 0;
+    *size_out = config_->media_total_bytes;
     return false;
   }
 
@@ -129,13 +145,14 @@ class MockDataSource : public DataSource {
                                   const MockFilterConfig*>;
 
   explicit MockDataSource(const MockFilterConfig* config)
-      : behavior_(config->data_source_behavior) {
+      : config_(config),
+        position_(0) {
   }
 
   virtual ~MockDataSource() {}
 
   void TaskBehavior() {
-    switch (behavior_) {
+    switch (config_->data_source_behavior) {
       case MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT:
       case MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT:
         host_->Error(PIPELINE_ERROR_NETWORK);
@@ -148,7 +165,8 @@ class MockDataSource : public DataSource {
     }
   }
 
-  MockDataSourceBehavior behavior_;
+  const MockFilterConfig* config_;
+  int64 position_;
   MediaFormat media_format_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDataSource);
@@ -173,25 +191,33 @@ class MockDemuxer : public Demuxer {
   }
 
   virtual size_t GetNumberOfStreams() {
-    if (config_->has_video) {
-      return 2;
+    size_t num_streams = 0;
+    if (config_->has_audio) {
+      ++num_streams;
     }
-    return 1;
+    if (config_->has_video) {
+      ++num_streams;
+    }
+    return num_streams;
   }
 
   virtual DemuxerStream* GetStream(int stream_id) {
     switch (stream_id) {
       case 0:
-        return &mock_audio_stream_;
-      case 1:
-        if (config_->has_video) {
+        if (config_->has_audio) {
+          return &mock_audio_stream_;
+        } else if (config_->has_video) {
           return &mock_video_stream_;
         }
-        // Fall-through is correct if no video.
-      default:
-        ADD_FAILURE();
-        return NULL;
+        break;
+      case 1:
+        if (config_->has_audio && config_->has_video) {
+          return &mock_video_stream_;
+        }
+        break;
     }
+    ADD_FAILURE();
+    return NULL;
   }
 
  private:
@@ -199,8 +225,8 @@ class MockDemuxer : public Demuxer {
 
   explicit MockDemuxer(const MockFilterConfig* config)
       : config_(config),
-        mock_audio_stream_(config->compressed_audio_mime_type),
-        mock_video_stream_(config->compressed_video_mime_type) {
+        mock_audio_stream_(config, true),
+        mock_video_stream_(config, false) {
   }
 
   virtual ~MockDemuxer() {}
@@ -208,8 +234,16 @@ class MockDemuxer : public Demuxer {
   // Internal class implements DemuxerStream interface.
   class MockDemuxerStream : public DemuxerStream {
    public:
-    explicit MockDemuxerStream(const std::string& mime_type) {
-      media_format_.SetAsString(MediaFormat::kMimeType, mime_type);
+    MockDemuxerStream(const MockFilterConfig* config, bool is_audio) {
+      if (is_audio) {
+        media_format_.SetAsString(MediaFormat::kMimeType,
+                                  config->compressed_audio_mime_type);
+      } else {
+        media_format_.SetAsString(MediaFormat::kMimeType,
+                                  config->compressed_video_mime_type);
+        media_format_.SetAsInteger(MediaFormat::kWidth, config->video_width);
+        media_format_.SetAsInteger(MediaFormat::kHeight, config->video_height);
+      }
     }
 
     virtual ~MockDemuxerStream() {}
@@ -320,30 +354,32 @@ class MockAudioRenderer : public AudioRenderer {
 
 class MockVideoFrame : public VideoFrame {
  public:
-  explicit MockVideoFrame(const MockFilterConfig* config,
-                          base::TimeDelta timestamp)
-      : config_(config),
-        surface_locked_(false) {
+  MockVideoFrame(size_t video_width,
+                 size_t video_height,
+                 VideoSurface::Format video_surface_format,
+                 base::TimeDelta timestamp,
+                 base::TimeDelta duration,
+                 double ratio_white_to_black) {
+    surface_locked_ = false;
     SetTimestamp(timestamp);
-    SetDuration(config->frame_duration);
-    size_t y_byte_count = config_->video_width * config_->video_height;
+    SetDuration(duration);
+    size_t y_byte_count = video_width * video_height;
     size_t uv_byte_count = y_byte_count / 4;
-    surface_.format = config_->video_surface_format;
-    surface_.width = config_->video_width;
-    surface_.height = config_->video_height;
+    surface_.format = video_surface_format;
+    surface_.width = video_width;
+    surface_.height = video_height;
     surface_.planes = 3;
-    surface_.data[0] = new char[y_byte_count];
-    surface_.data[1] = new char[uv_byte_count];
-    surface_.data[2] = new char[uv_byte_count];
-    surface_.strides[0] = config_->video_width;
-    surface_.strides[1] = config_->video_width / 2;
-    surface_.strides[2] = config_->video_width / 2;
+    surface_.data[0] = new uint8[y_byte_count];
+    surface_.data[1] = new uint8[uv_byte_count];
+    surface_.data[2] = new uint8[uv_byte_count];
+    surface_.strides[0] = video_width;
+    surface_.strides[1] = video_width / 2;
+    surface_.strides[2] = video_width / 2;
     memset(surface_.data[0], 0, y_byte_count);
     memset(surface_.data[1], 0x80, uv_byte_count);
     memset(surface_.data[2], 0x80, uv_byte_count);
-    int64 num_white_pixels = y_byte_count *
-                             timestamp.InMicroseconds() /
-                             config_->media_duration.InMicroseconds();
+    int64 num_white_pixels = static_cast<int64>(y_byte_count *
+                                                ratio_white_to_black);
     if (num_white_pixels > y_byte_count) {
       ADD_FAILURE();
       num_white_pixels = y_byte_count;
@@ -368,7 +404,7 @@ class MockVideoFrame : public VideoFrame {
       return false;
     }
     surface_locked_ = true;
-    DCHECK(sizeof(*surface) == sizeof(surface_));
+    COMPILE_ASSERT(sizeof(*surface) == sizeof(surface_), surface_size_mismatch);
     memcpy(surface, &surface_, sizeof(*surface));
     return true;
   }
@@ -379,7 +415,6 @@ class MockVideoFrame : public VideoFrame {
   }
 
  private:
-  const MockFilterConfig* config_;
   bool surface_locked_;
   VideoSurface surface_;
 
@@ -428,7 +463,14 @@ class MockVideoDecoder : public VideoDecoder {
 
   void DoRead(Assignable<VideoFrame>* buffer) {
     if (mock_frame_time_ < config_->media_duration) {
-      VideoFrame* frame = new MockVideoFrame(config_, mock_frame_time_);
+      VideoFrame* frame = new MockVideoFrame(
+          config_->video_width,
+          config_->video_height,
+          config_->video_surface_format,
+          mock_frame_time_,
+          config_->frame_duration,
+          (mock_frame_time_.InSecondsF() /
+              config_->media_duration.InSecondsF()));
       mock_frame_time_ += config_->frame_duration;
       if (mock_frame_time_ >= config_->media_duration) {
         frame->SetEndOfStream(true);

@@ -45,7 +45,7 @@ void DataSourceImpl::Stop() {
   // Post a close file stream task to IO message loop, it will signal the read
   // event.
   io_loop_->PostTask(
-      FROM_HERE,NewRunnableMethod(this, &DataSourceImpl::OnCloseFileStream));
+      FROM_HERE, NewRunnableMethod(this, &DataSourceImpl::OnCloseFileStream));
 
   // Wait for close to finish for FileStream.
   close_event_.Wait();
@@ -61,14 +61,14 @@ bool DataSourceImpl::Initialize(const std::string& url) {
   // We should get a call back at OnReceivedResponse().
   media_format_.SetAsString(media::MediaFormat::kMimeType,
                             media::mime_type::kApplicationOctetStream);
-  media_format_.SetAsString(media::MediaFormat::kURL, url); 
+  media_format_.SetAsString(media::MediaFormat::kURL, url);
   return true;
 }
 
-size_t DataSourceImpl::Read(char* data, size_t size) {
+size_t DataSourceImpl::Read(uint8* data, size_t size) {
   DCHECK(stream_.get());
   // Wait until we have downloaded the requested bytes.
-  while(!stopped_) {
+  while (!stopped_) {
     {
       AutoLock auto_lock(lock_);
       if (position_ + size <= downloaded_bytes_)
@@ -99,7 +99,7 @@ bool DataSourceImpl::GetPosition(int64* position_out) {
 
 bool DataSourceImpl::SetPosition(int64 position) {
   DCHECK(stream_.get());
-  while(!stopped_) {
+  while (!stopped_) {
     {
       AutoLock auto_lock(lock_);
       if (position < downloaded_bytes_)
@@ -142,17 +142,19 @@ void DataSourceImpl::OnCreateFileStream(base::PlatformFile file) {
   host_->InitializationComplete();
 }
 
-void DataSourceImpl::OnReadFileStream(char* data, size_t size) {
+void DataSourceImpl::OnReadFileStream(uint8* data, size_t size) {
   if (!stopped_ && stream_.get()) {
+    // net::FileStream::Read wants a char*, not uint8*.
+    char* c_data = reinterpret_cast<char*>(data);
+    COMPILE_ASSERT(sizeof(*c_data) == sizeof(*data), data_not_sizeof_char);
+
     // This method IO operation is asynchronous, it is expected to return
     // ERROR_IO_PENDING, when the operation is done, OnDidFileStreamRead() will
-    // be called.
-    int rv = stream_->Read(data, size, &read_callback_);
-
-    // Since the file handle is asynchronous, return value other than
-    // ERROR_IO_PENDING is an error.
-    if (rv != net::ERR_IO_PENDING) {
-      // TODO(hclam): using something like PipelineError::PIPELINE_READ_ERROR.
+    // be called.  Since the file handle is asynchronous, return value other
+    // than ERROR_IO_PENDING is an error.
+    if (stream_->Read(c_data, size, &read_callback_) != net::ERR_IO_PENDING) {
+      // TODO(hclam): change to PipelineError::PIPELINE_ERROR_READ once ralphl
+      // gets the new pipeline CL checked in.
       host_->Error(media::PIPELINE_ERROR_NETWORK);
     }
   }

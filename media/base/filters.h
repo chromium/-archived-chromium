@@ -113,7 +113,7 @@ class DataSource : public MediaFilter {
 
   // Read the given amount of bytes into data, returns the number of bytes read
   // if successful, kReadError otherwise.
-  virtual size_t Read(char* data, size_t size) = 0;
+  virtual size_t Read(uint8* data, size_t size) = 0;
 
   // Returns true and the current file position for this file, false if the
   // file position could not be retrieved.

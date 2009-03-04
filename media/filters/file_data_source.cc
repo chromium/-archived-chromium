@@ -57,7 +57,7 @@ const MediaFormat* FileDataSource::GetMediaFormat() {
   return &media_format_;
 }
 
-size_t FileDataSource::Read(char* data, size_t size) {
+size_t FileDataSource::Read(uint8* data, size_t size) {
   DCHECK(file_);
   AutoLock l(lock_);
   if (file_) {
