@@ -113,14 +113,14 @@ void BaseContextMenu::ExecuteCommand(int id) {
       download_->manager()->ShowDownloadInShell(download_);
       break;
     case COPY_LINK:
-      scw.WriteText(UTF8ToWide(download_->url().spec()));
+      scw.WriteText(UTF8ToUTF16(download_->url().spec()));
       break;
     case COPY_PATH:
-      scw.WriteText(download_->full_path().ToWStringHack());
+      scw.WriteText(WideToUTF16(download_->full_path().ToWStringHack()));
       break;
     case COPY_FILE:
       // TODO(paulg): Move to OSExchangeData when implementing drag and drop?
-      scw.WriteFile(download_->full_path().ToWStringHack());
+      scw.WriteFile(download_->full_path());
       break;
     case OPEN_WHEN_COMPLETE:
       OpenDownload(download_);

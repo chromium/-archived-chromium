@@ -211,7 +211,7 @@ bool ClipboardIsFormatAvailable(unsigned int format) {
   return result;
 }
 
-void ClipboardReadText(std::wstring* result) {
+void ClipboardReadText(string16* result) {
   RenderThread::current()->Send(new ViewHostMsg_ClipboardReadText(result));
 }
 
@@ -219,7 +219,7 @@ void ClipboardReadAsciiText(std::string* result) {
   RenderThread::current()->Send(new ViewHostMsg_ClipboardReadAsciiText(result));
 }
 
-void ClipboardReadHTML(std::wstring* markup, GURL* url) {
+void ClipboardReadHTML(string16* markup, GURL* url) {
   RenderThread::current()->Send(new ViewHostMsg_ClipboardReadHTML(markup, url));
 }
 

@@ -11,6 +11,7 @@
 #include <shellapi.h>
 
 #include "base/clipboard_util.h"
+#include "base/lock.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/shared_memory.h"
@@ -169,8 +170,8 @@ void Clipboard::WriteObjects(const ObjectMap& objects,
 }
 
 void Clipboard::WriteText(const char* text_data, size_t text_len) {
-  std::wstring text;
-  UTF8ToWide(text_data, text_len, &text);
+  string16 text;
+  UTF8ToUTF16(text_data, text_len, &text);
   HGLOBAL glob = CreateGlobalData(text);
 
   WriteToClipboard(CF_UNICODETEXT, glob);
@@ -200,7 +201,7 @@ void Clipboard::WriteBookmark(const char* title_data,
   bookmark.append(1, L'\n');
   bookmark.append(url_data, url_len);
 
-  std::wstring wide_bookmark = UTF8ToWide(bookmark);
+  string16 wide_bookmark = UTF8ToWide(bookmark);
   HGLOBAL glob = CreateGlobalData(wide_bookmark);
 
   WriteToClipboard(GetUrlWFormatType(), glob);
@@ -351,10 +352,9 @@ void Clipboard::WriteBitmapFromHandle(HBITMAP source_hbitmap,
 // invokes a paste command (in a Windows explorer shell, for example), the files
 // will be copied to the paste location.
 void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
-  std::wstring filenames(UTF8ToWide(std::string(file_data, file_len)));
   // Calculate the amount of space we'll need store the strings and
   // a DROPFILES struct.
-  size_t bytes = sizeof(DROPFILES) + filenames.length() * sizeof(wchar_t);
+  size_t bytes = sizeof(DROPFILES) + file_len;
 
   HANDLE hdata = ::GlobalAlloc(GMEM_MOVEABLE, bytes);
   if (!hdata)
@@ -365,8 +365,7 @@ void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
   drop_files->pFiles = sizeof(DROPFILES);
   drop_files->fWide = TRUE;
 
-  memcpy(data + sizeof DROPFILES, filenames.c_str(),
-         filenames.length() * sizeof(wchar_t));
+  memcpy(data + sizeof(DROPFILES), file_data, file_len);
 
   ::GlobalUnlock(hdata);
   WriteToClipboard(CF_HDROP, hdata);
@@ -384,7 +383,7 @@ bool Clipboard::IsFormatAvailable(unsigned int format) const {
   return ::IsClipboardFormatAvailable(format) != FALSE;
 }
 
-void Clipboard::ReadText(std::wstring* result) const {
+void Clipboard::ReadText(string16* result) const {
   if (!result) {
     NOTREACHED();
     return;
@@ -401,7 +400,7 @@ void Clipboard::ReadText(std::wstring* result) const {
   if (!data)
     return;
 
-  result->assign(static_cast<const wchar_t*>(::GlobalLock(data)));
+  result->assign(static_cast<const char16*>(::GlobalLock(data)));
   ::GlobalUnlock(data);
 }
 
@@ -426,7 +425,7 @@ void Clipboard::ReadAsciiText(std::string* result) const {
   ::GlobalUnlock(data);
 }
 
-void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
+void Clipboard::ReadHTML(string16* markup, std::string* src_url) const {
   if (markup)
     markup->clear();
 
@@ -450,7 +449,7 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
   markup->assign(UTF8ToWide(markup_utf8));
 }
 
-void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
+void Clipboard::ReadBookmark(string16* title, std::string* url) const {
   if (title)
     title->clear();
 
@@ -466,30 +465,30 @@ void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
   if (!data)
     return;
 
-  std::wstring bookmark(static_cast<const wchar_t*>(::GlobalLock(data)));
+  string16 bookmark(static_cast<const char16*>(::GlobalLock(data)));
   ::GlobalUnlock(data);
 
   ParseBookmarkClipboardFormat(bookmark, title, url);
 }
 
 // Read a file in HDROP format from the clipboard.
-void Clipboard::ReadFile(std::wstring* file) const {
+void Clipboard::ReadFile(FilePath* file) const {
   if (!file) {
     NOTREACHED();
     return;
   }
 
-  file->clear();
-  std::vector<std::wstring> files;
+  *file = FilePath();
+  std::vector<FilePath> files;
   ReadFiles(&files);
 
   // Take the first file, if available.
   if (!files.empty())
-    file->assign(files[0]);
+    *file = files[0];
 }
 
 // Read a set of files in HDROP format from the clipboard.
-void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
+void Clipboard::ReadFiles(std::vector<FilePath>* files) const {
   if (!files) {
     NOTREACHED();
     return;
@@ -513,16 +512,16 @@ void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
       int size = ::DragQueryFile(drop, i, NULL, 0) + 1;
       std::wstring file;
       ::DragQueryFile(drop, i, WriteInto(&file, size), size);
-      files->push_back(file);
+      files->push_back(FilePath(file));
     }
   }
 }
 
 // static
-void Clipboard::ParseBookmarkClipboardFormat(const std::wstring& bookmark,
-                                             std::wstring* title,
+void Clipboard::ParseBookmarkClipboardFormat(const string16& bookmark,
+                                             string16* title,
                                              std::string* url) {
-  const wchar_t* const kDelim = L"\r\n";
+  const string16 kDelim = ASCIIToUTF16("\r\n");
 
   const size_t title_end = bookmark.find_first_of(kDelim);
   if (title)
@@ -530,8 +529,8 @@ void Clipboard::ParseBookmarkClipboardFormat(const std::wstring& bookmark,
 
   if (url) {
     const size_t url_start = bookmark.find_first_not_of(kDelim, title_end);
-    if (url_start != std::wstring::npos)
-      *url = WideToUTF8(bookmark.substr(url_start, std::wstring::npos));
+    if (url_start != string16::npos)
+      *url = UTF16ToUTF8(bookmark.substr(url_start, string16::npos));
   }
 }
 

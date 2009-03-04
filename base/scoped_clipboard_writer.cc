@@ -19,11 +19,11 @@ ScopedClipboardWriter::~ScopedClipboardWriter() {
     clipboard_->WriteObjects(objects_);
 }
 
-void ScopedClipboardWriter::WriteText(const std::wstring& text) {
+void ScopedClipboardWriter::WriteText(const string16& text) {
   if (text.empty())
     return;
 
-  std::string utf8_text = WideToUTF8(text);
+  std::string utf8_text = UTF16ToUTF8(text);
 
   Clipboard::ObjectMapParams parameters;
   parameters.push_back(Clipboard::ObjectMapParam(utf8_text.begin(),
@@ -31,12 +31,12 @@ void ScopedClipboardWriter::WriteText(const std::wstring& text) {
   objects_[Clipboard::CBF_TEXT] = parameters;
 }
 
-void ScopedClipboardWriter::WriteHTML(const std::wstring& markup,
+void ScopedClipboardWriter::WriteHTML(const string16& markup,
                                       const std::string& source_url) {
   if (markup.empty())
     return;
 
-  std::string utf8_markup = WideToUTF8(markup);
+  std::string utf8_markup = UTF16ToUTF8(markup);
 
   Clipboard::ObjectMapParams parameters;
   parameters.push_back(
@@ -50,12 +50,12 @@ void ScopedClipboardWriter::WriteHTML(const std::wstring& markup,
   objects_[Clipboard::CBF_HTML] = parameters;
 }
 
-void ScopedClipboardWriter::WriteBookmark(const std::wstring& bookmark_title,
+void ScopedClipboardWriter::WriteBookmark(const string16& bookmark_title,
                                           const std::string& url) {
   if (bookmark_title.empty() || url.empty())
     return;
 
-  std::string utf8_markup = WideToUTF8(bookmark_title);
+  std::string utf8_markup = UTF16ToUTF8(bookmark_title);
 
   Clipboard::ObjectMapParams parameters;
   parameters.push_back(Clipboard::ObjectMapParam(utf8_markup.begin(),
@@ -64,12 +64,12 @@ void ScopedClipboardWriter::WriteBookmark(const std::wstring& bookmark_title,
   objects_[Clipboard::CBF_BOOKMARK] = parameters;
 }
 
-void ScopedClipboardWriter::WriteHyperlink(const std::wstring& link_text,
+void ScopedClipboardWriter::WriteHyperlink(const string16& link_text,
                                            const std::string& url) {
   if (link_text.empty() || url.empty())
     return;
 
-  std::string utf8_markup = WideToUTF8(link_text);
+  std::string utf8_markup = UTF16ToUTF8(link_text);
 
   Clipboard::ObjectMapParams parameters;
   parameters.push_back(Clipboard::ObjectMapParam(utf8_markup.begin(),
@@ -78,29 +78,38 @@ void ScopedClipboardWriter::WriteHyperlink(const std::wstring& link_text,
   objects_[Clipboard::CBF_LINK] = parameters;
 }
 
-void ScopedClipboardWriter::WriteFile(const std::wstring& file) {
-  WriteFiles(std::vector<std::wstring>(1, file));
+void ScopedClipboardWriter::WriteFile(const FilePath& file) {
+  WriteFiles(std::vector<FilePath>(1, file));
 }
 
 // Save the filenames as a string separated by nulls and terminated with an
 // extra null.
-void ScopedClipboardWriter::WriteFiles(const std::vector<std::wstring>& files) {
+void ScopedClipboardWriter::WriteFiles(const std::vector<FilePath>& files) {
   if (files.empty())
     return;
 
   Clipboard::ObjectMapParam parameter;
 
-  for (std::vector<std::wstring>::const_iterator iter = files.begin();
+  for (std::vector<FilePath>::const_iterator iter = files.begin();
        iter != files.end(); ++iter) {
-    std::string filename = WideToUTF8(*iter);
-    for (std::string::const_iterator filename_iter = filename.begin();
-         filename_iter != filename.end(); ++filename_iter) {
-      parameter.push_back(*filename_iter);
-    }
-    parameter.push_back('\0');
+    FilePath filepath = *iter;
+    FilePath::StringType filename = filepath.value();
+
+    size_t data_length = filename.length() * sizeof(FilePath::CharType);
+    const char* data = reinterpret_cast<const char*>(filename.data());
+    const char* data_end = data + data_length;
+
+    for (const char* ch = data; ch < data_end; ++ch)
+      parameter.push_back(*ch);
+
+    // NUL-terminate the string.
+    for (size_t i = 0; i < sizeof(FilePath::CharType); ++i)
+      parameter.push_back('\0');
   }
 
-  parameter.push_back('\0');
+  // NUL-terminate the string list.
+  for (size_t i = 0; i < sizeof(FilePath::CharType); ++i)
+    parameter.push_back('\0');
 
   Clipboard::ObjectMapParams parameters;
   parameters.push_back(parameter);

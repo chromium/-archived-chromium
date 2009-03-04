@@ -187,13 +187,13 @@ Clipboard* ClipboardGetClipboard();
 bool ClipboardIsFormatAvailable(Clipboard::FormatType format);
 
 // Reads UNICODE text from the clipboard, if available.
-void ClipboardReadText(std::wstring* result);
+void ClipboardReadText(string16* result);
 
 // Reads ASCII text from the clipboard, if available.
 void ClipboardReadAsciiText(std::string* result);
 
 // Reads HTML from the clipboard, if available.
-void ClipboardReadHTML(std::wstring* markup, GURL* url);
+void ClipboardReadHTML(string16* markup, GURL* url);
 
 // Gets the directory where the application data and libraries exist.  This
 // may be a versioned subdirectory, or it may be the same directory as the

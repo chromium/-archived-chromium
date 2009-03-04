@@ -200,7 +200,7 @@ bool Clipboard::IsFormatAvailable(Clipboard::FormatType format) const {
   return retval;
 }
 
-void Clipboard::ReadText(std::wstring* result) const {
+void Clipboard::ReadText(string16* result) const {
   result->clear();
   gchar* text = gtk_clipboard_wait_for_text(clipboard_);
 
@@ -208,7 +208,7 @@ void Clipboard::ReadText(std::wstring* result) const {
    return;
 
   // TODO(estade): do we want to handle the possible error here?
-  UTF8ToWide(text, strlen(text), result);
+  UTF8ToUTF16(text, strlen(text), result);
   g_free(text);
 }
 
@@ -223,8 +223,12 @@ void Clipboard::ReadAsciiText(std::string* result) const {
   g_free(text);
 }
 
+void Clipboard::ReadFile(FilePath* file) const {
+  *file = FilePath();
+}
+
 // TODO(estade): handle different charsets.
-void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
+void Clipboard::ReadHTML(string16* markup, std::string* src_url) const {
   markup->clear();
 
   GtkSelectionData* data = gtk_clipboard_wait_for_contents(clipboard_,
@@ -233,9 +237,9 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
   if (!data)
     return;
 
-  UTF8ToWide(reinterpret_cast<char*>(data->data),
-             strlen(reinterpret_cast<char*>(data->data)),
-             markup);
+  UTF8ToUTF16(reinterpret_cast<char*>(data->data),
+              strlen(reinterpret_cast<char*>(data->data)),
+              markup);
   gtk_selection_data_free(data);
 }
 

@@ -596,4 +596,5 @@ bool MatchPattern(const std::string& string, const std::string& pattern);
 //   std::numeric_limits<size_t>::max() / 2
 std::string HexEncode(const void* bytes, size_t size);
 
+
 #endif  // BASE_STRING_UTIL_H_

@@ -13,6 +13,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
+#include "base/string16.h"
 #include "base/timer.h"
 #include "chrome/common/transport_dib.h"
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
@@ -99,9 +100,9 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   void OnClipboardWriteBookmark(const std::wstring& title, const GURL& url);
   void OnClipboardWriteBitmap(base::SharedMemoryHandle bitmap, gfx::Size size);
   void OnClipboardIsFormatAvailable(unsigned int format, bool* result);
-  void OnClipboardReadText(std::wstring* result);
+  void OnClipboardReadText(string16* result);
   void OnClipboardReadAsciiText(std::string* result);
-  void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
+  void OnClipboardReadHTML(string16* markup, GURL* src_url);
 
   void OnUpdatedCacheStats(const CacheManager::UsageStats& stats);
 

@@ -11,6 +11,7 @@
 #include "base/clipboard.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/string16.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
@@ -72,36 +73,36 @@ bool WebClipboardImpl::isFormatAvailable(Format format) {
 
 WebString WebClipboardImpl::readPlainText() {
   if (ClipboardIsFormatAvailable(Clipboard::GetPlainTextWFormatType())) {
-    std::wstring text;
+    string16 text;
     ClipboardReadText(&text);
     if (!text.empty())
-      return WideToUTF16Hack(text);
+      return text;
   }
 
   if (ClipboardIsFormatAvailable(Clipboard::GetPlainTextFormatType())) {
     std::string text;
     ClipboardReadAsciiText(&text);
     if (!text.empty())
-      return UTF8ToUTF16(text);
+      return ASCIIToUTF16(text);
   }
 
   return WebString();
 }
 
 WebString WebClipboardImpl::readHTML(WebURL* source_url) {
-  std::wstring html_stdstr;
+  string16 html_stdstr;
   GURL gurl;
   ClipboardReadHTML(&html_stdstr, &gurl);
   *source_url = gurl;
-  return WideToUTF16Hack(html_stdstr);
+  return html_stdstr;
 }
 
 void WebClipboardImpl::writeHTML(
     const WebString& html_text, const WebURL& source_url,
     const WebString& plain_text, bool write_smart_paste) {
   ScopedClipboardWriterGlue scw(ClipboardGetClipboard());
-  scw.WriteHTML(UTF16ToWideHack(html_text), source_url.spec());
-  scw.WriteText(UTF16ToWideHack(plain_text));
+  scw.WriteHTML(html_text, source_url.spec());
+  scw.WriteText(plain_text);
 
   if (write_smart_paste)
     scw.WriteWebSmartPaste();
@@ -110,9 +111,9 @@ void WebClipboardImpl::writeHTML(
 void WebClipboardImpl::writeURL(const WebURL& url, const WebString& title) {
   ScopedClipboardWriterGlue scw(ClipboardGetClipboard());
 
-  scw.WriteBookmark(UTF16ToWideHack(title), url.spec());
-  scw.WriteHTML(UTF8ToWide(URLToMarkup(url, title)), "");
-  scw.WriteText(UTF8ToWide(url.spec()));
+  scw.WriteBookmark(title, url.spec());
+  scw.WriteHTML(UTF8ToUTF16(URLToMarkup(url, title)), "");
+  scw.WriteText(UTF8ToUTF16(url.spec()));
 }
 
 void WebClipboardImpl::writeImage(
@@ -125,9 +126,9 @@ void WebClipboardImpl::writeImage(
 #endif
 
   if (!url.isEmpty()) {
-    scw.WriteBookmark(UTF16ToWideHack(title), url.spec());
-    scw.WriteHTML(UTF8ToWide(URLToImageMarkup(url, title)), "");
-    scw.WriteText(UTF8ToWide(url.spec()));
+    scw.WriteBookmark(title, url.spec());
+    scw.WriteHTML(UTF8ToUTF16(URLToImageMarkup(url, title)), "");
+    scw.WriteText(UTF8ToUTF16(url.spec()));
   }
 }
 

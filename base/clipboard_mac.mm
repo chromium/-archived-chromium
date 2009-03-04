@@ -140,13 +140,13 @@ bool Clipboard::IsFormatAvailable(NSString* format) const {
   return [types containsObject:format];
 }
 
-void Clipboard::ReadText(std::wstring* result) const {
+void Clipboard::ReadText(string16* result) const {
   NSPasteboard* pb = GetPasteboard();
   NSString* contents = [pb stringForType:NSStringPboardType];
 
-  UTF8ToWide([contents UTF8String],
-             [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
-             result);
+  UTF8ToUTF16([contents UTF8String],
+              [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
+              result);
 }
 
 void Clipboard::ReadAsciiText(std::string* result) const {
@@ -159,7 +159,7 @@ void Clipboard::ReadAsciiText(std::string* result) const {
     result->assign([contents UTF8String]);
 }
 
-void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
+void Clipboard::ReadHTML(string16* markup, std::string* src_url) const {
   if (markup) {
     NSPasteboard* pb = GetPasteboard();
     NSArray *supportedTypes = [NSArray arrayWithObjects:NSHTMLPboardType,
@@ -167,9 +167,9 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
                                                         nil];
     NSString *bestType = [pb availableTypeFromArray:supportedTypes];
     NSString* contents = [pb stringForType:bestType];
-    UTF8ToWide([contents UTF8String],
-               [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
-               markup);
+    UTF8ToUTF16([contents UTF8String],
+                [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
+                markup);
   }
 
   // TODO(avi): src_url?
@@ -177,14 +177,14 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
     src_url->clear();
 }
 
-void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
+void Clipboard::ReadBookmark(string16* title, std::string* url) const {
   NSPasteboard* pb = GetPasteboard();
 
   if (title) {
     NSString* contents = [pb stringForType:kUTTypeURLName];
-    UTF8ToWide([contents UTF8String],
-               [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
-               title);
+    UTF8ToUTF16([contents UTF8String],
+                [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
+                title);
   }
 
   if (url) {
@@ -196,22 +196,22 @@ void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
   }
 }
 
-void Clipboard::ReadFile(std::wstring* file) const {
+void Clipboard::ReadFile(FilePath* file) const {
   if (!file) {
     NOTREACHED();
     return;
   }
 
-  file->clear();
-  std::vector<std::wstring> files;
+  *file = FilePath();
+  std::vector<FilePath> files;
   ReadFiles(&files);
 
   // Take the first file, if available.
   if (!files.empty())
-    file->assign(files[0]);
+    *file = files[0];
 }
 
-void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
+void Clipboard::ReadFiles(std::vector<FilePath>* files) const {
   if (!files) {
     NOTREACHED();
     return;
@@ -223,8 +223,8 @@ void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
   NSArray* fileList = [pb propertyListForType:NSFilenamesPboardType];
 
   for (unsigned int i = 0; i < [fileList count]; ++i) {
-    std::wstring file = UTF8ToWide([[fileList objectAtIndex:i] UTF8String]);
-    files->push_back(file);
+    std::string file = [[fileList objectAtIndex:i] UTF8String];
+    files->push_back(FilePath(file));
   }
 }
 

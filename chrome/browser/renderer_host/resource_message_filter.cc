@@ -551,7 +551,7 @@ void ResourceMessageFilter::OnClipboardIsFormatAvailable(unsigned int format,
 #endif
 }
 
-void ResourceMessageFilter::OnClipboardReadText(std::wstring* result) {
+void ResourceMessageFilter::OnClipboardReadText(string16* result) {
   GetClipboardService()->ReadText(result);
 }
 
@@ -559,7 +559,7 @@ void ResourceMessageFilter::OnClipboardReadAsciiText(std::string* result) {
   GetClipboardService()->ReadAsciiText(result);
 }
 
-void ResourceMessageFilter::OnClipboardReadHTML(std::wstring* markup,
+void ResourceMessageFilter::OnClipboardReadHTML(string16* markup,
                                                 GURL* src_url) {
   std::string src_url_str;
   GetClipboardService()->ReadHTML(markup, &src_url_str);

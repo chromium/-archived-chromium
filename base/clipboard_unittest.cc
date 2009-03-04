@@ -33,12 +33,12 @@ TEST_F(ClipboardTest, ClearTest) {
 
   {
     ScopedClipboardWriter clipboard_writer(&clipboard);
-    clipboard_writer.WriteText(std::wstring(L"clear me"));
+    clipboard_writer.WriteText(ASCIIToUTF16("clear me"));
   }
 
   {
     ScopedClipboardWriter clipboard_writer(&clipboard);
-    clipboard_writer.WriteHTML(std::wstring(L"<b>broom</b>"), "");
+    clipboard_writer.WriteHTML(ASCIIToUTF16("<b>broom</b>"), "");
   }
 
   EXPECT_FALSE(clipboard.IsFormatAvailable(
@@ -50,7 +50,7 @@ TEST_F(ClipboardTest, ClearTest) {
 TEST_F(ClipboardTest, TextTest) {
   Clipboard clipboard;
 
-  std::wstring text(L"This is a wstring!#$"), text_result;
+  string16 text(ASCIIToUTF16("This is a string16!#$")), text_result;
   std::string ascii_text;
 
   {
@@ -63,15 +63,16 @@ TEST_F(ClipboardTest, TextTest) {
   EXPECT_TRUE(clipboard.IsFormatAvailable(
       Clipboard::GetPlainTextFormatType()));
   clipboard.ReadText(&text_result);
+
   EXPECT_EQ(text, text_result);
   clipboard.ReadAsciiText(&ascii_text);
-  EXPECT_EQ(WideToUTF8(text), ascii_text);
+  EXPECT_EQ(UTF16ToUTF8(text), ascii_text);
 }
 
 TEST_F(ClipboardTest, HTMLTest) {
   Clipboard clipboard;
 
-  std::wstring markup(L"<string>Hi!</string>"), markup_result;
+  string16 markup(ASCIIToUTF16("<string>Hi!</string>")), markup_result;
   std::string url("http://www.example.com/"), url_result;
 
   {
@@ -93,7 +94,8 @@ TEST_F(ClipboardTest, HTMLTest) {
 TEST_F(ClipboardTest, TrickyHTMLTest) {
   Clipboard clipboard;
 
-  std::wstring markup(L"<em>Bye!<!--EndFragment --></em>"), markup_result;
+  string16 markup(ASCIIToUTF16("<em>Bye!<!--EndFragment --></em>")),
+      markup_result;
   std::string url, url_result;
 
   {
@@ -117,7 +119,7 @@ TEST_F(ClipboardTest, TrickyHTMLTest) {
 TEST_F(ClipboardTest, BookmarkTest) {
   Clipboard clipboard;
 
-  std::wstring title(L"The Example Company"), title_result;
+  string16 title(ASCIIToUTF16("The Example Company")), title_result;
   std::string url("http://www.example.com/"), url_result;
 
   {
@@ -136,8 +138,8 @@ TEST_F(ClipboardTest, BookmarkTest) {
 TEST_F(ClipboardTest, MultiFormatTest) {
   Clipboard clipboard;
 
-  std::wstring text(L"Hi!"), text_result;
-  std::wstring markup(L"<strong>Hi!</string>"), markup_result;
+  string16 text(ASCIIToUTF16("Hi!")), text_result;
+  string16 markup(ASCIIToUTF16("<strong>Hi!</string>")), markup_result;
   std::string url("http://www.example.com/"), url_result;
   std::string ascii_text;
 
@@ -163,7 +165,7 @@ TEST_F(ClipboardTest, MultiFormatTest) {
   clipboard.ReadText(&text_result);
   EXPECT_EQ(text, text_result);
   clipboard.ReadAsciiText(&ascii_text);
-  EXPECT_EQ(WideToUTF8(text), ascii_text);
+  EXPECT_EQ(UTF16ToUTF8(text), ascii_text);
 }
 
 // TODO(estade): Port the following tests (decide what targets we use for files)
@@ -173,11 +175,11 @@ TEST_F(ClipboardTest, MultiFormatTest) {
 TEST_F(ClipboardTest, FileTest) {
   Clipboard clipboard;
 #if defined(OS_WIN)
-  std::wstring file = L"C:\\Downloads\\My Downloads\\A Special File.txt";
+  FilePath file(L"C:\\Downloads\\My Downloads\\A Special File.txt");
 #elif defined(OS_MACOSX)
   // OS X will print a warning message if we stick a non-existant file on the
   // clipboard.
-  std::wstring file = L"/usr/bin/make";
+  FilePath file("/usr/bin/make");
 #endif  // defined(OS_MACOSX)
 
   {
@@ -185,26 +187,26 @@ TEST_F(ClipboardTest, FileTest) {
     clipboard_writer.WriteFile(file);
   }
 
-  std::wstring out_file;
+  FilePath out_file;
   clipboard.ReadFile(&out_file);
-  EXPECT_EQ(file, out_file);
+  EXPECT_EQ(file.value(), out_file.value());
 }
 
 TEST_F(ClipboardTest, MultipleFilesTest) {
   Clipboard clipboard;
 
 #if defined(OS_WIN)
-  std::wstring file1 = L"C:\\Downloads\\My Downloads\\File 1.exe";
-  std::wstring file2 = L"C:\\Downloads\\My Downloads\\File 2.pdf";
-  std::wstring file3 = L"C:\\Downloads\\My Downloads\\File 3.doc";
+  FilePath file1(L"C:\\Downloads\\My Downloads\\File 1.exe");
+  FilePath file2(L"C:\\Downloads\\My Downloads\\File 2.pdf");
+  FilePath file3(L"C:\\Downloads\\My Downloads\\File 3.doc");
 #elif defined(OS_MACOSX)
   // OS X will print a warning message if we stick a non-existant file on the
   // clipboard.
-  std::wstring file1 = L"/usr/bin/make";
-  std::wstring file2 = L"/usr/bin/man";
-  std::wstring file3 = L"/usr/bin/perl";
+  FilePath file1("/usr/bin/make");
+  FilePath file2("/usr/bin/man");
+  FilePath file3("/usr/bin/perl");
 #endif  // defined(OS_MACOSX)
-  std::vector<std::wstring> files;
+  std::vector<FilePath> files;
   files.push_back(file1);
   files.push_back(file2);
   files.push_back(file3);
@@ -214,12 +216,12 @@ TEST_F(ClipboardTest, MultipleFilesTest) {
     clipboard_writer.WriteFiles(files);
   }
 
-  std::vector<std::wstring> out_files;
+  std::vector<FilePath> out_files;
   clipboard.ReadFiles(&out_files);
 
   EXPECT_EQ(files.size(), out_files.size());
   for (size_t i = 0; i < out_files.size(); ++i)
-    EXPECT_EQ(files[i], out_files[i]);
+    EXPECT_EQ(files[i].value(), out_files[i].value());
 }
 #endif  // !defined(OS_LINUX)
 
@@ -227,10 +229,10 @@ TEST_F(ClipboardTest, MultipleFilesTest) {
 TEST_F(ClipboardTest, HyperlinkTest) {
   Clipboard clipboard;
 
-  std::wstring title(L"The Example Company"), title_result;
+  string16 title(ASCIIToUTF16("The Example Company")), title_result;
   std::string url("http://www.example.com/"), url_result;
-  std::wstring html(L"<a href=\"http://www.example.com/\">"
-                    L"The Example Company</a>"), html_result;
+  string16 html(ASCIIToUTF16("<a href=\"http://www.example.com/\">"
+                             "The Example Company</a>")), html_result;
 
   {
     ScopedClipboardWriter clipboard_writer(&clipboard);

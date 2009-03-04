@@ -218,6 +218,22 @@ bool Pickle::ReadWString(void** iter, std::wstring* result) const {
   return true;
 }
 
+bool Pickle::ReadString16(void** iter, string16* result) const {
+  DCHECK(iter);
+
+  int len;
+  if (!ReadLength(iter, &len))
+    return false;
+  if (!IteratorHasRoomFor(*iter, len))
+    return false;
+
+  char16* chars = reinterpret_cast<char16*>(*iter);
+  result->assign(chars, len);
+
+  UpdateIter(iter, len * sizeof(char16));
+  return true;
+}
+
 bool Pickle::ReadBytes(void** iter, const char** data, int length) const {
   DCHECK(iter);
   DCHECK(data);
@@ -290,7 +306,15 @@ bool Pickle::WriteWString(const std::wstring& value) {
     return false;
 
   return WriteBytes(value.data(),
-                    static_cast<int>(value.size() * sizeof(value.data()[0])));
+                    static_cast<int>(value.size() * sizeof(wchar_t)));
+}
+
+bool Pickle::WriteString16(const string16& value) {
+  if (!WriteInt(static_cast<int>(value.size())))
+    return false;
+
+  return WriteBytes(value.data(),
+                    static_cast<int>(value.size()) * sizeof(char16));
 }
 
 bool Pickle::WriteData(const char* data, int length) {

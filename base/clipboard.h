@@ -9,7 +9,9 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/process.h"
+#include "base/string16.h"
 #include "base/gfx/size.h"
 
 #if defined(OS_MACOSX)
@@ -66,6 +68,8 @@ class Clipboard {
   // CBF_FILES     files        char array representing multiple files.
   //                            Filenames are separated by null characters and
   //                            the final filename is double null terminated.
+  //                            The filenames are encoded in platform-specific
+  //                            encoding.
   // CBF_WEBKIT    none         empty vector
   // CBF_BITMAP    pixels       byte array
   //               size         gfx::Size struct
@@ -94,21 +98,21 @@ class Clipboard {
   bool IsFormatAvailable(FormatType format) const;
 
   // Reads UNICODE text from the clipboard, if available.
-  void ReadText(std::wstring* result) const;
+  void ReadText(string16* result) const;
 
   // Reads ASCII text from the clipboard, if available.
   void ReadAsciiText(std::string* result) const;
 
   // Reads HTML from the clipboard, if available.
-  void ReadHTML(std::wstring* markup, std::string* src_url) const;
+  void ReadHTML(string16* markup, std::string* src_url) const;
 
   // Reads a bookmark from the clipboard, if available.
-  void ReadBookmark(std::wstring* title, std::string* url) const;
+  void ReadBookmark(string16* title, std::string* url) const;
 
   // Reads a file or group of files from the clipboard, if available, into the
   // out parameter.
-  void ReadFile(std::wstring* file) const;
-  void ReadFiles(std::vector<std::wstring>* files) const;
+  void ReadFile(FilePath* file) const;
+  void ReadFiles(std::vector<FilePath>* files) const;
 
   // Get format Identifiers for various types.
   static FormatType GetUrlFormatType();
@@ -171,8 +175,8 @@ class Clipboard {
   // Safely write to system clipboard. Free |handle| on failure.
   void WriteToClipboard(FormatType format, HANDLE handle);
 
-  static void ParseBookmarkClipboardFormat(const std::wstring& bookmark,
-                                           std::wstring* title,
+  static void ParseBookmarkClipboardFormat(const string16& bookmark,
+                                           string16* title,
                                            std::string* url);
 
   // Free a handle depending on its type (as intuited from format)

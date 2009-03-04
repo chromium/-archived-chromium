@@ -14,6 +14,7 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
+#include "base/string16.h"
 #include "build/build_config.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
@@ -156,9 +157,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // Clipboard messages
   void OnClipboardWriteObjects(const Clipboard::ObjectMap& objects);
   void OnClipboardIsFormatAvailable(unsigned int format, bool* result);
-  void OnClipboardReadText(std::wstring* result);
+  void OnClipboardReadText(string16* result);
   void OnClipboardReadAsciiText(std::string* result);
-  void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
+  void OnClipboardReadHTML(string16* markup, GURL* src_url);
 #if defined(OS_WIN)|| defined(OS_LINUX)
   void OnGetWindowRect(gfx::NativeViewId window, gfx::Rect *rect);
   void OnGetRootWindowRect(gfx::NativeViewId window, gfx::Rect *rect);

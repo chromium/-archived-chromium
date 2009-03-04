@@ -67,7 +67,7 @@ void RenderViewContextMenuController::Inspect(int x, int y) {
 }
 
 void RenderViewContextMenuController::WriteTextToClipboard(
-    const std::wstring& text) {
+    const string16& text) {
   ClipboardService* clipboard = g_browser_process->clipboard_service();
 
   if (!clipboard)
@@ -79,9 +79,9 @@ void RenderViewContextMenuController::WriteTextToClipboard(
 
 void RenderViewContextMenuController::WriteURLToClipboard(const GURL& url) {
   if (url.SchemeIs(chrome::kMailToScheme))
-    WriteTextToClipboard(UTF8ToWide(url.path()));
+    WriteTextToClipboard(UTF8ToUTF16(url.path()));
   else
-    WriteTextToClipboard(UTF8ToWide(url.spec()));
+    WriteTextToClipboard(UTF8ToUTF16(url.spec()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

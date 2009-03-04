@@ -840,11 +840,11 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               int /* format */,
                               bool /* result */)
   IPC_SYNC_MESSAGE_CONTROL0_1(ViewHostMsg_ClipboardReadText,
-                              std::wstring /* result */)
+                              string16 /* result */)
   IPC_SYNC_MESSAGE_CONTROL0_1(ViewHostMsg_ClipboardReadAsciiText,
                               std::string /* result */)
   IPC_SYNC_MESSAGE_CONTROL0_2(ViewHostMsg_ClipboardReadHTML,
-                              std::wstring /* markup */,
+                              string16 /* markup */,
                               GURL /* url */)
 
 #if defined(OS_WIN)

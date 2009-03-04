@@ -7,6 +7,7 @@
 
 #include "build/build_config.h"
 
+#include "base/string16.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/context_menu.h"
@@ -49,7 +50,7 @@ class RenderViewContextMenuController : public Menu::Delegate {
   void Inspect(int x, int y);
 
   // Writes the specified text/url to the system clipboard
-  void WriteTextToClipboard(const std::wstring& text);
+  void WriteTextToClipboard(const string16& text);
   void WriteURLToClipboard(const GURL& url);
 
   bool IsDevCommandEnabled(int id) const;

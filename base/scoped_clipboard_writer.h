@@ -10,7 +10,12 @@
 #ifndef BASE_SCOPED_CLIPBOARD_WRITER_H_
 #define BASE_SCOPED_CLIPBOARD_WRITER_H_
 
+#include <string>
+#include <vector>
+
 #include "base/clipboard.h"
+#include "base/file_path.h"
+#include "base/string16.h"
 
 // This class is a wrapper for |Clipboard| that handles packing data
 // into a Clipboard::ObjectMap.
@@ -24,24 +29,24 @@ class ScopedClipboardWriter {
   ~ScopedClipboardWriter();
 
   // Converts |text| to UTF-8 and adds it to the clipboard.
-  void WriteText(const std::wstring& text);
+  void WriteText(const string16& text);
 
   // Adds HTML to the clipboard.  The url parameter is optional, but especially
   // useful if the HTML fragment contains relative links.
-  void WriteHTML(const std::wstring& markup, const std::string& source_url);
+  void WriteHTML(const string16& markup, const std::string& source_url);
 
   // Adds a bookmark to the clipboard.
-  void WriteBookmark(const std::wstring& bookmark_title,
+  void WriteBookmark(const string16& bookmark_title,
                      const std::string& url);
 
   // Adds both a bookmark and an HTML hyperlink to the clipboard.  It is a
   // convenience wrapper around WriteBookmark and WriteHTML. |link_text| is
   // used as the bookmark title.
-  void WriteHyperlink(const std::wstring& link_text, const std::string& url);
+  void WriteHyperlink(const string16& link_text, const std::string& url);
 
   // Adds a file or group of files to the clipboard.
-  void WriteFile(const std::wstring& file);
-  void WriteFiles(const std::vector<std::wstring>& files);
+  void WriteFile(const FilePath& file);
+  void WriteFiles(const std::vector<FilePath>& files);
 
   // Used by WebKit to determine whether WebKit wrote the clipboard last
   void WriteWebSmartPaste();

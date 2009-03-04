@@ -8,6 +8,7 @@
 
 #include "base/clipboard.h"
 #include "base/lazy_instance.h"
+#include "base/string16.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 
@@ -37,7 +38,7 @@ bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
   return ClipboardGetClipboard()->IsFormatAvailable(format);
 }
 
-void ClipboardReadText(std::wstring* result) {
+void ClipboardReadText(string16* result) {
   ClipboardGetClipboard()->ReadText(result);
 }
 
@@ -45,7 +46,7 @@ void ClipboardReadAsciiText(std::string* result) {
   ClipboardGetClipboard()->ReadAsciiText(result);
 }
 
-void ClipboardReadHTML(std::wstring* markup, GURL* url) {
+void ClipboardReadHTML(string16* markup, GURL* url) {
   std::string url_str;
   ClipboardGetClipboard()->ReadHTML(markup, url ? &url_str : NULL);
   if (url)

@@ -512,32 +512,22 @@ struct ParamTraits<std::wstring> {
   }
 };
 
-
 // If WCHAR_T_IS_UTF16 is defined, then string16 is a std::wstring so we don't
 // need this trait.
 #if !defined(WCHAR_T_IS_UTF16)
-
 template <>
 struct ParamTraits<string16> {
   typedef string16 param_type;
   static void Write(Message* m, const param_type& p) {
-    m->WriteData(reinterpret_cast<const char*>(p.data()),
-                 static_cast<int>(p.size() * sizeof(char16)));
+    m->WriteString16(p);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
-    const char *data;
-    int data_size = 0;
-    if (!m->ReadData(iter, &data, &data_size))
-      return false;
-    r->assign(reinterpret_cast<const char16*>(data),
-              data_size / sizeof(char16));
-    return true;
+    return m->ReadString16(iter, r);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(UTF16ToWide(p));
   }
 };
-
 #endif
 
 template <>
@@ -704,7 +694,6 @@ struct ParamTraits<gfx::Size> {
 };
 
 #if defined(OS_POSIX)
-
 template<>
 struct ParamTraits<base::FileDescriptor> {
   typedef base::FileDescriptor param_type;
@@ -723,7 +712,6 @@ struct ParamTraits<base::FileDescriptor> {
     }
   }
 };
-
 #endif // defined(OS_POSIX)
 
 template<>
