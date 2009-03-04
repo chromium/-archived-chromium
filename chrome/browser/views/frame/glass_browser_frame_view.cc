@@ -178,10 +178,10 @@ gfx::Rect GlassBrowserFrameView::GetWindowBoundsForClientBounds(
 gfx::Point GlassBrowserFrameView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point;
   if (browser_view_->IsBrowserTypeNormal()) {
-    // The maximized mode bit here is because in maximized mode the frame edge
-    // and the client edge are both offscreen, whereas in the opaque frame
-    // (where we don't do this trick) maximized windows have no client edge and
-    // only the frame edge is offscreen.
+    // The maximized mode bit here is because in maximized mode there is no
+    // client edge, but in restored mode there is one, and unlike in the opaque
+    // frame we don't have a convenient function to get its coordinate (since
+    // FrameBorderThickness() won't do what we want).
     system_menu_point.SetPoint(NonClientBorderThickness() -
         (frame_->IsMaximized() ? 0 : kClientEdgeThickness),
         NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
@@ -224,7 +224,8 @@ void GlassBrowserFrameView::Paint(ChromeCanvas* canvas) {
   PaintDistributorLogo(canvas);
   PaintToolbarBackground(canvas);
   PaintOTRAvatar(canvas);
-  PaintClientEdge(canvas);
+  if (!frame_->IsMaximized())
+    PaintRestoredClientEdge(canvas);
 }
 
 void GlassBrowserFrameView::Layout() {
@@ -237,16 +238,22 @@ void GlassBrowserFrameView::Layout() {
 // GlassBrowserFrameView, private:
 
 int GlassBrowserFrameView::FrameBorderThickness() const {
-  return GetSystemMetrics(SM_CXSIZEFRAME);
+  return browser_view_->CanCurrentlyResize() ?
+      GetSystemMetrics(SM_CXSIZEFRAME) : 0;
 }
 
 int GlassBrowserFrameView::NonClientBorderThickness() const {
-  return kNonClientBorderThickness;
+  return browser_view_->CanCurrentlyResize() ? kNonClientBorderThickness : 0;
 }
 
 int GlassBrowserFrameView::NonClientTopBorderHeight() const {
-  return FrameBorderThickness() +
-      (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
+  if (browser_view_->IsFullscreen())
+    return 0;
+  // We'd like to use FrameBorderThickness() here, but the maximized Aero glass
+  // frame has a 0 frame border around most edges and a CXSIZEFRAME-thick border
+  // at the top (see AeroGlassFrame::OnGetMinMaxInfo()).
+  return GetSystemMetrics(SM_CXSIZEFRAME) +
+      (browser_view_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
 }
 
 void GlassBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
@@ -294,7 +301,7 @@ void GlassBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }
 
-void GlassBrowserFrameView::PaintClientEdge(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   // The client edges start below the toolbar upper corner images regardless
   // of how tall the toolbar itself is.
   int client_area_top =

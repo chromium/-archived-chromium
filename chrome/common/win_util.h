@@ -211,6 +211,10 @@ void AdjustWindowToFit(HWND hwnd);
 void CenterAndSizeWindow(HWND parent, HWND window, const SIZE& pref,
                          bool pref_is_client);
 
+// Returns true if edge |edge| (one of ABE_LEFT, TOP, RIGHT, or BOTTOM) of
+// monitor |monitor| has an auto-hiding taskbar.
+bool EdgeHasAutoHideTaskbar(UINT edge, HMONITOR monitor);
+
 // Duplicates a section handle from another process to the current process.
 // Returns the new valid handle if the function succeed. NULL otherwise.
 HANDLE GetSectionFromProcess(HANDLE section, HANDLE process, bool read_only);
@@ -273,6 +277,9 @@ int MessageBox(HWND hwnd,
 
 // Returns the system set window title font.
 ChromeFont GetWindowTitleFont();
+
+// The thickness of an auto-hide taskbar in pixels.
+extern const int kAutoHideTaskbarThicknessPx;
 
 }  // namespace win_util
 
