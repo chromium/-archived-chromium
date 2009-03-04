@@ -360,6 +360,7 @@
       'type': 'executable',
       'dependencies': [
         'net',
+        'net_test_support',
         '../base/base.gyp:base',
         '../testing/gtest.gyp:gtest',
       ],
@@ -397,8 +398,6 @@
         'disk_cache/block_files_unittest.cc',
         'disk_cache/disk_cache_test_base.cc',
         'disk_cache/disk_cache_test_base.h',
-        'disk_cache/disk_cache_test_util.cc',
-        'disk_cache/disk_cache_test_util.h',
         'disk_cache/entry_unittest.cc',
         'disk_cache/mapped_file_unittest.cc',
         'disk_cache/storage_block_unittest.cc',
@@ -460,6 +459,7 @@
       'type': 'executable',
       'dependencies': [
         'net',
+        'net_test_support',
         '../base/base.gyp:base',
         '../testing/gtest.gyp:gtest',
       ],
@@ -468,7 +468,6 @@
         '../base/run_all_perftests.cc',
         'base/cookie_monster_perftest.cc',
         'disk_cache/disk_cache_perftest.cc',
-        'disk_cache/disk_cache_test_util.cc',
       ],
       'conditions': [
         # This is needed to trigger the dll copy step on windows.
@@ -486,10 +485,10 @@
       'type': 'executable',
       'dependencies': [
         'net',
+        'net_test_support',
         '../base/base.gyp:base',
       ],
       'sources': [
-        'disk_cache/disk_cache_test_util.cc',
         'disk_cache/stress_cache.cc',
       ],
     },
@@ -509,16 +508,28 @@
       'type': 'executable',
       'dependencies': [
         'net',
+        'net_test_support',
         '../base/base.gyp:base',
       ],
       'sources': [
         'tools/crash_cache/crash_cache.cc',
+      ],
+    },
+    {
+      'target_name': 'net_test_support',
+      'type': 'static_library',
+      'dependencies': [
+        'net',
+        '../base/base.gyp:base',
+      ],
+      'sources': [
         'disk_cache/disk_cache_test_util.cc',
+        'disk_cache/disk_cache_test_util.h',
       ],
     },
   ],
   'conditions': [
-    ['OS=="win"', {
+    ['OS!="mac"', {
       'targets': [
         {
           'target_name': 'net_resources',
@@ -537,7 +548,9 @@
                 '<(DEPTH)/tools/grit/grit.py',
               ],
               'outputs': [
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/<(RULE_INPUT_ROOT).h',
+                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/grit/<(RULE_INPUT_ROOT).h',
+                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/<(RULE_INPUT_ROOT).rc',
+                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/<(RULE_INPUT_ROOT).pak',
               ],
               'action':
                 ['python', '<(DEPTH)/tools/grit/grit.py', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources'],
@@ -549,6 +562,10 @@
             ],
           },
         },
+      ],
+    }],
+    ['OS=="win"', {
+      'targets': [
         {
           # TODO(port): dump_cache is still Windows-specific.
           'target_name': 'dump_cache',
@@ -561,43 +578,6 @@
             'tools/dump_cache/dump_cache.cc',
             'tools/dump_cache/dump_files.cc',
             'tools/dump_cache/upgrade.cc',
-          ],
-        },
-      ],
-    }],
-    ['OS=="linux"', {
-      'targets': [
-        {
-          'target_name': 'net_resources',
-          'type': 'resource',
-          'sources': [
-            'base/net_resources.grd',
-            '../../grit_derived_sources/effective_tld_names_clean.dat',
-          ],
-          'direct_dependent_settings': {
-            'include_dirs': [
-              '../../grit_derived_sources'
-              # FIXME: Should use one of the INTERMEDIATE dirs, e.g.:
-              # '$(obj)/gen'
-            ],
-          },
-          'actions': [
-            {
-              'action_name': 'net_resources_h',
-              'inputs': [
-                'tld_cleanup',
-                'base/effective_tld_names.dat',
-              ],
-              'outputs': [
-                '../../grit_derived_sources/effective_tld_names_clean.dat',
-              ],
-              # An 'action' like this would expand things at gyp time:
-              #'action': 'tld_cleanup <@(_inputs) <@(_outputs)',
-              # But that doesn't work well with the SCons variant dir
-              # stuff that builds everything underneath Hammer.  Just
-              # put a SCons string in the action, at least for now.
-              'action': ['${SOURCES[0]}', '${SOURCES[1]}', '$TARGET'],
-            }
           ],
         },
       ],
