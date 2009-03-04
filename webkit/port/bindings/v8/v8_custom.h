@@ -228,6 +228,9 @@ DECLARE_PROPERTY_ACCESSOR(DOMWindowEventHandler)
 // Getter/Setter for Element event handlers
 DECLARE_PROPERTY_ACCESSOR(ElementEventHandler)
 
+// HTMLCanvasElement
+DECLARE_CALLBACK(HTMLCanvasElementGetContext)
+
 // Customized setter of src and location on HTMLFrameElement
 DECLARE_PROPERTY_ACCESSOR_SETTER(HTMLFrameElementSrc)
 DECLARE_PROPERTY_ACCESSOR_SETTER(HTMLFrameElementLocation)
@@ -271,10 +274,7 @@ DECLARE_CALLBACK(HTMLDocumentOpen)
 
 // Document customized functions
 DECLARE_CALLBACK(DocumentEvaluate)
-DECLARE_CALLBACK(DocumentQuerySelector)
-DECLARE_CALLBACK(DocumentQuerySelectorAll)
-DECLARE_CALLBACK(DocumentFragmentQuerySelector)
-DECLARE_CALLBACK(DocumentFragmentQuerySelectorAll)
+DECLARE_CALLBACK(DocumentGetCSSCanvasContext)
 
 // Window customized functions
 DECLARE_CALLBACK(DOMWindowAddEventListener)
