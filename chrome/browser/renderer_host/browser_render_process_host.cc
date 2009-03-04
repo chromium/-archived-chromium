@@ -261,6 +261,8 @@ bool BrowserRenderProcessHost::Init() {
     switches::kNoSandbox,
     switches::kTestSandbox,
 #if !defined (GOOGLE_CHROME_BUILD)
+    // This is an unsupported and not fully tested mode, so don't enable it for
+    // official Chrome builds.
     switches::kInProcessPlugins,
 #endif
     switches::kDomAutomationController,

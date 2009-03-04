@@ -320,6 +320,8 @@ int ChromeMain(int argc, const char** argv) {
 
   bool single_process =
 #if defined (GOOGLE_CHROME_BUILD)
+    // This is an unsupported and not fully tested mode, so don't enable it for
+    // official Chrome builds.
     false;
 #else
     parsed_command_line.HasSwitch(switches::kSingleProcess);
