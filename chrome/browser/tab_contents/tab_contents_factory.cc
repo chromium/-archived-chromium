@@ -47,9 +47,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
     case TAB_CONTENTS_WEB:
       contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
       break;
-    case TAB_CONTENTS_ABOUT_UI:
-      contents = new BrowserAboutHandler(profile, instance, NULL);
-      break;
 // TODO(port): remove this platform define, either by porting the tab contents
 // types or removing them completely.
 #if defined(OS_WIN)
@@ -82,6 +79,8 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
 
 // static
 TabContentsType TabContents::TypeForURL(GURL* url) {
+  // The BrowserURLHandler::HandleBrowserURL call should just be inside the
+  // NavigationController once this class is deleted.
   DCHECK(url);
   if (g_extra_types) {
     TabContentsFactoryMap::const_iterator it = g_extra_types->begin();
@@ -109,8 +108,7 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
     return TAB_CONTENTS_DOM_UI;
 #elif defined(OS_POSIX)
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
-  if (BrowserURLHandler::HandleBrowserURL(url, &type) &&
-      type == TAB_CONTENTS_ABOUT_UI) {
+  if (BrowserURLHandler::HandleBrowserURL(url, &type)) {
     return type;
   }
   if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))

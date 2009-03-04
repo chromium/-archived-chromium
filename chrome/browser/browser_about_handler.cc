@@ -20,8 +20,6 @@
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/memory_details.h"
 #include "chrome/browser/net/dns_global.h"
-#include "chrome/browser/profile.h"
-#include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -47,21 +45,39 @@
 #include "chrome/browser/views/about_network_dialog.h"
 #endif
 
-// The URL scheme used for the about ui.
-static const char kAboutScheme[] = "about";
+namespace {
 
 // The paths used for the about pages.
-static const char kCachePath[] = "cache";
-static const char kDnsPath[] = "dns";
-static const char kHistogramsPath[] = "histograms";
-static const char kObjectsPath[] = "objects";
-static const char kMemoryPath[] = "memory";
-static const char kPluginsPath[] = "plugins";
-static const char kStatsPath[] = "stats";
-static const char kVersionPath[] = "version";
-static const char kCreditsPath[] = "credits";
-static const char kTermsPath[] = "terms";
-static const char kLinuxSplash[] = "linux-splash";
+const char kCachePath[] = "cache";
+const char kDnsPath[] = "dns";
+const char kHistogramsPath[] = "histograms";
+const char kObjectsPath[] = "objects";
+const char kMemoryRedirectPath[] = "memory-redirect";
+const char kMemoryPath[] = "memory";
+const char kPluginsPath[] = "plugins";
+const char kStatsPath[] = "stats";
+const char kVersionPath[] = "version";
+const char kCreditsPath[] = "credits";
+const char kTermsPath[] = "terms";
+const char kLinuxSplash[] = "linux-splash";
+
+// Points to the singleton AboutSource object, if any.
+ChromeURLDataManager::DataSource* about_source = NULL;
+
+// When you type about:memory, it actually loads an intermediate URL that
+// redirects you to the final page. This avoids the problem where typing
+// "about:memory" on the new tab page or any other page where a process
+// transition would occur to the about URL will cause some confusion.
+//
+// The problem is that during the processing of the memory page, there are two
+// processes active, the original and the destination one. This can create the
+// impression that we're using more resources than we actually are. This
+// redirect solves the problem by eliminating the process transition during the
+// time that about memory is being computed.
+std::string GetAboutMemoryRedirectResponse() {
+  return "<meta http-equiv=\"refresh\" "
+      "content=\"0;chrome-ui://about/memory\">";
+}
 
 class AboutSource : public ChromeURLDataManager::DataSource {
  public:
@@ -100,209 +116,13 @@ class AboutMemoryHandler : public MemoryDetails {
 
   AboutSource* source_;
   int request_id_;
+
   DISALLOW_COPY_AND_ASSIGN(AboutMemoryHandler);
 };
 
-AboutSource::AboutSource()
-    : DataSource(kAboutScheme, MessageLoop::current()) {
-}
+// Individual about handlers ---------------------------------------------------
 
-AboutSource::~AboutSource() {
-}
-
-void AboutSource::StartDataRequest(const std::string& path_raw,
-                                   int request_id) {
-  std::string path = path_raw;
-  std::string info;
-  if (path.find("/") != std::string::npos) {
-    size_t pos = path.find("/");
-    info = path.substr(pos + 1, path.length() - (pos + 1));
-    path = path.substr(0, pos);
-  }
-  path = StringToLowerASCII(path);
-
-  std::string response;
-  if (path == kDnsPath) {
-    response = BrowserAboutHandler::AboutDns();
-  } else if (path == kHistogramsPath) {
-    response = BrowserAboutHandler::AboutHistograms(info);
-  } else if (path == kMemoryPath) {
-    BrowserAboutHandler::AboutMemory(this, request_id);
-    return;
-  } else if (path == kObjectsPath) {
-    response = BrowserAboutHandler::AboutObjects(info);
-  } else if (path == kPluginsPath) {
-    response = BrowserAboutHandler::AboutPlugins();
-  } else if (path == kStatsPath) {
-    response = BrowserAboutHandler::AboutStats();
-  } else if (path == kVersionPath || path.empty()) {
-    response = BrowserAboutHandler::AboutVersion();
-  } else if (path == kCreditsPath) {
-    response = BrowserAboutHandler::AboutCredits();
-  } else if (path == kTermsPath) {
-    response = BrowserAboutHandler::AboutTerms();
-  }
-#if defined(OS_LINUX)
-  else if (path == kLinuxSplash) {
-    response = BrowserAboutHandler::AboutLinuxSplash();
-  }
-#endif
-
-  FinishDataRequest(response, request_id);
-}
-
-void AboutSource::FinishDataRequest(const std::string& response,
-                                    int request_id) {
-  scoped_refptr<RefCountedBytes> html_bytes(new RefCountedBytes);
-  html_bytes->data.resize(response.size());
-  std::copy(response.begin(), response.end(), html_bytes->data.begin());
-  SendResponse(request_id, html_bytes);
-}
-
-// This is the top-level URL handler for chrome-internal: URLs, and exposed in
-// our header file.
-bool BrowserAboutHandler::MaybeHandle(GURL* url,
-                                      TabContentsType* result_type) {
-  if (!url->SchemeIs(kAboutScheme))
-    return false;
-
-  // about:blank is special.  Frames are allowed to access about:blank,
-  // but they are not allowed to access other types of about pages.
-  // Just ignore the about:blank and let the TAB_CONTENTS_WEB handle it.
-  if (StringToLowerASCII(url->path()) == "blank") {
-    return false;
-  }
-
-  // We create an about:cache mapping to the view-cache: internal URL.
-  if (StringToLowerASCII(url->path()) == kCachePath) {
-    *url = GURL("view-cache:");
-    *result_type = TAB_CONTENTS_WEB;
-    return true;
-  }
-
-  if (LowerCaseEqualsASCII(url->path(), "network")) {
-#if defined(OS_WIN)
-    // Run the dialog. This will re-use the existing one if it's already up.
-    AboutNetworkDialog::RunDialog();
-#else
-    NOTIMPLEMENTED();
-    // TODO(port) Implement this.
-#endif
-
-    // Navigate the renderer to about:blank. This is kind of stupid but is the
-    // easiest thing to do in this situation without adding a lot of complexity
-    // for this developer-only feature.
-    *url = GURL("about:blank");
-    return false;
-  }
-
-#ifdef IPC_MESSAGE_LOG_ENABLED
-  if (LowerCaseEqualsASCII(url->path(), "ipc")) {
-#if defined(OS_WIN)
-    // Run the dialog. This will re-use the existing one if it's already up.
-    AboutIPCDialog::RunDialog();
-#else
-    NOTIMPLEMENTED();
-    // TODO(port) Implement this.
-#endif
-    *url = GURL("about:blank");
-    return false;
-  }
-#endif
-
-  // There are a few about URLs that we hand over to the renderer.
-  // If the renderer wants them, let it have them.
-  if (AboutHandler::WillHandle(*url))
-    return false;
-
-  *result_type = TAB_CONTENTS_ABOUT_UI;
-  std::string about_url = "chrome-ui://about/";
-  about_url.append(url->path());
-  *url = GURL(about_url);
-  return true;
-}
-
-BrowserAboutHandler::BrowserAboutHandler(Profile* profile,
-                           SiteInstance* instance,
-                           RenderViewHostFactory* render_view_factory) :
-  WebContents(profile, instance, render_view_factory, MSG_ROUTING_NONE, NULL) {
-  set_type(TAB_CONTENTS_ABOUT_UI);
-
-  // We only need to register the AboutSource once and it is
-  // kept globally.  There is currently no way to remove a data source.
-  static bool initialized = false;
-  if (!initialized) {
-    about_source_ = new AboutSource();
-    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(&chrome_url_data_manager,
-            &ChromeURLDataManager::AddDataSource,
-            about_source_));
-    initialized = true;
-  }
-}
-
-bool BrowserAboutHandler::SupportsURL(GURL* url) {
-  // Enable this tab contents to access javascript urls.
-  if (url->SchemeIs(chrome::kJavaScriptScheme))
-    return true;
-  return WebContents::SupportsURL(url);
-}
-
-
-// static
-std::string BrowserAboutHandler::AboutVersion() {
-  // Strings used in the JsTemplate file.
-  DictionaryValue localized_strings;
-  localized_strings.SetString(L"title",
-      l10n_util::GetString(IDS_ABOUT_VERSION_TITLE));
-  scoped_ptr<FileVersionInfo> version_info(
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
-  if (version_info == NULL) {
-    DLOG(ERROR) << "Unable to create FileVersionInfo object";
-    return std::string();
-  }
-
-  std::wstring webkit_version = UTF8ToWide(webkit_glue::GetWebKitVersion());
-#ifdef CHROME_V8
-  const char* v8_vers = v8::V8::GetVersion();
-  std::wstring js_version = UTF8ToWide(v8_vers);
-  std::wstring js_engine = L"V8";
-#else
-  std::wstring js_version = webkit_version;
-  std::wstring js_engine = L"JavaScriptCore";
-#endif
-
-  localized_strings.SetString(L"name",
-      l10n_util::GetString(IDS_PRODUCT_NAME));
-  localized_strings.SetString(L"version", version_info->file_version());
-  localized_strings.SetString(L"js_engine", js_engine);
-  localized_strings.SetString(L"js_version", js_version);
-  localized_strings.SetString(L"webkit_version", webkit_version);
-  localized_strings.SetString(L"company",
-      l10n_util::GetString(IDS_ABOUT_VERSION_COMPANY_NAME));
-  localized_strings.SetString(L"copyright",
-      l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT));
-  localized_strings.SetString(L"cl", version_info->last_change());
-  if (version_info->is_official_build()) {
-    localized_strings.SetString(L"official",
-      l10n_util::GetString(IDS_ABOUT_VERSION_OFFICIAL));
-  } else {
-    localized_strings.SetString(L"official",
-      l10n_util::GetString(IDS_ABOUT_VERSION_UNOFFICIAL));
-  }
-  localized_strings.SetString(L"useragent",
-      UTF8ToWide(webkit_glue::GetUserAgent(GURL())));
-
-  static const StringPiece version_html(
-      ResourceBundle::GetSharedInstance().GetRawDataResource(
-          IDR_ABOUT_VERSION_HTML));
-
-  return jstemplate_builder::GetTemplateHtml(
-      version_html, &localized_strings, "t" /* template root node id */);
-}
-
-// static
-std::string BrowserAboutHandler::AboutCredits() {
+std::string AboutCredits() {
   static const std::string credits_html =
       ResourceBundle::GetSharedInstance().GetDataResource(
           IDR_CREDITS_HTML);
@@ -310,8 +130,28 @@ std::string BrowserAboutHandler::AboutCredits() {
   return credits_html;
 }
 
-// static
-std::string BrowserAboutHandler::AboutLinuxSplash() {
+std::string AboutDns() {
+  std::string data;
+  chrome_browser_net::DnsPrefetchGetHtmlInfo(&data);
+  return data;
+}
+
+std::string AboutHistograms(const std::string& query) {
+  std::string data;
+  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
+       it != RenderProcessHost::end(); ++it) {
+    it->second->Send(new ViewMsg_GetRendererHistograms());
+  }
+
+  // TODO(raman): Delay page layout until we get respnoses
+  // back from renderers, and not have to use a fixed size delay.
+  PlatformThread::Sleep(1000);
+
+  StatisticsRecorder::WriteHTMLGraph(query, &data);
+  return data;
+}
+
+std::string AboutLinuxSplash() {
   static const std::string linux_splash_html =
       ResourceBundle::GetSharedInstance().GetDataResource(
           IDR_LINUX_SPLASH_HTML);
@@ -319,17 +159,18 @@ std::string BrowserAboutHandler::AboutLinuxSplash() {
   return linux_splash_html;
 }
 
-// static
-std::string BrowserAboutHandler::AboutTerms() {
-  static const std::string terms_html =
-      ResourceBundle::GetSharedInstance().GetDataResource(
-          IDR_TERMS_HTML);
-
-  return terms_html;
+void AboutMemory(AboutSource* source, int request_id) {
+  // The AboutMemoryHandler cleans itself up.
+  new AboutMemoryHandler(source, request_id);
 }
 
-// static
-std::string BrowserAboutHandler::AboutPlugins() {
+std::string AboutObjects(const std::string& query) {
+  std::string data;
+  tracked_objects::ThreadData::WriteHTML(query, &data);
+  return data;
+}
+
+std::string AboutPlugins() {
   // Strings used in the JsTemplate file.
   DictionaryValue localized_strings;
   localized_strings.SetString(L"title",
@@ -361,38 +202,7 @@ std::string BrowserAboutHandler::AboutPlugins() {
       plugins_html, &localized_strings, "t" /* template root node id */);
 }
 
-// static
-std::string BrowserAboutHandler::AboutHistograms(const std::string& query) {
-  std::string data;
-  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
-       it != RenderProcessHost::end(); ++it) {
-    it->second->Send(new ViewMsg_GetRendererHistograms());
-  }
-
-  // TODO(raman): Delay page layout until we get respnoses
-  // back from renderers, and not have to use a fixed size delay.
-  PlatformThread::Sleep(1000);
-
-  StatisticsRecorder::WriteHTMLGraph(query, &data);
-  return data;
-}
-
-// static
-std::string BrowserAboutHandler::AboutObjects(const std::string& query) {
-  std::string data;
-  tracked_objects::ThreadData::WriteHTML(query, &data);
-  return data;
-}
-
-// static
-std::string BrowserAboutHandler::AboutDns() {
-  std::string data;
-  chrome_browser_net::DnsPrefetchGetHtmlInfo(&data);
-  return data;
-}
-
-// static
-std::string BrowserAboutHandler::AboutStats() {
+std::string AboutStats() {
   // We keep the DictionaryValue tree live so that we can do delta
   // stats computations across runs.
   static DictionaryValue root;
@@ -505,6 +315,136 @@ std::string BrowserAboutHandler::AboutStats() {
   return data;
 }
 
+std::string AboutTerms() {
+  static const std::string terms_html =
+      ResourceBundle::GetSharedInstance().GetDataResource(
+          IDR_TERMS_HTML);
+
+  return terms_html;
+}
+
+std::string AboutVersion() {
+  // Strings used in the JsTemplate file.
+  DictionaryValue localized_strings;
+  localized_strings.SetString(L"title",
+      l10n_util::GetString(IDS_ABOUT_VERSION_TITLE));
+  scoped_ptr<FileVersionInfo> version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+  if (version_info == NULL) {
+    DLOG(ERROR) << "Unable to create FileVersionInfo object";
+    return std::string();
+  }
+
+  std::wstring webkit_version = UTF8ToWide(webkit_glue::GetWebKitVersion());
+#ifdef CHROME_V8
+  const char* v8_vers = v8::V8::GetVersion();
+  std::wstring js_version = UTF8ToWide(v8_vers);
+  std::wstring js_engine = L"V8";
+#else
+  std::wstring js_version = webkit_version;
+  std::wstring js_engine = L"JavaScriptCore";
+#endif
+
+  localized_strings.SetString(L"name",
+      l10n_util::GetString(IDS_PRODUCT_NAME));
+  localized_strings.SetString(L"version", version_info->file_version());
+  localized_strings.SetString(L"js_engine", js_engine);
+  localized_strings.SetString(L"js_version", js_version);
+  localized_strings.SetString(L"webkit_version", webkit_version);
+  localized_strings.SetString(L"company",
+      l10n_util::GetString(IDS_ABOUT_VERSION_COMPANY_NAME));
+  localized_strings.SetString(L"copyright",
+      l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT));
+  localized_strings.SetString(L"cl", version_info->last_change());
+  if (version_info->is_official_build()) {
+    localized_strings.SetString(L"official",
+      l10n_util::GetString(IDS_ABOUT_VERSION_OFFICIAL));
+  } else {
+    localized_strings.SetString(L"official",
+      l10n_util::GetString(IDS_ABOUT_VERSION_UNOFFICIAL));
+  }
+  localized_strings.SetString(L"useragent",
+      UTF8ToWide(webkit_glue::GetUserAgent(GURL())));
+
+  static const StringPiece version_html(
+      ResourceBundle::GetSharedInstance().GetRawDataResource(
+          IDR_ABOUT_VERSION_HTML));
+
+  return jstemplate_builder::GetTemplateHtml(
+      version_html, &localized_strings, "t" /* template root node id */);
+}
+
+// AboutSource -----------------------------------------------------------------
+
+AboutSource::AboutSource()
+    : DataSource(chrome::kAboutScheme, MessageLoop::current()) {
+  // This should be a singleton.
+  DCHECK(!about_source);
+  about_source = this;
+
+  // Add us to the global URL handler on the IO thread.
+  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(&chrome_url_data_manager,
+          &ChromeURLDataManager::AddDataSource, this));
+}
+
+AboutSource::~AboutSource() {
+  about_source = NULL;
+}
+
+void AboutSource::StartDataRequest(const std::string& path_raw,
+                                   int request_id) {
+  std::string path = path_raw;
+  std::string info;
+  if (path.find("/") != std::string::npos) {
+    size_t pos = path.find("/");
+    info = path.substr(pos + 1, path.length() - (pos + 1));
+    path = path.substr(0, pos);
+  }
+  path = StringToLowerASCII(path);
+
+  std::string response;
+  if (path == kDnsPath) {
+    response = AboutDns();
+  } else if (path == kHistogramsPath) {
+    response = AboutHistograms(info);
+  } else if (path == kMemoryPath) {
+    AboutMemory(this, request_id);
+    return;
+  } else if (path == kMemoryRedirectPath) {
+    response = GetAboutMemoryRedirectResponse();
+  } else if (path == kObjectsPath) {
+    response = AboutObjects(info);
+  } else if (path == kPluginsPath) {
+    response = AboutPlugins();
+  } else if (path == kStatsPath) {
+    response = AboutStats();
+  } else if (path == kVersionPath || path.empty()) {
+    response = AboutVersion();
+  } else if (path == kCreditsPath) {
+    response = AboutCredits();
+  } else if (path == kTermsPath) {
+    response = AboutTerms();
+  }
+#if defined(OS_LINUX)
+  else if (path == kLinuxSplash) {
+    response = AboutLinuxSplash();
+  }
+#endif
+
+  FinishDataRequest(response, request_id);
+}
+
+void AboutSource::FinishDataRequest(const std::string& response,
+                                    int request_id) {
+  scoped_refptr<RefCountedBytes> html_bytes(new RefCountedBytes);
+  html_bytes->data.resize(response.size());
+  std::copy(response.begin(), response.end(), html_bytes->data.begin());
+  SendResponse(request_id, html_bytes);
+}
+
+// AboutMemoryHandler ----------------------------------------------------------
+
 AboutMemoryHandler::AboutMemoryHandler(AboutSource* source, int request_id)
   : source_(source),
     request_id_(request_id) {
@@ -515,7 +455,7 @@ AboutMemoryHandler::AboutMemoryHandler(AboutSource* source, int request_id)
 // to a DictionaryValue. Fills ws_usage and comm_usage so that the objects
 // can be used in caller's scope (e.g for appending to a net total).
 void AboutMemoryHandler::BindProcessMetrics(DictionaryValue* data,
-      ProcessMemoryInformation* info) {
+                                            ProcessMemoryInformation* info) {
   DCHECK(data && info);
 
   // Bind metrics to dictionary.
@@ -629,12 +569,85 @@ void AboutMemoryHandler::OnDetailsAvailable() {
   std::string template_html = jstemplate_builder::GetTemplateHtml(
       memory_html, &root, "t" /* template root node id */);
 
-  AboutSource* about_source = static_cast<AboutSource*>(source_);
-  about_source->FinishDataRequest(template_html, request_id_);
+  AboutSource* src = static_cast<AboutSource*>(source_);
+  src->FinishDataRequest(template_html, request_id_);
 }
 
-// static
-void BrowserAboutHandler::AboutMemory(AboutSource* source, int request_id) {
-  // The AboutMemoryHandler cleans itself up.
-  new AboutMemoryHandler(source, request_id);
+}  // namespace
+
+// -----------------------------------------------------------------------------
+
+bool WillHandleBrowserAboutURL(GURL* url, TabContentsType* type) {
+  // We only handle about: schemes.
+  if (!url->SchemeIs(chrome::kAboutScheme))
+    return false;
+
+  // about:blank is special. Frames are allowed to access about:blank,
+  // but they are not allowed to access other types of about pages.
+  // Just ignore the about:blank and let the TAB_CONTENTS_WEB handle it.
+  if (LowerCaseEqualsASCII(url->spec(), chrome::kAboutBlankURL))
+    return false;
+
+  // Handle rewriting view-cache URLs. This allows us to load about:cache.
+  if (LowerCaseEqualsASCII(url->spec(), chrome::kAboutCacheURL)) {
+    // Create an mapping from about:cache to the view-cache: internal URL.
+    *url = GURL(std::string(chrome::kViewCacheScheme) + ":");
+    *type = TAB_CONTENTS_WEB;
+    return true;
+  }
+
+  // There are a few about: URLs that we hand over to the renderer. If the
+  // renderer wants them, don't do any rewriting.
+  if (AboutHandler::WillHandle(*url))
+    return false;
+
+  // Anything else requires our special handler, make sure its initialized.
+  // We only need to register the AboutSource once and it is kept globally.
+  // There is currently no way to remove a data source.
+  static bool initialized = false;
+  if (!initialized) {
+    about_source = new AboutSource();
+    initialized = true;
+  }
+
+  // Special case about:memory to go through a redirect before ending up on
+  // the final page. See GetAboutMemoryRedirectResponse above for why.
+  if (LowerCaseEqualsASCII(url->path(), kMemoryPath)) {
+    *url = GURL("chrome-ui://about/memory-redirect");
+    *type = TAB_CONTENTS_WEB;
+    return true;
+  }
+
+  // Rewrite the about URL to use chrome-ui. WebKit treats all about URLS the
+  // same (blank page), so if we want to display content, we need another
+  // scheme.
+  std::string about_url = "chrome-ui://about/";
+  about_url.append(url->path());
+  *url = GURL(about_url);
+  *type = TAB_CONTENTS_WEB;
+  return true;
+}
+
+// This function gets called with the fixed-up chrome-ui URLs, so we have to
+// compare against those instead of "about:blah".
+bool HandleNonNavigationAboutURL(const GURL& url) {
+#if defined(OS_WIN)
+  if (LowerCaseEqualsASCII(url.spec(), chrome::kChromeUINetworkURL)) {
+    // Run the dialog. This will re-use the existing one if it's already up.
+    AboutNetworkDialog::RunDialog();
+    return true;
+  }
+
+#ifdef IPC_MESSAGE_LOG_ENABLED
+  if (LowerCaseEqualsASCII(url.spec(), chrome::kChromeUIIPCURL)) {
+    // Run the dialog. This will re-use the existing one if it's already up.
+    AboutIPCDialog::RunDialog();
+    return true;
+  }
+#endif
+
+#else
+  // TODO(port) Implement this.
+#endif
+  return false;
 }

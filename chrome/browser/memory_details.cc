@@ -10,8 +10,10 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/child_process_host.h"
+#include "chrome/common/url_constants.h"
 
 class RenderViewHostDelegate;
 
@@ -180,8 +182,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
     // Check if it's a renderer, if so get the list of page titles in it and
     // check if it's a diagnostics-related process.  We skip all diagnostics
     // pages (e.g. "about:xxx" URLs).  Iterate the RenderProcessHosts to find
-    // the tab contents.  If it is of type TAB_CONTENTS_ABOUT_UI, mark the
-    // process as diagnostics related.
+    // the tab contents.
     RenderProcessHost::iterator renderer_iter;
     for (renderer_iter = RenderProcessHost::begin(); renderer_iter !=
          RenderProcessHost::end(); ++renderer_iter) {
@@ -217,7 +218,28 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
         if (!title.length())
           title = L"Untitled";
         process.titles.push_back(title);
-        if (contents->type() == TAB_CONTENTS_ABOUT_UI)
+
+        // We need to check the pending entry as well as the pending entry to
+        // see if it's an about:memory URL (we don't want to count these in the
+        // total memory usage of the browser).
+        //
+        // When we reach here, about:memory will be the pending entry since we
+        // haven't responded with any data such that it would be committed. If
+        // you have another about:memory tab open (which would be committed),
+        // we don't want to count it either, so we also check the last committed
+        // entry.
+        //
+        // Either the pending or last committed entries can be NULL.
+        const NavigationEntry* pending_entry = NULL;
+            //contents->controller()->GetPendingEntry();
+        const NavigationEntry* last_committed_entry =
+            contents->controller()->GetLastCommittedEntry();
+        if ((last_committed_entry &&
+             LowerCaseEqualsASCII(last_committed_entry->display_url().spec(), 
+                                  chrome::kAboutMemoryURL)) ||
+            (pending_entry &&
+             LowerCaseEqualsASCII(pending_entry->display_url().spec(), 
+                                  chrome::kAboutMemoryURL)))
           process.is_diagnostics = true;
       }
     }

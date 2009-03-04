@@ -7,6 +7,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/sessions/session_types.h"
@@ -55,7 +56,6 @@ void SetContentStateIfEmpty(NavigationEntry* entry) {
       (entry->tab_type() == TAB_CONTENTS_WEB ||
        entry->tab_type() == TAB_CONTENTS_NEW_TAB_UI ||
        entry->tab_type() == TAB_CONTENTS_DOM_UI ||
-       entry->tab_type() == TAB_CONTENTS_ABOUT_UI ||
        entry->tab_type() == TAB_CONTENTS_HTML_DIALOG ||
        entry->IsViewSourceMode())) {
     entry->set_content_state(
@@ -247,6 +247,11 @@ NavigationEntry* NavigationController::GetEntryWithPageID(
 }
 
 void NavigationController::LoadEntry(NavigationEntry* entry) {
+  // Handle non-navigational URLs that popup dialogs and such, these should not
+  // actually navigate.
+  if (HandleNonNavigationAboutURL(entry->url()))
+    return;
+
   // When navigating to a new page, we don't know for sure if we will actually
   // end up leaving the current page.  The new page load could for example
   // result in a download or a 'no content' response (e.g., a mailto: URL).
@@ -463,17 +468,15 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
 
   // If the active contents supports |url|, use it.
   // Note: in both cases, we give TabContents a chance to rewrite the URL.
+  //
+  // TODO(brettw): The BrowserURLHandler::HandleBrowserURL call should just be
+  // moved here from inside TypeForURL once the tab contents types are removed.
   TabContents* active = active_contents();
   if (active && active->SupportsURL(&real_url))
     type = active->type();
   else
     type = TabContents::TypeForURL(&real_url);
-
-  if (url.SchemeIs(chrome::kViewSourceScheme)) {
-    // Load the inner URL instead, setting the original URL as the "display".
-    real_url = GURL(url.path());
-  }
-
+  
   NavigationEntry* entry = new NavigationEntry(type, NULL, -1, real_url,
                                                referrer,
                                                string16(), transition);

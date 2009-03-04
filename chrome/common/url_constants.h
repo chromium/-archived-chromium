@@ -22,6 +22,7 @@ extern const char kHttpsScheme[];
 extern const char kJavaScriptScheme[];
 extern const char kMailToScheme[];
 extern const char kUserScriptScheme[];
+extern const char kViewCacheScheme[];
 extern const char kViewSourceScheme[];
 
 // Used to separate a standard scheme and the hostname: "://".
@@ -29,6 +30,11 @@ extern const char kStandardSchemeSeparator[];
 
 // About URLs (including schmes).
 extern const char kAboutBlankURL[];
+extern const char kAboutCacheURL[];
+extern const char kAboutMemoryURL[];
+
+extern const char kChromeUIIPCURL[];
+extern const char kChromeUINetworkURL[];
 
 }  // namespace chrome
 

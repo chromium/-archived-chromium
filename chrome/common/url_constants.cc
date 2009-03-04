@@ -18,10 +18,16 @@ const char kHttpsScheme[] = "https";
 const char kJavaScriptScheme[] = "javascript";
 const char kMailToScheme[] = "mailto";
 const char kUserScriptScheme[] = "chrome-user-script";
+const char kViewCacheScheme[] = "view-cache";
 const char kViewSourceScheme[] = "view-source";
 
 const char kStandardSchemeSeparator[] = "://";
 
 const char kAboutBlankURL[] = "about:blank";
+const char kAboutCacheURL[] = "about:cache";
+const char kAboutMemoryURL[] = "about:memory";
+
+const char kChromeUIIPCURL[] = "chrome-ui://about/ipc";
+const char kChromeUINetworkURL[] = "chrome-ui://about/network";
 
 }  // namespace chrome
