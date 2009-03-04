@@ -318,6 +318,8 @@ LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
+LINUX : LayoutTests/fast/forms/button-default-title.html = FAIL
+LINUX : LayoutTests/fast/forms/control-clip.html = FAIL
 LINUX : LayoutTests/fast/inline/inline-continuation-borders.html = FAIL
 LINUX : LayoutTests/fast/inline/vertical-align-text-bottom.html = FAIL
 MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
@@ -719,6 +721,9 @@ DEFER LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
 // Needs to be rebaselined. It's a new test, so shouldn't hold up release.
 DEFER LINUX : LayoutTests/fast/transforms/shadows.html = FAIL
+// This test isn't hanging, it just takes 12-13 seconds to run, which is more
+// than test_shell allows. However, we shouldn't look into the speed of the test
+// until we have reached PASS status.
 LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
@@ -1843,8 +1848,6 @@ MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
 // Regressions from the 41286:41362 merge.
-LINUX WIN : LayoutTests/fast/forms/button-default-title.html = FAIL
-LINUX WIN : LayoutTests/fast/forms/control-clip.html = FAIL
 LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
 LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = PASS TIMEOUT
