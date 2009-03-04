@@ -322,7 +322,7 @@ SkBitmap LocationBarView::GetFavIcon() const {
 std::wstring LocationBarView::GetTitle() const {
   DCHECK(delegate_);
   DCHECK(delegate_->GetTabContents());
-  return delegate_->GetTabContents()->GetTitle();
+  return UTF16ToWideHack(delegate_->GetTabContents()->GetTitle());
 }
 
 void LocationBarView::DoLayout(const bool force_layout) {

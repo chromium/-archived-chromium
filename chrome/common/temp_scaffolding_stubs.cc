@@ -285,7 +285,7 @@ const GURL& TabContents::GetURL() const {
   return entry ? entry->display_url() : GURL::EmptyGURL();
 }
 
-const std::wstring& TabContents::GetTitle() const {
+const string16& TabContents::GetTitle() const {
   // We use the title for the last committed entry rather than a pending
   // navigation entry. For example, when the user types in a URL, we want to
   // keep the old page's title until the new load has committed and we get a new
@@ -294,14 +294,14 @@ const std::wstring& TabContents::GetTitle() const {
   // their title, as they are not committed.
   NavigationEntry* entry = controller_->GetTransientEntry();
   if (entry)
-    return entry->GetTitleForDisplay();
+    return entry->GetTitleForDisplay(controller_);
 
   entry = controller_->GetLastCommittedEntry();
   if (entry)
-    return entry->GetTitleForDisplay();
+    return entry->GetTitleForDisplay(controller_);
   else if (controller_->LoadingURLLazily())
     return controller_->GetLazyTitle();
-  return EmptyWString();
+  return EmptyString16();
 }
 
 void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/string16.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -79,7 +80,7 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
 
   NavigationEntry* e1 = new NavigationEntry(TAB_CONTENTS_WEB, instance, 0, url,
                                             GURL(),
-                                            std::wstring(),
+                                            string16(),
                                             PageTransition::LINK);
 
   // Redundantly setting e1's SiteInstance shouldn't affect the ref count.

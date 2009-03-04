@@ -82,7 +82,7 @@ int HungPagesTableModel::RowCount() {
 
 std::wstring HungPagesTableModel::GetText(int row, int column_id) {
   DCHECK(row >= 0 && row < RowCount());
-  std::wstring title = webcontentses_.at(row)->GetTitle();
+  std::wstring title = UTF16ToWideHack(webcontentses_.at(row)->GetTitle());
   if (title.empty())
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
   // TODO(xji): Consider adding a special case if the title text is a URL,

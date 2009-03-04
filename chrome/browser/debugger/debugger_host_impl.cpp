@@ -65,7 +65,7 @@ class TabContentsReference : public NotificationObserver {
 };
 
 
-DebuggerHostImpl::DebuggerHostImpl(DebuggerInputOutput* io) 
+DebuggerHostImpl::DebuggerHostImpl(DebuggerInputOutput* io)
     : io_(io), 
       debugger_ready_(true) {
 }
@@ -98,7 +98,7 @@ void DebuggerHostImpl::OnDebugAttach() {
   std::wstring title;
   const TabContents* t = GetTabContentsBeingDebugged();
   if (t) {
-    title = t->GetTitle();
+    title = UTF16ToWideHack(t->GetTitle());
   }
 
   ListValue* argv = new ListValue;
@@ -178,7 +178,7 @@ void DebuggerHostImpl::OnDebuggerHostMsg(const ListValue* args) {
       return;
     }
     io_->SetDebuggerBreak(brk == L"true");
-  } 
+  }
 }
 
 TabContents* DebuggerHostImpl::GetTabContentsBeingDebugged() const {

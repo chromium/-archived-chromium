@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H__
-#define CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H__
+#ifndef CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H_
+#define CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H_
 
 #include "chrome/views/view.h"
 
@@ -66,8 +66,7 @@ class TabIconView : public views::View {
   // throbber_running_ is true.
   int throbber_frame_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TabIconView);
+  DISALLOW_COPY_AND_ASSIGN(TabIconView);
 };
 
-#endif  // CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H__
-
+#endif  // CHROME_BROWSER_VIEW_TAB_ICON_VIEW_H_

@@ -112,6 +112,7 @@ bool IsWprintfFormatPortable(const wchar_t* format);
 // These functions are threadsafe.
 const std::string& EmptyString();
 const std::wstring& EmptyWString();
+const string16& EmptyString16();
 
 extern const wchar_t kWhitespaceWide[];
 extern const char kWhitespaceASCII[];

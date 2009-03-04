@@ -770,7 +770,8 @@ void BrowserToolbarView::WriteDragData(views::View* sender,
     }
   }
 
-  drag_utils::SetURLAndDragImage(tab_->GetURL(), tab_->GetTitle(),
+  drag_utils::SetURLAndDragImage(tab_->GetURL(),
+                                 UTF16ToWideHack(tab_->GetTitle()),
                                  tab_->GetFavIcon(), data);
 }
 

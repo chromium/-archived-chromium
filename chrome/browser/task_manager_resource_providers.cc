@@ -46,7 +46,7 @@ std::wstring TaskManagerWebContentsResource::GetTitle() const {
     return std::wstring();
 
   // Fall back on the URL if there's no title.
-  std::wstring tab_title(web_contents_->GetTitle());
+  std::wstring tab_title(UTF16ToWideHack(web_contents_->GetTitle()));
   if (tab_title.empty()) {
     tab_title = UTF8ToWide(web_contents_->GetURL().spec());
     // Force URL to be LTR.

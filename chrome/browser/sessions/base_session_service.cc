@@ -158,7 +158,7 @@ SessionCommand* BaseSessionService::CreateUpdateTabNavigationCommand(
                       entry.display_url().spec());
 
   WriteWStringToPickle(pickle, &bytes_written, max_state_size,
-                       entry.title());
+                       UTF16ToWideHack(entry.title()));
 
   WriteStringToPickle(pickle, &bytes_written, max_state_size,
                       entry.content_state());

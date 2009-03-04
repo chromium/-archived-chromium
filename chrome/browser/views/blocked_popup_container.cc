@@ -298,10 +298,10 @@ int BlockedPopupContainer::GetTabContentsCount() const {
 std::wstring BlockedPopupContainer::GetDisplayStringForItem(int index) {
   const GURL& url = blocked_popups_[index].first->GetURL().GetOrigin();
 
-  std::wstring label =
-      l10n_util::GetStringF(IDS_POPUP_TITLE_FORMAT,
-                            UTF8ToWide(url.possibly_invalid_spec()),
-                            blocked_popups_[index].first->GetTitle());
+  std::wstring label = l10n_util::GetStringF(
+      IDS_POPUP_TITLE_FORMAT,
+      UTF8ToWide(url.possibly_invalid_spec()),
+      UTF16ToWideHack(blocked_popups_[index].first->GetTitle()));
   return label;
 }
 

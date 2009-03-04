@@ -4,6 +4,10 @@
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
+#include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/common/gfx/text_elider.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/common/resource_bundle.h"
 
@@ -43,7 +47,7 @@ NavigationEntry::NavigationEntry(TabContentsType type,
                                  int page_id,
                                  const GURL& url,
                                  const GURL& referrer,
-                                 const std::wstring& title,
+                                 const string16& title,
                                  PageTransition::Type transition_type)
     : unique_id_(GetUniqueID()),
       tab_type_(type),
@@ -58,10 +62,32 @@ NavigationEntry::NavigationEntry(TabContentsType type,
       restored_(false) {
 }
 
-const std::wstring& NavigationEntry::GetTitleForDisplay() {
-  if (title_.empty())
-    return display_url_as_string_;
-  return title_;
+const string16& NavigationEntry::GetTitleForDisplay(
+    const NavigationController* navigation_controller) {
+  // Most pages have real titles. Don't even bother caching anything if this is
+  // the case.
+  if (!title_.empty())
+    return title_;
+
+  // More complicated cases will use the URLs as the title. This result we will
+  // cache since it's more complicated to compute.
+  if (!cached_display_title_.empty())
+    return cached_display_title_;
+
+  // Use the display URL first if any, and fall back on using the real URL.
+  std::wstring languages;
+  if (navigation_controller) {
+      languages = navigation_controller->profile()->GetPrefs()->GetString(
+          prefs::kAcceptLanguages);
+  }
+  if (!display_url_.is_empty()) {
+    cached_display_title_ = WideToUTF16Hack(gfx::GetCleanStringFromUrl(
+        display_url_, languages, NULL, NULL));
+  } else if (!url_.is_empty()) {
+    cached_display_title_ = WideToUTF16Hack(gfx::GetCleanStringFromUrl(
+        display_url_, languages, NULL, NULL));
+  }
+  return cached_display_title_;
 }
 
 bool NavigationEntry::IsViewSourceMode() const {

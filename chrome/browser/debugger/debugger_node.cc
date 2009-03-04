@@ -201,7 +201,7 @@ v8::Handle<v8::Value> BrowserNode::PropGetter(v8::Handle<v8::String> prop,
   if (b != NULL) {
     if (prop->Equals(v8::String::New("title"))) {
       const TabContents *t = b->GetSelectedTabContents();
-      std::wstring title = t->GetTitle();
+      std::wstring title = UTF16ToWideHack(t->GetTitle());
       std::string title2 = WideToUTF8(title);
       return v8::String::New(title2.c_str());
     } else if (prop->Equals(v8::String::New("tab"))) {
@@ -359,7 +359,7 @@ v8::Handle<v8::Value> TabNode::PropGetter(v8::Handle<v8::String> prop,
   if (t != NULL) {
     WebContents* web = t->AsWebContents();
     if (prop->Equals(v8::String::New("title"))) {
-      std::wstring title = t->GetTitle();
+      std::wstring title = UTF16ToWideHack(t->GetTitle());
       std::string title2 = WideToUTF8(title);
       return v8::String::New(title2.c_str());
     } else if (web) {

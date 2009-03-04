@@ -281,7 +281,7 @@ TabRenderer::~TabRenderer() {
 void TabRenderer::UpdateData(TabContents* contents) {
   DCHECK(contents);
   data_.favicon = contents->GetFavIcon();
-  data_.title = contents->GetTitle();
+  data_.title = UTF16ToWideHack(contents->GetTitle());
   data_.loading = contents->is_loading();
   data_.off_the_record = contents->profile()->IsOffTheRecord();
   data_.show_icon = contents->ShouldDisplayFavIcon();

@@ -27,6 +27,16 @@
 
 namespace {
 
+// Force the singleton used by Empty[W]String[16] to be a unique type. This
+// prevents other code that might accidentally use Singleton<string> from
+// getting our internal one.
+struct EmptyStrings {
+  EmptyStrings() {}
+  const std::string s;
+  const std::wstring ws;
+  const string16 s16;
+};
+
 // Hack to convert any char-like type to its unsigned counterpart.
 // For example, it will convert char, signed char and unsigned char to unsigned
 // char.
@@ -323,11 +333,15 @@ bool IsWprintfFormatPortable(const wchar_t* format) {
 
 
 const std::string& EmptyString() {
-  return *Singleton<std::string>::get();
+  return Singleton<EmptyStrings>::get()->s;
 }
 
 const std::wstring& EmptyWString() {
-  return *Singleton<std::wstring>::get();
+  return Singleton<EmptyStrings>::get()->ws;
+}
+
+const string16& EmptyString16() {
+  return Singleton<EmptyStrings>::get()->s16;
 }
 
 const wchar_t kWhitespaceWide[] = {

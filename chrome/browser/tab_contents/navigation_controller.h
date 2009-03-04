@@ -11,6 +11,7 @@
 
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
+#include "base/string16.h"
 #include "googleurl/src/gurl.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/ssl/ssl_manager.h"
@@ -360,7 +361,7 @@ class NavigationController {
   // titles and favicons. Since no request was made, this is the only info
   // we have about this page. This feature is used by web application clusters.
   bool LoadingURLLazily();
-  const std::wstring& GetLazyTitle() const;
+  const string16& GetLazyTitle() const;
   const SkBitmap& GetLazyFavIcon() const;
 
   // Returns the identifier used by session restore.

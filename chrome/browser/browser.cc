@@ -398,7 +398,7 @@ std::wstring Browser::GetCurrentPageTitle() const {
   // |contents| can be NULL because GetCurrentPageTitle is called by the window
   // during the window's creation (before tabs have been added).
   if (contents) {
-    title = contents->GetTitle();
+    title = UTF16ToWideHack(contents->GetTitle());
     FormatTitleForDisplay(&title);
   }
   if (title.empty())
@@ -738,7 +738,7 @@ void Browser::BookmarkCurrentPage() {
     return;
 
   bool was_bookmarked = model->IsBookmarked(url);
-  model->SetURLStarred(url, entry->title(), true);
+  model->SetURLStarred(url, UTF16ToWideHack(entry->title()), true);
   if (window_->IsActive()) {
     // Only show the bubble if the window is active, otherwise we may get into
     // weird situations were the bubble is deleted as soon as it is shown.

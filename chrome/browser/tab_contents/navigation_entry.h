@@ -16,6 +16,8 @@
 #include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 
+class NavigationController;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // NavigationEntry class
@@ -169,7 +171,7 @@ class NavigationEntry {
                   int page_id,
                   const GURL& url,
                   const GURL& referrer,
-                  const std::wstring& title,
+                  const string16& title,
                   PageTransition::Type transition_type);
   ~NavigationEntry() {
   }
@@ -221,10 +223,7 @@ class NavigationEntry {
   // the user.
   void set_url(const GURL& url) {
     url_ = url;
-    if (display_url_.is_empty()) {
-      // If there is no explicit display URL, then we'll display this URL.
-      display_url_as_string_ = UTF8ToWide(url_.spec());
-    }
+    cached_display_title_.clear();
   }
   const GURL& url() const {
     return url_;
@@ -247,7 +246,7 @@ class NavigationEntry {
   // if there is no overridden display URL, it will return the actual one.
   void set_display_url(const GURL& url) {
     display_url_ = (url == url_) ? GURL() : url;
-    display_url_as_string_ = UTF8ToWide(url.spec());
+    cached_display_title_.clear();
   }
   bool has_display_url() const {
     return !display_url_.is_empty();
@@ -260,10 +259,11 @@ class NavigationEntry {
   // The caller is responsible for detecting when there is no title and
   // displaying the appropriate "Untitled" label if this is being displayed to
   // the user.
-  void set_title(const std::wstring& title) {
+  void set_title(const string16& title) {
     title_ = title;
+    cached_display_title_.clear();
   }
-  const std::wstring& title() const {
+  const string16& title() const {
     return title_;
   }
 
@@ -313,7 +313,11 @@ class NavigationEntry {
 
   // Returns the title to be displayed on the tab. This could be the title of
   // the page if it is available or the URL.
-  const std::wstring& GetTitleForDisplay();
+  //
+  // The NavigationController corresponding to this entry must be given so we
+  // can get the preferences so we can optionally format a URL for display. It
+  // may be NULL if you don't need proper URL formatting (e.g. unit tests).
+  const string16& GetTitleForDisplay(const NavigationController* controller);
 
   // Returns true if the current tab is in view source mode. This will be false
   // if there is no navigation.
@@ -383,14 +387,8 @@ class NavigationEntry {
   PageType page_type_;
   GURL url_;
   GURL referrer_;
-
   GURL display_url_;
-
-  // We cache a copy of the display URL as a string so we don't have to
-  // convert the display URL to a wide string every time we paint.
-  std::wstring display_url_as_string_;
-
-  std::wstring title_;
+  string16 title_;
   FaviconStatus favicon_;
   std::string content_state_;
   int32 page_id_;
@@ -399,6 +397,12 @@ class NavigationEntry {
   GURL user_typed_url_;
   bool has_post_data_;
   bool restored_;
+
+  // This is a cached version of the result of GetTitleForDisplay. It prevents
+  // us from having to do URL formatting on the URL evey time the title is
+  // displayed. When the URL, display URL, or title is set, this should be
+  // cleared to force a refresh.
+  string16 cached_display_title_;
 
   // Copy and assignment is explicitly allowed for this class.
 };

@@ -118,7 +118,7 @@ void PrintViewManager::DidPrintPage(
 }
 
 std::wstring PrintViewManager::RenderSourceName() {
-  std::wstring name(owner_.GetTitle());
+  std::wstring name(UTF16ToWideHack(owner_.GetTitle()));
   if (name.empty())
     name = l10n_util::GetString(IDS_DEFAULT_PRINT_DOCUMENT_TITLE);
   return name;

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/string16.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -17,7 +18,7 @@ class NavigationEntryTest : public testing::Test {
     entry2_.reset(new NavigationEntry(TAB_CONTENTS_DOM_UI, instance_, 3,
                                       GURL("test:url"),
                                       GURL("from"),
-                                      L"title",
+                                      ASCIIToUTF16("title"),
                                       PageTransition::TYPED));
   }
 
@@ -49,17 +50,18 @@ TEST_F(NavigationEntryTest, NavigationEntryURLs) {
 
   EXPECT_EQ(GURL(), entry1_.get()->url());
   EXPECT_EQ(GURL(), entry1_.get()->display_url());
-  EXPECT_EQ(L"", entry1_.get()->GetTitleForDisplay());
+  EXPECT_TRUE(entry1_.get()->GetTitleForDisplay(NULL).empty());
 
   // Setting URL affects display_url and GetTitleForDisplay
   entry1_.get()->set_url(GURL("http://www.google.com"));
   EXPECT_EQ(GURL("http://www.google.com"), entry1_.get()->url());
   EXPECT_EQ(GURL("http://www.google.com/"), entry1_.get()->display_url());
-  EXPECT_EQ(L"http://www.google.com/", entry1_.get()->GetTitleForDisplay());
+  EXPECT_EQ(ASCIIToUTF16("http://www.google.com/"),
+            entry1_.get()->GetTitleForDisplay(NULL));
 
   // Title affects GetTitleForDisplay
-  entry1_.get()->set_title(L"Google");
-  EXPECT_EQ(L"Google", entry1_.get()->GetTitleForDisplay());
+  entry1_.get()->set_title(ASCIIToWide("Google"));
+  EXPECT_EQ(ASCIIToUTF16("Google"), entry1_.get()->GetTitleForDisplay(NULL));
 
   // Setting display_url doesn't affect URL
   entry2_.get()->set_display_url(GURL("display:url"));
@@ -68,7 +70,7 @@ TEST_F(NavigationEntryTest, NavigationEntryURLs) {
   EXPECT_EQ(GURL("display:url"), entry2_.get()->display_url());
 
   // Having a title set in constructor overrides display URL
-  EXPECT_EQ(L"title", entry2_.get()->GetTitleForDisplay());
+  EXPECT_EQ(ASCIIToUTF16("title"), entry2_.get()->GetTitleForDisplay(NULL));
 
   // User typed URL is independent of the others
   EXPECT_EQ(GURL(), entry1_.get()->user_typed_url());
@@ -146,8 +148,8 @@ TEST_F(NavigationEntryTest, NavigationEntryAccessors) {
   // Title
   EXPECT_EQ(std::wstring(), entry1_.get()->title());
   EXPECT_EQ(L"title", entry2_.get()->title());
-  entry2_.get()->set_title(L"title2");
-  EXPECT_EQ(L"title2", entry2_.get()->title());
+  entry2_.get()->set_title(ASCIIToUTF16("title2"));
+  EXPECT_EQ(ASCIIToUTF16("title2"), entry2_.get()->title());
 
   // State
   EXPECT_EQ(std::string(), entry1_.get()->content_state());

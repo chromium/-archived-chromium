@@ -523,7 +523,7 @@ void WebContents::CreateShortcut() {
   // effectively cancel the pending install request.
   pending_install_.page_id = entry->page_id();
   pending_install_.icon = GetFavIcon();
-  pending_install_.title = GetTitle();
+  pending_install_.title = UTF16ToWideHack(GetTitle());
   pending_install_.url = GetURL();
   if (pending_install_.callback_functor) {
     pending_install_.callback_functor->Cancel();

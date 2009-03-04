@@ -54,4 +54,5 @@ class SadTabView : public views::View {
   DISALLOW_EVIL_CONSTRUCTORS(SadTabView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_SAD_TAB_H_
+#endif  // CHROME_BROWSER_VIEWS_SAD_TAB_H__
+

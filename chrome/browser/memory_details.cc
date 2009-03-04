@@ -6,6 +6,7 @@
 #include <psapi.h>
 
 #include "base/file_version_info.h"
+#include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -212,7 +213,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
           contents = host->delegate()->GetAsWebContents();
         if (!contents)
           continue;
-        std::wstring title = contents->GetTitle();
+        std::wstring title = UTF16ToWideHack(contents->GetTitle());
         if (!title.length())
           title = L"Untitled";
         process.titles.push_back(title);

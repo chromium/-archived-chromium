@@ -154,7 +154,7 @@ void BugReportView::SetupControl() {
 
   page_title_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_REPORT_PAGE_TITLE));
-  page_title_text_ = new views::Label(tab_->GetTitle());
+  page_title_text_ = new views::Label(UTF16ToWideHack(tab_->GetTitle()));
   page_url_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_REPORT_URL_LABEL));
   // page_url_text_'s text (if any) is filled in after dialog creation

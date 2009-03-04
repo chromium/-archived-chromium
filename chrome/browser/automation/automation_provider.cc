@@ -6,6 +6,7 @@
 
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/automation/automation_provider_list.h"
@@ -1608,7 +1609,7 @@ void AutomationProvider::GetTabTitle(int handle, int* title_string_size,
   *title_string_size = -1;  // -1 is the error code
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    *title = tab->GetActiveEntry()->title();
+    *title = UTF16ToWideHack(tab->GetActiveEntry()->title());
     *title_string_size = static_cast<int>(title->size());
   }
 }

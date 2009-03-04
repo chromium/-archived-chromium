@@ -476,12 +476,12 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
 
   NavigationEntry* entry = new NavigationEntry(type, NULL, -1, real_url,
                                                referrer,
-                                               std::wstring(), transition);
+                                               string16(), transition);
   entry->set_display_url(url);
   entry->set_user_typed_url(url);
   if (url.SchemeIsFile()) {
-    entry->set_title(file_util::GetFilenameFromPath(UTF8ToWide(url.host() +
-                                                               url.path())));
+    entry->set_title(WideToUTF16Hack(
+        file_util::GetFilenameFromPath(UTF8ToWide(url.host() + url.path()))));
   }
   return entry;
 }
@@ -514,7 +514,7 @@ void NavigationController::LoadURLLazily(const GURL& url,
                                          const std::wstring& title,
                                          SkBitmap* icon) {
   NavigationEntry* entry = CreateNavigationEntry(url, referrer, type);
-  entry->set_title(title);
+  entry->set_title(WideToUTF16Hack(title));
   if (icon)
     entry->favicon().set_bitmap(*icon);
 
@@ -527,11 +527,11 @@ bool NavigationController::LoadingURLLazily() {
   return load_pending_entry_when_active_;
 }
 
-const std::wstring& NavigationController::GetLazyTitle() const {
+const string16& NavigationController::GetLazyTitle() const {
   if (pending_entry_)
-    return pending_entry_->GetTitleForDisplay();
+    return pending_entry_->GetTitleForDisplay(this);
   else
-    return EmptyWString();
+    return EmptyString16();
 }
 
 const SkBitmap& NavigationController::GetLazyFavIcon() const {

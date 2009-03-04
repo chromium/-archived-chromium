@@ -222,7 +222,7 @@ std::wstring BackForwardMenuModel::GetItemLabel(int menu_id) const {
     return L"";
 
   NavigationEntry* entry = GetNavigationEntry(menu_id);
-  return entry->title();
+  return UTF16ToWideHack(entry->title());
 }
 
 const SkBitmap& BackForwardMenuModel::GetItemIcon(int menu_id) const {
