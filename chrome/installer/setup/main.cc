@@ -326,7 +326,7 @@ bool CheckPreInstallConditions(const installer::Version* installed_version,
   // If no previous installation of Chrome, make sure installation directory
   // either does not exist or can be deleted (i.e. is not locked by some other
   // process).
-  if (installed_version) {
+  if (!installed_version) {
     std::wstring install_path(installer::GetChromeInstallPath(system_install));
     if (file_util::PathExists(install_path) &&
         !file_util::Delete(install_path, true)) {
