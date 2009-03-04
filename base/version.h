@@ -12,7 +12,6 @@
 
 class Version {
 public:
-
   // The version string must be made up of 1 or more uint16's separated
   // by '.'. Returns NULL if string is not in this format.
   // Caller is responsible for freeing the Version object once done.
@@ -36,8 +35,6 @@ private:
   bool InitFromString(const std::string& version_str);
 
   std::vector<uint16> components_;
-
-  DISALLOW_COPY_AND_ASSIGN(Version);
 };
 
 #endif  // BASE_VERSION_H_

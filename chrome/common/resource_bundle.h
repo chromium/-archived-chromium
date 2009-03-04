@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -18,6 +18,7 @@
 #include "base/file_path.h"
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
+#include "chrome/browser/extensions/extension.h"
 
 #if defined(OS_LINUX) || defined(OS_MACOSX)
 namespace base {
@@ -28,6 +29,7 @@ namespace base {
 typedef struct _GdkPixbuf GdkPixbuf;
 #endif
 class ChromeFont;
+class Extension;
 class SkBitmap;
 class StringPiece;
 
@@ -118,6 +120,9 @@ class ResourceBundle {
   GdkPixbuf* LoadPixbuf(int resource_id);
 #endif
 
+  // Sets an Extension object that can handle theme resource requests.
+  void SetThemeExtension(const Extension& e);
+
  private:
   // We define a DataHandle typedef to abstract across how data is stored
   // across platforms.
@@ -182,6 +187,8 @@ class ResourceBundle {
   scoped_ptr<ChromeFont> web_font_;
 
   static ResourceBundle* g_shared_instance_;
+
+  scoped_ptr<Extension> theme_extension_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ResourceBundle);
 };

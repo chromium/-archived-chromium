@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -7,6 +7,8 @@
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
 #include "base/string_piece.h"
+#include "net/base/file_stream.h"
+#include "net/base/net_errors.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "SkBitmap.h"
 
@@ -43,23 +45,55 @@ ResourceBundle::ResourceBundle()
 
 void ResourceBundle::FreeImages() {
   for (SkImageMap::iterator i = skia_images_.begin();
-	     i != skia_images_.end(); i++) {
+       i != skia_images_.end(); i++) {
     delete i->second;
   }
   skia_images_.clear();
 }
 
+void ResourceBundle::SetThemeExtension(const Extension& e) {
+  theme_extension_.reset(new Extension(e));
+}
+
 /* static */
 SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
   std::vector<unsigned char> raw_data, png_data;
-  bool success = LoadResourceBytes(data_handle, resource_id, &raw_data);
+  bool success = false;
+  // First check to see if we have a registered theme extension and whether
+  // it can handle this resource.
+  // TODO(erikkay): It would be nice to use something less brittle than
+  // resource_id here.
+  if (g_shared_instance_->theme_extension_.get()) {
+    FilePath path =
+        g_shared_instance_->theme_extension_->GetThemeResourcePath(resource_id);
+    if (!path.empty()) {
+      net::FileStream file;
+      int flags = base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ;
+      if (file.Open(path, flags) == net::OK) {
+        int64 avail = file.Available();
+        if (avail > 0 && avail < INT_MAX) {
+          size_t size = static_cast<size_t>(avail);
+          raw_data.resize(size);
+          char* data = reinterpret_cast<char*>(&(raw_data.front()));
+          if (file.ReadUntilComplete(data, size) == avail) {
+            success= true;
+          } else {
+            raw_data.resize(0);
+          }
+        }
+      }
+    }
+  }
+  if (!success)
+    success = LoadResourceBytes(data_handle, resource_id, &raw_data);
   if (!success)
     return NULL;
 
   // Decode the PNG.
   int image_width;
   int image_height;
-  if (!PNGDecoder::Decode(&raw_data.front(), raw_data.size(), PNGDecoder::FORMAT_BGRA,
+  if (!PNGDecoder::Decode(&raw_data.front(), raw_data.size(), 
+                          PNGDecoder::FORMAT_BGRA,
                           &png_data, &image_width, &image_height)) {
     NOTREACHED() << "Unable to decode image resource " << resource_id;
     return NULL;
@@ -126,8 +160,8 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
       // The placeholder bitmap is bright red so people notice the problem.
       // This bitmap will be leaked, but this code should never be hit.
       empty_bitmap = new SkBitmap();
-      empty_bitmap->setConfig(SkBitmap::kARGB_8888_Config, 32, 32);	
-      empty_bitmap->allocPixels();	
+      empty_bitmap->setConfig(SkBitmap::kARGB_8888_Config, 32, 32);
+      empty_bitmap->allocPixels();
       empty_bitmap->eraseARGB(255, 255, 0, 0);
     }
     return empty_bitmap;

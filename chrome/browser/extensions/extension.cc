@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 #include "net/base/net_util.h"
 #include "chrome/common/extensions/user_script.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
 
 const char Extension::kManifestFilename[] = "manifest.json";
@@ -24,6 +25,7 @@ const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kVersionKey = L"version";
 const wchar_t* Extension::kZipHashKey = L"zip_hash";
 const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
+const wchar_t* Extension::kThemeKey = L"theme";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
@@ -71,6 +73,19 @@ const char* Extension::kInvalidPluginsDirError =
 
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
+Extension::Extension(const Extension& rhs) : 
+    path_(rhs.path_),
+    extension_url_(rhs.extension_url_),
+    id_(rhs.id_),
+    version_(new Version(*rhs.version_)),
+    name_(rhs.name_),
+    description_(rhs.description_),
+    content_scripts_(rhs.content_scripts_),
+    plugins_dir_(rhs.plugins_dir_),
+    zip_hash_(rhs.zip_hash_),
+    theme_paths_(rhs.theme_paths_) {
+}
+
 const std::string Extension::VersionString() const {
   return version_->GetString();
 }
@@ -85,6 +100,14 @@ GURL Extension::GetResourceURL(const GURL& extension_url,
   DCHECK(StartsWithASCII(ret_val.spec(), extension_url.spec(), false));
 
   return ret_val;
+}
+
+FilePath Extension::GetThemeResourcePath(const int resource_id) {
+  std::wstring id = IntToWString(resource_id);
+  std::string path = theme_paths_[id];
+  if (path.size())
+    return path_.AppendASCII(path.c_str());
+  return FilePath();
 }
 
 // static
@@ -235,6 +258,22 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       return false;
     }
     plugins_dir_ = path_.AppendASCII(plugins_dir);
+  }
+
+  if (source.HasKey(kThemeKey)) {
+    DictionaryValue* dict_value;
+    if (source.GetDictionary(kThemeKey, &dict_value)) {
+      DictionaryValue::key_iterator iter = dict_value->begin_keys();
+      while (iter != dict_value->end_keys()) {
+        std::string val;
+        if (dict_value->GetString(*iter, &val)) {
+          std::wstring id = *iter;
+          theme_paths_[id] = val;
+        }
+        ++iter;
+      }
+      ResourceBundle::GetSharedInstance().SetThemeExtension(*this);
+    }
   }
 
   // Initialize content scripts (optional).

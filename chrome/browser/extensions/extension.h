@@ -21,6 +21,7 @@ class Extension {
  public:
   Extension() {}
   explicit Extension(const FilePath& path);
+  explicit Extension(const Extension& path);
 
   // The format for extension manifests that this code understands.
   static const unsigned int kExpectedFormatVersion = 1;
@@ -40,6 +41,7 @@ class Extension {
   static const wchar_t* kVersionKey;
   static const wchar_t* kZipHashKey;
   static const wchar_t* kPluginsDirKey;
+  static const wchar_t* kThemeKey;
 
   // Some values expected in manifests.
   static const char* kRunAtDocumentStartValue;
@@ -67,7 +69,7 @@ class Extension {
   // The number of bytes in a legal id.
   static const size_t kIdSize;
 
-  // Creates an absolute url to a resource inside an extension. The
+  // Returns an absolute url to a resource inside of an extension. The
   // |extension_url| argument should be the url() from an Extension object. The
   // |relative_path| can be untrusted user input. The returned URL will either
   // be invalid() or a child of |extension_url|.
@@ -75,13 +77,20 @@ class Extension {
   static GURL GetResourceURL(const GURL& extension_url,
                              const std::string& relative_path);
 
-  // Creates an absolute path to a resource inside an extension. The
+  // Returns an absolute path to a resource inside of an extension. The
   // |extension_path| argument should be the path() from an Extension object.
   // The |relative_path| can be untrusted user input. The returned path will
   // either be empty or a child of extension_path.
   // NOTE: Static so that it can be used from multiple threads.
   static FilePath GetResourcePath(const FilePath& extension_path,
                                   const std::string& relative_path);
+
+  // Returns an absolute path to a resource inside of an extension if the
+  // extension has a theme defined with the given |resource_id|.  Otherwise
+  // the path will be empty.  Note that this method is not static as it is
+  // only intended to be called on an extension which has registered itself
+  // as providing a theme.
+  FilePath GetThemeResourcePath(const int resource_id);
 
   // The path to the folder the extension is stored in.
   const FilePath& path() const { return path_; }
@@ -152,7 +161,11 @@ class Extension {
   // will not have this key.
   std::string zip_hash_;
 
-  DISALLOW_COPY_AND_ASSIGN(Extension);
+  // A map of resource id's to relative file paths.
+  std::map<const std::wstring, std::string> theme_paths_;
+
+  // We implement copy, but not assign.
+  void operator=(const Extension&);
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_H_
