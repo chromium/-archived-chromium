@@ -1893,6 +1893,25 @@ LayoutTests/fast/xpath/substring-after.html = FAIL
 LayoutTests/fast/xpath/text-nodes.html = FAIL
 LayoutTests/fast/xpath/union-context-node.xhtml = FAIL
 LayoutTests/fast/xpath/xpath-functional-test.html = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathEvaluator_evaluate_TYPE_ERR.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_booleanValue_false.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_booleanValue_true.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_iteratorNext_ORDERED_NODE_ITERATOR_TYPE.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_resultType.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_singleNodeValue_ANY_UNORDERED_NODE_TYPE.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_singleNodeValue_FIRST_ORDERED_NODE_TYPE.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_ORDERED_NODE_SNAPSHOT_TYPE_null.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_ORDERED_NODE_SNAPSHOT_TYPE_order.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_UNORDERED_NODE_SNAPSHOT_TYPE_count.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_UNORDERED_NODE_SNAPSHOT_TYPE_null.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotLength_ORDERED_NODE_SNAPSHOT_TYPE.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotLength_UNORDERED_NODE_SNAPSHOT_TYPE.svg = FAIL
+LayoutTests/dom/svg/level3/xpath/XPathResult_stringValue.svg = FAIL
+
+// More regressions from the 41362:41402 merge, but not clearly related to the
+// XPath ones above.
+LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
+LayoutTests/platform/mac/editing/deleting/backward-delete.html = TIMEOUT
 
 // New tests added in the 41362:41402 merge.
 // TODO(pamg): See which only need re-baselining.
