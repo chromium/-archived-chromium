@@ -82,7 +82,15 @@
       ],
       'conditions': [
         ['OS!="linux"', {'sources/': [['exclude', '_gtk\\.cc$']]}],
-        ['OS!="mac"', {
+        ['OS=="mac"', {
+          'sources': [
+            # Windows/Linux use this code normally when constructing events, so
+            # in test_shell they get it from glue. The Mac has its own code for
+            # accomplishing it, so in test_shell, where events are constructed
+            # from scratch, we need to pull this in.
+            '../../glue/webinputevent_util.cc',
+          ]
+        }, {  # else: OS!=mac
           'sources/': [
             ['exclude', 'mac/[^/]*\\.(cc|mm?)$'],
             ['exclude', '_mac\\.(cc|mm?)$'],
@@ -98,7 +106,7 @@
           'dependencies': [
             '../../../breakpad/breakpad.gyp:breakpad_handler',
           ],
-        }, {  # OS!=win
+        }, {  # else: OS!=win
           'sources/': [
             ['exclude', '_win\\.cc$']
           ],
@@ -191,7 +199,7 @@
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [ 4800 ],
-        }, {  # OS!=win
+        }, {  # else: OS!=win
           'sources!': [
             '../../../skia/ext/vector_canvas_unittest.cc',
             '../webcore_unit_tests/UniscribeHelper_unittest.cpp',

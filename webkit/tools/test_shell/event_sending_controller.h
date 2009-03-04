@@ -91,7 +91,7 @@ class EventSendingController : public CppBoundClass {
 
   // Returns true if the key_code passed in needs a shift key modifier to
   // be passed into the generated event.
-  bool NeedsShiftModifer(int key_code);
+  bool NeedsShiftModifier(int key_code);
 
   ScopedRunnableMethodFactory<EventSendingController> method_factory_;
 

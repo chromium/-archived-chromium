@@ -249,7 +249,7 @@ void WebContentsViewWin::TakeFocus(bool reverse) {
 
 void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
   // Previous calls to TranslateMessage can generate CHAR events as well as
-  // KEY_DOWN events, even if the latter triggered an accelerator.  In these
+  // RAW_KEY_DOWN events, even if the latter triggered an accelerator.  In these
   // cases, we discard the CHAR events.
   if (event.type == WebInputEvent::CHAR && ignore_next_char_event_) {
     ignore_next_char_event_ = false;
@@ -259,13 +259,13 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
 
   // The renderer returned a keyboard event it did not process. This may be
   // a keyboard shortcut that we have to process.
-  if (event.type == WebInputEvent::KEY_DOWN) {
+  if (event.type == WebInputEvent::RAW_KEY_DOWN) {
     views::FocusManager* focus_manager =
         views::FocusManager::GetFocusManager(GetHWND());
     // We may not have a focus_manager at this point (if the tab has been
     // switched by the time this message returned).
     if (focus_manager) {
-      views::Accelerator accelerator(event.key_code,
+      views::Accelerator accelerator(event.windows_key_code,
           (event.modifiers & WebInputEvent::SHIFT_KEY) ==
               WebInputEvent::SHIFT_KEY,
           (event.modifiers & WebInputEvent::CTRL_KEY) ==

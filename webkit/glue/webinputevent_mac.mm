@@ -1,6 +1,28 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+/*
+ * Copyright (C) 2004, 2006, 2007 Apple Inc. All rights reserved.
+ * Copyright (C) 2006-2009 Google Inc.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
 
 #import <Cocoa/Cocoa.h>
 
@@ -141,7 +163,7 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
 // that. As a result we have to use NSString here exclusively and thus tweak
 // the code so it's not re-usable as-is. One possiblity would be to make the
 // upstream code only use NSString, but I'm not certain how far that change
-// would propageage
+// would propagate.
 
 namespace WebCore {
 
@@ -923,18 +945,8 @@ static NSString* keyIdentifierForKeyEvent(NSEvent* event)
 // End Apple code.
 // ---------------------------------------------------------------------
 
-// Helper that copies the unichar characters of a NSString into a suitably
-// resized vector. The vector will be null terminated and thus even if the
-// string is empty or nil, it array will have a NUL.
-static void FillVectorFromNSString(std::vector<unsigned short>* v, 
-                                   NSString* str) {
-  const unsigned int length = [str length];
-  v->reserve(length + 1);
-  [str getCharacters:&(*v)[0]];
-  (*v)[length] = '\0';
-}
-
 WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
+  system_key = false;
   type = WebCore::isKeyUpEvent(event) ? KEY_UP : KEY_DOWN;
 
   if ([event modifierFlags] & NSControlKeyMask)
@@ -952,12 +964,51 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
   if (([event type] != NSFlagsChanged) && [event isARepeat])
     modifiers |= IS_AUTO_REPEAT;
 
-  NSString* textString = WebCore::textFromEvent(event);
-  NSString* unmodifiedStr = WebCore::unmodifiedTextFromEvent(event);
-  NSString* identStr = WebCore::keyIdentifierForKeyEvent(event);
-  FillVectorFromNSString(&text, textString);
-  FillVectorFromNSString(&unmodified_text, unmodifiedStr);
-  FillVectorFromNSString(&key_identifier, identStr);
+  windows_key_code = WebCore::windowsKeyCodeForKeyEvent(event);
+  native_key_code = [event keyCode];
 
-  key_code = WebCore::windowsKeyCodeForKeyEvent(event);
+  NSString* text_str = WebCore::textFromEvent(event);
+  NSString* unmodified_str = WebCore::unmodifiedTextFromEvent(event);
+  NSString* identifier_str = WebCore::keyIdentifierForKeyEvent(event);
+  
+  // Begin Apple code, copied from KeyEventMac.mm
+  
+  // Always use 13 for Enter/Return -- we don't want to use AppKit's 
+  // different character for Enter.
+  if (windows_key_code == '\r') {
+    text_str = @"\r";
+    unmodified_str = @"\r";
+  }
+  
+  // The adjustments below are only needed in backward compatibility mode, 
+  // but we cannot tell what mode we are in from here.
+  
+  // Turn 0x7F into 8, because backspace needs to always be 8.
+  if ([text_str isEqualToString:@"\x7F"])
+    text_str = @"\x8";
+  if ([unmodified_str isEqualToString:@"\x7F"])
+    unmodified_str = @"\x8";
+  // Always use 9 for tab -- we don't want to use AppKit's different character
+  // for shift-tab.
+  if (windows_key_code == 9) {
+    text_str = @"\x9";
+    unmodified_str = @"\x9";
+  }
+  
+  // End Apple code.
+  
+  memset(&text, 0, sizeof(text));
+  memset(&unmodified_text, 0, sizeof(unmodified_text));
+  memset(&key_identifier, 0, sizeof(key_identifier));
+  
+  if ([text_str length] < kTextLengthCap &&
+      [unmodified_str length] < kTextLengthCap) {
+    [text_str getCharacters:&text[0]];
+    [unmodified_str getCharacters:&unmodified_text[0]];
+  } else {
+    LOG(ERROR) << "Event had text too long; dropped";
+  }
+  [identifier_str getCString:&key_identifier[0]
+                   maxLength:kIdentifierLengthCap
+                    encoding:NSASCIIStringEncoding];
 }
