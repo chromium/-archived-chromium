@@ -54,11 +54,6 @@ class ExtensionsServiceTestFrontend
     : public ExtensionsServiceFrontendInterface {
  public:
 
-   ExtensionsServiceTestFrontend() {
-     file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("ext_test"),
-                                       &install_dir_);
-   }
-
   ~ExtensionsServiceTestFrontend() {
     for (ExtensionList::iterator iter = extensions_.begin();
          iter != extensions_.end(); ++iter) {
@@ -74,10 +69,6 @@ class ExtensionsServiceTestFrontend
     return &installed_;
   }
 
-  FilePath install_dir() {
-    return install_dir_;
-  }
-
   // ExtensionsServiceFrontendInterface
   virtual MessageLoop* GetMessageLoop() {
     return &message_loop_;
@@ -89,7 +80,7 @@ class ExtensionsServiceTestFrontend
   virtual void LoadExtension(const FilePath& extension_path) {
   }
 
-  virtual void OnExtensionsLoadedFromDirectory(ExtensionList* new_extensions) {
+  virtual void OnExtensionsLoaded(ExtensionList* new_extensions) {
     extensions_.insert(extensions_.end(), new_extensions->begin(),
                        new_extensions->end());
     delete new_extensions;
@@ -106,7 +97,7 @@ class ExtensionsServiceTestFrontend
                             ExtensionsServiceBackend* backend,
                             bool should_succeed) {
     ASSERT_TRUE(file_util::PathExists(path));
-    backend->InstallExtension(path, install_dir_, false,
+    backend->InstallExtension(path,
         scoped_refptr<ExtensionsServiceFrontendInterface>(this));
     message_loop_.RunAllPending();
     std::vector<std::string> errors = GetErrors();
@@ -131,7 +122,6 @@ class ExtensionsServiceTestFrontend
   MessageLoop message_loop_;
   ExtensionList extensions_;
   std::vector<FilePath> installed_;
-  FilePath install_dir_;
 };
 
 // make the test a PlatformTest to setup autorelease pools properly on mac
@@ -153,12 +143,13 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   extensions_path = extensions_path.AppendASCII("extensions");
   extensions_path = extensions_path.AppendASCII("good");
 
-  scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
+  scoped_refptr<ExtensionsServiceBackend> backend(
+      new ExtensionsServiceBackend(extensions_path));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
   std::vector<Extension*> extensions;
-  backend->LoadExtensionsFromDirectory(extensions_path,
+  backend->LoadExtensionsFromInstallDirectory(
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
 
@@ -217,12 +208,13 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
   extensions_path = extensions_path.AppendASCII("extensions");
   extensions_path = extensions_path.AppendASCII("bad");
 
-  scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
+  scoped_refptr<ExtensionsServiceBackend> backend(
+      new ExtensionsServiceBackend(extensions_path));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
   std::vector<Extension*> extensions;
-  backend->LoadExtensionsFromDirectory(extensions_path,
+  backend->LoadExtensionsFromInstallDirectory(
       scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
   frontend->GetMessageLoop()->RunAllPending();
 
@@ -252,7 +244,11 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
 
-  scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
+  FilePath install_dir;
+  file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("ext_test"),
+                                   &install_dir);
+  scoped_refptr<ExtensionsServiceBackend> backend(
+      new ExtensionsServiceBackend(install_dir));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 
@@ -290,7 +286,8 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
 
-  scoped_refptr<ExtensionsServiceBackend> backend(new ExtensionsServiceBackend);
+  scoped_refptr<ExtensionsServiceBackend> backend(
+      new ExtensionsServiceBackend(extensions_path));
   scoped_refptr<ExtensionsServiceTestFrontend> frontend(
       new ExtensionsServiceTestFrontend);
 

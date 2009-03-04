@@ -38,9 +38,9 @@ class ExtensionsServiceFrontendInterface
   // Load the extension from the directory |extension_path|.
   virtual void LoadExtension(const FilePath& extension_path) = 0;
 
-  // Called with results from LoadExtensionsFromDirectory(). The frontend
-  // takes ownership of the list.
-  virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions) = 0;
+  // Called when extensions are loaded by the backend. The frontend takes
+  // ownership of the list.
+  virtual void OnExtensionsLoaded(ExtensionList* extensions) = 0;
 
   // Called with results from InstallExtension().
   // |is_update| is true if the installation was an update to an existing
@@ -71,7 +71,7 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual MessageLoop* GetMessageLoop();
   virtual void InstallExtension(const FilePath& extension_path);
   virtual void LoadExtension(const FilePath& extension_path);
-  virtual void OnExtensionsLoadedFromDirectory(ExtensionList* extensions);
+  virtual void OnExtensionsLoaded(ExtensionList* extensions);
   virtual void OnExtensionInstalled(FilePath path, bool is_update);
 
   // The name of the file that the current active version number is stored in.
@@ -85,14 +85,14 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   // The message loop for the thread the ExtensionsService is running on.
   MessageLoop* message_loop_;
 
-  // The backend that will do IO on behalf of this instance.
-  scoped_refptr<ExtensionsServiceBackend> backend_;
-
   // The current list of installed extensions.
   ExtensionList extensions_;
 
   // The full path to the directory where extensions are installed.
   FilePath install_directory_;
+
+  // The backend that will do IO on behalf of this instance.
+  scoped_refptr<ExtensionsServiceBackend> backend_;
 
   // The profile associated with this set of extensions.
   Profile* profile_;
@@ -109,15 +109,14 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
 class ExtensionsServiceBackend
     : public base::RefCountedThreadSafe<ExtensionsServiceBackend> {
  public:
-  ExtensionsServiceBackend(){};
+  explicit ExtensionsServiceBackend(const FilePath& install_directory)
+      : install_directory_(install_directory) {};
 
-  // Loads extensions from a directory. The extensions are assumed to be
-  // unpacked in directories that are direct children of the specified path.
+  // Loads extensions from the install directory. The extensions are assumed to
+  // be unpacked in directories that are direct children of the specified path.
   // Errors are reported through ExtensionErrorReporter. On completion,
-  // OnExtensionsLoadedFromDirectory() is called with any successfully loaded
-  // extensions.
-  void LoadExtensionsFromDirectory(
-      const FilePath &path,
+  // OnExtensionsLoaded() is called with any successfully loaded extensions.
+  void LoadExtensionsFromInstallDirectory(
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
   // Loads a single extension from |path| where |path| is the top directory of
@@ -131,54 +130,58 @@ class ExtensionsServiceBackend
       const FilePath &path,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
-  // Install the extension file at extension_path to install_dir.
-  // ReportExtensionInstallError is called on error.
-  // ReportExtensionInstalled is called on success.
+  // Install the extension file at |extension_path|. Errors are reported through
+  // ExtensionErrorReporter. ReportExtensionInstalled is called on success.
   void InstallExtension(
       const FilePath& extension_path,
-      const FilePath& install_dir,
-      bool alert_on_error,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
   // Check externally updated extensions for updates and install if necessary.
-  // ReportExtensionInstallError is called on error.
+  // Errors are reported through ExtensionErrorReporter. 
   // ReportExtensionInstalled is called on success.
   void CheckForExternalUpdates(
-      const FilePath& install_dir,
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
  private:
-  // Load a single extension from |extension_path_|, the top directory of
+  // Load a single extension from |extension_path|, the top directory of
   // a specific extension where its manifest file lives.
-  Extension* LoadExtension();
+  Extension* LoadExtension(const FilePath& extension_path);
 
-  // Load a single extension from |extension_path_|, the top directory of
+  // Load a single extension from |extension_path|, the top directory of
   // a versioned extension where its Current Version file lives.
-  Extension* LoadExtensionCurrentVersion();
+  Extension* LoadExtensionCurrentVersion(const FilePath& extension_path);
 
-  // Install a crx file at |extension_path_| into |install_directory_|.
-  // If |expected_id| is not empty, it's verified against the extension's
-  // manifest before installationl.  If the extension is already installed,
-  // install the new version only if its version number is greater than the
-  // current installed version.
-  void InstallOrUpdateExtension(const std::string& expected_id);
+  // Install a crx file at |source_file|. If |expected_id| is not empty, it's
+  // verified against the extension's manifest before installation. If the
+  // extension is already installed, install the new version only if its version
+  // number is greater than the current installed version. On success, sets
+  // |version_dir| to the versioned directory the extension was installed to and
+  // |was_update| to whether the extension turned out to be an update to an
+  // already installed version. Both |version_dir| and |was_update| can be NULL
+  // if the caller doesn't care.
+  bool InstallOrUpdateExtension(const FilePath& source_file,
+                                const std::string& expected_id,
+                                FilePath* version_dir,
+                                bool* was_update);
 
-  // Notify a frontend that there was an error loading an extension.
-  void ReportExtensionLoadError(const std::string& error);
+  // Notify the frontend that there was an error loading an extension.
+  void ReportExtensionLoadError(const FilePath& extension_path,
+                                const std::string& error);
 
-  // Notify a frontend that extensions were loaded.
+  // Notify the frontend that extensions were loaded.
   void ReportExtensionsLoaded(ExtensionList* extensions);
 
-  // Notify a frontend that there was an error installing an extension.
-  void ReportExtensionInstallError(const std::string& error);
+  // Notify the frontend that there was an error installing an extension.
+  void ReportExtensionInstallError(const FilePath& extension_path,
+                                   const std::string& error);
 
-  // Notify a frontend that extensions were installed.
+  // Notify the frontend that extensions were installed.
   // |is_update| is true if this was an update to an existing extension.
-  void ReportExtensionInstalled(FilePath path, bool is_update);
+  void ReportExtensionInstalled(const FilePath& path, bool is_update);
 
   // Read the manifest from the front of the extension file.
   // Caller takes ownership of return value.
-  DictionaryValue* ReadManifest();
+  DictionaryValue* ReadManifest(const FilePath& extension_path);
 
   // Reads the Current Version file from |dir| into |version_string|.
   bool ReadCurrentVersion(const FilePath& dir, std::string* version_string);
@@ -219,17 +222,11 @@ class ExtensionsServiceBackend
   // The entry point is responsible for ensuring lifetime.
   ExtensionsServiceFrontendInterface* frontend_;
 
-  // The extension path being loaded or installed.
-  FilePath extension_path_;
-
   // The top-level extensions directory being installed to.
   FilePath install_directory_;
 
   // Whether errors result in noisy alerts.
   bool alert_on_error_;
-
-  // Whether the current install is from an external source.
-  bool external_install_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsServiceBackend);
 };
