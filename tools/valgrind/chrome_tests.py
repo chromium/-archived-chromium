@@ -48,14 +48,17 @@ class ChromeTests:
   def __init__(self, options, args, test):
     # the known list of tests
     self._test_list = {
-#      "test_shell": self.TestTestShell,
+      "test_shell": self.TestTestShell,
       "unit": self.TestUnit,
       "net": self.TestNet,
       "ipc": self.TestIpc,
       "base": self.TestBase,
+      "googleurl": self.TestGoogleurl,
+      "media": self.TestMedia,
+      "printing": self.TestPrinting,
 #      "layout": self.TestLayout,
 #      "layout_all": self.TestLayoutAll,
-#      "ui": self.TestUI
+      "ui": self.TestUI
     }
 
     if test not in self._test_list:
@@ -215,6 +218,15 @@ class ChromeTests:
   def TestBase(self):
     return self.SimpleTest("base", "base_unittests")
 
+  def TestGoogleurl(self):
+    return self.SimpleTest("chrome", "googleurl_unittests")
+
+  def TestMedia(self):
+    return self.SimpleTest("chrome", "media_unittests")
+
+  def TestPrinting(self):
+    return self.SimpleTest("chrome", "printing_unittests")
+
   def TestIpc(self):
     return self.SimpleTest("chrome", "ipc_tests")
 
@@ -226,6 +238,9 @@ class ChromeTests:
 
   def TestUnit(self):
     return self.SimpleTest("chrome", "unit_tests")
+
+  def TestUI(self):
+    return self.SimpleTest("chrome", "ui_tests")
 
 #   def TestLayoutAll(self):
 #     return self.TestLayout(run_all=True)
@@ -314,7 +329,7 @@ class ChromeTests:
 #                              multi=True)
 
 
-def _main(argv):
+def _main(_):
   parser = optparse.OptionParser("usage: %prog -b <dir> -t <test> "
                                  "[-t <test> ...]")
   parser.disable_interspersed_args()

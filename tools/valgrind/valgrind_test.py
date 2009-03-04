@@ -182,7 +182,9 @@ class ValgrindMac(Valgrind):
   def ValgrindCommand(self):
     """Get the valgrind command to run."""
     proc = ["valgrind", "--leak-check=full"]
-    proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"] + self._args
+    # TODO(nirnimesh): Enable --log-file when Analyze() is implemented
+    #proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+    proc += self._args
     return proc
 
   def Analyze(self):
