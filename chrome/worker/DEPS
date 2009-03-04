@@ -1,0 +1,6 @@
+include_rules = [
+  "+chrome/worker",
+  "+sandbox/src",
+  "+webkit/glue",
+]
+
