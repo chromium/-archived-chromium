@@ -15,6 +15,9 @@ cpppath = [
 if env.Bit('windows'):
   cpppath.append('$OPEN_VCDIFF_DIR/vsprojects')
 
+if env.Bit('linux'):
+  cpppath.append('linux')
+
 env.Prepend(CPPPATH = cpppath)
 
 input_files = ChromeFileList([
@@ -144,10 +147,14 @@ if env.Bit('posix'):
 
   # varlist['DEFINES'] below makes the target config.h file depend
   # on the list of definitions in the passed-in $DEFINES variable.
-  env.Command('$OPEN_VCDIFF_DIR/src/config.h',
-              '$OPEN_VCDIFF_DIR/src/config.h.in',
-              Action(AutoConfig, varlist=['DEFINES']),
-              DEFINES=defines)
+  #
+  # Comment this out so we use the checked-in config.h in the
+  # linux subdirectory, but leave it here in case we need
+  # to ressurect this.
+  #env.Command('$OPEN_VCDIFF_DIR/src/config.h',
+  #            '$OPEN_VCDIFF_DIR/src/config.h.in',
+  #            Action(AutoConfig, varlist=['DEFINES']),
+  #            DEFINES=defines)
 
 
 p = env.ChromeMSVSProject('sdch.vcproj',
