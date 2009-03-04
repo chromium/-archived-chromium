@@ -448,7 +448,8 @@ bool ShellUtil::GetChromeShortcutName(std::wstring* shortcut) {
 
 bool ShellUtil::GetDesktopPath(bool system_level, std::wstring* path) {
   wchar_t desktop[MAX_PATH];
-  int dir = system_level ? CSIDL_COMMON_DESKTOPDIRECTORY : CSIDL_DESKTOP;
+  int dir = system_level ? CSIDL_COMMON_DESKTOPDIRECTORY :
+                           CSIDL_DESKTOPDIRECTORY;
   if (FAILED(SHGetFolderPath(NULL, dir, NULL, SHGFP_TYPE_CURRENT, desktop)))
     return false;
   *path = desktop;
