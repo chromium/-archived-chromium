@@ -395,7 +395,7 @@ void InterstitialPage::UpdateTitle(RenderViewHost* render_view_host,
     original_tab_title_ = UTF16ToWideHack(entry->title());
     should_revert_tab_title_ = true;
   }
-  entry->set_title(title);
+  entry->set_title(WideToUTF16Hack(title));
   tab_->NotifyNavigationStateChanged(TabContents::INVALIDATE_TITLE);
 }
 

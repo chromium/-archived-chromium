@@ -597,7 +597,7 @@ void WebContents::OnSavePage() {
   DCHECK(prefs);
 
   FilePath suggest_name = SavePackage::GetSuggestNameForSaveAs(prefs,
-      FilePath::FromWStringHack(GetTitle()));
+      FilePath::FromWStringHack(UTF16ToWideHack(GetTitle())));
 
   SavePackage::SavePackageParam param(contents_mime_type());
   param.prefs = prefs;

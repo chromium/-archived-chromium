@@ -183,7 +183,7 @@ class TabStripBridge : public TabStripModelObserver {
 - (void)setTabTitle:(NSButton*)tab withContents:(TabContents*)contents {
   NSString* titleString = nil;
   if (contents)
-    titleString = base::SysWideToNSString(contents->GetTitle());
+    titleString = base::SysUTF16ToNSString(contents->GetTitle());
   if (![titleString length])
     titleString = NSLocalizedString(@"untitled", nil);
   [tab setTitle:titleString];

@@ -98,7 +98,7 @@ void DebuggerHostImpl::OnDebugAttach() {
   std::wstring title;
   const TabContents* t = GetTabContentsBeingDebugged();
   if (t) {
-    title = t->GetTitle();
+    title = UTF16ToWideHack(t->GetTitle());
   }
 
   ListValue* argv = new ListValue;
