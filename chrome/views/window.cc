@@ -4,6 +4,8 @@
 
 #include "chrome/views/window.h"
 
+#include <shellapi.h>
+
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
