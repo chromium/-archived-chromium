@@ -6,11 +6,6 @@
 
 #include "base/message_loop.h"
 
-// HACK for testing purposes only.  Just trying a change on the buildbots.
-#if defined(OS_WIN)
-namespace WTF { double currentTime(); }
-#endif
-
 namespace webkit_glue {
 
 WebKitClientImpl::WebKitClientImpl()
@@ -23,11 +18,7 @@ WebKit::WebClipboard* WebKitClientImpl::clipboard() {
 }
 
 double WebKitClientImpl::currentTime() {
-#if defined(OS_WIN)
-  return WTF::currentTime();
-#else
   return base::Time::Now().ToDoubleT();
-#endif
 }
 
 void WebKitClientImpl::setSharedTimerFiredFunction(void (*func)()) {

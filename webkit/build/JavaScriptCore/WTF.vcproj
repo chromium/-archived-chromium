@@ -174,10 +174,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\CurrentTime.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Deque.h"
 			>
 		</File>

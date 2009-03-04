@@ -180,6 +180,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\ChromiumCurrentTime.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\ChromiumThreading.cpp"
 					>
 				</File>
