@@ -63,18 +63,53 @@ function GM_getResourceText(resourceName) {
 }
 
 function GM_addStyle(css) {
-  var head = document.getElementsByTagName("head")[0];
-  if (!head) {
-    return;
+  var parent = document.getElementsByTagName("head")[0];
+  if (!parent) {
+    parent = document.documentElement;
   }
   var style = document.createElement("style");
   style.type = "text/css";
-  style.innerHTML = css;
-  head.appendChild(style);
+  var textNode = document.createTextNode(css);
+  style.appendChild(textNode);
+  parent.appendChild(style);
 }
 
 function GM_xmlhttpRequest(details) {
-  throw new Error("not implemented.");
+  function setupEvent(xhr, url, eventName, callback) {
+    xhr[eventName] = function () {
+      var isComplete = xhr.readyState == 4;
+      var responseState = {
+        responseText: xhr.responseText,
+        readyState: xhr.readyState,
+        responseHeaders: isComplete ? xhr.getAllResponseHeaders() : "",
+        status: isComplete ? xhr.status : 0,
+        statusText: isComplete ? xhr.statusText : "",
+        finalUrl: isComplete ? url : ""
+      };
+      callback(responseState);
+    };
+  }
+
+  var xhr = new XMLHttpRequest();
+  var eventNames = ["onload", "onerror", "onreadystatechange"];
+  for (var i = 0; i < eventNames.length; i++ ) {
+    var eventName = eventNames[i];
+    if (eventName in details) {
+      setupEvent(xhr, details.url, eventName, details[eventName]);
+    }
+  }
+
+  xhr.open(details.method, details.url);
+
+  if (details.overrideMimeType) {
+    xhr.overrideMimeType(details.overrideMimeType);
+  }
+  if (details.headers) {
+    for (var header in details.headers) {
+      xhr.setRequestHeader(header, details.headers[header]);
+    }
+  }
+  xhr.send(details.data ? details.data : null);
 }
 
 function GM_registerMenuCommand(commandName, commandFunc, accelKey,

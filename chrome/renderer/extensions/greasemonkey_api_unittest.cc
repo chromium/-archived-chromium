@@ -67,11 +67,9 @@ TEST_F(GreasemonkeyApiTest, AddStyle) {
   TestFunction("testAddStyle");
 }
 
-/*
 TEST_F(GreasemonkeyApiTest, XmlhttpRequest) {
   TestFunction("testXmlhttpRequest");
 }
-*/
 
 TEST_F(GreasemonkeyApiTest, RegisterMenuCommand) {
   TestFunction("testRegisterMenuCommand");
