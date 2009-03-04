@@ -31,7 +31,7 @@ class XtbContentHandler(xml.sax.handler.ContentHandler):
   
   def startElement(self, name, attrs):
     if name == 'translation':
-      assert (self.current_id == 0 and len(self.current_structure) == 0,
+      assert self.current_id == 0 and len(self.current_structure) == 0, (
               "Didn't expect a <translation> element here.")
       self.current_id = attrs.getValue('id')
     elif name == 'ph':

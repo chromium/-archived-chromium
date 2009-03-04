@@ -3,7 +3,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import md5
+try:
+  import hashlib
+  _new_md5 = hashlib.md5
+except ImportError:
+  import md5
+  _new_md5 = md5.new
 
 """64-bit fingerprint support for strings.
 
@@ -16,7 +21,7 @@ Usage:
 def UnsignedFingerPrint(str, encoding='utf-8'):
   """Generate a 64-bit fingerprint by taking the first half of the md5
   of the string."""
-  hex128 = md5.new(str).hexdigest()
+  hex128 = _new_md5(str).hexdigest()
   int64 = long(hex128[:16], 16)
   return int64
 

@@ -48,7 +48,7 @@ class FileNode(base.Node):
     except:
       print "Exception during parsing of %s" % self.GetFilePath()
       raise
-    assert (lang == self.attrs['lang'], 'The XTB file you '
+    assert lang == self.attrs['lang'], ('The XTB file you '
             'reference must contain messages in the language specified\n'
             'by the \'lang\' attribute.')
   

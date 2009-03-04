@@ -76,9 +76,6 @@ class BaseMessage(object):
     assert isinstance(placeholder, Placeholder)
     dup = False
     for other in self.GetPlaceholders():
-      if (other.presentation.find(placeholder.presentation) != -1 or
-          placeholder.presentation.find(other.presentation) != -1):
-        assert(False, "Placeholder names must be unique and must not overlap")
       if other.presentation == placeholder.presentation:
         assert other.original == placeholder.original
         dup = True
