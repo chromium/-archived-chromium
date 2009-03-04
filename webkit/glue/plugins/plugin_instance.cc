@@ -374,7 +374,6 @@ void PluginInstance::DidReceiveManualResponse(const std::string& url,
 
   plugin_data_stream_->DidReceiveResponse(mime_type, headers, expected_length,
                                           last_modified, true, &cancel);
-  AddStream(plugin_data_stream_.get());
 }
 
 void PluginInstance::DidReceiveManualData(const char* buffer, int length) {
