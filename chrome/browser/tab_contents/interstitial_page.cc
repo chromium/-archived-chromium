@@ -190,7 +190,7 @@ void InterstitialPage::Hide() {
   // Let's revert to the original title if necessary.
   NavigationEntry* entry = tab_->controller()->GetActiveEntry();
   if (!new_navigation_ && should_revert_tab_title_) {
-    entry->set_title(original_tab_title_);
+    entry->set_title(WideToUTF16Hack(original_tab_title_));
     tab_->NotifyNavigationStateChanged(TabContents::INVALIDATE_TITLE);
   }
   delete this;

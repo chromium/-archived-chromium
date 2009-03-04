@@ -110,7 +110,7 @@ class DOMUIContents : public WebContents {
   // Whether we want to display the page's URL.
   virtual bool ShouldDisplayURL();
   // Get the title for this page.
-  virtual const std::wstring& GetTitle() const;
+  virtual const string16& GetTitle() const;
   // We may wish to control what happens when a URL is opened.
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
       WindowOpenDisposition disposition);

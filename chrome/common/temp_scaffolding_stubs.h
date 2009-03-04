@@ -428,7 +428,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   }
   virtual SkBitmap GetFavIcon() const;
   const GURL& GetURL() const;
-  virtual const std::wstring& GetTitle() const;
+  virtual const string16& GetTitle() const;
   TabContentsType type() const { return type_; }
   void set_type(TabContentsType type) { type_ = type; }
   virtual void Focus() { NOTIMPLEMENTED(); }

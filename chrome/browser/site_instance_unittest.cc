@@ -89,7 +89,7 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
 
   // Add a second reference
   NavigationEntry* e2 = new NavigationEntry(TAB_CONTENTS_WEB, instance, 0, url,
-                                            GURL(), std::wstring(),
+                                            GURL(), string16(),
                                             PageTransition::LINK);
 
   // Now delete both entries and be sure the SiteInstance goes away.
@@ -141,7 +141,7 @@ TEST_F(SiteInstanceTest, CloneNavigationEntry) {
 
   NavigationEntry* e1 = new NavigationEntry(TAB_CONTENTS_WEB, instance1, 0,
                                             url, GURL(),
-                                            std::wstring(),
+                                            string16(),
                                             PageTransition::LINK);
   // Clone the entry
   NavigationEntry* e2 = new NavigationEntry(*e1);

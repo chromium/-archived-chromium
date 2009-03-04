@@ -60,7 +60,7 @@ TEST_F(NavigationEntryTest, NavigationEntryURLs) {
             entry1_.get()->GetTitleForDisplay(NULL));
 
   // Title affects GetTitleForDisplay
-  entry1_.get()->set_title(ASCIIToWide("Google"));
+  entry1_.get()->set_title(ASCIIToUTF16("Google"));
   EXPECT_EQ(ASCIIToUTF16("Google"), entry1_.get()->GetTitleForDisplay(NULL));
 
   // Setting display_url doesn't affect URL
@@ -146,8 +146,8 @@ TEST_F(NavigationEntryTest, NavigationEntryAccessors) {
   EXPECT_EQ(GURL("from2"), entry2_.get()->referrer());
 
   // Title
-  EXPECT_EQ(std::wstring(), entry1_.get()->title());
-  EXPECT_EQ(L"title", entry2_.get()->title());
+  EXPECT_EQ(string16(), entry1_.get()->title());
+  EXPECT_EQ(ASCIIToUTF16("title"), entry2_.get()->title());
   entry2_.get()->set_title(ASCIIToUTF16("title2"));
   EXPECT_EQ(ASCIIToUTF16("title2"), entry2_.get()->title());
 

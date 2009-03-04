@@ -1728,10 +1728,10 @@ bool WebContents::UpdateTitleForEntry(NavigationEntry* entry,
     explicit_set = true;
   }
 
-  if (final_title == entry->title())
+  if (final_title == UTF16ToWideHack(entry->title()))
     return false;  // Nothing changed, don't bother.
 
-  entry->set_title(final_title);
+  entry->set_title(WideToUTF16Hack(final_title));
 
   // Update the history system for this page.
   if (!profile()->IsOffTheRecord() && !received_page_title_) {

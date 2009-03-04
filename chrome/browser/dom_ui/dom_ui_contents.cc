@@ -197,15 +197,15 @@ void DOMUIContents::SetInitialFocus(bool reverse) {
     TabContents::SetInitialFocus(reverse);
 }
 
-const std::wstring& DOMUIContents::GetTitle() const {
+const string16& DOMUIContents::GetTitle() const {
   // Workaround for new tab page - we may be asked for a title before
   // the content is ready, and we don't even want to display a 'loading...'
   // message, so we force it here.
   if (controller()->GetActiveEntry() &&
       controller()->GetActiveEntry()->url().host() ==
       NewTabUI::GetBaseURL().host()) {
-    std::wstring* title = new std::wstring(
-        l10n_util::GetString(IDS_NEW_TAB_TITLE));
+    string16* title = new string16(WideToUTF16Hack(
+        l10n_util::GetString(IDS_NEW_TAB_TITLE)));
     return *title;
   }
   return WebContents::GetTitle();
