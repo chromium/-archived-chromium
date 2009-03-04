@@ -54,6 +54,7 @@ void SetContentStateIfEmpty(NavigationEntry* entry) {
   if (entry->content_state().empty() &&
       (entry->tab_type() == TAB_CONTENTS_WEB ||
        entry->tab_type() == TAB_CONTENTS_NEW_TAB_UI ||
+       entry->tab_type() == TAB_CONTENTS_DOM_UI ||
        entry->tab_type() == TAB_CONTENTS_ABOUT_UI ||
        entry->tab_type() == TAB_CONTENTS_HTML_DIALOG ||
        entry->IsViewSourceMode())) {
