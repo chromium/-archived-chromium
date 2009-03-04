@@ -98,7 +98,7 @@ LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 
 // Run the Mac-specific platform tests, but only to check for crashes.
 LayoutTests/platform/gtk = FAIL PASS
-LayoutTests/platform/mac = FAIL PASS
+LayoutTests/platform/mac = FAIL PASS TIMEOUT
 LayoutTests/platform/mac-leopard = FAIL PASS
 LayoutTests/platform/mac-snowleopard = FAIL PASS
 LayoutTests/platform/mac-tiger = FAIL PASS

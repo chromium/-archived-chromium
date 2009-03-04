@@ -1911,7 +1911,6 @@ LayoutTests/dom/svg/level3/xpath/XPathResult_stringValue.svg = FAIL
 // More regressions from the 41362:41402 merge, but not clearly related to the
 // XPath ones above.
 LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
-LayoutTests/platform/mac/editing/deleting/backward-delete.html = TIMEOUT
 
 // New tests added in the 41362:41402 merge.
 // TODO(pamg): See which only need re-baselining.
