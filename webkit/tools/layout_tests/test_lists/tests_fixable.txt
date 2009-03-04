@@ -1848,8 +1848,6 @@ MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
 // Regressions from the 41286:41362 merge.
-LINUX WIN : LayoutTests/fast/forms/select-baseline.html = FAIL
-LINUX WIN : LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
 LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = PASS TIMEOUT
 
 // New tests added in the 41286:41362 merge.
