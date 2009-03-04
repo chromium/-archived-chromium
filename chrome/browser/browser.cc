@@ -38,9 +38,6 @@
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
-#include "grit/chromium_strings.h"
-#include "grit/generated_resources.h"
-#include "grit/locale_settings.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/cookie_policy.h"
 #include "net/base/net_util.h"
@@ -72,6 +69,9 @@
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/win_util.h"
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 #endif  // OS_WIN
 
@@ -391,6 +391,7 @@ SkBitmap Browser::GetCurrentPageIcon() const {
 }
 
 std::wstring Browser::GetCurrentPageTitle() const {
+#if defined(OS_WIN)
   TabContents* contents = tabstrip_model_.GetSelectedTabContents();
   std::wstring title;
 
@@ -404,6 +405,10 @@ std::wstring Browser::GetCurrentPageTitle() const {
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
 
   return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, title);
+#elif defined(OS_POSIX)
+  // TODO(port): turn on when generating chrome_strings.h from grit
+  return L"untitled";
+#endif
 }
 
 // static
