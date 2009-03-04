@@ -5,6 +5,7 @@
 #include "chrome/browser/views/frame/browser_frame.h"
 
 #include <dwmapi.h>
+#include <shellapi.h>
 
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/views/frame/browser_view.h"
