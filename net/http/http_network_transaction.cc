@@ -149,6 +149,36 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
     // even though the server says it's keep-alive.
   }
 
+  // If the auth scheme is connection-based but the proxy/server mistakenly
+  // marks the connection as not keep-alive, the auth is going to fail, so log
+  // an error message.
+  if (!keep_alive && auth_handler_[target]->is_connection_based() &&
+      auth_identity_[target].source != HttpAuth::IDENT_SRC_NONE) {
+    std::string auth_target(target == HttpAuth::AUTH_PROXY ?
+                            "proxy" : "server");
+    LOG(ERROR) << "Can't perform " << auth_handler_[target]->scheme()
+               << " auth to the " << auth_target << " "
+               << AuthOrigin(target).spec()
+               << " over a non-keep-alive connection";
+
+    HttpVersion http_version = response_.headers->GetHttpVersion();
+    LOG(ERROR) << "  HTTP version is " << http_version.major_value() << "."
+               << http_version.minor_value();
+
+    std::string connection_val;
+    void* iter = NULL;
+    while (response_.headers->EnumerateHeader(&iter, "connection",
+                                              &connection_val)) {
+      LOG(ERROR) << "  Has header Connection: " << connection_val;
+    }
+
+    iter = NULL;
+    while (response_.headers->EnumerateHeader(&iter, "proxy-connection",
+                                              &connection_val)) {
+      LOG(ERROR) << "  Has header Proxy-Connection: " << connection_val;
+    }
+  }
+
   // We don't need to drain the response body, so we act as if we had drained
   // the response body.
   DidDrainBodyForAuthRestart(keep_alive);
