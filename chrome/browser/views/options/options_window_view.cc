@@ -117,7 +117,10 @@ void OptionsWindowView::ShowOptionsPage(OptionsPage page,
     if (page == OPTIONS_PAGE_DEFAULT)
       page = OPTIONS_PAGE_GENERAL;
   }
-  DCHECK(page > OPTIONS_PAGE_DEFAULT && page < OPTIONS_PAGE_COUNT);
+  // If the page number is out of bounds, reset to the first tab.
+  if (page < 0 || page >= tabs_->GetTabCount())
+    page = OPTIONS_PAGE_GENERAL;
+
   tabs_->SelectTabAt(static_cast<int>(page));
 
   GetCurrentOptionsPageView()->HighlightGroup(highlight_group);
