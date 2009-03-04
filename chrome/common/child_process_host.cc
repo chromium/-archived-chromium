@@ -167,7 +167,7 @@ ChildProcessHost::Iterator::Iterator(ProcessType type)
           "ChildProcessInfo::Iterator must be used on the IO thread.";
   iterator_ = Singleton<ChildProcessList>::get()->begin();
   if (!Done() && (*iterator_)->type() != type_)
-    iterator_++;
+    ++(*this);
 }
 
 ChildProcessInfo* ChildProcessHost::Iterator::operator++() {
