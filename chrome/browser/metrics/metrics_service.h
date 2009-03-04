@@ -303,6 +303,10 @@ class MetricsService : public NotificationObserver,
   // Reads, increments and then sets the specified integer preference.
   void IncrementPrefValue(const wchar_t* path);
 
+  // Reads, increments and then sets the specified long preference that is
+  // stored as a string.
+  void IncrementLongPrefsValue(const wchar_t* path);
+
   // Records a renderer process crash.
   void LogRendererCrash();
 

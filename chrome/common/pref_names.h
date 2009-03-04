@@ -123,6 +123,13 @@ extern const wchar_t kStabilityPluginLaunches[];
 extern const wchar_t kStabilityPluginInstances[];
 extern const wchar_t kStabilityPluginCrashes[];
 
+extern const wchar_t kUninstallMetricsPageLoadCount[];
+extern const wchar_t kUninstallLaunchCount[];
+
+extern const wchar_t kUninstallMetricsUptimeSec[];
+extern const wchar_t kUninstallLastLaunchTimeSec[];
+extern const wchar_t kUninstallLastObservedRunTimeSec[];
+
 extern const wchar_t kStartRenderersManually[];
 extern const wchar_t kBrowserWindowPlacement[];
 extern const wchar_t kTaskManagerWindowPlacement[];

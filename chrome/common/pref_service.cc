@@ -610,6 +610,53 @@ void PrefService::SetFilePath(const wchar_t* path, const FilePath& value) {
   FireObserversIfChanged(path, old_value.get());
 }
 
+void PrefService::SetInt64(const wchar_t* path, int64 value) {
+  DCHECK(CalledOnValidThread());
+
+  const Preference* pref = FindPreference(path);
+  if (!pref) {
+    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    return;
+  }
+  if (pref->type() != Value::TYPE_STRING) {
+    DCHECK(false) << "Wrong type for SetInt64: " << path;
+    return;
+  }
+
+  scoped_ptr<Value> old_value(GetPrefCopy(path));
+  bool rv = persistent_->SetString(path, Int64ToWString(value));
+  DCHECK(rv);
+
+  FireObserversIfChanged(path, old_value.get());
+}
+
+int64 PrefService::GetInt64(const wchar_t* path) const {
+  DCHECK(CalledOnValidThread());
+
+  std::wstring result;
+  if (transient_->GetString(path, &result))
+    return StringToInt64(WideToUTF16Hack(result));
+
+  const Preference* pref = FindPreference(path);
+  if (!pref) {
+#if defined(OS_WIN)
+    DCHECK(false) << "Trying to read an unregistered pref: " << path;
+#else
+    // TODO(port): remove this exception
+#endif
+    return StringToInt64(WideToUTF16Hack(result));
+  }
+  bool rv = pref->GetValue()->GetAsString(&result);
+  DCHECK(rv);
+  return StringToInt64(WideToUTF16Hack(result));
+}
+
+void PrefService::RegisterInt64Pref(const wchar_t* path, int64 default_value) {
+  Preference* pref = new Preference(persistent_.get(), path,
+      Value::CreateStringValue(Int64ToWString(default_value)));
+  RegisterPreference(pref);
+}
+
 DictionaryValue* PrefService::GetMutableDictionary(const wchar_t* path) {
   DCHECK(CalledOnValidThread());
 

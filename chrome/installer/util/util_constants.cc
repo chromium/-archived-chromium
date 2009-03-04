@@ -41,7 +41,7 @@ const wchar_t kLogFile[] = L"log-file";
 // Register Chrome as default browser on the system. Usually this will require
 // that setup is running as admin. If running as admin we try to register
 // as default browser at system level, if running as non-admin we try to
-// register as default browser only for the current user. 
+// register as default browser only for the current user.
 const wchar_t kMakeChromeDefault[] = L"make-chrome-default";
 
 // Register Chrome as a valid browser on the current sytem. This option
@@ -81,4 +81,6 @@ const wchar_t kInstallerDir[] = L"Installer";
 
 const wchar_t kUninstallStringField[] = L"UninstallString";
 const wchar_t kUninstallDisplayNameField[] = L"DisplayName";
+const wchar_t kUninstallMetricsName[] = L"uninstall_metrics";
+const wchar_t kUninstallInstallationDate[] = L"installation_date";
 }  // namespace installer_util

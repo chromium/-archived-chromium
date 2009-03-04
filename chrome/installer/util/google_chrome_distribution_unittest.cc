@@ -9,6 +9,7 @@
 #include "base/registry.h"
 #include "base/scoped_ptr.h"
 #include "base/file_util.h"
+#include "chrome/common/json_value_serializer.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/google_chrome_distribution.h"
@@ -28,7 +29,7 @@ class GoogleChromeDistributionTest : public testing::Test {
   }
 
   // Creates "ap" key with the value given as parameter. Also adds work
-  // items to work_item_list given so that they can be rollbed back later.
+  // items to work_item_list given so that they can be rolled back later.
   bool CreateApKey(WorkItemList* work_item_list, std::wstring value) {
     HKEY reg_root = HKEY_CURRENT_USER;
     std::wstring reg_key = GetApKeyPath();
@@ -155,7 +156,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   HKEY reg_root = HKEY_CURRENT_USER;
   bool ap_key_deleted = false;
   RegKey key;
-  if (!key.Open(HKEY_CURRENT_USER, reg_key.c_str(), KEY_ALL_ACCESS)){
+  if (!key.Open(HKEY_CURRENT_USER, reg_key.c_str(), KEY_ALL_ACCESS)) {
     work_item_list->AddCreateRegKeyWorkItem(reg_root, reg_key);
     if (!work_item_list->Do())
       FAIL() << "Failed to create ClientState key.";
@@ -180,8 +181,52 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
     if (!CreateApKey(work_item_list.get(), ap_key_value))
       FAIL() << "Failed to restore ap key.";
   }
-
 }
+
+TEST_F(GoogleChromeDistributionTest, TestExtractUninstallMetrics) {
+  // A make-believe JSON preferences file.
+  std::string pref_string(
+      "{ \n"
+      "  \"foo\": \"bar\",\n"
+      "  \"uninstall_metrics\": { \n"
+      "    \"last_launch_time_sec\": \"1235341118\","
+      "    \"last_observed_running_time_sec\": \"1235341183\","
+      "    \"launch_count\": \"11\","
+      "    \"page_load_count\": \"68\","
+      "    \"uptime_sec\": \"809\"\n"
+      "  },\n"
+      "  \"blah\": {\n"
+      "    \"this_sentence_is_true\": false\n"
+      "  },\n"
+      "  \"user_experience_metrics\": { \n"
+      "    \"client_id_timestamp\": \"1234567890\","
+      "    \"reporting_enabled\": true\n"
+      "  }\n"
+      "} \n");
+
+  // The URL string we expect to be generated from said make-believe file.
+  std::wstring expected_url_string(
+      L"&last_launch_time_sec=1235341118"
+      L"&last_observed_running_time_sec=1235341183"
+      L"&launch_count=11&page_load_count=68&uptime_sec=809&");
+  expected_url_string += installer_util::kUninstallInstallationDate;
+  expected_url_string += L"=1234567890";
+
+  JSONStringValueSerializer json_deserializer(pref_string);
+  std::string error_message;
+
+  scoped_ptr<Value> root(json_deserializer.Deserialize(&error_message));
+  ASSERT_TRUE(root.get());
+
+  std::wstring uninstall_metrics_string;
+  GoogleChromeDistribution* dist = static_cast<GoogleChromeDistribution*>(
+      BrowserDistribution::GetDistribution());
+  EXPECT_TRUE(
+      dist->ExtractUninstallMetrics(*static_cast<DictionaryValue*>(root.get()),
+                                    &uninstall_metrics_string));
+  EXPECT_EQ(expected_url_string, uninstall_metrics_string);
+}
+
 #endif
 
 TEST(MasterPreferences, ParseDistroParams) {

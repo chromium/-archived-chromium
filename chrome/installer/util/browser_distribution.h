@@ -17,7 +17,8 @@ class BrowserDistribution {
 
   static BrowserDistribution* GetDistribution();
 
-  virtual void DoPostUninstallOperations(const installer::Version& version);
+  virtual void DoPostUninstallOperations(const installer::Version& version,
+                                         const std::wstring& local_data_path);
 
   virtual std::wstring GetApplicationName();
 

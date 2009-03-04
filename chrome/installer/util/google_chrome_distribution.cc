@@ -16,9 +16,12 @@
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/wmi_util.h"
+#include "chrome/common/json_value_serializer.h"
+#include "chrome/common/pref_names.h"
 #include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/google_update_settings.h"
+#include "chrome/installer/util/util_constants.h"
 
 #include "installer_util_strings.h"
 
@@ -27,7 +30,8 @@ namespace {
 // Google Update tells us is the locale. In case we fail to find
 // the locale, we use US English.
 std::wstring GetUninstallSurveyUrl() {
-  std::wstring kSurveyUrl = L"http://www.google.com/support/chrome/bin/request.py?hl=$1&contact_type=uninstall";
+  std::wstring kSurveyUrl = L"http://www.google.com/support/chrome/bin/"
+                            L"request.py?hl=$1&contact_type=uninstall";
 
   std::wstring language;
   if (!GoogleUpdateSettings::GetLanguage(&language))
@@ -37,8 +41,85 @@ std::wstring GetUninstallSurveyUrl() {
 }
 }
 
+bool GoogleChromeDistribution::BuildUninstallMetricsString(
+    DictionaryValue* uninstall_metrics_dict, std::wstring* metrics) {
+  DCHECK(NULL != metrics);
+  bool has_values = false;
+
+  DictionaryValue::key_iterator iter(uninstall_metrics_dict->begin_keys());
+  for (; iter != uninstall_metrics_dict->end_keys(); ++iter) {
+    has_values = true;
+    metrics->append(L"&");
+    metrics->append(*iter);
+    metrics->append(L"=");
+
+    std::wstring value;
+    uninstall_metrics_dict->GetString(*iter, &value);
+    metrics->append(value);
+  }
+
+  return has_values;
+}
+
+bool GoogleChromeDistribution::ExtractUninstallMetricsFromFile(
+    const std::wstring& file_path, std::wstring* uninstall_metrics_string) {
+
+  JSONFileValueSerializer json_serializer(file_path);
+
+  std::string json_error_string;
+  scoped_ptr<Value> root(json_serializer.Deserialize(NULL));
+
+  // Preferences should always have a dictionary root.
+  if (!root->IsType(Value::TYPE_DICTIONARY))
+    return false;
+
+  return ExtractUninstallMetrics(*static_cast<DictionaryValue*>(root.get()),
+                                 uninstall_metrics_string);
+}
+
+bool GoogleChromeDistribution::ExtractUninstallMetrics(
+    const DictionaryValue& root, std::wstring* uninstall_metrics_string) {
+  // Make sure that the user wants us reporting metrics. If not, don't
+  // add our uninstall metrics.
+  bool metrics_reporting_enabled = false;
+  if (!root.GetBoolean(prefs::kMetricsReportingEnabled,
+                       &metrics_reporting_enabled) ||
+      !metrics_reporting_enabled) {
+    return false;
+  }
+
+  DictionaryValue* uninstall_metrics_dict;
+  if (!root.HasKey(installer_util::kUninstallMetricsName) ||
+      !root.GetDictionary(installer_util::kUninstallMetricsName,
+                          &uninstall_metrics_dict)) {
+    return false;
+  }
+
+  if (!BuildUninstallMetricsString(uninstall_metrics_dict,
+                                   uninstall_metrics_string)) {
+    return false;
+  }
+
+  // We use the creation date of the metric's client id as the installation
+  // date, as this is fairly close to the first-run date for those who
+  // opt-in to metrics from the get-go. Slightly more accurate would be to
+  // have setup.exe write something somewhere at installation time.
+  // As is, the absence of this field implies that the browser was never
+  // run with an opt-in to metrics selection.
+  std::wstring installation_date;
+  if (root.GetString(prefs::kMetricsClientIDTimestamp, &installation_date)) {
+    uninstall_metrics_string->append(L"&");
+    uninstall_metrics_string->append(
+        installer_util::kUninstallInstallationDate);
+    uninstall_metrics_string->append(L"=");
+    uninstall_metrics_string->append(installation_date);
+  }
+
+  return true;
+}
+
 void GoogleChromeDistribution::DoPostUninstallOperations(
-    const installer::Version& version) {
+    const installer::Version& version, const std::wstring& local_data_path) {
   // Send the Chrome version and OS version as params to the form.
   // It would be nice to send the locale, too, but I don't see an
   // easy way to get that in the existing code. It's something we
@@ -67,6 +148,12 @@ void GoogleChromeDistribution::DoPostUninstallOperations(
 
   std::wstring command = iexplore + L" " + GetUninstallSurveyUrl() + L"&" +
       kVersionParam + L"=" + kVersion + L"&" + kOSParam + L"=" + os_version;
+
+  std::wstring uninstall_metrics;
+  if (ExtractUninstallMetricsFromFile(local_data_path, &uninstall_metrics)) {
+    command += uninstall_metrics;
+  }
+
   int pid = 0;
   WMIProcessUtil::Launch(command, &pid);
 }
@@ -81,8 +168,9 @@ std::wstring GoogleChromeDistribution::GetInstallSubDir() {
   return L"Google\\Chrome";
 }
 
-std::wstring GoogleChromeDistribution::GetNewGoogleUpdateApKey(bool diff_install,
-    installer_util::InstallStatus status, const std::wstring& value) {
+std::wstring GoogleChromeDistribution::GetNewGoogleUpdateApKey(
+    bool diff_install, installer_util::InstallStatus status,
+    const std::wstring& value) {
   // Magic suffix that we need to add or remove to "ap" key value.
   const std::wstring kMagicSuffix = L"-full";
 
@@ -171,7 +259,7 @@ void GoogleChromeDistribution::UpdateDiffInstallStatus(bool system_install,
   std::wstring reg_key(google_update::kRegPathClientState);
   reg_key.append(L"\\");
   reg_key.append(google_update::kChromeGuid);
-  if (!key.Open(reg_root, reg_key.c_str(), KEY_ALL_ACCESS) || 
+  if (!key.Open(reg_root, reg_key.c_str(), KEY_ALL_ACCESS) ||
       !key.ReadValue(google_update::kRegApField, &ap_key_value)) {
     LOG(INFO) << "Application key not found.";
     if (!incremental_install || !GetInstallReturnCode(install_status)) {
@@ -198,4 +286,3 @@ void GoogleChromeDistribution::UpdateDiffInstallStatus(bool system_install,
   }
   key.Close();
 }
-

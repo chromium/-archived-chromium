@@ -225,6 +225,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\common\json_value_serializer.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\l10n_string_util.cc"
 			>
 		</File>
@@ -254,6 +258,10 @@
 		</File>
 		<File
 			RelativePath=".\master_preferences.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\common\pref_names.cc"
 			>
 		</File>
 		<File

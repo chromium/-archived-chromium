@@ -23,7 +23,7 @@ BrowserDistribution* BrowserDistribution::GetDistribution() {
 }
 
 void BrowserDistribution::DoPostUninstallOperations(
-    const installer::Version& version) {
+    const installer::Version& version, const std::wstring& local_data_path) {
 }
 
 std::wstring BrowserDistribution::GetApplicationName() {

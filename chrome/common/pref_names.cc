@@ -369,6 +369,18 @@ const wchar_t kStabilityPluginLaunches[] = L"launches";
 const wchar_t kStabilityPluginInstances[] = L"instances";
 const wchar_t kStabilityPluginCrashes[] = L"crashes";
 
+// The keys below are strictly increasing counters over the lifetime of
+// a chrome installation. They are (optionally) sent up to the uninstall
+// survey in the event of uninstallation.
+const wchar_t kUninstallMetricsPageLoadCount[] =
+    L"uninstall_metrics.page_load_count";
+const wchar_t kUninstallLaunchCount[] = L"uninstall_metrics.launch_count";
+const wchar_t kUninstallMetricsUptimeSec[] = L"uninstall_metrics.uptime_sec";
+const wchar_t kUninstallLastLaunchTimeSec[] =
+    L"uninstall_metrics.last_launch_time_sec";
+const wchar_t kUninstallLastObservedRunTimeSec[] =
+    L"uninstall_metrics.last_observed_running_time_sec";
+
 // If true, the user will be prompted to manually launch renderer processes.
 const wchar_t kStartRenderersManually[] = L"renderer.start_manually";
 

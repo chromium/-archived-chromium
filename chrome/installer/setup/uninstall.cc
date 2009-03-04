@@ -11,6 +11,8 @@
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "chrome/common/result_codes.h"
+#include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_paths_internal.h"
 #include "chrome/installer/setup/setup.h"
 #include "chrome/installer/setup/setup_constants.h"
 #include "chrome/installer/util/browser_distribution.h"
@@ -45,7 +47,8 @@ void CloseAllChromeProcesses() {
   }
 
   // If asking politely didn't work, wait for 15 seconds and then kill all
-  // chrome.exe. This check is just in case Chrome is ignoring WM_CLOSE messages.
+  // chrome.exe. This check is just in case Chrome is ignoring WM_CLOSE
+  // messages.
   base::CleanupProcesses(installer_util::kChromeExe, 15000,
                          ResultCodes::HUNG, NULL);
 }
@@ -83,15 +86,17 @@ void DeleteChromeShortcut(bool system_uninstall) {
 // installation folder, in all other cases it returns true even in case
 // of error (only logs the error).
 bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
-    const installer::Version& installed_version) {
+    const installer::Version& installed_version,
+    std::wstring* local_state_path) {
   std::wstring install_path(installer::GetChromeInstallPath(system_uninstall));
   if (install_path.empty()) {
     LOG(ERROR) << "Could not get installation destination path.";
-    return false; // Nothing else we can do for uninstall, so we return.
+    return false;  // Nothing else we can do for uninstall, so we return.
   } else {
     LOG(INFO) << "install destination path: " << install_path;
   }
 
+  // Move setup.exe to the temp path.
   std::wstring setup_exe(installer::GetInstallerPathUnderChrome(
       install_path, installed_version.GetString()));
   file_util::AppendToPath(&setup_exe, file_util::GetFilenameFromPath(exe_path));
@@ -99,6 +104,16 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
   std::wstring temp_file;
   file_util::CreateTemporaryFileName(&temp_file);
   file_util::Move(setup_exe, temp_file);
+
+  // Move the browser's persisted local state
+  FilePath user_local_state;
+  if (chrome::GetDefaultUserDataDirectory(&user_local_state)) {
+    std::wstring user_local_file(
+        user_local_state.Append(chrome::kLocalStateFilename).value());
+
+    file_util::CreateTemporaryFileName(local_state_path);
+    file_util::CopyFile(user_local_file, *local_state_path);
+  }
 
   LOG(INFO) << "Deleting install path " << install_path;
   if (!file_util::Delete(install_path, true)) {
@@ -269,13 +284,21 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   }
 
   // Finally delete all the files from Chrome folder after moving setup.exe
-  // to a temp location.
-  if (!DeleteFilesAndFolders(exe_path, system_uninstall, installed_version))
+  // and the user's Local State to a temp location.
+  std::wstring local_state_path;
+  if (!DeleteFilesAndFolders(exe_path, system_uninstall, installed_version,
+                             &local_state_path))
     return installer_util::UNINSTALL_FAILED;
 
   if (!force_uninstall) {
     LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
-    dist->DoPostUninstallOperations(installed_version);
+    dist->DoPostUninstallOperations(installed_version, local_state_path);
   }
+
+  // Try and delete the preserved local state once the post-install
+  // operations are complete.
+  if (!local_state_path.empty())
+    file_util::Delete(local_state_path, false);
+
   return installer_util::UNINSTALL_SUCCESSFUL;
 }

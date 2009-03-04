@@ -16,7 +16,7 @@
 namespace {
 
 class PrefServiceTest : public testing::Test {
-protected:
+ protected:
   virtual void SetUp() {
     // Name a subdirectory of the temp directory.
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
@@ -98,9 +98,11 @@ TEST_F(PrefServiceTest, Basic) {
   // Register test prefs.
   const wchar_t kNewWindowsInTabs[] = L"tabs.new_windows_in_tabs";
   const wchar_t kMaxTabs[] = L"tabs.max_tabs";
+  const wchar_t kLongIntPref[] = L"long_int.pref";
   prefs.RegisterStringPref(prefs::kHomePage, L"");
   prefs.RegisterBooleanPref(kNewWindowsInTabs, false);
   prefs.RegisterIntegerPref(kMaxTabs, 0);
+  prefs.RegisterStringPref(kLongIntPref, L"2147483648");
 
   std::wstring microsoft(L"http://www.microsoft.com");
   std::wstring cnn(L"http://www.cnn.com");
@@ -129,6 +131,10 @@ TEST_F(PrefServiceTest, Basic) {
   EXPECT_EQ(20, prefs.GetInteger(kMaxTabs));
   prefs.SetInteger(kMaxTabs, 10);
   EXPECT_EQ(10, prefs.GetInteger(kMaxTabs));
+
+  EXPECT_EQ(2147483648LL, prefs.GetInt64(kLongIntPref));
+  prefs.SetInt64(kLongIntPref, 214748364842LL);
+  EXPECT_EQ(214748364842LL, prefs.GetInt64(kLongIntPref));
 
   EXPECT_EQ(FilePath::StringType(FILE_PATH_LITERAL("/usr/local/")),
       prefs.GetFilePath(kSomeDirectory).value());

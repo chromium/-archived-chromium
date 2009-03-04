@@ -1,6 +1,9 @@
 {
    "homepage": "http://www.cnn.com",
    "some_directory": "/usr/sbin/",
+   "long_int": {
+      "pref": "214748364842"
+   },
    "tabs": {
       "max_tabs": 10,
       "new_windows_in_tabs": false

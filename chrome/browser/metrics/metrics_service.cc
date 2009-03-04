@@ -303,10 +303,10 @@ class MetricsService::GetPluginListTask : public Task {
 void MetricsService::RegisterPrefs(PrefService* local_state) {
   DCHECK(IsSingleThreaded());
   local_state->RegisterStringPref(prefs::kMetricsClientID, L"");
-  local_state->RegisterStringPref(prefs::kMetricsClientIDTimestamp, L"0");
-  local_state->RegisterStringPref(prefs::kStabilityLaunchTimeSec, L"0");
-  local_state->RegisterStringPref(prefs::kStabilityLastTimestampSec, L"0");
-  local_state->RegisterStringPref(prefs::kStabilityUptimeSec, L"0");
+  local_state->RegisterInt64Pref(prefs::kMetricsClientIDTimestamp, 0);
+  local_state->RegisterInt64Pref(prefs::kStabilityLaunchTimeSec, 0);
+  local_state->RegisterInt64Pref(prefs::kStabilityLastTimestampSec, 0);
+  local_state->RegisterInt64Pref(prefs::kStabilityUptimeSec, 0);
   local_state->RegisterStringPref(prefs::kStabilityStatsVersion, L"");
   local_state->RegisterBooleanPref(prefs::kStabilityExitedCleanly, true);
   local_state->RegisterBooleanPref(prefs::kStabilitySessionEndCompleted, true);
@@ -336,6 +336,12 @@ void MetricsService::RegisterPrefs(PrefService* local_state) {
   local_state->RegisterIntegerPref(prefs::kNumKeywords, 0);
   local_state->RegisterListPref(prefs::kMetricsInitialLogs);
   local_state->RegisterListPref(prefs::kMetricsOngoingLogs);
+
+  local_state->RegisterInt64Pref(prefs::kUninstallMetricsPageLoadCount, 0);
+  local_state->RegisterInt64Pref(prefs::kUninstallLaunchCount, 0);
+  local_state->RegisterInt64Pref(prefs::kUninstallMetricsUptimeSec, 0);
+  local_state->RegisterInt64Pref(prefs::kUninstallLastLaunchTimeSec, 0);
+  local_state->RegisterInt64Pref(prefs::kUninstallLastObservedRunTimeSec, 0);
 }
 
 // static
@@ -592,8 +598,7 @@ void MetricsService::InitializeMetricsState() {
     pref->SetString(prefs::kMetricsClientID, UTF8ToWide(client_id_));
 
     // Might as well make a note of how long this ID has existed
-    pref->SetString(prefs::kMetricsClientIDTimestamp,
-                    Int64ToWString(Time::Now().ToTimeT()));
+    pref->SetInt64(prefs::kMetricsClientIDTimestamp, Time::Now().ToTimeT());
   }
 
   // Update session ID
@@ -617,20 +622,29 @@ void MetricsService::InitializeMetricsState() {
   // This is marked false when we get a WM_ENDSESSION.
   pref->SetBoolean(prefs::kStabilitySessionEndCompleted, true);
 
-  int64 last_start_time = StringToInt64(
-      WideToUTF16Hack(pref->GetString(prefs::kStabilityLaunchTimeSec)));
-  int64 last_end_time = StringToInt64(
-      WideToUTF16Hack(pref->GetString(prefs::kStabilityLastTimestampSec)));
-  int64 uptime = StringToInt64(
-      WideToUTF16Hack(pref->GetString(prefs::kStabilityUptimeSec)));
+  int64 last_start_time = pref->GetInt64(prefs::kStabilityLaunchTimeSec);
+  int64 last_end_time = pref->GetInt64(prefs::kStabilityLastTimestampSec);
+  int64 uptime = pref->GetInt64(prefs::kStabilityUptimeSec);
+
+  // Same idea as uptime, except this one never gets reset and is used at
+  // uninstallation.
+  int64 uninstall_metrics_uptime =
+      pref->GetInt64(prefs::kUninstallMetricsUptimeSec);
 
   if (last_start_time && last_end_time) {
     // TODO(JAR): Exclude sleep time.  ... which must be gathered in UI loop.
-    uptime += last_end_time - last_start_time;
-    pref->SetString(prefs::kStabilityUptimeSec, Int64ToWString(uptime));
+    int64 uptime_increment = last_end_time - last_start_time;
+    uptime += uptime_increment;
+    pref->SetInt64(prefs::kStabilityUptimeSec, uptime);
+
+    uninstall_metrics_uptime += uptime_increment;
+    pref->SetInt64(prefs::kUninstallMetricsUptimeSec,
+                   uninstall_metrics_uptime);
   }
-  pref->SetString(prefs::kStabilityLaunchTimeSec,
-                  Int64ToWString(Time::Now().ToTimeT()));
+  pref->SetInt64(prefs::kStabilityLaunchTimeSec, Time::Now().ToTimeT());
+
+  // Bookkeeping for the uninstall metrics.
+  IncrementLongPrefsValue(prefs::kUninstallLaunchCount);
 
   // Save profile metrics.
   PrefService* prefs = g_browser_process->local_state();
@@ -1562,8 +1576,16 @@ void MetricsService::IncrementPrefValue(const wchar_t* path) {
   pref->SetInteger(path, value + 1);
 }
 
+void MetricsService::IncrementLongPrefsValue(const wchar_t* path) {
+  PrefService* pref = g_browser_process->local_state();
+  DCHECK(pref);
+  int64 value = pref->GetInt64(path);
+  pref->SetInt64(path, value+1);
+}
+
 void MetricsService::LogLoadStarted() {
   IncrementPrefValue(prefs::kStabilityPageLoadCount);
+  IncrementLongPrefsValue(prefs::kUninstallMetricsPageLoadCount);
   // We need to save the prefs, as page load count is a critical stat, and it
   // might be lost due to a crash :-(.
 }
@@ -1750,8 +1772,7 @@ void MetricsService::RecordBooleanPrefValue(const wchar_t* path, bool value) {
 }
 
 void MetricsService::RecordCurrentState(PrefService* pref) {
-  pref->SetString(prefs::kStabilityLastTimestampSec,
-                  Int64ToWString(Time::Now().ToTimeT()));
+  pref->SetInt64(prefs::kStabilityLastTimestampSec, Time::Now().ToTimeT());
 
   RecordPluginChanges(pref);
 }

@@ -93,6 +93,8 @@ extern const wchar_t kInstallerDir[];
 
 extern const wchar_t kUninstallStringField[];
 extern const wchar_t kUninstallDisplayNameField[];
+extern const wchar_t kUninstallMetricsName[];
+extern const wchar_t kUninstallInstallationDate[];
 }  // namespace installer_util
 
 #endif  // CHROME_INSTALLER_UTIL_UTIL_CONSTANTS_H__
