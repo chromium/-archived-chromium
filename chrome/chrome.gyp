@@ -1367,6 +1367,7 @@
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
                 ],
               },
               'inputs': [
@@ -1405,6 +1406,7 @@
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_en-US.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/chromium_strings_en-US.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_en-US.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
                 ],
               },
               'inputs': [
