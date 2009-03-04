@@ -192,12 +192,12 @@ components = []
 sconscript_map = dict(
     base = '$BASE_DIR/base_main${_GYP}.scons',
     breakpad = '$BREAKPAD_DIR/SConscript',
-    chrome = '$CHROME_DIR/chrome.scons',
+    chrome = '$CHROME_DIR/chrome_main${_GYP}.scons',
     gears = '$GEARS_DIR/SConscript',
     google_update = '$GOOGLE_UPDATE_DIR/SConscript',
     googleurl = '$GOOGLEURL_DIR/googleurl.scons',
     media = '$MEDIA_DIR/media.scons',
-    net = '$NET_DIR/net.scons',
+    net = '$NET_DIR/net_main${_GYP}.scons',
     printing = '$PRINTING_DIR/printing.scons',
     rlz = '$RLZ_DIR/SConscript',
     sandbox = '$SANDBOX_DIR/sandbox.scons',
@@ -219,7 +219,7 @@ sconscript_map = dict(
     ],
     tools = '$GTK_CLIP_DUMP_DIR/gcd.scons',
     v8 = '$OBJ_ROOT/build/SConscript.v8',
-    webkit = '$WEBKIT_DIR/webkit.scons',
+    webkit = '$WEBKIT_DIR/webkit_main${_GYP}.scons',
 )
 
 if root_env.get('_GYP'):
@@ -641,7 +641,7 @@ mac_env.FilterOut(
         '$BREAKPAD_DIR/SConscript',
         '$BSDIFF_DIR/bsdiff.scons',
         '$BSPATCH_DIR/bspatch.scons',
-        '$CHROME_DIR/chrome.scons',
+        '$CHROME_DIR/chrome_main${_GYP}.scons',
         '$GOOGLE_UPDATE_DIR/SConscript',
         '$LIBJPEG_DIR/libjpeg.scons',
         '$LIBXML_DIR/libxml.scons',
