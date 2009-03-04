@@ -47,8 +47,8 @@ class MetricsServiceTest : public UITest {
   // that was saved by the app as it closed.  The caller takes ownership of the
   // returned PrefService object.
   PrefService* GetLocalState() {
-    std::wstring local_state_path = user_data_dir();
-    file_util::AppendToPath(&local_state_path, chrome::kLocalStateFilename);
+    FilePath local_state_path = FilePath::FromWStringHack(user_data_dir())
+        .Append(chrome::kLocalStateFilename);
 
     PrefService* local_state(new PrefService(local_state_path));
     return local_state;

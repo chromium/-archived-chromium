@@ -339,7 +339,7 @@ void BrowserProcessImpl::CreateLocalState() {
   DCHECK(!created_local_state_ && local_state_.get() == NULL);
   created_local_state_ = true;
 
-  std::wstring local_state_path;
+  FilePath local_state_path;
   PathService::Get(chrome::FILE_LOCAL_STATE, &local_state_path);
   local_state_.reset(new PrefService(local_state_path));
 }

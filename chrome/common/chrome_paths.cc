@@ -131,7 +131,7 @@ bool PathProvider(int key, FilePath* result) {
     case chrome::FILE_LOCAL_STATE:
       if (!PathService::Get(chrome::DIR_USER_DATA, &cur))
         return false;
-      cur = cur.AppendASCII(WideToASCII(chrome::kLocalStateFilename));
+      cur = cur.Append(chrome::kLocalStateFilename);
       break;
     case chrome::FILE_RECORDED_SCRIPT:
       if (!PathService::Get(chrome::DIR_USER_DATA, &cur))

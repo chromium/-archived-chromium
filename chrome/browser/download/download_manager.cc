@@ -302,8 +302,8 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
                         &default_download_path)) {
     NOTREACHED();
   }
-  prefs->RegisterStringPref(prefs::kDownloadDefaultDirectory,
-                            default_download_path.ToWStringHack());
+  prefs->RegisterFilePathPref(prefs::kDownloadDefaultDirectory,
+                              default_download_path);
 
   // If the download path is dangerous we forcefully reset it. But if we do
   // so we set a flag to make sure we only do it once, to avoid fighting

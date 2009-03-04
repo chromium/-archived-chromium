@@ -966,8 +966,8 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
     if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
                           &default_save_path))
       NOTREACHED();
-    prefs->RegisterStringPref(prefs::kSaveFileDefaultDirectory,
-                              default_save_path.ToWStringHack());
+    prefs->RegisterFilePathPref(prefs::kSaveFileDefaultDirectory,
+                                default_save_path);
   }
 
   // Get the directory from preference.

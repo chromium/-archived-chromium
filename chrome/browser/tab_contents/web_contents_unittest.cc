@@ -42,11 +42,10 @@ class WebContentsTestingProfile : public TestingProfile {
 
   virtual PrefService* GetPrefs() {
     if (!prefs_.get()) {
-      std::wstring source_path;
+      FilePath source_path;
       PathService::Get(chrome::DIR_TEST_DATA, &source_path);
-      file_util::AppendToPath(&source_path, L"profiles");
-      file_util::AppendToPath(&source_path, L"chrome_prefs");
-      file_util::AppendToPath(&source_path, L"Preferences");
+      source_path = source_path.AppendASCII("profiles")
+          .AppendASCII("chrome_prefs").AppendASCII("Preferences");
 
       prefs_.reset(new PrefService(source_path));
       Profile::RegisterUserPrefs(prefs_.get());

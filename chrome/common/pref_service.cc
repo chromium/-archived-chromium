@@ -27,7 +27,7 @@ static const int kCommitIntervalMs = 10000;
 // preferences to be written to disk on a background thread.
 class SaveLaterTask : public Task {
  public:
-  SaveLaterTask(const std::wstring& file_name,
+  SaveLaterTask(const FilePath& file_name,
                 const std::string& data)
       : file_name_(file_name),
         data_(data) {
@@ -36,7 +36,7 @@ class SaveLaterTask : public Task {
   void Run() {
     // Write the data to a temp file then rename to avoid data loss if we crash
     // while writing the file.
-    std::wstring tmp_file_name = file_name_ + L".tmp";
+    FilePath tmp_file_name(file_name_.value() + FILE_PATH_LITERAL(".tmp"));
     int bytes_written = file_util::WriteFile(tmp_file_name, data_.c_str(),
                                              static_cast<int>(data_.length()));
     if (bytes_written != -1) {
@@ -50,7 +50,7 @@ class SaveLaterTask : public Task {
   }
 
  private:
-  std::wstring file_name_;
+  FilePath file_name_;
   std::string data_;
 
   DISALLOW_COPY_AND_ASSIGN(SaveLaterTask);
@@ -105,7 +105,7 @@ PrefService::PrefService()
       save_preferences_factory_(NULL) {
 }
 
-PrefService::PrefService(const std::wstring& pref_filename)
+PrefService::PrefService(const FilePath& pref_filename)
     : persistent_(new DictionaryValue),
       transient_(new DictionaryValue),
       pref_filename_(pref_filename),
@@ -132,7 +132,7 @@ PrefService::~PrefService() {
   pref_observers_.clear();
 }
 
-bool PrefService::LoadPersistentPrefs(const std::wstring& file_path) {
+bool PrefService::LoadPersistentPrefs(const FilePath& file_path) {
 #if defined(OS_WIN)
   DCHECK(!file_path.empty());
 #else
@@ -145,7 +145,7 @@ bool PrefService::LoadPersistentPrefs(const std::wstring& file_path) {
 #endif
   DCHECK(CalledOnValidThread());
 
-  JSONFileValueSerializer serializer(file_path);
+  JSONFileValueSerializer serializer(file_path.ToWStringHack());
   scoped_ptr<Value> root(serializer.Deserialize(NULL));
   if (!root.get())
     return false;
@@ -161,7 +161,7 @@ bool PrefService::LoadPersistentPrefs(const std::wstring& file_path) {
 void PrefService::ReloadPersistentPrefs() {
   DCHECK(CalledOnValidThread());
 
-  JSONFileValueSerializer serializer(pref_filename_);
+  JSONFileValueSerializer serializer(pref_filename_.ToWStringHack());
   scoped_ptr<Value> root(serializer.Deserialize(NULL));
   if (!root.get())
     return;
@@ -236,6 +236,13 @@ void PrefService::RegisterStringPref(const wchar_t* path,
                                      const std::wstring& default_value) {
   Preference* pref = new Preference(persistent_.get(), path,
       Value::CreateStringValue(default_value));
+  RegisterPreference(pref);
+}
+
+void PrefService::RegisterFilePathPref(const wchar_t* path,
+                                       const FilePath& default_value) {
+  Preference* pref = new Preference(persistent_.get(), path,
+      Value::CreateStringValue(default_value.value()));
   RegisterPreference(pref);
 }
 
@@ -355,6 +362,27 @@ std::wstring PrefService::GetString(const wchar_t* path) const {
   bool rv = pref->GetValue()->GetAsString(&result);
   DCHECK(rv);
   return result;
+}
+
+FilePath PrefService::GetFilePath(const wchar_t* path) const {
+  DCHECK(CalledOnValidThread());
+
+  FilePath::StringType result;
+  if (transient_->GetString(path, &result))
+    return FilePath(result);
+
+  const Preference* pref = FindPreference(path);
+  if (!pref) {
+#if defined(OS_WIN)
+    DCHECK(false) << "Trying to read an unregistered pref: " << path;
+#else
+    // TODO(port): remove this exception
+#endif
+    return FilePath(result);
+  }
+  bool rv = pref->GetValue()->GetAsString(&result);
+  DCHECK(rv);
+  return FilePath(result);
 }
 
 bool PrefService::HasPrefPath(const wchar_t* path) const {
@@ -557,6 +585,26 @@ void PrefService::SetString(const wchar_t* path, const std::wstring& value) {
 
   scoped_ptr<Value> old_value(GetPrefCopy(path));
   bool rv = persistent_->SetString(path, value);
+  DCHECK(rv);
+
+  FireObserversIfChanged(path, old_value.get());
+}
+
+void PrefService::SetFilePath(const wchar_t* path, const FilePath& value) {
+  DCHECK(CalledOnValidThread());
+
+  const Preference* pref = FindPreference(path);
+  if (!pref) {
+    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    return;
+  }
+  if (pref->type() != Value::TYPE_STRING) {
+    DCHECK(false) << "Wrong type for SetFilePath: " << path;
+    return;
+  }
+
+  scoped_ptr<Value> old_value(GetPrefCopy(path));
+  bool rv = persistent_->SetString(path, value.value());
   DCHECK(rv);
 
   FireObserversIfChanged(path, old_value.get());

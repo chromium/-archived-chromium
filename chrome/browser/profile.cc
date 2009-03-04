@@ -542,7 +542,7 @@ SSLHostState* ProfileImpl::GetSSLHostState() {
 
 PrefService* ProfileImpl::GetPrefs() {
   if (!prefs_.get()) {
-    prefs_.reset(new PrefService(GetPrefFilePath().ToWStringHack()));
+    prefs_.reset(new PrefService(GetPrefFilePath()));
 
     // The Profile class and ProfileManager class may read some prefs so
     // register known prefs as soon as possible.

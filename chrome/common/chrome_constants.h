@@ -31,7 +31,7 @@ extern const FilePath::CharType kOffTheRecordMediaCacheDirname[];
 extern const wchar_t kChromePluginDataDirname[];
 extern const FilePath::CharType kCookieFilename[];
 extern const FilePath::CharType kHistoryFilename[];
-extern const wchar_t kLocalStateFilename[];
+extern const FilePath::CharType kLocalStateFilename[];
 extern const FilePath::CharType kPreferencesFilename[];
 extern const FilePath::CharType kSafeBrowsingFilename[];
 extern const wchar_t kThumbnailsFilename[];

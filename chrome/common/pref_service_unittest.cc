@@ -20,26 +20,26 @@ protected:
   virtual void SetUp() {
     // Name a subdirectory of the temp directory.
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-    file_util::AppendToPath(&test_dir_, L"PrefServiceTest");
+    test_dir_ = test_dir_.AppendASCII("PrefServiceTest");
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(test_dir_, true);
     file_util::CreateDirectory(test_dir_);
 
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_dir_));
-    file_util::AppendToPath(&data_dir_, L"pref_service");
+    data_dir_ = data_dir_.AppendASCII("pref_service");
     ASSERT_TRUE(file_util::PathExists(data_dir_));
   }
   virtual void TearDown() {
     // Clean up test directory
-    ASSERT_TRUE(file_util::Delete(test_dir_, false));
+    ASSERT_TRUE(file_util::Delete(test_dir_, true));
     ASSERT_FALSE(file_util::PathExists(test_dir_));
   }
 
   // the path to temporary directory used to contain the test operations
-  std::wstring test_dir_;
+  FilePath test_dir_;
   // the path to the directory where the test data is stored
-  std::wstring data_dir_;
+  FilePath data_dir_;
 };
 
 class TestPrefObserver : public NotificationObserver {
@@ -87,13 +87,11 @@ TEST_F(PrefServiceTest, Basic) {
   PrefService prefs;
 
   // Test that it fails on nonexistent file.
-  std::wstring bogus_input_file = data_dir_;
-  file_util::AppendToPath(&bogus_input_file, L"read.txt");
+  FilePath bogus_input_file = data_dir_.AppendASCII("read.txt");
   EXPECT_FALSE(prefs.LoadPersistentPrefs(bogus_input_file));
 
   // Test that the persistent value can be loaded.
-  std::wstring input_file = data_dir_;
-  file_util::AppendToPath(&input_file, L"read.json");
+  FilePath input_file = data_dir_.AppendASCII("read.json");
   ASSERT_TRUE(file_util::PathExists(input_file));
   ASSERT_TRUE(prefs.LoadPersistentPrefs(input_file));
 
@@ -109,6 +107,10 @@ TEST_F(PrefServiceTest, Basic) {
   std::wstring homepage(L"http://www.example.com");
 
   EXPECT_EQ(cnn, prefs.GetString(prefs::kHomePage));
+
+  const wchar_t kSomeDirectory[] = L"some_directory";
+  FilePath some_path(FILE_PATH_LITERAL("/usr/sbin/"));
+  prefs.RegisterFilePathPref(kSomeDirectory, FilePath());
 
   // Now test that the transient value overrides the persistent value,
   // without actually altering the persistent store.
@@ -128,13 +130,16 @@ TEST_F(PrefServiceTest, Basic) {
   prefs.SetInteger(kMaxTabs, 10);
   EXPECT_EQ(10, prefs.GetInteger(kMaxTabs));
 
+  EXPECT_EQ(FilePath::StringType(FILE_PATH_LITERAL("/usr/local/")),
+      prefs.GetFilePath(kSomeDirectory).value());
+  prefs.SetFilePath(kSomeDirectory, some_path);
+  EXPECT_EQ(some_path.value(), prefs.GetFilePath(kSomeDirectory).value());
+
   // Serialize and compare to expected output.
-  std::wstring output_file = test_dir_;
-  file_util::AppendToPath(&output_file, L"write.json");
+  FilePath output_file = test_dir_.AppendASCII("write.json");
   prefs.pref_filename_ = output_file;
   ASSERT_TRUE(prefs.SavePersistentPrefs(NULL));
-  std::wstring golden_output_file = data_dir_;
-  file_util::AppendToPath(&golden_output_file, L"write.golden.json");
+  FilePath golden_output_file = data_dir_.AppendASCII("write.golden.json");
   ASSERT_TRUE(file_util::PathExists(golden_output_file));
   ASSERT_TRUE(file_util::ContentsEqual(golden_output_file, output_file));
 }
@@ -151,8 +156,7 @@ TEST_F(PrefServiceTest, Overlay) {
 
   PrefService prefs;
 
-  std::wstring persistent_file = data_dir_;
-  file_util::AppendToPath(&persistent_file, L"overlay.json");
+  FilePath persistent_file = data_dir_.AppendASCII("overlay.json");
   EXPECT_TRUE(prefs.LoadPersistentPrefs(persistent_file));
 
   Value* transient_value;
@@ -278,8 +282,7 @@ TEST_F(PrefServiceTest, Overlay) {
 TEST_F(PrefServiceTest, Observers) {
   PrefService prefs;
 
-  std::wstring input_file = data_dir_;
-  file_util::AppendToPath(&input_file, L"read.json");
+  FilePath input_file = data_dir_.AppendASCII("read.json");
   EXPECT_TRUE(file_util::PathExists(input_file));
   EXPECT_TRUE(prefs.LoadPersistentPrefs(input_file));
 
@@ -319,6 +322,8 @@ TEST_F(PrefServiceTest, Observers) {
   prefs.RemovePrefObserver(pref_name, &obs2);
 }
 
+// TODO(port): port this test to POSIX.
+#if defined(OS_WIN)
 TEST_F(PrefServiceTest, LocalizedPrefs) {
   PrefService prefs;
   const wchar_t kBoolean[] = L"boolean";
@@ -340,6 +345,7 @@ TEST_F(PrefServiceTest, LocalizedPrefs) {
   prefs.SetString(kString, L"foo");
   EXPECT_EQ(L"foo", prefs.GetString(kString));
 }
+#endif
 
 TEST_F(PrefServiceTest, NoObserverFire) {
   PrefService prefs;

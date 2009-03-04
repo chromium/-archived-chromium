@@ -293,8 +293,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // inherit and reset the user's setting.
   if (!local_state_file_exists &&
       parsed_command_line.HasSwitch(switches::kParentProfile)) {
-    std::wstring parent_profile =
-        parsed_command_line.GetSwitchValue(switches::kParentProfile);
+    FilePath parent_profile = FilePath::FromWStringHack(
+        parsed_command_line.GetSwitchValue(switches::kParentProfile));
     PrefService parent_local_state(parent_profile);
     parent_local_state.RegisterStringPref(prefs::kApplicationLocale,
                                           std::wstring());
