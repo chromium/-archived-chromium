@@ -320,7 +320,7 @@ LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 LINUX : LayoutTests/fast/backgrounds/repeat/negative-offset-repeat-transformed.html = FAIL
 LINUX : LayoutTests/fast/inline/inline-continuation-borders.html = FAIL
 LINUX : LayoutTests/fast/inline/vertical-align-text-bottom.html = FAIL
-LINUX MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
+MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
 LINUX : LayoutTests/fast/lists/list-marker-with-line-height.html = FAIL
 LINUX : LayoutTests/fast/overflow/overflow-stacking.html = FAIL
 LINUX : LayoutTests/fast/overflow/overflow-float-stacking.html = FAIL
@@ -1782,10 +1782,9 @@ WIN : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
 LINUX WIN : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
-LINUX : LayoutTests/fast/canvas/set-colors.html = CRASH
 
 // mbelshe to fix.  Temporarily disable while tree red.
-LINUX WIN : chrome/fast/dom/extensions/interval.html = FAIL
+WIN LINUX : chrome/fast/dom/extensions/interval.html = FAIL PASS
 
 // Regressions from merge 41217:41268
 // New tests
@@ -1806,7 +1805,7 @@ LINUX WIN : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
 // Regression from merge 41268:41286
 // dimich to do triage and find out which are just rebaseline.
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
-LINUX WIN : LayoutTests/fast/dom/anchor-toString.html = FAIL
+WIN : LayoutTests/fast/dom/anchor-toString.html = FAIL
 WIN : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
 WIN : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
 WIN : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
@@ -1857,60 +1856,9 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods.html = TIMEOUT
 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 DEFER LINUX WIN : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
 
-// Regression from the 41362:41402 merge, apparently from the V8Bindings
-// changes.
-LayoutTests/fast/xpath/4XPath/Borrowed/cz_20030217.html = FAIL
-LayoutTests/fast/xpath/4XPath/Borrowed/kd_20010423.html = FAIL
-LayoutTests/fast/xpath/4XPath/Borrowed/namespace-nodes.html = FAIL
-LayoutTests/fast/xpath/4XPath/Borrowed/od_20000608.html = FAIL
-LayoutTests/fast/xpath/4XPath/Borrowed/rs_20010831.html = FAIL
-LayoutTests/fast/xpath/4XPath/Borrowed/sr_20021217.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_boolean_expr.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_core_functions.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_literal_expr.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_location_path.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_node_test.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_nodeset_expr.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_parser.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_predicate_list.html = FAIL
-LayoutTests/fast/xpath/4XPath/Core/test_step.html = FAIL
-LayoutTests/fast/xpath/ancestor-axis.html = FAIL
-LayoutTests/fast/xpath/attr-namespace.html = FAIL
-LayoutTests/fast/xpath/complex-id.html = FAIL
-LayoutTests/fast/xpath/document-order.html = FAIL
-LayoutTests/fast/xpath/ensure-null-namespace.xhtml = FAIL
-LayoutTests/fast/xpath/id-path.html = FAIL
-LayoutTests/fast/xpath/implicit-node-args.html = FAIL
-LayoutTests/fast/xpath/namespace-vs-predicate.xhtml = FAIL
-LayoutTests/fast/xpath/nan-to-boolean.html = FAIL
-LayoutTests/fast/xpath/nodeset-duplicates.html = FAIL
-LayoutTests/fast/xpath/nsresolver-function.xhtml = FAIL
-LayoutTests/fast/xpath/nsresolver-object.xhtml = FAIL
-LayoutTests/fast/xpath/preceding-axis.xhtml = FAIL
-LayoutTests/fast/xpath/reverse-axes.html = FAIL
-LayoutTests/fast/xpath/string-value.html = FAIL
-LayoutTests/fast/xpath/substring-after.html = FAIL
-LayoutTests/fast/xpath/text-nodes.html = FAIL
-LayoutTests/fast/xpath/union-context-node.xhtml = FAIL
-LayoutTests/fast/xpath/xpath-functional-test.html = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathEvaluator_evaluate_TYPE_ERR.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_booleanValue_false.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_booleanValue_true.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_iteratorNext_ORDERED_NODE_ITERATOR_TYPE.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_resultType.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_singleNodeValue_ANY_UNORDERED_NODE_TYPE.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_singleNodeValue_FIRST_ORDERED_NODE_TYPE.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_ORDERED_NODE_SNAPSHOT_TYPE_null.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_ORDERED_NODE_SNAPSHOT_TYPE_order.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_UNORDERED_NODE_SNAPSHOT_TYPE_count.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotItem_UNORDERED_NODE_SNAPSHOT_TYPE_null.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotLength_ORDERED_NODE_SNAPSHOT_TYPE.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_snapshotLength_UNORDERED_NODE_SNAPSHOT_TYPE.svg = FAIL
-LayoutTests/dom/svg/level3/xpath/XPathResult_stringValue.svg = FAIL
-
-// More regressions from the 41362:41402 merge, but not clearly related to the
-// XPath ones above.
-LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
+// Regressions from the 41362:41402 merge.
+WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
+MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
 
 // New tests added in the 41362:41402 merge.
 // TODO(pamg): See which only need re-baselining.
@@ -1919,3 +1867,6 @@ DEFER : LayoutTests/fast/block/float/t0905-c5525-fltblck-00-d-ag.html = FAIL
 DEFER : LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
 DEFER : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
+
+// Started crashing with v8 version 1.0.3.1.  http://crbug.com/8364
+LINUX : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
