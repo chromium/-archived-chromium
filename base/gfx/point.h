@@ -7,9 +7,7 @@
 
 #include "build/build_config.h"
 
-#ifdef UNIT_TEST
 #include <iostream>
-#endif
 
 #if defined(OS_WIN)
 typedef struct tagPOINT POINT;
@@ -71,13 +69,9 @@ class Point {
 
 }  // namespace gfx
 
-#ifdef UNIT_TEST
-
 inline std::ostream& operator<<(std::ostream& out, const gfx::Point& p) {
   return out << p.x() << "," << p.y();
 }
-
-#endif  // #ifdef UNIT_TEST
 
 #endif // BASE_GFX_POINT_H__
 

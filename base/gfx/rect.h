@@ -12,8 +12,10 @@
 #ifndef BASE_GFX_RECT_H__
 #define BASE_GFX_RECT_H__
 
-#include "base/gfx/size.h"
+#include <iostream>
+
 #include "base/gfx/point.h"
+#include "base/gfx/size.h"
 
 #if defined(OS_WIN)
 typedef struct tagRECT RECT;
@@ -155,13 +157,9 @@ class Rect {
 
 }  // namespace gfx
 
-#ifdef UNIT_TEST
-
 inline std::ostream& operator<<(std::ostream& out, const gfx::Rect& r) {
   return out << r.origin() << " " << r.size();
 }
-
-#endif  // #ifdef UNIT_TEST
 
 #endif  // BASE_GFX_RECT_H__
 
