@@ -81,22 +81,15 @@ class BackingStore {
   gfx::Size size_;
 
 #if defined(OS_WIN)
-  // Creates a dib conforming to the height/width/section parameters passed
-  // in. The use_os_color_depth parameter controls whether we use the color
-  // depth to create an appropriate dib or not.
-  HANDLE CreateDIB(HDC dc,
-                   int width, int height,
-                   bool use_os_color_depth,
-                   HANDLE section);
 
   // The backing store dc.
   HDC hdc_;
-
   // Handle to the backing store dib.
   HANDLE backing_store_dib_;
-
   // Handle to the original bitmap in the dc.
   HANDLE original_bitmap_;
+  // Number of bits per pixel of the screen.
+  int color_depth_;
 #elif defined(OS_MACOSX)
   skia::PlatformCanvas canvas_;
 #elif defined(OS_LINUX)

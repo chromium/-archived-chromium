@@ -8,6 +8,21 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/transport_dib.h"
 
+namespace {
+
+// Creates a dib conforming to the height/width/section parameters passed in.
+HANDLE CreateDIB(HDC dc, int width, int height, int color_depth) {
+  BITMAPINFOHEADER hdr;
+  gfx::CreateBitmapHeaderWithColorDepth(width, height, color_depth, &hdr);
+  void* data = NULL;
+  HANDLE dib = CreateDIBSection(dc, reinterpret_cast<BITMAPINFO*>(&hdr),
+                                0, &data, NULL, 0);
+  DCHECK(data);
+  return dib;
+}
+
+}  // namespace
+
 // BackingStore (Windows) ------------------------------------------------------
 
 BackingStore::BackingStore(const gfx::Size& size)
@@ -15,53 +30,56 @@ BackingStore::BackingStore(const gfx::Size& size)
       backing_store_dib_(NULL),
       original_bitmap_(NULL) {
   HDC screen_dc = ::GetDC(NULL);
+  color_depth_ = ::GetDeviceCaps(screen_dc, BITSPIXEL);
+  // Color depths less than 16 bpp require a palette to be specified. Instead,
+  // we specify the desired color depth as 16 which lets the OS to come up
+  // with an approximation.
+  if (color_depth_ < 16)
+    color_depth_ = 16;
   hdc_ = CreateCompatibleDC(screen_dc);
   ReleaseDC(NULL, screen_dc);
 }
 
 BackingStore::~BackingStore() {
   DCHECK(hdc_);
-
-  DeleteDC(hdc_);
-
+  if (original_bitmap_) {
+    SelectObject(hdc_, original_bitmap_);
+  }
   if (backing_store_dib_) {
     DeleteObject(backing_store_dib_);
     backing_store_dib_ = NULL;
   }
+  DeleteDC(hdc_);
 }
 
 void BackingStore::PaintRect(base::ProcessHandle process,
                              TransportDIB* bitmap,
                              const gfx::Rect& bitmap_rect) {
   if (!backing_store_dib_) {
-    backing_store_dib_ = CreateDIB(hdc_, size_.width(), size_.height(), true,
-                                   NULL);
-    DCHECK(backing_store_dib_ != NULL);
+    backing_store_dib_ = CreateDIB(hdc_, size_.width(),
+                                   size_.height(), color_depth_);
+    if (!backing_store_dib_) {
+      NOTREACHED();
+      return;
+    }
     original_bitmap_ = SelectObject(hdc_, backing_store_dib_);
   }
 
-  // TODO(darin): protect against integer overflow
-  DWORD size = 4 * bitmap_rect.width() * bitmap_rect.height();
-
-  // These values are shared with gfx::PlatformDevice
   BITMAPINFOHEADER hdr;
   gfx::CreateBitmapHeader(bitmap_rect.width(), bitmap_rect.height(), &hdr);
   // Account for a bitmap_rect that exceeds the bounds of our view
   gfx::Rect view_rect(0, 0, size_.width(), size_.height());
   gfx::Rect paint_rect = view_rect.Intersect(bitmap_rect);
 
-  StretchDIBits(hdc_,
-                paint_rect.x(),
-                paint_rect.y(),
-                paint_rect.width(),
-                paint_rect.height(),
-                0, 0,  // source x,y
-                paint_rect.width(),
-                paint_rect.height(),
-                bitmap->memory(),
-                reinterpret_cast<BITMAPINFO*>(&hdr),
-                DIB_RGB_COLORS,
-                SRCCOPY);
+  int rv = StretchDIBits(hdc_,
+                         paint_rect.x(), paint_rect.y(),
+                         paint_rect.width(), paint_rect.height(),
+                         0, 0,  // source x,y.
+                         paint_rect.width(), paint_rect.height(),
+                         bitmap->memory(),
+                         reinterpret_cast<BITMAPINFO*>(&hdr),
+                         DIB_RGB_COLORS, SRCCOPY);
+  DCHECK(rv != GDI_ERROR);
 }
 
 void BackingStore::ScrollRect(base::ProcessHandle process,
@@ -80,33 +98,4 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
   DCHECK(gfx::Rect(damaged_rect) == bitmap_rect);
 
   PaintRect(process, bitmap, bitmap_rect);
-}
-
-HANDLE BackingStore::CreateDIB(HDC dc,
-                               int width, int height,
-                               bool use_system_color_depth,
-                               HANDLE section) {
-  BITMAPINFOHEADER hdr;
-
-  if (use_system_color_depth) {
-    HDC screen_dc = ::GetDC(NULL);
-    int color_depth = GetDeviceCaps(screen_dc, BITSPIXEL);
-    ::ReleaseDC(NULL, screen_dc);
-
-    // Color depths less than 16 bpp require a palette to be specified in the
-    // BITMAPINFO structure passed to CreateDIBSection. Instead of creating
-    // the palette, we specify the desired color depth as 16 which allows the
-    // OS to come up with an approximation. Tested this with 8bpp.
-    if (color_depth < 16)
-      color_depth = 16;
-
-    gfx::CreateBitmapHeaderWithColorDepth(width, height, color_depth, &hdr);
-  } else {
-    gfx::CreateBitmapHeader(width, height, &hdr);
-  }
-  void* data = NULL;
-  HANDLE dib =
-      CreateDIBSection(hdc_, reinterpret_cast<BITMAPINFO*>(&hdr),
-                       0, &data, section, 0);
-  return dib;
 }
