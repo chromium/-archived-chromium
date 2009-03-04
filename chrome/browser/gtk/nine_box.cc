@@ -49,8 +49,10 @@ void NineBox::RenderToPixbuf(GdkPixbuf* dst) {
   // rendering of the ninebox.
   const int x1 = gdk_pixbuf_get_width(images[0]);
   const int y1 = gdk_pixbuf_get_height(images[0]);
-  const int x2 = gdk_pixbuf_get_width(dst) - gdk_pixbuf_get_width(images[2]);
-  const int y2 = gdk_pixbuf_get_height(dst) - gdk_pixbuf_get_height(images[2]);
+  const int x2 = gdk_pixbuf_get_width(dst) - gdk_pixbuf_get_width(images[8]);
+  const int y2 = gdk_pixbuf_get_height(dst) - gdk_pixbuf_get_height(images[8]);
+  DCHECK(x2 >= x1);
+  DCHECK(y2 >= y1);
 
   DrawPixbuf(images[0], dst, 0, 0);
   RenderTopCenterStrip(dst, x1, x2);

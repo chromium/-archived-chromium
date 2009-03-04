@@ -7,11 +7,14 @@
 
 #include <gtk/gtk.h>
 
+#include <vector>
+
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/gtk/custom_button.h"
 
 class BaseDownloadItemModel;
+class DownloadItemGtk;
 
 class DownloadShelfGtk : public DownloadShelf {
  public:
@@ -39,7 +42,9 @@ class DownloadShelfGtk : public DownloadShelf {
 
   // Keeps track of our current hide/show state.
   bool is_showing_;
+
+  // The download items we have added to our shelf.
+  std::vector<DownloadItemGtk*> download_items_;
 };
 
 #endif  // CHROME_BROWSER_VIEWS_DOWNLOAD_SHELF_VIEW_H_
-

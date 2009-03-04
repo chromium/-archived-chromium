@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "chrome/browser/download/download_item_model.h"
+#include "chrome/browser/gtk/download_item_gtk.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
@@ -17,7 +18,7 @@
 namespace {
 
 // Total height of the shelf.
-const int kShelfHeight = 30;
+const int kShelfHeight = 42;
 
 // Padding between the download widgets.
 const int kDownloadItemPadding = 10;
@@ -41,6 +42,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
       is_showing_(false) {
   shelf_ = gtk_hbox_new(FALSE, 0);
   gtk_widget_set_size_request(shelf_, -1, kShelfHeight);
+  gtk_container_set_border_width(GTK_CONTAINER(shelf_), kTopBottomPadding);
 
   // Create and pack the close button.
   close_button_.reset(new CustomDrawButton(IDR_CLOSE_BAR,
@@ -59,7 +61,9 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
 }
 
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
-  NOTIMPLEMENTED();
+  // TODO(estade): we need to delete these at some point. There's no explicit
+  // mass delete on windows, figure out where they do it.
+  download_items_.push_back(new DownloadItemGtk(download_model_, shelf_));
   Show();
 }
 
