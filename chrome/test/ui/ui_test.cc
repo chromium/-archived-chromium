@@ -576,7 +576,7 @@ bool UITest::IsBrowserRunning() {
 }
 
 bool UITest::CrashAwareSleep(int time_out_ms) {
-  return WAIT_TIMEOUT == WaitForSingleObject(process_, time_out_ms);
+  return base::CrashAwareSleep(process_, time_out_ms);
 }
 
 /*static*/

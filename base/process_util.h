@@ -180,6 +180,10 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
 bool WaitForSingleProcess(ProcessHandle handle,
                           int wait_milliseconds);
 
+// Returns true when |wait_milliseconds| have elapsed and the process
+// is still running.
+bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds);
+
 // Waits a certain amount of time (can be 0) for all the processes with a given
 // executable name to exit, then kills off any of them that are still around.
 // If filter is non-null, then only processes selected by the filter are waited

@@ -182,7 +182,9 @@ bool WaitForExitCode(ProcessHandle handle, int* exit_code) {
   return false;
 }
 
-bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
+namespace {
+
+int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds) {
   // This POSIX version of this function only guarantees that we wait no less
   // than |wait_milliseconds| for the proces to exit.  The child process may
   // exit sometime before the timeout has ended but we may still block for
@@ -228,11 +230,25 @@ bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
     ret_pid = waitpid(handle, &status, WNOHANG);
   }
 
-  if (status != -1) {
+  return status;
+}
+
+}  // namespace
+
+bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
+  int status = WaitpidWithTimeout(handle, wait_milliseconds);
+  if (status != -1)
     return WIFEXITED(status);
-  } else {
+  else
     return false;
-  }
+}
+
+bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds) {
+  int status = WaitpidWithTimeout(handle, wait_milliseconds);
+  if (status != -1)
+    return !(WIFEXITED(status) || WIFSIGNALED(status));
+  else
+    return false;
 }
 
 namespace {

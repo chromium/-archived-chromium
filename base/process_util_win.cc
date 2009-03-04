@@ -353,6 +353,11 @@ bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
   return retval;
 }
 
+bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds) {
+  bool retval = WaitForSingleObject(handle, wait_milliseconds) == WAIT_TIMEOUT;
+  return retval;
+}
+
 bool CleanupProcesses(const std::wstring& executable_name,
                       int wait_milliseconds,
                       int exit_code,
