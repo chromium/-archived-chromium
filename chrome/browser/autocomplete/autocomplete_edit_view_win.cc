@@ -1826,8 +1826,11 @@ void AutocompleteEditViewWin::EmphasizeURLComponents() {
   ScopedFreeze freeze(this, text_object_model);
   ScopedSuspendUndo suspend_undo(text_object_model);
 
-  // Save the selection.
-  CHARRANGE saved_sel;
+  // Save the selection.  Bug 8314: Purify started reporting uninitialized
+  // memory access in saved_sel.  This would suggest that GetSelection(), which
+  // is calling the rich edit's GetSel() is failing.  I'm not sure how or why
+  // this would happen.  For now just initialize the CHARRANGE to be safe.
+  CHARRANGE saved_sel = {0, 0};
   GetSelection(saved_sel);
 
   // See whether the contents are a URL with a non-empty host portion, which we
