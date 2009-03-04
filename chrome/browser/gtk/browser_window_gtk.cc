@@ -232,7 +232,12 @@ void BrowserWindowGtk::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserWindowGtk::UpdateTitleBar() {
-  NOTIMPLEMENTED();
+  std::wstring title = browser_->GetCurrentPageTitle();
+  gtk_window_set_title(window_, WideToUTF8(title).c_str());
+  if (browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR)) {
+    // If we're showing a title bar, we should update the app icon.
+    NOTIMPLEMENTED();
+  }
 }
 
 void BrowserWindowGtk::UpdateLoadingAnimations(bool should_animate) {
