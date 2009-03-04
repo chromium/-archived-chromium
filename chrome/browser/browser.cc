@@ -38,6 +38,9 @@
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
+#include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/cookie_policy.h"
 #include "net/base/net_util.h"
@@ -69,9 +72,6 @@
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/child_process_host.h"
 #include "chrome/common/win_util.h"
-#include "grit/chromium_strings.h"
-#include "grit/generated_resources.h"
-#include "grit/locale_settings.h"
 
 #endif  // OS_WIN
 
@@ -391,7 +391,6 @@ SkBitmap Browser::GetCurrentPageIcon() const {
 }
 
 std::wstring Browser::GetCurrentPageTitle() const {
-#if defined(OS_WIN)
   TabContents* contents = tabstrip_model_.GetSelectedTabContents();
   std::wstring title;
 
@@ -405,10 +404,6 @@ std::wstring Browser::GetCurrentPageTitle() const {
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
 
   return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, title);
-#elif defined(OS_POSIX)
-  // TODO(port): turn on when generating chrome_strings.h from grit
-  return L"untitled";
-#endif
 }
 
 // static
@@ -762,6 +757,21 @@ void Browser::ViewSource() {
   }
 }
 
+bool Browser::SupportsWindowFeature(WindowFeature feature) const {
+  unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
+  if (type() == TYPE_NORMAL)
+     features |= FEATURE_BOOKMARKBAR;
+  if (!window_ || !window_->IsFullscreen()) {
+    if (type() == TYPE_NORMAL)
+      features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
+    else
+      features |= FEATURE_TITLEBAR;
+    if ((type() & Browser::TYPE_APP) == 0)
+      features |= FEATURE_LOCATIONBAR;
+  }
+  return !!(features & feature);
+}
+
 #if defined(OS_WIN)
 
 void Browser::ClosePopups() {
@@ -975,21 +985,6 @@ void Browser::OpenBookmarkManager() {
 void Browser::ShowDownloadsTab() {
   UserMetrics::RecordAction(L"ShowDownloads", profile_);
   ShowSingleDOMUITab(DownloadsUI::GetBaseURL());
-}
-
-bool Browser::SupportsWindowFeature(WindowFeature feature) const {
-  unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
-  if (type() == TYPE_NORMAL)
-     features |= FEATURE_BOOKMARKBAR;
-  if (!window_ || !window_->IsFullscreen()) {
-    if (type() == TYPE_NORMAL)
-      features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR;
-    else
-      features |= FEATURE_TITLEBAR;
-    if ((type() & Browser::TYPE_APP) == 0)
-      features |= FEATURE_LOCATIONBAR;
-  }
-  return !!(features & feature);
 }
 
 void Browser::OpenClearBrowsingDataDialog() {
