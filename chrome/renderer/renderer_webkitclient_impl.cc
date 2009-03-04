@@ -23,20 +23,21 @@ using WebKit::WebURL;
 
 void RendererWebKitClientImpl::setCookies(
     const WebURL& url, const WebURL& policy_url, const WebString& value) {
+  std::string value_utf8;
+  UTF16ToUTF8(value.characters(), value.length(), &value_utf8);
   RenderThread::current()->Send(
-      new ViewHostMsg_SetCookie(url, policy_url, UTF16ToUTF8(value)));
+      new ViewHostMsg_SetCookie(url, policy_url, value_utf8));
 }
 
-WebKit::WebString RendererWebKitClientImpl::cookies(
-    const WebKit::WebURL& url, const WebKit::WebURL& policy_url) {
+WebString RendererWebKitClientImpl::cookies(
+    const WebURL& url, const WebURL& policy_url) {
   std::string value;
   RenderThread::current()->Send(
       new ViewHostMsg_GetCookies(url, policy_url, &value));
-  return UTF8ToUTF16(value);
+  return WebString::fromUTF8(value);
 }
 
-void RendererWebKitClientImpl::prefetchHostName(
-    const WebKit::WebString& hostname) {
+void RendererWebKitClientImpl::prefetchHostName(const WebString& hostname) {
   if (!hostname.isEmpty()) {
     std::string hostname_utf8;
     UTF16ToUTF8(hostname.characters(), hostname.length(), &hostname_utf8);
@@ -44,7 +45,7 @@ void RendererWebKitClientImpl::prefetchHostName(
   }
 }
 
-WebKit::WebString RendererWebKitClientImpl::defaultLocale() {
+WebString RendererWebKitClientImpl::defaultLocale() {
   // TODO(darin): Eliminate this webkit_glue call.
   return WideToUTF16(webkit_glue::GetWebKitLocale());
 }
