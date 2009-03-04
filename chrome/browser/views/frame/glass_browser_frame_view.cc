@@ -178,14 +178,14 @@ gfx::Rect GlassBrowserFrameView::GetWindowBoundsForClientBounds(
 gfx::Point GlassBrowserFrameView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point;
   if (browser_view_->IsBrowserTypeNormal()) {
-    // The maximized mode bit here is because in maximized mode there is no
-    // client edge, but in restored mode there is one, and unlike in the opaque
-    // frame we don't have a convenient function to get its coordinate (since
-    // FrameBorderThickness() won't do what we want).
+    // The X coordinate conditional is because in maximized mode the frame edge
+    // and the client edge are both offscreen, whereas in the opaque frame
+    // (where we don't do this trick) maximized windows have no client edge and
+    // only the frame edge is offscreen.
     system_menu_point.SetPoint(NonClientBorderThickness() -
-        (frame_->IsMaximized() ? 0 : kClientEdgeThickness),
+        (browser_view_->CanCurrentlyResize() ? kClientEdgeThickness : 0),
         NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-        kClientEdgeThickness);
+        (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
   } else {
     system_menu_point.SetPoint(0, -kFrameShadowThickness);
   }
