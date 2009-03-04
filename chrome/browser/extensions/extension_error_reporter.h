@@ -19,8 +19,7 @@
 // process and plumbing the errors out to the browser.
 // TODO(aa): Add ReportError(extension_id, message, be_noisy), so that we can
 // report errors that are specific to a particular extension.
-class ExtensionErrorReporter
-  : public base::RefCountedThreadSafe<ExtensionErrorReporter> {
+class ExtensionErrorReporter {
  public:
   // Initializes the error reporter. Must be called before any other methods
   // and on the UI thread.
