@@ -440,10 +440,11 @@ class V8Proxy {
     return v8::Local<v8::Context>::New(m_context);
   }
 
- private:
   // Register extensions before initializing the context.  Once the context
   // is initialized, extensions cannot be registered.
   static void RegisterExtension(v8::Extension* extension);
+
+ private:
   void InitContextIfNeeded();
   void DisconnectEventListeners();
   void SetSecurityToken();
