@@ -9,6 +9,7 @@
 #include "chrome/installer/util/create_reg_key_work_item.h"
 #include "chrome/installer/util/delete_tree_work_item.h"
 #include "chrome/installer/util/delete_reg_value_work_item.h"
+#include "chrome/installer/util/move_tree_work_item.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"
 #include "chrome/installer/util/work_item_list.h"
 
@@ -44,6 +45,12 @@ DeleteRegValueWorkItem* WorkItem::CreateDeleteRegValueWorkItem(
 DeleteTreeWorkItem* WorkItem::CreateDeleteTreeWorkItem(std::wstring root_path,
                                                        std::wstring key_path) {
   return new DeleteTreeWorkItem(root_path, key_path);
+}
+
+MoveTreeWorkItem* WorkItem::CreateMoveTreeWorkItem(std::wstring source_path,
+                                                   std::wstring dest_path,
+                                                   std::wstring temp_dir) {
+  return new MoveTreeWorkItem(source_path, dest_path, temp_dir);
 }
 
 SetRegValueWorkItem* WorkItem::CreateSetRegValueWorkItem(

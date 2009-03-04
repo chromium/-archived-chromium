@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath="move_tree_work_item_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="set_reg_value_work_item_unittest.cc"
 				>
 			</File>

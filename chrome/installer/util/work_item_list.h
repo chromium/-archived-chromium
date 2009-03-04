@@ -54,6 +54,10 @@ class WorkItemList : public WorkItem {
   // by key_path.
   bool AddDeleteTreeWorkItem(std::wstring root_path, std::wstring key_path);
 
+  // Add a MoveTreeWorkItem to the list of work items.
+  bool AddMoveTreeWorkItem(std::wstring source_path, std::wstring dest_path,
+                           std::wstring temp_dir);
+
   // Add a SetRegValueWorkItem that sets a registry value with REG_SZ type
   // at the key with specified path.
   bool AddSetRegValueWorkItem(HKEY predefined_root, std::wstring key_path,

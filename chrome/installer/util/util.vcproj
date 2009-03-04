@@ -265,6 +265,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\move_tree_work_item.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\move_tree_work_item.h"
+			>
+		</File>
+		<File
 			RelativePath=".\set_reg_value_work_item.cc"
 			>
 		</File>

@@ -104,6 +104,14 @@ bool WorkItemList::AddDeleteTreeWorkItem(std::wstring root_path,
   return AddWorkItem(item);
 }
 
+bool WorkItemList::AddMoveTreeWorkItem(std::wstring source_path,
+                                       std::wstring dest_path,
+                                       std::wstring temp_dir) {
+  WorkItem* item = reinterpret_cast<WorkItem*>(
+      WorkItem::CreateMoveTreeWorkItem(source_path, dest_path, temp_dir));
+  return AddWorkItem(item);
+}
+
 bool WorkItemList::AddSetRegValueWorkItem(HKEY predefined_root,
                                           std::wstring key_path,
                                           std::wstring value_name,

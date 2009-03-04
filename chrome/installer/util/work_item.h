@@ -17,6 +17,7 @@ class CreateDirWorkItem;
 class CreateRegKeyWorkItem;
 class DeleteTreeWorkItem;
 class DeleteRegValueWorkItem;
+class MoveTreeWorkItem;
 class SetRegValueWorkItem;
 class WorkItemList;
 
@@ -64,6 +65,11 @@ class WorkItem {
   // by key_path.
   static DeleteTreeWorkItem* CreateDeleteTreeWorkItem(std::wstring root_path,
                                                       std::wstring key_path);
+
+  // Create a MoveTreeWorkItem that recursively moves a file system hierarchy
+  // from source path to destination path.
+  static MoveTreeWorkItem* CreateMoveTreeWorkItem(std::wstring source_path,
+      std::wstring dest_path, std::wstring temp_dir);
 
   // Create a SetRegValueWorkItem that sets a registry value with REG_SZ type
   // at the key with specified path.
