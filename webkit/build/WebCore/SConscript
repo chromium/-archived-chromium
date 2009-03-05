@@ -946,7 +946,6 @@ if env.Bit('linux'):
   # Linux specific implementations.
   input_files.extend([
     '$WEBCORE_DIR/platform/chromium/FileSystemChromiumLinux.cpp',
-    '$WEBCORE_DIR/platform/chromium/gtk2drawing.c',
     '$WEBCORE_DIR/platform/chromium/KeyCodeConversionGtk.cpp',
     '$WEBCORE_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
     '$WEBCORE_DIR/platform/chromium/SoundChromiumPosix.cpp',
