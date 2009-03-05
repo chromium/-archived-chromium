@@ -807,7 +807,7 @@ LINUX : LayoutTests/fast/css/font-face-descriptor-multiple-values.html = FAIL
 LINUX : LayoutTests/fast/css/font-face-locally-installed.html = FAIL
 
 // Font metrics wrong, despite using Lucida Grande?
-LINUX MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
+LINUX : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 
 // Off-by-one in form controls -- font metrics?
 MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
