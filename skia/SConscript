@@ -401,7 +401,6 @@ if env.Bit('linux'):
   input_files.append('ext/bitmap_platform_device_linux.cc')
   input_files.append('ext/platform_canvas_linux.cc')
   input_files.append('ext/platform_device_linux.cc')
-  input_files.append('ext/GdkSkia.cc')
 
   # On Linux we use Skia to render fonts with FreeType and fontconfig
   input_files.Remove('sgl/SkTypeface_fake.cpp')

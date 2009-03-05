@@ -229,8 +229,6 @@
         'ext/bitmap_platform_device_win.h',
         'ext/convolver.cc',
         'ext/convolver.h',
-        'ext/GdkSkia.cc',
-        'ext/GdkSkia.h',
         'ext/google_logging.cc',
         'ext/image_operations.cc',
         'ext/image_operations.h',
@@ -673,7 +671,6 @@
         [ 'OS != "linux"', {
           'sources/': [ ['exclude', '_linux\\.(cc|cpp)$'] ],
           'sources!': [
-            'ext/GdkSkia.cc',
             'ports/SkFontHost_FreeType.cpp',
             'ports/SkFontHost_TryeType_Tables.cpp',
             'ports/SkFontHost_gamma_none.cpp',
