@@ -1843,8 +1843,10 @@ MAC : LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 MAC DEBUG : LayoutTests/http/tests/misc/slow-preload-cancel.html = CRASH
 MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT PASS
 MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
+WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
+WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
 // Regressions from the 41286:41362 merge.
