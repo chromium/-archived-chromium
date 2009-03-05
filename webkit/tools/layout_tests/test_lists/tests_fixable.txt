@@ -1831,3 +1831,6 @@ WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 // New test added in the 41286:41362 merge. Not clear whether we pass.
 // http://crbug.com/8404
 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
+
+LINUX : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
+LINUX : LayoutTests/fast/clip/nestedTransparencyClip.html = CRASH PASS
