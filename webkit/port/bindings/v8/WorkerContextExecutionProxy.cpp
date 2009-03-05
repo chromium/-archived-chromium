@@ -79,6 +79,16 @@ void WorkerContextExecutionProxy::Dispose() {
     m_context.Dispose();
     m_context.Clear();
   }
+
+  // Remove the wrapping between JS object and DOM object. This is because
+  // the worker context object is going to be disposed immediately when a
+  // worker thread is tearing down. We do not want to re-delete the real object
+  // when JS object is garbage collected.
+  v8::HandleScope scope;
+  v8::Persistent<v8::Object> wrapper = GetDOMObjectMap().get(m_workerContext);
+  if (!wrapper.IsEmpty())
+    V8Proxy::SetDOMWrapper(wrapper, V8ClassIndex::INVALID_CLASS_INDEX, NULL);
+  GetDOMObjectMap().forget(m_workerContext);
 }
 
 WorkerContextExecutionProxy* WorkerContextExecutionProxy::retrieve() {
