@@ -142,15 +142,15 @@ class RenderView : public RenderWidget,
   virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
                                    const std::string& json_arguments,
                                    std::string* json_retval);
-  virtual void RunJavaScriptAlert(WebView* webview,
+  virtual void RunJavaScriptAlert(WebFrame* webframe,
                                   const std::wstring& message);
-  virtual bool RunJavaScriptConfirm(WebView* webview,
+  virtual bool RunJavaScriptConfirm(WebFrame* webframe,
                                     const std::wstring& message);
-  virtual bool RunJavaScriptPrompt(WebView* webview,
+  virtual bool RunJavaScriptPrompt(WebFrame* webframe,
                                    const std::wstring& message,
                                    const std::wstring& default_value,
                                    std::wstring* result);
-  virtual bool RunBeforeUnloadConfirm(WebView* webview,
+  virtual bool RunBeforeUnloadConfirm(WebFrame* webframe,
                                       const std::wstring& message);
   virtual void EnableSuddenTermination();
   virtual void DisableSuddenTermination();
@@ -430,6 +430,7 @@ class RenderView : public RenderWidget,
   bool RunJavaScriptMessage(int type,
                             const std::wstring& message,
                             const std::wstring& default_value,
+                            const GURL& frame_url,
                             std::wstring* result);
 
   // Adds search provider from the given OpenSearch description URL as a

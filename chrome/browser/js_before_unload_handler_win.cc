@@ -9,15 +9,16 @@
 #include "chrome/views/message_box_view.h"
 #include "grit/generated_resources.h"
 
-void RunBeforeUnloadDialog(
-    WebContents* web_contents,
-    const std::wstring& message_text,
-    IPC::Message* reply_msg) {
+void RunBeforeUnloadDialog(WebContents* web_contents,
+                           const GURL& frame_url,
+                           const std::wstring& message_text,
+                           IPC::Message* reply_msg) {
   std::wstring full_message =
-    message_text + L"\n\n" +
-    l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_FOOTER);
+      message_text + L"\n\n" +
+      l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_FOOTER);
   JavascriptBeforeUnloadHandler* handler =
-      new JavascriptBeforeUnloadHandler(web_contents, full_message, reply_msg);
+      new JavascriptBeforeUnloadHandler(web_contents, frame_url, full_message,
+                                        reply_msg);
   AppModalDialogQueue::AddDialog(handler);
 }
 
@@ -25,12 +26,14 @@ void RunBeforeUnloadDialog(
 
 JavascriptBeforeUnloadHandler::JavascriptBeforeUnloadHandler(
     WebContents* web_contents,
+    const GURL& frame_url,
     const std::wstring& message_text,
     IPC::Message* reply_msg)
     : JavascriptMessageBoxHandler(web_contents,
+                                  frame_url,
                                   MessageBoxView::kIsJavascriptConfirm,
                                   message_text,
-                                  L"",
+                                  std::wstring(),
                                   false,
                                   reply_msg) {
 }

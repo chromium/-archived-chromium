@@ -409,7 +409,7 @@ void TestWebViewDelegate::AddMessageToConsole(WebView* webview,
   }
 }
 
-void TestWebViewDelegate::RunJavaScriptAlert(WebView* webview,
+void TestWebViewDelegate::RunJavaScriptAlert(WebFrame* webframe,
                                              const std::wstring& message) {
   if (!shell_->layout_test_mode()) {
     ShowJavaScriptAlert(message);
@@ -419,7 +419,7 @@ void TestWebViewDelegate::RunJavaScriptAlert(WebView* webview,
   }
 }
 
-bool TestWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
+bool TestWebViewDelegate::RunJavaScriptConfirm(WebFrame* webframe,
                                                const std::wstring& message) {
   if (shell_->layout_test_mode()) {
     // When running tests, write to stdout.
@@ -430,9 +430,10 @@ bool TestWebViewDelegate::RunJavaScriptConfirm(WebView* webview,
   return false;
 }
 
-bool TestWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
-    const std::wstring& message, const std::wstring& default_value,
-    std::wstring* result) {
+bool TestWebViewDelegate::RunJavaScriptPrompt(WebFrame* webframe,
+                                              const std::wstring& message,
+                                              const std::wstring& default_value,
+                                              std::wstring* result) {
   if (shell_->layout_test_mode()) {
     // When running tests, write to stdout.
     std::string utf8_message = WideToUTF8(message);

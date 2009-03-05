@@ -10,6 +10,7 @@
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/views/app_modal_dialog_delegate.h"
+#include "googleurl/src/gurl.h"
 
 class MessageBoxView;
 class WebContents;
@@ -23,6 +24,7 @@ class JavascriptMessageBoxHandler
  public:
   // Cross-platform code should use RunJavaScriptMessageBox.
   JavascriptMessageBoxHandler(WebContents* web_contents,
+                              const GURL& frame_url,
                               int dialog_flags,
                               const std::wstring& message_text,
                               const std::wstring& default_prompt_text,
@@ -63,6 +65,10 @@ class JavascriptMessageBoxHandler
 
   // The associated WebContents. Used to send IPC messages to the renderer.
   WebContents* web_contents_;
+
+  // The URL of the frame originating the dialog. It is important we display
+  // this so the user doesn't blame the enclosing site if a subframe alert()s.
+  GURL frame_url_;
 
   // Stores flags defined in message_box_view.h which describe the dialog box.
   int dialog_flags_;

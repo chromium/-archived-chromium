@@ -1660,42 +1660,46 @@ class MessageBoxView {
 };
 #endif
 
-void RenderView::RunJavaScriptAlert(WebView* webview,
+void RenderView::RunJavaScriptAlert(WebFrame* webframe,
                                     const std::wstring& message) {
   RunJavaScriptMessage(MessageBoxView::kIsJavascriptAlert,
                        message,
                        std::wstring(),
+                       webframe->GetURL(),
                        NULL);
 }
 
-bool RenderView::RunJavaScriptConfirm(WebView* webview,
+bool RenderView::RunJavaScriptConfirm(WebFrame* webframe,
                                       const std::wstring& message) {
   return RunJavaScriptMessage(MessageBoxView::kIsJavascriptConfirm,
                               message,
                               std::wstring(),
+                              webframe->GetURL(),
                               NULL);
 }
 
-bool RenderView::RunJavaScriptPrompt(WebView* webview,
+bool RenderView::RunJavaScriptPrompt(WebFrame* webframe,
                                      const std::wstring& message,
                                      const std::wstring& default_value,
                                      std::wstring* result) {
   return RunJavaScriptMessage(MessageBoxView::kIsJavascriptPrompt,
                               message,
                               default_value,
+                              webframe->GetURL(),
                               result);
 }
 
 bool RenderView::RunJavaScriptMessage(int type,
                                       const std::wstring& message,
                                       const std::wstring& default_value,
+                                      const GURL& frame_url,
                                       std::wstring* result) {
   bool success = false;
   std::wstring result_temp;
   if (!result)
     result = &result_temp;
   IPC::SyncMessage* msg = new ViewHostMsg_RunJavaScriptMessage(
-      routing_id_, message, default_value, type, &success, result);
+      routing_id_, message, default_value, frame_url, type, &success, result);
 
   msg->set_pump_messages_event(modal_dialog_event_.get());
   Send(msg);
@@ -1709,14 +1713,14 @@ void RenderView::AddGURLSearchProvider(const GURL& osd_url, bool autodetected) {
                                      autodetected));
 }
 
-bool RenderView::RunBeforeUnloadConfirm(WebView* webview,
+bool RenderView::RunBeforeUnloadConfirm(WebFrame* webframe,
                                         const std::wstring& message) {
   bool success = false;
   // This is an ignored return value, but is included so we can accept the same
   // response as RunJavaScriptMessage.
   std::wstring ignored_result;
   IPC::SyncMessage* msg = new ViewHostMsg_RunBeforeUnloadConfirm(
-      routing_id_, message, &success,  &ignored_result);
+      routing_id_, webframe->GetURL(), message, &success,  &ignored_result);
 
   msg->set_pump_messages_event(modal_dialog_event_.get());
   Send(msg);
