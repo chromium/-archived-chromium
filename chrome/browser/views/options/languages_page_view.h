@@ -100,6 +100,7 @@ class LanguagesPageView : public OptionsPageView,
   // This is assigned the new index of spellcheck language if the language
   // is changed. Otherwise, it remains -1, and pref members are not updated.
   int spellcheck_language_index_selected_;
+  std::wstring spellcheck_language_added_;
 
   bool language_table_edited_;
   bool language_warning_shown_;

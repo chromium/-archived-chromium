@@ -323,6 +323,10 @@ class LanguageOrderTableModel : public views::TableModel {
   // Removes the entry at the specified index.
   void Remove(int index);
 
+  // Returns index corresponding to a given language. Returns -1 if the
+  // language is not found.
+  int GetIndex(const std::wstring& language);
+
   // Move down the entry at the specified index.
   void MoveDown(int index);
 
@@ -396,6 +400,22 @@ void LanguageOrderTableModel::Remove(int index) {
   languages_.erase(languages_.begin() + index);
   if (observer_)
     observer_->OnItemsRemoved(index, 1);
+}
+
+int LanguageOrderTableModel::GetIndex(const std::wstring& language) {
+  if (language.empty())
+    return -1;
+
+  int index = 0;
+  for (std::vector<std::wstring>::const_iterator cit = languages_.begin();
+      cit != languages_.end(); ++cit) {
+    if (*cit == language)
+      return index;
+
+    index++;
+  }
+
+  return -1;
 }
 
 void LanguageOrderTableModel::MoveDown(int index) {
@@ -730,9 +750,30 @@ void LanguagesPageView::ItemChanged(views::ComboBox* sender,
       language_warning_shown_ = true;
     }
   } else if (sender == change_dictionary_language_combobox_) {
+    // Set the spellcheck language selected.
     spellcheck_language_index_selected_ = new_index;
-    OnAddLanguage(dictionary_language_model_->GetLocaleFromIndex(new_index));
-    language_table_edited_ = true;
+
+    // Remove the previously added spell check language to the accept list.
+    if (!spellcheck_language_added_.empty()) {
+      int old_index = language_order_table_model_->GetIndex(
+          spellcheck_language_added_);
+      if (old_index > -1)
+        language_order_table_model_->Remove(old_index);
+    }
+
+    // Add this new spell check language only if it is not already in the
+    // accept language list.
+    std::wstring language =
+        dictionary_language_model_->GetLocaleFromIndex(new_index);
+    int index = language_order_table_model_->GetIndex(language);
+    if (index == -1) {
+      // Add the new language.
+      OnAddLanguage(language);
+      language_table_edited_ = true;
+      spellcheck_language_added_ = language;
+    } else {
+      spellcheck_language_added_ = L"";
+    }
   }
 }
 
