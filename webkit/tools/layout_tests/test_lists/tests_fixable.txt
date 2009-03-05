@@ -512,8 +512,6 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
-// Our green is darker and we seem to be a pixel taller.
-WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
