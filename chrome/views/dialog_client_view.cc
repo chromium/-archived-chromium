@@ -309,6 +309,11 @@ bool DialogClientView::AcceleratorPressed(const Accelerator& accelerator) {
 // DialogClientView, NativeButton::Listener implementation:
 
 void DialogClientView::ButtonPressed(NativeButton* sender) {
+  // We NULL check the delegate here since the buttons can receive WM_COMMAND
+  // messages even after they (and the window containing us) are destroyed.
+  if (GetDialogDelegate())
+    return;
+
   if (sender == ok_button_) {
     AcceptWindow();
   } else if (sender == cancel_button_) {
