@@ -2,15 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// The IntervalExtension is a v8 extension to implement a simple interval
-// class for measuring microsecond intervals.
+#ifndef WEBKIT_EXTENSIONS_V8_PLAYBACK_EXTENSION_H_
+#define WEBKIT_EXTENSIONS_V8_PLAYBACK_EXTENSION_H_
 
-#ifndef PLAYBACK_EXTENSION_H__
-#define PLAYBACK_EXTENSION_H__
+#include "v8/include/v8.h"
 
-#include "v8.h"
-
-namespace WebCore {
+namespace extensions_v8 {
 
 // Inject code which overrides a few common JS functions for implementing
 // randomness.  In order to implement effective record & playback of
@@ -28,7 +25,7 @@ class PlaybackExtension {
   static v8::Extension* Get();
 };
 
-}
+}  // namespace extensions_v8
 
-#endif  // PLAYBACK_EXTENSION_H__
+#endif  // WEBKIT_EXTENSIONS_V8_PLAYBACK_EXTENSION_H_
 

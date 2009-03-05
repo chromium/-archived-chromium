@@ -58,8 +58,6 @@ struct ScreenInfo;
 //---- BEGIN FUNCTIONS IMPLEMENTED BY WEBKIT/GLUE -----------------------------
 
 void SetJavaScriptFlags(const std::wstring& flags);
-void SetRecordPlaybackMode(bool value);
-void SetShouldExposeGCController(bool enable);
 
 // Turn on the logging for notImplemented() calls from WebCore.
 void EnableWebCoreNotImplementedLogging();

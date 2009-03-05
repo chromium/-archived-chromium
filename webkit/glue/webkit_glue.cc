@@ -64,18 +64,6 @@ void SetJavaScriptFlags(const std::wstring& str) {
 #endif
 }
 
-void SetRecordPlaybackMode(bool value) {
-#if USE(V8)
-  WebCore::ScriptController::setRecordPlaybackMode(value);
-#endif
-}
-
-void SetShouldExposeGCController(bool enable) {
-#if USE(V8)
-  WebCore::ScriptController::setShouldExposeGCController(enable);
-#endif
-}
-
 void EnableWebCoreNotImplementedLogging() {
   WebCore::LogNotYetImplemented.state = WTFLogChannelOn;
 }

@@ -131,10 +131,6 @@ void RenderProcess::Init() {
     webkit_glue::SetJavaScriptFlags(
       command_line.GetSwitchValue(switches::kJavaScriptFlags));
   }
-  if (command_line.HasSwitch(switches::kPlaybackMode) ||
-      command_line.HasSwitch(switches::kRecordMode)) {
-      webkit_glue::SetRecordPlaybackMode(true);
-  }
 
   if (command_line.HasSwitch(switches::kEnableWatchdog)) {
     // TODO(JAR): Need to implement renderer IO msgloop watchdog.

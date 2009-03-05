@@ -6,19 +6,19 @@
 // on the page, which, when accessed, lazily inserts the gears plugin into
 // the page and attaches it to the factory variable.
 
-#ifndef GEARS_EXTENSION_H__
-#define GEARS_EXTENSION_H__
+#ifndef WEBKIT_EXTENSIONS_V8_GEARS_EXTENSION_H_
+#define WEBKIT_EXTENSIONS_V8_GEARS_EXTENSION_H_
 
-#include "v8.h"
+#include "v8/include/v8.h"
 
-namespace WebCore {
+namespace extensions_v8 {
 
 class GearsExtension {
  public:
   static v8::Extension* Get();
 };
 
-}
+}  // namespace extensions_v8
 
-#endif  // GEARS_EXTENSION_H__
+#endif  // WEBKIT_EXTENSIONS_V8_GEARS_EXTENSION_H_
 

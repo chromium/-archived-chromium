@@ -2668,35 +2668,35 @@
 			Name="extensions"
 			>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\GCController.cpp"
+				RelativePath="..\..\extensions\v8\gc_extension.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\GCController.h"
+				RelativePath="..\..\extensions\v8\gc_extension.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\Gears.cpp"
+				RelativePath="..\..\extensions\v8\gears_extension.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\Gears.h"
+				RelativePath="..\..\extensions\v8\gears_extension.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\Interval.cpp"
+				RelativePath="..\..\extensions\v8\interval_extension.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\Interval.h"
+				RelativePath="..\..\extensions\v8\interval_extension.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\Playback.cpp"
+				RelativePath="..\..\extensions\v8\playback_extension.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\bindings\v8\extensions\Playback.h"
+				RelativePath="..\..\extensions\v8\playback_extension.h"
 				>
 			</File>
 		</Filter>

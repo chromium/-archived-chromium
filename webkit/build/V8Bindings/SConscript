@@ -350,10 +350,6 @@ inputs = [
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
     '$PORT_DIR/bindings/v8/WorkerContextExecutionProxy.cpp',
     '$PORT_DIR/bindings/v8/WorkerScriptController.cpp',
-    '$PORT_DIR/bindings/v8/extensions/GCController.cpp',
-    '$PORT_DIR/bindings/v8/extensions/Gears.cpp',
-    '$PORT_DIR/bindings/v8/extensions/Interval.cpp',
-    '$PORT_DIR/bindings/v8/extensions/Playback.cpp',
 
     '$WEBCORE_DIR/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8ClipboardCustom.cpp',
@@ -390,6 +386,11 @@ inputs = [
     '$WEBCORE_DIR/bindings/v8/custom/V8XMLSerializerConstructor.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8XPathEvaluatorConstructor.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8XSLTProcessorCustom.cpp',
+
+    '$WEBKIT_DIR/extensions/v8/gc_extension.cc',
+    '$WEBKIT_DIR/extensions/v8/gears_extension.cc',
+    '$WEBKIT_DIR/extensions/v8/interval_extension.cc',
+    '$WEBKIT_DIR/extensions/v8/playback_extension.cc',
 ]
 
 if env.Bit('windows'):

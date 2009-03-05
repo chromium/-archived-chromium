@@ -9,6 +9,8 @@
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
+#include "webkit/extensions/v8/gears_extension.h"
+#include "webkit/extensions/v8/interval_extension.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 
 #include "WebKit.h"
@@ -22,6 +24,8 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::setLayoutTestMode(layout_test_mode);
     WebKit::registerURLSchemeAsLocal(
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
+    WebKit::registerExtension(extensions_v8::GearsExtension::Get());
+    WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
   }
 
   ~TestShellWebKitInit() {

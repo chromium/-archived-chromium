@@ -205,11 +205,6 @@
 #include "XPathEvaluator.h"
 #endif
 
-#include "extensions/GCController.h"
-#include "extensions/Gears.h"
-#include "extensions/Interval.h"
-#include "extensions/Playback.h"
-
 
 namespace WebCore {
 
@@ -2330,14 +2325,6 @@ void V8Proxy::InitContextIfNeeded()
     v8::V8::AddMessageListener(HandleConsoleMessage);
 
     v8::V8::SetFailedAccessCheckCallbackFunction(ReportUnsafeJavaScriptAccess);
-
-    // Register known extensions
-    RegisterExtension(GearsExtension::Get());
-    RegisterExtension(IntervalExtension::Get());
-    if (ScriptController::shouldExposeGCController())
-      RegisterExtension(GCExtension::Get());
-    if (ScriptController::RecordPlaybackMode())
-      RegisterExtension(PlaybackExtension::Get());
 
     v8_initialized = true;
   }

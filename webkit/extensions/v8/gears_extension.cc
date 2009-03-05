@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
-#include "Gears.h"
+#include "webkit/extensions/v8/gears_extension.h"
 
-namespace WebCore {
+namespace extensions_v8 {
 
 const char* kGearsExtensionName = "v8/Gears";
 
@@ -33,13 +32,13 @@ const char* kGearsExtensionScript =
     "})();";
 
 class GearsExtensionWrapper : public v8::Extension {
-public:
-    GearsExtensionWrapper() :
-        v8::Extension(kGearsExtensionName, kGearsExtensionScript) {}
+ public:
+  GearsExtensionWrapper()
+      : v8::Extension(kGearsExtensionName, kGearsExtensionScript) {}
 };
 
 v8::Extension* GearsExtension::Get() {
     return new GearsExtensionWrapper();
 }
 
-}
+}  // namespace extensions_v8

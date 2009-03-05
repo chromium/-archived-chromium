@@ -12,8 +12,10 @@
 
 #include "chrome/renderer/render_thread.h"
 
+#include "base/command_line.h"
 #include "base/shared_memory.h"
 #include "chrome/common/chrome_plugin_lib.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/url_constants.h"
@@ -33,6 +35,9 @@
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
+#include "webkit/extensions/v8/gears_extension.h"
+#include "webkit/extensions/v8/interval_extension.h"
+#include "webkit/extensions/v8/playback_extension.h"
 #include "webkit/glue/cache_manager.h"
 
 #include "WebKit.h"
@@ -244,4 +249,12 @@ void RenderThread::EnsureWebKitInitialized() {
   webkit_client_.reset(new RendererWebKitClientImpl);
   WebKit::initialize(webkit_client_.get());
   WebKit::registerURLSchemeAsLocal(ASCIIToUTF16(chrome::kChromeUIScheme));
+  WebKit::registerExtension(extensions_v8::GearsExtension::Get());
+  WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
+
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kPlaybackMode) ||
+      command_line.HasSwitch(switches::kRecordMode)) {
+    WebKit::registerExtension(extensions_v8::PlaybackExtension::Get());
+  }
 }

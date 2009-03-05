@@ -5,19 +5,19 @@
 // The IntervalExtension is a v8 extension to implement a simple interval
 // class for measuring microsecond intervals.
 
-#ifndef INTERVAL_EXTENSION_H__
-#define INTERVAL_EXTENSION_H__
+#ifndef WEBKIT_EXTENSIONS_V8_INTERVAL_EXTENSION_H_
+#define WEBKIT_EXTENSIONS_V8_INTERVAL_EXTENSION_H_
 
-#include "v8.h"
+#include "v8/include/v8.h"
 
-namespace WebCore {
+namespace extensions_v8 {
 
 class IntervalExtension {
  public:
   static v8::Extension* Get();
 };
 
-}
+}  // namespace extensions_v8
 
-#endif  // INTERVAL_EXTENSION_H__
+#endif  // WEBKIT_EXTENSIONS_V8_INTERVAL_EXTENSION_H_
 

@@ -27,6 +27,8 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
+#include "webkit/extensions/v8/gc_extension.h"
+#include "webkit/extensions/v8/playback_extension.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_platform_delegate.h"
@@ -100,6 +102,12 @@ int main(int argc, char* argv[]) {
     base::TraceLog::StartTracing();
 
   net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
+
+  // This is a special mode where JS helps the browser implement
+  // playback/record mode.  Generally, in this mode, some functions
+  // of client-side randomness are removed.  For example, in
+  // this mode Math.random() and Date.getTime() may not return
+  // values which vary.
   bool playback_mode =
     parsed_command_line.HasSwitch(test_shell::kPlaybackMode);
   bool record_mode =
@@ -178,8 +186,8 @@ int main(int argc, char* argv[]) {
   // Test shell always exposes the GC.
   js_flags += L" --expose-gc";
   webkit_glue::SetJavaScriptFlags(js_flags);
-  // Also expose GCController to JavaScript.
-  webkit_glue::SetShouldExposeGCController(true);
+  // Expose GCController to JavaScript.
+  WebKit::registerExtension(extensions_v8::GCExtension::Get());
 
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
@@ -195,8 +203,7 @@ int main(int argc, char* argv[]) {
   if (TestShell::CreateNewWindow(uri, &shell)) {
     if (record_mode || playback_mode) {
       platform.SetWindowPositionForRecording(shell);
-      // Tell webkit as well.
-      webkit_glue::SetRecordPlaybackMode(true);
+      WebKit::registerExtension(extensions_v8::PlaybackExtension::Get());
     }
 
     shell->Show(shell->webView(), NEW_WINDOW);
