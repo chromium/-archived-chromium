@@ -245,14 +245,6 @@ int ChromeMain(int argc, const char** argv) {
   // its main event loop to get rid of the cruft.
   base::ScopedNSAutoreleasePool autorelease_pool;
 
-#if defined(OS_LINUX)
-  // gtk_init() can change |argc| and |argv| and thus must be called before
-  // CommandLine::Init().
-  // TODO(estade): we should make a copy of |argv| instead of const_casting
-  // it.
-  gtk_init(&argc, const_cast<char***>(&argv));
-#endif
-
   // Initialize the command line.
 #if defined(OS_WIN)
   CommandLine::Init(0, NULL);
@@ -378,6 +370,11 @@ int ChromeMain(int argc, const char** argv) {
     rv = WorkerMain(main_params);
 #endif
   } else if (process_type.empty()) {
+#if defined(OS_LINUX)
+    // gtk_init() can change |argc| and |argv|, but nobody else uses them.
+    gtk_init(&argc, const_cast<char***>(&argv));
+#endif
+
     ScopedOleInitializer ole_initializer;
     rv = BrowserMain(main_params);
   } else {
