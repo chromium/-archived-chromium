@@ -1844,4 +1844,4 @@ SKIP : LayoutTests/transforms/3d/point-mapping/3d-point-mapping-2.html = FAIL
 
 // New tests added in the 41420:41447 merge that fail:
 DEFER : LayoutTests/fast/block/float/nested-clearance.html = FAIL
-DEFER : LayoutTests/fast/css-generated-content/hit-test-generated-content.html
+DEFER : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
