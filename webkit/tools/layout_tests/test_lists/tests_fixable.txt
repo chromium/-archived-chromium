@@ -1830,3 +1830,18 @@ DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 
 LINUX : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
 LINUX : LayoutTests/fast/clip/nestedTransparencyClip.html = CRASH PASS
+
+// New tests added in the 41420:41447 merge that crash, and hence should not be
+// deferred:
+LayoutTests/transforms/3d/hit-testing/backface-hit-test.html = CRASH
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping-deep.html = CRASH
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping-origins.html = CRASH
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping-preserve-3d.html = CRASH
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping.html = CRASH
+
+// New tests added in the 41420:41447 merge that are just missing results:
+SKIP : LayoutTests/transforms/3d/point-mapping/3d-point-mapping-2.html = FAIL
+
+// New tests added in the 41420:41447 merge that fail:
+DEFER : LayoutTests/fast/block/float/nested-clearance.html = FAIL
+DEFER : LayoutTests/fast/css-generated-content/hit-test-generated-content.html
