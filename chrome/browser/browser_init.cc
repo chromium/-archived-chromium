@@ -12,6 +12,8 @@
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
+#include "chrome/browser/automation/automation_provider.h"
+#include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/extensions_service.h"
@@ -37,8 +39,6 @@
 #if defined(OS_WIN)
 
 #include "base/win_util.h"
-#include "chrome/browser/automation/automation_provider.h"
-#include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -445,7 +445,6 @@ bool BrowserInit::ProcessCommandLine(
       }
     }
 
-#if defined(OS_WIN)
     // Look for the testing channel ID ONLY during process startup
     if (command_line.HasSwitch(switches::kTestingChannelID)) {
       std::wstring testing_channel_id =
@@ -456,7 +455,9 @@ bool BrowserInit::ProcessCommandLine(
       // new tab; if there are none then we get one homepage tab.
       int expected_tab_count = 1;
       if (command_line.HasSwitch(switches::kRestoreLastSession)) {
-        StringToInt(command_line.GetSwitchValue(switches::kRestoreLastSession),
+        std::wstring restore_session_value(
+            command_line.GetSwitchValue(switches::kRestoreLastSession));
+        StringToInt(WideToUTF16Hack(restore_session_value),
                     &expected_tab_count);
       } else {
         expected_tab_count =
@@ -467,7 +468,6 @@ bool BrowserInit::ProcessCommandLine(
           profile,
           static_cast<size_t>(expected_tab_count));
     }
-#endif
   }
 
   // Allow the command line to override the persisted setting of home page.
@@ -477,7 +477,6 @@ bool BrowserInit::ProcessCommandLine(
     prefs->transient()->SetBoolean(prefs::kStartRenderersManually, true);
 
   bool silent_launch = false;
-#if defined(OS_WIN)
   if (command_line.HasSwitch(switches::kAutomationClientChannelID)) {
     std::wstring automation_channel_id =
         command_line.GetSwitchValue(switches::kAutomationClientChannelID);
@@ -491,7 +490,6 @@ bool BrowserInit::ProcessCommandLine(
     CreateAutomationProvider<AutomationProvider>(automation_channel_id,
                                                  profile, expected_tabs);
   }
-#endif
 
   if (command_line.HasSwitch(switches::kLoadExtension)) {
     std::wstring path_string =
@@ -531,7 +529,6 @@ bool BrowserInit::LaunchBrowser(const CommandLine& command_line,
   return result;
 }
 
-#if defined(OS_WIN)
 template <class AutomationProviderClass>
 void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
                                            Profile* profile,
@@ -542,10 +539,10 @@ void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
   automation->SetExpectedTabCount(expected_tabs);
 
   AutomationProviderList* list =
-      g_browser_process->InitAutomationProviderList();  DCHECK(list);
+      g_browser_process->InitAutomationProviderList();
+  DCHECK(list);
   list->AddProvider(automation);
 }
-#endif
 
 bool BrowserInit::LaunchBrowserImpl(const CommandLine& command_line,
                                     Profile* profile,

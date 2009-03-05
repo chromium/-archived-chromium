@@ -12,6 +12,7 @@ env.SConscript([
     '$BZIP2_DIR/using_bzip2.scons',
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$CHROME_SRC_DIR/tools/grit/build/using_generated_resources.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$LIBPNG_DIR/using_libpng.scons',
@@ -34,9 +35,13 @@ env.Prepend(
         'UI_TEST',
     ],
     LIBS = [
+        'automation',
         'browser',
         'common',
+        'glue',
+        'port',
         'sqlite',
+        'WTF',
     ]
 )
 
@@ -45,11 +50,9 @@ if env.Bit('windows'):
   # lower env.Prepend (for win-specific libs).
   env.Prepend(
       LIBS = [
-          'automation',
           'browser_views',
           'npapi_layout_test_plugin',
           'npapi_test_plugin',
-          'port',
           'security_tests',
       ],
   )

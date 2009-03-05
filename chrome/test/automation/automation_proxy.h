@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/process_util.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "base/thread.h"
@@ -158,6 +159,10 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Returns the ID of the automation IPC channel, so that it can be
   // passed to the app as a launch parameter.
   const std::wstring& channel_id() const { return channel_id_; }
+
+#if defined(OS_POSIX)
+  base::file_handle_mapping_vector fds_to_map() const;
+#endif
 
   // AutomationMessageSender implementations.
   virtual bool Send(IPC::Message* message);

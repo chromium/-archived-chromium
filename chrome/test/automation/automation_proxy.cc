@@ -402,6 +402,17 @@ BrowserProxy* AutomationProxy::GetLastActiveBrowserWindow() {
   return new BrowserProxy(this, tracker_.get(), handle);
 }
 
+#if defined(OS_POSIX)
+base::file_handle_mapping_vector AutomationProxy::fds_to_map() const {
+  base::file_handle_mapping_vector map;
+  int src_fd = -1, dest_fd = -1;
+  channel_->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
+  if (src_fd > -1)
+    map.push_back(std::make_pair(src_fd, dest_fd));
+  return map;
+}
+#endif  // defined(OS_POSIX)
+
 bool AutomationProxy::Send(IPC::Message* message) {
   return SendWithTimeout(message, base::kNoTimeout, NULL);
 }

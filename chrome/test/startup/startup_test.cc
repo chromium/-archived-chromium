@@ -2,11 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/string_util.h"
+#include "base/test_file_util.h"
 #include "base/time.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
@@ -15,18 +18,6 @@ using base::TimeDelta;
 using base::TimeTicks;
 
 namespace {
-
-// Wrapper around CopyFile to retry 10 times if there is an error.
-// For some reasons on buildbot it happens quite often that
-// the test fails because the dll is still in use.
-bool CopyFileWrapper(const std::wstring &src, const std::wstring &dest) {
-  for (int i = 0; i < 10; ++i) {
-    if (file_util::CopyFile(src, dest))
-      return true;
-    Sleep(1000);
-  }
-  return false;
-}
 
 class StartupTest : public UITest {
  public:
@@ -41,24 +32,26 @@ class StartupTest : public UITest {
       bool test_cold, bool important) {
     const int kNumCycles = 20;
 
-    // Make a backup of gears.dll so we can overwrite the original, which
-    // flushes the disk cache for that file.
-    std::wstring chrome_dll, chrome_dll_copy;
-    ASSERT_TRUE(PathService::Get(chrome::DIR_APP, &chrome_dll));
-    file_util::AppendToPath(&chrome_dll, L"chrome.dll");
-    chrome_dll_copy = chrome_dll + L".copy";
-    ASSERT_TRUE(CopyFileWrapper(chrome_dll, chrome_dll_copy));
-
-    std::wstring gears_dll, gears_dll_copy;
-    ASSERT_TRUE(PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_dll));
-    gears_dll_copy = gears_dll + L".copy";
-    ASSERT_TRUE(CopyFileWrapper(gears_dll, gears_dll_copy));
-
     TimeDelta timings[kNumCycles];
     for (int i = 0; i < kNumCycles; ++i) {
       if (test_cold) {
-        ASSERT_TRUE(CopyFileWrapper(chrome_dll_copy, chrome_dll));
-        ASSERT_TRUE(CopyFileWrapper(gears_dll_copy, gears_dll));
+        FilePath dir_app;
+        ASSERT_TRUE(PathService::Get(chrome::DIR_APP, &dir_app));
+
+        FilePath chrome_exe(dir_app.Append(
+            FilePath::FromWStringHack(chrome::kBrowserProcessExecutableName)));
+        ASSERT_TRUE(file_util::EvictFileFromSystemCache(chrome_exe));
+#if defined(OS_WIN)
+        // TODO(port): these files do not exist on other platforms.
+        // Decide what to do.
+
+        FilePath chrome_dll(dir_app.Append(FILE_PATH_LITERAL("chrome.dll")));
+        ASSERT_TRUE(file_util::EvictFileFromSystemCache(chrome_dll));
+
+        FilePath gears_dll;
+        ASSERT_TRUE(PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_dll));
+        ASSERT_TRUE(file_util::EvictFileFromSystemCache(gears_dll));
+#endif  // defined(OS_WIN)
       }
 
       UITest::SetUp();
@@ -75,9 +68,6 @@ class StartupTest : public UITest {
         clear_profile_ = false;
       }
     }
-
-    ASSERT_TRUE(file_util::Delete(chrome_dll_copy, false));
-    ASSERT_TRUE(file_util::Delete(gears_dll_copy, false));
 
     std::wstring times;
     for (int i = 0; i < kNumCycles; ++i)
@@ -116,11 +106,15 @@ class StartupFileTest : public StartupTest {
     pages_ = WideToUTF8(file_url);
   }
 };
+
 }  // namespace
 
 TEST_F(StartupTest, Perf) {
   RunStartupTest(L"warm", L"t", false /* not cold */, true /* important */);
 }
+
+#if defined(OS_WIN)
+// TODO(port): Enable reference tests on other platforms.
 
 TEST_F(StartupReferenceTest, Perf) {
   RunStartupTest(L"warm", L"t_ref", false /* not cold */,
@@ -142,4 +136,6 @@ TEST_F(StartupFileTest, PerfColdGears) {
   RunStartupTest(L"cold", L"gears", true /* cold */,
                  false /* not important */);
 }
+
+#endif  // defined(OS_WIN)
 

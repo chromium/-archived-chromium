@@ -42,7 +42,6 @@ if not env.Bit('windows'):
   # TODO(port): port.
   input_files.Remove(
       'autocomplete_edit_proxy.cc',
-      'browser_proxy.cc',
       'constrained_window_proxy.cc',
       'tab_proxy.cc',
       'window_proxy.cc',

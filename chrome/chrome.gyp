@@ -363,6 +363,8 @@
         'browser/automation/url_request_failed_dns_job.h',
         'browser/automation/url_request_slow_download_job.cc',
         'browser/automation/url_request_slow_download_job.h',
+        'browser/automation/url_request_mock_http_job.cc',
+        'browser/automation/url_request_mock_http_job.h',
         'browser/bookmarks/bookmark_codec.cc',
         'browser/bookmarks/bookmark_codec.h',
         'browser/bookmarks/bookmark_context_menu.cc',

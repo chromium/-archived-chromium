@@ -24,13 +24,14 @@
 #include "chrome/common/debug_flags.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/json_value_serializer.h"
+#include "chrome/test/automation/automation_proxy.h"
+#include "chrome/test/automation/browser_proxy.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
 #if defined(OS_WIN)
 // TODO(port): these just need to be ported.
 #include "chrome/common/chrome_process_filter.h"
-#include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #endif
@@ -211,7 +212,6 @@ void UITest::InitializeTimeouts() {
 }
 
 void UITest::LaunchBrowserAndServer() {
-#if defined(OS_WIN)
   // Set up IPC testing interface server.
   server_.reset(new AutomationProxy(command_execution_timeout_ms_));
 
@@ -219,26 +219,17 @@ void UITest::LaunchBrowserAndServer() {
   if (wait_for_initial_loads_)
     ASSERT_TRUE(server_->WaitForInitialLoads());
   else
-    Sleep(2000);
+    PlatformThread::Sleep(2000);
 
   automation()->SetFilteredInet(true);
-#else
-  // TODO(port): depends on AutomationProxy.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void UITest::CloseBrowserAndServer() {
   QuitBrowser();
   CleanupAppProcesses();
 
-#if defined(OS_WIN)
   // Shut down IPC testing interface.
   server_.reset();
-#else
-  // TODO(port): depends on AutomationProxy.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
@@ -265,7 +256,6 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   if (dom_automation_enabled_)
     command_line.AppendSwitch(switches::kDomAutomationController);
 
-#if defined(OS_WIN)
   if (include_testing_id_) {
     if (use_existing_browser_) {
       // TODO(erikkay): The new switch depends on a browser instance already
@@ -280,10 +270,6 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
                                          server_->channel_id());
     }
   }
-#else
-  // TODO(port): depends on AutomationProxy.
-  NOTIMPLEMENTED();
-#endif
 
   if (!show_error_dialogs_ &&
       !CommandLine::ForCurrentProcess()->HasSwitch(kEnableErrorDialogs)) {
@@ -346,7 +332,6 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   if (clear_profile)
     ASSERT_TRUE(DieFileDie(user_data_dir_, true));
 
-#if defined(OS_WIN)
   if (!template_user_data_.empty()) {
     // Recursively copy the template directory to the user_data_dir.
     ASSERT_TRUE(file_util::CopyRecursiveDirNoCache(template_user_data_,
@@ -355,13 +340,21 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
 
   browser_launch_time_ = TimeTicks::Now();
 
+#if defined(OS_WIN)
   bool started = base::LaunchApp(command_line,
                                  false,  // Don't wait for process object
                                          // (doesn't work for us)
                                  !show_window_,
                                  &process_);
-  ASSERT_EQ(started, true);
+#elif defined(OS_POSIX)
+  bool started = base::LaunchApp(command_line.argv(),
+                                 server_->fds_to_map(),
+                                 false,  // Don't wait.
+                                 &process_);
+#endif
+  ASSERT_TRUE(started);
 
+#if defined(OS_WIN)
   if (use_existing_browser_) {
     DWORD pid = 0;
     HWND hwnd = FindWindowEx(HWND_MESSAGE, NULL, chrome::kMessageWindowClass,
@@ -381,7 +374,6 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
 }
 
 void UITest::QuitBrowser() {
-#if defined(OS_WIN)
   typedef std::vector<BrowserProxy*> BrowserVector;
 
   // There's nothing to do here if the browser is not running.
@@ -416,7 +408,7 @@ void UITest::QuitBrowser() {
 #ifdef WAIT_FOR_DEBUGGER_ON_OPEN
     timeout = 500000;
 #endif
-    if (WAIT_TIMEOUT == WaitForSingleObject(process_, timeout)) {
+    if (!base::WaitForSingleProcess(process_, timeout)) {
       // We need to force the browser to quit because it didn't quit fast
       // enough. Take no chance and kill every chrome processes.
       CleanupAppProcesses();
@@ -424,19 +416,15 @@ void UITest::QuitBrowser() {
   }
 
   // Don't forget to close the handle
-  CloseHandle(process_);
+  base::CloseProcessHandle(process_);
   process_ = NULL;
-#else
-  // TODO(port): depends on AutomationProxy.
-  NOTIMPLEMENTED();
-#endif  // OS_WIN
 }
 
 void UITest::AssertAppNotRunning(const std::wstring& error_message) {
 #if defined(OS_WIN)
   ASSERT_EQ(0, GetBrowserProcessCount()) << error_message;
 #else
-  // TODO(port): depends on AutomationProxy.
+  // TODO(port): Enable when chrome_process_filter is ported.
   NOTIMPLEMENTED();
 #endif
 }
@@ -570,6 +558,7 @@ std::wstring UITest::GetActiveTabTitle() {
   EXPECT_TRUE(tab_proxy->GetTabTitle(&title));
   return title;
 }
+#endif  // defined(OS_WIN)
 
 bool UITest::IsBrowserRunning() {
   return CrashAwareSleep(0);
@@ -578,6 +567,9 @@ bool UITest::IsBrowserRunning() {
 bool UITest::CrashAwareSleep(int time_out_ms) {
   return base::CrashAwareSleep(process_, time_out_ms);
 }
+
+#if defined(OS_WIN)
+// TODO(port): Port these.
 
 /*static*/
 int UITest::GetBrowserProcessCount() {
@@ -724,37 +716,6 @@ bool UITest::CloseBrowser(BrowserProxy* browser,
   return result;
 }
 
-void UITest::PrintResult(const std::wstring& measurement,
-                         const std::wstring& modifier,
-                         const std::wstring& trace,
-                         size_t value,
-                         const std::wstring& units,
-                         bool important) {
-  std::wstring value_str = StringPrintf(L"%d", value);
-  PrintResultsImpl(measurement, modifier, trace, value_str,
-                   L"", L"", units, important);
-}
-
-void UITest::PrintResultMeanAndError(const std::wstring& measurement,
-                                     const std::wstring& modifier,
-                                     const std::wstring& trace,
-                                     const std::wstring& mean_and_error,
-                                     const std::wstring& units,
-                                     bool important) {
-  PrintResultsImpl(measurement, modifier, trace, mean_and_error,
-                   L"{", L"}", units, important);
-}
-
-void UITest::PrintResultList(const std::wstring& measurement,
-                             const std::wstring& modifier,
-                             const std::wstring& trace,
-                             const std::wstring& values,
-                             const std::wstring& units,
-                             bool important) {
-  PrintResultsImpl(measurement, modifier, trace, values,
-                   L"[", L"]", units, important);
-}
-
 GURL UITest::GetTestUrl(const std::wstring& test_directory,
                         const std::wstring &test_case) {
   std::wstring path;
@@ -791,6 +752,39 @@ void UITest::WaitForFinish(const std::string &name,
   EXPECT_EQ(true, test_result);
 }
 
+#endif  // OS_WIN
+
+void UITest::PrintResult(const std::wstring& measurement,
+                         const std::wstring& modifier,
+                         const std::wstring& trace,
+                         size_t value,
+                         const std::wstring& units,
+                         bool important) {
+  std::wstring value_str = StringPrintf(L"%d", value);
+  PrintResultsImpl(measurement, modifier, trace, value_str,
+                   L"", L"", units, important);
+}
+
+void UITest::PrintResultMeanAndError(const std::wstring& measurement,
+                                     const std::wstring& modifier,
+                                     const std::wstring& trace,
+                                     const std::wstring& mean_and_error,
+                                     const std::wstring& units,
+                                     bool important) {
+  PrintResultsImpl(measurement, modifier, trace, mean_and_error,
+                   L"{", L"}", units, important);
+}
+
+void UITest::PrintResultList(const std::wstring& measurement,
+                             const std::wstring& modifier,
+                             const std::wstring& trace,
+                             const std::wstring& values,
+                             const std::wstring& units,
+                             bool important) {
+  PrintResultsImpl(measurement, modifier, trace, values,
+                   L"[", L"]", units, important);
+}
+
 void UITest::PrintResultsImpl(const std::wstring& measurement,
                               const std::wstring& modifier,
                               const std::wstring& trace,
@@ -807,5 +801,3 @@ void UITest::PrintResultsImpl(const std::wstring& measurement,
           trace.c_str(), prefix.c_str(), values.c_str(), suffix.c_str(),
           units.c_str());
 }
-
-#endif  // OS_WIN

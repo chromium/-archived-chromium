@@ -65,7 +65,6 @@
 
 #include "base/registry.h"
 #include "base/win_util.h"
-#include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/extensions/extension_protocols.h"

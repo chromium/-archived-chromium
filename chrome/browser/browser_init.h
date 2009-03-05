@@ -102,12 +102,10 @@ class BrowserInit {
                             Profile* profile, const std::wstring& cur_dir,
                             bool process_startup, int* return_code);
 
-#if defined(OS_WIN)
   template <class AutomationProviderClass>
   static void CreateAutomationProvider(const std::wstring& channel_id,
                                        Profile* profile,
                                        size_t expected_tabs);
-#endif
 
  private:
   // Does the work of LaunchBrowser returning the result.

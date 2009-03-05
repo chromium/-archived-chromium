@@ -248,7 +248,7 @@ bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds) {
   if (status != -1)
     return !(WIFEXITED(status) || WIFSIGNALED(status));
   else
-    return false;
+    return true;
 }
 
 namespace {

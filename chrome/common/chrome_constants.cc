@@ -12,7 +12,11 @@ namespace chrome {
 
 // The following should not be used for UI strings; they are meant
 // for system strings only. UI changes should be made in the GRD.
+#if defined(OS_WIN)
 const wchar_t kBrowserProcessExecutableName[] = L"chrome.exe";
+#elif defined(OS_LINUX)
+const wchar_t kBrowserProcessExecutableName[] = L"chrome";
+#endif
 #if defined(GOOGLE_CHROME_BUILD)
 const wchar_t kBrowserAppName[] = L"Chrome";
 const char    kStatsFilename[] = "ChromeStats2";

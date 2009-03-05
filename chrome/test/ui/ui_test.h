@@ -30,12 +30,10 @@
 #include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
-#if defined(OS_WIN)
 // TODO(evanm): we should be able to just forward-declare
 // AutomationProxy here, but many files that #include this one don't
 // themselves #include automation_proxy.h.
 #include "chrome/test/automation/automation_proxy.h"
-#endif
 #include "testing/gtest/include/gtest/gtest.h"
 
 class AutomationProxy;
@@ -361,14 +359,8 @@ class UITest : public testing::Test {
 
  protected:
   AutomationProxy* automation() {
-#if defined(OS_WIN)
     EXPECT_TRUE(server_.get());
     return server_.get();
-#else
-    // TODO(port): restore when AutomationProxy bits work.
-    NOTIMPLEMENTED();
-    return NULL;
-#endif
   }
 
   // Wait a certain amount of time for all the app processes to exit,
@@ -438,10 +430,8 @@ class UITest : public testing::Test {
                                         // for an test to finish.
   static std::wstring js_flags_;        // Flags passed to the JS engine.
   static std::wstring log_level_;       // Logging level.
-#if defined(OS_WIN)
-  // TODO(port): restore me after AutomationProxy works.
+
   scoped_ptr<AutomationProxy> server_;
-#endif
 
   MessageLoop message_loop_;            // Enables PostTask to main thread.
 

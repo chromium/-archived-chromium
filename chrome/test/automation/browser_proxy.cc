@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "base/platform_thread.h"
 #include "base/time.h"
 #include "chrome/test/automation/autocomplete_edit_proxy.h"
 #include "chrome/test/automation/automation_constants.h"
@@ -171,6 +172,8 @@ bool BrowserProxy::ApplyAccelerator(int id) {
       new AutomationMsg_ApplyAccelerator(0, handle_, id));
 }
 
+#if defined(OS_WIN)
+// TODO(port): Replace POINT.
 bool BrowserProxy::SimulateDrag(const POINT& start,
                                 const POINT& end,
                                 int flags,
@@ -200,13 +203,14 @@ bool BrowserProxy::SimulateDragWithTimeout(const POINT& start,
 
   return result;
 }
+#endif  // defined(OS_WIN)
 
 bool BrowserProxy::WaitForTabCountToChange(int count, int* new_count,
                                            int wait_timeout) {
   const TimeTicks start = TimeTicks::Now();
   const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
   while (TimeTicks::Now() - start < timeout) {
-    Sleep(automation::kSleepTime);
+    PlatformThread::Sleep(automation::kSleepTime);
     bool is_timeout;
     bool succeeded = GetTabCountWithTimeout(new_count, wait_timeout,
                                             &is_timeout);
@@ -223,7 +227,7 @@ bool BrowserProxy::WaitForTabCountToBecome(int count, int wait_timeout) {
   const TimeTicks start = TimeTicks::Now();
   const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
   while (TimeTicks::Now() - start < timeout) {
-    Sleep(automation::kSleepTime);
+    PlatformThread::Sleep(automation::kSleepTime);
     bool is_timeout;
     int new_count;
     bool succeeded = GetTabCountWithTimeout(&new_count, wait_timeout,
@@ -242,7 +246,7 @@ bool BrowserProxy::WaitForTabToBecomeActive(int tab,
   const TimeTicks start = TimeTicks::Now();
   const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
   while (TimeTicks::Now() - start < timeout) {
-    Sleep(automation::kSleepTime);
+    PlatformThread::Sleep(automation::kSleepTime);
     int active_tab;
     if (GetActiveTabIndex(&active_tab) && active_tab == tab)
       return true;
@@ -280,6 +284,8 @@ bool BrowserProxy::IsFindWindowFullyVisible(bool* is_visible) {
       new AutomationMsg_FindWindowVisibility(0, handle_, is_visible));
 }
 
+#if defined(OS_WIN)
+// TODO(port): Replace HWND.
 bool BrowserProxy::GetHWND(HWND* handle) const {
   if (!is_valid())
     return false;
@@ -291,6 +297,7 @@ bool BrowserProxy::GetHWND(HWND* handle) const {
 
   return sender_->Send(new AutomationMsg_WindowHWND(0, handle_, handle));
 }
+#endif  // defined(OS_WIN)
 
 bool BrowserProxy::RunCommand(int browser_command) const {
   if (!is_valid())

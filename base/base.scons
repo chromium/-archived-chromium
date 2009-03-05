@@ -357,6 +357,7 @@ if env.Bit('posix'):
       'string16.cc',
       'sys_info_posix.cc',
       'system_monitor_posix.cc',
+      'test_file_util_posix.cc',
       'thread_local_storage_posix.cc',
       'thread_local_posix.cc',
       'time_posix.cc',

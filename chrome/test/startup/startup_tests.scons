@@ -10,6 +10,7 @@ env.ApplySConscript([
     '$BASE_DIR/using_base.scons',
     '$BASE_DIR/gfx/using_base_gfx.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$CHROME_SRC_DIR/tools/grit/build/using_generated_resources.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$LIBPNG_DIR/using_libpng.scons',
@@ -29,8 +30,9 @@ env.Prepend(
     LIBS = [
         'automation',
         'browser',
-        'browser_views',
         'common',
+        'glue',
+        'WTF',
     ],
 )
 
@@ -52,6 +54,7 @@ if env.Bit('windows'):
           '/nxcompat',
       ],
       LIBS = [
+          'browser_views',
           'comsupp',
           'oleacc',
           'rpcrt4',
@@ -78,9 +81,21 @@ input_files = ChromeFileList([
   ]),
 ])
 
-# TODO(port):
-if env.Bit('windows'):
-  env.ChromeTestProgram('startup_tests', input_files)
+if not env.Bit('windows'):
+  # TODO(port): port.
+  input_files.Remove(
+      'feature_startup_test.cc',
+  )
+
+  # Windows-specific files
+  input_files.Remove(
+      '$CHROME_DIR/tools/build/win/precompiled.cc',
+  )
+
+# Please note that currently you have to manually ensure that Hammer/chrome
+# is up to date when you build startup_tests.
+# TODO(sgk): Proper dependency tracking for startup_tests.
+startup_tests = env.ChromeTestProgram('startup_tests', input_files)
 
 p = env.ChromeMSVSProject('startup_tests.vcproj',
                           dest=('$CHROME_SRC_DIR/chrome/'
