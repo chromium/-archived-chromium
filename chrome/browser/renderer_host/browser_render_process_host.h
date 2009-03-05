@@ -24,6 +24,7 @@
 class CommandLine;
 class GURL;
 class PrefService;
+class RendererMainThread;
 class RenderWidgetHelper;
 class WebContents;
 
@@ -158,6 +159,9 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   void ClearTransportDIBCache();
   // This is used to clear our cache five seconds after the last use.
   base::DelayTimer<BrowserRenderProcessHost> cached_dibs_cleaner_;
+
+  // Used in single-process mode.
+  scoped_ptr<RendererMainThread> in_process_renderer_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserRenderProcessHost);
 };
