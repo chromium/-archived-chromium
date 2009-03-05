@@ -26,7 +26,7 @@ class RcHeaderFormatterUnittest(unittest.TestCase):
   def setUp(self):
     self.formatter = rc_header.Item()
     self.formatter.ids_ = {}  # need to reset this between tests
-  
+
   def FormatAll(self, grd):
     output = []
     for node in grd:
@@ -35,7 +35,7 @@ class RcHeaderFormatterUnittest(unittest.TestCase):
         output.append(self.formatter.Format(node))
     output = ''.join(output)
     return output.replace(' ', '')
-  
+
   def testFormatter(self):
     grd = grd_reader.Parse(StringIO.StringIO('''<?xml version="1.0" encoding="UTF-8"?>
       <grit latest_public_release="2" source_lang_id="en" current_release="3" base_dir=".">
@@ -60,7 +60,7 @@ class RcHeaderFormatterUnittest(unittest.TestCase):
     output = self.FormatAll(grd)
     self.failUnless(output.count('IDS_GREETING10000'))
     self.failUnless(output.count('ID_LOGO300'))
-    
+
   def testExplicitFirstIdOverlaps(self):
     # second first_id will overlap preexisting range
     grd = grd_reader.Parse(StringIO.StringIO('''<?xml version="1.0" encoding="UTF-8"?>
@@ -79,7 +79,7 @@ class RcHeaderFormatterUnittest(unittest.TestCase):
         </release>
       </grit>'''), '.')
     self.assertRaises(exception.IdRangeOverlap, self.FormatAll, grd)
-  
+
   def testImplicitOverlapsPreexisting(self):
     # second message in <messages> will overlap preexisting range
     grd = grd_reader.Parse(StringIO.StringIO('''<?xml version="1.0" encoding="UTF-8"?>

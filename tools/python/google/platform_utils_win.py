@@ -157,7 +157,7 @@ class PlatformUtility(object):
       ' -C \'ServerRoot "%(server_root)s"\''
     )
     if apache2:
-      httpd_cmd_string = ('export CYGWIN=server;' + httpd_cmd_string + 
+      httpd_cmd_string = ('export CYGWIN=server;' + httpd_cmd_string +
           ' -c \'SSLCertificateFile "%(ssl_certificate_file)s"\'')
     if document_root:
       httpd_cmd_string += ' -C \'DocumentRoot "%(document_root)s"\''

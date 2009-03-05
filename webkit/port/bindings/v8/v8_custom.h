@@ -95,9 +95,9 @@ class V8Custom {
   static const int kXMLHttpRequestInternalFieldCount =
                       kDefaultWrapperInternalFieldCount + 1;
 
-  static const int kMessageChannelPort1Index = 
+  static const int kMessageChannelPort1Index =
                       kDefaultWrapperInternalFieldCount + 0;
-  static const int kMessageChannelPort2Index = 
+  static const int kMessageChannelPort2Index =
                       kDefaultWrapperInternalFieldCount + 1;
   static const int kMessageChannelInternalFieldCount =
                       kDefaultWrapperInternalFieldCount + 2;

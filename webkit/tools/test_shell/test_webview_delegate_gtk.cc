@@ -122,7 +122,7 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
   }
 }
 
-void TestWebViewDelegate::SetCursor(WebWidget* webwidget, 
+void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
                                     const WebCursor& cursor) {
   current_cursor_ = cursor;
   GdkCursorType cursor_type = current_cursor_.GetCursorType();
@@ -194,7 +194,7 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
   }
 }
 
-void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget, 
+void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
                                                    gfx::Rect* out_rect) {
   // Not necessary on Linux.
   *out_rect = gfx::Rect();

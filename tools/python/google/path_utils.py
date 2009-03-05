@@ -12,7 +12,7 @@ import os
 import sys
 
 class PathNotFound(Exception): pass
-  
+
 def ScriptDir():
   """Get the full path to the directory containing the current script."""
   script_filename = os.path.abspath(sys.argv[0])
@@ -20,7 +20,7 @@ def ScriptDir():
 
 def FindAncestor(start_dir, ancestor):
   """Finds an ancestor dir in a path.
-  
+
   For example, FindAncestor('c:\foo\bar\baz', 'bar') would return
   'c:\foo\bar'.  Unlike FindUpward*, this only looks at direct path ancestors.
   """

@@ -19,7 +19,7 @@ def GetChromeRenderPane(wnd):
 
 def Scrape(urls, outdir, size, pos, timeout=20, **kwargs):
   """Invoke a browser, send it to a series of URLs, and save its output.
-  
+
   Args:
     urls: list of URLs to scrape
     outdir: directory to place output
@@ -27,18 +27,18 @@ def Scrape(urls, outdir, size, pos, timeout=20, **kwargs):
     pos: position of browser window
     timeout: amount of time to wait for page to load
     kwargs: miscellaneous keyword args
-  
+
   Returns:
     None if succeeded, else an error code
   """
   chromebase.GetChromeRenderPane = GetChromeRenderPane
-  
+
   return chromebase.Scrape(urls, outdir, size, pos, timeout, kwargs)
 
 
 def Time(urls, size, timeout, **kwargs):
   """Forwards the Time command to chromebase."""
   chromebase.GetChromeRenderPane = GetChromeRenderPane
-  
+
   return chromebase.Time(urls, size, timeout, kwargs)
 

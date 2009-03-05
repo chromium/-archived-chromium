@@ -106,7 +106,7 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
 #endif
   virtual void AddHistoryPage(const std::vector<history::URLRow>& page);
   virtual void AddHomepage(const GURL& homepage);
-  // Adds the bookmarks to the BookmarkModel.  
+  // Adds the bookmarks to the BookmarkModel.
   // |options| is a bitmask of BookmarkOptions and dictates how and
   // which bookmarks are added. If the bitmask contains FIRST_RUN,
   // then any entries with a value of true for in_toolbar are added to
@@ -385,7 +385,7 @@ class Importer : public base::RefCounted<Importer> {
   // The importer should know the main thread so that ProfileWriter
   // will be invoked in thread instead.
   MessageLoop* main_loop_;
-  
+
   // The message loop in which the importer operates.
   MessageLoop* delagate_loop_;
 

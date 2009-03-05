@@ -15,7 +15,7 @@ import sys
 import codecs
 
 class ToolbarPreProcessor(preprocess_interface.PreProcessor):
-  ''' Toolbar PreProcessing class.  
+  ''' Toolbar PreProcessing class.
   '''
 
   _IDS_COMMAND_MACRO = re.compile(r'(.*IDS_COMMAND)\s*\(([a-zA-Z0-9_]*)\s*,\s*([a-zA-Z0-9_]*)\)(.*)')
@@ -29,7 +29,7 @@ class ToolbarPreProcessor(preprocess_interface.PreProcessor):
     Args:
       rctext: string containing the contents of the RC file being processed
       rcpath: the path used to access the file.
-    
+
     Return:
       The processed text.
     '''
@@ -45,8 +45,8 @@ class ToolbarPreProcessor(preprocess_interface.PreProcessor):
           mm = self._COMMENT.search(line)
           if mm:
             line = '%s//' % mm.group(1)
-            
-        else:  
+
+        else:
           # Replace $lf by the right linefeed character
           line = self._LINE_FEED_PH.sub(r'\\n', line)
 
@@ -54,8 +54,8 @@ class ToolbarPreProcessor(preprocess_interface.PreProcessor):
       mo = self._IDS_COMMAND_MACRO.search(line)
       if mo:
         line = '%s_%s_%s%s' % (mo.group(1), mo.group(2), mo.group(3), mo.group(4))
-      
-      ret += (line + '\n') 
+
+      ret += (line + '\n')
 
     return ret
 

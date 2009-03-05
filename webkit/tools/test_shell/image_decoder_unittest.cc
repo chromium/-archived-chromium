@@ -37,7 +37,7 @@ void SaveMD5Sum(const std::wstring& path, WebCore::RGBA32Buffer* buffer) {
 
   // Calculate MD5 sum.
   MD5Digest digest;
-  SkAutoLockPixels bmp_lock(buffer->bitmap()); 
+  SkAutoLockPixels bmp_lock(buffer->bitmap());
   MD5Sum(buffer->bitmap().getPixels(),
          buffer->rect().width() * buffer->rect().height() * sizeof(unsigned),
          &digest);
@@ -60,7 +60,7 @@ void VerifyImage(WebCore::ImageDecoder* decoder,
 
   // Calculate MD5 sum.
   MD5Digest actual_digest;
-  SkAutoLockPixels bmp_lock(image_buffer->bitmap()); 
+  SkAutoLockPixels bmp_lock(image_buffer->bitmap());
   MD5Sum(image_buffer->bitmap().getPixels(), image_buffer->rect().width() *
       image_buffer->rect().height() * sizeof(unsigned), &actual_digest);
 

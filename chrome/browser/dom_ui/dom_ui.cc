@@ -27,7 +27,7 @@ DOMUI::~DOMUI() {
 void DOMUI::ProcessDOMUIMessage(const std::string& message,
                                 const std::string& content) {
   // Look up the callback for this message.
-  MessageCallbackMap::const_iterator callback = 
+  MessageCallbackMap::const_iterator callback =
       message_callbacks_.find(message);
   if (callback == message_callbacks_.end())
     return;
@@ -74,7 +74,7 @@ void DOMUI::CallJavascriptFunction(
   ExecuteJavascript(javascript);
 }
 
-void DOMUI::RegisterMessageCallback(const std::string &message, 
+void DOMUI::RegisterMessageCallback(const std::string &message,
                                     MessageCallback *callback) {
   message_callbacks_.insert(std::make_pair(message, callback));
 }
@@ -99,7 +99,7 @@ void DOMUI::AddMessageHandler(DOMMessageHandler* handler) {
 
 void DOMUI::ExecuteJavascript(const std::wstring& javascript) {
   DCHECK(contents_);
-  contents_->render_view_host()->ExecuteJavascriptInWebFrame(std::wstring(), 
+  contents_->render_view_host()->ExecuteJavascriptInWebFrame(std::wstring(),
                                                              javascript);
 }
 
@@ -111,7 +111,7 @@ DOMMessageHandler::DOMMessageHandler(DOMUI *dom_ui) : dom_ui_(dom_ui) {
 
 // DOMMessageHandler, protected: ----------------------------------------------
 
-void DOMMessageHandler::SetURLAndTitle(DictionaryValue* dictionary, 
+void DOMMessageHandler::SetURLAndTitle(DictionaryValue* dictionary,
                                        std::wstring title,
                                        const GURL& gurl) {
   std::wstring wstring_url = UTF8ToWide(gurl.spec());

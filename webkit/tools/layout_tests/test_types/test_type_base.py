@@ -58,7 +58,7 @@ class TestTypeBase(object):
     """
     self._root_output_dir = root_output_dir
     self._platform = platform
-  
+
   def _MakeOutputDirectory(self, filename):
     """Creates the output directory (if needed) for a given test filename."""
     output_filename = os.path.join(self._root_output_dir,
@@ -88,11 +88,11 @@ class TestTypeBase(object):
 
   def OutputFilename(self, filename, modifier):
     """Returns a filename inside the output dir that contains modifier.
-    
+
     For example, if filename is c:/.../fast/dom/foo.html and modifier is
     "-expected.txt", the return value is
     c:/cygwin/tmp/layout-test-results/fast/dom/foo-expected.txt
-    
+
     Args:
       filename: absolute filename to test file
       modifier: a string to replace the extension of filename with
@@ -105,12 +105,12 @@ class TestTypeBase(object):
     return os.path.splitext(output_filename)[0] + modifier
 
   def RelativeOutputFilename(self, filename, modifier):
-    """Returns a relative filename inside the output dir that contains 
+    """Returns a relative filename inside the output dir that contains
     modifier.
-    
+
     For example, if filename is fast\dom\foo.html and modifier is
     "-expected.txt", the return value is fast\dom\foo-expected.txt
-    
+
     Args:
       filename: relative filename to test file
       modifier: a string to replace the extension of filename with
@@ -122,16 +122,16 @@ class TestTypeBase(object):
 
   def CompareOutput(self, filename, proc, output, test_args, target):
     """Method that compares the output from the test with the expected value.
-    
+
     This is an abstract method to be implemented by all sub classes.
-    
+
     Args:
       filename: absolute filename to test file
       proc: a reference to the test_shell process
       output: a string containing the output of the test
       test_args: a TestArguments object holding optional additional arguments
       target: Debug or Release
-    
+
     Return:
       a list of TestFailure objects, empty if the test passes
     """

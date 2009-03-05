@@ -55,7 +55,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
     {
         DisableThreadLibraryCalls(hInstance);
     }
-    return _AtlModule.DllMain(dwReason, lpReserved); 
+    return _AtlModule.DllMain(dwReason, lpReserved);
 }
 
 #ifdef _MANAGED

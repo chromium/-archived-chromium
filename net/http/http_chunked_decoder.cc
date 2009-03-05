@@ -136,7 +136,7 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
     } else {
       DLOG(ERROR) << "missing chunk-size";
       return ERR_INVALID_CHUNKED_ENCODING;
-    } 
+    }
     line_buf_.clear();
   } else {
     // Save the partial line; wait for more data.

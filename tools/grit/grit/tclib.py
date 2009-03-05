@@ -20,7 +20,7 @@ def Identity(i):
 class BaseMessage(object):
   '''Base class with methods shared by Message and Translation.
   '''
-  
+
   def __init__(self, text='', placeholders=[], description='', meaning=''):
     self.parts = []
     self.placeholders = []
@@ -28,7 +28,7 @@ class BaseMessage(object):
     self.meaning = meaning
     self.dirty = True  # True if self.id is (or might be) wrong
     self.id = 0
-    
+
     if text != '':
       if not placeholders or placeholders == []:
         self.AppendText(text)
@@ -48,11 +48,11 @@ class BaseMessage(object):
               self.AppendText(chunk)
         for key in tag_map.keys():
           assert tag_map[key][1] != 0
-  
+
   def GetRealContent(self, escaping_function=Identity):
     '''Returns the original content, i.e. what your application and users
     will see.
-    
+
     Specify a function to escape each translateable bit, if you like.
     '''
     bits = []
@@ -62,7 +62,7 @@ class BaseMessage(object):
       else:
         bits.append(item.GetOriginal())
     return ''.join(bits)
-  
+
   def GetPresentableContent(self):
     presentable_content = []
     for part in self.parts:
@@ -71,7 +71,7 @@ class BaseMessage(object):
       else:
         presentable_content.append(part)
     return ''.join(presentable_content)
-  
+
   def AppendPlaceholder(self, placeholder):
     assert isinstance(placeholder, Placeholder)
     dup = False
@@ -79,19 +79,19 @@ class BaseMessage(object):
       if other.presentation == placeholder.presentation:
         assert other.original == placeholder.original
         dup = True
-    
+
     if not dup:
       self.placeholders.append(placeholder)
     self.parts.append(placeholder)
     self.dirty = True
-  
+
   def AppendText(self, text):
     assert isinstance(text, types.StringTypes)
     assert text != ''
-    
+
     self.parts.append(text)
     self.dirty = True
-  
+
   def GetContent(self):
     '''Returns the parts of the message.  You may modify parts if you wish.
     Note that you must not call GetId() on this object until you have finished
@@ -99,34 +99,34 @@ class BaseMessage(object):
     '''
     self.dirty = True  # user might modify content
     return self.parts
-  
+
   def GetDescription(self):
     return self.description
-  
+
   def SetDescription(self, description):
     self.description = description
-  
+
   def GetMeaning(self):
     return self.meaning
-  
+
   def GetId(self):
     if self.dirty:
       self.id = self.GenerateId()
       self.dirty = False
     return self.id
-  
+
   def GenerateId(self):
     # Must use a UTF-8 encoded version of the presentable content, along with
     # the meaning attribute, to match the TC.
     return grit.extern.tclib.GenerateMessageId(
       self.GetPresentableContent().encode('utf-8'), self.meaning)
-  
+
   def GetPlaceholders(self):
     return self.placeholders
-  
+
   def FillTclibBaseMessage(self, msg):
     msg.SetDescription(self.description.encode('utf-8'))
-    
+
     for part in self.parts:
       if isinstance(part, Placeholder):
         ph = grit.extern.tclib.Placeholder(
@@ -139,13 +139,13 @@ class BaseMessage(object):
 
 
 class Message(BaseMessage):
-  '''A message.'''  
-  
+  '''A message.'''
+
   def __init__(self, text='', placeholders=[], description='', meaning='',
                assigned_id=None):
     BaseMessage.__init__(self, text, placeholders, description, meaning)
     self.assigned_id = assigned_id
-  
+
   def ToTclibMessage(self):
     msg = grit.extern.tclib.Message('utf-8', meaning=self.meaning)
     self.FillTclibBaseMessage(msg)
@@ -161,18 +161,18 @@ class Message(BaseMessage):
 
 class Translation(BaseMessage):
   '''A translation.'''
-  
+
   def __init__(self, text='', id='', placeholders=[], description='', meaning=''):
     BaseMessage.__init__(self, text, placeholders, description, meaning)
     self.id = id
-  
+
   def GetId(self):
     assert id != '', "ID has not been set."
     return self.id
-  
+
   def SetId(self, id):
     self.id = id
-  
+
   def ToTclibMessage(self):
     msg = grit.extern.tclib.Message(
       'utf-8', id=self.id, meaning=self.meaning)
@@ -183,13 +183,13 @@ class Translation(BaseMessage):
 class Placeholder(grit.extern.tclib.Placeholder):
   '''Modifies constructor to accept a Unicode string
   '''
-  
+
   # Must match placeholder presentation names
   _NAME_RE = re.compile('[A-Za-z0-9_]+')
-  
+
   def __init__(self, presentation, original, example):
     '''Creates a new placeholder.
-    
+
     Args:
       presentation: 'USERNAME'
       original: '%s'
@@ -203,13 +203,13 @@ class Placeholder(grit.extern.tclib.Placeholder):
     self.presentation = presentation
     self.original = original
     self.example = example
-  
+
   def GetPresentation(self):
     return self.presentation
-  
+
   def GetOriginal(self):
     return self.original
-  
+
   def GetExample(self):
     return self.example
 

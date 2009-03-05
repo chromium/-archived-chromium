@@ -95,7 +95,7 @@ def main(filename, project_to_scan, reverse):
 
 if __name__ == '__main__':
   usage = "usage: %prog [options] solution [project]"
-  
+
   description = ("Display the dependencies of a project in human readable"
                  " form. [project] is optional. If omited, all projects are"
                  " listed.")

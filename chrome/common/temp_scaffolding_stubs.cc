@@ -336,7 +336,7 @@ void TabContents::SetIsLoading(bool is_loading,
   NotificationDetails det = NotificationService::NoDetails();;
   if (details)
       det = Details<LoadNotificationDetails>(details);
-  NotificationService::current()->Notify(type, 
+  NotificationService::current()->Notify(type,
       Source<NavigationController>(this->controller()),
       det);
 }

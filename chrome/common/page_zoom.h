@@ -14,7 +14,7 @@ class PageZoom {
     STANDARD = 0,
     LARGER   = 1,
   };
- 
+
  private:
   PageZoom() {}  // For scoping only.
 };

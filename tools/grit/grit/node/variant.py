@@ -12,13 +12,13 @@ from grit.node import base
 
 class SkeletonNode(base.Node):
   '''A <skeleton> element.'''
-  
+
   # TODO(joi) Support inline skeleton variants as CDATA instead of requiring
   # a 'file' attribute.
-  
+
   def MandatoryAttributes(self):
     return ['expr', 'variant_of_revision', 'file']
-  
+
   def DefaultAttributes(self):
     '''If not specified, 'encoding' will actually default to the parent node's
     encoding.
@@ -30,7 +30,7 @@ class SkeletonNode(base.Node):
       return self._CONTENT_TYPE_NONE
     else:
       return self._CONTENT_TYPE_CDATA
-  
+
   def GetEncodingToUse(self):
     if self.attrs['encoding'] == '':
       return self.parent.attrs['encoding']

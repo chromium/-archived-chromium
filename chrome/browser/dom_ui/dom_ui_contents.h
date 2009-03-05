@@ -119,7 +119,7 @@ class DOMUIContents : public WebContents {
 
   //
   // TabContents overrides
-  // 
+  //
   virtual void UpdateHistoryForNavigation(const GURL& url,
       const ViewHostMsg_FrameNavigate_Params& params) { }
   virtual bool NavigateToPendingEntry(bool reload);

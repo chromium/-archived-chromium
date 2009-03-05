@@ -26,11 +26,11 @@ class StdoutStderrHandler(logging.Handler):
             sys.stdout
     '''
     logging.Handler.__init__(self)
-    self._err = logging.StreamHandler(err)    
+    self._err = logging.StreamHandler(err)
     self._out = logging.StreamHandler(out)
     self._threshold = threshold
     self._last_was_err = False
-    
+
   def setLevel(self, lvl):
     logging.Handler.setLevel(self, lvl)
     self._err.setLevel(lvl)
@@ -62,17 +62,17 @@ class StdoutStderrHandler(logging.Handler):
 FORMAT = "%(asctime)s %(filename)s [%(levelname)s] %(message)s"
 DATEFMT = "%H:%M:%S"
 
-def config_root(level=logging.INFO, threshold=logging.WARNING, format=FORMAT, 
+def config_root(level=logging.INFO, threshold=logging.WARNING, format=FORMAT,
          datefmt=DATEFMT):
   ''' Configure the root logger to use a StdoutStderrHandler and some default
-  formatting. 
+  formatting.
     Args:
       level: messages below this level are ignored
       threshold: below this logging level messages are sent to stdout,
         otherwise they are sent to stderr
       format: format for log messages, see logger.Format
       datefmt: format for date in log messages
-      
+
   '''
   # to set the handler of the root logging object, we need to do setup
   # manually rather than using basicConfig

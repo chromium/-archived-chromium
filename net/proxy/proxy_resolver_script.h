@@ -50,7 +50,7 @@
 //       sed -e 's/"\s*[+]\s*$/"/g' |
 //       sed -e 's/"$/" \\/g' |
 //       sed -e 's/\/(ipaddr);/\/.exec(ipaddr);/g' |
-//       grep -v '^var pacUtils =' 
+//       grep -v '^var pacUtils ='
 #define PROXY_RESOLVER_SCRIPT \
   "function dnsDomainIs(host, domain) {\n" \
   "    return (host.length >= domain.length &&\n" \

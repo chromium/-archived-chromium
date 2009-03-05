@@ -81,7 +81,7 @@ class ViewEventTestBase : public views::WindowDelegate,
   void Release() {}
 
  protected:
-  // Returns the view that is added to the window. 
+  // Returns the view that is added to the window.
   virtual views::View* CreateContentsView() = 0;
 
   // Called once the message loop is running.
@@ -129,7 +129,7 @@ class ViewEventTestBase : public views::WindowDelegate,
   DISALLOW_COPY_AND_ASSIGN(ViewEventTestBase);
 };
 
-// Convenience macro for defining a ViewEventTestBase. See class description 
+// Convenience macro for defining a ViewEventTestBase. See class description
 // of ViewEventTestBase for details.
 #define VIEW_TEST(test_class, name) \
   TEST_F(test_class, name) {\

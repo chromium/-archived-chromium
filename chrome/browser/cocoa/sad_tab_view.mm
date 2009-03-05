@@ -20,17 +20,17 @@ static const int kTitleMessageSpacing = 15;
       base::SysWideToNSString(l10n_util::GetString(IDS_SAD_TAB_TITLE));
   NSString* message =
       base::SysWideToNSString(l10n_util::GetString(IDS_SAD_TAB_MESSAGE));
-  
+
   NSColor* textColor = [NSColor whiteColor];
   NSColor* backgroundColor = [NSColor colorWithCalibratedRed:(35.0f/255.0f)
                                                        green:(48.0f/255.0f)
                                                         blue:(64.0f/255.0f)
                                                        alpha:1.0];
-  
+
   // Layout
   NSFont* titleFont = [NSFont boldSystemFontOfSize:[NSFont systemFontSize]];
   NSFont* messageFont = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
-  
+
   NSDictionary* titleAttrs = [NSDictionary dictionaryWithObjectsAndKeys:
                               titleFont, NSFontAttributeName,
                               textColor, NSForegroundColorAttributeName,
@@ -39,23 +39,23 @@ static const int kTitleMessageSpacing = 15;
                                 messageFont, NSFontAttributeName,
                                 textColor, NSForegroundColorAttributeName,
                                 nil];
-  
+
   NSAttributedString* titleString =
       [[[NSAttributedString alloc] initWithString:title
                                        attributes:titleAttrs] autorelease];
   NSAttributedString* messageString =
       [[[NSAttributedString alloc] initWithString:message
                                        attributes:messageAttrs] autorelease];
-  
+
   NSRect viewBounds = [self bounds];
-  
+
   NSSize sadTabImageSize = [sadTabImage size];
   CGFloat iconWidth = sadTabImageSize.width;
   CGFloat iconHeight = sadTabImageSize.height;
   CGFloat iconX = (viewBounds.size.width - iconWidth) / 2;
   CGFloat iconY =
       ((viewBounds.size.height - iconHeight) / 2) - kSadTabOffset;
-  
+
   NSSize titleSize = [titleString size];
   CGFloat titleX = (viewBounds.size.width - titleSize.width) / 2;
   CGFloat titleY = iconY - kIconTitleSpacing - titleSize.height;
@@ -63,11 +63,11 @@ static const int kTitleMessageSpacing = 15;
   NSSize messageSize = [messageString size];
   CGFloat messageX = (viewBounds.size.width - messageSize.width) / 2;
   CGFloat messageY = titleY - kTitleMessageSpacing - messageSize.height;
-  
+
   // Paint
   [backgroundColor set];
   NSRectFill(viewBounds);
-  
+
   [sadTabImage drawAtPoint:NSMakePoint(iconX, iconY)
                   fromRect:NSZeroRect
                  operation:NSCompositeSourceOver

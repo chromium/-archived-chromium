@@ -154,7 +154,7 @@ std::wstring TaskManagerTableModel::GetText(int row, int col_id) {
       if (!first_in_group)
         return std::wstring();
       return IntToWString(base::GetProcId(resource->GetProcess()));
-      
+
     case kGoatsTeleportedColumn:  // Goats Teleported.
       goats_teleported_ += rand();
       return FormatNumber(goats_teleported_);
@@ -264,7 +264,7 @@ HANDLE TaskManagerTableModel::GetProcessAt(int index) {
 
 void TaskManagerTableModel::StartUpdating() {
   DCHECK_NE(TASK_PENDING, update_state_);
- 
+
   // If update_state_ is STOPPING, it means a task is still pending.  Setting
   // it to TASK_PENDING ensures the tasks keep being posted (by Refresh()).
   if (update_state_ == IDLE) {
@@ -546,7 +546,7 @@ int TaskManagerTableModel::CompareValues(int row1, int row2, int column_id) {
       int proc2_id = base::GetProcId(resources_[row2]->GetProcess());
       return ValueCompare<int>(proc1_id, proc2_id);
     }
-      
+
     case kGoatsTeleportedColumn:
       return 0;  // Don't bother, numbers are random.
 
@@ -846,7 +846,7 @@ void TaskManagerContents::Layout() {
                         y() + kPanelVertMargin,
                         width() - 2 * kPanelHorizMargin,
                         height() - 2 * kPanelVertMargin - prefered_height);
-  
+
   // y-coordinate of button top left.
   gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
   int y_buttons = parent_bounds.bottom() - prefered_height - kButtonVEdgeMargin;

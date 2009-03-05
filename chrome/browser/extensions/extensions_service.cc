@@ -371,7 +371,7 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest(
   }
   if (header.header_size > sizeof(ExtensionHeader))
     fseek(file.get(), header.header_size - sizeof(ExtensionHeader), SEEK_CUR);
-  
+
   char buf[1 << 16];
   std::string manifest_str;
   size_t read_size = std::min(sizeof(buf), header.manifest_size);
@@ -495,7 +495,7 @@ bool ExtensionsServiceBackend::CheckCurrentVersion(
     // has actually loaded successfully.
     FilePath version_dir = dest_dir.AppendASCII(current_version_str);
     if (file_util::PathExists(version_dir)) {
-      ReportExtensionInstallError(dest_dir, 
+      ReportExtensionInstallError(dest_dir,
           "Existing version is already up to date.");
       return false;
     }
@@ -503,7 +503,7 @@ bool ExtensionsServiceBackend::CheckCurrentVersion(
   return true;
 }
 
-bool ExtensionsServiceBackend::InstallDirSafely(const FilePath& source_dir, 
+bool ExtensionsServiceBackend::InstallDirSafely(const FilePath& source_dir,
                                                 const FilePath& dest_dir) {
 
   if (file_util::PathExists(dest_dir)) {
@@ -564,13 +564,13 @@ bool ExtensionsServiceBackend::SetCurrentVersion(const FilePath& dest_dir,
     // Restore the old CurrentVersion.
     if (file_util::PathExists(current_version_old)) {
       if (!file_util::Move(current_version_old, current_version)) {
-        LOG(WARNING) << "couldn't restore " << current_version_old.value() << 
+        LOG(WARNING) << "couldn't restore " << current_version_old.value() <<
             " to " << current_version.value();
 
         // TODO(erikkay): This is an ugly state to be in.  Try harder?
       }
     }
-    ReportExtensionInstallError(dest_dir, 
+    ReportExtensionInstallError(dest_dir,
                                 "Couldn't create CurrentVersion file.");
     return false;
   }
@@ -616,7 +616,7 @@ bool ExtensionsServiceBackend::InstallOrUpdateExtension(
 
   // If an expected id was provided, make sure it matches.
   if (expected_id.length() && expected_id != extension.id()) {
-    ReportExtensionInstallError(source_file, 
+    ReportExtensionInstallError(source_file,
         "ID in new extension manifest does not match expected ID.");
     return false;
   }
@@ -646,7 +646,7 @@ bool ExtensionsServiceBackend::InstallOrUpdateExtension(
   ScopedTempDir scoped_temp;
   scoped_temp.Set(temp_dir);
   if (!scoped_temp.IsValid()) {
-    ReportExtensionInstallError(source_file, 
+    ReportExtensionInstallError(source_file,
                                 "Couldn't create temporary directory.");
     return false;
   }

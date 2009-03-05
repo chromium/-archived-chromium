@@ -373,10 +373,10 @@ void ProfileImpl::InitExtensions() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   PrefService* prefs = GetPrefs();
   bool user_scripts_enabled =
-      command_line->HasSwitch(switches::kEnableUserScripts) || 
+      command_line->HasSwitch(switches::kEnableUserScripts) ||
       prefs->GetBoolean(prefs::kEnableUserScripts);
   bool extensions_enabled =
-      command_line->HasSwitch(switches::kEnableExtensions) || 
+      command_line->HasSwitch(switches::kEnableExtensions) ||
       prefs->GetBoolean(prefs::kEnableExtensions);
 
   FilePath script_dir;

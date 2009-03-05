@@ -228,8 +228,8 @@ class HistoryHandler : public DOMMessageHandler {
 
 // Let the page contents record UMA actions. Only use when you can't do it from
 // C++. For example, we currently use it to let the NTP log the postion of the
-// Most Visited or Bookmark the user clicked on, as we don't get that 
-// information through RequestOpenURL. You will need to update the metrics 
+// Most Visited or Bookmark the user clicked on, as we don't get that
+// information through RequestOpenURL. You will need to update the metrics
 // dashboard with the action names you use, as our processor won't catch that
 // information (treat it as RecordComputedMetrics)
 class MetricsHandler : public DOMMessageHandler {

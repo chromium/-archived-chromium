@@ -2,7 +2,7 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 //
-// Wrapper over WebCore::MediaPlayerPrivate. It also would handle resource 
+// Wrapper over WebCore::MediaPlayerPrivate. It also would handle resource
 // loading for the internal media player.
 
 #ifndef WEBKIT_GLUE_WEBMEDIAPLAYER_IMPL_H_
@@ -32,7 +32,7 @@ class WebMediaPlayerImpl : public WebMediaPlayer {
 
   // Get the web frame associated with the media player
   virtual WebFrame* GetWebFrame();
-  
+
   // Notify the media player about network state change.
   virtual void NotifyNetworkStateChange();
 

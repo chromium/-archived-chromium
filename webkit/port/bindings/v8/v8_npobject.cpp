@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -337,10 +337,10 @@ v8::Local<v8::Object> CreateV8ObjectForNPObject(NPObject* object, NPObject* root
 
     v8::Handle<v8::Function> func = npObjectDesc->GetFunction();
     v8::Local<v8::Object> value = SafeAllocation::NewInstance(func);
-    
-    // If we were unable to allocate the instance we avoid wrapping 
-    // and registering the NP object. 
-    if (value.IsEmpty()) 
+
+    // If we were unable to allocate the instance we avoid wrapping
+    // and registering the NP object.
+    if (value.IsEmpty())
         return value;
 
     WrapNPObject(value, object);

@@ -54,7 +54,7 @@ class WebDataSource {
 
   //
   //  @method unreachableURL
-  //  @discussion This will be non-nil only for dataSources created by calls to the 
+  //  @discussion This will be non-nil only for dataSources created by calls to the
   //  WebFrame method loadAlternateHTMLString:baseURL:forUnreachableURL:.
   //  @result returns the unreachableURL for which this dataSource is showing alternate content, or nil
   //  - (NSURL *)unreachableURL;
@@ -90,12 +90,12 @@ class WebDataSource {
 
   /*
   These functions are not implemented yet, and we are not yet sure whether or not
-  we need them, so we have commented them out both here and in the 
+  we need them, so we have commented them out both here and in the
   webdatasource_impl.cc file.
 
   //
   //  @method data
-  //  @discussion The data will be incomplete until the datasource has completely loaded.  
+  //  @discussion The data will be incomplete until the datasource has completely loaded.
   //  @result Returns the raw data associated with the datasource.  Returns nil
   //  if the datasource hasn't loaded any data.
   //  - (NSData *)data;
@@ -120,7 +120,7 @@ class WebDataSource {
 
   //
   //  @method textEncodingName
-  //  @result Returns either the override encoding, as set on the WebView for this 
+  //  @result Returns either the override encoding, as set on the WebView for this
   //  dataSource or the encoding from the response.
   //  - (NSString *)textEncodingName;
   virtual void GetTextEncodingName(std::wstring* name) = 0;
@@ -155,7 +155,7 @@ class WebDataSource {
   //  @description The returned array only contains subresources that have fully downloaded.
   //  - (NSArray *)subresources;
   virtual void GetSubresources(int* count, IWebResource*** resources);
-  
+
   //
   //  method subresourceForURL:
   //  @abstract Returns a subresource for a given URL.

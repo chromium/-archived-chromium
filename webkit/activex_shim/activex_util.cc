@@ -139,7 +139,7 @@ static bool DispGetFuncDesc(IDispatch* disp, const wchar_t* name,
 bool DispIsMethodOrProperty(IDispatch* disp, const wchar_t* name,
                             bool checkmethod) {
   FUNCDESC funcdesc;
-  if (DispGetFuncDesc(disp, name, &funcdesc)) {    
+  if (DispGetFuncDesc(disp, name, &funcdesc)) {
     // If it has multiple params, for PROPERTYGET, we have to treat it like a
     // method, because the scripting engine will not handle properties with
     // parameters.

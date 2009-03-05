@@ -6,12 +6,12 @@
 
 """Module to setup and generate code coverage data
 
-This module first sets up the environment for code coverage, instruments the 
+This module first sets up the environment for code coverage, instruments the
 binaries, runs the tests and collects the code coverage data.
 
 
 Usage:
-  coverage.py --upload=<upload_location> 
+  coverage.py --upload=<upload_location>
               --revision=<revision_number>
               --src_root=<root_of_source_tree>
               [--tools_path=<tools_path>]
@@ -50,13 +50,13 @@ windows_binaries = [#'chrome.exe',
                     'test_shell_tests.exe',
                     'test_shell.exe',
                     'activex_test_control.dll']
-                  
-# The list of [tests, args] that will be run. 
+
+# The list of [tests, args] that will be run.
 # Failing tests have been commented out.
 # TODO(niranjan): Need to add layout tests that excercise the test shell.
 windows_tests = [
                  ['unit_tests.exe', ''],
-#                 ['automated_ui_tests.exe', ''], 
+#                 ['automated_ui_tests.exe', ''],
                  ['ui_tests.exe', '--no-sandbox'],
                  ['installer_unittests.exe', ''],
                  ['ipc_tests.exe', ''],
@@ -78,7 +78,7 @@ def IsWindows():
 class Coverage(object):
   """Class to set up and generate code coverage.
 
-  This class contains methods that are useful to set up the environment for 
+  This class contains methods that are useful to set up the environment for
   code coverage.
 
   Attributes:
@@ -86,7 +86,7 @@ class Coverage(object):
                   instrumented.
   """
 
-  def __init__(self, 
+  def __init__(self,
                revision,
                src_path = None,
                tools_path = None,
@@ -106,13 +106,13 @@ class Coverage(object):
     self.src_path = src_path
     self._dir = tempfile.mkdtemp()
     self._archive = archive
-  
-  
+
+
   def SetUp(self, binaries):
     """Set up the platform specific environment and instrument the binaries for
     coverage.
 
-    This method sets up the environment, instruments all the compiled binaries 
+    This method sets up the environment, instruments all the compiled binaries
     and sets up the code coverage counters.
 
     Args:
@@ -127,7 +127,7 @@ class Coverage(object):
       return False
     if IsWindows():
       # Stop all previous instance of VSPerfMon counters
-      counters_command = ('%s -shutdown' % 
+      counters_command = ('%s -shutdown' %
                           (os.path.join(self.tools_path, 'vsperfcmd.exe')))
       (retcode, output) = proc.RunCommandFull(counters_command,
                                               collect_output=True)
@@ -156,20 +156,20 @@ class Coverage(object):
       # We are now ready to run tests and measure code coverage.
       self.instrumented = True
       return True
-      
+
 
   def TearDown(self):
     """Tear down method.
 
     This method shuts down the counters, and cleans up all the intermediate
-    artifacts. 
+    artifacts.
     """
     if self.instrumented == False:
       return
-    
+
     if IsWindows():
       # Stop counters
-      counters_command = ('%s -shutdown' % 
+      counters_command = ('%s -shutdown' %
                          (os.path.join(self.tools_path, 'vsperfcmd.exe')))
       (retcode, output) = proc.RunCommandFull(counters_command,
                                               collect_output=True)
@@ -187,12 +187,12 @@ class Coverage(object):
       logging.info('Cleaned up temporary files and folders')
     # Reset the instrumented flag.
     self.instrumented = False
-    
+
 
   def RunTest(self, src_root, test):
     """Run tests and collect the .coverage file
 
-    Args: 
+    Args:
       src_root: Path to the root of the source.
       test: Path to the test to be run.
 
@@ -203,13 +203,13 @@ class Coverage(object):
     # Generate the intermediate file name for the coverage results
     test_name = os.path.split(test[0])[1].strip('.exe')
     # test_command = binary + args
-    test_command = '%s %s' % (os.path.join(src_root, 
+    test_command = '%s %s' % (os.path.join(src_root,
                                            'chrome',
                                            'Release',
-                                           test[0]), 
+                                           test[0]),
                               test[1])
-    
-    coverage_file = os.path.join(self._dir, '%s_win32_%s.coverage' % 
+
+    coverage_file = os.path.join(self._dir, '%s_win32_%s.coverage' %
                                             (test_name, self.revision))
     logging.info('.coverage file for test %s: %s' % (test_name, coverage_file))
 
@@ -221,16 +221,16 @@ class Coverage(object):
     # VSPerfCmd spawns another process before terminating and this confuses
     # the subprocess.Popen() used by RunCommandFull.
     retcode = subprocess.call(counters_command)
-    
+
     # Run the test binary
     logging.info('Executing test %s: ' % test_command)
     (retcode, output) = proc.RunCommandFull(test_command, collect_output=True)
     if retcode != 0: # Return error if the tests fail
       logging.error('One or more tests failed in %s.' % test_command)
       return None
-    
+
     # Stop the counters
-    counters_command = ('%s -shutdown' % 
+    counters_command = ('%s -shutdown' %
                         (os.path.join(self.tools_path, 'vsperfcmd.exe')))
     (retcode, output) = proc.RunCommandFull(counters_command,
                                             collect_output=True)
@@ -238,7 +238,7 @@ class Coverage(object):
     # Return the intermediate .coverage file
     return coverage_file
 
-    
+
   def Upload(self, list_coverage, upload_path, sym_path=None, src_root=None):
     """Upload the results to the dashboard.
 
@@ -251,7 +251,7 @@ class Coverage(object):
       upload_path: Destination where the coverage data will be processed.
       sym_path: Symbol path for the build (Win32 only)
       src_root: Root folder of the source tree (Win32 only)
-    
+
     Returns:
       True on success.
       False on failure.
@@ -259,15 +259,15 @@ class Coverage(object):
     if upload_path == None:
       logging.info('Upload path not specified. Will not convert to LCOV')
       return True
-    
+
     if IsWindows():
       # Stop counters
-      counters_command = ('%s -shutdown' % 
+      counters_command = ('%s -shutdown' %
                           (os.path.join(self.tools_path, 'vsperfcmd.exe')))
       (retcode, output) = proc.RunCommandFull(counters_command,
                                               collect_output=True)
       logging.info('Counters shut down: %s' % (output))
-      lcov_file = os.path.join(upload_path, 'chrome_win32_%s.lcov' % 
+      lcov_file = os.path.join(upload_path, 'chrome_win32_%s.lcov' %
                                             (self.revision))
       lcov = open(lcov_file, 'w')
       for coverage_file in list_coverage:
@@ -276,8 +276,8 @@ class Coverage(object):
           logging.error('Lcov converter tool not found')
           return False
         self.tools_path = self.tools_path.rstrip('\\')
-        convert_command = ('%s -sym_path=%s -src_root=%s %s' % 
-                           (os.path.join(self.tools_path, 
+        convert_command = ('%s -sym_path=%s -src_root=%s %s' %
+                           (os.path.join(self.tools_path,
                                          'coverage_analyzer.exe'),
                            sym_path,
                            src_root,
@@ -333,12 +333,12 @@ def main():
                     help='Archive location of the intermediate .coverage data')
 
   (options, args) = parser.parse_args()
-  
+
   if options.revision == None:
     parser.error('Revision number not specified')
   if options.src_root == None:
     parser.error('Source root not specified')
-   
+
   if IsWindows():
     # Initialize coverage
     cov = Coverage(options.revision,
@@ -355,7 +355,7 @@ def main():
           return 1
         # Collect the intermediate file
         list_coverage.append(coverage)
-    else: 
+    else:
       logging.error('Error during instrumentation.')
       sys.exit(1)
 
@@ -368,4 +368,4 @@ def main():
 
 if __name__ == '__main__':
   sys.exit(main())
-  
+

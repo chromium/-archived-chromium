@@ -20,7 +20,7 @@ CppBindingExample::CppBindingExample() {
   BindMethod("echoValue", &CppBindingExample::echoValue);
   BindMethod("echoType",  &CppBindingExample::echoType);
   BindMethod("plus",      &CppBindingExample::plus);
-  
+
   // The fallback method is called when a nonexistent method is called on an
   // object. If none is specified, calling a nonexistent method causes an
   // exception to be thrown and the JavaScript execution is stopped.
@@ -39,12 +39,12 @@ void CppBindingExample::echoValue(const CppArgumentList& args,
   result->Set(args[0]);
 }
 
-void CppBindingExample::echoType(const CppArgumentList& args, 
-                                 CppVariant* result) {   
+void CppBindingExample::echoType(const CppArgumentList& args,
+                                 CppVariant* result) {
   if (args.size() < 1) {
     result->SetNull();
     return;
-  }  
+  }
   // Note that if args[0] is a string, the following assignment implicitly
   // makes a copy of that string, which may have an undesirable impact on
   // performance.
@@ -59,7 +59,7 @@ void CppBindingExample::echoType(const CppArgumentList& args,
     result->Set("Success!");
 }
 
-void CppBindingExample::plus(const CppArgumentList& args, 
+void CppBindingExample::plus(const CppArgumentList& args,
                              CppVariant* result) {
   if (args.size() < 2) {
     result->SetNull();

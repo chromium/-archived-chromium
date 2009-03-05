@@ -83,7 +83,7 @@ bool GetBackupChromeFile(std::wstring* path) {
   return true;
 }
 
-std::wstring GetDefaultPrefFilePath(bool create_profile_dir, 
+std::wstring GetDefaultPrefFilePath(bool create_profile_dir,
                                     const std::wstring& user_data_dir) {
   FilePath default_pref_dir = ProfileManager::GetDefaultProfileDir(
       FilePath::FromWStringHack(user_data_dir));
@@ -218,7 +218,7 @@ bool FirstRun::ProcessMasterPreferences(
     // result determines if we continue or not. We wait here until the user
     // dismisses the dialog.
     int retcode = 0;
-    if (!LaunchSetupWithParam(installer_util::switches::kShowEula, &retcode) || 
+    if (!LaunchSetupWithParam(installer_util::switches::kShowEula, &retcode) ||
         (retcode == installer_util::EULA_REJECTED)) {
       LOG(WARNING) << "EULA rejected. Fast exit.";
       ::ExitProcess(1);
@@ -457,7 +457,7 @@ class FirstRunImportObserver : public ImportObserver {
     import_result_ = ResultCodes::NORMAL_EXIT;
     Finish();
   }
-  
+
   void RunLoop() {
     loop_running_ = true;
     MessageLoop::current()->Run();

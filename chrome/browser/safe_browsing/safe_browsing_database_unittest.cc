@@ -943,7 +943,7 @@ TEST(SafeBrowsingDatabase, HashCaching) {
   database->UpdateFinished(true);
 
   EXPECT_TRUE(database->ContainsUrl(GURL("http://www.fullevil.com/bad1.html"),
-                                    &listname, &prefixes, &full_hashes, 
+                                    &listname, &prefixes, &full_hashes,
                                     Time::Now()));
   EXPECT_EQ(full_hashes.size(), 1U);
   EXPECT_EQ(0, memcmp(full_hashes[0].hash.full_hash,
@@ -954,7 +954,7 @@ TEST(SafeBrowsingDatabase, HashCaching) {
   full_hashes.clear();
 
   EXPECT_TRUE(database->ContainsUrl(GURL("http://www.fullevil.com/bad2.html"),
-                                    &listname, &prefixes, &full_hashes, 
+                                    &listname, &prefixes, &full_hashes,
                                     Time::Now()));
   EXPECT_EQ(full_hashes.size(), 1U);
   EXPECT_EQ(0, memcmp(full_hashes[0].hash.full_hash,
@@ -986,13 +986,13 @@ TEST(SafeBrowsingDatabase, HashCaching) {
   database->UpdateFinished(true);
 
   EXPECT_FALSE(database->ContainsUrl(GURL("http://www.fullevil.com/bad1.html"),
-                                     &listname, &prefixes, &full_hashes, 
+                                     &listname, &prefixes, &full_hashes,
                                      Time::Now()));
   EXPECT_EQ(full_hashes.size(), 0U);
 
   // There should be one remaining full add.
   EXPECT_TRUE(database->ContainsUrl(GURL("http://www.fullevil.com/bad2.html"),
-                                    &listname, &prefixes, &full_hashes, 
+                                    &listname, &prefixes, &full_hashes,
                                     Time::Now()));
   EXPECT_EQ(full_hashes.size(), 1U);
   EXPECT_EQ(0, memcmp(full_hashes[0].hash.full_hash,
@@ -1010,10 +1010,10 @@ TEST(SafeBrowsingDatabase, HashCaching) {
   lists.clear();
 
   EXPECT_FALSE(database->ContainsUrl(GURL("http://www.fullevil.com/bad1.html"),
-                                     &listname, &prefixes, &full_hashes, 
+                                     &listname, &prefixes, &full_hashes,
                                      Time::Now()));
   EXPECT_FALSE(database->ContainsUrl(GURL("http://www.fullevil.com/bad2.html"),
-                                     &listname, &prefixes, &full_hashes, 
+                                     &listname, &prefixes, &full_hashes,
                                      Time::Now()));
 
   TearDownTestDatabase(database);

@@ -593,7 +593,7 @@ void AutocompleteEditViewWin::Update(
     CHARRANGE sel;
     GetSelection(sel);
     const bool was_reversed = (sel.cpMin > sel.cpMax);
-    const bool was_sel_all = (sel.cpMin != sel.cpMax) && 
+    const bool was_sel_all = (sel.cpMin != sel.cpMax) &&
       IsSelectAllForRange(sel);
 
     RevertAll();

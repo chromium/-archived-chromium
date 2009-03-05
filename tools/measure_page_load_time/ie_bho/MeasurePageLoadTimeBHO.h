@@ -50,7 +50,7 @@ BEGIN_SINK_MAP(CMeasurePageLoadTimeBHO)
 END_SINK_MAP()
 
     // DWebBrowserEvents2
-  void STDMETHODCALLTYPE OnDocumentComplete(IDispatch *pDisp, VARIANT *pvarURL); 
+  void STDMETHODCALLTYPE OnDocumentComplete(IDispatch *pDisp, VARIANT *pvarURL);
   STDMETHOD(SetSite)(IUnknown *pUnkSite);
 
 	DECLARE_PROTECT_FINAL_CONSTRUCT()
@@ -70,7 +70,7 @@ END_SINK_MAP()
 
 private:
     CComPtr<IWebBrowser2>  m_spWebBrowser;
-    BOOL m_fAdvised; 
+    BOOL m_fAdvised;
 
     // Handle to global interface table
     DWORD m_dwCookie;

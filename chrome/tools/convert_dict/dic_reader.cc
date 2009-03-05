@@ -43,12 +43,12 @@ void SplitDicLine(const std::string& line, std::vector<std::string>* output) {
     output->push_back(line.substr(slash_index + 1));
 }
 
-// This function reads words from a .dic file, or a .dic_delta file. Note that 
+// This function reads words from a .dic file, or a .dic_delta file. Note that
 // we read 'all' the words in the file, irrespective of the word count given
 // in the first non empty line of a .dic file. Also note that, for a .dic_delta
 // file, the first line actually does _not_ have the number of words. In order
-// to control this, we use the |file_has_word_count_in_the_first_line| 
-// parameter to tell this method whether the first non empty line in the file 
+// to control this, we use the |file_has_word_count_in_the_first_line|
+// parameter to tell this method whether the first non empty line in the file
 // contains the number of words or not. If it does, skip the first line. If it
 // does not, then the first line contains a word.
 bool PopulateWordSet(WordSet* word_set, FILE* file, AffReader* aff_reader,
@@ -141,7 +141,7 @@ bool DicReader::Read(AffReader* aff_reader) {
 
   // Add words from the dic file to the word set.
   // Note that the first line is the word count in the file.
-  if (!PopulateWordSet(&word_set, file_, aff_reader, "dic", 
+  if (!PopulateWordSet(&word_set, file_, aff_reader, "dic",
                        aff_reader->encoding(), true))
     return false;
 

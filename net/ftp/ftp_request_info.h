@@ -7,7 +7,7 @@
 
 class FtpRequestInfo {
  public:
-  // The requested URL. 
+  // The requested URL.
   GURL url;
 
   // Any upload data.

@@ -96,13 +96,13 @@ class PlatformUtility(object):
         port += 443
         use_ssl = True
       return PlatformUtility._FilenameToUri(self,
-                                            relative_path, 
+                                            relative_path,
                                             use_http=True,
                                             use_ssl=use_ssl,
                                             port=port)
 
     # Run off file://
-    return PlatformUtility._FilenameToUri(self, full_path, use_http=False, 
+    return PlatformUtility._FilenameToUri(self, full_path, use_http=False,
                                           use_ssl=False, port=0)
 
   def LigHTTPdExecutablePath(self):
@@ -119,7 +119,7 @@ class PlatformUtility(object):
 
   def ShutDownHTTPServer(self, server_process):
     """Shut down the lighttpd web server. Blocks until it's fully shut down.
-    
+
     Args:
       server_process: The subprocess object representing the running server
     """
@@ -139,10 +139,10 @@ class PlatformUtility(object):
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
     return 'TestShell'
-  
+
   def TestShellBinaryPath(self, target):
     """Return the platform-specific binary path for our TestShell.
-    
+
     Args:
       target: Build target mode (debug or release)
     """

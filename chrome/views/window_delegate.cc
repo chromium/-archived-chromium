@@ -48,7 +48,7 @@ bool WindowDelegate::GetSavedWindowBounds(gfx::Rect* bounds) const {
   if (window_name.empty())
     return false;
 
-  const DictionaryValue* dictionary = 
+  const DictionaryValue* dictionary =
       g_browser_process->local_state()->GetDictionary(window_name.c_str());
   int left, top, right, bottom;
   if (!dictionary || !dictionary->GetInteger(L"left", &left) ||
@@ -66,7 +66,7 @@ bool WindowDelegate::GetSavedMaximizedState(bool* maximized) const {
   if (window_name.empty())
     return false;
 
-  const DictionaryValue* dictionary = 
+  const DictionaryValue* dictionary =
       g_browser_process->local_state()->GetDictionary(window_name.c_str());
   return dictionary && dictionary->GetBoolean(L"maximized", maximized);
 }
@@ -79,7 +79,7 @@ bool WindowDelegate::GetSavedAlwaysOnTopState(bool* always_on_top) const {
   if (window_name.empty())
     return false;
 
-  const DictionaryValue* dictionary = 
+  const DictionaryValue* dictionary =
       g_browser_process->local_state()->GetDictionary(window_name.c_str());
   return dictionary && dictionary->GetBoolean(L"always_on_top", always_on_top);
 }

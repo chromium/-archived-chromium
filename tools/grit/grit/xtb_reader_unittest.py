@@ -36,7 +36,7 @@ and another
 
 and another after a blank line.</translation>
       </translationbundle>''')
-    
+
     messages = []
     def Callback(id, structure):
       messages.append((id, structure))
@@ -52,19 +52,19 @@ and another after a blank line.</translation>
         <message name="ID_MEGA">Fantastic!</message>
         <message name="ID_HELLO_USER">Hello <ph name="USERNAME">%s<ex>Joi</ex></ph></message>
       </messages>'''), dir='.', flexible_root=True)
-    
+
     clique_mega = grd.children[0].GetCliques()[0]
     msg_mega = clique_mega.GetMessage()
     clique_hello_user = grd.children[1].GetCliques()[0]
     msg_hello_user = clique_hello_user.GetMessage()
-    
+
     xtb_file = StringIO.StringIO('''<?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE translationbundle>
       <translationbundle lang="is">
         <translation id="%s">Meirihattar!</translation>
         <translation id="%s">Saelir <ph name="USERNAME"/></translation>
       </translationbundle>''' % (msg_mega.GetId(), msg_hello_user.GetId()))
-    
+
     xtb_reader.Parse(xtb_file, grd.UberClique().GenerateXtbParserCallback('is'))
     self.failUnless(clique_mega.MessageForLanguage('is').GetRealContent() ==
                     'Meirihattar!')

@@ -69,7 +69,7 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void PrepareToDestroy() {}
   virtual void SetTooltipText(const std::wstring& tooltip_text) {}
   virtual BackingStore* AllocBackingStore(const gfx::Size& size);
- 
+
   bool is_showing() const { return is_showing_; }
 
  private:

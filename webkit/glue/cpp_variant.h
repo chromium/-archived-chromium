@@ -99,11 +99,11 @@ class CppVariant : public NPVariant {
   std::vector<std::wstring> ToStringVector() const;
 
   // Invoke method of the given name on an object with the supplied arguments.
-  // The first argument should be the object on which the method is to be 
+  // The first argument should be the object on which the method is to be
   // invoked.  Returns whether the method was successfully invoked.  If the
-  // method was invoked successfully, any return value is stored in the 
+  // method was invoked successfully, any return value is stored in the
   // CppVariant specified by result.
-  bool Invoke(const std::string& method, const CppVariant* args, 
+  bool Invoke(const std::string& method, const CppVariant* args,
               uint32 arg_count, CppVariant& result) const;
 };
 

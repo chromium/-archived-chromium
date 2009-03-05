@@ -7,7 +7,7 @@
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
 
-BrowserWindowCocoa::BrowserWindowCocoa(BrowserWindowController* controller, 
+BrowserWindowCocoa::BrowserWindowCocoa(BrowserWindowController* controller,
                                        NSWindow* window)
     : controller_(controller), window_(window) {
 }
@@ -27,7 +27,7 @@ void BrowserWindowCocoa::SetBounds(const gfx::Rect& bounds) {
                                    bounds.height());
   // flip coordinates
   NSScreen* screen = [window_ screen];
-  cocoa_bounds.origin.y = 
+  cocoa_bounds.origin.y =
       [screen frame].size.height - bounds.height() - bounds.y();
 }
 
@@ -44,7 +44,7 @@ void BrowserWindowCocoa::Activate() {
 }
 
 void BrowserWindowCocoa::FlashFrame() {
-  [[NSApplication sharedApplication] 
+  [[NSApplication sharedApplication]
       requestUserAttention:NSInformationalRequest];
 }
 
@@ -123,7 +123,7 @@ void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {
 
 void BrowserWindowCocoa::UpdateToolbar(TabContents* contents,
                                        bool should_restore_state) {
-  [controller_ updateToolbarWithContents:contents 
+  [controller_ updateToolbarWithContents:contents
                       shouldRestoreState:should_restore_state ? YES : NO];
 }
 
@@ -189,7 +189,7 @@ void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                                         void* parent_window) {
   NOTIMPLEMENTED();
 }
-                            
+
 void BrowserWindowCocoa::DestroyBrowser() {
   [controller_ destroyBrowser];
 

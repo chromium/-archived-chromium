@@ -94,7 +94,7 @@ void ReplaceLastMockStream(AudioOutputStreamMockWin* newer) {
 
 
 bool AudioManagerWin::HasAudioDevices() {
-  return (::waveOutGetNumDevs() != 0);  
+  return (::waveOutGetNumDevs() != 0);
 }
 
 // Factory for the implementations of AudioOutputStream. Two implementations

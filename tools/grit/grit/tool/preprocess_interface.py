@@ -19,7 +19,7 @@ class PreProcessor(object):
     Args:
       rctext: string containing the contents of the RC file being processed
       rcpath: the path used to access the file.
-    
+
     Return:
       The processed text.
     '''

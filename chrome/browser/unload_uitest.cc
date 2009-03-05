@@ -127,7 +127,7 @@ class UnloadTest : public UITest {
 
     CheckTitle(L"Title Of Awesomeness");
   }
-  
+
   void LoadUrlAndQuitBrowser(const std::string& html_content,
                              const std::wstring& expected_title = L"") {
     scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
@@ -164,7 +164,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteUnloadAsync) {
 
 // Navigate to a page with an infinite unload handler.
 // Then two two sync crosssite requests to ensure
-// we correctly nav to each one. 
+// we correctly nav to each one.
 TEST_F(UnloadTest, CrossSiteInfiniteUnloadSync) {
   // Tests makes no sense in single-process mode since the renderer is hung.
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
@@ -192,7 +192,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadAsync) {
 
 // Navigate to a page with an infinite beforeunload handler.
 // Then two two sync crosssite requests to ensure
-// we correctly nav to each one. 
+// we correctly nav to each one.
 TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadSync) {
   // Tests makes no sense in single-process mode since the renderer is hung.
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))

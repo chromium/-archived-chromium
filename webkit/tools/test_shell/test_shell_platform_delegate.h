@@ -48,7 +48,7 @@ class TestShellPlatformDelegate {
   // settings.  Normally called by the destructor, but also called before
   // abort() (example: test timeouts).
   void AboutToExit();
-  
+
   // SetWindowPositionForRecording: if the platform's implementation of
   // EventRecorder requires the window to be in a particular absolute position,
   // make it so.  This is called by TestShell after it creates the window.

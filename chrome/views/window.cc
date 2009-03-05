@@ -352,7 +352,7 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
 
   WidgetWin::Init(parent, bounds, true);
   win_util::SetWindowUserData(GetHWND(), this);
-  
+
   // Create the ClientView, add it to the NonClientView and add the
   // NonClientView to the RootView. This will cause everything to be parented.
   non_client_view_->set_client_view(window_delegate_->CreateClientView(this));

@@ -175,7 +175,7 @@ class TestViewWindow : public views::WidgetWin {
   void Init();
 
   views::View* contents() const { return contents_; }
-  
+
 
   // Return the ID of the component that currently has the focus.
   int GetFocusedComponentID();

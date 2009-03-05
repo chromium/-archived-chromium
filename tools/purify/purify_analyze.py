@@ -70,7 +70,7 @@ class MemoryTreeNode(object):
     return root
 
   def __init__(self, function, bytes, blocks):
-    ''' 
+    '''
     Args:
       function: A string representing a unique method or function.
       bytes: initial number of bytes allocated in this node
@@ -105,15 +105,15 @@ class MemoryTreeNode(object):
                (other._bytes, other._blocks, other._function))
 
   def __str__(self):
-    return "(%d bytes, %d blocks, %d allocs) %s" % ( 
+    return "(%d bytes, %d blocks, %d allocs) %s" % (
         self._bytes, self._blocks, self._allocs, self._function)
 
   def PrintRecursive(self, padding="", byte_filter=0):
     '''Print the tree and all of its children recursively (depth-first).  All
     nodes at a given level of the tree are sorted in descending order by size.
-    
+
     Args:
-      padding: Printed at the front of the line.  Each recursive call adds a 
+      padding: Printed at the front of the line.  Each recursive call adds a
         single space character.
       byte_filter: a number of bytes below which we'll prune the tree
     '''
@@ -174,7 +174,7 @@ class PurifyAnalyze:
     # A symbolic name for the run being analyzed, often the name of the
     # exe which was purified.
     self._name = name
-    
+
     # The top of the source code tree of the code we're analyzing.
     # This prefix is stripped from all filenames in stacks for normalization.
     if source_dir:
@@ -224,7 +224,7 @@ class PurifyAnalyze:
       return False
 
     # check ignore patterns against title and top-most visible stack frames
-    strings = [msg._title]    
+    strings = [msg._title]
     err = msg.GetErrorStack()
     if err:
       line = err.GetTopVisibleStackLine().get('function', None)
@@ -403,7 +403,7 @@ class PurifyAnalyze:
       # Purify output should never end with a real message
       if message:
         logging.error("Unexpected message at end of file %s" % file)
-  
+
     return fatal_errors == 0
 
   def GetMessageList(self, key):
@@ -433,13 +433,13 @@ class PurifyAnalyze:
       count = 0
       for msg in all:
         count += msg._count
-      self._PrintAndSave("%s(%s) unique:%d total:%d" % (self._name, 
+      self._PrintAndSave("%s(%s) unique:%d total:%d" % (self._name,
           purify_message.GetMessageType(key), len(unique), count), file)
       if key not in ["MIU"]:
         ignore_file = "%s_%s_ignore.txt" % (self._name, key)
         ignore_hashes = self._MessageHashesFromFile(ignore_file)
         ignored = 0
-        
+
         groups = list.UniqueMessageGroups()
         group_keys = groups.keys()
         group_keys.sort(cmp=lambda x,y: len(groups[y]) - len(groups[x]))
@@ -449,11 +449,11 @@ class PurifyAnalyze:
           ignored += len(groups[group]) - len(kept_msgs)
           groups[group] = kept_msgs
         if ignored:
-          self._PrintAndSave("%s(%s) ignored:%d" % (self._name, 
+          self._PrintAndSave("%s(%s) ignored:%d" % (self._name,
             purify_message.GetMessageType(key), ignored), file)
         total = reduce(lambda x, y: x + len(groups[y]), group_keys, 0)
         if total:
-          self._PrintAndSave("%s(%s) group summary:" % (self._name, 
+          self._PrintAndSave("%s(%s) group summary:" % (self._name,
             purify_message.GetMessageType(key)), file)
           self._PrintAndSave("   TOTAL: %d" % total, file)
           for group in group_keys:
@@ -491,7 +491,7 @@ class PurifyAnalyze:
     for sublist in sublists:
       tree = MemoryTreeNode.CreateTree(sublist)
       trees.append(tree)
-      
+
       # while the tree is a hierarchical assignment from the root/bottom of the
       # stack down, the summary is simply adding the total of the top-most
       # stack item from our code
@@ -550,7 +550,7 @@ class PurifyAnalyze:
     sys.stderr.flush()
     sys.stdout.flush()
     logging.info("summary of Purify bugs:")
-    
+
     # This is a specialized set of counters for unit tests, with some
     # unfortunate hard-coded knowledge.
     test_counts = {}
@@ -596,7 +596,7 @@ class PurifyAnalyze:
           prog_args = prog.split(" ")
           arg_prefix = "--test-name="
           test_name = "UNKNOWN"
-          for arg in prog_args:            
+          for arg in prog_args:
             index = arg.find(arg_prefix)
             if index >= 0:
               test_name = arg[len(arg_prefix):]
@@ -636,7 +636,7 @@ class PurifyAnalyze:
   def SaveStrings(self, string_list, key, fname_extra=""):
     '''Output a list of strings to a file in the report dir.
     '''
-    out = os.path.join(self._report_dir, 
+    out = os.path.join(self._report_dir,
                        "%s_%s%s.txt" % (self._name, key, fname_extra))
     logging.info("saving %s" % (out))
     try:
@@ -778,7 +778,7 @@ class PurifyAnalyze:
       # type of message which is used to generate filenames and descriptive
       # error messages
       type_name = "%s_%s" % (self._name, type)
-      
+
       # open the baseline file to compare against
       baseline_file = "%s.txt" % type_name
       baseline_hashes = self._MessageHashesFromFile(baseline_file)
@@ -795,7 +795,7 @@ class PurifyAnalyze:
       current_list = self.GetMessageList(type)
       if current_list:
         # Since we're looking at the list of unique messages,
-        # if the number of occurrances of a given unique message 
+        # if the number of occurrances of a given unique message
         # changes, it won't show up as an error.
         current_messages = current_list.UniqueMessages()
       else:
@@ -825,10 +825,10 @@ class PurifyAnalyze:
                      len(type_errors), len(type_fixes)))
 
       if len(type_errors):
-        strs = [current_hashes[x].NormalizedStr(verbose=True) 
+        strs = [current_hashes[x].NormalizedStr(verbose=True)
                 for x in type_errors]
         logging.error("%d new '%s(%s)' errors found\n%s" % (len(type_errors),
-                      purify_message.GetMessageType(type), type, 
+                      purify_message.GetMessageType(type), type,
                       '\n'.join(strs)))
         strs = [current_hashes[x].NormalizedStr() for x in type_errors]
         self.SaveStrings(strs, type, "_NEW")
@@ -838,7 +838,7 @@ class PurifyAnalyze:
         # we don't have access to the original message, so all we can do is log
         # the non-verbose normalized text
         logging.warning("%d new '%s(%s)' unexpected fixes found\n%s" % (
-                        len(type_fixes), purify_message.GetMessageType(type), 
+                        len(type_fixes), purify_message.GetMessageType(type),
                         type, '\n'.join(type_fixes)))
         self.SaveStrings(type_fixes, type, "_FIXED")
         fixes += len(type_fixes)
@@ -872,10 +872,10 @@ def _main():
   parser = optparse.OptionParser("usage: %prog [options] <files to analyze>")
   parser.add_option("-b", "--baseline", action="store_true", default=False,
                     help="save output to baseline files")
-  parser.add_option("-m", "--memory_in_use", 
+  parser.add_option("-m", "--memory_in_use",
                     action="store_true", default=False,
                     help="print memory in use summary")
-  parser.add_option("", "--validate", 
+  parser.add_option("", "--validate",
                     action="store_true", default=False,
                     help="validate results vs. baseline")
   parser.add_option("-e", "--echo_to_stdout",
@@ -908,7 +908,7 @@ def _main():
     google.logging_utils.config_root(level=logging.DEBUG)
   else:
     google.logging_utils.config_root(level=logging.INFO)
-  pa = PurifyAnalyze(filenames, options.echo_to_stdout, options.name, 
+  pa = PurifyAnalyze(filenames, options.echo_to_stdout, options.name,
                      options.source_dir, options.data_dir, options.report_dir)
   execute_crash = not pa.ReadFile()
   if options.bug_report:
@@ -934,6 +934,6 @@ def _main():
   sys.exit(retcode)
 
 if __name__ == "__main__":
-  _main()  
+  _main()
 
 

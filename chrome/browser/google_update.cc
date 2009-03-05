@@ -35,7 +35,7 @@ bool CanUpdateCurrentChrome(const std::wstring& chrome_exe_path) {
                  user_exe_path.begin(), tolower);
   std::transform(machine_exe_path.begin(), machine_exe_path.end(),
                  machine_exe_path.begin(), tolower);
-  if (chrome_exe_path != user_exe_path && 
+  if (chrome_exe_path != user_exe_path &&
       chrome_exe_path != machine_exe_path ) {
     LOG(ERROR) << L"Google Update cannot update Chrome installed in a "
                << L"non-standard location: " << chrome_exe_path.c_str()

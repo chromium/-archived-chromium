@@ -22,16 +22,16 @@ class PseudoUnittest(unittest.TestCase):
                     u'\u00e5b\u00e9b\u00efb\u00f4b\u00fcb\u00fd')
     self.failUnless(pseudo.MapVowels('ABEBIBOBUBY') ==
                     u'\u00c5B\u00c9B\u00cfB\u00d4B\u00dcB\u00dd')
-  
+
   def testPseudoString(self):
     out = pseudo.PseudoString('hello')
     self.failUnless(out == pseudo.MapVowels(u'hePelloPo', True))
-  
+
   def testConsecutiveVowels(self):
     out = pseudo.PseudoString("beautiful weather, ain't it?")
     self.failUnless(out == pseudo.MapVowels(
       u"beauPeautiPifuPul weaPeathePer, aiPain't iPit?", 1))
-  
+
   def testCapitals(self):
     out = pseudo.PseudoString("HOWDIE DOODIE, DR. JONES")
     self.failUnless(out == pseudo.MapVowels(

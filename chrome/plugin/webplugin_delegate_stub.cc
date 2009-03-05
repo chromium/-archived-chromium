@@ -80,8 +80,8 @@ void WebPluginDelegateStub::OnMessageReceived(const IPC::Message& msg) {
                         OnDidFinishLoadWithReason)
     IPC_MESSAGE_HANDLER(PluginMsg_SetFocus, OnSetFocus)
     IPC_MESSAGE_HANDLER(PluginMsg_HandleEvent, OnHandleEvent)
-    IPC_MESSAGE_HANDLER(PluginMsg_Paint, OnPaint)    
-    IPC_MESSAGE_HANDLER(PluginMsg_DidPaint, OnDidPaint)    
+    IPC_MESSAGE_HANDLER(PluginMsg_Paint, OnPaint)
+    IPC_MESSAGE_HANDLER(PluginMsg_DidPaint, OnDidPaint)
     IPC_MESSAGE_HANDLER(PluginMsg_Print, OnPrint)
     IPC_MESSAGE_HANDLER(PluginMsg_GetPluginScriptableObject,
                         OnGetPluginScriptableObject)

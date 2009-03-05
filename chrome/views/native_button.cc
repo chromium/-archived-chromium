@@ -14,7 +14,7 @@ namespace views {
 
 const char NativeButton::kViewClassName[] = "chrome/views/NativeButton";
 
-NativeButton::NativeButton(const std::wstring& label) 
+NativeButton::NativeButton(const std::wstring& label)
     : enforce_dlu_min_size_(true) {
   Init(label, false);
 }

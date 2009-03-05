@@ -36,7 +36,7 @@ class NodeUnittest(unittest.TestCase):
     node.AppendContent(u" '''  two spaces  ")
     node.EndParsing()
     self.failUnless(node.GetCdata() == u'  two spaces')
-    
+
     node = message.MessageNode()
     node.StartParsing(u'message', None)
     node.HandleAttribute(u'name', u'bla')
@@ -66,7 +66,7 @@ class NodeUnittest(unittest.TestCase):
     node.StartParsing(u'message', None)
     node.HandleAttribute(u'name', u'name')
     node.AppendContent(u'Hello <young> ')
-    
+
     ph = message.PhNode()
     ph.StartParsing(u'ph', None)
     ph.HandleAttribute(u'name', u'USERNAME')
@@ -77,15 +77,15 @@ class NodeUnittest(unittest.TestCase):
     ex.EndParsing()
     ph.AddChild(ex)
     ph.EndParsing()
-    
+
     node.AddChild(ph)
     node.EndParsing()
-    
+
     non_indented_xml = node.Format(node)
     self.failUnless(non_indented_xml == u'<message name="name">\n  Hello '
                     u'&lt;young&gt; <ph name="USERNAME">$1<ex>Joi</ex></ph>'
                     u'\n</message>')
-    
+
     indented_xml = node.FormatXml(u'  ')
     self.failUnless(indented_xml == u'  <message name="name">\n    Hello '
                     u'&lt;young&gt; <ph name="USERNAME">$1<ex>Joi</ex></ph>'
@@ -98,7 +98,7 @@ class NodeUnittest(unittest.TestCase):
     node.StartParsing(u'message', None)
     node.HandleAttribute(u'name', u'name')
     node.AppendContent(u"'''   Hello <young> ")
-    
+
     ph = message.PhNode()
     ph.StartParsing(u'ph', None)
     ph.HandleAttribute(u'name', u'USERNAME')
@@ -109,25 +109,25 @@ class NodeUnittest(unittest.TestCase):
     ex.EndParsing()
     ph.AddChild(ex)
     ph.EndParsing()
-    
+
     node.AddChild(ph)
     node.AppendContent(u" yessiree '''")
     node.EndParsing()
-    
+
     non_indented_xml = node.Format(node)
     self.failUnless(non_indented_xml ==
                     u"<message name=\"name\">\n  '''   Hello"
                     u' &lt;young&gt; <ph name="USERNAME">$1<ex>Joi</ex></ph>'
                     u" yessiree '''\n</message>")
-    
+
     indented_xml = node.FormatXml(u'  ')
     self.failUnless(indented_xml ==
                     u"  <message name=\"name\">\n    '''   Hello"
                     u' &lt;young&gt; <ph name="USERNAME">$1<ex>Joi</ex></ph>'
                     u" yessiree '''\n  </message>")
-    
+
     self.failUnless(node.GetNodeById('name'))
-  
+
   def testXmlFormatContentWithEntities(self):
     '''Tests a bug where &nbsp; would not be escaped correctly.'''
     from grit import tclib
@@ -140,7 +140,7 @@ class NodeUnittest(unittest.TestCase):
                                              'BINGOBONGO')
     xml = msg_node.FormatXml()
     self.failUnless(xml.find('&nbsp;') == -1, 'should have no entities')
-    
+
   def testIter(self):
     # First build a little tree of message and ph nodes.
     node = message.MessageNode()
@@ -156,7 +156,7 @@ class NodeUnittest(unittest.TestCase):
     node.AddChild(ph)
     node.AddChild(message.PhNode())
     node.AppendContent(u" space before two after  '''")
-    
+
     order = [message.MessageNode, message.PhNode, message.ExNode, message.PhNode]
     for n in node:
       self.failUnless(type(n) == order[0])

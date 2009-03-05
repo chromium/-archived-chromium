@@ -274,7 +274,7 @@ BookmarkTableModel* BookmarkTableModel::CreateBookmarkTableModelForFolder(
 BookmarkTableModel* BookmarkTableModel::CreateSearchTableModel(
     BookmarkModel* model,
     const std::wstring& text) {
-  return new BookmarkSearchTableModel(model, text);        
+  return new BookmarkSearchTableModel(model, text);
 }
 
 BookmarkTableModel::BookmarkTableModel(BookmarkModel* model)

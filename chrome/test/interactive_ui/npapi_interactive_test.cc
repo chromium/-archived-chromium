@@ -41,14 +41,14 @@ const char kTestCompleteCookie[] = "status";
 const char kTestCompleteSuccess[] = "OK";
 const int kShortWaitTimeout = 5 * 1000;
 
-// Tests if a plugin executing a self deleting script in the context of 
+// Tests if a plugin executing a self deleting script in the context of
 // a synchronous mousemove works correctly
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousMouseMove) {
   if (!UITest::in_process_renderer()) {
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     HWND tab_window = NULL;
     tab_proxy->GetHWND(&tab_window);
-    
+
     EXPECT_TRUE(IsWindow(tab_window));
 
     show_window_ = true;
@@ -59,8 +59,8 @@ TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousMouseMove) {
     POINT cursor_position = {130, 130};
     ClientToScreen(tab_window, &cursor_position);
 
-    double screen_width = ::GetSystemMetrics( SM_CXSCREEN ) - 1; 
-    double screen_height = ::GetSystemMetrics( SM_CYSCREEN ) - 1; 
+    double screen_width = ::GetSystemMetrics( SM_CXSCREEN ) - 1;
+    double screen_height = ::GetSystemMetrics( SM_CYSCREEN ) - 1;
     double location_x =  cursor_position.x * (65535.0f / screen_width);
     double location_y =  cursor_position.y * (65535.0f / screen_height);
 

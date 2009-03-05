@@ -179,7 +179,7 @@ void CrashHandler(const std::string& str) {
 
 int main(int argc, const char* argv[]) {
   // Setup an AtExitManager so Singleton objects will be destructed.
-  base::AtExitManager at_exit_manager; 
+  base::AtExitManager at_exit_manager;
 
   if (argc < 2)
     return MasterCode();

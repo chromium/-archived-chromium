@@ -437,18 +437,18 @@ gfx::Size KeywordEditorView::GetPreferredSize() {
 bool KeywordEditorView::CanResize() const {
   return true;
 }
-	 			
+
 std::wstring KeywordEditorView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_WINDOW_TITLE);
-}			
+}
 
 int KeywordEditorView::GetDialogButtons() const {
   return DIALOGBUTTON_CANCEL;
 }
-	 			
+
 bool KeywordEditorView::Accept() {
   open_window = NULL;
-  return true;			
+  return true;
 }
 
 bool KeywordEditorView::Cancel() {

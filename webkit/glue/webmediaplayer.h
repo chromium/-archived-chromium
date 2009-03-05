@@ -38,7 +38,7 @@ public:
 
   // Get the web frame associated with the media player
   virtual WebFrame* GetWebFrame() = 0;
-  
+
   // Notify the media player about network state change.
   virtual void NotifyNetworkStateChange() = 0;
 

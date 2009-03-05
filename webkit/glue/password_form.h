@@ -53,7 +53,7 @@ struct PasswordForm {
   // The URL (minus query parameters) containing the form. This is the primary
   // data used by the PasswordManager to decide (in longest matching prefix
   // fashion) whether or not a given PasswordForm result from the database is a
-  // good fit for a particular form on a page, so it must not be empty. 
+  // good fit for a particular form on a page, so it must not be empty.
   GURL origin;
 
   // The action target of the form. This is the primary data used by the
@@ -76,7 +76,7 @@ struct PasswordForm {
   std::wstring submit_element;
 
   // The name of the username input element. Optional (improves scoring).
-  // 
+  //
   // When parsing an HTML form, this must always be set.
   std::wstring username_element;
 
@@ -133,9 +133,9 @@ struct PasswordForm {
   bool blacklisted_by_user;
 
   PasswordForm()
-      : scheme(SCHEME_HTML), 
-        ssl_valid(false), 
-        preferred(false), 
+      : scheme(SCHEME_HTML),
+        ssl_valid(false),
+        preferred(false),
         blacklisted_by_user(false) {
   }
 };

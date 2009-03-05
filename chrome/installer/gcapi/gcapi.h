@@ -23,9 +23,9 @@ extern "C" {
 // for the reason, you can pass NULL for reasons.
 // set_flag indicates whether a flag should be set indicating that Chrome was
 // offered within the last six months; if passed FALSE, this method will not
-// set the flag even if Chrome can be offered.  If passed TRUE, this method 
+// set the flag even if Chrome can be offered.  If passed TRUE, this method
 // will set the flag only if Chrome can be offered.
-DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(BOOL set_flag, 
+DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(BOOL set_flag,
                                                         DWORD *reasons);
 
 // This function launches Google Chrome after a successful install. Make
@@ -36,6 +36,6 @@ DLLEXPORT BOOL __stdcall LaunchGoogleChrome();
 // Funtion pointer type declarations to use with GetProcAddress.
 typedef BOOL (__stdcall * GCCC_CompatibilityCheck)(BOOL, DWORD *);
 typedef BOOL (__stdcall * GCCC_LaunchGC)(HANDLE *);
-}  // extern "C" 
+}  // extern "C"
 
 #endif  // # CHROME_INSTALLER_GCAPI_GCAPI_H_

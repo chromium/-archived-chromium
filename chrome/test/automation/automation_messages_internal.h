@@ -74,7 +74,7 @@ IPC_BEGIN_MESSAGES(Automation)
   // This message notifies the AutomationProvider to navigate to a specified
   // url in the tab with given handle. The first parameter is the handle to
   // the tab resource. The second parameter is the target url.  The return
-  // value contains a status code which is nonnegative on success. 
+  // value contains a status code which is nonnegative on success.
   // See AutomationMsg_NavigationResponseValues for the return value.
   IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_NavigateToURL, int, GURL,
                              AutomationMsg_NavigationResponseValues)
@@ -128,7 +128,7 @@ IPC_BEGIN_MESSAGES(Automation)
   // The return value contains the size of the title string. On error, this
   // value should be -1 and empty string. Note that the title can be empty in
   // which case the size would be 0.
-  IPC_SYNC_MESSAGE_ROUTED1_2(AutomationMsg_TabTitle, 
+  IPC_SYNC_MESSAGE_ROUTED1_2(AutomationMsg_TabTitle,
                              int,
                              int,
                              std::wstring)
@@ -798,7 +798,7 @@ IPC_BEGIN_MESSAGES(Automation)
 
   // Queries whether an app modal dialog is currently being shown. (i.e. a
   // javascript alert) and which buttons it contains.
-  IPC_SYNC_MESSAGE_ROUTED0_2(AutomationMsg_ShowingAppModalDialog, 
+  IPC_SYNC_MESSAGE_ROUTED0_2(AutomationMsg_ShowingAppModalDialog,
                              bool /* showing dialog */,
                              int /* view::DelegateDialog::DialogButton */)
 

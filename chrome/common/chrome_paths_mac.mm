@@ -21,7 +21,7 @@ bool GetDefaultUserDataDirectory(FilePath* result) {
 
 bool GetUserDocumentsDirectory(FilePath* result) {
   bool success = false;
-  NSArray* docArray = 
+  NSArray* docArray =
       NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
                                           NSUserDomainMask,
                                           YES);
@@ -34,7 +34,7 @@ bool GetUserDocumentsDirectory(FilePath* result) {
 
 bool GetUserDownloadsDirectory(FilePath* result) {
   bool success = false;
-  NSArray* docArray = 
+  NSArray* docArray =
       NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory,
                                           NSUserDomainMask,
                                           YES);
@@ -47,7 +47,7 @@ bool GetUserDownloadsDirectory(FilePath* result) {
 
 bool GetUserDesktop(FilePath* result) {
   bool success = false;
-  NSArray* docArray = 
+  NSArray* docArray =
       NSSearchPathForDirectoriesInDomains(NSDesktopDirectory,
                                           NSUserDomainMask,
                                           YES);

@@ -130,7 +130,7 @@ class HungRendererWarningView : public views::View,
   virtual views::View* GetExtraView();
   virtual bool Accept(bool window_closing);
   virtual views::View* GetContentsView();
-  
+
   // views::NativeButton::Listener overrides:
   virtual void ButtonPressed(views::NativeButton* sender);
 
@@ -379,7 +379,7 @@ void HungRendererWarningView::CreateKillButtonView() {
   kill_button_->SetListener(this);
 
   kill_button_container_ = new ButtonContainer;
- 
+
   using views::GridLayout;
   using views::ColumnSet;
 

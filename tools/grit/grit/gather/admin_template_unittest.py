@@ -34,10 +34,10 @@ class AdmGathererUnittest(unittest.TestCase):
     self.failUnless(len(gatherer.GetCliques()) == 2)
     self.failUnless(gatherer.GetCliques()[1].GetMessage().GetRealContent() ==
                     'bingolabongola "the wise" fingulafongula')
-    
+
     translation = gatherer.Translate('en')
     self.failUnless(translation == gatherer.GetText().strip())
-  
+
   def testErrorHandling(self):
     pseudofile = StringIO.StringIO(
       'bingo bongo\n'
@@ -47,7 +47,7 @@ class AdmGathererUnittest(unittest.TestCase):
     gatherer = admin_template.AdmGatherer.FromFile(pseudofile)
     self.assertRaises(admin_template.MalformedAdminTemplateException,
                       gatherer.Parse)
-  
+
   _TRANSLATABLES_FROM_FILE = (
     'Google', 'Google Desktop Search', 'Preferences',
     'Controls Google Deskop Search preferences',
@@ -56,20 +56,20 @@ class AdmGathererUnittest(unittest.TestCase):
     'Prevent indexing of e-mail',
     # there are lots more but we don't check any further
   )
-  
+
   def VerifyCliquesFromAdmFile(self, cliques):
     self.failUnless(len(cliques) > 20)
     for ix in range(len(self._TRANSLATABLES_FROM_FILE)):
       text = cliques[ix].GetMessage().GetRealContent()
       self.failUnless(text == self._TRANSLATABLES_FROM_FILE[ix])
-  
+
   def testFromFile(self):
     fname = util.PathFromRoot('grit/test/data/GoogleDesktopSearch.adm')
     gatherer = admin_template.AdmGatherer.FromFile(fname)
     gatherer.Parse()
     cliques = gatherer.GetCliques()
     self.VerifyCliquesFromAdmFile(cliques)
-  
+
   def MakeGrd(self):
     grd = grd_reader.Parse(StringIO.StringIO('''<?xml version="1.0" encoding="UTF-8"?>
       <grit latest_public_release="2" source_lang_id="en-US" current_release="3">
@@ -92,7 +92,7 @@ class AdmGathererUnittest(unittest.TestCase):
     grd = self.MakeGrd()
     cliques = grd.children[0].children[0].children[0].GetCliques()
     self.VerifyCliquesFromAdmFile(cliques)
-  
+
   def testFileIsOutput(self):
     grd = self.MakeGrd()
     dirname = tempfile.mkdtemp()
@@ -102,7 +102,7 @@ class AdmGathererUnittest(unittest.TestCase):
       tool.output_directory = dirname
       tool.res = grd
       tool.Process()
-      
+
       self.failUnless(os.path.isfile(
         os.path.join(dirname, 'de_GoogleDesktopSearch.adm')))
       self.failUnless(os.path.isfile(

@@ -237,7 +237,7 @@ class TestRunner:
     else:
       logging.info('Run: %d tests' % len(self._test_files))
 
-    logging.info('Deferred: %d tests' % 
+    logging.info('Deferred: %d tests' %
                  len(self._expectations.GetFixableDeferred()))
     logging.info('Expected passes: %d tests' %
                  len(self._test_files -
@@ -480,10 +480,10 @@ class TestRunner:
                              skipped,
                              output)
 
-    self._PrintResultSummary("=> Tests to be fixed for a future release",	 
-                             self._expectations.GetFixableDeferred(),	 
-                             deferred_failures,	 
-                             deferred_counts,	 
+    self._PrintResultSummary("=> Tests to be fixed for a future release",
+                             self._expectations.GetFixableDeferred(),
+                             deferred_failures,
+                             deferred_counts,
                              self._expectations.GetFixableSkippedDeferred(),
                              output)
 

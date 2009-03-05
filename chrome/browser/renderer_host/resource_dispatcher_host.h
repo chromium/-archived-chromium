@@ -247,7 +247,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   int pending_requests() const {
     return static_cast<int>(pending_requests_.size());
   }
-  
+
   // Intended for unit-tests only. Returns the memory cost of all the
   // outstanding requests (pending and blocked) for |render_process_host_id|.
   int GetOutstandingRequestsMemoryCost(int render_process_host_id) const;
@@ -412,7 +412,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // data structures supporting this request (URLRequest object,
   // HttpNetworkTransaction, etc...).
   // The value of |cost| is added to the running total, and the resulting
-  // sum is returned. 
+  // sum is returned.
   int IncrementOutstandingRequestsMemoryCost(int cost,
                                              int render_process_host_id);
 
@@ -508,7 +508,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   typedef std::map<ProcessRendererIDs, BlockedRequestsList*> BlockedRequestMap;
   BlockedRequestMap blocked_requests_map_;
 
-  // Maps the render_process_host_ids to the approximate number of bytes 
+  // Maps the render_process_host_ids to the approximate number of bytes
   // being used to service its resource requests. No entry implies 0 cost.
   typedef std::map<int, int> OutstandingRequestsMemoryCostMap;
   OutstandingRequestsMemoryCostMap outstanding_requests_memory_cost_map_;

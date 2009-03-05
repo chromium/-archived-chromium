@@ -36,7 +36,7 @@ class MessagesNode(GroupingNode):
   '''The <messages> element.'''
   def _IsValidChild(self, child):
     return isinstance(child, (message.MessageNode, misc.IfNode))
-  
+
   def ItemFormatter(self, t):
     '''Return the stringtable itemformatter if an RC is being formatted.'''
     if t in ['rc_all', 'rc_translateable', 'rc_nontranslateable']:

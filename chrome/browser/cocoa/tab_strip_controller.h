@@ -44,7 +44,7 @@ class ToolbarModel;
 // Initialize the controller with a view, model, and command updater for
 // tracking what's enabled and disabled. |commands| may be nil if no updating
 // is desired.
-- (id)initWithView:(TabStripView*)view 
+- (id)initWithView:(TabStripView*)view
           tabModel:(TabStripModel*)tabModel
       toolbarModel:(ToolbarModel*)toolbarModel
           commands:(CommandUpdater*)commands;

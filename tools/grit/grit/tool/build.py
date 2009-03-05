@@ -47,7 +47,7 @@ Options:
 
   -o OUTPUTDIR      Specify what directory output paths are relative to.
                     Defaults to the current directory.
-  
+
   -D NAME[=VAL]     Specify a C-preprocessor-like define NAME with optional
                     value VAL (defaults to 1) which will be used to control
                     conditional inclusion of resources.
@@ -90,7 +90,7 @@ are exported to translation interchange files (e.g. XMB files), etc.
     # Default file-creation function is built-in file().  Only done to allow
     # overriding by unit test.
     self.fo_create = file
-    
+
     # key/value pairs of C-preprocessor like defines that are used for
     # conditional output of resources
     self.defines = {}
@@ -98,24 +98,24 @@ are exported to translation interchange files (e.g. XMB files), etc.
     # self.res is a fully-populated resource tree if Run()
     # has been called, otherwise None.
     self.res = None
-    
+
     # Set to a list of filenames for the output nodes that are relative
     # to the current working directory.  They are in the same order as the
     # output nodes in the file.
     self.scons_targets = None
-  
+
   # static method
   def ProcessNode(node, output_node, outfile):
     '''Processes a node in-order, calling its formatter before and after
     recursing to its children.
-    
+
     Args:
       node: grit.node.base.Node subclass
       output_node: grit.node.io.File
       outfile: open filehandle
     '''
     base_dir = util.dirname(output_node.GetOutputFilename())
-    
+
     try:
       formatter = node.ItemFormatter(output_node.GetType())
       if formatter:
@@ -153,7 +153,7 @@ are exported to translation interchange files (e.g. XMB files), etc.
       for output in self.res.GetOutputFiles():
         output.output_filename = os.path.abspath(os.path.join(
           self.output_directory, output.GetFilename()))
-    
+
     for output in self.res.GetOutputFiles():
       self.VerboseOut('Creating %s...' % output.GetFilename())
 
@@ -173,25 +173,25 @@ are exported to translation interchange files (e.g. XMB files), etc.
 
       if output.GetType() != 'data_package':
         outfile = util.WrapOutputStream(outfile, encoding)
-      
+
       # Set the context, for conditional inclusion of resources
       self.res.SetOutputContext(output.GetLanguage(), self.defines)
-      
+
       # TODO(joi) Handle this more gracefully
       import grit.format.rc_header
       grit.format.rc_header.Item.ids_ = {}
-      
+
       # Iterate in-order through entire resource tree, calling formatters on
       # the entry into a node and on exit out of it.
       self.ProcessNode(self.res, output, outfile)
       outfile.close()
 
       self.VerboseOut(' done.\n')
-    
+
     # Print warnings if there are any duplicate shortcuts.
     print '\n'.join(shortcuts.GenerateDuplicateShortcutsWarnings(
       self.res.UberClique(), self.res.GetTcProject()))
-    
+
     # Print out any fallback warnings, and missing translation errors, and
     # exit with an error code if there are missing translations in a non-pseudo
     # build

@@ -239,7 +239,7 @@ void SortStringsUsingMethod(const std::wstring& locale,
          StringMethodComparator<T,Method>(method));
     return;
   }
-  
+
   std::sort(elements->begin(), elements->end(),
       StringMethodComparatorWithCollator<T,Method>(collator.get(), method));
 }

@@ -87,7 +87,7 @@ void log_info(Frame* frame, const String& msg, const String& url);
   V(EVENT_LISTENER)             \
   V(NODE_FILTER)                \
   V(SCRIPTINSTANCE)             \
-  V(SCRIPTVALUE)                
+  V(SCRIPTVALUE)
 
 
 // Host information of persistent handles.
@@ -404,7 +404,7 @@ class V8Proxy {
     static v8::Handle<v8::Value> ConstructDOMObject(const v8::Arguments& args);
 
   // Checks whether a DOM object has a JS wrapper.
-  static bool DOMObjectHasJSWrapper(void* obj); 
+  static bool DOMObjectHasJSWrapper(void* obj);
   // Set JS wrapper of a DOM object, the caller in charge of increase ref.
   static void SetJSWrapperForDOMObject(void* obj,
                                        v8::Persistent<v8::Object> wrapper);
@@ -434,7 +434,7 @@ class V8Proxy {
   static int GetSourceLineNumber();
   static String GetSourceName();
 
-  
+
   // Returns a local handle of the context.
   v8::Local<v8::Context> GetContext() {
     return v8::Local<v8::Context>::New(m_context);
@@ -544,7 +544,7 @@ class V8Proxy {
   // it can keep all objects alive.
   v8::Persistent<v8::Array> m_dom_constructor_cache;
   v8::Persistent<v8::Value> m_object_prototype;
-  
+
   v8::Persistent<v8::Object> m_global;
   v8::Persistent<v8::Value> m_document;
 

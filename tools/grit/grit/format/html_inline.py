@@ -25,10 +25,10 @@ DIST_SUBSTR = '%DISTRIBUTION%'
 
 def ReadFile(input_filename):
   """Helper function that returns input_filename as a string.
-  
+
   Args:
     input_filename: name of file to be read
-  
+
   Returns:
     string
   """
@@ -40,7 +40,7 @@ def ReadFile(input_filename):
 def SrcInline(src_match, base_path, distribution):
   """regex replace function.
 
-  Takes a regex match for src="filename", attempts to read the file 
+  Takes a regex match for src="filename", attempts to read the file
   at 'filename' and returns the src attribute with the file inlined
   as a data URI. If it finds DIST_SUBSTR string in file name, replaces
   it with distribution.
@@ -60,37 +60,37 @@ def SrcInline(src_match, base_path, distribution):
     return src_match.group(0)
 
   filename = filename.replace('%DISTRIBUTION%', distribution)
-  filepath = os.path.join(base_path, filename)    
+  filepath = os.path.join(base_path, filename)
   mimetype = mimetypes.guess_type(filename)[0] or 'text/plain'
   inline_data = base64.standard_b64encode(ReadFile(filepath))
 
   prefix = src_match.string[src_match.start():src_match.start('filename')-1]
   return "%s\"data:%s;base64,%s\"" % (prefix, mimetype, inline_data)
-  
+
 def InlineFile(input_filename, output_filename):
   """Inlines the resources in a specified file.
-  
+
   Reads input_filename, finds all the src attributes and attempts to
   inline the files they are referring to, then writes the result
   to output_filename.
-  
+
   Args:
     input_filename: name of file to read in
     output_filename: name of file to be written to
   """
   print "inlining %s to %s" % (input_filename, output_filename)
-  input_filepath = os.path.dirname(input_filename)  
- 
+  input_filepath = os.path.dirname(input_filename)
+
   distribution = DIST_DEFAULT
   if DIST_ENV_VAR in os.environ.keys():
     distribution = os.environ[DIST_ENV_VAR]
     if len(distribution) > 1 and distribution[0] == '_':
       distribution = distribution[1:].lower()
-      
+
   def SrcReplace(src_match):
     """Helper function to provide SrcInline with the base file path"""
     return SrcInline(src_match, input_filepath, distribution)
- 
+
   # TODO(glen): Make this regex not match src="" text that is not inside a tag
   flat_text = re.sub('src="(?P<filename>[^"\']*)"',
                      SrcReplace,

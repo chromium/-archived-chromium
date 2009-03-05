@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -358,7 +358,7 @@ TEST(GKURL, ReplaceInvalid) {
   EXPECT_FALSE(gurl.isValid());
   EXPECT_TRUE(gurl.isEmpty());
   EXPECT_STREQ("", gurl.string().utf8().data());
-  
+
   gurl.setProtocol("http");
   // GKURL will say that a URL with just a scheme is invalid, KURL will not.
 #if USE(GOOGLEURL)
@@ -451,7 +451,7 @@ TEST(GKURL, Ref) {
   cur = gurl;
   cur.setRef("asdf");
   EXPECT_STREQ("http://foo/bar#asdf", cur.string().utf8().data());
-  
+
   // Setting a ref to the empty string will set it to "#".
   cur = WebCore::KURL("http://foo/bar");
   cur.setRef("");

@@ -1,10 +1,10 @@
 /* Copyright (c) 2007, Google Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -51,8 +51,8 @@ namespace sidestep {
 //
 // The limitations include at least the following:
 //  -# No support for coprocessor opcodes, MMX, etc.
-//  -# No machine-readable identification of opcodes or decoding of 
-//     assembly parameters. The name of the opcode (as a string) is given, 
+//  -# No machine-readable identification of opcodes or decoding of
+//     assembly parameters. The name of the opcode (as a string) is given,
 //     however, to aid debugging.
 //
 // You may ask what this little disassembler actually does, then?  The answer is
@@ -115,8 +115,8 @@ class MiniDisassembler {
   // Sets the flag for whether we have ModR/M, and increments
   // operand_bytes_ if any are specifies by the opcode directly.
   // @return Number of opcode bytes.
-  InstructionType ProcessOpcode(unsigned char * start, 
-                                unsigned int table, 
+  InstructionType ProcessOpcode(unsigned char * start,
+                                unsigned int table,
                                 unsigned int& size);
 
   // Checks the type of the supplied operand.  Increments

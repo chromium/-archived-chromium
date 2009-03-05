@@ -20,7 +20,7 @@ class NSAutoreleasePool;
 // only implemented on the Mac.  To enable this for another platform, just
 // adjust the #ifdefs and add a platform_test_<platform>.cc implementation file.
 class PlatformTest : public testing::Test {
- protected:  
+ protected:
   virtual void SetUp();
   virtual void TearDown();
 

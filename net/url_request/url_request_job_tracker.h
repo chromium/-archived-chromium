@@ -46,7 +46,7 @@ class URLRequestJobTracker {
     // Called when a new chunk of bytes has been read for the given job. The
     // byte count is the number of bytes for that read event only.
     virtual void OnBytesRead(URLRequestJob* job, int byte_count) = 0;
-    
+
     virtual ~JobObserver() {}
   };
 

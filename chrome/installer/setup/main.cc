@@ -252,7 +252,7 @@ int GetInstallOptions(const CommandLine& cmd_line) {
   if (preferences & installer_util::MASTER_PROFILE_VERBOSE_LOGGING ||
       cmd_line.HasSwitch(installer_util::switches::kVerboseLogging))
     options |= installer_util::VERBOSE_LOGGING;
-  
+
   return options;
 }
 

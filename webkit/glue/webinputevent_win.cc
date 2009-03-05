@@ -93,7 +93,7 @@ WebMouseEvent::WebMouseEvent(HWND hwnd, UINT message, WPARAM wparam,
 
   global_x = global_point.x;
   global_y = global_point.y;
-  
+
   // set modifiers:
 
   if (wparam & MK_CONTROL)

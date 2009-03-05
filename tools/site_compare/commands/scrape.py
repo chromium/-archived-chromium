@@ -41,7 +41,7 @@ def CreateCommand(cmdline):
 
 def ExecuteScrape(command):
   """Executes the Scrape command."""
-  
+
   def ScrapeResult(url, proc, wnd, result):
     """Capture and save the scrape."""
     if log_file: log_file.write(result)
@@ -49,12 +49,12 @@ def ExecuteScrape(command):
     # Scrape the page
     image = windowing.ScrapeWindow(wnd)
     filename = windowing.URLtoFilename(url, command["--outdir"], ".bmp")
-    image.save(filename)    
+    image.save(filename)
 
   if command["--logfile"]: log_file = open(command["--logfile"], "w")
   else: log_file = None
 
-  browser_iterate.Iterate(command, ScrapeResult)  
+  browser_iterate.Iterate(command, ScrapeResult)
 
   # Close the log file and return. We're done.
   if log_file: log_file.close()

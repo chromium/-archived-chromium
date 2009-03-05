@@ -184,7 +184,7 @@ TEST(InterceptionManagerTest, BufferLayout2) {
   // groups: one group with the local ("cold") interceptions, and another
   // group with the interceptions belonging to dlls that will be "hot"
   // patched on the client. The second group lives on local_buffer, and the
-  // first group remains on the list of interceptions, in this case just one. 
+  // first group remains on the list of interceptions, in this case just one.
   EXPECT_EQ(1, interceptions.interceptions_.size());
 
   int num_dlls, num_functions, num_names;

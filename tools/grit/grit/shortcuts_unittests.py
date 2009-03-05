@@ -19,28 +19,28 @@ from grit import tclib
 from grit.gather import rc
 
 class ShortcutsUnittest(unittest.TestCase):
-  
+
   def setUp(self):
     self.uq = clique.UberClique()
-  
+
   def testFunctionality(self):
     c = self.uq.MakeClique(tclib.Message(text="Hello &there"))
     c.AddToShortcutGroup('group_name')
     c = self.uq.MakeClique(tclib.Message(text="Howdie &there partner"))
     c.AddToShortcutGroup('group_name')
-    
+
     warnings = shortcuts.GenerateDuplicateShortcutsWarnings(self.uq, 'PROJECT')
     self.failUnless(warnings)
-  
+
   def testAmpersandEscaping(self):
     c = self.uq.MakeClique(tclib.Message(text="Hello &there"))
     c.AddToShortcutGroup('group_name')
     c = self.uq.MakeClique(tclib.Message(text="S&&T are the &letters S and T"))
     c.AddToShortcutGroup('group_name')
-    
+
     warnings = shortcuts.GenerateDuplicateShortcutsWarnings(self.uq, 'PROJECT')
     self.failUnless(len(warnings) == 0)
-  
+
   def testDialog(self):
     dlg = rc.Dialog('''\
 IDD_SIDEBAR_RSS_PANEL_PROPPAGE DIALOGEX 0, 0, 239, 221
@@ -52,14 +52,14 @@ BEGIN
     PUSHBUTTON      "&Remove",IDC_SIDEBAR_RSS_REMOVE,183,200,56,14
     PUSHBUTTON      "&Edit",IDC_SIDEBAR_RSS_EDIT,123,200,56,14
     CONTROL         "&Automatically add commonly viewed clips",
-                    IDC_SIDEBAR_RSS_AUTO_ADD,"Button",BS_AUTOCHECKBOX | 
+                    IDC_SIDEBAR_RSS_AUTO_ADD,"Button",BS_AUTOCHECKBOX |
                     BS_MULTILINE | WS_TABSTOP,0,200,120,17
     PUSHBUTTON      "",IDC_SIDEBAR_RSS_HIDDEN,179,208,6,6,NOT WS_VISIBLE
     LTEXT           "You can display clips from blogs, news sites, and other online sources.",
                     IDC_STATIC,0,0,239,10
-    LISTBOX         IDC_SIDEBAR_DISPLAYED_FEED_LIST,0,69,239,127,LBS_SORT | 
-                    LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | 
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
+    LISTBOX         IDC_SIDEBAR_DISPLAYED_FEED_LIST,0,69,239,127,LBS_SORT |
+                    LBS_OWNERDRAWFIXED | LBS_HASSTRINGS |
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL |
                     WS_TABSTOP
     LTEXT           "Add a clip from a recently viewed website by clicking Add Recent Clips.",
                     IDC_STATIC,0,13,141,19
@@ -70,7 +70,7 @@ BEGIN
 END''')
     dlg.SetUberClique(self.uq)
     dlg.Parse()
-    
+
     warnings = shortcuts.GenerateDuplicateShortcutsWarnings(self.uq, 'PROJECT')
     self.failUnless(len(warnings) == 0)
 

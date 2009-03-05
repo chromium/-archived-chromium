@@ -186,7 +186,7 @@ void BrowsingHistoryHandler::HandleDeleteDay(const Value* value) {
     dom_ui_->CallJavascriptFunction(L"deleteFailed");
     return;
   }
-  
+
   // Anything in-flight is invalid.
   cancelable_consumer_.CancelAllRequests();
 
@@ -254,7 +254,7 @@ void BrowsingHistoryHandler::QueryComplete(
           base::TimeFormatShortDate(page.visit_time()));
       page_value->SetString(L"snippet", page.snippet().text());
     }
-    page_value->SetBoolean(L"starred", 
+    page_value->SetBoolean(L"starred",
         dom_ui_->get_profile()->GetBookmarkModel()->IsBookmarked(page.url()));
     results_value.Append(page_value);
   }

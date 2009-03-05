@@ -101,7 +101,7 @@ class BookmarkBubbleView : public views::View,
   // editor (depending upon which link was clicked).
   virtual void LinkActivated(views::Link* source, int event_flags);
 
-  // ButtonListener method, closes the bubble or opens the edit dialog.		
+  // ButtonListener method, closes the bubble or opens the edit dialog.
   virtual void ButtonPressed(views::NativeButton* sender);
 
   // ComboBox::Listener method. Changes the parent of the bookmark.

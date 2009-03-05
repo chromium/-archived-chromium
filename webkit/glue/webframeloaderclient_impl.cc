@@ -227,7 +227,7 @@ bool WebFrameLoaderClient::shouldUseCredentialStorage(DocumentLoader*,
   // This returns true for backward compatibility: the ability to override the
   // system credential store is new. (Actually, not yet fully implemented in
   // WebKit, as of this writing.)
-  return true;   
+  return true;
 }
 
 void WebFrameLoaderClient::dispatchDidReceiveAuthenticationChallenge(

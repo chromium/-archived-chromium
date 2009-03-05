@@ -125,7 +125,7 @@ void SearchProvider::OnURLFetchComplete(const URLFetcher* source,
       // TODO(jungshik): Switch to CodePageToUTF8 after it's added.
       if (CodepageToWide(data, charset.c_str(),
                          OnStringUtilConversionError::FAIL, &wide_data))
-        json_data = WideToUTF8(wide_data); 
+        json_data = WideToUTF8(wide_data);
     }
   }
 

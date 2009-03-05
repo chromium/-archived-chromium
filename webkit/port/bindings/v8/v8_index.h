@@ -239,8 +239,8 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(XMLHTTPREQUEST, XMLHttpRequest)                                     \
   WORKER_ACTIVE_OBJECT_WRAPPER_TYPES(V)
 
-// NOTE: DOM_OBJECT_TYPES is split into two halves because 
-//       Visual Studio's Intellinonsense crashes when macros get 
+// NOTE: DOM_OBJECT_TYPES is split into two halves because
+//       Visual Studio's Intellinonsense crashes when macros get
 //       too large.  10-29-08
 // DOM_OBJECT_TYPES are non-node DOM types.
 #define DOM_OBJECT_TYPES_1(V)                                           \
@@ -418,7 +418,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(SVGURIREFERENCE, SVGURIReference)                                   \
   V(SVGANIMATEDPOINTS, SVGAnimatedPoints)
 
-// SVG_NONNODE_TYPES are SVG non-node object types, pod typs and 
+// SVG_NONNODE_TYPES are SVG non-node object types, pod typs and
 // numerical types.
 #define SVG_NONNODE_TYPES(V)                                            \
   SVG_OBJECT_TYPES(V)                                                   \

@@ -25,7 +25,7 @@ class Node(grit.format.interface.ItemFormatter):
   _CONTENT_TYPE_NONE = 0   # No CDATA content but may have children
   _CONTENT_TYPE_CDATA = 1  # Only CDATA, no children.
   _CONTENT_TYPE_MIXED = 2  # CDATA and children, possibly intermingled
-  
+
   def __init__(self):
     self.children = []        # A list of child elements
     self.mixed_content = []   # A list of u'' and/or child elements (this
@@ -35,12 +35,12 @@ class Node(grit.format.interface.ItemFormatter):
     self.attrs = {}           # The set of attributes (keys to values)
     self.parent = None        # Our parent unless we are the root element.
     self.uberclique = None    # Allows overriding uberclique for parts of tree
-  
+
   def __iter__(self):
     '''An in-order iteration through the tree that this node is the
     root of.'''
     return self.inorder()
-  
+
   def inorder(self):
     '''Generator that generates first this node, then the same generator for
     any child nodes.'''
@@ -48,14 +48,14 @@ class Node(grit.format.interface.ItemFormatter):
     for child in self.children:
       for iterchild in child.inorder():
         yield iterchild
-  
+
   def GetRoot(self):
     '''Returns the root Node in the tree this Node belongs to.'''
     curr = self
     while curr.parent:
       curr = curr.parent
     return curr
-  
+
     # TODO(joi) Use this (currently untested) optimization?:
     #if hasattr(self, '_root'):
     #  return self._root
@@ -67,10 +67,10 @@ class Node(grit.format.interface.ItemFormatter):
     #else:
     #  self._root = curr
     #return self._root
-    
+
   def StartParsing(self, name, parent):
     '''Called at the start of parsing.
-    
+
     Args:
       name: u'elementname'
       parent: grit.node.base.Node or subclass or None
@@ -111,13 +111,13 @@ class Node(grit.format.interface.ItemFormatter):
         self.mixed_content.pop(index)
         break
       index += 1
-      
+
   def AppendContent(self, content):
     '''Appends a chunk of text as content of this node.
-    
+
     Args:
       content: u'hello'
-    
+
     Return:
       None
     '''
@@ -126,15 +126,15 @@ class Node(grit.format.interface.ItemFormatter):
       self.mixed_content.append(content)
     elif content.strip() != '':
       raise exception.UnexpectedContent()
-    
+
   def HandleAttribute(self, attrib, value):
     '''Informs the node of an attribute that was parsed out of the GRD file
     for it.
-    
+
     Args:
       attrib: 'name'
       value: 'fooblat'
-    
+
     Return:
       None
     '''
@@ -144,10 +144,10 @@ class Node(grit.format.interface.ItemFormatter):
       self.attrs[attrib] = value
     else:
       raise exception.UnexpectedAttribute(attrib)
-  
+
   def EndParsing(self):
     '''Called at the end of parsing.'''
-    
+
     # TODO(joi) Rewrite this, it's extremely ugly!
     if len(self.mixed_content):
       if isinstance(self.mixed_content[0], types.StringTypes):
@@ -180,15 +180,15 @@ class Node(grit.format.interface.ItemFormatter):
             isinstance(self.mixed_content[-1], types.StringTypes)):
           if self.mixed_content[-1].endswith("'''"):
             self.mixed_content[-1] = self.mixed_content[-1][:-3]
-    
+
     # Check that all mandatory attributes are there.
     for node_mandatt in self.MandatoryAttributes():
-      mandatt_list = [] 
+      mandatt_list = []
       if node_mandatt.find('|') >= 0:
         mandatt_list = node_mandatt.split('|')
       else:
         mandatt_list.append(node_mandatt)
-      
+
       mandatt_option_found = False
       for mandatt in mandatt_list:
         assert mandatt not in self.DefaultAttributes().keys()
@@ -197,34 +197,34 @@ class Node(grit.format.interface.ItemFormatter):
             mandatt_option_found = True
           else:
             raise exception.MutuallyExclusiveMandatoryAttribute(mandatt)
-          
-      if not mandatt_option_found:   
+
+      if not mandatt_option_found:
         raise exception.MissingMandatoryAttribute(mandatt)
-    
+
     # Add default attributes if not specified in input file.
     for defattr in self.DefaultAttributes():
       if not defattr in self.attrs:
         self.attrs[defattr] = self.DefaultAttributes()[defattr]
-  
+
   def GetCdata(self):
     '''Returns all CDATA of this element, concatenated into a single
     string.  Note that this ignores any elements embedded in CDATA.'''
     return ''.join(filter(lambda c: isinstance(c, types.StringTypes),
                           self.mixed_content))
-  
+
   def __unicode__(self):
     '''Returns this node and all nodes below it as an XML document in a Unicode
     string.'''
     header = u'<?xml version="1.0" encoding="UTF-8"?>\n'
     return header + self.FormatXml()
-  
+
   # Compliance with ItemFormatter interface.
   def Format(self, item, lang_re = None, begin_item=True):
     if not begin_item:
       return ''
     else:
       return item.FormatXml()
-    
+
   def FormatXml(self, indent = u'', one_line = False):
     '''Returns this node and all nodes below it as an XML
     element in a Unicode string.  This differs from __unicode__ in that it does
@@ -233,11 +233,11 @@ class Node(grit.format.interface.ItemFormatter):
     whitespace.
     '''
     assert isinstance(indent, types.StringTypes)
-    
+
     content_one_line = (one_line or
                         self._ContentType() == self._CONTENT_TYPE_MIXED)
     inside_content = self.ContentsAsXml(indent, content_one_line)
-    
+
     # Then the attributes for this node.
     attribs = u' '
     for (attrib, value) in self.attrs.iteritems():
@@ -247,7 +247,7 @@ class Node(grit.format.interface.ItemFormatter):
         attribs += u'%s=%s ' % (attrib, saxutils.quoteattr(value))
     attribs = attribs.rstrip()  # if no attribs, we end up with '', otherwise
                                 # we end up with a space-prefixed string
-    
+
     # Finally build the XML for our node and return it
     if len(inside_content) > 0:
       if one_line:
@@ -264,12 +264,12 @@ class Node(grit.format.interface.ItemFormatter):
           indent, self.name)
     else:
       return u'%s<%s%s />' % (indent, self.name, attribs)
-  
+
   def ContentsAsXml(self, indent, one_line):
     '''Returns the contents of this node (CDATA and child elements) in XML
     format.  If 'one_line' is true, the content will be laid out on one line.'''
     assert isinstance(indent, types.StringTypes)
-    
+
     # Build the contents of the element.
     inside_parts = []
     last_item = None
@@ -291,7 +291,7 @@ class Node(grit.format.interface.ItemFormatter):
     # trailing \n
     if len(inside_parts) and inside_parts[-1] == '\n':
       inside_parts = inside_parts[:-1]
-    
+
     # If the last item is a string (not a node) and ends with whitespace,
     # we need to add the ''' delimiter.
     if (isinstance(last_item, types.StringTypes) and
@@ -299,13 +299,13 @@ class Node(grit.format.interface.ItemFormatter):
       inside_parts[-1] = inside_parts[-1] + u"'''"
 
     return u''.join(inside_parts)
-  
+
   def RunGatherers(self, recursive=0, debug=False):
     '''Runs all gatherers on this object, which may add to the data stored
     by the object.  If 'recursive' is true, will call RunGatherers() recursively
     on all child nodes first.  If 'debug' is True, will print out information
     as it is running each nodes' gatherers.
-    
+
     Gatherers for <translations> child nodes will always be run after all other
     child nodes have been gathered.
     '''
@@ -318,14 +318,14 @@ class Node(grit.format.interface.ItemFormatter):
           child.RunGatherers(recursive=recursive, debug=debug)
       for child in process_last:
         child.RunGatherers(recursive=recursive, debug=debug)
-  
+
   def ItemFormatter(self, type):
     '''Returns an instance of the item formatter for this object of the
     specified type, or None if not supported.
-    
+
     Args:
       type: 'rc-header'
-    
+
     Return:
       (object RcHeaderItemFormatter)
     '''
@@ -333,12 +333,12 @@ class Node(grit.format.interface.ItemFormatter):
       return self
     else:
       return None
-  
+
   def SatisfiesOutputCondition(self):
     '''Returns true if this node is either not a child of an <if> element
     or if it is a child of an <if> element and the conditions for it being
     output are satisfied.
-    
+
     Used to determine whether to return item formatters for formats that
     obey conditional output of resources (e.g. the RC formatters).
     '''
@@ -359,7 +359,7 @@ class Node(grit.format.interface.ItemFormatter):
     subclasses unless they have only mandatory attributes.'''
     return (name in self.MandatoryAttributes() or
             name in self.DefaultAttributes())
-  
+
   def _ContentType(self):
     '''Returns the type of content this element can have.  Overridden by
     subclasses.  The content type can be one of the _CONTENT_TYPE_XXX constants
@@ -368,7 +368,7 @@ class Node(grit.format.interface.ItemFormatter):
 
   def MandatoryAttributes(self):
     '''Returns a list of attribute names that are mandatory (non-optional)
-    on the current element. One can specify a list of 
+    on the current element. One can specify a list of
     "mutually exclusive mandatory" attributes by specifying them as one
     element in the list, separated by a "|" character.
     '''
@@ -378,11 +378,11 @@ class Node(grit.format.interface.ItemFormatter):
     '''Returns a dictionary of attribute names that have defaults, mapped to
     the default value.  Overridden by subclasses.'''
     return {}
-  
+
   def GetCliques(self):
     '''Returns all MessageClique objects belonging to this node.  Overridden
     by subclasses.
-    
+
     Return:
       [clique1, clique2] or []
     '''
@@ -392,10 +392,10 @@ class Node(grit.format.interface.ItemFormatter):
     '''Returns a real path (which can be absolute or relative to the current
     working directory), given a path that is relative to the base directory
     set for the GRIT input file.
-    
+
     Args:
       path_from_basedir: '..'
-    
+
     Return:
       'resource'
     '''
@@ -426,7 +426,7 @@ class Node(grit.format.interface.ItemFormatter):
     if not node.uberclique:
       node.uberclique = clique.UberClique()
     return node.uberclique
-  
+
   def IsTranslateable(self):
     '''Returns false if the node has contents that should not be translated,
     otherwise returns false (even if the node has no contents).
@@ -451,12 +451,12 @@ class Node(grit.format.interface.ItemFormatter):
     '''
     if 'name' in self.attrs:
       return [self.attrs['name']]
-    return None  
+    return None
 
   def EvaluateCondition(self, expr):
     '''Returns true if and only if the Python expression 'expr' evaluates
     to true.
-    
+
     The expression is given a few local variables:
       - 'lang' is the language currently being output
       - 'defs' is a map of C preprocessor-style define names to their values
@@ -483,10 +483,10 @@ class Node(grit.format.interface.ItemFormatter):
                  'os': sys.platform,
                  'pp_ifdef' : pp_ifdef,
                  'pp_if' : pp_if})
-  
+
   def OnlyTheseTranslations(self, languages):
     '''Turns off loading of translations for languages not in the provided list.
-    
+
     Attrs:
       languages: ['fr', 'zh_cn']
     '''
@@ -495,7 +495,7 @@ class Node(grit.format.interface.ItemFormatter):
           node.IsTranslation() and
           node.GetLang() not in languages):
         node.DisableLoading()
-  
+
   def PseudoIsAllowed(self):
     '''Returns true if this node is allowed to use pseudo-translations.  This
     is true by default, unless this node is within a <release> node that has
@@ -507,7 +507,7 @@ class Node(grit.format.interface.ItemFormatter):
         return (p.attrs['allow_pseudo'].lower() == 'true')
       p = p.parent
     return True
-  
+
   def ShouldFallbackToEnglish(self):
     '''Returns true iff this node should fall back to English when
     pseudotranslations are disabled and no translation is available for a

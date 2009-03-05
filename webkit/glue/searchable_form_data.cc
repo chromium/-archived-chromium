@@ -47,7 +47,7 @@ static void appendString(Vector<char>& buffer, const char* string)
     buffer.append(string, strlen(string));
 }
 
-// TODO (sky): This comes straight out of HTMLFormElement, will work with 
+// TODO (sky): This comes straight out of HTMLFormElement, will work with
 // WebKit folks to make public.
 static void appendEncodedString(Vector<char>& buffer, const WebCore::CString& string)
 {
@@ -76,28 +76,28 @@ static void appendEncodedString(Vector<char>& buffer, const WebCore::CString& st
 
 // Returns true if the form element has an 'onsubmit' attribute.
 bool FormHasOnSubmit(WebCore::HTMLFormElement* form) {
-  const WebCore::AtomicString& attribute_value = 
+  const WebCore::AtomicString& attribute_value =
     form->getAttribute(WebCore::HTMLNames::onsubmitAttr);
   return (!attribute_value.isNull() && !attribute_value.isEmpty());
 }
 
 // Returns true if the form element will submit the data using a GET.
 bool IsFormMethodGet(WebCore::HTMLFormElement* form) {
-  const WebCore::AtomicString& attribute_value = 
+  const WebCore::AtomicString& attribute_value =
     form->getAttribute(WebCore::HTMLNames::methodAttr);
   return !equalIgnoringCase(attribute_value, "post");
 }
 
 // Gets the encoding for the form.
-void GetFormEncoding(WebCore::HTMLFormElement* form, 
+void GetFormEncoding(WebCore::HTMLFormElement* form,
                      WebCore::TextEncoding* encoding) {
-  WebCore::String str = 
+  WebCore::String str =
     form->getAttribute(WebCore::HTMLNames::accept_charsetAttr);
   str.replace(',', ' ');
   Vector<WebCore::String> charsets;
   str.split(' ', charsets);
   Vector<WebCore::String>::const_iterator end = charsets.end();
-  for (Vector<WebCore::String>::const_iterator it = charsets.begin(); it != end; 
+  for (Vector<WebCore::String>::const_iterator it = charsets.begin(); it != end;
        ++it) {
     *encoding = WebCore::TextEncoding(*it);
     if (encoding->isValid())
@@ -125,7 +125,7 @@ bool IsHTTPFormSubmit(WebCore::HTMLFormElement* form) {
 // button is returned.
 WebCore::HTMLFormControlElement* GetButtonToActivate(
     WebCore::HTMLFormElement* form) {
-  WTF::Vector<WebCore::HTMLFormControlElement*> form_elements = 
+  WTF::Vector<WebCore::HTMLFormControlElement*> form_elements =
       form->formElements;
   WebCore::HTMLFormControlElement* first_submit_button = NULL;
 
@@ -134,7 +134,7 @@ WebCore::HTMLFormControlElement* GetButtonToActivate(
     if (current->isActivatedSubmit()) {
       // There's a button that is already activated for submit, return NULL.
       return NULL;
-    } else if (first_submit_button == NULL && 
+    } else if (first_submit_button == NULL &&
                current->isSuccessfulSubmitButton()) {
       first_submit_button = current;
     }
@@ -206,7 +206,7 @@ bool IsInDefaultState(WebCore::HTMLFormControlElement* form_element) {
 }
 
 // If form has only one text input element, it is returned. If a valid input
-// element is not found, NULL is returned. Additionally, the form data for all 
+// element is not found, NULL is returned. Additionally, the form data for all
 // elements is added to enc_string and the encoding used is set in
 // encoding_name.
 WebCore::HTMLInputElement* GetTextElement(
@@ -223,7 +223,7 @@ WebCore::HTMLInputElement* GetTextElement(
   }
   *encoding_name = encoding.name();
   WebCore::HTMLInputElement* text_element = NULL;
-  WTF::Vector<WebCore::HTMLFormControlElement*> form_elements = 
+  WTF::Vector<WebCore::HTMLFormControlElement*> form_elements =
       form->formElements;
   for (unsigned i = 0; i < form_elements.size(); ++i) {
     WebCore::HTMLFormControlElement* form_element = form_elements[i];
@@ -233,7 +233,7 @@ WebCore::HTMLInputElement* GetTextElement(
         return NULL;
       }
       if (form_element->hasTagName(WebCore::HTMLNames::inputTag)) {
-        WebCore::HTMLInputElement* input_element = 
+        WebCore::HTMLInputElement* input_element =
             static_cast<WebCore::HTMLInputElement*>(form_element);
         switch (input_element->inputType()) {
           case WebCore::HTMLInputElement::TEXT:
@@ -304,7 +304,7 @@ SearchableFormData* SearchableFormData::Create(WebCore::Element* element) {
   if (frame == NULL)
     return NULL;
 
-  WebCore::HTMLFormControlElement* input_element = 
+  WebCore::HTMLFormControlElement* input_element =
     static_cast<WebCore::HTMLFormControlElement*>(element);
 
   WebCore::HTMLFormElement* form = input_element->form();
@@ -326,7 +326,7 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
     return NULL;
 
   Vector<char> enc_string;
-  WebCore::HTMLFormControlElement* first_submit_button = 
+  WebCore::HTMLFormControlElement* first_submit_button =
     GetButtonToActivate(form);
 
   if (first_submit_button) {
@@ -357,14 +357,14 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
   url.setQuery(form_data->flattenToString());
   std::wstring current_value = webkit_glue::StringToStdWString(
     static_cast<WebCore::HTMLInputElement*>(text_element)->value());
-  std::wstring text_name = 
+  std::wstring text_name =
     webkit_glue::StringToStdWString(text_element->name());
   GURL gurl(webkit_glue::KURLToGURL(url));
   return new SearchableFormData(gurl, text_name, current_value, encoding);
 }
 
-// static 
-bool SearchableFormData::Equals(const SearchableFormData* a, 
+// static
+bool SearchableFormData::Equals(const SearchableFormData* a,
                                 const SearchableFormData* b) {
   return ((a == b) ||
           (a != NULL && b != NULL &&
@@ -374,7 +374,7 @@ bool SearchableFormData::Equals(const SearchableFormData* a,
            a->encoding() == b->encoding()));
 }
 
-SearchableFormData::SearchableFormData(const GURL& url, 
+SearchableFormData::SearchableFormData(const GURL& url,
                                        const std::wstring& element_name,
                                        const std::wstring& element_value,
                                        const std::string& encoding)

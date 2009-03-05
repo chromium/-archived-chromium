@@ -26,7 +26,7 @@ import grit.format.rc_header
 
 # RTL languages
 # TODO(jennyz): remove this fixed set of RTL language array
-# when generic expand_variable code is added by grit team. 
+# when generic expand_variable code is added by grit team.
 _RTL_LANGS = [
   'ar',
   'iw',
@@ -68,12 +68,12 @@ _RC_FORMATTERS = {
 
 class StructureNode(base.Node):
   '''A <structure> element.'''
-  
+
   def __init__(self):
     base.Node.__init__(self)
     self.gatherer = None
     self.skeletons = {}  # expressions to skeleton gatherers
-  
+
   def _IsValidChild(self, child):
     return isinstance(child, variant.SkeletonNode)
 
@@ -95,10 +95,10 @@ class StructureNode(base.Node):
              # dependencies.
              'sconsdep' : 'false',
              }
-  
+
   def IsExcludedFromRc(self):
     return self.attrs['exclude_from_rc'] == 'true'
-  
+
   def GetLineEnd(self):
     '''Returns the end-of-line character or characters for files output because
     of this node ('\r\n', '\n', or '\r' depending on the 'line_end' attribute).
@@ -112,13 +112,13 @@ class StructureNode(base.Node):
     else:
       raise exception.UnexpectedAttribute(
         "Attribute 'line_end' must be one of 'linux' (default), 'windows' or 'mac'")
-  
+
   def GetCliques(self):
     if self.gatherer:
       return self.gatherer.GetCliques()
     else:
       return []
-  
+
   def GetTextualIds(self):
     if self.gatherer and self.attrs['type'] not in ['tr_html', 'admin_template', 'txt']:
       return self.gatherer.GetTextualIds()
@@ -137,18 +137,18 @@ class StructureNode(base.Node):
   def RunGatherers(self, recursive=False, debug=False):
     if self.gatherer:
       return  # idempotent
-    
+
     gathertype = _GATHERERS[self.attrs['type']]
 
     if debug:
       print 'Running gatherer %s for file %s' % (str(gathertype), self.FilenameToOpen())
-    
+
     self.gatherer = gathertype.FromFile(self.FilenameToOpen(),
                                         self.attrs['name'],
                                         self.attrs['encoding'])
     self.gatherer.SetUberClique(self.UberClique())
     self.gatherer.Parse()
-    
+
     for child in self.children:
       assert isinstance(child, variant.SkeletonNode)
       skel = gathertype.FromFile(child.FilenameToOpen(),
@@ -158,7 +158,7 @@ class StructureNode(base.Node):
       skel.SetSkeleton(True)
       skel.Parse()
       self.skeletons[child.attrs['expr']] = skel
-      
+
   def GetSkeletonGatherer(self):
     '''Returns the gatherer for the alternate skeleton that should be used,
     based on the expressions for selecting skeletons, or None if the skeleton
@@ -168,25 +168,25 @@ class StructureNode(base.Node):
       if self.EvaluateCondition(expr):
         return self.skeletons[expr]
     return None
-  
+
   def GetFilePath(self):
     return self.ToRealPath(self.attrs['file'])
-  
+
   def HasFileForLanguage(self):
     return self.attrs['type'] in ['tr_html', 'admin_template', 'txt', 'muppet']
-  
+
   def FileForLanguage(self, lang, output_dir, create_file=True,
                       return_if_not_generated=True):
     '''Returns the filename of the file associated with this structure,
     for the specified language.
-    
+
     Args:
       lang: 'fr'
       output_dir: 'c:\temp'
       create_file: True
     '''
     assert self.HasFileForLanguage()
-    if (lang == self.GetRoot().GetSourceLanguage() and 
+    if (lang == self.GetRoot().GetSourceLanguage() and
         self.attrs['expand_variables'] != 'true'):
       if return_if_not_generated:
         return self.GetFilePath()
@@ -200,14 +200,14 @@ class StructureNode(base.Node):
       assert len(filename)
       filename = '%s_%s' % (lang, filename)
       filename = os.path.join(output_dir, filename)
-      
+
       if create_file:
         text = self.gatherer.Translate(
           lang,
           pseudo_if_not_available=self.PseudoIsAllowed(),
           fallback_to_english=self.ShouldFallbackToEnglish(),
           skeleton_gatherer=self.GetSkeletonGatherer())
-        
+
         file_object = util.WrapOutputStream(file(filename, 'wb'),
                                             self._GetOutputEncoding())
         file_contents = util.FixLineEnd(text, self.GetLineEnd())
@@ -224,9 +224,9 @@ class StructureNode(base.Node):
           file_object.write(constants.BOM)
         file_object.write(file_contents)
         file_object.close()
-      
+
       return filename
-  
+
   def _GetOutputEncoding(self):
     '''Python doesn't natively support UTF encodings with a BOM signature,
     so we add support by allowing you to append '-sig' to the encoding name.
@@ -237,12 +237,12 @@ class StructureNode(base.Node):
       return enc[0:len(enc) - len('-sig')]
     else:
       return enc
-  
+
   def _ShouldAddBom(self):
     '''Returns true if output files should have the Unicode BOM prepended.
     '''
     return self.attrs['output_encoding'].endswith('-sig')
-  
+
   # static method
   def Construct(parent, name, type, file, encoding='cp1252'):
     '''Creates a new node which is a child of 'parent', with attributes set

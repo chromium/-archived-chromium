@@ -159,7 +159,7 @@ const string16& TabContents::GetTitle() const {
   NavigationEntry* entry = controller_->GetTransientEntry();
   if (entry)
     return entry->GetTitleForDisplay(controller_);
-  
+
   entry = controller_->GetLastCommittedEntry();
   if (entry)
     return entry->GetTitleForDisplay(controller_);
@@ -597,7 +597,7 @@ void TabContents::SetIsLoading(bool is_loading,
   NotificationDetails det = details ?
       Details<LoadNotificationDetails>(details) :
       NotificationService::NoDetails();
-  NotificationService::current()->Notify(type, 
+  NotificationService::current()->Notify(type,
       Source<NavigationController>(this->controller()),
       det);
 }

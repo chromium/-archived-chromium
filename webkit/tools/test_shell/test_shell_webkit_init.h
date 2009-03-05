@@ -19,7 +19,7 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
  public:
   TestShellWebKitInit(bool layout_test_mode) {
     WebKit::initialize(this);
-    WebKit::setLayoutTestMode(layout_test_mode); 
+    WebKit::setLayoutTestMode(layout_test_mode);
     WebKit::registerURLSchemeAsLocal(
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
   }

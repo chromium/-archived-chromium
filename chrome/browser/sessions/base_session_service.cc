@@ -153,7 +153,7 @@ SessionCommand* BaseSessionService::CreateUpdateTabNavigationCommand(
       std::numeric_limits<SessionCommand::size_type>::max() - 1024;
 
   int bytes_written = 0;
-  
+
   WriteStringToPickle(pickle, &bytes_written, max_state_size,
                       entry.display_url().spec());
 

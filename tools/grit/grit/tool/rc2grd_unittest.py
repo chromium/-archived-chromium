@@ -27,7 +27,7 @@ class Rc2GrdUnittest(unittest.TestCase):
     msg = tool.Placeholderize(original)
     self.failUnless(msg.GetPresentableContent() == "Hello TODO_0001, how are you? I'm TODO_0002 years old!")
     self.failUnless(msg.GetRealContent() == original)
-  
+
   def testHtmlPlaceholderize(self):
     tool = rc2grd.Rc2Grd()
     original = "Hello <b>[USERNAME]</b>, how are you? I'm [AGE] years old!"
@@ -35,7 +35,7 @@ class Rc2GrdUnittest(unittest.TestCase):
     self.failUnless(msg.GetPresentableContent() ==
                     "Hello BEGIN_BOLDX_USERNAME_XEND_BOLD, how are you? I'm X_AGE_X years old!")
     self.failUnless(msg.GetRealContent() == original)
-  
+
   def testMenuWithoutWhitespaceRegression(self):
     # There was a problem in the original regular expression for parsing out
     # menu sections, that would parse the following block of text as a single
@@ -72,11 +72,11 @@ END
       extra_verbose = False
     tool.not_localizable_re = re.compile('')
     tool.o = DummyNode()
-    
+
     rc_text = '''STRINGTABLE\nBEGIN\nID_BINGO "<SPAN id=hp style='BEHAVIOR: url(#default#homepage)'></SPAN><script>if (!hp.isHomePage('[$~HOMEPAGE~$]')) {document.write(""<a href=\\""[$~SETHOMEPAGEURL~$]\\"" >Set As Homepage</a> - "");}</script>"\nEND\n'''
     tool.AddMessages(rc_text, tool.o)
     self.failUnless(tool.o.node.GetCdata().find('Set As Homepage') != -1)
-    
+
     # TODO(joi) Improve the HTML parser to support translateables inside
     # <script> blocks?
     self.failUnless(tool.o.node.attrs['translateable'] == 'false')
@@ -111,7 +111,7 @@ The installation will not proceed if you choose to cancel.
           </messages>
         </release>
       </grit>'''), dir='.')
-    
+
     # test rig
     class DummyOpts(object):
       verbose = False

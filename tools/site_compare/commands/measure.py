@@ -40,14 +40,14 @@ def CreateCommand(cmdline):
 
 def ExecuteMeasure(command):
   """Executes the Measure command."""
-  
+
   def LogResult(url, proc, wnd, result):
     """Write the result of the browse to the log file."""
     log_file.write(result)
 
   log_file = open(command["--logfile"], "w")
 
-  browser_iterate.Iterate(command, LogResult)  
+  browser_iterate.Iterate(command, LogResult)
 
   # Close the log file and return. We're done.
   log_file.close()

@@ -205,7 +205,7 @@ class LocationBarView : public LocationBar,
     // The minimum size is just big enough to show the tab.
     virtual gfx::Size GetMinimumSize();
     virtual void Layout();
-    
+
     void set_profile(Profile* profile) { profile_ = profile; }
 
    private:

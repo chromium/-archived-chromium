@@ -28,24 +28,24 @@ class MessageCliqueUnittest(unittest.TestCase):
                         placeholders=[
                           tclib.Placeholder('USERNAME', '%s', 'Joi')])
     c = factory.MakeClique(msg)
-    
+
     self.failUnless(c.GetMessage() == msg)
     self.failUnless(c.GetId() == msg.GetId())
-    
+
     msg_fr = tclib.Translation(text='Bonjour USERNAME, comment ca va?',
                                id=msg.GetId(), placeholders=[
                                 tclib.Placeholder('USERNAME', '%s', 'Joi')])
     msg_de = tclib.Translation(text='Guten tag USERNAME, wie geht es dir?',
                                id=msg.GetId(), placeholders=[
                                 tclib.Placeholder('USERNAME', '%s', 'Joi')])
-    
+
     c.AddTranslation(msg_fr, 'fr')
     factory.FindCliqueAndAddTranslation(msg_de, 'de')
-    
+
     # sort() sorts lists in-place and does not return them
     for lang in ('en', 'fr', 'de'):
       self.failUnless(lang in c.clique)
-    
+
     self.failUnless(c.MessageForLanguage('fr').GetRealContent() ==
                     msg_fr.GetRealContent())
 
@@ -56,11 +56,11 @@ class MessageCliqueUnittest(unittest.TestCase):
       pass
 
     self.failUnless(c.MessageForLanguage('zh-CN', True) != None)
-    
+
     rex = re.compile('fr|de|bingo')
     self.failUnless(len(c.AllMessagesThatMatch(rex, False)) == 2)
     self.failUnless(c.AllMessagesThatMatch(rex, True)[pseudo.PSEUDO_LANG] != None)
-  
+
   def testBestClique(self):
     factory = clique.UberClique()
     factory.MakeClique(tclib.Message(text='Alfur', description='alfaholl'))
@@ -72,7 +72,7 @@ class MessageCliqueUnittest(unittest.TestCase):
     factory.MakeClique(tclib.Message(text='Gryla', description='vondakerling'))
     factory.MakeClique(tclib.Message(text='Leppaludi', description='ID: IDS_LL'))
     factory.MakeClique(tclib.Message(text='Leppaludi', description=''))
-    
+
     count_best_cliques = 0
     for c in factory.BestCliquePerId():
       count_best_cliques += 1
@@ -111,7 +111,7 @@ class MessageCliqueUnittest(unittest.TestCase):
     self.failUnless('Hello %s, how are you doing today?' in content_list)
     self.failUnless('Jack "Black" Daniels' in content_list)
     self.failUnless('Hello!' in content_list)
-  
+
   def testCorrectExceptionIfWrongEncodingOnResourceFile(self):
     '''This doesn't really belong in this unittest file, but what the heck.'''
     resources = grd_reader.Parse(util.WrapInputStream(
@@ -133,37 +133,37 @@ class MessageCliqueUnittest(unittest.TestCase):
                     placeholders=[tclib.Placeholder('USERNAME', '%s', 'Joi')]),
     ]
     self.failUnless(messages[0].GetId() == messages[1].GetId())
-    
+
     # Both of the above would share a translation.
     translation = tclib.Translation(id=messages[0].GetId(),
                                     text='Bonjour USERNAME',
                                     placeholders=[tclib.Placeholder(
                                       'USERNAME', '$1', 'Joi')])
-    
+
     factory = clique.UberClique()
     cliques = [factory.MakeClique(msg) for msg in messages]
-    
+
     for clq in cliques:
       clq.AddTranslation(translation, 'fr')
-    
+
     self.failUnless(cliques[0].MessageForLanguage('fr').GetRealContent() ==
                     'Bonjour $1')
     self.failUnless(cliques[1].MessageForLanguage('fr').GetRealContent() ==
                     'Bonjour %s')
-  
+
   def testMissingTranslations(self):
     messages = [ tclib.Message(text='Hello'), tclib.Message(text='Goodbye') ]
     factory = clique.UberClique()
     cliques = [factory.MakeClique(msg) for msg in messages]
-    
+
     cliques[1].MessageForLanguage('fr', False, True)
-    
+
     self.failUnless(not factory.HasMissingTranslations())
 
     cliques[0].MessageForLanguage('de', False, False)
-    
+
     self.failUnless(factory.HasMissingTranslations())
-    
+
     report = factory.MissingTranslationsReport()
     self.failUnless(report.count('WARNING') == 1)
     self.failUnless(report.count('8053599568341804890 "Goodbye" fr') == 1)
@@ -179,7 +179,7 @@ class MessageCliqueUnittest(unittest.TestCase):
       self.fail()
     except:
       pass  # expected case - 'Bingo bongo' does not start with 'jjj'
-    
+
     message = tclib.Message(text='jjjBingo bongo')
     c = factory.MakeClique(message)
     c.SetCustomType(util.NewClassInstance(

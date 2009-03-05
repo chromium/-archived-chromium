@@ -32,7 +32,7 @@ class SavePasswordInfoBarDelegate : public ConfirmInfoBarDelegate {
       form_to_save_(form_to_save) {
   }
 
-   virtual ~SavePasswordInfoBarDelegate() { }  
+   virtual ~SavePasswordInfoBarDelegate() { }
 
   // Overridden from ConfirmInfoBarDelegate:
   virtual void InfoBarClosed() {
@@ -72,7 +72,7 @@ class SavePasswordInfoBarDelegate : public ConfirmInfoBarDelegate {
     form_to_save_->PermanentlyBlacklist();
     return true;
   }
- 
+
  private:
   // The PasswordFormManager managing the form we're asking the user about,
   // and should update as per her decision.
@@ -172,7 +172,7 @@ void PasswordManager::DidStopLoading() {
   if (provisional_save_manager_->IsNewLogin()) {
     web_contents_->AddInfoBar(
         new SavePasswordInfoBarDelegate(web_contents_,
-                                        provisional_save_manager_.release())); 
+                                        provisional_save_manager_.release()));
   } else {
     // If the save is not a new username entry, then we just want to save this
     // data (since the user already has related data saved), so don't prompt.

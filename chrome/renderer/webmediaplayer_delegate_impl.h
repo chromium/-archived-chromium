@@ -145,7 +145,7 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   RenderView* view() { return view_; }
 
  private:
-  // Methods for posting tasks and cancelling tasks. This method may lives in 
+  // Methods for posting tasks and cancelling tasks. This method may lives in
   // the main thread or the media threads.
   void PostTask(int index, WebMediaPlayerMethod method);
 

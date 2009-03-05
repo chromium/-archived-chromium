@@ -40,7 +40,7 @@ int ProxyConfigServiceWin::GetProxyConfig(ProxyConfig* config) {
     config->proxy_rules = WideToASCII(ie_config.lpszProxy);
   if (ie_config.lpszProxyBypass) {
     std::string proxy_bypass = WideToASCII(ie_config.lpszProxyBypass);
-    
+
     StringTokenizer proxy_server_bypass_list(proxy_bypass, "; \t\n\r");
     while (proxy_server_bypass_list.GetNext()) {
       std::string bypass_url_domain = proxy_server_bypass_list.token();

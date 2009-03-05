@@ -15,7 +15,7 @@ class WebResponseImpl : public WebResponse {
    WebResponseImpl() { }
    explicit WebResponseImpl(const WebCore::ResourceResponse& response)
       : response_(response) { }
-   
+
   virtual ~WebResponseImpl() { }
 
   // Get the URL.

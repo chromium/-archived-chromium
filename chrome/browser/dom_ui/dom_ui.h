@@ -91,7 +91,7 @@ class DOMMessageHandler {
  protected:
   // Adds "url" and "title" keys on incoming dictionary, setting title
   // as the url as a fallback on empty title.
-  static void SetURLAndTitle(DictionaryValue* dictionary, 
+  static void SetURLAndTitle(DictionaryValue* dictionary,
                              std::wstring title,
                              const GURL& gurl);
 

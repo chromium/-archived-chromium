@@ -358,7 +358,7 @@ class Message(BaseMessage):
     self.__meaning = meaning
     self.__time_created = time_created
     self.SetIsHidden(is_hidden)
-    
+
   # String representation
   def __str__(self):
     s = 'source: %s, id: %s, content: "%s", meaning: "%s", ' \
@@ -443,7 +443,7 @@ class Message(BaseMessage):
       is_hidden : 0 or 1 - if the message should be hidden, 0 otherwise
     """
     if is_hidden not in [0, 1]:
-      raise  MessageTranslationError, "is_hidden must be 0 or 1, got %s" 
+      raise  MessageTranslationError, "is_hidden must be 0 or 1, got %s"
     self.__is_hidden = is_hidden
 
   def IsHidden(self):

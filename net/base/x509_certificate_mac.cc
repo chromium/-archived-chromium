@@ -87,21 +87,21 @@ OSStatus GetCertFieldsForOID(X509Certificate::OSCertHandle cert_handle,
                              CSSM_FIELD_PTR* fields) {
   *num_of_fields = 0;
   *fields = NULL;
-  
+
   CSSM_DATA cert_data;
   OSStatus status = SecCertificateGetData(cert_handle, &cert_data);
   if (status)
     return status;
-  
+
   CSSM_CL_HANDLE cl_handle;
   status = SecCertificateGetCLHandle(cert_handle, &cl_handle);
   if (status)
     return status;
-  
+
   status = CSSM_CL_CertGetAllFields(cl_handle, &cert_data, num_of_fields,
                                     fields);
   return status;
-}    
+}
 
 void GetCertGeneralNamesForOID(X509Certificate::OSCertHandle cert_handle,
                                CSSM_OID oid, CE_GeneralNameType name_type,
@@ -112,14 +112,14 @@ void GetCertGeneralNamesForOID(X509Certificate::OSCertHandle cert_handle,
                                         &fields);
   if (status)
     return;
-  
+
   for (size_t field = 0; field < num_of_fields; ++field) {
     if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
       CSSM_X509_EXTENSION_PTR cssm_ext =
           (CSSM_X509_EXTENSION_PTR)fields[field].FieldValue.Data;
       CE_GeneralNames* alt_name =
           (CE_GeneralNames*) cssm_ext->value.parsedValue;
-      
+
       for (size_t name = 0; name < alt_name->numNames; ++name) {
         const CE_GeneralName& name_struct = alt_name->generalName[name];
         // For future extension: We're assuming that these values are of types
@@ -146,15 +146,15 @@ void GetCertGeneralNamesForOID(X509Certificate::OSCertHandle cert_handle,
 
 void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
                        CSSM_OID oid, Time* result) {
-  *result = Time::Time(); 
-  
+  *result = Time::Time();
+
   uint32 num_of_fields;
   CSSM_FIELD_PTR fields;
   OSStatus status = GetCertFieldsForOID(cert_handle, oid, &num_of_fields,
                                         &fields);
   if (status)
     return;
-  
+
   for (size_t field = 0; field < num_of_fields; ++field) {
     if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
       CSSM_X509_TIME* x509_time =
@@ -163,10 +163,10 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
           std::string(reinterpret_cast<std::string::value_type*>
                       (x509_time->time.Data),
                       x509_time->time.Length);
-      
+
       DCHECK(x509_time->timeType == BER_TAG_UTC_TIME ||
              x509_time->timeType == BER_TAG_GENERALIZED_TIME);
-      
+
       struct tm time;
       const char* parse_string;
       if (x509_time->timeType == BER_TAG_UTC_TIME)
@@ -178,9 +178,9 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
         // this is a rather broken cert.
         return;
       }
-      
+
       strptime(time_string.c_str(), parse_string, &time);
-      
+
       Time::Exploded exploded;
       exploded.year         = time.tm_year + 1900;
       exploded.month        = time.tm_mon + 1;
@@ -190,7 +190,7 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
       exploded.minute       = time.tm_min;
       exploded.second       = time.tm_sec;
       exploded.millisecond  = 0;
-      
+
       *result = Time::FromUTCExploded(exploded);
       break;
     }
@@ -209,12 +209,12 @@ void X509Certificate::Initialize() {
   if (!status) {
     ParsePrincipal(name, &issuer_);
   }
-  
+
   GetCertDateForOID(cert_handle_, CSSMOID_X509V1ValidityNotBefore,
                     &valid_start_);
   GetCertDateForOID(cert_handle_, CSSMOID_X509V1ValidityNotAfter,
                     &valid_expiry_);
-  
+
   fingerprint_ = CalculateFingerprint(cert_handle_);
 
   // Store the certificate in the cache in case we need it later.
@@ -228,7 +228,7 @@ X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
   int length;
   if (!pickle.ReadData(pickle_iter, &data, &length))
     return NULL;
-  
+
   return CreateFromBytes(data, length);
 }
 
@@ -250,10 +250,10 @@ bool X509Certificate::HasExpired() const {
 
 void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
   dns_names->clear();
-  
+
   GetCertGeneralNamesForOID(cert_handle_, CSSMOID_SubjectAltName, GNT_DNSName,
                             dns_names);
-  
+
   if (dns_names->empty())
     dns_names->push_back(subject_.common_name);
 }
@@ -264,7 +264,7 @@ int X509Certificate::Verify(const std::string& hostname,
   NOTIMPLEMENTED();
   return ERR_NOT_IMPLEMENTED;
 }
-  
+
 // Returns true if the certificate is an extended-validation certificate.
 //
 // The certificate has already been verified by the HTTP library.  cert_status

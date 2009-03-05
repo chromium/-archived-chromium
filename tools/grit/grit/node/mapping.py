@@ -44,11 +44,11 @@ _ELEMENT_TO_CLASS = {
 
 def ElementToClass(name, typeattr):
   '''Maps an element to a class that handles the element.
-  
+
   Args:
     name: 'element' (the name of the element)
     typeattr: 'type' (the value of the type attribute, if present, else None)
-  
+
   Return:
     type
   '''

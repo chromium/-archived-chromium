@@ -38,7 +38,7 @@
 
 #define MAX_URL 1024                 // size of URL buffer
 #define MAX_PAGELOADTIME (4*60*1000) // assume all pages take < 4 minutes
-#define PORT 42492                   // port to listen on. Also jhaas's 
+#define PORT 42492                   // port to listen on. Also jhaas's
                                      // old MSFT employee number
 
 
@@ -99,7 +99,7 @@ STDMETHODIMP CMeasurePageLoadTimeBHO::SetSite(IUnknown* pUnkSite)
 
 void STDMETHODCALLTYPE CMeasurePageLoadTimeBHO::OnDocumentComplete(IDispatch *pDisp, VARIANT *pvarURL)
 {
-    if (pDisp == m_spWebBrowser) 
+    if (pDisp == m_spWebBrowser)
     {
         // Fire the event when the page is done loading
         // to unblock the other thread.
@@ -108,7 +108,7 @@ void STDMETHODCALLTYPE CMeasurePageLoadTimeBHO::OnDocumentComplete(IDispatch *pD
 }
 
 
-void CMeasurePageLoadTimeBHO::ProcessPageTimeRequests() 
+void CMeasurePageLoadTimeBHO::ProcessPageTimeRequests()
 {
     CoInitialize(NULL);
 
@@ -205,7 +205,7 @@ void CMeasurePageLoadTimeBHO::ProcessPageTimeRequests()
                     fReceivedCR = true;
                 }
 
-                // The below call will not block, since we determined with 
+                // The below call will not block, since we determined with
                 // MSG_PEEK that at least cbRead bytes are in the TCP receive buffer
                 recv(m_sockTransport, pbBuffer, cbRead, 0);
                 pbBuffer[cbRead] = '\0';
@@ -250,8 +250,8 @@ void CMeasurePageLoadTimeBHO::ProcessPageTimeRequests()
                     );
 
                 // The main browser thread will call OnDocumentComplete() when
-                // the page is done loading, which will in turn trigger 
-                // m_hEvent. Wait here until then; the event will reset itself 
+                // the page is done loading, which will in turn trigger
+                // m_hEvent. Wait here until then; the event will reset itself
                 // once this thread is released
                 if (WaitForSingleObject(m_hEvent, MAX_PAGELOADTIME) == WAIT_TIMEOUT)
                 {
@@ -297,7 +297,7 @@ void CMeasurePageLoadTimeBHO::ProcessPageTimeRequests()
 
 void CMeasurePageLoadTimeBHO::ErrorExit()
 {
-    // Unlink from IE, close the sockets, then terminate this 
+    // Unlink from IE, close the sockets, then terminate this
     // thread
     SetSite(NULL);
 

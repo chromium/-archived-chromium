@@ -400,7 +400,7 @@ bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
     // We use the sync message id so that when a message times out, we don't
     // confuse it with another send that is either above/below this Send in
     // the call stack.
-    context->ipc_message_loop()->PostDelayedTask(FROM_HERE, 
+    context->ipc_message_loop()->PostDelayedTask(FROM_HERE,
         NewRunnableMethod(context.get(),
             &SyncContext::OnSendTimeout, message_id), timeout_ms);
   }

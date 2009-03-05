@@ -50,7 +50,7 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
   ASSERT_TRUE(browser->AppendTab(tab2_url));
   scoped_ptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
-  
+
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
@@ -100,8 +100,8 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
   // |    Tab_1     |     Tab_2    |    Tab_3     |
   //  ---- ---- ---- ---- ---- ---- ---- ---- ----
   //         x---- ---->
-  //              ____________  
-  //             /     X      \ 
+  //              ____________
+  //             /     X      \
   //            |    Tab_1     |
   //             ---- ---- ----
 
@@ -130,7 +130,7 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
   EXPECT_EQ(tab2_url.spec(), tab1_new_url.spec());
 }
 
-// Drag Tab_1 into the position of Tab_3. 
+// Drag Tab_1 into the position of Tab_3.
 TEST_F(TabDraggingTest, Tab1Tab3) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
@@ -153,7 +153,7 @@ TEST_F(TabDraggingTest, Tab1Tab3) {
   ASSERT_TRUE(browser->AppendTab(tab2_url));
   scoped_ptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
-  
+
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
@@ -203,13 +203,13 @@ TEST_F(TabDraggingTest, Tab1Tab3) {
   // |    Tab_1     |     Tab_2    |    Tab_3     |
   //  ---- ---- ---- ---- ---- ---- ---- ---- ----
   //         x---- ---- ---- ---- ---- ---->
-  //                                  ____________  
-  //                                 /     X      \ 
+  //                                  ____________
+  //                                 /     X      \
   //                                |    Tab_1     |
   //                                 ---- ---- ----
 
   POINT start;
-  POINT end;  
+  POINT end;
   start.x = bounds1.x() + bounds1.width()/2;
   start.y = bounds1.y() + bounds1.height()/2;
   end.x = start.x + bounds1.width()/2 + bounds2.width() + bounds3.width()/2;
@@ -263,7 +263,7 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   ASSERT_TRUE(browser->AppendTab(tab2_url));
   scoped_ptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
-  
+
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
@@ -313,19 +313,19 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   // |    Tab_1     |     Tab_2    |    Tab_3     |
   //  ---- ---- ---- ---- ---- ---- ---- ---- ----
   //         x---- ---- ---- ---- ---- ----> + ESCAPE
-  //                                  ____________  
-  //                                 /     X      \ 
+  //                                  ____________
+  //                                 /     X      \
   //                                |    Tab_1     |
   //                                 ---- ---- ----
 
   POINT start;
-  POINT end;  
+  POINT end;
   start.x = bounds1.x() + bounds1.width()/2;
   start.y = bounds1.y() + bounds1.height()/2;
   end.x = start.x + bounds1.width()/2 + bounds2.width() + bounds3.width()/2;
   end.y = start.y;
 
-  // Simulate drag with 'true' as the last parameter. This will interrupt 
+  // Simulate drag with 'true' as the last parameter. This will interrupt
   // in-flight with Escape.
   ASSERT_TRUE(browser->SimulateDrag(start, end,
                                     views::Event::EF_LEFT_BUTTON_DOWN,
@@ -346,7 +346,7 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   ASSERT_TRUE(tab3.get());
   GURL tab3_new_url;
   ASSERT_TRUE(tab3->GetCurrentURL(&tab3_new_url));
-  
+
   // The tabs should be in their original positions.
   EXPECT_EQ(tab1_new_url.spec(), tab1_url.spec());
   EXPECT_EQ(tab2_new_url.spec(), tab2_url.spec());
@@ -376,7 +376,7 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   ASSERT_TRUE(browser->AppendTab(tab2_url));
   scoped_ptr<TabProxy> tab2(browser->GetTab(1));
   ASSERT_TRUE(tab2.get());
-  
+
   // Add Tab_3.
   GURL tab3_url("about:plugins");
   ASSERT_TRUE(browser->AppendTab(tab3_url));
@@ -435,17 +435,17 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   //  /            \ /            \ /            \
   // |    Tab_1     |     Tab_2    |    Tab_3     |
   //  ---- ---- ---- ---- ---- ---- ---- ---- ----
-  //                       x 
-  //                       |  
+  //                       x
+  //                       |
   //                       |  (Drag this below, out of tab strip)
-  //                       V      
-  //                  ____________  
-  //                 /     X      \ 
+  //                       V
+  //                  ____________
+  //                 /     X      \
   //                |    Tab_2     |   (New Window)
   //                ---- ---- ---- ---- ---- ---- ----
 
   POINT start;
-  POINT end;  
+  POINT end;
   start.x = bounds2.x() + bounds2.width()/2;
   start.y = bounds2.y() + bounds2.height()/2;
   end.x = start.x;
@@ -471,8 +471,8 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   ASSERT_TRUE(tab2.get());
   GURL tab2_new_url;
   ASSERT_TRUE(tab2->GetCurrentURL(&tab2_new_url));
-  
-  // Now check for proper shifting of tabs; i.e., Tab_3 in window 1 should 
+
+  // Now check for proper shifting of tabs; i.e., Tab_3 in window 1 should
   // shift left to the position of Tab_2; Tab_1 should stay where it was.
   EXPECT_EQ(tab1_new_url.spec(), tab1_url.spec());
   EXPECT_EQ(tab2_new_url.spec(), tab3_url.spec());

@@ -29,7 +29,7 @@ class SimplifiedDiffUnittest(unittest.TestCase):
                                        prefix + "-expected.txt")
       output = differ._SimplifyText(open(output_filename).read())
       expected = differ._SimplifyText(open(expected_filename).read())
-      
+
       if output != expected:
         lst = difflib.unified_diff(expected.splitlines(True),
                                    output.splitlines(True),

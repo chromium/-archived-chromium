@@ -237,7 +237,7 @@ bool InterceptionManager::SetupInterceptionInfo(const InterceptionData& data,
   DCHECK(buffer);
   DCHECK(*buffer);
 
-  if ((dll_info->unload_module) && 
+  if ((dll_info->unload_module) &&
       (data.function != kUnloadDLLDummyFunction)) {
     // Can't specify a dll for both patch and unload.
     NOTREACHED();

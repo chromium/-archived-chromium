@@ -75,9 +75,9 @@ void MockNPDeallocate(NPObject* npobj) {
   free(npobj);
 }
 
-static NPClass void_class = { NP_CLASS_STRUCT_VERSION, 
-                              MockNPAllocate, 
-                              MockNPDeallocate, 
+static NPClass void_class = { NP_CLASS_STRUCT_VERSION,
+                              MockNPAllocate,
+                              MockNPDeallocate,
                               0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 NPObject* MakeVoidObject() {
@@ -118,7 +118,7 @@ TEST(CppVariantTest, CopyConstructorIncrementsRefCount) {
   source.Set(object);
   // 2 references so far.
   EXPECT_EQ(2U, source.value.objectValue->referenceCount);
-  
+
   CppVariant dest = source;
   EXPECT_EQ(3U, dest.value.objectValue->referenceCount);
   EXPECT_EQ(1, g_allocate_call_count);
@@ -153,7 +153,7 @@ TEST(CppVariantTest, AssignmentIncrementsRefCount) {
   dest = source;
   EXPECT_EQ(3U, dest.value.objectValue->referenceCount);
   EXPECT_EQ(1, g_allocate_call_count);
-  
+
   NPN_ReleaseObject(object);
   source.SetNull();
   CheckObject(dest);
@@ -188,7 +188,7 @@ TEST(CppVariantTest, CopiesTypeAndValueToNPVariant) {
   EXPECT_EQ(cpp.value.boolValue, np.value.boolValue);
   NPN_ReleaseVariantValue(&np);
 
-  cpp.Set(17);  
+  cpp.Set(17);
   cpp.CopyToNPVariant(&np);
   EXPECT_EQ(cpp.type, np.type);
   EXPECT_EQ(cpp.value.intValue, np.value.intValue);

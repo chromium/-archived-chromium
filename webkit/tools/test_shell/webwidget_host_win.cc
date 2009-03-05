@@ -213,7 +213,7 @@ void WebWidgetHost::Paint() {
   RECT r;
   GetClientRect(view_, &r);
   gfx::Rect client_rect(r);
-  
+
   // Allocate a canvas if necessary
   if (!canvas_.get()) {
     ResetScrollRect();

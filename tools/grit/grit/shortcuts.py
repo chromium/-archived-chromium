@@ -26,7 +26,7 @@ class ShortcutGroup(object):
     self.keys_by_lang = {}
     # List of cliques in this group
     self.cliques = []
-  
+
   def AddClique(self, c):
     for existing_clique in self.cliques:
       if existing_clique.GetId() == c.GetId():
@@ -34,13 +34,13 @@ class ShortcutGroup(object):
         # <if expr1><structure 1></if> <if expr2><structure 2></if>
         # where only one will really be included in the output.
         return
-    
+
     self.cliques.append(c)
     for (lang, msg) in c.clique.items():
       if lang not in self.keys_by_lang:
         self.keys_by_lang[lang] = {}
       keymap = self.keys_by_lang[lang]
-      
+
       content = msg.GetRealContent()
       keys = [groups[1] for groups in self.SHORTCUT_RE.findall(content)]
       for key in keys:
@@ -49,7 +49,7 @@ class ShortcutGroup(object):
           keymap[key] += 1
         else:
           keymap[key] = 1
-  
+
   def GenerateWarnings(self, tc_project):
     # For any language that has more than one occurrence of any shortcut,
     # make a list of the conflicting shortcuts.
@@ -60,7 +60,7 @@ class ShortcutGroup(object):
           if lang not in problem_langs:
             problem_langs[lang] = []
           problem_langs[lang].append(key)
-    
+
     warnings = []
     if len(problem_langs):
       warnings.append("WARNING - duplicate keys exist in shortcut group %s" %
@@ -74,11 +74,11 @@ def GenerateDuplicateShortcutsWarnings(uberclique, tc_project):
   '''Given an UberClique and a project name, will print out helpful warnings
   if there are conflicting shortcuts within shortcut groups in the provided
   UberClique.
-  
+
   Args:
     uberclique: clique.UberClique()
     tc_project: 'MyProjectNameInTheTranslationConsole'
-  
+
   Returns:
     ['warning line 1', 'warning line 2', ...]
   '''
@@ -90,6 +90,6 @@ def GenerateDuplicateShortcutsWarnings(uberclique, tc_project):
         groups[group] = ShortcutGroup(group)
       groups[group].AddClique(c)
   for group in groups.values():
-    warnings += group.GenerateWarnings(tc_project)  
+    warnings += group.GenerateWarnings(tc_project)
   return warnings
 

@@ -58,7 +58,7 @@ class LocationBarBridge : public LocationBar {
   virtual std::wstring GetInputString() const;
   virtual WindowOpenDisposition GetWindowOpenDisposition() const
       { NOTIMPLEMENTED(); return CURRENT_TAB; }
-  virtual PageTransition::Type GetPageTransition() const 
+  virtual PageTransition::Type GetPageTransition() const
       { NOTIMPLEMENTED(); return 0; }
   virtual void AcceptInput() { NOTIMPLEMENTED(); }
   virtual void FocusLocation();
@@ -71,7 +71,7 @@ class LocationBarBridge : public LocationBar {
 
 @implementation TabContentsController
 
-- (id)initWithNibName:(NSString*)name 
+- (id)initWithNibName:(NSString*)name
                bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
              commands:(CommandUpdater*)commands
@@ -97,7 +97,7 @@ class LocationBarBridge : public LocationBar {
 
 - (void)awakeFromNib {
   [contentsBox_ setContentView:contents_->GetNativeView()];
-  
+
   // Provide a starting point since we won't get notifications if the state
   // doesn't change between tabs.
   [self updateToolbarCommandStatus];
@@ -185,7 +185,7 @@ class LocationBarBridge : public LocationBar {
 - (void)updateToolbarWithContents:(TabContents*)tab {
   // TODO(pinkerton): there's a lot of ui code in autocomplete_edit.cc
   // that we'll want to duplicate. For now, just handle setting the text.
-  
+
   // TODO(pinkerton): update the security lock icon and background color
 
   NSString* urlString = base::SysWideToNSString(toolbarModel_->GetText());
@@ -217,8 +217,8 @@ class LocationBarBridge : public LocationBar {
     localGrowBox = [contentView convertRect:localGrowBox
                                    fromView:[self view]];
     // Flip the rect in view coordinates
-    localGrowBox.origin.y = 
-        [contentView frame].size.height - localGrowBox.origin.y - 
+    localGrowBox.origin.y =
+        [contentView frame].size.height - localGrowBox.origin.y -
             localGrowBox.size.height;
   }
   return localGrowBox;
@@ -252,9 +252,9 @@ TabContentsCommandObserver::~TabContentsCommandObserver() {
   commands_->RemoveCommandObserver(this);
 }
 
-void TabContentsCommandObserver::EnabledStateChangedForCommand(int command, 
+void TabContentsCommandObserver::EnabledStateChangedForCommand(int command,
                                                                bool enabled) {
-  [controller_ enabledStateChangedForCommand:command 
+  [controller_ enabledStateChangedForCommand:command
                                      enabled:enabled ? YES : NO];
 }
 

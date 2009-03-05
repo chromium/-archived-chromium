@@ -15,7 +15,7 @@ class XtbContentHandler(xml.sax.handler.ContentHandler):
   '''A content handler that calls a given callback function for each
   translation in the XTB file.
   '''
-  
+
   def __init__(self, callback, debug=False):
     self.callback = callback
     self.debug = debug
@@ -28,7 +28,7 @@ class XtbContentHandler(xml.sax.handler.ContentHandler):
     self.current_structure = []
     # Set to the language ID when we see the <translationbundle> node.
     self.language = ''
-  
+
   def startElement(self, name, attrs):
     if name == 'translation':
       assert self.current_id == 0 and len(self.current_structure) == 0, (
@@ -61,10 +61,10 @@ class XtbContentHandler(xml.sax.handler.ContentHandler):
 class XtbErrorHandler(xml.sax.handler.ErrorHandler):
   def error(self, exception):
     pass
-  
+
   def fatalError(self, exception):
     raise exception
-  
+
   def warning(self, exception):
     pass
 
@@ -72,16 +72,16 @@ class XtbErrorHandler(xml.sax.handler.ErrorHandler):
 def Parse(xtb_file, callback_function, debug=False):
   '''Parse xtb_file, making a call to callback_function for every translation
   in the XTB file.
-  
+
   The callback function must have the signature as described below.  The 'parts'
   parameter is a list of tuples (is_placeholder, text).  The 'text' part is
   either the raw text (if is_placeholder is False) or the name of the placeholder
   (if is_placeholder is True).
-  
+
   Args:
     xtb_file:           file('fr.xtb')
     callback_function:  def Callback(msg_id, parts): pass
-  
+
   Return:
     The language of the XTB, e.g. 'fr'
   '''
@@ -91,7 +91,7 @@ def Parse(xtb_file, callback_function, debug=False):
   # XTB files somehow?
   front_of_file = xtb_file.read(1024)
   xtb_file.seek(front_of_file.find('<translationbundle'))
-  
+
   handler = XtbContentHandler(callback=callback_function, debug=debug)
   xml.sax.parse(xtb_file, handler)
   assert handler.language != ''

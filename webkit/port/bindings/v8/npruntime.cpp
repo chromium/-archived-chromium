@@ -67,7 +67,7 @@ inline bool operator<(const StringKey& x, const StringKey& y) {
     else if (x.length > y.length)
         return false;
     else
-        return memcmp(x.string, y.string, y.length) < 0;          
+        return memcmp(x.string, y.string, y.length) < 0;
 }
 
 }  // namespace

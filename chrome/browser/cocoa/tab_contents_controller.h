@@ -46,7 +46,7 @@ class ToolbarModel;
 // Create the contents of a tab represented by |contents| and loaded from the
 // nib given by |name|. |commands| allows tracking of what's enabled and
 // disabled. It may be nil if no updating is desired.
-- (id)initWithNibName:(NSString*)name 
+- (id)initWithNibName:(NSString*)name
                bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
              commands:(CommandUpdater*)commands

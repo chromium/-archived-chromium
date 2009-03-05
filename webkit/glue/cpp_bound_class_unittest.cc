@@ -63,8 +63,8 @@ class ExampleTestShell : public TestShell {
     // We use the layoutTestController binding for notifyDone.
     TestShell::BindJSObjectsToWindow(frame);
   }
-  
-  // This is a public interface to TestShell's protected method, so it 
+
+  // This is a public interface to TestShell's protected method, so it
   // can be called by our CreateEmptyWindow.
   bool PublicInitialize(const std::wstring& startingURL) {
     return Initialize(startingURL);
@@ -111,7 +111,7 @@ class CppBoundClassTest : public TestShellTest {
      ExecuteJavaScript(javascript);
      EXPECT_EQ(L"SUCCESS", webkit_glue::DumpDocumentText(webframe_));
    }
-   
+
    // Executes the specified JavaScript and checks that the resulting document
    // text is empty.
    void CheckJavaScriptFailure(const std::string& javascript) {
@@ -132,8 +132,8 @@ class CppBoundClassTest : public TestShellTest {
             "if (leftval == rightval) {" +
             "  document.writeln('SUCCESS');" +
             "} else {" +
-            "  document.writeln(\"" + 
-                 left + " [\" + leftval + \"] != " + 
+            "  document.writeln(\"" +
+                 left + " [\" + leftval + \"] != " +
                  right + " [\" + rightval + \"]\");" +
             "}";
    }
@@ -246,9 +246,9 @@ TEST_F(CppBoundClassTest, InvokeMethods) {
   CheckJavaScriptSuccess(js);
 }
 
-// Tests that invoking a nonexistent method with no fallback method stops the 
+// Tests that invoking a nonexistent method with no fallback method stops the
 // script's execution
-TEST_F(CppBoundClassTest, 
+TEST_F(CppBoundClassTest,
        InvokeNonexistentMethodNoFallback) {
   std::string js = "example.nonExistentMethod();document.writeln('SUCCESS');";
   CheckJavaScriptFailure(js);
@@ -256,7 +256,7 @@ TEST_F(CppBoundClassTest,
 
 // Ensures existent methods can be invoked successfully when the fallback method
 // is used
-TEST_F(CppBoundClassWithFallbackMethodTest, 
+TEST_F(CppBoundClassWithFallbackMethodTest,
        InvokeExistentMethodsWithFallback) {
   std::string js = BuildJSCondition("example.echoValue(34)", "34");
   CheckJavaScriptSuccess(js);

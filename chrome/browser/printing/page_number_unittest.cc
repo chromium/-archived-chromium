@@ -16,7 +16,7 @@ TEST(PageNumberTest, Count) {
   ++page;
   EXPECT_EQ(1, page.ToInt());
   EXPECT_NE(printing::PageNumber::npos(), page);
-  
+
   printing::PageNumber page_copy(page);
   EXPECT_EQ(1, page_copy.ToInt());
   EXPECT_EQ(1, page.ToInt());

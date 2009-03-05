@@ -45,7 +45,7 @@ class WebMediaPlayerDelegate {
   // Methods for painting.
   virtual void SetRect(const gfx::Rect& rect) = 0;
 
-  // TODO(hclam): Using paint at the moment, maybe we just need to return a 
+  // TODO(hclam): Using paint at the moment, maybe we just need to return a
   //              SkiaBitmap?
   virtual void Paint(skia::PlatformCanvas *canvas, const gfx::Rect& rect) = 0;
 

@@ -17,7 +17,7 @@
 #include <string>
 #include <map>
 
-static BOOL CALLBACK SymEnumer(PCSTR name, DWORD64 base, PVOID context) { 
+static BOOL CALLBACK SymEnumer(PCSTR name, DWORD64 base, PVOID context) {
   reinterpret_cast<std::vector<DWORD64>*>(context)->push_back(base);
   return TRUE;
 }
@@ -153,7 +153,7 @@ class SymResolver {
       NOTREACHED("SymCleanup failed: %d", GetLastError());
     }
   }
- 
+
  private:
   HANDLE proc_;
   ULONG64 base_;

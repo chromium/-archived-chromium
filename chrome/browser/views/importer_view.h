@@ -48,8 +48,8 @@ class ImporterView : public views::View,
   virtual std::wstring GetItemAt(views::ComboBox* source, int index);
 
   // Overridden from ChromeViews::ComboBox::Listener
-  virtual void ItemChanged(views::ComboBox* combo_box, 
-                           int prev_index, 
+  virtual void ItemChanged(views::ComboBox* combo_box,
+                           int prev_index,
                            int new_index);
 
   // Overridden from ImportObserver:
@@ -65,10 +65,10 @@ class ImporterView : public views::View,
 
   // Create a bitmap from the checkboxes of the view.
   uint16 GetCheckedItems();
-  
+
   // Enables/Disables all the checked items for the given state
   void SetCheckedItemsState(uint16 items);
-  
+
   // Sets all checked items in the given state
   void SetCheckedItems(uint16 items);
 
@@ -82,7 +82,7 @@ class ImporterView : public views::View,
 
   scoped_refptr<ImporterHost> importer_host_;
 
-  // Stores the state of the checked items associated with the position of the 
+  // Stores the state of the checked items associated with the position of the
   // selected item in the combo-box.
   std::vector<uint16> checkbox_items_;
 

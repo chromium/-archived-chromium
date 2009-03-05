@@ -109,11 +109,11 @@ bool LoadRLZLibrary(int directory_key) {
 
 bool SendFinancialPing(const wchar_t* brand, const wchar_t* lang,
                        const wchar_t* referral, bool exclude_id) {
-  RLZTracker::AccessPoint points[] = {RLZTracker::CHROME_OMNIBOX, 
+  RLZTracker::AccessPoint points[] = {RLZTracker::CHROME_OMNIBOX,
                                       RLZTracker::CHROME_HOME_PAGE,
                                       RLZTracker::NO_ACCESS_POINT};
   if (!send_ping)
-    return false; 
+    return false;
   return send_ping(RLZTracker::CHROME, points, L"chrome", brand, referral, lang,
                    exclude_id, NULL);
 }
@@ -138,7 +138,7 @@ class OmniBoxUsageObserver : public NotificationObserver {
     // attempt the ping.
     if (!RLZTracker::RecordProductEvent(RLZTracker::CHROME,
                                         RLZTracker::CHROME_OMNIBOX,
-                                        RLZTracker::FIRST_SEARCH))       
+                                        RLZTracker::FIRST_SEARCH))
       omnibox_used_ = true;
     delete this;
   }
@@ -156,7 +156,7 @@ class OmniBoxUsageObserver : public NotificationObserver {
   // Dtor is private so the object cannot be created on the stack.
   ~OmniBoxUsageObserver() {
     NotificationService::current()->RemoveObserver(this,
-        NotificationType::OMNIBOX_OPENED_URL, 
+        NotificationType::OMNIBOX_OPENED_URL,
         NotificationService::AllSources());
     instance_ = NULL;
   }
@@ -249,7 +249,7 @@ class DelayedInitTask : public Task {
       if (OmniBoxUsageObserver::used()) {
         RLZTracker::RecordProductEvent(RLZTracker::CHROME,
                                        RLZTracker::CHROME_OMNIBOX,
-                                       RLZTracker::FIRST_SEARCH);       
+                                       RLZTracker::FIRST_SEARCH);
       }
     }
     // Schedule the daily RLZ ping.

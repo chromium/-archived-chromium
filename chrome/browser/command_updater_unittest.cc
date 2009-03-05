@@ -79,12 +79,12 @@ TEST_F(CommandUpdaterTest, TestObservers) {
 TEST_F(CommandUpdaterTest, TestObserverRemovingAllCommands) {
   TestingCommandHandlerMock handler;
   CommandUpdater command_updater(&handler);
-  
+
   // Create two observers for the commands 1-3 as true, remove one using the
   // single remove command, then set the command to false. Ensure that the
   // removed observer still thinks all commands are true and the one left
   // observing picked up the change.
-  
+
   TestingCommandObserverMock observer_remove, observer_keep;
   command_updater.AddCommandObserver(1, &observer_remove);
   command_updater.AddCommandObserver(2, &observer_remove);

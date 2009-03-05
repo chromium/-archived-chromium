@@ -24,19 +24,19 @@ class TclibUnittest(unittest.TestCase):
     msg = tclib.Message(text=u'Hello Earthlings')
     self.failUnless(msg.GetPresentableContent() == 'Hello Earthlings')
     self.failUnless(isinstance(msg.GetPresentableContent(), types.StringTypes))
-  
+
   def testGetAttr(self):
     msg = tclib.Message()
     msg.AppendText(u'Hello')  # Tests __getattr__
     self.failUnless(msg.GetPresentableContent() == 'Hello')
     self.failUnless(isinstance(msg.GetPresentableContent(), types.StringTypes))
-  
+
   def testAll(self):
     text = u'Howdie USERNAME'
     phs = [tclib.Placeholder(u'USERNAME', u'%s', 'Joi')]
     msg = tclib.Message(text=text, placeholders=phs)
     self.failUnless(msg.GetPresentableContent() == 'Howdie USERNAME')
-    
+
     trans = tclib.Translation(text=text, placeholders=phs)
     self.failUnless(trans.GetPresentableContent() == 'Howdie USERNAME')
     self.failUnless(isinstance(trans.GetPresentableContent(), types.StringTypes))
@@ -47,7 +47,7 @@ class TclibUnittest(unittest.TestCase):
     self.failUnless(msg.GetPresentableContent() == text)
     from_list = msg.GetContent()[0]
     self.failUnless(from_list == text)
-    
+
   def testRegressionTranslationInherited(self):
     '''Regression tests a bug that was caused by grit.tclib.Translation
     inheriting from the translation console's Translation object
@@ -62,7 +62,7 @@ class TclibUnittest(unittest.TestCase):
                                placeholders=msg.GetPlaceholders())
     content = transl.GetContent()
     self.failUnless(isinstance(content[3], types.UnicodeType))
-  
+
   def testFingerprint(self):
     # This has Windows line endings.  That is on purpose.
     id = grit.extern.tclib.GenerateMessageId(

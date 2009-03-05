@@ -510,7 +510,7 @@ void HttpResponseHeaders::ParseStatusLine(
     raw_headers_.append(" 200 OK");
     response_code_ = 200;
     return;
-  } 
+  }
   raw_headers_.push_back(' ');
   raw_headers_.append(code, p);
   raw_headers_.push_back(' ');
@@ -967,7 +967,7 @@ int64 HttpResponseHeaders::GetContentLength() const {
 
   int64 result;
   bool ok = StringToInt64(content_length_val, &result);
-  if (!ok || result < 0) 
+  if (!ok || result < 0)
     return -1;
 
   return result;

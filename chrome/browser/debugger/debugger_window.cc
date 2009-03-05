@@ -126,7 +126,7 @@ void DebuggerWindow::SetDebuggerBreak(bool brk) {
 #endif
 }
 
-void DebuggerWindow::CallFunctionInPage(const std::wstring& name, 
+void DebuggerWindow::CallFunctionInPage(const std::wstring& name,
                                         ListValue* argv) {
   if (view_) {
     DictionaryValue* body = new DictionaryValue;

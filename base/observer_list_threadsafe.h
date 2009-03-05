@@ -148,7 +148,7 @@ class ObserverListThreadSafe
   // ObserverList.  This function MUST be called on the thread which owns
   // the unsafe ObserverList.
   template <class Method, class Params>
-  void NotifyWrapper(ObserverList<ObserverType>* list, 
+  void NotifyWrapper(ObserverList<ObserverType>* list,
       const UnboundMethod<ObserverType, Method, Params>& method) {
 
     // Check that this list still needs notifications.

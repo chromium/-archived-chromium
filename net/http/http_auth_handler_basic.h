@@ -18,7 +18,7 @@ class HttpAuthHandlerBasic : public HttpAuthHandler {
                                           const ProxyInfo*);
  protected:
   virtual bool Init(std::string::const_iterator challenge_begin,
-                    std::string::const_iterator challenge_end); 
+                    std::string::const_iterator challenge_end);
 
 };
 

@@ -55,7 +55,7 @@ class JSONStringValueSerializer : public ValueSerializer {
   bool initialized_with_const_string_;
   bool pretty_print_;  // If true, serialization will span multiple lines.
   // If true, deserialization will allow trailing commas.
-  bool allow_trailing_comma_;  
+  bool allow_trailing_comma_;
 
   DISALLOW_EVIL_CONSTRUCTORS(JSONStringValueSerializer);
 };

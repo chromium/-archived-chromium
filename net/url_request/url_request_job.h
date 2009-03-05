@@ -285,7 +285,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
 
   // The data stream filter which is enabled on demand.
   scoped_ptr<Filter> filter_;
-  
+
   // If the filter filled its output buffer, then there is a change that it
   // still has internal data to emit, and this flag is set.
   bool filter_needs_more_output_space_;

@@ -168,9 +168,9 @@ std::wstring ElideUrl(const GURL& url,
   }
 
   const int kMaxNumberOfUrlPathElementsAllowed = 1024;
-  if (url_path_number_of_elements <= 1 || 
+  if (url_path_number_of_elements <= 1 ||
       url_path_number_of_elements > kMaxNumberOfUrlPathElementsAllowed) {
-    // No path to elide, or too long of a path (could overflow in loop below) 
+    // No path to elide, or too long of a path (could overflow in loop below)
     // Just elide this as a text string.
     return ElideText(url_subdomain + url_domain + url_path_query_etc, font,
                      available_pixel_width);

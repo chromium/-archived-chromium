@@ -216,7 +216,7 @@ void ListenSocket::Send(const std::string& str, bool append_linefeed) {
 }
 
 // TODO (ibrar): We can add these functions into OS dependent files
-#if defined(OS_WIN) 
+#if defined(OS_WIN)
 // MessageLoop watcher callback
 void ListenSocket::OnObjectSignaled(HANDLE object) {
   WSANETWORKEVENTS ev;
@@ -224,10 +224,10 @@ void ListenSocket::OnObjectSignaled(HANDLE object) {
     // TODO
     return;
   }
-  
+
   // The object was reset by WSAEnumNetworkEvents.  Watch for the next signal.
   watcher_.StartWatching(object, this);
-  
+
   if (ev.lNetworkEvents == 0) {
     // Occasionally the event is set even though there is no new data.
     // The net seems to think that this is ignorable.

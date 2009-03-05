@@ -158,7 +158,7 @@ const ProcessEntry* NamedProcessIterator::NextProcessEntry() {
   if (result) {
     return &entry_;
   }
-  
+
   return NULL;
 }
 
@@ -167,14 +167,14 @@ bool NamedProcessIterator::CheckForNextProcess() {
 
   std::string data;
   std::string exec_name;
-  
+
   for (; index_of_kinfo_proc_ < kinfo_procs_.size(); ++index_of_kinfo_proc_) {
     kinfo_proc* kinfo = &kinfo_procs_[index_of_kinfo_proc_];
 
     // Skip processes just awaiting collection
     if ((kinfo->kp_proc.p_pid > 0) && (kinfo->kp_proc.p_stat == SZOMB))
       continue;
-    
+
     int mib[] = { CTL_KERN, KERN_PROCARGS, kinfo->kp_proc.p_pid };
 
     // Found out what size buffer we need
@@ -183,13 +183,13 @@ bool NamedProcessIterator::CheckForNextProcess() {
       LOG(ERROR) << "failed to figure out the buffer size for a commandline";
       continue;
     }
-    
+
     data.resize(data_len);
     if (sysctl(mib, arraysize(mib), &data[0], &data_len, NULL, 0) < 0) {
       LOG(ERROR) << "failed to fetch a commandline";
       continue;
     }
-    
+
     // Data starts w/ the full path null termed, so we have to extract just the
     // executable name from the path.
 
@@ -203,7 +203,7 @@ bool NamedProcessIterator::CheckForNextProcess() {
       exec_name = data.substr(0, exec_name_end);
     else
       exec_name = data.substr(last_slash + 1, exec_name_end - last_slash - 1);
-    
+
     // Check the name
     if (executable_name_utf8 == exec_name) {
       entry_.pid = kinfo->kp_proc.p_pid;

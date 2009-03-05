@@ -38,11 +38,11 @@
 - (void)windowDidLoad {
   // Create a controller for the tab strip, giving it the model object for
   // this window's Browser and the tab strip view. The controller will handle
-  // registering for the appropriate tab notifications from the back-end and 
+  // registering for the appropriate tab notifications from the back-end and
   // managing the creation of new tabs.
-  tabStripController_ = 
+  tabStripController_ =
       [[TabStripController alloc]
-          initWithView:tabStripView_ 
+          initWithView:tabStripView_
               tabModel:browser_->tabstrip_model()
           toolbarModel:browser_->toolbar_model()
               commands:browser_->command_updater()];
@@ -67,7 +67,7 @@
 // from this method.
 - (void)windowWillClose:(NSNotification *)notification {
   DCHECK(!browser_->tabstrip_model()->count());
-  
+
   // We can't acutally use |-autorelease| here because there's an embedded
   // run loop in the |-performClose:| which contains its own autorelease pool.
   // Instead we use call it after a zero-length delay, which gets us back
@@ -150,7 +150,7 @@
 // in the coordinate system of the content area of the currently selected tab.
 // |windowGrowBox| needs to be in the window's coordinate system.
 - (NSRect)selectedTabGrowBoxRect {
-  return [tabStripController_ 
+  return [tabStripController_
               selectedTabGrowBoxRect];
 }
 
@@ -161,7 +161,7 @@
 // Called to start/stop the loading animations.
 - (void)updateLoadingAnimations:(BOOL)animate {
   if (animate) {
-    // TODO(pinkerton): determine what throbber animation is necessary and 
+    // TODO(pinkerton): determine what throbber animation is necessary and
     // start a timer to periodically update. Windows tells the tab strip to
     // do this. It uses a single timer to coalesce the multiple things that
     // could be updating. http://crbug.com/8281

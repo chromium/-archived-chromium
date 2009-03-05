@@ -67,7 +67,7 @@ bool WebWorkerClientProxy::Send(IPC::Message* message) {
 }
 
 void WebWorkerClientProxy::OnMessageReceived(const IPC::Message& message) {
-  if (!started_worker_ && 
+  if (!started_worker_ &&
       message.type() != WorkerMsg_StartWorkerContext::ID) {
     queued_messages_.push_back(new IPC::Message(message));
     return;

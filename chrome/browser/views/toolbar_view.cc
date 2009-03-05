@@ -808,7 +808,7 @@ void BrowserToolbarView::ButtonPressed(views::BaseButton* sender) {
 
 // static
 int BrowserToolbarView::PopupTopSpacing() {
-  return GetWidget()->AsWindow()->UseNativeFrame() ? 0 
+  return GetWidget()->AsWindow()->UseNativeFrame() ? 0
                                                    : kPopupTopSpacingNonGlass;
 }
 

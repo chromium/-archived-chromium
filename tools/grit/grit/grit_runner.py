@@ -66,7 +66,7 @@ def PrintUsage():
   for (tool, info) in _TOOLS:
     if not _HIDDEN in info.keys():
       tool_list += '    %-12s %s\n' % (tool, info[_CLASS]().ShortDescription())
-  
+
   # TODO(joi) Put these back into the usage when appropriate:
   #
   #  -d    Work disconnected.  This causes GRIT not to attempt connections with
@@ -83,12 +83,12 @@ Global options:
             named 'resource.grd' in the current working directory.
 
   -v        Print more verbose runtime information.
-  
+
   -x        Print extremely verbose runtime information.  Implies -v
-  
+
   -p FNAME  Specifies that GRIT should profile its execution and output the
             results to the file FNAME.
- 
+
 Tools:
 
   TOOL can be one of the following:
@@ -100,7 +100,7 @@ Tools:
 
 class Options(object):
   '''Option storage and parsing.'''
-  
+
   def __init__(self):
     self.disconnected = False
     self.client = ''
@@ -109,7 +109,7 @@ class Options(object):
     self.extra_verbose = False
     self.output_stream = sys.stdout
     self.profile_dest = None
-  
+
   def ReadOptions(self, args):
     '''Reads options from the start of args and returns the remainder.'''
     (opts, args) = getopt.getopt(args, 'g:dvxc:i:p:')
@@ -126,15 +126,15 @@ class Options(object):
         self.extra_verbose = True
         util.extra_verbose = True
       elif key == '-p': self.profile_dest = val
-    
+
     if not self.input:
       if 'GRIT_INPUT' in os.environ:
         self.input = os.environ['GRIT_INPUT']
       else:
         self.input = 'resource.grd'
-    
+
     return args
-    
+
   def __repr__(self):
     return '(disconnected: %d, verbose: %d, client: %s, input: %s)' % (
       self.disconnected, self.verbose, self.client, self.input)
@@ -154,7 +154,7 @@ def Main(args):
   '''Parses arguments and does the appropriate thing.'''
   util.ChangeStdoutEncoding()
   print _COPYRIGHT
-  
+
   if not len(args) or len(args) == 1 and args[0] == 'help':
     PrintUsage()
     return 0
@@ -163,7 +163,7 @@ def Main(args):
     if not _GetToolInfo(tool):
       print "No such tool.  Try running 'grit help' for a list of tools."
       return 2
-    
+
     print ("Help for 'grit %s' (for general help, run 'grit help'):\n"
            % (tool))
     print _GetToolInfo(tool)[_CLASS].__doc__

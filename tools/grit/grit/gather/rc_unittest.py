@@ -20,7 +20,7 @@ from grit import util
 
 class RcUnittest(unittest.TestCase):
 
-  part_we_want = '''IDC_KLONKACC ACCELERATORS 
+  part_we_want = '''IDC_KLONKACC ACCELERATORS
 BEGIN
     "?",            IDM_ABOUT,              ASCII,  ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -41,7 +41,7 @@ END
 ''' % self.part_we_want
 
     f = StringIO.StringIO(buf)
-    
+
     out = rc.Section.FromFile(f, 'IDC_KLONKACC')
     self.failUnless(out.GetText() == self.part_we_want)
 
@@ -74,7 +74,7 @@ END
     self.failUnless(len(dlg.GetCliques()) == 6)
     self.failUnless(dlg.GetCliques()[1].GetMessage().GetRealContent() ==
                     'klonk Version "yibbee" 1.0')
-    
+
     transl = dlg.Translate('en')
     self.failUnless(transl.strip() == dlg.GetText().strip())
 
@@ -89,7 +89,7 @@ BEGIN
 END
 ''')
     dlg.Parse()
-    
+
     alt_dlg = rc.Dialog('''IDD_ABOUTBOX DIALOGEX 040704, 17, 230, 75
 STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "XXXXXXXXX"
@@ -100,14 +100,14 @@ BEGIN
 END
 ''')
     alt_dlg.Parse()
-    
+
     transl = dlg.Translate('en', skeleton_gatherer=alt_dlg)
     self.failUnless(transl.count('040704') and
                     transl.count('110978'))
     self.failUnless(transl.count('Yipee skippy'))
 
   def testMenu(self):
-    menu = rc.Menu('''IDC_KLONK MENU 
+    menu = rc.Menu('''IDC_KLONK MENU
 BEGIN
     POPUP "&File """
     BEGIN
@@ -117,7 +117,7 @@ BEGIN
         BEGIN
             MENUITEM "Klonk && is ""good""",           ID_GONK_KLONKIS
         END
-        MENUITEM "This is a very long menu caption to try to see if we can make the ID go to a continuation line, blablabla blablabla bla blabla blablabla blablabla blablabla blablabla...", 
+        MENUITEM "This is a very long menu caption to try to see if we can make the ID go to a continuation line, blablabla blablabla bla blabla blablabla blablabla blablabla blablabla...",
                                         ID_FILE_THISISAVERYLONGMENUCAPTIONTOTRYTOSEEIFWECANMAKETHEIDGOTOACONTINUATIONLINE
     END
     POPUP "&Help"
@@ -125,13 +125,13 @@ BEGIN
         MENUITEM "&About ...",                  IDM_ABOUT
     END
 END''')
-    
+
     menu.Parse()
     self.failUnless(len(menu.GetTextualIds()) == 6)
     self.failUnless(len(menu.GetCliques()) == 1)
     self.failUnless(len(menu.GetCliques()[0].GetMessage().GetPlaceholders()) ==
                     9)
-    
+
     transl = menu.Translate('en')
     self.failUnless(transl.strip() == menu.GetText().strip())
 
@@ -173,7 +173,7 @@ END
     version.Parse()
     self.failUnless(len(version.GetTextualIds()) == 1)
     self.failUnless(len(version.GetCliques()) == 4)
-    
+
     transl = version.Translate('en')
     self.failUnless(transl.strip() == version.GetText().strip())
 
@@ -200,8 +200,8 @@ BEGIN
 END'''.strip())
     dialog.Parse()
     self.failUnless(len(dialog.GetTextualIds()) == 10)
-  
-  
+
+
   def testRegressionDialogBox2(self):
     dialog = rc.Dialog('''
 IDD_SIDEBAR_EMAIL_PANEL_PROPPAGE DIALOG DISCARDABLE 0, 0, 264, 220
@@ -213,7 +213,7 @@ BEGIN
     PUSHBUTTON      "Add Filter...",IDC_SIDEBAR_EMAIL_ADD_FILTER,196,38,50,14
     PUSHBUTTON      "Remove",IDC_SIDEBAR_EMAIL_REMOVE,196,174,50,14
     PUSHBUTTON      "", IDC_SIDEBAR_EMAIL_HIDDEN, 200, 178, 5, 5, NOT WS_VISIBLE
-    LISTBOX         IDC_SIDEBAR_EMAIL_LIST,16,60,230,108, 
+    LISTBOX         IDC_SIDEBAR_EMAIL_LIST,16,60,230,108,
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "You can prevent certain emails from showing up in the sidebar with a filter.",
                     IDC_STATIC,16,18,234,18
@@ -221,7 +221,7 @@ END'''.strip())
     dialog.Parse()
     self.failUnless('IDC_SIDEBAR_EMAIL_HIDDEN' in dialog.GetTextualIds())
 
-  
+
   def testRegressionMenuId(self):
     menu = rc.Menu('''
 IDR_HYPERMENU_FOLDER MENU
@@ -247,7 +247,7 @@ END'''.strip())
     transl = menu.Translate('en')
     # Shouldn't find \\n (the \n shouldn't be changed to \\n)
     self.failUnless(transl.find('\\\\n') == -1)
-  
+
   def testRegressionTabs(self):
     menu = rc.Menu('''
 IDR_HYPERMENU_FOLDER MENU
@@ -273,7 +273,7 @@ END'''.strip())
     original = '..\\\\..\\\\trs\\\\res\\\\nav_first.gif'
     unescaped = rc.Section.UnEscape(original)
     self.failUnless(unescaped == '..\\..\\trs\\res\\nav_first.gif')
-  
+
   def testRegressionDialogItemsTextOnly(self):
     dialog = rc.Dialog('''IDD_OPTIONS_SEARCH DIALOGEX 0, 0, 280, 292
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP |
@@ -294,7 +294,7 @@ END''')
                       for c in dialog.GetCliques()]
     self.failUnless('Select search buttons and options' in translateables)
     self.failUnless('Use Google site:' in translateables)
-  
+
   def testAccelerators(self):
     acc = rc.Accelerators('''\
 IDR_ACCELERATOR1 ACCELERATORS
@@ -315,7 +315,7 @@ END
   def testRegressionEmptyString(self):
     dlg = rc.Dialog('''\
 IDD_CONFIRM_QUIT_GD_DLG DIALOGEX 0, 0, 267, 108
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | 
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP |
     WS_CAPTION
 EXSTYLE WS_EX_TOPMOST
 CAPTION "Google Desktop"
@@ -326,15 +326,15 @@ BEGIN
     ICON            32514,IDC_STATIC,7,9,21,20
     EDITTEXT        IDC_TEXTBOX,34,7,231,60,ES_MULTILINE | ES_READONLY | NOT WS_BORDER
     CONTROL         "",
-                    IDC_ENABLE_GD_AUTOSTART,"Button",BS_AUTOCHECKBOX | 
+                    IDC_ENABLE_GD_AUTOSTART,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,33,70,231,10
 END''')
     dlg.Parse()
-    
+
     def Check():
       self.failUnless(transl.count('IDC_ENABLE_GD_AUTOSTART'))
       self.failUnless(transl.count('END'))
-    
+
     transl = dlg.Translate('de', pseudo_if_not_available=True,
                            fallback_to_english=True)
     Check()

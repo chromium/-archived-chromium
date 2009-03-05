@@ -17,7 +17,7 @@ class HttpResponseHeaders;
 class HttpAuth {
  public:
 
-   // Http authentication can be done the the proxy server, origin server, 
+   // Http authentication can be done the the proxy server, origin server,
    // or both. This enum tracks who the target is.
    enum Target {
      AUTH_PROXY = 0,
@@ -46,7 +46,7 @@ class HttpAuth {
      IDENT_SRC_EXTERNAL,
    };
 
-   // Helper structure used by HttpNetworkTransaction to track 
+   // Helper structure used by HttpNetworkTransaction to track
    // the current identity being used for authorization.
    struct Identity {
      Identity() : source(IDENT_SRC_NONE), invalid(true) { }
@@ -108,7 +108,7 @@ class HttpAuth {
     std::string scheme() const {
       return std::string(scheme_begin_, scheme_end_);
     }
-    
+
     // Returns false if there was a parse error.
     bool valid() const {
       return valid_;
@@ -134,7 +134,7 @@ class HttpAuth {
 
     // If value() has quotemarks, unquote it.
     std::string unquoted_value() const;
-    
+
     // True if the name-value pair's value has quote marks.
     bool value_is_quoted() const { return value_is_quoted_; }
 

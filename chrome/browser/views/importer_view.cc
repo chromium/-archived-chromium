@@ -154,27 +154,27 @@ std::wstring ImporterView::GetItemAt(views::ComboBox* source, int index) {
   return importer_host_->GetSourceProfileNameAt(index);
 }
 
-void ImporterView::ItemChanged(views::ComboBox* combo_box, 
+void ImporterView::ItemChanged(views::ComboBox* combo_box,
                                int prev_index, int new_index) {
   DCHECK(combo_box);
-  DCHECK(checkbox_items_.size() >= 
-      static_cast<size_t>(importer_host_->GetAvailableProfileCount()));                               
-                               
-  if (prev_index == new_index) 
+  DCHECK(checkbox_items_.size() >=
+      static_cast<size_t>(importer_host_->GetAvailableProfileCount()));
+
+  if (prev_index == new_index)
     return;
-  
+
   // Save the current state
   uint16 prev_items = GetCheckedItems();
   checkbox_items_[prev_index] = prev_items;
-  
+
   // Enable/Disable the checkboxes for this Item
   uint16 new_enabled_items = importer_host_->GetSourceProfileInfoAt(
       new_index).services_supported;
-  SetCheckedItemsState(new_enabled_items);   
-  
-  // Set the checked items for this Item    
+  SetCheckedItemsState(new_enabled_items);
+
+  // Set the checked items for this Item
   uint16 new_items = checkbox_items_[new_index];
-  SetCheckedItems(new_items);  
+  SetCheckedItems(new_items);
 }
 
 void ImporterView::ImportCanceled() {
@@ -204,7 +204,7 @@ uint16 ImporterView::GetCheckedItems() {
   if (search_engines_checkbox_->IsEnabled() &&
       search_engines_checkbox_->IsSelected())
     items |= SEARCH_ENGINES;
-  return items;   
+  return items;
 }
 
 void ImporterView::SetCheckedItemsState(uint16 items) {
@@ -242,7 +242,7 @@ void ImporterView::SetCheckedItems(uint16 items) {
       history_checkbox_->SetIsSelected(false);
     }
   }
-      
+
   if (favorites_checkbox_->IsEnabled()) {
     if (items & FAVORITES) {
       favorites_checkbox_->SetIsSelected(true);
@@ -250,7 +250,7 @@ void ImporterView::SetCheckedItems(uint16 items) {
       favorites_checkbox_->SetIsSelected(false);
     }
   }
-  
+
   if (passwords_checkbox_->IsEnabled()) {
     if (items & PASSWORDS) {
       passwords_checkbox_->SetIsSelected(true);
@@ -258,7 +258,7 @@ void ImporterView::SetCheckedItems(uint16 items) {
       passwords_checkbox_->SetIsSelected(false);
     }
   }
-  
+
   if (search_engines_checkbox_->IsEnabled()) {
     if (items & SEARCH_ENGINES) {
       search_engines_checkbox_->SetIsSelected(true);

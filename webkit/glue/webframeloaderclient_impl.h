@@ -39,7 +39,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void frameLoaderDestroyed();
 
-  // Notifies the WebView delegate that the JS window object has been cleared, 
+  // Notifies the WebView delegate that the JS window object has been cleared,
   // giving it a chance to bind native objects to the window before script
   // parsing begins.
   virtual void windowObjectCleared();
@@ -62,7 +62,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   virtual void dispatchWillSendRequest(WebCore::DocumentLoader*, unsigned long identifier, WebCore::ResourceRequest&, const WebCore::ResourceResponse& redirectResponse);
   virtual bool shouldUseCredentialStorage(WebCore::DocumentLoader*, unsigned long identifier);
   virtual void dispatchDidReceiveAuthenticationChallenge(WebCore::DocumentLoader*, unsigned long identifier, const WebCore::AuthenticationChallenge&);
-  virtual void dispatchDidCancelAuthenticationChallenge(WebCore::DocumentLoader*, unsigned long identifier, const WebCore::AuthenticationChallenge&);        
+  virtual void dispatchDidCancelAuthenticationChallenge(WebCore::DocumentLoader*, unsigned long identifier, const WebCore::AuthenticationChallenge&);
   virtual void dispatchDidReceiveResponse(WebCore::DocumentLoader*, unsigned long identifier, const WebCore::ResourceResponse&);
   virtual void dispatchDidReceiveContentLength(WebCore::DocumentLoader*, unsigned long identifier, int lengthReceived);
   virtual void dispatchDidFinishLoading(WebCore::DocumentLoader*, unsigned long identifier);
@@ -148,7 +148,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   virtual void prepareForDataSourceReplacement();
 
   virtual PassRefPtr<WebCore::DocumentLoader> createDocumentLoader(
-                                              const WebCore::ResourceRequest&,  
+                                              const WebCore::ResourceRequest&,
                                               const WebCore::SubstituteData&);
   virtual void setTitle(const WebCore::String& title, const WebCore::KURL&);
 
@@ -165,28 +165,28 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
                         const WebCore::ResourceResponse& response);
   virtual PassRefPtr<WebCore::Frame> createFrame(
                                       const WebCore::KURL& url,
-                                      const WebCore::String& name, 
+                                      const WebCore::String& name,
                                       WebCore::HTMLFrameOwnerElement* ownerElement,
-                                      const WebCore::String& referrer, 
+                                      const WebCore::String& referrer,
                                       bool allowsScrolling, int marginWidth,
                                       int marginHeight);
   virtual WebCore::Widget* createPlugin(const WebCore::IntSize&,
-                                        WebCore::HTMLPlugInElement*, 
-                                        const WebCore::KURL&, 
-                                        const WTF::Vector<WebCore::String>&, 
-                                        const WTF::Vector<WebCore::String>&, 
-                                        const WebCore::String&, 
+                                        WebCore::HTMLPlugInElement*,
+                                        const WebCore::KURL&,
+                                        const WTF::Vector<WebCore::String>&,
+                                        const WTF::Vector<WebCore::String>&,
+                                        const WebCore::String&,
                                         bool loadManually);
   virtual void redirectDataToPlugin(WebCore::Widget* pluginWidget);
 
   virtual WebCore::Widget* createJavaAppletWidget(
-      const WebCore::IntSize&, 
+      const WebCore::IntSize&,
       WebCore::HTMLAppletElement*,
-      const WebCore::KURL& baseURL, 
-      const WTF::Vector<WebCore::String>& paramNames, 
+      const WebCore::KURL& baseURL,
+      const WTF::Vector<WebCore::String>& paramNames,
       const WTF::Vector<WebCore::String>& paramValues);
 
-  virtual WebCore::ObjectContentType objectContentType(const WebCore::KURL& url, 
+  virtual WebCore::ObjectContentType objectContentType(const WebCore::KURL& url,
                                               const WebCore::String& mimeType);
   virtual WebCore::String overrideMediaType() const;
 

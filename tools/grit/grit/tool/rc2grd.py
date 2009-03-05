@@ -101,7 +101,7 @@ cleaned up manually.
 OPTIONS may be any of the following:
 
   -e ENCODING    Specify the ENCODING of the .rc file. Default is 'cp1252'.
-  
+
   -h TYPE        Specify the TYPE attribute for HTML structures.
                  Default is 'tr_html'.
 
@@ -139,10 +139,10 @@ is #if 0-ed out it will still be included in the output of this tool
 Therefore, if your .rc file contains sections like this, you should run the
 C preprocessor on the .rc file or manually edit it before using this tool.
 '''
-  
+
   def ShortDescription(self):
     return 'A tool for converting .rc source files to .grd files.'
-  
+
   def __init__(self):
     self.input_encoding = 'cp1252'
     self.html_type = 'tr_html'
@@ -151,7 +151,7 @@ C preprocessor on the .rc file or manually edit it before using this tool.
     self.role_model = None
     self.pre_process = None
     self.post_process = None
-  
+
   def ParseOptions(self, args):
     '''Given a list of arguments, set this object's options and return
     all non-option arguments.
@@ -181,32 +181,32 @@ C preprocessor on the .rc file or manually edit it before using this tool.
              '.rc file to process.')
       return 2
     self.SetOptions(opts)
-    
+
     path = args[0]
     out_path = os.path.join(util.dirname(path),
                 os.path.splitext(os.path.basename(path))[0] + '.grd')
-    
+
     rcfile = util.WrapInputStream(file(path, 'r'), self.input_encoding)
     rctext = rcfile.read()
-    
+
     grd_text = unicode(self.Process(rctext, path))
 
     rcfile.close()
-    
+
     outfile = util.WrapOutputStream(file(out_path, 'w'), 'utf-8')
     outfile.write(grd_text)
     outfile.close()
-    
+
     print 'Wrote output file %s.\nPlease check for TODO items in the file.' % out_path
 
-  
+
   def Process(self, rctext, rc_path):
     '''Processes 'rctext' and returns a resource tree corresponding to it.
-    
+
     Args:
       rctext: complete text of the rc file
       rc_path: 'resource\resource.rc'
-    
+
     Return:
       grit.node.base.Node subclass
     '''
@@ -239,15 +239,15 @@ C preprocessor on the .rc file or manually edit it before using this tool.
     assert (isinstance(includes, grit.node.empty.IncludesNode) and
             isinstance(structures, grit.node.empty.StructuresNode) and
             isinstance(messages, grit.node.empty.MessagesNode))
-    
+
     self.AddIncludes(rctext, includes)
     self.AddStructures(rctext, structures, os.path.basename(rc_path))
     self.AddMessages(rctext, messages)
-    
+
     self.VerboseOut('Validating that all IDs are unique...\n')
     root.ValidateUniqueIds()
     self.ExtraVerboseOut('Done validating that all IDs are unique.\n')
-    
+
     if self.post_process:
       postprocess_class = util.NewClassInstance(self.post_process,
                                                 postprocess_interface.PostProcessor)
@@ -271,8 +271,8 @@ C preprocessor on the .rc file or manually edit it before using this tool.
       if type != 'HTML':
         self.VerboseOut('Processing %s with ID %s (filename: %s)\n' % (type, id, fname))
         node.AddChild(include.IncludeNode.Construct(node, id, type, fname))
-  
-  
+
+
   def AddStructures(self, rctext, node, rc_filename):
     '''Scans 'rctext' for structured resources (e.g. menus, dialogs, version
     information resources and HTML templates) and adds each as a <structure>
@@ -285,7 +285,7 @@ C preprocessor on the .rc file or manually edit it before using this tool.
       if type == 'HTML':
         node.AddChild(structure.StructureNode.Construct(
           node, id, self.html_type, fname, self.html_encoding))
-    
+
     # Then add all RC includes
     def AddStructure(type, id):
       self.VerboseOut('Processing %s with ID %s\n' % (type, id))
@@ -298,8 +298,8 @@ C preprocessor on the .rc file or manually edit it before using this tool.
       AddStructure('dialog', m.group('id'))
     for m in _VERSIONINFO.finditer(rctext):
       AddStructure('version', m.group('id'))
-  
-  
+
+
   def AddMessages(self, rctext, node):
     '''Scans 'rctext' for all messages in string tables, preprocesses them as
     much as possible for placeholders (e.g. messages containing $1, $2 or %s, %d
@@ -314,27 +314,27 @@ C preprocessor on the .rc file or manually edit it before using this tool.
         for cm in _COMMENT_TEXT.finditer(comment_block):
           comment_text.append(cm.group('text'))
         comment_text = ' '.join(comment_text)
-        
+
         id = mm.group('id')
         text = rc.Section.UnEscape(mm.group('text'))
-        
+
         self.VerboseOut('Processing message %s (text: "%s")\n' % (id, text))
-        
+
         msg_obj = self.Placeholderize(text)
-        
+
         # Messages that contain only placeholders do not need translation.
         is_translateable = False
         for item in msg_obj.GetContent():
           if isinstance(item, types.StringTypes):
             if not _WHITESPACE_ONLY.match(item):
               is_translateable = True
-        
+
         if self.not_localizable_re.search(comment_text):
           is_translateable = False
-        
+
         message_meaning = ''
         internal_comment = ''
-        
+
         # If we have a "role model" (existing GRD file) and this node exists
         # in the role model, use the description, meaning and translateable
         # attributes from the role model.
@@ -345,29 +345,29 @@ C preprocessor on the .rc file or manually edit it before using this tool.
             message_meaning = role_node.attrs['meaning']
             comment_text = role_node.attrs['desc']
             internal_comment = role_node.attrs['internal_comment']
-        
+
         # For nontranslateable messages, we don't want the complexity of
         # placeholderizing everything.
         if not is_translateable:
           msg_obj = tclib.Message(text=text)
-        
+
         msg_node = message.MessageNode.Construct(node, msg_obj, id,
                                                  desc=comment_text,
                                                  translateable=is_translateable,
                                                  meaning=message_meaning)
         msg_node.attrs['internal_comment'] = internal_comment
-        
+
         node.AddChild(msg_node)
         self.ExtraVerboseOut('Done processing message %s\n' % id)
-  
-  
+
+
   def Placeholderize(self, text):
     '''Creates a tclib.Message object from 'text', attempting to recognize
     a few different formats of text that can be automatically placeholderized
     (HTML code, printf-style format strings, and FormatMessage-style format
     strings).
     '''
-    
+
     try:
       # First try HTML placeholderizing.
       # TODO(joi) Allow use of non-TotalRecall flavors of HTML placeholderizing
@@ -375,7 +375,7 @@ C preprocessor on the .rc file or manually edit it before using this tool.
       for item in msg.GetContent():
         if not isinstance(item, types.StringTypes):
           return msg  # Contained at least one placeholder, so we're done
-          
+
       # HTML placeholderization didn't do anything, so try to find printf or
       # FormatMessage format specifiers and change them into placeholders.
       msg = tclib.Message()
@@ -388,14 +388,14 @@ C preprocessor on the .rc file or manually edit it before using this tool.
           todo_counter += 1
         elif part != '':
           msg.AppendText(part)
-      
+
       if self.role_model and len(parts) > 1:  # there are TODO placeholders
         role_model_msg = self.role_model.UberClique().BestCliqueByOriginalText(
           msg.GetRealContent(), '')
         if role_model_msg:
           # replace wholesale to get placeholder names and examples
           msg = role_model_msg
-      
+
       return msg
     except:
       print 'Exception processing message with text "%s"' % text

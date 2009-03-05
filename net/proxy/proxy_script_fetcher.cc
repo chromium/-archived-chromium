@@ -12,7 +12,7 @@
 #include "net/base/load_flags.h"
 #include "net/url_request/url_request.h"
 
-// TODO(eroman): 
+// TODO(eroman):
 //   - Support auth-prompts.
 
 namespace net {
@@ -197,7 +197,7 @@ void ProxyScriptFetcherImpl::OnResponseStarted(URLRequest* request) {
     // NOTE about mime types: We do not enforce mime types on PAC files.
     // This is for compatibility with {IE 7, Firefox 3, Opera 9.5}
 
-    // NOTE about status codes: We are like Firefox 3 in this respect. 
+    // NOTE about status codes: We are like Firefox 3 in this respect.
     // {IE 7, Safari 3, Opera 9.5} do not care about the status code.
     if (request->GetResponseCode() != 200) {
       result_code_ = ERR_PAC_STATUS_NOT_OK;

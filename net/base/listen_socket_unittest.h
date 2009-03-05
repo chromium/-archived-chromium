@@ -30,7 +30,7 @@
 #if defined(OS_POSIX)
 // Used same name as in Windows to avoid #ifdef where refrenced
 #define SOCKET int
-const int INVALID_SOCKET = -1; 
+const int INVALID_SOCKET = -1;
 const int SOCKET_ERROR = -1;
 #endif
 
@@ -73,7 +73,7 @@ class ListenSocketTester :
  public:
   ListenSocketTester()
       : thread_(NULL),
-        loop_(NULL), 
+        loop_(NULL),
         server_(NULL),
         connection_(NULL){
   }

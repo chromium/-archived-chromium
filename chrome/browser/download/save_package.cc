@@ -1051,7 +1051,7 @@ bool SavePackage::GetSaveInfo(const FilePath& suggest_name,
   if (param->save_type == SavePackage::SAVE_AS_COMPLETE_HTML) {
     // Make new directory for saving complete file.
     param->dir = param->dir.Append(
-        param->saved_main_file_path.RemoveExtension().BaseName().value() + 
+        param->saved_main_file_path.RemoveExtension().BaseName().value() +
         FILE_PATH_LITERAL("_files"));
   }
 

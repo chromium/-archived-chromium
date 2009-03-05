@@ -224,7 +224,7 @@ bool SafeBrowsingService::CheckUrlNew(const GURL& url, Client* client) {
   bool prefix_match = database_->ContainsUrl(url, &list, &prefix_hits,
                                              &full_hits,
                                              protocol_manager_->last_update());
-  
+
   UMA_HISTOGRAM_TIMES("SB2.FilterCheck", base::Time::Now() - check_start);
 
   if (!prefix_match)

@@ -98,7 +98,7 @@ WebMouseEvent::WebMouseEvent(NSEvent *event, NSView* view) {
   location = [view convertPoint:windowLocal fromView:nil];
   y = [view frame].size.height - location.y;  // flip y
   x = location.x;
-  
+
   // set modifiers:
 
   if ([event modifierFlags] & NSControlKeyMask)
@@ -178,22 +178,22 @@ static inline bool isKeyUpEvent(NSEvent *event)
         case 54: // Right Command
         case 55: // Left Command
             return ([event modifierFlags] & NSCommandKeyMask) == 0;
-            
+
         case 57: // Capslock
             return ([event modifierFlags] & NSAlphaShiftKeyMask) == 0;
-            
+
         case 56: // Left Shift
         case 60: // Right Shift
             return ([event modifierFlags] & NSShiftKeyMask) == 0;
-            
+
         case 58: // Left Alt
         case 61: // Right Alt
             return ([event modifierFlags] & NSAlternateKeyMask) == 0;
-            
+
         case 59: // Left Ctrl
         case 62: // Right Ctrl
             return ([event modifierFlags] & NSControlKeyMask) == 0;
-            
+
         case 63: // Function
             return ([event modifierFlags] & NSFunctionKeyMask) == 0;
     }
@@ -233,7 +233,7 @@ static bool isKeypadEvent(NSEvent* event)
         case 92: // 9
             return true;
      }
-     
+
      return false;
 }
 
@@ -246,30 +246,30 @@ static int windowsKeyCodeForKeyEvent(NSEvent* event)
         // VK_APPS (5D) Right windows/meta key
         case 54: // Right Command
             return 0x5D;
-            
+
         // VK_LWIN (5B) Left windows/meta key
         case 55: // Left Command
             return 0x5B;
-            
+
         // VK_CAPITAL (14) caps locks key
         case 57: // Capslock
             return 0x14;
-            
+
         // VK_SHIFT (10) either shift key
         case 56: // Left Shift
         case 60: // Right Shift
             return 0x10;
-            
+
         // VK_MENU (12) either alt key
         case 58: // Left Alt
         case 61: // Right Alt
             return 0x12;
-            
+
         // VK_CONTROL (11) either ctrl key
         case 59: // Left Ctrl
         case 62: // Right Ctrl
             return 0x11;
-            
+
         // VK_CLEAR (0C) CLEAR key
         case 71: return 0x0C;
 
@@ -611,8 +611,8 @@ static inline NSString* textFromEvent(NSEvent* event)
     return @"";
   return [event characters];
 }
-    
-    
+
+
 static inline NSString* unmodifiedTextFromEvent(NSEvent* event)
 {
   if ([event type] == NSFlagsChanged)
@@ -622,32 +622,32 @@ static inline NSString* unmodifiedTextFromEvent(NSEvent* event)
 
 static NSString* keyIdentifierForKeyEvent(NSEvent* event)
 {
-    if ([event type] == NSFlagsChanged) 
+    if ([event type] == NSFlagsChanged)
         switch ([event keyCode]) {
             case 54: // Right Command
             case 55: // Left Command
                 return @"Meta";
-                
+
             case 57: // Capslock
                 return @"CapsLock";
-                
+
             case 56: // Left Shift
             case 60: // Right Shift
                 return @"Shift";
-                
+
             case 58: // Left Alt
             case 61: // Right Alt
                 return @"Alt";
-                
+
             case 59: // Left Ctrl
             case 62: // Right Ctrl
                 return @"Control";
-                
+
             default:
                 ASSERT_NOT_REACHED();
                 return @"";
         }
-    
+
     NSString *s = [event charactersIgnoringModifiers];
     if ([s length] != 1) {
         return @"Unidentified";
@@ -914,7 +914,7 @@ static NSString* keyIdentifierForKeyEvent(NSEvent* event)
         // Standard says that DEL becomes U+007F.
         case NSDeleteFunctionKey:
             return @"U+007F";
-            
+
         // Always use 0x09 for tab instead of AppKit's backtab character.
         case NSBackTabCharacter:
             return @"U+0009";
@@ -958,10 +958,10 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
     modifiers |= ALT_KEY;
   if ([event modifierFlags] & NSCommandKeyMask)
     modifiers |= META_KEY;
-    
+
   if (WebCore::isKeypadEvent(event))
     modifiers |= IS_KEYPAD;
-  
+
   if (([event type] != NSFlagsChanged) && [event isARepeat])
     modifiers |= IS_AUTO_REPEAT;
 

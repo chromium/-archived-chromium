@@ -83,9 +83,9 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
     // CFAbsoluteTime is in seconds and |interval| is in ms, so make sure we
     // keep the units correct.
     CFTimeInterval interval_in_seconds = static_cast<double>(interval) / 1000.0;
-    CFAbsoluteTime fire_date = 
+    CFAbsoluteTime fire_date =
         CFAbsoluteTimeGetCurrent() + interval_in_seconds;
-    timer_id_ = CFRunLoopTimerCreate(NULL, fire_date, interval_in_seconds, 0, 
+    timer_id_ = CFRunLoopTimerCreate(NULL, fire_date, interval_in_seconds, 0,
                                      0, FetcherDelegate::TimerCallback, NULL);
     CFRunLoopAddTimer(CFRunLoopGetCurrent(), timer_id_, kCFRunLoopCommonModes);
 #endif
@@ -97,7 +97,7 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
 #elif defined(OS_LINUX)
     g_source_remove(timer_id_);
 #elif defined(OS_MACOSX)
-    CFRunLoopRemoveTimer(CFRunLoopGetCurrent(), timer_id_, 
+    CFRunLoopRemoveTimer(CFRunLoopGetCurrent(), timer_id_,
                          kCFRunLoopCommonModes);
     CFRelease(timer_id_);
 #endif

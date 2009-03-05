@@ -78,7 +78,7 @@ class BookmarkDropInfo {
 
   // Used when autoscrolling.
   base::RepeatingTimer<BookmarkDropInfo> scroll_timer_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(BookmarkDropInfo);
 };
 

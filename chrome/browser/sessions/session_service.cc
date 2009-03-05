@@ -812,7 +812,7 @@ bool SessionService::CreateTabsAndWindows(
         // Update the selected navigation index.
         tab->current_navigation_index =
             std::max(-1, tab->current_navigation_index - payload.index);
-        
+
         // And update the index of existing navigations.
         for (std::vector<TabNavigation>::iterator i = tab->navigations.begin();
              i != tab->navigations.end();) {

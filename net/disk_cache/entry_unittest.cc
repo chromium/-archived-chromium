@@ -607,7 +607,7 @@ void DiskCacheEntryTest::ZeroLengthIO() {
   std::string key1("the first key");
   disk_cache::Entry *entry1;
   ASSERT_TRUE(cache_->CreateEntry(key1, &entry1));
-  
+
   EXPECT_EQ(0, entry1->ReadData(0, 0, NULL, 0, NULL));
   EXPECT_EQ(0, entry1->WriteData(0, 0, NULL, 0, NULL, false));
 

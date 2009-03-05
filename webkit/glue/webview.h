@@ -168,7 +168,7 @@ class WebView : public WebWidget {
   virtual void DragSourceEndedAt(
       int client_x, int client_y, int screen_x, int screen_y) = 0;
 
-  // Notifies the webview that a drag and drop operation is in progress, with 
+  // Notifies the webview that a drag and drop operation is in progress, with
   // dropable items over the view.
   virtual void DragSourceMovedTo(
       int client_x, int client_y, int screen_x, int screen_y) = 0;

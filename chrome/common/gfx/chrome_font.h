@@ -215,7 +215,7 @@ class ChromeFont {
   int avg_width_;
 #elif defined(OS_MACOSX)
   explicit ChromeFont(const std::wstring& font_name, int font_size, int style);
-  
+
   // Calculate and cache the font metrics.
   void calculateMetrics();
 

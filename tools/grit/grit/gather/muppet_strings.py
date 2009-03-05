@@ -24,7 +24,7 @@ PLACEHOLDER_RE = re.compile('(\[!\[|\]!\])')
 class MuppetStringsContentHandler(xml.sax.handler.ContentHandler):
   '''A very dumb parser for splitting the strings.xml file into translateable
   and nontranslateable chunks.'''
-  
+
   def __init__(self, parent):
     self.curr_elem = ''
     self.curr_text = ''
@@ -32,11 +32,11 @@ class MuppetStringsContentHandler(xml.sax.handler.ContentHandler):
     self.description = ''
     self.meaning = ''
     self.translateable = True
-  
+
   def startElement(self, name, attrs):
     if (name != 'strings'):
       self.curr_elem = name
-      
+
       attr_names = attrs.getQNames()
       if 'desc' in attr_names:
         self.description = attrs.getValueByQName('desc')
@@ -46,7 +46,7 @@ class MuppetStringsContentHandler(xml.sax.handler.ContentHandler):
         value = attrs.getValueByQName('translateable')
         if value.lower() not in ['true', 'yes']:
           self.translateable = False
-      
+
       att_text = []
       for attr_name in attr_names:
         att_text.append(' ')
@@ -54,14 +54,14 @@ class MuppetStringsContentHandler(xml.sax.handler.ContentHandler):
         att_text.append('=')
         att_text.append(
           xml.sax.saxutils.quoteattr(attrs.getValueByQName(attr_name)))
-      
+
       self.parent._AddNontranslateableChunk("<%s%s>" %
                                             (name, ''.join(att_text)))
-  
+
   def characters(self, content):
     if self.curr_elem != '':
       self.curr_text += content
-    
+
   def endElement(self, name):
     if name != 'strings':
       self.parent.AddMessage(self.curr_text, self.description,
@@ -72,13 +72,13 @@ class MuppetStringsContentHandler(xml.sax.handler.ContentHandler):
       self.description = ''
       self.meaning = ''
       self.translateable = True
-  
+
   def ignorableWhitespace(self, whitespace):
     pass
 
 class MuppetStrings(regexp.RegexpGatherer):
   '''Supports the strings.xml format used by Muppet gadgets.'''
-  
+
   def __init__(self, text):
     if util.IsExtraVerbose():
       print text
@@ -87,9 +87,9 @@ class MuppetStrings(regexp.RegexpGatherer):
   def AddMessage(self, msgtext, description, meaning, translateable):
     if msgtext == '':
       return
-    
+
     msg = tclib.Message(description=description, meaning=meaning)
-    
+
     unescaped_text = self.UnEscape(msgtext)
     parts = PLACEHOLDER_RE.split(unescaped_text)
     in_placeholder = False
@@ -106,15 +106,15 @@ class MuppetStrings(regexp.RegexpGatherer):
                                                   '(placeholder)'))
         else:
           msg.AppendText(part)
-    
+
     self.skeleton_.append(
       self.uberclique.MakeClique(msg, translateable=translateable))
-    
+
     # if statement needed because this is supposed to be idempotent (so never
     # set back to false)
     if translateable:
       self.translatable_chunk_ = True
-  
+
   # Although we use the RegexpGatherer base class, we do not use the
   # _RegExpParse method of that class to implement Parse().  Instead, we
   # parse using a SAX parser.
@@ -126,10 +126,10 @@ class MuppetStrings(regexp.RegexpGatherer):
     handler = MuppetStringsContentHandler(self)
     xml.sax.parse(stream, handler)
     self._AddNontranslateableChunk(u'</strings>\n')
-  
+
   def Escape(self, text):
     return util.EncodeCdata(text)
-  
+
   def FromFile(filename_or_stream, extkey=None, encoding='cp1252'):
     if isinstance(filename_or_stream, types.StringTypes):
       if util.IsVerbose():

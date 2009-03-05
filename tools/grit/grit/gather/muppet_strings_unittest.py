@@ -21,7 +21,7 @@ class MuppetStringsUnittest(unittest.TestCase):
     gatherer.Parse()
     self.failUnless(len(gatherer.GetCliques()) == 2)
     self.failUnless(gatherer.Translate('en').replace('\n', '') == original)
-  
+
   def testEscapingAndLinebreaks(self):
     original = ('''\
 <strings>
@@ -52,7 +52,7 @@ you?</LINEBREAK>   <ESCAPED meaning="bingo">4 &lt; 6</ESCAPED>
     ph = msg.GetPlaceholders()[0]
     self.failUnless(ph.GetOriginal() == '[![USER]!]')
     self.failUnless(ph.GetPresentation() == 'USER')
-  
+
   def testTranslateable(self):
     original = "<strings><BINGO translateable='false'>Yo yo hi there</BINGO></strings>"
     gatherer = muppet_strings.MuppetStrings(original)

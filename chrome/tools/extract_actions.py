@@ -58,7 +58,7 @@ def AddComputedActions(actions):
 
 def AddWebKitEditorActions(actions):
   """Add editor actions from editor_client_impl.cc.
-  
+
   Arguments:
     actions: set of actions to add to.
   """

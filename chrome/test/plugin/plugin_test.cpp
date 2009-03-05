@@ -193,7 +193,7 @@ class ActiveXTest : public PluginTest {
         L"\\activex_test_control.dll";
     HMODULE h = LoadLibrary(test_control_path.c_str());
     ASSERT_TRUE(h != NULL) << "Failed to load activex_test_control.dll";
-    const char* func_name = register_server ? 
+    const char* func_name = register_server ?
                                 "DllRegisterServer" : "DllUnregisterServer";
     DllRegUnregServerFunc func = reinterpret_cast<DllRegUnregServerFunc>(
         GetProcAddress(h, func_name));

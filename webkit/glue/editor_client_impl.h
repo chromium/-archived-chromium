@@ -50,9 +50,9 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual bool shouldInsertText(const WebCore::String& text, WebCore::Range* range,
                                 WebCore::EditorInsertAction action);
   virtual bool shouldDeleteRange(WebCore::Range* range);
-  virtual bool shouldChangeSelectedRange(WebCore::Range* fromRange, 
-                                         WebCore::Range* toRange, 
-                                         WebCore::EAffinity affinity, 
+  virtual bool shouldChangeSelectedRange(WebCore::Range* fromRange,
+                                         WebCore::Range* toRange,
+                                         WebCore::EAffinity affinity,
                                          bool stillSelecting);
   virtual bool shouldApplyStyle(WebCore::CSSStyleDeclaration* style,
                                 WebCore::Range* range);
@@ -109,9 +109,9 @@ class EditorClientImpl : public WebCore::EditorClient {
 
   // It would be better to add these methods to the objects they describe, but
   // those are in WebCore and therefore inaccessible.
-  virtual std::wstring DescribeOrError(int number, 
+  virtual std::wstring DescribeOrError(int number,
                                        WebCore::ExceptionCode ec);
-  virtual std::wstring DescribeOrError(WebCore::Node* node, 
+  virtual std::wstring DescribeOrError(WebCore::Node* node,
                                        WebCore::ExceptionCode ec);
   virtual std::wstring Describe(WebCore::Range* range);
   virtual std::wstring Describe(WebCore::Node* node);
@@ -157,14 +157,14 @@ class EditorClientImpl : public WebCore::EditorClient {
   // whether or not it is a <textarea> element or an element whose
   // contenteditable attribute is true.
   // TODO(hbono): Bug 740540: This code just implements the default behavior
-  // proposed in this issue. We should also retrieve "spellcheck" attributes 
+  // proposed in this issue. We should also retrieve "spellcheck" attributes
   // for text fields and create a flag to over-write the default behavior.
   bool ShouldSpellcheckByDefault();
 
   // Whether the last entered key was a backspace.
   bool backspace_pressed_;
 
-  // This flag is set to false if spell check for this editor is manually 
+  // This flag is set to false if spell check for this editor is manually
   // turned off. The default setting is SPELLCHECK_AUTOMATIC.
   enum {
     SPELLCHECK_AUTOMATIC,

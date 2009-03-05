@@ -398,7 +398,7 @@ void ProxyService::ProcessPendingRequests(PacRequest* recent_req) {
     // For auto-detect we use the well known WPAD url.
     GURL pac_url = config_.auto_detect ?
         GURL("http://wpad/wpad.dat") : config_.pac_url;
-    
+
     in_progress_fetch_config_id_ = config_.id();
 
     proxy_script_fetcher_->Fetch(

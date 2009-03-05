@@ -120,7 +120,7 @@ class WindowDelegate {
   virtual bool GetSavedWindowBounds(gfx::Rect* bounds) const;
   virtual bool GetSavedMaximizedState(bool* maximized) const;
   virtual bool GetSavedAlwaysOnTopState(bool* always_on_top) const;
-  
+
   // Called when the window closes.
   virtual void WindowClosing() { }
 

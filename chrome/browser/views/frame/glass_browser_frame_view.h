@@ -63,7 +63,7 @@ class GlassBrowserFrameView : public BrowserNonClientFrameView {
 
   // Returns the bounds of the client area for the specified view size.
   gfx::Rect CalculateClientAreaBounds(int width, int height) const;
- 
+
   // Starts/Stops the window throbber running.
   void StartThrobber();
   void StopThrobber();

@@ -54,7 +54,7 @@ win32_srcs_exclude = ['parse.y',
                       'cssgrammar.cpp',
                       'csspropertynames.gperf']
 
-# Number of lines of a new coverage data set 
+# Number of lines of a new coverage data set
 # to send at a time to the dashboard.
 POST_CHUNK_SIZE = 50
 
@@ -190,7 +190,7 @@ def CleanWin32Lcov(lcov_path, src_root):
                                 stderr=subprocess.STDOUT).communicate()[0]
       if output.rfind('error:'):
         return None
-      
+
       tmp_buf1 = output.split('=')
       tmp_buf2 = tmp_buf1[len(tmp_buf1) - 2].split('x')[0].split(' ')
       loc = tmp_buf2[len(tmp_buf2) - 2]
@@ -220,7 +220,7 @@ def ParseCoverageDataForDashboard(lcov_path):
 
   Args:
     lcov_path: File path to lcov coverage data.
- 
+
   Returns:
     List of strings with comma separated source node and coverage.
   """
@@ -241,7 +241,7 @@ def ParseCoverageDataForDashboard(lcov_path):
       instrumented_set = {}
       executed_set = {}
       srcfile_name = line[len('SF:'):]
-    
+
     # Mark coverage data points hashlist style for the current src file.
     if line[:len('DA:')] == 'DA:':
       line_info = line[len('DA:'):].split(',')
@@ -251,18 +251,18 @@ def ParseCoverageDataForDashboard(lcov_path):
       # line_was_executed is '0' or '1'
       if int(line_was_executed):
         executed_set[line_num] = True
-    
+
     # Update results for the current src file at record end.
     if line == 'end_of_record':
       instrumented = len(instrumented_set.keys())
       executed = len(executed_set.keys())
       parent_directory = srcfile_name[:srcfile_name.rfind('/') + 1]
       linecount_point = linecounts[srcfile_index].strip().split(',')
-      assert(len(linecount_point) == 2, 
+      assert(len(linecount_point) == 2,
              'lintcount format unexpected - %s' % linecounts[srcfile_index])
       (linecount_path, linecount_count) = linecount_point
       srcfile_index += 1
-      
+
       # Sanity check that path names in the lcov and linecount are lined up.
       if linecount_path[-10:] != srcfile_name[-10:]:
         print 'NAME MISMATCH: %s :: %s' % (srcfile_name, linecount_path)
@@ -282,7 +282,7 @@ def ParseCoverageDataForDashboard(lcov_path):
   # The first key (sorted) will be the base directory '/'
   # but its full path may be '/mnt/chrome_src/src/'
   # using this offset will ignore the part '/mnt/chrome_src/src'.
-  # Offset is the last '/' that isn't the last character for the 
+  # Offset is the last '/' that isn't the last character for the
   # first directory name in results (position 1 in keys).
   offset = len(keys[1][:keys[1][:-1].rfind('/')])
   lines = []
@@ -299,7 +299,7 @@ def ParseCoverageDataForDashboard(lcov_path):
 
 def AddResults(results, location, lines_total, lines_executed):
   """Add resulting line tallies to a location's total.
-  
+
   Args:
     results: Map of node location to corresponding coverage data.
     location: Source node string.
@@ -315,7 +315,7 @@ def AddResults(results, location, lines_total, lines_executed):
 
 def PostResultsToDashboard(lcov_path, results, post_url):
   """Post coverage results to coverage dashboard.
-  
+
   Args:
     lcov_path: File path for lcov data in the expected format:
         <project>_<platform>_<cl#>.coverage.lcov
@@ -346,7 +346,7 @@ num_fails = 0
 
 def SendPost(req):
   """Execute a post request and retry for up to MAX_FAILURES.
-  
+
   Args:
     req: A urllib2 request object.
 
@@ -428,7 +428,7 @@ def main():
   else:
     print 'Unsupported platform'
     os.exit(1)
-  
+
   # Prep coverage results for dashboard and post new set.
   parsed_data = ParseCoverageDataForDashboard(options.lcov_path)
   PostResultsToDashboard(options.lcov_path, parsed_data, options.post_url)

@@ -34,15 +34,15 @@ class StructureUnittest(unittest.TestCase):
       </grit>'''), dir=util.PathFromRoot('grit\\test\\data'))
     grd.RunGatherers(recursive=True)
     grd.output_language = 'fr'
-    
+
     node = grd.GetNodeById('IDD_ABOUTBOX')
     formatter = node.ItemFormatter('rc_all')
     self.failUnless(formatter)
     transl = formatter.Format(node, 'fr')
-    
+
     self.failUnless(transl.count('040704') and transl.count('110978'))
     self.failUnless(transl.count('2005",IDC_STATIC'))
-  
+
   def testOutputEncoding(self):
     grd = grd_reader.Parse(StringIO.StringIO(
       '''<?xml version="1.0" encoding="UTF-8"?>

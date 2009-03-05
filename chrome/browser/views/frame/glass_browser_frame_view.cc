@@ -164,7 +164,7 @@ gfx::Rect GlassBrowserFrameView::GetWindowBoundsForClientBounds(
     RECT rect = client_bounds.ToRECT();
     AdjustWindowRectEx(&rect, frame_->window_style(), FALSE,
                        frame_->window_ex_style());
-    return gfx::Rect(rect);    
+    return gfx::Rect(rect);
   }
 
   int top_height = NonClientTopBorderHeight();
@@ -296,7 +296,7 @@ void GlassBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
   SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
   canvas->DrawBitmapInt(otr_avatar_icon, 0,
       (otr_avatar_icon.height() - otr_avatar_bounds_.height()) / 2,
-      otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), 
+      otr_avatar_bounds_.width(), otr_avatar_bounds_.height(),
       MirroredLeftPointForRect(otr_avatar_bounds_), otr_avatar_bounds_.y(),
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }

@@ -106,7 +106,7 @@ int64 FileStream::Seek(Whence whence, int64 offset) {
 
   // If we're in async, make sure we don't have a request in flight.
   DCHECK(!async_context_.get() || !async_context_->callback());
-  
+
   off_t res = lseek(file_, static_cast<off_t>(offset),
                     static_cast<int>(whence));
   if (res == static_cast<off_t>(-1))

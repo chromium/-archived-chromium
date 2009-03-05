@@ -20,7 +20,7 @@ class AudioRendererHostTest : public testing::Test {
     // This task post a task to message_loop_ to do internal destruction on
     // message_loop_.
     host_->Destroy();
-    // We need to continue running message_loop_ to complete all destructions. 
+    // We need to continue running message_loop_ to complete all destructions.
     message_loop_->RunAllPending();
   }
 

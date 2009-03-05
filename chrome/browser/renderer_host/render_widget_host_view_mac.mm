@@ -142,13 +142,13 @@ void RenderWidgetHostViewMac::UpdateCursorIfOverSelf() {
   NSEvent* event = [[cocoa_view_ window] currentEvent];
   if ([event window] != [cocoa_view_ window])
     return;
-  
+
   NSPoint event_location = [event locationInWindow];
   NSPoint local_point = [cocoa_view_ convertPoint:event_location fromView:nil];
-  
+
   if (!NSPointInRect(local_point, [cocoa_view_ bounds]))
     return;
-  
+
   NSCursor* ns_cursor = current_cursor_.GetCursor();
   [ns_cursor set];
 }
@@ -181,7 +181,7 @@ void RenderWidgetHostViewMac::DidScrollRect(
 
   [cocoa_view_ scrollRect:[cocoa_view_ RectToNSRect:rect]
                        by:NSMakeSize(dx, -dy)];
-  
+
   gfx::Rect new_rect = rect;
   new_rect.Offset(dx, dy);
   gfx::Rect dirty_rect = rect.Subtract(new_rect);
@@ -240,7 +240,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 
 - (void)dealloc {
   delete renderWidgetHostView_;
-  
+
   [super dealloc];
 }
 
@@ -289,7 +289,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
         canvas->getTopPlatformDevice().DrawToContext(
             context, damaged_rect_ns.origin.x, damaged_rect_ns.origin.y,
             &damaged_rect_cg);
-        
+
         [self unlockFocus];
       }
     }
@@ -341,13 +341,13 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 
 - (BOOL)becomeFirstResponder {
   renderWidgetHostView_->render_widget_host()->Focus();
-  
+
   return YES;
 }
 
 - (BOOL)resignFirstResponder {
   renderWidgetHostView_->render_widget_host()->Blur();
-  
+
   return YES;
 }
 

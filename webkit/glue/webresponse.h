@@ -15,7 +15,7 @@ class WebResponse {
  public:
   // Get the URL.
   virtual GURL GetURL() const = 0;
-  
+
   // Get the http status code.
   virtual int GetHttpStatusCode() const = 0;
 

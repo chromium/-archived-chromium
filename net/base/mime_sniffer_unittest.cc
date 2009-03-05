@@ -298,7 +298,7 @@ TEST(MimeSnifferTest, XMLTest) {
 // Test content which is >= 512 bytes, and includes no open angle bracket.
 // http://code.google.com/p/chromium/issues/detail?id=3521
 TEST(MimeSnifferTest, XMLTestLargeNoAngledBracket) {
-  // Make a large input, with 600 bytes of "x". 
+  // Make a large input, with 600 bytes of "x".
   std::string content;
   content.resize(600);
   std::fill(content.begin(), content.end(), 'x');

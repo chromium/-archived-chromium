@@ -495,7 +495,7 @@ void TestShell::ResizeSubViews() {
       static_cast<TestShell*>(g_object_get_data(G_OBJECT(window), "test-shell"));
   shell->ResetTestController();
 
-  // ResetTestController may have closed the window we were holding on to. 
+  // ResetTestController may have closed the window we were holding on to.
   // Grab the first window again.
   window = *(TestShell::windowList()->begin());
   shell = static_cast<TestShell*>(g_object_get_data(G_OBJECT(window), "test-shell"));

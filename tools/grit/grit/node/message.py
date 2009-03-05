@@ -27,23 +27,23 @@ _WHITESPACE = re.compile('(?P<start>\s*)(?P<body>.+?)(?P<end>\s*)\Z',
 
 class MessageNode(base.ContentNode):
   '''A <message> element.'''
-  
+
   # For splitting a list of things that can be separated by commas or
   # whitespace
   _SPLIT_RE = re.compile('\s*,\s*|\s+')
-  
+
   def __init__(self):
     super(type(self), self).__init__()
     # Valid after EndParsing, this is the MessageClique that contains the
     # source message and any translations of it that have been loaded.
     self.clique = None
-    
+
     # We don't send leading and trailing whitespace into the translation
     # console, but rather tack it onto the source message and any
     # translations when formatting them into RC files or what have you.
     self.ws_at_start = ''  # Any whitespace characters at the start of the text
     self.ws_at_end = ''  # --"-- at the end of the text
-    
+
     # A list of "shortcut groups" this message is in.  We check to make sure
     # that shortcut keys (e.g. &J) within each shortcut group are unique.
     self.shortcut_groups_ = []
@@ -59,10 +59,10 @@ class MessageNode(base.ContentNode):
     if name == 'translateable' and value not in ['true', 'false']:
       return False
     return True
-  
+
   def MandatoryAttributes(self):
     return ['name|offset']
-  
+
   def DefaultAttributes(self):
     return {
       'translateable' : 'true',
@@ -89,12 +89,12 @@ class MessageNode(base.ContentNode):
       while grouping_parent and not isinstance(grouping_parent,
                                                grit.node.empty.GroupingNode):
         grouping_parent = grouping_parent.parent
-      
+
       assert 'first_id' in grouping_parent.attrs
       return [grouping_parent.attrs['first_id'] + '_' + self.attrs['offset']]
     else:
       return super(type(self), self).GetTextualIds()
-  
+
   def IsTranslateable(self):
     return self.attrs['translateable'] == 'true'
 
@@ -109,11 +109,11 @@ class MessageNode(base.ContentNode):
 
   def EndParsing(self):
     super(type(self), self).EndParsing()
-    
+
     # Make the text (including placeholder references) and list of placeholders,
     # then strip and store leading and trailing whitespace and create the
     # tclib.Message() and a clique to contain it.
-    
+
     text = ''
     placeholders = []
     for item in self.mixed_content:
@@ -127,16 +127,16 @@ class MessageNode(base.ContentNode):
           ex = item.children[0].GetCdata()
         original = item.GetCdata()
         placeholders.append(tclib.Placeholder(presentation, original, ex))
-    
+
     m = _WHITESPACE.match(text)
     if m:
       self.ws_at_start = m.group('start')
       self.ws_at_end = m.group('end')
       text = m.group('body')
-    
+
     self.shortcut_groups_ = self._SPLIT_RE.split(self.attrs['shortcut_groups'])
     self.shortcut_groups_ = [i for i in self.shortcut_groups_ if i != '']
-    
+
     description_or_id = self.attrs['desc']
     if description_or_id == '' and 'name' in self.attrs:
       description_or_id = 'ID: %s' % self.attrs['name']
@@ -157,13 +157,13 @@ class MessageNode(base.ContentNode):
     elif self.attrs['validation_expr'] != '':
       self.clique.SetCustomType(
         clique.OneOffCustomType(self.attrs['validation_expr']))
-      
+
   def GetCliques(self):
     if self.clique:
       return [self.clique]
     else:
       return []
-  
+
   def Translate(self, lang):
     '''Returns a translated version of this message.
     '''
@@ -173,7 +173,7 @@ class MessageNode(base.ContentNode):
                                          self.ShouldFallbackToEnglish()
                                          ).GetRealContent()
     return msg.replace('[GRITLANGCODE]', lang)
-  
+
   def NameOrOffset(self):
     if 'name' in self.attrs:
       return self.attrs['name']
@@ -205,49 +205,49 @@ class MessageNode(base.ContentNode):
       translateable = 'true'
     else:
       translateable = 'false'
-    
+
     node = MessageNode()
     node.StartParsing('message', parent)
     node.HandleAttribute('name', name)
     node.HandleAttribute('desc', desc)
     node.HandleAttribute('meaning', meaning)
     node.HandleAttribute('translateable', translateable)
-    
+
     items = message.GetContent()
     for ix in range(len(items)):
       if isinstance(items[ix], types.StringTypes):
         text = items[ix]
-        
+
         # Ensure whitespace at front and back of message is correctly handled.
         if ix == 0:
           text = "'''" + text
         if ix == len(items) - 1:
           text = text + "'''"
-        
+
         node.AppendContent(text)
       else:
         phnode = PhNode()
         phnode.StartParsing('ph', node)
         phnode.HandleAttribute('name', items[ix].GetPresentation())
         phnode.AppendContent(items[ix].GetOriginal())
-        
+
         if len(items[ix].GetExample()) and items[ix].GetExample() != ' ':
           exnode = ExNode()
           exnode.StartParsing('ex', phnode)
           exnode.AppendContent(items[ix].GetExample())
           exnode.EndParsing()
           phnode.AddChild(exnode)
-        
+
         phnode.EndParsing()
         node.AddChild(phnode)
-    
+
     node.EndParsing()
     return node
   Construct = staticmethod(Construct)
 
 class PhNode(base.ContentNode):
   '''A <ph> element.'''
-  
+
   def _IsValidChild(self, child):
     return isinstance(child, ExNode)
 

@@ -252,7 +252,7 @@ class Window : public WidgetWin,
   enum ResizeCursor {
     RC_NORMAL = 0, RC_VERTICAL, RC_HORIZONTAL, RC_NESW, RC_NWSE
   };
-  static HCURSOR resize_cursors_[6];  
+  static HCURSOR resize_cursors_[6];
 
   // Our window delegate (see Init method for documentation).
   WindowDelegate* window_delegate_;

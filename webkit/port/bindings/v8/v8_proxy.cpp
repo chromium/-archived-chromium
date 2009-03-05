@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -480,7 +480,7 @@ static HashMap<void*, SVGElement*>& svg_object_to_context_map()
 }
 
 v8::Handle<v8::Value> V8Proxy::SVGObjectWithContextToV8Object(
-    V8ClassIndex::V8WrapperType type, void* object) 
+    V8ClassIndex::V8WrapperType type, void* object)
 {
   if (!object)
     return v8::Null();
@@ -1186,10 +1186,10 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
     V8EventListener* el = *p;
     v8::Local<v8::Object> wrapper = el->GetListenerObject();
     ASSERT(!wrapper.IsEmpty());
-    // Since the listener is an object, it is safe to compare for 
+    // Since the listener is an object, it is safe to compare for
     // strict equality (in the JS sense) by doing a simple equality
     // check using the == operator on the handles. This is much,
-    // much faster than calling StrictEquals through the API in 
+    // much faster than calling StrictEquals through the API in
     // the negative case.
     if (el->isInline() == isInline && listener == wrapper)
         return el;
@@ -1235,7 +1235,7 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::V
 // wrapper. So we can create a hidden reference from the JS wrapper to
 // to its JS function.
 //
-//                          (map) 
+//                          (map)
 //              XHR      <----------  JS_wrapper
 //               |             (hidden) :  ^
 //               V                      V  : (may reachable by closure)
@@ -1455,7 +1455,7 @@ v8::Local<v8::Value> V8Proxy::CallFunction(v8::Handle<v8::Function> function,
   // of recursion that stems from calling functions. This is in
   // contrast to the script evaluations.
   v8::Local<v8::Value> result;
-  { 
+  {
     ConsoleMessageScope scope;
 
     // Evaluating the JavaScript could cause the frame to be deallocated,
@@ -1565,7 +1565,7 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       SetCollectionStringOrNullIndexedGetter<CSSStyleDeclaration>(desc);
       break;
     case V8ClassIndex::CSSRULELIST:
-      SetCollectionIndexedGetter<CSSRuleList, CSSRule>(desc, 
+      SetCollectionIndexedGetter<CSSRuleList, CSSRule>(desc,
                                                        V8ClassIndex::CSSRULE);
       break;
     case V8ClassIndex::CSSVALUELIST:
@@ -1588,12 +1588,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           USE_NAMED_PROPERTY_GETTER(HTMLCollection));
       desc->InstanceTemplate()->SetCallAsFunctionHandler(
           USE_CALLBACK(HTMLCollectionCallAsFunction));
-      SetCollectionIndexedGetter<HTMLCollection, Node>(desc, 
+      SetCollectionIndexedGetter<HTMLCollection, Node>(desc,
                                                        V8ClassIndex::NODE);
       break;
     case V8ClassIndex::HTMLOPTIONSCOLLECTION:
       SetCollectionNamedGetter<HTMLOptionsCollection, Node>(
-          desc, 
+          desc,
           V8ClassIndex::NODE);
       desc->InstanceTemplate()->SetIndexedPropertyHandler(
           USE_INDEXED_PROPERTY_GETTER(HTMLOptionsCollection),
@@ -1693,7 +1693,7 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     case V8ClassIndex::STYLESHEET:  // fall through
     case V8ClassIndex::CSSSTYLESHEET: {
       // We add an extra internal field to hold a reference to
-      // the owner node. 
+      // the owner node.
       v8::Local<v8::ObjectTemplate> instance_template =
         desc->InstanceTemplate();
       ASSERT(instance_template->InternalFieldCount() ==
@@ -1931,7 +1931,7 @@ Frame* V8Proxy::retrieveFrame(v8::Handle<v8::Context> context)
 Frame* V8Proxy::retrieveActiveFrame()
 {
     v8::Handle<v8::Context> context = v8::Context::GetEntered();
-    if (context.IsEmpty()) 
+    if (context.IsEmpty())
         return 0;
     return retrieveFrame(context);
 }
@@ -1985,8 +1985,8 @@ bool V8Proxy::isEnabled()
         return true;
 
     // If JavaScript has been disabled, we need to look at the frame to tell
-    // whether this script came from the web or the embedder. Scripts from the 
-    // embedder are safe to run, but scripts from the other sources are 
+    // whether this script came from the web or the embedder. Scripts from the
+    // embedder are safe to run, but scripts from the other sources are
     // disallowed.
     Document* document = m_frame->document();
     if (!document)
@@ -2301,7 +2301,7 @@ bool V8Proxy::CheckNodeSecurity(Node* node)
 // the outer window, and the outer window identify is preserved for
 // the frame. However, a new inner window is created for the new page.
 // If there are JS code holds a closure to the old inner window,
-// it won't be able to reach the outer window via its global object. 
+// it won't be able to reach the outer window via its global object.
 void V8Proxy::InitContextIfNeeded()
 {
   // Bail out if the context has already been initialized.
@@ -3074,11 +3074,11 @@ v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event)
   else if (event->isMessageEvent())
     type = V8ClassIndex::MESSAGEEVENT;
   else if (event->isProgressEvent()) {
-    if (event->isXMLHttpRequestProgressEvent()) 
+    if (event->isXMLHttpRequestProgressEvent())
       type = V8ClassIndex::XMLHTTPREQUESTPROGRESSEVENT;
-    else 
+    else
       type = V8ClassIndex::PROGRESSEVENT;
-  } else if (event->isWebKitAnimationEvent()) 
+  } else if (event->isWebKitAnimationEvent())
     type = V8ClassIndex::WEBKITANIMATIONEVENT;
   else if (event->isWebKitTransitionEvent())
     type = V8ClassIndex::WEBKITTRANSITIONEVENT;
@@ -3346,7 +3346,7 @@ v8::Handle<v8::Value> V8Proxy::CSSValueToV8Object(CSSValue* value)
 
   V8ClassIndex::V8WrapperType type;
 
-  if (value->isWebKitCSSTransformValue()) 
+  if (value->isWebKitCSSTransformValue())
     type = V8ClassIndex::WEBKITCSSTRANSFORMVALUE;
   else if (value->isValueList())
     type = V8ClassIndex::CSSVALUELIST;

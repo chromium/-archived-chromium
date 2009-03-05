@@ -565,7 +565,7 @@ void PageInfoWindow::Init(Profile* profile,
 
   views::Window::CreateChromeWindow(parent, gfx::Rect(), this);
   // TODO(beng): (Cleanup) - cert viewer button should use GetExtraView.
-  
+
   if (cert_id_) {
     scoped_refptr<net::X509Certificate> cert;
     CertStore::GetSharedInstance()->RetrieveCert(cert_id_, &cert);
@@ -663,13 +663,13 @@ void PageInfoWindow::ShowCertDialog(int cert_id) {
   if (!cert.get()) {
     // The certificate was not found. Could be that the renderer crashed before
     // we displayed the page info.
-    return; 		
-  } 		
+    return;
+  }
 
-  CRYPTUI_VIEWCERTIFICATE_STRUCT view_info = { 0 }; 		
-  view_info.dwSize = sizeof(view_info); 		
-  // We set our parent to the tab window. This makes the cert dialog created 		
-  // in CryptUIDlgViewCertificate modal to the browser. 		
+  CRYPTUI_VIEWCERTIFICATE_STRUCT view_info = { 0 };
+  view_info.dwSize = sizeof(view_info);
+  // We set our parent to the tab window. This makes the cert dialog created
+  // in CryptUIDlgViewCertificate modal to the browser.
   view_info.hwndParent = window()->owning_window();
   view_info.dwFlags = CRYPTUI_DISABLE_EDITPROPERTIES |
                       CRYPTUI_DISABLE_ADDTOSTORE;

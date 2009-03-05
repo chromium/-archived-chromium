@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_
@@ -56,7 +56,7 @@ class WebDataSourceImpl : public WebDataSource {
   virtual const std::vector<GURL>& GetRedirectChain() const;
 
   // WebDataSourceImpl
-  
+
   // Called after creating a new data source if there is request info
   // available. Since we store copies of the WebRequests, the original
   // WebRequest that the embedder created was lost, and the exra data would

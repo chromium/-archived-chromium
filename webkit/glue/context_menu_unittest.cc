@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Tests for displaying context menus in corner cases (and swallowing context 
+// Tests for displaying context menus in corner cases (and swallowing context
 // menu events when appropriate)
 
 #include <vector>
@@ -41,8 +41,8 @@ TEST_F(ContextMenuCapturing, ContextMenuCapturing) {
   std::wstring test_url = GetTestURL(iframes_data_dir_, L"testiframe.html");
   test_shell_->LoadURL(test_url.c_str());
   test_shell_->WaitTestFinished();
-  
-  // Create a right click in the center of the iframe. (I'm hoping this will 
+
+  // Create a right click in the center of the iframe. (I'm hoping this will
   // make this a bit more robust in case of some other formatting or other bug.)
   WebMouseEvent mouse_event;
   mouse_event.type = WebInputEvent::MOUSE_DOWN;
@@ -59,7 +59,7 @@ TEST_F(ContextMenuCapturing, ContextMenuCapturing) {
   webview->HandleInputEvent(&mouse_event);
 
   // Now simulate the corresponding up event which should display the menu
-  mouse_event.type = WebInputEvent::MOUSE_UP;  
+  mouse_event.type = WebInputEvent::MOUSE_UP;
   webview->HandleInputEvent(&mouse_event);
 
   EXPECT_EQ(1U, test_delegate->captured_context_menu_events().size());

@@ -878,7 +878,7 @@ NPError  NPN_SetValue(NPP id, NPPVariable variable, void *value) {
     // we only support the CoreGraphics drawing model
     if (reinterpret_cast<int>(value) == NPDrawingModelCoreGraphics)
       return NPERR_NO_ERROR;
-    return NPERR_GENERIC_ERROR;    
+    return NPERR_GENERIC_ERROR;
 #endif
   default:
     // TODO: implement me

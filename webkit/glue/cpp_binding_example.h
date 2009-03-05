@@ -3,12 +3,12 @@
 // found in the LICENSE file.
 
 /*
-  CppBindingExample class: 
+  CppBindingExample class:
   This provides an example of how to use the CppBoundClass to create methods
   and properties that can be exposed to JavaScript by an appropriately built
   embedding client. It is also used by the CppBoundClass unit test.
 
-  Typically, a class intended to be bound to JavaScript will define a 
+  Typically, a class intended to be bound to JavaScript will define a
   constructor, any methods and properties to be exposed, and optionally a
   destructor.  An embedding client can then bind the class to a JavaScript
   object in a frame's window using the CppBoundClass::BindToJavascript() method,

@@ -10,17 +10,17 @@ running of Rational Purify and Quantify in a consistent manner.
 """
 
 # Purify and Quantify have a front-end (e.g. quantifyw.exe) which talks to a
-# back-end engine (e.g. quantifye.exe).  The back-end seems to handle 
-# instrumentation, while the front-end controls program execution and 
+# back-end engine (e.g. quantifye.exe).  The back-end seems to handle
+# instrumentation, while the front-end controls program execution and
 # measurement.  The front-end will dynamically launch the back-end if
-# instrumentation is needed (sometimes in the middle of a run if a dll is 
+# instrumentation is needed (sometimes in the middle of a run if a dll is
 # loaded dynamically).
 # In an ideal world, this script would simply execute the front-end and check
 # the output.  However, purify is not the most reliable or well-documented app
 # on the planet, and my attempts to get it to run this way led to the back-end
 # engine hanging during instrumentation.  The workaround to this was to run two
-# passes, first running the engine to do instrumentation rather than letting 
-# the front-end do it for you, then running the front-end to actually do the 
+# passes, first running the engine to do instrumentation rather than letting
+# the front-end do it for you, then running the front-end to actually do the
 # run.  Each time through we're deleting all of the instrumented files in the
 # cache to ensure that we're testing that instrumentation works from scratch.
 # (although this can be changed with an option)
@@ -60,7 +60,7 @@ def _print_line(line, flush=True):
 def RunSubprocess(proc, timeout=0, detach=False):
   """ Runs a subprocess, until it finishes or |timeout| is exceeded and the
   process is killed with taskkill.  A |timeout| <= 0  means no timeout.
-  
+
   Args:
     proc: list of process components (exe + args)
     timeout: how long to wait before killing, <= 0 means wait forever
@@ -156,13 +156,13 @@ class Rational(object):
   common argument parsing as well as the general program flow of Instrument,
   Execute, Analyze.
   '''
-  
+
   def __init__(self):
     google.logging_utils.config_root()
     self._out_file = None
 
   def Run(self):
-    '''Call this to run through the whole process: 
+    '''Call this to run through the whole process:
     Setup, Instrument, Execute, Analyze'''
     start = datetime.datetime.now()
     retcode = -1
@@ -208,7 +208,7 @@ class Rational(object):
     parser.add_option("-o", "--out_file", dest="out_file", metavar="OUTFILE",
                       default="",
                       help="output data is written to OUTFILE")
-    parser.add_option("-s", "--save_cache", 
+    parser.add_option("-s", "--save_cache",
                       dest="save_cache", action="store_true", default=False,
                       help="don't delete instrumentation cache")
     parser.add_option("-c", "--cache_dir", dest="cache_dir", metavar="CACHEDIR",
@@ -231,10 +231,10 @@ class Rational(object):
     if self.ParseArgv():
       logging.info("instrumentation cache in %s" % self._cache_dir)
       logging.info("output saving to %s" % self._out_file)
-      # Ensure that Rational's common dir and cache dir are in the front of the 
+      # Ensure that Rational's common dir and cache dir are in the front of the
       # path.  The common dir is required for purify to run in any case, and
       # the cache_dir is required when using the /Replace=yes option.
-      os.environ["PATH"] = (COMMON_PATH + ";" + self._cache_dir + ";" + 
+      os.environ["PATH"] = (COMMON_PATH + ";" + self._cache_dir + ";" +
           os.environ["PATH"])
       # clear the cache to make sure we're starting clean
       self.__ClearInstrumentationCache()
@@ -262,7 +262,7 @@ class Rational(object):
     return False
 
   def Execute(self, proc):
-    ''' Execute the app to be tested after successful instrumentation.  
+    ''' Execute the app to be tested after successful instrumentation.
     Full execution command-line provided by subclassers via proc.'''
     logging.info("starting execution...")
     # note that self._args begins with the exe to be run
@@ -330,5 +330,5 @@ class Rational(object):
             try:
               os.remove(file)
             except:
-              logging.warning("unable to delete file %s: %s" % (file, 
+              logging.warning("unable to delete file %s: %s" % (file,
                               sys.exc_info()[0]))

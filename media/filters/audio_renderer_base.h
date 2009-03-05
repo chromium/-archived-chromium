@@ -45,7 +45,7 @@ class AudioRendererBase : public AudioRenderer {
   // Only allow a factory to create this class.
   AudioRendererBase(size_t max_queue_size);
   virtual ~AudioRendererBase();
- 
+
   // Called by Initialize().  |media_format| is the format of the AudioDecoder.
   // Subclasses should return true if they were able to initialize, false
   // otherwise.

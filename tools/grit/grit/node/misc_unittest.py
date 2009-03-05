@@ -54,7 +54,7 @@ class IfNodeUnittest(unittest.TestCase):
           </messages>
         </release>
       </grit>'''), dir='.')
-    
+
     messages_node = grd.children[0].children[0]
     bingo_message = messages_node.children[0].children[0]
     hello_message = messages_node.children[1].children[0]
@@ -62,18 +62,18 @@ class IfNodeUnittest(unittest.TestCase):
     assert bingo_message.name == 'message'
     assert hello_message.name == 'message'
     assert french_message.name == 'message'
-    
+
     grd.SetOutputContext('fr', {'hello' : '1'})
     self.failUnless(not bingo_message.SatisfiesOutputCondition())
     self.failUnless(hello_message.SatisfiesOutputCondition())
     self.failUnless(french_message.SatisfiesOutputCondition())
-    
+
     grd.SetOutputContext('en', {'bingo' : 1})
     self.failUnless(bingo_message.SatisfiesOutputCondition())
     self.failUnless(not hello_message.SatisfiesOutputCondition())
     self.failUnless(not french_message.SatisfiesOutputCondition())
-    
-    grd.SetOutputContext('en', {'FORCE_FRENCH' : '1', 'bingo' : '1'})    
+
+    grd.SetOutputContext('en', {'FORCE_FRENCH' : '1', 'bingo' : '1'})
     self.failUnless(bingo_message.SatisfiesOutputCondition())
     self.failUnless(not hello_message.SatisfiesOutputCondition())
     self.failUnless(french_message.SatisfiesOutputCondition())
@@ -105,18 +105,18 @@ class ReleaseNodeUnittest(unittest.TestCase):
         </release>
       </grit>'''), util.PathFromRoot('grit/test/data'))
     grd.RunGatherers(recursive=True)
-    
+
     hello = grd.GetNodeById('IDS_HELLO')
     aboutbox = grd.GetNodeById('IDD_ABOUTBOX')
     bingo = grd.GetNodeById('IDS_BINGO')
     menu = grd.GetNodeById('IDC_KLONKMENU')
-    
+
     for node in [hello, aboutbox]:
       self.failUnless(not node.PseudoIsAllowed())
-    
+
     for node in [bingo, menu]:
       self.failUnless(node.PseudoIsAllowed())
-    
+
     for node in [hello, aboutbox]:
       try:
         formatter = node.ItemFormatter('rc_all')
@@ -124,7 +124,7 @@ class ReleaseNodeUnittest(unittest.TestCase):
         self.fail('Should have failed during Format since pseudo is not allowed')
       except:
         pass  # expected case
-    
+
     for node in [bingo, menu]:
       try:
         formatter = node.ItemFormatter('rc_all')

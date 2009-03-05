@@ -118,7 +118,7 @@ TEST_F(TabRestoreServiceTest, Basic) {
   // There should be two entries now.
   ASSERT_EQ(2, service_->entries().size());
 
-  // Make sure the entry matches 
+  // Make sure the entry matches
   entry = service_->entries().front();
   ASSERT_EQ(TabRestoreService::TAB, entry->type);
   tab = static_cast<TabRestoreService::Tab*>(entry);

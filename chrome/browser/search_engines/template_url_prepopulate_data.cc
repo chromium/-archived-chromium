@@ -32,7 +32,7 @@ struct PrepopulatedEngine {
   // someone asks.  Only entries which need keywords to auto-track a dynamically
   // generated search URL should use this.
   // If the empty string, the engine has no keyword.
-  const wchar_t* const keyword;      
+  const wchar_t* const keyword;
   const char* const favicon_url;  // If NULL, there is no favicon.
   const wchar_t* const search_url;
   const char* const encoding;
@@ -1978,7 +1978,7 @@ const PrepopulatedEngine yahoo_hk = {
   "UTF-8",
   // http://history.hk.search.yahoo.com/ac/ac_msearch.php?query={searchTerms}
   // returns a JSON with key-value pairs. Setting parameters (ot, of, output)
-  // to fxjson, json, or js doesn't help. 
+  // to fxjson, json, or js doesn't help.
   NULL,
   2,
 };
@@ -2694,12 +2694,12 @@ int CountryCharsToCountryIDWithUpdate(char c1, char c2) {
     c1 = 'R';
     c2 = 'S';
   }
-  
+
   // SPECIAL CASE: Timor-Leste changed from 'TP' to 'TL' in 2002. Windows XP
   // predates this; we therefore map this value.
   if (c1 == 'T' && c2 == 'P')
     c2 = 'L';
-  
+
   return CountryCharsToCountryID(c1, c2);
 }
 
@@ -2711,7 +2711,7 @@ int GeoIDToCountryID(GEOID geo_id) {
   const int kISOBufferSize = 3;  // Two plus one for the terminator.
   wchar_t isobuf[kISOBufferSize] = { 0 };
   int retval = GetGeoInfo(geo_id, GEO_ISO2, isobuf, kISOBufferSize, 0);
-  
+
   if (retval == kISOBufferSize &&
       !(isobuf[0] == L'X' && isobuf[1] == L'X'))
     return CountryCharsToCountryIDWithUpdate(static_cast<char>(isobuf[0]),
@@ -2725,7 +2725,7 @@ int GeoIDToCountryID(GEOID geo_id) {
       return CountryCharsToCountryID('J', 'E');
     case 0x3B16:  // Isle of Man
       return CountryCharsToCountryID('I', 'M');
-      
+
     // 'UM' (U.S. Minor Outlying Islands)
     case 0x7F:    // Johnston Atoll
     case 0x102:   // Wake Island
@@ -2762,7 +2762,7 @@ int GeoIDToCountryID(GEOID geo_id) {
 
 int GetCurrentCountryID() {
   GEOID geo_id = GetUserGeoID(GEOCLASS_NATION);
-  
+
   return GeoIDToCountryID(geo_id);
 }
 

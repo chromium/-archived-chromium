@@ -12,7 +12,7 @@
 // move to the foreground, unless requested by the current window in the
 // foreground.  For automated testing, we really want some of our windows
 // to be capable of moving to the foreground.
-// 
+//
 // This is probably leveraging a windows bug.
 class ForegroundHelper : public CWindowImpl<ForegroundHelper> {
  public:
@@ -21,7 +21,7 @@ BEGIN_MSG_MAP(ForegroundHelper)
 END_MSG_MAP()
 
   // Brings a window into the foreground.
-  // Can be called from any window, even if the caller is not the 
+  // Can be called from any window, even if the caller is not the
   // foreground window.
   static HRESULT SetForeground(HWND window) {
     DCHECK(::IsWindow(window));
@@ -32,7 +32,7 @@ END_MSG_MAP()
 
  private:
   HRESULT ForegroundHotKey(HWND window) {
-    // This implementation registers a hot key (F22) and then 
+    // This implementation registers a hot key (F22) and then
     // triggers the hot key.  When receiving the hot key, we'll
     // be in the foreground and allowed to move the target window
     // into the foreground too.
@@ -60,7 +60,7 @@ END_MSG_MAP()
       return E_FAIL;
 
     // Loop until we get the key.
-    // TODO: It may be possible to get stuck here if the 
+    // TODO: It may be possible to get stuck here if the
     // message gets lost?
     while(GetMessage(&msg, NULL, 0, 0)) {
       TranslateMessage(&msg);
@@ -77,7 +77,7 @@ END_MSG_MAP()
   }
 
   // Handle the registered Hotkey being pressed.
-  LRESULT OnHotKey(UINT /*uMsg*/, WPARAM /*wParam*/, 
+  LRESULT OnHotKey(UINT /*uMsg*/, WPARAM /*wParam*/,
 		   LPARAM /*lParam*/, BOOL& bHandled) {
     HWND window = reinterpret_cast<HWND>(GetWindowLongPtr(GWLP_USERDATA));
     SetForegroundWindow(window);

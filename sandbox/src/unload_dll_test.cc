@@ -26,7 +26,7 @@ SBOX_TESTS_COMMAND int UseOneDLL(int argc, wchar_t **argv) {
 
   if ((option == L'U') || (option == L'B')) {
     HMODULE module2 = ::GetModuleHandleW(argv[1]);
-    rv = FreeLibrary(module2) ? SBOX_TEST_SUCCEEDED : SBOX_TEST_FAILED;  
+    rv = FreeLibrary(module2) ? SBOX_TEST_SUCCEEDED : SBOX_TEST_FAILED;
   }
   return rv;
 }

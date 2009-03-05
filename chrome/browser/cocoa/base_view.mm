@@ -24,7 +24,7 @@
 - (void)dealloc {
   [self removeTrackingArea:trackingArea_];
   [trackingArea_ release];
-  
+
   [super dealloc];
 }
 

@@ -120,7 +120,7 @@ class FirstRunBubbleView : public views::View,
     gfx::Size pref_size = label1_->GetPreferredSize();
     label1_->SetMultiLine(true);
     label1_->SizeToFit(canvas.width() - kBubblePadding * 2);
-    label1_->SetBounds(kBubblePadding, kBubblePadding, 
+    label1_->SetBounds(kBubblePadding, kBubblePadding,
                        canvas.width() - kBubblePadding * 2,
                        pref_size.height());
 

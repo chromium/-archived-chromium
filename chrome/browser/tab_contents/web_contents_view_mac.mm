@@ -47,14 +47,14 @@ RenderWidgetHostView* WebContentsViewMac::CreateViewForWidget(
   DCHECK(!render_widget_host->view());
   RenderWidgetHostViewMac* view =
       new RenderWidgetHostViewMac(render_widget_host);
-  
+
   // Fancy layout comes later; for now just make it our size and resize it
   // with us.
   NSView* view_view = view->native_view();
   [cocoa_view_.get() addSubview:view_view];
   [view_view setFrame:[cocoa_view_.get() bounds]];
   [view_view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-  
+
   return view;
 }
 
@@ -107,7 +107,7 @@ void WebContentsViewMac::ForwardMessageToDevToolsClient(
     const IPC::Message& message) {
   NOTIMPLEMENTED();
 }
- 
+
 void WebContentsViewMac::FindInPage(const Browser& browser,
                                     bool find_next, bool forward_direction) {
   if (!find_bar_.get()) {
@@ -228,7 +228,7 @@ void WebContentsViewMac::Observe(NotificationType type,
       CFRetain(view);
       [view release];
       sad_tab_.reset(view);
-      
+
       // Set as the dominant child.
       [cocoa_view_.get() addSubview:view];
       [view setFrame:[cocoa_view_.get() bounds]];

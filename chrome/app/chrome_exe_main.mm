@@ -23,9 +23,9 @@ int main(int argc, const char** argv) {
 
   // The exit manager is in charge of calling the dtors of singletons.
   // Win has one here, but we assert with multiples from BrowserMain() if we
-  // keep it. 
+  // keep it.
   // base::AtExitManager exit_manager;
-  
+
 #if defined(GOOGLE_CHROME_BUILD)
   // TODO(pinkerton): init crash reporter
 #endif

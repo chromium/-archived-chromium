@@ -45,7 +45,7 @@ class TestSuiteAll(unittest.TestSuite):
     from grit import shortcuts_unittests
     from grit.gather import muppet_strings_unittest
     from grit.node.custom import filename_unittest
-    
+
     test_classes = [
       base_unittest.NodeUnittest,
       io_unittest.FileNodeUnittest,

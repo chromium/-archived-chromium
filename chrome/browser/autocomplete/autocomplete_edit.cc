@@ -148,7 +148,7 @@ bool AutocompleteEditModel::GetURLForText(const std::wstring& text,
       UserTextFromDisplayText(text), std::wstring(), &parts, NULL);
   if (type != AutocompleteInput::URL)
     return false;
-    
+
   *url = GURL(URLFixerUpper::FixupURL(WideToUTF8(text), std::string()));
   return true;
 }
@@ -346,12 +346,12 @@ bool AutocompleteEditModel::OnEscapeKeyPressed() {
     return true;
   }
 
-  // If the user wasn't editing, but merely had focus in the edit, allow <esc> 
-  // to be processed as an accelerator, so it can still be used to stop a load. 
-  // When the permanent text isn't all selected we still fall through to the 
-  // SelectAll() call below so users can arrow around in the text and then hit 
+  // If the user wasn't editing, but merely had focus in the edit, allow <esc>
+  // to be processed as an accelerator, so it can still be used to stop a load.
+  // When the permanent text isn't all selected we still fall through to the
+  // SelectAll() call below so users can arrow around in the text and then hit
   // <esc> to quickly replace all the text; this matches IE.
-  if (!user_input_in_progress_ && view_->IsSelectAll()) 
+  if (!user_input_in_progress_ && view_->IsSelectAll())
     return false;
 
   view_->RevertAll();

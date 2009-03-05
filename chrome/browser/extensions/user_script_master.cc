@@ -155,7 +155,7 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
          file = enumerator.Next()) {
       all_scripts.push_back(UserScript());
       UserScript& info = all_scripts.back();
-      info.set_url(GURL(std::string(chrome::kUserScriptScheme) + ":/" + 
+      info.set_url(GURL(std::string(chrome::kUserScriptScheme) + ":/" +
           net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName()));
       info.set_path(file);
     }

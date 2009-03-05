@@ -149,7 +149,7 @@ class TestInterstitialPage : public InterstitialPage {
         SiteInstance::CreateSiteInstance(tab()->profile()),
         this, MSG_ROUTING_NONE, NULL);
   }
- 
+
   virtual void CommandReceived(const std::string& command) {
     command_received_count_++;
   }
@@ -973,10 +973,10 @@ TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
   // Showing interstitial2 should have caused interstitial1 to go away.
   EXPECT_TRUE(deleted1);
   EXPECT_EQ(TestInterstitialPage::CANCELED, state1);
-  
+
   // Let's make sure interstitial2 is working as intended.
   ASSERT_FALSE(deleted2);
-  EXPECT_EQ(TestInterstitialPage::UNDECIDED, state2);  
+  EXPECT_EQ(TestInterstitialPage::UNDECIDED, state2);
   interstitial2->Proceed();
   GURL landing_url("http://www.thepage.com");
   rvh()->SendNavigate(2, landing_url);

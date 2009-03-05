@@ -18,7 +18,7 @@ class RGBColor : public RefCounted<RGBColor> {
   PassRefPtr<CSSPrimitiveValue> red();
   PassRefPtr<CSSPrimitiveValue> green();
   PassRefPtr<CSSPrimitiveValue> blue();
-  
+
  private:
   unsigned m_rgbcolor;
 };

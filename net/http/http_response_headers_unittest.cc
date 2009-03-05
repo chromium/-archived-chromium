@@ -103,7 +103,7 @@ TEST(HttpResponseHeadersTest, NormalizeHeadersLeadingWhitespace) {
     "HTTP/1.1 202 Accepted\n"
     "Set-Cookie: a, b\n",
 
-    202, 
+    202,
     HttpVersion(1,1),
     HttpVersion(1,1)
   };

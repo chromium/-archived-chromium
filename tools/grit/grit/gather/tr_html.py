@@ -118,7 +118,7 @@ _NONTRANSLATEABLES = re.compile(r'''
   |
   <\s*[a-zA-Z_]+:.+?>       # custom tag (open)
   |
-  <\s*/\s*[a-zA-Z_]+:.+?>   # custom tag (close)  
+  <\s*/\s*[a-zA-Z_]+:.+?>   # custom tag (close)
   |
   <!\s*[A-Z]+\s*([^>]+|"[^"]+"|'[^']+')*?>
   ''', re.MULTILINE | re.DOTALL | re.VERBOSE | re.IGNORECASE)
@@ -202,13 +202,13 @@ class HtmlChunks(object):
   chunks, where each chunk is either translateable or non-translateable.
   The chunks are unmodified sections of the original document, so concatenating
   the text of all chunks would result in the original document.'''
-  
+
   def InTranslateable(self):
     return self.last_translateable != -1
-  
+
   def Rest(self):
     return self.text_[self.current:]
-  
+
   def StartTranslateable(self):
     assert not self.InTranslateable()
     if self.current != 0:
@@ -220,7 +220,7 @@ class HtmlChunks(object):
     self.chunk_start = self.last_nontranslateable + 1
     self.last_translateable = self.current
     self.last_nontranslateable = -1
-  
+
   def EndTranslateable(self):
     assert self.InTranslateable()
     # Append a translateable chunk
@@ -229,10 +229,10 @@ class HtmlChunks(object):
     self.chunk_start = self.last_translateable + 1
     self.last_translateable = -1
     self.last_nontranslateable = self.current
-  
+
   def AdvancePast(self, match):
     self.current += match.end()
-  
+
   def AddChunk(self, translateable, text):
     '''Adds a chunk to self, removing linebreaks and duplicate whitespace
     if appropriate.
@@ -242,68 +242,68 @@ class HtmlChunks(object):
       text = text.replace('\r', ' ')
       text = text.replace('   ', ' ')
       text = text.replace('  ', ' ')
-    
+
     m = _DESCRIPTION_COMMENT.search(text)
     if m:
       self.last_description = m.group('description')
       # remove the description from the output text
       text = _DESCRIPTION_COMMENT.sub('', text)
-    
+
     if translateable:
       description = self.last_description
       self.last_description = ''
     else:
       description = ''
-    
+
     if text != '':
       self.chunks_.append((translateable, text, description))
-      
+
   def Parse(self, text):
     '''Parses self.text_ into an intermediate format stored in self.chunks_
     which is translateable and nontranslateable chunks.  Also returns
     self.chunks_
-    
+
     Return:
       [chunk1, chunk2, chunk3, ...]  (instances of class Chunk)
     '''
     #
     # Chunker state
     #
-    
+
     self.text_ = text
-    
+
     # A list of tuples (is_translateable, text) which represents the document
     # after chunking.
     self.chunks_ = []
-    
+
     # Start index of the last chunk, whether translateable or not
     self.chunk_start = 0
-    
+
     # Index of the last for-sure translateable character if we are parsing
     # a translateable chunk, -1 to indicate we are not in a translateable chunk.
     # This is needed so that we don't include trailing whitespace in the
     # translateable chunk (whitespace is neutral).
     self.last_translateable = -1
-    
+
     # Index of the last for-sure nontranslateable character if we are parsing
     # a nontranslateable chunk, -1 if we are not in a nontranslateable chunk.
     # This is needed to make sure we can group e.g. "<b>Hello</b> there"
     # together instead of just "Hello</b> there" which would be much worse
     # for translation.
     self.last_nontranslateable = -1
-    
+
     # Index of the character we're currently looking at.
     self.current = 0
-    
+
     # The name of the last block element parsed.
     self.last_element_ = ''
-    
+
     # The last explicit description we found.
     self.last_description = ''
-    
+
     while self.current < len(self.text_):
       _DebugPrint('REST: %s' % self.text_[self.current:self.current+60])
-      
+
       # First try to match whitespace
       m = _WHITESPACE.match(self.Rest())
       if m:
@@ -319,7 +319,7 @@ class HtmlChunks(object):
           self.last_nontranslateable = self.current + m.end() - 1
         self.AdvancePast(m)
         continue
-      
+
       # Then we try to match nontranslateables
       m = _NONTRANSLATEABLES.match(self.Rest())
       if m:
@@ -328,7 +328,7 @@ class HtmlChunks(object):
         self.last_nontranslateable = self.current + m.end() - 1
         self.AdvancePast(m)
         continue
-      
+
       # Now match all other HTML element tags (opening, closing, or empty, we
       # don't care).
       m = _ELEMENT.match(self.Rest())
@@ -338,7 +338,7 @@ class HtmlChunks(object):
           self.last_element_ = element_name
           if self.InTranslateable():
             self.EndTranslateable()
-          
+
           # Check for "special" elements, i.e. ones that have a translateable
           # attribute, and handle them correctly.  Note that all of the
           # "special" elements are block tags, so no need to check for this
@@ -349,7 +349,7 @@ class HtmlChunks(object):
             for group in sm.groupdict().keys():
               if sm.groupdict()[group]:
                 break
-              
+
             # First make a nontranslateable chunk up to and including the
             # quote before the translateable attribute value
             self.AddChunk(False, self.text_[
@@ -358,7 +358,7 @@ class HtmlChunks(object):
             self.AddChunk(True, self.Rest()[sm.start(group) : sm.end(group)])
             # Finally correct the data invariant for the parser
             self.chunk_start = self.current + sm.end(group)
-          
+
           self.last_nontranslateable = self.current + m.end() - 1
         elif self.InTranslateable():
           # We're in a translateable and the tag is an inline tag, so we
@@ -366,7 +366,7 @@ class HtmlChunks(object):
           self.last_translateable = self.current + m.end() - 1
         self.AdvancePast(m)
         continue
-      
+
       # Anything else we find must be translateable, so we advance one character
       # at a time until one of the above matches.
       if not self.InTranslateable():
@@ -374,13 +374,13 @@ class HtmlChunks(object):
       else:
         self.last_translateable = self.current
       self.current += 1
-    
+
     # Close the final chunk
     if self.InTranslateable():
       self.AddChunk(True, self.text_[self.chunk_start : ])
     else:
       self.AddChunk(False, self.text_[self.chunk_start : ])
-    
+
     return self.chunks_
 
 
@@ -388,14 +388,14 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
   '''Takes a bit of HTML, which must contain only "inline" HTML elements,
   and changes it into a tclib.Message.  This involves escaping any entities and
   replacing any HTML code with placeholders.
-  
+
   If include_block_tags is true, no error will be given if block tags (e.g.
   <p> or <br>) are included in the HTML.
-  
+
   Args:
     html: 'Hello <b>[USERNAME]</b>, how&nbsp;<i>are</i> you?'
     include_block_tags: False
-  
+
   Return:
     tclib.Message('Hello START_BOLD1USERNAMEEND_BOLD, '
                   'howNBSPSTART_ITALICareEND_ITALIC you?',
@@ -408,26 +408,26 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
   # Approach is:
   # - first placeholderize, finding <elements>, [REPLACEABLES] and &nbsp;
   # - then escape all character entities in text in-between placeholders
-  
+
   parts = []  # List of strings (for text chunks) and tuples (ID, original)
               # for placeholders
-  
+
   count_names = {}  # Map of base names to number of times used
   end_names = {}  # Map of base names to stack of end tags (for correct nesting)
-  
+
   def MakeNameClosure(base, type = ''):
     '''Returns a closure that can be called once all names have been allocated
     to return the final name of the placeholder.  This allows us to minimally
     number placeholders for non-overlap.
-    
+
     Also ensures that END_XXX_Y placeholders have the same Y as the
     corresponding BEGIN_XXX_Y placeholder when we have nested tags of the same
     type.
-    
+
     Args:
       base: 'phname'
       type: '' | 'begin' | 'end'
-    
+
     Return:
       Closure()
     '''
@@ -439,7 +439,7 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
       count_names[name] += 1
     else:
       count_names[name] = 1
-    
+
     def MakeFinalName(name_ = name, index = count_names[name] - 1):
       if (type.lower() == 'end' and
           base in end_names.keys() and len(end_names[base])):
@@ -455,20 +455,20 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
             end_names[base].append(end_name)
           else:
             end_names[base] = [end_name]
-      
+
       return name_
-    
+
     return MakeFinalName
-  
+
   current = 0
-  
+
   while current < len(html):
     m = _NBSP.match(html[current:])
     if m:
       parts.append((MakeNameClosure('SPACE'), m.group()))
       current += m.end()
       continue
-    
+
     m = _REPLACEABLE.match(html[current:])
     if m:
       # Replaceables allow - but placeholders don't, so replace - with _
@@ -476,7 +476,7 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
       parts.append((ph_name, m.group()))
       current += m.end()
       continue
-    
+
     m = _SPECIAL_ELEMENT.match(html[current:])
     if m:
       if not include_block_tags:
@@ -493,7 +493,7 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
                     html[current + m.end(group) : current + m.end()]))
       current += m.end()
       continue
-    
+
     m = _ELEMENT.match(html[current:])
     if m:
       element_name = m.group('element').lower()
@@ -501,7 +501,7 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
         raise exception.BlockTagInTranslateableChunk(html[current:])
       if element_name in _HTML_PLACEHOLDER_NAMES:  # use meaningful names
         element_name = _HTML_PLACEHOLDER_NAMES[element_name]
-      
+
       # Make a name for the placeholder
       type = ''
       if not m.group('empty'):
@@ -512,13 +512,13 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
       parts.append((MakeNameClosure(element_name, type), m.group()))
       current += m.end()
       continue
-    
+
     if len(parts) and isinstance(parts[-1], types.StringTypes):
       parts[-1] += html[current]
     else:
       parts.append(html[current])
     current += 1
-  
+
   msg_text = ''
   placeholders = []
   for part in parts:
@@ -529,36 +529,36 @@ def HtmlToMessage(html, include_block_tags=False, description=''):
       placeholders.append(tclib.Placeholder(final_name, original, '(HTML code)'))
     else:
       msg_text += part
-  
+
   msg = tclib.Message(text=msg_text, placeholders=placeholders,
                       description=description)
   content = msg.GetContent()
   for ix in range(len(content)):
     if isinstance(content[ix], types.StringTypes):
       content[ix] = util.UnescapeHtml(content[ix], replace_nbsp=False)
-  
+
   return msg
 
 
 class TrHtml(interface.GathererBase):
   '''Represents a document or message in the template format used by
   Total Recall for HTML documents.'''
-  
+
   def __init__(self, text):
     '''Creates a new object that represents 'text'.
     Args:
       text: '<html>...</html>'
     '''
     super(type(self), self).__init__()
-    
-    self.text_ = text      
+
+    self.text_ = text
     self.have_parsed_ = False
     self.skeleton_ = []  # list of strings and MessageClique objects
-  
+
   def GetText(self):
     '''Returns the original text of the HTML document'''
     return self.text_
-  
+
   def GetCliques(self):
     '''Returns the message cliques for each translateable message in the
     document.'''
@@ -568,14 +568,14 @@ class TrHtml(interface.GathererBase):
                 skeleton_gatherer=None, fallback_to_english=False):
     '''Returns this document with translateable messages filled with
     the translation for language 'lang'.
-    
+
     Args:
       lang: 'en'
       pseudo_if_not_available: True
-    
+
     Return:
       'ID_THIS_SECTION TYPE\n...BEGIN\n  "Translated message"\n......\nEND
-    
+
     Raises:
       grit.exception.NotReady() if used before Parse() has been successfully
       called.
@@ -584,9 +584,9 @@ class TrHtml(interface.GathererBase):
     '''
     if len(self.skeleton_) == 0:
       raise exception.NotReady()
-    
+
     # TODO(joi) Implement support for skeleton gatherers here.
-    
+
     out = []
     for item in self.skeleton_:
       if isinstance(item, types.StringTypes):
@@ -602,21 +602,21 @@ class TrHtml(interface.GathererBase):
             # We escape " characters to increase the chance that attributes
             # will be properly escaped.
             out.append(util.EscapeHtml(content, True))
-      
+
     return ''.join(out)
-  
-  
+
+
   # Parsing is done in two phases:  First, we break the document into
   # translateable and nontranslateable chunks.  Second, we run through each
   # translateable chunk and insert placeholders for any HTML elements, unescape
   # escaped characters, etc.
-  def Parse(self):    
+  def Parse(self):
     if self.have_parsed_:
       return
     self.have_parsed_ = True
 
     text = self.text_
-    
+
     # First handle the silly little [!]-prefixed header because it's not
     # handled by our HTML parsers.
     m = _SILLY_HEADER.match(text)
@@ -626,16 +626,16 @@ class TrHtml(interface.GathererBase):
         tclib.Message(text=text[m.start('title'):m.end('title')])))
       self.skeleton_.append(text[m.end('title') : m.end()])
       text = text[m.end():]
-    
+
     chunks = HtmlChunks().Parse(text)
-    
+
     for chunk in chunks:
       if chunk[0]:  # Chunk is translateable
         self.skeleton_.append(self.uberclique.MakeClique(
           HtmlToMessage(chunk[1], description=chunk[2])))
       else:
         self.skeleton_.append(chunk[1])
-  
+
     # Go through the skeleton and change any messages that consist solely of
     # placeholders and whitespace into nontranslateable strings.
     for ix in range(len(self.skeleton_)):
@@ -649,20 +649,20 @@ class TrHtml(interface.GathererBase):
             break
         if not got_text:
           self.skeleton_[ix] = msg.GetRealContent()
-  
-  
+
+
   # Static method
   def FromFile(html, extkey=None, encoding = 'utf-8'):
     '''Creates a TrHtml object from the contents of 'html' which are decoded
     using 'encoding'.  Returns a new TrHtml object, upon which Parse() has not
     been called.
-    
+
     Args:
       html: file('') | 'filename.html'
       extkey: ignored
       encoding: 'utf-8' (note that encoding is ignored if 'html' is not a file
                          name but instead an open file or file-like object)
-    
+
     Return:
       TrHtml(text_of_file)
     '''

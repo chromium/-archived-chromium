@@ -117,7 +117,7 @@ class Stack:
   # if functions match the following, elide them from the stack
   pat_func_elide = (re.compile('^std::'), re.compile('^new\('))
   # if files match the following, elide them from the stack
-  pat_file_elide = (re.compile('.*platformsdk_win2008.*'), 
+  pat_file_elide = (re.compile('.*platformsdk_win2008.*'),
                     re.compile('.*.(dll|DLL)$'),
                     # bug 1069902
                     re.compile('webkit/pending/wtf/fastmalloc\.h'),
@@ -162,7 +162,7 @@ class Stack:
     (e.g. group.subgroup.subsubgroup)
     '''
     return self._group;
-    
+
   def _ComputeStackLine(self, line):
     line = line.lstrip()
     m = Stack.pat_stack_line.match(line)
@@ -249,7 +249,7 @@ class Stack:
         self._stack.append(stack_line)
         self._eliding = False
         self._all_external = False
-        
+
         # when we reach one of the known common stack entry points, truncate
         # the stack to avoid printing overly redundant information
         if len(self._stack) > 1:
@@ -313,7 +313,7 @@ class Stack:
     len_self = len(self._stack)
     len_other = len(other._stack)
     min_len = min(len_self, len_other)
-    # sort stacks from the bottom up    
+    # sort stacks from the bottom up
     for i in range(-1, -(min_len + 1), -1):
       # compare file, then func, but omit line number
       ret = cmp((self._stack[i]['file'], self._stack[i]['function']),
@@ -530,11 +530,11 @@ class MessageList:
     self._unique_messages = None
     self._sublists = None
     self._bytes = 0
-    
+
   def GetType(self):
     return self._type
 
-  def BeginNewSublist(self):  
+  def BeginNewSublist(self):
     '''Some message types are logically grouped into sets of messages which
     should not be mixed in the same list.  Specifically, Memory In Use (MIU),
     Memory Leak (MLK) and Potential Memory Leak (MPK) are generated in a set
@@ -547,7 +547,7 @@ class MessageList:
     When the caller determines that one list of messages of a type has ended
     and a new list has begun, it calls BeginNewSublist() which takes the current
     set of messages, puts them into a new MessageList and puts that into the
-    sublists array.  Later, when the caller needs to get at these messages, 
+    sublists array.  Later, when the caller needs to get at these messages,
     GetSublists() should be called.
     '''
     if len(self._messages):
@@ -584,7 +584,7 @@ class MessageList:
     return self._messages
 
   def UniqueMessages(self):
-    '''Returns an array of the unique normalized Message objects in this 
+    '''Returns an array of the unique normalized Message objects in this
     MessageList.
     '''
     # the list is lazily computed since we have to create a sorted list,

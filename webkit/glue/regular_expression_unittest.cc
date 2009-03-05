@@ -64,7 +64,7 @@ TEST(RegexTest, Unicode) {
   wstr_pattern = L":[ \x2000]+:";
   pattern = StdWStringToString(wstr_pattern);
   regex = RegularExpression(pattern, WebCore::TextCaseInsensitive);
-  
+
   const Match matches[] = {
     { L":  :", 0, 4 },
     { L"  :    :  ", 2, 6 },
@@ -83,7 +83,7 @@ TEST(RegexTest, Unicode) {
   wstr_pattern = L"|x";
   pattern = StdWStringToString(wstr_pattern);
   regex = RegularExpression(pattern, WebCore::TextCaseInsensitive);
-  
+
   const Match matches2[] = {
     { L"", 0, 0 },
   };

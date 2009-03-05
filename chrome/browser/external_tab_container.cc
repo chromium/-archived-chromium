@@ -283,7 +283,7 @@ void ExternalTabContainer::Observe(NotificationType type,
         const NavigationController::LoadCommittedDetails* commit =
             Details<NavigationController::LoadCommittedDetails>(details).ptr();
 
-        if (commit->http_status_code >= kHttpClientErrorStart && 
+        if (commit->http_status_code >= kHttpClientErrorStart &&
             commit->http_status_code <= kHttpServerErrorEnd) {
           automation_->Send(new AutomationMsg_NavigationFailed(
               0, commit->http_status_code, commit->entry->url()));

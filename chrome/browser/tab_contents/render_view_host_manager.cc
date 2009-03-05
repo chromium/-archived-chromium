@@ -148,7 +148,7 @@ bool RenderViewHostManager::ShouldCloseTabOnUnresponsiveRenderer() {
     // handler later finishes, this call will be ignored because the state in
     // CrossSiteResourceHandler will already be cleaned up.)
     current_host()->process()->CrossSiteClosePageACK(
-        pending_render_view_host_->site_instance()->process_host_id(), 
+        pending_render_view_host_->site_instance()->process_host_id(),
         pending_request_id);
   }
   return false;
@@ -194,7 +194,7 @@ void RenderViewHostManager::OnCrossSiteResponse(int new_render_process_host_id,
   // means it is not a download or unsafe page, and we are going to perform the
   // navigation.  Thus, we no longer need to remember that the RenderViewHost
   // is part of a pending cross-site request.
-  pending_render_view_host_->SetHasPendingCrossSiteRequest(false, 
+  pending_render_view_host_->SetHasPendingCrossSiteRequest(false,
                                                            new_request_id);
 }
 

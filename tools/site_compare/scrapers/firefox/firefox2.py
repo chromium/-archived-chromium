@@ -29,29 +29,29 @@ def GetBrowser(path):
 
   Args:
     path: full path to browser
-      
+
   Returns:
     A tuple of (process handle, render pane)
   """
   if not path: path = DEFAULT_PATH
-  
+
   # Invoke Firefox
   (proc, wnd) = windowing.InvokeAndWait(path)
-  
+
   # Get the content pane
   render_pane = windowing.FindChildWindow(
     wnd,
     "MozillaWindowClass/MozillaWindowClass/MozillaWindowClass")
-    
+
   return (proc, wnd, render_pane)
 
 
 def InvokeBrowser(path):
   """Invoke the Firefox browser.
-  
+
   Args:
     path: full path to browser
-      
+
   Returns:
     A tuple of (main window, process handle, render pane)
   """
@@ -64,18 +64,18 @@ def InvokeBrowser(path):
   else:
     # Invoke Firefox
     (proc, wnd) = windowing.InvokeAndWait(path)
-    
+
   # Get the content pane
   render_pane = windowing.FindChildWindow(
     wnd,
     "MozillaWindowClass/MozillaWindowClass/MozillaWindowClass")
-    
+
   return (wnd, proc, render_pane)
-  
+
 
 def Scrape(urls, outdir, size, pos, timeout=20, **kwargs):
   """Invoke a browser, send it to a series of URLs, and save its output.
-  
+
   Args:
     urls: list of URLs to scrape
     outdir: directory to place output
@@ -83,7 +83,7 @@ def Scrape(urls, outdir, size, pos, timeout=20, **kwargs):
     pos: position of browser window
     timeout: amount of time to wait for page to load
     kwargs: miscellaneous keyword args
-  
+
   Returns:
     None if success, else an error string
   """
@@ -91,28 +91,28 @@ def Scrape(urls, outdir, size, pos, timeout=20, **kwargs):
   else: path = DEFAULT_PATH
 
   (wnd, proc, render_pane) = InvokeBrowser(path)
-  
+
   # Resize and reposition the frame
   windowing.MoveAndSizeWindow(wnd, pos, size, render_pane)
-  
+
   time.sleep(3)
-  
+
   # Firefox is a bit of a pain: it doesn't use standard edit controls,
-  # and it doesn't display a throbber when there's no tab. Let's make 
+  # and it doesn't display a throbber when there's no tab. Let's make
   # sure there's at least one tab, then select the first one
-  
+
   mouse.ClickInWindow(wnd)
   keyboard.TypeString("[t]", True)
   mouse.ClickInWindow(wnd, (30, 115))
   time.sleep(2)
 
   timedout = False
-  
+
   # Visit each URL we're given
   if type(urls) in types.StringTypes: urls = [urls]
-  
+
   for url in urls:
-    
+
     # Use keyboard shortcuts
     keyboard.TypeString("{d}", True)
     keyboard.TypeString(url)
@@ -124,10 +124,10 @@ def Scrape(urls, outdir, size, pos, timeout=20, **kwargs):
 
     if timedout:
       break
-    
+
     # Scrape the page
     image = windowing.ScrapeWindow(render_pane)
-    
+
     # Save to disk
     if "filename" in kwargs:
       if callable(kwargs["filename"]):
@@ -137,58 +137,58 @@ def Scrape(urls, outdir, size, pos, timeout=20, **kwargs):
     else:
       filename = windowing.URLtoFilename(url, outdir, ".bmp")
     image.save(filename)
- 
+
   # Close all the tabs, cheesily
   mouse.ClickInWindow(wnd)
-  
+
   while len(windowing.FindChildWindows(0, "MozillaUIWindowClass")):
     keyboard.TypeString("[w]", True)
     time.sleep(1)
-    
+
   if timedout:
     return "timeout"
 
 
 def Time(urls, size, timeout, **kwargs):
   """Measure how long it takes to load each of a series of URLs
-  
+
   Args:
     urls: list of URLs to time
     size: size of browser window to use
     timeout: amount of time to wait for page to load
     kwargs: miscellaneous keyword args
-  
+
   Returns:
     A list of tuples (url, time). "time" can be "crashed" or "timeout"
   """
   if "path" in kwargs and kwargs["path"]: path = kwargs["path"]
   else: path = DEFAULT_PATH
   proc = None
-  
+
   # Visit each URL we're given
   if type(urls) in types.StringTypes: urls = [urls]
-  
+
   ret = []
   for url in urls:
     try:
       # Invoke the browser if necessary
       if not proc:
         (wnd, proc, render_pane) = InvokeBrowser(path)
-        
+
         # Resize and reposition the frame
         windowing.MoveAndSizeWindow(wnd, (0,0), size, render_pane)
 
         time.sleep(3)
-        
+
         # Firefox is a bit of a pain: it doesn't use standard edit controls,
-        # and it doesn't display a throbber when there's no tab. Let's make 
+        # and it doesn't display a throbber when there's no tab. Let's make
         # sure there's at least one tab, then select the first one
-        
+
         mouse.ClickInWindow(wnd)
         keyboard.TypeString("[t]", True)
         mouse.ClickInWindow(wnd, (30, 115))
         time.sleep(2)
-        
+
       # Use keyboard shortcuts
       keyboard.TypeString("{d}", True)
       keyboard.TypeString(url)
@@ -197,34 +197,34 @@ def Time(urls, size, timeout, **kwargs):
       # Wait for the page to finish loading
       load_time = windowing.WaitForThrobber(wnd, (10, 96, 26, 112), timeout)
       timedout = load_time < 0
-    
+
       if timedout:
         load_time = "timeout"
-        
+
         # Try to close the browser; if this fails it's probably a crash
         mouse.ClickInWindow(wnd)
-        
+
         count = 0
-        while (len(windowing.FindChildWindows(0, "MozillaUIWindowClass")) 
+        while (len(windowing.FindChildWindows(0, "MozillaUIWindowClass"))
           and count < 5):
           keyboard.TypeString("[w]", True)
           time.sleep(1)
           count = count + 1
-          
+
         if len(windowing.FindChildWindows(0, "MozillaUIWindowClass")):
           windowing.EndProcess(proc)
           load_time = "crashed"
-          
+
         proc = None
     except pywintypes.error:
       proc = None
       load_time = "crashed"
-      
+
     ret.append( (url, load_time) )
-    
+
   if proc:
     count = 0
-    while (len(windowing.FindChildWindows(0, "MozillaUIWindowClass")) 
+    while (len(windowing.FindChildWindows(0, "MozillaUIWindowClass"))
       and count < 5):
       keyboard.TypeString("[w]", True)
       time.sleep(1)
@@ -236,7 +236,7 @@ if __name__ == "__main__":
   # We're being invoked rather than imported, so run some tests
   path = r"c:\sitecompare\scrapes\Firefox\2.0.0.6"
   windowing.PreparePath(path)
-  
+
   # Scrape three sites and save the results
   Scrape(
     ["http://www.microsoft.com", "http://www.google.com",

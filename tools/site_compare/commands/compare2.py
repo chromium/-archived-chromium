@@ -29,7 +29,7 @@ def CreateCommand(cmdline):
     "Compares the output of two browsers on the same URL or list of URLs",
     ValidateCompare2,
     ExecuteCompare2)
-  
+
   cmd.AddArgument(
     ["-b1", "--browser1"], "Full path to first browser's executable",
     type="readfile", metaname="PATH", required=True)
@@ -81,7 +81,7 @@ def CreateCommand(cmdline):
   cmd.AddArgument(
     ["-d", "--diffdir"], "Path to hold the difference of comparisons that fail")
 
-  
+
 def ValidateCompare2(command):
   """Validate the arguments to compare2. Raises ParseError if failed."""
   executables = [".exe", ".com", ".bat"]
@@ -102,68 +102,68 @@ def ExecuteCompare2(command):
       endline = command["--endline"]
     url_list = [url.strip() for url in
                 open(command["--list"], "r").readlines()[startline:endline]]
-    
+
   log_file = open(command["--logfile"], "w")
 
   outdir = command["--outdir"]
   if not outdir: outdir = tempfile.gettempdir()
-  
+
   scrape_info_list = []
-  
+
   class ScrapeInfo(object):
     """Helper class to hold information about a scrape."""
     __slots__ = ["browser_path", "scraper", "outdir", "result"]
-  
+
   for index in xrange(1, 3):
     scrape_info = ScrapeInfo()
     scrape_info.browser_path = command["--browser%d" % index]
     scrape_info.scraper = scrapers.GetScraper(
       (command["--browser"], command["--browser%dver" % index]))
-    
+
     if command["--browser%dname" % index]:
       scrape_info.outdir = os.path.join(outdir,
                                         command["--browser%dname" % index])
     else:
       scrape_info.outdir = os.path.join(outdir, str(index))
-      
+
     drivers.windowing.PreparePath(scrape_info.outdir)
     scrape_info_list.append(scrape_info)
-  
+
   compare = operators.GetOperator("equals_with_mask")
-  
+
   for url in url_list:
     success = True
-    
+
     for scrape_info in scrape_info_list:
       scrape_info.result = scrape_info.scraper.Scrape(
         [url], scrape_info.outdir, command["--size"], (0, 0),
         command["--timeout"], path=scrape_info.browser_path)
-      
+
       if not scrape_info.result:
         scrape_info.result = "success"
       else:
         success = False
-    
+
     result = "unknown"
-    
+
     if success:
       result = "equal"
-      
+
       file1 = drivers.windowing.URLtoFilename(
         url, scrape_info_list[0].outdir, ".bmp")
       file2 = drivers.windowing.URLtoFilename(
         url, scrape_info_list[1].outdir, ".bmp")
-      
+
       comparison_result = compare.Compare(file1, file2,
                                           maskdir=command["--maskdir"])
-      
+
       if comparison_result is not None:
         result = "not-equal"
-        
+
         if command["--diffdir"]:
           comparison_result[1].save(
             drivers.windowing.URLtoFilename(url, command["--diffdir"], ".bmp"))
-    
+
     # TODO(jhaas): maybe use the logging module rather than raw file writes
     log_file.write("%s %s %s %s\n" % (url,
                                       scrape_info_list[0].result,

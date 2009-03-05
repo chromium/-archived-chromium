@@ -127,7 +127,7 @@ void ToolbarModel::GetIconHoverText(std::wstring* text, SkColor* text_color) {
   NavigationEntry* entry = navigation_controller->GetActiveEntry();
   DCHECK(entry);
 
-  
+
   const NavigationEntry::SSLStatus& ssl = entry->ssl();
   switch (ssl.security_style()) {
     case SECURITY_STYLE_AUTHENTICATED: {

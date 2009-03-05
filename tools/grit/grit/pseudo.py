@@ -86,7 +86,7 @@ def PseudoString(str):
   P-language.'''
   if str in _existing_translations:
     return _existing_translations[str]
-  
+
   outstr = u''
   ix = 0
   while ix < len(str):
@@ -104,27 +104,27 @@ def PseudoString(str):
       outstr += changed_vowels
       outstr += _QOF
       outstr += changed_vowels
-  
+
   _existing_translations[str] = outstr
   return outstr
 
 
 def PseudoMessage(message):
   '''Returns a pseudotranslation of the provided message.
-  
+
   Args:
     message: tclib.Message()
-  
+
   Return:
     tclib.Translation()
   '''
   transl = tclib.Translation()
-  
+
   for part in message.GetContent():
     if isinstance(part, tclib.Placeholder):
       transl.AppendPlaceholder(part)
     else:
       transl.AppendText(PseudoString(part))
-  
+
   return transl
 

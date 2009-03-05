@@ -19,20 +19,20 @@ _LINEBREAKS = re.compile('\r\n|\n|\r')
 
 '''
 This dictionary defines the langauge charset pair lookup table, which is used
-for replacing the GRIT expand variables for language info in Product Version 
-resource. The key is the language ISO country code, and the value 
+for replacing the GRIT expand variables for language info in Product Version
+resource. The key is the language ISO country code, and the value
 is the language and character-set pair, which is a hexadecimal string
 consisting of the concatenation of the language and character-set identifiers.
-The first 4 digit of the value is the hex value of LCID, the remaining 
+The first 4 digit of the value is the hex value of LCID, the remaining
 4 digits is the hex value of character-set id(code page)of the language.
- 
+
 We have defined three GRIT expand_variables to be used in the version resource
-file to set the language info. Here is an example how they should be used in 
-the VS_VERSION_INFO section of the resource file to allow GRIT to localize 
+file to set the language info. Here is an example how they should be used in
+the VS_VERSION_INFO section of the resource file to allow GRIT to localize
 the language info correctly according to product locale.
 
 VS_VERSION_INFO VERSIONINFO
-... 
+...
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
@@ -90,7 +90,7 @@ _LANGUAGE_CHARSET_PAIR = {
   'sk'    : '041b04e2',
   'et'    : '042504e9',
   'ja'    : '041103a4',
-  'sl'    : '042404e2',  
+  'sl'    : '042404e2',
   'en'    : '040904b0',
 }
 
@@ -135,28 +135,28 @@ _LANGUAGE_DIRECTIVE_PAIR = {
   'sk'    : 'LANG_SLOVAK, SUBLANG_DEFAULT',
   'et'    : 'LANG_ESTONIAN, SUBLANG_DEFAULT',
   'ja'    : 'LANG_JAPANESE, SUBLANG_DEFAULT',
-  'sl'    : 'LANG_SLOVENIAN, SUBLANG_DEFAULT',  
+  'sl'    : 'LANG_SLOVENIAN, SUBLANG_DEFAULT',
   'en'    : 'LANG_ENGLISH, SUBLANG_ENGLISH_US',
 }
 
-def GetLangCharsetPair(language) :  
+def GetLangCharsetPair(language) :
   if _LANGUAGE_CHARSET_PAIR.has_key(language) :
     return _LANGUAGE_CHARSET_PAIR[language]
   else :
     print 'Warning:GetLangCharsetPair() found undefined language %s' %(language)
     return ''
 
-def GetLangDirectivePair(language) :  
+def GetLangDirectivePair(language) :
   if _LANGUAGE_DIRECTIVE_PAIR.has_key(language) :
     return _LANGUAGE_DIRECTIVE_PAIR[language]
   else :
     print 'Warning:GetLangDirectivePair() found undefined language %s' %(language)
     return 'unknown language: see tools/grit/format/rc.py'
 
-def GetLangIdHex(language) :  
+def GetLangIdHex(language) :
   if _LANGUAGE_CHARSET_PAIR.has_key(language) :
-    langcharset = _LANGUAGE_CHARSET_PAIR[language]  
-    lang_id = '0x' + langcharset[0:4]  
+    langcharset = _LANGUAGE_CHARSET_PAIR[language]
+    lang_id = '0x' + langcharset[0:4]
     return lang_id
   else :
     print 'Warning:GetLangIdHex() found undefined language %s' %(language)
@@ -165,8 +165,8 @@ def GetLangIdHex(language) :
 
 def GetCharsetIdDecimal(language) :
   if _LANGUAGE_CHARSET_PAIR.has_key(language) :
-    langcharset = _LANGUAGE_CHARSET_PAIR[language]  
-    charset_decimal = int(langcharset[4:], 16)  
+    langcharset = _LANGUAGE_CHARSET_PAIR[language]
+    charset_decimal = int(langcharset[4:], 16)
     return str(charset_decimal)
   else :
     print 'Warning:GetCharsetIdDecimal() found undefined language %s' %(language)
@@ -181,15 +181,15 @@ def GetUnifiedLangCode(language) :
   else :
     return language
 
-    
+
 def _MakeRelativePath(base_path, path_to_make_relative):
   '''Returns a relative path such from the base_path to
   the path_to_make_relative.
-  
+
   In other words, os.join(base_path,
     MakeRelativePath(base_path, path_to_make_relative))
   is the same location as path_to_make_relative.
-      
+
   Args:
     base_path: the root path
     path_to_make_relative: an absolute path that is on the same drive
@@ -199,7 +199,7 @@ def _MakeRelativePath(base_path, path_to_make_relative):
   def _GetPathAfterPrefix(prefix_path, path_with_prefix):
     '''Gets the subpath within in prefix_path for the path_with_prefix
     with no beginning or trailing path separators.
-      
+
     Args:
       prefix_path: the base path
       path_with_prefix: a path that starts with prefix_path
@@ -210,7 +210,7 @@ def _MakeRelativePath(base_path, path_to_make_relative):
     if normalized_path == '.':
       normalized_path = ''
     return normalized_path
-  
+
   def _GetCommonBaseDirectory(*args):
     '''Returns the common prefix directory for the given paths
 
@@ -253,13 +253,13 @@ def _MakeRelativePath(base_path, path_to_make_relative):
       # common to all paths, so we can quit going through all of
       # the paths.
       break
-    return prefix          
+    return prefix
 
   prefix =  _GetCommonBaseDirectory(base_path, path_to_make_relative)
   # If the paths had no commonality at all, then return the absolute path
   # because it is the best that can be done.  If the path had to be relative
   # then eventually this absolute path will be discovered (when a build breaks)
-  # and an appropriate fix can be made, but having this allows for the best 
+  # and an appropriate fix can be made, but having this allows for the best
   # backward compatibility with the absolute path behavior in the past.
   if len(prefix) <= 0:
     return path_to_make_relative
@@ -270,7 +270,7 @@ def _MakeRelativePath(base_path, path_to_make_relative):
   path_pieces = remaining_base_path.split(os.path.sep)
   base_depth_from_prefix = len([d for d in path_pieces if len(d)])
   base_to_prefix = (".." + os.path.sep) * base_depth_from_prefix
-  
+
   # Put add in the path from the prefix to the path_to_make_relative
   remaining_other_path = _GetPathAfterPrefix(prefix, path_to_make_relative)
   return base_to_prefix + remaining_other_path
@@ -297,11 +297,11 @@ class TopLevel(interface.ItemFormatter):
               continue
             if output.attrs['language_section'] == '':
               # If no language_section is requested, no directive is added
-              # (Used when the generated rc will be included from another rc 
+              # (Used when the generated rc will be included from another rc
               # file that will have the appropriate language directive)
               language_directive = ''
             elif output.attrs['language_section'] == 'neutral':
-              # If a neutral language section is requested (default), add a 
+              # If a neutral language section is requested (default), add a
               # neutral language directive
               language_directive = 'LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL'
             elif output.attrs['language_section'] == 'lang':
@@ -337,37 +337,37 @@ class StringTable(interface.ItemFormatter):
 
 class Message(interface.ItemFormatter):
   '''Writes out a single message to a string table.'''
-  
+
   def Format(self, item, lang='en', begin_item=True, output_dir='.'):
     from grit.node import message
     if not begin_item:
       return ''
-    
+
     assert isinstance(lang, types.StringTypes)
     assert isinstance(item, message.MessageNode)
-    
+
     message = item.ws_at_start + item.Translate(lang) + item.ws_at_end
     # Escape quotation marks (RC format uses doubling-up
     message = message.replace('"', '""')
     # Replace linebreaks with a \n escape
     message = _LINEBREAKS.sub(r'\\n', message)
-    
+
     name_attr = item.GetTextualIds()[0]
-    
+
     return '  %-15s "%s"\n' % (name_attr, message)
 
 
 class RcSection(interface.ItemFormatter):
   '''Writes out an .rc file section.'''
-  
+
   def Format(self, item, lang='en', begin_item=True, output_dir='.'):
     if not begin_item:
       return ''
-    
+
     assert isinstance(lang, types.StringTypes)
     from grit.node import structure
     assert isinstance(item, structure.StructureNode)
-    
+
     if item.IsExcludedFromRc():
       return ''
     else:
@@ -378,7 +378,7 @@ class RcSection(interface.ItemFormatter):
 
       # Replace the language expand_variables in version rc info.
       unified_lang_code = GetUnifiedLangCode(lang)
-      text = text.replace('[GRITVERLANGCHARSETHEX]', 
+      text = text.replace('[GRITVERLANGCHARSETHEX]',
                           GetLangCharsetPair(unified_lang_code))
       text = text.replace('[GRITVERLANGID]', GetLangIdHex(unified_lang_code))
       text = text.replace('[GRITVERCHARSETID]',
@@ -389,13 +389,13 @@ class RcSection(interface.ItemFormatter):
 
 class RcInclude(interface.ItemFormatter):
   '''Writes out an item that is included in an .rc file (e.g. an ICON)'''
-  
+
   def __init__(self, type, filenameWithoutPath = 0, relative_path = 0,
                flatten_html = 0):
     '''Indicates to the instance what the type of the resource include is,
     e.g. 'ICON' or 'HTML'.  Case must be correct, i.e. if the type is all-caps
     the parameter should be all-caps.
-    
+
     Args:
       type: 'ICON'
     '''
@@ -403,7 +403,7 @@ class RcInclude(interface.ItemFormatter):
     self.filenameWithoutPath = filenameWithoutPath
     self.relative_path_ = relative_path
     self.flatten_html = flatten_html
-  
+
   def Format(self, item, lang='en', begin_item=True, output_dir='.'):
     if not begin_item:
       return ''
@@ -414,7 +414,7 @@ class RcInclude(interface.ItemFormatter):
     assert isinstance(item, (structure.StructureNode, include.IncludeNode))
     assert (isinstance(item, include.IncludeNode) or
             item.attrs['type'] in ['tr_html', 'admin_template', 'txt', 'muppet'])
-        
+
     # By default, we use relative pathnames to included resources so that
     # sharing the resulting .rc files is possible.
     #

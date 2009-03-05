@@ -31,7 +31,7 @@ class SSLClientSocketMac : public SSLClientSocket {
 
   // SSLClientSocket methods:
   virtual void GetSSLInfo(SSLInfo* ssl_info);
-  
+
   // ClientSocket methods:
   virtual int Connect(CompletionCallback* callback);
   virtual int ReconnectIgnoringLastError(CompletionCallback* callback);
@@ -55,12 +55,12 @@ class SSLClientSocketMac : public SSLClientSocket {
   int DoHandshake();
   int DoReadComplete(int result);
   void OnWriteComplete(int result);
-  
+
   static OSStatus SSLReadCallback(SSLConnectionRef connection,
                                   void* data,
                                   size_t* data_length);
-  static OSStatus SSLWriteCallback(SSLConnectionRef connection, 
-                                   const void* data, 
+  static OSStatus SSLWriteCallback(SSLConnectionRef connection,
+                                   const void* data,
                                    size_t* data_length);
 
   CompletionCallbackImpl<SSLClientSocketMac> io_callback_;
@@ -87,12 +87,12 @@ class SSLClientSocketMac : public SSLClientSocket {
   };
   State next_state_;
   State next_io_state_;
-  
+
   int server_cert_status_;
 
   bool completed_handshake_;
   SSLContextRef ssl_context_;
-  
+
   // These are buffers for holding data during I/O. The "slop" is the amount of
   // space at the ends of the receive buffer that are allocated for holding data
   // but don't (yet).

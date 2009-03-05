@@ -29,7 +29,7 @@ def EnsureWindowsPath(path):
     path = path[CYGLEN:CYGLEN + 1] + ':' + path[CYGLEN + 1:]
     path = path.replace('/', '\\')
   return path
-  
+
 def GetPathToBinary(exe):
   """ Try to find a copy of the binary that exists. Search for the full path
   and then the basename.
@@ -44,9 +44,9 @@ def main(args):
 
   args: The arguments passed by svn merge to its diff3 tool.
   """
-  # Grab the arguments from the end of the list since svn will add any other 
+  # Grab the arguments from the end of the list since svn will add any other
   # arguments provided before these.
-  
+
   # The titles of the files being diffed.
   title_mine = EnsureWindowsPath(args[-8])
   title_older = EnsureWindowsPath(args[-6])
@@ -56,15 +56,15 @@ def main(args):
   mine = EnsureWindowsPath(args[-3])
   older = EnsureWindowsPath(args[-2])
   yours = EnsureWindowsPath(args[-1])
-  
+
   # The command for which diff3 tool to use.
   diff_tool = args[1]
-  
+
   if diff_tool == "--use-beyondcompare":
     exe = GetPathToBinary("c:/Progra~1/Beyond~1/BComp.exe")
     if not os.path.exists(exe):
       exe = GetPathToBinary("c:/Progra~2/Beyond~1/BComp.exe")
-    cmd = [exe, 
+    cmd = [exe,
            mine,
            yours,
            older,
@@ -74,9 +74,9 @@ def main(args):
            '/leftreadonly',
            '/rightreadonly',
            '/ignoreunimportant',
-           '/lefttitle', title_mine, 
-           '/righttitle', title_yours, 
-           '/centertitle', title_older, 
+           '/lefttitle', title_mine,
+           '/righttitle', title_yours,
+           '/centertitle', title_older,
            '/outputtitle', 'merged']
   elif diff_tool == "--use-kdiff3":
     exe = GetPathToBinary("c:/Progra~1/KDiff3/kdiff3.exe")
@@ -106,7 +106,7 @@ def main(args):
     traceback.print_exc(file=sys.stdout)
 
   # After performing the merge, this script needs to print the contents
-  # of the merged file to stdout. 
+  # of the merged file to stdout.
   # Return an errorcode of 0 on successful merge, 1 if unresolved conflicts
   # remain in the result.  Any other errorcode will be treated as fatal.
   merged_file_contents = open(mine).read()

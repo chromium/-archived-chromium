@@ -82,8 +82,8 @@ class ProxyResolverV8::JSBindings {
   // Handler for "alert(message)"
   virtual void Alert(const std::string& message) = 0;
 
-  // Handler for "myIpAddress()". Returns empty string on failure. 
-  virtual std::string MyIpAddress() = 0;      
+  // Handler for "myIpAddress()". Returns empty string on failure.
+  virtual std::string MyIpAddress() = 0;
 
   // Handler for "dnsResolve(host)". Returns empty string on failure.
   virtual std::string DnsResolve(const std::string& host) = 0;

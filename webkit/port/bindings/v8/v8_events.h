@@ -92,7 +92,7 @@ class V8AbstractEventListener : public EventListener {
 // that can handle the event.
 class V8EventListener : public V8AbstractEventListener {
  public:
-  static PassRefPtr<V8EventListener> create(Frame* frame, 
+  static PassRefPtr<V8EventListener> create(Frame* frame,
       v8::Local<v8::Object> listener, bool isInline) {
     return adoptRef(new V8EventListener(frame, listener, isInline));
   }
@@ -118,7 +118,7 @@ class V8EventListener : public V8AbstractEventListener {
 // in the DOM.  It keeps the JS listener as a weak pointer.
 class V8ObjectEventListener : public V8EventListener {
  public:
-  static PassRefPtr<V8ObjectEventListener> create(Frame* frame, 
+  static PassRefPtr<V8ObjectEventListener> create(Frame* frame,
       v8::Local<v8::Object> listener, bool isInline) {
     return adoptRef(new V8ObjectEventListener(frame, listener, isInline));
   }
@@ -133,7 +133,7 @@ class V8ObjectEventListener : public V8EventListener {
 // A V8LazyEventListener is always a HTML event handler.
 class V8LazyEventListener : public V8AbstractEventListener {
  public:
-  static PassRefPtr<V8LazyEventListener> create(Frame* frame, 
+  static PassRefPtr<V8LazyEventListener> create(Frame* frame,
       const String& code, const String& func_name) {
     return adoptRef(new V8LazyEventListener(frame, code, func_name));
   }

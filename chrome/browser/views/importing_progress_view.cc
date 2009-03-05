@@ -307,7 +307,7 @@ void StartImportingWithUI(HWND parent_window,
   // still need it to exist. No user interaction will be required.
   if (!coordinator->is_headless())
     window->Show();
- 
+
   coordinator->StartImportSettings(source_profile, items,
                                    new ProfileWriter(target_profile),
                                    first_run);

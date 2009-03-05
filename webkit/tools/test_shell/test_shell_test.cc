@@ -10,7 +10,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 
-std::wstring TestShellTest::GetTestURL(std::wstring test_case_path, 
+std::wstring TestShellTest::GetTestURL(std::wstring test_case_path,
                                        const std::wstring& test_case) {
   file_util::AppendToPath(&test_case_path, test_case);
   return test_case_path;
@@ -33,7 +33,7 @@ void TestShellTest::TearDown() {
   test_shell_->LoadURL(L"about:blank");
   test_shell_->DestroyWindow(test_shell_->mainWnd());
   LayoutTestController::ClearShell();
-  
+
   // Flush the MessageLoop of any residual tasks.
   MessageLoop::current()->RunAllPending();
 }

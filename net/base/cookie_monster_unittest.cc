@@ -533,7 +533,7 @@ TEST(CookieMonsterTest, HttpOnlyTest) {
 
   // Create a httponly cookie.
   EXPECT_TRUE(cm.SetCookieWithOptions(url_google, "A=B; httponly", options));
-  
+
   // Check httponly read protection.
   EXPECT_EQ("", cm.GetCookies(url_google));
   EXPECT_EQ("A=B", cm.GetCookiesWithOptions(url_google, options));

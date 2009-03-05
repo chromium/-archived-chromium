@@ -100,9 +100,9 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
     """Prepares the config file and output directory to start an httpd server.
     Returns a list of strings containing the server's command line+args.
 
-    Creates the test output directory and generates an httpd.conf (or 
-    httpd2.conf for Apache 2 if apache2 is True) file in it that contains 
-    the necessary <VirtualHost> directives for running all the http tests. 
+    Creates the test output directory and generates an httpd.conf (or
+    httpd2.conf for Apache 2 if apache2 is True) file in it that contains
+    the necessary <VirtualHost> directives for running all the http tests.
 
     WebKit http tests expect the DocumentRoot to be in LayoutTests/http/tests/,
     but that prevents us from running http tests in chrome/ or pending/.  So we
@@ -126,7 +126,7 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
     chrome_document_root = layout_dir
     apache_config_dir = google.httpd_utils.ApacheConfigDir(self._base_dir)
     mime_types_path = os.path.join(apache_config_dir, "mime.types")
-    
+
     conf_file_name = "httpd.conf"
     if apache2:
       conf_file_name = "httpd2.conf"

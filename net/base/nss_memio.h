@@ -8,7 +8,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 #include "prio.h"
 
@@ -27,7 +27,7 @@ typedef struct memio_Private memio_Private;
  5) While at the same time doing plaintext nonblocking NSPR I/O as
     usual to the nspr file descriptor returned by SSL_ImportFD,
     your app must shuttle encrypted data between
-    the real network and memio's network buffers.  
+    the real network and memio's network buffers.
     memio_GetReadParams/memio_PutReadResult
     are the hooks you need to pump data into memio's input buffer,
     and memio_GetWriteParams/memio_PutWriteResult
@@ -55,7 +55,7 @@ memio_Private *memio_GetSecret(PRFileDesc *fd);
 int memio_GetReadParams(memio_Private *secret, char **buf);
 
 /* Tell memio how many bytes were read from the network.
- * If bytes_read is 0, causes EOF to be reported to 
+ * If bytes_read is 0, causes EOF to be reported to
  * NSS after it reads the last byte from the circular buffer.
  * If bytes_read is < 0, it is treated as an NSPR error code.
  * See nspr/pr/src/md/unix/unix_errors.c for how to
@@ -81,6 +81,6 @@ void memio_PutWriteResult(memio_Private *secret, int bytes_written);
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 #endif

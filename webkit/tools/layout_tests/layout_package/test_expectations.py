@@ -35,13 +35,13 @@ class TestExpectations:
 
   def GetFixable(self):
     return (self._fixable.GetTests() -
-            self._fixable.GetNonSkippedDeferred() -	 
+            self._fixable.GetNonSkippedDeferred() -
             self._fixable.GetSkippedDeferred())
 
   def GetFixableSkipped(self):
     return self._fixable.GetSkipped()
 
-  def GetFixableSkippedDeferred(self):	 
+  def GetFixableSkippedDeferred(self):
     return self._fixable.GetSkippedDeferred()
 
   def GetFixableFailures(self):
@@ -58,15 +58,15 @@ class TestExpectations:
   def GetFixableCrashes(self):
     return self._fixable.GetTestsExpectedTo(CRASH)
 
-  def GetFixableDeferred(self):	 
-    return self._fixable.GetNonSkippedDeferred()	 
+  def GetFixableDeferred(self):
+    return self._fixable.GetNonSkippedDeferred()
 
-  def GetFixableDeferredFailures(self):	 
-    return (self._fixable.GetNonSkippedDeferred() &	 
-            self._fixable.GetTestsExpectedTo(FAIL))	 
+  def GetFixableDeferredFailures(self):
+    return (self._fixable.GetNonSkippedDeferred() &
+            self._fixable.GetTestsExpectedTo(FAIL))
 
-  def GetFixableDeferredTimeouts(self):	 
-    return (self._fixable.GetNonSkippedDeferred() &	 
+  def GetFixableDeferredTimeouts(self):
+    return (self._fixable.GetNonSkippedDeferred() &
             self._fixable.GetTestsExpectedTo(TIMEOUT))
 
   def GetIgnored(self):
@@ -112,7 +112,7 @@ class TestExpectations:
     """Read the expectation files for the given filename and return a single
     expectations file with the merged results.
     """
-    
+
     path = os.path.join(self._directory, filename)
     return TestExpectationsFile(path, self._tests, self._platform,
         self._is_debug_mode)
@@ -131,11 +131,11 @@ def StripComments(line):
   """Strips comments from a line and return None if the line is empty
   or else the contents of line with leading and trailing spaces removed
   and all other whitespace collapsed"""
-  
+
   commentIndex = line.find('//')
   if commentIndex is -1:
     commentIndex = len(line)
-    
+
   line = re.sub(r'\s+', ' ', line[:commentIndex].strip())
   if line == '': return None
   else: return line
@@ -146,7 +146,7 @@ class TestExpectationsFile:
   in which case the expectations apply to all test cases in that
   directory and any subdirectory. The format of the file is along the
   lines of:
-  
+
     LayoutTests/fast/js/fixme.js = FAIL
     LayoutTests/fast/js/flaky.js = FAIL PASS
     LayoutTests/fast/js/crash.js = CRASH TIMEOUT FAIL PASS
@@ -173,22 +173,22 @@ class TestExpectationsFile:
                    'fail': FAIL,
                    'timeout': TIMEOUT,
                    'crash': CRASH }
-  
+
   PLATFORMS = [ 'mac', 'linux', 'win' ]
 
   def __init__(self, path, full_test_list, platform, is_debug_mode):
     """
     path: The path to the expectation file. An error is thrown if a test is
-        listed more than once. 
+        listed more than once.
     full_test_list: The list of all tests to be run pending processing of the
         expections for those tests.
     platform: Which platform from self.PLATFORMS to filter tests for.
     is_debug_mode: Whether we testing a test_shell built debug mode.
     """
-    
+
     self._full_test_list = full_test_list
     self._skipped = set()
-    self._skipped_deferred = set()	 
+    self._skipped_deferred = set()
     self._non_skipped_deferred = set()
     self._expectations = {}
     self._test_list_paths = {}
@@ -203,10 +203,10 @@ class TestExpectationsFile:
   def GetSkipped(self):
     return self._skipped
 
-  def GetNonSkippedDeferred(self):	 
-    return self._non_skipped_deferred	 
- 	 
-  def GetSkippedDeferred(self):	 
+  def GetNonSkippedDeferred(self):
+    return self._non_skipped_deferred
+
+  def GetSkippedDeferred(self):
     return self._skipped_deferred
 
   def GetExpectations(self, test):
@@ -233,7 +233,7 @@ class TestExpectationsFile:
     platforms are listed.
     """
     has_any_platforms = False
-    
+
     for platform in self.PLATFORMS:
       if platform in options:
         has_any_platforms = True
@@ -300,7 +300,7 @@ class TestExpectationsFile:
       else:
         tests = self._ExpandTests(test_list_path)
 
-      if is_skipped:    
+      if is_skipped:
         self._AddSkippedTests(tests, is_deferred)
       else:
         self._AddTests(tests, expectations, test_list_path, lineno,
@@ -308,7 +308,7 @@ class TestExpectationsFile:
 
     if len(self._errors) is not 0:
       print "\nFAILURES FOR PLATFORM: %s, IS_DEBUG_MODE: %s" \
-          % (self._platform.upper(), self._is_debug_mode)        
+          % (self._platform.upper(), self._is_debug_mode)
       raise SyntaxError('\n'.join(map(str, self._errors)))
 
   def _GetOptionsList(self, listString):
@@ -329,8 +329,8 @@ class TestExpectationsFile:
     path = os.path.join(path_utils.LayoutDataDir(), test_list_path)
     path = os.path.normpath(path)
     if os.path.isdir(path): path = os.path.join(path, '')
-    # This is kind of slow - O(n*m) - since this is called for all 
-    # entries in the test lists. It has not been a performance 
+    # This is kind of slow - O(n*m) - since this is called for all
+    # entries in the test lists. It has not been a performance
     # issue so far. Maybe we should re-measure the time spent reading
     # in the test lists?
     result = []
@@ -360,17 +360,17 @@ class TestExpectationsFile:
       self._expectations[test] = expectations
       self._test_list_paths[test] = os.path.normpath(test_list_path)
 
-      if is_deferred:	 
+      if is_deferred:
         self._non_skipped_deferred.add(test)
 
       for expectation in expectations:
         if expectation == CRASH and is_deferred:
           self._AddError(lineno, 'Crashes cannot be deferred.', test)
         self._tests[expectation].add(test)
- 
+
   def _AddSkippedTests(self, tests, is_deferred):
     for test in tests:
-      if is_deferred:	 
+      if is_deferred:
         self._skipped_deferred.add(test)
       self._skipped.add(test)
 

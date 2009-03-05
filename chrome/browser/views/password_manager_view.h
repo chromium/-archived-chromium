@@ -57,7 +57,7 @@ class PasswordManagerTableModel : public views::TableModel,
         : display_url(url), form(password_form) {
     }
 
-    // Contains the URL that is displayed along with the 
+    // Contains the URL that is displayed along with the
     gfx::SortedDisplayURL display_url;
 
     // The underlying PasswordForm. We own this.

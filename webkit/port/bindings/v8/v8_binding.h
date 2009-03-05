@@ -44,7 +44,7 @@ class WebCoreStringResource: public v8::String::ExternalStringResource {
   // Keeps the string buffer alive until the V8 engine garbage collects it.
   String external_string_;
 };
-  
+
 // Convert a v8::String to a WebCore::String. If the V8 string is not already
 // an external string then it is transformed into an external string at this
 // point to avoid repeated conversions.

@@ -145,7 +145,7 @@ def main(options, args):
         len([x for x in tests if x.startswith('page-cycler')])):
       print 'Skipping page-cycler tests (no data)'
     options.nopage_cycler = True
-  
+
   # Start an httpd if needed.
   http_tests = [x for x in tests if x.endswith('-http')]
   if http_tests and not options.nopage_cycler and not options.nohttp:

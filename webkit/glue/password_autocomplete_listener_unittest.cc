@@ -204,7 +204,7 @@ TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
 TEST_F(PasswordManagerAutocompleteTests, TestWaitUsername) {
   TestHTMLInputDelegate* username_delegate = new TestHTMLInputDelegate();
   TestHTMLInputDelegate* password_delegate = new TestHTMLInputDelegate();
-  
+
   // If we had an action authority mismatch (for example), we don't want to
   // automatically autofill anything without some user interaction first.
   // We require an explicit blur on the username field, and that a valid
@@ -228,14 +228,14 @@ TEST_F(PasswordManagerAutocompleteTests, TestWaitUsername) {
   listener->OnInlineAutocompleteNeeded(NULL, L"alice");
   EXPECT_EQ(empty, username_delegate->value());
   EXPECT_EQ(empty, password_delegate->value());
-  
+
   listener->OnBlur(NULL, L"a");
   EXPECT_EQ(empty, username_delegate->value());
   EXPECT_EQ(empty, password_delegate->value());
   listener->OnBlur(NULL, L"ali");
   EXPECT_EQ(empty, username_delegate->value());
   EXPECT_EQ(empty, password_delegate->value());
-  
+
   // Blur with 'alice' should allow password autofill.
   listener->OnBlur(NULL, L"alice");
   EXPECT_EQ(empty, username_delegate->value());

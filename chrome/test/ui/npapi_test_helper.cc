@@ -31,7 +31,7 @@
 
 #include "chrome/test/ui/npapi_test_helper.h"
 
-NPAPITester::NPAPITester() 
+NPAPITester::NPAPITester()
     : UITest() {
 }
 
@@ -41,7 +41,7 @@ void NPAPITester::SetUp() {
   std::wstring plugins_directory = browser_directory_ + L"\\plugins";
   std::wstring plugin_src = browser_directory_ + L"\\npapi_test_plugin.dll";
   plugin_dll_ = plugins_directory + L"\\npapi_test_plugin.dll";
-  
+
   CreateDirectory(plugins_directory.c_str(), NULL);
   CopyFile(plugin_src.c_str(), plugin_dll_.c_str(), FALSE);
 

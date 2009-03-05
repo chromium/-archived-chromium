@@ -75,7 +75,7 @@ class GrdReaderUnittest(unittest.TestCase):
     # only an <outputs> child
     self.failUnless(len(tree.children) == 1)
     self.failUnless(tree.children[0].name == 'outputs')
-  
+
   def testLongLinesWithComments(self):
     input = u'''<?xml version="1.0" encoding="UTF-8"?>
 <grit latest_public_release="2" source_lang_id="en-US" current_release="3" base_dir=".">
@@ -91,7 +91,7 @@ class GrdReaderUnittest(unittest.TestCase):
 </grit>'''
     pseudo_file = StringIO.StringIO(input)
     tree = grd_reader.Parse(pseudo_file, '.')
-    
+
     greeting = tree.GetNodeById('IDS_GREETING')
     self.failUnless(greeting.GetCliques()[0].GetMessage().GetRealContent() ==
                     'This is a very long line with no linebreaks yes yes it '
@@ -99,4 +99,4 @@ class GrdReaderUnittest(unittest.TestCase):
 
 if __name__ == '__main__':
   unittest.main()
-  
+

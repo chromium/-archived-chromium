@@ -75,7 +75,7 @@ bool URLPattern::Parse(const std::string& pattern) {
 
     path_start_pos = host_end_pos;
   }
-  
+
   path_ = pattern.substr(path_start_pos);
   return true;
 }

@@ -51,7 +51,7 @@ namespace weak_crypto {
 
 /**
  * MD4Sum - computes the MD4 sum over the input buffer per RFC 1320
- * 
+ *
  * @param input
  *        buffer containing input data
  * @param inputLen

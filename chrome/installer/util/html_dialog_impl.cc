@@ -32,7 +32,7 @@ namespace installer {
 //  <input name="accept" type="checkbox" /> My cool option
 //  <input name="submit" type="submit" value="[accept]" />
 // </form>
-// 
+//
 // function submit_it(f) {
 //  if (f.accept.checked) {
 //    window.returnValue = 1;  <-- this matches HTML_DLG_ACCEPT
@@ -85,7 +85,7 @@ HTMLDialogWin::CustomizationCallback* HTMLDialogWin::callback_ = NULL;
 
 // This hook function gets called for messages bound to the windows that
 // ShowHTMLDialog creates. We tell apart the top window because it has the
-// system menu style. 
+// system menu style.
 LRESULT HTMLDialogWin::MsgFilter(int code, WPARAM wParam, LPARAM lParam) {
   static bool tweak_window = true;
   if (lParam && tweak_window) {
@@ -113,7 +113,7 @@ bool HTMLDialogWin::InternalDoDialog(CustomizationCallback* callback,
 
   IMoniker *url_moniker = NULL;
   ::CreateURLMoniker(NULL, url_.c_str(), &url_moniker);
-  if (!url_moniker)  
+  if (!url_moniker)
     return false;
 
   wchar_t* extra_args = NULL;

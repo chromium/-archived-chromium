@@ -53,7 +53,7 @@ class CookieMonster {
    public:
     // Default is to exclude httponly, which means:
     // - reading operations will not return httponly cookies.
-    // - writing operations will not write httponly cookies. 
+    // - writing operations will not write httponly cookies.
     CookieOptions() : exclude_httponly_(true) {}
     void set_exclude_httponly() { exclude_httponly_ = true; }
     void set_include_httponly() { exclude_httponly_ = false; }

@@ -42,7 +42,7 @@ void DragClientImpl::willPerformDragSourceAction(
 
 WebCore::DragDestinationAction DragClientImpl::actionMaskForDrag(
     WebCore::DragData*) {
-  return WebCore::DragDestinationActionAny; 
+  return WebCore::DragDestinationActionAny;
 }
 
 WebCore::DragSourceAction DragClientImpl::dragSourceActionMaskForPoint(

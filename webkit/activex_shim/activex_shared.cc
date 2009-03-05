@@ -23,8 +23,8 @@ struct ActiveXAttribute {
   //   - "*" will match any sites.
   //   - "file" matches file url starts with "file://"
   //   - anything else matches the last part of the host.
-  // e.g. "95559.com;ecitic.com" allows controls running from 95559.com and 
-  // ecitic.com.  
+  // e.g. "95559.com;ecitic.com" allows controls running from 95559.com and
+  // ecitic.com.
   // See MatchUrlForSinglePattern for details.
   const char* allowed_sites;
   const char* allowed_codebase_sites;
@@ -117,7 +117,7 @@ bool IsCodebaseAllowed(const std::string& clsid, const std::string& codebase) {
     return false;
   if (attr->allowed_codebase_sites == NULL)
     return false;
-  return MatchUrlForPatterns(url, attr->allowed_codebase_sites);  
+  return MatchUrlForPatterns(url, attr->allowed_codebase_sites);
 }
 
 bool GetClsidFromClassidAttribute(const std::string& classid,
@@ -137,7 +137,7 @@ std::string GetVersionFromCodebaseAttribute(const std::string& codebase) {
   std::string version;
   size_t pos = codebase.find('#');
   if (pos == std::string::npos)
-    return version;  
+    return version;
   std::string rest = codebase.substr(pos + 1);
   std::string version_prefix = "version=";
   if (!StartsWithASCII(rest, "version=", false))
@@ -188,7 +188,7 @@ bool IsActiveXInstalled(const std::string& combined_clsid) {
   DWORD requested_version_ms = 0;
   DWORD requested_version_ls = 0;
   if (!ParseVersionFromCodebase(version,
-                                &requested_version_ms, 
+                                &requested_version_ms,
                                 &requested_version_ls))
     return true;
   // Get the path to the dll.

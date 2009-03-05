@@ -22,7 +22,7 @@
 #if defined(OS_POSIX)
 // Used same name as in Windows to avoid #ifdef where refrenced
 #define SOCKET int
-const int INVALID_SOCKET = -1; 
+const int INVALID_SOCKET = -1;
 const int SOCKET_ERROR = -1;
 struct event;  // From libevent
 #endif
@@ -259,7 +259,7 @@ void TelnetServer::Read() {
         break;
 #else
     if (len == SOCKET_ERROR) {
-      if (errno == EWOULDBLOCK || errno == EAGAIN) 
+      if (errno == EWOULDBLOCK || errno == EAGAIN)
         break;
 #endif
     } else if (len == 0) {

@@ -226,7 +226,7 @@ int TestNavigationController::GetEntryIndexWithPageID(int32 page_id) const {
 void TestNavigationController::NavigateToPendingEntry(bool reload) {
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
-    DCHECK(pending_entry_index_ != -1); 
+    DCHECK(pending_entry_index_ != -1);
     pending_entry_ = entries_[pending_entry_index_].get();
   }
 

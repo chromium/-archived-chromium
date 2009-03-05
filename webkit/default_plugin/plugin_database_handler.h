@@ -38,7 +38,7 @@ struct _xmlNode;
 // The format of the plugins databse file is as below:-
 // <plugins>
 //    <plugin>
-//      <mime_types> </mime_types> (semicolon separated list of mime types 
+//      <mime_types> </mime_types> (semicolon separated list of mime types
 //                                  supported by the plugin)
 //      <lang> </lang> (Supported language)
 //      <url> </url>   (Link to the plugin installer)

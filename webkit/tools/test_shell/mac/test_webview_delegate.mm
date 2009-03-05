@@ -74,7 +74,7 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
   }
 }
 
-void TestWebViewDelegate::SetCursor(WebWidget* webwidget, 
+void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
                                     const WebCursor& cursor) {
   NSCursor* ns_cursor = cursor.GetCursor();
   [ns_cursor set];
@@ -114,7 +114,7 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
 - (NSRect)_growBoxRect;
 @end
 
-void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget, 
+void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
                                                    gfx::Rect* out_rect) {
   NSRect resize_rect = NSMakeRect(0, 0, 0, 0);
   WebWidgetHost* host = GetHostForWidget(webwidget);
@@ -131,8 +131,8 @@ void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
     // Convert to view coordinates from window coordinates.
     resize_rect = [view convertRect:resize_rect fromView:nil];
     // Flip the rect in view coordinates
-    resize_rect.origin.y = 
-        [view frame].size.height - resize_rect.origin.y - 
+    resize_rect.origin.y =
+        [view frame].size.height - resize_rect.origin.y -
         resize_rect.size.height;
   }
   *out_rect = gfx::Rect(NSRectToCGRect(resize_rect));

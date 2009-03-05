@@ -140,7 +140,7 @@ void Firefox2Importer::ImportBookmarksFile(
   file_util::ReadFileToString(file_path, &content);
   std::vector<std::string> lines;
   SplitString(content, '\n', &lines);
-  
+
   std::vector<ProfileWriter::BookmarkEntry> toolbar_bookmarks;
   std::wstring last_folder = first_folder_name;
   bool last_folder_on_toolbar = false;

@@ -176,9 +176,9 @@ void HWNDView::Focus() {
 }
 
 void HWNDView::Paint(ChromeCanvas* canvas) {
-  // The area behind our window is black, so during a fast resize (where our 
-  // content doesn't draw over the full size of our HWND, and the HWND 
-  // background color doesn't show up), we need to cover that blackness with 
+  // The area behind our window is black, so during a fast resize (where our
+  // content doesn't draw over the full size of our HWND, and the HWND
+  // background color doesn't show up), we need to cover that blackness with
   // something so that fast resizes don't result in black flash.
   //
   // It would be nice if this used some approximation of the page's

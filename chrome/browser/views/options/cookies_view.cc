@@ -302,7 +302,7 @@ void CookiesTableView::RemoveSelectedCookies() {
 
   // Select the next row after the last row deleted (unless removing last row).
   DCHECK(RowCount() > 0 && last_selected_view_row != -1);
-  Select(view_to_model(std::min(RowCount() - 1, 
+  Select(view_to_model(std::min(RowCount() - 1,
       last_selected_view_row - remove_count + 1)));
 }
 

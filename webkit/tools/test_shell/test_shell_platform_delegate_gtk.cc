@@ -10,7 +10,7 @@
 #include "webkit/tools/test_shell/test_shell_platform_delegate.h"
 
 void TestShellPlatformDelegate::PreflightArgs(int *argc, char ***argv) {
-  gtk_init(argc, argv);  
+  gtk_init(argc, argv);
 }
 
 void TestShellPlatformDelegate::SelectUnifiedTheme() {

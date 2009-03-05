@@ -16,7 +16,7 @@ MSVC_POP_WARNING();
 class WebRequestImpl : public WebRequest {
  public:
   WebRequestImpl();
-  
+
   explicit WebRequestImpl(const GURL& url);
   explicit WebRequestImpl(const WebCore::ResourceRequest& request);
   explicit WebRequestImpl(const WebCore::FrameLoadRequest& request);

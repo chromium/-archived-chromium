@@ -463,7 +463,7 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
       rect.x()-plugin_rect_.x(), rect.y()-plugin_rect_.y(), SRCCOPY);
 
   if (invalidate_pending_) {
-    // Only send the PaintAck message if this paint is in response to an 
+    // Only send the PaintAck message if this paint is in response to an
     // invalidate from the plugin, since this message acts as an access token
     // to ensure only one process is using the transport dib at a time.
     invalidate_pending_ = false;
@@ -472,7 +472,7 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
 }
 
 bool WebPluginDelegateProxy::BackgroundChanged(
-    HDC hdc, 
+    HDC hdc,
     const gfx::Rect& rect) {
   HBITMAP hbitmap = static_cast<HBITMAP>(GetCurrentObject(hdc, OBJ_BITMAP));
   if (hbitmap == NULL) {

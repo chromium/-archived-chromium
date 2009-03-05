@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -81,7 +81,7 @@ CALLBACK_FUNC_DECL(WorkerConstructor) {
   ExceptionCode ec = 0;
   RefPtr<Worker> obj = Worker::create(
       ToWebCoreString(script_url), document, ec);
-  
+
   // Setup the standard wrapper object internal fields.
   v8::Handle<v8::Object> wrapper_object = args.Holder();
   V8Proxy::SetDOMWrapper(
@@ -89,7 +89,7 @@ CALLBACK_FUNC_DECL(WorkerConstructor) {
 
   obj->ref();
   V8Proxy::SetJSWrapperForActiveDOMObject(
-      obj.get(), v8::Persistent<v8::Object>::New(wrapper_object));  
+      obj.get(), v8::Persistent<v8::Object>::New(wrapper_object));
 
   return wrapper_object;
 }
@@ -201,7 +201,7 @@ ACCESSOR_SETTER(WorkerOnerror) {
       static_cast<V8ObjectEventListener*>(imp->onerror());
   if (value->IsNull()) {
     if (old_listener) {
-      v8::Local<v8::Object> old_v8_listener = 
+      v8::Local<v8::Object> old_v8_listener =
           old_listener->GetListenerObject();
       RemoveHiddenDependency(info.Holder(), old_v8_listener);
     }

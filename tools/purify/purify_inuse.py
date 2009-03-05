@@ -50,9 +50,9 @@ class PurifyInUse(common.Rational):
       self._byte_filter = int(self._options.byte_filter)
       return True
     return False
-    
+
   def _PurifyCommand(self):
-    cmd = [common.PURIFYW_PATH, "/CacheDir=" + self._cache_dir, 
+    cmd = [common.PURIFYW_PATH, "/CacheDir=" + self._cache_dir,
            "/ShowInstrumentationProgress=no", "/ShowLoadLibraryProgress=no",
            "/AllocCallStackLength=30", "/ErrorCallStackLength=30",
            "/LeaksAtExit=no", "/InUseAtExit=yes"]
@@ -64,7 +64,7 @@ class PurifyInUse(common.Rational):
     cmd.append("/Run=no")
     cmd.append(os.path.abspath(self._exe))
     return common.Rational.Instrument(self, cmd)
-  
+
   def Execute(self):
     cmd = self._PurifyCommand()
     cmd.append("/SaveTextData=" + self._out_file)
@@ -74,7 +74,7 @@ class PurifyInUse(common.Rational):
     if not os.path.isfile(self._out_file):
       logging.info("no output file %s" % self._out_file)
       return -1
-    pa = purify_analyze.PurifyAnalyze(self._out_file, False, 
+    pa = purify_analyze.PurifyAnalyze(self._out_file, False,
                                       self._name, self._source_dir)
     if not pa.ReadFile():
       logging.warning("inuse summary suspect due to fatal error during run")

@@ -37,7 +37,7 @@ for gatherer in structure._GATHERERS:
 
 class DiffStructures(interface.Tool):
   __doc__ = _class_doc
-  
+
   def __init__(self):
     self.section = None
     self.left_encoding = 'cp1252'
@@ -66,24 +66,24 @@ class DiffStructures(interface.Tool):
     if len(args) != 2:
       print "Incorrect usage - 'grit help sdiff' for usage details."
       return 2
-    
+
     if 'P4DIFF' not in os.environ:
       print "Environment variable P4DIFF not set; defaulting to 'windiff'."
       diff_program = 'windiff'
     else:
       diff_program = os.environ['P4DIFF']
-    
+
     left_trans = self.MakeStaticTranslation(args[0], self.left_encoding)
     try:
       try:
         right_trans = self.MakeStaticTranslation(args[1], self.right_encoding)
-        
+
         os.system('%s %s %s' % (diff_program, left_trans, right_trans))
       finally:
         os.unlink(right_trans)
     finally:
       os.unlink(left_trans)
-      
+
   def MakeStaticTranslation(self, original_filename, encoding):
     """Given the name of the structure type (self.structure_type), the filename
     of the file holding the original structure, and optionally the "section" key
@@ -92,10 +92,10 @@ class DiffStructures(interface.Tool):
     (i.e. one where all translateable parts have been replaced with "TTTTTT")
     and returns the temporary file name.  It is the caller's responsibility to
     delete the file when finished.
-    
+
     Args:
       original_filename: 'c:\\bingo\\bla.rc'
-    
+
     Return:
       'c:\\temp\\werlkjsdf334.tmp'
     """
@@ -103,12 +103,12 @@ class DiffStructures(interface.Tool):
       original_filename, extkey=self.section, encoding=encoding)
     original.Parse()
     translated = original.Translate(constants.CONSTANT_LANGUAGE, False)
-    
+
     fname = tempfile.mktemp()
     fhandle = file(fname, 'w')
     writer = util.WrapOutputStream(fhandle)
     writer.write("Original filename: %s\n=============\n\n" % original_filename)
     writer.write(translated)  # write in UTF-8
     fhandle.close()
-    
+
     return fname

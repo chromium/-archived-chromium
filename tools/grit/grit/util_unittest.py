@@ -19,17 +19,17 @@ from grit import util
 class UtilUnittest(unittest.TestCase):
   ''' Tests functions from util
   '''
-  
+
   def testNewClassInstance(self):
     # Test short class name with no fully qualified package name
     # Should fail, it is not supported by the function now (as documented)
     cls = util.NewClassInstance('grit.util.TestClassToLoad',
                                 TestBaseClassToLoad)
     self.failUnless(cls == None)
-  
+
     # Test non existent class name
     cls = util.NewClassInstance('grit.util_unittest.NotExistingClass',
-                                TestBaseClassToLoad) 
+                                TestBaseClassToLoad)
     self.failUnless(cls == None)
 
     # Test valid class name and valid base class
@@ -41,7 +41,7 @@ class UtilUnittest(unittest.TestCase):
     cls = util.NewClassInstance('grit.util_unittest.TestClassNoBase',
                                 TestBaseClassToLoad)
     self.failUnless(cls == None)
-  
+
   def testCanonicalLanguage(self):
     self.failUnless(util.CanonicalLanguage('en') == 'en')
     self.failUnless(util.CanonicalLanguage('pt_br') == 'pt-BR')

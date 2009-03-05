@@ -54,7 +54,7 @@ ScreenInfo GetScreenInfoHelper(gfx::NativeView view) {
       NSBitsPerPixelFromDepth([[NSScreen deepestScreen] depth]);
   results.depth_per_component =
       NSBitsPerSampleFromDepth([[NSScreen deepestScreen] depth]);
-  results.is_monochrome = 
+  results.is_monochrome =
       color_space == NSCalibratedWhiteColorSpace ||
       color_space == NSCalibratedBlackColorSpace ||
       color_space == NSDeviceWhiteColorSpace ||

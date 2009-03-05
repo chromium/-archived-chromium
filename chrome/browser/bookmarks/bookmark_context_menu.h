@@ -22,7 +22,7 @@ class Browser;
 class PageNavigator;
 
 // BookmarkContextMenu manages the context menu shown for the
-// bookmark bar, items on the bookmark bar, submenus of the bookmark bar and 
+// bookmark bar, items on the bookmark bar, submenus of the bookmark bar and
 // the bookmark manager.
 class BookmarkContextMenu : public views::MenuDelegate,
                             public BookmarkModelObserver {

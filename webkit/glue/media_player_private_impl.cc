@@ -34,8 +34,8 @@ static inline webkit_glue::WebMediaPlayerDelegate* AsDelegate(void* data) {
 }
 
 // We can't create the delegate here because m_player->frameView is null at
-// this moment. Although we can static_cast the MediaPlayerClient to 
-// HTMLElement and get the frame from there, but creating the delegate from 
+// this moment. Although we can static_cast the MediaPlayerClient to
+// HTMLElement and get the frame from there, but creating the delegate from
 // load() seems to be a better idea.
 MediaPlayerPrivate::MediaPlayerPrivate(MediaPlayer* player)
     : m_player(player),
@@ -57,7 +57,7 @@ void MediaPlayerPrivate::load(const String& url) {
   delete AsDelegate(m_data);
   m_data = NULL;
 
-  webkit_glue::WebMediaPlayer* media_player = 
+  webkit_glue::WebMediaPlayer* media_player =
       new webkit_glue::WebMediaPlayerImpl(this);
   WebViewDelegate* d = media_player->GetWebFrame()->GetView()->GetDelegate();
 
@@ -158,7 +158,7 @@ float MediaPlayerPrivate::currentTime() const {
 }
 
 void MediaPlayerPrivate::seek(float time) {
-  if (m_data) {  
+  if (m_data) {
     AsDelegate(m_data)->Seek(time);
   }
 }
@@ -202,7 +202,7 @@ MediaPlayer::NetworkState MediaPlayerPrivate::networkState() const {
         return MediaPlayer::LoadFailed;
       case webkit_glue::WebMediaPlayer::LOADED_META_DATA:
         return MediaPlayer::LoadedMetaData;
-      case webkit_glue::WebMediaPlayer::LOADED_FIRST_FRAME: 
+      case webkit_glue::WebMediaPlayer::LOADED_FIRST_FRAME:
         return MediaPlayer::LoadedFirstFrame;
       default:
         return MediaPlayer::Empty;

@@ -10,10 +10,10 @@ class TestTool(interface.Tool):
 tool-specific arguments that it receives.  It is intended only for testing,
 hence the name :)
 '''
-  
+
   def ShortDescription(self):
     return 'A do-nothing tool for testing command-line parsing.'
-    
+
   def Run(self, global_options, my_arguments):
     print 'NOTE This tool is only for testing the parsing of global options and'
     print 'tool-specific arguments that it receives.  You may have intended to'

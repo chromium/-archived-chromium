@@ -34,7 +34,7 @@ class PasswordManager : public views::LoginModel {
                 const PasswordFormMap& best_matches,
                 const PasswordForm* const preferred_match) const;
 
-  // Notification that the user navigated away from the current page. 
+  // Notification that the user navigated away from the current page.
   // Unless this is a password form submission, for our purposes this
   // means we're done with the current page, so we can clean-up.
   void DidNavigate();
@@ -59,10 +59,10 @@ class PasswordManager : public views::LoginModel {
     observer_ = observer;
   }
 
- private:  
+ private:
   // Note about how a PasswordFormManager can transition from
   // pending_login_managers_ to provisional_save_manager_ and the infobar.
-  // 
+  //
   // 1. form "seen"
   //       |                                             new
   //       |                                               ___ Infobar

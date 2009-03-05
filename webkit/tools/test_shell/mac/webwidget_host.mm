@@ -23,7 +23,7 @@ WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
   content_rect.size.height -= 64;
   host->view_ = [[NSView alloc] initWithFrame:content_rect];
   [parent_view addSubview:host->view_];
-  
+
   // win_util::SetWindowUserData(host->hwnd_, host);
 
   host->webwidget_ = WebWidget::Create(delegate);
@@ -162,10 +162,10 @@ void WebWidgetHost::Paint() {
   [NSGraphicsContext setCurrentContext:
       [NSGraphicsContext graphicsContextWithGraphicsPort:bitmap_context
                                                  flipped:NO]];
-  
+
   // This may result in more invalidation
   webwidget_->Layout();
-  
+
   // Scroll the canvas if necessary
   scroll_rect_ = client_rect.Intersect(scroll_rect_);
   if (!scroll_rect_.IsEmpty()) {
@@ -188,7 +188,7 @@ void WebWidgetHost::Paint() {
     }
   }
   DCHECK(paint_rect_.IsEmpty());
-  
+
   // set the context back to our window
   [NSGraphicsContext setCurrentContext: view_context];
 
@@ -201,7 +201,7 @@ void WebWidgetHost::Paint() {
                            { bitmap_width, bitmap_height } };
     canvas_->getTopPlatformDevice().DrawToContext(
         context, 0, client_rect.height() - bitmap_height, &bitmap_rect);
-    
+
     [view_ unlockFocus];
   }
 }

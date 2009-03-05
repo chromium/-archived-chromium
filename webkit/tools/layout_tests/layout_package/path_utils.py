@@ -165,7 +165,7 @@ def TestShellBinaryPath(target):
   """Gets the full path to the test_shell binary for the target build
   configuration. Raises PathNotFound if the file doesn't exist"""
   platform_util = platform_utils.PlatformUtility('')
-  full_path = os.path.join(WebKitRoot(), target, 
+  full_path = os.path.join(WebKitRoot(), target,
                            platform_util.TestShellBinary())
   if not os.path.exists(full_path):
     # try output directory from either Xcode or chrome.sln

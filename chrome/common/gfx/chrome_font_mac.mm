@@ -9,8 +9,8 @@
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"
 
-// static 
-ChromeFont ChromeFont::CreateFont(const std::wstring& font_name, 
+// static
+ChromeFont ChromeFont::CreateFont(const std::wstring& font_name,
                                   int font_size) {
   return ChromeFont(font_name, font_size, NORMAL);
 }
@@ -22,7 +22,7 @@ ChromeFont::ChromeFont(const std::wstring& font_name, int font_size, int style)
   calculateMetrics();
 }
 
-ChromeFont::ChromeFont() 
+ChromeFont::ChromeFont()
     : font_size_([NSFont systemFontSize]),
       style_(NORMAL) {
   NSFont* system_font = [NSFont systemFontOfSize:font_size_];
@@ -56,7 +56,7 @@ int ChromeFont::ave_char_width() const {
 int ChromeFont::GetStringWidth(const std::wstring& text) const {
   NSFont* font = nativeFont();
   NSString* ns_string = base::SysWideToNSString(text);
-  NSDictionary* attributes = 
+  NSDictionary* attributes =
       [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
   NSSize string_size = [ns_string sizeWithAttributes:attributes];
   return string_size.width;
@@ -82,6 +82,6 @@ NativeFont ChromeFont::nativeFont() const {
   // TODO(pinkerton): apply |style_| to font.
   // We could cache this, but then we'd have to conditionally change the
   // dtor just for MacOS. Not sure if we want to/need to do that.
-  return [NSFont fontWithName:base::SysWideToNSString(font_name_) 
+  return [NSFont fontWithName:base::SysWideToNSString(font_name_)
                          size:font_size_];
 }

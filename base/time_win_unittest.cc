@@ -109,7 +109,7 @@ TEST(TimeTicks, WinRollover) {
 
 TEST(TimeTicks, SubMillisecondTimers) {
   // Loop for a bit getting timers quickly.  We want to
-  // see at least one case where we get a new sample in 
+  // see at least one case where we get a new sample in
   // less than one millisecond.
   bool saw_submillisecond_timer = false;
   int64 min_timer = 1000;

@@ -16,7 +16,7 @@ from grit import util
 
 class IncludeNode(base.Node):
   '''An <include> element.'''
-  
+
   def _IsValidChild(self, child):
     return False
 
@@ -24,8 +24,8 @@ class IncludeNode(base.Node):
     return ['name', 'type', 'file']
 
   def DefaultAttributes(self):
-    return {'translateable' : 'true', 
-      'generateid': 'true', 
+    return {'translateable' : 'true',
+      'generateid': 'true',
       'filenameonly': 'false',
       'flattenhtml': 'false',
       'relativepath': 'false',
@@ -36,13 +36,13 @@ class IncludeNode(base.Node):
       return grit.format.rc_header.Item()
     elif (t in ['rc_all', 'rc_translateable', 'rc_nontranslateable'] and
           self.SatisfiesOutputCondition()):
-      return grit.format.rc.RcInclude(self.attrs['type'].upper(), 
+      return grit.format.rc.RcInclude(self.attrs['type'].upper(),
         self.attrs['filenameonly'] == 'true',
         self.attrs['relativepath'] == 'true',
         self.attrs['flattenhtml'] == 'true')
     else:
       return super(type(self), self).ItemFormatter(t)
-  
+
   def FileForLanguage(self, lang, output_dir):
     '''Returns the file for the specified language.  This allows us to return
     different files for different language variants of the include file.
@@ -68,7 +68,7 @@ class IncludeNode(base.Node):
     return id, data
 
   # static method
-  def Construct(parent, name, type, file, translateable=True, 
+  def Construct(parent, name, type, file, translateable=True,
       filenameonly=False, relativepath=False):
     '''Creates a new node which is a child of 'parent', with attributes set
     by parameters of the same name.
@@ -77,7 +77,7 @@ class IncludeNode(base.Node):
     translateable = util.BoolToString(translateable)
     filenameonly = util.BoolToString(filenameonly)
     relativepath = util.BoolToString(relativepath)
-    
+
     node = IncludeNode()
     node.StartParsing('include', parent)
     node.HandleAttribute('name', name)

@@ -94,7 +94,7 @@ bool BufferedResourceHandler::OnWillRead(int request_id, net::IOBuffer** buf,
   bool ret = real_handler_->OnWillRead(request_id, buf, buf_size, min_size);
   read_buffer_ = *buf;
   read_buffer_size_ = *buf_size;
-  DCHECK(read_buffer_size_ >= kMaxBytesToSniff * 2); 
+  DCHECK(read_buffer_size_ >= kMaxBytesToSniff * 2);
   bytes_read_ = 0;
   return ret;
 }

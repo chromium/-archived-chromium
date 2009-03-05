@@ -11,7 +11,7 @@
 // as the main function of a child process in a multi-process test.
 // This complements the MultiProcessTest class which provides facilities
 // for launching such tests.
-// 
+//
 // The MULTIPROCESS_TEST_MAIN() macro registers a string -> func_ptr mapping
 // by creating a new global instance of the AppendMultiProcessTest() class
 // this means that by the time that we reach our main() function the mapping
@@ -32,13 +32,13 @@ namespace multi_process_function_list {
 typedef int (*ChildFunctionPtr)();
 
 // Helper class to append a test function to the global mapping.
-// Used by the MULTIPROCESS_TEST_MAIN macro. 
+// Used by the MULTIPROCESS_TEST_MAIN macro.
 class AppendMultiProcessTest {
  public:
   AppendMultiProcessTest(std::string test_name, ChildFunctionPtr func_ptr);
 };
 
-// Invoke the main function of a test previously registered with 
+// Invoke the main function of a test previously registered with
 // MULTIPROCESS_TEST_MAIN()
 int InvokeChildProcessTest(std::string test_name);
 

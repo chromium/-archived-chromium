@@ -25,7 +25,7 @@ ScreenInfo GetScreenInfoHelper(gfx::NativeView window) {
   results.depth_per_component = dev_mode.dmBitsPerPel / 3;  // Assumes RGB
   results.is_monochrome = dev_mode.dmColor == DMCOLOR_MONOCHROME;
   results.rect = gfx::Rect(monitor_info.rcMonitor);
-  results.available_rect = gfx::Rect(monitor_info.rcWork); 
+  results.available_rect = gfx::Rect(monitor_info.rcWork);
   return results;
 }
 

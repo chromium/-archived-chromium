@@ -18,7 +18,7 @@
 // mainline routine for running as the plugin process
 int PluginMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
-  sandbox::TargetServices* target_services = 
+  sandbox::TargetServices* target_services =
       parameters.sandbox_info_.TargetServices();
 
   // The main thread of the plugin services IO.

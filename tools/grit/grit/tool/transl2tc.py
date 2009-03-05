@@ -48,10 +48,10 @@ refer to, and match together the source messages and translated messages.  It
 will output a file (OUTPUT_FILE) you can import directly into the TC using the
 Bulk Translation Upload tool.
 '''
-  
+
   def ShortDescription(self):
     return 'Import existing translations in RC format into the TC'
-  
+
   def Setup(self, globopt, args):
     '''Sets the instance up for use.
     '''
@@ -65,20 +65,20 @@ Bulk Translation Upload tool.
       limit_file.close()
       args = args[2:]
     return self.rc2grd.ParseOptions(args)
-  
+
   def Run(self, globopt, args):
     args = self.Setup(globopt, args)
-    
+
     if len(args) != 3:
       self.Out('This tool takes exactly three arguments:\n'
              '  1. The path to the original RC file\n'
              '  2. The path to the translated RC file\n'
              '  3. The output file path.\n')
       return 2
-    
+
     grd = grd_reader.Parse(self.o.input, debug=self.o.extra_verbose)
     grd.RunGatherers(recursive = True)
-    
+
     source_rc = util.WrapInputStream(file(args[0], 'r'), self.rc2grd.input_encoding)
     transl_rc = util.WrapInputStream(file(args[1], 'r'), self.rc2grd.input_encoding)
     translations = self.ExtractTranslations(grd,
@@ -90,26 +90,26 @@ Bulk Translation Upload tool.
     output_file = util.WrapOutputStream(file(args[2], 'w'))
     self.WriteTranslations(output_file, translations.items())
     output_file.close()
-    
+
     self.Out('Wrote output file %s' % args[2])
-    
+
   def ExtractTranslations(self, current_grd, source_rc, source_path, transl_rc, transl_path):
     '''Extracts translations from the translated RC file, matching them with
     translations in the source RC file to calculate their ID, and correcting
     placeholders, limiting output to translateables, etc. using the supplied
     .grd file which is the current .grd file for your project.
-    
+
     If this object's 'limits' attribute is not None but a list, the output of
     this function will be further limited to include only messages that have
     message IDs in the 'limits' list.
-    
+
     Args:
       current_grd: grit.node.base.Node child, that has had RunGatherers(True) run on it
       source_rc: Complete text of source RC file
       source_path: Path to the source RC file
       transl_rc: Complete text of translated RC file
       transl_path: Path to the translated RC file
-    
+
     Return:
       { id1 : text1, '12345678' : 'Hello USERNAME, howzit?' }
     '''
@@ -120,7 +120,7 @@ Bulk Translation Upload tool.
     self.VerboseOut('Read %s into GRIT format, running gatherers.\n' % transl_path)
     transl_grd.RunGatherers(recursive=True, debug=self.o.extra_verbose)
     self.VerboseOut('Done running gatherers for %s.\n' % transl_path)
-    
+
     # Proceed to create a map from ID to translation, getting the ID from the
     # source GRD and the translation from the translated GRD.
     id2transl = {}
@@ -128,12 +128,12 @@ Bulk Translation Upload tool.
       source_cliques = source_node.GetCliques()
       if not len(source_cliques):
         continue
-      
+
       assert 'name' in source_node.attrs, 'All nodes with cliques should have an ID'
       node_id = source_node.attrs['name']
       self.ExtraVerboseOut('Processing node %s\n' % node_id)
       transl_node = transl_grd.GetNodeById(node_id)
-      
+
       if transl_node:
         transl_cliques = transl_node.GetCliques()
         if not len(transl_cliques) == len(source_cliques):
@@ -144,7 +144,7 @@ Bulk Translation Upload tool.
       else:
         self.Out('Warning: No translation for %s, skipping.\n' % node_id)
         continue
-      
+
       if source_node.name == 'message':
         # Fixup placeholders as well as possible based on information from
         # the current .grd file if they are 'TODO_XXXX' placeholders.  We need
@@ -154,10 +154,10 @@ Bulk Translation Upload tool.
         current_node = current_grd.GetNodeById(node_id)
         if current_node:
           assert len(source_cliques) == 1 and len(current_node.GetCliques()) == 1
-          
+
           source_msg = source_cliques[0].GetMessage()
           current_msg = current_node.GetCliques()[0].GetMessage()
-          
+
           # Only do this for messages whose source version has not changed.
           if (source_msg.GetRealContent() != current_msg.GetRealContent()):
             self.VerboseOut('Info: Message %s has changed; skipping\n' % node_id)
@@ -166,7 +166,7 @@ Bulk Translation Upload tool.
             transl_content = transl_msg.GetContent()
             current_content = current_msg.GetContent()
             source_content = source_msg.GetContent()
-            
+
             ok_to_fixup = True
             if (len(transl_content) != len(current_content)):
               # message structure of translation is different, don't try fixup
@@ -185,7 +185,7 @@ Bulk Translation Upload tool.
                   if isinstance(current_content[ix], tclib.Placeholder):
                     ok_to_fixup = False  # placeholders have likely been reordered
                     break
-            
+
             if not ok_to_fixup:
               self.VerboseOut(
                 'Info: Structure of message %s has changed; skipping.\n' % node_id)
@@ -199,7 +199,7 @@ Bulk Translation Upload tool.
               for ix in range(len(transl_content)):
                 Fixup(transl_content, ix)
                 Fixup(source_content, ix)
-      
+
       # Only put each translation once into the map.  Warn if translations
       # for the same message are different.
       for ix in range(len(transl_cliques)):
@@ -207,7 +207,7 @@ Bulk Translation Upload tool.
         source_msg.GenerateId()  # needed to refresh ID based on new placeholders
         message_id = source_msg.GetId()
         translated_content = transl_cliques[ix].GetMessage().GetPresentableContent()
-        
+
         if message_id in id2transl:
           existing_translation = id2transl[message_id]
           if existing_translation != translated_content:
@@ -218,7 +218,7 @@ Bulk Translation Upload tool.
                    (original_text, existing_translation, translated_content))
         else:
           id2transl[message_id] = translated_content
-    
+
     # Remove translations for messages that do not occur in the current .grd
     # or have been marked as not translateable, or do not occur in the 'limits'
     # list (if it has been set).
@@ -228,19 +228,19 @@ Bulk Translation Upload tool.
           not current_grd.UberClique().BestClique(message_id).IsTranslateable() or
           (self.limits and message_id not in self.limits)):
         del id2transl[message_id]
-    
+
     return id2transl
-  
+
   # static method
   def WriteTranslations(output_file, translations):
     '''Writes the provided list of translations to the provided output file
     in the format used by the TC's Bulk Translation Upload tool.  The file
     must be UTF-8 encoded.
-    
+
     Args:
       output_file: util.WrapOutputStream(file('bingo.out', 'w'))
       translations: [ [id1, text1], ['12345678', 'Hello USERNAME, howzit?'] ]
-    
+
     Return:
       None
     '''

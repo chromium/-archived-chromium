@@ -96,7 +96,7 @@ def ValidateMaskmaker(command):
 
 def ExecuteMaskmaker(command):
   """Performs automatic mask generation."""
-  
+
   # Get the list of URLs to generate masks for
   class MaskmakerURL(object):
     """Helper class for holding information about a URL passed to maskmaker."""
@@ -105,7 +105,7 @@ def ExecuteMaskmaker(command):
       self.url = url
       self.consecutive_successes = 0
       self.errors = 0
-      
+
   if command["--url"]:
     url_list = [MaskmakerURL(command["--url"])]
   else:
@@ -116,22 +116,22 @@ def ExecuteMaskmaker(command):
       endline = command["--endline"]
     url_list = [MaskmakerURL(url.strip()) for url in
                 open(command["--list"], "r").readlines()[startline:endline]]
-    
+
   complete_list = []
   error_list = []
-  
+
   outdir = command["--outdir"]
   scrapes = command["--scrapes"]
   errors = command["--errors"]
   size = command["--size"]
   scrape_pass = 0
-  
+
   scrapedir = command["--scrapedir"]
   if not scrapedir: scrapedir = tempfile.gettempdir()
-   
+
   # Get the scraper
   scraper = scrapers.GetScraper((command["--browser"], command["--browserver"]))
-  
+
   # Repeatedly iterate through the list of URLs until either every URL has
   # a successful mask or too many errors, or we've exceeded the giveup limit
   while url_list and scrape_pass < command["--giveup"]:
@@ -157,31 +157,31 @@ def ExecuteMaskmaker(command):
           print "  %r does not exist, creating" % mask_filename
           mask = Image.new("1", size, 1)
           mask.save(mask_filename)
-      
+
       # Find the stored scrape path
       mask_scrape_dir = os.path.join(
         scrapedir, os.path.splitext(os.path.basename(mask_filename))[0])
       drivers.windowing.PreparePath(mask_scrape_dir)
-      
+
       # Find the baseline image
       mask_scrapes = os.listdir(mask_scrape_dir)
       mask_scrapes.sort()
-      
+
       if not mask_scrapes:
         print "  No baseline image found, mask will not be updated"
         baseline = None
       else:
         baseline = Image.open(os.path.join(mask_scrape_dir, mask_scrapes[0]))
-        
+
       mask_scrape_filename = os.path.join(mask_scrape_dir,
                                           time.strftime("%y%m%d-%H%M%S.bmp"))
-      
+
       # Do the scrape
       result = scraper.Scrape(
         [url.url], mask_scrape_dir, size, (0, 0),
         command["--timeout"], path=command["--browserpath"],
         filename=mask_scrape_filename)
-      
+
       if result:
         # Return value other than None means an error
         print "  Scrape failed with error '%r'" % result
@@ -189,16 +189,16 @@ def ExecuteMaskmaker(command):
         if url.errors >= errors:
           print "  ** Exceeded maximum error count for this URL, giving up"
         continue
-      
+
       # Load the new scrape
       scrape = Image.open(mask_scrape_filename)
-      
+
       # Calculate the difference between the new scrape and the baseline,
       # subject to the current mask
       if baseline:
         diff = ImageChops.multiply(ImageChops.difference(scrape, baseline),
                                    mask.convert(scrape.mode))
-        
+
         # If the difference is none, there's nothing to update
         if max(diff.getextrema()) == (0, 0):
           print "  Scrape identical to baseline, no change in mask"
@@ -221,10 +221,10 @@ def ExecuteMaskmaker(command):
           #       a monochrome bitmap. If the original RGB image were converted
           #       directly to monochrome, PIL would dither it.
           diff = diff.convert("L").point([255]+[0]*255, "1")
-          
+
           # count the number of different pixels
           diff_pixels = diff.getcolors()[0][0]
-          
+
           # is this too much?
           diff_pixel_percent = diff_pixels * 100.0 / (mask.size[0]*mask.size[1])
           if diff_pixel_percent > command["--threshhold"]:
@@ -234,10 +234,10 @@ def ExecuteMaskmaker(command):
             print "  Scrape differed in %d pixels, updating mask" % diff_pixels
             mask = ImageChops.multiply(mask, diff)
             mask.save(mask_filename)
-            
+
             # reset the number of consecutive "good" scrapes
             url.consecutive_successes = 0
-      
+
     # Remove URLs whose mask is deemed done
     complete_list.extend(
       [url for url in url_list if url.consecutive_successes >= scrapes])
@@ -247,16 +247,16 @@ def ExecuteMaskmaker(command):
       url for url in url_list if
       url.consecutive_successes < scrapes and
       url.errors < errors]
-    
+
     scrape_pass += 1
     print "**Done with scrape pass %d\n" % scrape_pass
-    
+
     if scrape_pass >= command["--giveup"]:
       print "**Exceeded giveup threshhold. Giving up."
     else:
       print "Waiting %d seconds..." % command["--wait"]
       time.sleep(command["--wait"])
-  
+
   print
   print "*** MASKMAKER COMPLETE ***"
   print "Summary report:"

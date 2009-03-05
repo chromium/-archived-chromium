@@ -379,7 +379,7 @@ TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
   // Get a hold of a DefaultJSBindings* (it is a hidden impl class).
   net::ProxyResolverV8 resolver;
   net::ProxyResolverV8::JSBindings* bindings = resolver.js_bindings();
-  
+
   // Considered an error.
   EXPECT_EQ("", bindings->DnsResolve(""));
 

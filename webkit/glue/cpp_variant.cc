@@ -129,7 +129,7 @@ void CppVariant::Set(const NPVariant& new_value) {
   }
 }
 
-void CppVariant::SetNull() {  
+void CppVariant::SetNull() {
   FreeData();
   type = NPVariantType_Null;
 }
@@ -250,7 +250,7 @@ std::vector<std::wstring> CppVariant::ToStringVector() const {
   return wstring_vector;
 }
 
-bool CppVariant::Invoke(const std::string& method, const CppVariant* args, 
+bool CppVariant::Invoke(const std::string& method, const CppVariant* args,
                         uint32 arg_count, CppVariant& result) const {
   DCHECK(isObject());
   NPIdentifier method_name = NPN_GetStringIdentifier(method.c_str());

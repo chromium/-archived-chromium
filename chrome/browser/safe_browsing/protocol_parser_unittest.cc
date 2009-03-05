@@ -507,7 +507,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithUnknownList) {
                                   &full_hashes));
 
   EXPECT_EQ(full_hashes.size(), static_cast<size_t>(1));
-  EXPECT_EQ(memcmp("12345678901234567890123456789012", 
+  EXPECT_EQ(memcmp("12345678901234567890123456789012",
                    &full_hashes[0].hash, sizeof(SBFullHash)), 0);
   EXPECT_EQ(full_hashes[0].list_name, "goog-phish-shavar");
   EXPECT_EQ(full_hashes[0].add_chunk_id, 1);
@@ -522,11 +522,11 @@ TEST(SafeBrowsingProtocolParsingTest, TestGetHashWithUnknownList) {
                                   &full_hashes));
 
   EXPECT_EQ(full_hashes.size(), static_cast<size_t>(2));
-  EXPECT_EQ(memcmp("12345678901234567890123456789012", 
+  EXPECT_EQ(memcmp("12345678901234567890123456789012",
                    &full_hashes[0].hash, sizeof(SBFullHash)), 0);
   EXPECT_EQ(full_hashes[0].list_name, "goog-phish-shavar");
   EXPECT_EQ(full_hashes[0].add_chunk_id, 1);
-  EXPECT_EQ(memcmp("abcdefghijklmnopqrstuvwxyz123457", 
+  EXPECT_EQ(memcmp("abcdefghijklmnopqrstuvwxyz123457",
                    &full_hashes[1].hash, sizeof(SBFullHash)), 0);
   EXPECT_EQ(full_hashes[1].list_name, "goog-malware-shavar");
   EXPECT_EQ(full_hashes[1].add_chunk_id, 7);
@@ -632,7 +632,7 @@ TEST(SafeBrowsingProtocolParsingTest, TestZeroSizeAddChunk) {
 
   EXPECT_EQ(chunks[1].chunk_number, 2);
   EXPECT_EQ(chunks[1].hosts.size(), static_cast<size_t>(0));
-  
+
   EXPECT_EQ(chunks[2].chunk_number, 3);
   EXPECT_EQ(chunks[2].hosts.size(), static_cast<size_t>(1));
   EXPECT_EQ(chunks[2].hosts[0].host, 0x65666163);

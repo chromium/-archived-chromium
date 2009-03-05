@@ -72,7 +72,7 @@ TEST_F(NPAPITester, Arguments) {
   std::wstring test_case = L"arguments.html";
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
-  WaitForFinish("arguments", "1", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
@@ -83,35 +83,35 @@ TEST_F(NPAPITester, ManyPlugins) {
   GURL url(GetTestUrl(L"npapi", test_case));
   NavigateToURL(url);
 
-  WaitForFinish("arguments", "1", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess,  kShortWaitTimeout);
-  WaitForFinish("arguments", "2", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "2", url, kTestCompleteCookie,
                 kTestCompleteSuccess,  kShortWaitTimeout);
-  WaitForFinish("arguments", "3", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "3", url, kTestCompleteCookie,
                 kTestCompleteSuccess,  kShortWaitTimeout);
-  WaitForFinish("arguments", "4", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "4", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "5", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "5", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "6", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "6", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "7", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "7", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "8", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "8", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "9", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "9", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "10", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "10", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "11", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "11", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "12", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "12", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "13", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "13", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "14", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "14", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
-  WaitForFinish("arguments", "15", url, kTestCompleteCookie, 
+  WaitForFinish("arguments", "15", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
@@ -120,17 +120,17 @@ TEST_F(NPAPITester, GetURL) {
   std::wstring test_case = L"geturl.html";
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
-  WaitForFinish("geturl", "1", url, kTestCompleteCookie, 
+  WaitForFinish("geturl", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
-// Test various calls to GetURL for javascript URLs with 
+// Test various calls to GetURL for javascript URLs with
 // non NULL targets from a plugin.
 TEST_F(NPAPITester, GetJavaScriptURL) {
   std::wstring test_case = L"get_javascript_url.html";
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
-  WaitForFinish("getjavascripturl", "1", url, kTestCompleteCookie, 
+  WaitForFinish("getjavascripturl", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
@@ -142,13 +142,13 @@ TEST_F(NPAPITester, NPObjectProxy) {
   std::wstring test_case = L"npobject_proxy.html";
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
-  WaitForFinish("npobject_proxy", "1", url, kTestCompleteCookie, 
+  WaitForFinish("npobject_proxy", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
 // Tests if a plugin executing a self deleting script using NPN_GetURL
 // works without crashing or hanging
-TEST_F(NPAPITester, SelfDeletePluginGetUrl) { 
+TEST_F(NPAPITester, SelfDeletePluginGetUrl) {
   std::wstring test_case = L"self_delete_plugin_geturl.html";
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
@@ -186,7 +186,7 @@ TEST_F(NPAPITester, DISABLED_SelfDeletePluginInvokeAlert) {
                 kShortWaitTimeout);
 }
 
-// Tests if a plugin executing a self deleting script in the context of 
+// Tests if a plugin executing a self deleting script in the context of
 // a synchronous paint event works correctly
 TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousPaint) {
   if (!UITest::in_process_renderer()) {
@@ -218,7 +218,7 @@ TEST_F(NPAPIVisiblePluginTester, VerifyPluginWindowRect) {
   std::wstring test_case = L"verify_plugin_window_rect.html";
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
-  WaitForFinish("checkwindowrect", "1", url, kTestCompleteCookie, 
+  WaitForFinish("checkwindowrect", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
@@ -238,7 +238,7 @@ TEST_F(NPAPIVisiblePluginTester, VerifyNPObjectLifetimeTest) {
 TEST_F(NPAPIVisiblePluginTester, NewFails) {
   GURL url = GetTestUrl(L"npapi", L"new_fails.html");
   NavigateToURL(url);
-  WaitForFinish("new_fails", "1", url, kTestCompleteCookie, 
+  WaitForFinish("new_fails", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 

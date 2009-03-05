@@ -28,9 +28,9 @@ static void SetDefaultsToLayoutTestValues(void) {
   // preferences that control appearance to match.
   // (We want to do this as early as possible in application startup so
   // the settings are in before any higher layers could cache values.)
-  
+
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  
+
   const NSInteger kMinFontSizeCGSmoothes = 4;
   const NSInteger kNoFontSmoothing = 0;
   const NSInteger kBlueTintedAppearance = 1;
@@ -46,7 +46,7 @@ static void SetDefaultsToLayoutTestValues(void) {
                forKey:@"AppleOtherHighlightColor"];
   [defaults setObject:[NSArray arrayWithObject:@"en"]
                forKey:@"AppleLanguages"];
-  
+
   // AppKit pulls scrollbar style from NSUserDefaults.  HIToolbox uses
   // CFPreferences, but AnyApplication, so we set it, force it to load, and
   // then reset the pref to what it was (HIToolbox will cache what it loaded).
@@ -78,9 +78,9 @@ static void SetDefaultsToLayoutTestValues(void) {
 static void ClearAnyDefaultsForLayoutTests(void) {
   // Not running a test, clear the keys so the TestShell looks right to the
   // running user.
-  
+
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  
+
   [defaults removeObjectForKey:@"AppleAntiAliasingThreshold"];
   [defaults removeObjectForKey:@"AppleFontSmoothing"];
   [defaults removeObjectForKey:@"AppleAquaColorVariant"];
@@ -96,7 +96,7 @@ static void RestoreUsersColorProfile(void) {
   // This is called from the unsafe signal handers, so doing just about anything
   // isn't really safe.  But since we're already gonna crash, we give it a try
   // anyways... (and WebKit uses this strategy...)
-  
+
   if (gUsersColorProfile) {
     CGDirectDisplayID displayID = CGMainDisplayID();
     CMError error = CMSetProfileByAVID((UInt32)displayID, gUsersColorProfile);
@@ -127,7 +127,7 @@ static void InstallLayoutTestColorProfile(void) {
   // we force the generic rgb color profile.  This cases a change the user can
   // see.  We use the same basic method as WebKit for trying to make sure we
   // get the profile back if we go down in flames.
-  
+
   // Save off the current
   CGDirectDisplayID displayID = CGMainDisplayID();
   CMProfileRef previousProfile;
@@ -137,7 +137,7 @@ static void InstallLayoutTestColorProfile(void) {
     "pixmaps won't match. Error: " << (int)error;
     return;
   }
-  
+
   // Install the generic one
   NSColorSpace *genericSpace = [NSColorSpace genericRGBColorSpace];
   CMProfileRef genericProfile = (CMProfileRef)[genericSpace colorSyncProfile];
@@ -146,7 +146,7 @@ static void InstallLayoutTestColorProfile(void) {
     "pixmaps won't match. Error: " << (int)error;
     return;
   }
-  
+
   // Save the starting profile, and hook in as best we can to make sure when
   // we exit, it's restored (use atexit() so direct calls to exit() call us).
   gUsersColorProfile = previousProfile;
@@ -173,13 +173,13 @@ static void InstallLayoutTestColorProfile(void) {
 static void SwizzleAllMethods(Class imposter, Class original) {
   unsigned int imposterMethodCount = 0;
   Method* imposterMethods = class_copyMethodList(imposter, &imposterMethodCount);
-  
+
   unsigned int originalMethodCount = 0;
   Method* originalMethods = class_copyMethodList(original, &originalMethodCount);
-  
+
   for (unsigned int i = 0; i < imposterMethodCount; i++) {
     SEL imposterMethodName = method_getName(imposterMethods[i]);
-    
+
     // Attempt to add the method to the original class.  If it fails, the method
     // already exists and we should instead exchange the implementations.
     if (class_addMethod(original,
@@ -188,7 +188,7 @@ static void SwizzleAllMethods(Class imposter, Class original) {
                         method_getTypeEncoding(originalMethods[i]))) {
       continue;
     }
-    
+
     unsigned int j = 0;
     for (; j < originalMethodCount; j++) {
       SEL originalMethodName = method_getName(originalMethods[j]);
@@ -196,13 +196,13 @@ static void SwizzleAllMethods(Class imposter, Class original) {
         break;
       }
     }
-    
+
     // If class_addMethod failed above then the method must exist on the
     // original class.
     DCHECK(j < originalMethodCount) << "method wasn't found?";
     method_exchangeImplementations(imposterMethods[i], originalMethods[j]);
   }
-  
+
   if (imposterMethods) {
     free(imposterMethods);
   }
@@ -215,7 +215,7 @@ static void SwizzleAllMethods(Class imposter, Class original) {
 static void SwizzleNSPasteboard(void) {
   // We replace NSPaseboard w/ the shim (from WebKit) that avoids having
   // sideeffects w/ whatever the user does at the same time.
-  
+
   Class imposterClass = objc_getClass("DumpRenderTreePasteboard");
   Class originalClass = objc_getClass("NSPasteboard");
 #if OBJC_API_VERSION == 0
@@ -270,7 +270,7 @@ void TestShellPlatformDelegate::SetWindowPositionForRecording(TestShell *) {
 void TestShellPlatformDelegate::SelectUnifiedTheme() {
   SetDefaultsToLayoutTestValues();
   SwizzleNSPasteboard();
-  
+
   if (command_line_.HasSwitch(test_shell::kDumpPixels)) {
     InstallLayoutTestColorProfile();
   }
@@ -280,6 +280,6 @@ void TestShellPlatformDelegate::SuppressErrorReporting() {
   // If we die during tests, we don't want to be spamming the user's crash
   // reporter. Set our exception port to null.
   task_set_exception_ports(mach_task_self(), EXC_MASK_ALL, MACH_PORT_NULL,
-                           EXCEPTION_DEFAULT, THREAD_STATE_NONE);   
+                           EXCEPTION_DEFAULT, THREAD_STATE_NONE);
 }
 

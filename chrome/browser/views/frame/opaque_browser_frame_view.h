@@ -115,7 +115,7 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
     return frame_->is_active() || paint_as_active() ?
         current_active_resources_ : current_inactive_resources_;
   }
-  
+
   // The layout rect of the title, if visible.
   gfx::Rect title_bounds_;
 

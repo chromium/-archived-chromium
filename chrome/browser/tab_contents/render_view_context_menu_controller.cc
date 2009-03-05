@@ -220,7 +220,7 @@ bool RenderViewContextMenuController::IsItemChecked(int id) const {
   // Check box for 'Check the Spelling of this field'.
   if (id == IDC_CHECK_SPELLING_OF_THIS_FIELD)
     return params_.spellcheck_enabled;
-  
+
   // Don't bother getting the display language vector if this isn't a spellcheck
   // language.
   if ((id < IDC_SPELLCHECK_LANGUAGES_FIRST) ||
@@ -272,7 +272,7 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
   if (id >= IDC_SPELLCHECK_LANGUAGES_FIRST &&
       id < IDC_SPELLCHECK_LANGUAGES_LAST) {
     const size_t language_number = id - IDC_SPELLCHECK_LANGUAGES_FIRST;
-    SpellChecker::Languages display_languages; 
+    SpellChecker::Languages display_languages;
     SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
         source_web_contents_->profile(), &display_languages);
     if (language_number < display_languages.size()) {
@@ -281,7 +281,7 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
           source_web_contents_->profile()->GetPrefs(), NULL);
       dictionary_language.SetValue(display_languages[language_number]);
     }
-      
+
     return;
   }
 
@@ -363,7 +363,7 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
           source_web_contents_->profile(),
           nav_entry,
           source_web_contents_->GetContentNativeView(),
-          PageInfoWindow::SECURITY);      
+          PageInfoWindow::SECURITY);
       break;
     }
 

@@ -17,7 +17,7 @@ class Message;
 }
 
 // This class provides an implementation of WebWorker that the renderer provides
-// to the glue.  This class converts function calls to IPC messages that are 
+// to the glue.  This class converts function calls to IPC messages that are
 // dispatched in the worker process by WebWorkerClientProxy.  It also receives
 // IPC messages from WebWorkerClientProxy which it converts to function calls to
 // WebWorkerClient.

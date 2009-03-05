@@ -41,7 +41,7 @@ bool GZipFilter::InitDecoding(Filter::FilterType filter_type) {
       decoding_mode_ = DECODE_MODE_DEFLATE;
       break;
     }
-    case Filter::FILTER_TYPE_GZIP_HELPING_SDCH:      
+    case Filter::FILTER_TYPE_GZIP_HELPING_SDCH:
       possible_sdch_pass_through_ =  true;  // Needed to optionally help sdch.
       // Fall through to GZIP case.
     case Filter::FILTER_TYPE_GZIP: {
@@ -105,7 +105,7 @@ Filter::FilterStatus GZipFilter::ReadFilteredData(char* dest_buffer,
         break;
       }
       case Filter::FILTER_ERROR: {
-        if (possible_sdch_pass_through_ && 
+        if (possible_sdch_pass_through_ &&
             GZIP_GET_INVALID_HEADER == gzip_header_status_) {
           decoding_status_ = DECODING_DONE;  // Become a pass through filter.
           return CopyOut(dest_buffer, dest_len);

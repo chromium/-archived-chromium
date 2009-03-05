@@ -134,7 +134,7 @@ static GURL ConvertSkBitmapToDataURL(const SkBitmap& icon) {
 class CreateShortcutCommand : public CPCommandInterface {
  public:
   CreateShortcutCommand(
-      const std::string& name, const std::string& orig_name, 
+      const std::string& name, const std::string& orig_name,
       const std::string& url, const std::string& description,
       const std::vector<webkit_glue::WebApplicationInfo::IconInfo> &icons,
       const SkBitmap& fallback_icon,

@@ -27,7 +27,7 @@ class ViewTest : public testing::Test {
   ~ViewTest() {
     OleUninitialize();
   }
- 
+
  private:
   MessageLoopForUI message_loop_;
 };
@@ -592,7 +592,7 @@ class TestDialogView : public views::View,
  public:
   TestDialogView() {
   }
-  
+
   // views::DialogDelegate implementation:
   virtual int GetDialogButtons() const {
     return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;

@@ -56,15 +56,15 @@ PasswordForm* PasswordFormDomManager::CreatePasswordForm(
   if (!LocateSpecificPasswords(&fields, &password, &old_password))
     return NULL;
 
-  return AssemblePasswordFormResult(full_origin, full_action, 
+  return AssemblePasswordFormResult(full_origin, full_action,
                                     fields.submit, fields.username,
                                     old_password, password);
 }
 
 // static
 void PasswordFormDomManager::InitFillData(
-    const PasswordForm& form_on_page, 
-    const PasswordFormMap& matches, 
+    const PasswordForm& form_on_page,
+    const PasswordFormMap& matches,
     const PasswordForm* const preferred_match,
     bool wait_for_username_before_autofill,
     PasswordFormDomManager::FillData* result) {
@@ -82,7 +82,7 @@ void PasswordFormDomManager::InitFillData(
   // Copy additional username/value pairs.
   PasswordFormMap::const_iterator iter;
   for (iter = matches.begin(); iter != matches.end(); iter++) {
-    if (iter->second != preferred_match) 
+    if (iter->second != preferred_match)
       result->additional_logins[iter->first] = iter->second->password_value;
   }
 }
@@ -113,12 +113,12 @@ bool PasswordFormDomManager::LocateSpecificPasswords(
           fields->passwords[0]->value() == fields->passwords[2]->value()) {
           // All three passwords the same? Just treat as one and hope.
           *password = fields->passwords[0];
-      } else if (fields->passwords[0]->value() == 
+      } else if (fields->passwords[0]->value() ==
                  fields->passwords[1]->value()) {
-          // Two the same and one different -> old password is duplicated one.       
+          // Two the same and one different -> old password is duplicated one.
           *old_password = fields->passwords[0];
           *password = fields->passwords[2];
-      } else if (fields->passwords[1]->value() == 
+      } else if (fields->passwords[1]->value() ==
                  fields->passwords[2]->value()) {
         *old_password = fields->passwords[0];
         *password = fields->passwords[1];
@@ -171,9 +171,9 @@ bool PasswordFormDomManager::LocateSpecificPasswords(
   * and other provisions required by the GPL or the LGPL. If you do not delete
   * the provisions above, a recipient may use your version of this file under
   * the terms of any one of the MPL, the GPL or the LGPL.
-  * 
+  *
   * ***** END LICENSE BLOCK ***** */
-// static 
+// static
 void PasswordFormDomManager::FindPasswordFormFields(
     WebCore::HTMLFormElement* form,
     PasswordFormFields* fields) {
@@ -213,7 +213,7 @@ void PasswordFormDomManager::FindPasswordFormFields(
 
       WebCore::HTMLInputElement* input_element =
         static_cast<WebCore::HTMLInputElement*>(form_element);
-      if (!input_element->isEnabled()) 
+      if (!input_element->isEnabled())
         continue;
 
       if ((input_element->inputType() == WebCore::HTMLInputElement::TEXT) &&
@@ -227,7 +227,7 @@ void PasswordFormDomManager::FindPasswordFormFields(
 
 // static
 PasswordForm* PasswordFormDomManager::AssemblePasswordFormResult(
-    const GURL& full_origin, 
+    const GURL& full_origin,
     const GURL& full_action,
     WebCore::HTMLFormControlElement* submit,
     WebCore::HTMLInputElement* username,
@@ -246,7 +246,7 @@ PasswordForm* PasswordFormDomManager::AssemblePasswordFormResult(
   result->action = full_action.ReplaceComponents(rep);
   result->origin = full_origin.ReplaceComponents(rep);
 
-  // Naming is confusing here because we have both the HTML form origin URL 
+  // Naming is confusing here because we have both the HTML form origin URL
   // the page where the form was seen), and the "origin" components of the url
   // (scheme, host, and port).
   result->signon_realm = full_origin.GetOrigin().spec();
@@ -254,22 +254,22 @@ PasswordForm* PasswordFormDomManager::AssemblePasswordFormResult(
   result->submit_element =
       submit == NULL ? empty : webkit_glue::StringToStdWString(submit->name());
   result->username_element =
-      username == NULL ? empty 
+      username == NULL ? empty
           : webkit_glue::StringToStdWString(username->name());
   result->username_value =
-      username == NULL ? empty 
+      username == NULL ? empty
           : webkit_glue::StringToStdWString(username->value());
   result->password_element =
-      password == NULL ? empty 
+      password == NULL ? empty
           : webkit_glue::StringToStdWString(password->name());
   result->password_value =
-      password == NULL ? empty 
+      password == NULL ? empty
           : webkit_glue::StringToStdWString(password->value());
   result->old_password_element =
-      old_password == NULL ? empty 
+      old_password == NULL ? empty
           : webkit_glue::StringToStdWString(old_password->name());
   result->old_password_value =
-      old_password == NULL ? empty 
+      old_password == NULL ? empty
           : webkit_glue::StringToStdWString(old_password->value());
   return result;
 }

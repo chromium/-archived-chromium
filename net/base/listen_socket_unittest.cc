@@ -33,7 +33,7 @@ void ListenSocketTester::SetUp() {
   ASSERT_EQ(0, pthread_mutex_init(&lock_, NULL ));
   sem_unlink(kSemaphoreName);
   semaphore_ = sem_open(kSemaphoreName, O_CREAT, 0, 0);
-  ASSERT_NE(SEM_FAILED, semaphore_); 
+  ASSERT_NE(SEM_FAILED, semaphore_);
 #endif
   base::Thread::Options options;
   options.message_loop_type = MessageLoop::TYPE_IO;
@@ -132,7 +132,7 @@ bool ListenSocketTester::NextAction(int timeout) {
     timeout--;
     if (timeout <= 0)
       return false;
-    if (result == 0) 
+    if (result == 0)
       break;
   }
   pthread_mutex_lock(&lock_);
@@ -163,7 +163,7 @@ int ListenSocketTester::ClearTestSocket() {
 #endif
         PlatformThread::Sleep(1);
         time_out++;
-        if (time_out > 10) 
+        if (time_out > 10)
           break;
         continue;  // still trying
       }
@@ -199,14 +199,14 @@ void ListenSocketTester::SendFromTester() {
   ReportAction(ListenSocketTestAction(ACTION_SEND));
 }
 
-void ListenSocketTester::DidAccept(ListenSocket *server, 
+void ListenSocketTester::DidAccept(ListenSocket *server,
                                    ListenSocket *connection) {
   connection_ = connection;
   connection_->AddRef();
   ReportAction(ListenSocketTestAction(ACTION_ACCEPT));
 }
 
-void ListenSocketTester::DidRead(ListenSocket *connection, 
+void ListenSocketTester::DidRead(ListenSocket *connection,
                                  const std::string& data) {
   ReportAction(ListenSocketTestAction(ACTION_READ, data));
 }

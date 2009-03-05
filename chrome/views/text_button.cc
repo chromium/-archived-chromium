@@ -169,7 +169,7 @@ gfx::Size TextButton::GetPreferredSize() {
 
   if (max_width_ > 0)
     prefsize.set_width(std::min(max_width_, prefsize.width()));
-  
+
   return prefsize;
 }
 

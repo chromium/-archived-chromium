@@ -104,7 +104,7 @@ HttpAuthCache::Entry* HttpAuthCache::Add(const GURL& origin,
 
   // Check for existing entry (we will re-use it if present).
   HttpAuthCache::Entry* entry = LookupByRealm(origin, handler->realm());
-  
+
   if (!entry) {
     // Failsafe to prevent unbounded memory growth of the cache.
     if (entries_.size() >= kMaxNumRealmEntries) {

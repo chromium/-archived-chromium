@@ -30,7 +30,7 @@
 #include "webkit/tools/test_shell/test_shell_webkit_init.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-const char* TestShellTest::kJavascriptDelayExitScript = 
+const char* TestShellTest::kJavascriptDelayExitScript =
   "<script>"
     "window.layoutTestController.waitUntilDone();"
     "window.addEventListener('load', function() {"

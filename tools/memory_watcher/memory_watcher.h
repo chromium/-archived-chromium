@@ -33,7 +33,7 @@ class MemoryWatcher : MemoryObserver {
   // MemoryObserver interface.
   virtual void OnTrack(HANDLE heap, int32 id, int32 size);
   virtual void OnUntrack(HANDLE heap, int32 id, int32 size);
-  
+
   // Sets a name that appears in the generated file name.
   void SetLogName(char* log_name);
 

@@ -184,7 +184,7 @@ static void DumpHistoryItem(WebCore::HistoryItem* item, int indent,
 
   if (item->hasChildren()) {
     WebCore::HistoryItemVector children = item->children();
-    // Must sort to eliminate arbitrary result ordering which defeats 
+    // Must sort to eliminate arbitrary result ordering which defeats
     // reproducible testing.
     std::sort(children.begin(), children.end(), HistoryItemCompareLess);
     for (unsigned i = 0; i < children.size(); i++) {
@@ -419,7 +419,7 @@ const std::string& GetUserAgent(const GURL& url) {
   if (!g_user_agent->user_agent_is_overridden) {
     // For hotmail, we need to spoof as Safari (bug 4111).
     if (MatchPattern(url.host(), "*.mail.live.com")) {
-      if (g_user_agent->mimic_safari_user_agent.empty()) 
+      if (g_user_agent->mimic_safari_user_agent.empty())
         BuildUserAgent(true, &g_user_agent->mimic_safari_user_agent);
       return g_user_agent->mimic_safari_user_agent;
     }

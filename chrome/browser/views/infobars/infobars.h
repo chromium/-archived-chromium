@@ -45,7 +45,7 @@ class InfoBar : public views::View,
   // Starts animating the InfoBar closed. It will not be closed until the
   // animation has completed, when |Close| will be called.
   void AnimateClose();
-  
+
   // Closes the InfoBar immediately and removes it from its container. Notifies
   // the delegate that it has closed. The InfoBar is deleted after this function
   // is called.

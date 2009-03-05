@@ -14,7 +14,7 @@ class TestRenderViewHost;
 // not do anything involving views.
 class TestWebContents : public WebContents {
  public:
-  // The render view host factory will be passed on to the 
+  // The render view host factory will be passed on to the
   TestWebContents(Profile* profile, SiteInstance* instance,
                   RenderViewHostFactory* rvh_factory);
 

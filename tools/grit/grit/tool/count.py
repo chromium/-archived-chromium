@@ -26,19 +26,19 @@ class CountMessage(interface.Tool):
 
   def ShortDescription(self):
     return 'Exports all translateable messages into an XMB file.'
-  
+
   def Run(self, opts, args):
     self.SetOptions(opts)
-    
+
     id = args[0]
     res_tree = grd_reader.Parse(opts.input, debug=opts.extra_verbose)
     res_tree.OnlyTheseTranslations([])
     res_tree.RunGatherers(True)
-    
+
     count = 0
     for c in res_tree.UberClique().AllCliques():
       if c.GetId() == id:
         count += 1
-    
+
     print "There are %d occurrences of message %s." % (count, id)
 

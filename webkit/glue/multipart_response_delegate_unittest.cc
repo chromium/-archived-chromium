@@ -44,7 +44,7 @@ class MockResourceHandleClient : public ResourceHandleClient {
     ++received_data_;
     data_.append(data, data_length);
   }
-  
+
   void Reset() {
     received_response_ = received_data_ = 0;
     data_.clear();
@@ -139,7 +139,7 @@ TEST(MultipartResponseTest, Functions) {
   EXPECT_EQ(webkit_glue::StringToStdWString(
               client.resource_response_.httpHeaderField(String("foo"))),
             wstring(L"Bar"));
-  
+
   // FindBoundary tests
   struct {
     const char* boundary;
@@ -276,7 +276,7 @@ void VariousChunkSizesTest(const TestChunk chunks[], int chunks_size, int respon
                             String());
   MockResourceHandleClient client;
   MultipartResponseDelegate delegate(&client, NULL, response, "bound");
-  
+
   for (int i = 0; i < chunks_size; ++i) {
     ASSERT(chunks[i].start_pos < chunks[i].end_pos);
     string chunk = data.substr(chunks[i].start_pos,
@@ -373,7 +373,7 @@ TEST(MultipartResponseTest, BreakInData) {
   };
   VariousChunkSizesTest(data2, arraysize(data2),
                         2, 2, "foofoofoofoofoo");
-  
+
   // Incomplete send
   const TestChunk data3[] = {
     { 0, 35, 1, 0, "" },
@@ -389,7 +389,7 @@ TEST(MultipartResponseTest, MultipleBoundaries) {
                             String());
   MockResourceHandleClient client;
   MultipartResponseDelegate delegate(&client, NULL, response, "bound");
-  
+
   string data("--bound\r\n\r\n--bound\r\n\r\nfoofoo--bound--");
   delegate.OnReceivedData(data.c_str(), static_cast<int>(data.length()));
   EXPECT_EQ(2,
@@ -488,7 +488,7 @@ TEST(MultipartResponseTest, MultipartContentRangesTest) {
   response1.setHTTPHeaderField(
       String("Content-Range"),
       String("bytes 1000-1050/5000"));
-  
+
   int content_range_lower_bound = 0;
   int content_range_upper_bound = 0;
 
@@ -506,7 +506,7 @@ TEST(MultipartResponseTest, MultipartContentRangesTest) {
   response2.setHTTPHeaderField(
       String("Content-Range"),
       String("bytes 1000/1050"));
-  
+
   content_range_lower_bound = 0;
   content_range_upper_bound = 0;
 

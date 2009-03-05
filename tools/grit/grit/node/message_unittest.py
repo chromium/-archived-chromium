@@ -28,7 +28,7 @@ class MessageUnittest(unittest.TestCase):
     cliques = res.GetCliques()
     content = cliques[0].GetMessage().GetPresentableContent()
     self.failUnless(content == 'Hello USERNAME, how are you doing today?')
-  
+
   def testMessageWithWhitespace(self):
     buf = StringIO.StringIO('<message name="IDS_BLA" desc="">'
                             '\'\'\'  Hello there <ph name="USERNAME">%s</ph>   \'\'\''
@@ -50,7 +50,7 @@ class MessageUnittest(unittest.TestCase):
     self.failUnless(msg_node.children[1].children[0].GetCdata() == '11')
     self.failUnless(msg_node.ws_at_start == '   ')
     self.failUnless(msg_node.ws_at_end == '\t\t')
-  
+
   def testUnicodeConstruct(self):
     text = u'Howdie \u00fe'
     msg = tclib.Message(text=text)

@@ -464,7 +464,7 @@ LanguagesPageView::LanguagesPageView(Profile* profile)
       starting_ui_language_index_(-1) {
   accept_languages_.Init(prefs::kAcceptLanguages,
       profile->GetPrefs(), NULL);
-  enable_spellcheck_.Init(prefs::kEnableSpellCheck, 
+  enable_spellcheck_.Init(prefs::kEnableSpellCheck,
       profile->GetPrefs(), NULL);
 }
 
@@ -607,7 +607,7 @@ void LanguagesPageView::InitControlLayout() {
   dictionary_language_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CHROME_DICTIONARY_LANGUAGE));
   dictionary_language_label_->SetHorizontalAlignment(
-      views::Label::ALIGN_LEFT);  
+      views::Label::ALIGN_LEFT);
   enable_spellchecking_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_ENABLE_SPELLCHECK));
   enable_spellchecking_checkbox_->SetListener(this);

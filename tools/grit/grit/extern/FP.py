@@ -31,4 +31,4 @@ def FingerPrint(str, encoding='utf-8'):
   if fp & 0x8000000000000000L:
     fp = - ((~fp & 0xFFFFFFFFFFFFFFFFL) + 1)
   return fp
- 
+

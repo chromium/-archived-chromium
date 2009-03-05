@@ -615,7 +615,7 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DStrokeText) {
 
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DPutImageData) {
   INC_STATS("DOM.CanvasRenderingContext2D.putImageData()");
-  
+
   // Two froms:
   // * putImageData(ImageData, x, y)
   // * putImageData(ImageData, x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight)
@@ -853,7 +853,7 @@ v8::Handle<v8::Value> V8Custom::WindowSetTimeoutImpl(const v8::Arguments& args,
   if (!V8Proxy::CanAccessFrame(imp->frame(), true))
     return v8::Undefined();
 
-  ScriptExecutionContext* script_context = 
+  ScriptExecutionContext* script_context =
     static_cast<ScriptExecutionContext*>(imp->frame()->document());
 
   v8::Handle<v8::Value> function = args[0];
@@ -1064,7 +1064,7 @@ CALLBACK_FUNC_DECL(DOMWindowNOP)
 
 CALLBACK_FUNC_DECL(HTMLFormElementSubmit) {
   INC_STATS("DOM.HTMLFormElement.submit()");
-  
+
   HTMLFormElement* form =
     V8Proxy::DOMWrapperToNative<HTMLFormElement>(args.Holder());
 
@@ -1086,9 +1086,9 @@ static String EventNameFromAttributeName(const String& name) {
         break;
       case 'd':
         ASSERT(event_type.length() > 7);
-        if (event_type[7] == 'a') 
+        if (event_type[7] == 'a')
           event_type = "webkitAnimationEnd";
-        else 
+        else
           event_type = "webkitTransitionEnd";
         break;
     }
@@ -1115,7 +1115,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
 
   String key = ToWebCoreString(name);
   String event_type = EventNameFromAttributeName(key);
- 
+
   if (value->IsNull()) {
     // Clear the event listener
     doc->removeWindowInlineEventListenerForType(event_type);

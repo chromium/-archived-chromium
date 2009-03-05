@@ -8,7 +8,7 @@
   Bound to a JavaScript window.eventSender object using
   CppBoundClass::BindToJavascript(), this allows layout tests that are run in
   the test_shell to fire DOM events.
-  
+
   The OSX reference file is in
   WebKit/WebKitTools/DumpRenderTree/EventSendingController.m
 */

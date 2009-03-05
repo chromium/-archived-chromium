@@ -32,7 +32,7 @@ PORT = 42492
 
 def SetupIterationCommandLine(cmd):
   """Adds the necessary flags for iteration to a command.
-  
+
   Args:
     cmd: an object created by cmdline.AddCommand
   """
@@ -71,15 +71,15 @@ def SetupIterationCommandLine(cmd):
 
 def Iterate(command, iteration_func):
   """Iterates over a list of URLs, calling a function on each.
-  
+
   Args:
     command: the command line containing the iteration flags
     iteration_func: called for each URL with (proc, wnd, url, result)
   """
-  
+
   # Retrieve the browser scraper to use to invoke the browser
   scraper = scrapers.GetScraper((command["--browser"], command["--browserver"]))
-        
+
   def AttachToBrowser(path, timeout):
     """Invoke the browser process and connect to the socket."""
     (proc, frame, wnd) = scraper.GetBrowser(path)
@@ -106,7 +106,7 @@ def Iterate(command, iteration_func):
     if command["--size"]:
       # Resize and reposition the frame
       windowing.MoveAndSizeWindow(frame, (0, 0), command["--size"], wnd)
-      
+
     s.settimeout(timeout)
 
     Iterate.proc = proc
@@ -133,7 +133,7 @@ def Iterate(command, iteration_func):
     browser = command["--browserpath"]
   else:
     browser = None
-    
+
   # Read the URLs from the file
   if command["--url"]:
     url_list = [command["--url"]]
@@ -174,13 +174,13 @@ def Iterate(command, iteration_func):
       try:
         recv = Iterate.s.recv(MAX_URL)
         response = response + recv
-        
+
         # Workaround for an oddity: when Firefox closes
         # gracefully, somehow Python doesn't detect it.
         # (Telnet does)
-        if not recv: 
+        if not recv:
           raise socket.error
-        
+
       except socket.timeout:
         response = url + ",hang\n"
         DetachFromBrowser()
@@ -192,10 +192,10 @@ def Iterate(command, iteration_func):
       # If we received a timeout response, restart the browser
       if response[-9:] == ",timeout\n":
         DetachFromBrowser()
-        
+
       # Invoke the iteration function
       iteration_func(url, Iterate.proc, Iterate.wnd, response)
 
-  # We're done  
+  # We're done
   DetachFromBrowser()
 

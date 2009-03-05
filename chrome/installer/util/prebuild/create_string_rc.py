@@ -150,7 +150,7 @@ def WriteHeaderFile(translated_strings, out_filename):
   """Writes a .h file with resource ids.  This file can be included by the
   executable to refer to identifiers."""
   lines = []
-  
+
   # Write the values for how the languages ids are offset.
   seen_languages = set()
   offset_id = 0
@@ -180,7 +180,7 @@ def WriteHeaderFile(translated_strings, out_filename):
   outfile.write('\n'.join(lines))
   outfile.write('\n')  # .rc files must end in a new line
   outfile.close()
-  
+
 def main(argv):
   translated_strings = CollectTranslatedStrings()
   kFilebase = os.path.join(argv[1], 'installer_util_strings')

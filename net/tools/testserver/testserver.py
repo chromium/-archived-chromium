@@ -27,7 +27,7 @@ import tlslite
 import tlslite.api
 import pyftpdlib.ftpserver
 
-SERVER_HTTP = 0 
+SERVER_HTTP = 0
 SERVER_FTP = 1
 
 debug_output = sys.stderr
@@ -410,11 +410,11 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def WriteFile(self):
     """This is handler dumps the content of POST request to a disk file into
     the data_dir/dump. Sub-directories are not supported."""
-    
+
     prefix='/writefile/'
     if not self.path.startswith(prefix):
       return False
-    
+
     file_name = self.path[len(prefix):]
 
     # do not allow fancy chars in file name
@@ -426,13 +426,13 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       f = open(path, "wb")
       f.write(request);
       f.close()
-      
+
     self.send_response(200)
     self.send_header('Content-type', 'text/html')
     self.end_headers()
     self.wfile.write('<html>%s</html>' % file_name)
     return True
-    
+
   def EchoTitleHandler(self):
     """This handler is like Echo, but sets the page title to the request."""
 
@@ -1013,7 +1013,7 @@ def main(options, args):
 
     server.data_dir = MakeDataDir()
     MakeDumpDir(server.data_dir)
-    
+
   # means FTP Server
   else:
     my_data_dir = MakeDataDir()
@@ -1069,4 +1069,4 @@ if __name__ == '__main__':
   options, args = option_parser.parse_args()
 
   sys.exit(main(options, args))
-  
+

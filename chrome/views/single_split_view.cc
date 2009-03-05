@@ -13,7 +13,7 @@ namespace views {
 // Size of the divider in pixels.
 static const int kDividerSize = 4;
 
-SingleSplitView::SingleSplitView(View* leading, View* trailing) 
+SingleSplitView::SingleSplitView(View* leading, View* trailing)
     : divider_x_(-1) {
   AddChildView(leading);
   AddChildView(trailing);

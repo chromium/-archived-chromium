@@ -143,7 +143,7 @@ Browser* InProcessBrowserTest::CreateBrowser(Profile* profile) {
 
   browser->AddTabWithURL(
       GURL("about:blank"), GURL(), PageTransition::START_PAGE, true, NULL);
-  
+
   // Wait for the page to finish loading.
   ui_test_utils::WaitForNavigation(
       browser->GetSelectedTabContents()->controller());

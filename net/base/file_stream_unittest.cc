@@ -35,7 +35,7 @@ class FileStreamTest : public PlatformTest {
 
 TEST_F(FileStreamTest, BasicOpenClose) {
   net::FileStream stream;
-  int rv = stream.Open(temp_file_path(), 
+  int rv = stream.Open(temp_file_path(),
       base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ);
   EXPECT_EQ(net::OK, rv);
 }
@@ -103,7 +103,7 @@ TEST_F(FileStreamTest, BasicRead) {
   EXPECT_TRUE(ok);
 
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
+  int flags = base::PLATFORM_FILE_OPEN |
               base::PLATFORM_FILE_READ;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -133,8 +133,8 @@ TEST_F(FileStreamTest, AsyncRead) {
   EXPECT_TRUE(ok);
 
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
-              base::PLATFORM_FILE_READ | 
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
               base::PLATFORM_FILE_ASYNC;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -168,7 +168,7 @@ TEST_F(FileStreamTest, BasicRead_FromOffset) {
   EXPECT_TRUE(ok);
 
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
+  int flags = base::PLATFORM_FILE_OPEN |
               base::PLATFORM_FILE_READ;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -202,8 +202,8 @@ TEST_F(FileStreamTest, AsyncRead_FromOffset) {
   EXPECT_TRUE(ok);
 
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
-              base::PLATFORM_FILE_READ | 
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
               base::PLATFORM_FILE_ASYNC;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -237,7 +237,7 @@ TEST_F(FileStreamTest, AsyncRead_FromOffset) {
 
 TEST_F(FileStreamTest, SeekAround) {
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
+  int flags = base::PLATFORM_FILE_OPEN |
               base::PLATFORM_FILE_READ;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -260,7 +260,7 @@ TEST_F(FileStreamTest, SeekAround) {
 
 TEST_F(FileStreamTest, BasicWrite) {
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_CREATE_ALWAYS | 
+  int flags = base::PLATFORM_FILE_CREATE_ALWAYS |
               base::PLATFORM_FILE_WRITE;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -281,8 +281,8 @@ TEST_F(FileStreamTest, BasicWrite) {
 
 TEST_F(FileStreamTest, AsyncWrite) {
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_CREATE_ALWAYS | 
-              base::PLATFORM_FILE_WRITE | 
+  int flags = base::PLATFORM_FILE_CREATE_ALWAYS |
+              base::PLATFORM_FILE_WRITE |
               base::PLATFORM_FILE_ASYNC;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -311,7 +311,7 @@ TEST_F(FileStreamTest, AsyncWrite) {
 
 TEST_F(FileStreamTest, BasicWrite_FromOffset) {
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
+  int flags = base::PLATFORM_FILE_OPEN |
               base::PLATFORM_FILE_WRITE;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);
@@ -340,7 +340,7 @@ TEST_F(FileStreamTest, AsyncWrite_FromOffset) {
   EXPECT_TRUE(ok);
 
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
+  int flags = base::PLATFORM_FILE_OPEN |
               base::PLATFORM_FILE_WRITE |
               base::PLATFORM_FILE_ASYNC;
   int rv = stream.Open(temp_file_path(), flags);
@@ -373,8 +373,8 @@ TEST_F(FileStreamTest, BasicReadWrite) {
   EXPECT_TRUE(ok);
 
   net::FileStream stream;
-  int flags = base::PLATFORM_FILE_OPEN | 
-              base::PLATFORM_FILE_READ | 
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
               base::PLATFORM_FILE_WRITE;
   int rv = stream.Open(temp_file_path(), flags);
   EXPECT_EQ(net::OK, rv);

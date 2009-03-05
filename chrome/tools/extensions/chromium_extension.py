@@ -56,7 +56,7 @@ class ExtensionDir:
       f = open(os.path.join(self._root, MANIFEST_FILENAME))
       manifest = json.load(f)
       f.close()
-      
+
       zip_path = path + ".zip"
       if os.path.exists(zip_path):
         os.remove(zip_path)
@@ -68,7 +68,7 @@ class ExtensionDir:
         logging.debug("%s: %s" % (arcname, file))
         zip.write(file, arcname)
       zip.close()
-      
+
       zip = open(zip_path, mode="rb")
       hash = hashlib.sha256()
       while True:
@@ -77,11 +77,11 @@ class ExtensionDir:
           break
         hash.update(buf)
       zip.close()
-      
+
       manifest["zip_hash"] = hash.hexdigest()
 
       # This is a bit odd - we're actually appending a new zip file to the end
-      # of the manifest.  Believe it or not, this is actually an explicit 
+      # of the manifest.  Believe it or not, this is actually an explicit
       # feature of the zip format, and many zip utilities (this library
       # and three others I tried) can still read the underlying zip file.
       if os.path.exists(path):
@@ -105,7 +105,7 @@ class ExtensionDir:
         out.write(buf)
       zip.close()
       out.close()
-      
+
       os.remove(zip_path)
 
       logging.info("created extension package %s" % path)
@@ -136,7 +136,7 @@ class ExtensionPackage:
 
 def Run():
   logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
-  
+
   parser = optparse.OptionParser("usage: %prog --indir=<dir> --outfile=<file>")
   parser.add_option("", "--indir",
                     help="an input directory where the extension lives")

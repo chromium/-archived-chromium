@@ -233,7 +233,7 @@ void BookmarkBubbleView::Init() {
   cs->AddColumn(GridLayout::CENTER, GridLayout::CENTER, 0, GridLayout::USE_PREF,
                 0, 0);
   cs->AddPaddingColumn(1, kUnrelatedControlHorizontalSpacing);
-  cs->AddColumn(GridLayout::CENTER, GridLayout::CENTER, 0, GridLayout::USE_PREF,		
+  cs->AddColumn(GridLayout::CENTER, GridLayout::CENTER, 0, GridLayout::USE_PREF,
                 0, 0);
 
   // Middle (input field) rows.
@@ -291,7 +291,7 @@ std::wstring BookmarkBubbleView::GetTitle() {
   return std::wstring();
 }
 
-void BookmarkBubbleView::ButtonPressed(views::NativeButton* sender) {		
+void BookmarkBubbleView::ButtonPressed(views::NativeButton* sender) {
   if (sender == edit_button_) {
     UserMetrics::RecordAction(L"BookmarkBubble_Edit", profile_);
     ShowEditor();
@@ -299,7 +299,7 @@ void BookmarkBubbleView::ButtonPressed(views::NativeButton* sender) {
     DCHECK(sender == close_button_);
     Close();
   }
-  // WARNING: we've most likely been deleted when CloseWindow returns.		
+  // WARNING: we've most likely been deleted when CloseWindow returns.
 }
 
 void BookmarkBubbleView::LinkActivated(Link* source, int event_flags) {

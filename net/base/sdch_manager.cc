@@ -142,12 +142,12 @@ const bool SdchManager::IsInSupportedDomain(const GURL& url) {
 
 bool SdchManager::CanFetchDictionary(const GURL& referring_url,
                                      const GURL& dictionary_url) const {
-  /* The user agent may retrieve a dictionary from the dictionary URL if all of 
+  /* The user agent may retrieve a dictionary from the dictionary URL if all of
      the following are true:
        1 The dictionary URL host name matches the referrer URL host name
        2 The dictionary URL host name domain matches the parent domain of the
            referrer URL host name
-       3 The parent domain of the referrer URL host name is not a top level 
+       3 The parent domain of the referrer URL host name is not a top level
            domain
        4 The dictionary URL is not an HTTPS URL.
    */
@@ -365,7 +365,7 @@ bool SdchManager::Dictionary::CanSet(const std::string& domain,
                                      const GURL& dictionary_url) {
   if (!SdchManager::Global()->IsInSupportedDomain(dictionary_url))
     return false;
-  /* 
+  /*
   A dictionary is invalid and must not be stored if any of the following are
   true:
     1. The dictionary has no Domain attribute.
@@ -459,7 +459,7 @@ bool SdchManager::Dictionary::CanUse(const GURL referring_url) {
 bool SdchManager::Dictionary::CanAdvertise(const GURL& target_url) {
   if (!SdchManager::Global()->IsInSupportedDomain(target_url))
     return false;
-  /* The specific rules of when a dictionary should be advertised in an 
+  /* The specific rules of when a dictionary should be advertised in an
      Avail-Dictionary header are modeled after the rules for cookie scoping. The
      terms "domain-match" and "pathmatch" are defined in RFC 2965 [6]. A
      dictionary may be advertised in the Avail-Dictionaries header exactly when
@@ -489,7 +489,7 @@ bool SdchManager::Dictionary::PathMatch(const std::string& path,
   /*  Must be either:
   1. P2 is equal to P1
   2. P2 is a prefix of P1 and either the final character in P2 is "/" or the
-      character following P2 in P1 is "/". 
+      character following P2 in P1 is "/".
       */
   if (path == restriction)
     return true;

@@ -18,28 +18,28 @@ from grit import xtb_reader
 
 class FileNode(base.Node):
   '''A <file> element.'''
-  
+
   def __init__(self):
     super(type(self), self).__init__()
     self.re = None
     self.should_load_ = True
-  
+
   def IsTranslation(self):
     return True
-  
+
   def GetLang(self):
     return self.attrs['lang']
-  
+
   def DisableLoading(self):
     self.should_load_ = False
-  
+
   def MandatoryAttributes(self):
     return ['path', 'lang']
-  
+
   def RunGatherers(self, recursive=False, debug=False):
     if not self.should_load_:
       return
-    
+
     xtb_file = file(self.GetFilePath())
     try:
       lang = xtb_reader.Parse(xtb_file,
@@ -51,22 +51,22 @@ class FileNode(base.Node):
     assert lang == self.attrs['lang'], ('The XTB file you '
             'reference must contain messages in the language specified\n'
             'by the \'lang\' attribute.')
-  
+
   def GetFilePath(self):
     return self.ToRealPath(os.path.expandvars(self.attrs['path']))
 
 
 class OutputNode(base.Node):
   '''An <output> element.'''
-  
+
   def MandatoryAttributes(self):
     return ['filename', 'type']
-  
+
   def DefaultAttributes(self):
     return { 'lang' : '', # empty lang indicates all languages
              'language_section' : 'neutral' # defines a language neutral section
-             } 
-  
+             }
+
   def GetType(self):
     return self.attrs['type']
 
@@ -98,9 +98,9 @@ class EmitNode(base.ContentNode):
 
   def ItemFormatter(self, t):
     if t == 'rc_header':
-      return grit.format.rc_header.EmitAppender() 
+      return grit.format.rc_header.EmitAppender()
     else:
-      return super(type(self), self).ItemFormatter(t) 
-  
+      return super(type(self), self).ItemFormatter(t)
+
 
 

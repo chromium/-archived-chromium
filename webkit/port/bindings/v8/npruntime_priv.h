@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef NP_RUNTIME_PRIV_H_
@@ -45,7 +45,7 @@ void _NPN_DeallocateObject(NPObject *obj);
 // be "registered" while they are alive.  After an object has been
 // deleted, it is possible for Javascript to have a reference to that object
 // which has not yet been garbage collected.  Javascript access to NPObjects
-// will reference this registry to determine if the object is accessible or 
+// will reference this registry to determine if the object is accessible or
 // not.
 
 // Windows introduces an additional complication for objects created by the
@@ -59,7 +59,7 @@ void _NPN_DeallocateObject(NPObject *obj);
 // We generally associate NPObjects with an owner.  The owner of an NPObject
 // is an NPObject which, when destroyed, also destroys all objects it owns.
 // For example, if an NPAPI plugin creates 10 sub-NPObjects, all 11 objects
-// (the NPAPI plugin + its 10 sub-objects) should become inaccessible 
+// (the NPAPI plugin + its 10 sub-objects) should become inaccessible
 // simultaneously.
 
 // The ownership hierarchy is flat, and not a tree.  Imagine the following

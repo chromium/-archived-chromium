@@ -60,8 +60,8 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
                      history::QueryResults* results);
 
   // Extract the arguments from the call to HandleSearchHistory.
-  void ExtractSearchHistoryArguments(const Value* value, 
-                                     int* month, 
+  void ExtractSearchHistoryArguments(const Value* value,
+                                     int* month,
                                      std::wstring* query);
 
   // Figure out the query options for a month-wide query.
@@ -72,7 +72,7 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
 
   // Browsing history remover
   scoped_ptr<BrowsingDataRemover> remover_;
-  
+
   // Our consumer for the history service.
   CancelableRequestConsumerTSimple<PageUsageData*> cancelable_consumer_;
 

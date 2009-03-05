@@ -49,7 +49,7 @@ class HWNDHtmlView : public views::HWNDView {
 
   // Our HTML rendering component.
   RenderViewHost* render_view_host_;
-  
+
   // Whether or not the rendered content is permitted to send messages back to
   // the view, through |delegate_| via ProcessDOMUIMessage.
   bool allow_dom_ui_bindings_;

@@ -15,7 +15,7 @@ class DOMBoundBrowserObject : public CppBoundClass {
  public:
   DOMBoundBrowserObject() : routing_id_(0) { }
   virtual ~DOMBoundBrowserObject();
-  
+
   // Set the message channel back to the browser.
   void set_message_sender(IPC::Message::Sender* sender) {
     sender_ = sender;

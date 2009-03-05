@@ -36,7 +36,7 @@ class LinkInfoBarDelegate;
 // and the delegate is free to clean itself up or reset state, which may have
 // fatal consequences for the InfoBar that was in the process of opening (or is
 // now fully opened) -- it is referencing a delegate that may not even exist
-// anymore. 
+// anymore.
 // As such, it is generally much safer to dedicate a delegate instance to
 // AddInfoBar!
 class InfoBarDelegate {
@@ -149,7 +149,7 @@ class LinkInfoBarDelegate : public InfoBarDelegate {
   // closed now or false if it should remain until the user explicitly closes
   // it.
   virtual bool LinkClicked(WindowOpenDisposition disposition) {
-    return true; 
+    return true;
   }
 
   // Overridden from InfoBarDelegate:

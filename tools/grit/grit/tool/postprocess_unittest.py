@@ -21,28 +21,28 @@ from grit.tool import rc2grd
 
 
 class PostProcessingUnittest(unittest.TestCase):
-  
+
   def testPostProcessing(self):
     rctext = '''STRINGTABLE
 BEGIN
   DUMMY_STRING_1         "String 1"
-  // Some random description 
+  // Some random description
   DUMMY_STRING_2        "This text was added during preprocessing"
-END  
+END
     '''
     tool = rc2grd.Rc2Grd()
     class DummyOpts(object):
       verbose = False
       extra_verbose = False
-    tool.o = DummyOpts()  
+    tool.o = DummyOpts()
     tool.post_process = 'grit.tool.postprocess_unittest.DummyPostProcessor'
     result = tool.Process(rctext, '.\resource.rc')
-    
+
     self.failUnless(
       result.children[2].children[2].children[0].attrs['name'] == 'SMART_STRING_1')
     self.failUnless(
       result.children[2].children[2].children[1].attrs['name'] == 'SMART_STRING_2')
-    
+
 class DummyPostProcessor(grit.tool.postprocess_interface.PostProcessor):
   '''
   Post processing replaces all message name attributes containing "DUMMY" to
@@ -56,7 +56,7 @@ class DummyPostProcessor(grit.tool.postprocess_interface.PostProcessor):
       m = smarter.search(name_attr)
       if m:
          node.attrs['name'] = 'SMART' + m.group(2)
-    return grdnode 
+    return grdnode
 
 if __name__ == '__main__':
   unittest.main()

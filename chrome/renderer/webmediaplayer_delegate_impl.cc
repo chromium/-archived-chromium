@@ -60,7 +60,7 @@ WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {
   // Cancel all tasks posted on the main_loop_.
   CancelAllTasks();
 
-  // After cancelling all tasks, we are sure there will be no calls to 
+  // After cancelling all tasks, we are sure there will be no calls to
   // web_media_player_, so we are safe to delete it.
   if (web_media_player_) {
     delete web_media_player_;
@@ -147,7 +147,7 @@ void WebMediaPlayerDelegateImpl::SetVolume(float volume) {
 
   pipeline_.SetVolume(volume);
 }
- 
+
 void WebMediaPlayerDelegateImpl::SetVisible(bool visible) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
@@ -327,7 +327,7 @@ void WebMediaPlayerDelegateImpl::PostTask(int index,
                                           WebMediaPlayerMethod method) {
   DCHECK(main_loop_);
 
-  AutoLock auto_lock(task_lock_);  
+  AutoLock auto_lock(task_lock_);
   if(!tasks_[index]) {
     CancelableTask* task = new NotifyWebMediaPlayerTask(web_media_player_,
                                                         method);

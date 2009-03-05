@@ -93,11 +93,11 @@ void ResourceFetcher::didFinishLoading(ResourceHandle* resource_handle) {
     delegate_->OnURLFetchComplete(response_, data_);
 }
 
-void ResourceFetcher::didFail(ResourceHandle* resource_handle, 
+void ResourceFetcher::didFail(ResourceHandle* resource_handle,
                               const ResourceError& error) {
   ASSERT(!completed_);
   completed_ = true;
-  
+
   // Go ahead and tell our delegate that we're done.  Send an empty
   // ResourceResponse and string.
   if (delegate_)

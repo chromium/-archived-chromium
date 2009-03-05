@@ -12,7 +12,7 @@
 #define IDC_CUTTING_EDGE                1003
 #define IDC_SECONDARY_LABEL             1004
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1

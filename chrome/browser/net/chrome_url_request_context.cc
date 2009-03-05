@@ -187,7 +187,7 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
     user_script_dir_path_ = profile->GetUserScriptMaster()->user_script_dir();
 
   prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
-  prefs_->AddPrefObserver(prefs::kCookieBehavior, this);  
+  prefs_->AddPrefObserver(prefs::kCookieBehavior, this);
 
   NotificationService::current()->AddObserver(
       this, NotificationType::EXTENSIONS_LOADED,

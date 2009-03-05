@@ -5,9 +5,9 @@
 
 # quantify_test.py
 
-'''Runs an app through Quantify and verifies that Quantify was able to 
+'''Runs an app through Quantify and verifies that Quantify was able to
 successfully instrument and run it.  The original purpose was to allow people
-to run Quantify in a consistent manner without having to worry about broken 
+to run Quantify in a consistent manner without having to worry about broken
 PATHs, corrupt instrumentation, or other per-machine flakiness that Quantify is
 sometimes subject to.  Unlike purify_test, the output from quantify_test is
 a binary file, which is much more useful in manual analysis.  As such, this
@@ -23,7 +23,7 @@ import common
 class Quantify(common.Rational):
   def __init__(self):
     common.Rational.__init__(self)
-    
+
   def CreateOptionParser(self):
     common.Rational.CreateOptionParser(self)
     self._parser.description = __doc__
@@ -42,11 +42,11 @@ class Quantify(common.Rational):
             "/CacheDir=" + self._cache_dir,
             "-first-search-dir=" + self._exe_dir, self._exe]
     return common.Rational.Instrument(self, proc)
-  
+
   def Execute(self):
     # TODO(erikkay): add an option to also do /SaveTextData and add an
     # Analyze method for automated analysis of that data.
-    proc = [common.QUANTIFYW_PATH, "/CacheDir=" + self._cache_dir, 
+    proc = [common.QUANTIFYW_PATH, "/CacheDir=" + self._cache_dir,
             "/ShowInstrumentationProgress=no", "/ShowLoadLibraryProgress=no",
             "/SaveData=" + self._out_file]
     return common.Rational.Execute(self, proc)
@@ -57,5 +57,5 @@ if __name__ == "__main__":
   if rational.Run():
     retcode = 0
   sys.exit(retcode)
-  
+
 

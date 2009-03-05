@@ -222,7 +222,7 @@ TEST_F(DiskCacheTest, BlockFilesPerformance) {
   memset(buffer, 0, sizeof(buffer));
   disk_cache::Addr* address = reinterpret_cast<disk_cache::Addr*>(buffer);
   ASSERT_EQ(sizeof(*address), sizeof(*buffer));
-  
+
   PerfTimeLogger timer1("Fill three block-files");
 
   // Fill up the 32-byte block file (use three files).

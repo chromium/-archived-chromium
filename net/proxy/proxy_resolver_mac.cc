@@ -26,7 +26,7 @@ CFTypeRef GetValueFromDictionary(CFDictionaryRef dict,
   CFTypeRef value = CFDictionaryGetValue(dict, key);
   if (!value)
     return value;
-  
+
   if (CFGetTypeID(value) != expected_type) {
     scoped_cftyperef<CFStringRef> expected_type_ref(
         CFCopyTypeIDDescription(expected_type));
@@ -41,7 +41,7 @@ CFTypeRef GetValueFromDictionary(CFDictionaryRef dict,
                  << " instead";
     return NULL;
   }
-  
+
   return value;
 }
 
@@ -54,7 +54,7 @@ bool GetBoolFromDictionary(CFDictionaryRef dict,
                                                            CFNumberGetTypeID());
   if (!number)
     return default_value;
-  
+
   int int_value;
   if (CFNumberGetValue(number, kCFNumberIntType, &int_value))
     return int_value;
@@ -86,7 +86,7 @@ net::ProxyServer GetProxyServerFromDictionary(net::ProxyServer::Scheme scheme,
     return net::ProxyServer();  // Invalid.
   }
   std::string host = base::SysCFStringRefToUTF8(host_ref);
-  
+
   CFNumberRef port_ref =
       (CFNumberRef)GetValueFromDictionary(dict, port_key,
                                           CFNumberGetTypeID());
@@ -96,7 +96,7 @@ net::ProxyServer GetProxyServerFromDictionary(net::ProxyServer::Scheme scheme,
   } else {
     port = net::ProxyServer::GetDefaultPortForScheme(scheme);
   }
-  
+
   return net::ProxyServer(scheme, host, port);
 }
 
@@ -119,18 +119,18 @@ net::ProxyServer::Scheme GetProxyServerScheme(CFStringRef proxy_type) {
 // to a CFTypeRef.  This stashes either |error| or |proxies| in that location.
 void ResultCallback(void* client, CFArrayRef proxies, CFErrorRef error) {
   DCHECK((proxies != NULL) == (error == NULL));
-  
+
   CFTypeRef* result_ptr = (CFTypeRef*)client;
   DCHECK(result_ptr != NULL);
   DCHECK(*result_ptr == NULL);
-  
+
   if (error != NULL) {
     *result_ptr = CFRetain(error);
   } else {
     *result_ptr = CFRetain(proxies);
   }
   CFRunLoopStop(CFRunLoopGetCurrent());
-}  
+}
 
 }  // namespace
 
@@ -140,9 +140,9 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
   scoped_cftyperef<CFDictionaryRef> config_dict(
       SCDynamicStoreCopyProxies(NULL));
   DCHECK(config_dict);
-  
+
   // auto-detect
-  
+
   // There appears to be no UI for this configuration option, and we're not sure
   // if Apple's proxy code even takes it into account. But the constant is in
   // the header file so we'll use it.
@@ -150,9 +150,9 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
       GetBoolFromDictionary(config_dict.get(),
                             kSCPropNetProxiesProxyAutoDiscoveryEnable,
                             false);
-  
+
   // PAC file
-  
+
   if (GetBoolFromDictionary(config_dict.get(),
                             kSCPropNetProxiesProxyAutoConfigEnable,
                             false)) {
@@ -164,9 +164,9 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
     if (pac_url_ref)
       config->pac_url = GURL(base::SysCFStringRefToUTF8(pac_url_ref));
   }
-  
+
   // proxies (for now only ftp, http and https)
-  
+
   if (GetBoolFromDictionary(config_dict.get(),
                             kSCPropNetProxiesFTPEnable,
                             false)) {
@@ -210,9 +210,9 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
       config->proxy_rules += proxy_server.ToURI();
     }
   }
-  
+
   // proxy bypass list
-  
+
   CFArrayRef bypass_array_ref =
       (CFArrayRef)GetValueFromDictionary(config_dict.get(),
                                          kSCPropNetProxiesExceptionsList,
@@ -225,22 +225,22 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
       if (CFGetTypeID(bypass_item_ref) != CFStringGetTypeID()) {
         LOG(WARNING) << "Expected value for item " << i
                      << " in the kSCPropNetProxiesExceptionsList"
-                        " to be a CFStringRef but it was not";      
-        
+                        " to be a CFStringRef but it was not";
+
       } else {
         config->proxy_bypass.push_back(
             base::SysCFStringRefToUTF8(bypass_item_ref));
       }
     }
   }
-  
+
   // proxy bypass boolean
-  
+
   config->proxy_bypass_local_names =
       GetBoolFromDictionary(config_dict.get(),
                             kSCPropNetProxiesExcludeSimpleHostnames,
                             false);
-  
+
   return OK;
 }
 
@@ -261,21 +261,21 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
       CFURLCreateWithString(kCFAllocatorDefault,
                             pac_ref.get(),
                             NULL));
-  
+
   // Work around <rdar://problem/5530166>. This dummy call to
   // CFNetworkCopyProxiesForURL initializes some state within CFNetwork that is
   // required by CFNetworkExecuteProxyAutoConfigurationURL.
-  
+
   CFArrayRef dummy_result = CFNetworkCopyProxiesForURL(query_url_ref.get(),
                                                        NULL);
   if (dummy_result)
     CFRelease(dummy_result);
-  
+
   // We cheat here. We need to act as if we were synchronous, so we pump the
   // runloop ourselves. Our caller moved us to a new thread anyway, so this is
   // OK to do. (BTW, CFNetworkExecuteProxyAutoConfigurationURL returns a
   // runloop source we need to release despite its name.)
-  
+
   CFTypeRef result = NULL;
   CFStreamClientContext context = { 0, &result, NULL, NULL, NULL };
   scoped_cftyperef<CFRunLoopSourceRef> runloop_source(
@@ -285,17 +285,17 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
                                                 &context));
   if (!runloop_source)
     return ERR_FAILED;
-  
+
   const CFStringRef private_runloop_mode =
       CFSTR("org.chromium.ProxyResolverMac");
-  
+
   CFRunLoopAddSource(CFRunLoopGetCurrent(), runloop_source.get(),
                      private_runloop_mode);
   CFRunLoopRunInMode(private_runloop_mode, DBL_MAX, false);
   CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runloop_source.get(),
                         private_runloop_mode);
   DCHECK(result != NULL);
-  
+
   if (CFGetTypeID(result) == CFErrorGetTypeID()) {
     // TODO(avi): do something better than this
     CFRelease(result);
@@ -303,19 +303,19 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
   }
   DCHECK(CFGetTypeID(result) == CFArrayGetTypeID());
   scoped_cftyperef<CFArrayRef> proxy_array_ref((CFArrayRef)result);
-  
+
   // This string will be an ordered list of <proxy-uri> entries, separated by
   // semi-colons. It is the format that ProxyInfo::UseNamedProxy() expects.
   //    proxy-uri = [<proxy-scheme>"://"]<proxy-host>":"<proxy-port>
   // (This also includes entries for direct connection, as "direct://").
   std::string proxy_uri_list;
-  
+
   CFIndex proxy_array_count = CFArrayGetCount(proxy_array_ref.get());
   for (CFIndex i = 0; i < proxy_array_count; ++i) {
     CFDictionaryRef proxy_dictionary =
         (CFDictionaryRef)CFArrayGetValueAtIndex(proxy_array_ref.get(), i);
     DCHECK(CFGetTypeID(proxy_dictionary) == CFDictionaryGetTypeID());
-    
+
     // The dictionary may have the following keys:
     // - kCFProxyTypeKey : The type of the proxy
     // - kCFProxyHostNameKey
@@ -329,7 +329,7 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
     //                         tease.
     // - kCFProxyAutoConfigurationURLKey : If the PAC file specifies another
     //                                     PAC file, I'm going home.
-    
+
     CFStringRef proxy_type =
         (CFStringRef)GetValueFromDictionary(proxy_dictionary,
                                             kCFProxyTypeKey,
@@ -346,11 +346,11 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
       proxy_uri_list += ";";
     proxy_uri_list += proxy_server.ToURI();
   }
-  
+
   if (!proxy_uri_list.empty())
     results->UseNamedProxy(proxy_uri_list);
   // Else do nothing (results is already guaranteed to be in the default state).
-  
+
   return OK;
 }
 

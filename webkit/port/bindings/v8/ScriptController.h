@@ -156,7 +156,7 @@ public:
     bool haveWindowShell() const { return true; }
 
     // Masquerade 'this' as the windowShell.
-    // This is a bit of a hack, but provides reasonable compatibility 
+    // This is a bit of a hack, but provides reasonable compatibility
     // with what JSC does as well.
     ScriptController* windowShell() { return this; }
 
@@ -224,7 +224,7 @@ public:
     // Some WebKit layout test need window.GCController.collect() to
     // trigger GC, this flag lets the binding code expose
     // window.GCController.collect() to the JavaScript code.
-    // 
+    //
     // GCController.collect() needs V8 engine expose gc() function by passing
     // '--expose-gc' flag to the engine.
     static bool shouldExposeGCController() {

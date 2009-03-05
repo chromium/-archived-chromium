@@ -23,7 +23,7 @@ class MalformedAdminTemplateException(exception.Base):
 
 class AdmGatherer(regexp.RegexpGatherer):
   '''Gatherer for the translateable portions of an admin template.
-  
+
   This gatherer currently makes the following assumptions:
   - there is only one [strings] section and it is always the last section
     of the file
@@ -33,17 +33,17 @@ class AdmGatherer(regexp.RegexpGatherer):
   # Finds the strings section as the group named 'strings'
   _STRINGS_SECTION = re.compile('(?P<first_part>.+^\[strings\])(?P<strings>.+)\Z',
                                 re.MULTILINE | re.DOTALL)
-  
+
   # Finds the translateable sections from within the [strings] section.
   _TRANSLATEABLES = re.compile('^\s*[A-Za-z0-9_]+\s*=\s*"(?P<text>.+)"\s*$',
                                re.MULTILINE)
-  
+
   def __init__(self, text):
     regexp.RegexpGatherer.__init__(self, text)
-  
+
   def Escape(self, text):
     return text.replace('\n', '\\n')
-  
+
   def UnEscape(self, text):
     return text.replace('\\n', '\n')
 
@@ -57,18 +57,18 @@ class AdmGatherer(regexp.RegexpGatherer):
     self._AddNontranslateableChunk(m.group('first_part'))
     # Then parse the rest using the _TRANSLATEABLES regexp.
     self._RegExpParse(self._TRANSLATEABLES, m.group('strings'))
-  
+
   # static method
   def FromFile(adm_file, ext_key=None, encoding='cp1252'):
     '''Loads the contents of 'adm_file' in encoding 'encoding' and creates
     an AdmGatherer instance that gathers from those contents.
-    
+
     The 'ext_key' parameter is ignored.
-    
+
     Args:
       adm_file: file('bingo.rc') | 'filename.rc'
       encoding: 'utf-8'
-    
+
     Return:
       AdmGatherer(contents_of_file)
     '''

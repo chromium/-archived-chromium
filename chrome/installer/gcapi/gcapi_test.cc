@@ -14,9 +14,9 @@ void call_statically() {
   // running this twice verifies that the first call does not set
   // a flag that would make the second fail.  Thus, the results
   // of the two calls should be the same (no state should have changed)
-  result_flag_off = GoogleChromeCompatibilityCheck(FALSE, &reason);  
+  result_flag_off = GoogleChromeCompatibilityCheck(FALSE, &reason);
   result_flag_on = GoogleChromeCompatibilityCheck(TRUE, &reason);
-  
+
   if (result_flag_off != result_flag_on)
       printf("Registry key flag is not being set properly.");
 
@@ -30,7 +30,7 @@ void call_dynamically() {
     printf("Couldn't load gcapi_dll.dll.\n");
     return;
   }
-    
+
   GCCC_CompatibilityCheck gccfn = (GCCC_CompatibilityCheck) GetProcAddress(
       module, "GoogleChromeCompatibilityCheck");
   if (gccfn != NULL) {

@@ -139,7 +139,7 @@ void TraceLog::Trace(const std::string& name,
                  name.c_str(),
                  id,
                  extra.c_str(),
-                 file, 
+                 file,
                  line,
                  usec);
 

@@ -97,7 +97,7 @@ class DialogClientView : public ClientView,
   // The dialog buttons.
   NativeButton* ok_button_;
   NativeButton* cancel_button_;
-  
+
   // The button that is currently the default button if any.
   NativeButton* default_button_;
 

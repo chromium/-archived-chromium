@@ -44,15 +44,15 @@ _UNESCAPE_CHARS = dict([[value, key] for key, value in _ESCAPE_CHARS.items()])
 
 class Section(regexp.RegexpGatherer):
   '''A section from a resource file.'''
-  
+
   def __init__(self, section_text):
     '''Creates a new object.
-    
+
     Args:
       section_text: 'ID_SECTION_ID SECTIONTYPE\n.....\nBEGIN\n.....\nEND'
     '''
     regexp.RegexpGatherer.__init__(self, section_text)
-  
+
   # static method
   def Escape(text):
     '''Returns a version of 'text' with characters escaped that need to be
@@ -61,26 +61,26 @@ class Section(regexp.RegexpGatherer):
       return _ESCAPE_CHARS[match.group()]
     return _NEED_ESCAPE.sub(Replace, text)
   Escape = staticmethod(Escape)
-  
-  # static method  
+
+  # static method
   def UnEscape(text):
     '''Returns a version of 'text' with escaped characters unescaped.'''
     def Replace(match):
       return _UNESCAPE_CHARS[match.group()]
     return _NEED_UNESCAPE.sub(Replace, text)
   UnEscape = staticmethod(UnEscape)
-  
+
   def _RegExpParse(self, rexp, text_to_parse):
     '''Overrides _RegExpParse to add shortcut group handling.  Otherwise
     the same.
     '''
     regexp.RegexpGatherer._RegExpParse(self, rexp, text_to_parse)
-    
+
     if not self.IsSkeleton() and len(self.GetTextualIds()) > 0:
       group_name = self.GetTextualIds()[0]
       for c in self.GetCliques():
         c.AddToShortcutGroup(group_name)
-  
+
   # Static method
   def FromFileImpl(rc_file, extkey, encoding, type):
     '''Implementation of FromFile.  Need to keep separate so we can have
@@ -88,14 +88,14 @@ class Section(regexp.RegexpGatherer):
     '''
     if isinstance(rc_file, types.StringTypes):
       rc_file = util.WrapInputStream(file(rc_file, 'r'), encoding)
-    
+
     out = ''
     begin_count = 0
     for line in rc_file.readlines():
       if len(out) > 0 or (line.strip().startswith(extkey) and
                           line.strip().split()[0] == extkey):
         out += line
-      
+
       # we stop once we reach the END for the outermost block.
       begin_count_was = begin_count
       if len(out) > 0 and line.strip() == 'BEGIN':
@@ -104,31 +104,31 @@ class Section(regexp.RegexpGatherer):
         begin_count -= 1
       if begin_count_was == 1 and begin_count == 0:
         break
-    
+
     if len(out) == 0:
       raise exception.SectionNotFound('%s in file %s' % (extkey, rc_file))
 
     return type(out)
   FromFileImpl = staticmethod(FromFileImpl)
-  
+
   # static method
   def FromFile(rc_file, extkey, encoding='cp1252'):
     '''Retrieves the section of 'rc_file' that has the key 'extkey'.  This is
     matched against the start of a line, and that line and the rest of that
     section in the RC file is returned.
-    
+
     If 'rc_file' is a filename, it will be opened for reading using 'encoding'.
     Otherwise the 'encoding' parameter is ignored.
-    
+
     This method instantiates an object of type 'type' with the text from the
     file.
-    
+
     Args:
       rc_file: file('') | 'filename.rc'
       extkey: 'ID_MY_DIALOG'
       encoding: 'utf-8'
       type: class to instantiate with text of section
-    
+
     Return:
       type(text_of_section)
     '''
@@ -154,7 +154,7 @@ class Dialog(Section):
   #     CONTROL         "Jack ""Black"" Daniels",IDC_RADIO1,"Button",
   #                     BS_AUTORADIOBUTTON,46,51,84,10
   # END
-  
+
   # We are using a sorted set of keys, and we assume that the
   # group name used for descriptions (type) will come after the "text"
   # group in alphabetical order. We also assume that there cannot be
@@ -184,11 +184,11 @@ class Dialog(Section):
     # Lines for controls that have only an ID and then just numbers
     \s+[A-Z]+\s+(?P<id4>[A-Z0-9_]*[A-Z][A-Z0-9_]*)\s*,
     ''', re.MULTILINE | re.VERBOSE)
-  
+
   def Parse(self):
     '''Knows how to parse dialog resource sections.'''
     self._RegExpParse(self.dialog_re_, self.text_)
-  
+
   # static method
   def FromFile(rc_file, extkey, encoding = 'cp1252'):
     return Section.FromFileImpl(rc_file, extkey, encoding, Dialog)
@@ -197,10 +197,10 @@ class Dialog(Section):
 
 class Menu(Section):
   '''A resource section that contains a menu resource.'''
-  
+
   # A typical menu resource section looks something like this:
   #
-  # IDC_KLONK MENU 
+  # IDC_KLONK MENU
   # BEGIN
   #     POPUP "&File"
   #     BEGIN
@@ -227,7 +227,7 @@ class Menu(Section):
     'in the menu. Please make sure that no two items in the same menu share '
     'the same shortcut.'
   )
-  
+
   # A dandy regexp to suck all the IDs and translateables out of a menu
   # resource
   menu_re_ = re.compile('''
@@ -240,7 +240,7 @@ class Menu(Section):
     # Match the caption & ID of a MENUITEM
     MENUITEM\s+"(?P<text2>.*?([^"]|""))"\s*,\s*(?P<id2>[A-Z0-9_]+)
     ''', re.MULTILINE | re.VERBOSE)
-  
+
   def Parse(self):
     '''Knows how to parse menu resource sections.  Because it is important that
     menu shortcuts are unique within the menu, we return each menu as a single
@@ -249,7 +249,7 @@ class Menu(Section):
     with instructions for the translators.'''
     self.single_message_ = tclib.Message(description=self.MENU_MESSAGE_DESCRIPTION)
     self._RegExpParse(self.menu_re_, self.text_)
-  
+
   # static method
   def FromFile(rc_file, extkey, encoding = 'cp1252'):
     return Section.FromFileImpl(rc_file, extkey, encoding, Menu)
@@ -258,7 +258,7 @@ class Menu(Section):
 
 class Version(Section):
   '''A resource section that contains a VERSIONINFO resource.'''
-  
+
   # A typical version info resource can look like this:
   #
   # VS_VERSION_INFO VERSIONINFO
@@ -297,7 +297,7 @@ class Version(Section):
   #
   # In addition to the above fields, VALUE fields named "Comments" and
   # "LegalTrademarks" may also be translateable.
-  
+
   version_re_ = re.compile('''
     # Match the ID on the first line
     ^(?P<id1>[A-Z0-9_]+)\s+VERSIONINFO
@@ -309,7 +309,7 @@ class Version(Section):
       ProductName|Comments|LegalTrademarks
     )",\s+"(?P<text1>.*?([^"]|""))"\s
     ''', re.MULTILINE | re.VERBOSE)
-  
+
   def Parse(self):
     '''Knows how to parse VERSIONINFO resource sections.'''
     self._RegExpParse(self.version_re_, self.text_)
@@ -321,18 +321,18 @@ class Version(Section):
   def FromFile(rc_file, extkey, encoding = 'cp1252'):
     return Section.FromFileImpl(rc_file, extkey, encoding, Version)
   FromFile = staticmethod(FromFile)
-  
+
 class RCData(Section):
   '''A resource section that contains some data .'''
 
   # A typical rcdataresource section looks like this:
   #
   # IDR_BLAH        RCDATA      { 1, 2, 3, 4 }
-  
+
   dialog_re_ = re.compile('''
     ^(?P<id1>[A-Z0-9_]+)\s+RCDATA\s+(DISCARDABLE)?\s+\{.*?\}
     ''', re.MULTILINE | re.VERBOSE | re.DOTALL)
-  
+
   def Parse(self):
     '''Knows how to parse RCDATA resource sections.'''
     self._RegExpParse(self.dialog_re_, self.text_)
@@ -343,14 +343,14 @@ class RCData(Section):
     '''
     if isinstance(rc_file, types.StringTypes):
       rc_file = util.WrapInputStream(file(rc_file, 'r'), encoding)
-    
+
     out = ''
     begin_count = 0
     openbrace_count = 0
     for line in rc_file.readlines():
       if len(out) > 0 or line.strip().startswith(extkey):
         out += line
-      
+
       # we stop once balance the braces (could happen on one line)
       begin_count_was = begin_count
       if len(out) > 0:
@@ -360,10 +360,10 @@ class RCData(Section):
       if ((begin_count_was == 1 and begin_count == 0) or
          (openbrace_count > 0 and begin_count == 0)):
         break
-    
+
     if len(out) == 0:
       raise exception.SectionNotFound('%s in file %s' % (extkey, rc_file))
-    
+
     return RCData(out)
   FromFile = staticmethod(FromFile)
 
@@ -371,7 +371,7 @@ class RCData(Section):
 class Accelerators(Section):
   '''An ACCELERATORS table.
   '''
-  
+
   # A typical ACCELERATORS section looks like this:
   #
   # IDR_ACCELERATOR1 ACCELERATORS
@@ -380,7 +380,7 @@ class Accelerators(Section):
   #   "^V",           ID_ACCELERATOR32771,    ASCII,  NOINVERT
   #   VK_INSERT,      ID_ACCELERATOR32772,    VIRTKEY, CONTROL, NOINVERT
   # END
-  
+
   accelerators_re_ = re.compile('''
     # Match the ID on the first line
     ^(?P<id1>[A-Z0-9_]+)\s+ACCELERATORS\s+
@@ -391,11 +391,11 @@ class Accelerators(Section):
     # Match accelerators specified as e.g. "^C"
     \s+"[^"]*",\s+(?P<id3>[A-Z0-9_]+)\s*,
     ''', re.MULTILINE | re.VERBOSE)
-  
+
   def Parse(self):
     '''Knows how to parse ACCELERATORS resource sections.'''
     self._RegExpParse(self.accelerators_re_, self.text_)
-  
+
   # static method
   def FromFile(rc_file, extkey, encoding = 'cp1252'):
     return Section.FromFileImpl(rc_file, extkey, encoding, Accelerators)

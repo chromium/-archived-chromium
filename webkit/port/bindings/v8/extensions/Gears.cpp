@@ -34,7 +34,7 @@ const char* kGearsExtensionScript =
 
 class GearsExtensionWrapper : public v8::Extension {
 public:
-    GearsExtensionWrapper() : 
+    GearsExtensionWrapper() :
         v8::Extension(kGearsExtensionName, kGearsExtensionScript) {}
 };
 

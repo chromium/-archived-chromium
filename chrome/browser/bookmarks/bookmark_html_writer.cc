@@ -322,7 +322,7 @@ void WriteBookmarks(MessageLoop* thread,
   // for the duration of the write), as such we make a copy of the
   // BookmarkModel using BookmarkCodec then write from that.
   BookmarkCodec codec;
-  scoped_ptr<Writer> writer(new Writer(codec.Encode(model), 
+  scoped_ptr<Writer> writer(new Writer(codec.Encode(model),
                             FilePath::FromWStringHack(path)));
   if (thread)
     thread->PostTask(FROM_HERE, writer.release());

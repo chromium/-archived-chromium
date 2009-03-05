@@ -433,7 +433,7 @@ void BookmarkTableView::PaintAltText() {
                             1, bounds.width() - 2, bounds.height() - 2,
                             ChromeCanvas::TEXT_ALIGN_LEFT);
   canvas.getTopPlatformDevice().drawToHDC(dc, bounds.x(), bounds.y(), NULL);
-  ReleaseDC(GetNativeControlHWND(), dc);  
+  ReleaseDC(GetNativeControlHWND(), dc);
 }
 
 gfx::Rect BookmarkTableView::GetAltTextBounds() {

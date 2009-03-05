@@ -39,7 +39,7 @@ bool GetUserDocumentsDirectory(FilePath* result) {
 // but it can be set to Desktop, which is dangerous. Instead,
 // we just use 'Downloads' under DIR_USER_DOCUMENTS. Localizing
 // 'downloads' is not a good idea because Chrome's UI language
-// can be changed. 
+// can be changed.
 bool GetUserDownloadsDirectory(FilePath* result) {
   if (!GetUserDocumentsDirectory(result))
     return false;

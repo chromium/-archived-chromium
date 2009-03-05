@@ -24,9 +24,9 @@ _root_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 SYSTEM_IDENTIFIERS = re.compile(
   r'''\bIDOK\b | \bIDCANCEL\b | \bIDC_STATIC\b | \bIDYES\b | \bIDNO\b |
       \bID_FILE_NEW\b | \bID_FILE_OPEN\b | \bID_FILE_CLOSE\b | \bID_FILE_SAVE\b |
-      \bID_FILE_SAVE_AS\b | \bID_FILE_PAGE_SETUP\b | \bID_FILE_PRINT_SETUP\b | 
-      \bID_FILE_PRINT\b | \bID_FILE_PRINT_DIRECT\b | \bID_FILE_PRINT_PREVIEW\b | 
-      \bID_FILE_UPDATE\b | \bID_FILE_SAVE_COPY_AS\b | \bID_FILE_SEND_MAIL\b | 
+      \bID_FILE_SAVE_AS\b | \bID_FILE_PAGE_SETUP\b | \bID_FILE_PRINT_SETUP\b |
+      \bID_FILE_PRINT\b | \bID_FILE_PRINT_DIRECT\b | \bID_FILE_PRINT_PREVIEW\b |
+      \bID_FILE_UPDATE\b | \bID_FILE_SAVE_COPY_AS\b | \bID_FILE_SEND_MAIL\b |
       \bID_FILE_MRU_FIRST\b | \bID_FILE_MRU_LAST\b |
       \bID_EDIT_CLEAR\b | \bID_EDIT_CLEAR_ALL\b | \bID_EDIT_COPY\b |
       \bID_EDIT_CUT\b | \bID_EDIT_FIND\b | \bID_EDIT_PASTE\b | \bID_EDIT_PASTE_LINK\b |
@@ -87,7 +87,7 @@ def UnescapeHtml(text, replace_nbsp=True):
   '''Returns 'text' with all HTML character entities (both named character
   entities and those specified by decimal or hexadecimal Unicode ordinal)
   replaced by their Unicode characters (or latin1 characters if possible).
-  
+
   The only exception is that &nbsp; will not be escaped if 'replace_nbsp' is
   False.
   '''
@@ -106,7 +106,7 @@ def UnescapeHtml(text, replace_nbsp=True):
         return unichr(htmlentitydefs.name2codepoint[name])
       else:
         return match.group()  # Unknown HTML character entity - don't replace
-  
+
   out = _HTML_ENTITY.sub(Replace, text)
   return out
 
@@ -115,10 +115,10 @@ def EncodeCdata(cdata):
   '''Returns the provided cdata in either escaped format or <![CDATA[xxx]]>
   format, depending on which is more appropriate for easy editing.  The data
   is escaped for inclusion in an XML element's body.
-  
+
   Args:
     cdata: 'If x < y and y < z then x < z'
-  
+
   Return:
     '<![CDATA[If x < y and y < z then x < z]]>'
   '''
@@ -132,12 +132,12 @@ def FixupNamedParam(function, param_name, param_value):
   '''Returns a closure that is identical to 'function' but ensures that the
   named parameter 'param_name' is always set to 'param_value' unless explicitly
   set by the caller.
-  
+
   Args:
     function: callable
     param_name: 'bingo'
     param_value: 'bongo' (any type)
-  
+
   Return:
     callable
   '''
@@ -152,10 +152,10 @@ def PathFromRoot(path):
   '''Takes a path relative to the root directory for GRIT (the one that grit.py
   resides in) and returns a path that is either absolute or relative to the
   current working directory (i.e .a path you can use to open the file).
-  
+
   Args:
     path: 'rel_dir\file.ext'
-  
+
   Return:
     'c:\src\tools\rel_dir\file.ext
   '''
@@ -200,10 +200,10 @@ _LANGUAGE_SPLIT_RE = re.compile('-|_|/')
 def CanonicalLanguage(code):
   '''Canonicalizes two-part language codes by using a dash and making the
   second part upper case.  Returns one-part language codes unchanged.
-  
+
   Args:
     code: 'zh_cn'
-  
+
   Return:
     code: 'zh-CN'
   '''
@@ -237,12 +237,12 @@ _LANG_TO_CODEPAGE = {
 def LanguageToCodepage(lang):
   '''Returns the codepage _number_ that can be used to represent 'lang', which
   may be either in formats such as 'en', 'pt_br', 'pt-BR', etc.
-  
+
   The codepage returned will be one of the 'cpXXXX' codepage numbers.
-  
+
   Args:
     lang: 'de'
-  
+
   Return:
     1252
   '''
@@ -266,7 +266,7 @@ def NewClassInstance(class_name, class_type):
   '''
   lastdot = class_name.rfind('.')
   module_name = ''
-  if lastdot >= 0:  
+  if lastdot >= 0:
     module_name = class_name[0:lastdot]
     if module_name:
       class_name = class_name[lastdot+1:]
@@ -276,7 +276,7 @@ def NewClassInstance(class_name, class_type):
         class_instance = class_()
         if isinstance(class_instance, class_type):
           return class_instance
-  return None 
+  return None
 
 
 def FixLineEnd(text, line_end):
@@ -293,7 +293,7 @@ def BoolToString(bool):
     return 'true'
   else:
     return 'false'
-  
+
 
 verbose = False
 extra_verbose = False

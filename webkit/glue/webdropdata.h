@@ -37,7 +37,7 @@ struct WebDropData {
   // User is dragging plain text into the webview.
   std::wstring plain_text;
 
-  // User is dragging text/html into the webview (e.g., out of Firefox). 
+  // User is dragging text/html into the webview (e.g., out of Firefox).
   // |html_base_url| is the URL that the html fragment is taken from (used to
   // resolve relative links).  It's ok for |html_base_url| to be empty.
   std::wstring text_html;

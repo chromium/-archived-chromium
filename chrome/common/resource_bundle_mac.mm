@@ -35,7 +35,7 @@ namespace {
 
 base::DataPack *LoadResourceDataPack(NSString *name) {
   base::DataPack *resource_pack = NULL;
-  
+
   NSString *resource_path = [mac_util::MainAppBundle() pathForResource:name
                                                                 ofType:@"pak"];
   if (resource_path) {
@@ -47,7 +47,7 @@ base::DataPack *LoadResourceDataPack(NSString *name) {
       resource_pack = NULL;
     }
   }
-  
+
   return resource_pack;
 }
 
@@ -56,7 +56,7 @@ base::DataPack *LoadResourceDataPack(NSString *name) {
 void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
   DLOG_IF(WARNING, pref_locale.size() != 0)
       << "ignoring requested locale in favor of NSBundle's selection";
-  
+
   DCHECK(resources_data_ == NULL) << "resource data already loaded!";
   resources_data_ = LoadResourceDataPack(@"chrome");
   DCHECK(resources_data_) << "failed to load chrome.pak";

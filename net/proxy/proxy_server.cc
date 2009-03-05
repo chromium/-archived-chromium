@@ -182,7 +182,7 @@ int ProxyServer::GetDefaultPortForScheme(Scheme scheme) {
       return -1;
   }
 }
-  
+
 // static
 ProxyServer ProxyServer::FromSchemeHostAndPort(
     Scheme scheme,

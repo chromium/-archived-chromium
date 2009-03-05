@@ -184,7 +184,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
     if (!DecodeChildren(model, *static_cast<ListValue*>(child_values), node))
       return false;
   }
-  
+
   node->SetTitle(title);
   node->date_added_ = Time::FromInternalValue(
       StringToInt64(WideToUTF16Hack(date_added_string)));

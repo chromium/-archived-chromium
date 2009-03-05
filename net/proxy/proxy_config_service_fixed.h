@@ -19,7 +19,7 @@ class ProxyConfigServiceFixed : public ProxyConfigService {
     config->proxy_rules = pi_.proxy_server().ToURI();
     return OK;
   }
-  
+
  private:
   ProxyInfo pi_;
 };

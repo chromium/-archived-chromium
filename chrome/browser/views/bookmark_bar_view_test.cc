@@ -36,7 +36,7 @@ class TestingPageNavigator : public PageNavigator {
 // Base class for event generating bookmark view tests. These test are intended
 // to exercise ChromeMenus, but that's easier done with BookmarkBarView rather
 // than ChromeMenu itself.
-// 
+//
 // SetUp creates a bookmark model with the following structure.
 // All folders are in upper case, all URLs in lower case.
 // F1
@@ -939,7 +939,7 @@ class BookmarkBarViewTest12 : public BookmarkBarViewEventTestBase {
     ASSERT_TRUE(child_menu != NULL);
     ui_controls::MoveMouseToCenterAndPress(child_menu, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP, NULL);
-    
+
     // Delay until we send tab, otherwise the message box doesn't appear
     // correctly.
     MessageLoop::current()->PostDelayedTask(FROM_HERE,

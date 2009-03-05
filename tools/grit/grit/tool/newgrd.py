@@ -59,7 +59,7 @@ where in the file.'''
 
   def ShortDescription(self):
     return 'Create a new empty .grd file.'
-  
+
   def Run(self, global_options, my_arguments):
     if not len(my_arguments) == 1:
       print 'This tool requires exactly one argument, the name of the output file.'

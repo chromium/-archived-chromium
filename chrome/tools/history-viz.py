@@ -40,11 +40,11 @@ class URL:
 
   def PrettyPrint(self, include_host=True, include_path=True):
     """Pretty-print this URL in a form more suitable for the graph.
-    
+
     This will elide very long paths and potentially puts newlines between parts
     of long components.  include_host and include_path determine whether to
     include the host and path in the output.
-    
+
     Returns: the pretty-printed string."""
     MAX_LEN = 30  # Maximum length of a line in the output.
     parts = []
@@ -130,7 +130,7 @@ class SQLite:
     for line in subproc.stdout:
       row = line.strip().split('\t')
       yield row
-    
+
 def LoadHistory(filename):
   db = SQLite(filename)
 
@@ -223,7 +223,7 @@ for src, dsts in edges.items():
       label.append(text)
     if len(label) == 0:
       continue
-    
+
     edgeattrs = []  # Graphviz attributes for the edge.
     # If the edge is from the start and the transitions are fishy, make it
     # display as a dotted line.

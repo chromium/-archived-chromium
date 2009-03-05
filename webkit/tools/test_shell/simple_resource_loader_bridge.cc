@@ -498,7 +498,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
                                       headers, load_flags);
 }
 
-// Issue the proxy resolve request on the io thread, and wait 
+// Issue the proxy resolve request on the io thread, and wait
 // for the result.
 bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
   DCHECK(request_context);

@@ -29,7 +29,7 @@ for line in response_file:
   filename = chunk_url[chunk_url.rfind('/') + 1:]
   filename =  "%03d" % counter + filename[0:filename.rfind('_')]
   counter += 1
-  
+
   urllib.urlretrieve(chunk_url, filename)
 
 response_file.close()

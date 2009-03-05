@@ -375,13 +375,13 @@ bool SelectFileDialogImpl::RunSelectFolderDialog(const std::wstring& title,
   browse_info.lpszTitle = title.c_str();
   browse_info.pszDisplayName = dir_buffer;
   browse_info.ulFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
-  
+
   if (path->length()) {
     // Highlight the current value.
     browse_info.lParam = (LPARAM)path->c_str();
     browse_info.lpfn = &BrowseCallbackProc;
   }
-  
+
   LPITEMIDLIST list = SHBrowseForFolder(&browse_info);
   DisableOwner(owner);
   if (list) {

@@ -405,7 +405,7 @@ int WMain(HMODULE module) {
   if (!RunSetup(have_upacked_setup, base_path,
                 archive_name, &setup_exit_code)) {
     return setup_exit_code;
- } 
+ }
 
   wchar_t value[4];
   if ((!ReadValueFromRegistry(HKEY_CURRENT_USER, kCleanupRegistryKey,

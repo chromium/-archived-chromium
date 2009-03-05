@@ -137,7 +137,7 @@ class ExtensionsServiceBackend
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);
 
   // Check externally updated extensions for updates and install if necessary.
-  // Errors are reported through ExtensionErrorReporter. 
+  // Errors are reported through ExtensionErrorReporter.
   // ReportExtensionInstalled is called on success.
   void CheckForExternalUpdates(
       scoped_refptr<ExtensionsServiceFrontendInterface> frontend);

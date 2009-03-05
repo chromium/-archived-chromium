@@ -161,12 +161,12 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
   // WebCore::PopupMenuClient implementation.
   virtual void valueChanged(unsigned listIndex, bool fireEvents = true) {
     text_field_->setValue(suggestions_[listIndex]);
-  }  
+  }
 
   virtual WebCore::String itemText(unsigned list_index) const {
     return suggestions_[list_index];
   }
-  
+
   virtual bool itemIsEnabled(unsigned listIndex) const {
     return true;
   }
@@ -246,7 +246,7 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
       ScrollbarClient* client,
       ScrollbarOrientation orientation,
       ScrollbarControlSize size) {
-    RefPtr<Scrollbar> widget = Scrollbar::createNativeScrollbar(client, 
+    RefPtr<Scrollbar> widget = Scrollbar::createNativeScrollbar(client,
                                                                 orientation,
                                                                 size);
     return widget.release();
@@ -267,7 +267,7 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
   WebCore::HTMLInputElement* text_field() const {
     return text_field_.get();
   }
-  
+
   WebCore::RenderStyle* GetTextFieldStyle() const {
     WebCore::RenderStyle* style = text_field_->computedStyle();
     if (!style) {
@@ -553,7 +553,7 @@ bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
 
   return false;
 }
-  
+
 bool WebViewImpl::CharEvent(const WebKeyboardEvent& event) {
   DCHECK(event.type == WebInputEvent::CHAR);
 
@@ -600,7 +600,7 @@ bool WebViewImpl::CharEvent(const WebKeyboardEvent& event) {
 * webkit\webkit\win\WebView.cpp. The only significant change in this
 * function is the code to convert from a Keyboard event to the Right
 * Mouse button up event.
-* 
+*
 * This function is an ugly copy/paste and should be cleaned up when the
 * WebKitWin version is cleaned: https://bugs.webkit.org/show_bug.cgi?id=20438
 */

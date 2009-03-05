@@ -29,18 +29,18 @@ to being one message for the whole menu.'''
   def ShortDescription(self):
     return ('Create translations of whole menus from existing translations of '
             'menu items.')
-  
+
   def Run(self, globopt, args):
     self.SetOptions(globopt)
     assert len(args) == 2, "Need exactly two arguments, the XTB file and the output file"
-    
+
     xtb_file = args[0]
     output_file = args[1]
-    
+
     grd = grd_reader.Parse(self.o.input, debug=self.o.extra_verbose)
     grd.OnlyTheseTranslations([])  # don't load translations
     grd.RunGatherers(recursive = True)
-    
+
     xtb = {}
     def Callback(msg_id, parts):
       msg = []
@@ -55,14 +55,14 @@ to being one message for the whole menu.'''
     f = file(xtb_file)
     xtb_reader.Parse(f, Callback)
     f.close()
-    
+
     translations = []  # list of translations as per transl2tc.WriteTranslations
     for node in grd:
       if node.name == 'structure' and node.attrs['type'] == 'menu':
         assert len(node.GetCliques()) == 1
         message = node.GetCliques()[0].GetMessage()
         translation = []
-        
+
         contents = message.GetContent()
         for part in contents:
           if isinstance(part, types.StringTypes):
@@ -74,10 +74,10 @@ to being one message for the whole menu.'''
             translation.append(xtb[id])
           else:
             translation.append(part.GetPresentation())
-        
+
         if len(translation):
           translations.append([message.GetId(), ''.join(translation)])
-    
+
     f = util.WrapOutputStream(file(output_file, 'w'))
     transl2tc.TranslationToTc.WriteTranslations(f, translations)
     f.close()

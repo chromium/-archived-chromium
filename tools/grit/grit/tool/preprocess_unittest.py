@@ -20,27 +20,27 @@ from grit.tool import rc2grd
 
 
 class PreProcessingUnittest(unittest.TestCase):
-  
+
   def testPreProcessing(self):
     tool = rc2grd.Rc2Grd()
     class DummyOpts(object):
       verbose = False
       extra_verbose = False
-    tool.o = DummyOpts()  
+    tool.o = DummyOpts()
     tool.pre_process = 'grit.tool.preprocess_unittest.DummyPreProcessor'
     result = tool.Process('', '.\resource.rc')
-    
+
     self.failUnless(
       result.children[2].children[2].children[0].attrs['name'] == 'DUMMY_STRING_1')
-    
+
 class DummyPreProcessor(grit.tool.preprocess_interface.PreProcessor):
   def Process(self, rctext, rcpath):
     rctext = '''STRINGTABLE
 BEGIN
   DUMMY_STRING_1         "String 1"
-  // Some random description 
+  // Some random description
   DUMMY_STRING_2        "This text was added during preprocessing"
-END  
+END
     '''
     return rctext
 

@@ -36,11 +36,11 @@ class FileNodeUnittest(unittest.TestCase):
     file_node.HandleAttribute(u'path', ur'flugel\kugel.pdf')
     translations.AddChild(file_node)
     root.EndParsing()
-    
+
     self.failUnless(file_node.GetFilePath() ==
                     util.normpath(
                       os.path.join(ur'../resource', ur'flugel/kugel.pdf')))
-  
+
   def testLoadTranslations(self):
     grd = grd_reader.Parse(StringIO.StringIO('''<?xml version="1.0" encoding="UTF-8"?>
       <grit latest_public_release="2" source_lang_id="en-US" current_release="3" base_dir=".">

@@ -396,7 +396,7 @@ TEST_F(NavigationControllerTest, LoadURL_NoPending) {
   contents->CompleteNavigationAsRenderer(0, kExistingURL1);
   EXPECT_TRUE(notifications.Check1AndReset(
       NotificationType::NAV_ENTRY_COMMITTED));
-	
+
   // Do a new navigation without making a pending one.
   const GURL kNewURL(scheme1() + ":see");
   contents->CompleteNavigationAsRenderer(99, kNewURL);
@@ -708,7 +708,7 @@ TEST_F(NavigationControllerTest, Back_OtherBackPending) {
   // Not synthesize a totally new back event to the first page. This will not
   // match the pending one.
   contents->CompleteNavigationAsRenderer(0, kUrl1);
-  
+
   // The navigation should not have affected the pending entry.
   EXPECT_EQ(1, contents->controller()->GetPendingEntryIndex());
 
@@ -1172,7 +1172,7 @@ TEST_F(NavigationControllerTest, SwitchTypesCleanup) {
   // Now that the tasks have been flushed, the first tab type should be gone.
   ASSERT_TRUE(
       contents->controller()->GetTabContents(type1()) == NULL);
-  ASSERT_EQ(contents, 
+  ASSERT_EQ(contents,
       contents->controller()->GetTabContents(type2()));
 }
 
@@ -1444,7 +1444,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   // We should have navigated, transient entry should be gone.
   EXPECT_EQ(url2, contents->controller()->GetActiveEntry()->url());
   EXPECT_EQ(contents->controller()->GetEntryCount(), 3);
-  
+
   // Add a transient again, then navigate with no pending entry this time.
   transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
   transient_entry->set_url(transient_url);
@@ -1477,7 +1477,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   EXPECT_EQ(url4, contents->controller()->GetActiveEntry()->url());
   EXPECT_EQ(contents->controller()->GetEntryCount(), 5);
   contents->CompleteNavigationAsRenderer(3, url3);
-  
+
   // Add a transient and go to an entry before the current one.
   transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
   transient_entry->set_url(transient_url);

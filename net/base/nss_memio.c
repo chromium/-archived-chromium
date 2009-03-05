@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 // Written in NSPR style to also be suitable for adding to the NSS demo suite
 
-/* memio is a simple NSPR I/O layer that lets you decouple NSS from 
+/* memio is a simple NSPR I/O layer that lets you decouple NSS from
  * the real network.  It's rather like openssl's memory bio,
  * and is useful when your app absolutely, positively doesn't
  * want to let NSS do its own networking.
@@ -38,21 +38,21 @@ struct memio_buffer {
 };
 
 
-/* The 'secret' field of a PRFileDesc created by memio_CreateIOLayer points 
+/* The 'secret' field of a PRFileDesc created by memio_CreateIOLayer points
  * to one of these.
- * In the public header, we use struct memio_Private as a typesafe alias 
+ * In the public header, we use struct memio_Private as a typesafe alias
  * for this.  This causes a few ugly typecasts in the private file, but
  * seems safer.
  */
 struct PRFilePrivate {
     /* read requests are satisfied from this buffer */
-    struct memio_buffer readbuf;    
+    struct memio_buffer readbuf;
 
     /* write requests are satisfied from this buffer */
-    struct memio_buffer writebuf;   
+    struct memio_buffer writebuf;
 
     /* SSL needs to know socket peer's name */
-    PRNetAddr peername;             
+    PRNetAddr peername;
 
     /* if set, empty I/O returns EOF instead of EWOULDBLOCK */
     int eof;
@@ -120,7 +120,7 @@ static int memio_buffer_used(const struct memio_buffer *mb)
 
 /* How many bytes can be read out of the buffer without wrapping */
 static int memio_buffer_used_contiguous(const struct memio_buffer *mb)
-{ 
+{
     return (((mb->tail >= mb->head) ? mb->tail : mb->bufsize) - mb->head);
 }
 
@@ -132,7 +132,7 @@ static int memio_buffer_unused(const struct memio_buffer *mb)
 
 /* How many bytes can be written into the buffer without wrapping */
 static int memio_buffer_unused_contiguous(const struct memio_buffer *mb)
-{ 
+{
     if (mb->head > mb->tail) return mb->head - mb->tail - 1;
     return mb->bufsize - mb->tail - (mb->head == 0);
 }
@@ -236,7 +236,7 @@ static PRStatus PR_CALLBACK memio_Shutdown(PRFileDesc *fd, PRIntn how)
  * out of the buffer, return it to the next call that
  * tries to read from an empty buffer.
  */
-static int PR_CALLBACK memio_Recv(PRFileDesc *fd, void *buf, PRInt32 len, 
+static int PR_CALLBACK memio_Recv(PRFileDesc *fd, void *buf, PRInt32 len,
                                   PRIntn flags, PRIntervalTime timeout)
 {
     struct PRFilePrivate *secret;
@@ -323,11 +323,11 @@ static PRStatus memio_GetSocketOption(PRFileDesc *fd, PRSocketOptionData *data)
 
 /*--------------- private memio data -----------------------*/
 
-/* 
+/*
  * Implement just the bare minimum number of methods needed to make ssl happy.
  *
- * Oddly, PR_Recv calls ssl_Recv calls ssl_SocketIsBlocking calls 
- * PR_GetSocketOption, so we have to provide an implementation of 
+ * Oddly, PR_Recv calls ssl_Recv calls ssl_SocketIsBlocking calls
+ * PR_GetSocketOption, so we have to provide an implementation of
  * PR_GetSocketOption that just says "I'm nonblocking".
  */
 

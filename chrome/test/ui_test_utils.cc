@@ -54,7 +54,7 @@ class NavigationNotificationObserver : public NotificationObserver {
   DISALLOW_COPY_AND_ASSIGN(NavigationNotificationObserver);
 };
 
-}  // namespace 
+}  // namespace
 
 void RunMessageLoop() {
   MessageLoopForUI* loop = MessageLoopForUI::current();

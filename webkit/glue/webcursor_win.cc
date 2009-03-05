@@ -182,8 +182,8 @@ HCURSOR WebCursor::GetCursor(HINSTANCE module_handle){
 
   custom_cursor_ = CreateIconIndirect(&ii);
 
-  DeleteObject(mask); 
-  DeleteObject(bitmap_handle); 
+  DeleteObject(mask);
+  DeleteObject(bitmap_handle);
   DeleteDC(workingDC);
   ReleaseDC(0, dc);
   return custom_cursor_;
@@ -211,7 +211,7 @@ bool WebCursor::SerializePlatformData(Pickle* pickle) const {
 }
 
 bool WebCursor::DeserializePlatformData(const Pickle* pickle, void** iter) {
-  return pickle->ReadIntPtr(iter, 
+  return pickle->ReadIntPtr(iter,
                             reinterpret_cast<intptr_t*>(&external_cursor_));
 }
 

@@ -63,7 +63,7 @@ WebString RendererWebKitClientImpl::MimeRegistry::mimeTypeForExtension(
   RenderThread::current()->Send(new ViewHostMsg_GetMimeTypeFromExtension(
       webkit_glue::WebStringToFilePathString(file_extension), &mime_type));
   return ASCIIToUTF16(mime_type);
-  
+
 }
 
 WebString RendererWebKitClientImpl::MimeRegistry::mimeTypeFromFile(
@@ -78,7 +78,7 @@ WebString RendererWebKitClientImpl::MimeRegistry::mimeTypeFromFile(
       FilePath(webkit_glue::WebStringToFilePathString(file_path)),
       &mime_type));
   return ASCIIToUTF16(mime_type);
-  
+
 }
 
 WebString RendererWebKitClientImpl::MimeRegistry::preferredExtensionForMIMEType(

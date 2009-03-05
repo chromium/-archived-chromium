@@ -37,7 +37,7 @@ class DebuggerWindow : public DebuggerInputOutput,
   virtual void SetDebuggerBreak(bool brk);
 
   // Note that this method will take ownership of argv.
-  virtual void CallFunctionInPage(const std::wstring& name, 
+  virtual void CallFunctionInPage(const std::wstring& name,
                                   ListValue* argv);
 
   // views::WindowDelegate methods:

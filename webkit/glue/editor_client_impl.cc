@@ -145,7 +145,7 @@ bool EditorClientImpl::isContinuousSpellCheckingEnabled() {
     return false;
   else if (spell_check_this_field_status_ == SPELLCHECK_FORCED_ON)
     return true;
-  else 
+  else
     return ShouldSpellcheckByDefault();
 }
 
@@ -213,9 +213,9 @@ bool EditorClientImpl::shouldInsertText(const WebCore::String& text,
     WebViewDelegate* d = web_view_->delegate();
     if (d) {
       std::wstring wstr = webkit_glue::StringToStdWString(text);
-      return d->ShouldInsertText(web_view_, 
-                                 wstr, 
-                                 Describe(range), 
+      return d->ShouldInsertText(web_view_,
+                                 wstr,
+                                 Describe(range),
                                  Describe(action));
     }
   }
@@ -232,23 +232,23 @@ bool EditorClientImpl::shouldDeleteRange(WebCore::Range* range) {
   return true;
 }
 
-bool EditorClientImpl::shouldChangeSelectedRange(WebCore::Range* from_range, 
-                                                 WebCore::Range* to_range, 
-                                                 WebCore::EAffinity affinity, 
+bool EditorClientImpl::shouldChangeSelectedRange(WebCore::Range* from_range,
+                                                 WebCore::Range* to_range,
+                                                 WebCore::EAffinity affinity,
                                                  bool still_selecting) {
   if (use_editor_delegate_) {
     WebViewDelegate* d = web_view_->delegate();
     if (d) {
-      return d->ShouldChangeSelectedRange(web_view_, 
-                                          Describe(from_range), 
-                                          Describe(to_range), 
-                                          Describe(affinity), 
+      return d->ShouldChangeSelectedRange(web_view_,
+                                          Describe(from_range),
+                                          Describe(to_range),
+                                          Describe(affinity),
                                           still_selecting);
     }
   }
   return true;
 }
-                                                
+
 bool EditorClientImpl::shouldApplyStyle(WebCore::CSSStyleDeclaration* style,
                                         WebCore::Range* range) {
   if (use_editor_delegate_) {
@@ -381,7 +381,7 @@ void EditorClientImpl::redo() {
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 static const unsigned CtrlKey = 1 << 0;
@@ -414,7 +414,7 @@ static const KeyDownEntry keyDownEntries[] = {
   { WebCore::VKEY_LEFT,   ShiftKey,           "MoveLeftAndModifySelection"    },
 #if defined(OS_MACOSX)
   { WebCore::VKEY_LEFT,   OptionKey,          "MoveWordLeft"                  },
-  { WebCore::VKEY_LEFT,   OptionKey | ShiftKey, 
+  { WebCore::VKEY_LEFT,   OptionKey | ShiftKey,
         "MoveWordLeftAndModifySelection"                                      },
 #else
   { WebCore::VKEY_LEFT,   CtrlKey,            "MoveWordLeft"                  },
@@ -450,7 +450,7 @@ static const KeyDownEntry keyDownEntries[] = {
 #if defined(OS_MACOSX)
   { WebCore::VKEY_UP,     CommandKey,         "MoveToBeginningOfDocument"     },
   { WebCore::VKEY_UP,     CommandKey | ShiftKey,
-        "MoveToBeginningOfDocumentAndModifySelection"                         },  
+        "MoveToBeginningOfDocumentAndModifySelection"                         },
 #else
   { WebCore::VKEY_HOME,   CtrlKey,            "MoveToBeginningOfDocument"     },
   { WebCore::VKEY_HOME,   CtrlKey | ShiftKey,
@@ -552,7 +552,7 @@ const char* EditorClientImpl::interpretKeyEvent(
 
     for (unsigned i = 0; i < arraysize(keyPressEntries); i++) {
       keyPressCommandsMap->set(
-        keyPressEntries[i].modifiers << 16 | keyPressEntries[i].charCode, 
+        keyPressEntries[i].modifiers << 16 | keyPressEntries[i].charCode,
         keyPressEntries[i].name);
     }
   }
@@ -780,7 +780,7 @@ void EditorClientImpl::checkSpellingOfString(const UChar* str, int length,
   int spell_length = 0;
   WebViewDelegate* d = web_view_->delegate();
   if (isContinuousSpellCheckingEnabled() && d) {
-    std::wstring word = 
+    std::wstring word =
         webkit_glue::StringToStdWString(WebCore::String(str, length));
     d->SpellCheck(word, spell_location, spell_length);
   } else {
@@ -837,7 +837,7 @@ void EditorClientImpl::setInputMethodState(bool enabled) {
 }
 
 
-std::wstring EditorClientImpl::DescribeOrError(int number, 
+std::wstring EditorClientImpl::DescribeOrError(int number,
                                                WebCore::ExceptionCode ec) {
   if (ec)
     return L"ERROR";
@@ -845,7 +845,7 @@ std::wstring EditorClientImpl::DescribeOrError(int number,
   return IntToWString(number);
 }
 
-std::wstring EditorClientImpl::DescribeOrError(WebCore::Node* node, 
+std::wstring EditorClientImpl::DescribeOrError(WebCore::Node* node,
                                                WebCore::ExceptionCode ec) {
   if (ec)
     return L"ERROR";

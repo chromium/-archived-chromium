@@ -378,7 +378,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
     return FilePath::FromWStringHack(*download_path_);
   }
 
-  // Clears the last download path, used to initialize "save as" dialogs.  
+  // Clears the last download path, used to initialize "save as" dialogs.
   void ClearLastDownloadPath();
 
   // Registers this file extension for automatic opening upon download
@@ -480,7 +480,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // Renames a finished dangerous download from its temporary file name to its
   // real file name.
   // Invoked on the file thread.
-  void ProceedWithFinishedDangerousDownload(int64 download_handle, 
+  void ProceedWithFinishedDangerousDownload(int64 download_handle,
                                             const FilePath& path,
                                             const FilePath& original_name);
 
@@ -512,7 +512,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // is the ID assigned by the ResourceDispatcherHost and the map does not own
   // the DownloadItems.  It is used on shutdown to delete completed downloads
   // that have not been approved.
-  // 
+  //
   // When a download is created through a user action, the corresponding
   // DownloadItem* is placed in 'in_progress_' and remains there until it has
   // received a valid handle from the history system. Once it has a valid

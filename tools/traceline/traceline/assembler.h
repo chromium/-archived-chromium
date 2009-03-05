@@ -536,7 +536,7 @@ class CodeBuffer {
   void stosd() {
     emit(0xab);
   }
-  
+
   void sysenter() {
     emit(0x0f); emit(0x34);
   }

@@ -25,7 +25,7 @@ def MakeOptions():
 
 
 class TranslationToTcUnittest(unittest.TestCase):
-  
+
   def testOutput(self):
     buf = StringIO.StringIO()
     tool = transl2tc.TranslationToTc()
@@ -85,12 +85,12 @@ how are you?
         </release>
       </grit>'''), path)
     current_grd.RunGatherers(recursive=True)
-    
+
     source_rc_path = util.PathFromRoot('grit/test/data/source.rc')
     source_rc = file(source_rc_path).read()
     transl_rc_path = util.PathFromRoot('grit/test/data/transl.rc')
     transl_rc = file(transl_rc_path).read()
-    
+
     tool = transl2tc.TranslationToTc()
     output_buf = StringIO.StringIO()
     globopts = MakeOptions()
@@ -100,10 +100,10 @@ how are you?
     translations = tool.ExtractTranslations(current_grd,
                                             source_rc, source_rc_path,
                                             transl_rc, transl_rc_path)
-    
+
     values = translations.values()
     output = output_buf.getvalue()
-    
+
     self.failUnless('Ein' in values)
     self.failUnless('NUMBIRDS Vogeln' in values)
     self.failUnless('ITEM von COUNT' in values)
@@ -114,11 +114,11 @@ how are you?
     self.failIf('Nicht verwendet' in values)
     self.failUnless(('Howdie' in values or 'Hallo sagt man' in values) and not
       ('Howdie' in values and 'Hallo sagt man' in values))
-    
+
     self.failUnless('XX01XX&SkraXX02XX&HaettaXX03XXThetta er "Klonk" sem eg fylaXX04XXgonkurinnXX05XXKlonk && er "gott"XX06XX&HjalpXX07XX&Um...XX08XX' in values)
-    
+
     self.failUnless('I lagi' in values)
-    
+
     self.failUnless(output.count('Structure of message IDS_REORDERED_PLACEHOLDERS has changed'))
     self.failUnless(output.count('Message IDS_CHANGED has changed'))
     self.failUnless(output.count('Structure of message IDS_LONGER_TRANSLATED has changed'))

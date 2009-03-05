@@ -1,10 +1,10 @@
 /* Copyright (c) 2007, Google Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -46,7 +46,7 @@
 // bytes of the function. Considering the worst case scenario, we need 4
 // bytes + the max instruction size + 5 more bytes for our jump back to
 // the original code. With that in mind, 32 is a good number :)
-#define MAX_PREAMBLE_STUB_SIZE    (32)     
+#define MAX_PREAMBLE_STUB_SIZE    (32)
 
 namespace sidestep {
 
@@ -77,28 +77,28 @@ enum SideStepError {
 // See the TODO in preamble_patcher_with_stub.cc for instructions on what
 // we need to do before using it in production code; it's fairly simple
 // but unnecessary for now since we only intend to use it in unit tests.
-// 
+//
 // To patch a function, use either of the typesafe Patch() methods.  You
 // can unpatch a function using Unpatch().
-// 
+//
 // Typical usage goes something like this:
 // @code
 // typedef int (*MyTypesafeFuncPtr)(int x);
 // MyTypesafeFuncPtr original_func_stub;
 // int MyTypesafeFunc(int x) { return x + 1; }
 // int HookMyTypesafeFunc(int x) { return 1 + original_func_stub(x); }
-// 
+//
 // void MyPatchInitializingFunction() {
 //   original_func_stub = PreamblePatcher::Patch(
 //              MyTypesafeFunc, HookMyTypesafeFunc);
 //   if (!original_func_stub) {
 //     // ... error handling ...
 //   }
-// 
+//
 //   // ... continue - you have patched the function successfully ...
 // }
 // @endcode
-// 
+//
 // Note that there are a number of ways that this method of patching can
 // fail.  The most common are:
 //    - If there is a jump (jxx) instruction in the first 5 bytes of
@@ -113,7 +113,7 @@ enum SideStepError {
 //    - If there is another thread currently executing within the bytes
 //    that are copied to the preamble stub, it will crash in an undefined
 //    way.
-// 
+//
 // If you get any other error than the above, you're either pointing the
 // patcher at an invalid instruction (e.g. into the middle of a multi-
 // byte instruction, or not at memory containing executable instructions)
@@ -286,9 +286,9 @@ class PreamblePatcher {
   // exactly the same calling convention and parameters as the original
   // function.
   //
-  // @param preamble_stub A pointer to a buffer where the preamble stub 
+  // @param preamble_stub A pointer to a buffer where the preamble stub
   // should be copied. The size of the buffer should be sufficient to
-  // hold the preamble bytes. 
+  // hold the preamble bytes.
   //
   // @param stub_size Size in bytes of the buffer allocated for the
   // preamble_stub
@@ -298,19 +298,19 @@ class PreamblePatcher {
   // not interested.
   //
   // @return An error code indicating the result of patching.
-  static SideStepError RawPatchWithStubAndProtections(void* target_function, 
-                                          void *replacement_function, 
-                                          unsigned char* preamble_stub, 
-                                          unsigned long stub_size, 
+  static SideStepError RawPatchWithStubAndProtections(void* target_function,
+                                          void *replacement_function,
+                                          unsigned char* preamble_stub,
+                                          unsigned long stub_size,
                                           unsigned long* bytes_needed);
 
   // A helper function used by RawPatchWithStubAndProtections -- it does
   // everything but the VirtualProtect wsork.  Defined in
   // preamble_patcher_with_stub.cc.
-  static SideStepError RawPatchWithStub(void* target_function, 
-                                          void *replacement_function, 
-                                          unsigned char* preamble_stub, 
-                                          unsigned long stub_size, 
+  static SideStepError RawPatchWithStub(void* target_function,
+                                          void *replacement_function,
+                                          unsigned char* preamble_stub,
+                                          unsigned long stub_size,
                                           unsigned long* bytes_needed);
 };
 

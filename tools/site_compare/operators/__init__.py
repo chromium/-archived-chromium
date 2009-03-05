@@ -9,18 +9,18 @@ __author__ = 'jhaas@google.com (Jonathan Haas)'
 
 def GetOperator(operator):
   """Given an operator by name, returns its module.
-  
+
   Args:
     operator: string describing the comparison
-    
+
   Returns:
     module
   """
- 
+
   # TODO(jhaas): come up with a happy way of integrating multiple operators
   # with different, possibly divergent and possibly convergent, operators.
- 
+
   module = __import__(operator, globals(), locals(), [''])
-  
+
   return module
 

@@ -548,7 +548,7 @@ v8::Local<v8::Value> V8WorkerContextEventListener::CallListenerFunction(
   v8::Handle<v8::Value> parameters[1] = {jsevent};
 
   v8::Local<v8::Value> result;
-  { 
+  {
     //ConsoleMessageScope scope;
 
     result = handler_func->Call(receiver, 1, parameters);

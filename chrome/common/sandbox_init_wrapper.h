@@ -33,7 +33,7 @@ class SandboxInitWrapper {
 
   // Initialize the sandbox for renderer and plug-in processes, depending on
   // the command line flags. The browser process is not sandboxed.
-  void InitializeSandbox(const CommandLine& parsed_command_line, 
+  void InitializeSandbox(const CommandLine& parsed_command_line,
                          const std::wstring& process_type);
  private:
   sandbox::BrokerServices* broker_services_;
@@ -50,7 +50,7 @@ class SandboxInitWrapper {
 
   // Initialize the sandbox for renderer and plug-in processes, depending on
   // the command line flags. The browser process is not sandboxed.
-  void InitializeSandbox(const CommandLine& parsed_command_line, 
+  void InitializeSandbox(const CommandLine& parsed_command_line,
                          const std::wstring& process_type);
 
 #if defined(OS_MACOSX)

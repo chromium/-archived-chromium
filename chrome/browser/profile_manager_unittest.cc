@@ -28,7 +28,7 @@ protected:
     ASSERT_TRUE(file_util::Delete(test_dir_, true));
     ASSERT_FALSE(file_util::PathExists(test_dir_));
   }
-  
+
   MessageLoopForUI message_loop_;
 
   // the path to temporary directory used to contain the test operations

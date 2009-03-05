@@ -167,7 +167,7 @@ class OTRActiveWindowResources : public views::WindowResources {
   virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
   }
-  
+
  private:
   static void InitClass() {
     static bool initialized = false;
@@ -842,7 +842,7 @@ void OpaqueBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
   SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
   canvas->DrawBitmapInt(otr_avatar_icon, 0,
       (otr_avatar_icon.height() - otr_avatar_bounds_.height()) / 2,
-      otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), 
+      otr_avatar_bounds_.width(), otr_avatar_bounds_.height(),
       MirroredLeftPointForRect(otr_avatar_bounds_), otr_avatar_bounds_.y(),
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }

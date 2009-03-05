@@ -189,7 +189,7 @@ void MakePlatformKeyboardEvent::SetKeyType(Type type) {
 
 // Please refer to bug http://b/issue?id=961192, which talks about Webkit
 // keyboard event handling changes. It also mentions the list of keys
-// which don't have associated character events. 
+// which don't have associated character events.
 bool MakePlatformKeyboardEvent::IsCharacterKey() const {
   switch (windowsVirtualKeyCode()) {
     case VKEY_BACK:

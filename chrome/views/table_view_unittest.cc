@@ -83,7 +83,7 @@ void TestTableModel::ChangeRow(int row, int c1_value, int c2_value) {
 int TestTableModel::RowCount() {
   return static_cast<int>(rows_.size());
 }
- 
+
 std::wstring TestTableModel::GetText(int row, int column_id) {
   return IntToWString(rows_[row][column_id]);
 }

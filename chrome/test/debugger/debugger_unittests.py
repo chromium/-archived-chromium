@@ -39,7 +39,7 @@ def RunTests(build_dir=None):
          os.path.join(chrome_dir, "test", "debugger", "mjsunit.js"),
          os.path.join(chrome_dir, "test", "debugger", "test_protocol.js")
         ]
-  (retcode, output) = google.process_utils.RunCommandFull(cmd, 
+  (retcode, output) = google.process_utils.RunCommandFull(cmd,
                                                           collect_output=True)
   if "Success" in output:
     return 0

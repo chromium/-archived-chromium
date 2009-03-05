@@ -52,7 +52,7 @@ class PluginTest : public TestShellTest {
   void WaitForFinish(const std::string &name, const std::string &id) {
     test_shell_->WaitTestFinished();
 
-    std::string cookies = 
+    std::string cookies =
         request_context_->cookie_store()->GetCookies(test_url_);
     EXPECT_FALSE(cookies.empty());
 
@@ -115,7 +115,7 @@ class PluginTest : public TestShellTest {
 };
 
 TEST_F(PluginTest, DISABLED_VerifyPluginWindowRect) {
-  std::wstring test_url = GetTestURL(plugin_data_dir_, 
+  std::wstring test_url = GetTestURL(plugin_data_dir_,
                                      L"verify_plugin_window_rect.html");
   NavigateToURL(test_url);
   WaitForFinish("checkwindowrect", "1");

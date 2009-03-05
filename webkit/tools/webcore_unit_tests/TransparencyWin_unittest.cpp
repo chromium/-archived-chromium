@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -117,7 +117,7 @@ TEST(TransparencyWin, NoLayer)
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
         EXPECT_TRUE(IntRect(1, 1, 14, 12) == helper.drawRect());
     }
-    
+
     // Untransform is not allowed for NoLayer.
 
     // ScaleTransform
@@ -168,7 +168,7 @@ TEST(TransparencyWin, WhiteLayer)
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
         EXPECT_TRUE(IntRect(0, 0, 14, 12) == helper.drawRect());
     }
-    
+
     // ScaleTransform
     src->context()->save();
     src->context()->scale(FloatSize(2.0, 0.5));
@@ -251,7 +251,7 @@ TEST(TransparencyWin, OpaqueCompositeLayer)
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
         EXPECT_TRUE(IntRect(0, 0, 14, 12) == helper.drawRect());
     }
-    
+
     // ScaleTransform
     src->context()->save();
     src->context()->scale(FloatSize(2.0, 0.5));

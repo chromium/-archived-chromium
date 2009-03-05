@@ -4,7 +4,7 @@
 //
 
 #define IDS_APP_TITLE             103
- 
+
 #define IDR_MAINFRAME             128
 #define IDD_TESTSHELL_DIALOG      102
 #define IDD_ABOUTBOX              103
@@ -26,7 +26,7 @@
 #define IDC_STATIC                -1
 #endif
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 

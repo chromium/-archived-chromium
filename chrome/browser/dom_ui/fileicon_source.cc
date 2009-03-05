@@ -41,7 +41,7 @@ void FileIconSource::StartDataRequest(const std::string& path,
     SendResponse(request_id, icon_data);
   } else {
     // Icon was not in cache, go fetch it slowly.
-    IconManager::Handle h = im->LoadIcon(UTF8ToWide(escaped_path), 
+    IconManager::Handle h = im->LoadIcon(UTF8ToWide(escaped_path),
         IconLoader::NORMAL,
         &cancelable_consumer_,
         NewCallback(this, &FileIconSource::OnFileIconDataAvailable));

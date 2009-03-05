@@ -271,7 +271,7 @@ BookmarkContextMenu::BookmarkContextMenu(
   menu_->AppendMenuItemWithLabel(
       IDS_BOOKMARK_BAR_REMOVE,
       l10n_util::GetString(IDS_BOOKMARK_BAR_REMOVE));
- 
+
   if (configuration == BOOKMARK_MANAGER_TABLE ||
       configuration == BOOKMARK_MANAGER_TABLE_OTHER ||
       configuration == BOOKMARK_MANAGER_ORGANIZE_MENU ||

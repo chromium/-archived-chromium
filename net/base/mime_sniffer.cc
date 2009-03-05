@@ -144,9 +144,9 @@ static const MagicNumber kMagicNumbers[] = {
   MAGIC_NUMBER("image/jpeg", "\xFF\xD8\xFF")
   MAGIC_NUMBER("image/bmp", "BM")
   // Source: Mozilla
-  MAGIC_NUMBER("text/plain", "#!")  // Script 
-  MAGIC_NUMBER("text/plain", "%!")  // Script, similar to PS 
-  MAGIC_NUMBER("text/plain", "From")  
+  MAGIC_NUMBER("text/plain", "#!")  // Script
+  MAGIC_NUMBER("text/plain", "%!")  // Script, similar to PS
+  MAGIC_NUMBER("text/plain", "From")
   MAGIC_NUMBER("text/plain", ">From")
   // Chrome specific
   MAGIC_NUMBER("application/x-gzip", "\x1F\x8B\x08")

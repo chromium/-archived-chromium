@@ -18,7 +18,7 @@ from grit import tclib
 
 
 class WindowsFilenameUnittest(unittest.TestCase):
-  
+
   def testValidate(self):
     factory = clique.UberClique()
     msg = tclib.Message(text='Bingo bongo')

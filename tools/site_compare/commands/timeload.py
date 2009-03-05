@@ -6,7 +6,7 @@
 """SiteCompare command to time page loads
 
 Loads a series of URLs in a series of browsers (and browser versions)
-and measures how long the page takes to load in each. Outputs a 
+and measures how long the page takes to load in each. Outputs a
 comma-delimited file. The first line is "URL,[browser names", each
 additional line is a URL follored by comma-delimited times (in seconds),
 or the string "timeout" or "crashed".
@@ -67,44 +67,44 @@ def CreateCommand(cmdline):
   cmd.AddArgument(
     ["-sz", "--size"], "Browser window size", default=(800, 600), type="coords")
 
-  
+
 def ExecuteTimeLoad(command):
   """Executes the TimeLoad command."""
   browsers = command["--browsers"].split(",")
   num_browsers = len(browsers)
-  
+
   if command["--browserversions"]:
     browser_versions = command["--browserversions"].split(",")
   else:
     browser_versions = [None] * num_browsers
-    
+
   if command["--browserpaths"]:
     browser_paths = command["--browserpaths"].split(",")
   else:
     browser_paths = [None] * num_browsers
-  
+
   if len(browser_versions) != num_browsers:
     raise ValueError(
       "--browserversions must be same length as --browser_paths")
   if len(browser_paths) != num_browsers:
     raise ValueError(
       "--browserversions must be same length as --browser_paths")
-      
+
   if [b for b in browsers if b not in ["chrome", "ie", "firefox"]]:
     raise ValueError("unknown browsers: %r" % b)
-    
+
   scraper_list = []
-  
+
   for b in xrange(num_browsers):
     version = browser_versions[b]
     if not version: version = None
-    
+
     scraper = scrapers.GetScraper( (browsers[b], version) )
     if not scraper:
-      raise ValueError("could not find scraper for (%r, %r)" % 
+      raise ValueError("could not find scraper for (%r, %r)" %
         (browsers[b], version))
     scraper_list.append(scraper)
-    
+
   if command["--url"]:
     url_list = [command["--url"]]
   else:
@@ -115,32 +115,32 @@ def ExecuteTimeLoad(command):
       endline = command["--endline"]
     url_list = [url.strip() for url in
                 open(command["--list"], "r").readlines()[startline:endline]]
-    
+
   log_file = open(command["--logfile"], "w")
-  
+
   log_file.write("URL")
   for b in xrange(num_browsers):
     log_file.write(",%s" % browsers[b])
-    
+
     if browser_versions[b]: log_file.write(" %s" % browser_versions[b])
   log_file.write("\n")
-  
+
   results = {}
   for url in url_list:
     results[url] = [None] * num_browsers
-  
+
   for b in xrange(num_browsers):
     result = scraper_list[b].Time(url_list, command["--size"],
       command["--timeout"],
       path=browser_paths[b])
-    
+
     for (url, time) in result:
       results[url][b] = time
-      
+
   # output the results
   for url in url_list:
     log_file.write(url)
     for b in xrange(num_browsers):
       log_file.write(",%r" % results[url][b])
-  
+
 

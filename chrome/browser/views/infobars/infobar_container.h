@@ -40,7 +40,7 @@ class InfoBarContainer : public views::View,
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);
- 
+
  private:
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

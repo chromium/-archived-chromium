@@ -1,10 +1,10 @@
 /* Copyright (c) 2007, Google Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -81,7 +81,7 @@ enum OperandSize {
 // is a mask for the rest.  The other enumeration values are named for the
 // names given to the addressing methods in the manual, e.g. enAm_D is for
 // the D addressing method.
-// 
+//
 // The reason we use a full 4 bytes and a mask, is that we need to combine
 // these flags with the enOperandType to store the details
 // on the operand in a single integer.
@@ -137,7 +137,7 @@ enum OperandType {
   OT_W = 0x0E000000,
   OT_SD = 0x0F000000,  // scalar double-precision floating-point value
   OT_PD = 0x10000000,  // double-precision floating point
-  // dummy "operand type" for address mode M - which doesn't specify 
+  // dummy "operand type" for address mode M - which doesn't specify
   // operand type
   OT_ADDRESS_MODE_M = 0x80000000
 };
@@ -147,7 +147,7 @@ enum OperandType {
 struct SpecificOpcode {
   // Index to continuation table, or 0 if this is the last
   // byte in the opcode.
-  int table_index_;    
+  int table_index_;
 
   // The opcode type
   InstructionType type_;
@@ -168,7 +168,7 @@ struct SpecificOpcode {
 struct Opcode {
   // Index to continuation table, or 0 if this is the last
   // byte in the opcode.
-  int table_index_;    
+  int table_index_;
 
   // The opcode type
   InstructionType type_;

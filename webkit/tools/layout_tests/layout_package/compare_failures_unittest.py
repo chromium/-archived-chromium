@@ -28,7 +28,7 @@ class CompareFailuresUnittest(unittest.TestCase):
       # copyfile doesn't copy file permissions so we can delete the files later
       shutil.copyfile(os.path.join(testdatadir, filename),
                       os.path.join(self._tempdir, filename))
-  
+
   def tearDown(self):
     """Remove temp directory."""
     shutil.rmtree(self._tempdir)
@@ -62,7 +62,7 @@ class CompareFailuresUnittest(unittest.TestCase):
   def testPassingToFailure(self):
     """When there's a new failure, we don't add it to the baseline."""
     failures = self.GetTestFailures()
-    
+
     # Test case where we don't update new baseline.  We have a new failure,
     # but it shouldn't be added to the expected-failures.txt file.
     pass_file = os.path.join(path_utils.LayoutDataDir(), 'fast', 'pass1.html')
@@ -72,12 +72,12 @@ class CompareFailuresUnittest(unittest.TestCase):
     # Same thing as before: pass -> crash
     failures[pass_file] = [test_failures.FailureCrash()]
     self.CheckNoChanges(failures)
-                                          
+
   def testFailureToCrash(self):
     """When there's a new crash, we don't add it to the baseline or remove it
     from the failure list."""
     failures = self.GetTestFailures()
-    
+
     # Test case where we don't update new baseline.  A failure moving to a
     # crash shouldn't be added to the expected-crashes.txt file.
     failure_file = os.path.join(path_utils.LayoutDataDir(),
@@ -106,7 +106,7 @@ class CompareFailuresUnittest(unittest.TestCase):
   def testCrashToPassing(self):
     """This is better than before, so we update the crashes file."""
     failures = self.GetTestFailures()
-    
+
     crash_file = os.path.join(path_utils.LayoutDataDir(),
                               'fast', 'bar', 'betz', 'crash3.html')
     del failures[crash_file]
@@ -121,7 +121,7 @@ class CompareFailuresUnittest(unittest.TestCase):
   def testCrashToFailure(self):
     """This is better than before, so we should update both lists."""
     failures = self.GetTestFailures()
-    
+
     crash_file = os.path.join(path_utils.LayoutDataDir(),
                               'fast', 'bar', 'betz', 'crash3.html')
     failures[crash_file] = [test_failures.FailureTextMismatch(None)]
@@ -163,7 +163,7 @@ class CompareFailuresUnittest(unittest.TestCase):
     self.CheckOutputWithExpectedFiles('expected-passing.txt',
                                       'expected-failures-new-test.txt',
                                       'expected-crashes.txt')
-    
+
   def testNewTestCrash(self):
     """After a merge, we need to update new crashing tests properly."""
     files = self.GetTestFiles()
@@ -195,7 +195,7 @@ class CompareFailuresUnittest(unittest.TestCase):
     cf = compare_failures.CompareFailures(files, failures, set(), set(),
                                           self.GetTmpDir(), False)
     self.failUnless(cf.HasNewFailures())
-    
+
     # Failing to passing
     failures = self.GetTestFailures()
     failure_file = os.path.join(path_utils.LayoutDataDir(),
@@ -204,7 +204,7 @@ class CompareFailuresUnittest(unittest.TestCase):
     cf = compare_failures.CompareFailures(files, failures, set(), set(),
                                           self.GetTmpDir(), False)
     self.failUnless(not cf.HasNewFailures())
-    
+
     # A new test that fails, this doesn't count as a new failure.
     new_test_file = os.path.join(path_utils.LayoutDataDir(), "new-test.html")
     files.add(new_test_file)
@@ -261,7 +261,7 @@ class CompareFailuresUnittest(unittest.TestCase):
       'fast\\bar\\fail2.html',
       'fast\\bar\\betz\\fail3.html',
     ]
-      
+
     return set([os.path.join(layout_dir, f) for f in files])
 
   def GetTestFailures(self):
@@ -275,7 +275,7 @@ class CompareFailuresUnittest(unittest.TestCase):
         failures[filename] = [test_failures.FailureTextMismatch(None)]
 
     return failures
-  
+
 if '__main__' == __name__:
   unittest.main()
 

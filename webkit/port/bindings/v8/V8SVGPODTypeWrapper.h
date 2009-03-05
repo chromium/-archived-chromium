@@ -22,7 +22,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef V8SVGPODTypeWrapper_h
@@ -52,7 +52,7 @@ template<typename PODType>
 class V8SVGPODTypeWrapperCreatorForList : public V8SVGPODTypeWrapper<PODType>
 {
 public:
-    typedef PODType (SVGPODListItem<PODType>::*GetterMethod)() const; 
+    typedef PODType (SVGPODListItem<PODType>::*GetterMethod)() const;
     typedef void (SVGPODListItem<PODType>::*SetterMethod)(PODType);
 
     V8SVGPODTypeWrapperCreatorForList(SVGPODListItem<PODType>* creator, const QualifiedName& attributeName)
@@ -114,65 +114,65 @@ private:
     PODType m_podType;
 };
 
-template<typename PODType, typename ParentTypeArg> 
-class V8SVGStaticPODTypeWrapperWithPODTypeParent : public V8SVGStaticPODTypeWrapper<PODType> { 
-public: 
-    typedef V8SVGPODTypeWrapper<ParentTypeArg> ParentType; 
- 
-     V8SVGStaticPODTypeWrapperWithPODTypeParent(PODType type, ParentType* parent) 
-        : V8SVGStaticPODTypeWrapper<PODType>(type) 
-        , m_parentType(parent) 
-    { 
-    } 
+template<typename PODType, typename ParentTypeArg>
+class V8SVGStaticPODTypeWrapperWithPODTypeParent : public V8SVGStaticPODTypeWrapper<PODType> {
+public:
+    typedef V8SVGPODTypeWrapper<ParentTypeArg> ParentType;
 
-    virtual void commitChange(PODType type, SVGElement* context) 
-    { 
-        V8SVGStaticPODTypeWrapper<PODType>::commitChange(type, context); 
-        m_parentType->commitChange(ParentTypeArg(type), context);     
-    } 
- 
-private: 
-    RefPtr<ParentType> m_parentType; 
-}; 
- 
-template<typename PODType, typename ParentType> 
-class V8SVGStaticPODTypeWrapperWithParent : public V8SVGPODTypeWrapper<PODType> { 
-public: 
-    typedef PODType (ParentType::*GetterMethod)() const; 
-    typedef void (ParentType::*SetterMethod)(const PODType&); 
- 
-    V8SVGStaticPODTypeWrapperWithParent(ParentType* parent, GetterMethod getter, SetterMethod setter) 
-        : m_parent(parent) 
-        , m_getter(getter) 
-        , m_setter(setter) 
-    { 
-        ASSERT(m_parent); 
-        ASSERT(m_getter); 
-        ASSERT(m_setter); 
-    } 
- 
-    virtual operator PODType() 
-    { 
-        return (m_parent.get()->*m_getter)(); 
-    } 
- 
-    virtual void commitChange(PODType type, SVGElement* context) 
-    { 
-        (m_parent.get()->*m_setter)(type); 
-    } 
- 
-private: 
-    // Update callbacks 
-    RefPtr<ParentType> m_parent; 
-    GetterMethod m_getter; 
-    SetterMethod m_setter; 
-}; 
+     V8SVGStaticPODTypeWrapperWithPODTypeParent(PODType type, ParentType* parent)
+        : V8SVGStaticPODTypeWrapper<PODType>(type)
+        , m_parentType(parent)
+    {
+    }
+
+    virtual void commitChange(PODType type, SVGElement* context)
+    {
+        V8SVGStaticPODTypeWrapper<PODType>::commitChange(type, context);
+        m_parentType->commitChange(ParentTypeArg(type), context);
+    }
+
+private:
+    RefPtr<ParentType> m_parentType;
+};
+
+template<typename PODType, typename ParentType>
+class V8SVGStaticPODTypeWrapperWithParent : public V8SVGPODTypeWrapper<PODType> {
+public:
+    typedef PODType (ParentType::*GetterMethod)() const;
+    typedef void (ParentType::*SetterMethod)(const PODType&);
+
+    V8SVGStaticPODTypeWrapperWithParent(ParentType* parent, GetterMethod getter, SetterMethod setter)
+        : m_parent(parent)
+        , m_getter(getter)
+        , m_setter(setter)
+    {
+        ASSERT(m_parent);
+        ASSERT(m_getter);
+        ASSERT(m_setter);
+    }
+
+    virtual operator PODType()
+    {
+        return (m_parent.get()->*m_getter)();
+    }
+
+    virtual void commitChange(PODType type, SVGElement* context)
+    {
+        (m_parent.get()->*m_setter)(type);
+    }
+
+private:
+    // Update callbacks
+    RefPtr<ParentType> m_parent;
+    GetterMethod m_getter;
+    SetterMethod m_setter;
+};
 
 template<typename PODType, typename PODTypeCreator>
 class V8SVGDynamicPODTypeWrapper : public V8SVGPODTypeWrapper<PODType>
 {
 public:
-    typedef PODType (PODTypeCreator::*GetterMethod)() const; 
+    typedef PODType (PODTypeCreator::*GetterMethod)() const;
     typedef void (PODTypeCreator::*SetterMethod)(PODType);
     typedef void (*CacheRemovalCallback)(V8SVGPODTypeWrapper<PODType>*);
 
@@ -188,7 +188,7 @@ public:
         ASSERT(cacheRemovalCallback);
     }
 
-    virtual ~V8SVGDynamicPODTypeWrapper() { 
+    virtual ~V8SVGDynamicPODTypeWrapper() {
         ASSERT(m_cacheRemovalCallback);
 
         (*m_cacheRemovalCallback)(this);
@@ -217,7 +217,7 @@ private:
 // Caching facilities
 template<typename PODType, typename PODTypeCreator>
 struct PODTypeWrapperCacheInfo {
-    typedef PODType (PODTypeCreator::*GetterMethod)() const; 
+    typedef PODType (PODTypeCreator::*GetterMethod)() const;
     typedef void (PODTypeCreator::*SetterMethod)(PODType);
 
     // Empty value
@@ -301,15 +301,15 @@ template<typename PODType, typename PODTypeCreator>
 class V8SVGDynamicPODTypeWrapperCache
 {
 public:
-    typedef PODType (PODTypeCreator::*GetterMethod)() const; 
+    typedef PODType (PODTypeCreator::*GetterMethod)() const;
     typedef void (PODTypeCreator::*SetterMethod)(PODType);
 
     typedef PODTypeWrapperCacheInfo<PODType, PODTypeCreator> CacheInfo;
     typedef PODTypeWrapperCacheInfoHash<PODType, PODTypeCreator> CacheInfoHash;
     typedef PODTypeWrapperCacheInfoTraits<PODType, PODTypeCreator> CacheInfoTraits;
 
-    typedef V8SVGPODTypeWrapper<PODType> WrapperBase; 
-    typedef V8SVGDynamicPODTypeWrapper<PODType, PODTypeCreator> DynamicWrapper; 
+    typedef V8SVGPODTypeWrapper<PODType> WrapperBase;
+    typedef V8SVGDynamicPODTypeWrapper<PODType, PODTypeCreator> DynamicWrapper;
 
     typedef HashMap<CacheInfo, DynamicWrapper*, CacheInfoHash, CacheInfoTraits> DynamicWrapperHashMap;
     typedef typename DynamicWrapperHashMap::const_iterator DynamicWrapperHashMapIterator;

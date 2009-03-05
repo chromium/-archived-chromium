@@ -244,7 +244,7 @@ bool TestShell::RunFileTest(const TestParams& params) {
   // after we invoke StopLoading.
   shell->ResetTestController();
 
-  // ResetTestController may have closed the window we were holding on to.	
+  // ResetTestController may have closed the window we were holding on to.
   // Grab the first window again.
   hwnd = *(TestShell::windowList()->begin());
   shell = static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));

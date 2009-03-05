@@ -146,14 +146,14 @@ void WebCursor::SetCustomData(WebCore::Image* image) {
   WebCore::NativeImagePtr image_ptr = image->nativeImageForCurrentFrame();
   if (!image_ptr)
     return;
-  
+
   RetainPtr<CGColorSpace> cg_color(AdoptCF, CGColorSpaceCreateDeviceRGB());
-  
+
   size_t size = CGImageGetHeight(image_ptr)*CGImageGetWidth(image_ptr)*4;
   custom_data_.resize(size);
   custom_size_.set_width(CGImageGetWidth(image_ptr));
   custom_size_.set_height(CGImageGetHeight(image_ptr));
-  
+
   // These settings match up with the code in CreateCustomCursor() above; keep
   // them in sync.
   // TODO(avi): test to ensure that the flags here are correct for RGBA

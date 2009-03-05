@@ -48,7 +48,7 @@ void CacheManager::GetUsageStats(UsageStats* result) {
   DCHECK(result);
 
   WebCore::Cache* cache = WebCore::cache();
-  
+
   if (cache) {
     result->min_dead_capacity = cache->m_minDeadCapacity;
     result->max_dead_capacity = cache->m_maxDeadCapacity;

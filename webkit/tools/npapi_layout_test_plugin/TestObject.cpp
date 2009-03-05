@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "TestObject.h"
@@ -35,10 +35,10 @@ static bool testGetProperty(NPObject *obj, NPIdentifier name, NPVariant *variant
 static NPObject *testAllocate(NPP npp, NPClass *theClass);
 static void testDeallocate(NPObject *obj);
 
-static NPClass testClass = { 
+static NPClass testClass = {
     NP_CLASS_STRUCT_VERSION,
-    testAllocate, 
-    testDeallocate, 
+    testAllocate,
+    testDeallocate,
     0,
     0,
     0,
@@ -88,16 +88,16 @@ static NPObject *testAllocate(NPP npp, NPClass *theClass)
         static_cast<TestObject*>(malloc(sizeof(TestObject)));
     newInstance->testObject = NULL;
     ++testObjectCount;
-    
+
     if (!identifiersInitialized) {
         identifiersInitialized = true;
         initializeIdentifiers();
     }
-    
+
     return reinterpret_cast<NPObject*>(newInstance);
 }
 
-static void testDeallocate(NPObject *obj) 
+static void testDeallocate(NPObject *obj)
 {
     TestObject *testObject = reinterpret_cast<TestObject*>(obj);
     if (testObject->testObject)
@@ -119,11 +119,11 @@ static bool testHasProperty(NPObject *obj, NPIdentifier name)
         if (testIdentifiers[i] == name)
             return true;
     }
-    
+
     return false;
 }
 
-static bool testGetProperty(NPObject *obj, NPIdentifier name, 
+static bool testGetProperty(NPObject *obj, NPIdentifier name,
                             NPVariant *variant)
 {
     if (name == testIdentifiers[ID_PROPERTY_FOO]) {
@@ -151,10 +151,10 @@ static bool testGetProperty(NPObject *obj, NPIdentifier name,
 static bool testEnumerate(NPObject *npobj, NPIdentifier **value, uint32_t *count)
 {
     *count = NUM_TEST_IDENTIFIERS;
-    
+
     *value = (NPIdentifier*)browser->memalloc(NUM_TEST_IDENTIFIERS * sizeof(NPIdentifier));
     memcpy(*value, testIdentifiers, sizeof(NPIdentifier) * NUM_TEST_IDENTIFIERS);
-    
+
     return true;
 }
 

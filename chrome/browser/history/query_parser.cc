@@ -291,7 +291,7 @@ void QueryParser::ExtractQueryWords(const std::wstring& query,
   QueryNodeList root;
   if (!ParseQueryImpl(query, &root))
     return;
-  root.AppendWords(words);  
+  root.AppendWords(words);
 }
 
 bool QueryParser::DoesQueryMatch(const std::wstring& text,

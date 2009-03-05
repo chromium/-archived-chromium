@@ -32,7 +32,7 @@ def GetCygserverPath(start_dir, apache2=False):
                                                   'cygwin', 'usr', 'sbin')
   return cygserver_path
 
-  
+
 def StartServer(document_root=None, output_dir=None, apache2=False):
   """Starts a local server on port 8000 using the basic configuration files.
 

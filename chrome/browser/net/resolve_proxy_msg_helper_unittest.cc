@@ -36,7 +36,7 @@ class MockProxyResolver : public net::ProxyResolver {
     results->UseNamedProxy(query_url.host());
     return net::OK;
   }
-  
+
   void Block() {
     is_blocked_ = true;
     event_.Reset();
@@ -78,7 +78,7 @@ struct ResultFuture {
   bool TimedWaitUntilDone(const base::TimeDelta& max_time) {
     return completed_.TimedWait(max_time);
   }
-  
+
   // These fields are only valid after returning from WaitUntilDone().
   IPC::Message* reply_msg;
   int error_code;

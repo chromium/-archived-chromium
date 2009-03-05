@@ -417,7 +417,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   };
   TabContents(TabContentsType type)
       : type_(type), is_crashed_(false), is_active_(true), is_loading_(false),
-        is_being_destroyed_(false), waiting_for_response_(false), 
+        is_being_destroyed_(false), waiting_for_response_(false),
         shelf_visible_(false), controller_(), delegate_(), max_page_id_(-1) { }
   virtual ~TabContents() { }
   NavigationController* controller() const { return controller_; }

@@ -50,7 +50,7 @@ class WebWidgetDelegate {
   // it no longer receives keyboard events.
   virtual void Blur(WebWidget* webwidget) = 0;
 
-  virtual void SetCursor(WebWidget* webwidget, 
+  virtual void SetCursor(WebWidget* webwidget,
                          const WebCursor& cursor) = 0;
   // Returns the rectangle of the WebWidget in screen coordinates.
   virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
@@ -70,7 +70,7 @@ class WebWidgetDelegate {
   // is used on Mac to determine if a scrollbar is over the in-window resize
   // area at the bottom right corner.
   virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
-  
+
   // Keeps track of the necessary window move for a plugin window that resulted
   // from a scroll operation.  That way, all plugin windows can be moved at the
   // same time as each other and the page.

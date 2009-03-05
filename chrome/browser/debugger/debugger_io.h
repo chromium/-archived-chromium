@@ -42,7 +42,7 @@ public:
   virtual void SetDebuggerBreak(bool brk) {}
 
   // sends message to debugger UI page in order to invoke JS function in it
-  virtual void CallFunctionInPage(const std::wstring& name, 
+  virtual void CallFunctionInPage(const std::wstring& name,
                                   ListValue* argv) {}
 
 protected:

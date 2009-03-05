@@ -21,10 +21,10 @@ class OptionArgsUnittest(unittest.TestCase):
     self.buf = StringIO.StringIO()
     self.old_stdout = sys.stdout
     sys.stdout = self.buf
-  
+
   def tearDown(self):
     sys.stdout = self.old_stdout
-    
+
   def testSimple(self):
     grit.grit_runner.Main(['-i',
                            util.PathFromRoot('grit/test/data/simple-input.xml'),

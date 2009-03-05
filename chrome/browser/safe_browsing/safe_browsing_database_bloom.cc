@@ -870,7 +870,7 @@ bool SafeBrowsingDatabaseBloom::BuildAddPrefixList(SBPair* adds) {
 }
 
 bool SafeBrowsingDatabaseBloom::RemoveSubs(
-    SBPair* adds, std::vector<bool>* adds_removed, 
+    SBPair* adds, std::vector<bool>* adds_removed,
     HashCache* add_cache, HashCache* sub_cache, int* subs) {
   DCHECK(add_cache && sub_cache && subs);
 

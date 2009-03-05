@@ -18,7 +18,7 @@ from grit.extern import FP
 
 class TopLevel(interface.ItemFormatter):
   '''Writes the necessary preamble for a resource.h file.'''
-  
+
   def Format(self, item, lang='', begin_item=True, output_dir='.'):
     if not begin_item:
       return ''
@@ -38,9 +38,9 @@ class TopLevel(interface.ItemFormatter):
           for child in output_node.children:
             if child.name == 'emit':
               if child.attrs['emit_type'] == 'prepend':
-                return header_string 
+                return header_string
       # else print out the default header with include
-      return header_string + ''' 
+      return header_string + '''
 #include <atlres.h>
 
 '''
@@ -61,7 +61,7 @@ class Item(interface.ItemFormatter):
   dialog resources) it should define a function GetTextIds(self) that returns
   a list of textual IDs (strings).  Otherwise the formatter will use the
   'name' attribute of the node.'''
-  
+
   # All IDs allocated so far, mapped to the textual ID they represent.
   # Used to detect and resolve collisions.
   ids_ = {}
@@ -70,7 +70,7 @@ class Item(interface.ItemFormatter):
   # represent. Used when literal IDs are being defined in the 'identifiers'
   # section of the GRD file to define other message IDs.
   tids_ = {}
-  
+
   def _VerifyId(self, id, tid, msg_if_error):
     if id in self.ids_ and self.ids_[id] != tid:
       raise exception.IdRangeOverlap(msg_if_error +
@@ -79,7 +79,7 @@ class Item(interface.ItemFormatter):
     if id < 101:
       print ('WARNING: Numeric resource IDs should be greater than 100 to avoid\n'
              'conflicts with system-defined resource IDs.')
-  
+
   def Format(self, item, lang='', begin_item=True, output_dir='.'):
     if not begin_item:
       return ''
@@ -91,7 +91,7 @@ class Item(interface.ItemFormatter):
     if 'generateid' in item.attrs:
       if item.attrs['generateid'] == 'false':
         return ''
-    
+
     text_ids = item.GetTextualIds()
 
     # We consider the "parent" of the item to be the GroupingNode containing
@@ -101,7 +101,7 @@ class Item(interface.ItemFormatter):
     while item_parent and not isinstance(item_parent,
                                          grit.node.empty.GroupingNode):
       item_parent = item_parent.parent
-    
+
     lines = []
     for tid in text_ids:
       if util.SYSTEM_IDENTIFIERS.match(tid):
@@ -113,11 +113,11 @@ class Item(interface.ItemFormatter):
       if hasattr(item, 'GetId') and item.GetId():
         id = long(item.GetId())
 
-      elif ('offset' in item.attrs and item_parent and 
+      elif ('offset' in item.attrs and item_parent and
             'first_id' in item_parent.attrs and item_parent.attrs['first_id'] != ''):
          offset_text = item.attrs['offset']
          parent_text = item_parent.attrs['first_id']
-         
+
          try:
           offset_id = long(offset_text)
          except ValueError:
@@ -125,11 +125,11 @@ class Item(interface.ItemFormatter):
 
          try:
           parent_id = long(parent_text)
-         except ValueError: 
+         except ValueError:
           parent_id = self.tids_[parent_text]
-      
+
          id = parent_id + offset_id
-        
+
       # We try to allocate IDs sequentially for blocks of items that might
       # be related, for instance strings in a stringtable (as their IDs might be
       # used e.g. as IDs for some radio buttons, in which case the IDs must
@@ -151,7 +151,7 @@ class Item(interface.ItemFormatter):
           # Automatically generate the ID based on the first clique from the
           # first child of the first child node of our parent (i.e. when we
           # first get to this location in the code).
-          
+
           # According to
           # http://msdn.microsoft.com/en-us/library/t2zechd4(VS.71).aspx
           # the safe usable range for resource IDs in Windows is from decimal
@@ -160,11 +160,11 @@ class Item(interface.ItemFormatter):
           id = FP.UnsignedFingerPrint(tid)
           id = id % (0x7FFF - 101)
           id += 101
-        
+
           self._VerifyId(id, tid,
             'Automatic (fingerprint-based) numeric ID for %s (%d) overlapped\n'
             'with a previously allocated range.' % (tid, id))
-          
+
         if item_parent:
           item_parent._last_id_ = id
       else:
@@ -173,7 +173,7 @@ class Item(interface.ItemFormatter):
         self._VerifyId(id, tid,
           'Wanted to make numeric value for ID %s (%d) follow the numeric value of\n'
           'the previous ID in the .grd file, but it was already used.' % (tid, id))
-      
+
       if tid not in self.ids_.values():
         self.ids_[id] = tid
         self.tids_[tid] = id

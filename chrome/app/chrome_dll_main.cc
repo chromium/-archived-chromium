@@ -144,7 +144,7 @@ bool IncorrectChromeHtmlArguments(const std::wstring& command_line) {
   // The browser is being launched with chromehtml: somewhere on the command
   // line.  We will not launch unless it's preceded by the -- switch terminator.
   if (pos >= kOffset) {
-    if (equal(kChromeHtml, kChromeHtml + arraysize(kChromeHtml) - 1, 
+    if (equal(kChromeHtml, kChromeHtml + arraysize(kChromeHtml) - 1,
         command_line_lower.begin() + pos - kOffset)) {
       return false;
     }
@@ -239,7 +239,7 @@ int ChromeMain(int argc, const char** argv) {
   // The exit manager is in charge of calling the dtors of singleton objects.
   base::AtExitManager exit_manager;
 
-  // We need this pool for all the objects created before we get to the 
+  // We need this pool for all the objects created before we get to the
   // event loop, but we don't want to leave them hanging around until the
   // app quits. Each "main" needs to flush this pool right before it goes into
   // its main event loop to get rid of the cruft.

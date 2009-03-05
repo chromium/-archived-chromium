@@ -26,7 +26,7 @@ PluginThread::PluginThread()
     : ChildThread(base::Thread::Options(MessageLoop::TYPE_UI, 0)),
       preloaded_plugin_module_(NULL) {
   plugin_path_ = FilePath::FromWStringHack(
-      CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kPluginPath));      
+      CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kPluginPath));
 }
 
 PluginThread::~PluginThread() {

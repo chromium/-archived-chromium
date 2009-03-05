@@ -92,7 +92,7 @@ class HttpChunkedDecoder {
   // Convert string |start| of length |len| to a numeric value.
   // |start| is a string of type "chunk-size" (hex string).
   // If the conversion succeeds, return true and place the result in |out|.
-  static bool ParseChunkSize(const char* start, int len, int* out); 
+  static bool ParseChunkSize(const char* start, int len, int* out);
 
   // Indicates the number of bytes remaining for the current chunk.
   int chunk_remaining_;

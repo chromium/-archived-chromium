@@ -17,7 +17,7 @@
 
 // Draws the "grow_box" image in our bounds.
 - (void)drawRect:(NSRect)dirtyRect {
-  [image_ drawInRect:[self bounds] fromRect:NSZeroRect 
+  [image_ drawInRect:[self bounds] fromRect:NSZeroRect
       operation:NSCompositeSourceOver fraction:1.0];
 }
 

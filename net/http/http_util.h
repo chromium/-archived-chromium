@@ -108,9 +108,9 @@ class HttpUtil {
   // starts with 1.0 and is decremented by 0.2 for each successive entry
   // in the list until it reaches 0.2. All the entries after that are
   // assigned the same qvalue of 0.2. Also, note that the 1st language
-  // will not have a qvalue added because the absence of a qvalue implicitly 
+  // will not have a qvalue added because the absence of a qvalue implicitly
   // means q=1.0.
-  // 
+  //
   // When making a http request, this should be used to determine what
   // to put in Accept-Language header. If a comma separated list of language
   // codes *without* qvalue is sent, web servers regard all

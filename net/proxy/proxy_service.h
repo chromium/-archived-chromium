@@ -134,7 +134,7 @@ class ProxyService {
 
   // Callback for when the PAC script has finished downloading.
   void OnScriptFetchCompletion(int result);
-  
+
   // Returns ERR_IO_PENDING if the request cannot be completed synchronously.
   // Otherwise it fills |result| with the proxy information for |url|.
   // Completing synchronously means we don't need to query ProxyResolver.

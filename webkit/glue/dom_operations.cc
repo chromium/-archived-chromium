@@ -283,8 +283,8 @@ bool FillFormToUploadFile(WebView* view, const FileUploadData& data) {
 // Internal implementation of FillForm API.
 static bool FillFormImpl(FormElements* fe, const FormData& data, bool submit) {
   if (!fe->form_element->autoComplete())
-    return false;  
- 
+    return false;
+
   FormValueMap data_map;
   for (unsigned int i = 0; i < data.elements.size(); i++) {
     data_map[data.elements[i]] = data.values[i];
@@ -327,10 +327,10 @@ static bool FindFormInputElements(WebCore::HTMLFormElement* fe,
                                   FormElements* result) {
   Vector<RefPtr<WebCore::Node> > temp_elements;
   // Loop through the list of elements we need to find on the form in
-  // order to autofill it. If we don't find any one of them, abort 
+  // order to autofill it. If we don't find any one of them, abort
   // processing this form; it can't be the right one.
   for (size_t j = 0; j < data.elements.size(); j++, temp_elements.clear()) {
-    fe->getNamedElements(StdWStringToString(data.elements[j]), 
+    fe->getNamedElements(StdWStringToString(data.elements[j]),
                                             temp_elements);
     if (temp_elements.isEmpty()) {
       // We didn't find a required element. This is not the right form.
@@ -370,7 +370,7 @@ static void FindFormElements(WebView* view,
   // Loop through each frame.
   for (WebCore::Frame* f = frame; f; f = f->tree()->traverseNext()) {
     WebCore::Document* doc = f->document();
-    if (!doc->isHTMLDocument()) 
+    if (!doc->isHTMLDocument())
       continue;
 
     GURL full_origin(StringToStdString(doc->documentURI()));
@@ -380,9 +380,9 @@ static void FindFormElements(WebView* view,
     WebCore::FrameLoader* loader = f->loader();
     if (loader == NULL)
       continue;
- 
+
     PassRefPtr<WebCore::HTMLCollection> forms = doc->forms();
-    for (size_t i = 0; i < forms->length(); ++i) { 
+    for (size_t i = 0; i < forms->length(); ++i) {
       WebCore::HTMLFormElement* fe =
           static_cast<WebCore::HTMLFormElement*>(forms->item(i));
 
@@ -409,7 +409,7 @@ bool FillForm(WebView* view, const FormData& data) {
   bool success = false;
   if (!forms.empty())
     success = FillFormImpl(forms[0], data, false);
-  
+
   // TODO(timsteele): Move STLDeleteElements to base/ and have FormElementsList
   // use that.
   FormElementsList::iterator iter;
@@ -422,7 +422,7 @@ void FillPasswordForm(WebView* view,
                       const PasswordFormDomManager::FillData& data) {
   FormElementsList forms;
   // We own the FormElements* in forms.
-  FindFormElements(view, data.basic_data, &forms);  
+  FindFormElements(view, data.basic_data, &forms);
   FormElementsList::iterator iter;
   for (iter = forms.begin(); iter != forms.end(); ++iter) {
     // TODO(timsteele): Move STLDeleteElements to base/ and have

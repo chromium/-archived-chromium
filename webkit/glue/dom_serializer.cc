@@ -19,7 +19,7 @@
 // Problem:
 // This way can not handle the following situation:
 // the base tag is written by JavaScript.
-// For example. The page "www.yahoo.com" use 
+// For example. The page "www.yahoo.com" use
 // "document.write('<base href="http://www.yahoo.com/"...');" to setup base URL
 // of page when loading page. So when saving page as completed-HTML, we assume
 // that we save "www.yahoo.com" to "c:\yahoo.htm". After then we load the saved

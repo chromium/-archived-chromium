@@ -16,8 +16,8 @@ enum InstallStatus {
   INSTALL_REPAIRED,      // Same version reinstalled for repair
   NEW_VERSION_UPDATED,   // Chrome successfully updated to new version
   HIGHER_VERSION_EXISTS, // Higher version of Chrome already exists
-  USER_LEVEL_INSTALL_EXISTS, // User level install already exists 
-  SYSTEM_LEVEL_INSTALL_EXISTS, // Machine level install already exists 
+  USER_LEVEL_INSTALL_EXISTS, // User level install already exists
+  SYSTEM_LEVEL_INSTALL_EXISTS, // Machine level install already exists
   INSTALL_FAILED,        // Install/update failed
   OS_NOT_SUPPORTED,      // Current OS not supported
   OS_ERROR,              // OS API call failed

@@ -105,7 +105,7 @@ void RegisterURLRequestChromeJob() {
 #ifdef CHROME_PERSONALIZATION
   url_util::AddStandardScheme(kPersonalizationScheme);
   URLRequest::RegisterProtocolFactory(kPersonalizationScheme,
-                                      &ChromeURLDataManager::Factory); 
+                                      &ChromeURLDataManager::Factory);
 #endif
 }
 

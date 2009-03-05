@@ -29,7 +29,7 @@ class HttpVersion {
   }
 
   // Overloaded operators:
-  
+
   bool operator==(const HttpVersion& v) const {
     return value_ == v.value_;
   }

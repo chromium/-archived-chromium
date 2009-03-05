@@ -66,7 +66,7 @@ class TabContentsReference : public NotificationObserver {
 
 
 DebuggerHostImpl::DebuggerHostImpl(DebuggerInputOutput* io)
-    : io_(io), 
+    : io_(io),
       debugger_ready_(true) {
 }
 
@@ -75,8 +75,8 @@ DebuggerHostImpl::~DebuggerHostImpl() {
   io_ = NULL;
 }
 
-void DebuggerHostImpl::Start() { 
-  io_->Start(this); 
+void DebuggerHostImpl::Start() {
+  io_->Start(this);
 }
 
 void DebuggerHostImpl::Debug(TabContents* tab) {

@@ -98,7 +98,7 @@ class ProxyServer {
 
   // Format as a PAC result entry. This does the reverse of FromPacString().
   std::string ToPacString() const;
-  
+
   // Returns the default port number for a proxy server with the specified
   // scheme. Returns -1 if unknown.
   static int GetDefaultPortForScheme(Scheme scheme);

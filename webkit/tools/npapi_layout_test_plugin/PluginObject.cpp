@@ -413,19 +413,19 @@ static bool destroyStream(PluginObject* obj, const NPVariant* args, uint32_t arg
 static bool testEnumerate(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
 {
     if (argCount == 2 && NPVARIANT_IS_OBJECT(args[0]) && NPVARIANT_IS_OBJECT(args[1])) {
-        uint32_t count;            
+        uint32_t count;
         NPIdentifier* identifiers;
 
         if (browser->enumerate(obj->npp, NPVARIANT_TO_OBJECT(args[0]), &identifiers, &count)) {
             NPObject* outArray = NPVARIANT_TO_OBJECT(args[1]);
             NPIdentifier pushIdentifier = browser->getstringidentifier("push");
-            
+
             for (uint32_t i = 0; i < count; i++) {
                 NPUTF8* string = browser->utf8fromidentifier(identifiers[i]);
-                
+
                 if (!string)
                     continue;
-                                    
+
                 NPVariant args[1];
                 STRINGZ_TO_NPVARIANT(string, args[0]);
                 NPVariant browserResult;
@@ -433,12 +433,12 @@ static bool testEnumerate(PluginObject* obj, const NPVariant* args, uint32_t arg
                 browser->releasevariantvalue(&browserResult);
                 browser->memfree(string);
             }
-            
+
             browser->memfree(identifiers);
         }
-        
+
         VOID_TO_NPVARIANT(*result);
-        return true;            
+        return true;
     }
     return false;
 }
@@ -639,7 +639,7 @@ static bool pluginInvoke(NPObject* header, NPIdentifier name, const NPVariant* a
                 // object before returning it and the calling JS gets a garbage
                 // value.  Firefox handles it fine.
                 OBJECT_TO_NPVARIANT(NPVARIANT_TO_OBJECT(browserResult), *result);
-            } else {                
+            } else {
                 browser->releasevariantvalue(&browserResult);
                 VOID_TO_NPVARIANT(*result);
             }
@@ -682,21 +682,21 @@ static bool pluginInvoke(NPObject* header, NPIdentifier name, const NPVariant* a
             // NPObject.
             // Arguments:
             // arg1:  Callback that returns a script object.
-            // arg2:  Name of the method to call on the script object returned 
+            // arg2:  Name of the method to call on the script object returned
             //        from the callback
             NPObject *windowScriptObject;
-            browser->getvalue(plugin->npp, NPNVWindowNPObject, 
+            browser->getvalue(plugin->npp, NPNVWindowNPObject,
                               &windowScriptObject);
 
             // Arg1 is the name of the callback
             NPUTF8* callbackString = createCStringFromNPVariant(&args[0]);
-            NPIdentifier callbackIdentifier = 
+            NPIdentifier callbackIdentifier =
                   browser->getstringidentifier(callbackString);
             free(callbackString);
 
             // Invoke a callback that returns a script object
             NPVariant object_result;
-            browser->invoke(plugin->npp, windowScriptObject, callbackIdentifier, 
+            browser->invoke(plugin->npp, windowScriptObject, callbackIdentifier,
                             &args[1], 1, &object_result);
 
             // Script object returned
@@ -704,7 +704,7 @@ static bool pluginInvoke(NPObject* header, NPIdentifier name, const NPVariant* a
 
             // Arg2 is the name of the method to be called on the script object
             NPUTF8* object_mehod_string = createCStringFromNPVariant(&args[1]);
-            NPIdentifier object_method = 
+            NPIdentifier object_method =
                 browser->getstringidentifier(object_mehod_string);
             free(object_mehod_string);
 
@@ -729,7 +729,7 @@ static bool pluginInvoke(NPObject* header, NPIdentifier name, const NPVariant* a
                 // value.  Firefox handles it fine.
                 OBJECT_TO_NPVARIANT(NPVARIANT_TO_OBJECT(object_method_result),
                                     *result);
-            } else {                
+            } else {
                 browser->releasevariantvalue(&object_method_result);
                 VOID_TO_NPVARIANT(*result);
             }

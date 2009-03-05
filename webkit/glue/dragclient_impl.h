@@ -35,7 +35,7 @@ public:
   virtual WebCore::DragDestinationAction actionMaskForDrag(WebCore::DragData*);
   virtual WebCore::DragSourceAction dragSourceActionMaskForPoint(
       const WebCore::IntPoint& window_point);
-  
+
   virtual void startDrag(WebCore::DragImageRef drag_image,
                          const WebCore::IntPoint& drag_image_origin,
                          const WebCore::IntPoint& event_pos,
@@ -43,8 +43,8 @@ public:
                          WebCore::Frame* frame,
                          bool is_link_drag = false);
   virtual WebCore::DragImageRef createDragImageForLink(
-      WebCore::KURL&, const WebCore::String& label, WebCore::Frame*); 
-  
+      WebCore::KURL&, const WebCore::String& label, WebCore::Frame*);
+
   virtual void dragControllerDestroyed();
 
 private:

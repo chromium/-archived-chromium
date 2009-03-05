@@ -170,7 +170,7 @@ near the top of the file, before you open it in Visual Studio.
   # TODO(joi) It would be cool to have this tool note the Perforce revision
   # of the original RC file somewhere, such that the <skeleton> node could warn
   # if the original RC file gets updated without the skeleton file being updated.
-  
+
   # TODO(joi) Would be cool to have option to add the files to Perforce
 
   def __init__(self):
@@ -179,7 +179,7 @@ near the top of the file, before you open it in Visual Studio.
     self.base_folder = '.'
     self.codepage_number = 1252
     self.codepage_number_specified_explicitly = False
-  
+
   def SetLanguage(self, lang):
     '''Sets the language code to output things in.
     '''
@@ -196,10 +196,10 @@ near the top of the file, before you open it in Visual Studio.
 
   def ShortDescription(self):
     return 'Generate a file where you can resize a given dialog.'
-  
+
   def Run(self, opts, args):
     self.SetOptions(opts)
-    
+
     own_opts, args = getopt.getopt(args, 'l:f:c:D:')
     for key, val in own_opts:
       if key == '-l':
@@ -212,11 +212,11 @@ near the top of the file, before you open it in Visual Studio.
       if key == '-D':
         name, val = build.ParseDefine(val)
         self.defines[name] = val
-    
+
     res_tree = grd_reader.Parse(opts.input, debug=opts.extra_verbose)
     res_tree.OnlyTheseTranslations([self.lang])
     res_tree.RunGatherers(True)
-    
+
     # Dialog IDs are either explicitly listed, or we output all dialogs from the
     # .grd file
     dialog_ids = args
@@ -224,31 +224,31 @@ near the top of the file, before you open it in Visual Studio.
       for node in res_tree:
         if node.name == 'structure' and node.attrs['type'] == 'dialog':
           dialog_ids.append(node.attrs['name'])
-    
+
     self.Process(res_tree, dialog_ids)
-    
+
   def Process(self, grd, dialog_ids):
     '''Outputs an RC file and header file for the dialog 'dialog_id' stored in
     resource tree 'grd', to self.base_folder, as discussed in this class's
     documentation.
-    
+
     Arguments:
       grd: grd = grd_reader.Parse(...); grd.RunGatherers()
       dialog_ids: ['IDD_MYDIALOG', 'IDD_OTHERDIALOG']
     '''
     grd.SetOutputContext(self.lang, self.defines)
-    
+
     project_name = dialog_ids[0]
-    
+
     dir_path = os.path.join(self.base_folder, project_name)
     if not os.path.isdir(dir_path):
       os.mkdir(dir_path)
-    
+
     # If this fails then we're not on Windows (or you don't have the required
     # win32all Python libraries installed), so what are you doing mucking
     # about with RC files anyway? :)
     import pythoncom
-    
+
     # Create the .vcproj file
     project_text = PROJECT_TEMPLATE.replace(
       '[[PROJECT_GUID]]', str(pythoncom.CreateGuid())
@@ -256,7 +256,7 @@ near the top of the file, before you open it in Visual Studio.
     fname = os.path.join(dir_path, '%s.vcproj' % project_name)
     self.WriteFile(fname, project_text)
     print "Wrote %s" % fname
-    
+
     # Create the .rc file
     # Output all <include> nodes since the dialogs might depend on them (e.g.
     # for icons and bitmaps).
@@ -269,7 +269,7 @@ near the top of the file, before you open it in Visual Studio.
     rc_text = RC_TEMPLATE.replace('[[CODEPAGE_NUM]]',
                                   str(self.codepage_number))
     rc_text = rc_text.replace('[[INCLUDES]]', ''.join(include_items))
-    
+
     # Then output the dialogs we have been asked to output.
     dialogs = []
     for dialog_id in dialog_ids:
@@ -278,11 +278,11 @@ near the top of the file, before you open it in Visual Studio.
       formatter = node.ItemFormatter('rc_all')
       dialogs.append(formatter.Format(node, self.lang))
     rc_text = rc_text.replace('[[DIALOGS]]', ''.join(dialogs))
-    
+
     fname = os.path.join(dir_path, '%s.rc' % project_name)
     self.WriteFile(fname, rc_text, self.GetEncoding())
     print "Wrote %s" % fname
-    
+
     # Create the resource.h file
     header_defines = []
     for node in grd:
@@ -293,7 +293,7 @@ near the top of the file, before you open it in Visual Studio.
     fname = os.path.join(dir_path, 'resource.h')
     self.WriteFile(fname, header_text)
     print "Wrote %s" % fname
-    
+
   def WriteFile(self, filename, contents, encoding='cp1252'):
     f = util.WrapOutputStream(file(filename, 'wb'), encoding)
     f.write(contents)

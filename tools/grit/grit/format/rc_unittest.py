@@ -50,7 +50,7 @@ Sting sting
       </messages>
       '''), flexible_root = True)
     util.FixRootForUnittest(root)
-    
+
     buf = StringIO.StringIO()
     build.RcBuilder.ProcessNode(root, DummyOutput('rc_all', 'en'), buf)
     output = buf.getvalue()
@@ -73,12 +73,12 @@ END'''.strip())
       </structures>'''), flexible_root = True)
     util.FixRootForUnittest(root)
     root.RunGatherers(recursive = True)
-    
+
     buf = StringIO.StringIO()
     build.RcBuilder.ProcessNode(root, DummyOutput('rc_all', 'en'), buf)
     output = buf.getvalue()
     self.failUnless(output.strip() == u'''
-IDC_KLONKMENU MENU 
+IDC_KLONKMENU MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -150,7 +150,7 @@ END'''.strip())
       </structures>'''), flexible_root = True)
     util.FixRootForUnittest(root, '/temp')
     # We do not run gatherers as it is not needed and wouldn't find the file
-    
+
     buf = StringIO.StringIO()
     build.RcBuilder.ProcessNode(root, DummyOutput('rc_all', 'en'), buf)
     output = buf.getvalue()
@@ -159,7 +159,7 @@ END'''.strip())
                 % (util.normpath('/temp/bingo.html').replace('\\', '\\\\'),
                    util.normpath('/temp/bingo2.html').replace('\\', '\\\\')))
     # hackety hack to work on win32&lin
-    output = re.sub('"[c-zC-Z]:', '"', output) 
+    output = re.sub('"[c-zC-Z]:', '"', output)
     self.failUnless(output.strip() == expected)
 
   def testRcIncludeFile(self):
@@ -169,7 +169,7 @@ END'''.strip())
         <include type="TXT" name="TEXT_TWO" file="bingo2.txt"  filenameonly="true" />
       </includes>'''), flexible_root = True)
     util.FixRootForUnittest(root, '/temp')
-    
+
     buf = StringIO.StringIO()
     build.RcBuilder.ProcessNode(root, DummyOutput('rc_all', 'en'), buf)
     output = buf.getvalue()
@@ -191,21 +191,21 @@ END'''.strip())
     # We must run the gatherers since we'll be wanting the translation of the
     # file.  The file exists in the location pointed to.
     root.RunGatherers(recursive=True)
-    
+
     output_dir = tempfile.gettempdir()
     en_file = root.FileForLanguage('en', output_dir)
     self.failUnless(en_file == input_file)
     fr_file = root.FileForLanguage('fr', output_dir)
     self.failUnless(fr_file == os.path.join(output_dir, 'fr_simple.html'))
-    
+
     fo = file(fr_file)
     contents = fo.read()
     fo.close()
-    
+
     self.failUnless(contents.find('<p>') != -1)  # should contain the markup
     self.failUnless(contents.find('Hello!') == -1)  # should be translated
-  
-  
+
+
   def testFallbackToEnglish(self):
     root = grd_reader.Parse(StringIO.StringIO('''<?xml version="1.0" encoding="UTF-8"?>
       <grit latest_public_release="2" source_lang_id="en-US" current_release="3" base_dir=".">
@@ -217,7 +217,7 @@ END'''.strip())
       </grit>'''), util.PathFromRoot('.'))
     util.FixRootForUnittest(root)
     root.RunGatherers(recursive = True)
-    
+
     node = root.GetNodeById("IDD_ABOUTBOX")
     formatter = node.ItemFormatter('rc_all')
     output = formatter.Format(node, 'bingobongo')

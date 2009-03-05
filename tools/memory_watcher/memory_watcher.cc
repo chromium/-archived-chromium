@@ -99,7 +99,7 @@ void MemoryWatcher::OnTrack(HANDLE heap, int32 id, int32 size) {
 
     AutoLock lock(block_map_lock_);
 
-    // Ideally, we'd like to verify that the block being added 
+    // Ideally, we'd like to verify that the block being added
     // here is not already in our list of tracked blocks.  However,
     // the lookup in our hash table is expensive and slows us too
     // much.  Uncomment this line if you think you need it.
@@ -175,7 +175,7 @@ void MemoryWatcher::OnUntrack(HANDLE heap, int32 id, int32 size) {
 void MemoryWatcher::SetLogName(char* log_name) {
   if (!log_name)
     return;
-  
+
   log_name_ = log_name;
 }
 

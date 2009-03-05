@@ -1,10 +1,10 @@
 /* Copyright (c) 2007, Google Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -64,9 +64,9 @@ SideStepError PreamblePatcher::RawPatchWithStubAndProtections(
     return SIDESTEP_ACCESS_DENIED;
   }
 
-  SideStepError error_code = RawPatchWithStub(target_function, 
-                                              replacement_function, 
-                                              preamble_stub, 
+  SideStepError error_code = RawPatchWithStub(target_function,
+                                              replacement_function,
+                                              preamble_stub,
                                               stub_size,
                                               bytes_needed);
   if (SIDESTEP_SUCCESS != error_code) {
@@ -76,9 +76,9 @@ SideStepError PreamblePatcher::RawPatchWithStubAndProtections(
 
   // Restore the protection of the first MAX_PREAMBLE_STUB_SIZE bytes of
   // pTargetFunction to what they were before we started goofing around.
-  succeeded = ::VirtualProtect(reinterpret_cast<void*>(target_function), 
-                               MAX_PREAMBLE_STUB_SIZE, 
-                               old_target_function_protect, 
+  succeeded = ::VirtualProtect(reinterpret_cast<void*>(target_function),
+                               MAX_PREAMBLE_STUB_SIZE,
+                               old_target_function_protect,
                                &old_target_function_protect);
   if (!succeeded) {
     ASSERT(false, "Failed to restore protection to target function.");
@@ -94,8 +94,8 @@ SideStepError PreamblePatcher::RawPatchWithStubAndProtections(
   // XP machines.  I'm not sure why this is so, but it is, yet I want to keep the
   // call to the API here for correctness in case there is a difference in
   // some variants of Windows/hardware.
-  succeeded = ::FlushInstructionCache(::GetCurrentProcess(), 
-                                      target_function, 
+  succeeded = ::FlushInstructionCache(::GetCurrentProcess(),
+                                      target_function,
                                       MAX_PREAMBLE_STUB_SIZE);
   if (!succeeded) {
     ASSERT(false, "Failed to flush instruction cache.");
@@ -116,9 +116,9 @@ SideStepError PreamblePatcher::RawPatch(void* target_function,
     return SIDESTEP_INVALID_PARAMETER;
   }
 
-  // @see MAX_PREAMBLE_STUB_SIZE for an explanation of how we arrives at 
+  // @see MAX_PREAMBLE_STUB_SIZE for an explanation of how we arrives at
   // this size
-  unsigned char* preamble_stub = 
+  unsigned char* preamble_stub =
     reinterpret_cast<unsigned char*>(
       MemoryHook::Alloc(sizeof(unsigned char) * MAX_PREAMBLE_STUB_SIZE));
   if (!preamble_stub) {
@@ -139,9 +139,9 @@ SideStepError PreamblePatcher::RawPatch(void* target_function,
     return SIDESTEP_ACCESS_DENIED;
   }
 
-  SideStepError error_code = RawPatchWithStubAndProtections(target_function, 
-                                              replacement_function, 
-                                              preamble_stub, 
+  SideStepError error_code = RawPatchWithStubAndProtections(target_function,
+                                              replacement_function,
+                                              preamble_stub,
                                               MAX_PREAMBLE_STUB_SIZE,
                                               NULL);
   if (SIDESTEP_SUCCESS != error_code) {
@@ -149,14 +149,14 @@ SideStepError PreamblePatcher::RawPatch(void* target_function,
     delete[] preamble_stub;
     return error_code;
   }
-                
+
   *original_function_stub = reinterpret_cast<void*>(preamble_stub);
 
-  // NOTE: For hooking malloc/free, we don't want to use streams which 
-  // allocate.  Basically, we've hooked malloc, but not necessarily 
+  // NOTE: For hooking malloc/free, we don't want to use streams which
+  // allocate.  Basically, we've hooked malloc, but not necessarily
   // hooked free yet.  To do anything which uses the heap could crash
   // with a mismatched malloc/free!
-  //LOG(INFO) << "PreamblePatcher::RawPatch successfully patched 0x" << 
+  //LOG(INFO) << "PreamblePatcher::RawPatch successfully patched 0x" <<
   //         target_function;
 
   return SIDESTEP_SUCCESS;
@@ -175,7 +175,7 @@ SideStepError PreamblePatcher::Unpatch(void* target_function,
   MiniDisassembler disassembler;
   unsigned int preamble_bytes = 0;
   while (preamble_bytes < 5) {
-    InstructionType instruction_type = 
+    InstructionType instruction_type =
       disassembler.Disassemble(
         reinterpret_cast<unsigned char*>(original_function_stub) + preamble_bytes,
         preamble_bytes);
@@ -234,17 +234,17 @@ SideStepError PreamblePatcher::Unpatch(void* target_function,
 
   // Restore the protection of the first MAX_PREAMBLE_STUB_SIZE bytes of
   // target to what they were before we started goofing around.
-  succeeded = ::VirtualProtect(reinterpret_cast<void*>(target), 
-                               MAX_PREAMBLE_STUB_SIZE, 
-                               old_target_function_protect, 
+  succeeded = ::VirtualProtect(reinterpret_cast<void*>(target),
+                               MAX_PREAMBLE_STUB_SIZE,
+                               old_target_function_protect,
                                &old_target_function_protect);
 
   // Flush the instruction cache to make sure the processor doesn't execute the
   // old version of the instructions (before our patch).
   //
   // See comment on FlushInstructionCache elsewhere in this file.
-  succeeded = ::FlushInstructionCache(::GetCurrentProcess(), 
-                                      target, 
+  succeeded = ::FlushInstructionCache(::GetCurrentProcess(),
+                                      target,
                                       MAX_PREAMBLE_STUB_SIZE);
   if (!succeeded) {
     ASSERT(false, "Failed to flush instruction cache.");

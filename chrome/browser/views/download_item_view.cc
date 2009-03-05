@@ -207,7 +207,7 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
 
     // Extract the file extension (if any).
     std::wstring extension = file_util::GetFileExtensionFromPath(file_name);
-    std::wstring rootname = 
+    std::wstring rootname =
         file_util::GetFilenameWithoutExtensionFromPath(file_name);
 
     // Elide giant extensions (this shouldn't currently be hit, but might
@@ -217,7 +217,7 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
 
     ElideString(rootname, kFileNameMaxLength - extension.length(), &rootname);
     dangerous_download_label_ = new views::Label(
-        l10n_util::GetStringF(IDS_PROMPT_DANGEROUS_DOWNLOAD, 
+        l10n_util::GetStringF(IDS_PROMPT_DANGEROUS_DOWNLOAD,
                               rootname + L"." + extension));
     dangerous_download_label_->SetMultiLine(true);
     dangerous_download_label_->SetHorizontalAlignment(
@@ -456,7 +456,7 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   // Last value of x was the end of the right image, just before the button.
   // Note that in dangerous mode we use a label (as the text is multi-line).
   if (!IsDangerousMode()) {
-    std::wstring filename = 
+    std::wstring filename =
         gfx::ElideFilename(download_->GetFileName().ToWStringHack(),
                            font_,
                            kTextWidth);

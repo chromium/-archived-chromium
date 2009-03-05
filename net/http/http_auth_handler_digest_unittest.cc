@@ -35,7 +35,7 @@ TEST(HttpAuthHandlerDigestTest, ParseChallenge) {
       HttpAuthHandlerDigest::ALGORITHM_UNSPECIFIED,
       HttpAuthHandlerDigest::QOP_UNSPECIFIED
     },
-    
+
     {// Check that when algorithm has an unsupported value, parsing fails.
       "Digest nonce=\"xyz\", algorithm=\"awezum\", realm=\"Thunder\"",
       false,
@@ -92,7 +92,7 @@ TEST(HttpAuthHandlerDigestTest, ParseChallenge) {
 
     scoped_refptr<HttpAuthHandlerDigest> digest = new HttpAuthHandlerDigest;
     bool ok = digest->ParseChallenge(challenge.begin(), challenge.end());
-    
+
     EXPECT_EQ(tests[i].parsed_success, ok);
     EXPECT_STREQ(tests[i].parsed_realm, digest->realm_.c_str());
     EXPECT_STREQ(tests[i].parsed_nonce, digest->nonce_.c_str());
@@ -244,7 +244,7 @@ TEST(HttpAuthHandlerDigestTest, AssembleCredentials) {
     std::string creds = digest->AssembleCredentials(tests[i].req_method,
         tests[i].req_path, tests[i].username, tests[i].password,
         tests[i].cnonce, tests[i].nonce_count);
-    
+
     EXPECT_STREQ(tests[i].expected_creds, creds.c_str());
   }
 }

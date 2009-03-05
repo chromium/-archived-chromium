@@ -13,7 +13,7 @@ ChildProcess* ChildProcess::child_process_;
 ChildProcess::ChildProcess(ChildThread* child_thread)
     : child_thread_(child_thread),
       ref_count_(0),
-      shutdown_event_(true, false) {      
+      shutdown_event_(true, false) {
   DCHECK(!child_process_);
   child_process_ = this;
   if (child_thread_.get())  // null in unittests.

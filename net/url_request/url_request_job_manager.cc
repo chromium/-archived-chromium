@@ -27,7 +27,7 @@ struct SchemeToFactory {
   const char* scheme;
   URLRequest::ProtocolFactory* factory;
 };
-  
+
 }  // namespace
 
 static const SchemeToFactory kBuiltinFactories[] = {

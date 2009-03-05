@@ -160,7 +160,7 @@ def VerifyDependents(pe_name, dependents, delay_loaded, list_file, verbose):
   # The dependency files have dependencies in two section - dependents and delay_loaded
   # Also various distributions of Chromium can have different dependencies. So first
   # we read generic dependencies ("dependents" and "delay_loaded"). If distribution
-  # specific dependencies exist (i.e. "dependents_google_chrome" and 
+  # specific dependencies exist (i.e. "dependents_google_chrome" and
   # "delay_loaded_google_chrome") we use those instead.
   distribution = DIST_DEFAULT
   if DIST_ENV_VAR in os.environ.keys():
@@ -170,7 +170,7 @@ def VerifyDependents(pe_name, dependents, delay_loaded, list_file, verbose):
   dist_dependents = "dependents" + distribution
   if dist_dependents in scope.keys():
     expected_dependents = scope[dist_dependents]
-    
+
   expected_delay_loaded = scope["delay_loaded"]
   dist_delay_loaded = "delay_loaded" + distribution
   if dist_delay_loaded in scope.keys():
@@ -181,7 +181,7 @@ def VerifyDependents(pe_name, dependents, delay_loaded, list_file, verbose):
     print "\n".join(expected_dependents)
     print "Expected delayloaded:"
     print "\n".join(expected_delay_loaded)
-    
+
   deps_result = Diff(pe_name,
                      "dll",
                      dependents,

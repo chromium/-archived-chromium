@@ -20,7 +20,7 @@ class PasswordFormDomManager {
  public:
   typedef std::map<std::wstring, std::wstring> LoginCollection;
 
-  // Structure used for autofilling password forms. 
+  // Structure used for autofilling password forms.
   // basic_data identifies the HTML form on the page and preferred username/
   //            password for login, while
   // additional_logins is a list of other matching user/pass pairs for the form.
@@ -40,16 +40,16 @@ class PasswordFormDomManager {
   // Create a PasswordForm from DOM form. Webkit doesn't allow storing
   // custom metadata to DOM nodes, so we have to do this every time an event
   // happens with a given form and compare against previously Create'd forms
-  // to identify..which sucks. 
+  // to identify..which sucks.
   static PasswordForm* CreatePasswordForm(WebCore::HTMLFormElement* form);
 
-  // Create a FillData structure in preparation for autofilling a form, 
+  // Create a FillData structure in preparation for autofilling a form,
   // from basic_data identifying which form to fill, and a collection of
   // matching stored logins to use as username/password values.
   // preferred_match should equal (address) one of matches.
   // wait_for_username_before_autofill is true if we should not autofill
   // anything until the user typed in a valid username and blurred the field.
-  static void InitFillData(const PasswordForm& form_on_page, 
+  static void InitFillData(const PasswordForm& form_on_page,
                            const PasswordFormMap& matches,
                            const PasswordForm* const preferred_match,
                            bool wait_for_username_before_autofill,
@@ -60,11 +60,11 @@ class PasswordFormDomManager {
     WebCore::HTMLInputElement* username;
     std::vector<WebCore::HTMLInputElement*> passwords;
     WebCore::HTMLFormControlElement* submit;
-    PasswordFormFields() : username(NULL), submit(NULL) { 
+    PasswordFormFields() : username(NULL), submit(NULL) {
     }
   };
-  
-  // Helper to CreatePasswordForm to do the locating of username/password 
+
+  // Helper to CreatePasswordForm to do the locating of username/password
   // fields.
   // This method based on Firefox2 code in
   //   toolkit/components/passwordmgr/base/nsPasswordManager.cpp
@@ -105,25 +105,25 @@ class PasswordFormDomManager {
   * the provisions above, a recipient may use your version of this file under
   * the terms of any one of the MPL, the GPL or the LGPL.
   *
-  * ***** END LICENSE BLOCK ***** */	  
-  static void FindPasswordFormFields(WebCore::HTMLFormElement* form, 
+  * ***** END LICENSE BLOCK ***** */
+  static void FindPasswordFormFields(WebCore::HTMLFormElement* form,
                                      PasswordFormFields* fields);
   // Helper to determine which password is the main one, and which is
   // an old password (e.g on a "make new password" form), if any.
   static bool LocateSpecificPasswords(
-      PasswordFormFields* fields, 
+      PasswordFormFields* fields,
       WebCore::HTMLInputElement** password,
       WebCore::HTMLInputElement** old_password_index);
 
   // Helper to gather up the final form data and create a PasswordForm.
   static PasswordForm* AssemblePasswordFormResult(
-      const GURL& full_origin, 
+      const GURL& full_origin,
       const GURL& full_action,
       WebCore::HTMLFormControlElement* submit,
       WebCore::HTMLInputElement* username,
       WebCore::HTMLInputElement* old_password,
       WebCore::HTMLInputElement* password);
-                                      
+
   // This class can't be instantiated.
   DISALLOW_IMPLICIT_CONSTRUCTORS(PasswordFormDomManager);
 };

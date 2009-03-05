@@ -9,20 +9,20 @@
 // Helper functions to maintain mapping of "test name"->test func.
 // The information is accessed via a global map.
 namespace multi_process_function_list {
-  
+
 namespace {
 
 typedef std::map<std::string, ChildFunctionPtr> MultiProcessTestMap;
-  
+
 // Retrieve a reference to the global 'func name' -> func ptr map.
 MultiProcessTestMap &GetMultiprocessFuncMap() {
   static MultiProcessTestMap test_name_to_func_ptr_map;
   return test_name_to_func_ptr_map;
 }
-  
+
 }  // namespace
 
-AppendMultiProcessTest::AppendMultiProcessTest(std::string test_name, 
+AppendMultiProcessTest::AppendMultiProcessTest(std::string test_name,
                                                ChildFunctionPtr func_ptr) {
   GetMultiprocessFuncMap()[test_name] = func_ptr;
 }
@@ -36,7 +36,7 @@ int InvokeChildProcessTest(std::string test_name) {
       return (*func)();
     }
   }
-  
+
   return -1;
 }
 

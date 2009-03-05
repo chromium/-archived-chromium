@@ -360,7 +360,7 @@ DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
   int mid_x = (m_bounds.left + m_bounds.right) / 2;
   int mid_y = (m_bounds.top + m_bounds.bottom) / 2;
 
-  bool result = 
+  bool result =
       info.CheckMonitorPoint(monitor, screen_point, mid_x, m_bounds.top,
                              DockInfo::MAXIMIZE) ||
       info.CheckMonitorPoint(monitor, screen_point, mid_x, m_bounds.bottom,

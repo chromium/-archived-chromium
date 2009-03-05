@@ -16,7 +16,7 @@
 
 namespace installer {
 
-// Interface for implementing a native HTML dialog. 
+// Interface for implementing a native HTML dialog.
 class HTMLDialog {
  public:
   enum DialogResult {
@@ -44,7 +44,7 @@ class HTMLDialog {
   // in HTML so each native implementation needs to map the user action into
   // one of the 6 possible results of DialogResult. Important, call this
   // method only from the main (or UI) thread.
-  virtual DialogResult ShowModal(void* parent_window, 
+  virtual DialogResult ShowModal(void* parent_window,
                                  CustomizationCallback* callback) = 0;
 
   // If the result of ShowModal() was EXTRA, the information is available

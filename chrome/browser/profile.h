@@ -217,7 +217,7 @@ class Profile {
 
   virtual void ResetTabRestoreService() = 0;
 
-  // This reinitializes the spellchecker according to the current dictionary 
+  // This reinitializes the spellchecker according to the current dictionary
   // language, and enable spell check option, in the prefs.
   virtual void ReinitializeSpellChecker() = 0;
 
@@ -230,7 +230,7 @@ class Profile {
   //
   // NOTE: this is invoked internally on a normal shutdown, but is public so
   // that it can be invoked when the user logs out/powers down (WM_ENDSESSION).
-  virtual void MarkAsCleanShutdown() = 0;  
+  virtual void MarkAsCleanShutdown() = 0;
 
   virtual void InitExtensions() = 0;
 
@@ -305,7 +305,7 @@ class ProfileImpl : public Profile,
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
-                       const NotificationDetails& details);  
+                       const NotificationDetails& details);
 
  private:
   friend class Profile;
@@ -316,20 +316,20 @@ class ProfileImpl : public Profile,
   FilePath GetPrefFilePath();
 
   void StopCreateSessionServiceTimer();
-  
+
   void EnsureSessionServiceCreated() {
     GetSessionService();
   }
 
   // Initializes the spellchecker. If the spellchecker already exsts, then
-  // it is released, and initialized again. This model makes sure that 
+  // it is released, and initialized again. This model makes sure that
   // spellchecker language can be changed without restarting the browser.
   // NOTE: This is being currently called in the UI thread, which is OK as long
   // as the spellchecker object is USED in the IO thread.
   // The |need_to_broadcast| parameter tells it whether to broadcast the new
   // spellchecker to the resource message filters.
   void InitializeSpellChecker(bool need_to_broadcast);
-  
+
   FilePath path_;
   bool off_the_record_;
   scoped_ptr<VisitedLinkMaster> visited_link_master_;

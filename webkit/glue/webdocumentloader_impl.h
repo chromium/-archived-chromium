@@ -6,13 +6,13 @@
  * are met:
  *
  * 1.  Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer. 
+ *     notice, this list of conditions and the following disclaimer.
  * 2.  Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution. 
+ *     documentation and/or other materials provided with the distribution.
  * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
  *     its contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission. 
+ *     from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -66,7 +66,7 @@ class WebDocumentLoaderImpl : public WebCore::DocumentLoader {
   // Returns the SearchableFormData for this DocumentLoader.
   // WebDocumentLoaderImpl owns the returned SearchableFormData.
   const SearchableFormData* searchable_form_data() const {
-    return searchable_form_data_.get(); 
+    return searchable_form_data_.get();
   }
 
   // Sets the PasswordFormData for this DocumentLoader.
@@ -95,7 +95,7 @@ class WebDocumentLoaderImpl : public WebCore::DocumentLoader {
   scoped_ptr<WebDataSource> detached_datasource_;
   scoped_ptr<const SearchableFormData> searchable_form_data_;
   scoped_ptr<const PasswordForm> password_form_data_;
-  
+
   bool lock_history_;
 
   bool form_submit_;

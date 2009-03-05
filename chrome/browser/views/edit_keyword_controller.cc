@@ -53,7 +53,7 @@ void EditKeywordController::Show() {
   // Window interprets an empty rectangle as needing to query the content for
   // the size as well as centering relative to the parent.
   views::Window::CreateChromeWindow(::IsWindow(parent_) ? parent_ : NULL,
-                                    gfx::Rect(), this); 
+                                    gfx::Rect(), this);
   window()->Show();
   GetDialogClientView()->UpdateDialogButtons();
   title_tf_->SelectAll();

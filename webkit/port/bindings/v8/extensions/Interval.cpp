@@ -12,7 +12,7 @@ const char* kIntervalExtensionName = "v8/Interval";
 
 class IntervalExtensionWrapper : public v8::Extension {
 public:
-    IntervalExtensionWrapper() : 
+    IntervalExtensionWrapper() :
         v8::Extension(kIntervalExtensionName,
           "var chromium;"
           "if (!chromium)"

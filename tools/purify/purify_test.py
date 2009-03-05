@@ -6,9 +6,9 @@
 # purify_test.py
 
 '''Runs an exe  through Purify and verifies that Purify was
-able to successfully instrument and run it.  The original purpose was 
-to be able to identify when a change to our code breaks our ability to Purify 
-the app. This can happen with seemingly innocuous changes to code due to bugs 
+able to successfully instrument and run it.  The original purpose was
+to be able to identify when a change to our code breaks our ability to Purify
+the app. This can happen with seemingly innocuous changes to code due to bugs
 in Purify, and is notoriously difficult to track down when it does happen.
 Perhaps more importantly in the long run, this can also automate detection of
 leaks and other memory bugs.  It also may be useful to allow people to run
@@ -117,7 +117,7 @@ class Purify(common.Rational):
           # seems to lose its mind, and we have a number of tests that use
           # much larger than the default of 5.
           "option -number-of-puts=30",
-          # With our large pdbs, purify's default timeout (30) isn't always 
+          # With our large pdbs, purify's default timeout (30) isn't always
           # enough.  If this isn't enough, -1 means no timeout.
           "option -server-comm-timeout=120",
           # check stack memory loads for UMRs, etc.
@@ -224,7 +224,7 @@ class Purify(common.Rational):
     if self._instrument_only:
       return
     cmd = self._PurifyCommand()
-    # undo the /Replace=yes that was done in Instrument(), which means to 
+    # undo the /Replace=yes that was done in Instrument(), which means to
     # remove the instrumented exe, and then rename exe.Original back to exe.
     cmd.append("/UndoReplace")
     cmd.append(os.path.abspath(self._exe))

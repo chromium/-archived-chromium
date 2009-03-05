@@ -13,7 +13,7 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webframe.h"
 
-#include "grit/renderer_resources.h" 
+#include "grit/renderer_resources.h"
 
 // These two strings are injected before and after the Greasemonkey API and
 // user script to wrap it in an anonymous scope.

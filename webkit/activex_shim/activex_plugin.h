@@ -57,7 +57,7 @@ class ActiveXPlugin : public DispatchObject {
  private:
   // Process parameters passed in from browser.
   void ProcessParams(int16 argc, char* argn[], char* argv[]);
-  // For handling wmp mime type, we need to initialize params differently 
+  // For handling wmp mime type, we need to initialize params differently
   // (change src to corresponding param for wmp control), and set clsid to wmp.
   void ConvertForEmbeddedWmp();
 

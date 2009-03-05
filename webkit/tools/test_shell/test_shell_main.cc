@@ -52,15 +52,15 @@ static int kStatsFileCounters = 200;
 
 int main(int argc, char* argv[]) {
   base::EnableTerminationOnHeapCorruption();
-  
+
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
-  base::AtExitManager at_exit_manager;  
+  base::AtExitManager at_exit_manager;
 
   TestShellPlatformDelegate::PreflightArgs(&argc, &argv);
   CommandLine::Init(argc, argv);
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
-  
+
   TestShellPlatformDelegate platform(parsed_command_line);
 
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
@@ -100,9 +100,9 @@ int main(int argc, char* argv[]) {
     base::TraceLog::StartTracing();
 
   net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
-  bool playback_mode = 
+  bool playback_mode =
     parsed_command_line.HasSwitch(test_shell::kPlaybackMode);
-  bool record_mode = 
+  bool record_mode =
     parsed_command_line.HasSwitch(test_shell::kRecordMode);
 
   if (playback_mode)

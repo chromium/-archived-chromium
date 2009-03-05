@@ -137,7 +137,7 @@ void DebuggerContents::Init() {
 
 // static
 bool DebuggerContents::IsDebuggerUrl(const GURL& url) {
-  return (url.SchemeIs(DOMUIContents::GetScheme().c_str()) && 
+  return (url.SchemeIs(DOMUIContents::GetScheme().c_str()) &&
           url.host() == kDebuggerHost);
 }
 

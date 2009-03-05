@@ -119,11 +119,11 @@ int NetErrorFromOSStatus(OSStatus status) {
       return ERR_CERT_INVALID;
     case errSSLPeerCertRevoked:
       return ERR_CERT_REVOKED;
-    
+
     case errSSLClosedGraceful:
     case noErr:
       return OK;
-      
+
     case errSSLBadRecordMac:
     case errSSLBufferOverflow:
     case errSSLDecryptionFail:
@@ -168,7 +168,7 @@ OSStatus OSStatusFromNetError(int net_error) {
 int KeySizeOfCipherSuite(SSLCipherSuite suite) {
   switch (suite) {
     // SSL 2 only
-    
+
     case SSL_RSA_WITH_DES_CBC_MD5:
       return 56;
     case SSL_RSA_WITH_3DES_EDE_CBC_MD5:
@@ -178,9 +178,9 @@ int KeySizeOfCipherSuite(SSLCipherSuite suite) {
       return 128;
     case SSL_NO_SUCH_CIPHERSUITE:                // **
       return 0;
-    
+
     // SSL 2, 3, TLS
-    
+
     case SSL_NULL_WITH_NULL_NULL:
     case SSL_RSA_WITH_NULL_MD5:
     case SSL_RSA_WITH_NULL_SHA:                  // **
@@ -217,9 +217,9 @@ int KeySizeOfCipherSuite(SSLCipherSuite suite) {
     case SSL_RSA_WITH_IDEA_CBC_SHA:              // **
     case SSL_DH_anon_WITH_RC4_128_MD5:
       return 128;
-    
+
     // TLS AES options (see RFC 3268)
-    
+
     case TLS_RSA_WITH_AES_128_CBC_SHA:
     case TLS_DH_DSS_WITH_AES_128_CBC_SHA:        // **
     case TLS_DH_RSA_WITH_AES_128_CBC_SHA:        // **
@@ -234,7 +234,7 @@ int KeySizeOfCipherSuite(SSLCipherSuite suite) {
     case TLS_DHE_RSA_WITH_AES_256_CBC_SHA:
     case TLS_DH_anon_WITH_AES_256_CBC_SHA:
       return 256;
-    
+
     default:
       return -1;
   }
@@ -287,13 +287,13 @@ int SSLClientSocketMac::ReconnectIgnoringLastError(
 
 void SSLClientSocketMac::Disconnect() {
   completed_handshake_ = false;
-  
+
   if (ssl_context_) {
     SSLClose(ssl_context_);
     SSLDisposeContext(ssl_context_);
     ssl_context_ = NULL;
   }
-  
+
   transport_->Disconnect();
 }
 
@@ -342,7 +342,7 @@ int SSLClientSocketMac::Write(const char* buf, int buf_len,
 
   user_buf_ = const_cast<char*>(buf);
   user_buf_len_ = buf_len;
-  
+
   next_state_ = STATE_PAYLOAD_WRITE;
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
@@ -353,15 +353,15 @@ int SSLClientSocketMac::Write(const char* buf, int buf_len,
 void SSLClientSocketMac::GetSSLInfo(SSLInfo* ssl_info) {
   DCHECK(completed_handshake_);
   OSStatus status;
-  
+
   ssl_info->Reset();
-  
+
   // set cert
   CFArrayRef certs;
   status = SSLCopyPeerCertificates(ssl_context_, &certs);
   if (!status) {
     DCHECK(CFArrayGetCount(certs) > 0);
-    
+
     SecCertificateRef client_cert =
         static_cast<SecCertificateRef>(
           const_cast<void*>(CFArrayGetValueAtIndex(certs, 0)));
@@ -370,17 +370,17 @@ void SSLClientSocketMac::GetSSLInfo(SSLInfo* ssl_info) {
         client_cert, X509Certificate::SOURCE_FROM_NETWORK);
     CFRelease(certs);
   }
-  
+
   // update status
   ssl_info->cert_status = server_cert_status_;
-  
+
   // security info
   SSLCipherSuite suite;
   status = SSLGetNegotiatedCipher(ssl_context_, &suite);
   if (!status)
     ssl_info->security_bits = KeySizeOfCipherSuite(suite);
 }
-  
+
 void SSLClientSocketMac::DoCallback(int rv) {
   DCHECK(rv != ERR_IO_PENDING);
   DCHECK(user_callback_);
@@ -459,78 +459,78 @@ int SSLClientSocketMac::DoConnectComplete(int result) {
     return result;
 
   OSStatus status = noErr;
-  
+
   status = SSLNewContext(false, &ssl_context_);
   if (status)
     return NetErrorFromOSStatus(status);
-  
+
   status = SSLSetProtocolVersionEnabled(ssl_context_,
                                         kSSLProtocol2,
                                         ssl_config_.ssl2_enabled);
   if (status)
     return NetErrorFromOSStatus(status);
-  
+
   status = SSLSetProtocolVersionEnabled(ssl_context_,
                                         kSSLProtocol3,
                                         ssl_config_.ssl3_enabled);
   if (status)
     return NetErrorFromOSStatus(status);
-  
+
   status = SSLSetProtocolVersionEnabled(ssl_context_,
                                         kTLSProtocol1,
                                         ssl_config_.tls1_enabled);
   if (status)
     return NetErrorFromOSStatus(status);
-  
+
   status = SSLSetIOFuncs(ssl_context_, SSLReadCallback, SSLWriteCallback);
   if (status)
     return NetErrorFromOSStatus(status);
-  
+
   status = SSLSetConnection(ssl_context_, this);
   if (status)
     return NetErrorFromOSStatus(status);
-  
+
   status = SSLSetPeerDomainName(ssl_context_, hostname_.c_str(),
                                 hostname_.length());
   if (status)
     return NetErrorFromOSStatus(status);
-  
+
   next_state_ = STATE_HANDSHAKE;
   return OK;
 }
 
 int SSLClientSocketMac::DoHandshake() {
   OSStatus status = SSLHandshake(ssl_context_);
-  
+
   if (status == errSSLWouldBlock)
     next_state_ = STATE_HANDSHAKE;
-  
+
   if (status == noErr)
     completed_handshake_ = true;
-  
+
   int net_error = NetErrorFromOSStatus(status);
-  
+
   // At this point we have a connection. For now, we're going to use the default
   // certificate verification that the system does, and accept its answer for
   // the cert status. In the future, we'll need to call SSLSetEnableCertVerify
   // to disable cert verification and do the verification ourselves. This allows
   // very fine-grained control over what we'll accept for certification.
   // TODO(avi): ditto
-  
+
   // TODO(wtc): for now, always check revocation.
   server_cert_status_ = CERT_STATUS_REV_CHECKING_ENABLED;
   if (net_error)
     server_cert_status_ |= MapNetErrorToCertStatus(net_error);
-  
+
   return net_error;
 }
 
 int SSLClientSocketMac::DoReadComplete(int result) {
   if (result < 0)
     return result;
-  
+
   recv_buffer_tail_slop_ -= result;
-    
+
   return result;
 }
 
@@ -539,10 +539,10 @@ void SSLClientSocketMac::OnWriteComplete(int result) {
     pending_send_error_ = result;
     return;
   }
-  
+
   send_buffer_.erase(send_buffer_.begin(),
                      send_buffer_.begin() + result);
-  
+
   if (!send_buffer_.empty())
     SSLWriteCallback(this, NULL, NULL);
 }
@@ -553,22 +553,22 @@ int SSLClientSocketMac::DoPayloadRead() {
                             user_buf_,
                             user_buf_len_,
                             &processed);
-  
+
   // There's a subtle difference here in semantics of the "would block" errors.
   // In our code, ERR_IO_PENDING means the whole operation is async, while
   // errSSLWouldBlock means that the stream isn't ending (and is often returned
   // along with partial data). So even though "would block" is returned, if we
   // have data, let's just return it.
-  
+
   if (processed > 0) {
     next_state_ = STATE_NONE;
     return processed;
   }
-  
+
   if (status == errSSLWouldBlock) {
     next_state_ = STATE_PAYLOAD_READ;
   }
-  
+
   return NetErrorFromOSStatus(status);
 }
 
@@ -578,10 +578,10 @@ int SSLClientSocketMac::DoPayloadWrite() {
                              user_buf_,
                              user_buf_len_,
                              &processed);
-  
+
   if (processed > 0)
     return processed;
-  
+
   return NetErrorFromOSStatus(status);
 }
 
@@ -665,40 +665,40 @@ OSStatus SSLClientSocketMac::SSLReadCallback(SSLConnectionRef connection,
   SSLClientSocketMac* us =
       const_cast<SSLClientSocketMac*>(
           static_cast<const SSLClientSocketMac*>(connection));
-  
+
   // If we have I/O in flight, promise we'll get back to them and use the
   // existing callback to do so
-  
+
   if (us->next_io_state_ == STATE_READ_COMPLETE) {
     *data_length = 0;
     return errSSLWouldBlock;
   }
-  
+
   // Start with what's in the buffer
-  
+
   size_t total_read = us->recv_buffer_.size() - us->recv_buffer_head_slop_ -
                       us->recv_buffer_tail_slop_;
-  
+
   // Resize the buffer if needed
-  
+
   if (us->recv_buffer_.size() - us->recv_buffer_head_slop_ < *data_length) {
     us->recv_buffer_.resize(us->recv_buffer_head_slop_ + *data_length);
     us->recv_buffer_tail_slop_ = *data_length - total_read;
   }
-  
+
   int rv = 1;  // any old value to spin the loop below
   while (rv > 0 && total_read < *data_length) {
     rv = us->transport_->Read(&us->recv_buffer_[us->recv_buffer_head_slop_ +
                                                 total_read],
                               us->recv_buffer_tail_slop_,
                               &us->io_callback_);
-    
+
     if (rv > 0) {
       total_read += rv;
       us->recv_buffer_tail_slop_ -= rv;
     }
-  } 
-  
+  }
+
   *data_length = total_read;
   if (total_read) {
     memcpy(data, &us->recv_buffer_[us->recv_buffer_head_slop_], total_read);
@@ -714,31 +714,31 @@ OSStatus SSLClientSocketMac::SSLReadCallback(SSLConnectionRef connection,
       us->recv_buffer_head_slop_ = 0;
     }
   }
-  
+
   if (rv == ERR_IO_PENDING) {
     us->next_io_state_ = STATE_READ_COMPLETE;
   }
-  
+
   if (rv < 0)
     return OSStatusFromNetError(rv);
-  
+
   return noErr;
 }
 
 // static
-OSStatus SSLClientSocketMac::SSLWriteCallback(SSLConnectionRef connection, 
-                                              const void* data, 
+OSStatus SSLClientSocketMac::SSLWriteCallback(SSLConnectionRef connection,
+                                              const void* data,
                                               size_t* data_length) {
   SSLClientSocketMac* us =
       const_cast<SSLClientSocketMac*>(
           static_cast<const SSLClientSocketMac*>(connection));
-  
+
   if (us->pending_send_error_ != OK) {
     OSStatus status = OSStatusFromNetError(us->pending_send_error_);
     us->pending_send_error_ = OK;
     return status;
   }
-  
+
   if (data)
     us->send_buffer_.insert(us->send_buffer_.end(),
                             static_cast<const char*>(data),
@@ -751,14 +751,14 @@ OSStatus SSLClientSocketMac::SSLWriteCallback(SSLConnectionRef connection,
     if (rv > 0) {
       us->send_buffer_.erase(us->send_buffer_.begin(),
                              us->send_buffer_.begin() + rv);
-      
+
     }
   } while (rv > 0 && !us->send_buffer_.empty());
-  
+
   if (rv < 0 && rv != ERR_IO_PENDING) {
     return OSStatusFromNetError(rv);
   }
-  
+
   // always lie to our caller
   return noErr;
 }

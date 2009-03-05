@@ -93,10 +93,10 @@ class LanguagesPageView : public OptionsPageView,
   // The contents of the "dictionary language" combobox.
   scoped_ptr<LanguageComboboxModel> dictionary_language_model_;
   StringPrefMember dictionary_language_;
-  
+
   // SpellChecker enable pref.
   BooleanPrefMember enable_spellcheck_;
-  
+
   // This is assigned the new index of spellcheck language if the language
   // is changed. Otherwise, it remains -1, and pref members are not updated.
   int spellcheck_language_index_selected_;

@@ -487,7 +487,7 @@ void TreeView::OnContextMenu(const CPoint& location) {
     NativeControl::OnContextMenu(location);
     return;
   }
-  
+
   if (show_context_menu_only_when_node_selected_) {
     if (!GetSelectedNode())
       return;

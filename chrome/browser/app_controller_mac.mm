@@ -40,12 +40,12 @@
 // We can't use the standard terminate: method because it will abruptly exit
 // the app and leave things on the stack in an unfinalized state. We need to
 // post a quit message to our run loop so the stack can gracefully unwind.
-- (IBAction)quit:(id)sender {  
+- (IBAction)quit:(id)sender {
   // TODO(pinkerton):
   // since we have to roll it ourselves, ask the delegate (ourselves, really)
   // if we should terminate. For example, we might not want to if the user
   // has ongoing downloads or multiple windows/tabs open. However, this would
-  // require posting UI and may require spinning up another run loop to 
+  // require posting UI and may require spinning up another run loop to
   // handle it. If it says to continue, post the quit message, otherwise
   // go back to normal.
 
@@ -57,7 +57,7 @@
 
   // Close all the windows.
   BrowserList::CloseAllBrowsers(true);
-  
+
   // Release the reference to the browser process. Once all the browsers get
   // dealloc'd, it will stop the RunLoop and fall back into main().
   g_browser_process->ReleaseModule();
@@ -89,7 +89,7 @@
 - (void)commandDispatch:(id)sender {
   // How to get the profile created on line 314 of browser_main? Ugh. TODO:FIXME
   Profile* default_profile = *g_browser_process->profile_manager()->begin();
-  
+
   NSInteger tag = [sender tag];
   switch (tag) {
     case IDC_NEW_WINDOW:

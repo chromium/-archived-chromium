@@ -27,7 +27,7 @@ class DebuggerHost : public base::RefCountedThreadSafe<DebuggerHost> {
   virtual void OnDebugAttach() = 0;
   // The renderer we're attached to is gone.
   virtual void OnDebugDisconnect() = 0;
-  
+
   virtual void DidDisconnect() = 0;
   virtual void DidConnect() {}
   virtual void ProcessCommand(const std::wstring& data) {}

@@ -744,7 +744,7 @@ void FocusManager::UnregisterAccelerator(const Accelerator& accelerator,
     NOTREACHED() << "Unregistering non-existing accelerator";
     return;
   }
-  
+
   if (iter->second != target) {
     NOTREACHED() << "Unregistering accelerator for wrong target";
     return;

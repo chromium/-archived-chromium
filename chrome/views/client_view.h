@@ -42,7 +42,7 @@ class ClientView : public View {
   // forwards the notification to the delegate.
   virtual void WindowClosing();
 
-  // Tests to see if the specified point (in view coordinates) is within the 
+  // Tests to see if the specified point (in view coordinates) is within the
   // bounds of this view. If so, it returns HTCLIENT in this default
   // implementation. If it is outside the bounds of this view, this must return
   // HTNOWHERE to tell the caller to do further processing to determine where

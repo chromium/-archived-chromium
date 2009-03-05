@@ -266,7 +266,7 @@ TEST(SafeBrowsing, HostInfo2) {
 
 // Checks that if we get a sub chunk with one prefix, then get the add chunk
 // for that same prefix afterwards, the entry becomes empty.
-TEST(SafeBrowsing, HostInfo3) { 
+TEST(SafeBrowsing, HostInfo3) {
   SBHostInfo info;
 
   // Add a sub prefix.

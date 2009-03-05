@@ -34,7 +34,7 @@ const size_t TabRestoreService::kMaxEntries = 10;
 
 // Identifier for commands written to file.
 // The ordering in the file is as follows:
-// . When the user closes a tab a command of type 
+// . When the user closes a tab a command of type
 //   kCommandSelectedNavigationInTab is written identifying the tab and
 //   the selected index. This is followed by any number of
 //   kCommandUpdateTabNavigation commands (1 per navigation entry).

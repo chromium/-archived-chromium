@@ -1468,7 +1468,7 @@ WebContents::GetLastCommittedNavigationEntryForRenderManager() {
     return NULL;
   return controller()->GetLastCommittedEntry();
 }
-  
+
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
   RenderWidgetHostView* rwh_view = view_->CreateViewForWidget(render_view_host);

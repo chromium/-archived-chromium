@@ -39,7 +39,7 @@ void CleanUpRegistryValues() {
   DWORD value_len = sizeof(DWORD);
 
   // First, remove any value whose type is not DWORD.
-  while (::RegEnumValue(key, index, value_name, &value_name_len, NULL, 
+  while (::RegEnumValue(key, index, value_name, &value_name_len, NULL,
                         &value_type, NULL, &value_len) == ERROR_SUCCESS) {
     if (value_type == REG_DWORD)
       index++;
@@ -59,8 +59,8 @@ void CleanUpRegistryValues() {
   // Remove any DWORD value smaller than the number represent the
   // expiration date (YYYYMMDD).
   index = 0;
-  while (::RegEnumValue(key, index, value_name, &value_name_len, NULL, 
-                        &value_type, (LPBYTE) &value_data, 
+  while (::RegEnumValue(key, index, value_name, &value_name_len, NULL,
+                        &value_type, (LPBYTE) &value_data,
                         &value_len) == ERROR_SUCCESS) {
     if (value_type == REG_DWORD && value_data > expiration_date)
       index++;  // move on to next value.
@@ -226,12 +226,12 @@ bool VerifyAdminGroup() {
                                           SECURITY_BUILTIN_DOMAIN_RID,
                                           DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0,
                                           0, 0, 0,
-                                          &Group); 
+                                          &Group);
   if (check) {
     if (!::CheckTokenMembership(NULL, Group, &check))
       check = FALSE;
   }
-  ::FreeSid(Group); 
+  ::FreeSid(Group);
   return (check == TRUE);
 }
 
@@ -340,10 +340,10 @@ DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(BOOL set_flag, DWORD *re
 
    // First clean up the registry keys left over previously.
    // Then only check whether we can re-offer, if everything else is OK.
-   CleanUpRegistryValues();	 
-   if (local_reasons == 0 && !CanReOfferChrome(set_flag))	 
-     local_reasons |= GCCC_ERROR_ALREADYOFFERED;	 
- 
+   CleanUpRegistryValues();
+   if (local_reasons == 0 && !CanReOfferChrome(set_flag))
+     local_reasons |= GCCC_ERROR_ALREADYOFFERED;
+
   // Done. Copy/return results.
   if (reasons != NULL)
     *reasons = local_reasons;
