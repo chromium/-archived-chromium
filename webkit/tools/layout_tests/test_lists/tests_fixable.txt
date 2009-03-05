@@ -1179,11 +1179,11 @@ LINUX MAC : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
-WIN MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL PASS
+MAC : LayoutTests/http/tests/navigation/success200-subframeload.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
 MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL TIMEOUT
 MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
-LINUX WIN MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL PASS
+LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
@@ -1728,11 +1728,7 @@ MAC RELEASE : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
 LINUX WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
 MAC LINUX WIN : LayoutTests/fast/forms/textarea-scrolled-endline-caret.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL PASS
 WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL PASS
 LINUX : LayoutTests/fast/clip/017.html = CRASH PASS
 
 // Unknown reason.
@@ -1740,7 +1736,7 @@ LINUX : LayoutTests/fast/clip/009.html = CRASH PASS
 LINUX : LayoutTests/fast/clip/013.html = CRASH PASS
 LINUX : LayoutTests/fast/clip/015.html = CRASH PASS
 LINUX : LayoutTests/fast/canvas/unclosed-canvas-4.html = CRASH PASS
-LINUX WIN : LayoutTests/http/tests/navigation/redirect302-frames.html = PASS FAIL
+LINUX : LayoutTests/http/tests/navigation/redirect302-frames.html = PASS FAIL
 
 // Regression from r9839.
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_position-table-column.html = FAIL
