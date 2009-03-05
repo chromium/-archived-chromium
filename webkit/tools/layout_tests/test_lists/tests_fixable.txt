@@ -709,6 +709,13 @@ LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
 // URLs. http://crbug.com/8407
 DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
 
+// New test addded in the 41286:41362 merge. http://crbug.com/8439 for further
+// investigation.
+DEFER LINUX : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
+
+// Crashing intermittently since a v8 update. http://crbug.com/8442
+LINUX : LayoutTests/fast/clip/nestedTransparencyClip.html = CRASH PASS
+
 
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
@@ -1813,9 +1820,6 @@ WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 // New test added in the 41286:41362 merge. Not clear whether we pass.
 // http://crbug.com/8404
 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
-
-LINUX : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
-LINUX : LayoutTests/fast/clip/nestedTransparencyClip.html = CRASH PASS
 
 // New tests added in the 41420:41447 merge that crash, and hence should not be
 // deferred:
