@@ -27,6 +27,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/url_constants.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -34,9 +35,6 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
-
-// NewTabUI is accessible from chrome-ui://newtab.
-static const char kNewTabHost[] = "newtab";
 
 // The number of most visited pages we show.
 const int kMostVisitedPages = 9;
@@ -175,7 +173,7 @@ void SetURLTitleAndDirection(DictionaryValue* dictionary,
 // NewTabHTMLSource
 
 NewTabHTMLSource::NewTabHTMLSource()
-    : DataSource(kNewTabHost, MessageLoop::current()) {
+    : DataSource(chrome::kNewTabHost, MessageLoop::current()) {
 }
 
 void NewTabHTMLSource::StartDataRequest(const std::string& path,
@@ -254,7 +252,7 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
 // IncognitoTabHTMLSource
 
 IncognitoTabHTMLSource::IncognitoTabHTMLSource()
-    : DataSource(kNewTabHost, MessageLoop::current()) {
+    : DataSource(chrome::kNewTabHost, MessageLoop::current()) {
 }
 
 void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
@@ -844,10 +842,7 @@ void NewTabUI::Init() {
 
 // static
 GURL NewTabUI::GetBaseURL() {
-  std::string url = DOMUIContents::GetScheme();
-  url += "://";
-  url += kNewTabHost;
-  return GURL(url);
+  return GURL(chrome::kChromeUINewTabURL);
 }
 
 void NewTabUI::SetInitialFocus() {

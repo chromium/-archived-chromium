@@ -33,8 +33,13 @@ extern const char kAboutBlankURL[];
 extern const char kAboutCacheURL[];
 extern const char kAboutMemoryURL[];
 
+// chrome-ui: URLs (including schemes).
 extern const char kChromeUIIPCURL[];
 extern const char kChromeUINetworkURL[];
+extern const char kChromeUINewTabURL[];
+
+// chrome-ui components of URLs.
+extern const char kNewTabHost[];
 
 }  // namespace chrome
 

@@ -29,5 +29,8 @@ const char kAboutMemoryURL[] = "about:memory";
 
 const char kChromeUIIPCURL[] = "chrome-ui://about/ipc";
 const char kChromeUINetworkURL[] = "chrome-ui://about/network";
+const char kChromeUINewTabURL[] = "chrome-ui://newtab";
+
+const char kNewTabHost[] = "newtab";
 
 }  // namespace chrome

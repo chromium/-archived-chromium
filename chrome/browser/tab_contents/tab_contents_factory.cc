@@ -55,7 +55,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       break;
 #endif  // defined(OS_WIN)
     case TAB_CONTENTS_DEBUGGER:
-    case TAB_CONTENTS_NEW_TAB_UI:
     case TAB_CONTENTS_DOM_UI:
       contents = new DOMUIContents(profile, instance, NULL);
       break;

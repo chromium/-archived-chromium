@@ -142,7 +142,7 @@ class TabStripModelTest : public testing::Test {
   }
   TabContents* CreateNewTabTabContents() {
     TabStripModelTestTabContents* contents =
-        new TabStripModelTestTabContents(TAB_CONTENTS_NEW_TAB_UI);
+        new TabStripModelTestTabContents(TAB_CONTENTS_WEB);
     contents->SetupController(profile_);
     return contents;
   }
