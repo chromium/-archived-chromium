@@ -924,23 +924,19 @@ bool HttpResponseHeaders::GetTimeValuedHeader(const std::string& name,
 }
 
 bool HttpResponseHeaders::IsKeepAlive() const {
-  const char kPrefix[] = "HTTP/1.0";
-  const size_t kPrefixLen = arraysize(kPrefix) - 1;
-  if (raw_headers_.size() < kPrefixLen)  // Lacking a status line?
+  if (http_version_ < HttpVersion(1, 0))
     return false;
 
   // NOTE: It is perhaps risky to assume that a Proxy-Connection header is
   // meaningful when we don't know that this response was from a proxy, but
   // Mozilla also does this, so we'll do the same.
   std::string connection_val;
-  void* iter = NULL;
-  if (!EnumerateHeader(&iter, "connection", &connection_val))
-    EnumerateHeader(&iter, "proxy-connection", &connection_val);
+  if (!EnumerateHeader(NULL, "connection", &connection_val))
+    EnumerateHeader(NULL, "proxy-connection", &connection_val);
 
   bool keep_alive;
 
-  if (std::equal(raw_headers_.begin(),
-                 raw_headers_.begin() + kPrefixLen, kPrefix)) {
+  if (http_version_ == HttpVersion(1, 0)) {
     // HTTP/1.0 responses default to NOT keep-alive
     keep_alive = LowerCaseEqualsASCII(connection_val, "keep-alive");
   } else {
