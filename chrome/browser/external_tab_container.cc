@@ -35,6 +35,7 @@ ExternalTabContainer::ExternalTabContainer(
 }
 
 ExternalTabContainer::~ExternalTabContainer() {
+  Uninitialize(m_hWnd);
 }
 
 bool ExternalTabContainer::Init(Profile* profile, HWND parent,
@@ -120,16 +121,18 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
     SetParent(parent);
 
   ::ShowWindow(tab_contents_->GetNativeView(), SW_SHOWNA);
-
   return true;
 }
 
-void ExternalTabContainer::OnDestroy() {
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetHWND());
-  if (focus_manager) {
-    focus_manager->RemoveKeystrokeListener(this);
+bool ExternalTabContainer::Uninitialize(HWND window) {
+  if (::IsWindow(window)) {
+    views::FocusManager* focus_manager =
+        views::FocusManager::GetFocusManager(window);
+    if (focus_manager) {
+      focus_manager->RemoveKeystrokeListener(this);
+    }
   }
+
   root_view_.RemoveAllChildViews(true);
   if (tab_contents_) {
     NavigationController* controller = tab_contents_->controller();
@@ -139,14 +142,18 @@ void ExternalTabContainer::OnDestroy() {
         NotificationType::EXTERNAL_TAB_CLOSED,
         Source<NavigationController>(controller),
         Details<ExternalTabContainer>(this));
+
     tab_contents_->set_delegate(NULL);
     tab_contents_->CloseContents();
     // WARNING: tab_contents_ has likely been deleted.
     tab_contents_ = NULL;
   }
+
+  return true;
 }
 
 void ExternalTabContainer::OnFinalMessage(HWND window) {
+  Uninitialize(window);
   delete this;
 }
 

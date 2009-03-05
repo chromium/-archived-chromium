@@ -41,7 +41,6 @@ class ExternalTabContainer : public TabContentsDelegate,
   BEGIN_MSG_MAP(ExternalTabContainer)
     MESSAGE_HANDLER(WM_SIZE, OnSize)
     MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
-    MSG_WM_DESTROY(OnDestroy)
   END_MSG_MAP()
 
   DECLARE_WND_CLASS(chrome::kExternalTabWindowClass)
@@ -55,6 +54,11 @@ class ExternalTabContainer : public TabContentsDelegate,
 
   bool Init(Profile* profile, HWND parent, const gfx::Rect& dimensions,
             unsigned int style);
+
+  // This function gets called from two places, which is fine.
+  // 1. OnFinalMessage
+  // 2. In the destructor.
+  bool Uninitialize(HWND window);
 
   // Overridden from TabContentsDelegate:
   virtual void OpenURLFromTab(TabContents* source,
