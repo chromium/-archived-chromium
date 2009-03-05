@@ -144,11 +144,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\resources\locale_settings_bg.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\locale_settings_bg.rc"
 			>
 		</File>
 		<File
 			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_bg.rc"
+			>
+		</File>
+		<File
+			RelativePath="$(OutDir)\grit_derived_sources\strings$(CHROMIUM_BUILD)_bg.rc"
 			>
 		</File>
 	</Files>

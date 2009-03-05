@@ -8,57 +8,7 @@
 			Name="GRIT Generated Localized Resources"
 			DisplayName="GRIT Generated Localized Resources"
 			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\grit_derived_sources&quot; [AllOptions]"
-			Outputs="$(OutDir)\grit_derived_sources\grit\$(InputName).h;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ar.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_bg.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_bn.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ca.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_cs.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_da.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_de.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_el.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_en-GB.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_en-US.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_es.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_es-419.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_et.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_fi.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_fil.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_fr.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_gu.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_he.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_hi.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_hr.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_hu.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_id.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_it.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ja.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_kn.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ko.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_lt.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_lv.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ml.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_mr.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_nl.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_nb.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_or.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_pl.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_pt-BR.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_pt-PT.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ro.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ru.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_sk.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_sl.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_sr.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_sv.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_ta.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_te.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_th.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_tr.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_uk.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_vi.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_zh-CN.rc;
-			  $(OutDir)\grit_derived_sources\$(InputName)_zh-TW.rc;"
+			Outputs="$(OutDir)\grit_derived_sources\grit\$(InputName).h"
 			AdditionalDependencies="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat;$(SolutionDir)..\tools\grit\grit.py;
 			  resources\$(InputName)_ar.xtb;
 			  resources\$(InputName)_bg.xtb;

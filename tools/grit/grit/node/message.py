@@ -54,7 +54,7 @@ class MessageNode(base.ContentNode):
   def _IsValidAttribute(self, name, value):
     if name not in ['name', 'offset', 'translateable', 'desc', 'meaning',
                     'internal_comment', 'shortcut_groups', 'custom_type',
-                    'validation_expr']:
+                    'validation_expr', 'use_name_for_id']:
       return False
     if name == 'translateable' and value not in ['true', 'false']:
       return False
@@ -72,6 +72,7 @@ class MessageNode(base.ContentNode):
       'shortcut_groups' : '',
       'custom_type' : '',
       'validation_expr' : '',
+      'use_name_for_id' : 'false',
     }
 
   def GetTextualIds(self):
@@ -139,10 +140,14 @@ class MessageNode(base.ContentNode):
     description_or_id = self.attrs['desc']
     if description_or_id == '' and 'name' in self.attrs:
       description_or_id = 'ID: %s' % self.attrs['name']
-    
+
+    assigned_id = None
+    if self.attrs['use_name_for_id'] == 'true':
+      assigned_id = self.attrs['name']
     message = tclib.Message(text=text, placeholders=placeholders,
                             description=description_or_id,
-                            meaning=self.attrs['meaning'])
+                            meaning=self.attrs['meaning'],
+                            assigned_id=assigned_id)
     self.clique = self.UberClique().MakeClique(message, self.IsTranslateable())
     for group in self.shortcut_groups_:
       self.clique.AddToShortcutGroup(group)
