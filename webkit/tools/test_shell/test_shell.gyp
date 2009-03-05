@@ -144,7 +144,33 @@
         'INFOPLIST_FILE': 'mac/Info.plist',
       },
       'conditions': [
-        ['OS=="mac"', {'product_name': 'TestShell'}],
+        ['OS=="mac"', {
+          'product_name': 'TestShell',
+          'variables': {
+            'repack_path': '../../../tools/data_pack/repack.py',
+          },
+          'actions': [
+            {
+              # TODO(mark): Make this work with more languages than the
+              # hardcoded en-US.
+              'action_name': 'repack_locale',
+              'variables': {
+                'pak_inputs': [
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
+                ],
+              },
+              'inputs': [
+                '<(repack_path)',
+                '<@(pak_inputs)',
+              ],
+              'outputs': [
+                '<(INTERMEDIATE_DIR)/repack/test_shell.pak',
+              ],
+              'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+              'process_outputs_as_mac_bundle_resources': 1,
+            },
+          ]
+        }],
       ],
     },
     {

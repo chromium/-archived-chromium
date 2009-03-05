@@ -1218,12 +1218,6 @@ MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
 MAC : LayoutTests/editing/selection/5109817.html = FAIL
 MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
 
-// missing default resources (strings?)
-MAC : LayoutTests/fast/forms/button-default-title.html = FAIL
-MAC : LayoutTests/fast/forms/file-input-direction.html = FAIL
-MAC : LayoutTests/fast/forms/file-input-disabled.html = FAIL
-MAC : LayoutTests/fast/forms/hidden-input-file.html = FAIL
-
 // incorrect layout
 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
 MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL

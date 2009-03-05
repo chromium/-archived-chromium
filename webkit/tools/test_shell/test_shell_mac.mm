@@ -10,6 +10,7 @@
 #include "webkit/tools/test_shell/test_shell.h"
 
 #include "base/basictypes.h"
+#include "base/data_pack.h"
 #include "base/debug_on_start.h"
 #include "base/debug_util.h"
 #include "base/file_util.h"
@@ -67,6 +68,9 @@ const int kSVGTestWindowHeight = 360;
 // window positions to +/- 16000.
 const int kTestWindowXLocation = -14000;
 const int kTestWindowYLocation = -14000;
+
+// Data pack resource. This is a pointer to the mmapped resources file.
+static base::DataPack* g_resource_data_pack = NULL;
 
 // Define static member variables
 base::LazyInstance <std::map<gfx::NativeWindow, TestShell *> >
@@ -175,6 +179,18 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
   layout_test_mode_ = layout_test_mode;
 
   web_prefs_ = new WebPreferences;
+
+  // mmap the data pack which holds strings used by WebCore. This is only
+  // a fatal error if we're bundled, which means we might be running layout
+  // tests. This is a harmless failure for test_shell_tests.
+  g_resource_data_pack = new base::DataPack;
+  NSString *resource_path =
+      [mac_util::MainAppBundle() pathForResource:@"test_shell"
+                                          ofType:@"pak"];
+  FilePath resources_pak_path([resource_path fileSystemRepresentation]);
+  if (!g_resource_data_pack->Load(resources_pak_path)) {
+    LOG(FATAL) << "failed to load test_shell.pak";
+  }
 
   ResetWebPreferences();
 
@@ -625,10 +641,13 @@ StringPiece TestShell::NetResourceProvider(int key) {
 namespace webkit_glue {
 
 string16 GetLocalizedString(int message_id) {
-  NSString* idString = [NSString stringWithFormat:@"%d", message_id];
-  NSString* localString = NSLocalizedString(idString, @"");
+  StringPiece res;
+  if (!g_resource_data_pack->Get(message_id, &res)) {
+    LOG(FATAL) << "failed to load webkit string with id " << message_id;
+  }
 
-  return UTF8ToUTF16([localString UTF8String]);
+  return string16(reinterpret_cast<const char16*>(res.data()),
+                  res.length() / 2);
 }
 
 std::string GetDataResource(int resource_id) {
