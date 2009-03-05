@@ -344,10 +344,12 @@ class WebContents : public TabContents,
                               const std::wstring& filter);
   virtual void RunJavaScriptMessage(const std::wstring& message,
                                     const std::wstring& default_prompt,
+                                    const GURL& frame_url,
                                     const int flags,
                                     IPC::Message* reply_msg,
                                     bool* did_suppress_message);
-  virtual void RunBeforeUnloadConfirm(const std::wstring& message,
+  virtual void RunBeforeUnloadConfirm(const GURL& frame_url,
+                                      const std::wstring& message,
                                       IPC::Message* reply_msg);
   virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
                                    const std::string& json_arguments,

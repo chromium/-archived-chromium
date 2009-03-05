@@ -114,11 +114,11 @@ class WebFrame {
   // lacks a history item.  Otherwise, this will always be true.
   virtual bool HasCurrentHistoryState() const = 0;
 
-  // Returns the current URL of the frame, or the empty string if there is no
+  // Returns the current URL of the frame, or an empty GURL if there is no
   // URL to retrieve (for example, the frame may never have had any content).
   virtual GURL GetURL() const = 0;
 
-  // Returns the URL to the favorite icon for the frame. An empty string is
+  // Returns the URL to the favorite icon for the frame. An empty GURL is
   // returned if the frame has not finished loading, or the frame's URL
   // protocol is not http or https.
   virtual GURL GetFavIconURL() const = 0;

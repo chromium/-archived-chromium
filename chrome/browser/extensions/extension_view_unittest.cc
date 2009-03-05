@@ -43,6 +43,7 @@ class MockExtensionView : public ExtensionView {
   virtual void RunJavaScriptMessage(
       const std::wstring& message,
       const std::wstring& default_prompt,
+      const GURL& frame_url,
       const int flags,
       IPC::Message* reply_msg,
       bool* did_suppress_message) {
