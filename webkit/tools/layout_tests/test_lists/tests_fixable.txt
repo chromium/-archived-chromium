@@ -703,9 +703,6 @@ DEFER : LayoutTests/editing/selection/move-left-right.html = FAIL
 // Regression from the 41362:41402 merge. http://crbug.com/8402
 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
 
-// Started crashing with v8 version 1.0.3.1.  http://crbug.com/8364
-LINUX : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
-
 // Failing because needed images are missing from the fast/block/float/support/
 // directory. http://crbug.com/8406
 LayoutTests/fast/block/float/t0905-c414-flt-fit-01-d-g.html = FAIL
