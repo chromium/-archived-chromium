@@ -175,14 +175,7 @@ IPC_BEGIN_MESSAGES(View)
                       int /* request_id */,
                       ResourceResponseHead)
 
-  // Sent as download progress is being made, size of the resource may be
-  // unknown, in that case |size| is -1.
-  IPC_MESSAGE_ROUTED3(ViewMsg_Resource_DownloadProgress,
-                      int /* request_id */,
-                      int64 /* position */,
-                      int64 /* size */)
-
-  // Sent as upload progress is being made.
+  // Sent as upload progress is being made
   IPC_MESSAGE_ROUTED3(ViewMsg_Resource_UploadProgress,
                       int /* request_id */,
                       int64 /* position */,
@@ -1111,13 +1104,8 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       GURL /* last url */,
                       GURL /* url redirected to */)
 
-  // Sent by the renderer process to acknowledge receipt of a
-  // DownloadProgress message.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_DownloadProgress_ACK,
-                      int /* request_id */)
-
-  // Sent by the renderer process to acknowledge receipt of a
-  // UploadProgress message.
+  // Sent when the renderer process to acknowlege receipt of and UploadProgress
+  // message.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UploadProgress_ACK,
                       int /* request_id */)
 

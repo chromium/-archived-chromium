@@ -307,13 +307,6 @@ class URLRequest {
     return response_info_.ssl_info;
   }
 
-  // Returns the platform specific file handle for the standalone file that
-  // contains response data. base::kInvalidPlatformFileValue is returned if
-  // such file is not available.
-  base::PlatformFile response_data_file() {
-    return response_info_.response_data_file;
-  }
-
   // Returns the cookie values included in the response, if the request is one
   // that can have cookies.  Returns true if the request is a cookie-bearing
   // type, false otherwise.  This method may only be called once the

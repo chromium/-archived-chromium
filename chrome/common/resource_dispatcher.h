@@ -103,7 +103,6 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
   typedef base::hash_map<int, PendingRequestInfo> PendingRequestList;
 
   // Message response handlers, called by the message handler for this process.
-  void OnDownloadProgress(int request_id, int64 position, int64 size);
   void OnUploadProgress(int request_id, int64 position, int64 size);
   void OnReceivedResponse(int request_id, const ResourceResponseHead&);
   void OnReceivedRedirect(int request_id, const GURL& new_url);

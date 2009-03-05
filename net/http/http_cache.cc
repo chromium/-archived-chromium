@@ -606,15 +606,6 @@ void HttpCache::Transaction::SetRequest(const HttpRequestInfo* request) {
   if (cache_->mode() == RECORD)
     effective_load_flags_ |= LOAD_BYPASS_CACHE;
 
-  // If HttpCache has type MEDIA make sure LOAD_ENABLE_DOWNLOAD_FILE is set,
-  // otherwise make sure LOAD_ENABLE_DOWNLOAD_FILE is not set when HttpCache
-  // has type other than MEDIA.
-  if (cache_->type() == HttpCache::MEDIA) {
-    DCHECK(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE);
-  } else {
-    DCHECK(!(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE));
-  }
-
   // Some headers imply load flags.  The order here is significant.
   //
   //   LOAD_DISABLE_CACHE   : no cache read or write

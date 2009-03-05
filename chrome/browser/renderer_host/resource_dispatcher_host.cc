@@ -815,15 +815,6 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
   response->response_head.content_length = request->GetExpectedContentSize();
   request->GetMimeType(&response->response_head.mime_type);
 
-  // Structure of ResourceResponseHead depends on the platform, so we do it
-  // differently.
-#if defined(OS_POSIX)
-  response->response_head.response_data_file.fd = request->response_data_file();
-  response->response_head.response_data_file.auto_close = false;
-#elif defined(OS_WIN)
-  response->response_head.response_data_file = request->response_data_file();
-#endif
-
   if (request->ssl_info().cert) {
     int cert_id =
         CertStore::GetSharedInstance()->StoreCert(

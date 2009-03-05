@@ -377,9 +377,6 @@ struct ParamTraits<ResourceType::Type> {
      case ResourceType::OBJECT:
        type = L"OBJECT";
        break;
-     case ResourceType::MEDIA:
-       type = L"MEDIA";
-       break;
      default:
        type = L"UNKNOWN";
        break;
@@ -1337,14 +1334,12 @@ struct ParamTraits<ResourceResponseHead> {
     ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Write(m, p);
     WriteParam(m, p.status);
     WriteParam(m, p.filter_policy);
-    WriteParam(m, p.response_data_file);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
       ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Read(m, iter, r) &&
       ReadParam(m, iter, &r->status) &&
-      ReadParam(m, iter, &r->filter_policy) &&
-      ReadParam(m, iter, &r->response_data_file);
+      ReadParam(m, iter, &r->filter_policy);
   }
   static void Log(const param_type& p, std::wstring* l) {
     // log more?

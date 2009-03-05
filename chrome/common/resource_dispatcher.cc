@@ -278,29 +278,6 @@ bool ResourceDispatcher::OnMessageReceived(const IPC::Message& message) {
   return true;
 }
 
-void ResourceDispatcher::OnDownloadProgress(
-    int request_id, int64 position, int64 size) {
-  PendingRequestList::iterator it = pending_requests_.find(request_id);
-  if (it == pending_requests_.end()) {
-     DLOG(WARNING) << "Got download progress for a nonexistant or "
-         " finished requests";
-     return;
-  }
-
-  PendingRequestInfo& request_info = it->second;
-
-  RESOURCE_LOG("Dispatching download progress for " <<
-               request_info.peer->GetURLForDebugging());
-  request_info.peer->OnDownloadProgress(position, size);
-
-  // Send the ACK message back.
-  IPC::Message::Sender* sender = message_sender();
-  if (sender) {
-    sender->Send(
-        new ViewHostMsg_DownloadProgress_ACK(MSG_ROUTING_NONE, request_id));
-  }
-}
-
 void ResourceDispatcher::OnUploadProgress(
     int request_id, int64 position, int64 size) {
   PendingRequestList::iterator it = pending_requests_.find(request_id);
@@ -481,7 +458,6 @@ void ResourceDispatcher::SetDefersLoading(int request_id, bool value) {
 void ResourceDispatcher::DispatchMessage(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(ResourceDispatcher, message)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_UploadProgress, OnUploadProgress)
-    IPC_MESSAGE_HANDLER(ViewMsg_Resource_DownloadProgress, OnDownloadProgress)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_ReceivedResponse, OnReceivedResponse)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_ReceivedRedirect, OnReceivedRedirect)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_DataReceived, OnReceivedData)
@@ -529,7 +505,6 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
 
 bool ResourceDispatcher::IsResourceMessage(const IPC::Message& message) const {
   switch (message.type()) {
-    case ViewMsg_Resource_DownloadProgress::ID:
     case ViewMsg_Resource_UploadProgress::ID:
     case ViewMsg_Resource_ReceivedResponse::ID:
     case ViewMsg_Resource_ReceivedRedirect::ID:

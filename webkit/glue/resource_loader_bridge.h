@@ -91,16 +91,9 @@ class ResourceLoaderBridge {
    public:
     virtual ~Peer() {}
 
-    // Called as download progress is made.
-    // note: only for requests with LOAD_ENABLE_DOWNLOAD_FILE set and the
-    // resource is downloaded to a standalone file and the file handle to it is
-    // passed in ResponseInfo during OnReceivedResponse. Note that size may be
-    // unknown and |size| will be kuint64max in that case.
-    virtual void OnDownloadProgress(uint64 position, uint64 size) {}
-
     // Called as upload progress is made.
-    // note: only for requests with LOAD_ENABLE_UPLOAD_PROGRESS set.
-    virtual void OnUploadProgress(uint64 position, uint64 size) {}
+    // note: only for requests with LOAD_ENABLE_UPLOAD_PROGRESS set
+    virtual void OnUploadProgress(uint64 position, uint64 size) {};
 
     // Called when a redirect occurs.
     virtual void OnReceivedRedirect(const GURL& new_url) = 0;
@@ -112,7 +105,7 @@ class ResourceLoaderBridge {
     virtual void OnReceivedResponse(const ResponseInfo& info,
                                     bool content_filtered) = 0;
 
-    // Called when a chunk of response data is available. This method may
+    // Called when a chunk of response data is available.  This method may
     // be called multiple times or not at all if an error occurs.
     virtual void OnReceivedData(const char* data, int len) = 0;
 
