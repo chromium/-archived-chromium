@@ -24,8 +24,8 @@ class ConstrainedWindowProxy;
 class GURL;
 class Value;
 
-typedef enum FindInPageDirection { BACK = 0, FWD = 1 };
-typedef enum FindInPageCase { IGNORE_CASE = 0, CASE_SENSITIVE = 1 };
+enum FindInPageDirection { BACK = 0, FWD = 1 };
+enum FindInPageCase { IGNORE_CASE = 0, CASE_SENSITIVE = 1 };
 
 class TabProxy : public AutomationResourceProxy {
  public:
