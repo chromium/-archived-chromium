@@ -7,6 +7,7 @@
 
 #include "build/build_config.h"
 
+#include <set>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -79,6 +80,11 @@ class PluginProcessHost : public ChildProcessHost,
 
   const WebPluginInfo& info() const { return info_; }
 
+#if defined(OS_WIN)
+  // Tracks plugin parent windows created on the browser UI thread.
+  void AddWindow(HWND window);
+#endif
+
  private:
   friend class PluginResolveProxyHelper;
 
@@ -136,6 +142,11 @@ class PluginProcessHost : public ChildProcessHost,
   // Helper class for handling PluginProcessHost_ResolveProxy messages (manages
   // the requests to the proxy service).
   ResolveProxyMsgHelper resolve_proxy_msg_helper_;
+
+#if defined(OS_WIN)
+  // Tracks plugin parent windows created on the UI thread.
+  std::set<HWND> plugin_parent_windows_set_;
+#endif
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginProcessHost);
 };

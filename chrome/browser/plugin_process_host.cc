@@ -269,11 +269,14 @@ void PluginDownloadUrlHelper::DownloadCompletedHelper(bool success) {
   delete this;
 }
 
+#if defined(OS_WIN)
 // Sends the reply to the create window message on the IO thread.
 class SendReplyTask : public Task {
  public:
-  SendReplyTask(FilePath plugin_path, IPC::Message* reply_msg)
-      : plugin_path_(plugin_path), reply_msg_(reply_msg) { }
+  SendReplyTask(FilePath plugin_path, HWND window, IPC::Message* reply_msg)
+      : plugin_path_(plugin_path),
+        reply_msg_(reply_msg),
+        window_(window){ }
 
   virtual void Run() {
     PluginProcessHost* plugin =
@@ -281,15 +284,15 @@ class SendReplyTask : public Task {
     if (!plugin)
       return;
 
+    plugin->AddWindow(window_);
     plugin->Send(reply_msg_);
   }
 
  private:
   FilePath plugin_path_;
   IPC::Message* reply_msg_;
+  HWND window_;
 };
-
-#if defined(OS_WIN)
 
 // Creates a child window of the given HWND on the UI thread.
 class CreateWindowTask : public Task {
@@ -328,27 +331,13 @@ class CreateWindowTask : public Task {
         reply_msg_, window);
 
     g_browser_process->io_thread()->message_loop()->PostTask(
-        FROM_HERE, new SendReplyTask(plugin_path_, reply_msg_));
+        FROM_HERE, new SendReplyTask(plugin_path_, window, reply_msg_));
   }
 
  private:
   FilePath plugin_path_;
   HWND parent_;
   IPC::Message* reply_msg_;
-};
-
-// Destroys the given window on the UI thread.
-class DestroyWindowTask : public Task {
- public:
-  explicit DestroyWindowTask(HWND window) : window_(window) { }
-
-  virtual void Run() {
-    DestroyWindow(window_);
-    TRACK_HWND_DESTRUCTION(window_);
-  }
-
- private:
-  HWND window_;
 };
 
 void PluginProcessHost::OnCreateWindow(HWND parent,
@@ -359,8 +348,17 @@ void PluginProcessHost::OnCreateWindow(HWND parent,
 }
 
 void PluginProcessHost::OnDestroyWindow(HWND window) {
-  PluginService::GetInstance()->main_message_loop()->PostTask(
-      FROM_HERE, new DestroyWindowTask(window));
+  std::set<HWND>::iterator window_index =
+      plugin_parent_windows_set_.find(window);
+  if (window_index != plugin_parent_windows_set_.end()) {
+    plugin_parent_windows_set_.erase(window_index);
+  }
+
+  PostMessage(window, WM_CLOSE, 0, 0);
+}
+
+void PluginProcessHost::AddWindow(HWND window) {
+  plugin_parent_windows_set_.insert(window);
 }
 
 #endif  // defined(OS_WIN)
@@ -376,6 +374,21 @@ PluginProcessHost::~PluginProcessHost() {
   // fixed.
   PluginService::GetInstance()->resource_dispatcher_host()->
       CancelRequestsForProcess(-1);
+
+#if defined(OS_WIN)
+  // We erase HWNDs from the plugin_parent_windows_set_ when we receive a
+  // notification that the window is being destroyed. If we don't receive this
+  // notification and the PluginProcessHost instance is being destroyed, it
+  // means that the plugin process crashed. We paint a sad face in this case in
+  // the renderer process. To ensure that the sad face shows up, and we don't
+  // leak HWNDs, we should destroy existing plugin parent windows.
+  std::set<HWND>::iterator window_index;
+  for (window_index = plugin_parent_windows_set_.begin();
+       window_index != plugin_parent_windows_set_.end();
+       window_index++) {
+    PostMessage(*window_index, WM_CLOSE, 0, 0);
+  }
+#endif
 }
 
 bool PluginProcessHost::Init(const WebPluginInfo& info,
