@@ -54,10 +54,9 @@ void BrowserToolbarGtk::Init(Profile* profile) {
 
   toolbar_ = gtk_hbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(toolbar_), 4);
-  // TODO(evanm): this setting of the x-size to 0 makes it so the window
-  // can be resized arbitrarily small.  We should figure out what we want
-  // with respect to resizing before engineering around it, though.
-  gtk_widget_set_size_request(toolbar_, 0, kToolbarHeight);
+  // Demand we're always at least kToolbarHeight tall.
+  // -1 for width means "let GTK do its normal sizing".
+  gtk_widget_set_size_request(toolbar_, -1, kToolbarHeight);
 
   toolbar_tooltips_ = gtk_tooltips_new();
 
