@@ -265,7 +265,7 @@ string URLFixerUpper::SegmentURL(const string& text,
   *parts = url_parse::Parsed();
 
   string trimmed;
-  TrimWhitespace(text, TRIM_ALL, &trimmed);
+  TrimWhitespaceUTF8(text, TRIM_ALL, &trimmed);
   if (trimmed.empty())
     return string();  // Nothing to segment.
 

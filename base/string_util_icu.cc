@@ -530,3 +530,17 @@ std::wstring FormatNumber(int64 number) {
 #endif  // defined(WCHAR_T_IS_UTF32)
 }
 
+TrimPositions TrimWhitespaceUTF8(const std::string& input,
+                                 TrimPositions positions,
+                                 std::string* output) {
+  // This implementation is not so fast since it converts the text encoding
+  // twice. Please feel free to file a bug if this function hurts the
+  // performance of Chrome.
+  DCHECK(IsStringUTF8(input));
+  std::wstring input_wide = UTF8ToWide(input);
+  std::wstring output_wide;
+  TrimPositions result = TrimWhitespace(input_wide, positions, &output_wide);
+  *output = WideToUTF8(output_wide);
+  return result;
+}
+

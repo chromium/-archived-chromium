@@ -49,7 +49,6 @@ static const struct trim_case_ascii {
   {"  ", TRIM_TRAILING, "", TRIM_TRAILING},
   {"  ", TRIM_ALL, "", TRIM_ALL},
   {"\t\rTest String\n", TRIM_ALL, "Test String", TRIM_ALL},
-  {"\x85Test String\xa0\x20", TRIM_ALL, "Test String", TRIM_ALL},
 };
 
 TEST(StringUtilTest, TrimWhitespace) {
@@ -77,6 +76,52 @@ TEST(StringUtilTest, TrimWhitespace) {
     EXPECT_EQ(value.return_value,
               TrimWhitespace(value.input, value.positions, &output_ascii));
     EXPECT_EQ(value.output, output_ascii);
+  }
+}
+
+static const struct trim_case_utf8 {
+  const char* input;
+  const TrimPositions positions;
+  const char* output;
+  const TrimPositions return_value;
+} trim_cases_utf8[] = {
+  // UTF-8 strings that start (and end) with Unicode space characters
+  // (including zero-width spaces).
+  {"\xE2\x80\x80Test String\xE2\x80\x81", TRIM_ALL, "Test String", TRIM_ALL},
+  {"\xE2\x80\x82Test String\xE2\x80\x83", TRIM_ALL, "Test String", TRIM_ALL},
+  {"\xE2\x80\x84Test String\xE2\x80\x85", TRIM_ALL, "Test String", TRIM_ALL},
+  {"\xE2\x80\x86Test String\xE2\x80\x87", TRIM_ALL, "Test String", TRIM_ALL},
+  {"\xE2\x80\x88Test String\xE2\x80\x8A", TRIM_ALL, "Test String", TRIM_ALL},
+  {"\xE3\x80\x80Test String\xE3\x80\x80", TRIM_ALL, "Test String", TRIM_ALL},
+  // UTF-8 strings that end with 0x85 (NEL in ISO-8859).
+  {"\xD0\x85", TRIM_TRAILING, "\xD0\x85", TRIM_NONE},
+  {"\xD9\x85", TRIM_TRAILING, "\xD9\x85", TRIM_NONE},
+  {"\xEC\x97\x85", TRIM_TRAILING, "\xEC\x97\x85", TRIM_NONE},
+  {"\xF0\x90\x80\x85", TRIM_TRAILING, "\xF0\x90\x80\x85", TRIM_NONE},
+  // UTF-8 strings that end with 0xA0 (non-break space in ISO-8859-1).
+  {"\xD0\xA0", TRIM_TRAILING, "\xD0\xA0", TRIM_NONE},
+  {"\xD9\xA0", TRIM_TRAILING, "\xD9\xA0", TRIM_NONE},
+  {"\xEC\x97\xA0", TRIM_TRAILING, "\xEC\x97\xA0", TRIM_NONE},
+  {"\xF0\x90\x80\xA0", TRIM_TRAILING, "\xF0\x90\x80\xA0", TRIM_NONE},
+};
+
+TEST(StringUtilTest, TrimWhitespaceUTF8) {
+  std::string output_ascii;
+  for (size_t i = 0; i < arraysize(trim_cases_ascii); ++i) {
+    const trim_case_ascii& value = trim_cases_ascii[i];
+    EXPECT_EQ(value.return_value,
+              TrimWhitespaceASCII(value.input, value.positions, &output_ascii));
+    EXPECT_EQ(value.output, output_ascii);
+  }
+
+  // Test that TrimWhiteSpaceUTF8() can remove Unicode space characters and
+  // prevent from removing UTF-8 characters that end with an ISO-8859 NEL.
+  std::string output_utf8;
+  for (size_t i = 0; i < arraysize(trim_cases_utf8); ++i) {
+    const trim_case_utf8& value = trim_cases_utf8[i];
+    EXPECT_EQ(value.return_value,
+              TrimWhitespaceUTF8(value.input, value.positions, &output_utf8));
+    EXPECT_EQ(value.output, output_utf8);
   }
 }
 

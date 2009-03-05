@@ -177,6 +177,26 @@ struct fixup_case {
   {"ftpblah.google.com", "", "http://ftpblah.google.com/"},
   {"ftp", "", "http://ftp/"},
   {"google.ftp.com", "", "http://google.ftp.com/"},
+  // URLs which end with 0x85 (NEL in ISO-8859).
+  { "http://google.com/search?q=\xd0\x85", "",
+    "http://google.com/search?q=\xd0\x85"
+  },
+  { "http://google.com/search?q=\xec\x97\x85", "",
+    "http://google.com/search?q=\xec\x97\x85"
+  },
+  { "http://google.com/search?q=\xf0\x90\x80\x85", "",
+    "http://google.com/search?q=\xf0\x90\x80\x85"
+  },
+  // URLs which end with 0xA0 (non-break space in ISO-8859).
+  { "http://google.com/search?q=\xd0\xa0", "",
+    "http://google.com/search?q=\xd0\xa0"
+  },
+  { "http://google.com/search?q=\xec\x97\xa0", "",
+    "http://google.com/search?q=\xec\x97\xa0"
+  },
+  { "http://google.com/search?q=\xf0\x90\x80\xa0", "",
+    "http://google.com/search?q=\xf0\x90\x80\xa0"
+  },
 };
 
 TEST(URLFixerUpperTest, FixupURL) {
