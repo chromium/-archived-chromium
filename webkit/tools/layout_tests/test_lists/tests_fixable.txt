@@ -1617,7 +1617,6 @@ MAC LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
 DEFER WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 
 // Merge 40165:40297 -- regressions
-LayoutTests/fast/forms/textarea-no-scroll-on-blur.html = FAIL
 LINUX WIN : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 MAC : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 // New test. We should fix it, but it doesn't need to block the current release
@@ -1630,7 +1629,6 @@ DEFER : LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 // it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
 WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
-LINUX WIN : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
 LINUX WIN : chrome/fast/forms/textarea-metrics.html = FAIL
 
 // Merge 40314:40364 -- new tests
