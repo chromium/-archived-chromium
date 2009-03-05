@@ -52,8 +52,8 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       header_buf_len_(0),
       header_buf_body_offset_(-1),
       header_buf_http_offset_(-1),
-      content_length_(-1),  // -1 means unspecified.
-      content_read_(0),
+      response_body_length_(-1),  // -1 means unspecified.
+      response_body_read_(0),
       read_buf_len_(0),
       next_state_(STATE_NONE) {
 #if defined(OS_WIN)
@@ -136,17 +136,17 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
   bool keep_alive = false;
   if (response_.headers->IsKeepAlive()) {
     // If there is a response body of known length, we need to drain it first.
-    if (content_length_ > 0 || chunked_decoder_.get()) {
+    if (response_body_length_ > 0 || chunked_decoder_.get()) {
       next_state_ = STATE_DRAIN_BODY_FOR_AUTH_RESTART;
       read_buf_ = new IOBuffer(kDrainBodyBufferSize);  // A bit bucket
       read_buf_len_ = kDrainBodyBufferSize;
       return;
     }
-    if (content_length_ == 0)  // No response body to drain.
+    if (response_body_length_ == 0)  // No response body to drain.
       keep_alive = true;
-    // content_length_ is -1 and we're not using chunked encoding.  We don't
-    // know the length of the response body, so we can't reuse this connection
-    // even though the server says it's keep-alive.
+    // response_body_length_ is -1 and we're not using chunked encoding. We
+    // don't know the length of the response body, so we can't reuse this
+    // connection even though the server says it's keep-alive.
   }
 
   // If the auth scheme is connection-based but the proxy/server mistakenly
@@ -796,7 +796,8 @@ int HttpNetworkTransaction::DoReadBody() {
   next_state_ = STATE_READ_BODY_COMPLETE;
 
   // We may have already consumed the indicated content length.
-  if (content_length_ != -1 && content_read_ >= content_length_)
+  if (response_body_length_ != -1 &&
+      response_body_read_ >= response_body_length_)
     return 0;
 
   // We may have some data remaining in the header buffer.
@@ -840,16 +841,18 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
     // Error while reading the socket.
     done = true;
   } else {
-    content_read_ += result;
+    response_body_read_ += result;
     if (unfiltered_eof ||
-        (content_length_ != -1 && content_read_ >= content_length_) ||
+        (response_body_length_ != -1 &&
+         response_body_read_ >= response_body_length_) ||
         (chunked_decoder_.get() && chunked_decoder_->reached_eof())) {
       done = true;
       keep_alive = response_.headers->IsKeepAlive();
       // We can't reuse the connection if we read more than the advertised
       // content length.
       if (unfiltered_eof ||
-          (content_length_ != -1 && content_read_ > content_length_))
+          (response_body_length_ != -1 &&
+           response_body_read_ > response_body_length_))
         keep_alive = false;
     }
   }
@@ -902,16 +905,18 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
     // Error while reading the socket.
     done = true;
   } else {
-    content_read_ += result;
+    response_body_read_ += result;
     if (unfiltered_eof ||
-        (content_length_ != -1 && content_read_ >= content_length_) ||
+        (response_body_length_ != -1 &&
+         response_body_read_ >= response_body_length_) ||
         (chunked_decoder_.get() && chunked_decoder_->reached_eof())) {
       done = true;
       keep_alive = response_.headers->IsKeepAlive();
       // We can't reuse the connection if we read more than the advertised
       // content length.
       if (unfiltered_eof ||
-          (content_length_ != -1 && content_read_ > content_length_))
+          (response_body_length_ != -1 &&
+           response_body_read_ > response_body_length_))
         keep_alive = false;
     }
   }
@@ -934,7 +939,7 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
   if (!duration.InMilliseconds())
     return;
   UMA_HISTOGRAM_COUNTS("Net.Transaction_Bandwidth",
-      static_cast<int> (content_read_ / duration.InMilliseconds()));
+      static_cast<int> (response_body_read_ / duration.InMilliseconds()));
 }
 
 int HttpNetworkTransaction::DidReadResponseHeaders() {
@@ -1023,25 +1028,37 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
 
   // Figure how to determine EOF:
 
-  // For certain responses, we know the content length is always 0.
+  // For certain responses, we know the content length is always 0. From
+  // RFC 2616 Section 4.3 Message Body:
+  //
+  // For response messages, whether or not a message-body is included with
+  // a message is dependent on both the request method and the response
+  // status code (section 6.1.1). All responses to the HEAD request method
+  // MUST NOT include a message-body, even though the presence of entity-
+  // header fields might lead one to believe they do. All 1xx
+  // (informational), 204 (no content), and 304 (not modified) responses
+  // MUST NOT include a message-body. All other responses do include a
+  // message-body, although it MAY be of zero length.
   switch (response_.headers->response_code()) {
     case 204:  // No Content
     case 205:  // Reset Content
     case 304:  // Not Modified
-      content_length_ = 0;
+      response_body_length_ = 0;
       break;
   }
+  if (request_->method == "HEAD")
+    response_body_length_ = 0;
 
-  if (content_length_ == -1) {
+  if (response_body_length_ == -1) {
     // Ignore spurious chunked responses from HTTP/1.0 servers and proxies.
     // Otherwise "Transfer-Encoding: chunked" trumps "Content-Length: N"
     if (response_.headers->GetHttpVersion() >= HttpVersion(1, 1) &&
         response_.headers->HasHeaderValue("Transfer-Encoding", "chunked")) {
       chunked_decoder_.reset(new HttpChunkedDecoder());
     } else {
-      content_length_ = response_.headers->GetContentLength();
-      // If content_length_ is still -1, then we have to wait for the server to
-      // close the connection.
+      response_body_length_ = response_.headers->GetContentLength();
+      // If response_body_length_ is still -1, then we have to wait for the
+      // server to close the connection.
     }
   }
 
@@ -1136,8 +1153,8 @@ void HttpNetworkTransaction::ResetStateForRestart() {
   header_buf_len_ = 0;
   header_buf_body_offset_ = -1;
   header_buf_http_offset_ = -1;
-  content_length_ = -1;
-  content_read_ = 0;
+  response_body_length_ = -1;
+  response_body_read_ = 0;
   read_buf_ = NULL;
   read_buf_len_ = 0;
   request_headers_.clear();

@@ -406,6 +406,70 @@ TEST_F(HttpNetworkTransactionTest, StopsReading204) {
   EXPECT_EQ("", out.response_data);
 }
 
+// Do a request using the HEAD method. Verify that we don't try to read the
+// message body (since HEAD has none).
+TEST_F(HttpNetworkTransactionTest, Head) {
+  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "HEAD";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = 0;
+
+  MockWrite data_writes1[] = {
+    MockWrite("HEAD / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Content-Length: 0\r\n\r\n"),
+  };
+  MockRead data_reads1[] = {
+    MockRead("HTTP/1.1 404 Not Found\r\n"),
+    MockRead("Server: Blah\r\n"),
+    MockRead("Content-Length: 1234\r\n\r\n"),
+
+    // No response body because the test stops reading here.
+    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
+  };
+
+  MockSocket data1;
+  data1.reads = data_reads1;
+  data1.writes = data_writes1;
+  mock_sockets[0] = &data1;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback1;
+
+  int rv = trans->Start(&request, &callback1);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback1.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+
+  // Check that the headers got parsed.
+  EXPECT_TRUE(response->headers != NULL);
+  EXPECT_EQ(1234, response->headers->GetContentLength());
+  EXPECT_EQ("HTTP/1.1 404 Not Found", response->headers->GetStatusLine());
+
+  std::string server_header;
+  void* iter = NULL;
+  bool has_server_header = response->headers->EnumerateHeader(
+      &iter, "Server", &server_header);
+  EXPECT_TRUE(has_server_header);
+  EXPECT_EQ("Blah", server_header);
+
+  // Reading should give EOF right away, since there is no message body
+  // (despite non-zero content-length).
+  std::string response_data;
+  rv = ReadTransaction(trans.get(), &response_data);
+  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ("", response_data);
+}
+
 TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
   scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_refptr<net::HttpNetworkSession> session =

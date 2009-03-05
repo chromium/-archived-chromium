@@ -263,10 +263,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   // Indicates the content length remaining to read.  If this value is less
   // than zero (and chunked_decoder_ is null), then we read until the server
   // closes the connection.
-  int64 content_length_;
+  int64 response_body_length_;
 
   // Keeps track of the number of response body bytes read so far.
-  int64 content_read_;
+  int64 response_body_read_;
 
   scoped_ptr<HttpChunkedDecoder> chunked_decoder_;
 
