@@ -68,9 +68,11 @@ void PlatformThread::SetName(const char* name) {
   // structure would be useful for debugging or not.
 }
 
-// static
-bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
-                            PlatformThreadHandle* thread_handle) {
+namespace {
+
+bool CreateThread(size_t stack_size, bool joinable,
+                  PlatformThread::Delegate* delegate,
+                  PlatformThreadHandle* thread_handle) {
 #if defined(OS_MACOSX)
   base::InitThreading();
 #endif  // OS_MACOSX
@@ -79,8 +81,11 @@ bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
   pthread_attr_t attributes;
   pthread_attr_init(&attributes);
 
-  // Pthreads are joinable by default, so we don't need to specify any special
-  // attributes to be able to call pthread_join later.
+  // Pthreads are joinable by default, so only specify the detached attribute if
+  // the thread should be non-joinable.
+  if (!joinable) {
+    pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED);
+  }
 
   if (stack_size > 0)
     pthread_attr_setstacksize(&attributes, stack_size);
@@ -89,6 +94,24 @@ bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
 
   pthread_attr_destroy(&attributes);
   return success;
+}
+
+}  // anonymous namespace
+
+// static
+bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
+                            PlatformThreadHandle* thread_handle) {
+  return CreateThread(stack_size, true /* joinable thread */,
+                      delegate, thread_handle);
+}
+
+// static
+bool PlatformThread::CreateNonJoinable(size_t stack_size, Delegate* delegate) {
+  PlatformThreadHandle unused;
+
+  bool result = CreateThread(stack_size, false /* non-joinable thread */,
+                             delegate, &unused);
+  return result;
 }
 
 // static

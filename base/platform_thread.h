@@ -65,6 +65,11 @@ class PlatformThread {
   static bool Create(size_t stack_size, Delegate* delegate,
                      PlatformThreadHandle* thread_handle);
 
+  // CreateNonJoinable() does the same thing as Create() except the thread
+  // cannot be Join()'d.  Therefore, it also does not output a
+  // PlatformThreadHandle.
+  static bool CreateNonJoinable(size_t stack_size, Delegate* delegate);
+
   // Joins with a thread created via the Create function.  This function blocks
   // the caller until the designated thread exits.  This will invalidate
   // |thread_handle|.
@@ -75,4 +80,3 @@ class PlatformThread {
 };
 
 #endif  // BASE_PLATFORM_THREAD_H_
-

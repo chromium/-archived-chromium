@@ -85,6 +85,14 @@ bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
 }
 
 // static
+bool PlatformThread::CreateNonJoinable(size_t stack_size, Delegate* delegate) {
+  PlatformThreadHandle thread_handle;
+  bool result = Create(stack_size, delegate, &thread_handle);
+  CloseHandle(thread_handle);
+  return result;
+}
+
+// static
 void PlatformThread::Join(PlatformThreadHandle thread_handle) {
   DCHECK(thread_handle);
 
