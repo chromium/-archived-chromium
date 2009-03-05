@@ -12,6 +12,11 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RESOURCE_HANDLER_H_
 #define CHROME_BROWSER_RENDERER_HOST_RESOURCE_HANDLER_H_
 
+#include "build/build_config.h"
+#if defined(OS_POSIX)
+#include "base/file_descriptor_posix.h"
+#endif
+#include "base/platform_file.h"
 #include "chrome/common/filter_policy.h"
 #include "net/url_request/url_request_status.h"
 #include "webkit/glue/resource_loader_bridge.h"
@@ -29,6 +34,20 @@ struct ResourceResponseHead
   // Specifies if the resource should be filtered before being displayed
   // (insecure resources can be filtered to keep the page secure).
   FilterPolicy::Type filter_policy;
+
+  // A platform specific handle for a file that carries response data. This
+  // entry is used if the resource request is of type ResourceType::MEDIA and
+  // the underlying cache layer keeps the response data in a standalone file.
+#if defined(OS_POSIX)
+  // If the response data file is available, the file handle is stored in
+  // response_data_file.fd, its value is base::kInvalidPlatformFileValue
+  // otherwise.
+  base::FileDescriptor response_data_file;
+#elif defined(OS_WIN)
+  // An asynchronous file handle to the response data file, its value is
+  // base::kInvalidPlatformFileValue if the file is not available.
+  base::PlatformFile response_data_file;
+#endif
 };
 
 // Parameters for a synchronous resource response.

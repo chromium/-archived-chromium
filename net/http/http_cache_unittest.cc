@@ -1225,6 +1225,7 @@ TEST(HttpCache, SimpleGET_MediaCache) {
 #endif
 
   ScopedMockTransaction trans_info(kSimpleGET_Transaction);
+  trans_info.load_flags |= net::LOAD_ENABLE_DOWNLOAD_FILE;
   TestCompletionCallback callback;
 
   {
