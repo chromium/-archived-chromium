@@ -257,11 +257,13 @@ bool BrowserWindowGtk::IsMaximized() const {
 }
 
 void BrowserWindowGtk::SetFullscreen(bool fullscreen) {
-  NOTIMPLEMENTED();
+  // Need to implement full screen mode.
+  // http://code.google.com/p/chromium/issues/detail?id=8405
 }
 
 bool BrowserWindowGtk::IsFullscreen() const {
-  NOTIMPLEMENTED();
+  // Need to implement full screen mode.
+  // http://code.google.com/p/chromium/issues/detail?id=8405
   return false;
 }
 
