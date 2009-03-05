@@ -47,14 +47,6 @@
         'src/parsers/textparser.cxx',
         'src/parsers/textparser.hxx',
       ],
-      'copies': [
-        {
-          'destination': '<(PRODUCT_DIR)/Dictionaries',
-          'files': [
-            'dictionaries/en-US-1-2.bdic',
-          ],
-        },
-      ],
       'direct_dependent_settings': {
         'defines': [
           'HUNSPELL_CHROME_CLIENT',

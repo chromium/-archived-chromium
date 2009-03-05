@@ -26,6 +26,18 @@ class SpellCheckTest : public testing::Test {
 extern void InitHunspellWithFiles(FILE* file_aff_hunspell,
                                   FILE* file_dic_hunspell);
 
+FilePath GetHunspellDirectory() {
+  FilePath hunspell_directory;
+  if (!PathService::Get(base::DIR_SOURCE_ROOT, &hunspell_directory))
+    return FilePath();
+
+  hunspell_directory = hunspell_directory.AppendASCII("chrome");
+  hunspell_directory = hunspell_directory.AppendASCII("third_party");
+  hunspell_directory = hunspell_directory.AppendASCII("hunspell");
+  hunspell_directory = hunspell_directory.AppendASCII("dictionaries");
+  return hunspell_directory;
+}
+
 // Operates unit tests for the webkit_glue::SpellCheckWord() function
 // with the US English dictionary.
 // The unit tests in this function consist of:
@@ -249,9 +261,8 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
     {L"ifmmp:ifmmp", false, 0, 11},
   };
 
-  FilePath hunspell_directory;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
-                               &hunspell_directory));
+  FilePath hunspell_directory = GetHunspellDirectory();
+  ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, FilePath()));
@@ -303,9 +314,8 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
     // TODO (Sidchat): add many more examples.
   };
 
-  FilePath hunspell_directory;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
-                               &hunspell_directory));
+  FilePath hunspell_directory = GetHunspellDirectory();
+  ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, FilePath()));
@@ -351,10 +361,9 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
     {L"Googler"},
   };
 
-  FilePath hunspell_directory;
   FilePath custom_dictionary_file(kTempCustomDictionaryFile);
-  ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
-                               &hunspell_directory));
+  FilePath hunspell_directory = GetHunspellDirectory();
+  ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, custom_dictionary_file));
@@ -420,10 +429,9 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
     {L"Googler"},
   };
 
-  FilePath hunspell_directory;
   FilePath custom_dictionary_file(kTempCustomDictionaryFile);
-  ASSERT_TRUE(PathService::Get(chrome::DIR_APP_DICTIONARIES,
-                               &hunspell_directory));
+  FilePath hunspell_directory = GetHunspellDirectory();
+  ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
       hunspell_directory, L"en-US", NULL, custom_dictionary_file));

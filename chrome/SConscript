@@ -492,7 +492,6 @@ if env.Bit('windows'):
                 '$DESTINATION_ROOT/First Run',
                 '$DESTINATION_ROOT/themes',
                 Alias('chrome_locales'),
-                Alias('chrome_Dictionaries'),
                ])
 
   env.Install('$DESTINATION_ROOT', '$CHROME_DIR/app/FirstRun')

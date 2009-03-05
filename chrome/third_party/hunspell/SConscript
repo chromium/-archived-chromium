@@ -100,9 +100,6 @@ input_files = ChromeFileList([
     'src/hunspell/suggestmgr.hxx',
     'src/hunspell/utf_info.hxx',
   ]),
-  MSVSFilter('Dictionaries', [
-    'dictionaries/en-US-1-2.bdic',
-  ]),
   MSVSFilter('google', [
     'google/bdict.h',
     'google/bdict_affentry.h',
@@ -128,16 +125,6 @@ else:
 env.ChromeLibrary('hunspell', input_files)
 
 
-dictionaries = [
-    'dictionaries/en-US-1-2.bdic',
-    'dictionaries/en-US.dic',
-    'dictionaries/en-US.aff',
-]
-
-i = env.Install('$DESTINATION_ROOT/Dictionaries', dictionaries)
-env.Alias('chrome_Dictionaries', i)
-
-
 p = env.ChromeMSVSProject('hunspell.vcproj',
                           dest=('$CHROME_SRC_DIR/chrome/'
                                 + 'third_party/hunspell/hunspell.vcproj'),
@@ -151,7 +138,6 @@ p = env.ChromeMSVSProject('hunspell.vcproj',
                           tools=[
                               'VCPreBuildEventTool',
                               'VCCustomBuildTool',
-                              'CopyDictionaries',
                               'VCXMLDataGeneratorTool',
                               'VCWebServiceProxyGeneratorTool',
                               'VCMIDLTool',
@@ -167,8 +153,6 @@ p = env.ChromeMSVSProject('hunspell.vcproj',
                               'VCPostBuildEventTool',
                           ],
                           ConfigurationType='4')
-
-p.AddToolFile('./copy_dictionary_files.rules')
 
 p.AddConfig('Debug|Win32',
             InheritedPropertySheets=[

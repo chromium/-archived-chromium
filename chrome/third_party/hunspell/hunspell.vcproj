@@ -12,11 +12,6 @@
 			Name="Win32"
 		/>
 	</Platforms>
-	<ToolFiles>
-		<ToolFile
-			RelativePath=".\copy_dictionary_files.rules"
-		/>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -28,9 +23,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="CopyDictionaries"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -82,9 +74,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="CopyDictionaries"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -223,14 +212,6 @@
 			</File>
 			<File
 				RelativePath=".\src\hunspell\utf_info.hxx"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Dictionaries"
-			>
-			<File
-				RelativePath=".\dictionaries\en-US-1-2.bdic"
 				>
 			</File>
 		</Filter>
