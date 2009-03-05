@@ -337,6 +337,7 @@ LINUX : LayoutTests/fast/replaced/object-display-none.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
+LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
 // For these two fast/frames tests it looks like the win baseline had some weird
 // artifacts on the scrollbars on one of the frames, which has now been removed.
 // This artifact does not exist on the mac baseline.
@@ -510,7 +511,6 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 // Our green is darker and we seem to be a pixel taller.
 WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
