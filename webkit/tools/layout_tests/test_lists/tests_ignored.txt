@@ -52,6 +52,12 @@ SKIP : LayoutTests/fast/regex/test1.html = PASS
 // Window resizing is not implemented in chrome.
 LayoutTests/fast/dom/Window/window-resize.html = FAIL
 
+// This test is completely timing dependent.  It is testing the time
+// between a key event and a search event.  You cannot count on this
+// always being exactly the same, so we allow this to either PASS or FAIL
+// but not CRASH or TIMEOUT.
+LayoutTests/fast/forms/search-event-delay.html = FAIL PASS
+
 // Chrome uses different keyboard accelerators from those used by Safari, so
 // these tests will always fail.
 // TODO(pinkerton): these should probably pass on Mac since we want Emacs
