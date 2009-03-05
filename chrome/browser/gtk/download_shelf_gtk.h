@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_DOWNLOAD_SHELF_VIEW_H_
-#define CHROME_BROWSER_VIEWS_DOWNLOAD_SHELF_VIEW_H_
+#ifndef CHROME_BROWSER_GTK_DOWNLOAD_SHELF_GTK_H_
+#define CHROME_BROWSER_GTK_DOWNLOAD_SHELF_GTK_H_
 
 #include <gtk/gtk.h>
 
@@ -11,14 +11,16 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_shelf.h"
-#include "chrome/browser/gtk/custom_button.h"
 
 class BaseDownloadItemModel;
+class CustomDrawButton;
 class DownloadItemGtk;
 
 class DownloadShelfGtk : public DownloadShelf {
  public:
   explicit DownloadShelfGtk(TabContents* tab_contents);
+
+  ~DownloadShelfGtk();
 
   // DownloadShelf implementation.
   virtual void AddDownload(BaseDownloadItemModel* download_model);
@@ -37,7 +39,7 @@ class DownloadShelfGtk : public DownloadShelf {
   // |hbox_| holds the download items and buttons of the shelf.
   GtkWidget* hbox_;
 
-  // |shelf_box_| is the highest level widget of the shelf. It has a single
+  // |shelf_| is the highest level widget of the shelf. It has a single
   // child, |hbox_|. It exists because we need to be able to set the background
   // color of the shelf, and GtkBoxes don't have a gdk window, which is a
   // requisite for changing the background color.
@@ -53,4 +55,4 @@ class DownloadShelfGtk : public DownloadShelf {
   std::vector<DownloadItemGtk*> download_items_;
 };
 
-#endif  // CHROME_BROWSER_VIEWS_DOWNLOAD_SHELF_VIEW_H_
+#endif  // CHROME_BROWSER_GTK_DOWNLOAD_SHELF_GTK_H_

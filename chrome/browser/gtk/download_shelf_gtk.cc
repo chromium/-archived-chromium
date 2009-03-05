@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "chrome/browser/download/download_item_model.h"
+#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
@@ -65,6 +66,9 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   GtkWidget* parent_contents = tab_contents->GetNativeView();
   gtk_box_pack_end(GTK_BOX(parent_contents), shelf_, FALSE, FALSE, 0);
   Show();
+}
+
+DownloadShelfGtk::~DownloadShelfGtk() {
 }
 
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {

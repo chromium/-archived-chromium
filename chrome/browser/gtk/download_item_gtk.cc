@@ -18,7 +18,7 @@ namespace {
 // bitmap that we use to draw it, i.e. 16, but can be more.
 const int kMenuButtonWidth = 16;
 
-}
+}  // namespace
 
 NineBox* DownloadItemGtk::body_nine_box_normal_ = NULL;
 NineBox* DownloadItemGtk::body_nine_box_prelight_ = NULL;
@@ -39,8 +39,10 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   g_signal_connect(G_OBJECT(body_), "expose-event",
                    G_CALLBACK(OnExpose), this);
   GTK_WIDGET_UNSET_FLAGS(body_, GTK_CAN_FOCUS);
-  GtkWidget* label = gtk_label_new(download_model->download()->GetFileName()
-      .value().c_str());
+  // TODO(estade): gtk_label_new() expects UTF8, but FilePath may have a
+  // different encoding on linux.
+  GtkWidget* label = gtk_label_new(
+      download_model->download()->GetFileName().value().c_str());
   gtk_container_add(GTK_CONTAINER(body_), label);
 
   menu_button_ = gtk_button_new();
@@ -55,6 +57,9 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   gtk_box_pack_start(GTK_BOX(hbox_), menu_button_, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(parent_shelf), hbox_, FALSE, FALSE, 0);
   gtk_widget_show_all(hbox_);
+}
+
+DownloadItemGtk::~DownloadItemGtk() {
 }
 
 // static

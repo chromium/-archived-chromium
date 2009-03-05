@@ -18,6 +18,10 @@ class DownloadItemGtk {
   DownloadItemGtk(BaseDownloadItemModel* download_item_model,
                   GtkWidget* parent_shelf);
 
+  // We put |hbox_| in |parent_shelf| and rely on |parent_shelf| recursively
+  // destroying its children. Hence we do nothing in the destructor.
+  ~DownloadItemGtk();
+
  private:
   static void InitNineBoxes();
 
