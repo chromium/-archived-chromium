@@ -283,6 +283,11 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       break;
     case WebInputEvent::MOUSE_DOWN:
       SetCapture(view_);
+      // This mimics a temporary workaround in RenderWidgetHostViewWin 
+      // for bug 765011 to get focus when the mouse is clicked. This 
+      // happens after the mouse down event is sent to the renderer 
+      // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
+      ::SetFocus(view_);
       break;
     case WebInputEvent::MOUSE_UP:
       if (GetCapture() == view_)
@@ -290,14 +295,6 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       break;
   }
   webwidget_->HandleInputEvent(&event);
-
-  if (event.type == WebInputEvent::MOUSE_DOWN) {
-    // This mimics a temporary workaround in RenderWidgetHostViewWin 
-    // for bug 765011 to get focus when the mouse is clicked. This 
-    // happens after the mouse down event is sent to the renderer 
-    // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
-    ::SetFocus(view_);
-  }
 }
 
 void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {
