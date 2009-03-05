@@ -6,6 +6,7 @@
 
 #include "base/memory_debug.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
 #include "net/base/winsock_init.h"
@@ -250,22 +251,30 @@ int TCPClientSocket::CreateSocket(const struct addrinfo* ai) {
     return MapWinsockError(err);
   }
 
-  // Increase the socket buffer sizes from the default sizes.
-  // In performance testing, there is substantial benefit by increasing
-  // from 8KB to 32KB.  I tested 64, 128, and 256KB as well, but did not
-  // see additional performance benefit (will be network dependent).
+  // Increase the socket buffer sizes from the default sizes for WinXP.  In
+  // performance testing, there is substantial benefit by increasing from 8KB
+  // to 64KB.
   // See also:
   //    http://support.microsoft.com/kb/823764/EN-US
-  // On XP, the default buffer sizes are 8KB.
-  const int kSocketBufferSize = 32 * 1024;
-  int rv = setsockopt(socket_, SOL_SOCKET, SO_SNDBUF,
-      reinterpret_cast<const char*>(&kSocketBufferSize),
-      sizeof(kSocketBufferSize));
-  DCHECK(!rv) << "Could not set socket send buffer size";
-  rv = setsockopt(socket_, SOL_SOCKET, SO_RCVBUF,
-      reinterpret_cast<const char*>(&kSocketBufferSize),
-      sizeof(kSocketBufferSize));
-  DCHECK(!rv) << "Could not set socket receive buffer size";
+  // On Vista, if we manually set these sizes, Vista turns off its receive
+  // window auto-tuning feature.
+  //    http://blogs.msdn.com/wndp/archive/2006/05/05/Winhec-blog-tcpip-2.aspx
+  // Since Vista's auto-tune is better than any static value we can could set,
+  // only change these on pre-vista machines.
+  int32 major_version, minor_version, fix_version;
+  base::SysInfo::OperatingSystemVersionNumbers(&major_version, &minor_version,
+    &fix_version);
+  if (major_version < 6) {
+    const int kSocketBufferSize = 64 * 1024;
+    int rv = setsockopt(socket_, SOL_SOCKET, SO_SNDBUF,
+        reinterpret_cast<const char*>(&kSocketBufferSize),
+        sizeof(kSocketBufferSize));
+    DCHECK(!rv) << "Could not set socket send buffer size";
+    rv = setsockopt(socket_, SOL_SOCKET, SO_RCVBUF,
+        reinterpret_cast<const char*>(&kSocketBufferSize),
+        sizeof(kSocketBufferSize));
+    DCHECK(!rv) << "Could not set socket receive buffer size";
+  }
 
   // Disable Nagle.
   // The Nagle implementation on windows is governed by RFC 896.  The idea
@@ -290,7 +299,7 @@ int TCPClientSocket::CreateSocket(const struct addrinfo* ai) {
   // See also:
   //    http://technet.microsoft.com/en-us/library/bb726981.aspx
   const BOOL kDisableNagle = TRUE;
-  rv = setsockopt(socket_, IPPROTO_TCP, TCP_NODELAY,
+  int rv = setsockopt(socket_, IPPROTO_TCP, TCP_NODELAY,
       reinterpret_cast<const char*>(&kDisableNagle), sizeof(kDisableNagle));
   DCHECK(!rv) << "Could not disable nagle";
 
