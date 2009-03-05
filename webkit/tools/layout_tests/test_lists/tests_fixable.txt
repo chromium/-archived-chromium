@@ -925,9 +925,6 @@ LINUX MAC : chrome/plugins/script-object-invoke.html = FAIL
 LINUX MAC : pending/plugins/destroy-stream-twice.html = TIMEOUT
 MAC : pending/plugins/iframe-shims.html = FAIL CRASH
 
-// Depends on event_sending_controller fixes.
-MAC : LayoutTests/fast/forms/search-event-delay.html = FAIL TIMEOUT
-
 // NEW FOR MERGE 36102:37604
 
 // We don't draw the spelling markers at all in test shell, and it's a low
@@ -1089,7 +1086,6 @@ MAC : LayoutTests/fast/forms/input-appearance-width.html = FAIL
 MAC : LayoutTests/fast/forms/input-double-click-selection-gap-bug.html = FAIL
 MAC : LayoutTests/fast/forms/input-first-letter.html = FAIL
 MAC : LayoutTests/fast/forms/input-paste-undo.html = FAIL
-MAC : LayoutTests/fast/forms/input-radio-checked-tab.html = FAIL
 MAC : LayoutTests/fast/forms/input-readonly-dimmed.html = FAIL
 MAC : LayoutTests/fast/forms/input-readonly-empty.html = FAIL
 MAC : LayoutTests/fast/forms/input-spaces.html = FAIL
@@ -1209,42 +1205,15 @@ MAC : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
 
 // text input garbage
-MAC : LayoutTests/editing/inserting/typing-tab-designmode.html = FAIL
-MAC : LayoutTests/fast/events/key-events-in-input-text.html = FAIL
 MAC : LayoutTests/fast/forms/focus-selection-input.html = FAIL
 MAC : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
-MAC : LayoutTests/fast/forms/textarea-type-spaces.html = FAIL
-MAC : LayoutTests/fast/frames/iframe-window-focus.html = FAIL
-MAC : LayoutTests/fast/events/js-keyboard-event-creation.html = FAIL
 
 // bad key event handling
 MAC : LayoutTests/fast/events/access-key-self-destruct.html = FAIL
-MAC : LayoutTests/fast/events/arrow-keys-on-body.html = FAIL
-MAC : LayoutTests/fast/events/keypress-focus-change.html = FAIL
-MAC : LayoutTests/fast/events/keypress-insert-tab.html = FAIL
-MAC : LayoutTests/fast/events/onchange-passwordfield.html = FAIL
-MAC : LayoutTests/fast/events/onchange-searchfield.html = FAIL
-MAC : LayoutTests/fast/events/onchange-select-popup.html = FAIL
-MAC : LayoutTests/fast/events/onchange-textfield.html = FAIL
-MAC : LayoutTests/fast/events/onsearch-enter.html = FAIL
 MAC : LayoutTests/fast/forms/access-key.html = FAIL
-MAC : LayoutTests/fast/forms/button-enter-click.html = FAIL
-MAC : LayoutTests/fast/forms/check-box-enter-key.html = FAIL
-MAC : LayoutTests/fast/forms/enter-clicks-buttons.html = FAIL
 MAC : LayoutTests/fast/forms/legend-access-key.html = FAIL
-MAC : LayoutTests/fast/forms/listbox-typeahead-scroll.html = FAIL
-MAC : LayoutTests/fast/forms/onchange-enter-submit.html = FAIL
 MAC : LayoutTests/fast/forms/select-accesskey.html = FAIL
-MAC : LayoutTests/fast/forms/select-double-onchange.html = FAIL
-MAC : LayoutTests/fast/forms/select-enter-key.html = FAIL
-MAC : LayoutTests/fast/forms/select-type-ahead-non-latin.html = FAIL
-MAC : LayoutTests/fast/forms/textfield-onchange-deletion.html = FAIL
-MAC : LayoutTests/fast/forms/textfield-to-password-on-focus.html = FAIL
 MAC : LayoutTests/fast/events/option-tab.html = FAIL
-MAC : LayoutTests/fast/events/keydown-keypress-preventDefault.html = FAIL
-MAC : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
-MAC : LayoutTests/fast/forms/button-spacebar-click.html = FAIL
-MAC : LayoutTests/fast/forms/focus-control-to-page.html = FAIL
 
 // event failures
 MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
@@ -1337,9 +1306,6 @@ MAC : LayoutTests/fast/images/object-image.html = FAIL
 // Rebase for our network stack?
 MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/abort-should-cancel-load.html = FAIL
-
-// Regression w/ radios?
-MAC : LayoutTests/fast/forms/radio_checked_name.html = FAIL
 
 // Some times it fails because the animation starts before the first dom dump
 // so the text doesn't match.
@@ -1435,6 +1401,9 @@ MAC : LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.
 MAC : LayoutTests/http/tests/security/host-compare-case-insensitive.html = CRASH FAIL PASS
 MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH FAIL PASS
 
+// seems to be timing out more then passing on the build bots
+MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = TIMEOUT PASS
+
 // -----------------------------------------------------------------
 // END MAC PORT TESTS
 // -----------------------------------------------------------------
@@ -1449,7 +1418,6 @@ DEFER : LayoutTests/fast/dom/dom-constructors.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = FAIL
 
 // WebKit Merge 39100:39141 new tests:
-MAC : LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
 
@@ -1851,10 +1819,9 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug1647.html = FAIL
 MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 // See above comment about this test on linux/win.
 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
-MAC : LayoutTests/fast/events/key-events-in-input-button.html = FAIL
 MAC DEBUG : LayoutTests/http/tests/misc/slow-preload-cancel.html = CRASH
 MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT PASS
-MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
+MAC RELEASE : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
