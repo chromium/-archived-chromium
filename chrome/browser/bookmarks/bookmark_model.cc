@@ -59,6 +59,35 @@ void BookmarkNode::Reset(const history::StarredEntry& entry) {
 
 // BookmarkModel --------------------------------------------------------------
 
+namespace {
+
+// Comparator used when sorting bookmarks. Folders are sorted first, then
+  // bookmarks.
+class SortComparator : public std::binary_function<BookmarkNode*,
+                                                   BookmarkNode*,
+                                                   bool> {
+ public:
+  explicit SortComparator(Collator* collator) : collator_(collator) { }
+
+  // Returns true if lhs preceeds rhs.
+  bool operator() (BookmarkNode* n1, BookmarkNode* n2) {
+    if (n1->GetType() == n2->GetType()) {
+      // Types are the same, compare the names.
+      if (!collator_)
+        return n1->GetTitle() < n2->GetTitle();
+      return l10n_util::CompareStringWithCollator(collator_, n1->GetTitle(),
+                                                  n2->GetTitle()) == UCOL_LESS;
+    }
+    // Types differ, sort such that folders come first.
+    return n1->is_folder();
+  }
+
+ private:
+  Collator* collator_;
+};
+
+}  // namespace
+
 BookmarkModel::BookmarkModel(Profile* profile)
     : profile_(profile),
       loaded_(false),
@@ -305,9 +334,15 @@ void BookmarkModel::SortChildren(BookmarkNode* parent) {
     return;
   }
 
-  l10n_util::SortStringsUsingMethod(g_browser_process->GetApplicationLocale(),
-                                    &(parent->children()),
-                                    &BookmarkNode::GetTitle);
+  UErrorCode error = U_ZERO_ERROR;
+  scoped_ptr<Collator> collator(
+      Collator::createInstance(
+          Locale(WideToUTF8(g_browser_process->GetApplicationLocale()).c_str()),
+          error));
+  if (U_FAILURE(error))
+    collator.reset(NULL);
+  std::sort(parent->children().begin(), parent->children().end(),
+            SortComparator(collator.get()));
 
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                     BookmarkNodeChildrenReordered(this, parent));

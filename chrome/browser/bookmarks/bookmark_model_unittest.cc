@@ -842,10 +842,16 @@ TEST_F(BookmarkModelTestWithProfile2, RemoveNotification) {
 
 TEST_F(BookmarkModelTest, Sort) {
   // Populate the bookmark bar node with nodes for 'B', 'a', 'd' and 'C'.
+  // 'C' and 'a' are folders.
   TestNode bbn;
-  PopulateNodeFromString(L"B a d C", &bbn);
+  PopulateNodeFromString(L"B [ a ] d [ a ]", &bbn);
   BookmarkNode* parent = model.GetBookmarkBarNode();
   PopulateBookmarkNode(&bbn, &model, parent);
+
+  parent->GetChild(1)->SetTitle(L"a");
+  delete parent->GetChild(1)->Remove(0);
+  parent->GetChild(3)->SetTitle(L"C");
+  delete parent->GetChild(3)->Remove(0);
 
   ClearCounts();
 
@@ -855,9 +861,10 @@ TEST_F(BookmarkModelTest, Sort) {
   // Make sure we were notified.
   AssertObserverCount(0, 0, 0, 0, 1);
 
-  // Make sure the order matches.
+  // Make sure the order matches (remember, 'a' and 'C' are folders and
+  // come first).
   EXPECT_TRUE(parent->GetChild(0)->GetTitle() == L"a");
-  EXPECT_TRUE(parent->GetChild(1)->GetTitle() == L"B");
-  EXPECT_TRUE(parent->GetChild(2)->GetTitle() == L"C");
+  EXPECT_TRUE(parent->GetChild(1)->GetTitle() == L"C");
+  EXPECT_TRUE(parent->GetChild(2)->GetTitle() == L"B");
   EXPECT_TRUE(parent->GetChild(3)->GetTitle() == L"d");
 }
