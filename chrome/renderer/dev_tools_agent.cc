@@ -16,6 +16,7 @@
 
 DevToolsAgent::DevToolsAgent(RenderView* view, MessageLoop* view_loop)
     : debugger_(NULL),
+      routing_id_(view->routing_id()),
       view_(view),
       view_loop_(view_loop),
       channel_(NULL),
@@ -25,6 +26,12 @@ DevToolsAgent::DevToolsAgent(RenderView* view, MessageLoop* view_loop)
 DevToolsAgent::~DevToolsAgent() {
 }
 
+// Called on render thread.
+void DevToolsAgent::RenderViewDestroyed() {
+  DCHECK(MessageLoop::current() == view_loop_);
+  view_ = NULL;
+}
+
 void DevToolsAgent::Send(const IPC::Message& tools_client_message) {
   // It's possible that this will get cleared out from under us.
   MessageLoop* io_loop = io_loop_;
@@ -32,7 +39,7 @@ void DevToolsAgent::Send(const IPC::Message& tools_client_message) {
     return;
 
   IPC::Message* m = new ViewHostMsg_ForwardToDevToolsClient(
-      view_->routing_id(),
+      routing_id_,
       tools_client_message);
   io_loop->PostTask(FROM_HERE, NewRunnableMethod(
       this, &DevToolsAgent::SendFromIOThread, m));
@@ -56,7 +63,7 @@ void DevToolsAgent::OnFilterAdded(IPC::Channel* channel) {
 bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  if (message.routing_id() != view_->routing_id())
+  if (message.routing_id() != routing_id_)
     return false;
 
   bool handled = true;
@@ -70,6 +77,7 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
+// Called on IO thread.
 void DevToolsAgent::OnFilterRemoved() {
   io_loop_ = NULL;
   channel_ = NULL;
@@ -81,7 +89,9 @@ void DevToolsAgent::DebuggerOutput(const std::wstring& out) {
 
 void DevToolsAgent::EvaluateScript(const std::wstring& script) {
   DCHECK(MessageLoop::current() == view_loop_);
-  view_->EvaluateScript(L"", script);
+  // view_ may have been cleared after this method execution was scheduled.
+  if (view_)
+    view_->EvaluateScript(L"", script);
 }
 
 void DevToolsAgent::OnDebugAttach() {

@@ -201,6 +201,8 @@ RenderView::~RenderView() {
   }
 
   render_thread_->RemoveFilter(debug_message_handler_);
+
+  dev_tools_agent_->RenderViewDestroyed();
   render_thread_->RemoveFilter(dev_tools_agent_);
 
 #ifdef CHROME_PERSONALIZATION

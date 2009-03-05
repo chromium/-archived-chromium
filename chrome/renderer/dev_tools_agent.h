@@ -28,6 +28,10 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   explicit DevToolsAgent(RenderView* view, MessageLoop* view_loop);
   virtual ~DevToolsAgent();
 
+  // DevToolsAgent is created by RenderView which is supposed to call this
+  // method from its destructor.
+  void RenderViewDestroyed();
+
  private:
   // Sends message to DevToolsClient. May be called on any thread.
   void Send(const IPC::Message& tools_client_message);
@@ -56,6 +60,7 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
 
   scoped_refptr<DebuggerBridge> debugger_;
 
+  int routing_id_; //  View routing id that we can access from IO thread.
   RenderView* view_;
   MessageLoop* view_loop_;
 
