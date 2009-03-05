@@ -592,7 +592,7 @@ void LanguagesPageView::InitControlLayout() {
 
   layout->AddView(button_stack_);
 
-  layout->AddPaddingRow(0, kUnrelatedControlLargeVerticalSpacing);
+  layout->AddPaddingRow(0, kUnrelatedControlVerticalSpacing);
 
   language_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CHROME_LANGUAGE_INFO));
@@ -639,7 +639,7 @@ void LanguagesPageView::InitControlLayout() {
   layout->AddView(change_dictionary_language_combobox_);
 
   // UI language settings.
-  layout->AddPaddingRow(0, kUnrelatedControlLargeVerticalSpacing);
+  layout->AddPaddingRow(0, kUnrelatedControlVerticalSpacing);
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(language_info_label_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
