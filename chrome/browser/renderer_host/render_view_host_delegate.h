@@ -278,13 +278,11 @@ class RenderViewHostDelegate {
   // A javascript message, confirmation or prompt should be shown.
   virtual void RunJavaScriptMessage(const std::wstring& message,
                                     const std::wstring& default_prompt,
-                                    const GURL& frame_url,
                                     const int flags,
                                     IPC::Message* reply_msg,
                                     bool* did_suppress_message) { }
 
-  virtual void RunBeforeUnloadConfirm(const GURL& frame_url,
-                                      const std::wstring& message,
+  virtual void RunBeforeUnloadConfirm(const std::wstring& message,
                                       IPC::Message* reply_msg) { }
 
   // Display this RenderViewHost in a modal fashion.

@@ -427,7 +427,6 @@ bool IsPluginProcess() {
 //--------------------------------------------------------------------------
 
 void RunJavascriptMessageBox(WebContents* web_contents,
-                             const GURL& url,
                              int dialog_flags,
                              const std::wstring& message_text,
                              const std::wstring& default_prompt_text,
@@ -437,7 +436,6 @@ void RunJavascriptMessageBox(WebContents* web_contents,
 }
 
 void RunBeforeUnloadDialog(WebContents* web_contents,
-                           const GURL& url,
                            const std::wstring& message_text,
                            IPC::Message* reply_msg) {
   NOTIMPLEMENTED();

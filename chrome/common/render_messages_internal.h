@@ -755,10 +755,9 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_GoToEntryAtOffset,
                       int /* offset (from current) of history item to get */)
 
-  IPC_SYNC_MESSAGE_ROUTED4_2(ViewHostMsg_RunJavaScriptMessage,
+  IPC_SYNC_MESSAGE_ROUTED3_2(ViewHostMsg_RunJavaScriptMessage,
                              std::wstring /* in - alert message */,
                              std::wstring /* in - default prompt */,
-                             GURL         /* in - originating page URL */,
                              int          /* in - dialog flags */,
                              bool         /* out - success */,
                              std::wstring /* out - prompt field */)
@@ -1033,8 +1032,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // Displays a box to confirm that the user wants to navigate away from the
   // page. Replies true if yes, false otherwise, the reply string is ignored,
   // but is included so that we can use OnJavaScriptMessageBoxClosed.
-  IPC_SYNC_MESSAGE_ROUTED2_2(ViewHostMsg_RunBeforeUnloadConfirm,
-                             GURL,        /* in - originating frame URL */
+  IPC_SYNC_MESSAGE_ROUTED1_2(ViewHostMsg_RunBeforeUnloadConfirm,
                              std::wstring /* in - alert message */,
                              bool         /* out - success */,
                              std::wstring /* out - This is ignored.*/)

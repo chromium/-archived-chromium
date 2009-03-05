@@ -10,7 +10,6 @@
 // |message_text| between the header and footer. The users response is
 // returned to the renderer using |reply_msg|.
 void RunBeforeUnloadDialog(WebContents* web_contents,
-                           const GURL& frame_url,
                            const std::wstring& message_text,
                            IPC::Message* reply_msg);
 

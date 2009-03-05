@@ -1088,24 +1088,21 @@ void RenderViewHost::OnMsgRunFileChooser(bool multiple_files,
 void RenderViewHost::OnMsgRunJavaScriptMessage(
     const std::wstring& message,
     const std::wstring& default_prompt,
-    const GURL& frame_url,
     const int flags,
     IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     modal_dialog_event_->Signal();
-  delegate_->RunJavaScriptMessage(message, default_prompt, frame_url, flags,
-                                  reply_msg,
+  delegate_->RunJavaScriptMessage(message, default_prompt, flags, reply_msg,
                                   &are_javascript_messages_suppressed_);
 }
 
-void RenderViewHost::OnMsgRunBeforeUnloadConfirm(const GURL& frame_url,
-                                                 const std::wstring& message,
+void RenderViewHost::OnMsgRunBeforeUnloadConfirm(const std::wstring& message,
                                                  IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     modal_dialog_event_->Signal();
-  delegate_->RunBeforeUnloadConfirm(frame_url, message, reply_msg);
+  delegate_->RunBeforeUnloadConfirm(message, reply_msg);
 }
 
 void RenderViewHost::OnMsgShowModalHTMLDialog(

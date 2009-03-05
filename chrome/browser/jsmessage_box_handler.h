@@ -9,7 +9,6 @@
 
 #include "chrome/common/ipc_message.h"
 
-class GURL;
 class WebContents;
 
 // Creates and runs a Javascript Message Box dialog.
@@ -19,7 +18,6 @@ class WebContents;
 // |default_prompt_text|. The result of the operation is returned using
 // |reply_msg|.
 void RunJavascriptMessageBox(WebContents* web_contents,
-                             const GURL& frame_url,
                              int dialog_flags,
                              const std::wstring& message_text,
                              const std::wstring& default_prompt_text,

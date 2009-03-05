@@ -289,13 +289,12 @@ bool ChromeClientImpl::canRunBeforeUnloadConfirmPanel() {
   return webview_->delegate() != NULL;
 }
 
-bool ChromeClientImpl::runBeforeUnloadConfirmPanel(
-    const WebCore::String& message,
-    WebCore::Frame* frame) {
+bool ChromeClientImpl::runBeforeUnloadConfirmPanel(const WebCore::String& message,
+                                                   WebCore::Frame* frame) {
   WebViewDelegate* d = webview_->delegate();
   if (d) {
     std::wstring wstr = webkit_glue::StringToStdWString(message);
-    return d->RunBeforeUnloadConfirm(WebFrameImpl::FromFrame(frame), wstr);
+    return d->RunBeforeUnloadConfirm(webview_, wstr);
   }
   return false;
 }
@@ -326,7 +325,7 @@ void ChromeClientImpl::runJavaScriptAlert(WebCore::Frame* frame,
 #endif
 
     std::wstring wstr = webkit_glue::StringToStdWString(message);
-    d->RunJavaScriptAlert(WebFrameImpl::FromFrame(frame), wstr);
+    d->RunJavaScriptAlert(webview_, wstr);
   }
 }
 
@@ -336,7 +335,7 @@ bool ChromeClientImpl::runJavaScriptConfirm(WebCore::Frame* frame,
   WebViewDelegate* d = webview_->delegate();
   if (d) {
     std::wstring wstr = webkit_glue::StringToStdWString(message);
-    return d->RunJavaScriptConfirm(WebFrameImpl::FromFrame(frame), wstr);
+    return d->RunJavaScriptConfirm(webview_, wstr);
   }
   return false;
 }
@@ -351,7 +350,7 @@ bool ChromeClientImpl::runJavaScriptPrompt(WebCore::Frame* frame,
     std::wstring wstr_message = webkit_glue::StringToStdWString(message);
     std::wstring wstr_default = webkit_glue::StringToStdWString(defaultValue);
     std::wstring wstr_result;
-    bool ok = d->RunJavaScriptPrompt(WebFrameImpl::FromFrame(frame),
+    bool ok = d->RunJavaScriptPrompt(webview_,
                                      wstr_message,
                                      wstr_default,
                                      &wstr_result);

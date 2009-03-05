@@ -1047,7 +1047,6 @@ void WebContents::RunFileChooser(bool multiple_files,
 void WebContents::RunJavaScriptMessage(
     const std::wstring& message,
     const std::wstring& default_prompt,
-    const GURL& frame_url,
     const int flags,
     IPC::Message* reply_msg,
     bool* did_suppress_message) {
@@ -1071,19 +1070,18 @@ void WebContents::RunJavaScriptMessage(
         TimeDelta::FromMilliseconds(kJavascriptMessageExpectedDelay))
       show_suppress_checkbox = true;
 
-    RunJavascriptMessageBox(this, frame_url, flags, message, default_prompt,
+    RunJavascriptMessageBox(this, flags, message, default_prompt,
                             show_suppress_checkbox, reply_msg);
   } else {
     // If we are suppressing messages, just reply as is if the user immediately
     // pressed "Cancel".
-    OnJavaScriptMessageBoxClosed(reply_msg, false, std::wstring());
+    OnJavaScriptMessageBoxClosed(reply_msg, false, L"");
   }
 }
 
-void WebContents::RunBeforeUnloadConfirm(const GURL& frame_url,
-                                         const std::wstring& message,
+void WebContents::RunBeforeUnloadConfirm(const std::wstring& message,
                                          IPC::Message* reply_msg) {
-  RunBeforeUnloadDialog(this, frame_url, message, reply_msg);
+  RunBeforeUnloadDialog(this, message, reply_msg);
 }
 
 void WebContents::ShowModalHTMLDialog(const GURL& url, int width, int height,

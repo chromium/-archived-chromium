@@ -20,14 +20,13 @@
 #include "grit/generated_resources.h"
 
 void RunJavascriptMessageBox(WebContents* web_contents,
-                             const GURL& frame_url,
                              int dialog_flags,
                              const std::wstring& message_text,
                              const std::wstring& default_prompt_text,
                              bool display_suppress_checkbox,
                              IPC::Message* reply_msg) {
   JavascriptMessageBoxHandler* handler =
-      new JavascriptMessageBoxHandler(web_contents, frame_url, dialog_flags,
+      new JavascriptMessageBoxHandler(web_contents, dialog_flags,
                                       message_text, default_prompt_text,
                                       display_suppress_checkbox, reply_msg);
   AppModalDialogQueue::AddDialog(handler);
@@ -35,20 +34,18 @@ void RunJavascriptMessageBox(WebContents* web_contents,
 
 JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
     WebContents* web_contents,
-    const GURL& frame_url,
     int dialog_flags,
     const std::wstring& message_text,
     const std::wstring& default_prompt_text,
     bool display_suppress_checkbox,
     IPC::Message* reply_msg)
-    : web_contents_(web_contents),
-      frame_url_(frame_url),
-      reply_msg_(reply_msg),
-      dialog_flags_(dialog_flags),
-      dialog_(NULL),
-      message_box_view_(new MessageBoxView(
-          dialog_flags | MessageBoxView::kAutoDetectAlignment,
-          message_text, default_prompt_text)) {
+      : web_contents_(web_contents),
+        reply_msg_(reply_msg),
+        dialog_flags_(dialog_flags),
+        dialog_(NULL),
+        message_box_view_(new MessageBoxView(
+            dialog_flags | MessageBoxView::kAutoDetectAlignment,
+            message_text, default_prompt_text)) {
   DCHECK(message_box_view_);
   DCHECK(reply_msg_);
 
@@ -83,7 +80,11 @@ int JavascriptMessageBoxHandler::GetDialogButtons() const {
 }
 
 std::wstring JavascriptMessageBoxHandler::GetWindowTitle() const {
-  if (!frame_url_.has_host())
+  if (!web_contents_)
+    return std::wstring();
+
+  GURL url = web_contents_->GetURL();
+  if (!url.has_host())
     return l10n_util::GetString(IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE);
 
   // We really only want the scheme, hostname, and port.
@@ -93,7 +94,7 @@ std::wstring JavascriptMessageBoxHandler::GetWindowTitle() const {
   replacements.ClearPath();
   replacements.ClearQuery();
   replacements.ClearRef();
-  GURL clean_url = frame_url_.ReplaceComponents(replacements);
+  GURL clean_url = url.ReplaceComponents(replacements);
 
   // TODO(brettw) it should be easier than this to do the correct language
   // handling without getting the accept language from the profile.

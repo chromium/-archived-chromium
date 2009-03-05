@@ -13,7 +13,6 @@ class JavascriptBeforeUnloadHandler : public JavascriptMessageBoxHandler {
  public:
   // Cross-platform code should use RunBeforeUnloadDialog.
   JavascriptBeforeUnloadHandler(WebContents* web_contents,
-                                const GURL& frame_url,
                                 const std::wstring& message_text,
                                 IPC::Message* reply_msg);
   virtual ~JavascriptBeforeUnloadHandler() {}

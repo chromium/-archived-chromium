@@ -498,10 +498,9 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   }
 
   // Displays a JavaScript alert panel associated with the given view. Clients
-  // should visually indicate that this panel comes from JavaScript and some
-  // information about the originating frame (at least the domain). The panel
+  // should visually indicate that this panel comes from JavaScript. The panel
   // should have a single OK button.
-  virtual void RunJavaScriptAlert(WebFrame* webframe,
+  virtual void RunJavaScriptAlert(WebView* webview,
                                   const std::wstring& message) {
   }
 
@@ -509,7 +508,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // Clients should visually indicate that this panel comes
   // from JavaScript. The panel should have two buttons, e.g. "OK" and
   // "Cancel". Returns true if the user hit OK, or false if the user hit Cancel.
-  virtual bool RunJavaScriptConfirm(WebFrame* webframe,
+  virtual bool RunJavaScriptConfirm(WebView* webview,
                                     const std::wstring& message) {
     return false;
   }
@@ -521,7 +520,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // panel when it is shown. If the user hit OK, returns true and fills result
   // with the text in the box.  The value of result is undefined if the user
   // hit Cancel.
-  virtual bool RunJavaScriptPrompt(WebFrame* webframe,
+  virtual bool RunJavaScriptPrompt(WebView* webview,
                                    const std::wstring& message,
                                    const std::wstring& default_value,
                                    std::wstring* result) {
@@ -537,7 +536,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // that the navigation should continue, and Cancel means that the navigation
   // should be cancelled, leaving the user on the current page.  Returns true
   // if the user hit OK, or false if the user hit Cancel.
-  virtual bool RunBeforeUnloadConfirm(WebFrame* webframe,
+  virtual bool RunBeforeUnloadConfirm(WebView* webview,
                                       const std::wstring& message) {
     return true;  // OK, continue to navigate away
   }
