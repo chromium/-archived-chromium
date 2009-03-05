@@ -665,8 +665,8 @@ DEFER SKIP : LayoutTests/http/tests/appcache = TIMEOUT FAIL
 // http://b/issue?id=1344252
 DEFER : LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 
-// These need to be rebaselined.
-LINUX : LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
+// We have the wrong shadow for "This".
+// It appears we're not obeying the "transparent" fill color.
 LINUX : LayoutTests/fast/css/shadow-multiple.html = FAIL
 
 // Problems with getImageData and toDataURL: http://crbug.com/2972
@@ -676,12 +676,6 @@ DEFER LINUX WIN : LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 // We're much closer now. To fully pass this we need encoders for jpg
 // and gif, which is a low priority.
 DEFER LINUX WIN : LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
-
-// These need to be rebaselined on Linux.
-LINUX : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
-LINUX : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
-LINUX : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
-LINUX : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 
 // More tests that fail because of masks not working properly.
 // New tests. We should fix these, but they don't need to block the current release
@@ -736,8 +730,6 @@ DEFER LINUX WIN : LayoutTests/fast/gradients/generated-gradients.html = FAIL
 // Linux pixeltest failure: radial gradients don't have offset focal point
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/gradients/simple-gradients.html = FAIL
-// Needs to be rebaselined. It's a new test, so shouldn't hold up release.
-DEFER LINUX : LayoutTests/fast/transforms/shadows.html = FAIL
 // This test isn't hanging, it just takes 12-13 seconds to run, which is more
 // than test_shell allows. However, we shouldn't look into the speed of the test
 // until we have reached PASS status.
@@ -802,8 +794,7 @@ LINUX : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
 // Linux: color off by one.  Rounding error?
 LINUX : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 
-// Linux: off-by-ones imply font metrics.
-LINUX MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
+MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 
 MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
 
