@@ -109,8 +109,8 @@ layer at (0,0) size 785x4501
         RenderInline {SPAN} at (0,0) size 718x160
           RenderText {#text} at (0,0) size 0x0
           RenderInline {SPAN} at (0,0) size 276x19
-            RenderText {#text} at (19,17) size 276x19
-              text run at (19,17) width 276: "The first eight words (\"eight\" has a descender)"
+            RenderText {#text} at (19,16) size 276x19
+              text run at (19,16) width 276: "The first eight words (\"eight\" has a descender)"
           RenderText {#text} at (295,0) size 718x160
             text run at (295,0) width 423: " in this sentence should be 12pt in"
             text run at (0,50) width 675: "size and text-bottom-aligned, which should align their"
@@ -451,8 +451,8 @@ layer at (0,0) size 785x4501
                 RenderInline {SPAN} at (0,0) size 718x160
                   RenderText {#text} at (0,0) size 0x0
                   RenderInline {SPAN} at (0,0) size 276x19
-                    RenderText {#text} at (19,17) size 276x19
-                      text run at (19,17) width 276: "The first eight words (\"eight\" has a descender)"
+                    RenderText {#text} at (19,16) size 276x19
+                      text run at (19,16) width 276: "The first eight words (\"eight\" has a descender)"
                   RenderText {#text} at (295,0) size 718x160
                     text run at (295,0) width 423: " in this sentence should be 12pt in"
                     text run at (0,50) width 675: "size and text-bottom-aligned, which should align their"
