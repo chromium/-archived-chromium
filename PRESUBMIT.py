@@ -42,11 +42,15 @@ _ReadFile = ReadFile
 
 
 def CheckChangeOnUpload(input_api, output_api):
-  return LocalChecks(input_api, output_api)
+  # TODO(maruel): max_cols is temporarily disabled. Reenable once the source
+  # tree is in better shape.
+  return LocalChecks(input_api, output_api, max_cols=0)
 
 
 def CheckChangeOnCommit(input_api, output_api):
-  return (LocalChecks(input_api, output_api) +
+  # TODO(maruel): max_cols is temporarily disabled. Reenable once the source
+  # tree is in better shape.
+  return (LocalChecks(input_api, output_api, max_cols=0) +
           input_api.canned_checks.CheckDoNotSubmit(input_api, output_api))
 
 
