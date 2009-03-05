@@ -3872,6 +3872,7 @@
           '../third_party/WebKit/WebCore/Resources/eastWestResizeCursor.png',
           '../third_party/WebKit/WebCore/Resources/helpCursor.png',
           '../third_party/WebKit/WebCore/Resources/linkCursor.png',
+          '../third_party/WebKit/WebCore/Resources/missingImage.png',
           '../third_party/WebKit/WebCore/Resources/moveCursor.png',
           '../third_party/WebKit/WebCore/Resources/noDropCursor.png',
           '../third_party/WebKit/WebCore/Resources/noneCursor.png',
