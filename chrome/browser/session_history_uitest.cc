@@ -497,6 +497,9 @@ TEST_F(SessionHistoryTest, JavascriptHistory) {
   // NotificationService.)
 }
 
+// This test is flaky and has been disabled. It looks like the server does not
+// start fast enough, and the navigation fails (with 404). See bug 8444.
+#if 0
 TEST_F(SessionHistoryTest, LocationReplace) {
   // Test that using location.replace doesn't leave the title of the old page
   // visible.
@@ -508,4 +511,5 @@ TEST_F(SessionHistoryTest, LocationReplace) {
       "files/session_history/replace.html?no-title.html")));
   EXPECT_EQ(L"", GetTabTitle());
 }
+#endif
 
