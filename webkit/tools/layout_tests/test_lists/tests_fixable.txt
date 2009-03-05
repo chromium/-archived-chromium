@@ -513,7 +513,7 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
-LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+LINUX MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
@@ -1780,9 +1780,6 @@ LINUX WIN : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
 // dimich to do triage and find out which are just rebaseline.
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 WIN : LayoutTests/fast/dom/anchor-toString.html = FAIL
-WIN : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
-WIN : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
-WIN : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
