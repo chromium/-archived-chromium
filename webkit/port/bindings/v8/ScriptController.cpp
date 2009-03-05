@@ -41,13 +41,13 @@
 #include "Node.h"
 #include "NotImplemented.h"
 #include "npruntime_priv.h"
-#include "np_v8object.h"
+#include "NPV8Object.h"
 #include "ScriptSourceCode.h"
 #include "Widget.h"
 
 #include "v8_proxy.h"
 #include "v8_binding.h"
-#include "v8_npobject.h"
+#include "V8NPObject.h"
 
 NPRuntimeFunctions npruntime_functions = {
     NPN_GetStringIdentifier,
@@ -382,7 +382,7 @@ static NPObject* createScriptObject(Frame* frame)
     DOMWindow* window = frame->domWindow();
     v8::Handle<v8::Value> global = V8Proxy::ToV8Object(V8ClassIndex::DOMWINDOW, window);
     ASSERT(global->IsObject());
-    return NPN_CreateScriptObject(0, v8::Handle<v8::Object>::Cast(global), window);
+    return npCreateV8ScriptObject(0, v8::Handle<v8::Object>::Cast(global), window);
 }
 
 NPObject* ScriptController::windowScriptNPObject()
@@ -421,7 +421,7 @@ NPObject* ScriptController::createScriptObjectForPluginElement(HTMLPlugInElement
     if (!v8plugin->IsObject())
         return createNoScriptObject();
 
-    return NPN_CreateScriptObject(0, v8::Handle<v8::Object>::Cast(v8plugin), window);
+    return npCreateV8ScriptObject(0, v8::Handle<v8::Object>::Cast(v8plugin), window);
 }
 
 

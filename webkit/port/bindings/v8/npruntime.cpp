@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2004, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2007 Google, Inc.  All rights reserved.
+ * Copyright (C) 2007-2009 Google, Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,16 +33,16 @@
 
 #include "bindings/npruntime.h"
 #include "ChromiumBridge.h"
-#include "np_v8object.h"
+#include "NPV8Object.h"
 #include "npruntime_priv.h"
-#include "v8_npobject.h"
+#include "V8NPObject.h"
 
 #include <wtf/Assertions.h>
 
 using namespace v8;
 
 
-// TODO: Consider removing locks if we're singlethreaded already.
+// FIXME: Consider removing locks if we're singlethreaded already.
 // The static initializer here should work okay, but we want to avoid
 // static initialization in general.
 //
@@ -81,7 +81,7 @@ static StringIdentifierMap* getStringIdentifierMap() {
     return stringIdentifierMap;
 }
 
-// TODO: Consider removing locks if we're singlethreaded already.
+// FIXME: Consider removing locks if we're singlethreaded already.
 // static Lock IntIdentifierMapLock;
 
 typedef std::map<int, PrivateIdentifier*> IntIdentifierMap;

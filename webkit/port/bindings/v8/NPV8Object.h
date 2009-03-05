@@ -1,18 +1,18 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef np_v8object_h
 #define np_v8object_h
 
-#include "third_party/npapi/bindings/npruntime.h"
+#include "bindings/npruntime.h"
 #include <v8.h>
 
 namespace WebCore {
     class DOMWindow;
 }
 
-extern NPClass* NPScriptObjectClass;
+extern NPClass* npScriptObjectClass;
 
 // A V8NPObject is a NPObject which carries additional V8-specific
 // information.  It is allocated and deallocated by AllocV8NPObject()
@@ -31,8 +31,7 @@ struct PrivateIdentifier {
     bool isString;
 };
 
-NPObject* NPN_CreateScriptObject(NPP npp, v8::Handle<v8::Object>, WebCore::DOMWindow*);
-NPObject* NPN_CreateNoScriptObject();
+NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object>, WebCore::DOMWindow*);
 
 #endif // np_v8object_h
 

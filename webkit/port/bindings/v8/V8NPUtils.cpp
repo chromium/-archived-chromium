@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-//
+// 
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,7 +29,7 @@
 
 #include "config.h"
 
-#include "v8_np_utils.h"
+#include "V8NPUtils.h"
 
 #include "DOMWindow.h"
 #include "Frame.h"
@@ -37,11 +37,11 @@
 #undef LOG
 
 #include "npruntime_priv.h"
-#include "np_v8object.h"
-#include "v8_npobject.h"
+#include "NPV8Object.h"
+#include "V8NPObject.h"
 #include "v8_proxy.h"
 
-void ConvertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NPVariant* result)
+void convertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NPVariant* result)
 {
     VOID_TO_NPVARIANT(*result);
 
@@ -54,7 +54,7 @@ void ConvertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NP
         return;
 
     if (object->IsInt32())
-        INT32_TO_NPVARIANT(object->NumberValue(), *result);
+        INT32_TO_NPVARIANT(object->NumberValue(), *result);  
     else if (object->IsNumber())
         DOUBLE_TO_NPVARIANT(object->NumberValue(), *result);
     else if (object->IsBoolean())
@@ -69,7 +69,7 @@ void ConvertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NP
         STRINGN_TO_NPVARIANT(utf8_chars, utf8.length(), *result);
     } else if (object->IsObject()) {
         WebCore::DOMWindow* window = WebCore::V8Proxy::retrieveWindow();
-        NPObject* npobject = NPN_CreateScriptObject(0, v8::Handle<v8::Object>::Cast(object), window);
+        NPObject* npobject = npCreateV8ScriptObject(0, v8::Handle<v8::Object>::Cast(object), window);
         if (npobject)
             _NPN_RegisterObject(npobject, owner);
         OBJECT_TO_NPVARIANT(npobject, *result);
@@ -77,7 +77,7 @@ void ConvertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NP
 }
 
 
-v8::Handle<v8::Value> ConvertNPVariantToV8Object(const NPVariant* variant, NPObject* npobject)
+v8::Handle<v8::Value> convertNPVariantToV8Object(const NPVariant* variant, NPObject* npobject)
 {
     NPVariantType type = variant->type;
 
@@ -97,7 +97,7 @@ v8::Handle<v8::Value> ConvertNPVariantToV8Object(const NPVariant* variant, NPObj
     }
     if (type == NPVariantType_Object) {
         NPObject* obj = NPVARIANT_TO_OBJECT(*variant);
-        if (obj->_class == NPScriptObjectClass)
+        if (obj->_class == npScriptObjectClass)
             return reinterpret_cast<V8NPObject*>(obj)->v8Object;
         return CreateV8ObjectForNPObject(obj, npobject);
     }
@@ -105,7 +105,7 @@ v8::Handle<v8::Value> ConvertNPVariantToV8Object(const NPVariant* variant, NPObj
 }
 
 // Helper function to create an NPN String Identifier from a v8 string.
-NPIdentifier GetStringIdentifier(v8::Handle<v8::String> str)
+NPIdentifier getStringIdentifier(v8::Handle<v8::String> str)
 {
     const int kStackBufSize = 100;
 

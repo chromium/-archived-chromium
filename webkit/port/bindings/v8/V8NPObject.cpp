@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-//
+// 
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,9 +31,9 @@
 
 #include "v8_custom.h"
 #include "v8_helpers.h"
-#include "v8_npobject.h"
-#include "v8_np_utils.h"
-#include "np_v8object.h"
+#include "V8NPObject.h"
+#include "V8NPUtils.h"
+#include "NPV8Object.h"
 #include "npruntime_priv.h"
 #include "v8_proxy.h"
 #include "dom_wrapper_map.h"
@@ -88,7 +88,7 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(const v8::Arguments& args, Invok
     NPVariant* npArgs = new NPVariant[argc];
 
     for (int i = 0; i < argc; i++)
-        ConvertV8ObjectToNPVariant(args[i], npobject, &npArgs[i]);
+        convertV8ObjectToNPVariant(args[i], npobject, &npArgs[i]);
 
     NPVariant result;
     VOID_TO_NPVARIANT(result);
@@ -97,7 +97,7 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(const v8::Arguments& args, Invok
     case INVOKE_METHOD:
         if (npobject->_class->invoke) {
             v8::Handle<v8::String> function_name(v8::String::Cast(*args.Data()));
-            NPIdentifier ident = GetStringIdentifier(function_name);
+            NPIdentifier ident = getStringIdentifier(function_name);
             npobject->_class->invoke(npobject, ident, npArgs, argc, &result);
         }
         break;
@@ -114,7 +114,7 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(const v8::Arguments& args, Invok
     delete[] npArgs;
 
     // unwrap return values
-    v8::Handle<v8::Value> rv = ConvertNPVariantToV8Object(&result, npobject);
+    v8::Handle<v8::Value> rv = convertNPVariantToV8Object(&result, npobject);
     NPN_ReleaseVariantValue(&result);
 
     return rv;
@@ -171,7 +171,7 @@ static v8::Handle<v8::Value> NPObjectGetProperty(v8::Local<v8::Object> self,
         if (!npobject->_class->getProperty(npobject, ident, &result))
             return v8::Handle<v8::Value>();
 
-        v8::Handle<v8::Value> rv = ConvertNPVariantToV8Object(&result, npobject);
+        v8::Handle<v8::Value> rv = convertNPVariantToV8Object(&result, npobject);
         NPN_ReleaseVariantValue(&result);
         return rv;
     } else if (key->IsString() && npobject->_class->hasMethod && npobject->_class->hasMethod(npobject, ident)) {
@@ -198,7 +198,7 @@ static v8::Handle<v8::Value> NPObjectGetProperty(v8::Local<v8::Object> self,
 v8::Handle<v8::Value> NPObjectNamedPropertyGetter(v8::Local<v8::String> name,
                                                   const v8::AccessorInfo& info)
 {
-    NPIdentifier ident = GetStringIdentifier(name);
+    NPIdentifier ident = getStringIdentifier(name);
     return NPObjectGetProperty(info.Holder(), ident, name);
 }
 
@@ -212,7 +212,7 @@ v8::Handle<v8::Value> NPObjectIndexedPropertyGetter(uint32_t index,
 v8::Handle<v8::Value> NPObjectGetNamedProperty(v8::Local<v8::Object> self,
                                                v8::Local<v8::String> name)
 {
-    NPIdentifier ident = GetStringIdentifier(name);
+    NPIdentifier ident = getStringIdentifier(name);
     return NPObjectGetProperty(self, ident, name);
 }
 
@@ -242,7 +242,7 @@ static v8::Handle<v8::Value> NPObjectSetProperty(v8::Local<v8::Object> self,
 
         NPVariant npvalue;
         VOID_TO_NPVARIANT(npvalue);
-        ConvertV8ObjectToNPVariant(value, npobject, &npvalue);
+        convertV8ObjectToNPVariant(value, npobject, &npvalue);
         bool succ = npobject->_class->setProperty(npobject, ident, &npvalue);
         NPN_ReleaseVariantValue(&npvalue);
         if (succ)
@@ -256,7 +256,7 @@ v8::Handle<v8::Value> NPObjectNamedPropertySetter(v8::Local<v8::String> name,
                                                   v8::Local<v8::Value> value,
                                                   const v8::AccessorInfo& info)
 {
-    NPIdentifier ident = GetStringIdentifier(name);
+    NPIdentifier ident = getStringIdentifier(name);
     return NPObjectSetProperty(info.Holder(), ident, value);
 }
 
@@ -273,7 +273,7 @@ v8::Handle<v8::Value> NPObjectSetNamedProperty(v8::Local<v8::Object> self,
                                                v8::Local<v8::String> name,
                                                v8::Local<v8::Value> value)
 {
-    NPIdentifier ident = GetStringIdentifier(name);
+    NPIdentifier ident = getStringIdentifier(name);
     return NPObjectSetProperty(self, ident, value);
 }
 
@@ -313,7 +313,7 @@ v8::Local<v8::Object> CreateV8ObjectForNPObject(NPObject* object, NPObject* root
     ASSERT(v8::Context::InContext());
 
     // If this is a v8 object, just return it.
-    if (object->_class == NPScriptObjectClass) {
+    if (object->_class == npScriptObjectClass) {
         V8NPObject* v8npobject = reinterpret_cast<V8NPObject*>(object);
         return v8::Local<v8::Object>::New(v8npobject->v8Object);
     }
@@ -337,10 +337,10 @@ v8::Local<v8::Object> CreateV8ObjectForNPObject(NPObject* object, NPObject* root
 
     v8::Handle<v8::Function> func = npObjectDesc->GetFunction();
     v8::Local<v8::Object> value = SafeAllocation::NewInstance(func);
-
-    // If we were unable to allocate the instance we avoid wrapping
-    // and registering the NP object.
-    if (value.IsEmpty())
+    
+    // If we were unable to allocate the instance we avoid wrapping 
+    // and registering the NP object. 
+    if (value.IsEmpty()) 
         return value;
 
     WrapNPObject(value, object);

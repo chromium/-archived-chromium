@@ -29,7 +29,7 @@
 #include "v8_proxy.h"
 #include "v8_events.h"
 #include "v8_binding.h"
-#include "v8_npobject.h"
+#include "V8NPObject.h"
 #include "v8_custom.h"
 
 #include "V8Attr.h"

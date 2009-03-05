@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2004, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2007 Google, Inc.  All rights reserved.
+ * Copyright (C) 2007-2009 Google, Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,7 +31,7 @@
 #define max max
 #define min min
 #include <v8.h>
-#include "np_v8object.h"
+#include "NPV8Object.h"
 #include "ChromiumBridge.h"
 #include "Frame.h"
 #include "bindings/npruntime.h"
@@ -40,7 +40,7 @@
 #include "ScriptController.h"
 #include "v8_custom.h"
 #include "v8_helpers.h"
-#include "v8_np_utils.h"
+#include "V8NPUtils.h"
 #include "v8_proxy.h"
 #include "DOMWindow.h"
 
@@ -48,7 +48,7 @@ using WebCore::V8ClassIndex;
 using WebCore::V8Custom;
 using WebCore::V8Proxy;
 
-// TODO(mbelshe): comments on why use malloc and free.
+// FIXME(mbelshe): comments on why use malloc and free.
 static NPObject* AllocV8NPObject(NPP, NPClass*)
 {
     return static_cast<NPObject*>(malloc(sizeof(V8NPObject)));
@@ -71,7 +71,7 @@ static v8::Handle<v8::Value>* listFromVariantArgs(const NPVariant* args,
     v8::Handle<v8::Value>* argv = new v8::Handle<v8::Value>[argCount];
     for (uint32_t index = 0; index < argCount; index++) {
         const NPVariant *arg = &args[index];
-        argv[index] = ConvertNPVariantToV8Object(arg, owner);
+        argv[index] = convertNPVariantToV8Object(arg, owner);
     }
     return argv;
 }
@@ -94,9 +94,9 @@ static NPClass V8NPObjectClass = { NP_CLASS_STRUCT_VERSION,
                                    0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 // NPAPI's npruntime functions
-NPClass* NPScriptObjectClass = &V8NPObjectClass;
+NPClass* npScriptObjectClass = &V8NPObjectClass;
 
-NPObject* NPN_CreateScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore::DOMWindow* root)
+NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore::DOMWindow* root)
 {
     // Check to see if this object is already wrapped.
     if (object->InternalFieldCount() == V8Custom::kNPObjectInternalFieldCount &&
@@ -123,7 +123,7 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
     if (!npobj)
         return false;
 
-    if (npobj->_class == NPScriptObjectClass) {
+    if (npobj->_class == npScriptObjectClass) {
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         PrivateIdentifier *identifier = static_cast<PrivateIdentifier*>(methodName);
@@ -131,8 +131,8 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
             return false;
 
         v8::HandleScope handleScope;
-        // TODO: should use the plugin's owner frame as the security context
-        v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+        // FIXME: should use the plugin's owner frame as the security context
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -160,7 +160,7 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
         WebCore::V8Proxy* proxy = GetV8Proxy(npobj);
         ASSERT(proxy);  // must not be null
 
-        // TODO: fix variable naming
+        // FIXME: fix variable naming
         // Call the function object
         v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast(funcObj);
         // Create list of args to pass to v8
@@ -175,7 +175,7 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
             return false;
 
         // Convert the result back to an NPVariant
-        ConvertV8ObjectToNPVariant(resultObj, npobj, result);
+        convertV8ObjectToNPVariant(resultObj, npobj, result);
         return true;
     }
 
@@ -186,21 +186,20 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
     return true;
 }
 
-
-// TODO: Fix it same as NPN_Invoke (HandleScope and such)
+// FIXME: Fix it same as NPN_Invoke (HandleScope and such)
 bool NPN_InvokeDefault(NPP npp, NPObject *npobj, const NPVariant *args,
                        uint32_t argCount, NPVariant *result)
 {
     if (!npobj)
         return false;
 
-    if (npobj->_class == NPScriptObjectClass) {
+    if (npobj->_class == npScriptObjectClass) {
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         VOID_TO_NPVARIANT(*result);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -231,7 +230,7 @@ bool NPN_InvokeDefault(NPP npp, NPObject *npobj, const NPVariant *args,
             return false;
 
         // Convert the result back to an NPVariant.
-        ConvertV8ObjectToNPVariant(resultObj, npobj, result);
+        convertV8ObjectToNPVariant(resultObj, npobj, result);
         return true;
     }
 
@@ -254,11 +253,11 @@ bool NPN_EvaluateHelper(NPP npp, bool popupsAllowed, NPObject* npobj, NPString* 
     if (!npobj)
         return false;
 
-    if (npobj->_class != NPScriptObjectClass)
+    if (npobj->_class != npScriptObjectClass)
         return false;
 
     v8::HandleScope handleScope;
-    v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+    v8::Handle<v8::Context> context = getV8Context(npp, npobj);
     if (context.IsEmpty())
         return false;
 
@@ -279,7 +278,7 @@ bool NPN_EvaluateHelper(NPP npp, bool popupsAllowed, NPObject* npobj, NPString* 
     if (v8result.IsEmpty())
         return false;
 
-    ConvertV8ObjectToNPVariant(v8result, npobj, result);
+    convertV8ObjectToNPVariant(v8result, npobj, result);
     return true;
 }
 
@@ -288,11 +287,11 @@ bool NPN_GetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, NPVari
     if (!npobj)
         return false;
 
-    if (npobj->_class == NPScriptObjectClass) {
+    if (npobj->_class == npScriptObjectClass) {
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -301,7 +300,7 @@ bool NPN_GetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, NPVari
         v8::Handle<v8::Object> obj(object->v8Object);
         v8::Local<v8::Value> v8result = obj->Get(NPIdentifierToV8Identifier(propertyName));
 
-        ConvertV8ObjectToNPVariant(v8result, npobj, result);
+        convertV8ObjectToNPVariant(v8result, npobj, result);
         return true;
     }
 
@@ -319,11 +318,11 @@ bool NPN_SetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, const 
     if (!npobj)
         return false;
 
-    if (npobj->_class == NPScriptObjectClass) {
+    if (npobj->_class == npScriptObjectClass) {
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -331,7 +330,7 @@ bool NPN_SetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, const 
 
         v8::Handle<v8::Object> obj(object->v8Object);
         obj->Set(NPIdentifierToV8Identifier(propertyName),
-                 ConvertNPVariantToV8Object(value, object->rootObject->frame()->script()->windowScriptNPObject()));
+                 convertNPVariantToV8Object(value, object->rootObject->frame()->script()->windowScriptNPObject()));
         return true;
     }
 
@@ -345,19 +344,19 @@ bool NPN_RemoveProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName)
 {
     if (!npobj)
         return false;
-    if (npobj->_class != NPScriptObjectClass)
+    if (npobj->_class != npScriptObjectClass)
         return false;
 
     V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
     v8::HandleScope handleScope;
-    v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+    v8::Handle<v8::Context> context = getV8Context(npp, npobj);
     if (context.IsEmpty())
         return false;
     v8::Context::Scope scope(context);
 
     v8::Handle<v8::Object> obj(object->v8Object);
-    // TODO(mbelshe) - verify that setting to undefined is right.
+    // FIXME(mbelshe) - verify that setting to undefined is right.
     obj->Set(NPIdentifierToV8Identifier(propertyName), v8::Undefined());
     return true;
 }
@@ -367,11 +366,11 @@ bool NPN_HasProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName)
     if (!npobj)
         return false;
 
-    if (npobj->_class == NPScriptObjectClass) {
+    if (npobj->_class == npScriptObjectClass) {
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
         v8::Context::Scope scope(context);
@@ -390,11 +389,11 @@ bool NPN_HasMethod(NPP npp, NPObject *npobj, NPIdentifier methodName)
     if (!npobj)
         return false;
 
-    if (npobj->_class == NPScriptObjectClass) {
+    if (npobj->_class == npScriptObjectClass) {
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
         v8::Context::Scope scope(context);
@@ -411,10 +410,10 @@ bool NPN_HasMethod(NPP npp, NPObject *npobj, NPIdentifier methodName)
 
 void NPN_SetException(NPObject *npobj, const NPUTF8 *message)
 {
-    if (npobj->_class != NPScriptObjectClass)
+    if (npobj->_class != npScriptObjectClass)
         return;
     v8::HandleScope handleScope;
-    v8::Handle<v8::Context> context = GetV8Context(0, npobj);
+    v8::Handle<v8::Context> context = getV8Context(0, npobj);
     if (context.IsEmpty())
         return;
 
@@ -427,24 +426,24 @@ bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t
     if (!npobj)
         return false;
 
-    if (npobj->_class == NPScriptObjectClass) {
+    if (npobj->_class == npScriptObjectClass) {
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = GetV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
         v8::Context::Scope scope(context);
 
         v8::Handle<v8::Object> obj(object->v8Object);
 
-        // TODO(fqian): http://b/issue?id=1210340: Use a v8::Object::Keys() method
+        // FIXME(fqian): http://b/issue?id=1210340: Use a v8::Object::Keys() method
         // when it exists, instead of evaluating javascript.
 
-        // TODO(mpcomplete): figure out how to cache this helper function.
+        // FIXME(mpcomplete): figure out how to cache this helper function.
         // Run a helper function that collects the properties on the object into
         // an array.
-        const char kEnumeratorCode[] =
+        const char enumeratorCode[] =
             "(function (obj) {"
             "  var props = [];"
             "  for (var prop in obj) {"
@@ -452,7 +451,7 @@ bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t
             "  }"
             "  return props;"
             "});";
-        v8::Handle<v8::String> source = v8::String::New(kEnumeratorCode);
+        v8::Handle<v8::String> source = v8::String::New(enumeratorCode);
         v8::Handle<v8::Script> script = v8::Script::Compile(source, 0);
         v8::Handle<v8::Value> enumeratorObj = script->Run();
         v8::Handle<v8::Function> enumerator = v8::Handle<v8::Function>::Cast(enumeratorObj);
@@ -467,7 +466,7 @@ bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t
         *identifier = static_cast<NPIdentifier*>(malloc(sizeof(NPIdentifier*) * *count));
         for (uint32_t i = 0; i < *count; ++i) {
             v8::Local<v8::Value> name = props->Get(v8::Integer::New(i));
-            (*identifier)[i] = GetStringIdentifier(v8::Local<v8::String>::Cast(name));
+            (*identifier)[i] = getStringIdentifier(v8::Local<v8::String>::Cast(name));
         }
         return true;
     }
@@ -483,8 +482,8 @@ bool NPN_Construct(NPP npp, NPObject* npobj, const NPVariant* args, uint32_t arg
     if (!npobj)
         return false;
 
-    // TODO(estade): implement this case.
-    if (npobj->_class == NPScriptObjectClass) {
+    // FIXME(estade): implement this case.
+    if (npobj->_class == npScriptObjectClass) {
         VOID_TO_NPVARIANT(*result);
         return false;
     }

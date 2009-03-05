@@ -13,16 +13,16 @@ namespace WebCore {
 }
 
 // Convert a V8 Value of any type (string, bool, object, etc) to a NPVariant.
-void ConvertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NPVariant* result);
+void convertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NPVariant* result);
 
 // Convert a NPVariant (string, bool, object, etc) back to a V8 Value.
 // The owner object is the NPObject which relates to the object, if the object
 // is an Object.  The created NPObject will be tied to the lifetime of the
 // owner.
-v8::Handle<v8::Value> ConvertNPVariantToV8Object(const NPVariant* value, NPObject* owner);
+v8::Handle<v8::Value> convertNPVariantToV8Object(const NPVariant* value, NPObject* owner);
 
 // Helper function to create an NPN String Identifier from a v8 string.
-NPIdentifier GetStringIdentifier(v8::Handle<v8::String> str);
+NPIdentifier getStringIdentifier(v8::Handle<v8::String> str);
 
 #endif // v8_np_utils_h
 

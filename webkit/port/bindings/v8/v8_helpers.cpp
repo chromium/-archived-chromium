@@ -34,7 +34,7 @@
 #include "v8_helpers.h"
 #include "v8_proxy.h"
 #include "v8_index.h"
-#include "np_v8object.h"
+#include "NPV8Object.h"
 
 #include "DOMWindow.h"
 
@@ -45,7 +45,7 @@ void WrapNPObject(v8::Handle<v8::Object> obj, NPObject* npobj)
   WebCore::V8Proxy::SetDOMWrapper(obj, WebCore::V8ClassIndex::NPOBJECT, npobj);
 }
 
-v8::Local<v8::Context> GetV8Context(NPP npp, NPObject* npobj)
+v8::Local<v8::Context> getV8Context(NPP npp, NPObject* npobj)
 {
     V8NPObject* object = reinterpret_cast<V8NPObject*>(npobj);
     return WebCore::V8Proxy::GetContext(object->rootObject->frame());
