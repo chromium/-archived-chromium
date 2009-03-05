@@ -40,6 +40,10 @@ class V8AbstractEventListener : public EventListener {
   // Handle event.
   virtual void handleEvent(Event*, bool isWindowEvent);
 
+  void HandleEventHelper(v8::Handle<v8::Context> context,
+                         Event* event,
+                         bool isWindowEvent);
+
   // Returns the listener object, either a function or an object.
   virtual v8::Local<v8::Object> GetListenerObject() {
     return v8::Local<v8::Object>::New(m_listener);

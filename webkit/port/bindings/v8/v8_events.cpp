@@ -59,29 +59,15 @@ V8AbstractEventListener::V8AbstractEventListener(Frame* frame, bool isInline)
   }
 }
 
-void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
-  // EventListener could be disconnected from the frame.
-  if (disconnected())
-    return;
 
-  // The callback function on XMLHttpRequest can clear the event listener
-  // and destroys 'this' object. Keep a local reference of it.
-  // See issue 889829
-  RefPtr<V8AbstractEventListener> self(this);
+void V8AbstractEventListener::HandleEventHelper(v8::Handle<v8::Context> context,
+                                                Event* event,
+                                                bool isWindowEvent) {
 
-  v8::HandleScope handle_scope;
-
-  v8::Handle<v8::Context> context = V8Proxy::GetContext(m_frame);
-  if (context.IsEmpty())
-    return;
+  // Enter the V8 context in which to perform the event handling.
   v8::Context::Scope scope(context);
 
-  // m_frame can removed by the callback function,
-  // protect it until the callback function returns.
-  RefPtr<Frame> protector(m_frame);
-
-  IF_DEVEL(log_info(frame, "Handling DOM event", m_frame->document()->URL()));
-
+  // Get the V8 wrapper for the event object.
   v8::Handle<v8::Value> jsevent = V8Proxy::EventToV8Object(event);
 
   // For compatibility, we store the event object as a property on the window
@@ -89,31 +75,44 @@ void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
   // existing "event" property, and then restore it after executing the
   // javascript handler.
   v8::Local<v8::String> event_symbol = v8::String::NewSymbol("event");
-
-  // Save the old 'event' property.
-  v8::Local<v8::Value> saved_evt = context->Global()->Get(event_symbol);
-
-  // Make the event available in the window object.
-  //
-  // TODO: This does not work as in safari if the window.event
-  // property is already set. We need to make sure that property
-  // access is intercepted correctly.
-  context->Global()->Set(event_symbol, jsevent);
-
+  v8::Local<v8::Value> saved_evt;
   v8::Local<v8::Value> ret;
+
   {
     // Catch exceptions thrown in the event handler so they do not
     // propagate to javascript code that caused the event to fire.
+    // Setting and getting the 'event' property on the global object
+    // can throw exceptions as well (for instance if accessors that
+    // throw exceptions are defined for 'event' using __defineGetter__
+    // and __defineSetter__ on the global object).
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
 
+    // Save the old 'event' property so we can restore it later.
+    saved_evt = context->Global()->Get(event_symbol);
+    try_catch.Reset();
+
+    // Make the event available in the window object.
+    //
+    // TODO: This does not work as in safari if the window.event
+    // property is already set. We need to make sure that property
+    // access is intercepted correctly.
+    context->Global()->Set(event_symbol, jsevent);
+    try_catch.Reset();
+
     // Call the event handler.
     ret = CallListenerFunction(jsevent, event, isWindowEvent);
-  }
+    try_catch.Reset();
 
-  // Restore the old event. This must be done for all exit paths through
-  // this method.
-  context->Global()->Set(event_symbol, saved_evt);
+    // Restore the old event. This must be done for all exit paths
+    // through this method.
+    if (saved_evt.IsEmpty()) {
+      context->Global()->Set(event_symbol, v8::Undefined());
+    } else {
+      context->Global()->Set(event_symbol, saved_evt);
+    }
+    try_catch.Reset();
+  }
 
   if (V8Proxy::HandleOutOfMemory())
     ASSERT(ret.IsEmpty());
@@ -135,6 +134,32 @@ void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
       }
     }
   }
+}
+
+
+void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
+  // EventListener could be disconnected from the frame.
+  if (disconnected())
+    return;
+
+  // The callback function on XMLHttpRequest can clear the event listener
+  // and destroys 'this' object. Keep a local reference of it.
+  // See issue 889829
+  RefPtr<V8AbstractEventListener> self(this);
+
+  v8::HandleScope handle_scope;
+
+  v8::Handle<v8::Context> context = V8Proxy::GetContext(m_frame);
+  if (context.IsEmpty())
+    return;
+
+  // m_frame can removed by the callback function,
+  // protect it until the callback function returns.
+  RefPtr<Frame> protector(m_frame);
+
+  IF_DEVEL(log_info(frame, "Handling DOM event", m_frame->document()->URL()));
+
+  HandleEventHelper(context, event, isWindowEvent);
 
   Document::updateDocumentsRendering();
 }
@@ -481,62 +506,8 @@ void V8WorkerContextEventListener::handleEvent(Event* event,
   v8::Handle<v8::Context> context = m_proxy->GetContext();
   if (context.IsEmpty())
     return;
-  v8::Context::Scope scope(context);
 
-  v8::Handle<v8::Value> jsevent =
-      WorkerContextExecutionProxy::EventToV8Object(event);
-
-  // For compatibility, we store the event object as a property on the window
-  // called "event".  Because this is the global namespace, we save away any
-  // existing "event" property, and then restore it after executing the
-  // javascript handler.
-  v8::Local<v8::String> event_symbol = v8::String::NewSymbol("event");
-
-  // Save the old 'event' property.
-  v8::Local<v8::Value> saved_evt = context->Global()->Get(event_symbol);
-
-  // Make the event available in the window object.
-  //
-  // TODO: This does not work as in safari if the window.event
-  // property is already set. We need to make sure that property
-  // access is intercepted correctly.
-  context->Global()->Set(event_symbol, jsevent);
-
-  v8::Local<v8::Value> ret;
-  {
-    // Catch exceptions thrown in the event handler so they do not
-    // propagate to javascript code that caused the event to fire.
-    v8::TryCatch try_catch;
-    try_catch.SetVerbose(true);
-
-    // Call the event handler.
-    ret = CallListenerFunction(jsevent, event, isWindowEvent);
-  }
-
-  // Restore the old event. This must be done for all exit paths through
-  // this method.
-  context->Global()->Set(event_symbol, saved_evt);
-
-  if (V8Proxy::HandleOutOfMemory())
-    ASSERT(ret.IsEmpty());
-
-  if (ret.IsEmpty()) {
-    return;
-  }
-
-  if (!ret.IsEmpty()) {
-    if (!ret->IsNull() && !ret->IsUndefined() &&
-        event->storesResultAsString()) {
-      event->storeResult(ToWebCoreString(ret));
-    }
-    // Prevent default action if the return value is false;
-    // TODO(fqian): example, and reference to buganizer entry
-    if (m_isInline) {
-      if (ret->IsBoolean() && !ret->BooleanValue()) {
-        event->preventDefault();
-      }
-    }
-  }
+  HandleEventHelper(context, event, isWindowEvent);
 }
 
 v8::Local<v8::Value> V8WorkerContextEventListener::CallListenerFunction(
