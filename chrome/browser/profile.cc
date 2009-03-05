@@ -862,6 +862,7 @@ void ProfileImpl::StopCreateSessionServiceTimer() {
 
 #ifdef CHROME_PERSONALIZATION
 ProfilePersonalization* ProfileImpl::GetProfilePersonalization() {
+  DCHECK(!Personalization::IsP13NDisabled());
   if (!personalization_.get())
     personalization_.reset(
         Personalization::CreateProfilePersonalization(this));

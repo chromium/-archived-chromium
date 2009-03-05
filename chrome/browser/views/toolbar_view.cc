@@ -607,8 +607,10 @@ void BrowserToolbarView::RunAppMenu(const CPoint& pt, HWND hwnd) {
                                l10n_util::GetString(IDS_SHOW_DOWNLOADS));
   menu.AppendSeparator();
 #ifdef CHROME_PERSONALIZATION
-  menu.AppendMenuItemWithLabel(IDC_P13N_INFO,
-                               Personalization::GetMenuItemInfoText(browser()));
+  if (!Personalization::IsP13NDisabled()) {
+    menu.AppendMenuItemWithLabel(IDC_P13N_INFO,
+        Personalization::GetMenuItemInfoText(browser()));
+  }
 #endif
   menu.AppendMenuItemWithLabel(IDC_CLEAR_BROWSING_DATA,
                                l10n_util::GetString(IDS_CLEAR_BROWSING_DATA));

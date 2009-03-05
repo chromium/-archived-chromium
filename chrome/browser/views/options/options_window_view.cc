@@ -15,6 +15,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
 #include "chrome/personalization/views/user_data_page_view.h"
 #endif
 #include "chrome/views/dialog_delegate.h"
@@ -200,10 +201,12 @@ void OptionsWindowView::Init() {
                        content_page, false);
 
 #ifdef CHROME_PERSONALIZATION
-  UserDataPageView* user_data_page = new UserDataPageView(profile_);
-  tabs_->AddTabAtIndex(tab_index++,
-                       l10n_util::GetString(IDS_OPTIONS_USER_DATA_TAB_LABEL),
-                       user_data_page, false);
+  if (!Personalization::IsP13NDisabled()) {
+    UserDataPageView* user_data_page = new UserDataPageView(profile_);
+    tabs_->AddTabAtIndex(tab_index++,
+                         l10n_util::GetString(IDS_OPTIONS_USER_DATA_TAB_LABEL),
+                         user_data_page, false);
+  }
 #endif
 
   AdvancedPageView* advanced_page = new AdvancedPageView(profile_);

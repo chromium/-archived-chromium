@@ -463,7 +463,7 @@ void BrowserView::Init() {
 
 #ifdef CHROME_PERSONALIZATION
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  EnablePersonalization(command_line.HasSwitch(switches::kEnableP13n));
+  EnablePersonalization(!command_line.HasSwitch(switches::kDisableP13n));
   if (IsPersonalizationEnabled()) {
     personalization_ = Personalization::CreateFramePersonalization(
         browser_->profile(), this);

@@ -351,7 +351,7 @@ const wchar_t kEnableFastback[]                = L"enable-fastback";
 // Allow loading of the javascript debugger UI from the filesystem.
 const wchar_t kJavaScriptDebuggerPath[]        = L"javascript-debugger-path";
 
-const wchar_t kEnableP13n[]                    = L"enable-p13n";
+const wchar_t kDisableP13n[]                   = L"disable-p13n";
 
 // Enable support for SDCH filtering (dictionary based expansion of content).
 // Optional argument is *the* only domain name that will have SDCH suppport.

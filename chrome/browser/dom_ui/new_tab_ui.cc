@@ -828,7 +828,9 @@ void NewTabUI::Init() {
     AddMessageHandler(new HistoryHandler(this));
     AddMessageHandler(new MetricsHandler(this));
 #ifdef CHROME_PERSONALIZATION
-    AddMessageHandler(Personalization::CreateNewTabPageHandler(this));
+    if (!Personalization::IsP13NDisabled()) {
+      AddMessageHandler(Personalization::CreateNewTabPageHandler(this));
+    }
 #endif
 
     NewTabHTMLSource* html_source = new NewTabHTMLSource();

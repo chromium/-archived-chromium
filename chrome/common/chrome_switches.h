@@ -130,7 +130,7 @@ extern const wchar_t kEnableFastback[];
 
 extern const wchar_t kJavaScriptDebuggerPath[];
 
-extern const wchar_t kEnableP13n[];
+extern const wchar_t kDisableP13n[];
 
 extern const wchar_t kSdchFilter[];
 
