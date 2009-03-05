@@ -106,7 +106,7 @@ class DOMUIContents : public WebContents {
   // The bookmark bar is always visible on the new tab.
   virtual bool IsBookmarkBarAlwaysVisible();
   // When NTP gets the initial focus, focus the URL bar.
-  virtual void SetInitialFocus(bool reverse);
+  virtual void SetInitialFocus();
   // Whether we want to display the page's URL.
   virtual bool ShouldDisplayURL();
   // Get the title for this page.

@@ -50,8 +50,8 @@ class DOMUI {
   virtual bool ShouldDisplayFavIcon() { return true; }
   // No special bookmark bar behavior
   virtual bool IsBookmarkBarAlwaysVisible() { return false; }
-  // When NTP gets the initial focus, focus the URL bar.
-  virtual void SetInitialFocus(bool reverse);
+  // Defaults to focusing the page.
+  virtual void SetInitialFocus() { contents_->Focus(); }
   // Whether we want to display the page's URL.
   virtual bool ShouldDisplayURL() { return true; }
   // Hide the referrer.

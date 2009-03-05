@@ -968,7 +968,9 @@ std::wstring BrowserView::GetWindowTitle() const {
 }
 
 views::View* BrowserView::GetInitiallyFocusedView() {
-  return toolbar_->GetLocationBarView();
+  // We set the frame not focus on creation so this should never be called.
+  NOTREACHED();
+  return NULL;
 }
 
 bool BrowserView::ShouldShowWindowTitle() const {

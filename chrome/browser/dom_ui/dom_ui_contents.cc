@@ -190,11 +190,11 @@ bool DOMUIContents::IsBookmarkBarAlwaysVisible() {
   return false;
 }
 
-void DOMUIContents::SetInitialFocus(bool reverse) {
+void DOMUIContents::SetInitialFocus() {
   if (InitCurrentUI(false))
-    current_ui_->SetInitialFocus(reverse);
+    current_ui_->SetInitialFocus();
   else
-    TabContents::SetInitialFocus(reverse);
+    TabContents::SetInitialFocus();
 }
 
 const string16& DOMUIContents::GetTitle() const {

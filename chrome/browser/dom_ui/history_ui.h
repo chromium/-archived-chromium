@@ -93,7 +93,6 @@ class HistoryUI : public DOMUI {
   virtual void Init();
 
  private:
-  DOMUIContents* contents_;
 
   DISALLOW_COPY_AND_ASSIGN(HistoryUI);
 };
