@@ -945,7 +945,8 @@ DEFER : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 // Linux pixeltest failure: We, with Windows, are failing to repaint correctly
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
-LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
+// Likely just needs to be baselined.
+LINUX MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 LINUX WIN : LayoutTests/fast/text/drawBidiText.html = FAIL
 LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
