@@ -516,6 +516,15 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list) {
   return rv == net::OK;
 }
 
+void SetCookie(const GURL& url, const GURL& policy_url,
+               const std::string& cookie) {
+  SimpleResourceLoaderBridge::SetCookie(url, policy_url, cookie);  
+}
+
+std::string GetCookies(const GURL& url, const GURL& policy_url) {
+  return SimpleResourceLoaderBridge::GetCookies(url, policy_url);
+}
+
 }  // namespace webkit_glue
 
 //-----------------------------------------------------------------------------

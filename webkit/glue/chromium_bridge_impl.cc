@@ -97,6 +97,22 @@ ChromeClientImpl* ToChromeClient(WebCore::Widget* widget) {
 
 namespace WebCore {
 
+// Cookies --------------------------------------------------------------------
+
+void ChromiumBridge::setCookies(
+    const KURL& url, const KURL& policy_url, const String& cookie) {
+  webkit_glue::SetCookie(
+      webkit_glue::KURLToGURL(url),
+      webkit_glue::KURLToGURL(policy_url),
+      webkit_glue::StringToStdString(cookie));
+}
+
+String ChromiumBridge::cookies(const KURL& url, const KURL& policy_url) {
+  return webkit_glue::StdStringToString(webkit_glue::GetCookies(
+      webkit_glue::KURLToGURL(url),
+      webkit_glue::KURLToGURL(policy_url)));
+}
+
 // Font -----------------------------------------------------------------------
 
 #if defined(OS_WIN)
