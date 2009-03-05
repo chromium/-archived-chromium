@@ -11,7 +11,10 @@
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/fileicon_source.h"
+#if defined(OS_WIN)
+// TODO(port): re-enable when download_util is ported
 #include "chrome/browser/download/download_util.h"
+#endif
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -112,8 +115,8 @@ class DownloadItemSorter : public std::binary_function<DownloadItem*,
 
 DownloadsDOMHandler::DownloadsDOMHandler(DOMUI* dom_ui, DownloadManager* dlm)
     : DOMMessageHandler(dom_ui),
-      download_manager_(dlm),
-      search_text_() {
+      search_text_(),
+      download_manager_(dlm) {
   dom_ui_->RegisterMessageCallback("getDownloads",
       NewCallback(this, &DownloadsDOMHandler::HandleGetDownloads));
   dom_ui_->RegisterMessageCallback("openFile",

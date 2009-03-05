@@ -6,8 +6,14 @@
 #define CHROME_BROWSER_DOM_UI_FILEICON_SOURCE_H_
 
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
-#include "chrome/browser/icon_manager.h"
 #include "chrome/common/resource_bundle.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/icon_manager.h"
+#else
+// TODO(port): Remove when IconManager has been ported.
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 class GURL;
 

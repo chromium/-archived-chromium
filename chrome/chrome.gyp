@@ -1133,15 +1133,6 @@
             ['include', '^browser/automation/automation_resource_tracker\\.cc$'],
             ['include', '^browser/automation/url_request_[^/]*_job\\.cc$'],
 
-            # Exclude most of dom_ui.
-            ['exclude', '^browser/dom_ui/'],
-            ['include', '^browser/dom_ui/chrome_url_data_manager\\.cc$'],
-            ['include', '^browser/dom_ui/dom_ui\\.cc$'],
-            ['include', '^browser/dom_ui/dom_ui_contents\\.cc$'],
-            ['include', '^browser/dom_ui/dom_ui_host\\.cc$'],
-            ['include', '^browser/dom_ui/history_ui\\.cc$'],
-            ['include', '^browser/dom_ui/new_tab_ui\\.cc$'],
-
             # Exclude most of download.
             ['exclude', '^browser/download/'],
             ['include', '^browser/download/download_(file|manager|shelf)\\.cc$'],
@@ -1174,6 +1165,7 @@
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_view.cc',
             'browser/debugger/debugger_window.cc',
+            'browser/dom_ui/html_dialog_contents.cc',
             'browser/importer/ie_importer.cc',
             'browser/tab_contents/render_view_context_menu_controller.cc',
             'browser/tab_contents/web_drag_source.cc',

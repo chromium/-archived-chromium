@@ -254,9 +254,6 @@ class BrokerServices {
 
 }  // namespace sandbox
 
-class IconManager {
-};
-
 struct ViewHostMsg_DidPrintPage_Params;
 
 namespace views {
@@ -394,6 +391,30 @@ class BookmarkBarView {
 
 //---------------------------------------------------------------------------
 // These stubs are for Browser
+
+namespace download_util {
+void DragDownload(const DownloadItem* download, SkBitmap* icon);
+}  // namespace download_util
+
+class IconLoader {
+ public:
+  enum IconSize {
+    SMALL = 0,  // 16x16
+    NORMAL,     // 32x32
+    LARGE
+  };
+};
+
+class IconManager : public CancelableRequestProvider {
+ public:
+  typedef CancelableRequestProvider::Handle Handle;
+  typedef Callback2<Handle, SkBitmap*>::Type IconRequestCallback;
+  SkBitmap* LookupIcon(const std::wstring&, IconLoader::IconSize)
+      { NOTIMPLEMENTED(); return NULL; }
+  Handle LoadIcon(const std::wstring&, IconLoader::IconSize,
+                  CancelableRequestConsumerBase*, IconRequestCallback*)
+      { NOTIMPLEMENTED(); return NULL; }
+};
 
 class DebuggerWindow : public base::RefCountedThreadSafe<DebuggerWindow> {
  public:

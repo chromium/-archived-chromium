@@ -12,10 +12,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
-#if defined(OS_WIN)
-// TODO(port): include this once history is converted to HTML
 #include "chrome/browser/dom_ui/history_ui.h"
-#endif
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -718,15 +715,10 @@ HistoryHandler::HistoryHandler(DOMUI* dom_ui)
 void HistoryHandler::HandleShowHistoryPage(const Value*) {
   NavigationController* controller = dom_ui_->get_contents()->controller();
   if (controller) {
-#if defined(OS_WIN)
-// TODO(port): include this once history is converted to HTML
     UserMetrics::RecordAction(L"NTP_ShowHistory",
         dom_ui_->get_profile());
     controller->LoadURL(HistoryUI::GetBaseURL(), GURL(), PageTransition::LINK);
     // We are deleted by LoadURL, so do not call anything else.
-#else
-    NOTIMPLEMENTED();
-#endif
   }
 }
 

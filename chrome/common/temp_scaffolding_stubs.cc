@@ -531,3 +531,11 @@ views::Window* CreateInputWindow(gfx::NativeWindow parent_hwnd,
   return new views::Window();
 }
 
+namespace download_util {
+
+void DragDownload(const DownloadItem* download, SkBitmap* icon) {
+  NOTIMPLEMENTED();
+}
+
+}  // namespace download_util
+

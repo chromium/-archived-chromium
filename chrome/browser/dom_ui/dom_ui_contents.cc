@@ -275,17 +275,21 @@ DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
       url.SchemeIs(chrome::kChromeInternalScheme)) {
     return new NewTabUI(this);
   }
-#if defined(OS_WIN)
-// TODO(port): include this once these are converted to HTML
   if (url.host() == HistoryUI::GetBaseURL().host()) {
     return new HistoryUI(this);
-  } else if (url.host() == DownloadsUI::GetBaseURL().host()) {
+  }
+  if (url.host() == DownloadsUI::GetBaseURL().host()) {
     return new DownloadsUI(this);
-  } else if (url.host() == ExtensionsUI::GetBaseURL().host()) {
+  }
+#if defined(OS_WIN)
+// TODO(port): include this once these are converted to HTML
+  if (url.host() == ExtensionsUI::GetBaseURL().host()) {
     return new ExtensionsUI(this);
-  } else if (url.host() == DebuggerContents::GetBaseURL().host()) {
+  }
+  if (url.host() == DebuggerContents::GetBaseURL().host()) {
     return new DebuggerContents(this);
-  } else if (url.host() == DevToolsUI::GetBaseURL().host()) {
+  } 
+  if (url.host() == DevToolsUI::GetBaseURL().host()) {
     return new DevToolsUI(this);
   }
 #else
