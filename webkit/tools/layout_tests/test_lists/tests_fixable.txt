@@ -116,11 +116,11 @@ DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 // races. Pending versions have these fixed.
 // Upstreaming pending test needs work.
 // See https://bugs.webkit.org/show_bug.cgi?id=21536
-DEFER LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
+DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 
 // Bug 982608: test had a wrong result for one condition
 // Pending test needs work before sending upstream.
-DEFER LayoutTests/plugins/destroy-stream-twice.html = FAIL TIMEOUT
+DEFER : LayoutTests/plugins/destroy-stream-twice.html = FAIL TIMEOUT
 
 // -----------------------------------------------------------------
 // Tests deferred until we provide support for a particular feature.
