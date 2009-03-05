@@ -198,7 +198,7 @@ bool WideToUTF8(const wchar_t* src, size_t src_len, std::string* output) {
   return ConvertUnicode<wchar_t, std::string>(src, src_len, output);
 }
 
-std::wstring UTF8ToWide(const std::string& utf8) {
+std::wstring UTF8ToWide(const StringPiece& utf8) {
   std::wstring ret;
   if (utf8.empty())
     return ret;
