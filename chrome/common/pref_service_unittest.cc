@@ -82,7 +82,6 @@ class TestPrefObserver : public NotificationObserver {
 }  // anonymous namespace
 
 // This test is disabled. See issue 8339.
-#if 0
 TEST_F(PrefServiceTest, Basic) {
   PrefService prefs;
 
@@ -149,7 +148,6 @@ TEST_F(PrefServiceTest, Basic) {
   ASSERT_TRUE(file_util::PathExists(golden_output_file));
   ASSERT_TRUE(file_util::ContentsEqual(golden_output_file, output_file));
 }
-#endif
 
 TEST_F(PrefServiceTest, Overlay) {
   const std::string transient =
