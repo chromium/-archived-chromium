@@ -16,7 +16,6 @@
 #if defined(OS_POSIX)
 #include "chrome/common/file_descriptor_set_posix.h"
 #endif
-#include "chrome/common/ipc_maybe.h"
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/transport_dib.h"
@@ -694,14 +693,44 @@ struct ParamTraits<gfx::Size> {
 };
 
 #if defined(OS_POSIX)
+// FileDescriptors may be serialised over IPC channels on POSIX. On the
+// receiving side, the FileDescriptor is a valid duplicate of the file
+// descriptor which was transmitted: *it is not just a copy of the integer like
+// HANDLEs on Windows*. The only exception is if the file descriptor is < 0. In
+// this case, the receiving end will see a value of -1. *Zero is a valid file
+// descriptor*.
+//
+// The received file descriptor will have the |auto_close| flag set to true. The
+// code which handles the message is responsible for taking ownership of it.
+// File descriptors are OS resources and must be closed when no longer needed.
+//
+// When sending a file descriptor, the file descriptor must be valid at the time
+// of transmission. Since transmission is not synchronous, one should consider
+// dup()ing any file descriptors to be transmitted and setting the |auto_close|
+// flag, which causes the file descriptor to be closed after writing.
 template<>
 struct ParamTraits<base::FileDescriptor> {
   typedef base::FileDescriptor param_type;
   static void Write(Message* m, const param_type& p) {
-    if (!m->WriteFileDescriptor(p))
-      NOTREACHED();
+    const bool valid = p.fd >= 0;
+    WriteParam(m, valid);
+
+    if (valid) {
+      if (!m->WriteFileDescriptor(p))
+        NOTREACHED();
+    }
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
+    bool valid;
+    if (!ReadParam(m, iter, &valid))
+      return false;
+
+    if (!valid) {
+      r->fd = -1;
+      r->auto_close = false;
+      return true;
+    }
+
     return m->ReadFileDescriptor(iter, r);
   }
   static void Log(const param_type& p, std::wstring* l) {
@@ -947,34 +976,6 @@ struct ParamTraits<TransportDIB::Id> {
 };
 #endif
 
-template<typename A>
-struct ParamTraits<Maybe<A> > {
-  typedef struct Maybe<A> param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.valid);
-    if (p.valid)
-      WriteParam(m, p.value);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    if (!ReadParam(m, iter, &r->valid))
-      return false;
-
-    if (r->valid)
-      return ReadParam(m, iter, &r->value);
-    return true;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    if (p.valid) {
-      l->append(L"Just ");
-      ParamTraits<A>::Log(p.value, l);
-    } else {
-      l->append(L"Nothing");
-    }
-
-  }
-};
-
-
 template <>
 struct ParamTraits<Message> {
   static void Write(Message* m, const Message& p) {
@@ -995,7 +996,6 @@ struct ParamTraits<Message> {
     l->append(L"<IPC::Message>");
   }
 };
-
 
 template <>
 struct ParamTraits<Tuple0> {

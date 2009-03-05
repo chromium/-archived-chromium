@@ -177,7 +177,6 @@
         'common/ipc_channel_win.h',
         'common/ipc_logging.cc',
         'common/ipc_logging.h',
-        'common/ipc_maybe.h',
         'common/ipc_message.cc',
         'common/ipc_message.h',
         'common/ipc_message_macros.h',

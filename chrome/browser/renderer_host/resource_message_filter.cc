@@ -870,7 +870,7 @@ void ResourceMessageFilter::OnSetAudioVolume(
 
 #if defined(OS_MACOSX)
 void ResourceMessageFilter::OnAllocTransportDIB(
-    size_t size, IPC::Maybe<TransportDIB::Handle>* handle) {
+    size_t size, TransportDIB::Handle* handle) {
   render_widget_helper_->AllocTransportDIB(size, handle);
 }
 

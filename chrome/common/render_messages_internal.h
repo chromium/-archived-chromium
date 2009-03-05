@@ -16,7 +16,6 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
 #include "chrome/common/ipc_message_macros.h"
-#include "chrome/common/ipc_maybe.h"
 #include "chrome/common/transport_dib.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/console_message_level.h"
@@ -1189,7 +1188,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // on its behalf. We return a file descriptor to the POSIX shared memory.
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_AllocTransportDIB,
                               size_t, /* bytes requested */
-                              IPC::Maybe<TransportDIB::Handle> /* DIB */)
+                              TransportDIB::Handle /* DIB */)
 
   // Since the browser keeps handles to the allocated transport DIBs, this
   // message is sent to tell the browser that it may release them when the

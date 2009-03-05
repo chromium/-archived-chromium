@@ -19,7 +19,6 @@
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
-#include "chrome/common/ipc_maybe.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/transport_dib.h"
@@ -215,7 +214,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   // Browser side transport DIB allocation
   void OnAllocTransportDIB(size_t size,
-                           IPC::Maybe<TransportDIB::Handle>* result);
+                           TransportDIB::Handle* result);
   void OnFreeTransportDIB(TransportDIB::Id dib_id);
 
   // We have our own clipboard service because we want to access the clipboard

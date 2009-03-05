@@ -263,21 +263,21 @@ TransportDIB* RenderWidgetHelper::MapTransportDIB(TransportDIB::Id dib_id) {
 }
 
 void RenderWidgetHelper::AllocTransportDIB(
-    size_t size, IPC::Maybe<TransportDIB::Handle>* result) {
+    size_t size, TransportDIB::Handle* result) {
   base::SharedMemory* shared_memory = new base::SharedMemory();
   if (!shared_memory->Create(L"", false /* read write */,
                              false /* do not open existing */, size)) {
-    result->valid = false;
+    result->fd = -1;
+    result->auto_close = false;
     delete shared_memory;
     return;
   }
 
-  result->valid = true;
-  shared_memory->GiveToProcess(0 /* pid, not needed */, &result->value);
+  shared_memory->GiveToProcess(0 /* pid, not needed */, result);
 
   // Keep a copy of the file descriptor around
   AutoLock locked(allocated_dibs_lock_);
-  allocated_dibs_[shared_memory->id()] = dup(result->value.fd);
+  allocated_dibs_[shared_memory->id()] = dup(result->fd);
 }
 
 void RenderWidgetHelper::FreeTransportDIB(TransportDIB::Id dib_id) {

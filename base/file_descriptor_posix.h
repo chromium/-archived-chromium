@@ -10,6 +10,10 @@ namespace base {
 // -----------------------------------------------------------------------------
 // We introduct a special structure for file descriptors in order that we are
 // able to use template specialisation to special-case their handling.
+//
+// WARNING: (Chromium only) There are subtleties to consider if serialising
+// these objects over IPC. See comments in chrome/common/ipc_message_utils.h
+// above the template specialisation for this structure.
 // -----------------------------------------------------------------------------
 struct FileDescriptor {
   FileDescriptor()

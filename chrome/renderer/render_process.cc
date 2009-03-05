@@ -190,13 +190,13 @@ TransportDIB* RenderProcess::CreateTransportDIB(size_t size) {
 #elif defined(OS_MACOSX)  // defined(OS_WIN) || defined(OS_LINUX)
   // Mac creates transport DIBs in the browser, so we need to do a sync IPC to
   // get one.
-  IPC::Maybe<TransportDIB::Handle> mhandle;
-  IPC::Message* msg = new ViewHostMsg_AllocTransportDIB(size, &mhandle);
+  TransportDIB::Handle handle;
+  IPC::Message* msg = new ViewHostMsg_AllocTransportDIB(size, &handle);
   if (!child_thread()->Send(msg))
     return NULL;
-  if (!mhandle.valid)
+  if (handle.fd < 0)
     return NULL;
-  return TransportDIB::Map(mhandle.value);
+  return TransportDIB::Map(handle);
 #endif  // defined(OS_MACOSX)
 }
 

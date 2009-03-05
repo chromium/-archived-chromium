@@ -11,7 +11,6 @@
 #include "base/ref_counted.h"
 #include "base/lock.h"
 #include "base/waitable_event.h"
-#include "chrome/common/ipc_maybe.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/transport_dib.h"
 
@@ -131,7 +130,7 @@ class RenderWidgetHelper :
 
 #if defined(OS_MACOSX)
   // Called on the IO thread to handle the allocation of a transport DIB
-  void AllocTransportDIB(size_t size, IPC::Maybe<TransportDIB::Handle>* result);
+  void AllocTransportDIB(size_t size, TransportDIB::Handle* result);
 
   // Called on the IO thread to handle the freeing of a transport DIB
   void FreeTransportDIB(TransportDIB::Id dib_id);
