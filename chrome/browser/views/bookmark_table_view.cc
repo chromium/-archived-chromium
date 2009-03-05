@@ -428,8 +428,10 @@ void BookmarkTableView::PaintAltText() {
   ChromeFont font = GetAltTextFont();
   gfx::Rect bounds = GetAltTextBounds();
   ChromeCanvas canvas(bounds.width(), bounds.height(), false);
-  canvas.DrawStringInt(alt_text_, font, SK_ColorDKGRAY, 0, 0, bounds.width(),
-                       bounds.height());
+  // Pad by 1 for halo.
+  canvas.DrawStringWithHalo(alt_text_, font, SK_ColorDKGRAY, SK_ColorWHITE, 1,
+                            1, bounds.width() - 2, bounds.height() - 2,
+                            ChromeCanvas::TEXT_ALIGN_LEFT);
   canvas.getTopPlatformDevice().drawToHDC(dc, bounds.x(), bounds.y(), NULL);
   ReleaseDC(GetNativeControlHWND(), dc);  
 }
@@ -440,8 +442,9 @@ gfx::Rect BookmarkTableView::GetAltTextBounds() {
   CRect client_rect;
   GetClientRect(GetNativeControlHWND(), client_rect);
   ChromeFont font = GetAltTextFont();
+  // Pad height by 2 for halo.
   return gfx::Rect(kXOffset, content_offset(), client_rect.Width() - kXOffset,
-                   std::max(kImageSize, font.height()));
+                   std::max(kImageSize, font.height() + 2));
 }
 
 ChromeFont BookmarkTableView::GetAltTextFont() {
