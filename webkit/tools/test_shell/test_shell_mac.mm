@@ -247,7 +247,9 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   // Create a webview. Note that |web_view| takes ownership of this shell so we
   // will get cleaned up when it gets destroyed.
   m_webViewHost.reset(
-      WebViewHost::Create([m_mainWnd contentView], delegate_.get(), *TestShell::web_prefs_));
+      WebViewHost::Create([m_mainWnd contentView],
+                          delegate_.get(),
+                          *TestShell::web_prefs_));
   webView()->SetUseEditorDelegate(true);
   delegate_->RegisterDragDrop();
   TestShellWebView* web_view =
@@ -603,7 +605,13 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 
 // static
 void TestShell::ShowStartupDebuggingDialog() {
-  // TODO(port): Show a modal dialog here with an attach to me message.
+  NSAlert* alert = [[[NSAlert alloc] init] autorelease];
+  alert.messageText = @"Attach to me?";
+  alert.informativeText = @"This would probably be a good time to attach your "
+      "debugger.";
+  [alert addButtonWithTitle:@"OK"];
+
+  [alert runModal];
 }
 
 StringPiece TestShell::NetResourceProvider(int key) {
