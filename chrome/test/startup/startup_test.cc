@@ -19,6 +19,19 @@ using base::TimeTicks;
 
 namespace {
 
+// Wrapper around EvictFileFromSystemCache to retry 10 times in case of error.
+// Apparently needed for Windows buildbots (to workaround an error when
+// file is in use).
+// TODO(phajdan.jr): Move to test_file_util if we need it in more places.
+bool EvictFileFromSystemCacheWrapper(const FilePath& path) {
+  for (int i = 0; i < 10; i++) {
+    if (file_util::EvictFileFromSystemCache(path))
+      return true;
+    PlatformThread::Sleep(1000);
+  }
+  return false;
+}
+
 class StartupTest : public UITest {
  public:
   StartupTest() {
@@ -40,17 +53,17 @@ class StartupTest : public UITest {
 
         FilePath chrome_exe(dir_app.Append(
             FilePath::FromWStringHack(chrome::kBrowserProcessExecutableName)));
-        ASSERT_TRUE(file_util::EvictFileFromSystemCache(chrome_exe));
+        ASSERT_TRUE(EvictFileFromSystemCacheWrapper(chrome_exe));
 #if defined(OS_WIN)
         // TODO(port): these files do not exist on other platforms.
         // Decide what to do.
 
         FilePath chrome_dll(dir_app.Append(FILE_PATH_LITERAL("chrome.dll")));
-        ASSERT_TRUE(file_util::EvictFileFromSystemCache(chrome_dll));
+        ASSERT_TRUE(EvictFileFromSystemCacheWrapper(chrome_dll));
 
         FilePath gears_dll;
         ASSERT_TRUE(PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_dll));
-        ASSERT_TRUE(file_util::EvictFileFromSystemCache(gears_dll));
+        ASSERT_TRUE(EvictFileFromSystemCacheWrapper(gears_dll));
 #endif  // defined(OS_WIN)
       }
 
