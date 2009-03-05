@@ -24,7 +24,7 @@ class Message;
 class WebWorkerProxy : public WebWorker,
                        public IPC::Channel::Listener {
  public:
-  WebWorkerProxy(IPC::Message::Sender* sender, WebWorkerClient* client);
+  WebWorkerProxy(WebWorkerClient* client);
   virtual ~WebWorkerProxy();
 
   // WebWorker implementation.
@@ -43,7 +43,6 @@ class WebWorkerProxy : public WebWorker,
  private:
   bool Send(IPC::Message* message);
 
-  IPC::Message::Sender* sender_;
   int route_id_;
 
   // Used to communicate to the WebCore::Worker object in response to IPC

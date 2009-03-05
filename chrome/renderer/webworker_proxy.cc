@@ -9,11 +9,8 @@
 #include "chrome/renderer/render_thread.h"
 #include "webkit/glue/webworkerclient.h"
 
-WebWorkerProxy::WebWorkerProxy(
-    IPC::Message::Sender* sender, WebWorkerClient* client)
-    : sender_(sender),
-      route_id_(MSG_ROUTING_NONE),
-      client_(client) {
+WebWorkerProxy::WebWorkerProxy(WebWorkerClient* client)
+    : route_id_(MSG_ROUTING_NONE), client_(client) {
 }
 
 WebWorkerProxy::~WebWorkerProxy() {
@@ -23,7 +20,7 @@ void WebWorkerProxy::StartWorkerContext(
     const GURL& script_url,
     const string16& user_agent,
     const string16& source_code) {
-  sender_->Send(
+  RenderThread::current()->Send(
       new ViewHostMsg_CreateDedicatedWorker(script_url, &route_id_));
   if (route_id_ == MSG_ROUTING_NONE)
     return;
@@ -62,7 +59,7 @@ bool WebWorkerProxy::Send(IPC::Message* message) {
   // TODO(jabdelmalek): handle sync messages if we need them.
   IPC::Message* wrapped_msg = new ViewHostMsg_ForwardToWorker(*message);
   delete message;
-  return sender_->Send(wrapped_msg);
+  return RenderThread::current()->Send(wrapped_msg);
 }
 
 void WebWorkerProxy::OnMessageReceived(const IPC::Message& message) {
