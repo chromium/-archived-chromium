@@ -11,7 +11,10 @@
 #include "base/file_path.h"
 #include "base/scoped_ptr.h"
 
-#ifdef OS_MACOSX
+#if defined(OS_WIN)
+struct tagVS_FIXEDFILEINFO;
+typedef tagVS_FIXEDFILEINFO VS_FIXEDFILEINFO;
+#elif defined(OS_MACOSX)
 #ifdef __OBJC__
 @class NSBundle;
 #else
