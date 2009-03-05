@@ -150,18 +150,6 @@ void PrecacheUrl(const char16* url, int url_length);
 // This function is called to add a line to the application's log file.
 void AppendToLog(const char* filename, int line, const char* message);
 
-// Sets a cookie string for the given URL.  The policy_url argument indicates
-// the URL of the topmost frame, which may be useful for determining whether or
-// not to allow this cookie setting.  NOTE: the cookie string is a standard
-// cookie string of the form "name=value; option1=x; option2=y"
-void SetCookie(const GURL& url, const GURL& policy_url,
-               const std::string& cookie);
-
-// Returns all cookies in the form "a=1; b=2; c=3" for the given URL.  NOTE:
-// this string should not include any options that may have been specified when
-// the cookie was set.  Semicolons delimit individual cookies in this context.
-std::string GetCookies(const GURL& url, const GURL& policy_url);
-
 // Gather usage statistics from the in-memory cache and inform our host, if
 // applicable.
 void NotifyCacheStats();

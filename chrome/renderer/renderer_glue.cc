@@ -302,17 +302,6 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
                                   mixed_content, 0);
 }
 
-void SetCookie(const GURL& url, const GURL& policy_url,
-               const std::string& cookie) {
-  RenderThread::current()->Send(new ViewHostMsg_SetCookie(url, policy_url, cookie));
-}
-
-std::string GetCookies(const GURL& url, const GURL& policy_url) {
-  std::string cookies;
-  RenderThread::current()->Send(new ViewHostMsg_GetCookies(url, policy_url, &cookies));
-  return cookies;
-}
-
 void NotifyCacheStats() {
   // Update the browser about our cache
   // NOTE: Since this can be called from the plugin process, we might not have
