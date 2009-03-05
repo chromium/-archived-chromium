@@ -11,6 +11,11 @@
 // non-corner images can be tiled to make a larger image.  It's used to
 // use bitmaps for constructing image-based resizable widgets like buttons.
 //
+// If you want just a vertical image that stretches in height but is fixed
+// in width, only pass in images for the left column (leave others NULL).
+// Similarly, for a horizontal image that stretches in width but is fixed in
+// height, only pass in images for the top row.
+//
 // TODO(port): add support for caching server-side pixmaps of prerendered
 // nineboxes.
 class NineBox {

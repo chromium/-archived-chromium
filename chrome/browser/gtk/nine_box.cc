@@ -49,20 +49,27 @@ void NineBox::RenderToPixbuf(GdkPixbuf* dst) {
   // rendering of the ninebox.
   const int x1 = gdk_pixbuf_get_width(images[0]);
   const int y1 = gdk_pixbuf_get_height(images[0]);
-  const int x2 = gdk_pixbuf_get_width(dst) - gdk_pixbuf_get_width(images[8]);
-  const int y2 = gdk_pixbuf_get_height(dst) - gdk_pixbuf_get_height(images[8]);
+  const int x2 = images[2] ?
+      gdk_pixbuf_get_width(dst) - gdk_pixbuf_get_width(images[2]) : x1;
+  const int y2 = images[6] ?
+      gdk_pixbuf_get_height(dst) - gdk_pixbuf_get_height(images[6]) : y1;
   DCHECK(x2 >= x1);
   DCHECK(y2 >= y1);
 
-  DrawPixbuf(images[0], dst, 0, 0);
-  RenderTopCenterStrip(dst, x1, x2);
-  DrawPixbuf(images[2], dst, x2, 0);
+  if (images[0])
+    DrawPixbuf(images[0], dst, 0, 0);
+  if (images[1])
+    RenderTopCenterStrip(dst, x1, x2);
+  if (images[2])
+    DrawPixbuf(images[2], dst, x2, 0);
 
   // Center row.  Needs vertical tiling.
   images = &images_[1 * 3];
-  TileImage(images[0], dst,
-            0, y1,
-            0, y2);
+  if (images[0]) {
+    TileImage(images[0], dst,
+              0, y1,
+              0, y2);
+  }
   if (images[1]) {
     const int delta_y = gdk_pixbuf_get_height(images[1]);
     for (int y = y1; y < y2; y += delta_y) {
@@ -71,17 +78,23 @@ void NineBox::RenderToPixbuf(GdkPixbuf* dst) {
                 x2, y);
     }
   }
-  TileImage(images[2], dst,
-            x2, y1,
-            x2, y2);
+  if (images[2]) {
+    TileImage(images[2], dst,
+              x2, y1,
+              x2, y2);
+  }
 
   // Bottom row.
   images = &images_[2 * 3];
-  DrawPixbuf(images[0], dst, 0, y2);
-  TileImage(images[1], dst,
-            x1, y2,
-            x2, y2);
-  DrawPixbuf(images[2], dst, x2, y2);
+  if (images[0])
+    DrawPixbuf(images[0], dst, 0, y2);
+  if (images[1]) {
+    TileImage(images[1], dst,
+              x1, y2,
+              x2, y2);
+  }
+  if (images[2])
+    DrawPixbuf(images[2], dst, x2, y2);
 }
 
 void NineBox::RenderTopCenterStrip(GdkPixbuf* dst, int x1, int x2) {

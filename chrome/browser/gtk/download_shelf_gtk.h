@@ -34,7 +34,13 @@ class DownloadShelfGtk : public DownloadShelf {
   static void OnCloseButtonClick(GtkWidget* button,
                                  DownloadShelfGtk* toolbar);
 
-  // |bar_| is the highest level widget of the download shelf. It is an hbox.
+  // |hbox_| holds the download items and buttons of the shelf.
+  GtkWidget* hbox_;
+
+  // |shelf_box_| is the highest level widget of the shelf. It has a single
+  // child, |hbox_|. It exists because we need to be able to set the background
+  // color of the shelf, and GtkBoxes don't have a gdk window, which is a
+  // requisite for changing the background color.
   GtkWidget* shelf_;
 
   // The 'x' that the user can press to hide the download shelf.

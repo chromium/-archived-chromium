@@ -17,8 +17,9 @@
 
 namespace {
 
-// Total height of the shelf.
-const int kShelfHeight = 42;
+// Total height of the shelf. This must be at least 28 + 2 * kTopBottomPadding,
+// or there won't be room to draw the download items.
+const int kShelfHeight = 32;
 
 // Padding between the download widgets.
 const int kDownloadItemPadding = 10;
@@ -30,6 +31,9 @@ const int kTopBottomPadding = 2;
 // Padding from right edge and close button/show downloads link.
 const int kRightPadding = 10;
 
+// The background color of the shelf.
+static GdkColor kBackgroundColor = { 0, 230 << 8, 237 << 8, 244 << 8 };
+
 }
 
 // static
@@ -40,9 +44,12 @@ DownloadShelf* DownloadShelf::Create(TabContents* tab_contents) {
 DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
     : DownloadShelf(tab_contents),
       is_showing_(false) {
-  shelf_ = gtk_hbox_new(FALSE, 0);
-  gtk_widget_set_size_request(shelf_, -1, kShelfHeight);
-  gtk_container_set_border_width(GTK_CONTAINER(shelf_), kTopBottomPadding);
+  hbox_ = gtk_hbox_new(FALSE, 0);
+  gtk_widget_set_size_request(hbox_, -1, kShelfHeight);
+  gtk_container_set_border_width(GTK_CONTAINER(hbox_), kTopBottomPadding);
+  shelf_ = gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(shelf_), hbox_);
+  gtk_widget_modify_bg(shelf_, GTK_STATE_NORMAL, &kBackgroundColor);
 
   // Create and pack the close button.
   close_button_.reset(new CustomDrawButton(IDR_CLOSE_BAR,
@@ -52,7 +59,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   GTK_WIDGET_UNSET_FLAGS(close_button_->widget(), GTK_CAN_FOCUS);
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), close_button_->widget(), TRUE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(shelf_), vbox, FALSE, FALSE, kRightPadding);
+  gtk_box_pack_end(GTK_BOX(hbox_), vbox, FALSE, FALSE, kRightPadding);
 
   // Stick ourselves at the bottom of the parent tab contents.
   GtkWidget* parent_contents = tab_contents->GetNativeView();
@@ -63,7 +70,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
   // TODO(estade): we need to delete these at some point. There's no explicit
   // mass delete on windows, figure out where they do it.
-  download_items_.push_back(new DownloadItemGtk(download_model_, shelf_));
+  download_items_.push_back(new DownloadItemGtk(download_model_, hbox_));
   Show();
 }
 
