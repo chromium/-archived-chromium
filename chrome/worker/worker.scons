@@ -32,6 +32,8 @@ input_files = ChromeFileList([
     'worker_process.h',
     'worker_thread.cc',
     'worker_thread.h',
+    'worker_webkitclient_impl.cc',
+    'worker_webkitclient_impl.h',
     '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
     '$CHROME_DIR/tools/build/win/precompiled.h',
 ])
@@ -48,6 +50,7 @@ if env.Bit('posix'):
       'worker_main.cc',
       'worker_process.cc',
       'worker_thread.cc',
+      'worker_webkitclient_impl.cc',
   )
 
 env.ChromeLibrary('worker', input_files)

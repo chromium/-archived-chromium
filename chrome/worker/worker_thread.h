@@ -9,6 +9,7 @@
 #include "chrome/common/child_thread.h"
 
 class GURL;
+class WorkerWebKitClientImpl;
 
 class WorkerThread : public ChildThread {
  public:
@@ -23,7 +24,13 @@ class WorkerThread : public ChildThread {
  private:
   virtual void OnControlMessageReceived(const IPC::Message& msg);
 
+  // Called by the thread base class
+  virtual void Init();
+  virtual void CleanUp();
+
   void OnCreateWorker(const GURL& url, int route_id);
+
+  scoped_ptr<WorkerWebKitClientImpl> webkit_client_;
 
   DISALLOW_COPY_AND_ASSIGN(WorkerThread);
 };

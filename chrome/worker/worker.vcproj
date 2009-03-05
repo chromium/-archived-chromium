@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled.vsprops;..\..\webkit\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\webkit\build\WebKit\using_WebKit.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -163,6 +163,14 @@
 		</File>
 		<File
 			RelativePath=".\worker_thread.h"
+			>
+		</File>
+		<File
+			RelativePath=".\worker_webkitclient_impl.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\worker_webkitclient_impl.h"
 			>
 		</File>
 	</Files>

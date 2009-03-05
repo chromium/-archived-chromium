@@ -5,12 +5,22 @@
 #include "config.h"
 
 #include "base/compiler_specific.h"
+
+#include "GenericWorkerTask.h"
+#include "ScriptExecutionContext.h"
+#include "WorkerContext.h"
+#include "WorkerThread.h"
+#include <wtf/Threading.h>
+
+#undef LOG
+
+#include "base/logging.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webworkerclient.h"
 #include "webkit/glue/webworker_impl.h"
 
-#if ENABLE(WORKERS)
 
+#if ENABLE(WORKERS)
 
 WebWorker* WebWorker::Create(WebWorkerClient* client) {
   return new WebWorkerImpl(client);
@@ -23,21 +33,47 @@ WebWorkerImpl::WebWorkerImpl(WebWorkerClient* client) : client_(client) {
 WebWorkerImpl::~WebWorkerImpl() {
 }
 
+void WebWorkerImpl::PostMessageToWorkerContextTask(
+    WebCore::ScriptExecutionContext* context,
+    WebWorkerImpl* this_ptr,
+    const WebCore::String& message) {
+  DCHECK(context->isWorkerContext());
+  WebCore::WorkerContext* worker_context =
+      static_cast<WebCore::WorkerContext*>(context);
+  worker_context->dispatchMessage(message);
+
+  this_ptr->client_->ConfirmMessageFromWorkerObject(
+      worker_context->hasPendingActivity());
+}
+
 void WebWorkerImpl::StartWorkerContext(const GURL& script_url,
                                        const string16& user_agent,
                                        const string16& source_code) {
-  // TODO(jianli): implement WorkerContextProxy here (i.e. create WorkerThread
-  // etc).  The WebKit code uses worker_object_proxy_ when it wants to talk to
-  // code running in the renderer process.
+  worker_thread_ = WebCore::WorkerThread::create(
+      webkit_glue::GURLToKURL(script_url),
+      webkit_glue::String16ToString(user_agent),
+      webkit_glue::String16ToString(source_code),
+      this);
+
+  // Worker initialization means a pending activity.
+  reportPendingActivity(true);
+
+  worker_thread_->start();
 }
 
 void WebWorkerImpl::TerminateWorkerContext() {
+  worker_thread_->stop();
 }
 
 void WebWorkerImpl::PostMessageToWorkerContext(const string16& message) {
+  worker_thread_->runLoop().postTask(WebCore::createCallbackTask(
+      &PostMessageToWorkerContextTask,
+      this,
+      webkit_glue::String16ToString(message)));
 }
 
 void WebWorkerImpl::WorkerObjectDestroyed() {
+  TerminateWorkerContext();
 }
 
 void WebWorkerImpl::postMessageToWorkerObject(const WebCore::String& message) {

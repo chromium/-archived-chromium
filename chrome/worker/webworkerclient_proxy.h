@@ -5,8 +5,6 @@
 #ifndef CHROME_WORKER_WEBWORKERCLIENT_PROXY_H_
 #define CHROME_WORKER_WEBWORKERCLIENT_PROXY_H_
 
-#include <vector>
-
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "chrome/common/ipc_channel.h"
@@ -54,13 +52,7 @@ class WebWorkerClientProxy : public WebWorkerClient,
 
   int route_id_;
 
-  // Whether we've received StartWorkerContext message.
-  bool started_worker_;
-
   scoped_ptr<WebWorker> impl_;
-
-  // Stores messages that arrived before the StartWorkerContext message.
-  std::vector<IPC::Message*> queued_messages_;
 
   DISALLOW_COPY_AND_ASSIGN(WebWorkerClientProxy);
 };

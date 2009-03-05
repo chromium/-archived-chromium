@@ -28,6 +28,12 @@ void WebWorkerProxy::StartWorkerContext(
   RenderThread::current()->AddRoute(route_id_, this);
   Send(new WorkerMsg_StartWorkerContext(
       route_id_, script_url, user_agent, source_code));
+
+  for (size_t i = 0; i < queued_messages_.size(); ++i) {
+    queued_messages_[i]->set_routing_id(route_id_);
+    Send(queued_messages_[i]);
+  }
+  queued_messages_.clear();
 }
 
 void WebWorkerProxy::TerminateWorkerContext() {
@@ -50,8 +56,8 @@ void WebWorkerProxy::WorkerObjectDestroyed() {
 
 bool WebWorkerProxy::Send(IPC::Message* message) {
   if (route_id_ == MSG_ROUTING_NONE) {
-    delete message;
-    return false;
+    queued_messages_.push_back(message);
+    return true;
   }
 
   // For now we proxy all messages to the worker process through the browser.

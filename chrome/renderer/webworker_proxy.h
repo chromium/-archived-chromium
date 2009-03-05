@@ -5,6 +5,8 @@
 #ifndef CHROME_RENDERER_WEBWORKER_PROXY_H_
 #define CHROME_RENDERER_WEBWORKER_PROXY_H_
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "chrome/common/ipc_channel.h"
 #include "webkit/glue/webworker.h"
@@ -48,6 +50,9 @@ class WebWorkerProxy : public WebWorker,
   // Used to communicate to the WebCore::Worker object in response to IPC
   // messages.
   WebWorkerClient* client_;
+
+  // Stores messages that were sent before the StartWorkerContext message.
+  std::vector<IPC::Message*> queued_messages_;
 
   DISALLOW_COPY_AND_ASSIGN(WebWorkerProxy);
 };

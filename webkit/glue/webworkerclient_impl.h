@@ -54,6 +54,9 @@ class WebWorkerClientImpl : public WebCore::WorkerContextProxy,
 
   WebCore::Worker* worker_;
   scoped_ptr<WebWorker> webworker_;
+  bool asked_to_terminate_;
+  uint32 unconfirmed_message_count_;
+  bool worker_context_had_pending_activity_;
 };
 
 #endif

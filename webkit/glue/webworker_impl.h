@@ -9,8 +9,16 @@
 
 #if ENABLE(WORKERS)
 
+#include <vector>
 #include "ScriptExecutionContext.h"
 #include "WorkerObjectProxy.h"
+#include <wtf/RefPtr.h>
+
+namespace WebCore {
+class ScriptExecutionContext;
+class Strng;
+class WorkerThread;
+};
 
 // This class is used by the worker process code to talk to the WebCore::Worker
 // implementation.  It can't use it directly since it uses WebKit types, so this
@@ -47,7 +55,13 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   void WorkerObjectDestroyed();
 
  private:
+  static void PostMessageToWorkerContextTask(
+      WebCore::ScriptExecutionContext* context,
+      WebWorkerImpl* this_ptr,
+      const WebCore::String& message);
+
   WebWorkerClient* client_;
+  WTF::RefPtr<WebCore::WorkerThread> worker_thread_;
 
   DISALLOW_COPY_AND_ASSIGN(WebWorkerImpl);
 };

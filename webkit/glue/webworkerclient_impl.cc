@@ -55,7 +55,10 @@ WebCore::WorkerContextProxy* WebCore::WorkerContextProxy::create(
 
 
 WebWorkerClientImpl::WebWorkerClientImpl(WebCore::Worker* worker)
-    : worker_(worker) {
+    : worker_(worker),
+      asked_to_terminate_(false),
+      unconfirmed_message_count_(0),
+      worker_context_had_pending_activity_(false) {
 }
 
 WebWorkerClientImpl::~WebWorkerClientImpl() {
@@ -75,20 +78,23 @@ void WebWorkerClientImpl::startWorkerContext(
 }
 
 void WebWorkerClientImpl::terminateWorkerContext() {
+  if (asked_to_terminate_)
+      return;
+  asked_to_terminate_ = true;
+
   webworker_->TerminateWorkerContext();
 }
 
 void WebWorkerClientImpl::postMessageToWorkerContext(
     const WebCore::String& message) {
+  ++unconfirmed_message_count_;
   webworker_->PostMessageToWorkerContext(
       webkit_glue::StringToString16(message));
 }
 
 bool WebWorkerClientImpl::hasPendingActivity() const {
-  // TODO(jianli): we should use the same logic from WorkerMessagingProxy
-  // here, so that we don't do a synchronous IPC.
-  // Until then, always return true.
-  return true;
+  return !asked_to_terminate_ &&
+         (unconfirmed_message_count_ || worker_context_had_pending_activity_);
 }
 
 void WebWorkerClientImpl::workerObjectDestroyed() {
@@ -96,14 +102,17 @@ void WebWorkerClientImpl::workerObjectDestroyed() {
 }
 
 void WebWorkerClientImpl::PostMessageToWorkerObject(const string16& message) {
-  // TODO(jianli): this method, and the ones below, need to implement
-  // WorkerObjectProxy.
+  worker_->dispatchMessage(webkit_glue::String16ToString(message));
 }
 
 void WebWorkerClientImpl::PostExceptionToWorkerObject(
     const string16& error_message,
     int line_number,
     const string16& source_url) {
+  worker_->scriptExecutionContext()->reportException(
+      webkit_glue::String16ToString(error_message),
+      line_number,
+      webkit_glue::String16ToString(source_url));
 }
 
 void WebWorkerClientImpl::PostConsoleMessageToWorkerObject(
@@ -113,12 +122,21 @@ void WebWorkerClientImpl::PostConsoleMessageToWorkerObject(
     const string16& message,
     int line_number,
     const string16& source_url) {
+  worker_->scriptExecutionContext()->addMessage(
+      static_cast<WebCore::MessageDestination>(destination),
+      static_cast<WebCore::MessageSource>(source),
+      static_cast<WebCore::MessageLevel>(level),
+      webkit_glue::String16ToString(message),
+      line_number,
+      webkit_glue::String16ToString(source_url));
 }
 
 void WebWorkerClientImpl::ConfirmMessageFromWorkerObject(bool has_pending_activity) {
+  --unconfirmed_message_count_;
 }
 
 void WebWorkerClientImpl::ReportPendingActivity(bool has_pending_activity) {
+  worker_context_had_pending_activity_ = has_pending_activity;
 }
 
 void WebWorkerClientImpl::WorkerContextDestroyed() {

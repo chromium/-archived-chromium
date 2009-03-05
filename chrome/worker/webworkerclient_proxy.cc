@@ -14,7 +14,6 @@
 WebWorkerClientProxy::WebWorkerClientProxy(const GURL& url, int route_id)
     : url_(url),
       route_id_(route_id),
-      started_worker_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(impl_(WebWorker::Create(this))) {
   WorkerThread::current()->AddRoute(route_id_, this);
   WorkerProcess::current()->AddRefProcess();
@@ -67,12 +66,6 @@ bool WebWorkerClientProxy::Send(IPC::Message* message) {
 }
 
 void WebWorkerClientProxy::OnMessageReceived(const IPC::Message& message) {
-  if (!started_worker_ &&
-      message.type() != WorkerMsg_StartWorkerContext::ID) {
-    queued_messages_.push_back(new IPC::Message(message));
-    return;
-  }
-
   WebWorker* worker = impl_.get();
   IPC_BEGIN_MESSAGE_MAP(WebWorkerClientProxy, message)
     IPC_MESSAGE_FORWARD(WorkerMsg_StartWorkerContext, worker,
@@ -84,12 +77,4 @@ void WebWorkerClientProxy::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_FORWARD(WorkerMsg_WorkerObjectDestroyed, worker,
                         WebWorker::WorkerObjectDestroyed)
   IPC_END_MESSAGE_MAP()
-
-  if (message.type() == WorkerMsg_StartWorkerContext::ID) {
-    started_worker_ = true;
-    for (size_t i = 0; i < queued_messages_.size(); ++i)
-      OnMessageReceived(*queued_messages_[i]);
-
-    queued_messages_.clear();
-  }
 }
