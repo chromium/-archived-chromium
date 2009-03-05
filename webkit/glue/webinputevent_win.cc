@@ -11,6 +11,7 @@
 #include "webkit/glue/webinputevent_util.h"
 
 static const unsigned long kDefaultScrollLinesPerWheelDelta = 3;
+static const unsigned long kDefaultScrollCharsPerWheelDelta = 1;
 
 // WebMouseEvent --------------------------------------------------------------
 
@@ -112,44 +113,35 @@ WebMouseEvent::WebMouseEvent(HWND hwnd, UINT message, WPARAM wparam,
 
 // WebMouseWheelEvent ---------------------------------------------------------
 
-WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
-                                       LPARAM lparam) {
+WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd,
+                                       UINT message,
+                                       WPARAM wparam,
+                                       LPARAM lparam)
+    : scroll_by_page(false) {
   type = MOUSE_WHEEL;
   button = BUTTON_NONE;
 
-  // Add a simple workaround to scroll multiples units per page.
-  // The right fix needs to extend webkit's implementation of
-  // wheel events and that's not something we want to do at
-  // this time. See bug# 928509
-  // TODO(joshia): Implement the right fix for bug# 928509
-  const int kPageScroll = 10;  // 10 times wheel scroll 
-
-  UINT key_state = GET_KEYSTATE_WPARAM(wparam);
-  int wheel_delta = static_cast<int>(GET_WHEEL_DELTA_WPARAM(wparam));
-
+  // Get key state, coordinates, and wheel delta from event.
   typedef SHORT (WINAPI *GetKeyStateFunction)(int key);
-  GetKeyStateFunction get_key_state = GetKeyState;
-
-  // Synthesize mousewheel event from a scroll event.
-  // This is needed to simulate middle mouse scrolling in some 
-  // laptops (Thinkpads)
-  if ((WM_VSCROLL == message) || (WM_HSCROLL == message)) {
+  GetKeyStateFunction get_key_state;
+  UINT key_state;
+  float wheel_delta;
+  bool horizontal_scroll = false;
+  if ((message == WM_VSCROLL) || (message == WM_HSCROLL)) {
+    // Synthesize mousewheel event from a scroll event.  This is needed to
+    // simulate middle mouse scrolling in some laptops.  Use GetAsyncKeyState
+    // for key state since we are synthesizing the input event.
+    get_key_state = GetAsyncKeyState;
+    key_state = 0;
+    if (get_key_state(VK_SHIFT))
+      key_state |= MK_SHIFT;
+    if (get_key_state(VK_CONTROL))
+      key_state |= MK_CONTROL;
 
     POINT cursor_position = {0};
     GetCursorPos(&cursor_position);
-
     global_x = cursor_position.x;
     global_y = cursor_position.y;
-
-    key_state = 0;
-
-    // Since we are synthesizing the wheel event, we have to
-    // use GetAsyncKeyState
-    if (GetAsyncKeyState(VK_SHIFT))
-      key_state |= MK_SHIFT;
-
-    if (GetAsyncKeyState(VK_CONTROL))
-      key_state |= MK_CONTROL;
 
     switch (LOWORD(wparam)) {
       case SB_LINEUP:    // == SB_LINELEFT
@@ -159,99 +151,75 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
         wheel_delta = -WHEEL_DELTA;
         break;
       case SB_PAGEUP:
-        wheel_delta = kPageScroll * WHEEL_DELTA;
+        wheel_delta = 1;
+        scroll_by_page = true;
         break;
       case SB_PAGEDOWN:
-        wheel_delta = -kPageScroll * WHEEL_DELTA;
+        wheel_delta = -1;
+        scroll_by_page = true;
         break;
-      // TODO(joshia): Handle SB_THUMBPOSITION and SB_THUMBTRACK 
-      // for compeleteness
-      default:
+      default:  // We don't supoprt SB_THUMBPOSITION or SB_THUMBTRACK here.
+        wheel_delta = 0;
         break;
     }
 
-    // Touchpads (or trackpoints) send the following messages in scrolling
-    // horizontally.
-    //  * Scrolling left
-    //    message == WM_HSCROLL, wparam == SB_LINELEFT (== SB_LINEUP).
-    //  * Scrolling right
-    //    message == WM_HSCROLL, wparam == SB_LINERIGHT (== SB_LINEDOWN).
-    if (WM_HSCROLL == message) {
-      key_state |= MK_SHIFT;
+    if (message == WM_HSCROLL) {
+      horizontal_scroll = true;
       wheel_delta = -wheel_delta;
     }
-
-    // Use GetAsyncKeyState for key state since we are synthesizing 
-    // the input
-    get_key_state = GetAsyncKeyState;
   } else {
-    // TODO(hbono): we should add a new variable which indicates scroll
-    // direction and remove this key_state hack.
-    if (WM_MOUSEHWHEEL == message)
-      key_state |= MK_SHIFT;
+    // Non-synthesized event; we can just read data off the event.
+    get_key_state = GetKeyState;
+    key_state = GET_KEYSTATE_WPARAM(wparam);
 
     global_x = static_cast<short>(LOWORD(lparam));
     global_y = static_cast<short>(HIWORD(lparam));
+
+    wheel_delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wparam));
+    if (((message == WM_MOUSEHWHEEL) || (key_state & MK_SHIFT)) &&
+        (wheel_delta != 0))
+      horizontal_scroll = true;
   }
 
-  POINT client_point = { global_x, global_y };
-  ScreenToClient(hwnd, &client_point);
-  x = client_point.x;
-  y = client_point.y;
-
-  // compute the scroll delta based on Raymond Chen's algorithm:
-  // http://blogs.msdn.com/oldnewthing/archive/2003/08/07/54615.aspx
-
-  static int carryover = 0;
-  static HWND last_window = NULL;
-
-  if (hwnd != last_window) {
-    last_window = hwnd;
-    carryover = 0;
-  }
-
-  unsigned long scroll_lines = kDefaultScrollLinesPerWheelDelta;
-  SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scroll_lines, 0);
-
-  int delta_lines = 0;
-  if (scroll_lines == WHEEL_PAGESCROLL) {
-    scroll_lines = kPageScroll;
-  }
-
-  if (scroll_lines == 0) {
-      carryover = 0;
-  } else {
-    const int delta = carryover + wheel_delta;
-
-    // see how many lines we should scroll.  relies on round-toward-zero.
-    delta_lines = delta * static_cast<int>(scroll_lines) / WHEEL_DELTA;
-
-    // record the unused portion as the next carryover.
-    carryover =
-        delta - delta_lines * WHEEL_DELTA / static_cast<int>(scroll_lines);
-  }
-
-  // Scroll horizontally if shift is held. WebKit's WebKit/win/WebView.cpp 
-  // does the equivalent.
-  // TODO(jackson): Support WM_MOUSEHWHEEL = 0x020E event as well. 
-  // (Need a mouse with horizontal scrolling capabilities to test it.)
-  if (key_state & MK_SHIFT) {
-    // Scrolling up should move left, scrolling down should move right
-    delta_x = -delta_lines;  
-    delta_y = 0;
-  } else {
-    delta_x = 0;
-    delta_y = delta_lines;
-  }
-
+  // Set modifiers based on key state.
   if (key_state & MK_SHIFT)
     modifiers |= SHIFT_KEY;
   if (key_state & MK_CONTROL)
     modifiers |= CTRL_KEY;
-
-  // Get any additional key states needed
   if (get_key_state(VK_MENU) & 0x8000)
     modifiers |= (ALT_KEY | META_KEY);
+
+  // Set coordinates by translating event coordinates from screen to client.
+  POINT client_point = { global_x, global_y };
+  MapWindowPoints(NULL, hwnd, &client_point, 1);
+  x = client_point.x;
+  y = client_point.y;
+
+  // Convert wheel delta amount to a number of lines/chars to scroll.
+  float scroll_delta = wheel_delta / WHEEL_DELTA;
+  if (horizontal_scroll) {
+    unsigned long scroll_chars = kDefaultScrollCharsPerWheelDelta;
+    SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &scroll_chars, 0);
+    scroll_delta *= static_cast<float>(scroll_chars);
+  } else {
+    unsigned long scroll_lines = kDefaultScrollLinesPerWheelDelta;
+    SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scroll_lines, 0);
+    if (scroll_lines == WHEEL_PAGESCROLL)
+      scroll_by_page = true;
+    if (!scroll_by_page)
+      scroll_delta *= static_cast<float>(scroll_lines);
+  }
+
+  // Set scroll amount based on above calculations.
+  if (horizontal_scroll) {
+    // Scrolling up should move left, scrolling down should move right.  This is
+    // opposite Safari, but seems more consistent with vertical scrolling.
+    delta_x = scroll_delta;
+    delta_y = 0;
+  } else {
+    delta_x = 0;
+    delta_y = scroll_delta;
+  }
 }
 
 // WebKeyboardEvent -----------------------------------------------------------

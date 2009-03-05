@@ -103,14 +103,15 @@ WebMouseEvent::WebMouseEvent(const GdkEventMotion* event) {
 }
 
 WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
+  type = MOUSE_WHEEL;
+  button = BUTTON_NONE;
+
   timestamp_sec = GdkEventTimeToWebEventTime(event->time);
   modifiers = GdkStateToWebEventModifiers(event->state);
   x = static_cast<int>(event->x);
   y = static_cast<int>(event->y);
   global_x = static_cast<int>(event->x_root);
   global_y = static_cast<int>(event->y_root);
-
-  type = MOUSE_WHEEL;
 
   // How much should we scroll per mouse wheel event?
   // - Windows uses 3 lines by default and obeys a system setting.
@@ -122,11 +123,10 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
   // - Gtk makes the scroll amount a function of the size of the scroll bar,
   //   which is not available to us here.
   // Instead, we pick a number that empirically matches Firefox's behavior.
-  static const int kWheelDelta = 4;
+  static const float kWheelDelta = 4;
 
   delta_x = 0;
   delta_y = 0;
-
   switch (event->direction) {
     case GDK_SCROLL_UP:
       delta_y = kWheelDelta;
@@ -135,14 +135,15 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
       delta_y = -kWheelDelta;
       break;
     case GDK_SCROLL_LEFT:
-      delta_x = -kWheelDelta;
+      delta_x = kWheelDelta;
       break;
     case GDK_SCROLL_RIGHT:
-      delta_x = kWheelDelta;
+      delta_x = -kWheelDelta;
       break;
     default:
       break;
   }
+  scroll_by_page = false;
 }
 
 WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {

@@ -119,37 +119,38 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
   type = MOUSE_WHEEL;
   button = BUTTON_NONE;
 
-  NSPoint location = [NSEvent mouseLocation];  // global coordinates
-  global_x = location.x;
-  global_y = location.y;
-  
-  NSPoint windowLocal = [event locationInWindow];
-  location = [view convertPoint:windowLocal fromView:nil];
-  y = [view frame].size.height - location.y;  // flip y
-  x = location.x;
-
-  int wheel_delta = [event deltaY];
-  const int delta_lines = wheel_delta * kDefaultScrollLinesPerWheelDelta;
-
-  // Scroll horizontally if shift is held. WebKit's WebKit/win/WebView.cpp 
-  // does the equivalent.
-  // TODO(jackson): Support WM_MOUSEHWHEEL = 0x020E event as well. 
-  // (Need a mouse with horizontal scrolling capabilities to test it.)
-  if ([event modifierFlags] & NSShiftKeyMask) {
-    // Scrolling up should move left, scrolling down should move right
-    delta_x = -delta_lines;  
-    delta_y = 0;
-  } else {
-    delta_x = 0;
-    delta_y = delta_lines;
-  }
-
+  // Set modifiers based on key state.
   if ([event modifierFlags] & NSControlKeyMask)
     modifiers |= CTRL_KEY;
   if ([event modifierFlags] & NSShiftKeyMask)
     modifiers |= SHIFT_KEY;
   if ([event modifierFlags] & NSAlternateKeyMask)
     modifiers |= ALT_KEY;
+
+  // Set coordinates by translating event coordinates from screen to client.
+  NSPoint location = [NSEvent mouseLocation];  // global coordinates
+  global_x = location.x;
+  global_y = location.y;
+  NSPoint windowLocal = [event locationInWindow];
+  location = [view convertPoint:windowLocal fromView:nil];
+  x = location.x;
+  y = [view frame].size.height - location.y;  // flip y
+
+  // Convert wheel delta amount to a number of lines to scroll.
+  float wheel_delta = [event deltaY];
+  const float delta_lines = wheel_delta * kDefaultScrollLinesPerWheelDelta;
+
+  // Set scroll amount based on above calculations.
+  if ([event modifierFlags] & NSShiftKeyMask) {
+    // Scrolling up should move left, scrolling down should move right.  This is
+    // opposite Safari, but seems more consistent with vertical scrolling.
+    delta_x = delta_lines;
+    delta_y = 0;
+  } else {
+    delta_x = 0;
+    delta_y = delta_lines;
+  }
+  scroll_by_page = false;
 }
 
 // WebKeyboardEvent -----------------------------------------------------------
