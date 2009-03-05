@@ -62,7 +62,8 @@ void PageState::SetProperty(const std::wstring& key,
   state_->Set(key, new StringValue(value));
 }
 
-bool PageState::GetProperty(const std::wstring& key, std::wstring* value) const {
+bool PageState::GetProperty(const std::wstring& key,
+                            std::wstring* value) const {
   if (state_->HasKey(key)) {
     Value* v;
     state_->Get(key, &v);

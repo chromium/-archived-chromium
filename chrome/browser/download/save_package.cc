@@ -839,8 +839,8 @@ void SavePackage::OnReceivedSerializedHtmlData(const GURL& frame_url,
                                                const std::string& data,
                                                int32 status) {
   webkit_glue::DomSerializerDelegate::PageSavingSerializationStatus flag =
-      static_cast<webkit_glue::DomSerializerDelegate::PageSavingSerializationStatus>
-          (status);
+      static_cast<webkit_glue::DomSerializerDelegate::
+                      PageSavingSerializationStatus>(status);
   // Check current state.
   if (wait_state_ != HTML_DATA)
     return;

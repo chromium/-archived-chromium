@@ -36,7 +36,8 @@ bool VisitDatabase::InitVisitTable() {
         "from_visit INTEGER,"
         "transition INTEGER DEFAULT 0 NOT NULL,"
         "segment_id INTEGER,"
-        "is_indexed BOOLEAN)",  // True when we have indexed data for this visit.
+        // True when we have indexed data for this visit.
+        "is_indexed BOOLEAN)",
         NULL, NULL, NULL) != SQLITE_OK)
       return false;
   } else if (!DoesSqliteColumnExist(GetDB(), "visits",

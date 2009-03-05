@@ -324,7 +324,8 @@ void AboutNetworkDialog::SetupControls() {
 
   static const int text_column_set = 2;
   column_set = layout->AddColumnSet(text_column_set);
-  column_set->AddColumn(views::GridLayout::FILL, views::GridLayout::FILL, 100.0f,
+  column_set->AddColumn(views::GridLayout::FILL, views::GridLayout::FILL,
+                        100.0f,
                         views::GridLayout::FIXED, 0, 0);
 
   layout->StartRow(0, first_column_set);

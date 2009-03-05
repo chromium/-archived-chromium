@@ -288,7 +288,7 @@ DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
   }
   if (url.host() == DebuggerContents::GetBaseURL().host()) {
     return new DebuggerContents(this);
-  } 
+  }
   if (url.host() == DevToolsUI::GetBaseURL().host()) {
     return new DevToolsUI(this);
   }

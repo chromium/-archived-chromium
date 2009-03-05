@@ -34,8 +34,8 @@ int TabStripModelOrderController::DetermineInsertionIndex(
 
   if (transition == PageTransition::LINK && tabstrip_->selected_index() != -1) {
     if (foreground) {
-      // If the page was opened in the foreground by a link click in another tab,
-      // insert it adjacent to the tab that opened that link.
+      // If the page was opened in the foreground by a link click in another
+      // tab, insert it adjacent to the tab that opened that link.
       // TODO(beng): (http://b/1085481) may want to open right of all locked
       //             tabs?
       return tabstrip_->selected_index() + 1;

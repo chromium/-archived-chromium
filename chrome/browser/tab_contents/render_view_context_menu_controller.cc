@@ -303,8 +303,9 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
     case IDS_CONTENT_CONTEXT_SAVELINKAS: {
       const GURL& referrer =
           params_.frame_url.is_empty() ? params_.page_url : params_.frame_url;
-      const GURL& url = id == IDS_CONTENT_CONTEXT_SAVELINKAS ? params_.link_url :
-                                                               params_.image_url;
+      const GURL& url =
+          (id == IDS_CONTENT_CONTEXT_SAVELINKAS ? params_.link_url :
+                                                  params_.image_url);
       DownloadManager* dlm =
           source_web_contents_->profile()->GetDownloadManager();
       dlm->DownloadUrl(url, referrer, source_web_contents_);

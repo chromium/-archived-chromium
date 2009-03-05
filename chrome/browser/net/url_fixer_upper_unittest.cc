@@ -243,16 +243,18 @@ TEST(URLFixerUpperTest, FixupFile) {
   FilePath dir;
   FilePath original;
   ASSERT_TRUE(PathService::Get(chrome::DIR_APP, &dir));
-  ASSERT_TRUE(MakeTempFile(dir,
-                           FilePath(FILE_PATH_LITERAL("url fixer upper existing file.txt")),
-                           &original));
+  ASSERT_TRUE(MakeTempFile(
+      dir,
+      FilePath(FILE_PATH_LITERAL("url fixer upper existing file.txt")),
+      &original));
 
   // reference path
   std::string golden = net::FilePathToFileURL(original).spec();
 
   // c:\foo\bar.txt -> file:///c:/foo/bar.txt (basic)
 #if defined(OS_WIN)
-  std::string fixedup = URLFixerUpper::FixupURL(WideToUTF8(original.value()), "");
+  std::string fixedup = URLFixerUpper::FixupURL(WideToUTF8(original.value()),
+                                                "");
 #elif defined(OS_POSIX)
   std::string fixedup = URLFixerUpper::FixupURL(original.value(), "");
 #endif
@@ -269,13 +271,16 @@ TEST(URLFixerUpperTest, FixupFile) {
 
   fixup_case file_cases[] = {
     // File URLs go through GURL, which tries to escape intelligently.
-    {"c:\\This%20is a non-existent file.txt", "", "file:///C:/This%2520is%20a%20non-existent%20file.txt"},
+    {"c:\\This%20is a non-existent file.txt", "",
+     "file:///C:/This%2520is%20a%20non-existent%20file.txt"},
 
     // \\foo\bar.txt -> file://foo/bar.txt
     // UNC paths, this file won't exist, but since there are no escapes, it
     // should be returned just converted to a file: URL.
-    {"\\\\SomeNonexistentHost\\foo\\bar.txt", "", "file://somenonexistenthost/foo/bar.txt"},
-    {"//SomeNonexistentHost\\foo/bar.txt", "", "file://somenonexistenthost/foo/bar.txt"},
+    {"\\\\SomeNonexistentHost\\foo\\bar.txt", "",
+     "file://somenonexistenthost/foo/bar.txt"},
+    {"//SomeNonexistentHost\\foo/bar.txt", "",
+     "file://somenonexistenthost/foo/bar.txt"},
     {"file:///C:/foo/bar", "", "file:///C:/foo/bar"},
 
     // These are fixups we don't do, but could consider:
@@ -327,13 +332,15 @@ TEST(URLFixerUpperTest, FixupRelativeFile) {
 
   // create a filename we know doesn't exist and make sure it doesn't get
   // fixed up to a file URL
-  FilePath nonexistent_file(FILE_PATH_LITERAL("url_fixer_upper_nonexistent_file.txt"));
+  FilePath nonexistent_file(
+      FILE_PATH_LITERAL("url_fixer_upper_nonexistent_file.txt"));
   fixedup = URLFixerUpper::FixupRelativeFile(dir, nonexistent_file);
   EXPECT_NE(std::string("file:///"), fixedup.substr(0, 8));
   EXPECT_FALSE(IsMatchingFileURL(fixedup, nonexistent_file));
 
   // make a subdir to make sure relative paths with directories work, also
-  // test spaces: "app_dir\url fixer-upper dir\url fixer-upper existing file.txt"
+  // test spaces:
+  // "app_dir\url fixer-upper dir\url fixer-upper existing file.txt"
   FilePath sub_dir(FILE_PATH_LITERAL("url fixer-upper dir"));
   FilePath sub_file(FILE_PATH_LITERAL("url fixer-upper existing file.txt"));
   FilePath new_dir = dir.Append(sub_dir);

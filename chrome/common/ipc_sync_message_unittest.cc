@@ -85,7 +85,8 @@ class TestMessageReceiver {
     *out2 = 32;
   }
 
-  void On_3_3(int in1, std::string in2, bool in3, std::string* out1, int* out2, bool* out3) {
+  void On_3_3(int in1, std::string in2, bool in3, std::string* out1, int* out2,
+              bool* out3) {
     DCHECK(in1 == 3 && in2 == "3_3" && in3);
     *out1 = "3_3";
     *out2 = 33;

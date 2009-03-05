@@ -205,7 +205,8 @@ class PrintingLayoutTest : public PrintingTest<UITest> {
   PrintingLayoutTest() {
     emf_path_ = browser_directory_;
     file_util::AppendToPath(&emf_path_, L"emf_dumps");
-    launch_arguments_.AppendSwitchWithValue(L"debug-print", L'"' + emf_path_ + L'"');
+    launch_arguments_.AppendSwitchWithValue(L"debug-print",
+                                            L'"' + emf_path_ + L'"');
     show_window_ = true;
   }
 

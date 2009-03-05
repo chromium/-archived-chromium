@@ -80,10 +80,11 @@ std::string AutocompleteInput::TypeToString(Type type) {
 }
 
 //static
-AutocompleteInput::Type AutocompleteInput::Parse(const std::wstring& text,
-                                                 const std::wstring& desired_tld,
-                                                 url_parse::Parsed* parts,
-                                                 std::wstring* scheme) {
+AutocompleteInput::Type AutocompleteInput::Parse(
+    const std::wstring& text,
+    const std::wstring& desired_tld,
+    url_parse::Parsed* parts,
+    std::wstring* scheme) {
   DCHECK(parts);
 
   const size_t first_non_white = text.find_first_not_of(kWhitespaceWide, 0);

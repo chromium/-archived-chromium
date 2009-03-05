@@ -79,8 +79,8 @@ class SyncChannel : public ChannelProxy,
     void DispatchMessages();
 
     // Checks if the given message is blocking the listener thread because of a
-    // synchronous send.  If it is, the thread is unblocked and true is returned.
-    // Otherwise the function returns false.
+    // synchronous send.  If it is, the thread is unblocked and true is
+    // returned. Otherwise the function returns false.
     bool TryToUnblockListener(const Message* msg);
 
     // Called on the IPC thread when a sync send that runs a nested message loop
@@ -107,8 +107,8 @@ class SyncChannel : public ChannelProxy,
     // WaitableEventWatcher::Delegate implementation.
     virtual void OnWaitableEventSignaled(base::WaitableEvent* arg);
 
-    // When sending a synchronous message, this structure contains an object that
-    // knows how to deserialize the response.
+    // When sending a synchronous message, this structure contains an object
+    // that knows how to deserialize the response.
     struct PendingSyncMsg {
       PendingSyncMsg(int id, IPC::MessageReplyDeserializer* d,
                      base::WaitableEvent* e) :
@@ -133,7 +133,9 @@ class SyncChannel : public ChannelProxy,
   // WaitableEventWatcher::Delegate implementation.
   virtual void OnWaitableEventSignaled(base::WaitableEvent* arg);
 
-  SyncContext* sync_context() { return reinterpret_cast<SyncContext*>(context()); }
+  SyncContext* sync_context() {
+    return reinterpret_cast<SyncContext*>(context());
+  }
 
   // Both these functions wait for a reply, timeout or process shutdown.  The
   // latter one also runs a nested message loop in the meantime.

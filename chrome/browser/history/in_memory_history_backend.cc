@@ -62,7 +62,9 @@ void InMemoryHistoryBackend::AttachToHistoryService(Profile* profile) {
   registered_for_notifications_ = true;
   NotificationService* service = NotificationService::current();
   service->AddObserver(this, NotificationType::HISTORY_URL_VISITED, source);
-  service->AddObserver(this, NotificationType::HISTORY_TYPED_URLS_MODIFIED, source);
+  service->AddObserver(this,
+                       NotificationType::HISTORY_TYPED_URLS_MODIFIED,
+                       source);
   service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED, source);
 }
 

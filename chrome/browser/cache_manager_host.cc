@@ -339,7 +339,8 @@ void CacheManagerHost::ReviseAllocationStrategy() {
       AttemptTactic(KEEP_LIVE, active, DIVIDE_EVENLY, inactive, &strategy) ||
       // We're basically out of memory.  The best we can do is just divide up
       // what we have and soldier on.
-      AttemptTactic(DIVIDE_EVENLY, active, DIVIDE_EVENLY, inactive, &strategy)) {
+      AttemptTactic(DIVIDE_EVENLY, active, DIVIDE_EVENLY, inactive,
+                    &strategy)) {
     // Having found a workable strategy, we enact it.
     EnactStrategy(strategy);
   } else {

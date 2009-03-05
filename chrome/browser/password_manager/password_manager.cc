@@ -181,7 +181,8 @@ void PasswordManager::DidStopLoading() {
   }
 }
 
-void PasswordManager::PasswordFormsSeen(const std::vector<PasswordForm>& forms) {
+void PasswordManager::PasswordFormsSeen(
+    const std::vector<PasswordForm>& forms) {
   if (!web_contents_->profile() ||
       !web_contents_->profile()->GetWebDataService(Profile::EXPLICIT_ACCESS))
     return;
@@ -216,9 +217,10 @@ void PasswordManager::PasswordFormsSeen(const std::vector<PasswordForm>& forms) 
   }
 }
 
-void PasswordManager::Autofill(const PasswordForm& form_for_autofill,
-                               const PasswordFormMap& best_matches,
-                               const PasswordForm* const preferred_match) const {
+void PasswordManager::Autofill(
+    const PasswordForm& form_for_autofill,
+    const PasswordFormMap& best_matches,
+    const PasswordForm* const preferred_match) const {
   DCHECK(web_contents_);
   DCHECK(preferred_match);
   switch (form_for_autofill.scheme) {

@@ -296,11 +296,13 @@ bool SafeBrowsingProtocolParser::ParseChunk(const char* data,
 
     if (cmd_parts[0] == "a") {
       chunks->back().is_add = true;
-      if (!ParseAddChunk(chunk_data, chunk_len, hash_len, &chunks->back().hosts))
+      if (!ParseAddChunk(chunk_data, chunk_len, hash_len,
+                         &chunks->back().hosts))
         return false;  // Parse error.
     } else if (cmd_parts[0] == "s") {
       chunks->back().is_add = false;
-      if (!ParseSubChunk(chunk_data, chunk_len, hash_len, &chunks->back().hosts))
+      if (!ParseSubChunk(chunk_data, chunk_len, hash_len,
+                         &chunks->back().hosts))
         return false;  // Parse error.
     } else {
       NOTREACHED();
@@ -354,7 +356,8 @@ bool SafeBrowsingProtocolParser::ParseAddChunk(
       hosts->push_back(chunk_host);
     }
 
-    if (!ReadPrefixes(&chunk_data, &remaining, entry, prefix_count, index_start))
+    if (!ReadPrefixes(&chunk_data, &remaining, entry, prefix_count,
+                      index_start))
       return false;
   }
 

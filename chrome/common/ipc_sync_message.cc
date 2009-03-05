@@ -77,7 +77,8 @@ int SyncMessage::GetMessageId(const Message& msg) {
 Message* SyncMessage::GenerateReply(const Message* msg) {
   DCHECK(msg->is_sync());
 
-  Message* reply = new Message(msg->routing_id(), IPC_REPLY_ID, msg->priority());
+  Message* reply = new Message(msg->routing_id(), IPC_REPLY_ID,
+                               msg->priority());
   reply->set_reply();
 
   SyncHeader header;

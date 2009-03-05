@@ -38,7 +38,8 @@ static const char* const kSbReportPhishingUrl =
     "http://www.google.com/safebrowsing/report_error/";
 
 static const wchar_t* const kSbDiagnosticHtml =
-    L"<a href=\"\" onClick=\"sendCommand('showDiagnostic'); return false;\" onMouseDown=\"return false;\">%ls</a>";
+    L"<a href=\"\" onClick=\"sendCommand('showDiagnostic'); return false;\" "
+    L"onMouseDown=\"return false;\">%ls</a>";
 
 // The commands returned by the page when the user performs an action.
 static const char* const kShowDiagnosticCommand = "showDiagnostic";

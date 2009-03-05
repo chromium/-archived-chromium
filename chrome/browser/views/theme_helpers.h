@@ -19,7 +19,8 @@
 // The width parameter is the width of horizontal gradient that will be
 // created to calculate the two colors. x1 and x2 are the two pixel positions
 // along the X axis.
-void GetRebarGradientColors(int width, int x1, int x2, SkColor* c1, SkColor* c2);
+void GetRebarGradientColors(int width, int x1, int x2,
+                            SkColor* c1, SkColor* c2);
 
 
 // Gets the color used to draw dark (inset beveled) lines.

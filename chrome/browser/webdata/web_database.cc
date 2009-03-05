@@ -631,7 +631,8 @@ bool WebDatabase::AddLogin(const PasswordForm& form) {
                 " password_element, password_value, submit_element, "
                 " signon_realm, ssl_valid, preferred, date_created, "
                 " blacklisted_by_user, scheme) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)") != SQLITE_OK) {
+                "VALUES "
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)") != SQLITE_OK) {
     NOTREACHED() << "Statement prepare failed";
     return false;
   }

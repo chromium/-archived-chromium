@@ -584,8 +584,9 @@ void HistoryURLProvider::EnsureMatchPresent(
     matches->push_back(match);
 }
 
-void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
-                                               bool fixup_input_and_run_pass_1) {
+void HistoryURLProvider::RunAutocompletePasses(
+    const AutocompleteInput& input,
+    bool fixup_input_and_run_pass_1) {
   matches_.clear();
 
   if ((input.type() != AutocompleteInput::UNKNOWN) &&

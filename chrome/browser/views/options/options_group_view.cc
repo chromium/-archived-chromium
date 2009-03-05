@@ -40,7 +40,8 @@ OptionsGroupView::OptionsGroupView(views::View* contents,
       rb.GetFont(ResourceBundle::BaseFont).DeriveFont(0, ChromeFont::BOLD);
   title_label_->SetFont(title_font);
   SkColor title_color = gfx::NativeTheme::instance()->GetThemeColorWithDefault(
-      gfx::NativeTheme::BUTTON, BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR, COLOR_WINDOWTEXT);
+      gfx::NativeTheme::BUTTON, BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR,
+      COLOR_WINDOWTEXT);
   title_label_->SetColor(title_color);
   title_label_->SetMultiLine(true);
   title_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);

@@ -21,14 +21,16 @@ namespace {
 const char kURL1[] = "http://www.google.com/";
 const int kTime1 = 1000;
 const char kTitle1[] = "Google";
-const char kBody1[] = "COUNTTAG Web Images Maps News Shopping Gmail more My Account | "
+const char kBody1[] =
+    "COUNTTAG Web Images Maps News Shopping Gmail more My Account | "
     "Sign out Advanced Search Preferences Language Tools Advertising Programs "
     "- Business Solutions - About Google, 2008 Google";
 
 const char kURL2[] = "http://images.google.com/";
 const int kTime2 = 2000;
 const char kTitle2[] = "Google Image Search";
-const char kBody2[] = "COUNTTAG Web Images Maps News Shopping Gmail more My Account | "
+const char kBody2[] =
+    "COUNTTAG Web Images Maps News Shopping Gmail more My Account | "
     "Sign out Advanced Image Search Preferences The most comprehensive image "
     "search on the web. Want to help improve Google Image Search? Try Google "
     "Image Labeler. Advertising Programs - Business Solutions - About Google "
@@ -37,7 +39,8 @@ const char kBody2[] = "COUNTTAG Web Images Maps News Shopping Gmail more My Acco
 const char kURL3[] = "http://slashdot.org/";
 const int kTime3 = 3000;
 const char kTitle3[] = "Slashdot: News for nerds, stuff that matters";
-const char kBody3[] = "COUNTTAG Slashdot Log In Create Account Subscribe Firehose Why "
+const char kBody3[] =
+    "COUNTTAG Slashdot Log In Create Account Subscribe Firehose Why "
     "Log In? Why Subscribe? Nickname Password Public Terminal Sections "
     "Main Apple AskSlashdot Backslash Books Developers Games Hardware "
     "Interviews IT Linux Mobile Politics Science YRO";

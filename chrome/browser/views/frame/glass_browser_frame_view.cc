@@ -67,7 +67,8 @@ SkBitmap* GlassBrowserWindowResources::standard_frame_bitmaps_[];
 
 GlassBrowserWindowResources* GlassBrowserFrameView::resources_ = NULL;
 SkBitmap* GlassBrowserFrameView::distributor_logo_ = NULL;
-HICON GlassBrowserFrameView::throbber_icons_[GlassBrowserFrameView::kThrobberIconCount];
+HICON GlassBrowserFrameView::throbber_icons_[
+    GlassBrowserFrameView::kThrobberIconCount];
 
 namespace {
 // There are 3 px of client edge drawn inside the outer frame borders.

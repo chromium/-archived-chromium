@@ -106,8 +106,8 @@ bool Channel::ChannelImpl::Send(Message* message) {
   return true;
 }
 
-const std::wstring Channel::ChannelImpl::PipeName(const std::wstring& channel_id)
-    const {
+const std::wstring Channel::ChannelImpl::PipeName(
+    const std::wstring& channel_id) const {
   std::wostringstream ss;
   // XXX(darin): get application name from somewhere else
   ss << L"\\\\.\\pipe\\chrome." << channel_id;

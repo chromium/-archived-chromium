@@ -475,7 +475,8 @@ void URLDatabase::CreateMainURLIndex() {
 
 void URLDatabase::CreateSupplimentaryURLIndices() {
   // Add a favicon index.  This is useful when we delete urls.
-  sqlite3_exec(GetDB(), "CREATE INDEX urls_favicon_id_INDEX ON urls (favicon_id)",
+  sqlite3_exec(GetDB(),
+               "CREATE INDEX urls_favicon_id_INDEX ON urls (favicon_id)",
                NULL, NULL, NULL);
 }
 

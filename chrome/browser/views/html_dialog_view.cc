@@ -156,7 +156,8 @@ bool HtmlDialogView::IsPopup(TabContents* source) {
   return true;
 }
 
-void HtmlDialogView::ToolbarSizeChanged(TabContents* source, bool is_animating) {
+void HtmlDialogView::ToolbarSizeChanged(TabContents* source,
+                                        bool is_animating) {
   Layout();
 }
 

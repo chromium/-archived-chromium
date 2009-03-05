@@ -475,7 +475,7 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
     type = active->type();
   else
     type = TabContents::TypeForURL(&real_url);
-  
+
   NavigationEntry* entry = new NavigationEntry(type, NULL, -1, real_url,
                                                referrer,
                                                string16(), transition);

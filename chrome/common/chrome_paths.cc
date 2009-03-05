@@ -213,7 +213,8 @@ bool PathProvider(int key, FilePath* result) {
       return false;
   }
 
-  if (create_dir && !file_util::PathExists(cur) && !file_util::CreateDirectory(cur))
+  if (create_dir && !file_util::PathExists(cur) &&
+      !file_util::CreateDirectory(cur))
     return false;
 
   *result = cur;

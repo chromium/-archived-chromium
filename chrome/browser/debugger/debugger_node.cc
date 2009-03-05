@@ -69,12 +69,14 @@ v8::Handle<v8::Value> DebuggerNode::NewInstance() {
   }
   v8::Local<v8::ObjectTemplate> instance = templ->InstanceTemplate();
   if (IsObject()) {
-    instance->SetNamedPropertyHandler(&DebuggerNode::NodeGetter, 0, 0, 0, 0, node);
+    instance->SetNamedPropertyHandler(&DebuggerNode::NodeGetter, 0, 0, 0, 0,
+                                      node);
     // TODO(erikkay): verify that the interceptor does not have to be
     // behind the object
   }
   if (IsCollection()) {
-    instance->SetIndexedPropertyHandler(&DebuggerNode::NodeIndex, 0, 0, 0, 0, node);
+    instance->SetIndexedPropertyHandler(&DebuggerNode::NodeIndex, 0, 0, 0, 0,
+                                        node);
   }
   v8::Local<v8::Object> ret = instance->NewInstance();
   v8::Persistent<v8::Object> p = v8::Persistent<v8::Object>::New(ret);
@@ -84,8 +86,8 @@ v8::Handle<v8::Value> DebuggerNode::NewInstance() {
 
 v8::Handle<v8::Value> DebuggerNode::NodeGetter(v8::Local<v8::String> prop,
                                             const v8::AccessorInfo& info) {
-  DebuggerNodeWrapper* w =
-    static_cast<DebuggerNodeWrapper*>(v8::External::Cast(*info.Data())->Value());
+  DebuggerNodeWrapper* w = static_cast<DebuggerNodeWrapper*>(v8::External::Cast(
+        *info.Data())->Value());
   DebuggerNode* n = w->node();
   if (n->IsValid() && n->IsObject()) {
     return n->PropGetter(prop, info);
@@ -96,8 +98,8 @@ v8::Handle<v8::Value> DebuggerNode::NodeGetter(v8::Local<v8::String> prop,
 
 v8::Handle<v8::Value> DebuggerNode::NodeIndex(uint32_t index,
                                            const v8::AccessorInfo& info) {
-  DebuggerNodeWrapper* w =
-    static_cast<DebuggerNodeWrapper*>(v8::External::Cast(*info.Data())->Value());
+  DebuggerNodeWrapper* w = static_cast<DebuggerNodeWrapper*>(v8::External::Cast(
+      *info.Data())->Value());
   DebuggerNode* n = w->node();
   if (n->IsValid() && n->IsCollection()) {
     return n->IndexGetter(index, info);
@@ -107,8 +109,8 @@ v8::Handle<v8::Value> DebuggerNode::NodeIndex(uint32_t index,
 }
 
 v8::Handle<v8::Value> DebuggerNode::NodeFunc(const v8::Arguments& args) {
-  DebuggerNodeWrapper* w =
-    static_cast<DebuggerNodeWrapper*>(v8::External::Cast(*args.Data())->Value());
+  DebuggerNodeWrapper* w = static_cast<DebuggerNodeWrapper*>(v8::External::Cast(
+      *args.Data())->Value());
   DebuggerNode* n = w->node();
   if (n->IsValid() && n->IsFunction()) {
     return n->Function(args);
@@ -137,11 +139,13 @@ v8::Handle<v8::Value> ChromeNode::PropGetter(v8::Handle<v8::String> prop,
     return node->NewInstance();
   } else if (prop->Equals(v8::String::New("setDebuggerReady"))) {
     FunctionNode<DebuggerShell>* f =
-      new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerReady, debugger_);
+      new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerReady,
+                                      debugger_);
     return f->NewInstance();
   } else if (prop->Equals(v8::String::New("setDebuggerBreak"))) {
     FunctionNode<DebuggerShell>* f =
-      new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerBreak, debugger_);
+      new FunctionNode<DebuggerShell>(DebuggerShell::SetDebuggerBreak,
+                                      debugger_);
     return f->NewInstance();
   } else if (prop->Equals(v8::String::New("foo"))) {
     return v8::Undefined();

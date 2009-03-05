@@ -388,7 +388,8 @@ bool SyncChannel::SendWithTimeout(Message* message, int timeout_ms) {
     return false;
   }
 
-  DCHECK(sync_messages_with_no_timeout_allowed_ || timeout_ms != base::kNoTimeout);
+  DCHECK(sync_messages_with_no_timeout_allowed_ ||
+         timeout_ms != base::kNoTimeout);
   SyncMessage* sync_msg = static_cast<SyncMessage*>(message);
   context->Push(sync_msg);
   int message_id = SyncMessage::GetMessageId(*sync_msg);

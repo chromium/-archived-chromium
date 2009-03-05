@@ -25,7 +25,8 @@ public:
   STDMETHOD_(ULONG, Release)();
 
   //IClassFactory methods
-  STDMETHOD(CreateInstance)(LPUNKNOWN pUnkOuter, REFIID riid, LPVOID* ppvObject) = 0;
+  STDMETHOD(CreateInstance)(LPUNKNOWN pUnkOuter, REFIID riid,
+                            LPVOID* ppvObject) = 0;
   STDMETHOD(LockServer)(BOOL fLock);
 
   // generally handy for DllUnloadNow -- count of existing descendant objects
@@ -49,7 +50,8 @@ public:
 
 
 template <class T>
-STDMETHODIMP OneClassFactory<T>::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void** result) {
+STDMETHODIMP OneClassFactory<T>::CreateInstance(LPUNKNOWN pUnkOuter,
+                                                REFIID riid, void** result) {
   *result = NULL;
 
   if(pUnkOuter != NULL)

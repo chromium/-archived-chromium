@@ -47,7 +47,8 @@ void PrintJobManager::OnQuit() {
   if (current_jobs_.size() == 0)
     return;
   {
-    // Don't take a chance and copy the array since it can be modified in transit.
+    // Don't take a chance and copy the array since it can be modified in
+    // transit.
     PrintJobs current_jobs(current_jobs_);
     // Wait for every jobs to finish.
     for (size_t i = 0; i < current_jobs.size(); ++i) {

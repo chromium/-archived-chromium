@@ -30,19 +30,23 @@ static const int kSbTimerStartIntervalSec = 5 * 60;
 
 // Update URL for querying about the latest set of chunk updates.
 static const char* const kSbUpdateUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/downloads?client=%s&appver=%s&pver=2.2";
+    "http://safebrowsing.clients.google.com/safebrowsing/downloads?client=%s"
+    "&appver=%s&pver=2.2";
 
 // GetHash request URL for retrieving full hashes.
 static const char* const kSbGetHashUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/gethash?client=%s&appver=%s&pver=2.2";
+    "http://safebrowsing.clients.google.com/safebrowsing/gethash?client=%s"
+    "&appver=%s&pver=2.2";
 
 // New MAC client key requests URL.
 static const char* const kSbNewKeyUrl =
-    "https://sb-ssl.google.com/safebrowsing/newkey?client=%s&appver=%s&pver=2.2";
+    "https://sb-ssl.google.com/safebrowsing/newkey?client=%s&appver=%s"
+    "&pver=2.2";
 
 // URL for reporting malware pages.
 static const char* const kSbMalwareReportUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/report?evts=malblhit&evtd=%s&evtr=%s&evhr=%s&client=%s&appver=%s";
+    "http://safebrowsing.clients.google.com/safebrowsing/report?evts=malblhit"
+    "&evtd=%s&evtr=%s&evhr=%s&client=%s&appver=%s";
 
 #if defined(GOOGLE_CHROME_BUILD)
 static const char* const kSbClientName = "googlechrome";

@@ -960,8 +960,8 @@ bool DraggedTabController::EndDragImpl(EndDragType type) {
   bool destroy_now = true;
   if (type != TAB_DESTROYED) {
     // We only finish up the drag if we were actually dragging. If we never
-    // constructed a view, the user just clicked and released and didn't move the
-    // mouse enough to trigger a drag.
+    // constructed a view, the user just clicked and released and didn't move
+    // the mouse enough to trigger a drag.
     if (view_.get()) {
       RestoreFocus();
       if (type == CANCELED) {

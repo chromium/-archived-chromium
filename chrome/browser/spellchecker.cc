@@ -385,7 +385,8 @@ SpellChecker::SpellChecker(const FilePath& dict_dir,
       file_loop_(NULL),
       url_request_context_(request_context),
       dic_is_downloading_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(dic_download_state_changer_factory_(this)) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          dic_download_state_changer_factory_(this)) {
   // Remember UI loop to later use this as a proxy to get IO loop.
   ui_loop_ = MessageLoop::current();
 

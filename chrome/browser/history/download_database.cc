@@ -55,7 +55,8 @@ bool DownloadDatabase::DropDownloadTable() {
       SQLITE_OK;
 }
 
-void DownloadDatabase::QueryDownloads(std::vector<DownloadCreateInfo>* results) {
+void DownloadDatabase::QueryDownloads(
+    std::vector<DownloadCreateInfo>* results) {
   results->clear();
 
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
@@ -156,7 +157,9 @@ void DownloadDatabase::RemoveDownloadsBetween(Time delete_begin,
   time_t start_time = delete_begin.ToTimeT();
   time_t end_time = delete_end.ToTimeT();
   statement->bind_int64(0, start_time);
-  statement->bind_int64(1, end_time ? end_time : std::numeric_limits<int64>::max());
+  statement->bind_int64(
+      1,
+      end_time ? end_time : std::numeric_limits<int64>::max());
   statement->bind_int(2, DownloadItem::COMPLETE);
   statement->bind_int(3, DownloadItem::CANCELLED);
   statement->step();

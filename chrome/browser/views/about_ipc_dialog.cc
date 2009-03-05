@@ -232,7 +232,8 @@ INT_PTR CALLBACK DialogProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
       break;
     case WM_NOTIFY: {
       NMLISTVIEW* info = reinterpret_cast<NM_LISTVIEW*>(lparam);
-      if ((wparam == IDC_View || wparam == IDC_ViewHost || wparam == IDC_Plugin ||
+      if ((wparam == IDC_View || wparam == IDC_ViewHost ||
+           wparam == IDC_Plugin ||
            wparam == IDC_PluginHost || wparam == IDC_NPObject ||
            wparam == IDC_PluginProcess || wparam == IDC_PluginProcessHost) &&
           info->hdr.code == LVN_ITEMCHANGED) {

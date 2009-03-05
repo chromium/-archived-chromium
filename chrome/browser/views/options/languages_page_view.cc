@@ -233,8 +233,9 @@ static const int kDialogPadding = 7;
 static int kDefaultWindowWidthChars = 60;
 static int kDefaultWindowHeightLines = 3;
 
-AddLanguageWindowView::AddLanguageWindowView(LanguagesPageView* language_delegate,
-                                             Profile* profile)
+AddLanguageWindowView::AddLanguageWindowView(
+    LanguagesPageView* language_delegate,
+    Profile* profile)
     : profile_(profile->GetOriginalProfile()),
       language_delegate_(language_delegate),
       accept_language_combobox_(NULL) {

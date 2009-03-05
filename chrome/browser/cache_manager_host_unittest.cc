@@ -24,7 +24,8 @@ class CacheManagerHostTest : public testing::Test {
   static const CacheManager::UsageStats kStats2;
 
   // Thunks to access protected members of CacheManagerHost
-  static std::map<int, CacheManagerHost::RendererInfo>& stats(CacheManagerHost* h) {
+  static std::map<int, CacheManagerHost::RendererInfo>& stats(
+        CacheManagerHost* h) {
     return h->stats_;
   }
 

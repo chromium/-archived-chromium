@@ -12,9 +12,9 @@ class DebuggerHost;
 class MessageLoop;
 
 // Interaction with the underlying Socket object MUST happen in the IO thread.
-// However, Debugger will call into this object from the main thread.  As a result
-// we wind up having helper methods that we call with InvokeLater into the IO
-// thread.
+// However, Debugger will call into this object from the main thread.  As a
+// result we wind up having helper methods that we call with InvokeLater into
+// the IO thread.
 
 class DebuggerInputOutputSocket: public DebuggerInputOutput,
                               public ListenSocket::ListenSocketDelegate {

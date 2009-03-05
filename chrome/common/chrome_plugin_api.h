@@ -218,9 +218,9 @@ typedef void (STDCALL *CPB_SetKeepProcessAliveFunc)(CPID id,
 // Asks the browser to show an HTML dialog to the user.  The dialog contents
 // should be loaded from the given URL.  The 'json_arguments' is a JSON string
 // that the dialog can fetch using Chrome's JavaScript DOM bindings.  This call
-// will block until the dialog is closed.  On success, 'json_retval' will contain
-// the JSON string sent back by the dialog (using Chrome's JavaScript DOM
-// bindings), and CPERR_SUCCESS is returned.  'json_retval' should be freed
+// will block until the dialog is closed.  On success, 'json_retval' will
+// contain the JSON string sent back by the dialog (using Chrome's JavaScript
+// DOM bindings), and CPERR_SUCCESS is returned.  'json_retval' should be freed
 // using CPB_Free when done.
 typedef CPError (STDCALL *CPB_ShowHtmlDialogModalFunc)(
     CPID id, CPBrowsingContext context, const char* url, int width, int height,
@@ -405,7 +405,8 @@ typedef void (STDCALL *CPP_OnMessageFunc)(void *data, uint32 data_len);
 
 // Informs the plugin of raw data having been sent from another process.
 typedef void (STDCALL *CPP_OnSyncMessageFunc)(void *data, uint32 data_len,
-                                              void **retval, uint32 *retval_len);
+                                              void **retval,
+                                              uint32 *retval_len);
 
 // Informs the plugin that the file dialog has completed, and contains the
 // results.

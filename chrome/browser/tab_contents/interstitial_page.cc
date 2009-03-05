@@ -363,8 +363,9 @@ void InterstitialPage::DidNavigate(
 
   // Notify the tab we are not loading so the throbber is stopped. It also
   // causes a NOTIFY_LOAD_STOP notification, that the AutomationProvider (used
-  // by the UI tests) expects to consider a navigation as complete. Without this,
-  // navigating in a UI test to a URL that triggers an interstitial would hang.
+  // by the UI tests) expects to consider a navigation as complete. Without
+  // this, navigating in a UI test to a URL that triggers an interstitial would
+  // hang.
   tab_->SetIsLoading(false, NULL);
 #else
   // TODO(port): we need RenderViewHost.

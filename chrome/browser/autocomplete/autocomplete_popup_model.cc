@@ -313,7 +313,8 @@ void AutocompletePopupModel::Observe(NotificationType type,
     }
     // FALL THROUGH
 
-    case NotificationType::AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE: {
+    case NotificationType::
+             AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE: {
       // Update the edit with the possibly new data for this match.
       // NOTE: This must be done after the code above, so that our internal
       // state will be consistent when the edit calls back to

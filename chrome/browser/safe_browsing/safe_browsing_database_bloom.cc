@@ -538,7 +538,8 @@ void SafeBrowsingDatabaseBloom::InsertSub(
     } else {
       for (int i = 0; i < count; i++) {
         SBPrefix prefix = entry->PrefixAt(i);
-        encoded_add = EncodeChunkId(entry->ChunkIdAtPrefix(i), entry->list_id());
+        encoded_add = EncodeChunkId(entry->ChunkIdAtPrefix(i),
+                                    entry->list_id());
         InsertSubPrefix(prefix, encoded, encoded_add);
       }
     }

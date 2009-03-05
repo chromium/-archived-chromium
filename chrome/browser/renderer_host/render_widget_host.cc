@@ -449,8 +449,8 @@ void RenderWidgetHost::OnMsgPaintRect(
       process()->ReceivedBadMessage(ViewHostMsg_PaintRect__ID);
     } else {
       // Paint the backing store. This will update it with the renderer-supplied
-      // bits. The view will read out of the backing store later to actually draw
-      // to the screen.
+      // bits. The view will read out of the backing store later to actually
+      // draw to the screen.
       PaintBackingStoreRect(dib, params.bitmap_rect, params.view_size);
     }
   }

@@ -24,7 +24,8 @@ ChildThread::ChildThread(Thread::Options options)
 
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kUserAgent)) {
     webkit_glue::SetUserAgent(WideToUTF8(
-        CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kUserAgent)));
+        CommandLine::ForCurrentProcess()->GetSwitchValue(
+            switches::kUserAgent)));
   }
 }
 

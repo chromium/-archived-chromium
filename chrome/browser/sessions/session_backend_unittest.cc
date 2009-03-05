@@ -136,7 +136,8 @@ TEST_F(SessionBackendTest, BigData) {
       new SessionBackend(BaseSessionService::SESSION_RESTORE, path_));
   std::vector<SessionCommand*> commands;
   commands.push_back(CreateCommandFromData(data[0]));
-  const SessionCommand::size_type big_size = SessionBackend::kFileReadBufferSize + 100;
+  const SessionCommand::size_type big_size =
+      SessionBackend::kFileReadBufferSize + 100;
   const SessionCommand::id_type big_id = 50;
   SessionCommand* big_command = new SessionCommand(big_id, big_size);
   reinterpret_cast<char*>(big_command->contents())[0] = 'a';

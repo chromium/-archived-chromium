@@ -212,9 +212,11 @@ template<>
 void RunnableMethodTraits<RunnerBridge>::ReleaseCallee(RunnerBridge*) {}
 
 template<>
-void RunnableMethodTraits<AsyncRequestRunner>::RetainCallee(AsyncRequestRunner*) {}
+void RunnableMethodTraits<AsyncRequestRunner>::RetainCallee(
+    AsyncRequestRunner*) {}
 template<>
-void RunnableMethodTraits<AsyncRequestRunner>::ReleaseCallee(AsyncRequestRunner*) {}
+void RunnableMethodTraits<AsyncRequestRunner>::ReleaseCallee(
+    AsyncRequestRunner*) {}
 
 
 // Issue three sequential requests -- each should succeed.

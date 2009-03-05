@@ -85,7 +85,8 @@ class CanonicalEncodingMap {
     return &locale_dependent_encoding_ids_;
   }
 
-  std::vector<CharacterEncoding::EncodingInfo>* const current_display_encodings() {
+  std::vector<CharacterEncoding::EncodingInfo>* const
+      current_display_encodings() {
     return &current_display_encodings_;
   }
 
@@ -98,7 +99,8 @@ class CanonicalEncodingMap {
   DISALLOW_EVIL_CONSTRUCTORS(CanonicalEncodingMap);
 };
 
-const IdToCanonicalEncodingNameMapType* CanonicalEncodingMap::GetIdToCanonicalEncodingNameMapData() {
+const IdToCanonicalEncodingNameMapType*
+    CanonicalEncodingMap::GetIdToCanonicalEncodingNameMapData() {
   // Testing and building map is not thread safe, this function is supposed to
   // only run in UI thread. Myabe I should add a lock in here for making it as
   // thread safe.
@@ -114,7 +116,8 @@ const IdToCanonicalEncodingNameMapType* CanonicalEncodingMap::GetIdToCanonicalEn
   return id_to_encoding_name_map_.get();
 }
 
-const CanonicalEncodingNameToIdMapType* CanonicalEncodingMap::GetCanonicalEncodingNameToIdMapData() {
+const CanonicalEncodingNameToIdMapType*
+    CanonicalEncodingMap::GetCanonicalEncodingNameToIdMapData() {
   if (!encoding_name_to_id_map_.get()) {
     encoding_name_to_id_map_.reset(new CanonicalEncodingNameToIdMapType);
     for (int i = 0; i < canonical_encoding_names_length; ++i) {
@@ -337,7 +340,8 @@ std::wstring CharacterEncoding::GetCanonicalEncodingNameByAliasName(
 // FireFox, we always put UTF-8 as toppest position, after then put user
 // recently selected encodings, then put local dependent encoding items.
 // At last, we put all rest encoding items.
-const std::vector<CharacterEncoding::EncodingInfo>* CharacterEncoding::GetCurrentDisplayEncodings(
+const std::vector<CharacterEncoding::EncodingInfo>*
+    CharacterEncoding::GetCurrentDisplayEncodings(
     const std::wstring& locale,
     const std::wstring& locale_encodings,
     const std::wstring& recently_select_encodings) {

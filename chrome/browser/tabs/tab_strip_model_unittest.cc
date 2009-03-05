@@ -791,7 +791,8 @@ TEST_F(TabStripModelTest, TestContextMenuCloseCommands) {
   InsertTabContentses(&tabstrip, contents1, contents2, contents3);
   EXPECT_EQ(5, tabstrip.count());
 
-  tabstrip.ExecuteContextMenuCommand(0, TabStripModel::CommandCloseTabsOpenedBy);
+  tabstrip.ExecuteContextMenuCommand(0,
+                                     TabStripModel::CommandCloseTabsOpenedBy);
   EXPECT_EQ(2, tabstrip.count());
   EXPECT_EQ(dummy_contents, tabstrip.GetTabContentsAt(1));
 

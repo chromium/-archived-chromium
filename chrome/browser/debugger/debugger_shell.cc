@@ -85,7 +85,8 @@ void DebuggerShell::Start() {
   CompileAndRun(debugger_shell_js, "chrome.dll/debugger_shell.js");
 }
 
-void DebuggerShell::HandleWeakReference(v8::Persistent<v8::Value> obj, void* data) {
+void DebuggerShell::HandleWeakReference(v8::Persistent<v8::Value> obj,
+                                        void* data) {
   DebuggerNodeWrapper* node = static_cast<DebuggerNodeWrapper*>(data);
   node->Release();
 }
@@ -113,7 +114,8 @@ DebuggerInputOutput* DebuggerShell::GetIo() {
   return io_.get();
 }
 
-v8::Handle<v8::Value> DebuggerShell::DelegateSubshell(const v8::Arguments& args) {
+v8::Handle<v8::Value> DebuggerShell::DelegateSubshell(
+    const v8::Arguments& args) {
   DebuggerShell* debugger =
     static_cast<DebuggerShell*>(v8::External::Cast(*args.Data())->Value());
   return debugger->Subshell(args);
@@ -136,7 +138,8 @@ v8::Handle<v8::Value> DebuggerShell::Subshell(const v8::Arguments& args) {
       v8_context_->Global()->Set(v8::String::New("shell_"), shell_);
     }
   } else if (args[0]->IsObject()) {
-    shell_ = v8::Persistent<v8::Object>::New(v8::Local<v8::Object>::Cast(args[0]));
+    shell_ =
+        v8::Persistent<v8::Object>::New(v8::Local<v8::Object>::Cast(args[0]));
     v8_context_->Global()->Set(v8::String::New("shell_"), shell_);
   }
   return v8::Undefined();
@@ -235,7 +238,8 @@ void DebuggerShell::DebugMessage(const std::wstring& msg) {
   v8::HandleScope scope;
 
   if (msg.length()) {
-    if ((msg[0] == L'{' || msg[0] == L'[' || msg[0] == L'(') && (!shell_.IsEmpty())) {
+    if ((msg[0] == L'{' || msg[0] == L'[' || msg[0] == L'(') &&
+        (!shell_.IsEmpty())) {
       // v8's wide String constructor requires uint16 rather than wchar
       const uint16* data = reinterpret_cast<const uint16* >(msg.c_str());
       v8::Handle<v8::Value> argv[] = {v8::String::New(data)};
@@ -262,7 +266,8 @@ void DebuggerShell::OnDebugDisconnect() {
   SubshellFunction("on_disconnect", 0, NULL);
 }
 
-void DebuggerShell::ObjectToString(v8::Handle<v8::Value> result, std::wstring* str) {
+void DebuggerShell::ObjectToString(v8::Handle<v8::Value> result,
+                                   std::wstring* str) {
   v8::HandleScope scope;
   if (!result.IsEmpty() && !result->IsUndefined()) {
     v8::Local<v8::String> str_obj = result->ToString();
@@ -277,7 +282,8 @@ void DebuggerShell::ObjectToString(v8::Handle<v8::Value> result, std::wstring* s
   }
 }
 
-void DebuggerShell::ObjectToString(v8::Handle<v8::Value> result, std::string* str) {
+void DebuggerShell::ObjectToString(v8::Handle<v8::Value> result,
+                                   std::string* str) {
   v8::HandleScope scope;
   if (!result.IsEmpty() && !result->IsUndefined()) {
     v8::Local<v8::String> str_obj = result->ToString();

@@ -13,8 +13,10 @@
 #include "skia/ext/bitmap_platform_device_win.h"
 #include "SkGradientShader.h"
 
-void GetRebarGradientColors(int width, int x1, int x2, SkColor* c1, SkColor* c2) {
-  DCHECK(c1 && c2) << "ThemeHelpers::GetRebarGradientColors - c1 or c2 is NULL!";
+void GetRebarGradientColors(int width, int x1, int x2,
+                            SkColor* c1, SkColor* c2) {
+  DCHECK(c1 && c2) <<
+      "ThemeHelpers::GetRebarGradientColors - c1 or c2 is NULL!";
 
   // To get the colors we need, we draw a horizontal gradient using
   // DrawThemeBackground, then extract the pixel values from and return
@@ -63,7 +65,8 @@ void GetRebarGradientColors(int width, int x1, int x2, SkColor* c1, SkColor* c2)
   // The | in the following operations forces the alpha to 0xFF. This is
   // needed as windows sets the alpha to 0 when it renders.
   skia::BitmapPlatformDeviceWin& device =
-      static_cast<skia::BitmapPlatformDeviceWin&>(canvas.getTopPlatformDevice());
+      static_cast<skia::BitmapPlatformDeviceWin&>(
+          canvas.getTopPlatformDevice());
   *c1 = 0xFF000000 | device.getColorAt(x1, 0);
   *c2 = 0xFF000000 | device.getColorAt(x2, 0);
 }

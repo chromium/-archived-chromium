@@ -99,7 +99,8 @@ HistoryService::HistoryService()
     : thread_(new ChromeThread(ChromeThread::HISTORY)),
       profile_(NULL),
       backend_loaded_(false) {
-  if (NotificationService::current()) {  // Is NULL when running generate_profile.
+  // Is NULL when running generate_profile.
+  if (NotificationService::current()) {
     NotificationService::current()->AddObserver(
         this, NotificationType::HISTORY_URLS_DELETED,
         Source<Profile>(profile_));
@@ -119,7 +120,8 @@ HistoryService::~HistoryService() {
   Cleanup();
 
   // Unregister for notifications.
-  if (NotificationService::current()) {  // Is NULL when running generate_profile.
+  // Is NULL when running generate_profile.
+  if (NotificationService::current()) {
     NotificationService::current()->RemoveObserver(
         this, NotificationType::HISTORY_URLS_DELETED,
         Source<Profile>(profile_));

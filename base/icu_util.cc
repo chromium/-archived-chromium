@@ -34,11 +34,11 @@
 #define ICU_UTIL_DATA_IMPL ICU_UTIL_DATA_FILE
 #endif
 
-#endif	// ICU_UTIL_DATA_IMPL
+#endif  // ICU_UTIL_DATA_IMPL
 
 #if defined(OS_WIN)
-#define ICU_UTIL_DATA_SYMBOL			"icudt38_dat"
-#define ICU_UTIL_DATA_SHARED_MODULE_NAME	L"icudt38.dll"
+#define ICU_UTIL_DATA_SYMBOL "icudt38_dat"
+#define ICU_UTIL_DATA_SHARED_MODULE_NAME L"icudt38.dll"
 #endif
 
 namespace icu_util {

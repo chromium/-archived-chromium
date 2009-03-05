@@ -21,7 +21,8 @@ GenericClassFactory::~GenericClassFactory() {
 LONG GenericClassFactory::object_count_ = 0;
 
 
-STDMETHODIMP GenericClassFactory::QueryInterface(REFIID riid, LPVOID* ppobject) {
+STDMETHODIMP GenericClassFactory::QueryInterface(REFIID riid,
+                                                 LPVOID* ppobject) {
   *ppobject = NULL;
 
   if (IsEqualIID(riid, IID_IUnknown) ||

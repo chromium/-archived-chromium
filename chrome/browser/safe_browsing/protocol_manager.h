@@ -45,7 +45,8 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   // Testing friends:
   FRIEND_TEST(SafeBrowsingProtocolManagerTest, TestBackOffTimes);
   FRIEND_TEST(SafeBrowsingProtocolManagerTest, TestChunkStrings);
-  FRIEND_TEST(SafeBrowsingProtocolManagerTest, DISABLED_TestGetHashBackOffTimes);
+  FRIEND_TEST(SafeBrowsingProtocolManagerTest,
+              DISABLED_TestGetHashBackOffTimes);
 
  public:
   SafeBrowsingProtocolManager(SafeBrowsingService* sb_service,

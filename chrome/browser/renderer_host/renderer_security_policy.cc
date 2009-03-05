@@ -134,7 +134,8 @@ bool RendererSecurityPolicy::IsWebSafeScheme(const std::string& scheme) {
 void RendererSecurityPolicy::RegisterPseudoScheme(const std::string& scheme) {
   AutoLock lock(lock_);
   DCHECK(pseudo_schemes_.count(scheme) == 0) << "Add schemes at most once.";
-  DCHECK(web_safe_schemes_.count(scheme) == 0) << "Psuedo implies not web-safe.";
+  DCHECK(web_safe_schemes_.count(scheme) == 0) <<
+      "Psuedo implies not web-safe.";
 
   pseudo_schemes_.insert(scheme);
 }
@@ -159,8 +160,8 @@ void RendererSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
     if (url.SchemeIs(chrome::kViewSourceScheme)) {
       // URLs with the view-source scheme typically look like:
       //   view-source:http://www.google.com/a
-      // In order to request these URLs, the renderer needs to be able to request
-      // the embedded URL.
+      // In order to request these URLs, the renderer needs to be able to
+      // request the embedded URL.
       GrantRequestURL(renderer_id, GURL(url.path()));
     }
 

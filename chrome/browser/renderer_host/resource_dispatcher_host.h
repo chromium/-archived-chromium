@@ -153,8 +153,9 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
    public:
     virtual void OnRequestStarted(ResourceDispatcherHost* resource_dispatcher,
                                   URLRequest* request) = 0;
-    virtual void OnResponseCompleted(ResourceDispatcherHost* resource_dispatcher,
-                                     URLRequest* request) = 0;
+    virtual void OnResponseCompleted(
+        ResourceDispatcherHost* resource_dispatcher,
+        URLRequest* request) = 0;
     virtual void OnReceivedRedirect(ResourceDispatcherHost* resource_dispatcher,
                                     URLRequest* request,
                                     const GURL& new_url) = 0;
@@ -310,7 +311,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     return r;
   }
 
-  static const ExtraRequestInfo* ExtraInfoForRequest(const URLRequest* request) {
+  static const ExtraRequestInfo* ExtraInfoForRequest(
+      const URLRequest* request) {
     const ExtraRequestInfo* r =
         static_cast<const ExtraRequestInfo*>(request->user_data());
     DLOG_IF(WARNING, !r) << "Request doesn't seem to have our data";

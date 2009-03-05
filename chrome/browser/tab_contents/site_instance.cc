@@ -135,8 +135,8 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
   GURL about_hang = GURL("about:hang");
   GURL about_shorthang = GURL("about:shorthang");
   if (url1 == about_crash || url2 == about_crash ||
-	  url1 == about_hang || url2 == about_hang ||
-	  url1 == about_shorthang || url2 == about_shorthang)
+    url1 == about_hang || url2 == about_hang ||
+    url1 == about_shorthang || url2 == about_shorthang)
     return true;
 
   // If either URL is invalid, they aren't part of the same site.

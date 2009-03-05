@@ -235,10 +235,10 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
         const NavigationEntry* last_committed_entry =
             contents->controller()->GetLastCommittedEntry();
         if ((last_committed_entry &&
-             LowerCaseEqualsASCII(last_committed_entry->display_url().spec(), 
+             LowerCaseEqualsASCII(last_committed_entry->display_url().spec(),
                                   chrome::kAboutMemoryURL)) ||
             (pending_entry &&
-             LowerCaseEqualsASCII(pending_entry->display_url().spec(), 
+             LowerCaseEqualsASCII(pending_entry->display_url().spec(),
                                   chrome::kAboutMemoryURL)))
           process.is_diagnostics = true;
       }

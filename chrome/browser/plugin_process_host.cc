@@ -145,9 +145,10 @@ void PluginDownloadUrlHelper::OnAuthRequired(
   DownloadCompletedHelper(false);
 }
 
-void PluginDownloadUrlHelper::OnSSLCertificateError(URLRequest* request,
-                                                    int cert_error,
-                                                    net::X509Certificate* cert) {
+void PluginDownloadUrlHelper::OnSSLCertificateError(
+    URLRequest* request,
+    int cert_error,
+    net::X509Certificate* cert) {
   URLRequest::Delegate::OnSSLCertificateError(request, cert_error, cert);
   DownloadCompletedHelper(false);
 }

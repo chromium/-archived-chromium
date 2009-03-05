@@ -87,8 +87,10 @@ TEST_F(SSLUITest, TestHTTPWithBrokenHTTPSResource) {
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
 
-  NavigateTab(tab.get(),
-      http_server->TestServerPageW(L"files/ssl/page_with_unsafe_contents.html"));
+  NavigateTab(
+      tab.get(),
+      http_server->TestServerPageW(
+          L"files/ssl/page_with_unsafe_contents.html"));
 
   SecurityStyle security_style;
   int cert_status;
@@ -223,8 +225,10 @@ TEST_F(SSLUITest, TestMixedContents) {
   // Load a page with mixed-content, the default behavior is to show the mixed
   // content.
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
-  NavigateTab(tab.get(),
-      https_server->TestServerPageW(L"files/ssl/page_with_mixed_contents.html"));
+  NavigateTab(
+      tab.get(),
+      https_server->TestServerPageW(
+          L"files/ssl/page_with_mixed_contents.html"));
   NavigationEntry::PageType page_type;
   EXPECT_TRUE(tab->GetPageType(&page_type));
   EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
@@ -488,8 +492,9 @@ TEST_F(SSLUITest, DISABLED_TestCNInvalidStickiness) {
 TEST_F(SSLUITest, TestRefNavigation) {
   scoped_refptr<HTTPSTestServer> bad_https_server = BadCertServer();
   scoped_ptr<TabProxy> tab(GetActiveTabProxy());
-  NavigateTab(tab.get(),
-              bad_https_server->TestServerPageW(L"files/ssl/page_with_refs.html"));
+  NavigateTab(
+      tab.get(),
+      bad_https_server->TestServerPageW(L"files/ssl/page_with_refs.html"));
 
   NavigationEntry::PageType page_type;
   EXPECT_TRUE(tab->GetPageType(&page_type));

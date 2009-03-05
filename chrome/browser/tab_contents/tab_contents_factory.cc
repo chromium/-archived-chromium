@@ -45,7 +45,8 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
 
   switch (type) {
     case TAB_CONTENTS_WEB:
-      contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE, NULL);
+      contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE,
+                                 NULL);
       break;
 // TODO(port): remove this platform define, either by porting the tab contents
 // types or removing them completely.

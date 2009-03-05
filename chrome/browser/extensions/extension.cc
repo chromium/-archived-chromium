@@ -73,17 +73,17 @@ const char* Extension::kInvalidPluginsDirError =
 
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
-Extension::Extension(const Extension& rhs) : 
-    path_(rhs.path_),
-    extension_url_(rhs.extension_url_),
-    id_(rhs.id_),
-    version_(new Version(*rhs.version_)),
-    name_(rhs.name_),
-    description_(rhs.description_),
-    content_scripts_(rhs.content_scripts_),
-    plugins_dir_(rhs.plugins_dir_),
-    zip_hash_(rhs.zip_hash_),
-    theme_paths_(rhs.theme_paths_) {
+Extension::Extension(const Extension& rhs)
+    : path_(rhs.path_),
+      extension_url_(rhs.extension_url_),
+      id_(rhs.id_),
+      version_(new Version(*rhs.version_)),
+      name_(rhs.name_),
+      description_(rhs.description_),
+      content_scripts_(rhs.content_scripts_),
+      plugins_dir_(rhs.plugins_dir_),
+      zip_hash_(rhs.zip_hash_),
+      theme_paths_(rhs.theme_paths_) {
 }
 
 const std::string Extension::VersionString() const {

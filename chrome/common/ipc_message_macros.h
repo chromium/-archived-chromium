@@ -18,8 +18,8 @@
 // "Sync" messages are just synchronous calls, the Send() call doesn't return
 // until a reply comes back.  Input parameters are first (const TYPE&), and
 // To declare a sync message, use the IPC_SYNC_ macros.  The numbers at the
-// end show how many input/output parameters there are (i.e. 1_2 is 1 in, 2 out).
-// The caller does a Send([route id, ], in1, &out1, &out2).
+// end show how many input/output parameters there are (i.e. 1_2 is 1 in, 2
+// out). The caller does a Send([route id, ], in1, &out1, &out2).
 // The receiver's handler function will be
 //     void OnSyncMessageName(const type1& in1, type2* out1, type3* out2)
 //
@@ -30,7 +30,8 @@
 // type, stash the message, and when it has the data it can Send the message.
 //
 // Use the IPC_MESSAGE_HANDLER_DELAY_REPLY macro instead of IPC_MESSAGE_HANDLER
-//     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SyncMessageName, OnSyncMessageName)
+//     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SyncMessageName,
+//                                     OnSyncMessageName)
 //
 // The handler function will look like:
 //     void OnSyncMessageName(const type1& in1, IPC::Message* reply_msg);
@@ -140,11 +141,11 @@
 // 16 channel types (currently using 8) and 4K messages per type.  Should
 // really make type be 32 bits, but then we break automation with older Chrome
 // builds..
-
+// Do label##PreStart so that automation messages keep the same id as before.
 #define IPC_BEGIN_MESSAGES(label) \
   enum label##MsgType { \
   label##Start = label##MsgStart << 12, \
-  label##PreStart = (label##MsgStart << 12) - 1,  // Do this so that automation messages keep the same id as before
+  label##PreStart = (label##MsgStart << 12) - 1,
 
 #define IPC_END_MESSAGES(label) \
   label##End \

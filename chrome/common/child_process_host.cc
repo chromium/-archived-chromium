@@ -119,7 +119,8 @@ ChildProcessHost::ListenerHook::ListenerHook(ChildProcessHost* host)
     : host_(host) {
 }
 
-void ChildProcessHost::ListenerHook::OnMessageReceived(const IPC::Message& msg) {
+void ChildProcessHost::ListenerHook::OnMessageReceived(
+    const IPC::Message& msg) {
 #ifdef IPC_MESSAGE_LOG_ENABLED
   IPC::Logging* logger = IPC::Logging::current();
   if (msg.type() == IPC_LOGGING_ID) {

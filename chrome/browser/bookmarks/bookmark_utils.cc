@@ -58,7 +58,8 @@ class NewBrowserPageNavigator : public PageNavigator {
       // Always open the first tab in the foreground.
       disposition = NEW_FOREGROUND_TAB;
     }
-    browser_->OpenURLFromTab(NULL, url, referrer, NEW_FOREGROUND_TAB, transition);
+    browser_->OpenURLFromTab(NULL, url, referrer, NEW_FOREGROUND_TAB,
+                             transition);
   }
 
  private:
@@ -134,7 +135,8 @@ void OpenAllImpl(BookmarkNode* node,
   }
 }
 
-bool ShouldOpenAll(gfx::NativeWindow parent, const std::vector<BookmarkNode*>& nodes) {
+bool ShouldOpenAll(gfx::NativeWindow parent,
+                   const std::vector<BookmarkNode*>& nodes) {
   int descendant_count = 0;
   for (size_t i = 0; i < nodes.size(); ++i)
     descendant_count += DescendantURLCount(nodes[i]);

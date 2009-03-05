@@ -758,8 +758,9 @@ void BrowserRenderProcessHost::OnChannelConnected(int32 peer_pid) {
 }
 
 // Static. This function can be called from the IO Thread or from the UI thread.
-void BrowserRenderProcessHost::BadMessageTerminateProcess(uint16 msg_type,
-                                                          base::ProcessHandle process) {
+void BrowserRenderProcessHost::BadMessageTerminateProcess(
+    uint16 msg_type,
+    base::ProcessHandle process) {
   LOG(ERROR) << "bad message " << msg_type << " terminating renderer.";
   if (BrowserRenderProcessHost::run_renderer_in_process()) {
     // In single process mode it is better if we don't suicide but just crash.

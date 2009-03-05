@@ -45,7 +45,8 @@ void KeywordProviderTest::SetUp() {
     { L"z", L"%s=z", L"z" },
   };
 
-  model_.reset(new TemplateURLModel(kTestKeywordData, arraysize(kTestKeywordData)));
+  model_.reset(new TemplateURLModel(kTestKeywordData,
+                                    arraysize(kTestKeywordData)));
   kw_provider_ = new KeywordProvider(NULL, model_.get());
 }
 

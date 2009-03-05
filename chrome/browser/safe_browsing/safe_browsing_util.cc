@@ -495,7 +495,8 @@ void SBHostInfo::RemoveSubEntry(int list_id, int chunk_id) {
 
     SBEntry* new_sub_entry = const_cast<SBEntry*>(entry);
     scoped_array<char> data;
-    if (entry->IsSub() && entry->list_id() == list_id && entry->prefix_count()) {
+    if (entry->IsSub() && entry->list_id() == list_id &&
+        entry->prefix_count()) {
       // Make a copy of the entry so that we can modify it.
       data.reset(new char[entry->Size()]);
       new_sub_entry = reinterpret_cast<SBEntry*>(data.get());
