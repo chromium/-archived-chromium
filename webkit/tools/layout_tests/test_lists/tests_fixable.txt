@@ -130,7 +130,8 @@ LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 // -----------------------------------------------------------------
 
 // Worker related tests (ENABLE_WORKERS):
-DEFER SKIP : LayoutTests/fast/workers = TIMEOUT
+DEFER SKIP : LayoutTests/fast/workers = TIMEOUT FAIL
+DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT
 DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
 // These tests rely on the keygen tag, which we haven't wired up.
@@ -247,6 +248,7 @@ DEFER : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html 
 DEFER SKIP : LayoutTests/media = TIMEOUT
 DEFER SKIP : LayoutTests/fast/media = PASS FAIL
 DEFER : LayoutTests/http/tests/media = FAIL
+DEFER : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 
 // Bug 941049: Function arguments object is copied for each access.
 DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
@@ -697,6 +699,24 @@ DEFER SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 // Issue 3273: TextInputController::firstRectForCharacterRange not implemented
 // http://code.google.com/p/chromium/issues/detail?id=3273
 DEFER : LayoutTests/editing/selection/move-left-right.html = FAIL
+
+// Regression from the 41362:41402 merge. http://crbug.com/8402
+MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
+
+// Started crashing with v8 version 1.0.3.1.  http://crbug.com/8364
+LINUX : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
+
+// Failing because needed images are missing from the fast/block/float/support/
+// directory. http://crbug.com/8406
+LayoutTests/fast/block/float/t0905-c414-flt-fit-01-d-g.html = FAIL
+LayoutTests/fast/block/float/t0905-c5525-fltblck-00-d-ag.html = FAIL
+LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
+
+// This test fails because (in Chromium) it includes the full path to the
+// subframe URL.  Need to teach dumpResourceLoadCallbacks() about relative
+// URLs. http://crbug.com/8407
+DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
+
 
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
@@ -1434,7 +1454,6 @@ DEFER LINUX WIN : LayoutTests/fast/repaint/transform-repaint-descendants.html = 
 // WebKit Merge 39100:39141 new tests:
 MAC : LayoutTests/fast/events/special-key-events-in-input-text.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
-DEFER SKIP : LayoutTests/fast/workers/worker-navigator.html = FAIL
 DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-loaded-svg.svg = FAIL
 
 // Windows pixeltest failure: alpha=0.5 red does not come out blended.
@@ -1845,27 +1864,6 @@ MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
-// Regressions from the 41286:41362 merge.
-LINUX WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = PASS TIMEOUT
-
-// New tests added in the 41286:41362 merge.
-// TODO(pamg): See which only need re-baselining.
-DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods-async.html = TIMEOUT
-DEFER : LayoutTests/http/tests/xmlhttprequest/workers/methods.html = TIMEOUT
+// New test added in the 41286:41362 merge. Not clear whether we pass.
+// http://crbug.com/8404
 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
-DEFER LINUX WIN : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
-
-// Regressions from the 41362:41402 merge.
-WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
-MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
-
-// New tests added in the 41362:41402 merge.
-// TODO(pamg): See which only need re-baselining.
-DEFER : LayoutTests/fast/block/float/t0905-c414-flt-fit-01-d-g.html = FAIL
-DEFER : LayoutTests/fast/block/float/t0905-c5525-fltblck-00-d-ag.html = FAIL
-DEFER : LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
-DEFER : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
-DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
-
-// Started crashing with v8 version 1.0.3.1.  http://crbug.com/8364
-LINUX : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH
