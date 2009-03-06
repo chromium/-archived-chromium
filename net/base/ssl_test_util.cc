@@ -37,6 +37,10 @@
 #include "net/base/test_completion_callback.h"
 #include "testing/platform_test.h"
 
+#if defined(OS_WIN)
+#pragma comment(lib, "crypt32.lib")
+#endif
+
 namespace {
 
 #if defined(OS_LINUX)

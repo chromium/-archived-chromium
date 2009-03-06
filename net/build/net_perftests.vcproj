@@ -168,6 +168,10 @@
 				RelativePath="..\disk_cache\disk_cache_test_util.cc"
 				>
 			</File>
+			<File
+				RelativePath="..\proxy\proxy_resolver_perftest.cc"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
