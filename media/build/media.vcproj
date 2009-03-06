@@ -184,7 +184,15 @@
 				RelativePath="..\base\synchronizer.h"
 				>
 			</File>
-		</Filter>
+			<File
+				RelativePath="..\base\yuv_convert.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\yuv_convert.h"
+				>
+			</File>
+			</Filter>
 		<Filter
 			Name="filters"
 			>

@@ -175,6 +175,10 @@
 					RelativePath="..\base\pipeline_impl_unittest.cc"
 					>
 				</File>
+				<File
+					RelativePath="..\base\yuv_convert_unittest.cc"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="audio"
