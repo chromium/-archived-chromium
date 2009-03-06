@@ -1825,3 +1825,6 @@ DEFER : LayoutTests/fast/css-generated-content/hit-test-generated-content.html =
 // Crashes sometimes.  Race?  Memory corruption?
 // Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
 LINUX : LayoutTests/fast/canvas/set-colors.html = PASS CRASH
+
+// Needs an FTP implementation to work completely.
+LINUX MAC : pending/security/block-test.html = FAIL
