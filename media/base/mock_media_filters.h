@@ -74,6 +74,11 @@ class MockDataSource : public DataSource {
                                    const MockFilterConfig*>(config);
   }
 
+  explicit MockDataSource(const MockFilterConfig* config)
+      : config_(config),
+        position_(0) {
+  }
+
   // Implementation of MediaFilter.
   virtual void Stop() {}
 
@@ -141,14 +146,6 @@ class MockDataSource : public DataSource {
   }
 
  private:
-  friend class FilterFactoryImpl1<MockDataSource,
-                                  const MockFilterConfig*>;
-
-  explicit MockDataSource(const MockFilterConfig* config)
-      : config_(config),
-        position_(0) {
-  }
-
   virtual ~MockDataSource() {}
 
   void TaskBehavior() {
@@ -179,6 +176,12 @@ class MockDemuxer : public Demuxer {
   static FilterFactory* CreateFactory(const MockFilterConfig* config) {
      return new FilterFactoryImpl1<MockDemuxer,
                                    const MockFilterConfig*>(config);
+  }
+
+  explicit MockDemuxer(const MockFilterConfig* config)
+      : config_(config),
+        mock_audio_stream_(config, true),
+        mock_video_stream_(config, false) {
   }
 
   // Implementation of MediaFilter.
@@ -221,14 +224,6 @@ class MockDemuxer : public Demuxer {
   }
 
  private:
-  friend class FilterFactoryImpl1<MockDemuxer, const MockFilterConfig*>;
-
-  explicit MockDemuxer(const MockFilterConfig* config)
-      : config_(config),
-        mock_audio_stream_(config, true),
-        mock_video_stream_(config, false) {
-  }
-
   virtual ~MockDemuxer() {}
 
   // Internal class implements DemuxerStream interface.
@@ -283,6 +278,11 @@ class MockAudioDecoder : public AudioDecoder {
     return true;  // TODO(ralphl): check for a supported format.
   }
 
+  explicit MockAudioDecoder(const MockFilterConfig* config) {
+    media_format_.SetAsString(MediaFormat::kMimeType,
+                              config->uncompressed_audio_mime_type);
+  }
+
   // Implementation of MediaFilter.
   virtual void Stop() {}
 
@@ -302,13 +302,6 @@ class MockAudioDecoder : public AudioDecoder {
   }
 
  private:
-  friend class FilterFactoryImpl1<MockAudioDecoder, const MockFilterConfig*>;
-
-  explicit MockAudioDecoder(const MockFilterConfig* config) {
-    media_format_.SetAsString(MediaFormat::kMimeType,
-                              config->uncompressed_audio_mime_type);
-  }
-
   virtual ~MockAudioDecoder() {}
 
   MediaFormat media_format_;
@@ -329,6 +322,8 @@ class MockAudioRenderer : public AudioRenderer {
     return true;  // TODO(ralphl): check for a supported format
   }
 
+  explicit MockAudioRenderer(const MockFilterConfig* config) {}
+
   // Implementation of MediaFilter.
   virtual void Stop() {}
 
@@ -341,10 +336,6 @@ class MockAudioRenderer : public AudioRenderer {
   virtual void SetVolume(float volume) {}
 
  private:
-  friend class FilterFactoryImpl1<MockAudioRenderer, const MockFilterConfig*>;
-
-  explicit MockAudioRenderer(const MockFilterConfig* config) {}
-
   virtual ~MockAudioRenderer() {}
 
   DISALLOW_COPY_AND_ASSIGN(MockAudioRenderer);
@@ -432,6 +423,14 @@ class MockVideoDecoder : public VideoDecoder {
     return true;  // TODO(ralphl): check for a supported format.
   }
 
+  explicit MockVideoDecoder(const MockFilterConfig* config)
+      : config_(config) {
+    media_format_.SetAsString(MediaFormat::kMimeType,
+                              config->uncompressed_video_mime_type);
+    media_format_.SetAsInteger(MediaFormat::kWidth, config->video_width);
+    media_format_.SetAsInteger(MediaFormat::kHeight, config->video_height);
+  }
+
   // Implementation of MediaFilter.
   virtual void Stop() {}
 
@@ -451,15 +450,7 @@ class MockVideoDecoder : public VideoDecoder {
   }
 
  private:
-  friend class FilterFactoryImpl1<MockVideoDecoder, const MockFilterConfig*>;
-
-  explicit MockVideoDecoder(const MockFilterConfig* config)
-      : config_(config) {
-    media_format_.SetAsString(MediaFormat::kMimeType,
-                              config->uncompressed_video_mime_type);
-    media_format_.SetAsInteger(MediaFormat::kWidth, config->video_width);
-    media_format_.SetAsInteger(MediaFormat::kHeight, config->video_height);
-  }
+  virtual ~MockVideoDecoder() {}
 
   void DoRead(Assignable<VideoFrame>* buffer) {
     if (mock_frame_time_ < config_->media_duration) {
@@ -481,8 +472,6 @@ class MockVideoDecoder : public VideoDecoder {
     buffer->Release();
   }
 
-  virtual ~MockVideoDecoder() {}
-
   MediaFormat media_format_;
   base::TimeDelta mock_frame_time_;
   const MockFilterConfig* config_;
@@ -503,6 +492,10 @@ class MockVideoRenderer : public VideoRenderer {
     return true;  // TODO(ralphl): check for a supported format
   }
 
+  explicit MockVideoRenderer(const MockFilterConfig* config)
+      : config_(config) {
+  }
+
   // Implementation of MediaFilter.
   virtual void Stop() {}
 
@@ -514,12 +507,6 @@ class MockVideoRenderer : public VideoRenderer {
   }
 
  private:
-  friend class FilterFactoryImpl1<MockVideoRenderer, const MockFilterConfig*>;
-
-  explicit MockVideoRenderer(const MockFilterConfig* config)
-      : config_(config) {
-  }
-
   virtual ~MockVideoRenderer() {}
 
   const MockFilterConfig* config_;

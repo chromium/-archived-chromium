@@ -19,10 +19,7 @@ using media::TestVideoRenderer;
 TEST(VideoRenderer, CreateAndPlay) {
   // Prepare test data.
   MockFilterConfig config;
-  scoped_refptr<FilterFactory> factory
-      = MockVideoDecoder::CreateFactory(&config);
-  scoped_refptr<MockVideoDecoder> decoder
-      = factory->Create<MockVideoDecoder>(NULL);
+  scoped_refptr<MockVideoDecoder> decoder = new MockVideoDecoder(&config);
   scoped_refptr<TestVideoRenderer> renderer = new TestVideoRenderer();
 
   // Setup our mock pipeline.
