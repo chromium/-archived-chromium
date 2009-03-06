@@ -137,7 +137,8 @@ DEFER : LayoutTests/fast/invalid/residual-style.html = FAIL
 // -----------------------------------------------------------------
 
 // Bug 1055396.  Vertical scrollbar created when there is no overflow.
-LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
+// See also https://bugs.webkit.org/show_bug.cgi?id=24434 .
+DEFER LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 
 // Bug 1064038.  Image with border="1" drawn without the border.
 DEFER LINUX WIN : LayoutTests/fast/forms/image-border.html = FAIL
