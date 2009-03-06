@@ -214,9 +214,12 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
     match_count_text_->SetText(std::wstring());
   }
 
-  if (search_string.empty() || result.number_of_matches() > 0) {
+  if (search_string.empty() || result.number_of_matches() > 0 ||
+      !have_valid_range) {
     // If there was no text entered or there were results, the match_count label
-    // should have a normal background color.
+    // should have a normal background color. We also reset the background if
+    // we don't have_valid_range, so that the text field will not show red
+    // background when reopened after an unsuccessful find.
     ResetMatchCountBackground();
   } else if (result.final_update()) {
     // Otherwise we show an error background behind the match_count label.
@@ -235,7 +238,12 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
 
 void FindBarView::SetFocusAndSelection() {
   find_text_->RequestFocus();
-  find_text_->SelectAll();
+  if (!find_text_->GetText().empty()) {
+    find_text_->SelectAll();
+
+    find_previous_button_->SetEnabled(true);
+    find_next_button_->SetEnabled(true);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
