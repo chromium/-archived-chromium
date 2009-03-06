@@ -64,7 +64,7 @@ std::wstring RepostFormWarningView::GetDialogButtonLabel(
   return L"";
 }
 
-void RepostFormWarningView::WindowClosing() {
+void RepostFormWarningView::DeleteDelegate() {
   delete this;
 }
 

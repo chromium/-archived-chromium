@@ -58,7 +58,7 @@ class ResetDefaultsConfirmBox : public views::DialogDelegate {
     return true;
   }
   // views::WindowDelegate
-  virtual void WindowClosing() { delete this; }
+  virtual void DeleteDelegate() { delete this; }
   virtual bool IsModal() const { return true; }
   virtual views::View* GetContentsView() { return message_box_view_; }
 

@@ -60,7 +60,7 @@ std::wstring UserDataDirDialog::GetWindowTitle() const {
   return l10n_util::GetString(IDS_CANT_WRITE_USER_DIRECTORY_TITLE);
 }
 
-void UserDataDirDialog::WindowClosing() {
+void UserDataDirDialog::DeleteDelegate() {
   delete this;
 }
 

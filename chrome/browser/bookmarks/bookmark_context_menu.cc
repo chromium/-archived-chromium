@@ -118,7 +118,7 @@ class EditFolderController : public InputWindowDelegate,
   virtual void InputCanceled() {
   }
 
-  virtual void WindowClosing() {
+  virtual void DeleteDelegate() {
     delete this;
   }
 

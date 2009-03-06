@@ -75,7 +75,7 @@ std::wstring NewProfileDialog::GetWindowTitle() const {
   return l10n_util::GetString(IDS_NEW_PROFILE_DIALOG_TITLE);
 }
 
-void NewProfileDialog::WindowClosing() {
+void NewProfileDialog::DeleteDelegate() {
   delete this;
 }
 

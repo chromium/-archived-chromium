@@ -113,7 +113,7 @@ class WindowDelegate {
                                    bool maximized,
                                    bool always_on_top);
 
-  // Retreives the window's bounds, maximized and always-on-top states. By
+  // Retrieves the window's bounds, maximized and always-on-top states. By
   // default, this uses the process' local state keyed by window name (See
   // GetWindowName above). This behavior can be overridden to provide
   // additional functionality.
@@ -123,6 +123,11 @@ class WindowDelegate {
 
   // Called when the window closes.
   virtual void WindowClosing() { }
+
+  // Called when the window is destroyed. No events must be sent or received
+  // after this point. The delegate can use this opportunity to delete itself at
+  // this time if necessary.
+  virtual void DeleteDelegate() { }
 
   // Returns the View that is contained within this Window.
   virtual View* GetContentsView() {

@@ -88,7 +88,7 @@ bool EditKeywordController::IsDialogButtonEnabled(DialogButton button) const {
   return true;
 }
 
-void EditKeywordController::WindowClosing() {
+void EditKeywordController::DeleteDelegate() {
   // User canceled the save, delete us.
   delete this;
 }

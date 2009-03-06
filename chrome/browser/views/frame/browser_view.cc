@@ -1064,9 +1064,6 @@ bool BrowserView::GetSavedMaximizedState(bool* maximized) const {
   return true;
 }
 
-void BrowserView::WindowClosing() {
-}
-
 views::View* BrowserView::GetContentsView() {
   return contents_container_;
 }

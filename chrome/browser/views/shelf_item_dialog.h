@@ -59,7 +59,6 @@ class ShelfItemDialog : public views::View,
   // DialogDelegate.
   virtual std::wstring GetWindowTitle() const;
   virtual bool IsModal() const;
-  virtual void WindowClosing();
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool Accept();
   virtual bool IsDialogButtonEnabled(DialogButton button) const;

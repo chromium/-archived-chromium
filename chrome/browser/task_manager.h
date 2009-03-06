@@ -132,6 +132,7 @@ class TaskManager : public views::DialogDelegate {
   virtual std::wstring GetWindowName() const;
   virtual int GetDialogButtons() const;
   virtual void WindowClosing();
+  virtual void DeleteDelegate();
   virtual views::View* GetContentsView();
 
  private:

@@ -35,7 +35,7 @@ class UserDataDirDialog : public views::DialogDelegate,
   virtual int GetDialogButtons() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
-  virtual void WindowClosing();
+  virtual void DeleteDelegate();
   virtual bool Accept();
   virtual bool Cancel();
 

@@ -33,7 +33,7 @@ std::wstring RestartMessageBox::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PRODUCT_NAME);
 }
 
-void RestartMessageBox::WindowClosing() {
+void RestartMessageBox::DeleteDelegate() {
   delete this;
 }
 

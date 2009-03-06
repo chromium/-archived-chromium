@@ -1085,7 +1085,9 @@ void TaskManager::WindowClosing() {
   // non-client view.
   contents_->GetParent()->RemoveChildView(contents_.get());
   Close();
+}
 
+void TaskManager::DeleteDelegate() {
   ReleaseWindow();
 }
 

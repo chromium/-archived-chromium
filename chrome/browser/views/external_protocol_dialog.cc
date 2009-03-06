@@ -63,7 +63,7 @@ std::wstring ExternalProtocolDialog::GetWindowTitle() const {
   return l10n_util::GetString(IDS_EXTERNAL_PROTOCOL_TITLE);
 }
 
-void ExternalProtocolDialog::WindowClosing() {
+void ExternalProtocolDialog::DeleteDelegate() {
   delete this;
 }
 

@@ -53,7 +53,7 @@ std::wstring DownloadRequestDialogDelegateWin::GetDialogButtonLabel(
   return std::wstring();
 }
 
-void DownloadRequestDialogDelegateWin::WindowClosing() {
+void DownloadRequestDialogDelegateWin::DeleteDelegate() {
   DCHECK(!host_);
   delete this;
 }

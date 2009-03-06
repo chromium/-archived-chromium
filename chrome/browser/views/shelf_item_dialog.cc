@@ -374,9 +374,6 @@ bool ShelfItemDialog::IsModal() const {
   return true;
 }
 
-void ShelfItemDialog::WindowClosing() {
-}
-
 std::wstring ShelfItemDialog::GetDialogButtonLabel(DialogButton button) const {
   if (button == DialogDelegate::DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_ASI_ADD);

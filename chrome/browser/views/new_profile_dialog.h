@@ -34,7 +34,7 @@ class NewProfileDialog : public views::DialogDelegate,
   virtual views::View* GetInitiallyFocusedView();
   virtual bool IsDialogButtonEnabled(DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
-  virtual void WindowClosing();
+  virtual void DeleteDelegate();
 
   // views::TextField::Controller methods.
   virtual void ContentsChanged(views::TextField* sender,

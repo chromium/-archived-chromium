@@ -433,11 +433,9 @@ LRESULT Window::OnAppCommand(HWND window, short app_command, WORD device,
 }
 
 void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
-  // We NULL check |window_delegate_| here because we can be sent WM_COMMAND
-  // messages even after the window is destroyed.
   // If the notification code is > 1 it means it is control specific and we
   // should ignore it.
-  if (notification_code > 1 || !window_delegate_ ||
+  if (notification_code > 1 ||
       window_delegate_->ExecuteWindowsCommand(command_id)) {
     WidgetWin::OnCommand(notification_code, command_id, window);
   }
@@ -445,7 +443,6 @@ void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
 
 void Window::OnDestroy() {
   non_client_view_->WindowClosing();
-  window_delegate_ = NULL;
   RestoreEnabledIfNecessary();
   WidgetWin::OnDestroy();
 }
@@ -469,6 +466,14 @@ LRESULT Window::OnDwmCompositionChanged(UINT msg, WPARAM w_param,
   // update their appearance.
   EnumChildWindows(GetHWND(), &SendDwmCompositionChanged, NULL);
   return 0;
+}
+
+void Window::OnFinalMessage(HWND window) {
+  // Delete and NULL the delegate here once we're guaranteed to get no more
+  // messages.
+  window_delegate_->DeleteDelegate();
+  window_delegate_ = NULL;
+  WidgetWin::OnFinalMessage(window);
 }
 
 namespace {

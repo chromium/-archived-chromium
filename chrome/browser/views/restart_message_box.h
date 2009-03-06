@@ -24,7 +24,7 @@ class RestartMessageBox : public views::DialogDelegate {
   virtual std::wstring GetWindowTitle() const;
 
   // views::WindowDelegate:
-  virtual void WindowClosing();
+  virtual void DeleteDelegate();
   virtual bool IsModal() const;
   virtual views::View* GetContentsView();
 

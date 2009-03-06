@@ -36,6 +36,7 @@ class JavascriptMessageBoxHandler
   virtual int GetDialogButtons() const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
+  virtual void DeleteDelegate();
   virtual bool Cancel();
   virtual bool Accept();
 

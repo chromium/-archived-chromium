@@ -110,7 +110,9 @@ void JavascriptMessageBoxHandler::WindowClosing() {
 
   if (message_box_view_->IsCheckBoxSelected() && web_contents_)
     web_contents_->set_suppress_javascript_messages(true);
+}
 
+void JavascriptMessageBoxHandler::DeleteDelegate() {
   delete this;
 }
 

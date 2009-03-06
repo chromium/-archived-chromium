@@ -244,7 +244,6 @@ class BrowserView : public BrowserWindow,
                                    bool always_on_top);
   virtual bool GetSavedWindowBounds(gfx::Rect* bounds) const;
   virtual bool GetSavedMaximizedState(bool* maximized) const;
-  virtual void WindowClosing();
   virtual views::View* GetContentsView();
   virtual views::ClientView* CreateClientView(views::Window* window);
 

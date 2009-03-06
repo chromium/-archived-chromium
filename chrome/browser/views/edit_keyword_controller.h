@@ -46,7 +46,7 @@ class EditKeywordController : public views::TextField::Controller,
   virtual std::wstring GetWindowTitle() const;
   virtual int GetDialogButtons() const;
   virtual bool IsDialogButtonEnabled(DialogButton button) const;
-  virtual void WindowClosing();
+  virtual void DeleteDelegate();
   virtual bool Cancel();
   virtual bool Accept();
   virtual views::View* GetContentsView();
