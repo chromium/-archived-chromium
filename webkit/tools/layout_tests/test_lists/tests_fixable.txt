@@ -1254,13 +1254,10 @@ MAC : LayoutTests/fast/events/init-events.html = FAIL
 // maybe we just need to update to this order?
 MAC : LayoutTests/fast/events/drag-in-frames.html = FAIL
 
-// These two have a different object type in the dom dump?
+// These two have a different object type in the dom dump. Plugin-related. 
+// Ignored on Win/Linux because they rely on QT to provide a TIFF decoder.
 MAC : LayoutTests/fast/images/embed-image.html = FAIL
 MAC : LayoutTests/fast/images/object-image.html = FAIL
-
-// Rebase for our network stack?
-MAC : LayoutTests/http/tests/misc/window-dot-stop.html = FAIL
-MAC : LayoutTests/http/tests/xmlhttprequest/abort-should-cancel-load.html = FAIL
 
 // Some times it fails because the animation starts before the first dom dump
 // so the text doesn't match.
