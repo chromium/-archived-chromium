@@ -5,9 +5,12 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_SHELF_H_
 #define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_SHELF_H_
 
+#include <string>
+
 #include "base/basictypes.h"
 
 class BaseDownloadItemModel;
+class DownloadItem;
 class TabContents;
 
 // DownloadShelf is an interface for platform-specific download shelves to
@@ -45,6 +48,40 @@ class DownloadShelf {
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DownloadShelf);
+};
+
+// Logic for the download shelf context menu. Platform specific subclasses are
+// responsible for creating and running the menu.
+class DownloadShelfContextMenu {
+ public:
+  virtual ~DownloadShelfContextMenu();
+
+ protected:
+  explicit DownloadShelfContextMenu(BaseDownloadItemModel* download_model);
+
+  enum ContextMenuCommands {
+    SHOW_IN_FOLDER = 1,  // Open a file explorer window with the item selected
+    OPEN_WHEN_COMPLETE,  // Open the download when it's finished
+    ALWAYS_OPEN_TYPE,    // Default this file extension to always open
+    CANCEL,              // Cancel the download
+    MENU_LAST
+  };
+
+ protected:
+  bool ItemIsChecked(int id) const;
+  bool ItemIsDefault(int id) const;
+  std::wstring GetItemLabel(int id) const;
+  bool IsItemCommandEnabled(int id) const;
+  void ExecuteItemCommand(int id);
+
+  // Information source.
+  DownloadItem* download_;
+
+  // A model to control the cancel behavior.
+  BaseDownloadItemModel* model_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(DownloadShelfContextMenu);
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_SHELF_H_

@@ -17,6 +17,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/widget.h"
@@ -55,6 +56,65 @@ static const SkColor kStatusColor = SkColorSetRGB(123, 141, 174);
 
 // How long the 'download complete' animation should last for.
 static const int kCompleteAnimationDurationMs = 2500;
+
+// DownloadShelfContextMenuWin -------------------------------------------------
+
+class DownloadShelfContextMenuWin : public DownloadShelfContextMenu,
+                                    public Menu::Delegate {
+ public:
+  DownloadShelfContextMenuWin::DownloadShelfContextMenuWin(
+     BaseDownloadItemModel* model,
+     HWND window,
+     const gfx::Point& point)
+       : DownloadShelfContextMenu(model) {
+    DCHECK(model);
+
+    // The menu's anchor point is determined based on the UI layout.
+    Menu::AnchorPoint anchor_point;
+    if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+      anchor_point = Menu::TOPRIGHT;
+    else
+      anchor_point = Menu::TOPLEFT;
+
+    Menu context_menu(this, anchor_point, window);
+    if (download_->state() == DownloadItem::COMPLETE)
+      context_menu.AppendMenuItem(OPEN_WHEN_COMPLETE, L"", Menu::NORMAL);
+    else
+      context_menu.AppendMenuItem(OPEN_WHEN_COMPLETE, L"", Menu::CHECKBOX);
+    context_menu.AppendMenuItem(ALWAYS_OPEN_TYPE, L"", Menu::CHECKBOX);
+    context_menu.AppendSeparator();
+    context_menu.AppendMenuItem(SHOW_IN_FOLDER, L"", Menu::NORMAL);
+    context_menu.AppendSeparator();
+    context_menu.AppendMenuItem(CANCEL, L"", Menu::NORMAL);
+    context_menu.RunMenuAt(point.x(), point.y());
+  }
+
+  // Menu::Delegate implementation ---------------------------------------------
+
+  virtual bool IsItemChecked(int id) const {
+    return ItemIsChecked(id);
+  }
+
+  virtual bool IsItemDefault(int id) const {
+    return ItemIsDefault(id);
+  }
+
+  virtual std::wstring GetLabel(int id) const {
+    return GetItemLabel(id);
+  }
+
+  virtual bool SupportsCommand(int id) const {
+    return id > 0 && id < MENU_LAST;
+  }
+
+  virtual bool IsCommandEnabled(int id) const {
+    return IsItemCommandEnabled(id);
+  }
+
+  virtual void ExecuteCommand(int id) {
+    return ExecuteItemCommand(id);
+  }
+};
 
 // DownloadItemView ------------------------------------------------------------
 
@@ -658,10 +718,9 @@ bool DownloadItemView::OnMousePressed(const views::MouseEvent& event) {
     }
 
     views::View::ConvertPointToScreen(this, &point);
-    download_util::DownloadShelfContextMenu menu(download_,
-                                                 GetWidget()->GetHWND(),
-                                                 model_.get(),
-                                                 point.ToPOINT());
+    DownloadShelfContextMenuWin menu(model_.get(),
+                                     GetWidget()->GetHWND(),
+                                     point);
     drop_down_pressed_ = false;
     // Showing the menu blocks. Here we revert the state.
     SetState(NORMAL, NORMAL);
