@@ -1435,6 +1435,7 @@ LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 LayoutTests/http/tests/navigation/error404-goback.html = FAIL
 
 // Started failing when landing the new skia r6925.
+WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
 WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
