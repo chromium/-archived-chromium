@@ -1349,9 +1349,9 @@
 	  'product_name': '<(branding)',
 	  'conditions': [
             ['branding=="Chrome"', {
-              'mac_bundle_resources': ['app/theme/google_chrome/chrome.icns'],
+              'mac_bundle_resources': ['app/theme/google_chrome/app.icns'],
             }, {  # else: branding!="Chrome"
-              'mac_bundle_resources': ['app/theme/chromium/chromium.icns'],
+              'mac_bundle_resources': ['app/theme/chromium/app.icns'],
             }],
           ],
         }],
