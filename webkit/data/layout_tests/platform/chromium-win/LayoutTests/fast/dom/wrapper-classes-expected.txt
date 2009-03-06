@@ -1,3 +1,5 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:application/xhtml+xml,<?xml version='1.0' encoding='UTF-8'?><body/> from frame with URL wrapper-classes.html. Domains, protocols and ports must match.
+
 This tests wrapper class names for JavaScript.
 
 On success, you will see a series of "PASS" messages, followed by "TEST COMPLETE".
@@ -38,21 +40,21 @@ FAIL jsWrapperClass(document.createTreeWalker(root, 0, null, false).constructor)
 
 XML
 
-PASS jsWrapperClass(xmlDocument) is 'Document'
-FAIL jsWrapperClass(xmlDocument.__proto__) should be DocumentPrototype. Was Object.
-FAIL jsWrapperClass(xmlDocument.constructor) should be DocumentConstructor. Was Function.
-PASS jsWrapperClass(xmlDocument.createCDATASection()) is 'CDATASection'
-FAIL jsWrapperClass(xmlDocument.createCDATASection().__proto__) should be CDATASectionPrototype. Was Object.
-FAIL jsWrapperClass(xmlDocument.createCDATASection().constructor) should be CDATASectionConstructor. Was Function.
-PASS jsWrapperClass(xmlDocument.createElementNS('x', 'x', 'x')) is 'Element'
-FAIL jsWrapperClass(xmlDocument.createElementNS('x', 'x', 'x').__proto__) should be ElementPrototype. Was Object.
-FAIL jsWrapperClass(xmlDocument.createElementNS('x', 'x', 'x').constructor) should be ElementConstructor. Was Function.
-PASS jsWrapperClass(xmlDocument.createEntityReference()) is 'EntityReference'
-FAIL jsWrapperClass(xmlDocument.createEntityReference().__proto__) should be EntityReferencePrototype. Was Object.
-FAIL jsWrapperClass(xmlDocument.createEntityReference().constructor) should be EntityReferenceConstructor. Was Function.
-PASS jsWrapperClass(xmlDocument.createProcessingInstruction()) is 'ProcessingInstruction'
-FAIL jsWrapperClass(xmlDocument.createProcessingInstruction().__proto__) should be ProcessingInstructionPrototype. Was Object.
-FAIL jsWrapperClass(xmlDocument.createProcessingInstruction().constructor) should be ProcessingInstructionConstructor. Was Function.
+FAIL jsWrapperClass(xmlDocument) should be Document. Was [null].
+FAIL jsWrapperClass(xmlDocument.__proto__) should be DocumentPrototype. Threw exception TypeError: Cannot read property '__proto__' of undefined
+FAIL jsWrapperClass(xmlDocument.constructor) should be DocumentConstructor. Threw exception TypeError: Cannot read property 'constructor' of undefined
+FAIL jsWrapperClass(xmlDocument.createCDATASection()) should be CDATASection. Threw exception TypeError: Cannot call method 'createCDATASection' of undefined
+FAIL jsWrapperClass(xmlDocument.createCDATASection().__proto__) should be CDATASectionPrototype. Threw exception TypeError: Cannot call method 'createCDATASection' of undefined
+FAIL jsWrapperClass(xmlDocument.createCDATASection().constructor) should be CDATASectionConstructor. Threw exception TypeError: Cannot call method 'createCDATASection' of undefined
+FAIL jsWrapperClass(xmlDocument.createElementNS('x', 'x', 'x')) should be Element. Threw exception TypeError: Cannot call method 'createElementNS' of undefined
+FAIL jsWrapperClass(xmlDocument.createElementNS('x', 'x', 'x').__proto__) should be ElementPrototype. Threw exception TypeError: Cannot call method 'createElementNS' of undefined
+FAIL jsWrapperClass(xmlDocument.createElementNS('x', 'x', 'x').constructor) should be ElementConstructor. Threw exception TypeError: Cannot call method 'createElementNS' of undefined
+FAIL jsWrapperClass(xmlDocument.createEntityReference()) should be EntityReference. Threw exception TypeError: Cannot call method 'createEntityReference' of undefined
+FAIL jsWrapperClass(xmlDocument.createEntityReference().__proto__) should be EntityReferencePrototype. Threw exception TypeError: Cannot call method 'createEntityReference' of undefined
+FAIL jsWrapperClass(xmlDocument.createEntityReference().constructor) should be EntityReferenceConstructor. Threw exception TypeError: Cannot call method 'createEntityReference' of undefined
+FAIL jsWrapperClass(xmlDocument.createProcessingInstruction()) should be ProcessingInstruction. Threw exception TypeError: Cannot call method 'createProcessingInstruction' of undefined
+FAIL jsWrapperClass(xmlDocument.createProcessingInstruction().__proto__) should be ProcessingInstructionPrototype. Threw exception TypeError: Cannot call method 'createProcessingInstruction' of undefined
+FAIL jsWrapperClass(xmlDocument.createProcessingInstruction().constructor) should be ProcessingInstructionConstructor. Threw exception TypeError: Cannot call method 'createProcessingInstruction' of undefined
 
 Events
 

@@ -1,0 +1,28 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Old contents of iframe from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,New contents of frame from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of iframe from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of iframe from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of iframe from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of iframe from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of object from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of object from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of object from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,Updated contents of object from frame with URL object-as-frame.html. Domains, protocols and ports must match.
+
+PASS window.frames.length is 2
+FAIL window.frames[0].frameElement.name should be frame. Threw exception TypeError: Cannot read property 'name' of undefined
+FAIL window.frames[1].frameElement.name should be obj. Threw exception TypeError: Cannot read property 'name' of undefined
+Loading 'data:text/html,Updated contents of iframe' in iframe...
+Loading 'data:text/html,Updated contents of object' in object...
+FAIL window.frames[0].location.toString() should be data:text/html,Updated contents of iframe. Threw exception TypeError: Property 'toString' of object #<error> is not a function
+FAIL window.frames[1].location.toString() should be data:text/html,Updated contents of object. Threw exception TypeError: Property 'toString' of object #<error> is not a function
+ 

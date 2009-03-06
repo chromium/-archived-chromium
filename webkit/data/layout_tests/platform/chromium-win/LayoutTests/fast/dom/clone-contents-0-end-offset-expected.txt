@@ -1,3 +1,4 @@
+CONSOLE MESSAGE: line 13: Uncaught TypeError: Cannot read property 'documentElement' of undefined
 layer at (0,0) size 800x600
   RenderView at (0,0) size 800x600
 layer at (0,0) size 800x600

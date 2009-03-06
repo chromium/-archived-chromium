@@ -38,6 +38,15 @@ SKIP : LayoutTests/http/tests/wml = FAIL
 // most likely these tests will always be JSC specific.
 SKIP : LayoutTests/fast/profiler = FAIL TIMEOUT
 
+// These tests depend on a bogus assumption that file:// URLs have universal
+// access to other URLs.  This isn't true for us.
+SKIP : LayoutTests/editing/selection/drag-in-iframe.html = TIMEOUT
+SKIP : LayoutTests/fast/dom/gc-6.html = TIMEOUT
+SKIP : LayoutTests/fast/dom/gc-7.html = TIMEOUT
+SKIP : LayoutTests/fast/frames/frame-set-same-location.html = TIMEOUT
+SKIP : LayoutTests/fast/frames/frame-set-same-src.html = TIMEOUT
+SKIP : LayoutTests/fast/frames/hover-timer-crash.html = TIMEOUT
+
 // This test doesn't terminate because it contains exponential
 // regexps.  It is safe to disable because we run the same tests
 // (sans the nonterminating ones) as part of the v8 tests.

@@ -1,3 +1,5 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html, <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.0//EN' 'http://www.w3.org/TR/html4/strict.dtd'><html></html> from frame with URL clientWidthAfterDocumentIsRemoved.html. Domains, protocols and ports must match.
+
 layer at (0,0) size 800x600
   RenderView at (0,0) size 800x600
 layer at (0,0) size 800x600

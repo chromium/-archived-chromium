@@ -1312,6 +1312,10 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   // Turn this on to cause WebCore to paint the resize corner for us.
   settings->setShouldPaintCustomScrollbars(true);
 
+  // Mitigate attacks from local HTML files by not granting file:// URLs
+  // universal access.
+  settings->setAllowUniversalAccessFromFileURLs(false);
+
 #if defined(OS_WIN)
   // RenderTheme is a singleton that needs to know the default font size to
   // draw some form controls.  We let it know each time the size changes.

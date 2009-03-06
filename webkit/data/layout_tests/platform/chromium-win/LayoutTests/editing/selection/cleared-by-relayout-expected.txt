@@ -1,0 +1,6 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<body contenteditable> from frame with URL cleared-by-relayout.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<body contenteditable> from frame with URL cleared-by-relayout.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 16: Uncaught TypeError: Object [object global] has no method 'getSelection'
+Test for http://bugs.webkit.org/show_bug.cgi?id=15942 REGRESSION: Selecting "Edit Html" tab in Blogger causes crash (Assertion failed: isRange()).
