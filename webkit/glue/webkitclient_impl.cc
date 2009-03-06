@@ -4,7 +4,11 @@
 
 #include "webkit/glue/webkitclient_impl.h"
 
+#include "WebCString.h"
+
 #include "base/message_loop.h"
+#include "grit/webkit_resources.h"
+#include "webkit/glue/webkit_glue.h"
 
 namespace webkit_glue {
 
@@ -15,6 +19,30 @@ WebKitClientImpl::WebKitClientImpl()
 
 WebKit::WebClipboard* WebKitClientImpl::clipboard() {
   return &clipboard_;
+}
+
+WebKit::WebCString WebKitClientImpl::loadResource(const char* name) {
+  struct {
+    const char* name;
+    int id;
+  } resources[] = {
+    { "textAreaResizeCorner", IDR_TEXTAREA_RESIZER },
+    { "missingImage", IDR_BROKENIMAGE },
+    { "tickmarkDash", IDR_TICKMARK_DASH },
+    { "panIcon", IDR_PAN_SCROLL_ICON },
+#if defined(OS_LINUX)
+    { "linuxCheckboxOff", IDR_LINUX_CHECKBOX_OFF },
+    { "linuxCheckboxOn", IDR_LINUX_CHECKBOX_ON },
+    { "linuxRadioOff", IDR_LINUX_RADIO_OFF },
+    { "linuxRadioOn", IDR_LINUX_RADIO_ON },
+#endif
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(resources); ++i) {
+    if (!strcmp(name, resources[i].name))
+      return webkit_glue::GetDataResource(resources[i].id);
+  }
+  NOTREACHED() << "Unknown image resource " << name;
+  return WebKit::WebCString();
 }
 
 double WebKitClientImpl::currentTime() {

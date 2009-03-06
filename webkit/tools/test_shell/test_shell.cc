@@ -564,15 +564,6 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-#if defined(OS_MACOSX)
-SkBitmap*
-#else
-GlueBitmap*
-#endif
-GetBitmapResource(int resource_id) {
-  return NULL;
-}
-
 bool GetApplicationDirectory(std::wstring *path) {
   return PathService::Get(base::DIR_EXE, path);
 }
@@ -615,14 +606,6 @@ bool IsDefaultPluginEnabled() {
 
 std::wstring GetWebKitLocale() {
   return L"en-US";
-}
-
-uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
-  return 0;
-}
-
-bool IsLinkVisited(uint64 link_hash) {
-  return false;
 }
 
 }  // namespace webkit_glue
