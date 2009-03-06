@@ -491,9 +491,6 @@ LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 // We don't seem to draw this as well as Mac.  The numbers have gaps at the
 // corners.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
-// Fails in release and debug. Sometimes crashes in debug.
-// Linux pixeltest failure: background is all blue instead of white.
-WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 // Radial gradients with offset focal points are not implemented in Skia.
