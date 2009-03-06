@@ -982,7 +982,6 @@ DEFER LINUX WIN : LayoutTests/fast/layers/opacity-transforms.html = FAIL
 DEFER : LayoutTests/plugins/netscape-construct.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
-pending/security/block-test.html = CRASH FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL TIMEOUT PASS
 
