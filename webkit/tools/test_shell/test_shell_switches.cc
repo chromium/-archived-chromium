@@ -67,5 +67,9 @@ extern const wchar_t kCheckLayoutTestSystemDeps[] =
 // Enable the media player by having this switch.
 extern const wchar_t kEnableVideo[] = L"enable-video";
 
+// If set, we are running under GDB so allow a certain class of errors
+// to happen even if in layout test mode.
+extern const wchar_t kGDB[] = L"gdb";
+
 }  // namespace test_shell
 

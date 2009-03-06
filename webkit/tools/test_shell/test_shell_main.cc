@@ -93,10 +93,13 @@ int main(int argc, char* argv[]) {
   // Initialize WebKit for this scope.
   TestShellWebKitInit test_shell_webkit_init(layout_test_mode);
 
-  // Suppress abort message in v8 library in debugging mode.
-  // V8 calls abort() when it hits assertion errors.
-  if (suppress_error_dialogs)
+  // Suppress abort message in v8 library in debugging mode (but not
+  // actually under a debugger).  V8 calls abort() when it hits
+  // assertion errors.
+  if (suppress_error_dialogs &&
+      !parsed_command_line.HasSwitch(test_shell::kGDB)) {
     platform.SuppressErrorReporting();
+  }
 
   if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
     base::TraceLog::StartTracing();
