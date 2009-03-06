@@ -163,12 +163,27 @@ std::string TestWebViewDelegate::GetResourceDescription(uint32 identifier) {
 void TestWebViewDelegate::WillSendRequest(WebView* webview,
                                           uint32 identifier,
                                           WebRequest* request) {
-  std::string request_url = request->GetURL().possibly_invalid_spec();
+  GURL url = request->GetURL();                                           
+  std::string request_url = url.possibly_invalid_spec();
+  std::string host = request->GetURL().host();
 
   if (shell_->ShouldDumpResourceLoadCallbacks()) {
     printf("%s - willSendRequest <WebRequest URL \"%s\">\n",
            GetResourceDescription(identifier).c_str(),
            request_url.c_str());
+  }
+
+  if (TestShell::layout_test_mode() && !host.empty() &&
+      (url.SchemeIs("http") || url.SchemeIs("https")) &&
+       host != "127.0.0.1" &&
+       host != "255.255.255.255" &&  // Used in some tests that expect to get
+                                     // back an error.
+       host != "localhost") {
+    printf("Blocked access to external URL %s\n", request_url.c_str());
+    
+    // To block the request, we set its URL to an empty one.
+    request->SetURL(GURL());
+    return;
   }
 
   TRACE_EVENT_BEGIN("url.load", identifier, request_url);

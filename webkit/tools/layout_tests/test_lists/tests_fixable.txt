@@ -1553,8 +1553,6 @@ MAC LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
 DEFER WIN LINUX : LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 
 // Merge 40165:40297 -- regressions
-LINUX WIN : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
-MAC : LayoutTests/fast/loader/null-request-after-willSendRequest.html = FAIL TIMEOUT
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/repaint/dynamic-table-vertical-alignment-change.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
