@@ -468,6 +468,7 @@
         '../base/run_all_perftests.cc',
         'base/cookie_monster_perftest.cc',
         'disk_cache/disk_cache_perftest.cc',
+        'proxy/proxy_resolver_perftest.cc',
       ],
       'conditions': [
         # This is needed to trigger the dll copy step on windows.

@@ -23,7 +23,7 @@ struct PacQuery {
 };
 
 // Entry listing which PAC scripts to load, and which URLs to try resolving.
-// |queries| should be terminated by {NULL, NULL}. A sentinel is used 
+// |queries| should be terminated by {NULL, NULL}. A sentinel is used
 // rather than a length, to simplify using initializer lists.
 struct PacPerfTest {
   const char* pac_name;
@@ -57,7 +57,7 @@ static PacPerfTest kPerfTests[] = {
 };
 
 int PacPerfTest::NumQueries() const {
-  for (int i = 0; i < arraysize(queries); ++i) {
+  for (size_t i = 0; i < arraysize(queries); ++i) {
     if (queries[i].query_url == NULL)
       return i;
   }
