@@ -10,6 +10,7 @@
 #include "base/scoped_ptr.h"
 
 class BaseDownloadItemModel;
+class DownloadShelfContextMenuGtk;
 class NineBox;
 
 class DownloadItemGtk {
@@ -27,6 +28,10 @@ class DownloadItemGtk {
 
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
                            DownloadItemGtk* download_item);
+
+  static gboolean OnMenuButtonPressEvent(GtkWidget* button,
+                                         GdkEvent* event,
+                                         DownloadItemGtk* item);
 
   // Nineboxes for the body area.
   static NineBox* body_nine_box_normal_;
@@ -47,6 +52,10 @@ class DownloadItemGtk {
 
   // The widget that creates a dropdown menu when pressed.
   GtkWidget* menu_button_;
+
+  // The menu that pops down when the user presses |menu_button_|. We do not
+  // create this until the first time we actually need it.
+  scoped_ptr<DownloadShelfContextMenuGtk> menu_;
 
   // The download item model we represent.
   scoped_ptr<BaseDownloadItemModel> download_model_;
