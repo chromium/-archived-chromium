@@ -16,6 +16,7 @@ class SyncResourceHandler : public ResourceHandler {
   SyncResourceHandler(ResourceDispatcherHost::Receiver* receiver,
                       const GURL& url,
                       IPC::Message* result_message);
+  ~SyncResourceHandler();
 
   bool OnRequestRedirected(int request_id, const GURL& new_url);
   bool OnResponseStarted(int request_id, ResourceResponse* response);
