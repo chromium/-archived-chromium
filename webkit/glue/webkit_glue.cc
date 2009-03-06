@@ -19,9 +19,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "FrameView.h"
 #include "Frame.h"
 #include "HistoryItem.h"
-#if defined(OS_WIN)  // TODO(port): unnecessary after the webkit merge lands.
 #include "ImageSource.h"
-#endif
 #include "KURL.h"
 #include "Page.h"
 #include "PlatformString.h"
@@ -247,7 +245,6 @@ void CheckForLeaks() {
 }
 
 bool DecodeImage(const std::string& image_data, SkBitmap* image) {
-#if defined(OS_WIN)  // TODO(port): unnecessary after the webkit merge lands.
    RefPtr<WebCore::SharedBuffer> buffer(
        WebCore::SharedBuffer::create(image_data.data(),
                                      static_cast<int>(image_data.length())));
@@ -260,11 +257,6 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image) {
   }
   // We failed to decode the image.
   return false;
-#else
-  // This ought to work; we just need the webkit merge.
-  NOTIMPLEMENTED();
-  return false;
-#endif
 }
 
 FilePath::StringType WebStringToFilePathString(const WebKit::WebString& str) {
