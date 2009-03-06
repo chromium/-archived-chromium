@@ -1727,7 +1727,7 @@ DEFER LINUX WIN : LayoutTests/fast/gradients/background-clipped.html = FAIL
 // Regressions from merge 41217:41268
 // Other failures
 LINUX WIN : LayoutTests/css1/text_properties/vertical_align.html = FAIL
-LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
+LINUX MAC : LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
 // SVG Mask-related tests. Most likely result of http://trac.webkit.org/changeset/41266.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL

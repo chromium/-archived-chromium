@@ -22,5 +22,5 @@ layer at (18,112) size 79x59
       text run at (20,0) width 59: "Container"
 layer at (108,172) size 202x202
   RenderBlock (relative positioned) {DIV} at (0,0) size 202x202 [bgcolor=#CCCCCC] [border: (1px solid #000000)]
-layer at (18,334) size 40x59
-  RenderInline (relative positioned) {SPAN} at (0,0) size 40x59 [bgcolor=#DDDDDD]
+layer at (18,334) size 20x59
+  RenderInline (relative positioned) {SPAN} at (0,0) size 20x59 [bgcolor=#DDDDDD]
