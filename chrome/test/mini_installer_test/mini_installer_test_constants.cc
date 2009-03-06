@@ -19,19 +19,26 @@ const wchar_t kChromeFirstRunUI[] = L"Welcome to Chromium";
 const wchar_t kChromeLaunchShortcut[] = L"Chromium.lnk";
 const wchar_t kChromeUninstallShortcut[] = L"Uninstall Chromium.lnk";
 #endif
-
 const wchar_t kBrowserAppName[] = L"Google - Google Chrome";
 const wchar_t kBrowserTabName[] = L"New Tab - Google Chrome";
 const wchar_t kChromeMiniInstallerExecutable[] = L"mini_installer.exe";
 const wchar_t kChromeMetaInstallerExecutable[] = L"chrome_installer.exe";
 const wchar_t kChromeSetupExecutable[] = L"setup.exe";
 const wchar_t kIEExecutable[] = L"iexplore.exe";
-const wchar_t kInstallerWindow[] = L"Google App Installer";
+const wchar_t kInstallerWindow[] = L"Chrome Installer";
 const wchar_t kSystemInstall[] = L"system";
 const wchar_t kUserInstall[] = L"user";
+const wchar_t kStandaloneInstaller[] = L"ChromeSetupTest.exe";
+const wchar_t kGoogleUpdateExecutable[] = L"GoogleUpdate.exe";
 
 // Google Chrome meta installer location.
-const wchar_t kChromeMetaInstallerExeLocation[] =
+const wchar_t kChromeMetaInstallerExe[] =
     L"\\\\172.23.44.61\\shared\\chrome_autotest\\beta_build\\ChromeSetup.exe";
+const wchar_t kChromeStandAloneInstallerLocation[] =
+    L"\\\\172.24.6.7\\shares\\googleclient\\nightly\\builds\\Win-OmahaInstallers\\latest\\opt\\";
+const wchar_t kChromeApplyTagExe[] =
+    L"\\\\172.23.44.61\\shared\\chrome_autotest\\ApplyTag.exe";
+const wchar_t kChromeApplyTagParameters[] =
+    L"\"appguid={8A69D345-D564-463C-AFF1-A69D9E530F96}&appname=Chrome&needsadmin=false\"";
 }
 

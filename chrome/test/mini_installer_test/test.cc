@@ -1,6 +1,7 @@
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+#include "base/platform_thread.h"
 #include "base/win_util.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/test/mini_installer_test/mini_installer_test_constants.h"
@@ -11,7 +12,7 @@
 namespace {
 class MiniInstallTest : public testing::Test {
    protected:
-    virtual void SetUp() {
+    void CleanTheSystem() {
       ChromeMiniInstaller userinstall(mini_installer_constants::kUserInstall);
       userinstall.UnInstall();
       if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
@@ -20,14 +21,21 @@ class MiniInstallTest : public testing::Test {
         systeminstall.UnInstall();
       }
     }
+    virtual void SetUp() {
+      CleanTheSystem();
+    }
 
     virtual void TearDown() {
-      ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
-      installer.CloseProcesses(installer_util::kChromeExe);
+      PlatformThread::Sleep(2000);
+      CleanTheSystem();
     }
   };
 };
 
+TEST_F(MiniInstallTest, StandaloneInstallerTest) {
+  ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
+  installer.InstallStandaloneIntaller();
+}
 TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.OverInstall();
@@ -36,13 +44,15 @@ TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
 TEST_F(MiniInstallTest, MiniInstallerSystemInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kSystemInstall);
-    installer.InstallMiniInstaller();
+    installer.InstallMiniInstaller(false,
+        mini_installer_constants::kChromeMiniInstallerExecutable);
   }
 }
 
 TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
-  installer.InstallMiniInstaller();
+  installer.InstallMiniInstaller(false,
+      mini_installer_constants::kChromeMiniInstallerExecutable);
 }
 
 TEST(InstallUtilTests, MiniInstallTestValidWindowsVersion) {

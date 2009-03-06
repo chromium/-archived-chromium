@@ -31,7 +31,11 @@ class ChromeMiniInstaller {
   void InstallMetaInstaller();
 
   // Installs Chrome Mini Installer.
-  void InstallMiniInstaller(bool over_install = false);
+  void InstallMiniInstaller(bool over_install = false,
+                            const wchar_t exe_name[] = L"");
+
+  // This will test the standalone installer.
+  void InstallStandaloneIntaller();
 
   // Uninstalls Chrome.
   void UnInstall();
@@ -43,6 +47,7 @@ class ChromeMiniInstaller {
   // This variable holds the install type.
   // Install type can be either system or user level.
   std::wstring install_type_;
+  bool standalone_installer;
 
   // Closes First Run UI dialog.
   void CloseFirstRunUIDialog(bool over_install);
@@ -70,10 +75,16 @@ class ChromeMiniInstaller {
   HKEY GetRootRegistryKey();
 
   // Get path for mini_installer.exe.
-  std::wstring GetMiniInstallerExePath();
+  std::wstring GetInstallerExePath(const wchar_t installer_name[]);
 
   // This method gets the shortcut path from start menu based on install type.
   std::wstring GetStartMenuShortcutPath();
+
+  // This method will get the standalone installer filename.
+  bool GetStandaloneInstallerFileName(std::wstring* file_name);
+
+  // This method will get the version number from the filename.
+  bool GetStandaloneVersion(std::wstring* version);
 
   // Get path for uninstall.
   std::wstring GetUninstallPath();
@@ -87,12 +98,18 @@ class ChromeMiniInstaller {
   // Launches the chrome installer and waits for it to end.
   void LaunchInstaller(std::wstring install_path, const wchar_t process_name[]);
 
+  // This method will create a command line  to run apply tag.
+  bool GetCommandForTagging(std::wstring *return_command);
+
   // Verifies if Chrome launches after install.
   void VerifyChromeLaunch();
 
   // Compares the registry key values after overinstall.
   bool VerifyOverInstall(std::wstring reg_key_value_before_overinstall,
                          std::wstring reg_key_value_after_overinstall);
+
+  // This method will verify if the installed build is correct.
+  bool VerifyStandaloneInstall();
 
   // Waits until the given process starts running
   void WaitUntilProcessStartsRunning(const wchar_t process_name[]);

@@ -5,6 +5,7 @@
 #include "chrome/test/mini_installer_test/chrome_mini_installer.h"
 
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
@@ -17,14 +18,14 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Installs the Chrome mini-installer, checks the registry and shortcuts.
-void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
-  std::wstring mini_installer_path = GetMiniInstallerExePath();
+void ChromeMiniInstaller::InstallMiniInstaller(bool over_install,
+                                               const wchar_t exe_name[]) {
+  std::wstring installer_path = GetInstallerExePath(exe_name);
   printf("\nChrome will be installed at %ls level\n", install_type_.c_str());
   printf("\nWill proceed with the test only if mini_installer.exe exists\n");
-  ASSERT_TRUE(file_util::PathExists(mini_installer_path));
-  printf("\nmini_installer found at %ls\n", mini_installer_path.c_str());
-  LaunchInstaller(mini_installer_path,
-                  mini_installer_constants::kChromeMiniInstallerExecutable);
+  ASSERT_TRUE(file_util::PathExists(installer_path));
+  printf("\ninstaller found at %ls\n", installer_path.c_str());
+  LaunchInstaller(installer_path, exe_name);
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   ASSERT_TRUE(CheckRegistryKey(dist->GetVersionKey()));
   FindChromeShortcut();
@@ -32,11 +33,32 @@ void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
   CloseFirstRunUIDialog(over_install);
   }
 
+// This method tests the standalone installer by verifying the steps listed at:
+// https://sites.google.com/a/google.com/chrome-pmo/
+// standalone-installers/testing-standalone-installers
+// This method applies appropriate tags to standalone installer and deletes
+// old installer before running the new tagged installer. It also verifies
+// that the installed version is correct.
+void ChromeMiniInstaller::InstallStandaloneIntaller() {
+  if (!IsChromiumBuild()) {
+    standalone_installer = true;
+    file_util::Delete(mini_installer_constants::kStandaloneInstaller, true);
+    std::wstring tag_installer_command;
+    ASSERT_TRUE(GetCommandForTagging(&tag_installer_command));
+    base::LaunchApp(tag_installer_command, true, false, NULL);
+    InstallMiniInstaller(false, mini_installer_constants::kStandaloneInstaller);
+    ASSERT_TRUE(VerifyStandaloneInstall());
+    file_util::Delete(mini_installer_constants::kStandaloneInstaller, true);
+  } else {
+    printf("\n\nThis test doesn't run on a chromium build\n");
+  }
+}
+
 // Installs chromesetup.exe, waits for the install to finish and then
 // checks the registry and shortcuts.
 void ChromeMiniInstaller::InstallMetaInstaller() {
   // Install Google Chrome through meta installer.
-  LaunchInstaller(mini_installer_constants::kChromeMetaInstallerExeLocation,
+  LaunchInstaller(mini_installer_constants::kChromeMetaInstallerExe,
                   mini_installer_constants::kChromeSetupExecutable);
   WaitUntilProcessStopsRunning(
       mini_installer_constants::kChromeMetaInstallerExecutable);
@@ -64,9 +86,8 @@ void ChromeMiniInstaller::OverInstall() {
     // gets the registry key value before overinstall.
     GetRegistryKey(&reg_key_value_returned);
     printf("\n\nPreparing to overinstall...\n");
-    std::wstring mini_installer_path = GetMiniInstallerExePath();
-    printf("\nOverinstall path is %ls\n",  mini_installer_path.c_str());
-    InstallMiniInstaller(true);
+    InstallMiniInstaller(
+        true, mini_installer_constants::kChromeMiniInstallerExecutable);
     std::wstring reg_key_value_after_overinstall;
     // Get the registry key value after over install
     GetRegistryKey(&reg_key_value_after_overinstall);
@@ -120,9 +141,9 @@ bool ChromeMiniInstaller::CloseWindow(LPCWSTR window_name, UINT message) {
   int timer = 0;
   bool return_val = false;
   HWND hndl = FindWindow(NULL, window_name);
-  while (hndl== NULL && (timer < 60000)) {
+  while (hndl == NULL && (timer < 60000)) {
     hndl = FindWindow(NULL, window_name);
-    Sleep(200);
+    PlatformThread::Sleep(200);
     timer = timer + 200;
   }
   if (hndl != NULL) {
@@ -156,7 +177,7 @@ void ChromeMiniInstaller::CloseProcesses(const std::wstring& executable_name) {
   while ((base::GetProcessCount(executable_name, NULL) > 0) &&
          (timer < 20000)) {
     base::KillProcesses(executable_name, 1, NULL);
-    Sleep(200);
+    PlatformThread::Sleep(200);
     timer = timer + 200;
   }
   ASSERT_EQ(0, base::GetProcessCount(executable_name, NULL));
@@ -222,12 +243,12 @@ std::wstring ChromeMiniInstaller::GetChromeInstallDirectoryLocation() {
 }
 
 // Get path for mini_installer.exe.
-std::wstring ChromeMiniInstaller::GetMiniInstallerExePath() {
-  std::wstring mini_installer_path;
-  PathService::Get(base::DIR_EXE, &mini_installer_path);
-  file_util::AppendToPath(&mini_installer_path,
-             mini_installer_constants::kChromeMiniInstallerExecutable);
-  return mini_installer_path;
+std::wstring ChromeMiniInstaller::GetInstallerExePath(const wchar_t name[]) {
+  std::wstring installer_path;
+  PathService::Get(base::DIR_EXE, &installer_path);
+  file_util::AppendToPath(&installer_path, name);
+  printf("Chrome exe path is %ls\n", installer_path.c_str());
+  return installer_path;
 }
 
 // This method gets the shortcut path  from startmenu based on install type
@@ -238,6 +259,55 @@ std::wstring ChromeMiniInstaller::GetStartMenuShortcutPath() {
   else
     PathService::Get(base::DIR_START_MENU, &path_name);
   return path_name;
+}
+
+// This method will get the standalone installer filename from the directory.
+bool ChromeMiniInstaller::GetStandaloneInstallerFileName(std::wstring* name) {
+  std::wstring search_path, file_name;
+  size_t position_found;
+  file_name.append(
+      mini_installer_constants::kChromeStandAloneInstallerLocation);
+  file_name.append(L"*.exe");
+  WIN32_FIND_DATA find_file_data;
+  HANDLE file_handle = FindFirstFile(file_name.c_str(), &find_file_data);
+  if (file_handle == INVALID_HANDLE_VALUE) {
+    printf("Handle is invalid\n");
+    return false;
+  }
+  BOOL ret = TRUE;
+  while (ret) {
+    search_path = find_file_data.cFileName;
+    position_found = search_path.find(L"ChromeStandaloneSetup_");
+    if (position_found == 0) {
+      name->assign(find_file_data.cFileName);
+      printf("Untagged installer name is %ls\n", name->c_str());
+      break;
+    }
+    ret = FindNextFile(file_handle, &find_file_data);
+  }
+  FindClose(file_handle);
+  return true;
+}
+
+// This method will get the version number from the filename.
+bool ChromeMiniInstaller::GetStandaloneVersion(std::wstring* return_file_name) {
+  std::wstring file_name;
+  if (!GetStandaloneInstallerFileName(&file_name))
+    return false;
+  // Returned file name will have following convention:
+  // ChromeStandaloneSetup_<build>_<patch>.exe
+  // Following code will extract build, patch details from the file
+  // and concatenate with 1.0 to form the build version.
+  // Patteren followed: 1.0.<build>.<patch>
+  file_name = file_name.substr(22, 25);
+  std::wstring::size_type last_dot = file_name.find(L'.');
+  file_name = file_name.substr(0, last_dot);
+  std::wstring::size_type pos = file_name.find(L'_');
+  file_name.replace(pos, 1, L".");
+  file_name = L"1.0." + file_name;
+  return_file_name->assign(file_name.c_str());
+  printf("Standalone installer version is %ls\n", file_name.c_str());
+  return true;
 }
 
 // Gets the path for uninstall.
@@ -295,7 +365,33 @@ void ChromeMiniInstaller::LaunchInstaller(std::wstring path,
   }
   printf("Waiting while this process is running  %ls ....", process_name);
   WaitUntilProcessStartsRunning(process_name);
+  // This is a temporary workaround until thankyou dialog is supressed.
+  if (standalone_installer == true) {
+    WaitUntilProcessStartsRunning(installer_util::kChromeExe);
+    PlatformThread::Sleep(1200);
+    CloseProcesses(mini_installer_constants::kGoogleUpdateExecutable);
+  }
   WaitUntilProcessStopsRunning(process_name);
+}
+
+// This method will create a command line  to run apply tag.
+bool ChromeMiniInstaller::GetCommandForTagging(std::wstring *return_command) {
+  std::wstring standalone_installer_name, standalone_installer_path;
+  if (!GetStandaloneInstallerFileName(&standalone_installer_name))
+    return false;
+  standalone_installer_path.assign(
+            mini_installer_constants::kChromeStandAloneInstallerLocation);
+  standalone_installer_path.append(standalone_installer_name);
+  return_command->append(
+                  mini_installer_constants::kChromeApplyTagExe);
+  return_command->append(L" ");
+  return_command->append(standalone_installer_path);
+  return_command->append(L" ");
+  return_command->append(mini_installer_constants::kStandaloneInstaller);
+  return_command->append(L" ");
+  return_command->append(mini_installer_constants::kChromeApplyTagParameters);
+  printf("Command to run Apply tag is %ls\n", return_command->c_str());
+  return true;
 }
 
 // Launch Chrome to see if it works after overinstall. Then close it.
@@ -307,7 +403,7 @@ void ChromeMiniInstaller::VerifyChromeLaunch() {
   printf("\n\nChrome is launched from %ls\n\n", path.c_str());
   base::LaunchApp(L"\"" + path + L"\"", false, false, NULL);
   WaitUntilProcessStartsRunning(installer_util::kChromeExe);
-  Sleep(1200);
+  PlatformThread::Sleep(1200);
 }
 
 // This method compares the registry keys after overinstall.
@@ -330,13 +426,23 @@ bool ChromeMiniInstaller::VerifyOverInstall(
   return true;
 }
 
+// This method will verify if the installed build is correct.
+bool ChromeMiniInstaller::VerifyStandaloneInstall() {
+  std::wstring reg_key_value_returned, standalone_installer_version;
+  GetStandaloneVersion(&standalone_installer_version);
+  GetRegistryKey(&reg_key_value_returned);
+  if (standalone_installer_version.compare(reg_key_value_returned) == 0)
+    return true;
+  else
+    return false;
+}
 // Waits until the process starts running.
 void ChromeMiniInstaller::WaitUntilProcessStartsRunning(
                               const wchar_t process_name[]) {
   int timer = 0;
   while ((base::GetProcessCount(process_name, NULL) == 0) &&
          (timer < 60000)) {
-    Sleep(200);
+    PlatformThread::Sleep(200);
     timer = timer + 200;
   }
   ASSERT_NE(0, base::GetProcessCount(process_name, NULL));
@@ -349,7 +455,7 @@ void ChromeMiniInstaller::WaitUntilProcessStopsRunning(
   printf("\nWaiting for this process to end... %ls\n", process_name);
   while ((base::GetProcessCount(process_name, NULL) > 0) &&
          (timer < 60000)) {
-    Sleep(200);
+    PlatformThread::Sleep(200);
     timer = timer + 200;
   }
   ASSERT_EQ(0, base::GetProcessCount(process_name, NULL));
