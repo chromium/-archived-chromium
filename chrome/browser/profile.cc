@@ -381,8 +381,15 @@ void ProfileImpl::InitExtensions() {
 
   FilePath script_dir;
   if (user_scripts_enabled) {
-    script_dir = GetPath();
-    script_dir = script_dir.Append(chrome::kUserScriptsDirname);
+   
+    if (command_line->HasSwitch(switches::kUserScriptsDir)) {
+      std::wstring path_string =
+          command_line->GetSwitchValue(switches::kUserScriptsDir);
+      script_dir = FilePath::FromWStringHack(path_string);
+    } else {
+      script_dir = GetPath();
+      script_dir = script_dir.Append(chrome::kUserScriptsDirname);
+    }
   }
 
   ExtensionErrorReporter::Init(true);  // allow noisy errors.
