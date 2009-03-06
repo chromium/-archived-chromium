@@ -127,7 +127,7 @@ MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
   m_deltaY = e.delta_y;
   m_isAccepted = false;
   m_granularity = e.scroll_by_page ?
-      ScrollByPageWheelEvent : ScrollByLineWheelEvent;
+      ScrollByPageWheelEvent : ScrollByPixelWheelEvent;
   m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
   m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
   m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;

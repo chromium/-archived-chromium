@@ -123,22 +123,22 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
   // - Gtk makes the scroll amount a function of the size of the scroll bar,
   //   which is not available to us here.
   // Instead, we pick a number that empirically matches Firefox's behavior.
-  static const float kWheelDelta = 4;
+  static const float kScrollbarPixelsPerTick = 160.0f / 3.0f;
 
   delta_x = 0;
   delta_y = 0;
   switch (event->direction) {
     case GDK_SCROLL_UP:
-      delta_y = kWheelDelta;
+      delta_y = kScrollbarPixelsPerTick;
       break;
     case GDK_SCROLL_DOWN:
-      delta_y = -kWheelDelta;
+      delta_y = -kScrollbarPixelsPerTick;
       break;
     case GDK_SCROLL_LEFT:
-      delta_x = kWheelDelta;
+      delta_x = kScrollbarPixelsPerTick;
       break;
     case GDK_SCROLL_RIGHT:
-      delta_x = -kWheelDelta;
+      delta_x = -kScrollbarPixelsPerTick;
       break;
     default:
       break;

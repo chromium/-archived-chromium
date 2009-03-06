@@ -35,8 +35,6 @@
 #undef LOG
 #include "base/logging.h"
 
-static const unsigned long kDefaultScrollLinesPerWheelDelta = 3;
-
 // WebMouseEvent --------------------------------------------------------------
 
 WebMouseEvent::WebMouseEvent(NSEvent *event, NSView* view) {
@@ -136,14 +134,13 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
   x = location.x;
   y = [view frame].size.height - location.y;  // flip y
 
-  // Convert wheel delta amount to a number of lines to scroll.
+  // Convert wheel delta amount to a number of pixels to scroll.
+  static const float kScrollbarPixelsPerTick = 40.0f;
   float wheel_delta = [event deltaY];
-  const float delta_lines = wheel_delta * kDefaultScrollLinesPerWheelDelta;
+  const float delta_lines = wheel_delta * kScrollbarPixelsPerTick;
 
   // Set scroll amount based on above calculations.
   if ([event modifierFlags] & NSShiftKeyMask) {
-    // Scrolling up should move left, scrolling down should move right.  This is
-    // opposite Safari, but seems more consistent with vertical scrolling.
     delta_x = delta_lines;
     delta_y = 0;
   } else {

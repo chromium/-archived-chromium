@@ -195,25 +195,36 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd,
   x = client_point.x;
   y = client_point.y;
 
-  // Convert wheel delta amount to a number of lines/chars to scroll.
+  // Convert wheel delta amount to a number of pixels to scroll.
+  //
+  // How many pixels should we scroll per line?  Gecko uses the height of the
+  // current line, which means scroll distance changes as you go through the
+  // page or go to different pages.  IE 7 is ~50 px/line, although the value
+  // seems to vary slightly by page and zoom level.  Since IE 7 has a smoothing
+  // algorithm on scrolling, it can get away with slightly larger scroll values
+  // without feeling jerky.  Here we use 100 px per three lines (the default
+  // scroll amount is three lines per wheel tick).
+  static const float kScrollbarPixelsPerLine = 100.0f / 3.0f;
   float scroll_delta = wheel_delta / WHEEL_DELTA;
   if (horizontal_scroll) {
     unsigned long scroll_chars = kDefaultScrollCharsPerWheelDelta;
     SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &scroll_chars, 0);
-    scroll_delta *= static_cast<float>(scroll_chars);
+    // TODO(pkasting): Should probably have a different multiplier
+    // kScrollbarPixelsPerChar here.
+    scroll_delta *= static_cast<float>(scroll_chars) * kScrollbarPixelsPerLine;
   } else {
     unsigned long scroll_lines = kDefaultScrollLinesPerWheelDelta;
     SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scroll_lines, 0);
     if (scroll_lines == WHEEL_PAGESCROLL)
       scroll_by_page = true;
-    if (!scroll_by_page)
-      scroll_delta *= static_cast<float>(scroll_lines);
+    if (!scroll_by_page) {
+      scroll_delta *=
+          static_cast<float>(scroll_lines) * kScrollbarPixelsPerLine;
+    }
   }
 
   // Set scroll amount based on above calculations.
   if (horizontal_scroll) {
-    // Scrolling up should move left, scrolling down should move right.  This is
-    // opposite Safari, but seems more consistent with vertical scrolling.
     delta_x = scroll_delta;
     delta_y = 0;
   } else {
