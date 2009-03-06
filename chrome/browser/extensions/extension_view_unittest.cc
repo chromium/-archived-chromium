@@ -49,6 +49,10 @@ class MockExtensionView : public ExtensionView {
       bool* did_suppress_message) {
     got_message_ = true;
     MessageLoopForUI::current()->Quit();
+
+    // Call super, otherwise we'll leak reply_msg.
+    ExtensionView::RunJavaScriptMessage(
+        message, default_prompt, flags, reply_msg, did_suppress_message);
   }
 
   bool got_message_;

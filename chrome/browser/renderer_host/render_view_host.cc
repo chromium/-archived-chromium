@@ -1232,7 +1232,7 @@ void RenderViewHost::OnMissingPluginStatus(int status) {
 }
 
 void RenderViewHost::UpdateBackForwardListCount() {
-  int back_list_count, forward_list_count;
+  int back_list_count = 0, forward_list_count = 0;
   delegate_->GetHistoryListCount(&back_list_count, &forward_list_count);
   Send(new ViewMsg_UpdateBackForwardListCount(
       routing_id(), back_list_count, forward_list_count));
