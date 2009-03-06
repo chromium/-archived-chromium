@@ -1,6 +1,7 @@
+/* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.in by autoheader.  */
 #define PACKAGE "libxml2"
-#define VERSION "2.6.31"
+#define VERSION "2.6.32"
 #define HAVE_LIBZ 1
 /* #undef HAVE_LIBM */
 #define HAVE_ISINF 
@@ -277,7 +278,7 @@
 #define SUPPORT_IP6 
 
 /* Version number of package */
-#define VERSION "2.6.31"
+#define VERSION "2.6.32"
 
 /* Determine what socket length (socklen_t) data type is */
 #define XML_SOCKLEN_T socklen_t
