@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_GTK_BROWSER_TOOLBAR_VIEW_GTK_H_
-#define CHROME_BROWSER_GTK_BROWSER_TOOLBAR_VIEW_GTK_H_
+#ifndef CHROME_BROWSER_GTK_BROWSER_TOOLBAR_GTK_H_
+#define CHROME_BROWSER_GTK_BROWSER_TOOLBAR_GTK_H_
 
 #include <gtk/gtk.h>
 #include <string>
@@ -173,4 +173,4 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   ScopedRunnableMethodFactory<BrowserToolbarGtk> show_menu_factory_;
 };
 
-#endif  // CHROME_BROWSER_GTK_BROWSER_TOOLBAR_VIEW_GTK_H_
+#endif  // CHROME_BROWSER_GTK_BROWSER_TOOLBAR_GTK_H_
