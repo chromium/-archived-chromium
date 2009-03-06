@@ -17,14 +17,21 @@
 
 namespace media {
 
-// Error definitions for pipeline.
+// Error definitions for pipeline.  All codes indicate an error except:
+// PIPELINE_OK indicates the pipeline is running normally.
+// PIPELINE_STOPPING is used internally when Pipeline::Stop() is called.
 enum PipelineError {
   PIPELINE_OK,
+  PIPELINE_STOPPING,
+  PIPELINE_ERROR_URL_NOT_FOUND,
   PIPELINE_ERROR_NETWORK,
   PIPELINE_ERROR_DECODE,
   PIPELINE_ERROR_ABORT,
   PIPELINE_ERROR_INITIALIZATION_FAILED,
-  PIPELINE_STOPPING
+  PIPELINE_ERROR_REQUIRED_FILTER_MISSING,
+  PIPELINE_ERROR_OUT_OF_MEMORY,
+  PIPELINE_ERROR_COULD_NOT_RENDER,
+  PIPELINE_ERROR_READ
 };
 
 // Base class for Pipeline class which allows for read-only access to members.
@@ -89,6 +96,12 @@ class PipelineStatus {
   // Gets the current error status for the pipeline.  If the pipeline is
   // operating correctly, this will return OK.
   virtual PipelineError GetError() const = 0;
+
+  // If the |major_mime_type| exists in the pipeline and is being rendered, this
+  // method will return true.  Types are defined in media/base/media_foramt.h.
+  // For example, to determine if a pipeline contains video:
+  //   bool has_video = pipeline->IsRendered(mime_type::kMajorTypeVideo);
+  virtual bool IsRendered(const std::string& major_mime_type) const = 0;
 
  protected:
   virtual ~PipelineStatus() {}

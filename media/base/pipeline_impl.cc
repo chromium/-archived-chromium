@@ -95,16 +95,25 @@ void PipelineImpl::InternalSetPlaybackRate(float rate) {
   playback_rate_ = rate;
 }
 
-
 PipelineError PipelineImpl::GetError() const {
   AutoLock auto_lock(const_cast<Lock&>(lock_));
   return error_;
 }
 
+bool PipelineImpl::IsRendered(const std::string& major_mime_type) const {
+  AutoLock auto_lock(const_cast<Lock&>(lock_));
+  bool is_rendered = (rendered_mime_types_.find(major_mime_type) !=
+                      rendered_mime_types_.end());
+  return is_rendered;
+}
+
+
 bool PipelineImpl::InternalSetError(PipelineError error) {
+  // Don't want callers to set an error of "OK".  STOPPING is a special value
+  // that should only be used internally by the StopTask() method.
+  DCHECK(PIPELINE_OK != error && PIPELINE_STOPPING != error);
   AutoLock auto_lock(lock_);
   bool changed_error = false;
-  DCHECK(PIPELINE_OK != error);
   if (PIPELINE_OK == error_) {
     error_ = error;
     changed_error = true;
@@ -184,6 +193,7 @@ void PipelineImpl::ResetState() {
   error_            = PIPELINE_OK;
   time_             = base::TimeDelta();
   ticks_at_last_set_time_ = base::TimeTicks::Now();
+  rendered_mime_types_.clear();
 }
 
 void PipelineImpl::SetDuration(base::TimeDelta duration) {
@@ -211,6 +221,12 @@ void PipelineImpl::SetVideoSize(size_t width, size_t height) {
   video_width_ = width;
   video_height_ = height;
 }
+
+void PipelineImpl::InsertRenderedMimeType(const std::string& major_mime_type) {
+  AutoLock auto_lock(lock_);
+  rendered_mime_types_.insert(major_mime_type);
+}
+
 
 //-----------------------------------------------------------------------------
 
@@ -339,8 +355,6 @@ void PipelineThread::PostTask(Task* task) {
 void PipelineThread::StartTask(FilterFactory* filter_factory,
                                const std::string& url,
                                Callback1<bool>::Type* init_complete_callback) {
-  bool success = true;
-
   // During the entire StartTask we hold the initialization_lock_ so that
   // if the client calls the Pipeline::Stop method while we are running a
   // nested message loop, we can correctly unwind out of it before calling
@@ -351,33 +365,30 @@ void PipelineThread::StartTask(FilterFactory* filter_factory,
   // we can delete filters at an appropriate time (when all tasks have been
   // processed and the thread is about to be destroyed).
   message_loop()->AddDestructionObserver(this);
-  success = CreateDataSource(filter_factory, url);
-  if (success) {
-    success = CreateAndConnect<Demuxer, DataSource>(filter_factory);
-  }
-  if (success) {
-    success = CreateDecoder<AudioDecoder>(filter_factory);
-  }
-  if (success) {
-    success = CreateAndConnect<AudioRenderer, AudioDecoder>(filter_factory);
-  }
-  if (success && HasVideo()) {
-    success = CreateDecoder<VideoDecoder>(filter_factory);
-    if (success) {
-      success = CreateAndConnect<VideoRenderer, VideoDecoder>(filter_factory);
+
+  scoped_refptr<DataSource> data_source = CreateDataSource(filter_factory, url);
+  if (PipelineOk()) {
+    scoped_refptr<Demuxer> demuxer =
+        CreateFilter<Demuxer, DataSource>(filter_factory, data_source);
+    if (PipelineOk()) {
+      Render<AudioDecoder, AudioRenderer>(filter_factory, demuxer);
+    }
+    if (PipelineOk()) {
+      Render<VideoDecoder, VideoRenderer>(filter_factory, demuxer);
     }
   }
-  if (success) {
-    pipeline_->initialized_ = true;
-  } else {
-    Error(PIPELINE_ERROR_INITIALIZATION_FAILED);
+
+  if (PipelineOk() && pipeline_->rendered_mime_types_.empty()) {
+    Error(PIPELINE_ERROR_COULD_NOT_RENDER);
   }
+
+  pipeline_->initialized_ = PipelineOk();
 
   // No matter what, we're done with the filter factory, and
   // client callback so get rid of them.
   filter_factory->Release();
   if (init_complete_callback) {
-    init_complete_callback->Run(success);
+    init_complete_callback->Run(pipeline_->initialized_);
     delete init_complete_callback;
   }
 }
@@ -387,7 +398,7 @@ void PipelineThread::StartTask(FilterFactory* filter_factory,
 // pipeline's error_ member to PIPELINE_STOPPING.  We stop the filters in the
 // reverse order.
 void PipelineThread::StopTask() {
-  if (PIPELINE_OK == pipeline_->error_) {
+  if (PipelineOk()) {
     pipeline_->error_ = PIPELINE_STOPPING;
   }
   FilterHostVector::reverse_iterator riter = filter_hosts_.rbegin();
@@ -400,6 +411,32 @@ void PipelineThread::StopTask() {
     message_loop()->Quit();
   }
 }
+
+template <class Decoder, class Renderer>
+void PipelineThread::Render(FilterFactory* filter_factory, Demuxer* demuxer) {
+  DCHECK(PipelineOk());
+  const std::string major_mime_type = Decoder::major_mime_type();
+  const int num_outputs = demuxer->GetNumberOfStreams();
+  for (int i = 0; i < num_outputs; ++i) {
+    DemuxerStream* demuxer_stream = demuxer->GetStream(i);
+    const MediaFormat* stream_format = demuxer_stream->GetMediaFormat();
+    std::string value;
+    if (stream_format->GetAsString(MediaFormat::kMimeType, &value) &&
+        0 == value.compare(0, major_mime_type.length(), major_mime_type)) {
+      scoped_refptr<Decoder> decoder =
+          CreateFilter<Decoder, DemuxerStream>(filter_factory, demuxer_stream);
+      if (PipelineOk()) {
+        DCHECK(decoder);
+        CreateFilter<Renderer, Decoder>(filter_factory, decoder);
+      }
+      if (PipelineOk()) {
+        pipeline_->InsertRenderedMimeType(major_mime_type);
+      }
+      break;
+    }
+  }
+}
+
 
 // Task runs as a result of a filter calling InitializationComplete.  If for
 // some reason StopTask has been executed prior to this, the host_initializing_
@@ -433,7 +470,8 @@ void PipelineThread::SeekTask(base::TimeDelta time) {
 
 void PipelineThread::SetVolumeTask(float volume) {
   pipeline_->volume_ = volume;
-  AudioRenderer* audio_renderer = GetFilter<AudioRenderer>();
+  scoped_refptr<AudioRenderer> audio_renderer;
+  GetFilter(&audio_renderer);
   if (audio_renderer) {
     audio_renderer->SetVolume(volume);
   }
@@ -449,37 +487,38 @@ void PipelineThread::SetTimeTask() {
 }
 
 template <class Filter>
-Filter* PipelineThread::GetFilter() const {
-  Filter* filter = NULL;
-  FilterHostVector::const_iterator iter = filter_hosts_.begin();
-  while (iter != filter_hosts_.end() && NULL == filter) {
-    filter = (*iter)->GetFilter<Filter>();
-    ++iter;
+void PipelineThread::GetFilter(scoped_refptr<Filter>* filter_out) const {
+  *filter_out = NULL;
+  for (FilterHostVector::const_iterator iter = filter_hosts_.begin();
+       iter != filter_hosts_.end() && NULL == *filter_out;
+       iter++) {
+    (*iter)->GetFilter(filter_out);
   }
-  return filter;
 }
 
 template <class Filter, class Source>
-bool PipelineThread::CreateFilter(FilterFactory* filter_factory,
-                                  Source source,
-                                  const MediaFormat* media_format) {
+scoped_refptr<Filter> PipelineThread::CreateFilter(
+    FilterFactory* filter_factory,
+    Source source,
+    const MediaFormat* media_format) {
+  DCHECK(PipelineOk());
   scoped_refptr<Filter> filter = filter_factory->Create<Filter>(media_format);
-  bool success = (NULL != filter);
-  if (success) {
+  if (!filter) {
+    Error(PIPELINE_ERROR_REQUIRED_FILTER_MISSING);
+  } else {
     DCHECK(!host_initializing_);
     host_initializing_ = new FilterHostImpl(this, filter.get());
-    success = (NULL != host_initializing_);
+    if (NULL == host_initializing_) {
+      Error(PIPELINE_ERROR_OUT_OF_MEMORY);
+    } else {
+      filter_hosts_.push_back(host_initializing_);
+      filter->SetFilterHost(host_initializing_);
+      if (!filter->Initialize(source)) {
+        Error(PIPELINE_ERROR_INITIALIZATION_FAILED);
+      }
+    }
   }
-  if (success) {
-    filter_hosts_.push_back(host_initializing_);
-    filter->SetFilterHost(host_initializing_);
-
-    // The filter must return true from initialize and there must still not
-    // be an error or it's not successful.
-    success = (filter->Initialize(source) &&
-               PIPELINE_OK == pipeline_->error_);
-  }
-  if (success) {
+  if (PipelineOk()) {
     // Now we run the thread's message loop recursively.  We want all
     // pending tasks to be processed, so we set nestable tasks to be allowed
     // and then run the loop.  The only way we exit the loop is as the result
@@ -493,82 +532,24 @@ bool PipelineThread::CreateFilter(FilterFactory* filter_factory,
     message_loop()->Run();
     message_loop()->SetNestableTasksAllowed(false);
     DCHECK(!host_initializing_);
-
-    // If an error occurred while we were in the nested Run state, then
-    // not successful.  When stopping, the |error_| member is set to a value of
-    // PIPELINE_STOPPING so we will exit in that case also with false.
-    success = (PIPELINE_OK == pipeline_->error_);
+  } else {
+    // This could still be set if we never ran the message loop (for example,
+    // if the fiter returned false from it's Initialize() method), so make sure
+    // to reset it.
+    host_initializing_ = NULL;
   }
-
-  // This could still be set if we never ran the message loop (for example,
-  // if the fiter returned false from it's Initialize method), so make sure
-  // to reset it.
-  host_initializing_ = NULL;
-
-  // If this method fails, but no error set, then indicate a general
-  // initialization failure.
-  if (!success) {
-    Error(PIPELINE_ERROR_INITIALIZATION_FAILED);
+  if (!PipelineOk()) {
+    filter = NULL;
   }
-  return success;
+  return filter;
 }
 
-bool PipelineThread::CreateDataSource(FilterFactory* filter_factory,
-                                      const std::string& url) {
+scoped_refptr<DataSource> PipelineThread::CreateDataSource(
+    FilterFactory* filter_factory, const std::string& url) {
   MediaFormat url_format;
   url_format.SetAsString(MediaFormat::kMimeType, mime_type::kURL);
   url_format.SetAsString(MediaFormat::kURL, url);
   return CreateFilter<DataSource>(filter_factory, url, &url_format);
-}
-
-template <class Decoder>
-bool PipelineThread::CreateDecoder(FilterFactory* filter_factory) {
-  Demuxer* demuxer = GetFilter<Demuxer>();
-  if (demuxer) {
-    int num_outputs = demuxer->GetNumberOfStreams();
-    for (int i = 0; i < num_outputs; ++i) {
-      DemuxerStream* stream = demuxer->GetStream(i);
-      const MediaFormat* stream_format = stream->GetMediaFormat();
-      if (IsMajorMimeType(stream_format, Decoder::major_mime_type())) {
-        return CreateFilter<Decoder>(filter_factory, stream, stream_format);
-      }
-    }
-  }
-  return false;
-}
-
-template <class NewFilter, class SourceFilter>
-bool PipelineThread::CreateAndConnect(FilterFactory* filter_factory) {
-  SourceFilter* source_filter = GetFilter<SourceFilter>();
-  bool success = (source_filter &&
-                  CreateFilter<NewFilter>(filter_factory,
-                                          source_filter,
-                                          source_filter->GetMediaFormat()));
-  return success;
-}
-
-// TODO(ralphl): Consider making this part of the demuxer interface.
-bool PipelineThread::HasVideo() const {
-  Demuxer* demuxer = GetFilter<Demuxer>();
-  if (demuxer) {
-    int num_outputs = demuxer->GetNumberOfStreams();
-    for (int i = 0; i < num_outputs; ++i) {
-      if (IsMajorMimeType(demuxer->GetStream(i)->GetMediaFormat(),
-                          mime_type::kMajorTypeVideo)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-bool PipelineThread::IsMajorMimeType(const MediaFormat* media_format,
-                                     const std::string& major_mime_type) const {
-  std::string value;
-  if (media_format->GetAsString(MediaFormat::kMimeType, &value)) {
-    return (0 == value.compare(0, major_mime_type.length(), major_mime_type));
-  }
-  return false;
 }
 
 // Called as a result of destruction of the thread.

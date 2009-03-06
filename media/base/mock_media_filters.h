@@ -23,7 +23,7 @@ enum MockDataSourceBehavior {
   MOCK_DATA_SOURCE_NORMAL_INIT,
   MOCK_DATA_SOURCE_NEVER_INIT,
   MOCK_DATA_SOURCE_TASK_INIT,
-  MOCK_DATA_SOURCE_ERROR_IN_INIT,
+  MOCK_DATA_SOURCE_URL_ERROR_IN_INIT,
   MOCK_DATA_SOURCE_INIT_RETURN_FALSE,
   MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT,
   MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT
@@ -96,8 +96,8 @@ class MockDataSource : public DataSource {
       case MOCK_DATA_SOURCE_TASK_INIT:
         host_->PostTask(NewRunnableMethod(this, &MockDataSource::TaskBehavior));
         return true;
-      case MOCK_DATA_SOURCE_ERROR_IN_INIT:
-        host_->Error(PIPELINE_ERROR_NETWORK);
+      case MOCK_DATA_SOURCE_URL_ERROR_IN_INIT:
+        host_->Error(PIPELINE_ERROR_URL_NOT_FOUND);
         return false;
       case MOCK_DATA_SOURCE_INIT_RETURN_FALSE:
         return false;
@@ -529,9 +529,10 @@ class MockVideoRenderer : public VideoRenderer {
 
 
 //------------------------------------------------------------------------------
-// Simple class that derives from the WaitableEvent class.  The event remains
-// in the reset state until the initialization complete callback is called from
-// a media pipeline.  The normal use of this object looks like:
+// A simple class that waits for a pipeline to be started and checks some
+// basic initialization values.  The Start() method will not return until
+// either a pre-dermined amount of time has passed or the pipeline calls the
+// InitCallback() callback.  A typical use would be:
 //   Pipeline p;
 //   FilterFactoryCollection f;
 //   f->AddFactory(a);
@@ -539,12 +540,17 @@ class MockVideoRenderer : public VideoRenderer {
 //   ...
 //   InitializationHelper h;
 //   h.Start(&p, f, uri);
-//   h.Wait();
-//   (when the Wait() returns, the pipeline is initialized or in error state)
-class InitializationHelper : public base::WaitableEvent {
+//
+// If the test is expecting to produce an error use would be:
+//   h.Start(&p, f, uri, PIPELINE_ERROR_REQUIRED_FILTER_MISSING)
+//
+// If the test expects the pipeline to hang during initialization (a filter
+// never calls FilterHost::InitializationComplete()) then the use would be:
+//   h.Start(&p, f, uri, PIPELINE_OK, true);
+class InitializationHelper {
  public:
   InitializationHelper()
-    : WaitableEvent(true, false),
+    : event_(true, false),
       callback_success_status_(false),
       waiting_for_callback_(false) {}
 
@@ -560,32 +566,45 @@ class InitializationHelper : public base::WaitableEvent {
   // to this object.
   void Start(Pipeline* pipeline,
              FilterFactory* filter_factory,
-             const std::string& uri) {
-    Reset();
+             const std::string& uri,
+             PipelineError expect_error = PIPELINE_OK,
+             bool expect_hang = false) {
+    // For tests that we expect to hang in initialization, we want to
+    // wait a short time.  If a hang is not expected, then wait long enough
+    // to make sure that the filters have time to initalize.  1/2 second if
+    // we expect to hang, and 3 seconds if we expect success.
+    base::TimeDelta max_wait = base::TimeDelta::FromMilliseconds(expect_hang ?
+                                                                 500 : 3000);
+    EXPECT_FALSE(waiting_for_callback_);
     waiting_for_callback_ = true;
+    callback_success_status_ = false;
+    event_.Reset();
     pipeline->Start(filter_factory, uri,
                     NewCallback(this, &InitializationHelper::InitCallback));
-  }
-
-  // Resets the state.   This method should not be called if waiting for
-  // a callback from a previous call to Start.  Note that the Start method
-  // resets the state, so callers are not required to call this method prior
-  // to calling the start method.
-  void Reset() {
-    EXPECT_FALSE(waiting_for_callback_);
-    base::WaitableEvent::Reset();
-    callback_success_status_ = false;
+    bool signaled = event_.TimedWait(max_wait);
+    if (expect_hang) {
+      EXPECT_FALSE(signaled);
+      EXPECT_FALSE(pipeline->IsInitialized());
+      EXPECT_TRUE(waiting_for_callback_);
+    } else {
+      EXPECT_TRUE(signaled);
+      EXPECT_FALSE(waiting_for_callback_);
+      EXPECT_EQ(pipeline->GetError(), expect_error);
+      EXPECT_EQ(callback_success_status_, (expect_error == PIPELINE_OK));
+      EXPECT_EQ(pipeline->IsInitialized(), (expect_error == PIPELINE_OK));
+    }
   }
 
  private:
   void InitCallback(bool success) {
     EXPECT_TRUE(waiting_for_callback_);
-    EXPECT_FALSE(IsSignaled());
+    EXPECT_FALSE(event_.IsSignaled());
     waiting_for_callback_ = false;
     callback_success_status_ = success;
-    Signal();
+    event_.Signal();
   }
 
+  base::WaitableEvent event_;
   bool callback_success_status_;
   bool waiting_for_callback_;
 

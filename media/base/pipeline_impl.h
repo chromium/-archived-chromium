@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
@@ -43,6 +44,7 @@ class PipelineImpl : public Pipeline {
   virtual base::TimeDelta GetTime() const;
   virtual base::TimeDelta GetInterpolatedTime() const;
   virtual PipelineError GetError() const;
+  virtual bool IsRendered(const std::string& major_mime_type) const;
 
   // Impementation of Pipeline methods.
   virtual bool Start(FilterFactory* filter_factory,
@@ -81,6 +83,10 @@ class PipelineImpl : public Pipeline {
   // PIPELINE_OK. Returns true if error set, otherwise leaves current error
   // alone, and returns false.
   bool InternalSetError(PipelineError error);
+
+  // Method called by the |pipeline_thread_| to insert a mime type into
+  // the |rendered_mime_types_| set.
+  void InsertRenderedMimeType(const std::string& major_mime_type);
 
   // Holds a ref counted reference to the PipelineThread object associated
   // with this pipeline.  Prior to the call to the Start method, this member
@@ -143,6 +149,10 @@ class PipelineImpl : public Pipeline {
   // reset the pipeline state, and restore this to PIPELINE_OK.
   PipelineError error_;
 
+  // Vector of major mime types that have been rendered by this pipeline.
+  typedef std::set<std::string> RenderedMimeTypesSet;
+  RenderedMimeTypesSet rendered_mime_types_;
+
   DISALLOW_COPY_AND_ASSIGN(PipelineImpl);
 };
 
@@ -178,7 +188,7 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // that have registered a time update callback.
   void SetTime(base::TimeDelta time);
 
-  // Called by a FilterHostImpl on behalf of a filter calling FilerHost::Error.
+  // Called by a FilterHostImpl on behalf of a filter calling FilterHost::Error.
   // If the pipeline is running a nested message loop, it will be exited.
   void Error(PipelineError error);
 
@@ -204,6 +214,9 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   friend class base::RefCountedThreadSafe<PipelineThread>;
   virtual ~PipelineThread();
 
+  // Simple method used to make sure the pipeline is running normally.
+  bool PipelineOk() { return PIPELINE_OK == pipeline_->error_; }
+
   // The following "task" methods correspond to the public methods, but these
   // methods are run as the result of posting a task to the PipelineThread's
   // message loop.  For example, the Start method posts a task to call the
@@ -224,18 +237,14 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // Calls the Stop method on every filter in the pipeline
   void StopFilters();
 
-  // Examines the demuxer filter output streams.  If one contains video then
-  // returns true.
-  bool HasVideo() const;
-
   // The following template funcions make use of the fact that media filter
   // derived interfaces are self-describing in the sense that they all contain
   // the static method filter_type() which returns a FilterType enum that
-  // uniquely identifies the filer's interface.  In addition, filters that are
+  // uniquely identifies the filter's interface.  In addition, filters that are
   // specific to audio or video also support a static method major_mime_type()
   // which returns a string of "audio/" or "video/".
 
-  // Uses the FilterFactory to create a new filter of the NewFilter class, and
+  // Uses the FilterFactory to create a new filter of the Filter class, and
   // initiaializes it using the Source object.  The source may be another filter
   // or it could be a string in the case of a DataSource.
   //
@@ -248,36 +257,51 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   //  1. The filter calls FilterHost::InitializationComplete()
   //  2. A filter calls FilterHost::Error()
   //  3. The client calls Pipeline::Stop()
-  template <class NewFilter, class Source>
-  bool CreateFilter(FilterFactory* filter_factory,
-                    Source source,
-                    const MediaFormat* source_media_format);
+  //
+  // Callers can optionally use the returned Filter for further processing,
+  // but since the call already placed the filter in the list of filter hosts,
+  // callers can ignore the return value.  In any case, if this function can
+  // not create and initailze the speified Filter, then this method will return
+  // with |pipeline_->error_| != PIPELINE_OK.
+  template <class Filter, class Source>
+  scoped_refptr<Filter> CreateFilter(FilterFactory* filter_factory,
+                                     Source source,
+                                     const MediaFormat* source_media_format);
+
+  // Creates a Filter and initilizes it with the given |source|.  If a Filter
+  // could not be created or an error occurred, this metod returns NULL and the
+  // pipeline's |error_| member will contain a specific error code.  Note that
+  // the Source could be a filter or a DemuxerStream, but it must support the
+  // GetMediaFormat() method.
+  template <class Filter, class Source>
+  scoped_refptr<Filter> CreateFilter(FilterFactory* filter_factory,
+                                     Source* source) {
+    return CreateFilter<Filter, Source*>(filter_factory,
+                                         source,
+                                         source->GetMediaFormat());
+  }
 
   // Creates a DataSource (the first filter in a pipeline), and initializes it
   // with the specified URL.
-  bool CreateDataSource(FilterFactory* filter_factory,
-                        const std::string& url);
+  scoped_refptr<DataSource> CreateDataSource(FilterFactory* filter_factory,
+                                             const std::string& url);
 
-  // Examines the list of existing filters to find a Source, then creates a
-  // NewFilter, and initializes it with the Source filter.
-  template <class NewFilter, class Source>
-  bool CreateAndConnect(FilterFactory* filter_factory);
-
-  // Creates and initiaializes a decoder.
-  template <class Decoder>
-  bool CreateDecoder(FilterFactory* filter_factory);
+  // If the |demuxer| contains a stream that matches Decoder::major_media_type()
+  // this method creates and initializes the specified Decoder and Renderer.
+  // Callers should examine the |pipeline_->error_| member to see if there was
+  // an error duing the call.  The lack of the specified stream does not
+  // constitute an error, and no Decoder or Renderer will be created if the
+  // data stream does not exist in the |demuxer|.  If a stream is rendered, then
+  // this method will call |pipeline_|->InsertRenderedMimeType() to add the
+  // mime type to the set of rendered major mime types for the pipeline.
+  template <class Decoder, class Renderer>
+  void Render(FilterFactory* filter_factory, Demuxer* demuxer);
 
   // Examine the list of existing filters to find one that supports the
-  // specified Filter interface. If one exists, the specified Filter interface
-  // is returned otherwise the method retuns NULL.
+  // specified Filter interface. If one exists, the |filter_out| will contain
+  // the filter, |*filter_out| will be NULL.
   template <class Filter>
-  Filter* GetFilter() const;
-
-  // Simple function that returns true if the specified MediaFormat object
-  // has a mime type that matches the major_mime_type.  Examples of major mime
-  // types are "audio/" and "video/"
-  bool IsMajorMimeType(const MediaFormat* media_format,
-                       const std::string& major_mime_type) const;
+  void GetFilter(scoped_refptr<Filter>* filter_out) const;
 
   // Pointer to the pipeline that owns this PipelineThread.
   PipelineImpl* const pipeline_;

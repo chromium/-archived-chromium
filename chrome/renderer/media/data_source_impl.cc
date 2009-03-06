@@ -153,9 +153,7 @@ void DataSourceImpl::OnReadFileStream(uint8* data, size_t size) {
     // be called.  Since the file handle is asynchronous, return value other
     // than ERROR_IO_PENDING is an error.
     if (stream_->Read(c_data, size, &read_callback_) != net::ERR_IO_PENDING) {
-      // TODO(hclam): change to PipelineError::PIPELINE_ERROR_READ once ralphl
-      // gets the new pipeline CL checked in.
-      host_->Error(media::PIPELINE_ERROR_NETWORK);
+      host_->Error(media::PIPELINE_ERROR_READ);
     }
   }
 }

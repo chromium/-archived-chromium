@@ -62,7 +62,8 @@ class FilterHost {
   // Posts a task to be executed asynchronously on the pipeline's thread.
   virtual void PostTask(Task* task) = 0;
 
-  // Stops execution of the pipeline due to a fatal error.
+  // Stops execution of the pipeline due to a fatal error.  Do not call this
+  // method with PIPELINE_OK or PIPELINE_STOPPING (used internally by pipeline).
   virtual void Error(PipelineError error) = 0;
 
   // Sets the current time.  Any filters that have registered a callback through

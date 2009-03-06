@@ -32,7 +32,7 @@ bool FileDataSource::Initialize(const std::string& url) {
   }
   if (!file_) {
     file_size_ = 0;
-    host_->Error(PIPELINE_ERROR_NETWORK);
+    host_->Error(PIPELINE_ERROR_URL_NOT_FOUND);
     return false;
   }
   media_format_.SetAsString(MediaFormat::kMimeType,

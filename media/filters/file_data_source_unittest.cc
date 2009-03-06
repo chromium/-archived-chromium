@@ -71,8 +71,6 @@ TEST(FileDataSourceTest, OpenFile) {
   c->AddFactory(MockAudioRenderer::CreateFactory(&config));
   InitializationHelper h;
   h.Start(&pipeline, c, TestFileURL());
-  h.Wait();
-  EXPECT_EQ(pipeline.GetError(), media::PIPELINE_OK);
   EXPECT_EQ(pipeline.GetTotalBytes(), 10);
   EXPECT_EQ(pipeline.GetBufferedBytes(), 10);
   pipeline.Stop();

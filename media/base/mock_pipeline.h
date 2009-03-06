@@ -74,6 +74,10 @@ class MockPipeline : public media::Pipeline {
     return error_;
   }
 
+  virtual bool IsRendered(const std::string&) const {
+    return true;
+  }
+
   // Implementation of Pipeline interface.
   virtual bool Start(FilterFactory* filter_factory,
                      const std::string& url,

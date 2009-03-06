@@ -47,14 +47,12 @@ class FilterHostImpl : public FilterHost {
   ~FilterHostImpl() {}
 
   // If this FilterHost contains a filter of the specifed Filter class, then
-  // this method returns a pointer to the interface, otherwise it returns NULL.
+  // this method returns a pointer to the interface, otherwise it returns NULL
+  // in |*filter_out|.
   template <class Filter>
-  Filter* GetFilter() const {
-    Filter* filter = NULL;
-    if (Filter::filter_type() == filter_type_) {
-      filter = reinterpret_cast<Filter*>(media_filter());
-    }
-    return filter;
+  void GetFilter(scoped_refptr<Filter>* filter_out) const {
+    *filter_out = (Filter::filter_type() == filter_type_) ?
+                      reinterpret_cast<Filter*>(media_filter()) : NULL;
   }
 
   // Call the filter if it has registered a time update callback if the filter
