@@ -928,7 +928,7 @@ sub GenerateBatchedAttributeData
     if ($attrExt->{"DontEnum"}) {
       $propAttr .= "|v8::DontEnum";
     }
-    if ($attrExt->{"DontDelete"}) {
+    if ($attrExt->{"v8DisallowShadowing"}) {
       $propAttr .= "|v8::DontDelete";
     }
 
