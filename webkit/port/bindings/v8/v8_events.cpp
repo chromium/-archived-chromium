@@ -62,13 +62,8 @@ V8AbstractEventListener::V8AbstractEventListener(Frame* frame, bool isInline)
 
 void V8AbstractEventListener::HandleEventHelper(v8::Handle<v8::Context> context,
                                                 Event* event,
+                                                v8::Handle<v8::Value> jsevent,
                                                 bool isWindowEvent) {
-
-  // Enter the V8 context in which to perform the event handling.
-  v8::Context::Scope scope(context);
-
-  // Get the V8 wrapper for the event object.
-  v8::Handle<v8::Value> jsevent = V8Proxy::EventToV8Object(event);
 
   // For compatibility, we store the event object as a property on the window
   // called "event".  Because this is the global namespace, we save away any
@@ -159,7 +154,15 @@ void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
 
   IF_DEVEL(log_info(frame, "Handling DOM event", m_frame->document()->URL()));
 
-  HandleEventHelper(context, event, isWindowEvent);
+  {
+    // Enter the V8 context in which to perform the event handling.
+    v8::Context::Scope scope(context);
+
+    // Get the V8 wrapper for the event object.
+    v8::Handle<v8::Value> jsevent = V8Proxy::EventToV8Object(event);
+
+    HandleEventHelper(context, event, jsevent, isWindowEvent);
+  }
 
   Document::updateDocumentsRendering();
 }
@@ -507,7 +510,16 @@ void V8WorkerContextEventListener::handleEvent(Event* event,
   if (context.IsEmpty())
     return;
 
-  HandleEventHelper(context, event, isWindowEvent);
+  {
+    // Enter the V8 context in which to perform the event handling.
+    v8::Context::Scope scope(context);
+
+    // Get the V8 wrapper for the event object.
+    v8::Handle<v8::Value> jsevent =
+        WorkerContextExecutionProxy::EventToV8Object(event);
+
+    HandleEventHelper(context, event, jsevent, isWindowEvent);
+  }
 }
 
 v8::Local<v8::Value> V8WorkerContextEventListener::CallListenerFunction(

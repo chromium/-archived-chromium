@@ -42,6 +42,7 @@ class V8AbstractEventListener : public EventListener {
 
   void HandleEventHelper(v8::Handle<v8::Context> context,
                          Event* event,
+                         v8::Handle<v8::Value> jsevent,
                          bool isWindowEvent);
 
   // Returns the listener object, either a function or an object.
