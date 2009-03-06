@@ -15,7 +15,6 @@ To shut it down properly, visit localhost:8888/kill.
 import base64
 import BaseHTTPServer
 import cgi
-import md5
 import optparse
 import os
 import re
@@ -26,6 +25,13 @@ import time
 import tlslite
 import tlslite.api
 import pyftpdlib.ftpserver
+
+try:
+  import hashlib
+  _new_md5 = hashlib.md5
+except ImportError:
+  import md5
+  _new_md5 = md5.new
 
 SERVER_HTTP = 0
 SERVER_FTP = 1
@@ -729,10 +735,10 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         stale = True
       self.server.nonce_time = time.time()
       self.server.nonce = \
-          md5.new(time.ctime(self.server.nonce_time) + 'privatekey').hexdigest()
+          _new_md5(time.ctime(self.server.nonce_time) + 'privatekey').hexdigest()
 
     nonce = self.server.nonce
-    opaque = md5.new('opaque').hexdigest()
+    opaque = _new_md5('opaque').hexdigest()
     password = 'secret'
     realm = 'testrealm'
 
@@ -754,13 +760,13 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
       # Check the 'response' value and make sure it matches our magic hash.
       # See http://www.ietf.org/rfc/rfc2617.txt
-      hash_a1 = md5.new(':'.join([pairs['username'], realm, password])).hexdigest()
-      hash_a2 = md5.new(':'.join([self.command, pairs['uri']])).hexdigest()
+      hash_a1 = _new_md5(':'.join([pairs['username'], realm, password])).hexdigest()
+      hash_a2 = _new_md5(':'.join([self.command, pairs['uri']])).hexdigest()
       if 'qop' in pairs and 'nc' in pairs and 'cnonce' in pairs:
-        response = md5.new(':'.join([hash_a1, nonce, pairs['nc'],
+        response = _new_md5(':'.join([hash_a1, nonce, pairs['nc'],
             pairs['cnonce'], pairs['qop'], hash_a2])).hexdigest()
       else:
-        response = md5.new(':'.join([hash_a1, nonce, hash_a2])).hexdigest()
+        response = _new_md5(':'.join([hash_a1, nonce, hash_a2])).hexdigest()
 
       if pairs['response'] != response:
         raise Exception('wrong password')
