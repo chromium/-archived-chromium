@@ -328,11 +328,10 @@ LINUX : LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 // Compact support was removed from WebKit by Hyatt and layout tests rebaselined in r40259.
 
 MAC : LayoutTests/fast/dom/prototype-chain.html = FAIL
-LINUX : LayoutTests/fast/inline/percentage-margins.html = FAIL
 MAC : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 MAC : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-LINUX : LayoutTests/fast/table/form-with-table-style.html = FAIL
+
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 DEFER LINUX : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 DEFER MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
