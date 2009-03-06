@@ -1149,7 +1149,7 @@ PR_ParseTimeString(
                      and if you're wrong, it will "fix" it for you. */
                   localTime.tm_isdst = -1;
 
-#if _MSC_VER >= 1400  /* 1400 = Visual C++ 2005 (8.0) */
+#if _MSC_VER == 1400  /* 1400 = Visual C++ 2005 (8.0) */
                   /*
                    * mktime will return (time_t) -1 if the input is a date
                    * after 23:59:59, December 31, 3000, US Pacific Time (not
