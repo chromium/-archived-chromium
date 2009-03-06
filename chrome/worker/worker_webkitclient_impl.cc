@@ -11,6 +11,15 @@ WebKit::WebMimeRegistry* WorkerWebKitClientImpl::mimeRegistry() {
   return NULL;
 }
 
+uint64_t WorkerWebKitClientImpl::visitedLinkHash(const char* canonical_url,
+                                                 size_t length) {
+  return 0;
+}
+
+bool WorkerWebKitClientImpl::isLinkVisited(uint64_t link_hash) {
+  return false;
+}
+
 void WorkerWebKitClientImpl::setCookies(const WebKit::WebURL& url,
                                         const WebKit::WebURL& policy_url,
                                         const WebKit::WebString& value) {

@@ -189,63 +189,6 @@ String ChromiumBridge::uiResourceProtocol() {
 }
 
 
-// Resources ------------------------------------------------------------------
-
-PassRefPtr<Image> ChromiumBridge::loadPlatformImageResource(const char* name) {
-
-  // The rest get converted to a resource ID that we can pass to the glue.
-  int resource_id = 0;
-  if (!strcmp(name, "textAreaResizeCorner")) {
-    resource_id = IDR_TEXTAREA_RESIZER;
-  } else if (!strcmp(name, "missingImage")) {
-    resource_id = IDR_BROKENIMAGE;
-  } else if (!strcmp(name, "tickmarkDash")) {
-    resource_id = IDR_TICKMARK_DASH;
-  } else if (!strcmp(name, "panIcon")) {
-    resource_id = IDR_PAN_SCROLL_ICON;
-  } else if (!strcmp(name, "linuxCheckboxOff")) {
-    resource_id = IDR_LINUX_CHECKBOX_OFF;
-  } else if (!strcmp(name, "linuxCheckboxOn")) {
-    resource_id = IDR_LINUX_CHECKBOX_ON;
-  } else if (!strcmp(name, "linuxRadioOff")) {
-    resource_id = IDR_LINUX_RADIO_OFF;
-  } else if (!strcmp(name, "linuxRadioOn")) {
-    resource_id = IDR_LINUX_RADIO_ON;
-  } else if (!strcmp(name, "deleteButton")) {
-    if (WebKit::layoutTestMode()) {
-      RefPtr<Image> image = BitmapImage::create();
-      // Create a red 30x30 square used only in layout tests.
-      const char red_square[] =
-          "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52"
-          "\x00\x00\x00\x1e\x00\x00\x00\x1e\x04\x03\x00\x00\x00\xc9\x1e\xb3"
-          "\x91\x00\x00\x00\x30\x50\x4c\x54\x45\x00\x00\x00\x80\x00\x00\x00"
-          "\x80\x00\x80\x80\x00\x00\x00\x80\x80\x00\x80\x00\x80\x80\x80\x80"
-          "\x80\xc0\xc0\xc0\xff\x00\x00\x00\xff\x00\xff\xff\x00\x00\x00\xff"
-          "\xff\x00\xff\x00\xff\xff\xff\xff\xff\x7b\x1f\xb1\xc4\x00\x00\x00"
-          "\x09\x70\x48\x59\x73\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a"
-          "\x9c\x18\x00\x00\x00\x17\x49\x44\x41\x54\x78\x01\x63\x98\x89\x0a"
-          "\x18\x50\xb9\x33\x47\xf9\xa8\x01\x32\xd4\xc2\x03\x00\x33\x84\x0d"
-          "\x02\x3a\x91\xeb\xa5\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60"
-          "\x82";
-      const int size = arraysize(red_square);
-      RefPtr<SharedBuffer> buffer = SharedBuffer::create(red_square, size);
-      image->setData(buffer, true);
-      return image;
-    }
-  } else {
-    NOTREACHED() << "Unknown image resource " << name;
-    return Image::nullImage();
-  }
-
-  std::string data = webkit_glue::GetDataResource(resource_id);
-  RefPtr<SharedBuffer> buffer(
-      SharedBuffer::create(data.empty() ? "" : data.data(),
-                           data.length()));
-  RefPtr<Image> image = BitmapImage::create();
-  image->setData(buffer, true);
-  return image;
-}
-
 // Screen ---------------------------------------------------------------------
 
 int ChromiumBridge::screenDepth(Widget* widget) {
@@ -395,57 +338,6 @@ void ChromiumBridge::traceEventEnd(const char* name,
 
 KURL ChromiumBridge::inspectorURL() {
   return webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
-}
-
-// Visited links --------------------------------------------------------------
-
-WebCore::LinkHash ChromiumBridge::visitedLinkHash(const UChar* url,
-                                                  unsigned length) {
-  url_canon::RawCanonOutput<2048> buffer;
-  url_parse::Parsed parsed;
-  if (!url_util::Canonicalize(url, length, NULL, &buffer, &parsed))
-    return false;  // Invalid URLs are unvisited.
-  return webkit_glue::VisitedLinkHash(buffer.data(), buffer.length());
-}
-
-WebCore::LinkHash ChromiumBridge::visitedLinkHash(
-    const WebCore::KURL& base,
-    const WebCore::AtomicString& attributeURL) {
-  // Resolve the relative URL using googleurl and pass the absolute URL up to
-  // the embedder. We could create a GURL object from the base and resolve the
-  // relative URL that way, but calling the lower-level functions directly
-  // saves us the std::string allocation in most cases.
-  url_canon::RawCanonOutput<2048> buffer;
-  url_parse::Parsed parsed;
-
-#if USE(GOOGLEURL)
-  const WebCore::CString& cstr = base.utf8String();
-  const char* data = cstr.data();
-  int length = cstr.length();
-  const url_parse::Parsed& src_parsed = base.parsed();
-#else
-  // When we're not using GoogleURL, first canonicalize it so we can resolve it
-  // below.
-  url_canon::RawCanonOutput<2048> src_canon;
-  url_parse::Parsed src_parsed;
-  WebCore::String str = base.string();
-  if (!url_util::Canonicalize(str.characters(), str.length(), NULL,
-                              &src_canon, &src_parsed))
-    return false;
-  const char* data = src_canon.data();
-  int length = src_canon.length();
-#endif
-
-  if (!url_util::ResolveRelative(data, length, src_parsed,
-                                 attributeURL.characters(),
-                                 attributeURL.length(), NULL,
-                                 &buffer, &parsed))
-    return false;  // Invalid resolved URL.
-  return webkit_glue::VisitedLinkHash(buffer.data(), buffer.length());
-}
-
-bool ChromiumBridge::isLinkVisited(WebCore::LinkHash visitedLinkHash) {
-  return webkit_glue::IsLinkVisited(visitedLinkHash);
 }
 
 // Widget ---------------------------------------------------------------------
