@@ -138,15 +138,12 @@ NPError NPP_Destroy(NPP instance, NPSavedData **save)
 
 NPError NPP_SetWindow(NPP instance, NPWindow *window)
 {
-    if (window->window == NULL) {
-        return NPERR_NO_ERROR;
-    }
-
     PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
 
     if (obj) {
         if (obj->logSetWindow) {
             printf("PLUGIN: NPP_SetWindow: %d %d\n", (int)window->width, (int)window->height);
+            fflush(stdout);
             obj->logSetWindow = false;
         }
     }
@@ -190,9 +187,9 @@ NPError NPP_NewStream(NPP instance, NPMIMEType type, NPStream *stream, NPBool se
 NPError NPP_DestroyStream(NPP instance, NPStream *stream, NPReason reason)
 {
     PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
+
     if (obj->onStreamDestroy)
         executeScript(obj, obj->onStreamDestroy);
-    obj->stream = 0;
 
     return NPERR_NO_ERROR;
 }

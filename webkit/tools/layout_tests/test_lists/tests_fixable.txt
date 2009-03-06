@@ -118,10 +118,6 @@ DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 // See https://bugs.webkit.org/show_bug.cgi?id=21536
 DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 
-// Bug 982608: test had a wrong result for one condition
-// Pending test needs work before sending upstream.
-DEFER : LayoutTests/plugins/destroy-stream-twice.html = FAIL TIMEOUT
-
 // -----------------------------------------------------------------
 // Tests deferred until we provide support for a particular feature.
 // -----------------------------------------------------------------
@@ -194,11 +190,6 @@ DEFER : LayoutTests/plugins/netscape-enumerate.html = FAIL
 // so it depends on the users settings.  Making this a broken test for us.
 // The test must be fixed to not depend on user settings and rebaselined.  post-beta.
 DEFER : LayoutTests/fast/dom/Window/window-screen-properties.html = PASS FAIL
-
-// Bug: 849060
-// Plugin creation is delayed until after first layout, so
-// setwindow isn't being called.
-LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
@@ -966,12 +957,6 @@ LayoutTests/security/block-test.html = FAIL
 // MERGE 38500:39550: New tests
 // Missing expected results
 SKIP LINUX MAC : LayoutTests/animations/animation-drt-api.html = PASS
-
-// MERGE 38600:38625: New tests
-// Big 4999: we need to fix this same bug in our plugin handling Apple did in
-// r38611.
-// New test. We should fix it, but it doesn't need to block the current release
-DEFER : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 
 // MERGE 38625:38653: Expectations changed upstream
 MAC : LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
