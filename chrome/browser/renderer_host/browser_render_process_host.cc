@@ -67,10 +67,6 @@
 #include "skia/include/SkBitmap.h"
 
 
-namespace {
-
-// ----------------------------------------------------------------------------
-
 // This class creates the IO thread for the renderer when running in
 // single-process mode.  It's not used in multi-process mode.
 class RendererMainThread : public base::Thread {
@@ -79,6 +75,10 @@ class RendererMainThread : public base::Thread {
       : base::Thread("Chrome_InProcRendererThread"),
         channel_id_(channel_id),
         render_process_(NULL) {
+  }
+
+  ~RendererMainThread() {
+    Stop();
   }
 
  protected:
@@ -120,10 +120,6 @@ bool GetRendererPath(std::wstring* cmd_line) {
 }
 
 const wchar_t* const kDesktopName = L"ChromeRendererDesktop";
-
-}  // namespace
-
-//------------------------------------------------------------------------------
 
 // static
 void BrowserRenderProcessHost::RegisterPrefs(PrefService* prefs) {
@@ -346,15 +342,11 @@ bool BrowserRenderProcessHost::Init() {
     // communicating IO.  This can lead to deadlocks where the RenderThread is
     // waiting for the IO to complete, while the browsermain is trying to pass
     // an event to the RenderThread.
-    RendererMainThread* render_thread = new RendererMainThread(channel_id);
-
-    // This singleton keeps track of our pointers to avoid a leak.
-    Singleton<std::vector<linked_ptr<RendererMainThread> > >::get()->push_back(
-        linked_ptr<RendererMainThread>(render_thread));
+    in_process_renderer_.reset(new RendererMainThread(channel_id));
 
     base::Thread::Options options;
     options.message_loop_type = MessageLoop::TYPE_IO;
-    render_thread->StartWithOptions(options);
+    in_process_renderer_->StartWithOptions(options);
   } else {
     if (g_browser_process->local_state() &&
         g_browser_process->local_state()->GetBoolean(
