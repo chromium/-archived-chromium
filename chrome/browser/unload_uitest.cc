@@ -253,23 +253,39 @@ TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnload) {
 // Tests closing the browser on a page with an unload listener registered where
 // the unload handler has an infinite loop.
 TEST_F(UnloadTest, BrowserCloseInfiniteUnload) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
+    return;
+
   LoadUrlAndQuitBrowser(INFINITE_UNLOAD_HTML, L"infiniteunload");
 }
 
 // Tests closing the browser with a beforeunload handler that hangs.
 TEST_F(UnloadTest, BrowserCloseInfiniteBeforeUnload) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
+    return;
+
   LoadUrlAndQuitBrowser(INFINITE_BEFORE_UNLOAD_HTML, L"infinitebeforeunload");
 }
 
 // Tests closing the browser on a page with an unload listener registered where
 // the unload handler has an infinite loop followed by an alert.
 TEST_F(UnloadTest, BrowserCloseInfiniteUnloadAlert) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
+    return;
+
   LoadUrlAndQuitBrowser(INFINITE_UNLOAD_ALERT_HTML, L"infiniteunloadalert");
 }
 
 // Tests closing the browser with a beforeunload handler that hangs then
 // pops up an alert.
 TEST_F(UnloadTest, BrowserCloseInfiniteBeforeUnloadAlert) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
+    return;
+
   LoadUrlAndQuitBrowser(INFINITE_BEFORE_UNLOAD_ALERT_HTML,
                         L"infinitebeforeunloadalert");
 }
