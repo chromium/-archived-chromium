@@ -1535,11 +1535,12 @@ LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 // it doesn't need to block the current release
 DEFER :LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT
 
-// TestShell change to dump() on notifyDone http://codereview.chromium.org/18440
-LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
-MAC : LayoutTests/fast/dom/replaceChild.html = FAIL
+// Popup-menu doesn't draw in layout tests
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
+
+// Pass locally but fail on the bots.
 MAC : LayoutTests/fast/forms/002.html = FAIL
+LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 
 // Flakey tests
 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
