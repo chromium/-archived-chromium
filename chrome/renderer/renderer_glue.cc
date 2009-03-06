@@ -22,6 +22,7 @@
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
+#include "chrome/renderer/visitedlink_slave.h"
 #include "googleurl/src/url_util.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webframe.h"
@@ -177,6 +178,10 @@ std::string GetDataResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
 }
 
+SkBitmap* GetBitmapResource(int resource_id) {
+  return ResourceBundle::GetSharedInstance().GetBitmapNamed(resource_id);
+}
+
 #if defined(OS_WIN)
 HCURSOR LoadCursor(int cursor_id) {
   return ResourceBundle::GetSharedInstance().LoadCursor(cursor_id);
@@ -244,6 +249,15 @@ webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
   RenderThread::current()->Send(
       new ViewHostMsg_GetScreenInfo(window, &results));
   return results;
+}
+
+uint64 VisitedLinkHash(const char* canonical_url, size_t length) {
+  return RenderThread::current()->visited_link_slave()->ComputeURLFingerprint(
+      canonical_url, length);
+}
+
+bool IsLinkVisited(uint64 link_hash) {
+  return RenderThread::current()->visited_link_slave()->IsVisited(link_hash);
 }
 
 #ifndef USING_SIMPLE_RESOURCE_LOADER_BRIDGE

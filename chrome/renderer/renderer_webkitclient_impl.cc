@@ -13,24 +13,11 @@
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_thread.h"
-#include "chrome/renderer/visitedlink_slave.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebString;
 using WebKit::WebURL;
-
-//------------------------------------------------------------------------------
-
-uint64_t RendererWebKitClientImpl::visitedLinkHash(const char* canonical_url,
-                                                   size_t length) {
-  return RenderThread::current()->visited_link_slave()->ComputeURLFingerprint(
-      canonical_url, length);
-}
-
-bool RendererWebKitClientImpl::isLinkVisited(uint64_t link_hash) {
-  return RenderThread::current()->visited_link_slave()->IsVisited(link_hash);
-}
 
 //------------------------------------------------------------------------------
 

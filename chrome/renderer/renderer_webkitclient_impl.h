@@ -14,8 +14,6 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebMimeRegistry* mimeRegistry() {
     return &mime_registry_;
   }
-  virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length);
-  virtual bool isLinkVisited(uint64_t linkHash);
   virtual void setCookies(
       const WebKit::WebURL& url, const WebKit::WebURL& policy_url,
       const WebKit::WebString&);

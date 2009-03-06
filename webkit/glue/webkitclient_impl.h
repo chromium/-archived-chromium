@@ -19,9 +19,16 @@ class WebKitClientImpl : public WebKit::WebKitClient {
  public:
   WebKitClientImpl();
 
-  // WebKitClient methods (partial implementation):
+  // WebKitClient methods:
   virtual WebKit::WebClipboard* clipboard();
-  virtual WebKit::WebCString loadResource(const char* name);
+  virtual WebKit::WebMimeRegistry* mimeRegistry() = 0;
+  virtual void setCookies(
+      const WebKit::WebURL& url, const WebKit::WebURL& policy_url,
+      const WebKit::WebString&) = 0;
+  virtual WebKit::WebString cookies(
+      const WebKit::WebURL& url, const WebKit::WebURL& policy_url) = 0;
+  virtual void prefetchHostName(const WebKit::WebString&) = 0;
+  virtual WebKit::WebString defaultLocale() = 0;
   virtual double currentTime();
   virtual void setSharedTimerFiredFunction(void (*func)());
   virtual void setSharedTimerFireTime(double fireTime);
