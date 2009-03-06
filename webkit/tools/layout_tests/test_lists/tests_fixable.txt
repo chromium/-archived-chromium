@@ -1435,7 +1435,6 @@ LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 LayoutTests/http/tests/navigation/error404-goback.html = FAIL
 
 // Started failing when landing the new skia r6925.
-WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
 WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
@@ -1766,7 +1765,6 @@ LINUX WIN : LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
 
 // Regression from merge 41268:41286
-// dimich to do triage and find out which are just rebaseline.
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 WIN : LayoutTests/fast/dom/anchor-toString.html = FAIL
 LINUX WIN : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
