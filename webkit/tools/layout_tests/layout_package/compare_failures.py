@@ -14,7 +14,8 @@ import test_failures
 import test_expectations
 
 
-def PrintFilesFromSet(filenames, header_text, output, opt_expectations=None):
+def PrintFilesFromSet(filenames, header_text, output, opt_expectations=None,
+    opt_relativizeFilenames=True):
   """A helper method to print a list of files to output.
 
   Args:
@@ -35,9 +36,9 @@ def PrintFilesFromSet(filenames, header_text, output, opt_expectations=None):
     output_string += " = %s" % opt_expectations
   output_string += "\n"
   for filename in filenames:
-    output.write(output_string % path_utils.RelativeTestFilename(filename))
-
-
+    if opt_relativizeFilenames:
+      filename = path_utils.RelativeTestFilename(filename)
+    output.write(output_string % filename)
 
 class CompareFailures:
   # A list of which TestFailure classes count as a failure vs a crash.

@@ -161,7 +161,7 @@ class TestRunner:
                                                 self._file_dir,
                                                 platform,
                                                 is_debug_mode)
-    except SyntaxError, err:
+    except Exception, err:
       if self._options.lint_test_files:
         print str(err)
       else:
@@ -675,7 +675,7 @@ def main(options, args):
 
   if options.lint_test_files:
     # Just creating the TestRunner checks the syntax of the test lists.
-    print "If there are no fail messages, the lint succeeded."
+    print "If there are no fail messages or exceptions, the lint succeeded."
     return
 
   try:

@@ -119,9 +119,27 @@ class TestExpectations:
 
   def _ValidateLists(self):
     # Make sure there's no overlap between the tests in the two files.
-    overlap = self._fixable.GetTests() & self._ignored.GetTests()
+    if self._tests:
+      relativizeFilenames = True
+      overlap = self._fixable.GetTests() & self._ignored.GetTests()
+    else:
+      relativizeFilenames = False
+      # If self._tests is None, then we have no way of expanding test paths
+      # So they remain shortened (e.g. LayoutTests/mac doesn't get expanded to
+      # include LayoutTests/mac/foo.html). So find duplicate prefixes
+      # instead of exact matches.
+      overlap = [];
+      for fixableTest in self._fixable.GetTests():
+        for ignoredTest in self._ignored.GetTests():
+          # Add both tests so they both get printed
+          if (fixableTest.startswith(ignoredTest) or 
+              ignoredTest.startswith(fixableTest)):
+            overlap.append(fixableTest)
+            overlap.append(ignoredTest)
+
     message = "Files contained in both " + self.FIXABLE + " and " + self.IGNORED
-    compare_failures.PrintFilesFromSet(overlap, message, sys.stdout)
+    compare_failures.PrintFilesFromSet(overlap, message, sys.stdout,
+        opt_relativizeFilenames=relativizeFilenames)
     assert(len(overlap) == 0)
     # Make sure there are no ignored tests expected to crash.
     assert(len(self._ignored.GetTestsExpectedTo(CRASH)) == 0)
