@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/values.h"
 
 class JSONStringValueSerializer : public ValueSerializer {
@@ -66,8 +67,12 @@ class JSONFileValueSerializer : public ValueSerializer {
   // deserialization or the destination of the serialization.
   // When deserializing, the file should exist, but when serializing, the
   // serializer will attempt to create the file at the specified location.
-  JSONFileValueSerializer(const std::wstring& json_file_path)
+  JSONFileValueSerializer(const FilePath& json_file_path)
     : json_file_path_(json_file_path) {}
+  // DEPRECATED - DO NOT USE
+  // TODO(port): remove references to this
+  JSONFileValueSerializer(const std::wstring& json_file_path)
+    : json_file_path_(FilePath::FromWStringHack(json_file_path)) {}
 
   ~JSONFileValueSerializer() {}
 
@@ -89,7 +94,7 @@ class JSONFileValueSerializer : public ValueSerializer {
   Value* Deserialize(std::string* error_message);
 
  private:
-  std::wstring json_file_path_;
+  FilePath json_file_path_;
 
   DISALLOW_EVIL_CONSTRUCTORS(JSONFileValueSerializer);
 };
