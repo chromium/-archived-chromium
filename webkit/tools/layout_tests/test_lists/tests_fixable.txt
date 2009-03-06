@@ -911,7 +911,6 @@ DEFER : LayoutTests/fast/dom/constructors-cached.html = FAIL
 // MERGE REGRESSIONS 36102:37604
 
 LINUX : LayoutTests/fast/events/mouse-click-events.html = FAIL
-LayoutTests/fast/forms/form-element-geometry.html = FAIL
 // These tests are wrong because of:
 // https://bugs.webkit.org/show_bug.cgi?id=24161. This is not
 // important for current release.
@@ -926,6 +925,7 @@ DEFER : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 // Likely just needs to be baselined.
+LINUX MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
 LINUX MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
 LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
