@@ -42,11 +42,28 @@ class Eviction {
  private:
   void ReportTrimTimes(EntryImpl* entry);
   Rankings::List GetListForEntry(EntryImpl* entry);
+  bool EvictEntry(CacheRankingsBlock* node, bool empty);
+
+  // We'll just keep for a while a separate set of methods that implement the
+  // new eviction algorithm. This code will replace the original methods when
+  // finished.
+  void TrimCacheV2(bool empty);
+  void UpdateRankV2(EntryImpl* entry, bool modified);
+  void OnOpenEntryV2(EntryImpl* entry);
+  void OnCreateEntryV2(EntryImpl* entry);
+  void OnDoomEntryV2(EntryImpl* entry);
+  void OnDestroyEntryV2(EntryImpl* entry);
+  Rankings::List GetListForEntryV2(EntryImpl* entry);
+  void TrimDeleted(bool empty);
+  
+  bool NodeIsOldEnough(CacheRankingsBlock* node, int list);
+  int SelectListByLenght();
 
   BackendImpl* backend_;
   Rankings* rankings_;
   IndexHeader* header_;
   int max_size_;
+  bool new_eviction_;
   ScopedRunnableMethodFactory<Eviction> factory_;
 
   DISALLOW_COPY_AND_ASSIGN(Eviction);

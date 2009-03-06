@@ -174,14 +174,14 @@ void GenerateCrash(CrashLocation location) {
 
 namespace disk_cache {
 
-bool Rankings::Init(BackendImpl* backend) {
+bool Rankings::Init(BackendImpl* backend, bool count_lists) {
   DCHECK(!init_);
   if (init_)
     return false;
 
   backend_ = backend;
-
   control_data_ = backend_->GetLruData();
+  count_lists_ = count_lists;
 
   ReadHeads();
   ReadTails();
@@ -281,6 +281,7 @@ void Rankings::Insert(CacheRankingsBlock* node, bool modified, List list) {
 
   // The last thing to do is move our head to point to a node already stored.
   WriteHead(list);
+  IncrementCounter(list);
   GenerateCrash(ON_INSERT_4);
 }
 
@@ -377,6 +378,7 @@ void Rankings::Remove(CacheRankingsBlock* node, List list) {
   prev.Store();
   GenerateCrash(ON_REMOVE_8);
   node->Store();
+  DecrementCounter(list);
   UpdateIterators(&next);
   UpdateIterators(&prev);
 }
@@ -745,6 +747,24 @@ void Rankings::UpdateIterators(CacheRankingsBlock* node) {
       other->Data()->prev = node->Data()->prev;
     }
   }
+}
+
+void Rankings::IncrementCounter(List list) {
+  if (!count_lists_)
+    return;
+
+  DCHECK(control_data_->sizes[list] < kint32max);
+  if (control_data_->sizes[list] < kint32max)
+    control_data_->sizes[list]++;
+}
+
+void Rankings::DecrementCounter(List list) {
+  if (!count_lists_)
+    return;
+
+  DCHECK(control_data_->sizes[list] > 0);
+  if (control_data_->sizes[list] > 0)
+    control_data_->sizes[list]--;
 }
 
 }  // namespace disk_cache

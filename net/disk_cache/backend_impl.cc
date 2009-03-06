@@ -17,6 +17,9 @@
 #include "net/disk_cache/hash.h"
 #include "net/disk_cache/file.h"
 
+// Uncomment this to use the new eviction algorithm.
+// #define USE_NEW_EVICTION
+
 using base::Time;
 using base::TimeDelta;
 
@@ -184,6 +187,10 @@ bool BackendImpl::Init() {
   if (init_)
     return false;
 
+#ifdef USE_NEW_EVICTION
+  new_eviction_ = true;
+#endif
+
   bool create_files = false;
   if (!InitBackingStore(&create_files)) {
     ReportError(ERR_STORAGE_ERROR);
@@ -231,7 +238,7 @@ bool BackendImpl::Init() {
   if (!stats_.Init(this, &data_->header.stats))
     return false;
 
-  disabled_ = !rankings_.Init(this);
+  disabled_ = !rankings_.Init(this, new_eviction_);
   eviction_.Init(this);
 
   return !disabled_;
@@ -256,7 +263,16 @@ BackendImpl::~BackendImpl() {
 int32 BackendImpl::GetEntryCount() const {
   if (!index_)
     return 0;
-  return data_->header.num_entries;
+  // num_entries includes entries already evicted.
+  int32 not_deleted = data_->header.num_entries -
+                      data_->header.lru.sizes[Rankings::DELETED];
+
+  if (not_deleted < 0) {
+    NOTREACHED();
+    not_deleted = 0;
+  }
+
+  return not_deleted;
 }
 
 bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
@@ -268,6 +284,13 @@ bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
 
   EntryImpl* cache_entry = MatchEntry(key, hash, false);
   if (!cache_entry) {
+    stats_.OnEvent(Stats::OPEN_MISS);
+    return false;
+  }
+
+  if (ENTRY_NORMAL != cache_entry->entry()->Data()->state) {
+    // The entry was already evicted.
+    cache_entry->Release();
     stats_.OnEvent(Stats::OPEN_MISS);
     return false;
   }
@@ -285,16 +308,24 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
   if (disabled_ || key.empty())
     return false;
 
+  DCHECK(entry);
+  *entry = NULL;
+
   Time start = Time::Now();
   uint32 hash = Hash(key);
 
   scoped_refptr<EntryImpl> parent;
   Addr entry_address(data_->table[hash & mask_]);
   if (entry_address.is_initialized()) {
+    // We have an entry already. It could be the one we are looking for, or just
+    // a hash conflict.
+    EntryImpl* old_entry = MatchEntry(key, hash, false);
+    if (old_entry)
+      return ResurrectEntry(old_entry, entry);
+
     EntryImpl* parent_entry = MatchEntry(key, hash, true);
     if (!parent_entry) {
-      stats_.OnEvent(Stats::CREATE_MISS);
-      Trace("create entry miss ");
+      NOTREACHED();
       return false;
     }
     parent.swap(&parent_entry);
@@ -339,14 +370,11 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
   block_files_.GetFile(entry_address)->Store(cache_entry->entry());
   block_files_.GetFile(node_address)->Store(cache_entry->rankings());
 
-  data_->header.num_entries++;
-  DCHECK(data_->header.num_entries > 0);
+  IncreaseNumEntries();
   eviction_.OnCreateEntry(cache_entry);
   if (!parent.get())
     data_->table[hash & mask_] = entry_address.value();
 
-  DCHECK(entry);
-  *entry = NULL;
   cache_entry.swap(reinterpret_cast<EntryImpl**>(entry));
 
   UMA_HISTOGRAM_TIMES("DiskCache.CreateTime", Time::Now() - start);
@@ -451,8 +479,8 @@ bool BackendImpl::OpenNextEntry(void** iter, Entry** next_entry) {
 }
 
 void BackendImpl::EndEnumeration(void** iter) {
-  Rankings::ScopedRankingsBlock rankings(&rankings_,
-      reinterpret_cast<CacheRankingsBlock*>(*iter));
+  scoped_ptr<Rankings::Iterator> iterator(
+      reinterpret_cast<Rankings::Iterator*>(*iter));
   *iter = NULL;
 }
 
@@ -600,9 +628,24 @@ void BackendImpl::InternalDoomEntry(EntryImpl* entry) {
     data_->table[hash & mask_] = child;
   }
 
-  data_->header.num_entries--;
-  DCHECK(data_->header.num_entries >= 0);
+  if (!new_eviction_) {
+    DecreaseNumEntries();
+  }
+
   stats_.OnEvent(Stats::DOOM_ENTRY);
+}
+
+// An entry may be linked on the DELETED list for a while after being doomed.
+// This function is called when we want to remove it.
+void BackendImpl::RemoveEntry(EntryImpl* entry) {
+  if (!new_eviction_)
+    return;
+
+  DCHECK(ENTRY_DOOMED == entry->entry()->Data()->state);
+
+  Trace("Remove entry 0x%p", entry);
+  eviction_.OnDestroyEntry(entry);
+  DecreaseNumEntries();
 }
 
 void BackendImpl::CacheEntryDestroyed() {
@@ -741,6 +784,10 @@ bool BackendImpl::CreateBackingStore(disk_cache::File* file) {
 
   IndexHeader header;
   header.table_len = DesiredIndexTableLen(max_size_);
+
+  // We need file version 2.1 for the new eviction algorithm.
+  if (new_eviction_)
+    header.version = 0x20001;
 
   if (!file->Write(&header, sizeof(header), 0))
     return false;
@@ -962,49 +1009,153 @@ bool BackendImpl::OpenFollowingEntry(bool forward, void** iter,
   if (disabled_)
     return false;
 
-  Rankings::ScopedRankingsBlock rankings(&rankings_,
-      reinterpret_cast<CacheRankingsBlock*>(*iter));
-  CacheRankingsBlock* next_block = forward ?
-      rankings_.GetNext(rankings.get(), Rankings::NO_USE) :
-      rankings_.GetPrev(rankings.get(), Rankings::NO_USE);
-  Rankings::ScopedRankingsBlock next(&rankings_, next_block);
+  DCHECK(iter);
+  DCHECK(next_entry);
   *next_entry = NULL;
+
+  const int kListsToSearch = 3;
+  scoped_refptr<EntryImpl> entries[kListsToSearch];
+  scoped_ptr<Rankings::Iterator> iterator(
+      reinterpret_cast<Rankings::Iterator*>(*iter));
   *iter = NULL;
-  if (!next.get())
-    return false;
 
-  scoped_refptr<EntryImpl> entry;
-  if (next->Data()->pointer) {
-    entry = reinterpret_cast<EntryImpl*>(next->Data()->pointer);
-  } else {
-    bool dirty;
-    EntryImpl* temp = NULL;
-    if (NewEntry(Addr(next->Data()->contents), &temp, &dirty))
-      return false;
-    entry.swap(&temp);
+  if (!iterator.get()) {
+    iterator.reset(new Rankings::Iterator(&rankings_));
+    bool ret = false;
 
-    if (dirty) {
-      // We cannot trust this entry. Call MatchEntry to go through the regular
-      // path and take the appropriate action.
-      std::string key = entry->GetKey();
-      uint32 hash = entry->GetHash();
-      entry = NULL;  // Release the entry.
-      temp = MatchEntry(key, hash, false);
-      if (temp)
-        temp->Release();
-
-      return false;
+    // Get an entry from each list.
+    for (int i = 0; i < kListsToSearch; i++) {
+      EntryImpl* temp = NULL;
+      ret |= OpenFollowingEntryFromList(forward, static_cast<Rankings::List>(i),
+                                        &iterator->nodes[i], &temp);
+      entries[i].swap(&temp);  // The entry was already addref'd.
     }
-
-    entry.swap(&temp);
-    temp = EntryImpl::Update(temp);  // Update returns an adref'd entry.
-    entry.swap(&temp);
-    if (!entry.get())
+    if (!ret)
       return false;
+  } else {
+    // Get the next entry from the last list, and the actual entries for the
+    // elements on the other lists.
+    for (int i = 0; i < kListsToSearch; i++) {
+      EntryImpl* temp = NULL;
+      if (iterator->list == i) {
+          OpenFollowingEntryFromList(forward, iterator->list,
+                                     &iterator->nodes[i], &temp);
+      } else {
+        temp = GetEnumeratedEntry(iterator->nodes[i]);
+      }
+
+      entries[i].swap(&temp);  // The entry was already addref'd.
+    }
   }
 
-  entry.swap(reinterpret_cast<EntryImpl**>(next_entry));
-  *iter = next.release();
+  int newest = -1;
+  int oldest = -1;
+  Time access_times[kListsToSearch];
+  for (int i = 0; i < kListsToSearch; i++) {
+    if (entries[i].get()) {
+      access_times[i] = entries[i]->GetLastUsed();
+      if (newest < 0) {
+        DCHECK(oldest < 0);
+        newest = oldest = i;
+        continue;
+      }
+      if (access_times[i] > access_times[newest])
+        newest = i;
+      if (access_times[i] < access_times[oldest])
+        oldest = i;
+    }
+  }
+
+  if (newest < 0 || oldest < 0)
+    return false;
+
+  if (forward) {
+    entries[newest].swap(reinterpret_cast<EntryImpl**>(next_entry));
+    iterator->list = static_cast<Rankings::List>(newest);
+  } else {
+    entries[oldest].swap(reinterpret_cast<EntryImpl**>(next_entry));
+    iterator->list = static_cast<Rankings::List>(oldest);
+  }
+
+  *iter = iterator.release();
+  return true;
+}
+
+bool BackendImpl::OpenFollowingEntryFromList(bool forward, Rankings::List list,
+                                             CacheRankingsBlock** from_entry,
+                                             EntryImpl** next_entry) {
+  if (disabled_)
+    return false;
+
+  if (!new_eviction_ && Rankings::NO_USE != list)
+    return false;
+
+  Rankings::ScopedRankingsBlock rankings(&rankings_, *from_entry);
+  CacheRankingsBlock* next_block = forward ?
+      rankings_.GetNext(rankings.get(), list) :
+      rankings_.GetPrev(rankings.get(), list);
+  Rankings::ScopedRankingsBlock next(&rankings_, next_block);
+  *from_entry = NULL;
+
+  *next_entry = GetEnumeratedEntry(next.get());
+  if (!*next_entry)
+    return false;
+
+  *from_entry = next.release();
+  return true;
+}
+
+EntryImpl* BackendImpl::GetEnumeratedEntry(CacheRankingsBlock* next) {
+  if (!next)
+    return NULL;
+
+  scoped_refptr<EntryImpl> entry;
+  EntryImpl* temp = NULL;
+
+  if (next->Data()->pointer) {
+    entry = reinterpret_cast<EntryImpl*>(next->Data()->pointer);
+    entry.swap(&temp);
+    return temp;
+  }
+
+  bool dirty;
+  if (NewEntry(Addr(next->Data()->contents), &temp, &dirty))
+    return NULL;
+  entry.swap(&temp);
+
+  if (dirty) {
+    // We cannot trust this entry. Call MatchEntry to go through the regular
+    // path and take the appropriate action.
+    std::string key = entry->GetKey();
+    uint32 hash = entry->GetHash();
+    entry = NULL;  // Release the entry.
+    temp = MatchEntry(key, hash, false);
+    if (temp)
+      temp->Release();
+
+    return NULL;
+  }
+
+  entry.swap(&temp);
+  return EntryImpl::Update(temp);  // Update returns an adref'd entry.
+}
+
+bool BackendImpl::ResurrectEntry(EntryImpl* deleted_entry, Entry** entry) {
+  if (ENTRY_NORMAL == deleted_entry->entry()->Data()->state) {
+    deleted_entry->Release();
+    stats_.OnEvent(Stats::CREATE_MISS);
+    Trace("create entry miss ");
+    return false;
+  }
+
+  // We are attempting to create an entry and found out that the entry was
+  // previously deleted.
+
+  eviction_.OnCreateEntry(deleted_entry);
+  *entry = deleted_entry;
+
+  stats_.OnEvent(Stats::CREATE_HIT);
+  Trace("Resurrect entry hit ");
   return true;
 }
 
@@ -1017,8 +1168,8 @@ void BackendImpl::DestroyInvalidEntry(Addr address, EntryImpl* entry) {
   eviction_.OnDoomEntry(entry);
   entry->InternalDoom();
 
-  data_->header.num_entries--;
-  DCHECK(data_->header.num_entries >= 0);
+  if (!new_eviction_)
+    DecreaseNumEntries();
   stats_.OnEvent(Stats::INVALID_ENTRY);
 }
 
@@ -1049,6 +1200,19 @@ void BackendImpl::DecreaseNumRefs() {
     RestartCache();
 }
 
+void BackendImpl::IncreaseNumEntries() {
+  data_->header.num_entries++;
+  DCHECK(data_->header.num_entries > 0);
+}
+
+void BackendImpl::DecreaseNumEntries() {
+  data_->header.num_entries--;
+  if (data_->header.num_entries < 0) {
+    NOTREACHED();
+    data_->header.num_entries = 0;
+  }
+}
+
 void BackendImpl::LogStats() {
   StatsItems stats;
   GetStats(&stats);
@@ -1056,6 +1220,14 @@ void BackendImpl::LogStats() {
   for (size_t index = 0; index < stats.size(); index++) {
     LOG(INFO) << stats[index].first << ": " << stats[index].second;
   }
+}
+
+void BackendImpl::UpgradeTo2_1() {
+  // 2.1 is basically the same as 2.0, except that new fields are actually
+  // updated by the new eviction algorithm.
+  DCHECK(0x20000 == data_->header.version);
+  data_->header.version = 0x20001;
+  data_->header.lru.sizes[Rankings::NO_USE] = data_->header.num_entries;
 }
 
 bool BackendImpl::CheckIndex() {
@@ -1070,10 +1242,23 @@ bool BackendImpl::CheckIndex() {
     return false;
   }
 
-  if (kIndexMagic != data_->header.magic ||
-      kCurrentVersion != data_->header.version) {
-    LOG(ERROR) << "Invalid file version or magic";
-    return false;
+  if (new_eviction_) {
+    // We support versions 2.0 and 2.1, upgrading 2.0 to 2.1.
+    if (kIndexMagic != data_->header.magic ||
+        kCurrentVersion >> 16 != data_->header.version >> 16) {
+      LOG(ERROR) << "Invalid file version or magic";
+      return false;
+    }
+    if (kCurrentVersion == data_->header.version) {
+      // We need file version 2.1 for the new eviction algorithm.
+      UpgradeTo2_1();
+    }
+  } else {
+    if (kIndexMagic != data_->header.magic ||
+        kCurrentVersion != data_->header.version) {
+      LOG(ERROR) << "Invalid file version or magic";
+      return false;
+    }
   }
 
   if (!data_->header.table_len) {

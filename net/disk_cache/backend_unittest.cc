@@ -259,11 +259,7 @@ void DiskCacheBackendTest::BackendSetSize() {
 
   SetMaxSize(cache_size);
 
-  // Verify that the cache is 95% full.
-  ASSERT_TRUE(cache_->OpenEntry(first, &entry));
-  EXPECT_EQ(cache_size * 3 / 4, entry->GetDataSize(0));
-  EXPECT_EQ(cache_size / 5, entry->GetDataSize(1));
-  entry->Close();
+  // The cache is 95% full.
 
   ASSERT_TRUE(cache_->CreateEntry(second, &entry));
   EXPECT_EQ(cache_size / 10, entry->WriteData(0, 0, buffer, cache_size / 10,
@@ -691,6 +687,8 @@ void DiskCacheBackendTest::BackendDoomBetween() {
   Time middle_end = Time::Now();
 
   ASSERT_TRUE(cache_->CreateEntry("fourth", &entry));
+  entry->Close();
+  ASSERT_TRUE(cache_->OpenEntry("fourth", &entry));
   entry->Close();
 
   PlatformThread::Sleep(20);

@@ -40,6 +40,7 @@ static const char* kCounterNames[] = {
   "Open hit",
   "Create miss",
   "Create hit",
+  "Resurrect hit",
   "Create error",
   "Trim entry",
   "Doom entry",

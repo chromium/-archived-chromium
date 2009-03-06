@@ -92,27 +92,7 @@ EntryImpl::EntryImpl(BackendImpl* backend, Addr address)
 // written before).
 EntryImpl::~EntryImpl() {
   if (doomed_) {
-    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteHeader", GetDataSize(0));
-    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteData", GetDataSize(1));
-    for (int index = 0; index < NUM_STREAMS; index++) {
-      Addr address(entry_.Data()->data_addr[index]);
-      if (address.is_initialized()) {
-        DeleteData(address, index);
-        backend_->ModifyStorageSize(entry_.Data()->data_size[index] -
-                                        unreported_size_[index], 0);
-      }
-    }
-    Addr address(entry_.Data()->long_key);
-    DeleteData(address, kKeyFileIndex);
-    backend_->ModifyStorageSize(entry_.Data()->key_len, 0);
-
-    memset(node_.buffer(), 0, node_.size());
-    memset(entry_.buffer(), 0, entry_.size());
-    node_.Store();
-    entry_.Store();
-
-    backend_->DeleteBlock(node_.address(), false);
-    backend_->DeleteBlock(entry_.address(), false);
+    DeleteEntryData(true);
   } else {
     bool ret = true;
     for (int index = 0; index < NUM_STREAMS; index++) {
@@ -472,6 +452,39 @@ void EntryImpl::InternalDoom() {
     node_.Store();
   }
   doomed_ = true;
+}
+
+void EntryImpl::DeleteEntryData(bool everything) {
+  DCHECK(doomed_ || !everything);
+
+  UMA_HISTOGRAM_COUNTS("DiskCache.DeleteHeader", GetDataSize(0));
+  UMA_HISTOGRAM_COUNTS("DiskCache.DeleteData", GetDataSize(1));
+  for (int index = 0; index < NUM_STREAMS; index++) {
+    Addr address(entry_.Data()->data_addr[index]);
+    if (address.is_initialized()) {
+      DeleteData(address, index);
+      backend_->ModifyStorageSize(entry_.Data()->data_size[index] -
+                                      unreported_size_[index], 0);
+    }
+  }
+
+  if (!everything)
+    return;
+
+  // Remove all traces of this entry.
+  backend_->RemoveEntry(this);
+
+  Addr address(entry_.Data()->long_key);
+  DeleteData(address, kKeyFileIndex);
+  backend_->ModifyStorageSize(entry_.Data()->key_len, 0);
+
+  memset(node_.buffer(), 0, node_.size());
+  memset(entry_.buffer(), 0, entry_.size());
+  node_.Store();
+  entry_.Store();
+
+  backend_->DeleteBlock(node_.address(), false);
+  backend_->DeleteBlock(entry_.address(), false);
 }
 
 CacheAddr EntryImpl::GetNextAddress() {

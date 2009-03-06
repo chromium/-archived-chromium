@@ -54,6 +54,7 @@ class Rankings {
     NO_USE = 0,   // List of entries that have not been reused.
     LOW_USE,      // List of entries with low reuse.
     HIGH_USE,     // List of entries with high reuse.
+    RESERVED,     // Reserved for future use.
     DELETED,      // List of recently deleted or doomed entries.
     LAST_ELEMENT
   };
@@ -63,12 +64,17 @@ class Rankings {
   // iterators that may go stale.
   class ScopedRankingsBlock : public scoped_ptr<CacheRankingsBlock> {
    public:
+    ScopedRankingsBlock() : rankings_(NULL) {}
     explicit ScopedRankingsBlock(Rankings* rankings) : rankings_(rankings) {}
     ScopedRankingsBlock(Rankings* rankings, CacheRankingsBlock* node)
         : scoped_ptr<CacheRankingsBlock>(node), rankings_(rankings) {}
 
     ~ScopedRankingsBlock() {
       rankings_->FreeRankingsBlock(get());
+    }
+
+    void set_rankings(Rankings* rankings) {
+      rankings_ = rankings;
     }
 
     // scoped_ptr::reset will delete the object.
@@ -83,10 +89,26 @@ class Rankings {
     DISALLOW_EVIL_CONSTRUCTORS(ScopedRankingsBlock);
   };
 
+  // If we have multiple lists, we have to iterate through all at the same time.
+  // This structure keeps track of where we are on the iteration.
+  struct Iterator {
+    List list;                     // Which entry was returned to the user.
+    CacheRankingsBlock* nodes[3];  // Nodes on the first three lists.
+    Rankings* my_rankings;
+    Iterator(Rankings* rankings) {
+      memset(this, 0, sizeof(Iterator));
+      my_rankings = rankings;
+    }
+    ~Iterator() {
+      for (int i = 0; i < 3; i++)
+        ScopedRankingsBlock(my_rankings, nodes[i]);
+    }
+  };
+
   Rankings() : init_(false) {}
   ~Rankings() {}
 
-  bool Init(BackendImpl* backend);
+  bool Init(BackendImpl* backend, bool count_lists);
 
   // Restores original state, leaving the object ready for initialization.
   void Reset();
@@ -155,7 +177,12 @@ class Rankings {
   // Updates the iterators whenever node is being changed.
   void UpdateIterators(CacheRankingsBlock* node);
 
+  // Keeps track of the number of entries on a list.
+  void IncrementCounter(List list);
+  void DecrementCounter(List list);
+
   bool init_;
+  bool count_lists_;
   Addr heads_[LAST_ELEMENT];
   Addr tails_[LAST_ELEMENT];
   BackendImpl* backend_;

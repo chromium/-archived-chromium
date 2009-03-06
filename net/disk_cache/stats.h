@@ -28,6 +28,7 @@ class Stats {
     OPEN_HIT,
     CREATE_MISS,
     CREATE_HIT,
+    RESURRECT_HIT,
     CREATE_ERROR,
     TRIM_ENTRY,
     DOOM_ENTRY,

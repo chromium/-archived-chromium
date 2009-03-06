@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 // Defines the public interface of the disk cache. For more details see
-// http://wiki/Main/ChromeDiskCacheBackend
+// http://dev.chromium.org/developers/design-documents/disk-cache
 
-#ifndef NET_DISK_CACHE_DISK_CACHE_H__
-#define NET_DISK_CACHE_DISK_CACHE_H__
+#ifndef NET_DISK_CACHE_DISK_CACHE_H_
+#define NET_DISK_CACHE_DISK_CACHE_H_
 
 #include <string>
 #include <vector>
@@ -183,5 +183,5 @@ class Entry {
 
 }  // namespace disk_cache
 
-#endif  // NET_DISK_CACHE_DISK_CACHE_H__
+#endif  // NET_DISK_CACHE_DISK_CACHE_H_
 
