@@ -4,6 +4,8 @@
 
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 
+#include <gdk/gdkkeysyms.h>
+
 #include "base/logging.h"
 #include "base/base_paths_linux.h"
 #include "base/path_service.h"
@@ -49,7 +51,9 @@ BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
 BrowserToolbarGtk::~BrowserToolbarGtk() {
 }
 
-void BrowserToolbarGtk::Init(Profile* profile) {
+void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
+  accel_group_ = accel_group;
+
   show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
 
   toolbar_ = gtk_hbox_new(FALSE, 0);
@@ -63,14 +67,17 @@ void BrowserToolbarGtk::Init(Profile* profile) {
   back_.reset(BuildBackForwardButton(IDR_BACK, IDR_BACK_P, IDR_BACK_H,
               IDR_BACK_D,
               l10n_util::GetString(IDS_TOOLTIP_BACK)));
+  AddAcceleratorToButton(back_, GDK_Left, GDK_MOD1_MASK);
   forward_.reset(BuildBackForwardButton(IDR_FORWARD, IDR_FORWARD_P,
                  IDR_FORWARD_H, IDR_FORWARD_D,
                  l10n_util::GetString(IDS_TOOLTIP_FORWARD)));
+  AddAcceleratorToButton(forward_, GDK_Right, GDK_MOD1_MASK);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
       l10n_util::GetString(IDS_TOOLTIP_RELOAD)));
+  AddAcceleratorToButton(reload_, GDK_r, GDK_CONTROL_MASK);
 
   // TODO(port): we need to dynamically react to changes in show_home_button_
   // and hide/show home appropriately.  But we don't have a UI for it yet.
@@ -92,6 +99,9 @@ void BrowserToolbarGtk::Init(Profile* profile) {
                    G_CALLBACK(OnEntryFocusIn), this);
   g_signal_connect(G_OBJECT(entry_), "focus-out-event",
                    G_CALLBACK(OnEntryFocusOut), this);
+  gtk_widget_add_accelerator(
+      entry_, "grab-focus", accel_group_, GDK_l,
+      GDK_CONTROL_MASK, GtkAccelFlags(0));
 
   gtk_box_pack_start(GTK_BOX(toolbar_), entry_, TRUE, TRUE, 0);
 
@@ -101,9 +111,12 @@ void BrowserToolbarGtk::Init(Profile* profile) {
 
   page_menu_button_.reset(BuildToolbarMenuButton(IDR_MENU_PAGE,
       l10n_util::GetString(IDS_PAGEMENU_TOOLTIP)));
+  page_menu_.reset(new MenuGtk(this, GetStandardPageMenu(), accel_group_));
+
   app_menu_button_.reset(BuildToolbarMenuButton(IDR_MENU_CHROME,
       l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
                             l10n_util::GetString(IDS_PRODUCT_NAME))));
+  app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
 
   SetProfile(profile);
 }
@@ -351,6 +364,15 @@ CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
   return button;
 }
 
+void BrowserToolbarGtk::AddAcceleratorToButton(
+    const scoped_ptr<CustomDrawButton>& button,
+    unsigned int accelerator,
+    unsigned int accelerator_mod) {
+  gtk_widget_add_accelerator(
+      button->widget(), "clicked", accel_group_, accelerator,
+      GdkModifierType(accelerator_mod), GtkAccelFlags(0));
+}
+
 // static
 gboolean BrowserToolbarGtk::OnBackForwardPressEvent(GtkWidget* widget,
     GdkEventButton* event,
@@ -376,18 +398,10 @@ void BrowserToolbarGtk::ShowBackForwardMenu(GtkWidget* widget,
 }
 
 void BrowserToolbarGtk::RunPageMenu(GdkEvent* button_press_event) {
-  if (page_menu_ == NULL) {
-    page_menu_.reset(new MenuGtk(this, GetStandardPageMenu()));
-  }
-
   page_menu_->Popup(page_menu_button_->widget(), button_press_event);
 }
 
 void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
-  if (app_menu_ == NULL) {
-    app_menu_.reset(new MenuGtk(this, GetStandardAppMenu()));
-  }
-
   app_menu_->Popup(app_menu_button_->widget(), button_press_event);
 }
 

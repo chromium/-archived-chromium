@@ -46,7 +46,7 @@ class DownloadShelfContextMenuGtk : public DownloadShelfContextMenu,
     if (menu_.get() == NULL ||
         (download_is_complete && !menu_is_for_complete_download_)) {
       menu_.reset(new MenuGtk(this, download_is_complete ?
-                  finished_download_menu : in_progress_download_menu));
+          finished_download_menu : in_progress_download_menu, NULL));
       menu_is_for_complete_download_ = download_is_complete;
     }
     menu_->Popup(widget, event);

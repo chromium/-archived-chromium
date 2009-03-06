@@ -73,8 +73,10 @@ GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap) {
 }  // namespace
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
-                 const MenuCreateMaterial* menu_data)
+                 const MenuCreateMaterial* menu_data,
+                 GtkAccelGroup* accel_group)
     : delegate_(delegate),
+      accel_group_(accel_group),
       menu_(gtk_menu_new()) {
   g_object_ref_sink(menu_);
   BuildMenuIn(menu_, menu_data);
@@ -144,6 +146,18 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
       GtkWidget* submenu = gtk_menu_new();
       BuildMenuIn(submenu, menu_data->submenu);
       gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
+    }
+
+    if (accel_group_ && menu_data->accel_key) {
+      // If we ever want to let the user do any key remaping, we'll need to
+      // change the following so we make a gtk_accel_map which keeps the actual
+      // keys.
+      gtk_widget_add_accelerator(menu_item,
+                                 "activate",
+                                 accel_group_,
+                                 menu_data->accel_key,
+                                 GdkModifierType(menu_data->accel_modifiers),
+                                 GTK_ACCEL_VISIBLE);
     }
 
     g_object_set_data(G_OBJECT(menu_item), "menu-data",

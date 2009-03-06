@@ -140,6 +140,9 @@ void BrowserWindowGtk::Init() {
                    G_CALLBACK(MainWindowStateChanged), this);
   bounds_ = GetInitialWindowBounds(window_);
 
+  GtkAccelGroup* accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(window_, accel_group);
+
   GdkPixbuf* images[9] = {
     LoadThemeImage(IDR_CONTENT_TOP_LEFT_CORNER),
     LoadThemeImage(IDR_CONTENT_TOP_CENTER),
@@ -162,7 +165,7 @@ void BrowserWindowGtk::Init() {
                    G_CALLBACK(&OnContentAreaExpose), this);
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
-  toolbar_->Init(browser_->profile());
+  toolbar_->Init(browser_->profile(), accel_group);
   toolbar_->AddToolbarToBox(vbox_);
 
   contents_container_.reset(new TabContentsContainerGtk());

@@ -4,6 +4,8 @@
 
 #include "chrome/browser/tab_contents/web_contents_view_gtk.h"
 
+#include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include "base/gfx/point.h"
@@ -12,6 +14,8 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+
+#include "webkit/glue/webinputevent.h"
 
 namespace {
 
@@ -146,12 +150,28 @@ void WebContentsViewGtk::TakeFocus(bool reverse) {
   web_contents_->delegate()->SetFocusToLocationBar();
 }
 
-void WebContentsViewGtk::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
-  // The renderer returned a keyboard event it did not process. This may be
-  // a keyboard shortcut that we have to process.
-  // The windows code forwards this event onwards to accelerator handling,
-  // and then to DefWindowProc.  TODO(port): should do something similar.
-  NOTIMPLEMENTED();
+
+void WebContentsViewGtk::HandleKeyboardEvent(
+    const NativeWebKeyboardEvent& event) {
+  // The renderer returned a keyboard event it did not process. This may be a
+  // keyboard shortcut that we have to process or a cursor key/page up/down
+  // etc.
+  switch (event.os_event->keyval) {
+    case GDK_Page_Up:
+    case GDK_Page_Down:
+    case GDK_Left:
+    case GDK_Right:
+    case GDK_Up:
+    case GDK_Down:
+      NOTIMPLEMENTED()
+          << "Need better navigation support in HandleKeyboardEvent";
+      break;
+    default:
+      // This may be an accelerator. Pass it on to GTK.
+      gtk_accel_groups_activate(G_OBJECT(vbox_->window),
+                                event.os_event->keyval,
+                                GdkModifierType(event.os_event->state));
+  }
 }
 
 void WebContentsViewGtk::OnFindReply(int request_id,
