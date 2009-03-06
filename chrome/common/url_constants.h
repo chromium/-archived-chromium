@@ -40,6 +40,7 @@ extern const char kChromeUINewTabURL[];
 
 // chrome-ui components of URLs.
 extern const char kNewTabHost[];
+extern const char kDevToolsHost[];
 
 }  // namespace chrome
 

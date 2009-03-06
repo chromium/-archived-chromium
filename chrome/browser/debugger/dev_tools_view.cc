@@ -4,12 +4,15 @@
 
 #include "chrome/browser/debugger/dev_tools_view.h"
 
+#include <string>
+
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/common/property_bag.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 
 DevToolsView::DevToolsView(int inspected_process_id, int inspected_view_id)
     : inspected_process_id_(inspected_process_id),
@@ -68,7 +71,10 @@ void DevToolsView::Init() {
   web_contents_->render_view_host()->SetInspectedView(inspected_process_id_,
                                                       inspected_view_id_);
 
-  GURL contents("chrome-ui://inspector/debugger-oop.html");
+  // chrome-ui://devtools/tools.html
+  GURL contents(std::string(chrome::kChromeUIScheme) + "://" +
+                chrome::kDevToolsHost + "/tools.html");
+
   // this will call CreateRenderView to create renderer process
   web_contents_->controller()->LoadURL(contents, GURL(),
                                        PageTransition::START_PAGE);

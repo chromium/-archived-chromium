@@ -12,6 +12,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/ref_counted_util.h"
+#include "chrome/common/url_constants.h"
 #include "googleurl/src/url_util.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_file_job.h"
@@ -97,8 +98,14 @@ void RegisterURLRequestChromeJob() {
   }
 
   std::wstring inspector_dir;
-  if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir))
+  if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir)) {
+    // TODO(yurys): remove "inspector" source when new developer tools support
+    // all features of in-process Web Inspector and Console Debugger. For the
+    // time being we need to serve the same content from chrome-ui://inspector
+    // for the Console Debugger and in-process Web Inspector.
     chrome_url_data_manager.AddFileSource("inspector", inspector_dir);
+    chrome_url_data_manager.AddFileSource(chrome::kDevToolsHost, inspector_dir);
+  }
 
   URLRequest::RegisterProtocolFactory(kChromeURLScheme,
                                       &ChromeURLDataManager::Factory);
@@ -111,8 +118,10 @@ void RegisterURLRequestChromeJob() {
 
 void UnregisterURLRequestChromeJob() {
   std::wstring inspector_dir;
-  if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir))
+  if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir)) {
     chrome_url_data_manager.RemoveFileSource("inspector");
+    chrome_url_data_manager.RemoveFileSource(chrome::kDevToolsHost);
+  }
 }
 
 // static
