@@ -62,6 +62,8 @@
         'filters/file_data_source.h',
         'filters/null_audio_renderer.cc',
         'filters/null_audio_renderer.h',
+        'filters/video_renderer_base.cc',
+        'filters/video_renderer_base.h',
         'player/player.cc',
       ],
       'direct_dependent_settings': {
@@ -84,6 +86,7 @@
         'base/pipeline_impl_unittest.cc',
         'base/run_all_unittests.cc',
         'filters/file_data_source_unittest.cc',
+        'filters/video_renderer_unittest.cc',
       ],
     },
   ],

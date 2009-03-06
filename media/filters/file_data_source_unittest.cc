@@ -17,11 +17,13 @@
 #include "media/base/factory.h"
 #include "media/base/filter_host.h"
 #include "media/base/mock_filter_host.h"
+#include "media/base/mock_pipeline.h"
 #include "media/filters/file_data_source.h"
 #include "media/base/mock_media_filters.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using media::FileDataSource;
+using media::FilterFactory;
 using media::FilterFactoryCollection;
 using media::InitializationHelper;
 using media::MediaFormat;
@@ -30,6 +32,7 @@ using media::MockAudioDecoder;
 using media::MockAudioRenderer;
 using media::MockFilterConfig;
 using media::MockFilterHost;
+using media::MockPipeline;
 using media::PipelineImpl;
 
 namespace {
@@ -84,25 +87,34 @@ TEST(FileDataSourceTest, ReadData) {
   std::string url = TestFileURL();
   url_format.SetAsString(MediaFormat::kMimeType, media::mime_type::kURL);
   url_format.SetAsString(MediaFormat::kURL, url);
-  MockFilterHost<FileDataSource, std::string> mock_host(&url_format, url);
 
-  EXPECT_TRUE(mock_host.filter()->GetSize(&size));
+  // Create our data source.
+  scoped_refptr<FilterFactory> factory = FileDataSource::CreateFactory();
+  FileDataSource* filter = factory->Create<FileDataSource>(&url_format);
+  EXPECT_TRUE(filter);
+
+  // Create our mock pipeline and filter host and initialize the data source.
+  MockPipeline pipeline;
+  MockFilterHost<FileDataSource> mock_host(&pipeline, filter);
+  EXPECT_TRUE(filter->Initialize(url));
+
+  EXPECT_TRUE(filter->GetSize(&size));
   EXPECT_EQ(10, size);
 
-  EXPECT_TRUE(mock_host.filter()->GetPosition(&position));
+  EXPECT_TRUE(filter->GetPosition(&position));
   EXPECT_EQ(0, position);
 
-  EXPECT_EQ(10u, mock_host.filter()->Read(ten_bytes, sizeof(ten_bytes)));
+  EXPECT_EQ(10u, filter->Read(ten_bytes, sizeof(ten_bytes)));
   EXPECT_EQ('0', ten_bytes[0]);
   EXPECT_EQ('5', ten_bytes[5]);
   EXPECT_EQ('9', ten_bytes[9]);
-  EXPECT_TRUE(mock_host.filter()->GetPosition(&position));
+  EXPECT_TRUE(filter->GetPosition(&position));
   EXPECT_EQ(10, position);
-  EXPECT_EQ(0u, mock_host.filter()->Read(ten_bytes, sizeof(ten_bytes)));
+  EXPECT_EQ(0u, filter->Read(ten_bytes, sizeof(ten_bytes)));
 
-  EXPECT_TRUE(mock_host.filter()->SetPosition(5));
-  EXPECT_EQ(5u, mock_host.filter()->Read(ten_bytes, sizeof(ten_bytes)));
+  EXPECT_TRUE(filter->SetPosition(5));
+  EXPECT_EQ(5u, filter->Read(ten_bytes, sizeof(ten_bytes)));
   EXPECT_EQ('5', ten_bytes[0]);
-  EXPECT_TRUE(mock_host.filter()->GetPosition(&position));
+  EXPECT_TRUE(filter->GetPosition(&position));
   EXPECT_EQ(10, position);
 }

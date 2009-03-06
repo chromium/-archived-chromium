@@ -2,79 +2,59 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <string>
-
 #include "media/base/factory.h"
-#include "media/base/filter_host.h"
 #include "media/base/filters.h"
-#include "media/base/media_format.h"
 #include "media/base/mock_media_filters.h"
-#include "media/base/pipeline_impl.h"
+#include "media/base/mock_filter_host.h"
 #include "media/filters/test_video_renderer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using media::FilterFactoryCollection;
-using media::InstanceFilterFactory;
-using media::MockAudioDecoder;
-using media::MockAudioRenderer;
-using media::MockDataSource;
-using media::MockDemuxer;
+using media::FilterFactory;
 using media::MockFilterConfig;
+using media::MockFilterHost;
+using media::MockPipeline;
 using media::MockVideoDecoder;
-using media::PipelineImpl;
 using media::TestVideoRenderer;
-using media::VideoFrame;
 
-TEST(VideoRenderer, DISABLED_CreateTestRenderer) {
-  base::TimeDelta test_time = base::TimeDelta::FromMilliseconds(500);
-  std::string url("");
-  PipelineImpl p;
-  scoped_refptr<TestVideoRenderer> test_renderer = new TestVideoRenderer();
+TEST(VideoRenderer, CreateAndPlay) {
+  // Prepare test data.
   MockFilterConfig config;
-  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  c->AddFactory(MockDataSource::CreateFactory(&config));
-  c->AddFactory(MockDemuxer::CreateFactory(&config));
-  c->AddFactory(MockAudioDecoder::CreateFactory(&config));
-  c->AddFactory(MockAudioRenderer::CreateFactory(&config));
-  c->AddFactory(MockVideoDecoder::CreateFactory(&config));
-  c->AddFactory(new InstanceFilterFactory<TestVideoRenderer>(test_renderer));
-  media::InitializationHelper h;
-  h.Start(&p, c, url);
-  h.Wait();
-  EXPECT_TRUE(p.IsInitialized());
-  p.SetPlaybackRate(1.0f);
-  PlatformThread::Sleep(static_cast<int>(test_time.InMilliseconds()));
-  p.Stop();
-  // Allow a decent amount of variability here.  We expect 15 or 16 frames
-  // but for now make sure it's within a reasonable range.
-  // TODO(ralphl): This test is now DISABLED because sometimes on linux we
-  // only get the first frame.  Investigate why, but for now disabled.
-  int64 num_expected_frames = test_time / config.frame_duration;
-  EXPECT_GT(test_renderer->unique_frames(), num_expected_frames - 3);
-  EXPECT_LT(test_renderer->unique_frames(), num_expected_frames + 3);
-}
+  scoped_refptr<FilterFactory> factory
+      = MockVideoDecoder::CreateFactory(&config);
+  scoped_refptr<MockVideoDecoder> decoder
+      = factory->Create<MockVideoDecoder>(NULL);
+  scoped_refptr<TestVideoRenderer> renderer = new TestVideoRenderer();
 
-TEST(VideoRenderer, SingleVideoFrame) {
-  base::TimeDelta test_time = base::TimeDelta::FromMilliseconds(100);
-  std::string url("");
-  PipelineImpl p;
-  scoped_refptr<TestVideoRenderer> test_renderer = new TestVideoRenderer();
-  MockFilterConfig config;
-  config.media_duration = config.frame_duration;
-  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  c->AddFactory(MockDataSource::CreateFactory(&config));
-  c->AddFactory(MockDemuxer::CreateFactory(&config));
-  c->AddFactory(MockAudioDecoder::CreateFactory(&config));
-  c->AddFactory(MockAudioRenderer::CreateFactory(&config));
-  c->AddFactory(MockVideoDecoder::CreateFactory(&config));
-  c->AddFactory(new InstanceFilterFactory<TestVideoRenderer>(test_renderer));
-  media::InitializationHelper h;
-  h.Start(&p, c, url);
-  h.TimedWait(base::TimeDelta::FromSeconds(1));
-  EXPECT_TRUE(p.IsInitialized());
-  p.SetPlaybackRate(1.0f);
-  PlatformThread::Sleep(static_cast<int>(test_time.InMilliseconds()));
-  p.Stop();
-  EXPECT_EQ(test_renderer->unique_frames(), 1u);
-  EXPECT_EQ(test_renderer->paint_called(), 1u);
+  // Setup our mock pipeline.
+  MockPipeline pipeline;
+  MockFilterHost<MockVideoDecoder> filter_host_a(&pipeline, decoder);
+  MockFilterHost<TestVideoRenderer> filter_host_b(&pipeline, renderer);
+
+  // Initialize the video renderer and run pending tasks.  It should set its
+  // time update callback and scheduled its first callback time.
+  EXPECT_TRUE(renderer->Initialize(decoder));
+  EXPECT_FALSE(filter_host_b.IsInitialized());
+  pipeline.RunAllTasks();
+  EXPECT_TRUE(filter_host_b.IsInitialized());
+  EXPECT_TRUE(filter_host_b.GetTimeUpdateCallback());
+  EXPECT_NE(0, filter_host_b.GetScheduledCallbackTime().InMicroseconds());
+
+  // We also expect one unique frame due to the preroll paint.
+  EXPECT_EQ(1u, renderer->unique_frames());
+
+  // Now lets simulate playing 10 frames...
+  for (int i = 0; i < 10; ++i) {
+    base::TimeDelta previous_time = filter_host_b.GetScheduledCallbackTime();
+    size_t previous_unique_frames = renderer->unique_frames();
+
+    // Advance time to the callback time and execute.
+    pipeline.SetTime(previous_time);
+    filter_host_b.GetTimeUpdateCallback()->Run(previous_time);
+    pipeline.RunAllTasks();
+
+    // Renderer should have scheduled a new callback time and painted a frame.
+    EXPECT_GT(filter_host_b.GetScheduledCallbackTime().InMicroseconds(),
+              previous_time.InMicroseconds());
+    EXPECT_EQ(previous_unique_frames + 1, renderer->unique_frames());
+  }
 }

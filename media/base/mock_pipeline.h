@@ -2,9 +2,16 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
+// Mock implementation of Pipeline.  Simply provides getters/setters for every
+// pipeline state variable and queues all tasks posted to the "pipeline thread."
+// Since there actually isn't a separate thread unit tests can control when
+// they want to execute queued tasks by calling RunAllTasks(), which helps to
+// assert pre- and post-conditions.
+
 #ifndef MEDIA_BASE_MOCK_PIPELINE_H_
 #define MEDIA_BASE_MOCK_PIPELINE_H_
 
+#include <deque>
 #include <string>
 
 #include "media/base/media_format.h"
@@ -117,8 +124,24 @@ class MockPipeline : public media::Pipeline {
     total_bytes_ = 0;
   }
 
-  void SetInitialized(bool init_value) {
-    initialized_ = init_value;
+  // Runs all queued tasks until there are no more.
+  //
+  // Although it is possible for tasks to run indefinitely (executing tasks post
+  // additional tasks), such situations should be treated as a bug.  Since the
+  // pipeline is request/pull-based, only enough tasks to satisfy the request
+  // should ever be executed.
+  void RunAllTasks() {
+    while (!task_queue_.empty()) {
+      Task* task = task_queue_.front();
+      task_queue_.pop_front();
+      task->Run();
+      delete task;
+    }
+  }
+
+  void PostTask(Task* task) {
+    EXPECT_TRUE(task);
+    task_queue_.push_back(task);
   }
 
   void Error(media::PipelineError error) {
@@ -146,7 +169,6 @@ class MockPipeline : public media::Pipeline {
     buffered_bytes_ = buffered_bytes;
   }
 
-  // Sets the size of the video output in pixel units.
   virtual void SetVideoSize(size_t width, size_t height) {
     width_ = width;
     height_ = height;
@@ -164,6 +186,9 @@ class MockPipeline : public media::Pipeline {
   size_t height_;
   int64 buffered_bytes_;
   int64 total_bytes_;
+
+  typedef std::deque<Task*> TaskQueue;
+  TaskQueue task_queue_;
 
   DISALLOW_COPY_AND_ASSIGN(MockPipeline);
 };
