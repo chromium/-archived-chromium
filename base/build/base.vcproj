@@ -1030,7 +1030,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\worker_pool.cc"
+			RelativePath="..\worker_pool_win.cc"
 			>
 		</File>
 		<File

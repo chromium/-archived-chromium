@@ -285,9 +285,10 @@
         'wmi_util.h',
         'word_iterator.cc',
         'word_iterator.h',
-        'worker_pool.cc',
         'worker_pool.h',
+        'worker_pool_linux.cc',
         'worker_pool_mac.mm',
+        'worker_pool_win.cc',
       ],
       'include_dirs': [
         '..',
@@ -327,7 +328,6 @@
         [ 'OS == "mac"', {
             'sources/': [ ['exclude', '_(linux|win)\\.cc$'] ],
             'sources!': [
-              'worker_pool.cc',
             ],
             'link_settings': {
               'libraries': [

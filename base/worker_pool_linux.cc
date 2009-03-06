@@ -6,39 +6,6 @@
 
 #include "base/task.h"
 
-// TODO(dsh): Split this file into worker_pool_win.cc and worker_pool_posix.cc.
-#if defined(OS_WIN)
-
-namespace {
-
-DWORD CALLBACK WorkItemCallback(void* param) {
-  Task* task = static_cast<Task*>(param);
-  task->Run();
-  delete task;
-  return 0;
-}
-
-}  // namespace
-
-bool WorkerPool::PostTask(const tracked_objects::Location& from_here,
-                          Task* task, bool task_is_slow) {
-  task->SetBirthPlace(from_here);
-
-  ULONG flags = 0;
-  if (task_is_slow)
-    flags |= WT_EXECUTELONGFUNCTION;
-
-  if (!QueueUserWorkItem(WorkItemCallback, task, flags)) {
-    DLOG(ERROR) << "QueueUserWorkItem failed: " << GetLastError();
-    delete task;
-    return false;
-  }
-
-  return true;
-}
-
-#elif defined(OS_LINUX)
-
 namespace {
 
 void* PThreadCallback(void* param) {
@@ -73,5 +40,3 @@ bool WorkerPool::PostTask(const tracked_objects::Location& from_here,
 
   return true;
 }
-
-#endif  // OS_LINUX
