@@ -1704,8 +1704,8 @@ LINUX MAC : LayoutTests/fast/repaint/transform-absolute-in-positioned-container.
 // SVG Mask-related tests. Most likely result of http://trac.webkit.org/changeset/41266.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
+LINUX : LayoutTests/svg/custom/js-late-mask-and-object-creation.svg = FAIL
+LINUX : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
 
 // Regression from merge 41268:41286
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
