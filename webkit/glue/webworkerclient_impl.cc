@@ -10,6 +10,7 @@
 
 #include "Frame.h"
 #include "FrameLoaderClient.h"
+#include "ScriptExecutionContext.h"
 #include "WorkerMessagingProxy.h"
 #include "Worker.h"
 
@@ -55,7 +56,8 @@ WebCore::WorkerContextProxy* WebCore::WorkerContextProxy::create(
 
 
 WebWorkerClientImpl::WebWorkerClientImpl(WebCore::Worker* worker)
-    : worker_(worker),
+    : script_execution_context_(worker->scriptExecutionContext()),
+      worker_(worker),
       asked_to_terminate_(false),
       unconfirmed_message_count_(0),
       worker_context_had_pending_activity_(false) {
@@ -99,6 +101,9 @@ bool WebWorkerClientImpl::hasPendingActivity() const {
 
 void WebWorkerClientImpl::workerObjectDestroyed() {
   webworker_->WorkerObjectDestroyed();
+
+  // The lifetime of this proxy is controlled by the worker.
+  delete this;
 }
 
 void WebWorkerClientImpl::PostMessageToWorkerObject(const string16& message) {
@@ -109,7 +114,7 @@ void WebWorkerClientImpl::PostExceptionToWorkerObject(
     const string16& error_message,
     int line_number,
     const string16& source_url) {
-  worker_->scriptExecutionContext()->reportException(
+  script_execution_context_->reportException(
       webkit_glue::String16ToString(error_message),
       line_number,
       webkit_glue::String16ToString(source_url));
@@ -122,7 +127,7 @@ void WebWorkerClientImpl::PostConsoleMessageToWorkerObject(
     const string16& message,
     int line_number,
     const string16& source_url) {
-  worker_->scriptExecutionContext()->addMessage(
+  script_execution_context_->addMessage(
       static_cast<WebCore::MessageDestination>(destination),
       static_cast<WebCore::MessageSource>(source),
       static_cast<WebCore::MessageLevel>(level),
@@ -140,7 +145,6 @@ void WebWorkerClientImpl::ReportPendingActivity(bool has_pending_activity) {
 }
 
 void WebWorkerClientImpl::WorkerContextDestroyed() {
-  delete this;
 }
 
 #endif

@@ -73,7 +73,6 @@ void WebWorkerImpl::PostMessageToWorkerContext(const string16& message) {
 }
 
 void WebWorkerImpl::WorkerObjectDestroyed() {
-  TerminateWorkerContext();
 }
 
 void WebWorkerImpl::postMessageToWorkerObject(const WebCore::String& message) {
@@ -116,6 +115,9 @@ void WebWorkerImpl::reportPendingActivity(bool hasPendingActivity) {
 
 void WebWorkerImpl::workerContextDestroyed() {
   client_->WorkerContextDestroyed();
+
+  // The lifetime of this proxy is controlled by the worker context.
+  delete this;
 }
 
 #else

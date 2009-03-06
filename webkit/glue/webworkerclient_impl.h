@@ -11,8 +11,13 @@
 #include "webkit/glue/webworkerclient.h"
 
 #include "WorkerContextProxy.h"
+#include <wtf/RefPtr.h>
 
 class WebWorker;
+
+namespace WebCore {
+class ScriptExecutionContext;
+};
 
 // The purpose of this class is to provide a WorkerContextProxy
 // implementation that we can give to WebKit.  Internally, it converts the
@@ -51,6 +56,9 @@ class WebWorkerClientImpl : public WebCore::WorkerContextProxy,
 
  private:
   virtual ~WebWorkerClientImpl();
+
+  // Guard against context from being destroyed before a worker exits.
+  WTF::RefPtr<WebCore::ScriptExecutionContext> script_execution_context_;
 
   WebCore::Worker* worker_;
   scoped_ptr<WebWorker> webworker_;
