@@ -1,0 +1,24 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>This test checks whether a frame element's 'src' attribute is a complete, rather than relative, URL.</p><pre id='console'></pre> from frame with URL frame-src-attribute.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 6: Uncaught TypeError: Cannot call method 'getElementById' of undefined
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderFrameSet {FRAMESET} at (0,0) size 800x600
+      RenderFrame {FRAME} at (0,0) size 800x600
+        layer at (0,0) size 800x600
+          RenderView at (0,0) size 800x600
+        layer at (0,0) size 800x600
+          RenderBlock {HTML} at (0,0) size 800x600
+            RenderBody {BODY} at (8,8) size 784x576
+              RenderBlock {P} at (0,0) size 784x18
+                RenderText {#text} at (0,0) size 607x18
+                  text run at (0,0) width 607: "This test checks whether a frame element's 'src' attribute is a complete, rather than relative, URL."
+              RenderBlock {PRE} at (0,34) size 784x0
+      RenderFrame {FRAME} at (0,0) size 0x0
+        layer at (0,0) size 8x8
+          RenderView at (0,0) size 0x0
+        layer at (0,0) size 8x8
+          RenderBlock {HTML} at (0,0) size 0x8
+            RenderBody {BODY} at (8,8) size 0x0
