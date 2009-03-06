@@ -879,7 +879,6 @@ LINUX MAC : chrome/plugins/nested-plugin-objects.html = FAIL
 LINUX MAC : chrome/plugins/refcount-leaks.html = FAIL
 LINUX MAC : chrome/plugins/return-npobject.html = FAIL
 LINUX MAC : chrome/plugins/script-object-invoke.html = FAIL
-LINUX MAC : pending/plugins/destroy-stream-twice.html = TIMEOUT
 MAC : pending/plugins/iframe-shims.html = FAIL CRASH
 
 // NEW FOR MERGE 36102:37604
