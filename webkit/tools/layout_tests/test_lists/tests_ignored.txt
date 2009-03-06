@@ -310,3 +310,9 @@ LayoutTests/fast/frames/cross-site-this.html = FAIL
 // it contains syntax errors that JSC for some reason choose not to
 // throw.  V8 follows the spec.
 LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL
+
+// These tests relate to transform/3d which is a work in progress and is not
+// even run by the WebKit folk. They should be enabled whenever WebKit begins
+// testing them by default. The bug to re-enable is:
+// http://code.google.com/p/chromium/issues/detail?id=8455
+SKIP : LayoutTests/transforms/3d = FAIL
