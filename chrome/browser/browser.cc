@@ -13,6 +13,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -56,7 +57,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/cert_store.h"
-#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/dock_info.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
@@ -783,6 +783,7 @@ void Browser::Print() {
   UserMetrics::RecordAction(L"PrintPreview", profile_);
   GetSelectedTabContents()->AsWebContents()->PrintPreview();
 }
+#endif  // #if defined(OS_WIN)
 
 void Browser::ToggleEncodingAutoDetect() {
   UserMetrics::RecordAction(L"AutoDetectChange", profile_);
@@ -809,6 +810,7 @@ void Browser::OverrideEncoding(int encoding_id) {
   }
 }
 
+#if defined(OS_WIN)
 // TODO(devint): http://b/issue?id=1117225 Cut, Copy, and Paste are always
 // enabled in the page menu regardless of whether the command will do
 // anything. When someone selects the menu item, we just act as if they hit
@@ -870,6 +872,7 @@ void Browser::FindPrevious() {
   UserMetrics::RecordAction(L"FindPrevious", profile_);
   FindInPage(true, false);
 }
+#endif  // #if defined(OS_WIN)
 
 void Browser::ZoomIn() {
   UserMetrics::RecordAction(L"ZoomPlus", profile_);
@@ -889,6 +892,7 @@ void Browser::ZoomOut() {
       PageZoom::SMALLER);
 }
 
+#if defined(OS_WIN)
 void Browser::FocusToolbar() {
   UserMetrics::RecordAction(L"FocusToolbar", profile_);
   window_->FocusToolbar();
@@ -1015,14 +1019,14 @@ void Browser::OpenAboutChromeDialog() {
   UserMetrics::RecordAction(L"AboutChrome", profile_);
   window_->ShowAboutChromeDialog();
 }
+#endif
 
 void Browser::OpenHelpTab() {
-  GURL help_url(l10n_util::GetString(IDS_HELP_CONTENT_URL));
+  GURL help_url(WideToASCII(l10n_util::GetString(IDS_HELP_CONTENT_URL)));
   AddTabWithURL(help_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
                 NULL);
 }
 
-#endif
 ///////////////////////////////////////////////////////////////////////////////
 
 // static
@@ -1135,6 +1139,7 @@ void Browser::ExecuteCommand(int id) {
 #if defined(OS_WIN)
     case IDC_CLOSE_POPUPS:          ClosePopups();                 break;
     case IDC_PRINT:                 Print();                       break;
+#endif
     case IDC_ENCODING_AUTO_DETECT:  ToggleEncodingAutoDetect();    break;
     case IDC_ENCODING_UTF8:
     case IDC_ENCODING_UTF16LE:
@@ -1173,6 +1178,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ENCODING_WINDOWS1255:
     case IDC_ENCODING_WINDOWS1258:  OverrideEncoding(id);          break;
 
+#if defined(OS_WIN)
     // Clipboard commands
     case IDC_CUT:                   Cut();                         break;
     case IDC_COPY:                  Copy();                        break;
@@ -1183,12 +1189,14 @@ void Browser::ExecuteCommand(int id) {
     case IDC_FIND:                  Find();                        break;
     case IDC_FIND_NEXT:             FindNext();                    break;
     case IDC_FIND_PREVIOUS:         FindPrevious();                break;
+#endif
 
     // Zoom
     case IDC_ZOOM_PLUS:             ZoomIn();                      break;
     case IDC_ZOOM_NORMAL:           ZoomReset();                   break;
     case IDC_ZOOM_MINUS:            ZoomOut();                     break;
 
+#if defined(OS_WIN)
     // Focus various bits of UI
     case IDC_FOCUS_TOOLBAR:         FocusToolbar();                break;
     case IDC_FOCUS_LOCATION:        FocusLocationBar();            break;
@@ -1217,8 +1225,8 @@ void Browser::ExecuteCommand(int id) {
     case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
-    case IDC_HELP_PAGE:             OpenHelpTab();                 break;
 #endif
+    case IDC_HELP_PAGE:             OpenHelpTab();                 break;
 
     default:
       LOG(WARNING) << "Received Unimplemented Command: " << id;

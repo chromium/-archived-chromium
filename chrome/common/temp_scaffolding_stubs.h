@@ -686,15 +686,6 @@ class HtmlDialogContents {
   };
 };
 
-class CharacterEncoding {
- public:
-  static std::wstring GetCanonicalEncodingNameByAliasName(
-      const std::wstring&) {
-    NOTIMPLEMENTED();
-    return L"";
-  }
-};
-
 #if defined(OS_MACOSX)
 class FindBarMac {
  public:

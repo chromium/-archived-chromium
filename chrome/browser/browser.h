@@ -275,9 +275,11 @@ class Browser : public TabStripModelDelegate,
   // Page-related commands.
   void ClosePopups();
   void Print();
+#endif
   void ToggleEncodingAutoDetect();
   void OverrideEncoding(int encoding_id);
 
+#if defined(OS_WIN)
   // Clipboard commands
   void Cut();
   void Copy();
@@ -288,12 +290,14 @@ class Browser : public TabStripModelDelegate,
   void Find();
   void FindNext();
   void FindPrevious();
+#endif
 
   // Zoom
   void ZoomIn();
   void ZoomReset();
   void ZoomOut();
 
+#if defined(OS_WIN)
   // Focus various bits of UI
   void FocusToolbar();
   void FocusLocationBar();
@@ -317,8 +321,8 @@ class Browser : public TabStripModelDelegate,
   void OpenKeywordEditor();
   void OpenPasswordManager();
   void OpenAboutChromeDialog();
-  void OpenHelpTab();
 #endif
+  void OpenHelpTab();
 
   /////////////////////////////////////////////////////////////////////////////
 

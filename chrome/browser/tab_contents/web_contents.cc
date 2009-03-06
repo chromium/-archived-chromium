@@ -12,6 +12,7 @@
 #include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gears_integration.h"
@@ -46,7 +47,6 @@
 #if defined(OS_WIN)
 // TODO(port): fill these in as we flesh out the implementation of this class
 #include "chrome/browser/cache_manager_host.h"
-#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/modal_html_dialog_delegate.h"
 #include "chrome/browser/plugin_service.h"
