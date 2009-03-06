@@ -510,7 +510,7 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
-LINUX MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
@@ -1811,12 +1811,12 @@ WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 
 // New tests added in the 41420:41447 merge that crash, and hence should not be
-// deferred:
+// deferred.  (These don't crash on Linux but their output hasn't been vetted.)
 LayoutTests/transforms/3d/hit-testing/backface-hit-test.html = CRASH
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping-deep.html = CRASH
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping-origins.html = CRASH
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping-preserve-3d.html = CRASH
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping.html = CRASH
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping-deep.html = CRASH FAIL
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping-origins.html = CRASH FAIL
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping-preserve-3d.html = CRASH FAIL
+LayoutTests/transforms/3d/point-mapping/3d-point-mapping.html = CRASH FAIL
 
 // New tests added in the 41420:41447 merge that are just missing results:
 SKIP : LayoutTests/transforms/3d/point-mapping/3d-point-mapping-2.html = FAIL
@@ -1824,3 +1824,7 @@ SKIP : LayoutTests/transforms/3d/point-mapping/3d-point-mapping-2.html = FAIL
 // New tests added in the 41420:41447 merge that fail:
 DEFER : LayoutTests/fast/block/float/nested-clearance.html = FAIL
 DEFER : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
+
+// Crashes sometimes.  Race?  Memory corruption?
+// Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
+LINUX : LayoutTests/fast/canvas/set-colors.html = PASS CRASH
