@@ -1594,7 +1594,6 @@ DEFER : LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 // it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
 WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
-LINUX WIN : chrome/fast/forms/textarea-metrics.html = FAIL
 
 // Merge 40314:40364 -- new tests
 // See comment above LayoutTests/editing/spelling/inline_spelling_markers.html
