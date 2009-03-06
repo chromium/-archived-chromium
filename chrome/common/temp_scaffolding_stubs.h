@@ -168,10 +168,6 @@ class GoogleUpdateSettings {
   DISALLOW_IMPLICIT_CONSTRUCTORS(GoogleUpdateSettings);
 };
 
-namespace browser {
-void RegisterAllPrefs(PrefService*, PrefService*);
-}
-
 void OpenFirstRunDialog(Profile* profile);
 
 void InstallJankometer(const CommandLine&);

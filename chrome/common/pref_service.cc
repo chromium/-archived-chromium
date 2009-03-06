@@ -89,7 +89,7 @@ Value* CreateLocaleDefaultValue(Value::ValueType type, int message_id) {
     }
 
     default: {
-      DCHECK(false) <<
+      NOTREACHED() <<
           "list and dictionary types can not have default locale values";
     }
   }
@@ -133,16 +133,7 @@ PrefService::~PrefService() {
 }
 
 bool PrefService::LoadPersistentPrefs(const FilePath& file_path) {
-#if defined(OS_WIN)
   DCHECK(!file_path.empty());
-#else
-  // On non-Windows platforms we haven't gotten round to this yet.
-  // TODO(port): remove this exception
-  if (file_path.empty()) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-#endif
   DCHECK(CalledOnValidThread());
 
   JSONFileValueSerializer serializer(file_path.ToWStringHack());
@@ -301,7 +292,7 @@ bool PrefService::GetBoolean(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return result;
   }
   bool rv = pref->GetValue()->GetAsBoolean(&result);
@@ -318,7 +309,7 @@ int PrefService::GetInteger(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return result;
   }
   bool rv = pref->GetValue()->GetAsInteger(&result);
@@ -335,7 +326,7 @@ double PrefService::GetReal(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return result;
   }
   bool rv = pref->GetValue()->GetAsReal(&result);
@@ -352,11 +343,7 @@ std::wstring PrefService::GetString(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-#if defined(OS_WIN)
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
-#else
-    // TODO(port): remove this exception
-#endif
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return result;
   }
   bool rv = pref->GetValue()->GetAsString(&result);
@@ -373,11 +360,7 @@ FilePath PrefService::GetFilePath(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-#if defined(OS_WIN)
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
-#else
-    // TODO(port): remove this exception
-#endif
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return FilePath(result);
   }
   bool rv = pref->GetValue()->GetAsString(&result);
@@ -407,7 +390,7 @@ const DictionaryValue* PrefService::GetDictionary(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return NULL;
   }
   const Value* value = pref->GetValue();
@@ -425,7 +408,7 @@ const ListValue* PrefService::GetList(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return NULL;
   }
   const Value* value = pref->GetValue();
@@ -440,7 +423,7 @@ void PrefService::AddPrefObserver(const wchar_t* path,
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to add an observer for an unregistered pref: "
+    NOTREACHED() << "Trying to add an observer for an unregistered pref: "
         << path;
     return;
   }
@@ -485,7 +468,7 @@ void PrefService::RegisterPreference(Preference* pref) {
   DCHECK(CalledOnValidThread());
 
   if (FindPreference(pref->name().c_str())) {
-    DCHECK(false) << "Tried to register duplicate pref " << pref->name();
+    NOTREACHED() << "Tried to register duplicate pref " << pref->name();
     delete pref;
     return;
   }
@@ -497,7 +480,7 @@ void PrefService::ClearPref(const wchar_t* path) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to clear an unregistered pref: " << path;
+    NOTREACHED() << "Trying to clear an unregistered pref: " << path;
     return;
   }
 
@@ -515,11 +498,11 @@ void PrefService::SetBoolean(const wchar_t* path, bool value) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    NOTREACHED() << "Trying to write an unregistered pref: " << path;
     return;
   }
   if (pref->type() != Value::TYPE_BOOLEAN) {
-    DCHECK(false) << "Wrong type for SetBoolean: " << path;
+    NOTREACHED() << "Wrong type for SetBoolean: " << path;
     return;
   }
 
@@ -535,11 +518,11 @@ void PrefService::SetInteger(const wchar_t* path, int value) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    NOTREACHED() << "Trying to write an unregistered pref: " << path;
     return;
   }
   if (pref->type() != Value::TYPE_INTEGER) {
-    DCHECK(false) << "Wrong type for SetInteger: " << path;
+    NOTREACHED() << "Wrong type for SetInteger: " << path;
     return;
   }
 
@@ -555,11 +538,11 @@ void PrefService::SetReal(const wchar_t* path, double value) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    NOTREACHED() << "Trying to write an unregistered pref: " << path;
     return;
   }
   if (pref->type() != Value::TYPE_REAL) {
-    DCHECK(false) << "Wrong type for SetReal: " << path;
+    NOTREACHED() << "Wrong type for SetReal: " << path;
     return;
   }
 
@@ -575,11 +558,11 @@ void PrefService::SetString(const wchar_t* path, const std::wstring& value) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    NOTREACHED() << "Trying to write an unregistered pref: " << path;
     return;
   }
   if (pref->type() != Value::TYPE_STRING) {
-    DCHECK(false) << "Wrong type for SetString: " << path;
+    NOTREACHED() << "Wrong type for SetString: " << path;
     return;
   }
 
@@ -595,11 +578,11 @@ void PrefService::SetFilePath(const wchar_t* path, const FilePath& value) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    NOTREACHED() << "Trying to write an unregistered pref: " << path;
     return;
   }
   if (pref->type() != Value::TYPE_STRING) {
-    DCHECK(false) << "Wrong type for SetFilePath: " << path;
+    NOTREACHED() << "Wrong type for SetFilePath: " << path;
     return;
   }
 
@@ -615,11 +598,11 @@ void PrefService::SetInt64(const wchar_t* path, int64 value) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to write an unregistered pref: " << path;
+    NOTREACHED() << "Trying to write an unregistered pref: " << path;
     return;
   }
   if (pref->type() != Value::TYPE_STRING) {
-    DCHECK(false) << "Wrong type for SetInt64: " << path;
+    NOTREACHED() << "Wrong type for SetInt64: " << path;
     return;
   }
 
@@ -639,11 +622,7 @@ int64 PrefService::GetInt64(const wchar_t* path) const {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-#if defined(OS_WIN)
-    DCHECK(false) << "Trying to read an unregistered pref: " << path;
-#else
-    // TODO(port): remove this exception
-#endif
+    NOTREACHED() << "Trying to read an unregistered pref: " << path;
     return StringToInt64(WideToUTF16Hack(result));
   }
   bool rv = pref->GetValue()->GetAsString(&result);
@@ -662,11 +641,11 @@ DictionaryValue* PrefService::GetMutableDictionary(const wchar_t* path) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to get an unregistered pref: " << path;
+    NOTREACHED() << "Trying to get an unregistered pref: " << path;
     return NULL;
   }
   if (pref->type() != Value::TYPE_DICTIONARY) {
-    DCHECK(false) << "Wrong type for GetMutableDictionary: " << path;
+    NOTREACHED() << "Wrong type for GetMutableDictionary: " << path;
     return NULL;
   }
 
@@ -685,11 +664,11 @@ ListValue* PrefService::GetMutableList(const wchar_t* path) {
 
   const Preference* pref = FindPreference(path);
   if (!pref) {
-    DCHECK(false) << "Trying to get an unregistered pref: " << path;
+    NOTREACHED() << "Trying to get an unregistered pref: " << path;
     return NULL;
   }
   if (pref->type() != Value::TYPE_LIST) {
-    DCHECK(false) << "Wrong type for GetMutableList: " << path;
+    NOTREACHED() << "Wrong type for GetMutableList: " << path;
     return NULL;
   }
 
