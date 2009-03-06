@@ -52,7 +52,8 @@ class MockExtensionView : public ExtensionView {
 
     // Call super, otherwise we'll leak reply_msg.
     ExtensionView::RunJavaScriptMessage(
-        message, default_prompt, flags, reply_msg, did_suppress_message);
+        message, default_prompt, frame_url, flags,
+        reply_msg, did_suppress_message);
   }
 
   bool got_message_;
