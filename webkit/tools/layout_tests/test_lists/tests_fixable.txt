@@ -684,10 +684,6 @@ LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
 // URLs. http://crbug.com/8407
 DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
 
-// Crashing intermittently since a v8 update. http://crbug.com/8442
-LINUX : LayoutTests/fast/clip/nestedTransparencyClip.html = CRASH PASS
-
-
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
