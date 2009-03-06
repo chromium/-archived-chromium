@@ -22,9 +22,10 @@ TEST(YuvConvertTest, Basic) {
                    .Append(FILE_PATH_LITERAL("yuv_file"));
   const size_t size_of_yuv = kWidth * kHeight * 12 / 8;
   uint8* yuv_bytes = new uint8[size_of_yuv];
-  EXPECT_EQ(size_of_yuv, file_util::ReadFile(yuv_url,
-                                             reinterpret_cast<char*>(yuv_bytes),
-                                             static_cast<int>(size_of_yuv)));
+  EXPECT_EQ(static_cast<int>(size_of_yuv),
+            file_util::ReadFile(yuv_url,
+                                reinterpret_cast<char*>(yuv_bytes),
+                                static_cast<int>(size_of_yuv)));
 
   // Read RGB reference data from file.
   // To keep the file smaller, only the first quarter of the file
@@ -37,9 +38,10 @@ TEST(YuvConvertTest, Basic) {
                    .Append(FILE_PATH_LITERAL("rgb_file"));
   const size_t size_of_rgb = kWidth * kHeight * kBpp / 4;
   uint8* rgb_bytes = new uint8[size_of_rgb];
-  EXPECT_EQ(size_of_rgb, file_util::ReadFile(rgb_url,
-                                             reinterpret_cast<char*>(rgb_bytes),
-                                             static_cast<int>(size_of_rgb)));
+  EXPECT_EQ(static_cast<int>(size_of_rgb),
+            file_util::ReadFile(rgb_url,
+                                reinterpret_cast<char*>(rgb_bytes),
+                                static_cast<int>(size_of_rgb)));
 
   // Convert a frame of YUV to 32 bit ARGB.
   const size_t size_of_rgb_converted = kWidth * kHeight * kBpp;
