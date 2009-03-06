@@ -573,7 +573,7 @@ IPC_BEGIN_MESSAGES(Automation)
   //          and 0 means this was a redirect
   // Response:
   //   None expected
-  IPC_MESSAGE_ROUTED2(AutomationMsg_DidNavigate, int, int)
+  IPC_MESSAGE_ROUTED3(AutomationMsg_DidNavigate, int, int, GURL)
 
   // This message requests the different security states of the page displayed
   // in the specified tab.

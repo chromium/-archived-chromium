@@ -297,7 +297,8 @@ void ExternalTabContainer::Observe(NotificationType type,
           automation_->Send(new AutomationMsg_DidNavigate(
               0, commit->type,
               commit->previous_entry_index -
-                  tab_contents_->controller()->GetLastCommittedEntryIndex()));
+                  tab_contents_->controller()->GetLastCommittedEntryIndex(),
+              commit->entry->url()));
         }
       }
       break;
