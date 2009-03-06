@@ -636,14 +636,14 @@ DEFER : LayoutTests/plugins/bindings-test.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
-WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
-WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
+DEFER WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
+DEFER WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
 
 // These tests don't work on the open source buildbot because there's no font
 // covering YinYang sign. See bug # 2304.
-LINUX WIN : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
-LINUX WIN : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
-LINUX WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
+DEFER LINUX WIN : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+DEFER LINUX WIN : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+DEFER LINUX WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 
 // No glyph for U+FFFD (Replacement Character : black diamond with
 // question mark) in them
