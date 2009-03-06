@@ -1608,14 +1608,6 @@ LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 
-// Regressions from WebKit merge 40539:40668
-//
-// According to the text of the test it passes, but it looks
-// like it is using a different font to render now than it
-// did before and that may be a bug.  It looks like
-// jshin@chromium.org did several font related changes in this merge.
-LINUX : LayoutTests/fast/css/text-overflow-ellipsis.html = FAIL
-
 // We could fix this test for us and upstream it if the test shell user agent
 // would let us differentiate test_shell and WebKit DumpTreeNode.
 // See http://crbug.com/7482
