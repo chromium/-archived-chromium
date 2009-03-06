@@ -56,6 +56,9 @@ class WaitableEvent {
   // created. This objects takes ownership of the HANDLE and will close it when
   // deleted.
   explicit WaitableEvent(HANDLE event_handle);
+
+  // Releases ownership of the handle from this object.
+  HANDLE Release();
 #endif
 
   // WARNING: Destroying a WaitableEvent while threads are waiting on it is not

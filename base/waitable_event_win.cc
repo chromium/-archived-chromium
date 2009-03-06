@@ -28,6 +28,12 @@ WaitableEvent::~WaitableEvent() {
   CloseHandle(handle_);
 }
 
+HANDLE WaitableEvent::Release() {
+  HANDLE rv = handle_;
+  handle_ = INVALID_HANDLE_VALUE;
+  return rv;
+}
+
 void WaitableEvent::Reset() {
   ResetEvent(handle_);
 }

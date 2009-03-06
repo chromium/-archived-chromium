@@ -55,6 +55,10 @@ ChildProcessHost::~ChildProcessHost() {
   if (handle()) {
     watcher_.StopWatching();
     ProcessWatcher::EnsureProcessTerminated(handle());
+
+    // Above call took ownership, so don't want WaitableEvent to assert because
+    // the handle isn't valid anymore.
+    process_event_->Release();
   }
 }
 
