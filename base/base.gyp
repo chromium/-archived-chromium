@@ -379,6 +379,8 @@
       'sources': [
         'gfx/gdi_util.cc',
         'gfx/gdi_util.h',
+        'gfx/gtk_util.cc',
+        'gfx/gtk_util.h',
         'gfx/jpeg_codec.cc',
         'gfx/jpeg_codec.h',
         'gfx/native_theme.cc',
@@ -415,8 +417,13 @@
       ],
       'conditions': [
         [ 'OS != "win"', { 'sources!': [
-          'gfx/gdi_util.cc',
-          'gfx/native_theme.cc' ]
+            'gfx/gdi_util.cc',
+            'gfx/native_theme.cc',
+	  ],
+        }],
+        [ 'OS != "linux"', { 'sources!': [
+            'gfx/gtk_util.cc',
+	  ],
         }],
       ],
     },

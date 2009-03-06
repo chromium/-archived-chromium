@@ -189,6 +189,12 @@ components = []
 # Default is to load all SConscript files for a full-tree build.
 # The keyword arguments in the call below (base, breakpad, etc.) can be
 # specified in the LOAD= argument to cut down on the build.
+
+if root_env.get('_GYP'):
+    webkit_sconscript = '$WEBKIT_DIR/tools/test_shell/test_shell_main${_GYP}.scons'
+else:
+    webkit_sconscript = '$WEBKIT_DIR/webkit_main${_GYP}.scons'
+
 sconscript_map = dict(
     base = '$BASE_DIR/base_main${_GYP}.scons',
     breakpad = '$BREAKPAD_DIR/SConscript',
@@ -219,7 +225,7 @@ sconscript_map = dict(
     ],
     tools = '$GTK_CLIP_DUMP_DIR/gcd.scons',
     v8 = '$OBJ_ROOT/build/SConscript.v8',
-    webkit = '$WEBKIT_DIR/webkit_main${_GYP}.scons',
+    webkit = webkit_sconscript,
 )
 
 if root_env.get('_GYP'):

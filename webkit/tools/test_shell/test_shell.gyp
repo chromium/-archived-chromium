@@ -81,7 +81,17 @@
         '../../webkit.gyp:webkit',
       ],
       'conditions': [
-        ['OS!="linux"', {'sources/': [['exclude', '_gtk\\.cc$']]}],
+        ['OS=="linux"', {
+          'dependencies': [
+            'test_shell_resources',
+          ],
+          # for:  test_shell_gtk.cc
+          'cflags': ['-Wno-multichar'],
+        }, { # else: OS!=linux
+          'sources/': [
+            ['exclude', '_gtk\\.cc$']
+          ],
+        }],
         ['OS=="mac"', {
           'sources': [
             # Windows/Linux use this code normally when constructing events, so
@@ -144,6 +154,32 @@
         'INFOPLIST_FILE': 'mac/Info.plist',
       },
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../../../net/net.gyp:net_resources',
+            '../../webkit.gyp:glue', # for webkit_{resources,strings_en-US}.pak
+            'test_shell_resources',
+          ],
+          'actions': [
+            {
+              'action_name': 'test_shell_repack',
+              'inputs': [
+                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/net_resources.pak',
+                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/test_shell_resources.pak',
+                '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
+              ],
+              'outputs': [
+                '<(PRODUCT_DIR)/test_shell.pak',
+              ],
+              'action': ['python', '../tools/data_pack/repack.py', '<@(_outputs)', '<@(_inputs)'],
+            },
+          ],
+          'scons_depends': [
+            ['<(PRODUCT_DIR)/test_shell'],
+            ['<(PRODUCT_DIR)/test_shell.pak'],
+          ],
+        }],
         ['OS=="mac"', {
           'product_name': 'TestShell',
           'variables': {
@@ -234,5 +270,40 @@
         }],
       ],
     },
+  ],
+  'conditions': [
+    ['OS=="linux"', {
+      'targets': [
+        {
+          'target_name': 'test_shell_resources',
+          'type': 'none',
+          'sources': [
+            'test_shell_resources.grd',
+          ],
+          # This was orignally in grit_resources.rules
+          # NOTE: this version doesn't mimic the Properties specified there.
+          'rules': [
+            {
+              'rule_name': 'grit',
+              'extension': 'grd',
+              'inputs': [
+                '../../../tools/grit/grit.py',
+              ],
+              'outputs': [
+                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/grit/<(RULE_INPUT_ROOT).h',
+                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/<(RULE_INPUT_ROOT).pak',
+              ],
+              'action':
+                ['python', '../tools/grit/grit.py', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources'],
+            },
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources',
+            ],
+          },
+        },
+      ],
+    }],
   ],
 }
