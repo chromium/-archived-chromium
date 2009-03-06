@@ -184,7 +184,8 @@ bool WaitForExitCode(ProcessHandle handle, int* exit_code) {
 
 namespace {
 
-int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds) {
+int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds,
+                       bool* success) {
   // This POSIX version of this function only guarantees that we wait no less
   // than |wait_milliseconds| for the proces to exit.  The child process may
   // exit sometime before the timeout has ended but we may still block for
@@ -230,25 +231,36 @@ int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds) {
     ret_pid = waitpid(handle, &status, WNOHANG);
   }
 
+  if (success)
+    *success = (ret_pid != -1);
+
   return status;
 }
 
 }  // namespace
 
 bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
-  int status = WaitpidWithTimeout(handle, wait_milliseconds);
-  if (status != -1)
+  bool waitpid_success;
+  int status = WaitpidWithTimeout(handle, wait_milliseconds, &waitpid_success);
+  if (status != -1) {
+    DCHECK(waitpid_success);
     return WIFEXITED(status);
-  else
+  } else {
     return false;
+  }
 }
 
 bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds) {
-  int status = WaitpidWithTimeout(handle, wait_milliseconds);
-  if (status != -1)
+  bool waitpid_success;
+  int status = WaitpidWithTimeout(handle, wait_milliseconds, &waitpid_success);
+  if (status != -1) {
+    DCHECK(waitpid_success);
     return !(WIFEXITED(status) || WIFSIGNALED(status));
-  else
-    return true;
+  } else {
+    // If waitpid returned with an error, then the process doesn't exist
+    // (which most probably means it didn't exist before our call).
+    return waitpid_success;
+  }
 }
 
 namespace {
