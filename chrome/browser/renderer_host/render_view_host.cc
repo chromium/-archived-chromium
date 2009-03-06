@@ -1208,7 +1208,8 @@ void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {
   UserMetrics::RecordComputedAction(action.c_str(), process()->profile());
 }
 
-void RenderViewHost::UnhandledKeyboardEvent(const WebKeyboardEvent& event) {
+void RenderViewHost::UnhandledKeyboardEvent(
+    const NativeWebKeyboardEvent& event) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (view) {
     // TODO(brettw) why do we have to filter these types of events here. Can't

@@ -134,7 +134,7 @@ class MockRenderWidgetHost : public RenderWidgetHost {
   }
 
  protected:
-  virtual void UnhandledKeyboardEvent(const WebKeyboardEvent& event) {
+  virtual void UnhandledKeyboardEvent(const NativeWebKeyboardEvent& event) {
     unhandled_keyboard_event_called_ = true;
   }
 
@@ -327,7 +327,7 @@ TEST_F(RenderWidgetHostTest, HiddenPaint) {
 }
 
 TEST_F(RenderWidgetHostTest, HandleKeyEventsWeSent) {
-  WebKeyboardEvent key_event;
+  NativeWebKeyboardEvent key_event;
   key_event.type = WebInputEvent::KEY_DOWN;
   key_event.modifiers = WebInputEvent::CTRL_KEY;
   key_event.windows_key_code = base::VKEY_L;  // non-null made up value.

@@ -182,13 +182,7 @@ class WebKeyboardEvent : public WebInputEvent {
   // http://msdn.microsoft.com/en-us/library/ms646286(VS.85).aspx for details).
   // Other platforms don't have this concept, but it's just easier to leave it
   // always false than ifdef.
-
   bool system_key;
-
-  // References to the original event.
-#if defined(OS_WIN)
-  MSG actual_message;  // Set to the current keyboard message. TODO(avi): remove
-#endif
 
   WebKeyboardEvent() : windows_key_code(0),
                        native_key_code(0),
@@ -196,14 +190,10 @@ class WebKeyboardEvent : public WebInputEvent {
     memset(&text, 0, sizeof(text));
     memset(&unmodified_text, 0, sizeof(unmodified_text));
     memset(&key_identifier, 0, sizeof(key_identifier));
-#if defined(OS_WIN)
-    memset(&actual_message, 0, sizeof(actual_message));
-#endif
   }
 
 #if defined(OS_WIN)
-  explicit WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
-                            LPARAM lparam);
+  WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 #elif defined(OS_MACOSX)
   explicit WebKeyboardEvent(NSEvent *event);
 #elif defined(OS_LINUX)

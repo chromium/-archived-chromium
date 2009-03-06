@@ -283,11 +283,6 @@ WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
                                    LPARAM lparam) {
   system_key = false;
 
-  actual_message.hwnd = hwnd;
-  actual_message.message = message;
-  actual_message.wParam = wparam;
-  actual_message.lParam = lparam;
-
   windows_key_code = native_key_code = static_cast<int>(wparam);
 
   switch (message) {

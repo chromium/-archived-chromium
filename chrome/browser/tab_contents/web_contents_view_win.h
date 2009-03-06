@@ -59,7 +59,7 @@ class WebContentsViewWin : public WebContentsView,
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
+  virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
 
  private:
   // Windows events ------------------------------------------------------------

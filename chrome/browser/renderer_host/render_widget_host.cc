@@ -291,13 +291,29 @@ void RenderWidgetHost::ForwardWheelEvent(
   ForwardInputEvent(wheel_event, sizeof(WebMouseWheelEvent));
 }
 
-void RenderWidgetHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {
+void RenderWidgetHost::ForwardKeyboardEvent(
+    const NativeWebKeyboardEvent& key_event) {
   if (key_event.type == WebKeyboardEvent::CHAR &&
       (key_event.windows_key_code == base::VKEY_RETURN ||
        key_event.windows_key_code == base::VKEY_SPACE)) {
     OnEnterOrSpace();
   }
 
+  // Double check the type to make sure caller hasn't sent us nonsense that
+  // will mess up our key queue.
+  if (WebInputEvent::IsKeyboardEventType(key_event.type)) {
+    // Don't add this key to the queue if we have no way to send the message...
+    if (!process_->channel())
+      return;
+
+    // Put all WebKeyboardEvent objects in a queue since we can't trust the
+    // renderer and we need to give something to the UnhandledInputEvent
+    // handler.
+    key_queue_.push(key_event);
+    HISTOGRAM_COUNTS_100("Renderer.KeyboardQueueSize", key_queue_.size());
+  }
+
+  // Only forward the non-native portions of our event.
   ForwardInputEvent(key_event, sizeof(WebKeyboardEvent));
 }
 
@@ -305,14 +321,6 @@ void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
                                          int event_size) {
   if (!process_->channel())
     return;
-
-  if (WebInputEvent::IsKeyboardEventType(input_event.type)) {
-    // Put all WebKeyboardEvent objects in a queue since we can't trust the
-    // renderer and we need to give something to the UnhandledInputEvent
-    // handler.
-    key_queue_.push(static_cast<const WebKeyboardEvent&>(input_event));
-    HISTOGRAM_COUNTS_100("Renderer.KeyboardQueueSize", key_queue_.size());
-  }
 
   IPC::Message* message = new ViewMsg_HandleInputEvent(routing_id_);
   message->WriteData(
@@ -569,7 +577,8 @@ void RenderWidgetHost::OnMsgInputEventAck(const IPC::Message& message) {
                  << "don't seem to have sent it to the renderer!";
     } else if (key_queue_.front().type != type) {
       LOG(ERROR) << "We seem to have a different key type sent from "
-                 << "the renderer. Ignoring event.";
+                 << "the renderer. (" << key_queue_.front().type << " vs. "
+                 << type << "). Ignoring event.";
     } else {
       bool processed = false;
       r = message.ReadBool(&iter, &processed);

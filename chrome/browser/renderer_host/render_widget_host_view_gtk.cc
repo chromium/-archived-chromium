@@ -10,6 +10,7 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/x11_util.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -75,7 +76,7 @@ class RenderWidgetHostViewGtkWidget {
 
   static gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
                                        RenderWidgetHostViewGtk* host_view) {
-    WebKeyboardEvent wke(event);
+    NativeWebKeyboardEvent wke(event);
     host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
     return FALSE;
   }

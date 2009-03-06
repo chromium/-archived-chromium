@@ -247,7 +247,8 @@ void WebContentsViewWin::TakeFocus(bool reverse) {
     focus_manager->AdvanceFocus(reverse);
 }
 
-void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+void WebContentsViewWin::HandleKeyboardEvent(
+    const NativeWebKeyboardEvent& event) {
   // Previous calls to TranslateMessage can generate CHAR events as well as
   // RAW_KEY_DOWN events, even if the latter triggered an accelerator.  In these
   // cases, we discard the CHAR events.
@@ -291,10 +292,10 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
 
   // Any unhandled keyboard/character messages should be defproced.
   // This allows stuff like Alt+F4, etc to work correctly.
-  DefWindowProc(event.actual_message.hwnd,
-                event.actual_message.message,
-                event.actual_message.wParam,
-                event.actual_message.lParam);
+  DefWindowProc(event.os_event.hwnd,
+                event.os_event.message,
+                event.os_event.wParam,
+                event.os_event.lParam);
 }
 
 void WebContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {

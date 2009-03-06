@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H__
-#define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H__
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H_
 
 #include <string>
 #include <vector>
@@ -428,7 +428,7 @@ class RenderViewHost : public RenderWidgetHost {
 
  protected:
   // RenderWidgetHost protected overrides.
-  virtual void UnhandledKeyboardEvent(const WebKeyboardEvent& event);
+  virtual void UnhandledKeyboardEvent(const NativeWebKeyboardEvent& event);
   virtual void OnEnterOrSpace();
   virtual void NotifyRendererUnresponsive();
   virtual void NotifyRendererResponsive();
@@ -644,4 +644,4 @@ class RenderViewHostFactory {
       base::WaitableEvent* modal_dialog_event) = 0;
 };
 
-#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H__
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H_

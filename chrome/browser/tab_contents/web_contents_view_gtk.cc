@@ -146,7 +146,7 @@ void WebContentsViewGtk::TakeFocus(bool reverse) {
   web_contents_->delegate()->SetFocusToLocationBar();
 }
 
-void WebContentsViewGtk::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+void WebContentsViewGtk::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
   // The renderer returned a keyboard event it did not process. This may be
   // a keyboard shortcut that we have to process.
   // The windows code forwards this event onwards to accelerator handling,

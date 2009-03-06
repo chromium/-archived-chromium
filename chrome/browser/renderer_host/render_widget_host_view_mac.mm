@@ -10,6 +10,7 @@
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/common/native_web_keyboard_event.h"
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/webinputevent.h"
 
@@ -250,7 +251,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (void)keyEvent:(NSEvent *)theEvent {
-  WebKeyboardEvent event(theEvent);
+  NativeWebKeyboardEvent event(theEvent);
   renderWidgetHostView_->render_widget_host()->ForwardKeyboardEvent(event);
 }
 

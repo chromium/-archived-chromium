@@ -12,6 +12,7 @@
 #include "base/file_path.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
+#include "chrome/common/native_web_keyboard_event.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/webpreferences.h"
@@ -111,7 +112,7 @@ class RenderViewHostDelegate {
     // Callback to inform the browser that the renderer did not process the
     // specified events. This gives an opportunity to the browser to process the
     // event (used for keyboard shortcuts).
-    virtual void HandleKeyboardEvent(const WebKeyboardEvent& event) = 0;
+    virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event) = 0;
 
     // Forwards message to DevToolsClient in developer tools window open for
     // this page.

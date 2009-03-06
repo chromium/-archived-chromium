@@ -69,7 +69,7 @@ class WebContentsViewMac : public WebContentsView,
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
+  virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
   virtual void OnFindReply(int request_id,
                            int number_of_matches,
                            const gfx::Rect& selection_rect,

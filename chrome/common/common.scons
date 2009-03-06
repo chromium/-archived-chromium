@@ -162,6 +162,8 @@ input_files = ChromeFileList([
     'message_router.cc',
     'message_router.h',
     'mru_cache.h',
+    'native_web_keyboard_event.h',
+    'native_web_keyboard_event_linux.cc',
     'navigation_types.h',
     'notification_details.h',
     'notification_registrar.cc',

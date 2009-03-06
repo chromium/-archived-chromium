@@ -86,7 +86,7 @@ class InterstitialPage::InterstitialPageRVHViewDelegate
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
+  virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
   virtual void ForwardMessageToDevToolsClient(const IPC::Message& message);
   virtual void OnFindReply(int request_id,
                            int number_of_matches,
@@ -499,7 +499,7 @@ void InterstitialPage::InterstitialPageRVHViewDelegate::TakeFocus(
 }
 
 void InterstitialPage::InterstitialPageRVHViewDelegate::HandleKeyboardEvent(
-    const WebKeyboardEvent& event) {
+    const NativeWebKeyboardEvent& event) {
   if (interstitial_page_->tab() && interstitial_page_->tab()->GetViewDelegate())
     interstitial_page_->tab()->GetViewDelegate()->HandleKeyboardEvent(event);
 }

@@ -11,6 +11,7 @@
 #include "base/gfx/size.h"
 #include "base/timer.h"
 #include "chrome/common/ipc_channel.h"
+#include "chrome/common/native_web_keyboard_event.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/webinputevent.h"
 
@@ -24,7 +25,6 @@ class RenderProcessHost;
 class RenderWidgetHostView;
 class TransportDIB;
 class WebInputEvent;
-class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebCursor;
@@ -208,14 +208,16 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // when it has received a message.
   void ForwardMouseEvent(const WebMouseEvent& mouse_event);
   void ForwardWheelEvent(const WebMouseWheelEvent& wheel_event);
-  void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
-  void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
+  void ForwardKeyboardEvent(const NativeWebKeyboardEvent& key_event);
 
   // This is for derived classes to give us access to the resizer rect.
   // And to also expose it to the RenderWidgetHostView.
   virtual gfx::Rect GetRootWindowResizerRect() const;
 
  protected:
+  // Internal implementation of the public Forward*Event() methods.
+  void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
+
   // Called when we receive a notification indicating that the renderer
   // process has gone. This will reset our state so that our state will be
   // consistent if a new renderer is created.
@@ -223,7 +225,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // Called when we an InputEvent was not processed by the renderer. This is
   // overridden by RenderView to send upwards to its delegate.
-  virtual void UnhandledKeyboardEvent(const WebKeyboardEvent& event) {}
+  virtual void UnhandledKeyboardEvent(const NativeWebKeyboardEvent& event) {}
 
   // Notification that the user pressed the enter key or the spacebar. The
   // render view host overrides this to forward the information to its delegate
@@ -353,7 +355,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   base::TimeTicks repaint_start_time_;
 
   // Queue of keyboard events that we need to track.
-  typedef std::queue<WebKeyboardEvent> KeyQueue;
+  typedef std::queue<NativeWebKeyboardEvent> KeyQueue;
 
   // A queue of keyboard events. We can't trust data from the renderer so we
   // stuff key events into a queue and pop them out on ACK, feeding our copy

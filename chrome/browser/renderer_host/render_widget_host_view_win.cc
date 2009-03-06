@@ -20,6 +20,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
+#include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
@@ -823,7 +824,7 @@ LRESULT RenderWidgetHostViewWin::OnKeyEvent(UINT message, WPARAM wparam,
   }
 
   render_widget_host_->ForwardKeyboardEvent(
-      WebKeyboardEvent(m_hWnd, message, wparam, lparam));
+      NativeWebKeyboardEvent(m_hWnd, message, wparam, lparam));
   return 0;
 }
 

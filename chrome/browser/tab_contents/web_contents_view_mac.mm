@@ -155,9 +155,10 @@ void WebContentsViewMac::TakeFocus(bool reverse) {
   [cocoa_view_.get() becomeFirstResponder];
 }
 
-void WebContentsViewMac::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+void WebContentsViewMac::HandleKeyboardEvent(
+    const NativeWebKeyboardEvent& event) {
   // The renderer returned a keyboard event it did not process. TODO(avi):
-  // reconstruct an NSEvent and feed it to the view.
+  // Grab the NSEvent off |event| and feed it to the view.
   NOTIMPLEMENTED();
 }
 

@@ -562,6 +562,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\native_web_keyboard_event.h"
+			>
+		</File>
+		<File
+			RelativePath=".\native_web_keyboard_event_win.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\notification_details.h"
 			>
 		</File>
