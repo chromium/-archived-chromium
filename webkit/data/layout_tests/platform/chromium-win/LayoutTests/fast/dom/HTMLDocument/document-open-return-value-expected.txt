@@ -1,0 +1,6 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,FAILURE from frame with URL document-open-return-value.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 11: Uncaught TypeError: Cannot call method 'open' of undefined
+Test for bug 14968: document.open() erroneously returns void instead of the new Document.
+
+FAILURE
