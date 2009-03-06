@@ -178,7 +178,7 @@ bool KillProcess(ProcessHandle process, int exit_code, bool wait) {
     // The process may not end immediately due to pending I/O
     if (WAIT_OBJECT_0 != WaitForSingleObject(process, 60 * 1000))
       DLOG(ERROR) << "Error waiting for process exit: " << GetLastError();
-  } else {
+  } else if (!result) {
     DLOG(ERROR) << "Unable to terminate process: " << GetLastError();
   }
   return result;
