@@ -142,7 +142,7 @@ bool CopyDirectory(const FilePath& from_path,
     std::string suffix(&ent->fts_path[from_path.value().size()]);
     // Strip the leading '/' (if any).
     if (!suffix.empty()) {
-      DCHECK(suffix[0] == '/');
+      DCHECK_EQ('/', suffix[0]);
       suffix.erase(0, 1);
     }
     const FilePath target_path = to_path.Append(suffix);
@@ -157,6 +157,7 @@ bool CopyDirectory(const FilePath& from_path,
         }
 
         // Try creating the target dir, continuing on it if it exists already.
+        // Rely on the user's umask to produce correct permissions.
         if (mkdir(target_path.value().c_str(), 0777) != 0) {
           if (errno != EEXIST)
             error = errno;
@@ -185,10 +186,12 @@ bool CopyDirectory(const FilePath& from_path,
         break;
       case FTS_SL:      // Symlink.
       case FTS_SLNONE:  // Symlink with broken target.
-        LOG(WARNING) << "CopyDirectory() skipping symbolic link.";
+        LOG(WARNING) << "CopyDirectory() skipping symbolic link: " <<
+            ent->fts_path;
         continue;
       case FTS_DEFAULT:  // Some other sort of file.
-        LOG(WARNING) << "CopyDirectory() skipping weird file.";
+        LOG(WARNING) << "CopyDirectory() skipping file of unknown type: " <<
+            ent->fts_path;
         continue;
       default:
         NOTREACHED();
