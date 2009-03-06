@@ -1354,6 +1354,18 @@
               'mac_bundle_resources': ['app/theme/chromium/app.icns'],
             }],
           ],
+        }, { # else: OS != "mac"
+          'conditions': [
+            ['branding=="Chrome"', {
+              'product_name': 'chrome'
+            }, {  # else: Branding!="Chrome"
+              # TODO:  change to:
+              #   'product_name': 'chromium'
+              # whenever we convert the rest of the infrastructure
+              # (buildbots etc.) to use "gyp -Dbranding=Chrome".
+              'product_name': 'chrome'
+            }],
+          ],
         }],
         ['OS!="win"', {
           'variables': {
