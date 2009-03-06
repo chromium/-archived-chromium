@@ -185,9 +185,6 @@ DEFER : LayoutTests/fast/encoding/idn-security.html = FAIL
 DEFER : LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
 DEFER : LayoutTests/fast/history/subframe-is-visited.html = FAIL
 
-// Probably needs to be rebaselined on MAC and LINUX
-DEFER LINUX : LayoutTests/editing/selection/drag-in-iframe.html = FAIL TIMEOUT
-
 // Bug 849056
 // We don't support NPN_Enumerate, but don't know of any plugin
 // which depends on that functionality.  So we ignore this for beta.
@@ -708,10 +705,6 @@ LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
 // subframe URL.  Need to teach dumpResourceLoadCallbacks() about relative
 // URLs. http://crbug.com/8407
 DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
-
-// New test addded in the 41286:41362 merge. http://crbug.com/8439 for further
-// investigation.
-DEFER LINUX : LayoutTests/transforms/no_transform_hit_testing.html = FAIL
 
 // Crashing intermittently since a v8 update. http://crbug.com/8442
 LINUX : LayoutTests/fast/clip/nestedTransparencyClip.html = CRASH PASS
