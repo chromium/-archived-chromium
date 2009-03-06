@@ -619,12 +619,6 @@ sconscript_files = [
 if not env.WantSystemLib('hunspell'):
   sconscript_files.append('third_party/hunspell/SConscript')
 
-# TODO(port)
-if env.Bit('windows'):
-  sconscript_files.extend([
-      'app/resources/SConscript',
-  ])
-
 env.SConscript(sconscript_files, exports=['env', 'env_res', 'env_test'])
 
 # TODO(port)

@@ -39,12 +39,15 @@ void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
   bool success = resources_data_->Load(resources_data_path);
   DCHECK(success) << "failed to load chrome.pak";
 
-  FilePath locale_path;
-  PathService::Get(chrome::DIR_LOCALES, &locale_path);
-  // TODO(tc): Handle other locales properly.
-  // http://code.google.com/p/chromium/issues/detail?id=8125
-  locale_path = locale_path.Append(FILE_PATH_LITERAL("en-US.pak"));
   DCHECK(locale_resources_data_ == NULL) << "locale data already loaded!";
+  const FilePath& locale_path = GetLocaleFilePath(pref_locale);
+  if (locale_path.value().empty()) {
+    // It's possible that there are no locale dlls found, in which case we just
+    // return.
+    NOTREACHED();
+    return;
+  }
+
   locale_resources_data_ = new base::DataPack;
   success = locale_resources_data_->Load(locale_path);
   DCHECK(success) << "failed to load locale pak file";

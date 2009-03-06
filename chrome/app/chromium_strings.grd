@@ -63,7 +63,57 @@ be available for now. -->
     <output filename="strings_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="strings_zh-TW.rc" type="rc_all" lang="zh-TW" />
 
+    <output filename="chromium_strings_ar.pak" type="data_package" lang="ar" />
+    <output filename="chromium_strings_bg.pak" type="data_package" lang="bg" />
+    <output filename="chromium_strings_bn.pak" type="data_package" lang="bn" />
+    <output filename="chromium_strings_ca.pak" type="data_package" lang="ca" />
+    <output filename="chromium_strings_cs.pak" type="data_package" lang="cs" />
+    <output filename="chromium_strings_da.pak" type="data_package" lang="da" />
+    <output filename="chromium_strings_de.pak" type="data_package" lang="de" />
+    <output filename="chromium_strings_el.pak" type="data_package" lang="el" />
+    <output filename="chromium_strings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="chromium_strings_en-US.pak" type="data_package" lang="en" />
+    <output filename="chromium_strings_es.pak" type="data_package" lang="es" />
+    <output filename="chromium_strings_es-419.pak" type="data_package" lang="es-419" />
+    <output filename="chromium_strings_et.pak" type="data_package" lang="et" />
+    <output filename="chromium_strings_fi.pak" type="data_package" lang="fi" />
+    <output filename="chromium_strings_fil.pak" type="data_package" lang="fil" />
+    <output filename="chromium_strings_fr.pak" type="data_package" lang="fr" />
+    <output filename="chromium_strings_gu.pak" type="data_package" lang="gu" />
+    <output filename="chromium_strings_he.pak" type="data_package" lang="he" />
+    <output filename="chromium_strings_hi.pak" type="data_package" lang="hi" />
+    <output filename="chromium_strings_hr.pak" type="data_package" lang="hr" />
+    <output filename="chromium_strings_hu.pak" type="data_package" lang="hu" />
+    <output filename="chromium_strings_id.pak" type="data_package" lang="id" />
+    <output filename="chromium_strings_it.pak" type="data_package" lang="it" />
+    <output filename="chromium_strings_ja.pak" type="data_package" lang="ja" />
+    <output filename="chromium_strings_kn.pak" type="data_package" lang="kn" />
+    <output filename="chromium_strings_ko.pak" type="data_package" lang="ko" />
+    <output filename="chromium_strings_lt.pak" type="data_package" lang="lt" />
+    <output filename="chromium_strings_lv.pak" type="data_package" lang="lv" />
+    <output filename="chromium_strings_ml.pak" type="data_package" lang="ml" />
+    <output filename="chromium_strings_mr.pak" type="data_package" lang="mr" />
+    <output filename="chromium_strings_nl.pak" type="data_package" lang="nl" />
+    <output filename="chromium_strings_nb.pak" type="data_package" lang="no" />
+    <!-- 'no' for Norwegian Bokmål. It should be 'nb'. -->
+    <output filename="chromium_strings_or.pak" type="data_package" lang="or" />
+    <output filename="chromium_strings_pl.pak" type="data_package" lang="pl" />
+    <output filename="chromium_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
+    <output filename="chromium_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
+    <output filename="chromium_strings_ro.pak" type="data_package" lang="ro" />
+    <output filename="chromium_strings_ru.pak" type="data_package" lang="ru" />
+    <output filename="chromium_strings_sk.pak" type="data_package" lang="sk" />
+    <output filename="chromium_strings_sl.pak" type="data_package" lang="sl" />
+    <output filename="chromium_strings_sr.pak" type="data_package" lang="sr" />
+    <output filename="chromium_strings_sv.pak" type="data_package" lang="sv" />
+    <output filename="chromium_strings_ta.pak" type="data_package" lang="ta" />
+    <output filename="chromium_strings_te.pak" type="data_package" lang="te" />
+    <output filename="chromium_strings_th.pak" type="data_package" lang="th" />
+    <output filename="chromium_strings_tr.pak" type="data_package" lang="tr" />
+    <output filename="chromium_strings_uk.pak" type="data_package" lang="uk" />
+    <output filename="chromium_strings_vi.pak" type="data_package" lang="vi" />
+    <output filename="chromium_strings_zh-CN.pak" type="data_package" lang="zh-CN" />
+    <output filename="chromium_strings_zh-TW.pak" type="data_package" lang="zh-TW" />
   </outputs>
   <translations>
     <!-- No translations available. -->

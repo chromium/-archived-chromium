@@ -57,7 +57,58 @@
     <output filename="locale_settings_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="locale_settings_zh-TW.rc" type="rc_all" lang="zh-TW" />
 
+    <output filename="locale_settings_ar.pak" type="data_package" lang="ar" />
+    <output filename="locale_settings_bg.pak" type="data_package" lang="bg" />
+    <output filename="locale_settings_bn.pak" type="data_package" lang="bn" />
+    <output filename="locale_settings_ca.pak" type="data_package" lang="ca" />
+    <output filename="locale_settings_cs.pak" type="data_package" lang="cs" />
+    <output filename="locale_settings_da.pak" type="data_package" lang="da" />
+    <output filename="locale_settings_de.pak" type="data_package" lang="de" />
+    <output filename="locale_settings_el.pak" type="data_package" lang="el" />
+    <output filename="locale_settings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="locale_settings_en-US.pak" type="data_package" lang="en" />
+    <output filename="locale_settings_es.pak" type="data_package" lang="es" />
+    <output filename="locale_settings_es-419.pak" type="data_package" lang="es-419" />
+    <output filename="locale_settings_et.pak" type="data_package" lang="et" />
+    <output filename="locale_settings_fi.pak" type="data_package" lang="fi" />
+    <output filename="locale_settings_fil.pak" type="data_package" lang="fil" />
+    <output filename="locale_settings_fr.pak" type="data_package" lang="fr" />
+    <output filename="locale_settings_gu.pak" type="data_package" lang="gu" />
+    <output filename="locale_settings_he.pak" type="data_package" lang="he" />
+    <output filename="locale_settings_hi.pak" type="data_package" lang="hi" />
+    <output filename="locale_settings_hr.pak" type="data_package" lang="hr" />
+    <output filename="locale_settings_hu.pak" type="data_package" lang="hu" />
+    <output filename="locale_settings_id.pak" type="data_package" lang="id" />
+    <output filename="locale_settings_it.pak" type="data_package" lang="it" />
+    <output filename="locale_settings_ja.pak" type="data_package" lang="ja" />
+    <output filename="locale_settings_kn.pak" type="data_package" lang="kn" />
+    <output filename="locale_settings_ko.pak" type="data_package" lang="ko" />
+    <output filename="locale_settings_lt.pak" type="data_package" lang="lt" />
+    <output filename="locale_settings_lv.pak" type="data_package" lang="lv" />
+    <output filename="locale_settings_ml.pak" type="data_package" lang="ml" />
+    <output filename="locale_settings_mr.pak" type="data_package" lang="mr" />
+    <output filename="locale_settings_nl.pak" type="data_package" lang="nl" />
+    <!-- The translation console uses 'no' for Norwegian Bokmål. It should
+         be 'nb'. -->
+    <output filename="locale_settings_nb.pak" type="data_package" lang="no" />
+    <output filename="locale_settings_or.pak" type="data_package" lang="or" />
+    <output filename="locale_settings_pl.pak" type="data_package" lang="pl" />
+    <output filename="locale_settings_pt-BR.pak" type="data_package" lang="pt-BR" />
+    <output filename="locale_settings_pt-PT.pak" type="data_package" lang="pt-PT" />
+    <output filename="locale_settings_ro.pak" type="data_package" lang="ro" />
+    <output filename="locale_settings_ru.pak" type="data_package" lang="ru" />
+    <output filename="locale_settings_sk.pak" type="data_package" lang="sk" />
+    <output filename="locale_settings_sl.pak" type="data_package" lang="sl" />
+    <output filename="locale_settings_sr.pak" type="data_package" lang="sr" />
+    <output filename="locale_settings_sv.pak" type="data_package" lang="sv" />
+    <output filename="locale_settings_ta.pak" type="data_package" lang="ta" />
+    <output filename="locale_settings_te.pak" type="data_package" lang="te" />
+    <output filename="locale_settings_th.pak" type="data_package" lang="th" />
+    <output filename="locale_settings_tr.pak" type="data_package" lang="tr" />
+    <output filename="locale_settings_uk.pak" type="data_package" lang="uk" />
+    <output filename="locale_settings_vi.pak" type="data_package" lang="vi" />
+    <output filename="locale_settings_zh-CN.pak" type="data_package" lang="zh-CN" />
+    <output filename="locale_settings_zh-TW.pak" type="data_package" lang="zh-TW" />
   </outputs>
   <translations>
     <file path="locale_settings_ar.xtb" lang="ar" />

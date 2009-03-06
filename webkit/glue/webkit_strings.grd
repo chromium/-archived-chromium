@@ -98,7 +98,58 @@ below:
     <output filename="webkit_strings_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="webkit_strings_zh-TW.rc" type="rc_all" lang="zh-TW" />
 
+    <output filename="webkit_strings_ar.pak" type="data_package" lang="ar" />
+    <output filename="webkit_strings_bg.pak" type="data_package" lang="bg" />
+    <output filename="webkit_strings_bn.pak" type="data_package" lang="bn" />
+    <output filename="webkit_strings_ca.pak" type="data_package" lang="ca" />
+    <output filename="webkit_strings_cs.pak" type="data_package" lang="cs" />
+    <output filename="webkit_strings_da.pak" type="data_package" lang="da" />
+    <output filename="webkit_strings_de.pak" type="data_package" lang="de" />
+    <output filename="webkit_strings_el.pak" type="data_package" lang="el" />
+    <output filename="webkit_strings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="webkit_strings_en-US.pak" type="data_package" lang="en" />
+    <output filename="webkit_strings_es.pak" type="data_package" lang="es" />
+    <output filename="webkit_strings_es-419.pak" type="data_package" lang="es-419" />
+    <output filename="webkit_strings_et.pak" type="data_package" lang="et" />
+    <output filename="webkit_strings_fi.pak" type="data_package" lang="fi" />
+    <output filename="webkit_strings_fil.pak" type="data_package" lang="fil" />
+    <output filename="webkit_strings_fr.pak" type="data_package" lang="fr" />
+    <output filename="webkit_strings_gu.pak" type="data_package" lang="gu" />
+    <output filename="webkit_strings_he.pak" type="data_package" lang="he" />
+    <output filename="webkit_strings_hi.pak" type="data_package" lang="hi" />
+    <output filename="webkit_strings_hr.pak" type="data_package" lang="hr" />
+    <output filename="webkit_strings_hu.pak" type="data_package" lang="hu" />
+    <output filename="webkit_strings_id.pak" type="data_package" lang="id" />
+    <output filename="webkit_strings_it.pak" type="data_package" lang="it" />
+    <output filename="webkit_strings_ja.pak" type="data_package" lang="ja" />
+    <output filename="webkit_strings_kn.pak" type="data_package" lang="kn" />
+    <output filename="webkit_strings_ko.pak" type="data_package" lang="ko" />
+    <output filename="webkit_strings_lt.pak" type="data_package" lang="lt" />
+    <output filename="webkit_strings_lv.pak" type="data_package" lang="lv" />
+    <output filename="webkit_strings_ml.pak" type="data_package" lang="ml" />
+    <output filename="webkit_strings_mr.pak" type="data_package" lang="mr" />
+    <output filename="webkit_strings_nl.pak" type="data_package" lang="nl" />
+    <!-- The translation console uses 'no' for Norwegian Bokmål. It should
+         be 'nb'. -->
+    <output filename="webkit_strings_nb.pak" type="data_package" lang="no" />
+    <output filename="webkit_strings_or.pak" type="data_package" lang="or" />
+    <output filename="webkit_strings_pl.pak" type="data_package" lang="pl" />
+    <output filename="webkit_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
+    <output filename="webkit_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
+    <output filename="webkit_strings_ro.pak" type="data_package" lang="ro" />
+    <output filename="webkit_strings_ru.pak" type="data_package" lang="ru" />
+    <output filename="webkit_strings_sk.pak" type="data_package" lang="sk" />
+    <output filename="webkit_strings_sl.pak" type="data_package" lang="sl" />
+    <output filename="webkit_strings_sr.pak" type="data_package" lang="sr" />
+    <output filename="webkit_strings_sv.pak" type="data_package" lang="sv" />
+    <output filename="webkit_strings_ta.pak" type="data_package" lang="ta" />
+    <output filename="webkit_strings_te.pak" type="data_package" lang="te" />
+    <output filename="webkit_strings_th.pak" type="data_package" lang="th" />
+    <output filename="webkit_strings_tr.pak" type="data_package" lang="tr" />
+    <output filename="webkit_strings_uk.pak" type="data_package" lang="uk" />
+    <output filename="webkit_strings_vi.pak" type="data_package" lang="vi" />
+    <output filename="webkit_strings_zh-CN.pak" type="data_package" lang="zh-CN" />
+    <output filename="webkit_strings_zh-TW.pak" type="data_package" lang="zh-TW" />
   </outputs>
   <translations>
     <file path="resources/webkit_strings_ar.xtb" lang="ar" />

@@ -63,7 +63,57 @@ Chrome supports. -->
     <output filename="strings_google_chrome_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="strings_google_chrome_zh-TW.rc" type="rc_all" lang="zh-TW" />
 
+    <output filename="google_chrome_strings_ar.pak" type="data_package" lang="ar" />
+    <output filename="google_chrome_strings_bg.pak" type="data_package" lang="bg" />
+    <output filename="google_chrome_strings_bn.pak" type="data_package" lang="bn" />
+    <output filename="google_chrome_strings_ca.pak" type="data_package" lang="ca" />
+    <output filename="google_chrome_strings_cs.pak" type="data_package" lang="cs" />
+    <output filename="google_chrome_strings_da.pak" type="data_package" lang="da" />
+    <output filename="google_chrome_strings_de.pak" type="data_package" lang="de" />
+    <output filename="google_chrome_strings_el.pak" type="data_package" lang="el" />
+    <output filename="google_chrome_strings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="google_chrome_strings_en-US.pak" type="data_package" lang="en" />
+    <output filename="google_chrome_strings_es.pak" type="data_package" lang="es" />
+    <output filename="google_chrome_strings_es-419.pak" type="data_package" lang="es-419" />
+    <output filename="google_chrome_strings_et.pak" type="data_package" lang="et" />
+    <output filename="google_chrome_strings_fi.pak" type="data_package" lang="fi" />
+    <output filename="google_chrome_strings_fil.pak" type="data_package" lang="fil" />
+    <output filename="google_chrome_strings_fr.pak" type="data_package" lang="fr" />
+    <output filename="google_chrome_strings_gu.pak" type="data_package" lang="gu" />
+    <output filename="google_chrome_strings_he.pak" type="data_package" lang="he" />
+    <output filename="google_chrome_strings_hi.pak" type="data_package" lang="hi" />
+    <output filename="google_chrome_strings_hr.pak" type="data_package" lang="hr" />
+    <output filename="google_chrome_strings_hu.pak" type="data_package" lang="hu" />
+    <output filename="google_chrome_strings_id.pak" type="data_package" lang="id" />
+    <output filename="google_chrome_strings_it.pak" type="data_package" lang="it" />
+    <output filename="google_chrome_strings_ja.pak" type="data_package" lang="ja" />
+    <output filename="google_chrome_strings_kn.pak" type="data_package" lang="kn" />
+    <output filename="google_chrome_strings_ko.pak" type="data_package" lang="ko" />
+    <output filename="google_chrome_strings_lt.pak" type="data_package" lang="lt" />
+    <output filename="google_chrome_strings_lv.pak" type="data_package" lang="lv" />
+    <output filename="google_chrome_strings_ml.pak" type="data_package" lang="ml" />
+    <output filename="google_chrome_strings_mr.pak" type="data_package" lang="mr" />
+    <output filename="google_chrome_strings_nl.pak" type="data_package" lang="nl" />
+    <output filename="google_chrome_strings_nb.pak" type="data_package" lang="no" />
+    <!-- 'no' for Norwegian Bokmål. It should be 'nb'. -->
+    <output filename="google_chrome_strings_or.pak" type="data_package" lang="or" />
+    <output filename="google_chrome_strings_pl.pak" type="data_package" lang="pl" />
+    <output filename="google_chrome_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
+    <output filename="google_chrome_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
+    <output filename="google_chrome_strings_ro.pak" type="data_package" lang="ro" />
+    <output filename="google_chrome_strings_ru.pak" type="data_package" lang="ru" />
+    <output filename="google_chrome_strings_sk.pak" type="data_package" lang="sk" />
+    <output filename="google_chrome_strings_sl.pak" type="data_package" lang="sl" />
+    <output filename="google_chrome_strings_sr.pak" type="data_package" lang="sr" />
+    <output filename="google_chrome_strings_sv.pak" type="data_package" lang="sv" />
+    <output filename="google_chrome_strings_ta.pak" type="data_package" lang="ta" />
+    <output filename="google_chrome_strings_te.pak" type="data_package" lang="te" />
+    <output filename="google_chrome_strings_th.pak" type="data_package" lang="th" />
+    <output filename="google_chrome_strings_tr.pak" type="data_package" lang="tr" />
+    <output filename="google_chrome_strings_uk.pak" type="data_package" lang="uk" />
+    <output filename="google_chrome_strings_vi.pak" type="data_package" lang="vi" />
+    <output filename="google_chrome_strings_zh-CN.pak" type="data_package" lang="zh-CN" />
+    <output filename="google_chrome_strings_zh-TW.pak" type="data_package" lang="zh-TW" />
   </outputs>
   <translations>
     <file path="resources/google_chrome_strings_ar.xtb" lang="ar" />

@@ -22,15 +22,24 @@ for grd_file in grd_files:
       '$TARGET_ROOT/grit_derived_sources/fake_' + os.path.basename(grd_file),
       grd_file)
 
-if env.Bit('linux'):
-  # TODO(tc): Generate all the locales and handle official build vs chromium
-  # build.
-  lang_pak = env.Repack('$TARGET_ROOT/locales/en-US.pak',
-      ['$TARGET_ROOT/grit_derived_sources/generated_resources_en-US.pak',
-       '$TARGET_ROOT/grit_derived_sources/chromium_strings_en-US.pak',
-       '$TARGET_ROOT/grit_derived_sources/locale_settings_en-US.pak',
+languages = [ 'ar', 'bg', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en-GB',
+    'en-US', 'es', 'es-419', 'et', 'fi', 'fil', 'fr', 'gu', 'he', 'hi', 'hr',
+    'hu', 'id', 'it', 'ja', 'kn', 'ko', 'lt', 'lv', 'ml', 'mr', 'nl', 'nb',
+    'or', 'pl', 'pt-BR', 'pt-PT', 'ro', 'ru', 'sk', 'sl', 'sr', 'sv', 'ta',
+    'te', 'th', 'tr', 'uk', 'vi', 'zh-CN', 'zh-TW' ]
+
+# TODO(tc): Handle official build vs chromium build.  Currently we assume
+# chromium builds only.
+for lang in languages:
+  lang_pak = env.Repack('$TARGET_ROOT/locales/%s.pak' % lang,
+      ['$TARGET_ROOT/grit_derived_sources/generated_resources_%s.pak' % lang,
+       '$TARGET_ROOT/grit_derived_sources/chromium_strings_%s.pak' % lang,
+       '$TARGET_ROOT/grit_derived_sources/locale_settings_%s.pak' % lang,
       ]
   )
   i = env.Install('$DESTINATION_ROOT/locales', lang_pak)
-  env.Requires('$DESTINATION_ROOT/chrome', i)
-  env.Requires('$DESTINATION_ROOT/unit_tests', i)
+
+# Only require that en-US.pak is build when building chrome.
+env.Requires('$DESTINATION_ROOT/chrome', '$DESTINATION_ROOT/locales/en-US.pak')
+env.Requires('$DESTINATION_ROOT/unit_tests',
+             '$DESTINATION_ROOT/locales/en-US.pak')

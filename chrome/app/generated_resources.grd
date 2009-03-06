@@ -62,7 +62,58 @@ each locale. -->
     <output filename="generated_resources_zh-CN.rc" type="rc_all" lang="zh-CN" />
     <output filename="generated_resources_zh-TW.rc" type="rc_all" lang="zh-TW" />
 
+    <output filename="generated_resources_ar.pak" type="data_package" lang="ar" />
+    <output filename="generated_resources_bg.pak" type="data_package" lang="bg" />
+    <output filename="generated_resources_bn.pak" type="data_package" lang="bn" />
+    <output filename="generated_resources_ca.pak" type="data_package" lang="ca" />
+    <output filename="generated_resources_cs.pak" type="data_package" lang="cs" />
+    <output filename="generated_resources_da.pak" type="data_package" lang="da" />
+    <output filename="generated_resources_de.pak" type="data_package" lang="de" />
+    <output filename="generated_resources_el.pak" type="data_package" lang="el" />
+    <output filename="generated_resources_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="generated_resources_en-US.pak" type="data_package" lang="en" />
+    <output filename="generated_resources_es.pak" type="data_package" lang="es" />
+    <output filename="generated_resources_es-419.pak" type="data_package" lang="es-419" />
+    <output filename="generated_resources_et.pak" type="data_package" lang="et" />
+    <output filename="generated_resources_fi.pak" type="data_package" lang="fi" />
+    <output filename="generated_resources_fil.pak" type="data_package" lang="fil" />
+    <output filename="generated_resources_fr.pak" type="data_package" lang="fr" />
+    <output filename="generated_resources_gu.pak" type="data_package" lang="gu" />
+    <output filename="generated_resources_he.pak" type="data_package" lang="he" />
+    <output filename="generated_resources_hi.pak" type="data_package" lang="hi" />
+    <output filename="generated_resources_hr.pak" type="data_package" lang="hr" />
+    <output filename="generated_resources_hu.pak" type="data_package" lang="hu" />
+    <output filename="generated_resources_id.pak" type="data_package" lang="id" />
+    <output filename="generated_resources_it.pak" type="data_package" lang="it" />
+    <output filename="generated_resources_ja.pak" type="data_package" lang="ja" />
+    <output filename="generated_resources_kn.pak" type="data_package" lang="kn" />
+    <output filename="generated_resources_ko.pak" type="data_package" lang="ko" />
+    <output filename="generated_resources_lt.pak" type="data_package" lang="lt" />
+    <output filename="generated_resources_lv.pak" type="data_package" lang="lv" />
+    <output filename="generated_resources_ml.pak" type="data_package" lang="ml" />
+    <output filename="generated_resources_mr.pak" type="data_package" lang="mr" />
+    <output filename="generated_resources_nl.pak" type="data_package" lang="nl" />
+    <!-- The translation console uses 'no' for Norwegian Bokmål. It should
+         be 'nb'. -->
+    <output filename="generated_resources_nb.pak" type="data_package" lang="no" />
+    <output filename="generated_resources_or.pak" type="data_package" lang="or" />
+    <output filename="generated_resources_pl.pak" type="data_package" lang="pl" />
+    <output filename="generated_resources_pt-BR.pak" type="data_package" lang="pt-BR" />
+    <output filename="generated_resources_pt-PT.pak" type="data_package" lang="pt-PT" />
+    <output filename="generated_resources_ro.pak" type="data_package" lang="ro" />
+    <output filename="generated_resources_ru.pak" type="data_package" lang="ru" />
+    <output filename="generated_resources_sk.pak" type="data_package" lang="sk" />
+    <output filename="generated_resources_sl.pak" type="data_package" lang="sl" />
+    <output filename="generated_resources_sr.pak" type="data_package" lang="sr" />
+    <output filename="generated_resources_sv.pak" type="data_package" lang="sv" />
+    <output filename="generated_resources_ta.pak" type="data_package" lang="ta" />
+    <output filename="generated_resources_te.pak" type="data_package" lang="te" />
+    <output filename="generated_resources_th.pak" type="data_package" lang="th" />
+    <output filename="generated_resources_tr.pak" type="data_package" lang="tr" />
+    <output filename="generated_resources_uk.pak" type="data_package" lang="uk" />
+    <output filename="generated_resources_vi.pak" type="data_package" lang="vi" />
+    <output filename="generated_resources_zh-CN.pak" type="data_package" lang="zh-CN" />
+    <output filename="generated_resources_zh-TW.pak" type="data_package" lang="zh-TW" />
   </outputs>
   <translations>
     <file path="resources/generated_resources_ar.xtb" lang="ar" />
@@ -116,20 +167,6 @@ each locale. -->
     <file path="resources/generated_resources_zh-TW.xtb" lang="zh-TW" />
   </translations>
   <release seq="1" allow_pseudo="false">
-    <includes>
-      <!-- TODO add a list of your included resources here, e.g. BMP and GIF
-      resources. -->
-    </includes>
-    <structures>
-      <!-- TODO add a list of all your structured resources here, e.g. HTML
-      templates, menus, dialogs etc.  Note that for menus, dialogs and version
-      information resources you reference an .rc file containing them.-->
-    </structures>
-    <identifiers>
-      <!-- TODO, e.g.:
-      <identifier name="TEST_IDENTIFIER" id="1000"/>
-      -->
-    </identifiers>
     <messages fallback_to_english="true">
       <!-- TODO add all of your "string table" messages here.  Remember to
       change nontranslateable parts of the messages into placeholders (using the
