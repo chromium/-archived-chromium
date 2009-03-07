@@ -919,8 +919,6 @@
         'browser/tab_contents/provisional_load_details.h',
         'browser/tab_contents/render_view_context_menu.cc',
         'browser/tab_contents/render_view_context_menu.h',
-        'browser/tab_contents/render_view_context_menu_controller.cc',
-        'browser/tab_contents/render_view_context_menu_controller.h',
         'browser/tab_contents/render_view_host_manager.cc',
         'browser/tab_contents/render_view_host_manager.h',
         'browser/tab_contents/repost_form_warning.h',

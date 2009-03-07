@@ -570,8 +570,6 @@ input_files = ChromeFileList([
     'tab_contents/provisional_load_details.h',
     'tab_contents/render_view_context_menu.cc',
     'tab_contents/render_view_context_menu.h',
-    'tab_contents/render_view_context_menu_controller.cc',
-    'tab_contents/render_view_context_menu_controller.h',
     'tab_contents/render_view_host_manager.cc',
     'tab_contents/render_view_host_manager.h',
     'tab_contents/repost_form_warning.h',

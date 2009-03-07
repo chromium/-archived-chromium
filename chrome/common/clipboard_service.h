@@ -2,15 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_CLIPBOARD_SERVICE_H__
-#define CHROME_COMMON_CLIPBOARD_SERVICE_H__
-
-#include <string>
-#include <vector>
+#ifndef CHROME_COMMON_CLIPBOARD_SERVICE_H_
+#define CHROME_COMMON_CLIPBOARD_SERVICE_H_
 
 #include "base/clipboard.h"
-
-class SkBitmap;
 
 class ClipboardService : public Clipboard {
  public:
@@ -18,7 +13,7 @@ class ClipboardService : public Clipboard {
 
  private:
 
-  DISALLOW_EVIL_CONSTRUCTORS(ClipboardService);
+  DISALLOW_COPY_AND_ASSIGN(ClipboardService);
 };
 
-#endif  // CHROME_COMMON_CLIPBOARD_SERVICE_H__
+#endif  // CHROME_COMMON_CLIPBOARD_SERVICE_H_

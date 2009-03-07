@@ -175,10 +175,6 @@ void InstallJankometer(const CommandLine&);
 //---------------------------------------------------------------------------
 // These stubs are for BrowserProcessImpl
 
-class ClipboardService : public Clipboard {
- public:
-};
-
 class CancelableTask;
 class ViewMsg_Print_Params;
 

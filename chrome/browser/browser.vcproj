@@ -2158,11 +2158,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tab_contents\render_view_context_menu_controller.cc"
+				RelativePath=".\tab_contents\render_view_context_menu_win.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\tab_contents\render_view_context_menu_controller.h"
+				RelativePath=".\tab_contents\render_view_context_menu_win.h"
 				>
 			</File>
 			<File

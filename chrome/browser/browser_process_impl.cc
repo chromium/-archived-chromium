@@ -23,6 +23,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -32,7 +33,6 @@
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/browser/printing/print_job_manager.h"
-#include "chrome/common/clipboard_service.h"
 #include "chrome/views/accelerator_handler.h"
 #include "chrome/views/view_storage.h"
 #elif defined(OS_POSIX)

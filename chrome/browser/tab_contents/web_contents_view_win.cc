@@ -14,8 +14,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
-#include "chrome/browser/tab_contents/render_view_context_menu.h"
-#include "chrome/browser/tab_contents/render_view_context_menu_controller.h"
+#include "chrome/browser/tab_contents/render_view_context_menu_win.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -299,13 +298,9 @@ void WebContentsViewWin::HandleKeyboardEvent(
 }
 
 void WebContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
-  RenderViewContextMenuController menu_controller(web_contents_, params);
-  RenderViewContextMenu menu(&menu_controller,
-                             GetHWND(),
-                             params.node,
-                             params.misspelled_word,
-                             params.dictionary_suggestions,
-                             web_contents_->profile());
+  RenderViewContextMenuWin menu(web_contents_,
+                                params,
+                                GetHWND());
 
   POINT screen_pt = { params.x, params.y };
   MapWindowPoints(GetHWND(), HWND_DESKTOP, &screen_pt, 1);

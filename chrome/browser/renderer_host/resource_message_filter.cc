@@ -25,6 +25,7 @@
 #include "chrome/browser/worker_host/worker_service.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
+#include "chrome/common/clipboard_service.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -38,7 +39,6 @@
 #if defined(OS_WIN)
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/printer_query.h"
-#include "chrome/common/clipboard_service.h"
 #elif defined(OS_MACOSX) || defined(OS_LINUX)
 // TODO(port) remove this.
 #include "chrome/common/temp_scaffolding_stubs.h"
