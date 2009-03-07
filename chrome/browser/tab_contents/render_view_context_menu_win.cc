@@ -6,6 +6,7 @@
 
 #include "chrome/browser/profile.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/compiler_specific.h"
 #include "grit/generated_resources.h"
 
 RenderViewContextMenuWin::RenderViewContextMenuWin(
@@ -13,7 +14,7 @@ RenderViewContextMenuWin::RenderViewContextMenuWin(
     const ContextMenuParams& params,
     HWND owner)
     : RenderViewContextMenu(web_contents, params),
-      menu_(this, Menu::TOPLEFT, owner),
+      ALLOW_THIS_IN_INITIALIZER_LIST(menu_(this, Menu::TOPLEFT, owner)),
       sub_menu_(NULL) {
   InitMenu(params.node);
 }
