@@ -1175,6 +1175,7 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ENCODING_ISO88596:
     case IDC_ENCODING_WINDOWS1256:
     case IDC_ENCODING_ISO88598:
+    case IDC_ENCODING_ISO88598I:
     case IDC_ENCODING_WINDOWS1255:
     case IDC_ENCODING_WINDOWS1258:  OverrideEncoding(id);          break;
 
@@ -1986,6 +1987,7 @@ void Browser::InitCommandState() {
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88596, true);
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1256, true);
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88598, true);
+  command_updater_.UpdateCommandEnabled(IDC_ENCODING_ISO88598I, true);
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1255, true);
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1258, true);
 

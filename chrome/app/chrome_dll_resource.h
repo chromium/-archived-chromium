@@ -122,6 +122,7 @@
 #define IDC_ENCODING_ISO88598           35040
 #define IDC_ENCODING_WINDOWS1255        35041
 #define IDC_ENCODING_WINDOWS1258        35042
+#define IDC_ENCODING_ISO88598I          35043
 
 // Clipboard commands
 #define IDC_CUT                         36000
