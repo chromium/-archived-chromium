@@ -792,7 +792,7 @@
         'browser/renderer_host/audio_renderer_host.h',
         'browser/renderer_host/backing_store.cc',
         'browser/renderer_host/backing_store.h',
-        'browser/renderer_host/backing_store_posix.cc',
+        'browser/renderer_host/backing_store_mac.cc',
         'browser/renderer_host/backing_store_win.cc',
         'browser/renderer_host/backing_store_x.cc',
         'browser/renderer_host/browser_render_process_host.cc',
