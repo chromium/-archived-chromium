@@ -29,6 +29,11 @@ TEST(ScopedComPtrTest, ScopedComPtr) {
     EXPECT_TRUE(copy1.IsSameObject(mem_alloc));
     EXPECT_FALSE(copy1.IsSameObject(unk2));  // unk2 is valid but different
     EXPECT_FALSE(copy1.IsSameObject(unk));  // unk is NULL
+
+    IMalloc* naked_copy = copy1.Detach();
+    copy1 = naked_copy;  // Test the =(T*) operator.
+    naked_copy->Release();
+
     copy1.Release();
     EXPECT_FALSE(copy1.IsSameObject(unk2));  // unk2 is valid, copy1 is not
 

@@ -138,6 +138,9 @@ class ScopedComPtr : public scoped_refptr<Interface> {
     return reinterpret_cast<BlockIUnknownMethods<Interface>*>(ptr_);
   }
 
+  // Pull in operator=() from the parent class.
+  using scoped_refptr<Interface>::operator=;
+
   // static methods
 
   static const IID& iid() {
