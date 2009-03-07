@@ -192,9 +192,6 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
     expected_content_size_ = size;
   }
 
-  // Whether we have processed the response for that request yet.
-  bool has_response_started() const { return has_handled_response_; }
-
  protected:
   // Notifies the job that headers have been received.
   void NotifyHeadersComplete();

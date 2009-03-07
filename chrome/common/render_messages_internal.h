@@ -193,10 +193,9 @@ IPC_BEGIN_MESSAGES(View)
                       int /* data_len */)
 
   // Sent when the request has been completed.
-  IPC_MESSAGE_ROUTED3(ViewMsg_Resource_RequestComplete,
+  IPC_MESSAGE_ROUTED2(ViewMsg_Resource_RequestComplete,
                       int /* request_id */,
-                      URLRequestStatus /* status */,
-                      std::string /* security info */)
+                      URLRequestStatus /* status */)
 
   // Request for the renderer to evaluate an xpath to a frame and execute a
   // javascript: url in that frame's context. The message is completely

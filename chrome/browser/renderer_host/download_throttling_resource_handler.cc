@@ -99,11 +99,9 @@ bool DownloadThrottlingResourceHandler::OnReadCompleted(int request_id,
 
 bool DownloadThrottlingResourceHandler::OnResponseCompleted(
     int request_id,
-    const URLRequestStatus& status,
-    const std::string& security_info) {
+    const URLRequestStatus& status) {
   if (download_handler_.get())
-    return download_handler_->OnResponseCompleted(request_id, status,
-                                                  security_info);
+    return download_handler_->OnResponseCompleted(request_id, status);
   NOTREACHED();
   return true;
 }

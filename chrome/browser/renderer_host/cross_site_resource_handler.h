@@ -27,9 +27,7 @@ class CrossSiteResourceHandler : public ResourceHandler {
   bool OnWillRead(int request_id, net::IOBuffer** buf, int* buf_size,
                   int min_size);
   bool OnReadCompleted(int request_id, int* bytes_read);
-  bool OnResponseCompleted(int request_id,
-                           const URLRequestStatus& status,
-                           const std::string& security_info);
+  bool OnResponseCompleted(int request_id, const URLRequestStatus& status);
 
   // We can now send the response to the new renderer, which will cause
   // WebContents to swap in the new renderer and destroy the old one.
@@ -51,7 +49,6 @@ class CrossSiteResourceHandler : public ResourceHandler {
   int request_id_;
   bool completed_during_transition_;
   URLRequestStatus completed_status_;
-  std::string completed_security_info_;
   ResourceResponse* response_;
   ResourceDispatcherHost* rdh_;
 

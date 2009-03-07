@@ -37,9 +37,7 @@ class DownloadResourceHandler : public ResourceHandler {
 
   bool OnReadCompleted(int request_id, int* bytes_read);
 
-  bool OnResponseCompleted(int request_id,
-                           const URLRequestStatus& status,
-                           const std::string& security_info);
+  bool OnResponseCompleted(int request_id, const URLRequestStatus& status);
 
   // If the content-length header is not present (or contains something other
   // than numbers), the incoming content_length is -1 (unknown size).

@@ -101,8 +101,7 @@ bool SafeBrowsingResourceHandler::OnReadCompleted(int request_id,
 }
 
 bool SafeBrowsingResourceHandler::OnResponseCompleted(
-    int request_id, const URLRequestStatus& status,
-    const std::string& security_info) {
+    int request_id, const URLRequestStatus& status) {
   if ((in_safe_browsing_check_ ||
        safe_browsing_result_ != SafeBrowsingService::URL_SAFE) &&
       status.status() == URLRequestStatus::FAILED &&
@@ -112,11 +111,10 @@ bool SafeBrowsingResourceHandler::OnResponseCompleted(
     // page.
     queued_error_.reset(new URLRequestStatus(status));
     queued_error_request_id_ = request_id;
-    queued_security_info_ = security_info;
     return true;
   }
 
-  return next_handler_->OnResponseCompleted(request_id, status, security_info);
+  return next_handler_->OnResponseCompleted(request_id, status);
 }
 
 // SafeBrowsingService::Client implementation, called on the IO thread once
@@ -142,10 +140,8 @@ void SafeBrowsingResourceHandler::OnUrlCheckResult(
 
     if (queued_error_.get()) {
       next_handler_->OnResponseCompleted(
-          queued_error_request_id_, *queued_error_.get(),
-          queued_security_info_);
+          queued_error_request_id_, *queued_error_.get());
       queued_error_.reset();
-      queued_security_info_.clear();
     }
 
     Release();
@@ -172,10 +168,8 @@ void SafeBrowsingResourceHandler::OnBlockingPageComplete(bool proceed) {
 
     if (queued_error_.get()) {
       next_handler_->OnResponseCompleted(
-          queued_error_request_id_, *queued_error_.get(),
-          queued_security_info_);
+          queued_error_request_id_, *queued_error_.get());
       queued_error_.reset();
-      queued_security_info_.clear();
     }
   } else {
     rdh_->CancelRequest(render_process_host_id_, paused_request_id_, false);

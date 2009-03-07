@@ -260,23 +260,10 @@ void URLRequest::Start() {
 }
 
 void URLRequest::Cancel() {
-  DoCancel(net::ERR_ABORTED, net::SSLInfo());
+  CancelWithError(net::ERR_ABORTED);
 }
 
-void URLRequest::SimulateError(int os_error) {
-  DoCancel(os_error, net::SSLInfo());
-}
-
-void URLRequest::SimulateSSLError(int os_error, const net::SSLInfo& ssl_info) {
-  // This should only be called on a started request.
-  if (!is_pending_ || !job_ || job_->has_response_started()) {
-    NOTREACHED();
-    return;
-  }
-  DoCancel(os_error, ssl_info);
-}
-
-void URLRequest::DoCancel(int os_error, const net::SSLInfo& ssl_info) {
+void URLRequest::CancelWithError(int os_error) {
   DCHECK(os_error < 0);
 
   // If the URL request already has an error status, then canceling is a no-op.
@@ -284,7 +271,6 @@ void URLRequest::DoCancel(int os_error, const net::SSLInfo& ssl_info) {
   if (status_.is_success()) {
     status_.set_status(URLRequestStatus::CANCELED);
     status_.set_os_error(os_error);
-    response_info_.ssl_info = ssl_info;
   }
 
   // There's nothing to do if we are not waiting on a Job.

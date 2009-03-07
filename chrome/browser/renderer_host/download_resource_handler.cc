@@ -113,8 +113,7 @@ bool DownloadResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
 
 bool DownloadResourceHandler::OnResponseCompleted(
     int request_id,
-    const URLRequestStatus& status,
-    const std::string& security_info) {
+    const URLRequestStatus& status) {
   download_manager_->file_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(download_manager_,
                         &DownloadFileManager::DownloadFinished,
