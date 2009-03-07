@@ -37,7 +37,14 @@
 #include <omp.h>
 #endif
 
+// DCHECK affects performance in release build.
+// OFFICIAL_BUILD is okay, but this ifdef makes DCHECK only work in debug.
+#ifndef NDEBUG
 #include "base/logging.h"
+#else
+#define DCHECK(a)
+#endif
+
 #include "media/base/yuv_convert.h"
 
 namespace media {
