@@ -26,13 +26,13 @@
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/test/automation/automation_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
-#include "chrome/test/automation/tab_proxy.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
 #if defined(OS_WIN)
 // TODO(port): these just need to be ported.
 #include "chrome/common/chrome_process_filter.h"
+#include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #endif
 
@@ -452,6 +452,10 @@ void UITest::CleanupAppProcesses() {
 #endif
 }
 
+// TODO(port): this #if effectively cuts out half of this file on
+// non-Windows platforms, and is a temporary hack to get things
+// building.
+#if defined(OS_WIN)
 TabProxy* UITest::GetActiveTab() {
   scoped_ptr<BrowserProxy> window_proxy(automation()->GetBrowserWindow(0));
   if (!window_proxy.get())
@@ -486,10 +490,6 @@ void UITest::NavigateToURL(const GURL& url) {
   ASSERT_FALSE(is_timeout) << url.spec();
 }
 
-// TODO(port): this #if effectively cuts out half of this file on
-// non-Windows platforms, and is a temporary hack to get things
-// building.
-#if defined(OS_WIN)
 bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
   const int kCycles = 20;
   for (int i = 0; i < kCycles; i++) {
@@ -569,7 +569,7 @@ bool UITest::CrashAwareSleep(int time_out_ms) {
 }
 
 #if defined(OS_WIN)
-// TODO(port): Port BrowserProcessFilter and sort out one wstring/string issue.
+// TODO(port): Port these.
 
 /*static*/
 int UITest::GetBrowserProcessCount() {
@@ -603,7 +603,6 @@ DictionaryValue* UITest::GetDefaultProfilePreferences() {
   file_util::AppendToPath(&path, chrome::kPreferencesFilename);
   return LoadDictionaryValueFromPath(path);
 }
-#endif  // OS_WIN
 
 int UITest::GetTabCount() {
   scoped_ptr<BrowserProxy> first_window(automation()->GetBrowserWindow(0));
@@ -672,7 +671,7 @@ std::string UITest::WaitUntilCookieNonEmpty(TabProxy* tab,
 
 void UITest::WaitUntilTabCount(int tab_count) {
   for (int i = 0; i < 10; ++i) {
-    PlatformThread::Sleep(sleep_timeout_ms() / 10);
+    Sleep(sleep_timeout_ms() / 10);
     if (GetTabCount() == tab_count)
       break;
   }
@@ -710,8 +709,8 @@ bool UITest::CloseBrowser(BrowserProxy* browser,
 
   if (*application_closed) {
     // Let's wait until the process dies (if it is not gone already).
-    bool success = base::WaitForSingleProcess(process_, base::kNoTimeout);
-    DCHECK(success);
+    int r = WaitForSingleObject(process_, INFINITE);
+    DCHECK(r != WAIT_FAILED);
   }
 
   return result;
@@ -752,6 +751,8 @@ void UITest::WaitForFinish(const std::string &name,
                                           expected_cookie_value.c_str());
   EXPECT_EQ(true, test_result);
 }
+
+#endif  // OS_WIN
 
 void UITest::PrintResult(const std::wstring& measurement,
                          const std::wstring& modifier,

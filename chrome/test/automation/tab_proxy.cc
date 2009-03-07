@@ -114,6 +114,7 @@ bool TabProxy::CancelAuth() {
   if (!is_valid())
     return false;
 
+  IPC::Message* response = NULL;
   int navigate_response = -1;
   sender_->Send(new AutomationMsg_CancelAuth(0, handle_, &navigate_response));
   return navigate_response >= 0;
@@ -123,6 +124,7 @@ bool TabProxy::NeedsAuth() const {
   if (!is_valid())
     return false;
 
+  IPC::Message* response = NULL;
   bool needs_auth = false;
   sender_->Send(new AutomationMsg_NeedsAuth(0, handle_, &needs_auth));
   return needs_auth;
@@ -191,8 +193,6 @@ bool TabProxy::NavigateToURLAsync(const GURL& url) {
   return status;
 }
 
-#if defined(OS_WIN)
-// TODO(port): Get rid of HWND.
 bool TabProxy::GetHWND(HWND* hwnd) const {
   if (!is_valid())
     return false;
@@ -203,7 +203,6 @@ bool TabProxy::GetHWND(HWND* hwnd) const {
 
   return sender_->Send(new AutomationMsg_TabHWND(0, handle_, hwnd));
 }
-#endif  // defined(OS_WIN)
 
 bool TabProxy::GetProcessID(int* process_id) const {
   if (!is_valid())
@@ -343,7 +342,7 @@ bool TabProxy::WaitForChildWindowCountToChange(int count, int* new_count,
                                                int wait_timeout) {
   int intervals = std::min(wait_timeout/automation::kSleepTime, 1);
   for (int i = 0; i < intervals; ++i) {
-    PlatformThread::Sleep(automation::kSleepTime);
+    Sleep(automation::kSleepTime);
     bool succeeded = GetConstrainedWindowCount(new_count);
     if (!succeeded) return false;
     if (count != *new_count) return true;
@@ -438,8 +437,6 @@ bool TabProxy::Close(bool wait_until_closed) {
   return succeeded;
 }
 
-#if defined(OS_WIN)
-// TODO(port): Remove windowsisms.
 bool TabProxy::SetAccelerators(HACCEL accel_table,
                                int accel_table_entry_count) {
   if (!is_valid())
@@ -458,7 +455,6 @@ bool TabProxy::ProcessUnhandledAccelerator(const MSG& msg) {
       new AutomationMsg_ProcessUnhandledAccelerator(0, handle_, msg));
   // This message expects no response
 }
-#endif  // defined(OS_WIN)
 
 bool TabProxy::SetInitialFocus(bool reverse) {
   if (!is_valid())
