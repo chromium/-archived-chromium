@@ -5,8 +5,8 @@ ImporterTest.Firefox3Importer
 URLFetcherBadHTTPSTest.BadHTTPSTest
 SafeBrowsingProtocolParsingTest.TestSubChunk
 
-# testing to see if this gets rid of the leaks
-IPCSyncChannelTest.SendWithTimeoutMixedOKAndTimeout
+# testing to see if this gets rid of intermittent leaks
+IPCSyncChannelTest.SendWithTimeout*
 
 # issue 7891
 FindInPageControllerTest.FindInPageFrames
