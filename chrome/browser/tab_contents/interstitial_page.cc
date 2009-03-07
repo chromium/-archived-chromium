@@ -21,6 +21,9 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #include "chrome/browser/tab_contents/web_contents_view_win.h"
 #include "chrome/views/window.h"
+#else
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #endif
 
 namespace {
@@ -263,11 +266,22 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
 
   return render_view_host;
 #else
-  // TODO(port): RenderWidgetHost* is implemented, but Create and
-  // set_parent_hwnd are specific to RenderWidgetHostWin, so this should
-  // probably be refactored.
+  // It is untested, whether this code is sufficiently generic that it
+  // works with Windows, and thus obsoletes the special-cased code above.
+  // If it does work, don't forget to also clean up the include statements!
   NOTIMPLEMENTED();
-  return NULL;
+
+  RenderViewHost* render_view_host = new RenderViewHost(
+      SiteInstance::CreateSiteInstance(tab()->profile()),
+      this, MSG_ROUTING_NONE, NULL);
+  WebContentsView* web_contents_view = tab()->view();
+  RenderWidgetHostView* view =
+      web_contents_view->CreateViewForWidget(render_view_host);
+  render_view_host->set_view(view);
+  render_view_host->AllowDomAutomationBindings();
+  render_view_host->CreateRenderView();
+  view->SetSize(web_contents_view->GetContainerSize());
+  return render_view_host;
 #endif
 }
 
@@ -348,7 +362,6 @@ Profile* InterstitialPage::GetProfile() const {
 void InterstitialPage::DidNavigate(
     RenderViewHost* render_view_host,
     const ViewHostMsg_FrameNavigate_Params& params) {
-#if defined(OS_WIN)
   // A fast user could have navigated away from the page that triggered the
   // interstitial while the interstitial was loading, that would have disabled
   // us. In that case we can dismiss ourselves.
@@ -367,10 +380,6 @@ void InterstitialPage::DidNavigate(
   // this, navigating in a UI test to a URL that triggers an interstitial would
   // hang.
   tab_->SetIsLoading(false, NULL);
-#else
-  // TODO(port): we need RenderViewHost.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void InterstitialPage::RenderViewGone(RenderViewHost* render_view_host) {
@@ -513,4 +522,3 @@ void InterstitialPage::InterstitialPageRVHViewDelegate::OnFindReply(
     int request_id, int number_of_matches, const gfx::Rect& selection_rect,
     int active_match_ordinal, bool final_update) {
 }
-
