@@ -49,8 +49,6 @@ class WebContents;
 
 class SSLManager : public NotificationObserver {
  public:
-  class CertError;
-
   // An ErrorHandler carries information from the IO thread to the UI thread
   // and is dispatched to the appropriate SSLManager when it arrives on the
   // UI thread.  Subclasses should override the OnDispatched/OnDispatchFailed
@@ -64,8 +62,6 @@ class SSLManager : public NotificationObserver {
   class ErrorHandler : public base::RefCountedThreadSafe<ErrorHandler> {
    public:
     virtual ~ErrorHandler() { }
-
-    virtual CertError* AsCertError() { return NULL; }
 
     // Find the appropriate SSLManager for the URLRequest and begin handling
     // this error.
@@ -171,7 +167,7 @@ class SSLManager : public NotificationObserver {
     bool request_has_been_notified_;  // A flag to make sure we notify the
                                       // URLRequest exactly once.
 
-    DISALLOW_COPY_AND_ASSIGN(ErrorHandler);
+    DISALLOW_EVIL_CONSTRUCTORS(ErrorHandler);
   };
 
   // A CertError represents an error that occurred with the certificate in an
@@ -179,9 +175,6 @@ class SSLManager : public NotificationObserver {
   // thread and allows us to cancel/continue a request it is associated with.
   class CertError : public ErrorHandler {
    public:
-
-    virtual CertError* AsCertError() { return this; }
-
     // These accessors are available on either thread
     const net::SSLInfo& ssl_info() const { return ssl_info_; }
     int cert_error() const { return cert_error_; }
@@ -213,7 +206,7 @@ class SSLManager : public NotificationObserver {
     // that error.
     ResourceType::Type resource_type_;
 
-    DISALLOW_COPY_AND_ASSIGN(CertError);
+    DISALLOW_EVIL_CONSTRUCTORS(CertError);
   };
 
   // The MixedContentHandler class is used to query what to do with
@@ -231,7 +224,7 @@ class SSLManager : public NotificationObserver {
     virtual void OnDispatched() { manager()->OnMixedContent(this); }
 
    private:
-    DISALLOW_COPY_AND_ASSIGN(MixedContentHandler);
+    DISALLOW_EVIL_CONSTRUCTORS(MixedContentHandler);
   };
 
   // The SSLManager will ask its delegate to decide how to handle events

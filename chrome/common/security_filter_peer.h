@@ -43,8 +43,7 @@ class SecurityFilterPeer : public webkit_glue::ResourceLoaderBridge::Peer {
       const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
       bool content_filtered);
   virtual void OnReceivedData(const char* data, int len);
-  virtual void OnCompletedRequest(const URLRequestStatus& status,
-                                  const std::string& security_info);
+  virtual void OnCompletedRequest(const URLRequestStatus& status);
   virtual std::string GetURLForDebugging();
 
  protected:
@@ -72,8 +71,7 @@ class BufferedPeer : public SecurityFilterPeer {
       const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
       bool content_filtered);
   virtual void OnReceivedData(const char* data, int len);
-  virtual void OnCompletedRequest(const URLRequestStatus& status,
-                                  const std::string& security_info);
+  virtual void OnCompletedRequest(const URLRequestStatus& status);
 
  protected:
   // Invoked when the entire request has been processed before the data is sent
@@ -111,8 +109,7 @@ class ReplaceContentPeer : public SecurityFilterPeer {
       const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
       bool content_filtered);
   void OnReceivedData(const char* data, int len);
-  void OnCompletedRequest(const URLRequestStatus& status,
-                          const std::string& security_info);
+  void OnCompletedRequest(const URLRequestStatus& status);
  private:
    webkit_glue::ResourceLoaderBridge::ResponseInfo response_info_;
    std::string mime_type_;

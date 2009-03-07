@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <string>
-
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -131,13 +129,11 @@ bool CrossSiteResourceHandler::OnReadCompleted(int request_id,
 
 bool CrossSiteResourceHandler::OnResponseCompleted(
     int request_id,
-    const URLRequestStatus& status,
-    const std::string& security_info) {
+    const URLRequestStatus& status) {
   if (!in_cross_site_transition_) {
     if (has_started_response_) {
       // We've already completed the transition, so just pass it through.
-      return next_handler_->OnResponseCompleted(request_id, status,
-                                                security_info);
+      return next_handler_->OnResponseCompleted(request_id, status);
     } else {
       // Some types of failures will call OnResponseCompleted without calling
       // CrossSiteResourceHandler::OnResponseStarted.
@@ -149,8 +145,7 @@ bool CrossSiteResourceHandler::OnResponseCompleted(
             new CancelPendingRenderViewTask(render_process_host_id_,
                                             render_view_id_);
         rdh_->ui_loop()->PostTask(FROM_HERE, task);
-        return next_handler_->OnResponseCompleted(request_id, status,
-                                                  security_info);
+        return next_handler_->OnResponseCompleted(request_id, status);
       } else {
         // An error occured, we should wait now for the cross-site transition,
         // so that the error message (e.g., 404) can be displayed to the user.
@@ -166,7 +161,6 @@ bool CrossSiteResourceHandler::OnResponseCompleted(
   // We have to buffer the call until after the transition completes.
   completed_during_transition_ = true;
   completed_status_ = status;
-  completed_security_info_ = security_info;
 
   // Return false to tell RDH not to notify the world or clean up the
   // pending request.  We will do so in ResumeResponse.
@@ -207,8 +201,7 @@ void CrossSiteResourceHandler::ResumeResponse() {
   // If the response completed during the transition, notify the next
   // event handler.
   if (completed_during_transition_) {
-    next_handler_->OnResponseCompleted(request_id_, completed_status_,
-                                       completed_security_info_);
+    next_handler_->OnResponseCompleted(request_id_, completed_status_);
 
     // Since we didn't notify the world or clean up the pending request in
     // RDH::OnResponseCompleted during the transition, we should do it now.

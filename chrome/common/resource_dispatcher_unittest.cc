@@ -44,8 +44,7 @@ class TestRequestCallback : public ResourceLoaderBridge::Peer {
     data_.append(data, len);
   }
 
-  virtual void OnCompletedRequest(const URLRequestStatus& status,
-                                  const std::string& security_info) {
+  virtual void OnCompletedRequest(const URLRequestStatus& status) {
     EXPECT_FALSE(complete_);
     complete_ = true;
   }

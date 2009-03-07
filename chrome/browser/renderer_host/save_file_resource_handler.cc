@@ -74,8 +74,7 @@ bool SaveFileResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
 
 bool SaveFileResourceHandler::OnResponseCompleted(
     int request_id,
-    const URLRequestStatus& status,
-    const std::string& security_info) {
+    const URLRequestStatus& status) {
   save_manager_->GetSaveLoop()->PostTask(FROM_HERE,
       NewRunnableMethod(save_manager_,
                         &SaveFileManager::SaveFinished,

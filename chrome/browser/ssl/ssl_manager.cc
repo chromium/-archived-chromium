@@ -338,11 +338,7 @@ void SSLManager::ErrorHandler::CompleteCancelRequest(int error) {
       // The request can be NULL if it was cancelled by the renderer (as the
       // result of the user navigating to a new page from the location bar).
       DLOG(INFO) << "CompleteCancelRequest() url: " << request->url().spec();
-      SSLManager::CertError* cert_error = AsCertError();
-      if (cert_error)
-        request->SimulateSSLError(error, cert_error->ssl_info());
-      else
-        request->SimulateError(error);
+      request->CancelWithError(error);
     }
     request_has_been_notified_ = true;
 
@@ -595,8 +591,7 @@ void SSLManager::DidCommitProvisionalLoad(
   // An HTTPS response may not have a certificate for some reason.  When that
   // happens, use the unauthenticated (HTTP) rather than the authentication
   // broken security style so that we can detect this error condition.
-  if (net::IsCertStatusError(ssl_cert_status) &&
-      !details->is_content_filtered) {
+  if (net::IsCertStatusError(ssl_cert_status)) {
     changed |= SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
     if (!details->is_main_frame &&
         !details->entry->ssl().has_unsafe_content()) {

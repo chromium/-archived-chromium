@@ -116,14 +116,10 @@ bool AsyncResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
   return true;
 }
 
-bool AsyncResourceHandler::OnResponseCompleted(
-    int request_id,
-    const URLRequestStatus& status,
-    const std::string& security_info) {
+bool AsyncResourceHandler::OnResponseCompleted(int request_id,
+                                               const URLRequestStatus& status) {
   receiver_->Send(new ViewMsg_Resource_RequestComplete(routing_id_,
-                                                       request_id,
-                                                       status,
-                                                       security_info));
+                                                       request_id, status));
 
   // If we still have a read buffer, then see about caching it for later...
   if (spare_read_buffer_) {

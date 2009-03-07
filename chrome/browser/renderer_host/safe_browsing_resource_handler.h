@@ -5,8 +5,6 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_SAFE_BROWSING_RESOURCE_HANDLER_H_
 #define CHROME_BROWSER_RENDERER_HOST_SAFE_BROWSING_RESOURCE_HANDLER_H_
 
-#include <string>
-
 #include "base/time.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
@@ -33,9 +31,7 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
   bool OnWillRead(int request_id, net::IOBuffer** buf, int* buf_size,
                   int min_size);
   bool OnReadCompleted(int request_id, int* bytes_read);
-  bool OnResponseCompleted(int request_id,
-                           const URLRequestStatus& status,
-                           const std::string& security_info);
+  bool OnResponseCompleted(int request_id, const URLRequestStatus& status);
 
   // SafeBrowsingService::Client implementation, called on the IO thread once
   // the URL has been classified.
@@ -56,7 +52,6 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
   SafeBrowsingService::UrlCheckResult safe_browsing_result_;
   scoped_refptr<SafeBrowsingService> safe_browsing_;
   scoped_ptr<URLRequestStatus> queued_error_;
-  std::string queued_security_info_;
   int queued_error_request_id_;
   ResourceDispatcherHost* rdh_;
   base::Time pause_time_;
