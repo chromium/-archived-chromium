@@ -46,7 +46,8 @@ class DownloadThrottlingResourceHandler
                           int min_size);
   virtual bool OnReadCompleted(int request_id, int* bytes_read);
   virtual bool OnResponseCompleted(int request_id,
-                                   const URLRequestStatus& status);
+                                   const URLRequestStatus& status,
+                                   const std::string& security_info);
 
   // DownloadRequestManager::Callback implementation:
   void CancelDownload();

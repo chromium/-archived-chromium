@@ -12,6 +12,8 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RESOURCE_HANDLER_H_
 #define CHROME_BROWSER_RENDERER_HOST_RESOURCE_HANDLER_H_
 
+#include <string>
+
 #include "chrome/common/filter_policy.h"
 #include "net/url_request/url_request_status.h"
 #include "webkit/glue/resource_loader_bridge.h"
@@ -83,7 +85,8 @@ class ResourceHandler : public base::RefCounted<ResourceHandler> {
   // The response is complete.  The final response status is given.
   // Returns false if the handler is deferring the call to a later time.
   virtual bool OnResponseCompleted(int request_id,
-                                   const URLRequestStatus& status) = 0;
+                                   const URLRequestStatus& status,
+                                   const std::string& security_info) = 0;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RESOURCE_HANDLER_H_

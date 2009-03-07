@@ -354,10 +354,15 @@ class URLRequest {
   // no effect once the response has completed.
   void Cancel();
 
-  // Similar to Cancel but sets the error to |os_error| (see net_error_list.h
-  // for values) instead of net::ERR_ABORTED.
-  // Used to attach a reason for canceling a request.
-  void CancelWithError(int os_error);
+  // Cancels the request and sets the error to |os_error| (see net_error_list.h
+  // for values).
+  void SimulateError(int os_error);
+
+  // Cancels the request and sets the error to |os_error| (see net_error_list.h
+  // for values) and attaches |ssl_info| as the SSLInfo for that request.  This
+  // is useful to attach a certificate and certificate error to a canceled
+  // request.
+  void SimulateSSLError(int os_error, const net::SSLInfo& ssl_info);
 
   // Read initiates an asynchronous read from the response, and must only
   // be called after the OnResponseStarted callback is received with a
@@ -434,6 +439,10 @@ class URLRequest {
   // away or the job being replaced. The job will not call us back when it has
   // been orphaned.
   void OrphanJob();
+
+  // Cancels the request and set the error and ssl info for this request to the
+  // passed values.
+  void DoCancel(int os_error, const net::SSLInfo& ssl_info);
 
   // Discard headers which have meaning in POST (Content-Length, Content-Type,
   // Origin).

@@ -205,7 +205,8 @@ bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
 
   handler->OnResponseCompleted(request_id, URLRequestStatus(
                                                URLRequestStatus::FAILED,
-                                               net::ERR_ABORTED));
+                                               net::ERR_ABORTED),
+                               std::string());  // No security info necessary.
   return true;
 }
 
@@ -224,7 +225,9 @@ void ResourceDispatcherHost::BeginRequest(
     receiver->Send(new ViewMsg_Resource_RequestComplete(
         render_view_id,
         request_id,
-        URLRequestStatus(URLRequestStatus::FAILED, net::ERR_ABORTED)));
+        URLRequestStatus(URLRequestStatus::FAILED, net::ERR_ABORTED),
+        std::string()));  // No security info needed, connection was not
+                          // established.
     return;
   }
 
@@ -232,7 +235,7 @@ void ResourceDispatcherHost::BeginRequest(
   // requests.  Does nothing if they are already loaded.
   // TODO(mpcomplete): This takes 200 ms!  Investigate parallelizing this by
   // starting the load earlier in a BG thread.
-  plugin_service_->LoadChromePlugins(this);
+  // plugin_service_->LoadChromePlugins(this);
 
   // Construct the event handler.
   scoped_refptr<ResourceHandler> handler;
@@ -919,7 +922,7 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
   if (memory_cost > max_outstanding_requests_cost_per_process_) {
     // We call "CancelWithError()" as a way of setting the URLRequest's
     // status -- it has no effect beyond this, since the request hasn't started.
-    request->CancelWithError(net::ERR_INSUFFICIENT_RESOURCES);
+    request->SimulateError(net::ERR_INSUFFICIENT_RESOURCES);
 
     // TODO(eroman): this is kinda funky -- we insert the unstarted request into
     // |pending_requests_| simply to please OnResponseCompleted().
@@ -1121,8 +1124,19 @@ void ResourceDispatcherHost::OnResponseCompleted(URLRequest* request) {
   RESOURCE_LOG("OnResponseCompleted: " << request->url().spec());
   ExtraRequestInfo* info = ExtraInfoForRequest(request);
 
+  std::string security_info;
+  const net::SSLInfo& ssl_info = request->ssl_info();
+  if (ssl_info.cert != NULL) {
+    int cert_id = CertStore::GetSharedInstance()->
+        StoreCert(ssl_info.cert, info->render_process_host_id);
+    security_info = SSLManager::SerializeSecurityInfo(cert_id,
+                                                      ssl_info.cert_status,
+                                                      ssl_info.security_bits);
+  }
+
   if (info->resource_handler->OnResponseCompleted(info->request_id,
-                                                  request->status())) {
+                                                  request->status(),
+                                                  security_info)) {
     NotifyResponseCompleted(request, info->render_process_host_id);
 
     // The request is complete so we can remove it.
