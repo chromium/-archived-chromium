@@ -1032,7 +1032,8 @@ void Window::AlwaysOnTopChanged() {
 }
 
 DWORD Window::CalculateWindowStyle() {
-  DWORD window_styles = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_SYSMENU;
+  DWORD window_styles =
+      WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_SYSMENU | WS_CAPTION;
   bool can_resize = window_delegate_->CanResize();
   bool can_maximize = window_delegate_->CanMaximize();
   if (can_maximize) {
