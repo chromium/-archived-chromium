@@ -789,6 +789,19 @@ LRESULT Window::OnNCUAHDrawFrame(UINT msg, WPARAM w_param,
 }
 
 LRESULT Window::OnSetCursor(HWND window, UINT hittest_code, UINT message) {
+  // If the window is disabled, it's because we're showing a modal dialog box.
+  // We need to let DefWindowProc handle the message. That's because
+  // DefWindowProc for WM_SETCURSOR with message = some kind of mouse button
+  // down message sends the top level window a WM_ACTIVATEAPP message, which we
+  // otherwise wouldn't get. The symptom of not doing this is that if the user
+  // has a window in the background with a modal dialog open, they can't click
+  // on the disabled background window to bring the entire stack to the front.
+  // This is annoying because they then have to move all the foreground windows
+  // out of the way to be able to activate said window. I love how on Windows,
+  // the answer isn't always logical.
+  if (!IsWindowEnabled(GetHWND()))
+    return WidgetWin::OnSetCursor(window, hittest_code, message);
+
   int index = RC_NORMAL;
   switch (hittest_code) {
     case HTTOP:
