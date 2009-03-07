@@ -1599,9 +1599,6 @@ DEFER : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TIMEOUT
 // transformation matrices now using doubles instead of floats):
 LINUX : LayoutTests/fast/transforms/matrix-02.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = PASS FAIL
-LINUX : LayoutTests/svg/text/text-text-05-t.svg = FAIL
-LINUX : LayoutTests/svg/text/text-text-06-t.svg = FAIL
-LINUX : LayoutTests/svg/text/text-text-07-t.svg = PASS FAIL
 // Misc failures:
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
