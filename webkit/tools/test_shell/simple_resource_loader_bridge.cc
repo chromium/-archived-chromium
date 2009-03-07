@@ -173,9 +173,10 @@ class RequestProxy : public URLRequest::Delegate,
     peer_->OnReceivedData(buf_copy.get(), bytes_read);
   }
 
-  void NotifyCompletedRequest(const URLRequestStatus& status) {
+  void NotifyCompletedRequest(const URLRequestStatus& status,
+                              const std::string& security_info) {
     if (peer_) {
-      peer_->OnCompletedRequest(status);
+      peer_->OnCompletedRequest(status, security_info);
       DropPeer();  // ensure no further notifications
     }
   }
@@ -246,9 +247,10 @@ class RequestProxy : public URLRequest::Delegate,
         this, &RequestProxy::NotifyReceivedData, bytes_read));
   }
 
-  virtual void OnCompletedRequest(const URLRequestStatus& status) {
+  virtual void OnCompletedRequest(const URLRequestStatus& status,
+                                  const std::string& security_info) {
     owner_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &RequestProxy::NotifyCompletedRequest, status));
+        this, &RequestProxy::NotifyCompletedRequest, status, security_info));
   }
 
   // --------------------------------------------------------------------------
@@ -289,7 +291,7 @@ class RequestProxy : public URLRequest::Delegate,
 
   void Done() {
     DCHECK(request_.get());
-    OnCompletedRequest(request_->status());
+    OnCompletedRequest(request_->status(), std::string());
     request_.reset();  // destroy on the io thread
   }
 

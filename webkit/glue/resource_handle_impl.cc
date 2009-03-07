@@ -227,7 +227,8 @@ class ResourceHandleInternal : public ResourceLoaderBridge::Peer {
       const ResourceLoaderBridge::ResponseInfo& info,
       bool content_filtered);
   virtual void OnReceivedData(const char* data, int len);
-  virtual void OnCompletedRequest(const URLRequestStatus& status);
+  virtual void OnCompletedRequest(const URLRequestStatus& status,
+                                  const std::string& security_info);
   virtual std::string GetURLForDebugging();
 
   // Handles a data: url internally instead of calling the bridge.
@@ -299,7 +300,7 @@ void ResourceHandleInternal::HandleDataUrl() {
       OnReceivedData(data.c_str(), data.size());
   }
 
-  OnCompletedRequest(status);
+  OnCompletedRequest(status, info.security_info);
 
   // We are done using the object. ResourceHandle and ResourceHandleInternal
   // might be destroyed now.
@@ -604,7 +605,8 @@ void ResourceHandleInternal::OnReceivedData(const char* data, int data_len) {
 }
 
 void ResourceHandleInternal::OnCompletedRequest(
-    const URLRequestStatus& status) {
+    const URLRequestStatus& status,
+    const std::string& security_info) {
   if (multipart_delegate_.get()) {
     multipart_delegate_->OnCompletedRequest();
     multipart_delegate_.reset(NULL);
