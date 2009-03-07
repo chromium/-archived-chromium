@@ -277,9 +277,9 @@ void MediaPlayerPrivate::setVisible(bool visible) {
   }
 }
 
-void MediaPlayerPrivate::setRect(const IntRect& r) {
+void MediaPlayerPrivate::setSize(const IntSize& size) {
   if (m_data) {
-    AsDelegate(m_data)->SetRect(gfx::Rect(r.x(), r.y(), r.width(), r.height()));
+    AsDelegate(m_data)->SetSize(gfx::Size(size.width(), size.height()));
   }
 }
 

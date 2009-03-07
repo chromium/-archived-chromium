@@ -255,11 +255,12 @@ int64 WebMediaPlayerDelegateImpl::GetTotalBytes() const {
   return pipeline_.GetTotalBytes();
 }
 
-void WebMediaPlayerDelegateImpl::SetRect(const gfx::Rect& rect) {
+void WebMediaPlayerDelegateImpl::SetSize(const gfx::Size& size) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   if (video_renderer_) {
-    video_renderer_->SetRect(rect);
+    // TODO(scherkus): Change API to use SetSize().
+    video_renderer_->SetRect(gfx::Rect(0, 0, size.width(), size.height()));
   }
 }
 
