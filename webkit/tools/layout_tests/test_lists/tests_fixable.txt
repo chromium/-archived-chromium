@@ -1808,7 +1808,7 @@ LINUX : LayoutTests/editing/undo/undo-forward-delete.html = PASS FAIL
 LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
-LINUX : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
+LINUX MAC : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
 MAC : LayoutTests/fast/dom/clone-contents-0-end-offset.html = FAIL
 LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
 
