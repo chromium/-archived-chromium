@@ -480,7 +480,6 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
-MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
@@ -959,10 +958,10 @@ LayoutTests/security/block-test.html = FAIL
 SKIP LINUX MAC : LayoutTests/animations/animation-drt-api.html = PASS
 
 // MERGE 38625:38653: Expectations changed upstream
-MAC : LayoutTests/fast/css/computed-style-without-renderer.html = FAIL
+MAC : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
 
 // MERGE 38625:38653: New tests
-MAC : LayoutTests/fast/css/computed-style.html = FAIL
+MAC : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/repaint/change-transform.html = FAIL
 
