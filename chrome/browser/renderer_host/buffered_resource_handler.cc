@@ -72,8 +72,10 @@ bool BufferedResourceHandler::OnResponseStarted(int request_id,
 
 
 bool BufferedResourceHandler::OnResponseCompleted(
-    int request_id, const URLRequestStatus& status) {
-  return real_handler_->OnResponseCompleted(request_id, status);
+    int request_id,
+    const URLRequestStatus& status,
+    const std::string& security_info) {
+  return real_handler_->OnResponseCompleted(request_id, status, security_info);
 }
 
 // We'll let the original event handler provide a buffer, and reuse it for
@@ -242,7 +244,7 @@ bool BufferedResourceHandler::CompleteResponseStarted(int request_id,
       // own error page instead of triggering a download.
       // TODO(abarth): We should abstract the response_code test, but this kind
       //               of check is scattered throughout our codebase.
-      request_->CancelWithError(net::ERR_FILE_NOT_FOUND);
+      request_->SimulateError(net::ERR_FILE_NOT_FOUND);
       return false;
     }
 
@@ -270,7 +272,8 @@ bool BufferedResourceHandler::CompleteResponseStarted(int request_id,
     // handled by an external source (the browser's DownloadManager).
     real_handler_->OnResponseStarted(info->request_id, response_);
     URLRequestStatus status(URLRequestStatus::HANDLED_EXTERNALLY, 0);
-    real_handler_->OnResponseCompleted(info->request_id, status);
+    real_handler_->OnResponseCompleted(info->request_id, status,
+                                       std::string());
 
     // Ditch the old async handler that talks to the renderer for the new
     // download handler that talks to the DownloadManager.

@@ -86,7 +86,8 @@ class PluginRequestHandlerProxy
     }
   }
 
-  virtual void OnCompletedRequest(const URLRequestStatus& status) {
+  virtual void OnCompletedRequest(const URLRequestStatus& status,
+                                  const std::string& security_info) {
     completed_ = true;
 
     if (!status.is_success()) {

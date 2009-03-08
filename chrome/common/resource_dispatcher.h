@@ -108,7 +108,9 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
   void OnReceivedRedirect(int request_id, const GURL& new_url);
   void OnReceivedData(int request_id, base::SharedMemoryHandle data,
                       int data_len);
-  void OnRequestComplete(int request_id, const URLRequestStatus& status);
+  void OnRequestComplete(int request_id,
+                         const URLRequestStatus& status,
+                         const std::string& security_info);
 
   // Dispatch the message to one of the message response handlers.
   void DispatchMessage(const IPC::Message& message);

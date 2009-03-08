@@ -34,7 +34,9 @@ class SaveFileResourceHandler : public ResourceHandler {
   // Passes the buffer to the download file writer.
   bool OnReadCompleted(int request_id, int* bytes_read);
 
-  bool OnResponseCompleted(int request_id, const URLRequestStatus& status);
+  bool OnResponseCompleted(int request_id,
+                           const URLRequestStatus& status,
+                           const std::string& security_info);
 
   // If the content-length header is not present (or contains something other
   // than numbers), StringToInt64 returns 0, which indicates 'unknown size' and
