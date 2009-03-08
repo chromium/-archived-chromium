@@ -55,11 +55,11 @@ class PresubmitUnittest(unittest.TestCase):
   def testLocalChecks(self):
     api = MockInputApi()
     api.affected_files = [
-      MockAffectedFile('bleh/blat/yoo.notsource'),
+      MockAffectedFile('foo/blat/yoo.notsource'),
       MockAffectedFile('third_party/blat/source.cc'),
-      MockAffectedFile('bleh/blat/source.h'),
-      MockAffectedFile('bleh/blat/source.mm'),
-      MockAffectedFile('bleh/blat/source.py'),
+      MockAffectedFile('foo/blat/source.h'),
+      MockAffectedFile('foo/blat/source.mm'),
+      MockAffectedFile('foo/blat/source.py'),
     ]
     self.file_contents = 'file with \n\terror\nhere\r\nyes there'
     # 3 source files, 2 errors by file + 1 global CR error.
