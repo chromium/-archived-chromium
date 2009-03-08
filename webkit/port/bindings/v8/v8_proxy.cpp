@@ -2306,7 +2306,8 @@ void V8Proxy::InitContextIfNeeded()
   // Install counters handler with V8.
   static bool v8_counters_initialized = false;
   if (!v8_counters_initialized) {
-    ChromiumBridge::initV8CounterFunction();
+    // TODO(eroman):
+    //ChromiumBridge::initV8CounterFunction();
     v8_counters_initialized = true;
   }
 
