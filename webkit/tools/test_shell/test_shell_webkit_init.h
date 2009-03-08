@@ -83,6 +83,11 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
     return ASCIIToUTF16("en-US");
   }
 
+  virtual void decrementStatsCounter(const char* name) {}
+  virtual void incrementStatsCounter(const char* name) {}
+  virtual void traceEventBegin(const char* name, void* id, const char* extra) {}
+  virtual void traceEventEnd(const char* name, void* id, const char* extra) {}
+
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
 };

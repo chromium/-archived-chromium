@@ -33,7 +33,6 @@
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/time.h"
-#include "base/trace_event.h"
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
 #include "skia/ext/skia_utils_win.h"
@@ -213,24 +212,6 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
       webkit_glue::GetScreenInfo(ToNativeId(widget)).available_rect);
 }
 
-// StatsCounters --------------------------------------------------------------
-
-void ChromiumBridge::decrementStatsCounter(const char* name) {
-  StatsCounter(name).Decrement();
-}
-
-void ChromiumBridge::incrementStatsCounter(const char* name) {
-  StatsCounter(name).Increment();
-}
-
-#if USE(V8)
-// TODO(evanm): remove this conversion thunk once v8 supports plain char*
-// counter functions.
-void ChromiumBridge::initV8CounterFunction() {
-  v8::V8::SetCounterFunction(StatsTable::FindLocation);
-}
-#endif
-
 // Theming --------------------------------------------------------------------
 
 #if PLATFORM(WIN_OS)
@@ -319,20 +300,6 @@ void ChromiumBridge::paintTextField(
 }
 
 #endif
-
-// Trace Event ----------------------------------------------------------------
-
-void ChromiumBridge::traceEventBegin(const char* name,
-                                     void* id,
-                                     const char* extra) {
-  TRACE_EVENT_BEGIN(name, id, extra);
-}
-
-void ChromiumBridge::traceEventEnd(const char* name,
-                                   void* id,
-                                   const char* extra) {
-  TRACE_EVENT_END(name, id, extra);
-}
 
 // URL ------------------------------------------------------------------------
 

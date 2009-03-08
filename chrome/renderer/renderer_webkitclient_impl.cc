@@ -8,6 +8,7 @@
 #include "WebURL.h"
 
 #include "base/command_line.h"
+#include "base/trace_event.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/plugin/npobject_util.h"
@@ -37,7 +38,7 @@ bool RendererWebKitClientImpl::isLinkVisited(uint64_t link_hash) {
 void RendererWebKitClientImpl::setCookies(
     const WebURL& url, const WebURL& policy_url, const WebString& value) {
   std::string value_utf8;
-  UTF16ToUTF8(value.characters(), value.length(), &value_utf8);
+  UTF16ToUTF8(value.data(), value.length(), &value_utf8);
   RenderThread::current()->Send(
       new ViewHostMsg_SetCookie(url, policy_url, value_utf8));
 }
@@ -53,7 +54,7 @@ WebString RendererWebKitClientImpl::cookies(
 void RendererWebKitClientImpl::prefetchHostName(const WebString& hostname) {
   if (!hostname.isEmpty()) {
     std::string hostname_utf8;
-    UTF16ToUTF8(hostname.characters(), hostname.length(), &hostname_utf8);
+    UTF16ToUTF8(hostname.data(), hostname.length(), &hostname_utf8);
     DnsPrefetchCString(hostname_utf8.data(), hostname_utf8.length());
   }
 }
@@ -106,4 +107,24 @@ WebString RendererWebKitClientImpl::MimeRegistry::preferredExtensionForMIMEType(
       new ViewHostMsg_GetPreferredExtensionForMimeType(UTF16ToASCII(mime_type),
           &file_extension));
   return webkit_glue::FilePathStringToWebString(file_extension);
+}
+
+void RendererWebKitClientImpl::decrementStatsCounter(const char* name) {
+  StatsCounter(name).Decrement();
+}
+
+void RendererWebKitClientImpl::incrementStatsCounter(const char* name) {
+  StatsCounter(name).Increment();
+}
+
+void RendererWebKitClientImpl::traceEventBegin(const char* name,
+                                               void* id,
+                                               const char* extra) {
+  TRACE_EVENT_BEGIN(name, id, extra);
+}
+
+void RendererWebKitClientImpl::traceEventEnd(const char* name,
+                                             void* id,
+                                             const char* extra) {
+  TRACE_EVENT_END(name, id, extra);
 }

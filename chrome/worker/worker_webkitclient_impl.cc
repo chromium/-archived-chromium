@@ -36,3 +36,19 @@ void WorkerWebKitClientImpl::prefetchHostName(const WebKit::WebString&) {
 WebKit::WebString WorkerWebKitClientImpl::defaultLocale() {
   return WebKit::WebString();
 }
+
+void WorkerWebKitClientImpl::decrementStatsCounter(const char* name) {
+}
+
+void WorkerWebKitClientImpl::incrementStatsCounter(const char* name) {
+}
+
+void WorkerWebKitClientImpl::traceEventBegin(const char* name,
+                                             void* id,
+                                             const char* extra) {
+}
+
+void WorkerWebKitClientImpl::traceEventEnd(const char* name,
+                                           void* id,
+                                           const char* extra) {
+}

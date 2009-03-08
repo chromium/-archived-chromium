@@ -20,6 +20,10 @@ class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
                                     const WebKit::WebURL& policy_url);
   virtual void prefetchHostName(const WebKit::WebString&);
   virtual WebKit::WebString defaultLocale();
+  virtual void decrementStatsCounter(const char* name);
+  virtual void incrementStatsCounter(const char* name);
+  virtual void traceEventBegin(const char* name, void* id, const char* extra);
+  virtual void traceEventEnd(const char* name, void* id, const char* extra);
 };
 
 #endif  // CHROME_WORKER_WORKER_WEBKIT_CLIENT_IMPL_H_
