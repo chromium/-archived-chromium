@@ -162,7 +162,6 @@ if not env.Bit('windows'):
       'scoped_bstr_win_unittest.cc',
       'scoped_comptr_win_unittest.cc',
       'system_monitor_unittest.cc',
-      'sys_string_conversions_unittest.cc',
       'time_win_unittest.cc',
       'win_util_unittest.cc',
       'wmi_util_unittest.cc',
