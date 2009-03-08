@@ -480,6 +480,7 @@ LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
+MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
@@ -1802,6 +1803,15 @@ LINUX : LayoutTests/editing/undo/undo-combined-delete-boundary.html = PASS FAIL
 LINUX : LayoutTests/editing/undo/undo-combined-delete.html = PASS FAIL
 LINUX : LayoutTests/editing/undo/undo-forward-delete-boundary.html = PASS FAIL
 LINUX : LayoutTests/editing/undo/undo-forward-delete.html = PASS FAIL
+
+// From webkit merge 41447:41498
+LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
+LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
+LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
+LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
+LINUX : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
+MAC : LayoutTests/fast/dom/clone-contents-0-end-offset.html = FAIL
+LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
 
 // Crashes sometimes.  Race?  Memory corruption?
 // Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
