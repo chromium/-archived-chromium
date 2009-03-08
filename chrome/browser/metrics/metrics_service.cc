@@ -430,6 +430,19 @@ void MetricsService::SetRecording(bool enabled) {
     return;
 
   if (enabled) {
+    if (client_id_.empty()) {
+      PrefService* pref = g_browser_process->local_state();
+      DCHECK(pref);
+      client_id_ = WideToUTF8(pref->GetString(prefs::kMetricsClientID));
+      if (client_id_.empty()) {
+        client_id_ = GenerateClientID();
+        pref->SetString(prefs::kMetricsClientID, UTF8ToWide(client_id_));
+
+        // Might as well make a note of how long this ID has existed
+        pref->SetString(prefs::kMetricsClientIDTimestamp,
+                        Int64ToWString(Time::Now().ToTimeT()));
+      }
+    }
     StartRecording();
     ListenerRegistration(true);
   } else {
@@ -590,15 +603,6 @@ void MetricsService::InitializeMetricsState() {
     DiscardOldStabilityStats(pref);
     pref->SetString(prefs::kStabilityStatsVersion,
                     UTF8ToWide(MetricsLog::GetVersionString()));
-  }
-
-  client_id_ = WideToUTF8(pref->GetString(prefs::kMetricsClientID));
-  if (client_id_.empty()) {
-    client_id_ = GenerateClientID();
-    pref->SetString(prefs::kMetricsClientID, UTF8ToWide(client_id_));
-
-    // Might as well make a note of how long this ID has existed
-    pref->SetInt64(prefs::kMetricsClientIDTimestamp, Time::Now().ToTimeT());
   }
 
   // Update session ID
