@@ -1805,7 +1805,6 @@ LINUX : LayoutTests/editing/undo/undo-forward-delete-boundary.html = PASS FAIL
 LINUX : LayoutTests/editing/undo/undo-forward-delete.html = PASS FAIL
 
 // From webkit merge 41447:41498
-LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
 LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
