@@ -4,27 +4,21 @@
 
 #include "chrome/browser/tab_contents/interstitial_page.h"
 
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "base/thread.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/dom_operation_notification_details.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/window_delegate.h"
 #include "grit/browser_resources.h"
 #include "net/base/escape.h"
-
-#if defined(OS_WIN)
-#include "chrome/browser/renderer_host/render_widget_host_view_win.h"
-#include "chrome/browser/tab_contents/web_contents_view_win.h"
-#include "chrome/views/window.h"
-#else
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
-#endif
 
 namespace {
 
@@ -121,7 +115,8 @@ InterstitialPage::InterstitialPage(WebContents* tab,
       should_revert_tab_title_(false),
       resource_dispatcher_host_notified_(false),
       ui_loop_(MessageLoop::current()),
-      rvh_view_delegate_(new InterstitialPageRVHViewDelegate(this)) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(rvh_view_delegate_(
+          new InterstitialPageRVHViewDelegate(this))) {
   InitInterstitialPageMap();
   // It would be inconsistent to create an interstitial with no new navigation
   // (which is the case when the interstitial was triggered by a sub-resource on
@@ -248,29 +243,6 @@ void InterstitialPage::Observe(NotificationType type,
 }
 
 RenderViewHost* InterstitialPage::CreateRenderViewHost() {
-#if defined(OS_WIN)
-  RenderViewHost* render_view_host = new RenderViewHost(
-      SiteInstance::CreateSiteInstance(tab()->profile()),
-      this, MSG_ROUTING_NONE, NULL);
-  RenderWidgetHostViewWin* view =
-      new RenderWidgetHostViewWin(render_view_host);
-  render_view_host->set_view(view);
-  view->Create(tab_->GetContentNativeView());
-  view->set_parent_hwnd(tab_->GetContentNativeView());
-  WebContentsViewWin* web_contents_view =
-      static_cast<WebContentsViewWin*>(tab_->view());
-  render_view_host->AllowDomAutomationBindings();
-  render_view_host->CreateRenderView();
-  // SetSize must be called after CreateRenderView or the HWND won't show.
-  view->SetSize(web_contents_view->GetContainerSize());
-
-  return render_view_host;
-#else
-  // It is untested, whether this code is sufficiently generic that it
-  // works with Windows, and thus obsoletes the special-cased code above.
-  // If it does work, don't forget to also clean up the include statements!
-  NOTIMPLEMENTED();
-
   RenderViewHost* render_view_host = new RenderViewHost(
       SiteInstance::CreateSiteInstance(tab()->profile()),
       this, MSG_ROUTING_NONE, NULL);
@@ -281,8 +253,9 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
   render_view_host->AllowDomAutomationBindings();
   render_view_host->CreateRenderView();
   view->SetSize(web_contents_view->GetContainerSize());
+  // Don't show the interstitial until we have navigated to it.
+  view->Hide();
   return render_view_host;
-#endif
 }
 
 void InterstitialPage::Proceed() {
