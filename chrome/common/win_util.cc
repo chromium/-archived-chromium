@@ -28,8 +28,6 @@
 
 namespace win_util {
 
-const int kAutoHideTaskbarThicknessPx = 2;
-
 namespace {
 
 // Enforce visible dialog box.
@@ -624,16 +622,6 @@ void CenterAndSizeWindow(HWND parent, HWND window, const SIZE& pref,
   } else {
     NOTREACHED() << "Unable to adjust window to fit";
   }
-}
-
-bool EdgeHasAutoHideTaskbar(UINT edge, HMONITOR monitor) {
-  APPBARDATA taskbar_data = { 0 };
-  taskbar_data.cbSize = sizeof APPBARDATA;
-  taskbar_data.uEdge = edge;
-  HWND taskbar = reinterpret_cast<HWND>(SHAppBarMessage(ABM_GETAUTOHIDEBAR,
-                                                        &taskbar_data));
-  return ::IsWindow(taskbar) &&
-      (MonitorFromWindow(taskbar, MONITOR_DEFAULTTONEAREST) == monitor);
 }
 
 HANDLE GetSectionFromProcess(HANDLE section, HANDLE process, bool read_only) {

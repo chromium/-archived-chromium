@@ -568,32 +568,8 @@ LRESULT Window::OnNCCalcSize(BOOL mode, LPARAM l_param) {
   if (non_client_view_->UseNativeFrame())
     return WidgetWin::OnNCCalcSize(mode, l_param);
 
-  RECT* client_rect = mode ?
-      &reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param)->rgrc[0] :
-      reinterpret_cast<RECT*>(l_param);
-  if (IsMaximized()) {
-    // Make the maximized mode client rect fit the screen exactly, by
-    // subtracting the border Windows automatically adds for maximized mode.
-    int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
-    InflateRect(client_rect, -border_thickness, -border_thickness);
-
-    // Find all auto-hide taskbars along the screen edges and adjust in by the
-    // thickness of the auto-hide taskbar on each such edge, so the window isn't
-    // treated as a "fullscreen app", which would cause the taskbars to
-    // disappear.
-    HMONITOR monitor = MonitorFromWindow(GetHWND(), MONITOR_DEFAULTTONEAREST);
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_LEFT, monitor))
-      client_rect->left += win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_TOP, monitor))
-      client_rect->top += win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_RIGHT, monitor))
-      client_rect->right -= win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_BOTTOM, monitor))
-      client_rect->bottom -= win_util::kAutoHideTaskbarThicknessPx;
-  }
-
   // We need to repaint all when the window bounds change.
-  return mode ? WVR_REDRAW : 0;
+  return WVR_REDRAW;
 }
 
 LRESULT Window::OnNCHitTest(const CPoint& point) {
@@ -1122,10 +1098,21 @@ void Window::ResetWindowRegion(bool force) {
   CRect window_rect;
   GetWindowRect(&window_rect);
   HRGN new_region;
-  gfx::Path window_mask;
-  non_client_view_->GetWindowMask(
-      gfx::Size(window_rect.Width(), window_rect.Height()), &window_mask);
-  new_region = window_mask.CreateHRGN();
+  if (IsMaximized()) {
+    HMONITOR monitor = MonitorFromWindow(GetHWND(), MONITOR_DEFAULTTONEAREST);
+    MONITORINFO mi;
+    mi.cbSize = sizeof mi;
+    GetMonitorInfo(monitor, &mi);
+    CRect work_rect = mi.rcWork;
+    work_rect.OffsetRect(-window_rect.left, -window_rect.top);
+    new_region = CreateRectRgnIndirect(&work_rect);
+  } else {
+    gfx::Path window_mask;
+    non_client_view_->GetWindowMask(gfx::Size(window_rect.Width(),
+                                              window_rect.Height()),
+                                    &window_mask);
+    new_region = window_mask.CreateHRGN();
+  }
 
   if (current_rgn_result == ERROR || !EqualRgn(current_rgn, new_region)) {
     // SetWindowRgn takes ownership of the HRGN created by CreateHRGN.

@@ -505,7 +505,7 @@ void OpaqueBrowserFrameView::GetWindowMask(const gfx::Size& size,
                                            gfx::Path* window_mask) {
   DCHECK(window_mask);
 
-  if (!browser_view_->CanCurrentlyResize())
+  if (browser_view_->IsFullscreen())
     return;
 
   // Redefine the window visible region for the new size.
@@ -649,7 +649,10 @@ SkBitmap OpaqueBrowserFrameView::GetFavIconForTabIconView() {
 // OpaqueBrowserFrameView, private:
 
 int OpaqueBrowserFrameView::FrameBorderThickness() const {
-  return browser_view_->CanCurrentlyResize() ? kFrameBorderThickness : 0;
+  if (browser_view_->IsFullscreen())
+    return 0;
+  return frame_->IsMaximized() ?
+      GetSystemMetrics(SM_CXSIZEFRAME) : kFrameBorderThickness;
 }
 
 int OpaqueBrowserFrameView::TopResizeHeight() const {
@@ -917,11 +920,13 @@ void OpaqueBrowserFrameView::LayoutWindowControls() {
   // button to the screen corner to obey Fitts' Law.
   int right_extra_width = is_maximized ?
       (kFrameBorderThickness - kFrameShadowThickness) : 0;
+  int right_spacing = is_maximized ?
+      (GetSystemMetrics(SM_CXSIZEFRAME) + right_extra_width) : frame_thickness;
   gfx::Size close_button_size = close_button_->GetPreferredSize();
-  close_button_->SetBounds(width() - close_button_size.width() -
-      right_extra_width - frame_thickness, caption_y,
-      close_button_size.width() + right_extra_width,
-      close_button_size.height() + top_extra_height);
+  close_button_->SetBounds(width() - close_button_size.width() - right_spacing,
+                           caption_y,
+                           close_button_size.width() + right_extra_width,
+                           close_button_size.height() + top_extra_height);
 
   // When the window is restored, we show a maximized button; otherwise, we show
   // a restore button.
