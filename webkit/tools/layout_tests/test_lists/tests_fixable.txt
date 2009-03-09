@@ -1782,12 +1782,10 @@ LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 LINUX MAC : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
 LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
 
-// This test actually passes if you run it on it's own.  The problem is actually
-// with LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html.  If that
-// test is run, the next test run, no matter what it is, will fail.  This happen
-// to be the test that always run, so we are flagging it as failing just to try
-// to keep the mac bots green.
-MAC : LayoutTests/fast/dom/clone-contents-0-end-offset.html = FAIL
+// NOTE: This test actually passes, BUT it cause the next test, no matter what
+// it is, to fail because it leaves a side effect in internal state.  So we
+// skip this test for now to avoid the effect on what ever happens to come next.
+SKIP MAC : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
 // Crashes sometimes.  Race?  Memory corruption?
 // Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
