@@ -12,6 +12,7 @@ enum MenuItemType {
   MENU_NORMAL = 0,
   MENU_CHECKBOX,
   MENU_SEPARATOR,
+  MENU_RADIO,
 
   // Speical value to stop processing this MenuCreateMaterial.
   MENU_END
@@ -28,7 +29,8 @@ struct MenuCreateMaterial {
   unsigned int label_id;
 
   // An argument to GetStringF(menu_label_id, ...). When 0, the value of
-  // menu_label_id is just passed to GetString().
+  // label_id is just passed to GetString(). If both are 0, the menu delegate
+  // is responsible for implementing GetLabel().
   unsigned int label_argument;
 
   // If non-NULL, a pointer to the struct we're supposed to use

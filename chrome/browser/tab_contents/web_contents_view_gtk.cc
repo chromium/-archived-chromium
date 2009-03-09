@@ -12,6 +12,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
+#include "chrome/browser/tab_contents/render_view_context_menu_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
@@ -183,7 +184,8 @@ void WebContentsViewGtk::OnFindReply(int request_id,
 }
 
 void WebContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
-  NOTIMPLEMENTED();
+  context_menu_.reset(new RenderViewContextMenuGtk(web_contents_, params));
+  context_menu_->Popup();
 }
 
 void WebContentsViewGtk::StartDragging(const WebDropData& drop_data) {

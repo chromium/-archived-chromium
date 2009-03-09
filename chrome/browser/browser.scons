@@ -752,6 +752,7 @@ if env.Bit('linux'):
       'process_singleton_linux.cc',
       'renderer_host/render_widget_host_view_gtk.cc',
       'tab_contents/web_contents_view_gtk.cc',
+      'tab_contents/render_view_context_menu_gtk.cc',
   ])
 
 if env.Bit('mac'):

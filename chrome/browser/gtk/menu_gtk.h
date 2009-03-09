@@ -45,11 +45,16 @@ class MenuGtk {
   explicit MenuGtk(MenuGtk::Delegate* delegate);
   ~MenuGtk();
 
-  // Displays the menu. |timestamp| is the time of activation.
+  // Displays the menu. |timestamp| is the time of activation. The popup is
+  // statically positioned at |widget|.
   void Popup(GtkWidget* widget, gint button_type, guint32 timestamp);
 
-  // Displays the menu using the button type and timestamp of |event|.
+  // Displays the menu using the button type and timestamp of |event|. The popup
+  // is statically positioned at |widget|.
   void Popup(GtkWidget* widget, GdkEvent* event);
+
+  // Displays the menu as a context menu, i.e. at the current cursor location.
+  void PopupAsContext();
 
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set

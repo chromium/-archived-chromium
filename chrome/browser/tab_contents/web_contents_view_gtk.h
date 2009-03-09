@@ -5,7 +5,10 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
 #define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
+
+class RenderViewContextMenuGtk;
 
 class WebContentsViewGtk : public WebContentsView {
  public:
@@ -64,6 +67,10 @@ class WebContentsViewGtk : public WebContentsView {
   WebContents* web_contents_;
 
   GtkWidget* vbox_;
+
+  // The context menu is reset every time we show it, but we keep a pointer to
+  // between uses so that it won't go out of scope before we're done with it.
+  scoped_ptr<RenderViewContextMenuGtk> context_menu_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewGtk);
 };

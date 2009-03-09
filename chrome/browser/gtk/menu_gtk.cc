@@ -12,16 +12,16 @@
 namespace {
 
 // GTK uses _ for accelerators.  Windows uses & with && as an escape for &.
-std::wstring ConvertAcceleratorsFromWindowsStyle(const std::wstring& label) {
-  std::wstring ret;
+std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label) {
+  std::string ret;
   ret.reserve(label.length());
   for (size_t i = 0; i < label.length(); ++i) {
-    if (L'&' == label[i]) {
-      if (i + 1 < label.length() && L'&' == label[i + 1]) {
+    if ('&' == label[i]) {
+      if (i + 1 < label.length() && '&' == label[i + 1]) {
         ret.push_back(label[i]);
         ++i;
       } else {
-        ret.push_back(L'_');
+        ret.push_back('_');
       }
     } else {
       ret.push_back(label[i]);
@@ -110,35 +110,55 @@ void MenuGtk::Popup(GtkWidget* widget, gint button_type, guint32 timestamp) {
                  button_type, timestamp);
 }
 
+void MenuGtk::PopupAsContext() {
+  gtk_container_foreach(GTK_CONTAINER(menu_), SetMenuItemInfo, this);
+
+  // TODO(estade): |button| value of 0 (6th argument) is not strictly true,
+  // but does it matter?
+  gtk_menu_popup(GTK_MENU(menu_), NULL, NULL, NULL, NULL, 0,
+                 gtk_get_current_event_time());
+}
+
 void MenuGtk::BuildMenuIn(GtkWidget* menu,
                           const MenuCreateMaterial* menu_data) {
-  for (; menu_data->type != MENU_END; menu_data++) {
+  // We keep track of the last menu item in order to group radio items.
+  GtkWidget* last_menu_item = NULL;
+  for (; menu_data->type != MENU_END; ++menu_data) {
     GtkWidget* menu_item = NULL;
 
-    std::wstring label;
+    std::string label;
     if (menu_data->label_argument) {
-      label = l10n_util::GetStringF(
+      label = WideToUTF8(l10n_util::GetStringF(
           menu_data->label_id,
-          l10n_util::GetString(menu_data->label_argument));
+          l10n_util::GetString(menu_data->label_argument)));
     } else if (menu_data->label_id) {
-      label = l10n_util::GetString(menu_data->label_id);
-    } else {
-      DCHECK(menu_data->type == MENU_SEPARATOR) << "Menu definition broken";
+      label = WideToUTF8(l10n_util::GetString(menu_data->label_id));
+    } else if (menu_data->type != MENU_SEPARATOR) {
+      label = delegate_->GetLabel(menu_data->id);
+      DCHECK(!label.empty());
     }
 
     label = ConvertAcceleratorsFromWindowsStyle(label);
 
     switch (menu_data->type) {
+      case MENU_RADIO:
+        if (GTK_IS_RADIO_MENU_ITEM(last_menu_item)) {
+          menu_item = gtk_radio_menu_item_new_with_mnemonic_from_widget(
+              GTK_RADIO_MENU_ITEM(last_menu_item), label.c_str());
+        } else {
+          menu_item = gtk_radio_menu_item_new_with_mnemonic(
+              NULL, label.c_str());
+        }
+        break;
       case MENU_CHECKBOX:
-        menu_item = gtk_check_menu_item_new_with_mnemonic(
-            WideToUTF8(label).c_str());
+        menu_item = gtk_check_menu_item_new_with_mnemonic(label.c_str());
         break;
       case MENU_SEPARATOR:
         menu_item = gtk_separator_menu_item_new();
         break;
       case MENU_NORMAL:
       default:
-        menu_item = gtk_menu_item_new_with_mnemonic(WideToUTF8(label).c_str());
+        menu_item = gtk_menu_item_new_with_mnemonic(label.c_str());
         break;
     }
 
@@ -168,6 +188,7 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
 
     gtk_widget_show(menu_item);
     gtk_menu_append(menu, menu_item);
+    last_menu_item = menu_item;
   }
 }
 
