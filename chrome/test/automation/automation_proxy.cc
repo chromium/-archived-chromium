@@ -343,6 +343,42 @@ bool AutomationProxy::WaitForAppModalDialog(int wait_timeout) {
 }
 #endif  // defined(OS_WIN)
 
+bool AutomationProxy::WaitForURLDisplayed(GURL url, int wait_timeout) {
+  const TimeTicks start = TimeTicks::Now();
+  const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
+  while (TimeTicks::Now() - start < timeout) {
+    int window_count;
+    if (!GetBrowserWindowCount(&window_count))
+      return false;
+
+    for (int i = 0; i < window_count; i++) {
+      BrowserProxy* window = GetBrowserWindow(i);
+      if (!window)
+        break;
+
+      int tab_count;
+      if (!window->GetTabCount(&tab_count))
+        continue;
+
+      for (int j = 0; j < tab_count; j++) {
+        TabProxy* tab = window->GetTab(j);
+        if (!tab)
+          break;
+
+        GURL tab_url;
+        if (!tab->GetCurrentURL(&tab_url))
+          continue;
+
+        if (tab_url == url)
+          return true;
+      }
+    }
+    PlatformThread::Sleep(automation::kSleepTime);
+  }
+
+  return false;
+}
+
 bool AutomationProxy::SetFilteredInet(bool enabled) {
   return Send(new AutomationMsg_SetFilteredInet(0, enabled));
 }
