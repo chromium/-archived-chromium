@@ -391,6 +391,7 @@ inputs = [
     '$WEBKIT_DIR/extensions/v8/gears_extension.cc',
     '$WEBKIT_DIR/extensions/v8/interval_extension.cc',
     '$WEBKIT_DIR/extensions/v8/playback_extension.cc',
+    '$WEBKIT_DIR/extensions/v8/profiler_extension.cc',
 ]
 
 if env.Bit('windows'):

@@ -29,6 +29,7 @@
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/extensions/v8/gc_extension.h"
 #include "webkit/extensions/v8/playback_extension.h"
+#include "webkit/extensions/v8/profiler_extension.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_platform_delegate.h"
@@ -191,6 +192,10 @@ int main(int argc, char* argv[]) {
   webkit_glue::SetJavaScriptFlags(js_flags);
   // Expose GCController to JavaScript.
   WebKit::registerExtension(extensions_v8::GCExtension::Get());
+
+  if (parsed_command_line.HasSwitch(test_shell::kProfiler)) {
+    WebKit::registerExtension(extensions_v8::ProfilerExtension::Get());
+  }
 
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.

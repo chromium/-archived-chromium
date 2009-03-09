@@ -167,6 +167,8 @@
         'platform_thread_posix.cc',
         'platform_thread_win.cc',
         'port.h',
+        'profiler.cc',
+        'profiler.h',
         'process.h',
         'process_posix.cc',
         'process_util.h',

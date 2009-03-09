@@ -630,6 +630,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\profiler.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\profiler.h"
+			>
+		</File>
+		<File
 			RelativePath="..\third_party\nspr\prtime.cc"
 			>
 		</File>

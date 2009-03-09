@@ -2699,6 +2699,14 @@
 				RelativePath="..\..\extensions\v8\playback_extension.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\extensions\v8\profiler_extension.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\extensions\v8\profiler_extension.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\..\port\bindings\v8\dom_wrapper_map.h"

@@ -1035,6 +1035,8 @@
         'extensions/v8/interval_extension.h',
         'extensions/v8/playback_extension.cc',
         'extensions/v8/playback_extension.h',
+        'extensions/v8/profiler_extension.cc',
+        'extensions/v8/profiler_extension.h',
         'port/bindings/v8/JSDOMBinding.cpp',
         'port/bindings/v8/JSDOMBinding.h',
         'port/bindings/v8/JSXPathNSResolver.cpp',

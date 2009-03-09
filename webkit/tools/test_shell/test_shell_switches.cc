@@ -71,5 +71,8 @@ extern const wchar_t kEnableVideo[] = L"enable-video";
 // to happen even if in layout test mode.
 extern const wchar_t kGDB[] = L"gdb";
 
+// Make functions of the Profiler class available in javascript
+extern const wchar_t kProfiler[] = L"profiler";
+
 }  // namespace test_shell
 

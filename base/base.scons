@@ -160,6 +160,8 @@ input_files = ChromeFileList([
     'platform_thread.h',
     'platform_thread_win.cc',
     'port.h',
+    'profiler.cc',
+    'profiler.h',
     'third_party/nspr/prcpucfg.h',
     'third_party/nspr/prcpucfg_win.h',
     'process.h',
