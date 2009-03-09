@@ -1615,7 +1615,6 @@
       ],
       'sources': [
         'test/ui/run_all_unittests.cc',
-        'test/unit/run_all_unittests.cc',
         'test/ui/ui_test.cc',
         'test/ui/ui_test.h',
         'test/ui/ui_test_suite.cc',
@@ -1635,27 +1634,30 @@
         ['OS=="mac"', {
           # mac tests load the resources from the built app beside the test
           'dependencies': ['app'],
+          # There are only real ui_tests on Windows.  On mac there's just a
+          # dummy stub that looks like a test.  Since it's not a real ui_tests
+          # executable, it builds test/unit/run_all_unittests.cc instead of the
+          # one in test/ui, and excludes all other files.  The runner in
+          # test/unit should not be built on Windows.
+          'sources/': [
+            ['exclude', ''],
+          ],
+          'sources': [
+            'test/unit/run_all_unittests.cc',
+          ],
         }],
-        # There are only real ui_tests on Windows.  On other platforms,
-        # there's just a dummy stub that looks like a test.  Since it's not
-        # a real ui_tests executable, it builds test/unit/run_all_unittests.cc
-        # instead of the one in test/ui, and excludes all other files.  The
-        # runner in test/unit should not be built on Windows.
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',
-          ],
-          'sources!': [
-            'test/unit/run_all_unittests.cc',
           ],
           'dependencies': [
             '../google_update/google_update.gyp:google_update',
             'views',
           ],
-        }, {  # else: OS!="win"
+        }],
+        ['OS=="linux"', {
           'sources/': [
-            ['exclude', ''],
-            ['include', 'test/unit/run_all_unittests\\.cc$'],
+            ['exclude', '^test/automation/window_proxy'],
           ],
         }],
       ],
