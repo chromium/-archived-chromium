@@ -115,6 +115,7 @@
           },
           'dependencies': [
             '../../../breakpad/breakpad.gyp:breakpad_handler',
+            '../../default_plugin/default_plugin.gyp:default_plugin',
           ],
         }, {  # else: OS!=win
           'sources/': [

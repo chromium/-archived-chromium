@@ -65,6 +65,8 @@
         'lzma_util.h',
         'master_preferences.cc',
         'master_preferences.h',
+        'move_tree_work_item.cc',
+        'move_tree_work_item.h',
         'set_reg_value_work_item.cc',
         'set_reg_value_work_item.h',
         'shell_util.cc',

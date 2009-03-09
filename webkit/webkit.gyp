@@ -4113,25 +4113,12 @@
       ],
     },
     {
-      'target_name': 'glue',
-      'type': 'static_library',
+      'target_name': 'webkit_resources',
+      'type': 'none',
       'dependencies': [
         'webcore',
         'webkit',
         '../net/net.gyp:net',
-      ],
-      'actions': [
-        {
-          'action_name': 'webkit_version',
-          'inputs': [
-            'build/webkit_version.py',
-            '../third_party/WebKit/WebCore/Configurations/Version.xcconfig',
-          ],
-          'outputs': [
-            '<(INTERMEDIATE_DIR)/webkit_version.h',
-          ],
-          'action': ['python', '<@(_inputs)', '<(INTERMEDIATE_DIR)'],
-        },
       ],
       'rules': [
         {
@@ -4146,16 +4133,45 @@
           'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/webkit'],
         },
       ],
+      'sources': [
+        # grit rule
+        'glue/webkit_resources.grd',
+        'glue/webkit_strings.grd',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/webkit',
+        ],
+      },
+    },
+    {
+      'target_name': 'glue',
+      'type': 'static_library',
+      'dependencies': [
+        'webcore',
+        'webkit',
+        '../net/net.gyp:net',
+        'webkit_resources',
+      ],
+      'actions': [
+        {
+          'action_name': 'webkit_version',
+          'inputs': [
+            'build/webkit_version.py',
+            '../third_party/WebKit/WebCore/Configurations/Version.xcconfig',
+          ],
+          'outputs': [
+            '<(INTERMEDIATE_DIR)/webkit_version.h',
+          ],
+          'action': ['python', '<@(_inputs)', '<(INTERMEDIATE_DIR)'],
+        },
+      ],
       'include_dirs': [
         '<(INTERMEDIATE_DIR)',
       ],
       'sources': [
         # webkit_version rule
         '../third_party/WebKit/WebCore/Configurations/Version.xcconfig',
-
-        # grit rule
-        'glue/webkit_resources.grd',
-        'glue/webkit_strings.grd',
 
         # This list contains all .h, .cc, and .mm files in glue except for
         # those in the test subdirectory and those with unittest in in their
@@ -4342,6 +4358,11 @@
         'glue/webwidget_delegate.h',
         'glue/webwidget_impl.cc',
         'glue/webwidget_impl.h',
+        'glue/webworker.h',
+        'glue/webworker_impl.cc',
+        'glue/webworker_impl.h',
+        'glue/webworkerclient_impl.cc',
+        'glue/webworkerclient_impl.h',
         'glue/window_open_disposition.h',
         'pending/AccessibleBase.cpp',
         'pending/AccessibleBase.h',
@@ -4381,6 +4402,11 @@
             'glue/plugins/webplugin_delegate_impl.cc',
             'glue/glue_accessibility.cc',
             'glue/webdropdata.cc',
+            'glue/webworker.h',
+            'glue/webworker_impl.cc',
+            'glue/webworker_impl.h',
+            'glue/webworkerclient_impl.cc',
+            'glue/webworkerclient_impl.h',
             'pending/AccessibleBase.cpp',
             'pending/AccessibleDocument.cpp',
           ],
