@@ -57,7 +57,7 @@ URLRequestTestJob::URLRequestTestJob(URLRequest* request)
 }
 
 // Force the response to set a reasonable MIME type
-bool URLRequestTestJob::GetMimeType(std::string* mime_type) {
+bool URLRequestTestJob::GetMimeType(std::string* mime_type) const {
   DCHECK(mime_type);
   *mime_type = "text/html";
   return true;

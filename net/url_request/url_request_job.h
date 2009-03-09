@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "net/base/filter.h"
 #include "net/base/load_states.h"
 
@@ -27,7 +28,8 @@ class URLRequestJobMetrics;
 // The URLRequestJob is using RefCounterThreadSafe because some sub classes
 // can be destroyed on multiple threads. This is the case of the
 // UrlRequestFileJob.
-class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
+class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
+                      public FilterContext {
  public:
   explicit URLRequestJob(URLRequest* request);
   virtual ~URLRequestJob();
@@ -85,11 +87,6 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
 
   // Called to get the upload progress in bytes.
   virtual uint64 GetUploadProgress() const { return 0; }
-
-  // Called to fetch the mime_type for this request.  Only makes sense for some
-  // types of requests. Returns true on success.  Calling this on a type that
-  // doesn't have a mime type will return false.
-  virtual bool GetMimeType(std::string* mime_type) { return false; }
 
   // Called to fetch the charset for this request.  Only makes sense for some
   // types of requests. Returns true on success.  Calling this on a type that
@@ -195,6 +192,14 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // Whether we have processed the response for that request yet.
   bool has_response_started() const { return has_handled_response_; }
 
+  // FilterContext methods:
+  // These methods are not applicable to all connections.
+  virtual bool GetMimeType(std::string* mime_type) const { return false; }
+  virtual bool GetURL(GURL* gurl) const;
+  virtual base::Time GetRequestTime() const;
+  virtual bool IsCachedContent() const;
+  virtual int GetInputStreambufferSize() const { return kFilterBufSize; }
+
  protected:
   // Notifies the job that headers have been received.
   void NotifyHeadersComplete();
@@ -262,6 +267,9 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   scoped_ptr<URLRequestJobMetrics> metrics_;
 
  private:
+  // Size of filter input buffers used by this class.
+  static const int kFilterBufSize;
+
   // When data filtering is enabled, this function is used to read data
   // for the filter.  Returns true if raw data was read.  Returns false if
   // an error occurred (or we are waiting for IO to complete).

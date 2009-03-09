@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\net\base\filter_unittest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\histogram_unittest.cc"
 				>
 			</File>

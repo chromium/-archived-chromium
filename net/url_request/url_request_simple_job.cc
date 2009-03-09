@@ -20,7 +20,7 @@ void URLRequestSimpleJob::Start() {
       this, &URLRequestSimpleJob::StartAsync));
 }
 
-bool URLRequestSimpleJob::GetMimeType(std::string* mime_type) {
+bool URLRequestSimpleJob::GetMimeType(std::string* mime_type) const {
   *mime_type = mime_type_;
   return true;
 }

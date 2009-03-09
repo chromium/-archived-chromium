@@ -8,13 +8,14 @@
 #ifndef CHROME_BROWSER_AUTOMATION_URL_REQUEST_SLOW_DOWNLOAD_JOB_H__
 #define CHROME_BROWSER_AUTOMATION_URL_REQUEST_SLOW_DOWNLOAD_JOB_H__
 
+#include <string>
 #include <vector>
 
 #include "net/url_request/url_request_job.h"
 
 class URLRequestSlowDownloadJob : public URLRequestJob {
  public:
-  URLRequestSlowDownloadJob(URLRequest* request);
+  explicit URLRequestSlowDownloadJob(URLRequest* request);
   virtual ~URLRequestSlowDownloadJob() { }
 
   // Timer callback, used to check to see if we should finish our download and
@@ -23,7 +24,7 @@ class URLRequestSlowDownloadJob : public URLRequestJob {
 
   // URLRequestJob methods
   virtual void Start();
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
 
@@ -39,6 +40,8 @@ class URLRequestSlowDownloadJob : public URLRequestJob {
   static void AddUITestUrls();
 
  private:
+  void GetResponseInfoConst(net::HttpResponseInfo* info) const;
+
   // Mark all pending requests to be finished.  We keep track of pending
   // requests in |kPendingRequests|.
   static void FinishPendingRequests();

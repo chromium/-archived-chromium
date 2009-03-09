@@ -5,15 +5,17 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_ABOUT_JOB_H_
 #define NET_URL_REQUEST_URL_REQUEST_ABOUT_JOB_H_
 
+#include <string>
+
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 
 class URLRequestAboutJob : public URLRequestJob {
  public:
-  URLRequestAboutJob(URLRequest* request);
+  explicit URLRequestAboutJob(URLRequest* request);
 
   virtual void Start();
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
 
   static URLRequest::ProtocolFactory Factory;
 

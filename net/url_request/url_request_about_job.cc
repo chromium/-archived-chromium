@@ -27,7 +27,7 @@ void URLRequestAboutJob::Start() {
       this, &URLRequestAboutJob::StartAsync));
 }
 
-bool URLRequestAboutJob::GetMimeType(std::string* mime_type) {
+bool URLRequestAboutJob::GetMimeType(std::string* mime_type) const {
   *mime_type = "text/html";
   return true;
 }

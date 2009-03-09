@@ -80,7 +80,7 @@ void URLRequestFtpJob::Start() {
   SendRequest();
 }
 
-bool URLRequestFtpJob::GetMimeType(std::string* mime_type) {
+bool URLRequestFtpJob::GetMimeType(std::string* mime_type) const {
   if (!is_directory_)
     return false;
 

@@ -8,8 +8,9 @@
 #include "net/base/gzip_header.h"
 #include "third_party/zlib/zlib.h"
 
-GZipFilter::GZipFilter()
-    : decoding_status_(DECODING_UNINITIALIZED),
+GZipFilter::GZipFilter(const FilterContext& filter_context)
+    : Filter(filter_context),
+      decoding_status_(DECODING_UNINITIALIZED),
       decoding_mode_(DECODE_MODE_UNKNOWN),
       gzip_header_status_(GZIP_CHECK_HEADER_IN_PROGRESS),
       zlib_header_added_(false),

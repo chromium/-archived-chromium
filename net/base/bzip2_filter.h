@@ -14,8 +14,8 @@
 //
 // This BZip2Filter internally uses third_party/bzip2 library to do decoding.
 //
-// BZip2Filter is also a subclass of Filter. See the latter's header file filter.h
-// for sample usage.
+// BZip2Filter is also a subclass of Filter. See the latter's header file
+// filter.h for sample usage.
 
 #ifndef NET_BASE_BZIP2_FILTER_H_
 #define NET_BASE_BZIP2_FILTER_H_
@@ -26,7 +26,7 @@
 
 class BZip2Filter : public Filter {
  public:
-  BZip2Filter();
+  explicit BZip2Filter(const FilterContext& filter_context);
 
   virtual ~BZip2Filter();
 

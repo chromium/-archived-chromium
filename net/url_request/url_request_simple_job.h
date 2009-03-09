@@ -5,17 +5,19 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_SIMPLE_JOB_H_
 #define NET_URL_REQUEST_URL_REQUEST_SIMPLE_JOB_H_
 
+#include <string>
+
 #include "net/url_request/url_request_job.h"
 
 class URLRequest;
 
 class URLRequestSimpleJob : public URLRequestJob {
  public:
-  URLRequestSimpleJob(URLRequest* request);
+  explicit URLRequestSimpleJob(URLRequest* request);
 
   virtual void Start();
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
   virtual bool GetCharset(std::string* charset);
 
  protected:

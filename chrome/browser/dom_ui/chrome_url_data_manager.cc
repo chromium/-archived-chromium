@@ -44,7 +44,7 @@ class URLRequestChromeJob : public URLRequestJob {
   virtual void Start();
   virtual void Kill();
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
 
   // Called by ChromeURLDataManager to notify us that the data blob is ready
   // for us.
@@ -287,7 +287,7 @@ void URLRequestChromeJob::Kill() {
   chrome_url_data_manager.RemoveRequest(this);
 }
 
-bool URLRequestChromeJob::GetMimeType(std::string* mime_type) {
+bool URLRequestChromeJob::GetMimeType(std::string* mime_type) const {
   *mime_type = mime_type_;
   return !mime_type_.empty();
 }

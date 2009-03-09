@@ -14,8 +14,9 @@
 
 #include "sdch/open-vcdiff/src/google/vcdecoder.h"
 
-SdchFilter::SdchFilter()
-    : decoding_status_(DECODING_UNINITIALIZED),
+SdchFilter::SdchFilter(const FilterContext& filter_context)
+    : Filter(filter_context),
+      decoding_status_(DECODING_UNINITIALIZED),
       vcdiff_streaming_decoder_(NULL),
       dictionary_hash_(),
       dictionary_hash_is_plausible_(false),
@@ -182,7 +183,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
         // that is sufficiently unlikely that we ignore it.
         if (std::string::npos == mime_type().find_first_of("text/html")) {
           SdchManager::BlacklistDomainForever(url());
-          if (was_cached_)
+          if (was_cached())
             SdchManager::SdchErrorRecovery(
                 SdchManager::CACHED_META_REFRESH_UNSUPPORTED);
           else
@@ -192,7 +193,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
         }
         // HTML content means we can issue a meta-refresh, and get the content
         // again, perhaps without SDCH (to be safe).
-        if (was_cached_) {
+        if (was_cached()) {
           // Cached content is probably a startup tab, so we'll just get fresh
           // content and try again, without disabling sdch.
           SdchManager::SdchErrorRecovery(

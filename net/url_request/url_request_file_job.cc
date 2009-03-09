@@ -150,7 +150,7 @@ bool URLRequestFileJob::ReadRawData(net::IOBuffer* dest, int dest_size,
   return false;
 }
 
-bool URLRequestFileJob::GetMimeType(std::string* mime_type) {
+bool URLRequestFileJob::GetMimeType(std::string* mime_type) const {
   DCHECK(request_);
   return net::GetMimeTypeFromFile(file_path_, mime_type);
 }

@@ -7,6 +7,8 @@
 #ifndef CHROME_BROWSER_AUTOMATION_URL_REQUEST_MOCK_HTTP_JOB_H__
 #define CHROME_BROWSER_AUTOMATION_URL_REQUEST_MOCK_HTTP_JOB_H__
 
+#include <string>
+
 #include "net/url_request/url_request_file_job.h"
 
 class URLRequestMockHTTPJob : public URLRequestFileJob {
@@ -14,7 +16,7 @@ class URLRequestMockHTTPJob : public URLRequestFileJob {
   URLRequestMockHTTPJob(URLRequest* request, const FilePath& file_path);
   virtual ~URLRequestMockHTTPJob() { }
 
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
   virtual bool GetCharset(std::string* charset);
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
 
@@ -27,6 +29,8 @@ class URLRequestMockHTTPJob : public URLRequestFileJob {
   static GURL GetMockUrl(const std::wstring& path);
 
  private:
+  void GetResponseInfoConst(net::HttpResponseInfo* info) const;
+
   // This is the file path leading to the root of the directory to use as the
   // root of the http server.
   static std::wstring base_path_;

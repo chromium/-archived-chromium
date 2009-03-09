@@ -37,16 +37,36 @@ const char kTextHtml[]             = "text/html";
 }  // namespace
 
 Filter* Filter::Factory(const std::vector<FilterType>& filter_types,
-                        int buffer_size) {
-  if (filter_types.empty() || buffer_size < 0)
+                        const FilterContext& filter_context) {
+  DCHECK(filter_context.GetInputStreambufferSize() > 0);
+  if (filter_types.empty() || filter_context.GetInputStreambufferSize() <= 0)
     return NULL;
+
 
   Filter* filter_list = NULL;  // Linked list of filters.
   for (size_t i = 0; i < filter_types.size(); i++) {
-    filter_list = PrependNewFilter(filter_types[i], buffer_size, filter_list);
+    filter_list = PrependNewFilter(filter_types[i], filter_context,
+                                   filter_list);
     if (!filter_list)
       return NULL;
   }
+
+  // TODO(jar): These settings should go into the derived classes, on an as-needed basis.
+  std::string mime_type;
+  bool success = filter_context.GetMimeType(&mime_type);
+  DCHECK(success);
+  GURL gurl;
+  success = filter_context.GetURL(&gurl);
+  DCHECK(success);
+  base::Time request_time = filter_context.GetRequestTime();
+  bool is_cached_content = filter_context.IsCachedContent();
+
+  filter_list->SetMimeType(mime_type);
+  filter_list->SetURL(gurl);
+  // Approximate connect time with request_time. If it is not cached, then
+  // this is a good approximation for when the first bytes went on the
+  // wire.
+  filter_list->SetConnectTime(request_time, is_cached_content);
 
   return filter_list;
 }
@@ -174,15 +194,16 @@ void Filter::FixupEncodingTypes(
 }
 
 // static
-Filter* Filter::PrependNewFilter(FilterType type_id, int buffer_size,
+Filter* Filter::PrependNewFilter(FilterType type_id,
+                                 const FilterContext& filter_context,
                                  Filter* filter_list) {
   Filter* first_filter = NULL;  // Soon to be start of chain.
   switch (type_id) {
     case FILTER_TYPE_GZIP_HELPING_SDCH:
     case FILTER_TYPE_DEFLATE:
     case FILTER_TYPE_GZIP: {
-      scoped_ptr<GZipFilter> gz_filter(new GZipFilter());
-      if (gz_filter->InitBuffer(buffer_size)) {
+      scoped_ptr<GZipFilter> gz_filter(new GZipFilter(filter_context));
+      if (gz_filter->InitBuffer()) {
         if (gz_filter->InitDecoding(type_id)) {
           first_filter = gz_filter.release();
         }
@@ -190,8 +211,8 @@ Filter* Filter::PrependNewFilter(FilterType type_id, int buffer_size,
       break;
     }
     case FILTER_TYPE_BZIP2: {
-      scoped_ptr<BZip2Filter> bzip2_filter(new BZip2Filter());
-      if (bzip2_filter->InitBuffer(buffer_size)) {
+      scoped_ptr<BZip2Filter> bzip2_filter(new BZip2Filter(filter_context));
+      if (bzip2_filter->InitBuffer()) {
         if (bzip2_filter->InitDecoding(false)) {
           first_filter = bzip2_filter.release();
         }
@@ -200,8 +221,8 @@ Filter* Filter::PrependNewFilter(FilterType type_id, int buffer_size,
     }
     case FILTER_TYPE_SDCH:
     case FILTER_TYPE_SDCH_POSSIBLE: {
-      scoped_ptr<SdchFilter> sdch_filter(new SdchFilter());
-      if (sdch_filter->InitBuffer(buffer_size)) {
+      scoped_ptr<SdchFilter> sdch_filter(new SdchFilter(filter_context));
+      if (sdch_filter->InitBuffer()) {
         if (sdch_filter->InitDecoding(type_id)) {
           first_filter = sdch_filter.release();
         }
@@ -213,17 +234,17 @@ Filter* Filter::PrependNewFilter(FilterType type_id, int buffer_size,
     }
   }
 
-  if (first_filter) {
-    first_filter->next_filter_.reset(filter_list);
-  } else {
+  if (!first_filter) {
     // Cleanup and exit, since we can't construct this filter list.
     delete filter_list;
-    filter_list = NULL;
+    return NULL;
   }
+
+  first_filter->next_filter_.reset(filter_list);
   return first_filter;
 }
 
-Filter::Filter()
+Filter::Filter(const FilterContext& filter_context)
     : stream_buffer_(NULL),
       stream_buffer_size_(0),
       next_stream_data_(NULL),
@@ -233,13 +254,16 @@ Filter::Filter()
       was_cached_(false),
       mime_type_(),
       next_filter_(NULL),
-      last_status_(FILTER_NEED_MORE_DATA) {
+      last_status_(FILTER_NEED_MORE_DATA),
+      filter_context_(filter_context) {
 }
 
 Filter::~Filter() {}
 
-bool Filter::InitBuffer(int buffer_size) {
-  if (buffer_size < 0 || stream_buffer())
+bool Filter::InitBuffer() {
+  int buffer_size = filter_context_.GetInputStreambufferSize();
+  DCHECK(buffer_size > 0);
+  if (buffer_size <= 0 || stream_buffer())
     return false;
 
   stream_buffer_ = new net::IOBuffer(buffer_size);
@@ -328,10 +352,12 @@ void Filter::PushDataIntoNextFilter() {
 
 
 bool Filter::FlushStreamBuffer(int stream_data_len) {
+  DCHECK(stream_data_len <= stream_buffer_size_);
   if (stream_data_len <= 0 || stream_data_len > stream_buffer_size_)
     return false;
 
-  // bail out if there are more data in the stream buffer to be filtered.
+  DCHECK(stream_buffer());
+  // Bail out if there is more data in the stream buffer to be filtered.
   if (!stream_buffer() || stream_data_len_)
     return false;
 

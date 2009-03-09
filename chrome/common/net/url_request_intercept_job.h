@@ -5,6 +5,9 @@
 #ifndef CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H_
 #define CHROME_COMMON_NET_URL_REQUEST_INTERCEPT_JOB_H_
 
+#include <string>
+
+#include "base/scoped_ptr.h"
 #include "net/url_request/url_request_job.h"
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/common/chrome_plugin_api.h"
@@ -34,7 +37,7 @@ class URLRequestInterceptJob
   virtual void Start();
   virtual void Kill();
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int* bytes_read);
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
   virtual bool GetCharset(std::string* charset);
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
   virtual int GetResponseCode();

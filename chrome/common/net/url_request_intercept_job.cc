@@ -96,7 +96,7 @@ bool URLRequestInterceptJob::ReadRawData(net::IOBuffer* dest, int dest_size,
   return false;
 }
 
-bool URLRequestInterceptJob::GetMimeType(std::string* mime_type) {
+bool URLRequestInterceptJob::GetMimeType(std::string* mime_type) const {
   return request_->response_headers()->GetMimeType(mime_type);
 }
 

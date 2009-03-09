@@ -15,6 +15,7 @@
 #define NET_BASE_SDCH_FILTER_H_
 
 #include <string>
+#include <vector>
 
 #include "base/scoped_ptr.h"
 #include "net/base/filter.h"
@@ -28,7 +29,7 @@ namespace open_vcdiff {
 
 class SdchFilter : public Filter {
  public:
-  SdchFilter();
+  explicit SdchFilter(const FilterContext& filter_context);
 
   virtual ~SdchFilter();
 

@@ -61,7 +61,14 @@ URLRequestMockHTTPJob::URLRequestMockHTTPJob(URLRequest* request,
                                              const FilePath& file_path)
     : URLRequestFileJob(request, file_path) { }
 
+// Public virtual version.
 void URLRequestMockHTTPJob::GetResponseInfo(net::HttpResponseInfo* info) {
+  // Forward to private const version.
+  GetResponseInfoConst(info);
+}
+
+// Private const version.
+void URLRequestMockHTTPJob::GetResponseInfoConst(net::HttpResponseInfo* info) const {
   std::wstring header_file = file_path_.ToWStringHack() + kMockHeaderFileSuffix;
   std::string raw_headers;
   if (!file_util::ReadFileToString(header_file, &raw_headers))
@@ -72,9 +79,9 @@ void URLRequestMockHTTPJob::GetResponseInfo(net::HttpResponseInfo* info) {
   info->headers = new net::HttpResponseHeaders(raw_headers);
 }
 
-bool URLRequestMockHTTPJob::GetMimeType(std::string* mime_type) {
+bool URLRequestMockHTTPJob::GetMimeType(std::string* mime_type) const {
   net::HttpResponseInfo info;
-  GetResponseInfo(&info);
+  GetResponseInfoConst(&info);
   return info.headers && info.headers->GetMimeType(mime_type);
 }
 

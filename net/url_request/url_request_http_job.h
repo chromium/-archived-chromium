@@ -5,6 +5,7 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H_
 #define NET_URL_REQUEST_URL_REQUEST_HTTP_JOB_H_
 
+#include <string>
 #include <vector>
 
 #include "base/scoped_ptr.h"
@@ -37,7 +38,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual void Kill();
   virtual net::LoadState GetLoadState() const;
   virtual uint64 GetUploadProgress() const;
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
   virtual bool GetCharset(std::string* charset);
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
   virtual bool GetResponseCookies(std::vector<std::string>* cookies);

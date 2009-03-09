@@ -9,6 +9,7 @@
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
 #include "net/base/bzip2_filter.h"
+#include "net/base/filter_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 #include "third_party/bzip2/bzlib.h"
@@ -184,7 +185,8 @@ TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
   // Decode the compressed data with filter
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
+  MockFilterContext filter_context(kDefaultBufferSize);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   memcpy(filter->stream_buffer()->data(), bzip2_encode_buffer_,
          bzip2_encode_len_);
@@ -207,7 +209,8 @@ TEST_F(BZip2FilterUnitTest, DecodeBZip2) {
 TEST_F(BZip2FilterUnitTest, DecodeWithSmallInputBuffer) {
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kSmallBufferSize));
+  MockFilterContext filter_context(kSmallBufferSize);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_,
@@ -218,7 +221,8 @@ TEST_F(BZip2FilterUnitTest, DecodeWithSmallInputBuffer) {
 TEST_F(BZip2FilterUnitTest, DecodeWithSmallOutputBuffer) {
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
+  MockFilterContext filter_context(kDefaultBufferSize);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_,
@@ -232,7 +236,8 @@ TEST_F(BZip2FilterUnitTest, DecodeWithSmallOutputBuffer) {
 TEST_F(BZip2FilterUnitTest, DecodeWithOneByteInputBuffer) {
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, 1));
+  MockFilterContext filter_context(1);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_,
@@ -244,7 +249,8 @@ TEST_F(BZip2FilterUnitTest, DecodeWithOneByteInputBuffer) {
 TEST_F(BZip2FilterUnitTest, DecodeWithOneByteInputAndOutputBuffer) {
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, 1));
+  MockFilterContext filter_context(1);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(), source_buffer(), source_len(),
                              bzip2_encode_buffer_, bzip2_encode_len_, 1, false);
@@ -262,7 +268,8 @@ TEST_F(BZip2FilterUnitTest, DecodeCorruptedData) {
   // Decode the correct data with filter
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter1(Filter::Factory(filter_types, kDefaultBufferSize));
+  MockFilterContext filter_context(kDefaultBufferSize);
+  scoped_ptr<Filter> filter1(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter1.get());
 
   Filter::FilterStatus code = DecodeAllWithFilter(filter1.get(),
@@ -275,7 +282,7 @@ TEST_F(BZip2FilterUnitTest, DecodeCorruptedData) {
   EXPECT_TRUE(code == Filter::FILTER_DONE);
 
   // Decode the corrupted data with filter
-  scoped_ptr<Filter> filter2(Filter::Factory(filter_types, kDefaultBufferSize));
+  scoped_ptr<Filter> filter2(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter2.get());
 
   int pos = corrupt_data_len / 2;
@@ -305,7 +312,8 @@ TEST_F(BZip2FilterUnitTest, DecodeMissingData) {
   // Decode the corrupted data with filter
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
+  MockFilterContext filter_context(kDefaultBufferSize);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   char corrupt_decode_buffer[kDefaultBufferSize];
   int corrupt_decode_size = kDefaultBufferSize;
@@ -330,7 +338,8 @@ TEST_F(BZip2FilterUnitTest, DecodeCorruptedHeader) {
   // Decode the corrupted data with filter
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
+  MockFilterContext filter_context(kDefaultBufferSize);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   char corrupt_decode_buffer[kDefaultBufferSize];
   int corrupt_decode_size = kDefaultBufferSize;
@@ -356,7 +365,8 @@ TEST_F(BZip2FilterUnitTest, DecodeWithExtraDataAndSmallOutputBuffer) {
 
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kDefaultBufferSize));
+  MockFilterContext filter_context(kDefaultBufferSize);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(),
                              source_buffer(),
@@ -375,7 +385,8 @@ TEST_F(BZip2FilterUnitTest, DecodeWithExtraDataAndSmallInputBuffer) {
 
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_BZIP2);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kSmallBufferSize));
+  MockFilterContext filter_context(kSmallBufferSize);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   DecodeAndCompareWithFilter(filter.get(),
                              source_buffer(),

@@ -139,7 +139,7 @@ uint64 URLRequestHttpJob::GetUploadProgress() const {
   return transaction_.get() ? transaction_->GetUploadProgress() : 0;
 }
 
-bool URLRequestHttpJob::GetMimeType(std::string* mime_type) {
+bool URLRequestHttpJob::GetMimeType(std::string* mime_type) const {
   DCHECK(transaction_.get());
 
   if (!response_info_)
@@ -206,6 +206,7 @@ bool URLRequestHttpJob::GetContentEncodings(
   if (!encoding_types->empty()) {
     std::string mime_type;
     GetMimeType(&mime_type);
+    // TODO(jar): Need to change this call to use the FilterContext interfaces.
     Filter::FixupEncodingTypes(IsSdchResponse(), mime_type, encoding_types);
   }
   return !encoding_types->empty();

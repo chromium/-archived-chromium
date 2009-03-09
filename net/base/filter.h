@@ -39,6 +39,40 @@
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
+//------------------------------------------------------------------------------
+// Define an interface class that allows access to contextual information
+// supplied by the owner of this filter.
+class FilterContext {
+ public:
+   FilterContext() {};
+   virtual ~FilterContext() {};
+
+  // What mime type was specified in the header for this data?
+  virtual bool GetMimeType(std::string* mime_type) const = 0;
+
+  // What URL was used to access this data?
+  // Return false if gurl is not present.
+  virtual bool GetURL(GURL* gurl) const = 0;
+
+  // When was this data requested from a server?
+  virtual base::Time GetRequestTime() const = 0;
+
+  // Is data supplied from cache, or fresh across the net?
+  virtual bool IsCachedContent() const = 0;
+
+  // TODO(jar): We could use flags, defined by callers, rather than naming a
+  // protocol here in the base class.
+  // Was this data flagged as a response to a request with an SDCH dictionary?
+  virtual bool IsSdchResponse() const = 0;
+
+  // What is the desirable input buffer size for these filters?
+  virtual int GetInputStreambufferSize() const = 0;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(FilterContext);
+};
+
+//------------------------------------------------------------------------------
 class Filter {
  public:
   // Return values of function ReadFilteredData.
@@ -68,25 +102,25 @@ class Filter {
     FILTER_TYPE_UNSUPPORTED,
   };
 
-
   virtual ~Filter();
 
   // Creates a Filter object.
-  // Parameters: Filter_types specifies the type of filter created; Buffer_size
-  // specifies the size (in number of chars) of the buffer the filter should
-  // allocate to hold pre-filter data.
+  // Parameters: Filter_types specifies the type of filter created;
+  // filter_context allows filters to acquire additional details needed for
+  // construction and operation, such as a specification of requisite input
+  // buffer size.
   // If success, the function returns the pointer to the Filter object created.
   // If failed or a filter is not needed, the function returns NULL.
   //
   // Note: filter_types is an array of filter names (content encoding types as
-  // provided in an HTTP header), which will be chained together serially do
+  // provided in an HTTP header), which will be chained together serially to do
   // successive filtering of data.  The names in the vector are ordered based on
   // encoding order, and the filters are chained to operate in the reverse
   // (decoding) order. For example, types[0] = "sdch", types[1] = "gzip" will
   // cause data to first be gunizip filtered, and the resulting output from that
   // filter will be sdch decoded.
   static Filter* Factory(const std::vector<FilterType>& filter_types,
-                         int buffer_size);
+                         const FilterContext& filter_context);
 
   // External call to obtain data from this filter chain.  If ther is no
   // next_filter_, then it obtains data from this specific filter.
@@ -101,7 +135,7 @@ class Filter {
   // Returns the total number of chars remaining in stream_buffer_ to be
   // filtered.
   //
-  // If the function returns 0 then all data have been filtered and the caller
+  // If the function returns 0 then all data has been filtered, and the caller
   // is safe to copy new data into stream_buffer_.
   int stream_data_len() const { return stream_data_len_; }
 
@@ -109,8 +143,8 @@ class Filter {
   // stream_buffer_, the caller should call this function to notify Filter to
   // start filtering. Then after this function is called, the caller can get
   // post-filtered data using ReadFilteredData. The caller must not write to
-  // stream_buffer_ and call this function again before stream_buffer_ is empty
-  // out by ReadFilteredData.
+  // stream_buffer_ and call this function again before stream_buffer_ is
+  // emptied out by ReadFilteredData.
   //
   // The input stream_data_len is the length (in number of chars) of valid
   // data in stream_buffer_. It can not be greater than stream_buffer_size_.
@@ -140,7 +174,7 @@ class Filter {
                                  const std::string& mime_type,
                                  std::vector<FilterType>* encoding_types);
  protected:
-  Filter();
+  explicit Filter(const FilterContext& filter_context);
 
   FRIEND_TEST(SdchFilterTest, ContentTypeId);
   // Filters the data stored in stream_buffer_ and writes the output into the
@@ -159,16 +193,18 @@ class Filter {
   // Copy pre-filter data directly to destination buffer without decoding.
   FilterStatus CopyOut(char* dest_buffer, int* dest_len);
 
-  // Allocates and initializes stream_buffer_.
-  // Buffer_size is the maximum size of stream_buffer_ in number of chars.
-  bool InitBuffer(int buffer_size);
+  // Allocates and initializes stream_buffer_ based on filter_context_.
+  // Establishes a buffer large enough to handle the amount specified in
+  // filter_context_.GetInputStreambufferSize().
+  bool InitBuffer();
 
   // A factory helper for creating filters for within a chain of potentially
   // multiple encodings.  If a chain of filters is created, then this may be
   // called multiple times during the filter creation process.  In most simple
   // cases, this is only called once. Returns NULL and cleans up (deleting
   // filter_list) if a new filter can't be constructed.
-  static Filter* PrependNewFilter(FilterType type_id, int buffer_size,
+  static Filter* PrependNewFilter(FilterType type_id,
+                                  const FilterContext& filter_context,
                                   Filter* filter_list);
 
   FilterStatus last_status() const { return last_status_; }
@@ -177,7 +213,7 @@ class Filter {
 
   bool was_cached() const { return was_cached_; }
 
-  // Buffer to hold the data to be filtered.
+  // Buffer to hold the data to be filtered (the input queue).
   scoped_refptr<net::IOBuffer> stream_buffer_;
 
   // Maximum size of stream_buffer_ in number of chars.
@@ -189,6 +225,7 @@ class Filter {
   // Total number of remaining chars in stream_buffer_ to be filtered.
   int stream_data_len_;
 
+ private:   // TODO(jar): Make more data private by moving this up higher.
   // The URL that is currently being filtered.
   // This is used by SDCH filters which need to restrict use of a dictionary to
   // a specific URL or path.
@@ -200,7 +237,6 @@ class Filter {
   base::Time connect_time_;
   bool was_cached_;
 
- private:   // TODO(jar): Make more data private by moving this up higher.
   // Helper function to empty our output into the next filter's input.
   void PushDataIntoNextFilter();
 
@@ -214,6 +250,11 @@ class Filter {
   // Remember what status or local filter last returned so we can better handle
   // chained filters.
   FilterStatus last_status_;
+
+  // Context data from the owner of this filter.  Some filters need additional
+  // context information (mime type, etc.) to properly function, and they access
+  // this data via this reference member.
+  const FilterContext& filter_context_;
 
   DISALLOW_COPY_AND_ASSIGN(Filter);
 };

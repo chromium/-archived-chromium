@@ -5,6 +5,8 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_FILE_DIR_JOB_H__
 #define NET_URL_REQUEST_URL_REQUEST_FILE_DIR_JOB_H__
 
+#include <string>
+
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "net/base/directory_lister.h"
@@ -22,7 +24,7 @@ class URLRequestFileDirJob
   virtual void StartAsync();
   virtual void Kill();
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
-  virtual bool GetMimeType(std::string* mime_type);
+  virtual bool GetMimeType(std::string* mime_type) const;
   virtual bool GetCharset(std::string* charset);
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
 

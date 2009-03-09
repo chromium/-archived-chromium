@@ -5,8 +5,9 @@
 #include "base/logging.h"
 #include "net/base/bzip2_filter.h"
 
-BZip2Filter::BZip2Filter()
-    : decoding_status_(DECODING_UNINITIALIZED),
+BZip2Filter::BZip2Filter(const FilterContext& filter_context)
+    : Filter(filter_context),
+      decoding_status_(DECODING_UNINITIALIZED),
       bzip2_data_stream_(NULL) {
 }
 

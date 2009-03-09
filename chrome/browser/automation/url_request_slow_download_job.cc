@@ -131,7 +131,14 @@ void URLRequestSlowDownloadJob::CheckDoneStatus() {
   }
 }
 
+// Public virtual version.
 void URLRequestSlowDownloadJob::GetResponseInfo(net::HttpResponseInfo* info) {
+  // Forward to private const version.
+  GetResponseInfoConst(info);
+}
+
+// Private const version.
+void URLRequestSlowDownloadJob::GetResponseInfoConst(net::HttpResponseInfo* info) const {
   // Send back mock headers.
   std::string raw_headers;
   if (LowerCaseEqualsASCII(kFinishDownloadUrl,
@@ -156,9 +163,9 @@ void URLRequestSlowDownloadJob::GetResponseInfo(net::HttpResponseInfo* info) {
   info->headers = new net::HttpResponseHeaders(raw_headers);
 }
 
-bool URLRequestSlowDownloadJob::GetMimeType(std::string* mime_type) {
+bool URLRequestSlowDownloadJob::GetMimeType(std::string* mime_type) const {
   net::HttpResponseInfo info;
-  GetResponseInfo(&info);
+  GetResponseInfoConst(&info);
   return info.headers && info.headers->GetMimeType(mime_type);
 }
 

@@ -18,7 +18,8 @@ using base::Time;
 using base::TimeTicks;
 
 // Buffer size allocated when de-compressing data.
-static const int kFilterBufSize = 32 * 1024;
+// static
+const int URLRequestJob::kFilterBufSize = 32 * 1024;
 
 URLRequestJob::URLRequestJob(URLRequest* request)
     : request_(request),
@@ -54,18 +55,7 @@ void URLRequestJob::DetachRequest() {
 void URLRequestJob::SetupFilter() {
   std::vector<Filter::FilterType> encoding_types;
   if (GetContentEncodings(&encoding_types)) {
-    filter_.reset(Filter::Factory(encoding_types, kFilterBufSize));
-    if (filter_.get()) {
-      std::string mime_type;
-      GetMimeType(&mime_type);
-      filter_->SetURL(request_->url());
-      filter_->SetMimeType(mime_type);
-      // Approximate connect time with request_time. If it is not cached, then
-      // this is a good approximation for when the first bytes went on the
-      // wire.
-      filter_->SetConnectTime(request_->response_info_.request_time,
-                              request_->response_info_.was_cached);
-    }
+    filter_.reset(Filter::Factory(encoding_types, *this));
   }
 }
 
@@ -95,6 +85,25 @@ void URLRequestJob::ContinueDespiteLastError() {
   // we don't know how to recover from.
   NOTREACHED();
 }
+
+bool URLRequestJob::GetURL(GURL* gurl) const {
+  if (!request_)
+    return false;
+  *gurl = request_->url();
+  return true;
+}
+
+base::Time URLRequestJob::GetRequestTime() const {
+  if (!request_)
+    return base::Time();
+  return request_->request_time();
+};
+
+bool URLRequestJob::IsCachedContent() const {
+  if (!request_)
+    return false;
+  return request_->was_cached();
+};
 
 // This function calls ReadData to get stream data. If a filter exists, passes
 // the data to the attached filter. Then returns the output from filter back to
