@@ -103,13 +103,6 @@ bool ExtensionsService::Init() {
   return true;
 }
 
-void ExtensionsService::LaunchExtensionProcess(Extension* extension) {
-  // TODO(mpcomplete): Do something useful here.
-  GURL url = Extension::GetResourceURL(extension->url(), "index.html");
-  ExtensionView* view = new ExtensionView(url, profile_);
-  view->InitHidden();
-}
-
 MessageLoop* ExtensionsService::GetMessageLoop() {
   return message_loop_;
 }
@@ -136,8 +129,7 @@ void ExtensionsService::LoadExtension(const FilePath& extension_path) {
           scoped_refptr<ExtensionsServiceFrontendInterface>(this)));
 }
 
-void ExtensionsService::OnExtensionsLoaded(
-    ExtensionList* new_extensions) {
+void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   extensions_.insert(extensions_.end(), new_extensions->begin(),
                      new_extensions->end());
 

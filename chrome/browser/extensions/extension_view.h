@@ -42,6 +42,8 @@ class ExtensionView : public HWNDHtmlView,
 
  private:
   Profile* profile_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExtensionView);
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_VIEW_H_
