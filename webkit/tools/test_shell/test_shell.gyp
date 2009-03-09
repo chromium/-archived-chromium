@@ -254,6 +254,13 @@
         'text_input_controller_unittest.cc',
       ],
       'conditions': [
+        ['OS=="linux"', {
+          'sources!': [
+             # TODO(port)
+            '../../../skia/ext/platform_canvas_unittest.cc',
+            '../../glue/webplugin_impl_unittest.cc',
+          ],
+        }],
         ['OS=="mac"', {
           # mac tests load the resources from the built test_shell beside the
           # test
