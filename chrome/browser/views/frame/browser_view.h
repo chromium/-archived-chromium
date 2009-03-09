@@ -262,6 +262,8 @@ class BrowserView : public BrowserWindow,
   }
 #endif
 
+  virtual std::string GetClassName() const;
+
  protected:
   // Overridden from views::View:
   virtual void Layout();

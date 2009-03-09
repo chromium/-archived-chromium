@@ -1490,6 +1490,14 @@ std::string View::GetClassName() const {
   return kViewClassName;
 }
 
+View* View::GetAncestorWithClassName(const std::string& name) {
+  for (View* view = this; view; view = view->GetParent()) {
+    if (view->GetClassName() == name)
+      return view;
+  }
+  return NULL;
+}
+
 gfx::Rect View::GetVisibleBounds() {
   if (!IsVisibleInRootView())
     return gfx::Rect();

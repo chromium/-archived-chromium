@@ -940,6 +940,10 @@ class View : public AcceleratorTarget {
   // subclass. The default implementation returns kViewClassName.
   virtual std::string GetClassName() const;
 
+  // Returns the first ancestor, starting at this, whose class name is |name|.
+  // Returns null if no ancestor has the class name |name|.
+  View* GetAncestorWithClassName(const std::string& name);
+
   // Returns the visible bounds of the receiver in the receivers coordinate
   // system.
   //

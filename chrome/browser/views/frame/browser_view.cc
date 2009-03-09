@@ -93,6 +93,9 @@ static const int kWindowBorderWidth = 5;
 // If not -1, windows are shown with this state.
 static int explicit_show_state = -1;
 
+// Returned from BrowserView::GetClassName.
+static const char kBrowserViewClassName[] = "browser/views/BrowserView";
+
 static const struct {
   bool separator;
   int command;
@@ -126,12 +129,11 @@ static const struct {
 
 class ResizeCorner : public views::View {
  public:
-  explicit ResizeCorner(const BrowserView* parent)
-      : parent_(parent) {
-  }
+  ResizeCorner() { }
 
   virtual void Paint(ChromeCanvas* canvas) {
-    if (parent_ && !parent_->CanCurrentlyResize())
+    BrowserView* browser = GetBrowserView();
+    if (browser && !browser->CanCurrentlyResize())
       return;
 
     SkBitmap* bitmap = ResourceBundle::GetSharedInstance().GetBitmapNamed(
@@ -158,7 +160,8 @@ class ResizeCorner : public views::View {
   }
 
   virtual gfx::Size GetPreferredSize() {
-    return (parent_ && !parent_->CanCurrentlyResize()) ?
+    BrowserView* browser = GetBrowserView();
+    return (browser && !browser->CanCurrentlyResize()) ?
         gfx::Size() : GetSize();
   }
 
@@ -174,7 +177,13 @@ class ResizeCorner : public views::View {
   }
 
  private:
-  const BrowserView* parent_;
+  // Returns the BrowserView we're displayed in. Returns NULL if we're not
+  // currently in a browser view.
+  BrowserView* GetBrowserView() {
+    View* browser = GetAncestorWithClassName(kBrowserViewClassName);
+    return browser ? static_cast<BrowserView*>(browser) : NULL;
+  }
+
   DISALLOW_COPY_AND_ASSIGN(ResizeCorner);
 };
 
@@ -1185,6 +1194,10 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, views::View overrides:
 
+std::string BrowserView::GetClassName() const {
+  return kBrowserViewClassName;
+}
+
 void BrowserView::Layout() {
   int top = LayoutTabStrip();
   top = LayoutToolbar(top);
@@ -1445,7 +1458,7 @@ bool BrowserView::MaybeShowDownloadShelf(TabContents* contents) {
   if (contents && contents->IsDownloadShelfVisible()) {
     new_shelf = static_cast<DownloadShelfView*>(contents->GetDownloadShelf());
     if (new_shelf != active_download_shelf_)
-      new_shelf->AddChildView(new ResizeCorner(this));
+      new_shelf->AddChildView(new ResizeCorner());
   }
   return UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
 }
