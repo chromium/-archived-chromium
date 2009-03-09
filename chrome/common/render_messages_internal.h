@@ -457,8 +457,10 @@ IPC_BEGIN_MESSAGES(View)
                       std::string /* event arguments */)
 #endif
   // Posts a message to the renderer.
-  IPC_MESSAGE_ROUTED1(ViewMsg_HandleMessageFromExternalHost,
-                      std::string /* The message */)
+  IPC_MESSAGE_ROUTED3(ViewMsg_HandleMessageFromExternalHost,
+                      std::string /* The message */,
+                      std::string /* The origin */,
+                      std::string /* The target*/)
 
   // Sent to the renderer when a popup window should no longer count against
   // the current popup count (either because it's not a popup or because it was
@@ -807,8 +809,10 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::string  /* args (as a JSON string) */)
 
   // A message for an external host.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_ForwardMessageToExternalHost,
-                      std::string  /* message */)
+  IPC_MESSAGE_ROUTED3(ViewHostMsg_ForwardMessageToExternalHost,
+                      std::string  /* message */,
+                      std::string  /* origin */,
+                      std::string  /* target */)
 
 #ifdef CHROME_PERSONALIZATION
   IPC_MESSAGE_ROUTED2(ViewHostMsg_PersonalizationEvent,

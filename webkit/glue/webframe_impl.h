@@ -116,6 +116,8 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual void* GetFrameImplementation() { return frame(); }
 
+  virtual NPObject* GetWindowNPObject();
+
   virtual void GetContentAsPlainText(int max_chars, std::wstring* text) const;
   virtual bool Find(const FindInPageRequest& request,
                     bool wrap_within_frame,

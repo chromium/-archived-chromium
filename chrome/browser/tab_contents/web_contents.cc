@@ -1007,9 +1007,11 @@ void WebContents::DomOperationResponse(const std::string& json_string,
       Details<DomOperationNotificationDetails>(&details));
 }
 
-void WebContents::ProcessExternalHostMessage(const std::string& message) {
+void WebContents::ProcessExternalHostMessage(const std::string& message,
+                                             const std::string& origin,
+                                             const std::string& target) {
   if (delegate())
-    delegate()->ForwardMessageToExternalHost(message);
+    delegate()->ForwardMessageToExternalHost(message, origin, target);
 }
 
 void WebContents::GoToEntryAtOffset(int offset) {

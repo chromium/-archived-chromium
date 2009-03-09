@@ -2840,11 +2840,14 @@ void RenderView::DidAddHistoryItem() {
   history_forward_list_count_ = 0;
 }
 
-void RenderView::OnMessageFromExternalHost(const std::string& message) {
+void RenderView::OnMessageFromExternalHost(const std::string& message,
+                                           const std::string& origin,
+                                           const std::string& target) {
   if (message.empty())
     return;
 
-  external_host_bindings_.ForwardMessageFromExternalHost(message);
+  external_host_bindings_.ForwardMessageFromExternalHost(message, origin,
+                                                         target);
 }
 
 void RenderView::OnDisassociateFromPopupCount() {

@@ -741,6 +741,13 @@ void WebFrameImpl::GetContentAsPlainText(int max_chars,
   FrameContentAsPlainText(max_chars, frame_, text);
 }
 
+NPObject* WebFrameImpl::GetWindowNPObject() {
+  if (!frame_)
+    return NULL;
+
+  return frame_->script()->windowScriptNPObject();
+}
+
 void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
   ASSERT(frame() && frame()->view());
 #if defined(OS_WIN)

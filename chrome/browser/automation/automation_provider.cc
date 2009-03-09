@@ -2435,8 +2435,10 @@ void AutomationProvider::AutocompleteEditIsQueryInProgress(
   }
 }
 
-void AutomationProvider::OnMessageFromExternalHost(
-    int handle, const std::string& message) {
+void AutomationProvider::OnMessageFromExternalHost(int handle,
+                                                   const std::string& message,
+                                                   const std::string& origin,
+                                                   const std::string& target) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     if (!tab) {
@@ -2460,7 +2462,7 @@ void AutomationProvider::OnMessageFromExternalHost(
       return;
     }
 
-    view_host->ForwardMessageFromExternalHost(message);
+    view_host->ForwardMessageFromExternalHost(message, origin, target);
   }
 }
 

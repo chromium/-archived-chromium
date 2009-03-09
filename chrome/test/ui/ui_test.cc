@@ -211,9 +211,14 @@ void UITest::InitializeTimeouts() {
   }
 }
 
+AutomationProxy* UITest::CreateAutomationProxy(int execution_timeout) {
+  // By default we create a plain vanilla AutomationProxy.
+  return new AutomationProxy(execution_timeout);
+}
+
 void UITest::LaunchBrowserAndServer() {
   // Set up IPC testing interface server.
-  server_.reset(new AutomationProxy(command_execution_timeout_ms_));
+  server_.reset(CreateAutomationProxy(command_execution_timeout_ms_));
 
   LaunchBrowser(launch_arguments_, clear_profile_);
   if (wait_for_initial_loads_)

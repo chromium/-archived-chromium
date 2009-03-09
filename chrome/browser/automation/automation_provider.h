@@ -352,7 +352,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                                   std::vector<AutocompleteMatchData>* matches);
 
   // Handler for a message sent by the automation client.
-  void OnMessageFromExternalHost(int handle, const std::string& message);
+  void OnMessageFromExternalHost(int handle, const std::string& message,
+                                 const std::string& origin,
+                                 const std::string& target);
 
   // Retrieves the number of SSL related info-bars currently showing in |count|.
   void GetSSLInfoBarCount(int handle, int* count);

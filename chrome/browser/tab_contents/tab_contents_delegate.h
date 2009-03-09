@@ -138,7 +138,10 @@ class TabContentsDelegate : public PageNavigator {
   }
 
   // Send IPC to external host. Default implementation is do nothing.
-  virtual void ForwardMessageToExternalHost(const std::string& message) {}
+  virtual void ForwardMessageToExternalHost(const std::string& message,
+                                            const std::string& origin,
+                                            const std::string& target) {
+  }
 
   // If the delegate is hosting tabs externally.
   virtual bool IsExternalTabContainer() const { return false; }

@@ -723,13 +723,17 @@ IPC_BEGIN_MESSAGES(Automation)
                       int /* tab_handle */)
 
   // Posts a message from external host to chrome renderer.
-  IPC_MESSAGE_ROUTED2(AutomationMsg_HandleMessageFromExternalHost,
+  IPC_MESSAGE_ROUTED4(AutomationMsg_HandleMessageFromExternalHost,
                       int /* automation handle */,
-                      std::string /* message */ )
+                      std::string /* message */,
+                      std::string /* origin */,
+                      std::string /* target */)
 
   // A message for an external host.
-  IPC_MESSAGE_ROUTED1(AutomationMsg_ForwardMessageToExternalHost,
-                      std::string /* message*/)
+  IPC_MESSAGE_ROUTED3(AutomationMsg_ForwardMessageToExternalHost,
+                      std::string /* message */,
+                      std::string /* origin */,
+                      std::string /* target */)
 
   // This message starts a find within a tab corresponding to the supplied
   // tab handle. The parameter |request| specifies what to search for.

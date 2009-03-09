@@ -398,7 +398,9 @@ class RenderViewHost : public RenderWidgetHost {
 #endif
 
   // Forward a message from external host to chrome renderer.
-  void ForwardMessageFromExternalHost(const std::string& message);
+  void ForwardMessageFromExternalHost(const std::string& message,
+                                      const std::string& origin,
+                                      const std::string& target);
 
   // Message the renderer that we should be counted as a new document and not
   // as a popup.
@@ -485,7 +487,9 @@ class RenderViewHost : public RenderWidgetHost {
                                  int automation_id);
   void OnMsgDOMUISend(const std::string& message,
                       const std::string& content);
-  void OnMsgForwardMessageToExternalHost(const std::string& message);
+  void OnMsgForwardMessageToExternalHost(const std::string& message,
+                                         const std::string& origin,
+                                         const std::string& target);
 #ifdef CHROME_PERSONALIZATION
   void OnPersonalizationEvent(const std::string& message,
                               const std::string& content);

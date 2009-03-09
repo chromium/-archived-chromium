@@ -47,6 +47,8 @@ class WebFrame {
   // TODO(fqian): Remove this method when V8 supports NP runtime.
   virtual void* GetFrameImplementation() = 0;
 
+  virtual NPObject* GetWindowNPObject() = 0;
+
   // Loads the given WebRequest.
   virtual void LoadRequest(WebRequest* request) = 0;
 

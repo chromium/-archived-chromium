@@ -12,22 +12,37 @@
 // accessible from Javascript
 //
 // We expose one function, for sending a message to the external host:
-//  ForwardMessageToExternalHost(String receiver, String message);
+//  postMessage(String message[, String target]);
 class ExternalHostBindings : public DOMBoundBrowserObject {
  public:
   ExternalHostBindings();
-  virtual ~ExternalHostBindings() {};
+  virtual ~ExternalHostBindings() {
+  }
 
-  // The ForwardMessageToExternalHost() function provided to Javascript.
-  void ForwardMessageToExternalHost(const CppArgumentList& args,
-                                    CppVariant* result);
+  // The postMessage() function provided to Javascript.
+  void postMessage(const CppArgumentList& args, CppVariant* result);
 
   // Invokes the registered onmessage handler.
   // Returns true on successful invocation.
-  bool ForwardMessageFromExternalHost(const std::string& message);
+  bool ForwardMessageFromExternalHost(const std::string& message,
+                                      const std::string& origin,
+                                      const std::string& target);
+
+  // Overridden to hold onto a pointer back to the web frame.
+  void BindToJavascript(WebFrame* frame, const std::wstring& classname) {
+    frame_ = frame;
+    DOMBoundBrowserObject::BindToJavascript(frame, classname);
+  }
+
+ protected:
+  // Creates an uninitialized instance of a MessageEvent object.
+  // This is equivalent to calling window.document.createEvent("MessageEvent")
+  // in javascript.
+  bool CreateMessageEvent(NPObject** message_event);
 
  private:
   CppVariant on_message_handler_;
+  WebFrame* frame_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalHostBindings);
 };

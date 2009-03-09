@@ -546,7 +546,9 @@ class RenderView : public RenderWidget,
 #endif
 
   // Handles messages posted from automation.
-  void OnMessageFromExternalHost(const std::string& message);
+  void OnMessageFromExternalHost(const std::string& message,
+                                 const std::string& origin,
+                                 const std::string& target);
 
   // Message that we should no longer be part of the current popup window
   // grouping, and should form our own grouping.

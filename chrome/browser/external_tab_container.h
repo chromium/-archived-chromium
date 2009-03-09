@@ -83,7 +83,9 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
   virtual void ContentsZoomChange(bool zoom_in);
   virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
-  virtual void ForwardMessageToExternalHost(const std::string& message);
+  virtual void ForwardMessageToExternalHost(const std::string& message,
+                                            const std::string& origin,
+                                            const std::string& target);
   virtual bool IsExternalTabContainer() const {
     return true;
   };

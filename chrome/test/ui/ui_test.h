@@ -71,6 +71,9 @@ class UITest : public testing::Test {
   // Launches the browser and IPC testing server.
   void LaunchBrowserAndServer();
 
+  // Overridable so that derived classes can provide their own AutomationProxy.
+  virtual AutomationProxy* CreateAutomationProxy(int execution_timeout);
+
   // Closes the browser and IPC testing server.
   void CloseBrowserAndServer();
 
