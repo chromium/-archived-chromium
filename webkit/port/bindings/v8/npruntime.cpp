@@ -32,7 +32,6 @@
 #include <v8.h>
 
 #include "bindings/npruntime.h"
-#include "ChromiumBridge.h"
 #include "NPV8Object.h"
 #include "npruntime_priv.h"
 #include "V8NPObject.h"
@@ -186,8 +185,6 @@ void NPN_ReleaseVariantValue(NPVariant* variant) {
     variant->type = NPVariantType_Void;
 }
 
-static const char* kCounterNPObjects = "NPObjects";
-
 NPObject *NPN_CreateObject(NPP npp, NPClass* aClass) {
     ASSERT(aClass);
 
@@ -200,8 +197,6 @@ NPObject *NPN_CreateObject(NPP npp, NPClass* aClass) {
 
         obj->_class = aClass;
         obj->referenceCount = 1;
-
-        WebCore::ChromiumBridge::incrementStatsCounter(kCounterNPObjects);
         return obj;
     }
 
@@ -226,8 +221,6 @@ void _NPN_DeallocateObject(NPObject *obj) {
     ASSERT(obj->referenceCount >= 0);
 
     if (obj) {
-        WebCore::ChromiumBridge::decrementStatsCounter(kCounterNPObjects);
-
         // NPObjects that remain in pure C++ may never have wrappers.
         // Hence, if it's not already alive, don't unregister it.
         // If it is alive, unregister it as the *last* thing we do
