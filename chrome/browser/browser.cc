@@ -954,6 +954,9 @@ void Browser::OpenTaskManager() {
 }
 
 void Browser::OpenSelectProfileDialog() {
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (!command_line.HasSwitch(switches::kEnableUserDataDirProfiles))
+    return;
   UserMetrics::RecordAction(L"SelectProfile", profile_);
   window_->ShowSelectProfileDialog();
 }
