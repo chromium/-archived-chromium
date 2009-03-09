@@ -956,14 +956,14 @@ endif
 #endif
 
 CSSPropertyNames.h : $(WEBCORE_CSS_PROPERTY_NAMES) css/makeprop.pl
-	if sort $(WEBCORE_CSS_PROPERTY_NAMES) | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
+	if dos2unix $(WEBCORE_CSS_PROPERTY_NAMES) | sort | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
 	cat $(WEBCORE_CSS_PROPERTY_NAMES) > CSSPropertyNames.in
 	perl "$(WebCore)/css/makeprop.pl"
 
 CSSValueKeywords.h : $(WEBCORE_CSS_VALUE_KEYWORDS) css/makevalues.pl
 	# Lower case all the values, as CSS values are case-insensitive
 	perl -ne 'print lc' $(WEBCORE_CSS_VALUE_KEYWORDS) > CSSValueKeywords.in
-	if sort CSSValueKeywords.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
+	if dos2unix CSSValueKeywords.in | sort | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
 	perl "$(WebCore)/css/makevalues.pl"
 
 # DOCTYPE strings

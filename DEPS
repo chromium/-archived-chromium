@@ -45,7 +45,7 @@ deps = {
 deps_os = {
   "win": {
     "src/third_party/cygwin":
-      "/trunk/deps/third_party/cygwin@3248",
+      "/trunk/deps/third_party/cygwin@11176",
 
     "src/third_party/python_24":
       "/trunk/deps/third_party/python_24@7444",
