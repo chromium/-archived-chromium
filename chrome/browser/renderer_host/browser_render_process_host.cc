@@ -296,6 +296,7 @@ bool BrowserRenderProcessHost::Init() {
   const std::wstring locale = g_browser_process->GetApplicationLocale();
   cmd_line.AppendSwitchWithValue(switches::kLang, locale);
 
+#if defined(OS_WIN)
   bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox);
 #if !defined (GOOGLE_CHROME_BUILD)
   if (browser_command_line.HasSwitch(switches::kInProcessPlugins)) {
@@ -304,11 +305,11 @@ bool BrowserRenderProcessHost::Init() {
   }
 #endif
 
-#if defined(OS_WIN)
   bool child_needs_help =
       DebugFlags::ProcessDebugFlags(&cmd_line,
                                     ChildProcessInfo::RENDER_PROCESS,
                                     in_sandbox);
+// OS_WIN ends here
 #elif defined(OS_POSIX)
   if (browser_command_line.HasSwitch(switches::kRendererCmdPrefix)) {
     // launch the renderer child with some prefix (usually "gdb --args")
@@ -316,7 +317,7 @@ bool BrowserRenderProcessHost::Init() {
         browser_command_line.GetSwitchValue(switches::kRendererCmdPrefix);
     cmd_line.PrependWrapper(prefix);
   }
-#endif
+#endif  // OS_POSIX
 
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kRendererProcess);
