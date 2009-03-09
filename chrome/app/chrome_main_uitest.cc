@@ -35,17 +35,13 @@ TEST_F(ChromeMainTest, AppTestingInterface) {
 }
 
 // Make sure that the second invocation creates a new window.
-// This test is disabled. See bug 5671.
-TEST_F(ChromeMainTest, DISABLED_SecondLaunch) {
+TEST_F(ChromeMainTest, SecondLaunch) {
   include_testing_id_ = false;
   use_existing_browser_ = true;
 
   LaunchBrowser(CommandLine(L""), false);
 
-  int window_count;
-  ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       action_timeout_ms()));
-  ASSERT_EQ(2, window_count);
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
 }
 
 TEST_F(ChromeMainTest, ReuseBrowserInstanceWhenOpeningFile) {
