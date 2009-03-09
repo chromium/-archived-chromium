@@ -1447,8 +1447,6 @@ LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/plugins/npruntime.html = FAIL TIMEOUT
 
-// Merge 39830:39880 - regressions
-WIN : LayoutTests/editing/selection/5057506.html = FAIL
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
