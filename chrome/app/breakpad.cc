@@ -6,6 +6,7 @@
 
 #include <windows.h>
 #include <tchar.h>
+#include <vector>
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -30,8 +31,10 @@ const wchar_t kSystemPrincipalSid[] =L"S-1-5-18";
 
 google_breakpad::ExceptionHandler* g_breakpad = NULL;
 
+std::vector<wchar_t*>* url_chunks = NULL;
+
 // Dumps the current process memory.
- extern "C" void __declspec(dllexport) __cdecl DumpProcess() {
+extern "C" void __declspec(dllexport) __cdecl DumpProcess() {
   if (g_breakpad)
     g_breakpad->WriteMinidump();
 }
@@ -57,10 +60,38 @@ google_breakpad::CustomClientInfo* GetCustomInfo(const std::wstring& dll_path,
      version = L"0.0.0.0-devel";
   }
 
-  static google_breakpad::CustomInfoEntry ver_entry(L"ver", version.c_str());
-  static google_breakpad::CustomInfoEntry prod_entry(L"prod", product.c_str());
-  static google_breakpad::CustomInfoEntry plat_entry(L"plat", L"Win32");
-  static google_breakpad::CustomInfoEntry type_entry(L"ptype", type.c_str());
+  google_breakpad::CustomInfoEntry ver_entry(L"ver", version.c_str());
+  google_breakpad::CustomInfoEntry prod_entry(L"prod", product.c_str());
+  google_breakpad::CustomInfoEntry plat_entry(L"plat", L"Win32");
+  google_breakpad::CustomInfoEntry type_entry(L"ptype", type.c_str());
+
+  if (type == L"renderer") {
+    // If we're a renderer create entries for the URL. Currently we only allow
+    // each chunk to be 64 characters, which isn't enough for a URL. As a hack
+    // we create 8 entries and split the URL across the entries.
+    google_breakpad::CustomInfoEntry url1(L"url-chunk-1", L"");
+    google_breakpad::CustomInfoEntry url2(L"url-chunk-2", L"");
+    google_breakpad::CustomInfoEntry url3(L"url-chunk-3", L"");
+    google_breakpad::CustomInfoEntry url4(L"url-chunk-4", L"");
+    google_breakpad::CustomInfoEntry url5(L"url-chunk-5", L"");
+    google_breakpad::CustomInfoEntry url6(L"url-chunk-6", L"");
+    google_breakpad::CustomInfoEntry url7(L"url-chunk-7", L"");
+    google_breakpad::CustomInfoEntry url8(L"url-chunk-8", L"");
+
+    static google_breakpad::CustomInfoEntry entries[] =
+        { ver_entry, prod_entry, plat_entry, type_entry, url1, url2, url3,
+          url4, url5, url6, url7, url8 };
+
+    std::vector<wchar_t*>* tmp_url_chunks = new std::vector<wchar_t*>(8);
+    for (size_t i = 0; i < 8; ++i)
+      (*tmp_url_chunks)[i] = entries[4 + i].value;
+    url_chunks = tmp_url_chunks;
+
+    static google_breakpad::CustomClientInfo custom_info = {entries,
+                                                            arraysize(entries)};
+
+    return &custom_info;
+  }
   static google_breakpad::CustomInfoEntry entries[] = {ver_entry,
                                                        prod_entry,
                                                        plat_entry,
@@ -119,6 +150,35 @@ long WINAPI ChromeExceptionFilter(EXCEPTION_POINTERS* info) {
     return previous_filter(info);
 
   return EXCEPTION_EXECUTE_HANDLER;
+}
+
+extern "C" void __declspec(dllexport) __cdecl SetActiveRendererURL(
+    const wchar_t* url_cstring) {
+  DCHECK(url_cstring);
+  if (!url_chunks)
+    return;
+
+  std::wstring url(url_cstring);
+  size_t num_chunks = url_chunks->size();
+  size_t chunk_index = 0;
+  size_t url_size = url.size();
+
+  // Split the url across all the chunks.
+  for (size_t url_offset = 0;
+       chunk_index < num_chunks && url_offset < url_size; ++chunk_index) {
+    size_t current_chunk_size = std::min(url_size - url_offset,
+        static_cast<size_t>(
+            google_breakpad::CustomInfoEntry::kValueMaxLength - 1));
+    url._Copy_s((*url_chunks)[chunk_index],
+                google_breakpad::CustomInfoEntry::kValueMaxLength,
+                current_chunk_size, url_offset);
+    (*url_chunks)[chunk_index][current_chunk_size] = L'\0';
+    url_offset += current_chunk_size;
+  }
+
+  // And null terminate any unneeded chunks.
+  for (; chunk_index < num_chunks; ++chunk_index)
+    (*url_chunks)[chunk_index][0] = L'\0';
 }
 
 }  // namespace
@@ -270,4 +330,3 @@ void InitCrashReporter(const std::wstring& dll_path) {
     }
   }
 }
-

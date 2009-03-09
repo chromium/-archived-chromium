@@ -298,6 +298,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\renderer_logging.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\renderer_logging.h"
+			>
+		</File>
+		<File
 			RelativePath=".\render_process.cc"
 			>
 		</File>
