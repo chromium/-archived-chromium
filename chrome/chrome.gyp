@@ -24,7 +24,11 @@
       ['OS=="mac"', {'sources/': [
         ['include', '/cocoa/'],
         ['include', '_(cocoa|mac|posix)\\.(cc|mm?)$'],
-      ]}],
+      ]}, { # else: OS != "mac"
+        'sources/': [
+          ['exclude', '\\.mm?$'],
+        ],
+      }],
       ['OS=="win"', {'sources/': [
         ['include', '_(win)\\.cc$'],
         ['include', '/win_[^/]*\\.cc$'],
@@ -359,8 +363,6 @@
         'browser/autocomplete/autocomplete_popup_view.h',
         'browser/autocomplete/autocomplete_popup_view_win.cc',
         'browser/autocomplete/autocomplete_popup_view_win.h',
-        'browser/autocomplete/edit_drop_target.cc',
-        'browser/autocomplete/edit_drop_target.h',
         'browser/autocomplete/history_contents_provider.cc',
         'browser/autocomplete/history_contents_provider.h',
         'browser/autocomplete/history_url_provider.cc',
@@ -386,6 +388,8 @@
         'browser/automation/ui_controls.h',
         'browser/automation/url_request_failed_dns_job.cc',
         'browser/automation/url_request_failed_dns_job.h',
+        # TODO:  These should be moved to test_support (see below), but
+        # are currently used by production code in automation_provider.cc.
         'browser/automation/url_request_mock_http_job.cc',
         'browser/automation/url_request_mock_http_job.h',
         'browser/automation/url_request_slow_download_job.cc',
@@ -596,8 +600,8 @@
         'browser/google_util.h',
         'browser/gtk/back_forward_menu_model_gtk.cc',
         'browser/gtk/back_forward_menu_model_gtk.h',
-        'browser/gtk/browser_toolbar_view_gtk.cc',
-        'browser/gtk/browser_toolbar_view_gtk.h',
+        'browser/gtk/browser_toolbar_gtk.cc',
+        'browser/gtk/browser_toolbar_gtk.h',
         'browser/gtk/browser_window_factory_gtk.cc',
         'browser/gtk/browser_window_gtk.cc',
         'browser/gtk/browser_window_gtk.h',
@@ -1137,6 +1141,17 @@
         'browser/worker_host/worker_service.h',
       ],
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../net/net.gyp:net_resources',
+          ],
+          'sources!': [
+            # TODO(port):  Port these.
+            'browser/debugger/debugger_contents.cc',
+            'browser/debugger/debugger_view.cc',
+            'browser/debugger/debugger_window.cc',
+          ],
+        }],
         ['OS=="win"', {
           'defines': [
             '__STD_C',
@@ -1156,8 +1171,6 @@
             'browser/history/history_indexer.idl',
           ],
           'sources!': [
-            'browser/autocomplete/edit_drop_target.cc',
-            'browser/autocomplete/edit_drop_target.h',
             'browser/download/save_page_model.cc',
             'browser/download/save_page_model.h',
             'browser/history/history_publisher_none.cc',
@@ -1199,7 +1212,6 @@
             'browser/autocomplete/autocomplete_accessibility.cc',
             'browser/autocomplete/autocomplete_edit.cc',
             'browser/autocomplete/autocomplete_popup_model.cc',
-            'browser/autocomplete/edit_drop_target.cc',
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/browser_accessibility.cc',
@@ -1545,8 +1557,10 @@
         '..',
       ],
       'sources': [
-        'browser/automation/url_request_mock_http_job.cc',
-        'browser/automation/url_request_mock_http_job.h',
+        # TODO:  these should live here but are currently used by
+        # production code code in libbrowser (above).
+        #'browser/automation/url_request_mock_http_job.cc',
+        #'browser/automation/url_request_mock_http_job.h',
         'browser/automation/url_request_mock_net_error_job.cc',
         'browser/automation/url_request_mock_net_error_job.h',
         'browser/renderer_host/mock_render_process_host.cc',
