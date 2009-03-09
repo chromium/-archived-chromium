@@ -95,6 +95,19 @@ def ExpectedFilename(filename, suffix, platform):
     LayoutTests/platform/mac/
     the directory in which the test itself is located
 
+  A platform may optionally fall back to the Windows results if its own
+  results are not found, by returning True from its platform-specific
+  platform_utils.IsNonWindowsPlatformTargettingWindowsResults(). Supposing
+  that Linux does so, the search sequence for the |platform| 'chromium-linux'
+  will be
+    LayoutTests/platform/chromium-linux/
+    LayoutTests/platform/chromium/
+    LayoutTests/platform/linux/
+    LayoutTests/platform/chromium-win/
+    LayoutTests/platform/win/
+    LayoutTests/platform/mac/
+    the directory in which the test itself is located
+
   If no expected results are found in any of the searched directories, the
   directory in which the test itself is located will be returned.
 
@@ -134,8 +147,8 @@ def ExpectedFilename(filename, suffix, platform):
         platform_dirs.append('-'.join(segments[1:length]))
 
     if platform_utils.IsNonWindowsPlatformTargettingWindowsResults():
-      platform_dirs.append('chromium-win')
-      platform_dirs.append('chromium')
+      if platform.startswith('chromium'):
+        platform_dirs.append('chromium-win')
       platform_dirs.append('win')
 
     # Finally, append platform/mac/ to all searches.
