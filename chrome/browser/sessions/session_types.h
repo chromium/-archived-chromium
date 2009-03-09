@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/gfx/rect.h"
+#include "base/string16.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/common/page_transition_types.h"
@@ -38,7 +39,7 @@ class TabNavigation {
   TabNavigation(int index,
                 const GURL& url,
                 const GURL& referrer,
-                const std::wstring& title,
+                const string16& title,
                 const std::string& state,
                 PageTransition::Type transition)
       : url_(url),
@@ -64,7 +65,7 @@ class TabNavigation {
   const GURL& referrer() const { return referrer_; }
 
   // The title of the page.
-  const std::wstring& title() const { return title_; }
+  const string16& title() const { return title_; }
 
   // State bits.
   const std::string& state() const { return state_; }
@@ -93,7 +94,7 @@ class TabNavigation {
 
   GURL url_;
   GURL referrer_;
-  std::wstring title_;
+  string16 title_;
   std::string state_;
   PageTransition::Type transition_;
   int type_mask_;

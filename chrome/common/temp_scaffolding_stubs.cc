@@ -515,11 +515,6 @@ InfoBar* LinkInfoBarDelegate::CreateInfoBar() {
   return NULL;
 }
 
-bool CanImportURL(const GURL& url) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
     TabContents* tab,
     DownloadRequestManager::TabDownloadState* host) {

@@ -5,11 +5,11 @@
 #ifndef CHROME_BROWSER_HISTORY_PAGE_USAGE_DATA_H__
 #define CHROME_BROWSER_HISTORY_PAGE_USAGE_DATA_H__
 
-#include "SkBitmap.h"
-
+#include "base/string16.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_types.h"
 #include "googleurl/src/gurl.h"
+#include "skia/include/SkBitmap.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -52,11 +52,11 @@ class PageUsageData {
     return url_;
   }
 
-  void SetTitle(const std::wstring& s) {
+  void SetTitle(const string16& s) {
     title_ = s;
   }
 
-  const std::wstring& GetTitle() const {
+  const string16& GetTitle() const {
     return title_;
   }
 
@@ -130,7 +130,7 @@ class PageUsageData {
  private:
   history::URLID id_;
   GURL url_;
-  std::wstring title_;
+  string16 title_;
 
   SkBitmap* thumbnail_;
   bool thumbnail_set_;

@@ -98,7 +98,7 @@ TEST_F(UserScriptMasterTest, NewScripts) {
   FilePath path = script_dir_.AppendASCII("script.user.js");
 
   const char content[] = "some content";
-  int written = file_util::WriteFile(path, content, sizeof(content));
+  size_t written = file_util::WriteFile(path, content, sizeof(content));
   ASSERT_EQ(written, sizeof(content));
 
   message_loop_.Run();
@@ -111,7 +111,7 @@ TEST_F(UserScriptMasterTest, ExistingScripts) {
   FilePath path = script_dir_.AppendASCII("script.user.js");
 
   const char content[] = "some content";
-  int written = file_util::WriteFile(path, content, sizeof(content));
+  size_t written = file_util::WriteFile(path, content, sizeof(content));
   ASSERT_EQ(written, sizeof(content));
 
   scoped_refptr<UserScriptMaster> master(

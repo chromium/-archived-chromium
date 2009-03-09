@@ -118,13 +118,15 @@ class PaintTimer : public RenderWidgetHost::PaintObserver {
 // Adds "url", "title", and "direction" keys on incoming dictionary, setting
 // title as the url as a fallback on empty title.
 void SetURLTitleAndDirection(DictionaryValue* dictionary,
-                             const std::wstring& title,
+                             const string16& title,
                              const GURL& gurl) {
   std::wstring wstring_url = UTF8ToWide(gurl.spec());
   dictionary->SetString(L"url", wstring_url);
 
+  std::wstring wstring_title = UTF16ToWide(title);
+
   bool using_url_as_the_title = false;
-  std::wstring title_to_set(title);
+  std::wstring title_to_set(wstring_title);
   if (title_to_set.empty()) {
     using_url_as_the_title = true;
     title_to_set = wstring_url;
@@ -155,7 +157,7 @@ void SetURLTitleAndDirection(DictionaryValue* dictionary,
     if (using_url_as_the_title) {
       l10n_util::WrapStringWithLTRFormatting(&title_to_set);
     } else {
-      if (l10n_util::StringContainsStrongRTLChars(title)) {
+      if (l10n_util::StringContainsStrongRTLChars(wstring_title)) {
         l10n_util::WrapStringWithRTLFormatting(&title_to_set);
         direction = kRTLHtmlTextDirection;
       } else {
@@ -525,7 +527,8 @@ void RecentlyBookmarkedHandler::SendBookmarksToPage() {
   for (size_t i = 0; i < recently_bookmarked.size(); ++i) {
     BookmarkNode* node = recently_bookmarked[i];
     DictionaryValue* entry_value = new DictionaryValue;
-    SetURLTitleAndDirection(entry_value, node->GetTitle(), node->GetURL());
+    SetURLTitleAndDirection(entry_value,
+                            WideToUTF16(node->GetTitle()), node->GetURL());
     list_value.Append(entry_value);
   }
   dom_ui_->CallJavascriptFunction(L"recentlyBookmarked", list_value);

@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "base/file_util.h"
-#include "base/string_util.h"
 #include "base/path_service.h"
+#include "base/string_util.h"
+#include "base/time.h"
 #include "chrome/browser/sessions/session_backend.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_service_test_helper.h"
@@ -23,12 +22,12 @@ class SessionServiceTest : public testing::Test {
 
  protected:
   virtual void SetUp() {
-    std::wstring b = IntToWString(static_cast<int>(GetTickCount()));
+    std::string b = Int64ToString(base::Time::Now().ToInternalValue());
 
     PathService::Get(base::DIR_TEMP, &path_);
     path_ = path_.Append(FILE_PATH_LITERAL("SessionTestDirs"));
     file_util::CreateDirectory(path_);
-    path_ = path_.Append(b);
+    path_ = path_.AppendASCII(b);
 
     SessionService* session_service = new SessionService(path_);
     helper_.set_service(session_service);
@@ -88,7 +87,8 @@ TEST_F(SessionServiceTest, Basic) {
   ASSERT_NE(window_id.id(), tab_id.id());
 
   TabNavigation nav1(0, GURL("http://google.com"),
-                     GURL("http://www.referrer.com"), L"abc", "def",
+                     GURL("http://www.referrer.com"),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -97,11 +97,11 @@ TEST_F(SessionServiceTest, Basic) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_TRUE(window_bounds == windows[0]->bounds);
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
-  ASSERT_EQ(1, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
   ASSERT_EQ(Browser::TYPE_NORMAL, windows[0]->type);
 
   SessionTab* tab = windows[0]->tabs[0];
@@ -116,7 +116,8 @@ TEST_F(SessionServiceTest, PrunePostData1) {
   SessionID tab_id;
   ASSERT_NE(window_id.id(), tab_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
   nav1.set_type_mask(TabNavigation::HAS_POST_DATA);
 
@@ -126,7 +127,7 @@ TEST_F(SessionServiceTest, PrunePostData1) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(0, windows->size());
+  ASSERT_EQ(0U, windows->size());
 }
 
 // Creates two navigation entries, one with post data one without. Restores
@@ -136,10 +137,12 @@ TEST_F(SessionServiceTest, PrunePostData2) {
   ASSERT_NE(window_id.id(), tab_id.id());
 
   TabNavigation nav1(0, GURL("http://google.com"),
-                     GURL("http://www.referrer.com"), L"abc", "def",
+                     GURL("http://www.referrer.com"),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
   nav1.set_type_mask(TabNavigation::HAS_POST_DATA);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abc", "def",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -149,7 +152,7 @@ TEST_F(SessionServiceTest, PrunePostData2) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
 
   SessionTab* tab = windows[0]->tabs[0];
@@ -163,9 +166,11 @@ TEST_F(SessionServiceTest, ClosingTabStaysClosed) {
   SessionID tab2_id;
   ASSERT_NE(tab_id.id(), tab2_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
+                     ASCIIToUTF16("abcd"), "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -178,10 +183,10 @@ TEST_F(SessionServiceTest, ClosingTabStaysClosed) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
-  ASSERT_EQ(1, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
 
   SessionTab* tab = windows[0]->tabs[0];
   helper_.AssertTabEquals(window_id, tab_id, 0, 0, 1, *tab);
@@ -192,9 +197,11 @@ TEST_F(SessionServiceTest, ClosingTabStaysClosed) {
 TEST_F(SessionServiceTest, Pruning) {
   SessionID tab_id;
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
+                     ASCIIToUTF16("abcd"), "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -207,9 +214,9 @@ TEST_F(SessionServiceTest, Pruning) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
-  ASSERT_EQ(1, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
 
   SessionTab* tab = windows[0]->tabs[0];
   // We left the selected index at 5, then pruned. When rereading the
@@ -226,9 +233,11 @@ TEST_F(SessionServiceTest, TwoWindows) {
   SessionID tab1_id;
   SessionID tab2_id;
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
+                     ASCIIToUTF16("abcd"), "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab1_id, 0, true);
@@ -243,11 +252,11 @@ TEST_F(SessionServiceTest, TwoWindows) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(2, windows->size());
+  ASSERT_EQ(2U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(0, windows[1]->selected_tab_index);
-  ASSERT_EQ(1, windows[0]->tabs.size());
-  ASSERT_EQ(1, windows[1]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[1]->tabs.size());
 
   SessionTab* rt1;
   SessionTab* rt2;
@@ -279,7 +288,8 @@ TEST_F(SessionServiceTest, WindowWithNoTabsGetsPruned) {
   SessionID tab1_id;
   SessionID tab2_id;
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
 
   helper_.PrepareTabInWindow(window_id, tab1_id, 0, true);
@@ -293,9 +303,9 @@ TEST_F(SessionServiceTest, WindowWithNoTabsGetsPruned) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
-  ASSERT_EQ(1, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
 
   SessionTab* tab = windows[0]->tabs[0];
@@ -308,9 +318,11 @@ TEST_F(SessionServiceTest, ClosingWindowDoesntCloseTabs) {
   SessionID tab2_id;
   ASSERT_NE(tab_id.id(), tab2_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
+                     ASCIIToUTF16("abcd"), "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -324,10 +336,10 @@ TEST_F(SessionServiceTest, ClosingWindowDoesntCloseTabs) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
-  ASSERT_EQ(2, windows[0]->tabs.size());
+  ASSERT_EQ(2U, windows[0]->tabs.size());
 
   SessionTab* tab = windows[0]->tabs[0];
   helper_.AssertTabEquals(window_id, tab_id, 0, 0, 1, *tab);
@@ -347,9 +359,11 @@ TEST_F(SessionServiceTest, WindowCloseCommittedAfterNavigate) {
   service()->SetWindowType(window2_id, Browser::TYPE_NORMAL);
   service()->SetWindowBounds(window2_id, window_bounds, false);
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
+                     ASCIIToUTF16("abcd"), "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -365,10 +379,10 @@ TEST_F(SessionServiceTest, WindowCloseCommittedAfterNavigate) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
-  ASSERT_EQ(1, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
 
   SessionTab* tab = windows[0]->tabs[0];
   helper_.AssertTabEquals(window_id, tab_id, 0, 0, 1, *tab);
@@ -385,9 +399,11 @@ TEST_F(SessionServiceTest, IgnorePopups) {
   service()->SetWindowType(window2_id, Browser::TYPE_POPUP);
   service()->SetWindowBounds(window2_id, window_bounds, false);
 
-  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(),
+                     ASCIIToUTF16("abc"), "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
+                     ASCIIToUTF16("abcd"), "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -399,10 +415,10 @@ TEST_F(SessionServiceTest, IgnorePopups) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
-  ASSERT_EQ(1, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
 
   SessionTab* tab = windows[0]->tabs[0];
   helper_.AssertTabEquals(window_id, tab_id, 0, 0, 1, *tab);
@@ -419,7 +435,7 @@ TEST_F(SessionServiceTest, PruneFromFront) {
   // Add 5 navigations, with the 4th selected.
   for (int i = 0; i < 5; ++i) {
     TabNavigation nav(0, GURL(base_url + IntToString(i)), GURL(),
-                      L"a", "b", PageTransition::QUALIFIER_MASK);
+                      ASCIIToUTF16("a"), "b", PageTransition::QUALIFIER_MASK);
     UpdateNavigation(window_id, tab_id, nav, i, (i == 3));
   }
 
@@ -430,10 +446,10 @@ TEST_F(SessionServiceTest, PruneFromFront) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(1, windows->size());
+  ASSERT_EQ(1U, windows->size());
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
-  ASSERT_EQ(1, windows[0]->tabs.size());
+  ASSERT_EQ(1U, windows[0]->tabs.size());
 
   // We should be left with three navigations, the 2nd selected.
   SessionTab* tab = windows[0]->tabs[0];
@@ -454,7 +470,7 @@ TEST_F(SessionServiceTest, PruneToEmpty) {
   // Add 5 navigations, with the 4th selected.
   for (int i = 0; i < 5; ++i) {
     TabNavigation nav(0, GURL(base_url + IntToString(i)), GURL(),
-                      L"a", "b", PageTransition::QUALIFIER_MASK);
+                      ASCIIToUTF16("a"), "b", PageTransition::QUALIFIER_MASK);
     UpdateNavigation(window_id, tab_id, nav, i, (i == 3));
   }
 
@@ -465,5 +481,5 @@ TEST_F(SessionServiceTest, PruneToEmpty) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(0, windows->size());
+  ASSERT_EQ(0U, windows->size());
 }

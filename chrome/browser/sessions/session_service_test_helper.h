@@ -41,12 +41,12 @@ class SessionServiceTestHelper {
                        SessionID& tab_id,
                        int visual_index,
                        int nav_index,
-                       int nav_count,
+                       size_t nav_count,
                        const SessionTab& session_tab);
 
   void AssertTabEquals(int visual_index,
                        int nav_index,
-                       int nav_count,
+                       size_t nav_count,
                        const SessionTab& session_tab);
 
   void AssertNavigationEquals(const TabNavigation& expected,
@@ -54,7 +54,7 @@ class SessionServiceTestHelper {
 
   void AssertSingleWindowWithSingleTab(
       const std::vector<SessionWindow*>& windows,
-      int nav_count);
+      size_t nav_count);
 
   void set_service(SessionService* service) { service_ = service; }
   SessionService* service() { return service_.get(); }

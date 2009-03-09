@@ -317,7 +317,7 @@ void VisitSegmentDatabase::QuerySegmentUsage(
       statement2->column_string(0, &url);
       statement2->column_wstring(1, &title);
       pud->SetURL(GURL(url));
-      pud->SetTitle(title);
+      pud->SetTitle(WideToUTF16(title));
     }
     statement2->reset();
   }

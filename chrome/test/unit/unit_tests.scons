@@ -387,13 +387,9 @@ if not env.Bit('windows'):
   # TODO(port): Port these.
   input_files.Remove(
       '$CHROME_DIR/browser/autocomplete/autocomplete_unittest.cc',
-      '$CHROME_DIR/browser/autocomplete/history_contents_provider_unittest.cc',
-      '$CHROME_DIR/browser/autocomplete/history_url_provider_unittest.cc',
-      '$CHROME_DIR/browser/autocomplete/keyword_provider_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_context_menu_test.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_drag_data_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
-      '$CHROME_DIR/browser/bookmarks/bookmark_html_writer_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_table_model_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_utils_unittest.cc',
       '$CHROME_DIR/browser/browser_commands_unittest.cc',

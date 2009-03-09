@@ -42,7 +42,7 @@ void SessionServiceTestHelper::AssertTabEquals(SessionID& window_id,
                                                SessionID& tab_id,
                                                int visual_index,
                                                int nav_index,
-                                               int nav_count,
+                                               size_t nav_count,
                                                const SessionTab& session_tab) {
   EXPECT_EQ(window_id.id(), session_tab.window_id.id());
   EXPECT_EQ(tab_id.id(), session_tab.tab_id.id());
@@ -52,7 +52,7 @@ void SessionServiceTestHelper::AssertTabEquals(SessionID& window_id,
 void SessionServiceTestHelper::AssertTabEquals(
     int visual_index,
     int nav_index,
-    int nav_count,
+    size_t nav_count,
     const SessionTab& session_tab) {
   EXPECT_EQ(visual_index, session_tab.tab_visual_index);
   EXPECT_EQ(nav_index, session_tab.current_navigation_index);
@@ -72,9 +72,9 @@ void SessionServiceTestHelper::AssertNavigationEquals(
 
 void SessionServiceTestHelper::AssertSingleWindowWithSingleTab(
     const std::vector<SessionWindow*>& windows,
-    int nav_count) {
-  ASSERT_EQ(1, windows.size());
-  EXPECT_EQ(1, windows[0]->tabs.size());
+    size_t nav_count) {
+  ASSERT_EQ(1U, windows.size());
+  EXPECT_EQ(1U, windows[0]->tabs.size());
   EXPECT_EQ(nav_count, windows[0]->tabs[0]->navigations.size());
 }
 
