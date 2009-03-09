@@ -9,8 +9,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 class DownloadRequestManagerTest : public testing::Test,
-    public DownloadRequestManager::Callback,
-    public DownloadRequestManager::TestingDelegate {
+    public DownloadRequestManager::Callback {
  public:
   virtual void SetUp() {
     allow_download_ = true;
@@ -20,7 +19,8 @@ class DownloadRequestManagerTest : public testing::Test,
     contents->set_commit_on_navigate(true);
     controller_ = new NavigationController(contents, &profile_);
     download_request_manager_ = new DownloadRequestManager(NULL, NULL);
-    DownloadRequestManager::SetTestingDelegate(this);
+    test_delegate_.reset(new DownloadRequestManagerTestDelegate(this));
+    DownloadRequestManager::SetTestingDelegate(test_delegate_.get());
   }
 
   virtual void TearDown() {
@@ -40,14 +40,29 @@ class DownloadRequestManagerTest : public testing::Test,
         controller_->active_contents(), this);
   }
 
-  virtual bool ShouldAllowDownload() {
+  bool ShouldAllowDownload() {
     ask_allow_count_++;
     return allow_download_;
   }
 
  protected:
+  class DownloadRequestManagerTestDelegate
+      : public DownloadRequestManager::TestingDelegate {
+   public:
+    DownloadRequestManagerTestDelegate(DownloadRequestManagerTest* test)
+        : test_(test) { }
+
+    virtual bool ShouldAllowDownload() {
+      return test_->ShouldAllowDownload();
+    }
+
+   private:
+    DownloadRequestManagerTest* test_;
+  };
+
   TestingProfile profile_;
   scoped_ptr<TestTabContentsFactory> factory_;
+  scoped_ptr<DownloadRequestManagerTestDelegate> test_delegate_;
   NavigationController* controller_;
   scoped_refptr<DownloadRequestManager> download_request_manager_;
 

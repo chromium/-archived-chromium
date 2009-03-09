@@ -6,8 +6,14 @@
 #define CHROME_BROWSER_TEST_TEST_TAB_CONTENTS_H_
 
 #include "base/string_util.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
+
+// TODO(port): get rid of this section and finish porting.
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/tab_contents.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 // TabContents typed created by TestTabContentsFactory.
 class TestTabContents : public TabContents {

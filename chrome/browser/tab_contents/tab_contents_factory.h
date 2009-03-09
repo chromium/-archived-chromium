@@ -8,6 +8,7 @@
 #include <string>
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 
+class GURL;
 class TabContents;
 
 // Extend from this class to implement a custom tab contents type.  See

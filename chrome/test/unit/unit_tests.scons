@@ -393,8 +393,10 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/bookmarks/bookmark_table_model_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_utils_unittest.cc',
       '$CHROME_DIR/browser/browser_commands_unittest.cc',
+      # This test is mostly about renaming downloads to safe file names. As such
+      # we don't need/want to port it to linux. We might want to write our own
+      # tests for the download manager on linux, though.
       '$CHROME_DIR/browser/download/download_manager_unittest.cc',
-      '$CHROME_DIR/browser/download/download_request_manager_unittest.cc',
       '$CHROME_DIR/browser/extensions/user_script_master_unittest.cc',
       '$CHROME_DIR/browser/importer/firefox_importer_unittest.cc',
       '$CHROME_DIR/browser/importer/importer_unittest.cc',
@@ -429,7 +431,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/common/time_format_unittest.cc',
       '$CHROME_DIR/common/win_util_unittest.cc',
       '$CHROME_DIR/test/browser_with_test_window_test.cc',
-      '$CHROME_DIR/test/test_tab_contents.cc',
       '$CHROME_DIR/views/focus_manager_unittest.cc',
       '$CHROME_DIR/views/grid_layout_unittest.cc',
       '$CHROME_DIR/views/label_unittest.cc',
