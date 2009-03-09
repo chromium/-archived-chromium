@@ -14,7 +14,11 @@
 //------------------------------------------------------------------------------
 class MockFilterContext : public FilterContext {
  public:
-  explicit MockFilterContext(int buffer_size) : buffer_size_(buffer_size) {}
+  explicit MockFilterContext(int buffer_size)
+    : buffer_size_(buffer_size),
+      is_cached_content_(false),
+      is_sdch_response_(false) {
+  }
 
   void SetBufferSize(int buffer_size) { buffer_size_ = buffer_size; }
   void SetMimeType(const std::string& mime_type) { mime_type_ = mime_type; }
