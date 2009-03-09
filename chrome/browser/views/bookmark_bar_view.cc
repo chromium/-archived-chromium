@@ -16,9 +16,6 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/drag_utils.h"
 #include "chrome/browser/download/download_util.h"
-#include "chrome/browser/extensions/extension.h"
-#include "chrome/browser/extensions/extension_view.h"
-#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -316,37 +313,6 @@ class BookmarkFolderButton : public views::MenuButton {
   scoped_ptr<SlideAnimation> show_animation_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkFolderButton);
-};
-
-// ExtensionToolstrip -------------------------------------------------------
-
-// A simple container with a border for an ExtensionView.
-class ExtensionToolstrip : public views::View {
- public:
-  static const int kPadding = 2;
-
-  ExtensionToolstrip(const GURL& url, Profile* profile)
-      : view_(new ExtensionView(url, profile)) {
-    AddChildView(view_);
-    set_border(views::Border::CreateEmptyBorder(
-        kPadding, kPadding, kPadding, kPadding));
-  }
-
-  virtual gfx::Size GetPreferredSize() {
-    gfx::Size size = view_->GetPreferredSize();
-    size.Enlarge(kPadding*2, kPadding*2);
-    return size;
-  }
-
-  virtual void DidChangeBounds(const gfx::Rect& previous,
-                               const gfx::Rect& current) {
-    view_->SetBounds(GetLocalBounds(false));
-  }
-
- private:
-  ExtensionView* view_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExtensionToolstrip);
 };
 
 // DropInfo -------------------------------------------------------------------
@@ -723,8 +689,7 @@ BookmarkBarView::BookmarkBarView(Profile* profile, Browser* browser)
       overflow_button_(NULL),
       instructions_(NULL),
       bookmarks_separator_view_(NULL),
-      throbbing_view_(NULL),
-      num_extension_toolstrips_(0) {
+      throbbing_view_(NULL) {
   SetID(VIEW_ID_BOOKMARK_BAR);
   Init();
   SetProfile(profile);
@@ -755,9 +720,8 @@ void BookmarkBarView::SetProfile(Profile* profile) {
   // Cancels the current cancelable.
   NotifyModelChanged();
 
-  // Remove the current buttons and extension toolstrips.
-  for (int i = GetBookmarkButtonCount() + num_extension_toolstrips_ - 1;
-       i >= 0; --i) {
+  // Remove the current buttons.
+  for (int i = GetBookmarkButtonCount() - 1; i >= 0; --i) {
     View* child = GetChildViewAt(i);
     RemoveChildView(child);
     delete child;
@@ -777,8 +741,6 @@ void BookmarkBarView::SetProfile(Profile* profile) {
   ns->AddObserver(this, NotificationType::BOOKMARK_BUBBLE_SHOWN, ns_source);
   ns->AddObserver(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
   ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                  NotificationService::AllSources());
-  ns->AddObserver(this, NotificationType::EXTENSIONS_LOADED,
                   NotificationService::AllSources());
 
   model_ = profile_->GetBookmarkModel();
@@ -871,17 +833,6 @@ void BookmarkBarView::Layout() {
       child->SetBounds(x, y, pref.width(), height);
       x = next_x;
     }
-  }
-
-  // Extension toolstrips.
-  for (int i = GetBookmarkButtonCount();
-       i < GetBookmarkButtonCount() + num_extension_toolstrips_; ++i) {
-    views::View* child = GetChildViewAt(i);
-    gfx::Size pref = child->GetPreferredSize();
-    int next_x = x + pref.width() + kButtonPadding;
-    child->SetVisible(next_x < max_x);
-    child->SetBounds(x, y, pref.width(), height);
-    x = next_x;
   }
 
   // Layout the right side of the bar.
@@ -1267,10 +1218,10 @@ MenuButton* BookmarkBarView::CreateOverflowButton() {
 }
 
 int BookmarkBarView::GetBookmarkButtonCount() {
-  // We contain at least four non-bookmark button views: recently bookmarked,
-  // bookmarks separator, chevrons (for overflow), the instruction
-  // label, as well as any ExtensionViews displaying toolstrips.
-  return GetChildViewCount() - 4 - num_extension_toolstrips_;
+  // We contain four non-bookmark button views: recently bookmarked,
+  // bookmarks separator, chevrons (for overflow) and the instruction
+  // label.
+  return GetChildViewCount() - 4;
 }
 
 void BookmarkBarView::Loaded(BookmarkModel* model) {
@@ -1280,9 +1231,6 @@ void BookmarkBarView::Loaded(BookmarkModel* model) {
   for (int i = 0; i < node->GetChildCount(); ++i)
     AddChildView(i, CreateBookmarkButton(node->GetChild(i)));
   other_bookmarked_button_->SetEnabled(true);
-
-  AddExtensionToolstrips(profile_->GetExtensionsService()->extensions());
-
   Layout();
   SchedulePaint();
 }
@@ -1634,33 +1582,7 @@ void BookmarkBarView::Observe(NotificationType type,
       StopThrobbing(false);
       bubble_url_ = GURL();
       break;
-
-    case NotificationType::EXTENSIONS_LOADED: {
-      const ExtensionList* extensions = Details<ExtensionList>(details).ptr();
-      if (AddExtensionToolstrips(extensions)) {
-        Layout();
-        SchedulePaint();
-      }
-      break;
-    }
   }
-}
-
-bool BookmarkBarView::AddExtensionToolstrips(const ExtensionList* extensions) {
-  bool added_toolstrip = false;
-  for (ExtensionList::const_iterator extension = extensions->begin();
-       extension != extensions->end(); ++extension) {
-    if (!(*extension)->toolstrip_url().is_empty()) {
-      ExtensionToolstrip* view =
-          new ExtensionToolstrip((*extension)->toolstrip_url(), profile_);
-      int index = GetBookmarkButtonCount() + num_extension_toolstrips_;
-      AddChildView(index, view);
-      added_toolstrip = true;
-      ++num_extension_toolstrips_;
-    }
-  }
-
-  return added_toolstrip;
 }
 
 void BookmarkBarView::RemoveNotificationObservers() {
@@ -1670,8 +1592,6 @@ void BookmarkBarView::RemoveNotificationObservers() {
   ns->RemoveObserver(this, NotificationType::BOOKMARK_BUBBLE_HIDDEN, ns_source);
   ns->RemoveObserver(this,
                      NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-                     NotificationService::AllSources());
-  ns->RemoveObserver(this, NotificationType::EXTENSIONS_LOADED,
                      NotificationService::AllSources());
 }
 

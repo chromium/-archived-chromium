@@ -26,7 +26,6 @@ const wchar_t* Extension::kVersionKey = L"version";
 const wchar_t* Extension::kZipHashKey = L"zip_hash";
 const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
 const wchar_t* Extension::kThemeKey = L"theme";
-const wchar_t* Extension::kToolstripKey = L"toolstrip";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
@@ -71,8 +70,6 @@ const char* Extension::kInvalidZipHashError =
     "Required key 'zip_hash' is missing or invalid.";
 const char* Extension::kInvalidPluginsDirError =
     "Invalid value for 'plugins_dir'.";
-const char* Extension::kInvalidToolstripError =
-    "Invalid value for 'toolstrip'.";
 
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
@@ -261,16 +258,6 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       return false;
     }
     plugins_dir_ = path_.AppendASCII(plugins_dir);
-  }
-
-  // Initialize toolstrip (optional).
-  if (source.HasKey(kToolstripKey)) {
-    std::string toolstrip_path;
-    if (!source.GetString(kToolstripKey, &toolstrip_path)) {
-      *error = kInvalidToolstripError;
-      return false;
-    }
-    toolstrip_url_ = GetResourceURL(extension_url_, toolstrip_path);
   }
 
   if (source.HasKey(kThemeKey)) {

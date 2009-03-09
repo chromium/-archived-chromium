@@ -7,7 +7,6 @@
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/label.h"
 #include "chrome/views/menu.h"
@@ -385,11 +384,6 @@ class BookmarkBarView : public views::View,
   // throbs.
   void StopThrobbing(bool immediate);
 
-  // Add any extension toolstrips which may be requested by the given
-  // extensions.  Views for the toolstrips are inserted after the last bookmark
-  // button.  Returns true if there were any new toolstrips added.
-  bool AddExtensionToolstrips(const ExtensionList* extensions);
-
   Profile* profile_;
 
   // Used for opening urls.
@@ -441,9 +435,6 @@ class BookmarkBarView : public views::View,
   // The visible ancestor is either the other_bookmarked_button_,
   // overflow_button_ or a button on the bar.
   views::BaseButton* throbbing_view_;
-
-  // How many extension toolstrips we have showing in the toolbar.
-  int num_extension_toolstrips_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkBarView);
 };

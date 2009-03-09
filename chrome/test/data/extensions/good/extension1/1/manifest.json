@@ -4,7 +4,6 @@
   "version": "1.0.0.0",
   "name": "My extension 1",
   "description": "The first extension that I made.",
-  "toolstrip": "toolstrip.html",
   "content_scripts": [
     {
       "matches": ["http://*.google.com/*", "https://*.google.com/*"],

@@ -42,7 +42,6 @@ class Extension {
   static const wchar_t* kZipHashKey;
   static const wchar_t* kPluginsDirKey;
   static const wchar_t* kThemeKey;
-  static const wchar_t* kToolstripKey;
 
   // Some values expected in manifests.
   static const char* kRunAtDocumentStartValue;
@@ -66,7 +65,6 @@ class Extension {
   static const char* kInvalidVersionError;
   static const char* kInvalidZipHashError;
   static const char* kInvalidPluginsDirError;
-  static const char* kInvalidToolstripError;
 
   // The number of bytes in a legal id.
   static const size_t kIdSize;
@@ -87,9 +85,6 @@ class Extension {
   static FilePath GetResourcePath(const FilePath& extension_path,
                                   const std::string& relative_path);
 
-  // Initialize the extension from a parsed manifest.
-  bool InitFromValue(const DictionaryValue& value, std::string* error);
-
   // Returns an absolute path to a resource inside of an extension if the
   // extension has a theme defined with the given |resource_id|.  Otherwise
   // the path will be empty.  Note that this method is not static as it is
@@ -97,24 +92,11 @@ class Extension {
   // as providing a theme.
   FilePath GetThemeResourcePath(const int resource_id);
 
+  // The path to the folder the extension is stored in.
   const FilePath& path() const { return path_; }
+
+  // The base URL for the extension.
   const GURL& url() const { return extension_url_; }
-  const std::string& id() const { return id_; }
-  const Version* version() const { return version_.get(); }
-  // String representation of the version number.
-  const std::string VersionString() const;
-  const std::string& name() const { return name_; }
-  const std::string& description() const { return description_; }
-  const UserScriptList& content_scripts() const { return content_scripts_; }
-  const FilePath& plugins_dir() const { return plugins_dir_; }
-  const GURL& toolstrip_url() const { return toolstrip_url_; }
-
- private:
-  // The absolute path to the directory the extension is stored in.
-  FilePath path_;
-
-  // The base extension url for the extension.
-  GURL extension_url_;
 
   // A human-readable ID for the extension. The convention is to use something
   // like 'com.example.myextension', but this is not currently enforced. An
@@ -122,6 +104,41 @@ class Extension {
   // is expected to not change across versions. In the case of conflicts,
   // updates will only be allowed if the extension can be validated using the
   // previous version's update key.
+  const std::string& id() const { return id_; }
+
+  // The version number for the extension.
+  const Version* version() const { return version_.get(); }
+
+  // String representation of the version number.
+  const std::string VersionString() const;
+
+  // A human-readable name of the extension.
+  const std::string& name() const { return name_; }
+
+  // An optional longer description of the extension.
+  const std::string& description() const { return description_; }
+
+  // Paths to the content scripts that the extension contains.
+  const UserScriptList& content_scripts() const {
+    return content_scripts_;
+  }
+
+  // Path to the directory of NPAPI plugins that the extension contains.
+  const FilePath& plugins_dir() const {
+    return plugins_dir_;
+  }
+
+  // Initialize the extension from a parsed manifest.
+  bool InitFromValue(const DictionaryValue& value, std::string* error);
+
+ private:
+  // The path to the directory the extension is stored in.
+  FilePath path_;
+
+  // The base extension url for the extension.
+  GURL extension_url_;
+
+  // The extension's ID.
   std::string id_;
 
   // The extension's version.
@@ -130,18 +147,14 @@ class Extension {
   // The extension's human-readable name.
   std::string name_;
 
-  // An optional longer description of the extension.
+  // An optional description for the extension.
   std::string description_;
 
   // Paths to the content scripts the extension contains.
   UserScriptList content_scripts_;
 
-  // Optional absolute path to the directory of NPAPI plugins that the extension
-  // contains.
+  // Path to the directory of NPAPI plugins that the extension contains.
   FilePath plugins_dir_;
-
-  // Optional URL of an HTML file to be displayed in the toolbar.
-  GURL toolstrip_url_;
 
   // A SHA1 hash of the contents of the zip file.  Note that this key is only
   // present in the manifest that's prepended to the zip.  The inner manifest

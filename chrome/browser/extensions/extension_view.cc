@@ -8,8 +8,6 @@
 
 ExtensionView::ExtensionView(const GURL& url, Profile* profile) :
     HWNDHtmlView(url, this, false), profile_(profile) {
-  // TODO(mpcomplete): query this from the renderer somehow?
-  set_preferred_size(gfx::Size(100, 100));
 }
 
 void ExtensionView::CreatingRenderer() {
