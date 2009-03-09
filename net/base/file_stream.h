@@ -109,6 +109,11 @@ class FileStream {
   // You can pass NULL as the callback for synchronous I/O.
   int Write(const char* buf, int buf_len, CompletionCallback* callback);
 
+  // Truncates the file to be |bytes| length. This is only valid for writable
+  // files. After truncation the file stream is positioned at |bytes|. The new
+  // position is retured, or a value < 0 on error.
+  int64 Truncate(int64 bytes);
+
  private:
   class AsyncContext;
   friend class AsyncContext;

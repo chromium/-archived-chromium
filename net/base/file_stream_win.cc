@@ -287,4 +287,28 @@ int FileStream::Write(
   return rv;
 }
 
+int64 FileStream::Truncate(int64 bytes) {
+  if (!IsOpen())
+    return ERR_UNEXPECTED;
+
+  // We better be open for reading.
+  DCHECK(open_flags_ & base::PLATFORM_FILE_WRITE);
+
+  // Seek to the position to truncate from.
+  int64 seek_position = Seek(FROM_BEGIN, bytes);
+  if (seek_position != bytes)
+    return ERR_UNEXPECTED;
+
+  // And truncate the file.
+  BOOL result = SetEndOfFile(file_);
+  if (!result) {
+    DWORD error = GetLastError();
+    LOG(WARNING) << "SetEndOfFile failed: " << error;
+    return MapErrorCode(error);
+  }
+
+  // Success.
+  return seek_position;
+}
+
 }  // namespace net

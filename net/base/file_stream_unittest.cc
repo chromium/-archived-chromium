@@ -406,4 +406,31 @@ TEST_F(FileStreamTest, BasicReadWrite) {
   EXPECT_EQ(kTestDataSize * 2, file_size);
 }
 
+// Tests truncating a file.
+TEST_F(FileStreamTest, Truncate) {
+  int flags = base::PLATFORM_FILE_CREATE_ALWAYS | base::PLATFORM_FILE_WRITE;
+
+  net::FileStream write_stream;
+  ASSERT_EQ(net::OK, write_stream.Open(temp_file_path(), flags));
+
+  // Write some data to the file.
+  const char test_data[] = "0123456789";
+  write_stream.Write(test_data, arraysize(test_data), NULL);
+
+  // Truncate the file.
+  ASSERT_EQ(4, write_stream.Truncate(4));
+
+  // Write again.
+  write_stream.Write(test_data, 4, NULL);
+
+  // Close the stream.
+  write_stream.Close();
+
+  // Read in the contents and make sure we get back what we expected.
+  std::string read_contents;
+  file_util::ReadFileToString(temp_file_path(), &read_contents);
+
+  ASSERT_TRUE(read_contents == "01230123");
+}
+
 // TODO(erikkay): more READ_WRITE tests?
