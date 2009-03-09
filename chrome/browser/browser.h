@@ -68,6 +68,19 @@ class Browser : public TabStripModelDelegate,
     FEATURE_DOWNLOADSHELF = 64
   };
 
+  // Maximized state on creation.
+  enum MaximizedState {
+    // The maximized state is set to the default, which varies depending upon
+    // what the user has done.
+    MAXIMIZED_STATE_DEFAULT,
+
+    // Maximized state is explicitly maximized.
+    MAXIMIZED_STATE_MAXIMIZED,
+
+    // Maximized state is explicitly not maximized (normal).
+    MAXIMIZED_STATE_UNMAXIMIZED
+  };
+
   // Constructors, Creation, Showing //////////////////////////////////////////
 
   // Creates a new browser of the given |type| and for the given |profile|. The
@@ -92,8 +105,8 @@ class Browser : public TabStripModelDelegate,
   void set_override_bounds(const gfx::Rect& bounds) {
     override_bounds_ = bounds;
   }
-  void set_override_maximized(bool maximized) {
-    override_maximized_ = maximized;
+  void set_maximized_state(MaximizedState state) {
+    maximized_state_ = state;
   }
 
   // Creates the Browser Window. Prefer to use the static helpers above where
@@ -640,7 +653,7 @@ class Browser : public TabStripModelDelegate,
   // obtained from the last window of the same type, or obtained from the
   // shell shortcut's startup info.
   gfx::Rect override_bounds_;
-  bool override_maximized_;
+  MaximizedState maximized_state_;
 
   // The following factory is used to close the frame at a later time.
   ScopedRunnableMethodFactory<Browser> method_factory_;

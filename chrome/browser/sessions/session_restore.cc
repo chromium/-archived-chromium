@@ -300,7 +300,9 @@ class SessionRestoreImpl : public NotificationObserver {
       if (!browser) {
         browser = new Browser((*i)->type, profile_);
         browser->set_override_bounds((*i)->bounds);
-        browser->set_override_maximized((*i)->is_maximized);
+        browser->set_maximized_state((*i)->is_maximized ?
+            Browser::MAXIMIZED_STATE_MAXIMIZED :
+            Browser::MAXIMIZED_STATE_UNMAXIMIZED);
         browser->CreateBrowserWindow();
       }
       if ((*i)->type == Browser::TYPE_NORMAL)

@@ -174,7 +174,7 @@ Browser::Browser(Type type, Profile* profile)
       toolbar_model_(this),
       chrome_updater_factory_(this),
       is_attempting_to_close_browser_(false),
-      override_maximized_(false),
+      maximized_state_(MAXIMIZED_STATE_DEFAULT),
       method_factory_(this),
       idle_task_(new BrowserIdleTimer) {
   tabstrip_model_.AddObserver(this);
@@ -376,8 +376,14 @@ bool Browser::GetSavedMaximizedState() const {
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kStartMaximized))
     return true;
 
+  if (maximized_state_ == MAXIMIZED_STATE_MAXIMIZED)
+    return true;
+  if (maximized_state_ == MAXIMIZED_STATE_UNMAXIMIZED)
+    return false;
+
+  // An explicit maximized state was not set. Query the window sizer.
   gfx::Rect restored_bounds;
-  bool maximized = override_maximized_;
+  bool maximized = false;
   WindowSizer::GetBrowserWindowBounds(app_name_, restored_bounds,
                                       &restored_bounds, &maximized);
   return maximized;
@@ -1262,7 +1268,8 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   // Create an empty new browser window the same size as the old one.
   Browser* browser = new Browser(TYPE_NORMAL, profile_);
   browser->set_override_bounds(new_window_bounds);
-  browser->set_override_maximized(maximize);
+  browser->set_maximized_state(
+      maximize ? MAXIMIZED_STATE_MAXIMIZED : MAXIMIZED_STATE_UNMAXIMIZED);
   browser->CreateBrowserWindow();
   browser->tabstrip_model()->AppendTabContents(detached_contents, true);
   // Make sure the loading state is updated correctly, otherwise the throbber
