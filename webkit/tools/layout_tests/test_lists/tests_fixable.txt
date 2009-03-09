@@ -1676,8 +1676,8 @@ LINUX : LayoutTests/svg/custom/js-late-mask-creation.svg = FAIL
 // Regression from merge 41268:41286
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 WIN : LayoutTests/fast/dom/anchor-toString.html = FAIL
-LINUX WIN : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
-LINUX WIN : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
+LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
+LINUX : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
 LINUX : LayoutTests/fast/borders/border-image-rotate-transform.html = FAIL
 LINUX : LayoutTests/fast/css/resize-corner-tracking-transformed.html = FAIL
