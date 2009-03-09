@@ -2,18 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "build/build_config.h"
-
-#if defined(OS_WIN)
-#include <windows.h>
-#include <objbase.h>
-#endif
-#include <algorithm>
-
 #include "chrome/renderer/render_thread.h"
+
+#include <algorithm>
+#include <vector>
 
 #include "base/command_line.h"
 #include "base/shared_memory.h"
+#include "base/stats_table.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
@@ -24,7 +20,6 @@
 #if defined(OS_WIN)
 #include "chrome/plugin/plugin_channel.h"
 #else
-#include <vector>
 #include "base/scoped_handle.h"
 #include "chrome/plugin/plugin_channel_base.h"
 #include "webkit/glue/weburlrequest.h"
@@ -35,6 +30,7 @@
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
+#include "v8/include/v8.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
 #include "webkit/extensions/v8/playback_extension.h"
@@ -42,6 +38,11 @@
 
 #include "WebKit.h"
 #include "WebString.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#include <objbase.h>
+#endif
 
 static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 
@@ -246,9 +247,13 @@ void RenderThread::InformHostOfCacheStatsLater() {
 void RenderThread::EnsureWebKitInitialized() {
   if (webkit_client_.get())
     return;
+
+  v8::V8::SetCounterFunction(StatsTable::FindLocation);
+
   webkit_client_.reset(new RendererWebKitClientImpl);
   WebKit::initialize(webkit_client_.get());
   WebKit::registerURLSchemeAsLocal(ASCIIToUTF16(chrome::kChromeUIScheme));
+
   WebKit::registerExtension(extensions_v8::GearsExtension::Get());
   WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
 

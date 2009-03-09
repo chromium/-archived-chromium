@@ -2303,14 +2303,6 @@ void V8Proxy::InitContextIfNeeded()
   if (!m_context.IsEmpty())
       return;
 
-  // Install counters handler with V8.
-  static bool v8_counters_initialized = false;
-  if (!v8_counters_initialized) {
-    // TODO(eroman):
-    //ChromiumBridge::initV8CounterFunction();
-    v8_counters_initialized = true;
-  }
-
   // Setup the security handlers and message listener.  This only has
   // to be done once.
   static bool v8_initialized = false;

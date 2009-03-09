@@ -12,6 +12,7 @@
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
+#include "v8/include/v8.h"
 
 #include "WebCString.h"
 #include "WebKit.h"
@@ -21,6 +22,8 @@
 class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
  public:
   TestShellWebKitInit(bool layout_test_mode) {
+    v8::V8::SetCounterFunction(StatsTable::FindLocation);
+
     WebKit::initialize(this);
     WebKit::setLayoutTestMode(layout_test_mode);
     WebKit::registerURLSchemeAsLocal(
@@ -82,11 +85,6 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebString defaultLocale() {
     return ASCIIToUTF16("en-US");
   }
-
-  virtual void decrementStatsCounter(const char* name) {}
-  virtual void incrementStatsCounter(const char* name) {}
-  virtual void traceEventBegin(const char* name, void* id, const char* extra) {}
-  virtual void traceEventEnd(const char* name, void* id, const char* extra) {}
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;

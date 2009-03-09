@@ -24,11 +24,6 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   virtual void prefetchHostName(const WebKit::WebString&);
   virtual WebKit::WebString defaultLocale();
 
-  virtual void decrementStatsCounter(const char* name);
-  virtual void incrementStatsCounter(const char* name);
-  virtual void traceEventBegin(const char* name, void* id, const char* extra);
-  virtual void traceEventEnd(const char* name, void* id, const char* extra);
-
  private:
   class MimeRegistry : public webkit_glue::SimpleWebMimeRegistryImpl {
    public:

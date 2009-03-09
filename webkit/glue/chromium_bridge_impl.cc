@@ -29,17 +29,10 @@
 
 #undef LOG
 #include "base/file_util.h"
-#include "base/message_loop.h"
-#include "base/stats_counters.h"
 #include "base/string_util.h"
-#include "base/time.h"
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
 #include "skia/ext/skia_utils_win.h"
-#if USE(V8)
-#include <v8.h>
-#endif
-#include "grit/webkit_resources.h"
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/plugins/plugin_instance.h"

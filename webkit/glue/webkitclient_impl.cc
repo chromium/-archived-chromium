@@ -7,6 +7,8 @@
 #include "WebCString.h"
 
 #include "base/message_loop.h"
+#include "base/stats_counters.h"
+#include "base/trace_event.h"
 #include "grit/webkit_resources.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -19,6 +21,24 @@ WebKitClientImpl::WebKitClientImpl()
 
 WebKit::WebClipboard* WebKitClientImpl::clipboard() {
   return &clipboard_;
+}
+
+void WebKitClientImpl::decrementStatsCounter(const char* name) {
+  StatsCounter(name).Decrement();
+}
+
+void WebKitClientImpl::incrementStatsCounter(const char* name) {
+  StatsCounter(name).Increment();
+}
+
+void WebKitClientImpl::traceEventBegin(const char* name, void* id,
+                                       const char* extra) {
+  TRACE_EVENT_BEGIN(name, id, extra);
+}
+
+void WebKitClientImpl::traceEventEnd(const char* name, void* id,
+                                     const char* extra) {
+  TRACE_EVENT_END(name, id, extra);
 }
 
 WebKit::WebCString WebKitClientImpl::loadResource(const char* name) {

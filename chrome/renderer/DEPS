@@ -13,6 +13,7 @@ include_rules = [
   "+webkit/extensions",
   "+webkit/glue",
   "+webkit/glue/plugins",
+  "+v8/include",
   
   # FIXME - refactor code and remove these dependencies
   "+chrome/browser/net",
