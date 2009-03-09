@@ -375,6 +375,7 @@
         'base/escape_unittest.cc',
         'base/file_stream_unittest.cc',
         'base/filter_unittest.cc',
+        'base/filter_unittest.h',
         'base/gzip_filter_unittest.cc',
         'base/host_resolver_unittest.cc',
         'base/listen_socket_unittest.cc',
