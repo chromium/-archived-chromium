@@ -1713,19 +1713,11 @@ WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 // http://crbug.com/8404
 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 
-// New tests added in the 41420:41447 merge that crash, and hence should not be
-// deferred.  (These don't crash on Linux but their output hasn't been vetted.)
-LayoutTests/transforms/3d/hit-testing/backface-hit-test.html = CRASH
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping-deep.html = CRASH FAIL
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping-origins.html = CRASH FAIL
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping-preserve-3d.html = CRASH FAIL
-LayoutTests/transforms/3d/point-mapping/3d-point-mapping.html = CRASH FAIL
-
-// New tests added in the 41420:41447 merge that are just missing results:
-SKIP : LayoutTests/transforms/3d/point-mapping/3d-point-mapping-2.html = FAIL
-
-// New tests added in the 41420:41447 merge that fail:
+// New with the 41420:41447 merge, but rebaselining is not the right answer.
+// See https://bugs.webkit.org/show_bug.cgi?id=24467 for details.
 DEFER LINUX WIN : LayoutTests/fast/block/float/nested-clearance.html = FAIL
+
+// New tests added in the 41420:41447 merge that fail (just needs a new baseline):
 DEFER LINUX WIN : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
 
 // These may need to be rebaselined on linux, due to merge 41447:41498
