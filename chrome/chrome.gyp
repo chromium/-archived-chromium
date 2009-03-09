@@ -1683,6 +1683,7 @@
         'browser/download/download_request_manager_unittest.cc',
         'browser/download/save_package_unittest.cc',
         'browser/extensions/extension_unittest.cc',
+	'browser/extensions/extension_ui_unittest.cc',
         'browser/extensions/extensions_service_unittest.cc',
         'browser/extensions/user_script_master_unittest.cc',
         'browser/history/expire_history_backend_unittest.cc',

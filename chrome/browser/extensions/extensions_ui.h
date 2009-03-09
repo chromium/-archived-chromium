@@ -9,6 +9,7 @@
 
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
+#include "chrome/browser/extensions/extensions_service.h"
 
 class GURL;
 
@@ -30,11 +31,28 @@ class ExtensionsUIHTMLSource : public ChromeURLDataManager::DataSource {
 // The handler for Javascript messages related to the "extensions" view.
 class ExtensionsDOMHandler : public DOMMessageHandler {
  public:
-  explicit ExtensionsDOMHandler(DOMUI* dom_ui);
+  ExtensionsDOMHandler(DOMUI* dom_ui,
+      ExtensionsService* extension_service);
+
   virtual ~ExtensionsDOMHandler();
   void Init();
 
+  // Extension Detail JSON Struct for page. (static for ease of testing).
+  static DictionaryValue*
+      CreateExtensionDetailValue(const Extension *extension);
+
+  // ContentScript JSON Struct for page. (static for ease of testing).
+  static DictionaryValue*
+      CreateContentScriptDetailValue(const UserScript& script,
+                                     const FilePath& extension_path);
+
  private:
+  // Callback for "requestExtensionsData" message.
+  void HandleRequestExtensionsData(const Value* value);
+
+  // Our model.
+  scoped_refptr<ExtensionsService> extensions_service_;
+
   DISALLOW_COPY_AND_ASSIGN(ExtensionsDOMHandler);
 };
 
