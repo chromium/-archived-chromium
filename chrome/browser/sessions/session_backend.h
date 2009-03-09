@@ -81,8 +81,12 @@ class SessionBackend : public base::RefCountedThreadSafe<SessionBackend> {
   void MoveCurrentSessionToLastSession();
 
  private:
-  // Recreates the current file such that it only contains the header and
-  // NO commands.
+  // If current_session_file_ is open, it is truncated so that it is essentially
+  // empty (only contains the header). If current_session_file_ isn't open, it
+  // is is opened and the header is written to it. After this
+  // current_session_file_ contains no commands.
+  // NOTE: current_session_file_ may be NULL if the file couldn't be opened or
+  // the header couldn't be written.
   void ResetFile();
 
   // Opens the current file and writes the header. On success a handle to
@@ -92,6 +96,13 @@ class SessionBackend : public base::RefCountedThreadSafe<SessionBackend> {
   // Appends the specified commands to the specified file.
   bool AppendCommandsToFile(net::FileStream* file,
                             const std::vector<SessionCommand*>& commands);
+
+  // Returns the size of the header. The header is the first bytes written to
+  // the file, and is used to identify the file as one written by us.
+  int32 sizeof_header() const {
+    int32 header[2];
+    return sizeof(header);
+  }
 
   const BaseSessionService::SessionType type_;
 

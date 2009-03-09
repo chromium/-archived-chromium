@@ -213,9 +213,14 @@ void SessionBackend::AppendCommands(
     std::vector<SessionCommand*>* commands,
     bool reset_first) {
   Init();
-  if ((reset_first && !empty_file_) || !current_session_file_->IsOpen())
+  // Make sure and check current_session_file_, if opening the file failed
+  // current_session_file_ will be NULL.
+  if ((reset_first && !empty_file_) || !current_session_file_.get() ||
+      !current_session_file_->IsOpen()) {
     ResetFile();
-  if (current_session_file_->IsOpen() &&
+  }
+  // Need to check current_session_file_ again, ResetFile may fail.
+  if (current_session_file_.get() && current_session_file_->IsOpen() &&
       !AppendCommandsToFile(current_session_file_.get(), *commands)) {
     current_session_file_.reset(NULL);
   }
@@ -313,7 +318,16 @@ bool SessionBackend::AppendCommandsToFile(net::FileStream* file,
 
 void SessionBackend::ResetFile() {
   DCHECK(inited_);
-  current_session_file_.reset(OpenAndWriteHeader(GetCurrentSessionPath()));
+  if (current_session_file_.get()) {
+    // File is already open, truncate it. We truncate instead of closing and
+    // reopening to avoid the possibility of scanners locking the file out
+    // from under us once we close it. If truncation fails, we'll try to
+    // recreate.
+    if (current_session_file_->Truncate(sizeof_header()) != sizeof_header())
+      current_session_file_.reset(NULL);
+  }
+  if (!current_session_file_.get())
+    current_session_file_.reset(OpenAndWriteHeader(GetCurrentSessionPath()));
   empty_file_ = true;
 }
 
@@ -321,7 +335,8 @@ net::FileStream* SessionBackend::OpenAndWriteHeader(const FilePath& path) {
   DCHECK(!path.empty());
   net::FileStream* file = new net::FileStream();
   file->Open(path, base::PLATFORM_FILE_CREATE_ALWAYS |
-             base::PLATFORM_FILE_WRITE);
+             base::PLATFORM_FILE_WRITE | base::PLATFORM_FILE_EXCLUSIVE_WRITE |
+             base::PLATFORM_FILE_EXCLUSIVE_READ);
   if (!file->IsOpen())
     return NULL;
   int32 header[2];
@@ -329,7 +344,7 @@ net::FileStream* SessionBackend::OpenAndWriteHeader(const FilePath& path) {
   header[1] = kFileCurrentVersion;
   int wrote = file->Write(reinterpret_cast<char*>(&header),
                           sizeof(header), NULL);
-  if (wrote != sizeof(header))
+  if (wrote != sizeof_header())
     return NULL;
   return file;
 }

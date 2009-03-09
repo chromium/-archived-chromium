@@ -180,3 +180,32 @@ TEST_F(SessionBackendTest, EmptyCommand) {
   AssertCommandEqualsData(empty_command, commands[0]);
   STLDeleteElements(&commands);
 }
+
+// Writes a command, appends another command with reset to true, then reads
+// making sure we only get back the second command.
+TEST_F(SessionBackendTest, Truncate) {
+  scoped_refptr<SessionBackend> backend(
+      new SessionBackend(BaseSessionService::SESSION_RESTORE, path_));
+  struct TestData first_data = { 1,  "a" };
+  std::vector<SessionCommand*> commands;
+  commands.push_back(CreateCommandFromData(first_data));
+  backend->AppendCommands(new SessionCommands(commands), false);
+  commands.clear();
+
+  // Write another command, this time resetting the file when appending.
+  struct TestData second_data = { 2,  "b" };
+  commands.push_back(CreateCommandFromData(second_data));
+  backend->AppendCommands(new SessionCommands(commands), true);
+  commands.clear();
+
+  // Read it back in.
+  backend = NULL;
+  backend = new SessionBackend(BaseSessionService::SESSION_RESTORE, path_);
+  backend->ReadLastSessionCommandsImpl(&commands);
+
+  // And make sure we get back the expected data.
+  ASSERT_EQ(1U, commands.size());
+  AssertCommandEqualsData(second_data, commands[0]);
+
+  STLDeleteElements(&commands);
+}
