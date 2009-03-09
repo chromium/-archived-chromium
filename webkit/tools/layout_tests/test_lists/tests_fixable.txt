@@ -485,7 +485,6 @@ LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/stroked-pattern.svg = FAIL
 
 LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 
