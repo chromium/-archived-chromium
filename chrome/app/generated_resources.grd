@@ -2815,7 +2815,7 @@ each locale. -->
         Form autofill:
       </message>
       <message name="IDS_AUTOFILL_SAVEFORMS" desc="The autofill checkbox label">
-        Save and show text typed in similar fields
+        Save text from forms to make them easier to fill out
       </message>
 
       <message name="IDS_OPTIONS_FONTSANDLANGUAGES_GROUP_NAME" desc="The label of the 'Fonts and Languages' group">
