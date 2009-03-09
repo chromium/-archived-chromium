@@ -554,9 +554,10 @@ void Menu::RunMenuAt(int x, int y) {
 
   delegate_->MenuWillShow();
 
-  // Show the menu.  Blocks until the menu is dismissed or an item is chosen.
+  // NOTE: we don't use TPM_RIGHTBUTTON here as it breaks selecting by way of
+  // press, drag, release. See bugs 718 and 8560.
   UINT flags =
-      GetTPMAlignFlags() | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_RECURSE;
+      GetTPMAlignFlags() | TPM_LEFTBUTTON | TPM_RETURNCMD | TPM_RECURSE;
   is_menu_visible_ = true;
   DCHECK(owner_);
   // In order for context menus on menus to work, the context menu needs to
