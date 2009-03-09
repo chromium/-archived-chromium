@@ -1717,7 +1717,7 @@ DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/block/float/nested-clearance.html = FAIL
 
 // New tests added in the 41420:41447 merge that fail (just needs a new baseline):
-DEFER LINUX WIN : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
+DEFER LINUX : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
 
 // These may need to be rebaselined on linux, due to merge 41447:41498
 // See: http://trac.webkit.org/changeset/41465
