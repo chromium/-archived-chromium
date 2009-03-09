@@ -159,15 +159,6 @@ void Tab::GetHitTestMask(gfx::Path* mask) const {
 
 bool Tab::OnMousePressed(const views::MouseEvent& event) {
   if (event.IsLeftMouseButton()) {
-    // When only one tab is present, instead of ripping it out on drag,
-    // it dragged the whole window. This is done by sending a non-client
-    // message which is handled by the default window procedure and causes
-    // the window get the default drag-on-caption behavior.
-    if (!delegate_->HasAvailableDragActions()) {
-      SendMessage(GetWidget()->GetHWND(), WM_NCLBUTTONDOWN,
-                  HTCAPTION, MAKELPARAM(event.x(), event.y()));
-      return false;
-    }
     // Store whether or not we were selected just now... we only want to be
     // able to drag foreground tabs, so we don't start dragging the tab if
     // it was in the background.
