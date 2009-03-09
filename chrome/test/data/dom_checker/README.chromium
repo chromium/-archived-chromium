@@ -1,0 +1,7 @@
+This directory contains DOM checker, a tool to help automatically validate
+domain security policy enforcement. This tool will check cross-domain DOM
+accesses, JavaScript cookies, XMLHttpRequest calls, and more.
+
+DOM checker was written by Michal Zalewski and Filipe Almeida of Google.
+
+Version: 1.01
