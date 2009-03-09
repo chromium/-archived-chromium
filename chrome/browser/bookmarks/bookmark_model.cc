@@ -95,10 +95,8 @@ BookmarkModel::BookmarkModel(Profile* profile)
       bookmark_bar_node_(NULL),
       other_node_(NULL),
       observers_(ObserverList<BookmarkModelObserver>::NOTIFY_EXISTING_ONLY),
-      waiting_for_history_load_(false)
-#if defined(OS_WIN)
-    , loaded_signal_(CreateEvent(NULL, TRUE, FALSE, NULL))
-#endif
+      waiting_for_history_load_(false),
+      loaded_signal_(TRUE, FALSE)
 {
   // Create the bookmark bar and other bookmarks folders. These always exist.
   CreateBookmarkNode();
@@ -489,13 +487,7 @@ void BookmarkModel::DoneLoading() {
 
   loaded_ = true;
 
-#if defined(OS_WIN)
-  if (loaded_signal_.Get())
-    SetEvent(loaded_signal_.Get());
-#else
-  NOTIMPLEMENTED();
-#endif
-
+  loaded_signal_.Signal();
 
   // Notify our direct observers.
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_, Loaded(this));
@@ -583,12 +575,7 @@ BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
 }
 
 void BookmarkModel::BlockTillLoaded() {
-#if defined(OS_WIN)
-  if (loaded_signal_.Get())
-    WaitForSingleObject(loaded_signal_.Get(), INFINITE);
-#else
-  NOTIMPLEMENTED();
-#endif
+  loaded_signal_.Wait();
 }
 
 BookmarkNode* BookmarkModel::GetNodeByID(BookmarkNode* node, int id) {

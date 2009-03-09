@@ -9,9 +9,7 @@
 
 #include "base/lock.h"
 #include "base/observer_list.h"
-#if defined(OS_WIN)
-#include "base/scoped_handle.h"
-#endif  // defined(OS_WIN)
+#include "base/waitable_event.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/cancelable_request.h"
@@ -430,12 +428,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // doesn't exist and the history service hasn't finished loading.
   bool waiting_for_history_load_;
 
-#if defined(OS_WIN)
-  // TODO(port): Implement for other platforms.
-
-  // Handle to event signaled when loading is done.
-  ScopedHandle loaded_signal_;
-#endif
+  base::WaitableEvent loaded_signal_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkModel);
 };
