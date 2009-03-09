@@ -355,10 +355,7 @@ DEFER LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL PASS
-MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
-MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
-MAC : LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
 DEFER LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL PASS
 LINUX : LayoutTests/svg/carto.net/colourpicker.svg = FAIL
 
@@ -1020,7 +1017,6 @@ MAC : LayoutTests/fast/forms/password-placeholder.html = FAIL
 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug2479-5.html = FAIL
 MAC : LayoutTests/fast/events/autoscroll.html = FAIL
 MAC : LayoutTests/fast/events/label-focus.html = FAIL
-MAC : LayoutTests/fast/forms/blankbuttons.html = FAIL
 MAC : LayoutTests/fast/forms/encoding-test.html = FAIL
 MAC : LayoutTests/fast/forms/fieldset-align.html = FAIL
 MAC : LayoutTests/fast/forms/input-align.html = FAIL
@@ -1034,7 +1030,6 @@ MAC : LayoutTests/fast/forms/input-appearance-selection.html = FAIL
 MAC : LayoutTests/fast/forms/input-appearance-visibility.html = FAIL
 MAC : LayoutTests/fast/forms/input-appearance-width.html = FAIL
 MAC : LayoutTests/fast/forms/input-double-click-selection-gap-bug.html = FAIL
-MAC : LayoutTests/fast/forms/input-first-letter.html = FAIL
 MAC : LayoutTests/fast/forms/input-paste-undo.html = FAIL
 MAC : LayoutTests/fast/forms/input-readonly-dimmed.html = FAIL
 MAC : LayoutTests/fast/forms/input-readonly-empty.html = FAIL
@@ -1072,9 +1067,7 @@ MAC : LayoutTests/tables/mozilla/bugs/bug2479-4.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug28928.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug30692.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug39209.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug4382.html = FAIL
-MAC : LayoutTests/tables/mozilla/bugs/bug4429.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug4527.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug46368-1.html = FAIL
 MAC : LayoutTests/tables/mozilla/bugs/bug46368-2.html = FAIL
@@ -1155,14 +1148,9 @@ MAC : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
 
 // text input garbage
-MAC : LayoutTests/fast/forms/focus-selection-input.html = FAIL
 MAC : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
 
 // bad key event handling
-MAC : LayoutTests/fast/events/access-key-self-destruct.html = FAIL
-MAC : LayoutTests/fast/forms/access-key.html = FAIL
-MAC : LayoutTests/fast/forms/legend-access-key.html = FAIL
-MAC : LayoutTests/fast/forms/select-accesskey.html = FAIL
 MAC : LayoutTests/fast/events/option-tab.html = FAIL
 
 // event failures
@@ -1179,24 +1167,11 @@ MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
 
 // incorrect layout
 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
-MAC : LayoutTests/http/tests/misc/isindex-formdata.html = FAIL
-MAC : LayoutTests/svg/custom/preserve-aspect-ratio-syntax.svg = FAIL
-MAC : LayoutTests/svg/custom/viewbox-syntax.svg = FAIL
-MAC : LayoutTests/tables/mozilla/marvin/x_td_nowrap.xml = FAIL
-MAC : LayoutTests/tables/mozilla/marvin/x_th_nowrap.xml = FAIL
 
 // not loading local files
 MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
 MAC : LayoutTests/fast/loader/local-JavaScript-from-local.html = FAIL
 MAC : LayoutTests/fast/loader/local-image-from-local.html = FAIL
-
-// parser issues (guess: may be related to missing resources?)
-MAC : LayoutTests/fast/parser/entities-in-attributes.xhtml = FAIL
-MAC : LayoutTests/fast/parser/entities-in-xhtml.xhtml = FAIL
-MAC : LayoutTests/fast/parser/entity-ignorable-whitespace.xhtml = FAIL
-
-// unknown
-MAC : LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 
 // the url comes back wrong, it should have a question mark for args on it.
 MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL CRASH
@@ -1646,7 +1621,6 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_position-tabl
 LINUX : LayoutTests/fast/css-generated-content/beforeAfter-interdocument.html = FAIL
 // just need to be rebaselined
 LINUX : LayoutTests/fast/lists/drag-into-marker.html = FAIL
-MAC : LayoutTests/fast/lists/001.html = FAIL
 
 LINUX : LayoutTests/fast/clip/008.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/014.html = PASS CRASH
@@ -1731,7 +1705,6 @@ MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 MAC DEBUG : LayoutTests/http/tests/misc/slow-preload-cancel.html = CRASH
 MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT PASS
-MAC RELEASE : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
@@ -1754,8 +1727,8 @@ LayoutTests/transforms/3d/point-mapping/3d-point-mapping.html = CRASH FAIL
 SKIP : LayoutTests/transforms/3d/point-mapping/3d-point-mapping-2.html = FAIL
 
 // New tests added in the 41420:41447 merge that fail:
-DEFER : LayoutTests/fast/block/float/nested-clearance.html = FAIL
-DEFER : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/block/float/nested-clearance.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
 
 // These may need to be rebaselined on linux, due to merge 41447:41498
 // See: http://trac.webkit.org/changeset/41465
@@ -1807,8 +1780,14 @@ LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 LINUX MAC : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
-MAC : LayoutTests/fast/dom/clone-contents-0-end-offset.html = FAIL
 LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
+
+// This test actually passes if you run it on it's own.  The problem is actually
+// with LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html.  If that
+// test is run, the next test run, no matter what it is, will fail.  This happen
+// to be the test that always run, so we are flagging it as failing just to try
+// to keep the mac bots green.
+MAC : LayoutTests/fast/dom/clone-contents-0-end-offset.html = FAIL
 
 // Crashes sometimes.  Race?  Memory corruption?
 // Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
