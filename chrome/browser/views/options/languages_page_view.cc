@@ -833,6 +833,11 @@ void LanguagesPageView::SaveChanges() {
                             g_browser_process->local_state());
     app_locale_.SetValue(ui_language_model_->
         GetLocaleFromIndex(ui_language_index_selected_));
+
+    // Remove pref values for spellcheck dictionaries forcefully.
+    PrefService* prefs = profile()->GetPrefs();
+    if (prefs)
+      prefs->ClearPref(prefs::kSpellCheckDictionary);
   }
 
   if (spellcheck_language_index_selected_ != -1) {
