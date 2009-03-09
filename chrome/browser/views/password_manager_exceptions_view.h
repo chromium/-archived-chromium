@@ -38,7 +38,8 @@ class PasswordManagerExceptionsTableModel : public PasswordManagerTableModel {
 class PasswordManagerExceptionsView : public views::View,
                                       public views::DialogDelegate,
                                       public views::TableViewObserver,
-                                      public views::NativeButton::Listener {
+                                      public views::NativeButton::Listener,
+                                      public PasswordManagerTableModelObserver {
  public:
   explicit PasswordManagerExceptionsView(Profile* profile);
   virtual ~PasswordManagerExceptionsView();
@@ -68,6 +69,9 @@ class PasswordManagerExceptionsView : public views::View,
   virtual void WindowClosing();
   virtual views::View* GetContentsView();
 
+  // PasswordManagerTableModelObserver implementation.
+  virtual void OnRowCountChanged(size_t rows);
+
  private:
   // Wire up buttons, the model, and the table view, and query the DB for
   // exception data tied to the given profile.
@@ -86,6 +90,8 @@ class PasswordManagerExceptionsView : public views::View,
   // The buttons and labels.
   views::NativeButton remove_button_;
   views::NativeButton remove_all_button_;
+
+  static PasswordManagerExceptionsView* instance_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerExceptionsView);
 };

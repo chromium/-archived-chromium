@@ -18,7 +18,7 @@ using views::ColumnSet;
 using views::GridLayout;
 
 // We can only have one PasswordManagerExceptionsView at a time.
-static PasswordManagerExceptionsView* instance_ = NULL;
+PasswordManagerExceptionsView* PasswordManagerExceptionsView::instance_ = NULL;
 
 static const int kDefaultWindowWidth = 530;
 static const int kDefaultWindowHeight = 240;
@@ -74,6 +74,8 @@ void PasswordManagerExceptionsTableModel::OnWebDataServiceRequestDone(
   }
   if (observer_)
     observer_->OnModelChanged();
+  if (row_count_observer_)
+    row_count_observer_->OnRowCountChanged(RowCount());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -105,6 +107,9 @@ PasswordManagerExceptionsView::PasswordManagerExceptionsView(Profile* profile)
 }
 
 void PasswordManagerExceptionsView::SetupTable() {
+  // Tell the table model we are concern about how many rows it has.
+  table_model_.set_row_count_observer(this);
+
   // Creates the different columns for the table.
   // The float resize values are the result of much tinkering.
   std::vector<views::TableColumn> columns;
@@ -239,4 +244,8 @@ void PasswordManagerExceptionsView::WindowClosing() {
 
 views::View* PasswordManagerExceptionsView::GetContentsView() {
   return this;
+}
+
+void PasswordManagerExceptionsView::OnRowCountChanged(size_t rows) {
+  remove_all_button_.SetEnabled(rows > 0);
 }

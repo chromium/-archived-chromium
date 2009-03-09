@@ -17,8 +17,7 @@
 using views::ColumnSet;
 using views::GridLayout;
 
-// We can only have one PasswordManagerView at a time.
-static PasswordManagerView* instance_ = NULL;
+PasswordManagerView* PasswordManagerView::instance_ = NULL;
 
 static const int kDefaultWindowWidth = 530;
 static const int kDefaultWindowHeight = 240;
@@ -55,6 +54,7 @@ gfx::Size MultiLabelButtons::GetPreferredSize() {
 // PasswordManagerTableModel
 PasswordManagerTableModel::PasswordManagerTableModel(Profile* profile)
     : observer_(NULL),
+      row_count_observer_(NULL),
       pending_login_query_(NULL),
       saved_signons_cleanup_(&saved_signons_),
       profile_(profile) {
@@ -135,9 +135,10 @@ void PasswordManagerTableModel::OnWebDataServiceRequestDone(
     saved_signons_[i] = new PasswordRow(
         gfx::SortedDisplayURL(rows[i]->origin, languages), rows[i]);
   }
-  instance_->SetRemoveAllEnabled(RowCount() != 0);
   if (observer_)
     observer_->OnModelChanged();
+  if (row_count_observer_)
+    row_count_observer_->OnRowCountChanged(RowCount());
 }
 
 void PasswordManagerTableModel::CancelLoginsQuery() {
@@ -160,9 +161,10 @@ void PasswordManagerTableModel::ForgetAndRemoveSignon(int row) {
   web_data_service()->RemoveLogin(*(password_row->form.get()));
   delete password_row;
   saved_signons_.erase(target_iter);
-  instance_->SetRemoveAllEnabled(RowCount() != 0);
   if (observer_)
     observer_->OnItemsRemoved(row, 1);
+  if (row_count_observer_)
+    row_count_observer_->OnRowCountChanged(RowCount());
 }
 
 void PasswordManagerTableModel::ForgetAndRemoveAllSignons() {
@@ -174,9 +176,10 @@ void PasswordManagerTableModel::ForgetAndRemoveAllSignons() {
     delete row;
     iter = saved_signons_.erase(iter);
   }
-  instance_->SetRemoveAllEnabled(false);
   if (observer_)
     observer_->OnModelChanged();
+  if (row_count_observer_)
+    row_count_observer_->OnRowCountChanged(RowCount());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -211,6 +214,9 @@ PasswordManagerView::PasswordManagerView(Profile* profile)
 }
 
 void PasswordManagerView::SetupTable() {
+  // Tell the table model we are concern about how many rows it has.
+  table_model_.set_row_count_observer(this);
+
   // Creates the different columns for the table.
   // The float resize values are the result of much tinkering.
   std::vector<views::TableColumn> columns;
@@ -358,10 +364,6 @@ std::wstring PasswordManagerView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PASSWORD_MANAGER_VIEW_TITLE);
 }
 
-void PasswordManagerView::SetRemoveAllEnabled(bool enabled) {
-  instance_->remove_all_button_.SetEnabled(enabled);
-}
-
 void PasswordManagerView::ButtonPressed(views::NativeButton* sender) {
   DCHECK(window());
   // Close will result in our destruction.
@@ -405,4 +407,8 @@ void PasswordManagerView::WindowClosing() {
 
 views::View* PasswordManagerView::GetContentsView() {
   return this;
+}
+
+void PasswordManagerView::OnRowCountChanged(size_t rows) {
+  remove_all_button_.SetEnabled(rows > 0);
 }
