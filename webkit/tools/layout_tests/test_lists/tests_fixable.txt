@@ -1651,8 +1651,9 @@ DEFER : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-vi
 // Regressions from merge 41181:41217
 // Upstream regression. https://bugs.webkit.org/show_bug.cgi?id=24248
 LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
-LINUX WIN : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
-LINUX WIN : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
+// These need to be rebaselined.
+LINUX : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
+LINUX : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 
 // mbelshe to fix.  Temporarily disable while tree red.
 WIN LINUX : chrome/fast/dom/extensions/interval.html = FAIL PASS
