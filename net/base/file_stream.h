@@ -112,6 +112,8 @@ class FileStream {
   // Truncates the file to be |bytes| length. This is only valid for writable
   // files. After truncation the file stream is positioned at |bytes|. The new
   // position is retured, or a value < 0 on error.
+  // WARNING: one may not truncate a file beyond its current length on any
+  //   platform with this call.
   int64 Truncate(int64 bytes);
 
  private:
