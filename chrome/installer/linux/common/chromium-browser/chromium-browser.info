@@ -1,0 +1,64 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# This file provides common configuration information for building
+# chromium-browser packages for various platforms.
+
+
+# Determine the string to use for package versioning. The strings are placed in
+# the VERSION, REVISION, and VERSIONFULL variables and should be formatted
+# appropriately for a variety of package standards.
+get_versioninfo() {
+  EPOCHTIME=$(date +"%s")
+  # TODO(mmoss) Use the real version once we start packaging a real browser
+  VERSION="0.0.0.1"
+  # Support both svn and git clients to get the latest revision.
+  set +e
+  git config -l 2>/dev/null | grep -qs -E "chrome|chromium"
+  if [ $? -eq 0 ]; then
+    REVISION=$(git-svn info | sed -e '/^Revision: */!d' -e "s/Revision: *//")
+    if [ -n "$REVISION" ]; then
+      if [ "$REVISION" != "$(git-svn find-rev HEAD)" ]; then
+        REVISION+="custom"
+      fi
+    fi
+  else
+    svn info 2>/dev/null | grep -qs -E "chrome|chromium"
+    if [ $? -eq 0 ]; then
+      REVISION=$(svn info | sed -e '/^Revision: */!d' -e "s/Revision: *//")
+    fi
+  fi
+  set -e
+  if [ -z "$REVISION" ]; then
+    echo "Error: Could not determine source revision."
+    exit 1
+  fi
+  VERSIONFULL="${VERSION}-${EPOCHTIME}r${REVISION}"
+}
+
+# Base name of the package.
+PACKAGE="chromium-browser"
+
+# Filename of the main executable (for generating launcher scripts, etc.)
+PROGNAME=chrome
+
+# Base directory for package installation.
+INSTALLDIR=/opt/chromium.org/chromium
+
+# Display string for desktop menu/icon.
+MENUNAME="Chromium Web Browser"
+
+# Brief package description.
+SHORTDESC="The web browser from Chromium.org"
+
+# Detailed package description.
+FULLDESC="Chromium is a browser that combines a minimal design with sophisticated technology to make the web faster, safer, and easier."
+
+# Package maintainer information.
+# TODO(mmoss) Setup a mailbox for this address
+MAINTNAME="Chromium Linux Team"
+MAINTMAIL="chromium-linux-packager@chromium.org"
+
+# TODO(mmoss) This is the dogfooding config. Need to update for release.
+REPOCONFIG="deb http://dl.google.com/linux/deb.GOOGLER/ testing main"

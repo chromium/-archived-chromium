@@ -1,0 +1,15 @@
+Source: @@PACKAGE@@
+Section: net
+Priority: optional
+Maintainer: @@DEBFULLNAME@@ <@@DEBEMAIL@@>
+Build-Depends: fakeroot, dpkg-dev, devscripts
+Standards-Version: 3.8.0
+
+Package: @@PACKAGE@@
+Provides: @@PROVIDES@@
+Replaces: @@REPLACES@@
+Conflicts: @@CONFLICTS@@
+Depends: @@DEPENDS@@
+Architecture: @@ARCHITECTURE@@
+Description: @@SHORTDESC@@
+ @@FULLDESC@@

@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Add icon to the system menu
+XDG_DESKTOP_MENU="`which xdg-desktop-menu 2> /dev/null`"
+UPDATE_MENUS="`which update-menus 2> /dev/null`"
+if [ ! -x "$XDG_DESKTOP_MENU" ]; then
+  echo "Error: Could not find xdg-desktop-menu" >&2
+  exit 1
+fi
+"$XDG_DESKTOP_MENU" install @@INSTALLDIR@@/@@PACKAGE@@.desktop
+
+if [ -x "$UPDATE_MENUS" ]; then
+  update-menus
+fi
+
+
+# Make sure the Google repository is configured for updating.
+@@include@@../common/apt.include
+
+if [ -x "$APT_GET" ]; then
+  update_sources_lists
+  # If the repo was just added, force a cache update.
+  if [ $? -eq 1 ]; then
+    install_key
+    # apt-get from a package install is sketchy, so spawn a script to run it
+    # later and keep trying for up to a day.
+    TMPFILE=$(mktemp -q -t @@PACKAGE@@-XXXX)
+    if [ $? -ne 0 ]; then
+      # Not currently worried about error because this update isn't critical
+      # and it shouldn't cause the install to fail.
+      exit 0
+    fi
+    TOMORROW=$(date "+%s" -d "now +1 day" 2>/dev/null || echo 0)
+    cat >"$TMPFILE" <<EOF
+#!/bin/sh
+set -e
+sleep 10
+ENDTIME=$TOMORROW
+while [ \$ENDTIME -gt \$(date "+%s" -d "now") ]; do
+  $APT_GET -qq update
+  if [ \$? -eq 0 ]; then
+    break
+  fi
+  sleep 120
+done
+rm \$0
+EOF
+    (sh "$TMPFILE") &
+  fi
+fi

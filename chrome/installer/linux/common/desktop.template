@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=@@MENUNAME@@
+Comment=@@SHORTDESC@@
+Exec=@@INSTALLDIR@@/@@PACKAGE@@
+Terminal=false
+Icon=@@INSTALLDIR@@/@@PACKAGE@@.png
+Type=Application
+Categories=Application;Network;
