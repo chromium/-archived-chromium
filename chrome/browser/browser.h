@@ -264,9 +264,6 @@ class Browser : public TabStripModelDelegate,
   void SavePage();
   void ViewSource();
 
-  // Show various bits of UI.
-  void ShowDownloadsTab();
-
   // Returns true if the Browser supports the specified feature.
   bool SupportsWindowFeature(WindowFeature feature) const;
 
@@ -313,8 +310,11 @@ class Browser : public TabStripModelDelegate,
   void OpenNewProfileDialog();
   void OpenBugReportDialog();
   void ToggleBookmarkBar();
-  void ShowHistoryTab();
   void OpenBookmarkManager();
+#endif
+  void ShowHistoryTab();
+  void ShowDownloadsTab();
+#if defined(OS_WIN)
   void OpenClearBrowsingDataDialog();
   void OpenImportSettingsDialog();
   void OpenOptionsDialog();

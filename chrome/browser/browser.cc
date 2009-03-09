@@ -14,6 +14,8 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
+#include "chrome/browser/dom_ui/downloads_ui.h"
+#include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -59,8 +61,6 @@
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/dock_info.h"
-#include "chrome/browser/dom_ui/downloads_ui.h"
-#include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
@@ -979,14 +979,15 @@ void Browser::ToggleBookmarkBar() {
   window_->ToggleBookmarkBar();
 }
 
-void Browser::ShowHistoryTab() {
-  UserMetrics::RecordAction(L"ShowHistory", profile_);
-  ShowSingleDOMUITab(HistoryUI::GetBaseURL());
-}
-
 void Browser::OpenBookmarkManager() {
   UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
   window_->ShowBookmarkManager();
+}
+#endif  // #if defined(OS_WIN)
+
+void Browser::ShowHistoryTab() {
+  UserMetrics::RecordAction(L"ShowHistory", profile_);
+  ShowSingleDOMUITab(HistoryUI::GetBaseURL());
 }
 
 void Browser::ShowDownloadsTab() {
@@ -994,6 +995,7 @@ void Browser::ShowDownloadsTab() {
   ShowSingleDOMUITab(DownloadsUI::GetBaseURL());
 }
 
+#if defined(OS_WIN)
 void Browser::OpenClearBrowsingDataDialog() {
   UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
   window_->ShowClearBrowsingDataDialog();
@@ -1216,9 +1218,11 @@ void Browser::ExecuteCommand(int id) {
     case IDC_NEW_PROFILE:           OpenNewProfileDialog();        break;
     case IDC_REPORT_BUG:            OpenBugReportDialog();         break;
     case IDC_SHOW_BOOKMARK_BAR:     ToggleBookmarkBar();           break;
-    case IDC_SHOW_HISTORY:          ShowHistoryTab();              break;
     case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;
+#endif
+    case IDC_SHOW_HISTORY:          ShowHistoryTab();              break;
     case IDC_SHOW_DOWNLOADS:        ShowDownloadsTab();            break;
+#if defined(OS_WIN)
 #ifdef CHROME_PERSONALIZATION
     case IDC_P13N_INFO:
       Personalization::HandleMenuItemClick(profile());             break;

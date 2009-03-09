@@ -759,14 +759,6 @@ class FontsLanguagesWindowView {
   void SelectLanguagesTab() { NOTIMPLEMENTED(); }
 };
 
-class HistoryTabUI {
- public:
-  static const GURL GetHistoryURLWithSearchText(const std::wstring& text) {
-    NOTIMPLEMENTED();
-    return GURL();
-  }
-};
-
 class OSExchangeData {
  public:
   void SetString(const std::wstring& data) { NOTIMPLEMENTED(); }

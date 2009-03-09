@@ -32,9 +32,10 @@ languages = [ 'ar', 'bg', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en-GB',
 # chromium builds only.
 for lang in languages:
   lang_pak = env.Repack('$TARGET_ROOT/locales/%s.pak' % lang,
-      ['$TARGET_ROOT/grit_derived_sources/generated_resources_%s.pak' % lang,
-       '$TARGET_ROOT/grit_derived_sources/chromium_strings_%s.pak' % lang,
+      ['$TARGET_ROOT/grit_derived_sources/chromium_strings_%s.pak' % lang,
+       '$TARGET_ROOT/grit_derived_sources/generated_resources_%s.pak' % lang,
        '$TARGET_ROOT/grit_derived_sources/locale_settings_%s.pak' % lang,
+       '$TARGET_ROOT/grit_derived_sources/webkit_strings_%s.pak' % lang,
       ]
   )
   i = env.Install('$DESTINATION_ROOT/locales', lang_pak)
