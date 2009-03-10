@@ -1015,9 +1015,7 @@ TEST_F(FileUtilTest, PathComponentsTest) {
 }
 
 TEST_F(FileUtilTest, Contains) {
-  FilePath data_dir;
-  ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &data_dir));
-  data_dir = data_dir.Append(FILE_PATH_LITERAL("FilePathTest"));
+  FilePath data_dir = test_dir_.Append(FILE_PATH_LITERAL("FilePathTest"));
 
   // Create a fresh, empty copy of this directory.
   if (file_util::PathExists(data_dir)) {
