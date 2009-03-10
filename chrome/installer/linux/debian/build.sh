@@ -80,7 +80,7 @@ process_template() {
 # have any type of "significant/visible changes" log that we could use for this?
 gen_changelog() {
   rm -f "${CHANGELOG}"
-  process_template changelog.template "${CHANGELOG}"
+  process_template "${SCRIPTDIR}/changelog.template" "${CHANGELOG}"
   debchange -a --nomultimaint -m --changelog "${CHANGELOG}" \
     --distribution UNRELEASED "automatic build"
 }
@@ -115,23 +115,24 @@ stage_install() {
   install -m 644 "${BUILDDIR}/themes/default.pak" \
     "${STAGEDIR}${INSTALLDIR}/themes/"
   install -m 644 "${BUILDDIR}/icudt38l.dat" "${STAGEDIR}${INSTALLDIR}/"
-  install -m 644 "../common/${PACKAGE}/${PACKAGE}.png" \
+  install -m 644 "${SCRIPTDIR}/../common/${PACKAGE}/${PACKAGE}.png" \
     "${STAGEDIR}${INSTALLDIR}/"
-  process_template "../common/wrapper" "${STAGEDIR}${INSTALLDIR}/${PACKAGE}"
+  process_template "${SCRIPTDIR}/../common/wrapper" \
+    "${STAGEDIR}${INSTALLDIR}/${PACKAGE}"
   chmod 755 "${STAGEDIR}${INSTALLDIR}/${PACKAGE}"
   (cd "${STAGEDIR}/usr/bin/" && ln -snf "${INSTALLDIR}/${PACKAGE}" "${PACKAGE}")
-  process_template "../common/desktop.template" \
+  process_template "${SCRIPTDIR}/../common/desktop.template" \
     "${STAGEDIR}${INSTALLDIR}/${PACKAGE}.desktop"
   chmod 644 "${STAGEDIR}${INSTALLDIR}/${PACKAGE}.desktop"
-  process_template postinst "${STAGEDIR}/DEBIAN/postinst"
+  process_template "${SCRIPTDIR}/postinst" "${STAGEDIR}/DEBIAN/postinst"
   chmod 755 "${STAGEDIR}/DEBIAN/postinst"
-  process_template prerm "${STAGEDIR}/DEBIAN/prerm"
+  process_template "${SCRIPTDIR}/prerm" "${STAGEDIR}/DEBIAN/prerm"
   chmod 755 "${STAGEDIR}/DEBIAN/prerm"
   # TODO(mmoss) For dogfooding, we already have daily updates of all installed
   # packages. Externally, we'll have to implement something if we don't want to
   # rely exclusively on the system updater (the default configuration is often
   # not forced/silent).
-  #process_template "../common/updater" \
+  #process_template "${SCRIPTDIR}/../common/updater" \
   #  "${STAGEDIR}/etc/cron.daily/${PACKAGE}-updater"
   #chmod 755 "${STAGEDIR}/etc/cron.daily/${PACKAGE}-updater"
 }
@@ -178,7 +179,7 @@ package_32() {
     libnspr4-0d (>= 1.8.0.10), libpango1.0-0 (>= 1.18.3), \
     libstdc++6 (>= 4.2.1), zlib1g (>= 1:1.2.3.3.dfsg-1), ${COMMON_DEPS}"
   gen_changelog
-  process_template control.template control
+  process_template "${SCRIPTDIR}/control.template" control
   do_package
 }
 
@@ -191,7 +192,7 @@ package_64() {
     ${COMMON_DEPS}"
   gen_changelog
   grab_lib32
-  process_template control.template control
+  process_template "${SCRIPTDIR}/control.template" control
   do_package
 }
 
@@ -210,7 +211,7 @@ package_split_64() {
     lib32z1 (>= 1:1.1.4), libc6-i386 (>= 2.4), ${COMMON_DEPS}"
   DEB_REPLACES="${PACKAGE}"
   DEB_CONFLICTS="${PACKAGE}"
-  process_template control.template control
+  process_template "${SCRIPTDIR}/control.template" control
   do_package
 }
 
@@ -230,7 +231,7 @@ package_compat_libs() {
   gen_changelog
   install -m 755 -d "${STAGEDIR}/DEBIAN" "${STAGEDIR}${INSTALLDIR}"
   grab_lib32
-  process_template control.template control
+  process_template "${SCRIPTDIR}/control.template" control
   do_package
 }
 
@@ -252,24 +253,71 @@ cleanup() {
   rm -f control
 }
 
+usage() {
+  echo "usage: $(basename $0) [-r] [-o 'dir'] [-b 'dir']"
+  echo "-r      release build"
+  echo "-o dir  package output directory [current: ${OUTPUTDIR}]"
+  echo "-b dir  build input directory    [current: ${BUILDDIR}]"
+}
+
 #=========
 # MAIN
 #=========
 
-BUILDDIR=../../../Hammer
-STAGEDIR=build
+SCRIPTDIR=$(readlink -f "$(dirname "$0")")
+OUTPUTDIR="${PWD}"
+STAGEDIR=deb.build
+BUILDDIR=$(readlink -f "${SCRIPTDIR}/../../../Hammer")
 CHANGELOG=changelog.auto
-cleanup
 
-if [ "$1" = "release" ]; then
-  source ../common/google-chrome/google-chrome.info
+while getopts ":o:b:rh" OPTNAME
+do
+  case $OPTNAME in
+    o )
+      OUTPUTDIR="$OPTARG"
+      mkdir -p "${OUTPUTDIR}"
+      ;;
+    b )
+      BUILDDIR="$OPTARG"
+      ;;
+    r )
+      RELEASE=1
+      exit 0
+      ;;
+    h )
+      usage
+      exit 0
+      ;;
+    \: )
+      echo "'-$OPTARG' needs an argument."
+      usage
+      exit 1
+      ;;
+    * )
+      echo "invalid command-line option: $OPTARG"
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+if [ "$RELEASE" = "1" ]; then
+  source "${SCRIPTDIR}/../common/google-chrome/google-chrome.info"
 else
-  source ../common/chromium-browser/chromium-browser.info
+  source "${SCRIPTDIR}/../common/chromium-browser/chromium-browser.info"
 fi
 # Some Debian packaging tools want these set.
 export DEBFULLNAME="${MAINTNAME}"
 export DEBEMAIL="${MAINTMAIL}"
+
+# Version check currently uses repository info, so make sure we're in the src
+# tree.
+cd "${SCRIPTDIR}"
 get_versioninfo
+
+# Make everything happen in the OUTPUTDIR.
+cd "${OUTPUTDIR}"
+cleanup
 
 prep_staging
 stage_install
