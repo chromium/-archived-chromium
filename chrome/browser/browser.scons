@@ -736,6 +736,8 @@ if not env.Bit('windows'):
 
 if env.Bit('linux'):
   input_files.Extend([
+      'autocomplete/autocomplete_edit_view_gtk.cc',
+      'autocomplete/autocomplete_popup_view_gtk.cc',
       'browser_main_gtk.cc',
       'gtk/back_forward_menu_model_gtk.cc',
       'gtk/browser_toolbar_gtk.cc',
@@ -744,6 +746,7 @@ if env.Bit('linux'):
       'gtk/custom_button.cc',
       'gtk/download_item_gtk.cc',
       'gtk/download_shelf_gtk.cc',
+      'gtk/location_bar_view_gtk.cc',
       'gtk/menu_gtk.cc',
       'gtk/nine_box.cc',
       'gtk/standard_menus.cc',

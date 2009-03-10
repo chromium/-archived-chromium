@@ -11,8 +11,9 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
+#include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/l10n_util.h"
@@ -21,17 +22,19 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
-// TODO(deanm): Remove this when the LocationBarView is used.
-class LocationBar;
-
 const int BrowserToolbarGtk::kToolbarHeight = 38;
 // For the back/forward dropdown menus, the time in milliseconds between
 // when the user clicks and the popup menu appears.
 static const int kMenuTimerDelay = 500;
 
+static void OnGrabFocusThunk(GtkWidget* toolbar, gpointer self) {
+  reinterpret_cast<BrowserToolbarGtk*>(self)->FocusLocationBar();
+}
+
 BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
     : toolbar_(NULL),
-      entry_(NULL),
+      location_bar_(new LocationBarViewGtk(browser->command_updater(),
+                                           browser->toolbar_model())),
       model_(browser->toolbar_model()),
       browser_(browser),
       profile_(NULL),
@@ -52,6 +55,9 @@ BrowserToolbarGtk::~BrowserToolbarGtk() {
 }
 
 void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
+  // Make sure to tell the location bar the profile before calling its Init.
+  SetProfile(profile);
+
   accel_group_ = accel_group;
 
   show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
@@ -89,21 +95,16 @@ void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
   star_.reset(BuildToolbarButton(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D,
       l10n_util::GetString(IDS_TOOLTIP_STAR)));
 
-  entry_ = gtk_entry_new();
-  gtk_widget_set_size_request(entry_, 0, 27);
-  g_signal_connect(G_OBJECT(entry_), "activate",
-                   G_CALLBACK(OnEntryActivate), this);
-  g_signal_connect(G_OBJECT(entry_), "focus",
-                   G_CALLBACK(OnEntryFocus), this);
-  g_signal_connect(G_OBJECT(entry_), "focus-in-event",
-                   G_CALLBACK(OnEntryFocusIn), this);
-  g_signal_connect(G_OBJECT(entry_), "focus-out-event",
-                   G_CALLBACK(OnEntryFocusOut), this);
-  gtk_widget_add_accelerator(
-      entry_, "grab-focus", accel_group_, GDK_l,
-      GDK_CONTROL_MASK, GtkAccelFlags(0));
+  location_bar_->Init();
+  gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
 
-  gtk_box_pack_start(GTK_BOX(toolbar_), entry_, TRUE, TRUE, 0);
+  // We listen for ctrl-l which we have send a grab-focus action to the
+  // toolbar.  We want our callback to just call FocusLocationBar().
+  g_signal_connect(toolbar_, "grab-focus",
+                   G_CALLBACK(OnGrabFocusThunk), this);
+  gtk_widget_add_accelerator(
+      toolbar_, "grab-focus", accel_group_, GDK_l,
+      GDK_CONTROL_MASK, GtkAccelFlags(0));
 
   go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L""));
 
@@ -117,8 +118,6 @@ void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
       l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
                             l10n_util::GetString(IDS_PRODUCT_NAME))));
   app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
-
-  SetProfile(profile);
 }
 
 void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
@@ -126,12 +125,11 @@ void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
 }
 
 LocationBar* BrowserToolbarGtk::GetLocationBar() const {
-  NOTIMPLEMENTED();
-  return NULL;
+  return location_bar_.get();
 }
 
 void BrowserToolbarGtk::FocusLocationBar() {
-  gtk_widget_grab_focus(entry_);
+  location_bar_->FocusLocation();
 }
 
 void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {
@@ -195,16 +193,12 @@ void BrowserToolbarGtk::SetProfile(Profile* profile) {
     return;
 
   profile_ = profile;
-  // TODO(erg): location_bar_ is a normal gtk text box right now. Change this
-  // when we get omnibox support.
-  //  location_bar_->SetProfile(profile);
+  location_bar_->SetProfile(profile);
 }
 
 void BrowserToolbarGtk::UpdateTabContents(TabContents* contents,
                                           bool should_restore_state) {
-  // Extract the UTF-8 representation of the URL.
-  gtk_entry_set_text(GTK_ENTRY(entry_),
-                     contents->GetURL().possibly_invalid_spec().c_str());
+  location_bar_->Update(should_restore_state ? contents : NULL);
 }
 
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
@@ -246,45 +240,6 @@ CustomContainerButton* BrowserToolbarGtk::BuildToolbarMenuButton(
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
 
   return button;
-}
-
-// static
-void BrowserToolbarGtk::OnEntryActivate(GtkEntry *entry,
-                                        BrowserToolbarGtk* toolbar) {
-  GURL dest(URLFixerUpper::FixupURL(std::string(gtk_entry_get_text(entry)),
-                                    std::string()));
-  toolbar->browser_->GetSelectedTabContents()->
-      OpenURL(dest, GURL(), CURRENT_TAB, PageTransition::TYPED);
-}
-
-// static
-gboolean BrowserToolbarGtk::OnEntryFocus(GtkWidget* widget,
-                                         GtkDirectionType direction,
-                                         BrowserToolbarGtk* host) {
-  if (!GTK_WIDGET_HAS_FOCUS(widget)) {
-    gtk_widget_grab_focus(widget);
-    return TRUE;
-  }
-
-  return FALSE;
-}
-
-// static
-gboolean BrowserToolbarGtk::OnEntryFocusIn(GtkWidget* widget,
-                                           GdkEventFocus* focus,
-                                           BrowserToolbarGtk* host) {
-  // Set the caret at the end of the text.
-  gtk_editable_set_position(GTK_EDITABLE(widget), -1);
-  return FALSE;
-}
-
-// static
-gboolean BrowserToolbarGtk::OnEntryFocusOut(GtkWidget* widget,
-                                            GdkEventFocus* focus,
-                                            BrowserToolbarGtk* host) {
-  // Clear the selected text (if any).
-  gtk_editable_set_position(GTK_EDITABLE(widget), 0);
-  return FALSE;
 }
 
 // static

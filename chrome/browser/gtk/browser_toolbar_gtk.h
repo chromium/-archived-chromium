@@ -19,6 +19,7 @@ class Browser;
 class CustomContainerButton;
 class CustomDrawButton;
 class LocationBar;
+class LocationBarViewGtk;
 class Profile;
 class TabContents;
 class ToolbarModel;
@@ -83,25 +84,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
       unsigned int accelerator,
       unsigned int accelerator_mod);
 
-  // Gtk callback for the "activate" signal on the |entry_| widget. Responds to
-  // enter.
-  static void OnEntryActivate(GtkEntry *entry, BrowserToolbarGtk* toolbar);
-
-  // Gtk callback for the "focus" signal on the |entry_| widget.
-  static gboolean OnEntryFocus(GtkWidget* widget,
-                               GtkDirectionType direction,
-                               BrowserToolbarGtk* host);
-
-  // Gtk callback for the "focus-in" signal on the |entry_| widget.
-  static gboolean OnEntryFocusIn(GtkWidget* widget,
-                                 GdkEventFocus* focus,
-                                 BrowserToolbarGtk* host);
-
-  // Gtk callback for the "focus-out" signal on the |entry_| widget.
-  static gboolean OnEntryFocusOut(GtkWidget* widget,
-                                  GdkEventFocus* focus,
-                                  BrowserToolbarGtk* host);
-
   // Gtk callback for the "clicked" signal.
   static void OnButtonClick(GtkWidget* button, BrowserToolbarGtk* toolbar);
 
@@ -126,8 +108,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // Tooltip container for all GTK widgets in this class.
   GtkTooltips* toolbar_tooltips_;
 
-  // Our temporary URL bar (until we get the omnibox up).
-  GtkWidget* entry_;
+  // The location bar view.
+  scoped_ptr<LocationBarViewGtk> location_bar_;
 
   // A pointer to our window's accelerator list.
   GtkAccelGroup* accel_group_;
