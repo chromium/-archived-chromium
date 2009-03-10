@@ -56,7 +56,7 @@ bool DownloadResourceHandler::OnResponseStarted(int request_id,
   info->total_bytes = content_length_;
   info->state = DownloadItem::IN_PROGRESS;
   info->download_id = download_id_;
-  info->render_process_id = global_id_.render_process_host_id;
+  info->render_process_id = global_id_.process_id;
   info->render_view_id = render_view_id_;
   info->request_id = global_id_.request_id;
   info->content_disposition = content_disposition_;
@@ -158,7 +158,7 @@ void DownloadResourceHandler::CheckWriteProgress() {
     StartPauseTimer();
 
   if (is_paused_ != should_pause) {
-    rdh_->PauseRequest(global_id_.render_process_host_id,
+    rdh_->PauseRequest(global_id_.process_id,
                        global_id_.request_id,
                        should_pause);
     is_paused_ = should_pause;

@@ -243,7 +243,7 @@ SSLManager::ErrorHandler::ErrorHandler(ResourceDispatcherHost* rdh,
 
   ResourceDispatcherHost::ExtraRequestInfo* info =
       ResourceDispatcherHost::ExtraInfoForRequest(request);
-  request_id_.render_process_host_id = info->render_process_host_id;
+  request_id_.process_id = info->process_id;
   request_id_.request_id = info->request_id;
 
   if (!tab_util::GetTabContentsID(request,

@@ -254,8 +254,8 @@ bool BufferedResourceHandler::CompleteResponseStarted(int request_id,
         new DownloadThrottlingResourceHandler(host_,
                                            request_,
                                            request_->url(),
-                                           info->render_process_host_id,
-                                           info->render_view_id,
+                                           info->process_id,
+                                           info->route_id,
                                            request_id,
                                            in_complete);
     if (bytes_read_) {

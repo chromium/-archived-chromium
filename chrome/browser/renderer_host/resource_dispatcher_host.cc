@@ -98,16 +98,16 @@ namespace {
 // ResourceDispatcherHost should service this request.  A request might be
 // disallowed if the renderer is not authorized to restrive the request URL or
 // if the renderer is attempting to upload an unauthorized file.
-bool ShouldServiceRequest(int render_process_host_id,
+bool ShouldServiceRequest(ChildProcessInfo::ProcessType process_type,
+                          int process_id,
                           const ViewHostMsg_Resource_Request& request_data)  {
-  // TODO(mpcomplete): remove this when http://b/viewIssue?id=1080959 is fixed.
-  if (render_process_host_id == -1)
+  if (process_type != ChildProcessInfo::RENDER_PROCESS)
     return true;
 
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
 
   // Check if the renderer is permitted to request the requested URL.
-  if (!policy->CanRequestURL(render_process_host_id, request_data.url)) {
+  if (!policy->CanRequestURL(process_id, request_data.url)) {
     LOG(INFO) << "Denied unauthorized request for " <<
         request_data.url.possibly_invalid_spec();
     return false;
@@ -119,7 +119,7 @@ bool ShouldServiceRequest(int render_process_host_id,
   std::vector<net::UploadData::Element>::const_iterator iter;
   for (iter = uploads.begin(); iter != uploads.end(); ++iter) {
     if (iter->type() == net::UploadData::TYPE_FILE &&
-        !policy->CanUploadFile(render_process_host_id, iter->file_path())) {
+        !policy->CanUploadFile(process_id, iter->file_path())) {
       NOTREACHED() << "Denied unauthorized upload of " << iter->file_path();
       return false;
     }
@@ -153,19 +153,19 @@ ResourceDispatcherHost::~ResourceDispatcherHost() {
 
   // Clear blocked requests if any left.
   // Note that we have to do this in 2 passes as we cannot call
-  // CancelBlockedRequestsForRenderView while iterating over
+  // CancelBlockedRequestsForRoute while iterating over
   // blocked_requests_map_, as it modifies it.
-  std::set<ProcessRendererIDs> ids;
+  std::set<ProcessRouteIDs> ids;
   for (BlockedRequestMap::const_iterator iter = blocked_requests_map_.begin();
        iter != blocked_requests_map_.end(); ++iter) {
-    std::pair<std::set<ProcessRendererIDs>::iterator, bool> result =
+    std::pair<std::set<ProcessRouteIDs>::iterator, bool> result =
         ids.insert(iter->first);
     // We should not have duplicates.
     DCHECK(result.second);
   }
-  for (std::set<ProcessRendererIDs>::const_iterator iter = ids.begin();
+  for (std::set<ProcessRouteIDs>::const_iterator iter = ids.begin();
        iter != ids.end(); ++iter) {
-    CancelBlockedRequestsForRenderView(iter->first, iter->second);
+    CancelBlockedRequestsForRoute(iter->first, iter->second);
   }
 }
 
@@ -191,7 +191,7 @@ void ResourceDispatcherHost::OnShutdown() {
 }
 
 bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
-                                                    int render_process_host_id,
+                                                    int process_id,
                                                     int tab_contents_id,
                                                     const GURL& url,
                                                     ResourceType::Type type,
@@ -200,8 +200,7 @@ bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
     return false;
 
   ui_loop_->PostTask(FROM_HERE, NewRunnableFunction(
-      &ExternalProtocolHandler::LaunchUrl, url, render_process_host_id,
-      tab_contents_id));
+      &ExternalProtocolHandler::LaunchUrl, url, process_id, tab_contents_id));
 
   handler->OnResponseCompleted(request_id, URLRequestStatus(
                                                URLRequestStatus::FAILED,
@@ -212,18 +211,19 @@ bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
 
 void ResourceDispatcherHost::BeginRequest(
     Receiver* receiver,
-    base::ProcessHandle render_process_handle,
-    int render_process_host_id,
-    int render_view_id,
+    ChildProcessInfo::ProcessType process_type,
+    base::ProcessHandle process_handle,
+    int process_id,
+    int route_id,
     int request_id,
     const ViewHostMsg_Resource_Request& request_data,
     URLRequestContext* request_context,
     IPC::Message* sync_result) {
   if (is_shutdown_ ||
-      !ShouldServiceRequest(render_process_host_id, request_data)) {
+      !ShouldServiceRequest(process_type, process_id, request_data)) {
     // Tell the renderer that this request was disallowed.
     receiver->Send(new ViewMsg_Resource_RequestComplete(
-        render_view_id,
+        route_id,
         request_id,
         URLRequestStatus(URLRequestStatus::FAILED, net::ERR_ABORTED),
         std::string()));  // No security info needed, connection was not
@@ -243,14 +243,14 @@ void ResourceDispatcherHost::BeginRequest(
     handler = new SyncResourceHandler(receiver, request_data.url, sync_result);
   } else {
     handler = new AsyncResourceHandler(receiver,
-                                       render_process_host_id,
-                                       render_view_id,
-                                       render_process_handle,
+                                       process_id,
+                                       route_id,
+                                       process_handle,
                                        request_data.url,
                                        this);
   }
 
-  if (HandleExternalProtocol(request_id, render_process_host_id, render_view_id,
+  if (HandleExternalProtocol(request_id, process_id, route_id,
                              request_data.url, request_data.resource_type,
                              handler)) {
     return;
@@ -278,25 +278,23 @@ void ResourceDispatcherHost::BeginRequest(
   // Install a CrossSiteResourceHandler if this request is coming from a
   // RenderViewHost with a pending cross-site request.  We only check this for
   // MAIN_FRAME requests.
-  // TODO(mpcomplete): remove "render_process_host_id != -1"
-  //                   when http://b/viewIssue?id=1080959 is fixed.
   if (request_data.resource_type == ResourceType::MAIN_FRAME &&
-      render_process_host_id != -1 &&
+      process_type == ChildProcessInfo::RENDER_PROCESS &&
       Singleton<CrossSiteRequestManager>::get()->
-          HasPendingCrossSiteRequest(render_process_host_id, render_view_id)) {
+          HasPendingCrossSiteRequest(process_id, route_id)) {
     // Wrap the event handler to be sure the current page's onunload handler
     // has a chance to run before we render the new page.
     handler = new CrossSiteResourceHandler(handler,
-                                           render_process_host_id,
-                                           render_view_id,
+                                           process_id,
+                                           route_id,
                                            this);
   }
 
   if (safe_browsing_->enabled() &&
       safe_browsing_->CanCheckUrl(request_data.url)) {
     handler = new SafeBrowsingResourceHandler(handler,
-                                              render_process_host_id,
-                                              render_view_id,
+                                              process_id,
+                                              route_id,
                                               request_data.url,
                                               request_data.resource_type,
                                               safe_browsing_,
@@ -309,9 +307,10 @@ void ResourceDispatcherHost::BeginRequest(
   // Make extra info and read footer (contains request ID).
   ExtraRequestInfo* extra_info =
       new ExtraRequestInfo(handler,
+                           process_type,
+                           process_id,
+                           route_id,
                            request_id,
-                           render_process_host_id,
-                           render_view_id,
                            request_data.mixed_content,
                            request_data.resource_type,
                            upload_size);
@@ -325,19 +324,15 @@ void ResourceDispatcherHost::BeginRequest(
 // We are explicitly forcing the download of 'url'.
 void ResourceDispatcherHost::BeginDownload(const GURL& url,
                                            const GURL& referrer,
-                                           int render_process_host_id,
-                                           int render_view_id,
+                                           int process_id,
+                                           int route_id,
                                            URLRequestContext* request_context) {
   if (is_shutdown_)
     return;
 
   // Check if the renderer is permitted to request the requested URL.
-  //
-  // TODO(mpcomplete): remove "render_process_host_id != -1"
-  //                   when http://b/viewIssue?id=1080959 is fixed.
-  if (render_process_host_id != -1 &&
-      !RendererSecurityPolicy::GetInstance()->
-          CanRequestURL(render_process_host_id, url)) {
+  if (!RendererSecurityPolicy::GetInstance()->
+          CanRequestURL(process_id, url)) {
     LOG(INFO) << "Denied unauthorized download request for " <<
         url.possibly_invalid_spec();
     return;
@@ -352,8 +347,8 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
 
   scoped_refptr<ResourceHandler> handler =
       new DownloadResourceHandler(this,
-                                  render_process_host_id,
-                                  render_view_id,
+                                  process_id,
+                                  route_id,
                                   request_id_,
                                   url,
                                   download_file_manager_.get(),
@@ -363,8 +358,8 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
 
   if (safe_browsing_->enabled() && safe_browsing_->CanCheckUrl(url)) {
     handler = new SafeBrowsingResourceHandler(handler,
-                                              render_process_host_id,
-                                              render_view_id,
+                                              process_id,
+                                              route_id,
                                               url,
                                               ResourceType::MAIN_FRAME,
                                               safe_browsing_,
@@ -382,9 +377,10 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
 
   ExtraRequestInfo* extra_info =
       new ExtraRequestInfo(handler,
+                           ChildProcessInfo::RENDER_PROCESS,
+                           process_id,
+                           route_id,
                            request_id_,
-                           render_process_host_id,
-                           render_view_id,
                            false,  // Downloads are not considered mixed-content
                            ResourceType::SUB_RESOURCE,
                            0 /* upload_size */ );
@@ -398,8 +394,8 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
 // This function is only used for saving feature.
 void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
                                            const GURL& referrer,
-                                           int render_process_host_id,
-                                           int render_view_id,
+                                           int process_id,
+                                           int route_id,
                                            URLRequestContext* request_context) {
   if (is_shutdown_)
     return;
@@ -409,8 +405,8 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
   plugin_service_->LoadChromePlugins(this);
 
   scoped_refptr<ResourceHandler> handler =
-      new SaveFileResourceHandler(render_process_host_id,
-                                  render_view_id,
+      new SaveFileResourceHandler(process_id,
+                                  route_id,
                                   url,
                                   save_file_manager_.get());
   request_id_--;
@@ -434,9 +430,10 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
 
   ExtraRequestInfo* extra_info =
       new ExtraRequestInfo(handler,
+                           ChildProcessInfo::RENDER_PROCESS,
+                           process_id,
+                           route_id,
                            request_id_,
-                           render_process_host_id,
-                           render_view_id,
                            false,
                            ResourceType::SUB_RESOURCE,
                            0 /* upload_size */);
@@ -448,18 +445,18 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
   BeginRequestInternal(request, false);
 }
 
-void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
+void ResourceDispatcherHost::CancelRequest(int process_id,
                                            int request_id,
                                            bool from_renderer) {
-  CancelRequest(render_process_host_id, request_id, from_renderer, true);
+  CancelRequest(process_id, request_id, from_renderer, true);
 }
 
-void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
+void ResourceDispatcherHost::CancelRequest(int process_id,
                                            int request_id,
                                            bool from_renderer,
                                            bool allow_delete) {
   PendingRequestList::iterator i = pending_requests_.find(
-      GlobalRequestID(render_process_host_id, request_id));
+      GlobalRequestID(process_id, request_id));
   if (i == pending_requests_.end()) {
     // We probably want to remove this warning eventually, but I wanted to be
     // able to notice when this happens during initial development since it
@@ -482,7 +479,7 @@ void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
       // TODO: removing the request in this manner means we're not notifying
       // anyone. We need make sure the event handlers and others are notified
       // so that everything is cleaned up properly.
-      RemovePendingRequest(info->render_process_host_id, info->request_id);
+      RemovePendingRequest(info->process_id, info->request_id);
     } else {
       i->second->Cancel();
     }
@@ -493,10 +490,10 @@ void ResourceDispatcherHost::CancelRequest(int render_process_host_id,
   // that.
 }
 
-void ResourceDispatcherHost::OnDataReceivedACK(int render_process_host_id,
+void ResourceDispatcherHost::OnDataReceivedACK(int process_id,
                                                int request_id) {
   PendingRequestList::iterator i = pending_requests_.find(
-      GlobalRequestID(render_process_host_id, request_id));
+      GlobalRequestID(process_id, request_id));
   if (i == pending_requests_.end())
     return;
 
@@ -512,14 +509,14 @@ void ResourceDispatcherHost::OnDataReceivedACK(int render_process_host_id,
     info->pending_data_count--;
 
     // Resume the request.
-    PauseRequest(render_process_host_id, request_id, false);
+    PauseRequest(process_id, request_id, false);
   }
 }
 
-void ResourceDispatcherHost::OnUploadProgressACK(int render_process_host_id,
+void ResourceDispatcherHost::OnUploadProgressACK(int process_id,
                                                  int request_id) {
   PendingRequestList::iterator i = pending_requests_.find(
-      GlobalRequestID(render_process_host_id, request_id));
+      GlobalRequestID(process_id, request_id));
   if (i == pending_requests_.end())
     return;
 
@@ -527,10 +524,10 @@ void ResourceDispatcherHost::OnUploadProgressACK(int render_process_host_id,
   info->waiting_for_upload_progress_ack = false;
 }
 
-bool ResourceDispatcherHost::WillSendData(int render_process_host_id,
+bool ResourceDispatcherHost::WillSendData(int process_id,
                                           int request_id) {
   PendingRequestList::iterator i = pending_requests_.find(
-      GlobalRequestID(render_process_host_id, request_id));
+      GlobalRequestID(process_id, request_id));
   if (i == pending_requests_.end()) {
     NOTREACHED() << L"WillSendData for invalid request";
     return false;
@@ -543,17 +540,17 @@ bool ResourceDispatcherHost::WillSendData(int render_process_host_id,
     // We reached the max number of data messages that can be sent to
     // the renderer for a given request. Pause the request and wait for
     // the renderer to start processing them before resuming it.
-    PauseRequest(render_process_host_id, request_id, true);
+    PauseRequest(process_id, request_id, true);
     return false;
   }
 
   return true;
 }
 
-void ResourceDispatcherHost::PauseRequest(int render_process_host_id,
+void ResourceDispatcherHost::PauseRequest(int process_id,
                                           int request_id,
                                           bool pause) {
-  GlobalRequestID global_id(render_process_host_id, request_id);
+  GlobalRequestID global_id(process_id, request_id);
   PendingRequestList::iterator i = pending_requests_.find(global_id);
   if (i == pending_requests_.end()) {
     DLOG(WARNING) << "Pausing a request that wasn't found";
@@ -581,23 +578,23 @@ void ResourceDispatcherHost::PauseRequest(int render_process_host_id,
 }
 
 int ResourceDispatcherHost::GetOutstandingRequestsMemoryCost(
-    int render_process_host_id) const {
+    int process_id) const {
   OutstandingRequestsMemoryCostMap::const_iterator entry =
-      outstanding_requests_memory_cost_map_.find(render_process_host_id);
+      outstanding_requests_memory_cost_map_.find(process_id);
   return (entry == outstanding_requests_memory_cost_map_.end()) ?
       0 : entry->second;
 }
 
-void ResourceDispatcherHost::OnClosePageACK(int render_process_host_id,
+void ResourceDispatcherHost::OnClosePageACK(int process_id,
                                             int request_id) {
-  GlobalRequestID global_id(render_process_host_id, request_id);
+  GlobalRequestID global_id(process_id, request_id);
   PendingRequestList::iterator i = pending_requests_.find(global_id);
   if (i == pending_requests_.end()) {
     // If there are no matching pending requests, then this is not a
     // cross-site navigation and we are just closing the tab/browser.
     ui_loop_->PostTask(FROM_HERE, NewRunnableFunction(
         &RenderViewHost::ClosePageIgnoringUnloadEvents,
-        render_process_host_id,
+        process_id,
         request_id));
     return;
   }
@@ -611,14 +608,13 @@ void ResourceDispatcherHost::OnClosePageACK(int render_process_host_id,
 // The object died, so cancel and detach all requests associated with it except
 // for downloads, which belong to the browser process even if initiated via a
 // renderer.
-void ResourceDispatcherHost::CancelRequestsForProcess(
-    int render_process_host_id) {
-  CancelRequestsForRenderView(render_process_host_id, -1 /* cancel all */);
+void ResourceDispatcherHost::CancelRequestsForProcess(int process_id) {
+  CancelRequestsForRoute(process_id, -1 /* cancel all */);
 }
 
-void ResourceDispatcherHost::CancelRequestsForRenderView(
-    int render_process_host_id,
-    int render_view_id) {
+void ResourceDispatcherHost::CancelRequestsForRoute(
+    int process_id,
+    int route_id) {
   // Since pending_requests_ is a map, we first build up a list of all of the
   // matching requests to be cancelled, and then we cancel them.  Since there
   // may be more than one request to cancel, we cannot simply hold onto the map
@@ -628,12 +624,12 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(
   std::vector<GlobalRequestID> matching_requests;
   for (PendingRequestList::const_iterator i = pending_requests_.begin();
        i != pending_requests_.end(); ++i) {
-    if (i->first.render_process_host_id == render_process_host_id) {
+    if (i->first.process_id == process_id) {
       ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
-      if (!info->is_download && (render_view_id == -1 ||
-                                 render_view_id == info->render_view_id)) {
+      if (!info->is_download && (route_id == -1 ||
+                                 route_id == info->route_id)) {
         matching_requests.push_back(
-            GlobalRequestID(render_process_host_id, i->first.request_id));
+            GlobalRequestID(process_id, i->first.request_id));
       }
     }
   }
@@ -655,36 +651,34 @@ void ResourceDispatcherHost::CancelRequestsForRenderView(
   }
 
   // Now deal with blocked requests if any.
-  if (render_view_id != -1) {
-    if (blocked_requests_map_.find(std::pair<int, int>(render_process_host_id,
-                                                       render_view_id)) !=
+  if (route_id != -1) {
+    if (blocked_requests_map_.find(std::pair<int, int>(process_id, route_id)) !=
         blocked_requests_map_.end()) {
-      CancelBlockedRequestsForRenderView(render_process_host_id,
-                                         render_view_id);
+      CancelBlockedRequestsForRoute(process_id, route_id);
     }
   } else {
-    // We have to do all render views for the process |render_process_host_id|.
+    // We have to do all render views for the process |process_id|.
     // Note that we have to do this in 2 passes as we cannot call
-    // CancelBlockedRequestsForRenderView while iterating over
+    // CancelBlockedRequestsForRoute while iterating over
     // blocked_requests_map_, as it modifies it.
-    std::set<int> render_view_ids;
+    std::set<int> route_ids;
     for (BlockedRequestMap::const_iterator iter = blocked_requests_map_.begin();
          iter != blocked_requests_map_.end(); ++iter) {
-      if (iter->first.first == render_process_host_id)
-        render_view_ids.insert(iter->first.second);
+      if (iter->first.first == process_id)
+        route_ids.insert(iter->first.second);
     }
-    for (std::set<int>::const_iterator iter = render_view_ids.begin();
-        iter != render_view_ids.end(); ++iter) {
-      CancelBlockedRequestsForRenderView(render_process_host_id, *iter);
+    for (std::set<int>::const_iterator iter = route_ids.begin();
+        iter != route_ids.end(); ++iter) {
+      CancelBlockedRequestsForRoute(process_id, *iter);
     }
   }
 }
 
 // Cancels the request and removes it from the list.
-void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
+void ResourceDispatcherHost::RemovePendingRequest(int process_id,
                                                   int request_id) {
   PendingRequestList::iterator i = pending_requests_.find(
-      GlobalRequestID(render_process_host_id, request_id));
+      GlobalRequestID(process_id, request_id));
   if (i == pending_requests_.end()) {
     NOTREACHED() << "Trying to remove a request that's not here";
     return;
@@ -699,7 +693,7 @@ void ResourceDispatcherHost::RemovePendingRequest(
   // Remove the memory credit that we added when pushing the request onto
   // the pending list.
   IncrementOutstandingRequestsMemoryCost(-1 * info->memory_cost,
-                                         info->render_process_host_id);
+                                         info->process_id);
 
   // Notify the login handler that this request object is going away.
   if (info && info->login_handler)
@@ -722,30 +716,29 @@ void ResourceDispatcherHost::OnReceivedRedirect(URLRequest* request,
 
   DCHECK(request->status().is_success());
 
-  // TODO(mpcomplete): remove this when http://b/viewIssue?id=1080959 is fixed.
-  if (info->render_process_host_id != -1 &&
+  if (info->process_type == ChildProcessInfo::RENDER_PROCESS &&
       !RendererSecurityPolicy::GetInstance()->
-          CanRequestURL(info->render_process_host_id, new_url)) {
+          CanRequestURL(info->process_id, new_url)) {
     LOG(INFO) << "Denied unauthorized request for " <<
         new_url.possibly_invalid_spec();
 
     // Tell the renderer that this request was disallowed.
-    CancelRequest(info->render_process_host_id, info->request_id, false);
+    CancelRequest(info->process_id, info->request_id, false);
     return;
   }
 
-  NofityReceivedRedirect(request, info->render_process_host_id, new_url);
+  NofityReceivedRedirect(request, info->process_id, new_url);
 
-  if (HandleExternalProtocol(info->request_id, info->render_process_host_id,
-                             info->render_view_id, new_url,
+  if (HandleExternalProtocol(info->request_id, info->process_id,
+                             info->route_id, new_url,
                              info->resource_type, info->resource_handler)) {
     // The request is complete so we can remove it.
-    RemovePendingRequest(info->render_process_host_id, info->request_id);
+    RemovePendingRequest(info->process_id, info->request_id);
     return;
   }
 
   if (!info->resource_handler->OnRequestRedirected(info->request_id, new_url))
-    CancelRequest(info->render_process_host_id, info->request_id, false);
+    CancelRequest(info->process_id, info->request_id, false);
 }
 
 void ResourceDispatcherHost::OnAuthRequired(
@@ -787,7 +780,7 @@ void ResourceDispatcherHost::OnResponseStarted(URLRequest* request) {
     MaybeUpdateUploadProgress(info, request);
 
     if (!CompleteResponseStarted(request)) {
-      CancelRequest(info->render_process_host_id, info->request_id, false);
+      CancelRequest(info->process_id, info->request_id, false);
     } else {
       // Start reading.
       int bytes_read = 0;
@@ -822,7 +815,7 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
     int cert_id =
         CertStore::GetSharedInstance()->StoreCert(
             request->ssl_info().cert,
-            info->render_process_host_id);
+            info->process_id);
     int cert_status = request->ssl_info().cert_status;
     // EV certificate verification could be expensive.  We don't want to spend
     // time performing EV certificate verification on all resources because
@@ -844,16 +837,16 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
            request->ssl_info().security_bits == 0));
   }
 
-  NotifyResponseStarted(request, info->render_process_host_id);
+  NotifyResponseStarted(request, info->process_id);
   return info->resource_handler->OnResponseStarted(info->request_id,
                                                    response.get());
 }
 
 int ResourceDispatcherHost::IncrementOutstandingRequestsMemoryCost(
-    int cost, int render_process_host_id) {
+    int cost, int process_id) {
   // Retrieve the previous value (defaulting to 0 if not found).
   OutstandingRequestsMemoryCostMap::iterator prev_entry =
-      outstanding_requests_memory_cost_map_.find(render_process_host_id);
+      outstanding_requests_memory_cost_map_.find(process_id);
   int new_cost = 0;
   if (prev_entry != outstanding_requests_memory_cost_map_.end())
     new_cost = prev_entry->second;
@@ -864,7 +857,7 @@ int ResourceDispatcherHost::IncrementOutstandingRequestsMemoryCost(
   if (new_cost == 0)
     outstanding_requests_memory_cost_map_.erase(prev_entry);
   else
-    outstanding_requests_memory_cost_map_[render_process_host_id] = new_cost;
+    outstanding_requests_memory_cost_map_[process_id] = new_cost;
 
   return new_cost;
 }
@@ -915,7 +908,7 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
   info->memory_cost = CalculateApproximateMemoryCost(request);
   int memory_cost = IncrementOutstandingRequestsMemoryCost(
       info->memory_cost,
-      info->render_process_host_id);
+      info->process_id);
 
   // If enqueing/starting this request will exceed our per-process memory
   // bound, abort it right away.
@@ -926,14 +919,13 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
 
     // TODO(eroman): this is kinda funky -- we insert the unstarted request into
     // |pending_requests_| simply to please OnResponseCompleted().
-    GlobalRequestID global_id(info->render_process_host_id, info->request_id);
+    GlobalRequestID global_id(info->process_id, info->request_id);
     pending_requests_[global_id] = request;
     OnResponseCompleted(request);
     return;
   }
 
-  std::pair<int, int> pair_id(info->render_process_host_id,
-                              info->render_view_id);
+  std::pair<int, int> pair_id(info->process_id, info->route_id);
   BlockedRequestMap::const_iterator iter = blocked_requests_map_.find(pair_id);
   if (iter != blocked_requests_map_.end()) {
     // The request should be blocked.
@@ -941,7 +933,7 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
     return;
   }
 
-  GlobalRequestID global_id(info->render_process_host_id, info->request_id);
+  GlobalRequestID global_id(info->process_id, info->request_id);
   pending_requests_[global_id] = request;
   if (mixed_content) {
     // We don't start the request in that case.  The SSLManager will potentially
@@ -1077,7 +1069,7 @@ void ResourceDispatcherHost::OnReadCompleted(URLRequest* request,
         // thread and starving other IO operations from running.
         info->paused_read_bytes = bytes_read;
         info->is_paused = true;
-        GlobalRequestID id(info->render_process_host_id, info->request_id);
+        GlobalRequestID id(info->process_id, info->request_id);
         MessageLoop::current()->PostTask(
             FROM_HERE,
             method_runner_.NewRunnableMethod(
@@ -1113,7 +1105,7 @@ bool ResourceDispatcherHost::CompleteRead(URLRequest* request,
     // Pass in false as the last arg to indicate we don't want |request|
     // deleted. We do this as callers of us assume |request| is valid after we
     // return.
-    CancelRequest(info->render_process_host_id, info->request_id, false, false);
+    CancelRequest(info->process_id, info->request_id, false, false);
     return false;
   }
 
@@ -1128,7 +1120,7 @@ void ResourceDispatcherHost::OnResponseCompleted(URLRequest* request) {
   const net::SSLInfo& ssl_info = request->ssl_info();
   if (ssl_info.cert != NULL) {
     int cert_id = CertStore::GetSharedInstance()->
-        StoreCert(ssl_info.cert, info->render_process_host_id);
+        StoreCert(ssl_info.cert, info->process_id);
     security_info = SSLManager::SerializeSecurityInfo(cert_id,
                                                       ssl_info.cert_status,
                                                       ssl_info.security_bits);
@@ -1137,10 +1129,10 @@ void ResourceDispatcherHost::OnResponseCompleted(URLRequest* request) {
   if (info->resource_handler->OnResponseCompleted(info->request_id,
                                                   request->status(),
                                                   security_info)) {
-    NotifyResponseCompleted(request, info->render_process_host_id);
+    NotifyResponseCompleted(request, info->process_id);
 
     // The request is complete so we can remove it.
-    RemovePendingRequest(info->render_process_host_id, info->request_id);
+    RemovePendingRequest(info->process_id, info->request_id);
   }
   // If the handler's OnResponseCompleted returns false, we are deferring the
   // call until later.  We will notify the world and clean up when we resume.
@@ -1177,16 +1169,14 @@ class NotificationTask : public Task {
                    ResourceRequestDetails* details)
   : type_(type),
     details_(details) {
-    if (!tab_util::GetTabContentsID(request,
-                                    &render_process_host_id_,
-                                    &tab_contents_id_))
+    if (!tab_util::GetTabContentsID(request, &process_id_, &tab_contents_id_))
       NOTREACHED();
   }
 
   void Run() {
     // Find the tab associated with this request.
     TabContents* tab_contents =
-        tab_util::GetWebContentsByID(render_process_host_id_, tab_contents_id_);
+        tab_util::GetWebContentsByID(process_id_, tab_contents_id_);
 
     if (tab_contents) {
       // Issue the notification.
@@ -1199,7 +1189,7 @@ class NotificationTask : public Task {
 
  private:
   // These IDs let us find the correct tab on the UI thread.
-  int render_process_host_id_;
+  int process_id_;
   int tab_contents_id_;
 
   // The type and details of the notification.
@@ -1207,10 +1197,10 @@ class NotificationTask : public Task {
   scoped_ptr<ResourceRequestDetails> details_;
 };
 
-static int GetCertID(URLRequest* request, int render_process_host_id) {
+static int GetCertID(URLRequest* request, int process_id) {
   if (request->ssl_info().cert) {
     return CertStore::GetSharedInstance()->StoreCert(request->ssl_info().cert,
-                                                     render_process_host_id);
+                                                     process_id);
   }
   // If there is no SSL info attached to this request, we must either be a non
   // secure request, or the request has been canceled or failed (before the SSL
@@ -1225,7 +1215,7 @@ static int GetCertID(URLRequest* request, int render_process_host_id) {
 }
 
 void ResourceDispatcherHost::NotifyResponseStarted(URLRequest* request,
-                                                   int render_process_host_id) {
+                                                   int process_id) {
   // Notify the observers on the IO thread.
   FOR_EACH_OBSERVER(Observer, observer_list_, OnRequestStarted(this, request));
 
@@ -1233,12 +1223,12 @@ void ResourceDispatcherHost::NotifyResponseStarted(URLRequest* request,
   ui_loop_->PostTask(FROM_HERE,
       new NotificationTask(NotificationType::RESOURCE_RESPONSE_STARTED, request,
                            new ResourceRequestDetails(request,
-                               GetCertID(request, render_process_host_id))));
+                               GetCertID(request, process_id))));
 }
 
 void ResourceDispatcherHost::NotifyResponseCompleted(
     URLRequest* request,
-    int render_process_host_id) {
+    int process_id) {
   // Notify the observers on the IO thread.
   FOR_EACH_OBSERVER(Observer, observer_list_,
                     OnResponseCompleted(this, request));
@@ -1248,17 +1238,17 @@ void ResourceDispatcherHost::NotifyResponseCompleted(
       new NotificationTask(NotificationType::RESOURCE_RESPONSE_COMPLETED,
                            request,
                            new ResourceRequestDetails(request,
-                               GetCertID(request, render_process_host_id))));
+                               GetCertID(request, process_id))));
 }
 
 void ResourceDispatcherHost::NofityReceivedRedirect(URLRequest* request,
-                                                    int render_process_host_id,
+                                                    int process_id,
                                                     const GURL& new_url) {
   // Notify the observers on the IO thread.
   FOR_EACH_OBSERVER(Observer, observer_list_,
                     OnReceivedRedirect(this, request, new_url));
 
-  int cert_id = GetCertID(request, render_process_host_id);
+  int cert_id = GetCertID(request, process_id);
 
   // Notify the observers on the UI thread.
   ui_loop_->PostTask(FROM_HERE,
@@ -1336,8 +1326,7 @@ void ResourceDispatcherHost::UpdateLoadStates() {
     if (info->last_load_state != load_state) {
       info->last_load_state = load_state;
 
-      std::pair<int, int> key(info->render_process_host_id,
-                              info->render_view_id);
+      std::pair<int, int> key(info->process_id, info->route_id);
       net::LoadState to_insert;
       LoadInfoMap::iterator existing = info_map.find(key);
       if (existing == info_map.end()) {
@@ -1391,36 +1380,33 @@ void ResourceDispatcherHost::MaybeUpdateUploadProgress(ExtraRequestInfo *info,
   }
 }
 
-void ResourceDispatcherHost::BlockRequestsForRenderView(
-    int render_process_host_id,
-    int render_view_id) {
-  std::pair<int, int> key(render_process_host_id, render_view_id);
+void ResourceDispatcherHost::BlockRequestsForRoute(
+    int process_id,
+    int route_id) {
+  std::pair<int, int> key(process_id, route_id);
   DCHECK(blocked_requests_map_.find(key) == blocked_requests_map_.end()) <<
-      "BlockRequestsForRenderView called  multiple time for the same RVH";
+      "BlockRequestsForRoute called  multiple time for the same RVH";
   blocked_requests_map_[key] = new BlockedRequestsList();
 }
 
-void ResourceDispatcherHost::ResumeBlockedRequestsForRenderView(
-    int render_process_host_id,
-    int render_view_id) {
-  ProcessBlockedRequestsForRenderView(render_process_host_id,
-                                      render_view_id, false);
+void ResourceDispatcherHost::ResumeBlockedRequestsForRoute(
+    int process_id,
+    int route_id) {
+  ProcessBlockedRequestsForRoute(process_id, route_id, false);
 }
 
-void ResourceDispatcherHost::CancelBlockedRequestsForRenderView(
-    int render_process_host_id,
-    int render_view_id) {
-  ProcessBlockedRequestsForRenderView(render_process_host_id,
-                                      render_view_id, true);
+void ResourceDispatcherHost::CancelBlockedRequestsForRoute(
+    int process_id,
+    int route_id) {
+  ProcessBlockedRequestsForRoute(process_id, route_id, true);
 }
 
-void ResourceDispatcherHost::ProcessBlockedRequestsForRenderView(
-    int render_process_host_id,
-    int render_view_id,
+void ResourceDispatcherHost::ProcessBlockedRequestsForRoute(
+    int process_id,
+    int route_id,
     bool cancel_requests) {
   BlockedRequestMap::iterator iter =
-      blocked_requests_map_.find(std::pair<int, int>(render_process_host_id,
-                                                     render_view_id));
+      blocked_requests_map_.find(std::pair<int, int>(process_id, route_id));
   if (iter == blocked_requests_map_.end()) {
     NOTREACHED();
     return;
@@ -1437,7 +1423,7 @@ void ResourceDispatcherHost::ProcessBlockedRequestsForRenderView(
     // the blocked list.
     ExtraRequestInfo* info = ExtraInfoForRequest(req_iter->url_request);
     IncrementOutstandingRequestsMemoryCost(-1 * info->memory_cost,
-                                           info->render_process_host_id);
+                                           info->process_id);
     if (cancel_requests)
       delete req_iter->url_request;
     else

@@ -144,7 +144,8 @@ void ResourceDispatcherHostTest::MakeTestRequest(int render_process_id,
                                                  const GURL& url) {
   ViewHostMsg_Resource_Request request = CreateResourceRequest("GET", url);
 
-  host_.BeginRequest(this, base::GetCurrentProcessHandle(), render_process_id,
+  host_.BeginRequest(this, ChildProcessInfo::RENDER_PROCESS,
+                     base::GetCurrentProcessHandle(), render_process_id,
                      render_view_id, request_id, request, NULL, NULL);
   KickOffRequest();
 }
@@ -286,8 +287,9 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
 
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
-  host_.BeginRequest(&test_receiver, base::GetCurrentProcessHandle(), 0,
-                     MSG_ROUTING_NONE, 1, request, NULL, NULL);
+  host_.BeginRequest(&test_receiver, ChildProcessInfo::RENDER_PROCESS,
+                     base::GetCurrentProcessHandle(), 0, MSG_ROUTING_NONE, 1,
+                     request, NULL, NULL);
   KickOffRequest();
 
   // request 2 goes to us
@@ -295,8 +297,9 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
 
   // request 3 goes to the test delegate
   request.url = URLRequestTestJob::test_url_3();
-  host_.BeginRequest(&test_receiver, base::GetCurrentProcessHandle(), 0,
-                     MSG_ROUTING_NONE, 3, request, NULL, NULL);
+  host_.BeginRequest(&test_receiver, ChildProcessInfo::RENDER_PROCESS,
+                     base::GetCurrentProcessHandle(), 0, MSG_ROUTING_NONE, 3,
+                     request, NULL, NULL);
   KickOffRequest();
 
   // TODO(mbelshe):
@@ -333,9 +336,9 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
 TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
-  host_.BlockRequestsForRenderView(0, 1);
-  host_.BlockRequestsForRenderView(0, 2);
-  host_.BlockRequestsForRenderView(0, 3);
+  host_.BlockRequestsForRoute(0, 1);
+  host_.BlockRequestsForRoute(0, 2);
+  host_.BlockRequestsForRoute(0, 3);
 
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
   MakeTestRequest(0, 1, 2, URLRequestTestJob::test_url_2());
@@ -358,7 +361,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_3());
 
   // Resume requests for RVH 1 and flush pending requests.
-  host_.ResumeBlockedRequestsForRenderView(0, 1);
+  host_.ResumeBlockedRequestsForRoute(0, 1);
   KickOffRequest();
   while (URLRequestTestJob::ProcessOnePendingMessage());
 
@@ -377,8 +380,8 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
   CheckSuccessfulRequest(msgs[0], URLRequestTestJob::test_data_1());
 
   // Now resumes requests for all RVH (2 and 3).
-  host_.ResumeBlockedRequestsForRenderView(0, 2);
-  host_.ResumeBlockedRequestsForRenderView(0, 3);
+  host_.ResumeBlockedRequestsForRoute(0, 2);
+  host_.ResumeBlockedRequestsForRoute(0, 3);
   KickOffRequest();
   while (URLRequestTestJob::ProcessOnePendingMessage());
 
@@ -395,7 +398,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingResumingRequests) {
 TEST_F(ResourceDispatcherHostTest, TestBlockingCancelingRequests) {
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
-  host_.BlockRequestsForRenderView(0, 1);
+  host_.BlockRequestsForRoute(0, 1);
 
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
   MakeTestRequest(0, 1, 2, URLRequestTestJob::test_url_2());
@@ -416,7 +419,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockingCancelingRequests) {
   CheckSuccessfulRequest(msgs[1], URLRequestTestJob::test_data_3());
 
   // Cancel requests for RVH 1.
-  host_.CancelBlockedRequestsForRenderView(0, 1);
+  host_.CancelBlockedRequestsForRoute(0, 1);
   KickOffRequest();
   while (URLRequestTestJob::ProcessOnePendingMessage());
 
@@ -432,7 +435,7 @@ TEST_F(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies) {
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(1));
 
-  host_.BlockRequestsForRenderView(1, 0);
+  host_.BlockRequestsForRoute(1, 0);
 
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
   MakeTestRequest(1, 0, 2, URLRequestTestJob::test_url_2());
@@ -466,9 +469,9 @@ TEST_F(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies) {
 // If this test turns the Purify bot red, check the ResourceDispatcherHost
 // destructor to make sure the blocked requests are deleted.
 TEST_F(ResourceDispatcherHostTest, TestBlockedRequestsDontLeak) {
-  host_.BlockRequestsForRenderView(0, 1);
-  host_.BlockRequestsForRenderView(0, 2);
-  host_.BlockRequestsForRenderView(1, 1);
+  host_.BlockRequestsForRoute(0, 1);
+  host_.BlockRequestsForRoute(0, 2);
+  host_.BlockRequestsForRoute(1, 1);
 
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
   MakeTestRequest(0, 1, 2, URLRequestTestJob::test_url_2());

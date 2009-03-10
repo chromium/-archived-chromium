@@ -37,15 +37,15 @@ class ResourceRequestTask : public Task {
   virtual void Run() {
     switch (action_) {
       case BLOCK:
-        resource_dispatcher_host_->BlockRequestsForRenderView(
+        resource_dispatcher_host_->BlockRequestsForRoute(
             process_id_, render_view_host_id_);
         break;
       case RESUME:
-        resource_dispatcher_host_->ResumeBlockedRequestsForRenderView(
+        resource_dispatcher_host_->ResumeBlockedRequestsForRoute(
             process_id_, render_view_host_id_);
         break;
       case CANCEL:
-        resource_dispatcher_host_->CancelBlockedRequestsForRenderView(
+        resource_dispatcher_host_->CancelBlockedRequestsForRoute(
             process_id_, render_view_host_id_);
         break;
       default:

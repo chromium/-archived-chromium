@@ -330,6 +330,7 @@ void ResourceMessageFilter::OnRequestResource(
     int request_id,
     const ViewHostMsg_Resource_Request& request) {
   resource_dispatcher_host_->BeginRequest(this,
+                                          ChildProcessInfo::RENDER_PROCESS,
                                           render_handle_,
                                           render_process_host_id_,
                                           message.routing_id(),
@@ -365,6 +366,7 @@ void ResourceMessageFilter::OnSyncLoad(
     const ViewHostMsg_Resource_Request& request,
     IPC::Message* sync_result) {
   resource_dispatcher_host_->BeginRequest(this,
+                                          ChildProcessInfo::RENDER_PROCESS,
                                           render_handle_,
                                           render_process_host_id_,
                                           sync_result->routing_id(),

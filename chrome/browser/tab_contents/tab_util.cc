@@ -22,8 +22,8 @@ bool tab_util::GetTabContentsID(URLRequest* request,
   if (!info)
     return false;
 
-  *render_process_id = info->render_process_host_id;
-  *render_view_id = info->render_view_id;
+  *render_process_id = info->process_id;
+  *render_view_id = info->route_id;
   return true;
 }
 

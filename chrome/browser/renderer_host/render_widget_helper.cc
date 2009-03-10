@@ -184,7 +184,7 @@ void RenderWidgetHelper::OnDispatchPaintMsg(PaintMsgProxy* proxy) {
 
 void RenderWidgetHelper::OnCancelResourceRequests(
     int render_widget_id) {
-  resource_dispatcher_host_->CancelRequestsForRenderView(
+  resource_dispatcher_host_->CancelRequestsForRoute(
       render_process_id_, render_widget_id);
 }
 
@@ -227,7 +227,7 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
 
   // Block resource requests until the view is created, since the HWND might be
   // needed if a response ends up creating a plugin.
-  resource_dispatcher_host_->BlockRequestsForRenderView(
+  resource_dispatcher_host_->BlockRequestsForRoute(
       render_process_id_, *route_id);
 
   // The easiest way to reach RenderViewHost is just to send a routed message.
@@ -249,7 +249,7 @@ void RenderWidgetHelper::OnCreateWindowOnUI(
 }
 
 void RenderWidgetHelper::OnCreateWindowOnIO(int route_id) {
-  resource_dispatcher_host_->ResumeBlockedRequestsForRenderView(
+  resource_dispatcher_host_->ResumeBlockedRequestsForRoute(
       render_process_id_, route_id);
 }
 

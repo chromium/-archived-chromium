@@ -370,9 +370,7 @@ PluginProcessHost::PluginProcessHost(MessageLoop* main_message_loop)
 }
 
 PluginProcessHost::~PluginProcessHost() {
-  // Cancel all requests for plugin processes.
-  // TODO(mpcomplete): use a real process ID when http://b/issue?id=1210062 is
-  // fixed.
+  // Cancel all requests for plugin process.
   PluginService::GetInstance()->resource_dispatcher_host()->
       CancelRequestsForProcess(-1);
 
@@ -612,10 +610,6 @@ void PluginProcessHost::OnRequestResource(
     const IPC::Message& message,
     int request_id,
     const ViewHostMsg_Resource_Request& request) {
-  // TODO(mpcomplete): we need a "process_id" mostly for a unique identifier.
-  // We should decouple the idea of a render_process_host_id from the unique ID
-  // in ResourceDispatcherHost.
-  int render_process_host_id = -1;
   URLRequestContext* context = CPBrowsingContextManager::Instance()->
         ToURLRequestContext(request.request_context);
   // TODO(mpcomplete): remove fallback case when Gears support is prevalent.
@@ -623,33 +617,30 @@ void PluginProcessHost::OnRequestResource(
     context = Profile::GetDefaultRequestContext();
 
   PluginService::GetInstance()->resource_dispatcher_host()->
-      BeginRequest(this, handle(), render_process_host_id,
-                   MSG_ROUTING_CONTROL, request_id, request, context, NULL);
+      BeginRequest(this, ChildProcessInfo::PLUGIN_PROCESS, handle(),
+                   -1, MSG_ROUTING_CONTROL, request_id,
+                   request, context, NULL);
 }
 
 void PluginProcessHost::OnCancelRequest(int request_id) {
-  int render_process_host_id = -1;
   PluginService::GetInstance()->resource_dispatcher_host()->
-      CancelRequest(render_process_host_id, request_id, true);
+      CancelRequest(-1, request_id, true);
 }
 
 void PluginProcessHost::OnDataReceivedACK(int request_id) {
-  int render_process_host_id = -1;
   PluginService::GetInstance()->resource_dispatcher_host()->
-      OnDataReceivedACK(render_process_host_id, request_id);
+      OnDataReceivedACK(-1, request_id);
 }
 
 void PluginProcessHost::OnUploadProgressACK(int request_id) {
-  int render_process_host_id = -1;
   PluginService::GetInstance()->resource_dispatcher_host()->
-      OnUploadProgressACK(render_process_host_id, request_id);
+      OnUploadProgressACK(-1, request_id);
 }
 
 void PluginProcessHost::OnSyncLoad(
     int request_id,
     const ViewHostMsg_Resource_Request& request,
     IPC::Message* sync_result) {
-  int render_process_host_id = -1;
   URLRequestContext* context = CPBrowsingContextManager::Instance()->
         ToURLRequestContext(request.request_context);
   // TODO(mpcomplete): remove fallback case when Gears support is prevalent.
@@ -657,9 +648,9 @@ void PluginProcessHost::OnSyncLoad(
     context = Profile::GetDefaultRequestContext();
 
   PluginService::GetInstance()->resource_dispatcher_host()->
-      BeginRequest(this, handle(), render_process_host_id,
-                   MSG_ROUTING_CONTROL, request_id, request, context,
-                   sync_result);
+      BeginRequest(this, ChildProcessInfo::PLUGIN_PROCESS, handle(),
+                   -1, MSG_ROUTING_CONTROL, request_id,
+                   request, context, sync_result);
 }
 
 void PluginProcessHost::OnGetCookies(uint32 request_context,
