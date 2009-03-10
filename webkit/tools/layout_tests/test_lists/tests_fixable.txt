@@ -1699,7 +1699,7 @@ MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 // See above comment about this test on linux/win.
 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 MAC DEBUG : LayoutTests/http/tests/misc/slow-preload-cancel.html = CRASH
-MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT PASS
+MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT CRASH PASS
 WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
@@ -1783,5 +1783,4 @@ LINUX MAC : pending/security/block-test.html = FAIL
 
 // Flakey. Not clear when it started, but it was before 3/9/09.
 LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH PASS
-MAC : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT CRASH PASS
 WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
