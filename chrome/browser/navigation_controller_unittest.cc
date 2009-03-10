@@ -12,7 +12,6 @@
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/common/notification_registrar.h"
@@ -24,6 +23,13 @@
 #include "chrome/test/testing_profile.h"
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+// TODO(port): get rid of this section, finish porting.
+#if defined(OS_WIN)
+#include "chrome/browser/tab_contents/tab_contents.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 using base::Time;
 
@@ -124,10 +130,10 @@ class NavigationControllerTest : public testing::Test,
 class NavigationControllerHistoryTest : public NavigationControllerTest {
  public:
   NavigationControllerHistoryTest()
-      : profile_manager_(NULL),
-        url0(scheme1() + ":foo1"),
+      : url0(scheme1() + ":foo1"),
         url1(scheme1() + ":foo1"),
-        url2(scheme1() + ":foo1") {
+        url2(scheme1() + ":foo1"),
+        profile_manager_(NULL) {
   }
 
   virtual ~NavigationControllerHistoryTest() {
@@ -144,7 +150,7 @@ class NavigationControllerHistoryTest : public NavigationControllerTest {
     profile_path_ = test_dir_;
     file_util::AppendToPath(&profile_path_, L"New Profile");
     file_util::Delete(test_dir_, true);
-    CreateDirectory(test_dir_.c_str(), NULL);
+    file_util::CreateDirectory(test_dir_);
 
     // Create a profile.
     profile_manager_ = new ProfileManager();
@@ -265,7 +271,7 @@ TEST_F(NavigationControllerTest, LoadURL) {
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
   // Creating a pending notification should not have issued any of the
   // notifications we're listening for.
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // The load should now be pending.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 0);
@@ -278,7 +284,7 @@ TEST_F(NavigationControllerTest, LoadURL) {
   EXPECT_EQ(contents->GetMaxPageID(), -1);
 
   // We should have gotten no notifications from the preceeding checks.
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(
@@ -334,13 +340,13 @@ TEST_F(NavigationControllerTest, LoadURL_SamePage) {
   const GURL url1(scheme1() + ":foo1");
 
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(
       NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(
       NotificationType::NAV_ENTRY_COMMITTED));
@@ -364,14 +370,14 @@ TEST_F(NavigationControllerTest, LoadURL_Discarded) {
   const GURL url2(scheme1() + ":foo2");
 
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(
       NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   contents->controller()->DiscardNonCommittedEntries();
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // Should not have produced a new session history entry.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -430,7 +436,7 @@ TEST_F(NavigationControllerTest, LoadURL_NewPending) {
   const GURL kExistingURL2(scheme1() + ":bee");
   contents->controller()->LoadURL(kExistingURL2, GURL(),
                                   PageTransition::TYPED);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // Before that commits, do a new navigation.
   const GURL kNewURL(scheme1() + ":see");
@@ -470,7 +476,7 @@ TEST_F(NavigationControllerTest, LoadURL_ExistingPending) {
   // Now make a pending back/forward navigation. The zeroth entry should be
   // pending.
   contents->controller()->GoBack();
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
   EXPECT_EQ(0, contents->controller()->GetPendingEntryIndex());
   EXPECT_EQ(1, contents->controller()->GetLastCommittedEntryIndex());
 
@@ -495,13 +501,13 @@ TEST_F(NavigationControllerTest, Reload) {
   const GURL url1(scheme1() + ":foo1");
 
   contents->controller()->LoadURL(url1, GURL(), PageTransition::TYPED);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(
       NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->Reload(true);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // The reload is pending.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 1);
@@ -540,7 +546,7 @@ TEST_F(NavigationControllerTest, Reload_GeneratesNewPage) {
       NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->Reload(true);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   contents->CompleteNavigationAsRenderer(1, url2);
   EXPECT_TRUE(notifications.Check1AndReset(
@@ -572,7 +578,7 @@ TEST_F(NavigationControllerTest, Back) {
       NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoBack();
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // We should now have a pending navigation to go back.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -617,7 +623,7 @@ TEST_F(NavigationControllerTest, Back_GeneratesNewPage) {
       NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoBack();
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // We should now have a pending navigation to go back.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -785,7 +791,7 @@ TEST_F(NavigationControllerTest, Forward_GeneratesNewPage) {
       NotificationType::NAV_ENTRY_COMMITTED));
 
   contents->controller()->GoForward();
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // Should now have a pending navigation to go forward.
   EXPECT_EQ(contents->controller()->GetEntryCount(), 2);
@@ -867,7 +873,7 @@ TEST_F(NavigationControllerTest, SubframeOnEmptyPage) {
 
   NavigationController::LoadCommittedDetails details;
   EXPECT_FALSE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 }
 
 // Auto subframes are ones the page loads automatically like ads. They should
@@ -893,7 +899,7 @@ TEST_F(NavigationControllerTest, AutoSubframe) {
   // Navigating should do nothing.
   NavigationController::LoadCommittedDetails details;
   EXPECT_FALSE(contents->controller()->RendererDidNavigate(params, &details));
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // There should still be only one entry.
   EXPECT_EQ(1, contents->controller()->GetEntryCount());
@@ -1118,13 +1124,13 @@ TEST_F(NavigationControllerTest, SwitchTypes_Discard) {
   TestTabContents* initial_contents = contents;
 
   contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // The tab contents should have been replaced
   ASSERT_TRUE(initial_contents != contents);
 
   contents->controller()->DiscardNonCommittedEntries();
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // The tab contents should have been replaced back
   ASSERT_TRUE(initial_contents == contents);
@@ -1214,7 +1220,7 @@ class PrunedListener : public NotificationObserver {
 // Tests that we limit the number of navigation entries created correctly.
 TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   size_t original_count = NavigationController::max_entry_count();
-  const size_t kMaxEntryCount = 5;
+  const int kMaxEntryCount = 5;
 
   NavigationController::set_max_entry_count(kMaxEntryCount);
 
@@ -1279,7 +1285,8 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   // Create a NavigationController with a restored set of tabs.
   GURL url(scheme1() + ":foo");
   std::vector<TabNavigation> navigations;
-  navigations.push_back(TabNavigation(0, url, GURL(), L"Title", "state",
+  navigations.push_back(TabNavigation(0, url, GURL(),
+                                      ASCIIToUTF16("Title"), "state",
                                       PageTransition::LINK));
   NavigationController* controller =
       new NavigationController(profile, navigations, 0);
@@ -1424,7 +1431,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   contents->controller()->AddTransientEntry(transient_entry);
 
   // We should not have received any notifications.
-  EXPECT_EQ(0, notifications.size());
+  EXPECT_EQ(0U, notifications.size());
 
   // Check our state.
   EXPECT_EQ(transient_url, contents->controller()->GetActiveEntry()->url());
@@ -1586,7 +1593,7 @@ TEST_F(NavigationControllerHistoryTest, Basic) {
 
   helper_.AssertSingleWindowWithSingleTab(windows_, 1);
   helper_.AssertTabEquals(0, 0, 1, *(windows_[0]->tabs[0]));
-  TabNavigation nav1(0, url0, GURL(), std::wstring(), std::string(),
+  TabNavigation nav1(0, url0, GURL(), string16(), std::string(),
                      PageTransition::LINK);
   helper_.AssertNavigationEquals(nav1, windows_[0]->tabs[0]->navigations[0]);
 }
@@ -1606,7 +1613,7 @@ TEST_F(NavigationControllerHistoryTest, NavigationThenBack) {
   helper_.AssertSingleWindowWithSingleTab(windows_, 3);
   helper_.AssertTabEquals(0, 1, 3, *(windows_[0]->tabs[0]));
 
-  TabNavigation nav(0, url0, GURL(), std::wstring(), std::string(),
+  TabNavigation nav(0, url0, GURL(), string16(), std::string(),
                     PageTransition::LINK);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
   nav.set_url(url1);
@@ -1636,7 +1643,7 @@ TEST_F(NavigationControllerHistoryTest, NavigationPruning) {
   helper_.AssertSingleWindowWithSingleTab(windows_, 2);
   helper_.AssertTabEquals(0, 1, 2, *(windows_[0]->tabs[0]));
 
-  TabNavigation nav(0, url0, GURL(), std::wstring(), std::string(),
+  TabNavigation nav(0, url0, GURL(), string16(), std::string(),
                     PageTransition::LINK);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
   nav.set_url(url2);
