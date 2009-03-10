@@ -1742,3 +1742,12 @@ WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
 
 // Timing out starting 03/10/09
 MAC : LayoutTests/fast/dom/navigator-detached-no-crash.html = PASS TIMEOUT
+
+// Added 3/10/09. 
+WIN : LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL PASS
+WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
+WIN DEBUG : LayoutTests/transitions/transition-end-event-attributes.html = FAIL PASS
+MAC : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/upload-onloadstart-event.html = TIMEOUT PASS
+MAC DEBUG : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+MAC DEBUG : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT PASS
