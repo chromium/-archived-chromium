@@ -63,10 +63,6 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   // Initialize and start all installed extensions.
   bool Init();
 
-  // Start the extension process for this extension.  TODO(mpcomplete): not sure
-  // how this should actually work yet.
-  void LaunchExtensionProcess(Extension* extension);
-
   // ExtensionsServiceFrontendInterface
   virtual MessageLoop* GetMessageLoop();
   virtual void InstallExtension(const FilePath& extension_path);

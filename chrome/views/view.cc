@@ -151,7 +151,8 @@ gfx::Rect View::GetLocalBounds(bool include_border) const {
   gfx::Insets insets;
   border_->GetInsets(&insets);
   return gfx::Rect(insets.left(), insets.top(),
-                   width() - insets.width(), height() - insets.height());
+                   std::max(0, width() - insets.width()),
+                   std::max(0, height() - insets.height()));
 }
 
 gfx::Point View::GetPosition() const {
