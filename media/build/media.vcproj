@@ -221,6 +221,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\filters\ffmpeg_demuxer.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\ffmpeg_demuxer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\filters\ffmpeg_glue.cc"
 				>
 			</File>

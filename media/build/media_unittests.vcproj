@@ -192,6 +192,10 @@
 				Name="filters"
 				>
 				<File
+					RelativePath="..\filters\ffmpeg_demuxer_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\filters\ffmpeg_glue_unittest.cc"
 					>
 				</File>
