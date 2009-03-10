@@ -10,6 +10,7 @@
     {
       'target_name': 'breakpad_handler',
       'type': 'static_library',
+      'msvs_guid': 'B55CA863-B374-4BAF-95AC-539E4FA4C90C',
       'sources': [
         'src/client/windows/crash_generation/client_info.cc',
         'src/client/windows/crash_generation/client_info.h',

@@ -16,6 +16,7 @@
       'dependencies': [
         '../base/base.gyp:base',
       ],
+      'msvs_guid': '9E5416B9-B91B-4029-93F4-102C1AD5CAF4',
       'include_dirs': [
         '..',
       ],

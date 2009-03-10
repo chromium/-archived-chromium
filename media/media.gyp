@@ -26,6 +26,7 @@
       'include_dirs': [
         '..',
       ],
+      'msvs_guid': '6AE76406-B03B-11DD-94B1-80B556D89593',
       'sources': [
         'audio/linux/audio_manager_linux.cc',
         'audio/mac/audio_manager_mac.cc',

@@ -24,6 +24,7 @@
         '../third_party/modp_b64/modp_b64.gyp:modp_b64',
         '../third_party/zlib/zlib.gyp:zlib',
       ],
+      'msvs_guid': '326E9795-E760-410A-B69A-3F79DB3F5243',
       'sources': [
         'base/address_list.cc',
         'base/address_list.h',
@@ -501,6 +502,7 @@
         '../base/base.gyp:base',
         '../build/temp_gyp/googleurl.gyp:googleurl',
       ],
+      'msvs_guid': '{E13045CD-7E1F-4A41-9B18-8D288B2E7B41}',
       'sources': [
         'tools/tld_cleanup/tld_cleanup.cc',
       ],

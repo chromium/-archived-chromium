@@ -13,6 +13,7 @@
     {
       'target_name': 'activex_shim',
       'type': 'static_library',
+      'msvs_guid': 'F4F4BCAA-EA59-445C-A119-3E6C29647A51',
       'dependencies': [
         '../../base/base.gyp:base',
         '../../third_party/npapi/npapi.gyp:npapi',

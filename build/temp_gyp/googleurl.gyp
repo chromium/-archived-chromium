@@ -14,6 +14,7 @@
     {
       'target_name': 'googleurl',
       'type': 'static_library',
+      'msvs_guid': 'EF5E94AB-B646-4E5B-A058-52EF07B8351C',
       'dependencies': [
         '../../base/base.gyp:base',
         '../../third_party/icu38/icu38.gyp:icudata',

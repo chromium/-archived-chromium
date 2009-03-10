@@ -10,6 +10,7 @@
     {
       'target_name': 'skia',
       'type': 'static_library',
+      'msvs_guid': 'CD9CA56E-4E94-444C-87D4-58CA1E6F300D',
       'sources': [
         'precompiled.cc',
         #'animator/SkAnimate.h',

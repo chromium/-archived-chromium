@@ -310,6 +310,7 @@
       'include_dirs': [
         '../../v8/src',
       ],
+      'msvs_guid': 'EC8B7909-62AF-470D-A75D-E1D89C837142',
       'sources': [
         '<@(base_source_files)',
       ],
@@ -358,6 +359,7 @@
       'dependencies': [
         'v8_nosnapshot',
       ],
+      'msvs_guid': '865575D0-37E2-405E-8CBA-5F6C485B5A26',
       'sources': [
         '../../v8/src/mksnapshot.cc',
       ],
@@ -370,6 +372,7 @@
         'mksnapshot',
         'v8_base',
       ],
+      'msvs_guid': '21E22961-22BF-4493-BD3A-868F93DA5179',
       'actions': [
         {
           'action_name': 'mksnapshot',

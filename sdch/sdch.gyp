@@ -13,6 +13,7 @@
     {
       'target_name': 'sdch',
       'type': 'static_library',
+      'msvs_guid': 'F54ABC59-5C00-414A-A9BA-BAF26D1699F0',
       'sources': [
         'open-vcdiff/src/addrcache.cc',
         'open-vcdiff/src/adler32.c',

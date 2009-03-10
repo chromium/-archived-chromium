@@ -17,6 +17,7 @@
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',
       ],
+      'msvs_guid': '1832A374-8A74-4F9E-B536-69A699B3E165',
       'sources': [
         '../build/build_config.h',
         'third_party/dmg_fp/dmg_fp.h',
@@ -379,6 +380,7 @@
     {
       'target_name': 'base_gfx',
       'type': 'static_library',
+      'msvs_guid': 'A508ADD3-CECE-4E0F-8448-2F5E454DF551',
       'sources': [
         'gfx/gdi_util.cc',
         'gfx/gdi_util.h',

@@ -11,6 +11,7 @@
       'target_name': 'sqlite',
       'product_name': 'sqlite3',
       'type': 'static_library',
+      'msvs_guid': '6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9',
       'sources': [
         # This list contains all .h, .c, and .cc files in the directories
         # ext, preprocessed, and src, with the exception of src/shell* and

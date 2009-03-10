@@ -10,6 +10,7 @@
     {
       'target_name': 'google_update',
       'type': 'static_library',
+      'msvs_guid': '4052059A-D72B-4183-B5C2-9D1B099E9E35',
       'sources': [
         'google_update_idl.idl',
         '<(INTERMEDIATE_DIR)/google_update_idl_i.c',

@@ -27,6 +27,7 @@
             # TODO(bradnelson): this should fall out of the dependencies.
             '<(SHARED_INTERMEDIATE_DIR)/webkit',
           ],
+          'msvs_guid': '5916D37D-8C97-424F-A904-74E52594C2D6',
           'sources': [
             'activex_installer.cc',
             'activex_installer.h',

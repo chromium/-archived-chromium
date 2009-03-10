@@ -16,6 +16,7 @@
             '../testing/gtest.gyp:gtest',
             '../base/base.gyp:base',
           ],
+          'msvs_guid': '881F6A97-D539-4C48-B401-DF04385B2343',
           'sources': [
             'src/acl.cc',
             'src/acl.h',

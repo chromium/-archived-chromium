@@ -17,6 +17,7 @@
     {
       'target_name': 'libxml',
       'type': 'static_library',
+      'msvs_guid': 'F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7',
       'sources': [
         'include/libxml/c14n.h',
         'include/libxml/catalog.h',

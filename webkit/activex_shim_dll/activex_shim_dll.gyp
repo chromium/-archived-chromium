@@ -18,6 +18,7 @@
         '../../third_party/npapi/npapi.gyp:npapi',
         '../activex_shim/activex_shim.gyp:activex_shim',
       ],
+      'msvs_guid': '494E414B-1655-48CE-996D-6413ECFB7829',
       'sources': [
         'activex_shim_dll.cc',
         'activex_shim_dll.def',
