@@ -1281,7 +1281,8 @@ void BookmarkBarView::Loaded(BookmarkModel* model) {
     AddChildView(i, CreateBookmarkButton(node->GetChild(i)));
   other_bookmarked_button_->SetEnabled(true);
 
-  AddExtensionToolstrips(profile_->GetExtensionsService()->extensions());
+  if (profile_->GetExtensionsService())  // null in unit tests
+    AddExtensionToolstrips(profile_->GetExtensionsService()->extensions());
 
   Layout();
   SchedulePaint();
