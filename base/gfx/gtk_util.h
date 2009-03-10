@@ -7,7 +7,9 @@
 
 #include <vector>
 
+typedef struct _GdkPixbuf GdkPixbuf;
 typedef struct _GdkRegion GdkRegion;
+class SkBitmap;
 
 namespace gfx {
 
@@ -16,6 +18,10 @@ class Rect;
 // Modify the given region by subtracting the given rectangles.
 void SubtractRectanglesFromRegion(GdkRegion* region,
                                   const std::vector<gfx::Rect>& cutouts);
+
+// Convert and copy a SkBitmap to a GdkPixbuf.  NOTE: This is an expensive
+// operation, all of the pixels must be copied and their order swapped.
+GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap);
 
 }  // namespace gfx
 

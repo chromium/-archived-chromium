@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/menu_gtk.h"
 
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
@@ -29,45 +30,6 @@ std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label) {
   }
 
   return ret;
-}
-
-void FreePixels(guchar* pixels, gpointer data) {
-  free(data);
-}
-
-// We have to copy the pixels and reverse their order manually.
-GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap) {
-  bitmap->lockPixels();
-  int width = bitmap->width();
-  int height = bitmap->height();
-  int stride = bitmap->rowBytes();
-  const guchar* orig_data = static_cast<guchar*>(bitmap->getPixels());
-  guchar* data = static_cast<guchar*>(malloc(height * stride));
-
-  // Swap from BGRA to RGBA.
-  for (int i = 0; i < height; ++i) {
-    for (int j = 0; j < width; ++j) {
-      int idx = i * stride + j * 4;
-      data[idx] = orig_data[idx + 2];
-      data[idx + 1] = orig_data[idx + 1];
-      data[idx + 2] = orig_data[idx];
-      data[idx + 3] = orig_data[idx + 3];
-    }
-  }
-
-  // This pixbuf takes ownership of our malloc()ed data and will
-  // free it for us when it is destroyed.
-  GdkPixbuf* pixbuf = gdk_pixbuf_new_from_data(
-      data,
-      GDK_COLORSPACE_RGB,  // the only colorspace gtk supports
-      true, // there is an alpha channel
-      8,
-      width, height, stride, &FreePixels, data);
-
-  // Assume ownership of pixbuf.
-  g_object_ref_sink(pixbuf);
-  bitmap->unlockPixels();
-  return pixbuf;
 }
 
 }  // namespace
@@ -203,7 +165,7 @@ void MenuGtk::BuildMenuFromDelegate() {
       menu_item = gtk_image_menu_item_new_with_label(
           delegate_->GetLabel(i).c_str());
       const SkBitmap* icon = delegate_->GetIcon(i);
-      GdkPixbuf* pixbuf = GdkPixbufFromSkBitmap(icon);
+      GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(icon);
       GtkWidget* widget = gtk_image_new_from_pixbuf(pixbuf);
       gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), widget);
       g_object_unref(pixbuf);
