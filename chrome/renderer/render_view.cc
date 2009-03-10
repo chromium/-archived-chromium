@@ -65,6 +65,7 @@
 
 #if defined(OS_WIN)
 // TODO(port): these files are currently Windows only because they concern:
+//   * logging
 //   * plugins
 //   * printing
 //   * theming
@@ -72,10 +73,19 @@
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/native_theme.h"
 #include "chrome/common/gfx/emf.h"
+#include "chrome/renderer/renderer_logging.h"
 #include "chrome/views/message_box_view.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/renderer/chrome_plugin_host.h"
 #include "skia/ext/vector_canvas.h"
+#endif
+
+#if defined(OS_WIN)
+// If true, the URL of the active renderer is logged. Logging is done in such
+// way that if the renderer crashes the URL of the active renderer is contained
+// in the dump. Currently mini-dumps are only supported on windows, so this is
+// only enabled on windows.
+#define LOG_RENDERER_URL
 #endif
 
 using base::TimeDelta;
@@ -327,6 +337,12 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
+#ifdef LOG_RENDERER_URL
+  WebFrame* main_frame = webview() ? webview()->GetMainFrame() : NULL;
+  renderer_logging::ScopedActiveRenderingURLSetter url_setter(
+      main_frame ? main_frame->GetURL() : GURL());
+#endif
+
   // If the current RenderView instance represents a popup, then we
   // need to wait for ViewMsg_CreatingNew_ACK to be sent by the browser.
   // As part of this ack we also receive the browser window handle, which
@@ -842,6 +858,10 @@ double RenderView::CalculateBoringScore(SkBitmap* bitmap) {
 void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   if (!webview())
     return;
+
+#ifdef LOG_RENDERER_URL
+  renderer_logging::ScopedActiveRenderingURLSetter url_setter(params.url);
+#endif
 
   AboutHandler::MaybeHandle(params.url);
 
