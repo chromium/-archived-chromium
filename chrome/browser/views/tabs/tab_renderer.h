@@ -63,6 +63,10 @@ class TabRenderer : public views::View,
   // available.
   static gfx::Size GetStandardSize();
 
+  // Loads the images to be used for the tab background. Uses the images for
+  // Vista if |use_vista_images| is true.
+  static void LoadTabImages(bool use_vista_images);
+
  protected:
   views::Button* close_button() const { return close_button_; }
   const gfx::Rect& title_bounds() const { return title_bounds_; }
@@ -146,6 +150,18 @@ class TabRenderer : public views::View,
     bool show_download_icon;
   };
   TabData data_;
+
+  struct TabImage {
+    SkBitmap* image_l;
+    SkBitmap* image_c;
+    SkBitmap* image_r;
+    int l_width;
+    int r_width;
+  };
+  static TabImage tab_active;
+  static TabImage tab_inactive;
+  static TabImage tab_inactive_otr;
+  static TabImage tab_hover;
 
   // Whether we're showing the icon. It is cached so that we can detect when it
   // changes and layout appropriately.
