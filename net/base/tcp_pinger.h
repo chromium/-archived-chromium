@@ -38,9 +38,9 @@ class TCPPinger {
   }
 
   int Ping() {
-    // Default is 100 tries, each with a timeout of 100ms,
+    // Default is 10 tries, each with a timeout of 1000ms,
     // for a total max timeout of 10 seconds.
-    return Ping(base::TimeDelta::FromMilliseconds(100), 100);
+    return Ping(base::TimeDelta::FromMilliseconds(1000), 10);
   }
 
   int Ping(base::TimeDelta tryTimeout, int nTries) {
@@ -55,8 +55,7 @@ class TCPPinger {
       if (err == net::OK)
         break;
       PlatformThread::Sleep(static_cast<int>(tryTimeout.InMilliseconds()));
-      if (err == net::OK)
-        break;
+
       // Cancel leftover activity, if any
       io_thread_.message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(worker_,
