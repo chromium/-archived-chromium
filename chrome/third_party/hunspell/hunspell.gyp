@@ -53,6 +53,15 @@
           'USE_HUNSPELL',
         ],
       },
+      'conditions': [
+        ['OS=="linux"', {
+          'cflags': [
+            '-Wno-unused-value',
+            '-Wno-unused-variable',
+            '-Wno-write-strings',
+          ],
+        }],
+      ],
     },
   ],
 }
