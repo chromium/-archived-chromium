@@ -1710,10 +1710,7 @@
           # executable, it builds test/unit/run_all_unittests.cc instead of the
           # one in test/ui, and excludes all other files.  The runner in
           # test/unit should not be built on Windows.
-          'sources/': [
-            ['exclude', ''],
-          ],
-          'sources': [
+          'sources=': [
             'test/unit/run_all_unittests.cc',
           ],
         }],
