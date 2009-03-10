@@ -14,9 +14,10 @@
 
 class NotifyWebMediaPlayerTask : public CancelableTask {
  public:
-  NotifyWebMediaPlayerTask(webkit_glue::WebMediaPlayer* web_media_player_,
+  NotifyWebMediaPlayerTask(webkit_glue::WebMediaPlayer* web_media_player,
                            WebMediaPlayerMethod method)
-      : method_(method) {}
+      : web_media_player_(web_media_player),
+        method_(method) {}
 
   virtual void Run() {
     if (web_media_player_) {
@@ -43,6 +44,8 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
       ready_state_(webkit_glue::WebMediaPlayer::DATA_UNAVAILABLE),
       main_loop_(NULL),
       filter_factory_(new media::FilterFactoryCollection()),
+      audio_renderer_(NULL),
+      video_renderer_(NULL),
       web_media_player_(NULL),
       view_(view),
       tasks_(kLastTaskIndex) {
@@ -92,8 +95,6 @@ void WebMediaPlayerDelegateImpl::Load(const GURL& url) {
   // Initialize the pipeline
   pipeline_.Start(filter_factory_.get(), url.spec(),
       NewCallback(this, &WebMediaPlayerDelegateImpl::DidInitializePipeline));
-
-  // TODO(hclam): Calls to render_view_ to kick start a resource load.
 }
 
 void WebMediaPlayerDelegateImpl::CancelLoad() {
@@ -272,6 +273,8 @@ void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
 }
 
 void WebMediaPlayerDelegateImpl::WillDestroyCurrentMessageLoop() {
+  if (audio_renderer_)
+    audio_renderer_->ReleaseRendererResources();
   // Stop the pipeline when the main thread is being destroyed so we won't be
   // posting any more messages onto it. And we just let this obejct and
   // associated WebMediaPlayer to leak.
@@ -295,6 +298,12 @@ void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
            &webkit_glue::WebMediaPlayer::NotifyNetworkStateChange);
   PostTask(kReadyStateTaskIndex,
            &webkit_glue::WebMediaPlayer::NotifyReadyStateChange);
+}
+
+void WebMediaPlayerDelegateImpl::SetAudioRenderer(
+    AudioRendererImpl* audio_renderer) {
+  DCHECK(!audio_renderer_);
+  audio_renderer_ = audio_renderer;
 }
 
 void WebMediaPlayerDelegateImpl::SetVideoRenderer(

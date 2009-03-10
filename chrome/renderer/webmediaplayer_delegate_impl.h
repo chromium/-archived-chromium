@@ -16,6 +16,9 @@
 //        exist in the main thread.
 //
 // Methods that are accessed in media threads:
+//   SetAudioRenderer()
+//   ^--- Called during the initialization of the pipeline, essentially from the
+//        the pipeline thread.
 //   SetVideoRenderer()
 //   ^--- Called during the initialization of the pipeline, essentially from the
 //        the pipeline thread.
@@ -48,6 +51,7 @@
 #include "media/base/pipeline_impl.h"
 #include "webkit/glue/webmediaplayer_delegate.h"
 
+class AudioRendererImpl;
 class RenderView;
 class VideoRendererImpl;
 
@@ -134,7 +138,9 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   // reference of them.
   void DidTask(CancelableTask* task);
 
-  // Public methods to be called from renderers and data source.
+  // Public methods to be called from renderers and data source so that
+  // WebMediaPlayerDelegateImpl has references to them.
+  void SetAudioRenderer(AudioRendererImpl* audio_renderer);
   void SetVideoRenderer(VideoRendererImpl* video_renderer);
 
   // Called from VideoRenderer to fire a repaint task to main_loop_.
@@ -175,9 +181,13 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   // the same lifetime as the pipeline.
   media::PipelineImpl pipeline_;
 
+  // Holds a pointer to the audio renderer so we can tell it to stop during
+  // render thread destruction.
+  scoped_refptr<AudioRendererImpl> audio_renderer_;
+
   // We have the interface to VideoRenderer to delegate paint messages to it
   // from WebKit.
-  VideoRendererImpl* video_renderer_;
+  scoped_refptr<VideoRendererImpl> video_renderer_;
 
   webkit_glue::WebMediaPlayer* web_media_player_;
   RenderView* view_;

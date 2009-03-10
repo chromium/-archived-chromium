@@ -2925,7 +2925,7 @@ int32 RenderView::CreateAudioStream(AudioRendererImpl* audio_renderer,
                                     AudioManager::Format format, int channels,
                                     int sample_rate, int bits_per_sample,
                                     size_t packet_size) {
-  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   // Loop through the map and make sure there's no renderer already in the map.
   for (IDMap<AudioRendererImpl>::const_iterator iter = audio_renderers_.begin();
        iter != audio_renderers_.end(); ++iter) {
@@ -2945,31 +2945,34 @@ int32 RenderView::CreateAudioStream(AudioRendererImpl* audio_renderer,
 }
 
 void RenderView::StartAudioStream(int stream_id) {
-  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
   Send(new ViewHostMsg_StartAudioStream(routing_id_, stream_id));
 }
 
 void RenderView::CloseAudioStream(int stream_id) {
-  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
+  // Remove the entry from the map and send a close message to browser process,
+  // we won't be getting anything back from browser even if there's an error.
+  audio_renderers_.Remove(stream_id);
   Send(new ViewHostMsg_CloseAudioStream(routing_id_, stream_id));
 }
 
 void RenderView::NotifyAudioPacketReady(int stream_id, size_t size) {
-  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
   Send(new ViewHostMsg_NotifyAudioPacketReady(routing_id_, stream_id, size));
 }
 
 void RenderView::GetAudioVolume(int stream_id) {
-  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
   Send(new ViewHostMsg_GetAudioVolume(routing_id_, stream_id));
 }
 
 void RenderView::SetAudioVolume(int stream_id, double left, double right) {
-  // TODO(hclam): make sure this method is called on render thread.
+  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
   Send(new ViewHostMsg_SetAudioVolume(routing_id_, stream_id, left, right));
 }
