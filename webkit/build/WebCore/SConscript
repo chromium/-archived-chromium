@@ -684,6 +684,7 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderWidget.cpp',
     '$WEBCORE_DIR/rendering/RenderWordBreak.cpp',
     '$WEBCORE_DIR/rendering/RootInlineBox.cpp',
+    '$WEBCORE_DIR/rendering/ScrollBehavior.cpp',
     '$WEBCORE_DIR/rendering/SVGCharacterLayoutInfo.cpp',
     '$WEBCORE_DIR/rendering/SVGInlineFlowBox.cpp',
     '$WEBCORE_DIR/rendering/SVGInlineTextBox.cpp',

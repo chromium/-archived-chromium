@@ -3207,6 +3207,8 @@
         '../third_party/WebKit/WebCore/rendering/RenderWordBreak.h',
         '../third_party/WebKit/WebCore/rendering/RootInlineBox.cpp',
         '../third_party/WebKit/WebCore/rendering/RootInlineBox.h',
+        '../third_party/WebKit/WebCore/rendering/ScrollBehavior.cpp',
+        '../third_party/WebKit/WebCore/rendering/ScrollBehavior.h',
         '../third_party/WebKit/WebCore/rendering/SVGCharacterLayoutInfo.cpp',
         '../third_party/WebKit/WebCore/rendering/SVGCharacterLayoutInfo.h',
         '../third_party/WebKit/WebCore/rendering/SVGInlineFlowBox.cpp',

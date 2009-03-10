@@ -132,6 +132,8 @@
 #include "Settings.h"
 #include "StyleSheet.h"
 #include "StyleSheetList.h"
+#include "SVGColor.h"
+#include "SVGPaint.h"
 #include "TextEvent.h"
 #include "TextMetrics.h"
 #include "TimeRanges.h"

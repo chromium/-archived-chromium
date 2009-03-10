@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "CSSHelper.h"
 #include "CString.h"
 #include "Document.h"
 #include "DocumentLoader.h"
@@ -296,7 +297,7 @@ WebCore::HTMLInputElement* GetTextElement(
 } // namespace
 
 SearchableFormData* SearchableFormData::Create(WebCore::Element* element) {
-	if (!element->isFormControlElement() || !element->isHTMLElement()) {
+  if (!element->isFormControlElement() || !element->isHTMLElement()) {
     return NULL;
   }
 

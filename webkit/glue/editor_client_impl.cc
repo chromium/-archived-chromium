@@ -23,6 +23,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "KeyboardEvent.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformString.h"
+#include "RenderObject.h"
 MSVC_POP_WARNING();
 
 #include "WebKit.h"

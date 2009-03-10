@@ -1218,7 +1218,9 @@ void WebFrameLoaderClient::frameLoadCompleted() {
   // Note: Can be called multiple times.
   // Even if already complete, we might have set a previous item on a frame that
   // didn't do any data loading on the past transaction. Make sure to clear these out.
-  webframe_->frame()->loader()->setPreviousHistoryItem(0);
+
+  // FIXME: setPreviousHistoryItem() no longer exists. http://crbug.com/8566
+  // webframe_->frame()->loader()->setPreviousHistoryItem(0);
 }
 
 void WebFrameLoaderClient::saveViewStateToItem(HistoryItem*) {

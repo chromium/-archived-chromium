@@ -124,6 +124,7 @@ DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 
 // Worker related tests (ENABLE_WORKERS):
 DEFER SKIP : LayoutTests/fast/workers = TIMEOUT FAIL
+DEFER SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
 DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT
 DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
