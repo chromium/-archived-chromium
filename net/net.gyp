@@ -365,6 +365,7 @@
         '../base/base.gyp:base',
         '../testing/gtest.gyp:gtest',
       ],
+      'msvs_guid': 'E99DA267-BE90-4F45-88A1-6919DB2C7567',
       'sources': [
         'base/base64_unittest.cc',
         'base/bzip2_filter_unittest.cc',
@@ -465,6 +466,7 @@
         '../base/base.gyp:base',
         '../testing/gtest.gyp:gtest',
       ],
+      'msvs_guid': 'AAC78796-B9A2-4CD9-BF89-09B03E92BF73',
       'sources': [
         '../base/perftimer.cc',
         '../base/run_all_perftests.cc',
@@ -515,6 +517,7 @@
         'net_test_support',
         '../base/base.gyp:base',
       ],
+      'msvs_guid': 'B0EE0599-2913-46A0-A847-A3EC813658D3',
       'sources': [
         'tools/crash_cache/crash_cache.cc',
       ],
@@ -538,6 +541,7 @@
         {
           'target_name': 'net_resources',
           'type': 'none',
+          'msvs_guid': '8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942',
           'sources': [
             'base/net_resources.grd',
           ],

@@ -424,17 +424,18 @@
         [ 'OS != "win"', { 'sources!': [
             'gfx/gdi_util.cc',
             'gfx/native_theme.cc',
-	  ],
+            ],
         }],
         [ 'OS != "linux"', { 'sources!': [
             'gfx/gtk_util.cc',
-	  ],
+            ],
         }],
       ],
     },
     {
       'target_name': 'base_unittests',
       'type': 'executable',
+      'msvs_guid': '27A30967-4BBA-48D1-8522-CDE95F7B1CEC',
       'sources': [
         'gfx/jpeg_codec_unittest.cc',
         'gfx/native_theme_unittest.cc',
