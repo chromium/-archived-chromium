@@ -64,6 +64,7 @@ def LocalChecks(input_api, output_api, max_cols=80):
 
   Note that the whole file is checked, not only the changes.
   """
+  C_SOURCE_FILE_EXTENSIONS = ('.c', '.cc', '.cpp', '.h', '.inl')
   cr_files = []
   eof_files = []
   results = []
@@ -103,8 +104,13 @@ def LocalChecks(input_api, output_api, max_cols=80):
         local_errors.append(output_api.PresubmitError(
             '%s, line %s ends with whitespaces.' %
             (path, line_num)))
-      # Accept lines with http:// to exceed the max_cols rule.
-      if max_cols and len(line) > max_cols and not 'http://' in line:
+      # Accept lines with http://, https:// and C #define/#pragma/#include to
+      # exceed the max_cols rule.
+      if (max_cols and
+          len(line) > max_cols and
+          not 'http://' in line and
+          not 'https://' in line and
+          not (line[0] == '#' and ext in C_SOURCE_FILE_EXTENSIONS)):
         local_errors.append(output_api.PresubmitError(
             '%s, line %s has %s chars, please reduce to %d chars.' %
             (path, line_num, len(line), max_cols)))
