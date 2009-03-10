@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -210,6 +210,22 @@
 			</File>
 			<File
 				RelativePath="..\filters\audio_renderer_impl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\ffmpeg_common.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\ffmpeg_common.h"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\ffmpeg_glue.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\ffmpeg_glue.h"
 				>
 			</File>
 			<File
