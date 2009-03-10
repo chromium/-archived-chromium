@@ -400,6 +400,7 @@ static void AlarmHandler(int signatl) {
   puts("#TEST_TIMED_OUT\n");
   puts("#EOF\n");
   fflush(stdout);
+  TestShell::ShutdownTestShell();
   exit(0);
 }
 
