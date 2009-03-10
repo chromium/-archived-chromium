@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -79,7 +79,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -191,6 +191,14 @@
 			<Filter
 				Name="filters"
 				>
+				<File
+					RelativePath="..\filters\ffmpeg_demuxer_unittest.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\filters\ffmpeg_glue_unittest.cc"
+					>
+				</File>
 				<File
 					RelativePath="..\filters\file_data_source_unittest.cc"
 					>

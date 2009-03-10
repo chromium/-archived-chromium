@@ -31,7 +31,12 @@ enum PipelineError {
   PIPELINE_ERROR_REQUIRED_FILTER_MISSING,
   PIPELINE_ERROR_OUT_OF_MEMORY,
   PIPELINE_ERROR_COULD_NOT_RENDER,
-  PIPELINE_ERROR_READ
+  PIPELINE_ERROR_READ,
+
+  // Demuxer related errors.
+  DEMUXER_ERROR_COULD_NOT_OPEN,
+  DEMUXER_ERROR_COULD_NOT_PARSE,
+  DEMUXER_ERROR_NO_SUPPORTED_STREAMS,
 };
 
 // Base class for Pipeline class which allows for read-only access to members.

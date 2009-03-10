@@ -585,6 +585,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net_perftests", "..\net\bui
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "media", "..\media\build\media.vcproj", "{6AE76406-B03B-11DD-94B1-80B556D89593}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D7A94F58-576A-45D9-A45F-EB87C63ABBB0} = {D7A94F58-576A-45D9-A45F-EB87C63ABBB0}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "media_unittests", "..\media\build\media_unittests.vcproj", "{C8C6183C-B03C-11DD-B471-DFD256D89593}"
 	ProjectSection(ProjectDependencies) = postProject
