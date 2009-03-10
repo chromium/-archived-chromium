@@ -110,7 +110,7 @@ class ExtensionViewTest : public InProcessBrowserTest {
 
 // Tests that ExtensionView starts an extension process and runs the script
 // contained in the extension's "index.html" file.
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_Index) {
   // Create an observer first to be sure we have the notification registered
   // before it's sent.
   ExtensionLoadedObserver observer;
