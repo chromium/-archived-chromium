@@ -128,7 +128,15 @@
 				Name="public"
 				>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebCanvas.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebClipboard.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebColor.h"
 					>
 				</File>
 				<File
@@ -171,6 +179,14 @@
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebURL.h"
 					>
 				</File>
+				<Filter
+					Name="win"
+					>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\win\WebThemeEngine.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="src"

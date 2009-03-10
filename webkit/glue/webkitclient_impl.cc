@@ -12,6 +12,10 @@
 #include "grit/webkit_resources.h"
 #include "webkit/glue/webkit_glue.h"
 
+using WebKit::WebClipboard;
+using WebKit::WebCString;
+using WebKit::WebThemeEngine;
+
 namespace webkit_glue {
 
 WebKitClientImpl::WebKitClientImpl()
@@ -19,8 +23,16 @@ WebKitClientImpl::WebKitClientImpl()
       shared_timer_func_(NULL) {
 }
 
-WebKit::WebClipboard* WebKitClientImpl::clipboard() {
+WebClipboard* WebKitClientImpl::clipboard() {
   return &clipboard_;
+}
+
+WebThemeEngine* WebKitClientImpl::themeEngine() {
+#if defined(OS_WIN)
+  return &theme_engine_;
+#else
+  return NULL;
+#endif
 }
 
 void WebKitClientImpl::decrementStatsCounter(const char* name) {
@@ -41,7 +53,7 @@ void WebKitClientImpl::traceEventEnd(const char* name, void* id,
   TRACE_EVENT_END(name, id, extra);
 }
 
-WebKit::WebCString WebKitClientImpl::loadResource(const char* name) {
+WebCString WebKitClientImpl::loadResource(const char* name) {
   struct {
     const char* name;
     int id;
@@ -62,7 +74,7 @@ WebKit::WebCString WebKitClientImpl::loadResource(const char* name) {
       return webkit_glue::GetDataResource(resources[i].id);
   }
   NOTREACHED() << "Unknown image resource " << name;
-  return WebKit::WebCString();
+  return WebCString();
 }
 
 double WebKitClientImpl::currentTime() {

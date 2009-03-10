@@ -57,17 +57,6 @@ gfx::NativeViewId ToNativeId(WebCore::Widget* widget) {
   return widget->root()->hostWindow()->platformWindow();
 }
 
-#if PLATFORM(WIN_OS)
-static RECT IntRectToRECT(const WebCore::IntRect& r) {
-  RECT result;
-  result.left = r.x();
-  result.top = r.y();
-  result.right = r.right();
-  result.bottom = r.bottom();
-  return result;
-}
-#endif
-
 ChromeClientImpl* ToChromeClient(WebCore::Widget* widget) {
   WebCore::FrameView* view;
   if (widget->isFrameView()) {
@@ -204,95 +193,6 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
   return webkit_glue::ToIntRect(
       webkit_glue::GetScreenInfo(ToNativeId(widget)).available_rect);
 }
-
-// Theming --------------------------------------------------------------------
-
-#if PLATFORM(WIN_OS)
-
-void ChromiumBridge::paintButton(
-    GraphicsContext* gc, int part, int state, int classic_state,
-    const IntRect& rect) {
-  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
-  HDC hdc = canvas->beginPlatformPaint();
-
-  RECT native_rect = IntRectToRECT(rect);
-  gfx::NativeTheme::instance()->PaintButton(
-      hdc, part, state, classic_state, &native_rect);
-
-  canvas->endPlatformPaint();
-}
-
-void ChromiumBridge::paintMenuList(
-    GraphicsContext* gc, int part, int state, int classic_state,
-    const IntRect& rect) {
-  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
-  HDC hdc = canvas->beginPlatformPaint();
-
-  RECT native_rect = IntRectToRECT(rect);
-  gfx::NativeTheme::instance()->PaintMenuList(
-      hdc, part, state, classic_state, &native_rect);
-
-  canvas->endPlatformPaint();
-}
-
-void ChromiumBridge::paintScrollbarArrow(
-    GraphicsContext* gc, int state, int classic_state, const IntRect& rect) {
-  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
-  HDC hdc = canvas->beginPlatformPaint();
-
-  RECT native_rect = IntRectToRECT(rect);
-  gfx::NativeTheme::instance()->PaintScrollbarArrow(
-      hdc, state, classic_state, &native_rect);
-
-  canvas->endPlatformPaint();
-}
-
-void ChromiumBridge::paintScrollbarThumb(
-    GraphicsContext* gc, int part, int state, int classic_state,
-    const IntRect& rect) {
-  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
-  HDC hdc = canvas->beginPlatformPaint();
-
-  RECT native_rect = IntRectToRECT(rect);
-  gfx::NativeTheme::instance()->PaintScrollbarThumb(
-      hdc, part, state, classic_state, &native_rect);
-
-  canvas->endPlatformPaint();
-}
-
-void ChromiumBridge::paintScrollbarTrack(
-    GraphicsContext* gc, int part, int state, int classic_state,
-    const IntRect& rect, const IntRect& align_rect) {
-  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
-  HDC hdc = canvas->beginPlatformPaint();
-
-  RECT native_rect = IntRectToRECT(rect);
-  RECT native_align_rect = IntRectToRECT(align_rect);
-  gfx::NativeTheme::instance()->PaintScrollbarTrack(
-      hdc, part, state, classic_state, &native_rect, &native_align_rect,
-      canvas);
-
-  canvas->endPlatformPaint();
-}
-
-void ChromiumBridge::paintTextField(
-    GraphicsContext* gc, int part, int state, int classic_state,
-    const IntRect& rect, const Color& color, bool fill_content_area,
-    bool draw_edges) {
-  skia::PlatformCanvas* canvas = gc->platformContext()->canvas();
-  HDC hdc = canvas->beginPlatformPaint();
-
-  RECT native_rect = IntRectToRECT(rect);
-  COLORREF clr = skia::SkColorToCOLORREF(color.rgb());
-
-  gfx::NativeTheme::instance()->PaintTextField(
-      hdc, part, state, classic_state, &native_rect, clr, fill_content_area,
-      draw_edges);
-
-  canvas->endPlatformPaint();
-}
-
-#endif
 
 // URL ------------------------------------------------------------------------
 

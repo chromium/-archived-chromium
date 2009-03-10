@@ -11,6 +11,10 @@
 #include "base/timer.h"
 #include "webkit/glue/webclipboard_impl.h"
 
+#if defined(OS_WIN)
+#include "webkit/glue/webthemeengine_impl_win.h"
+#endif
+
 class MessageLoop;
 
 namespace webkit_glue {
@@ -21,6 +25,7 @@ class WebKitClientImpl : public WebKit::WebKitClient {
 
   // WebKitClient methods (partial implementation):
   virtual WebKit::WebClipboard* clipboard();
+  virtual WebKit::WebThemeEngine* themeEngine();
   virtual void decrementStatsCounter(const char* name);
   virtual void incrementStatsCounter(const char* name);
   virtual void traceEventBegin(const char* name, void* id, const char* extra);
@@ -42,6 +47,10 @@ class WebKitClientImpl : public WebKit::WebKitClient {
   MessageLoop* main_loop_;
   base::OneShotTimer<WebKitClientImpl> shared_timer_;
   void (*shared_timer_func_)();
+
+#if defined(OS_WIN)
+  WebThemeEngineImpl theme_engine_;
+#endif
 };
 
 }  // namespace webkit_glue

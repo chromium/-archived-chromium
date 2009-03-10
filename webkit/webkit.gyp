@@ -4071,6 +4071,8 @@
         'WEBKIT_IMPLEMENTATION',
       ],
       'sources': [
+        '../third_party/WebKit/WebKit/chromium/public/WebCanvas.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebColor.h',
         '../third_party/WebKit/WebKit/chromium/public/WebCString.h',
         '../third_party/WebKit/WebKit/chromium/public/WebClipboard.h',
         '../third_party/WebKit/WebKit/chromium/public/WebCommon.h',
@@ -4111,6 +4113,11 @@
               'WEBKIT_USING_SKIA',
             ],
           },
+        }],
+        ['OS=="win"', {
+          'sources': [
+            '../third_party/WebKit/WebKit/chromium/public/win/WebThemeEngine.h',
+          ],
         }],
       ],
     },
