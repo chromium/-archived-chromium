@@ -293,6 +293,7 @@
         'common/x11_util.cc',
         'common/x11_util.h',
         'common/x11_util_internal.h',
+        'third_party/xdg_user_dirs/xdg_user_dir_lookup.cc',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -300,6 +301,11 @@
         ],
       },
       'conditions': [
+        ['OS!="linux"', {
+          'sources!': [
+            'third_party/xdg_user_dirs/xdg_user_dir_lookup.cc',
+          ],
+        }],
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',
@@ -308,8 +314,7 @@
             'common/temp_scaffolding_stubs.cc',
             'common/temp_scaffolding_stubs.h',
           ],
-        },],
-        ['OS!="win"', {
+        }, { # else: OS != "win"
           'sources!': [
             'common/gfx/emf.cc',
             'common/gfx/icon_util.cc',
@@ -565,8 +570,6 @@
         'browser/download/save_item.h',
         'browser/download/save_package.cc',
         'browser/download/save_package.h',
-        'browser/download/save_page_model.cc',
-        'browser/download/save_page_model.h',
         'browser/download/save_types.h',
         'browser/drag_utils.cc',
         'browser/drag_utils.h',
@@ -612,6 +615,10 @@
         'browser/gtk/browser_window_gtk.h',
         'browser/gtk/custom_button.cc',
         'browser/gtk/custom_button.h',
+        'browser/gtk/download_item_gtk.cc',
+        'browser/gtk/download_item_gtk.h',
+        'browser/gtk/download_shelf_gtk.cc',
+        'browser/gtk/download_shelf_gtk.h',
         'browser/gtk/menu_gtk.cc',
         'browser/gtk/menu_gtk.h',
         'browser/gtk/nine_box.cc',
@@ -928,6 +935,8 @@
         'browser/tab_contents/provisional_load_details.h',
         'browser/tab_contents/render_view_context_menu.cc',
         'browser/tab_contents/render_view_context_menu.h',
+        'browser/tab_contents/render_view_context_menu_gtk.cc',
+        'browser/tab_contents/render_view_context_menu_gtk.cc',
         'browser/tab_contents/render_view_context_menu_win.cc',
         'browser/tab_contents/render_view_context_menu_win.h',
         'browser/tab_contents/render_view_host_manager.cc',
@@ -1157,8 +1166,20 @@
           'sources!': [
             # TODO(port):  Port these.
             'browser/debugger/debugger_contents.cc',
-            'browser/debugger/debugger_view.cc',
-            'browser/debugger/debugger_window.cc',
+            'browser/debugger/debugger_shell.cc',
+
+            # Exclude Windows-specific files.
+            'browser/download/download_exe.cc',
+            'browser/download/download_util.cc',
+          ],
+        }],
+        ['OS=="mac"', {
+          'sources/': [
+            # Exclude most of download.
+            ['exclude', '^browser/download/'],
+            ['include', '^browser/download/download_(file|manager|shelf)\\.cc$'],
+            ['include', '^browser/download/download_request_manager\\.cc$'],
+            ['include', '^browser/download/save_(file(_manager)?|item|package)\\.cc$'],
           ],
         }],
         ['OS=="win"', {
@@ -1181,8 +1202,6 @@
             'browser/history/history_indexer.idl',
           ],
           'sources!': [
-            'browser/download/save_page_model.cc',
-            'browser/download/save_page_model.h',
             'browser/history/history_publisher_none.cc',
           ],
         }, {  # 'OS!="win"
@@ -1193,12 +1212,6 @@
             ['include', '^browser/automation/automation_provider_list\\.cc$'],
             ['include', '^browser/automation/automation_resource_tracker\\.cc$'],
             ['include', '^browser/automation/url_request_[^/]*_job\\.cc$'],
-
-            # Exclude most of download.
-            ['exclude', '^browser/download/'],
-            ['include', '^browser/download/download_(file|manager|shelf)\\.cc$'],
-            ['include', '^browser/download/download_request_manager\\.cc$'],
-            ['include', '^browser/download/save_(file(_manager)?|item|package)\\.cc$'],
 
             # Exclude all of hang_monitor.
             ['exclude', '^browser/hang_monitor/'],
@@ -1606,13 +1619,10 @@
         'test/testing_profile.h',
         'test/ui/ui_test.cc',
         'test/ui/ui_test.h',
+        'test/unit/run_all_unittests.cc',
       ],
       'conditions': [
-        ['OS=="win"', {
-          'include_dirs': [
-            'third_party/wtl/include',
-          ],
-        },{  # 'OS!="win"
+        ['OS=="mac"', {
           'sources!': [
             'test/automation/automation_proxy.cc',
             'test/automation/automation_proxy.h',
@@ -1620,10 +1630,18 @@
             'test/automation/browser_proxy.h',
             'test/automation/tab_proxy.cc',
             'test/automation/tab_proxy.h',
-            'test/automation/window_proxy.cc',
-            'test/automation/window_proxy.h',
             'test/ui/ui_test.cc',
             'test/ui/ui_test.h',
+          ],
+        }],
+        ['OS=="win"', {
+          'include_dirs': [
+            'third_party/wtl/include',
+          ],
+        }, { # else: OS != "win"
+          'sources!': [
+            'test/automation/window_proxy.cc',
+            'test/automation/window_proxy.h',
           ],
         }],
       ],
@@ -1695,11 +1713,6 @@
             'views',
           ],
         }],
-        ['OS=="linux"', {
-          'sources/': [
-            ['exclude', '^test/automation/window_proxy'],
-          ],
-        }],
       ],
     },
     {
@@ -1723,8 +1736,7 @@
         '..',
       ],
       'sources': [
-        # All unittests in browser, common, and renderer, and
-        # run_all_unittests.cc.
+        # All unittests in browser, common, and renderer.
         'browser/autocomplete/autocomplete_unittest.cc',
         'browser/autocomplete/history_contents_provider_unittest.cc',
         'browser/autocomplete/history_url_provider_unittest.cc',
@@ -1744,7 +1756,7 @@
         'browser/download/download_request_manager_unittest.cc',
         'browser/download/save_package_unittest.cc',
         'browser/extensions/extension_unittest.cc',
-	'browser/extensions/extension_ui_unittest.cc',
+        'browser/extensions/extension_ui_unittest.cc',
         'browser/extensions/extensions_service_unittest.cc',
         'browser/extensions/user_script_master_unittest.cc',
         'browser/google_url_tracker_unittest.cc',
@@ -1854,9 +1866,6 @@
         'test/test_notification_tracker.h',
         'test/test_tab_contents.cc',
         'test/test_tab_contents.h',
-        'test/ui_test_utils.cc',
-        'test/ui_test_utils.h',
-        'test/unit/run_all_unittests.cc',
         'test/v8_unit_test.cc',
         'test/v8_unit_test.h',
       ],
