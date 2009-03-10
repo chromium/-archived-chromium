@@ -9,4 +9,3 @@
 BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
   return new BrowserWindowGtk(browser);
 }
-

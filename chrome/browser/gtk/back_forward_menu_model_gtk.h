@@ -31,4 +31,3 @@ class BackForwardMenuModelGtk : public BackForwardMenuModel,
 };
 
 #endif  // CHROME_BROWSER_GTK_BACK_FORWARD_MENU_MODEL_GTK_H_
-

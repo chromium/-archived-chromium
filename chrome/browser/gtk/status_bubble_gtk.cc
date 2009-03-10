@@ -77,4 +77,3 @@ void StatusBubbleGtk::Reposition() {
   gtk_window_move(GTK_WINDOW(window_), x,
                   y + parent_height - requisition.height);
 }
-

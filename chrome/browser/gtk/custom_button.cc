@@ -140,4 +140,3 @@ gboolean CustomContainerButton::OnExpose(GtkWidget* widget, GdkEventExpose* e,
 
   return TRUE;  // Prevent normal painting.
 }
-

@@ -290,4 +290,3 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
 
   return FALSE;
 }
-

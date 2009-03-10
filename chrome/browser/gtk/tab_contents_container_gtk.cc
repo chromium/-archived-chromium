@@ -109,4 +109,3 @@ void TabContentsContainerGtk::TabContentsDestroyed(TabContents* contents) {
   DCHECK(contents == tab_contents_);
   SetTabContents(NULL);
 }
-

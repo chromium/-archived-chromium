@@ -102,4 +102,3 @@ class MenuGtk {
 };
 
 #endif  // CHROME_BROWSER_GTK_MENU_GTK_H_
-

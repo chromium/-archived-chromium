@@ -103,4 +103,3 @@ void DownloadShelfGtk::OnCloseButtonClick(GtkWidget* button,
                                           DownloadShelfGtk* shelf) {
   shelf->Hide();
 }
-
