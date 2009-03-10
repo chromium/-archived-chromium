@@ -5,6 +5,7 @@
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
 #elif defined(OS_POSIX)
+// TODO(port): port the rest of this file.
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
@@ -32,7 +33,6 @@
 #include "chrome/views/widget.h"
 #endif
 
-// TODO(port): port the rest of this file.
 #if defined(OS_WIN)
 namespace {
 
@@ -61,8 +61,10 @@ TabContents::TabContents(TabContentsType type)
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
+#endif
 
 TabContents::~TabContents() {
+#if defined(OS_WIN)
   // Makes sure to remove any stored view we may still have in the ViewStorage.
   //
   // It is possible the view went away before us, so we only do this if the
@@ -70,6 +72,7 @@ TabContents::~TabContents() {
   views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
   if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
     view_storage->RemoveView(last_focused_view_storage_id_);
+#endif
 }
 
 // static
@@ -88,6 +91,7 @@ void TabContents::Destroy() {
   DCHECK(!is_being_destroyed_);
   is_being_destroyed_ = true;
 
+#if defined(OS_WIN)
   // First cleanly close all child windows.
   // TODO(mpcomplete): handle case if MaybeCloseChildWindows() already asked
   // some of these to close.  CloseWindows is async, so it might get called
@@ -107,6 +111,7 @@ void TabContents::Destroy() {
     delegate->InfoBarClosed();
   }
   infobar_delegates_.clear();
+#endif
 
   // Notify any observer that have a reference on this tab contents.
   NotificationService::current()->Notify(
@@ -114,10 +119,12 @@ void TabContents::Destroy() {
       Source<TabContents>(this),
       NotificationService::NoDetails());
 
+#if defined(OS_WIN)
   // If we still have a window handle, destroy it. GetNativeView can return
   // NULL if this contents was part of a window that closed.
   if (GetNativeView())
     ::DestroyWindow(GetNativeView());
+#endif
 
   // Notify our NavigationController.  Make sure we are deleted first, so
   // that the controller is the last to die.
@@ -191,7 +198,6 @@ void TabContents::UpdateMaxPageID(int32 page_id) {
 const std::wstring TabContents::GetDefaultTitle() const {
   return l10n_util::GetString(IDS_DEFAULT_TAB_TITLE);
 }
-#endif  // defined(OS_WIN)
 
 SkBitmap TabContents::GetFavIcon() const {
   // Like GetTitle(), we also want to use the favicon for the last committed
@@ -236,6 +242,7 @@ bool TabContents::GetSSLEVText(std::wstring* ev_text,
 
   return SSLManager::GetEVCertNames(*cert, ev_text, ev_tooltip_text);
 }
+#endif
 
 void TabContents::SetIsCrashed(bool state) {
   if (state == is_crashed_)
@@ -255,8 +262,10 @@ void TabContents::DidBecomeSelected() {
   if (controller_)
     controller_->SetActive(true);
 
+#if defined(OS_WIN)
   // Invalidate all descendants. (take care to exclude invalidating ourselves!)
   EnumChildWindows(GetNativeView(), InvalidateWindow, 0);
+#endif
 }
 
 void TabContents::WasHidden() {
@@ -280,11 +289,13 @@ void TabContents::OpenURL(const GURL& url, const GURL& referrer,
 
 bool TabContents::NavigateToPendingEntry(bool reload) {
   // Our benavior is just to report that the entry was committed.
-  controller()->GetPendingEntry()->set_title(GetDefaultTitle());
+  string16 default_title = WideToUTF16Hack(GetDefaultTitle());
+  controller()->GetPendingEntry()->set_title(default_title);
   controller()->CommitPendingEntry();
   return true;
 }
 
+#if defined(OS_WIN)
 ConstrainedWindow* TabContents::CreateConstrainedDialog(
     views::WindowDelegate* window_delegate,
     views::View* contents_view) {
@@ -490,7 +501,6 @@ void TabContents::SetDownloadShelfVisible(bool visible) {
   ToolbarSizeChanged(false);
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 void TabContents::OnStartDownload(DownloadItem* download) {
   DCHECK(download);
   TabContents* tab_contents = this;
@@ -542,7 +552,6 @@ void TabContents::MigrateShelf(TabContents* from, TabContents* to) {
     to->MigrateShelfFrom(from);
   to->SetDownloadShelfVisible(was_shelf_visible);
 }
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
 #if defined(OS_WIN)
 void TabContents::WillClose(ConstrainedWindow* window) {
@@ -576,6 +585,7 @@ void TabContents::Observe(NotificationType type,
       *(Details<NavigationController::LoadCommittedDetails>(details).ptr());
   ExpireInfoBars(committed_details);
 }
+#endif
 
 void TabContents::SetIsLoading(bool is_loading,
                                LoadNotificationDetails* details) {
@@ -594,14 +604,15 @@ void TabContents::SetIsLoading(bool is_loading,
 
   NotificationType type = is_loading ? NotificationType::LOAD_START :
       NotificationType::LOAD_STOP;
-  NotificationDetails det = details ?
-      Details<LoadNotificationDetails>(details) :
-      NotificationService::NoDetails();
+  NotificationDetails det = NotificationService::NoDetails();;
+  if (details)
+      det = Details<LoadNotificationDetails>(details);
   NotificationService::current()->Notify(type,
       Source<NavigationController>(this->controller()),
       det);
 }
 
+#if defined(OS_WIN)
 // TODO(brettw) This should be on the WebContentsView.
 void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
   // TODO(erg): There's no way to detect whether scroll bars are

@@ -432,7 +432,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
       : type_(type), is_crashed_(false), is_active_(true), is_loading_(false),
         is_being_destroyed_(false), waiting_for_response_(false),
         shelf_visible_(false), controller_(), delegate_(), max_page_id_(-1) { }
-  virtual ~TabContents() { }
+  virtual ~TabContents();
   NavigationController* controller() const { return controller_; }
   void set_controller(NavigationController* c) { controller_ = c; }
   virtual WebContents* AsWebContents() { return NULL; }
@@ -446,12 +446,12 @@ class TabContents : public PageNavigator, public NotificationObserver {
   void set_type(TabContentsType type) { type_ = type; }
   virtual void Focus() { NOTIMPLEMENTED(); }
   virtual void Stop() { NOTIMPLEMENTED(); }
-  Profile* profile() const;
+  Profile* profile() const {
+    return controller_ ? controller_->profile() : NULL;
+  }
   virtual void CloseContents();
   virtual void SetupController(Profile* profile);
-  virtual void WasHidden() {
-    NOTIMPLEMENTED();
-  }
+  virtual void WasHidden();
   virtual void SetInitialFocus() { NOTIMPLEMENTED(); }
   virtual void SetInitialFocus(bool reverse) { NOTIMPLEMENTED(); }
   virtual void RestoreFocus() { NOTIMPLEMENTED(); }
@@ -462,7 +462,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details) { NOTIMPLEMENTED(); }
-  virtual void DidBecomeSelected() { NOTIMPLEMENTED(); }
+  virtual void DidBecomeSelected();
   virtual void SetDownloadShelfVisible(bool visible);
   bool IsDownloadShelfVisible() { return shelf_visible_; }
   virtual void Destroy();
@@ -490,17 +490,15 @@ class TabContents : public PageNavigator, public NotificationObserver {
                       WindowOpenDisposition disposition,
                       const gfx::Rect& initial_pos,
                       bool user_gesture) { NOTIMPLEMENTED(); }
-  virtual void Activate() { NOTIMPLEMENTED(); }
+  virtual void Activate();
   virtual bool SupportsURL(GURL*);
   virtual SiteInstance* GetSiteInstance() const { return NULL; }
   int32 GetMaxPageID();
   void UpdateMaxPageID(int32);
-  virtual bool NavigateToPendingEntry(bool) { NOTIMPLEMENTED(); return true; }
+  virtual bool NavigateToPendingEntry(bool);
   virtual DOMUIHost* AsDOMUIHost() { return NULL; }
   virtual std::wstring GetStatusText() const { return std::wstring(); }
-  static void RegisterUserPrefs(PrefService* prefs) {
-    prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
-  }
+  static void RegisterUserPrefs(PrefService* prefs);
   virtual void CreateView() {}
   virtual gfx::NativeView GetNativeView() const { return NULL; }
   static TabContentsFactory* RegisterFactory(TabContentsType type,
@@ -512,6 +510,7 @@ class TabContents : public PageNavigator, public NotificationObserver {
   DownloadShelf* GetDownloadShelf();
   static void MigrateShelf(TabContents* from, TabContents* to);
   void MigrateShelfFrom(TabContents* tab_contents);
+  virtual const std::wstring GetDefaultTitle() const;
  protected:
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;

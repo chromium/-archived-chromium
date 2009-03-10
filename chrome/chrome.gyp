@@ -1187,6 +1187,7 @@
             ['exclude', '^browser/download/'],
             ['include', '^browser/download/download_(file|manager|shelf)\\.cc$'],
             ['include', '^browser/download/download_request_manager\\.cc$'],
+            ['include', '^browser/download/download_item_model\\.cc$'],
             ['include', '^browser/download/save_(file(_manager)?|item|package)\\.cc$'],
           ],
           'sources!': [
