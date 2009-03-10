@@ -41,7 +41,8 @@ class RenderWidgetHelper::PaintMsgProxy : public Task {
   DISALLOW_COPY_AND_ASSIGN(PaintMsgProxy);
 };
 
-RenderWidgetHelper::RenderWidgetHelper(int render_process_id)
+RenderWidgetHelper::RenderWidgetHelper(
+    int render_process_id, ResourceDispatcherHost* resource_dispatcher_host)
     : render_process_id_(render_process_id),
       ui_loop_(MessageLoop::current()),
 #if defined(OS_WIN)
@@ -49,7 +50,8 @@ RenderWidgetHelper::RenderWidgetHelper(int render_process_id)
 #elif defined(OS_POSIX)
       event_(false /* auto-reset */, false),
 #endif
-      block_popups_(false) {
+      block_popups_(false),
+      resource_dispatcher_host_(resource_dispatcher_host) {
 }
 
 RenderWidgetHelper::~RenderWidgetHelper() {
@@ -71,7 +73,6 @@ void RenderWidgetHelper::CancelResourceRequests(int render_widget_id) {
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &RenderWidgetHelper::OnCancelResourceRequests,
-                          g_browser_process->resource_dispatcher_host(),
                           render_widget_id));
   }
 }
@@ -82,7 +83,6 @@ void RenderWidgetHelper::CrossSiteClosePageACK(int new_render_process_host_id,
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &RenderWidgetHelper::OnCrossSiteClosePageACK,
-                          g_browser_process->resource_dispatcher_host(),
                           new_render_process_host_id,
                           new_request_id));
   }
@@ -183,16 +183,16 @@ void RenderWidgetHelper::OnDispatchPaintMsg(PaintMsgProxy* proxy) {
 }
 
 void RenderWidgetHelper::OnCancelResourceRequests(
-    ResourceDispatcherHost* dispatcher,
     int render_widget_id) {
-  dispatcher->CancelRequestsForRenderView(render_process_id_, render_widget_id);
+  resource_dispatcher_host_->CancelRequestsForRenderView(
+      render_process_id_, render_widget_id);
 }
 
 void RenderWidgetHelper::OnCrossSiteClosePageACK(
-    ResourceDispatcherHost* dispatcher,
     int new_render_process_host_id,
     int new_request_id) {
-  dispatcher->OnClosePageACK(new_render_process_host_id, new_request_id);
+  resource_dispatcher_host_->OnClosePageACK(
+      new_render_process_host_id, new_request_id);
 }
 
 void RenderWidgetHelper::CreateNewWindow(int opener_id,
@@ -225,12 +225,32 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
   DCHECK(result) << "Couldn't duplicate modal dialog event for the renderer.";
 #endif
 
+  // Block resource requests until the view is created, since the HWND might be
+  // needed if a response ends up creating a plugin.
+  resource_dispatcher_host_->BlockRequestsForRenderView(
+      render_process_id_, *route_id);
+
   // The easiest way to reach RenderViewHost is just to send a routed message.
   ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id,
                                         modal_dialog_event_internal);
 
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &RenderWidgetHelper::OnSimulateReceivedMessage, msg));
+      this, &RenderWidgetHelper::OnCreateWindowOnUI, msg, *route_id));
+}
+
+void RenderWidgetHelper::OnCreateWindowOnUI(
+    const IPC::Message& message, int route_id) {
+  RenderProcessHost* host = RenderProcessHost::FromID(render_process_id_);
+  if (host)
+    host->OnMessageReceived(message);
+
+  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &RenderWidgetHelper::OnCreateWindowOnIO, route_id));
+}
+
+void RenderWidgetHelper::OnCreateWindowOnIO(int route_id) {
+  resource_dispatcher_host_->ResumeBlockedRequestsForRenderView(
+      render_process_id_, route_id);
 }
 
 void RenderWidgetHelper::CreateNewWidget(int opener_id,
@@ -239,10 +259,10 @@ void RenderWidgetHelper::CreateNewWidget(int opener_id,
   *route_id = GetNextRoutingID();
   ViewHostMsg_CreateWidgetWithRoute msg(opener_id, *route_id, activatable);
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &RenderWidgetHelper::OnSimulateReceivedMessage, msg));
+      this, &RenderWidgetHelper::OnCreateWidgetOnUI, msg));
 }
 
-void RenderWidgetHelper::OnSimulateReceivedMessage(
+void RenderWidgetHelper::OnCreateWidgetOnUI(
     const IPC::Message& message) {
   RenderProcessHost* host = RenderProcessHost::FromID(render_process_id_);
   if (host)

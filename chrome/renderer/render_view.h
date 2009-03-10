@@ -442,7 +442,6 @@ class RenderView : public RenderWidget,
   void GoToEntryAtOffset(int offset);
 
   // RenderView IPC message handlers
-  void OnCreatingNewAck(gfx::NativeViewId parent);
   void SendThumbnail();
   void OnPrintPages();
   void OnNavigate(const ViewMsg_Navigate_Params& params);
@@ -620,10 +619,6 @@ class RenderView : public RenderWidget,
   // A helper method used by WasOpenedByUserGesture.
   bool WasOpenedByUserGestureHelper() const;
 
-  void set_waiting_for_create_window_ack(bool wait) {
-    waiting_for_create_window_ack_ = wait;
-  }
-
   // Handles resource loads for this view.
   scoped_refptr<ResourceDispatcher> resource_dispatcher_;
 
@@ -784,9 +779,6 @@ class RenderView : public RenderWidget,
   // Resource message queue. Used to queue up resource IPCs if we need
   // to wait for an ACK from the browser before proceeding.
   std::queue<IPC::Message*> queued_resource_messages_;
-
-  // Set if we are waiting for an ack for ViewHostMsg_CreateWindow
-  bool waiting_for_create_window_ack_;
 
   // The id of the last request sent for form field autofill.  Used to ignore
   // out of date responses.

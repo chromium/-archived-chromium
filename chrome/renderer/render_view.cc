@@ -188,7 +188,6 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       disable_popup_blocking_(false),
       has_unload_listener_(false),
       decrement_shared_popup_at_destruction_(false),
-      waiting_for_create_window_ack_(false),
       form_field_autofill_request_id_(0),
       popup_notification_visible_(false),
       delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync) {
@@ -343,18 +342,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
       main_frame ? main_frame->GetURL() : GURL());
 #endif
 
-  // If the current RenderView instance represents a popup, then we
-  // need to wait for ViewMsg_CreatingNew_ACK to be sent by the browser.
-  // As part of this ack we also receive the browser window handle, which
-  // parents any plugins instantiated in this RenderView instance.
-  // Plugins can be instantiated only when we receive the parent window
-  // handle as they are child windows.
-  if (waiting_for_create_window_ack_ &&
-      resource_dispatcher_->IsResourceMessage(message)) {
-    queued_resource_messages_.push(new IPC::Message(message));
-    return;
-  }
-
   // Let the resource dispatcher intercept resource messages first.
   if (resource_dispatcher_->OnMessageReceived(message))
     return;
@@ -364,7 +351,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     return;
 
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)
-    IPC_MESSAGE_HANDLER(ViewMsg_CreatingNew_ACK, OnCreatingNewAck)
     IPC_MESSAGE_HANDLER(ViewMsg_CaptureThumbnail, SendThumbnail)
     IPC_MESSAGE_HANDLER(ViewMsg_PrintPages, OnPrintPages)
     IPC_MESSAGE_HANDLER(ViewMsg_Navigate, OnNavigate)
@@ -449,20 +435,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
   IPC_END_MESSAGE_MAP()
-}
-
-// Got a response from the browser after the renderer decided to create a new
-// view.
-void RenderView::OnCreatingNewAck(gfx::NativeViewId parent) {
-  CompleteInit(parent);
-  waiting_for_create_window_ack_ = false;
-
-  while (!queued_resource_messages_.empty()) {
-    IPC::Message* queued_msg = queued_resource_messages_.front();
-    queued_resource_messages_.pop();
-    resource_dispatcher_->OnMessageReceived(*queued_msg);
-    delete queued_msg;
-  }
 }
 
 void RenderView::SendThumbnail() {
@@ -1888,7 +1860,6 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
                                         prefs, shared_popup_counter_,
                                         routing_id);
   view->set_opened_by_user_gesture(user_gesture);
-  view->set_waiting_for_create_window_ack(true);
 
   // Copy over the alternate error page URL so we can have alt error pages in
   // the new render view (we don't need the browser to send the URL back down).

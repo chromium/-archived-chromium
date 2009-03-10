@@ -86,7 +86,8 @@ class ResourceDispatcherHost;
 class RenderWidgetHelper :
     public base::RefCountedThreadSafe<RenderWidgetHelper> {
  public:
-  RenderWidgetHelper(int render_process_id);
+  RenderWidgetHelper(int render_process_id,
+                     ResourceDispatcherHost* resource_dispatcher_host);
   ~RenderWidgetHelper();
 
   // Gets the next available routing id.  This is thread safe.
@@ -151,16 +152,20 @@ class RenderWidgetHelper :
   // Called on the UI thread to dispatch a paint message if necessary.
   void OnDispatchPaintMsg(PaintMsgProxy* proxy);
 
-  // Called on the UI thread to send a message to the RenderProcessHost.
-  void OnSimulateReceivedMessage(const IPC::Message& message);
+  // Called on the UI thread to finish creating a window.
+  void OnCreateWindowOnUI(const IPC::Message& message, int route_id);
+
+  // Called on the IO thread after a window was created on the UI thread.
+  void OnCreateWindowOnIO(int route_id);
+
+  // Called on the UI thread to finish creating a widget.
+  void OnCreateWidgetOnUI(const IPC::Message& message);
 
   // Called on the IO thread to cancel resource requests for the render widget.
-  void OnCancelResourceRequests(ResourceDispatcherHost* dispatcher,
-                                int render_widget_id);
+  void OnCancelResourceRequests(int render_widget_id);
 
   // Called on the IO thread to resume a cross-site response.
-  void OnCrossSiteClosePageACK(ResourceDispatcherHost* dispatcher,
-                               int new_render_process_host_id,
+  void OnCrossSiteClosePageACK(int new_render_process_host_id,
                                int new_request_id);
 
 #if defined(OS_MACOSX)
@@ -190,6 +195,8 @@ class RenderWidgetHelper :
 
   // Whether popup blocking is enabled or not.
   bool block_popups_;
+
+  ResourceDispatcherHost* resource_dispatcher_host_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHelper);
 };

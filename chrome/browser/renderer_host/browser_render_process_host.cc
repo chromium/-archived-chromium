@@ -134,7 +134,8 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
             base::TimeDelta::FromSeconds(5),
             this, &BrowserRenderProcessHost::ClearTransportDIBCache)) {
   DCHECK(host_id() >= 0);  // We use a negative host_id_ in destruction.
-  widget_helper_ = new RenderWidgetHelper(host_id());
+  widget_helper_ = new RenderWidgetHelper(
+      host_id(), g_browser_process->resource_dispatcher_host());
 
   CacheManagerHost::GetInstance()->Add(host_id());
   RendererSecurityPolicy::GetInstance()->Add(host_id());
