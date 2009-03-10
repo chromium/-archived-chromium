@@ -1454,10 +1454,21 @@
           'conditions': [
             ['branding=="Chrome"', {
               'mac_bundle_resources': ['app/theme/google_chrome/app.icns'],
+              # "bundle_id" is the name of the variable used to replace
+              # BUNDLE_ID in Info.plist.
+              'variables': {'bundle_id': 'com.google.Chrome'},
             }, {  # else: branding!="Chrome"
               'mac_bundle_resources': ['app/theme/chromium/app.icns'],
+              'variables': {'bundle_id': 'org.chromium.Chromium'},
             }],
           ],
+          'xcode_settings': {
+            # chrome/app/app-Info.plist has a CFBundleIdentifier of BUNDLE_ID,
+            # to be replaced by a properly branded bundle ID in Xcode with
+            # these settings.
+            'INFOPLIST_PREPROCESS': 'YES',
+            'INFOPLIST_PREPROCESSOR_DEFINITIONS': ['BUNDLE_ID="<(bundle_id)"'],
+          },
         }, { # else: OS != "mac"
           'conditions': [
             ['branding=="Chrome"', {
