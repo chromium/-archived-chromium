@@ -1593,10 +1593,9 @@ WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
 // caret position in the last line of the text output.
 WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
 
-// Sharted showing up the mac build bots on 02/16/09 (sometimes passes in
-// debug, but haven't seen it pass in release)
-MAC DEBUG : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT PASS
-MAC RELEASE : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT
+// Sharted showing up the mac build bots as timeout or pass on 02/16/09 in
+// debug, starting 03/10/09 it sometimes passes in release.
+MAC : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT PASS
 
 // Regressions from WebKit merge 40847-40875
 LINUX WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
@@ -1740,3 +1739,6 @@ LINUX MAC : pending/security/block-test.html = FAIL
 // Flakey. Not clear when it started, but it was before 3/9/09.
 LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH PASS
 WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
+
+// Timing out starting 03/10/09
+MAC : LayoutTests/fast/dom/navigator-detached-no-crash.html = PASS TIMEOUT
