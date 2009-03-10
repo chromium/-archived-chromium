@@ -629,6 +629,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webinputevent_util.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webinputevent_util.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webkit_glue.cc"
 				>
 			</File>
@@ -638,14 +646,6 @@
 			</File>
 			<File
 				RelativePath=".\webkit_glue_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\webinputevent_util.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\webinputevent_util.h"
 				>
 			</File>
 			<File
@@ -686,6 +686,14 @@
 			</File>
 			<File
 				RelativePath=".\webtextinput_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webthemeengine_impl_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webthemeengine_impl_win.h"
 				>
 			</File>
 			<File
