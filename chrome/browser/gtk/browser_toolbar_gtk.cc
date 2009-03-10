@@ -27,8 +27,22 @@ const int BrowserToolbarGtk::kToolbarHeight = 38;
 // when the user clicks and the popup menu appears.
 static const int kMenuTimerDelay = 500;
 
-static void OnGrabFocusThunk(GtkWidget* toolbar, gpointer self) {
-  reinterpret_cast<BrowserToolbarGtk*>(self)->FocusLocationBar();
+gboolean OnAccelerator(GtkAccelGroup* accel_group,
+                       GObject* acceleratable,
+                       guint keyval,
+                       GdkModifierType modifier,
+                       gpointer userdata) {
+  BrowserToolbarGtk* self = reinterpret_cast<BrowserToolbarGtk*>(userdata);
+  switch (keyval) {
+    case GDK_l:
+      self->GetLocationBar()->FocusLocation();
+      return TRUE;
+    case GDK_k:
+      self->GetLocationBar()->FocusSearch();
+      return TRUE;
+    default:
+      return FALSE;
+  }
 }
 
 BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
@@ -98,13 +112,14 @@ void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
   location_bar_->Init();
   gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
 
-  // We listen for ctrl-l which we have send a grab-focus action to the
-  // toolbar.  We want our callback to just call FocusLocationBar().
-  g_signal_connect(toolbar_, "grab-focus",
-                   G_CALLBACK(OnGrabFocusThunk), this);
-  gtk_widget_add_accelerator(
-      toolbar_, "grab-focus", accel_group_, GDK_l,
-      GDK_CONTROL_MASK, GtkAccelFlags(0));
+  // Map ctrl-l for setting focus to the location entry.
+  gtk_accel_group_connect(
+      accel_group_, GDK_l, GDK_CONTROL_MASK, GtkAccelFlags(0),
+      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
+  // Map ctrl-k for setting focus to a search in the location entry.
+  gtk_accel_group_connect(
+      accel_group_, GDK_k, GDK_CONTROL_MASK, GtkAccelFlags(0),
+      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
 
   go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L""));
 
@@ -126,10 +141,6 @@ void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
 
 LocationBar* BrowserToolbarGtk::GetLocationBar() const {
   return location_bar_.get();
-}
-
-void BrowserToolbarGtk::FocusLocationBar() {
-  location_bar_->FocusLocation();
 }
 
 void BrowserToolbarGtk::EnabledStateChangedForCommand(int id, bool enabled) {

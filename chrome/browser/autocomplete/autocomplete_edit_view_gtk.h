@@ -37,7 +37,7 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   GtkWidget* widget() { return text_view_; }
 
   // Grab keyboard input focus, putting focus on the location widget.
-  void FocusLocation();
+  void SetFocus();
 
   // Implement the AutocompleteEditView interface.
   virtual AutocompleteEditModel* model() { return model_.get(); }

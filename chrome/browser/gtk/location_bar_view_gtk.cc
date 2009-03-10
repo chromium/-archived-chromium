@@ -28,16 +28,18 @@ LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
       transition_(PageTransition::TYPED) {
 }
 
-LocationBarViewGtk::~LocationBarViewGtk(){
+LocationBarViewGtk::~LocationBarViewGtk() {
   // TODO(deanm): Should I destroy the widgets here, or leave it up to the
   // embedder?  When the embedder destroys their widget, if we're a child, we
   // will also get destroyed, so the ownership is kinda unclear.
 }
 
-void LocationBarViewGtk::Init(){
-  edit_view_.reset(new AutocompleteEditViewGtk(this, toolbar_model_, profile_,
-                                               command_updater_));
-  edit_view_->Init();
+void LocationBarViewGtk::Init() {
+  location_entry_.reset(new AutocompleteEditViewGtk(this,
+                                                    toolbar_model_,
+                                                    profile_,
+                                                    command_updater_));
+  location_entry_->Init();
 
   vbox_ = gtk_vbox_new(false, 0);
 
@@ -47,7 +49,7 @@ void LocationBarViewGtk::Init(){
   GtkWidget* alignment = gtk_alignment_new(0, 0, 1, 1);
   gtk_alignment_set_padding(GTK_ALIGNMENT(alignment),
                             kTopPadding, kBottomPadding, 0, 0);
-  gtk_container_add(GTK_CONTAINER(alignment), edit_view_->widget());
+  gtk_container_add(GTK_CONTAINER(alignment), location_entry_->widget());
 
   gtk_box_pack_start(GTK_BOX(vbox_), alignment, TRUE, TRUE, 0);
 }
@@ -57,7 +59,7 @@ void LocationBarViewGtk::SetProfile(Profile* profile) {
 }
 
 void LocationBarViewGtk::Update(const TabContents* contents) {
-  edit_view_->Update(contents);
+  location_entry_->Update(contents);
 }
 
 void LocationBarViewGtk::OnAutocompleteAccept(const GURL& url,
@@ -114,34 +116,36 @@ std::wstring LocationBarViewGtk::GetTitle() const {
   return std::wstring();
 }
 
-void LocationBarViewGtk::ShowFirstRunBubble(){
+void LocationBarViewGtk::ShowFirstRunBubble() {
   NOTIMPLEMENTED();
 }
 
-std::wstring LocationBarViewGtk::GetInputString() const{
+std::wstring LocationBarViewGtk::GetInputString() const {
   return location_input_;
 }
 
-WindowOpenDisposition LocationBarViewGtk::GetWindowOpenDisposition() const{
+WindowOpenDisposition LocationBarViewGtk::GetWindowOpenDisposition() const {
   return disposition_;
 }
 
-PageTransition::Type LocationBarViewGtk::GetPageTransition() const{
+PageTransition::Type LocationBarViewGtk::GetPageTransition() const {
   return transition_;
 }
 
-void LocationBarViewGtk::AcceptInput(){
-  NOTIMPLEMENTED();
+void LocationBarViewGtk::AcceptInput() {
+  location_entry_->model()->AcceptInput(CURRENT_TAB, false);
 }
 
-void LocationBarViewGtk::FocusLocation(){
-  edit_view_->FocusLocation();
+void LocationBarViewGtk::FocusLocation() {
+  location_entry_->SetFocus();
+  location_entry_->SelectAll(true);
 }
 
-void LocationBarViewGtk::FocusSearch(){
-  NOTIMPLEMENTED();
+void LocationBarViewGtk::FocusSearch() {
+  location_entry_->SetUserText(L"?");
+  location_entry_->SetFocus();
 }
 
-void LocationBarViewGtk::SaveStateToContents(TabContents* contents){
+void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
   NOTIMPLEMENTED();
 }

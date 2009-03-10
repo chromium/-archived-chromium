@@ -8,10 +8,11 @@
 #include "base/base_paths_linux.h"
 #include "base/path_service.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
+#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
+#include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
@@ -275,7 +276,7 @@ LocationBar* BrowserWindowGtk::GetLocationBar() const {
 }
 
 void BrowserWindowGtk::SetFocusToLocationBar() {
-  toolbar_->FocusLocationBar();
+  GetLocationBar()->FocusLocation();
 }
 
 void BrowserWindowGtk::UpdateStopGoState(bool is_loading) {

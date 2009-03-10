@@ -44,9 +44,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   virtual LocationBar* GetLocationBar() const;
 
-  // Set focus on the entry box.
-  void FocusLocationBar();
-
   // Overridden from CommandUpdater::CommandObserver:
   virtual void EnabledStateChangedForCommand(int id, bool enabled);
 

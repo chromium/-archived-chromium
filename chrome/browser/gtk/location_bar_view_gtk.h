@@ -65,7 +65,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
  private:
   GtkWidget* vbox_;
 
-  scoped_ptr<AutocompleteEditViewGtk> edit_view_;
+  scoped_ptr<AutocompleteEditViewGtk> location_entry_;
 
   Profile* profile_;
   CommandUpdater* command_updater_;

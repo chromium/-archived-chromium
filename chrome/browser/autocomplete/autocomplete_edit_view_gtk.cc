@@ -100,9 +100,8 @@ void AutocompleteEditViewGtk::Init() {
                    G_CALLBACK(&HandleViewMoveCursorThunk), this);
 }
 
-void AutocompleteEditViewGtk::FocusLocation() {
+void AutocompleteEditViewGtk::SetFocus() {
   gtk_widget_grab_focus(text_view_);
-  SelectAll(false);
 }
 
 void AutocompleteEditViewGtk::SaveStateToTab(TabContents* tab) {
@@ -160,7 +159,12 @@ std::wstring AutocompleteEditViewGtk::GetText() const {
 void AutocompleteEditViewGtk::SetUserText(const std::wstring& text,
                                           const std::wstring& display_text,
                                           bool update_popup) {
-  NOTIMPLEMENTED();
+  model_->SetUserText(text);
+  // TODO(deanm): something about selection / focus change here.
+  SetWindowTextAndCaretPos(display_text, display_text.length());
+  if (update_popup)
+    UpdatePopup();
+  TextChanged();
 }
 
 void AutocompleteEditViewGtk::SetWindowTextAndCaretPos(const std::wstring& text,
