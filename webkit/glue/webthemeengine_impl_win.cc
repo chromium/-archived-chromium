@@ -7,6 +7,7 @@
 #include "WebRect.h"
 
 #include "base/gfx/native_theme.h"
+#include "skia/ext/skia_utils_win.h"
 
 using WebKit::WebCanvas;
 using WebKit::WebColor;
@@ -92,9 +93,10 @@ void WebThemeEngineImpl::paintTextField(
   HDC hdc = canvas->beginPlatformPaint();
 
   RECT native_rect = WebRectToRECT(rect);
+  COLORREF c = skia::SkColorToCOLORREF(color);
 
   gfx::NativeTheme::instance()->PaintTextField(
-      hdc, part, state, classic_state, &native_rect, color, fill_content_area,
+      hdc, part, state, classic_state, &native_rect, c, fill_content_area,
       draw_edges);
 
   canvas->endPlatformPaint();
