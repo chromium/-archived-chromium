@@ -17,6 +17,7 @@ fi
 if [ "x$(id -u)" != x0 ]; then
   echo "Running as non-root user."
   echo "You might have to enter your password one or more times for 'sudo'."
+  echo
 fi
 
 # Packages need for development
@@ -44,7 +45,53 @@ dbg_list="libatk1.0-dbg libc6-dbg libcairo2-dbg libfontconfig1-dbg
 # Standard 32bit compatibility libraries
 cmp_list="ia32-libs lib32stdc++6 lib32z1 lib32z1-dev libc6-dev-i386 libc6-i386"
 
-echo "Updating list of available packages..."
+# Waits for the user to press 'Y' or 'N'. Either uppercase of lowercase is
+# accepted. Returns 0 for 'Y' and 1 for 'N'. If an optional parameter has
+# been provided to yes_no(), the function also accepts RETURN as a user input.
+# The parameter specifies the exit code that should be returned in that case.
+# The function will echo the user's selection followed by a newline character.
+# Users can abort the function by pressing CTRL-C. This will call "exit 1".
+yes_no() {
+  local c
+  while :; do
+    c="$(trap 'stty echo -iuclc icanon 2>/dev/null' EXIT INT TERM QUIT
+         stty -echo iuclc -icanon 2>/dev/null
+         dd count=1 bs=1 2>/dev/null | od -An -tx1)"
+    case "$c" in
+      " 0a") if [ -n "$1" ]; then
+               [ $1 -eq 0 ] && echo "Y" || echo "N"
+               return $1
+             fi
+             ;;
+      " 79") echo "Y"
+             return 0
+             ;;
+      " 6e") echo "N"
+             return 1
+             ;;
+      "")    echo "Aborted" >&2
+             exit 1
+             ;;
+      *)     # The user pressed an unrecognized key. As we are not echoing
+             # any incorrect user input, alert the user by ringing the bell.
+             (tput bel) 2>/dev/null
+             ;;
+    esac
+  done
+}
+
+echo "This script installs all required libraries for building Chromium."
+echo "For most of the libraries, it can also install debugging symbols, which"
+echo "will allow you to debug code in the system libraries. Most developers"
+echo "won't need these symbols."
+echo -n "Do you want me to install them for you (y/N) "
+if yes_no 1; then
+  echo "Installing debugging symbols."
+else
+  echo "Skipping installation of debugging symbols."
+  dbg_list=
+fi
+
 sudo apt-get update
 
 # We initially run "apt-get" with the --reinstall option and parse its output.
@@ -65,6 +112,20 @@ sudo apt-get install ${new_list}
 # Install 32bit backwards compatibility support for 64bit systems
 if [ "$(uname -m)" = x86_64 ]; then
   echo "Installing 32bit libraries that are not already provided by the system"
+  echo
+  echo "While we only need to install a relatively small number of library"
+  echo "files, we temporarily need to download a lot of large *.deb packages"
+  echo "that contain these files. We will create new *.deb packages that"
+  echo "include just the 32bit libraries. These files will then be found on"
+  echo "your system in places like /lib32, /usr/lib32, /usr/lib/debug/lib32,"
+  echo "/usr/lib/debug/usr/lib32. If you ever need to uninstall these files,"
+  echo "look for packages named *-ia32.deb."
+  echo "Do you want me to download all packages needed to build new 32bit"
+  echo -n "package files (Y/n) "
+  if ! yes_no 0; then
+    echo "Exiting without installing any 32bit libraries."
+    exit 0
+  fi
   tmp=/tmp/install-32bit.$$
   trap 'rm -rf "${tmp}"' EXIT INT TERM QUIT
   mkdir -p "${tmp}/apt/lists/partial" "${tmp}/cache" "${tmp}/partial"
