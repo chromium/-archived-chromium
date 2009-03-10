@@ -761,7 +761,7 @@ void TextField::Edit::OnPaste() {
 
   ClipboardService* clipboard = g_browser_process->clipboard_service();
 
-  if (!clipboard->IsFormatAvailable(CF_UNICODETEXT))
+  if (!clipboard->IsFormatAvailable(Clipboard::GetPlainTextWFormatType()))
     return;
 
   std::wstring clipboard_str;

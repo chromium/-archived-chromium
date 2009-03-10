@@ -189,17 +189,7 @@ Clipboard* ClipboardGetClipboard(){
   return NULL;
 }
 
-#if defined(OS_LINUX)
-// TODO(port): This should replace the method below (the unsigned int is a
-// windows type).  We may need to convert the type of format so it can be sent
-// over IPC.
-bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
-  NOTIMPLEMENTED();
-  return false;
-}
-#endif
-
-bool ClipboardIsFormatAvailable(unsigned int format) {
+bool ClipboardIsFormatAvailable(const Clipboard::FormatType& format) {
   bool result;
   RenderThread::current()->Send(
       new ViewHostMsg_ClipboardIsFormatAvailable(format, &result));

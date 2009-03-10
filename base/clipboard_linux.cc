@@ -17,6 +17,17 @@ static const char* kMimeHtml = "text/html";
 static const char* kMimeText = "text/plain";
 static const char* kMimeWebkitSmartPaste = "chrome-internal/webkit-paste";
 
+std::string GdkAtomToString(const GdkAtom& atom) {
+  gchar* name = gdk_atom_name(atom);
+  std::string rv(name);
+  g_free(name);
+  return rv;
+}
+
+GdkAtom StringToGdkAtom(const std::string& str) {
+  return gdk_atom_intern(str.c_str(), false);
+}
+
 // GtkClipboardGetFunc callback.
 // GTK will call this when an application wants data we copied to the clipboard.
 void GetData(GtkClipboard* clipboard,
@@ -27,7 +38,7 @@ void GetData(GtkClipboard* clipboard,
       reinterpret_cast<Clipboard::TargetMap*>(user_data);
 
   Clipboard::TargetMap::iterator iter =
-      data_map->find(std::string(gdk_atom_name(selection_data->target)));
+      data_map->find(GdkAtomToString(selection_data->target));
 
   if (iter == data_map->end())
     return;
@@ -174,7 +185,7 @@ void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
 // to use gtk_clipboard_wait_is_target_available. Also, catch requests
 // for plain text and change them to gtk_clipboard_wait_is_text_available
 // (which checks for several standard text targets).
-bool Clipboard::IsFormatAvailable(Clipboard::FormatType format) const {
+bool Clipboard::IsFormatAvailable(const Clipboard::FormatType& format) const {
   bool retval = false;
   GdkAtom* targets = NULL;
   GtkSelectionData* data =
@@ -187,8 +198,10 @@ bool Clipboard::IsFormatAvailable(Clipboard::FormatType format) const {
   int num = 0;
   gtk_selection_data_get_targets(data, &targets, &num);
 
+  GdkAtom format_atom = StringToGdkAtom(format);
+
   for (int i = 0; i < num; i++) {
-    if (targets[i] == format) {
+    if (targets[i] == format_atom) {
       retval = true;
       break;
     }
@@ -232,7 +245,7 @@ void Clipboard::ReadHTML(string16* markup, std::string* src_url) const {
   markup->clear();
 
   GtkSelectionData* data = gtk_clipboard_wait_for_contents(clipboard_,
-                                                           GetHtmlFormatType());
+      StringToGdkAtom(GetHtmlFormatType()));
 
   if (!data)
     return;
@@ -245,7 +258,7 @@ void Clipboard::ReadHTML(string16* markup, std::string* src_url) const {
 
 // static
 Clipboard::FormatType Clipboard::GetPlainTextFormatType() {
-  return GDK_TARGET_STRING;
+  return GdkAtomToString(GDK_TARGET_STRING);
 }
 
 // static
@@ -255,12 +268,12 @@ Clipboard::FormatType Clipboard::GetPlainTextWFormatType() {
 
 // static
 Clipboard::FormatType Clipboard::GetHtmlFormatType() {
-  return gdk_atom_intern(kMimeHtml, false);
+  return std::string(kMimeHtml);
 }
 
 // static
 Clipboard::FormatType Clipboard::GetWebKitSmartPasteFormatType() {
-  return gdk_atom_intern(kMimeWebkitSmartPaste, false);
+  return std::string(kMimeWebkitSmartPaste);
 }
 
 // Insert the key/value pair in the clipboard_data structure. If

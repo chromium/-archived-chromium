@@ -34,7 +34,7 @@ Clipboard* ClipboardGetClipboard() {
   return clipboard.Pointer();
 }
 
-bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
+bool ClipboardIsFormatAvailable(const Clipboard::FormatType& format) {
   return ClipboardGetClipboard()->IsFormatAvailable(format);
 }
 

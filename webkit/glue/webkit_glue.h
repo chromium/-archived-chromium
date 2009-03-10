@@ -152,7 +152,7 @@ HCURSOR LoadCursor(int cursor_id);
 Clipboard* ClipboardGetClipboard();
 
 // Tests whether the clipboard contains a certain format
-bool ClipboardIsFormatAvailable(Clipboard::FormatType format);
+bool ClipboardIsFormatAvailable(const Clipboard::FormatType& format);
 
 // Reads UNICODE text from the clipboard, if available.
 void ClipboardReadText(string16* result);

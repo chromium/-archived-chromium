@@ -540,15 +540,10 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
       new WriteClipboardTask(long_living_objects));
 }
 
-void ResourceMessageFilter::OnClipboardIsFormatAvailable(unsigned int format,
-                                                         bool* result) {
-#if defined(OS_WIN)
+void ResourceMessageFilter::OnClipboardIsFormatAvailable(
+    Clipboard::FormatType format, bool* result) {
   DCHECK(result);
   *result = GetClipboardService()->IsFormatAvailable(format);
-#else
-  NOTIMPLEMENTED();  // TODO(port) this function should take a
-                     // Clipboard::FormatType instead of an int.
-#endif
 }
 
 void ResourceMessageFilter::OnClipboardReadText(string16* result) {

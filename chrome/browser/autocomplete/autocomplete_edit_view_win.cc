@@ -2017,7 +2017,7 @@ void AutocompleteEditViewWin::TextChanged() {
 std::wstring AutocompleteEditViewWin::GetClipboardText() const {
   // Try text format.
   ClipboardService* clipboard = g_browser_process->clipboard_service();
-  if (clipboard->IsFormatAvailable(CF_UNICODETEXT)) {
+  if (clipboard->IsFormatAvailable(Clipboard::GetPlainTextWFormatType())) {
     std::wstring text;
     clipboard->ReadText(&text);
 

@@ -155,7 +155,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnReceiveContextMenuMsg(const IPC::Message& msg);
   // Clipboard messages
   void OnClipboardWriteObjects(const Clipboard::ObjectMap& objects);
-  void OnClipboardIsFormatAvailable(unsigned int format, bool* result);
+  void OnClipboardIsFormatAvailable(Clipboard::FormatType format, bool* result);
   void OnClipboardReadText(string16* result);
   void OnClipboardReadAsciiText(std::string* result);
   void OnClipboardReadHTML(string16* markup, GURL* src_url);

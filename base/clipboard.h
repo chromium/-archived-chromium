@@ -14,24 +14,12 @@
 #include "base/string16.h"
 #include "base/gfx/size.h"
 
-#if defined(OS_MACOSX)
-#if defined(__OBJC__)
-@class NSString;
-#else
-class NSString;
-#endif
-#endif
-
 class Clipboard {
  public:
-#if defined(OS_WIN)
-  typedef unsigned int FormatType;
-#elif defined(OS_MACOSX)
-  typedef NSString *FormatType;
-#elif defined(OS_LINUX)
-  typedef struct _GdkAtom* FormatType;
+  typedef std::string FormatType;
+#if defined(OS_LINUX)
   typedef struct _GtkClipboard GtkClipboard;
-  typedef std::map<std::string, std::pair<char*, size_t> > TargetMap;
+  typedef std::map<FormatType, std::pair<char*, size_t> > TargetMap;
 #endif
 
   // ObjectType designates the type of data to be stored in the clipboard. This
@@ -95,7 +83,7 @@ class Clipboard {
   void WriteObjects(const ObjectMap& objects, base::ProcessHandle process);
 
   // Tests whether the clipboard contains a certain format
-  bool IsFormatAvailable(FormatType format) const;
+  bool IsFormatAvailable(const FormatType& format) const;
 
   // Reads UNICODE text from the clipboard, if available.
   void ReadText(string16* result) const;
@@ -173,14 +161,14 @@ class Clipboard {
                              const gfx::Size& size);
 
   // Safely write to system clipboard. Free |handle| on failure.
-  void WriteToClipboard(FormatType format, HANDLE handle);
+  void WriteToClipboard(unsigned int format, HANDLE handle);
 
   static void ParseBookmarkClipboardFormat(const string16& bookmark,
                                            string16* title,
                                            std::string* url);
 
   // Free a handle depending on its type (as intuited from format)
-  static void FreeData(FormatType format, HANDLE data);
+  static void FreeData(unsigned int format, HANDLE data);
 
   // Return the window that should be the clipboard owner, creating it
   // if neccessary.  Marked const for lazily initialization by const methods.

@@ -129,15 +129,18 @@ void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
 // pasteboard. This flavor has no data.
 void Clipboard::WriteWebSmartPaste() {
   NSPasteboard* pb = GetPasteboard();
-  [pb addTypes:[NSArray arrayWithObject:GetWebKitSmartPasteFormatType()] owner:nil];
-  [pb setData:nil forType:GetWebKitSmartPasteFormatType()];
+  NSString* format = base::SysUTF8ToNSString(GetWebKitSmartPasteFormatType());
+  [pb addTypes:[NSArray arrayWithObject:format] owner:nil];
+  [pb setData:nil forType:format];
 }
 
-bool Clipboard::IsFormatAvailable(NSString* format) const {
+bool Clipboard::IsFormatAvailable(const Clipboard::FormatType& format) const {
+  NSString* format_ns = base::SysUTF8ToNSString(format);
+
   NSPasteboard* pb = GetPasteboard();
   NSArray* types = [pb types];
 
-  return [types containsObject:format];
+  return [types containsObject:format_ns];
 }
 
 void Clipboard::ReadText(string16* result) const {
@@ -230,40 +233,51 @@ void Clipboard::ReadFiles(std::vector<FilePath>* files) const {
 
 // static
 Clipboard::FormatType Clipboard::GetUrlFormatType() {
-  return NSURLPboardType;
+  static const std::string type = base::SysNSStringToUTF8(NSURLPboardType);
+  return type;
 }
 
 // static
 Clipboard::FormatType Clipboard::GetUrlWFormatType() {
-  return NSURLPboardType;
+  static const std::string type = base::SysNSStringToUTF8(NSURLPboardType);
+  return type;
 }
 
 // static
 Clipboard::FormatType Clipboard::GetPlainTextFormatType() {
-  return NSStringPboardType;
+  static const std::string type = base::SysNSStringToUTF8(NSStringPboardType);
+  return type;
 }
 
 // static
 Clipboard::FormatType Clipboard::GetPlainTextWFormatType() {
-  return NSStringPboardType;
+  static const std::string type = base::SysNSStringToUTF8(NSStringPboardType);
+  return type;
 }
 
 // static
 Clipboard::FormatType Clipboard::GetFilenameFormatType() {
-  return NSFilenamesPboardType;
+  static const std::string type =
+      base::SysNSStringToUTF8(NSFilenamesPboardType);
+  return type;
 }
 
 // static
 Clipboard::FormatType Clipboard::GetFilenameWFormatType() {
-  return NSFilenamesPboardType;
+  static const std::string type =
+      base::SysNSStringToUTF8(NSFilenamesPboardType);
+  return type;
 }
 
 // static
 Clipboard::FormatType Clipboard::GetHtmlFormatType() {
-  return NSHTMLPboardType;
+  static const std::string type = base::SysNSStringToUTF8(NSHTMLPboardType);
+  return type;
 }
 
 // static
 Clipboard::FormatType Clipboard::GetWebKitSmartPasteFormatType() {
-  return kWebSmartPastePboardType;
+  static const std::string type =
+      base::SysNSStringToUTF8(kWebSmartPastePboardType);
+  return type;
 }

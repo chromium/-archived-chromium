@@ -325,13 +325,6 @@ bool IsDefaultPluginEnabled() {
   return false;
 }
 
-#if defined(OS_MACOSX)
-bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
-  NOTIMPLEMENTED();
-  return false;
-}
-#endif
-
 }  // webkit_glue
 
 #ifndef CHROME_DEBUGGER_DISABLED
