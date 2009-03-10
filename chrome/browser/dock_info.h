@@ -48,6 +48,10 @@ class DockInfo {
 
   DockInfo() : type_(NONE), hwnd_(NULL), in_enable_area_(false) {}
 
+  // Size of the popup window shown to indicate a valid dock location.
+  static int popup_width();
+  static int popup_height();
+
   // Returns the DockInfo for the specified point |screen_point|. |ignore|
   // contains the set of hwnds to ignore from consideration. This contains the
   // dragged window as well as any windows showing possible dock locations.
@@ -98,6 +102,9 @@ class DockInfo {
   }
   const gfx::Rect& monitor_bounds() const { return monitor_bounds_; }
 
+  // Returns the bounds of the window to show the indicator for.
+  gfx::Rect GetPopupRect() const;
+
   // Returns true if the drop should result in docking. DockInfo maintains two
   // states (as indicated by this boolean):
   // 1. The mouse is close enough to the hot spot such that a visual indicator
@@ -114,15 +121,14 @@ class DockInfo {
   // Returns true if |other| is considered equal to this. Two DockInfos are
   // considered equal if they have the same type and same hwnd.
   bool equals(const DockInfo& other) const {
-    return type_ == other.type_ && hwnd_ == other.hwnd_;
+    return type_ == other.type_ && hwnd_ == other.hwnd_ &&
+           monitor_bounds_ == other.monitor_bounds_;
   }
 
   // If screen_loc is close enough to the hot spot given by |x| and |y|, the
   // type and hot_spot are set from the supplied parameters. This is used
-  // internally, there is no need to invoke this otherwise. |monitor| gives the
-  // monitor the location is on.
-  bool CheckMonitorPoint(HMONITOR monitor,
-                         const gfx::Point& screen_loc,
+  // internally, there is no need to invoke this otherwise.
+  bool CheckMonitorPoint(const gfx::Point& screen_loc,
                          int x,
                          int y,
                          Type type);

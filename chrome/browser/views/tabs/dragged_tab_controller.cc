@@ -19,146 +19,111 @@
 #include "chrome/common/animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"
+#include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 
 static const int kHorizontalMoveThreshold = 16; // pixels
 
 namespace {
 
-// Horizontal width of DockView. The height is 3/4 of this. If you change this,
-// be sure and update the constants in DockInfo (kEnableDeltaX/kEnableDeltaY).
-const int kDropWindowSize = 100;
-
 // Delay, in ms, during dragging before we bring a window to front.
 const int kBringToFrontDelay = 750;
 
-// TODO (glen): nuke this class in favor of something pretty. Consider this
-// class a placeholder for the real thing.
+// Radius of the rect drawn by DockView.
+const int kRoundedRectRadius = 4;
+
+// Spacing between tab icons when DockView is showing a docking location that
+// contains more than one tab.
+const int kTabSpacing = 4;
+
+// DockView is the view responsible for giving a visual indicator of where a
+// dock is going to occur.
+
 class DockView : public views::View {
  public:
-  explicit DockView(DockInfo::Type type)
-      : size_(kDropWindowSize),
-        rect_radius_(4),
-        stroke_size_(4),
-        inner_stroke_size_(2),
-        inner_margin_(8),
-        inner_padding_(8),
-        type_(type) {}
+  explicit DockView(DockInfo::Type type) : type_(type) {}
 
   virtual gfx::Size GetPreferredSize() {
-    return gfx::Size(size_, size_);
+    return gfx::Size(DockInfo::popup_width(), DockInfo::popup_height());
   }
 
   virtual void PaintBackground(ChromeCanvas* canvas) {
-    int h = size_ * 3 / 4;
-    int outer_x = (width() - size_) / 2;
-    int outer_y = (height() - h) / 2;
-    switch (type_) {
-      case DockInfo::MAXIMIZE:
-        outer_y = 0;
-        break;
-      case DockInfo::LEFT_HALF:
-        outer_x = 0;
-        break;
-      case DockInfo::RIGHT_HALF:
-        outer_x = width() - size_;
-        break;
-      case DockInfo::BOTTOM_HALF:
-        outer_y = height() - h;
-        break;
-      default:
-        break;
-    }
-
-    SkRect outer_rect = { SkIntToScalar(outer_x),
-                          SkIntToScalar(outer_y),
-                          SkIntToScalar(outer_x + size_),
-                          SkIntToScalar(outer_y + h) };
+    SkRect outer_rect = { SkIntToScalar(0), SkIntToScalar(0),
+                          SkIntToScalar(width()),
+                          SkIntToScalar(height()) };
 
     // Fill the background rect.
     SkPaint paint;
-    paint.setColor(SkColorSetRGB(58, 58, 58));
+    paint.setColor(SkColorSetRGB(108, 108, 108));
     paint.setStyle(SkPaint::kFill_Style);
-    canvas->drawRoundRect(outer_rect, SkIntToScalar(rect_radius_),
-                          SkIntToScalar(rect_radius_), paint);
+    canvas->drawRoundRect(outer_rect, SkIntToScalar(kRoundedRectRadius),
+                          SkIntToScalar(kRoundedRectRadius), paint);
 
-    // Outline the background rect.
-    paint.setFlags(SkPaint::kAntiAlias_Flag);
-    paint.setStrokeWidth(SkIntToScalar(stroke_size_));
-    paint.setColor(SK_ColorBLACK);
-    paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawRoundRect(outer_rect, SkIntToScalar(rect_radius_),
-                          SkIntToScalar(rect_radius_), paint);
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-    // Then the inner rect.
-    int inner_x = outer_x + inner_margin_;
-    int inner_y = outer_y + inner_margin_;
-    int inner_width =
-        (size_ - inner_margin_ - inner_margin_ - inner_padding_) / 2;
-    int inner_height = (h - inner_margin_ - inner_margin_);
+    SkBitmap* high_icon = rb.GetBitmapNamed(IDR_DOCK_HIGH);
+    SkBitmap* wide_icon = rb.GetBitmapNamed(IDR_DOCK_WIDE);
+
     switch (type_) {
       case DockInfo::LEFT_OF_WINDOW:
+      case DockInfo::LEFT_HALF:
+        canvas->DrawBitmapInt(*high_icon,
+            width() / 2 - high_icon->width() - kTabSpacing / 2,
+            (height() - high_icon->height()) / 2);
+        if (type_ == DockInfo::LEFT_OF_WINDOW) {
+          DrawBitmapWithAlpha(canvas, *high_icon, width() / 2 + kTabSpacing / 2,
+                              (height() - high_icon->height()) / 2);
+        }
+        break;
+
+
       case DockInfo::RIGHT_OF_WINDOW:
-        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
-        DrawWindow(canvas, inner_x + inner_width + inner_padding_, inner_y,
-                   inner_width, inner_height);
+      case DockInfo::RIGHT_HALF:
+        canvas->DrawBitmapInt(*high_icon, width() / 2 + kTabSpacing / 2,
+                              (height() - high_icon->height()) / 2);
+        if (type_ == DockInfo::RIGHT_OF_WINDOW) {
+         DrawBitmapWithAlpha(canvas, *high_icon,
+              width() / 2 - high_icon->width() - kTabSpacing / 2,
+              (height() - high_icon->height()) / 2);
+        }
         break;
 
       case DockInfo::TOP_OF_WINDOW:
-      case DockInfo::BOTTOM_OF_WINDOW:
-        inner_height =
-            (h - inner_margin_ - inner_margin_ - inner_padding_) / 2;
-        inner_width += inner_width + inner_padding_;
-        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
-        DrawWindow(canvas, inner_x, inner_y + inner_height + inner_padding_,
-                   inner_width, inner_height);
+        canvas->DrawBitmapInt(*wide_icon, (width() - wide_icon->width()) / 2,
+                              height() / 2 - high_icon->height());
         break;
 
-      case DockInfo::MAXIMIZE:
-        inner_width += inner_width + inner_padding_;
-        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
+      case DockInfo::MAXIMIZE: {
+        SkBitmap* max_icon = rb.GetBitmapNamed(IDR_DOCK_MAX);
+        canvas->DrawBitmapInt(*max_icon, (width() - max_icon->width()) / 2,
+                              (height() - max_icon->height()) / 2);
         break;
-
-      case DockInfo::LEFT_HALF:
-        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
-        break;
-
-      case DockInfo::RIGHT_HALF:
-        DrawWindow(canvas, inner_x + inner_width + inner_padding_, inner_y,
-                   inner_width, inner_height);
-        break;
+      }
 
       case DockInfo::BOTTOM_HALF:
-        inner_height =
-            (h - inner_margin_ - inner_margin_ - inner_padding_) / 2;
-        inner_width += inner_width + inner_padding_;
-        DrawWindow(canvas, inner_x, inner_y + inner_height + inner_padding_,
-                   inner_width, inner_height);
+      case DockInfo::BOTTOM_OF_WINDOW:
+        canvas->DrawBitmapInt(*wide_icon, (width() - wide_icon->width()) / 2,
+                              height() / 2 + kTabSpacing / 2);
+        if (type_ == DockInfo::BOTTOM_OF_WINDOW) {
+          DrawBitmapWithAlpha(canvas, *wide_icon,
+              (width() - wide_icon->width()) / 2,
+              height() / 2 - kTabSpacing / 2 - wide_icon->height());
+        }
         break;
     }
   }
 
  private:
-  void DrawWindow(ChromeCanvas* canvas, int x, int y, int w, int h) {
-    canvas->FillRectInt(SkColorSetRGB(160, 160, 160), x, y, w, h);
-
+  void DrawBitmapWithAlpha(ChromeCanvas* canvas, const SkBitmap& image,
+                           int x, int y) {
     SkPaint paint;
-    paint.setStrokeWidth(SkIntToScalar(inner_stroke_size_));
-    paint.setColor(SK_ColorWHITE);
-    paint.setStyle(SkPaint::kStroke_Style);
-    SkRect rect = { SkIntToScalar(x), SkIntToScalar(y), SkIntToScalar(x + w),
-                    SkIntToScalar(y + h) };
-    canvas->drawRect(rect, paint);
+    paint.setAlpha(128);
+    canvas->DrawBitmapInt(image, x, y, paint);
   }
 
-  int size_;
-  int rect_radius_;
-  int stroke_size_;
-  int inner_stroke_size_;
-  int inner_margin_;
-  int inner_padding_;
   DockInfo::Type type_;
 
   DISALLOW_COPY_AND_ASSIGN(DockView);
@@ -189,40 +154,20 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
         popup_(NULL),
         popup_hwnd_(NULL),
 #pragma warning(suppress: 4355)  // Okay to pass "this" here.
-        hot_animation_(this),
-        enable_animation_(this),
+        animation_(this),
         hidden_(false),
         in_enable_area_(info.in_enable_area()) {
-    gfx::Rect bounds(info.hot_spot().x() - kDropWindowSize / 2,
-                     info.hot_spot().y() - kDropWindowSize / 2,
-                     kDropWindowSize, kDropWindowSize);
-    switch (info.type()) {
-      case DockInfo::MAXIMIZE:
-        bounds.Offset(0, kDropWindowSize / 2);
-        break;
-      case DockInfo::LEFT_HALF:
-        bounds.Offset(kDropWindowSize / 2, 0);
-        break;
-      case DockInfo::RIGHT_HALF:
-        bounds.Offset(-kDropWindowSize / 2, 0);
-        break;
-      case DockInfo::BOTTOM_HALF:
-        bounds.Offset(0, -kDropWindowSize / 2);
-        break;
-      default:
-        break;
-    }
-
     popup_ = new views::WidgetWin;
     popup_->set_window_style(WS_POPUP);
     popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
                                 WS_EX_TOPMOST);
     popup_->SetLayeredAlpha(0x00);
-    popup_->Init(NULL, bounds, false);
+    popup_->Init(NULL, info.GetPopupRect(), false);
     popup_->SetContentsView(new DockView(info.type()));
-    hot_animation_.Show();
     if (info.in_enable_area())
-      enable_animation_.Show();
+      animation_.Reset(1);
+    else
+      animation_.Show();
     popup_->SetWindowPos(HWND_TOP, 0, 0, 0, 0,
         SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOMOVE | SWP_SHOWWINDOW);
     popup_hwnd_ = popup_->GetHWND();
@@ -237,10 +182,7 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   void UpdateInEnabledArea(bool in_enable_area) {
     if (in_enable_area != in_enable_area_) {
       in_enable_area_ = in_enable_area;
-      if (!in_enable_area_)
-        enable_animation_.Hide();
-      else
-        enable_animation_.Show();
+      UpdateLayeredAlpha();
     }
   }
 
@@ -263,15 +205,11 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
       return;
     }
     hidden_ = true;
-    enable_animation_.Hide();
-    hot_animation_.Hide();
+    animation_.Hide();
   }
 
   virtual void AnimationProgressed(const Animation* animation) {
-    popup_->SetLayeredAlpha(
-        static_cast<BYTE>((hot_animation_.GetCurrentValue() +
-                           enable_animation_.GetCurrentValue()) / 2 * 255.0));
-    popup_->GetRootView()->SchedulePaint();
+    UpdateLayeredAlpha();
   }
 
   virtual void AnimationEnded(const Animation* animation) {
@@ -279,7 +217,13 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
       return;
     popup_->Close();
     delete this;
-    return;
+  }
+
+  virtual void UpdateLayeredAlpha() {
+    double scale = in_enable_area_ ? 1 : .5;
+    popup_->SetLayeredAlpha(
+        static_cast<BYTE>(animation_.GetCurrentValue() * scale * 255.0));
+    popup_->GetRootView()->SchedulePaint();
   }
 
  private:
@@ -293,11 +237,8 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   // method on popup_ after we close it.
   HWND popup_hwnd_;
 
-  // Animation corresponding to !DockInfo::in_enable_area.
-  SlideAnimation hot_animation_;
-
-  // Animation corresponding to DockInfo::in_enable_area.
-  SlideAnimation enable_animation_;
+  // Animation for when first made visible.
+  SlideAnimation animation_;
 
   // Have we been hidden?
   bool hidden_;
@@ -559,7 +500,6 @@ void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
     dock_controllers_.back()->UpdateInEnabledArea(dock_info_.in_enable_area());
   }
 }
-
 
 void DraggedTabController::ChangeDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {

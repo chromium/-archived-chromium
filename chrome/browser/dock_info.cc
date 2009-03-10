@@ -10,22 +10,17 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/frame/browser_view.h"
+#include "chrome/browser/views/tabs/tab.h"
 
 namespace {
 
 // Distance in pixels between the hotspot and when the hint should be shown.
-const int kHotSpotDeltaX = 100;
-const int kHotSpotDeltaY = 80;
+const int kHotSpotDeltaX = 120;
+const int kHotSpotDeltaY = 120;
 
-// Distance in pixels between the hotspot and when the hint should be shown
-// and enabled.
-const int kEnableDeltaX = 50;
-const int kEnableDeltaY = 37;
-
-// Distance used when maximizing. The maximize area is the whole top of the
-// monitor.
-const int kMaximizeHotSpotDeltaY = 100;
-const int kMaximizeEnableDeltaY = 50;
+// Size of the popup window.
+const int kPopupWidth = 70;
+const int kPopupHeight = 70;
 
 // Returns true if |screen_loc| is close to the hotspot at |x|, |y|. If the
 // point is close enough to the hotspot true is returned and |in_enable_area|
@@ -36,7 +31,7 @@ bool IsCloseToPoint(const gfx::Point& screen_loc,
                     bool* in_enable_area) {
   int delta_x = abs(x - screen_loc.x());
   int delta_y = abs(y - screen_loc.y());
-  *in_enable_area = (delta_x < kEnableDeltaX && delta_y < kEnableDeltaY);
+  *in_enable_area = (delta_x < kPopupWidth / 2 && delta_y < kPopupHeight / 2);
   return *in_enable_area || (delta_x < kHotSpotDeltaX &&
                              delta_y < kHotSpotDeltaY);
 }
@@ -52,8 +47,8 @@ bool IsCloseToMonitorPoint(const gfx::Point& screen_loc,
   int delta_x = abs(x - screen_loc.x());
   int delta_y = abs(y - screen_loc.y());
 
-  int enable_delta_x = kEnableDeltaX;
-  int enable_delta_y = kEnableDeltaY;
+  int enable_delta_x = kPopupWidth / 2;
+  int enable_delta_y = kPopupHeight / 2;
   int hot_spot_delta_x = kHotSpotDeltaX;
   int hot_spot_delta_y = kHotSpotDeltaY;
 
@@ -65,7 +60,13 @@ bool IsCloseToMonitorPoint(const gfx::Point& screen_loc,
       break;
 
 
-    case DockInfo::MAXIMIZE:
+    case DockInfo::MAXIMIZE: {
+      // Make the maximize height smaller than the tab height to avoid showing
+      // the dock indicator when close to maximized browser.
+      hot_spot_delta_y = Tab::GetMinimumUnselectedSize().height() - 1;
+      enable_delta_y = hot_spot_delta_y / 2;
+      break;
+    }
     case DockInfo::BOTTOM_HALF:
       enable_delta_y += enable_delta_y;
       hot_spot_delta_y += hot_spot_delta_y;
@@ -81,29 +82,11 @@ bool IsCloseToMonitorPoint(const gfx::Point& screen_loc,
   if (type != DockInfo::MAXIMIZE)
     return result;
 
-  // Make the maximize area the whole top of the monitor.
+  // Make the hot spot/enable spot for maximized windows the whole top of the
+  // monitor.
   int max_delta_y = abs(screen_loc.y() - y);
-  *in_enable_area = (*in_enable_area || (max_delta_y < kMaximizeEnableDeltaY));
-  return *in_enable_area || (max_delta_y < kMaximizeHotSpotDeltaY);
-}
-
-// Returns true if there is a maximized tabbed browser on the monitor
-// |monitor|.
-bool IsMaximizedTabbedBrowserOnMonitor(HMONITOR monitor) {
-  for (BrowserList::const_iterator i = BrowserList::begin();
-       i != BrowserList::end(); ++i) {
-    Browser* browser = *i;
-    if (browser->type() == Browser::TYPE_NORMAL) {
-      HWND browser_hwnd =
-          reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
-      if (IsZoomed(browser_hwnd) &&
-          MonitorFromWindow(browser_hwnd, MONITOR_DEFAULTTONEAREST) ==
-          monitor) {
-        return true;
-      }
-    }
-  }
-  return false;
+  *in_enable_area = (*in_enable_area || (max_delta_y < enable_delta_y));
+  return *in_enable_area || (max_delta_y < hot_spot_delta_y);
 }
 
 // BaseWindowFinder -----------------------------------------------------------
@@ -276,7 +259,7 @@ class DockToWindowFinder : public BaseWindowFinder {
         !TopMostFinder::IsTopMostWindowAtPoint(finder.result_.hwnd(),
                                                finder.result_.hot_spot(),
                                                ignore)) {
-      return DockInfo();
+      finder.result_.set_type(DockInfo::NONE);
     }
     return finder.result_;
   }
@@ -308,8 +291,15 @@ class DockToWindowFinder : public BaseWindowFinder {
                      const std::set<HWND>& ignore)
       : BaseWindowFinder(ignore),
         screen_loc_(screen_loc) {
-    EnumThreadWindows(GetCurrentThreadId(), WindowCallbackProc,
-                      reinterpret_cast<LPARAM>(this));
+    HMONITOR monitor = MonitorFromPoint(screen_loc.ToPOINT(),
+                                        MONITOR_DEFAULTTONULL);
+    MONITORINFO monitor_info = {0};
+    monitor_info.cbSize = sizeof(MONITORINFO);
+    if (monitor && GetMonitorInfo(monitor, &monitor_info)) {
+      result_.set_monitor_bounds(gfx::Rect(monitor_info.rcWork));
+      EnumThreadWindows(GetCurrentThreadId(), WindowCallbackProc,
+                        reinterpret_cast<LPARAM>(this));
+    }
   }
 
   bool CheckPoint(HWND hwnd, int x, int y, DockInfo::Type type) {
@@ -319,7 +309,10 @@ class DockToWindowFinder : public BaseWindowFinder {
       result_.set_hwnd(hwnd);
       result_.set_type(type);
       result_.set_hot_spot(gfx::Point(x, y));
-      return true;
+      // Only show the hotspot if the monitor contains the bounds of the popup
+      // window. Otherwise we end with a weird situation where the popup window
+      // isn't completely visible.
+      return result_.monitor_bounds().Contains(result_.GetPopupRect());
     }
     return false;
   }
@@ -337,40 +330,40 @@ class DockToWindowFinder : public BaseWindowFinder {
 
 // DockInfo -------------------------------------------------------------------
 
+// static
 DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
                                       const std::set<HWND>& ignore) {
   // Try docking to a window first.
   DockInfo info = DockToWindowFinder::GetDockInfoAtPoint(screen_point, ignore);
-
-  HMONITOR monitor = MonitorFromPoint(screen_point.ToPOINT(),
-                                      MONITOR_DEFAULTTONULL);
-  MONITORINFO monitor_info = {0};
-  monitor_info.cbSize = sizeof(MONITORINFO);
-  if (!monitor || !GetMonitorInfo(monitor, &monitor_info)) {
-    info.type_ = NONE;
-    return info;
-  }
-  info.monitor_bounds_ = gfx::Rect(monitor_info.rcWork);
-
   if (info.type() != DockInfo::NONE)
     return info;
 
   // No window relative positions. Try monitor relative positions.
-  RECT& m_bounds = monitor_info.rcWork;
-  int mid_x = (m_bounds.left + m_bounds.right) / 2;
-  int mid_y = (m_bounds.top + m_bounds.bottom) / 2;
+  const gfx::Rect& m_bounds = info.monitor_bounds();
+  int mid_x = m_bounds.x() + m_bounds.width() / 2;
+  int mid_y = m_bounds.y() + m_bounds.height() / 2;
 
   bool result =
-      info.CheckMonitorPoint(monitor, screen_point, mid_x, m_bounds.top,
+      info.CheckMonitorPoint(screen_point, mid_x, m_bounds.y(),
                              DockInfo::MAXIMIZE) ||
-      info.CheckMonitorPoint(monitor, screen_point, mid_x, m_bounds.bottom,
+      info.CheckMonitorPoint(screen_point, mid_x, m_bounds.bottom(),
                              DockInfo::BOTTOM_HALF) ||
-      info.CheckMonitorPoint(monitor, screen_point, m_bounds.left, mid_y,
+      info.CheckMonitorPoint(screen_point, m_bounds.x(), mid_y,
                              DockInfo::LEFT_HALF) ||
-      info.CheckMonitorPoint(monitor, screen_point, m_bounds.right, mid_y,
+      info.CheckMonitorPoint(screen_point, m_bounds.right(), mid_y,
                              DockInfo::RIGHT_HALF);
 
   return info;
+}
+
+// static
+int DockInfo::popup_width() {
+  return kPopupWidth;
+}
+
+// static
+int DockInfo::popup_height() {
+  return kPopupHeight;
 }
 
 HWND DockInfo::GetLocalProcessWindowAtPoint(const gfx::Point& screen_point,
@@ -509,14 +502,43 @@ void DockInfo::AdjustOtherWindowBounds() const {
                  SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 }
 
-bool DockInfo::CheckMonitorPoint(HMONITOR monitor,
-                                 const gfx::Point& screen_loc,
+gfx::Rect DockInfo::GetPopupRect() const {
+  int x = hot_spot_.x() - popup_width() / 2;
+  int y = hot_spot_.y() - popup_height() / 2;
+  switch (type_) {
+    case LEFT_OF_WINDOW:
+    case RIGHT_OF_WINDOW:
+    case TOP_OF_WINDOW:
+    case BOTTOM_OF_WINDOW: {
+      // Constrain the popup to the monitor's bounds.
+      gfx::Rect ideal_bounds(x, y, popup_width(), popup_height());
+      ideal_bounds = ideal_bounds.AdjustToFit(monitor_bounds_);
+      return ideal_bounds;
+    }
+    case DockInfo::MAXIMIZE:
+      y += popup_height() / 2;
+      break;
+    case DockInfo::LEFT_HALF:
+      x += popup_width() / 2;
+      break;
+    case DockInfo::RIGHT_HALF:
+      x -= popup_width() / 2;
+      break;
+    case DockInfo::BOTTOM_HALF:
+      y -= popup_height() / 2;
+      break;
+
+    default:
+      NOTREACHED();
+  }
+  return gfx::Rect(x, y, popup_width(), popup_height());
+}
+
+bool DockInfo::CheckMonitorPoint(const gfx::Point& screen_loc,
                                  int x,
                                  int y,
                                  Type type) {
-  if (IsCloseToMonitorPoint(screen_loc, x, y, type, &in_enable_area_) &&
-      (type != MAXIMIZE ||
-       !IsMaximizedTabbedBrowserOnMonitor(monitor))) {
+  if (IsCloseToMonitorPoint(screen_loc, x, y, type, &in_enable_area_)) {
     hot_spot_.SetPoint(x, y);
     type_ = type;
     return true;
