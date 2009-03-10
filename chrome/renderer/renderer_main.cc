@@ -22,10 +22,6 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
-#if defined(OS_LINUX)
-#include <gtk/gtk.h>
-#endif
-
 // This function provides some ways to test crash and assertion handling
 // behavior of the renderer.
 static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
@@ -46,14 +42,6 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
     title += L" renderer";  // makes attaching to process easier
     ::MessageBox(NULL, L"renderer starting...", title.c_str(),
                  MB_OK | MB_SETFOREGROUND);
-#elif defined(OS_LINUX)
-    // TODO(port): create an abstraction layer for dialog boxes and use it here.
-    GtkWidget* dialog = gtk_message_dialog_new(
-        NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
-        "Attach to renderer at pid %d.", getpid());
-    gtk_window_set_title(GTK_WINDOW(dialog), "Renderer starting...");
-    gtk_dialog_run(GTK_DIALOG(dialog));  // Runs a nested message loop.
-    gtk_widget_destroy(dialog);
 #elif defined(OS_MACOSX)
     // TODO(playmobil): In the long term, overriding this flag doesn't seem
     // right, either use our own flag or open a dialog we can use.
