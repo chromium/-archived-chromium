@@ -1673,7 +1673,6 @@ LINUX WIN : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 
 // Regression from merge 41268:41286
 LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
-WIN : LayoutTests/fast/dom/anchor-toString.html = FAIL
 LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
