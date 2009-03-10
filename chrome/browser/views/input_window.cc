@@ -35,6 +35,7 @@ class ContentView : public views::View,
   virtual bool Accept();
   virtual bool Cancel();
   virtual void WindowClosing();
+  virtual void DeleteDelegate();
   virtual std::wstring GetWindowTitle() const;
   virtual bool IsModal() const { return true; }
   virtual views::View* GetContentsView();
@@ -90,6 +91,10 @@ bool ContentView::Cancel() {
 
 void ContentView::WindowClosing() {
   delegate_->WindowClosing();
+}
+
+void ContentView::DeleteDelegate() {
+  delegate_->DeleteDelegate();
 }
 
 std::wstring ContentView::GetWindowTitle() const {
