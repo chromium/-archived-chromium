@@ -54,7 +54,7 @@ class GlassBrowserFrameView : public BrowserNonClientFrameView {
   void PaintDistributorLogo(ChromeCanvas* canvas);
   void PaintToolbarBackground(ChromeCanvas* canvas);
   void PaintOTRAvatar(ChromeCanvas* canvas);
-  void PaintClientEdge(ChromeCanvas* canvas);
+  void PaintRestoredClientEdge(ChromeCanvas* canvas);
 
   // Layout various sub-components of this view.
   void LayoutDistributorLogo();

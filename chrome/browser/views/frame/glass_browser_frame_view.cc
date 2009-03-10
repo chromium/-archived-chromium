@@ -225,7 +225,8 @@ void GlassBrowserFrameView::Paint(ChromeCanvas* canvas) {
   PaintDistributorLogo(canvas);
   PaintToolbarBackground(canvas);
   PaintOTRAvatar(canvas);
-  PaintClientEdge(canvas);
+  if (!frame_->IsMaximized())
+    PaintRestoredClientEdge(canvas);
 }
 
 void GlassBrowserFrameView::Layout() {
@@ -238,16 +239,22 @@ void GlassBrowserFrameView::Layout() {
 // GlassBrowserFrameView, private:
 
 int GlassBrowserFrameView::FrameBorderThickness() const {
-  return GetSystemMetrics(SM_CXSIZEFRAME);
+  return browser_view_->CanCurrentlyResize() ?
+      GetSystemMetrics(SM_CXSIZEFRAME) : 0;
 }
 
 int GlassBrowserFrameView::NonClientBorderThickness() const {
-  return kNonClientBorderThickness;
+  return browser_view_->CanCurrentlyResize() ? kNonClientBorderThickness : 0;
 }
 
 int GlassBrowserFrameView::NonClientTopBorderHeight() const {
-  return FrameBorderThickness() +
-      (frame_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
+  if (browser_view_->IsFullscreen())
+    return 0;
+  // We'd like to use FrameBorderThickness() here, but the maximized Aero glass
+  // frame has a 0 frame border around most edges and a CXSIZEFRAME-thick border
+  // at the top (see AeroGlassFrame::OnGetMinMaxInfo()).
+  return GetSystemMetrics(SM_CXSIZEFRAME) +
+      (browser_view_->IsMaximized() ? 0 : kNonClientRestoredExtraThickness);
 }
 
 void GlassBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
@@ -295,7 +302,7 @@ void GlassBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
       otr_avatar_bounds_.width(), otr_avatar_bounds_.height(), false);
 }
 
-void GlassBrowserFrameView::PaintClientEdge(ChromeCanvas* canvas) {
+void GlassBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
   // The client edges start below the toolbar upper corner images regardless
   // of how tall the toolbar itself is.
   int client_area_top =

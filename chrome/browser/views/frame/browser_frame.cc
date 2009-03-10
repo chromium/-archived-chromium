@@ -119,22 +119,53 @@ LRESULT BrowserFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
   // We don't adjust the client area unless we're a tabbed browser window and
   // are using the native frame.
   if (!non_client_view_->UseNativeFrame() ||
-      !browser_view_->IsBrowserTypeNormal() || !mode) {
+      !browser_view_->IsBrowserTypeNormal()) {
     return Window::OnNCCalcSize(mode, l_param);
   }
 
-  // In fullscreen mode, we make the whole window client area.
-  if (!browser_view_->IsFullscreen()) {
-    NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param);
-    int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
-    params->rgrc[0].left += (border_thickness - kClientEdgeThickness);
-    params->rgrc[0].right -= (border_thickness - kClientEdgeThickness);
-    params->rgrc[0].bottom -= (border_thickness - kClientEdgeThickness);
+  RECT* client_rect = mode ?
+      &reinterpret_cast<NCCALCSIZE_PARAMS*>(l_param)->rgrc[0] :
+      reinterpret_cast<RECT*>(l_param);
+  int border_thickness = 0;
+  if (browser_view_->IsMaximized()) {
+    // Make the maximized mode client rect fit the screen exactly, by
+    // subtracting the border Windows automatically adds for maximized mode.
+    border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
+    // Find all auto-hide taskbars along the screen edges and adjust in by the
+    // thickness of the auto-hide taskbar on each such edge, so the window isn't
+    // treated as a "fullscreen app", which would cause the taskbars to
+    // disappear.
+    HMONITOR monitor = MonitorFromWindow(GetHWND(), MONITOR_DEFAULTTONEAREST);
+    if (win_util::EdgeHasAutoHideTaskbar(ABE_LEFT, monitor))
+      client_rect->left += win_util::kAutoHideTaskbarThicknessPx;
+    if (win_util::EdgeHasAutoHideTaskbar(ABE_RIGHT, monitor))
+      client_rect->right -= win_util::kAutoHideTaskbarThicknessPx;
+    if (win_util::EdgeHasAutoHideTaskbar(ABE_BOTTOM, monitor)) {
+      client_rect->bottom -= win_util::kAutoHideTaskbarThicknessPx;
+    } else if (win_util::EdgeHasAutoHideTaskbar(ABE_TOP, monitor)) {
+      // Tricky bit.  Due to a bug in DwmDefWindowProc()'s handling of
+      // WM_NCHITTEST, having any nonclient area atop the window causes the
+      // caption buttons to draw onscreen but not respond to mouse hover/clicks.
+      // So for a taskbar at the screen top, we can't push the client_rect->top
+      // down; instead, we move the bottom up by one pixel, which is the
+      // smallest change we can make and still get a client area less than the
+      // screen size. This is visibly ugly, but there seems to be no better
+      // solution.
+      --client_rect->bottom;
+    }
+  } else if (!browser_view_->IsFullscreen()) {
+    // We draw our own client edge over part of the default frame would be.
+    border_thickness = GetSystemMetrics(SM_CXSIZEFRAME) - kClientEdgeThickness;
   }
+  client_rect->left += border_thickness;
+  client_rect->right -= border_thickness;
+  client_rect->bottom -= border_thickness;
 
   UpdateDWMFrame();
 
-  SetMsgHandled(TRUE);
+  // We'd like to return WVR_REDRAW in some cases here, but because we almost
+  // always have nonclient area (except in fullscreen mode, where it doesn't
+  // matter), we can't.  See comments in window.cc:OnNCCalcSize() for more info.
   return 0;
 }
 
@@ -143,9 +174,8 @@ LRESULT BrowserFrame::OnNCHitTest(const CPoint& pt) {
   if (non_client_view_->UseNativeFrame()) {
     LRESULT result;
     if (DwmDefWindowProc(GetHWND(), WM_NCHITTEST, 0, MAKELPARAM(pt.x, pt.y),
-                         &result)) {
+                         &result))
       return result;
-    }
   }
   return Window::OnNCHitTest(pt);
 }
@@ -182,12 +212,16 @@ void BrowserFrame::UpdateDWMFrame() {
   // because the GDI-drawn text in the web content composited over it will
   // become semi-transparent over any glass area.
   MARGINS margins = { 0 };
-  if (!browser_view_->IsFullscreen()) {
+  if (browser_view_->CanCurrentlyResize()) {
     margins.cxLeftWidth = kClientEdgeThickness + 1;
     margins.cxRightWidth = kClientEdgeThickness + 1;
+    margins.cyBottomHeight = kClientEdgeThickness + 1;
+  }
+  // In maximized mode, we only have a titlebar strip of glass, no side/bottom
+  // borders.
+  if (!browser_view_->IsFullscreen()) {
     margins.cyTopHeight =
         GetBoundsForTabStrip(browser_view_->tabstrip()).bottom();
-    margins.cyBottomHeight = kClientEdgeThickness + 1;
   }
   DwmExtendFrameIntoClientArea(GetHWND(), &margins);
 }
