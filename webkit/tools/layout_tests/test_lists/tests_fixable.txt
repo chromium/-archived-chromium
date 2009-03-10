@@ -924,8 +924,7 @@ chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 // This is failing on the mac debug only, not sure why, but it's pretty repeatable on the bots, so we
 // go to the complexity to split out that one case to track any other changes for the other platforms.
 LINUX WIN : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
-MAC RELEASE : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
-MAC DEBUG : LayoutTests/http/tests/misc/dns-prefetch-control.html = FAIL
+MAC : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
 
 // NEW FOR MERGE 37604:38097
 // This is a Safari specific test used to document the set of global
@@ -1738,16 +1737,18 @@ LINUX MAC : pending/security/block-test.html = FAIL
 
 // Flakey. Not clear when it started, but it was before 3/9/09.
 LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH PASS
-WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
+DEFER WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
 
 // Timing out starting 03/10/09
 MAC : LayoutTests/fast/dom/navigator-detached-no-crash.html = PASS TIMEOUT
 
 // Added 3/10/09. 
-WIN : LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL PASS
-WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
-WIN DEBUG : LayoutTests/transitions/transition-end-event-attributes.html = FAIL PASS
+DEFER WIN : LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL PASS
+DEFER WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
+DEFER WIN : LayoutTests/transitions/transition-end-event-window.html = FAIL PASS
+DEFER WIN : LayoutTests/transitions/transition-end-event-attributes.html = FAIL PASS
+WIN : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/upload-onloadstart-event.html = TIMEOUT PASS
-MAC DEBUG : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT PASS
