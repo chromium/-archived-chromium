@@ -52,8 +52,6 @@
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/<(RULE_INPUT_ROOT).h',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT).rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/<(RULE_INPUT_ROOT).pak',
           ],
           'action': ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/chrome'],
         },
