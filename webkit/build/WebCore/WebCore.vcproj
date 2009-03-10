@@ -673,6 +673,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\CrossOriginAccessControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\CrossOriginAccessControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\CrossOriginPreflightResultCache.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\CrossOriginPreflightResultCache.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\DocLoader.cpp"
 				>
 			</File>
@@ -2109,14 +2125,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextCodecUTF16.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextDecoder.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextDecoder.h"
 					>
 				</File>
 				<File
@@ -3745,6 +3753,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\ScrollBehavior.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\ScrollBehavior.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\SVGCharacterLayoutInfo.cpp"
 				>
 			</File>
@@ -3790,14 +3806,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\SVGRootInlineBox.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\ScrollBehavior.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\ScrollBehavior.h"
 				>
 			</File>
 			<File
@@ -7434,6 +7442,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerContextProxy.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerImportScriptsClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\workers\WorkerImportScriptsClient.h"
 				>
 			</File>
 			<File
