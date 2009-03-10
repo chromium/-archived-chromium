@@ -9,6 +9,7 @@
 #include "base/path_service.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
+#include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
@@ -131,7 +132,6 @@ gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
 
 void BrowserWindowGtk::Init() {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-  gtk_window_set_title(window_, "Chromium");
   gtk_window_set_default_size(window_, 640, 480);
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(MainWindowDestroyed), this);
@@ -169,7 +169,11 @@ void BrowserWindowGtk::Init() {
   toolbar_->Init(browser_->profile(), accel_group);
   toolbar_->AddToolbarToBox(vbox_);
 
-  contents_container_.reset(new TabContentsContainerGtk());
+  find_bar_.reset(new FindBarGtk());
+
+  contents_container_.reset(new TabContentsContainerGtk(
+      find_bar_->gtk_widget()));
+
   contents_container_->AddContainerToBox(vbox_);
 
   // Note that calling this the first time is necessary to get the
@@ -180,10 +184,11 @@ void BrowserWindowGtk::Init() {
   status_bubble_.reset(new StatusBubbleGtk(window_));
 
   gtk_container_add(GTK_CONTAINER(window_), vbox_);
+  gtk_widget_show(vbox_);
 }
 
 void BrowserWindowGtk::Show() {
-  gtk_widget_show_all(GTK_WIDGET(window_));
+  gtk_widget_show(GTK_WIDGET(window_));
 }
 
 void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
@@ -306,7 +311,7 @@ void BrowserWindowGtk::ToggleBookmarkBar() {
 }
 
 void BrowserWindowGtk::ShowFindBar() {
-  NOTIMPLEMENTED();
+  find_bar_->Show();
 }
 
 void BrowserWindowGtk::ShowAboutChromeDialog() {
@@ -384,6 +389,8 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
   UpdateTitleBar();
   toolbar_->SetProfile(new_contents->profile());
   UpdateToolbar(new_contents, true);
+
+  find_bar_->ChangeWebContents(new_contents->AsWebContents());
 }
 
 void BrowserWindowGtk::TabStripEmpty() {

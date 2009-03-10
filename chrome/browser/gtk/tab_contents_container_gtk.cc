@@ -10,9 +10,12 @@
 #include "chrome/common/notification_service.h"
 
 
-TabContentsContainerGtk::TabContentsContainerGtk()
+TabContentsContainerGtk::TabContentsContainerGtk(GtkWidget* findbar)
     : tab_contents_(NULL),
       vbox_(gtk_vbox_new(FALSE, 0)) {
+  DCHECK(findbar);
+  gtk_box_pack_start(GTK_BOX(vbox_), findbar, FALSE, FALSE, 0);
+  gtk_widget_show(vbox_);
 }
 
 TabContentsContainerGtk::~TabContentsContainerGtk() {
@@ -44,7 +47,7 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
 
     gfx::NativeView widget = tab_contents_->GetNativeView();
     if (widget) {
-      gtk_box_pack_start(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
+      gtk_box_pack_end(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
       gtk_widget_show_all(widget);
     }
   }

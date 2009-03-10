@@ -133,6 +133,8 @@ void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
       l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
                             l10n_util::GetString(IDS_PRODUCT_NAME))));
   app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
+
+  gtk_widget_show_all(toolbar_);
 }
 
 void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {

@@ -746,6 +746,7 @@ if env.Bit('linux'):
       'gtk/custom_button.cc',
       'gtk/download_item_gtk.cc',
       'gtk/download_shelf_gtk.cc',
+      'gtk/find_bar_gtk.cc',
       'gtk/location_bar_view_gtk.cc',
       'gtk/menu_gtk.cc',
       'gtk/nine_box.cc',

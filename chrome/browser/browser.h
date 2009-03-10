@@ -295,12 +295,12 @@ class Browser : public TabStripModelDelegate,
   void Copy();
   void CopyCurrentPageURL();
   void Paste();
+#endif
 
   // Find-in-page
   void Find();
   void FindNext();
   void FindPrevious();
-#endif
 
   // Zoom
   void ZoomIn();
@@ -546,12 +546,10 @@ class Browser : public TabStripModelDelegate,
   // has not been set.
   GURL GetHomePage();
 
-#if defined(OS_WIN)
   // Shows the Find Bar, optionally selecting the next entry that matches the
   // existing search string for that Tab. |forward_direction| controls the
   // search direction.
   void FindInPage(bool find_next, bool forward_direction);
-#endif
 
   // Closes the frame.
   // TODO(beng): figure out if we need this now that the frame itself closes

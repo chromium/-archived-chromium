@@ -863,6 +863,7 @@ void Browser::Paste() {
   UserMetrics::RecordAction(L"Paste", profile_);
   ui_controls::SendKeyPress(L'V', true, false, false);
 }
+#endif  // #if defined(OS_WIN)
 
 void Browser::Find() {
   UserMetrics::RecordAction(L"Find", profile_);
@@ -878,7 +879,6 @@ void Browser::FindPrevious() {
   UserMetrics::RecordAction(L"FindPrevious", profile_);
   FindInPage(true, false);
 }
-#endif  // #if defined(OS_WIN)
 
 void Browser::ZoomIn() {
   UserMetrics::RecordAction(L"ZoomPlus", profile_);
@@ -1202,12 +1202,12 @@ void Browser::ExecuteCommand(int id) {
     case IDC_COPY:                  Copy();                        break;
     case IDC_COPY_URL:              CopyCurrentPageURL();          break;
     case IDC_PASTE:                 Paste();                       break;
+#endif
 
     // Find-in-page
     case IDC_FIND:                  Find();                        break;
     case IDC_FIND_NEXT:             FindNext();                    break;
     case IDC_FIND_PREVIOUS:         FindPrevious();                break;
-#endif
 
     // Zoom
     case IDC_ZOOM_PLUS:             ZoomIn();                      break;
@@ -2439,7 +2439,6 @@ GURL Browser::GetHomePage() {
   return home_page;
 }
 
-#if defined(OS_WIN)
 void Browser::FindInPage(bool find_next, bool forward_direction) {
   window_->ShowFindBar();
   if (find_next) {
@@ -2448,7 +2447,6 @@ void Browser::FindInPage(bool find_next, bool forward_direction) {
         forward_direction);
   }
 }
-#endif  // OS_WIN
 
 void Browser::CloseFrame() {
   window_->Close();
