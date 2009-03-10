@@ -1460,6 +1460,8 @@ void WebFrameImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
     GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
 #endif
     if (frame_->document() && frameview()) {
+      // TODO(eroman): See http://crbug.com/8630
+      // gc.clip(dirty_rect);
       frameview()->paint(&gc, dirty_rect);
       frame_->page()->inspectorController()->drawNodeHighlight(gc);
     } else {

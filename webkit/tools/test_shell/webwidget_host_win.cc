@@ -210,6 +210,11 @@ void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
 }
 
 void WebWidgetHost::Paint() {
+  PaintToCanvas();
+  PaintCanvasToView();
+}
+
+void WebWidgetHost::PaintToCanvas() {
   RECT r;
   GetClientRect(view_, &r);
   gfx::Rect client_rect(r);
@@ -251,8 +256,9 @@ void WebWidgetHost::Paint() {
     }
   }
   DCHECK(paint_rect_.IsEmpty());
+}
 
-  // Paint to the screen
+void WebWidgetHost::PaintCanvasToView() {
   PAINTSTRUCT ps;
   BeginPaint(view_, &ps);
   canvas_->getTopPlatformDevice().drawToHDC(ps.hdc,
@@ -263,6 +269,16 @@ void WebWidgetHost::Paint() {
 
   // Draw children
   UpdateWindow(view_);
+}
+
+void WebWidgetHost::DisplayForRepaint() {
+  PaintToCanvas();
+
+  // Paint a gray mask over everything for the repaint Layout tests.
+  const SkColor kMaskColor = SkColorSetARGB(168, 0, 0, 0);  // alpha=0.66
+  canvas_->drawColor(kMaskColor, SkPorterDuff::kSrcOver_Mode);
+
+  PaintCanvasToView();
 }
 
 void WebWidgetHost::Resize(LPARAM lparam) {
@@ -283,9 +299,9 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
       break;
     case WebInputEvent::MOUSE_DOWN:
       SetCapture(view_);
-      // This mimics a temporary workaround in RenderWidgetHostViewWin 
-      // for bug 765011 to get focus when the mouse is clicked. This 
-      // happens after the mouse down event is sent to the renderer 
+      // This mimics a temporary workaround in RenderWidgetHostViewWin
+      // for bug 765011 to get focus when the mouse is clicked. This
+      // happens after the mouse down event is sent to the renderer
       // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
       ::SetFocus(view_);
       break;

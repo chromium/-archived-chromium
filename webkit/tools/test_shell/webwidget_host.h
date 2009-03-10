@@ -46,7 +46,19 @@ class WebWidgetHost {
   void UpdatePaintRect(const gfx::Rect& rect);
   void Paint();
 
+  // Get the backing store.
+  skia::PlatformCanvas* canvas() const { return canvas_.get(); }
+
+  // Paint() the widget, and cover it with a gray mask (black with a=0.66).
+  void DisplayForRepaint();
+
  protected:
+  // Paint the widget into canvas_.
+  void PaintToCanvas();
+
+  // Blit |canvas_| to |view_|.
+  void PaintCanvasToView();
+
   WebWidgetHost();
   ~WebWidgetHost();
 

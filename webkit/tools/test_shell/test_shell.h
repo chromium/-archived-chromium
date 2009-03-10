@@ -209,9 +209,9 @@ public:
     // the flags set.
     static void Dump(TestShell* shell);
 
-    // Writes the image captured from the given web frame to the given file.
+    // Writes the image captured from the given web view to the given file.
     // The returned string is the ASCII-ized MD5 sum of the image.
-    static std::string DumpImage(WebFrame* web_frame,
+    static std::string DumpImage(WebViewHost* web_view_host,
                                  const std::wstring& file_name);
 
     static void ResetWebPreferences();
