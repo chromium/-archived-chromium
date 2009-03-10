@@ -12,6 +12,10 @@
 
 #include "chrome/common/temp_scaffolding_stubs.h"
 
+@interface WebContentsViewCocoa (Private)
+- (void)processKeyboardEvent:(NSEvent*)event;
+@end
+
 // static
 WebContentsView* WebContentsView::Create(WebContents* web_contents) {
   return new WebContentsViewMac(web_contents);
@@ -157,9 +161,7 @@ void WebContentsViewMac::TakeFocus(bool reverse) {
 
 void WebContentsViewMac::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
-  // The renderer returned a keyboard event it did not process. TODO(avi):
-  // Grab the NSEvent off |event| and feed it to the view.
-  NOTIMPLEMENTED();
+  [cocoa_view_.get() processKeyboardEvent:event.os_event];
 }
 
 void WebContentsViewMac::OnFindReply(int request_id,
@@ -242,6 +244,13 @@ void WebContentsViewMac::Observe(NotificationType type,
 }
 
 @implementation WebContentsViewCocoa
+
+- (void)processKeyboardEvent:(NSEvent*)event {
+  if ([event type] == NSKeyDown)
+    [super keyDown:event];
+  else if ([event type] == NSKeyUp)
+    [super keyUp:event];
+}
 
 // Tons of stuff goes here, where we grab events going on in Cocoaland and send
 // them into the C++ system. TODO(avi): all that jazz
