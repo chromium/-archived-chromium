@@ -404,4 +404,8 @@ const wchar_t kRendererCmdPrefix[]             = L"renderer-cmd-prefix";
 // can connect to a channel, provided it knows its name. For debugging purposes.
 const wchar_t kIPCUseFIFO[]                    = L"ipc-use-fifo";
 
+// If this flag is set open out of process developer tools window instead of
+// Console Debugger when user clicks "Debug JavaScript".
+const wchar_t kEnableOutOfProcessDevTools[]    = L"enable-oop-devtools";
+
 }  // namespace switches

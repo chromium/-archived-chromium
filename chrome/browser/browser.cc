@@ -938,12 +938,18 @@ void Browser::OpenDebuggerWindow() {
   UserMetrics::RecordAction(L"Debugger", profile_);
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab->AsWebContents()) {
-    // Only one debugger instance can exist at a time right now.
-    // TODO(erikkay): need an alert, dialog, something
-    // or better yet, fix the one instance limitation
-    if (!DebuggerWindow::DoesDebuggerExist())
-      debugger_window_ = new DebuggerWindow();
-    debugger_window_->Show(current_tab);
+    if (CommandLine::ForCurrentProcess()->HasSwitch(
+            switches::kEnableOutOfProcessDevTools)) {
+      WebContents* wc = current_tab->AsWebContents();
+      wc->view()->OpenDeveloperTools();
+    } else {
+      // Only one debugger instance can exist at a time right now.
+      // TODO(erikkay): need an alert, dialog, something
+      // or better yet, fix the one instance limitation
+      if (!DebuggerWindow::DoesDebuggerExist())
+        debugger_window_ = new DebuggerWindow();
+      debugger_window_->Show(current_tab);
+    }
   }
 #endif
 }

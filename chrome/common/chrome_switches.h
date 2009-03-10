@@ -154,6 +154,8 @@ extern const wchar_t kRendererCmdPrefix[];
 
 extern const wchar_t kIPCUseFIFO[];
 
+extern const wchar_t kEnableOutOfProcessDevTools[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__
