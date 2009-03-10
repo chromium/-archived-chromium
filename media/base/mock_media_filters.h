@@ -37,7 +37,6 @@ enum MockDataSourceBehavior {
 struct MockFilterConfig {
   MockFilterConfig()
       : data_source_behavior(MOCK_DATA_SOURCE_NORMAL_INIT),
-        data_source_value('!'),
         has_video(true),
         video_width(1280u),
         video_height(720u),
@@ -53,7 +52,6 @@ struct MockFilterConfig {
   }
 
   MockDataSourceBehavior data_source_behavior;
-  char data_source_value;
   bool has_video;
   size_t video_width;
   size_t video_height;
@@ -78,16 +76,7 @@ class MockDataSource : public DataSource {
 
   explicit MockDataSource(const MockFilterConfig* config)
       : config_(config),
-        position_(0),
-        deleted_(NULL) {
-  }
-
-  MockDataSource(const MockFilterConfig* config, bool* deleted)
-      : config_(config),
-        position_(0),
-        deleted_(deleted) {
-    EXPECT_TRUE(deleted);
-    EXPECT_FALSE(*deleted);
+        position_(0) {
   }
 
   // Implementation of MediaFilter.
@@ -132,7 +121,7 @@ class MockDataSource : public DataSource {
     if (size < read) {
       read = size;
     }
-    memset(data, config_->data_source_value, read);
+    memset(data, 0, read);
     return read;
   }
 
@@ -142,6 +131,8 @@ class MockDataSource : public DataSource {
   }
 
   virtual bool SetPosition(int64 position) {
+    EXPECT_GE(position, 0u);
+    EXPECT_LE(position, config_->media_total_bytes);
     if (position < 0u || position > config_->media_total_bytes) {
       return false;
     }
@@ -150,22 +141,12 @@ class MockDataSource : public DataSource {
   }
 
   virtual bool GetSize(int64* size_out) {
-    if (config_->media_total_bytes >= 0) {
-      *size_out = config_->media_total_bytes;
-      return true;
-    }
+    *size_out = config_->media_total_bytes;
     return false;
   }
 
-  // Simple position getter for unit testing.
-  int64 position() const { return position_; }
-
  private:
-  virtual ~MockDataSource() {
-    if (deleted_) {
-      *deleted_ = true;
-    }
-  }
+  virtual ~MockDataSource() {}
 
   void TaskBehavior() {
     switch (config_->data_source_behavior) {
@@ -184,10 +165,6 @@ class MockDataSource : public DataSource {
   const MockFilterConfig* config_;
   int64 position_;
   MediaFormat media_format_;
-
-  // Set to true inside the destructor.  Used in FFmpegGlue unit tests for
-  // testing proper reference counting.
-  bool* deleted_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDataSource);
 };
