@@ -60,10 +60,12 @@ def LocalChecks(input_api, output_api, max_cols=80):
      - contains a TAB
      - has a line that ends with whitespace
      - contains a line >|max_cols| cols unless |max_cols| is 0.
+     - File does not end in a newline, or ends in more than one.
 
   Note that the whole file is checked, not only the changes.
   """
   cr_files = []
+  eof_files = []
   results = []
   excluded_paths = [input_api.re.compile(x) for x in EXCLUDED_PATHS]
   files = input_api.AffectedFiles()
@@ -87,6 +89,10 @@ def LocalChecks(input_api, output_api, max_cols=80):
     contents = _ReadFile(path)
     if '\r' in contents:
       cr_files.append(path)
+
+    # Check that the file ends in one and only one newline character.
+    if len(contents) > 0 and (contents[-1:] != "\n" or contents[-2:-1] == "\n"):
+      eof_files.append(path)
 
     local_errors = []
     # Remove EOL character.
@@ -118,4 +124,8 @@ def LocalChecks(input_api, output_api, max_cols=80):
     results.append(output_api.PresubmitError(
         'Found CR (or CRLF) line ending in these files, please use only LF:',
         items=cr_files))
+  if eof_files:
+    results.append(output_api.PresubmitError(
+        'These files should end in one (and only one) newline character:',
+        items=eof_files))
   return results

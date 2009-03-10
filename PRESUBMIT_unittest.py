@@ -62,24 +62,24 @@ class PresubmitUnittest(unittest.TestCase):
       MockAffectedFile('foo/blat/source.py'),
     ]
     self.file_contents = 'file with \n\terror\nhere\r\nyes there'
-    # 3 source files, 2 errors by file + 1 global CR error.
-    self.failUnless(len(PRESUBMIT.LocalChecks(api, MockOutputApi)) == 7)
+    # 3 source files, 2 errors by file + 1 global CR  + 1 global EOF error.
+    self.failUnless(len(PRESUBMIT.LocalChecks(api, MockOutputApi)) == 8)
 
-    self.file_contents = 'file\twith\ttabs'
+    self.file_contents = 'file\twith\ttabs\n'
     # 3 source files, 1 error by file.
     self.failUnless(len(PRESUBMIT.LocalChecks(api, MockOutputApi)) == 3)
 
-    self.file_contents = 'file\rusing\rCRs'
+    self.file_contents = 'file\rusing\rCRs\n'
     # One global CR error.
     self.failUnless(len(PRESUBMIT.LocalChecks(api, MockOutputApi)) == 1)
     self.failUnless(
       len(PRESUBMIT.LocalChecks(api, MockOutputApi)[0].items) == 3)
 
-    self.file_contents = 'both\ttabs and\r\nCRLF'
+    self.file_contents = 'both\ttabs and\r\nCRLF\n'
     # 3 source files, 1 error by file + 1 global CR error.
     self.failUnless(len(PRESUBMIT.LocalChecks(api, MockOutputApi)) == 4)
 
-    self.file_contents = 'file with\nzero \\t errors \\r\\n'
+    self.file_contents = 'file with\nzero \\t errors \\r\\n\n'
     self.failIf(PRESUBMIT.LocalChecks(api, MockOutputApi))
 
 
