@@ -167,7 +167,8 @@ STR GetSpecificHeaderT(const STR& headers, const STR& name) {
 // TODO(jungshik): We have almost identical hex-decoding code else where.
 // Consider refactoring and moving it somewhere(base?). Bug 1224311
 inline bool IsHexDigit(unsigned char c) {
-  return (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'));
+  return (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') ||
+          ('a' <= c && c <= 'f'));
 }
 
 inline unsigned char HexToInt(unsigned char c) {
@@ -564,7 +565,8 @@ bool IsIDNComponentSafe(const char16* str,
     // rebuilt with the minimal subset of locale data for languages
     // to which Chrome is not localized but which we offer in the list
     // of languages selectable for Accept-Languages. With the rebuilt ICU
-    // data, ulocdata_open never should fall back to the default locale. (issue 2078)
+    // data, ulocdata_open never should fall back to the default locale.
+    // (issue 2078)
     // DCHECK(U_SUCCESS(status) && status != U_USING_DEFAULT_WARNING);
     if (U_SUCCESS(status) && status != U_USING_DEFAULT_WARNING) {
       // Should we use auxiliary set, instead?

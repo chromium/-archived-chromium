@@ -343,7 +343,8 @@ class MockProxyScriptFetcher : public net::ProxyScriptFetcher {
   std::string* pending_request_bytes_;
 };
 
-// Template specialization so MockProxyScriptFetcher does not have to be refcounted.
+// Template specialization so MockProxyScriptFetcher does not have to be
+// refcounted.
 template<>
 void RunnableMethodTraits<MockProxyScriptFetcher>::RetainCallee(
     MockProxyScriptFetcher* remover) {}
@@ -922,4 +923,3 @@ TEST(ProxyServiceTest, CancelWhilePACFetching) {
   EXPECT_EQ("pac-v1.request3:80",
             result3->GetProxyInfo().proxy_server().ToURI());
 }
-

@@ -24,15 +24,24 @@ protected:
 
 private:
   enum TelnetInputState {
-    NOT_IN_IAC_OR_ESC_SEQUENCE,  // Currently not processing any IAC or ESC sequence.
-    EXPECTING_NEW_LINE,  // Received carriage return (CR) expecting new line (LF).
-    EXPECTING_COMMAND,  // Processing IAC expecting command.
-    EXPECTING_OPTION,  // Processing IAC expecting option.
-    SUBNEGOTIATION_EXPECTING_IAC,  // Inside subnegoation IAC,SE will end it.
-    SUBNEGOTIATION_EXPECTING_SE,  // Ending subnegoation expecting SE.
-    EXPECTING_FIRST_ESC_CHARACTER,  // Processing ESC sequence.
-    EXPECTING_SECOND_ESC_CHARACTER,  // Processing ESC sequence with two characters
-    EXPECTING_NUMBER_SEMICOLON_OR_END  // Processing "ESC [" sequence.
+    // Currently not processing any IAC or ESC sequence.
+    NOT_IN_IAC_OR_ESC_SEQUENCE,
+    // Received carriage return (CR) expecting new line (LF).
+    EXPECTING_NEW_LINE,
+    // Processing IAC expecting command.
+    EXPECTING_COMMAND,
+    // Processing IAC expecting option.
+    EXPECTING_OPTION,
+    // Inside subnegoation IAC,SE will end it.
+    SUBNEGOTIATION_EXPECTING_IAC,
+    // Ending subnegoation expecting SE.
+    SUBNEGOTIATION_EXPECTING_SE,
+    // Processing ESC sequence.
+    EXPECTING_FIRST_ESC_CHARACTER,
+    // Processing ESC sequence with two characters.
+    EXPECTING_SECOND_ESC_CHARACTER,
+    // Processing "ESC [" sequence.
+    EXPECTING_NUMBER_SEMICOLON_OR_END
   };
 
   TelnetServer(SOCKET s, ListenSocketDelegate* del);
@@ -50,4 +59,3 @@ private:
 };
 
 #endif // BASE_TELNET_SERVER_H_
-

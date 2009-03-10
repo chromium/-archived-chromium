@@ -139,8 +139,8 @@ class Label : public View {
   // it is returned instead.
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
 
-  // Mouse enter/exit are overridden to render mouse over background color. These
-  // invoke SetContainsMouse as necessary.
+  // Mouse enter/exit are overridden to render mouse over background color.
+  // These invoke SetContainsMouse as necessary.
   virtual void OnMouseMoved(const MouseEvent& e);
   virtual void OnMouseEntered(const MouseEvent& event);
   virtual void OnMouseExited(const MouseEvent& event);

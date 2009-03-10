@@ -157,11 +157,12 @@ def VerifyDependents(pe_name, dependents, delay_loaded, list_file, verbose):
   except:
     raise Error("Failed to load " + list_file)
 
-  # The dependency files have dependencies in two section - dependents and delay_loaded
-  # Also various distributions of Chromium can have different dependencies. So first
-  # we read generic dependencies ("dependents" and "delay_loaded"). If distribution
-  # specific dependencies exist (i.e. "dependents_google_chrome" and
-  # "delay_loaded_google_chrome") we use those instead.
+  # The dependency files have dependencies in two section - dependents and
+  # delay_loaded. Also various distributions of Chromium can have different
+  # dependencies. So first we read generic dependencies ("dependents" and
+  # "delay_loaded"). If distribution specific dependencies exist
+  # (i.e. "dependents_google_chrome" and "delay_loaded_google_chrome") we use
+  # those instead.
   distribution = DIST_DEFAULT
   if DIST_ENV_VAR in os.environ.keys():
     distribution = os.environ[DIST_ENV_VAR].lower()
@@ -222,4 +223,3 @@ if '__main__' == __name__:
   if len(args) != 2:
     option_parser.error("Incorrect number of arguments")
   sys.exit(main(options, args))
-

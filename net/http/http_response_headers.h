@@ -226,8 +226,8 @@ class HttpResponseHeaders :
                                   std::string::const_iterator line_end);
 
   // Tries to extract the status line from a header block, given the first
-  // line of said header block.  If the status line is malformed, we'll construct
-  // a valid one.  Example input:
+  // line of said header block.  If the status line is malformed, we'll
+  // construct a valid one.  Example input:
   //    HTTP/1.1 200 OK
   // with line_begin and end pointing at the begin and end of this line.
   // Output will be a normalized version of this, with a trailing \n.

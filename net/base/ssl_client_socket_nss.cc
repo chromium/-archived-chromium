@@ -400,7 +400,8 @@ int SSLClientSocketNSS::DoLoop(int last_io_result) {
       int nreceived = BufferRecv();
       network_moved = (nsent > 0 || nreceived >= 0);
     }
-  } while ((rv != ERR_IO_PENDING || network_moved) && next_state_ != STATE_NONE);
+  } while ((rv != ERR_IO_PENDING || network_moved) &&
+            next_state_ != STATE_NONE);
   LeaveFunction("");
   return rv;
 }
@@ -585,4 +586,3 @@ int SSLClientSocketNSS::DoPayloadWrite() {
 }
 
 }  // namespace net
-

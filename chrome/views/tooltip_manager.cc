@@ -290,7 +290,8 @@ void TooltipManager::TrimTooltipToFit(std::wstring* text,
   gfx::Point screen_loc(position_x, position_y);
   View::ConvertPointToScreen(widget_->GetRootView(), &screen_loc);
   gfx::Rect monitor_bounds =
-      win_util::GetMonitorBoundsForRect(gfx::Rect(screen_loc.x(), screen_loc.y(),
+      win_util::GetMonitorBoundsForRect(gfx::Rect(screen_loc.x(),
+                                                  screen_loc.y(),
                                                   0, 0));
   RECT tooltip_margin;
   SendMessage(window, TTM_GETMARGIN, 0, (LPARAM)&tooltip_margin);

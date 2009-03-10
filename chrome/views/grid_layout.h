@@ -136,7 +136,7 @@ class GridLayout : public LayoutManager {
   // As a convenience this adds the view to the host. The view becomes owned
   // by the host, and NOT this GridLayout.
   void AddView(View* view, int col_span, int row_span, Alignment h_align,
-	             Alignment v_align);
+               Alignment v_align);
 
   // Adds a view with the specified alignment and spans. If
   // pref_width/pref_height is > 0 then the preferred width/height of the view

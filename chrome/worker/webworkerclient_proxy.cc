@@ -47,7 +47,8 @@ void WebWorkerClientProxy::PostConsoleMessageToWorkerObject(
       route_id_, destination, source, level,message, line_number, source_url));
 }
 
-void WebWorkerClientProxy::ConfirmMessageFromWorkerObject(bool has_pending_activity) {
+void WebWorkerClientProxy::ConfirmMessageFromWorkerObject(
+    bool has_pending_activity) {
   Send(new WorkerHostMsg_ConfirmMessageFromWorkerObject(
       route_id_, has_pending_activity));
 }

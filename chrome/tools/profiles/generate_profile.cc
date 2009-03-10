@@ -120,8 +120,8 @@ void InsertURLBatch(const std::wstring& profile_dir, int page_id,
   PageTransition::Type transition = PageTransition::TYPED;
   const int end_page_id = page_id + batch_size;
   for (; page_id < end_page_id; ++page_id) {
-    // Randomly decide whether this new URL simulates following a link or whether
-    // it's a jump to a new URL.
+    // Randomly decide whether this new URL simulates following a link or
+    // whether it's a jump to a new URL.
     if (!previous_url.is_empty() && RandomFloat() < kFollowLinkProbability) {
       transition = PageTransition::LINK;
     } else {

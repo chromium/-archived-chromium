@@ -636,7 +636,8 @@ TEST(HttpResponseHeadersTest, GetMimeType) {
   for (size_t i = 0; i < arraysize(tests); ++i) {
     string headers(tests[i].raw_headers);
     HeadersToRaw(&headers);
-    scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
+    scoped_refptr<HttpResponseHeaders> parsed =
+        new HttpResponseHeaders(headers);
 
     std::string value;
     EXPECT_EQ(tests[i].has_mimetype, parsed->GetMimeType(&value));
@@ -762,7 +763,8 @@ TEST(HttpResponseHeadersTest, RequiresValidation) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     string headers(tests[i].headers);
     HeadersToRaw(&headers);
-    scoped_refptr<HttpResponseHeaders> parsed = new HttpResponseHeaders(headers);
+    scoped_refptr<HttpResponseHeaders> parsed =
+        new HttpResponseHeaders(headers);
 
     bool requires_validation =
         parsed->RequiresValidation(request_time, response_time, current_time);

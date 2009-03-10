@@ -79,7 +79,8 @@ MouseEvent::MouseEvent(const MouseEvent& model, View* from, View* to)
 
 int KeyEvent::GetKeyStateFlags() const {
   // Windows Keyboard messages don't come with control key state as parameters
-  // like mouse messages do, so we need to explicitly probe for these key states.
+  // like mouse messages do, so we need to explicitly probe for these key
+  // states.
   int flags = 0;
   if (GetKeyState(VK_MENU) & 0x80)
     flags |= Event::EF_ALT_DOWN;

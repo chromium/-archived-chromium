@@ -168,14 +168,14 @@ static int memio_buffer_put(struct memio_buffer *mb, const char *buf, int n)
         transferred += len;
 
         /* Handle part after wrap */
-	len = PR_MIN(n, memio_buffer_unused_contiguous(mb));
-	if (len > 0) {
+        len = PR_MIN(n, memio_buffer_unused_contiguous(mb));
+        if (len > 0) {
             /* Output buffer still not full, input buffer still not empty */
-	    memcpy(&mb->buf[mb->tail], buf, len);
-	    mb->tail += len;
+            memcpy(&mb->buf[mb->tail], buf, len);
+            mb->tail += len;
             if (mb->tail == mb->bufsize)
                 mb->tail = 0;
-	    transferred += len;
+                transferred += len;
         }
     }
 
@@ -201,13 +201,13 @@ static int memio_buffer_get(struct memio_buffer *mb, char *buf, int n)
         transferred += len;
 
         /* Handle part after wrap */
-	len = PR_MIN(n, memio_buffer_used_contiguous(mb));
-	if (len) {
-	    memcpy(buf, &mb->buf[mb->head], len);
-	    mb->head += len;
+        len = PR_MIN(n, memio_buffer_used_contiguous(mb));
+        if (len) {
+        memcpy(buf, &mb->buf[mb->head], len);
+        mb->head += len;
             if (mb->head == mb->bufsize)
                 mb->head = 0;
-	    transferred += len;
+                transferred += len;
         }
     }
 
@@ -429,7 +429,7 @@ void memio_PutReadResult(memio_Private *secret, int bytes_read)
     if (bytes_read > 0) {
         mb->tail += bytes_read;
         if (mb->tail == mb->bufsize)
-	    mb->tail = 0;
+            mb->tail = 0;
     } else if (bytes_read == 0) {
         /* Record EOF condition and report to caller when buffer runs dry */
         ((PRFilePrivate *)secret)->eof = PR_TRUE;
@@ -472,8 +472,8 @@ void memio_PutWriteResult(memio_Private *secret, int bytes_written)
 
 #define CHECKEQ(a, b) { \
     if ((a) != (b)) { \
-	printf("%d != %d, Test failed line %d\n", a, b, __LINE__); \
-	exit(1); \
+        printf("%d != %d, Test failed line %d\n", a, b, __LINE__); \
+        exit(1); \
     } \
 }
 

@@ -115,18 +115,28 @@ TEST(Escape, UnescapeURLComponent) {
     {"%%%%%%", UnescapeRule::NORMAL, "%%%%%%"},
     {"Don't escape anything", UnescapeRule::NORMAL, "Don't escape anything"},
     {"Invalid %escape %2", UnescapeRule::NORMAL, "Invalid %escape %2"},
-    {"Some%20random text %25%3bOK", UnescapeRule::NORMAL, "Some%20random text %25;OK"},
-    {"Some%20random text %25%3bOK", UnescapeRule::SPACES, "Some random text %25;OK"},
-    {"Some%20random text %25%3bOK", UnescapeRule::URL_SPECIAL_CHARS, "Some%20random text %;OK"},
-    {"Some%20random text %25%3bOK", UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS, "Some random text %;OK"},
+    {"Some%20random text %25%3bOK", UnescapeRule::NORMAL,
+     "Some%20random text %25;OK"},
+    {"Some%20random text %25%3bOK", UnescapeRule::SPACES,
+     "Some random text %25;OK"},
+    {"Some%20random text %25%3bOK", UnescapeRule::URL_SPECIAL_CHARS,
+     "Some%20random text %;OK"},
+    {"Some%20random text %25%3bOK",
+     UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS,
+     "Some random text %;OK"},
     {"%A0%B1%C2%D3%E4%F5", UnescapeRule::NORMAL, "\xA0\xB1\xC2\xD3\xE4\xF5"},
     {"%Aa%Bb%Cc%Dd%Ee%Ff", UnescapeRule::NORMAL, "\xAa\xBb\xCc\xDd\xEe\xFf"},
     // Certain URL-sensitive characters should not be unescaped unless asked.
-    {"Hello%20%13%10world %23# %3F? %3D= %26& %25% %2B+", UnescapeRule::SPACES, "Hello %13%10world %23# %3F? %3D= %26& %25% %2B+"},
-    {"Hello%20%13%10world %23# %3F? %3D= %26& %25% %2B+", UnescapeRule::URL_SPECIAL_CHARS, "Hello%20%13%10world ## ?? == && %% ++"},
+    {"Hello%20%13%10world %23# %3F? %3D= %26& %25% %2B+", UnescapeRule::SPACES,
+     "Hello %13%10world %23# %3F? %3D= %26& %25% %2B+"},
+    {"Hello%20%13%10world %23# %3F? %3D= %26& %25% %2B+",
+     UnescapeRule::URL_SPECIAL_CHARS,
+     "Hello%20%13%10world ## ?? == && %% ++"},
     // Control characters.
-    {"%01%02%03%04%05%06%07%08%09 %25", UnescapeRule::URL_SPECIAL_CHARS, "%01%02%03%04%05%06%07%08%09 %"},
-    {"%01%02%03%04%05%06%07%08%09 %25", UnescapeRule::CONTROL_CHARS, "\x01\x02\x03\x04\x05\x06\x07\x08\x09 %25"},
+    {"%01%02%03%04%05%06%07%08%09 %25", UnescapeRule::URL_SPECIAL_CHARS,
+     "%01%02%03%04%05%06%07%08%09 %"},
+    {"%01%02%03%04%05%06%07%08%09 %25", UnescapeRule::CONTROL_CHARS,
+     "\x01\x02\x03\x04\x05\x06\x07\x08\x09 %25"},
     {"Hello%20%13%10%02", UnescapeRule::SPACES, "Hello %13%10%02"},
     {"Hello%20%13%10%02", UnescapeRule::CONTROL_CHARS, "Hello%20\x13\x10\x02"},
   };
@@ -221,5 +231,3 @@ TEST(Escape, EscapeForHTML) {
     EXPECT_EQ(std::string(tests[i].expected_output), result);
   }
 }
-
-

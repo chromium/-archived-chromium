@@ -408,8 +408,14 @@ class WidgetWin : public Widget,
   virtual LRESULT OnMouseWheel(UINT flags, short distance, const CPoint& point);
   virtual LRESULT OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCActivate(BOOL active) { SetMsgHandled(FALSE); return 0; }
-  virtual LRESULT OnNCCalcSize(BOOL w_param, LPARAM l_param) { SetMsgHandled(FALSE); return 0; }
-  virtual LRESULT OnNCHitTest(const CPoint& pt) { SetMsgHandled(FALSE); return 0; }
+  virtual LRESULT OnNCCalcSize(BOOL w_param, LPARAM l_param) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
+  virtual LRESULT OnNCHitTest(const CPoint& pt) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
   virtual void OnNCLButtonDblClk(UINT flags, const CPoint& point);
   virtual void OnNCLButtonDown(UINT flags, const CPoint& point);
   virtual void OnNCLButtonUp(UINT flags, const CPoint& point);

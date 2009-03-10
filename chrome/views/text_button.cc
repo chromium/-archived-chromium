@@ -86,40 +86,55 @@ void TextButtonBorder::Paint(const View& view, ChromeCanvas* canvas) const {
     canvas->DrawBitmapInt(*set->top_left, 0, 0);
 
     // Tile the top image
-    canvas->TileImageInt(*set->top,
-                          set->top_left->width(), 0,
-                          bounds.width() - set->top_right->width() - set->top_left->width(),
-                          set->top->height());
+    canvas->TileImageInt(
+        *set->top,
+        set->top_left->width(),
+        0,
+        bounds.width() - set->top_right->width() - set->top_left->width(),
+        set->top->height());
 
     // Draw the top right image
     canvas->DrawBitmapInt(*set->top_right,
                           bounds.width() - set->top_right->width(), 0);
 
     // Tile the left image
-    canvas->TileImageInt(*set->left,
-                         0, set->top_left->height(),
-                         set->top_left->width(),
-                         bounds.height() - set->top->height() - set->bottom_left->height());
+    canvas->TileImageInt(
+        *set->left,
+        0,
+        set->top_left->height(),
+        set->top_left->width(),
+        bounds.height() - set->top->height() - set->bottom_left->height());
 
     // Tile the center image
-    canvas->TileImageInt(*set->center,
-                         set->left->width(), set->top->height(),
-                         bounds.width() - set->right->width() - set->left->width(),
-                         bounds.height() - set->bottom->height() - set->top->height());
+    canvas->TileImageInt(
+        *set->center,
+        set->left->width(),
+        set->top->height(),
+        bounds.width() - set->right->width() - set->left->width(),
+        bounds.height() - set->bottom->height() - set->top->height());
 
     // Tile the right image
-    canvas->TileImageInt(*set->right,
-                         bounds.width() - set->right->width(), set->top_right->height(),
-                         bounds.width(), bounds.height() - set->bottom_right->height() - set->top_right->height());
+    canvas->TileImageInt(
+        *set->right,
+        bounds.width() - set->right->width(),
+        set->top_right->height(),
+        bounds.width(),
+        bounds.height() - set->bottom_right->height() -
+            set->top_right->height());
 
     // Draw the bottom left image
-    canvas->DrawBitmapInt(*set->bottom_left, 0, bounds.height() - set->bottom_left->height());
+    canvas->DrawBitmapInt(*set->bottom_left,
+                          0,
+                          bounds.height() - set->bottom_left->height());
 
     // Tile the bottom image
-    canvas->TileImageInt(*set->bottom,
-                          set->bottom_left->width(), bounds.height() - set->bottom->height(),
-                          bounds.width() - set->bottom_right->width() - set->bottom_left->width(),
-                          set->bottom->height());
+    canvas->TileImageInt(
+        *set->bottom,
+        set->bottom_left->width(),
+        bounds.height() - set->bottom->height(),
+        bounds.width() - set->bottom_right->width() -
+            set->bottom_left->width(),
+        set->bottom->height());
 
     // Draw the bottom right image
     canvas->DrawBitmapInt(*set->bottom_right,

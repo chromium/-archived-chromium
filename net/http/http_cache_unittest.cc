@@ -820,7 +820,8 @@ static void ETagGet_ConditionalRequest_Handler(
     std::string* response_status,
     std::string* response_headers,
     std::string* response_data) {
-  EXPECT_TRUE(request->extra_headers.find("If-None-Match") != std::string::npos);
+  EXPECT_TRUE(request->extra_headers.find("If-None-Match") !=
+                  std::string::npos);
   response_status->assign("HTTP/1.1 304 Not Modified");
   response_headers->assign(kETagGET_Transaction.response_headers);
   response_data->clear();
@@ -957,7 +958,8 @@ TEST(HttpCache, RangeGET_SkipsCache) {
   EXPECT_EQ(0, cache.disk_cache()->open_count());
   EXPECT_EQ(0, cache.disk_cache()->create_count());
 
-  transaction.request_headers = "If-Modified-Since: Wed, 28 Nov 2007 00:45:20 GMT";
+  transaction.request_headers =
+      "If-Modified-Since: Wed, 28 Nov 2007 00:45:20 GMT";
   RunTransactionTest(cache.http_cache(), transaction);
 
   EXPECT_EQ(3, cache.network_layer()->transaction_count());

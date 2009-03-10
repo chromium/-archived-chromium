@@ -332,7 +332,8 @@ static bool SniffXML(const char* content, size_t size, std::string* result) {
       // Skip XML declarations.
       ++pos;
       continue;
-    } else if (base::strncasecmp(pos, "<!DOCTYPE", sizeof("<!DOCTYPE")-1) == 0) {
+    } else if (base::strncasecmp(pos, "<!DOCTYPE",
+                                 sizeof("<!DOCTYPE")-1) == 0) {
       // Skip DOCTYPE declarations.
       ++pos;
       continue;

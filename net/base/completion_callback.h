@@ -19,7 +19,8 @@ class CompletionCallbackImpl :
     public CallbackImpl< T, void (T::*)(int), Tuple1<int> > {
  public:
   CompletionCallbackImpl(T* obj, void (T::* meth)(int))
-    : CallbackImpl< T, void (T::*)(int), Tuple1<int> >::CallbackImpl(obj, meth) {
+    : CallbackImpl< T, void (T::*)(int),
+                    Tuple1<int> >::CallbackImpl(obj, meth) {
   }
 };
 
@@ -56,4 +57,3 @@ class CancelableCompletionCallback :
 }  // namespace net
 
 #endif  // NET_BASE_COMPLETION_CALLBACK_H__
-

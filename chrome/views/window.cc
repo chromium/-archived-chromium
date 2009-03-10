@@ -233,7 +233,8 @@ void Window::UpdateWindowTitle() {
 }
 
 void Window::UpdateWindowIcon() {
-  // If the non-client view is rendering its own icon, we need to tell it to repaint.
+  // If the non-client view is rendering its own icon, we need to tell it to
+  // repaint.
   non_client_view_->SchedulePaint();
 
   // Update the native frame's icon. We do this regardless of whether or not
@@ -697,18 +698,18 @@ void Window::OnNCLButtonDown(UINT ht_component, const CPoint& point) {
       case HTCLOSE:
       case HTMINBUTTON:
       case HTMAXBUTTON: {
-        // When the mouse is pressed down in these specific non-client areas, we
-        // need to tell the RootView to send the mouse pressed event (which sets
-        // capture, allowing subsequent WM_LBUTTONUP (note, _not_ WM_NCLBUTTONUP)
-        // to fire so that the appropriate WM_SYSCOMMAND can be sent by the
-        // applicable button's ButtonListener. We _have_ to do this this way
-        // rather than letting Windows just send the syscommand itself (as would
-        // happen if we never did this dance) because for some insane reason
-        // DefWindowProc for WM_NCLBUTTONDOWN also renders the pressed window
-        // control button appearance, in the Windows classic style, over our
-        // view! Ick! By handling this message we prevent Windows from doing this
-        // undesirable thing, but that means we need to roll the sys-command
-        // handling ourselves.
+        // When the mouse is pressed down in these specific non-client areas,
+        // we need to tell the RootView to send the mouse pressed event (which
+        // sets capture, allowing subsequent WM_LBUTTONUP (note, _not_
+        // WM_NCLBUTTONUP) to fire so that the appropriate WM_SYSCOMMAND can be
+        // sent by the applicable button's ButtonListener. We _have_ to do this
+        // way rather than letting Windows just send the syscommand itself (as
+        // would happen if we never did this dance) because for some insane
+        // reason DefWindowProc for WM_NCLBUTTONDOWN also renders the pressed
+        // window control button appearance, in the Windows classic style, over
+        // our view! Ick! By handling this message we prevent Windows from
+        // doing this undesirable thing, but that means we need to roll the
+        // sys-command handling ourselves.
         ProcessNCMousePress(point, MK_LBUTTON);
         return;
       }

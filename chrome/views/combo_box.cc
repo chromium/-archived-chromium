@@ -51,8 +51,8 @@ gfx::Size ComboBox::GetPreferredSize() {
   // to the corner of rcItem.  It does not seem to be queryable from the theme.
   // It is consistent on all versions of Windows from 2K to Vista, and is
   // invariant with respect to the combobox border size.  We could conceivably
-  // get this number from rect_item.x, but it seems fragile to depend on position
-  // here, inside of the layout code.
+  // get this number from rect_item.x, but it seems fragile to depend on
+  // position here, inside of the layout code.
   const int kItemOffset = 3;
   int item_to_button_distance = std::max(kItemOffset - border.width(), 0);
 

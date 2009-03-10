@@ -155,7 +155,7 @@ bool MimeUtil::GetMimeTypeFromFile(const FilePath& file_path,
 
 // From WebKit's WebCore/platform/MIMETypeRegistry.cpp:
 
-static const char* supported_image_types[] = {
+static const char* const supported_image_types[] = {
   "image/jpeg",
   "image/jpg",
   "image/png",
@@ -166,7 +166,7 @@ static const char* supported_image_types[] = {
 };
 
 // Note: does not include javascript types list (see supported_javascript_types)
-static const char* supported_non_image_types[] = {
+static const char* const supported_non_image_types[] = {
   "text/html",
   "text/xml",
   "text/xsl",
@@ -181,12 +181,16 @@ static const char* supported_non_image_types[] = {
 };
 
 //  Mozilla 1.8 and WinIE 7 both accept text/javascript and text/ecmascript.
-//  Mozilla 1.8 accepts application/javascript, application/ecmascript, and application/x-javascript, but WinIE 7 doesn't.
-//  WinIE 7 accepts text/javascript1.1 - text/javascript1.3, text/jscript, and text/livescript, but Mozilla 1.8 doesn't.
+//  Mozilla 1.8 accepts application/javascript, application/ecmascript, and
+// application/x-javascript, but WinIE 7 doesn't.
+//  WinIE 7 accepts text/javascript1.1 - text/javascript1.3, text/jscript, and
+// text/livescript, but Mozilla 1.8 doesn't.
 //  Mozilla 1.8 allows leading and trailing whitespace, but WinIE 7 doesn't.
-//  Mozilla 1.8 and WinIE 7 both accept the empty string, but neither accept a whitespace-only string.
-//  We want to accept all the values that either of these browsers accept, but not other values.
-static const char* supported_javascript_types[] = {
+//  Mozilla 1.8 and WinIE 7 both accept the empty string, but neither accept a
+// whitespace-only string.
+//  We want to accept all the values that either of these browsers accept, but
+// not other values.
+static const char* const supported_javascript_types[] = {
   "text/javascript",
   "text/ecmascript",
   "application/javascript",
@@ -199,7 +203,7 @@ static const char* supported_javascript_types[] = {
   "text/livescript"
 };
 
-static const char* view_source_types[] = {
+static const char* const view_source_types[] = {
   "text/xml",
   "text/xsl",
   "application/xml",
@@ -333,4 +337,3 @@ bool MatchesMimeType(const std::string &mime_type_pattern,
 }
 
 }  // namespace net
-

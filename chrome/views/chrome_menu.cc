@@ -1428,7 +1428,8 @@ void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
                            height() };
     gutter_bounds.right = gutter_bounds.left + gutter_width;
     AdjustBoundsForRTLUI(&gutter_bounds);
-    NativeTheme::instance()->PaintMenuGutter(dc, MENU_POPUPGUTTER, MPI_NORMAL, &gutter_bounds);
+    NativeTheme::instance()->PaintMenuGutter(dc, MENU_POPUPGUTTER, MPI_NORMAL,
+                                             &gutter_bounds);
   }
 
   // Render the background.
@@ -1474,7 +1475,8 @@ void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
   int default_sys_color = render_selection ? COLOR_HIGHLIGHTTEXT :
       (IsEnabled() ? COLOR_MENUTEXT : COLOR_GRAYTEXT);
   SkColor fg_color = NativeTheme::instance()->GetThemeColorWithDefault(
-      NativeTheme::MENU, MENU_POPUPITEM, state, TMT_TEXTCOLOR, default_sys_color);
+      NativeTheme::MENU, MENU_POPUPITEM, state, TMT_TEXTCOLOR,
+      default_sys_color);
   int width = this->width() - item_right_margin - label_start;
   ChromeFont& font = GetRootMenuItem()->font_;
   gfx::Rect text_bounds(label_start, top_margin, width, font.height());
@@ -1506,8 +1508,12 @@ void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
 
   if (HasSubmenu()) {
     int state_id = IsEnabled() ? MSM_NORMAL : MSM_DISABLED;
-    RECT arrow_bounds = { this->width() - item_right_margin + kLabelToArrowPadding,
-                          0, 0, height() };
+    RECT arrow_bounds = {
+        this->width() - item_right_margin + kLabelToArrowPadding,
+        0,
+        0,
+        height()
+    };
     arrow_bounds.right = arrow_bounds.left + arrow_width;
     AdjustBoundsForRTLUI(&arrow_bounds);
 

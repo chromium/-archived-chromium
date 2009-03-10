@@ -221,7 +221,8 @@ class BitmapScrollBarThumb : public View {
   // Returns the bitmap that is rendered in the middle of the thumb
   // transparently over the background bitmap.
   SkBitmap* grippy_bitmap() const {
-    return scroll_bar_->images_[BitmapScrollBar::THUMB_GRIPPY][BaseButton::BS_NORMAL];
+    return scroll_bar_->images_[BitmapScrollBar::THUMB_GRIPPY]
+        [BaseButton::BS_NORMAL];
   }
 
   // Update our state and schedule a repaint when the mouse moves over us.

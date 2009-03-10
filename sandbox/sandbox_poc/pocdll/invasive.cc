@@ -172,7 +172,9 @@ BOOL CALLBACK EnumWindowCallback(HWND hwnd, LPARAM output) {
     wchar_t window_title[100 + 1] = {0};
     ::GetWindowText(hwnd, window_title, 100);
     fprintf(reinterpret_cast<FILE*>(output),
-            "[GRANTED] Found window 0x%p with title %S\r\n", hwnd, window_title);
+            "[GRANTED] Found window 0x%p with title %S\r\n",
+            hwnd,
+            window_title);
     ::CloseWindow(hwnd);
   }
 
@@ -192,4 +194,3 @@ void POCDLL_API TestCloseHWND(HANDLE log) {
   // before returning.
   ::Sleep(3000);
 }
-

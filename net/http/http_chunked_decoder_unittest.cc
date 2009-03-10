@@ -32,7 +32,9 @@ void RunTest(const char* inputs[], size_t num_inputs,
 }
 
 // Feed the inputs to the decoder, until it returns an error.
-void RunTestUntilFailure(const char* inputs[], size_t num_inputs, size_t fail_index) {
+void RunTestUntilFailure(const char* inputs[],
+                         size_t num_inputs,
+                         size_t fail_index) {
   net::HttpChunkedDecoder decoder;
   EXPECT_FALSE(decoder.reached_eof());
 
@@ -264,4 +266,3 @@ TEST(HttpChunkedDecoderTest, InvalidConsecutiveCRLFs) {
   };
   RunTestUntilFailure(inputs, arraysize(inputs), 1);
 }
-

@@ -45,15 +45,22 @@ class BitmapScrollBar : public ScrollBar,
 
   // A list of parts that the user may supply bitmaps for.
   enum ScrollBarPart {
-    PREV_BUTTON = 0,    // The button used to represent scrolling up/left by 1 line.
-    NEXT_BUTTON,        // The button used to represent scrolling down/right by 1 line.
-                        // IMPORTANT: The code assumes the prev and next
-                        // buttons have equal width and equal height.
-    THUMB_START_CAP,    // The top/left segment of the thumb on the scrollbar.
-    THUMB_MIDDLE,       // The tiled background image of the thumb.
-    THUMB_END_CAP,      // The bottom/right segment of the thumb on the scrollbar.
-    THUMB_GRIPPY,       // The grippy that is rendered in the center of the thumb.
-    THUMB_TRACK,        // The tiled background image of the thumb track.
+    // The button used to represent scrolling up/left by 1 line.
+    PREV_BUTTON = 0,
+    // The button used to represent scrolling down/right by 1 line.
+    // IMPORTANT: The code assumes the prev and next
+    // buttons have equal width and equal height.
+    NEXT_BUTTON,
+    // The top/left segment of the thumb on the scrollbar.
+    THUMB_START_CAP,
+    // The tiled background image of the thumb.
+    THUMB_MIDDLE,
+    // The bottom/right segment of the thumb on the scrollbar.
+    THUMB_END_CAP,
+    // The grippy that is rendered in the center of the thumb.
+    THUMB_GRIPPY,
+    // The tiled background image of the thumb track.
+    THUMB_TRACK,
     PART_COUNT
   };
 

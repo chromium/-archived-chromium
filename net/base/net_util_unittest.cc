@@ -116,16 +116,22 @@ TEST(NetUtilTest, FileURLConversion) {
   const FileCase round_trip_cases[] = {
 #if defined(OS_WIN)
     {L"C:\\foo\\bar.txt", L"file:///C:/foo/bar.txt"},
-    {L"\\\\some computer\\foo\\bar.txt", L"file://some%20computer/foo/bar.txt"}, // UNC
-    {L"D:\\Name;with%some symbols*#", L"file:///D:/Name%3Bwith%25some%20symbols*%23"},
-    {L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc", L"file:///D:/Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91%E9%A1%B5.doc"},
+    {L"\\\\some computer\\foo\\bar.txt",
+     L"file://some%20computer/foo/bar.txt"}, // UNC
+    {L"D:\\Name;with%some symbols*#",
+     L"file:///D:/Name%3Bwith%25some%20symbols*%23"},
+    {L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc",
+     L"file:///D:/Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91"
+         L"%E9%A1%B5.doc"},
 #elif defined(OS_POSIX)
     {L"/foo/bar.txt", L"file:///foo/bar.txt"},
     {L"/foo/BAR.txt", L"file:///foo/BAR.txt"},
     {L"/C:/foo/bar.txt", L"file:///C:/foo/bar.txt"},
     {L"/some computer/foo/bar.txt", L"file:///some%20computer/foo/bar.txt"},
     {L"/Name;with%some symbols*#", L"file:///Name%3Bwith%25some%20symbols*%23"},
-    {L"/Chinese/\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc", L"file:///Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91%E9%A1%B5.doc"},
+    {L"/Chinese/\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc",
+     L"file:///Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD"
+         L"%91%E9%A1%B5.doc"},
 #endif
   };
 
@@ -184,11 +190,14 @@ TEST(NetUtilTest, FileURLConversion) {
   // Here, we test that UTF-8 encoded strings get decoded properly, even when
   // they might be stored with wide characters.  On posix systems, just treat
   // this as a stream of bytes.
-  const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
+  const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8"
+                         L"\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
 #if defined(OS_WIN)
-  const wchar_t wide[] = L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
+  const wchar_t wide[] =
+      L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
 #elif defined(OS_POSIX)
-  const wchar_t wide[] = L"/d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
+  const wchar_t wide[] = L"/d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6"
+                         L"\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
 #endif
   EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF8(utf8)), &output));
   EXPECT_EQ(std::wstring(wide), output);
@@ -220,7 +229,8 @@ const wchar_t* google_headers =
     L"Transfer-Encoding: chunked\n"
     L"Set-Cookie: HEHE_AT=6666x66beef666x6-66xx6666x66; Path=/mail\n"
     L"Set-Cookie: HEHE_HELP=owned:0;Path=/\n"
-    L"Set-Cookie: S=gmail=Xxx-beefbeefbeef_beefb:gmail_yj=beefbeef000beefbeefbee:gmproxy=bee-fbeefbe; Domain=.google.com; Path=/\n"
+    L"Set-Cookie: S=gmail=Xxx-beefbeefbeef_beefb:gmail_yj=beefbeef000beefbee"
+        L"fbee:gmproxy=bee-fbeefbe; Domain=.google.com; Path=/\n"
     L"X-Google-Google2: /one/two/three/four/five/six/seven-height/nine:9411\n"
     L"Server: GFE/1.3\n"
     L"Transfer-Encoding: chunked\n"
@@ -303,7 +313,8 @@ TEST(NetUtilTest, GetFileNameFromCD) {
     {"content-disposition: name=abcde.pdf", L"abcde.pdf"},
     {"content-disposition: inline; filename=\"abc%20de.pdf\"", L"abc de.pdf"},
     // Whitespaces are converted to a space.
-    {"content-disposition: inline; filename=\"abc  \t\nde.pdf\"", L"abc    de.pdf"},
+    {"content-disposition: inline; filename=\"abc  \t\nde.pdf\"",
+     L"abc    de.pdf"},
     // %-escaped UTF-8
     {"Content-Disposition: attachment; filename=\"%EC%98%88%EC%88%A0%20"
      "%EC%98%88%EC%88%A0.jpg\"", L"\xc608\xc220 \xc608\xc220.jpg"},
@@ -583,8 +594,10 @@ TEST(NetUtilTest, IDNToUnicode) {
       false, false, false, false, false,
       false}},
     // One that's really long that will force a buffer realloc
-    {"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-     L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    {"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+         "aaaaaaa",
+     L"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+         L"aaaaaaaa",
      {true,  true,  true,  true,  true,
       true,  true,  true,  true,  true,
       true,  true,  true,  true,  true,
@@ -775,7 +788,8 @@ TEST(NetUtilTest, GetDirectoryListingEntry) {
      false,
      10000,
      base::Time(),
-     "<script>addRow(\"quo\\\"tes\",\"quo%22tes\",0,\"9.8 kB\",\"\");</script>\n"},
+     "<script>addRow(\"quo\\\"tes\",\"quo%22tes\",0,\"9.8 kB\",\"\");</script>"
+         "\n"},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {

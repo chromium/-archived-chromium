@@ -72,16 +72,22 @@ class URLRequestFtpJob : public URLRequestInetJob {
   virtual void ContinueNotifyHeadersComplete();
 
   typedef enum {
-    START = 0x200,          // initial state of the ftp job
-    CONNECTING,             // opening the url
-    SETTING_CUR_DIRECTORY,  // attempting to change current dir to match request
-    FINDING_FIRST_FILE,     // retrieving first file information in cur dir (by
-                            // FtpFindFirstFile)
-    GETTING_DIRECTORY,      // retrieving the directory listing (if directory)
-    GETTING_FILE_HANDLE,    // initiate access to file by call to FtpOpenFile
-                            // (if file).
-    GETTING_FILE,           // retrieving the file (if file)
-    DONE                    // URLRequestInetJob is reading the response now
+    // Initial state of the ftp job.
+    START = 0x200,
+    // Opening the url.
+    CONNECTING,
+    // Attempting to change current dir to match request.
+    SETTING_CUR_DIRECTORY,
+    // Retrieving first file information in cur dir (by FtpFindFirstFile).
+    FINDING_FIRST_FILE,
+    // Retrieving the directory listing (if directory).
+    GETTING_DIRECTORY,
+    // Initiate access to file by call to FtpOpenFile (if file).
+    GETTING_FILE_HANDLE,
+    // Retrieving the file (if file).
+    GETTING_FILE,
+    // URLRequestInetJob is reading the response now.
+    DONE
   } FtpJobState;
 
   // The FtpJob has several asynchronous operations which happen
@@ -108,4 +114,3 @@ class URLRequestFtpJob : public URLRequestInetJob {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_FTP_JOB_H_
-

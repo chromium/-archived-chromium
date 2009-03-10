@@ -387,9 +387,11 @@ TEST_F(GridLayoutTest, FixedSize) {
   for (int i = 0; i < column_count; ++i) {
     for (int row = 0; row < row_count; ++row) {
       View* view = host.GetChildViewAt(row * column_count + i);
-      ExpectViewBoundsEquals(2 + title_width * i + (title_width - pref_width) / 2,
-                             2 + pref_height * row,
-                             pref_width, pref_height, view);
+      ExpectViewBoundsEquals(
+          2 + title_width * i + (title_width - pref_width) / 2,
+          2 + pref_height * row,
+          pref_width,
+          pref_height, view);
     }
   }
 

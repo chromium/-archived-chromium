@@ -248,7 +248,9 @@ gfx::Size NativeScrollBar::GetPreferredSize() {
   return gfx::Size(GetLayoutSize(), 0);
 }
 
-void NativeScrollBar::Update(int viewport_size, int content_size, int current_pos) {
+void NativeScrollBar::Update(int viewport_size,
+                             int content_size,
+                             int current_pos) {
   ScrollBar::Update(viewport_size, content_size, current_pos);
   if (!sb_container_)
     return;

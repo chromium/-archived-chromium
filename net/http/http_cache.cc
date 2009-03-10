@@ -320,7 +320,8 @@ class HttpCache::Transaction
   uint64 final_upload_progress_;
   CompletionCallbackImpl<Transaction> network_info_callback_;
   CompletionCallbackImpl<Transaction> network_read_callback_;
-  scoped_refptr<CancelableCompletionCallback<Transaction> > cache_read_callback_;
+  scoped_refptr<CancelableCompletionCallback<Transaction> >
+      cache_read_callback_;
 };
 
 HttpCache::Transaction::~Transaction() {
@@ -1458,4 +1459,3 @@ void HttpCache::OnProcessPendingQueue(ActiveEntry* entry) {
 //-----------------------------------------------------------------------------
 
 }  // namespace net
-

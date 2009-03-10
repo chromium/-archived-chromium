@@ -12,7 +12,8 @@
 #include "WebKit.h"
 
 WorkerThread::WorkerThread()
-    : ChildThread(base::Thread::Options(MessageLoop::TYPE_DEFAULT, kV8StackSize)) {
+    : ChildThread(base::Thread::Options(MessageLoop::TYPE_DEFAULT,
+                                        kV8StackSize)) {
 }
 
 WorkerThread::~WorkerThread() {

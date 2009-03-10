@@ -236,11 +236,13 @@ bool ServiceResolverThunk::IsFunctionAService(void* local_thunk) const {
       // able to patch a buffer in memory, so target_ is not inside ntdll.
       module_2 = ntdll_base_;
     } else {
-      if (!GetModuleHandleHelper(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-                                    GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                                 reinterpret_cast<const wchar_t*>(target_),
-                                 &module_2))
+      if (!GetModuleHandleHelper(
+              GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                  GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+              reinterpret_cast<const wchar_t*>(target_),
+              &module_2)) {
         return false;
+      }
     }
 
     if (module_1 != module_2)
@@ -397,4 +399,3 @@ bool Win2kResolverThunk::IsFunctionAService(void* local_thunk) const {
 }
 
 }  // namespace sandbox
-

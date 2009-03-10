@@ -72,7 +72,8 @@ TEST(DataURLTest, Parse) {
       "kk",
       "boo" },
 
-    { "data:text/html,%3Chtml%3E%3Cbody%3E%3Cb%3Ehello%20world%3C%2Fb%3E%3C%2Fbody%3E%3C%2Fhtml%3E",
+    { "data:text/html,%3Chtml%3E%3Cbody%3E%3Cb%3Ehello%20world"
+          "%3C%2Fb%3E%3C%2Fbody%3E%3C%2Fhtml%3E",
       true,
       "text/html",
       "US-ASCII",
@@ -123,7 +124,8 @@ TEST(DataURLTest, Parse) {
     // In base64 encoding, escaped whitespace should be stripped.
     // (This test was taken from acid3)
     // http://b/1054495
-    { "data:text/javascript;base64,%20ZD%20Qg%0D%0APS%20An%20Zm91cic%0D%0A%207%20",
+    { "data:text/javascript;base64,%20ZD%20Qg%0D%0APS%20An%20Zm91cic%0D%0A%207"
+          "%20",
       true,
       "text/javascript",
       "US-ASCII",
@@ -154,4 +156,3 @@ TEST(DataURLTest, Parse) {
     }
   }
 }
-
