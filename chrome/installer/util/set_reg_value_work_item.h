@@ -74,4 +74,3 @@ class SetRegValueWorkItem : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_SET_REG_VALUE_WORK_ITEM_H__
-

@@ -63,4 +63,3 @@ void ExternalFocusTracker::StartTracking() {
 }
 
 }  // namespace views
-

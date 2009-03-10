@@ -321,5 +321,3 @@ class TaskManagerTableModel : public views::GroupTableModel,
 };
 
 #endif  // CHROME_BROWSER_TASK_MANAGER_H_
-
-

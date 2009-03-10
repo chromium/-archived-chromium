@@ -68,4 +68,3 @@ class UserDataDirDialog : public views::DialogDelegate,
 };
 
 #endif // CHROME_BROWSER_USER_DATA_DIR_DIALOG_H__
-

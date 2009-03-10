@@ -222,4 +222,3 @@ class DownloadItemView : public views::NativeButton::Listener,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_DOWNLOAD_ITEM_VIEW_H__
-

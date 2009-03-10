@@ -192,4 +192,3 @@ KEYBD_KEYS GetKeybdKeysVal(BSTR str) {
   // No key found.
   return KEY_INVALID;
 }
-

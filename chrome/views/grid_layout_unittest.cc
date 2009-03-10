@@ -511,4 +511,3 @@ TEST_F(GridLayoutTest, FixedViewHeight) {
   layout->Layout(&host);
   ExpectViewBoundsEquals(0, 0, 30, 10, view);
 }
-

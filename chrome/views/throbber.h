@@ -109,4 +109,3 @@ class CheckmarkThrobber : public Throbber {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_THROBBER_H_
-

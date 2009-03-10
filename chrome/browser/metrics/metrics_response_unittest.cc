@@ -106,5 +106,3 @@ TEST(MetricsResponseTest, ParseBogusResponse) {
     EXPECT_FALSE(response.valid());
   }
 }
-
-

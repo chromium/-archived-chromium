@@ -337,4 +337,3 @@ std::wstring ProfileManager::CanonicalizeID(const std::wstring& id) {
   TrimWhitespace(id, TRIM_ALL, &no_whitespace);
   return StringToLowerASCII(no_whitespace);
 }
-

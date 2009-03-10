@@ -313,4 +313,3 @@ TEST_F(CacheManagerHostTest, AddToStrategyTest) {
   h->Remove(kRendererID);
   h->Remove(kRendererID2);
 }
-

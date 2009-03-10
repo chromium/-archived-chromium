@@ -307,4 +307,3 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_SAVE_PACKAGE_H_
-

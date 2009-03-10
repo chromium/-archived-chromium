@@ -64,4 +64,3 @@ class GoButton : public views::ToggleButton {
 };
 
 #endif  // CHROME_BROWSER_VIEWS_GO_BUTTON_H__
-

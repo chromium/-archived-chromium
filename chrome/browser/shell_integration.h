@@ -25,4 +25,3 @@ class ShellIntegration {
 };
 
 #endif  // CHROME_BROWSER_SHELL_INTEGRATION_H__
-

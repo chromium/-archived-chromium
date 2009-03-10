@@ -101,4 +101,3 @@ class FirefoxProfileLock {
 };
 
 #endif  // CHROME_BROWSER_IMPORTER_FIREFOX_PROFILE_LOCK_H__
-

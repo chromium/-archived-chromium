@@ -133,4 +133,3 @@ InitStatus ArchivedDatabase::EnsureCurrentVersion() {
   return INIT_OK;
 }
 }  // namespace history
-

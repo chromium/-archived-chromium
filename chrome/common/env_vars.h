@@ -20,4 +20,3 @@ extern const wchar_t kNoOOBreakpad[];
 }  // namespace env_vars
 
 #endif  // CHROME_COMMON_ENV_VARS_H__
-

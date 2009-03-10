@@ -127,4 +127,3 @@ TEST(MetricsLogTest, CreateHash) {
     EXPECT_EQ(cases[i].output, hash_hex);
   }
 };
-

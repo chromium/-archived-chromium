@@ -153,4 +153,3 @@ class AutomationResourceTracker : public NotificationObserver,
 };
 
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_RESOURCE_TRACKER_H__
-

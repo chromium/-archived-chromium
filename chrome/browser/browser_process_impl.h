@@ -255,4 +255,3 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
 };
 
 #endif  // CHROME_BROWSER_BROWSER_PROCESS_IMPL_H__
-

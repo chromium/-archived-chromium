@@ -49,4 +49,3 @@ class Source : public NotificationSource {
 };
 
 #endif  // CHROME_COMMON_NOTIFICATION_SOURCE_H__
-

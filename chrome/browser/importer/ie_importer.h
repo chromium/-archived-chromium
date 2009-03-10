@@ -85,4 +85,3 @@ class IEImporter : public Importer {
 };
 
 #endif  // CHROME_BROWSER_IMPORTER_IE_IMPORTER_H_
-

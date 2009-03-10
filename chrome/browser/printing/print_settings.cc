@@ -177,4 +177,3 @@ int PrintSettings::NewCookie() {
 }
 
 }  // namespace printing
-

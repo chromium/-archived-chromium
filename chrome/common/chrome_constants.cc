@@ -71,4 +71,3 @@ const bool kRecordModeEnabled = false;
 #endif
 
 }  // namespace chrome
-

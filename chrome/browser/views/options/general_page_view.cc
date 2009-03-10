@@ -1087,4 +1087,3 @@ void GeneralPageView::SetDefaultSearchProvider() {
   default_search_engines_model_->model()->SetDefaultSearchProvider(
       default_search_engines_model_->GetTemplateURLAt(index));
 }
-

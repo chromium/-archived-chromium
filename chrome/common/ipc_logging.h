@@ -111,4 +111,3 @@ class Logging : public base::WaitableEventWatcher::Delegate,
 #endif // IPC_MESSAGE_LOG_ENABLED
 
 #endif  // CHROME_COMMON_IPC_LOGGING_H_
-

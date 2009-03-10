@@ -102,4 +102,3 @@ bool ShouldReplaceThumbnailWith(const ThumbnailScore& current,
   return current.boring_score >= ThumbnailScore::kThumbnailMaximumBoringness &&
       replacement.boring_score < ThumbnailScore::kThumbnailMaximumBoringness;
 }
-

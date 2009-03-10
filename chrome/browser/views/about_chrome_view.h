@@ -175,4 +175,3 @@ class AboutChromeView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_ABOUT_CHROME_VIEW_H_
-

@@ -29,4 +29,3 @@ std::wstring GetLocalizedEulaResource();
 }  // namespace installer_util.
 
 #endif  // CHROME_INSTALLER_UTIL_L10N_STRING_UTIL_H_
-

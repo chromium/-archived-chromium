@@ -160,4 +160,3 @@ class WindowDelegate {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_WINDOW_DELEGATE_H_
-

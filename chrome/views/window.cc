@@ -1157,4 +1157,3 @@ void Window::InitClass() {
 }
 
 }  // namespace views
-

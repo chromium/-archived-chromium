@@ -31,4 +31,3 @@ void calc_favicon_target_size(int* width, int* height) {
 }
 
 #endif // CHROME_COMMON_GFX_FAVICON_SIZE_H__
-

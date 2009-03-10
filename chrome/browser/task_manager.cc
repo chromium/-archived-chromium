@@ -1099,4 +1099,3 @@ views::View* TaskManager::GetContentsView() {
 TaskManager* TaskManager::GetInstance() {
   return Singleton<TaskManager>::get();
 }
-

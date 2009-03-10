@@ -77,4 +77,3 @@ class ComboBox : public NativeControl {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_COMBO_BOX_H__
-

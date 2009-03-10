@@ -92,4 +92,3 @@ class EulaHTMLDialog {
 }  // namespace installer
 
 #endif  // CHROME_INSTALLER_UTIL_HTML_DIALOG_H_
-

@@ -28,4 +28,3 @@ class WindowResources {
 }  // namespace views
 
 #endif  // CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_
-

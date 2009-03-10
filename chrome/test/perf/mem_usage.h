@@ -41,4 +41,3 @@ size_t GetSystemCommitCharge();
 // Get and print memory usage information for running chrome processes.
 void PrintChromeMemoryUsageInfo();
 #endif  // CHROME_TEST_PERF_MEM_USAGE_H__
-

@@ -95,4 +95,3 @@ class MenuButton : public TextButton {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_MENU_BUTTON_H__
-

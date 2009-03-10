@@ -494,4 +494,3 @@ class AutomatedUITest : public UITest {
 };
 
 #endif  // CHROME_TEST_AUTOMATED_UI_TESTS_AUTOMATED_UI_TESTS_H_
-

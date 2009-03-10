@@ -49,4 +49,3 @@ class ScopedVector {
 };
 
 #endif // CHROME_BROWSER_COMMON_SCOPED_VECTOR_H__
-

@@ -241,4 +241,3 @@ void ShowOptionsWindow(OptionsPage page,
   }
   instance_->ShowOptionsPage(page, highlight_group);
 }
-

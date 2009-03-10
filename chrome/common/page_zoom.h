@@ -20,4 +20,3 @@ class PageZoom {
 };
 
 #endif  // CHROME_COMMON_PAGE_ZOOM_H_
-

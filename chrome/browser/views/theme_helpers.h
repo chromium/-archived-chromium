@@ -27,4 +27,3 @@ void GetRebarGradientColors(int width, int x1, int x2,
 void GetDarkLineColor(SkColor* dark_color);
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_THEME_HELPERS_H__
-

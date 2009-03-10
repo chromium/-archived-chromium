@@ -76,4 +76,3 @@ class DevToolsView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_DEBUGGER_DEV_TOOLS_VIEW_H_
-

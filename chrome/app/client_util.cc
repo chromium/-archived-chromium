@@ -92,4 +92,3 @@ void GetExecutablePath(wchar_t* exe_path) {
 }
 
 }  // namespace client_util
-

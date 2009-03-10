@@ -67,4 +67,3 @@ HANDLE GetMessageBoxEvent(HWND hwnd);
 #endif  // defined(OS_WIN)
 
 #endif  // CHROME_PLUGIN_NPOBJECT_UTIL_H__
-

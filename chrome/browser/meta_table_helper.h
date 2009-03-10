@@ -84,4 +84,3 @@ class MetaTableHelper {
 };
 
 #endif  // CHROME_BROWSER_META_TABLE_HELPER_H__
-

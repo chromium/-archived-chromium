@@ -23,4 +23,3 @@ enum TabContentsType {
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_TYPE_H__
-

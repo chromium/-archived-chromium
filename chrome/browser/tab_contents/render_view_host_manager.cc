@@ -551,4 +551,3 @@ void RenderViewHostManager::CrossSiteNavigationCanceled() {
   if (pending_render_view_host_)
     CancelPendingRenderView();
 }
-

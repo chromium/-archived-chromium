@@ -191,4 +191,3 @@ class IconUtil {
 };
 
 #endif  // CHROME_COMMON_ICON_UTIL_H__
-

@@ -60,4 +60,3 @@ BOOL __declspec(dllexport) __cdecl RunPluginTests(int *test_count) {
   SECURITY_CHECK(TestOpenWriteFile(L"%SystemRoot%\\Cursors\\arrow_i.cur"));
   return TRUE;
 }
-

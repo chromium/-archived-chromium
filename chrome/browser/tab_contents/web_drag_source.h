@@ -54,4 +54,3 @@ class WebDragSource : public BaseDragSource {
 };
 
 #endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_DRAG_SOURCE_H_
-

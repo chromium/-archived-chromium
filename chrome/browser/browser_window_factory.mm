@@ -17,4 +17,3 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
       [[BrowserWindowController alloc] initWithBrowser:browser];
   return [controller browserWindow];
 }
-

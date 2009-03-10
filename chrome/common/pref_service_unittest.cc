@@ -403,4 +403,3 @@ TEST_F(PrefServiceTest, HasPrefPath) {
   prefs.persistent_->SetString(path, L"blah");
   EXPECT_TRUE(prefs.HasPrefPath(path));
 }
-

@@ -198,4 +198,3 @@ bool Unzip(const FilePath& zip_path, const FilePath& dest_dir,
   unzClose(zip_file);
   return ret;
 }
-

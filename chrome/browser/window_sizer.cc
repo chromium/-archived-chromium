@@ -372,4 +372,3 @@ void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
     bounds->set_width(work_area.width() - 2 * kWindowTilePixels);
   }
 }
-

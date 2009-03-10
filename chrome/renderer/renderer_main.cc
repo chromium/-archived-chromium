@@ -111,4 +111,3 @@ int RendererMain(const MainFunctionParams& parameters) {
   platform.PlatformUninitialize();
   return 0;
 }
-

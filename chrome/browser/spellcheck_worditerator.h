@@ -181,4 +181,3 @@ class SpellcheckWordIterator {
 };
 
 #endif  // CHROME_BROWSER_SPELLCHECK_WORDITERATOR_H__
-

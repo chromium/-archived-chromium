@@ -262,4 +262,3 @@ void TabbedPane::ResizeContents(HWND tab_control) {
 }
 
 }  // namespace views
-

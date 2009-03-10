@@ -306,4 +306,3 @@ class URLDatabase {
 }  // history
 
 #endif  // CHROME_BROWSER_HISTORY_URL_DATABASE_H__
-

@@ -169,4 +169,3 @@ void CheckmarkThrobber::InitClass() {
 SkBitmap* CheckmarkThrobber::checkmark_ = NULL;
 
 }  // namespace views
-

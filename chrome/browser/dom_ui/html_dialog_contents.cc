@@ -75,4 +75,3 @@ void HtmlDialogContents::OnDialogClosed(const Value* content) {
   if (delegate_)
     delegate_->OnDialogClosed(GetJsonResponse(content));
 }
-

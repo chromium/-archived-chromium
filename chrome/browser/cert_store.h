@@ -79,4 +79,3 @@ class CertStore : public NotificationObserver {
 };
 
 #endif  // CHROME_BROWSER_CERT_STORE_H_
-

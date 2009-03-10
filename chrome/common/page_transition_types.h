@@ -149,4 +149,3 @@ class PageTransition {
 };
 
 #endif  // CHROME_COMMON_PAGE_TRANSITION_TYPES_H__
-

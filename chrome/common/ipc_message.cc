@@ -122,4 +122,3 @@ void Message::EnsureFileDescriptorSet() {
 #endif
 
 }  // namespace IPC
-

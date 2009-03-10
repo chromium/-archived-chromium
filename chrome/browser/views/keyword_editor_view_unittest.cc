@@ -142,4 +142,3 @@ TEST_F(KeywordEditorViewTest, MutateTemplateURLModel) {
   ASSERT_EQ(1, table_model()->RowCount());
   ASSERT_EQ(0, table_model()->IndexOfTemplateURL(turl));
 }
-

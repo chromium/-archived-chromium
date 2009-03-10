@@ -7,4 +7,3 @@
 int main(int argc, char **argv) {
   return ReliabilityTestSuite(argc, argv).Run();
 }
-

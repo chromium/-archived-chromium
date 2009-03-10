@@ -133,4 +133,3 @@ bool WorkItemList::AddSetRegValueWorkItem(HKEY predefined_root,
                                         value_data, overwrite));
   return AddWorkItem(item);
 }
-

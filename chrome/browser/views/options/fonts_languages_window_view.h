@@ -67,4 +67,3 @@ class FontsLanguagesWindowView : public views::View,
 };
 
 #endif  // #ifndef CHROME_BROWSER_FONTS_LANGUAGE_WINDOW_H__
-

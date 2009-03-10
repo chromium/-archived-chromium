@@ -209,4 +209,3 @@ class JobEventDetails : public base::RefCountedThreadSafe<JobEventDetails> {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PRINT_JOB_H_
-

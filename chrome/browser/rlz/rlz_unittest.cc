@@ -65,4 +65,3 @@ TEST(RlzLibTest, CleanProductEvents) {
   EXPECT_TRUE(RLZTracker::ClearAllProductEvents(RLZTracker::CHROME));
   EXPECT_FALSE(CleanValue(kKeyName, kEvent1));
 }
-

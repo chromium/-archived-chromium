@@ -203,4 +203,3 @@ void FirstRunView::CustomizeAccepted() {
 void FirstRunView::CustomizeCanceled() {
   UserMetrics::RecordAction(L"FirstRunCustom_Cancel", profile_);
 }
-

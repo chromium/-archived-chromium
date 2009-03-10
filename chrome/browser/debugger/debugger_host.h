@@ -40,4 +40,3 @@ class DebuggerHost : public base::RefCountedThreadSafe<DebuggerHost> {
 };
 
 #endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_HOST_H_
-

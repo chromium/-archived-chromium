@@ -20,4 +20,3 @@ const wchar_t kInstallSourceChromeDir[] = L"Chrome-bin";
 const wchar_t kMediaPlayerRegPath[] =
     L"Software\\Microsoft\\MediaPlayer\\ShimInclusionList";
 }  // namespace installer
-

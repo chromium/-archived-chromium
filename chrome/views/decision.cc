@@ -150,4 +150,3 @@ void Option::ButtonPressed(NativeButton* sender) {
 }
 
 }  // namespace views
-

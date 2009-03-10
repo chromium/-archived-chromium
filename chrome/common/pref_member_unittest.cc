@@ -189,4 +189,3 @@ TEST(PrefMemberTest, NoInit) {
   // Make sure not calling Init on a PrefMember doesn't cause problems.
   IntegerPrefMember pref;
 }
-

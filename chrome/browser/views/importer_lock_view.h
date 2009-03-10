@@ -44,4 +44,3 @@ class ImporterLockView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_IMPORTER_LOCK_VIEW_H__
-

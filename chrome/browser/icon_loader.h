@@ -127,4 +127,3 @@ class IconLoader {
 };
 
 #endif  // CHROME_BROWSER_ICON_LOADER_H__
-

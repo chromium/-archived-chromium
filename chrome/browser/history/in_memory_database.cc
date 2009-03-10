@@ -100,4 +100,3 @@ SqliteStatementCache& InMemoryDatabase::GetStatementCache() {
 }
 
 }  // namespace history
-

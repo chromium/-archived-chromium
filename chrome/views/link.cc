@@ -182,4 +182,3 @@ HCURSOR Link::GetCursorForPoint(Event::EventType event_type, int x, int y) {
 }
 
 }  // namespace views
-

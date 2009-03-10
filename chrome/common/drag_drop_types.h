@@ -21,4 +21,3 @@ class DragDropTypes {
 };
 
 #endif  // CHROME_COMMON_DRAG_DROP_TYPES_H_
-

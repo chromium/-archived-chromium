@@ -192,4 +192,3 @@ std::string HWNDView::GetClassName() const {
 }
 
 }  // namespace views
-

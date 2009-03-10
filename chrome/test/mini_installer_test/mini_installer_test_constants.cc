@@ -41,4 +41,3 @@ const wchar_t kChromeApplyTagExe[] =
 const wchar_t kChromeApplyTagParameters[] =
     L"\"appguid={8A69D345-D564-463C-AFF1-A69D9E530F96}&appname=Chrome&needsadmin=false\"";
 }
-

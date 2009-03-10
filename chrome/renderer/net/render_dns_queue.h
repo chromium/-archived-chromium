@@ -90,4 +90,3 @@ class DnsQueue {
 };  // class DnsQueue
 
 #endif  // CHROME_RENDERER_NET_RENDER_DNS_QUEUE_H__
-

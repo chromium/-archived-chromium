@@ -159,4 +159,3 @@ extern const wchar_t kEnableOutOfProcessDevTools[];
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__
-

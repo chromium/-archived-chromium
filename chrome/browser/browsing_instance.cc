@@ -112,4 +112,3 @@ void BrowsingInstance::UnregisterSiteInstance(SiteInstance* site_instance) {
     map->erase(i);
   }
 }
-

@@ -105,4 +105,3 @@ bool SaveFile::Open(const char* open_mode) {
 #endif
   return true;
 }
-

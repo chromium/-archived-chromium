@@ -1290,4 +1290,3 @@ TEST_F(TabStripModelTest, NavigationForgettingDoesntAffectNewTab) {
 
   strip.CloseAllTabs();
 }
-

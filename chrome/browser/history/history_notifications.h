@@ -65,4 +65,3 @@ struct FavIconChangeDetails : public HistoryDetails {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_NOTIFICATIONS_H__
-

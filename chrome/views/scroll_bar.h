@@ -100,4 +100,3 @@ class ScrollBar : public View {
 }  // namespace views
 
 #endif
-

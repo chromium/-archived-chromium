@@ -830,4 +830,3 @@ TEST_F(HistoryTest, HistoryDBTaskCanceled) {
 }
 
 }  // namespace history
-

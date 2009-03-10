@@ -96,4 +96,3 @@ IPC_BEGIN_MESSAGES(Test)
                              int, bool)
 
 IPC_END_MESSAGES(TestMsg)
-

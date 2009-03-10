@@ -242,4 +242,3 @@ int NonClientFrameView::GetHTComponentForFrame(const gfx::Point& point,
 }
 
 }  // namespace views
-

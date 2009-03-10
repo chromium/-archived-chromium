@@ -35,4 +35,3 @@ void URLRequestFailedDnsJob::StartAsync() {
   NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED,
                                     net::ERR_NAME_NOT_RESOLVED));
 }
-

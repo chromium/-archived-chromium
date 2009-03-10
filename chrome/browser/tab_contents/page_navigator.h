@@ -24,4 +24,3 @@ class PageNavigator {
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_PAGE_NAVIGATOR_H_
-

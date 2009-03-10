@@ -105,4 +105,3 @@ class ImageView : public View {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_IMAGE_VIEW_H__
-

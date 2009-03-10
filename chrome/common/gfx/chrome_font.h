@@ -232,4 +232,3 @@ class ChromeFont {
 };
 
 #endif  // CHROME_COMMON_GFX_CHROME_FONT_H_
-

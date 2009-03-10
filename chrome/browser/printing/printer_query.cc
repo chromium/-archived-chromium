@@ -114,4 +114,3 @@ bool PrinterQuery::is_valid() const {
 }
 
 }  // namespace printing
-

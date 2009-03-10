@@ -74,4 +74,3 @@ TEST_F(PageOverlaysTest, StringConversion) {
         kOverlayKeys[i].key;
   }
 }
-

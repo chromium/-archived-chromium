@@ -81,4 +81,3 @@ SQLStatement* SqliteCompiledStatement::statement() {
   DCHECK(statement_) << "Should check is_valid() before using the statement.";
   return statement_;
 }
-

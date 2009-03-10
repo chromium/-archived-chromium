@@ -104,4 +104,3 @@ class AffReader {
 }  // namespace convert_dict
 
 #endif  // CHROME_TOOLS_CONVERT_DICT_AFF_READER_H__
-

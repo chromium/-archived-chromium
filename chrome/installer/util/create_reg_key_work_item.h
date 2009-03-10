@@ -47,4 +47,3 @@ class CreateRegKeyWorkItem : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_CREATE_REG_KEY_WORK_ITEM_H__
-

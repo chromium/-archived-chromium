@@ -227,4 +227,3 @@ void ToolbarModel::CreateErrorText(NavigationEntry* entry, std::wstring* text) {
     }
   }
 }
-

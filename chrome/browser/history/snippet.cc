@@ -267,4 +267,3 @@ void Snippet::ComputeSnippet(const MatchPositions& match_positions,
   utext_close(document_utext);
   swap(text_, snippet);
 }
-

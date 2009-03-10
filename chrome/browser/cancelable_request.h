@@ -544,4 +544,3 @@ class CancelableRequest1 : public CancelableRequest<CB> {
 };
 
 #endif  // CHROME_BROWSER_CANCELABLE_REQUEST_H__
-

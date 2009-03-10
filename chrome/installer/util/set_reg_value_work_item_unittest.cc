@@ -225,4 +225,3 @@ TEST_F(SetRegValueWorkItemTest, WriteNonExistingKey) {
       parent_key, name, dword1, false));
   EXPECT_FALSE(work_item->Do());
 }
-

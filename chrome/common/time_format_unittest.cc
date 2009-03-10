@@ -68,4 +68,3 @@ TEST(TimeFormat, RemainingTime) {
   TestRemainingTime(three_days, L"3 days", L"3 days left");
   TestRemainingTime(three_days + four_hours, L"3 days", L"3 days left");
 }
-

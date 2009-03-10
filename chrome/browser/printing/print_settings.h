@@ -112,4 +112,3 @@ class PrintSettings {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PRINT_SETTINGS_H__
-

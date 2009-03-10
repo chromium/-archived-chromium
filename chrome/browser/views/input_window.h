@@ -41,4 +41,3 @@ views::Window* CreateInputWindow(HWND parent_hwnd,
                                  InputWindowDelegate* delegate);
 
 #endif  // CHROME_BROWSER_VIEWS_INPUT_WINDOW_H__
-

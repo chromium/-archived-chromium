@@ -588,4 +588,3 @@ void Menu::Cancel() {
 int Menu::ItemCount() {
   return GetMenuItemCount(menu_);
 }
-

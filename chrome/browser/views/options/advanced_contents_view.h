@@ -36,4 +36,3 @@ class AdvancedScrollViewContainer : public views::View {
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_OPTIONS_ADVANCED_CONTENTS_VIEW_H__
-

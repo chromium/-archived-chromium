@@ -68,4 +68,3 @@ class LanguageComboboxModel : public views::ComboBox::Model {
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_OPTIONS_LANGUAGE_COMBOBOX_MODEL_H__
-

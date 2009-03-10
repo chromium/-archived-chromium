@@ -243,4 +243,3 @@ void PasswordManager::Autofill(
                                            preferred_match->password_value);
   }
 }
-

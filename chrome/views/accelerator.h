@@ -95,4 +95,3 @@ class AcceleratorTarget {
 }
 
 #endif  // CHROME_VIEWS_ACCELERATOR_H_
-

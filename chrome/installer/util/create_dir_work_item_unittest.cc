@@ -142,4 +142,3 @@ TEST_F(CreateDirWorkItemTest, RollbackWithMissingDir) {
   // the rest.
   EXPECT_FALSE(file_util::PathExists(dir_to_create_1));
 }
-

@@ -120,4 +120,3 @@ class DialogClientView : public ClientView,
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_DIALOG_CLIENT_VIEW_H_
-

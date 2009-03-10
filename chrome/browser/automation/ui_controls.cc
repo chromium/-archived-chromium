@@ -343,4 +343,3 @@ void MoveMouseToCenterAndPress(views::View* view, MouseButton button,
 }
 
 }  // ui_controls
-

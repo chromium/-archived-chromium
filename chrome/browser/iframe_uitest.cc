@@ -33,4 +33,3 @@ TEST_F(IFrameTest, Crash) {
 TEST_F(IFrameTest, InEmptyFrame) {
   NavigateAndVerifyTitle(L"iframe_in_empty_frame.html", L"iframe test");
 }
-

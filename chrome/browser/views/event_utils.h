@@ -25,4 +25,3 @@ bool IsPossibleDispositionEvent(const views::MouseEvent& event);
 }
 
 #endif  // CHROME_BROWSER_VIEWS_EVENT_UTILS_H__
-

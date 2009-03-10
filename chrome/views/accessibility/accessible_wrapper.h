@@ -53,4 +53,3 @@ class AccessibleWrapper {
 };
 
 #endif  // CHROME_VIEWS_ACCESSIBILITY_ACCESSIBLE_WRAPPER_H_
-

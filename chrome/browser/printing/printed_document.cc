@@ -378,4 +378,3 @@ PrintedDocument::Immutable::Immutable(const PrintSettings& settings,
 }
 
 }  // namespace printing
-

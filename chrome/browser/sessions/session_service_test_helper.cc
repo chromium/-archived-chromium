@@ -81,4 +81,3 @@ void SessionServiceTestHelper::AssertSingleWindowWithSingleTab(
 SessionBackend* SessionServiceTestHelper::backend() {
   return service_->backend();
 }
-

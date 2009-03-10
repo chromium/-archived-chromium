@@ -374,4 +374,3 @@ PrintedPage* JobEventDetails::page() const {
 }
 
 }  // namespace printing
-

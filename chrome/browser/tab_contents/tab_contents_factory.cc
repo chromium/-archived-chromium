@@ -143,4 +143,3 @@ TabContentsFactory* TabContents::RegisterFactory(TabContentsType type,
 
   return prev_factory;
 }
-

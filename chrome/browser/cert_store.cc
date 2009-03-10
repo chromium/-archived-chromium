@@ -140,4 +140,3 @@ void CertStore::Observe(NotificationType type,
   DCHECK(rph);
   RemoveCertsForRenderProcesHost(rph->host_id());
 }
-

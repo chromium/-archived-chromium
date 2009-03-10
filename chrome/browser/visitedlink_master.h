@@ -397,4 +397,3 @@ inline void VisitedLinkMaster::DebugValidate() {
 #endif
 
 #endif // CHROME_BROWSER_VISITEDLINK_MASTER_H__
-

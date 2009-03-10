@@ -83,4 +83,3 @@ class FirstRunCustomizeView : public FirstRunViewBase,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_CUSTOMIZE_VIEW_H_
-

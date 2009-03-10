@@ -127,4 +127,3 @@ void InitializeExeTypes(std::set<std::string>* exe_extensions);
 
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_UTIL_H_
-

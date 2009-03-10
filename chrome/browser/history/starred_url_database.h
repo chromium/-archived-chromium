@@ -183,4 +183,3 @@ class StarredURLDatabase : public URLDatabase {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_STARRED_URL_DATABASE_H__
-

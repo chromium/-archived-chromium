@@ -40,4 +40,3 @@ class DevToolsClient {
 };
 
 #endif  // CHROME_RENDERER_DEV_TOOLS_CLIENT_H_
-

@@ -495,4 +495,3 @@ void FontsPageView::InitEncodingLayout() {
   layout->AddView(default_encoding_combobox_, 1, 1, GridLayout::FILL,
       GridLayout::CENTER);
 }
-

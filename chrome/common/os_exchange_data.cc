@@ -705,4 +705,3 @@ static STGMEDIUM* GetStorageForFileDescriptor(
   storage->pUnkForRelease = NULL;
   return storage;
 }
-

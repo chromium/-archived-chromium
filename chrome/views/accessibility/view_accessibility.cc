@@ -658,5 +658,3 @@ STDMETHODIMP ViewAccessibility::put_accValue(VARIANT var_id, BSTR put_val) {
   // Deprecated.
   return DISP_E_MEMBERNOTFOUND;
 }
-
-

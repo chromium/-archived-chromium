@@ -400,4 +400,3 @@ std::wstring SQLStatement::column_wstring(int index) {
   column_wstring(index, &wstr);
   return wstr;
 }
-

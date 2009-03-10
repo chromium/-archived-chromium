@@ -275,4 +275,3 @@ bool SpellcheckWordIterator::Normalize(int input_start,
     output_string->assign(output.getTerminatedBuffer());
   return (status == U_ZERO_ERROR);
 }
-

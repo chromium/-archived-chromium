@@ -76,4 +76,3 @@ STDMETHODIMP AccessibleWrapper::SetInstance(IAccessible* interface_ptr) {
 
   return S_OK;
 }
-

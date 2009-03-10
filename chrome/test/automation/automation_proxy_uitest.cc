@@ -1118,4 +1118,3 @@ TEST_F(AutomationProxyTest5, TestLifetimeOfDomAutomationController) {
   ASSERT_TRUE(tab->ExecuteAndExtractString(L"", jscript, &actual));
   ASSERT_STREQ(expected.c_str(), actual.c_str());
 }
-

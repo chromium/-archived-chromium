@@ -71,4 +71,3 @@ struct DownloadCreateInfo {
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_TYPES_H_
-

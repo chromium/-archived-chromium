@@ -554,4 +554,3 @@ const AccessibilityOutParams& BrowserAccessibility::response() {
 HWND BrowserAccessibility::parent_hwnd() {
   return BrowserAccessibilityManager::GetInstance()->parent_hwnd(instance_id());
 }
-

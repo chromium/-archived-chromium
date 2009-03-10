@@ -275,4 +275,3 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
   }
   return success;
 }
-

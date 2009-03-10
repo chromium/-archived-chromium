@@ -109,4 +109,3 @@ class LanguagesPageView : public OptionsPageView,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_OPTIONS_LANGUAGES_PAGE_VIEW_H__
-

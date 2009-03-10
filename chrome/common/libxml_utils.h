@@ -181,4 +181,3 @@ class XmlWriter {
 };
 
 #endif  // CHROME_COMMON_LIBXML_UTILS_H__
-

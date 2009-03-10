@@ -61,4 +61,3 @@ SkColor GetSysSkColor(int which);
 } // namespace color_utils
 
 #endif  // #ifndef CHROME_COMMON_GFX_COLOR_UTILS_H__
-

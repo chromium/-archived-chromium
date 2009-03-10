@@ -1214,4 +1214,3 @@ void AdvancedScrollViewContainer::Layout() {
   scroll_view_->SetBounds(lb);
   scroll_view_->Layout();
 }
-

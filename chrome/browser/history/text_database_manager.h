@@ -307,4 +307,3 @@ class TextDatabaseManager {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_TEXT_DATABASE_MANAGER_H__
-

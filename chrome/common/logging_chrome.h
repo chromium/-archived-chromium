@@ -55,4 +55,3 @@ size_t GetFatalAssertions(AssertionList* assertions);
 } // namespace logging
 
 #endif
-

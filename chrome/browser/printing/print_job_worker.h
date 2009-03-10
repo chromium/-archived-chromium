@@ -109,4 +109,3 @@ struct RunnableMethodTraits<printing::PrintJobWorker> {
 };
 
 #endif  // CHROME_BROWSER_PRINTING_PRINT_JOB_WORKER_H__
-

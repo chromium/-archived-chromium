@@ -510,4 +510,3 @@ void BrowserImpl::CloseTabFromCollection(INT64 index) {
     }
   }
 }
-

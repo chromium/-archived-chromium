@@ -157,4 +157,3 @@ void DebuggerView::LoadingStateChanged(TabContents* source) {
   if (!source->is_loading())
     SetOutputViewReady();
 }
-

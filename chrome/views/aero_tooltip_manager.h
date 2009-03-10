@@ -55,4 +55,3 @@ class AeroTooltipManager : public TooltipManager {
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_AERO_TOOLTIP_MANAGER_H__
-

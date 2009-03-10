@@ -592,4 +592,3 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
     EXPECT_EQ(initial_bounds, window_bounds);
   }
 }
-

@@ -33,4 +33,3 @@ bool BrowserProcessFilter::Includes(uint32 pid,
   return browser_process_id_ && (browser_process_id_ == pid ||
                                  browser_process_id_ == parent_pid);
 }
-

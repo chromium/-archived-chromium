@@ -241,4 +241,3 @@ class OwningMRUCache
 };
 
 #endif  // CHROME_COMMON_MRU_CACHE_H__
-

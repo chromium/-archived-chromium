@@ -32,4 +32,3 @@ installer_util::InstallStatus UninstallChrome(
 }  // namespace installer_setup
 
 #endif  // CHROME_INSTALLER_SETUP_UNINSTALL_H__
-

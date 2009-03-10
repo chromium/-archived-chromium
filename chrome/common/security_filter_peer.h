@@ -136,4 +136,3 @@ class ImageFilterPeer : public BufferedPeer {
 };
 
 #endif  // CHROME_COMMON_SECURITY_FILTER_PEER_H__
-

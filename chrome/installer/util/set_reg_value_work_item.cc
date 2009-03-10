@@ -149,4 +149,3 @@ void SetRegValueWorkItem::Rollback() {
   key.Close();
   return;
 }
-

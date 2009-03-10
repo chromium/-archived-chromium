@@ -60,4 +60,3 @@ void VisitedLinkSlave::FreeTable() {
   hash_table_ = NULL;
   table_length_ = 0;
 }
-

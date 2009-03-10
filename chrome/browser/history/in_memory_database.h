@@ -52,4 +52,3 @@ class InMemoryDatabase : public URLDatabase {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_MEMORY_DB_H__
-

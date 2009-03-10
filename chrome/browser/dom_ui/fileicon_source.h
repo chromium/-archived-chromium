@@ -48,4 +48,3 @@ class FileIconSource : public ChromeURLDataManager::DataSource {
   DISALLOW_COPY_AND_ASSIGN(FileIconSource);
 };
 #endif  // CHROME_BROWSER_DOM_UI_FILEICON_SOURCE_H_
-

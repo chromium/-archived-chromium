@@ -1110,4 +1110,3 @@ bool SavePackage::GetSafePureFileName(const FilePath& dir_path,
   pure_file_name->clear();
   return false;
 }
-

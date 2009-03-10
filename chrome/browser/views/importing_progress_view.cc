@@ -312,4 +312,3 @@ void StartImportingWithUI(HWND parent_window,
                                    new ProfileWriter(target_profile),
                                    first_run);
 }
-

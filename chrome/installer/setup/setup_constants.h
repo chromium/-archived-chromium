@@ -23,4 +23,3 @@ extern const wchar_t kMediaPlayerRegPath[];
 }  // namespace installer
 
 #endif  // CHROME_INSTALLER_SETUP_SETUP_CONSTANTS_H__
-

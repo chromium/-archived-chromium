@@ -51,4 +51,3 @@ class RendererHistogramSnapshots {
 };
 
 #endif  // CHROME_RENDERER_HISTOGRAM_SNAPSHOTS_H_
-

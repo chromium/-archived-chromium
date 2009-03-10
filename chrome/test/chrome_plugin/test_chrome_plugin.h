@@ -68,4 +68,3 @@ struct TestFuncParams {
 const char kChromeTestPluginPostData[] = "Test Data";
 
 #endif  // CHROME_TEST_CHROME_PLUGIN_TEST_CHROME_PLUGIN_H__
-

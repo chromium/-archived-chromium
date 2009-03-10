@@ -34,4 +34,3 @@ void ReleaseKey(HWND hwnd, WORD key);
 KEYBD_KEYS GetKeybdKeysVal(BSTR str);
 
 #endif  // CHROME_TEST_ACCESSIBILITY_KEYBOARD_UTIL_H_
-

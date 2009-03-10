@@ -134,4 +134,3 @@ void EncodingMenuControllerDelegate::BuildEncodingMenu(
     }
   }
 }
-

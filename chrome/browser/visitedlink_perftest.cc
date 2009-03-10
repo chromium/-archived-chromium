@@ -190,4 +190,3 @@ TEST_F(VisitedLink, TestLoad) {
   LogPerfResult("Visited_link_hot_load_time",
                 hot_sum / hot_load_times.size(), "ms");
 }
-

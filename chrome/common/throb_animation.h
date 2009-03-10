@@ -57,4 +57,3 @@ class ThrobAnimation : public SlideAnimation {
 };
 
 #endif  // CHROME_COMMON_THROB_ANIMATION_H_
-

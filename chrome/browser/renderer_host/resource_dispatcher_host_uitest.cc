@@ -276,4 +276,3 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   EXPECT_TRUE(tab->GetTabTitle(&tab_title));
   EXPECT_EQ(L"Title Of Awesomeness", tab_title);
 }
-

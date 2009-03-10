@@ -120,4 +120,3 @@ typedef CancelableRequest1<HistoryService::HistoryDBTaskCallback,
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_MARSHALING_H__
-

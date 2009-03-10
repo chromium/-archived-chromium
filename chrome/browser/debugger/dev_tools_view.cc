@@ -91,4 +91,3 @@ void DevToolsView::OpenURLFromTab(TabContents* source,
                                PageTransition::Type transition) {
   NOTREACHED();
 }
-

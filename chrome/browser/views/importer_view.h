@@ -92,4 +92,3 @@ class ImporterView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_IMPORTER_VIEW_H__
-

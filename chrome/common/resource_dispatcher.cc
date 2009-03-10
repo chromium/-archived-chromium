@@ -519,4 +519,3 @@ bool ResourceDispatcher::IsResourceMessage(const IPC::Message& message) const {
 
   return false;
 }
-

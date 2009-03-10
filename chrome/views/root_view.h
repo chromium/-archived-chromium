@@ -356,4 +356,3 @@ class RootView : public View,
 }  // namespace views
 
 #endif // CHROME_VIEWS_ROOT_VIEW_H__
-

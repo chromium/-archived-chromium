@@ -48,4 +48,3 @@ class FirstRunBubble : public InfoBubble,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_BUBBLE_H__
-

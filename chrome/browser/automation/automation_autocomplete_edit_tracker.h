@@ -33,4 +33,3 @@ class AutomationAutocompleteEditTracker:
 };
 
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_AUTOCOMPLETE_EDIT_TRACKER_H__
-

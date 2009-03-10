@@ -23,4 +23,3 @@ WebContents* GetWebContentsByID(int render_process_host_id, int routing_id);
 }  // namespace tab_util
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_UTIL_H_
-

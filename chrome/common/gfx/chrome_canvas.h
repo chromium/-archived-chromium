@@ -193,4 +193,3 @@ typedef skia::CanvasPaintT<ChromeCanvas> ChromeCanvasPaint;
 #endif
 
 #endif  // CHROME_COMMON_GFX_CHROME_CANVAS_H_
-

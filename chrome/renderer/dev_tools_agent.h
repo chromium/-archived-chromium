@@ -71,4 +71,3 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
 };
 
 #endif  // CHROME_RENDERER_DEV_TOOLS_AGENT_H_
-

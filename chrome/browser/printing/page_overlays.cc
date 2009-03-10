@@ -156,4 +156,3 @@ std::wstring PageOverlays::ReplaceVariables(const std::wstring& input,
 }
 
 }  // namespace printing
-

@@ -53,4 +53,3 @@ STDMETHODIMP_(ULONG) GenericClassFactory::Release() {
 STDMETHODIMP GenericClassFactory::LockServer(BOOL) {
   return E_NOTIMPL;
 }
-

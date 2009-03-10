@@ -92,4 +92,3 @@ class Link : public Label {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_LINK_H__
-

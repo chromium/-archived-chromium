@@ -373,4 +373,3 @@ TEST_F(VisitedLinkTest, Rebuild) {
   // Make sure the extra one was *not* written (Reload won't test this).
   EXPECT_FALSE(master_->IsVisited(TestURL(g_test_count)));
 }
-

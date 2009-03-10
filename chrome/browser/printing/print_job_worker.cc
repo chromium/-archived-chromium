@@ -299,4 +299,3 @@ void RunnableMethodTraits<printing::PrintJobWorker>::ReleaseCallee(
   DCHECK_EQ(owner_, obj->owner_);
   owner_ = NULL;
 }
-

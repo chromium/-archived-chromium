@@ -85,4 +85,3 @@ class GoogleChromeDistribution : public BrowserDistribution {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_GOOGLE_CHROME_DISTRIBUTION_H_
-

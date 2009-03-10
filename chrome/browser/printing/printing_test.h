@@ -34,4 +34,3 @@ class PrintingTest : public Parent {
 };
 
 #endif  // CHROME_BROWSER_PRINTING_PRINTING_TEST_H__
-

@@ -381,4 +381,3 @@ GURL DownloadsUI::GetBaseURL() {
   url += kDownloadsHost;
   return GURL(url);
 }
-

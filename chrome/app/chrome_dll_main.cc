@@ -397,5 +397,3 @@ int ChromeMain(int argc, const char** argv) {
 
   return rv;
 }
-
-

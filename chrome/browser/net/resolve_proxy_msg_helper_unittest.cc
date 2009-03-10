@@ -351,4 +351,3 @@ TEST(ResolveProxyMsgHelperTest, CancelPendingRequests) {
   // It should also be the case that msg1, msg2, msg3 were deleted by the
   // cancellation. (Else will show up as a leak in Purify).
 }
-

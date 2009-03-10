@@ -76,4 +76,3 @@ class SaveFile {
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_SAVE_FILE_H__
-

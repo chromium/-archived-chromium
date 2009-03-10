@@ -177,4 +177,3 @@ void TemplateURLFetcher::RequestCompleted(RequestDelegate* request) {
   requests_->erase(find(requests_->begin(), requests_->end(), request));
   delete request;
 }
-

@@ -599,5 +599,3 @@ bool TabStripModel::OpenerMatches(TabContentsData* data,
                                   bool use_group) {
   return data->opener == opener || (use_group && data->group == opener);
 }
-
-

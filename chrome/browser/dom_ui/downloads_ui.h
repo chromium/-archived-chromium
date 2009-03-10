@@ -119,4 +119,3 @@ class DownloadsUI : public DOMUI {
 };
 
 #endif  // CHROME_BROWSER_DOM_UI_DOWNLOADS_UI_H_
-

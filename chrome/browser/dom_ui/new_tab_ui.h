@@ -287,4 +287,3 @@ class NewTabUI : public DOMUI {
 };
 
 #endif  // CHROME_BROWSER_DOM_UI_NEW_TAB_UI_H__
-

@@ -494,4 +494,3 @@ TEST_F(BackFwdMenuModelTest, ChapterStops) {
   }
   contents->CloseContents();
 }
-

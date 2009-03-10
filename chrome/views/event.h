@@ -307,4 +307,3 @@ class DropTargetEvent : public LocatedEvent {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_EVENT_H__
-

@@ -65,4 +65,3 @@ class NativeScrollBar : public ScrollBar {
 }  // namespace views
 
 #endif
-

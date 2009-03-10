@@ -154,4 +154,3 @@ TEST_F(WorkItemListTest, ExecutionFailAndRollback) {
   EXPECT_FALSE(key.Open(HKEY_CURRENT_USER, key_to_create.c_str(), KEY_READ));
   EXPECT_FALSE(file_util::PathExists(top_dir_to_create));
 }
-

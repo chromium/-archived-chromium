@@ -119,4 +119,3 @@ TEST_F(PreferenceServiceTest, PreservedWindowPlacementIsLoaded) {
       &is_maximized));
   ASSERT_EQ(is_maximized, is_window_maximized);
 }
-

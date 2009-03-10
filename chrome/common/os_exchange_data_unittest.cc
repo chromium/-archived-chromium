@@ -363,4 +363,3 @@ TEST(OSExchangeDataTest, ProvideURLForPlainTextURL) {
   EXPECT_TRUE(data2->GetURLAndTitle(&read_url, &title));
   EXPECT_EQ(GURL("http://google.com"), read_url);
 }
-

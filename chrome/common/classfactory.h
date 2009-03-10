@@ -69,4 +69,3 @@ STDMETHODIMP OneClassFactory<T>::CreateInstance(LPUNKNOWN pUnkOuter,
 }
 
 #endif
-

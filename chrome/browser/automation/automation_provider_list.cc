@@ -49,4 +49,3 @@ AutomationProviderList* AutomationProviderList::GetInstance() {
   DCHECK(NULL != instance_);
   return instance_;
 }
-

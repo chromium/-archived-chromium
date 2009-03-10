@@ -40,4 +40,3 @@ TEST(LoginPromptTest, GetSignonRealm) {
     EXPECT_EQ(expected[i], key);
   }
 }
-

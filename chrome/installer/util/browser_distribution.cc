@@ -66,4 +66,3 @@ std::wstring BrowserDistribution::GetVersionKey() {
 void BrowserDistribution::UpdateDiffInstallStatus(bool system_install,
     bool incremental_install, installer_util::InstallStatus install_status) {
 }
-

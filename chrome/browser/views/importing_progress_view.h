@@ -90,4 +90,3 @@ class ImportingProgressView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_IMPORTING_PROGRESS_VIEW_H_
-

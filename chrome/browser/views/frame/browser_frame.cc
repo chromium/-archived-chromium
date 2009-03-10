@@ -191,4 +191,3 @@ void BrowserFrame::UpdateDWMFrame() {
   }
   DwmExtendFrameIntoClientArea(GetHWND(), &margins);
 }
-

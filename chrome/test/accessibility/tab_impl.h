@@ -133,4 +133,3 @@ class TabImpl {
 
 
 #endif  // CHROME_TEST_ACCISSIBILITY_TAB_IMPL_H_
-

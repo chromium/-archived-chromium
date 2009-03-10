@@ -80,4 +80,3 @@ class PageSetup {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PAGE_SETUP_H__
-

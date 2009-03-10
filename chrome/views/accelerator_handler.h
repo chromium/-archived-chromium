@@ -28,4 +28,3 @@ class AcceleratorHandler : public MessageLoopForUI::Dispatcher {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_ACCELERATOR_HANDLER_H__
-

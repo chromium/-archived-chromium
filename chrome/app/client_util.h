@@ -43,4 +43,3 @@ void GetExecutablePath(wchar_t* exe_path);
 }  // namespace client_util
 
 #endif  // CHROME_APP_CLIENT_UTIL_H_
-

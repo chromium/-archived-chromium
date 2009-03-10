@@ -41,4 +41,3 @@ extern const wchar_t kChromeApplyTagParameters[];
 }
 
 #endif  // CHROME_TEST_MINI_INSTALLER_TEST_MINI_INSTALLER_TEST_CONSTANTS_H__
-

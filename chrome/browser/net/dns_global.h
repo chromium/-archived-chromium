@@ -73,4 +73,3 @@ class DnsPrefetcherInit {
 }  // namespace chrome_browser_net
 
 #endif  // CHROME_BROWSER_NET_DNS_GLOBAL_H_
-

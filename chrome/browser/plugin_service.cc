@@ -196,4 +196,3 @@ void PluginService::ShutdownHandler::OnShutdown() {
     plugin_service->OnShutdown();
   }
 }
-

@@ -51,4 +51,3 @@ void RegisterPathProvider();
 }  // namespace chrome
 
 #endif  // CHROME_COMMON_CHROME_PATHS_H__
-

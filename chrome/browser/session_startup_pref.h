@@ -48,4 +48,3 @@ struct SessionStartupPref {
 };
 
 #endif  // CHROME_BROWSER_SESSION_STARTUP_PREF_H__
-

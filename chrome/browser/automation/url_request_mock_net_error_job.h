@@ -69,4 +69,3 @@ class URLRequestMockNetErrorJob : public URLRequestMockHTTPJob {
 };
 
 #endif  // #define CHROME_BROWSER_AUTOMATION_URL_REQUEST_MOCK_NET_ERROR_H__
-

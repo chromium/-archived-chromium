@@ -81,4 +81,3 @@ class LoginView : public View, public LoginModelObserver {
 
 } // namespace
 #endif // CHROME_BROWSER_VIEWS_LOGIN_VIEW_H__
-

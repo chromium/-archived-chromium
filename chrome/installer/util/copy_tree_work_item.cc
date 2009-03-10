@@ -145,4 +145,3 @@ bool CopyTreeWorkItem::GetBackupPath() {
 
   return true;
 }
-

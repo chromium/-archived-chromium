@@ -51,4 +51,3 @@ extern const bool kRecordModeEnabled;
 }  // namespace chrome
 
 #endif  // CHROME_COMMON_CHROME_CONSTANTS_H_
-

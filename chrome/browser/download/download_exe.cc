@@ -144,4 +144,3 @@ void InitializeExeTypes(std::set<std::string>* exe_extensions) {
 }
 
 }  // namespace download_util
-

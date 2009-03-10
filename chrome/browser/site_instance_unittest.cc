@@ -396,4 +396,3 @@ TEST_F(SiteInstanceTest, OneSiteInstancePerSiteInProfile) {
 
   // browsing_instances will be deleted when their SiteInstances are deleted
 }
-

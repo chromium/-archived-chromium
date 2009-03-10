@@ -526,5 +526,3 @@ void TaskManagerBrowserProcessResourceProvider::StartUpdating() {
 
 void TaskManagerBrowserProcessResourceProvider::StopUpdating() {
 }
-
-

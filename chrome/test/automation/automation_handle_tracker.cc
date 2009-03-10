@@ -70,4 +70,3 @@ void AutomationHandleTracker::InvalidateHandle(AutomationHandle handle) {
     iter->second->Invalidate();
   }
 }
-

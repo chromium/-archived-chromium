@@ -262,4 +262,3 @@ TEST_F(IconUtilTest, TestCreateIconFile) {
     ::DestroyIcon(icon);
   }
 }
-

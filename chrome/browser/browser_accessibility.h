@@ -168,4 +168,3 @@ class ATL_NO_VTABLE BrowserAccessibility
   DISALLOW_COPY_AND_ASSIGN(BrowserAccessibility);
 };
 #endif  // CHROME_BROWSER_BROWSER_ACCESSIBILITY_H_
-

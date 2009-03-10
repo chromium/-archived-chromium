@@ -203,4 +203,3 @@ class KeywordEditorView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_KEYWORD_EDITOR_VIEW_H_
-

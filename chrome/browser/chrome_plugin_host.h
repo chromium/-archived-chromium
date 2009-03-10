@@ -41,4 +41,3 @@ void CPHandleCommand(int command, CPCommandInterface* data,
                      CPBrowsingContext context);
 
 #endif  // CHROME_BROWSER_CHROME_PLUGIN_HOST_H__
-

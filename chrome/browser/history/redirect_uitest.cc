@@ -305,4 +305,3 @@ TEST_F(RedirectTest,
   }
   EXPECT_TRUE(final_navigation_not_redirect);
 }
-

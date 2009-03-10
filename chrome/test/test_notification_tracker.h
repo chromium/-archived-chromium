@@ -78,4 +78,3 @@ class TestNotificationTracker : public NotificationObserver {
 };
 
 #endif  // CHROME_TEST_NOTIFICATION_TRACKER_H_
-

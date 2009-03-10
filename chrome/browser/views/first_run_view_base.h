@@ -91,4 +91,3 @@ class FirstRunViewBase : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_VIEW_BASE_H_
-

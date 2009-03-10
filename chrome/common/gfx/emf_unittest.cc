@@ -113,4 +113,3 @@ TEST_F(EmfPrintingTest, Enumerate) {
   context.PageDone();
   context.DocumentDone();
 }
-

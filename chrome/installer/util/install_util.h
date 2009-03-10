@@ -59,4 +59,3 @@ class InstallUtil {
 
 
 #endif  // CHROME_INSTALLER_UTIL_INSTALL_UTIL_H__
-

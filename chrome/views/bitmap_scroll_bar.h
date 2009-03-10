@@ -183,4 +183,3 @@ class BitmapScrollBar : public ScrollBar,
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_BITMAP_SCROLL_BAR_H__
-

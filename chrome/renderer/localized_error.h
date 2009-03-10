@@ -20,4 +20,3 @@ void GetFormRepostErrorValues(const GURL& display_url,
                               DictionaryValue* error_strings);
 
 #endif  // CHROME_RENDERER_LOCALIZED_ERROR_VALUES_H__
-

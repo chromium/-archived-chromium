@@ -276,4 +276,3 @@ bool IconLoader::OnLoadComplete(HICON small_icon, HICON large_icon) {
   }
   return false;
 }
-

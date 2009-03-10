@@ -70,4 +70,3 @@ bool DeleteTreeWorkItem::GetBackupPath(std::wstring for_path,
 
   return true;
 }
-

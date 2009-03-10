@@ -359,4 +359,3 @@ class TabStrip : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_TABS_TAB_STRIP_H__
-

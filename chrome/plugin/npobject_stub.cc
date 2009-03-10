@@ -304,4 +304,3 @@ void NPObjectStub::OnSetException(const std::string& message) {
 
   NPN_SetException(npobject_, message.c_str());
 }
-

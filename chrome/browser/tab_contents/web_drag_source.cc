@@ -54,4 +54,3 @@ void WebDragSource::OnDragSourceMove() {
   render_view_host_->DragSourceMovedTo(client.x(), client.y(),
                                        screen.x(), screen.y());
 }
-

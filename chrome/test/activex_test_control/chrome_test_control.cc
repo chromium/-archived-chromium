@@ -32,4 +32,3 @@ HRESULT ChromeTestControl::OnDraw(ATL_DRAWINFO& di) {
 
   return S_OK;
 }
-

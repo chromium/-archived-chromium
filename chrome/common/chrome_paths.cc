@@ -228,4 +228,3 @@ void RegisterPathProvider() {
 }
 
 }  // namespace chrome
-

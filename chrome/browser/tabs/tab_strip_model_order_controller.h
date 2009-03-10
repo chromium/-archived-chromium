@@ -48,4 +48,3 @@ class TabStripModelOrderController : public TabStripModelObserver {
 };
 
 #endif  // CHROME_BROWSER_TABS_TAB_STRIP_MODEL_ORDER_CONTROLLER_H__
-

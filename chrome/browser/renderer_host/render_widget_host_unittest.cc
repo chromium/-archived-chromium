@@ -359,4 +359,3 @@ TEST_F(RenderWidgetHostTest, IgnoreKeyEventsWeDidntSend) {
 
   EXPECT_FALSE(host_->unhandled_keyboard_event_called());
 }
-

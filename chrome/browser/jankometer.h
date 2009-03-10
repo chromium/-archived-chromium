@@ -20,4 +20,3 @@ void InstallJankometer(const CommandLine &parsed_command_line);
 void UninstallJankometer();
 
 #endif  // CHROME_BROWSER_JANKOMETER_H__
-

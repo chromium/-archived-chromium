@@ -21,4 +21,3 @@ TEST(CompatTests, SymantecSEPVersion) {
 
   EXPECT_FALSE(HasIncompatibleSymantecEndpointVersion(NULL));
 }
-

@@ -66,4 +66,3 @@ void ThrobAnimation::ResetForSlide() {
   cycles_remaining_ = 0;
   throbbing_ = false;
 }
-

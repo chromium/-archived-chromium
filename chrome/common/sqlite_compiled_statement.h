@@ -132,4 +132,3 @@ class SqliteCompiledStatement {
     SqliteCompiledStatement var_name(__FILE__, __LINE__, cache, sql)
 
 #endif  // CHROME_COMMON_SQLITE_COMPILED_STATEMENT_
-

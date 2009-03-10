@@ -315,4 +315,3 @@ bool ImageFilterPeer::DataReady() {
 
   return true;
 }
-

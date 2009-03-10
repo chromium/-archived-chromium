@@ -195,4 +195,3 @@ bool DecryptPassword(const std::wstring& url,
 }
 
 }  // namespace ie7_password
-

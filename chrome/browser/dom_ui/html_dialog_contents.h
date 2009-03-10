@@ -74,4 +74,3 @@ class HtmlDialogContents : public DOMUIHost {
 };
 
 #endif  // CHROME_BROWSER_DOM_UI_HTML_DIALOG_CONTENTS_H__
-

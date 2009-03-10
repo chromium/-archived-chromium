@@ -22,4 +22,3 @@ class AppModalDialogDelegate : public DialogDelegate {
 } // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_APP_MODAL_DIALOG_DELEGATE_H__
-

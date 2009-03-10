@@ -195,4 +195,3 @@ void PrintJobManager::OnPrintedDocumentUpdated(const PrintedDocument& document,
 }
 
 }  // namespace printing
-

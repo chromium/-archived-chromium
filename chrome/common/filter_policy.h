@@ -44,4 +44,3 @@ class FilterPolicy {
 };
 
 #endif  // CHROME_COMMON_FILTER_POLICY_H__
-

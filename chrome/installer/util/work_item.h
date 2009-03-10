@@ -111,4 +111,3 @@ class WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_WORK_ITEM_H_
-

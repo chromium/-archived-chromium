@@ -428,4 +428,3 @@ int CrashService::ProcessingLoop() {
 
   return static_cast<int>(msg.wParam);
 }
-

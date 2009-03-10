@@ -50,4 +50,3 @@ TEST(URLUtil, Scheme) {
     EXPECT_EQ(parsed_scheme.len, found_scheme.len);
   }
 }
-

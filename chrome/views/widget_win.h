@@ -623,4 +623,3 @@ class WidgetWin : public Widget,
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_WIDGET_WIN_H_
-

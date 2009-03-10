@@ -159,6 +159,3 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseBrowser) {
   EXPECT_TRUE(CloseBrowser(browser_proxy.get(), &application_closed));
   EXPECT_TRUE(application_closed);
 }
-
-
-

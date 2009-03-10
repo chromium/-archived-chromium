@@ -27,4 +27,3 @@ class PrintedPagesSource {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PRINTED_PAGES_SOURCE_H__
-

@@ -101,4 +101,3 @@ class ResolveProxyMsgHelper {
 };
 
 #endif  // CHROME_BROWSER_NET_RESOLVE_PROXY_MSG_HELPER_
-

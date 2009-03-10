@@ -78,4 +78,3 @@ bool ImporterLockView::Cancel() {
 views::View* ImporterLockView::GetContentsView() {
   return this;
 }
-

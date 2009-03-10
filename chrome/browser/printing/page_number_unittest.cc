@@ -28,4 +28,3 @@ TEST(PageNumberTest, Count) {
   ++page;
   EXPECT_EQ(printing::PageNumber::npos(), page);
 }
-

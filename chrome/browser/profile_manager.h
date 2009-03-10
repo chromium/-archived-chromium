@@ -183,4 +183,3 @@ class ProfileManager : public NonThreadSafe,
 };
 
 #endif  // CHROME_BROWSER_PROFILE_MANAGER_H__
-

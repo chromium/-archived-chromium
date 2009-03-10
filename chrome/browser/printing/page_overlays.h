@@ -74,4 +74,3 @@ class PageOverlays {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PAGE_OVERLAYS_H__
-

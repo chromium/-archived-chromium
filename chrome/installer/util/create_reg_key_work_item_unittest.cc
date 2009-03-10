@@ -174,4 +174,3 @@ TEST_F(CreateRegKeyWorkItemTest, RollbackWithSetValue) {
   // Rollback should not remove the key.
   EXPECT_TRUE(key.Open(HKEY_CURRENT_USER, key_to_create.c_str(), KEY_READ));
 }
-

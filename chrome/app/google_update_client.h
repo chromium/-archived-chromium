@@ -75,4 +75,3 @@ class GoogleUpdateClient {
 }  // namespace google_update
 
 #endif  // CHROME_APP_GOOGLE_UPDATE_CLIENT_H_
-

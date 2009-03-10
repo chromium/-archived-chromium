@@ -163,4 +163,3 @@ void HorizontalPainter::Paint(int w, int h, ChromeCanvas* canvas) {
 }
 
 }  // namespace views
-

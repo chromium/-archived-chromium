@@ -88,4 +88,3 @@ TEST_F(JSONValueSerializerTests, CompactWriting) {
     test_cases[i] = NULL;
   }
 }
-

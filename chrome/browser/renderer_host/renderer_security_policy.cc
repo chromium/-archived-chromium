@@ -285,4 +285,3 @@ bool RendererSecurityPolicy::HasDOMUIBindings(int renderer_id) {
 
   return state->second->has_dom_ui_bindings();
 }
-

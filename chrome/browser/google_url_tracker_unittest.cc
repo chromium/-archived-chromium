@@ -32,4 +32,3 @@ TEST(GoogleURLTrackerTest, CheckAndConvertURL) {
     EXPECT_STREQ(data[i].base_url, base_url.spec().c_str());
   }
 }
-

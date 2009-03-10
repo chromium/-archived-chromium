@@ -290,4 +290,3 @@ TEST_F(StarredURLDatabaseTest, RemoveStarredEntriesWithEmptyURL) {
 }
 
 }  // namespace history
-

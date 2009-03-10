@@ -322,4 +322,3 @@ IPC_BEGIN_MESSAGES(NPObject)
                              std::string /* message */)
 
 IPC_END_MESSAGES(NPObject)
-

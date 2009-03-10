@@ -85,4 +85,3 @@ class WorkerThreadTicker {
 };
 
 #endif  // CHROME_COMMON_WORKER_THREAD_TICKER_H__
-

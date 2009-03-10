@@ -62,4 +62,3 @@ class DeleteRegValueWorkItem : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_DELETE_REG_VALUE_WORK_ITEM_H_
-

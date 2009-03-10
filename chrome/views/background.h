@@ -89,4 +89,3 @@ class Background {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_BACKGROUND_H__
-

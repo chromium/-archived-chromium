@@ -40,4 +40,3 @@ class DOMView : public views::HWNDView {
 };
 
 #endif  // CHROME_BROWSER_VIEWS_DOM_VIEW_H_
-

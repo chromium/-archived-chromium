@@ -278,4 +278,3 @@ enum SpecialRoutingIDs {
 #define IPC_LOGGING_ID 0xFFF1  // Special message id for logging
 
 #endif  // CHROME_COMMON_IPC_MESSAGE_H__
-

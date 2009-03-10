@@ -58,4 +58,3 @@ class MessageRouter : public IPC::Channel::Listener,
 };
 
 #endif  // CHROME_COMMON_MESSAGE_ROUTER_H__
-

@@ -56,4 +56,3 @@ bool HasIncompatibleSymantecEndpointVersion(const wchar_t* version) {
     return false;
   return IsBadSEPVersion(v0, v1, v2);
 }
-

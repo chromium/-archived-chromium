@@ -71,4 +71,3 @@ class WebDropTarget : public BaseDropTarget {
 };
 
 #endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_DROP_TARGET_H_
-

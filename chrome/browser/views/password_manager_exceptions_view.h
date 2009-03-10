@@ -96,4 +96,3 @@ class PasswordManagerExceptionsView : public views::View,
   DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerExceptionsView);
 };
 #endif  // CHROME_BROWSER_PASSWORD_MANAGER_EXCEPTIONS_VIEW_H__
-

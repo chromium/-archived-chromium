@@ -31,4 +31,3 @@ private:
 };
 
 #endif  // CHROME_BROWSER_LOAD_FROM_MEMORY_CACHE_DETAILS_H__
-

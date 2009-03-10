@@ -15,4 +15,3 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
                            IPC::Message* reply_msg);
 
 #endif  // CHROME_BROWSER_JS_BEFORE_UNLOAD_HANDLER_H_
-

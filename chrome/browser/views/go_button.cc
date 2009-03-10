@@ -131,4 +131,3 @@ bool GoButton::GetTooltipText(int x, int y, std::wstring* tooltip) {
       l10n_util::GetStringF(IDS_TOOLTIP_GO_SEARCH, L"Google", current_text));
   return true;
 }
-

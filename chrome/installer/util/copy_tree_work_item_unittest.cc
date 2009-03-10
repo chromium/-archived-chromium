@@ -667,4 +667,3 @@ TEST_F(CopyTreeWorkItemTest, CopyTree) {
   LOG(INFO) << "compare " << file_name_from_2 << " and " << file_name_to_2;
   EXPECT_TRUE(file_util::ContentsEqual(file_name_from_2, file_name_to_2));
 }
-

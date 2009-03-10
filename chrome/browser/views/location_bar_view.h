@@ -393,4 +393,3 @@ class LocationBarView : public LocationBar,
 };
 
 #endif // CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H__
-

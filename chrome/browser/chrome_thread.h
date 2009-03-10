@@ -79,4 +79,3 @@ class ChromeThread : public base::Thread {
 };
 
 #endif  // #ifndef CHROME_BROWSER_CHROME_THREAD_H__
-

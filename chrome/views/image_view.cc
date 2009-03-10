@@ -167,4 +167,3 @@ bool ImageView::GetTooltipText(int x, int y, std::wstring* tooltip) {
 }
 
 }  // namespace views
-

@@ -99,4 +99,3 @@ void FontsLanguagesWindowView::Init() {
   tabs_->AddTab(l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_TAB_TITLE), languages_page_);
 }
-

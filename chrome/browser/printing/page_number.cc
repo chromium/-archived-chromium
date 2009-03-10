@@ -81,4 +81,3 @@ bool PageNumber::operator!=(const PageNumber& other) const {
 }
 
 }  // namespace printing
-

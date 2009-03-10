@@ -48,4 +48,3 @@ class DebuggerHostImpl : public DebuggerHost {
 };
 
 #endif  // CHROME_BROWSER_DEBUGGER_DEBUGGER_HOST_IMPL_H__
-

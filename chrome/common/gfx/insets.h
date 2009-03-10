@@ -59,4 +59,3 @@ class Insets {
 } // namespace
 
 #endif // CHROME_COMMON_GFX_INSETS_H__
-

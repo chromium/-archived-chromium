@@ -22,4 +22,3 @@ GURL AppendGoogleTLDParam(const GURL& url);
 }  // namespace google_util
 
 #endif  // CHROME_BROWSER_GOOGLE_UTIL_H__
-

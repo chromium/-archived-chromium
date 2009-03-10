@@ -487,4 +487,3 @@ void BugReportView::ReportPhishing() {
       GURL(),
       PageTransition::LINK);
 }
-

@@ -107,4 +107,3 @@ TEST_F(ViewSourceTest, ViewSourceInPageMenuDisabledWhileViewingSource) {
 
   EXPECT_FALSE(IsPageMenuCommandEnabled(IDC_VIEW_SOURCE));
 }
-

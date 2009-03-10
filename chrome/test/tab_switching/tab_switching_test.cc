@@ -142,4 +142,3 @@ class TabSwitchingUITest : public UITest {
 TEST_F(TabSwitchingUITest, GenerateTabSwitchStats) {
   RunTabSwitchingUITest();
 }
-

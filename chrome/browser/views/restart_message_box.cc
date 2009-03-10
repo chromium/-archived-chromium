@@ -61,4 +61,3 @@ RestartMessageBox::RestartMessageBox(HWND parent_hwnd) {
 
 RestartMessageBox::~RestartMessageBox() {
 }
-

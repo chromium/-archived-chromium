@@ -203,4 +203,3 @@ class BrowserProxy : public AutomationResourceProxy {
 };
 
 #endif  // CHROME_TEST_AUTOMATION_BROWSER_PROXY_H_
-

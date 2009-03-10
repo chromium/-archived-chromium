@@ -24,4 +24,3 @@ typedef BOOL (__cdecl *RunPluginTests)(int* test_count);
 }
 
 #endif  // CHROME_TEST_INJECTION_TEST_DLL_H__
-

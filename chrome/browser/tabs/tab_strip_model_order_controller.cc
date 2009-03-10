@@ -129,4 +129,3 @@ int TabStripModelOrderController::GetValidIndex(int index,
     index = std::max(0, index - 1);
   return index;
 }
-

@@ -730,4 +730,3 @@ bool SSLManager::GetEVCertNames(const net::X509Certificate& cert,
   }
   return true;
 }
-

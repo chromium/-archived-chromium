@@ -146,4 +146,3 @@ class WindowSizer {
 
 
 #endif  // #ifndef CHROME_BROWSER_WINDOW_SIZER_H__
-

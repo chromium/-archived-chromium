@@ -15,4 +15,3 @@ class CProxy_IChromeTestControlEvents
 };
 
 #endif // #ifndef CHROME_TEST_ACTIVEX_TEST_CONTROL_CHROME_TEST_CONTROL_CP_H__
-

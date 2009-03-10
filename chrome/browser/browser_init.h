@@ -119,4 +119,3 @@ class BrowserInit {
 };
 
 #endif  // CHROME_BROWSER_BROWSER_INIT_H_
-

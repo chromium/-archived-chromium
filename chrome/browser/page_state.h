@@ -60,4 +60,3 @@ class PageState {
 
 
 #endif  // CHROME_BROWSER_PAGE_STATE_H__
-

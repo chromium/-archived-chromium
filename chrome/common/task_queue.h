@@ -40,4 +40,3 @@ class TaskQueue : public Task {
 };
 
 #endif  // CHROME_COMMON_TASK_QUEUE_H__
-

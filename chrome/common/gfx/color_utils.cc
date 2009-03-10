@@ -266,4 +266,3 @@ SkColor GetSysSkColor(int which) {
 }
 
 } // namespace color_utils
-

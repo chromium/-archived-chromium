@@ -179,4 +179,3 @@ void CheckBox::OnMouseReleased(const MouseEvent& event,
 }
 
 }  // namespace views
-

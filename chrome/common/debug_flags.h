@@ -31,4 +31,3 @@ class DebugFlags {
 };
 
 #endif  // CHROME_COMMON_DEBUG_FLAGS_H__
-

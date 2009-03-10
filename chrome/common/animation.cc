@@ -121,4 +121,3 @@ int Animation::CalculateInterval(int frame_rate) {
     timer_interval = 10;
   return timer_interval;
 }
-

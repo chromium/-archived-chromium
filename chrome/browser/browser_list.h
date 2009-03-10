@@ -169,4 +169,3 @@ class WebContentsIterator {
 };
 
 #endif  // CHROME_BROWSER_BROWSER_LIST_H__
-

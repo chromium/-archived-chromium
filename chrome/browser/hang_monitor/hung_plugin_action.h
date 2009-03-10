@@ -43,5 +43,3 @@ class HungPluginAction : public HungWindowDetector::HungWindowNotification {
 };
 
 #endif  // CHROME_BROWSER_HANG_MONITOR_HUNG_WINDOW_DETECTOR_H__
-
-

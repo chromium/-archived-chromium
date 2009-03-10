@@ -352,4 +352,3 @@ class ColumnSet {
 }  // namespace views
 
 #endif // CHROME_VIEWS_GRID_LAYOUT_H__
-

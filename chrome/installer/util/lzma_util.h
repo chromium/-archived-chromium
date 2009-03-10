@@ -35,4 +35,3 @@ class LzmaUtil {
 
 
 #endif  // CHROME_INSTALLER_UTIL_LZMA_UTIL_H__
-

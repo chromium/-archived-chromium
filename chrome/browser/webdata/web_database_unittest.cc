@@ -676,4 +676,3 @@ TEST_F(WebDatabaseTest, WebAppImages) {
     ASSERT_EQ(16, images[1].height());
   }
 }
-

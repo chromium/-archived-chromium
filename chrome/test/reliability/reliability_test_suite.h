@@ -23,4 +23,3 @@ protected:
 };
 
 #endif // CHROME_TEST_RELIABILITY_RELIABILITY_TEST_SUITE_H_
-

@@ -110,4 +110,3 @@ void installer::RemoveOldVersionDirs(const std::wstring& chrome_path,
 
   FindClose(file_handle);
 }
-

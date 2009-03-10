@@ -11,4 +11,3 @@
 CPBrowserFuncs* GetCPBrowserFuncsForRenderer();
 
 #endif  // CHROME_RENDERER_CHROME_PLUGIN_HOST_H__
-

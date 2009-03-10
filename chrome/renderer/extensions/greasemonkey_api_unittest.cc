@@ -84,4 +84,3 @@ TEST_F(GreasemonkeyApiTest, Log) {
 }
 
 #endif  // #if defined(OSWIN)
-

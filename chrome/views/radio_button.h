@@ -58,4 +58,3 @@ class RadioButton : public CheckBox {
 }  // namespace views
 
 #endif // CHROME_VIEWS_RADIO_BUTTON_H__
-

@@ -168,4 +168,3 @@ class TextDatabase {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_TEXT_DATABASE_H__
-

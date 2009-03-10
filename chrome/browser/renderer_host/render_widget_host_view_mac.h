@@ -116,4 +116,3 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_MAC_H_
-

@@ -72,4 +72,3 @@ std::string GetSignonRealm(const GURL& url,
                            const net::AuthChallengeInfo& auth_info);
 
 #endif  // CHROME_BROWSER_LOGIN_PROMPT_H__
-

@@ -335,4 +335,3 @@ TEST_F(PageCyclerTest, BloatHttp) {
 TEST_F(PageCyclerReferenceTest, BloatHttp) {
   RunTest("bloat", true);
 }
-

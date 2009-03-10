@@ -260,4 +260,3 @@ TEST(DnsQueueTest, WrapOnVariousSubstrings) {
 }
 
 };  // namespace
-

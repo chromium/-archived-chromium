@@ -15,4 +15,3 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state);
 }
 
 #endif  // CHROME_BROWSER_BROWSER_PREFS_H__
-

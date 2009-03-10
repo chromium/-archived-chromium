@@ -193,4 +193,3 @@ TEST_F(SetupHelperTest, DeleteInUsed) {
   // the latest version should stay
   EXPECT_TRUE(file_util::PathExists(chrome_dll_4));
 }
-

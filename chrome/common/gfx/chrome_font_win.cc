@@ -210,5 +210,3 @@ ChromeFont::HFontRef* ChromeFont::CreateHFontRef(HFONT font) {
   return new HFontRef(font, height, baseline, ave_char_width, style,
                       dlu_base_x);
 }
-
-

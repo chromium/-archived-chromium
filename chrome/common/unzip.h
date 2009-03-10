@@ -17,4 +17,3 @@ bool Unzip(const FilePath& zip_file, const FilePath& dest_dir,
            std::vector<FilePath>* files);
 
 #endif  // CHROME_COMMON_UNZIP_H_
-

@@ -24,4 +24,3 @@ const gfx::Emf* PrintedPage::emf() const {
 }
 
 }  // namespace printing
-

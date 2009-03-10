@@ -12,4 +12,3 @@
 bool PipeImpersonationAttack();
 
 #endif  // CHROME_TEST_SECURITY_TESTS_IPC_SECURITY_TESTS_H__
-

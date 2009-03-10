@@ -29,4 +29,3 @@ bool IsPossibleDispositionEvent(const views::MouseEvent& event) {
 }
 
 }
-

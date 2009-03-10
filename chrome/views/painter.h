@@ -118,4 +118,3 @@ class HorizontalPainter : public Painter {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_PAINTER_H__
-

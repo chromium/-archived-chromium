@@ -512,4 +512,3 @@ void ShelfItemDialog::OnDoubleClick() {
 GURL ShelfItemDialog::GetInputURL() const {
   return GURL(URLFixerUpper::FixupURL(url_field_->GetText(), L""));
 }
-

@@ -120,4 +120,3 @@ class CustomFrameView : public NonClientFrameView,
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
-

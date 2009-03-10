@@ -50,4 +50,3 @@ bool ApplyPolicyForTrustedPlugin(sandbox::TargetPolicy* policy);
 bool ApplyPolicyForUntrustedPlugin(sandbox::TargetPolicy* policy);
 
 #endif  // CHROME_BROWSER_SANDBOX_POLICY_H_
-

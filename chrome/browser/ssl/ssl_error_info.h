@@ -80,4 +80,3 @@ private:
 };
 
 #endif  // CHROME_BROWSER_SSL_ERROR_INFO_H__
-

@@ -47,4 +47,3 @@ class DeleteTreeWorkItem : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_DELETE_TREE_WORK_ITEM_H__
-

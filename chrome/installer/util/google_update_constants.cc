@@ -27,4 +27,3 @@ const wchar_t kRegReferralField[] = L"referral";
 
 const wchar_t kEnvProductVersionKey[] = L"CHROME_VERSION";
 }  // namespace installer
-

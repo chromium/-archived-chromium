@@ -163,4 +163,3 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_OPAQUE_BROWSER_FRAME_VIEW_H_
-

@@ -190,4 +190,3 @@ bool PipeImpersonationAttack() {
   ::CloseHandle(thread);
   return true;
 }
-

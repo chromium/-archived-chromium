@@ -203,4 +203,3 @@ void ViewStorage::Observe(NotificationType type,
 }
 
 }  // namespace views
-

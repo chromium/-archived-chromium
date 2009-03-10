@@ -125,5 +125,3 @@ void DebuggerInputOutputSocket::DidClose(ListenSocket *sock) {
     // TODO(erikkay): assert?
   }
 }
-
-

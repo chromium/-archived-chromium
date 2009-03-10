@@ -124,4 +124,3 @@ void PageSetup::SetRequestedMargins(const PageMargins& requested_margins) {
 }
 
 }  // namespace printing
-

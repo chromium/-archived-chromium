@@ -221,4 +221,3 @@ class NonClientView : public View {
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_NON_CLIENT_VIEW_H_
-

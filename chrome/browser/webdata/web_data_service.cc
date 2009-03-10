@@ -679,4 +679,3 @@ int WebDataService::GetNextRequestHandle() {
   AutoLock l(pending_lock_);
   return ++next_request_handle_;
 }
-

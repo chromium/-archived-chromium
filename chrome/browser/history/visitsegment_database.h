@@ -85,4 +85,3 @@ class VisitSegmentDatabase {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_VISITSEGMENT_DATABASE_H__
-

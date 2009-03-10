@@ -41,4 +41,3 @@ bool MessageRouter::RouteMessage(const IPC::Message& msg) {
   listener->OnMessageReceived(msg);
   return true;
 }
-

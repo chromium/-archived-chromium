@@ -23,4 +23,3 @@ class DevToolsUI : public DOMUI {
 };
 
 #endif  // CHROME_BROWSER_DOM_UI_DEV_TOOLS_UI_H_
-

@@ -100,4 +100,3 @@ class JSONFileValueSerializer : public ValueSerializer {
 };
 
 #endif  // CHROME_COMMON_JSON_VALUE_SERIALIZER_H__
-

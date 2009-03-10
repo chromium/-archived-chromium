@@ -193,4 +193,3 @@ TEST_F(PasswordFormManagerTest, TestEmptyAction) {
   EXPECT_EQ(observed_form()->action,
             GetPendingCredentials(manager.get())->action);
 }
-

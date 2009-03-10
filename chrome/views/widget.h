@@ -88,4 +88,3 @@ class Widget {
 }  // namespace views
 
 #endif // CHROME_VIEWS_WIDGET_H_
-

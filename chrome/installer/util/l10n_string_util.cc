@@ -234,4 +234,3 @@ std::wstring GetLocalizedEulaResource() {
 }
 
 }  // namespace installer_util
-

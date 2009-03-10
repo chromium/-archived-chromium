@@ -97,4 +97,3 @@ void URLRequestMockNetErrorJob::StartAsync() {
 void URLRequestMockNetErrorJob::ContinueDespiteLastError() {
   Start();
 }
-

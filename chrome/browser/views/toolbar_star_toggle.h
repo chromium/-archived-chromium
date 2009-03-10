@@ -59,4 +59,3 @@ class ToolbarStarToggle : public views::ToggleButton,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_TOOLBAR_STAR_TOGGLE_H_
-

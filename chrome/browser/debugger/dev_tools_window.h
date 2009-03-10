@@ -43,4 +43,3 @@ class DevToolsWindow : public views::WindowDelegate {
 };
 
 #endif  // CHROME_BROWSER_DEBUGGER_DEV_TOOLS_WINDOW_H_
-

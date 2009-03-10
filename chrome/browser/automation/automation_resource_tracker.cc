@@ -81,4 +81,3 @@ void AutomationResourceTrackerImpl::HandleCloseNotification(void* resource) {
 
   RemoveImpl(resource);
 }
-

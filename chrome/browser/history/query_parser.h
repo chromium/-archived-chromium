@@ -96,4 +96,3 @@ class QueryParser {
 };
 
 #endif  // CHROME_BROWSER_HISTORY_QUERY_PARSER_H__
-

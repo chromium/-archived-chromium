@@ -89,4 +89,3 @@ class HungWindowDetector : public WorkerThreadTicker::Callback {
 
 
 #endif  // CHROME_BROWSER_HUNG_WINDOW_DETECTOR_H__
-

@@ -55,4 +55,3 @@ void DOMBoundBrowserObject::SetProperty(const std::string& name,
   BindProperty(name, cpp_value);
   properties_.push_back(cpp_value);
 }
-

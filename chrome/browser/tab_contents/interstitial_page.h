@@ -185,4 +185,3 @@ class InterstitialPage : public NotificationObserver,
 };
 
 #endif  // #ifndef CHROME_BROWSER_TAB_CONTENTS_INTERSTITIAL_PAGE_H_
-

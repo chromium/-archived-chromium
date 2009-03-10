@@ -187,4 +187,3 @@ TEST_F(ResourceDispatcherTest, Cookies) {
 TEST_F(ResourceDispatcherTest, SerializedPostData) {
   // FIXME
 }
-

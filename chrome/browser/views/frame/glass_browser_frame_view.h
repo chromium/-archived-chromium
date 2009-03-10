@@ -104,4 +104,3 @@ class GlassBrowserFrameView : public BrowserNonClientFrameView {
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_GLASS_BROWSER_FRAME_VIEW_H_
-

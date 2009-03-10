@@ -160,4 +160,3 @@ bool RenderDnsMaster::is_numeric_ip(const char* name, size_t length) {
   }
   return true;
 }
-

@@ -138,4 +138,3 @@ public:
 }  // namespace views
 
 #endif  // CHROME_VIEWS_TEXT_BUTTON_H__
-

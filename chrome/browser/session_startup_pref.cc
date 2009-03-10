@@ -95,4 +95,3 @@ SessionStartupPref SessionStartupPref::GetStartupPref(PrefService* prefs) {
 
   return pref;
 }
-

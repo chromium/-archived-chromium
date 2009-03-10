@@ -176,4 +176,3 @@ class DnsMaster {
 }  // namespace chrome_browser_net
 
 #endif  // CHROME_BROWSER_NET_DNS_MASTER_H_
-

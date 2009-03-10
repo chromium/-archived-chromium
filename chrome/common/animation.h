@@ -120,4 +120,3 @@ class Animation {
 };
 
 #endif  // CHROME_COMMON_ANIMATION_H__
-

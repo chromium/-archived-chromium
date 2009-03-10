@@ -124,4 +124,3 @@ bool MessageReplyDeserializer::SerializeOutputParameters(const Message& msg) {
 }
 
 }  // namespace IPC
-

@@ -60,4 +60,3 @@ void BackForwardMenuModelWin::MenuWillShow() {
 int BackForwardMenuModelWin::GetItemCount() const {
   return GetTotalItemCount();
 }
-

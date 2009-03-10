@@ -447,4 +447,3 @@ int PasswordFormManager::ScoreResult(const PasswordForm& candidate) const {
 
   return score;
 }
-

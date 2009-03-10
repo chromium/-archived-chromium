@@ -30,4 +30,3 @@ class ViewMenuDelegate {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_VIEW_MENU_DELEGATE_H__
-

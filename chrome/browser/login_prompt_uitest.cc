@@ -170,4 +170,3 @@ TEST_F(LoginPromptTest, TestCancelAuth) {
   EXPECT_FALSE(tab->NeedsAuth());
   EXPECT_EQ(L"Denied: no auth", GetActiveTabTitle());
 }
-

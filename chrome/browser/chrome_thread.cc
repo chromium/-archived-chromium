@@ -45,4 +45,3 @@ MessageLoop* ChromeThread::GetMessageLoop(ID identifier) {
 
   return NULL;
 }
-

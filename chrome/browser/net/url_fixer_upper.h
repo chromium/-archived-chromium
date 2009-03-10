@@ -63,4 +63,3 @@ namespace URLFixerUpper {
 };
 
 #endif  // #ifndef CHROME_BROWSER_URL_FIXER_UPPER_H__
-

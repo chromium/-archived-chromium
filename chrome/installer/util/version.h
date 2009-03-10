@@ -44,4 +44,3 @@ private:
 }  // namespace installer
 
 #endif
-

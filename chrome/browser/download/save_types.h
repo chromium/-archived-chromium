@@ -70,4 +70,3 @@ struct SaveFileCreateInfo {
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_SAVE_TYPES_H__
-

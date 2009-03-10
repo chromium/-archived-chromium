@@ -101,4 +101,3 @@ TEST_F(AnimationTest, CancelCase) {
   EXPECT_TRUE(ad.finished());
   EXPECT_TRUE(ad.canceled());
 }
-

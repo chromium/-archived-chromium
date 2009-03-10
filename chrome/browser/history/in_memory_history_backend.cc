@@ -140,4 +140,3 @@ void InMemoryHistoryBackend::OnURLsDeleted(const URLsDeletedDetails& details) {
 }
 
 }  // namespace history
-

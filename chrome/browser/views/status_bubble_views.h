@@ -68,4 +68,3 @@ class StatusBubbleViews : public StatusBubble {
 };
 
 #endif  // CHROME_BROWSER_VIEWS_STATUS_BUBBLE_VIEWS_H_
-

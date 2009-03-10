@@ -29,4 +29,3 @@ class HungRendererWarning {
 
 
 #endif  // CHROME_BROWSER_VIEWS_HUNG_RENDERER_VIEW_H__
-

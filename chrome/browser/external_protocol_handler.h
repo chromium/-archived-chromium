@@ -51,4 +51,3 @@ class ExternalProtocolHandler {
 };
 
 #endif  // CHROME_BROWSER_EXTERNAL_PROTOCOL_HANDLER_H__
-

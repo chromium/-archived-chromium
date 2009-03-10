@@ -58,4 +58,3 @@ void GearsQueryShortcuts(GearsQueryShortcutsCallback* callback);
 // via the NotificationService, NOTIFY_WEB_APP_INSTALL_CHANGED.
 
 #endif  // CHROME_BROWSER_GEARS_INTEGRATION_H__
-

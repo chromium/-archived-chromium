@@ -499,4 +499,3 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   EXPECT_NE(tab1_2_url.spec(), tab1_url.spec());
   EXPECT_NE(tab1_2_url.spec(), tab3_url.spec());
 }
-

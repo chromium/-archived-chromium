@@ -144,4 +144,3 @@ TEST(PageSetupTest, HardCoded) {
   EXPECT_EQ(effective_margins.bottom, setup.effective_margins().bottom) <<
       " " << page_size << " " << printable_area << " " << kTextHeight;
 }
-

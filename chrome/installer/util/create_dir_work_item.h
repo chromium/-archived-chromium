@@ -43,4 +43,3 @@ class CreateDirWorkItem : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_CREATE_DIR_WORK_ITEM_H__
-

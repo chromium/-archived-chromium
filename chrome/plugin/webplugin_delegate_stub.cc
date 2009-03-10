@@ -341,4 +341,3 @@ void WebPluginDelegateStub::OnURLRequestRouted(const std::string& url,
                                                HANDLE notify_data) {
   delegate_->URLRequestRouted(url, notify_needed, notify_data);
 }
-

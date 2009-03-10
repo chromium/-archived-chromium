@@ -474,4 +474,3 @@ void IconUtil::ComputeBitmapSizeComponents(const SkBitmap& bitmap,
   int masks_size = *xor_mask_size + *and_mask_size;
   *bytes_in_resource = masks_size + sizeof(BITMAPINFOHEADER);
 }
-

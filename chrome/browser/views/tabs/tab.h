@@ -138,4 +138,3 @@ class Tab : public TabRenderer,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_TABS_TAB_H_
-

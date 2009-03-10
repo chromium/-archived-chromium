@@ -123,4 +123,3 @@ void AeroTooltipManager::InitialTimer::Execute() {
 }
 
 }  // namespace views
-

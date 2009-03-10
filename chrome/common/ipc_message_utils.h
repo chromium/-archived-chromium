@@ -1473,4 +1473,3 @@ struct ParamTraits<FindInPageRequest> {
 }  // namespace IPC
 
 #endif  // CHROME_COMMON_IPC_MESSAGE_UTILS_H_
-

@@ -121,4 +121,3 @@ View* RadioButton::GetSelectedViewForGroup(int group_id) {
 }
 
 }  // namespace views
-

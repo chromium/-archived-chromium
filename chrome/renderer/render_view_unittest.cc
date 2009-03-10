@@ -318,4 +318,3 @@ TEST_F(RenderViewTest, ImeComposition) {
     }
   }
 }
-

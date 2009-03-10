@@ -147,4 +147,3 @@ bool ShellIntegration::IsFirefoxDefaultBrowser() {
   }
   return ff_default;
 }
-

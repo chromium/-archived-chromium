@@ -329,4 +329,3 @@ TEST_F(ThumbnailDatabaseTest, NeverAcceptTotallyBoringThumbnail) {
 }
 
 }  // namespace history
-

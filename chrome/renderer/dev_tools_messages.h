@@ -9,4 +9,3 @@
 #include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_RENDERER_DEV_TOOLS_MESSAGES_H_
-

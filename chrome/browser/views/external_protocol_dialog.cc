@@ -138,4 +138,3 @@ std::wstring ExternalProtocolDialog::GetApplicationForProtocol(
     return std::wstring();
   }
 }
-

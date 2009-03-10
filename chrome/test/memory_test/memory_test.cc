@@ -436,4 +436,3 @@ TEST_F(MemoryTest, FiveTabTest) {
 TEST_F(MemoryTest, TwelveTabTest) {
   RunTest(L"12t", 12);
 }
-

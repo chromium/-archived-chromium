@@ -177,4 +177,3 @@ class Emf::Enumerator {
 }  // namespace gfx
 
 #endif  // CHROME_COMMON_GFX_EMF_H__
-

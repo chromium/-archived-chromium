@@ -955,4 +955,3 @@ LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
 }
 
 }  // namespace views
-

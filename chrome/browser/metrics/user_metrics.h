@@ -38,4 +38,3 @@ class UserMetrics {
 };
 
 #endif  // CHROME_BROWSER_USER_METRICS_H__
-

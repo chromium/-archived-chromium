@@ -47,4 +47,3 @@ TEST(IPCMessageTest, Serialize) {
   void* iter = NULL;
   EXPECT_FALSE(IPC::ParamTraits<GURL>::Read(&msg, &iter, &output));
 }
-

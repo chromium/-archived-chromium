@@ -104,4 +104,3 @@ class PrinterQuery : public base::RefCountedThreadSafe<PrinterQuery>,
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PRINTER_QUERY_H_
-

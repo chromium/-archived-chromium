@@ -85,4 +85,3 @@ void StringPrefMember::UpdateValueFromPref() {
 void StringPrefMember::UpdatePref(const std::wstring& value) {
   prefs()->SetString(pref_name().c_str(), value);
 }
-

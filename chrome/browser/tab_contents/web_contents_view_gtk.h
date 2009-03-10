@@ -76,4 +76,3 @@ class WebContentsViewGtk : public WebContentsView {
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
-

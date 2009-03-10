@@ -46,4 +46,3 @@ TEST_F(ColumnLayout, Crash) {
 
   // UIText will check if this crashed.
 }
-

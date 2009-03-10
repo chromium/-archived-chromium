@@ -30,4 +30,3 @@ class URLRequestFailedDnsJob : public URLRequestJob {
 };
 
 #endif  // CHROME_BROWSER_AUTOMATION_URL_REQUEST_FAILED_DNS_JOB_H__
-

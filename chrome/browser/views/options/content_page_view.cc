@@ -519,4 +519,3 @@ void ContentPageView::UpdateDownloadDirectoryDisplay() {
   download_default_download_location_display_->SetFile(
       FilePath::FromWStringHack(default_download_location_.GetValue()));
 }
-

@@ -189,4 +189,3 @@ class CacheManagerHost {
 };
 
 #endif  // CHROME_BROWSER_CACHE_MANAGER_HOST_H__
-

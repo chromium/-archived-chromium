@@ -436,4 +436,3 @@ bool SafeBrowsingBlockingPage::IsMainPage(
   return unsafe_resources.size() == 1 &&
          unsafe_resources[0].resource_type == ResourceType::MAIN_FRAME;
 }
-

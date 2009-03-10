@@ -95,4 +95,3 @@ typedef struct _GearsCreateShortcutResult {
 #endif
 
 #endif // CHROME_COMMON_GEARS_API_H__
-

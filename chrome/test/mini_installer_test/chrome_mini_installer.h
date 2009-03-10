@@ -121,4 +121,3 @@ class ChromeMiniInstaller {
 };
 
 #endif  // CHROME_TEST_MINI_INSTALLER_TEST_CHROME_MINI_INSTALLER_H__
-

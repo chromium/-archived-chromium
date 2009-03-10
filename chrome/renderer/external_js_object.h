@@ -39,4 +39,3 @@ class ExternalJSObject : public CppBoundClass {
 };
 
 #endif  // CHROME_RENDERER_EXTERNAL_JS_OBJECT_H__
-

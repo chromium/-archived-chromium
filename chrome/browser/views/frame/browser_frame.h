@@ -89,4 +89,3 @@ class BrowserFrame : public views::Window {
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_
-

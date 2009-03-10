@@ -241,4 +241,3 @@ TEST_F(DownloadTest, DISABLED_KnownSize) {
   std::wstring filename = file_util::GetFilenameFromPath(url);
   RunSizeTest(url, L"71% - " + filename, L"100% - " + filename);
 }
-

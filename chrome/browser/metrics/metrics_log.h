@@ -203,4 +203,3 @@ class MetricsLog {
 };
 
 #endif  // CHROME_BROWSER_METRICS_LOG_H__
-

@@ -58,4 +58,3 @@ void NativeFrameView::ResetWindowControls() {
 }
 
 }  // namespace views
-

@@ -25,4 +25,3 @@ class DomOperationNotificationDetails {
 };
 
 #endif  // CHROME_BROWSER_DOM_OPERATION_NOTIFICATION_DETAILS_H__
-

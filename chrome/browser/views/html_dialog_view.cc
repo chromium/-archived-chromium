@@ -183,4 +183,3 @@ void HtmlDialogView::InitDialog() {
   host->Init(this);
   host->set_delegate(this);
 }
-

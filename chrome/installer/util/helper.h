@@ -42,4 +42,3 @@ void RemoveOldVersionDirs(const std::wstring& chrome_path,
 }  // namespace installer
 
 #endif
-

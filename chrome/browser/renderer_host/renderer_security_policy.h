@@ -119,4 +119,3 @@ class RendererSecurityPolicy {
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDERER_SECURITY_POLICY_H_
-

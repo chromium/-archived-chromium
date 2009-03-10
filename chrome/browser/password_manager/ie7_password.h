@@ -44,4 +44,3 @@ std::wstring GetUrlHash(const std::wstring& url);
 }  // namespace ie7_password
 
 #endif  // CHROME_BROWSER_IE7_PASSWORD_H__
-

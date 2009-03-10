@@ -261,4 +261,3 @@ END_MSG_MAP()
 OBJECT_ENTRY_AUTO(__uuidof(ChromeTestControl), ChromeTestControl)
 
 #endif // #ifndef CHROME_TEST_ACTIVEX_TEST_CONTROL_CHROME_TEST_CONTROL_H__
-

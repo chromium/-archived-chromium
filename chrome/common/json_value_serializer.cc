@@ -56,4 +56,3 @@ Value* JSONFileValueSerializer::Deserialize(std::string* error_message) {
   JSONStringValueSerializer serializer(json_string);
   return serializer.Deserialize(error_message);
 }
-

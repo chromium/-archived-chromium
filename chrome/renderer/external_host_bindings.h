@@ -48,4 +48,3 @@ class ExternalHostBindings : public DOMBoundBrowserObject {
 };
 
 #endif  // CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H_
-

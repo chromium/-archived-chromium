@@ -183,4 +183,3 @@ EulaHTMLDialog::Outcome EulaHTMLDialog::ShowModal() {
 }
 
 }  // namespace installer
-

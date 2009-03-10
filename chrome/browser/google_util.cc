@@ -49,4 +49,3 @@ GURL AppendGoogleTLDParam(const GURL& url) {
 }
 
 }  // namespace google_util
-

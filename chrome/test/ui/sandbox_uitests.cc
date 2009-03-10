@@ -23,4 +23,3 @@ class SandboxTest : public UITest {
 TEST_F(SandboxTest, ExecuteDll) {
   EXPECT_EQ(1, GetTabCount());
 }
-

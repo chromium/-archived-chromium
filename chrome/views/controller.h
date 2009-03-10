@@ -31,4 +31,3 @@ class Controller {
 };
 
 #endif // CHROME_VIEWS_CONTROLLER_H_
-

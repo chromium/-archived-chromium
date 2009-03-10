@@ -65,4 +65,3 @@ TEST(Bzip2Test, Roundtrip) {
   EXPECT_EQ(arraysize(input) - 1, stream.total_out_lo32);
   EXPECT_STREQ(input, output2);
 }
-

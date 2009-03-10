@@ -46,4 +46,3 @@ string16 GetLocalizedString(int message_id) {
 }
 
 }  // namespace webkit_glue
-

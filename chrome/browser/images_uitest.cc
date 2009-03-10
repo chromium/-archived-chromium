@@ -31,4 +31,3 @@ TEST_F(ImagesTest, AnimatedGIFs) {
 
   // Tau will check if this crashed.
 }
-

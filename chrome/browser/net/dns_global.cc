@@ -492,4 +492,3 @@ void TrimSubresourceReferrers() {
 }
 
 }  // namespace chrome_browser_net
-

@@ -158,4 +158,3 @@ class GeneralPageView : public OptionsPageView,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_OPTIONS_GENERAL_PAGE_VIEW_H_
-

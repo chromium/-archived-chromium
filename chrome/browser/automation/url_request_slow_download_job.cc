@@ -168,4 +168,3 @@ bool URLRequestSlowDownloadJob::GetMimeType(std::string* mime_type) const {
   GetResponseInfoConst(&info);
   return info.headers && info.headers->GetMimeType(mime_type);
 }
-

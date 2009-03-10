@@ -173,4 +173,3 @@ class StringPrefMember : public PrefMember<std::wstring> {
 };
 
 #endif  // CHROME_COMMON_PREF_MEMBER_H_
-

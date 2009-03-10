@@ -98,4 +98,3 @@ class NotificationService {
 };
 
 #endif  // CHROME_COMMON_NOTIFICATION_SERVICE_H_
-

@@ -57,4 +57,3 @@ class DebuggerWindow : public DebuggerInputOutput,
 };
 
 #endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_WINDOW_H__
-

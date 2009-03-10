@@ -22,4 +22,3 @@ ProvisionalLoadDetails::ProvisionalLoadDetails(bool is_main_frame,
                                       &ssl_cert_status_,
                                       &ssl_security_bits_);
 }
-

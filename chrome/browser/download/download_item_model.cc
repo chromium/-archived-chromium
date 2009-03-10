@@ -129,4 +129,3 @@ std::wstring SavePageModel::GetStatusText() {
 
   return status_text;
 }
-

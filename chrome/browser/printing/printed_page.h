@@ -51,4 +51,3 @@ class PrintedPage : public base::RefCountedThreadSafe<PrintedPage> {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PRINTED_PAGE_H__
-

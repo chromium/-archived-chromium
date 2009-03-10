@@ -31,4 +31,3 @@ ChromeFont::ChromeFont() {
 
   CopyChromeFont(*default_font_);
 }
-

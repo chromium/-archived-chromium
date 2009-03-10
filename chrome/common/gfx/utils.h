@@ -10,4 +10,3 @@
 const int kTwipsPerInch = 1440;
 
 #endif  // CHROME_COMMON_GFX_UTILS_H__
-

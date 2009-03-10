@@ -50,4 +50,3 @@ class BrowserDistribution {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_BROWSER_DISTRIBUTION_H_
-

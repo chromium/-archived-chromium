@@ -94,4 +94,3 @@ class MessageReplyDeserializer {
 }  // namespace IPC
 
 #endif  // CHROME_COMMON_IPC_SYNC_MESSAGE_H__
-

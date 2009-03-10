@@ -83,4 +83,3 @@ class Firefox3Importer : public Importer {
 };
 
 #endif  // CHROME_BROWSER_IMPORTER_FIREFOX3_IMPORTER_H_
-

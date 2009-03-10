@@ -219,4 +219,3 @@ void WebContentsViewGtk::ShowCreatedWidgetInternal(
     const gfx::Rect& initial_pos) {
   NOTIMPLEMENTED();
 }
-

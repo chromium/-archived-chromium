@@ -176,4 +176,3 @@ GURL ExtensionsUI::GetBaseURL() {
   url += kExtensionsHost;
   return GURL(url);
 }
-

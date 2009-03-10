@@ -65,4 +65,3 @@ class VisitTracker {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_VISIT_TRACKER_H__
-

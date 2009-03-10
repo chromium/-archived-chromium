@@ -128,4 +128,3 @@ std::wstring Accelerator::GetShortcutText() const {
 }
 
 }  // namespace views
-

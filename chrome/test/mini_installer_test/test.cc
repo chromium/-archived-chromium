@@ -60,4 +60,3 @@ TEST(InstallUtilTests, MiniInstallTestValidWindowsVersion) {
   // Make sure the code agrees.
   EXPECT_TRUE(InstallUtil::IsOSSupported());
 }
-

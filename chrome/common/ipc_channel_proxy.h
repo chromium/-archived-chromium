@@ -201,4 +201,3 @@ class ChannelProxy : public Message::Sender {
 }  // namespace IPC
 
 #endif  // CHROME_COMMON_IPC_CHANNEL_PROXY_H__
-

@@ -36,4 +36,3 @@ void ShowOptionsWindow(OptionsPage page,
                        Profile* profile);
 
 #endif  // #ifndef CHROME_BROWSER_OPTIONS_WINDOW_H__
-

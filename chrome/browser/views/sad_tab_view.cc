@@ -97,5 +97,3 @@ void SadTabView::InitClass() {
     initialized = true;
   }
 }
-
-

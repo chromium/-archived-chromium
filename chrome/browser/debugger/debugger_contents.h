@@ -34,4 +34,3 @@ class DebuggerContents : public DOMUI {
 };
 
 #endif  // CHROME_BROWSER_DEBUGGER_CONTENTS_H__
-

@@ -15,4 +15,3 @@
 BSTR GetChromeExePath();
 
 #endif  // CHROME_TEST_ACCESSIBILITY_REGISTRY_UTIL_H_
-

@@ -121,4 +121,3 @@ void LoginView::FocusFirstField() {
 }
 
 }  // namespace
-

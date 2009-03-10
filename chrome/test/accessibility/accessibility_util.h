@@ -141,4 +141,3 @@ HRESULT GetPageMenuButton(IAccessible** acc_obj);
 HRESULT GetAppMenuButton(IAccessible** acc_obj);
 
 #endif  // CHROME_TEST_ACCESSIBILITY_ACCESSIBILITY_UTIL_H_
-

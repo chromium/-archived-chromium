@@ -367,4 +367,3 @@ bool Extension::InitFromValue(const DictionaryValue& source,
 
   return true;
 }
-

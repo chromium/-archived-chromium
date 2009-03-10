@@ -294,4 +294,3 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
     NOTIMPLEMENTED();
   }
 }
-

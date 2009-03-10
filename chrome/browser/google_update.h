@@ -121,4 +121,3 @@ class GoogleUpdate : public base::RefCountedThreadSafe<GoogleUpdate> {
 };
 
 #endif  // CHROME_BROWSER_GOOGLE_UPDATE_H_
-

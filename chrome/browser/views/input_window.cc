@@ -168,4 +168,3 @@ views::Window* CreateInputWindow(HWND parent_hwnd,
   window->client_view()->AsDialogClientView()->UpdateDialogButtons();
   return window;
 }
-

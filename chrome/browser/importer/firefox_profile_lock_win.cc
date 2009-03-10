@@ -73,5 +73,3 @@ void FirefoxProfileLock::Unlock() {
 bool FirefoxProfileLock::HasAcquired() {
   return (lock_handle_ != INVALID_HANDLE_VALUE);
 }
-
-

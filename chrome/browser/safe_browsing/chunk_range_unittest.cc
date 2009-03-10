@@ -192,5 +192,3 @@ TEST(SafeBrowsingChunkRangeTest, TestSearchChunkRanges) {
   EXPECT_FALSE(IsChunkInRange(990, ranges));
   EXPECT_FALSE(IsChunkInRange(2000, ranges));
 }
-
-

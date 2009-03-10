@@ -132,4 +132,3 @@ TEST_F(BrowserCrashTest, DISABLED_Crash) {
   Sleep(5000);
   expected_crashes_ = 1;
 }
-

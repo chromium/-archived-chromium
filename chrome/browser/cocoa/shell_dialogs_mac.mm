@@ -15,5 +15,3 @@ SelectFontDialog* SelectFontDialog::Create(Listener* listener) {
   NOTREACHED() << "Implement me.";
   return NULL;
 }
-
-

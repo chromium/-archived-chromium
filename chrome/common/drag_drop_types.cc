@@ -28,4 +28,3 @@ uint32 DragDropTypes::DragOperationToDropEffect(int drag_operation) {
     drop_effect |= DROPEFFECT_MOVE;
   return drop_effect;
 }
-

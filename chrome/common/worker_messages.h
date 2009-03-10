@@ -18,4 +18,3 @@
 #include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_WORKER_MESSAGES_H_
-

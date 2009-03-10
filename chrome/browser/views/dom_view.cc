@@ -38,4 +38,3 @@ bool DOMView::Init(Profile* profile, SiteInstance* instance) {
   host_->controller()->LoadURL(contents_, GURL(), PageTransition::START_PAGE);
   return true;
 }
-

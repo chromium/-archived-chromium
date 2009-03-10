@@ -57,4 +57,3 @@ void DownloadRequestDialogDelegateWin::DeleteDelegate() {
   DCHECK(!host_);
   delete this;
 }
-

@@ -44,5 +44,3 @@ void StripComment(std::string* line) {
 }
 
 }  // namespace convert_dict
-
-

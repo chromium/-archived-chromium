@@ -116,4 +116,3 @@ class DraggedTabView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_TABS_DRAGGED_TAB_VIEW_H_
-

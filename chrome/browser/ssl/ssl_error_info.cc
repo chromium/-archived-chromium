@@ -246,4 +246,3 @@ int SSLErrorInfo::GetErrorsForCertStatus(int cert_id,
   }
   return count;
 }
-

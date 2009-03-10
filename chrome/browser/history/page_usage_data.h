@@ -146,4 +146,3 @@ class PageUsageData {
 };
 
 #endif  // CHROME_BROWSER_HISTORY_PAGE_USAGE_DATA_H__
-

@@ -57,4 +57,3 @@ class ProvisionalLoadDetails {
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_PROVISIONAL_LOAD_DETAILS_H_
-

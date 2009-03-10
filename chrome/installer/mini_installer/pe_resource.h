@@ -39,4 +39,3 @@ class PEResource {
 };
 
 #endif  // CHROME_INSTALLER_MINI_INSTALLER_PE_RESOURCE__
-

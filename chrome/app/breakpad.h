@@ -21,4 +21,3 @@ void InitDefaultCrashCallback();
 bool ShowRestartDialogIfCrashed(bool* exit_now);
 
 #endif  // CHROME_APP_BREAKPAD_H_
-

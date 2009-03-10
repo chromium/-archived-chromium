@@ -33,4 +33,3 @@ class ProcessWatcher {
 };
 
 #endif  // CHROME_COMMON_PROCESS_WATCHER_H_
-

@@ -214,4 +214,3 @@ void ParamTraits<webkit_glue::WebApplicationInfo>::Log(
 }
 
 }  // namespace IPC
-

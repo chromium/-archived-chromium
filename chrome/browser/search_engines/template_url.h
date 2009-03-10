@@ -433,4 +433,3 @@ class TemplateURL {
 };
 
 #endif // CHROME_BROWSER_TEMPLATE_URL_PARSER_H__
-

@@ -136,4 +136,3 @@ TEST(VisitTracker, ProcessRemove) {
   };
   RunTest(&tracker, part2, arraysize(part2));
 }
-

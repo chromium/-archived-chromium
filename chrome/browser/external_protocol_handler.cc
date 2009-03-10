@@ -194,4 +194,3 @@ void ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck(const GURL& url) {
 void ExternalProtocolHandler::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterDictionaryPref(prefs::kExcludedSchemes);
 }
-

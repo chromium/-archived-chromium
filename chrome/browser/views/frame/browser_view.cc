@@ -1675,4 +1675,3 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
   (new BrowserFrame(browser_view))->Init();
   return browser_view;
 }
-

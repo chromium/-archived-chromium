@@ -43,4 +43,3 @@ void SetDragImageOnDataObject(const ChromeCanvas& canvas,
 } // namespace drag_utils
 
 #endif  // #ifndef CHROME_BROWSER_DRAG_UTILS_H__
-

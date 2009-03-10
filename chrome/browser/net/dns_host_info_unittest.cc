@@ -86,4 +86,3 @@ TEST(DnsHostInfoTest, StateChangeTest) {
 // hostname when already set.
 
 }  // namespace
-

@@ -38,4 +38,3 @@ void DevToolsClient::DidDebugAttach() {
   DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   // TODO(yurys): delegate to JS frontend.
 }
-

@@ -34,4 +34,3 @@ TEST(PageRangeTest, Empty) {
   std::vector<int> pages(printing::PageRange::GetPages(ranges));
   EXPECT_EQ(0U, pages.size());
 }
-

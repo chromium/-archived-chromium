@@ -481,4 +481,3 @@ void URLDatabase::CreateSupplimentaryURLIndices() {
 }
 
 }  // namespace history
-

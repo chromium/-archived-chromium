@@ -99,4 +99,3 @@ void UserDataDirDialog::FileSelected(const std::wstring& path, void* params) {
 
 void UserDataDirDialog::FileSelectionCanceled(void* params) {
 }
-

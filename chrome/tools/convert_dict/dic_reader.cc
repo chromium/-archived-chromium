@@ -173,4 +173,3 @@ bool DicReader::Read(AffReader* aff_reader) {
 }
 
 }  // namespace convert_dict
-

@@ -151,4 +151,3 @@ TEST_F(StartupFileTest, PerfColdGears) {
 }
 
 #endif  // defined(OS_WIN)
-

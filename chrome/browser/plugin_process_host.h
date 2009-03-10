@@ -152,4 +152,3 @@ class PluginProcessHost : public ChildProcessHost,
 };
 
 #endif  // CHROME_BROWSER_PLUGIN_PROCESS_HOST_H_
-

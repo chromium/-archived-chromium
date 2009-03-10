@@ -169,4 +169,3 @@ TEST(HistoryQueryResult, AppendResults) {
 }
 
 }  // namespace
-

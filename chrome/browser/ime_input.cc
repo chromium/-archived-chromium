@@ -335,4 +335,3 @@ void ImeInput::EnableIME(HWND window_handle,
     ::ImmReleaseContext(window_handle, imm_context);
   }
 }
-

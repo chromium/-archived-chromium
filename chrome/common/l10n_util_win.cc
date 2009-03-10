@@ -32,4 +32,3 @@ void HWNDSetRTLLayout(HWND hwnd) {
 }
 
 }  // namespace l10n_util
-

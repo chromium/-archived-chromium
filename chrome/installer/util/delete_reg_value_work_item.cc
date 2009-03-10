@@ -79,4 +79,3 @@ void DeleteRegValueWorkItem::Rollback() {
   key.Close();
   return;
 }
-

@@ -105,4 +105,3 @@ WebPreferences DOMUIHost::GetWebkitPrefs() {
 void DOMUIHost::ExecuteJavascript(const std::wstring& javascript) {
   render_view_host()->ExecuteJavascriptInWebFrame(std::wstring(), javascript);
 }
-

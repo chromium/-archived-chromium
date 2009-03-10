@@ -617,4 +617,3 @@ TEST_F(ResourceDispatcherHostTest, TooManyOutstandingRequests) {
   CheckSuccessfulRequest(msgs[kMaxRequests + 3],
                          URLRequestTestJob::test_data_2());
 }
-

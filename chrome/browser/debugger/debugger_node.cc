@@ -396,4 +396,3 @@ template<class T>
 v8::Handle<v8::Value> FunctionNode<T>::Function(const v8::Arguments &args) {
   return function_(args, data_);
 }
-

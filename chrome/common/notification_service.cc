@@ -138,4 +138,3 @@ NotificationService::~NotificationService() {
 }
 
 NotificationObserver::~NotificationObserver() {}
-

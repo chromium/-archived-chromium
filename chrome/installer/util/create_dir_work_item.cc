@@ -67,4 +67,3 @@ void CreateDirWorkItem::Rollback() {
 
   return;
 }
-

@@ -136,4 +136,3 @@ class DebuggerShell : public DebuggerHost {
 
 #endif // else CHROME_DEBUGGER_DISABLED
 #endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_SHELL_H_
-

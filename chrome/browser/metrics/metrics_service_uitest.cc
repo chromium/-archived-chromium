@@ -109,4 +109,3 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   EXPECT_EQ(3, local_state->GetInteger(prefs::kStabilityPageLoadCount));
   EXPECT_EQ(1, local_state->GetInteger(prefs::kStabilityRendererCrashCount));
 }
-

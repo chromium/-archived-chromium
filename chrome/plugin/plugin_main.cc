@@ -83,4 +83,3 @@ int PluginMain(const MainFunctionParams& parameters) {
   CoUninitialize();
   return 0;
 }
-

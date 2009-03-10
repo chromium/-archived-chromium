@@ -53,4 +53,3 @@ TEST_F(InspectorControllerTest, DISABLED_InspectElement) {
       L"files/inspector/test2.html"));
   EXPECT_EQ(2, tab->InspectElement(0, 0));
 }
-

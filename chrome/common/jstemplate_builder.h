@@ -27,4 +27,3 @@ namespace jstemplate_builder {
                               const StringPiece& template_id);
 }  // namespace jstemplate_builder
 #endif // CHROME_RENDERER_JSTEMPLATE_BUILDER_H__
-

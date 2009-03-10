@@ -76,4 +76,3 @@ TEST(EncryptorTest, EncryptionDecryption) {
 }
 
 }  // namespace
-

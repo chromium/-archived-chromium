@@ -70,4 +70,3 @@ class ArchivedDatabase : public URLDatabase,
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_ARCHIVED_DATABASE_H__
-

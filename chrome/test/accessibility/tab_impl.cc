@@ -363,4 +363,3 @@ bool TabImpl::GoBack(void) {
 bool TabImpl::GoForward(void) {
   return true;
 }
-

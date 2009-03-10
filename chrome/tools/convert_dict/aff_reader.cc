@@ -291,4 +291,3 @@ void AffReader::HandleEncodedCommand(const std::string& line) {
 }
 
 }  // namespace convert_dict
-

@@ -423,4 +423,3 @@ int MainEntryPoint() {
   int result = mini_installer::WMain(::GetModuleHandle(NULL));
   ::ExitProcess(result);
 }
-

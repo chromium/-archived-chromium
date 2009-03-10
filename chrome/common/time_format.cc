@@ -247,4 +247,3 @@ std::wstring TimeFormat::RelativeDate(
 
   return std::wstring();
 }
-

@@ -96,4 +96,3 @@ class DownloadShelfView : public DownloadShelf,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_DOWNLOAD_SHELF_VIEW_H_
-

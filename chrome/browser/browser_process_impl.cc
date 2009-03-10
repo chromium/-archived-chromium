@@ -381,4 +381,3 @@ void BrowserProcessImpl::CreateGoogleURLTracker() {
   scoped_ptr<GoogleURLTracker> google_url_tracker(new GoogleURLTracker);
   google_url_tracker_.swap(google_url_tracker);
 }
-

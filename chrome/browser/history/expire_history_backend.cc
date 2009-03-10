@@ -504,4 +504,3 @@ BookmarkService* ExpireHistoryBackend::GetBookmarkService() {
 }
 
 }  // namespace history
-

@@ -351,4 +351,3 @@ int NativeScrollBar::GetVerticalScrollBarWidth() {
 }
 
 }  // namespace views
-

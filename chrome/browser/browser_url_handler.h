@@ -46,4 +46,3 @@ class BrowserURLHandler {
 };
 
 #endif  // CHROME_BROWSER_BROWSER_URL_HANDLER_H_
-

@@ -65,4 +65,3 @@ std::wstring GetLogFilePath(const CommandLine& command_line) {
 }
 
 }  // namespace installer
-

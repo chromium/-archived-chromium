@@ -79,5 +79,3 @@ MetricsResponse::MetricsResponse(const std::string& response_xml)
   events_ = state.events;
   interval_ = state.interval;
 }
-
-

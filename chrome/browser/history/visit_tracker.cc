@@ -104,4 +104,3 @@ void VisitTracker::CleanupTransitionList(TransitionList* transitions) {
 }
 
 }  // namespace history
-

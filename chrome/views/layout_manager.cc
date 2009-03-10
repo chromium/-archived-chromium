@@ -13,4 +13,3 @@ int LayoutManager::GetPreferredHeightForWidth(View* host, int width) {
 }
 
 }  // namespace views
-

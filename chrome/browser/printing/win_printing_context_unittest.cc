@@ -27,4 +27,3 @@ TEST_F(PrintingContextTest, Base) {
   EXPECT_TRUE(SetWorldTransform(context.context(), &random_matrix));
   EXPECT_TRUE(ModifyWorldTransform(context.context(), NULL, MWT_IDENTITY));
 }
-

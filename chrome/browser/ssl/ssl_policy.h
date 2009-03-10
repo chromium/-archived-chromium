@@ -66,4 +66,3 @@ class SSLPolicy : public SSLManager::Delegate,
 };
 
 #endif  // CHROME_BROWSER_SSL_POLICY_H__
-

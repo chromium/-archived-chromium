@@ -214,4 +214,3 @@ TEST(FirefoxImporterTest, ProfileLockContention) {
   lock2->Unlock();
   EXPECT_FALSE(lock2->HasAcquired());
 }
-

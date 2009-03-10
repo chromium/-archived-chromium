@@ -115,4 +115,3 @@ void DownloadStartedAnimation::Observe(NotificationType type,
                                        const NotificationDetails& details) {
   Close();
 }
-

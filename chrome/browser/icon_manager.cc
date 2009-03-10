@@ -109,5 +109,3 @@ bool IconManager::CacheKey::operator<(const CacheKey &other) const {
     return file_name < other.file_name;
   return size < other.size;
 }
-
-

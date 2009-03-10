@@ -12,4 +12,3 @@ int main(int argc, char **argv) {
 
   return PerfTestSuite(argc, argv).Run();
 }
-

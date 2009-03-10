@@ -103,4 +103,3 @@ bool CreateRegKeyWorkItem::InitKeyList() {
 
   return true;
 }
-

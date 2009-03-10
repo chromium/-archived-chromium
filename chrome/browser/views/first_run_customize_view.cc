@@ -223,4 +223,3 @@ bool FirstRunCustomizeView::Cancel() {
 
   return true;
 }
-

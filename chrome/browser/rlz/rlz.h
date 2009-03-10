@@ -97,4 +97,3 @@ class RLZTracker {
 };
 
 #endif  // CHROME_BROWSER_RLZ_RLZ_H__
-

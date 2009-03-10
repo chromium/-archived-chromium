@@ -49,4 +49,3 @@ class GoogleUpdateSettings {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_GOOGLE_UPDATE_SETTINGS_H_
-

@@ -188,4 +188,3 @@ void AdvancedPageView::InitControlLayout() {
   layout->AddView(reset_to_default_button_, 1, 1,
                   GridLayout::TRAILING, GridLayout::CENTER);
 }
-

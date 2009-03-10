@@ -104,4 +104,3 @@ class CharacterEncoding {
 };
 
 #endif  // CHROME_BROWSER_CHARACTER_ENCODING_H__
-

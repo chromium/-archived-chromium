@@ -46,4 +46,3 @@ bool PEResource::WriteToDisk(const wchar_t* full_path) {
   }
   return ::CloseHandle(out_file) ? true : false;
 }
-

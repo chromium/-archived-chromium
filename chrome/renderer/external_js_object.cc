@@ -21,4 +21,3 @@ void ExternalJSObject::AddSearchProvider(const CppArgumentList& args,
     render_view_->AddSearchProvider(args[0].ToString());
   }
 }
-

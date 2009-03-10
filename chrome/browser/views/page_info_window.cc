@@ -684,4 +684,3 @@ void PageInfoWindow::ShowCertDialog(int cert_id) {
   // modal to the browser window.
   BOOL rv = ::CryptUIDlgViewCertificate(&view_info, &properties_changed);
 }
-

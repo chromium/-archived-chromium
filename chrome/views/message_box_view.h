@@ -117,4 +117,3 @@ class MessageBoxView : public views::View {
 };
 
 #endif // CHROME_VIEWS_MESSAGE_BOX_VIEW_VIEW_H__
-

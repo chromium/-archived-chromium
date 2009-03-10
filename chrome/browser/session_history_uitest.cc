@@ -512,4 +512,3 @@ TEST_F(SessionHistoryTest, LocationReplace) {
   EXPECT_EQ(L"", GetTabTitle());
 }
 #endif
-

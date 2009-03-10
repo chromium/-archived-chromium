@@ -247,4 +247,3 @@ TEST(IPCSyncMessageTest, Main) {
   Send(new Msg_R_3_3(0, 3, "3_3", true, &string1, &int1, &bool1));
   DCHECK(string1 == "3_3" && int1 == 33 && !bool1);
 }
-

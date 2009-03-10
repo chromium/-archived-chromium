@@ -134,4 +134,3 @@ void OptionsGroupView::Init() {
     layout->AddView(separator_);
   }
 }
-

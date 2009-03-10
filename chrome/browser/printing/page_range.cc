@@ -21,4 +21,3 @@ std::vector<int> PageRange::GetPages(const PageRanges& ranges) {
 }
 
 }  // namespace printing
-

@@ -366,4 +366,3 @@ void EditKeywordController::CleanUpCancelledAdd() {
     template_url_ = NULL;
   }
 }
-

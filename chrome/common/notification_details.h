@@ -50,4 +50,3 @@ class Details : public NotificationDetails {
 };
 
 #endif  // CHROME_COMMON_NOTIFICATION_DETAILS_H__
-

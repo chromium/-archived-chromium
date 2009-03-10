@@ -410,4 +410,3 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
   ui_loop->PostTask(FROM_HERE, new LoginDialogTask(auth_info, handler));
   return handler;
 }
-

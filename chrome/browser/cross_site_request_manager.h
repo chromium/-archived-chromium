@@ -54,4 +54,3 @@ class CrossSiteRequestManager {
 };
 
 #endif  // CHROME_BROWSER_CROSS_SITE_REQUEST_MANAGER_H__
-

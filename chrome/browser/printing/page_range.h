@@ -29,4 +29,3 @@ struct PageRange {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PAGE_RANGE_H__
-

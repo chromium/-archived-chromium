@@ -315,4 +315,3 @@ int CALLBACK Emf::Enumerator::EnhMetaFileProc(HDC hdc,
 }
 
 }  // namespace gfx
-

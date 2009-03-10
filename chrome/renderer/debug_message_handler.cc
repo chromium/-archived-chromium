@@ -131,4 +131,3 @@ bool DebugMessageHandler::OnMessageReceived(const IPC::Message& message) {
   IPC_END_MESSAGE_MAP()
   return handled;
 }
-

@@ -59,4 +59,3 @@ class Decision : public View {
 }  // namespace views
 
 #endif // CHROME_VIEWS_DECISION_H__
-

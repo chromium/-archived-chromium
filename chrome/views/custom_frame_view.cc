@@ -695,4 +695,3 @@ void CustomFrameView::InitClass() {
 }
 
 }  // namespace views
-

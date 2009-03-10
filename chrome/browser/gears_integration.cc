@@ -314,4 +314,3 @@ void GearsQueryShortcuts(GearsQueryShortcutsCallback* callback) {
       new QueryShortcutsCommand(callback),
       NULL);
 }
-

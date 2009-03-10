@@ -102,4 +102,3 @@ class PasswordManager : public views::LoginModel {
 };
 
 #endif
-

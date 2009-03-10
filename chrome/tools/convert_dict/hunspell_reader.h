@@ -23,5 +23,3 @@ void StripComment(std::string* line);
 }  // namespace convert_dict
 
 #endif  // CHROME_TOOLS_DIC_CONVERTER_HUNSPELL_READER_H__
-
-

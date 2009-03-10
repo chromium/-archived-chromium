@@ -31,4 +31,3 @@ const wchar_t kLtrLocale[] = L"LEFT_TO_RIGHT";
 const wchar_t kNoOOBreakpad[] = L"NO_OO_BREAKPAD";
 
 }  // namespace env_vars
-

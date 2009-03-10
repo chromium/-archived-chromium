@@ -44,4 +44,3 @@ class DicReader {
 }  // namespace convert_dict
 
 #endif  // CHROME_TOOLS_CONVERT_DICT_DIC_READER_H__
-

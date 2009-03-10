@@ -250,4 +250,3 @@ TEST(Snippets, ExtractMatchPositions) {
     }
   }
 }
-

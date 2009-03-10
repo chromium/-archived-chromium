@@ -37,4 +37,3 @@ class URLRequestMockHTTPJob : public URLRequestFileJob {
 };
 
 # endif  // CHROME_BROWSER_AUTOMATION_URL_REQUEST_MOCK_HTTP_JOB_H__
-

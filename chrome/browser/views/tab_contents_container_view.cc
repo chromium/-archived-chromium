@@ -258,4 +258,3 @@ void TabContentsContainerView::TabContentsDestroyed(TabContents* contents) {
   DCHECK(contents == tab_contents_);
   SetTabContents(NULL);
 }
-

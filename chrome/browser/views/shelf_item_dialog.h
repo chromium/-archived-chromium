@@ -124,4 +124,3 @@ class ShelfItemDialog : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_SHELF_ITEM_DIALOG_H__
-

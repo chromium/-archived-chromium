@@ -98,4 +98,3 @@ class WorkItemList : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_WORK_ITEM_LIST_H__
-

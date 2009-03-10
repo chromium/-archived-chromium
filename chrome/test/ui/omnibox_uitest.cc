@@ -176,4 +176,3 @@ TEST_F(OmniboxTest, Measure) {
   wprintf(L"__om_time_per_query_min = %d\n", time_min_);
   wprintf(L"__om_score = %.4f\n", 100.0 * score_ / max_score_);
 }
-

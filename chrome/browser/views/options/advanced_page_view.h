@@ -40,4 +40,3 @@ class AdvancedPageView : public OptionsPageView,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_OPTIONS_ADVANCED_PAGE_VIEW_H_
-

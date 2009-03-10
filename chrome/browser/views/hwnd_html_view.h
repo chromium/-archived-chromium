@@ -64,4 +64,3 @@ class HWNDHtmlView : public views::HWNDView {
 };
 
 #endif  // CHROME_BROWSER_VIEWS_HWND_HTML_VIEW_H_
-

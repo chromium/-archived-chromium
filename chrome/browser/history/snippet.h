@@ -66,4 +66,3 @@ class Snippet {
 };
 
 #endif  // CHROME_BROWSER_HISTORY_SNIPPET_H__
-

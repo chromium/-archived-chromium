@@ -117,4 +117,3 @@ View* RootViewDropTarget::CalculateTargetView(
 }
 
 }  // namespace views
-

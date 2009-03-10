@@ -113,4 +113,3 @@ class BrowserImpl {
 };
 
 #endif  // CHROME_TEST_ACCESSIBILITY_BROWSER_IMPL_H_
-

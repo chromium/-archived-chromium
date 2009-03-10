@@ -20,4 +20,3 @@ TEST(CompatTests, SymantecSEP) {
   EXPECT_FALSE(HasIncompatibleSymantecEndpointVersion(L"11.b.3000.1"));
 
 }
-

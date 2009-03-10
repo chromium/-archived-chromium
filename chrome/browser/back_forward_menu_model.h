@@ -162,4 +162,3 @@ class BackForwardMenuModel {
 };
 
 #endif  // CHROME_BROWSER_BACK_FORWARD_MENU_MODEL_H_
-

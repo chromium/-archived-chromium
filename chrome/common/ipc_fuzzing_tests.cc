@@ -428,4 +428,3 @@ TEST_F(IPCFuzzingTest, MsgMapExMacro) {
   EXPECT_EQ(0, server.unhandled_msgs());
 #endif
 }
-

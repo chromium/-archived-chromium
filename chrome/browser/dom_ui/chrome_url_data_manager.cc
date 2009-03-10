@@ -356,4 +356,3 @@ URLRequestChromeFileJob::URLRequestChromeFileJob(URLRequest* request,
 }
 
 URLRequestChromeFileJob::~URLRequestChromeFileJob() { }
-

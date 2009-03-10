@@ -59,4 +59,3 @@ class MoveTreeWorkItem : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_MOVE_TREE_WORK_ITEM_H_
-

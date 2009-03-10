@@ -170,4 +170,3 @@ TEST_F(SeleniumTest, Core) {
     printf("\n");
   }
 }
-

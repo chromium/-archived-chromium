@@ -50,4 +50,3 @@ class SQLitePersistentCookieStore
 };
 
 #endif  // CHROME_COMMON_NET_COOKIE_MONSTER_SQLITE_H__
-

@@ -350,4 +350,3 @@ class Menu {
 };
 
 #endif  // CHROME_VIEWS_MENU_H_
-

@@ -191,4 +191,3 @@ class PasswordManagerView : public views::View,
   DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerView);
 };
 #endif  // CHROME_BROWSER_PASSWORD_MANAGER_VIEW_H__
-

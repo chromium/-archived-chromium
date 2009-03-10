@@ -88,4 +88,3 @@ class ToolbarModel {
 };
 
 #endif  // CHROME_BROWSER_TOOLBAR_MODEL_H__
-

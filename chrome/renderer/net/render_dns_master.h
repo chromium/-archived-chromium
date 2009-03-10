@@ -107,4 +107,3 @@ class RenderDnsMaster {
 };  // class RenderDnsMaster
 
 #endif  // CHROME_RENDERER_RENDER_NET_DNS_MASTER_H__
-

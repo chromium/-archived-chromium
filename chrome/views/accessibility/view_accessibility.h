@@ -127,5 +127,3 @@ class ATL_NO_VTABLE ViewAccessibility
   DISALLOW_EVIL_CONSTRUCTORS(ViewAccessibility);
 };
 #endif  // CHROME_VIEWS_ACCESSIBILITY_VIEW_ACCESSIBILITY_H__
-
-

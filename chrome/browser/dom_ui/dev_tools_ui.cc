@@ -19,5 +19,3 @@ void DevToolsUI::RenderViewCreated(RenderViewHost* render_view_host) {
   render_view_host->Send(new ViewMsg_SetupDevToolsClient(
       render_view_host->routing_id()));
 }
-
-

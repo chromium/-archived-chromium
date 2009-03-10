@@ -290,4 +290,3 @@ class TabProxy : public AutomationResourceProxy {
 };
 
 #endif  // CHROME_TEST_AUTOMATION_TAB_PROXY_H_
-

@@ -144,4 +144,3 @@ bool DnsQueue::Validate() {
           '\0' == buffer_[buffer_sentinel_] &&
           ((0 == size_) == (readable_ == writeable_));
 }
-

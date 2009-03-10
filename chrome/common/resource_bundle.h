@@ -194,4 +194,3 @@ class ResourceBundle {
 };
 
 #endif // CHROME_COMMON_RESOURCE_BUNDLE_H__
-

@@ -111,4 +111,3 @@ Background* Background::CreateBackgroundPainter(bool owns_painter,
 }
 
 }  // namespace views
-

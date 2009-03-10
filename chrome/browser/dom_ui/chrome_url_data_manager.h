@@ -149,4 +149,3 @@ void RegisterURLRequestChromeJob();
 void UnregisterURLRequestChromeJob();
 
 #endif  // BROWSER_DOM_UI_CHROME_URL_DATA_MANAGER_H__
-

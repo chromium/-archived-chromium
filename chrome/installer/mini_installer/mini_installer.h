@@ -47,4 +47,3 @@ const wchar_t kManifestFilename[] = L"packed_files.txt";
 }  // namespace mini_installer
 
 #endif  // CHROME_INSTALLER_MINI_INSTALLER__
-

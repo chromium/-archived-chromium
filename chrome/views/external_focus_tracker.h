@@ -74,4 +74,3 @@ class ExternalFocusTracker : public FocusChangeListener {
 }  // namespace views
 
 #endif // CHROME_BROWSER_VIEWS_EXTERNAL_FOCUS_TRACKER_H__
-

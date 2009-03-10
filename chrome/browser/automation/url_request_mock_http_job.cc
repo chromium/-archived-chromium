@@ -90,4 +90,3 @@ bool URLRequestMockHTTPJob::GetCharset(std::string* charset) {
   GetResponseInfo(&info);
   return info.headers && info.headers->GetCharset(charset);
 }
-

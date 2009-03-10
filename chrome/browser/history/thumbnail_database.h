@@ -175,4 +175,3 @@ class ThumbnailDatabase {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_THUMBNAIL_DATABASE_H__
-

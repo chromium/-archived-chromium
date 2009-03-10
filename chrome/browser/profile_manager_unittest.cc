@@ -85,4 +85,3 @@ TEST_F(ProfileManagerTest, CreateProfile) {
   ASSERT_EQ(L"new-profile", prefs->GetString(prefs::kProfileID));
 #endif
 }
-

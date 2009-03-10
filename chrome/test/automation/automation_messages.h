@@ -127,4 +127,3 @@ struct ParamTraits<NavigationEntry::PageType> {
 #include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_TEST_AUTOMATION_AUTOMATION_MESSAGES_H__
-

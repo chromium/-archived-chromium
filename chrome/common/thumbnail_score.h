@@ -65,4 +65,3 @@ bool ShouldReplaceThumbnailWith(const ThumbnailScore& current,
                                 const ThumbnailScore& replacement);
 
 #endif  // CHROME_BROWSER_COMMON_THUMBNAIL_SCORE_H__
-

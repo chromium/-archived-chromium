@@ -615,4 +615,3 @@ CPBrowserFuncs* GetCPBrowserFuncsForPlugin() {
 
   return &browser_funcs;
 }
-

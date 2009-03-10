@@ -216,4 +216,3 @@ TEST_F(DeleteTreeWorkItemTest, DeleteTreeInUse) {
   // make sure the handle is closed.
   WaitForSingleObject(pi.hProcess, INFINITE);
 }
-

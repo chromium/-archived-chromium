@@ -98,4 +98,3 @@ class HWNDView : public View {
 }  // namespace views
 
 #endif // CHROME_VIEWS_HWND_VIEW_H__
-

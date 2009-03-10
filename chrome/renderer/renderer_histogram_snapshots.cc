@@ -91,4 +91,3 @@ void RendererHistogramSnapshots::UploadHistogramDelta(
       Histogram::SerializeHistogramInfo(histogram, snapshot);
   pickled_histograms->push_back(histogram_info);
 }
-

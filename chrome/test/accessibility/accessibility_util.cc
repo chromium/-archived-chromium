@@ -551,4 +551,3 @@ LONG GetState(IAccessible* acc_obj, VARIANT child) {
   VariantClear(&state);
   return state.lVal;
 }
-

@@ -74,4 +74,3 @@ WorkItemList* WorkItem::CreateWorkItemList() {
 std::wstring WorkItem::Dump() {
   return std::wstring(L"Work Item");
 }
-

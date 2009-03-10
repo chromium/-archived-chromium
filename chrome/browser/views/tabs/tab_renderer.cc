@@ -701,4 +701,3 @@ void TabRenderer::DisplayCrashedFavIcon() {
 void TabRenderer::ResetCrashedFavIcon() {
   should_display_crashed_favicon_ = false;
 }
-

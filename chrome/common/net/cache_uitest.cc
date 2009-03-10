@@ -176,4 +176,3 @@ TEST_F(CacheTest, NoStoreMaxAge) {
 TEST_F(CacheTest, NoTransform) {
   RunCacheTest(L"cache/no-transform", false, false);
 }
-

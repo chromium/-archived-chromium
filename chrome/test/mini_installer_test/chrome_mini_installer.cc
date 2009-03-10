@@ -460,4 +460,3 @@ void ChromeMiniInstaller::WaitUntilProcessStopsRunning(
   }
   ASSERT_EQ(0, base::GetProcessCount(process_name, NULL));
 }
-

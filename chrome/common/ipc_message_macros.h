@@ -1149,4 +1149,3 @@ LogFunction g_log_function_mapping[LastMsgIndex];
   };
 
 #endif  // #if defined()
-

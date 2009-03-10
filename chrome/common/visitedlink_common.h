@@ -132,4 +132,3 @@ class VisitedLinkCommon {
 };
 
 #endif // WIN_COMMON_VISITEDLINK_COMMON_H__
-

@@ -101,4 +101,3 @@ class HtmlDialogView
 };
 
 #endif  // CHROME_BROWSER_VIEWS_HTML_DIALOG_VIEW_H_
-

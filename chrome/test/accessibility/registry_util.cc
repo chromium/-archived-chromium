@@ -12,4 +12,3 @@ BSTR GetChromeExePath() {
   BSTR chrome_exe_path = SysAllocString(CHROME_PATH);
   return chrome_exe_path;
 }
-

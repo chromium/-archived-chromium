@@ -498,4 +498,3 @@ VariableRowHeightScrollHelper::RowInfo
 }
 
 }  // namespace views
-

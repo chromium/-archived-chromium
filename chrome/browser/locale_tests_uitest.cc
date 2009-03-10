@@ -36,4 +36,3 @@ TEST_F(LocaleTestsHe, TestStart) {
 TEST_F(LocaleTestsZhTw, TestStart) {
   // Just making sure we can start/shutdown cleanly.
 }
-

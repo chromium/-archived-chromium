@@ -73,4 +73,3 @@ class ExtensionsUI : public DOMUI {
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSIONS_UI_H_
-

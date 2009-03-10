@@ -232,4 +232,3 @@ void QueryResults::AdjustResultMap(size_t begin, size_t end, ptrdiff_t delta) {
 }
 
 }  // namespace history
-

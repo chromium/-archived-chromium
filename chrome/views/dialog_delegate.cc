@@ -50,4 +50,3 @@ DialogClientView* DialogDelegate::GetDialogClientView() const {
 }
 
 }  // namespace views
-

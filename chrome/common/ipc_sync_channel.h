@@ -157,4 +157,3 @@ class SyncChannel : public ChannelProxy,
 }  // namespace IPC
 
 #endif  // CHROME_COMMON_IPC_SYNC_SENDER_H__
-

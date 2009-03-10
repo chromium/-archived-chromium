@@ -47,5 +47,3 @@ class V8UnitTest : public testing::Test {
 };
 
 #endif  // CHROME_TEST_V8_UNIT_TEST_H_
-
-

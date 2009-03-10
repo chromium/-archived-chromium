@@ -845,4 +845,3 @@ bool BrowserToolbarView::GetAcceleratorInfo(int id,
   // Else, we retrieve the accelerator information from the frame.
   return GetWidget()->GetAccelerator(id, accel);
 }
-

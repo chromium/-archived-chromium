@@ -78,4 +78,3 @@ void TestNotificationTracker::Observe(NotificationType type,
                                       const NotificationDetails& details) {
   events_.push_back(Event(type, source, details));
 }
-

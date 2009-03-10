@@ -163,4 +163,3 @@ int LanguageComboboxModel::GetSelectedLanguageIndex(const std::wstring&
 
   return GetIndexFromLocale(current_lang);
 }
-

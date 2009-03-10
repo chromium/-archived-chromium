@@ -1616,4 +1616,3 @@ void View::DragInfo::PossibleDrag(int x, int y) {
 }
 
 }  // namespace
-

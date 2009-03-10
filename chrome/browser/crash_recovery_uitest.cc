@@ -74,4 +74,3 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
   // entry was properly committed.
   EXPECT_EQ(title, GetActiveTabTitle());
 }
-

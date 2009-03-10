@@ -153,4 +153,3 @@ void CALLBACK HungPluginAction::HungWindowResponseCallback(HWND target_window,
     instance->OnWindowResponsive(target_window);
   }
 }
-

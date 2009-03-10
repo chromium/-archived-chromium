@@ -168,4 +168,3 @@ class PasswordFormManager : public WebDataServiceConsumer {
   DISALLOW_EVIL_CONSTRUCTORS(PasswordFormManager);
 };
 #endif  // CHROME_BROWSER_PASSWORD_FORM_MANAGER_H__
-

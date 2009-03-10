@@ -168,4 +168,3 @@ class HistoryDatabase : public DownloadDatabase,
 }  // history
 
 #endif  // CHROME_BROWSER_HISTORY_HISTORY_DATABASE_H__
-

@@ -73,4 +73,3 @@ class RootViewDropTarget : public BaseDropTarget {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_ROOT_VIEW_DROP_TARGET_H__
-

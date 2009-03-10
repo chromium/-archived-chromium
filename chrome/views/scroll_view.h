@@ -205,4 +205,3 @@ class FixedRowHeightScrollHelper : public VariableRowHeightScrollHelper {
 }  // namespace views
 
 #endif // CHROME_VIEWS_SCROLL_VIEW_H__
-

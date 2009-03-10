@@ -103,4 +103,3 @@ void RenderViewContextMenuGtk::DoneMakingMenu(
   };
   menu->push_back(end_menu_item);
 }
-

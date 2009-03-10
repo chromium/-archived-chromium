@@ -190,4 +190,3 @@ void MessageBoxView::ResetLayoutManager() {
 
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 }
-

@@ -45,4 +45,3 @@ int ScrollBar::GetMinPosition() const {
 }
 
 }  // namespace views
-

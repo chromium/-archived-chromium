@@ -71,4 +71,3 @@ inline typename std::basic_ostream<E,T>& operator<<(
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PAGE_NUMBER_H__
-

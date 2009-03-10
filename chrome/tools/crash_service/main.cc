@@ -64,4 +64,3 @@ int __stdcall wWinMain(HINSTANCE instance, HINSTANCE, wchar_t* cmd_line,
   LOG(INFO) << "session end. return code is " << retv;
   return retv;
 }
-

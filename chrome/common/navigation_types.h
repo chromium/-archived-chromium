@@ -61,4 +61,3 @@ class NavigationType {
 };
 
 #endif  // CHROME_COMMON_NAVIGATION_TYPES_H_
-

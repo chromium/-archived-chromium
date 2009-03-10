@@ -36,4 +36,3 @@ gfx::Size Separator::GetPreferredSize() {
 }
 
 }  // namespace views
-

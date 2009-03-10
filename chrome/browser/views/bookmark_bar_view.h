@@ -440,4 +440,3 @@ class BookmarkBarView : public views::View,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
-

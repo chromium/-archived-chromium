@@ -260,4 +260,3 @@ TEST_F(RendererSecurityPolicyTest, RemoveRace) {
   EXPECT_FALSE(p->CanUploadFile(kRendererID, file));
   EXPECT_FALSE(p->HasDOMUIBindings(kRendererID));
 }
-

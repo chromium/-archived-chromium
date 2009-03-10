@@ -406,4 +406,3 @@ bool PrintViewManager::OpportunisticallyCreatePrintJob(int cookie) {
 }
 
 }  // namespace printing
-

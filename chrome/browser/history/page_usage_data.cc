@@ -11,4 +11,3 @@ bool PageUsageData::Predicate(const PageUsageData* lhs,
                               const PageUsageData* rhs) {
   return lhs->GetScore() > rhs->GetScore();
 }
-

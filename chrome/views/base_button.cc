@@ -314,4 +314,3 @@ void BaseButton::Paint(ChromeCanvas* canvas, bool for_drag) {
 }
 
 }  // namespace views
-

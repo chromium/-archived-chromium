@@ -151,4 +151,3 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
 
   return net::RegistryControlledDomainService::SameDomainOrHost(url1, url2);
 }
-

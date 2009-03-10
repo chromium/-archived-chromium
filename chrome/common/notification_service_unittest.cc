@@ -183,4 +183,3 @@ TEST(NotificationServiceTest, MultipleRegistration) {
                   NotificationService::NoDetails());
   EXPECT_EQ(3, idle_test_source.notification_count());
 }
-

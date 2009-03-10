@@ -686,4 +686,3 @@ bool ShellUtil::UpdateChromeShortcut(const std::wstring& chrome_exe,
                                          0);                      // icon index
   }
 }
-

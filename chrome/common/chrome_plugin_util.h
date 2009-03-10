@@ -81,4 +81,3 @@ void* STDCALL CPB_Alloc(uint32 size);
 void STDCALL CPB_Free(void* memory);
 
 #endif  // CHROME_COMMON_CHROME_PLUGIN_UTIL_H__
-

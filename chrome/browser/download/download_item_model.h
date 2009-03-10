@@ -71,4 +71,3 @@ class SavePageModel : public BaseDownloadItemModel {
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_ITEM_MODEL_H_
-

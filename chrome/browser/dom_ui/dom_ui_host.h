@@ -90,4 +90,3 @@ class DOMUIHost : public WebContents {
 };
 
 #endif  // CHROME_BROWSER_DOM_UI_DOM_UI_HOST_H__
-

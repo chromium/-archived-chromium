@@ -44,4 +44,3 @@ installer::Version* installer::Version::GetVersionFromString(
   return new Version(StringToInt64(numbers[0]), StringToInt64(numbers[1]),
                      StringToInt64(numbers[2]), StringToInt64(numbers[3]));
 }
-

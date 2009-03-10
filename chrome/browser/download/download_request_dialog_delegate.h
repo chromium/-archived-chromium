@@ -55,4 +55,3 @@ class DownloadRequestDialogDelegate {
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_REQUEST_DIALOG_DELEGATE_H_
-

@@ -55,4 +55,3 @@ class SadTabView : public views::View {
 };
 
 #endif  // CHROME_BROWSER_VIEWS_SAD_TAB_H__
-

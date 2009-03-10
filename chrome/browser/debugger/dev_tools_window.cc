@@ -50,4 +50,3 @@ bool DevToolsWindow::CanResize() const {
 views::View* DevToolsWindow::GetContentsView() {
   return tools_view_;
 }
-

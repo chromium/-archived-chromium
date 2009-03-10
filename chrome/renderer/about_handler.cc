@@ -65,4 +65,3 @@ void AboutHandler::AboutHang() {
 void AboutHandler::AboutShortHang() {
   PlatformThread::Sleep(20000);
 }
-

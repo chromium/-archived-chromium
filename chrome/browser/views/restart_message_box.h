@@ -38,4 +38,3 @@ class RestartMessageBox : public views::DialogDelegate {
 };
 
 #endif  // CHROME_BROWSER_VIEWS_RESTART_MESSAGE_BOX_H_
-

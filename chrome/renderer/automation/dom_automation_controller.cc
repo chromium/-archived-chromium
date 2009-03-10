@@ -103,4 +103,3 @@ void DomAutomationController::SetAutomationId(
   automation_id_ = args[0].ToInt32();
   result->Set(true);
 }
-

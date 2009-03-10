@@ -701,4 +701,3 @@ void BitmapScrollBar::SetThumbTrackState(BaseButton::ButtonState state) {
 }
 
 }  // namespace views
-

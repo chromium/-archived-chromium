@@ -59,4 +59,3 @@ class HWNDPhotobooth {
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_TABS_HWND_PHOTOBOOTH_H__
-

@@ -460,4 +460,3 @@ struct ParamTraits<NPVariant_Param> {
 #include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_PLUGIN_MESSAGES_H__
-

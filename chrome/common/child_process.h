@@ -79,4 +79,3 @@ class ChildProcess {
 };
 
 #endif  // CHROME_COMMON_CHILD_PROCESS_H__
-

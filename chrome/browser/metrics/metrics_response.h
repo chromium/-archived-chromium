@@ -55,4 +55,3 @@ private:
 };
 
 #endif  // CHROME_BROWSER_METRICS_RESPONSE_H__
-

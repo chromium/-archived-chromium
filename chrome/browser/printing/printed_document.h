@@ -193,4 +193,3 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
 }  // namespace printing
 
 #endif  // CHROME_BROWSER_PRINTING_PRINTED_DOCUMENT_H__
-

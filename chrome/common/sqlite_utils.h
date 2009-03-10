@@ -348,4 +348,3 @@ inline bool DoesSqliteColumnExist(sqlite3* db,
 bool DoesSqliteTableHaveRow(sqlite3* db, const char* table_name);
 
 #endif  // CHROME_COMMON_SQLITEUTILS_H_
-

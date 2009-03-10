@@ -346,4 +346,3 @@ class TemplateURLModel : public WebDataServiceConsumer,
 };
 
 #endif  // CHROME_BROWSER_TEMPLATE_URL_MODEL_H__
-

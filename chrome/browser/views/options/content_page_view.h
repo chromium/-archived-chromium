@@ -94,4 +94,3 @@ class ContentPageView : public OptionsPageView,
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_OPTIONS_CONTENT_PAGE_VIEW_H__
-

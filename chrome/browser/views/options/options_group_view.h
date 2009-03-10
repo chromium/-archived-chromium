@@ -59,4 +59,3 @@ class OptionsGroupView : public views::View {
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_OPTIONS_OPTIONS_GROUP_VIEW_H__
-

@@ -536,4 +536,3 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
 }
 
 }  // namespace download_util
-

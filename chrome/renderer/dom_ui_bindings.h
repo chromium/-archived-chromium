@@ -65,4 +65,3 @@ class DOMUIBindings : public DOMBoundBrowserObject {
 };
 
 #endif  // CHROME_RENDERER_DOM_UI_BINDINGS_H__
-

@@ -83,4 +83,3 @@ class CheckBox : public NativeButton {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_NATIVE_CHECKBOX_H__
-

@@ -150,5 +150,3 @@ class AutocompleteEditProxy : public AutomationResourceProxy {
 };
 
 #endif  // #define CHROME_TEST_AUTOMATION_AUTOCOMPLETE_EDIT_PROXY_H__
-
-

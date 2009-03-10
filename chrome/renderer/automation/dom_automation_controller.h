@@ -105,4 +105,3 @@ class DomAutomationController : public CppBoundClass {
 };
 
 #endif  // CHROME_RENDERER_AUTOMATION_DOM_AUTOMATION_CONTROLLER_H__
-

@@ -237,4 +237,3 @@ void DraggedTabView::ResizeContainer() {
 int DraggedTabView::ScaleValue(int value) {
   return attached_ ? value : static_cast<int>(value * kScalingFactor);
 }
-

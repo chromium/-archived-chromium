@@ -49,4 +49,3 @@ class LoadNotificationDetails {
 };
 
 #endif  // CHROME_BROWSER_LOAD_NOTIFICATION_DETAILS_H__
-

@@ -146,4 +146,3 @@ void TabIconView::Paint(ChromeCanvas* canvas) {
 gfx::Size TabIconView::GetPreferredSize() {
   return gfx::Size(kFavIconSize, kFavIconSize);
 }
-

@@ -17,4 +17,3 @@ void UserMetrics::RecordComputedAction(const std::wstring& action,
                                        Profile* profile) {
   RecordAction(action.c_str(), profile);
 }
-

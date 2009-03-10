@@ -75,4 +75,3 @@ static views::GridLayout* CreatePanelGridLayout(views::View* host) {
 }
 
 #endif  // CHROME_BROWSER_VIEWS_STANDARD_LAYOUT_H__
-

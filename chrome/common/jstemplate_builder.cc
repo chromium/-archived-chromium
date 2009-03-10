@@ -51,4 +51,3 @@ std::string GetTemplateHtml(const StringPiece& html_template,
 }
 
 }  // namespace jstemplate_builder
-

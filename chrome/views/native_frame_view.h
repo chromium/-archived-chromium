@@ -35,4 +35,3 @@ class NativeFrameView : public NonClientFrameView {
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_NATIVE_FRAME_VIEW_H_
-

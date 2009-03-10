@@ -432,4 +432,3 @@ void DialogClientView::InitClass() {
 }
 
 }  // namespace views
-

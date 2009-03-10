@@ -164,4 +164,3 @@ int ComboBox::GetSelectedItem() {
 }
 
 }  // namespace views
-

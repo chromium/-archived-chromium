@@ -14,4 +14,3 @@
 void SetPageRange(const CommandLine&);
 
 #endif // CHROME_TEST_RELIABILITY_PAGE_LOAD_TEST_H__
-

@@ -58,4 +58,3 @@ class LayoutManager {
 }  // namespace views
 
 #endif // CHROME_VIEWS_LAYOUT_MANAGER_H__
-

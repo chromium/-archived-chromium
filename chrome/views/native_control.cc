@@ -384,4 +384,3 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
 }
 
 }  // namespace views
-

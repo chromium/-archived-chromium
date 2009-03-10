@@ -128,4 +128,3 @@ void SaveItem::SetTotalBytes(int64 total_bytes) {
   DCHECK(total_bytes_ == 0);
   total_bytes_ = total_bytes;
 }
-

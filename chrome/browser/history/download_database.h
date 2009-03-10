@@ -67,4 +67,3 @@ class DownloadDatabase {
 }  // namespace history
 
 #endif  // CHROME_BROWSER_HISTORY_DOWNLOAD_DATABASE_H__
-

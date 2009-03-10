@@ -40,4 +40,3 @@ class Counters {
 }  // namespace chrome
 
 #endif  // CHROME_COMMON_CHROME_COUNTERS_H_
-

@@ -75,4 +75,3 @@ void CancelableRequestProvider::RequestCompleted(Handle handle) {
   // Notify the consumer that the request is gone
   consumer->OnRequestRemoved(this, handle);
 }
-

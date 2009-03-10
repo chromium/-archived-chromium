@@ -44,4 +44,3 @@ void ReadLastShutdownInfo();
 }  // namespace browser_shutdown
 
 #endif  // CHROME_BROWSER_BROWSER_SHUTDOWN_H__
-

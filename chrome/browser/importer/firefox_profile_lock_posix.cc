@@ -75,5 +75,3 @@ void FirefoxProfileLock::Unlock() {
 bool FirefoxProfileLock::HasAcquired() {
   return (lock_fd_ >= 0);
 }
-
-

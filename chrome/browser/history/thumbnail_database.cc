@@ -471,4 +471,3 @@ bool ThumbnailDatabase::CommitTemporaryFavIconTable() {
 }
 
 }  // namespace history
-

@@ -55,4 +55,3 @@ StatsRate& Counters::plugin_intercept() {
 }
 
 }  // namespace chrome
-

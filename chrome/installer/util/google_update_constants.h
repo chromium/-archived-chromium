@@ -34,4 +34,3 @@ extern const wchar_t kEnvProductVersionKey[];
 }  // namespace google_update
 
 #endif  // CHROME_INSTALLER_UTIL_GOOGLE_UPDATE_CONSTANTS_H_
-

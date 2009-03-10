@@ -17,4 +17,3 @@
 #include <atlctrls.h>
 #include <atlcrack.h>
 #include <atltheme.h>
-

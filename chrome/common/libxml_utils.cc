@@ -141,4 +141,3 @@ void XmlWriter::StopWriting() {
   xmlFreeTextWriter(writer_);
   writer_ = NULL;
 }
-

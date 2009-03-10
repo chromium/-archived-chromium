@@ -286,4 +286,3 @@ TEST_F(ChromePluginTest, DoesNotInterceptOwnRequest) {
 
   MessageLoop::current()->Run();
 }
-

@@ -107,5 +107,3 @@ void PluginChannelHost::OnChannelError() {
 
   proxies_.clear();
 }
-
-

@@ -90,5 +90,3 @@ void GetDarkLineColor(SkColor* dark_color) {
                                  GetBValue(shadow_ref));
   }
 }
-
-

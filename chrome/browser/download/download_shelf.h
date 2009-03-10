@@ -85,4 +85,3 @@ class DownloadShelfContextMenu {
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_DOWNLOAD_SHELF_H_
-

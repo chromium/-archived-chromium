@@ -120,4 +120,3 @@ bool IsChunkInRange(int chunk_number, const std::vector<ChunkRange>& ranges) {
 
   return false;
 }
-

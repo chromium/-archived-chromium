@@ -199,4 +199,3 @@ void ToggleButton::SetToggledTooltipText(const std::wstring& tooltip) {
 }
 
 }  // namespace views
-

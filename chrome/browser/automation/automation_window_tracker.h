@@ -29,4 +29,3 @@ class AutomationWindowTracker
 };
 
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_WINDOW_TRACKER_H__
-

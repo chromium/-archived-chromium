@@ -421,4 +421,3 @@ void GlassBrowserFrameView::InitClass() {
     initialized = true;
   }
 }
-

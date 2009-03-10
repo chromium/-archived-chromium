@@ -77,4 +77,3 @@ class OptionsPageView : public views::View,
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_OPTIONS_OPTIONS_PAGE_VIEW_H__
-

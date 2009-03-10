@@ -111,4 +111,3 @@ class CrashService {
 
 
 #endif  // CHROME_TOOLS_CRASH_SERVICE__
-

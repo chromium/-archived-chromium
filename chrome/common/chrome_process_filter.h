@@ -28,4 +28,3 @@ class BrowserProcessFilter : public base::ProcessFilter {
 };
 
 #endif  // CHROME_COMMON_CHROME_PROCESS_FILTER_H__
-

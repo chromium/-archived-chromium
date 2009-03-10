@@ -118,4 +118,3 @@ bool SetInternetZoneIdentifier(const FilePath& full_path) {
 }
 
 }  // namespace win_util
-

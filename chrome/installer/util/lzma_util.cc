@@ -183,4 +183,3 @@ void LzmaUtil::CloseArchive() {
 }
 
 }  // namespace installer
-

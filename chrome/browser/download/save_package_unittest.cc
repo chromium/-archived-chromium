@@ -174,4 +174,3 @@ TEST_F(SavePackageTest, TestLongSavePackageFilename) {
   EXPECT_TRUE(HasOrdinalNumber(filename2));
   EXPECT_NE(filename, filename2);
 }
-

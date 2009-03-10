@@ -102,4 +102,3 @@ void RepostFormWarningView::Observe(NotificationType type,
     window()->Close();
   }
 }
-

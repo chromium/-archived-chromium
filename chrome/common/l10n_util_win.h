@@ -29,4 +29,3 @@ void HWNDSetRTLLayout(HWND hwnd);
 }  // namespace l10n_util
 
 #endif  // CHROME_COMMON_L10N_UTIL_WIN_H_
-

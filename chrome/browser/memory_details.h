@@ -128,4 +128,3 @@ class MemoryDetails : public base::RefCountedThreadSafe<MemoryDetails> {
 };
 
 #endif  // CHROME_BROWSER_MEMORY_DETAILS_H_
-

@@ -78,4 +78,3 @@ class CopyTreeWorkItem : public WorkItem {
 };
 
 #endif  // CHROME_INSTALLER_UTIL_COPY_TREE_WORK_ITEM_H__
-

@@ -237,4 +237,3 @@ InitStatus HistoryDatabase::EnsureCurrentVersion(
 }
 
 }  // namespace history
-

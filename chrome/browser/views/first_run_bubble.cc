@@ -218,4 +218,3 @@ FirstRunBubble* FirstRunBubble::Show(Profile* profile, HWND parent_hwnd,
 void FirstRunBubble::EnableParent() {
   ::EnableWindow(GetParent(), true);
 }
-
