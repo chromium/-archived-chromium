@@ -33,6 +33,7 @@ class WebWorkerClientImpl : public WebCore::WorkerContextProxy,
   // WebCore::WorkerContextProxy implementation
   void startWorkerContext(const WebCore::KURL& scriptURL,
                           const WebCore::String& userAgent,
+                          const WebCore::String& encoding,
                           const WebCore::String& sourceCode);
   void terminateWorkerContext();
   void postMessageToWorkerContext(const WebCore::String& message);

@@ -42,6 +42,7 @@
 
 #include "ExceptionCode.h"
 #include "MessagePort.h"
+#include "NotImplemented.h"
 #include "WorkerContext.h"
 
 namespace WebCore {

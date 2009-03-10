@@ -73,9 +73,11 @@ void WebWorkerClientImpl::set_webworker(WebWorker* webworker) {
 void WebWorkerClientImpl::startWorkerContext(
     const WebCore::KURL& scriptURL,
     const WebCore::String& userAgent,
+    const WebCore::String& encoding,
     const WebCore::String& sourceCode) {
   webworker_->StartWorkerContext(webkit_glue::KURLToGURL(scriptURL),
                                  webkit_glue::StringToString16(userAgent),
+                                 webkit_glue::StringToString16(encoding),
                                  webkit_glue::StringToString16(sourceCode));
 }
 

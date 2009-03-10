@@ -19,6 +19,7 @@ WebWorkerProxy::~WebWorkerProxy() {
 void WebWorkerProxy::StartWorkerContext(
     const GURL& script_url,
     const string16& user_agent,
+    const string16& encoding,
     const string16& source_code) {
   RenderThread::current()->Send(
       new ViewHostMsg_CreateDedicatedWorker(script_url, &route_id_));
@@ -27,7 +28,7 @@ void WebWorkerProxy::StartWorkerContext(
 
   RenderThread::current()->AddRoute(route_id_, this);
   Send(new WorkerMsg_StartWorkerContext(
-      route_id_, script_url, user_agent, source_code));
+      route_id_, script_url, user_agent, encoding, source_code));
 
   for (size_t i = 0; i < queued_messages_.size(); ++i) {
     queued_messages_[i]->set_routing_id(route_id_);

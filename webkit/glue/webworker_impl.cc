@@ -48,10 +48,12 @@ void WebWorkerImpl::PostMessageToWorkerContextTask(
 
 void WebWorkerImpl::StartWorkerContext(const GURL& script_url,
                                        const string16& user_agent,
+                                       const string16& encoding,
                                        const string16& source_code) {
   worker_thread_ = WebCore::WorkerThread::create(
       webkit_glue::GURLToKURL(script_url),
       webkit_glue::String16ToString(user_agent),
+      webkit_glue::String16ToString(encoding),
       webkit_glue::String16ToString(source_code),
       this);
 
