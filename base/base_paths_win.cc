@@ -116,4 +116,3 @@ bool PathProviderWin(int key, FilePath* result) {
 }
 
 }  // namespace base
-

@@ -76,4 +76,3 @@ TEST(SystemMonitor, PowerNotifications) {
   loop.RunAllPending();
   EXPECT_EQ(test[0].resumes(), 1);
 }
-

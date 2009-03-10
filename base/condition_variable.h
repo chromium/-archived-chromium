@@ -171,4 +171,3 @@ class ConditionVariable {
 };
 
 #endif  // BASE_CONDITION_VARIABLE_H_
-

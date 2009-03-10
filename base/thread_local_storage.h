@@ -92,4 +92,3 @@ class ThreadLocalStorage {
 typedef ThreadLocalStorage::Slot TLSSlot;
 
 #endif  // BASE_THREAD_LOCAL_STORAGE_H_
-

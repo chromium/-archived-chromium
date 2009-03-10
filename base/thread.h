@@ -153,4 +153,3 @@ class Thread : PlatformThread::Delegate {
 }  // namespace base
 
 #endif  // BASE_THREAD_H_
-

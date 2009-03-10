@@ -676,4 +676,3 @@ void WorkQueue::ThreadMain() {
 }
 
 }  // namespace
-

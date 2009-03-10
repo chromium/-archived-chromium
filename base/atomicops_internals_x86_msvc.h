@@ -165,4 +165,3 @@ inline Atomic64 Release_Load(volatile const Atomic64* ptr) {
 }  // namespace base
 
 #endif  // BASE_ATOMICOPS_INTERNALS_X86_MSVC_H_
-

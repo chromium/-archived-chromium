@@ -73,4 +73,3 @@ inline std::ostream& operator<<(std::ostream& out, const gfx::Size& s) {
 }
 
 #endif // BASE_GFX_SIZE_H__
-

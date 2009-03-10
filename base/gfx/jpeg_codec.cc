@@ -521,4 +521,3 @@ SkBitmap* JPEGCodec::Decode(const unsigned char* input, size_t input_size) {
 
   return bitmap;
 }
-

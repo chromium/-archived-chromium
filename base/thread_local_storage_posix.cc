@@ -42,4 +42,3 @@ void ThreadLocalStorage::Slot::Set(void* value) {
   if (error)
     NOTREACHED();
 }
-

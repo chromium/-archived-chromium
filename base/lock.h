@@ -66,4 +66,3 @@ class AutoUnlock {
 };
 
 #endif  // BASE_LOCK_H_
-

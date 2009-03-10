@@ -57,4 +57,3 @@ class JPEGCodec {
 };
 
 #endif  // BASE_GFX_JPEG_CODEC_H_
-

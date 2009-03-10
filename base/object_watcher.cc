@@ -136,4 +136,3 @@ void ObjectWatcher::WillDestroyCurrentMessageLoop() {
 }
 
 }  // namespace base
-

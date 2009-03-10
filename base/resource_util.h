@@ -22,4 +22,3 @@ bool GetDataResourceFromModule(HMODULE module, int resource_id,
 }  // namespace
 
 #endif // BASE_RESOURCE_UTIL_H__
-

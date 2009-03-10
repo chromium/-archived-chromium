@@ -65,4 +65,3 @@ DECLSPEC_SELECTANY DebugOnStart::PIFV debug_on_start = &DebugOnStart::Init;
 #endif  // defined(OS_WIN)
 
 #endif  // BASE_DEBUG_ON_START_H_
-

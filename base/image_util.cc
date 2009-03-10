@@ -70,4 +70,3 @@ bool ImageMetrics::GetImageSectionSizes(char* qualified_path,
 }
 
 } // namespace image_util
-

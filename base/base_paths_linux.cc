@@ -44,4 +44,3 @@ bool PathProviderLinux(int key, FilePath* result) {
 }
 
 }  // namespace base
-

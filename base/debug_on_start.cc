@@ -63,4 +63,3 @@ int __cdecl DebugOnStart::Init() {
   }
   return 0;
 }
-

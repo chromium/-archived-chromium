@@ -203,4 +203,3 @@ bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
                 PNGEncoder::FORMAT_BGRA, input.width(), input.height(),
                 input.rowBytes(), discard_transparency, output);
 }
-

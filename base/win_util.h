@@ -120,4 +120,3 @@ void NotifyHWNDDestruction(const tracked_objects::Location& from_here,
 }  // namespace win_util
 
 #endif  // BASE_WIN_UTIL_H__
-

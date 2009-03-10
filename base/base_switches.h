@@ -21,4 +21,3 @@ extern const wchar_t kForceHTTPS[];
 }  // namespace switches
 
 #endif  // BASE_SWITCHES_H_
-

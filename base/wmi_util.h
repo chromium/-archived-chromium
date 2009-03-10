@@ -71,4 +71,3 @@ class WMIProcessUtil {
 };
 
 #endif  // BASE_WMI_UTIL_H__
-

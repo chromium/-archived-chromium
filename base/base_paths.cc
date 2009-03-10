@@ -36,4 +36,3 @@ bool PathProvider(int key, FilePath* result) {
 }
 
 }  // namespace base
-

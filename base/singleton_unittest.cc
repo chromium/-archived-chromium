@@ -207,4 +207,3 @@ TEST_F(SingletonTest, Basic) {
   // The leaky singleton shouldn't leak since SingletonLeak has not been called.
   VerifiesCallbacksNotCalled();
 }
-

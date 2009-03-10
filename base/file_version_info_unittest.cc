@@ -132,4 +132,3 @@ TEST(FileVersionInfoTest, CustomProperties) {
   EXPECT_FALSE(version_info->GetValue(L"Unknown property",  &str));
   EXPECT_EQ(L"", version_info->GetStringValue(L"Unknown property"));
 }
-

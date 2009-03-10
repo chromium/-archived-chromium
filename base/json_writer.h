@@ -45,4 +45,3 @@ class JSONWriter {
 };
 
 #endif  // BASE_JSON_WRITER_H_
-

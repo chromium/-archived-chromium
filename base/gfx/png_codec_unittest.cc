@@ -200,4 +200,3 @@ TEST(PNGCodec, StripAddAlpha) {
   ASSERT_EQ(original_rgb.size(), decoded.size());
   ASSERT_TRUE(original_rgb == decoded);
 }
-

@@ -127,4 +127,3 @@ TEST(CommandLineTest, AppendSwitches) {
   EXPECT_TRUE(cl.HasSwitch(switch4));
   EXPECT_EQ(value4, cl.GetSwitchValue(switch4));
 }
-

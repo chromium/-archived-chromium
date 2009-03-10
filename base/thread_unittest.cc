@@ -138,4 +138,3 @@ TEST_F(ThreadTest, SleepInsideInit) {
   t.Start();
   EXPECT_TRUE(t.InitCalled());
 }
-

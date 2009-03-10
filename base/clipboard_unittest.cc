@@ -280,4 +280,3 @@ TEST_F(ClipboardTest, BitmapTest) {
                       Clipboard::GetBitmapFormatType()));
 }
 #endif  // defined(OS_WIN)
-

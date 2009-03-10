@@ -44,4 +44,3 @@ class MemoryDebug {
 }  // namespace base
 
 #endif  // BASE_MEMORY_DEBUG_H_
-

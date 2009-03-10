@@ -15,4 +15,3 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   MessageBox(NULL, cmdline, L"Kr\x00d8m", MB_TOPMOST);
   return 0;
 }
-

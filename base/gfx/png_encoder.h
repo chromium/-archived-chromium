@@ -66,4 +66,3 @@ class PNGEncoder {
 };
 
 #endif  // BASE_GFX_PNG_ENCODER_H_
-

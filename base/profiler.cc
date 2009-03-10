@@ -42,4 +42,3 @@ void Profiler::SetThreadName(const char *name) {
 }
 
 }  // namespace base
-

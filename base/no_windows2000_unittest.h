@@ -19,4 +19,3 @@ class NoWindows2000Test : public Parent {
 };
 
 #endif  // BASE_NO_WINDOWS2000_UNITTEST_H__op
-

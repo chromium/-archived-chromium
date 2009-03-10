@@ -89,4 +89,3 @@ class ObjectWatcher : public MessageLoop::DestructionObserver {
 }  // namespace base
 
 #endif  // BASE_OBJECT_WATCHER_H_
-

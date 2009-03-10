@@ -172,4 +172,3 @@ linked_ptr<T> make_linked_ptr(T* ptr) {
 }
 
 #endif  // BASE_LINKED_PTR_H_
-

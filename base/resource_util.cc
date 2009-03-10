@@ -35,4 +35,3 @@ bool GetDataResourceFromModule(HMODULE module, int resource_id,
   return true;
 }
 }  // namespace
-

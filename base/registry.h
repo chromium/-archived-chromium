@@ -222,4 +222,3 @@ bool UnregisterCOMServer(const tchar* guid);
 #undef tstr
 
 #endif  // BASE_REGISTRY_H__
-

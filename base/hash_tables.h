@@ -91,4 +91,3 @@ struct hash<long long> {
 #endif
 
 #endif  // BASE_HASH_TABLES_H__
-

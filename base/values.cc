@@ -651,4 +651,3 @@ bool ListValue::Equals(const Value* other) const {
 
   return true;
 }
-

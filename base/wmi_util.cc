@@ -144,4 +144,3 @@ bool WMIProcessUtil::Launch(const std::wstring& command_line, int* process_id) {
 
   return true;
 }
-

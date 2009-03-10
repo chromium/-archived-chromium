@@ -58,4 +58,3 @@ inline void va_copy(va_list& a, va_list& b) {
 #endif
 
 #endif  // BASE_PORT_H_
-

@@ -135,4 +135,3 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 #endif
 
 #endif  // BASE_ATOMICOPS_H_
-

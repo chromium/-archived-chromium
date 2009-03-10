@@ -41,4 +41,3 @@ const wchar_t kEnableDCHECK[]                  = L"enable-dcheck";
 const wchar_t kForceHTTPS[]                    = L"force-https";
 
 }  // namespace switches
-

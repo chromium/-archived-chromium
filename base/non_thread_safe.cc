@@ -22,4 +22,3 @@ NonThreadSafe::~NonThreadSafe() {
 }
 
 #endif  // NDEBUG
-

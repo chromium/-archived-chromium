@@ -157,4 +157,3 @@ bool CopyRecursiveDirNoCache(const std::wstring& source_dir,
 }
 
 }  // namespace file_util
-

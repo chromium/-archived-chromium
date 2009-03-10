@@ -246,4 +246,3 @@ inline Atomic64 Release_Load(volatile const Atomic64* ptr) {
 #undef ATOMICOPS_COMPILER_BARRIER
 
 #endif  // BASE_ATOMICOPS_INTERNALS_X86_GCC_H_
-

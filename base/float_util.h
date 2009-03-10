@@ -23,4 +23,3 @@ inline bool IsFinite(const double& number) {
 }  // namespace base
 
 #endif  // BASE_FLOAT_UTIL_H_
-

@@ -22,4 +22,3 @@ class WorkerPool {
 };
 
 #endif  // BASE_WORKER_POOL_H_
-

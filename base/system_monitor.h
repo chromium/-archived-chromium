@@ -127,4 +127,3 @@ class SystemMonitor {
 }
 
 #endif  // BASE_SYSTEM_MONITOR_H_
-

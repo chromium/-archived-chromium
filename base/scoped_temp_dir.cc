@@ -45,4 +45,3 @@ FilePath ScopedTempDir::Take() {
 bool ScopedTempDir::IsValid() const {
   return !path_.empty() && file_util::DirectoryExists(path_);
 }
-

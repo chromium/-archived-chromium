@@ -91,4 +91,3 @@ class IDMap {
 };
 
 #endif  // BASE_ID_MAP_H__
-

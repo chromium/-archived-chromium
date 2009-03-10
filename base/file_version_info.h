@@ -94,4 +94,3 @@ class FileVersionInfo {
 };
 
 #endif  // BASE_FILE_VERSION_INFO_H__
-

@@ -352,4 +352,3 @@ SkBitmap* PNGDecoder::CreateSkBitmapFromBGRAFormat(
   bitmap->setIsOpaque(opaque);
   return bitmap;
 }
-

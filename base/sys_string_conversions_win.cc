@@ -68,4 +68,3 @@ std::string SysWideToMultiByte(const std::wstring& wide, uint32 code_page) {
 }
 
 }  // namespace base
-

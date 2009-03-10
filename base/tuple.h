@@ -876,4 +876,3 @@ inline void DispatchToMethod(ObjT* obj, Method method,
 }
 
 #endif  // BASE_TUPLE_H__
-

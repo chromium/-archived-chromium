@@ -20,4 +20,3 @@ void SHA256HashString(const std::string& str, void* output, size_t len) {
 }
 
 }  // namespace base
-

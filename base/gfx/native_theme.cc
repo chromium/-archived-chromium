@@ -610,4 +610,3 @@ HANDLE NativeTheme::GetThemeHandle(ThemeName theme_name) const
 }
 
 }  // namespace gfx
-

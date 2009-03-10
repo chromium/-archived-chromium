@@ -10,4 +10,3 @@
 #include "skia/ext/platform_canvas_mac.h"
 
 #endif  // BASE_GFX_PLATFORM_CANVAS_MAC_H__
-

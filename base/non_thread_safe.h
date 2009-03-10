@@ -51,4 +51,3 @@ class NonThreadSafe {
 #endif  // NDEBUG
 
 #endif  // BASE_NON_THREAD_SAFE_H__
-

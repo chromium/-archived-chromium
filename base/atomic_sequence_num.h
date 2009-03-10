@@ -28,4 +28,3 @@ class AtomicSequenceNumber {
 }  // namespace base
 
 #endif  // BASE_ATOMIC_SEQUENCE_NUM_H_
-

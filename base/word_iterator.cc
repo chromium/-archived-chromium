@@ -85,4 +85,3 @@ std::wstring WordIterator::GetWord() const {
   DCHECK(prev_ != npos && pos_ != npos);
   return string_.substr(prev_, pos_ - prev_);
 }
-

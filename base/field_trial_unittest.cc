@@ -115,4 +115,3 @@ TEST_F(FieldTrialTest, OneWinner) {
   EXPECT_EQ(trial->group(), winner_index);
   EXPECT_EQ(winner_name, trial->group_name());
 }
-

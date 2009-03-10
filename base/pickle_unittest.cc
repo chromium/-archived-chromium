@@ -218,4 +218,3 @@ TEST(PickleTest, EqualsOperator) {
   copy = copy_refs_source_buffer;
   ASSERT_EQ(source.size(), copy.size());
 }
-

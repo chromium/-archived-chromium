@@ -165,4 +165,3 @@ DWORD BaseDropTarget::OnDrop(IDataObject* data_object,
                              DWORD effect) {
   return DROPEFFECT_NONE;
 }
-

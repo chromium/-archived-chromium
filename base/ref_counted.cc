@@ -86,4 +86,3 @@ bool RefCountedThreadSafeBase::Release() {
 }  // namespace subtle
 
 }  // namespace base
-

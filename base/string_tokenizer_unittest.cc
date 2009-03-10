@@ -205,4 +205,3 @@ TEST(StringTokenizerTest, ParseQuotedString_EscapedQuotes2) {
 
   EXPECT_FALSE(t.GetNext());
 }
-

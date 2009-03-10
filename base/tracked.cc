@@ -92,5 +92,3 @@ bool Tracked::MissingBirthplace() const {
 #endif  // NDEBUG
 
 }  // namespace tracked_objects
-
-

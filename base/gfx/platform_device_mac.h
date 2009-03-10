@@ -10,4 +10,3 @@
 #include "skia/ext/platform_device_mac.h"
 
 #endif  // BASE_GFX_PLATFORM_DEVICE_MAC_H__
-

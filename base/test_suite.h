@@ -124,4 +124,3 @@ class TestSuite {
 };
 
 #endif  // BASE_TEST_SUITE_H_
-

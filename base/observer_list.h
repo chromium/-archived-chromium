@@ -174,4 +174,3 @@ class ObserverList {
   } while (0)
 
 #endif  // BASE_OBSERVER_LIST_H__
-

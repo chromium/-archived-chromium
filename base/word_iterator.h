@@ -85,4 +85,3 @@ class WordIterator {
 };
 
 #endif  // BASE_WORD_ITERATOR_H__
-

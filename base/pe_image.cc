@@ -540,4 +540,3 @@ PVOID PEImageAsData::RVAToAddr(DWORD_PTR rva) const {
 
   return in_memory;
 }
-

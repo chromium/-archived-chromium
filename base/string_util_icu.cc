@@ -543,4 +543,3 @@ TrimPositions TrimWhitespaceUTF8(const std::string& input,
   *output = WideToUTF8(output_wide);
   return result;
 }
-

@@ -904,4 +904,3 @@ void Comparator::WriteSnapshot(const Snapshot& sample,
 }
 
 }  // namespace tracked_objects
-

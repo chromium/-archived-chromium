@@ -512,4 +512,3 @@ class AutoTracking {
 }  // namespace tracked_objects
 
 #endif  // BASE_TRACKED_OBJECTS_H_
-

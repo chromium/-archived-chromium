@@ -286,4 +286,3 @@ class NativeTheme {
 }  // namespace gfx
 
 #endif  // BASE_GFX_NATIVE_THEME_H__
-

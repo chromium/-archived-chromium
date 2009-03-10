@@ -277,4 +277,3 @@ inline AtomicWord Release_Load(volatile const AtomicWord* ptr) {
 }   // namespace base
 
 #endif  // BASE_ATOMICOPS_INTERNALS_X86_MACOSX_H_
-

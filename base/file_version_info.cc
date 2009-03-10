@@ -183,5 +183,3 @@ std::wstring FileVersionInfo::GetStringValue(const wchar_t* name) {
   else
     return L"";
 }
-
-

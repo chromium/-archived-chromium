@@ -52,4 +52,3 @@ void MemoryDebug::MarkAsInitialized(void* addr, size_t size) {
 }
 
 }  // namespace base
-

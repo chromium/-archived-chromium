@@ -53,4 +53,3 @@ TEST(WMIUtilTest, TestLaunchProcess) {
   EXPECT_GT(pid, 0);
   ::CoUninitialize();
 }
-

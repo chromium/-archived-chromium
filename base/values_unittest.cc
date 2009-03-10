@@ -455,4 +455,3 @@ TEST(ValuesTest, Equals) {
   EXPECT_FALSE(dv.Equals(copy));
   delete copy;
 }
-

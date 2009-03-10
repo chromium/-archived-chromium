@@ -73,4 +73,3 @@ inline LONG_PTR SetClassLongPtrW(HWND window, int index, LONG_PTR new_long) {
 #endif  // #if !defined(_WIN64) && defined(_Wp64)
 
 #endif  // BASE_FIX_WP64_H__
-

@@ -55,4 +55,3 @@ std::string MD5DigestToBase16(const MD5Digest& digest);
 std::string MD5String(const std::string& str);
 
 #endif // BASE_MD5_H__
-

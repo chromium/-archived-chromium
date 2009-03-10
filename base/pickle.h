@@ -237,4 +237,3 @@ class Pickle {
 };
 
 #endif  // BASE_PICKLE_H__
-

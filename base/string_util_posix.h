@@ -36,4 +36,3 @@ inline int vswprintf(wchar_t* buffer, size_t size,
 }  // namespace base
 
 #endif  // BASE_STRING_UTIL_POSIX_H_
-

@@ -55,4 +55,3 @@ TEST(ScopedTempDir, TempDir) {
   }
   EXPECT_FALSE(file_util::DirectoryExists(test_path));
 }
-

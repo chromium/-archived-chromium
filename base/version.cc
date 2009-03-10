@@ -80,4 +80,3 @@ bool Version::InitFromString(const std::string& version_str) {
   }
   return true;
 }
-

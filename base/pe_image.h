@@ -255,4 +255,3 @@ inline PIMAGE_EXPORT_DIRECTORY PEImage::GetExportDirectory() const {
 }
 
 #endif  // BASE_SRC_PE_IMAGE_H__
-

@@ -394,4 +394,3 @@ enum LinkerInitialized { LINKER_INITIALIZED };
 
 
 #endif  // BASE_BASICTYPES_H_
-

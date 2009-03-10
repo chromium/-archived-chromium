@@ -76,4 +76,3 @@ class AutoLockImpl {
 };
 
 #endif  // BASE_LOCK_IMPL_H_
-

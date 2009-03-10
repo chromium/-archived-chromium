@@ -54,5 +54,3 @@ TEST(JSONWriterTest, Writing) {
             "}\r\n",
             output_js);
 }
-
-

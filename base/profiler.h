@@ -36,4 +36,3 @@ class Profiler {
 }  // namespace base
 
 #endif  // BASE_PROFILER_H__
-

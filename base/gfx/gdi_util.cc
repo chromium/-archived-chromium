@@ -77,4 +77,3 @@ void SubtractRectanglesFromRegion(HRGN hrgn,
 }
 
 }  // namespace gfx
-

@@ -162,4 +162,3 @@ inline std::ostream& operator<<(std::ostream& out, const gfx::Rect& r) {
 }
 
 #endif  // BASE_GFX_RECT_H__
-

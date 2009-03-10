@@ -9,4 +9,3 @@
 TEST(NativeThemeTest, Init) {
   ASSERT_TRUE(gfx::NativeTheme::instance() != NULL);
 }
-

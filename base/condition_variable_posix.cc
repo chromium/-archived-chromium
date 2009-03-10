@@ -58,4 +58,3 @@ void ConditionVariable::Signal() {
   int rv = pthread_cond_signal(&condition_);
   DCHECK(rv == 0);
 }
-

@@ -78,4 +78,3 @@ class PathService {
 };
 
 #endif // BASE_PATH_SERVICE_H__
-

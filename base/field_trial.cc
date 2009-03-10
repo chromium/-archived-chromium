@@ -104,4 +104,3 @@ FieldTrial* FieldTrialList::Find(const std::string& name) {
     return NULL;
   return it->second;
 }
-

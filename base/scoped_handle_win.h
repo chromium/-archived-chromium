@@ -215,4 +215,3 @@ class ScopedHGlobal {
 };
 
 #endif // BASE_SCOPED_HANDLE_WIN_H_
-

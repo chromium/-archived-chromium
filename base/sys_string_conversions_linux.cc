@@ -33,4 +33,3 @@ std::wstring SysNativeMBToWide(const StringPiece& native_mb) {
 }
 
 }  // namespace base
-

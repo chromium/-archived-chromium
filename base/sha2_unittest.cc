@@ -76,4 +76,3 @@ TEST(Sha256Test, Test3) {
   for (size_t i = 0; i < sizeof(output_truncated3); i++)
     EXPECT_EQ(expected3[i], static_cast<int>(output_truncated3[i]));
 }
-

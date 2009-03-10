@@ -270,4 +270,3 @@ template<class T> class StatsScope {
 };
 
 #endif  // BASE_STATS_COUNTERS_H__
-

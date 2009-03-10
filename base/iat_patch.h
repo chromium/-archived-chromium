@@ -120,4 +120,3 @@ class IATPatchFunction {
 }  // namespace iat_patch
 
 #endif  // BASE_IAT_PATCH_H__
-

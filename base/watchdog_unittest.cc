@@ -116,4 +116,3 @@ TEST(WatchdogTest, DisarmTest) {
 }
 
 }  // namespace
-

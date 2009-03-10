@@ -26,4 +26,3 @@ CGSize Size::ToCGSize() const {
 #endif
 
 }  // namespace gfx
-

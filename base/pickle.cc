@@ -385,4 +385,3 @@ const char* Pickle::FindNext(size_t header_size,
 
   return (payload_end > end) ? NULL : payload_end;
 }
-

@@ -69,4 +69,3 @@ std::wstring TimeFormatFriendlyDate(const Time& time) {
 }
 
 }  // namespace base
-

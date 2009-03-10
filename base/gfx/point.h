@@ -74,4 +74,3 @@ inline std::ostream& operator<<(std::ostream& out, const gfx::Point& p) {
 }
 
 #endif // BASE_GFX_POINT_H__
-

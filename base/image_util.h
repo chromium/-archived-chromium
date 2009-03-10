@@ -64,4 +64,3 @@ class ImageMetrics {
 }  // namespace image_util
 
 #endif  // BASE_IMAGE_UTIL_H_
-

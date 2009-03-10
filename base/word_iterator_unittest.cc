@@ -66,4 +66,3 @@ TEST(WordIteratorTest, BreakLine) {
   EXPECT_FALSE(iter.Advance());
   EXPECT_FALSE(iter.IsWord());
 }
-

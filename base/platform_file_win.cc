@@ -60,4 +60,3 @@ PlatformFile CreatePlatformFile(const std::wstring& name,
 }
 
 }  // namespace disk_cache
-

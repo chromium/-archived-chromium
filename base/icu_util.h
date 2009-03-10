@@ -14,4 +14,3 @@ bool Initialize();
 }  // namespace icu_util
 
 #endif  // BASE_ICU_UTIL_H__
-

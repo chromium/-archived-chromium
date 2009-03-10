@@ -140,4 +140,3 @@ void ScopedClipboardWriter::WriteBitmapFromPixels(const void* pixels,
   objects_[Clipboard::CBF_BITMAP] = parameters;
 }
 #endif  // defined(OS_WIN)
-

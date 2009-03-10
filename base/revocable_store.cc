@@ -45,4 +45,3 @@ void RevocableStore::RevokeAll() {
   // all the items that were in the store are eventually destroyed.
   owning_reference_ = new StoreRef(this);
 }
-

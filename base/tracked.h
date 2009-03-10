@@ -126,4 +126,3 @@ class Tracked {
 }  // namespace tracked_objects
 
 #endif  // BASE_TRACKED_H_
-

@@ -102,4 +102,3 @@ AtomicOpsx86Initializer g_initer;
 #endif  // if x86
 
 #endif  // ifdef BASE_ATOMICOPS_INTERNALS_X86_GCC_H_
-

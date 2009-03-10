@@ -46,4 +46,3 @@ void LockImpl::Unlock() {
   int rv = pthread_mutex_unlock(&os_lock_);
   DCHECK(rv == 0);
 }
-

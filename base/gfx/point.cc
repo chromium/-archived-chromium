@@ -36,4 +36,3 @@ CGPoint Point::ToCGPoint() const {
 #endif
 
 }  // namespace gfx
-

@@ -38,4 +38,3 @@ private:
 };
 
 #endif  // BASE_VERSION_H_
-

@@ -89,4 +89,3 @@ class Watchdog {
 };
 
 #endif  // BASE_WATCHDOG_H__
-

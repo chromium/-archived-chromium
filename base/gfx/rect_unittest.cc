@@ -268,4 +268,3 @@ TEST(RectTest, Subtract) {
       gfx::Rect(5, 5, 20, 30)).Equals(
       gfx::Rect(25, 10, 5, 20)));
 }
-

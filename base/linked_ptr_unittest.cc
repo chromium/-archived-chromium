@@ -108,4 +108,3 @@ TEST(LinkedPtrTest, Test) {
     "A1 dtor\n"
   );
 }
-

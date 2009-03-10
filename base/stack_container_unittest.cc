@@ -114,4 +114,3 @@ TEST(StackContainer, BufferAlignment) {
 template StackVector<int, 2>;
 template StackVector<scoped_refptr<Dummy>, 2>;
 #endif
-

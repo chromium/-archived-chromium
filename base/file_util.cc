@@ -503,4 +503,3 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
   return WriteFile(FilePath::FromWStringHack(filename), data, size);
 }
 }  // namespace
-

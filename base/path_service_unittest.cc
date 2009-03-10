@@ -61,4 +61,3 @@ TEST_F(PathServiceTest, Get) {
   }
 #endif
 }
-

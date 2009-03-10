@@ -184,4 +184,3 @@ PIMAGE_TLS_CALLBACK p_thread_callback = OnThreadExit;
 #pragma data_seg()
 
 #endif  // _WIN64
-

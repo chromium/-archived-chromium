@@ -200,4 +200,3 @@ typedef StringTokenizerT<std::wstring, std::wstring::const_iterator>
 typedef StringTokenizerT<std::string, const char*> CStringTokenizer;
 
 #endif  // BASE_STRING_TOKENIZER_H_
-

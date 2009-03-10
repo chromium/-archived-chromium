@@ -70,4 +70,3 @@ class ScopedClipboardWriter {
 };
 
 #endif  // SCOPED_CLIPBOARD_WRITER_H_
-
