@@ -174,8 +174,8 @@ WebPreferences DOMUIContents::GetWebkitPrefs() {
 }
 
 void DOMUIContents::RenderViewCreated(RenderViewHost* render_view_host) {
-  DCHECK(current_ui_);
-  current_ui_->RenderViewCreated(render_view_host);
+  if (current_ui_)
+    current_ui_->RenderViewCreated(render_view_host);
 }
 
 bool DOMUIContents::ShouldDisplayFavIcon() {
