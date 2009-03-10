@@ -30,10 +30,12 @@ env.Prepend(
     LIBS = [
         'automation',
         'browser',
-        'browser_views',
         'common',
         'glue',
         'WTF',
+        # needed for shared link deps
+        'sqlite',
+        'xslt',
     ],
 )
 
