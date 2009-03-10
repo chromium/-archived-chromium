@@ -285,11 +285,11 @@ void RenderWidgetHostViewMac::ShutdownHost() {
         CGContextRef context = static_cast<CGContextRef>(
             [[NSGraphicsContext currentContext] graphicsPort]);
 
-        CGRect damaged_rect_cg = damaged_rect.ToCGRect();
-        NSRect damaged_rect_ns = [self RectToNSRect:damaged_rect];
+        CGRect paint_rect_cg = paint_rect.ToCGRect();
+        NSRect paint_rect_ns = [self RectToNSRect:paint_rect];
         canvas->getTopPlatformDevice().DrawToContext(
-            context, damaged_rect_ns.origin.x, damaged_rect_ns.origin.y,
-            &damaged_rect_cg);
+            context, paint_rect_ns.origin.x, paint_rect_ns.origin.y,
+            &paint_rect_cg);
 
         [self unlockFocus];
       }
