@@ -116,6 +116,7 @@ class Window : public WidgetWin,
   void set_focus_on_creation(bool focus_on_creation) {
     focus_on_creation_ = focus_on_creation;
   }
+  void set_force_hidden(bool force_hidden) { force_hidden_ = force_hidden; }
 
   // Returns the preferred size of the contents view of this window based on
   // its localized size data. The width in cols is held in a localized string
@@ -178,6 +179,7 @@ class Window : public WidgetWin,
   virtual LRESULT OnSetText(const wchar_t* text);
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
+  virtual void OnWindowPosChanging(WINDOWPOS* window_pos);
   virtual Window* AsWindow() { return this; }
   virtual const Window* AsWindow() const { return this; }
 
@@ -303,6 +305,12 @@ class Window : public WidgetWin,
   // The saved maximized state for this window. See note in SetInitialBounds
   // that explains why we save this.
   bool saved_maximized_state_;
+
+  // True if we should prevent attempts to make the window visible when we
+  // handle WM_WINDOWPOSCHANGING. Some calls like ShowWindow(SW_RESTORE) make
+  // the window visible in addition to restoring it, when all we want to do is
+  // restore it.
+  bool force_hidden_;
 
   // Hold onto notifications.
   NotificationRegistrar notification_registrar_;

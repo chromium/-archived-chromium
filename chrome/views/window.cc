@@ -325,7 +325,8 @@ Window::Window(WindowDelegate* window_delegate)
       is_active_(false),
       lock_updates_(false),
       saved_window_style_(0),
-      saved_maximized_state_(0) {
+      saved_maximized_state_(0),
+      force_hidden_(false) {
   InitClass();
   DCHECK(window_delegate_);
   window_delegate_->window_.reset(this);
@@ -650,8 +651,10 @@ static BOOL CALLBACK ClipDCToChild(HWND window, LPARAM param) {
 
 void Window::OnNCPaint(HRGN rgn) {
   // We only do non-client painting if we're not using the native frame.
-  if (non_client_view_->UseNativeFrame())
-    return WidgetWin::OnNCPaint(rgn);
+  if (non_client_view_->UseNativeFrame()) {
+    WidgetWin::OnNCPaint(rgn);
+    return;
+  }
 
   // We have an NC region and need to paint it. We expand the NC region to
   // include the dirty region of the root view. This is done to minimize
@@ -915,6 +918,15 @@ void Window::OnSysCommand(UINT notification_code, CPoint click) {
     DefWindowProc(GetHWND(), WM_SYSCOMMAND, notification_code,
                   MAKELPARAM(click.y, click.x));
   }
+}
+
+void Window::OnWindowPosChanging(WINDOWPOS* window_pos) {
+  if (force_hidden_) {
+    // Prevent the window from being made visible if we've been asked to do so.
+    // See comment in header as to why we might want this.
+    window_pos->flags &= ~SWP_SHOWWINDOW;
+  }
+  WidgetWin::OnWindowPosChanging(window_pos);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -244,6 +244,7 @@ class WidgetWin : public Widget,
     MSG_WM_SYSCOMMAND(OnSysCommand)
     MSG_WM_THEMECHANGED(OnThemeChanged)
     MSG_WM_VSCROLL(OnVScroll)
+    MSG_WM_WINDOWPOSCHANGING(OnWindowPosChanging)
     MSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
   END_MSG_MAP()
 
@@ -474,6 +475,9 @@ class WidgetWin : public Widget,
   virtual void OnSysCommand(UINT notification_code, CPoint click) { }
   virtual void OnThemeChanged();
   virtual void OnVScroll(int scroll_type, short position, HWND scrollbar) {
+    SetMsgHandled(FALSE);
+  }
+  virtual void OnWindowPosChanging(WINDOWPOS* window_pos) {
     SetMsgHandled(FALSE);
   }
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos) {
