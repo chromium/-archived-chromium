@@ -627,12 +627,6 @@ DEFER : LayoutTests/plugins/bindings-test.html = FAIL
 DEFER WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
 DEFER WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
 
-// These tests don't work on the open source buildbot because there's no font
-// covering YinYang sign. See bug # 2304.
-DEFER LINUX WIN : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
-DEFER LINUX WIN : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
-DEFER LINUX WIN : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
-
 // No glyph for U+FFFD (Replacement Character : black diamond with
 // question mark) in them
 LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
@@ -685,12 +679,6 @@ DEFER : LayoutTests/editing/selection/move-left-right.html = FAIL
 
 // Regression from the 41362:41402 merge. http://crbug.com/8402
 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
-
-// Failing because needed images are missing from the fast/block/float/support/
-// directory. http://crbug.com/8406
-LayoutTests/fast/block/float/t0905-c414-flt-fit-01-d-g.html = FAIL
-LayoutTests/fast/block/float/t0905-c5525-fltblck-00-d-ag.html = FAIL
-LayoutTests/fast/block/float/t0905-c5526-flthw-00-c-g.html = FAIL
 
 // This test fails because (in Chromium) it includes the full path to the
 // subframe URL.  Need to teach dumpResourceLoadCallbacks() about relative
