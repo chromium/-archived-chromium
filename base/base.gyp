@@ -241,6 +241,7 @@
         'test_file_util.h',
         'test_file_util_linux.cc',
         'test_file_util_mac.cc',
+        'test_file_util_posix.cc',
         'test_file_util_win.cc',
         'thread.cc',
         'thread.h',
