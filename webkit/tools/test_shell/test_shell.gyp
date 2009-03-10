@@ -84,6 +84,8 @@
         ['OS=="linux"', {
           'dependencies': [
             'test_shell_resources',
+            'npapi_layout_test_plugin',
+            'npapi_test_plugin',
           ],
           # for:  test_shell_gtk.cc
           'cflags': ['-Wno-multichar'],
@@ -310,6 +312,68 @@
               '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources',
             ],
           },
+        },
+      ],
+    }],
+    # TODO:  change this condition to 'OS!="mac"'
+    # when Windows is ready for the plugins, too.
+    ['OS=="linux"', {
+      'targets': [
+        {
+          'target_name': 'npapi_test_plugin',
+          'type': 'loadable_module',
+          'product_dir': '<(PRODUCT_DIR)/plugins',
+          'dependencies': [
+            '../../../base/base.gyp:base',
+            '../../../third_party/icu38/icu38.gyp:icuuc',
+            '../../../third_party/npapi/npapi.gyp:npapi',
+          ],
+          'sources': [
+            '../../glue/plugins/test/npapi_constants.cc',
+            '../../glue/plugins/test/npapi_test.cc',
+            '../../glue/plugins/test/plugin_arguments_test.cc',
+            '../../glue/plugins/test/plugin_client.cc',
+            '../../glue/plugins/test/plugin_delete_plugin_in_stream_test.cc',
+            '../../glue/plugins/test/plugin_execute_script_delete_test.cc',
+            '../../glue/plugins/test/plugin_get_javascript_url_test.cc',
+            '../../glue/plugins/test/plugin_geturl_test.cc',
+            '../../glue/plugins/test/plugin_javascript_open_popup.cc',
+            '../../glue/plugins/test/plugin_new_fails_test.cc',
+            '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
+            '../../glue/plugins/test/plugin_npobject_proxy_test.cc',
+            '../../glue/plugins/test/plugin_test.cc',
+            '../../glue/plugins/test/plugin_window_size_test.cc',
+          ],
+          'conditions': [
+            ['OS=="linux"', {
+              'sources!': [
+                # TODO(port):  Port these.
+                # plugin_client.cc includes not ported headers.
+                # plugin_npobject_lifetime_test.cc has win32-isms
+                #   (HWND, CALLBACK).
+                # plugin_window_size_test.cc has w32-isms including HWND.
+                '../../glue/plugins/test/plugin_execute_script_delete_test.cc',
+                '../../glue/plugins/test/plugin_javascript_open_popup.cc',
+                '../../glue/plugins/test/plugin_client.cc',
+                '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
+                '../../glue/plugins/test/plugin_window_size_test.cc',
+              ],
+            }],
+          ],
+        },
+        {
+          'target_name': 'npapi_layout_test_plugin',
+          'type': 'loadable_module',
+          'product_dir': '<(PRODUCT_DIR)/plugins',
+          'sources': [
+            '../npapi_layout_test_plugin/main.cpp',
+            '../npapi_layout_test_plugin/PluginObject.cpp',
+            '../npapi_layout_test_plugin/TestObject.cpp',
+          ],
+          'dependencies': [
+            '../../../third_party/npapi/npapi.gyp:npapi',
+            '../../webkit.gyp:wtf',
+          ],
         },
       ],
     }],
