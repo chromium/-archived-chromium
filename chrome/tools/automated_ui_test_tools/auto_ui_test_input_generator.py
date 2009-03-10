@@ -61,7 +61,8 @@ Options:
     Outputs a part of the full coverage, starting at command number
     |command_to_start_at| and ending at command number |command_to_start_at| +
     |commands_per_file|. Command numbering starts at 0, and the maximum
-    command number is number_of_actions_we_choose_from ^ actions_per_command - 1.
+    command number is number_of_actions_we_choose_from ^ actions_per_command -
+    1.
     If |command_to_start_at| + |commands_per_file| is greater than the maximum
     command number, then only the commands up to the maximum command number
     are printed.
@@ -264,8 +265,8 @@ class AutomatedTestInputGenerator:
     return doc, root_element
 
   def __WriteToOutputFile(self, file_name, output):
-    """Writes |output| to file with name |filename|. Overwriting any pre-existing
-       file.
+    """Writes |output| to file with name |filename|. Overwriting any
+       pre-existing file.
 
     Args:
       file_name: Name of the file to create.
@@ -364,7 +365,8 @@ class AutomatedTestInputGenerator:
 
     is_complete = False
     file_counter = 0
-    # Split the file name so we can include the file number before the extension.
+    # Split the file name so we can include the file number before the
+    # extension.
     base_file_name, extension = os.path.splitext(file_name)
     command_num = 0
 
@@ -399,7 +401,8 @@ def ParseCommandLine():
   parser = optparse.OptionParser()
   parser.set_defaults(full_coverage=False)
   parser.add_option("-i", "--action-list-file", dest="input_file_name",
-                    type="string", action="store", default="possible_actions.txt",
+                    type="string", action="store",
+                    default="possible_actions.txt",
                     help="input file with a test of newline separated actions"
                     "which are possible. Default is 'possible_actions.txt'")
   parser.add_option("-o", "--output", dest="output_file_name", type="string",

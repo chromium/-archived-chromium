@@ -85,7 +85,8 @@ class SeleniumTest : public UITest {
     *total = L"100";
     const wchar_t* kBogusFailures[] = {
       L"5.selectFrame,6.click,24.selectAndWait,24.verifyTitle",
-      L"5.selectFrame,6.click,13.verifyLocation,13.verifyLocation,13.click,24.selectAndWait,24.verifyTitle",
+      L"5.selectFrame,6.click,13.verifyLocation,13.verifyLocation,13.click,"
+          L"24.selectAndWait,24.verifyTitle",
       L"5.selectFrame,6.click,24.selectAndWait"
     };
     *failed = kBogusFailures[base::RandInt(0, 2)];

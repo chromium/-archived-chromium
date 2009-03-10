@@ -376,7 +376,8 @@ std::wstring TruncateString(const std::wstring& string, size_t length) {
   // Use a line iterator to find the first boundary.
   UErrorCode status = U_ZERO_ERROR;
   scoped_ptr<RuleBasedBreakIterator> bi(static_cast<RuleBasedBreakIterator*>(
-      RuleBasedBreakIterator::createLineInstance(Locale::getDefault(), status)));
+      RuleBasedBreakIterator::createLineInstance(Locale::getDefault(),
+                                                 status)));
   if (U_FAILURE(status))
     return string.substr(0, max) + kElideString;
   bi->setText(string_utf16.c_str());

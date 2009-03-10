@@ -24,7 +24,9 @@ class PluginThread : public ChildThread {
   static PluginThread* current();
 
   // Returns the one true dispatcher.
-  ResourceDispatcher* resource_dispatcher() { return resource_dispatcher_.get(); }
+  ResourceDispatcher* resource_dispatcher() {
+    return resource_dispatcher_.get();
+  }
 
  private:
   virtual void OnControlMessageReceived(const IPC::Message& msg);

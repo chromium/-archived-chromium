@@ -334,7 +334,8 @@ void RenderWidget::DoDeferredPaint() {
 
   // Compute a buffer for painting and cache it.
   skia::PlatformCanvas* canvas =
-      RenderProcess::current()->GetDrawingCanvas(&current_paint_buf_, damaged_rect);
+      RenderProcess::current()->GetDrawingCanvas(&current_paint_buf_,
+                                                 damaged_rect);
   if (!canvas) {
     NOTREACHED();
     return;
@@ -411,7 +412,8 @@ void RenderWidget::DoDeferredScroll() {
   damaged_rect = scroll_rect_.Intersect(damaged_rect);
 
   skia::PlatformCanvas* canvas =
-      RenderProcess::current()->GetDrawingCanvas(&current_scroll_buf_, damaged_rect);
+      RenderProcess::current()->GetDrawingCanvas(&current_scroll_buf_,
+                                                 damaged_rect);
   if (!canvas) {
     NOTREACHED();
     return;

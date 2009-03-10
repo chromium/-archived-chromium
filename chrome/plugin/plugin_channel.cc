@@ -66,7 +66,8 @@ void PluginChannel::OnMessageReceived(const IPC::Message& msg) {
 void PluginChannel::OnControlMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(PluginChannel, msg)
     IPC_MESSAGE_HANDLER(PluginMsg_CreateInstance, OnCreateInstance)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginMsg_DestroyInstance, OnDestroyInstance)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginMsg_DestroyInstance,
+                                    OnDestroyInstance)
     IPC_MESSAGE_HANDLER(PluginMsg_GenerateRouteID, OnGenerateRouteID)
     IPC_MESSAGE_UNHANDLED_ERROR()
   IPC_END_MESSAGE_MAP()

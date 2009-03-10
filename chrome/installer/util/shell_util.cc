@@ -45,7 +45,8 @@ class RegistryEntry {
  public:
   // This method returns a list of all the registry entries that are needed
   // to register Chrome.
-  static std::list<RegistryEntry*> GetAllEntries(const std::wstring& chrome_exe) {
+  static std::list<RegistryEntry*> GetAllEntries(
+      const std::wstring& chrome_exe) {
     std::list<RegistryEntry*> entries;
     std::wstring icon_path(chrome_exe);
     ShellUtil::GetChromeIcon(icon_path);
@@ -96,7 +97,8 @@ class RegistryEntry {
         L"Software\\Clients\\StartMenuInternet\\chrome.exe",
         dist->GetApplicationName()));
     entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\shell\\open\\command",
+        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\shell\\open\\"
+            L"command",
         quoted_exe_path));
     entries.push_front(new RegistryEntry(
         L"Software\\Clients\\StartMenuInternet\\chrome.exe\\DefaultIcon",
@@ -132,16 +134,19 @@ class RegistryEntry {
         L"ApplicationName", dist->GetApplicationName()));
 
     entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\StartMenu",
+        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\"
+            L"StartMenu",
         L"StartMenuInternet", L"chrome.exe"));
     for (int i = 0; ShellUtil::kFileAssociations[i] != NULL; i++) {
       entries.push_front(new RegistryEntry(
-          L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\FileAssociations",
+          L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\"
+              L"FileAssociations",
           ShellUtil::kFileAssociations[i], ShellUtil::kChromeHTMLProgId));
     }
     for (int i = 0; ShellUtil::kProtocolAssociations[i] != NULL; i++) {
       entries.push_front(new RegistryEntry(
-          L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\URLAssociations",
+          L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\"
+              L"URLAssociations",
           ShellUtil::kProtocolAssociations[i], ShellUtil::kChromeHTMLProgId));
     }
     return entries;
@@ -383,7 +388,8 @@ const wchar_t* ShellUtil::kRegClasses = L"Software\\Classes";
 const wchar_t* ShellUtil::kRegRegisteredApplications =
     L"Software\\RegisteredApplications";
 const wchar_t* ShellUtil::kRegVistaUrlPrefs =
-    L"Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice";
+    L"Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\"
+    L"http\\UserChoice";
 const wchar_t* ShellUtil::kAppPathsRegistryKey =
     L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths";
 const wchar_t* ShellUtil::kAppPathsRegistryPathName = L"Path";

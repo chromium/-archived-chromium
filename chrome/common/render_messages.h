@@ -1337,7 +1337,9 @@ struct ParamTraits<ResourceResponseHead> {
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
-      ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Read(m, iter, r) &&
+      ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Read(m,
+                                                                         iter,
+                                                                         r) &&
       ReadParam(m, iter, &r->status) &&
       ReadParam(m, iter, &r->filter_policy);
   }

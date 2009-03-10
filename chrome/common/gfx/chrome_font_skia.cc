@@ -78,7 +78,8 @@ int ChromeFont::ave_char_width() const {
   return avg_width_;
 }
 
-ChromeFont ChromeFont::CreateFont(const std::wstring& font_name, int font_size) {
+ChromeFont ChromeFont::CreateFont(const std::wstring& font_name,
+                                  int font_size) {
   DCHECK_GT(font_size, 0);
 
   SkTypeface* tf = SkTypeface::Create(base::SysWideToUTF8(font_name).c_str(),

@@ -91,8 +91,8 @@ class VisitedLinkCommon {
   };
 
   // Returns the fingerprint at the given index into the URL table. This
-  // function should be called instead of accessing the table directly to contain
-  // endian issues.
+  // function should be called instead of accessing the table directly to
+  // contain endian issues.
   Fingerprint FingerprintAt(int32 table_offset) const {
     DCHECK(hash_table_);
     if (!hash_table_)
@@ -113,7 +113,8 @@ class VisitedLinkCommon {
   static Hash HashFingerprint(Fingerprint fingerprint, int32 table_length) {
     return static_cast<Hash>(fingerprint % table_length);
   }
-  Hash HashFingerprint(Fingerprint fingerprint) const { // uses the current hashtable
+  // Uses the current hashtable.
+  Hash HashFingerprint(Fingerprint fingerprint) const {
     return HashFingerprint(fingerprint, table_length_);
   }
 

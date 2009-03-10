@@ -259,7 +259,8 @@ TEST(OSExchangeDataTest, TestURLExchangeFormats) {
   // File contents access via COM
   CComPtr<IDataObject> com_data(data);
   {
-    CLIPFORMAT cfstr_file_contents = RegisterClipboardFormat(CFSTR_FILECONTENTS);
+    CLIPFORMAT cfstr_file_contents =
+        RegisterClipboardFormat(CFSTR_FILECONTENTS);
     FORMATETC format_etc =
         { cfstr_file_contents, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
     EXPECT_EQ(S_OK, com_data->QueryGetData(&format_etc));
@@ -268,7 +269,9 @@ TEST(OSExchangeDataTest, TestURLExchangeFormats) {
     EXPECT_EQ(S_OK, com_data->GetData(&format_etc, &medium));
     ScopedHGlobal<char> glob(medium.hGlobal);
     std::string output(glob.get(), glob.Size());
-    std::string file_contents = "[InternetShortcut]\r\nURL=" + url_spec + "\r\n";
+    std::string file_contents = "[InternetShortcut]\r\nURL=";
+    file_contents += url_spec;
+    file_contents += "\r\n";
     EXPECT_EQ(file_contents, output);
     ReleaseStgMedium(&medium);
   }

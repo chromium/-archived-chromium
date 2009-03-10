@@ -95,7 +95,8 @@ void WebPluginDelegateStub::OnMessageReceived(const IPC::Message& msg) {
                         OnDidFinishManualLoading)
     IPC_MESSAGE_HANDLER(PluginMsg_DidManualLoadFail, OnDidManualLoadFail)
     IPC_MESSAGE_HANDLER(PluginMsg_InstallMissingPlugin, OnInstallMissingPlugin)
-    IPC_MESSAGE_HANDLER(PluginMsg_HandleURLRequestReply, OnHandleURLRequestReply)
+    IPC_MESSAGE_HANDLER(PluginMsg_HandleURLRequestReply,
+                        OnHandleURLRequestReply)
     IPC_MESSAGE_HANDLER(PluginMsg_URLRequestRouted, OnURLRequestRouted)
     IPC_MESSAGE_UNHANDLED_ERROR()
   IPC_END_MESSAGE_MAP()

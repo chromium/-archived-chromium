@@ -47,9 +47,12 @@ class LayoutPluginTester : public UITest {
 TEST_F(LayoutPluginTester, UnloadNoCrash) {
   // We need to copy our test-plugin into the plugins directory so that
   // the browser can load it.
-  std::wstring plugins_directory = browser_directory_ + L"\\plugins";
-  std::wstring plugin_src = browser_directory_ + L"\\npapi_layout_test_plugin.dll";
-  std::wstring plugin_dest = plugins_directory + L"\\npapi_layout_test_plugin.dll";
+  std::wstring plugins_directory = browser_directory_;
+  plugins_directory += L"\\plugins";
+  std::wstring plugin_src = browser_directory_;
+  plugin_src += L"\\npapi_layout_test_plugin.dll";
+  std::wstring plugin_dest = plugins_directory;
+  plugin_dest += L"\\npapi_layout_test_plugin.dll";
 
   CreateDirectory(plugins_directory.c_str(), NULL);
   CopyFile(plugin_src.c_str(), plugin_dest.c_str(), true /* overwrite */);

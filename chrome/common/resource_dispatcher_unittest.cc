@@ -114,7 +114,8 @@ class ResourceDispatcherTest : public testing::Test,
       base::SharedMemoryHandle dup_handle;
       EXPECT_TRUE(shared_mem.GiveToProcess(
           base::Process::Current().handle(), &dup_handle));
-      dispatcher_->OnReceivedData(request_id, dup_handle, test_page_contents_len);
+      dispatcher_->OnReceivedData(request_id, dup_handle,
+                                  test_page_contents_len);
 
       message_queue_.erase(message_queue_.begin());
 

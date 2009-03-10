@@ -117,7 +117,8 @@ bool NPObjectProxy::NPHasMethod(NPObject *obj,
   NPIdentifier_Param name_param;
   CreateNPIdentifierParam(name, &name_param);
 
-  proxy->Send(new NPObjectMsg_HasMethod(proxy->route_id(), name_param, &result));
+  proxy->Send(new NPObjectMsg_HasMethod(proxy->route_id(), name_param,
+                                        &result));
   return result;
 }
 
@@ -151,7 +152,8 @@ bool NPObjectProxy::NPInvokePrivate(NPP npp,
   bool result = false;
   NPIdentifier_Param name_param;
   if (is_default) {
-    // The data won't actually get used, but set it so we don't send random data.
+    // The data won't actually get used, but set it so we don't send random
+    // data.
     name_param.identifier = NULL;
   } else {
     CreateNPIdentifierParam(name, &name_param);
@@ -397,4 +399,3 @@ void NPObjectProxy::NPNSetException(NPObject *obj,
   // Send may delete proxy.
   proxy = NULL;
 }
-

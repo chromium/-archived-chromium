@@ -431,7 +431,8 @@ BrowserProxy* AutomationProxy::GetLastActiveBrowserWindow() {
 
   if (!SendWithTimeout(new AutomationMsg_LastActiveBrowserWindow(
       0, &handle), command_execution_timeout_ms(), NULL)) {
-    DLOG(ERROR) << "GetLastActiveBrowserWindow did not complete in a timely fashion";
+    DLOG(ERROR) <<
+        "GetLastActiveBrowserWindow did not complete in a timely fashion";
     return NULL;
   }
 

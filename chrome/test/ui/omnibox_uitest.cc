@@ -57,8 +57,8 @@ class OmniboxTest : public UITest {
 
 bool OmniboxTest::IsMatch(const std::wstring& input_text,
                           const std::wstring& suggestion) {
-  // This prefix list comes from the list used in history_url_provider.cc withiff
-  // the exception of "ftp." and "www.".
+  // This prefix list comes from the list used in history_url_provider.cc
+  // withiff the exception of "ftp." and "www.".
   std::wstring prefixes[] = {L"", L"ftp://", L"http://", L"https://",
                              L"ftp.", L"www.", L"ftp://www.", L"ftp://ftp.",
                              L"http://www.", L"https://www."};

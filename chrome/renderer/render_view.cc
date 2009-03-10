@@ -402,8 +402,9 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
                         OnUpdateBackForwardListCount)
     IPC_MESSAGE_HANDLER(ViewMsg_GetAllSavableResourceLinksForCurrentPage,
                         OnGetAllSavableResourceLinksForCurrentPage)
-    IPC_MESSAGE_HANDLER(ViewMsg_GetSerializedHtmlDataForCurrentPageWithLocalLinks,
-                        OnGetSerializedHtmlDataForCurrentPageWithLocalLinks)
+    IPC_MESSAGE_HANDLER(
+        ViewMsg_GetSerializedHtmlDataForCurrentPageWithLocalLinks,
+        OnGetSerializedHtmlDataForCurrentPageWithLocalLinks)
     IPC_MESSAGE_HANDLER(ViewMsg_GetApplicationInfo, OnGetApplicationInfo)
     IPC_MESSAGE_HANDLER(ViewMsg_GetAccessibilityInfo, OnGetAccessibilityInfo)
     IPC_MESSAGE_HANDLER(ViewMsg_ClearAccessibilityInfo,

@@ -92,7 +92,7 @@ SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
   // Decode the PNG.
   int image_width;
   int image_height;
-  if (!PNGDecoder::Decode(&raw_data.front(), raw_data.size(), 
+  if (!PNGDecoder::Decode(&raw_data.front(), raw_data.size(),
                           PNGDecoder::FORMAT_BGRA,
                           &png_data, &image_width, &image_height)) {
     NOTREACHED() << "Unable to decode image resource " << resource_id;

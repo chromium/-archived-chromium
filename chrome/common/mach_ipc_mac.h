@@ -63,8 +63,8 @@
 //
 //    char messageString[] = "Hello server!\n";
 //    message.SetData(messageString, strlen(messageString)+1);
-//
-//    kern_return_t result = sender.SendMessage(message, 1000); // timeout 1000ms
+//    // timeout 1000ms
+//    kern_return_t result = sender.SendMessage(message, 1000);
 //
 
 #define PRINT_MACH_RESULT(result_, message_) \
@@ -194,9 +194,9 @@ class MachMessage {
 
   // Represents raw data in our message
   struct MessageDataPacket {
-    int32_t      id;          // little-endian
-    int32_t      data_length;	// little-endian
-    u_int8_t     data[1];     // actual size limited by storage_length_bytes_
+    int32_t  id;          // little-endian
+    int32_t  data_length; // little-endian
+    u_int8_t data[1];     // actual size limited by storage_length_bytes_
   };
 
   MessageDataPacket* GetDataPacket();
@@ -222,7 +222,8 @@ class MachMessage {
     u_int8_t           padding[1024];
   };
 
- // kEmptyMessageSize needs to have the definition of MachMessageData before it.NNN
+ // kEmptyMessageSize needs to have the definition of MachMessageData before
+ // it.
  public:
    // The size of an empty message with no data.
   static const size_t kEmptyMessageSize = sizeof(mach_msg_header_t) +

@@ -122,7 +122,9 @@ class TestingBrowserProcess : public BrowserProcess {
 
   virtual MemoryModel memory_model() { return HIGH_MEMORY_MODEL; }
 
-  virtual base::WaitableEvent* shutdown_event() { return shutdown_event_.get(); }
+  virtual base::WaitableEvent* shutdown_event() {
+    return shutdown_event_.get();
+  }
 
  private:
   NotificationService notification_service_;

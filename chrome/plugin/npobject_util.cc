@@ -41,7 +41,8 @@ static bool NPN_InvokePatch(NPP npp, NPObject *npobj,
                             const NPVariant *args,
                             uint32_t argCount,
                             NPVariant *result) {
-  return NPObjectProxy::NPInvokePrivate(npp, npobj, false, methodName, args, argCount, result);
+  return NPObjectProxy::NPInvokePrivate(npp, npobj, false, methodName, args,
+                                        argCount, result);
 }
 
 static bool NPN_InvokeDefaultPatch(NPP npp,
@@ -49,7 +50,8 @@ static bool NPN_InvokeDefaultPatch(NPP npp,
                                    const NPVariant *args,
                                    uint32_t argCount,
                                    NPVariant *result) {
-  return NPObjectProxy::NPInvokePrivate(npp, npobj, true, 0, args, argCount, result);
+  return NPObjectProxy::NPInvokePrivate(npp, npobj, true, 0, args, argCount,
+                                        result);
 }
 
 static bool NPN_HasPropertyPatch(NPP npp,
@@ -238,19 +240,23 @@ void CreateNPVariant(const NPVariant_Param& param,
       break;
     case NPVARIANT_PARAM_OBJECT_ROUTING_ID:
       result->type = NPVariantType_Object;
-      result->value.objectValue = NPObjectProxy::Create(channel,
-                                                        param.npobject_routing_id,
-                                                        param.npobject_pointer,
-                                                        modal_dialog_event);
+      result->value.objectValue =
+          NPObjectProxy::Create(channel,
+                                param.npobject_routing_id,
+                                param.npobject_pointer,
+                                modal_dialog_event);
       break;
     case NPVARIANT_PARAM_OBJECT_POINTER:
       result->type = NPVariantType_Object;
-      result->value.objectValue = static_cast<NPObject*>(param.npobject_pointer);
+      result->value.objectValue =
+          static_cast<NPObject*>(param.npobject_pointer);
       NPN_RetainObject(result->value.objectValue);
       break;
     default:
       NOTREACHED();
   }
 }
-#endif
-#endif
+
+#endif  // defined(OS_WIN)
+
+#endif  // defined(OS_WIN)

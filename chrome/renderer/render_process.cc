@@ -19,7 +19,8 @@
 #include "base/histogram.h"
 #include "base/path_service.h"
 #include "base/sys_info.h"
-#include "chrome/browser/net/dns_global.h"  // TODO(jar): DNS calls should be renderer specific, not including browser.
+// TODO(jar): DNS calls should be renderer specific, not including browser.
+#include "chrome/browser/net/dns_global.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/ipc_channel.h"

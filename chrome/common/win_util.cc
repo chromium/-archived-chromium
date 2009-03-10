@@ -116,7 +116,8 @@ std::wstring FormatSystemDate(const SYSTEMTIME& date,
   return output;
 }
 
-bool ConvertToLongPath(const std::wstring& short_path, std::wstring* long_path) {
+bool ConvertToLongPath(const std::wstring& short_path,
+                       std::wstring* long_path) {
   wchar_t long_path_buf[MAX_PATH];
   DWORD return_value = GetLongPathName(short_path.c_str(), long_path_buf,
                                        MAX_PATH);
@@ -172,7 +173,8 @@ void ShowItemInFolder(const std::wstring& full_path) {
               PCUITEMID_CHILD_ARRAY pidls,
               DWORD flags);
 
-  static SHOpenFolderAndSelectItemsFuncPtr open_folder_and_select_itemsPtr = NULL;
+  static SHOpenFolderAndSelectItemsFuncPtr open_folder_and_select_itemsPtr =
+    NULL;
   static bool initialize_open_folder_proc = true;
   if (initialize_open_folder_proc) {
     initialize_open_folder_proc = false;

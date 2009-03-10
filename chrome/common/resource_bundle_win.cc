@@ -58,7 +58,8 @@ void ResourceBundle::LoadResources(const std::wstring& pref_locale) {
   // The dll should only have resources, not executable code.
   locale_resources_data_ = LoadLibraryEx(locale_path.value().c_str(), NULL,
                                          GetDataDllLoadFlags());
-  DCHECK(locale_resources_data_ != NULL) << "unable to load generated resources";
+  DCHECK(locale_resources_data_ != NULL) <<
+      "unable to load generated resources";
 }
 
 FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {

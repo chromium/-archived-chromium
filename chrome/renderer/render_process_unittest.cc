@@ -44,7 +44,8 @@ TEST_F(RenderProcessTest, TestTransportDIBAllocation) {
 #if !defined(OS_MACOSX)
   const gfx::Rect rect(0, 0, 100, 100);
   TransportDIB* dib;
-  skia::PlatformCanvas* canvas = RenderProcess::current()->GetDrawingCanvas(&dib, rect);
+  skia::PlatformCanvas* canvas =
+      RenderProcess::current()->GetDrawingCanvas(&dib, rect);
   ASSERT_TRUE(dib);
   ASSERT_TRUE(canvas);
   RenderProcess::current()->ReleaseTransportDIB(dib);

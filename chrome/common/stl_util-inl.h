@@ -196,8 +196,12 @@ inline bool
 HashSetEquality(const HashSet& set_a,
                 const HashSet& set_b) {
   if (set_a.size() != set_b.size()) return false;
-  for (typename HashSet::const_iterator i = set_a.begin(); i != set_a.end(); ++i)
-    if (set_b.find(*i) == set_b.end()) return false;
+  for (typename HashSet::const_iterator i = set_a.begin();
+       i != set_a.end();
+       ++i) {
+    if (set_b.find(*i) == set_b.end())
+      return false;
+  }
   return true;
 }
 

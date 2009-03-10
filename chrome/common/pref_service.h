@@ -56,8 +56,8 @@ class PrefService : public NonThreadSafe {
     // browser.window_placement).
     const std::wstring name() const { return name_; }
 
-    // Returns the value of the Preference.  If there is no user specified value,
-    // it returns the default value.
+    // Returns the value of the Preference.  If there is no user specified
+    // value, it returns the default value.
     const Value* GetValue() const;
 
     // Returns true if the current value matches the default value.
@@ -76,7 +76,8 @@ class PrefService : public NonThreadSafe {
     DISALLOW_COPY_AND_ASSIGN(Preference);
   };
 
-  // |pref_filename| is the path to the prefs file we will try to load or save to.
+  // |pref_filename| is the path to the prefs file we will try to load or save
+  // to.
   explicit PrefService(const FilePath& pref_filename);
   ~PrefService();
 
@@ -128,8 +129,8 @@ class PrefService : public NonThreadSafe {
   bool IsPrefRegistered(const wchar_t* path);
 
   // If the path is valid and the value at the end of the path matches the type
-  // specified, it will return the specified value.  Otherwise, the default value
-  // (set when the pref was registered) will be returned.
+  // specified, it will return the specified value.  Otherwise, the default
+  // value (set when the pref was registered) will be returned.
   bool GetBoolean(const wchar_t* path) const;
   int GetInteger(const wchar_t* path) const;
   double GetReal(const wchar_t* path) const;

@@ -163,7 +163,7 @@ class XmlWriter {
                                      BAD_CAST content.c_str()) >= 0;
   }
 
-  // Helper functions not provided by xmlTextWriter ----------------------------------
+  // Helper functions not provided by xmlTextWriter ---------------------------
 
   // Returns the string that has been written to the buffer.
   std::string GetWrittenString() {

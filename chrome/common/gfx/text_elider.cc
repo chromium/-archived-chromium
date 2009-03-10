@@ -376,7 +376,8 @@ void AppendFormattedComponent(const std::string& spec,
     out_component->begin = static_cast<int>(output->length());
 
     output->append(UnescapeAndDecodeUTF8URLComponent(
-        spec.substr(in_component.begin, in_component.len), UnescapeRule::NORMAL));
+        spec.substr(in_component.begin, in_component.len),
+        UnescapeRule::NORMAL));
 
     out_component->len =
         static_cast<int>(output->length()) - out_component->begin;

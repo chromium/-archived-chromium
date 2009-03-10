@@ -181,7 +181,8 @@ void PluginChannelBase::RemoveRoute(int route_id) {
 }
 
 void PluginChannelBase::OnControlMessageReceived(const IPC::Message& msg) {
-  NOTREACHED() << "should override in subclass if you care about control messages";
+  NOTREACHED() <<
+      "should override in subclass if you care about control messages";
 }
 
 void PluginChannelBase::OnChannelError() {

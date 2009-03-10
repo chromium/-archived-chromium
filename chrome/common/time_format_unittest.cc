@@ -57,7 +57,8 @@ TEST(TimeFormat, RemainingTime) {
   TestRemainingTime(twohundred_millisecs, L"0 secs", L"0 secs left");
   TestRemainingTime(one_sec - twohundred_millisecs, L"0 secs", L"0 secs left");
   TestRemainingTime(one_sec + twohundred_millisecs, L"1 sec", L"1 sec left");
-  TestRemainingTime(five_secs + twohundred_millisecs, L"5 secs", L"5 secs left");
+  TestRemainingTime(five_secs + twohundred_millisecs, L"5 secs",
+                    L"5 secs left");
   TestRemainingTime(one_min + five_secs, L"1 min", L"1 min left");
   TestRemainingTime(three_mins + twohundred_millisecs,
                     L"3 mins", L"3 mins left");

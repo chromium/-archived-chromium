@@ -35,7 +35,8 @@ static const double kK = 903.3;
 static double CIEConvertNonLinear(uint8 color_component) {
   double color_component_d = static_cast<double>(color_component) / 255.0;
   if (color_component_d > 0.04045) {
-    double base = (color_component_d + kCIEConversionAlpha) / (1 + kCIEConversionAlpha);
+    double base = (color_component_d + kCIEConversionAlpha) /
+                      (1 + kCIEConversionAlpha);
     return pow(base, kCIEConversionGamma);
   } else {
     return color_component_d / 12.92;
@@ -86,7 +87,9 @@ static uint8 sRGBColorComponentFromLinearComponent(double component) {
   if (component <= 0.0031308) {
     result = 12.92 * component;
   } else {
-    result = (1 + kCIEConversionAlpha) * pow(component, (static_cast<double>(1) / 2.4)) - kCIEConversionAlpha;
+    result = (1 + kCIEConversionAlpha) *
+                 pow(component, (static_cast<double>(1) / 2.4)) -
+                 kCIEConversionAlpha;
   }
   return std::min(static_cast<uint8>(255), static_cast<uint8>(result * 255));
 }

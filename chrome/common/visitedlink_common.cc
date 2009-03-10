@@ -62,8 +62,8 @@ bool VisitedLinkCommon::IsVisited(Fingerprint fingerprint) const {
 // Uses the top 64 bits of the MD5 sum of the canonical URL as the fingerprint,
 // this is as random as any other subset of the MD5SUM.
 //
-// FIXME: this uses the MD5SUM of the 16-bit character version. For systems where
-// wchar_t is not 16 bits (Linux uses 32 bits, I think), this will not be
+// FIXME: this uses the MD5SUM of the 16-bit character version. For systems
+// where wchar_t is not 16 bits (Linux uses 32 bits, I think), this will not be
 // compatable. We should define explicitly what should happen here across
 // platforms, and convert if necessary (probably to UTF-16).
 

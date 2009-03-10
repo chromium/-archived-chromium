@@ -232,7 +232,8 @@ std::wstring GoogleChromeDistribution::GetUninstallLinkName() {
 }
 
 std::wstring GoogleChromeDistribution::GetUninstallRegPath() {
-  return L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome";
+  return L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
+         L"Google Chrome";
 }
 
 std::wstring GoogleChromeDistribution::GetVersionKey() {

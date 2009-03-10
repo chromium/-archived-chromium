@@ -16,12 +16,17 @@
 
 namespace {
 
-const wchar_t kChromeRegClientsKey[] = L"Software\\Google\\Update\\Clients\\{8A69D345-D564-463c-AFF1-A69D9E530F96}";
-const wchar_t kChromeRegClientStateKey[] = L"Software\\Google\\Update\\ClientState\\{8A69D345-D564-463c-AFF1-A69D9E530F96}";
+const wchar_t kChromeRegClientsKey[] =
+    L"Software\\Google\\Update\\Clients\\"
+    L"{8A69D345-D564-463c-AFF1-A69D9E530F96}";
+const wchar_t kChromeRegClientStateKey[] =
+    L"Software\\Google\\Update\\ClientState\\"
+    L"{8A69D345-D564-463c-AFF1-A69D9E530F96}";
 const wchar_t kChromeRegLaunchCmd[] = L"InstallerSuccessLaunchCmdLine";
 const wchar_t kChromeRegLastLaunchCmd[] = L"LastInstallerSuccessLaunchCmdLine";
 const wchar_t kChromeRegVersion[] = L"pv";
-const wchar_t kNoChromeOfferUntil[] = L"SOFTWARE\\Google\\No Chrome Offer Until";
+const wchar_t kNoChromeOfferUntil[] =
+    L"SOFTWARE\\Google\\No Chrome Offer Until";
 
 // Return the company name specified in the file version info resource.
 bool GetCompanyName(const wchar_t* filename, wchar_t* buffer, DWORD out_len) {
@@ -95,7 +100,7 @@ bool CanReOfferChrome(BOOL set_flag) {
     SYSTEMTIME now;
     GetLocalTime(&now);
     DWORD today = now.wYear * 10000 + now.wMonth * 100 + now.wDay;
-          
+
     // Cannot re-offer, if the timer already exists and is not expired yet.
     DWORD value_type = REG_DWORD;
     DWORD value_data = 0;
@@ -120,7 +125,7 @@ bool CanReOfferChrome(BOOL set_flag) {
           timer.wYear = timer.wYear + 1;
         }
         DWORD value = timer.wYear * 10000 + timer.wMonth * 100 + timer.wDay;
-        ::RegSetValueEx(key, company, 0, REG_DWORD, (LPBYTE)&value, 
+        ::RegSetValueEx(key, company, 0, REG_DWORD, (LPBYTE)&value,
                         sizeof(DWORD));
       }
     }
@@ -278,7 +283,8 @@ bool GetUserIdForProcess(size_t pid, wchar_t** user_sid) {
 }  // namespace
 
 #pragma comment(linker, "/EXPORT:GoogleChromeCompatibilityCheck=_GoogleChromeCompatibilityCheck@8,PRIVATE")
-DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(BOOL set_flag, DWORD *reasons) {
+DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(BOOL set_flag,
+                                                        DWORD *reasons) {
   DWORD local_reasons = 0;
 
   bool is_vista_or_later = false;
