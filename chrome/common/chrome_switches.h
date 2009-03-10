@@ -26,7 +26,6 @@ extern const wchar_t kPluginLauncher[];
 extern const wchar_t kProcessChannelID[];
 extern const wchar_t kTestingChannelID[];
 extern const wchar_t kHomePage[];
-extern const wchar_t kBrowserStartRenderersManually[];
 extern const wchar_t kRendererProcess[];
 extern const wchar_t kRendererPath[];
 extern const wchar_t kPluginProcess[];

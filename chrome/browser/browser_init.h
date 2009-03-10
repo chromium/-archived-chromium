@@ -93,8 +93,8 @@ class BrowserInit {
   //  ProcessSingleton::OnCopyData).
   static bool ProcessCommandLine(const CommandLine& command_line,
                                  const std::wstring& cur_dir,
-                                 PrefService* prefs, bool process_startup,
-                                 Profile* profile, int* return_code);
+                                 bool process_startup, Profile* profile,
+                                 int* return_code);
 
   // Helper function to launch a new browser based on command-line arguments
   // This function takes in a specific profile to use.

@@ -229,7 +229,7 @@ LRESULT ProcessSingleton::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
 
     // Run the browser startup sequence again, with the command line of the
     // signalling process.
-    BrowserInit::ProcessCommandLine(parsed_command_line, cur_dir, prefs, false,
+    BrowserInit::ProcessCommandLine(parsed_command_line, cur_dir, false,
                                     profile, NULL);
     return TRUE;
   }

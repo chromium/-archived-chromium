@@ -63,11 +63,6 @@ const wchar_t kTestingChannelID[]              = L"testing-channel";
 // that the UI tests don't depend on what comes up for http://google.com.
 const wchar_t kHomePage[]                      = L"homepage";
 
-// When this switch is present, the browser will throw up a dialog box
-// asking the user to start a renderer process independently rather
-// than launching the renderer itself.  (This is useful for debugging.)
-const wchar_t kBrowserStartRenderersManually[] = L"start-renderers-manually";
-
 // Causes the process to run as renderer instead of as browser.
 const wchar_t kRendererProcess[]               = L"renderer";
 

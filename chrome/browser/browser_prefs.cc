@@ -38,7 +38,6 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   // Prefs in Local State
   GoogleURLTracker::RegisterPrefs(local_state);
   Browser::RegisterPrefs(local_state);
-  BrowserRenderProcessHost::RegisterPrefs(local_state);
   CacheManagerHost::RegisterPrefs(local_state);
   SafeBrowsingService::RegisterPrefs(local_state);
   MetricsLog::RegisterPrefs(local_state);

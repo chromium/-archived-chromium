@@ -130,7 +130,6 @@ extern const wchar_t kUninstallMetricsUptimeSec[];
 extern const wchar_t kUninstallLastLaunchTimeSec[];
 extern const wchar_t kUninstallLastObservedRunTimeSec[];
 
-extern const wchar_t kStartRenderersManually[];
 extern const wchar_t kBrowserWindowPlacement[];
 extern const wchar_t kTaskManagerWindowPlacement[];
 extern const wchar_t kPageInfoWindowPlacement[];

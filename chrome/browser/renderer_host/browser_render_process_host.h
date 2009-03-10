@@ -23,7 +23,6 @@
 
 class CommandLine;
 class GURL;
-class PrefService;
 class RendererMainThread;
 class RenderWidgetHelper;
 class WebContents;
@@ -75,8 +74,6 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   virtual void OnMessageReceived(const IPC::Message& msg);
   virtual void OnChannelConnected(int32 peer_pid);
   virtual void OnChannelError();
-
-  static void RegisterPrefs(PrefService* prefs);
 
   // If the a process has sent a message that cannot be decoded, it is deemed
   // corrupted and thus needs to be terminated using this call. This function

@@ -417,8 +417,7 @@ void BrowserInit::LaunchWithProfile::AddStartupURLs(
 
 bool BrowserInit::ProcessCommandLine(
     const CommandLine& command_line, const std::wstring& cur_dir,
-    PrefService* prefs, bool process_startup, Profile* profile,
-    int* return_code) {
+    bool process_startup, Profile* profile, int* return_code) {
   DCHECK(profile);
   if (process_startup) {
     const std::wstring popup_count_string =
@@ -472,9 +471,6 @@ bool BrowserInit::ProcessCommandLine(
 
   // Allow the command line to override the persisted setting of home page.
   SetOverrideHomePage(command_line, profile->GetPrefs());
-
-  if (command_line.HasSwitch(switches::kBrowserStartRenderersManually))
-    prefs->transient()->SetBoolean(prefs::kStartRenderersManually, true);
 
   bool silent_launch = false;
   if (command_line.HasSwitch(switches::kAutomationClientChannelID)) {

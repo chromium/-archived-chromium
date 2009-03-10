@@ -553,8 +553,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
     MessageLoopForUI::current()->PostTask(FROM_HERE, parameters.ui_task);
     RunUIMessageLoop(browser_process.get());
   } else if (BrowserInit::ProcessCommandLine(parsed_command_line,
-                                             std::wstring(), local_state, true,
-                                             profile, &result_code)) {
+                                             std::wstring(), true, profile,
+                                             &result_code)) {
     if (pool) pool->Recycle();
     RunUIMessageLoop(browser_process.get());
   }

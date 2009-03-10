@@ -121,11 +121,6 @@ bool GetRendererPath(std::wstring* cmd_line) {
 
 const wchar_t* const kDesktopName = L"ChromeRendererDesktop";
 
-// static
-void BrowserRenderProcessHost::RegisterPrefs(PrefService* prefs) {
-  prefs->RegisterBooleanPref(prefs::kStartRenderersManually, false);
-}
-
 BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
     : RenderProcessHost(profile),
       visible_widgets_(0),
@@ -177,27 +172,6 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
       NotificationType::USER_SCRIPTS_LOADED, NotificationService::AllSources());
 
   ClearTransportDIBCache();
-}
-
-// When we're started with the --start-renderers-manually flag, we pop up a
-// modal dialog requesting the user manually start up a renderer.
-// |cmd_line| is the command line to start the renderer with.
-static void RunStartRenderersManuallyDialog(const CommandLine& cmd_line) {
-#if defined(OS_WIN)
-  std::wstring message =
-      L"Please start a renderer process using:\n" +
-      cmd_line.command_line_string();
-
-  // We don't know the owner window for RenderProcessHost and therefore we
-  // pass a NULL HWND argument.
-  win_util::MessageBox(NULL,
-                       message,
-                       switches::kBrowserStartRenderersManually,
-                       MB_OK);
-#else
-  // TODO(port): refactor above code / pop up a message box here.
-  NOTIMPLEMENTED();
-#endif
 }
 
 bool BrowserRenderProcessHost::Init() {
@@ -350,92 +324,86 @@ bool BrowserRenderProcessHost::Init() {
     options.message_loop_type = MessageLoop::TYPE_IO;
     in_process_renderer_->StartWithOptions(options);
   } else {
-    if (g_browser_process->local_state() &&
-        g_browser_process->local_state()->GetBoolean(
-            prefs::kStartRenderersManually)) {
-      RunStartRenderersManuallyDialog(cmd_line);
-    } else {
 #if defined(OS_WIN)
-      if (in_sandbox) {
-        // spawn the child process in the sandbox
-        sandbox::BrokerServices* broker_service =
-            g_browser_process->broker_services();
+    if (in_sandbox) {
+      // spawn the child process in the sandbox
+      sandbox::BrokerServices* broker_service =
+          g_browser_process->broker_services();
 
-        sandbox::ResultCode result;
-        PROCESS_INFORMATION target = {0};
-        sandbox::TargetPolicy* policy = broker_service->CreatePolicy();
-        policy->SetJobLevel(sandbox::JOB_LOCKDOWN, 0);
+      sandbox::ResultCode result;
+      PROCESS_INFORMATION target = {0};
+      sandbox::TargetPolicy* policy = broker_service->CreatePolicy();
+      policy->SetJobLevel(sandbox::JOB_LOCKDOWN, 0);
 
-        sandbox::TokenLevel initial_token = sandbox::USER_UNPROTECTED;
-        if (win_util::GetWinVersion() > win_util::WINVERSION_XP) {
-          // On 2003/Vista the initial token has to be restricted if the main
-          // token is restricted.
-          initial_token = sandbox::USER_RESTRICTED_SAME_ACCESS;
-        }
-
-        policy->SetTokenLevel(initial_token, sandbox::USER_LOCKDOWN);
-        policy->SetDelayedIntegrityLevel(sandbox::INTEGRITY_LEVEL_LOW);
-
-        HDESK desktop = CreateDesktop(kDesktopName, NULL, NULL, 0,
-                                      DESKTOP_CREATEWINDOW, NULL);
-        if (desktop) {
-          policy->SetDesktop(kDesktopName);
-        } else {
-          DLOG(WARNING) << "Failed to apply desktop security to the renderer";
-        }
-
-        if (!AddGenericPolicy(policy)) {
-          NOTREACHED();
-          return false;
-        }
-
-        if (browser_command_line.HasSwitch(switches::kGearsInRenderer)) {
-          if (!AddPolicyForGearsInRenderer(policy)) {
-            NOTREACHED();
-            return false;
-          }
-        }
-
-        if (!AddDllEvictionPolicy(policy)) {
-          NOTREACHED();
-          return false;
-        }
-
-        result =
-            broker_service->SpawnTarget(renderer_path.c_str(),
-                                        cmd_line.command_line_string().c_str(),
-                                        policy, &target);
-        policy->Release();
-
-        if (desktop)
-          CloseDesktop(desktop);
-
-        if (sandbox::SBOX_ALL_OK != result)
-          return false;
-
-        bool on_sandbox_desktop = (desktop != NULL);
-        NotificationService::current()->Notify(
-            NotificationType::RENDERER_PROCESS_IN_SBOX,
-            Source<BrowserRenderProcessHost>(this),
-            Details<bool>(&on_sandbox_desktop));
-
-        ResumeThread(target.hThread);
-        CloseHandle(target.hThread);
-        process_.set_handle(target.hProcess);
-
-        // Help the process a little. It can't start the debugger by itself if
-        // the process is in a sandbox.
-        if (child_needs_help)
-          DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
-      } else
-#endif  // OS_WIN and sandbox
-      {
-        // spawn child process
-        base::ProcessHandle process = 0;
-        if (!SpawnChild(cmd_line, channel_.get(), &process))
-          return false;
-        process_.set_handle(process);
+      sandbox::TokenLevel initial_token = sandbox::USER_UNPROTECTED;
+      if (win_util::GetWinVersion() > win_util::WINVERSION_XP) {
+        // On 2003/Vista the initial token has to be restricted if the main
+        // token is restricted.
+        initial_token = sandbox::USER_RESTRICTED_SAME_ACCESS;
       }
+
+      policy->SetTokenLevel(initial_token, sandbox::USER_LOCKDOWN);
+      policy->SetDelayedIntegrityLevel(sandbox::INTEGRITY_LEVEL_LOW);
+
+      HDESK desktop = CreateDesktop(kDesktopName, NULL, NULL, 0,
+                                    DESKTOP_CREATEWINDOW, NULL);
+      if (desktop) {
+        policy->SetDesktop(kDesktopName);
+      } else {
+        DLOG(WARNING) << "Failed to apply desktop security to the renderer";
+      }
+
+      if (!AddGenericPolicy(policy)) {
+        NOTREACHED();
+        return false;
+      }
+
+      if (browser_command_line.HasSwitch(switches::kGearsInRenderer)) {
+        if (!AddPolicyForGearsInRenderer(policy)) {
+          NOTREACHED();
+          return false;
+        }
+      }
+
+      if (!AddDllEvictionPolicy(policy)) {
+        NOTREACHED();
+        return false;
+      }
+
+      result =
+          broker_service->SpawnTarget(renderer_path.c_str(),
+                                      cmd_line.command_line_string().c_str(),
+                                      policy, &target);
+      policy->Release();
+
+      if (desktop)
+        CloseDesktop(desktop);
+
+      if (sandbox::SBOX_ALL_OK != result)
+        return false;
+
+      bool on_sandbox_desktop = (desktop != NULL);
+      NotificationService::current()->Notify(
+          NotificationType::RENDERER_PROCESS_IN_SBOX,
+          Source<BrowserRenderProcessHost>(this),
+          Details<bool>(&on_sandbox_desktop));
+
+      ResumeThread(target.hThread);
+      CloseHandle(target.hThread);
+      process_.set_handle(target.hProcess);
+
+      // Help the process a little. It can't start the debugger by itself if
+      // the process is in a sandbox.
+      if (child_needs_help)
+        DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
+    } else
+#endif  // OS_WIN and sandbox
+    {
+      // spawn child process
+      base::ProcessHandle process = 0;
+      if (!SpawnChild(cmd_line, channel_.get(), &process))
+        return false;
+      process_.set_handle(process);
     }
   }
 

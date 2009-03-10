@@ -381,9 +381,6 @@ const wchar_t kUninstallLastLaunchTimeSec[] =
 const wchar_t kUninstallLastObservedRunTimeSec[] =
     L"uninstall_metrics.last_observed_running_time_sec";
 
-// If true, the user will be prompted to manually launch renderer processes.
-const wchar_t kStartRenderersManually[] = L"renderer.start_manually";
-
 // A collection of position, size, and other data relating to the browser
 // window to restore on startup.
 const wchar_t kBrowserWindowPlacement[] = L"browser.window_placement";
