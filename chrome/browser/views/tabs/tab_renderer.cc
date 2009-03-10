@@ -185,8 +185,10 @@ class TabCloseButton : public views::Button {
   virtual ~TabCloseButton() {}
 
   virtual bool OnMousePressed(const views::MouseEvent& event) {
-    LOG(WARNING) << "MOUSE PRESSED";
-    return !event.IsOnlyMiddleMouseButton();
+    bool handled = BaseButton::OnMousePressed(event);
+    // Explicitly mark midle-mouse clicks as non-handled to ensure the tab
+    // sees them.
+    return event.IsOnlyMiddleMouseButton() ? false : handled;
   }
 
   // We need to let the parent know about mouse state so that it
