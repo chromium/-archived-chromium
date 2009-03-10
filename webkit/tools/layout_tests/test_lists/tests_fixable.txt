@@ -1214,7 +1214,7 @@ MAC : LayoutTests/fast/events/init-events.html = FAIL
 // maybe we just need to update to this order?
 MAC : LayoutTests/fast/events/drag-in-frames.html = FAIL
 
-// These two have a different object type in the dom dump. Plugin-related.
+// These two have a different object type in the dom dump. Plugin-related. 
 // Ignored on Win/Linux because they rely on QT to provide a TIFF decoder.
 MAC : LayoutTests/fast/images/embed-image.html = FAIL
 MAC : LayoutTests/fast/images/object-image.html = FAIL
@@ -1361,6 +1361,9 @@ LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FA
 
 // TODO(tc): flaky.
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
+
+// Failed with r6844 (dglazkov)
+LayoutTests/http/tests/navigation/error404-goback.html = FAIL
 
 // Started failing when landing the new skia r6925.
 WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
