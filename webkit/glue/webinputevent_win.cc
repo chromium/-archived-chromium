@@ -163,10 +163,8 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd,
         break;
     }
 
-    if (message == WM_HSCROLL) {
+    if (message == WM_HSCROLL)
       horizontal_scroll = true;
-      wheel_delta = -wheel_delta;
-    }
   } else {
     // Non-synthesized event; we can just read data off the event.
     get_key_state = GetKeyState;
@@ -176,10 +174,13 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd,
     global_y = static_cast<short>(HIWORD(lparam));
 
     wheel_delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wparam));
-    if (((message == WM_MOUSEHWHEEL) || (key_state & MK_SHIFT)) &&
-        (wheel_delta != 0))
+    if (message == WM_MOUSEHWHEEL) {
       horizontal_scroll = true;
+      wheel_delta = -wheel_delta;  // Windows is <- -/+ ->, WebKit <- +/- ->.
+    }
   }
+  if (key_state & MK_SHIFT)
+    horizontal_scroll = true;
 
   // Set modifiers based on key state.
   if (key_state & MK_SHIFT)
@@ -223,7 +224,8 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd,
     }
   }
 
-  // Set scroll amount based on above calculations.
+  // Set scroll amount based on above calculations.  WebKit expects positive
+  // delta_y to mean "scroll up" and positive delta_x to mean "scroll left".
   if (horizontal_scroll) {
     delta_x = scroll_delta;
     delta_y = 0;
