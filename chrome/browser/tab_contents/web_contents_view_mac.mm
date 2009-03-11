@@ -13,6 +13,7 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 
 @interface WebContentsViewCocoa (Private)
+- (id)initWithWebContentsViewMac:(WebContentsViewMac*)w;
 - (void)processKeyboardEvent:(NSEvent*)event;
 @end
 
@@ -38,9 +39,9 @@ WebContents* WebContentsViewMac::GetWebContents() {
 
 void WebContentsViewMac::CreateView() {
   WebContentsViewCocoa* view =
-      [[WebContentsViewCocoa alloc] initWithFrame:NSZeroRect];
+      [[WebContentsViewCocoa alloc] initWithWebContentsViewMac:this];
   // Under GC, ObjC and CF retains/releases are no longer equivalent. So we
-  // change our ObjC retain to a CF retain se we can use a scoped_cftyperef.
+  // change our ObjC retain to a CF retain so we can use a scoped_cftyperef.
   CFRetain(view);
   [view release];
   cocoa_view_.reset(view);
@@ -245,11 +246,35 @@ void WebContentsViewMac::Observe(NotificationType type,
 
 @implementation WebContentsViewCocoa
 
+- (id)initWithWebContentsViewMac:(WebContentsViewMac*)w {
+  self = [super initWithFrame:NSZeroRect];
+  if (self != nil) {
+    webContentsView_ = w;
+  }
+  return self;
+}
+
 - (void)processKeyboardEvent:(NSEvent*)event {
   if ([event type] == NSKeyDown)
     [super keyDown:event];
   else if ([event type] == NSKeyUp)
     [super keyUp:event];
+}
+
+// In the Windows version, we always have cut/copy/paste enabled. This is sub-
+// optimal, but we do it too. TODO(avi): Plumb the "can*" methods up from
+// WebCore.
+
+- (void)cut:(id)sender {
+  webContentsView_->GetWebContents()->Cut();
+}
+
+- (void)copy:(id)sender {
+  webContentsView_->GetWebContents()->Copy();
+}
+
+- (void)paste:(id)sender {
+  webContentsView_->GetWebContents()->Paste();
 }
 
 // Tons of stuff goes here, where we grab events going on in Cocoaland and send

@@ -2,13 +2,13 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.03">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">9F33</string>
+		<string key="IBDocument.SystemVersion">9G55</string>
 		<string key="IBDocument.InterfaceBuilderVersion">677</string>
-		<string key="IBDocument.AppKitVersion">949.34</string>
-		<string key="IBDocument.HIToolboxVersion">352.00</string>
+		<string key="IBDocument.AppKitVersion">949.43</string>
+		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="164"/>
+			<integer value="112"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -146,7 +146,7 @@
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="971876011">
 										<int key="NSCellFlags">-1804468671</int>
-										<int key="NSCellFlags2">1073775616</int>
+										<int key="NSCellFlags2">33792</int>
 										<object class="NSAttributedString" key="NSContents">
 											<string key="NSString">chromium.org</string>
 											<object class="NSDictionary" key="NSAttributes">
@@ -713,9 +713,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{273, 241}, {480, 360}}</string>
+					<string>{{273, 242}, {480, 360}}</string>
 					<boolean value="YES" id="5"/>
-					<string>{{273, 241}, {480, 360}}</string>
+					<string>{{273, 242}, {480, 360}}</string>
 					<reference ref="5"/>
 					<reference ref="5"/>
 					<string>{480, 360}</string>

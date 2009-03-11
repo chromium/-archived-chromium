@@ -15,8 +15,11 @@
 
 class FindBarMac;
 @class SadTabView;
+class WebContentsViewMac;
 
 @interface WebContentsViewCocoa : BaseView {
+ @private
+  WebContentsViewMac* webContentsView_;  // WEAK; owns us
 }
 
 @end
