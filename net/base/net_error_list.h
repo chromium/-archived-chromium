@@ -96,7 +96,8 @@ NET_ERROR(SSL_VERSION_OR_CIPHER_MISMATCH, -113)
 // The server requested a renegotiation (rehandshake).
 NET_ERROR(SSL_RENEGOTIATION_REQUESTED, -114)
 
-// The proxy requested authentication (for tunnel establishment).
+// The proxy claimed to want authenication but didn't provide the proper
+// challenge headers.
 NET_ERROR(PROXY_AUTH_REQUESTED, -115)
 
 // Certificate error codes
