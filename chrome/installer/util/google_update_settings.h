@@ -23,6 +23,10 @@ class GoogleUpdateSettings {
   // false if the setting could not be recorded.
   static bool SetCollectStatsConsent(bool consented);
 
+  // Sets the machine-wide EULA consented flag required on OEM installs.
+  // Returns false if the setting could not be recorded.
+  static bool SetEULAConsent(bool consented);
+
   // Returns in 'browser' the browser used to download chrome as recorded
   // Google Update. Returns false if the information is not available.
   static bool GetBrowser(std::wstring* browser);

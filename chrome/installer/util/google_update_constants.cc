@@ -11,6 +11,8 @@ const wchar_t kGearsUpgradeCode[] = L"{D92DBAED-3E3E-4530-B30D-072D16C7DDD0}";
 
 const wchar_t kRegPathClients[] = L"Software\\Google\\Update\\Clients";
 const wchar_t kRegPathClientState[] = L"Software\\Google\\Update\\ClientState";
+const wchar_t kRegPathClientStateMedium[]
+    = L"Software\\Google\\Update\\ClientStateMedium";
 
 const wchar_t kRegApField[] = L"ap";
 const wchar_t kRegBrowserField[] = L"browser";
@@ -24,6 +26,7 @@ const wchar_t kRegRLZBrandField[] = L"brand";
 const wchar_t kRegUsageStatsField[] = L"usagestats";
 const wchar_t kRegVersionField[] = L"pv";
 const wchar_t kRegReferralField[] = L"referral";
+const wchar_t kRegEULAAceptedField[] = L"eulaaccepted";
 
 const wchar_t kEnvProductVersionKey[] = L"CHROME_VERSION";
 }  // namespace installer

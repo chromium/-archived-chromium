@@ -9,15 +9,17 @@
 
 namespace {
 
-std::wstring GetClientStateKeyPath() {
-  std::wstring reg_path(google_update::kRegPathClientState);
+std::wstring GetClientStateKeyPath(const bool use_medium_key) {
+  std::wstring reg_path(use_medium_key ?
+                        google_update::kRegPathClientStateMedium :
+                        google_update::kRegPathClientState);
   reg_path.append(L"\\");
   reg_path.append(google_update::kChromeGuid);
   return reg_path;
 }
 
 bool ReadGoogleUpdateStrKey(const wchar_t* const name, std::wstring* value) {
-  std::wstring reg_path = GetClientStateKeyPath();
+  std::wstring reg_path = GetClientStateKeyPath(false);
   RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ);
   if (!key.ReadValue(name, value)) {
     RegKey hklm_key(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_READ);
@@ -27,7 +29,7 @@ bool ReadGoogleUpdateStrKey(const wchar_t* const name, std::wstring* value) {
 }
 
 bool ClearGoogleUpdateStrKey(const wchar_t* const name) {
-  std::wstring reg_path = GetClientStateKeyPath();
+  std::wstring reg_path = GetClientStateKeyPath(false);
   RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ | KEY_WRITE);
   std::wstring value;
   if (!key.ReadValue(name, &value))
@@ -38,7 +40,7 @@ bool ClearGoogleUpdateStrKey(const wchar_t* const name) {
 }  // namespace.
 
 bool GoogleUpdateSettings::GetCollectStatsConsent() {
-  std::wstring reg_path = GetClientStateKeyPath();
+  std::wstring reg_path = GetClientStateKeyPath(false);
   RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ);
   DWORD value;
   if (!key.ReadValueDW(google_update::kRegUsageStatsField, &value)) {
@@ -50,10 +52,15 @@ bool GoogleUpdateSettings::GetCollectStatsConsent() {
 }
 
 bool GoogleUpdateSettings::SetCollectStatsConsent(bool consented) {
-  std::wstring reg_path = GetClientStateKeyPath();
+  std::wstring reg_path = GetClientStateKeyPath(false);
   RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ | KEY_WRITE);
-  DWORD value = consented ? 1 : 0;
-  return key.WriteValue(google_update::kRegUsageStatsField, value);
+  return key.WriteValue(google_update::kRegUsageStatsField, consented? 1 : 0);
+}
+
+bool GoogleUpdateSettings::SetEULAConsent(bool consented) {
+  std::wstring reg_path = GetClientStateKeyPath(true);
+  RegKey key(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_READ | KEY_WRITE);
+  return key.WriteValue(google_update::kRegEULAAceptedField, consented? 1 : 0);
 }
 
 bool GoogleUpdateSettings::GetBrowser(std::wstring* browser) {
@@ -75,3 +82,4 @@ bool GoogleUpdateSettings::GetReferral(std::wstring* referral) {
 bool GoogleUpdateSettings::ClearReferral() {
   return ClearGoogleUpdateStrKey(google_update::kRegReferralField);
 }
+

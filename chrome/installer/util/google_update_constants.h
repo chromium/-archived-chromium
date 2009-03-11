@@ -15,7 +15,12 @@ extern const wchar_t kChromeGuid[];
 extern const wchar_t kGearsUpgradeCode[];
 
 extern const wchar_t kRegPathClients[];
+
+// The difference between ClientState and ClientStateMedium is that the former
+// lives on HKCU or HKLM and the later always lives in HKLM. The only use of
+// the ClientStateMedium is for the EULA consent. See bug 1594565.
 extern const wchar_t kRegPathClientState[];
+extern const wchar_t kRegPathClientStateMedium[];
 
 extern const wchar_t kRegApField[];
 extern const wchar_t kRegBrowserField[];
@@ -29,6 +34,7 @@ extern const wchar_t kRegRLZBrandField[];
 extern const wchar_t kRegUsageStatsField[];
 extern const wchar_t kRegVersionField[];
 extern const wchar_t kRegReferralField[];
+extern const wchar_t kRegEULAAceptedField[];
 
 extern const wchar_t kEnvProductVersionKey[];
 }  // namespace google_update
