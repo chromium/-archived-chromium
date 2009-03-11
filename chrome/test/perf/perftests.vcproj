@@ -51,6 +51,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="shlwapi.lib rpcrt4.lib winmm.lib"
+				LinkIncremental="1"
 				SubSystem="1"
 			/>
 			<Tool

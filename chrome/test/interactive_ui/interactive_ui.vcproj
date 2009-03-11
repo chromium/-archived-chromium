@@ -19,7 +19,6 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;..\..\tools\build\win\precompiled_wtl.vsprops;..\..\tools\build\win\unit_test.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\skia\using_skia.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops;..\..\third_party\hunspell\using_hunspell.vsprops;..\..\installer\util\using_util.vsprops;..\..\..\third_party\npapi\using_npapi.vsprops"
 			>
@@ -57,6 +56,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="winmm.lib"
+				LinkIncremental="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
