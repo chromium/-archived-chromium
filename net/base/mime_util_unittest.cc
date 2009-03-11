@@ -96,4 +96,3 @@ TEST(MimeUtilTest, MatchesMimeType) {
   EXPECT_EQ(false, net::MatchesMimeType("aaa*aaa",
                                               "aaaaa"));
 }
-

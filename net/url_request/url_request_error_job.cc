@@ -20,4 +20,3 @@ void URLRequestErrorJob::Start() {
 void URLRequestErrorJob::StartAsync() {
   NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, error_));
 }
-

@@ -55,4 +55,3 @@ void URLRequestSimpleJob::StartAsync() {
                                       net::ERR_INVALID_URL));
   }
 }
-

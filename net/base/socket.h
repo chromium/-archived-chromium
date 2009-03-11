@@ -34,4 +34,3 @@ class Socket {
 }  // namespace net
 
 #endif  // NET_BASE_SOCKET_H_
-

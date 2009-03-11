@@ -164,4 +164,3 @@ int main(int argc, const char* argv[]) {
     return DumpHeaders(input_path);
   return Help();
 }
-

@@ -48,4 +48,3 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_NETWORK_SESSION_H_
-

@@ -291,4 +291,3 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 }  // namespace net
 
 #endif  // NET_BASE_X509_CERTIFICATE_H_
-

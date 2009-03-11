@@ -129,4 +129,3 @@ URLRequestJob* URLRequestFilter::FindRequestHandler(URLRequest* request,
   }
   return job;
 }
-

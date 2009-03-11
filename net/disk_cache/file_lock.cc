@@ -25,4 +25,3 @@ void FileLock::Unlock() {
 }
 
 }  // namespace disk_cache
-

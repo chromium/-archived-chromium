@@ -27,4 +27,3 @@ class ProxyConfigServiceFixed : public ProxyConfigService {
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_CONFIG_SERVICE_FIXED_H_
-

@@ -22,4 +22,3 @@ class URLRequestErrorJob : public URLRequestJob {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_ERROR_JOB_H_
-

@@ -106,4 +106,3 @@ class SSLClientSocketNSS : public SSLClientSocket {
 }  // namespace net
 
 #endif  // NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
-

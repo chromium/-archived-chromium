@@ -28,4 +28,3 @@ class PlatformMimeUtil {
 }  // namespace net
 
 #endif  // NET_BASE_PLATFORM_MIME_UTIL_H_
-

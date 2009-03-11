@@ -51,4 +51,3 @@ bool MappedFile::Store(const FileBlock* block) {
 }
 
 }  // namespace disk_cache
-

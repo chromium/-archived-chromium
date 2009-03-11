@@ -123,4 +123,3 @@ class ListenSocketTester :
 };
 
 #endif  // NET_BASE_LISTEN_SOCKET_UNITTEST_H_
-

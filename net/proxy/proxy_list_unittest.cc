@@ -70,4 +70,3 @@ TEST(ProxyListTest, RemoveProxiesWithoutScheme) {
     EXPECT_EQ(tests[i].filtered_pac_output, list.ToPacString());
   }
 }
-

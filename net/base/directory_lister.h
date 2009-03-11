@@ -69,4 +69,3 @@ class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister>,
 }  // namespace net
 
 #endif  // NET_BASE_DIRECTORY_LISTER_H__
-

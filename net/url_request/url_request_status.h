@@ -64,4 +64,3 @@ class URLRequestStatus {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_STATUS_H_
-

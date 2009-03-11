@@ -153,4 +153,3 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_ENTRY_IMPL_H_
-

@@ -201,4 +201,3 @@ int main(int argc, const char* argv[]) {
   StressTheCache(iteration);
   return 0;
 }
-

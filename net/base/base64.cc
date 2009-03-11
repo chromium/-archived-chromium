@@ -39,4 +39,3 @@ bool Base64Decode(const std::string& input, std::string* output) {
 }
 
 }  // namespace net
-

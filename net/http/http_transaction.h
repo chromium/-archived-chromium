@@ -88,4 +88,3 @@ class HttpTransaction {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_TRANSACTION_H_
-

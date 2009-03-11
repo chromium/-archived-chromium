@@ -55,4 +55,3 @@ class FtpAuthCache {
 }  // namespace net
 
 #endif  // NET_FTP_FTP_AUTH_CACHE_H_
-

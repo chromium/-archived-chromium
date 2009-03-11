@@ -81,4 +81,3 @@ class BZip2Filter : public Filter {
 };
 
 #endif  // NET_BASE_BZIP2_FILTER_H_
-

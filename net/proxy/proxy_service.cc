@@ -668,4 +668,3 @@ void SyncProxyServiceHelper::OnCompletion(int rv) {
 }
 
 }  // namespace net
-

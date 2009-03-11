@@ -47,4 +47,3 @@ ClientSocketFactory* ClientSocketFactory::GetDefaultFactory() {
 }
 
 }  // namespace net
-

@@ -42,4 +42,3 @@ class MemRankings {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_MEM_RANKINGS_H__
-

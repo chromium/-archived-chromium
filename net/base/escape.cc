@@ -282,4 +282,3 @@ std::string EscapeForHTML(const std::string& input) {
 std::wstring EscapeForHTML(const std::wstring& input) {
   return EscapeForHTMLImpl(input);
 }
-

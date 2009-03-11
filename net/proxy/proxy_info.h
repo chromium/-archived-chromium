@@ -83,4 +83,3 @@ class ProxyInfo {
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_INFO_H_
-

@@ -28,4 +28,3 @@ inline uint32 Hash(const std::string& key) {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_HASH_H__
-

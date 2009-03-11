@@ -38,4 +38,3 @@ inline bool IsCertificateError(int error) {
 }  // namespace net
 
 #endif  // NET_BASE_NET_ERRORS_H__
-

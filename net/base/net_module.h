@@ -38,4 +38,3 @@ class NetModule {
 }  // namespace net
 
 #endif  // NET_BASE_NET_MODULE_H__
-

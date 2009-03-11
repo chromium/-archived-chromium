@@ -54,4 +54,3 @@ class MappedFile : public File {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_MAPPED_FILE_H_
-

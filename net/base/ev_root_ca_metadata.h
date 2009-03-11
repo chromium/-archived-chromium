@@ -53,4 +53,3 @@ class EVRootCAMetadata {
 }  // namespace net
 
 #endif  // NET_BASE_EV_ROOT_CA_METADATA_H_
-

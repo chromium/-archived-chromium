@@ -962,4 +962,3 @@ TEST_F(SdchFilterTest, DictionaryTooLarge) {
   EXPECT_FALSE(sdch_manager_->AddSdchDictionary(dictionary_text,
               GURL("http://" + dictionary_domain)));
 }
-

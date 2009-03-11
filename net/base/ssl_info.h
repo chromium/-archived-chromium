@@ -47,4 +47,3 @@ class SSLInfo {
 }  // namespace net
 
 #endif  // NET_BASE_SSL_INFO_H_
-

@@ -58,4 +58,3 @@ int ProxyConfigServiceWin::GetProxyConfig(ProxyConfig* config) {
 }
 
 }  // namespace net
-

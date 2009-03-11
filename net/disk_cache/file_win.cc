@@ -269,4 +269,3 @@ size_t File::GetLength() {
 }
 
 }  // namespace disk_cache
-

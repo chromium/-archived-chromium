@@ -72,4 +72,3 @@ TEST_F(HttpNetworkLayerTest, GoogleGET) {
   rv = ReadTransaction(trans.get(), &contents);
   EXPECT_EQ(net::OK, rv);
 }
-

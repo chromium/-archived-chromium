@@ -291,4 +291,3 @@ void GZipFilter::SkipGZipFooter() {
       next_stream_data_ = NULL;
   }
 }
-

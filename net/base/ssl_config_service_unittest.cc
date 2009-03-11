@@ -84,4 +84,3 @@ TEST(SSLConfigServiceTest, GetTest) {
   // Restore the original value.
   net::SSLConfigService::SetRevCheckingEnabled(config.rev_checking_enabled);
 }
-

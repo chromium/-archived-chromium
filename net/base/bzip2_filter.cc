@@ -96,4 +96,3 @@ Filter::FilterStatus BZip2Filter::ReadFilteredData(char* dest_buffer,
 
   return status;
 }
-

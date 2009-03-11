@@ -252,4 +252,3 @@ X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
 }
 
 }  // namespace net
-

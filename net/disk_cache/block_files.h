@@ -78,4 +78,3 @@ class BlockFiles {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_BLOCK_FILES_H__
-

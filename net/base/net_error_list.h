@@ -242,4 +242,3 @@ NET_ERROR(CACHE_MISS, -400)
 
 // The server's response was insecure (e.g. there was a cert error).
 NET_ERROR(INSECURE_RESPONSE, -501)
-

@@ -191,4 +191,3 @@ COMPILE_ASSERT(sizeof(BlockFileHeader) == kBlockHeaderSize, bad_header);
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_DISK_FORMAT_H_
-

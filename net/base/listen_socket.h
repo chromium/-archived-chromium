@@ -110,4 +110,3 @@ class ListenSocket : public base::RefCountedThreadSafe<ListenSocket>,
 };
 
 #endif  // NET_BASE_LISTEN_SOCKET_H_
-

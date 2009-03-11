@@ -225,4 +225,3 @@ bool URLRequestFileJob::IsRedirectResponse(
   return false;
 #endif
 }
-

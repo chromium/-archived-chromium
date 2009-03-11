@@ -127,4 +127,3 @@ TEST(HttpVaryDataTest, ImplicitCookieForRedirect2) {
 
   EXPECT_FALSE(v.MatchesRequest(b.request, *b.response));
 }
-

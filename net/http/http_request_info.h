@@ -39,4 +39,3 @@ class HttpRequestInfo {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_REQUEST_INFO_H__
-

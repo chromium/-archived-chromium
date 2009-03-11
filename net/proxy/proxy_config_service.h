@@ -24,4 +24,3 @@ class ProxyConfigService {
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_CONFIG_SERVICE_H_
-

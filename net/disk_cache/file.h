@@ -87,4 +87,3 @@ class File : public base::RefCounted<File> {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_FILE_H_
-

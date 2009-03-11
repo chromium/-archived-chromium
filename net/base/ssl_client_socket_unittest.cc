@@ -310,4 +310,3 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_Interrupted) {
 
   EXPECT_NE(rv, 0);
 }
-

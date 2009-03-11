@@ -390,4 +390,3 @@ class CookieMonster::PersistentCookieStore {
 }  // namespace net
 
 #endif  // NET_BASE_COOKIE_MONSTER_H_
-

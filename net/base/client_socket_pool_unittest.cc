@@ -248,4 +248,3 @@ TEST(ClientSocketPoolTest, CancelRequest) {
   EXPECT_EQ(kMaxSocketsPerGroup, MockClientSocket::allocation_count);
   EXPECT_EQ(9, TestSocketRequest::completion_count);
 }
-

@@ -58,4 +58,3 @@ void DidFinishDnsResolutionWithStatus(bool was_resolved,
 }
 
 }  // namspace net
-

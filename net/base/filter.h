@@ -260,4 +260,3 @@ class Filter {
 };
 
 #endif  // NET_BASE_FILTER_H__
-

@@ -490,4 +490,3 @@ TEST(HttpUtilTest, GenerateAcceptCharsetHeader) {
   EXPECT_EQ(std::string("EUC-JP,utf-8;q=0.7,*;q=0.3"),
             HttpUtil::GenerateAcceptCharsetHeader("EUC-JP"));
 }
-

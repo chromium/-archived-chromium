@@ -66,4 +66,3 @@ class UploadDataStream {
 }  // namespace net
 
 #endif  // NET_BASE_UPLOAD_DATA_STREAM_H_
-

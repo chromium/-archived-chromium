@@ -35,4 +35,3 @@ TEST_F(DiskCacheTest, CacheAddr_InvalidValues) {
 }
 
 }  // namespace disk_cache
-

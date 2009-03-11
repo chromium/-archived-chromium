@@ -176,4 +176,3 @@ void MemEntryImpl::UpdateRank(bool modified) {
 }
 
 }  // namespace disk_cache
-

@@ -56,4 +56,3 @@ class ProxyList {
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_LIST_H_
-

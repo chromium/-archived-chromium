@@ -219,4 +219,3 @@ TEST(ProxyServerTest, FromPACStringInvalid) {
     EXPECT_FALSE(uri.is_valid());
   }
 }
-

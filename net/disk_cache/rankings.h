@@ -195,4 +195,3 @@ class Rankings {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_RANKINGS_H_
-

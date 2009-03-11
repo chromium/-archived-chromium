@@ -145,4 +145,3 @@ class SSLClientSocketWin : public SSLClientSocket {
 }  // namespace net
 
 #endif  // NET_BASE_SSL_CLIENT_SOCKET_WIN_H_
-

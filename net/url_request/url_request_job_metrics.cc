@@ -32,4 +32,3 @@ void URLRequestJobMetrics::AppendText(std::wstring* text) {
     text->append(L" fail.");
   }
 }
-

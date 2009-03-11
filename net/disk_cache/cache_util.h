@@ -28,4 +28,3 @@ void WaitForPendingIO(int* num_pending_io);
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_CACHE_UTIL_H_
-

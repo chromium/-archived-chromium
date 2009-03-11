@@ -47,4 +47,3 @@ bool MatchesMimeType(const std::string &mime_type_pattern,
 }  // namespace net
 
 #endif  // NET_BASE_MIME_UTIL_H__
-

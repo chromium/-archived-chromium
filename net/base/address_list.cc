@@ -22,4 +22,3 @@ AddressList::Data::~Data() {
 }
 
 }  // namespace net
-

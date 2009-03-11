@@ -85,4 +85,3 @@ TEST_F(CookiePolicyTest, BlockAllCookiesTest) {
   EXPECT_FALSE(cp.CanSetCookie(url_google_, url_google_analytics_));
   EXPECT_FALSE(cp.CanSetCookie(url_google_, GURL()));
 }
-

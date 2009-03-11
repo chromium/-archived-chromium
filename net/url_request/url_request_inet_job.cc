@@ -378,4 +378,3 @@ void CALLBACK URLRequestInetJob::URLRequestStatusCallback(
       break;
   }
 }
-

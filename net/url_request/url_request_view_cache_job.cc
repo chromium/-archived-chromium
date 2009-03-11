@@ -168,4 +168,3 @@ disk_cache::Backend* URLRequestViewCacheJob::GetDiskCache() const {
 
   return http_cache->disk_cache();
 }
-

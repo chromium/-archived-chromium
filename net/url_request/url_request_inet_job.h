@@ -159,4 +159,3 @@ protected:
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_INET_JOB_H__
-

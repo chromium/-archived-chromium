@@ -252,4 +252,3 @@ int MemBackendImpl::MaxFileSize() const {
 }
 
 }  // namespace disk_cache
-

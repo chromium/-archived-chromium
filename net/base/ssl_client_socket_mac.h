@@ -106,4 +106,3 @@ class SSLClientSocketMac : public SSLClientSocket {
 }  // namespace net
 
 #endif  // NET_BASE_SSL_CLIENT_SOCKET_MAC_H_
-

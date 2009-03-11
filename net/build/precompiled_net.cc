@@ -5,5 +5,3 @@
 // Generates the precompiled file.
 
 #include "precompiled_net.h"
-
-

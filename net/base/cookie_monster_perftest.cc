@@ -93,4 +93,3 @@ TEST(CookieMonsterTest, TestAddCookieOnManyHosts) {
   cm.DeleteAll(false);
   timer3.Done();
 }
-

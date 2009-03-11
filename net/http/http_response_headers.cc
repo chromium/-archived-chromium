@@ -970,4 +970,3 @@ int64 HttpResponseHeaders::GetContentLength() const {
 }
 
 }  // namespace net
-

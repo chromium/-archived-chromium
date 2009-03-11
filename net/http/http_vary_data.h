@@ -82,4 +82,3 @@ class HttpVaryData {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_VARY_DATA_H__
-

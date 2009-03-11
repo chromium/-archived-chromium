@@ -51,4 +51,3 @@ class CookiePolicy {
 }  // namespace net
 
 #endif // NET_BASE_COOKIE_POLICY_H_
-

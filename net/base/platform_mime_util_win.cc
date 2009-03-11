@@ -38,4 +38,3 @@ bool PlatformMimeUtil::GetPreferredExtensionForMimeType(
 }
 
 }  // namespace net
-

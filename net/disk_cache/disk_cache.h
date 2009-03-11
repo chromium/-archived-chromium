@@ -184,4 +184,3 @@ class Entry {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_DISK_CACHE_H_
-

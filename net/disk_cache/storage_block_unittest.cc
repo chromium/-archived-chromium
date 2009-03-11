@@ -70,4 +70,3 @@ TEST_F(DiskCacheTest, StorageBlock_SetModified) {
   EXPECT_TRUE(entry2.Load());
   EXPECT_TRUE(0x45687912 == entry2.Data()->hash);
 }
-

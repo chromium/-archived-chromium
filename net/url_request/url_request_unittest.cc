@@ -1099,4 +1099,3 @@ TEST_F(URLRequestTest, MAYBE_FTPCheckWrongUser) {
     EXPECT_EQ(d.bytes_received(), 0);
   }
 }
-

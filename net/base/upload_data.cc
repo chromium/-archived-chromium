@@ -39,4 +39,3 @@ uint64 UploadData::Element::GetContentLength() const {
 }
 
 }  // namespace net
-

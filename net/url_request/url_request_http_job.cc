@@ -577,4 +577,3 @@ void URLRequestHttpJob::FetchResponseCookies() {
   while (response_info_->headers->EnumerateHeader(&iter, name, &value))
     response_cookies_.push_back(value);
 }
-

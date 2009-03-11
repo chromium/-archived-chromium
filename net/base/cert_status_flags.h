@@ -44,4 +44,3 @@ int MapCertStatusToNetError(int cert_status);
 }  // namespace net
 
 #endif  // NET_BASE_CERT_STATUS_FLAGS_H_
-

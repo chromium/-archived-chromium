@@ -131,4 +131,3 @@ void Trace(const char* format, ...) {
 #endif  // ENABLE_TRACING
 
 }  // namespace disk_cache
-

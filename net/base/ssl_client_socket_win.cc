@@ -949,4 +949,3 @@ void SSLClientSocketWin::LogConnectionTypeMetrics() const {
 }
 
 }  // namespace net
-

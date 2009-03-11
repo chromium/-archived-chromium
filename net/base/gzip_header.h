@@ -93,4 +93,3 @@ class GZipHeader {
 };
 
 #endif  // NET_BASE_GZIPHEADER_H__
-

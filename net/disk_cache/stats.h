@@ -80,4 +80,3 @@ class Stats {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_STATS_H_
-

@@ -197,4 +197,3 @@ class HttpCache : public HttpTransactionFactory {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_CACHE_H_
-

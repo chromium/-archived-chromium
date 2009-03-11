@@ -170,4 +170,3 @@ GZipHeader::Status GZipHeader::ReadMore(const char* inbuf, int inbuf_len,
     return INCOMPLETE_HEADER;
   }
 }
-

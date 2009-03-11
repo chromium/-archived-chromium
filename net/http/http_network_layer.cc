@@ -72,4 +72,3 @@ HttpNetworkSession* HttpNetworkLayer::GetSession() {
 }
 
 }  // namespace net
-

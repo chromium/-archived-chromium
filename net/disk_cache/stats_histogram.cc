@@ -53,4 +53,3 @@ void StatsHistogram::SnapshotSample(SampleSet* sample) const {
 }
 
 }  // namespace disk_cache
-

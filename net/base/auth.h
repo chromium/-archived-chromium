@@ -53,4 +53,3 @@ class AuthData : public base::RefCountedThreadSafe<AuthData> {
 }  // namespace net
 
 #endif  // NET_BASE_AUTH_H__
-

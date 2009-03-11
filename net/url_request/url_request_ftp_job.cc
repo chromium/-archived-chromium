@@ -530,4 +530,3 @@ bool URLRequestFtpJob::IsRedirectResponse(GURL* location,
 
   return false;
 }
-

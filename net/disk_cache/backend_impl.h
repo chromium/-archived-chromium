@@ -222,4 +222,3 @@ class BackendImpl : public Backend {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_BACKEND_IMPL_H_
-

@@ -219,4 +219,3 @@ bool URLRequestFileDirJob::IsRedirectResponse(
 
   return false;
 }
-

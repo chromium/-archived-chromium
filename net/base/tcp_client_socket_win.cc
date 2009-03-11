@@ -394,4 +394,3 @@ void TCPClientSocket::WaitForAndResetEvent() {
 }
 
 }  // namespace net
-

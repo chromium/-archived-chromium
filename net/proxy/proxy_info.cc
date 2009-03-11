@@ -28,4 +28,3 @@ std::string ProxyInfo::ToPacString() {
 }
 
 }  // namespace net
-

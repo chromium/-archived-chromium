@@ -169,4 +169,3 @@ void URLRequestJobManager::UnregisterRequestInterceptor(
   DCHECK(i != interceptors_.end());
   interceptors_.erase(i);
 }
-

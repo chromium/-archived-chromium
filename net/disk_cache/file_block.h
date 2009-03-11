@@ -29,4 +29,3 @@ class FileBlock {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_FILE_BLOCK_H__
-

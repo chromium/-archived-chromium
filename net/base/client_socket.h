@@ -62,4 +62,3 @@ class ClientSocket : public Socket {
 }  // namespace net
 
 #endif  // NET_BASE_CLIENT_SOCKET_H_
-

@@ -224,4 +224,3 @@ EVRootCAMetadata::EVRootCAMetadata() {
 }
 
 }  // namespace net
-

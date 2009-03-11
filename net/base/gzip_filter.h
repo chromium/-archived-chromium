@@ -140,4 +140,3 @@ class GZipFilter : public Filter {
 };
 
 #endif  // NET_BASE_GZIP_FILTER_H__
-

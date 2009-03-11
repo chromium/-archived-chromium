@@ -29,4 +29,3 @@ class HttpTransactionFactory {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_TRANSACTION_FACTORY_H__
-

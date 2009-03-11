@@ -63,4 +63,3 @@ enum LoadState {
 }  // namespace net
 
 #endif  // NET_BASE_LOAD_STATES_H__
-

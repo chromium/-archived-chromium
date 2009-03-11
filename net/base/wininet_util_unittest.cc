@@ -37,4 +37,3 @@ TEST(WinInetUtilTest, ErrorCodeConversion) {
               WinInetUtil::OSErrorToNetError(error_cases[i].os_error));
   }
 }
-

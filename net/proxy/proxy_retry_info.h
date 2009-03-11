@@ -28,4 +28,3 @@ typedef std::map<std::string, ProxyRetryInfo> ProxyRetryInfoMap;
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_RETRY_INFO_H_
-

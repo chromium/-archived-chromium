@@ -95,4 +95,3 @@ class MemEntryImpl : public Entry {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_MEM_ENTRY_IMPL_H__
-

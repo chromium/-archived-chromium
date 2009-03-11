@@ -89,4 +89,3 @@ class URLRequestJobManager {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_JOB_MANAGER_H__
-

@@ -47,4 +47,3 @@ class URLRequestJobMetrics {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_JOB_METRICS_H_
-

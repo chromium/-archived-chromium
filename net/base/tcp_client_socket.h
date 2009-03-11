@@ -139,4 +139,3 @@ class TCPClientSocket : public ClientSocket,
 }  // namespace net
 
 #endif  // NET_BASE_TCP_CLIENT_SOCKET_H_
-

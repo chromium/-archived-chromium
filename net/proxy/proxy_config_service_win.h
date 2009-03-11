@@ -20,4 +20,3 @@ class ProxyConfigServiceWin : public ProxyConfigService {
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_CONFIG_SERVICE_WIN_H_
-

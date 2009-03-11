@@ -140,4 +140,3 @@ void HttpVaryData::AddField(const HttpRequestInfo& request_info,
 }
 
 }  // namespace net
-

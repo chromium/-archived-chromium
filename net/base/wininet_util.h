@@ -23,4 +23,3 @@ class WinInetUtil {
 }  // namespace net
 
 #endif  // NET_BASE_WININET_UTIL_H__
-

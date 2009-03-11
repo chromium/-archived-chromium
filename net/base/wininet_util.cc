@@ -68,4 +68,3 @@ int WinInetUtil::OSErrorToNetError(DWORD os_error) {
 }
 
 }  // namespace net
-

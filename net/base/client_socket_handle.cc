@@ -37,4 +37,3 @@ void ClientSocketHandle::Reset() {
 }
 
 }  // namespace net
-

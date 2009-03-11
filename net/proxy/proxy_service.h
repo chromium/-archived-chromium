@@ -242,4 +242,3 @@ class SyncProxyServiceHelper
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_SERVICE_H_
-

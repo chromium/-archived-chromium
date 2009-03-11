@@ -26,4 +26,3 @@ bool ProxyConfig::Equals(const ProxyConfig& other) const {
 }
 
 }  // namespace net
-

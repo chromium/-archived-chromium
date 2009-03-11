@@ -35,4 +35,3 @@ class CertVerifyResult {
 }  // namespace net
 
 #endif  // NET_BASE_CERT_VERIFY_RESULT_H_
-

@@ -81,4 +81,3 @@ typedef StorageBlock<RankingsNode> CacheRankingsBlock;
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_STORAGE_BLOCK_H__
-

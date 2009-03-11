@@ -105,4 +105,3 @@ void SSLConfigService::UpdateConfig(TimeTicks now) {
 }
 
 }  // namespace net
-

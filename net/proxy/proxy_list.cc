@@ -115,4 +115,3 @@ bool ProxyList::Fallback(ProxyRetryInfoMap* proxy_retry_info) {
 }
 
 }  // namespace net
-

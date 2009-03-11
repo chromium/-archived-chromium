@@ -32,4 +32,3 @@ FtpAuthCache::AuthCacheKey FtpAuthCache::MakeKey(const GURL& origin) {
 }
 
 }  // namespace net
-

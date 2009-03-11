@@ -67,4 +67,3 @@ class ProxyConfig {
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_CONFIG_H_
-

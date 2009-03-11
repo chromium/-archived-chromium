@@ -306,4 +306,3 @@ int main(int argc, const char* argv[]) {
 
   return SlaveCode(path, action);
 }
-

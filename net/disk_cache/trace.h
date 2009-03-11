@@ -40,4 +40,3 @@ void Trace(const char* format, ...);
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_TRACE_H__
-

@@ -36,4 +36,3 @@ class ProxyResolverWinHttp : public ProxyResolver {
 }  // namespace net
 
 #endif  // NET_PROXY_PROXY_RESOLVER_WINHTTP_H_
-

@@ -24,4 +24,3 @@ class URLRequestAboutJob : public URLRequestJob {
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_ABOUT_JOB_H_
-

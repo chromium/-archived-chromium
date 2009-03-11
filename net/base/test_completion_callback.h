@@ -52,4 +52,3 @@ class TestCompletionCallback : public CallbackRunner< Tuple1<int> > {
 };
 
 #endif  // NET_BASE_TEST_COMPLETION_CALLBACK_H_
-

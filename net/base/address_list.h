@@ -37,4 +37,3 @@ class AddressList {
 }  // namespace net
 
 #endif  // NET_BASE_ADDRESS_LIST_H_
-

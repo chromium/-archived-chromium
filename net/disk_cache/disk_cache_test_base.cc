@@ -113,4 +113,3 @@ void DiskCacheTestWithCache::SetTestMode() {
   ASSERT_TRUE(implementation_ && !memory_only_);
   cache_impl_->SetUnitTestMode();
 }
-

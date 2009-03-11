@@ -72,4 +72,3 @@ void MimeSnifferProxy::OnReadCompleted(URLRequest* request, int bytes_read) {
   }
   delegate_->OnReadCompleted(request, bytes_read);
 }
-

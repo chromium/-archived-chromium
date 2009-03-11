@@ -27,4 +27,3 @@ TEST(Base64Test, Basic) {
   EXPECT_TRUE(ok);
   EXPECT_EQ(kText, decoded);
 }
-

@@ -60,4 +60,3 @@ MemEntryImpl* MemRankings::GetPrev(MemEntryImpl* node) {
 }
 
 }  // namespace disk_cache
-

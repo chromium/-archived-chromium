@@ -73,4 +73,3 @@ void WaitForPendingIO(int* num_pending_io) {
 }
 
 }  // namespace disk_cache
-

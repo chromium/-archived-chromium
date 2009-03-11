@@ -35,4 +35,3 @@ bool SniffMimeType(const char* content, size_t content_size,
 }  // namespace net
 
 #endif  // NET_BASE_MIME_SNIFFER_H__
-

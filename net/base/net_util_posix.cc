@@ -44,4 +44,3 @@ bool FileURLToFilePath(const GURL& url, FilePath* path) {
 }
 
 }  // namespace net
-

@@ -143,4 +143,3 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
 }  // namespace net
 
 #endif  // NET_BASE_CLIENT_SOCKET_POOL_H_
-

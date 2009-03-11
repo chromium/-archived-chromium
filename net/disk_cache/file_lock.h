@@ -43,4 +43,3 @@ class FileLock {
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_FILE_LOCK_H__
-

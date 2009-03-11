@@ -27,4 +27,3 @@ class SSLClientSocket : public ClientSocket {
 }  // namespace net
 
 #endif  // NET_BASE_SSL_CLIENT_SOCKET_H_
-

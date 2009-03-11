@@ -63,4 +63,3 @@ void DidFinishDnsResolutionWithStatus(bool was_resolved,
 }  // namspace net
 
 #endif  // NET_BASE_DNS_RESOLUTION_OBSERVER_H_
-

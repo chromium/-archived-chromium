@@ -100,4 +100,3 @@ bool DataURL::Parse(const GURL& url, std::string* mime_type,
 }
 
 }  // namespace net
-

@@ -984,4 +984,3 @@ TEST_F(DiskCacheBackendTest, MemoryOnlyDoomAll) {
   InitCache();
   BackendDoomAll();
 }
-

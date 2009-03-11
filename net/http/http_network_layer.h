@@ -53,4 +53,3 @@ class HttpNetworkLayer : public HttpTransactionFactory {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_NETWORK_LAYER_H_
-

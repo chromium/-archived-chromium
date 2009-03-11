@@ -64,4 +64,3 @@ class URLRequestFileDirJob
 };
 
 #endif  // NET_URL_REQUEST_URL_REQUEST_FILE_DIR_JOB_H__
-

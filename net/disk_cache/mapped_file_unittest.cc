@@ -121,4 +121,3 @@ TEST_F(DiskCacheTest, MappedFile_AsyncIO) {
   EXPECT_FALSE(g_cache_tests_error);
   EXPECT_STREQ(buffer1, buffer2);
 }
-

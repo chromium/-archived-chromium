@@ -89,4 +89,3 @@ TEST_F(TCPPingerTest, PingFail) {
   rv = pinger.Ping(base::TimeDelta::FromMilliseconds(100), 1);
   EXPECT_NE(rv, net::OK);
 }
-

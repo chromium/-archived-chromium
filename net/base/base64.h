@@ -20,4 +20,3 @@ bool Base64Decode(const std::string& input, std::string* output);
 }  // namespace net
 
 #endif  // NET_BASE_BASE64_H__
-

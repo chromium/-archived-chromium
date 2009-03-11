@@ -67,4 +67,3 @@ TEST_F(TelnetServerTest, ClientSendLong) {
 TEST_F(TelnetServerTest, ServerSend) {
   tester_->TestServerSend();
 }
-

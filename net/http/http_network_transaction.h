@@ -303,4 +303,3 @@ class HttpNetworkTransaction : public HttpTransaction {
 }  // namespace net
 
 #endif  // NET_HTTP_HTTP_NETWORK_TRANSACTION_H_
-
