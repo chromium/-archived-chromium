@@ -100,8 +100,10 @@ layer at (8,551) size 259x164 clip at (9,552) size 257x162
   RenderTextControl {TEXTAREA} at (0,287) size 259x164 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 238x48
       RenderText {#text} at (0,0) size 238x48
-        text run at (0,0) width 238: "More new form text from user, "
-        text run at (0,16) width 238: "which should be restored when "
+        text run at (0,0) width 232: "More new form text from user,"
+        text run at (232,0) width 6: " "
+        text run at (0,16) width 232: "which should be restored when"
+        text run at (232,16) width 6: " "
         text run at (0,32) width 184: "we return to this page."
 scrolled to 0,50
 

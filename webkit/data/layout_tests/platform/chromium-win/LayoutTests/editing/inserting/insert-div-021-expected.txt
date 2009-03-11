@@ -21,14 +21,16 @@ layer at (0,0) size 800x600
     RenderBody {BODY} at (8,8) size 784x584
       RenderBlock (anonymous) at (0,0) size 784x112
         RenderText {#text} at (0,0) size 772x55
-          text run at (0,0) width 772: "Test inserting paragraphs: should see \"foo\", then an empty blue box, then a blue "
+          text run at (0,0) width 766: "Test inserting paragraphs: should see \"foo\", then an empty blue box, then a blue"
+          text run at (766,0) width 6: " "
           text run at (0,28) width 402: "box with with \"bar\" in it. Fix for this bug: "
         RenderInline {A} at (0,0) size 257x27 [color=#0000EE]
           RenderText {#text} at (402,28) size 257x27
             text run at (402,28) width 257: "<rdar://problem/3924579>"
         RenderText {#text} at (659,28) size 754x83
           text run at (659,28) width 6: " "
-          text run at (0,56) width 754: "REGRESSION (Mail): After deleting, hitting return key does not insert visible "
+          text run at (0,56) width 748: "REGRESSION (Mail): After deleting, hitting return key does not insert visible"
+          text run at (748,56) width 6: " "
           text run at (0,84) width 75: "newline"
       RenderBlock {DIV} at (0,112) size 784x36
       RenderBlock (anonymous) at (0,148) size 784x28

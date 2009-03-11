@@ -18,9 +18,12 @@ layer at (0,0) size 800x600
           text run at (0,0) width 280: "This tests pasting a table to replace some text. "
         RenderInline {B} at (0,0) size 784x79
           RenderText {#text} at (280,0) size 784x79
-            text run at (280,0) width 504: "It demonstrates two bugs: 1) selecting a table without also selecting the line "
-            text run at (0,20) width 780: "break after programmatically is impossible when its followed by a div because of the way DOM positions are mapped "
-            text run at (0,40) width 755: "to visible positions, 2) pasting content that ends in a table places the caret in the last table cell instead of after the "
+            text run at (280,0) width 500: "It demonstrates two bugs: 1) selecting a table without also selecting the line"
+            text run at (780,0) width 4: " "
+            text run at (0,20) width 776: "break after programmatically is impossible when its followed by a div because of the way DOM positions are mapped"
+            text run at (776,20) width 4: " "
+            text run at (0,40) width 751: "to visible positions, 2) pasting content that ends in a table places the caret in the last table cell instead of after the"
+            text run at (751,40) width 4: " "
             text run at (0,60) width 567: "table, so the interchange newline is placed in the last table cell and not after the table."
       RenderTable {TABLE} at (0,96) size 55x26
         RenderTableSection {TBODY} at (0,0) size 55x26

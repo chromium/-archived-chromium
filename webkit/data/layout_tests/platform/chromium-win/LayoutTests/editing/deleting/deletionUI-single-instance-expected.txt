@@ -19,9 +19,12 @@ layer at (24,100) size 752x90 layerType: foreground only
       RenderTableRow {TR} at (0,2) size 752x82
         RenderTableCell {TD} at (2,2) size 748x82 [r=0 c=0 rs=1 cs=1]
           RenderText {#text} at (1,1) size 746x79
-            text run at (1,1) width 717: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas odio. Morbi sed tortor id nisl bibendum commodo. "
-            text run at (1,21) width 744: "Donec pede. Praesent accumsan dui vitae mauris. Mauris non dui at neque lacinia pulvinar. Quisque nibh. Nulla vitae lectus. "
-            text run at (1,41) width 746: "Pellentesque enim. Mauris hendrerit molestie dui. Etiam pretium ligula a pede. Fusce consectetuer purus sit amet sem. Morbi "
+            text run at (1,1) width 713: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Maecenas odio. Morbi sed tortor id nisl bibendum commodo."
+            text run at (714,1) width 4: " "
+            text run at (1,21) width 740: "Donec pede. Praesent accumsan dui vitae mauris. Mauris non dui at neque lacinia pulvinar. Quisque nibh. Nulla vitae lectus."
+            text run at (741,21) width 4: " "
+            text run at (1,41) width 744: "Pellentesque enim. Mauris hendrerit molestie dui. Etiam pretium ligula a pede. Fusce consectetuer purus sit amet sem. Morbi"
+            text run at (745,41) width 2: " "
             text run at (1,61) width 229: "tincidunt mollis libero. Maecenas mole"
     RenderTableSection (anonymous) at (0,86) size 752x4
       RenderTableRow (anonymous) at (0,2) size 752x0
