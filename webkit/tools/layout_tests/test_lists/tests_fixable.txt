@@ -309,7 +309,6 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 
 // Selection wrong.
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
-MAC : LayoutTests/fast/js/switch-behaviour.html = FAIL
 
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
 LINUX : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
