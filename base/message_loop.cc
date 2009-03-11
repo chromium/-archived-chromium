@@ -367,7 +367,7 @@ bool MessageLoop::DeletePendingTasks() {
       // TODO(darin): Delete all tasks once it is safe to do so.
       // Until it is totally safe, just do it when running purify.
 #ifdef PURIFY
-      delete task;
+      delete pending_task.task;
 #endif  // PURIFY
     }
   }
