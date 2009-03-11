@@ -1124,6 +1124,65 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 }
 
+// Test that we don't read the response body when we fail to establish a tunnel,
+// even if the user cancels the proxy's auth attempt.
+TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
+  // Configure against proxy server "myproxy:70".
+  scoped_ptr<net::ProxyService> proxy_service(
+      CreateFixedProxyService("myproxy:70"));
+
+  scoped_refptr<net::HttpNetworkSession> session(
+      CreateSession(proxy_service.get()));
+
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      session.get(), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("https://www.google.com/");
+  request.load_flags = 0;
+
+  // Since we have proxy, should try to establish tunnel.
+  MockWrite data_writes[] = {
+    MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
+              "Host: www.google.com\r\n\r\n"),
+  };
+
+  // The proxy responds to the connect with a 407.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.1 407 Proxy Authentication Required\r\n"),
+    MockRead("Proxy-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+    MockRead("Content-Length: 10\r\n\r\n"),
+    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
+  };
+
+  MockSocket data;
+  data.writes = data_writes;
+  data.reads = data_reads;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+
+  EXPECT_TRUE(response->headers->IsKeepAlive());
+  EXPECT_EQ(407, response->headers->response_code());
+  EXPECT_EQ(10, response->headers->GetContentLength());
+  EXPECT_TRUE(net::HttpVersion(1, 1) == response->headers->GetHttpVersion());
+
+  std::string response_data;
+  rv = ReadTransaction(trans.get(), &response_data);
+  EXPECT_EQ(net::ERR_TUNNEL_CONNECTION_FAILED, rv);
+}
+
 static void ConnectStatusHelperWithExpectedStatus(
     const MockRead& status, int expected_status) {
   // Configure against proxy server "myproxy:70".

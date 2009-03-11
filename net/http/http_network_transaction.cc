@@ -207,6 +207,17 @@ int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
   if (!connection_.is_initialized())
     return 0;  // connection_ has been reset.  Treat like EOF.
 
+  if (establishing_tunnel_) {
+    // We're trying to read the body of the response but we're still trying to
+    // establish an SSL tunnel through the proxy.  We can't read these bytes
+    // when establishing a tunnel because they might be controlled by an active
+    // network attacker.  We don't worry about this for HTTP because an active
+    // network attacker can already control HTTP sessions.
+    // We reach this case when the user cancels a 407 proxy auth prompt.
+    // See http://crbug.com/8473
+    return ERR_TUNNEL_CONNECTION_FAILED;
+  }
+
   read_buf_ = buf;
   read_buf_len_ = buf_len;
 
@@ -1002,7 +1013,9 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
         // domain name does not exist."
         LOG(WARNING) <<
             "Blocked proxy response to CONNECT request with status " <<
-            headers->response_code() << ".";
+            headers->response_code() << " for " <<
+            request_->url.host() << ":" <<
+            request_->url.EffectiveIntPort() << ".";
         return ERR_TUNNEL_CONNECTION_FAILED;
     }
   }
