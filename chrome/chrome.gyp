@@ -624,6 +624,8 @@
         'browser/gtk/download_item_gtk.h',
         'browser/gtk/download_shelf_gtk.cc',
         'browser/gtk/download_shelf_gtk.h',
+        'browser/gtk/find_bar_gtk.cc',
+        'browser/gtk/find_bar_gtk.h',
         'browser/gtk/location_bar_view_gtk.cc',
         'browser/gtk/location_bar_view_gtk.h',
         'browser/gtk/menu_gtk.cc',
