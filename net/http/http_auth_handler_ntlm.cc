@@ -434,6 +434,25 @@ static int ParseType2Msg(const void* in_buf, uint32 in_len, Type2Msg* msg) {
   return OK;
 }
 
+static void GenerateRandom(uint8* output, size_t n) {
+  for (size_t i = 0; i < n; ++i)
+    output[i] = base::RandInt(0, 255);
+}
+
+static void GetHostName(char* name, size_t namelen) {
+  if (gethostname(name, namelen) != 0)
+    name[0] = '\0';
+}
+
+// TODO(wtc): these two function pointers should become static members of
+// HttpAuthHandlerNTLM.  They are file-scope static variables now so that
+// GenerateType3Msg can use them without being a friend function.  We should
+// have HttpAuthHandlerNTLM absorb NTLMAuthModule and pass the host name and
+// random bytes as input arguments to GenerateType3Msg.
+static HttpAuthHandlerNTLM::GenerateRandomProc generate_random_proc_ =
+    GenerateRandom;
+static HttpAuthHandlerNTLM::HostNameProc get_host_name_proc_ = GetHostName;
+
 // Returns OK or a network error code.
 static int GenerateType3Msg(const string16& domain,
                             const string16& username,
@@ -511,9 +530,10 @@ static int GenerateType3Msg(const string16& domain,
   // Get workstation name (use local machine's hostname).
   //
   char host_buf[256];  // Host names are limited to 255 bytes.
-  if (gethostname(host_buf, sizeof(host_buf)) != 0)
-    return ERR_UNEXPECTED;
+  get_host_name_proc_(host_buf, sizeof(host_buf));
   host_len = strlen(host_buf);
+  if (host_len == 0)
+    return ERR_UNEXPECTED;
   if (unicode) {
     // hostname is ASCII, so we can do a simple zero-pad expansion:
     ucs_host_buf.assign(host_buf, host_buf + host_len);
@@ -547,10 +567,7 @@ static int GenerateType3Msg(const string16& domain,
     MD5Digest session_hash;
     uint8 temp[16];
 
-    // TODO(wtc): Add a function that generates random bytes so we can say:
-    //   GenerateRandom(lm_resp, 8);
-    for (int i = 0; i < 8; ++i)
-      lm_resp[i] = base::RandInt(0, 255);
+    generate_random_proc_(lm_resp, 8);
     memset(lm_resp + 8, 0, LM_RESP_LEN - 8);
 
     memcpy(temp, msg.challenge, 8);
@@ -755,6 +772,16 @@ std::string HttpAuthHandlerNTLM::GenerateCredentials(
   if (!ok)
     return std::string();
   return std::string("NTLM ") + encode_output;
+}
+
+// static
+void HttpAuthHandlerNTLM::SetGenerateRandomProc(GenerateRandomProc proc) {
+  generate_random_proc_ = proc;
+}
+
+// static
+void HttpAuthHandlerNTLM::SetHostNameProc(HostNameProc proc) {
+  get_host_name_proc_ = proc;
 }
 
 // The NTLM challenge header looks like:

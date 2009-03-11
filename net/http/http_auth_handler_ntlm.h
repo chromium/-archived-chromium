@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "net/http/http_auth_handler.h"
 
@@ -17,6 +18,15 @@ class NTLMAuthModule;
 // Code for handling HTTP NTLM authentication.
 class HttpAuthHandlerNTLM : public HttpAuthHandler {
  public:
+  // A function that generates n random bytes in the output buffer.
+  typedef void (*GenerateRandomProc)(uint8* output, size_t n);
+
+  // A function that returns the local host name as a null-terminated string
+  // in the output buffer. Returns an empty string if the local host name is
+  // not available.
+  // TODO(wtc): return a std::string instead.
+  typedef void (*HostNameProc)(char* name, size_t namelen);
+
   HttpAuthHandlerNTLM();
 
   virtual ~HttpAuthHandlerNTLM();
@@ -27,6 +37,10 @@ class HttpAuthHandlerNTLM : public HttpAuthHandler {
                                           const std::wstring& password,
                                           const HttpRequestInfo* request,
                                           const ProxyInfo* proxy);
+
+  // For unit tests to override the GenerateRandom and GetHostName functions.
+  static void SetGenerateRandomProc(GenerateRandomProc proc);
+  static void SetHostNameProc(HostNameProc proc);
 
  protected:
   virtual bool Init(std::string::const_iterator challenge_begin,
