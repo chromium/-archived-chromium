@@ -1139,7 +1139,7 @@ MAC : LayoutTests/fast/forms/focus-selection-textarea.html = FAIL
 MAC : LayoutTests/fast/events/option-tab.html = FAIL
 
 // event failures
-MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
+MAC : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = CRASH FAIL
 
 // history (currently flaky on Linx & Mac platforms)
 LINUX MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS FAIL
@@ -1178,7 +1178,7 @@ MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT CRASH
 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT
-MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT
+MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL CRASH
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
 
@@ -1757,15 +1757,17 @@ WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
 
 // Added 3/11/09
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH PASS
-MAC : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-sync.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-async.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/010.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-denied-preflight-cache.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/document-domain-set.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-star.html = TIMEOUT PASS
 MAC DEBUG : LayoutTests/http/tests/security/frameNavigation/xss-ALLOWED-parent-navigation-change.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH PASS
+LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
