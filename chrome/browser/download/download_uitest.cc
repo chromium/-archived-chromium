@@ -228,8 +228,7 @@ TEST_F(DownloadTest, ContentDisposition) {
 // The test will first attempt to download a file; but the server will "pause"
 // in the middle until the server receives a second request for
 // "download-finish.  At that time, the download will finish.
-// TODO(paul): Reenable, http://code.google.com/p/chromium/issues/detail?id=7191
-TEST_F(DownloadTest, DISABLED_UnknownSize) {
+TEST_F(DownloadTest, UnknownSize) {
   std::wstring url(URLRequestSlowDownloadJob::kUnknownSizeUrl);
   std::wstring filename = file_util::GetFilenameFromPath(url);
   RunSizeTest(url, L"32.0 KB - " + filename, L"100% - " + filename);

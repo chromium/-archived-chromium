@@ -498,14 +498,14 @@ void UITest::NavigateToURL(const GURL& url) {
 bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
   const int kCycles = 20;
   for (int i = 0; i < kCycles; i++) {
-    bool visible = false;
-    if (!tab->IsShelfVisible(&visible))
-      return false;  // Some error.
-    if (visible)
-      return true;  // Got the download shelf.
-
     // Give it a chance to catch up.
     PlatformThread::Sleep(action_max_timeout_ms() / kCycles);
+
+    bool visible = false;
+    if (!tab->IsShelfVisible(&visible))
+      continue;
+    if (visible)
+      return true;  // Got the download shelf.
   }
   return false;
 }
