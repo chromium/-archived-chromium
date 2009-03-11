@@ -23,6 +23,7 @@
         '../third_party/icu38/icu38.gyp:icuuc',
         '../third_party/modp_b64/modp_b64.gyp:modp_b64',
         '../third_party/zlib/zlib.gyp:zlib',
+        'net_resources',
       ],
       'msvs_guid': '326E9795-E760-410A-B69A-3F79DB3F5243',
       'sources': [
@@ -304,7 +305,6 @@
               'base/tcp_client_socket_libevent.cc',
             ],
             'dependencies': [
-              'net_resources',
               'tld_cleanup',
             ],
             'configurations': {
@@ -327,9 +327,6 @@
         ],
         [ 'OS == "linux"', {
             'sources/': [ ['exclude', '_(mac|win)\\.cc$'] ],
-            'dependencies': [
-              'net_resources',
-            ],
           },
           {  # else: OS != "linux"
             'sources!': [
@@ -534,44 +531,37 @@
         'disk_cache/disk_cache_test_util.h',
       ],
     },
-  ],
-  'conditions': [
-    ['OS!="mac"', {
-      'targets': [
+    {
+      'target_name': 'net_resources',
+      'type': 'none',
+      'msvs_guid': '8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942',
+      'rules': [
         {
-          'target_name': 'net_resources',
-          'type': 'none',
-          'msvs_guid': '8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942',
-          'sources': [
-            'base/net_resources.grd',
+          'rule_name': 'grit',
+          'extension': 'grd',
+          'inputs': [
+            '<(DEPTH)/tools/grit/grit.py',
           ],
-          #'msvs_tool_files': ['../tools/grit/build/grit_resources.rules'],
-          # This was orignally in grit_resources.rules
-          # NOTE: this version doesn't mimic the Properties specified there.
-          'rules': [
-            {
-              'rule_name': 'grit',
-              'extension': 'grd',
-              'inputs': [
-                '<(DEPTH)/tools/grit/grit.py',
-              ],
-              'outputs': [
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/grit/<(RULE_INPUT_ROOT).h',
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/<(RULE_INPUT_ROOT).rc',
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/<(RULE_INPUT_ROOT).pak',
-              ],
-              'action':
-                ['python', '<(DEPTH)/tools/grit/grit.py', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources'],
-            },
+          'outputs': [
+            '<(SHARED_INTERMEDIATE_DIR)/net/grit/<(RULE_INPUT_ROOT).h',
+            '<(SHARED_INTERMEDIATE_DIR)/net/<(RULE_INPUT_ROOT).rc',
+            '<(SHARED_INTERMEDIATE_DIR)/net/<(RULE_INPUT_ROOT).pak',
           ],
-          'direct_dependent_settings': {
-            'include_dirs': [
-              '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources',
-            ],
-          },
+          'action':
+            ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/net'],
         },
       ],
-    }],
+      'sources': [
+        'base/net_resources.grd',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '<(SHARED_INTERMEDIATE_DIR)/net',
+        ],
+      },
+    },
+  ],
+  'conditions': [
     ['OS=="win"', {
       'targets': [
         {

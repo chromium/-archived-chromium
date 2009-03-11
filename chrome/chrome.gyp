@@ -334,6 +334,7 @@
         'common',
         'resources',
         '../media/media.gyp:media',
+        '../net/net.gyp:net_resources',
         '../skia/skia.gyp:skia',
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',
@@ -1164,9 +1165,6 @@
       ],
       'conditions': [
         ['OS=="linux"', {
-          'dependencies': [
-            '../net/net.gyp:net_resources',
-          ],
           'sources!': [
             # TODO(port):  Port these.
             'browser/debugger/debugger_contents.cc',
@@ -1205,7 +1203,6 @@
             'third_party/wtl/include',
           ],
           'dependencies': [
-            '../net/net.gyp:net_resources',
             '../google_update/google_update.gyp:google_update',
             'installer/util/util.gyp:installer_util',
             '../printing/printing.gyp:printing',
@@ -1503,6 +1500,7 @@
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
                 ],
               },
@@ -1969,10 +1967,10 @@
       ],
     },
   ],
-  # On Mac only, add a project target called "package_app" that only
-  # runs a shell script (package_chrome.sh).
   'conditions': [
     ['OS=="mac"',
+      # On Mac only, add a project target called "package_app" that only
+      # runs a shell script (package_chrome.sh).
       { 'targets': [
         {
           'target_name': 'package_app',
@@ -2251,6 +2249,6 @@
           },
         },
       ]},  # 'targets'
-    ],  # OS=="mac"
+    ],  # OS=="win"
   ],  # 'conditions'
 }

@@ -167,8 +167,8 @@
             {
               'action_name': 'test_shell_repack',
               'inputs': [
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/net_resources.pak',
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/test_shell_resources.pak',
+                '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
+                '<(SHARED_INTERMEDIATE_DIR)/test_shell/test_shell_resources.pak',
                 '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
                 '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
               ],
@@ -300,16 +300,16 @@
                 '../../../tools/grit/grit.py',
               ],
               'outputs': [
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/grit/<(RULE_INPUT_ROOT).h',
-                '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources/<(RULE_INPUT_ROOT).pak',
+                '<(SHARED_INTERMEDIATE_DIR)/test_shell/grit/<(RULE_INPUT_ROOT).h',
+                '<(SHARED_INTERMEDIATE_DIR)/test_shell/<(RULE_INPUT_ROOT).pak',
               ],
               'action':
-                ['python', '../tools/grit/grit.py', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources'],
+                ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/test_shell'],
             },
           ],
           'direct_dependent_settings': {
             'include_dirs': [
-              '<(SHARED_INTERMEDIATE_DIR)/grit_derived_sources',
+              '<(SHARED_INTERMEDIATE_DIR)/test_shell',
             ],
           },
         },
