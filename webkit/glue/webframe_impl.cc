@@ -492,7 +492,7 @@ bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {
   // is expected to query the history state after a navigation occurs, after
   // the desired history item has become the previous entry.
   RefPtr<HistoryItem> item = webview_impl_->GetPreviousHistoryItem();
-  if (!item)
+  if (!item || item->lastVisitWasFailure())
     return false;
 
   static StatsCounterTimer history_timer("GetHistoryTimer");
