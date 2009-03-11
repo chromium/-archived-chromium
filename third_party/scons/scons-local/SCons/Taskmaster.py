@@ -789,7 +789,17 @@ class Taskmaster:
             children_not_ready = []
             children_failed = False
 
-            for child in chain(children, executor.get_all_prerequisites()):
+            #TODO(sgk)
+            # Evaluate order-only prerequisites before any "direct" children
+            # (sources and dependencies) are evaluated.  This is in advance
+            # of a change that will be incorporated in the next upstream
+            # version of SCons, per:
+            #   http://scons.tigris.org/issues/show_bug.cgi?id=2372
+            #TODO(sgk) - FROM THIS:
+            #for child in chain(children, executor.get_all_prerequisites()):
+            #TODO(sgk) - TO THIS:
+            for child in chain(executor.get_all_prerequisites(), children):
+            #TODO(sgk) - END CHANGES.
                 childstate = child.get_state()
 
                 if T: T.write(self.trace_message('       ' + self.trace_node(child)))
