@@ -373,4 +373,3 @@ void AllocationStack::operator delete(void* ptr) {
   stack->next_ = freelist_;
   freelist_ = stack;
 }
-

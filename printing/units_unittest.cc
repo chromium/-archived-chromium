@@ -51,4 +51,3 @@ TEST(UnitsTest, Convertions) {
             ConvertHundredThousanthMeterToMilliInch(-kHundrethsMMPerInch));
   EXPECT_EQ(0, ConvertHundredThousanthMeterToMilliInch(0));
 }
-

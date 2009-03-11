@@ -204,5 +204,3 @@ void MemoryWatcher::DumpLeaks() {
   fprintf(file_, "Total Bytes:  %d\n", block_map_size_);
   CloseLogFile();
 }
-
-

@@ -111,4 +111,3 @@ class AllocationStack : public CallStack {
 };
 
 #endif  // MEMORY_WATCHER_CALL_STACK_H_
-

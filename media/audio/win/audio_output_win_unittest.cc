@@ -283,4 +283,3 @@ TEST(WinAudioTest, PCMWaveStreamPlay200HzTone22Kss) {
   oas->Stop();
   oas->Close();
 }
-

@@ -553,4 +553,3 @@ void MemoryHook::OnUntrack(HANDLE heap, int32 id, int32 size) {
   if (watcher_)
     watcher_->OnUntrack(heap, id, size);
 }
-

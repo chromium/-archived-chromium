@@ -86,4 +86,3 @@ private:
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(MeasurePageLoadTimeBHO), CMeasurePageLoadTimeBHO)
-

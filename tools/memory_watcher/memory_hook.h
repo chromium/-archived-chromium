@@ -136,4 +136,3 @@ class MemoryHook : MemoryObserver {
 };
 
 #endif  // MEMORY_WATCHER_MEMORY_HOOK_
-

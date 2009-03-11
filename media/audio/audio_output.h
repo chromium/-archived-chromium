@@ -160,4 +160,3 @@ class AudioManager {
 
 
 #endif  // MEDIA_AUDIO_AUDIO_OUTPUT_H_
-

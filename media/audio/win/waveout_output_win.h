@@ -103,4 +103,3 @@ class PCMWaveOutAudioOutputStream : public AudioOutputStream {
 };
 
 #endif  // MEDIA_AUDIO_WAVEOUT_OUTPUT_WIN_H_
-

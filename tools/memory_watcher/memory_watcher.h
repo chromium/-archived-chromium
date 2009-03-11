@@ -88,4 +88,3 @@ class MemoryWatcher : MemoryObserver {
 
 
 #endif  // MEMORY_WATCHER_
-

@@ -32,5 +32,3 @@ typedef testing::Test PlatformTest;
 #endif // GTEST_OS_MAC
 
 #endif // TESTING_PLATFORM_TEST_H_
-
-

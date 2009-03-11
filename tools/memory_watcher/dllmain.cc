@@ -143,4 +143,3 @@ __declspec(dllexport) void __cdecl SetLogName(char* name) {
 }
 
 }  // extern "C"
-

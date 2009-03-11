@@ -47,4 +47,3 @@ END_MSG_MAP()
 };
 
 #endif  // TOOLS_MEMORY_WATCHER_HOTKEY_H_
-

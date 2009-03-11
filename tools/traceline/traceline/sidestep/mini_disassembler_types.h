@@ -195,4 +195,3 @@ struct ModrmEntry {
 };  // namespace sidestep
 
 #endif  // TRACELINE_SIDESTEP_MINI_DISASSEMBLER_TYPES_H_
-

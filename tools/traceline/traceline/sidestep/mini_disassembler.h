@@ -153,4 +153,3 @@ class MiniDisassembler {
 };  // namespace sidestep
 
 #endif  // TRACELINE_SIDESTEP_MINI_DISASSEMBLER_H_
-
