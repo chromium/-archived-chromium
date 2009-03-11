@@ -55,11 +55,13 @@ class ClientView : public View {
 
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
+  virtual void Layout();
 
  protected:
   // Overridden from View:
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
-  virtual void Layout();
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
 
   // Accessors for private data members.
   Window* window() const { return window_; }

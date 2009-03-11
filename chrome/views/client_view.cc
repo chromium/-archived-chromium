@@ -36,6 +36,13 @@ gfx::Size ClientView::GetPreferredSize() {
   return gfx::Size();
 }
 
+void ClientView::Layout() {
+  // |contents_view_| is allowed to be NULL up until the point where this view
+  // is attached to a Container.
+  if (contents_view_)
+    contents_view_->SetBounds(0, 0, width(), height());
+}
+
 void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   if (is_add && child == this) {
     DCHECK(GetWidget());
@@ -44,11 +51,11 @@ void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   }
 }
 
-void ClientView::Layout() {
-  // |contents_view_| is allowed to be NULL up until the point where this view
-  // is attached to a Container.
-  if (contents_view_)
-    contents_view_->SetBounds(0, 0, width(), height());
+void ClientView::DidChangeBounds(const gfx::Rect& previous,
+                                 const gfx::Rect& current) {
+  // Overridden to do nothing. The NonClientView manually calls Layout on the
+  // ClientView when it is itself laid out, see comment in
+  // NonClientView::Layout.
 }
 
 }  // namespace views

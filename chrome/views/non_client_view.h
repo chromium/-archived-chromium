@@ -59,6 +59,9 @@ class NonClientFrameView : public View {
   virtual bool HitTest(const gfx::Point& l) const;
 
  protected:
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
+
   NonClientFrameView() : paint_as_active_(false) {}
 
 
