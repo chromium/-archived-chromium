@@ -1010,8 +1010,6 @@
         'browser/views/bug_report_view.h',
         'browser/views/clear_browsing_data.cc',
         'browser/views/clear_browsing_data.h',
-        'browser/views/constrained_window_animation.cc',
-        'browser/views/constrained_window_animation.h',
         'browser/views/constrained_window_impl.cc',
         'browser/views/constrained_window_impl.h',
         'browser/views/dom_view.cc',
