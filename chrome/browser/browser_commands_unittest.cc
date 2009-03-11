@@ -59,7 +59,7 @@ TEST_F(BrowserCommandsTest, DuplicateTab) {
   browser()->ExecuteCommand(IDC_DUPLICATE_TAB);
 
   // The duplicated tab should not end up in a new window.
-  int window_count = BrowserList::size();
+  size_t window_count = BrowserList::size();
   ASSERT_EQ(initial_window_count, window_count);
 
   // And we should have a newly duplicated tab.

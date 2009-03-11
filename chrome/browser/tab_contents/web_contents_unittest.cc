@@ -206,7 +206,8 @@ TEST_F(WebContentsTest, UpdateTitle) {
   controller()->RendererDidNavigate(params, &details);
 
   contents()->UpdateTitle(rvh(), 0, L"    Lots O' Whitespace\n");
-  EXPECT_EQ(std::wstring(L"Lots O' Whitespace"), contents()->GetTitle());
+  EXPECT_EQ(std::wstring(L"Lots O' Whitespace"),
+            UTF16ToWideHack(contents()->GetTitle()));
 }
 
 // Test simple same-SiteInstance navigation.
