@@ -73,11 +73,23 @@ ScriptValue WorkerScriptController::evaluate(const ScriptSourceCode& sourceCode)
     return ScriptValue();
 }
 
+ScriptValue WorkerScriptController::evaluate(const ScriptSourceCode& sourceCode, ScriptValue* exception)
+{
+    // FIXME(jianli): to be implemented.
+    return evaluate(sourceCode);
+}
+
 void WorkerScriptController::forbidExecution()
 {
     // This function is called from another thread.
     MutexLocker lock(m_sharedDataMutex);
     m_executionForbidden = true;
+}
+
+void WorkerScriptController::setException(ScriptValue exception)
+{
+    // FIXME(jianli): to be implemented.
+    notImplemented();
 }
 
 } // namespace WebCore
