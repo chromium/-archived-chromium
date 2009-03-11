@@ -101,8 +101,16 @@ bool Move(const FilePath& from_path, const FilePath& to_path) {
       to_path.value().length() >= MAX_PATH) {
     return false;
   }
-  return (MoveFileEx(from_path.value().c_str(), to_path.value().c_str(),
-                     MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING) != 0);
+  if (MoveFileEx(from_path.value().c_str(), to_path.value().c_str(),
+                 MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING) != 0)
+    return true;
+  if (DirectoryExists(from_path)) {
+    // MoveFileEx fails if moving directory across volumes. We will simulate
+    // the move by using Copy and Delete. Ideally we could check whether
+    // from_path and to_path are indeed in different volumes.
+    return CopyAndDeleteDirectory(from_path, to_path);
+  }
+  return false;
 }
 
 bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
@@ -166,6 +174,21 @@ bool CopyDirectory(const FilePath& from_path, const FilePath& to_path,
   FilePath directory = from_path.Append(L"*.*");
   return ShellCopy(directory, to_path, false);
 }
+
+bool CopyAndDeleteDirectory(const FilePath& from_path,
+                            const FilePath& to_path) {
+  if (CopyDirectory(from_path, to_path, true)) {
+    if (Delete(from_path, true)) {
+      return true;
+    }
+    // Like Move, this function is not transactional, so we just
+    // leave the copied bits behind if deleting from_path fails.
+    // If to_path exists previously then we have already overwritten
+    // it by now, we don't get better off by deleting the new bits.
+  }
+  return false;
+}
+
 
 bool PathExists(const FilePath& path) {
   return (GetFileAttributes(path.value().c_str()) != INVALID_FILE_ATTRIBUTES);

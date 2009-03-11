@@ -254,6 +254,12 @@ bool UpdateShortcutLink(const wchar_t *source, const wchar_t *destination,
 // Return true if the given directory is empty
 bool IsDirectoryEmpty(const std::wstring& dir_path);
 
+// Copy from_path to to_path recursively and then delete from_path recursively.
+// Returns true if all operations succeed.
+// This function simulates Move(), but unlike Move() it works across volumes.
+// This fuction is not transactional.
+bool CopyAndDeleteDirectory(const FilePath& from_path,
+                            const FilePath& to_path);
 #endif
 
 // Get the temporary directory provided by the system.
