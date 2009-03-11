@@ -1353,9 +1353,6 @@ LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 // Failed with r6844 (dglazkov)
 LayoutTests/http/tests/navigation/error404-goback.html = FAIL
 
-// Started failing when landing the new skia r6925.
-WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
-
 // Passes when run by itself.  Fails on the buildbot.
 // For Windows, see bug 8291.
 LINUX WIN : LayoutTests/fast/css/beforeSelectorOnCodeElement.html = CRASH PASS

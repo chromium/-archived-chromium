@@ -433,63 +433,63 @@ layer at (0,0) size 785x6628
       RenderBlock {DIV} at (0,2913) size 769x352
         RenderBlock {OL} at (0,0) size 769x168
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{3042}"
-            RenderText {#text} at (0,0) size 111x19
-              text run at (0,0) width 111: "one, may show \x{3042}"
+            RenderListMarker at (-28,0) size 23x19: "\x{3042}"
+            RenderText {#text} at (0,0) size 110x19
+              text run at (0,0) width 110: "one, may show \x{3042}"
           RenderListItem {LI} at (40,20) size 729x88
             RenderBlock (anonymous) at (0,0) size 729x20
-              RenderListMarker at (-29,0) size 24x19: "\x{3044}"
-              RenderText {#text} at (0,0) size 112x19
-                text run at (0,0) width 112: "two, may show \x{3044}"
+              RenderListMarker at (-28,0) size 23x19: "\x{3044}"
+              RenderText {#text} at (0,0) size 111x19
+                text run at (0,0) width 111: "two, may show \x{3044}"
             RenderBlock {OL} at (0,28) size 729x60
               RenderListItem {LI} at (40,0) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3042}"
-                RenderText {#text} at (0,0) size 111x19
-                  text run at (0,0) width 111: "one, may show \x{3042}"
+                RenderListMarker at (-28,0) size 23x19: "\x{3042}"
+                RenderText {#text} at (0,0) size 110x19
+                  text run at (0,0) width 110: "one, may show \x{3042}"
               RenderListItem {LI} at (40,20) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3044}"
-                RenderText {#text} at (0,0) size 112x19
-                  text run at (0,0) width 112: "two, may show \x{3044}"
+                RenderListMarker at (-28,0) size 23x19: "\x{3044}"
+                RenderText {#text} at (0,0) size 111x19
+                  text run at (0,0) width 111: "two, may show \x{3044}"
               RenderListItem {LI} at (40,40) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3046}"
-                RenderText {#text} at (0,0) size 119x19
-                  text run at (0,0) width 119: "three, may show \x{3046}"
+                RenderListMarker at (-24,0) size 19x19: "\x{3046}"
+                RenderText {#text} at (0,0) size 114x19
+                  text run at (0,0) width 114: "three, may show \x{3046}"
           RenderListItem {LI} at (40,108) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{3046}"
-            RenderText {#text} at (0,0) size 119x19
-              text run at (0,0) width 119: "three, may show \x{3046}"
+            RenderListMarker at (-24,0) size 19x19: "\x{3046}"
+            RenderText {#text} at (0,0) size 114x19
+              text run at (0,0) width 114: "three, may show \x{3046}"
           RenderListItem {LI} at (40,128) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{3048}"
-            RenderText {#text} at (0,0) size 113x19
-              text run at (0,0) width 113: "four, may show \x{3048}"
+            RenderListMarker at (-27,0) size 22x19: "\x{3048}"
+            RenderText {#text} at (0,0) size 111x19
+              text run at (0,0) width 111: "four, may show \x{3048}"
           RenderListItem {LI} at (40,148) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{304A}"
-            RenderText {#text} at (0,0) size 110x19
-              text run at (0,0) width 110: "five, may show \x{304A}"
+            RenderListMarker at (-28,0) size 23x19: "\x{304A}"
+            RenderText {#text} at (0,0) size 109x19
+              text run at (0,0) width 109: "five, may show \x{304A}"
         RenderBlock {OL} at (0,200) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{3093}"
-            RenderText {#text} at (0,0) size 151x19
-              text run at (0,0) width 151: "forty-eight, may show \x{3093}"
+            RenderListMarker at (-28,0) size 23x19: "\x{3093}"
+            RenderText {#text} at (0,0) size 150x19
+              text run at (0,0) width 150: "forty-eight, may show \x{3093}"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3042}\x{3042}"
+            RenderListMarker at (-43,0) size 38x19: "\x{3042}\x{3042}"
             RenderText {#text} at (0,0) size 124x19
               text run at (0,0) width 124: "forty-nine, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3042}\x{3044}"
+            RenderListMarker at (-43,0) size 38x19: "\x{3042}\x{3044}"
             RenderText {#text} at (0,0) size 88x19
               text run at (0,0) width 88: "fifty, undefined"
         RenderBlock {OL} at (0,292) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3042}\x{3093}"
+            RenderListMarker at (-43,0) size 38x19: "\x{3042}\x{3093}"
             RenderText {#text} at (0,0) size 123x19
               text run at (0,0) width 123: "ninety-six, undefined"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3044}\x{3042}"
+            RenderListMarker at (-43,0) size 38x19: "\x{3044}\x{3042}"
             RenderText {#text} at (0,0) size 141x19
               text run at (0,0) width 141: "ninety-seven, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3044}\x{3044}"
+            RenderListMarker at (-43,0) size 38x19: "\x{3044}\x{3044}"
             RenderText {#text} at (0,0) size 135x19
               text run at (0,0) width 135: "ninety-eight, undefined"
       RenderBlock {H2} at (0,3297) size 769x27
@@ -508,25 +508,25 @@ layer at (0,0) size 785x6628
       RenderBlock {DIV} at (0,3415) size 769x352
         RenderBlock {OL} at (0,0) size 769x168
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{3044}"
-            RenderText {#text} at (0,0) size 111x19
-              text run at (0,0) width 111: "one, may show \x{3044}"
+            RenderListMarker at (-28,0) size 23x19: "\x{3044}"
+            RenderText {#text} at (0,0) size 110x19
+              text run at (0,0) width 110: "one, may show \x{3044}"
           RenderListItem {LI} at (40,20) size 729x88
             RenderBlock (anonymous) at (0,0) size 729x20
-              RenderListMarker at (-29,0) size 24x19: "\x{308D}"
-              RenderText {#text} at (0,0) size 112x19
-                text run at (0,0) width 112: "two, may show \x{308D}"
+              RenderListMarker at (-27,0) size 22x19: "\x{308D}"
+              RenderText {#text} at (0,0) size 110x19
+                text run at (0,0) width 110: "two, may show \x{308D}"
             RenderBlock {OL} at (0,28) size 729x60
               RenderListItem {LI} at (40,0) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3042}"
-                RenderText {#text} at (0,0) size 111x19
-                  text run at (0,0) width 111: "one, may show \x{3044}"
+                RenderListMarker at (-28,0) size 23x19: "\x{3042}"
+                RenderText {#text} at (0,0) size 110x19
+                  text run at (0,0) width 110: "one, may show \x{3044}"
               RenderListItem {LI} at (40,20) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3044}"
-                RenderText {#text} at (0,0) size 112x19
-                  text run at (0,0) width 112: "two, may show \x{308D}"
+                RenderListMarker at (-28,0) size 23x19: "\x{3044}"
+                RenderText {#text} at (0,0) size 110x19
+                  text run at (0,0) width 110: "two, may show \x{308D}"
               RenderListItem {LI} at (40,40) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3046}"
+                RenderListMarker at (-24,0) size 19x19: "\x{3046}"
                 RenderText {#text} at (0,0) size 119x19
                   text run at (0,0) width 119: "three, may show \x{306F}"
           RenderListItem {LI} at (40,108) size 729x20
@@ -534,37 +534,37 @@ layer at (0,0) size 785x6628
             RenderText {#text} at (0,0) size 119x19
               text run at (0,0) width 119: "three, may show \x{306F}"
           RenderListItem {LI} at (40,128) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{306B}"
-            RenderText {#text} at (0,0) size 113x19
-              text run at (0,0) width 113: "four, may show \x{306B}"
+            RenderListMarker at (-28,0) size 23x19: "\x{306B}"
+            RenderText {#text} at (0,0) size 112x19
+              text run at (0,0) width 112: "four, may show \x{306B}"
           RenderListItem {LI} at (40,148) size 729x20
             RenderListMarker at (-29,0) size 24x19: "\x{307B}"
             RenderText {#text} at (0,0) size 110x19
               text run at (0,0) width 110: "five, may show \x{307B}"
         RenderBlock {OL} at (0,200) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{3059}"
-            RenderText {#text} at (0,0) size 157x19
-              text run at (0,0) width 157: "forty-seven, may show \x{3059}"
+            RenderListMarker at (-28,0) size 23x19: "\x{3059}"
+            RenderText {#text} at (0,0) size 156x19
+              text run at (0,0) width 156: "forty-seven, may show \x{3059}"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3044}\x{3044}"
+            RenderListMarker at (-43,0) size 38x19: "\x{3044}\x{3044}"
             RenderText {#text} at (0,0) size 128x19
               text run at (0,0) width 128: "forty-eight, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3044}\x{308D}"
+            RenderListMarker at (-42,0) size 37x19: "\x{3044}\x{308D}"
             RenderText {#text} at (0,0) size 124x19
               text run at (0,0) width 124: "forty-nine, undefined"
         RenderBlock {OL} at (0,292) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{3044}\x{3059}"
+            RenderListMarker at (-43,0) size 38x19: "\x{3044}\x{3059}"
             RenderText {#text} at (0,0) size 131x19
               text run at (0,0) width 131: "ninety-four, undefined"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{308D}\x{3044}"
+            RenderListMarker at (-42,0) size 37x19: "\x{308D}\x{3044}"
             RenderText {#text} at (0,0) size 128x19
               text run at (0,0) width 128: "ninety-five, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{308D}\x{308D}"
+            RenderListMarker at (-41,0) size 36x19: "\x{308D}\x{308D}"
             RenderText {#text} at (0,0) size 123x19
               text run at (0,0) width 123: "ninety-six, undefined"
       RenderBlock {H2} at (0,3799) size 769x27
@@ -584,63 +584,63 @@ layer at (0,0) size 785x6628
       RenderBlock {DIV} at (0,3917) size 769x352
         RenderBlock {OL} at (0,0) size 769x168
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30A2}"
-            RenderText {#text} at (0,0) size 111x19
-              text run at (0,0) width 111: "one, may show \x{30A2}"
+            RenderListMarker at (-27,0) size 22x19: "\x{30A2}"
+            RenderText {#text} at (0,0) size 109x19
+              text run at (0,0) width 109: "one, may show \x{30A2}"
           RenderListItem {LI} at (40,20) size 729x88
             RenderBlock (anonymous) at (0,0) size 729x20
-              RenderListMarker at (-29,0) size 24x19: "\x{30A4}"
-              RenderText {#text} at (0,0) size 112x19
-                text run at (0,0) width 112: "two, may show \x{30A4}"
+              RenderListMarker at (-26,0) size 21x19: "\x{30A4}"
+              RenderText {#text} at (0,0) size 109x19
+                text run at (0,0) width 109: "two, may show \x{30A4}"
             RenderBlock {OL} at (0,28) size 729x60
               RenderListItem {LI} at (40,0) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{30A2}"
-                RenderText {#text} at (0,0) size 111x19
-                  text run at (0,0) width 111: "one, may show \x{30A2}"
+                RenderListMarker at (-27,0) size 22x19: "\x{30A2}"
+                RenderText {#text} at (0,0) size 109x19
+                  text run at (0,0) width 109: "one, may show \x{30A2}"
               RenderListItem {LI} at (40,20) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{30A4}"
-                RenderText {#text} at (0,0) size 112x19
-                  text run at (0,0) width 112: "two, may show \x{30A4}"
+                RenderListMarker at (-26,0) size 21x19: "\x{30A4}"
+                RenderText {#text} at (0,0) size 109x19
+                  text run at (0,0) width 109: "two, may show \x{30A4}"
               RenderListItem {LI} at (40,40) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{30A6}"
-                RenderText {#text} at (0,0) size 119x19
-                  text run at (0,0) width 119: "three, may show \x{30A6}"
+                RenderListMarker at (-28,0) size 23x19: "\x{30A6}"
+                RenderText {#text} at (0,0) size 118x19
+                  text run at (0,0) width 118: "three, may show \x{30A6}"
           RenderListItem {LI} at (40,108) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30A6}"
-            RenderText {#text} at (0,0) size 119x19
-              text run at (0,0) width 119: "three, may show \x{30A6}"
+            RenderListMarker at (-28,0) size 23x19: "\x{30A6}"
+            RenderText {#text} at (0,0) size 118x19
+              text run at (0,0) width 118: "three, may show \x{30A6}"
           RenderListItem {LI} at (40,128) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30A8}"
-            RenderText {#text} at (0,0) size 113x19
-              text run at (0,0) width 113: "four, may show \x{30A8}"
+            RenderListMarker at (-27,0) size 22x19: "\x{30A8}"
+            RenderText {#text} at (0,0) size 111x19
+              text run at (0,0) width 111: "four, may show \x{30A8}"
           RenderListItem {LI} at (40,148) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30AA}"
-            RenderText {#text} at (0,0) size 110x19
-              text run at (0,0) width 110: "five, may show \x{30AA}"
+            RenderListMarker at (-28,0) size 23x19: "\x{30AA}"
+            RenderText {#text} at (0,0) size 109x19
+              text run at (0,0) width 109: "five, may show \x{30AA}"
         RenderBlock {OL} at (0,200) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30F3}"
+            RenderListMarker at (-27,0) size 22x19: "\x{30F3}"
             RenderText {#text} at (0,0) size 128x19
               text run at (0,0) width 128: "forty-eight, undefined"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A2}\x{30A2}"
+            RenderListMarker at (-41,0) size 36x19: "\x{30A2}\x{30A2}"
             RenderText {#text} at (0,0) size 124x19
               text run at (0,0) width 124: "forty-nine, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A2}\x{30A4}"
+            RenderListMarker at (-40,0) size 35x19: "\x{30A2}\x{30A4}"
             RenderText {#text} at (0,0) size 88x19
               text run at (0,0) width 88: "fifty, undefined"
         RenderBlock {OL} at (0,292) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A2}\x{30F3}"
+            RenderListMarker at (-41,0) size 36x19: "\x{30A2}\x{30F3}"
             RenderText {#text} at (0,0) size 123x19
               text run at (0,0) width 123: "ninety-six, undefined"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A4}\x{30A2}"
+            RenderListMarker at (-40,0) size 35x19: "\x{30A4}\x{30A2}"
             RenderText {#text} at (0,0) size 141x19
               text run at (0,0) width 141: "ninety-seven, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A4}\x{30A4}"
+            RenderListMarker at (-39,0) size 34x19: "\x{30A4}\x{30A4}"
             RenderText {#text} at (0,0) size 135x19
               text run at (0,0) width 135: "ninety-eight, undefined"
       RenderBlock {H2} at (0,4301) size 769x27
@@ -660,25 +660,25 @@ layer at (0,0) size 785x6628
       RenderBlock {DIV} at (0,4419) size 769x352
         RenderBlock {OL} at (0,0) size 769x168
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30A4}"
-            RenderText {#text} at (0,0) size 111x19
-              text run at (0,0) width 111: "one, may show \x{30A4}"
+            RenderListMarker at (-26,0) size 21x19: "\x{30A4}"
+            RenderText {#text} at (0,0) size 108x19
+              text run at (0,0) width 108: "one, may show \x{30A4}"
           RenderListItem {LI} at (40,20) size 729x88
             RenderBlock (anonymous) at (0,0) size 729x20
-              RenderListMarker at (-29,0) size 24x19: "\x{30ED}"
-              RenderText {#text} at (0,0) size 112x19
-                text run at (0,0) width 112: "two, may show \x{30ED}"
+              RenderListMarker at (-27,0) size 22x19: "\x{30ED}"
+              RenderText {#text} at (0,0) size 110x19
+                text run at (0,0) width 110: "two, may show \x{30ED}"
             RenderBlock {OL} at (0,28) size 729x60
               RenderListItem {LI} at (40,0) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3042}"
-                RenderText {#text} at (0,0) size 111x19
-                  text run at (0,0) width 111: "one, may show \x{30A4}"
+                RenderListMarker at (-28,0) size 23x19: "\x{3042}"
+                RenderText {#text} at (0,0) size 108x19
+                  text run at (0,0) width 108: "one, may show \x{30A4}"
               RenderListItem {LI} at (40,20) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3044}"
-                RenderText {#text} at (0,0) size 112x19
-                  text run at (0,0) width 112: "two, may show \x{30ED}"
+                RenderListMarker at (-28,0) size 23x19: "\x{3044}"
+                RenderText {#text} at (0,0) size 110x19
+                  text run at (0,0) width 110: "two, may show \x{30ED}"
               RenderListItem {LI} at (40,40) size 689x20
-                RenderListMarker at (-29,0) size 24x19: "\x{3046}"
+                RenderListMarker at (-24,0) size 19x19: "\x{3046}"
                 RenderText {#text} at (0,0) size 119x19
                   text run at (0,0) width 119: "three, may show \x{30CF}"
           RenderListItem {LI} at (40,108) size 729x20
@@ -686,37 +686,37 @@ layer at (0,0) size 785x6628
             RenderText {#text} at (0,0) size 119x19
               text run at (0,0) width 119: "three, may show \x{30CF}"
           RenderListItem {LI} at (40,128) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30CB}"
-            RenderText {#text} at (0,0) size 113x19
-              text run at (0,0) width 113: "four, may show \x{30CB}"
+            RenderListMarker at (-28,0) size 23x19: "\x{30CB}"
+            RenderText {#text} at (0,0) size 112x19
+              text run at (0,0) width 112: "four, may show \x{30CB}"
           RenderListItem {LI} at (40,148) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30DB}"
-            RenderText {#text} at (0,0) size 110x19
-              text run at (0,0) width 110: "five, may show \x{30DB}"
+            RenderListMarker at (-28,0) size 23x19: "\x{30DB}"
+            RenderText {#text} at (0,0) size 109x19
+              text run at (0,0) width 109: "five, may show \x{30DB}"
         RenderBlock {OL} at (0,200) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-29,0) size 24x19: "\x{30B9}"
-            RenderText {#text} at (0,0) size 157x19
-              text run at (0,0) width 157: "forty-seven, may show \x{30B9}"
+            RenderListMarker at (-27,0) size 22x19: "\x{30B9}"
+            RenderText {#text} at (0,0) size 155x19
+              text run at (0,0) width 155: "forty-seven, may show \x{30B9}"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A4}\x{30A4}"
+            RenderListMarker at (-39,0) size 34x19: "\x{30A4}\x{30A4}"
             RenderText {#text} at (0,0) size 128x19
               text run at (0,0) width 128: "forty-eight, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A4}\x{30ED}"
+            RenderListMarker at (-40,0) size 35x19: "\x{30A4}\x{30ED}"
             RenderText {#text} at (0,0) size 124x19
               text run at (0,0) width 124: "forty-nine, undefined"
         RenderBlock {OL} at (0,292) size 769x60
           RenderListItem {LI} at (40,0) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30A4}\x{30B9}"
+            RenderListMarker at (-40,0) size 35x19: "\x{30A4}\x{30B9}"
             RenderText {#text} at (0,0) size 131x19
               text run at (0,0) width 131: "ninety-four, undefined"
           RenderListItem {LI} at (40,20) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30ED}\x{30A4}"
+            RenderListMarker at (-40,0) size 35x19: "\x{30ED}\x{30A4}"
             RenderText {#text} at (0,0) size 128x19
               text run at (0,0) width 128: "ninety-five, undefined"
           RenderListItem {LI} at (40,40) size 729x20
-            RenderListMarker at (-45,0) size 40x19: "\x{30ED}\x{30ED}"
+            RenderListMarker at (-41,0) size 36x19: "\x{30ED}\x{30ED}"
             RenderText {#text} at (0,0) size 123x19
               text run at (0,0) width 123: "ninety-six, undefined"
       RenderBlock {H2} at (0,4803) size 769x27
