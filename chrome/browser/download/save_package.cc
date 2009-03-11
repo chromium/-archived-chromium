@@ -963,9 +963,18 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
   // If not, initialize it with default directory.
   if (!prefs->IsPrefRegistered(prefs::kSaveFileDefaultDirectory)) {
     FilePath default_save_path;
-    if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
-                          &default_save_path))
-      NOTREACHED();
+    if (!prefs->IsPrefRegistered(prefs::kDownloadDefaultDirectory)) {
+      if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
+                            &default_save_path)) {
+        NOTREACHED();
+      }
+    } else {
+      StringPrefMember default_download_path;
+      default_download_path.Init(prefs::kDownloadDefaultDirectory,
+                                 prefs, NULL);
+      default_save_path = FilePath::FromWStringHack(
+                          default_download_path.GetValue());
+    }
     prefs->RegisterFilePathPref(prefs::kSaveFileDefaultDirectory,
                                 default_save_path);
   }
