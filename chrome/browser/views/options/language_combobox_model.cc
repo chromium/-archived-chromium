@@ -31,6 +31,17 @@ LanguageComboboxModel::LanguageComboboxModel(
   InitNativeNames(locale_codes);
 }
 
+LanguageComboboxModel::LanguageComboboxModel(
+    Profile* profile, const std::vector<std::string>& locale_codes)
+    : profile_(profile) {
+  std::vector<std::wstring> locale_codes_w;
+  for (std::vector<std::string>::const_iterator iter = locale_codes.begin();
+      iter != locale_codes.end(); ++iter) {
+    locale_codes_w.push_back(ASCIIToWide(*iter));
+  }
+  InitNativeNames(locale_codes_w);
+}
+
 void LanguageComboboxModel::InitNativeNames(const std::vector<std::wstring>&
                                             locale_codes) {
   const std::string app_locale = WideToASCII(

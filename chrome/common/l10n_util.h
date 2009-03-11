@@ -312,6 +312,7 @@ void SortVectorWithStringKey(const std::wstring& locale,
 }
 
 // In place sorting of strings using collation rules for |locale|.
+// TODO(port): this should take string16.
 void SortStrings(const std::wstring& locale,
                  std::vector<std::wstring>* strings);
 

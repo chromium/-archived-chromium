@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SPELLCHECK_WORDITERATOR_H__
-#define CHROME_BROWSER_SPELLCHECK_WORDITERATOR_H__
+#ifndef CHROME_BROWSER_SPELLCHECK_WORDITERATOR_H_
+#define CHROME_BROWSER_SPELLCHECK_WORDITERATOR_H_
 
 #include <map>
 #include <string>
@@ -25,7 +25,7 @@ class SpellcheckCharAttribute {
 
   // Sets the default language of the spell checker. This controls which
   // characters are considered parts of words of the given language.
-  void SetDefaultLanguage(const std::wstring& language);
+  void SetDefaultLanguage(const std::string& language);
 
   // Returns whether or not the given character is a character used by the
   // selected dictionary.
@@ -73,7 +73,7 @@ class SpellcheckCharAttribute {
   // Represents a table of characters used by contractions.
   std::map<UChar32, bool> middle_letters_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SpellcheckCharAttribute);
+  DISALLOW_COPY_AND_ASSIGN(SpellcheckCharAttribute);
 };
 
 // A class which implements methods for finding the location of word boundaries
@@ -177,7 +177,7 @@ class SpellcheckWordIterator {
   // The character attributes used for filtering out non-word characters.
   const SpellcheckCharAttribute* attribute_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SpellcheckWordIterator);
+  DISALLOW_COPY_AND_ASSIGN(SpellcheckWordIterator);
 };
 
-#endif  // CHROME_BROWSER_SPELLCHECK_WORDITERATOR_H__
+#endif  // CHROME_BROWSER_SPELLCHECK_WORDITERATOR_H_

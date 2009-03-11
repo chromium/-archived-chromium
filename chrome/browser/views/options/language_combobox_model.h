@@ -29,6 +29,11 @@ class LanguageComboboxModel : public views::ComboBox::Model {
   LanguageComboboxModel(Profile* profile,
                         const std::vector<std::wstring>& locale_codes);
 
+  // Temporary compatibility constructor.
+  // TODO(port): remove this once locale codes are all switched to ASCII.
+  LanguageComboboxModel(Profile* profile,
+                        const std::vector<std::string>& locale_codes);
+
   virtual ~LanguageComboboxModel() {}
 
   void InitNativeNames(const std::vector<std::wstring>& locale_codes);

@@ -62,6 +62,7 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kSearchSuggestEnabled, true);
   prefs->RegisterBooleanPref(prefs::kSessionExitedCleanly, true);
   prefs->RegisterBooleanPref(prefs::kSafeBrowsingEnabled, true);
+  // TODO(estade): IDS_SPELLCHECK_DICTIONARY should be an ASCII string.
 #if defined(OS_MACOSX)
   // MASSIVE HACK!!! We don't have localization working yet. Undo this once we
   // do. TODO(port): take this out
@@ -381,7 +382,6 @@ void ProfileImpl::InitExtensions() {
 
   FilePath script_dir;
   if (user_scripts_enabled) {
-   
     if (command_line->HasSwitch(switches::kUserScriptsDir)) {
       std::wstring path_string =
           command_line->GetSwitchValue(switches::kUserScriptsDir);
@@ -803,7 +803,8 @@ void ProfileImpl::InitializeSpellChecker(bool need_to_broadcast) {
     // is being deleted in the io thread, the spellchecker_ can be made to point
     // to a new object (RE-initialized) in parallel in this UI thread.
     spellchecker_ = new SpellChecker(dict_dir,
-        prefs->GetString(prefs::kSpellCheckDictionary), GetRequestContext(),
+        WideToASCII(prefs->GetString(prefs::kSpellCheckDictionary)),
+        GetRequestContext(),
         FilePath());
     spellchecker_->AddRef();  // Manual refcounting.
   } else {

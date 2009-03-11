@@ -168,7 +168,7 @@ void RenderViewContextMenu::AppendEditableItems() {
       l10n_util::GetString(IDS_CONTENT_CONTEXT_SPELLCHECK_MENU));
 
   // Add Spell Check languages to sub menu.
-  SpellChecker::Languages display_languages;
+  SpellChecker::DisplayLanguages display_languages;
   SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(profile_,
       &display_languages);
   DCHECK(display_languages.size() <
@@ -317,7 +317,7 @@ bool RenderViewContextMenu::ItemIsChecked(int id) const {
       (id >= IDC_SPELLCHECK_LANGUAGES_LAST))
     return false;
 
-  SpellChecker::Languages display_languages;
+  SpellChecker::DisplayLanguages display_languages;
   return SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
       source_web_contents_->profile(), &display_languages) ==
       (id - IDC_SPELLCHECK_LANGUAGES_FIRST);
@@ -328,7 +328,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
   if (id >= IDC_SPELLCHECK_LANGUAGES_FIRST &&
       id < IDC_SPELLCHECK_LANGUAGES_LAST) {
     const size_t language_number = id - IDC_SPELLCHECK_LANGUAGES_FIRST;
-    SpellChecker::Languages display_languages;
+    SpellChecker::DisplayLanguages display_languages;
     SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
         source_web_contents_->profile(), &display_languages);
     if (language_number < display_languages.size()) {

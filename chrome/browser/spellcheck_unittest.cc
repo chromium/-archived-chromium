@@ -265,7 +265,7 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
   ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, FilePath()));
+      hunspell_directory, "en-US", NULL, FilePath()));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     size_t input_length = 0;
@@ -318,7 +318,7 @@ TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
   ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, FilePath()));
+      hunspell_directory, "en-US", NULL, FilePath()));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     std::vector<std::wstring> suggestions;
@@ -366,7 +366,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
   ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, custom_dictionary_file));
+      hunspell_directory, "en-US", NULL, custom_dictionary_file));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Add the word to spellchecker.
@@ -392,7 +392,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckAddToDictionary_EN_US) {
 
   // Now initialize another spellchecker to see that AddToWord is permanent.
   scoped_refptr<SpellChecker> spell_checker_new(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, custom_dictionary_file));
+      hunspell_directory, "en-US", NULL, custom_dictionary_file));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Now check whether it is added to Spellchecker.
@@ -434,7 +434,7 @@ TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestionsAddToDictionary_EN_US) {
   ASSERT_FALSE(hunspell_directory.empty());
 
   scoped_refptr<SpellChecker> spell_checker(new SpellChecker(
-      hunspell_directory, L"en-US", NULL, custom_dictionary_file));
+      hunspell_directory, "en-US", NULL, custom_dictionary_file));
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kTestCases); ++i) {
     // Add the word to spellchecker.

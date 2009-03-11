@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "base/string_util.h"
+#include "chrome/browser/spellchecker.h"
 
 #include "third_party/icu38/public/common/unicode/normlzr.h"
 #include "third_party/icu38/public/common/unicode/schriter.h"
@@ -59,13 +60,10 @@ SpellcheckCharAttribute::~SpellcheckCharAttribute() {
 // Sets the default language for this object.
 // This function retrieves the exemplar set to set up the default character
 // attributes.
-void SpellcheckCharAttribute::SetDefaultLanguage(const std::wstring& language) {
-  // Retrieves the locale data of the given language.
-  std::string language_encoded;
-  WideToCodepage(language, "us-ascii", OnStringUtilConversionError::SKIP,
-                 &language_encoded);
+void SpellcheckCharAttribute::SetDefaultLanguage(
+    const SpellChecker::Language& language) {
   UErrorCode status = U_ZERO_ERROR;
-  ULocaleData* locale_data = ulocdata_open(language_encoded.c_str(), &status);
+  ULocaleData* locale_data = ulocdata_open(language.c_str(), &status);
   if (U_FAILURE(status))
     return;
 

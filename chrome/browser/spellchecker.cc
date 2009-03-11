@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <set>
+
 #include "chrome/browser/spellchecker.h"
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -31,47 +33,46 @@ static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
 namespace {
 
-// TODO(rohitrao): Convert these constants from wchar_t* to char*.
 static const struct {
   // The language.
-  const wchar_t* language;
+  const char* language;
 
   // The corresponding language and region, used by the dictionaries.
-  const wchar_t* language_region;
+  const char* language_region;
 } g_supported_spellchecker_languages[] = {
-  {L"en-US", L"en-US"},
-  {L"en-GB", L"en-GB"},
-  {L"fr", L"fr-FR"},
-  {L"it", L"it-IT"},
-  {L"de", L"de-DE"},
-  {L"es", L"es-ES"},
-  {L"nl", L"nl-NL"},
-  {L"pt-BR", L"pt-BR"},
-  {L"ru", L"ru-RU"},
-  {L"pl", L"pl-PL"},
-  // {L"th", L"th-TH"}, // Not to be included in Spellchecker as per B=1277824
-  {L"sv", L"sv-SE"},
-  {L"da", L"da-DK"},
-  {L"pt-PT", L"pt-PT"},
-  {L"ro", L"ro-RO"},
-  // {L"hu", L"hu-HU"}, // Not to be included in Spellchecker as per B=1277824
-  {L"he", L"he-IL"},
-  {L"id", L"id-ID"},
-  {L"cs", L"cs-CZ"},
-  {L"el", L"el-GR"},
-  {L"nb", L"nb-NO"},
-  {L"vi", L"vi-VN"},
-  // {L"bg", L"bg-BG"}, // Not to be included in Spellchecker as per B=1277824
-  {L"hr", L"hr-HR"},
-  {L"lt", L"lt-LT"},
-  {L"sk", L"sk-SK"},
-  {L"sl", L"sl-SI"},
-  {L"ca", L"ca-ES"},
-  {L"lv", L"lv-LV"},
-  // {L"uk", L"uk-UA"}, // Not to be included in Spellchecker as per B=1277824
-  {L"hi", L"hi-IN"},
-  {L"et", L"et-EE"},
-  {L"tr", L"tr-TR"},
+  {"en-US", "en-US"},
+  {"en-GB", "en-GB"},
+  {"fr", "fr-FR"},
+  {"it", "it-IT"},
+  {"de", "de-DE"},
+  {"es", "es-ES"},
+  {"nl", "nl-NL"},
+  {"pt-BR", "pt-BR"},
+  {"ru", "ru-RU"},
+  {"pl", "pl-PL"},
+  // {"th", "th-TH"}, // Not to be included in Spellchecker as per B=1277824
+  {"sv", "sv-SE"},
+  {"da", "da-DK"},
+  {"pt-PT", "pt-PT"},
+  {"ro", "ro-RO"},
+  // {"hu", "hu-HU"}, // Not to be included in Spellchecker as per B=1277824
+  {"he", "he-IL"},
+  {"id", "id-ID"},
+  {"cs", "cs-CZ"},
+  {"el", "el-GR"},
+  {"nb", "nb-NO"},
+  {"vi", "vi-VN"},
+  // {"bg", "bg-BG"}, // Not to be included in Spellchecker as per B=1277824
+  {"hr", "hr-HR"},
+  {"lt", "lt-LT"},
+  {"sk", "sk-SK"},
+  {"sl", "sl-SI"},
+  {"ca", "ca-ES"},
+  {"lv", "lv-LV"},
+  // {"uk", "uk-UA"}, // Not to be included in Spellchecker as per B=1277824
+  {"hi", "hi-IN"},
+  {"et", "et-EE"},
+  {"tr", "tr-TR"},
 };
 
 }
@@ -127,12 +128,12 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   // 'az-Latn-AZ' vs 'az-Arab-AZ', either, but we don't use 3-part
   // locale ids with a script code in the middle, yet.
   // TODO(jungshik): Add a better fallback.
-  Language language_part(language, 0, language.find(L'-'));
+  Language language_part(language, 0, language.find('-'));
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
        ++i) {
     Language spellcheck_language(
         g_supported_spellchecker_languages[i].language_region);
-    if (spellcheck_language.substr(0, spellcheck_language.find(L'-')) ==
+    if (spellcheck_language.substr(0, spellcheck_language.find('-')) ==
         language_part)
       return spellcheck_language;
   }
@@ -143,14 +144,14 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
 
 int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
     Profile* profile,
-    Languages* display_languages) {
+    DisplayLanguages* display_languages) {
   StringPrefMember accept_languages_pref;
   StringPrefMember dictionary_language_pref;
   accept_languages_pref.Init(prefs::kAcceptLanguages, profile->GetPrefs(),
                              NULL);
   dictionary_language_pref.Init(prefs::kSpellCheckDictionary,
                                 profile->GetPrefs(), NULL);
-  Language dictionary_language(dictionary_language_pref.GetValue());
+  std::wstring dictionary_language = dictionary_language_pref.GetValue();
 
   // The current dictionary language should be there.
   display_languages->push_back(dictionary_language);
@@ -158,17 +159,19 @@ int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
   // Now scan through the list of accept languages, and find possible mappings
   // from this list to the existing list of spell check languages.
   Languages accept_languages;
-  SplitString(accept_languages_pref.GetValue(), L',', &accept_languages);
-  for (Languages::const_iterator i(accept_languages.begin());
+  std::set<Language> unique_languages;
+  SplitString(WideToASCII(accept_languages_pref.GetValue()), ',',
+              &accept_languages);
+  for (Languages::const_iterator i = accept_languages.begin();
        i != accept_languages.end(); ++i) {
     Language language(GetCorrespondingSpellCheckLanguage(*i));
-    if (!language.empty()) {
-      // Check for duplication.
-      if (std::find(display_languages->begin(), display_languages->end(),
-                    language) == display_languages->end())
-        display_languages->push_back(language);
-    }
+    if (!language.empty())
+      unique_languages.insert(language);
   }
+
+  for (std::set<Language>::const_iterator i = unique_languages.begin();
+       i != unique_languages.end(); ++i)
+    display_languages->push_back(ASCIIToWide(*i));
 
   // Sort using locale specific sorter.
   l10n_util::SortStrings(g_browser_process->GetApplicationLocale(),
@@ -329,7 +332,7 @@ FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
                                             const FilePath& dict_dir) {
   // The default dictionary version is 1-2. These versions have been augmented
   // with additional words found by the translation team.
-  static const wchar_t kDefaultVersionString[] = L"-1-2";
+  static const char kDefaultVersionString[] = "-1-2";
 
   // The following dictionaries have either not been augmented with additional
   // words (version 1-1) or have new words, as well as an upgraded dictionary
@@ -357,23 +360,22 @@ FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
 
   // Generate the bdict file name using default version string or special
   // version string, depending on the language.
-  std::wstring language = GetSpellCheckLanguageRegion(input_language);
-  std::wstring versioned_bdict_file_name(language + kDefaultVersionString +
-                                         L".bdic");
-  std::string language_string(WideToUTF8(language));
+  std::string language = GetSpellCheckLanguageRegion(input_language);
+  std::string versioned_bdict_file_name(language + kDefaultVersionString +
+                                        ".bdic");
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(special_version_string); ++i) {
-    if (language_string == special_version_string[i].language) {
+    if (language == special_version_string[i].language) {
       versioned_bdict_file_name =
-          language + UTF8ToWide(special_version_string[i].version) + L".bdic";
+          language + special_version_string[i].version + ".bdic";
       break;
     }
   }
 
-  return dict_dir.Append(FilePath::FromWStringHack(versioned_bdict_file_name));
+  return dict_dir.AppendASCII(versioned_bdict_file_name);
 }
 
 SpellChecker::SpellChecker(const FilePath& dict_dir,
-                           const std::wstring& language,
+                           const Language& language,
                            URLRequestContext* request_context,
                            const FilePath& custom_dictionary_file_name)
     : custom_dictionary_file_name_(custom_dictionary_file_name),

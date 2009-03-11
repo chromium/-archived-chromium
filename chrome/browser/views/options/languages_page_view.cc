@@ -39,6 +39,7 @@
 #include "skia/include/SkBitmap.h"
 #include "unicode/uloc.h"
 
+// TODO(port): this should be a char* list.
 static const wchar_t* const accept_language_list[] = {
   L"af",     // Afrikaans
   L"am",     // Amharic
@@ -719,8 +720,9 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
       DCHECK(local_state);
       const std::wstring& lang_region = local_state->GetString(
           prefs::kSpellCheckDictionary);
-      dictionary_language_.SetValue(
-          SpellChecker::GetLanguageFromLanguageRegion(lang_region));
+      dictionary_language_.SetValue(ASCIIToWide(
+          SpellChecker::GetLanguageFromLanguageRegion(
+          WideToASCII(lang_region))));
       index = dictionary_language_model_->GetSelectedLanguageIndex(
           prefs::kSpellCheckDictionary);
     }
