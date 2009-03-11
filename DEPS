@@ -19,7 +19,7 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@167",
 
   "src/third_party/WebKit":
-    "/trunk/deps/third_party/WebKit@11475",
+    "/trunk/deps/third_party/WebKit@11491",
 
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@11389",
