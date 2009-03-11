@@ -185,6 +185,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\video_frame_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\video_frame_impl.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\yuv_convert.cc"
 				>
 			</File>
@@ -192,7 +200,7 @@
 				RelativePath="..\base\yuv_convert.h"
 				>
 			</File>
-			</Filter>
+		</Filter>
 		<Filter
 			Name="filters"
 			>
@@ -245,20 +253,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\filters\video_renderer_base.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\video_renderer_base.h"
-				>
-			</File>
-
-			<File
 				RelativePath="..\filters\null_audio_renderer.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\filters\null_audio_renderer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\video_renderer_base.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\filters\video_renderer_base.h"
 				>
 			</File>
 		</Filter>

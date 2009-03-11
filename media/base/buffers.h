@@ -121,6 +121,14 @@ class WritableBuffer : public Buffer  {
 struct VideoSurface {
   static const size_t kMaxPlanes = 3;
 
+  static const size_t kNumRGBPlanes = 1;
+  static const size_t kRGBPlane = 0;
+
+  static const size_t kNumYUVPlanes = 3;
+  static const size_t kYPlane = 0;
+  static const size_t kUPlane = 1;
+  static const size_t kVPlane = 2;
+
   // Surface formats roughly based on FOURCC labels, see:
   // http://www.fourcc.org/rgb.php
   // http://www.fourcc.org/yuv.php
