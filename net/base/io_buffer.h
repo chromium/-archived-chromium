@@ -15,7 +15,6 @@ class IOBuffer : public base::RefCountedThreadSafe<IOBuffer> {
  public:
   IOBuffer() : data_(NULL) {}
   explicit IOBuffer(int buffer_size);
-  explicit IOBuffer(char* data) : data_(data) {}
   virtual ~IOBuffer() {
     delete[] data_;
   }
@@ -23,6 +22,9 @@ class IOBuffer : public base::RefCountedThreadSafe<IOBuffer> {
   char* data() { return data_; }
 
  protected:
+  // Only allow derived classes to specify data_.
+  // In all other cases, we own data_, and must delete it at destruction time.
+  explicit IOBuffer(char* data) : data_(data) {}
   char* data_;
 };
 

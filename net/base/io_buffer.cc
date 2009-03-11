@@ -9,7 +9,7 @@
 namespace net {
 
 IOBuffer::IOBuffer(int buffer_size) {
-  DCHECK(buffer_size);
+  DCHECK(buffer_size > 0);
   data_ = new char[buffer_size];
 }
 
