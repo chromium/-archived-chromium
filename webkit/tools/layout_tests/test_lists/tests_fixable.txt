@@ -1776,3 +1776,7 @@ LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 WIN : chrome/fast/dom/java-applet-calls.html = FAIL
+WIN : LayoutTests/editing/execCommand/selectAll.html = FAIL
+WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
+WIN : LayoutTests/editing/selection/select-all-002.html = FAIL
+WIN : LayoutTests/fast/events/onload-single-line-comment.html = TIMEOUT
