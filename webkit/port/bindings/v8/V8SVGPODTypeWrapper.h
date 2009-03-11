@@ -358,4 +358,3 @@ public:
 
 #endif // ENABLE(SVG)
 #endif // V8SVGPODTypeWrapper_h
-

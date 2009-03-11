@@ -146,4 +146,3 @@ NPError NPP_SetValue(NPP instance, NPNVariable variable, void* value) {
 }
 
 }  // namespace activex_shim
-

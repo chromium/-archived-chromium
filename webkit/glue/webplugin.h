@@ -170,4 +170,3 @@ class WebPluginResourceClient {
 
 
 #endif  // #ifndef WEBKIT_GLUE_WEBPLUGIN_H__
-

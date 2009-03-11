@@ -144,4 +144,3 @@ class CppBoundClass {
 };
 
 #endif  // CPP_BOUNDCLASS_H__
-

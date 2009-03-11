@@ -165,4 +165,3 @@ struct ScopedVariant : public VARIANT {
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_ACTIVEX_UTIL_H__
-

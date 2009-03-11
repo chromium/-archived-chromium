@@ -321,4 +321,3 @@ NS_IMETHODIMP MozillaExtensionApi::SetCookie(
 
 
 } // namespace NPAPI
-

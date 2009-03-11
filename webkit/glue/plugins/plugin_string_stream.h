@@ -35,4 +35,3 @@ class PluginStringStream : public PluginStream {
 } // namespace NPAPI
 
 #endif // WEBKIT_GLUE_PLUGIN_PLUGIN_STRING_STREAM_H__
-

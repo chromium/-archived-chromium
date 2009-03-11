@@ -36,4 +36,3 @@ class ImageDecoder {
 };
 
 }  // namespace webkit_glue
-

@@ -55,4 +55,3 @@ class PluginInstallDialog : public CDialogImpl<PluginInstallDialog> {
 };
 
 #endif  // WEBKIT_DEFAULT_PLUGIN_INSTALL_DIALOG_H__
-

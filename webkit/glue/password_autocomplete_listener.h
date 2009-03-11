@@ -77,4 +77,3 @@ class PasswordAutocompleteListener {
 }  // webkit_glue
 
 #endif  // WEBKIT_GLUE_PASSWORD_AUTOCOMPLETE_LISTENER_H_
-

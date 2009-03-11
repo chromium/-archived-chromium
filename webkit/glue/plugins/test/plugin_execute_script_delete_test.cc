@@ -56,4 +56,3 @@ int16 ExecuteScriptDeleteTest::HandleEvent(void* event) {
 }
 
 } // namespace NPAPIClient
-

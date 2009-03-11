@@ -40,4 +40,3 @@ NPError DeletePluginInStreamTest::NewStream(NPMIMEType type, NPStream* stream,
 }
 
 } // namespace NPAPIClient
-

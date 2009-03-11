@@ -22,4 +22,3 @@ v8::Local<v8::Context> getV8Context(NPP npp, NPObject* npobj);
 WebCore::V8Proxy* GetV8Proxy(NPObject* npobj);
 
 #endif  // V8_HELPERS_H__
-

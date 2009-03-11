@@ -52,4 +52,3 @@ private:
 };
 
 #endif // WEBKIT_GLUE_INSPECTOR_CLIENT_IMPL_H__
-

@@ -26,5 +26,3 @@ class ExecuteScriptDeleteTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_GLUE_PLUGINS_TEST_PLUGIN_EXECUTE_SCRIPT_DELETE_TEST_H
-
-

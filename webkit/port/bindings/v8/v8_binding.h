@@ -194,4 +194,3 @@ inline v8::Handle<v8::Value> v8StringOrFalse(const String& str) {
 }  // namespace WebCore
 
 #endif  // V8_BINDING_H__
-

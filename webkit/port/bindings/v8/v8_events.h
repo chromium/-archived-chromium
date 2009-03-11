@@ -205,4 +205,3 @@ class V8WorkerContextEventListener : public V8ObjectEventListener {
 }  // namespace WebCore
 
 #endif  // V8_EVENTS_H__
-

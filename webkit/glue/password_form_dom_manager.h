@@ -129,4 +129,3 @@ class PasswordFormDomManager {
 };
 
 #endif  // WEBKIT_GLUE_PASSWORD_FORM_DOM_MANAGER_H__
-

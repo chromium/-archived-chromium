@@ -21,4 +21,3 @@ class GearsExtension {
 }  // namespace extensions_v8
 
 #endif  // WEBKIT_EXTENSIONS_V8_GEARS_EXTENSION_H_
-

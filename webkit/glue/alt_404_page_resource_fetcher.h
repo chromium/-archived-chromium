@@ -49,4 +49,3 @@ class Alt404PageResourceFetcher : public ResourceFetcher::Delegate {
 };
 
 #endif  // WEBKIT_GLUE_ALT_404_PAGE_RESOURCE_HANDLE_CLIENT_H__
-

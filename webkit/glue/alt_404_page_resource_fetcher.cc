@@ -45,4 +45,3 @@ void Alt404PageResourceFetcher::OnURLFetchComplete(
   }
   doc_loader_ = NULL;
 }
-

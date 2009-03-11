@@ -19,4 +19,3 @@ class NewFailsTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_GLUE_PLUGINS_TEST_PLUGIN_PLUGIN_NPP_NEW_FAILS_TEST_H__
-

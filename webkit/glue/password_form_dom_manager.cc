@@ -273,4 +273,3 @@ PasswordForm* PasswordFormDomManager::AssemblePasswordFormResult(
           : webkit_glue::StringToStdWString(old_password->value());
   return result;
 }
-

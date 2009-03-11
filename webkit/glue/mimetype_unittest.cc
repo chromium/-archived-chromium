@@ -88,4 +88,3 @@ TEST_F(MimeTypeTests, MimeTypeTests) {
 }
 
 }  // namespace
-

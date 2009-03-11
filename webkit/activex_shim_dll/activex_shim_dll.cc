@@ -44,5 +44,3 @@ NPError WINAPI NP_Initialize(NPNetscapeFuncs* funcs) {
 NPError WINAPI NP_Shutdown(void) {
   return activex_shim::ActiveX_Shim_NP_Shutdown();
 }
-
-

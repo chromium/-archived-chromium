@@ -184,4 +184,3 @@ void ImageDecoderTest::TestChunkedDecoding() const {
   }
 }
 #endif
-

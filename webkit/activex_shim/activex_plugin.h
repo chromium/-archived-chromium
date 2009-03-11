@@ -101,4 +101,3 @@ class ActiveXPlugin : public DispatchObject {
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_ACTIVEX_PLUGIN_H__
-

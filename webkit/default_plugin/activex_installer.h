@@ -62,4 +62,3 @@ END_COM_MAP()
 };
 
 #endif // #ifndef WEBKIT_DEFAULT_PLUGIN_ACTIVEX_INSTALLER_H__
-

@@ -478,4 +478,3 @@ std::wstring ActiveXPlugin::ResolveURL(const std::wstring& url) {
 
 
 }  // namespace activex_shim
-

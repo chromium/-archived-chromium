@@ -32,4 +32,3 @@ class WebErrorImpl : public WebError {
 };
 
 #endif  // WEBKIT_GLUE_WEBERROR_IMPL_H__
-

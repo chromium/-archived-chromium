@@ -36,4 +36,3 @@ class TestShellTest : public testing::Test {
 };
 
 #endif // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_TEST_H__
-

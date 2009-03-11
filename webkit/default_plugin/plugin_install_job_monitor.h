@@ -76,4 +76,3 @@ class PluginInstallationJobMonitorThread :
 };
 
 #endif  // WEBKIT_DEFAULT_PLUGIN_PLUGIN_INSTALL_JOB_MONITOR_H__
-

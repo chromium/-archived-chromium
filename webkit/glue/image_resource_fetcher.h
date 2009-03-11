@@ -58,4 +58,3 @@ class ImageResourceFetcher : public ResourceFetcher::Delegate {
 };
 
 #endif  // WEBKIT_GLUE_IMAGE_RESOURCE_FETCHER_H__
-

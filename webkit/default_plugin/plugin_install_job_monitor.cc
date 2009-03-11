@@ -103,4 +103,3 @@ bool PluginInstallationJobMonitorThread::AssignProcessToJob(
   BOOL result = AssignProcessToJobObject(install_job_, process_handle);
   return result ? true : false;
 }
-

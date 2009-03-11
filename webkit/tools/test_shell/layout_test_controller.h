@@ -322,4 +322,3 @@ class LayoutTestController : public CppBoundClass {
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_LAYOUT_TEST_CONTROLLER_H_
-

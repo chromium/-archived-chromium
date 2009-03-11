@@ -21,4 +21,3 @@ extern NPNetscapeFuncs* g_browser;
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_NPP_IMPL_H__
-

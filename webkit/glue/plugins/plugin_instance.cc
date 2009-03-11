@@ -503,4 +503,3 @@ void PluginInstance::RequestRead(NPStream* stream, NPByteRange* range_list) {
 }
 
 }  // namespace NPAPI
-

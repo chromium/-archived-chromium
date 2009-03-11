@@ -479,4 +479,3 @@ class V8ClassIndex {
 }
 
 #endif  // V8_INDEX_H__
-

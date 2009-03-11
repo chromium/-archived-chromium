@@ -122,4 +122,3 @@ bool NPRemoveProperty(NPObject* npobj, NPIdentifier propertyName);
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_DISPATCH_OBJECT_H__
-

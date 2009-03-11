@@ -73,4 +73,3 @@ class CppBindingExample : public CppBoundClass {
 };
 
 #endif  // CPP_BINDING_EXAMPLE_H__
-

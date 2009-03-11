@@ -751,4 +751,3 @@ void PluginInstallerImpl::NotifyPluginStatus(int status) {
         default_plugin::kMissingPluginStatusStart + status),
     NULL);
 }
-

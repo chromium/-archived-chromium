@@ -35,4 +35,3 @@ class SimpleResourceLoaderBridge {
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_SIMPLE_RESOURCE_LOADER_BRIDGE_H__
-

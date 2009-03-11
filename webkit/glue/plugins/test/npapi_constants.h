@@ -17,4 +17,3 @@ extern const char kTestCompleteCookie[];
 extern const char kTestCompleteSuccess[];
 }
 #endif  // WEBKIT_PORT_PLUGINS_TEST_NPAPI_CONSTANTS_H__
-

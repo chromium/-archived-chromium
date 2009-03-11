@@ -45,5 +45,3 @@ class PluginGetURLTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_PORT_PLUGINS_TEST_PLUGIN_GETURL_TEST_H__
-
-

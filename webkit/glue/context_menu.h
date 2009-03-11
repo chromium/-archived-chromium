@@ -110,4 +110,3 @@ struct ContextMenuParams {
 };
 
 #endif  // WEBKIT_GLUE_CONTEXT_NODE_TYPES_H__
-

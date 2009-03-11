@@ -72,4 +72,3 @@ class WebWidget {
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBWIDGET_H__
-

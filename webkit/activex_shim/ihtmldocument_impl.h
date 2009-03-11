@@ -481,4 +481,3 @@ class IHTMLDocument2Impl : public IHTMLDocument2 {
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_IHTMLDOCUMENT_IMPL_H__
-

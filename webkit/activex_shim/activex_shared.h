@@ -64,4 +64,3 @@ bool IsMimeTypeActiveX(const std::string& mimetype);
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_ACTIVEX_SHARED_H__
-

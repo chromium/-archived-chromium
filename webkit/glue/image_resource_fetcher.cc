@@ -56,4 +56,3 @@ void ImageResourceFetcher::OnURLFetchComplete(
     // download the favicon).
   web_view_->ImageResourceDownloadDone(this, errored, image);
 }
-

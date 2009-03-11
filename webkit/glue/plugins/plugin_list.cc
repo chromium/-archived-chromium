@@ -339,4 +339,3 @@ void PluginList::Shutdown() {
 }
 
 } // namespace NPAPI
-

@@ -45,4 +45,3 @@ private:
 };
 
 #endif // WEBKIT_GLUE_CONTEXT_MENU_CLIENT_IMPL_H__
-

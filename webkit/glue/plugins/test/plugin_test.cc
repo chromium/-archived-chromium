@@ -135,4 +135,3 @@ int16 PluginTest::HandleEvent(void* event) {
 }
 
 } // namespace NPAPIClient
-

@@ -114,4 +114,3 @@ class WebWidgetImpl : public WebWidget,
 };
 
 #endif  // WEBKIT_GLUE_WEBWIDGET_IMPL_H__
-

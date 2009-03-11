@@ -19,4 +19,3 @@ bool DeserializeNPIdentifier(const Pickle& pickle, void** pickle_iter,
 }  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_NPRUNTIME_UTIL_H_
-

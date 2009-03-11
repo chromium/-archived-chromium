@@ -24,4 +24,3 @@ enum MissingPluginStatus {
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_DEFAULT_PLUGIN_DEFAULT_PLUGIN_SHARED_H
-

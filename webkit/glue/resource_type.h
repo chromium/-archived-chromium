@@ -38,4 +38,3 @@ class ResourceType {
   ~ResourceType();
 };
 #endif  // WEBKIT_GLUE_RESOURCE_TYPE_H__
-

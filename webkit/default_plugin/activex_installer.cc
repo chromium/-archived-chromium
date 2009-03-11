@@ -115,4 +115,3 @@ HRESULT STDMETHODCALLTYPE ActiveXInstaller::GetWindow(REFGUID rguid_reason,
   *phwnd = wnd_;
   return S_OK;
 }
-

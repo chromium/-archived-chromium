@@ -201,4 +201,3 @@ class WebView : public WebWidget {
 };
 
 #endif  // WEBKIT_GLUE_WEBVIEW_H__
-

@@ -31,4 +31,3 @@ void PluginStringStream::SendToPlugin(const std::string &data,
 }
 
 }
-

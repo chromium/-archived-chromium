@@ -53,4 +53,3 @@ private:
 };
 
 #endif  // #ifndef WEBKIT_GLUE_DRAGCLIENT_IMPL_H__
-

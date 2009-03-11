@@ -136,4 +136,3 @@ class PluginStream : public base::RefCounted<PluginStream> {
 } // namespace NPAPI
 
 #endif // WEBKIT_GLUE_PLUGIN_PLUGIN_STREAM_H__
-

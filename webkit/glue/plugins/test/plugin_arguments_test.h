@@ -41,5 +41,3 @@ class PluginArgumentsTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_PORT_PLUGINS_TEST_PLUGIN_ARGUMENTS_TEST_H__
-
-

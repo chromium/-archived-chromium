@@ -33,4 +33,3 @@ class TestDragDelegate : public BaseDragSource {
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_DRAG_DELEGATE_H__
-

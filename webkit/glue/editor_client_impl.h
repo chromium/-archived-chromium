@@ -178,4 +178,3 @@ class EditorClientImpl : public WebCore::EditorClient {
 };
 
 #endif  // WEBKIT_GLUE_EDITOR_CLIENT_IMPL_H__
-

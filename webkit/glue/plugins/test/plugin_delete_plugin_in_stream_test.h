@@ -28,5 +28,3 @@ class DeletePluginInStreamTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_GLUE_PLUGINS_TEST_PLUGIN_DELETE_PLUGIN_IN_STREAM_TEST_H
-
-

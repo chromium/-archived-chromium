@@ -90,4 +90,3 @@ void CacheManager::GetResourceTypeStats(
     memset(result, 0, sizeof(CacheManager::ResourceTypeStats));
   }
 }
-

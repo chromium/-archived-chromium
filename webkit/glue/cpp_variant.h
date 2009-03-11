@@ -108,4 +108,3 @@ class CppVariant : public NPVariant {
 };
 
 #endif  // WEBKIT_GLUE_CPP_VARIANT_H__
-

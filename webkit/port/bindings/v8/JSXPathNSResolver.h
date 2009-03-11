@@ -31,4 +31,3 @@ namespace WebCore {
 #endif  // ENABLE(XPATH)
 
 #endif  // JSXPATHNSRESOLVER_H__
-

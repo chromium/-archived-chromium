@@ -120,4 +120,3 @@ TEST_F(PluginTest, DISABLED_VerifyPluginWindowRect) {
   NavigateToURL(test_url);
   WaitForFinish("checkwindowrect", "1");
 }
-

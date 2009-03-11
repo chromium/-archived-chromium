@@ -525,4 +525,3 @@ DECLARE_CALLBACK(WorkerContextRemoveEventListener)
 }  // namespace WebCore
 
 #endif  // V8_CUSTOM_H__
-

@@ -144,4 +144,3 @@ struct PasswordForm {
 typedef std::map<std::wstring, PasswordForm*> PasswordFormMap;
 
 #endif  // WEBKIT_GLUE_PASSWORD_FORM_H__
-

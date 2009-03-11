@@ -65,4 +65,3 @@ bool DeserializeNPIdentifier(const Pickle& pickle, void** pickle_iter,
 }
 
 }  // namespace webkit_glue
-

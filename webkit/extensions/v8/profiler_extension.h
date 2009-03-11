@@ -21,4 +21,3 @@ class ProfilerExtension {
 }  // namespace extensions_v8
 
 #endif  // WEBKIT_EXTENSIONS_V8_PROFILER_EXTENSION_H_
-

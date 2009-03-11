@@ -384,4 +384,3 @@ SearchableFormData::SearchableFormData(const GURL& url,
       element_value_(element_value),
       encoding_(encoding) {
 }
-

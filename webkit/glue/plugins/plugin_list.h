@@ -225,4 +225,3 @@ class PluginList {
 } // namespace NPAPI
 
 #endif  // WEBKIT_GLUE_PLUGIN_PLUGIN_LIST_H__
-

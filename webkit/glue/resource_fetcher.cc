@@ -121,4 +121,3 @@ void ResourceFetcherWithTimeout::TimeoutFired(FetchTimer* timer) {
     didFail(NULL, ResourceError());
   }
 }
-

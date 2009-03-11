@@ -66,4 +66,3 @@ NPError PluginArgumentsTest::SetWindow(NPWindow* pNPWindow) {
 }
 
 } // namespace NPAPIClient
-

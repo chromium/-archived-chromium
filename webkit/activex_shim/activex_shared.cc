@@ -226,4 +226,3 @@ bool IsMimeTypeActiveX(const std::string& mimetype) {
 }
 
 }  // namespace activex_shim
-

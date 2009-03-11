@@ -34,4 +34,3 @@ struct PrivateIdentifier {
 NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object>, WebCore::DOMWindow*);
 
 #endif // np_v8object_h
-

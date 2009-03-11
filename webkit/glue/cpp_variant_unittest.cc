@@ -431,4 +431,3 @@ TEST(CppVariantTest, IsTypeFunctionsWork) {
   NPN_ReleaseObject(obj);
   CheckObject(cpp);
 }
-

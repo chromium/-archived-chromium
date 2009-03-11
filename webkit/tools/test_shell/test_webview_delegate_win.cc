@@ -188,4 +188,3 @@ void TestWebViewDelegate::SetAddressBarURL(const GURL& url) {
   SendMessage(shell_->editWnd(), WM_SETTEXT, 0,
               reinterpret_cast<LPARAM>(url_string.c_str()));
 }
-

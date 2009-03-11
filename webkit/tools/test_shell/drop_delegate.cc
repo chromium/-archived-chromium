@@ -49,4 +49,3 @@ DWORD TestDropDelegate::OnDrop(IDataObject* data_object,
   // webkit win port always returns DROPEFFECT_NONE
   return DROPEFFECT_NONE;
 }
-

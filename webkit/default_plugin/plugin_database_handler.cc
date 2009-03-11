@@ -349,4 +349,3 @@ bool PluginDatabaseHandler::ReadPluginInfo(_xmlNode* plugin_node,
 
   return true;
 }
-

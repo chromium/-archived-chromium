@@ -53,4 +53,3 @@ class WebTextInputImpl : public WebTextInput {
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBTEXTINPUT_IMPL_H__
-

@@ -8,4 +8,3 @@ namespace NPAPIClient {
 const char kTestCompleteCookie[]  = "status";
 const char kTestCompleteSuccess[] = "OK";
 }
-

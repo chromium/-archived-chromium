@@ -566,4 +566,3 @@ void EventSendingController::clearKillRing(
     const CppArgumentList& args, CppVariant* result) {
   result->SetNull();
 }
-

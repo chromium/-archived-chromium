@@ -344,4 +344,3 @@ WebActiveXSite* WebActiveXContainer::GetFirstSite() {
 }
 
 }  // namespace activex_shim
-

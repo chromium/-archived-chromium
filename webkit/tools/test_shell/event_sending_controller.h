@@ -111,4 +111,3 @@ class EventSendingController : public CppBoundClass {
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_EVENT_SENDING_CONTROLLER_H_
-

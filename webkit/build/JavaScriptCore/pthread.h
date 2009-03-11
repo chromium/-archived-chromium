@@ -78,4 +78,3 @@ inline int pthread_cond_broadcast(pthread_cond_t *) {
 
 
 #endif  // CHROME_WEBKIT_BUILD_JAVASCRIPTCORE_PTHREAD_H__
-

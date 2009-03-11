@@ -25,5 +25,3 @@ class NPObjectProxyTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_GLUE_PLUGINS_TEST_PLUGIN_NPOBJECT_PROXY_TEST_H__
-
-

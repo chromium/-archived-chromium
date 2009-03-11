@@ -86,4 +86,3 @@ v8::Extension* ProfilerExtension::Get() {
 }
 
 }  // namespace extensions_v8
-

@@ -51,4 +51,3 @@ class MakePlatformKeyboardEvent : public WebCore::PlatformKeyboardEvent {
 };
 
 #endif  // WEBKIT_GLUE_EVENT_CONVERSION_H__
-

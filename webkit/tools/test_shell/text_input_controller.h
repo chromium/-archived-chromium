@@ -47,4 +47,3 @@ class TextInputController : public CppBoundClass {
 };
 
 #endif // WEBKIT_TOOLS_TEST_SHELL_TEXT_INPUT_CONTROLLER_H__
-

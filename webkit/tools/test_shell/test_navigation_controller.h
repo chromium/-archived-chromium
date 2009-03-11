@@ -192,4 +192,3 @@ class TestNavigationController {
 };
 
 #endif // WEBKIT_TOOLS_TEST_SHELL_TEST_NAVIGATION_CONTROLLER_H_
-

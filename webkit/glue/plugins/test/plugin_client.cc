@@ -288,4 +288,3 @@ void* NPP_GetJavaClass(void) {
   return NULL;
 }
 } // extern "C"
-

@@ -28,4 +28,3 @@ int WebErrorImpl::GetErrorCode() const {
 const GURL& WebErrorImpl::GetFailedURL() const {
   return failed_url_;
 }
-

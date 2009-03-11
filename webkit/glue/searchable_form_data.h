@@ -57,4 +57,3 @@ class SearchableFormData {
 };
 
 #endif // WEBKIT_GLUE_SEARCHABLE_FORM_H__
-

@@ -44,4 +44,3 @@
 - (NSInteger)declareType:(NSString *)type owner:(id)newOwner;
 + (void)releaseLocalPasteboards;
 @end
-

@@ -30,4 +30,3 @@ class TestShellRequestContext : public URLRequestContext {
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_REQUEST_CONTEXT_H__
-

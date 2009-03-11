@@ -116,4 +116,3 @@ class ResourceFetcherWithTimeout : public ResourceFetcher {
 };
 
 #endif  // WEBKIT_GLUE_RESOURCE_FETCHER_H__
-

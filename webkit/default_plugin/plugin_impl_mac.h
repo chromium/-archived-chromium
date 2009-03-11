@@ -323,4 +323,3 @@ class PluginInstallerImpl {
 
 
 #endif  // WEBKIT_DEFAULT_PLUGIN_PLUGIN_IMPL_MAC_H_
-

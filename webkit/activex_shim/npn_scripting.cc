@@ -268,4 +268,3 @@ void NPVariantWrap::SetString(const std::wstring& val) {
 }
 
 }  // namespace activex_shim
-

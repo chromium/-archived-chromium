@@ -301,4 +301,3 @@ class IWebBrowser2Impl : public IWebBrowser2 {
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_IWEBBROWSER_IMPL_H__
-

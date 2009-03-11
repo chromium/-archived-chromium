@@ -60,4 +60,3 @@ class WebTextInput {
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBTEXTINPUT_H__
-

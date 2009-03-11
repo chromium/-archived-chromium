@@ -116,4 +116,3 @@ void ExecuteGetJavascriptUrlTest::URLNotify(const char* url, NPReason reason, vo
 }
 
 } // namespace NPAPIClient
-

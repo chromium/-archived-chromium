@@ -87,4 +87,3 @@ TEST(LayoutTestControllerTest, DumpChildFramesAsTextSetAndCleared) {
   controller.Reset();
   EXPECT_FALSE(controller.ShouldDumpChildFramesAsText());
 }
-

@@ -144,4 +144,3 @@ WebCore::IntRect ToIntRect(const gfx::Rect& r) {
 }
 
 }  // namespace webkit_glue
-

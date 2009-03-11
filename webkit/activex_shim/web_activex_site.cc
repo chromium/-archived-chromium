@@ -665,4 +665,3 @@ HRESULT STDMETHODCALLTYPE WebActiveXSite::LoadObject(LPCOLESTR name,
 }
 
 }  // namespace activex_shim
-

@@ -12,4 +12,3 @@ inline int sched_yield() {
 }
 
 #endif  // WEBKIT_BUILD_JAVASCRIPTCORE_SCHED_H__
-

@@ -171,4 +171,3 @@ void PluginInstallDialog::AdjustTextDirectionality(std::wstring* text) const {
     text->append(L"\x202C");
   }
 }
-

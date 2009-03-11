@@ -97,4 +97,3 @@ class MozillaExtensionApi : public nsIServiceManager,
 } // namespace NPAPI
 
 #endif  // WEBKIT_GLUE_PLUGINS_MOZILLA_EXTENSIONS_H_
-

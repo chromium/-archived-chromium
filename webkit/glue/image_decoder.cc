@@ -106,4 +106,3 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) const {
 }
 
 }  // namespace webkit_glue
-

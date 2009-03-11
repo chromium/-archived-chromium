@@ -57,4 +57,3 @@ v8::Extension*  IntervalExtension::Get() {
 }
 
 }  // namespace extensions_v8
-

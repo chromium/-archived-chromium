@@ -46,4 +46,3 @@ NPError NPObjectProxyTest::SetWindow(NPWindow* pNPWindow) {
 }
 
 } // namespace NPAPIClient
-

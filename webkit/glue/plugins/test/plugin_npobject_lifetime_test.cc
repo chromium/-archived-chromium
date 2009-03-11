@@ -159,4 +159,3 @@ void CALLBACK NPObjectDeletePluginInNPN_Evaluate::TimerProc(
 }
 
 } // namespace NPAPIClient
-

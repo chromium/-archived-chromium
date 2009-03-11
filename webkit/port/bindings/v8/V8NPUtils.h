@@ -25,4 +25,3 @@ v8::Handle<v8::Value> convertNPVariantToV8Object(const NPVariant* value, NPObjec
 NPIdentifier getStringIdentifier(v8::Handle<v8::String> str);
 
 #endif // v8_np_utils_h
-

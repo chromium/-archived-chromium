@@ -94,4 +94,3 @@ void CppBindingExample::fallbackMethod(const CppArgumentList& args,
                                        CppVariant* result) {
   printf("Error: unknown JavaScript method invoked.\n");
 }
-

@@ -24,4 +24,3 @@ struct FormData {
 };
 
 #endif  // WEBKIT_GLUE_FORM_DATA_H__
-

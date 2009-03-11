@@ -58,4 +58,3 @@ class PluginHost : public base::RefCounted<PluginHost> {
 } // namespace NPAPI
 
 #endif  // WEBKIT_GLUE_PLUGIN_PLUGIN_HOST_H__
-

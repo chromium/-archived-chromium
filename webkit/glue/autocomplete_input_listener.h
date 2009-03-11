@@ -197,4 +197,3 @@ class AutocompleteBodyListener : public WebCore::EventListener {
 }  // webkit_glue
 
 #endif  // WEBKIT_GLUE_AUTOCOMPLETE_INPUT_LISTENER_H__
-

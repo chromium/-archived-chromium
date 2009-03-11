@@ -61,4 +61,3 @@ class CacheManager {
 };
 
 #endif  // WEBKIT_GLUE_CACHE_MANAGER_H__
-

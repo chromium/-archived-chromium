@@ -40,4 +40,3 @@ TEST_F(IFrameRedirectTest, Test) {
   ASSERT_FALSE(redirects.empty());
   ASSERT_TRUE(redirects[0] == GURL("about:blank"));
 }
-

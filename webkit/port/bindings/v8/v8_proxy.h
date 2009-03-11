@@ -600,4 +600,3 @@ v8::Handle<v8::Value> V8Proxy::ConstructDOMObject(const v8::Arguments& args) {
 }  // namespace WebCore
 
 #endif  // V8_PROXY_H__
-

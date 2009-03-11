@@ -68,4 +68,3 @@ void DebuggerBridge::Command(const std::wstring& cmd) {
                          cmd.length());
 #endif
 }
-

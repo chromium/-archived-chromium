@@ -116,4 +116,3 @@ bool PasswordAutocompleteListener::TryToMatch(const std::wstring& input,
 }
 
 }  // webkit_glue
-

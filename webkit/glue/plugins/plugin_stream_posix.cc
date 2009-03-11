@@ -74,4 +74,3 @@ bool PluginStream::TempFileIsValid() {
 }
 
 }  // namespace NPAPI
-

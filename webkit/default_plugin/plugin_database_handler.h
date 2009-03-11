@@ -154,4 +154,3 @@ class PluginDatabaseHandler {
 };
 
 #endif  // WEBKIT_DEFAULT_PLUGIN_PLUGIN_DATABASE_DOWNLOAD_HANDLER_H
-

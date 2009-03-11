@@ -69,4 +69,3 @@ class DOMWrapperMap : public WeakReferenceMap<KeyType, v8::Object> {
 };
 
 #endif  // BINDINGS_V8_DOM_WRAPPER_MAP
-

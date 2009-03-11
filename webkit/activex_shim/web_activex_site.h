@@ -223,4 +223,3 @@ class WebActiveXSite : public MinimumIDispatchImpl,
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_WEB_ACTIVEX_SITE_H__
-

@@ -16,4 +16,3 @@ NPError NewFailsTest::New(uint16 mode, int16 argc, const char* argn[],
 }
 
 } // namespace NPAPIClient
-

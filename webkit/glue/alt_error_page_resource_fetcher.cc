@@ -58,4 +58,3 @@ void AltErrorPageResourceFetcher::OnURLFetchComplete(
                                       web_error_, std::string(), true);
   }
 }
-

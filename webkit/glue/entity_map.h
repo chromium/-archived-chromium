@@ -27,4 +27,3 @@ class EntityMap {
 }  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_ENTITY_MAP_H__
-

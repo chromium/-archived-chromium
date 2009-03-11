@@ -251,4 +251,3 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBFRAMELOADERCLIENT_IMPL_H__
-

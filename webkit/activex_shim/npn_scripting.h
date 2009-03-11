@@ -93,4 +93,3 @@ struct NPVariantWrap : public NPVariant {
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_NPN_SCRIPTING_H__
-

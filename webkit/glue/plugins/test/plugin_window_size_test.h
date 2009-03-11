@@ -22,5 +22,3 @@ class PluginWindowSizeTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_GLUE_PLUGINS_TEST_PLUGIN_WINDOW_SIZE_TEST_H
-
-

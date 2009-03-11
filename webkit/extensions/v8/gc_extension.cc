@@ -23,4 +23,3 @@ v8::Extension* GCExtension::Get() {
 }
 
 }  // namespace extensions_v8
-

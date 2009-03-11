@@ -28,4 +28,3 @@ class V8NodeFilterCondition : public NodeFilterCondition {
 
 }  // namesapce WebCore
 #endif  // V8_NODEFILTER_H__
-

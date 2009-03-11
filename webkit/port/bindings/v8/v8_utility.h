@@ -56,4 +56,3 @@ v8::Local<v8::Object> SafeAllocation::NewInstance(
 }  // namespace WebCore
 
 #endif   // V8_UTILITY_H__
-

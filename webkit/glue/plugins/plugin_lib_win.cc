@@ -73,4 +73,3 @@ bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
 }
 
 }  // namespace NPAPI
-

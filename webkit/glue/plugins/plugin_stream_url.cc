@@ -86,4 +86,3 @@ void PluginStreamUrl::CancelRequest() {
 }
 
 } // namespace NPAPI
-

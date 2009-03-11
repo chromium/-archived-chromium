@@ -372,4 +372,3 @@ class PluginInstallerImpl : public CWindowImpl<PluginInstallerImpl> {
 
 
 #endif  // WEBKIT_DEFAULT_PLUGIN_PLUGIN_IMPL_WIN_H_
-

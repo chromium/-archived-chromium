@@ -28,4 +28,3 @@ struct FindInPageRequest {
 };
 
 #endif  // WEBKIT_GLUE_FIND_IN_PAGE_REQUEST_H__
-

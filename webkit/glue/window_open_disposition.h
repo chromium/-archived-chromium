@@ -18,4 +18,3 @@ enum WindowOpenDisposition {
 };
 
 #endif  // WEBKIT_GLUE_WINDOW_OPEN_DISPOSITION_H__
-

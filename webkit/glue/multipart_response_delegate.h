@@ -128,4 +128,3 @@ class MultipartResponseDelegate {
   // processing AddData requests.
   bool stop_sending_;
 };
-

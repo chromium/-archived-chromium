@@ -54,4 +54,3 @@ class FeedClientProxy : public ResourceHandleClient {
 }  // namespace WebCore
 
 #endif  // WEBKIT_GLUE_FEED_PREVIEW_H__
-

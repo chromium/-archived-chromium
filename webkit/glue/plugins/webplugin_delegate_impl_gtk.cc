@@ -629,5 +629,3 @@ void WebPluginDelegateImpl::URLRequestRouted(const std::string&url,
     instance()->SetURLLoadData(GURL(url.c_str()), notify_data);
   }
 }
-
-

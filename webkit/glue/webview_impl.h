@@ -325,4 +325,3 @@ private:
 };
 
 #endif  // WEBKIT_GLUE_WEBVIEW_IMPL_H__
-

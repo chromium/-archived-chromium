@@ -43,5 +43,3 @@ class PluginClient {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_PORT_PLUGINS_TEST_PLUGIN_CLIENT_H__
-
-

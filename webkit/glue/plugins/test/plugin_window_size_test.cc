@@ -40,4 +40,3 @@ NPError PluginWindowSizeTest::SetWindow(NPWindow* pNPWindow) {
 }
 
 } // namespace NPAPIClient
-

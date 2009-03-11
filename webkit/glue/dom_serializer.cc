@@ -606,4 +606,3 @@ bool DomSerializer::SerializeDom() {
 }
 
 }  // namespace webkit_glue
-

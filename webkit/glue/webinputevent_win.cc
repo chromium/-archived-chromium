@@ -338,4 +338,3 @@ WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
   if (IsKeyPad(wparam, lparam))
     modifiers |= IS_KEYPAD;
 }
-

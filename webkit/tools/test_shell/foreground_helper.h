@@ -84,4 +84,3 @@ END_MSG_MAP()
     return 1;
   }
 };
-

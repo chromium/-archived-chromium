@@ -34,4 +34,3 @@ void HistoryItemToVersionedString(
 }
 
 #endif  // #ifndef WEBKIT_GLUE_GLUE_SERIALIZE_H__
-

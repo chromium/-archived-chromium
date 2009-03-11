@@ -39,4 +39,3 @@ class TestDropDelegate : public BaseDropTarget {
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_DROP_DELEGATE_H__
-

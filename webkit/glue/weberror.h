@@ -17,4 +17,3 @@ class WebError {
 };
 
 #endif  // WEBKIT_GLUE_WEBERROR_H__
-

@@ -64,4 +64,3 @@ TEST_F(ContextMenuCapturing, ContextMenuCapturing) {
 
   EXPECT_EQ(1U, test_delegate->captured_context_menu_events().size());
 }
-

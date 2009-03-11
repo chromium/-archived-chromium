@@ -468,4 +468,3 @@ wchar_t* CoTaskMemAllocString(const std::wstring& s) {
 }
 
 }  // namespace activex_shim
-

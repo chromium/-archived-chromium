@@ -926,4 +926,3 @@ void NPN_PluginThreadAsyncCall(NPP id,
 }
 
 } // extern "C"
-

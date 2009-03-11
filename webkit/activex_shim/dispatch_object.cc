@@ -288,4 +288,3 @@ bool NPRemoveProperty(NPObject* obj, NPIdentifier name) {
 }
 
 }  // namespace activex_shim
-

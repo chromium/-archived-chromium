@@ -206,4 +206,3 @@ void WebRequestImpl::SetUploadData(const net::UploadData& data)
 WebRequest* WebRequest::Create(const GURL& url) {
   return new WebRequestImpl(url);
 }
-

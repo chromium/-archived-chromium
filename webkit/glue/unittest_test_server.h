@@ -56,4 +56,3 @@ class UnittestTestServer : public HTTPTestServer {
 };
 
 #endif  // WEBKIT_GLUE_UNITTEST_TEST_SERVER_H__
-

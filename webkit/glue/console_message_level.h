@@ -13,4 +13,3 @@ enum ConsoleMessageLevel {
 };
 
 #endif  // WEBKIT_GLUE_CONSOLE_MESSAGE_LEVEL_H__
-

@@ -35,5 +35,3 @@ class ExecuteGetJavascriptUrlTest : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_GLUE_PLUGINS_TEST_PLUGIN_GET_JAVASCRIPT_URL_H
-
-

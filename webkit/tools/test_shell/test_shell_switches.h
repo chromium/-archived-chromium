@@ -35,4 +35,3 @@ extern const wchar_t kProfiler[];
 }  // namespace test_shell
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_SWITCHES_H__
-

@@ -50,4 +50,3 @@ class DomSerializerDelegate {
 }  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_DOM_SERIALIZER_DELEGATE_H__
-

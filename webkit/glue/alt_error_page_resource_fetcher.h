@@ -49,4 +49,3 @@ class AltErrorPageResourceFetcher : public ResourceFetcher::Delegate {
 };
 
 #endif  // WEBKIT_GLUE_ALT_ERROR_PAGE_RESOURCE_FETCHER_H__
-

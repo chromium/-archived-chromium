@@ -80,4 +80,3 @@ void FeedClientProxy::didFail(ResourceHandle* handle,
 }
 
 }  // namespace WebCore
-

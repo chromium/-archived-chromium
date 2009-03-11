@@ -20,4 +20,3 @@ class GCExtension {
 }  // namespace extensions_v8
 
 #endif  // WEBKIT_EXTENSIONS_V8_GC_EXTENSION_H_
-

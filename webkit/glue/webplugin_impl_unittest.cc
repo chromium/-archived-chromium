@@ -202,4 +202,3 @@ TEST(WebPluginImplTest, PostParserBodyWithBinaryData) {
   EXPECT_EQ(0xFF, (unsigned char)expected_data[2]);
   EXPECT_EQ(0xFF, (unsigned char)expected_data[3]);
 }
-

@@ -34,4 +34,3 @@ typedef struct {
 
 NPClass *getTestClass(void);
 int getTestObjectCount(void);
-

@@ -28,4 +28,3 @@ v8::Extension* PlaybackExtension::Get() {
 }
 
 }  // namespace extensions_v8
-

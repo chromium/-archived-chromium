@@ -280,4 +280,3 @@ typedef NPError (API_CALL * NP_ShutdownFunc)(void);
 #endif
 
 #endif // WEBKIT_GLUE_PLUGIN_NPHOSTAPI_H__
-

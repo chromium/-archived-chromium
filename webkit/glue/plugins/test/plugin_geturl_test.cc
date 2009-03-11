@@ -234,4 +234,3 @@ void PluginGetURLTest::URLNotify(const char* url, NPReason reason, void* data) {
 }
 
 } // namespace NPAPIClient
-

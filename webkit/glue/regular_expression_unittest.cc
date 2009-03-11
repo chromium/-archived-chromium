@@ -93,4 +93,3 @@ TEST(RegexTest, Unicode) {
     EXPECT_EQ(matches2[i].length, regex.matchedLength());
   }
 }
-

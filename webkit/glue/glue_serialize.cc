@@ -361,4 +361,3 @@ std::string CreateHistoryStateForURL(const GURL& url) {
 }
 
 }  // namespace webkit_glue
-

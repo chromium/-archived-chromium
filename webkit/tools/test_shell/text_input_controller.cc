@@ -222,4 +222,3 @@ void TextInputController::makeAttributedString(
     text_input->MakeAttributedString(args[0].ToString());
   }
 }
-

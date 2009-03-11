@@ -52,4 +52,3 @@ TEST_F(WebFrameTest, GetContentAsPlainText) {
   frame->GetContentAsPlainText(12, &text);
   EXPECT_EQ("Hello world", WideToUTF8(text));
 }
-

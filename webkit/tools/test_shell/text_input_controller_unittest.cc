@@ -55,4 +55,3 @@ TEST(TextInputControllerTest, MethodMapIsInitialized) {
   EXPECT_FALSE(text_input_controller.IsMethodRegistered(
       "momeRathsOutgrabe"));
 }
-

@@ -28,4 +28,3 @@ void WebDropData::PopulateWebDropData(IDataObject* data_object,
   ClipboardUtil::GetFileContents(data_object,
       &drop_data->file_description_filename, &drop_data->file_contents);
 }
-

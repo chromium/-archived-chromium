@@ -68,5 +68,3 @@ class NPObjectDeletePluginInNPN_Evaluate : public PluginTest {
 } // namespace NPAPIClient
 
 #endif  // WEBKIT_GLUE_PLUGINS_TEST_PLUGIN_NPOBJECT_LIFETIME_TEST_H__
-
-
