@@ -15,19 +15,9 @@
 }
 
 - (void)drawRect:(NSRect)rect {
-  rect = [self bounds];
-  BOOL isKey = [[self window] isKeyWindow];
-  if (isKey) {
-    NSGradient *gradient =
-          [[[NSGradient alloc] initWithStartingColor:
-              [NSColor colorWithCalibratedWhite:0.0 alpha:0.0]
-                                        endingColor:
-              [NSColor colorWithCalibratedWhite:0.0 alpha:0.05]] autorelease];
-    [gradient drawInRect:[self bounds] angle:270.0];
-  }
-
+  NSRect boundsRect = [self bounds];
   NSRect borderRect, contentRect;
-  NSDivideRect(rect, &borderRect, &contentRect, 1, NSMinYEdge);
+  NSDivideRect(boundsRect, &borderRect, &contentRect, 1, NSMinYEdge);
   [[NSColor colorWithCalibratedWhite:0.0 alpha:0.2] set];
 
   NSRectFillUsingOperation(borderRect, NSCompositeSourceOver);
