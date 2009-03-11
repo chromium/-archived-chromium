@@ -1199,7 +1199,7 @@ MAC : LayoutTests/fast/events/init-events.html = FAIL
 // maybe we just need to update to this order?
 MAC : LayoutTests/fast/events/drag-in-frames.html = FAIL
 
-// These two have a different object type in the dom dump. Plugin-related. 
+// These two have a different object type in the dom dump. Plugin-related.
 // Ignored on Win/Linux because they rely on QT to provide a TIFF decoder.
 MAC : LayoutTests/fast/images/embed-image.html = FAIL
 MAC : LayoutTests/fast/images/object-image.html = FAIL
@@ -1348,7 +1348,7 @@ LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FA
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 
 // Failed with r6844 (dglazkov)
-LayoutTests/http/tests/navigation/error404-goback.html = FAIL
+LINUX MAC : LayoutTests/http/tests/navigation/error404-goback.html = FAIL
 
 // Passes when run by itself.  Fails on the buildbot.
 // For Windows, see bug 8291.
@@ -1726,7 +1726,7 @@ DEFER WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL P
 // Timing out starting 03/10/09
 MAC : LayoutTests/fast/dom/navigator-detached-no-crash.html = PASS TIMEOUT
 
-// Added 3/10/09. 
+// Added 3/10/09.
 DEFER WIN : LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL PASS
 DEFER WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
 DEFER WIN : LayoutTests/transitions/transition-end-event-window.html = FAIL PASS
@@ -1749,7 +1749,7 @@ SKIP DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = F
 // a revert.
 WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
 
-DEFER WIN : LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL	 
+DEFER WIN : LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL
 DEFER WIN : LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL
 
 // Started failing at r11441:11442, which has no code changes!
