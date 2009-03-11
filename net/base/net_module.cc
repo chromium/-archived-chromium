@@ -15,10 +15,7 @@ void NetModule::SetResourceProvider(ResourceProvider func) {
 
 // static
 StringPiece NetModule::GetResource(int key) {
-  // avoid thread safety issues by copying provider address to a local var
-  ResourceProvider func = resource_provider;
-  return func ? func(key) : StringPiece();
+  return resource_provider ? resource_provider(key) : StringPiece();
 }
 
 }  // namespace net
-
