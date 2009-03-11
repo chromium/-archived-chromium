@@ -525,7 +525,8 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
+// Our gradients are wrong here.
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 
