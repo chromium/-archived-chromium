@@ -1773,10 +1773,14 @@ MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH
 LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 
 // Regressions from merge 41559:41588
-WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
-WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
+MAC LINUX WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
+LINUX WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 WIN : chrome/fast/dom/java-applet-calls.html = FAIL
-WIN : LayoutTests/editing/execCommand/selectAll.html = FAIL
+LINUX WIN : LayoutTests/editing/execCommand/selectAll.html = FAIL
 WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 WIN : LayoutTests/editing/selection/select-all-002.html = FAIL
-WIN : LayoutTests/fast/events/onload-single-line-comment.html = TIMEOUT
+MAC LINUX WIN : LayoutTests/fast/events/onload-single-line-comment.html = TIMEOUT
+LINUX : LayoutTests/fast/text/trailing-white-space.html = FAIL
+LINUX : LayoutTests/fast/text/trailing-white-space-2.html = FAIL
+MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
+MAC : chrome/fast/forms/basic-textareas.html = FAIL
