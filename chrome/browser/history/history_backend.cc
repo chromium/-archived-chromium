@@ -350,6 +350,11 @@ void HistoryBackend::AddPage(scoped_refptr<HistoryAddPageArgs> request) {
     last_recorded_time_ = last_requested_time_;
   }
 
+  // If the user is adding older history, we need to make sure our times
+  // are correct.
+  if (request->time < first_recorded_time_)
+    first_recorded_time_ = request->time;
+
   if (request->redirects.size() <= 1) {
     // The single entry is both a chain start and end.
     PageTransition::Type t = request->transition |
@@ -564,6 +569,9 @@ void HistoryBackend::InitImpl() {
     archived_db_->BeginTransaction();
   if (text_database_.get())
     text_database_->BeginTransaction();
+
+  // Get the first item in our database.
+  db_->GetStartDate(&first_recorded_time_);
 
   // Start expiring old stuff.
   expirer_.StartArchivingOldStuff(TimeDelta::FromDays(kArchiveDaysThreshold));
@@ -1042,6 +1050,9 @@ void HistoryBackend::QueryHistoryBasic(URLDatabase* url_db,
     // snippets and stuff don't apply to basic querying.
     result->AppendURLBySwapping(&url_result);
   }
+
+  if (options.begin_time <= first_recorded_time_)
+    result->set_reached_beginning(true);
 }
 
 void HistoryBackend::QueryHistoryFTS(const std::wstring& text_query,
@@ -1092,6 +1103,9 @@ void HistoryBackend::QueryHistoryFTS(const std::wstring& text_query,
     // result of the swap.
     result->AppendURLBySwapping(&url_result);
   }
+
+  if (options.begin_time <= first_recorded_time_)
+    result->set_reached_beginning(true);
 }
 
 // Frontend to GetMostRecentRedirectsFrom from the history thread.
@@ -1581,6 +1595,7 @@ void HistoryBackend::ReleaseDBTasks() {
 void HistoryBackend::DeleteURL(const GURL& url) {
   expirer_.DeleteURL(url);
 
+  db_->GetStartDate(&first_recorded_time_);
   // Force a commit, if the user is deleting something for privacy reasons, we
   // want to get it on disk ASAP.
   Commit();
@@ -1607,6 +1622,9 @@ void HistoryBackend::ExpireHistoryBetween(
       Commit();
     }
   }
+
+  if (begin_time <= first_recorded_time_)
+    db_->GetStartDate(&first_recorded_time_);
 
   request->ForwardResult(ExpireHistoryRequest::TupleType());
 
@@ -1729,6 +1747,8 @@ void HistoryBackend::DeleteAllHistory() {
     }
   }
 
+  db_->GetStartDate(&first_recorded_time_);
+
   // Send out the notfication that history is cleared. The in-memory datdabase
   // will pick this up and clear itself.
   URLsDeletedDetails* details = new URLsDeletedDetails;
@@ -1822,6 +1842,8 @@ bool HistoryBackend::ClearAllMainHistory(
   db_->CommitTransaction();
   db_->Vacuum();
   db_->BeginTransaction();
+  db_->GetStartDate(&first_recorded_time_);
+
   return true;
 }
 

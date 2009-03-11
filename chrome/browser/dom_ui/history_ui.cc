@@ -76,6 +76,10 @@ void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"deletedaywarning",
       l10n_util::GetString(IDS_HISTORY_DELETE_PRIOR_VISITS_WARNING));
 
+  localized_strings.SetString(L"textdirection",
+      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+       L"rtl" : L"ltr");
+
   static const StringPiece history_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           IDR_HISTORY_HTML));
@@ -101,9 +105,9 @@ BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
   dom_ui_->RegisterMessageCallback("getHistory",
       NewCallback(this, &BrowsingHistoryHandler::HandleGetHistory));
   dom_ui_->RegisterMessageCallback("searchHistory",
-    NewCallback(this, &BrowsingHistoryHandler::HandleSearchHistory));
+      NewCallback(this, &BrowsingHistoryHandler::HandleSearchHistory));
   dom_ui_->RegisterMessageCallback("deleteDay",
-    NewCallback(this, &BrowsingHistoryHandler::HandleDeleteDay));
+      NewCallback(this, &BrowsingHistoryHandler::HandleDeleteDay));
 
   // Create our favicon data source.
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
@@ -142,6 +146,9 @@ void BrowsingHistoryHandler::HandleGetHistory(const Value* value) {
   options.begin_time -= TimeDelta::FromDays(day);
   options.end_time = Time::Now().LocalMidnight();
   options.end_time -= TimeDelta::FromDays(day - 1);
+
+  // As we're querying per-day, we can turn entry repeats off.
+  options.most_recent_visit_only = true;
 
   // Need to remember the query string for our results.
   search_text_ = std::wstring();
@@ -259,8 +266,11 @@ void BrowsingHistoryHandler::QueryComplete(
     results_value.Append(page_value);
   }
 
-  StringValue temp(search_text_);
-  dom_ui_->CallJavascriptFunction(L"historyResult", temp, results_value);
+  DictionaryValue info_value;
+  info_value.SetString(L"term", search_text_);
+  info_value.SetBoolean(L"finished", results->reached_beginning());
+
+  dom_ui_->CallJavascriptFunction(L"historyResult", info_value, results_value);
 }
 
 void BrowsingHistoryHandler::ExtractSearchHistoryArguments(const Value* value,
@@ -342,8 +352,8 @@ void BrowsingHistoryHandler::Observe(NotificationType type,
     return;
   }
 
-  // Some URLs were deleted from history.  Reload the most visited list.
-  HandleGetHistory(NULL);
+  // Some URLs were deleted from history. Reload the list.
+  dom_ui_->CallJavascriptFunction(L"historyDeleted");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -377,7 +387,7 @@ GURL HistoryUI::GetBaseURL() {
 
 // static
 const GURL HistoryUI::GetHistoryURLWithSearchText(
-  const std::wstring& text) {
-    return GURL(GetBaseURL().spec() + "#q=" +
+    const std::wstring& text) {
+  return GURL(GetBaseURL().spec() + "#q=" +
       EscapeQueryParamValue(WideToUTF8(text)));
 }

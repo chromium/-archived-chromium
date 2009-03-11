@@ -377,6 +377,9 @@ class QueryResults {
   void set_first_time_searched(base::Time t) { first_time_searched_ = t; }
   // Note: If you need end_time_searched, it can be added.
 
+  void set_reached_beginning(bool reached) { reached_beginning_ = reached; }
+  bool reached_beginning() { return reached_beginning_; }
+
   size_t size() const { return results_.size(); }
 
   URLResult& operator[](size_t i) { return *results_[i]; }
@@ -430,6 +433,9 @@ class QueryResults {
   void AdjustResultMap(size_t begin, size_t end, ptrdiff_t delta);
 
   base::Time first_time_searched_;
+
+  // Whether the query reaches the beginning of the database.
+  bool reached_beginning_;
 
   // The ordered list of results. The pointers inside this are owned by this
   // QueryResults object.

@@ -199,6 +199,32 @@ TEST_F(HistoryQueryTest, BasicDupes) {
   EXPECT_TRUE(NthResultIs(results, 3, 1));
 }
 
+TEST_F(HistoryQueryTest, ReachedBeginning) {
+  ASSERT_TRUE(history_.get());
+
+  QueryOptions options;
+  QueryResults results;
+
+  QueryHistory(std::wstring(), options, &results);
+  EXPECT_TRUE(results.reached_beginning());
+
+  options.begin_time = test_entries[1].time;
+  QueryHistory(std::wstring(), options, &results);
+  EXPECT_FALSE(results.reached_beginning());
+
+  options.begin_time = test_entries[0].time + TimeDelta::FromMicroseconds(1);
+  QueryHistory(std::wstring(), options, &results);
+  EXPECT_FALSE(results.reached_beginning());
+
+  options.begin_time = test_entries[0].time;
+  QueryHistory(std::wstring(), options, &results);
+  EXPECT_TRUE(results.reached_beginning());
+
+  options.begin_time = test_entries[0].time - TimeDelta::FromMicroseconds(1);
+  QueryHistory(std::wstring(), options, &results);
+  EXPECT_TRUE(results.reached_beginning());
+}
+
 // This does most of the same tests above, but searches for a FTS string that
 // will match the pages in question. This will trigger a different code path.
 TEST_F(HistoryQueryTest, FTS) {

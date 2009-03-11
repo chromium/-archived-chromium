@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html id="t">
+<html id="t" jsvalues="dir:textdirection;">
 <head>
 <meta charset="utf-8">
 <title jscontent="title"></title>
@@ -259,7 +259,7 @@ HistoryModel.prototype.getSearchText = function() {
 HistoryModel.prototype.requestPage = function(page) {
   this.requestedPage_ = page;
   this.changed = true;
-  this.updateSearch_();
+  this.updateSearch_(false);
 }
 
 /**
@@ -267,9 +267,9 @@ HistoryModel.prototype.requestPage = function(page) {
  * @param {String} term The search term that the results are for.
  * @param {Array} results A list of results
  */
-HistoryModel.prototype.addResults = function(term, results) {
+HistoryModel.prototype.addResults = function(info, results) {
   this.inFlight_ = false;
-  if (term != this.searchText_) {
+  if (info.term != this.searchText_) {
     // If our results aren't for our current search term, they're rubbish.
     return;
   }
@@ -302,7 +302,7 @@ HistoryModel.prototype.addResults = function(term, results) {
   if (results.length)
     this.changed = true;
 
-  this.updateSearch_();
+  this.updateSearch_(info.finished);
 }
 
 /**
@@ -354,8 +354,9 @@ HistoryModel.prototype.clearModel_ = function() {
  * page. If we think we can fill the page, call the view and let it know
  * we're ready to show something.
  */
-HistoryModel.prototype.updateSearch_ = function() {
-  if (this.searchText_ && this.searchDepth_ >= MAX_SEARCH_DEPTH_MONTHS) {
+HistoryModel.prototype.updateSearch_ = function(finished) {
+  if ((this.searchText_ && this.searchDepth_ >= MAX_SEARCH_DEPTH_MONTHS) ||
+      finished) {
     // We have maxed out. There will be no more data.
     this.complete_ = true;
     this.view_.onModelReady();
@@ -761,15 +762,15 @@ function deleteNextInQueue() {
 /**
  * Our history system calls this function with results from searches.
  */
-function historyResult(term, results) {
-  historyModel.addResults(term, results);
+function historyResult(info, results) {
+  historyModel.addResults(info, results);
 }
 
 /**
  * Our history system calls this function when a deletion has finished.
  */
 function deleteComplete() {
-  historyView.reload();
+  window.console.log("Delete complete");
   deleteInFlight = false;
   if (deleteQueue.length > 1) {
     deleteQueue = deleteQueue.slice(1, deleteQueue.length);
@@ -782,9 +783,19 @@ function deleteComplete() {
  * another delete is in-progress).
  */
 function deleteFailed() {
+  window.console.log("Delete failed");
   // The deletion failed - try again later.
   deleteInFlight = false;
   setTimeout(deleteNextInQueue, 500);
+}
+
+/**
+ * We're called when something is deleted (either by us or by someone
+ * else).
+ */
+function historyDeleted() {
+  window.console.log("History deleted");
+  historyView.reload();
 }
 </script>
 <style type="text/css">

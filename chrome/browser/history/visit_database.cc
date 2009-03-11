@@ -368,4 +368,16 @@ bool VisitDatabase::GetVisitCountToHost(const GURL& url,
   return true;
 }
 
+bool VisitDatabase::GetStartDate(Time* first_visit) {
+  SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
+      "SELECT MIN(visit_time) FROM visits WHERE visit_time != 0");
+  if (!statement.is_valid() || statement->step() != SQLITE_ROW || 
+      statement->column_int64(0) == 0) {
+    *first_visit = Time::Now();
+    return false;
+  }
+  *first_visit = Time::FromInternalValue(statement->column_int64(0));
+  return true;
+}
+
 }  // namespace history

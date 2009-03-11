@@ -144,7 +144,6 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
 
   void GetVisitCountToHost(scoped_refptr<GetVisitCountToHostRequest> request,
                            const GURL& url);
-
   // Computes the most recent URL(s) that the given canonical URL has
   // redirected to and returns true on success. There may be more than one
   // redirect in a row, so this function will fill the given array with the
@@ -460,6 +459,9 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // by 1 us between them so it's more likely to be unique in the database.
   // This keeps track of that higher-resolution timestamp.
   base::Time last_recorded_time_;
+
+  // Timestamp of the first entry in our database.
+  base::Time first_recorded_time_;
 
   // When non-NULL, this is the task that should be invoked on
   MessageLoop* backend_destroy_message_loop_;

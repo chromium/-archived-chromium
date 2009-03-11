@@ -246,7 +246,7 @@ bool DOMUIContents::InitCurrentUI(bool reload) {
   if (url.is_empty() || !url.is_valid())
     return false;
 
-  if (reload || url != current_url_) {
+  if (reload || url.host() != current_url_.host()) {
     // Shut down our existing DOMUI.
     delete current_ui_;
     current_ui_ = NULL;

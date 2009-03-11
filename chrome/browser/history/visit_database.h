@@ -119,6 +119,9 @@ class VisitDatabase {
   bool GetVisitCountToHost(const GURL& url, int* count,
                            base::Time* first_visit);
 
+  // Get the time of the first item in our database.
+  bool GetStartDate(base::Time* first_visit);
+
  protected:
   // Returns the database and statement cache for the functions in this
   // interface. The decendent of this class implements these functions to

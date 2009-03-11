@@ -74,7 +74,7 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
   scoped_ptr<BrowsingDataRemover> remover_;
 
   // Our consumer for the history service.
-  CancelableRequestConsumerTSimple<PageUsageData*> cancelable_consumer_;
+  CancelableRequestConsumerT<int, 0> cancelable_consumer_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowsingHistoryHandler);
 };

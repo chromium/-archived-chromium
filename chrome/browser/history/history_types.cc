@@ -92,7 +92,7 @@ void URLResult::Swap(URLResult* other) {
 
 // QueryResults ----------------------------------------------------------------
 
-QueryResults::QueryResults() {
+QueryResults::QueryResults() : reached_beginning_(false) {
 }
 
 QueryResults::~QueryResults() {
@@ -119,6 +119,7 @@ const size_t* QueryResults::MatchesForURL(const GURL& url,
 
 void QueryResults::Swap(QueryResults* other) {
   std::swap(first_time_searched_, other->first_time_searched_);
+  std::swap(reached_beginning_, other->reached_beginning_);
   results_.swap(other->results_);
   url_to_results_.swap(other->url_to_results_);
 }
@@ -141,6 +142,9 @@ void QueryResults::AppendResultsBySwapping(QueryResults* other,
 
   if (first_time_searched_ > other->first_time_searched_)
     std::swap(first_time_searched_, other->first_time_searched_);
+
+  if (reached_beginning_ != other->reached_beginning_)
+    std::swap(reached_beginning_, other->reached_beginning_);
 
   for (size_t i = 0; i < other->results_.size(); i++) {
     // Just transfer pointer ownership.
