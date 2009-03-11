@@ -27,4 +27,3 @@ class Sid {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SID_H_
-

@@ -112,4 +112,3 @@ DWORD SyncPolicy::OpenEventAction(EvalResult eval_result,
 }
 
 }  // namespace sandbox
-

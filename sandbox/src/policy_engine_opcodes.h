@@ -378,4 +378,3 @@ class OpcodeFactory {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_POLICY_ENGINE_OPCODES_H__
-

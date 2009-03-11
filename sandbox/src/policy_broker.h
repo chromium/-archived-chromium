@@ -48,4 +48,3 @@ bool SetupNtdllImports(TargetProcess *child);
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_POLICY_BROKER_H__
-

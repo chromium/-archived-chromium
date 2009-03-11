@@ -541,4 +541,3 @@ PVOID PEImageAsData::RVAToAddr(DWORD rva) const {
 }
 
 }  // namespace sandbox
-

@@ -33,4 +33,3 @@ SANDBOX_INTERCEPT NTSTATUS WINAPI TargetNtUnmapViewOfSection(
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_TARGET_INTERCEPTIONS_H__
-

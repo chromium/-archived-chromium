@@ -39,4 +39,3 @@ NTSTATUS WINAPI TargetEnd();
 }  // namespace sandbox
 
 #endif  // SANDBOX_WOW_HELPER_TARGET_CODE_H__
-

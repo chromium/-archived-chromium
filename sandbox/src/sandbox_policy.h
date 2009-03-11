@@ -164,4 +164,3 @@ class TargetPolicy {
 
 
 #endif  // SANDBOX_SRC_SANDBOX_POLICY_H_
-

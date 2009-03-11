@@ -123,4 +123,3 @@ int wWinMain(HINSTANCE, HINSTANCE, wchar_t* command_line, int) {
   const size_t kPageSize = 4096;
   return sandbox::PatchNtdll(child, thunk, kPageSize);
 }
-

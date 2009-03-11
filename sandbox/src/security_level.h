@@ -124,4 +124,3 @@ enum JobLevel {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_RESTRICTED_SECURITY_LEVEL_H__
-

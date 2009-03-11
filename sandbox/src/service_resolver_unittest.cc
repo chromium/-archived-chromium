@@ -150,4 +150,3 @@ TEST(ServiceResolverTest, PatchesPatchedServices) {
 }
 
 }  // namespace
-

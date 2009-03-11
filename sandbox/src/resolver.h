@@ -100,4 +100,3 @@ class ResolverThunk {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_RESOLVER_H__
-

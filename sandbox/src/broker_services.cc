@@ -302,4 +302,3 @@ ResultCode BrokerServicesBase::WaitForAllTargets() {
 }
 
 }  // namespace sandbox
-

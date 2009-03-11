@@ -116,4 +116,3 @@ class Win2kResolverThunk : public ServiceResolverThunk {
 
 
 #endif  // SANDBOX_SRC_SERVICE_RESOLVER_H__
-

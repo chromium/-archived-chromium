@@ -142,4 +142,3 @@ TEST(SyncPolicyTest, TestEventReadOnly) {
 }
 
 }  // namespace sandbox
-

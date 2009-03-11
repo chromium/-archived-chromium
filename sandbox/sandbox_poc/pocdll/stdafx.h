@@ -10,4 +10,3 @@
 #include <windows.h>
 
 #endif  // SANDBOX_SANDBOX_POC_POCDLL_STDAFX_H__
-

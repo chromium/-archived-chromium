@@ -125,4 +125,3 @@ NTSTATUS WINAPI TargetNtOpenThreadTokenEx(
 }
 
 }  // namespace sandbox
-

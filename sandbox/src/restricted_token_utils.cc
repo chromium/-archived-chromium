@@ -343,4 +343,3 @@ DWORD SetProcessIntegrityLevel(IntegrityLevel integrity_level) {
 
 
 }  // namespace sandbox
-

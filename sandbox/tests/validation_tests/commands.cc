@@ -252,4 +252,3 @@ int TestSwitchDesktop() {
 }
 
 }  // namespace sandbox
-

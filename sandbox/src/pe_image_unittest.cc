@@ -199,4 +199,3 @@ TEST(PEImageTest, RetrievesExports) {
 
   FreeLibrary(module);
 }
-

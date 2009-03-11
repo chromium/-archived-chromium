@@ -248,5 +248,3 @@ DWORD ProcessPolicy::CreateProcessWAction(EvalResult eval_result,
 }
 
 }  // namespace sandbox
-
-

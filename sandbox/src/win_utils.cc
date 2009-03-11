@@ -214,4 +214,3 @@ void ResolveNTFunctionPtr(const char* name, void* ptr) {
   (*function_map)[name] = *function_ptr;
   DCHECK(*function_ptr);
 }
-

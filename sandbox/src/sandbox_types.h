@@ -72,4 +72,3 @@ enum InterceptionType {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SANDBOX_TYPES_H_
-

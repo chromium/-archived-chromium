@@ -113,4 +113,3 @@ TEST(ValidationSuite, TestThread) {
 }
 
 }  // namespace sandbox
-

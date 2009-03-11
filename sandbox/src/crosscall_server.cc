@@ -260,4 +260,3 @@ Dispatcher* Dispatcher::OnMessageReady(IPCParams* ipc,
 }
 
 }  // namespace sandbox
-

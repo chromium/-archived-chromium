@@ -641,4 +641,3 @@ TEST(FilePolicyTest, TestReparsePoint) {
 }
 
 }  // namespace sandbox
-

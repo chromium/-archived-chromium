@@ -275,4 +275,3 @@ COMPILE_ASSERT(sizeof(ActualCallParams<3, 1024>) == 1024, bad_size_buffer);
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_CROSSCALL_PARAMS_H__
-

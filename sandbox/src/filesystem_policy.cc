@@ -376,4 +376,3 @@ bool PreProcessName(const std::wstring& path, std::wstring* new_path) {
 }
 
 }  // namespace sandbox
-

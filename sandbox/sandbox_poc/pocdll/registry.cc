@@ -61,4 +61,3 @@ void POCDLL_API TestRegistry(HANDLE log) {
              L"Software\\Microsoft\\Windows NT\\CurrentVersion\\WinLogon",
              output);
 }
-

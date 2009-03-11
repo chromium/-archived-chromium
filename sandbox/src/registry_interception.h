@@ -36,4 +36,3 @@ SANDBOX_INTERCEPT NTSTATUS WINAPI TargetNtOpenKeyEx(
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_REGISTRY_INTERCEPTION_H__
-

@@ -243,4 +243,3 @@ bool ThreadProcessDispatcher::CreateProcessW(IPCInfo* ipc, std::wstring* name,
 }
 
 }  // namespace sandbox
-

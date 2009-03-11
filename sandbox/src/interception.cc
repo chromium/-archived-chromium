@@ -486,4 +486,3 @@ bool InterceptionManager::PatchClientFunctions(DllInterceptionData* thunks,
 }
 
 }  // namespace sandbox
-

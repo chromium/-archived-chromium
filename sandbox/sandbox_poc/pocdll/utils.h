@@ -63,4 +63,3 @@ class HandleToFile {
 };
 
 #endif  // SANDBOX_SANDBOX_POC_POCDLL_UTILS_H__
-

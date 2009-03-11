@@ -196,4 +196,3 @@ class RestrictedToken {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_RESTRICTED_TOKEN_H_
-

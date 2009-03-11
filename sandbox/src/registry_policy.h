@@ -55,4 +55,3 @@ class RegistryPolicy {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_REGISTRY_POLICY_H__
-

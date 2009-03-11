@@ -363,4 +363,3 @@ bool PolicyBase::SetupAllInterceptions(TargetProcess* target) {
 }
 
 }  // namespace sandbox
-

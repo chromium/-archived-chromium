@@ -45,4 +45,3 @@ class CountedBuffer {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_INTERNAL_TYPES_H__
-

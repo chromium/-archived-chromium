@@ -72,4 +72,3 @@ size_t EatResolverThunk::GetThunkSize() const {
 }
 
 }  // namespace sandbox
-

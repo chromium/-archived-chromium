@@ -106,4 +106,3 @@ class PreamblePatcher {
 };  // namespace sidestep
 
 #endif  // SANDBOX_SRC_SIDESTEP_PREAMBLE_PATCHER_H__
-

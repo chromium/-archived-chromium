@@ -23,4 +23,3 @@ bool SetCurrentProcessDEP(DepEnforcement enforcement);
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_DEP_H__
-

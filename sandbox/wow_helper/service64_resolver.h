@@ -70,4 +70,3 @@ class Service64ResolverThunk : public ResolverThunk {
 
 
 #endif  // SANDBOX_WOW_HELPER_SERVICE64_RESOLVER_H__
-

@@ -8,4 +8,3 @@
 #include "sandbox/sandbox_poc/resource.h"
 
 #endif  // SANDBOX_SANDBOX_POC_SANDBOX_H__
-

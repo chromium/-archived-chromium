@@ -165,4 +165,3 @@ bool RegistryDispatcher::NtOpenKey(IPCInfo* ipc, std::wstring* name,
 }
 
 }  // namespace sandbox
-

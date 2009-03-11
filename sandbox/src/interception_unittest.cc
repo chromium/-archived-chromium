@@ -197,4 +197,3 @@ TEST(InterceptionManagerTest, BufferLayout2) {
 }
 
 }  // namespace sandbox
-

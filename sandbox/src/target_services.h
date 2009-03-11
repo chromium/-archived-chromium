@@ -64,4 +64,3 @@ class TargetServicesBase : public TargetServices {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_TARGET_SERVICES_H__
-

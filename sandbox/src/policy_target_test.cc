@@ -212,4 +212,3 @@ TEST(PolicyTargetTest, DesktopPolicy) {
 }
 
 }  // namespace sandbox
-

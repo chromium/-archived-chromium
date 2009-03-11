@@ -98,4 +98,3 @@ NTSTATUS WINAPI TargetNtUnmapViewOfSection(
 }
 
 }  // namespace sandbox
-

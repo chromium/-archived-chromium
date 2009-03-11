@@ -331,4 +331,3 @@ TargetProcess* MakeTestTargetProcess(HANDLE process, HMODULE base_address) {
 }
 
 }  // namespace sandbox
-

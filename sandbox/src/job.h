@@ -60,4 +60,3 @@ class Job {
 
 
 #endif  // SANDBOX_SRC_JOB_H
-

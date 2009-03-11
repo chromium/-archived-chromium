@@ -206,4 +206,3 @@ class InterceptionManager {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_INTERCEPTION_H_
-

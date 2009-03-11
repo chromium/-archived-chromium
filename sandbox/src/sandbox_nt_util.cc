@@ -502,4 +502,3 @@ void __cdecl operator delete(void* memory, void* buffer,
   UNREFERENCED_PARAMETER(buffer);
   UNREFERENCED_PARAMETER(type);
 }
-

@@ -3,5 +3,3 @@
 // found in the LICENSE file.
 
 #include "sandbox/tests/validation_tests/stdafx.h"
-
-

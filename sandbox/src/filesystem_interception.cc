@@ -349,4 +349,3 @@ NTSTATUS WINAPI TargetNtSetInformationFile(
 }
 
 }  // namespace sandbox
-

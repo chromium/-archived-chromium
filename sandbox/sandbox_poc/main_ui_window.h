@@ -191,4 +191,3 @@ class MainUIWindow {
 };
 
 #endif  // SANDBOX_SANDBOX_POC_MAIN_UI_WINDOW_H__
-

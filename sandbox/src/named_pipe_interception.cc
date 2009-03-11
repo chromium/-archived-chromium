@@ -70,4 +70,3 @@ HANDLE WINAPI TargetCreateNamedPipeW(
 }
 
 }  // namespace sandbox
-

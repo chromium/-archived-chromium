@@ -180,4 +180,3 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE, wchar_t* command_line,
 
   return 0;
 }
-

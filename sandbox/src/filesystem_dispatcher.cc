@@ -296,4 +296,3 @@ bool FilesystemDispatcher::NtSetInformationFile(
 }
 
 }  // namespace sandbox
-

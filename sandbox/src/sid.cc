@@ -24,4 +24,3 @@ const SID *Sid::GetPSID() const {
 }
 
 }  // namespace sandbox
-

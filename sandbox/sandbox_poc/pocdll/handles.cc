@@ -189,4 +189,3 @@ void POCDLL_API TestGetHandle(HANDLE log) {
 
   ::FreeLibrary(ntdll_handle);
 }
-

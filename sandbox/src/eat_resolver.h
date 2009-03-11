@@ -46,4 +46,3 @@ class EatResolverThunk : public ResolverThunk {
 
 
 #endif  // SANDBOX_SRC_EAT_RESOLVER_H__
-

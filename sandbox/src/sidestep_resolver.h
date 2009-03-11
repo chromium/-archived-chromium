@@ -71,4 +71,3 @@ class SmartSidestepResolverThunk : public SidestepResolverThunk {
 
 
 #endif  // SANDBOX_SRC_SIDESTEP_RESOLVER_H__
-

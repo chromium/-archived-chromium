@@ -74,4 +74,3 @@ TEST(NamedPipePolicyTest, CreatePipeStrictInterceptions) {
 }
 
 }  // namespace sandbox
-

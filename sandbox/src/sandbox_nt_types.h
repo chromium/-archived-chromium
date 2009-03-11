@@ -43,4 +43,3 @@ enum AllocationType {
 
 
 #endif  // SANDBOX_SRC_SANDBOX_NT_TYPES_H__
-

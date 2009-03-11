@@ -35,4 +35,3 @@ class NamedPipeDispatcher : public Dispatcher {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_NAMED_PIPE_DISPATCHER_H__
-

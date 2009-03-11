@@ -54,4 +54,3 @@ class Wow64 {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_WOW64_H__
-

@@ -43,4 +43,3 @@ SANDBOX_INTERCEPT NTSTATUS WINAPI TargetNtOpenThreadTokenEx(
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_POLICY_TARGET_H__
-

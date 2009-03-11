@@ -105,4 +105,3 @@ bool PreProcessName(const std::wstring& path, std::wstring* new_path);
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_FILESYSTEM_POLICY_H__
-

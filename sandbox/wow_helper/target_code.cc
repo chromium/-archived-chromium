@@ -32,4 +32,3 @@ NTSTATUS WINAPI TargetEnd() {
 }
 
 }  // namespace sandbox
-

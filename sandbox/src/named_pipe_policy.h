@@ -43,4 +43,3 @@ class NamedPipePolicy {
 
 
 #endif  // SANDBOX_SRC_NAMED_PIPE_POLICY_H__
-

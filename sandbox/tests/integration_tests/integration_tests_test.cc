@@ -92,4 +92,3 @@ TEST(IntegrationTestsTest, ForwardsArguments) {
 }
 
 }  // namespace sandbox
-

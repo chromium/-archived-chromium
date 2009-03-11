@@ -529,4 +529,3 @@ TEST(RestrictedTokenTest, DoubleInit) {
 #endif
 
 }  // namespace sandbox
-

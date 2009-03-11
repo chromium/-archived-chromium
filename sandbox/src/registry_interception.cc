@@ -170,4 +170,3 @@ NTSTATUS WINAPI TargetNtOpenKeyEx(NtOpenKeyExFunction orig_OpenKeyEx,
 }
 
 }  // namespace sandbox
-

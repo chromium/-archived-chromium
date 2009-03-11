@@ -118,4 +118,3 @@ DWORD Job::AssignProcessToJob(HANDLE process_handle) {
 }
 
 }  // namespace sandbox
-

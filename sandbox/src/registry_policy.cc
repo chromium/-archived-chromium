@@ -220,4 +220,3 @@ bool RegistryPolicy::OpenKeyAction(EvalResult eval_result,
 }
 
 }  // namespace sandbox
-

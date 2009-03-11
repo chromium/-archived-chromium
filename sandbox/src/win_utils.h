@@ -93,4 +93,3 @@ bool ResolveRegistryName(std::wstring name, std::wstring* resolved_name);
 void ResolveNTFunctionPtr(const char* name, void* ptr);
 
 #endif  // SANDBOX_SRC_WIN_UTILS_H_
-

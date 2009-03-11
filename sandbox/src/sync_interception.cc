@@ -105,4 +105,3 @@ HANDLE WINAPI TargetOpenEventW(OpenEventWFunction orig_OpenEvent,
 }
 
 }  // namespace sandbox
-

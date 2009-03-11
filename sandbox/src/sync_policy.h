@@ -49,4 +49,3 @@ class SyncPolicy {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SYNC_POLICY_H__
-

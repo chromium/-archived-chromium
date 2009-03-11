@@ -87,4 +87,3 @@ void POCDLL_API Run(HANDLE log);
 }
 
 #endif  // SANDBOX_SANDBOX_POC_POCDLL_EXPORTS_H__
-

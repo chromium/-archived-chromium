@@ -245,4 +245,3 @@ bool Wow64::NtdllPresent() {
 }
 
 }  // namespace sandbox
-

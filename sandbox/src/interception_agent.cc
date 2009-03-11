@@ -221,4 +221,3 @@ ResolverThunk* InterceptionAgent::GetResolver(InterceptionType type) {
 }
 
 }  // namespace sandbox
-

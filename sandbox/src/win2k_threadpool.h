@@ -56,4 +56,3 @@ class Win2kThreadPool : public  ThreadProvider {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_WIN2K_THREADPOOL_H_
-

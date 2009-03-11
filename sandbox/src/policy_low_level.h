@@ -180,4 +180,3 @@ class PolicyRule {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_POLICY_LOW_LEVEL_H__
-

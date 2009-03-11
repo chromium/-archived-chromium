@@ -38,4 +38,3 @@ bool AddKnownSidToKernelObject(HANDLE object, const Sid& sid,
 
 
 #endif  // SANDBOX_SRC_ACL_H
-

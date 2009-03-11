@@ -55,4 +55,3 @@ POLPARAMS_END(OpenKey)
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_POLICY_PARAMS_H__
-

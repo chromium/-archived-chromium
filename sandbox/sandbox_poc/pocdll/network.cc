@@ -64,4 +64,3 @@ void POCDLL_API TestNetworkListen(HANDLE log) {
   fprintf(output, "[ERROR] No network tests.\r\n");
 #endif  // DONT_WANT_INTERCEPTIONS_JUST_WANT_NETWORK
 }
-

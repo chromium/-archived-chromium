@@ -452,4 +452,3 @@ EvalResult PolicyOpcode::EvaluateHelper(const ParameterSet* parameters,
 #undef OPCODE_EVAL
 
 }  // namespace sandbox
-

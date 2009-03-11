@@ -35,4 +35,3 @@ int TestSwitchDesktop();
 }  // namespace sandbox
 
 #endif  // SANDBOX_TESTS_VALIDATION_TESTS_COMMANDS_H__
-

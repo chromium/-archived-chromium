@@ -134,4 +134,3 @@ class SharedMemIPCClient {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SHAREDMEM_IPC_CLIENT_H__
-

@@ -137,4 +137,3 @@ NTSTATUS ResolverThunk::ResolveTarget(const void* module,
 }
 
 }  // namespace sandbox
-

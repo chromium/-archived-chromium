@@ -120,4 +120,3 @@ bool AddKnownSidToKernelObject(HANDLE object, const Sid& sid,
 }
 
 }  // namespace sandbox
-

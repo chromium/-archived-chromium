@@ -39,4 +39,3 @@ SANDBOX_INTERCEPT HANDLE WINAPI TargetOpenEventW(
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SYNC_INTERCEPTION_H__
-

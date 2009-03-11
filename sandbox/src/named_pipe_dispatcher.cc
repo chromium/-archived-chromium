@@ -64,4 +64,3 @@ bool NamedPipeDispatcher::CreateNamedPipe(
 }
 
 }  // namespace sandbox
-

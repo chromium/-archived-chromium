@@ -150,4 +150,3 @@ size_t SharedMemIPCClient::ChannelIndexFromBuffer(const void* buffer) {
 }
 
 }  // namespace sandbox
-

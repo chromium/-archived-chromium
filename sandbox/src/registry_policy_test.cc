@@ -236,4 +236,3 @@ TEST(RegistryPolicyTest, TestKeyReadOnlyHKCU) {
 }
 
 }  // namespace sandbox
-

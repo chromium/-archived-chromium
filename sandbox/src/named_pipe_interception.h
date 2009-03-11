@@ -34,4 +34,3 @@ SANDBOX_INTERCEPT HANDLE WINAPI TargetCreateNamedPipeW(
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_NAMED_PIPE_INTERCEPTION_H__
-

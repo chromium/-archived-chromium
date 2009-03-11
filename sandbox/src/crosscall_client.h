@@ -443,4 +443,3 @@ ResultCode CrossCall(IPCProvider& ipc_provider, uint32 tag, const Par1& p1,
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_CROSSCALL_CLIENT_H__
-

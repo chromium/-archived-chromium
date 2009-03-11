@@ -290,4 +290,3 @@ TEST(ProcessPolicyTest, TestGetProcessTokenMaxAccess) {
 }
 
 }  // namespace sandbox
-

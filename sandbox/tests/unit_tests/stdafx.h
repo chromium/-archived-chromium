@@ -10,4 +10,3 @@
 #include <stdlib.h>
 
 #endif  // SANDBOX_TESTS_UNIT_TESTS_STDAFX_H__
-

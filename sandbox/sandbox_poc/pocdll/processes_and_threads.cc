@@ -100,4 +100,3 @@ void POCDLL_API TestThreads(HANDLE log) {
 
   ::CloseHandle(snapshot);
 }
-

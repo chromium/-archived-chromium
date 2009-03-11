@@ -397,4 +397,3 @@ BOOL WINAPI TargetCreateProcessA(CreateProcessAFunction orig_CreateProcessA,
 }
 
 }  // namespace sandbox
-

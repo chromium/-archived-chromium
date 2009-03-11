@@ -507,5 +507,3 @@ typedef VOID (WINAPI *RtlInitUnicodeStringFunction) (
   IN PCWSTR SourceString);
 
 #endif  // SANDBOX_SRC_NT_INTERNALS_H__
-
-

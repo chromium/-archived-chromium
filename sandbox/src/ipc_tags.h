@@ -34,4 +34,3 @@ enum {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_IPC_TAGS_H__
-

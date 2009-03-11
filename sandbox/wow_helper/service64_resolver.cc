@@ -340,4 +340,3 @@ NTSTATUS Service64ResolverThunk::PerformPatch(void* local_thunk,
 }
 
 }  // namespace sandbox
-

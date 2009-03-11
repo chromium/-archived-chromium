@@ -45,4 +45,3 @@ class ThreadProcessDispatcher : public Dispatcher {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_PROCESS_THREAD_DISPATCHER_H__
-

@@ -50,4 +50,3 @@ std::string WideToMultiByte(const std::wstring& wide);
 };  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SANDBOX_UTILS_H__
-

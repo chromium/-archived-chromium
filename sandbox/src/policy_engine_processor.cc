@@ -105,4 +105,3 @@ PolicyResult PolicyProcessor::Evaluate(uint32 options,
 
 
 }  // namespace sandbox
-

@@ -10,4 +10,3 @@
 #include <stdlib.h>
 
 #endif  // SANDBOX_SRC_STDAFX_H__
-

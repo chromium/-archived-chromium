@@ -11,4 +11,3 @@
 #include <shlwapi.h>
 
 #endif  // SANDBOX_TESTS_VALIDATION_TESTS__STDAFX_H__
-

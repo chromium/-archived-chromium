@@ -106,4 +106,3 @@ class SharedHandles {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SHARED_HANDLES_H__
-

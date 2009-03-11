@@ -156,4 +156,3 @@ class PolicyBase : public Dispatcher, public TargetPolicy {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_SANDBOX_POLICY_BASE_H_
-

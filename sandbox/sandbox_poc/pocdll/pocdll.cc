@@ -25,4 +25,3 @@ void POCDLL_API Run(HANDLE log) {
   TestProcesses(log);
   TestGetHandle(log);
 }
-

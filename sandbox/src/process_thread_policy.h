@@ -80,4 +80,3 @@ class ProcessPolicy {
 
 
 #endif  // SANDBOX_SRC_PROCESS_THREAD_POLICY_H__
-

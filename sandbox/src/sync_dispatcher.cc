@@ -84,4 +84,3 @@ bool SyncDispatcher::OpenEvent(IPCInfo* ipc, std::wstring* name,
 }
 
 }  // namespace sandbox
-

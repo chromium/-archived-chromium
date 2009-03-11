@@ -399,4 +399,3 @@ bool SharedMemIPCServer::MakeEvents(HANDLE* server_ping, HANDLE* server_pong,
 }
 
 }  // namespace sandbox
-

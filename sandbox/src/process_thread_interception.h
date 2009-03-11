@@ -78,4 +78,3 @@ SANDBOX_INTERCEPT BOOL WINAPI TargetCreateProcessA(
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_PROCESS_THREAD_INTERCEPTION_H__
-

@@ -153,4 +153,3 @@ class MiniDisassembler {
 };  // namespace sidestep
 
 #endif  // SANDBOX_SRC_SIDESTEP_MINI_DISASSEMBLER_H__
-

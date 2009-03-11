@@ -52,4 +52,3 @@ void POCDLL_API TestFileSystem(HANDLE log) {
   TryOpenFile(L"%Temp%", output);
   TryOpenFile(L"%AppData%", output);
 }
-

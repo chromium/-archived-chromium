@@ -198,4 +198,3 @@ bool SmartSidestepResolverThunk::IsInternalCall(const void* base,
 }
 
 }  // namespace sandbox
-

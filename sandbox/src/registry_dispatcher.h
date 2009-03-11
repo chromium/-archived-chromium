@@ -37,4 +37,3 @@ class RegistryDispatcher : public Dispatcher {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_REGISTRY_DISPATCHER_H__
-

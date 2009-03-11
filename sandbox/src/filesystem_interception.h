@@ -51,4 +51,3 @@ SANDBOX_INTERCEPT NTSTATUS WINAPI TargetNtSetInformationFile(
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_FILESYSTEM_INTERCEPTION_H__
-

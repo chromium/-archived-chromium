@@ -164,4 +164,3 @@ bool IsSupportedRenameCall(FILE_RENAME_INFORMATION* file_info, DWORD length,
 
 
 #endif  // SANDBOX_SRC_SANDBOX_NT_UTIL_H__
-

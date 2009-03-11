@@ -81,4 +81,3 @@ DWORD SetProcessIntegrityLevel(IntegrityLevel integrity_level);
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_RESTRICTED_TOKEN_UTILS_H__
-

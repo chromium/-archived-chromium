@@ -65,4 +65,3 @@ SharedHandles::SharedItem* SharedHandles::FindByTag(uint32 tag) {
 }
 
 }  // namespace sandbox
-

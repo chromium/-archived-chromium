@@ -114,4 +114,3 @@ bool SetupBasicInterceptions(InterceptionManager* manager) {
 }
 
 }  // namespace sandbox
-

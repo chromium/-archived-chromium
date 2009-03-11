@@ -87,4 +87,3 @@ TEST(UnloadDllTest, UnloadAviCapDllWithPatching) {
 }
 
 }  // namespace sandbox
-

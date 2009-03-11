@@ -116,4 +116,3 @@ std::string WideToMultiByte(const std::wstring& wide) {
 }
 
 };  // namespace sandbox
-

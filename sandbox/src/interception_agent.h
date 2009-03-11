@@ -85,4 +85,3 @@ class InterceptionAgent {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_INTERCEPTION_AGENT_H__
-

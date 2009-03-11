@@ -259,4 +259,3 @@ inline PIMAGE_EXPORT_DIRECTORY PEImage::GetExportDirectory() const {
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_PE_IMAGE_H__
-

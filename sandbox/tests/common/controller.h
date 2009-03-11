@@ -126,4 +126,3 @@ int DispatchCall(int argc, wchar_t **argv);
 }  // namespace sandbox
 
 #endif  // SANDBOX_TESTS_COMMON_CONTROLLER_H__
-

@@ -123,4 +123,3 @@ TargetProcess* MakeTestTargetProcess(HANDLE process, HMODULE base_address);
 }  // namespace sandbox
 
 #endif  // SANDBOX_SRC_TARGET_PROCESS_H__
-

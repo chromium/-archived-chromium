@@ -666,5 +666,3 @@ void MainUIWindow::InsertLineInListView(wchar_t* debug_message) {
 
   delete[] message_time;
 }
-
-

@@ -56,4 +56,3 @@ void POCDLL_API TestSpyScreen(HANDLE log) {
   fprintf(output, "[BLOCKED] Read pixel on screen. Error = %d\r\n",
           ::GetLastError());
 }
-

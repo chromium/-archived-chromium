@@ -346,4 +346,3 @@ PolicyRule::~PolicyRule() {
 }
 
 }  // namespace sandbox
-

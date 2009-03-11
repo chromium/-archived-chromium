@@ -460,4 +460,3 @@ unsigned RestrictedToken::SetIntegrityLevel(IntegrityLevel integrity_level) {
 }
 
 }  // namespace sandbox
-

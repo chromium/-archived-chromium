@@ -56,4 +56,3 @@ TEST(IPCTest, IPCPingTestWithOutput) {
 }
 
 }  // namespace sandbox
-
