@@ -535,10 +535,6 @@ DEFER : LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
 
 LINUX : LayoutTests/svg/carto.net/combobox.svg = FAIL
 
-// Bug 1341582
-LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL PASS
-LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL PASS
-
 // These have been failing for as long as we've had SVG support and were
 // incorrectly removed during a merge.
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
