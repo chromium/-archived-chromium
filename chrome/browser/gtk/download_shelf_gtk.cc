@@ -41,7 +41,56 @@ static GdkColor kBackgroundColor = { 0, 230 * 257, 237 * 257, 244 * 257 };
 // Border color (the top pixel of the shelf).
 static GdkColor kBorderColor = { 0, 214 * 257, 214 * 257, 214 * 257 };
 
+const char* kLinkMarkup =
+    "<u><span color=\"blue\">%s</span></u>";
+
+gboolean OnLinkExpose(GtkWidget* widget, GdkEventExpose* e, void*) {
+  // Draw the link inside the button.
+  gtk_container_propagate_expose(GTK_CONTAINER(widget),
+                                 gtk_bin_get_child(GTK_BIN(widget)),
+                                 e);
+  // Don't let the button draw itself, ever.
+  return TRUE;
 }
+
+// |button| and |box| are out parameters. The caller of this function will want
+// to connect to the click event on |button|. |box| will be set to the highest
+// level widget.
+// TODO(estade): either figure out a way to use GtkLinkButton, or move this
+// to base/gfx/gtk_util.cc
+void MakeLinkButton(const char* text, GdkColor* background_color,
+                    GtkWidget** button, GtkWidget** box) {
+  // We put a label in a button so we can connect to the click event. We put the
+  // button in an event box so we can attach a cursor to it. We don't let the
+  // button draw itself; catch all expose events to the button and pass them
+  // through to the label. We stick the event box in an hbox, and to the left of
+  // that pack the download icon.
+  // TODO(estade): the link should turn red during the user's click.
+
+  GtkWidget* label = gtk_label_new(NULL);
+  char* markup = g_markup_printf_escaped(kLinkMarkup, text);
+  gtk_label_set_markup(GTK_LABEL(label), markup);
+  g_free(markup);
+
+  *button = gtk_button_new();
+  gtk_widget_set_app_paintable(GTK_WIDGET(*button), TRUE);
+  g_signal_connect(G_OBJECT(*button), "expose-event",
+                   G_CALLBACK(OnLinkExpose), NULL);
+  gtk_container_add(GTK_CONTAINER(*button), label);
+
+  *box = gtk_event_box_new();
+  gtk_widget_modify_bg(*box, GTK_STATE_NORMAL, background_color);
+  gtk_container_add(GTK_CONTAINER(*box), *button);
+}
+
+// This should be called only after |link_box| has been realized.
+void AttachCursorToLinkButton(GtkWidget* link_box) {
+  GdkCursor* cursor = gdk_cursor_new(GDK_HAND2);
+  gdk_window_set_cursor(link_box->window, cursor);
+  gdk_cursor_unref(cursor);
+}
+
+}  // namespace
 
 // static
 DownloadShelf* DownloadShelf::Create(TabContents* tab_contents) {
@@ -86,17 +135,43 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   close_button_.reset(new CustomDrawButton(IDR_CLOSE_BAR,
                       IDR_CLOSE_BAR_P, IDR_CLOSE_BAR_H, 0));
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
-                   G_CALLBACK(OnCloseButtonClick), this);
+                   G_CALLBACK(OnButtonClick), this);
   GTK_WIDGET_UNSET_FLAGS(close_button_->widget(), GTK_CAN_FOCUS);
   GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(centering_vbox),
                      close_button_->widget(), TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox_), centering_vbox, FALSE, FALSE, 0);
 
+  // Create and pack the "Show all downloads..." link.
+  // TODO(estade): there are some pixels above and below the link that
+  // can be clicked. I tried to fix this with a vbox (akin to |centering_vbox|
+  // above), but no dice.
+  GtkWidget* link_box;
+  GtkWidget* link_button;
+  std::string link_text =
+      WideToUTF8(l10n_util::GetString(IDS_SHOW_ALL_DOWNLOADS));
+  MakeLinkButton(link_text.c_str(), &kBackgroundColor, &link_button, &link_box);
+  g_signal_connect(G_OBJECT(link_button), "clicked",
+                   G_CALLBACK(OnButtonClick), this);
+
+  // Make the download arrow icon.
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  GdkPixbuf* download_pixbuf = rb.LoadPixbuf(IDR_DOWNLOADS_FAVICON);
+  GtkWidget* download_image = gtk_image_new_from_pixbuf(download_pixbuf);
+  gdk_pixbuf_unref(download_pixbuf);
+
+  // Pack the link and the icon in an hbox.
+  GtkWidget* link_hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(link_hbox), download_image, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(link_hbox), link_box, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox_), link_hbox, FALSE, FALSE, 0);
+
   // Stick ourselves at the bottom of the parent tab contents.
   GtkWidget* parent_contents = tab_contents->GetNativeView();
   gtk_box_pack_end(GTK_BOX(parent_contents), shelf_, FALSE, FALSE, 0);
   Show();
+
+  AttachCursorToLinkButton(link_box);
 }
 
 DownloadShelfGtk::~DownloadShelfGtk() {
@@ -130,7 +205,12 @@ void DownloadShelfGtk::Hide() {
 }
 
 // static
-void DownloadShelfGtk::OnCloseButtonClick(GtkWidget* button,
-                                          DownloadShelfGtk* shelf) {
-  shelf->Hide();
+void DownloadShelfGtk::OnButtonClick(GtkWidget* button,
+                                     DownloadShelfGtk* shelf) {
+  if (button == shelf->close_button_->widget()) {
+    shelf->Hide();
+  } else {
+    // The link button was clicked.
+    shelf->ShowAllDownloads();
+  }
 }

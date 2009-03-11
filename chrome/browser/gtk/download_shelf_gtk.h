@@ -33,8 +33,7 @@ class DownloadShelfGtk : public DownloadShelf {
   // Hide the shelf.
   void Hide();
 
-  static void OnCloseButtonClick(GtkWidget* button,
-                                 DownloadShelfGtk* toolbar);
+  static void OnButtonClick(GtkWidget* button, DownloadShelfGtk* toolbar);
 
   // |hbox_| holds the download items and buttons of the shelf.
   GtkWidget* hbox_;
