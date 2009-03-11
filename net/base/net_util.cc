@@ -38,6 +38,7 @@
 #include "base/sys_string_conversions.h"
 #include "base/time.h"
 #include "base/time_format.h"
+#include "grit/net_resources.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_parse.h"
@@ -49,9 +50,6 @@
 #include "net/base/base64.h"
 #include "unicode/datefmt.h"
 
-#if !defined(OS_MACOSX)
-#include "grit/net_resources.h"
-#endif
 
 using base::Time;
 
@@ -815,22 +813,11 @@ std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address) {
 }
 
 std::string GetDirectoryListingHeader(const std::string& title) {
-#if defined(OS_WIN) || defined(OS_LINUX)
   static const StringPiece header(NetModule::GetResource(IDR_DIR_HEADER_HTML));
   if (header.empty()) {
     NOTREACHED() << "expected resource not found";
   }
   std::string result(header.data(), header.size());
-#elif defined(OS_MACOSX)
-  // TODO(estade): Temporary hack. Remove these platform #ifdefs when we
-  // have implemented resources for OSX.
-  LOG(INFO) << "FIXME: hacked resource loading";
-  FilePath path;
-  PathService::Get(base::DIR_EXE, &path);
-  path = path.Append("../../net/base/dir_header.html");
-  std::string result;
-  file_util::ReadFileToString(path.ToWStringHack(), &result);
-#endif
 
   result.append("<script>start(");
   string_escape::JavascriptDoubleQuote(title, true, &result);
