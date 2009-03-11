@@ -149,6 +149,7 @@ wtf_inputs = [
     '$WTF_DIR/ByteArray.cpp',
     '$WTF_DIR/Assertions.cpp',
     '$WTF_DIR/chromium/MainThreadChromium.cpp',
+    '$WTF_DIR/CurrentTime.cpp',
     '$WTF_DIR/dtoa.cpp',
     '$WTF_DIR/FastMalloc.cpp',
     '$WTF_DIR/HashTable.cpp',
