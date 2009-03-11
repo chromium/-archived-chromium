@@ -9,8 +9,8 @@
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_cell.h"
 #import "chrome/browser/cocoa/tab_contents_controller.h"
+#import "chrome/browser/tab_contents/tab_contents.h"
 #import "chrome/browser/tabs/tab_strip_model.h"
-#import "chrome/common/temp_scaffolding_stubs.h"
 
 // The amount of overlap tabs have in their button frames.
 const short kTabOverlap = 16;

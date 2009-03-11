@@ -2,12 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
-#elif defined(OS_POSIX)
-// TODO(port): port the rest of this file.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/download/download_item_model.h"
@@ -44,6 +39,7 @@ BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
 }
 
 }  // namespace
+#endif
 
 TabContents::TabContents(TabContentsType type)
     : type_(type),
@@ -55,13 +51,14 @@ TabContents::TabContents(TabContentsType type)
       waiting_for_response_(false),
       shelf_visible_(false),
       max_page_id_(-1),
-      blocked_popups_(NULL),
       capturing_contents_(false),
+      blocked_popups_(NULL),
       is_being_destroyed_(false) {
+#if defined(OS_WIN)
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
-}
 #endif
+}
 
 TabContents::~TabContents() {
 #if defined(OS_WIN)
@@ -91,7 +88,6 @@ void TabContents::Destroy() {
   DCHECK(!is_being_destroyed_);
   is_being_destroyed_ = true;
 
-#if defined(OS_WIN)
   // First cleanly close all child windows.
   // TODO(mpcomplete): handle case if MaybeCloseChildWindows() already asked
   // some of these to close.  CloseWindows is async, so it might get called
@@ -111,7 +107,6 @@ void TabContents::Destroy() {
     delegate->InfoBarClosed();
   }
   infobar_delegates_.clear();
-#endif
 
   // Notify any observer that have a reference on this tab contents.
   NotificationService::current()->Notify(
@@ -353,8 +348,10 @@ void TabContents::CloseAllSuppressedPopups() {
   if (blocked_popups_)
     blocked_popups_->CloseAllPopups();
 }
+#endif
 
 void TabContents::Focus() {
+#if defined(OS_WIN)
   HWND container_hwnd = GetNativeView();
   if (!container_hwnd)
     return;
@@ -366,9 +363,11 @@ void TabContents::Focus() {
   DCHECK(v);
   if (v)
     v->RequestFocus();
+#endif
 }
 
 void TabContents::StoreFocus() {
+#if defined(OS_WIN)
   views::ViewStorage* view_storage =
       views::ViewStorage::GetSharedInstance();
 
@@ -397,9 +396,11 @@ void TabContents::StoreFocus() {
       }
     }
   }
+#endif
 }
 
 void TabContents::RestoreFocus() {
+#if defined(OS_WIN)
   views::ViewStorage* view_storage =
       views::ViewStorage::GetSharedInstance();
   views::View* last_focused_view =
@@ -427,10 +428,13 @@ void TabContents::RestoreFocus() {
     }
     view_storage->RemoveView(last_focused_view_storage_id_);
   }
+#endif
 }
 
 void TabContents::SetInitialFocus() {
+#if defined(OS_WIN)
   ::SetFocus(GetNativeView());
+#endif
 }
 
 void TabContents::AddInfoBar(InfoBarDelegate* delegate) {
@@ -475,7 +479,6 @@ void TabContents::RemoveInfoBar(InfoBarDelegate* delegate) {
     }
   }
 }
-#endif  // defined(OS_WIN)
 
 void TabContents::ToolbarSizeChanged(bool is_animating) {
   TabContentsDelegate* d = delegate();
@@ -553,13 +556,13 @@ void TabContents::MigrateShelf(TabContents* from, TabContents* to) {
   to->SetDownloadShelfVisible(was_shelf_visible);
 }
 
-#if defined(OS_WIN)
 void TabContents::WillClose(ConstrainedWindow* window) {
   ConstrainedWindowList::iterator it =
       find(child_windows_.begin(), child_windows_.end(), window);
   if (it != child_windows_.end())
     child_windows_.erase(it);
 
+#if defined(OS_WIN)
   if (window == blocked_popups_)
     blocked_popups_ = NULL;
 
@@ -569,10 +572,13 @@ void TabContents::WillClose(ConstrainedWindow* window) {
     RepositionSupressedPopupsToFit(
         gfx::Size(client_rect.Width(), client_rect.Height()));
   }
+#endif
 }
 
 void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
+#if defined(OS_WIN)
   UpdateWindow(GetNativeView());
+#endif
 }
 
 void TabContents::Observe(NotificationType type,
@@ -585,7 +591,6 @@ void TabContents::Observe(NotificationType type,
       *(Details<NavigationController::LoadCommittedDetails>(details).ptr());
   ExpireInfoBars(committed_details);
 }
-#endif
 
 void TabContents::SetIsLoading(bool is_loading,
                                LoadNotificationDetails* details) {
@@ -633,6 +638,7 @@ bool TabContents::ShowingBlockedPopupNotification() const {
   return blocked_popups_ != NULL &&
       blocked_popups_->GetTabContentsCount() != 0;
 }
+#endif  // defined(OS_WIN)
 
 namespace {
 bool TransitionIsReload(PageTransition::Type transition) {
@@ -654,4 +660,3 @@ void TabContents::ExpireInfoBars(
       RemoveInfoBar(delegate);
   }
 }
-#endif  // defined(OS_WIN)

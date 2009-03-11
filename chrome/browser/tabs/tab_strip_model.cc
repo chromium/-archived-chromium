@@ -6,18 +6,12 @@
 
 #include <algorithm>
 
-#if defined(OS_WIN)
-#include "chrome/browser/tab_contents/tab_contents.h"
-#elif defined(OS_MACOSX) || (OS_LINUX)
-// TODO(port): remove this when the mocks of the above classes are removed
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
 #include "base/string_util.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/url_constants.h"

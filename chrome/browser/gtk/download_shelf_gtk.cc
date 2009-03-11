@@ -8,13 +8,11 @@
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
-
-// TODO(port): remove this after tab_contents.h is ported.
-#include "chrome/common/temp_scaffolding_stubs.h"
 
 namespace {
 

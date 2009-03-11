@@ -8,6 +8,7 @@
 #import "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/command_updater.h"
 #import "chrome/browser/location_bar.h"
+#import "chrome/browser/tab_contents/tab_contents.h"
 #import "chrome/browser/toolbar_model.h"
 
 // For now, tab_contents lives here. TODO(port):fix

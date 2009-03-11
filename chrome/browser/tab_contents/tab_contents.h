@@ -15,8 +15,10 @@
 #if defined(OS_WIN)
 // TODO(evanm): I mean really, c'mon, this can't have broken the build, right?
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
-#endif
 #include "chrome/browser/tab_contents/constrained_window.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
@@ -312,6 +314,7 @@ class TabContents : public PageNavigator,
 
   // Window management ---------------------------------------------------------
 
+#if defined(OS_WIN)
   // Create a new window constrained to this TabContents' clip and visibility.
   // The window is initialized by using the supplied delegate to obtain basic
   // window characteristics, and the supplied view for the content. The window
@@ -320,6 +323,7 @@ class TabContents : public PageNavigator,
   ConstrainedWindow* CreateConstrainedDialog(
       views::WindowDelegate* window_delegate,
       views::View* contents_view);
+#endif
 
   // Adds a new tab or window with the given already-created contents
   void AddNewContents(TabContents* new_contents,

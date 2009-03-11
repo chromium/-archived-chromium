@@ -18,6 +18,7 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gears_api.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/password_form.h"
@@ -29,7 +30,6 @@
 #elif defined(OS_WIN)
 #include "chrome/browser/printing/print_view_manager.h"
 #include "chrome/browser/shell_dialogs.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #endif
 
 class AutofillForm;
