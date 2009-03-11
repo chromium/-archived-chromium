@@ -145,7 +145,8 @@ DEFER LINUX WIN : LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/forms/image-border.html = FAIL
 
 // Pixeltest failure: Form control metrics incorrect
-LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL PASS
+LINUX : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL PASS
+MAC : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL PASS TIMEOUT
 
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
@@ -1170,7 +1171,7 @@ MAC : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
 // window.open crashes (some of these are flaky, in that they don't always
 // crash, and are noted as such)
-MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/navigation/target-frame-from-window.html = TIMEOUT PASS CRASH
 MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT CRASH
@@ -1680,7 +1681,7 @@ MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 MAC DEBUG : LayoutTests/http/tests/misc/slow-preload-cancel.html = CRASH
 MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT CRASH PASS
 WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
-MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS
+MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
@@ -1701,7 +1702,9 @@ LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 LINUX MAC : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
-LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
+WIN LINUX : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
+MAC RELEASE : LayoutTests/fast/dom/location-new-window-no-crash.html = FAIL
+MAC DEBUG : LayoutTests/fast/dom/location-new-window-no-crash.html = CRASH FAIL
 
 // NOTE: This test actually passes, BUT it cause the next test, no matter what
 // it is, to fail because it leaves a side effect in internal state.  So we
@@ -1740,3 +1743,28 @@ WIN LINUX : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
 WIN LINUX : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 // This one is lacking results:
 SKIP DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = FAIL
+
+// Started failing with r11409 (ericroman), which is weird because it was just
+// a revert.
+WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
+
+DEFER WIN : LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL	 
+DEFER WIN : LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL
+
+// Started failing at r11441:11442, which has no code changes!
+WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
+
+// Added 3/11/09
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-sync.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-async.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/010.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-denied-preflight-cache.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/document-domain-set.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-star.html = TIMEOUT PASS
+MAC DEBUG : LayoutTests/http/tests/security/frameNavigation/xss-ALLOWED-parent-navigation-change.html = CRASH PASS
+MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH PASS
