@@ -8,7 +8,8 @@ layer at (0,0) size 800x600
           text run at (0,0) width 151: "Lorem ipsum dolor"
         RenderInline {SPAN} at (0,0) size 180x45 [bgcolor=#FFC0CB]
           RenderText {#text} at (151,0) size 180x45
-            text run at (151,0) width 29: " sit "
+            text run at (151,0) width 24: " sit"
+            text run at (175,0) width 5: " "
             text run at (0,23) width 37: "amet"
         RenderText {#text} at (0,0) size 0x0
       RenderBlock (floating) {DIV} at (224,8) size 200x46 [bgcolor=#FFFFE0]

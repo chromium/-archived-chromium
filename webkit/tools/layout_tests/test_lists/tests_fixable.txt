@@ -1771,3 +1771,8 @@ MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-star.html
 MAC DEBUG : LayoutTests/http/tests/security/frameNavigation/xss-ALLOWED-parent-navigation-change.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH PASS
 LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
+
+// Regressions from merge 41559:41588
+WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
+WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
+WIN : chrome/fast/dom/java-applet-calls.html = FAIL

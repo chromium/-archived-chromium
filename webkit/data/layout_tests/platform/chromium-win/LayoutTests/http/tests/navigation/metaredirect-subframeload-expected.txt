@@ -106,7 +106,8 @@ layer at (0,0) size 800x600
           RenderTextControl {TEXTAREA} at (0,287) size 259x164 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
             RenderBlock {DIV} at (3,3) size 238x48
               RenderText {#text} at (0,0) size 238x32
-                text run at (0,0) width 238: "More initial text before user "
+                text run at (0,0) width 232: "More initial text before user"
+                text run at (232,0) width 6: " "
                 text run at (0,16) width 48: "input."
                 text run at (48,16) width 0: " "
               RenderBR {BR} at (0,32) size 0x16
