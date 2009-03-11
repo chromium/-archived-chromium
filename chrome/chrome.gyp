@@ -494,6 +494,8 @@
         'browser/cocoa/tab_cell.mm',
         'browser/cocoa/tab_contents_controller.h',
         'browser/cocoa/tab_contents_controller.mm',
+        # 'browser/cocoa/tab_controller.h',
+        # 'browser/cocoa/tab_controller.mm',
         'browser/cocoa/tab_strip_controller.h',
         'browser/cocoa/tab_strip_controller.mm',
         'browser/cocoa/tab_strip_view.h',
@@ -1194,7 +1196,16 @@
             'browser/dom_ui/dev_tools_ui.cc',
             'browser/dom_ui/dev_tools_ui.h',
           ],
-        }],
+          'sources': [
+            # Build the necessary GTM sources
+            '../third_party/GTM/AppKit/GTMTheme.m',
+            '../third_party/GTM/AppKit/GTMNSColor+Luminance.m',
+          ],
+          'include_dirs': [
+            '../third_party/GTM',
+            '../third_party/GTM/AppKit',
+          ],
+       }],
         ['OS=="win"', {
           'defines': [
             '__STD_C',
@@ -1423,6 +1434,7 @@
         'app/nibs/en.lproj/BrowserWindow.xib',
         'app/nibs/en.lproj/MainMenu.xib',
         'app/nibs/en.lproj/TabContents.xib',
+         # 'app/nibs/en.lproj/TabView.xib',
         'app/theme/back.pdf',
         'app/theme/forward.pdf',
         'app/theme/go.pdf',
