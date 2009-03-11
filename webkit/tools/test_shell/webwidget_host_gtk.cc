@@ -285,11 +285,6 @@ void WebWidgetHost::Resize(const gfx::Size &newsize) {
 }
 
 void WebWidgetHost::Paint() {
-  PaintToCanvas();
-  PaintCanvasToView();
-}
-
-void WebWidgetHost::PaintToCanvas() {
   int width = view_->allocation.width;
   int height = view_->allocation.height;
   gfx::Rect client_rect(width, height);
@@ -328,17 +323,14 @@ void WebWidgetHost::PaintToCanvas() {
   }
   DCHECK(paint_rect_.IsEmpty());
 
-}
-
-void WebWidgetHost::PaintCanvasToView() {
   // Invalidate the paint region on the widget's underlying gdk window. Note
   // that gdk_window_invalidate_* will generate extra expose events, which
   // we wish to avoid. So instead we use calls to begin_paint/end_paint.
   GdkRectangle grect = {
-      0,
-      0,
-      canvas_->getDevice()->width(),
-      canvas_->getDevice()->height(),
+      total_paint.x(),
+      total_paint.y(),
+      total_paint.width(),
+      total_paint.height(),
   };
   GdkWindow* window = view_->window;
   gdk_window_begin_paint_rect(window, &grect);
@@ -353,16 +345,6 @@ void WebWidgetHost::PaintCanvasToView() {
   cairo_destroy(cairo_drawable);
 
   gdk_window_end_paint(window);
-}
-
-void WebWidgetHost::DisplayForRepaint() {
-  PaintToCanvas();
-
-  // Paint a gray mask over everything for the repaint Layout tests.
-  const SkColor kMaskColor = SkColorSetARGB(168, 0, 0, 0);  // alpha=0.66
-  canvas_->drawColor(kMaskColor, SkPorterDuff::kSrcOver_Mode);
-
-  PaintCanvasToView();
 }
 
 void WebWidgetHost::ResetScrollRect() {

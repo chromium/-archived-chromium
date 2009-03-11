@@ -189,7 +189,7 @@ void LayoutTestController::WorkQueue::AddWork(WorkItem* work) {
 }
 
 void LayoutTestController::dumpAsText(const CppArgumentList& args,
-                                      CppVariant* result) {
+                                                   CppVariant* result) {
   dump_as_text_ = true;
   result->SetNull();
 }
@@ -279,7 +279,7 @@ void LayoutTestController::notifyDone(
 
 class WorkItemBackForward : public LayoutTestController::WorkItem {
  public:
-  explicit WorkItemBackForward(int distance) : distance_(distance) {}
+  WorkItemBackForward(int distance) : distance_(distance) {}
   void Run(TestShell* shell) {
     shell->GoBackOrForward(distance_);
   }
@@ -316,7 +316,7 @@ void LayoutTestController::queueReload(
 
 class WorkItemScript : public LayoutTestController::WorkItem {
  public:
-  explicit WorkItemScript(const string& script) : script_(script) {}
+  WorkItemScript(const string& script) : script_(script) {}
   void Run(TestShell* shell) {
     wstring url = L"javascript:" + UTF8ToWide(script_);
     shell->LoadURL(url.c_str());
@@ -663,7 +663,6 @@ void LayoutTestController::dumpSelectionRect(
 
 void LayoutTestController::display(
     const CppArgumentList& args, CppVariant* result) {
-  shell_->webViewHost()->DisplayForRepaint();
   result->SetNull();
 }
 

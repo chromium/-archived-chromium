@@ -29,7 +29,7 @@
 #include "net/base/mime_util.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_filter.h"
-#include "skia/ext/platform_device.h"
+#include "skia/ext/bitmap_platform_device.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/screen_info.h"
 #include "webkit/glue/webdatasource.h"
@@ -227,8 +227,7 @@ void TestShell::Dump(TestShell* shell) {
       // command line (for the dump pixels argument), and the MD5 sum to
       // stdout.
       dumped_anything = true;
-      std::string md5sum = DumpImage(shell->webViewHost(),
-                                     params->pixel_file_name);
+      std::string md5sum = DumpImage(webFrame, params->pixel_file_name);
       printf("#MD5:%s\n", md5sum.c_str());
     }
     if (dumped_anything)
@@ -238,20 +237,13 @@ void TestShell::Dump(TestShell* shell) {
 }
 
 // static
-std::string TestShell::DumpImage(WebViewHost* web_view_host,
+std::string TestShell::DumpImage(WebFrame* web_frame,
     const std::wstring& file_name) {
-  web_view_host->Paint();
-  skia::PlatformDevice& device =
-      web_view_host->canvas()->getTopPlatformDevice();
+  scoped_ptr<skia::BitmapPlatformDevice> device;
+  if (!web_frame->CaptureImage(&device, true))
+    return std::string();
 
-#if defined(OS_WIN)
-  // Make a copy, since we will have to fix the opacity.
-  const SkBitmap& orig = device.accessBitmap(false);
-  SkBitmap src_bmp;
-  orig.copyTo(&src_bmp, orig.config());
-#else
-  const SkBitmap& src_bmp = device.accessBitmap(false);
-#endif
+  const SkBitmap& src_bmp = device->accessBitmap(false);
 
   // Encode image.
   std::vector<unsigned char> png;
@@ -265,12 +257,7 @@ std::string TestShell::DumpImage(WebViewHost* web_view_host,
   // doesn't have the wrong alpha like Windows, but we ignore it anyway.
 #if defined(OS_WIN)
   bool discard_transparency = true;
-  // TODO(eroman): Clean this up. This used to be device.makeOpaque(), but I
-  // inlined it when resolving conflicts.
-  uint32_t* data = static_cast<uint32_t*> (src_bmp.getPixels());
-  for (int i = 0; i < src_bmp.width() * src_bmp.height(); ++i) {
-    *(data + i) |= (0xFF << SK_A32_SHIFT);
-  }
+  device->makeOpaque(0, 0, src_bmp.width(), src_bmp.height());
 #elif defined(OS_LINUX)
   bool discard_transparency = true;
 #elif defined(OS_MACOSX)

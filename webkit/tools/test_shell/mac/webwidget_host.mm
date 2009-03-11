@@ -143,14 +143,10 @@ void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
 }
 
 void WebWidgetHost::Paint() {
-  PaintToCanvas();
-  PaintCanvasToView();
-}
-
-void WebWidgetHost::PaintToCanvas() {
   NSRect r = [view_ frame];
   gfx::Rect client_rect(NSRectToCGRect(r));
   NSGraphicsContext* view_context = [NSGraphicsContext currentContext];
+  CGContextRef context = static_cast<CGContextRef>([view_context graphicsPort]);
 
   // Allocate a canvas if necessary
   if (!canvas_.get()) {
@@ -195,43 +191,19 @@ void WebWidgetHost::PaintToCanvas() {
 
   // set the context back to our window
   [NSGraphicsContext setCurrentContext: view_context];
-}
 
-void WebWidgetHost::PaintCanvasToView() {
   // Paint to the screen
   if ([view_ lockFocusIfCanDraw]) {
-    NSGraphicsContext* view_context = [NSGraphicsContext currentContext];
-    NSRect r = [view_ frame];
-    CGContextRef bitmap_context =
-        canvas_->getTopPlatformDevice().GetBitmapContext();
-    CGContextRef context =
-        static_cast<CGContextRef>([view_context graphicsPort]);
     CGRect paint_rect = NSRectToCGRect(r);
     int bitmap_height = CGBitmapContextGetHeight(bitmap_context);
     int bitmap_width = CGBitmapContextGetWidth(bitmap_context);
     CGRect bitmap_rect = { { 0, 0 },
                            { bitmap_width, bitmap_height } };
     canvas_->getTopPlatformDevice().DrawToContext(
-        context, 0, r.size.height - bitmap_height, &bitmap_rect);
+        context, 0, client_rect.height() - bitmap_height, &bitmap_rect);
 
     [view_ unlockFocus];
   }
-}
-
-void WebWidgetHost::DisplayForRepaint() {
-  PaintToCanvas();
-
-  // Paint a gray mask over everything for the repaint Layout tests.
-  CGContextRef bitmap_context =
-      canvas_->getTopPlatformDevice().GetBitmapContext();
-  CGRect bitmap_rect = { { 0, 0 },
-      { CGBitmapContextGetWidth(bitmap_context),
-        CGBitmapContextGetHeight(bitmap_context) } };
-  CGContextSetBlendMode(bitmap_context, kCGBlendModeNormal);
-  CGContextSetRGBFillColor(bitmap_context, 0, 0, 0, 0.66);
-  CGContextFillRect(bitmap_context, bitmap_rect);
-
-  PaintCanvasToView();
 }
 
 void WebWidgetHost::Resize(const gfx::Rect& rect) {

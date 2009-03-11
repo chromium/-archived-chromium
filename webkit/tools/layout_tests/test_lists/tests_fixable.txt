@@ -134,30 +134,6 @@ DEFER : LayoutTests/fast/html/keygen.html = FAIL
 DEFER : LayoutTests/fast/invalid/residual-style.html = FAIL
 
 // -----------------------------------------------------------------
-// Repaint tests
-// -----------------------------------------------------------------
-
-// Bug 8630: our repaint baselines are incorrect.
-
-DEFER : LayoutTests/fast/repaint = FAIL
-DEFER : LayoutTests/fast/backgrounds/solid-color-context-restore.html = FAIL
-DEFER : LayoutTests/fast/dom/anchor-toString.html = FAIL
-DEFER : LayoutTests/fast/dynamic/containing-block-change.html = FAIL
-DEFER : LayoutTests/fast/forms/hidden-listbox.html = FAIL
-DEFER : LayoutTests/fast/forms/listbox-clip.html = FAIL
-DEFER : LayoutTests/fast/frames/inline-object-inside-frameset.html = FAIL
-DEFER : LayoutTests/fast/layers/add-layer-with-nested-stacking.html = FAIL
-DEFER : LayoutTests/fast/layers/layer-content-visibility-change.html = FAIL
-DEFER : LayoutTests/fast/layers/remove-layer-with-nested-stacking.html = FAIL
-DEFER : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
-DEFER : LayoutTests/fast/reflections/inline-crash.html = FAIL
-DEFER : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
-DEFER : LayoutTests/fast/table/empty-section-crash.html = FAIL
-DEFER : LayoutTests/fast/text/font-initial.html = FAIL
-DEFER : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
-DEFER : pending/fast/repaint/bugzilla-6473.html = FAIL
-
-// -----------------------------------------------------------------
 // Other
 // -----------------------------------------------------------------
 
@@ -606,8 +582,8 @@ DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
 // unpainted space (filled red in Debug but not in Release).
 // https://bugs.webkit.org/show_bug.cgi?id=8423
 DEFER : LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL PASS
-// Passes release. Fails debug. Looks like something is going off with repaint too.
-DEFER : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
+// Passes release. Fails debug.
+DEFER DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
 
 // Bug: 1166644
 // Fails on webkit windows as well.
@@ -926,6 +902,7 @@ LINUX WIN : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 // Likely just needs to be baselined.
 LINUX MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
+LINUX MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
 LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
@@ -1661,6 +1638,7 @@ DEFER : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-relative-to-vi
 // Defer until fixed upstream.
 DEFER LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 // These need to be rebaselined.
+LINUX : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
 LINUX : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 
 // mbelshe to fix.  Temporarily disable while tree red.
