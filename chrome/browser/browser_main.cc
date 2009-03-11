@@ -46,6 +46,8 @@
 #include "chrome/common/resource_bundle.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "grit/net_resources.h"
+#include "net/base/net_module.h"
 
 #if defined(OS_POSIX)
 // TODO(port): get rid of this include. It's used just to provide declarations
@@ -84,7 +86,6 @@
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/version.h"
 #include "chrome/views/accelerator_handler.h"
-#include "net/base/net_module.h"
 #include "net/base/net_util.h"
 #include "net/base/sdch_manager.h"
 #include "net/base/winsock_init.h"
@@ -94,7 +95,6 @@
 #endif  // defined(OS_WIN)
 
 #if !defined(OS_MACOSX)
-#include "grit/net_resources.h"
 #include "chrome/browser/process_singleton.h"
 #endif
 
@@ -134,7 +134,6 @@ void HandleErrorTestParameters(const CommandLine& command_line) {
   }
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 // The net module doesn't have access to this HTML or the strings that need to
 // be localized.  The Chrome locale will never change while we're running, so
 // it's safe to have a static string that we always return a pointer into.
@@ -173,7 +172,6 @@ StringPiece NetResourceProvider(int key) {
 
   return ResourceBundle::GetSharedInstance().GetRawDataResource(key);
 }
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
 void RunUIMessageLoop(BrowserProcess* browser_process) {
 #if defined(OS_WIN)
@@ -455,10 +453,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // file thread to be run sometime later. If this is the first run we record
   // the installation event.
   RLZTracker::InitRlzDelayed(base::DIR_MODULE, is_first_run);
+#endif
 
   // Config the network module so it has access to resources.
   net::NetModule::SetResourceProvider(NetResourceProvider);
-#endif
 
   // Register our global network handler for chrome-ui:// and
   // chrome-extension:// URLs.
