@@ -3,6 +3,7 @@
 // LICENSE file.
 
 #include "chrome/renderer/media/video_renderer_impl.h"
+#include "media/base/yuv_convert.h"
 
 VideoRendererImpl::VideoRendererImpl(WebMediaPlayerDelegateImpl* delegate)
     : delegate_(delegate),
@@ -53,10 +54,22 @@ void VideoRendererImpl::CopyToCurrentFrame(media::VideoFrame* video_frame) {
     last_converted_timestamp_ = timestamp;
     media::VideoSurface frame_in;
     if (video_frame->Lock(&frame_in)) {
-      // TODO(ralphl):  Actually do the color space conversion here!
-      // This is temporary code to set the bits of the current_frame_ to
-      // blue.
-      bitmap_.eraseRGB(0x00, 0x00, 0xFF);
+      // TODO(hclam): Support more video formats than just YV12.
+      DCHECK(frame_in.format == media::VideoSurface::YV12);
+      DCHECK(frame_in.strides[media::VideoSurface::kUPlane] ==
+             frame_in.strides[media::VideoSurface::kVPlane]);
+      DCHECK(frame_in.planes == media::VideoSurface::kNumYUVPlanes);
+      bitmap_.lockPixels();
+      media::ConvertYV12ToRGB32(frame_in.data[media::VideoSurface::kYPlane],
+                                frame_in.data[media::VideoSurface::kUPlane],
+                                frame_in.data[media::VideoSurface::kVPlane],
+                                static_cast<uint8*>(bitmap_.getPixels()),
+                                frame_in.width,
+                                frame_in.height,
+                                frame_in.strides[media::VideoSurface::kYPlane],
+                                frame_in.strides[media::VideoSurface::kUPlane],
+                                bitmap_.rowBytes());
+      bitmap_.unlockPixels();
       video_frame->Unlock();
     } else {
       NOTREACHED();
