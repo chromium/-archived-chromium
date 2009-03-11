@@ -518,6 +518,8 @@
         'browser/debugger/debugger_node.h',
         'browser/debugger/debugger_shell.cc',
         'browser/debugger/debugger_shell.h',
+        'browser/debugger/debugger_shell_stubs.cc',
+        'browser/debugger/debugger_shell_stubs.h',
         'browser/debugger/debugger_view.cc',
         'browser/debugger/debugger_view.h',
         'browser/debugger/debugger_window.cc',
@@ -1168,11 +1170,8 @@
       'conditions': [
         ['OS=="linux"', {
           'sources!': [
-            # TODO(port):  Port these.
-            'browser/debugger/debugger_contents.cc',
-            'browser/debugger/debugger_shell.cc',
-
-            # Exclude Windows-specific files.
+            'browser/debugger/debugger_shell_stubs.cc',
+            # Windows-specific files.
             'browser/download/download_exe.cc',
             'browser/download/download_util.cc',
           ],
@@ -1191,6 +1190,7 @@
             'browser/autocomplete/autocomplete_popup_model.cc',
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
+            'browser/debugger/debugger_shell_stubs.cc',
             'browser/dom_ui/dev_tools_ui.cc',
             'browser/dom_ui/dev_tools_ui.h',
           ],
@@ -1214,6 +1214,7 @@
             'browser/history/history_indexer.idl',
           ],
           'sources!': [
+            'browser/debugger/debugger_shell_stubs.cc',
             'browser/history/history_publisher_none.cc',
           ],
         }, {  # 'OS!="win"
