@@ -13,7 +13,7 @@
     {
       'target_name': 'gtest',
       'type': 'static_library',
-      'msvs_guid': 'C8F6C172-56F2-4E76-B5FA-C3B423B31BE7',
+      'msvs_guid': 'BFE8E2A7-3B3B-43B0-A994-3058B852DB8B',
       'sources': [
         'gtest/include/gtest/internal/gtest-death-test-internal.h',
         'gtest/include/gtest/internal/gtest-filepath.h',
