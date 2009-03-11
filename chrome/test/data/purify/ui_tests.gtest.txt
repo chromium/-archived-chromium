@@ -16,3 +16,5 @@ NPAPITester.ManyPlugins
 # Bug: http://crbug.com/6584
 SSLUITest.*
 
+# Bug: http://crbug.com/8675
+SessionRestoreUITest.RestoresCrossSiteForwardAndBackwardNavs
