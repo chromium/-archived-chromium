@@ -47,7 +47,8 @@ bool DieFileDie(const std::wstring& file, bool recurse) {
 InProcessBrowserTest::InProcessBrowserTest()
     : browser_(NULL),
       show_window_(false),
-      dom_automation_enabled_(false) {
+      dom_automation_enabled_(false),
+      single_process_(false) {
 }
 
 void InProcessBrowserTest::SetUp() {
@@ -77,6 +78,9 @@ void InProcessBrowserTest::SetUp() {
 
   if (dom_automation_enabled_)
     command_line->AppendSwitch(switches::kDomAutomationController);
+
+  if (single_process_)
+    command_line->AppendSwitch(switches::kSingleProcess);
 
   command_line->AppendSwitchWithValue(switches::kUserDataDir, user_data_dir);
 
