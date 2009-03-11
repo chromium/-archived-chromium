@@ -254,10 +254,51 @@ cleanup() {
 }
 
 usage() {
-  echo "usage: $(basename $0) [-r] [-o 'dir'] [-b 'dir']"
-  echo "-r      release build"
-  echo "-o dir  package output directory [current: ${OUTPUTDIR}]"
-  echo "-b dir  build input directory    [current: ${BUILDDIR}]"
+  echo "usage: $(basename $0) [-g] [-o 'dir'] [-b 'dir'] [-v '#.#.#.#'] [-r #]"
+  echo "-g      build google-chrome package (default is chromium-browser)"
+  echo "-o dir  package output directory [${OUTPUTDIR}]"
+  echo "-b dir  build input directory    [${BUILDDIR}]"
+  echo "-v str  product version string"
+  echo "-r #    svn revision #"
+  echo "-h      this help message"
+}
+
+process_opts() {
+  while getopts ":o:b:r:v:gh" OPTNAME
+  do
+    case $OPTNAME in
+      o )
+        OUTPUTDIR="$OPTARG"
+        mkdir -p "${OUTPUTDIR}"
+        ;;
+      v )
+        VERSION="$OPTARG"
+        ;;
+      r )
+        REVISION="$OPTARG"
+        ;;
+      b )
+        BUILDDIR="$OPTARG"
+        ;;
+      g )
+        GOOGLECHROME=1
+        ;;
+      h )
+        usage
+        exit 0
+        ;;
+      \: )
+        echo "'-$OPTARG' needs an argument."
+        usage
+        exit 1
+        ;;
+      * )
+        echo "invalid command-line option: $OPTARG"
+        usage
+        exit 1
+        ;;
+    esac
+  done
 }
 
 #=========
@@ -269,51 +310,26 @@ OUTPUTDIR="${PWD}"
 STAGEDIR=deb.build
 BUILDDIR=$(readlink -f "${SCRIPTDIR}/../../../Hammer")
 CHANGELOG=changelog.auto
+# Default to a bogus low version, so if somebody creates and installs a package
+# with no version info, it won't prevent upgrading when trying to install a
+# properly versioned package (i.e. a proper package will always be "newer").
+VERSION="0.0.0.0"
+# Use epoch timestamp so packages with bogus versions still increment and will
+# upgrade older bogus-versioned packages.
+REVISION=$(date +"%s")
 
-while getopts ":o:b:rh" OPTNAME
-do
-  case $OPTNAME in
-    o )
-      OUTPUTDIR="$OPTARG"
-      mkdir -p "${OUTPUTDIR}"
-      ;;
-    b )
-      BUILDDIR="$OPTARG"
-      ;;
-    r )
-      RELEASE=1
-      exit 0
-      ;;
-    h )
-      usage
-      exit 0
-      ;;
-    \: )
-      echo "'-$OPTARG' needs an argument."
-      usage
-      exit 1
-      ;;
-    * )
-      echo "invalid command-line option: $OPTARG"
-      usage
-      exit 1
-      ;;
-  esac
-done
+process_opts "$@"
 
-if [ "$RELEASE" = "1" ]; then
+if [ "$GOOGLECHROME" ]; then
   source "${SCRIPTDIR}/../common/google-chrome/google-chrome.info"
 else
   source "${SCRIPTDIR}/../common/chromium-browser/chromium-browser.info"
 fi
+VERSIONFULL="${VERSION}-r${REVISION}"
+
 # Some Debian packaging tools want these set.
 export DEBFULLNAME="${MAINTNAME}"
 export DEBEMAIL="${MAINTMAIL}"
-
-# Version check currently uses repository info, so make sure we're in the src
-# tree.
-cd "${SCRIPTDIR}"
-get_versioninfo
 
 # Make everything happen in the OUTPUTDIR.
 cd "${OUTPUTDIR}"
