@@ -1762,3 +1762,11 @@ MAC : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/upload-onloadstart-event.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT PASS
+
+// Failures from WebKit merge 41530:41559
+// These probably require new baselines:
+WIN LINUX : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+WIN LINUX : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+WIN LINUX : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
+// This one is lacking results:
+DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = FAIL
