@@ -32,6 +32,15 @@ PREFIX : browserrenderprocesshost::inituserscripts___browserrenderprocesshost::i
 
 PREFIX : chromeurldatamanager::dataavailable___runnablemethod<chromeurldatamanager,void (__thiscall chromeurldatamanager::*)(int,scoped_refptr<refcountedvector<unsigned char> >),tuple2<int,scoped_refptr<refcountedvector<unsigned char> > > >::run___messageloop::runtask___messageloop::dowork___base::messagepumpforio::dorunloop
 
+# 8352
+SUBSTRING : webcore::cache::revalidationsucceeded___webcore::loader::host::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse___resourcedispatcher::onreceivedresponse
+
+# End mysterious crash section.
+
+
+# 8577
+PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::deque<gurl,std::allocator<gurl> >::back___ipc::syncchannel::onwaitableeventsignaled___base::waitableeventwatcher::onobjectsignaled
+
 # 4731, 6956
 SUBSTRING : net::httpcache::removependingtransaction
 SUBSTRING : net::httpcache::onprocesspendingqueue
@@ -60,8 +69,8 @@ PREFIX : webcore::loader::host::servependingrequests___webcore::loader::host::se
 # 7570
 PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox::calcabsolutehorizontal___webcore::renderbox::calcwidth
 
-# 5715, slightly different stack than in the bug, but likely the same issue.
-PREFIX : webcore::renderobject::enclosinglayer___webcore::frameview::layout
+# 8648
+PREFIX : webcore::rendertext::destroy___webcore::node::detach___webcore::containernode::detach
 
 # 6319
 PREFIX : webcore::scrollview::visiblecontentrect___webcore::scrollview::contentstowindow___webcore::scrollview::repaintcontentrectangle___webcore::frameview::repaintcontentrectangle___webcore::renderview::repaintviewrectangle
@@ -74,3 +83,6 @@ PREFIX : webplugindelegateproxy::backgroundchanged___webplugindelegateproxy::pai
 
 # 8033
 PREFIX : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
+
+# 5359
+PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspaces___v8::internal::markcompactcollector::collectgarbage
