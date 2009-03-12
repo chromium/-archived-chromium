@@ -38,13 +38,6 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 // in how lighttpd serves up the svn resource image (or the image
 // contained in the svg image).
 DEFER : LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
-// http://crbug.com/2975 : Need to support upload progress notifications in
-// the resource bridge.
-LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL CRASH
-// New test. We should fix it, but it doesn't need to block the current release
-DEFER : LayoutTests/http/tests/xmlhttprequest/upload-onprogress-event.html = FAIL
-// New test. We should fix it, but it doesn't need to block the current release
-DEFER : LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
 
 // -----------------------------------------------------------------
 // TEXT
