@@ -1463,6 +1463,22 @@
         'INFOPLIST_FILE': 'app/app-Info.plist',
       },
       'conditions': [
+        ['OS=="linux"', {
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': ['<(INTERMEDIATE_DIR)/repack/chrome.pak'],
+            },
+            {
+              'destination': '<(PRODUCT_DIR)/locales',
+              'files': ['<(INTERMEDIATE_DIR)/repack/en-US.pak'],
+            },
+            {
+              'destination': '<(PRODUCT_DIR)/themes',
+              'files': ['<(INTERMEDIATE_DIR)/repack/default.pak'],
+            },
+          ],
+        }],
         ['OS=="mac"', {
           # 'branding' is a variable defined in common.gypi
           # (e.g. "Chromium", "Chrome")
@@ -1551,6 +1567,13 @@
               ],
               'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
               'process_outputs_as_mac_bundle_resources': 1,
+              'conditions': [
+                ['OS=="linux"', {
+                  'outputs=': [
+                    '<(INTERMEDIATE_DIR)/repack/default.pak',
+                  ]
+                }],
+              ],
             },
             {
               # TODO(mark): Make this work with more languages than the
@@ -1575,7 +1598,7 @@
                   ],
                 }, {  # else: OS!="mac"
                   'outputs': [
-                    '<(INTERMEDIATE_DIR)/repack/locale_en-US.pak',
+                    '<(INTERMEDIATE_DIR)/repack/en-US.pak',
                   ],
                 }],
               ],
