@@ -105,8 +105,6 @@ class DOMUIContents : public WebContents {
   virtual bool ShouldDisplayFavIcon();
   // The bookmark bar is always visible on the new tab.
   virtual bool IsBookmarkBarAlwaysVisible();
-  // When NTP gets the initial focus, focus the URL bar.
-  virtual void SetInitialFocus();
   // Whether we want to display the page's URL.
   virtual bool ShouldDisplayURL();
   // Get the title for this page.
@@ -114,6 +112,7 @@ class DOMUIContents : public WebContents {
   // We may wish to control what happens when a URL is opened.
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
       WindowOpenDisposition disposition);
+  virtual DOMUIContents* AsDOMUIContents() { return this; }
 
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
 
@@ -123,6 +122,9 @@ class DOMUIContents : public WebContents {
   virtual void UpdateHistoryForNavigation(const GURL& url,
       const ViewHostMsg_FrameNavigate_Params& params) { }
   virtual bool NavigateToPendingEntry(bool reload);
+
+  // Gives the DOMUI an opportunity to chose where the focus should go.
+  void SetInitialFocus();
 
   // Return the scheme used. We currently use chrome-ui:
   static const std::string GetScheme();

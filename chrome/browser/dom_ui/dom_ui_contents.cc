@@ -13,6 +13,7 @@
 #include "chrome/browser/extensions/extensions_ui.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
@@ -194,7 +195,7 @@ void DOMUIContents::SetInitialFocus() {
   if (InitCurrentUI(false))
     current_ui_->SetInitialFocus();
   else
-    TabContents::SetInitialFocus();
+    current_ui_->get_contents()->view()->SetInitialFocus();
 }
 
 const string16& DOMUIContents::GetTitle() const {

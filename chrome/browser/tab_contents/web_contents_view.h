@@ -115,6 +115,17 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // page.
   virtual void ForwardMessageToDevToolsClient(const IPC::Message& message) = 0;
 
+  // Sets focus to the appropriate element when the tab contents is shown the
+  // first time.
+  virtual void SetInitialFocus() = 0;
+
+  // Stores the currently focused view.
+  virtual void StoreFocus() = 0;
+
+  // Restores focus to the last focus view. If StoreFocus has not yet been
+  // invoked, SetInitialFocus is invoked.
+  virtual void RestoreFocus() = 0;
+
  protected:
   WebContentsView() {}  // Abstract interface.
 

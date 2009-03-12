@@ -37,6 +37,7 @@ class WindowDelegate;
 }
 
 class BlockedPopupContainer;
+class DOMUIContents;
 class DOMUIHost;
 class DownloadItem;
 class DownloadShelf;
@@ -140,6 +141,9 @@ class TabContents : public PageNavigator,
 
   // Returns this object as a DOMUIHost if it is one, and NULL otherwise.
   virtual DOMUIHost* AsDOMUIHost() { return NULL; }
+
+  // Returns this object as a DOMUIContents if it is one, and NULL otherwise.
+  virtual DOMUIContents* AsDOMUIContents() { return NULL; }
 
   TabContentsDelegate* delegate() const { return delegate_; }
   void set_delegate(TabContentsDelegate* d) { delegate_ = d; }
@@ -373,13 +377,6 @@ class TabContents : public PageNavigator,
   // Make the tab the focused window.
   virtual void Focus();
 
-  // Stores the currently focused view.
-  virtual void StoreFocus();
-
-  // Restores focus to the last focus view. If StoreFocus has not yet been
-  // invoked, SetInitialFocus is invoked.
-  virtual void RestoreFocus();
-
   // Invoked the first time this tab is getting the focus through TAB traversal.
   // By default this does nothing, but is overridden to set the focus for the
   // first element in the page.
@@ -449,12 +446,6 @@ class TabContents : public PageNavigator,
 
   // Called when a ConstrainedWindow we own is moved or resized.
   void DidMoveOrResize(ConstrainedWindow* window);
-
-  // Sets focus to the tab contents window, but doesn't actually set focus to
-  // a particular element in it (see also SetInitialFocus(bool) which does
-  // that in different circumstances).
-  // FIXME(brettw) having two SetInitialFocus that do different things is silly.
-  virtual void SetInitialFocus();
 
  protected:
   // NotificationObserver implementation:
@@ -547,9 +538,6 @@ class TabContents : public PageNavigator,
   // a WebContents, in which case the max page ID is stored separately with
   // each SiteInstance.
   int32 max_page_id_;
-
-  // The id used in the ViewStorage to store the last focused view.
-  int last_focused_view_storage_id_;
 
   // See capturing_contents() above.
   bool capturing_contents_;

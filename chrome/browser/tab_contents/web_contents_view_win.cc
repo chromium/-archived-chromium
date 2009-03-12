@@ -10,6 +10,7 @@
 #include "chrome/browser/browser.h"  // TODO(beng): this dependency is awful.
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/dev_tools_window.h"
+#include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -24,6 +25,8 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/views/root_view.h"
+#include "chrome/views/view_storage.h"
 #include "net/base/net_util.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webdropdata.h"
@@ -51,9 +54,18 @@ WebContentsView* WebContentsView::Create(WebContents* web_contents) {
 WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
     : web_contents_(web_contents),
       ignore_next_char_event_(false) {
+  last_focused_view_storage_id_ =
+      views::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
 
 WebContentsViewWin::~WebContentsViewWin() {
+  // Makes sure to remove any stored view we may still have in the ViewStorage.
+  //
+  // It is possible the view went away before us, so we only do this if the
+  // view is registered.
+  views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
+  if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
+    view_storage->RemoveView(last_focused_view_storage_id_);
 }
 
 WebContents* WebContentsViewWin::GetWebContents() {
@@ -230,6 +242,72 @@ void WebContentsViewWin::ForwardMessageToDevToolsClient(
     return;
   }
   dev_tools_window_->SendDevToolsClientMessage(message);
+}
+
+void WebContentsViewWin::SetInitialFocus() {
+  if (web_contents_->AsDOMUIContents())
+    web_contents_->AsDOMUIContents()->SetInitialFocus();
+  else
+    ::SetFocus(GetNativeView());
+}
+
+void WebContentsViewWin::StoreFocus() {
+  views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
+
+  if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
+    view_storage->RemoveView(last_focused_view_storage_id_);
+
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetNativeView());
+  if (focus_manager) {
+    // |focus_manager| can be NULL if the tab has been detached but still
+    // exists.
+    views::View* focused_view = focus_manager->GetFocusedView();
+    if (focused_view)
+      view_storage->StoreView(last_focused_view_storage_id_, focused_view);
+
+    // If the focus was on the page, explicitly clear the focus so that we
+    // don't end up with the focused HWND not part of the window hierarchy.
+    // TODO(brettw) this should move to the view somehow.
+    HWND container_hwnd = GetNativeView();
+    if (container_hwnd) {
+      views::View* focused_view = focus_manager->GetFocusedView();
+      if (focused_view) {
+        HWND hwnd = focused_view->GetRootView()->GetWidget()->GetHWND();
+        if (container_hwnd == hwnd || ::IsChild(container_hwnd, hwnd))
+          focus_manager->ClearFocus();
+      }
+    }
+  }
+}
+
+void WebContentsViewWin::RestoreFocus() {
+  views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
+  views::View* last_focused_view =
+      view_storage->RetrieveView(last_focused_view_storage_id_);
+
+  if (!last_focused_view) {
+    SetInitialFocus();
+  } else {
+    views::FocusManager* focus_manager =
+        views::FocusManager::GetFocusManager(GetNativeView());
+
+    // If you hit this DCHECK, please report it to Jay (jcampan).
+    DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
+
+    if (last_focused_view->IsFocusable() && focus_manager &&
+        focus_manager->ContainsView(last_focused_view)) {
+      last_focused_view->RequestFocus();
+    } else {
+      // The focused view may not belong to the same window hierarchy (e.g.
+      // if the location bar was focused and the tab is dragged out), or it may
+      // no longer be focusable (e.g. if the location bar was focused and then
+      // we switched to fullscreen mode).  In that case we default to the
+      // default focus.
+      SetInitialFocus();
+    }
+    view_storage->RemoveView(last_focused_view_storage_id_);
+  }
 }
 
 void WebContentsViewWin::UpdateDragCursor(bool is_drop_target) {

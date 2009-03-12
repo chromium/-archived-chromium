@@ -141,6 +141,18 @@ bool WebContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
   return false;
 }
 
+void WebContentsViewGtk::SetInitialFocus() {
+  // TODO(port)
+}
+
+void WebContentsViewGtk::StoreFocus() {
+  // TODO(port)
+}
+
+void WebContentsViewGtk::RestoreFocus() {
+  // TODO(port)
+}
+
 void WebContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }

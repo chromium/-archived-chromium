@@ -5,6 +5,7 @@
 #ifndef CHROME_VIEWS_VIEW_STORAGE_H_
 #define CHROME_VIEWS_VIEW_STORAGE_H_
 
+#include "base/singleton.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/views/view.h"
 
@@ -31,9 +32,6 @@ class ViewStorage : public NotificationObserver {
   // It is guaranted to be non NULL.
   static ViewStorage* GetSharedInstance();
 
-  // Deletes the global instance of the ViewStorage.
-  static void DeleteSharedInstance();
-
   // Returns a unique storage id that can be used to store/retrieve views.
   int CreateStorageID();
 
@@ -47,6 +45,8 @@ class ViewStorage : public NotificationObserver {
   void RemoveView(int storage_id);
 
  private:
+  friend struct DefaultSingletonTraits<ViewStorage>;
+
   ViewStorage();
   ~ViewStorage();
 
@@ -68,9 +68,6 @@ class ViewStorage : public NotificationObserver {
 
   // Association View to id, used to speed up view notification removal.
   std::map<View*, std::vector<int>*> view_to_ids_;
-
-  // The singleton instance.
-  static ViewStorage* shared_instance_;
 
   DISALLOW_COPY_AND_ASSIGN(ViewStorage);
 };

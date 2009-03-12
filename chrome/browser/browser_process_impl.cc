@@ -196,13 +196,6 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   print_job_manager_->OnQuit();
   print_job_manager_.reset();
 
-  // TODO(port): remove this completely from BrowserProcessImpl, it has no
-  // business being here.
-#if defined(OS_WIN)
-  // The ViewStorage needs to go before the NotificationService.
-  views::ViewStorage::DeleteSharedInstance();
-#endif
-
   // Now OK to destroy NotificationService.
   main_notification_service_.reset();
 

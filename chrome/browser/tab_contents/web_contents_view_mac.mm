@@ -152,6 +152,18 @@ bool WebContentsViewMac::GetFindBarWindowInfo(gfx::Point* position,
   return true;
 }
 
+void WebContentsViewMac::SetInitialFocus() {
+  // TODO(port)
+}
+
+void WebContentsViewMac::StoreFocus() {
+  // TODO(port)
+}
+
+void WebContentsViewMac::RestoreFocus() {
+  // TODO(port)
+}
+
 void WebContentsViewMac::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }

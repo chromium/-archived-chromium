@@ -43,6 +43,9 @@ class WebContentsViewWin : public WebContentsView,
   virtual void SizeContents(const gfx::Size& size);
   virtual void OpenDeveloperTools();
   virtual void ForwardMessageToDevToolsClient(const IPC::Message& message);
+  virtual void SetInitialFocus();
+  virtual void StoreFocus();
+  virtual void RestoreFocus();
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual WebContents* CreateNewWindowInternal(
@@ -112,6 +115,9 @@ class WebContentsViewWin : public WebContentsView,
 
   // Whether to ignore the next CHAR keyboard event.
   bool ignore_next_char_event_;
+
+  // The id used in the ViewStorage to store the last focused view.
+  int last_focused_view_storage_id_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewWin);
 };

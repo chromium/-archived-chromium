@@ -22,10 +22,6 @@
 #include "chrome/browser/views/download_started_animation.h"
 #include "chrome/browser/views/blocked_popup_container.h"
 #include "chrome/views/native_scroll_bar.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/view.h"
-#include "chrome/views/view_storage.h"
-#include "chrome/views/widget.h"
 #endif
 
 #if defined(OS_WIN)
@@ -54,22 +50,9 @@ TabContents::TabContents(TabContentsType type)
       capturing_contents_(false),
       blocked_popups_(NULL),
       is_being_destroyed_(false) {
-#if defined(OS_WIN)
-  last_focused_view_storage_id_ =
-      views::ViewStorage::GetSharedInstance()->CreateStorageID();
-#endif
 }
 
 TabContents::~TabContents() {
-#if defined(OS_WIN)
-  // Makes sure to remove any stored view we may still have in the ViewStorage.
-  //
-  // It is possible the view went away before us, so we only do this if the
-  // view is registered.
-  views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
-  if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
-    view_storage->RemoveView(last_focused_view_storage_id_);
-#endif
 }
 
 // static
@@ -363,77 +346,6 @@ void TabContents::Focus() {
   DCHECK(v);
   if (v)
     v->RequestFocus();
-#endif
-}
-
-void TabContents::StoreFocus() {
-#if defined(OS_WIN)
-  views::ViewStorage* view_storage =
-      views::ViewStorage::GetSharedInstance();
-
-  if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
-    view_storage->RemoveView(last_focused_view_storage_id_);
-
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
-  if (focus_manager) {
-    // |focus_manager| can be NULL if the tab has been detached but still
-    // exists.
-    views::View* focused_view = focus_manager->GetFocusedView();
-    if (focused_view)
-      view_storage->StoreView(last_focused_view_storage_id_, focused_view);
-
-    // If the focus was on the page, explicitly clear the focus so that we
-    // don't end up with the focused HWND not part of the window hierarchy.
-    // TODO(brettw) this should move to the view somehow.
-    HWND container_hwnd = GetNativeView();
-    if (container_hwnd) {
-      views::View* focused_view = focus_manager->GetFocusedView();
-      if (focused_view) {
-        HWND hwnd = focused_view->GetRootView()->GetWidget()->GetHWND();
-        if (container_hwnd == hwnd || ::IsChild(container_hwnd, hwnd))
-          focus_manager->ClearFocus();
-      }
-    }
-  }
-#endif
-}
-
-void TabContents::RestoreFocus() {
-#if defined(OS_WIN)
-  views::ViewStorage* view_storage =
-      views::ViewStorage::GetSharedInstance();
-  views::View* last_focused_view =
-      view_storage->RetrieveView(last_focused_view_storage_id_);
-
-  if (!last_focused_view) {
-    SetInitialFocus();
-  } else {
-    views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetNativeView());
-
-    // If you hit this DCHECK, please report it to Jay (jcampan).
-    DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
-
-    if (last_focused_view->IsFocusable() && focus_manager &&
-        focus_manager->ContainsView(last_focused_view)) {
-      last_focused_view->RequestFocus();
-    } else {
-      // The focused view may not belong to the same window hierarchy (e.g.
-      // if the location bar was focused and the tab is dragged out), or it may
-      // no longer be focusable (e.g. if the location bar was focused and then
-      // we switched to fullscreen mode).  In that case we default to the
-      // default focus.
-      SetInitialFocus();
-    }
-    view_storage->RemoveView(last_focused_view_storage_id_);
-  }
-#endif
-}
-
-void TabContents::SetInitialFocus() {
-#if defined(OS_WIN)
-  ::SetFocus(GetNativeView());
 #endif
 }
 

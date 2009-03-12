@@ -56,6 +56,9 @@ class WebContentsViewMac : public WebContentsView,
   virtual void HideFindBar(bool end_session);
   virtual bool GetFindBarWindowInfo(gfx::Point* position,
                                     bool* fully_visible) const;
+  virtual void SetInitialFocus();
+  virtual void StoreFocus();
+  virtual void RestoreFocus();
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual WebContents* CreateNewWindowInternal(

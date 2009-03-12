@@ -31,6 +31,7 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
@@ -318,7 +319,7 @@ void Browser::OpenApplicationWindow(Profile* profile, const GURL& url) {
   browser->window()->Show();
   // TODO(jcampan): http://crbug.com/8123 we should not need to set the initial
   //                focus explicitly.
-  browser->GetSelectedTabContents()->SetInitialFocus();
+  browser->GetSelectedTabContents()->AsWebContents()->view()->SetInitialFocus();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -657,8 +658,7 @@ void Browser::NewTab() {
     // The call to AddBlankTab above did not set the focus to the tab as its
     // window was not active, so we have to do it explicitly.
     // See http://crbug.com/6380.
-    TabContents* tab = b->GetSelectedTabContents();
-    tab->RestoreFocus();
+    b->GetSelectedTabContents()->AsWebContents()->view()->RestoreFocus();
   }
 }
 

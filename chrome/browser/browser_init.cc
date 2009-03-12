@@ -25,6 +25,8 @@
 #include "chrome/browser/sessions/session_restore.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -341,7 +343,10 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
   browser->window()->Show();
   // TODO(jcampan): http://crbug.com/8123 we should not need to set the initial
   //                focus explicitly.
-  browser->GetSelectedTabContents()->SetInitialFocus();
+  if (browser->GetSelectedTabContents()->AsWebContents()) {
+    browser->GetSelectedTabContents()->AsWebContents()->view()->
+        SetInitialFocus();
+  }
 
   return browser;
 }

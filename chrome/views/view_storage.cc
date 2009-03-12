@@ -11,8 +11,6 @@
 
 namespace views {
 
-ViewStorage* ViewStorage::shared_instance_ = NULL;
-
 // This struct contains the information to locate a specific view.
 // Locating a view is not always straight-forward as a view can be a floating
 // view, or the child of a floating view. Floating views are frequently deleted
@@ -36,19 +34,7 @@ struct ViewLocationInfo {
 
 // static
 ViewStorage* ViewStorage::GetSharedInstance() {
-  if (shared_instance_)
-    return shared_instance_;
-
-  shared_instance_ = new ViewStorage();
-  return shared_instance_;
-}
-
-// static
-void ViewStorage::DeleteSharedInstance() {
-  if (!shared_instance_)
-    return;
-  delete shared_instance_;
-  shared_instance_ = NULL;
+  return Singleton<ViewStorage>::get();
 }
 
 ViewStorage::ViewStorage() : view_storage_next_id_(0) {
@@ -57,9 +43,6 @@ ViewStorage::ViewStorage() : view_storage_next_id_(0) {
 }
 
 ViewStorage::~ViewStorage() {
-  NotificationService::current()->RemoveObserver(
-    this, NotificationType::VIEW_REMOVED, NotificationService::AllSources());
-
   STLDeleteContainerPairSecondPointers(id_to_view_location_.begin(),
                                        id_to_view_location_.end());
 
