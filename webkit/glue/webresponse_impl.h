@@ -26,6 +26,10 @@ class WebResponseImpl : public WebResponse {
   // Get the http status code.
   virtual int GetHttpStatusCode() const { return response_.httpStatusCode(); }
 
+  virtual std::string GetMimeType() const {
+    return webkit_glue::StringToStdString(response_.mimeType());
+  }
+
   // Get the security info (state of the SSL connection).
   virtual std::string GetSecurityInfo() const {
     return webkit_glue::CStringToStdString(response_.getSecurityInfo());

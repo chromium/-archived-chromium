@@ -36,6 +36,7 @@
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
+#include "webkit/glue/webresponse.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webwidget.h"
@@ -192,9 +193,9 @@ void TestShell::Dump(TestShell* shell) {
       // which we handle here.
       if (!should_dump_as_text) {
         // Plain text pages should be dumped as text
-        std::wstring mime_type =
-            webFrame->GetDataSource()->GetResponseMimeType();
-        should_dump_as_text = (mime_type == L"text/plain");
+        std::string mime_type =
+            webFrame->GetDataSource()->GetResponse().GetMimeType();
+        should_dump_as_text = (mime_type == "text/plain");
       }
       if (should_dump_as_text) {
         bool recursive = shell->layout_test_controller_->

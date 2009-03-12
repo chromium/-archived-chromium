@@ -92,10 +92,6 @@ void WebDataSourceImpl::SetExtraData(WebRequest::ExtraData* extra) {
   request_.SetExtraData(extra);
 }
 
-std::wstring WebDataSourceImpl::GetResponseMimeType() const {
-  return webkit_glue::StringToStdWString(loader_->responseMIMEType());
-}
-
 GURL WebDataSourceImpl::GetUnreachableURL() const {
   const WebCore::KURL& url = loader_->unreachableURL();
   return url.isEmpty() ? GURL() : webkit_glue::KURLToGURL(url);
@@ -130,52 +126,6 @@ bool WebDataSourceImpl::IsFormSubmit() const {
   return loader_->is_form_submit();
 }
 
-std::wstring WebDataSourceImpl::GetPageTitle() const {
-  return webkit_glue::StringToStdWString(loader_->title());
+string16 WebDataSourceImpl::GetPageTitle() const {
+  return webkit_glue::StringToString16(loader_->title());
 }
-
-/*
-See comment in webdatasource.h
-
-void WebDataSourceImpl::GetData(IStream** data) {
-  DebugBreak();
-}
-
-void WebDataSourceImpl::GetRepresentation(IWebDocumentRepresentation** rep) {
-  DebugBreak();
-}
-
-void WebDataSourceImpl::GetResponse(IWebURLResponse** response) {
-  DebugBreak();
-}
-
-std::wstring WebDataSourceImpl::GetTextEncodingName() {
-  DebugBreak();
-  return L"";
-}
-
-bool WebDataSourceImpl::IsLoading() {
-  DebugBreak();
-}
-
-void WebDataSourceImpl::GetWebArchive(IWebArchive** archive) {
-  DebugBreak();
-}
-
-void WebDataSourceImpl::GetMainResource(IWebResource** resource) {
-  DebugBreak();
-}
-
-void WebDataSourceImpl::GetSubresources(int* count, IWebResource*** resources) {
-  DebugBreak();
-}
-
-void WebDataSourceImpl::GetSubresourceForURL(const std::wstring& url,
-                                             IWebResource** resource) {
-  DebugBreak();
-}
-
-void WebDataSourceImpl::AddSubresource(IWebResource* subresource) {
-  DebugBreak();
-}
-*/

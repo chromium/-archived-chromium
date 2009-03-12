@@ -50,7 +50,6 @@ class WebDataSourceImpl : public WebDataSource {
   virtual const WebRequest& GetInitialRequest() const;
   virtual const WebRequest& GetRequest() const;
   virtual const WebResponse& GetResponse() const;
-  virtual std::wstring GetResponseMimeType() const;
   virtual GURL GetUnreachableURL() const;
   virtual bool HasUnreachableURL() const;
   virtual const std::vector<GURL>& GetRedirectChain() const;
@@ -72,7 +71,7 @@ class WebDataSourceImpl : public WebDataSource {
 
   virtual bool IsFormSubmit() const;
 
-  virtual std::wstring GetPageTitle() const;
+  virtual string16 GetPageTitle() const;
 
 private:
   WebFrameImpl* frame_;

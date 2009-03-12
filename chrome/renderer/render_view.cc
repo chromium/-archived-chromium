@@ -1074,8 +1074,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
     // Top-level navigation.
 
     // Update contents MIME type for main frame.
-    std::wstring mime_type = ds->GetResponseMimeType();
-    params.contents_mime_type = WideToASCII(mime_type);
+    params.contents_mime_type = ds->GetResponse().GetMimeType();
 
     // We assume top level navigations initiated by the renderer are link
     // clicks.
@@ -1479,9 +1478,9 @@ void RenderView::DidChangeLocationWithinPageForFrame(WebView* webview,
                                                      WebFrame* frame,
                                                      bool is_new_navigation) {
   DidCommitLoadForFrame(webview, frame, is_new_navigation);
-  const std::wstring& title =
+  const string16& title =
       webview->GetMainFrame()->GetDataSource()->GetPageTitle();
-  UpdateTitle(frame, title);
+  UpdateTitle(frame, UTF16ToWideHack(title));
 }
 
 void RenderView::DidReceiveIconForFrame(WebView* webview,
