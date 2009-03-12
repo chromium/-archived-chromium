@@ -139,6 +139,16 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
       NotificationType::USER_SCRIPTS_LOADED,
       NotificationService::AllSources());
 
+  if (run_renderer_in_process()) {
+    // We need a "renderer pid", but we don't have one when there's no renderer
+    // process.  So pick a value that won't clash with other child process pids.
+    // Linux has PID_MAX_LIMIT which is 2^22.  Windows always uses pids that are
+    // divisible by 4.  So...
+    static int next_pid = 4 * 1024 * 1024;
+    next_pid += 3;
+    SetProcessID(next_pid);
+  }
+
   // Note: When we create the BrowserRenderProcessHost, it's technically
   //       backgrounded, because it has no visible listeners.  But the process
   //       doesn't actually exist yet, so we'll Background it later, after
@@ -301,9 +311,7 @@ bool BrowserRenderProcessHost::Init() {
     cmd_line.AppendSwitchWithValue(switches::kUserDataDir,
                                    profile_path);
 
-  int process_id;
-  bool run_in_process = run_renderer_in_process();
-  if (run_in_process) {
+  if (run_renderer_in_process()) {
     // Crank up a thread and run the initialization there.  With the way that
     // messages flow between the browser and renderer, this thread is required
     // to prevent a deadlock in single-process mode.  When using multiple
@@ -319,14 +327,6 @@ bool BrowserRenderProcessHost::Init() {
     base::Thread::Options options;
     options.message_loop_type = MessageLoop::TYPE_IO;
     in_process_renderer_->StartWithOptions(options);
-
-    // We need a "renderer pid", but we don't have one when there's no renderer
-    // process.  So pick a value that won't clash with other child process pids.
-    // Linux has PID_MAX_LIMIT which is 2^22.  Windows always uses pids that are
-    // divisible by 4.  So...
-    static int next_pid = 4 * 1024 * 1024;
-    next_pid += 3;
-    process_id = next_pid;
   } else {
 #if defined(OS_WIN)
     if (in_sandbox) {
@@ -410,10 +410,9 @@ bool BrowserRenderProcessHost::Init() {
       process_.set_handle(process);
     }
 
-    process_id = process_.pid();
+    SetProcessID(process_.pid());
   }
 
-  SetProcessID(process_id);
   resource_message_filter->Init(pid());
   CacheManagerHost::GetInstance()->Add(pid());
   RendererSecurityPolicy::GetInstance()->Add(pid());
