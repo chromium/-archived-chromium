@@ -78,14 +78,6 @@ ChromeClientImpl* ToChromeClient(WebCore::Widget* widget) {
 
 namespace WebCore {
 
-// Font -----------------------------------------------------------------------
-
-#if defined(OS_WIN)
-bool ChromiumBridge::ensureFontLoaded(HFONT font) {
-  return webkit_glue::EnsureFontLoaded(font);
-}
-#endif
-
 // JavaScript -----------------------------------------------------------------
 
 void ChromiumBridge::notifyJSOutOfMemory(Frame* frame) {

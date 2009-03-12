@@ -221,14 +221,6 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
       new ViewHostMsg_GetPlugins(refresh, plugins));
 }
 
-#if defined(OS_WIN)
-bool EnsureFontLoaded(HFONT font) {
-  LOGFONT logfont;
-  GetObject(font, sizeof(LOGFONT), &logfont);
-  return RenderThread::current()->Send(new ViewHostMsg_LoadFont(logfont));
-}
-#endif
-
 webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
   webkit_glue::ScreenInfo results;
   RenderThread::current()->Send(

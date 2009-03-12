@@ -190,11 +190,6 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
 // false otherwise.
 bool IsPluginRunningInRendererProcess();
 
-#if defined(OS_WIN)
-// Asks the browser to load the font.
-bool EnsureFontLoaded(HFONT font);
-#endif
-
 // Returns screen information corresponding to the given window.
 ScreenInfo GetScreenInfo(gfx::NativeViewId window);
 

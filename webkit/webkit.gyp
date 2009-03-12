@@ -4120,6 +4120,7 @@
         }],
         ['OS=="win"', {
           'sources': [
+            '../third_party/WebKit/WebKit/chromium/public/win/WebSandboxSupport.h',
             '../third_party/WebKit/WebKit/chromium/public/win/WebThemeEngine.h',
           ],
         }],

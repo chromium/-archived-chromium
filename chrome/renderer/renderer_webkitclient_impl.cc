@@ -22,6 +22,18 @@ using WebKit::WebURL;
 
 //------------------------------------------------------------------------------
 
+WebKit::WebMimeRegistry* RendererWebKitClientImpl::mimeRegistry() {
+  return &mime_registry_;
+}
+
+WebKit::WebSandboxSupport* RendererWebKitClientImpl::sandboxSupport() {
+#if defined(OS_WIN)
+  return &sandbox_support_;
+#else
+  return NULL;
+#endif
+}
+
 uint64_t RendererWebKitClientImpl::visitedLinkHash(const char* canonical_url,
                                                    size_t length) {
   return RenderThread::current()->visited_link_slave()->ComputeURLFingerprint(
@@ -31,8 +43,6 @@ uint64_t RendererWebKitClientImpl::visitedLinkHash(const char* canonical_url,
 bool RendererWebKitClientImpl::isLinkVisited(uint64_t link_hash) {
   return RenderThread::current()->visited_link_slave()->IsVisited(link_hash);
 }
-
-//------------------------------------------------------------------------------
 
 void RendererWebKitClientImpl::setCookies(
     const WebURL& url, const WebURL& policy_url, const WebString& value) {
@@ -107,3 +117,15 @@ WebString RendererWebKitClientImpl::MimeRegistry::preferredExtensionForMIMEType(
           &file_extension));
   return webkit_glue::FilePathStringToWebString(file_extension);
 }
+
+//------------------------------------------------------------------------------
+
+#if defined(OS_WIN)
+
+bool RendererWebKitClientImpl::SandboxSupport::ensureFontLoaded(HFONT font) {
+  LOGFONT logfont;
+  GetObject(font, sizeof(LOGFONT), &logfont);
+  return RenderThread::current()->Send(new ViewHostMsg_LoadFont(logfont));
+}
+
+#endif

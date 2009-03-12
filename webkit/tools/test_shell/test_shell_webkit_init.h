@@ -42,6 +42,10 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
     return &mime_registry_;
   }
 
+  virtual WebKit::WebSandboxSupport* sandboxSupport() {
+    return NULL;
+  }
+
   virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length) {
     return 0;
   }

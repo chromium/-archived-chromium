@@ -11,6 +11,10 @@ WebKit::WebMimeRegistry* WorkerWebKitClientImpl::mimeRegistry() {
   return NULL;
 }
 
+WebKit::WebSandboxSupport* WorkerWebKitClientImpl::sandboxSupport() {
+  return NULL;
+}
+
 uint64_t WorkerWebKitClientImpl::visitedLinkHash(const char* canonical_url,
                                                  size_t length) {
   return 0;
@@ -35,20 +39,4 @@ void WorkerWebKitClientImpl::prefetchHostName(const WebKit::WebString&) {
 
 WebKit::WebString WorkerWebKitClientImpl::defaultLocale() {
   return WebKit::WebString();
-}
-
-void WorkerWebKitClientImpl::decrementStatsCounter(const char* name) {
-}
-
-void WorkerWebKitClientImpl::incrementStatsCounter(const char* name) {
-}
-
-void WorkerWebKitClientImpl::traceEventBegin(const char* name,
-                                             void* id,
-                                             const char* extra) {
-}
-
-void WorkerWebKitClientImpl::traceEventEnd(const char* name,
-                                           void* id,
-                                           const char* extra) {
 }

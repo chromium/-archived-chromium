@@ -183,6 +183,10 @@
 					Name="win"
 					>
 					<File
+						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\win\WebSandboxSupport.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\win\WebThemeEngine.h"
 						>
 					</File>
