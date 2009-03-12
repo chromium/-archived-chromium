@@ -504,6 +504,7 @@ void V8WorkerContextEventListener::handleEvent(Event* event,
   // See issue 889829
   RefPtr<V8AbstractEventListener> self(this);
 
+  v8::Locker locker;
   v8::HandleScope handle_scope;
 
   v8::Handle<v8::Context> context = m_proxy->GetContext();

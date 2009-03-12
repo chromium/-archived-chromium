@@ -84,6 +84,7 @@ void WorkerContextExecutionProxy::Dispose() {
   // the worker context object is going to be disposed immediately when a
   // worker thread is tearing down. We do not want to re-delete the real object
   // when JS object is garbage collected.
+  v8::Locker locker;
   v8::HandleScope scope;
   v8::Persistent<v8::Object> wrapper = GetDOMObjectMap().get(m_workerContext);
   if (!wrapper.IsEmpty())
@@ -279,6 +280,7 @@ bool WorkerContextExecutionProxy::ForgetV8EventObject(Event* event) {
 
 v8::Local<v8::Value> WorkerContextExecutionProxy::Evaluate(
     const String& str, const String& file_name, int base_line) {
+  v8::Locker locker;
   v8::HandleScope hs;
 
   InitContextIfNeeded();
