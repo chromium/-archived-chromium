@@ -27,7 +27,8 @@ layer at (0,0) size 800x600
                 RenderText {#text} at (0,0) size 45x19
                   text run at (0,0) width 45: "foo baz"
                 RenderText {#text} at (45,0) size 28x19
-                  text run at (45,0) width 28: " bar "
+                  text run at (45,0) width 24: " bar"
+                  text run at (69,0) width 4: " "
         RenderText {#text} at (0,0) size 0x0
       RenderBlock {P} at (0,320) size 800x40
         RenderText {#text} at (0,0) size 774x39
