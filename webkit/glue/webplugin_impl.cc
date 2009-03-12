@@ -207,6 +207,19 @@ void WebPluginContainer::frameRectsChanged() {
   impl_->setFrameRect(frameRect());
 }
 
+// We override this function, to make sure that geometry updates are sent
+// over to the plugin. For e.g. when a plugin is instantiated it does
+// not have a valid parent. As a result the first geometry update from
+// webkit is ignored. This function is called when the plugin eventually
+// gets a parent.
+void WebPluginContainer::setParentVisible(bool visible) {
+  WebCore::Widget::setParentVisible(visible);
+  if (visible)
+    show();
+  else
+    hide();
+}
+
 // We override this function so that if the plugin is windowed, we can call
 // NPP_SetWindow at the first possible moment.  This ensures that NPP_SetWindow
 // is called before the manual load data is sent to a plugin.  If this order is
