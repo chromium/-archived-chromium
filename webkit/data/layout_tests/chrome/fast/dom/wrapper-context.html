@@ -1,32 +1,30 @@
 <html>
-<body onload="AccessInnerDocument()">
+<body>
+Tests that node wrappers are created in the context to which they belong.
+You should see PASS below.
+<br>
 <div id="output"></div>
 <iframe id="inner" src="resources/wrapper-context-inner.html"></iframe>
 <script>
 if (window.layoutTestController) {
-  layoutTestController.waitUntilDone();
-  layoutTestController.dumpAsText();
+    layoutTestController.dumpAsText();
+    layoutTestController.waitUntilDone();
 }
 
-// Write to the output div.
-function WriteOutput(s) {
-  var paragraph = document.createElement("p");
-  paragraph.innerHTML = s;
-  document.getElementById("output").appendChild(paragraph);
+function writeOutput(s) {
+    var paragraph = document.createElement("p");
+    paragraph.innerHTML = s;
+    document.getElementById("output").appendChild(paragraph);
 }
 
-// Used from the inner frame to know when this frame has accessed 
-// the document of the inner frame.
+// Used to create the document wrapper.
 var innerDocument;
 
-// Once the inner frame has loaded, access it's document and assign
-// the wrapper to innerDocument.
-function AccessInnerDocument() {
-  if (inner.loaded) {
+// Once the inner frame has loaded, run the test.
+function innerHasLoaded() {
+    writeOutput("Running...");
     innerDocument = inner.document;
-  } else {
-    setTimeout(AccessInnerDocument, 100);
-  }
+    inner.runTest();
 }
 </script>
 </body>

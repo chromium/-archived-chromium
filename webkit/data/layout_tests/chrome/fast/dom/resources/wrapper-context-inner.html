@@ -1,27 +1,23 @@
 <html>
-<body onload="RunTest()">
+<body onload="notifyLoaded()">
 <script>
-// Used from the top frame to know when this frame has been loaded.
-var loaded = false;
+function notifyLoaded() {
+  top.innerHasLoaded();
+}
 
 // After the top frame has accessed the document of this frame, we
 // test that the document wrapper was created in this context and
 // not in the top context.
-function RunTest() {
-  loaded = true;
-  if (top.innerDocument) {
+function runTest() {
      var paragraph = document.createElement('p');
      if (HTMLElement.prototype.isPrototypeOf(paragraph)) {
-       top.WriteOutput("PASS");
+         top.writeOutput("PASS");
      } else {
-       top.WriteOutput("FAIL");
+         top.writeOutput("FAIL");
      }
      if (window.layoutTestController) {
-       layoutTestController.notifyDone();
+         layoutTestController.notifyDone();
      }
-  } else {
-    setTimeout(RunTest, 100);
-  }
 }
 </script>
 </body>
