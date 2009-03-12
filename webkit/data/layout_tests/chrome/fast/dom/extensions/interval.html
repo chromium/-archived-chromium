@@ -59,6 +59,7 @@ function test() {
   check("stopped", ms == interval.microseconds());
 
   // Verify that re-stopping the timer works.
+  pause(50);
   interval.stop();
   check("re-stopped", interval.microseconds() > ms);
 }
