@@ -136,6 +136,11 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
     : host_(widget_host) {
   host_->set_view(this);
   view_ = RenderWidgetHostViewGtkWidget::CreateNewWidget(this);
+  // BUG 8707: We will live in some container (in this case in WebContents).
+  // We want to destroy during Destroy(), independent of how we are managed in
+  // any containers.  We need to sink the reference here to "own" the widget so
+  // it can be added and removed from containers without being destroyed.
+  g_object_ref_sink(view_);
 }
 
 RenderWidgetHostViewGtk::~RenderWidgetHostViewGtk() {
