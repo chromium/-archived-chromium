@@ -28,6 +28,8 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::setLayoutTestMode(layout_test_mode);
     WebKit::registerURLSchemeAsLocal(
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
+    WebKit::registerURLSchemeAsNoAccess(
+        ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
     WebKit::registerExtension(extensions_v8::GearsExtension::Get());
     WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
   }

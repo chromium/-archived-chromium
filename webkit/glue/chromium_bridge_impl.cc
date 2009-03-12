@@ -194,12 +194,6 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
       webkit_glue::GetScreenInfo(ToNativeId(widget)).available_rect);
 }
 
-// URL ------------------------------------------------------------------------
-
-KURL ChromiumBridge::inspectorURL() {
-  return webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
-}
-
 // Widget ---------------------------------------------------------------------
 
 void ChromiumBridge::widgetSetCursor(Widget* widget, const Cursor& cursor) {

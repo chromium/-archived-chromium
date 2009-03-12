@@ -1996,6 +1996,10 @@ bool V8Proxy::isEnabled()
     if (origin->protocol() == "http" || origin->protocol() == "https")
         return false;  // Web site
 
+    // TODO(darin): the following are application decisions, and they should
+    // not be made at this layer.  instead, we should bridge out to the
+    // embedder to allow them to override policy here.
+
     if (origin->protocol() == ChromiumBridge::uiResourceProtocol())
         return true;   // Embedder's scripts are ok to run
 
@@ -2207,20 +2211,6 @@ bool V8Proxy::CanAccessPrivate(DOMWindow* target_window)
     ASSERT(target_security_origin);
     if (!target_security_origin)
         return false;
-
-    String ui_resource_protocol = ChromiumBridge::uiResourceProtocol();
-    if (active_security_origin->protocol() == ui_resource_protocol) {
-        KURL inspector_url = ChromiumBridge::inspectorURL();
-        ASSERT(inspector_url.protocol() == ui_resource_protocol);
-
-        // The Inspector can access anything.
-        if (active_security_origin->host() == inspector_url.host())
-            return true;
-
-        // To mitigate XSS vulnerabilities on the browser itself, UI resources
-        // besides the Inspector can't access other documents.
-        return false;
-    }
 
     if (active_security_origin->canAccess(target_security_origin))
         return true;
