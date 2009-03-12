@@ -94,6 +94,25 @@ void FullscreenExitBubble::FullscreenExitView::Paint(ChromeCanvas* canvas) {
 }
 
 
+// FullscreenExitPopup ---------------------------------------------------------
+
+class FullscreenExitBubble::FullscreenExitPopup : public views::WidgetWin {
+ public:
+  FullscreenExitPopup() : views::WidgetWin() { }
+  virtual ~FullscreenExitPopup() { }
+
+  // views::WidgetWin:
+  virtual LRESULT OnMouseActivate(HWND window,
+                                  UINT hittest_code,
+                                  UINT message) {
+    // Prevent the popup from being activated, so it won't steal focus from the
+    // rest of the browser, and doesn't cause problems with the FocusManager's
+    // "RestoreFocusedView()" functionality.
+    return MA_NOACTIVATE;
+  }
+};
+
+
 // FullscreenExitBubble --------------------------------------------------------
 
 const double FullscreenExitBubble::kOpacity = 0.7;
@@ -108,7 +127,7 @@ FullscreenExitBubble::FullscreenExitBubble(
     CommandUpdater::CommandUpdaterDelegate* delegate)
     : root_view_(frame->GetRootView()),
       delegate_(delegate),
-      popup_(new views::WidgetWin()),
+      popup_(new FullscreenExitPopup()),
       size_animation_(new SlideAnimation(this)) {
   size_animation_->Reset(1);
 
@@ -126,7 +145,7 @@ FullscreenExitBubble::FullscreenExitBubble(
   popup_->SetLayeredAlpha(static_cast<int>(0xff * kOpacity));
   popup_->Init(frame->GetHWND(), GetPopupRect(false), false);
   popup_->SetContentsView(view_);
-  popup_->Show();
+  popup_->Show();  // This does not activate the popup.
 
   // Start the initial delay timer.
   initial_delay_.Start(base::TimeDelta::FromMilliseconds(kInitialDelayMs), this,
