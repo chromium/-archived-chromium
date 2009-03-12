@@ -1766,9 +1766,8 @@ LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 // Regressions from merge 41559:41588
 LINUX WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 WIN : chrome/fast/dom/java-applet-calls.html = FAIL
-LINUX WIN : LayoutTests/editing/execCommand/selectAll.html = FAIL
+LINUX : LayoutTests/editing/execCommand/selectAll.html = FAIL
 WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
-WIN : LayoutTests/editing/selection/select-all-002.html = FAIL
 MAC LINUX WIN : LayoutTests/fast/events/onload-single-line-comment.html = TIMEOUT
 LINUX : LayoutTests/fast/text/trailing-white-space.html = FAIL
 LINUX : LayoutTests/fast/text/trailing-white-space-2.html = FAIL
