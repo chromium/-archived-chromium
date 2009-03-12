@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">352.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1"/>
+			<integer value="56"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -44,7 +44,7 @@
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="1006">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -94,15 +94,46 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{750, 600}</string>
-					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
 			</object>
 			<object class="NSCustomView" id="1029219716">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">266</int>
+				<object class="NSMutableArray" key="NSSubviews">
+					<bool key="EncodedWithXMLCoder">YES</bool>
+					<object class="NSButton" id="131944810">
+						<reference key="NSNextResponder" ref="1029219716"/>
+						<int key="NSvFlags">-2147483348</int>
+						<string key="NSFrame">{{295, 0}, {40, 27}}</string>
+						<reference key="NSSuperview" ref="1029219716"/>
+						<bool key="NSEnabled">YES</bool>
+						<object class="NSButtonCell" key="NSCell" id="517448702">
+							<int key="NSCellFlags">-2080244224</int>
+							<int key="NSCellFlags2">134217728</int>
+							<string key="NSContents"/>
+							<object class="NSFont" key="NSSupport">
+								<string key="NSName">LucidaGrande</string>
+								<double key="NSSize">1.300000e+01</double>
+								<int key="NSfFlags">1044</int>
+							</object>
+							<reference key="NSControlView" ref="131944810"/>
+							<int key="NSButtonFlags">138690815</int>
+							<int key="NSButtonFlags2">134</int>
+							<object class="NSCustomResource" key="NSNormalImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">newtab</string>
+							</object>
+							<string key="NSAlternateContents"/>
+							<string key="NSKeyEquivalent"/>
+							<int key="NSPeriodicDelay">400</int>
+							<int key="NSPeriodicInterval">75</int>
+						</object>
+					</object>
+				</object>
 				<string key="NSFrameSize">{483, 25}</string>
+				<reference key="NSSuperview"/>
 				<string key="NSClassName">TabStripView</string>
 			</object>
 		</object>
@@ -200,9 +231,24 @@
 						<reference key="object" ref="1029219716"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="131944810"/>
 						</object>
 						<reference key="parent" ref="1002"/>
 						<string key="objectName">TabBar</string>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">66</int>
+						<reference key="object" ref="131944810"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="517448702"/>
+						</object>
+						<reference key="parent" ref="1029219716"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">67</int>
+						<reference key="object" ref="517448702"/>
+						<reference key="parent" ref="131944810"/>
 					</object>
 				</object>
 			</object>
@@ -227,6 +273,8 @@
 					<string>55.IBPluginDependency</string>
 					<string>56.IBEditorWindowLastContentRect</string>
 					<string>56.IBPluginDependency</string>
+					<string>66.IBPluginDependency</string>
+					<string>67.IBPluginDependency</string>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -250,6 +298,8 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{160, 204}, {483, 25}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -272,7 +322,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">65</int>
+			<int key="maxID">67</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">

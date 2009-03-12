@@ -30,7 +30,7 @@ class ToolbarModel;
  @private
   TabContents* currentTab_;   // weak, tab for which we're showing state
   TabStripView* tabView_;  // weak
-  NSButton* newTabButton_;
+  NSButton* newTabButton_;  // weak, obtained from the nib.
   TabStripBridge* bridge_;
   TabStripModel* tabModel_;  // weak
   ToolbarModel* toolbarModel_;  // weak, one per browser

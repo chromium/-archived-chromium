@@ -76,18 +76,17 @@ class TabStripBridge : public TabStripModelObserver {
     tabContentsArray_ = [[NSMutableArray alloc] init];
     tabArray_ = [[NSMutableArray alloc] init];
 
-    // Create the new tab button separate from the nib so we can make sure
-    // it's always at the end of the subview list.
-    NSImage* image = [NSImage imageNamed:@"newtab"];
-    NSRect frame = NSMakeRect(0, 0, [image size].width, [image size].height);
-    newTabButton_ = [[NSButton alloc] initWithFrame:frame];
-    [newTabButton_ setImage:image];
-    [newTabButton_ setImagePosition:NSImageOnly];
+    // Take the only child view present in the nib as the new tab button. For
+    // some reason, if the view is present in the nib apriori, it draws
+    // correctly. If we create it in code and add it to the tab view, it draws
+    // with all sorts of crazy artifacts.
+    newTabButton_ = [[tabView_ subviews] objectAtIndex:0];
+    DCHECK([newTabButton_ isKindOfClass:[NSButton class]]);
     [newTabButton_ setTarget:nil];
     [newTabButton_ setAction:@selector(commandDispatch:)];
     [newTabButton_ setTag:IDC_NEW_TAB];
-    [newTabButton_ setButtonType:NSMomentaryPushInButton];
-    [newTabButton_ setBordered:NO];
+
+    [tabView_ setWantsLayer:YES];
   }
   return self;
 }
@@ -96,7 +95,6 @@ class TabStripBridge : public TabStripModelObserver {
   delete bridge_;
   [tabContentsArray_ release];
   [tabArray_ release];
-  [newTabButton_ release];
   [super dealloc];
 }
 
@@ -146,13 +144,21 @@ class TabStripBridge : public TabStripModelObserver {
 
 // Returns the index of the subview |view|. Returns -1 if not present.
 - (NSInteger)indexForTabView:(NSView*)view {
-  NSInteger index = -1;
-  const int numSubviews = [self numberOfTabViews];
-  for (int i = 0; i < numSubviews; i++) {
-    if ([[tabView_ subviews] objectAtIndex:i] == view)
-      index = i;
+  NSInteger index = 0;
+  for (TabController* current in tabArray_) {
+    if ([current view] == view)
+      return index;
+    ++index;
   }
-  return index;
+  return -1;
+}
+
+// Returns the view at the given index, using the array of TabControllers to
+// get the associated view. Returns nil if out of range.
+- (NSView*)viewAtIndex:(NSUInteger)index {
+  if (index >= [tabArray_ count])
+    return NULL;
+  return [[tabArray_ objectAtIndex:index] view];
 }
 
 // Called when the user clicks a tab. Tell the model the selection has changed,
@@ -172,11 +178,22 @@ class TabStripBridge : public TabStripModelObserver {
 
   short xOffset = kIndentLeavingSpaceForControls;
   if (index > 0) {
-    NSRect previousTab = [[[tabView_ subviews] objectAtIndex:index - 1] frame];
+    NSRect previousTab = [[self viewAtIndex:index - 1] frame];
     xOffset = NSMaxX(previousTab) - kTabOverlap;
   }
 
   return NSMakeRect(xOffset, 0, kNewTabWidth, [tabView_ frame].size.height);
+}
+
+// Positions the new tab button to the right of the last tab.
+- (void)positionNewTabButton {
+  const NSInteger kNewTabXOffset = 10;
+  NSRect lastTab = [[[tabArray_ lastObject] view] frame];
+  NSInteger maxRightEdge = NSMaxX(lastTab);
+  NSRect newTabButtonFrame = [newTabButton_ frame];
+  newTabButtonFrame.origin.x = maxRightEdge + kNewTabXOffset;
+  [newTabButton_ setFrame:newTabButtonFrame];
+  [newTabButton_ setHidden:NO];
 }
 
 // Handles setting the title of the tab based on the given |contents|. Uses
@@ -211,10 +228,6 @@ class TabStripBridge : public TabStripModelObserver {
           autorelease];
   [tabContentsArray_ insertObject:contentsController atIndex:index];
 
-  // Remove the new tab button so the only views present are the tabs,
-  // we'll add it back when we're done
-  [newTabButton_ removeFromSuperview];
-
   // Make a new tab and add it to the strip. Keep track of its controller.
   // TODO(pinkerton): move everyone else over and animate. Also will need to
   // move the "add tab" button over.
@@ -224,17 +237,9 @@ class TabStripBridge : public TabStripModelObserver {
   NSView* newView = [newController view];
   [tabView_ addSubview:newView];
 
-  [self setTabTitle:newController withContents:contents];
+  [self positionNewTabButton];
 
-  // Add the new tab button back in to the right of the last tab.
-  const NSInteger kNewTabXOffset = 10;
-  NSRect lastTab =
-    [[[tabView_ subviews] objectAtIndex:[[tabView_ subviews] count] - 1] frame];
-  NSInteger maxRightEdge = NSMaxX(lastTab);
-  NSRect newTabButtonFrame = [newTabButton_ frame];
-  newTabButtonFrame.origin.x = maxRightEdge + kNewTabXOffset;
-  [newTabButton_ setFrame:newTabButtonFrame];
-  [tabView_ addSubview:newTabButton_];
+  [self setTabTitle:newController withContents:contents];
 
   // Select the newly created tab if in the foreground
   if (inForeground)
@@ -248,11 +253,15 @@ class TabStripBridge : public TabStripModelObserver {
                       atIndex:(NSInteger)index
                   userGesture:(bool)wasUserGesture {
   // De-select all other tabs and select the new tab.
-  const int numSubviews = [self numberOfTabViews];
-  for (int i = 0; i < numSubviews; i++) {
-    TabController* current = [tabArray_ objectAtIndex:i];
+  int i = 0;
+  for (TabController* current in tabArray_) {
     [current setSelected:(i == index) ? YES : NO];
+    ++i;
   }
+
+  // Make this the top-most tab in the strips's z order.
+  NSView* selectedTab = [self viewAtIndex:index];
+  [tabView_ addSubview:selectedTab positioned:NSWindowAbove relativeTo:nil];
 
   // Tell the new tab contents it is about to become the selected tab. Here it
   // can do things like make sure the toolbar is up to date.
@@ -276,18 +285,31 @@ class TabStripBridge : public TabStripModelObserver {
   [tabContentsArray_ removeObjectAtIndex:index];
 
   // Remove the |index|th view from the tab strip
-  NSView* tab = [[tabView_ subviews] objectAtIndex:index];
+  NSView* tab = [self viewAtIndex:index];
   NSInteger tabWidth = [tab frame].size.width;
   [tab removeFromSuperview];
 
-  // Move all the views to the right the width of the tab that was closed.
-  // TODO(pinkerton): Animate!
-  const int numSubviews = [[tabView_ subviews] count];
-  for (int i = index; i < numSubviews; i++) {
-    NSView* curr = [[tabView_ subviews] objectAtIndex:i];
-    NSRect newFrame = [curr frame];
-    newFrame.origin.x -= tabWidth - kTabOverlap;
-    [curr setFrame:newFrame];
+  // Move all the views that are to the right of the tab being removed over
+  // the width of the tab that was closed. Don't bother animating if there is
+  // only 1 tab as everything is going away.
+  if ([self numberOfTabViews] > 1) {
+    int currIndex = 0;
+    for (TabController* curr in tabArray_) {
+      if (currIndex > index) {
+        NSView* shiftingView = [curr view];
+        NSRect newFrame = [shiftingView frame];
+        newFrame.origin.x -= tabWidth - kTabOverlap;
+        [[shiftingView animator] setFrame:newFrame];
+      }
+      ++currIndex;
+    }
+
+    // Move the new tab button. Note we can't just use the position of the
+    // last tab because it will still be at the old location due to the delay
+    // due to animation.
+    NSRect newTabFrame = [newTabButton_ frame];
+    newTabFrame.origin.x -= tabWidth - kTabOverlap;
+    [[newTabButton_ animator] setFrame:newTabFrame];
   }
 
   // Once we're totally done with the tab, delete its controller

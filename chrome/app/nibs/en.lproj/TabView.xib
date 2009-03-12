@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">352.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="17"/>
+			<integer value="18"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -47,7 +47,7 @@
 						<reference key="NSSuperview" ref="1005"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="707804163">
-							<int key="NSCellFlags">67239424</int>
+							<int key="NSCellFlags">-2080244224</int>
 							<int key="NSCellFlags2">0</int>
 							<string key="NSContents">Label</string>
 							<object class="NSFont" key="NSSupport">
@@ -60,7 +60,7 @@
 							<int key="NSButtonFlags2">134</int>
 							<object class="NSCustomResource" key="NSNormalImage">
 								<string key="NSClassName">NSImage</string>
-								<string key="NSResourceName">gmail</string>
+								<string key="NSResourceName">nav</string>
 							</object>
 							<string key="NSAlternateContents"/>
 							<string key="NSKeyEquivalent"/>

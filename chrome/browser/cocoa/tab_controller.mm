@@ -26,6 +26,11 @@
   return self;
 }
 
+- (void)dealloc {
+  [image_ release];
+  [super dealloc];
+}
+
 // Called when the tab's nib is done loading and all outlets are hooked up.
 - (void)awakeFromNib {
   [[self view] addSubview:backgroundButton_
