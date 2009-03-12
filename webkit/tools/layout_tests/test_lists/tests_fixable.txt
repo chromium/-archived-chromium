@@ -899,7 +899,7 @@ WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
 LINUX MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
-LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
+LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
@@ -1175,7 +1175,7 @@ MAC : LayoutTests/http/tests/security/frameNavigation/not-opener.html = PASS TIM
 MAC : LayoutTests/http/tests/xmlhttprequest/close-window.html = CRASH TIMEOUT
 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT CRASH
 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT CRASH
-MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT
+MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL CRASH
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
@@ -1441,7 +1441,6 @@ WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL CRASH
 DEFER : LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
-WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS TIMEOUT
 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
 LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
 LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html = PASS TIMEOUT
@@ -1785,3 +1784,7 @@ MAC : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PA
 // Looks like they started failing with r11542
 MAC : LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
 MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
+
+// Added 3/12/09
+MAC DEBUG : LayoutTests/fast/events/popup-blocking-click-in-iframe.html = CRASH PASS
+MAC : LayoutTests/tables/mozilla/other/slashlogo.html = TIMEOUT PASS
