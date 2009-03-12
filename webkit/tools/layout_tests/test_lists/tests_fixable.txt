@@ -1763,7 +1763,8 @@ MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH
 LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 
 // Regressions from merge 41559:41588
-LINUX WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
+// This one probably just needs a new baseline:
+LINUX : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 WIN : chrome/fast/dom/java-applet-calls.html = FAIL
 LINUX : LayoutTests/editing/execCommand/selectAll.html = FAIL
 WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
