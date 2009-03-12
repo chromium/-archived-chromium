@@ -342,6 +342,9 @@ void BookmarkModel::SortChildren(BookmarkNode* parent) {
   std::sort(parent->children().begin(), parent->children().end(),
             SortComparator(collator.get()));
 
+  if (store_.get())
+    store_->ScheduleSave();
+
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
                     BookmarkNodeChildrenReordered(this, parent));
 }
