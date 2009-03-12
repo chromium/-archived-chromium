@@ -64,13 +64,13 @@ function log(x) {
 
 
 /* Wait for IPC state change, execute command, send results. */
-function get_ipc_command() { 
+function get_ipc_command() {
 
   var hval;
 
-  try { hval = top.frames['ipc_read'].location.hash; } catch (e) { 
+  try { hval = top.frames['ipc_read'].location.hash; } catch (e) {
     // log('IPC command read failed from external ipc_read.');
-    hval = ''; 
+    hval = '';
   }
 
   if (hval == prev_hval || hval == '' || hval == undefined || hval == 'NONE') {
@@ -107,7 +107,7 @@ function get_ipc_command() {
   hval = hval.substr(1);
 
   if (hval == 'RESET') res = 2;
-  else try { 
+  else try {
     if (eval(unescape(hval))) res = 1;
    } catch (e) {
     // log('Evaluation exception! Final was: ' + unescape(hval));

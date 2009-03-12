@@ -3,7 +3,7 @@
    DOM checker - configuration parameters
    --------------------------------------
 
-   Please be sure to update these to reflect the realities of the place where 
+   Please be sure to update these to reflect the realities of the place where
    you host the program.
 
    Authors: Michal Zalewski <lcamtuf@google.com>
@@ -27,7 +27,7 @@
 
 
 /* Host name where you intend to put the script: */
-var main_host = 'localhost';
+var main_host = 'localhost:8000';
 
 /* Subdirectory for DOM checker files: */
 var main_dir = 'dom_checker';
@@ -35,7 +35,7 @@ var main_dir = 'dom_checker';
 /* An alternative way to call the same resource in a manner that
    appears to the browser as completely unrelated to main_host
    (try IP address): */
-var alt_host  = '127.0.0.1';
+var alt_host  = '127.0.0.1:8000';
 
 /* Subdirectory for DOM checker files: */
 var alt_dir = 'dom_checker';

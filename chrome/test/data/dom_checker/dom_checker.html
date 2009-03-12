@@ -27,6 +27,7 @@
 <title>DOM checker - browser domain context separation validator</title>
 
 <script src="dom_config.js"></script>
+<script src="extra_utils.js"></script>
 
 <script>
 
@@ -36,7 +37,7 @@ var running_local = false;	// Running from file:///?
 
 var bad = 0;			// Number of failed tests
 var now_running = 0;		// Run-level nesting counter
-var target_page;		// Target page location 
+var target_page;		// Target page location
 var same_blank;			// Same-domain blank page location
 var blank_page;			// Blank page location
 
@@ -73,10 +74,14 @@ var fail_cycles = 0;		// IPC failure count
 
 var output;			// Output container.
 
+// Some added bookkeeping variables.
+var num_tests_total = 0;
+var tests_failed = [];
+
 /* Send a reset command to IPC peer. */
 function ipc_reset() {
 
-  last_ipc = 'RESET';  
+  last_ipc = 'RESET';
   if (disable_ipc) return;
 
   ipc_wait_count = 0;
@@ -89,7 +94,7 @@ function ipc_reset() {
 /* Send evaluation request to IPC peer. */
 function ipc_eval(expr) {
 
-  last_ipc = 'EVAL('  + expr + ')';  
+  last_ipc = 'EVAL('  + expr + ')';
   if (disable_ipc) return;
 
   ipc_wait_count = 0;
@@ -118,8 +123,8 @@ function ipc_changed() {
 
       /* So, Opera is a bit naughty and won't let us do that. Oh well. */
 
-      alert('Unable to get ipc_write frame hash in response to ' + last_ipc + 
-            ' (' + ipc_count + ') in state ' + ipc_state + 
+      alert('Unable to get ipc_write frame hash in response to ' + last_ipc +
+            ' (' + ipc_count + ') in state ' + ipc_state +
             '\nWARNING: Disabling side channel IPC, results may be less accurate!');
 
       disable_ipc = true;
@@ -134,8 +139,8 @@ function ipc_changed() {
   if (ipc_value == ipc_state) {
     ipc_wait_count++;
 
-    if (ipc_wait_count == 500) 
-      alert('Waited more than 500 cycles on IPC command ' + last_ipc + ' (' + 
+    if (ipc_wait_count == 500)
+      alert('Waited more than 500 cycles on IPC command ' + last_ipc + ' (' +
             ipc_count + ') in state ' + ipc_state);
 
     return false;
@@ -157,7 +162,8 @@ function init_frames() {
     return;
   }
 
-  if (location.protocol == 'http:' && main_host != location.hostname) {
+  if (location.protocol == 'http:' && main_host != location.hostname &&
+      main_host != location.host) {
     alert('Config file dom_checker.js specifies main_host that does not match current hostname.\n' +
           'Please check your configuration.');
     return;
@@ -200,8 +206,7 @@ function check_frame() {
 /* Make the page runnable. */
 function init_button() {
   output = document.getElementById('results');
-  document.getElementById('start').disabled = false;
-  document.getElementById('start').value="Click here to begin tests";
+  do_tests();  // Start the tests automatically at page load.
 }
 
 
@@ -210,18 +215,18 @@ function E(x) { return eval(x); }
 
 
 /* Open a new javascript: window, see if it gets to read window properties to
-   other sites' about:blank windows, and phone back by pointing the window back 
+   other sites' about:blank windows, and phone back by pointing the window back
    to our domain. */
 function open_blankwin() {
 
   /* XXX: Is opener.* the best route to follow? Maybe open('',name) instead? */
 
   try {
-    blank_win = open('javascript:void(location = "' + same_blank + 
+    blank_win = open('javascript:void(location = "' + same_blank +
       '?" + opener.frames[0].frames[0].location)','blank_win',
       'height=100,width=100,location=no,menubar=no,resizable=no,scrollbars=no,status=no,toolbar=no');
-  } catch (e) { 
-    blank_win = open('javascript:void(location = "' + same_blank + 
+  } catch (e) {
+    blank_win = open('javascript:void(location = "' + same_blank +
       '?" + opener.frames[0].frames[0].location)','blank_win',
       'height=100,width=100,location=no,menubar=no,resizable=no,scrollbars=no,status=no,toolbar=no');
   }
@@ -229,7 +234,7 @@ function open_blankwin() {
 }
 
 
-/* See if we get to access that window's properties, and whether it succeeded at 
+/* See if we get to access that window's properties, and whether it succeeded at
    retrieving the data. */
 function blankwin_verify() {
 
@@ -245,7 +250,7 @@ function blankwin_verify() {
   now_running--;
 
 }
-      
+
 
 /* Prepare blank window checks... */
 function blankwin_checks() {
@@ -273,7 +278,7 @@ function do_tests() {
   if (document.getElementById('option_long').checked)
     option_long = true;
 
-  /* We need to call this first, as the ability to open new windows expires pretty 
+  /* We need to call this first, as the ability to open new windows expires pretty
      quickly after UI events in some browsers */
 
   open_blankwin();
@@ -332,7 +337,7 @@ function do_tests() {
   // Can setTimeout be smuggled across page transitions?
 
   schedule_test('timeout_checks()');
-  
+
   // Can IFRAMEs access file:// URLs?
 
   if (!running_local)
@@ -387,7 +392,7 @@ function next_test() {
   test_count++;
 
   if (cmd) {
-    e.innerHTML = "Running test " + (test_count-1) + "/" + test_size + 
+    e.innerHTML = "Running test " + (test_count-1) + "/" + test_size +
                   " <font color=gray>(" + cmd + ")</font>";
     eval(cmd);
     setTimeout(next_test, 100); // yield
@@ -402,12 +407,18 @@ function update_finalize() {
 
   document.getElementById('start').value = "Testing complete!";
 
-  if (bad) 
-    document.getElementById('status').innerHTML = 
+  if (bad)
+    document.getElementById('status').innerHTML =
       "<font color=red>Failed checks: " + bad + "</font>";
   else
-    document.getElementById('status').innerHTML = 
+    document.getElementById('status').innerHTML =
       "<font color=green>All checks passed (whoa!)</font>";
+
+  // Write the results for the test automation.
+  writeCookie('__num_tests_total', num_tests_total);
+  // Conservatively limit cookie size to 2K.
+  writeCookie('__tests_failed', convertArrayToCookieValue(tests_failed, 2048));
+  writeCookie('__tests_finished', '1');
 
 }
 
@@ -422,6 +433,8 @@ function log(message) {
 
 /* Log passed test event. */
 function GOOD(x) {
+  num_tests_total++;
+
   if (option_badonly) return;
   x = x.replace('frames[0].frames[0]','(blank)').replace('frames[0]','(third-party)');
   log('<font color=teal>Check passed : ' + x + ' access denied.</font>');
@@ -430,6 +443,9 @@ function GOOD(x) {
 
 /* Log test failure. */
 function BAD(x) {
+  num_tests_total++;
+  tests_failed.push(x);
+
   bad++;
   x = x.replace('frames[0].frames[0]','(blank)').replace('frames[0]','(third-party)');
   log('<font color=red>CHECK FAILED : ' + x + ' is possible!</font>');
@@ -463,7 +479,7 @@ function variable_injection_check() {
 
 /* See if we may just set document.domain to whatever we want. */
 function opening_tricks() {
-  try { 
+  try {
     document.domain = alt_host;
     if (document.domain != alt_host) throw 1;
     BAD("arbitrary document.domain");
@@ -517,6 +533,9 @@ function closing_tricks() {
       GOOD("XMLHttpRequest path splitting");
     }
 
+    // Disabled, causes the page to become unresponsive. See:
+    //   http://code.google.com/p/chromium/issues/detail?id=8401
+    /*
     x = new XMLHttpRequest();
     try {
       x.open('GET','file:///c:/boot.ini',false);
@@ -534,6 +553,7 @@ function closing_tricks() {
     } catch (e) {
       GOOD("XMLHttpRequest() to local files (unix)");
     }
+    */
 
   }
 
@@ -548,7 +568,7 @@ function closing_tricks() {
 
   /* It would be good to test for the ability to set file:/// SRC= URLs,
      but there is no convenient way to read back the result, I think...
-     onerror= and onload= firing is handy, but very inconsistent across 
+     onerror= and onload= firing is handy, but very inconsistent across
      browsers. */
 
   document.cookie = 'dom_checker_cookie=bar_com; path=/; domain=com';
@@ -556,7 +576,7 @@ function closing_tricks() {
   document.cookie = 'dom_checker_cookie=bar_dot; path=/; domain=.';
   document.cookie = 'dom_checker_cookie=bar_dotcomdot; path=/; domain=.cx.';
 
-  // This will overwrite our cookie if domain= was silently dropped on previous 
+  // This will overwrite our cookie if domain= was silently dropped on previous
   // attempts:
 
   document.cookie = 'dom_checker_cookie=invalid; path=/';
@@ -581,29 +601,29 @@ function closing_tricks() {
 
   /* Depending on the implementation, this might not be a tragic security
      flaw, as a mutual consent to this is required in most browsers; but it
-     certainly encourages terrible coding practices and may make it easier 
+     certainly encourages terrible coding practices and may make it easier
      to go after certain targets. */
 
-  try { 
-    document.domain = '.cx'; 
+  try {
+    document.domain = '.cx';
     if (document.domain != '.cx') throw 1;
     BAD("document.domain = '.cx'");
   } catch (e) { GOOD("document.domain = '.cx'"); }
 
-  try { 
-    document.domain = 'cx'; 
+  try {
+    document.domain = 'cx';
     if (document.domain != 'cx') throw 1;
     BAD("document.domain = 'cx'");
   } catch (e) { GOOD("document.domain = 'cx'"); }
 
-  try { 
-    document.domain = '.'; 
+  try {
+    document.domain = '.';
     if (document.domain != '.') throw 1;
     BAD("document.domain = '.'");
   } catch (e) { GOOD("document.domain = '.'"); }
 
-  try { 
-    document.domain = ''; 
+  try {
+    document.domain = '';
     if (document.domain != '') throw 1;
     BAD("document.domain = ''");
   } catch (e) { GOOD("document.domain = ''"); }
@@ -848,7 +868,7 @@ function fill_read_write(control, base) {
    hence are executed asynchronously. */
 function try_read_write_all() {
 
-  for(i in read_list) 
+  for(i in read_list)
     try_read(read_list[i]);
 
   if (!write_list.length) return;
@@ -1005,16 +1025,16 @@ function try_call(name) {
 function list_checks(name) {
   var x;
 
-  try { 
+  try {
     x = E(name + "[0]");
     if (x == undefined) return;
     BAD(name + "<!-- NOP -->[0] probe [value: " + x + "]");
   } catch (e) { GOOD(name + " probe"); }
 
-  try { 
+  try {
     x = E(name + ".length");
     if (x == undefined) return;
-    BAD(name + ".length read [value: " + x + "]"); 
+    BAD(name + ".length read [value: " + x + "]");
   } catch (e) { GOOD(name + ".length read"); }
 
   iterator_check(name);
@@ -1075,7 +1095,7 @@ function flip_finalize() {
 /* Perform a location flip. */
 function loc_flip() {
 //  if (Math.random() > .8) return;
-  if (Math.random() > .5) document.getElementById('f').src = blank_page; 
+  if (Math.random() > .5) document.getElementById('f').src = blank_page;
     else document.getElementById('f').src = 'about:blank';
   flip_count--;
   if (!flip_count) {
@@ -1185,13 +1205,13 @@ Filipe Almeida &lt;<a href="mailto:filipe@google.com">filipe@google.com</a>&gt;<
 Copyright 2008 by Google Inc., and licensed under the Apache License, Version 2.0.
 <p>
 <font color=gray>
-DOM access checker is a tool designed to automatically validate numerous aspects of domain 
-security policy enforcement (cross-domain DOM access, Javascript cookies, XMLHttpRequest 
-calls, event and transition handling) to detect common security attack or information 
+DOM access checker is a tool designed to automatically validate numerous aspects of domain
+security policy enforcement (cross-domain DOM access, Javascript cookies, XMLHttpRequest
+calls, event and transition handling) to detect common security attack or information
 disclosure vectors.
 <p>
-Please run this tool both over HTTP, and then from local disk (file:/// namespace). 
-Ideally, results in both cases should be the same, and no failed tests should be reported. 
+Please run this tool both over HTTP, and then from local disk (file:/// namespace).
+Ideally, results in both cases should be the same, and no failed tests should be reported.
 That said, although we worked with software vendors to resolve many of the most significant
 issues, all common browsers fail anywhere from 10 to 30 of less significant tests due to
 various design decisions (most of which bear some privacy considerations by making it

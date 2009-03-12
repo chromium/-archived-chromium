@@ -5,3 +5,19 @@ accesses, JavaScript cookies, XMLHttpRequest calls, and more.
 DOM checker was written by Michal Zalewski and Filipe Almeida of Google.
 
 Version: 1.01
+
+Modifications:
+  - Modified dom_config.js to work with the test configuration setup.
+  - Added bookkeeping variables to dom_checker.html. These variables track the
+    total number of tests ran and the failed tests. This data is written to
+    cookies, which will be picked up by the test executable.
+  - Modified dom_checker.html to not complain when running the test on a
+    specified port other than the default port.
+  - Modified dom_checker.html to start the tests immediately on page load,
+    rather than waiting for the user to click on a button.
+  - Removed trailing whitespace in all files.
+  - Added extra_utils.js to contain extra utility functions needed to help with
+    automating the test. Included this file in dom_checker.html.
+  - Added expected_failures.txt to contain a list of expected failures. The
+    test is considered "passing" if there are no failures not in the expected
+    failure list.
