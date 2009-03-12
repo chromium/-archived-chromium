@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_GTK_FIND_BAR_GTK_H_
 #define CHROME_BROWSER_GTK_FIND_BAR_GTK_H_
 
+#include "base/basictypes.h"
 #include "chrome/browser/find_bar.h"
 
 #include <gtk/gtk.h>
