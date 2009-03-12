@@ -92,7 +92,8 @@ skip_child_includes = [
 
 hooks = [
   {
-    "pattern": "\\.gypi?$",
+    # A change to a .gyp, .gypi, or to GYP itself shound run the generator.
+    "pattern": "\\.gypi?$|[/\\\\]src[/\\\\]tools[/\\\\]gyp[/\\\\]",
     "action": ["python", "src/tools/gyp/gyp_dogfood", "src/build/all.gyp"],
   },
 ]
