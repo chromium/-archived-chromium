@@ -9,6 +9,8 @@
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_cell.h"
 #import "chrome/browser/cocoa/tab_contents_controller.h"
+#import "chrome/browser/cocoa/tab_controller.h"
+#import "chrome/browser/cocoa/tab_view.h"
 #import "chrome/browser/tab_contents/tab_contents.h"
 #import "chrome/browser/tabs/tab_strip_model.h"
 
@@ -71,7 +73,8 @@ class TabStripBridge : public TabStripModelObserver {
     toolbarModel_ = toolbarModel;
     commands_ = commands;
     bridge_ = new TabStripBridge(tabModel, self);
-    tabControllerArray_ = [[NSMutableArray alloc] init];
+    tabContentsArray_ = [[NSMutableArray alloc] init];
+    tabArray_ = [[NSMutableArray alloc] init];
 
     // Create the new tab button separate from the nib so we can make sure
     // it's always at the end of the subview list.
@@ -91,7 +94,8 @@ class TabStripBridge : public TabStripModelObserver {
 
 - (void)dealloc {
   delete bridge_;
-  [tabControllerArray_ release];
+  [tabContentsArray_ release];
+  [tabArray_ release];
   [newTabButton_ release];
   [super dealloc];
 }
@@ -99,7 +103,7 @@ class TabStripBridge : public TabStripModelObserver {
 // Finds the associated TabContentsController at the given |index| and swaps
 // out the sole child of the contentArea to display its contents.
 - (void)swapInTabAtIndex:(NSInteger)index {
-  TabContentsController* controller = [tabControllerArray_ objectAtIndex:index];
+  TabContentsController* controller = [tabContentsArray_ objectAtIndex:index];
 
   // Resize the new view to fit the window
   NSView* contentView = [[tabView_ window] contentView];
@@ -123,24 +127,21 @@ class TabStripBridge : public TabStripModelObserver {
 
 // Create a new tab view and set its cell correctly so it draws the way we
 // want it to.
-- (NSButton*)newTabWithFrame:(NSRect)frame {
-  NSButton* button = [[[NSButton alloc] initWithFrame:frame] autorelease];
-  TabCell* cell = [[[TabCell alloc] init] autorelease];
-  [button setCell:cell];
-  [button setButtonType:NSMomentaryPushInButton];
-  [button setTitle:@"New Tab"];
-  [button setBezelStyle:NSRegularSquareBezelStyle];
-  [button setTarget:self];
-  [button setAction:@selector(selectTab:)];
+- (TabController*)newTabWithFrame:(NSRect)frame {
+  TabController* controller = [[[TabController alloc] init] autorelease];
+  [controller setTarget:self];
+  [controller setAction:@selector(selectTab:)];
+  TabView* view = [controller tabView];
+  [view setFrame:frame];
 
-  return button;
+  return controller;
 }
 
-// Returns the number of tab buttons in the tab strip by counting the children.
-// Recall the last view is the "new tab" button, so the number of tabs is one
-// less than the count.
+// Returns the number of tabs in the tab strip. This is just the number
+// of TabControllers we know about as there's a 1-to-1 mapping from these
+// controllers to a tab.
 - (NSInteger)numberOfTabViews {
-  return [[tabView_ subviews] count] - 1;
+  return [tabArray_ count];
 }
 
 // Returns the index of the subview |view|. Returns -1 if not present.
@@ -167,7 +168,7 @@ class TabStripBridge : public TabStripModelObserver {
 // as to not cover the window controls.
 - (NSRect)frameForNewTabAtIndex:(NSInteger)index {
   const short kIndentLeavingSpaceForControls = 66;
-  const short kNewTabWidth = 160;
+  const short kNewTabWidth = [TabController maxTabWidth];
 
   short xOffset = kIndentLeavingSpaceForControls;
   if (index > 0) {
@@ -180,7 +181,7 @@ class TabStripBridge : public TabStripModelObserver {
 
 // Handles setting the title of the tab based on the given |contents|. Uses
 // a canned string if |contents| is NULL.
-- (void)setTabTitle:(NSButton*)tab withContents:(TabContents*)contents {
+- (void)setTabTitle:(NSViewController*)tab withContents:(TabContents*)contents {
   NSString* titleString = nil;
   if (contents)
     titleString = base::SysUTF16ToNSString(contents->GetTitle());
@@ -208,20 +209,22 @@ class TabStripBridge : public TabStripModelObserver {
                                              commands:commands_
                                          toolbarModel:toolbarModel_]
           autorelease];
-  [tabControllerArray_ insertObject:contentsController atIndex:index];
+  [tabContentsArray_ insertObject:contentsController atIndex:index];
 
   // Remove the new tab button so the only views present are the tabs,
   // we'll add it back when we're done
   [newTabButton_ removeFromSuperview];
 
-  // Make a new tab view and add it to the strip.
+  // Make a new tab and add it to the strip. Keep track of its controller.
   // TODO(pinkerton): move everyone else over and animate. Also will need to
   // move the "add tab" button over.
   NSRect newTabFrame = [self frameForNewTabAtIndex:index];
-  NSButton* newView = [self newTabWithFrame:newTabFrame];
+  TabController* newController = [self newTabWithFrame:newTabFrame];
+  [tabArray_ insertObject:newController atIndex:index];
+  NSView* newView = [newController view];
   [tabView_ addSubview:newView];
 
-  [self setTabTitle:newView withContents:contents];
+  [self setTabTitle:newController withContents:contents];
 
   // Add the new tab button back in to the right of the last tab.
   const NSInteger kNewTabXOffset = 10;
@@ -247,14 +250,14 @@ class TabStripBridge : public TabStripModelObserver {
   // De-select all other tabs and select the new tab.
   const int numSubviews = [self numberOfTabViews];
   for (int i = 0; i < numSubviews; i++) {
-    NSButton* current = [[tabView_ subviews] objectAtIndex:i];
-    [current setState:(i == index) ? NSOnState : NSOffState];
+    TabController* current = [tabArray_ objectAtIndex:i];
+    [current setSelected:(i == index) ? YES : NO];
   }
 
   // Tell the new tab contents it is about to become the selected tab. Here it
   // can do things like make sure the toolbar is up to date.
   TabContentsController* newController =
-      [tabControllerArray_ objectAtIndex:index];
+      [tabContentsArray_ objectAtIndex:index];
   [newController willBecomeSelectedTab];
 
   // Swap in the contents for the new tab
@@ -270,7 +273,7 @@ class TabStripBridge : public TabStripModelObserver {
   // will remove all the tab content Cocoa views from the hierarchy. A
   // subsequent "select tab" notification will follow from the model. To
   // tell us what to swap in in its absence.
-  [tabControllerArray_ removeObjectAtIndex:index];
+  [tabContentsArray_ removeObjectAtIndex:index];
 
   // Remove the |index|th view from the tab strip
   NSView* tab = [[tabView_ subviews] objectAtIndex:index];
@@ -286,23 +289,25 @@ class TabStripBridge : public TabStripModelObserver {
     newFrame.origin.x -= tabWidth - kTabOverlap;
     [curr setFrame:newFrame];
   }
+
+  // Once we're totally done with the tab, delete its controller
+  [tabArray_ removeObjectAtIndex:index];
 }
 
 // Called when a notification is received from the model that the given tab
 // has been updated.
 - (void)tabChangedWithContents:(TabContents*)contents
                        atIndex:(NSInteger)index {
-  NSButton* tab = [[tabView_ subviews] objectAtIndex:index];
-  [self setTabTitle:tab withContents:contents];
+  [self setTabTitle:[tabArray_ objectAtIndex:index] withContents:contents];
 
   TabContentsController* updatedController =
-      [tabControllerArray_ objectAtIndex:index];
+      [tabContentsArray_ objectAtIndex:index];
   [updatedController tabDidChange:contents];
 }
 
 - (LocationBar*)locationBar {
   TabContentsController* selectedController =
-      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
+      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
   return [selectedController locationBar];
 }
 
@@ -316,13 +321,13 @@ class TabStripBridge : public TabStripModelObserver {
   // YES means we're going back to this tab and should put back any state
   // associated with it.
   TabContentsController* controller =
-      [tabControllerArray_ objectAtIndex:tabModel_->GetIndexOfTabContents(tab)];
+      [tabContentsArray_ objectAtIndex:tabModel_->GetIndexOfTabContents(tab)];
   [controller updateToolbarWithContents:shouldRestore ? tab : nil];
 }
 
 - (void)setStarredState:(BOOL)isStarred {
   TabContentsController* selectedController =
-      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
+      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
   [selectedController setStarredState:isStarred];
 }
 
@@ -337,7 +342,7 @@ class TabStripBridge : public TabStripModelObserver {
     selectedIndex = 0;
   }
   TabContentsController* selectedController =
-      [tabControllerArray_ objectAtIndex:selectedIndex];
+      [tabContentsArray_ objectAtIndex:selectedIndex];
   if (!selectedController)
     return NSZeroRect;
   return [selectedController growBoxRect];
@@ -349,14 +354,14 @@ class TabStripBridge : public TabStripModelObserver {
   // a spinner?
 
   TabContentsController* selectedController =
-      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
+      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
   [selectedController setIsLoading:isLoading];
 }
 
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar {
   TabContentsController* selectedController =
-      [tabControllerArray_ objectAtIndex:tabModel_->selected_index()];
+      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
   [selectedController focusLocationBar];
 }
 

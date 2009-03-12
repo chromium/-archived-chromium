@@ -20,10 +20,11 @@ class ToolbarModel;
 // TabStripModel. The Obj-C part of this class handles drag and drop and all
 // the other Cocoa-y aspects.
 //
-// When a new tab is created, it loads the contents, including
-// toolbar, from a separate nib file and replaces the contentView of the
-// window. As tabs are switched, the single child of the contentView is
-// swapped around to hold the contents (toolbar and all) representing that tab.
+// When a new tab is created, we create a TabController which manages loading
+// the contents, including toolbar, from a separate nib file. This controller
+// then handles replacing the contentView of the window. As tabs are switched,
+// the single child of the contentView is swapped around to hold the contents
+// (toolbar and all) representing that tab.
 
 @interface TabStripController : NSObject {
  @private
@@ -38,7 +39,10 @@ class ToolbarModel;
   // for the toolbar and associated tab contents) given an index. This needs
   // to be kept in the same order as the tab strip's model as we will be
   // using its index from the TabStripModelObserver calls.
-  NSMutableArray* tabControllerArray_;
+  NSMutableArray* tabContentsArray_;
+  // an array of TabControllers which manage the actual tab views. As above,
+  // this is kept in the same order as the tab strip model.
+  NSMutableArray* tabArray_;
 }
 
 // Initialize the controller with a view, model, and command updater for
