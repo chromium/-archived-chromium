@@ -45,6 +45,10 @@
 #include "chrome/common/win_util.h"
 #endif
 
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 // Periodically update our observers.
 class DownloadItemUpdateTask : public Task {
  public:
@@ -618,7 +622,7 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
 }
 
 void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   DCHECK(MessageLoop::current() == ui_loop_);
   DCHECK(info);
 
@@ -629,20 +633,27 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
 
     WebContents* contents = tab_util::GetWebContentsByID(
         info->render_process_id, info->render_view_id);
+#if defined(OS_WIN)
     std::wstring filter =
         win_util::GetFileFilterFromPath(info->suggested_path.value());
-    HWND owning_hwnd =
+    gfx::NativeWindow owning_window =
         contents ? GetAncestor(contents->GetNativeView(), GA_ROOT) : NULL;
+#elif defined(OS_LINUX)
+    std::wstring filter;
+    gfx::NativeWindow owning_window = contents ?
+        GTK_WINDOW(gtk_widget_get_toplevel(contents->GetNativeView())) :
+        NULL;
+#endif
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
                                     std::wstring(),
                                     info->suggested_path.ToWStringHack(),
                                     filter, std::wstring(),
-                                    owning_hwnd, info);
+                                    owning_window, info);
   } else {
     // No prompting for download, just continue with the suggested name.
     ContinueStartDownload(info, info->suggested_path);
   }
-#elif defined(OS_POSIX)
+#elif defined(OS_MACOSX)
   // TODO(port): port this file -- need dialogs.
   NOTIMPLEMENTED();
 #endif

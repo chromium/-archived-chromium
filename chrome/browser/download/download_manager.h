@@ -53,10 +53,10 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/common/pref_member.h"
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 // TODO(port): port this header.
 #include "chrome/browser/shell_dialogs.h"
-#elif defined(OS_POSIX)
+#elif defined(OS_MACOSX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 

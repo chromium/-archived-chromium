@@ -21,7 +21,7 @@ class BaseShellDialog {
  public:
   // Returns true if the a shell dialog box is currently being shown modally
   // to the specified owner.
-  virtual bool IsRunning(gfx::NativeView owning_window) const = 0;
+  virtual bool IsRunning(gfx::NativeWindow owning_window) const = 0;
 
   // Notifies the dialog box that the listener has been destroyed and it should
   // no longer be sent notifications.
@@ -137,12 +137,12 @@ class SelectFontDialog
   //       at a time (for obvious reasons).
   // TODO(beng): support specifying the default font selected in the list when
   //             the dialog appears.
-  virtual void SelectFont(gfx::NativeView owning_window,
+  virtual void SelectFont(gfx::NativeWindow owning_window,
                           void* params) = 0;
 
   // Same as above - also support specifying the default font selected in the
   // list when the dialog appears.
-  virtual void SelectFont(gfx::NativeView owning_window,
+  virtual void SelectFont(gfx::NativeWindow owning_window,
                           void* params,
                           const std::wstring& font_name,
                           int font_size) = 0;

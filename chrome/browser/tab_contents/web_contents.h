@@ -29,6 +29,8 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #elif defined(OS_WIN)
 #include "chrome/browser/printing/print_view_manager.h"
+#endif
+#if defined(OS_LINUX) || defined(OS_WIN)
 #include "chrome/browser/shell_dialogs.h"
 #endif
 

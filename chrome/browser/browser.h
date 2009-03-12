@@ -10,7 +10,7 @@
 #include <set>
 #include <vector>
 
-#if defined(OS_MACOSX) || defined(OS_LINUX)
+#if defined(OS_MACOSX)
 // Remove when we've finished porting the supporting classes.
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
@@ -29,7 +29,7 @@
 #include "base/task.h"
 #include "skia/include/SkBitmap.h"
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 #include "chrome/browser/shell_dialogs.h"
 #endif
 

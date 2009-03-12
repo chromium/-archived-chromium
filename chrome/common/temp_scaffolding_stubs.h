@@ -419,6 +419,7 @@ class FaviconStatus {
   GURL url_;
 };
 
+#if defined(OS_MACOSX)
 class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
  public:
   enum Type {
@@ -439,6 +440,7 @@ class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
     return new SelectFileDialog;
   }
 };
+#endif
 
 class DockInfo {
  public:
