@@ -77,6 +77,7 @@ class InProcessBrowserTest : public testing::Test, public NotificationObserver {
   // constructor.
   void set_show_window(bool show) { show_window_ = show; }
   void EnableDOMAutomation() { dom_automation_enabled_ = true; }
+  void EnableSingleProcess() { single_process_ = true; }
 
  private:
   // Invokes CreateBrowser to create a browser, then RunTestOnMainThread, and
@@ -99,6 +100,16 @@ class InProcessBrowserTest : public testing::Test, public NotificationObserver {
   // Whether the JavaScript can access the DOMAutomationController (a JS object
   // that can send messages back to the browser).
   bool dom_automation_enabled_;
+
+  // Whether to run the test in single-process mode.
+  bool single_process_;
+
+  // We muck with the global command line for this process.  Keep the original
+  // so we can reset it when we're done.
+  scoped_ptr<CommandLine> original_command_line_;
+
+  // Saved to restore the value of RenderProcessHost::run_renderer_in_process.
+  bool original_single_process_;
 
   DISALLOW_COPY_AND_ASSIGN(InProcessBrowserTest);
 };

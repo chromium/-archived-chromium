@@ -47,7 +47,9 @@ bool DieFileDie(const std::wstring& file, bool recurse) {
 InProcessBrowserTest::InProcessBrowserTest()
     : browser_(NULL),
       show_window_(false),
-      dom_automation_enabled_(false) {
+      dom_automation_enabled_(false),
+      single_process_(false),
+      original_single_process_(false) {
 }
 
 void InProcessBrowserTest::SetUp() {
@@ -70,6 +72,7 @@ void InProcessBrowserTest::SetUp() {
   browser_shutdown::delete_resources_on_shutdown = false;
 
   CommandLine* command_line = CommandLine::ForCurrentProcessMutable();
+  original_command_line_.reset(new CommandLine(*command_line));
 
   // Hide windows on show.
   if (!command_line->HasSwitch(kUnitTestShowWindows) && !show_window_)
@@ -77,6 +80,9 @@ void InProcessBrowserTest::SetUp() {
 
   if (dom_automation_enabled_)
     command_line->AppendSwitch(switches::kDomAutomationController);
+
+  if (single_process_)
+    command_line->AppendSwitch(switches::kSingleProcess);
 
   command_line->AppendSwitchWithValue(switches::kUserDataDir, user_data_dir);
 
@@ -86,6 +92,7 @@ void InProcessBrowserTest::SetUp() {
 
   // Single-process mode is not set in BrowserMain so it needs to be processed
   // explicitlty.
+  original_single_process_ = RenderProcessHost::run_renderer_in_process();
   if (command_line->HasSwitch(switches::kSingleProcess))
     RenderProcessHost::set_run_renderer_in_process(true);
 
@@ -114,6 +121,9 @@ void InProcessBrowserTest::TearDown() {
   browser_shutdown::delete_resources_on_shutdown = true;
 
   BrowserView::SetShowState(-1);
+
+  *CommandLine::ForCurrentProcessMutable() = *original_command_line_;
+  RenderProcessHost::set_run_renderer_in_process(original_single_process_);
 }
 
 void InProcessBrowserTest::Observe(NotificationType type,

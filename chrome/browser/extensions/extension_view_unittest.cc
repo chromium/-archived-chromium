@@ -104,6 +104,9 @@ class ExtensionViewTest : public InProcessBrowserTest {
     // with the wrong MessageLoop.
     ExtensionErrorReporter::Init(false);
 
+    // Use single-process in an attempt to speed it up and make it less flaky.
+    EnableSingleProcess();
+
     InProcessBrowserTest::SetUp();
   }
 };
