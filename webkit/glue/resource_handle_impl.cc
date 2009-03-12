@@ -222,6 +222,7 @@ class ResourceHandleInternal : public ResourceLoaderBridge::Peer {
   void SetDefersLoading(bool value);
 
   // ResourceLoaderBridge::Peer implementation
+  virtual void OnUploadProgress(uint64 position, uint64 size);
   virtual void OnReceivedRedirect(const GURL& new_url);
   virtual void OnReceivedResponse(
       const ResourceLoaderBridge::ResponseInfo& info,
@@ -357,6 +358,9 @@ bool ResourceHandleInternal::Start(
     case UseProtocolCachePolicy:
       break;
   }
+
+  if (request_.reportUploadProgress())
+    load_flags_ |= net::LOAD_ENABLE_UPLOAD_PROGRESS;
 
   // Translate the table of request headers to a formatted string blob
   String headerBuf;
@@ -510,6 +514,11 @@ void ResourceHandleInternal::SetDefersLoading(bool value) {
 }
 
 // ResourceLoaderBridge::Peer impl --------------------------------------------
+
+void ResourceHandleInternal::OnUploadProgress(uint64 position, uint64 size) {
+  if (client_)
+    client_->didSendData(job_, position, size);
+}
 
 void ResourceHandleInternal::OnReceivedRedirect(const GURL& new_url) {
   DCHECK(pending_);

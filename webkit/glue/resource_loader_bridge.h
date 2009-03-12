@@ -93,7 +93,7 @@ class ResourceLoaderBridge {
 
     // Called as upload progress is made.
     // note: only for requests with LOAD_ENABLE_UPLOAD_PROGRESS set
-    virtual void OnUploadProgress(uint64 position, uint64 size) {};
+    virtual void OnUploadProgress(uint64 position, uint64 size) = 0;
 
     // Called when a redirect occurs.
     virtual void OnReceivedRedirect(const GURL& new_url) = 0;

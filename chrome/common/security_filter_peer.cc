@@ -100,6 +100,10 @@ SecurityFilterPeer* SecurityFilterPeer::CreateSecurityFilterPeerForFrame(
   return new ReplaceContentPeer(NULL, peer, "text/html", html);
 }
 
+void SecurityFilterPeer::OnUploadProgress(uint64 position, uint64 size) {
+  original_peer_->OnUploadProgress(position, size);
+}
+
 void SecurityFilterPeer::OnReceivedRedirect(const GURL& new_url) {
   NOTREACHED();
 }
