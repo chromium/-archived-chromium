@@ -1582,8 +1582,6 @@ MAC : LayoutTests/fast/events/scrollbar-double-click.html = TIMEOUT PASS
 // Regressions from WebKit merge 40847-40875
 LINUX WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
 MAC LINUX WIN : LayoutTests/fast/forms/textarea-scrolled-endline-caret.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL PASS
-WIN : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
 LINUX : LayoutTests/fast/clip/017.html = CRASH PASS
 
 // Unknown reason.
