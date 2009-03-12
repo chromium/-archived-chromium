@@ -126,6 +126,11 @@ DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 DEFER : LayoutTests/fast/html/keygen.html = FAIL
 DEFER : LayoutTests/fast/invalid/residual-style.html = FAIL
 
+// Tests that clicking the "x" box in a search field clears it; we don't
+// currently have such a box except on Mac (where it's part of the native
+// widget).
+DEFER LINUX WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
+
 // -----------------------------------------------------------------
 // Other
 // -----------------------------------------------------------------
@@ -1759,7 +1764,6 @@ MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH
 LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 
 // Regressions from merge 41559:41588
-LINUX WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
 LINUX WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 WIN : chrome/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/editing/execCommand/selectAll.html = FAIL
