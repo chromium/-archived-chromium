@@ -1747,9 +1747,6 @@ SKIP DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = F
 // a revert.
 WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
 
-// Started failing at r11441:11442, which has no code changes!
-WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
-
 // Added 3/11/09
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
@@ -1760,15 +1757,16 @@ MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-sync.
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-async.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/010.html = TIMEOUT PASS
-MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-denied-preflight-cache.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/document-domain-set.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-star.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-denied-preflight-cache.html = TIMEOUT PASS
 MAC DEBUG : LayoutTests/http/tests/security/frameNavigation/xss-ALLOWED-parent-navigation-change.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH PASS
 LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 
 // Regressions from merge 41559:41588
-MAC LINUX WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
+LINUX WIN : LayoutTests/fast/forms/search-abs-pos-cancel-button.html = FAIL
 LINUX WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 WIN : chrome/fast/dom/java-applet-calls.html = FAIL
 LINUX WIN : LayoutTests/editing/execCommand/selectAll.html = FAIL
@@ -1781,3 +1779,13 @@ LINUX : LayoutTests/editing/selection/extend-by-word-002.html = FAIL
 LINUX : LayoutTests/editing/selection/select-all-002.html = FAIL
 MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 MAC : chrome/fast/forms/basic-textareas.html = FAIL
+
+// Started failing 3/12/09. Unclear which CL caused it though.
+MAC : LayoutTests/fast/overflow/image-selection-highlight.html = FAIL
+
+// Started failing after merge 41559:41588
+MAC : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
+
+// Looks like they started failing with r11542
+MAC : LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
+MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
