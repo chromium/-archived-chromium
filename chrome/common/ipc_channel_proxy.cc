@@ -18,7 +18,9 @@ ChannelProxy::Context::Context(Channel::Listener* listener,
     : listener_message_loop_(MessageLoop::current()),
       listener_(listener),
       ipc_message_loop_(ipc_message_loop),
-      channel_(NULL) {
+      channel_(NULL),
+      peer_pid_(0),
+      channel_connected_called_(false) {
   if (filter)
     filters_.push_back(filter);
 }
@@ -68,12 +70,13 @@ void ChannelProxy::Context::OnMessageReceivedNoFilter(const Message& message) {
 
 // Called on the IPC::Channel thread
 void ChannelProxy::Context::OnChannelConnected(int32 peer_pid) {
+  peer_pid_ = peer_pid;
   for (size_t i = 0; i < filters_.size(); ++i)
     filters_[i]->OnChannelConnected(peer_pid);
 
   // See above comment about using listener_message_loop_ here.
   listener_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &Context::OnDispatchConnected, peer_pid));
+      this, &Context::OnDispatchConnected));
 }
 
 // Called on the IPC::Channel thread
@@ -160,6 +163,8 @@ void ChannelProxy::Context::OnDispatchMessage(const Message& message) {
   if (!listener_)
     return;
 
+  OnDispatchConnected();
+
 #ifdef IPC_MESSAGE_LOG_ENABLED
   Logging* logger = Logging::current();
   if (message.type() == IPC_LOGGING_ID) {
@@ -180,9 +185,13 @@ void ChannelProxy::Context::OnDispatchMessage(const Message& message) {
 }
 
 // Called on the listener's thread
-void ChannelProxy::Context::OnDispatchConnected(int32 peer_pid) {
+void ChannelProxy::Context::OnDispatchConnected() {
+  if (channel_connected_called_)
+    return;
+
+  channel_connected_called_ = true;
   if (listener_)
-    listener_->OnChannelConnected(peer_pid);
+    listener_->OnChannelConnected(peer_pid_);
 }
 
 // Called on the listener's thread

@@ -10,7 +10,6 @@
 #include "base/message_loop.h"
 #include "base/waitable_event.h"
 #include "base/waitable_event_watcher.h"
-#include "chrome/common/ipc_logging.h"
 #include "chrome/common/ipc_sync_message.h"
 
 using base::TimeDelta;
@@ -104,20 +103,7 @@ class SyncChannel::ReceivedSyncMsgQueue :
         message_queue_.pop_front();
       }
 
-#ifdef IPC_MESSAGE_LOG_ENABLED
-      Logging* logger = Logging::current();
-      if (logger->Enabled())
-        logger->OnPreDispatchMessage(*message);
-#endif
-
-      if (context->listener())
-        context->listener()->OnMessageReceived(*message);
-
-#ifdef IPC_MESSAGE_LOG_ENABLED
-      if (logger->Enabled())
-        logger->OnPostDispatchMessage(*message, context->channel_id());
-#endif
-
+      context->OnDispatchMessage(*message);
       delete message;
     }
   }

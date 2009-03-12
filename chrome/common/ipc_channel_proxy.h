@@ -138,8 +138,10 @@ class ChannelProxy : public Message::Sender {
             MessageLoop* ipc_thread);
     virtual ~Context() { }
     MessageLoop* ipc_message_loop() const { return ipc_message_loop_; }
-    Channel::Listener* listener() const { return listener_; }
     const std::wstring& channel_id() const { return channel_id_; }
+
+    // Dispatches a message on the listener thread.
+    void OnDispatchMessage(const Message& message);
 
    protected:
     // IPC::Channel::Listener methods:
@@ -172,8 +174,7 @@ class ChannelProxy : public Message::Sender {
     void OnSendMessage(Message* message_ptr);
     void OnAddFilter(MessageFilter* filter);
     void OnRemoveFilter(MessageFilter* filter);
-    void OnDispatchMessage(const Message& message);
-    void OnDispatchConnected(int32 peer_pid);
+    void OnDispatchConnected();
     void OnDispatchError();
 
     MessageLoop* listener_message_loop_;
@@ -184,6 +185,8 @@ class ChannelProxy : public Message::Sender {
     MessageLoop* ipc_message_loop_;
     Channel* channel_;
     std::wstring channel_id_;
+    int peer_pid_;
+    bool channel_connected_called_;
   };
 
   Context* context() { return context_; }
