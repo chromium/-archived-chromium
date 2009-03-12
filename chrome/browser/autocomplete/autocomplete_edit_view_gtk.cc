@@ -88,7 +88,7 @@ void AutocompleteEditViewGtk::Init() {
                    G_CALLBACK(&HandleBeginUserActionThunk), this);
   g_signal_connect(text_buffer_, "end-user-action",
                    G_CALLBACK(&HandleEndUserActionThunk), this);
-  // We connect to key press and release for special handling of the enter key.
+  // We connect to key press and release for special handling of a few keys.
   g_signal_connect(text_view_, "key-press-event",
                    G_CALLBACK(&HandleKeyPressThunk), this);
   g_signal_connect(text_view_, "key-release-event",
@@ -336,6 +336,10 @@ gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
     model_->AcceptInput(alt_held ? NEW_FOREGROUND_TAB : CURRENT_TAB, false);
     return TRUE;  // Don't propagate into GtkTextView.
   }
+  if (event->keyval == GDK_Escape && event->state == 0) {
+    model_->OnEscapeKeyPressed();
+    return TRUE;  // Don't propagate into GtkTextView.
+  }
   return FALSE;  // Propagate into GtkTextView.
 }
 
@@ -344,7 +348,8 @@ gboolean AutocompleteEditViewGtk::HandleKeyRelease(GtkWidget* widget,
   // We ate the press, might as well eat the release.
   if (event->keyval == GDK_Return ||
       event->keyval == GDK_ISO_Enter ||
-      event->keyval == GDK_KP_Enter) {
+      event->keyval == GDK_KP_Enter ||
+      (event->keyval == GDK_Escape && event->state == 0)) {
     return TRUE;  // Don't propagate into GtkTextView.
   }
   return FALSE;  // Propagate into GtkTextView.
