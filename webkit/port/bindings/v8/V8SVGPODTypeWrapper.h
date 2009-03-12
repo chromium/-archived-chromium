@@ -262,7 +262,10 @@ template<typename PODType, typename PODTypeCreator>
 struct PODTypeWrapperCacheInfoHash {
     static unsigned hash(const PODTypeWrapperCacheInfo<PODType, PODTypeCreator>& info)
     {
-        return StringImpl::computeHash((::UChar*) &info, sizeof(PODTypeWrapperCacheInfo<PODType, PODTypeCreator>) / sizeof(::UChar));
+        unsigned creator = reinterpret_cast<unsigned>(info.creator);
+        unsigned getter = reinterpret_cast<unsigned>(*(void**)&info.getter);
+        unsigned setter = reinterpret_cast<unsigned>(*(void**)&info.setter);
+        return (creator * 13) + getter ^ (setter >> 2);
     }
 
     static bool equal(const PODTypeWrapperCacheInfo<PODType, PODTypeCreator>& a, const PODTypeWrapperCacheInfo<PODType, PODTypeCreator>& b)

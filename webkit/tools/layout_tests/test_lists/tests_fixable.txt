@@ -1749,9 +1749,6 @@ SKIP DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = F
 // a revert.
 WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
 
-DEFER WIN : LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL
-DEFER WIN : LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL
-
 // Started failing at r11441:11442, which has no code changes!
 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL
 
