@@ -415,6 +415,10 @@ class BrowserView : public BrowserWindow,
   // True if we're in fullscreen mode.
   bool fullscreen_;
 
+  // True if we should ignore requests to layout.  This is set while toggling
+  // fullscreen mode on and off to reduce jankiness.
+  bool ignore_layout_;
+
   // Saved window information from before entering fullscreen mode.
   SavedWindowInfo saved_window_info_;
 

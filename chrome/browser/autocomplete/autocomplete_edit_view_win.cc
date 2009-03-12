@@ -406,6 +406,7 @@ AutocompleteEditViewWin::AutocompleteEditViewWin(
       toolbar_model_(toolbar_model),
       command_updater_(command_updater),
       popup_window_mode_(popup_window_mode),
+      force_hidden_(false),
       tracking_click_(false),
       tracking_double_click_(false),
       double_click_time_(0),
@@ -1576,6 +1577,12 @@ void AutocompleteEditViewWin::OnSysChar(TCHAR ch,
   //     it through.
   if (ch == VK_SPACE)
     SetMsgHandled(false);
+}
+
+void AutocompleteEditViewWin::OnWindowPosChanging(WINDOWPOS* window_pos) {
+  if (force_hidden_)
+    window_pos->flags &= ~SWP_SHOWWINDOW;
+  SetMsgHandled(true);
 }
 
 void AutocompleteEditViewWin::HandleKeystroke(UINT message,

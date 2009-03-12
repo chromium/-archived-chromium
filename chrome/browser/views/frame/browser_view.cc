@@ -209,6 +209,7 @@ BrowserView::BrowserView(Browser* browser)
       contents_container_(NULL),
       initialized_(false),
       fullscreen_(false),
+      ignore_layout_(false),
       can_drop_(false),
       hung_window_detector_(&hung_plugin_action_),
       ticker_(0),
@@ -607,7 +608,7 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   if (fullscreen_ == fullscreen)
     return;  // Nothing to do.
 
-  // Move focus out of the location bar if necessary, and make it unfocusable.
+  // Move focus out of the location bar if necessary.
   LocationBarView* location_bar = toolbar_->GetLocationBarView();
   if (!fullscreen_) {
     views::FocusManager* focus_manager = GetFocusManager();
@@ -615,10 +616,28 @@ void BrowserView::SetFullscreen(bool fullscreen) {
     if (focus_manager->GetFocusedView() == location_bar)
       focus_manager->ClearFocus();
   }
-  location_bar->SetFocusable(fullscreen_);
+  AutocompleteEditViewWin* edit_view =
+      static_cast<AutocompleteEditViewWin*>(location_bar->location_entry());
 
   // Toggle fullscreen mode.
   fullscreen_ = fullscreen;
+
+  // Reduce jankiness during the following position changes by:
+  //   * Hiding the window until it's in the final position
+  //   * Ignoring all intervening Layout() calls, which resize the webpage and
+  //     thus are slow and look ugly
+  ignore_layout_ = true;
+  frame_->set_force_hidden(true);
+  if (fullscreen_) {
+    // If we don't hide the edit and force it to not show until we come out of
+    // fullscreen, then if the user was on the New Tab Page, the edit contents
+    // will appear atop the web contents once we go into fullscreen mode.  This
+    // has something to do with how we move the main window while it's hidden;
+    // if we don't hide the main window below, we don't get this problem.
+    edit_view->set_force_hidden(true);
+    ShowWindow(edit_view->m_hWnd, SW_HIDE);
+  }
+  frame_->Hide();
 
   // Notify bookmark bar, so it can set itself to the appropriate drawing state.
   if (bookmark_bar_view_.get())
@@ -627,6 +646,11 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   // Size/position/style window appropriately.
   views::Widget* widget = GetWidget();
   HWND hwnd = widget->GetHWND();
+  MONITORINFO monitor_info;
+  monitor_info.cbSize = sizeof(monitor_info);
+  GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY),
+                 &monitor_info);
+  gfx::Rect monitor_rect(monitor_info.rcMonitor);
   if (fullscreen_) {
     // Save current window information.  We force the window into restored mode
     // before going fullscreen because Windows doesn't seem to hide the
@@ -644,15 +668,16 @@ void BrowserView::SetFullscreen(bool fullscreen) {
     SetWindowLong(hwnd, GWL_EXSTYLE,
                   saved_window_info_.ex_style & ~(WS_EX_DLGMODALFRAME |
                   WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
-    MONITORINFO monitor_info;
-    monitor_info.cbSize = sizeof(monitor_info);
-    GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY),
-                   &monitor_info);
-    gfx::Rect new_rect(monitor_info.rcMonitor);
-    SetWindowPos(hwnd, NULL, new_rect.x(), new_rect.y(), new_rect.width(),
-                 new_rect.height(),
+    SetWindowPos(hwnd, NULL, monitor_rect.x(), monitor_rect.y(),
+                 monitor_rect.width(), monitor_rect.height(),
                  SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+    fullscreen_bubble_.reset(new FullscreenExitBubble(widget, browser_.get()));
   } else {
+    // Hide the fullscreen bubble as soon as possible, since the calls below can
+    // take enough time for the user to notice.
+    fullscreen_bubble_.reset();
+
     // Reset original window style and size.  The multiple window size/moves
     // here are ugly, but if SetWindowPos() doesn't redraw, the taskbar won't be
     // repainted.  Better-looking methods welcome.
@@ -664,11 +689,18 @@ void BrowserView::SetFullscreen(bool fullscreen) {
                  SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
     if (saved_window_info_.maximized)
       frame_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
+
+    // Show the edit again since we're no longer in fullscreen mode.
+    edit_view->set_force_hidden(false);
+    ShowWindow(edit_view->m_hWnd, SW_SHOW);
   }
 
-  // Turn fullscreen bubble on or off.
-  fullscreen_bubble_.reset(fullscreen_ ?
-      new FullscreenExitBubble(widget, browser_.get()) : NULL);
+  // Undo our anti-jankiness hacks and force the window to relayout now that
+  // it's in its final position.
+  ignore_layout_ = false;
+  Layout();
+  frame_->set_force_hidden(false);
+  ShowWindow(hwnd, SW_SHOW);
 }
 
 bool BrowserView::IsFullscreen() const {
@@ -1212,6 +1244,9 @@ std::string BrowserView::GetClassName() const {
 }
 
 void BrowserView::Layout() {
+  if (ignore_layout_)
+    return;
+
   int top = LayoutTabStrip();
   top = LayoutToolbar(top);
   top = LayoutBookmarkAndInfoBars(top);

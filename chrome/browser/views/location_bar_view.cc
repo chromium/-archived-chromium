@@ -385,10 +385,7 @@ void LocationBarView::DoLayout(const bool force_layout) {
                &location_bounds);
   }
 
-  location_entry_view_->SetBounds(location_bounds.x(),
-                                  location_bounds.y(),
-                                  location_bounds.width(),
-                                  location_bounds.height());
+  location_entry_view_->SetBounds(location_bounds);
   if (!force_layout) {
     // If force_layout is false and we got this far it means one of the views
     // was added/removed or changed in size. We need to paint ourselves.
