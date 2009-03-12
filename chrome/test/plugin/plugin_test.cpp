@@ -160,8 +160,7 @@ TEST_F(PluginTest, FlashSecurity) {
   TestPlugin(L"flash.html", kShortWaitTimeout);
 }
 
-// http://crbug.com/8690
-TEST_F(PluginTest, DISABLED_Java) {
+TEST_F(PluginTest, Java) {
   TestPlugin(L"Java.html", kShortWaitTimeout);
 }
 
