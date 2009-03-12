@@ -1782,5 +1782,7 @@ WIN : LayoutTests/editing/selection/select-all-002.html = FAIL
 MAC LINUX WIN : LayoutTests/fast/events/onload-single-line-comment.html = TIMEOUT
 LINUX : LayoutTests/fast/text/trailing-white-space.html = FAIL
 LINUX : LayoutTests/fast/text/trailing-white-space-2.html = FAIL
+LINUX : LayoutTests/editing/selection/extend-by-word-002.html = FAIL
+LINUX : LayoutTests/editing/selection/select-all-002.html = FAIL
 MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 MAC : chrome/fast/forms/basic-textareas.html = FAIL
