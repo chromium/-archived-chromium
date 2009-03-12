@@ -45,6 +45,10 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
 }
 
 AutocompletePopupViewGtk::~AutocompletePopupViewGtk() {
+  // Explicitly destroy our model here, before we destroy our GTK widgets.
+  // This is because the model destructor can call back into us, and we need
+  // to make sure everything is still valid when it does.
+  model_.reset();
   if (vbox_)
     gtk_widget_destroy(vbox_);
   gtk_widget_destroy(window_);
