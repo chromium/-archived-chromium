@@ -181,3 +181,43 @@
    fun:memcpy
    fun:init_resb_result
 }
+
+{
+   libc
+   Memcheck:Cond
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+}
+
+{
+   libc
+   Memcheck:Addr4
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+}
+
+{
+   FIXME IPCing uninitialized data
+   Memcheck:Param
+   socketcall.sendmsg(msg.msg_iov[i])
+   fun:sendmsg
+   fun:_ZN3IPC7Channel11ChannelImpl4SendEPNS_7MessageE
+}
+
+{
+   SQLite ?
+   Memcheck:Param
+   write(buf)
+   obj:/lib32/libpthread-2.7.so
+   fun:unixWrite
+   fun:sqlite3OsWrite
+   fun:writeJournalHdr
+}
+
+{
+   SQLite (when creating a new database) ?
+   Memcheck:Cond
+   fun:sqlite3VdbeMemShallowCopy
+   fun:sqlite3VdbeExec
+   fun:sqlite3Step
+}
