@@ -4,6 +4,7 @@
 
 #include "chrome/browser/autocomplete/autocomplete_popup_view_gtk.h"
 
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
@@ -18,9 +19,9 @@
 
 namespace {
 
-const GdkColor kPopupBorderColor = {0, 51143, 51914, 52942};  // #c7cace
-const GdkColor kPopupBackground = {0, 65535, 65535, 65535};  // #ffffff
-const GdkColor kHighlightColor = {0, 49601, 51400, 55769};  // #c1c8d9
+const GdkColor kPopupBorderColor = GDK_COLOR_RGB(0xc7, 0xca, 0xce);
+const GdkColor kPopupBackground = GDK_COLOR_RGB(0xff, 0xff, 0xff);
+const GdkColor kHighlightColor = GDK_COLOR_RGB(0xc1, 0xc8, 0xd9);
 
 }  // namespace
 

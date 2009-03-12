@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
@@ -21,8 +22,8 @@ namespace {
 const char kTextBaseColor[] = "#808080";
 const char kSecureSchemeColor[] = "#009614";
 const char kInsecureSchemeColor[] = "#009614";
-const GdkColor kSecureBackgroundColor = {0, 65535, 62965, 50115};  // #fff5c3
-const GdkColor kInsecureBackgroundColor = {0, 65535, 65535, 65535};  // #ffffff
+const GdkColor kSecureBackgroundColor = GDK_COLOR_RGB(0xff, 0xf5, 0xc3);
+const GdkColor kInsecureBackgroundColor = GDK_COLOR_RGB(0xff, 0xff, 0xff);
 
 }  // namespace
 

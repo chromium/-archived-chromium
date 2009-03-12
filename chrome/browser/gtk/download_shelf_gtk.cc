@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/download_shelf_gtk.h"
 
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/gtk/custom_button.h"
@@ -34,10 +35,10 @@ const int kLeftPadding = 2;
 const int kRightPadding = 10;
 
 // The background color of the shelf.
-static GdkColor kBackgroundColor = { 0, 230 * 257, 237 * 257, 244 * 257 };
+static GdkColor kBackgroundColor = GDK_COLOR_RGB(230, 237, 244);
 
 // Border color (the top pixel of the shelf).
-static GdkColor kBorderColor = { 0, 214 * 257, 214 * 257, 214 * 257 };
+static GdkColor kBorderColor = GDK_COLOR_RGB(214, 214, 214);
 
 const char* kLinkMarkup =
     "<u><span color=\"blue\">%s</span></u>";

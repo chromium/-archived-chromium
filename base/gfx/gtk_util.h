@@ -11,6 +11,11 @@ typedef struct _GdkPixbuf GdkPixbuf;
 typedef struct _GdkRegion GdkRegion;
 class SkBitmap;
 
+// Define a macro for creating GdkColors from RGB values.  This is a macro to
+// allow static construction of literals, etc.  Use this like:
+//   GdkColor white = GDK_COLOR_RGB(0xff, 0xff, 0xff);
+#define GDK_COLOR_RGB(r, g, b) {0, r * 257, g * 257, b * 257}
+
 namespace gfx {
 
 class Rect;
