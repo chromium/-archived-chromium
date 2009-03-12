@@ -86,9 +86,11 @@ class ResourceDispatcherHost;
 class RenderWidgetHelper :
     public base::RefCountedThreadSafe<RenderWidgetHelper> {
  public:
-  RenderWidgetHelper(int render_process_id,
-                     ResourceDispatcherHost* resource_dispatcher_host);
+  RenderWidgetHelper();
   ~RenderWidgetHelper();
+
+  void Init(int render_process_id,
+            ResourceDispatcherHost* resource_dispatcher_host);
 
   // Gets the next available routing id.  This is thread safe.
   int GetNextRoutingID();

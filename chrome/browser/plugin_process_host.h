@@ -8,6 +8,7 @@
 #include "build/build_config.h"
 
 #include <set>
+#include <queue>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -94,7 +95,7 @@ class PluginProcessHost : public ChildProcessHost,
                             const std::string& mime_type,
                             IPC::Message* reply_msg);
   // Message handlers.
-  void OnChannelCreated(int process_id, const std::wstring& channel_name);
+  void OnChannelCreated(const std::wstring& channel_name);
   void OnDownloadUrl(const std::string& url, int source_pid,
                      gfx::NativeWindow caller_window);
   void OnGetPluginFinderUrl(std::string* plugin_finder_url);
@@ -134,7 +135,7 @@ class PluginProcessHost : public ChildProcessHost,
 
   // These are the channel requests that we have already sent to
   // the plugin process, but haven't heard back about yet.
-  std::vector<ChannelRequest> sent_requests_;
+  std::queue<ChannelRequest> sent_requests_;
 
   // Information about the plugin.
   WebPluginInfo info_;

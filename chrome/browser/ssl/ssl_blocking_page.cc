@@ -74,7 +74,7 @@ void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
   WebContents* web = tab()->AsWebContents();
   const net::SSLInfo& ssl_info = error_->ssl_info();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
-      ssl_info.cert, web->render_view_host()->process()->host_id());
+      ssl_info.cert, web->render_view_host()->process()->pid());
 
   entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
   entry->ssl().set_cert_id(cert_id);

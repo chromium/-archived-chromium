@@ -372,7 +372,7 @@ PluginProcessHost::PluginProcessHost(MessageLoop* main_message_loop)
 PluginProcessHost::~PluginProcessHost() {
   // Cancel all requests for plugin process.
   PluginService::GetInstance()->resource_dispatcher_host()->
-      CancelRequestsForProcess(-1);
+      CancelRequestsForProcess(pid());
 
 #if defined(OS_WIN)
   // We erase HWNDs from the plugin_parent_windows_set_ when we receive a
@@ -618,23 +618,23 @@ void PluginProcessHost::OnRequestResource(
 
   PluginService::GetInstance()->resource_dispatcher_host()->
       BeginRequest(this, ChildProcessInfo::PLUGIN_PROCESS, handle(),
-                   -1, MSG_ROUTING_CONTROL, request_id,
+                   pid(), MSG_ROUTING_CONTROL, request_id,
                    request, context, NULL);
 }
 
 void PluginProcessHost::OnCancelRequest(int request_id) {
   PluginService::GetInstance()->resource_dispatcher_host()->
-      CancelRequest(-1, request_id, true);
+      CancelRequest(pid(), request_id, true);
 }
 
 void PluginProcessHost::OnDataReceivedACK(int request_id) {
   PluginService::GetInstance()->resource_dispatcher_host()->
-      OnDataReceivedACK(-1, request_id);
+      OnDataReceivedACK(pid(), request_id);
 }
 
 void PluginProcessHost::OnUploadProgressACK(int request_id) {
   PluginService::GetInstance()->resource_dispatcher_host()->
-      OnUploadProgressACK(-1, request_id);
+      OnUploadProgressACK(pid(), request_id);
 }
 
 void PluginProcessHost::OnSyncLoad(
@@ -649,7 +649,7 @@ void PluginProcessHost::OnSyncLoad(
 
   PluginService::GetInstance()->resource_dispatcher_host()->
       BeginRequest(this, ChildProcessInfo::PLUGIN_PROCESS, handle(),
-                   -1, MSG_ROUTING_CONTROL, request_id,
+                   pid(), MSG_ROUTING_CONTROL, request_id,
                    request, context, sync_result);
 }
 
@@ -703,23 +703,11 @@ void PluginProcessHost::RequestPluginChannel(
   // plugin process (i.e. unblocks a Send() call like a sync message) otherwise
   // a deadlock can occur if the plugin creation request from the renderer is
   // a result of a sync message by the plugin process.
-
-  // The plugin process expects to receive a handle to the renderer requesting
-  // the channel. The handle has to be valid in the plugin process.
-  HANDLE renderer_handle = NULL;
-  BOOL result = DuplicateHandle(GetCurrentProcess(),
-                                renderer_message_filter->renderer_handle(),
-                                handle(), &renderer_handle, 0, FALSE,
-                                DUPLICATE_SAME_ACCESS);
-  DCHECK(result);
-
-  PluginProcessMsg_CreateChannel* msg =
-      new PluginProcessMsg_CreateChannel(
-          renderer_message_filter->render_process_host_id(), renderer_handle);
+  PluginProcessMsg_CreateChannel* msg = new PluginProcessMsg_CreateChannel();
   msg->set_unblock(true);
   if (Send(msg)) {
-    sent_requests_.push_back(ChannelRequest(renderer_message_filter, mime_type,
-                             reply_msg));
+    sent_requests_.push(ChannelRequest(
+        renderer_message_filter, mime_type, reply_msg));
   } else {
     ReplyToRenderer(renderer_message_filter, std::wstring(), FilePath(),
                     reply_msg);
@@ -730,22 +718,12 @@ void PluginProcessHost::RequestPluginChannel(
 #endif
 }
 
-void PluginProcessHost::OnChannelCreated(int process_id,
-                                         const std::wstring& channel_name) {
-  for (size_t i = 0; i < sent_requests_.size(); ++i) {
-    if (sent_requests_[i].renderer_message_filter_->render_process_host_id()
-        == process_id) {
-      ReplyToRenderer(sent_requests_[i].renderer_message_filter_.get(),
-                      channel_name,
-                      info_.path,
-                      sent_requests_[i].reply_msg);
-
-      sent_requests_.erase(sent_requests_.begin() + i);
-      return;
-    }
-  }
-
-  NOTREACHED();
+void PluginProcessHost::OnChannelCreated(const std::wstring& channel_name) {
+  ReplyToRenderer(sent_requests_.front().renderer_message_filter_.get(),
+                  channel_name,
+                  info_.path,
+                  sent_requests_.front().reply_msg);
+  sent_requests_.pop();
 }
 
 void PluginProcessHost::OnDownloadUrl(const std::string& url,

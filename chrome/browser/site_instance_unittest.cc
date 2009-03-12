@@ -177,16 +177,15 @@ TEST_F(SiteInstanceTest, UpdateMaxPageID) {
 
 // Test to ensure GetProcess returns and creates processes correctly.
 TEST_F(SiteInstanceTest, GetProcess) {
-  // Ensure that GetProcess returns the process based on its host id.
+  // Ensure that GetProcess returns a process.
   scoped_ptr<TestingProfile> profile(new TestingProfile());
-  scoped_ptr<BrowserRenderProcessHost> host1(
-      new BrowserRenderProcessHost(profile.get()));
+  scoped_ptr<RenderProcessHost> host1;
   scoped_refptr<SiteInstance> instance(
       SiteInstance::CreateSiteInstance(profile.get()));
-  instance.get()->set_process_host_id(host1.get()->host_id());
-  EXPECT_EQ(host1.get(), instance.get()->GetProcess());
+  host1.reset(instance.get()->GetProcess());
+  EXPECT_TRUE(host1.get() != NULL);
 
-  // Ensure that GetProcess creates a new process if no host id is set.
+  // Ensure that GetProcess creates a new process.
   scoped_refptr<SiteInstance> instance2(
       SiteInstance::CreateSiteInstance(profile.get()));
   scoped_ptr<RenderProcessHost> host2(instance2.get()->GetProcess());

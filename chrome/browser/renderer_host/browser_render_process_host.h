@@ -87,9 +87,6 @@ class BrowserRenderProcessHost : public RenderProcessHost,
                        const NotificationDetails& details);
 
  private:
-  // RenderProcessHost implementation (protected portion).
-  virtual void Unregister();
-
   // Control message handlers.
   void OnPageContents(const GURL& url, int32 page_id,
                       const std::wstring& contents);

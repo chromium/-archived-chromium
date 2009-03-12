@@ -56,21 +56,21 @@ namespace {
 class ContextMenuMessageDispatcher : public Task {
  public:
   ContextMenuMessageDispatcher(
-      int render_process_host_id,
+      int render_process_id,
       const ViewHostMsg_ContextMenu& context_menu_message)
-      : render_process_host_id_(render_process_host_id),
+      : render_process_id_(render_process_id),
         context_menu_message_(context_menu_message) {
   }
 
   void Run() {
     RenderProcessHost* host =
-        RenderProcessHost::FromID(render_process_host_id_);
+        RenderProcessHost::FromID(render_process_id_);
     if (host)
       host->OnMessageReceived(context_menu_message_);
   }
 
  private:
-  int render_process_host_id_;
+  int render_process_id_;
   const ViewHostMsg_ContextMenu context_menu_message_;
 
   DISALLOW_COPY_AND_ASSIGN(ContextMenuMessageDispatcher);
@@ -102,7 +102,6 @@ ResourceMessageFilter::ResourceMessageFilter(
     AudioRendererHost* audio_renderer_host,
     PluginService* plugin_service,
     printing::PrintJobManager* print_job_manager,
-    int render_process_host_id,
     Profile* profile,
     RenderWidgetHelper* render_widget_helper,
     SpellChecker* spellchecker)
@@ -110,7 +109,7 @@ ResourceMessageFilter::ResourceMessageFilter(
       resource_dispatcher_host_(resource_dispatcher_host),
       plugin_service_(plugin_service),
       print_job_manager_(print_job_manager),
-      render_process_host_id_(render_process_host_id),
+      render_process_id_(-1),
       spellchecker_(spellchecker),
       ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
       render_handle_(NULL),
@@ -136,6 +135,11 @@ ResourceMessageFilter::~ResourceMessageFilter() {
       this,
       NotificationType::SPELLCHECKER_REINITIALIZED,
       Source<Profile>(static_cast<Profile*>(profile_)));
+}
+
+void ResourceMessageFilter::Init(int render_process_id) {
+  render_process_id_ = render_process_id;
+  render_widget_helper_->Init(render_process_id, resource_dispatcher_host_);
 }
 
 // Called on the IPC thread:
@@ -165,7 +169,7 @@ void ResourceMessageFilter::OnChannelClosing() {
 
   // Unhook us from all pending network requests so they don't get sent to a
   // deleted object.
-  resource_dispatcher_host_->CancelRequestsForProcess(render_process_host_id_);
+  resource_dispatcher_host_->CancelRequestsForProcess(render_process_id_);
 
   // Unhook AudioRendererHost.
   audio_renderer_host_->IPCChannelClosing();
@@ -295,7 +299,7 @@ void ResourceMessageFilter::OnReceiveContextMenuMsg(const IPC::Message& msg) {
   // Create a new ViewHostMsg_ContextMenu message.
   const ViewHostMsg_ContextMenu context_menu_message(msg.routing_id(), params);
   render_widget_helper_->ui_loop()->PostTask(FROM_HERE,
-      new ContextMenuMessageDispatcher(render_process_host_id_,
+      new ContextMenuMessageDispatcher(render_process_id_,
                                        context_menu_message));
 }
 
@@ -332,7 +336,7 @@ void ResourceMessageFilter::OnRequestResource(
   resource_dispatcher_host_->BeginRequest(this,
                                           ChildProcessInfo::RENDER_PROCESS,
                                           render_handle_,
-                                          render_process_host_id_,
+                                          render_process_id_,
                                           message.routing_id(),
                                           request_id,
                                           request,
@@ -341,17 +345,16 @@ void ResourceMessageFilter::OnRequestResource(
 }
 
 void ResourceMessageFilter::OnDataReceivedACK(int request_id) {
-  resource_dispatcher_host_->OnDataReceivedACK(render_process_host_id_,
-                                               request_id);
+  resource_dispatcher_host_->OnDataReceivedACK(render_process_id_, request_id);
 }
 
 void ResourceMessageFilter::OnUploadProgressACK(int request_id) {
-  resource_dispatcher_host_->OnUploadProgressACK(render_process_host_id_,
+  resource_dispatcher_host_->OnUploadProgressACK(render_process_id_,
                                                  request_id);
 }
 
 void ResourceMessageFilter::OnCancelRequest(int request_id) {
-  resource_dispatcher_host_->CancelRequest(render_process_host_id_, request_id,
+  resource_dispatcher_host_->CancelRequest(render_process_id_, request_id,
                                            true);
 }
 
@@ -368,7 +371,7 @@ void ResourceMessageFilter::OnSyncLoad(
   resource_dispatcher_host_->BeginRequest(this,
                                           ChildProcessInfo::RENDER_PROCESS,
                                           render_handle_,
-                                          render_process_host_id_,
+                                          render_process_id_,
                                           sync_result->routing_id(),
                                           request_id,
                                           request,
@@ -516,7 +519,7 @@ void ResourceMessageFilter::OnDownloadUrl(const IPC::Message& message,
                                           const GURL& referrer) {
   resource_dispatcher_host_->BeginDownload(url,
                                            referrer,
-                                           render_process_host_id_,
+                                           render_process_id_,
                                            message.routing_id(),
                                            request_context_);
 }

@@ -41,9 +41,8 @@ class RenderWidgetHelper::PaintMsgProxy : public Task {
   DISALLOW_COPY_AND_ASSIGN(PaintMsgProxy);
 };
 
-RenderWidgetHelper::RenderWidgetHelper(
-    int render_process_id, ResourceDispatcherHost* resource_dispatcher_host)
-    : render_process_id_(render_process_id),
+RenderWidgetHelper::RenderWidgetHelper()
+    : render_process_id_(-1),
       ui_loop_(MessageLoop::current()),
 #if defined(OS_WIN)
       event_(CreateEvent(NULL, FALSE /* auto-reset */, FALSE, NULL)),
@@ -51,7 +50,7 @@ RenderWidgetHelper::RenderWidgetHelper(
       event_(false /* auto-reset */, false),
 #endif
       block_popups_(false),
-      resource_dispatcher_host_(resource_dispatcher_host) {
+      resource_dispatcher_host_(NULL) {
 }
 
 RenderWidgetHelper::~RenderWidgetHelper() {
@@ -64,12 +63,19 @@ RenderWidgetHelper::~RenderWidgetHelper() {
 #endif
 }
 
+void RenderWidgetHelper::Init(
+    int render_process_id,
+    ResourceDispatcherHost* resource_dispatcher_host) {
+  render_process_id_ = render_process_id;
+  resource_dispatcher_host_ = resource_dispatcher_host;
+}
+
 int RenderWidgetHelper::GetNextRoutingID() {
   return next_routing_id_.GetNext() + 1;
 }
 
 void RenderWidgetHelper::CancelResourceRequests(int render_widget_id) {
-  if (g_browser_process->io_thread()) {
+  if (g_browser_process->io_thread() && render_process_id_ != -1) {
     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &RenderWidgetHelper::OnCancelResourceRequests,

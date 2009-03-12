@@ -1050,7 +1050,7 @@ void DownloadManager::DownloadUrl(const GURL& url,
   DCHECK(web_contents);
   file_manager_->DownloadUrl(url,
                              referrer,
-                             web_contents->process()->host_id(),
+                             web_contents->process()->pid(),
                              web_contents->render_view_host()->routing_id(),
                              request_context_.get());
 }

@@ -33,10 +33,10 @@ class RenderProcessHost : public IPC::Channel::Sender,
   // Returns the user profile associated with this renderer process.
   Profile* profile() const { return profile_; }
 
-  // Returns the unique identifier for this host. This can be used later in
+  // Returns the process id for this host. This can be used later in
   // a call to FromID() to get back to this object (this is used to avoid
   // sending non-threadsafe pointers to other threads).
-  int host_id() const { return host_id_; }
+  int pid() const { return pid_; }
 
   // Returns the process object associated with the child process. In certain
   // tests or single-process mode, this will actually represent the current
@@ -172,13 +172,8 @@ class RenderProcessHost : public IPC::Channel::Sender,
   static RenderProcessHost* GetExistingProcessHost(Profile* profile);
 
  protected:
-  // Unregister this object from all globals that reference it.
-  // This would naturally be part of the destructor, but we destruct
-  // asynchronously.
-  //
-  // This can be overridden by derived classes to add their own unregister code,
-  // but you should be sure to always call this one AT THE END of your own.
-  virtual void Unregister();
+  // Sets the process  of this object, so that others access it using FromID.
+  void SetProcessID(int pid);
 
   base::Process process_;
 
@@ -198,7 +193,7 @@ class RenderProcessHost : public IPC::Channel::Sender,
   bool notified_termination_;
 
  private:
-  int host_id_;
+  int pid_;
 
   Profile* profile_;
 

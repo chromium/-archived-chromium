@@ -8,29 +8,23 @@
 
 #include "chrome/common/plugin_messages.h"
 #include "base/command_line.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/plugin/plugin_process.h"
 #include "chrome/plugin/plugin_thread.h"
 
-PluginChannel* PluginChannel::GetPluginChannel(
-    int process_id, HANDLE renderer_handle, MessageLoop* ipc_message_loop) {
-  // map renderer's process id to a (single) channel to that process
+PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
+  static int next_id;
   std::wstring channel_name = StringPrintf(
-      L"%d.r%d", GetCurrentProcessId(), process_id);
+      L"%d.r%d", GetCurrentProcessId(), ++next_id);
 
-  PluginChannelBase* result = PluginChannelBase::GetChannel(
+  return static_cast<PluginChannel*>(PluginChannelBase::GetChannel(
       channel_name,
       IPC::Channel::MODE_SERVER,
       ClassFactory,
       ipc_message_loop,
-      false);
-
-  PluginChannel* channel = static_cast<PluginChannel*>(result);
-  if (channel && !channel->renderer_handle())
-    channel->renderer_handle_.Set(renderer_handle);
-
-  return channel;
+      false));
 }
 
 PluginChannel::PluginChannel() : in_send_(0) {
@@ -103,6 +97,11 @@ void PluginChannel::OnGenerateRouteID(int* route_id) {
 int PluginChannel::GenerateRouteID() {
   static LONG last_id = 0;
   return InterlockedIncrement(&last_id);
+}
+
+void PluginChannel::OnChannelConnected(int32 peer_pid) {
+  renderer_handle_.Set(base::OpenProcessHandle(peer_pid));
+  PluginChannelBase::OnChannelConnected(peer_pid);
 }
 
 void PluginChannel::OnChannelError() {

@@ -7,6 +7,7 @@
 
 #include "chrome/browser/browsing_instance.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/common/notification_observer.h"
 #include "googleurl/src/gurl.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,7 +44,8 @@
 // tabs with no NavigationEntries or in NavigationEntries in the history.
 //
 ///////////////////////////////////////////////////////////////////////////////
-class SiteInstance : public base::RefCounted<SiteInstance> {
+class SiteInstance : public base::RefCounted<SiteInstance>,
+                     public NotificationObserver {
  public:
   // Virtual to allow tests to extend it.
   virtual ~SiteInstance();
@@ -60,12 +62,6 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   void set_render_process_host_factory(RenderProcessHostFactory* rph_factory) {
     render_process_host_factory_ = rph_factory;
   }
-
-  // Set / Get the host ID for this SiteInstance's current RenderProcessHost.
-  void set_process_host_id(int process_host_id) {
-    process_host_id_ = process_host_id;
-  }
-  int process_host_id() const { return process_host_id_; }
 
   // Update / Get the max page ID for this SiteInstance.
   void UpdateMaxPageID(int32 page_id) {
@@ -133,16 +129,14 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   // Create a new SiteInstance.  Protected to give access to BrowsingInstance
   // and tests; most callers should use CreateSiteInstance or
   // GetRelatedSiteInstance instead.
-  SiteInstance(BrowsingInstance* browsing_instance)
-      : browsing_instance_(browsing_instance),
-        render_process_host_factory_(NULL),
-        process_host_id_(-1),
-        max_page_id_(-1),
-        has_site_(false) {
-    DCHECK(browsing_instance);
-  }
+  SiteInstance(BrowsingInstance* browsing_instance);
 
  private:
+  // NotificationObserver implementation.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
+
   // BrowsingInstance to which this SiteInstance belongs.
   scoped_refptr<BrowsingInstance> browsing_instance_;
 
@@ -150,11 +144,8 @@ class SiteInstance : public base::RefCounted<SiteInstance> {
   // that the default BrowserRenderProcessHost should be created.
   const RenderProcessHostFactory* render_process_host_factory_;
 
-  // Current host ID for the RenderProcessHost that is rendering pages for this
-  // SiteInstance.  If the rendering process dies, this host ID can be
-  // replaced when a new process is created, without losing the association
-  // between all pages in this SiteInstance.
-  int process_host_id_;
+  // Current RenderProcessHost that is rendering pages for this SiteInstance.
+  RenderProcessHost* process_;
 
   // The current max_page_id in the SiteInstance's RenderProcessHost.  If the
   // rendering process dies, its replacement should start issuing page IDs that

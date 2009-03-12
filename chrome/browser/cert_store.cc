@@ -138,5 +138,5 @@ void CertStore::Observe(NotificationType type,
   DCHECK(type == NotificationType::RENDERER_PROCESS_TERMINATED);
   RenderProcessHost* rph = Source<RenderProcessHost>(source).ptr();
   DCHECK(rph);
-  RemoveCertsForRenderProcesHost(rph->host_id());
+  RemoveCertsForRenderProcesHost(rph->pid());
 }

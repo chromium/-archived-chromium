@@ -52,8 +52,6 @@ unsigned int GetMaxRendererProcessCount() {
 
 // Returns true if the given host is suitable for launching a new view
 // associated with the given profile.
-// TODO(jabdelmalek): do we want to avoid processes with hung renderers
-// or with a large memory consumption?
 static bool IsSuitableHost(Profile* profile, RenderProcessHost* host) {
   return host->profile() == profile;
 }
@@ -68,8 +66,8 @@ bool RenderProcessHost::run_renderer_in_process_ = false;
 RenderProcessHost::RenderProcessHost(Profile* profile)
     : max_page_id_(-1),
       notified_termination_(false),
+      pid_(-1),
       profile_(profile) {
-  host_id_ = all_hosts.Add(this);
 }
 
 RenderProcessHost::~RenderProcessHost() {
@@ -97,7 +95,10 @@ void RenderProcessHost::Release(int listener_id) {
           Details<bool>(&close_expected));
       notified_termination_ = true;
     }
-    Unregister();
+    if (pid_ >= 0) {
+      all_hosts.Remove(pid_);
+      pid_ = -1;
+    }
     MessageLoop::current()->DeleteSoon(FROM_HERE, this);
   }
 }
@@ -167,9 +168,12 @@ RenderProcessHost* RenderProcessHost::GetExistingProcessHost(Profile* profile) {
   return NULL;
 }
 
-void RenderProcessHost::Unregister() {
-  if (host_id_ >= 0) {
-    all_hosts.Remove(host_id_);
-    host_id_ = -1;
+void RenderProcessHost::SetProcessID(int pid) {
+  if (pid_ != -1) {
+    // This object is being reused after a renderer crash.  Remove the old pid.
+    all_hosts.Remove(pid_);
   }
+
+  pid_ = pid;
+  all_hosts.AddWithID(this, pid);
 }

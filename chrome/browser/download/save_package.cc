@@ -156,7 +156,7 @@ SavePackage::SavePackage(WebContents* web_content,
       save_type_(save_type),
       all_save_items_count_(0),
       wait_state_(INITIALIZE),
-      tab_id_(web_content->process()->host_id()) {
+      tab_id_(web_content->process()->pid()) {
   DCHECK(web_content);
   const GURL& current_page_url = web_contents_->GetURL();
   DCHECK(current_page_url.is_valid());
@@ -578,7 +578,7 @@ void SavePackage::CheckFinish() {
                         &SaveFileManager::RenameAllFiles,
                         final_names,
                         dir,
-                        web_contents_->process()->host_id(),
+                        web_contents_->process()->pid(),
                         web_contents_->render_view_host()->routing_id()));
 }
 
@@ -716,7 +716,7 @@ void SavePackage::SaveNextFile(bool process_all_remaining_items) {
     save_item->Start();
     file_manager_->SaveURL(save_item->url(),
                            save_item->referrer(),
-                           web_contents_->process()->host_id(),
+                           web_contents_->process()->pid(),
                            web_contents_->render_view_host()->routing_id(),
                            save_item->save_source(),
                            save_item->full_path(),

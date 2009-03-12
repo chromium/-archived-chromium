@@ -14,10 +14,7 @@
 // process.  On the renderer side there's a corresponding PluginChannelHost.
 class PluginChannel : public PluginChannelBase {
  public:
-  // renderer_handle is the the handle to the renderer process requesting the
-  // channel. The handle has to be valid in the context of the plugin process.
-  static PluginChannel* GetPluginChannel(
-      int process_id, HANDLE renderer_handle, MessageLoop* ipc_message_loop);
+  static PluginChannel* GetPluginChannel(MessageLoop* ipc_message_loop);
 
   ~PluginChannel();
 
@@ -31,6 +28,7 @@ class PluginChannel : public PluginChannelBase {
 
  protected:
   // IPC::Channel::Listener implementation:
+  virtual void OnChannelConnected(int32 peer_pid);
   virtual void OnChannelError();
 
   virtual void CleanUp();

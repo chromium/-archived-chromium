@@ -90,14 +90,14 @@ void PluginThread::CleanUp() {
     TerminateProcess(GetCurrentProcess(), 0);
 }
 
-void PluginThread::OnCreateChannel(int process_id, HANDLE renderer) {
+void PluginThread::OnCreateChannel() {
   std::wstring channel_name;
   scoped_refptr<PluginChannel> channel =
-      PluginChannel::GetPluginChannel(process_id, renderer, owner_loop());
+      PluginChannel::GetPluginChannel(owner_loop());
   if (channel.get())
     channel_name = channel->channel_name();
 
-  Send(new PluginProcessHostMsg_ChannelCreated(process_id, channel_name));
+  Send(new PluginProcessHostMsg_ChannelCreated(channel_name));
 }
 
 void PluginThread::OnShutdownResponse(bool ok_to_shutdown) {

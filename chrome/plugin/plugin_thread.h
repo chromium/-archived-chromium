@@ -35,7 +35,7 @@ class PluginThread : public ChildThread {
   virtual void Init();
   virtual void CleanUp();
 
-  void OnCreateChannel(int process_id, HANDLE renderer);
+  void OnCreateChannel();
   void OnShutdownResponse(bool ok_to_shutdown);
   void OnPluginMessage(const std::vector<uint8> &data);
   void OnBrowserShutdown();

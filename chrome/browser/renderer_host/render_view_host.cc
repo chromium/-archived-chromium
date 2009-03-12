@@ -121,7 +121,7 @@ RenderViewHost::~RenderViewHost() {
 
   // Be sure to clean up any leftover state from cross-site requests.
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
-      process()->host_id(), routing_id(), false);
+      process()->pid(), routing_id(), false);
 
   NotificationService::current()->Notify(
       NotificationType::RENDER_VIEW_HOST_DELETED,
@@ -140,6 +140,11 @@ bool RenderViewHost::CreateRenderView() {
     return false;
   DCHECK(process()->channel());
   DCHECK(process()->profile());
+
+  if (enabled_bindings_ & BindingsPolicy::DOM_UI) {
+    RendererSecurityPolicy::GetInstance()->GrantDOMUIBindings(
+        process()->pid());
+  }
 
   renderer_initialized_ = true;
 
@@ -201,7 +206,7 @@ void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,
   MakeNavigateParams(entry, is_reload, &params);
 
   RendererSecurityPolicy::GetInstance()->GrantRequestURL(
-      process()->host_id(), params.url);
+      process()->pid(), params.url);
 
   DoNavigate(new ViewMsg_Navigate(routing_id(), params));
 }
@@ -214,7 +219,7 @@ void RenderViewHost::NavigateToURL(const GURL& url) {
   params.reload = false;
 
   RendererSecurityPolicy::GetInstance()->GrantRequestURL(
-      process()->host_id(), params.url);
+      process()->pid(), params.url);
 
   DoNavigate(new ViewMsg_Navigate(routing_id(), params));
 }
@@ -276,8 +281,7 @@ void RenderViewHost::FirePageBeforeUnload() {
 }
 
 void RenderViewHost::FirePageUnload() {
-  ClosePage(site_instance()->process_host_id(),
-            routing_id());
+  ClosePage(process()->pid(), routing_id());
 }
 
 // static
@@ -317,7 +321,7 @@ void RenderViewHost::ClosePage(int new_render_process_host_id,
 void RenderViewHost::SetHasPendingCrossSiteRequest(bool has_pending_request,
                                                    int request_id) {
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
-      process()->host_id(), routing_id(), has_pending_request);
+      process()->pid(), routing_id(), has_pending_request);
   pending_request_id_ = request_id;
 }
 
@@ -387,13 +391,12 @@ void RenderViewHost::DragTargetDragEnter(const WebDropData& drop_data,
     const gfx::Point& client_pt, const gfx::Point& screen_pt) {
   // Grant the renderer the ability to load the drop_data.
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
-  policy->GrantRequestURL(process()->host_id(), drop_data.url);
+  policy->GrantRequestURL(process()->pid(), drop_data.url);
   for (std::vector<std::wstring>::const_iterator
          iter(drop_data.filenames.begin());
        iter != drop_data.filenames.end(); ++iter) {
-    policy->GrantRequestURL(process()->host_id(),
-                            net::FilePathToFileURL(*iter));
-    policy->GrantUploadFile(process()->host_id(), *iter);
+    policy->GrantRequestURL(process()->pid(), net::FilePathToFileURL(*iter));
+    policy->GrantUploadFile(process()->pid(), *iter);
   }
   Send(new ViewMsg_DragTargetDragEnter(routing_id(), drop_data, client_pt,
                                        screen_pt));
@@ -544,14 +547,12 @@ void RenderViewHost::CopyImageAt(int x, int y) {
 }
 
 void RenderViewHost::InspectElementAt(int x, int y) {
-  RendererSecurityPolicy::GetInstance()->GrantInspectElement(
-      process()->host_id());
+  RendererSecurityPolicy::GetInstance()->GrantInspectElement(process()->pid());
   Send(new ViewMsg_InspectElement(routing_id(), x, y));
 }
 
 void RenderViewHost::ShowJavaScriptConsole() {
-  RendererSecurityPolicy::GetInstance()->GrantInspectElement(
-      process()->host_id());
+  RendererSecurityPolicy::GetInstance()->GrantInspectElement(process()->pid());
 
   Send(new ViewMsg_ShowJavaScriptConsole(routing_id()));
 }
@@ -585,8 +586,6 @@ void RenderViewHost::AllowExternalHostBindings() {
 void RenderViewHost::AllowDOMUIBindings() {
   DCHECK(!renderer_initialized_);
   enabled_bindings_ |= BindingsPolicy::DOM_UI;
-  RendererSecurityPolicy::GetInstance()->GrantDOMUIBindings(
-      process()->host_id());
 }
 
 void RenderViewHost::AllowExtensionBindings() {
@@ -629,7 +628,7 @@ void RenderViewHost::InstallMissingPlugin() {
 }
 
 void RenderViewHost::FileSelected(const std::wstring& path) {
-  RendererSecurityPolicy::GetInstance()->GrantUploadFile(process()->host_id(),
+  RendererSecurityPolicy::GetInstance()->GrantUploadFile(process()->pid(),
                                                          path);
   std::vector<std::wstring> files;
   files.push_back(path);
@@ -641,7 +640,7 @@ void RenderViewHost::MultiFilesSelected(
   for (std::vector<std::wstring>::const_iterator file = files.begin();
        file != files.end(); ++file) {
     RendererSecurityPolicy::GetInstance()->GrantUploadFile(
-      process()->host_id(), *file);
+      process()->pid(), *file);
   }
   Send(new ViewMsg_RunFileChooserResponse(routing_id(), files));
 }
@@ -864,7 +863,7 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
       Read(&msg, &iter, &validated_params))
     return;
 
-  const int renderer_id = process()->host_id();
+  const int renderer_id = process()->pid();
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
   // Without this check, an evil renderer can trick the browser into creating
   // a navigation entry for a banned URL.  If the user clicks the back button
@@ -953,7 +952,7 @@ void RenderViewHost::OnMsgDidStartProvisionalLoadForFrame(bool is_main_frame,
                                                           const GURL& url) {
   GURL validated_url(url);
   FilterURL(RendererSecurityPolicy::GetInstance(),
-            process()->host_id(), &validated_url);
+            process()->pid(), &validated_url);
 
   delegate_->DidStartProvisionalLoadForFrame(this, is_main_frame,
                                              validated_url);
@@ -966,7 +965,7 @@ void RenderViewHost::OnMsgDidFailProvisionalLoadWithError(
     bool showing_repost_interstitial) {
   GURL validated_url(url);
   FilterURL(RendererSecurityPolicy::GetInstance(),
-            process()->host_id(), &validated_url);
+            process()->pid(), &validated_url);
 
   delegate_->DidFailProvisionalLoadWithError(this, is_main_frame,
                                              error_code, validated_url,
@@ -1011,7 +1010,7 @@ void RenderViewHost::OnMsgContextMenu(const ContextMenuParams& params) {
   // Validate the URLs in |params|.  If the renderer can't request the URLs
   // directly, don't show them in the context menu.
   ContextMenuParams validated_params(params);
-  const int renderer_id = process()->host_id();
+  const int renderer_id = process()->pid();
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
 
   FilterURL(policy, renderer_id, &validated_params.link_url);
@@ -1027,7 +1026,7 @@ void RenderViewHost::OnMsgOpenURL(const GURL& url,
                                   WindowOpenDisposition disposition) {
   GURL validated_url(url);
   FilterURL(RendererSecurityPolicy::GetInstance(),
-            process()->host_id(), &validated_url);
+            process()->pid(), &validated_url);
 
   delegate_->RequestOpenURL(validated_url, referrer, disposition);
 }
@@ -1040,7 +1039,7 @@ void RenderViewHost::OnMsgDomOperationResponse(
 void RenderViewHost::OnMsgDOMUISend(
     const std::string& message, const std::string& content) {
   if (!RendererSecurityPolicy::GetInstance()->
-          HasDOMUIBindings(process()->host_id())) {
+          HasDOMUIBindings(process()->pid())) {
     NOTREACHED() << "Blocked unauthorized use of DOMUIBindings.";
     return;
   }

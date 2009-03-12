@@ -6,7 +6,21 @@
 
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/common/notification_service.h"
 #include "net/base/registry_controlled_domain.h"
+
+SiteInstance::SiteInstance(BrowsingInstance* browsing_instance)
+    : browsing_instance_(browsing_instance),
+      render_process_host_factory_(NULL),
+      process_(NULL),
+      max_page_id_(-1),
+      has_site_(false) {
+  DCHECK(browsing_instance);
+
+  NotificationService::current()->AddObserver(this,
+      NotificationType::RENDERER_PROCESS_TERMINATED,
+      NotificationService::AllSources());
+}
 
 SiteInstance::~SiteInstance() {
   // Now that no one is referencing us, we can safely remove ourselves from
@@ -14,40 +28,36 @@ SiteInstance::~SiteInstance() {
   // (within the same BrowsingInstance) can safely create a new SiteInstance.
   if (has_site_)
     browsing_instance_->UnregisterSiteInstance(this);
+
+  NotificationService::current()->RemoveObserver(this,
+      NotificationType::RENDERER_PROCESS_TERMINATED,
+      NotificationService::AllSources());
 }
 
 RenderProcessHost* SiteInstance::GetProcess() {
-  RenderProcessHost* process = NULL;
-  if (process_host_id_ != -1)
-    process = RenderProcessHost::FromID(process_host_id_);
-
   // Create a new process if ours went away or was reused.
-  if (!process) {
+  if (!process_) {
     // See if we should reuse an old process
     if (RenderProcessHost::ShouldTryToUseExistingProcessHost())
-      process = RenderProcessHost::GetExistingProcessHost(
+      process_ = RenderProcessHost::GetExistingProcessHost(
           browsing_instance_->profile());
 
     // Otherwise (or if that fails), create a new one.
-    if (!process) {
+    if (!process_) {
       if (render_process_host_factory_) {
-        process = render_process_host_factory_->CreateRenderProcessHost(
+        process_ = render_process_host_factory_->CreateRenderProcessHost(
             browsing_instance_->profile());
       } else {
-        process = new BrowserRenderProcessHost(browsing_instance_->profile());
+        process_ = new BrowserRenderProcessHost(browsing_instance_->profile());
       }
     }
 
-    // Update our host ID, so all pages in this SiteInstance will use
-    // the correct process.
-    process_host_id_ = process->host_id();
-
     // Make sure the process starts at the right max_page_id
-    process->UpdateMaxPageID(max_page_id_);
+    process_->UpdateMaxPageID(max_page_id_);
   }
-  DCHECK(process);
+  DCHECK(process_);
 
-  return process;
+  return process_;
 }
 
 void SiteInstance::SetSite(const GURL& url) {
@@ -150,4 +160,13 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
   }
 
   return net::RegistryControlledDomainService::SameDomainOrHost(url1, url2);
+}
+
+void SiteInstance::Observe(NotificationType type,
+                           const NotificationSource& source,
+                           const NotificationDetails& details) {
+  DCHECK(type == NotificationType::RENDERER_PROCESS_TERMINATED);
+  RenderProcessHost* rph = Source<RenderProcessHost>(source).ptr();
+  if (rph == process_)
+    process_ = NULL;
 }

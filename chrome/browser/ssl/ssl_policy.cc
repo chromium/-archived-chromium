@@ -98,7 +98,7 @@ static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
 
   WebContents* tab  = error->GetWebContents();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(
-      error->ssl_info().cert, tab->render_view_host()->process()->host_id());
+      error->ssl_info().cert, tab->render_view_host()->process()->pid());
   std::string security_info =
       SSLManager::SerializeSecurityInfo(cert_id,
                                         error->ssl_info().cert_status,

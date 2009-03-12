@@ -232,7 +232,7 @@ void WebContentsViewWin::OpenDeveloperTools() {
   if (!host)
     return;
 
-  dev_tools_window_->Show(host->process()->host_id(), host->routing_id());
+  dev_tools_window_->Show(host->process()->pid(), host->routing_id());
 }
 
 void WebContentsViewWin::ForwardMessageToDevToolsClient(

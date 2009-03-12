@@ -438,7 +438,10 @@ void WebContents::DidBecomeSelected() {
   if (render_widget_host_view())
     render_widget_host_view()->DidBecomeSelected();
 
-  CacheManagerHost::GetInstance()->ObserveActivity(process()->host_id());
+  // If pid() is -1, that means the RenderProcessHost still hasn't been
+  // initialized.  It'll register with CacheManagerHost when it is.
+  if (process()->pid() != -1)
+    CacheManagerHost::GetInstance()->ObserveActivity(process()->pid());
 }
 
 void WebContents::WasHidden() {

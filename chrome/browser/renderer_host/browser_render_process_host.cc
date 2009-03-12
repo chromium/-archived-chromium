@@ -128,12 +128,7 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
       ALLOW_THIS_IN_INITIALIZER_LIST(cached_dibs_cleaner_(
             base::TimeDelta::FromSeconds(5),
             this, &BrowserRenderProcessHost::ClearTransportDIBCache)) {
-  DCHECK(host_id() >= 0);  // We use a negative host_id_ in destruction.
-  widget_helper_ = new RenderWidgetHelper(
-      host_id(), g_browser_process->resource_dispatcher_host());
-
-  CacheManagerHost::GetInstance()->Add(host_id());
-  RendererSecurityPolicy::GetInstance()->Add(host_id());
+  widget_helper_ = new RenderWidgetHelper();
 
   PrefService* prefs = profile->GetPrefs();
   prefs->AddPrefObserver(prefs::kBlockPopups, this);
@@ -151,9 +146,10 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
 }
 
 BrowserRenderProcessHost::~BrowserRenderProcessHost() {
-  // Some tests hold BrowserRenderProcessHost in a scoped_ptr, so we must call
-  // Unregister here as well as in response to Release().
-  Unregister();
+  if (pid() >= 0) {
+    CacheManagerHost::GetInstance()->Remove(pid());
+    RendererSecurityPolicy::GetInstance()->Remove(pid());
+  }
 
   // We may have some unsent messages at this point, but that's OK.
   channel_.reset();
@@ -192,7 +188,6 @@ bool BrowserRenderProcessHost::Init() {
                                 audio_renderer_host_.get(),
                                 PluginService::GetInstance(),
                                 g_browser_process->print_job_manager(),
-                                host_id(),
                                 profile(),
                                 widget_helper_,
                                 profile()->GetSpellChecker());
@@ -306,6 +301,7 @@ bool BrowserRenderProcessHost::Init() {
     cmd_line.AppendSwitchWithValue(switches::kUserDataDir,
                                    profile_path);
 
+  int process_id;
   bool run_in_process = run_renderer_in_process();
   if (run_in_process) {
     // Crank up a thread and run the initialization there.  With the way that
@@ -323,6 +319,14 @@ bool BrowserRenderProcessHost::Init() {
     base::Thread::Options options;
     options.message_loop_type = MessageLoop::TYPE_IO;
     in_process_renderer_->StartWithOptions(options);
+
+    // We need a "renderer pid", but we don't have one when there's no renderer
+    // process.  So pick a value that won't clash with other child process pids.
+    // Linux has PID_MAX_LIMIT which is 2^22.  Windows always uses pids that are
+    // divisible by 4.  So...
+    static int next_pid = 4 * 1024 * 1024;
+    next_pid += 3;
+    process_id = next_pid;
   } else {
 #if defined(OS_WIN)
     if (in_sandbox) {
@@ -405,7 +409,14 @@ bool BrowserRenderProcessHost::Init() {
         return false;
       process_.set_handle(process);
     }
+
+    process_id = process_.pid();
   }
+
+  SetProcessID(process_id);
+  resource_message_filter->Init(pid());
+  CacheManagerHost::GetInstance()->Add(pid());
+  RendererSecurityPolicy::GetInstance()->Add(pid());
 
   // Now that the process is created, set it's backgrounding accordingly.
   SetBackgrounded(backgrounded_);
@@ -771,17 +782,6 @@ void BrowserRenderProcessHost::OnChannelError() {
   // TODO(darin): clean this up
 }
 
-void BrowserRenderProcessHost::Unregister() {
-  // RenderProcessHost::Unregister will clean up the host_id_, so we must
-  // do our cleanup that uses that variable before we call it.
-  if (host_id() >= 0) {
-    CacheManagerHost::GetInstance()->Remove(host_id());
-    RendererSecurityPolicy::GetInstance()->Remove(host_id());
-  }
-
-  RenderProcessHost::Unregister();
-}
-
 void BrowserRenderProcessHost::OnPageContents(const GURL& url,
                                        int32 page_id,
                                        const std::wstring& contents) {
@@ -796,7 +796,7 @@ void BrowserRenderProcessHost::OnPageContents(const GURL& url,
 
 void BrowserRenderProcessHost::OnUpdatedCacheStats(
     const CacheManager::UsageStats& stats) {
-  CacheManagerHost::GetInstance()->ObserveStats(host_id(), stats);
+  CacheManagerHost::GetInstance()->ObserveStats(pid(), stats);
 }
 
 void BrowserRenderProcessHost::SetBackgrounded(bool backgrounded) {

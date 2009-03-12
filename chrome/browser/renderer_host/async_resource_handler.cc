@@ -35,15 +35,15 @@ class SharedIOBuffer : public net::IOBuffer {
 
 AsyncResourceHandler::AsyncResourceHandler(
     ResourceDispatcherHost::Receiver* receiver,
-    int render_process_host_id,
+    int process_id,
     int routing_id,
-    base::ProcessHandle render_process,
+    base::ProcessHandle process_handle,
     const GURL& url,
     ResourceDispatcherHost* resource_dispatcher_host)
     : receiver_(receiver),
-      render_process_host_id_(render_process_host_id),
+      process_id_(process_id),
       routing_id_(routing_id),
-      render_process_(render_process),
+      process_handle_(process_handle),
       rdh_(resource_dispatcher_host) {
 }
 
@@ -91,18 +91,18 @@ bool AsyncResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
     return true;
   DCHECK(read_buffer_.get());
 
-  if (!rdh_->WillSendData(render_process_host_id_, request_id)) {
+  if (!rdh_->WillSendData(process_id_, request_id)) {
     // We should not send this data now, we have too many pending requests.
     return true;
   }
 
   base::SharedMemoryHandle handle;
-  if (!read_buffer_->shared_memory()->GiveToProcess(render_process_, &handle)) {
+  if (!read_buffer_->shared_memory()->GiveToProcess(process_handle_, &handle)) {
     // We wrongfully incremented the pending data count. Fake an ACK message
     // to fix this. We can't move this call above the WillSendData because
     // it's killing our read_buffer_, and we don't want that when we pause
     // the request.
-    rdh_->OnDataReceivedACK(render_process_host_id_, request_id);
+    rdh_->OnDataReceivedACK(process_id_, request_id);
     // We just unmapped the memory.
     read_buffer_ = NULL;
     return false;

@@ -110,7 +110,7 @@ InterstitialPage::InterstitialPage(WebContents* tab,
       enabled_(true),
       action_taken_(false),
       render_view_host_(NULL),
-      original_rvh_process_id_(tab->render_view_host()->process()->host_id()),
+      original_rvh_process_id_(tab->render_view_host()->process()->pid()),
       original_rvh_id_(tab->render_view_host()->routing_id()),
       should_revert_tab_title_(false),
       resource_dispatcher_host_notified_(false),
@@ -217,7 +217,7 @@ void InterstitialPage::Observe(NotificationType type,
         // The RenderViewHost is being destroyed (as part of the tab being
         // closed), make sure we clear the blocked requests.
         RenderViewHost* rvh = Source<RenderViewHost>(source).ptr();
-        DCHECK(rvh->process()->host_id() == original_rvh_process_id_ &&
+        DCHECK(rvh->process()->pid() == original_rvh_process_id_ &&
                rvh->routing_id() == original_rvh_id_);
         TakeActionOnResourceDispatcher(CANCEL);
       }

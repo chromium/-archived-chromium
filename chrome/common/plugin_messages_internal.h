@@ -13,11 +13,7 @@ IPC_BEGIN_MESSAGES(PluginProcess)
   // Tells the plugin process to create a new channel for communication with a
   // renderer.  The channel name is returned in a
   // PluginProcessHostMsg_ChannelCreated message.
-  // The renderer_handle is the handle of the renderer process requesting
-  // the channel. It has to be valid in the context of the plugin process.
-  IPC_MESSAGE_CONTROL2(PluginProcessMsg_CreateChannel,
-                       int /* process_id */,
-                       HANDLE /* renderer handle */)
+  IPC_MESSAGE_CONTROL0(PluginProcessMsg_CreateChannel)
 
   IPC_MESSAGE_CONTROL1(PluginProcessMsg_ShutdownResponse,
                        bool /* ok to shutdown */)
@@ -37,8 +33,7 @@ IPC_END_MESSAGES(PluginProcess)
 // These are messages sent from the plugin process to the browser process.
 IPC_BEGIN_MESSAGES(PluginProcessHost)
   // Response to a PluginProcessMsg_CreateChannel message.
-  IPC_MESSAGE_CONTROL2(PluginProcessHostMsg_ChannelCreated,
-                       int /* process_id */,
+  IPC_MESSAGE_CONTROL1(PluginProcessHostMsg_ChannelCreated,
                        std::wstring /* channel_name */)
 
   IPC_MESSAGE_ROUTED3(PluginProcessHostMsg_DownloadUrl,
