@@ -602,6 +602,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_menu_controller.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_menu_controller.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmarks\bookmark_model.cc"
 				>
 			</File>

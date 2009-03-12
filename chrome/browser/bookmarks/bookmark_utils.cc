@@ -201,6 +201,63 @@ int PreferredDropOperation(int source_operations, int operations) {
   return DragDropTypes::DRAG_NONE;
 }
 
+int BookmarkDragOperation(BookmarkNode* node) {
+  if (node->is_url()) {
+    return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_MOVE |
+           DragDropTypes::DRAG_LINK;
+  }
+  return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_MOVE;
+}
+
+int BookmarkDropOperation(Profile* profile,
+                          const views::DropTargetEvent& event,
+                          const BookmarkDragData& data,
+                          BookmarkNode* parent,
+                          int index) {
+  if (data.IsFromProfile(profile) && data.size() > 1)
+    // Currently only accept one dragged node at a time.
+    return DragDropTypes::DRAG_NONE;
+
+  if (!bookmark_utils::IsValidDropLocation(profile, data, parent, index))
+    return DragDropTypes::DRAG_NONE;
+
+  if (data.GetFirstNode(profile)) {
+    // User is dragging from this profile: move.
+    return DragDropTypes::DRAG_MOVE;
+  }
+  // User is dragging from another app, copy.
+  return PreferredDropOperation(event.GetSourceOperations(),
+      DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK);
+}
+
+int PerformBookmarkDrop(Profile* profile,
+                        const BookmarkDragData& data,
+                        BookmarkNode* parent_node,
+                        int index) {
+  BookmarkNode* dragged_node = data.GetFirstNode(profile);
+  BookmarkModel* model = profile->GetBookmarkModel();
+  if (dragged_node) {
+    // Drag from same profile, do a move.
+    model->Move(dragged_node, parent_node, index);
+    return DragDropTypes::DRAG_MOVE;
+  } else if (data.has_single_url()) {
+    // New URL, add it at the specified location.
+    std::wstring title = data.elements[0].title;
+    if (title.empty()) {
+      // No title, use the host.
+      title = UTF8ToWide(data.elements[0].url.host());
+      if (title.empty())
+        title = l10n_util::GetString(IDS_BOOMARK_BAR_UNKNOWN_DRAG_TITLE);
+    }
+    model->AddURL(parent_node, index, title, data.elements[0].url);
+    return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
+  } else {
+    // Dropping a group from different profile. Always accept.
+    bookmark_utils::CloneDragData(model, data.elements, parent_node, index);
+    return DragDropTypes::DRAG_COPY;
+  }
+}
+
 bool IsValidDropLocation(Profile* profile,
                          const BookmarkDragData& data,
                          BookmarkNode* drop_parent,

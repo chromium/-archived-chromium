@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_VIEWS_BOOKMARK_BAR_VIEW_H_
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_menu_controller.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/slide_animation.h"
@@ -44,8 +45,8 @@ class BookmarkBarView : public views::View,
                         public NotificationObserver,
                         public views::ContextMenuController,
                         public views::DragController,
-                        public AnimationDelegate {
-  friend class MenuRunner;
+                        public AnimationDelegate,
+                        public BookmarkMenuController::Observer {
   friend class ShowFolderMenuTask;
 
  public:
@@ -152,6 +153,9 @@ class BookmarkBarView : public views::View,
   // SlideAnimationDelegate implementation.
   void AnimationProgressed(const Animation* animation);
   void AnimationEnded(const Animation* animation);
+
+  // BookmarkMenuController::Observer
+  virtual void BookmarkMenuDeleted(BookmarkMenuController* controller);
 
   // Returns the button at the specified index.
   views::TextButton* GetBookmarkButton(int index);
@@ -359,19 +363,6 @@ class BookmarkBarView : public views::View,
                              bool* is_over_overflow,
                              bool* is_over_other);
 
-  // Invokes CanDropAt to determine if this is a valid location for the data,
-  // then returns the appropriate drag operation based on the data.
-  int CalculateDropOperation(const views::DropTargetEvent& event,
-                             const BookmarkDragData& data,
-                             BookmarkNode* parent,
-                             int index);
-
-  // Performs a drop of the specified data at the specified location. Returns
-  // the result.
-  int PerformDropImpl(const BookmarkDragData& data,
-                      BookmarkNode* parent_node,
-                      int index);
-
   // Returns the index of the first hidden bookmark button. If all buttons are
   // visible, this returns GetBookmarkButtonCount().
   int GetFirstHiddenNodeIndex();
@@ -399,14 +390,14 @@ class BookmarkBarView : public views::View,
   // shown. This is owned by the Profile.
   BookmarkModel* model_;
 
-  // Used to manage showing a Menu: either for the most recently bookmarked
+  // Used to manage showing a Menu, either for the most recently bookmarked
   // entries, or for the a starred group.
-  scoped_ptr<MenuRunner> menu_runner_;
+  BookmarkMenuController* bookmark_menu_;
 
   // Used when showing a menu for drag and drop. That is, if the user drags
-  // over a group this becomes non-null and is the MenuRunner used to manage
-  // the menu showing the contents of the node.
-  scoped_ptr<MenuRunner> drop_menu_runner_;
+  // over a group this becomes non-null and manages the menu showing the
+  // contents of the node.
+  BookmarkMenuController* bookmark_drop_menu_;
 
   // Shows the other bookmark entries.
   views::MenuButton* other_bookmarked_button_;
