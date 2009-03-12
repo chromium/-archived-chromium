@@ -5,6 +5,7 @@
 #include "chrome/browser/autocomplete/autocomplete_edit_view_gtk.h"
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
@@ -87,6 +88,11 @@ void AutocompleteEditViewGtk::Init() {
                    G_CALLBACK(&HandleBeginUserActionThunk), this);
   g_signal_connect(text_buffer_, "end-user-action",
                    G_CALLBACK(&HandleEndUserActionThunk), this);
+  // We connect to key press and release for special handling of the enter key.
+  g_signal_connect(text_view_, "key-press-event",
+                   G_CALLBACK(&HandleKeyPressThunk), this);
+  g_signal_connect(text_view_, "key-release-event",
+                   G_CALLBACK(&HandleKeyReleaseThunk), this);
   g_signal_connect(text_view_, "size-request",
                    G_CALLBACK(&HandleViewSizeRequest), this);
   g_signal_connect(text_view_, "button-press-event",
@@ -294,36 +300,54 @@ void AutocompleteEditViewGtk::HandleBeginUserAction() {
 }
 
 void AutocompleteEditViewGtk::HandleEndUserAction() {
-  bool had_newline = false;
+  // Eat any newline / paragraphs that might have come in, for example in a
+  // copy and paste.  We want to make sure our widget stays single line.
+  for (;;) {
+    GtkTextIter cur;
+    gtk_text_buffer_get_start_iter(text_buffer_, &cur);
 
-  // TODO(deanm): obviously super inefficient.
-  for(;;) {
-    GtkTextIter cur, end;
-    gtk_text_buffer_get_bounds(text_buffer_, &cur, &end);
-
-    while (!gtk_text_iter_equal(&cur, &end)) {
-      if (gtk_text_iter_ends_line(&cur)) {
-        had_newline = true;
-        GtkTextIter next = cur;
-        gtk_text_iter_forward_char(&next);
-        gtk_text_buffer_delete(text_buffer_, &cur, &next);
-
-        // We've invalidated our iterators, gotta start again.
-        break;
-      }
-
-      gtk_text_iter_forward_char(&cur);
-    }
-
-    // We've exhausted the whole input and there is now only 1 line, good.
-    if (gtk_text_iter_equal(&cur, &end))
+    // If there is a line ending, this should put us right before the newline
+    // or carriage return / newline (or Unicode) sequence.  If not, we're done.
+    if (gtk_text_iter_forward_to_line_end(&cur) == FALSE)
       break;
+
+    // Stepping to the next cursor position should put us on the other side of
+    // the newline / paragraph / etc sequence, and then delete this range.
+    GtkTextIter next_line = cur;
+    gtk_text_iter_forward_cursor_position(&next_line);
+    gtk_text_buffer_delete(text_buffer_, &cur, &next_line);
+
+    // We've invalidated our iterators, gotta start again.
   }
 
   OnAfterPossibleChange();
+}
 
-  if (had_newline)
-    model_->AcceptInput(CURRENT_TAB, false);
+gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
+                                                 GdkEventKey* event) {
+  // This is very similar to the special casing of the return key in the
+  // GtkTextView key_press default handler.  TODO(deanm): We do however omit
+  // some IME related code, this might become a problem if an IME wants to
+  // handle enter.  We can get at the im_context and do it ourselves if needed.
+  if (event->keyval == GDK_Return ||
+      event->keyval == GDK_ISO_Enter ||
+      event->keyval == GDK_KP_Enter) {
+    bool alt_held = (event->state & GDK_MOD1_MASK);
+    model_->AcceptInput(alt_held ? NEW_FOREGROUND_TAB : CURRENT_TAB, false);
+    return TRUE;  // Don't propagate into GtkTextView.
+  }
+  return FALSE;  // Propagate into GtkTextView.
+}
+
+gboolean AutocompleteEditViewGtk::HandleKeyRelease(GtkWidget* widget,
+                                                   GdkEventKey* event) {
+  // We ate the press, might as well eat the release.
+  if (event->keyval == GDK_Return ||
+      event->keyval == GDK_ISO_Enter ||
+      event->keyval == GDK_KP_Enter) {
+    return TRUE;  // Don't propagate into GtkTextView.
+  }
+  return FALSE;  // Propagate into GtkTextView.
 }
 
 // static
@@ -375,17 +399,8 @@ gboolean AutocompleteEditViewGtk::HandleViewFocusIn() {
 gboolean AutocompleteEditViewGtk::HandleViewFocusOut() {
   // Close the popup.
   ClosePopup();
-
   // Tell the model to reset itself.
   model_->OnKillFocus();
-
-  // TODO(deanm): This probably isn't right, and doesn't match Windows.  We
-  // don't really want to match Windows though, because it probably feels
-  // wrong on Linux.  Firefox doesn't have great behavior here also, imo.
-  // Deselect any selection and make sure the input is at the beginning.
-  GtkTextIter start, end;
-  gtk_text_buffer_get_bounds(text_buffer_, &start, &end);
-  gtk_text_buffer_place_cursor(text_buffer_, &start);
   return FALSE;  // Pass the event on to the GtkTextView.
 }
 

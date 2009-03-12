@@ -109,6 +109,22 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   }
   void HandleEndUserAction();
 
+  static gboolean HandleKeyPressThunk(GtkWidget* widget,
+                                      GdkEventKey* event,
+                                      gpointer self) {
+    return reinterpret_cast<AutocompleteEditViewGtk*>(self)->HandleKeyPress(
+        widget, event);
+  }
+  gboolean HandleKeyPress(GtkWidget* widget, GdkEventKey* event);
+
+  static gboolean HandleKeyReleaseThunk(GtkWidget* widget,
+                                        GdkEventKey* event,
+                                        gpointer self) {
+    return reinterpret_cast<AutocompleteEditViewGtk*>(self)->HandleKeyRelease(
+        widget, event);
+  }
+  gboolean HandleKeyRelease(GtkWidget* widget, GdkEventKey* event);
+
   static void HandleViewSizeRequest(GtkWidget* view, GtkRequisition* req,
                                     gpointer unused);
 
