@@ -5,7 +5,6 @@
 #include <windows.h>
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "media/audio/audio_output.h"
 #include "media/audio/simple_sources.h"
 #include "testing/gtest/include/gtest/gtest.h"

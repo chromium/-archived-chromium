@@ -7,7 +7,6 @@
 #include "webkit/glue/plugins/plugin_list.h"
 
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/path_service.h"
 
 namespace NPAPI {

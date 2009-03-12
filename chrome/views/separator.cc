@@ -4,7 +4,6 @@
 
 #include "chrome/views/separator.h"
 
-#include "base/logging.h"
 #include "chrome/views/hwnd_view.h"
 
 namespace views {

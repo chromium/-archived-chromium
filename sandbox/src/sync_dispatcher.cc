@@ -4,7 +4,6 @@
 
 #include "sandbox/src/sync_dispatcher.h"
 
-#include "base/logging.h"
 #include "sandbox/src/crosscall_client.h"
 #include "sandbox/src/interception.h"
 #include "sandbox/src/ipc_tags.h"

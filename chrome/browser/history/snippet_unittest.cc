@@ -6,7 +6,6 @@
 
 #include <algorithm>
 
-#include "base/logging.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

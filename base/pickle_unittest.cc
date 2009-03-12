@@ -5,7 +5,6 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "base/pickle.h"
 #include "base/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"

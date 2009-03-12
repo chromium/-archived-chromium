@@ -8,7 +8,6 @@
 #include <stdlib.h>
 
 #include "base/file_path.h"
-#include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/third_party/xdg_user_dirs/xdg_user_dir_lookup.h"
 

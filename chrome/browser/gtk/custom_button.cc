@@ -5,7 +5,6 @@
 #include "chrome/browser/gtk/custom_button.h"
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/browser/gtk/nine_box.h"
 

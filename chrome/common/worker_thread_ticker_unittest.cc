@@ -4,7 +4,6 @@
 
 #include "chrome/common/worker_thread_ticker.h"
 
-#include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/platform_thread.h"
 #include "testing/gtest/include/gtest/gtest.h"

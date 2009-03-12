@@ -9,7 +9,6 @@
 
 #include "base/base_paths.h"
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"

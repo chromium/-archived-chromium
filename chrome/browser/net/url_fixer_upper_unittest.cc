@@ -6,7 +6,6 @@
 
 #include "base/basictypes.h"
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/browser/net/url_fixer_upper.h"

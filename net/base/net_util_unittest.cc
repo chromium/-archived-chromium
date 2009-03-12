@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"

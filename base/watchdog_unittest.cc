@@ -4,7 +4,6 @@
 
 // Tests for Watchdog class.
 
-#include "base/logging.h"
 #include "base/platform_thread.h"
 #include "base/spin_wait.h"
 #include "base/time.h"

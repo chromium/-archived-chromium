@@ -5,7 +5,6 @@
 #include "sandbox/src/target_process.h"
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "sandbox/src/crosscall_server.h"
 #include "sandbox/src/crosscall_client.h"

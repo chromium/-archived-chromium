@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "base/file_path.h"
-#include "base/logging.h"
 #include "base/string_util.h"
 
 namespace file_util {

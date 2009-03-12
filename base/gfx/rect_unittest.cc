@@ -4,7 +4,6 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
-#include "base/logging.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 typedef testing::Test RectTest;

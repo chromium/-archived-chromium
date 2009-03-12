@@ -4,7 +4,6 @@
 
 #include "chrome/renderer/mock_render_thread.h"
 
-#include "base/logging.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"

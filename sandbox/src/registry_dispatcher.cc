@@ -4,7 +4,6 @@
 
 #include "sandbox/src/registry_dispatcher.h"
 
-#include "base/logging.h"
 #include "base/scoped_handle_win.h"
 #include "base/win_util.h"
 #include "sandbox/src/crosscall_client.h"

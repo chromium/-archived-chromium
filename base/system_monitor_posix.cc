@@ -4,8 +4,6 @@
 
 #include "base/system_monitor.h"
 
-#include "base/logging.h"
-
 namespace base {
 
 bool SystemMonitor::IsBatteryPower() {

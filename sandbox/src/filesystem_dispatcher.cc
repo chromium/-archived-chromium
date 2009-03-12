@@ -4,7 +4,6 @@
 
 #include "sandbox/src/filesystem_dispatcher.h"
 
-#include "base/logging.h"
 #include "sandbox/src/crosscall_client.h"
 #include "sandbox/src/filesystem_interception.h"
 #include "sandbox/src/filesystem_policy.h"

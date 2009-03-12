@@ -5,7 +5,6 @@
 // Program to test the SafeBrowsing protocol parsing v2.1.
 
 #include "base/hash_tables.h"
-#include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/safe_browsing/protocol_parser.h"
 #include "testing/gtest/include/gtest/gtest.h"

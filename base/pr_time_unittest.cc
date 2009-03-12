@@ -4,7 +4,6 @@
 
 #include <time.h>
 
-#include "base/logging.h"
 #include "base/third_party/nspr/prtime.h"
 #include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"

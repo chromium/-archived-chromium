@@ -7,7 +7,6 @@
 #include <limits>
 
 #include "base/gfx/rect.h"
-#include "base/logging.h"
 #include "base/sys_string_conversions.h"
 #include "skia/include/SkShader.h"
 #include "skia/include/SkPaint.h"

@@ -6,8 +6,6 @@
 
 #include <string>
 
-#include "base/logging.h"
-
 // TODO(port): This whole file is stubbed. We can't return NULL
 // because that is used as a catastrophic error code where the file
 // doesn't exist or can't be opened.

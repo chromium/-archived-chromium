@@ -5,7 +5,6 @@
 #include "chrome/browser/gtk/download_shelf_gtk.h"
 
 #include "base/gfx/gtk_util.h"
-#include "base/logging.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"

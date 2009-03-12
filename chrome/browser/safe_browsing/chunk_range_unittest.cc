@@ -4,7 +4,6 @@
 //
 // Test program to convert lists of integers into ranges, and vice versa.
 
-#include "base/logging.h"
 #include "chunk_range.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/browser/search_engines/template_url.h"

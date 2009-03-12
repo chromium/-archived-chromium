@@ -5,7 +5,6 @@
 // Test of Histogram class
 
 #include "base/histogram.h"
-#include "base/logging.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"

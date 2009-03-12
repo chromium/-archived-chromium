@@ -4,7 +4,6 @@
 
 #include "sandbox/src/win2k_threadpool.h"
 
-#include "base/logging.h"
 #include "sandbox/src/win_utils.h"
 
 namespace sandbox {

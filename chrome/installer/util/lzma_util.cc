@@ -5,7 +5,6 @@
 #include "chrome/installer/util/lzma_util.h"
 
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/string_util.h"
 
 extern "C" {

@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/history/query_parser.h"
-#include "base/logging.h"
+#include "base/basictypes.h"
 #include "chrome/common/scoped_vector.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

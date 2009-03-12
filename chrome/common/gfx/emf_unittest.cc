@@ -9,7 +9,6 @@
 
 #include "base/basictypes.h"
 #include "base/file_util.h"
-#include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/browser/printing/win_printing_context.h"
 #include "chrome/common/chrome_paths.h"

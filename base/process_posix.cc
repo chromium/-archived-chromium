@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/process.h"
-#include "base/logging.h"
 #include "base/process_util.h"
 
 namespace base {

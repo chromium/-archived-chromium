@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/logging.h"
 #include "net/base/bzip2_filter.h"
 
 BZip2Filter::BZip2Filter(const FilterContext& filter_context)
