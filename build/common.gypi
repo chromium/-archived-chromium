@@ -4,7 +4,26 @@
 
 {
   'variables': {
+    # .gyp files should set chromium_code to 1 if they build Chromium-specific
+    # code, as opposed to external code.  This variable is used to control
+    # such things as the set of warnings to enable, and whether warnings are
+    # treated as errors.
     'chromium_code%': 0,
+
+    # Variables expected to be overriden on the GYP command line (-D) or by
+    # ~/.gyp/include.gypi.
+
+    # Override chromium_mac_pch and set it to 0 to suppress the use of
+    # precompiled headers on the Mac.  Prefix header injection may still be
+    # used, but prefix headers will not be precompiled.  This is useful when
+    # using distcc to distribute a build to compile slaves that don't
+    # share the same compiler executable as the system driving the compilation,
+    # because precompiled headers rely on pointers into a specific compiler
+    # executable's image.  Setting this to 0 is needed to use an experimental
+    # Linux-Mac cross compiler distcc farm.
+    'chromium_mac_pch%': 1,
+
+    # Override branding to select the desired branding flavor.
     'branding%': 'Chromium',
   },
   'target_defaults': {
@@ -77,7 +96,6 @@
           'GCC_DYNAMIC_NO_PIC': 'YES',
           'GCC_ENABLE_PASCAL_STRINGS': 'NO',
           'GCC_INLINES_ARE_PRIVATE_EXTERN': 'YES',
-          'GCC_PRECOMPILE_PREFIX_HEADER': 'YES',
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',
           'GCC_TREAT_WARNINGS_AS_ERRORS': 'YES',
           'GCC_VERSION': '4.2',
@@ -87,6 +105,10 @@
           'SDKROOT': 'macosx10.5',
           'USE_HEADERMAP': 'NO',
           'WARNING_CFLAGS': ['-Wall', '-Wendif-labels'],
+          'conditions': [
+            ['chromium_mac_pch', {'GCC_PRECOMPILE_PREFIX_HEADER': 'YES'},
+                                 {'GCC_PRECOMPILE_PREFIX_HEADER': 'NO'}],
+          ],
         },
         'target_conditions': [
           ['_type=="shared_library"', {
