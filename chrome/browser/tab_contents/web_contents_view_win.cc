@@ -273,7 +273,7 @@ void WebContentsViewWin::StoreFocus() {
     if (container_hwnd) {
       views::View* focused_view = focus_manager->GetFocusedView();
       if (focused_view) {
-        HWND hwnd = focused_view->GetRootView()->GetWidget()->GetHWND();
+        HWND hwnd = focused_view->GetRootView()->GetWidget()->GetNativeView();
         if (container_hwnd == hwnd || ::IsChild(container_hwnd, hwnd))
           focus_manager->ClearFocus();
       }
