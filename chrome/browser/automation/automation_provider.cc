@@ -1972,11 +1972,12 @@ void AutomationProvider::HandleInspectElementRequest(
 }
 
 void AutomationProvider::ReceivedInspectElementResponse(int num_resources) {
-  DCHECK(reply_message_ != NULL);
-  AutomationMsg_InspectElement::WriteReplyParams(reply_message_,
-                                                 num_resources);
-  Send(reply_message_);
-  reply_message_ = NULL;
+  if (reply_message_) {
+    AutomationMsg_InspectElement::WriteReplyParams(reply_message_,
+                                                   num_resources);
+    Send(reply_message_);
+    reply_message_ = NULL;
+  }
 }
 
 // Helper class for making changes to the URLRequest ProtocolFactory on the
