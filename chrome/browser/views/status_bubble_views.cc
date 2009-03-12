@@ -324,7 +324,7 @@ void StatusBubbleViews::StatusView::Paint(ChromeCanvas* canvas) {
   paint.setColor(kBubbleColor);
 
   RECT parent_rect;
-  ::GetWindowRect(popup_->GetHWND(), &parent_rect);
+  ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
 
   // Draw our background.
   SkRect rect;
@@ -476,7 +476,7 @@ void StatusBubbleViews::Init() {
                                 WS_EX_TRANSPARENT |
                                 l10n_util::GetExtendedTooltipStyles());
     popup_->SetLayeredAlpha(0x00);
-    popup_->Init(frame_->GetHWND(), rc, false);
+    popup_->Init(frame_->GetNativeView(), rc, false);
     popup_->SetContentsView(view_);
     Reposition();
     popup_->Show();
@@ -512,7 +512,7 @@ void StatusBubbleViews::SetURL(const GURL& url, const std::wstring& languages) {
 
   // Set Elided Text corresponding to the GURL object.
   RECT parent_rect;
-  ::GetWindowRect(popup_->GetHWND(), &parent_rect);
+  ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
   int text_width = static_cast<int>(parent_rect.right -
                                     parent_rect.left - kTextPositionX -
                                     kTextPadding);

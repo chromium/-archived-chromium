@@ -40,7 +40,7 @@ void HWNDView::Attach(HWND hwnd) {
   ShowWindow(hwnd_, SW_HIDE);
 
   // Need to set the HWND's parent before changing its size to avoid flashing.
-  ::SetParent(hwnd_, GetWidget()->GetHWND());
+  ::SetParent(hwnd_, GetWidget()->GetNativeView());
   UpdateHWNDBounds();
 
   // Register with the focus manager so the associated view is focused when the
@@ -151,7 +151,7 @@ void HWNDView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
     Widget* widget = GetWidget();
     if (is_add && widget) {
       HWND parent = ::GetParent(hwnd_);
-      HWND widget_hwnd = widget->GetHWND();
+      HWND widget_hwnd = widget->GetNativeView();
       if (parent != widget_hwnd) {
         ::SetParent(hwnd_, widget_hwnd);
       }

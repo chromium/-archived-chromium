@@ -200,7 +200,8 @@ bool FirstRunCustomizeView::Accept() {
   } else {
     int browser_selected = import_from_combo_->GetSelectedItem();
     FirstRun::ImportSettings(profile_, browser_selected,
-                             GetDefaultImportItems(), window()->GetHWND());
+                             GetDefaultImportItems(),
+                             window()->GetNativeView());
   }
   if (default_browser_->IsSelected())
     SetDefaultBrowser();

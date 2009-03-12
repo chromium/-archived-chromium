@@ -84,7 +84,7 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
   if (!parent_view) {
     // This function can get called during teardown of WidetWin so we
     // should bail out if we fail to get the HWND.
-    if (!view_->GetWidget() || !view_->GetWidget()->GetHWND()) {
+    if (!view_->GetWidget() || !view_->GetWidget()->GetNativeView()) {
       *disp_parent = NULL;
       return S_FALSE;
     }
@@ -93,7 +93,7 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
     // the default implementation, to interface with Windows' hierarchy and to
     // support calls from e.g. WindowFromAccessibleObject.
     HRESULT hr =
-        ::AccessibleObjectFromWindow(view_->GetWidget()->GetHWND(),
+        ::AccessibleObjectFromWindow(view_->GetWidget()->GetNativeView(),
                                      OBJID_WINDOW, IID_IAccessible,
                                      reinterpret_cast<void**>(disp_parent));
 

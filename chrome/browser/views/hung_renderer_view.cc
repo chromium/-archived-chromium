@@ -225,7 +225,7 @@ void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
   HWND frame_hwnd = GetAncestor(contents->GetNativeView(), GA_ROOT);
   HWND foreground_window = GetForegroundWindow();
   if (foreground_window != frame_hwnd &&
-      foreground_window != window()->GetHWND()) {
+      foreground_window != window()->GetNativeView()) {
     return;
   }
 

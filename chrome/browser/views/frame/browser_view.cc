@@ -439,7 +439,7 @@ void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
 void BrowserView::Init() {
   // Stow a pointer to this object onto the window handle so that we can get
   // at it later when all we have is a HWND.
-  SetProp(GetWidget()->GetHWND(), kBrowserViewKey, this);
+  SetProp(GetWidget()->GetNativeView(), kBrowserViewKey, this);
 
   // Start a hung plugin window detector for this browser object (as long as
   // hang detection is not disabled).
@@ -530,7 +530,7 @@ bool BrowserView::IsActive() const {
 void BrowserView::FlashFrame() {
   FLASHWINFO fwi;
   fwi.cbSize = sizeof(fwi);
-  fwi.hwnd = frame_->GetHWND();
+  fwi.hwnd = frame_->GetNativeView();
   fwi.dwFlags = FLASHW_ALL;
   fwi.uCount = 4;
   fwi.dwTimeout = 0;
@@ -538,7 +538,7 @@ void BrowserView::FlashFrame() {
 }
 
 void* BrowserView::GetNativeHandle() {
-  return GetWidget()->GetHWND();
+  return GetWidget()->GetNativeView();
 }
 
 BrowserWindowTesting* BrowserView::GetBrowserWindowTesting() {
@@ -595,7 +595,7 @@ gfx::Rect BrowserView::GetNormalBounds() const {
 
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
-  const bool ret = !!GetWindowPlacement(frame_->GetHWND(), &wp);
+  const bool ret = !!GetWindowPlacement(frame_->GetNativeView(), &wp);
   DCHECK(ret);
   return gfx::Rect(wp.rcNormalPosition);
 }
@@ -645,7 +645,7 @@ void BrowserView::SetFullscreen(bool fullscreen) {
 
   // Size/position/style window appropriately.
   views::Widget* widget = GetWidget();
-  HWND hwnd = widget->GetHWND();
+  HWND hwnd = widget->GetNativeView();
   MONITORINFO monitor_info;
   monitor_info.cbSize = sizeof(monitor_info);
   GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY),
@@ -795,7 +795,7 @@ void BrowserView::ShowFindBar() {
 
 void BrowserView::ShowAboutChromeDialog() {
   views::Window::CreateChromeWindow(
-      GetWidget()->GetHWND(), gfx::Rect(),
+      GetWidget()->GetNativeView(), gfx::Rect(),
       new AboutChromeView(browser_->profile()))->Show();
 }
 
@@ -838,25 +838,25 @@ void BrowserView::ShowReportBugDialog() {
   // Grab an exact snapshot of the window that the user is seeing (i.e. as
   // rendered--do not re-render, and include windowed plugins)
   std::vector<unsigned char> *screenshot_png = new std::vector<unsigned char>;
-  win_util::GrabWindowSnapshot(GetWidget()->GetHWND(), screenshot_png);
+  win_util::GrabWindowSnapshot(GetWidget()->GetNativeView(), screenshot_png);
   // the BugReportView takes ownership of the png data, and will dispose of
   // it in its destructor.
   bug_report_view->set_png_data(screenshot_png);
 
   // Create and show the dialog
-  views::Window::CreateChromeWindow(GetWidget()->GetHWND(), gfx::Rect(),
+  views::Window::CreateChromeWindow(GetWidget()->GetNativeView(), gfx::Rect(),
                                     bug_report_view)->Show();
 }
 
 void BrowserView::ShowClearBrowsingDataDialog() {
   views::Window::CreateChromeWindow(
-      GetWidget()->GetHWND(), gfx::Rect(),
+      GetWidget()->GetNativeView(), gfx::Rect(),
       new ClearBrowsingDataView(browser_->profile()))->Show();
 }
 
 void BrowserView::ShowImportDialog() {
   views::Window::CreateChromeWindow(
-      GetWidget()->GetHWND(), gfx::Rect(),
+      GetWidget()->GetNativeView(), gfx::Rect(),
       new ImporterView(browser_->profile()))->Show();
 }
 
@@ -879,7 +879,7 @@ void BrowserView::ShowNewProfileDialog() {
 void BrowserView::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                                  void* parent_window) {
   HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
-  parent_hwnd = parent_hwnd ? parent_hwnd : GetWidget()->GetHWND();
+  parent_hwnd = parent_hwnd ? parent_hwnd : GetWidget()->GetNativeView();
   HtmlDialogView* html_view = new HtmlDialogView(browser_.get(),
                                                  browser_->profile(),
                                                  delegate);
@@ -910,8 +910,8 @@ bool BrowserView::GetFindBarWindowInfo(gfx::Point* position,
 
   CRect window_rect;
   if (!find_bar_controller_.get() ||
-      !::IsWindow(find_bar_win->GetHWND()) ||
-      !::GetWindowRect(find_bar_win->GetHWND(), &window_rect)) {
+      !::IsWindow(find_bar_win->GetNativeView()) ||
+      !::GetWindowRect(find_bar_win->GetNativeView(), &window_rect)) {
     *position = gfx::Point(0, 0);
     *fully_visible = false;
     return false;
@@ -1153,7 +1153,7 @@ bool BrowserView::CanClose() const {
   // Empty TabStripModel, it's now safe to allow the Window to be closed.
   NotificationService::current()->Notify(
       NotificationType::WINDOW_CLOSED,
-      Source<HWND>(frame_->GetHWND()),
+      Source<HWND>(frame_->GetNativeView()),
       NotificationService::NoDetails());
   return true;
 }
@@ -1166,7 +1166,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 
   if (CanCurrentlyResize()) {
     CRect client_rect;
-    ::GetClientRect(frame_->GetHWND(), &client_rect);
+    ::GetClientRect(frame_->GetNativeView(), &client_rect);
     gfx::Size resize_corner_size = ResizeCorner::GetSize();
     gfx::Rect resize_corner_rect(client_rect.right - resize_corner_size.width(),
         client_rect.bottom - resize_corner_size.height(),
@@ -1334,7 +1334,7 @@ int BrowserView::OnPerformDrop(const views::DropTargetEvent& event) {
 // BrowserView, private:
 
 void BrowserView::InitSystemMenu() {
-  HMENU system_menu = GetSystemMenu(frame_->GetHWND(), FALSE);
+  HMENU system_menu = GetSystemMenu(frame_->GetNativeView(), FALSE);
   system_menu_.reset(new Menu(system_menu));
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
@@ -1695,7 +1695,7 @@ void BrowserView::InitHangMonitor() {
   int hung_plugin_detect_freq =
       pref_service->GetInteger(prefs::kHungPluginDetectFrequency);
   if ((hung_plugin_detect_freq > 0) &&
-      hung_window_detector_.Initialize(GetWidget()->GetHWND(),
+      hung_window_detector_.Initialize(GetWidget()->GetNativeView(),
                                        plugin_message_response_timeout)) {
     ticker_.set_tick_interval(hung_plugin_detect_freq);
     ticker_.RegisterTickHandler(&hung_window_detector_);

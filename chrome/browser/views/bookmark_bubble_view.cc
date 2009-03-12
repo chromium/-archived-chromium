@@ -161,7 +161,7 @@ void BookmarkBubbleView::DidChangeBounds(const gfx::Rect& previous,
 void BookmarkBubbleView::BubbleShown() {
   DCHECK(GetWidget());
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetWidget()->GetHWND());
+      views::FocusManager::GetFocusManager(GetWidget()->GetNativeView());
   focus_manager->RegisterAccelerator(
       views::Accelerator(VK_RETURN, false, false, false), this);
 
@@ -361,7 +361,7 @@ void BookmarkBubbleView::ShowEditor() {
 
   // Parent the editor to our root ancestor (not the root we're in, as that
   // is the info bubble and will close shortly).
-  HWND parent = GetAncestor(GetWidget()->GetHWND(), GA_ROOTOWNER);
+  HWND parent = GetAncestor(GetWidget()->GetNativeView(), GA_ROOTOWNER);
 
   // We're about to show the bookmark editor. When the bookmark editor closes
   // we want the browser to become active. WidgetWin::Hide() does a hide in
@@ -370,7 +370,7 @@ void BookmarkBubbleView::ShowEditor() {
   // explicitly hide the bookmark bubble window in such a way that activation
   // status changes. That way, when the editor closes, activation is properly
   // restored to the browser.
-  ShowWindow(GetWidget()->GetHWND(), SW_HIDE);
+  ShowWindow(GetWidget()->GetNativeView(), SW_HIDE);
 
   // Even though we just hid the window, we need to invoke Close to schedule
   // the delete and all that.

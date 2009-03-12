@@ -30,7 +30,7 @@ class ScrollBarContainer : public CWindowImpl<ScrollBarContainer,
  public:
   ScrollBarContainer(ScrollBar* parent) : parent_(parent),
                                           scrollbar_(NULL) {
-    Create(parent->GetWidget()->GetHWND());
+    Create(parent->GetWidget()->GetNativeView());
     ::ShowWindow(m_hWnd, SW_SHOW);
   }
 
@@ -127,7 +127,7 @@ class ScrollBarContainer : public CWindowImpl<ScrollBarContainer,
     // component focused so we actually get mousewheel events.
     if (source != NULL) {
       Widget* widget = parent_->GetWidget();
-      if (widget && widget->GetHWND() != GetFocus()) {
+      if (widget && widget->GetNativeView() != GetFocus()) {
         parent_->RequestFocus();
       }
     }

@@ -272,7 +272,7 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
   DWORD ex_style = l10n_util::GetExtendedStyles();
 
   RECT r = {0, 0, parent_->width(), parent_->height()};
-  Create(parent_->GetWidget()->GetHWND(), r, NULL, style, ex_style);
+  Create(parent_->GetWidget()->GetNativeView(), r, NULL, style, ex_style);
 
   if (parent->GetStyle() & TextField::STYLE_LOWERCASE) {
     DCHECK((parent->GetStyle() & TextField::STYLE_PASSWORD) == 0);

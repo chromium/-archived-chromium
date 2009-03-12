@@ -674,7 +674,7 @@ void WebContentSection::ButtonPressed(views::NativeButton* sender) {
     disable_popup_blocked_notification_pref_.SetValue(!notification_disabled);
   } else if (sender == gears_settings_button_) {
     UserMetricsRecordAction(L"Options_GearsSettings", NULL);
-    GearsSettingsPressed(GetAncestor(GetWidget()->GetHWND(), GA_ROOT));
+    GearsSettingsPressed(GetAncestor(GetWidget()->GetNativeView(), GA_ROOT));
   }
 }
 

@@ -176,7 +176,8 @@ gfx::Size BlockedPopupContainerView::GetPreferredSize() {
 
 void BlockedPopupContainerView::ButtonPressed(views::BaseButton* sender) {
   if (sender == popup_count_label_) {
-    launch_menu_.reset(new Menu(this, Menu::TOPLEFT, container_->GetHWND()));
+    launch_menu_.reset(new Menu(this, Menu::TOPLEFT,
+                                container_->GetNativeView()));
 
     int item_count = container_->GetTabContentsCount();
     for (int i = 0; i < item_count; ++i) {

@@ -120,7 +120,7 @@ void LocationBarView::Init() {
   // URL edit field.
   views::Widget* widget = GetWidget();
   location_entry_.reset(new AutocompleteEditViewWin(font_, this, model_, this,
-                                                    widget->GetHWND(),
+                                                    widget->GetNativeView(),
                                                     profile_, command_updater_,
                                                     popup_window_mode_));
 
@@ -838,7 +838,7 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
     bounds.set_x(location.x() - 20);
 
   FirstRunBubble::Show(profile_,
-      location_entry_view_->GetRootView()->GetWidget()->GetHWND(),
+      location_entry_view_->GetRootView()->GetWidget()->GetNativeView(),
       bounds);
 }
 
@@ -904,7 +904,7 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
   label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   label->SizeToFit(0);
   DCHECK(info_bubble_ == NULL);
-  info_bubble_ = InfoBubble::Show(GetRootView()->GetWidget()->GetHWND(),
+  info_bubble_ = InfoBubble::Show(GetRootView()->GetWidget()->GetNativeView(),
                                   bounds, label, this);
   show_info_bubble_task_ = NULL;
 }
@@ -948,7 +948,7 @@ bool LocationBarView::SecurityImageView::OnMousePressed(
   }
   PageInfoWindow::CreatePageInfo(profile_,
                                  nav_entry,
-                                 GetRootView()->GetWidget()->GetHWND(),
+                                 GetRootView()->GetWidget()->GetNativeView(),
                                  PageInfoWindow::SECURITY);
   return true;
 }

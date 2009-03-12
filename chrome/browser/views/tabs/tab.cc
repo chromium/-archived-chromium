@@ -50,7 +50,7 @@ class Tab::ContextMenuController : public views::MenuDelegate {
   }
 
   void RunMenuAt(int x, int y) {
-    menu_->RunMenuAt(tab_->GetWidget()->GetHWND(), gfx::Rect(x, y, 0, 0),
+    menu_->RunMenuAt(tab_->GetWidget()->GetNativeView(), gfx::Rect(x, y, 0, 0),
                      views::MenuItemView::TOPLEFT, true);
     if (tab_)
       tab_->ContextMenuClosed();

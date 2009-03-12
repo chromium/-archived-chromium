@@ -63,21 +63,21 @@ void NonClientView::SystemThemeChanged() {
   // everything has settled down.
   WINDOWPLACEMENT saved_window_placement;
   saved_window_placement.length = sizeof(WINDOWPLACEMENT);
-  GetWindowPlacement(frame_->GetHWND(), &saved_window_placement);
+  GetWindowPlacement(frame_->GetNativeView(), &saved_window_placement);
   frame_->Hide();
 
   // Important step: restore the window first, since our hiding hack doesn't
   // work for maximized windows! We tell the frame not to allow itself to be
   // made visible though, which removes the brief flicker.
   frame_->set_force_hidden(true);
-  ShowWindow(frame_->GetHWND(), SW_RESTORE);
+  ShowWindow(frame_->GetNativeView(), SW_RESTORE);
   frame_->set_force_hidden(false);
   
   SetUseNativeFrame(win_util::ShouldUseVistaFrame());
 
   // Now that we've updated the frame, we'll want to restore our saved placement
   // since the display should have settled down and we can be properly rendered.
-  SetWindowPlacement(frame_->GetHWND(), &saved_window_placement);
+  SetWindowPlacement(frame_->GetNativeView(), &saved_window_placement);
 }
 
 void NonClientView::SetUseNativeFrame(bool use_native_frame) {

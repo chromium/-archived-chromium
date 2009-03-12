@@ -784,7 +784,7 @@ void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
                                   new_version_available_);
       update_label_.SetText(update_string);
       show_success_indicator = true;
-      RestartMessageBox::ShowMessageBox(window()->GetHWND());
+      RestartMessageBox::ShowMessageBox(window()->GetNativeView());
       break;
     }
     case UPGRADE_ERROR:

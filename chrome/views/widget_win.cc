@@ -186,21 +186,21 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
   // that window controls in Chrome windows don't flicker when you move your
   // mouse over them. See comment in aero_tooltip_manager.h.
   if (win_util::ShouldUseVistaFrame()) {
-    tooltip_manager_.reset(new AeroTooltipManager(this, GetHWND()));
+    tooltip_manager_.reset(new AeroTooltipManager(this, GetNativeView()));
   } else {
-    tooltip_manager_.reset(new TooltipManager(this, GetHWND()));
+    tooltip_manager_.reset(new TooltipManager(this, GetNativeView()));
   }
 
   // This message initializes the window so that focus border are shown for
   // windows.
-  ::SendMessage(GetHWND(),
+  ::SendMessage(GetNativeView(),
                 WM_CHANGEUISTATE,
                 MAKELPARAM(UIS_CLEAR, UISF_HIDEFOCUS),
                 0);
 
   // Bug 964884: detach the IME attached to this window.
   // We should attach IMEs only when we need to input CJK strings.
-  ::ImmAssociateContextEx(GetHWND(), NULL, 0);
+  ::ImmAssociateContextEx(GetNativeView(), NULL, 0);
 }
 
 void WidgetWin::SetContentsView(View* view) {
@@ -245,12 +245,12 @@ void WidgetWin::MoveToFront(bool should_activate) {
   // Keep the window topmost if it was already topmost.
   WINDOWINFO wi;
   wi.cbSize = sizeof WINDOWINFO;
-  GetWindowInfo(GetHWND(), &wi);
+  GetWindowInfo(GetNativeView(), &wi);
   SetWindowPos((wi.dwExStyle & WS_EX_TOPMOST) ? HWND_TOPMOST : HWND_NOTOPMOST,
                0, 0, 0, 0, flags);
 }
 
-HWND WidgetWin::GetHWND() const {
+gfx::NativeView WidgetWin::GetNativeView() const {
   return hwnd_;
 }
 
@@ -292,11 +292,11 @@ RootView* WidgetWin::GetRootView() {
 }
 
 bool WidgetWin::IsVisible() {
-  return !!::IsWindowVisible(GetHWND());
+  return !!::IsWindowVisible(GetNativeView());
 }
 
 bool WidgetWin::IsActive() {
-  return win_util::IsWindowActive(GetHWND());
+  return win_util::IsWindowActive(GetNativeView());
 }
 
 TooltipManager* WidgetWin::GetTooltipManager() {
@@ -510,7 +510,7 @@ LRESULT WidgetWin::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param) {
       }
 
       // Notify that an instance of IAccessible was allocated for m_hWnd
-      ::NotifyWinEvent(EVENT_OBJECT_CREATE, GetHWND(), OBJID_CLIENT,
+      ::NotifyWinEvent(EVENT_OBJECT_CREATE, GetNativeView(), OBJID_CLIENT,
                        CHILDID_SELF);
     }
 
@@ -619,7 +619,7 @@ LRESULT WidgetWin::OnNCMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param) {
 LRESULT WidgetWin::OnNCMouseMove(UINT flags, const CPoint& point) {
   // NC points are in screen coordinates.
   CPoint temp = point;
-  MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
+  MapWindowPoints(HWND_DESKTOP, GetNativeView(), &temp, 1);
   ProcessMouseMoved(temp, 0, true);
 
   // We need to process this message to stop Windows from drawing the window
@@ -655,7 +655,7 @@ LRESULT WidgetWin::OnNotify(int w_param, NMHDR* l_param) {
 }
 
 void WidgetWin::OnPaint(HDC dc) {
-  root_view_->OnPaint(GetHWND());
+  root_view_->OnPaint(GetNativeView());
 }
 
 void WidgetWin::OnRButtonDown(UINT flags, const CPoint& point) {
@@ -709,7 +709,7 @@ void WidgetWin::TrackMouseEvents(DWORD mouse_tracking_flags) {
     TRACKMOUSEEVENT tme;
     tme.cbSize = sizeof(tme);
     tme.dwFlags = mouse_tracking_flags;
-    tme.hwndTrack = GetHWND();
+    tme.hwndTrack = GetNativeView();
     tme.dwHoverTime = 0;
     TrackMouseEvent(&tme);
   } else if (mouse_tracking_flags != active_mouse_tracking_flags_) {
@@ -821,7 +821,7 @@ void WidgetWin::AdjustWindowToFitScreenSize() {
   gfx::Rect new_window_rect = window_rect.AdjustToFit(monitor_rect);
   if (!new_window_rect.Equals(window_rect)) {
     // New position differs from last, resize window.
-    ::SetWindowPos(GetHWND(),
+    ::SetWindowPos(GetNativeView(),
                    0,
                    new_window_rect.x(),
                    new_window_rect.y(),

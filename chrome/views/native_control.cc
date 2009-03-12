@@ -38,7 +38,7 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
 
   explicit NativeControlContainer(NativeControl* parent) : parent_(parent),
                                                            control_(NULL) {
-    Create(parent->GetWidget()->GetHWND());
+    Create(parent->GetWidget()->GetNativeView());
     ::ShowWindow(m_hWnd, SW_SHOW);
   }
 

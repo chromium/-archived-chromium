@@ -48,7 +48,7 @@ bool ButtonDropDown::OnMousePressed(const MouseEvent& e) {
     // Schedule a task that will show the menu.
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         show_menu_factory_.NewRunnableMethod(&ButtonDropDown::ShowDropDownMenu,
-                                             GetWidget()->GetHWND()),
+                                             GetWidget()->GetNativeView()),
         kMenuTimerDelay);
   }
 
@@ -72,7 +72,7 @@ void ButtonDropDown::OnMouseReleased(const MouseEvent& e, bool canceled) {
     //       update the appearance synchronously.
     SetState(BS_PUSHED);
     PaintNow();
-    ShowDropDownMenu(GetWidget()->GetHWND());
+    ShowDropDownMenu(GetWidget()->GetNativeView());
   }
 }
 
@@ -90,7 +90,7 @@ bool ButtonDropDown::OnMouseDragged(const MouseEvent& e) {
     // it immediately.
     if (e.y() > y_position_on_lbuttondown_ + dragging_threshold) {
       show_menu_factory_.RevokeAll();
-      ShowDropDownMenu(GetWidget()->GetHWND());
+      ShowDropDownMenu(GetWidget()->GetNativeView());
     }
   }
 
@@ -111,7 +111,7 @@ void ButtonDropDown::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
   //       update the appearance synchronously.
   SetState(BS_PUSHED);
   PaintNow();
-  ShowDropDownMenu(GetWidget()->GetHWND());
+  ShowDropDownMenu(GetWidget()->GetNativeView());
   SetState(BS_HOT);
 }
 

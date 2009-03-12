@@ -251,7 +251,7 @@ class WidgetWin : public Widget,
   // Overridden from Widget:
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
   virtual void MoveToFront(bool should_activate);
-  virtual HWND GetHWND() const;
+  virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
   virtual RootView* GetRootView();
   virtual bool IsVisible();
@@ -285,35 +285,35 @@ class WidgetWin : public Widget,
   }
 
   BOOL IsWindow() const {
-    return ::IsWindow(GetHWND());
+    return ::IsWindow(GetNativeView());
   }
 
   BOOL ShowWindow(int command) {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::ShowWindow(GetHWND(), command);
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::ShowWindow(GetNativeView(), command);
   }
 
   HWND SetCapture() {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::SetCapture(GetHWND());
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::SetCapture(GetNativeView());
   }
 
   HWND GetParent() const {
-    return ::GetParent(GetHWND());
+    return ::GetParent(GetNativeView());
   }
 
   BOOL GetWindowRect(RECT* rect) const {
-    return ::GetWindowRect(GetHWND(), rect);
+    return ::GetWindowRect(GetNativeView(), rect);
   }
 
   BOOL SetWindowPos(HWND hwnd_after, int x, int y, int cx, int cy, UINT flags) {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::SetWindowPos(GetHWND(), hwnd_after, x, y, cx, cy, flags);
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::SetWindowPos(GetNativeView(), hwnd_after, x, y, cx, cy, flags);
   }
 
   BOOL IsZoomed() const {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::IsZoomed(GetHWND());
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::IsZoomed(GetNativeView());
   }
 
   BOOL MoveWindow(int x, int y, int width, int height) {
@@ -321,26 +321,26 @@ class WidgetWin : public Widget,
   }
 
   BOOL MoveWindow(int x, int y, int width, int height, BOOL repaint) {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::MoveWindow(GetHWND(), x, y, width, height, repaint);
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::MoveWindow(GetNativeView(), x, y, width, height, repaint);
   }
 
   int SetWindowRgn(HRGN region, BOOL redraw) {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::SetWindowRgn(GetHWND(), region, redraw);
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::SetWindowRgn(GetNativeView(), region, redraw);
   }
 
   BOOL GetClientRect(RECT* rect) const {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::GetClientRect(GetHWND(), rect);
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::GetClientRect(GetNativeView(), rect);
   }
 
  protected:
 
   // Call close instead of this to Destroy the window.
   BOOL DestroyWindow() {
-    DCHECK(::IsWindow(GetHWND()));
-    return ::DestroyWindow(GetHWND());
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::DestroyWindow(GetNativeView());
   }
 
   // Message Handlers

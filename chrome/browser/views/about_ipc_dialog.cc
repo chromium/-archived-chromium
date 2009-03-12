@@ -348,7 +348,7 @@ std::wstring AboutIPCDialog::GetWindowTitle() const {
 
 void AboutIPCDialog::Layout() {
   if (!message_list_.m_hWnd) {
-    HWND parent_window = GetRootView()->GetWidget()->GetHWND();
+    HWND parent_window = GetRootView()->GetWidget()->GetNativeView();
 
     CRect rect(0, 0, 10, 10);
     HWND list_hwnd = message_list_.Create(parent_window,
@@ -433,7 +433,7 @@ void AboutIPCDialog::ButtonPressed(views::BaseButton* button) {
   } else if (button == clear_button_) {
     message_list_.DeleteAllItems();
   } else if (button == filter_button_) {
-    RunSettingsDialog(GetRootView()->GetWidget()->GetHWND());
+    RunSettingsDialog(GetRootView()->GetWidget()->GetNativeView());
   }
 }
 

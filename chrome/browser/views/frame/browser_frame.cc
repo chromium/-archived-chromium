@@ -42,11 +42,11 @@ void BrowserFrame::Init() {
 int BrowserFrame::GetMinimizeButtonOffset() const {
   TITLEBARINFOEX titlebar_info;
   titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
-  SendMessage(GetHWND(), WM_GETTITLEBARINFOEX, 0, (WPARAM)&titlebar_info);
+  SendMessage(GetNativeView(), WM_GETTITLEBARINFOEX, 0, (WPARAM)&titlebar_info);
 
   CPoint minimize_button_corner(titlebar_info.rgrect[2].left,
                                 titlebar_info.rgrect[2].top);
-  MapWindowPoints(HWND_DESKTOP, GetHWND(), &minimize_button_corner, 1);
+  MapWindowPoints(HWND_DESKTOP, GetNativeView(), &minimize_button_corner, 1);
 
   return minimize_button_corner.x;
 }
@@ -105,7 +105,7 @@ LRESULT BrowserFrame::OnNCActivate(BOOL active) {
   // using the native frame.
   if (non_client_view_->UseNativeFrame() && !frame_initialized_) {
     if (browser_view_->IsBrowserTypeNormal()) {
-      ::SetWindowPos(GetHWND(), NULL, 0, 0, 0, 0,
+      ::SetWindowPos(GetNativeView(), NULL, 0, 0, 0, 0,
                      SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED);
       UpdateDWMFrame();
     }
@@ -135,7 +135,8 @@ LRESULT BrowserFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
     // thickness of the auto-hide taskbar on each such edge, so the window isn't
     // treated as a "fullscreen app", which would cause the taskbars to
     // disappear.
-    HMONITOR monitor = MonitorFromWindow(GetHWND(), MONITOR_DEFAULTTONEAREST);
+    HMONITOR monitor = MonitorFromWindow(GetNativeView(),
+                                         MONITOR_DEFAULTTONEAREST);
     if (win_util::EdgeHasAutoHideTaskbar(ABE_LEFT, monitor))
       client_rect->left += win_util::kAutoHideTaskbarThicknessPx;
     if (win_util::EdgeHasAutoHideTaskbar(ABE_RIGHT, monitor))
@@ -173,9 +174,10 @@ LRESULT BrowserFrame::OnNCHitTest(const CPoint& pt) {
   // Only do DWM hit-testing when we are using the native frame.
   if (non_client_view_->UseNativeFrame()) {
     LRESULT result;
-    if (DwmDefWindowProc(GetHWND(), WM_NCHITTEST, 0, MAKELPARAM(pt.x, pt.y),
-                         &result))
+    if (DwmDefWindowProc(GetNativeView(), WM_NCHITTEST, 0,
+                         MAKELPARAM(pt.x, pt.y), &result)) {
       return result;
+    }
   }
   return Window::OnNCHitTest(pt);
 }
@@ -223,5 +225,5 @@ void BrowserFrame::UpdateDWMFrame() {
     margins.cyTopHeight =
         GetBoundsForTabStrip(browser_view_->tabstrip()).bottom();
   }
-  DwmExtendFrameIntoClientArea(GetHWND(), &margins);
+  DwmExtendFrameIntoClientArea(GetNativeView(), &margins);
 }

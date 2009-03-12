@@ -192,7 +192,7 @@ void InfoBar::InfoBarAdded() {
   if (widget) {
     focus_tracker_.reset(
         new views::ExternalFocusTracker(this,
-            views::FocusManager::GetFocusManager(widget->GetHWND())));
+            views::FocusManager::GetFocusManager(widget->GetNativeView())));
   }
 }
 

@@ -21,7 +21,7 @@ FocusManager* View::GetFocusManager() {
   if (!widget)
     return NULL;
 
-  HWND hwnd = widget->GetHWND();
+  HWND hwnd = widget->GetNativeView();
   if (!hwnd)
     return NULL;
 
@@ -71,7 +71,7 @@ void View::Focus() {
   // messages.
   FocusManager* focus_manager = GetFocusManager();
   if (focus_manager)
-    focus_manager->FocusHWND(GetRootView()->GetWidget()->GetHWND());
+    focus_manager->FocusHWND(GetRootView()->GetWidget()->GetNativeView());
 }
 
 int View::GetHorizontalDragThreshold() {

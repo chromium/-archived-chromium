@@ -32,7 +32,7 @@ FindBarWin::FindBarWin(BrowserView* browser_view)
       focus_manager_(NULL),
       old_accel_target_for_esc_(NULL),
       find_bar_controller_(NULL) {
-  HWND parent_hwnd = browser_view->GetWidget()->GetHWND();
+  HWND parent_hwnd = browser_view->GetWidget()->GetNativeView();
 
   // Start listening to focus changes, so we can register and unregister our
   // own handler for Escape.
@@ -424,8 +424,8 @@ void FindBarWin::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
   if (!IsVisible())
     swp_flags |= SWP_SHOWWINDOW;
 
-  ::SetWindowPos(GetHWND(), HWND_TOP, new_pos.x(), new_pos.y(), new_pos.width(),
-                 new_pos.height(), swp_flags);
+  ::SetWindowPos(GetNativeView(), HWND_TOP, new_pos.x(), new_pos.y(),
+                 new_pos.width(), new_pos.height(), swp_flags);
 }
 
 void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {

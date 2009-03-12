@@ -245,7 +245,7 @@ FontsPageView::~FontsPageView() {
 }
 
 void FontsPageView::ButtonPressed(views::NativeButton* sender) {
-  HWND owning_hwnd = GetAncestor(GetWidget()->GetHWND(), GA_ROOT);
+  HWND owning_hwnd = GetAncestor(GetWidget()->GetNativeView(), GA_ROOT);
   std::wstring font_name;
   int font_size = 0;
   if (sender == serif_font_change_page_button_) {

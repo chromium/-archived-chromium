@@ -57,5 +57,5 @@ void HWNDHtmlView::Init(HWND parent_hwnd) {
 void HWNDHtmlView::ViewHierarchyChanged(bool is_add, View* parent,
                                         View* child) {
   if (is_add && GetWidget() && !initialized_)
-    Init(GetWidget()->GetHWND());
+    Init(GetWidget()->GetNativeView());
 }

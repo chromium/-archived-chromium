@@ -517,7 +517,7 @@ void FocusManagerTest::SetUp() {
   OleInitialize(NULL);
   test_window_ = new TestViewWindow(this);
   test_window_->Init();
-  ShowWindow(test_window_->GetHWND(), SW_SHOW);
+  ShowWindow(test_window_->GetNativeView(), SW_SHOW);
 }
 
 void FocusManagerTest::TearDown() {
@@ -550,7 +550,7 @@ TEST_F(FocusManagerTest, NormalTraversal) {
   // MessageLoop::current()->Run(new views::AcceleratorHandler());
 
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(test_window_->GetHWND());
+      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
   // Let's traverse the whole focus hierarchy (several times, to make sure it
   // loops OK).
   focus_manager->SetFocusedView(NULL);
@@ -627,7 +627,7 @@ TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
 
 
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(test_window_->GetHWND());
+      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
   views::View* focused_view;
   // Let's do one traversal (several times, to make sure it loops ok).
   for (int i = 0; i < 3;++i) {

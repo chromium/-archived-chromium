@@ -140,13 +140,13 @@ void InfoBubble::Init(HWND parent_hwnd,
 
   // Register the Escape accelerator for closing.
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetHWND());
+      views::FocusManager::GetFocusManager(GetNativeView());
   focus_manager->RegisterAccelerator(views::Accelerator(VK_ESCAPE, false,
                                                         false, false),
                                      this);
 
   // Set initial alpha value of the layered window.
-  SetLayeredWindowAttributes(GetHWND(),
+  SetLayeredWindowAttributes(GetNativeView(),
                              RGB(0xFF, 0xFF, 0xFF),
                              kMinimumAlpha,
                              LWA_ALPHA);
@@ -164,7 +164,7 @@ void InfoBubble::AnimationProgressed(const Animation* animation) {
       (fade_animation_->GetCurrentValue() * (255.0 - kMinimumAlpha) +
       kMinimumAlpha));
 
-  SetLayeredWindowAttributes(GetHWND(),
+  SetLayeredWindowAttributes(GetNativeView(),
                              RGB(0xFF, 0xFF, 0xFF),
                              alpha,
                              LWA_ALPHA);

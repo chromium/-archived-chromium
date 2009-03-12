@@ -385,7 +385,8 @@ void GlassBrowserFrameView::StartThrobber() {
     throbber_running_ = true;
     throbber_frame_ = 0;
     InitThrobberIcons();
-    SendMessage(frame_->GetHWND(), WM_SETICON, static_cast<WPARAM>(ICON_SMALL),
+    SendMessage(frame_->GetNativeView(), WM_SETICON,
+                static_cast<WPARAM>(ICON_SMALL),
                 reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
   }
 }
@@ -397,7 +398,8 @@ void GlassBrowserFrameView::StopThrobber() {
 
 void GlassBrowserFrameView::DisplayNextThrobberFrame() {
   throbber_frame_ = (throbber_frame_ + 1) % kThrobberIconCount;
-  SendMessage(frame_->GetHWND(), WM_SETICON, static_cast<WPARAM>(ICON_SMALL),
+  SendMessage(frame_->GetNativeView(), WM_SETICON,
+              static_cast<WPARAM>(ICON_SMALL),
               reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
 }
 

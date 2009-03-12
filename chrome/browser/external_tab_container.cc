@@ -172,7 +172,7 @@ LRESULT ExternalTabContainer::OnSetFocus(UINT msg, WPARAM wp, LPARAM lp,
                                          BOOL& handled) {
   if (automation_) {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetHWND());
+        views::FocusManager::GetFocusManager(GetNativeView());
     DCHECK(focus_manager);
     if (focus_manager) {
       focus_manager->ClearFocus();
@@ -330,7 +330,7 @@ void ExternalTabContainer::GetBounds(gfx::Rect* out,
 void ExternalTabContainer::MoveToFront(bool should_activate) {
 }
 
-HWND ExternalTabContainer::GetHWND() const {
+gfx::NativeView ExternalTabContainer::GetNativeView() const {
   return m_hWnd;
 }
 

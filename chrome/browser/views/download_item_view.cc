@@ -719,7 +719,7 @@ bool DownloadItemView::OnMousePressed(const views::MouseEvent& event) {
 
     views::View::ConvertPointToScreen(this, &point);
     DownloadShelfContextMenuWin menu(model_.get(),
-                                     GetWidget()->GetHWND(),
+                                     GetWidget()->GetNativeView(),
                                      point);
     drop_down_pressed_ = false;
     // Showing the menu blocks. Here we revert the state.

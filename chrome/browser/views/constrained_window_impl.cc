@@ -617,7 +617,7 @@ void ConstrainedWindowImpl::ActivateConstrainedWindow() {
   // Store the focus of our parent focus manager so we can restore it when we
   // close.
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetHWND());
+      views::FocusManager::GetFocusManager(GetNativeView());
   DCHECK(focus_manager);
   focus_manager = focus_manager->GetParentFocusManager();
   if (focus_manager) {
@@ -628,7 +628,7 @@ void ConstrainedWindowImpl::ActivateConstrainedWindow() {
     focus_manager->StoreFocusedView();
 
     // Give our window the focus so we get keyboard messages.
-    ::SetFocus(GetHWND());
+    ::SetFocus(GetNativeView());
   }
 }
 
@@ -707,7 +707,7 @@ void ConstrainedWindowImpl::OnDestroy() {
   // WM_DESTROY in FocusManager).  So the FocusManager we retrieve here is the
   // parent one (the one from the top window).
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetHWND());
+      views::FocusManager::GetFocusManager(GetNativeView());
   if (focus_manager) {
     // We may not have a focus manager if:
     // - we are hidden when closed (the TabContent would be detached).

@@ -80,8 +80,8 @@ void WebContentsViewWin::CreateView() {
   WidgetWin::Init(GetDesktopWindow(), gfx::Rect(), false);
 
   // Remove the root view drop target so we can register our own.
-  RevokeDragDrop(GetHWND());
-  drop_target_ = new WebDropTarget(GetHWND(), web_contents_);
+  RevokeDragDrop(GetNativeView());
+  drop_target_ = new WebDropTarget(GetNativeView(), web_contents_);
 }
 
 RenderWidgetHostView* WebContentsViewWin::CreateViewForWidget(
@@ -89,13 +89,13 @@ RenderWidgetHostView* WebContentsViewWin::CreateViewForWidget(
   DCHECK(!render_widget_host->view());
   RenderWidgetHostViewWin* view =
       new RenderWidgetHostViewWin(render_widget_host);
-  view->Create(GetHWND());
+  view->Create(GetNativeView());
   view->ShowWindow(SW_SHOW);
   return view;
 }
 
 gfx::NativeView WebContentsViewWin::GetNativeView() const {
-  return GetHWND();
+  return WidgetWin::GetNativeView();
 }
 
 gfx::NativeView WebContentsViewWin::GetContentNativeView() const {
@@ -157,7 +157,7 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
     data->SetString(drop_data.plain_text);
 
   scoped_refptr<WebDragSource> drag_source(
-      new WebDragSource(GetHWND(), web_contents_->render_view_host()));
+      new WebDragSource(GetNativeView(), web_contents_->render_view_host()));
 
   DWORD effects;
 
@@ -191,12 +191,12 @@ void WebContentsViewWin::OnContentsDestroy() {
   // away. This will prevent the plugin windows from getting destroyed
   // automatically. The detached plugin windows will get cleaned up in proper
   // sequence as part of the usual cleanup when the plugin instance goes away.
-  EnumChildWindows(GetHWND(), DetachPluginWindowsCallback, NULL);
+  EnumChildWindows(GetNativeView(), DetachPluginWindowsCallback, NULL);
 }
 
 void WebContentsViewWin::OnDestroy() {
   if (drop_target_.get()) {
-    RevokeDragDrop(GetHWND());
+    RevokeDragDrop(GetNativeView());
     drop_target_ = NULL;
   }
 }
@@ -339,7 +339,7 @@ void WebContentsViewWin::HandleKeyboardEvent(
   // a keyboard shortcut that we have to process.
   if (event.type == WebInputEvent::RAW_KEY_DOWN) {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetHWND());
+        views::FocusManager::GetFocusManager(GetNativeView());
     // We may not have a focus_manager at this point (if the tab has been
     // switched by the time this message returned).
     if (focus_manager) {
@@ -378,10 +378,10 @@ void WebContentsViewWin::HandleKeyboardEvent(
 void WebContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
   RenderViewContextMenuWin menu(web_contents_,
                                 params,
-                                GetHWND());
+                                GetNativeView());
 
   POINT screen_pt = { params.x, params.y };
-  MapWindowPoints(GetHWND(), HWND_DESKTOP, &screen_pt, 1);
+  MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_pt, 1);
 
   // Enable recursive tasks on the message loop so we can get updates while
   // the context menu is being displayed.
@@ -533,7 +533,7 @@ void WebContentsViewWin::OnPaint(HDC junk_dc) {
     CRect cr;
     GetClientRect(&cr);
     sad_tab_->SetBounds(gfx::Rect(cr));
-    ChromeCanvasPaint canvas(GetHWND(), true);
+    ChromeCanvasPaint canvas(GetNativeView(), true);
     sad_tab_->ProcessPaint(&canvas);
     return;
   }
@@ -541,7 +541,7 @@ void WebContentsViewWin::OnPaint(HDC junk_dc) {
   // We need to do this to validate the dirty area so we don't end up in a
   // WM_PAINTstorm that causes other mysterious bugs (such as WM_TIMERs not
   // firing etc). It doesn't matter that we don't have any non-clipped area.
-  CPaintDC dc(GetHWND());
+  CPaintDC dc(GetNativeView());
   SetMsgHandled(FALSE);
 }
 
@@ -620,8 +620,8 @@ void WebContentsViewWin::OnSize(UINT param, const CSize& size) {
   si.nPage = 10;
   si.nPos = 50;
 
-  ::SetScrollInfo(GetHWND(), SB_HORZ, &si, FALSE);
-  ::SetScrollInfo(GetHWND(), SB_VERT, &si, FALSE);
+  ::SetScrollInfo(GetNativeView(), SB_HORZ, &si, FALSE);
+  ::SetScrollInfo(GetNativeView(), SB_VERT, &si, FALSE);
 }
 
 LRESULT WebContentsViewWin::OnNCCalcSize(BOOL w_param, LPARAM l_param) {

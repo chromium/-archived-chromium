@@ -111,7 +111,7 @@ int MenuButton::GetMaximumScreenXCoordinate() {
     return 0;
   }
 
-  HWND hwnd = widget->GetHWND();
+  HWND hwnd = widget->GetNativeView();
   CRect t;
   ::GetWindowRect(hwnd, &t);
 
@@ -157,7 +157,7 @@ bool MenuButton::Activate() {
 
     menu_visible_ = true;
     menu_delegate_->RunMenu(this, menu_position.ToPOINT(),
-                            GetWidget()->GetHWND());
+                            GetWidget()->GetNativeView());
     menu_visible_ = false;
     menu_closed_time_ = Time::Now();
 

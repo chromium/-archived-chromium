@@ -538,7 +538,7 @@ void BitmapScrollBar::ShowContextMenu(View* source,
   View::ConvertPointFromWidget(this, &temp_pt);
   context_menu_mouse_position_ = IsHorizontal() ? temp_pt.x() : temp_pt.y();
 
-  Menu menu(this, Menu::TOPLEFT, GetWidget()->GetHWND());
+  Menu menu(this, Menu::TOPLEFT, GetWidget()->GetNativeView());
   menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollHere);
   menu.AppendSeparator();
   menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollStart);

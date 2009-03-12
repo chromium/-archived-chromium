@@ -36,7 +36,7 @@ gfx::Rect NativeFrameView::GetWindowBoundsForClientBounds(
 
 gfx::Point NativeFrameView::GetSystemMenuPoint() const {
   POINT temp = {0, -kFrameShadowThickness };
-  MapWindowPoints(frame_->GetHWND(), HWND_DESKTOP, &temp, 1);
+  MapWindowPoints(frame_->GetNativeView(), HWND_DESKTOP, &temp, 1);
   return gfx::Point(temp);
 }
 

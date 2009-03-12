@@ -13,7 +13,7 @@
 namespace views {
 
 RootViewDropTarget::RootViewDropTarget(RootView* root_view)
-    : BaseDropTarget(root_view->GetWidget()->GetHWND()),
+    : BaseDropTarget(root_view->GetWidget()->GetNativeView()),
       root_view_(root_view),
       target_view_(NULL),
       deepest_view_(NULL) {

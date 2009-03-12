@@ -344,7 +344,7 @@ void BookmarkManagerView::OnDoubleClick() {
   // we can use
   // event_utils::DispositionFromEventFlags(sender->mouse_event_flags()) .
   bookmark_utils::OpenAll(
-      GetWidget()->GetHWND(), profile_, NULL, nodes, CURRENT_TAB);
+      GetWidget()->GetNativeView(), profile_, NULL, nodes, CURRENT_TAB);
 }
 
 void BookmarkManagerView::OnTableViewDelete(views::TableView* table) {
@@ -365,7 +365,7 @@ void BookmarkManagerView::OnKeyDown(unsigned short virtual_keycode) {
         SelectInTree(selected_nodes[0]);
       } else {
         bookmark_utils::OpenAll(
-            GetWidget()->GetHWND(), profile_, NULL, selected_nodes,
+            GetWidget()->GetNativeView(), profile_, NULL, selected_nodes,
             CURRENT_TAB);
       }
       break;
@@ -471,7 +471,7 @@ void BookmarkManagerView::ShowContextMenu(views::View* source,
                                           bool is_mouse_gesture) {
   DCHECK(source == table_view_ || source == tree_view_);
   bool is_table = (source == table_view_);
-  ShowMenu(GetWidget()->GetHWND(), x, y,
+  ShowMenu(GetWidget()->GetNativeView(), x, y,
            is_table ? BookmarkContextMenu::BOOKMARK_MANAGER_TABLE :
                       BookmarkContextMenu::BOOKMARK_MANAGER_TREE);
 }
@@ -525,7 +525,7 @@ void BookmarkManagerView::FileSelected(const std::wstring& path,
     ProfileInfo profile_info;
     profile_info.browser_type = BOOKMARKS_HTML;
     profile_info.source_path = path;
-    StartImportingWithUI(GetWidget()->GetHWND(), FAVORITES, host,
+    StartImportingWithUI(GetWidget()->GetNativeView(), FAVORITES, host,
                          profile_info, profile_,
                          new ImportObserverImpl(profile()), false);
   } else if (id == IDS_BOOKMARK_MANAGER_EXPORT_MENU) {
@@ -662,7 +662,7 @@ void BookmarkManagerView::ShowMenu(
     std::vector<BookmarkNode*> nodes;
     if (node)
       nodes.push_back(node);
-    BookmarkContextMenu menu(GetWidget()->GetHWND(), profile_, NULL, NULL,
+    BookmarkContextMenu menu(GetWidget()->GetNativeView(), profile_, NULL, NULL,
                              node, nodes, config);
     menu.RunMenuAt(x, y);
   }
@@ -704,7 +704,8 @@ void BookmarkManagerView::ShowToolsMenu(HWND host, int x, int y) {
   views::MenuItemView::AnchorPosition anchor =
       UILayoutIsRightToLeft() ? views::MenuItemView::TOPRIGHT :
                                 views::MenuItemView::TOPLEFT;
-  menu.RunMenuAt(GetWidget()->GetHWND(), gfx::Rect(x, y, 0, 0), anchor, true);
+  menu.RunMenuAt(GetWidget()->GetNativeView(), gfx::Rect(x, y, 0, 0), anchor,
+                 true);
 }
 
 void BookmarkManagerView::ShowImportBookmarksFileChooser() {
@@ -716,7 +717,7 @@ void BookmarkManagerView::ShowImportBookmarksFileChooser() {
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
       SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), L"bookmarks.html",
-      filter_string, std::wstring(), GetWidget()->GetHWND(),
+      filter_string, std::wstring(), GetWidget()->GetNativeView(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_IMPORT_MENU));
 }
 
@@ -728,6 +729,6 @@ void BookmarkManagerView::ShowExportBookmarksFileChooser() {
   select_file_dialog_->SelectFile(
       SelectFileDialog::SELECT_SAVEAS_FILE, std::wstring(), L"bookmarks.html",
       win_util::GetFileFilterFromPath(L"bookmarks.html"), L"html",
-      GetWidget()->GetHWND(),
+      GetWidget()->GetNativeView(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_EXPORT_MENU));
 }

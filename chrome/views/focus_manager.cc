@@ -471,7 +471,7 @@ bool FocusManager::ContainsView(View* view) {
   if (!widget)
     return false;
 
-  HWND window = widget->GetHWND();
+  HWND window = widget->GetNativeView();
   while (window) {
     if (window == root_)
       return true;

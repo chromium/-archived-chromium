@@ -325,7 +325,7 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
 
   if (focus_on_mouse_pressed_) {
 #if defined(OS_WIN)
-    HWND hwnd = GetWidget()->GetHWND();
+    HWND hwnd = GetWidget()->GetNativeView();
     if (::GetFocus() != hwnd) {
       ::SetFocus(hwnd);
     }
@@ -480,7 +480,7 @@ void RootView::OnWidgetCreated() {
 void RootView::OnWidgetDestroyed() {
 #if defined(OS_WIN)
   if (drop_target_.get()) {
-    RevokeDragDrop(GetWidget()->GetHWND());
+    RevokeDragDrop(GetWidget()->GetNativeView());
     drop_target_ = NULL;
   }
 #else
@@ -508,7 +508,7 @@ void RootView::FocusView(View* view) {
 #if defined(OS_WIN)
     FocusManager* focus_manager = GetFocusManager();
     DCHECK(focus_manager) << "No Focus Manager for Window " <<
-        (GetWidget() ? GetWidget()->GetHWND() : 0);
+        (GetWidget() ? GetWidget()->GetNativeView() : 0);
     if (!focus_manager)
       return;
 

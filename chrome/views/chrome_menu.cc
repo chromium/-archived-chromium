@@ -2661,7 +2661,7 @@ bool MenuController::IsMenuWindow(MenuItemView* item, HWND window) {
   if (!item)
     return false;
   return ((item->HasSubmenu() && item->GetSubmenu()->IsShowing() &&
-           item->GetSubmenu()->GetWidget()->GetHWND() == window) ||
+           item->GetSubmenu()->GetWidget()->GetNativeView() == window) ||
            IsMenuWindow(item->GetParentMenuItem(), window));
 }
 
@@ -2739,8 +2739,8 @@ void MenuController::RepostEvent(SubmenuView* source,
     SubmenuView* submenu = state_.item->GetRootMenuItem()->GetSubmenu();
     submenu->ReleaseCapture();
 
-    if (submenu->host() && submenu->host()->GetHWND() &&
-        GetWindowThreadProcessId(submenu->host()->GetHWND(), NULL) !=
+    if (submenu->host() && submenu->host()->GetNativeView() &&
+        GetWindowThreadProcessId(submenu->host()->GetNativeView(), NULL) !=
         GetWindowThreadProcessId(window, NULL)) {
       // Even though we have mouse capture, windows generates a mouse event
       // if the other window is in a separate thread. Don't generate an event in

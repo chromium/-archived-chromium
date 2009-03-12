@@ -220,7 +220,8 @@ void BookmarkEditorView::ShowContextMenu(View* source,
   running_menu_for_root_ =
       (tree_model_->GetParent(tree_view_->GetSelectedNode()) ==
        tree_model_->GetRoot());
-  context_menu_.reset(new Menu(this, Menu::TOPLEFT, GetWidget()->GetHWND()));
+  context_menu_.reset(new Menu(this, Menu::TOPLEFT,
+                               GetWidget()->GetNativeView()));
   context_menu_->AppendMenuItemWithLabel(IDS_EDIT,
       l10n_util::GetString(IDS_EDIT));
   context_menu_->AppendMenuItemWithLabel(

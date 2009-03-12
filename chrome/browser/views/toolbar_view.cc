@@ -390,7 +390,7 @@ void BrowserToolbarView::DidGainFocus() {
     view_index = acc_focused_view_->GetID();
   }
 
-  HWND hwnd = GetWidget()->GetHWND();
+  HWND hwnd = GetWidget()->GetNativeView();
 
   // Notify Access Technology that there was a change in keyboard focus.
   ::NotifyWinEvent(EVENT_OBJECT_FOCUS, hwnd, OBJID_CLIENT,
@@ -463,7 +463,7 @@ bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
 
     // Retrieve information to generate an MSAA focus event.
     int view_id = acc_focused_view_->GetID();
-    HWND hwnd = GetWidget()->GetHWND();
+    HWND hwnd = GetWidget()->GetNativeView();
 
     // Show the tooltip for the view that got the focus.
     if (GetWidget()->GetTooltipManager()) {

@@ -337,13 +337,14 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
     GetCursorPos(&pt);
     views::Widget* widget = tabstrip_->GetWidget();
     RECT wr;
-    GetWindowRect(widget->GetHWND(), &wr);
+    GetWindowRect(widget->GetNativeView(), &wr);
     pt.x -= wr.left;
     pt.y -= wr.top;
 
     // Return to message loop - otherwise we may disrupt some operation that's
     // in progress.
-    PostMessage(widget->GetHWND(), WM_MOUSEMOVE, 0, MAKELPARAM(pt.x, pt.y));
+    PostMessage(widget->GetNativeView(), WM_MOUSEMOVE, 0,
+                MAKELPARAM(pt.x, pt.y));
   }
 
   int index_;
@@ -818,7 +819,7 @@ void TabStrip::TabInsertedAt(TabContents* contents,
   // Don't animate the first tab, it looks weird, and don't animate anything
   // if the containing window isn't visible yet.
   if (GetTabCount() > 1 && GetWidget() &&
-      IsWindowVisible(GetWidget()->GetHWND())) {
+      IsWindowVisible(GetWidget()->GetNativeView())) {
     StartInsertTabAnimation(index);
   } else {
     Layout();

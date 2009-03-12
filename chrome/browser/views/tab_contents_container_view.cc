@@ -246,8 +246,8 @@ void TabContentsContainerView::RenderViewHostChanged(RenderViewHost* old_host,
   }
 
   // If we are focused, we need to pass the focus to the new RenderViewHost.
-  FocusManager* focus_manager =
-      FocusManager::GetFocusManager(GetRootView()->GetWidget()->GetHWND());
+  FocusManager* focus_manager = FocusManager::GetFocusManager(
+      GetRootView()->GetWidget()->GetNativeView());
   if (focus_manager->GetFocusedView() == this)
     Focus();
 }

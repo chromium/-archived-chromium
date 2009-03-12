@@ -107,7 +107,7 @@ void DraggedTabView::AnimateToBounds(const gfx::Rect& bounds,
   animation_callback_.reset(callback);
 
   RECT wr;
-  GetWindowRect(GetWidget()->GetHWND(), &wr);
+  GetWindowRect(GetWidget()->GetNativeView(), &wr);
   animation_start_bounds_ = wr;
   animation_end_bounds_ = bounds;
 
@@ -229,7 +229,7 @@ void DraggedTabView::PaintDetachedView(ChromeCanvas* canvas) {
 
 void DraggedTabView::ResizeContainer() {
   gfx::Size ps = GetPreferredSize();
-  SetWindowPos(container_->GetHWND(), HWND_TOPMOST, 0, 0,
+  SetWindowPos(container_->GetNativeView(), HWND_TOPMOST, 0, 0,
                ScaleValue(ps.width()), ScaleValue(ps.height()),
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
 }

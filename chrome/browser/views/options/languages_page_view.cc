@@ -507,7 +507,7 @@ void LanguagesPageView::ButtonPressed(views::NativeButton* sender) {
     language_table_edited_ = true;
   } else if (sender == add_button_) {
     views::Window::CreateChromeWindow(
-        GetWidget()->GetHWND(),
+        GetWidget()->GetNativeView(),
         gfx::Rect(),
         new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;
