@@ -331,6 +331,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\devtools\devtools_mock_rpc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\devtools\dom_agent_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\dom_operations_unittest.cc"
 				>
 			</File>

@@ -256,6 +256,7 @@ test_files = [
     '$WEBKIT_DIR/glue/context_menu_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_bound_class_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_variant_unittest.cc',
+    '$WEBKIT_DIR/glue/devtools/dom_agent_unittest.cc',
     '$WEBKIT_DIR/glue/dom_operations_unittest.cc',
     '$WEBKIT_DIR/glue/dom_serializer_unittest.cc',
     '$WEBKIT_DIR/glue/glue_serialize_unittest.cc',

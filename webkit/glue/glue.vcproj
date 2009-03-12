@@ -581,6 +581,38 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webdevtoolsagent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsagent_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsagent_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsagent_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsclient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsclient_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsclient_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsclient_impl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webdocumentloader_impl.cc"
 				>
 			</File>
@@ -834,6 +866,46 @@
 			</File>
 			<File
 				RelativePath=".\plugins\webplugin_delegate_impl.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="DevTools"
+			>
+			<File
+				RelativePath=".\devtools\devtools_rpc.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\devtools_rpc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\dom_agent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\dom_agent_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\dom_agent_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\net_agent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\net_agent_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\net_agent_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\tools_agent.h"
 				>
 			</File>
 		</Filter>
