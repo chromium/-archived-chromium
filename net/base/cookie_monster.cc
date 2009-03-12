@@ -52,7 +52,6 @@
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
-#include "googleurl/src/url_canon.h"
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 

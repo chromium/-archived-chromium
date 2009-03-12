@@ -14,8 +14,6 @@
 #endif
 
 #include "base/basictypes.h"
-#include "googleurl/src/url_canon.h"
-#include "googleurl/src/url_parse.h"
 
 struct addrinfo;
 class FilePath;

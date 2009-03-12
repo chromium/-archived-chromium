@@ -7,7 +7,9 @@
 
 #include <string>
 
-#include "googleurl/src/url_parse.h"
+namespace url_parse {
+  struct Parsed;
+}
 
 class FilePath;
 

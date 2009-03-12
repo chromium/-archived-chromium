@@ -12,7 +12,6 @@
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/gurl.h"
-#include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_file.h"
 #include "googleurl/src/url_parse.h"
 #include "googleurl/src/url_util.h"
