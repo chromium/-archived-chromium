@@ -7,6 +7,8 @@
 
 #include "chrome/browser/download/download_util.h"
 
+#include "base/logging.h"
+
 namespace download_util {
 
 // For file extensions taken from mozilla:

@@ -5,6 +5,7 @@
 #include "net/ftp/ftp_network_transaction.h"
 
 #include "base/compiler_specific.h"
+#include "base/logging.h"
 #include "net/base/client_socket.h"
 #include "net/base/net_errors.h"
 #include "net/ftp/ftp_network_session.h"

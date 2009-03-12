@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "base/logging.h"
 #include "net/base/x509_certificate.h"
 
 class GURL;

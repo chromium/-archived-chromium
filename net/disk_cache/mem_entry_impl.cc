@@ -4,6 +4,7 @@
 
 #include "net/disk_cache/mem_entry_impl.h"
 
+#include "base/logging.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/mem_backend_impl.h"

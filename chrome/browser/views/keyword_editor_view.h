@@ -8,7 +8,6 @@
 #include <Windows.h>
 #include <map>
 
-#include "base/logging.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"

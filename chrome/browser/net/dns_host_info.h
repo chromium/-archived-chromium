@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 
-#include "base/logging.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
 

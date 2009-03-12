@@ -4,6 +4,8 @@
 
 #include "chrome/browser/ssl/ssl_host_state.h"
 
+#include "base/logging.h"
+
 SSLHostState::SSLHostState() {
 }
 

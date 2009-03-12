@@ -7,7 +7,6 @@
 
 #include <atlbase.h>
 #include <atlwin.h>
-#include "base/logging.h"
 
 // HotKey handler.
 // Programs wishing to register a hotkey can use this.

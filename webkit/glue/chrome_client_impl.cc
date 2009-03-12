@@ -28,6 +28,7 @@ MSVC_POP_WARNING();
 
 #include "webkit/glue/chrome_client_impl.h"
 
+#include "base/logging.h"
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/glue_util.h"

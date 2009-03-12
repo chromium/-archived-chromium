@@ -14,7 +14,6 @@
 #include <map>
 #include <functional>
 #include "base/lock.h"
-#include "base/logging.h"
 #include "tools/memory_watcher/memory_hook.h"
 
 class CallStack;

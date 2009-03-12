@@ -5,7 +5,6 @@
 #ifndef BASE_TASK_H_
 #define BASE_TASK_H_
 
-#include "base/logging.h"
 #include "base/non_thread_safe.h"
 #include "base/revocable_store.h"
 #include "base/tracked.h"

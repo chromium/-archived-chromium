@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_CHROME_PLUGIN_UTIL_H__
-#define CHROME_COMMON_CHROME_PLUGIN_UTIL_H__
+#ifndef CHROME_COMMON_CHROME_PLUGIN_UTIL_H_
+#define CHROME_COMMON_CHROME_PLUGIN_UTIL_H_
+
+#include <string>
 
 #include "base/basictypes.h"
 #include "base/non_thread_safe.h"
@@ -51,7 +53,7 @@ class PluginHelper : public NotificationObserver, public NonThreadSafe {
  protected:
   scoped_refptr<ChromePluginLib> plugin_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PluginHelper);
+  DISALLOW_COPY_AND_ASSIGN(PluginHelper);
 };
 
 // A class of utility functions for dealing with request responses.
@@ -80,4 +82,4 @@ CPError CPB_GetCommandLineArgumentsCommon(const char* url,
 void* STDCALL CPB_Alloc(uint32 size);
 void STDCALL CPB_Free(void* memory);
 
-#endif  // CHROME_COMMON_CHROME_PLUGIN_UTIL_H__
+#endif  // CHROME_COMMON_CHROME_PLUGIN_UTIL_H_

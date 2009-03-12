@@ -4,6 +4,7 @@
 
 #include "net/disk_cache/mapped_file.h"
 
+#include "base/logging.h"
 #include "net/disk_cache/disk_cache.h"
 
 namespace disk_cache {

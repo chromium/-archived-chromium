@@ -31,7 +31,6 @@
 #include <map>
 #include <vector>
 
-#include "base/logging.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "googleurl/src/gurl.h"

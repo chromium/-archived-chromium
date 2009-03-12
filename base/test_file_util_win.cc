@@ -10,6 +10,7 @@
 
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/scoped_handle.h"
 
 namespace file_util {

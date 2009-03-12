@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_CHROME_THREAD_H__
 
 #include "base/lock.h"
-#include "base/logging.h"
 #include "base/thread.h"
 
 ///////////////////////////////////////////////////////////////////////////////

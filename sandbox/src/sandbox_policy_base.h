@@ -9,7 +9,6 @@
 #include <list>
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "sandbox/src/ipc_tags.h"
 #include "sandbox/src/sandbox_policy.h"
 #include "sandbox/src/win_utils.h"

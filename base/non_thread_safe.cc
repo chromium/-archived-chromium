@@ -4,10 +4,10 @@
 
 #include "base/non_thread_safe.h"
 
-#include "base/platform_thread.h"
-
 // These checks are only done in debug builds.
 #ifndef NDEBUG
+
+#include "base/logging.h"
 
 NonThreadSafe::NonThreadSafe()
     : valid_thread_id_(PlatformThread::CurrentId()) {

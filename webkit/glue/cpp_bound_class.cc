@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include "base/compiler_specific.h"
+#include "base/logging.h"
 
 #include "webkit/glue/cpp_bound_class.h"
 #include "webkit/glue/webframe.h"

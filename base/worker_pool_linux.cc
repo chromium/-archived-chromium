@@ -4,6 +4,7 @@
 
 #include "base/worker_pool.h"
 
+#include "base/logging.h"
 #include "base/task.h"
 
 namespace {

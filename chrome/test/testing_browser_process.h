@@ -18,7 +18,6 @@
 #include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/notification_service.h"
-#include "base/logging.h"
 
 class TestingBrowserProcess : public BrowserProcess {
  public:

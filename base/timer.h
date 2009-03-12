@@ -46,6 +46,7 @@
 // because they're flaky on the buildbot, but when you run them locally you
 // should be able to tell the difference.
 
+#include "base/logging.h"
 #include "base/task.h"
 #include "base/time.h"
 

@@ -18,7 +18,6 @@
 
 #include "base/thread.h"
 #include "base/basictypes.h"
-#include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/thread.h"

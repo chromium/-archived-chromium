@@ -5,7 +5,6 @@
 #ifndef BASE_NON_THREAD_SAFE_H__
 #define BASE_NON_THREAD_SAFE_H__
 
-#include "base/logging.h"
 #include "base/platform_thread.h"
 
 // A helper class used to help verify that methods of a class are

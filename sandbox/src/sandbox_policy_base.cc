@@ -5,6 +5,7 @@
 #include "sandbox/src/sandbox_policy_base.h"
 
 #include "base/basictypes.h"
+#include "base/logging.h"
 #include "sandbox/src/filesystem_dispatcher.h"
 #include "sandbox/src/filesystem_policy.h"
 #include "sandbox/src/job.h"

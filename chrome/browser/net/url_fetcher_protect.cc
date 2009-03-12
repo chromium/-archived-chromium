@@ -4,6 +4,8 @@
 
 #include "chrome/browser/net/url_fetcher_protect.h"
 
+#include "base/logging.h"
+
 // URLFetcherProtectEntry ----------------------------------------------------
 
 using base::TimeDelta;

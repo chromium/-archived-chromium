@@ -66,7 +66,6 @@
 #define BASE_CONDITION_VARIABLE_H_
 
 #include "base/lock.h"
-#include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 

@@ -13,7 +13,6 @@
 #include <string>
 
 #include "base/lock.h"
-#include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 
