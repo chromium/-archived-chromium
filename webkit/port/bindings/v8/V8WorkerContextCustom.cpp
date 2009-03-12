@@ -88,7 +88,7 @@ ACCESSOR_GETTER(WorkerContextSelf) {
   INC_STATS(L"DOM.WorkerContext.self._get");
   WorkerContext* imp = V8Proxy::ToNativeObject<WorkerContext>(
       V8ClassIndex::WORKERCONTEXT, info.Holder());
-  return V8Proxy::ToV8Object(V8ClassIndex::WORKERCONTEXT, imp);
+  return WorkerContextExecutionProxy::WorkerContextToV8Object(imp);
 }
 
 ACCESSOR_GETTER(WorkerContextOnmessage) {

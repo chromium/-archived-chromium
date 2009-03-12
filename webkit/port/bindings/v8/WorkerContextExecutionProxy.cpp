@@ -167,13 +167,14 @@ v8::Handle<v8::Value> WorkerContextExecutionProxy::ToV8Object(
     V8ClassIndex::V8WrapperType type, void* imp) {
   if (!imp) return v8::Null();
 
+  if (type == V8ClassIndex::WORKERCONTEXT)
+    return WorkerContextToV8Object(static_cast<WorkerContext*>(imp));
+
   // Non DOM node
   v8::Persistent<v8::Object> result = GetDOMObjectMap().get(imp);
   if (result.IsEmpty()) {
     v8::Local<v8::Object> v8obj = InstantiateV8Object(type, type, imp);
     if (!v8obj.IsEmpty()) {
-      // Go through big switch statement, it has some duplications
-      // that were handled by code above (such as CSSVALUE, CSSRULE, etc).
       switch (type) {
         case V8ClassIndex::WORKERLOCATION:
           static_cast<WorkerLocation*>(imp)->ref();
