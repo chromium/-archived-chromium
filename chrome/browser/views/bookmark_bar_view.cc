@@ -1449,7 +1449,7 @@ void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
 
   drop_info_->is_menu_showing = true;
   bookmark_drop_menu_ = new BookmarkMenuController(
-      browser_, profile_, page_navigator_, GetWidget()->GetHWND(),
+      browser_, profile_, page_navigator_, GetWidget()->GetNativeView(),
       node, start_index);
   bookmark_drop_menu_->set_observer(this);
   gfx::Point screen_loc;
