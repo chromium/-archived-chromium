@@ -149,7 +149,8 @@ class PluginRequestHandlerProxy
             GetCurrentProcessId(),
             ResourceType::OBJECT,
             false,  // TODO (jcampan): mixed-content?
-            cprequest_->context));
+            cprequest_->context,
+            MSG_ROUTING_CONTROL));
     if (!bridge_.get())
       return CPERR_FAILURE;
 

@@ -16,7 +16,6 @@
 #include "base/timer.h"
 #include "base/values.h"
 #include "build/build_config.h"
-#include "chrome/common/resource_dispatcher.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -116,11 +115,6 @@ class RenderView : public RenderWidget,
 
   // Sets the "next page id" counter.
   static void SetNextPageID(int32 next_page_id);
-
-  // The resource dispatcher used to fetch resources for this view.
-  ResourceDispatcher* resource_dispatcher() {
-    return resource_dispatcher_;
-  }
 
   // May return NULL when the view is closing.
   WebView* webview() const {
@@ -618,9 +612,6 @@ class RenderView : public RenderWidget,
 
   // A helper method used by WasOpenedByUserGesture.
   bool WasOpenedByUserGestureHelper() const;
-
-  // Handles resource loads for this view.
-  scoped_refptr<ResourceDispatcher> resource_dispatcher_;
 
   // Bitwise-ORed set of extra bindings that have been enabled.  See
   // BindingsPolicy for details.

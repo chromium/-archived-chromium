@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "base/process.h"
-#include "base/ref_counted.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_dispatcher.h"
@@ -86,13 +85,10 @@ class ResourceDispatcherTest : public testing::Test,
   // returning the hardcoded file contents.
   void ProcessMessages() {
     while (!message_queue_.empty()) {
-      void* iter = NULL;
-
       int request_id;
-      ASSERT_TRUE(IPC::ReadParam(&message_queue_[0], &iter, &request_id));
-
       ViewHostMsg_Resource_Request request;
-      ASSERT_TRUE(IPC::ReadParam(&message_queue_[0], &iter, &request));
+      ASSERT_TRUE(ViewHostMsg_RequestResource::Read(
+          &message_queue_[0], &request_id, &request));
 
       // check values
       EXPECT_EQ(test_page_url, request.url.spec());
@@ -117,15 +113,15 @@ class ResourceDispatcherTest : public testing::Test,
       base::SharedMemoryHandle dup_handle;
       EXPECT_TRUE(shared_mem.GiveToProcess(
           base::Process::Current().handle(), &dup_handle));
-      dispatcher_->OnReceivedData(request_id, dup_handle,
-                                  test_page_contents_len);
+      dispatcher_->OnReceivedData(
+          message_queue_[0], request_id, dup_handle, test_page_contents_len);
 
       message_queue_.erase(message_queue_.begin());
 
       // read the ack message.
-      iter = NULL;
       int request_ack = -1;
-      ASSERT_TRUE(IPC::ReadParam(&message_queue_[0], &iter, &request_ack));
+      ASSERT_TRUE(ViewHostMsg_DataReceived_ACK::Read(
+          &message_queue_[0], &request_ack));
 
       ASSERT_EQ(request_ack, request_id);
 
@@ -135,23 +131,23 @@ class ResourceDispatcherTest : public testing::Test,
 
  protected:
   static ResourceDispatcher* GetResourceDispatcher(WebFrame* unused) {
-    return dispatcher_;
+    return dispatcher_.get();
   }
 
   // testing::Test
   virtual void SetUp() {
-    dispatcher_ = new ResourceDispatcher(this);
+    dispatcher_.reset(new ResourceDispatcher(this));
   }
   virtual void TearDown() {
-    dispatcher_ = NULL;
+    dispatcher_.reset();
   }
 
   std::vector<IPC::Message> message_queue_;
-  static scoped_refptr<ResourceDispatcher> dispatcher_;
+  static scoped_ptr<ResourceDispatcher> dispatcher_;
 };
 
 /*static*/
-scoped_refptr<ResourceDispatcher> ResourceDispatcherTest::dispatcher_;
+scoped_ptr<ResourceDispatcher> ResourceDispatcherTest::dispatcher_;
 
 // Does a simple request and tests that the correct data is received.
 TEST_F(ResourceDispatcherTest, RoundTrip) {
@@ -159,7 +155,8 @@ TEST_F(ResourceDispatcherTest, RoundTrip) {
   ResourceLoaderBridge* bridge =
     dispatcher_->CreateBridge("GET", GURL(test_page_url), GURL(test_page_url),
                               GURL(), std::string(), 0, 0,
-                              ResourceType::SUB_RESOURCE, false, 0);
+                              ResourceType::SUB_RESOURCE, false, 0,
+                              MSG_ROUTING_CONTROL);
 
   bridge->Start(&callback);
 

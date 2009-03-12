@@ -7,7 +7,6 @@
 
 #include "base/file_path.h"
 #include "chrome/common/child_thread.h"
-#include "chrome/common/resource_dispatcher.h"
 #include "chrome/plugin/plugin_channel.h"
 
 class NotificationService;
@@ -23,11 +22,6 @@ class PluginThread : public ChildThread {
   // Returns the one plugin thread.
   static PluginThread* current();
 
-  // Returns the one true dispatcher.
-  ResourceDispatcher* resource_dispatcher() {
-    return resource_dispatcher_.get();
-  }
-
  private:
   virtual void OnControlMessageReceived(const IPC::Message& msg);
 
@@ -41,10 +35,6 @@ class PluginThread : public ChildThread {
   void OnBrowserShutdown();
 
   scoped_ptr<NotificationService> notification_service_;
-
-  // Handles resource loads for this view.
-  // NOTE: this object lives on the owner thread.
-  scoped_refptr<ResourceDispatcher> resource_dispatcher_;
 
   // The plugin module which is preloaded in Init
   HMODULE preloaded_plugin_module_;

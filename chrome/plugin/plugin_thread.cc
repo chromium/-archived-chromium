@@ -38,10 +38,6 @@ PluginThread* PluginThread::current() {
 }
 
 void PluginThread::OnControlMessageReceived(const IPC::Message& msg) {
-  // Resource responses are sent to the resource dispatcher.
-  if (resource_dispatcher_->OnMessageReceived(msg))
-    return;
-
   IPC_BEGIN_MESSAGE_MAP(PluginThread, msg)
     IPC_MESSAGE_HANDLER(PluginProcessMsg_CreateChannel, OnCreateChannel)
     IPC_MESSAGE_HANDLER(PluginProcessMsg_ShutdownResponse, OnShutdownResponse)
@@ -55,7 +51,6 @@ void PluginThread::Init() {
   PatchNPNFunctions();
   CoInitialize(NULL);
   notification_service_.reset(new NotificationService);
-  resource_dispatcher_ = new ResourceDispatcher(this);
 
   // Preload the library to avoid loading, unloading then reloading
   preloaded_plugin_module_ = NPAPI::PluginLib::LoadNativeLibrary(plugin_path_);
@@ -83,7 +78,6 @@ void PluginThread::CleanUp() {
   NPAPI::PluginLib::UnloadAllPlugins();
   ChromePluginLib::UnloadAllPlugins();
   notification_service_.reset();
-  resource_dispatcher_ = NULL;
   CoUninitialize();
 
   if (webkit_glue::ShouldForcefullyTerminatePluginProcess())

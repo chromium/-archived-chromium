@@ -236,18 +236,6 @@ webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
   return results;
 }
 
-#ifndef USING_SIMPLE_RESOURCE_LOADER_BRIDGE
-
-// Each RenderView has a ResourceDispatcher.  In unit tests, this function may
-// not work properly since there may be a ResourceDispatcher w/o a RenderView.
-// The WebView's delegate may be null, which typically happens as a WebView is
-// being closed (but it is also possible that it could be null at other times
-// since WebView has a SetDelegate method).
-static ResourceDispatcher* GetResourceDispatcher(WebFrame* frame) {
-  WebViewDelegate* d = frame->GetView()->GetDelegate();
-  return d ? static_cast<RenderView*>(d)->resource_dispatcher() : NULL;
-}
-
 // static factory function
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     WebFrame* webframe,
@@ -268,14 +256,13 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     NOTREACHED() << "no webframe";
     return NULL;
   }
-  ResourceDispatcher* dispatcher = GetResourceDispatcher(webframe);
-  if (!dispatcher) {
-    DLOG(WARNING) << "no resource dispatcher";
-    return NULL;
-  }
-  return dispatcher->CreateBridge(method, url, policy_url, referrer, headers,
-                                  load_flags, origin_pid, resource_type,
-                                  mixed_content, 0);
+
+  RenderView* rv = static_cast<RenderView*>(webframe->GetView()->GetDelegate());
+  int route_id = rv->routing_id();
+  ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
+  return dispatch->CreateBridge(method, url, policy_url, referrer, headers,
+                                load_flags, origin_pid, resource_type,
+                                mixed_content, 0, route_id);
 }
 
 void NotifyCacheStats() {
@@ -286,6 +273,5 @@ void NotifyCacheStats() {
     RenderThread::current()->InformHostOfCacheStatsLater();
 }
 
-#endif  // !USING_SIMPLE_RESOURCE_LOADER_BRIDGE
 
 }  // namespace webkit_glue

@@ -191,7 +191,6 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       form_field_autofill_request_id_(0),
       popup_notification_visible_(false),
       delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync) {
-  resource_dispatcher_ = new ResourceDispatcher(this);
 #ifdef CHROME_PERSONALIZATION
   personalization_ = Personalization::CreateRendererPersonalization();
 #endif
@@ -201,7 +200,6 @@ RenderView::~RenderView() {
   if (decrement_shared_popup_at_destruction_)
     shared_popup_counter_->data--;
 
-  resource_dispatcher_->ClearMessageSender();
   // Clear any back-pointers that might still be held by plugins.
   PluginDelegateList::iterator it = plugin_delegates_.begin();
   while (it != plugin_delegates_.end()) {
@@ -341,10 +339,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
   renderer_logging::ScopedActiveRenderingURLSetter url_setter(
       main_frame ? main_frame->GetURL() : GURL());
 #endif
-
-  // Let the resource dispatcher intercept resource messages first.
-  if (resource_dispatcher_->OnMessageReceived(message))
-    return;
 
   // If this is developer tools renderer intercept tools messages first.
   if (dev_tools_client_.get() && dev_tools_client_->OnMessageReceived(message))

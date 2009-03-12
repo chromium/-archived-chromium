@@ -8,6 +8,7 @@
 #include "base/thread.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/message_router.h"
+#include "chrome/common/resource_dispatcher.h"
 
 // Child processes's background thread should derive from this class.
 class ChildThread : public IPC::Channel::Listener,
@@ -26,6 +27,10 @@ class ChildThread : public IPC::Channel::Listener,
   void RemoveRoute(int32 routing_id);
 
   MessageLoop* owner_loop() { return owner_loop_; }
+
+  ResourceDispatcher* resource_dispatcher() {
+    return resource_dispatcher_.get();
+  }
 
  protected:
   friend class ChildProcess;
@@ -67,6 +72,10 @@ class ChildThread : public IPC::Channel::Listener,
   MessageRouter router_;
 
   Thread::Options options_;
+
+  // Handles resource loads for this process.
+  // NOTE: this object lives on the owner thread.
+  scoped_ptr<ResourceDispatcher> resource_dispatcher_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ChildThread);
 };
