@@ -13,7 +13,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 
 class BrowserToolbarGtk;
-class FindBarGtk;
+class FindBarController;
 class LocationBar;
 class NineBox;
 class StatusBubbleGtk;
@@ -124,7 +124,7 @@ class BrowserWindowGtk : public BrowserWindow,
   // The Find Bar. This may be NULL if there is no Find Bar, and if it is
   // non-NULL, it may or may not be visible.  It is possible for the Find Bar
   // to move among windows as tabs are dragged around.
-  scoped_ptr<FindBarGtk> find_bar_;
+  scoped_ptr<FindBarController> find_bar_controller_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BROWSER_WINDOW_GTK_H_

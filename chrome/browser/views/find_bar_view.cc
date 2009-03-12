@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "base/string_util.h"
+#include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/view_ids.h"
@@ -398,9 +399,7 @@ void FindBarView::Layout() {
                                    find_previous_button_->height());
 }
 
-void FindBarView::ViewHierarchyChanged(bool is_add,
-                                       View *parent,
-                                       View *child) {
+void FindBarView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
   if (is_add && child == this) {
     find_text_->SetHorizontalMargins(3, 3);  // Left and Right margins.
     find_text_->RemoveBorder();  // We draw our own border (a background image).
@@ -429,13 +428,13 @@ void FindBarView::ButtonPressed(views::BaseButton* sender) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
       if (find_text_->GetText().length() > 0) {
-        container_->web_contents()->StartFinding(
+        container_->find_bar_controller()->web_contents()->StartFinding(
             find_text_->GetText(),
             sender->GetTag() == FIND_NEXT_TAG);
       }
       break;
     case CLOSE_TAG:
-      container_->EndFindSession();
+      container_->find_bar_controller()->EndFindSession();
       break;
     default:
       NOTREACHED() << L"Unknown button";
@@ -448,23 +447,23 @@ void FindBarView::ButtonPressed(views::BaseButton* sender) {
 
 void FindBarView::ContentsChanged(views::TextField* sender,
                                   const std::wstring& new_contents) {
+  FindBarController* controller = container_->find_bar_controller();
+  DCHECK(controller);
   // We must guard against a NULL web_contents, which can happen if the text
   // in the Find box is changed right after the tab is destroyed. Otherwise, it
   // can lead to crashes, as exposed by automation testing in issue 8048.
-  if (!container_->web_contents())
+  if (!controller->web_contents())
     return;
 
   // When the user changes something in the text box we check the contents and
   // if the textbox contains something we set it as the new search string and
   // initiate search (even though old searches might be in progress).
   if (new_contents.length() > 0) {
-    container_->web_contents()->StartFinding(new_contents, true);
+    controller->web_contents()->StartFinding(new_contents, true);
   } else {
-    // The textbox is empty so we reset.
-    container_->web_contents()->StopFinding(true);  // true = clear selection on
-                                                    // page.
-    UpdateForResult(container_->web_contents()->find_result(),
-                    std::wstring());
+    // The textbox is empty so we reset.  true = clear selection on page.
+    controller->web_contents()->StopFinding(true);
+    UpdateForResult(controller->web_contents()->find_result(), std::wstring());
   }
 }
 
@@ -480,7 +479,7 @@ void FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
       std::wstring find_string = find_text_->GetText();
       if (find_string.length() > 0) {
         // Search forwards for enter, backwards for shift-enter.
-        container_->web_contents()->StartFinding(
+        container_->find_bar_controller()->web_contents()->StartFinding(
             find_string,
             GetKeyState(VK_SHIFT) >= 0);
       }

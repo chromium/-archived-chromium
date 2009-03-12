@@ -6,14 +6,15 @@
 #define CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_
 
 #include "base/gfx/rect.h"
-#include "chrome/browser/find_notification_details.h"
+#include "chrome/browser/find_bar.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/animation.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/views/widget_win.h"
 
 class BrowserView;
+class FindBarController;
 class FindBarView;
+class FindNotificationDetails;
 class RenderViewHost;
 class SlideAnimation;
 
@@ -39,23 +40,19 @@ class View;
 class FindBarWin : public views::FocusChangeListener,
                    public views::WidgetWin,
                    public AnimationDelegate,
-                   public NotificationObserver {
+                   public FindBar {
  public:
   explicit FindBarWin(BrowserView* browser_view);
   virtual ~FindBarWin();
 
-  // Accessor for the attached WebContents.
-  WebContents* web_contents() const { return web_contents_; }
-
-  // Shows the find bar. Any previous search string will again be visible.
-  void Show();
-
-  // Ends the current session.
-  void EndFindSession();
-
-  // Changes the WebContents that this FindBar is attached to. This occurs when
-  // the user switches tabs in the Browser window. |contents| can be NULL.
-  void ChangeWebContents(WebContents* contents);
+  // Accessor for find_bar_controller so FindBarView can get back to
+  // FindBarController.
+  FindBarController* find_bar_controller() const {
+    return find_bar_controller_;
+  }
+  void set_find_bar_controller(FindBarController* find_bar_controller) {
+    find_bar_controller_ = find_bar_controller;
+  }
 
   // If the find bar obscures the search results we need to move the window. To
   // do that we need to know what is selected on the page. We simply calculate
@@ -79,10 +76,19 @@ class FindBarWin : public views::FocusChangeListener,
   // new |parent_hwnd|.
   void SetFocusChangeListener(HWND parent_hwnd);
 
-  // Overridden from NotificationObserver:
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
+  // FindBar implementation:
+  virtual void Show();
+  virtual void Hide(bool animate);
+  virtual void SetFocusAndSelection();
+  virtual void ClearResults(const FindNotificationDetails& results);
+  virtual void StopAnimation();
+  virtual void SetFindText(const std::wstring& find_text);
+  virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
+                                     const std::wstring& find_text);
+  virtual gfx::Rect GetDialogPosition(gfx::Rect avoid_overlapping_rect);
+  virtual void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
+  virtual bool IsFindBarVisible();
+  virtual void RestoreSavedFocus();
 
   // Overridden from views::WidgetWin:
   virtual void OnFinalMessage(HWND window);
@@ -111,26 +117,6 @@ class FindBarWin : public views::FocusChangeListener,
   // be an empty rectangle.
   void GetDialogBounds(gfx::Rect* bounds);
 
-  // Returns the rectangle representing where to position the find bar. It uses
-  // GetDialogBounds and positions itself within that, either to the left (if an
-  // InfoBar is present) or to the right (no InfoBar). If
-  // |avoid_overlapping_rect| is specified, the return value will be a rectangle
-  // located immediately to the left of |avoid_overlapping_rect|, as long as
-  // there is enough room for the dialog to draw within the bounds. If not, the
-  // dialog position returned will overlap |avoid_overlapping_rect|.
-  // Note: |avoid_overlapping_rect| is expected to use coordinates relative to
-  // the top of the page area, (it will be converted to coordinates relative to
-  // the top of the browser window, when comparing against the dialog
-  // coordinates). The returned value is relative to the browser window.
-  gfx::Rect GetDialogPosition(gfx::Rect avoid_overlapping_rect);
-
-  // Moves the dialog window to the provided location, moves it to top in the
-  // z-order (HWND_TOP, not HWND_TOPMOST) and shows the window (if hidden).
-  // It then calls UpdateWindowEdges to make sure we don't overwrite the Chrome
-  // window border. If |no_redraw| is set, the window is getting moved but not
-  // sized, and should not be redrawn to reduce update flicker.
-  void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
-
   // The dialog needs rounded edges, so we create a polygon that corresponds to
   // the background images for this window (and make the polygon only contain
   // the pixels that we want to draw). The polygon is then given to SetWindowRgn
@@ -139,9 +125,6 @@ class FindBarWin : public views::FocusChangeListener,
   // to prevent from drawing onto Chrome's window border.
   void UpdateWindowEdges(const gfx::Rect& new_pos);
 
-  // Upon dismissing the window, restore focus to the last focused view which is
-  // not FindBarView or any of its children.
-  void RestoreSavedFocus();
 
   // Registers this class as the handler for when Escape is pressed. We will
   // unregister once we loose focus. See also: SetFocusChangeListener().
@@ -150,14 +133,6 @@ class FindBarWin : public views::FocusChangeListener,
   // When we loose focus, we unregister the handler for Escape. See
   // also: SetFocusChangeListener().
   void UnregisterEscAccelerator();
-
-  // Updates the FindBarView with the find result details contained within the
-  // specified |result|.
-  void UpdateUIForFindResult(const FindNotificationDetails& result,
-                             const std::wstring& find_text);
-
-  // The WebContents we are currently associated with.
-  WebContents* web_contents_;
 
   // The BrowserView that created us.
   BrowserView* browser_view_;
@@ -182,6 +157,9 @@ class FindBarWin : public views::FocusChangeListener,
   // or any of its children. Used to restore focus once the FindBarView is
   // closed.
   scoped_ptr<views::ExternalFocusTracker> focus_tracker_;
+
+  // A pointer back to the owning controller.
+  FindBarController* find_bar_controller_;
 
   DISALLOW_COPY_AND_ASSIGN(FindBarWin);
 };

@@ -6,15 +6,14 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/find_bar_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
-#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
@@ -28,11 +27,11 @@ static const int kMinFindWndDistanceFromSelection = 5;
 // FindBarWin, public:
 
 FindBarWin::FindBarWin(BrowserView* browser_view)
-    : web_contents_(NULL),
-      browser_view_(browser_view),
+    : browser_view_(browser_view),
       find_dialog_animation_offset_(0),
       focus_manager_(NULL),
-      old_accel_target_for_esc_(NULL) {
+      old_accel_target_for_esc_(NULL),
+      find_bar_controller_(NULL) {
   HWND parent_hwnd = browser_view->GetWidget()->GetHWND();
 
   // Start listening to focus changes, so we can register and unregister our
@@ -178,13 +177,11 @@ void FindBarWin::UpdateWindowEdges(const gfx::Rect& new_pos) {
 }
 
 void FindBarWin::Show() {
-  // Only show the animation if we're not already showing a find bar for the
-  // selected WebContents.
-  if (!web_contents_->find_ui_active()) {
-    web_contents_->set_find_ui_active(true);
-    animation_->Reset();
-    animation_->Show();
-  }
+  animation_->Reset();
+  animation_->Show();
+}
+
+void FindBarWin::SetFocusAndSelection() {
   view_->SetFocusAndSelection();
 }
 
@@ -192,76 +189,30 @@ bool FindBarWin::IsAnimating() {
   return animation_->IsAnimating();
 }
 
-void FindBarWin::EndFindSession() {
-  animation_->Reset(1.0);
-  animation_->Hide();
-
-  // |web_contents_| can be NULL for a number of reasons, for example when the
-  // tab is closing. We must guard against that case. See issue 8030.
-  if (web_contents_) {
-    // When we hide the window, we need to notify the renderer that we are done
-    // for now, so that we can abort the scoping effort and clear all the
-    // tickmarks and highlighting.
-    web_contents_->StopFinding(false);  // false = don't clear selection on
-                                        // page.
-    view_->UpdateForResult(web_contents_->find_result(), std::wstring());
-
-    // When we get dismissed we restore the focus to where it belongs.
-    RestoreSavedFocus();
+void FindBarWin::Hide(bool animate) {
+  if (animate) {
+    animation_->Reset(1.0);
+    animation_->Hide();
+  } else {
+    ShowWindow(SW_HIDE);
   }
 }
 
-void FindBarWin::ChangeWebContents(WebContents* contents) {
-  if (web_contents_) {
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::FIND_RESULT_AVAILABLE,
-        Source<TabContents>(web_contents_));
-    NotificationService::current()->RemoveObserver(
-        this, NotificationType::NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(web_contents_->controller()));
-    if (animation_->IsAnimating())
-      animation_->End();
-  }
+void FindBarWin::ClearResults(const FindNotificationDetails& results) {
+  view_->UpdateForResult(results, std::wstring());
+}
 
-  web_contents_ = contents;
+void FindBarWin::StopAnimation() {
+  if (animation_->IsAnimating())
+    animation_->End();
+}
 
-  // Hide any visible find window from the previous tab if NULL |web_contents|
-  // is passed in or if the find UI is not active in the new tab.
-  if (IsVisible() && (!web_contents_ || !web_contents_->find_ui_active()))
-    ShowWindow(SW_HIDE);
+void FindBarWin::SetFindText(const std::wstring& find_text) {
+  view_->SetFindText(find_text);
+}
 
-  if (web_contents_) {
-    NotificationService::current()->AddObserver(
-        this, NotificationType::FIND_RESULT_AVAILABLE,
-        Source<TabContents>(web_contents_));
-    NotificationService::current()->AddObserver(
-        this, NotificationType::NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(web_contents_->controller()));
-
-    // Update the find bar with existing results and search text, regardless of
-    // whether or not the find bar is visible, so that if it's subsequently
-    // shown it is showing the right state for this tab. We update the find text
-    // _first_ since the FindBarView checks its emptiness to see if it should
-    // clear the result count display when there's nothing in the box.
-    view_->SetFindText(web_contents_->find_text());
-
-    if (web_contents_->find_ui_active()) {
-      // A tab with a visible find bar just got selected and we need to show the
-      // find bar but without animation since it was already animated into its
-      // visible state. We also want to reset the window location so that
-      // we don't surprise the user by popping up to the left for no apparent
-      // reason.
-      gfx::Rect new_pos = GetDialogPosition(gfx::Rect());
-      SetDialogPosition(new_pos, false);
-
-      // Only modify focus and selection if Find is active, otherwise the Find
-      // Bar will interfere with user input.
-      view_->SetFocusAndSelection();
-    }
-
-    UpdateUIForFindResult(web_contents_->find_result(),
-                          web_contents_->find_text());
-  }
+bool FindBarWin::IsFindBarVisible() {
+  return IsVisible();
 }
 
 void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
@@ -269,46 +220,16 @@ void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
   // We only move the window if one is active for the current WebContents. If we
   // don't check this, then SetDialogPosition below will end up making the Find
   // Bar visible.
-  if (!web_contents_ || !web_contents_->find_ui_active())
+  if (!find_bar_controller()->web_contents() ||
+      !find_bar_controller()->web_contents()->find_ui_active()) {
     return;
+  }
 
   gfx::Rect new_pos = GetDialogPosition(selection_rect);
   SetDialogPosition(new_pos, no_redraw);
 
   // May need to redraw our frame to accommodate bookmark bar styles.
   view_->SchedulePaint();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// FindBarWin, NotificationObserver implementation:
-
-void FindBarWin::Observe(NotificationType type,
-                         const NotificationSource& source,
-                         const NotificationDetails& details) {
-  if (type == NotificationType::FIND_RESULT_AVAILABLE) {
-    // Don't update for notifications from TabContentses other than the one we
-    // are actively tracking.
-    if (Source<TabContents>(source).ptr() == web_contents_) {
-      UpdateUIForFindResult(web_contents_->find_result(),
-                            web_contents_->find_text());
-      FindNotificationDetails details = web_contents_->find_result();
-    }
-  } else if (type == NotificationType::NAV_ENTRY_COMMITTED) {
-    NavigationController* source_controller =
-        Source<NavigationController>(source).ptr();
-    if (source_controller == web_contents_->controller()) {
-      NavigationController::LoadCommittedDetails* commit_details =
-          Details<NavigationController::LoadCommittedDetails>(details).ptr();
-      PageTransition::Type transition_type =
-          commit_details->entry->transition_type();
-      // We hide the FindInPage window when the user navigates away, except on
-      // reload.
-      if (IsVisible() && PageTransition::StripQualifier(transition_type) !=
-                         PageTransition::RELOAD) {
-        EndFindSession();
-      }
-    }
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -362,7 +283,7 @@ bool FindBarWin::AcceleratorPressed(const views::Accelerator& accelerator) {
   // This will end the Find session and hide the window, causing it to loose
   // focus and in the process unregister us as the handler for the Escape
   // accelerator through the FocusWillChange event.
-  EndFindSession();
+  find_bar_controller_->EndFindSession();
 
   return true;
 }
@@ -389,9 +310,11 @@ void FindBarWin::AnimationProgressed(const Animation* animation) {
 }
 
 void FindBarWin::AnimationEnded(const Animation* animation) {
+  // Place the find bar in its fully opened state.
+  find_dialog_animation_offset_ = 0;
+
   if (!animation_->IsShowing()) {
     // Animation has finished closing.
-    find_dialog_animation_offset_ = 0;
     ShowWindow(SW_HIDE);
   } else {
     // Animation has finished opening.
@@ -445,7 +368,9 @@ gfx::Rect FindBarWin::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
     // whereas the selection rect is relative to the page.
     RECT frame_rect = {0}, webcontents_rect = {0};
     ::GetWindowRect(GetParent(), &frame_rect);
-    ::GetWindowRect(web_contents_->view()->GetNativeView(), &webcontents_rect);
+    ::GetWindowRect(
+        find_bar_controller()->web_contents()->view()->GetNativeView(),
+        &webcontents_rect);
     avoid_overlapping_rect.Offset(0, webcontents_rect.top - frame_rect.top);
   }
 
@@ -522,7 +447,7 @@ void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {
 void FindBarWin::RestoreSavedFocus() {
   if (focus_tracker_.get() == NULL) {
     // TODO(brettw) Focus() should be on WebContentsView.
-    web_contents_->Focus();
+    find_bar_controller()->web_contents()->Focus();
   } else {
     focus_tracker_->FocusLastFocusedExternalView();
   }

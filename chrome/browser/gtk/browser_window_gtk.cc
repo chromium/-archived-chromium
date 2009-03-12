@@ -8,6 +8,7 @@
 #include "base/base_paths_linux.h"
 #include "base/path_service.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
@@ -169,10 +170,12 @@ void BrowserWindowGtk::Init() {
   toolbar_->Init(browser_->profile(), accel_group);
   toolbar_->AddToolbarToBox(vbox_);
 
-  find_bar_.reset(new FindBarGtk());
+  FindBarGtk* find_bar_gtk = new FindBarGtk();
+  find_bar_controller_.reset(new FindBarController(find_bar_gtk));
+  find_bar_gtk->set_find_bar_controller(find_bar_controller_.get());
 
   contents_container_.reset(new TabContentsContainerGtk(
-      find_bar_->gtk_widget()));
+      find_bar_gtk->gtk_widget()));
 
   contents_container_->AddContainerToBox(vbox_);
 
@@ -204,6 +207,11 @@ void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
 void BrowserWindowGtk::Close() {
   if (!window_)
     return;
+
+  // TODO(tc): Once the tab strip model is hooked up, this call can be removed.
+  // It should get called by TabDetachedAt when the window is being closed, but
+  // we don't have a TabStripModel yet.
+  find_bar_controller_->ChangeWebContents(NULL);
 
   gtk_widget_destroy(GTK_WIDGET(window_));
   window_ = NULL;
@@ -311,7 +319,7 @@ void BrowserWindowGtk::ToggleBookmarkBar() {
 }
 
 void BrowserWindowGtk::ShowFindBar() {
-  find_bar_->Show();
+  find_bar_controller_->Show();
 }
 
 void BrowserWindowGtk::ShowAboutChromeDialog() {
@@ -368,6 +376,11 @@ void BrowserWindowGtk::TabDetachedAt(TabContents* contents, int index) {
     // TODO(port): Uncoment this line when we get infobars.
     // infobar_container_->ChangeTabContents(NULL);
     contents_container_->SetTabContents(NULL);
+
+    // When dragging the last TabContents out of a window there is no selection
+    // notification that causes the find bar for that window to be un-registered
+    // for notifications from this TabContents.
+    find_bar_controller_->ChangeWebContents(NULL);
   }
 }
 
@@ -390,7 +403,8 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
   toolbar_->SetProfile(new_contents->profile());
   UpdateToolbar(new_contents, true);
 
-  find_bar_->ChangeWebContents(new_contents->AsWebContents());
+  if (find_bar_controller_.get())
+    find_bar_controller_->ChangeWebContents(new_contents->AsWebContents());
 }
 
 void BrowserWindowGtk::TabStripEmpty() {

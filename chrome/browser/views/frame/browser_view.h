@@ -24,7 +24,7 @@ class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
-class FindBarWin;
+class FindBarController;
 class FullscreenExitBubble;
 class InfoBarContainer;
 class Menu;
@@ -395,7 +395,7 @@ class BrowserView : public BrowserWindow,
 
   // The Find Bar. This may be NULL if there is no Find Bar, and if it is
   // non-NULL, it may or may not be visible.
-  scoped_ptr<FindBarWin> find_bar_;
+  scoped_ptr<FindBarController> find_bar_controller_;
 
   // The distance the FindBar is from the top of the window, in pixels.
   int find_bar_y_;

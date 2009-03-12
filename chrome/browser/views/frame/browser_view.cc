@@ -12,6 +12,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
+#include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/about_chrome_view.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
@@ -462,7 +463,10 @@ void BrowserView::Init() {
   infobar_container_ = new InfoBarContainer(this);
   AddChildView(infobar_container_);
 
-  find_bar_.reset(new FindBarWin(this));
+  FindBarWin* find_bar_win = new FindBarWin(this);
+
+  find_bar_controller_.reset(new FindBarController(find_bar_win));
+  find_bar_win->set_find_bar_controller(find_bar_controller_.get());
 
   contents_container_ = new TabContentsContainerView;
   set_contents_view(contents_container_);
@@ -754,7 +758,7 @@ void BrowserView::ToggleBookmarkBar() {
 }
 
 void BrowserView::ShowFindBar() {
-  find_bar_->Show();
+  find_bar_controller_->Show();
 }
 
 void BrowserView::ShowAboutChromeDialog() {
@@ -865,17 +869,24 @@ LocationBarView* BrowserView::GetLocationBarView() const {
 
 bool BrowserView::GetFindBarWindowInfo(gfx::Point* position,
                                        bool* fully_visible) const {
+  FindBarWin* find_bar_win = NULL;
+  if (find_bar_controller_.get()) {
+    find_bar_win = static_cast<FindBarWin*>(
+        find_bar_controller_->get_find_bar());
+    DCHECK(find_bar_win);
+  }
+
   CRect window_rect;
-  if (!find_bar_.get() ||
-      !::IsWindow(find_bar_->GetHWND()) ||
-      !::GetWindowRect(find_bar_->GetHWND(), &window_rect)) {
+  if (!find_bar_controller_.get() ||
+      !::IsWindow(find_bar_win->GetHWND()) ||
+      !::GetWindowRect(find_bar_win->GetHWND(), &window_rect)) {
     *position = gfx::Point(0, 0);
     *fully_visible = false;
     return false;
   }
 
   *position = gfx::Point(window_rect.TopLeft().x, window_rect.TopLeft().y);
-  *fully_visible = find_bar_->IsVisible() && !find_bar_->IsAnimating();
+  *fully_visible = find_bar_win->IsVisible() && !find_bar_win->IsAnimating();
   return true;
 }
 
@@ -910,7 +921,7 @@ void BrowserView::TabDetachedAt(TabContents* contents, int index) {
     // When dragging the last TabContents out of a window there is no selection
     // notification that causes the find bar for that window to be un-registered
     // for notifications from this TabContents.
-    find_bar_->ChangeWebContents(NULL);
+    find_bar_controller_->ChangeWebContents(NULL);
   }
 }
 
@@ -948,8 +959,8 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
 
-  if (find_bar_.get())
-    find_bar_->ChangeWebContents(new_contents->AsWebContents());
+  if (find_bar_controller_.get())
+    find_bar_controller_->ChangeWebContents(new_contents->AsWebContents());
 }
 
 void BrowserView::TabStripEmpty() {
@@ -1210,7 +1221,8 @@ void BrowserView::Layout() {
   // back into us to find the bounding box the find bar must be laid out within,
   // and that code depends on the TabContentsContainer's bounds being up to
   // date.
-  find_bar_->MoveWindowIfNecessary(gfx::Rect(), true);
+  static_cast<FindBarWin*>(find_bar_controller_->get_find_bar())->
+      MoveWindowIfNecessary(gfx::Rect(), true);
   LayoutStatusBubble(bottom);
 #ifdef CHROME_PERSONALIZATION
   if (IsPersonalizationEnabled()) {

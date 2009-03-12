@@ -702,6 +702,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\find_bar_controller.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\find_bar_controller.h"
+				>
+			</File>
+			<File
+				RelativePath=".\find_bar.h"
+				>
+			</File>
+			<File
 				RelativePath=".\find_notification_details.h"
 				>
 			</File>

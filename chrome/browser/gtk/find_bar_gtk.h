@@ -5,32 +5,48 @@
 #ifndef CHROME_BROWSER_GTK_FIND_BAR_GTK_H_
 #define CHROME_BROWSER_GTK_FIND_BAR_GTK_H_
 
-#include <string>
+#include "chrome/browser/find_bar.h"
 
 #include <gtk/gtk.h>
 
+#include <string>
+
+class FindBarController;
 class TabContentsContainerGtk;
 class WebContents;
 
 // Currently this class contains both a model and a view.  We may want to
 // eventually pull out the model specific bits and share with Windows.
-class FindBarGtk {
+class FindBarGtk : public FindBar {
  public:
   FindBarGtk();
-  ~FindBarGtk() { }
+  virtual ~FindBarGtk() { }
 
-  // Show the find dialog if it's not already showing.  The Find dialog is
-  // positioned above the web contents area (TabContentsContainerGtk).
-  void Show();
-  void Hide();
+  void set_find_bar_controller(FindBarController* find_bar_controller) {
+    find_bar_controller_ = find_bar_controller;
+  }
 
   // Callback when the text in the find box changes.
   void ContentsChanged();
 
-  // Callback from BrowserWindowGtk when the web contents changes.
-  void ChangeWebContents(WebContents* contents);
+  // Callback when Escape is pressed.
+  void EscapePressed();
 
   GtkWidget* gtk_widget() const { return container_; }
+
+  // Methods from FindBar.
+  virtual void Show();
+  virtual void Hide(bool animate);
+  virtual void SetFocusAndSelection();
+  virtual void ClearResults(const FindNotificationDetails& results);
+  virtual void StopAnimation();
+  virtual void SetFindText(const std::wstring& find_text);
+  virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
+                                     const std::wstring& find_text);
+  virtual gfx::Rect GetDialogPosition(gfx::Rect avoid_overlapping_rect);
+  virtual void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
+  virtual bool IsFindBarVisible();
+  virtual void RestoreSavedFocus();
 
  private:
   // GtkHBox containing the find bar widgets.
@@ -39,9 +55,10 @@ class FindBarGtk {
   // The widget where text is entered.
   GtkWidget* find_text_;
 
-  // A non-owning pointer to the web contents associated with the find bar.
-  // This can be NULL.
-  WebContents* web_contents_;
+  // Pointer back to the owning controller.
+  FindBarController* find_bar_controller_;
+
+  DISALLOW_COPY_AND_ASSIGN(FindBarGtk);
 };
 
 #endif  // CHROME_BROWSER_GTK_FIND_BAR_GTK_H_
