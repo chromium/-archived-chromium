@@ -201,10 +201,6 @@ class HttpResponseHeaders :
   // response code is not found in the raw headers.
   int response_code() const { return response_code_; }
 
-  // Sets the HTTP response code to the new code.  The original HTTP response
-  // code is still available in the raw and parsed headers.
-  void set_response_code(int new_code) { response_code_ = new_code; }
-
   // Returns the raw header string.
   const std::string& raw_headers() const { return raw_headers_; }
 

@@ -215,6 +215,8 @@ int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
     // network attacker can already control HTTP sessions.
     // We reach this case when the user cancels a 407 proxy auth prompt.
     // See http://crbug.com/8473
+    DCHECK(response_.headers->response_code() == 407);
+    LogBlockedTunnelResponse(*response_.headers);
     return ERR_TUNNEL_CONNECTION_FAILED;
   }
 
@@ -953,6 +955,14 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
       static_cast<int> (response_body_read_ / duration.InMilliseconds()));
 }
 
+void HttpNetworkTransaction::LogBlockedTunnelResponse(
+    const HttpResponseHeaders& headers) const {
+  LOG(WARNING) << "Blocked proxy response with status "
+               << headers.response_code() << " to CONNECT request for "
+               << request_->url.host() << ":"
+               << request_->url.EffectiveIntPort() << ".";
+}
+
 int HttpNetworkTransaction::DidReadResponseHeaders() {
   scoped_refptr<HttpResponseHeaders> headers;
   if (has_found_status_line_start()) {
@@ -1011,11 +1021,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
         // 501 response bodies that contain a useful error message.  For
         // example, Squid uses a 404 response to report the DNS error: "The
         // domain name does not exist."
-        LOG(WARNING) <<
-            "Blocked proxy response to CONNECT request with status " <<
-            headers->response_code() << " for " <<
-            request_->url.host() << ":" <<
-            request_->url.EffectiveIntPort() << ".";
+        LogBlockedTunnelResponse(*headers);
         return ERR_TUNNEL_CONNECTION_FAILED;
     }
   }
@@ -1425,6 +1431,7 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
       // We are establishing a tunnel, we can't show the error page because an
       // active network attacker could control its contents.  Instead, we just
       // fail to establish the tunnel.
+      DCHECK(target == HttpAuth::AUTH_PROXY);
       return ERR_PROXY_AUTH_REQUESTED;
     }
     // We found no supported challenge -- let the transaction continue

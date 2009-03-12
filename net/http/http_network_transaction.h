@@ -82,6 +82,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   // well as effective bandwidth used.
   void LogTransactionMetrics() const;
 
+  // Writes a log message to help debugging in the field when we block a proxy
+  // response to a CONNECT request.
+  void LogBlockedTunnelResponse(const HttpResponseHeaders& headers) const;
+
   // Called when header_buf_ contains the complete response headers.
   int DidReadResponseHeaders();
 
