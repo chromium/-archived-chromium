@@ -1167,6 +1167,14 @@ void BookmarkBarView::WriteDragData(BookmarkNode* node,
 }
 
 int BookmarkBarView::GetDragOperations(View* sender, int x, int y) {
+  if (size_animation_->IsAnimating() ||
+      size_animation_->GetCurrentValue() == 0) {
+    // Don't let the user drag while animating open or we're closed. This
+    // typically is only hit if the user does something to inadvertanty trigger
+    // dnd, such as pressing the mouse and hitting control-b.
+    return DragDropTypes::DRAG_NONE;
+  }
+
   for (int i = 0; i < GetBookmarkButtonCount(); ++i) {
     if (sender == GetBookmarkButton(i)) {
       return bookmark_utils::BookmarkDragOperation(
