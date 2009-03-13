@@ -24,6 +24,14 @@ using base::Time;
 using base::TimeDelta;
 using base::TimeTicks;
 
+// Filename constants.
+static const FilePath::CharType kTestDir[] = FILE_PATH_LITERAL("ExpireTest");
+static const FilePath::CharType kHistoryFile[] = FILE_PATH_LITERAL("History");
+static const FilePath::CharType kArchivedHistoryFile[] =
+    FILE_PATH_LITERAL("Archived History");
+static const FilePath::CharType kThumbnailFile[] =
+    FILE_PATH_LITERAL("Thumbnails");
+
 // The test must be in the history namespace for the gtest forward declarations
 // to work. It also eliminates a bunch of ugly "history::".
 namespace history {
@@ -67,7 +75,7 @@ class ExpireHistoryTest : public testing::Test,
         bookmark_model_.GetBookmarkBarNode(), 0, std::wstring(), url);
   }
 
-  static bool IsStringInFile(std::wstring& filename, const char* str);
+  static bool IsStringInFile(const FilePath& filename, const char* str);
 
   BookmarkModel bookmark_model_;
 
@@ -91,34 +99,33 @@ class ExpireHistoryTest : public testing::Test,
   NotificationList notifications_;
 
   // Directory for the history files.
-  std::wstring dir_;
+  FilePath dir_;
 
  private:
   void SetUp() {
-    PathService::Get(base::DIR_TEMP, &dir_);
-    file_util::AppendToPath(&dir_, L"ExpireTest");
+    FilePath temp_dir;
+    PathService::Get(base::DIR_TEMP, &temp_dir);
+    dir_ = temp_dir.Append(kTestDir);
     file_util::Delete(dir_, true);
     file_util::CreateDirectory(dir_);
 
-    std::wstring history_name(dir_);
-    file_util::AppendToPath(&history_name, L"History");
+    FilePath history_name = dir_.Append(kHistoryFile);
     main_db_.reset(new HistoryDatabase);
-    if (main_db_->Init(history_name, std::wstring()) != INIT_OK)
+    if (main_db_->Init(history_name.ToWStringHack(), std::wstring()) !=
+        INIT_OK)
       main_db_.reset();
 
-    std::wstring archived_name(dir_);
-    file_util::AppendToPath(&archived_name, L"Archived History");
+    FilePath archived_name = dir_.Append(kArchivedHistoryFile);
     archived_db_.reset(new ArchivedDatabase);
-    if (!archived_db_->Init(archived_name))
+    if (!archived_db_->Init(archived_name.ToWStringHack()))
       archived_db_.reset();
 
-    std::wstring thumb_name(dir_);
-    file_util::AppendToPath(&thumb_name, L"Thumbnails");
+    FilePath thumb_name = dir_.Append(kThumbnailFile);
     thumb_db_.reset(new ThumbnailDatabase);
-    if (thumb_db_->Init(thumb_name, NULL) != INIT_OK)
+    if (thumb_db_->Init(thumb_name.ToWStringHack(), NULL) != INIT_OK)
       thumb_db_.reset();
 
-    text_db_.reset(new TextDatabaseManager(dir_,
+    text_db_.reset(new TextDatabaseManager(dir_.ToWStringHack(),
                                            main_db_.get(), main_db_.get()));
     if (!text_db_->Init(NULL))
       text_db_.reset();
@@ -333,14 +340,6 @@ void ExpireHistoryTest::EnsureURLInfoGone(const URLRow& row) {
   EXPECT_EQ(row.typed_count() > 0, found_typed_changed_notification);
 }
 
-// static
-bool ExpireHistoryTest::IsStringInFile(std::wstring& filename,
-                                       const char* str) {
-  std::string contents;
-  EXPECT_TRUE(file_util::ReadFileToString(filename, &contents));
-  return contents.find(str) != std::string::npos;
-}
-
 TEST_F(ExpireHistoryTest, DeleteFaviconsIfPossible) {
   // Add a favicon record.
   const GURL favicon_url("http://www.google.com/favicon.ico");
@@ -372,6 +371,14 @@ TEST_F(ExpireHistoryTest, DeleteFaviconsIfPossible) {
   EXPECT_TRUE(HasFavIcon(icon_id));
 }
 
+// static
+bool ExpireHistoryTest::IsStringInFile(const FilePath& filename,
+                                       const char* str) {
+  std::string contents;
+  EXPECT_TRUE(file_util::ReadFileToString(filename, &contents));
+  return contents.find(str) != std::string::npos;
+}
+
 // Deletes a URL with a favicon that it is the last referencer of, so that it
 // should also get deleted.
 TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
@@ -396,15 +403,15 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
                        visits[0].visit_time);
 
   // Compute the text DB filename.
-  std::wstring fts_filename = dir_;
-  file_util::AppendToPath(&fts_filename,
+  FilePath fts_filename = dir_.Append(
       TextDatabase::IDToFileName(text_db_->TimeToID(visit_times[3])));
 
   // When checking the file, the database must be closed. We then re-initialize
   // it just like the test set-up did.
   text_db_.reset();
   EXPECT_TRUE(IsStringInFile(fts_filename, "goats"));
-  text_db_.reset(new TextDatabaseManager(dir_, main_db_.get(), main_db_.get()));
+  text_db_.reset(new TextDatabaseManager(dir_.ToWStringHack(),
+                                         main_db_.get(), main_db_.get()));
   ASSERT_TRUE(text_db_->Init(NULL));
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
                         text_db_.get());
@@ -416,7 +423,8 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
   // doesn't remove it from the file, we want to be sure we're doing the latter.
   text_db_.reset();
   EXPECT_FALSE(IsStringInFile(fts_filename, "goats"));
-  text_db_.reset(new TextDatabaseManager(dir_, main_db_.get(), main_db_.get()));
+  text_db_.reset(new TextDatabaseManager(dir_.ToWStringHack(),
+                                         main_db_.get(), main_db_.get()));
   ASSERT_TRUE(text_db_->Init(NULL));
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
                         text_db_.get());
@@ -593,7 +601,6 @@ TEST_F(ExpireHistoryTest, FlushRecentURLsStarred) {
   EXPECT_TRUE(HasThumbnail(new_url_row1.id()));
   EXPECT_TRUE(HasFavIcon(new_url_row2.favicon_id()));
   EXPECT_TRUE(HasThumbnail(new_url_row2.id()));
-
 }
 
 TEST_F(ExpireHistoryTest, ArchiveHistoryBeforeUnstarred) {

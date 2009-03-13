@@ -241,7 +241,7 @@ class TextDatabaseManager {
   void FlushOldChangesForTime(base::TimeTicks now);
 
   // Directory holding our index files.
-  const std::wstring dir_;
+  const FilePath dir_;
 
   // The database connection.
   sqlite3* db_;

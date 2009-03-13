@@ -124,13 +124,13 @@ class TextDatabaseTest : public PlatformTest {
   }
 
   // Directory containing the databases.
-  std::wstring temp_path_;
+  FilePath temp_path_;
 
   // Name of the main database file.
-  std::wstring file_name_;
+  FilePath file_name_;
   sqlite3* db_;
 
-  std::vector<std::wstring> opened_files_;
+  std::vector<FilePath> opened_files_;
 };
 
 TEST_F(TextDatabaseTest, AttachDetach) {

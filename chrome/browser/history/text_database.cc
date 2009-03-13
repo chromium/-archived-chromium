@@ -48,8 +48,7 @@ const char kTitleColumnIndex[] = "1";
 const char kBodyColumnIndex[] = "2";
 
 // The string prepended to the database identifier to generate the filename.
-const wchar_t kFilePrefix[] = L"History Index ";
-const size_t kFilePrefixLen = arraysize(kFilePrefix) - 1;  // Don't count NULL.
+const FilePath::CharType kFilePrefix[] = FILE_PATH_LITERAL("History Index ");
 
 // We do not allow rollback, but this simple scoper makes it easy to always
 // remember to commit a begun transaction. This protects against some errors
@@ -57,7 +56,7 @@ const size_t kFilePrefixLen = arraysize(kFilePrefix) - 1;  // Don't count NULL.
 // the full protection of a transaction's rollback abilities.
 class ScopedTransactionCommitter {
  public:
-   ScopedTransactionCommitter(TextDatabase* db) : db_(db) {
+  ScopedTransactionCommitter(TextDatabase* db) : db_(db) {
     db_->BeginTransaction();
   }
   ~ScopedTransactionCommitter() {
@@ -70,7 +69,7 @@ class ScopedTransactionCommitter {
 
 }  // namespace
 
-TextDatabase::TextDatabase(const std::wstring& path,
+TextDatabase::TextDatabase(const FilePath& path,
                            DBIdent id,
                            bool allow_create)
     : db_(NULL),
@@ -80,8 +79,7 @@ TextDatabase::TextDatabase(const std::wstring& path,
       allow_create_(allow_create),
       transaction_nesting_(0) {
   // Compute the file name.
-  file_name_ = path_;
-  file_util::AppendToPath(&file_name_, IDToFileName(ident_));
+  file_name_ = path_.Append(IDToFileName(ident_));
 }
 
 TextDatabase::~TextDatabase() {
@@ -97,23 +95,26 @@ TextDatabase::~TextDatabase() {
 }
 
 // static
-const wchar_t* TextDatabase::file_base() {
+const FilePath::CharType* TextDatabase::file_base() {
   return kFilePrefix;
 }
 
 // static
-std::wstring TextDatabase::IDToFileName(DBIdent id) {
+FilePath TextDatabase::IDToFileName(DBIdent id) {
   // Identifiers are intended to be a combination of the year and month, for
   // example, 200801 for January 2008. We convert this to
   // "History Index 2008-01". However, we don't make assumptions about this
   // scheme: the caller should assign IDs as it feels fit with the knowledge
   // that they will apppear on disk in this form.
-  return StringPrintf(L"%ls%d-%02d", file_base(), id / 100, id % 100);
+  FilePath::StringType filename(file_base());
+  StringAppendF(&filename, FILE_PATH_LITERAL("%d-%02d"),
+                id / 100, id % 100);
+  return FilePath(filename);
 }
 
 // static
-TextDatabase::DBIdent TextDatabase::FileNameToID(const std::wstring& file_path){
-  std::wstring file_name = file_util::GetFilenameFromPath(file_path);
+TextDatabase::DBIdent TextDatabase::FileNameToID(const FilePath& file_path) {
+  FilePath::StringType file_name = file_path.BaseName().value();
 
   // We don't actually check the prefix here. Since the file system could
   // be case insensitive in ways we can't predict (NTFS), checking could
@@ -121,14 +122,16 @@ TextDatabase::DBIdent TextDatabase::FileNameToID(const std::wstring& file_path){
   static const size_t kIDStringLength = 7;  // Room for "xxxx-xx".
   if (file_name.length() < kIDStringLength)
     return 0;
-  const std::wstring suffix(&file_name[file_name.length() - kIDStringLength]);
+  const FilePath::StringType suffix(
+      &file_name[file_name.length() - kIDStringLength]);
 
-  if (suffix.length() != kIDStringLength || suffix[4] != L'-') {
+  if (suffix.length() != kIDStringLength ||
+      suffix[4] != FILE_PATH_LITERAL('-')) {
     return 0;
   }
 
-  int year = StringToInt(WideToUTF16Hack(suffix.substr(0, 4)));
-  int month = StringToInt(WideToUTF16Hack(suffix.substr(5, 2)));
+  int year = StringToInt(suffix.substr(0, 4));
+  int month = StringToInt(suffix.substr(5, 2));
 
   return year * 100 + month;
 }
@@ -141,7 +144,7 @@ bool TextDatabase::Init() {
   }
 
   // Attach the database to our index file.
-  if (sqlite3_open(WideToUTF8(file_name_).c_str(), &db_) != SQLITE_OK)
+  if (OpenSqliteDb(file_name_, &db_) != SQLITE_OK)
     return false;
   statement_cache_ = new SqliteStatementCache(db_);
 

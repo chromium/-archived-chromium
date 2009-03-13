@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/meta_table_helper.h"
 #include "chrome/common/sqlite_compiled_statement.h"
@@ -48,7 +49,7 @@ class TextDatabase {
 
   // Note: You must call init which must succeed before using this class.
   //
-  // Computes the mathes for the query, returning results in decreasing order
+  // Computes the matches for the query, returning results in decreasing order
   // of visit time.
   //
   // This function will attach the new database to the given database
@@ -64,7 +65,7 @@ class TextDatabase {
   // |allow_create| indicates if we want to allow creation of the file if it
   // doesn't exist. For files associated with older time periods, we don't want
   // to create them if they don't exist, so this flag would be false.
-  TextDatabase(const std::wstring& path,
+  TextDatabase(const FilePath& path,
                DBIdent id,
                bool allow_create);
   ~TextDatabase();
@@ -83,16 +84,16 @@ class TextDatabase {
 
   // For testing, returns the file name of the database so it can be deleted
   // after the test. This is valid even before Init() is called.
-  const std::wstring& file_name() const { return file_name_; }
+  const FilePath& file_name() const { return file_name_; }
 
   // Returns a NULL-terminated string that is the base of history index files,
   // which is the part before the database identifier. For example
   // "History Index *". This is for finding existing database files.
-  static const wchar_t* file_base();
+  static const FilePath::CharType* file_base();
 
   // Converts a filename on disk (optionally including a path) to a database
   // identifier. If the filename doesn't have the correct format, returns 0.
-  static DBIdent FileNameToID(const std::wstring& file_path);
+  static DBIdent FileNameToID(const FilePath& file_path);
 
   // Changing operations -------------------------------------------------------
 
@@ -137,7 +138,7 @@ class TextDatabase {
 
   // Converts the given database identifier to a filename. This does not include
   // the path, just the file and extension.
-  static std::wstring IDToFileName(DBIdent id);
+  static FilePath IDToFileName(DBIdent id);
 
  private:
   // Ensures that the tables and indices are created. Returns true on success.
@@ -147,12 +148,12 @@ class TextDatabase {
   sqlite3* db_;
   SqliteStatementCache* statement_cache_;
 
-  const std::wstring path_;
+  const FilePath path_;
   const DBIdent ident_;
   const bool allow_create_;
 
   // Full file name of the file on disk, computed in Init().
-  std::wstring file_name_;
+  FilePath file_name_;
 
   // Nesting levels of transactions. Since sqlite only allows one open
   // transaction, we simulate nested transactions by mapping the outermost one

@@ -10,7 +10,9 @@
 
 int OpenSqliteDb(const FilePath& filepath, sqlite3** database) {
 #if defined(OS_WIN)
-  return sqlite3_open16(filepath.value().c_str(), database);
+  // We want the default encoding to always be UTF-8, so we use the
+  // 8-bit version of open().
+  return sqlite3_open(WideToUTF8(filepath.value()).c_str(), database);
 #elif defined(OS_POSIX)
   return sqlite3_open(filepath.value().c_str(), database);
 #endif

@@ -70,7 +70,7 @@ bool TextDatabaseManager::PageInfo::Expired(TimeTicks now) const {
 TextDatabaseManager::TextDatabaseManager(const std::wstring& dir,
                                          URLDatabase* url_database,
                                          VisitDatabase* visit_database)
-    : dir_(dir),
+    : dir_(FilePath::FromWStringHack(dir)),
       db_(NULL),
       url_database_(url_database),
       visit_database_(visit_database),
@@ -147,12 +147,12 @@ void TextDatabaseManager::InitDBList() {
   present_databases_loaded_ = true;
 
   // Find files on disk matching our pattern so we can quickly test for them.
-  file_util::FileEnumerator enumerator(FilePath::FromWStringHack(dir_), false,
-      file_util::FileEnumerator::FILES,
-      FilePath::FromWStringHack(
-          std::wstring(TextDatabase::file_base()) + L"*").value());
-  std::wstring cur_file;
-  while (!(cur_file = enumerator.Next().ToWStringHack()).empty()) {
+  FilePath::StringType filepattern(TextDatabase::file_base());
+  filepattern.append(FILE_PATH_LITERAL("*"));
+  file_util::FileEnumerator enumerator(
+      dir_, false, file_util::FileEnumerator::FILES, filepattern);
+  FilePath cur_file;
+  while (!(cur_file = enumerator.Next()).empty()) {
     // Convert to the number representing this file.
     TextDatabase::DBIdent id = TextDatabase::FileNameToID(cur_file);
     if (id)  // Will be 0 on error.
@@ -374,8 +374,7 @@ void TextDatabaseManager::DeleteAll() {
   // Now go through and delete all the files.
   for (DBIdentSet::iterator i = present_databases_.begin();
        i != present_databases_.end(); ++i) {
-    std::wstring file_name(dir_);
-    file_util::AppendToPath(&file_name, TextDatabase::IDToFileName(*i));
+    FilePath file_name = dir_.Append(TextDatabase::IDToFileName(*i));
     file_util::Delete(file_name, false);
   }
 }

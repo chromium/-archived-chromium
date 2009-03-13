@@ -309,9 +309,10 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
 
 // TODO(estade): wrap the following static functions in a namespace.
 
-// Opens the DB in the file pointed to by |filepath|.
-// See http://www.sqlite.org/capi3ref.html#sqlite3_open for an explanation
-// of the return value.
+// Opens the DB in the file pointed to by |filepath|.  This method forces the
+// database to be in UTF-8 mode on all platforms. See
+// http://www.sqlite.org/capi3ref.html#sqlite3_open for an explanation of the
+// return value.
 int OpenSqliteDb(const FilePath& filepath, sqlite3** database);
 
 // Returns true if there is a table with the given name in the database.
