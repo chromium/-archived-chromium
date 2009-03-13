@@ -120,6 +120,7 @@ class LocationBarView : public LocationBar,
   virtual void AcceptInput();
   virtual void FocusLocation();
   virtual void FocusSearch();
+  virtual void UpdateFeedIcon();
   virtual void SaveStateToContents(TabContents* contents);
 
   static const int kVertMargin;
@@ -224,13 +225,45 @@ class LocationBarView : public LocationBar,
   class ShowInfoBubbleTask;
   class ShowFirstRunBubbleTask;
 
+  class LocationBarImageView : public views::ImageView,
+                               public InfoBubbleDelegate  {
+  public:
+    LocationBarImageView();
+    virtual ~LocationBarImageView();
+
+    // Overridden from view for the mouse hovering.
+    virtual void OnMouseMoved(const views::MouseEvent& event);
+    virtual void OnMouseExited(const views::MouseEvent& event);
+    virtual bool OnMousePressed(const views::MouseEvent& event) = 0;
+
+    // InfoBubbleDelegate
+    void InfoBubbleClosing(InfoBubble* info_bubble, bool closed_by_escape);
+    bool CloseOnEscape() { return true; }
+
+    virtual void ShowInfoBubble() = 0;
+
+  protected:
+    void ShowInfoBubbleImpl(const std::wstring& text, SkColor text_color);
+
+  private:
+    friend class ShowInfoBubbleTask;
+
+    // The currently shown info bubble if any.
+    InfoBubble* info_bubble_;
+
+    // A task used to display the info bubble when the mouse hovers on the
+    // image.
+    ShowInfoBubbleTask* show_info_bubble_task_;
+
+    DISALLOW_COPY_AND_ASSIGN(LocationBarImageView);
+  };
+
   // SecurityImageView is used to display the lock or warning icon when the
   // current URL's scheme is https.
   //
   // If a message has been set with SetInfoBubbleText, it displays an info
   // bubble when the mouse hovers on the image.
-  class SecurityImageView : public views::ImageView,
-                            public InfoBubbleDelegate  {
+  class SecurityImageView : public LocationBarImageView {
    public:
     enum Image {
       LOCK = 0,
@@ -244,21 +277,13 @@ class LocationBarView : public LocationBar,
     void SetImageShown(Image image);
 
     // Overridden from view for the mouse hovering.
-    virtual void OnMouseMoved(const views::MouseEvent& event);
-    virtual void OnMouseExited(const views::MouseEvent& event);
     virtual bool OnMousePressed(const views::MouseEvent& event);
-
-    // InfoBubbleDelegate
-    void InfoBubbleClosing(InfoBubble* info_bubble, bool closed_by_escape);
-    bool CloseOnEscape() { return true; }
 
     void set_profile(Profile* profile) { profile_ = profile; }
 
+    virtual void ShowInfoBubble();
+
    private:
-    friend class ShowInfoBubbleTask;
-
-    void ShowInfoBubble();
-
     // The lock icon shown when using HTTPS.
     static SkBitmap* lock_icon_;
 
@@ -277,6 +302,30 @@ class LocationBarView : public LocationBar,
     ToolbarModel* model_;
 
     DISALLOW_EVIL_CONSTRUCTORS(SecurityImageView);
+  };
+
+  // RssImageView is used to display the RSS icon when the page has a feed that
+  // you can subscribe to.
+  //
+  // If a message has been set with SetInfoBubbleText, it displays an info
+  // bubble when the mouse hovers on the image.
+  class RssImageView : public LocationBarImageView {
+  public:
+    explicit RssImageView(ToolbarModel* model);
+    virtual ~RssImageView();
+
+    // Overridden from view for the mouse hovering.
+    virtual bool OnMousePressed(const views::MouseEvent& event);
+
+    virtual void ShowInfoBubble();
+
+  private:
+    // The RSS icon shown when page has a feed.
+    static SkBitmap* rss_icon_;
+
+    ToolbarModel* model_;
+
+    DISALLOW_COPY_AND_ASSIGN(RssImageView);
   };
 
   // Both Layout and OnChanged call into this. This updates the contents
@@ -315,6 +364,9 @@ class LocationBarView : public LocationBar,
 
   // Sets the security icon to display.  Note that no repaint is done.
   void SetSecurityIcon(ToolbarModel::Icon icon);
+
+  // Sets the RSS icon visibility.
+  void SetRssIconVisibility(FeedList* feeds);
 
   // Sets the text that should be displayed in the info label and its associated
   // tooltip text.  Call with an empty string if the info label should be
@@ -380,6 +432,9 @@ class LocationBarView : public LocationBar,
 
   // The view that shows the lock/warning when in HTTPS mode.
   SecurityImageView security_image_view_;
+
+  // The view that shows the RSS icon when the page has an RSS feed.
+  RssImageView rss_image_view_;
 
   // A label displayed after the lock icon to show some extra information.
   views::Label info_label_;

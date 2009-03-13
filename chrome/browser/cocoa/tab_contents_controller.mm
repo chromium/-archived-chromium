@@ -64,6 +64,7 @@ class LocationBarBridge : public LocationBar {
   virtual void AcceptInput() { NOTIMPLEMENTED(); }
   virtual void FocusLocation();
   virtual void FocusSearch() { NOTIMPLEMENTED(); }
+  virtual void UpdateFeedIcon() { NOTIMPLEMENTED(); }
   virtual void SaveStateToContents(TabContents* contents) { NOTIMPLEMENTED(); }
 
  private:

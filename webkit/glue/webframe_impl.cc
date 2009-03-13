@@ -135,6 +135,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_operations_private.h"
+#include "webkit/glue/feed.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdatasource_impl.h"
@@ -483,6 +484,68 @@ GURL WebFrameImpl::GetOSDDURL() const {
     }
   }
   return GURL();
+}
+
+scoped_refptr<FeedList> WebFrameImpl::GetFeedList() const {
+  scoped_refptr<FeedList> feedlist = new FeedList();
+
+  WebCore::FrameLoader* frame_loader = frame_->loader();
+  if (frame_loader->state() != WebCore::FrameStateComplete ||
+      !frame_->document() ||
+      !frame_->document()->head() ||
+      frame_->tree()->parent())
+    return feedlist;
+
+  // We only consider HTML documents with <head> tags.
+  // (Interestingly, isHTMLDocument() returns false for some pages --
+  // perhaps an XHTML thing?  It doesn't really matter because head() is
+  // a method on Documents anyway.)
+  WebCore::HTMLHeadElement* head = frame_->document()->head();
+  if (!head)
+    return feedlist;
+
+  // Iterate through all children of the <head>, looking for feed links.
+  for (WebCore::Node* node = head->firstChild();
+       node; node = node->nextSibling()) {
+    // Skip over all nodes except <link ...>.
+    if (!node->isHTMLElement())
+      continue;
+    if (!static_cast<WebCore::Element*>(node)->hasLocalName("link"))
+      continue;
+
+    const WebCore::HTMLLinkElement* link =
+        static_cast<WebCore::HTMLLinkElement*>(node);
+
+    // Look at the 'rel' tag and see if we have a feed.
+    std::wstring rel = webkit_glue::StringToStdWString(link->rel());
+    bool is_feed = false;
+    if (LowerCaseEqualsASCII(rel, "feed") ||
+        LowerCaseEqualsASCII(rel, "feed alternate")) {
+      // rel="feed" or rel="alternate feed" always means this is a feed.
+      is_feed = true;
+    } else if (LowerCaseEqualsASCII(rel, "alternate")) {
+      // Otherwise, rel="alternate" may mean a feed if it has a certain mime
+      // type.
+      std::wstring link_type = webkit_glue::StringToStdWString(link->type());
+      TrimWhitespace(link_type, TRIM_ALL, &link_type);
+      if (LowerCaseEqualsASCII(link_type, "application/atom+xml") ||
+          LowerCaseEqualsASCII(link_type, "application/rss+xml")) {
+        is_feed = true;
+      }
+    }
+
+    if (is_feed) {
+      FeedItem feedItem;
+      feedItem.title = webkit_glue::StringToStdWString(link->title());
+      TrimWhitespace(feedItem.title, TRIM_ALL, &feedItem.title);
+      feedItem.type = webkit_glue::StringToStdWString(link->type());
+      TrimWhitespace(feedItem.type, TRIM_ALL, &feedItem.type);
+      feedItem.url = webkit_glue::KURLToGURL(link->href());
+      feedlist->Add(feedItem);
+    }
+  }
+
+  return feedlist;
 }
 
 bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {

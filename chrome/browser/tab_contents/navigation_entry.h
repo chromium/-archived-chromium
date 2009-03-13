@@ -15,6 +15,7 @@
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
+#include "webkit/glue/feed.h"
 
 class NavigationController;
 
@@ -323,6 +324,14 @@ class NavigationEntry {
   // if there is no navigation.
   bool IsViewSourceMode() const;
 
+  // Feed accessor.
+  void set_feedlist(scoped_refptr<FeedList> feedlist) {
+    feedlist_ = feedlist;
+  }
+  scoped_refptr<FeedList> feedlist() {
+    return feedlist_;
+  }
+
   // Tracking stuff ------------------------------------------------------------
 
   // The transition type indicates what the user did to move to this page from
@@ -393,6 +402,7 @@ class NavigationEntry {
   std::string content_state_;
   int32 page_id_;
   SSLStatus ssl_;
+  scoped_refptr<FeedList> feedlist_;
   PageTransition::Type transition_type_;
   GURL user_typed_url_;
   bool has_post_data_;

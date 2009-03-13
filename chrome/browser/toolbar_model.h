@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "skia/include/SkColor.h"
+#include "webkit/glue/feed.h"
 
 class NavigationController;
 class NavigationEntry;
@@ -51,6 +52,9 @@ class ToolbarModel {
   // Returns the icon that should be displayed on the right of the location bar.
   // Default value: NO_ICON.
   virtual Icon GetIcon();
+
+  // Returns an array of available feeds.
+  virtual scoped_refptr<FeedList> GetFeedList();
 
   // Sets the text and color of the text displayed in the info bubble that
   // appears when the user hovers the mouse over the icon.

@@ -15,6 +15,7 @@
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 #include "net/base/net_util.h"
+#include "webkit/glue/feed.h"
 
 
 ToolbarModel::ToolbarModel() : input_in_progress_(false) {
@@ -105,6 +106,21 @@ ToolbarModel::Icon ToolbarModel::GetIcon() {
       NOTREACHED();
       return ToolbarModel::NO_ICON;
   }
+}
+
+scoped_refptr<FeedList> ToolbarModel::GetFeedList() {
+  if (input_in_progress_)
+    return NULL;
+
+  NavigationController* navigation_controller = GetNavigationController();
+  if (!navigation_controller)  // We might not have a controller on init.
+    return NULL;
+
+  NavigationEntry* entry = navigation_controller->GetActiveEntry();
+  if (!entry)
+    return NULL;
+
+  return entry->feedlist();
 }
 
 void ToolbarModel::GetIconHoverText(std::wstring* text, SkColor* text_color) {
