@@ -127,13 +127,42 @@
 
 #define WTF_USE_GOOGLEURL 1
 
-#if !PLATFORM(DARWIN)
+#if PLATFORM(DARWIN)
+
+// Chromium's version of WebCore includes the following Objective-C classes.
+// The system-provided WebCore framework may also provide these classes.
+// Because of the nature of Objective-C binding (dynamically at runtime),
+// it's possible for the Chromium-provided versions to interfere with the
+// system-provided versions.  This may happen when a system framework attempts
+// to use WebCore.framework, such as when converting an HTML-flavored string
+// to an NSAttributedString.  The solution is to force Objective-C class names
+// that would conflict to use alternate names.
+//
+// TODO(mark): This list will hopefully shrink but may also grow.  Periodically
+// run "nm libwebcore.a | grep -E '[atsATS] ([+-]\[|\.objc_class_name)'" and
+// make sure that everything listed there has the alternate ChromiumWebCoreObjC
+// name, and that nothing extraneous is listed here.  If all Objective-C can
+// be eliminated from Chromium's WebCore library, these defines should be
+// removed entirely.
+
+#define ScrollbarPrefsObserver \
+        ChromiumWebCoreObjCScrollbarPrefsObserver
+#define WebCoreControlTintObserver \
+        ChromiumWebCoreObjCWebCoreControlTintObserver
+#define WebCoreRenderThemeNotificationObserver \
+        ChromiumWebCoreObjCWebCoreRenderThemeNotificationObserver
+#define WebFontCache \
+        ChromiumWebCoreObjCWebFontCache
+
+#else // !PLATFORM(DARWIN)
+
 // Don't define SKIA on Mac. Undefine other things as well that might get set
 // as side-effects.
 #define WTF_PLATFORM_SKIA 1
 #undef WTF_PLATFORM_CG
 #undef WTF_PLATFORM_CF
-#endif
+
+#endif // !PLATFORM(DARWIN)
 
 #if !defined(WTF_USE_V8)
 #define WTF_USE_V8 1
