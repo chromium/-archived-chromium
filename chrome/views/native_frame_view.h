@@ -9,9 +9,11 @@
 
 namespace views {
 
+class WindowWin;
+
 class NativeFrameView : public NonClientFrameView {
  public:
-  explicit NativeFrameView(Window* frame);
+  explicit NativeFrameView(WindowWin* frame);
   virtual ~NativeFrameView();
 
   // NonClientFrameView overrides:
@@ -27,7 +29,7 @@ class NativeFrameView : public NonClientFrameView {
 
  private:
   // Our containing frame.
-  Window* frame_;
+  WindowWin* frame_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeFrameView);
 };

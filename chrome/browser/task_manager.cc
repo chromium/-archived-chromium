@@ -23,6 +23,7 @@
 #include "chrome/views/link.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
+#include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -965,7 +966,7 @@ TaskManager::~TaskManager() {
 void TaskManager::Open() {
   TaskManager* task_manager = GetInstance();
   if (task_manager->window()) {
-    task_manager->window()->MoveToFront(true);
+    task_manager->window()->Activate();
   } else {
     views::Window::CreateChromeWindow(NULL, gfx::Rect(), task_manager);
     task_manager->table_model_->StartUpdating();

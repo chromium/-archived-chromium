@@ -225,7 +225,7 @@ void HungRendererWarningView::ShowForWebContents(WebContents* contents) {
   HWND frame_hwnd = GetAncestor(contents->GetNativeView(), GA_ROOT);
   HWND foreground_window = GetForegroundWindow();
   if (foreground_window != frame_hwnd &&
-      foreground_window != window()->GetNativeView()) {
+      foreground_window != window()->GetNativeWindow()) {
     return;
   }
 
@@ -403,8 +403,7 @@ gfx::Rect HungRendererWarningView::GetDisplayBounds(
   CRect contents_bounds;
   GetWindowRect(contents_hwnd, &contents_bounds);
 
-  gfx::Rect window_bounds;
-  window()->GetBounds(&window_bounds, true);
+  gfx::Rect window_bounds = window()->GetBounds();
 
   int window_x = contents_bounds.left +
       (contents_bounds.Width() - window_bounds.width()) / 2;
