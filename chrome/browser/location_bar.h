@@ -44,9 +44,6 @@ class LocationBar {
   // focus to it.
   virtual void FocusSearch() = 0;
 
-  // Update the state of the feed icon.
-  virtual void UpdateFeedIcon() = 0;
-
   // Saves the state of the location bar to the specified TabContents, so that
   // it can be restored later. (Done when switching tabs).
   virtual void SaveStateToContents(TabContents* contents) = 0;

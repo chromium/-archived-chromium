@@ -14,7 +14,6 @@
 #include "base/logging.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "net/base/load_states.h"
-#include "webkit/glue/feed.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -31,7 +30,6 @@ struct ThumbnailScore;
 struct ContextMenuParams;
 struct ViewHostMsg_DidPrintPage_Params;
 struct ViewHostMsg_FrameNavigate_Params;
-struct ViewHostMsg_UpdateFeedList_Params;
 struct WebDropData;
 
 namespace base {
@@ -179,11 +177,6 @@ class RenderViewHostDelegate {
   virtual void UpdateTitle(RenderViewHost* render_view_host,
                            int32 page_id,
                            const std::wstring& title) { }
-
-  // The list of feeds have been updated.
-  virtual void UpdateFeedList(
-      RenderViewHost* render_view_host,
-      const ViewHostMsg_UpdateFeedList_Params& params) { }
 
   // The page's encoding was changed and should be updated.
   virtual void UpdateEncoding(RenderViewHost* render_view_host,

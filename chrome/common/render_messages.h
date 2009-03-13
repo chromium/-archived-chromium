@@ -28,7 +28,6 @@
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/cache_manager.h"
 #include "webkit/glue/context_menu.h"
-#include "webkit/glue/feed.h"
 #include "webkit/glue/form_data.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/password_form_dom_manager.h"
@@ -43,17 +42,6 @@
 #if defined(OS_POSIX)
 #include "skia/include/SkBitmap.h"
 #endif
-
-struct ViewHostMsg_UpdateFeedList_Params {
-  // The page_id for this navigation, or -1 if it is a new navigation.  Back,
-  // Forward, and Reload navigations should have a valid page_id.  If the load
-  // succeeds, then this page_id will be reflected in the resulting
-  // ViewHostMsg_FrameNavigate message.
-  int32 page_id;
-
-  // The list of available feeds.
-  scoped_refptr<FeedList> feedlist;
-};
 
 // Parameters structure for ViewMsg_Navigate, which has too many data
 // parameters to be reasonably put in a predefined IPC message.
@@ -525,67 +513,6 @@ struct ParamTraits<WebInputEvent::Type> {
   }
 };
 
-// Traits for ViewHostMsg_UpdateFeedList_Params structure to pack/unpack.
-template <>
-struct ParamTraits<ViewHostMsg_UpdateFeedList_Params> {
-  typedef ViewHostMsg_UpdateFeedList_Params param_type;
-  static void Write(Message* msg, const param_type& param) {
-    WriteParam(msg, param.page_id);
-    WriteParam(msg, param.feedlist->list().size());
-    for (std::vector<FeedItem>::const_iterator iter =
-             param.feedlist->list().begin();
-         iter != param.feedlist->list().end(); iter++) {
-      WriteParam(msg, iter->title);
-      WriteParam(msg, iter->type);
-      WriteParam(msg, iter->url);
-    }
-  }
-  static bool Read(const Message* msg, void** iter, param_type* param) {
-    param->feedlist = new FeedList();
-    if (!ReadParam(msg, iter, &param->page_id))
-      return false;
-
-    size_t arraysize = 0;
-    if (!ReadParam(msg, iter, &arraysize))
-      return false;
-
-    if (arraysize > FeedList::kMaxFeeds) {
-      NOTREACHED() << L"Too many feeds sent by the renderer";
-      return false;
-    }
-
-    bool ret = true;
-    for (size_t i = 0; i < arraysize; i++) {
-      FeedItem feeditem;
-      ret = ReadParam(msg, iter, &feeditem.title) &&
-            ReadParam(msg, iter, &feeditem.type) &&
-            ReadParam(msg, iter, &feeditem.url);
-      if (!ret)
-        return ret;
-      param->feedlist->Add(feeditem);
-    }
-
-    return ret;
-  }
-  static void Log(const param_type& param, std::wstring* log) {
-    log->append(L"(");
-    LogParam(param.page_id, log);
-    log->append(L", {");
-    for (std::vector<FeedItem>::const_iterator iter =
-             param.feedlist->list().begin();
-         iter != param.feedlist->list().end(); iter++) {
-      log->append(L"[");
-      LogParam(iter->title, log);
-      log->append(L", ");
-      LogParam(iter->type, log);
-      log->append(L", ");
-      LogParam(iter->url, log);
-      log->append(L"]");
-    }
-    log->append(L"})");
-  }
-};
-
 template <>
 struct ParamTraits<AccessibilityInParams> {
   typedef AccessibilityInParams param_type;
@@ -794,6 +721,7 @@ struct ParamTraits<AutofillForm> {
       result = result && ReadParam(m, iter, &elements_size);
       p->elements.resize(elements_size);
       for (size_t i = 0; i < elements_size; i++) {
+        std::wstring s;
         result = result && ReadParam(m, iter, &(p->elements[i].name));
         result = result && ReadParam(m, iter, &(p->elements[i].value));
       }

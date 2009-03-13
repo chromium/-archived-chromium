@@ -57,7 +57,6 @@
       <include name="IDR_RELOAD" file="reload.png" type="BINDATA" />
       <include name="IDR_RELOAD_H" file="reload_h.png" type="BINDATA" />
       <include name="IDR_RELOAD_P" file="reload_p.png" type="BINDATA" />
-      <include name="IDR_RSS_ICON" file="rss.png" type="BINDATA" />
       <include name="IDR_STAR" file="star.png" type="BINDATA" />
       <include name="IDR_STAR_D" file="star_d.png" type="BINDATA" />
       <include name="IDR_STAR_H" file="star_h.png" type="BINDATA" />

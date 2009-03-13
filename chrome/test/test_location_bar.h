@@ -36,7 +36,6 @@ class TestLocationBar : public LocationBar {
   virtual void AcceptInput() {}
   virtual void FocusLocation() {}
   virtual void FocusSearch() {}
-  virtual void UpdateFeedIcon() {}
   virtual void SaveStateToContents(TabContents* contents) {}
 
  private:
