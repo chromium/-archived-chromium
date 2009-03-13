@@ -34,9 +34,10 @@
 #include "WorkerContextExecutionProxy.h"
 
 #include "v8_binding.h"
-#include "v8_events.h"
 #include "v8_index.h"
 #include "v8_proxy.h"
+#include "Event.h"
+#include "V8WorkerContextEventListener.h"
 #include "WorkerContext.h"
 #include "WorkerLocation.h"
 #include "WorkerNavigator.h"
@@ -336,7 +337,7 @@ WorkerContextExecutionProxy::FindOrCreateEventListener(
        iter != m_listeners.end();
        ++iter) {
     V8EventListener* el = *iter;
-    if (el->isInline() == is_inline && el->GetListenerObject() == obj)
+    if (el->isInline() == is_inline && el->getListenerObject() == obj)
       return el;
   }
   if (find_only)

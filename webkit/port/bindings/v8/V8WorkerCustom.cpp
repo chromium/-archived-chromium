@@ -33,14 +33,14 @@
 
 #include "v8_binding.h"
 #include "v8_custom.h"
-#include "v8_events.h"
 #include "v8_proxy.h"
 
+#include "ExceptionCode.h"
+#include "Frame.h"
+#include "MessagePort.h"
 #include "V8Document.h"
 #include "V8HTMLDocument.h"
-
-#include "ExceptionCode.h"
-#include "MessagePort.h"
+#include "V8ObjectEventListener.h"
 #include "Worker.h"
 
 namespace WebCore {
@@ -139,7 +139,7 @@ ACCESSOR_GETTER(WorkerOnmessage) {
   if (imp->onmessage()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onmessage());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -153,7 +153,7 @@ ACCESSOR_SETTER(WorkerOnmessage) {
       static_cast<V8ObjectEventListener*>(imp->onmessage());
   if (value->IsNull()) {
     if (old_listener) {
-      v8::Local<v8::Object> old_v8_listener = old_listener->GetListenerObject();
+      v8::Local<v8::Object> old_v8_listener = old_listener->getListenerObject();
       RemoveHiddenDependency(info.Holder(), old_v8_listener);
     }
 
@@ -170,7 +170,7 @@ ACCESSOR_SETTER(WorkerOnmessage) {
     if (listener) {
       if (old_listener) {
         v8::Local<v8::Object> old_v8_listener =
-            old_listener->GetListenerObject();
+            old_listener->getListenerObject();
         RemoveHiddenDependency(info.Holder(), old_v8_listener);
       }
 
@@ -187,7 +187,7 @@ ACCESSOR_GETTER(WorkerOnerror) {
   if (imp->onerror()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onerror());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -202,7 +202,7 @@ ACCESSOR_SETTER(WorkerOnerror) {
   if (value->IsNull()) {
     if (old_listener) {
       v8::Local<v8::Object> old_v8_listener =
-          old_listener->GetListenerObject();
+          old_listener->getListenerObject();
       RemoveHiddenDependency(info.Holder(), old_v8_listener);
     }
 
@@ -217,7 +217,7 @@ ACCESSOR_SETTER(WorkerOnerror) {
       proxy->FindOrCreateObjectEventListener(value, false);
     if (listener) {
       if (old_listener) {
-        v8::Local<v8::Object> old_v8_listener = old_listener->GetListenerObject();
+        v8::Local<v8::Object> old_v8_listener = old_listener->getListenerObject();
         RemoveHiddenDependency(info.Holder(), old_v8_listener);
       }
 
