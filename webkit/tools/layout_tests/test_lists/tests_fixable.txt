@@ -955,8 +955,8 @@ DEFER : LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 // MERGE 38729:38760: Regressions
 LINUX : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
-// Windows is missing the green box.
-WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
+// Windows is missing the green box. http://crbug.com/8729
+DEFER WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
 // -----------------------------------------------------------------
 // MAC PORT TESTS
