@@ -36,8 +36,6 @@ input_files = ChromeFileList([
     'resources/debugger.js',
     'resources/debugger_shell.js',
   ]),
-    'debugger_contents.cc',
-    'debugger_contents.h',
     'debugger_host.h',
     'debugger_host_impl.cpp',
     'debugger_host_impl.h',
@@ -64,7 +62,6 @@ input_files = ChromeFileList([
 if env.Bit('linux'):
   # TODO(port): Port these.
   input_files.Remove(
-      'debugger_contents.cc',
       'debugger_view.cc',
       'debugger_window.cc',
       'dev_tools_view.cc',

@@ -4,7 +4,7 @@
 
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
 
-#include "chrome/browser/debugger/debugger_contents.h"
+#include "chrome/browser/dom_ui/debugger_ui.h"
 #include "chrome/browser/dom_ui/dev_tools_ui.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
@@ -287,8 +287,8 @@ DOMUI* DOMUIContents::GetDOMUIForURL(const GURL &url) {
   if (url.host() == ExtensionsUI::GetBaseURL().host()) {
     return new ExtensionsUI(this);
   }
-  if (url.host() == DebuggerContents::GetBaseURL().host()) {
-    return new DebuggerContents(this);
+  if (url.host() == DebuggerUI::GetBaseURL().host()) {
+    return new DebuggerUI(this);
   }
   if (url.host() == DevToolsUI::GetBaseURL().host()) {
     return new DevToolsUI(this);

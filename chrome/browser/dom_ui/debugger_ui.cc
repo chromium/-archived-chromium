@@ -1,26 +1,23 @@
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
-// This file defines utility functions for working with strings.
+
+#include "chrome/browser/dom_ui/debugger_ui.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/mime_util.h"
 
 #include "grit/debugger_resources.h"
-
-// DebuggerUI is accessible from chrome-ui://inspector.
-static const char kDebuggerHost[] = "inspector";
 
 class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
  public:
@@ -117,15 +114,15 @@ class DebuggerHandler : public DOMMessageHandler {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(DebuggerHandler);
+  DISALLOW_COPY_AND_ASSIGN(DebuggerHandler);
 };
 
 
-DebuggerContents::DebuggerContents(DOMUIContents* contents)
+DebuggerUI::DebuggerUI(DOMUIContents* contents)
     : DOMUI(contents) {
 }
 
-void DebuggerContents::Init() {
+void DebuggerUI::Init() {
   AddMessageHandler(new DebuggerHandler(this));
 
   DebuggerHTMLSource* html_source = new DebuggerHTMLSource();
@@ -136,15 +133,16 @@ void DebuggerContents::Init() {
 }
 
 // static
-bool DebuggerContents::IsDebuggerUrl(const GURL& url) {
-  return (url.SchemeIs(DOMUIContents::GetScheme().c_str()) &&
-          url.host() == kDebuggerHost);
+bool DebuggerUI::IsDebuggerUrl(const GURL& url) {
+  return url.SchemeIs(chrome::kChromeUIScheme) &&
+         url.host() == chrome::kInspectorHost;
 }
 
 // static
-GURL DebuggerContents::GetBaseURL() {
-  std::string url = DOMUIContents::GetScheme();
-  url += "://";
-  url += kDebuggerHost;
+GURL DebuggerUI::GetBaseURL() {
+  // DebuggerUI is accessible from chrome-ui://inspector.
+  std::string url = chrome::kChromeUIScheme;
+  url += chrome::kStandardSchemeSeparator;
+  url += chrome::kInspectorHost;
   return GURL(url);
 }

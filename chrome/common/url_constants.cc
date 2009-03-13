@@ -31,7 +31,8 @@ const char kChromeUIIPCURL[] = "chrome-ui://about/ipc";
 const char kChromeUINetworkURL[] = "chrome-ui://about/network";
 const char kChromeUINewTabURL[] = "chrome-ui://newtab";
 
-const char kNewTabHost[] = "newtab";
 const char kDevToolsHost[] = "devtools";
+const char kInspectorHost[] = "inspector";
+const char kNewTabHost[] = "newtab";
 
 }  // namespace chrome

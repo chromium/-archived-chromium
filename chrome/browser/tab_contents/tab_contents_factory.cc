@@ -5,11 +5,11 @@
 #include "base/string_util.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/browser_url_handler.h"
+#include "chrome/browser/dom_ui/debugger_ui.h"
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/debugger/debugger_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "net/base/net_util.h"
@@ -101,7 +101,7 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
   if (HtmlDialogContents::IsHtmlDialogUrl(*url))
     return TAB_CONTENTS_HTML_DIALOG;
 
-  if (DebuggerContents::IsDebuggerUrl(*url))
+  if (DebuggerUI::IsDebuggerUrl(*url))
     return TAB_CONTENTS_DEBUGGER;
 
   if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))

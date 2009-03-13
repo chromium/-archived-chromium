@@ -142,14 +142,6 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\debugger_contents.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\debugger_contents.h"
-			>
-		</File>
-		<File
 			RelativePath=".\debugger_host.h"
 			>
 		</File>

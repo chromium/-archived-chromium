@@ -710,15 +710,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\find_bar.h"
+				>
+			</File>
+			<File
 				RelativePath=".\find_bar_controller.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\find_bar_controller.h"
-				>
-			</File>
-			<File
-				RelativePath=".\find_bar.h"
 				>
 			</File>
 			<File
@@ -1487,6 +1487,14 @@
 			</File>
 			<File
 				RelativePath=".\dom_ui\chrome_url_data_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\debugger_ui.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\debugger_ui.h"
 				>
 			</File>
 			<File
