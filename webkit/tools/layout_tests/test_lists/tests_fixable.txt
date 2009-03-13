@@ -600,7 +600,7 @@ DEFER WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
 
 // No glyph for U+FFFD (Replacement Character : black diamond with
 // question mark) in them
-LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 
 // HTTPS tests fail on the open source buildbot with error "cross-site
 // not access allowed".  See bug # 2306
