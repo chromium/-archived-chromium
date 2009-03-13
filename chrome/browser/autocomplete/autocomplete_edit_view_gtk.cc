@@ -65,9 +65,8 @@ AutocompleteEditViewGtk::~AutocompleteEditViewGtk() {
     gtk_widget_destroy(text_view_);
     g_object_unref(text_buffer_);
     g_object_unref(tag_table_);
-    g_object_unref(insecure_scheme_tag_);
-    g_object_unref(secure_scheme_tag_);
-    g_object_unref(base_tag_);
+    // The tags we created are owned by the tag_table, and should be destroyed
+    // along with it.  We don't hold our own reference to them.
   }
 }
 
