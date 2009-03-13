@@ -331,27 +331,41 @@ gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
   // handle enter.  We can get at the im_context and do it ourselves if needed.
   if (event->keyval == GDK_Return ||
       event->keyval == GDK_ISO_Enter ||
-      event->keyval == GDK_KP_Enter) {
-    bool alt_held = (event->state & GDK_MOD1_MASK);
-    model_->AcceptInput(alt_held ? NEW_FOREGROUND_TAB : CURRENT_TAB, false);
+      event->keyval == GDK_KP_Enter ||
+     (event->keyval == GDK_Escape && event->state == 0)) {
+    // Handle IME. This is basically taken from GtkTextView and reworked a bit.
+    GtkTextIter iter;
+    GtkTextView* text_view = GTK_TEXT_VIEW(text_view_);
+    GtkTextMark* insert = gtk_text_buffer_get_insert(text_buffer_);
+    gtk_text_buffer_get_iter_at_mark(text_buffer_, &iter, insert);
+    gboolean can_insert = gtk_text_iter_can_insert(&iter, text_view->editable);
+    if (gtk_im_context_filter_keypress(text_view->im_context, event)) {
+      // The IME handled it, do the follow up IME handling.
+      if (!can_insert) {
+        gtk_im_context_reset(text_view->im_context);
+      } else {
+        text_view->need_im_reset = TRUE;
+      }
+    } else {
+      // Ok, not handled by the IME, we can handle it.
+      if (event->keyval == GDK_Escape) {
+        model_->OnEscapeKeyPressed();
+      } else {
+        bool alt_held = (event->state & GDK_MOD1_MASK);
+        model_->AcceptInput(alt_held ? NEW_FOREGROUND_TAB : CURRENT_TAB, false);
+      }
+    }
     return TRUE;  // Don't propagate into GtkTextView.
   }
-  if (event->keyval == GDK_Escape && event->state == 0) {
-    model_->OnEscapeKeyPressed();
-    return TRUE;  // Don't propagate into GtkTextView.
-  }
+
   return FALSE;  // Propagate into GtkTextView.
 }
 
 gboolean AutocompleteEditViewGtk::HandleKeyRelease(GtkWidget* widget,
                                                    GdkEventKey* event) {
-  // We ate the press, might as well eat the release.
-  if (event->keyval == GDK_Return ||
-      event->keyval == GDK_ISO_Enter ||
-      event->keyval == GDK_KP_Enter ||
-      (event->keyval == GDK_Escape && event->state == 0)) {
-    return TRUE;  // Don't propagate into GtkTextView.
-  }
+  // Even though we handled the press ourselves, let GtkTextView handle the
+  // release.  It shouldn't do anything particularly interesting, but it will
+  // handle the IME work for us.
   return FALSE;  // Propagate into GtkTextView.
 }
 
