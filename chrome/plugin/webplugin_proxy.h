@@ -41,9 +41,6 @@ class WebPluginProxy : public WebPlugin {
   void InvalidateRect(const gfx::Rect& rect);
   NPObject* GetWindowScriptNPObject();
   NPObject* GetPluginElement();
-  WebFrame* GetWebFrame() {
-    return NULL;  // doesn't make sense in the plugin process.
-  }
   void SetCookie(const GURL& url,
                  const GURL& policy_url,
                  const std::string& cookie);

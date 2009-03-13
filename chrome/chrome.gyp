@@ -1335,8 +1335,6 @@
         'renderer/net/render_dns_queue.h',
         'renderer/about_handler.cc',
         'renderer/about_handler.h',
-        'renderer/chrome_plugin_host.cc',
-        'renderer/chrome_plugin_host.h',
         'renderer/debug_message_handler.cc',
         'renderer/debug_message_handler.h',
         'renderer/dev_tools_agent.cc',
@@ -1400,7 +1398,6 @@
         },],
         ['OS!="win"', {
           'sources!': [
-            'renderer/chrome_plugin_host.cc',
             'renderer/plugin_channel_host.cc',
             'renderer/webplugin_delegate_proxy.cc',
             'renderer/webworker_proxy.cc',

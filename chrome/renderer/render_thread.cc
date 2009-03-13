@@ -10,7 +10,6 @@
 #include "base/command_line.h"
 #include "base/shared_memory.h"
 #include "base/stats_table.h"
-#include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/notification_service.h"
@@ -158,24 +157,9 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
                           OnGetRendererHistograms)
     IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                         OnGetCacheResourceStats)
-    IPC_MESSAGE_HANDLER(ViewMsg_PluginMessage, OnPluginMessage)
     IPC_MESSAGE_HANDLER(ViewMsg_UserScripts_NewScripts,
                         OnUpdateUserScripts)
   IPC_END_MESSAGE_MAP()
-}
-
-void RenderThread::OnPluginMessage(const FilePath& plugin_path,
-                                   const std::vector<uint8>& data) {
-  if (!ChromePluginLib::IsInitialized()) {
-    return;
-  }
-  CHECK(ChromePluginLib::IsPluginThread());
-  ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path);
-  if (chrome_plugin) {
-    void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
-    uint32 data_len = static_cast<uint32>(data.size());
-    chrome_plugin->functions().on_message(data_ptr, data_len);
-  }
 }
 
 void RenderThread::OnSetNextPageID(int32 next_page_id) {

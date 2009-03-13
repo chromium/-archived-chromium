@@ -161,37 +161,6 @@ bool AddDllEvictionPolicy(sandbox::TargetPolicy* policy) {
   return true;
 }
 
-bool AddPolicyForGearsInRenderer(sandbox::TargetPolicy* policy) {
-  sandbox::ResultCode result;
-
-  // TODO(mpcomplete): need to restrict access to database files only.  This
-  // is just temporary for debugging purposes.
-  std::wstring plugin_data;
-  if (!PathService::Get(chrome::DIR_USER_DATA, &plugin_data))
-    return false;
-  if (!win_util::ConvertToLongPath(plugin_data, &plugin_data))
-    return false;
-
-  file_util::AppendToPath(&plugin_data, L"*");
-  result = policy->AddRule(sandbox::TargetPolicy::SUBSYS_FILES,
-                           sandbox::TargetPolicy::FILES_ALLOW_ANY,
-                           plugin_data.c_str());
-  if (result != sandbox::SBOX_ALL_OK)
-    return false;
-
-  std::wstring temppath;
-  if (!file_util::GetTempDir(&temppath))
-    return false;
-  file_util::AppendToPath(&temppath, L"*");
-  result = policy->AddRule(sandbox::TargetPolicy::SUBSYS_FILES,
-                           sandbox::TargetPolicy::FILES_ALLOW_ANY,
-                           temppath.c_str());
-  if (result != sandbox::SBOX_ALL_OK)
-    return false;
-
-  return true;
-}
-
 bool AddGenericPolicy(sandbox::TargetPolicy* policy) {
   sandbox::ResultCode result;
 

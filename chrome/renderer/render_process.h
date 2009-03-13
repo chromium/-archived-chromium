@@ -45,9 +45,6 @@ class RenderProcess : public ChildProcess {
   // Returns true if plugins should be loaded in-process.
   bool in_process_plugins() const { return in_process_plugins_; }
 
-  // Returns true if Gears should be loaded in-process.
-  bool in_process_gears() const { return in_process_gears_; }
-
   // Returns a pointer to the RenderProcess singleton instance.
   static RenderProcess* current() {
     return static_cast<RenderProcess*>(ChildProcess::current());
@@ -95,7 +92,6 @@ class RenderProcess : public ChildProcess {
   uint32 sequence_number_;
 
   bool in_process_plugins_;
-  bool in_process_gears_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderProcess);
 };

@@ -53,12 +53,6 @@ IPC_BEGIN_MESSAGES(View)
                        size_t /* max_dead_capacity */,
                        size_t /* capacity */)
 
-  // Allows a chrome plugin loaded in the browser process to send arbitrary
-  // data to an instance of the same plugin loaded in a renderer process.
-  IPC_MESSAGE_CONTROL2(ViewMsg_PluginMessage,
-                       FilePath /* plugin_path of plugin */,
-                       std::vector<uint8> /* opaque data */)
-
   // Reply in response to ViewHostMsg_ShowView or ViewHostMsg_ShowWidget.
   // similar to the new command, but used when the renderer created a view
   // first, and we need to update it

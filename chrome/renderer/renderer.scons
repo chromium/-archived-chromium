@@ -63,8 +63,6 @@ input_files = ChromeFileList([
   ]),
     'about_handler.cc',
     'about_handler.h',
-    'chrome_plugin_host.cc',
-    'chrome_plugin_host.h',
     'debug_message_handler.cc',
     'debug_message_handler.h',
     'dev_tools_agent.cc',
@@ -127,7 +125,6 @@ if env.Bit('linux'):
 
   # TODO(port): Port these to Linux
   input_files.Remove(
-      'chrome_plugin_host.cc',
       'plugin_channel_host.cc',
       'webplugin_delegate_proxy.cc',
   )
@@ -135,7 +132,6 @@ if env.Bit('linux'):
 # TODO(port): Port these to Mac
 if env.Bit('mac'):
   input_files.Remove(
-      'chrome_plugin_host.cc',
       'debug_message_handler.cc',
       'external_js_object.cc',
       'net/render_dns_master.cc',

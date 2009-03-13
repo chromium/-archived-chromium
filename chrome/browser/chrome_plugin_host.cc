@@ -682,44 +682,29 @@ CPProcessType STDCALL CPB_GetProcessType(CPID id) {
 }
 
 CPError STDCALL CPB_SendMessage(CPID id, const void *data, uint32 data_len) {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kGearsInRenderer)) {
-    ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
-    CHECK(plugin);
+  CHECK(ChromePluginLib::IsPluginThread());
+  ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
+  CHECK(plugin);
 
-    const unsigned char* data_ptr = static_cast<const unsigned char*>(data);
-    std::vector<uint8> v(data_ptr, data_ptr + data_len);
-    for (RenderProcessHost::iterator it = RenderProcessHost::begin();
-      it != RenderProcessHost::end(); ++it) {
-        it->second->Send(new ViewMsg_PluginMessage(plugin->filename(), v));
-    }
-
-    return CPERR_SUCCESS;
-  } else {
-    CHECK(ChromePluginLib::IsPluginThread());
-    ChromePluginLib* plugin = ChromePluginLib::FromCPID(id);
-    CHECK(plugin);
-
-    PluginService* service = PluginService::GetInstance();
-    if (!service)
+  PluginService* service = PluginService::GetInstance();
+  if (!service)
     return CPERR_FAILURE;
-    PluginProcessHost *host =
-    service->FindOrStartPluginProcess(plugin->filename(), std::string());
-    if (!host)
+  PluginProcessHost *host =
+  service->FindOrStartPluginProcess(plugin->filename(), std::string());
+  if (!host)
     return CPERR_FAILURE;
 
-    const unsigned char* data_ptr = static_cast<const unsigned char*>(data);
-    std::vector<uint8> v(data_ptr, data_ptr + data_len);
+  const unsigned char* data_ptr = static_cast<const unsigned char*>(data);
+  std::vector<uint8> v(data_ptr, data_ptr + data_len);
 #if defined(OS_WIN)
-    if (!host->Send(new PluginProcessMsg_PluginMessage(v)))
-      return CPERR_FAILURE;
+  if (!host->Send(new PluginProcessMsg_PluginMessage(v)))
+    return CPERR_FAILURE;
 #else
-    // TODO(port): Implement PluginProcessMsg.
-    NOTIMPLEMENTED();
+  // TODO(port): Implement PluginProcessMsg.
+  NOTIMPLEMENTED();
 #endif
 
-    return CPERR_SUCCESS;
-  }
+  return CPERR_SUCCESS;
 }
 
 CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,

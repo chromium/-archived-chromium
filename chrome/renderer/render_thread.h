@@ -107,9 +107,6 @@ class RenderThread : public RenderThreadBase,
 
   void OnUpdateVisitedLinks(base::SharedMemoryHandle table);
   void OnUpdateUserScripts(base::SharedMemoryHandle table);
-
-  void OnPluginMessage(const FilePath& plugin_path,
-                       const std::vector<uint8>& data);
   void OnSetNextPageID(int32 next_page_id);
   void OnCreateNewView(gfx::NativeViewId parent_hwnd,
                        ModalDialogEvent modal_dialog_event,

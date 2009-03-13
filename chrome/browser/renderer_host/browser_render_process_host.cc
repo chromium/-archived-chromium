@@ -261,7 +261,6 @@ bool BrowserRenderProcessHost::Init() {
     switches::kSilentDumpOnDCHECK,
     switches::kDisablePopupBlocking,
     switches::kUseLowFragHeapCrt,
-    switches::kGearsInRenderer,
     switches::kEnableVideo,
   };
 
@@ -360,13 +359,6 @@ bool BrowserRenderProcessHost::Init() {
       if (!AddGenericPolicy(policy)) {
         NOTREACHED();
         return false;
-      }
-
-      if (browser_command_line.HasSwitch(switches::kGearsInRenderer)) {
-        if (!AddPolicyForGearsInRenderer(policy)) {
-          NOTREACHED();
-          return false;
-        }
       }
 
       if (!AddDllEvictionPolicy(policy)) {

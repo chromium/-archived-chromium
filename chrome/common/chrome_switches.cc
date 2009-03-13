@@ -337,9 +337,6 @@ const wchar_t kUseLowFragHeapCrt[]             = L"use-lf-heap";
 const wchar_t kGearsPluginPathOverride[]       = L"gears-plugin-path";
 #endif
 
-// Switch to load Gears in the renderer process.
-const wchar_t kGearsInRenderer[]               = L"gears-in-renderer";
-
 // Enable the fastback page cache.
 const wchar_t kEnableFastback[]                = L"enable-fastback";
 

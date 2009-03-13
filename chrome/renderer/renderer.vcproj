@@ -202,14 +202,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\chrome_plugin_host.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\chrome_plugin_host.h"
-			>
-		</File>
-		<File
 			RelativePath=".\debug_message_handler.cc"
 			>
 		</File>

@@ -17,9 +17,6 @@ bool AddGenericPolicy(sandbox::TargetPolicy* policy);
 // Adds policy rules for unloaded the known dlls that cause chrome to crash.
 bool AddDllEvictionPolicy(sandbox::TargetPolicy* policy);
 
-// Adds policy rules for running Gears in the renderer process.
-bool AddPolicyForGearsInRenderer(sandbox::TargetPolicy* policy);
-
 // Adds the custom policy rules for a given plugin. If dll is activex-shim,
 // then clsid is the clsid of ActiveX control. Otherwise clsid is ignored.
 // |trusted_plugins| contains the comma separate list of plugins that should

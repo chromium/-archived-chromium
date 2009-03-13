@@ -66,7 +66,6 @@
 #if defined(OS_WIN)
 // TODO(port): these files are currently Windows only because they concern:
 //   * logging
-//   * plugins
 //   * printing
 //   * theming
 //   * views
@@ -75,8 +74,6 @@
 #include "chrome/common/gfx/emf.h"
 #include "chrome/renderer/renderer_logging.h"
 #include "chrome/views/message_box_view.h"
-#include "chrome/common/chrome_plugin_lib.h"
-#include "chrome/renderer/chrome_plugin_host.h"
 #include "skia/ext/vector_canvas.h"
 #endif
 
@@ -1869,24 +1866,6 @@ WebWidget* RenderView::CreatePopupWidget(WebView* webview,
   return widget->webwidget();
 }
 
-#if defined(OS_WIN)
-// TODO(port): This is only used on Windows since the plugin code is #ifdefed
-// out for other platforms currently
-
-static bool ShouldLoadPluginInProcess(const std::string& mime_type,
-                                      bool* is_gears) {
-  if (RenderProcess::current()->in_process_plugins())
-    return true;
-
-  if (mime_type == "application/x-googlegears") {
-    *is_gears = true;
-    return RenderProcess::current()->in_process_gears();
-  }
-
-  return false;
-}
-#endif
-
 WebPluginDelegate* RenderView::CreatePluginDelegate(
     WebView* webview,
     const GURL& url,
@@ -1894,8 +1873,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     const std::string& clsid,
     std::string* actual_mime_type) {
 #if defined(OS_WIN)
-  bool is_gears = false;
-  if (ShouldLoadPluginInProcess(mime_type, &is_gears)) {
+  if (RenderProcess::current()->in_process_plugins()) {
     FilePath path;
     render_thread_->Send(
         new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
@@ -1909,8 +1887,6 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     else
       mime_type_to_use = mime_type;
 
-    if (is_gears)
-      ChromePluginLib::Create(path, GetCPBrowserFuncsForRenderer());
     return WebPluginDelegate::Create(path,
                                      mime_type_to_use,
                                      gfx::NativeViewFromId(host_window_));
