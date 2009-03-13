@@ -1809,7 +1809,11 @@ LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
 
 // This hits a stack-overflow exception earlier in debug mode than in
-// release mode.
+// release mode on Windows.
+//
+// Hits the stack overflow earlier than before the new compiler in both
+// release and debug mode on Linux and Mac.
 //
 //   http://code.google.com/p/v8/issues/detail?id=277
-DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
+LINUX MAC : LayoutTests/fast/js/large-expressions.html = FAIL
+WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
