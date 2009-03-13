@@ -18,10 +18,10 @@ namespace {
 
 // How long to wait for the extension to put up a javascript alert before giving
 // up.
-const int kAlertTimeoutMs = 10000;
+const int kAlertTimeoutMs = 20000;
 
 // How long to wait for the extension to load before giving up.
-const int kLoadTimeoutMs = 5000;
+const int kLoadTimeoutMs = 10000;
 
 // The extension we're using as our test case.
 const char* kExtensionId = "00123456789abcdef0123456789abcdef0123456";
@@ -105,7 +105,7 @@ class ExtensionViewTest : public InProcessBrowserTest {
     ExtensionErrorReporter::Init(false);
 
     // Use single-process in an attempt to speed it up and make it less flaky.
-    EnableSingleProcess();
+    //EnableSingleProcess();
 
     InProcessBrowserTest::SetUp();
   }
