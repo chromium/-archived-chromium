@@ -2052,7 +2052,6 @@
         '../third_party/WebKit/WebCore/platform/chromium/WidgetChromium.cpp',
         '../third_party/WebKit/WebCore/platform/chromium/WindowsVersion.cpp',
         '../third_party/WebKit/WebCore/platform/chromium/WindowsVersion.h',
-        '../third_party/WebKit/WebCore/platform/chromium/gtkdrawing.h',
         '../third_party/WebKit/WebCore/platform/graphics/cairo/CairoPath.h',
         '../third_party/WebKit/WebCore/platform/graphics/cairo/FontCairo.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/cairo/GradientCairo.cpp',
@@ -3856,6 +3855,9 @@
         '../third_party/WebKit/WebCore/plugins/PluginView.cpp',
         '../third_party/WebKit/WebCore/plugins/npapi.cpp',
 
+        # Use LinkHashChromium.cpp instead
+        '../third_party/WebKit/WebCore/platform/LinkHash.cpp',
+
         # Don't build these.
         # TODO(mark): I don't know exactly why these are excluded.  It would
         # be nice to provide more explicit comments.  Some of these do actually
@@ -4324,7 +4326,6 @@
         'glue/simple_webmimeregistry_impl.h',
         'glue/stacking_order_iterator.cc',
         'glue/stacking_order_iterator.h',
-        'glue/tools_proxy.h',
         'glue/webclipboard_impl.cc',
         'glue/webclipboard_impl.h',
         'glue/webcursor.cc',

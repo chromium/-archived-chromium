@@ -91,7 +91,6 @@
         'base/net_errors.h',
         'base/net_module.cc',
         'base/net_module.h',
-        'base/net_resources.h',
         'base/net_util.cc',
         'base/net_util.h',
         'base/net_util_posix.cc',
@@ -540,7 +539,7 @@
           'rule_name': 'grit',
           'extension': 'grd',
           'inputs': [
-            '<(DEPTH)/tools/grit/grit.py',
+            '../tools/grit/grit.py',
           ],
           'outputs': [
             '<(SHARED_INTERMEDIATE_DIR)/net/grit/<(RULE_INPUT_ROOT).h',

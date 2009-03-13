@@ -175,7 +175,7 @@
               'outputs': [
                 '<(PRODUCT_DIR)/test_shell.pak',
               ],
-              'action': ['python', '../tools/data_pack/repack.py', '<@(_outputs)', '<@(_inputs)'],
+              'action': ['python', '../../../tools/data_pack/repack.py', '<@(_outputs)', '<@(_inputs)'],
             },
           ],
           'scons_depends': [

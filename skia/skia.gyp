@@ -691,6 +691,10 @@
             '-Wno-unused',
             '-Wno-unused-function',
           ],
+          'sources!': [
+            'ports/SkFontHost_none.cpp',
+            'sgl/SkTypeface_fake.cpp',
+          ],
         }],
         [ 'OS == "mac"', {
           'defines': [
