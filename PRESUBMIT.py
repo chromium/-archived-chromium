@@ -69,7 +69,7 @@ def LocalChecks(input_api, output_api, max_cols=80):
   eof_files = []
   results = []
   excluded_paths = [input_api.re.compile(x) for x in EXCLUDED_PATHS]
-  files = input_api.AffectedFiles()
+  files = input_api.AffectedFiles(include_deletes=False)
   for f in files:
     path = f.LocalPath()
     root, ext = input_api.os_path.splitext(path)

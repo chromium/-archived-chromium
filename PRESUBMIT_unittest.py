@@ -19,16 +19,23 @@ class MockInputApi(object):
     self.re = re
     self.os_path = os.path
 
-  def AffectedFiles(self):
-    return self.affected_files
+  def AffectedFiles(self, include_deletes=True):
+    if include_deletes:
+      return self.affected_files
+    else:
+      return filter(lambda x: x.Action() != 'D', self.affected_files)
 
   def AffectedTextFiles(self, include_deletes=True):
     return self.affected_files
 
 
 class MockAffectedFile(object):
-  def __init__(self, path):
+  def __init__(self, path, action='A'):
     self.path = path
+    self.action = action
+
+  def Action(self):
+    return self.action
 
   def LocalPath(self):
     return self.path
@@ -81,6 +88,14 @@ class PresubmitUnittest(unittest.TestCase):
 
     self.file_contents = 'file with\nzero \\t errors \\r\\n\n'
     self.failIf(PRESUBMIT.LocalChecks(api, MockOutputApi))
+
+  def testLocalChecksDeletedFile(self):
+    api = MockInputApi()
+    api.affected_files = [
+      MockAffectedFile('foo/blat/source.py', 'D'),
+    ]
+    self.file_contents = 'file with \n\terror\nhere\r\nyes there'
+    self.failUnless(len(PRESUBMIT.LocalChecks(api, MockOutputApi)) == 0)
 
 
 if __name__ == '__main__':
