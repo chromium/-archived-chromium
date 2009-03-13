@@ -49,7 +49,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource_impl.h"
-#include "webkit/glue/webdocumentloader_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
 #include "webkit/glue/webhistoryitem_impl.h"
@@ -978,15 +977,15 @@ void WebFrameLoaderClient::dispatchUnableToImplementPolicy(const ResourceError&)
 void WebFrameLoaderClient::dispatchWillSubmitForm(FramePolicyFunction function,
     PassRefPtr<FormState> form_ref) {
   SearchableFormData* form_data = SearchableFormData::Create(form_ref->form());
-  WebDocumentLoaderImpl* loader = static_cast<WebDocumentLoaderImpl*>(
+  WebDataSourceImpl* ds = WebDataSourceImpl::FromLoader(
       webframe_->frame()->loader()->provisionalDocumentLoader());
-  // Don't free the SearchableFormData, the loader will do that.
-  loader->set_searchable_form_data(form_data);
+  // Don't free the SearchableFormData, the datasource will do that.
+  ds->set_searchable_form_data(form_data);
 
   PasswordForm* pass_data =
       PasswordFormDomManager::CreatePasswordForm(form_ref->form());
-  // Don't free the PasswordFormData, the loader will do that.
-  loader->set_password_form_data(pass_data);
+  // Don't free the PasswordFormData, the datasource will do that.
+  ds->set_password_form_data(pass_data);
 
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();
@@ -1001,7 +1000,7 @@ void WebFrameLoaderClient::dispatchWillSubmitForm(FramePolicyFunction function,
     }
   }
 
-  loader->set_form_submit(true);
+  ds->set_form_submit(true);
 
   (webframe_->frame()->loader()->*function)(PolicyUse);
 }
@@ -1248,17 +1247,9 @@ void WebFrameLoaderClient::prepareForDataSourceReplacement() {
 PassRefPtr<DocumentLoader> WebFrameLoaderClient::createDocumentLoader(
     const ResourceRequest& request,
     const SubstituteData& data) {
-  RefPtr<WebDocumentLoaderImpl> loader = WebDocumentLoaderImpl::create(request,
-                                                                       data);
-
-  // Attach a datasource to the loader as a way of accessing requests.
-  WebDataSourceImpl* datasource =
-      WebDataSourceImpl::CreateInstance(webframe_, loader.get());
-  loader->SetDataSource(datasource);
-
-  webframe_->CacheCurrentRequestInfo(datasource);
-
-  return loader.release();
+  RefPtr<WebDataSourceImpl> ds = WebDataSourceImpl::Create(request, data);
+  webframe_->CacheCurrentRequestInfo(ds.get());
+  return ds.release();
 }
 
 void WebFrameLoaderClient::setTitle(const String& title, const KURL& url) {

@@ -1,76 +1,47 @@
-/*
- * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "config.h"
+#include "webkit/glue/webdatasource_impl.h"
 
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "KURL.h"
 #include "FrameLoadRequest.h"
 #include "ResourceRequest.h"
-MSVC_POP_WARNING();
-#undef LOG
 
+#undef LOG
 #include "base/string_util.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/webdatasource_impl.h"
-#include "webkit/glue/webdocumentloader_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/weburlrequest_impl.h"
 
-// WebDataSource ----------------------------------------------------------------
+// static
+PassRefPtr<WebDataSourceImpl> WebDataSourceImpl::Create(
+    const WebCore::ResourceRequest& request,
+    const WebCore::SubstituteData& data) {
+  return adoptRef(new WebDataSourceImpl(request, data));
+}
 
-WebDataSourceImpl::WebDataSourceImpl(WebFrameImpl* frame,
-                                     WebDocumentLoaderImpl* loader) :
-  frame_(frame),
-  loader_(loader),
-  initial_request_(loader->originalRequest()),
-  request_(loader->request()) {
+WebDataSourceImpl::WebDataSourceImpl(const WebCore::ResourceRequest& request,
+                                     const WebCore::SubstituteData& data)
+    : WebCore::DocumentLoader(request, data),
+      form_submit_(false) {
 }
 
 WebDataSourceImpl::~WebDataSourceImpl() {
 }
 
-// static
-WebDataSourceImpl* WebDataSourceImpl::CreateInstance(
-    WebFrameImpl* frame, WebDocumentLoaderImpl* loader) {
-  return new WebDataSourceImpl(frame, loader);
-}
-
-// WebDataSource
 WebFrame* WebDataSourceImpl::GetWebFrame() {
-  return frame_;
+  return WebFrameImpl::FromFrame(frame());
 }
 
 const WebRequest& WebDataSourceImpl::GetInitialRequest() const {
   // WebKit may change the frame load request as it sees fit, so we must sync
   // our request object.
   initial_request_.set_frame_load_request(
-      WebCore::FrameLoadRequest(loader_->originalRequest()));
+      WebCore::FrameLoadRequest(originalRequest()));
   return initial_request_;
 }
 
@@ -78,12 +49,12 @@ const WebRequest& WebDataSourceImpl::GetRequest() const {
   // WebKit may change the frame load request as it sees fit, so we must sync
   // our request object.
   request_.set_frame_load_request(
-      WebCore::FrameLoadRequest(loader_->request()));
+      WebCore::FrameLoadRequest(request()));
   return request_;
 }
 
 const WebResponse& WebDataSourceImpl::GetResponse() const {
-  response_.set_resource_response(loader_->response());
+  response_.set_resource_response(response());
   return response_;
 }
 
@@ -93,13 +64,12 @@ void WebDataSourceImpl::SetExtraData(WebRequest::ExtraData* extra) {
 }
 
 GURL WebDataSourceImpl::GetUnreachableURL() const {
-  const WebCore::KURL& url = loader_->unreachableURL();
+  const WebCore::KURL& url = unreachableURL();
   return url.isEmpty() ? GURL() : webkit_glue::KURLToGURL(url);
 }
 
 bool WebDataSourceImpl::HasUnreachableURL() const {
-  const WebCore::KURL& url = loader_->unreachableURL();
-  return !url.isEmpty();
+  return !unreachableURL().isEmpty();
 }
 
 const std::vector<GURL>& WebDataSourceImpl::GetRedirectChain() const {
@@ -115,17 +85,17 @@ void WebDataSourceImpl::AppendRedirect(const GURL& url) {
 }
 
 const SearchableFormData* WebDataSourceImpl::GetSearchableFormData() const {
-  return loader_->searchable_form_data();
+  return searchable_form_data();
 }
 
 const PasswordForm* WebDataSourceImpl::GetPasswordFormData() const {
-  return loader_->password_form_data();
+  return password_form_data();
 }
 
 bool WebDataSourceImpl::IsFormSubmit() const {
-  return loader_->is_form_submit();
+  return is_form_submit();
 }
 
 string16 WebDataSourceImpl::GetPageTitle() const {
-  return webkit_glue::StringToString16(loader_->title());
+  return webkit_glue::StringToString16(title());
 }

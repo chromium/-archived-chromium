@@ -137,7 +137,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/dom_operations_private.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webdocumentloader_impl.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframe_impl.h"
@@ -544,8 +543,7 @@ void WebFrameImpl::LoadDocumentData(const KURL& base_url,
 }
 
 static WebDataSource* DataSourceForDocLoader(DocumentLoader* loader) {
-  return (loader ?
-          static_cast<WebDocumentLoaderImpl*>(loader)->GetDataSource() : NULL);
+  return loader ? WebDataSourceImpl::FromLoader(loader) : NULL;
 }
 
 WebDataSource* WebFrameImpl::GetDataSource() const {

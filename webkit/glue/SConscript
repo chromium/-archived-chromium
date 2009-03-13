@@ -99,7 +99,6 @@ input_files = [
   'webdevtoolsclient_delegate.h',
   'webdevtoolsclient_impl.cc',
   'webdevtoolsclient_impl.h',
-  'webdocumentloader_impl.cc',
   'weberror_impl.cc',
   'webframe_impl.cc',
   'webframeloaderclient_impl.cc',

@@ -18,6 +18,8 @@ struct PasswordForm;
 
 class WebDataSource {
  public:
+  virtual ~WebDataSource() {}
+
   // Returns the frame that represents this data source.
   virtual WebFrame* GetWebFrame() = 0;
 
@@ -79,8 +81,6 @@ class WebDataSource {
 
   // Returns the page title.
   virtual string16 GetPageTitle() const = 0;
-
-  virtual ~WebDataSource() {}
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBDATASOURCE_H_

@@ -613,14 +613,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webdocumentloader_impl.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\webdocumentloader_impl.h"
-				>
-			</File>
-			<File
 				RelativePath=".\webdropdata.cc"
 				>
 			</File>

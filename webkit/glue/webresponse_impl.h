@@ -5,6 +5,7 @@
 #ifndef WEBKIT_GLUE_WEBRESPONSEIMPL_H_
 #define WEBKIT_GLUE_WEBRESPONSEIMPL_H_
 
+#include "googleurl/src/gurl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webresponse.h"
 

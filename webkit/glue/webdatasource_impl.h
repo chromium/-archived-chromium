@@ -1,51 +1,31 @@
-/*
- * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #ifndef WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_
 #define WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_
 
+#include "DocumentLoader.h"
+
+#include "base/scoped_ptr.h"
+#include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webresponse_impl.h"
 #include "webkit/glue/weburlrequest_impl.h"
 
-struct PasswordForm;
-class SearchableFormData;
 class WebFrameImpl;
 class WebDocumentLoaderImpl;
 
-class WebDataSourceImpl : public WebDataSource {
+class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
  public:
-  static WebDataSourceImpl* CreateInstance(WebFrameImpl* frame,
-                                           WebDocumentLoaderImpl* loader);
+  static PassRefPtr<WebDataSourceImpl> Create(const WebCore::ResourceRequest&,
+                                              const WebCore::SubstituteData&);
+  
+  static WebDataSourceImpl* FromLoader(WebCore::DocumentLoader* loader) {
+    return static_cast<WebDataSourceImpl*>(loader);
+  }
 
- protected:
-  WebDataSourceImpl(WebFrameImpl* frame, WebDocumentLoaderImpl* loader);
-  ~WebDataSourceImpl();
-
- public:
-  // WebDataSource
+  // WebDataSource methods:
   virtual WebFrame* GetWebFrame();
   virtual const WebRequest& GetInitialRequest() const;
   virtual const WebRequest& GetRequest() const;
@@ -53,8 +33,10 @@ class WebDataSourceImpl : public WebDataSource {
   virtual GURL GetUnreachableURL() const;
   virtual bool HasUnreachableURL() const;
   virtual const std::vector<GURL>& GetRedirectChain() const;
-
-  // WebDataSourceImpl
+  virtual const SearchableFormData* GetSearchableFormData() const;
+  virtual const PasswordForm* GetPasswordFormData() const;
+  virtual bool IsFormSubmit() const;
+  virtual string16 GetPageTitle() const;
 
   // Called after creating a new data source if there is request info
   // available. Since we store copies of the WebRequests, the original
@@ -66,16 +48,39 @@ class WebDataSourceImpl : public WebDataSource {
   void ClearRedirectChain();
   void AppendRedirect(const GURL& url);
 
-  virtual const SearchableFormData* GetSearchableFormData() const;
-  virtual const PasswordForm* GetPasswordFormData() const;
+  // Sets the SearchableFormData for this DocumentLoader.
+  // WebDocumentLoaderImpl will own the SearchableFormData.
+  void set_searchable_form_data(SearchableFormData* searchable_form_data) {
+    searchable_form_data_.reset(searchable_form_data);
+  }
+  // Returns the SearchableFormData for this DocumentLoader.
+  // WebDocumentLoaderImpl owns the returned SearchableFormData.
+  const SearchableFormData* searchable_form_data() const {
+    return searchable_form_data_.get();
+  }
 
-  virtual bool IsFormSubmit() const;
+  // Sets the PasswordFormData for this DocumentLoader.
+  // WebDocumentLoaderImpl will own the PasswordFormData.
+  void set_password_form_data(PasswordForm* password_form_data) {
+    password_form_data_.reset(password_form_data);
+  }
+  // Returns the PasswordFormData for this DocumentLoader.
+  // WebDocumentLoaderImpl owns the returned PasswordFormData.
+  const PasswordForm* password_form_data() const {
+    return password_form_data_.get();
+  }
 
-  virtual string16 GetPageTitle() const;
+  void set_form_submit(bool value) {
+    form_submit_ = value;
+  }
+  bool is_form_submit() const {
+    return form_submit_;
+  }
 
-private:
-  WebFrameImpl* frame_;
-  WebDocumentLoaderImpl* loader_;
+ private:
+  WebDataSourceImpl(const WebCore::ResourceRequest&,
+                    const WebCore::SubstituteData&);
+  ~WebDataSourceImpl();
 
   // Mutable because the const getters will magically sync these to the
   // latest version from WebKit.
@@ -89,7 +94,12 @@ private:
   // who modifies this when to keep it up to date.
   std::vector<GURL> redirect_chain_;
 
+  scoped_ptr<const SearchableFormData> searchable_form_data_;
+  scoped_ptr<const PasswordForm> password_form_data_;
+
+  bool form_submit_;
+
   DISALLOW_COPY_AND_ASSIGN(WebDataSourceImpl);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_
+#endif  // WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_

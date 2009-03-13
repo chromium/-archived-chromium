@@ -4344,8 +4344,6 @@
         'glue/webdevtoolsclient_delegate.h',
         'glue/webdevtoolsclient_impl.cc',
         'glue/webdevtoolsclient_impl.h',
-        'glue/webdocumentloader_impl.cc',
-        'glue/webdocumentloader_impl.h',
         'glue/webdropdata.cc',
         'glue/webdropdata.h',
         'glue/weberror.h',

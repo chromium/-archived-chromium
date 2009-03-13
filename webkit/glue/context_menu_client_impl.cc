@@ -25,7 +25,7 @@ MSVC_POP_WARNING();
 #include "base/string_util.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webdocumentloader_impl.h"
+#include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webresponse.h"
 #include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webview_impl.h"
@@ -124,8 +124,7 @@ static ContextNode GetTypeAndURLFromFrame(WebCore::Frame* frame,
   if (frame) {
     WebCore::DocumentLoader* dl = frame->loader()->documentLoader();
     if (dl) {
-      WebDataSource* ds = static_cast<WebDocumentLoaderImpl*>(dl)->
-          GetDataSource();
+      WebDataSource* ds = WebDataSourceImpl::FromLoader(dl);
       if (ds) {
         node = page_node;
         *url = ds->HasUnreachableURL() ? ds->GetUnreachableURL()
@@ -214,13 +213,10 @@ WebCore::PlatformMenuDescription
 
   // Now retrieve the security info.
   WebCore::DocumentLoader* dl = selected_frame->loader()->documentLoader();
-  if (dl) {
-    WebDataSource* ds = static_cast<WebDocumentLoaderImpl*>(dl)->
-        GetDataSource();
-    if (ds) {
-      const WebResponse& response = ds->GetResponse();
-      security_info = response.GetSecurityInfo();
-    }
+  WebDataSource* ds = WebDataSourceImpl::FromLoader(dl);
+  if (ds) {
+    const WebResponse& response = ds->GetResponse();
+    security_info = response.GetSecurityInfo();
   }
 
   int edit_flags = ContextNode::CAN_DO_NONE;
