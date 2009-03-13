@@ -606,3 +606,20 @@ bool TabProxy::OverrideEncoding(const std::wstring& encoding) {
                                                    &succeeded));
   return succeeded;
 }
+
+#if defined(OS_WIN)
+void TabProxy::Reposition(HWND window, HWND window_insert_after, int left,
+                          int top, int width, int height, int flags) {
+
+  IPC::Reposition_Params params;
+  params.window = window;
+  params.window_insert_after = window_insert_after;
+  params.left = left;
+  params.top = top;
+  params.width = width;
+  params.height = height;
+  params.flags = flags;
+  sender_->Send(new AutomationMsg_TabReposition(0, handle_, params));
+}
+#endif  // defined(OS_WIN)
+

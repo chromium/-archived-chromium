@@ -285,6 +285,12 @@ class TabProxy : public AutomationResourceProxy {
   // Uses the specified encoding to override encoding of the page in the tab.
   bool OverrideEncoding(const std::wstring& encoding);
 
+#if defined(OS_WIN)
+  // Resizes the tab window.
+  void Reposition(HWND window, HWND window_insert_after, int left, int top,
+                  int width, int height, int flags);
+#endif  // defined(OS_WIN)
+
  private:
   DISALLOW_COPY_AND_ASSIGN(TabProxy);
 };

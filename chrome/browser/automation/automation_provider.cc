@@ -867,6 +867,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                                     WaitForTabToBeRestored)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetInitialFocus,
                         SetInitialFocus)
+    IPC_MESSAGE_HANDLER(AutomationMsg_TabReposition, OnTabReposition)
 #endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetSecurityState,
                         GetSecurityState)
@@ -2712,3 +2713,27 @@ void AutomationProvider::OverrideEncoding(int tab_handle,
 void AutomationProvider::SavePackageShouldPromptUser(bool should_prompt) {
   SavePackage::SetShouldPromptUser(should_prompt);
 }
+
+#ifdef OS_WIN
+void AutomationProvider::OnTabReposition(
+    int tab_handle, const IPC::Reposition_Params& params) {
+  if (!tab_tracker_->ContainsHandle(tab_handle))
+    return;
+
+  if (!IsWindow(params.window))
+    return;
+
+  unsigned long process_id = 0;
+  unsigned long thread_id = 0;
+
+  thread_id = GetWindowThreadProcessId(params.window, &process_id);
+
+  if (thread_id != GetCurrentThreadId()) {
+    NOTREACHED();
+    return;
+  }
+
+  SetWindowPos(params.window, params.window_insert_after, params.left,
+               params.top, params.width, params.height, params.flags);
+}
+#endif  // defined(OS_WIN)

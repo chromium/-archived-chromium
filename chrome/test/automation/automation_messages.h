@@ -120,6 +120,59 @@ struct ParamTraits<NavigationEntry::PageType> {
   }
 };
 
+#if defined(OS_WIN)
+struct Reposition_Params {
+  HWND window;
+  HWND window_insert_after;
+  int left;
+  int top;
+  int width;
+  int height;
+  int flags;
+};
+
+// Traits for SetWindowPos_Params structure to pack/unpack.
+template <>
+struct ParamTraits<Reposition_Params> {
+  typedef Reposition_Params param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.window);
+    WriteParam(m, p.window_insert_after);
+    WriteParam(m, p.left);
+    WriteParam(m, p.top);
+    WriteParam(m, p.width);
+    WriteParam(m, p.height);
+    WriteParam(m, p.flags);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->window) &&
+           ReadParam(m, iter, &p->window_insert_after) &&
+           ReadParam(m, iter, &p->left) &&
+           ReadParam(m, iter, &p->top) &&
+           ReadParam(m, iter, &p->width) &&
+           ReadParam(m, iter, &p->height) &&
+           ReadParam(m, iter, &p->flags);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.window, l);
+    l->append(L", ");
+    LogParam(p.window_insert_after, l);
+    l->append(L", ");
+    LogParam(p.left, l);
+    l->append(L", ");
+    LogParam(p.top, l);
+    l->append(L", ");
+    LogParam(p.width, l);
+    l->append(L", ");
+    LogParam(p.height, l);
+    l->append(L", ");
+    LogParam(p.flags, l);
+    l->append(L")");
+  }
+};
+#endif  // defined(OS_WIN)
+
 }  // namespace IPC
 
 #define MESSAGES_INTERNAL_FILE \

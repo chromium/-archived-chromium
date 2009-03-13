@@ -24,6 +24,7 @@
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/notification_observer.h"
+#include "chrome/test/automation/automation_messages.h"
 #include "chrome/views/event.h"
 #include "webkit/glue/find_in_page_request.h"
 
@@ -295,6 +296,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Chrome.
   void SetAcceleratorsForTab(int handle, HACCEL accel_table,
                              int accel_entry_count, bool* status);
+
+  void OnTabReposition(int tab_handle,
+                       const IPC::Reposition_Params& params);
 #endif  // defined(OS_WIN)
 
   // Gets the security state for the tab associated to the specified |handle|.

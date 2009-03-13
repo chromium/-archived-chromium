@@ -860,4 +860,12 @@ IPC_BEGIN_MESSAGES(Automation)
   //   None expected
   IPC_MESSAGE_ROUTED2(AutomationMsg_NavigationFailed, int, GURL)
 
+#if defined(OS_WIN)
+  // This message is an outgoing message from an automation client to Chrome.
+  // It is used to reposition a chrome tab window.
+  IPC_MESSAGE_ROUTED2(AutomationMsg_TabReposition,
+                      int /* tab handle */,
+                      IPC::Reposition_Params /* SetWindowPos params */)
+#endif  // defined(OS_WIN)
+
 IPC_END_MESSAGES(Automation)
