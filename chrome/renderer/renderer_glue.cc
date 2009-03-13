@@ -249,6 +249,9 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     return NULL;
   }
 
+  if (!webframe->GetView()->GetDelegate())
+    return NULL;
+
   RenderView* rv = static_cast<RenderView*>(webframe->GetView()->GetDelegate());
   int route_id = rv->routing_id();
   ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
